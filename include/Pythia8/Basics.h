@@ -1,5 +1,5 @@
 // Basics.h is a part of the PYTHIA event generator.
-// Copyright (C) 2015 Torbjorn Sjostrand.
+// Copyright (C) 2016 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -226,6 +226,9 @@ public:
   // Print a four-vector.
   friend ostream& operator<<(ostream&, const Vec4& v) ;
 
+  // Shift four-momenta within pair from old to new masses.
+  friend bool pShift( Vec4& p1Move, Vec4& p2Move, double m1New, double m2New);
+
 private:
 
   // Constants: could only be changed in the code itself.
@@ -286,6 +289,9 @@ double REtaPhi(const Vec4& v1, const Vec4& v2);
 
 // Print a four-vector.
 ostream& operator<<(ostream&, const Vec4& v) ;
+
+// Shift four-momenta within pair from old to new masses.
+bool pShift( Vec4& p1Move, Vec4& p2Move, double m1New, double m2New);
 
 //==========================================================================
 

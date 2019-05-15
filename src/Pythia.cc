@@ -1,5 +1,5 @@
 // Pythia.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2015 Torbjorn Sjostrand.
+// Copyright (C) 2016 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -23,7 +23,7 @@ namespace Pythia8 {
 
 // The current Pythia (sub)version number, to agree with XML version.
 const double Pythia::VERSIONNUMBERHEAD = PYTHIA_VERSION;
-const double Pythia::VERSIONNUMBERCODE = 8.212;
+const double Pythia::VERSIONNUMBERCODE = 8.215;
 
 //--------------------------------------------------------------------------
 
@@ -41,6 +41,139 @@ const int Pythia::SUBRUNDEFAULT = -999;
 // Constructor.
 
 Pythia::Pythia(string xmlDir, bool printBanner) {
+
+  // Initialise / reset pointers and global variables.
+  initPtrs();
+
+  // Find path to data files, i.e. xmldoc directory location.
+  // Environment variable takes precedence, then constructor input,
+  // and finally the pre-processor constant XMLDIR.
+  xmlPath = "";
+  const char* PYTHIA8DATA = "PYTHIA8DATA";
+  char* envPath = getenv(PYTHIA8DATA);
+  if (envPath != 0 && *envPath != '\0') {
+    int i = 0;
+    while (*(envPath+i) != '\0') xmlPath += *(envPath+(i++));
+  } else {
+    if (xmlDir[ xmlDir.length() - 1 ] != '/') xmlDir += "/";
+    xmlPath = xmlDir;
+    ifstream xmlFile((xmlPath + "Index.xml").c_str());
+    if (!xmlFile.good()) xmlPath = XMLDIR;
+    xmlFile.close();
+  }
+  if (xmlPath[ xmlPath.length() - 1 ] != '/') xmlPath += "/";
+
+  // Read in files with all flags, modes, parms and words.
+  settings.initPtr( &info);
+  string initFile = xmlPath + "Index.xml";
+  isConstructed = settings.init( initFile);
+  if (!isConstructed) {
+    info.errorMsg("Abort from Pythia::Pythia: settings unavailable");
+    return;
+  }
+
+  // Save XML path in settings.
+  settings.addWord( "xmlPath", xmlPath);
+
+  // Check that XML and header version numbers match code version number.
+  if (!checkVersion()) return;
+
+  // Read in files with all particle data.
+  particleData.initPtr( &info, &settings, &rndm, couplingsPtr);
+  string dataFile = xmlPath + "ParticleData.xml";
+  isConstructed = particleData.init( dataFile);
+  if (!isConstructed) {
+    info.errorMsg("Abort from Pythia::Pythia: particle data unavailable");
+    return;
+  }
+
+  // Write the Pythia banner to output.
+  if (printBanner) banner();
+
+  // Not initialized until at the end of the init() call.
+  isInit = false;
+  info.addCounter(0);
+
+}
+
+//--------------------------------------------------------------------------
+
+// Constructor from pre-initialised ParticleData and Settings objects.
+
+Pythia::Pythia(Settings& settingsIn,ParticleData& particleDataIn,
+  bool printBanner) {
+
+  // Initialise / reset pointers and global variables.
+  initPtrs();
+
+  // Copy XML path from existing Settings database.
+  xmlPath = settingsIn.word("xmlPath");
+
+  // Copy settings database and redirect pointers.
+  settings = settingsIn;
+  settings.initPtr( &info);
+  isConstructed = settings.getIsInit();
+  if (!isConstructed) {
+    info.errorMsg("Abort from Pythia::Pythia: settings unavailable");
+    return;
+  }
+
+  // Check XML and header version numbers match code version number.
+  if (!checkVersion()) return;
+
+  // Copy particleData database and redirect pointers.
+  particleData = particleDataIn;
+  particleData.initPtr( &info, &settings, &rndm, couplingsPtr);
+  isConstructed = particleData.getIsInit();
+  if (!isConstructed) {
+    info.errorMsg("Abort from Pythia::Pythia: particle data unavailable");
+    return;
+  }
+
+  // Write the Pythia banner to output.
+  if (printBanner) banner();
+
+  // Not initialized until at the end of the init() call.
+  isInit = false;
+  info.addCounter(0);
+
+}
+
+//--------------------------------------------------------------------------
+
+// Destructor.
+
+Pythia::~Pythia() {
+
+  // Delete the PDF's created with new.
+  if (useNewPdfHard && pdfHardAPtr != pdfAPtr) delete pdfHardAPtr;
+  if (useNewPdfHard && pdfHardBPtr != pdfBPtr) delete pdfHardBPtr;
+  if (useNewPdfA) delete pdfAPtr;
+  if (useNewPdfB) delete pdfBPtr;
+  if (useNewPdfPomA) delete pdfPomAPtr;
+  if (useNewPdfPomB) delete pdfPomBPtr;
+
+  // Delete the Les Houches object created with new.
+  if (useNewLHA) delete lhaUpPtr;
+
+  // Delete the MergingHooks object created with new.
+  if (hasOwnMergingHooks) delete mergingHooksPtr;
+
+  // Delete the BeamShape object created with new.
+  if (useNewBeamShape) delete beamShapePtr;
+
+  // Delete the timelike and spacelike showers created with new.
+  if (useNewTimesDec) delete timesDecPtr;
+  if (useNewTimes && !useNewTimesDec) delete timesPtr;
+  if (useNewSpace) delete spacePtr;
+
+}
+
+//--------------------------------------------------------------------------
+
+// Initialise new Pythia object (common code called by constructors).
+
+void Pythia::initPtrs() {
 
   // Initial values for pointers to PDF's.
   useNewPdfA      = false;
@@ -87,32 +220,13 @@ Pythia::Pythia(string xmlDir, bool printBanner) {
   timesPtr        = 0;
   spacePtr        = 0;
 
-  // Find path to data files, i.e. xmldoc directory location.
-  // Environment variable takes precedence, then constructor input,
-  // and finally the pre-processor constant XMLDIR.
-  xmlPath = "";
-  const char* PYTHIA8DATA = "PYTHIA8DATA";
-  char* envPath = getenv(PYTHIA8DATA);
-  if (envPath != 0 && *envPath != '\0') {
-    int i = 0;
-    while (*(envPath+i) != '\0') xmlPath += *(envPath+(i++));
-  } else {
-    if (xmlDir[ xmlDir.length() - 1 ] != '/') xmlDir += "/";
-    xmlPath = xmlDir;
-    ifstream xmlFile((xmlPath + "Index.xml").c_str());
-    if (!xmlFile.good()) xmlPath = XMLDIR;
-    xmlFile.close();
-  }
-  if (xmlPath[ xmlPath.length() - 1 ] != '/') xmlPath += "/";
+}
 
-  // Read in files with all flags, modes, parms and words.
-  settings.initPtr( &info);
-  string initFile = xmlPath + "Index.xml";
-  isConstructed = settings.init( initFile);
-  if (!isConstructed) {
-    info.errorMsg("Abort from Pythia::Pythia: settings unavailable");
-    return;
-  }
+//--------------------------------------------------------------------------
+
+// Check for consistency of version numbers (called by constructors).
+
+bool Pythia::checkVersion() {
 
   // Check that XML version number matches code version number.
   double versionNumberXML = parm("Pythia:versionNumber");
@@ -123,7 +237,7 @@ Pythia::Pythia(string xmlDir, bool printBanner) {
             << " but in XML " << versionNumberXML;
     info.errorMsg("Abort from Pythia::Pythia: unmatched version numbers",
       errCode.str());
-    return;
+    return false;
   }
 
   // Check that header version number matches code version number.
@@ -134,54 +248,11 @@ Pythia::Pythia(string xmlDir, bool printBanner) {
             << " but in header " << VERSIONNUMBERHEAD;
     info.errorMsg("Abort from Pythia::Pythia: unmatched version numbers",
       errCode.str());
-    return;
+    return false;
   }
 
-  // Read in files with all particle data.
-  particleData.initPtr( &info, &settings, &rndm, couplingsPtr);
-  string dataFile = xmlPath + "ParticleData.xml";
-  isConstructed = particleData.init( dataFile);
-  if (!isConstructed) {
-    info.errorMsg("Abort from Pythia::Pythia: particle data unavailable");
-    return;
-  }
-
-  // Write the Pythia banner to output.
-  if (printBanner) banner();
-
-  // Not initialized until at the end of the init() call.
-  isInit = false;
-  info.addCounter(0);
-
-}
-
-//--------------------------------------------------------------------------
-
-// Destructor.
-
-Pythia::~Pythia() {
-
-  // Delete the PDF's created with new.
-  if (useNewPdfHard && pdfHardAPtr != pdfAPtr) delete pdfHardAPtr;
-  if (useNewPdfHard && pdfHardBPtr != pdfBPtr) delete pdfHardBPtr;
-  if (useNewPdfA) delete pdfAPtr;
-  if (useNewPdfB) delete pdfBPtr;
-  if (useNewPdfPomA) delete pdfPomAPtr;
-  if (useNewPdfPomB) delete pdfPomBPtr;
-
-  // Delete the Les Houches object created with new.
-  if (useNewLHA) delete lhaUpPtr;
-
-  // Delete the MergingHooks object created with new.
-  if (hasOwnMergingHooks) delete mergingHooksPtr;
-
-  // Delete the BeamShape object created with new.
-  if (useNewBeamShape) delete beamShapePtr;
-
-  // Delete the timelike and spacelike showers created with new.
-  if (useNewTimesDec) delete timesDecPtr;
-  if (useNewTimes && !useNewTimesDec) delete timesPtr;
-  if (useNewSpace) delete spacePtr;
+  // All is well that ends well.
+  return true;
 
 }
 
@@ -363,7 +434,11 @@ bool Pythia::init() {
     return false;
   }
 
-  // Begin initialization. Find which frame type to use.
+  // Initialize the random number generator.
+  if ( settings.flag("Random:setSeed") )
+    rndm.init( settings.mode("Random:seed") );
+
+  // Find which frame type to use.
   info.addCounter(1);
   frameType = mode("Beams:frameType");
 
@@ -567,10 +642,6 @@ bool Pythia::init() {
   if ( doMerging && (hasMergingHooks || hasOwnMergingHooks) )
     mergingHooksPtr->init( settings, &info, &particleData, &partonSystems );
 
-  // Initialize the random number generator.
-  if ( settings.flag("Random:setSeed") )
-    rndm.init( settings.mode("Random:seed") );
-
   // Check that combinations of settings are allowed; change if not.
   checkSettings();
 
@@ -639,6 +710,21 @@ bool Pythia::init() {
     info.errorMsg("Abort from Pythia::init: "
       "checkBeams initialization failed");
     return false;
+  }
+
+  // Further checks for photon-photon events as not all features included yet.
+  if ( idA == 22 && idB == 22 ) {
+    if (settings.flag("SoftQCD:nonDiffractive")){
+      info.errorMsg("Abort from Pythia::init: "
+        "Soft QCD events not implemented for photon-photon collisions");
+      return false;
+    }
+
+    if ( doDiffraction || doHardDiff ){
+      info.errorMsg("Abort from Pythia::init: "
+        "Diffractive events not implemented for photon-photon collisions");
+      return false;
+    }
   }
 
   // Do not set up beam kinematics when no process level.
@@ -722,7 +808,7 @@ bool Pythia::init() {
 
   // Initialise the merging wrapper class.
   if (doMerging ) merging.init( &settings, &info, &particleData, &rndm,
-    &beamA, &beamB, mergingHooksPtr, &trialPartonLevel );
+    &beamA, &beamB, mergingHooksPtr, &trialPartonLevel, couplingsPtr );
 
   // Send info/pointers to hadron level for initialization.
   // Note: forceHadronLevel() can come, so we must always initialize.
@@ -793,6 +879,13 @@ void Pythia::checkSettings() {
     settings.flag("MultipartonInteractions:allowDoubleRescatter", false);
   }
 
+  // No MPIs for photon-photon collisions.
+  if ( (idA == 22 && idB == 22) && settings.flag("PartonLevel:MPI") ) {
+    info.errorMsg("Warning in Pythia::checkSettings: "
+                  "MPI switched off for photon-photon collisions.");
+    settings.flag("PartonLevel:MPI", false);
+  }
+
 }
 
 //--------------------------------------------------------------------------
@@ -837,6 +930,9 @@ bool Pythia::checkBeams() {
   bool isHadronB = (idBabs == 2212) || (idBabs == 2112) || (idB == 111)
                 || (idBabs == 211)  || (idB == 990);
   if (isHadronA && isHadronB) return true;
+
+  // Photon-photon collisions OK.
+  if ( (idAabs == 22) && (idBabs == 22) ) return true;
 
   // Lepton-hadron collisions OK for DIS processes or LHEF input,
   // although still primitive.
@@ -1620,10 +1716,16 @@ void Pythia::banner(ostream& os) {
      << "nweg 16, D-69120 Heidelberg, Germany; |  | \n"
      << " |  |      e-mail: n.desai@thphys.uni-heidelb"
      << "erg.de                                |  | \n"
+     << " |  |   Ilkka Helenius;  Department of Astron"
+     << "omy and Theoretical Physics,          |  | \n"
+     << " |  |      Lund University, Solvegatan 14A, S"
+     << "E-223 62 Lund, Sweden;                |  | \n"
+     << " |  |      e-mail: ilkka.helenius@thep.lu.se "
+     << "                                      |  | \n"
      << " |  |   Philip Ilten;  Massachusetts Institut"
      << "e of Technology,                      |  | \n"
-     << " |  |      stationed at CERN, CH-1211 Geneva "
-     << "23, Switzerland;                      |  | \n"
+     << " |  |      77 Massachusetts Ave, Cambridge, M"
+     << "A 02139, USA;                         |  | \n"
      << " |  |      e-mail: philten@cern.ch           "
      << "                                      |  | \n"
      << " |  |   Stephen Mrenna;  Computing Division, "
@@ -1655,7 +1757,7 @@ void Pythia::banner(ostream& os) {
      << " |  |   The main program reference is 'An Int"
      << "roduction to PYTHIA 8.2',             |  | \n"
      << " |  |   T. Sjostrand et al, Comput. Phys. Com"
-     << "mun. 191 (2005) 159                   |  | \n"
+     << "mun. 191 (2015) 159                   |  | \n"
      << " |  |   [arXiv:1410.3012 [hep-ph]]           "
      << "                                      |  | \n"
      << " |  |                                        "
@@ -1684,7 +1786,7 @@ void Pythia::banner(ostream& os) {
      << " when interpreting results.           |  | \n"
      << " |  |                                        "
      << "                                      |  | \n"
-     << " |  |   Copyright (C) 2015 Torbjorn Sjostrand"
+     << " |  |   Copyright (C) 2016 Torbjorn Sjostrand"
      << "                                      |  | \n"
      << " |  |                                        "
      << "                                      |  | \n"
@@ -2146,6 +2248,13 @@ PDF* Pythia::getPDFPtr(int idIn, int sequence, string beam) {
       tempPDFPtr = new PomH1Jets( 990, rescale, xmlPath, &info);
     else if (pomSet == 6)
       tempPDFPtr = new PomH1FitAB( 990, 3, rescale, xmlPath, &info);
+  }
+
+  // Photon beam.
+  else if (abs(idIn) == 22) {
+    int gammaSet  = settings.mode("PDF:GammaSet");
+    if (gammaSet == 1) tempPDFPtr = new CJKL(idIn, &rndm);
+    else               tempPDFPtr = 0;
   }
 
   // Lepton beam: neutrino, resolved charged lepton or unresolved ditto.

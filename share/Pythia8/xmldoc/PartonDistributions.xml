@@ -91,8 +91,7 @@ CTEQ/CT group that have been implemented.</li>
 <li><code>NNPDF</code> gives four distributions from the NNPDF 2.3 
 QCD+QED sets that have been implemented.</li> 
 </ul> 
-The current default is CTEQ 5L, which has been used in most studies 
-to date. 
+The current default is NNPDF 2.3. 
  
 <p/> 
 For charged pions: 
@@ -108,6 +107,12 @@ For Pomerons (used to describe diffraction):
 <li><code>PomH1FitAB</code> gives the H1 2006 Fit A and Fit B 
 parametrizations.</li> 
 <li><code>PomH1Jets</code> gives the H1 2007 Jets parametrization.</li> 
+</ul> 
+ 
+<p/> 
+For photons: 
+<ul> 
+<li><code>CJKL</code> gives the CJKL parametrization <ref>Cor03</ref>.</li> 
 </ul> 
  
 <p/> 
@@ -154,4 +159,4 @@ stage.
  
 </chapter> 
  
-<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 

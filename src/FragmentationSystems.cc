@@ -1,5 +1,5 @@
 // FragmentationSystems.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2015 Torbjorn Sjostrand.
+// Copyright (C) 2016 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -277,6 +277,10 @@ bool ColConfig::joinJunction( vector<int>& iPartonIn, Event& event,
       int iNew = event.append( event[iQ].id(), 74, iQ, iG, 0, 0,
         colNew, acolNew, pNew, pNew.mCalc() );
 
+      // Displaced lifetime/vertex.
+      event[iNew].tau( event[iQ].tau() );
+      if (event[iQ].hasVertex()) event[iNew].vProd( event[iQ].vProd() );
+
       // Mark joined partons and update iLeg end.
       event[iQ].statusNeg();
       event[iG].statusNeg();
@@ -298,6 +302,10 @@ bool ColConfig::joinJunction( vector<int>& iPartonIn, Event& event,
   Vec4 pNew   = pLeg[legA] + pLeg[legB];
   int iNew    = event.append( idNew, 74, min(iQA, iQB), max( iQA, iQB),
      0, 0, colNew, acolNew, pNew, pNew.mCalc() );
+
+  // Displaced lifetime/vertex; assume both quarks carry same info.
+  event[iNew].tau( event[iQA].tau() );
+  if (event[iQA].hasVertex()) event[iNew].vProd( event[iQA].vProd() );
 
   // Mark joined partons and reduce remaining system.
   event[iQA].statusNeg();

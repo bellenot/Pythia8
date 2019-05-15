@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # configure is a part of the PYTHIA event generator.
-# Copyright (C) 2015 Torbjorn Sjostrand.
+# Copyright (C) 2016 Torbjorn Sjostrand.
 # PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 # Please respect the MCnet Guidelines, see GUIDELINES for details.
 # Author: Philip Ilten, October 2014 - May 2015.
@@ -205,7 +205,7 @@ if [ "$LCG_SET" != true ]; then LCG=x86_64-slc6-gcc48-opt; fi
 if [ -z "$ARCH" ]; then ARCH=$(uname | grep -i -o -e Linux -e Darwin); fi
 ARCH=$(echo $ARCH | awk '{print toupper($0)}')
 if [ "$ARCH" != "LINUX" ] && [ "$ARCH" != "DARWIN" ]; then
-    echo "WARNING: Unknown architecture $ARCH."; fi
+    echo "WARNING: Unknown architecture $ARCH, set as LINUX."; ARCH="LINUX"; fi
 if [ -z "$CXX" ]; then CXX="g++"; fi
 if [ -z "$CXX_COMMON" ]; then
     CXX_COMMON="${ENABLE_DEBUG}${ENABLE_64BIT}-ansi"

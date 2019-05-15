@@ -82,7 +82,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>PDF*</td>
-<td><a href="ProgramFlow.php#method27" target="page">getPDFPtr(...)</a></td>
+<td><a href="ProgramFlow.php#method29" target="page">getPDFPtr(...)</a></td>
 <td>Program Flow</td>
 </tr>
 
@@ -100,7 +100,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="ParticleProperties.php#method38" target="page">m(...)</a></td>
+<td><a href="ParticleProperties.php#method39" target="page">m(...)</a></td>
 <td>Particle Properties</td>
 </tr>
 
@@ -112,7 +112,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="ParticleProperties.php#method38" target="page">m2(...)</a></td>
+<td><a href="ParticleProperties.php#method39" target="page">m2(...)</a></td>
 <td>Particle Properties</td>
 </tr>
 
@@ -124,25 +124,25 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>friend ostream&</td>
-<td><a href="FourVectors.php#method66" target="page">operator&lt;&lt;(...)</a></td>
+<td><a href="FourVectors.php#method67" target="page">operator&lt;&lt;(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
 <tr>
 <td>friend Vec4</td>
-<td><a href="FourVectors.php#method35" target="page">operator*(...)</a></td>
+<td><a href="FourVectors.php#method36" target="page">operator*(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
 <tr>
 <td>friend Vec4</td>
-<td><a href="FourVectors.php#method35" target="page">operator*(...)</a></td>
+<td><a href="FourVectors.php#method36" target="page">operator*(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
 <tr>
 <td>friend double</td>
-<td><a href="FourVectors.php#method37" target="page">operator*(...)</a></td>
+<td><a href="FourVectors.php#method38" target="page">operator*(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
@@ -166,7 +166,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>friend Vec4</td>
-<td><a href="FourVectors.php#method33" target="page">operator+(...)</a></td>
+<td><a href="FourVectors.php#method34" target="page">operator+(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
@@ -190,7 +190,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>friend Vec4</td>
-<td><a href="FourVectors.php#method34" target="page">operator-(...)</a></td>
+<td><a href="FourVectors.php#method35" target="page">operator-(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
@@ -214,7 +214,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>friend Vec4</td>
-<td><a href="FourVectors.php#method36" target="page">operator/(...)</a></td>
+<td><a href="FourVectors.php#method37" target="page">operator/(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
@@ -243,6 +243,24 @@ Many of them are only intended for experts, while undocumented ones are only for
 </tr>
 
 <tr>
+<td>ParticleData&</td>
+<td><a href="ParticleDataScheme.php#method2" target="page">operator=(...)</a></td>
+<td>Particle Data Scheme</td>
+</tr>
+
+<tr>
+<td>ParticleDataEntry&</td>
+<td><a href="ParticleDataScheme.php#method64" target="page">operator=(...)</a></td>
+<td>Particle Data Scheme</td>
+</tr>
+
+<tr>
+<td>DecayChannel&</td>
+<td><a href="ParticleDataScheme.php#method122" target="page">operator=(...)</a></td>
+<td>Particle Data Scheme</td>
+</tr>
+
+<tr>
 <td>double&</td>
 <td><a href="FourVectors.php#method10" target="page">operator[](...)</a></td>
 <td>Four-Vectors</td>
@@ -250,7 +268,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>ParticleDataEntry&</td>
-<td><a href="ParticleProperties.php#method61" target="page">particleDataEntry()</a></td>
+<td><a href="ParticleProperties.php#method62" target="page">particleDataEntry()</a></td>
 <td>Particle Properties</td>
 </tr>
 
@@ -263,6 +281,12 @@ Many of them are only intended for experts, while undocumented ones are only for
 <tr>
 <td>friend double</td>
 <td><a href="FourVectors.php#method26" target="page">phi(...)</a></td>
+<td>Four-Vectors</td>
+</tr>
+
+<tr>
+<td>friend bool</td>
+<td><a href="FourVectors.php#method28" target="page">pShift(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
@@ -280,7 +304,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method52" target="page">setResonancePtr(...)</a></td>
+<td><a href="ParticleDataScheme.php#method53" target="page">setResonancePtr(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
@@ -700,145 +724,145 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="ParticleDataScheme.php#method120" target="page">DecayChannel::bRatio()</a></td>
+<td><a href="ParticleDataScheme.php#method124" target="page">DecayChannel::bRatio()</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method120" target="page">DecayChannel::bRatio(...)</a></td>
+<td><a href="ParticleDataScheme.php#method124" target="page">DecayChannel::bRatio(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method126" target="page">DecayChannel::contains(...)</a></td>
+<td><a href="ParticleDataScheme.php#method130" target="page">DecayChannel::contains(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method126" target="page">DecayChannel::contains(...)</a></td>
+<td><a href="ParticleDataScheme.php#method130" target="page">DecayChannel::contains(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method126" target="page">DecayChannel::contains(...)</a></td>
+<td><a href="ParticleDataScheme.php#method130" target="page">DecayChannel::contains(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleDataScheme.php#method127" target="page">DecayChannel::currentBR()</a></td>
+<td><a href="ParticleDataScheme.php#method131" target="page">DecayChannel::currentBR()</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method127" target="page">DecayChannel::currentBR(...)</a></td>
+<td><a href="ParticleDataScheme.php#method131" target="page">DecayChannel::currentBR(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td> </td>
-<td><a href="ParticleDataScheme.php#method118" target="page">DecayChannel::DecayChannel(...)</a></td>
+<td><a href="ParticleDataScheme.php#method121" target="page">DecayChannel::DecayChannel(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method125" target="page">DecayChannel::hasChanged()</a></td>
+<td><a href="ParticleDataScheme.php#method129" target="page">DecayChannel::hasChanged()</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="ParticleDataScheme.php#method122" target="page">DecayChannel::meMode()</a></td>
+<td><a href="ParticleDataScheme.php#method126" target="page">DecayChannel::meMode()</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method122" target="page">DecayChannel::meMode(...)</a></td>
+<td><a href="ParticleDataScheme.php#method126" target="page">DecayChannel::meMode(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="ParticleDataScheme.php#method123" target="page">DecayChannel::multiplicity()</a></td>
+<td><a href="ParticleDataScheme.php#method127" target="page">DecayChannel::multiplicity()</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method123" target="page">DecayChannel::multiplicity(...)</a></td>
+<td><a href="ParticleDataScheme.php#method127" target="page">DecayChannel::multiplicity(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="ParticleDataScheme.php#method119" target="page">DecayChannel::onMode()</a></td>
+<td><a href="ParticleDataScheme.php#method123" target="page">DecayChannel::onMode()</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method119" target="page">DecayChannel::onMode(...)</a></td>
+<td><a href="ParticleDataScheme.php#method123" target="page">DecayChannel::onMode(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleDataScheme.php#method128" target="page">DecayChannel::onShellWidth()</a></td>
+<td><a href="ParticleDataScheme.php#method132" target="page">DecayChannel::onShellWidth()</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method128" target="page">DecayChannel::onShellWidth(...)</a></td>
+<td><a href="ParticleDataScheme.php#method132" target="page">DecayChannel::onShellWidth(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method129" target="page">DecayChannel::onShellWidthFactor(...)</a></td>
+<td><a href="ParticleDataScheme.php#method133" target="page">DecayChannel::onShellWidthFactor(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method130" target="page">DecayChannel::openSec(...)</a></td>
+<td><a href="ParticleDataScheme.php#method134" target="page">DecayChannel::openSec(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleDataScheme.php#method130" target="page">DecayChannel::openSec(...)</a></td>
+<td><a href="ParticleDataScheme.php#method134" target="page">DecayChannel::openSec(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method124" target="page">DecayChannel::product(...)</a></td>
+<td><a href="ParticleDataScheme.php#method128" target="page">DecayChannel::product(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="ParticleDataScheme.php#method124" target="page">DecayChannel::product(...)</a></td>
+<td><a href="ParticleDataScheme.php#method128" target="page">DecayChannel::product(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method121" target="page">DecayChannel::rescaleBR(...)</a></td>
+<td><a href="ParticleDataScheme.php#method125" target="page">DecayChannel::rescaleBR(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method125" target="page">DecayChannel::setHasChanged(...)</a></td>
+<td><a href="ParticleDataScheme.php#method129" target="page">DecayChannel::setHasChanged(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
@@ -1228,7 +1252,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="EventInformation.php#method59" target="page">Info::addCounter(...)</a></td>
+<td><a href="EventInformation.php#method60" target="page">Info::addCounter(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1257,6 +1281,12 @@ Many of them are only intended for experts, while undocumented ones are only for
 </tr>
 
 <tr>
+<td>double</td>
+<td><a href="EventInformation.php#method53" target="page">Info::bMPIold()</a></td>
+<td>Event Information</td>
+</tr>
+
+<tr>
 <td>int</td>
 <td><a href="EventInformation.php#method8" target="page">Info::code()</a></td>
 <td>Event Information</td>
@@ -1270,7 +1300,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>vector&lt;int&gt;</td>
-<td><a href="EventInformation.php#method53" target="page">Info::codesHard()</a></td>
+<td><a href="EventInformation.php#method54" target="page">Info::codesHard()</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1311,98 +1341,104 @@ Many of them are only intended for experts, while undocumented ones are only for
 </tr>
 
 <tr>
-<td>int</td>
-<td><a href="EventInformation.php#method57" target="page">Info::getCounter(...)</a></td>
-<td>Event Information</td>
-</tr>
-
-<tr>
-<td>string</td>
-<td><a href="EventInformation.php#method62" target="page">Info::getEventAttribute(...)</a></td>
-<td>Event Information</td>
-</tr>
-
-<tr>
-<td>string</td>
-<td><a href="EventInformation.php#method62" target="page">Info::getGeneratorAttribute(...)</a></td>
+<td>double</td>
+<td><a href="EventInformation.php#method53" target="page">Info::enhanceMPIold()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="EventInformation.php#method62" target="page">Info::getGeneratorSize()</a></td>
+<td><a href="EventInformation.php#method58" target="page">Info::getCounter(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>string</td>
-<td><a href="EventInformation.php#method62" target="page">Info::getGeneratorValue(...)</a></td>
+<td><a href="EventInformation.php#method63" target="page">Info::getEventAttribute(...)</a></td>
+<td>Event Information</td>
+</tr>
+
+<tr>
+<td>string</td>
+<td><a href="EventInformation.php#method63" target="page">Info::getGeneratorAttribute(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="EventInformation.php#method62" target="page">Info::getInitrwgtSize()</a></td>
+<td><a href="EventInformation.php#method63" target="page">Info::getGeneratorSize()</a></td>
+<td>Event Information</td>
+</tr>
+
+<tr>
+<td>string</td>
+<td><a href="EventInformation.php#method63" target="page">Info::getGeneratorValue(...)</a></td>
+<td>Event Information</td>
+</tr>
+
+<tr>
+<td>int</td>
+<td><a href="EventInformation.php#method63" target="page">Info::getInitrwgtSize()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method62" target="page">Info::getScalesAttribute(...)</a></td>
+<td><a href="EventInformation.php#method63" target="page">Info::getScalesAttribute(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>string</td>
-<td><a href="EventInformation.php#method62" target="page">Info::getScalesValue()</a></td>
+<td><a href="EventInformation.php#method63" target="page">Info::getScalesValue()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>string</td>
-<td><a href="EventInformation.php#method62" target="page">Info::getWeightsCompressedAttribute(...)</a></td>
+<td><a href="EventInformation.php#method63" target="page">Info::getWeightsCompressedAttribute(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>unsigned int</td>
-<td><a href="EventInformation.php#method62" target="page">Info::getWeightsCompressedSize()</a></td>
+<td><a href="EventInformation.php#method63" target="page">Info::getWeightsCompressedSize()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method62" target="page">Info::getWeightsCompressedValue(...)</a></td>
+<td><a href="EventInformation.php#method63" target="page">Info::getWeightsCompressedValue(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>string</td>
-<td><a href="EventInformation.php#method62" target="page">Info::getWeightsDetailedAttribute(...)</a></td>
+<td><a href="EventInformation.php#method63" target="page">Info::getWeightsDetailedAttribute(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>unsigned int</td>
-<td><a href="EventInformation.php#method62" target="page">Info::getWeightsDetailedSize()</a></td>
+<td><a href="EventInformation.php#method63" target="page">Info::getWeightsDetailedSize()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method62" target="page">Info::getWeightsDetailedValue(...)</a></td>
+<td><a href="EventInformation.php#method63" target="page">Info::getWeightsDetailedValue(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="EventInformation.php#method60" target="page">Info::hasHistory()</a></td>
+<td><a href="EventInformation.php#method61" target="page">Info::hasHistory()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventInformation.php#method60" target="page">Info::hasHistory(...)</a></td>
+<td><a href="EventInformation.php#method61" target="page">Info::hasHistory(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1414,13 +1450,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>string</td>
-<td><a href="EventInformation.php#method63" target="page">Info::header(...)</a></td>
+<td><a href="EventInformation.php#method64" target="page">Info::header(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>vector &lt;string&gt;</td>
-<td><a href="EventInformation.php#method64" target="page">Info::headerKeys()</a></td>
+<td><a href="EventInformation.php#method65" target="page">Info::headerKeys()</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1546,7 +1582,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>int</td>
-<td><a href="EventInformation.php#method62" target="page">Info::LHEFversion()</a></td>
+<td><a href="EventInformation.php#method63" target="page">Info::LHEFversion()</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1600,7 +1636,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>long</td>
-<td><a href="EventInformation.php#method55" target="page">Info::nAccepted(...)</a></td>
+<td><a href="EventInformation.php#method56" target="page">Info::nAccepted(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1612,7 +1648,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>string</td>
-<td><a href="EventInformation.php#method54" target="page">Info::nameProc(...)</a></td>
+<td><a href="EventInformation.php#method55" target="page">Info::nameProc(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1660,19 +1696,19 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>int</td>
-<td><a href="EventInformation.php#method62" target="page">Info::nProcessesLHEF()</a></td>
+<td><a href="EventInformation.php#method63" target="page">Info::nProcessesLHEF()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>long</td>
-<td><a href="EventInformation.php#method55" target="page">Info::nSelected(...)</a></td>
+<td><a href="EventInformation.php#method56" target="page">Info::nSelected(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>long</td>
-<td><a href="EventInformation.php#method55" target="page">Info::nTried(...)</a></td>
+<td><a href="EventInformation.php#method56" target="page">Info::nTried(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1702,13 +1738,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method62" target="page">Info::pT2NowISR()</a></td>
+<td><a href="EventInformation.php#method63" target="page">Info::pT2NowISR()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventInformation.php#method62" target="page">Info::pT2NowISR(...)</a></td>
+<td><a href="EventInformation.php#method63" target="page">Info::pT2NowISR(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1798,13 +1834,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="EventInformation.php#method58" target="page">Info::setCounter(...)</a></td>
+<td><a href="EventInformation.php#method59" target="page">Info::setCounter(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventInformation.php#method65" target="page">Info::setHeader(...)</a></td>
+<td><a href="EventInformation.php#method66" target="page">Info::setHeader(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1816,19 +1852,19 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method56" target="page">Info::sigmaErr(...)</a></td>
+<td><a href="EventInformation.php#method57" target="page">Info::sigmaErr(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method56" target="page">Info::sigmaGen(...)</a></td>
+<td><a href="EventInformation.php#method57" target="page">Info::sigmaGen(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method62" target="page">Info::sigmaLHEF(...)</a></td>
+<td><a href="EventInformation.php#method63" target="page">Info::sigmaLHEF(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1930,14 +1966,44 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method61" target="page">Info::zNowISR()</a></td>
+<td><a href="EventInformation.php#method62" target="page">Info::zNowISR()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventInformation.php#method61" target="page">Info::zNowISR(...)</a></td>
+<td><a href="EventInformation.php#method62" target="page">Info::zNowISR(...)</a></td>
 <td>Event Information</td>
+</tr>
+
+<tr>
+<td>vector &lt;double&gt;</td>
+<td><a href="JetMatching.php#method5" target="page">JetMatchingMadgraph::getDJR()</a></td>
+<td>Jet Matching</td>
+</tr>
+
+<tr>
+<td>bool </td>
+<td><a href="JetMatching.php#method3" target="page">JetMatchingMadgraph::getExclusive()</a></td>
+<td>Jet Matching</td>
+</tr>
+
+<tr>
+<td>Event</td>
+<td><a href="JetMatching.php#method2" target="page">JetMatchingMadgraph::getProcessSubset()</a></td>
+<td>Jet Matching</td>
+</tr>
+
+<tr>
+<td>double</td>
+<td><a href="JetMatching.php#method4" target="page">JetMatchingMadgraph::getPTfirst()</a></td>
+<td>Jet Matching</td>
+</tr>
+
+<tr>
+<td>Event</td>
+<td><a href="JetMatching.php#method1" target="page">JetMatchingMadgraph::getWorkEventJet()</a></td>
+<td>Jet Matching</td>
 </tr>
 
 <tr>
@@ -2451,6 +2517,36 @@ Many of them are only intended for experts, while undocumented ones are only for
 </tr>
 
 <tr>
+<td> </td>
+<td><a href="MadGraph5Processes.php#method1" target="page">LHAupMadgraph::LHAupMadgraph(...)</a></td>
+<td>Mad Graph5 Processes</td>
+</tr>
+
+<tr>
+<td>bool</td>
+<td><a href="MadGraph5Processes.php#method2" target="page">LHAupMadgraph::readString(...)</a></td>
+<td>Mad Graph5 Processes</td>
+</tr>
+
+<tr>
+<td>void</td>
+<td><a href="MadGraph5Processes.php#method3" target="page">LHAupMadgraph::setEvents(...)</a></td>
+<td>Mad Graph5 Processes</td>
+</tr>
+
+<tr>
+<td>void</td>
+<td><a href="MadGraph5Processes.php#method5" target="page">LHAupMadgraph::setJets(...)</a></td>
+<td>Mad Graph5 Processes</td>
+</tr>
+
+<tr>
+<td>void</td>
+<td><a href="MadGraph5Processes.php#method4" target="page">LHAupMadgraph::setSeed(...)</a></td>
+<td>Mad Graph5 Processes</td>
+</tr>
+
+<tr>
 <td>virtual bool</td>
 <td><a href="CKKWLMerging.php#method12" target="page">MergingHooks::canCutOnRecState()</a></td>
 <td>C K K W L Merging</td>
@@ -2542,18 +2638,6 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="ParticleProperties.php#method76" target="page">Particle::bst(...)</a></td>
-<td>Particle Properties</td>
-</tr>
-
-<tr>
-<td>void</td>
-<td><a href="ParticleProperties.php#method77" target="page">Particle::bst(...)</a></td>
-<td>Particle Properties</td>
-</tr>
-
-<tr>
-<td>void</td>
 <td><a href="ParticleProperties.php#method78" target="page">Particle::bst(...)</a></td>
 <td>Particle Properties</td>
 </tr>
@@ -2566,31 +2650,43 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="ParticleProperties.php#method80" target="page">Particle::bstback(...)</a></td>
+<td><a href="ParticleProperties.php#method80" target="page">Particle::bst(...)</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleProperties.php#method80" target="page">Particle::bstback(...)</a></td>
+<td><a href="ParticleProperties.php#method81" target="page">Particle::bst(...)</a></td>
+<td>Particle Properties</td>
+</tr>
+
+<tr>
+<td>void</td>
+<td><a href="ParticleProperties.php#method82" target="page">Particle::bstback(...)</a></td>
+<td>Particle Properties</td>
+</tr>
+
+<tr>
+<td>void</td>
+<td><a href="ParticleProperties.php#method82" target="page">Particle::bstback(...)</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleProperties.php#method51" target="page">Particle::canDecay()</a></td>
+<td><a href="ParticleProperties.php#method52" target="page">Particle::canDecay()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleProperties.php#method42" target="page">Particle::charge()</a></td>
+<td><a href="ParticleProperties.php#method43" target="page">Particle::charge()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="ParticleProperties.php#method42" target="page">Particle::chargeType()</a></td>
+<td><a href="ParticleProperties.php#method43" target="page">Particle::chargeType()</a></td>
 <td>Particle Properties</td>
 </tr>
 
@@ -2608,13 +2704,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>int</td>
-<td><a href="ParticleProperties.php#method44" target="page">Particle::colType()</a></td>
+<td><a href="ParticleProperties.php#method45" target="page">Particle::colType()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleProperties.php#method48" target="page">Particle::constituentMass()</a></td>
+<td><a href="ParticleProperties.php#method49" target="page">Particle::constituentMass()</a></td>
 <td>Particle Properties</td>
 </tr>
 
@@ -2632,7 +2728,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>vector&lt;int&gt;</td>
-<td><a href="ParticleProperties.php#method66" target="page">Particle::daughterList()</a></td>
+<td><a href="ParticleProperties.php#method67" target="page">Particle::daughterList()</a></td>
+<td>Particle Properties</td>
+</tr>
+
+<tr>
+<td>vector&lt;int&gt;</td>
+<td><a href="ParticleProperties.php#method68" target="page">Particle::daughterListRecursive()</a></td>
 <td>Particle Properties</td>
 </tr>
 
@@ -2644,7 +2746,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleProperties.php#method52" target="page">Particle::doExternalDecay()</a></td>
+<td><a href="ParticleProperties.php#method53" target="page">Particle::doExternalDecay()</a></td>
 <td>Particle Properties</td>
 </tr>
 
@@ -2656,43 +2758,43 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="ParticleProperties.php#method28" target="page">Particle::eCalc()</a></td>
+<td><a href="ParticleProperties.php#method29" target="page">Particle::eCalc()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleProperties.php#method32" target="page">Particle::eT()</a></td>
+<td><a href="ParticleProperties.php#method33" target="page">Particle::eT()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleProperties.php#method32" target="page">Particle::eT2()</a></td>
+<td><a href="ParticleProperties.php#method33" target="page">Particle::eT2()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleProperties.php#method36" target="page">Particle::eta()</a></td>
+<td><a href="ParticleProperties.php#method37" target="page">Particle::eta()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleProperties.php#method25" target="page">Particle::hasVertex()</a></td>
+<td><a href="ParticleProperties.php#method26" target="page">Particle::hasVertex()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="ParticleProperties.php#method63" target="page">Particle::iBotCopy()</a></td>
+<td><a href="ParticleProperties.php#method64" target="page">Particle::iBotCopy()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="ParticleProperties.php#method64" target="page">Particle::iBotCopyId(...)</a></td>
+<td><a href="ParticleProperties.php#method65" target="page">Particle::iBotCopyId(...)</a></td>
 <td>Particle Properties</td>
 </tr>
 
@@ -2710,25 +2812,31 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="ParticleProperties.php#method62" target="page">Particle::index()</a></td>
+<td><a href="ParticleProperties.php#method63" target="page">Particle::index()</a></td>
+<td>Particle Properties</td>
+</tr>
+
+<tr>
+<td>int</td>
+<td><a href="ParticleProperties.php#method24" target="page">Particle::intPol()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleProperties.php#method68" target="page">Particle::isAncestor(...)</a></td>
+<td><a href="ParticleProperties.php#method70" target="page">Particle::isAncestor(...)</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleProperties.php#method43" target="page">Particle::isCharged()</a></td>
+<td><a href="ParticleProperties.php#method44" target="page">Particle::isCharged()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleProperties.php#method58" target="page">Particle::isDiquark()</a></td>
+<td><a href="ParticleProperties.php#method59" target="page">Particle::isDiquark()</a></td>
 <td>Particle Properties</td>
 </tr>
 
@@ -2740,73 +2848,73 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleProperties.php#method69" target="page">Particle::isFinalPartonLevel()</a></td>
+<td><a href="ParticleProperties.php#method71" target="page">Particle::isFinalPartonLevel()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleProperties.php#method57" target="page">Particle::isGluon()</a></td>
+<td><a href="ParticleProperties.php#method58" target="page">Particle::isGluon()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleProperties.php#method60" target="page">Particle::isHadron()</a></td>
+<td><a href="ParticleProperties.php#method61" target="page">Particle::isHadron()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleProperties.php#method55" target="page">Particle::isLepton()</a></td>
+<td><a href="ParticleProperties.php#method56" target="page">Particle::isLepton()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleProperties.php#method43" target="page">Particle::isNeutral()</a></td>
+<td><a href="ParticleProperties.php#method44" target="page">Particle::isNeutral()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleProperties.php#method59" target="page">Particle::isParton()</a></td>
+<td><a href="ParticleProperties.php#method60" target="page">Particle::isParton()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleProperties.php#method56" target="page">Particle::isQuark()</a></td>
+<td><a href="ParticleProperties.php#method57" target="page">Particle::isQuark()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleProperties.php#method24" target="page">Particle::isRescatteredIncoming()</a></td>
+<td><a href="ParticleProperties.php#method25" target="page">Particle::isRescatteredIncoming()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleProperties.php#method53" target="page">Particle::isResonance()</a></td>
+<td><a href="ParticleProperties.php#method54" target="page">Particle::isResonance()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleProperties.php#method54" target="page">Particle::isVisible()</a></td>
+<td><a href="ParticleProperties.php#method55" target="page">Particle::isVisible()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="ParticleProperties.php#method63" target="page">Particle::iTopCopy()</a></td>
+<td><a href="ParticleProperties.php#method64" target="page">Particle::iTopCopy()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="ParticleProperties.php#method64" target="page">Particle::iTopCopyId(...)</a></td>
+<td><a href="ParticleProperties.php#method65" target="page">Particle::iTopCopyId(...)</a></td>
 <td>Particle Properties</td>
 </tr>
 
@@ -2818,43 +2926,43 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="ParticleProperties.php#method45" target="page">Particle::m0()</a></td>
+<td><a href="ParticleProperties.php#method46" target="page">Particle::m0()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleProperties.php#method26" target="page">Particle::m2()</a></td>
+<td><a href="ParticleProperties.php#method27" target="page">Particle::m2()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleProperties.php#method27" target="page">Particle::m2Calc()</a></td>
+<td><a href="ParticleProperties.php#method28" target="page">Particle::m2Calc()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleProperties.php#method50" target="page">Particle::mayDecay()</a></td>
+<td><a href="ParticleProperties.php#method51" target="page">Particle::mayDecay()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleProperties.php#method27" target="page">Particle::mCalc()</a></td>
+<td><a href="ParticleProperties.php#method28" target="page">Particle::mCalc()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleProperties.php#method46" target="page">Particle::mMax()</a></td>
+<td><a href="ParticleProperties.php#method47" target="page">Particle::mMax()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleProperties.php#method46" target="page">Particle::mMin()</a></td>
+<td><a href="ParticleProperties.php#method47" target="page">Particle::mMin()</a></td>
 <td>Particle Properties</td>
 </tr>
 
@@ -2872,7 +2980,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>vector&lt;int&gt;</td>
-<td><a href="ParticleProperties.php#method65" target="page">Particle::motherList()</a></td>
+<td><a href="ParticleProperties.php#method66" target="page">Particle::motherList()</a></td>
 <td>Particle Properties</td>
 </tr>
 
@@ -2884,55 +2992,55 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="ParticleProperties.php#method47" target="page">Particle::mSel()</a></td>
+<td><a href="ParticleProperties.php#method48" target="page">Particle::mSel()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleProperties.php#method30" target="page">Particle::mT()</a></td>
+<td><a href="ParticleProperties.php#method31" target="page">Particle::mT()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleProperties.php#method30" target="page">Particle::mT2()</a></td>
+<td><a href="ParticleProperties.php#method31" target="page">Particle::mT2()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleProperties.php#method46" target="page">Particle::mWidth()</a></td>
+<td><a href="ParticleProperties.php#method47" target="page">Particle::mWidth()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>string</td>
-<td><a href="ParticleProperties.php#method39" target="page">Particle::name()</a></td>
+<td><a href="ParticleProperties.php#method40" target="page">Particle::name()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>string</td>
-<td><a href="ParticleProperties.php#method40" target="page">Particle::nameWithStatus()</a></td>
+<td><a href="ParticleProperties.php#method41" target="page">Particle::nameWithStatus()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleProperties.php#method83" target="page">Particle::offsetCol(...)</a></td>
+<td><a href="ParticleProperties.php#method85" target="page">Particle::offsetCol(...)</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleProperties.php#method82" target="page">Particle::offsetHistory(...))</a></td>
+<td><a href="ParticleProperties.php#method84" target="page">Particle::offsetHistory(...))</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>Particle&</td>
-<td><a href="ParticleProperties.php#method88" target="page">Particle::operator=(...)</a></td>
+<td><a href="ParticleProperties.php#method90" target="page">Particle::operator=(...)</a></td>
 <td>Particle Properties</td>
 </tr>
 
@@ -2950,31 +3058,19 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="ParticleProperties.php#method31" target="page">Particle::pAbs()</a></td>
+<td><a href="ParticleProperties.php#method32" target="page">Particle::pAbs()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleProperties.php#method31" target="page">Particle::pAbs2()</a></td>
+<td><a href="ParticleProperties.php#method32" target="page">Particle::pAbs2()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td> </td>
-<td><a href="ParticleProperties.php#method84" target="page">Particle::Particle()</a></td>
-<td>Particle Properties</td>
-</tr>
-
-<tr>
-<td> </td>
-<td><a href="ParticleProperties.php#method85" target="page">Particle::Particle(...)</a></td>
-<td>Particle Properties</td>
-</tr>
-
-<tr>
-<td> </td>
-<td><a href="ParticleProperties.php#method86" target="page">Particle::Particle(...)</a></td>
+<td><a href="ParticleProperties.php#method86" target="page">Particle::Particle()</a></td>
 <td>Particle Properties</td>
 </tr>
 
@@ -2985,14 +3081,26 @@ Many of them are only intended for experts, while undocumented ones are only for
 </tr>
 
 <tr>
-<td>double</td>
-<td><a href="ParticleProperties.php#method33" target="page">Particle::phi()</a></td>
+<td> </td>
+<td><a href="ParticleProperties.php#method88" target="page">Particle::Particle(...)</a></td>
+<td>Particle Properties</td>
+</tr>
+
+<tr>
+<td> </td>
+<td><a href="ParticleProperties.php#method89" target="page">Particle::Particle(...)</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleProperties.php#method35" target="page">Particle::pNeg()</a></td>
+<td><a href="ParticleProperties.php#method34" target="page">Particle::phi()</a></td>
+<td>Particle Properties</td>
+</tr>
+
+<tr>
+<td>double</td>
+<td><a href="ParticleProperties.php#method36" target="page">Particle::pNeg()</a></td>
 <td>Particle Properties</td>
 </tr>
 
@@ -3004,19 +3112,19 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="ParticleProperties.php#method35" target="page">Particle::pPos()</a></td>
+<td><a href="ParticleProperties.php#method36" target="page">Particle::pPos()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleProperties.php#method29" target="page">Particle::pT()</a></td>
+<td><a href="ParticleProperties.php#method30" target="page">Particle::pT()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleProperties.php#method29" target="page">Particle::pT2()</a></td>
+<td><a href="ParticleProperties.php#method30" target="page">Particle::pT2()</a></td>
 <td>Particle Properties</td>
 </tr>
 
@@ -3040,31 +3148,31 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="ParticleProperties.php#method72" target="page">Particle::rescale3(...)</a></td>
+<td><a href="ParticleProperties.php#method74" target="page">Particle::rescale3(...)</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleProperties.php#method73" target="page">Particle::rescale4(...)</a></td>
+<td><a href="ParticleProperties.php#method75" target="page">Particle::rescale4(...)</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleProperties.php#method74" target="page">Particle::rescale5(...)</a></td>
+<td><a href="ParticleProperties.php#method76" target="page">Particle::rescale5(...)</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleProperties.php#method75" target="page">Particle::rot(...)</a></td>
+<td><a href="ParticleProperties.php#method77" target="page">Particle::rot(...)</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleProperties.php#method81" target="page">Particle::rotbst(...)</a></td>
+<td><a href="ParticleProperties.php#method83" target="page">Particle::rotbst(...)</a></td>
 <td>Particle Properties</td>
 </tr>
 
@@ -3076,25 +3184,25 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="ParticleProperties.php#method89" target="page">Particle::setEvtPtr(...)</a></td>
+<td><a href="ParticleProperties.php#method91" target="page">Particle::setEvtPtr(...)</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleProperties.php#method90" target="page">Particle::setPDEPtr(...)</a></td>
+<td><a href="ParticleProperties.php#method92" target="page">Particle::setPDEPtr(...)</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>vector&lt;int&gt;</td>
-<td><a href="ParticleProperties.php#method67" target="page">Particle::sisterList(...)</a></td>
+<td><a href="ParticleProperties.php#method69" target="page">Particle::sisterList(...)</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="ParticleProperties.php#method41" target="page">Particle::spinType()</a></td>
+<td><a href="ParticleProperties.php#method42" target="page">Particle::spinType()</a></td>
 <td>Particle Properties</td>
 </tr>
 
@@ -3118,7 +3226,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>int</td>
-<td><a href="ParticleProperties.php#method70" target="page">Particle::statusHepMC()</a></td>
+<td><a href="ParticleProperties.php#method72" target="page">Particle::statusHepMC()</a></td>
 <td>Particle Properties</td>
 </tr>
 
@@ -3142,25 +3250,25 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="ParticleProperties.php#method49" target="page">Particle::tau0()</a></td>
+<td><a href="ParticleProperties.php#method50" target="page">Particle::tau0()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleProperties.php#method37" target="page">Particle::tDec()</a></td>
+<td><a href="ParticleProperties.php#method38" target="page">Particle::tDec()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleProperties.php#method33" target="page">Particle::theta()</a></td>
+<td><a href="ParticleProperties.php#method34" target="page">Particle::theta()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleProperties.php#method34" target="page">Particle::thetaXZ()</a></td>
+<td><a href="ParticleProperties.php#method35" target="page">Particle::thetaXZ()</a></td>
 <td>Particle Properties</td>
 </tr>
 
@@ -3172,13 +3280,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleProperties.php#method71" target="page">Particle::undoDecay()</a></td>
+<td><a href="ParticleProperties.php#method73" target="page">Particle::undoDecay()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>Vec4</td>
-<td><a href="ParticleProperties.php#method37" target="page">Particle::vDec()</a></td>
+<td><a href="ParticleProperties.php#method38" target="page">Particle::vDec()</a></td>
 <td>Particle Properties</td>
 </tr>
 
@@ -3196,7 +3304,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="ParticleProperties.php#method37" target="page">Particle::xDec()</a></td>
+<td><a href="ParticleProperties.php#method38" target="page">Particle::xDec()</a></td>
 <td>Particle Properties</td>
 </tr>
 
@@ -3208,13 +3316,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="ParticleProperties.php#method36" target="page">Particle::y()</a></td>
+<td><a href="ParticleProperties.php#method37" target="page">Particle::y()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleProperties.php#method37" target="page">Particle::yDec()</a></td>
+<td><a href="ParticleProperties.php#method38" target="page">Particle::yDec()</a></td>
 <td>Particle Properties</td>
 </tr>
 
@@ -3226,7 +3334,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="ParticleProperties.php#method37" target="page">Particle::zDec()</a></td>
+<td><a href="ParticleProperties.php#method38" target="page">Particle::zDec()</a></td>
 <td>Particle Properties</td>
 </tr>
 
@@ -3238,235 +3346,235 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method12" target="page">ParticleData::addParticle(...)</a></td>
+<td><a href="ParticleDataScheme.php#method13" target="page">ParticleData::addParticle(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method12" target="page">ParticleData::addParticle(...)</a></td>
+<td><a href="ParticleDataScheme.php#method13" target="page">ParticleData::addParticle(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method17" target="page">ParticleData::antiName(...)</a></td>
+<td><a href="ParticleDataScheme.php#method18" target="page">ParticleData::antiName(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="ParticleDataScheme.php#method50" target="page">ParticleData::baryonNumberType(...)</a></td>
+<td><a href="ParticleDataScheme.php#method51" target="page">ParticleData::baryonNumberType(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method39" target="page">ParticleData::canDecay(...)</a></td>
+<td><a href="ParticleDataScheme.php#method40" target="page">ParticleData::canDecay(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleDataScheme.php#method20" target="page">ParticleData::charge(...)</a></td>
+<td><a href="ParticleDataScheme.php#method21" target="page">ParticleData::charge(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method19" target="page">ParticleData::chargeType(...)</a></td>
+<td><a href="ParticleDataScheme.php#method20" target="page">ParticleData::chargeType(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="ParticleDataScheme.php#method19" target="page">ParticleData::chargeType(...)</a></td>
+<td><a href="ParticleDataScheme.php#method20" target="page">ParticleData::chargeType(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method11" target="page">ParticleData::checkTable(...)</a></td>
+<td><a href="ParticleDataScheme.php#method12" target="page">ParticleData::checkTable(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method11" target="page">ParticleData::checkTable(...)</a></td>
+<td><a href="ParticleDataScheme.php#method12" target="page">ParticleData::checkTable(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method21" target="page">ParticleData::colType(...)</a></td>
+<td><a href="ParticleDataScheme.php#method22" target="page">ParticleData::colType(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="ParticleDataScheme.php#method21" target="page">ParticleData::colType(...)</a></td>
+<td><a href="ParticleDataScheme.php#method22" target="page">ParticleData::colType(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleDataScheme.php#method36" target="page">ParticleData::constituentMass(...)</a></td>
+<td><a href="ParticleDataScheme.php#method37" target="page">ParticleData::constituentMass(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method31" target="page">ParticleData::doExternalDecay(...)</a></td>
+<td><a href="ParticleDataScheme.php#method32" target="page">ParticleData::doExternalDecay(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method31" target="page">ParticleData::doExternalDecays(...)</a></td>
+<td><a href="ParticleDataScheme.php#method32" target="page">ParticleData::doExternalDecays(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method33" target="page">ParticleData::doForceWidth(...)</a></td>
+<td><a href="ParticleDataScheme.php#method34" target="page">ParticleData::doForceWidth(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method33" target="page">ParticleData::doForceWidth(...)</a></td>
+<td><a href="ParticleDataScheme.php#method34" target="page">ParticleData::doForceWidth(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method16" target="page">ParticleData::hasAnti(...)</a></td>
+<td><a href="ParticleDataScheme.php#method62" target="page">ParticleData::getIsInit()</a></td>
+<td>Particle Data Scheme</td>
+</tr>
+
+<tr>
+<td>bool</td>
+<td><a href="ParticleDataScheme.php#method17" target="page">ParticleData::hasAnti(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method34" target="page">ParticleData::hasChanged(...)</a></td>
+<td><a href="ParticleDataScheme.php#method35" target="page">ParticleData::hasChanged(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method34" target="page">ParticleData::hasChanged(...)</a></td>
+<td><a href="ParticleDataScheme.php#method35" target="page">ParticleData::hasChanged(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="ParticleDataScheme.php#method49" target="page">ParticleData::heaviestQuark(...)</a></td>
+<td><a href="ParticleDataScheme.php#method50" target="page">ParticleData::heaviestQuark(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method3" target="page">ParticleData::init(...)</a></td>
+<td><a href="ParticleDataScheme.php#method4" target="page">ParticleData::init(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method2" target="page">ParticleData::initPtr(...)</a></td>
+<td><a href="ParticleDataScheme.php#method3" target="page">ParticleData::initPtr(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method5" target="page">ParticleData::initWidths(...)</a></td>
+<td><a href="ParticleDataScheme.php#method6" target="page">ParticleData::initWidths(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method47" target="page">ParticleData::isBaryon(...)</a></td>
+<td><a href="ParticleDataScheme.php#method48" target="page">ParticleData::isBaryon(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method43" target="page">ParticleData::isDiquark(...)</a></td>
+<td><a href="ParticleDataScheme.php#method44" target="page">ParticleData::isDiquark(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method42" target="page">ParticleData::isGluon(...)</a></td>
+<td><a href="ParticleDataScheme.php#method43" target="page">ParticleData::isGluon(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method45" target="page">ParticleData::isHadron(...)</a></td>
+<td><a href="ParticleDataScheme.php#method46" target="page">ParticleData::isHadron(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method40" target="page">ParticleData::isLepton(...)</a></td>
+<td><a href="ParticleDataScheme.php#method41" target="page">ParticleData::isLepton(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method46" target="page">ParticleData::isMeson(...)</a></td>
+<td><a href="ParticleDataScheme.php#method47" target="page">ParticleData::isMeson(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method48" target="page">ParticleData::isOctetHadron(...)</a></td>
+<td><a href="ParticleDataScheme.php#method49" target="page">ParticleData::isOctetHadron(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method14" target="page">ParticleData::isParticle(...)</a></td>
+<td><a href="ParticleDataScheme.php#method15" target="page">ParticleData::isParticle(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method44" target="page">ParticleData::isParton()</a></td>
+<td><a href="ParticleDataScheme.php#method45" target="page">ParticleData::isParton()</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method41" target="page">ParticleData::isQuark(...)</a></td>
+<td><a href="ParticleDataScheme.php#method42" target="page">ParticleData::isQuark(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method29" target="page">ParticleData::isResonance(...)</a></td>
+<td><a href="ParticleDataScheme.php#method30" target="page">ParticleData::isResonance(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method29" target="page">ParticleData::isResonance(...)</a></td>
+<td><a href="ParticleDataScheme.php#method30" target="page">ParticleData::isResonance(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method32" target="page">ParticleData::isVisible(...)</a></td>
+<td><a href="ParticleDataScheme.php#method33" target="page">ParticleData::isVisible(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method32" target="page">ParticleData::isVisible(...)</a></td>
-<td>Particle Data Scheme</td>
-</tr>
-
-<tr>
-<td>void</td>
-<td><a href="ParticleDataScheme.php#method9" target="page">ParticleData::list(...)</a></td>
+<td><a href="ParticleDataScheme.php#method33" target="page">ParticleData::isVisible(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
@@ -3478,145 +3586,151 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method10" target="page">ParticleData::list(...)</a></td>
+<td><a href="ParticleDataScheme.php#method11" target="page">ParticleData::list(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method9" target="page">ParticleData::listAll(...)</a></td>
+<td><a href="ParticleDataScheme.php#method11" target="page">ParticleData::list(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method9" target="page">ParticleData::listChanged(...)</a></td>
+<td><a href="ParticleDataScheme.php#method10" target="page">ParticleData::listAll(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method9" target="page">ParticleData::listChangedAndRes(...)</a></td>
+<td><a href="ParticleDataScheme.php#method10" target="page">ParticleData::listChanged(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method7" target="page">ParticleData::listFF(...)</a></td>
+<td><a href="ParticleDataScheme.php#method10" target="page">ParticleData::listChangedAndRes(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method6" target="page">ParticleData::listXML(...)</a></td>
+<td><a href="ParticleDataScheme.php#method8" target="page">ParticleData::listFF(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method22" target="page">ParticleData::m0(...)</a></td>
+<td><a href="ParticleDataScheme.php#method7" target="page">ParticleData::listXML(...)</a></td>
+<td>Particle Data Scheme</td>
+</tr>
+
+<tr>
+<td>void</td>
+<td><a href="ParticleDataScheme.php#method23" target="page">ParticleData::m0(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleDataScheme.php#method22" target="page">ParticleData::m0(...)</a></td>
+<td><a href="ParticleDataScheme.php#method23" target="page">ParticleData::m0(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleDataScheme.php#method27" target="page">ParticleData::m0Max(...)</a></td>
+<td><a href="ParticleDataScheme.php#method28" target="page">ParticleData::m0Max(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleDataScheme.php#method26" target="page">ParticleData::m0Min(...)</a></td>
+<td><a href="ParticleDataScheme.php#method27" target="page">ParticleData::m0Min(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method30" target="page">ParticleData::mayDecay(...)</a></td>
+<td><a href="ParticleDataScheme.php#method31" target="page">ParticleData::mayDecay(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method30" target="page">ParticleData::mayDecay(...)</a></td>
+<td><a href="ParticleDataScheme.php#method31" target="page">ParticleData::mayDecay(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method25" target="page">ParticleData::mMax(...)</a></td>
+<td><a href="ParticleDataScheme.php#method26" target="page">ParticleData::mMax(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleDataScheme.php#method25" target="page">ParticleData::mMax(...)</a></td>
+<td><a href="ParticleDataScheme.php#method26" target="page">ParticleData::mMax(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method24" target="page">ParticleData::mMin(...)</a></td>
+<td><a href="ParticleDataScheme.php#method25" target="page">ParticleData::mMin(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleDataScheme.php#method24" target="page">ParticleData::mMin(...)</a></td>
+<td><a href="ParticleDataScheme.php#method25" target="page">ParticleData::mMin(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleDataScheme.php#method38" target="page">ParticleData::mRun(...)</a></td>
+<td><a href="ParticleDataScheme.php#method39" target="page">ParticleData::mRun(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleDataScheme.php#method37" target="page">ParticleData::mSel(...)</a></td>
+<td><a href="ParticleDataScheme.php#method38" target="page">ParticleData::mSel(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method23" target="page">ParticleData::mWidth(...)</a></td>
+<td><a href="ParticleDataScheme.php#method24" target="page">ParticleData::mWidth(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleDataScheme.php#method23" target="page">ParticleData::mWidth(...)</a></td>
+<td><a href="ParticleDataScheme.php#method24" target="page">ParticleData::mWidth(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method17" target="page">ParticleData::name(...)</a></td>
+<td><a href="ParticleDataScheme.php#method18" target="page">ParticleData::name(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>string</td>
-<td><a href="ParticleDataScheme.php#method17" target="page">ParticleData::name(...)</a></td>
+<td><a href="ParticleDataScheme.php#method18" target="page">ParticleData::name(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method17" target="page">ParticleData::names(...)</a></td>
+<td><a href="ParticleDataScheme.php#method18" target="page">ParticleData::names(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="ParticleDataScheme.php#method15" target="page">ParticleData::nextId(...)</a></td>
+<td><a href="ParticleDataScheme.php#method16" target="page">ParticleData::nextId(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
@@ -3628,577 +3742,577 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>ParticleDataEntry*</td>
-<td><a href="ParticleDataScheme.php#method60" target="page">ParticleData::particleDataEntryPtr(...)</a></td>
+<td><a href="ParticleDataScheme.php#method61" target="page">ParticleData::particleDataEntryPtr(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method7" target="page">ParticleData::readFF(...)</a></td>
+<td><a href="ParticleDataScheme.php#method8" target="page">ParticleData::readFF(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method8" target="page">ParticleData::readString(...)</a></td>
+<td><a href="ParticleDataScheme.php#method9" target="page">ParticleData::readString(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method6" target="page">ParticleData::readXML(...)</a></td>
+<td><a href="ParticleDataScheme.php#method7" target="page">ParticleData::readXML(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method4" target="page">ParticleData::reInit(...)</a></td>
+<td><a href="ParticleDataScheme.php#method5" target="page">ParticleData::reInit(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method51" target="page">ParticleData::rescaleBR(...)</a></td>
+<td><a href="ParticleDataScheme.php#method52" target="page">ParticleData::rescaleBR(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method53" target="page">ParticleData::resInit(...)</a></td>
+<td><a href="ParticleDataScheme.php#method54" target="page">ParticleData::resInit(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleDataScheme.php#method57" target="page">ParticleData::resOpenFrac(...)</a></td>
+<td><a href="ParticleDataScheme.php#method58" target="page">ParticleData::resOpenFrac(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleDataScheme.php#method54" target="page">ParticleData::resWidth(...)</a></td>
+<td><a href="ParticleDataScheme.php#method55" target="page">ParticleData::resWidth(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleDataScheme.php#method59" target="page">ParticleData::resWidthChan(...)</a></td>
+<td><a href="ParticleDataScheme.php#method60" target="page">ParticleData::resWidthChan(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleDataScheme.php#method55" target="page">ParticleData::resWidthOpen(...)</a></td>
+<td><a href="ParticleDataScheme.php#method56" target="page">ParticleData::resWidthOpen(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleDataScheme.php#method58" target="page">ParticleData::resWidthRescaleFactor(...)</a></td>
+<td><a href="ParticleDataScheme.php#method59" target="page">ParticleData::resWidthRescaleFactor(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleDataScheme.php#method56" target="page">ParticleData::resWidthStore(...)</a></td>
+<td><a href="ParticleDataScheme.php#method57" target="page">ParticleData::resWidthStore(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method13" target="page">ParticleData::setAll(...)</a></td>
+<td><a href="ParticleDataScheme.php#method14" target="page">ParticleData::setAll(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method18" target="page">ParticleData::spinType(...)</a></td>
+<td><a href="ParticleDataScheme.php#method19" target="page">ParticleData::spinType(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="ParticleDataScheme.php#method18" target="page">ParticleData::spinType(...)</a></td>
+<td><a href="ParticleDataScheme.php#method19" target="page">ParticleData::spinType(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method28" target="page">ParticleData::tau0(...)</a></td>
+<td><a href="ParticleDataScheme.php#method29" target="page">ParticleData::tau0(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleDataScheme.php#method28" target="page">ParticleData::tau0(...)</a></td>
+<td><a href="ParticleDataScheme.php#method29" target="page">ParticleData::tau0(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method35" target="page">ParticleData::useBreitWigner(...)</a></td>
+<td><a href="ParticleDataScheme.php#method36" target="page">ParticleData::useBreitWigner(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method104" target="page">ParticleDataEntry::addChannel(...)</a></td>
+<td><a href="ParticleDataScheme.php#method107" target="page">ParticleDataEntry::addChannel(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="ParticleDataScheme.php#method102" target="page">ParticleDataEntry::baryonNumberType(...)</a></td>
+<td><a href="ParticleDataScheme.php#method105" target="page">ParticleDataEntry::baryonNumberType(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method91" target="page">ParticleDataEntry::canDecay(...)</a></td>
+<td><a href="ParticleDataScheme.php#method94" target="page">ParticleDataEntry::canDecay(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>DecayChannel&</td>
-<td><a href="ParticleDataScheme.php#method106" target="page">ParticleDataEntry::channel(...)</a></td>
+<td><a href="ParticleDataScheme.php#method109" target="page">ParticleDataEntry::channel(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>const DecayChannel&</td>
-<td><a href="ParticleDataScheme.php#method106" target="page">ParticleDataEntry::channel(...)</a></td>
+<td><a href="ParticleDataScheme.php#method109" target="page">ParticleDataEntry::channel(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleDataScheme.php#method70" target="page">ParticleDataEntry::charge(...)</a></td>
+<td><a href="ParticleDataScheme.php#method73" target="page">ParticleDataEntry::charge(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="ParticleDataScheme.php#method70" target="page">ParticleDataEntry::chargeType(...)</a></td>
+<td><a href="ParticleDataScheme.php#method73" target="page">ParticleDataEntry::chargeType(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method103" target="page">ParticleDataEntry::clearChannels()</a></td>
+<td><a href="ParticleDataScheme.php#method106" target="page">ParticleDataEntry::clearChannels()</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="ParticleDataScheme.php#method71" target="page">ParticleDataEntry::colType(...)</a></td>
+<td><a href="ParticleDataScheme.php#method74" target="page">ParticleDataEntry::colType(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleDataScheme.php#method87" target="page">ParticleDataEntry::constituentMass()</a></td>
+<td><a href="ParticleDataScheme.php#method90" target="page">ParticleDataEntry::constituentMass()</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method81" target="page">ParticleDataEntry::doExternalDecay()</a></td>
+<td><a href="ParticleDataScheme.php#method84" target="page">ParticleDataEntry::doExternalDecay()</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method83" target="page">ParticleDataEntry::doForceWidth()</a></td>
+<td><a href="ParticleDataScheme.php#method86" target="page">ParticleDataEntry::doForceWidth()</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>ResonanceWidths*</td>
-<td><a href="ParticleDataScheme.php#method110" target="page">ParticleDataEntry::getResonancePtr()</a></td>
+<td><a href="ParticleDataScheme.php#method113" target="page">ParticleDataEntry::getResonancePtr()</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method67" target="page">ParticleDataEntry::hasAnti()</a></td>
+<td><a href="ParticleDataScheme.php#method70" target="page">ParticleDataEntry::hasAnti()</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method85" target="page">ParticleDataEntry::hasChanged(...)</a></td>
+<td><a href="ParticleDataScheme.php#method88" target="page">ParticleDataEntry::hasChanged(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="ParticleDataScheme.php#method101" target="page">ParticleDataEntry::heaviestQuark(...)</a></td>
+<td><a href="ParticleDataScheme.php#method104" target="page">ParticleDataEntry::heaviestQuark(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="ParticleDataScheme.php#method66" target="page">ParticleDataEntry::id()</a></td>
+<td><a href="ParticleDataScheme.php#method69" target="page">ParticleDataEntry::id()</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method86" target="page">ParticleDataEntry::initBWmass()</a></td>
+<td><a href="ParticleDataScheme.php#method89" target="page">ParticleDataEntry::initBWmass()</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method64" target="page">ParticleDataEntry::initPtr(...)</a></td>
+<td><a href="ParticleDataScheme.php#method67" target="page">ParticleDataEntry::initPtr(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method99" target="page">ParticleDataEntry::isBaryon()</a></td>
+<td><a href="ParticleDataScheme.php#method102" target="page">ParticleDataEntry::isBaryon()</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method95" target="page">ParticleDataEntry::isDiquark()</a></td>
+<td><a href="ParticleDataScheme.php#method98" target="page">ParticleDataEntry::isDiquark()</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method94" target="page">ParticleDataEntry::isGluon()</a></td>
+<td><a href="ParticleDataScheme.php#method97" target="page">ParticleDataEntry::isGluon()</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method97" target="page">ParticleDataEntry::isHadron()</a></td>
+<td><a href="ParticleDataScheme.php#method100" target="page">ParticleDataEntry::isHadron()</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method92" target="page">ParticleDataEntry::isLepton()</a></td>
+<td><a href="ParticleDataScheme.php#method95" target="page">ParticleDataEntry::isLepton()</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method98" target="page">ParticleDataEntry::isMeson()</a></td>
+<td><a href="ParticleDataScheme.php#method101" target="page">ParticleDataEntry::isMeson()</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method100" target="page">ParticleDataEntry::isOctetHadron()</a></td>
+<td><a href="ParticleDataScheme.php#method103" target="page">ParticleDataEntry::isOctetHadron()</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method96" target="page">ParticleDataEntry::isParton()</a></td>
+<td><a href="ParticleDataScheme.php#method99" target="page">ParticleDataEntry::isParton()</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method93" target="page">ParticleDataEntry::isQuark()</a></td>
+<td><a href="ParticleDataScheme.php#method96" target="page">ParticleDataEntry::isQuark()</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method79" target="page">ParticleDataEntry::isResonance()</a></td>
+<td><a href="ParticleDataScheme.php#method82" target="page">ParticleDataEntry::isResonance()</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method82" target="page">ParticleDataEntry::isVisible()</a></td>
+<td><a href="ParticleDataScheme.php#method85" target="page">ParticleDataEntry::isVisible()</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleDataScheme.php#method72" target="page">ParticleDataEntry::m0()</a></td>
+<td><a href="ParticleDataScheme.php#method75" target="page">ParticleDataEntry::m0()</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleDataScheme.php#method77" target="page">ParticleDataEntry::m0Max()</a></td>
+<td><a href="ParticleDataScheme.php#method80" target="page">ParticleDataEntry::m0Max()</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleDataScheme.php#method76" target="page">ParticleDataEntry::m0Min()</a></td>
+<td><a href="ParticleDataScheme.php#method79" target="page">ParticleDataEntry::m0Min()</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method80" target="page">ParticleDataEntry::mayDecay()</a></td>
+<td><a href="ParticleDataScheme.php#method83" target="page">ParticleDataEntry::mayDecay()</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleDataScheme.php#method75" target="page">ParticleDataEntry::mMax()</a></td>
+<td><a href="ParticleDataScheme.php#method78" target="page">ParticleDataEntry::mMax()</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleDataScheme.php#method74" target="page">ParticleDataEntry::mMin()</a></td>
+<td><a href="ParticleDataScheme.php#method77" target="page">ParticleDataEntry::mMin()</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleDataScheme.php#method89" target="page">ParticleDataEntry::mRun(...)</a></td>
+<td><a href="ParticleDataScheme.php#method92" target="page">ParticleDataEntry::mRun(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleDataScheme.php#method88" target="page">ParticleDataEntry::mSel()</a></td>
+<td><a href="ParticleDataScheme.php#method91" target="page">ParticleDataEntry::mSel()</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleDataScheme.php#method73" target="page">ParticleDataEntry::mWidth()</a></td>
+<td><a href="ParticleDataScheme.php#method76" target="page">ParticleDataEntry::mWidth()</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>string</td>
-<td><a href="ParticleDataScheme.php#method68" target="page">ParticleDataEntry::name(...)</a></td>
+<td><a href="ParticleDataScheme.php#method71" target="page">ParticleDataEntry::name(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td> </td>
-<td><a href="ParticleDataScheme.php#method61" target="page">ParticleDataEntry::ParticleDataEntry(...)</a></td>
+<td><a href="ParticleDataScheme.php#method63" target="page">ParticleDataEntry::ParticleDataEntry(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td> </td>
-<td><a href="ParticleDataScheme.php#method61" target="page">ParticleDataEntry::ParticleDataEntry(...)</a></td>
+<td><a href="ParticleDataScheme.php#method63" target="page">ParticleDataEntry::ParticleDataEntry(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>DecayChannel&</td>
-<td><a href="ParticleDataScheme.php#method109" target="page">ParticleDataEntry::pickChannel()</a></td>
+<td><a href="ParticleDataScheme.php#method112" target="page">ParticleDataEntry::pickChannel()</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method108" target="page">ParticleDataEntry::preparePick(...)</a></td>
+<td><a href="ParticleDataScheme.php#method111" target="page">ParticleDataEntry::preparePick(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method107" target="page">ParticleDataEntry::rescaleBR(...)</a></td>
+<td><a href="ParticleDataScheme.php#method110" target="page">ParticleDataEntry::rescaleBR(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method111" target="page">ParticleDataEntry::resInit(...)</a></td>
+<td><a href="ParticleDataScheme.php#method114" target="page">ParticleDataEntry::resInit(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleDataScheme.php#method115" target="page">ParticleDataEntry::resOpenFrac(...)</a></td>
+<td><a href="ParticleDataScheme.php#method118" target="page">ParticleDataEntry::resOpenFrac(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleDataScheme.php#method112" target="page">ParticleDataEntry::resWidth(...)</a></td>
+<td><a href="ParticleDataScheme.php#method115" target="page">ParticleDataEntry::resWidth(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleDataScheme.php#method117" target="page">ParticleDataEntry::resWidthChan(...)</a></td>
+<td><a href="ParticleDataScheme.php#method120" target="page">ParticleDataEntry::resWidthChan(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleDataScheme.php#method113" target="page">ParticleDataEntry::resWidthOpen(...)</a></td>
+<td><a href="ParticleDataScheme.php#method116" target="page">ParticleDataEntry::resWidthOpen(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleDataScheme.php#method116" target="page">ParticleDataEntry::resWidthRescaleFactor()</a></td>
+<td><a href="ParticleDataScheme.php#method119" target="page">ParticleDataEntry::resWidthRescaleFactor()</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleDataScheme.php#method114" target="page">ParticleDataEntry::resWidthStore(...)</a></td>
+<td><a href="ParticleDataScheme.php#method117" target="page">ParticleDataEntry::resWidthStore(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method65" target="page">ParticleDataEntry::setAll(...)</a></td>
+<td><a href="ParticleDataScheme.php#method68" target="page">ParticleDataEntry::setAll(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method68" target="page">ParticleDataEntry::setAntiName(...)</a></td>
+<td><a href="ParticleDataScheme.php#method71" target="page">ParticleDataEntry::setAntiName(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method70" target="page">ParticleDataEntry::setChargeType(...)</a></td>
+<td><a href="ParticleDataScheme.php#method73" target="page">ParticleDataEntry::setChargeType(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method71" target="page">ParticleDataEntry::setColType(...)</a></td>
+<td><a href="ParticleDataScheme.php#method74" target="page">ParticleDataEntry::setColType(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method63" target="page">ParticleDataEntry::setDefaults()</a></td>
+<td><a href="ParticleDataScheme.php#method66" target="page">ParticleDataEntry::setDefaults()</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method81" target="page">ParticleDataEntry::setDoExternalDecays(...)</a></td>
+<td><a href="ParticleDataScheme.php#method84" target="page">ParticleDataEntry::setDoExternalDecays(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method83" target="page">ParticleDataEntry::setDoForceWidth(...)</a></td>
+<td><a href="ParticleDataScheme.php#method86" target="page">ParticleDataEntry::setDoForceWidth(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method84" target="page">ParticleDataEntry::setHasChanged(...)</a></td>
+<td><a href="ParticleDataScheme.php#method87" target="page">ParticleDataEntry::setHasChanged(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method79" target="page">ParticleDataEntry::setIsResonance(...)</a></td>
+<td><a href="ParticleDataScheme.php#method82" target="page">ParticleDataEntry::setIsResonance(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method82" target="page">ParticleDataEntry::setIsVisible(...)</a></td>
+<td><a href="ParticleDataScheme.php#method85" target="page">ParticleDataEntry::setIsVisible(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method72" target="page">ParticleDataEntry::setM0(...)</a></td>
+<td><a href="ParticleDataScheme.php#method75" target="page">ParticleDataEntry::setM0(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method80" target="page">ParticleDataEntry::setMayDecay(...)</a></td>
+<td><a href="ParticleDataScheme.php#method83" target="page">ParticleDataEntry::setMayDecay(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method75" target="page">ParticleDataEntry::setMMax(...)</a></td>
+<td><a href="ParticleDataScheme.php#method78" target="page">ParticleDataEntry::setMMax(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method74" target="page">ParticleDataEntry::setMMin(...)</a></td>
+<td><a href="ParticleDataScheme.php#method77" target="page">ParticleDataEntry::setMMin(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method73" target="page">ParticleDataEntry::setMWidth(...)</a></td>
+<td><a href="ParticleDataScheme.php#method76" target="page">ParticleDataEntry::setMWidth(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method68" target="page">ParticleDataEntry::setName(...)</a></td>
+<td><a href="ParticleDataScheme.php#method71" target="page">ParticleDataEntry::setName(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method68" target="page">ParticleDataEntry::setNames(...)</a></td>
+<td><a href="ParticleDataScheme.php#method71" target="page">ParticleDataEntry::setNames(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method110" target="page">ParticleDataEntry::setResonancePtr(...)</a></td>
+<td><a href="ParticleDataScheme.php#method113" target="page">ParticleDataEntry::setResonancePtr(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method69" target="page">ParticleDataEntry::setSpinType(...)</a></td>
+<td><a href="ParticleDataScheme.php#method72" target="page">ParticleDataEntry::setSpinType(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleDataScheme.php#method78" target="page">ParticleDataEntry::setTau0(...)</a></td>
+<td><a href="ParticleDataScheme.php#method81" target="page">ParticleDataEntry::setTau0(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="ParticleDataScheme.php#method105" target="page">ParticleDataEntry::sizeChannels()</a></td>
+<td><a href="ParticleDataScheme.php#method108" target="page">ParticleDataEntry::sizeChannels()</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="ParticleDataScheme.php#method69" target="page">ParticleDataEntry::spinType()</a></td>
+<td><a href="ParticleDataScheme.php#method72" target="page">ParticleDataEntry::spinType()</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleDataScheme.php#method78" target="page">ParticleDataEntry::tau0()</a></td>
+<td><a href="ParticleDataScheme.php#method81" target="page">ParticleDataEntry::tau0()</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method90" target="page">ParticleDataEntry::useBreitWigner()</a></td>
+<td><a href="ParticleDataScheme.php#method93" target="page">ParticleDataEntry::useBreitWigner()</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td> </td>
-<td><a href="ParticleDataScheme.php#method62" target="page">ParticleDataEntry::~ParticleDataEntry</a></td>
+<td><a href="ParticleDataScheme.php#method65" target="page">ParticleDataEntry::~ParticleDataEntry</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
@@ -4317,104 +4431,116 @@ Many of them are only intended for experts, while undocumented ones are only for
 </tr>
 
 <tr>
+<td>bool</td>
+<td><a href="ProgramFlow.php#method4" target="page">Pythia::checkVersion()</a></td>
+<td>Program Flow</td>
+</tr>
+
+<tr>
 <td>CoupSM</td>
-<td><a href="ProgramFlow.php#method34" target="page">Pythia::coupSM</a></td>
+<td><a href="ProgramFlow.php#method36" target="page">Pythia::coupSM</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>Event</td>
-<td><a href="ProgramFlow.php#method29" target="page">Pythia::event</a></td>
+<td><a href="ProgramFlow.php#method31" target="page">Pythia::event</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ProgramFlow.php#method23" target="page">Pythia::flag(...)</a></td>
+<td><a href="ProgramFlow.php#method25" target="page">Pythia::flag(...)</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ProgramFlow.php#method17" target="page">Pythia::forceHadronLevel(...)</a></td>
+<td><a href="ProgramFlow.php#method19" target="page">Pythia::forceHadronLevel(...)</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ProgramFlow.php#method19" target="page">Pythia::forceRHadronDecays()</a></td>
+<td><a href="ProgramFlow.php#method21" target="page">Pythia::forceRHadronDecays()</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="ProgramFlow.php#method16" target="page">Pythia::forceTimeShower(...)</a></td>
+<td><a href="ProgramFlow.php#method18" target="page">Pythia::forceTimeShower(...)</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>Info</td>
-<td><a href="ProgramFlow.php#method30" target="page">Pythia::info</a></td>
+<td><a href="ProgramFlow.php#method32" target="page">Pythia::info</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ProgramFlow.php#method14" target="page">Pythia::init()</a></td>
+<td><a href="ProgramFlow.php#method16" target="page">Pythia::init()</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ProgramFlow.php#method20" target="page">Pythia::LHAeventList(...)</a></td>
+<td><a href="ProgramFlow.php#method4" target="page">Pythia::initPtrs()</a></td>
+<td>Program Flow</td>
+</tr>
+
+<tr>
+<td>void</td>
+<td><a href="ProgramFlow.php#method22" target="page">Pythia::LHAeventList(...)</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ProgramFlow.php#method21" target="page">Pythia::LHAeventSkip(...)</a></td>
+<td><a href="ProgramFlow.php#method23" target="page">Pythia::LHAeventSkip(...)</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="ProgramFlow.php#method24" target="page">Pythia::mode(...)</a></td>
+<td><a href="ProgramFlow.php#method26" target="page">Pythia::mode(...)</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ProgramFlow.php#method18" target="page">Pythia::moreDecays()</a></td>
+<td><a href="ProgramFlow.php#method20" target="page">Pythia::moreDecays()</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ProgramFlow.php#method15" target="page">Pythia::next()</a></td>
+<td><a href="ProgramFlow.php#method17" target="page">Pythia::next()</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ProgramFlow.php#method25" target="page">Pythia::parm(...)</a></td>
+<td><a href="ProgramFlow.php#method27" target="page">Pythia::parm(...)</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>ParticleData</td>
-<td><a href="ProgramFlow.php#method32" target="page">Pythia::particleData</a></td>
+<td><a href="ProgramFlow.php#method34" target="page">Pythia::particleData</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>PartonSystems</td>
-<td><a href="ProgramFlow.php#method36" target="page">Pythia::partonSystems</a></td>
+<td><a href="ProgramFlow.php#method38" target="page">Pythia::partonSystems</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>Event</td>
-<td><a href="ProgramFlow.php#method28" target="page">Pythia::process</a></td>
+<td><a href="ProgramFlow.php#method30" target="page">Pythia::process</a></td>
 <td>Program Flow</td>
 </tr>
 
@@ -4425,122 +4551,128 @@ Many of them are only intended for experts, while undocumented ones are only for
 </tr>
 
 <tr>
-<td>bool</td>
-<td><a href="ProgramFlow.php#method4" target="page">Pythia::readFile(...)</a></td>
+<td> </td>
+<td><a href="ProgramFlow.php#method2" target="page">Pythia::Pythia(...)</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ProgramFlow.php#method4" target="page">Pythia::readFile(...)</a></td>
+<td><a href="ProgramFlow.php#method6" target="page">Pythia::readFile(...)</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ProgramFlow.php#method4" target="page">Pythia::readFile(...)</a></td>
+<td><a href="ProgramFlow.php#method6" target="page">Pythia::readFile(...)</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ProgramFlow.php#method4" target="page">Pythia::readFile(...)</a></td>
+<td><a href="ProgramFlow.php#method6" target="page">Pythia::readFile(...)</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ProgramFlow.php#method3" target="page">Pythia::readString(...)</a></td>
+<td><a href="ProgramFlow.php#method6" target="page">Pythia::readFile(...)</a></td>
+<td>Program Flow</td>
+</tr>
+
+<tr>
+<td>bool</td>
+<td><a href="ProgramFlow.php#method5" target="page">Pythia::readString(...)</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>Rndm</td>
-<td><a href="ProgramFlow.php#method33" target="page">Pythia::rndm</a></td>
+<td><a href="ProgramFlow.php#method35" target="page">Pythia::rndm</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ProgramFlow.php#method10" target="page">Pythia::setBeamShapePtr(...)</a></td>
+<td><a href="ProgramFlow.php#method12" target="page">Pythia::setBeamShapePtr(...)</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ProgramFlow.php#method7" target="page">Pythia::setDecayPtr(...)</a></td>
+<td><a href="ProgramFlow.php#method9" target="page">Pythia::setDecayPtr(...)</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ProgramFlow.php#method6" target="page">Pythia::setLHAupPtr(...)</a></td>
+<td><a href="ProgramFlow.php#method8" target="page">Pythia::setLHAupPtr(...)</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ProgramFlow.php#method5" target="page">Pythia::setPDFPtr(...)</a></td>
+<td><a href="ProgramFlow.php#method7" target="page">Pythia::setPDFPtr(...)</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ProgramFlow.php#method12" target="page">Pythia::setResonancePtr(...)</a></td>
+<td><a href="ProgramFlow.php#method14" target="page">Pythia::setResonancePtr(...)</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ProgramFlow.php#method8" target="page">Pythia::setRndmEnginePtr(...)</a></td>
+<td><a href="ProgramFlow.php#method10" target="page">Pythia::setRndmEnginePtr(...)</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ProgramFlow.php#method13" target="page">Pythia::setShowerPtr(...)</a></td>
+<td><a href="ProgramFlow.php#method15" target="page">Pythia::setShowerPtr(...)</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ProgramFlow.php#method11" target="page">Pythia::setSigmaPtr(...)</a></td>
+<td><a href="ProgramFlow.php#method13" target="page">Pythia::setSigmaPtr(...)</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>Settings</td>
-<td><a href="ProgramFlow.php#method31" target="page">Pythia::settings</a></td>
+<td><a href="ProgramFlow.php#method33" target="page">Pythia::settings</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ProgramFlow.php#method9" target="page">Pythia::setUserHooksPtr(...)</a></td>
+<td><a href="ProgramFlow.php#method11" target="page">Pythia::setUserHooksPtr(...)</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>SusyLesHouches</td>
-<td><a href="ProgramFlow.php#method35" target="page">Pythia::slha</a></td>
+<td><a href="ProgramFlow.php#method37" target="page">Pythia::slha</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ProgramFlow.php#method22" target="page">Pythia::stat()</a></td>
+<td><a href="ProgramFlow.php#method24" target="page">Pythia::stat()</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>string</td>
-<td><a href="ProgramFlow.php#method26" target="page">Pythia::word(...)</a></td>
+<td><a href="ProgramFlow.php#method28" target="page">Pythia::word(...)</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td> </td>
-<td><a href="ProgramFlow.php#method2" target="page">Pythia::~Pythia</a></td>
+<td><a href="ProgramFlow.php#method3" target="page">Pythia::~Pythia</a></td>
 <td>Program Flow</td>
 </tr>
 
@@ -4660,12 +4792,6 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="FourVectors.php#method57" target="page">RotBstMatrix::bst(...)</a></td>
-<td>Four-Vectors</td>
-</tr>
-
-<tr>
-<td>void</td>
 <td><a href="FourVectors.php#method58" target="page">RotBstMatrix::bst(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
@@ -4678,43 +4804,43 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="FourVectors.php#method58" target="page">RotBstMatrix::bstback(...)</a></td>
+<td><a href="FourVectors.php#method60" target="page">RotBstMatrix::bst(...)</a></td>
+<td>Four-Vectors</td>
+</tr>
+
+<tr>
+<td>void</td>
+<td><a href="FourVectors.php#method59" target="page">RotBstMatrix::bstback(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="FourVectors.php#method65" target="page">RotBstMatrix::deviation()</a></td>
+<td><a href="FourVectors.php#method66" target="page">RotBstMatrix::deviation()</a></td>
 <td>Four-Vectors</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="FourVectors.php#method61" target="page">RotBstMatrix::fromCMframe(...)</a></td>
+<td><a href="FourVectors.php#method62" target="page">RotBstMatrix::fromCMframe(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="FourVectors.php#method63" target="page">RotBstMatrix::invert()</a></td>
+<td><a href="FourVectors.php#method64" target="page">RotBstMatrix::invert()</a></td>
 <td>Four-Vectors</td>
 </tr>
 
 <tr>
 <td>RotBstMatrix&</td>
-<td><a href="FourVectors.php#method54" target="page">RotBstMatrix::operator=(...)</a></td>
+<td><a href="FourVectors.php#method55" target="page">RotBstMatrix::operator=(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="FourVectors.php#method64" target="page">RotBstMatrix::reset()</a></td>
-<td>Four-Vectors</td>
-</tr>
-
-<tr>
-<td>void</td>
-<td><a href="FourVectors.php#method55" target="page">RotBstMatrix::rot(...)</a></td>
+<td><a href="FourVectors.php#method65" target="page">RotBstMatrix::reset()</a></td>
 <td>Four-Vectors</td>
 </tr>
 
@@ -4726,25 +4852,31 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="FourVectors.php#method62" target="page">RotBstMatrix::rotbst(...);</a></td>
-<td>Four-Vectors</td>
-</tr>
-
-<tr>
-<td> </td>
-<td><a href="FourVectors.php#method52" target="page">RotBstMatrix::RotBstMatrix()</a></td>
-<td>Four-Vectors</td>
-</tr>
-
-<tr>
-<td> </td>
-<td><a href="FourVectors.php#method53" target="page">RotBstMatrix::RotBstMatrix(...)</a></td>
+<td><a href="FourVectors.php#method57" target="page">RotBstMatrix::rot(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="FourVectors.php#method60" target="page">RotBstMatrix::toCMframe(...)</a></td>
+<td><a href="FourVectors.php#method63" target="page">RotBstMatrix::rotbst(...);</a></td>
+<td>Four-Vectors</td>
+</tr>
+
+<tr>
+<td> </td>
+<td><a href="FourVectors.php#method53" target="page">RotBstMatrix::RotBstMatrix()</a></td>
+<td>Four-Vectors</td>
+</tr>
+
+<tr>
+<td> </td>
+<td><a href="FourVectors.php#method54" target="page">RotBstMatrix::RotBstMatrix(...)</a></td>
+<td>Four-Vectors</td>
+</tr>
+
+<tr>
+<td>void</td>
+<td><a href="FourVectors.php#method61" target="page">RotBstMatrix::toCMframe(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
@@ -4859,6 +4991,12 @@ Many of them are only intended for experts, while undocumented ones are only for
 <tr>
 <td>map<string, FVec></td>
 <td><a href="SettingsScheme.php#method14" target="page">Settings::getFVecMap(...)</a></td>
+<td>Settings Scheme</td>
+</tr>
+
+<tr>
+<td>bool</td>
+<td><a href="SettingsScheme.php#method18" target="page">Settings::getIsInit()</a></td>
 <td>Settings Scheme</td>
 </tr>
 
@@ -5458,13 +5596,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>virtual bool</td>
-<td><a href="ImplementNewShowers.php#method35" target="page">SpaceShower::branch(...)</a></td>
-<td>Implement New Showers</td>
-</tr>
-
-<tr>
-<td>virtual Event</td>
-<td><a href="ImplementNewShowers.php#method41" target="page">SpaceShower::branched(...)</a></td>
+<td><a href="ImplementNewShowers.php#method34" target="page">SpaceShower::branch(...)</a></td>
 <td>Implement New Showers</td>
 </tr>
 
@@ -5476,103 +5608,103 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>bool</td>
-<td><a href="ImplementNewShowers.php#method37" target="page">SpaceShower::doRestart()</a></td>
+<td><a href="ImplementNewShowers.php#method36" target="page">SpaceShower::doRestart()</a></td>
 <td>Implement New Showers</td>
 </tr>
 
 <tr>
 <td>virtual double</td>
-<td><a href="ImplementNewShowers.php#method31" target="page">SpaceShower::enhancePTmax()</a></td>
+<td><a href="ImplementNewShowers.php#method30" target="page">SpaceShower::enhancePTmax()</a></td>
 <td>Implement New Showers</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ImplementNewShowers.php#method38" target="page">SpaceShower::getHasWeaklyRadiated()</a></td>
+<td><a href="ImplementNewShowers.php#method37" target="page">SpaceShower::getHasWeaklyRadiated()</a></td>
 <td>Implement New Showers</td>
 </tr>
 
 <tr>
 <td>virtual string</td>
-<td><a href="ImplementNewShowers.php#method44" target="page">SpaceShower::getSplittingName(...)</a></td>
+<td><a href="ImplementNewShowers.php#method42" target="page">SpaceShower::getSplittingName(...)</a></td>
 <td>Implement New Showers</td>
 </tr>
 
 <tr>
 <td>virtual double</td>
-<td><a href="ImplementNewShowers.php#method45" target="page">SpaceShower::getSplittingProb(...)</a></td>
+<td><a href="ImplementNewShowers.php#method43" target="page">SpaceShower::getSplittingProb(...)</a></td>
+<td>Implement New Showers</td>
+</tr>
+
+<tr>
+<td>virtual vector &lt;double&gt;</td>
+<td><a href="ImplementNewShowers.php#method41" target="page">SpaceShower::getStateVariables(...)</a></td>
 <td>Implement New Showers</td>
 </tr>
 
 <tr>
 <td>virtual void</td>
-<td><a href="ImplementNewShowers.php#method29" target="page">SpaceShower::init(...)</a></td>
+<td><a href="ImplementNewShowers.php#method28" target="page">SpaceShower::init(...)</a></td>
 <td>Implement New Showers</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ImplementNewShowers.php#method28" target="page">SpaceShower::initPtr(...)</a></td>
+<td><a href="ImplementNewShowers.php#method27" target="page">SpaceShower::initPtr(...)</a></td>
 <td>Implement New Showers</td>
 </tr>
 
 <tr>
 <td>virtual bool</td>
-<td><a href="ImplementNewShowers.php#method30" target="page">SpaceShower::limitPTmax(...)</a></td>
+<td><a href="ImplementNewShowers.php#method39" target="page">SpaceShower::isSpacelike(...)</a></td>
+<td>Implement New Showers</td>
+</tr>
+
+<tr>
+<td>virtual bool</td>
+<td><a href="ImplementNewShowers.php#method29" target="page">SpaceShower::limitPTmax(...)</a></td>
 <td>Implement New Showers</td>
 </tr>
 
 <tr>
 <td>virtual void</td>
-<td><a href="ImplementNewShowers.php#method39" target="page">SpaceShower::list(...)</a></td>
+<td><a href="ImplementNewShowers.php#method38" target="page">SpaceShower::list(...)</a></td>
 <td>Implement New Showers</td>
 </tr>
 
 <tr>
 <td>virtual void</td>
-<td><a href="ImplementNewShowers.php#method32" target="page">SpaceShower::prepare(...)</a></td>
+<td><a href="ImplementNewShowers.php#method31" target="page">SpaceShower::prepare(...)</a></td>
 <td>Implement New Showers</td>
 </tr>
 
 <tr>
 <td>virtual double</td>
-<td><a href="ImplementNewShowers.php#method42" target="page">SpaceShower::pT2Space(...)</a></td>
-<td>Implement New Showers</td>
-</tr>
-
-<tr>
-<td>virtual double</td>
-<td><a href="ImplementNewShowers.php#method34" target="page">SpaceShower::pTnext(...)</a></td>
+<td><a href="ImplementNewShowers.php#method33" target="page">SpaceShower::pTnext(...)</a></td>
 <td>Implement New Showers</td>
 </tr>
 
 <tr>
 <td> </td>
-<td><a href="ImplementNewShowers.php#method26" target="page">SpaceShower::SpaceShower()</a></td>
+<td><a href="ImplementNewShowers.php#method25" target="page">SpaceShower::SpaceShower()</a></td>
 <td>Implement New Showers</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="ImplementNewShowers.php#method36" target="page">SpaceShower::system()</a></td>
+<td><a href="ImplementNewShowers.php#method35" target="page">SpaceShower::system()</a></td>
 <td>Implement New Showers</td>
 </tr>
 
 <tr>
 <td>virtual void</td>
-<td><a href="ImplementNewShowers.php#method33" target="page">SpaceShower::update(...)</a></td>
-<td>Implement New Showers</td>
-</tr>
-
-<tr>
-<td>virtual double</td>
-<td><a href="ImplementNewShowers.php#method43" target="page">SpaceShower::zSpace(...)</a></td>
+<td><a href="ImplementNewShowers.php#method32" target="page">SpaceShower::update(...)</a></td>
 <td>Implement New Showers</td>
 </tr>
 
 <tr>
 <td>virtual</td>
-<td><a href="ImplementNewShowers.php#method27" target="page">SpaceShower::~SpaceShower()</a></td>
+<td><a href="ImplementNewShowers.php#method26" target="page">SpaceShower::~SpaceShower()</a></td>
 <td>Implement New Showers</td>
 </tr>
 
@@ -5692,13 +5824,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>virtual Event</td>
-<td><a href="ImplementNewShowers.php#method21" target="page">TimeShower::branched(...)</a></td>
-<td>Implement New Showers</td>
-</tr>
-
-<tr>
-<td>virtual Event</td>
-<td><a href="ImplementNewShowers.php#method20" target="page">TimeShower::clustered(...)</a></td>
+<td><a href="ImplementNewShowers.php#method21" target="page">TimeShower::clustered(...)</a></td>
 <td>Implement New Showers</td>
 </tr>
 
@@ -5716,13 +5842,19 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>virtual string</td>
-<td><a href="ImplementNewShowers.php#method24" target="page">TimeShower::getSplittingName(...)</a></td>
+<td><a href="ImplementNewShowers.php#method23" target="page">TimeShower::getSplittingName(...)</a></td>
 <td>Implement New Showers</td>
 </tr>
 
 <tr>
 <td>virtual double</td>
-<td><a href="ImplementNewShowers.php#method25" target="page">TimeShower::getSplittingProb(...)</a></td>
+<td><a href="ImplementNewShowers.php#method24" target="page">TimeShower::getSplittingProb(...)</a></td>
+<td>Implement New Showers</td>
+</tr>
+
+<tr>
+<td>virtual vector &lt;double&gt;</td>
+<td><a href="ImplementNewShowers.php#method22" target="page">TimeShower::getStateVariables(...)</a></td>
 <td>Implement New Showers</td>
 </tr>
 
@@ -5735,6 +5867,12 @@ Many of them are only intended for experts, while undocumented ones are only for
 <tr>
 <td>void</td>
 <td><a href="ImplementNewShowers.php#method3" target="page">TimeShower::initPtr(...)</a></td>
+<td>Implement New Showers</td>
+</tr>
+
+<tr>
+<td>virtual bool</td>
+<td><a href="ImplementNewShowers.php#method20" target="page">TimeShower::isTimelike(...)</a></td>
 <td>Implement New Showers</td>
 </tr>
 
@@ -5759,12 +5897,6 @@ Many of them are only intended for experts, while undocumented ones are only for
 <tr>
 <td>virtual void</td>
 <td><a href="ImplementNewShowers.php#method10" target="page">TimeShower::prepareGlobal(...)</a></td>
-<td>Implement New Showers</td>
-</tr>
-
-<tr>
-<td>virtual double</td>
-<td><a href="ImplementNewShowers.php#method22" target="page">TimeShower::pT2Times(...)</a></td>
 <td>Implement New Showers</td>
 </tr>
 
@@ -5819,12 +5951,6 @@ Many of them are only intended for experts, while undocumented ones are only for
 <tr>
 <td>virtual void</td>
 <td><a href="ImplementNewShowers.php#method13" target="page">TimeShower::update(...)</a></td>
-<td>Implement New Showers</td>
-</tr>
-
-<tr>
-<td>virtual double</td>
-<td><a href="ImplementNewShowers.php#method23" target="page">TimeShower::zTimes(...)</a></td>
 <td>Implement New Showers</td>
 </tr>
 
@@ -6094,12 +6220,6 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="FourVectors.php#method45" target="page">Vec4::bst(...)</a></td>
-<td>Four-Vectors</td>
-</tr>
-
-<tr>
-<td>void</td>
 <td><a href="FourVectors.php#method46" target="page">Vec4::bst(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
@@ -6118,13 +6238,19 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="FourVectors.php#method49" target="page">Vec4::bstback(...)</a></td>
+<td><a href="FourVectors.php#method49" target="page">Vec4::bst(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
 <tr>
 <td>void</td>
 <td><a href="FourVectors.php#method50" target="page">Vec4::bstback(...)</a></td>
+<td>Four-Vectors</td>
+</tr>
+
+<tr>
+<td>void</td>
+<td><a href="FourVectors.php#method51" target="page">Vec4::bstback(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
@@ -6160,13 +6286,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="FourVectors.php#method40" target="page">Vec4::flip3()</a></td>
+<td><a href="FourVectors.php#method41" target="page">Vec4::flip3()</a></td>
 <td>Four-Vectors</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="FourVectors.php#method41" target="page">Vec4::flip4()</a></td>
+<td><a href="FourVectors.php#method42" target="page">Vec4::flip4()</a></td>
 <td>Four-Vectors</td>
 </tr>
 
@@ -6184,31 +6310,31 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>Vec4&</td>
-<td><a href="FourVectors.php#method31" target="page">Vec4::operator*=(...)</a></td>
+<td><a href="FourVectors.php#method32" target="page">Vec4::operator*=(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
 <tr>
 <td>Vec4&</td>
-<td><a href="FourVectors.php#method29" target="page">Vec4::operator+=(...)</a></td>
+<td><a href="FourVectors.php#method30" target="page">Vec4::operator+=(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
 <tr>
 <td>Vec4</td>
-<td><a href="FourVectors.php#method28" target="page">Vec4::operator-()</a></td>
+<td><a href="FourVectors.php#method29" target="page">Vec4::operator-()</a></td>
 <td>Four-Vectors</td>
 </tr>
 
 <tr>
 <td>Vec4&</td>
-<td><a href="FourVectors.php#method30" target="page">Vec4::operator-=(...)</a></td>
+<td><a href="FourVectors.php#method31" target="page">Vec4::operator-=(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
 <tr>
 <td>Vec4&</td>
-<td><a href="FourVectors.php#method32" target="page">Vec4::operator/=(...)</a></td>
+<td><a href="FourVectors.php#method33" target="page">Vec4::operator/=(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
@@ -6322,13 +6448,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="FourVectors.php#method38" target="page">Vec4::rescale3(...)</a></td>
+<td><a href="FourVectors.php#method39" target="page">Vec4::rescale3(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="FourVectors.php#method39" target="page">Vec4::rescale4(...)</a></td>
+<td><a href="FourVectors.php#method40" target="page">Vec4::rescale4(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
@@ -6340,13 +6466,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="FourVectors.php#method42" target="page">Vec4::rot(...)</a></td>
-<td>Four-Vectors</td>
-</tr>
-
-<tr>
-<td>void</td>
-<td><a href="FourVectors.php#method43" target="page">Vec4::rotaxis(...)</a></td>
+<td><a href="FourVectors.php#method43" target="page">Vec4::rot(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
@@ -6358,7 +6478,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="FourVectors.php#method51" target="page">Vec4::rotbst(...)</a></td>
+<td><a href="FourVectors.php#method45" target="page">Vec4::rotaxis(...)</a></td>
+<td>Four-Vectors</td>
+</tr>
+
+<tr>
+<td>void</td>
+<td><a href="FourVectors.php#method52" target="page">Vec4::rotbst(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
@@ -6388,4 +6514,4 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 </table>
 
-<!-- Copyright (C) 2015 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2016 Torbjorn Sjostrand -->

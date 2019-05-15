@@ -1,5 +1,5 @@
 // MergingHooks.h is a part of the PYTHIA event generator.
-// Copyright (C) 2015 Torbjorn Sjostrand.
+// Copyright (C) 2016 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -183,10 +183,10 @@ public:
     doRemoveDecayProducts(false),
     doOrderHistoriesSave(true),
     doCutOnRecStateSave(false),
-    doWClusteringSave(false),
+    doWeakClusteringSave(false),
     doSQCDClusteringSave(false),
     doIgnoreEmissionsSave(true),
-    doIgnoreStepSave(true) {
+    doIgnoreStepSave(true), hasJetMaxLocal(false) {
       inputEvent = Event(); resonances.resize(0); infoPtr = 0;
       particleDataPtr = 0; partonSystemsPtr = 0;}
 
@@ -278,10 +278,11 @@ public:
     return ((tmsListSave.size() == 3) ? tmsListSave[2] : 0.);
   }
   // Function returning the value of the maximal number of merged jets.
-  int nMaxJets() { return nJetMaxSave;}
+  int nMaxJets() { return (hasJetMaxLocal) ? nJetMaxLocal : nJetMaxSave;}
   // Function returning the value of the maximal number of merged jets,
   // for which NLO corrections are available.
-  int nMaxJetsNLO() { return nJetMaxNLOSave;}
+  int nMaxJetsNLO()
+    { return (hasJetMaxLocal) ? nJetMaxNLOLocal : nJetMaxNLOSave;}
   // Function to return hard process string.
   string getProcessString() { return processSave;}
   // Function to return the number of outgoing partons in the core process
@@ -334,6 +335,9 @@ public:
   // Return the number clustering steps that have actually been done.
   int nRecluster() { return nReclusterSave;}
 
+  // Return number of requested additional jets on top of the Born process.
+  int nRequested() { return nRequestedSave;}
+
   //----------------------------------------------------------------------//
   // Output functions to analyse/prepare event for merging
   //----------------------------------------------------------------------//
@@ -356,7 +360,8 @@ public:
   bool isInHard( int iPos, const Event& event);
 
   // Function to return the number of clustering steps for the current event
-  int getNumberOfClusteringSteps(const Event& event);
+  int getNumberOfClusteringSteps(const Event& event,
+    bool resetNjetMax = false);
 
   //----------------------------------------------------------------------//
   // Functions to steer contruction of histories
@@ -372,9 +377,9 @@ public:
   void allowCutOnRecState( bool doCutOnRecStateIn) {
     doCutOnRecStateSave = doCutOnRecStateIn; }
 
-  // Function to allow final state clusterings of W-bosons
-  void doWClustering( bool doWClusteringIn ) {
-    doWClusteringSave = doWClusteringIn; }
+  // Function to allow final state clusterings of weak bosons
+  void doWeakClustering( bool doWeakClusteringIn ) {
+    doWeakClusteringSave = doWeakClusteringIn; }
 
   //----------------------------------------------------------------------//
   // Functions used as default merging scales
@@ -439,6 +444,7 @@ protected:
   AlphaStrong AlphaS_FSRSave;
   AlphaStrong AlphaS_ISRSave;
   AlphaEM AlphaEM_FSRSave;
+  AlphaEM AlphaEM_ISRSave;
 
   // Saved path to LHE file for more automated merging
   string lheInputFile;
@@ -452,7 +458,7 @@ protected:
          resetHardQFacSave;
   int    unorderedScalePrescipSave, unorderedASscalePrescipSave,
          unorderedPDFscalePrescipSave, incompleteScalePrescipSave,
-         ktTypeSave, nReclusterSave, nQuarksMergeSave;
+         ktTypeSave, nReclusterSave, nQuarksMergeSave, nRequestedSave;
   double scaleSeparationFactorSave, nonJoinedNormSave,
          fsrInRecNormSave, herwigAcollFSRSave, herwigAcollISRSave,
          pT0ISRSave, pTcutSave;
@@ -481,6 +487,7 @@ protected:
   double tmsValueSave, DparameterSave;
   int nJetMaxSave;
   int nJetMaxNLOSave;
+
   string processSave;
 
   // List of cut values to used to define a merging scale. Ordering:
@@ -499,7 +506,7 @@ protected:
   bool doCutOnRecStateSave;
 
   // INTERNAL Hooks to allow clustering W bosons.
-  bool doWClusteringSave, doSQCDClusteringSave;
+  bool doWeakClusteringSave, doSQCDClusteringSave;
 
   // Store / get first scale in PDF's that Pythia should have used
   double muFSave;
@@ -519,6 +526,11 @@ protected:
   int nMinMPISave;
   // Save CKKW-L weight / O(\alpha_s) weight.
   double weightCKKWLSave, weightFIRSTSave;
+
+  // Local copies of nJetMax inputs, if recalculation is necessary.
+  int nJetMaxLocal;
+  int nJetMaxNLOLocal;
+  bool hasJetMaxLocal;
 
   //----------------------------------------------------------------------//
   // Generic setup functions
@@ -552,6 +564,7 @@ protected:
   AlphaStrong* AlphaS_FSR() { return &AlphaS_FSRSave;}
   AlphaStrong* AlphaS_ISR() { return &AlphaS_ISRSave;}
   AlphaEM* AlphaEM_FSR() { return &AlphaEM_FSRSave;}
+  AlphaEM* AlphaEM_ISR() { return &AlphaEM_ISRSave;}
 
   // Functions to return advanced merging switches
   // Include masses in definition of evolution pT and splitting kernels
@@ -641,7 +654,7 @@ protected:
   bool allowCutOnRecState() { return doCutOnRecStateSave;}
 
   // INTERNAL Hooks to allow clustering W bosons.
-  bool doWClustering() { return doWClusteringSave;}
+  bool doWeakClustering() { return doWeakClusteringSave;}
   // INTERNAL Hooks to allow clustering clustering of gluons to squarks.
   bool doSQCDClustering() { return doSQCDClusteringSave;}
 
@@ -697,9 +710,7 @@ protected:
   double kTdurham(const Particle& RadAfterBranch,
     const Particle& EmtAfterBranch, int Type, double D );
   // Function to compute "pythia pT separation" from Particle input
-
-  double rhoPythia(const Particle& RadAfterBranch,
-    const Particle& EmtAfterBranch, const Particle& RecAfterBranch,
+  double rhoPythia(const Event& event, int rad, int emt, int rec,
     int ShowerType);
 
   // Function to find a colour (anticolour) index in the input event,

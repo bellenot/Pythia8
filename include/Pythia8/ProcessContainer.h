@@ -1,5 +1,5 @@
 // ProcessContainer.h is a part of the PYTHIA event generator.
-// Copyright (C) 2015 Torbjorn Sjostrand.
+// Copyright (C) 2016 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -160,8 +160,8 @@ private:
 
   // Possibility to modify Les Houches input.
   bool   matchInOut;
-  int    idRenameBeams, setLifetime, setLeptonMass, idLep[3];
-  double mRecalculate, mLep[3];
+  int    idRenameBeams, setLifetime, setQuarkMass, setLeptonMass, idNewM[9];
+  double mRecalculate, mNewM[9];
 
   // Info on process.
   bool   isLHA, isNonDiff, isResolved, isDiffA, isDiffB, isDiffC, isQCD3body,

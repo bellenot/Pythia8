@@ -1,11 +1,11 @@
 // PartonDistributions.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2015 Torbjorn Sjostrand.
+// Copyright (C) 2016 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 // Function definitions (not found in the header) for the PDF, LHAPDF,
 // GRV94L, CTEQ5L,  MSTWpdf, CTEQ6pdf, GRVpiL, PomFix, PomH1FitAB,
-// PomH1Jets, Lepton and NNPDF classes.
+// PomH1Jets, Lepton, NNPDF and CJKL classes.
 
 #include "Pythia8/PartonDistributions.h"
 
@@ -44,6 +44,13 @@ void PDF::setValenceContent() {
     idVal1 =  1;
     idVal2 = -1;
   }
+
+  // Photon, to start off. Modified later.
+  if (idBeamAbs == 22) {
+    idVal1 =  2;
+    idVal2 = -2;
+  }
+
 }
 
 //--------------------------------------------------------------------------
@@ -102,6 +109,20 @@ double PDF::xf(int id, double x, double Q2) {
     if (idAbs == 22) return max(0., xgamma);
     return 0.;
 
+  // Photon beam.
+  } else if (idBeam == 22) {
+    int idAbs = abs(id);
+    if (id ==  0 || idAbs == 21) return max(0., xg);
+    if (id ==  1)    return max(0., xd);
+    if (id == -1)    return max(0., xdbar);
+    if (id ==  2)    return max(0., xu);
+    if (id == -2)    return max(0., xubar);
+    if (id ==  3)    return max(0., xs);
+    if (id == -3)    return max(0., xsbar);
+    if (idAbs ==  4) return max(0., xc);
+    if (idAbs ==  5) return max(0., xb);
+    if (idAbs == 22) return max(0., xgamma);
+    return 0.;
 
   // Lepton beam.
   } else {
@@ -143,6 +164,18 @@ double PDF::xfVal(int id, double x, double Q2) {
   // Diagonal meson beams: only pi0, Pomeron for now.
   } else if (idBeam == 111 || idBeam == 990) {
     if (id == idVal1 || id == idVal2) return max(0., xuVal);
+    return 0.;
+
+  // Photon beam.
+  } else if (idBeam == 22) {
+    int idAbs = abs(id);
+    if (id == idVal1 || id == idVal2) {
+      if (idAbs == 1) return max(0., xdVal);
+      if (idAbs == 2) return max(0., xuVal);
+      if (idAbs == 3) return max(0., xsVal);
+      if (idAbs == 4) return max(0., xcVal);
+      if (idAbs == 5) return max(0., xbVal);
+    }
     return 0.;
 
   // Lepton beam.
@@ -188,6 +221,29 @@ double PDF::xfSea(int id, double x, double Q2) {
     if (idAbs ==  4) return max(0., xc);
     if (idAbs ==  5) return max(0., xb);
     if (idAbs == 22) return max(0., xgamma);
+    return 0.;
+
+  // Photon beam.
+  } else if (idBeamAbs == 22) {
+    int idAbs = abs(id);
+    if ( id == 0 || idAbs == 21 ) return max(0., xg);
+    if ( idAbs == 22 ) return max(0., xgamma);
+
+    // If a valence parton return only the sea part.
+    // Otherwise return the total PDF.
+    if ( id == idVal1 || id == idVal2 ) {
+      if (idAbs ==  1) return max(0., xdSea);
+      if (idAbs ==  2) return max(0., xuSea);
+      if (idAbs ==  3) return max(0., xsSea);
+      if (idAbs ==  4) return max(0., xcSea);
+      if (idAbs ==  5) return max(0., xbSea);
+    } else {
+      if (idAbs ==  1) return max(0., xd);
+      if (idAbs ==  2) return max(0., xu);
+      if (idAbs ==  3) return max(0., xs);
+      if (idAbs ==  4) return max(0., xc);
+      if (idAbs ==  5) return max(0., xb);
+    }
     return 0.;
 
   // Lepton beam.
@@ -2447,6 +2503,541 @@ LHAPDF::Symbol LHAPDF::symbol(string symName) {
   dlerror();
   return sym;
 
+}
+
+//==========================================================================
+
+// Gives the CJKL leading order parton distribution function set
+// in parametrized form for the real photons. Authors: F.Cornet, P.Jankowski,
+// M.Krawczyk and A.Lorca, Phys. Rev. D68: 014010, 2003.
+// Valid for 10^(-5) < x < 1 and 1 < Q^2 < 2*10^5 GeV^2,
+// however, currently used down to Q^2 > 0.4 GeV^2 which is still above
+// the initial scale of the fit and parametrizations are reasonable.
+
+// Constants related to the fit.
+const double CJKL::ALPHAEM = 0.007297353080;
+const double CJKL::Q02     = 0.25;
+const double CJKL::Q2MIN   = 0.4;
+const double CJKL::LAMBDA  = 0.221;
+const double CJKL::MC      = 1.3;
+const double CJKL::MB      = 4.3;
+
+//--------------------------------------------------------------------------
+
+void CJKL::xfUpdate(int , double x, double Q2) {
+
+  // Parameters:
+  double lambda2 = pow2(LAMBDA);
+
+  // Freeze the scale below minimum scale.
+  if(Q2 < Q2MIN) Q2 = Q2MIN;
+
+  // Evolution variable.
+  double s = log( log(Q2/lambda2)/log(Q02/lambda2) );
+  double plLog = 9.0/(4.0*M_PI)*log(Q2/lambda2);
+
+  // Point-like contributions.
+  double plGluon   = pointlikeG(x,s);
+  double plUp      = pointlikeU(x,s);
+  double plDown    = pointlikeD(x,s);
+  double plStrange = plDown;
+
+  // Hadron-like contributions.
+  double hlGluon   = hadronlikeG(x,s);
+  double hlVal     = hadronlikeVal(x,s);
+  double hlSea     = hadronlikeSea(x,s);
+
+  // Heavy quarks. Undo the ACOT_X rescaling for DIS kinematics.
+  double xMaxC     = 1 - 6.76/(6.76 + Q2);
+  double xMaxB     = 1 - 73.96/(73.96 + Q2);
+  double plCharm   = pointlikeC(x*xMaxC,s,Q2)*xMaxC;
+  double plBottom  = pointlikeB(x*xMaxB,s,Q2)*xMaxB;
+  double hlCharm   = hadronlikeC(x*xMaxC,s,Q2)*xMaxC;
+  double hlBottom  = hadronlikeB(x*xMaxB,s,Q2)*xMaxB;
+
+  // Sum different contributions together.
+  xg     = ALPHAEM*( plLog*plGluon   + hlGluon );
+  xu     = ALPHAEM*( plLog*plUp      + 0.5*hlVal + hlSea );
+  xd     = ALPHAEM*( plLog*plDown    + 0.5*hlVal + hlSea );
+  xubar  = xu;
+  xdbar  = xd;
+  xs     = ALPHAEM*( plLog*plStrange + hlSea );
+  xsbar  = xs;
+  xc     = ALPHAEM*( plLog*plCharm   + hlCharm );
+  xb     = ALPHAEM*( plLog*plBottom  + hlBottom );
+  xgamma = 0;
+
+  // Subdivision of valence and sea.
+  xuVal = ALPHAEM*( plLog*plUp + 0.5*hlVal );
+  xuSea = ALPHAEM*( hlSea );
+  xdVal = ALPHAEM*( plLog*plDown + 0.5*hlVal );
+  xdSea = ALPHAEM*( hlSea );
+  xsVal = ALPHAEM*( plLog*plStrange );
+  xsSea = ALPHAEM*( hlSea );
+  xcVal = ALPHAEM*( plLog*plCharm );
+  xcSea = ALPHAEM*( hlCharm );
+  xbVal = ALPHAEM*( plLog*plBottom );
+  xbSea = ALPHAEM*( hlBottom );
+
+  // idSav = 9 to indicate that all flavours reset.
+  idSav  = 9;
+
+}
+
+//--------------------------------------------------------------------------
+
+// Returns the x-dependence decoupled from the logarithmic scale
+// dependence to approximate the PDFs from below for ISR.
+// Currently flat in x (no second argument), could be improved.
+
+double CJKL::gammaPDFxDependence(int id, double) {
+  if      (abs(id) == 1) return 0.013 * ALPHAEM;
+  else if (abs(id) == 2) return 0.026 * ALPHAEM;
+  else if (abs(id) == 3) return 0.010 * ALPHAEM;
+  else if (abs(id) == 4) return 0.020 * ALPHAEM;
+  else if (abs(id) == 5) return 0.010 * ALPHAEM;
+  else                   return 0;
+}
+
+//--------------------------------------------------------------------------
+
+// Returns the reference scale for the logarithmic scale dependence to
+// approximate the PDFs in ISR. Mass squared for heavy quarks and 0.2
+// for others.
+
+double CJKL::gammaPDFRefScale(int id) {
+  if      (abs(id) == 4) return pow2(MC);
+  else if (abs(id) == 5) return pow2(MB);
+  else                   return 0.20;
+}
+
+//--------------------------------------------------------------------------
+
+// Set valence content of the photon beam using parametrized Q2-dependence.
+
+int CJKL::sampleGammaValFlavor(double Q2) {
+
+  // Freeze the scale below the initial scale.
+  if(Q2 < Q02) Q2 = Q02;
+
+  // Calculate the x-integrated valence part of hadron-like contribution.
+  double lambda2 = pow2(LAMBDA);
+  double s  = log( log(Q2/lambda2)/log(Q02/lambda2) );
+  double a  =  1.0898  + 0.38087 * s;
+  double b  =  0.42654 - 1.2128  * s;
+  double c  = -1.6576  + 1.7075  * s;
+  double d  =  0.96155 + 1.8441  * s;
+  double aa =  0.78391 - 0.06872 * s;
+  double a1 = tgamma(1+aa)*tgamma(1+d)/tgamma(2+aa+d);
+  double b1 = tgamma(1.5+aa)*tgamma(1+d)/tgamma(2.5+aa+d);
+  double c1 = tgamma(2+aa)*tgamma(1+d)/tgamma(3+aa+d);
+  double xfValHad = ALPHAEM*a*(a1 + b*b1 + c*c1);
+
+  // Set the reference scales and charges.
+  double mq2[5] = { Q02, Q02, Q02, pow2(MC), pow2(MB) };
+  double eq2[5] = { 1.0/9.0, 4.0/9.0, 1.0/9.0, 4.0/9.0, 1.0/9.0 };
+
+  // For u- and d-quarks valence contribution from hadron-like part.
+  double qEvo[5] = { xfValHad/2, xfValHad/2, 0, 0, 0 };
+  double qEvoTot = 0;
+
+  // Normalization of the point-like part.
+  double plNorm = 0.000936;
+
+  // Logarithmic Q^2 evolution of gamma -> qqbar splitting for each flavor.
+  for(int i = 0;i < 5;++i) {
+    qEvo[i] += plNorm*eq2[i]*max(0.0,log(Q2/mq2[i]));
+    qEvoTot += qEvo[i];
+  }
+
+  // Sample the valence flavor.
+  double qEvoRand = qEvoTot*rndmPtr->flat();
+  for(int i = 0; i < 5; ++i) {
+    qEvoRand -= qEvo[i];
+    if(qEvoRand <= 0.0) {
+      idVal1 = i+1;
+      idVal2 = -idVal1;
+      break;
+    }
+  }
+
+  return idVal1;
+}
+
+//--------------------------------------------------------------------------
+
+// Returns the point-like part of the gluon.
+
+double CJKL::pointlikeG(double x, double s) {
+
+  // Exponents.
+  double alpha1 = -0.43865;
+  double alpha2 =  2.7174;
+  double beta   =  0.36752;
+
+  // Scale dependent parameters.
+  double a  =  0.086893 - 0.34992  * s;
+  double b  =  0.010556 + 0.049525 * s;
+  double c  = -0.099005 + 0.34830  * s;
+  double d  =  1.0648   + 0.143421 * s;
+  double e  =  3.6717   + 2.5071   * s;
+  double f  =  2.1944   + 1.9358   * s;
+  double aa =  0.23679  - 0.11849  * s;
+  double bb = -0.19994  + 0.028124 * s;
+
+  // Point-like gluon parametrization.
+  return max(0.0,( pow(s,alpha1)*pow(x,aa)*( a + b*sqrt(x) + c*pow(x,bb) )
+    + pow(s,alpha2)*exp( -e + sqrt( f*pow(s,beta)*log(1.0/x) ) ) )
+    * pow(1-x,d) );
+}
+
+//--------------------------------------------------------------------------
+
+// Returns the point-like part of the u-quark.
+
+double CJKL::pointlikeU(double x, double s) {
+
+  // Exponents.
+  double alpha1 = -1.0711;
+  double alpha2 =  3.1320;
+  double beta   =  0.69243;
+
+  // Scale dependent parameters.
+  double a  = -0.058266  + 0.20506  * s;
+  double b  =  0.0097377 - 0.10617  * s;
+  double c  = -0.0068345 + 0.15211  * s;
+  double d  =  0.22297   + 0.013567 * s;
+  double e  =  6.4289    + 2.2802   * s;
+  double f  =  1.7302    + 0.76997  * s;
+  double aa =  0.87940   - 0.110241 * s;
+  double bb =  2.6878    - 0.040252 * s;
+
+  // Point-like u-quark parametrization.
+  return max(0.0, ( pow(s,alpha1)*pow(x,aa)*( a + b*sqrt(x) + c*pow(x,bb) )
+    + pow(s,alpha2)*exp( -e + sqrt( f*pow(s,beta)*log(1.0/x) ) ) )
+    * pow(1-x,d) );
+}
+
+//--------------------------------------------------------------------------
+
+// Returns the point-like part of the d-quark.
+
+double CJKL::pointlikeD(double x, double s) {
+
+  // Exponents.
+  double alpha1 = -1.1357;
+  double alpha2 =  3.1187;
+  double beta   =  0.66290;
+
+  // Scale dependent parameters.
+  double a  =  0.098814  - 0.067300  * s;
+  double b  = -0.092892  + 0.049949  * s;
+  double c  = -0.0066140 + 0.020427  * s;
+  double d  = -0.31385   - 0.0037558 * s;
+  double e  =  6.4671    + 2.2834    * s;
+  double f  =  1.6996    + 0.84262   * s;
+  double aa =  11.777    + 0.034760  * s;
+  double bb = -11.124    - 0.20135   * s;
+
+  // Regulate the x->1 divergence of (1-x)^d in the parameterization.
+  if(x > 0.995) x = 0.995;
+
+  // Point-like d-quark parametrization.
+  return max( 0.0, ( pow(s,alpha1)*pow(x,aa)*( a + b*sqrt(x) + c*pow(x,bb) )
+    + pow(s,alpha2)*exp( -e + sqrt( f*pow(s,beta)*log(1.0/x) ) ) )
+    * pow(1-x,d) );
+}
+
+//--------------------------------------------------------------------------
+
+// Returns the point-like part of the c-quark.
+
+double CJKL::pointlikeC(double x, double s, double Q2) {
+
+  // Scaled variable for c quarks with m = 1.3 GeV.
+  double y = x + 1 - Q2/(Q2 + 6.76);
+
+  // Kinematic boundary.
+  if (y >= 1.0) return 0;
+
+  // Declaration of parameters.
+  double alpha1, alpha2, beta, a, b, c, d, e, f, aa, bb;
+
+  // Parameters for Q^2 <= 10 GeV^2.
+  if (Q2 <= 10) {
+
+    // Exponents.
+    alpha1 = 2.9808;
+    alpha2 = 28.682;
+    beta   = 2.4863;
+
+    // Scale dependent parameters.
+    a  = -0.18826   + 0.13565  * s;
+    b  =  0.18508   - 0.11764  * s;
+    c  = -0.0014153 - 0.011510 * s;
+    d  = -0.48961   + 0.18810  * s;
+    e  =  0.20911   - 2.8544   * s + 14.256 *s*s;
+    f  =  2.7644    + 0.93717  * s;
+    aa = -7.6307    + 5.6807   * s;
+    bb =  394.58    - 541.82   * s + 200.82 *s*s;
+
+  // Parameters for Q^2 > 10 GeV^2.
+  } else {
+
+    // Exponents.
+    alpha1 = -1.8095;
+    alpha2 =  7.9399;
+    beta   =  0.041563;
+
+    // Scale dependent parameters.
+    a  = -0.54831  + 0.33412  * s;
+    b  =  0.19484  + 0.041562 * s;
+    c  = -0.39046  + 0.37194  * s;
+    d  =  0.12717  + 0.059280 * s;
+    e  =  8.7191   + 3.0194   * s;
+    f  =  4.2616   + 0.73993  * s;
+    aa = -0.30307  + 0.29430  * s;
+    bb =  7.2383   - 1.5995   * s;
+  }
+
+  // Point-like c-quark parametrization.
+  return max( 0.0, ( pow(s,alpha1)*pow(y,aa)*( a + b*sqrt(y) + c*pow(y,bb) )
+    + pow(s,alpha2)*exp( -e + sqrt( f*pow(s,beta)*log(1.0/x) ) ) )
+    * pow(1-y,d) );
+}
+
+//--------------------------------------------------------------------------
+
+// Returns the point-like part of the b-quark.
+
+double CJKL::pointlikeB(double x, double s, double Q2) {
+
+  //Scaled variable for b quarks with m = 4.3 GeV.
+  double y = x + 1 - Q2/(Q2 + 73.96);
+
+  // Kinematic boundary.
+  if (y >= 1.0) return 0;
+
+  // Declaration of parameters.
+  double alpha1, alpha2, beta, a, b, c, d, e, f, aa, bb;
+
+  // Parameters for Q^2 <= 100 GeV^2.
+  if (Q2 <= 100) {
+
+    // Exponents.
+    alpha1 =  2.2849;
+    alpha2 =  6.0408;
+    beta   = -0.11577;
+
+    // Scale dependent parameters.
+    a  = -0.26971   + 0.17942   * s;
+    b  =  0.27033   - 0.18358   * s + 0.0061059 *s*s;
+    c  =  0.0022862 - 0.0016837 * s;
+    d  =  0.30807   - 0.10490   * s;
+    e  =  14.812    - 1.2977    * s;
+    f  =  1.7148    + 2.3532    * s + 0.053734  *sqrt(s);
+    aa =  3.8140    - 1.0514    * s;
+    bb =  2.2292    + 20.194    * s;
+
+  // Parameters for Q^2 > 100 GeV^2.
+  } else {
+
+    // Exponents.
+    alpha1 = -5.0607;
+    alpha2 =  16.590;
+    beta   =  0.87190;
+
+    // Scale dependent parameters.
+    a  = -0.72790  + 0.36549  * s;
+    b  = -0.62903  + 0.56817  * s;
+    c  = -2.4467   + 1.6783   * s;
+    d  =  0.56575  - 0.19120  * s;
+    e  =  1.4687   + 9.6071   * s;
+    f  =  1.1706   + 0.99674  * s;
+    aa = -0.084651 - 0.083206 * s;
+    bb =  9.6036   - 3.4864   * s;
+  }
+
+  // Point-like b-quark parametrization.
+  return max( 0.0, ( pow(s,alpha1)*pow(y,aa)*( a + b*sqrt(y) + c*pow(y,bb) )
+    + pow(s,alpha2)*exp( -e + sqrt( f*pow(s,beta)*log(1.0/x) ) ) )
+    * pow(1-y,d) );
+}
+
+//--------------------------------------------------------------------------
+
+// Returns the hadron-like part of the gluon pdf.
+
+double CJKL::hadronlikeG(double x, double s) {
+
+  // Exponents.
+  double alpha = 0.59945;
+  double beta  = 1.1285;
+
+  // Scale dependent parameters.
+  double a  = -0.19898 + 0.57414 * s;
+  double b  =  1.9942  - 1.8306  * s;
+  double c  = -1.9848  + 1.4136  * s;
+  double d  =  0.21294 + 2.7450  * s;
+  double e  =  1.2287  + 2.4447  * s;
+  double f  =  4.9230  + 0.18526 * s;
+  double aa = -0.34948 + 0.47058 * s;
+
+  // Hadron-like gluon parametrization.
+  return max( 0.0, pow(1-x,d)*( pow(x,aa)*( a + b*sqrt(x) + c*x )
+    + pow(s,alpha)*exp( -e + sqrt( f*pow(s,beta)*log(1.0/x) ) ) ) );
+}
+
+//--------------------------------------------------------------------------
+
+// Returns the hadron-like part of the valence quarks.
+
+double CJKL::hadronlikeVal(double x, double s) {
+
+  // Scale dependent parameters.
+  double a  =  1.0898  + 0.38087  * s;
+  double b  =  0.42654 - 1.2128   * s;
+  double c  = -1.6576  + 1.7075   * s;
+  double d  =  0.96155 + 1.8441   * s;
+  double aa =  0.78391 - 0.068720 * s;
+
+  // Hadron-like valence quarks parametrization.
+  return max( 0.0, pow(1-x,d)*pow(x,aa)*a*( 1 + b*sqrt(x) + c*x ) );
+}
+
+//--------------------------------------------------------------------------
+
+// Returns the hadron-like part of the sea quarks.
+
+double CJKL::hadronlikeSea(double x, double s) {
+
+  // Exponents.
+  double alpha = 0.71660;
+  double beta  = 1.0497;
+
+  // Scale dependent parameters.
+  double a  =  0.60478 + 0.036160 * s;
+  double b  =  4.2106  - 0.85835  * s;
+  double d  =  4.1494  + 0.34866  * s;
+  double e  =  4.5179  + 1.9219   * s;
+  double f  =  5.2812  - 0.15200  * s;
+  double aa =  0.72289 - 0.21562  * s;
+
+  // Pre-calculate the logarithm.
+  double logx = log(1.0/x);
+
+  // Hadron-like sea quark parametrization.
+  return max( 0.0, pow(1-x,d)*pow(s,alpha)*( 1 + a*sqrt(x) + b*x )
+    * exp( -e + sqrt( f*pow(s,beta)*logx ) )*pow(logx,-aa) );
+}
+
+//--------------------------------------------------------------------------
+
+// Returns the hadron-like part of the c-quarks.
+
+double CJKL::hadronlikeC(double x, double s, double Q2) {
+
+  //Scaled variable for c quarks with m = 1.3 GeV.
+  double y = x + 1 - Q2/(Q2 + 6.76);
+
+  // Kinematic boundary.
+  if (y >= 1.0) return 0;
+
+  // Pre-calculate the logarithm.
+  double logx = log(1.0/x);
+
+  // Declaration of parameters.
+  double alpha, beta, a, b, d, e, f, aa;
+
+  // Parameters for Q^2 <= 10 GeV^2.
+  if (Q2 <= 10) {
+
+    // Exponents.
+    alpha = 5.6729;
+    beta  = 1.4575;
+
+    // Scale dependent parameters.
+    a  = -2586.4 + 1910.1  * s;
+    b  =  2695.0 - 1688.2  * s;
+    d  =  1.5146 + 3.1028  * s;
+    e  = -3.9185 + 11.738  * s;
+    f  =  3.6126 - 1.0291  * s;
+    aa =  1.6248 - 0.70433 * s;
+
+  // Parameters for Q^2 > 10 GeV^2.
+  } else {
+
+    // Exponents.
+    alpha = -1.6470;
+    beta  =  0.72738;
+
+    // Scale dependent parameters.
+    a  = -2.0561  + 0.75576 * s;
+    b  =  2.1266  + 0.66383 * s;
+    d  =  3.0301  - 1.7499  * s + 1.6466  *s*s;
+    e  =  4.1282  + 1.6929  * s - 0.26292 *s*s;
+    f  =  0.89599 + 1.2761  * s - 0.15061 *s*s;
+    aa = -0.78809 + 0.90278 * s;
+
+  }
+
+  // Hadron-like c-quark parametrization. Note typo in the CJKL paper.
+  return max( 0.0, pow(1-y,d)*pow(s,alpha)*( 1 + a*sqrt(y) + b*y )
+    * exp( -e + f*sqrt( pow(s,beta)*logx ) )*pow(logx,-aa) );
+}
+
+//--------------------------------------------------------------------------
+
+// Returns the hadron-like part of the b-quarks.
+
+double CJKL::hadronlikeB(double x, double s, double Q2) {
+
+  // Scaled variable for b quarks with m = 4.3 GeV.
+  double y = x + 1 - Q2/(Q2 + 73.96);
+
+  // Kinematic boundary.
+  if (y >= 1.0) return 0;
+
+  // Pre-calculate the logarithm.
+  double logx = log(1.0/x);
+
+  // Declaration of parameters.
+  double alpha, beta, a, b, d, e, f, aa;
+
+  // Parameters for Q^2 <= 100 GeV^2.
+  if (Q2 <= 100) {
+
+    // Exponents.
+    alpha = -10.210;
+    beta  = -2.2296;
+
+    // Scale dependent parameters.
+    a  = -99.613  + 171.25   * s;
+    b  =  492.61  - 420.45   * s;
+    d  =  3.3917  + 0.084256 * s;
+    e  =  5.6829  - 0.23571  * s;
+    f  = -2.0137  + 4.6955   * s;
+    aa =  0.82278 + 0.081818 * s;
+
+  // Parameters for Q^2 > 100 GeV^2.
+  } else {
+
+    // Exponents.
+    alpha = 2.4198;
+    beta  = 0.40703;
+
+    // Scale dependent parameters.
+    a  = -2.1109  + 1.2711  * s;
+    b  =  9.0196  - 3.6082  * s;
+    d  =  3.6455  - 4.1353  * s + 2.3615  *s*s;
+    e  =  4.6196  + 2.4212  * s;
+    f  =  0.66454 + 1.1109  * s;
+    aa = -0.98933 + 0.42366 * s + 0.15817 *s*s;
+  }
+
+  // Hadron-like b-quark parametrization. Note typo in the CJKL paper.
+  return max( 0.0, pow(1-y,d)*pow(s,alpha)*( 1 + a*sqrt(y) + b*y )
+    * exp( -e + f*sqrt( pow(s,beta)*logx ) )*pow(logx,-aa) );
 }
 
 //==========================================================================

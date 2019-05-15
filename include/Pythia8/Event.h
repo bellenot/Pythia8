@@ -1,5 +1,5 @@
 // Event.h is a part of the PYTHIA event generator.
-// Copyright (C) 2015 Torbjorn Sjostrand.
+// Copyright (C) 2016 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -148,6 +148,7 @@ public:
   int    idAbs()     const {return abs(idSave);}
   int    statusAbs() const {return abs(statusSave);}
   bool   isFinal()   const {return (statusSave > 0);}
+  int    intPol()    const;
   bool   isRescatteredIncoming() const {return
     (statusSave == -34 || statusSave == -45 ||
      statusSave == -46 || statusSave == -54);}
@@ -193,6 +194,7 @@ public:
   int iBotCopyId(bool simplify = false) const;
   vector<int> motherList()   const;
   vector<int> daughterList() const;
+  vector<int> daughterListRecursive() const;
   vector<int> sisterList(bool traceTopBot = false) const;
   bool isAncestor(int iAncestor) const;
   int statusHepMC()  const;

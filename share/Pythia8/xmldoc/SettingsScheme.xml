@@ -562,6 +562,10 @@ value(s) can be put outside the intended borders.
 reset the current value to the default one. 
 </methodmore> 
  
+<method name="bool Settings::getIsInit()"> 
+return true if the database has been initialized, else false. 
+</method> 
+ 
 </chapter> 
  
-<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 

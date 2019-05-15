@@ -721,8 +721,15 @@ switched on.
 Azimuthal asymmetry induced by gluon polarization; on/off = true/false. 
    
  
-<br/><br/><strong>TimeShower:recoilToColoured</strong>  <input type="radio" name="43" value="on" checked="checked"><strong>On</strong>
+<br/><br/><strong>TimeShower:phiPolAsymHard</strong>  <input type="radio" name="43" value="on" checked="checked"><strong>On</strong>
 <input type="radio" name="43" value="off"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
+Extend the above azimuthal asymmetry (if on) also back to gluons produced 
+in the hard process itself, where feasible; on/off = true/false. 
+   
+ 
+<br/><br/><strong>TimeShower:recoilToColoured</strong>  <input type="radio" name="44" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="44" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 In the decays of coloured resonances, say <i>t &rarr; b W</i>, it is not 
 possible to set up dipoles with matched colours. Originally the 
@@ -741,15 +748,15 @@ would remain recoiler, while in the new (<code>on</code>) instead
 each newly emitted photon becomes the new recoiler. 
    
  
-<br/><br/><strong>TimeShower:useFixedFacScale</strong>  <input type="radio" name="44" value="on"><strong>On</strong>
-<input type="radio" name="44" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>TimeShower:useFixedFacScale</strong>  <input type="radio" name="45" value="on"><strong>On</strong>
+<input type="radio" name="45" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Allow the possibility to use a fixed factorization scale, set by 
 the <code>parm</code> below. This option is unphysical and only 
 intended for toy-model and debug studies. 
    
  
-<br/><br/><table><tr><td><strong>TimeShower:fixedFacScale </td><td></td><td> <input type="text" name="45" value="100." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>100.</strong></code>; <code>minimum = 1.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>TimeShower:fixedFacScale </td><td></td><td> <input type="text" name="46" value="100." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>100.</strong></code>; <code>minimum = 1.</code>)</td></tr></table>
 The fixed factorization scale, in GeV, that would be used in the 
 evaluation of parton densities if the <code>flag</code> above is on. 
    
@@ -981,17 +988,22 @@ fwrite($handle,$data);
 }
 if($_POST["43"] != "on")
 {
-$data = "TimeShower:recoilToColoured = ".$_POST["43"]."\n";
+$data = "TimeShower:phiPolAsymHard = ".$_POST["43"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["44"] != "off")
+if($_POST["44"] != "on")
 {
-$data = "TimeShower:useFixedFacScale = ".$_POST["44"]."\n";
+$data = "TimeShower:recoilToColoured = ".$_POST["44"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["45"] != "100.")
+if($_POST["45"] != "off")
 {
-$data = "TimeShower:fixedFacScale = ".$_POST["45"]."\n";
+$data = "TimeShower:useFixedFacScale = ".$_POST["45"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["46"] != "100.")
+{
+$data = "TimeShower:fixedFacScale = ".$_POST["46"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);
@@ -1001,4 +1013,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 

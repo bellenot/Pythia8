@@ -324,7 +324,8 @@ not <ei>Q^2</ei>).
  
 <method name="double Particle::pol()"> 
 the polarization/spin/helicity of a particle. Currently Pythia does not 
-use this variable for any internal operations, so its meaning is not 
+use this variable for internal operations, except for <ei>W/Z</ei> 
+polarization states in weak showers, so its meaning is not 
 uniquely defined. The LHA standard sets <code>SPINUP</code> to be the 
 cosine of the angle between the spin vector and the 3-momentum of the 
 decaying particle in the lab frame, i.e. restricted to be between +1 
@@ -418,6 +419,13 @@ else false. Thus, after an event has been fully generated, it
 separates the final-state particles from intermediate-stage ones. 
 (If used earlier in the generation process, a particle then 
 considered final may well decay later.) 
+</method> 
+ 
+<method name="int Particle::intPol()"> 
+if the polarization value is within 1e-10 of an integer 0, +-1, +-2 or 
+9 then this integer is returned, else -9. Is useful when the 
+double-precision value returned by <code>pol()</code> is really intended 
+to represent an integer, e.g. a helicity eigenstate. 
 </method> 
  
 <method name="bool Particle::isRescatteredIncoming()"> 
@@ -725,6 +733,17 @@ may have the same <code>daughterList</code>. Daughters are listed in
 ascending order. 
 </method> 
  
+<method name="vector&lt;int&gt; Particle::daughterListRecursive()"> 
+returns a vector of all the daughter indices of the particle, recursively 
+including all subsequent decay generations. It is based on the 
+<code>daughterList()</code> method, so obeys the rules given there, 
+except that the listing does not necessarily have to be in ascending 
+order. Its primary application is for the decay of a hadron, or of a 
+resonance in the <code>process</code> record. It is less convenient 
+e.g. for the full parton-shower evolution, and should there only be 
+used with caution. 
+</method> 
+ 
 <method name="vector&lt;int&gt; Particle::sisterList(bool traceTopBot 
 = false)"> 
 returns a vector of all the sister indices of the particle, i.e. all the 
@@ -915,4 +934,4 @@ particle species.
  
 </chapter> 
  
-<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 

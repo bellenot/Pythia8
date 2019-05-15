@@ -1,5 +1,5 @@
 // BeamRemnants.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2015 Torbjorn Sjostrand.
+// Copyright (C) 2016 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -58,7 +58,7 @@ bool BeamRemnants::init( Info* infoPtrIn, Settings& settings, Rndm* rndmPtrIn,
   reducedKTatHighY    = settings.parm("BeamRemnants:reducedKTatHighY");
 
   // Handling of rescattering kinematics uncertainties from primodial kT.
-  allowRescatter     = settings.flag("MultipartonInteractions:allowRescatter");
+  allowRescatter    = settings.flag("MultipartonInteractions:allowRescatter");
   doRescatterRestoreY = settings.flag("BeamRemnants:rescatterRestoreY");
 
   // Choice of beam remnant and colour reconnection scenarios.
@@ -343,16 +343,35 @@ bool BeamRemnants::setKinematics( Event& event) {
   if ( beamA.isUnresolvedLepton() && beamB.isUnresolvedLepton() )
     return true;
 
+  // Check if photon beams need remnants.
+  bool beamAisGamma    = beamA.isGamma();
+  bool beamBisGamma    = beamB.isGamma();
+  bool gammaARemnants  = beamA.getGammaRemnants();
+  bool gammaBRemnants  = beamB.getGammaRemnants();
+  bool gammaOneRemnant = false;
+
+  // Nothing to do if ISR have found the original beam photons.
+  if (beamAisGamma && !gammaARemnants && beamBisGamma && !gammaBRemnants)
+    return true;
+
   // Check that has not already used up beams.
-  if ( (!beamA.isLepton() && beamA.xMax(-1) <= 0.)
-    || (!beamB.isLepton() && beamB.xMax(-1) <= 0.) ) {
+  if ( ( !(beamA.isLepton() || (beamAisGamma && !gammaARemnants) )
+         && beamA.xMax(-1) <= 0.) ||
+       ( !(beamB.isLepton() || (beamBisGamma && !gammaBRemnants) )
+         && beamB.xMax(-1) <= 0.) ) {
     infoPtr->errorMsg("Error in BeamRemnants::setKinematics:"
       " no momentum left for beam remnants");
     return false;
   }
 
-  // Special kinematics setup for DIS.
-  if (isDIS) return setDISKinematics(event);
+  // Check if exactly one remnant for photon-photon collisions.
+  if ( (beamAisGamma && beamBisGamma) &&
+      ( (gammaARemnants && !gammaBRemnants) ||
+        (!gammaARemnants && gammaBRemnants) ) )
+    gammaOneRemnant = true;
+
+  // Special kinematics setup for one-remnant systems (DIS).
+  if(gammaOneRemnant || isDIS) return setOneRemnKinematics(event);
 
   // Last beam-status particles. Offset relative to normal beam locations.
   int nBeams   = 3;
@@ -424,7 +443,7 @@ bool BeamRemnants::setKinematics( Event& event) {
 
       // Generate Gaussian pT for initiator partons inside hadrons.
       // Store/restore rescattered parton momenta before primordial kT.
-      if (beam.isHadron() && doPrimordialKT) {
+      if ( (beam.isHadron() || beam.isGamma()) && doPrimordialKT ) {
         double pxSum = 0.;
         double pySum = 0.;
         for (int iPar = 0; iPar < nPar; ++iPar) {
@@ -452,7 +471,7 @@ bool BeamRemnants::setKinematics( Event& event) {
         }
 
       // Without primordial kT: still need to store rescattered partons.
-      } else if (beam.isHadron()) {
+      } else if ( beam.isHadron() || beam.isGamma() ) {
         for (int iPar = 0; iPar < nPar; ++iPar)
         if ( !beam[iPar].isFromBeam() ) {
           int iInAB = (iBeam == 0) ? partonSystemsPtr->getInA(iPar)
@@ -798,38 +817,104 @@ bool BeamRemnants::setKinematics( Event& event) {
 
 //--------------------------------------------------------------------------
 
-// Special beam remnant kinematics for Deeply Inelastic Scattering.
+// Special beam remnant kinematics for gamma-gamma collision with one
+// remnant system, other created by ISR, and for Deeply Inelastic Scattering.
 // Currently assumes unresolved lepton.
 
-bool BeamRemnants::setDISKinematics( Event& event) {
+bool BeamRemnants::setOneRemnKinematics( Event& event) {
 
-  // Identify lepton and hadron beams.
-  BeamParticle& beamLep = (beamAPtr->isLepton()) ? *beamAPtr : *beamBPtr;
-  BeamParticle& beamHad = (beamBPtr->isLepton()) ? *beamAPtr : *beamBPtr;
-  int iBeamHad = (beamBPtr->isLepton()) ? 1 : 2;
+  // Identify beams with and without remnant.
+  int iBeamHad;
+  if (isDIS) iBeamHad = beamAPtr->isLepton() ? 2 : 1;
+  else iBeamHad = beamAPtr->getGammaRemnants() ? 1 : 2;
+  BeamParticle& beamHad   = (iBeamHad == 1) ? *beamAPtr : *beamBPtr;
+  BeamParticle& beamOther = (iBeamHad == 2) ? *beamAPtr : *beamBPtr;
 
-  // Identify scattered lepton and scattered hadronic four-momentum.
-  int iLepScat = beamLep[0].iPos() + 2;
+  // Identify remnant-side hadronic four-momentum and scattered lepton if DIS.
+  int iLepScat = isDIS ? (beamOther[0].iPos() + 2) : -1;
   Vec4 pHadScat;
   for (int i = 5; i < event.size(); ++i)
     if (event[i].isFinal() && i != iLepScat) pHadScat += event[i].p();
 
-  // Boost to hadronic rest frame.
-  Vec4 pLepScat = event[iLepScat].p();
-  Vec4 pHadTot  = event[0].p() - pLepScat;
+  // Set scattered lepton momentum if DIS and find the hadronic system.
+  Vec4 pLepScat = isDIS ? event[iLepScat].p() : Vec4();
+  Vec4 pHadTot  = event[0].p();
+  if ( isDIS ) pHadTot -= pLepScat;
   Vec4 pRemnant = pHadTot - pHadScat;
   double w2Tot  = pHadTot.m2Calc();
   double w2Scat = pHadScat.m2Calc();
+
+  // Find a boost to the hadronic rest frame.
   RotBstMatrix MtoHadRest;
-  MtoHadRest.toCMframe( pHadScat, pRemnant);
+  RotBstMatrix MtoHadRest2;
+  MtoHadRest2.toCMframe( pHadScat, pRemnant);
+
+  // Do not flip the direction with boosts.
+  if (iBeamHad == 1) MtoHadRest.toCMframe( pRemnant, pHadScat);
+  else MtoHadRest.toCMframe( pHadScat, pRemnant);
+
+  // Boost the event to hadronic rest frame.
   event.rotbst( MtoHadRest);
   pHadScat.rotbst( MtoHadRest);
+
+  // Set the variables for kT-generation.
+  int nBeam = beamHad.size();
+  vector<double> kTwidth(nBeam);
+  vector<double> kTcomp(nBeam);
+  // Currently no MPI's for one-remnant systems.
+  int iSys         = 0;
+  double kTcompSum = 0;
+  if (doPrimordialKT) {
+
+    // Calculate the kT width from hard process.
+    int iInA         = partonSystemsPtr->getInA(iSys);
+    int iInB         = partonSystemsPtr->getInB(iSys);
+    double sHatNow   = (event[iInA].p() + event[iInB].p()).m2Calc();
+    double mHat      = sqrt(sHatNow);
+    double mHatDamp  = mHat / (mHat + halfMassForKT);
+    double scale     = (iSys == 0) ? infoPtr->QRen(iDS)
+      : partonSystemsPtr->getPTHat(iSys);
+    kTwidth[0]       = ( (halfScaleForKT * primordialKTsoft
+      + scale * primordialKThard) / (halfScaleForKT + scale) ) * mHatDamp;
+    kTcomp[0]        = mHatDamp;
+    kTcompSum = mHatDamp + nBeam - 1.;
+
+    // Calculate the kT width for remnant partons.
+    for ( int iRem = 1; iRem < nBeam; ++iRem){
+      kTwidth[iRem] = primordialKTremnant;
+      kTcomp[iRem]  = 1.;
+    }
+
+  }
 
   // Allow ten tries to construct kinematics (but normally works first).
   bool isPhysical = true;
   double xSum, xInvM, w2Remn, wDiff;
   for (int iTry = 0; iTry < NTRYKINMATCH; ++iTry) {
     isPhysical = true;
+
+    // Add primordial kT for one-remnant system.
+    if (doPrimordialKT) {
+
+      // Generate Gaussian pT for initiator partons inside hadron.
+      double pxSum = 0.;
+      double pySum = 0.;
+      for (int iPar = 0; iPar < nBeam; ++iPar) {
+        pair<double, double> gauss2 = rndmPtr->gauss2();
+        double px = kTwidth[iPar] * gauss2.first;
+        double py = kTwidth[iPar] * gauss2.second;
+        beamHad[iPar].px(px);
+        beamHad[iPar].py(py);
+        pxSum += px;
+        pySum += py;
+      }
+
+      // Share recoil between all initiator partons.
+      for (int iPar = 0; iPar < nBeam; ++iPar){
+        beamHad[iPar].px( beamHad[iPar].px() - pxSum*kTcomp[iPar]/kTcompSum );
+        beamHad[iPar].py( beamHad[iPar].py() - pySum*kTcomp[iPar]/kTcompSum );
+      }
+    }
 
     // Pick unrescaled x values for remnants. Sum up (unscaled) p+ and p-.
     xSum  = 0.;
@@ -841,28 +926,89 @@ bool BeamRemnants::setDISKinematics( Event& event) {
       xInvM += beamHad[iRem].mT2() / xPrel;
     }
 
+    // Include the primordial kT for scattered system if any.
+    double mT2Scat = w2Scat;
+    if (doPrimordialKT) mT2Scat += pow2( beamHad[0].pT());
+
     // Squared transverse mass for remnant, may give failure.
     w2Remn = xSum * xInvM;
-    wDiff  = sqrt(w2Tot) - sqrtpos(w2Scat) - sqrtpos(w2Remn);
+    wDiff  = sqrt(w2Tot) - sqrtpos(mT2Scat) - sqrtpos(w2Remn);
     if (wDiff < 0.) isPhysical = false;
     if (isPhysical) break;
   }
+
   if (!isPhysical) {
-    infoPtr->errorMsg("Error in BeamRemnants::setDISKinematics:"
+    infoPtr->errorMsg("Error in BeamRemnants::setOneRemnKinematics:"
       " too big beam remnant invariant mass");
     return false;
   }
 
+  // Calculate kinematics for the scattered and remnant system with kT.
+  if (doPrimordialKT) {
+
+    int iInA  = partonSystemsPtr->getInA(iSys);
+    int iInB  = partonSystemsPtr->getInB(iSys);
+    int iInit = (iBeamHad == 1) ? iInA : iInB;
+
+    // Beam momentum for boosts.
+    Vec4 pBeam = beamOther.p();
+
+    // Calculate the energy and pz of initiator with added kT.
+    double w2        = (beamOther.p() + event[iInit].p()).m2Calc();
+    double m2        = pow2(beamHad.m());
+    double mT2       = pow2(beamHad[iSys].pT()) + m2;
+    double eInitNew  = beamOther.e()*mT2/(w2-m2) + 0.25*(w2-m2)/beamOther.e();
+    double pzInitNew = beamOther.e()*mT2/(w2-m2) - 0.25*(w2-m2)/beamOther.e();
+    if(iBeamHad == 1) pzInitNew *= -1.0;
+    beamHad[iSys].pz( pzInitNew);
+    beamHad[iSys].e( eInitNew);
+
+    // Define the boost from event rest frame to frame where initiator
+    // has some kT.
+    RotBstMatrix MtoInitWithkT;
+
+    // Find the rest frame of beam particle and initiator.
+    if (iBeamHad == 1) {
+      MtoInitWithkT.toCMframe( beamHad[iSys].p(), beamOther.p());
+    } else {
+      MtoInitWithkT.toCMframe( beamOther.p(), beamHad[iSys].p());
+    }
+
+    // Boost to frame where beam particle has its original momentum.
+    pBeam.rotbst(MtoInitWithkT);
+    MtoInitWithkT.bst( pBeam, beamOther.p());
+
+    // Invert the boost.
+    MtoInitWithkT.invert();
+
+    // Add the initiator with kT to the event record.
+    int iBeam = beamHad[iSys].iPos();
+    int iCopy = event.copy(iBeam, -61);
+    event[iCopy].rotbst(MtoInitWithkT);
+    if (iBeamHad == 1) partonSystemsPtr->setInA(iSys, iCopy);
+    else partonSystemsPtr->setInB(iSys, iCopy);
+    beamHad[iSys].iPos( iCopy);
+    if (iSys == 0) {
+      int mother = event[iCopy].mother1();
+      event[mother].daughter1(iCopy);
+    }
+
+    // Calculate transverse mass for scattered system with kT.
+    w2Scat += pow2( beamHad[iSys].pT());
+  }
+
   // Boost of scattered system to compensate for remnant mass.
-  double lambda = pow2( w2Tot - w2Scat - w2Remn) - 4. * w2Scat * w2Remn;
-  double pzNew = 0.5 * sqrt( lambda / w2Tot);
+  double lambda   = pow2( w2Tot - w2Scat - w2Remn) - 4. * w2Scat * w2Remn;
+  double pzNew    = 0.5 * sqrt( lambda / w2Tot);
+  // Keep the direction of momentum to ensure stable boost.
+  if(iBeamHad == 1) pzNew *= -1.0;
   double eNewScat = 0.5 * (w2Tot + w2Scat - w2Remn) / sqrt(w2Tot);
-  Vec4 pNewScat( 0., 0., pzNew, eNewScat);
+  Vec4 pNewScat( beamHad[iSys].px(), beamHad[iSys].py(), pzNew, eNewScat);
   RotBstMatrix MforScat;
   MforScat.bst( pHadScat, pNewScat);
   int sizeSave = event.size();
   for (int i = 5; i < sizeSave; ++i)
-  if (i != iLepScat && event[i].isFinal()) {
+  if ( i != iLepScat && event[i].isFinal() ) {
     int iNew = event.copy( i, 62);
     event[iNew].rotbst( MforScat);
   }
@@ -873,9 +1019,11 @@ bool BeamRemnants::setDISKinematics( Event& event) {
   for (int iRem = 1; iRem < beamHad.size(); ++iRem) {
     double wNegNow = wNewRemn * beamHad[iRem].x() / xSum;
     double wPosNow = beamHad[iRem].mT2() / wNegNow;
-    Vec4 pNow( 0., 0., -0.5 * (wNegNow - wPosNow), 0.5 * (wPosNow + wNegNow) );
+    beamHad[iRem].pz(-0.5 * (wNegNow - wPosNow));
+    beamHad[iRem].e ( 0.5 * (wPosNow + wNegNow));
     int iNew = event.append( beamHad[iRem].id(), 63, iBeamHad, 0, 0, 0,
-      beamHad[iRem].col(), beamHad[iRem].acol(), pNow, beamHad[iRem].m() );
+      beamHad[iRem].col(), beamHad[iRem].acol(), beamHad[iRem].p(),
+      beamHad[iRem].m() );
     beamHad[iRem].iPos( iNew);
   }
 
@@ -885,7 +1033,6 @@ bool BeamRemnants::setDISKinematics( Event& event) {
 
   // Done.
   return true;
-
 }
 
 //--------------------------------------------------------------------------

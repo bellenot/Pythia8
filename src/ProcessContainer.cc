@@ -1,5 +1,5 @@
 // ProcessContainer.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2015 Torbjorn Sjostrand.
+// Copyright (C) 2016 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -143,12 +143,13 @@ bool ProcessContainer::init(bool isFirst, Info* infoPtrIn,
   // Allow Pythia to overwrite incoming beams or parts of Les Houches input.
   idRenameBeams = settings.mode("LesHouches:idRenameBeams");
   setLifetime   = settings.mode("LesHouches:setLifetime");
+  setQuarkMass  = settings.mode("LesHouches:setQuarkMass");
   setLeptonMass = settings.mode("LesHouches:setLeptonMass");
   mRecalculate  = settings.parm("LesHouches:mRecalculate");
   matchInOut    = settings.flag("LesHouches:matchInOut");
-  idLep[0] = 11; mLep[0] = particleDataPtr->m0(11);
-  idLep[1] = 13; mLep[1] = particleDataPtr->m0(13);
-  idLep[2] = 15; mLep[2] = particleDataPtr->m0(15);
+  for (int i = 0; i < 6; ++i) idNewM[i] = i;
+  for (int i = 6; i < 9; ++i) idNewM[i] = 2 * i - 1;
+  for (int i = 1; i < 9; ++i) mNewM[i]  = particleDataPtr->m0(idNewM[i]);
 
   // Done.
   return physical;
@@ -460,7 +461,7 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
     process.scale( scalePr);
 
     // Copy over info from LHA event to process, in proper order.
-    Vec4 pSumOut;
+    vector<int> iFinal;
     for (int i = 1; i < lhaUpPtr->sizePart(); ++i) {
       int iOld = newPos[i];
       int id = lhaUpPtr->id(iOld);
@@ -513,22 +514,15 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
       int col2   = (colType == -1 || colType == 2 || abs(colType) == 3)
                  ?  lhaUpPtr->col2(iOld) : 0;
 
-      // Copy momentum, ensure lepton masses and consistent (E, p m) set.
+      // Copy momentum and ensure consistent (E, p, m) set.
       double px  = lhaUpPtr->px(iOld);
       double py  = lhaUpPtr->py(iOld);
       double pz  = lhaUpPtr->pz(iOld);
       double e   = lhaUpPtr->e(iOld);
       double m   = lhaUpPtr->m(iOld);
-      for (int idL = 0; idL < 3; ++idL)
-        if (idAbs == idLep[idL] && setLeptonMass > 0 && (setLeptonMass == 2
-          || m < 0.9 * mLep[idL] || m > 1.1 * mLep[idL])) m = mLep[idL];
       if (mRecalculate > 0. && m > mRecalculate)
         m = sqrtpos( e*e - px*px - py*py - pz*pz);
       else e = sqrt( m*m + px*px + py*py + pz*pz);
-
-      // Momentum sum for outgoing particles.
-      if (matchInOut && i > 2 && lhaStatus == 1)
-        pSumOut += Vec4( px, py, pz, e);
 
       // Polarization.
       double pol = lhaUpPtr->spin(iOld);
@@ -550,10 +544,117 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
       if ( (setLifetime == 1 && idAbs == 15) || setLifetime == 2)
          tau = process[iNow].tau0() * rndmPtr->exp();
       if (tau > 0.) process[iNow].tau(tau);
+
+      // Track outgoing final particles.
+      if (status == 23) iFinal.push_back( iNow);
+    }
+
+    // Second pass to catch vanishing final lepton and quark masses.
+    int iFinalSz = iFinal.size();
+    for (int iF = 0; iF < iFinalSz; ++iF) {
+      int iMod = iFinal[iF];
+      int iQLmod  = 0;
+      double mOld = process[iMod].m();
+      for (int iQL = 1; iQL < 9; ++iQL)
+      if (process[iMod].idAbs() == idNewM[iQL]) {
+        if ( iQL < 6 && setQuarkMass > 0 && (iQL == 4 || iQL == 5
+          || setQuarkMass == 2) && (mOld < 0.5 * mNewM[iQL]
+          || mOld > 1.5 * mNewM[iQL]) ) iQLmod = iQL;
+        if ( iQL > 5 && setLeptonMass > 0 && (setLeptonMass == 2
+          || mOld < 0.9 * mNewM[iQL] || mOld > 1.1 * mNewM[iQL]) )
+          iQLmod = iQL;
+      }
+      if (iQLmod == 0) continue;
+      double mNew = mNewM[iQLmod];
+
+      // Find partner to exchange energy and momentum with: general.
+      int iRec = 0;
+      if (iFinalSz == 2) iRec = iFinal[1 - iF];
+      else if (process[iMod].mother1() > 2) {
+        int iMother = process[iMod].mother1();
+        int iMDau1  = process[iMother].daughter1();
+        int iMDau2  = process[iMother].daughter2();
+        if (iMDau2 == iMDau1 + 1 && iMod == iMDau1) iRec = iMDau2;
+        if (iMDau2 == iMDau1 + 1 && iMod == iMDau2) iRec = iMDau1;
+      }
+
+      // Find partner to exchange energy and momentum with: lepton.
+      if (iRec == 0 && iQLmod > 5) {
+        for (int iR = 0; iR < iFinalSz; ++iR) if (iR != iF) {
+          int iRtmp = iFinal[iR];
+          if (process[iRtmp].idAbs() == idNewM[iQLmod] + 1
+            && process[iRtmp].id() * process[iMod].id() < 0) iRec = iRtmp;
+        }
+      }
+      if (iRec == 0 && iQLmod > 5) {
+        for (int iR = 0; iR < iFinalSz; ++iR) if (iR != iF) {
+          int iRtmp = iFinal[iR];
+          if (process[iRtmp].id() == -process[iMod].id()) iRec = iRtmp;
+        }
+      }
+
+      // Find partner to exchange energy and momentum with: quark.
+      if (iRec == 0 && iQLmod < 6 && process[iMod].col() != 0) {
+        for (int iR = 0; iR < iFinalSz; ++iR) if (iR != iF) {
+          int iRtmp = iFinal[iR];
+          if (process[iRtmp].acol() == process[iMod].col()) iRec = iRtmp;
+        }
+      }
+      if (iRec == 0 && iQLmod < 6 && process[iMod].acol() != 0) {
+        for (int iR = 0; iR < iFinalSz; ++iR) if (iR != iF) {
+          int iRtmp = iFinal[iR];
+          if (process[iRtmp].col() == process[iMod].acol()) iRec = iRtmp;
+        }
+      }
+
+      // Find partner to exchange energy and momentum with: largest mass.
+      if (iRec == 0) {
+        double mMax = 0.;
+        for (int iR = 0; iR < iFinalSz; ++iR) if (iR != iF) {
+          int iRtmp   = iFinal[iR];
+          double mTmp = m( process[iMod], process[iRtmp]) - process[iRtmp].m();
+          if (mTmp > mMax) { iRec = iRtmp; mMax = mTmp;}
+        }
+      }
+
+      // Carry out exchange of energy and momentum, if possible.
+      bool doneShift = false;
+      Vec4 pMod   = process[iMod].p();
+      if (iRec != 0) {
+        Vec4 pRecOld = process[iRec].p();
+        Vec4 pRecNew = pRecOld;
+        double mRec  = process[iRec].m();
+        if ( pShift( pMod, pRecNew, mNew, mRec) ) {
+          process[iMod].p( pMod);
+          process[iMod].m( mNew);
+          process[iRec].p( pRecNew);
+          // Recursive boost of recoiler decay products, if necessary.
+          if (!process[iRec].isFinal()) {
+            vector<int> iDauRec = process[iRec].daughterListRecursive();
+            RotBstMatrix Mdau;
+            Mdau.bst( pRecOld, pRecNew);
+            for (int iD = 0; iD < int(iDauRec.size()); ++iD)
+              process[iDauRec[iD]].rotbst( Mdau);
+          }
+          doneShift = true;
+        }
+      }
+
+      // Emergency solution: just add energy as needed, => new incoming.
+      if (!doneShift) {
+        pMod.e( sqrtpos( pMod.pAbs2() + mNew * mNew) );
+        process[iMod].p( pMod);
+        process[iMod].m( mNew);
+        infoPtr->errorMsg("Warning in ProcessContainer::constructProcess: "
+          "unsuitable recoiler found");
+      }
     }
 
     // Reassign momenta and masses for incoming partons.
     if (matchInOut) {
+      Vec4 pSumOut;
+      for (int iF = 0; iF < iFinalSz; ++iF)
+        pSumOut += process[iFinal[iF]].p();
       double e1 = 0.5 * (pSumOut.e() + pSumOut.pz());
       double e2 = 0.5 * (pSumOut.e() - pSumOut.pz());
       process[3].pz( e1);
@@ -562,6 +663,11 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
       process[4].pz(-e2);
       process[4].e(  e2);
       process[4].m(  0.);
+      if (max (e1, e2) > 0.5 * process[0].e()) {
+        infoPtr->errorMsg("Error in ProcessContainer::constructProcess: "
+          "setting mass failed");
+        return false;
+      }
     }
   }
 
@@ -1232,9 +1338,11 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs,
   charmonium.setupSigma2gg(charmoniumSigmaPtrs);
   charmonium.setupSigma2qg(charmoniumSigmaPtrs);
   charmonium.setupSigma2qq(charmoniumSigmaPtrs);
+  charmonium.setupSigma2dbl(charmoniumSigmaPtrs);
   bottomonium.setupSigma2gg(bottomoniumSigmaPtrs);
   bottomonium.setupSigma2qg(bottomoniumSigmaPtrs);
   bottomonium.setupSigma2qq(bottomoniumSigmaPtrs);
+  bottomonium.setupSigma2dbl(bottomoniumSigmaPtrs);
   for (unsigned int i = 0; i < charmoniumSigmaPtrs.size(); ++i)
     containerPtrs.push_back( new ProcessContainer(charmoniumSigmaPtrs[i]) );
   for (unsigned int i = 0; i < bottomoniumSigmaPtrs.size(); ++i)

@@ -448,7 +448,6 @@ This information is returned by the method
 <code>double LHAup::scale(int i)</code>. When no such information 
 has been read from the LHEF, the scale defaults to -1. 
  
- 
 <p/> 
 <method name="void LHAup::listEvent(ostream& os = cout)"> 
 prints the above information for the current event.  In cases where the 
@@ -496,10 +495,11 @@ correlations implemented for internal processes are used. If part of
 the decay chain has already been set, however (e.g. <ei>H &rarr; WW/ZZ</ei> 
 or <ei>t &rarr; b W</ei>), then decay is still isotropic. 
  
-<p/> 
-There are four settings available for event input. They take effect when 
+<h3>Transfer to the PYTHIA process record</h3> 
+ 
+There are a few settings available for event input. They take effect when 
 the LHA event record is translated to the PYTHIA <code>process</code> 
-event record. 
+event record, but leaves the LHA event record itself unchanged. 
  
 <modeopen name="LesHouches:idRenameBeams" default="1000022" min="0"> 
 PYTHIA only implements a certain number of incoming beam particles. 
@@ -544,16 +544,72 @@ afflicted. Incoming leptons are not affected by this procedure.
 </option> 
 <option value="1"> if the input lepton mass deviates by more than 10% 
 from the PYTHIA (data table) mass then its mass is reset according to the 
-PYTHIA value, and the energy is recalculated from this mass and the 
-three-momentum. This should catch weird masses, while allowing sensible 
+PYTHIA value. This should catch weird masses, while allowing sensible 
 variations. 
 </option> 
-<option value="2"> each lepton mass is reset according to the PYTHIA value, 
-and the energy is recalculated from this mass and the three-momentum. 
+<option value="2"> each lepton mass is reset according to the PYTHIA value. 
 </option> 
-<note>Warning:</note> the change of masses and the resultant change of 
-energies can result in energy-momentum non-conservation warnings and, 
-in extreme cases, also to aborts. One possibility then is to change the 
+<note>Warning:</note> when the mass is changed, also energy and/or momentum 
+need to be shifted. This cannot be done for the lepton in isolation, 
+but should be made so as to preserve the energy and momentum of the event 
+as a whole. An attempt is therefore made to find another final-state 
+particle recoiler that can transfer the appropriate amount of energy 
+and momentum. The recoiler may be unstable, and if so the transfer is 
+inherited by its decay products. The choice is straightforward if only 
+two final-state particles exist, or in a two-body decay of an intermediate 
+resonance, else a matching (anti)neutrino or (anti)lepton is searched for. 
+These rules catch most of the standard cases for lepton production, such as 
+<ei>gamma^*/Z^0/W^+-</ei>, but not necessarily all. Should they all fail 
+the potential final-state recoiler with largest relative invariant mass 
+is picked. In either case, if the transfer fails because the intended 
+recoiler has too little energy to give up, then instead the energy is 
+recalculated for the new mass without any transfer. The energy violation 
+is partly compensated by changed energies for the incoming partons to 
+the hard collision if <code>LesHouches:matchInOut = on</code>, but not 
+always perfectly. One possibility then is to change the 
+<aloc href="ErrorChecks">tolerance</aloc> to such errors. 
+</modepick> 
+ 
+<modepick name="LesHouches:setQuarkMass" default="1" min="0" max="2"> 
+setting of mass for final-state quarks. The reason here is that some 
+matrix-element generators assume all quarks to be massless, except for 
+the top, so as to simplify calculations. Especially for <ei>c</ei> and 
+<ei>b</ei> quarks this is a poor approximation, although PYTHIA most of 
+the time still manages to shower and hadronize even such events. The 
+reason is the resilience of the string fragmentation model, where 
+the excess gluons near (in colour and momentum) to a massless <ei>b</ei> 
+are "eaten up" when string fragmentation needs to gather enough invariant 
+mass to give to the <ei>B</ei> hadron. Nevertheless it is an uncomfortable 
+situation, to be avoided where possible. For <ei>d</ei>, <ei>u</ei> and 
+<ei>s</ei> quarks the issue is less critical. Incoming or intermediate 
+quarks are not affected by this procedure. 
+<option value="0"> all quark masses are taken from the Les Houches input. 
+</option> 
+<option value="1"> if the input <ei>c</ei> or <ei>b</ei> mass is 
+more than 50% away from the PYTHIA (data table) mass then its mass is 
+reset according to the PYTHIA value. 
+</option> 
+<option value="2">if the input mass, for all quarks except the top, is 
+more than 50% away from the PYTHIA (data table) mass then its mass is 
+reset according to the PYTHIA value. 
+</option> 
+<note>Warning:</note> when the mass is changed, also energy and/or momentum 
+need to be shifted. This cannot be done for the quark in isolation, 
+but should be made so as to preserve the energy and momentum of the event 
+as a whole. An attempt is therefore made to find another final-state 
+particle recoiler that can transfer the appropriate amount of energy 
+and momentum. The recoiler may be unstable, and if so the transfer is 
+inherited by its decay products. The choice is straightforward if only 
+two final-state particles exist, or in a two-body decay of an intermediate 
+resonance. If no recoiler is found this way a matching opposite-coloured 
+parton is searched for. Should also this fail the potential final-state 
+recoiler with largest relative invariant mass is picked. In either case, 
+if the transfer fails because the intended recoiler has too little energy 
+to give up, then instead the energy is recalculated for the new mass 
+without any transfer. The energy violation is partly compensated by 
+changed energies for the incoming partons to the hard collision if 
+<code>LesHouches:matchInOut = true</code>, but not always perfectly. 
+One possibility then is to change the 
 <aloc href="ErrorChecks">tolerance</aloc> to such errors. 
 </modepick> 
  
@@ -582,8 +638,8 @@ The incoming partons are set massless. There are two main applications
 for this option. Firstly, if there is a mismatch in the Les Houches 
 input itself, e.g. owing to limited precision in the stored momenta. 
 Secondly, if a mismatch is induced by PYTHIA recalculations, notably when 
-an outgoing lepton is assigned a mass although assumed massles in the 
-Les Houches input. 
+an outgoing lepton or quark is assigned a mass although assumed massless 
+in the Les Houches input. 
 <note>Warning:</note> it is assumed that the incoming partons are along 
 the <ei>+-z</ei> axis; else the kinematics construction will fail. 
 </flag> 
@@ -1026,4 +1082,4 @@ for the case that <code>Pythia::process</code> is not in this frame.
  
 </chapter> 
  
-<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 

@@ -1,5 +1,5 @@
 // PartonDistributions.h is a part of the PYTHIA event generator.
-// Copyright (C) 2015 Torbjorn Sjostrand.
+// Copyright (C) 2016 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -18,6 +18,7 @@
 // Lepton: derived class for parton densities inside a lepton.
 // LeptonPoint: derived class for unresolved lepton (mainly dummy).
 // NNPDF: derived class for the NNPDF2.3 QCD+QED PDF sets.
+// CJKL: derived class for CJKL parton densities for photons.
 
 #ifndef Pythia8_PartonDistributions_H
 #define Pythia8_PartonDistributions_H
@@ -73,6 +74,15 @@ public:
   // Return quark masses used in the PDF fit (LHAPDF6 only).
   virtual double mQuarkPDF(int) { return -1.;}
 
+  // Approximate photon PDFs by decoupling the scale and x-dependence.
+  virtual double gammaPDFxDependence(int, double) { return 0.; }
+
+  // Provide the reference scale for logarithmic Q^2 evolution for photons.
+  virtual double gammaPDFRefScale(int) { return 0.; }
+
+  // Sample the valence content for photons.
+  virtual int sampleGammaValFlavor(double) { return 0.; }
+
 protected:
 
   // Allow the LHAPDF class to access these methods.
@@ -84,6 +94,9 @@ protected:
   double xu, xd, xs, xubar, xdbar, xsbar, xc, xb, xg, xlepton, xgamma,
          xuVal, xuSea, xdVal, xdSea;
   bool   isSet, isInit;
+
+  // More valence and sea flavors for photon PDFs.
+  double xsVal, xcVal, xbVal, xsSea, xcSea, xbSea;
 
   // Resolve valence content for assumed meson. Possibly modified later.
   void setValenceContent();
@@ -589,6 +602,54 @@ private:
   PDF   *pdfPtr;
   Info  *infoPtr;
   string libName;
+
+};
+
+//==========================================================================
+
+// Gives the CJKL leading order parton distribution function set
+// in parametrized form for the real photons. Authors: F.Cornet, P.Jankowski,
+// M.Krawczyk and A.Lorca, Phys. Rev. D68: 014010, 2003.
+
+class CJKL : public PDF {
+
+public:
+
+  // Constructor. Needs the randon number generator to sample valence content.
+  CJKL(int idBeamIn = 22, Rndm* rndmPtrIn = 0 ) : PDF(idBeamIn) {
+    rndmPtr = rndmPtrIn; }
+
+  // Functions to approximate pdfs for ISR.
+  double gammaPDFxDependence(int id, double);
+  double gammaPDFRefScale(int);
+
+  // Set the valence content for photons.
+  int sampleGammaValFlavor(double Q2);
+
+private:
+
+  // Parameters related to the fit.
+  static const double ALPHAEM, Q02, Q2MIN, LAMBDA, MC, MB;
+
+  // Pointer to random number generator used for valence sampling.
+  Rndm *rndmPtr;
+
+  // Update PDF values.
+  void xfUpdate(int , double x, double Q2);
+
+  // Functions for updating the point-like part.
+  double pointlikeG(double x, double s);
+  double pointlikeU(double x, double s);
+  double pointlikeD(double x, double s);
+  double pointlikeC(double x, double s, double Q2);
+  double pointlikeB(double x, double s, double Q2);
+
+  // Functions for updating the hadron-like part.
+  double hadronlikeG(double x, double s);
+  double hadronlikeSea(double x, double s);
+  double hadronlikeVal(double x, double s);
+  double hadronlikeC(double x, double s, double Q2);
+  double hadronlikeB(double x, double s, double Q2);
 
 };
 

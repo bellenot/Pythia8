@@ -216,6 +216,16 @@ the <ei>R</ei> distance measure, in <ei>(y, phi)</ei> or
 <ei>R^2 = (y_1 - y_2)^2 + (phi_1 - phi_2)^2</ei> and equivalent. 
 </methodmore> 
  
+<method name="friend bool pShift( Vec4& p1Move, Vec4& p2Move, 
+double m1New, double m2New)"> 
+transfer four-momentum between the two four-vectors so that they get 
+the masses <code>m1New</code> and <code>m2New</code>, respectively. 
+Note that <code>p1Move</code> and <code>p2Move</code> act both as 
+input and output arguments. The method will return false if the invariant 
+mass of the four-vectors is too small to accommodate the new masses, 
+and then the four-vectors are not changed. 
+</method> 
+ 
 <h3>Operations with four-vectors</h3> 
  
 Of course one should be able to add, subtract and scale four-vectors, 
@@ -436,4 +446,4 @@ ended with a newline.
  
 </chapter> 
  
-<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 

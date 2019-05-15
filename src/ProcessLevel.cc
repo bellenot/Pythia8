@@ -1,5 +1,5 @@
 // ProcessLevel.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2015 Torbjorn Sjostrand.
+// Copyright (C) 2016 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -76,6 +76,10 @@ bool ProcessLevel::init( Info* infoPtrIn, Settings& settings,
   doSameCuts    = settings.flag("PhaseSpace:sameForSecond");
   doResDecays   = settings.flag("ProcessLevel:resonanceDecays");
   startColTag   = settings.mode("Event:startColTag");
+
+  // Check whether ISR applied. Affects processes with photon beams.
+  doISR         = ( settings.flag("PartonLevel:ISR") &&
+                    settings.flag("PartonLevel:all") );
 
   // Second interaction not to be combined with biased phase space.
   if (doSecondHard && userHooksPtr != 0
@@ -643,6 +647,15 @@ bool ProcessLevel::nextOne( Event& process) {
     if ( !containerPtrs[iContainer]->constructProcess( process) )
       physical = false;
 
+    // Check that enough room for beam remnants int the photon beams and
+    // set the valence content for photon beams.
+    if( beamAPtr->isGamma() && beamBPtr->isGamma() ){
+      if( !roomForRemnants() ){
+        physical = false;
+        continue;
+      }
+    }
+
     // Do all resonance decays.
     if ( physical && doResDecays
       && !containerPtrs[iContainer]->decayResonances( process) )
@@ -825,6 +838,109 @@ bool ProcessLevel::nextTwo( Event& process) {
   }
 
   // Done.
+  return physical;
+}
+
+//--------------------------------------------------------------------------
+
+// Check that enough room for beam remnants is left and fix the valence
+// content for photon beams.
+
+bool ProcessLevel::roomForRemnants() {
+
+  // Clear the previous choice.
+  beamAPtr->initiatorVal(false);
+  beamBPtr->initiatorVal(false);
+
+  // Store the relevant information.
+  int id1 = containerPtrs[iContainer]->id1();
+  int id2 = containerPtrs[iContainer]->id2();
+  double x1 = containerPtrs[iContainer]->x1();
+  double x2 = containerPtrs[iContainer]->x2();
+  double Q2 = containerPtrs[iContainer]->Q2Fac();
+
+  // Calculate the mT left for the beams after hard interaction.
+  double mTRem = (infoPtr->eCM())*sqrt( (1-x1)*(1-x2) );
+  double m1 = 0, m2 = 0;
+
+  bool physical = false;
+
+  // If no ISR decide the valence content according to the hard process.
+  if (!doISR) {
+
+    // For physical process a few tries for the valence content should suffice.
+    int nTry = 0, maxTry = 4;
+
+    while (!physical) {
+
+      // Check whether the hard parton is a valence quark and if not use the
+      // parametrization for the valence flavor ratios.
+      bool hard1Val = beamAPtr->gammaInitiatorIsVal(id1, x1, Q2);
+      bool hard2Val = beamBPtr->gammaInitiatorIsVal(id2, x2, Q2);
+
+      // If no ISR is generated must leave room for beam remnants.
+      // Calculate the required amount of energy for three different cases:
+      // Hard parton is a valence quark:   Remnant mass = m_val.
+      // Hard parton is a gluon:           Remnant mass = 2*m_val.
+      // Hard parton is not valence quark: Remnant mass = 2*m_val + m_hard.
+      if(hard1Val) {
+        m1 = particleDataPtr->m0(id1);
+      } else {
+        m1 = 2*( particleDataPtr->m0( beamAPtr->getGammaValFlavour() ) );
+        if(id1 != 21) m1 += particleDataPtr->m0(id1);
+      }
+      if(hard2Val) {
+        m2 = particleDataPtr->m0(id2);
+      } else {
+        m2 = 2*( particleDataPtr->m0( beamBPtr->getGammaValFlavour() ) );
+        if(id2 != 21) m2 += particleDataPtr->m0(id2);
+      }
+      physical = ( (m1 + m2) < mTRem );
+
+      // Check that maximum number of trials not exceeded.
+      ++nTry;
+      if (nTry == maxTry) {
+        if ( abs(id1) == 5 || abs(id2) == 5 ) {
+          infoPtr->errorMsg("Error in ProcessLevel::roomForRemnants: "
+            "No room for bottom quarks in beam remnants for the hard process");
+        } else if ( abs(id1) == 4 || abs(id2) == 4 ) {
+          infoPtr->errorMsg("Error in ProcessLevel::roomForRemnants: "
+            "No room for charm quarks in beam remnants for the hard process");
+        } else {
+          infoPtr->errorMsg("Error in ProcessLevel::roomForRemnants: "
+            "No room for light quarks in beam remnants for the hard process");
+        }
+        break;
+      }
+    }
+
+  // With ISR the initiator can change flavour so reject only process
+  // that will surely fail.
+  } else {
+
+    // Do not allow processes that ISR cannot turn into physical one.
+    int idLight = 2;
+    m1 = (id1 == 21) ? 2*( particleDataPtr->m0( idLight ) ) :
+      particleDataPtr->m0( id1 );
+    m2 = (id2 == 21) ? 2*( particleDataPtr->m0( idLight ) ) :
+      particleDataPtr->m0( id2 );
+
+    // Check wheter room for remnants.
+    physical = ( (m1 + m2) < mTRem );
+    if (physical == false) {
+      if ( abs(id1) == 5 || abs(id2) == 5 ) {
+        infoPtr->errorMsg("Error in ProcessLevel::roomForRemnants: "
+          "No room for bottom quarks in beam remnants for the hard process");
+      } else if ( abs(id1) == 4 || abs(id2) == 4 ) {
+        infoPtr->errorMsg("Error in ProcessLevel::roomForRemnants: "
+          "No room for charm quarks in beam remnants for the hard process");
+      } else {
+        infoPtr->errorMsg("Error in ProcessLevel::roomForRemnants: "
+          "No room for light quarks in beam remnants for the hard process");
+      }
+    }
+  }
+
   return physical;
 }
 

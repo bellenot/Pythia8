@@ -1,5 +1,5 @@
 # Makefile is a part of the PYTHIA event generator.
-# Copyright (C) 2015 Torbjorn Sjostrand.
+# Copyright (C) 2016 Torbjorn Sjostrand.
 # PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 # Please respect the MCnet Guidelines, see GUIDELINES for details.
 # Author: Philip Ilten, September 2014.
@@ -55,6 +55,14 @@ $(PREFIX_LIB)/libpythia8.a :
 # Examples without external dependencies.
 main% : main%.cc $(PREFIX_LIB)/libpythia8.a
 	$(CXX) $^ -o $@ $(CXX_COMMON)
+
+# GZIP (required).
+main34: $$@.cc $(PREFIX_LIB)/libpythia8.a
+ifeq ($(GZIP_USE),true)
+	$(CXX) $^ -o $@ $(CXX_COMMON)
+else
+	@echo "Error: $@ requires GZIP"
+endif
 
 # HEPMC2.
 main41 main42 main43 main85 main86 main87 main88 main89: $$@.cc\

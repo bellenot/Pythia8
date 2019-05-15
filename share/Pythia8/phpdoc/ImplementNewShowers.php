@@ -402,67 +402,74 @@ mapping. All of these are readily available within the parton shower,
 but can be difficult to reconstruct, particularly if non-general improvements 
 are included in the parton shower. To minimise code proliferation and 
 bug potential, the timelike showers contain easy-access functions that can 
-be loaded directly from PYTHIA's merging machinery. These include 
+be loaded directly from PYTHIA's merging machinery. Note that within a new 
+shower, you do not need to use these functions or all of the inputs 
+transferred to these functions. Any dummy definition is acceptable. 
+ 
+</p> 
+The easy-access functions are listed in the following. They use some common 
+terminology, wherein <code>iRad</code> is the position in the event 
+record of the radiating parton, <code>iRec</code> is the position of the 
+recoiling partner of the dipole, which ensures overall energy and momentum 
+conservation in the splitting, and <code>iEmt</code> is the position of the 
+radiated parton, all after the splitting. (The ones before are stored in 
+<code>iRadBef</code> and <code>iRecBef</code>, not used here.) Obviously 
+the distinctions between <code>iRad</code> and <code>iEmt</code>, or 
+between <code>iRad</code> and <code>iRec</code>, are a matter of choice. 
  
 <a name="method20"></a>
-<p/><strong>virtual Event TimeShower::clustered( const Event& event, string name, int iRad, int iEmt, int iRec) &nbsp;</strong> <br/>
-This function should return a PYTHIA event record in which the emission 
-of the particle with index <code>iEmt</code> in the input 
-<code>event</code> (also changing the radiator with index <code>iRad</code> 
-and the recoiler with index <code>iRec</code>) is undone. <code>name</code> 
-is a string identifier for the splitting. Such reclustered events are 
-crucial in setting up consistent parton shower histories. 
+<p/><strong>virtual bool TimeShower::isTimelike( const Event& event, int iRad, int iEmt, int iRec, string name) &nbsp;</strong> <br/>
+This function should return true if the splitting that produced the particles 
+<code>event[iRad]</code>, <code>event[iRec]</code> and 
+<code>event[iEmt]</code> should be classified as timelike splittings 
+(i.e. is handled by final state showers). The identifier <code>name</code> 
+can be used for additional flexibility, e.g. if multiple kernels with 
+identical post-branching states exist. 
    
  
 <a name="method21"></a>
-<p/><strong>virtual Event TimeShower::branched( const Event& event, int iRadBef, int iRecBef, int idEmt, double pT2, double z, double RN, vector&lt;double&gt; aux) &nbsp;</strong> <br/>
-This function should return a PYTHIA event record which includes the 
-emission with flavour <code>idEmt</code> at the evolution variable 
-<code>pT2</code>, auxiliary variable <code>z</code> and second 
-auxiliary variable <code>RN</code> (e.g. a random angle). Further 
-auxiliary double values can be specified through <code>aux</code>. The 
-emission should be performed by radiation from the particle with 
-index <code>iRadBef</code> in the input <code>event</code>, with 
-particle <code>iRecBef</code> taking the momentum recoil. This 
-can be needed to evaluate complicated splitting kernels. 
+<p/><strong>virtual Event TimeShower::clustered( const Event& event, int iRad, int iEmt, int iRec, string name) &nbsp;</strong> <br/>
+This function should return a PYTHIA event record in which the emission 
+of the particle with index <code>iEmt</code> in the input 
+<code>event</code> (also changing the particles with index <code>iRad</code> 
+and <code>iRec</code>) is undone. The identifier 
+<code>name</code> can be used for additional flexibility, e.g. if multiple 
+kernels with identical post-branching states exist. 
+Reclustered events are crucial in setting up consistent parton shower 
+histories. 
    
  
 <a name="method22"></a>
-<p/><strong>virtual double TimeShower::pT2Times( const Particle& rad, const Particle& emt, const Particle& rec) &nbsp;</strong> <br/>
-This function should return the evolution variable at which 
-particle <code>emt</code> is radiated from particle 
-<code>rad</code>, where <code>rec</code> took the recoil 
-of the emission. This allows for a convenient and robust 
-way to calculate the evolution variable. 
+<p/><strong>virtual vector &lt;double&gt; TimeShower::getStateVariables( const Event& event, int iRad, int iEmt, int iRec, string name) &nbsp;</strong> <br/>
+This function should return a vector of variables related to the splitting 
+that produced the particles <code>event[iRad]</code>, <code>event[iRec]</code> 
+and <code>event[iEmt]</code>. The first entry in this vector must be the 
+evolution variable associated with the splitting. All other entries are 
+auxiliary variables related to the splitting (e.g. an energy sharing variable, 
+an azimuthal angle, kinematical invariants etc.). The identifier 
+<code>name</code> can be used for additional flexibility, e.g. if multiple 
+kernels with identical post-branching states exist. 
    
  
 <a name="method23"></a>
-<p/><strong>virtual double TimeShower::zTimes( const Particle& rad, const Particle& emt, const Particle& rec) &nbsp;</strong> <br/>
-This function should return the auxiliary variable at which 
-particle <code>emt</code> is radiated from particle 
-<code>rad</code>, where <code>rec</code> took the recoil 
-of the emission. This allows for a convenient and robust 
-way to calculate the auxiliary variable. 
-   
- 
-<a name="method24"></a>
-<p/><strong>virtual string TimeShower::getSplittingName( const Event& event, int iRad, int iEmt) &nbsp;</strong> <br/>
+<p/><strong>virtual string TimeShower::getSplittingName( const Event& event, int iRad, int iEmt, int iRec) &nbsp;</strong> <br/>
 This function should return a string identifier of the 
 splitting producing the particles with indices 
-<code>iRad</code> and <code>iEmt</code> in the input <code>event</code>. 
+<code>iRad</code>, <code>iEmt</code> and <code>iRec</code>in the input 
+<code>event</code>. 
 If e.g. <code>iRad</code> is the index of a final state quark 
 and <code>iEmt</code> the index of a final state antiquark, we could imagine 
 returning the string "fsr:G2QQ" (which is the name of such a branching 
 in PYTHIA's UserHooks facilities). 
    
  
-<a name="method25"></a>
-<p/><strong>virtual double TimeShower::getSplittingProb( const Event& event, int iRad, int iEmt, int iRec) &nbsp;</strong> <br/>
+<a name="method24"></a>
+<p/><strong>virtual double TimeShower::getSplittingProb( const Event& event, int iRad, int iEmt, int iRec, string name) &nbsp;</strong> <br/>
 This function should return the probability of an emission 
-of the particle with index <code>iEmt</code> from the particle 
-with index <code>iRad</code>, where the particle with index <code>iRec</code> 
-took the recoil of the emission. All indices are relative to the 
-input <code>event</code>. 
+of the particle with index <code>iEmt</code> from the particles 
+with index <code>iRad</code> and <code>iRec</code> 
+All indices are relative to the input <code>event</code>. The identifier 
+<code>name</code> can be used for additional flexibility. 
    
  
 <h3>The SpaceShower interface</h3> 
@@ -475,23 +482,23 @@ description is simpler, since there are no special cases for resonance
 decays and non-interleaved evolution. Thus there is no correspondence 
 to the <code>TimeShower::shower(...)</code> routine. 
  
-<a name="method26"></a>
+<a name="method25"></a>
 <p/><strong>SpaceShower::SpaceShower() &nbsp;</strong> <br/>
 The constructor does not need to do anything. 
    
  
-<a name="method27"></a>
+<a name="method26"></a>
 <p/><strong>virtual SpaceShower::~SpaceShower() &nbsp;</strong> <br/>
 Also the destructor does not need to do anything. 
    
  
-<a name="method28"></a>
+<a name="method27"></a>
 <p/><strong>void SpaceShower::initPtr(Info* infoPtrIn, Settings* settingsPtrIn, ParticleData* particleDataPtrIn, Rndm* rndmPtrIn, CoupSM* coupSMPtrIn, PartonSystems* partonSystemsPtrIn, UserHooks* userHooksPtrIn, MergingHooks* mergingHooksPtrIn = 0) &nbsp;</strong> <br/>
 This method only imports pointers to standard facilities, 
 and is not virtual. 
    
  
-<a name="method29"></a>
+<a name="method28"></a>
 <p/><strong>virtual void SpaceShower::init(BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn) &nbsp;</strong> <br/>
 You have to store your local copy of the pointers to these objects, 
 since they have to be used during the generation, as explained above. 
@@ -500,7 +507,7 @@ you plan to use, e.g. by reading in them from a user-accessible
 database like the <code>Settings</code> one. 
    
  
-<a name="method30"></a>
+<a name="method29"></a>
 <p/><strong>virtual bool SpaceShower::limitPTmax( Event& event, double Q2Fac = 0.,  double Q2Ren = 0.) &nbsp;</strong> <br/>
 The question is whether the ISR should be allowed to occur at larger 
 scales than the hard process it surrounds. This is process-dependent. 
@@ -519,7 +526,7 @@ the factorization or renormalization scale. Therefore the (square of the)
 latter two are provided as optional input parameters. 
    
  
-<a name="method31"></a>
+<a name="method30"></a>
 <p/><strong>virtual double SpaceShower::enhancePTmax() &nbsp;</strong> <br/>
 When the above method limits <i>pT_max</i> to the scale of the process, 
 it may still be convenient to vary the matching slightly for the hardest 
@@ -528,7 +535,7 @@ base-class implementation returns the value of the
 <code>SpaceShower:pTmaxFudge</code> parameter. 
    
  
-<a name="method32"></a>
+<a name="method31"></a>
 <p/><strong>virtual void SpaceShower::prepare( int iSys, Event& event, bool limitPTmaxIn = true) &nbsp;</strong> <br/>
 This method is called immediately after a new interaction has been 
 added, and should then be used to prepare the subsystem of partons 
@@ -546,7 +553,7 @@ subsequent MPI, since there an unlimited <i>pT</i> for sure
 would lead to double-counting. 
    
  
-<a name="method33"></a>
+<a name="method32"></a>
 <p/><strong>virtual void SpaceShower::update( int iSys, Event& event, bool hasWeakRad = false) &nbsp;</strong> <br/>
 This method is called immediately after a timelike branching in the 
 <code>iSys</code>'th subsystem. Thus the information for that system may 
@@ -557,7 +564,7 @@ if a weak radiation has occured in the timelike evolution, which might be
 used to switch off the spacelike weak emissions. 
    
  
-<a name="method34"></a>
+<a name="method33"></a>
 <p/><strong>virtual double SpaceShower::pTnext( Event& event, double pTbegAll, double pTendAll, int nRadIn = -1) &nbsp;</strong> <br/>
 This is the main driver routine for the downwards evolution. A new 
 <i>pT</i> is to be selected based on the current information set up 
@@ -584,7 +591,7 @@ ISR and FSR emissions already generated in the event, and so allows a
 special treatment for the very first emission, if desired. 
    
  
-<a name="method35"></a>
+<a name="method34"></a>
 <p/><strong>virtual bool SpaceShower::branch( Event& event) &nbsp;</strong> <br/>
 This method will be called once ISR has won the competition with 
 MPI and FSR to do the next branching. The candidate branching found 
@@ -600,7 +607,7 @@ could be carried out. Also a complete restart of the parton-level
 description may be necessary, see <code>doRestart()</code> below. 
    
  
-<a name="method36"></a>
+<a name="method35"></a>
 <p/><strong>int SpaceShower::system() &nbsp;</strong> <br/>
 This method is not virtual. If a branching is constructed by the 
 previous routine this tiny method should be able to return the number 
@@ -610,7 +617,7 @@ if necessary. Therefore <code>iSysSel</code> must be set in
 <code>branch</code> (or already in <code>pTnext</code>). 
    
  
-<a name="method37"></a>
+<a name="method36"></a>
 <p/><strong>bool SpaceShower::doRestart() &nbsp;</strong> <br/>
 This method is not virtual. If <code>branch(...)</code> above fails 
 to construct a branching, and the conditions are such that the whole 
@@ -620,13 +627,13 @@ this kind of failures, and so the internal <code>rescatterFail</code>
 boolean must be set true when this should happen, and else false. 
    
  
-<a name="method38"></a>
+<a name="method37"></a>
 <p/><strong>bool SpaceShower::getHasWeaklyRadiated() &nbsp;</strong> <br/>
 This method is not virtual. It is used to tell whether a weak gauge 
 boson has been emitted in the shower evolution. 
    
  
-<a name="method39"></a>
+<a name="method38"></a>
 <p/><strong>virtual void SpaceShower::list( ostream& os = cout) &nbsp;</strong> <br/>
 This method is not at all required. In the current implementation it 
 outputs a list of all the dipole ends, with information on the 
@@ -644,68 +651,59 @@ variable, c) to parton shower splitting probabilities and d) to the
 (inverse) parton shower momentum mapping. Thus, as in the timelike case, 
 it can be beneficial to define the functions 
  
+<a name="method39"></a>
+<p/><strong>virtual bool SpaceShower::isSpacelike( const Event& event, int iRad, int iEmt, int iRec, string name) &nbsp;</strong> <br/>
+This function should return true if the splitting that produced the particles 
+<code>event[iRad]</code>, <code>event[iRec]</code> and 
+<code>event[iEmt]</code> should be classified as spacelike splittings 
+(i.e. is handled by initial state showers). The identifier <code>name</code> 
+can be used for additional flexibility, e.g. if multiple kernels with 
+identical post-branching states exist. 
+   
+ 
 <a name="method40"></a>
-<p/><strong>virtual Event SpaceShower::clustered( const Event& event, string name, int iRad, int iEmt, int iRec) &nbsp;</strong> <br/>
+<p/><strong>virtual Event SpaceShower::clustered( const Event& event, int iRad, int iEmt, int iRec, string name) &nbsp;</strong> <br/>
 This function should return a PYTHIA event record in which the emission 
 of the particle with index <code>iEmt</code> in the input 
-<code>event</code> (also changing the radiator with index <code>iRad</code> 
-and the recoiler with index <code>iRec</code>) is undone. <code>name</code> 
+<code>event</code> (also changing the particles with index <code>iRad</code> 
+and <code>iRec</code>) is undone. <code>name</code> 
 is a string identifier for the splitting. Such reclustered events are 
 crucial in setting up consistent parton shower histories. 
    
  
 <a name="method41"></a>
-<p/><strong>virtual Event SpaceShower::branched( const Event& event, int iRadBef, int iRecBef, int idEmt, double pT2, double z, double RN, vector&lt;double&gt; aux) &nbsp;</strong> <br/>
-This function should return a PYTHIA event record which includes the 
-emission with flavour <code>idEmt</code> at the evolution variable 
-<code>pT2</code>, auxiliary variable <code>z</code> and second 
-auxiliary variable <code>RN</code> (e.g. a random angle). Further 
-auxiliary double values can be specified through <code>aux</code>. The 
-emission should be performed by radiation from the particle with 
-index <code>iRadBef</code> in the input <code>event</code>, with 
-particle <code>iRecBef</code> taking the momentum recoil. This 
-can be needed to evaluate complicated splitting kernels. 
+<p/><strong>virtual vector &lt;double&gt; SpaceShower::getStateVariables( const Event& event, int iRad, int iEmt, int iRec, string name) &nbsp;</strong> <br/>
+This function should return a vector of variables related to the splitting 
+that produced the particles <code>event[iRad]</code>, <code>event[iRec]</code> 
+and <code>event[iEmt]</code>. The first entry in this vector must be the 
+evolution variable associated with the splitting. All other entries are 
+auxiliary variables related to the splitting (e.g. an energy sharing variable, 
+an azimuthal angle, kinematical invariants etc.). The identifier 
+<code>name</code> can be used for additional flexibility, e.g. if multiple 
+kernels with identical post-branching states exist. 
    
  
 <a name="method42"></a>
-<p/><strong>virtual double SpaceShower::pT2Space( const Particle& rad, const Particle& emt, const Particle& rec) &nbsp;</strong> <br/>
-This function should return the evolution variable at which 
-particle <code>emt</code> is radiated from particle 
-<code>rad</code>, where <code>rec</code> took the recoil 
-of the emission. This allows for a convenient and robust 
-way to calculate the evolution variable. 
-   
- 
-<a name="method43"></a>
-<p/><strong>virtual double SpaceShower::zSpace( const Particle& rad, const Particle& emt, const Particle& rec) &nbsp;</strong> <br/>
-This function should return the auxiliary variable at which 
-particle <code>emt</code> is radiated from particle 
-<code>rad</code>, where <code>rec</code> took the recoil 
-of the emission. This allows for a convenient and robust 
-way to calculate the auxiliary variable. 
-   
- 
-<a name="method44"></a>
-<p/><strong>virtual string SpaceShower::getSplittingName( const Event& event, int iRad, int iEmt) &nbsp;</strong> <br/>
-This function should return a string identifier of the 
-splitting producing the particles with indices 
-<code>iRad</code> and <code>iEmt</code> in the input <code>event</code>. 
+<p/><strong>virtual string SpaceShower::getSplittingName( const Event& event, int iRad, int iEmt, int iRec) &nbsp;</strong> <br/>
+This function should return a string identifier of the splitting producing 
+the particles with indices <code>iRad</code>, <code>iEmt</code> and 
+<code>iRec</code> in the input <code>event</code>. 
 If e.g. <code>iRad</code> is the index of an intial state quark 
 and <code>iEmt</code> the index of a final state gluon, we could imagine 
 returning the string "isr:Q2QG" (which is the name of such a branching 
 in PYTHIA's UserHooks facilities). 
    
  
-<a name="method45"></a>
-<p/><strong>virtual double SpaceShower::getSplittingProb( const Event& event, int iRad, int iEmt, int iRec) &nbsp;</strong> <br/>
+<a name="method43"></a>
+<p/><strong>virtual double SpaceShower::getSplittingProb( const Event& event, int iRad, int iEmt, int iRec, string name) &nbsp;</strong> <br/>
 This function should return the probability of an emission 
 of the particle with index <code>iEmt</code> from the particle 
-with index <code>iRad</code>, where the particle with index <code>iRec</code> 
-took the recoil of the emission. All indices are relative to the 
-input <code>event</code>. 
+with index <code>iRad</code> and <code>iRec</code>. All indices are 
+relative to the input <code>event</code>. The identifier 
+<code>name</code> can be used for additional flexibility. 
    
  
 </body>
 </html>
  
-<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 

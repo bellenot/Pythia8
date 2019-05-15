@@ -1,5 +1,5 @@
 // PhaseSpace.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2015 Torbjorn Sjostrand.
+// Copyright (C) 2016 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -469,7 +469,7 @@ void PhaseSpace::decayKinematicsStep( Event& process, int iRes) {
     for (int i = iFrame; i <= mult; ++i) pProd[i].bst(pInv[iFrame]);
 
   // Done for multibody decay.
-  for (int i = 1; i < mult; ++i)
+  for (int i = 1; i <= mult; ++i)
     process[i1 + i - 1].p( pProd[i] );
   return;
 
@@ -1733,33 +1733,38 @@ void PhaseSpace::setupMass2(int iM, double distToThresh) {
   // Prepare to select m3 by BW + flat + 1/s_3.
   // Determine relative coefficients by allowed mass range.
   if (distToThresh > THRESHOLDSIZE) {
-    fracFlat[iM] = 0.1;
-    fracInv[iM]  = 0.1;
+    fracFlatS[iM] = 0.1;
+    fracFlatM[iM] = 0.1;
+    fracInv[iM]   = 0.1;
   } else if (distToThresh > - THRESHOLDSIZE) {
-    fracFlat[iM] = 0.25 - 0.15 * distToThresh / THRESHOLDSIZE;
-    fracInv [iM] = 0.15 - 0.05 * distToThresh / THRESHOLDSIZE;
+    fracFlatS[iM] = 0.25 - 0.15 * distToThresh / THRESHOLDSIZE;
+    fracInv [iM]  = 0.15 - 0.05 * distToThresh / THRESHOLDSIZE;
   } else {
-   fracFlat[iM]  = 0.4;
-   fracInv[iM]   = 0.2;
+   fracFlatS[iM]  = 0.3;
+   fracFlatM[iM]  = 0.1;
+   fracInv[iM]    = 0.2;
   }
 
   // For gamma*/Z0: increase 1/s_i part and introduce 1/s_i^2 part.
   fracInv2[iM]   = 0.;
   if (idMass[iM] == 23 && gmZmode == 0) {
-    fracFlat[iM] *= 0.5;
-    fracInv[iM]  = 0.5 * fracInv[iM] + 0.25;
-    fracInv2[iM] = 0.25;
+    fracFlatS[iM] *= 0.5;
+    fracFlatM[iM] *= 0.5;
+    fracInv[iM]    = 0.5 * fracInv[iM] + 0.25;
+    fracInv2[iM]   = 0.25;
   } else if (idMass[iM] == 23 && gmZmode == 1) {
-    fracFlat[iM] = 0.1;
-    fracInv[iM]  = 0.4;
-    fracInv2[iM] = 0.4;
+    fracFlatS[iM] = 0.1;
+    fracFlatM[iM] = 0.1;
+    fracInv[iM]   = 0.35;
+    fracInv2[iM]  = 0.35;
   }
 
   // Normalization integrals for the respective contribution.
   atanLower[iM]  = atan( (sLower[iM] - sPeak[iM])/ mw[iM] );
   atanUpper[iM]  = atan( (sUpper[iM] - sPeak[iM])/ mw[iM] );
   intBW[iM]      = atanUpper[iM] - atanLower[iM];
-  intFlat[iM]    = sUpper[iM] - sLower[iM];
+  intFlatS[iM]    = sUpper[iM] - sLower[iM];
+  intFlatM[iM]    = mUpper[iM] - mLower[iM];
   intInv[iM]     = log( sUpper[iM] / sLower[iM] );
   intInv2[iM]    = 1./sLower[iM] - 1./sUpper[iM];
 
@@ -1775,14 +1780,16 @@ void PhaseSpace::trialMass(int iM) {
   double& mSet = (iM == 3) ? m3 : ( (iM == 4) ? m4 : m5 );
   double& sSet = (iM == 3) ? s3 : ( (iM == 4) ? s4 : s5 );
 
-  // Distribution for m_i is BW + flat + 1/s_i + 1/s_i^2.
+  // Distribution for m_i is BW + flat(s) + 1/sqrt(s_i) + 1/s_i + 1/s_i^2.
   if (useBW[iM]) {
     double pickForm = rndmPtr->flat();
-    if (pickForm > fracFlat[iM] + fracInv[iM] + fracInv2[iM])
+    if (pickForm > fracFlatS[iM] + fracFlatM[iM] + fracInv[iM] + fracInv2[iM])
       sSet = sPeak[iM] + mw[iM] * tan( atanLower[iM]
            + rndmPtr->flat() * intBW[iM] );
-    else if (pickForm > fracInv[iM] + fracInv2[iM])
+    else if (pickForm > fracFlatM[iM] + fracInv[iM] + fracInv2[iM])
       sSet = sLower[iM] + rndmPtr->flat() * (sUpper[iM] - sLower[iM]);
+    else if (pickForm > fracInv[iM] + fracInv2[iM])
+      sSet = pow2(mLower[iM] + rndmPtr->flat() * (mUpper[iM] - mLower[iM]));
     else if (pickForm > fracInv2[iM])
       sSet = sLower[iM] * pow( sUpper[iM] / sLower[iM], rndmPtr->flat() );
     else sSet = sLower[iM] * sUpper[iM]
@@ -1801,7 +1808,7 @@ void PhaseSpace::trialMass(int iM) {
 
 // Naively a fixed-width Breit-Wigner is used to pick the mass.
 // Here come the correction factors for
-// (i) preselection according to BW + flat in s_i + 1/s_i + 1/s_i^2,
+// (i) preselection from BW + flat in s_i + 1/sqrt(s_i) + 1/s_i  + 1/s_i^2,
 // (ii) reduced allowed mass range,
 // (iii) running width, i.e. m0*Gamma0 -> s*Gamma0/m0.
 // In the end, the weighted distribution is a running-width BW.
@@ -1809,6 +1816,7 @@ void PhaseSpace::trialMass(int iM) {
 double PhaseSpace::weightMass(int iM) {
 
   // Reference to mass and to Breit-Wigner weight to be set.
+  double& mSet   = (iM == 3) ? m3 : ( (iM == 4) ? m4 : m5 );
   double& sSet   = (iM == 3) ? s3 : ( (iM == 4) ? s4 : s5 );
   double& runBWH = (iM == 3) ? runBW3H : ( (iM == 4) ? runBW4H : runBW5H );
 
@@ -1817,13 +1825,20 @@ double PhaseSpace::weightMass(int iM) {
   if (!useBW[iM]) return 1.;
 
   // Weight of generated distribution.
-  double genBW  = (1. - fracFlat[iM] - fracInv[iM] - fracInv2[iM])
+  double genBW
+    = (1. - fracFlatS[iM] - fracFlatM[iM] - fracInv[iM] - fracInv2[iM])
       * mw[iM] / ( (pow2(sSet - sPeak[iM]) + pow2(mw[iM])) * intBW[iM])
-      + fracFlat[iM] / intFlat[iM] + fracInv[iM] / (sSet * intInv[iM])
-      + fracInv2[iM] / (sSet*sSet * intInv2[iM]);
+    + fracFlatS[iM] / intFlatS[iM]
+    + fracFlatM[iM] / (2. * mSet * intFlatM[iM])
+    + fracInv[iM] / (sSet * intInv[iM])
+    + fracInv2[iM] / (sSet*sSet * intInv2[iM]);
 
   // Weight of distribution with running width in Breit-Wigner.
   double mwRun = sSet * wmRat[iM];
+  //?? Alternative recipe, taking into account that decay channels close
+  // at different mass thresholds Needs refining, e.g. no doublecouting
+  // with openFrac and difference numerator/denominator.
+  //double mwRun = mSet * particleDataPtr->resWidthOpen(idMass[iM], mSet);
   runBWH = mwRun / (pow2(sSet - sPeak[iM]) + pow2(mwRun)) / M_PI;
 
   // Done.

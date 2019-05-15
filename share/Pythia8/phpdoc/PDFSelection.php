@@ -29,14 +29,14 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
  
 <h2>PDF Selection</h2> 
  
-This page contains five subsections. The first deals with how to 
+This page contains six subsections. The first deals with how to 
 pick the parton distribution set for protons, including from LHAPDF, 
 to be used for all proton and antiproton beams. The second is a special 
 option that allows a separate PDF set to be used for the hard process 
 only, while the first choice would still apply to everything else. 
-The third and fourth give access to pion and Pomeron PDF's, respectively, 
-the latter being used to describe diffractive systems. 
-The fifth gives the possibility to switch off the lepton 
+The third, fourth and fifth give access to pion, Pomeron and photon PDF's, 
+respectively, the second being used to describe diffractive systems. 
+The sixth gives the possibility to switch off the lepton 
 "parton density". More information on PDF classes is found 
 <?php $filepath = $_GET["filepath"];
 echo "<a href='PartonDistributions.php?filepath=".$filepath."' target='page'>";?>here</a>. 
@@ -363,8 +363,31 @@ should be used. You can use <code>examples/main51.cc</code> to get
 a more precise value. Note that also other parameters in the 
 <?php $filepath = $_GET["filepath"];
 echo "<a href='Diffraction.php?filepath=".$filepath."' target='page'>";?>diffraction</a> framework may need to 
-be retuned when this parameter is changed. 
+be retuned when this parameter is changed. Specifically 
+<code>Diffraction:PomFluxRescale</code> should be set to the inverse 
+of <code>PDF:PomRescale</code> to preserve the cross section for hard 
+diffractive processes. 
    
+ 
+<h3>Parton densities for photons</h3> 
+ 
+Photon PDFs describe the partonic content of the resolved photons and 
+can be used to generate any hard process initiated by quarks and gluons. 
+Currently hard-processes with parton showers and hadronization can 
+be generated but MPIs and soft interactions are not included. 
+ 
+<p/> 
+There are several PDF sets available for photons, although there have not 
+been much activity recently. Currently one internal set is included. 
+Even though LHAPDF5 includes some older photon PDF sets, only the 
+internal set should be used here as the parton shower and beam remnant 
+generation require additional methods that are not present in external 
+sets. 
+ 
+<br/><br/><table><tr><td><strong>PDF:GammaSet  </td><td>  &nbsp;&nbsp;(<code>default = <strong>1</strong></code>; <code>minimum = 1</code>; <code>maximum = 1</code>)</td></tr></table>
+Parton densities that can be used for photon beams. 
+<br/>
+<input type="radio" name="17" value="1" checked="checked"><strong>1 </strong>:  CJKL, based on <ref>Cor03</ref> but the rescaling  for heavy quarks due to kinematic constraints in DIS is undone to obtain  correct behaviour for photon-photon collisions.<br/>
  
 <h3>Parton densities for leptons</h3> 
  
@@ -375,8 +398,8 @@ However, insofar as e.g. <i>e^+ e^-</i> data often are corrected
 back to a world without any initial-state photon radiation, it is 
 useful to have a corresponding option available here. 
  
-<br/><br/><strong>PDF:lepton</strong>  <input type="radio" name="17" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="17" value="off"><strong>Off</strong>
+<br/><br/><strong>PDF:lepton</strong>  <input type="radio" name="18" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="18" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Use parton densities for lepton beams or not. If off the colliding 
 leptons carry the full beam energy, if on part of the energy is 
@@ -402,7 +425,7 @@ only which quarks are allowed to contribute to the hard-process cross
 sections. Note that separate but similarly named modes are available 
 for multiparton interactions and spacelike showers. 
  
-<br/><br/><table><tr><td><strong>PDFinProcess:nQuarkIn  </td><td></td><td> <input type="text" name="18" value="5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>PDFinProcess:nQuarkIn  </td><td></td><td> <input type="text" name="19" value="5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
 Number of allowed incoming quark flavours in the beams; a change 
 to 4 would thus exclude <i>b</i> and <i>bbar</i> as incoming 
 partons, etc. 
@@ -503,14 +526,19 @@ if($_POST["16"] != "1.0")
 $data = "PDF:PomRescale = ".$_POST["16"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["17"] != "on")
+if($_POST["17"] != "1")
 {
-$data = "PDF:lepton = ".$_POST["17"]."\n";
+$data = "PDF:GammaSet = ".$_POST["17"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["18"] != "5")
+if($_POST["18"] != "on")
 {
-$data = "PDFinProcess:nQuarkIn = ".$_POST["18"]."\n";
+$data = "PDF:lepton = ".$_POST["18"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["19"] != "5")
+{
+$data = "PDFinProcess:nQuarkIn = ".$_POST["19"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);
@@ -520,4 +548,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 

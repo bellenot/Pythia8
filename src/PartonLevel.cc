@@ -1,5 +1,5 @@
 // PartonLevel.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2015 Torbjorn Sjostrand.
+// Copyright (C) 2016 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 // Hard diffraction added by Christine Rasmussen.
@@ -393,6 +393,10 @@ bool PartonLevel::next( Event& process, Event& event) {
     pTsaveISR  = 0.;
     pTsaveFSR  = 0.;
 
+    // Set remnants on for photon beams. Can be switched off by ISR.
+    beamAPtr->setGammaRemnants( beamAPtr->isGamma() );
+    beamBPtr->setGammaRemnants( beamBPtr->isGamma() );
+
     // Identify hard interaction system for showers.
     setupHardSys( process, event);
 
@@ -444,7 +448,7 @@ bool PartonLevel::next( Event& process, Event& event) {
     pTsaveFSR       = pTmaxFSR;
 
     // Prepare the classes to begin the generation.
-    if (doMPI) multiPtr->prepare( event, pTmaxMPI);
+    if (doMPI) multiPtr->prepare( event, pTmaxMPI, (iHardDiffLoop == 2) );
     if (doISR) spacePtr->prepare( 0, event, limitPTmaxISR);
     if (doFSRduringProcess) timesPtr->prepare( 0, event, limitPTmaxFSR);
     if (doSecondHard && doISR) spacePtr->prepare( 1, event, limitPTmaxISR);
@@ -453,7 +457,7 @@ bool PartonLevel::next( Event& process, Event& event) {
 
     // Impact parameter has now been chosen, except for diffraction.
     if (!isDiff) infoPtr->setImpact( multiPtr->bMPI(),
-      multiPtr->enhanceMPI(), true);
+      multiPtr->enhanceMPI(), true, (iHardDiffLoop == 2));
     // Set up initial veto scale.
     doVeto        = false;
     double pTveto = pTvetoPT;
@@ -1191,10 +1195,12 @@ void PartonLevel::setupHardSys( Event& process, Event& event) {
   beamAPtr->xfISR( 0, process[inP].id(), x1, scale*scale);
   if (isNonDiff && (vsc1 = multiPtr->getVSC1()) != 0)
     (*beamAPtr)[0].companion(vsc1);
+  else if (beamAPtr->isGamma()) vsc1 = beamAPtr->gammaValSeaComp(0);
   else vsc1 = beamAPtr->pickValSeaComp();
   beamBPtr->xfISR( 0, process[inM].id(), x2, scale*scale);
   if (isNonDiff && (vsc2 = multiPtr->getVSC2()) != 0)
     (*beamBPtr)[0].companion(vsc2);
+  else if (beamBPtr->isGamma()) vsc2 = beamBPtr->gammaValSeaComp(0);
   else vsc2 = beamBPtr->pickValSeaComp();
   bool isVal1 = (vsc1 == -3);
   bool isVal2 = (vsc2 == -3);

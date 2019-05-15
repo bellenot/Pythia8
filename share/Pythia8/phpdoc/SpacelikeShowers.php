@@ -374,32 +374,39 @@ switched on.
 Azimuthal asymmetry induced by gluon polarization; on/off = true/false. 
    
  
-<br/><br/><strong>SpaceShower:phiIntAsym</strong>  <input type="radio" name="29" value="on" checked="checked"><strong>On</strong>
+<br/><br/><strong>SpaceShower:phiPolAsymHard</strong>  <input type="radio" name="29" value="on" checked="checked"><strong>On</strong>
 <input type="radio" name="29" value="off"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
+Extend the above azimuthal asymmetry (if on) also back to gluons produced 
+in the hard process itself, where feasible; on/off = true/false. 
+   
+ 
+<br/><br/><strong>SpaceShower:phiIntAsym</strong>  <input type="radio" name="30" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="30" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Azimuthal asymmetry induced by interference; on/off = true/false. 
    
  
-<br/><br/><table><tr><td><strong>SpaceShower:strengthIntAsym </td><td></td><td> <input type="text" name="30" value="0.7" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.7</strong></code>; <code>minimum = 0.</code>; <code>maximum = 0.9</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>SpaceShower:strengthIntAsym </td><td></td><td> <input type="text" name="31" value="0.7" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.7</strong></code>; <code>minimum = 0.</code>; <code>maximum = 0.9</code>)</td></tr></table>
 Size of asymmetry induced by interference. Natural value of order 0.5; 
 expression would blow up for a value of 1. 
    
  
-<br/><br/><table><tr><td><strong>SpaceShower:nQuarkIn  </td><td></td><td> <input type="text" name="31" value="5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>SpaceShower:nQuarkIn  </td><td></td><td> <input type="text" name="32" value="5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
 Number of allowed quark flavours in <i>g &rarr; q qbar</i> branchings, 
 when kinematically allowed, and thereby also in incoming beams. 
 Changing it to 4 would forbid <i>g &rarr; b bbar</i>, etc. 
    
  
-<br/><br/><strong>SpaceShower:useFixedFacScale</strong>  <input type="radio" name="32" value="on"><strong>On</strong>
-<input type="radio" name="32" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>SpaceShower:useFixedFacScale</strong>  <input type="radio" name="33" value="on"><strong>On</strong>
+<input type="radio" name="33" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Allow the possibility to use a fixed factorization scale, set by 
 the <code>parm</code> below. This option is unphysical and only 
 intended for toy-model and debug studies. 
    
  
-<br/><br/><table><tr><td><strong>SpaceShower:fixedFacScale </td><td></td><td> <input type="text" name="33" value="100." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>100.</strong></code>; <code>minimum = 1.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>SpaceShower:fixedFacScale </td><td></td><td> <input type="text" name="34" value="100." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>100.</strong></code>; <code>minimum = 1.</code>)</td></tr></table>
 The fixed factorization scale, in GeV, that would be used in the 
 evaluation of parton densities if the <code>flag</code> above is on. 
    
@@ -609,27 +616,32 @@ fwrite($handle,$data);
 }
 if($_POST["29"] != "on")
 {
-$data = "SpaceShower:phiIntAsym = ".$_POST["29"]."\n";
+$data = "SpaceShower:phiPolAsymHard = ".$_POST["29"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["30"] != "0.7")
+if($_POST["30"] != "on")
 {
-$data = "SpaceShower:strengthIntAsym = ".$_POST["30"]."\n";
+$data = "SpaceShower:phiIntAsym = ".$_POST["30"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["31"] != "5")
+if($_POST["31"] != "0.7")
 {
-$data = "SpaceShower:nQuarkIn = ".$_POST["31"]."\n";
+$data = "SpaceShower:strengthIntAsym = ".$_POST["31"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["32"] != "off")
+if($_POST["32"] != "5")
 {
-$data = "SpaceShower:useFixedFacScale = ".$_POST["32"]."\n";
+$data = "SpaceShower:nQuarkIn = ".$_POST["32"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["33"] != "100.")
+if($_POST["33"] != "off")
 {
-$data = "SpaceShower:fixedFacScale = ".$_POST["33"]."\n";
+$data = "SpaceShower:useFixedFacScale = ".$_POST["33"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["34"] != "100.")
+{
+$data = "SpaceShower:fixedFacScale = ".$_POST["34"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);
@@ -639,4 +651,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 

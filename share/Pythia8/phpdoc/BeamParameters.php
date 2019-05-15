@@ -41,13 +41,14 @@ should be specified using the settings in this section.
 Note that, if nothing is done, you will default to LHC at 14 TeV. 
  
 <p/> 
-Currently the beam particles must be either a hadron pair or a lepton 
-pair. In the former category <i>p p</i> and <i>pbar p</i> 
+Currently the beam particles must be either a hadron pair, a lepton 
+pair or a photon pair. In the first category <i>p p</i> and <i>pbar p</i> 
 combinations dominate, but it is also possible to combine with 
-<i>pi^+</i>, <i>pi^-</i> and <i>pi^0</i>. In the latter 
+<i>pi^+</i>, <i>pi^-</i> and <i>pi^0</i>. In the second 
 <i>e^+ e^-</i> and <i>mu^+ mu^-</i> would be the most useful 
 combinations, but also others should work if combined with an 
-appropriate hard process. 
+appropriate hard process. With the last combination collisions of two 
+resolved photons can be generated. 
  
 <br/><br/><table><tr><td><strong>Beams:idA  </td><td></td><td> <input type="text" name="1" value="2212" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2212</strong></code>)</td></tr></table>
 The PDG <code>id</code> code for the first incoming particle. 
@@ -57,6 +58,9 @@ Allowed codes include
 <br/><i>211 = pi^+</i>, <i>-211 = pi^-</i>, <i>111 = pi^0</i>, 
 <br/><i>990 = Pomeron</i> (used in diffractive machinery; 
 here mainly for debug purposes), 
+<br/><i>22 = gamma</i> (for resolved <i>gamma-gamma</i> interactions, 
+more info <?php $filepath = $_GET["filepath"];
+echo "<a href='PhotonPhoton.php?filepath=".$filepath."' target='page'>";?>here</a>), 
 <br/><i>11 = e^-</i>, <i>-11 = e^+</i>, 
 <br/><i>13 = mu^-</i>, <i>-13 = mu^+</i>, 
 <br/>and a few more leptons/neutrinos in a few combinations. 
@@ -565,4 +569,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 

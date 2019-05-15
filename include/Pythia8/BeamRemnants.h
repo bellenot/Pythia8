@@ -1,5 +1,5 @@
 // BeamRemnants.h is a part of the PYTHIA event generator.
-// Copyright (C) 2015 Torbjorn Sjostrand.
+// Copyright (C) 2016 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -101,8 +101,10 @@ private:
   // Do the kinematics of the collision subsystems and two beam remnants.
   bool setKinematics( Event& event);
 
-  // Special beam remnant kinematics for Deeply Inelastic Scattering.
-  bool setDISKinematics( Event& event);
+  // Special beam remnant kinematics when only one remnant system added.
+  // This is the case e.g for Deeply Inelastic Scattering and photon
+  // collisions with other side ended up to beam photon by ISR.
+  bool setOneRemnKinematics( Event& event);
 
   // Update colours of outgoing particles in the event.
   void updateColEvent( Event& event, vector<pair <int,int> > colChanges);

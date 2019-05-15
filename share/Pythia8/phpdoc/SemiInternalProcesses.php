@@ -38,7 +38,7 @@ by PYTHIA. However, it is also possible to implement a
 new process in exactly the same way as the internal PYTHIA 
 ones, thus making use of the internal phase space selection machinery 
 to sample an externally provided cross-section expression. 
-The MadGraph 5 program [<a href="Bibliography.php" target="page">Alw11</a>] allows you to do exactly that, 
+The MadGraph5 program [<a href="Bibliography.php" target="page">Alw11</a>] allows you to do exactly that, 
 i.e. it can be used to generate C++ code that can be linked into 
 the existing PYTHIA framework, see 
 <?php $filepath = $_GET["filepath"];
@@ -783,4 +783,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 

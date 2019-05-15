@@ -605,6 +605,19 @@ size of the proton depends on the <i>x</i> values of the colliding
 partons. Note that <code>eMPI(0) = enhanceMPI()</code>. 
    
  
+<a name="method53"></a>
+<p/><strong>double Info::bMPIold() &nbsp;</strong> <br/>
+   
+ <strong>double Info::enhanceMPIold() &nbsp;</strong> <br/>
+These methods are only relevant for hard diffraction with the requirement 
+of no MPI in the hadron-hadron collision. Then an impact parameter 
+and associated enhancement factor is picked for this collision, but 
+afterwards overwritten when the Pomeron-hadron subcollision is considered. 
+In such cases the old hadron-hadron values can be found here, while 
+<code>bMPI</code> and <code>enhanceMPI</code> provide the new 
+Pomeron-hadron ones. 
+   
+ 
 <h3>Cross sections</h3> 
  
 Here are the currently available methods related to the event sample 
@@ -619,18 +632,18 @@ The individual process results are not available if
 echo "<a href='ASecondHardProcess.php?filepath=".$filepath."' target='page'>";?>a second hard process</a> has been 
 chosen, but can be gleaned from the <code>pythia.stat()</code> output. 
  
-<a name="method53"></a>
+<a name="method54"></a>
 <p/><strong>vector&lt;int&gt; Info::codesHard() &nbsp;</strong> <br/>
 returns a vector with all the process codes set up for the current run, 
 i.e. the valid nonzero arguments for the five methods below. 
    
  
-<a name="method54"></a>
+<a name="method55"></a>
 <p/><strong>string Info::nameProc(int i = 0) &nbsp;</strong> <br/>
 returns the process name for process code <code>i</code>. 
    
  
-<a name="method55"></a>
+<a name="method56"></a>
 <p/><strong>long Info::nTried(int i = 0) &nbsp;</strong> <br/>
    
 <strong>long Info::nSelected(int i = 0) &nbsp;</strong> <br/>
@@ -648,7 +661,7 @@ echo "<a href='ASecondHardProcess.php?filepath=".$filepath."' target='page'>";?>
 second hard process</a> there may also be a mismatch. 
    
  
-<a name="method56"></a>
+<a name="method57"></a>
 <p/><strong>double Info::sigmaGen(int i = 0) &nbsp;</strong> <br/>
    
 <strong>double Info::sigmaErr(int i = 0) &nbsp;</strong> <br/>
@@ -667,7 +680,7 @@ This may be especially useful in the context of the
 <code><?php $filepath = $_GET["filepath"];
 echo "<a href='UserHooks.php?filepath=".$filepath."' target='page'>";?>User Hooks</a></code> facility. 
  
-<a name="method57"></a>
+<a name="method58"></a>
 <p/><strong>int Info::getCounter(int i) &nbsp;</strong> <br/>
 the method that gives you access to the value of the various loop 
 counters. 
@@ -771,7 +784,7 @@ that therefore are free to use, with the help of the two methods below.
    
    
  
-<a name="method58"></a>
+<a name="method59"></a>
 <p/><strong>void Info::setCounter(int i, int value = 0) &nbsp;</strong> <br/>
 set the above counters to a given value. Only to be used by you 
 for the unassigned counters 40 - 49. 
@@ -782,7 +795,7 @@ normally the default value is what you want.
    
    
  
-<a name="method59"></a>
+<a name="method60"></a>
 <p/><strong>void Info::addCounter(int i, int value = 0) &nbsp;</strong> <br/>
 increase the above counters by a given amount. Only to be used by you 
 for the unassigned counters 40 - 49. 
@@ -798,7 +811,7 @@ normally the default value is what you want.
 The following methods are mainly intended for internal use, 
 e.g. for matrix-element matching. 
  
-<a name="method60"></a>
+<a name="method61"></a>
 <p/><strong>void Info::hasHistory(bool hasHistoryIn) &nbsp;</strong> <br/>
    
 <strong>bool Info::hasHistory() &nbsp;</strong> <br/>
@@ -806,14 +819,14 @@ set/get knowledge whether the likely shower history of an event
 has been traced. 
    
  
-<a name="method61"></a>
+<a name="method62"></a>
 <p/><strong>void Info::zNowISR(bool zNowIn) &nbsp;</strong> <br/>
    
 <strong>double Info::zNowISR() &nbsp;</strong> <br/>
 set/get value of <i>z</i> in latest ISR branching. 
    
  
-<a name="method62"></a>
+<a name="method63"></a>
 <p/><strong>void Info::pT2NowISR(bool pT2NowIn) &nbsp;</strong> <br/>
    
 <strong>double Info::pT2NowISR() &nbsp;</strong> <br/>
@@ -1011,17 +1024,17 @@ XML-like format of LHE files, see <?php $filepath = $_GET["filepath"];
 echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>";?> 
 Les Houches Accord</a> for more details. 
  
-<a name="method63"></a>
+<a name="method64"></a>
 <p/><strong>string Info::header(string key) &nbsp;</strong> <br/>
 return the header named <code>key</code> 
    
  
-<a name="method64"></a>
+<a name="method65"></a>
 <p/><strong>vector &lt;string&gt; Info::headerKeys() &nbsp;</strong> <br/>
 return a vector of all header key names 
    
  
-<a name="method65"></a>
+<a name="method66"></a>
 <p/><strong>void Info::setHeader(string key, string val) &nbsp;</strong> <br/>
 set the header named <code>key</code> with the contents of <code>val</code> 
    
@@ -1029,4 +1042,4 @@ set the header named <code>key</code> with the contents of <code>val</code>
 </body>
 </html>
  
-<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 

@@ -1,5 +1,5 @@
 // BeamParticle.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2015 Torbjorn Sjostrand.
+// Copyright (C) 2016 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -111,6 +111,13 @@ void BeamParticle::init( int idIn, double pzIn, double eIn, double mIn,
   // Suppress large masses of beam remnant in low-mass diffractive systems.
   diffLargeMassSuppress = settings.parm("Diffraction:largeMassSuppress");
 
+  // Check if ISR for photon collisions is applied and set pTmin.
+  doISR             = settings.flag("PartonLevel:ISR");
+  pTminISR          = settings.parm("SpaceShower:pTmin");
+
+  // Add remnants for photon beam unless ISR ends up as a photon.
+  gammaRemnants     = false;
+
   // Store info on the incoming beam.
   idBeam            = idIn;
   initBeamKind();
@@ -142,6 +149,16 @@ void BeamParticle::initBeamKind() {
     nVal[0]   = 1;
     idVal[0]  = idBeam;
     isLeptonBeam = true;
+  }
+
+  // Valence content for photons.
+  if (idBeamAbs == 22) {
+    isGammaBeam = true;
+    nValKinds = 2;
+    nVal[0]   = 1;
+    nVal[1]   = 1;
+    newValenceContent();
+    initiatorValence = false;
   }
 
   //  Done if cannot be lowest-lying hadron state.
@@ -230,6 +247,11 @@ void BeamParticle::newValenceContent() {
   // For a Pomeron split gluon remnant into d dbar or u ubar.
   } else if (idBeam == 990) {
     idVal[0] = (rndmPtr->flat() < 0.5) ? 1 : 2;
+    idVal[1] = -idVal[0];
+
+  // For photons set initially u ubar but modify later.
+  } else if (idBeam == 22) {
+    idVal[0] = 2;
     idVal[1] = -idVal[0];
 
   // Other hadrons so far do not require any event-by-event change.
@@ -346,6 +368,10 @@ double BeamParticle::xfModified(int iSkip, int idIn, double x, double Q2) {
   // Add total, but only return relevant part for ISR. More cases??
   // Watch out, e.g. g can come from either kind of quark.??
   xqgTot = xqVal + xqgSea + xqCompSum;
+
+  // If ISR with photon beams no distinction between valence and sea.
+  if (isGammaBeam && doISR) return xqgTot;
+
   if (iSkip >= 0) {
     if (resolved[iSkip].isValence()) return xqVal;
     if (resolved[iSkip].isUnmatched()) return xqgSea + xqCompSum;
@@ -374,6 +400,9 @@ int BeamParticle::pickValSeaComp() {
 
   // For lepton beam assume same-kind lepton inside is valence.
   else if (isLeptonBeam && idSave == idBeam) vsc = -3;
+
+  // Separate method for photon beams.
+  else if (isGammaBeam) ;
 
   // Decide if valence or sea quark.
   else {
@@ -522,6 +551,75 @@ double BeamParticle::xCompDist(double xc, double xs) {
 
 //--------------------------------------------------------------------------
 
+// Check whether parton iResolved with given Q^2 is a valence quark.
+
+bool BeamParticle::gammaInitiatorIsVal(int iResolved, double Q2) {
+  return gammaInitiatorIsVal( resolved[iResolved].id(),
+                              resolved[iResolved].x(), Q2 );
+}
+
+//--------------------------------------------------------------------------
+
+// Check whether initiator parton is a valence quark using the PDFs.
+
+bool BeamParticle::gammaInitiatorIsVal(int idInit, double x, double Q2) {
+
+  // Gluon is not a valence parton.
+  if ( idInit == 0 || abs(idInit) == 21 ) return false;
+
+  else {
+
+    // Set the valence content to match with the hard process to get the
+    // correct PDFs and to store the choice. Changed by sampleGammaValFlavor.
+    idVal[0] =  idInit;
+    idVal[1] = -idInit;
+    pdfBeamPtr->newValenceContent( idVal[0], idVal[1]);
+
+    // If Q^2 is smaller than mass of quark set to valence.
+    if ( Q2 < pdfBeamPtr->gammaPDFRefScale(idInit) ){
+      initiatorValence = true;
+      return true;
+
+    // Use PDFs to decide if valence parton.
+    } else {
+      double xVal = xfVal( idInit, x, Q2);
+      double xSea = xfSea( idInit, x, Q2);
+      if ( rndmPtr->flat() < xVal/( xVal + xSea ) ) {
+        initiatorValence = true;
+        return true;
+
+      // If the initiator not valence sample the flavour.
+      } else {
+        idVal[0] = pdfBeamPtr->sampleGammaValFlavor(Q2);
+        idVal[1] = -idVal[0];
+        return false;
+      }
+    }
+  }
+}
+
+//--------------------------------------------------------------------------
+
+// Return the type of the hard parton from a photon beam.
+
+int BeamParticle::gammaValSeaComp(int iResolved) {
+
+  // Default choice a sea quark.
+  int vsc = -2;
+
+  // Gluons and photons -1.
+  if( resolved[iResolved].id() == 21 ||
+      resolved[iResolved].id() == 22 ) vsc = -1;
+
+  // Quarks are valence partons if decided so earlier.
+  else if (initiatorValence && iResolved == 0) vsc = -3;
+  resolved[iResolved].companion(vsc);
+
+  return vsc;
+}
+
+//--------------------------------------------------------------------------
+
 // Add required extra remnant flavour content. Also initial colours.
 
 bool BeamParticle::remnantFlavours(Event& event, bool isDIS) {
@@ -533,11 +631,26 @@ bool BeamParticle::remnantFlavours(Event& event, bool isDIS) {
   nInit = size();
   if (isDIS && nInit != 1) return false;
 
+  // Decide the valence content of photon beam here is ISR is applied.
+  if ( isGammaBeam && doISR){
+
+    // If remnants are constructed fix the valence content using the
+    // scale where ISR stops.
+    if ( gammaRemnants ) {
+      initiatorValence = gammaInitiatorIsVal(0, pow2(pTminISR));
+    }
+
+    // Set the initiator companion code after the valence content is fixed.
+    gammaValSeaComp(0);
+  }
+
   // Find remaining valence quarks.
   for (int i = 0; i < nValKinds; ++i) {
     nValLeft[i] = nVal[i];
     for (int j = 0; j < nInit; ++j) if (resolved[j].isValence()
       && resolved[j].id() == idVal[i]) --nValLeft[i];
+    // No valence quarks if ISR find the original beam photon.
+    if( isGammaBeam && doISR && !gammaRemnants ) nValLeft[i] = 0;
     // Add remaining valence quarks to record. Partly temporary values.
     for (int k = 0; k < nValLeft[i]; ++k) append(0, idVal[i], 0., -3);
   }
@@ -577,13 +690,15 @@ bool BeamParticle::remnantFlavours(Event& event, bool isDIS) {
   }
 
   // If no other remnants found, add a gluon or photon to carry momentum.
-  if (size() == nInit && !isUnresolvedBeam) {
+  // Add partons for photons only if remnants needed.
+  if ( size() == nInit && !isUnresolvedBeam &&
+       (!isGammaBeam || gammaRemnants) ) {
     int    idRemnant = (isHadronBeam) ? 21 : 22;
     append(0, idRemnant, 0., -1);
   }
 
   // For DIS allow collapse to one colour singlet hadron.
-  if (isHadronBeam && isDIS && size() > 2) {
+  if (isHadronBeam && isDIS && size() > 2 && resolved[0].id() != 21) {
     if (size() != 4) {
       infoPtr->errorMsg("Error in BeamParticle::remnantFlavours: "
         "unexpected number of beam remnants for DIS");
@@ -596,7 +711,7 @@ bool BeamParticle::remnantFlavours(Event& event, bool isDIS) {
     int i12         = (colType1 == -colTypeComp) ? 1 : 2;
 
     // Combine to new hadron flavour.
-    int idHad = flavSelPtr->combine( resolved[i12].id(), resolved[3].id() );
+    int idHad = flavSelPtr->combineId( resolved[i12].id(), resolved[3].id() );
     if (idHad == 0) {
       infoPtr->errorMsg("Error in BeamParticle::remnantFlavours: "
         "failed to combine hadron for DIS");
@@ -663,13 +778,16 @@ bool BeamParticle::remnantColours(Event& event, vector<int>& colFrom,
 
   // Pick a valence quark to which gluons are attached.
   // Do not resolve quarks in diquark. (More sophisticated??)
-  int iValSel= iVal[0];
-  if (iVal.size() == 2) {
-    if ( abs(resolved[iValSel].id()) > 10 ) iValSel = iVal[1];
-  } else {
-    double rndmValSel = 3. * rndmPtr->flat();
-    if (rndmValSel > 1.) iValSel= iVal[1];
-    if (rndmValSel > 2.) iValSel= iVal[2];
+  int iValSel = 0;
+  if(iVal.size() != 0) {
+    iValSel = iVal[0];
+    if (iVal.size() == 2) {
+      if ( abs(resolved[iValSel].id()) > 10 ) iValSel = iVal[1];
+    } else {
+      double rndmValSel = 3. * rndmPtr->flat();
+      if (rndmValSel > 1.) iValSel= iVal[1];
+      if (rndmValSel > 2.) iValSel= iVal[2];
+    }
   }
 
   // This valence quark defines initial (anti)colour.
@@ -864,6 +982,57 @@ double BeamParticle::xRemnant( int i) {
 
   return x;
 
+}
+
+//--------------------------------------------------------------------------
+
+// Check whether room for a one remnant system.
+
+bool BeamParticle::roomFor1Remnant(double eCM){
+
+  // If no remnants for the beam return true.
+  if(!gammaRemnants) return true;
+
+  // Else check whether room with given kinematics.
+  double x1 = resolved[0].x();
+  int id1   = resolved[0].id();
+  return roomFor1Remnant(id1, x1, eCM);
+}
+
+//--------------------------------------------------------------------------
+
+// Check whether room for a one remnant system.
+
+bool BeamParticle::roomFor1Remnant(int id1, double x1, double eCM){
+
+  // Use u-quark mass as a lower limit for the remnant mass.
+  int idLight = 2;
+
+  // For gluons minimum requirement two light quarks.
+  // For quarks need room for one quark of same flavor.
+  double mRemnant = (id1 == 21) ? 2*( particleDataPtr->m0( idLight ) ) :
+    particleDataPtr->m0( id1 );
+  return ( mRemnant < eCM*( 1 - sqrt(x1) ) );
+}
+
+//--------------------------------------------------------------------------
+
+// Check whether room for two remnants in the event.
+
+bool BeamParticle::roomFor2Remnants(int id1, double x1, double eCM){
+
+  // Use u-quark mass as a lower limit for the remnant mass.
+  int idLight = 2;
+  double id2  = resolved[0].id();
+  double x2   = resolved[0].x();
+
+  // For gluons minimum requirement two light quarks.
+  // For quarks need room for one quark of same flavor.
+  double m1 = (id1 == 21) ? 2*( particleDataPtr->m0( idLight ) ) :
+    particleDataPtr->m0( id1 );
+  double m2 = (id2 == 21) ? 2*( particleDataPtr->m0( idLight ) ) :
+    particleDataPtr->m0( id2 );
+  return ( (m1 + m2) < eCM*sqrt( (1.0 - x1)*(1.0 - x2) ) );
 }
 
 //--------------------------------------------------------------------------

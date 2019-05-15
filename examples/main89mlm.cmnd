@@ -14,7 +14,7 @@ Beams:frameType             = 4
 ! Note: Some of these settings might be read directly from the input LHE file.
 JetMatching:merge            = on
 JetMatching:scheme           = 1
-JetMatching:setMad           = on
+JetMatching:setMad           = off
 JetMatching:qCut             = 10.0
 JetMatching:coneRadius       = 1.0
 JetMatching:etaJetMax        = 10.0

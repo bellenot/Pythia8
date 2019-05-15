@@ -593,7 +593,12 @@ value(s) can be put outside the intended borders.
 reset the current value to the default one. 
    
  
+<a name="method18"></a>
+<p/><strong>bool Settings::getIsInit() &nbsp;</strong> <br/>
+return true if the database has been initialized, else false. 
+   
+ 
 </body>
 </html>
  
-<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 

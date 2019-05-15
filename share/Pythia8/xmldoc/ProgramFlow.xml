@@ -501,7 +501,7 @@ first-read file, when the full initialization is performed.
 Here follows the complete survey of all public <code>Pythia</code> 
 methods and data members. 
  
-<h3>Constructor and destructor</h3> 
+<h3>Constructors and destructor</h3> 
  
 <method name="Pythia::Pythia(string xmlDir = &quot;../xmldoc&quot;, 
 bool printBanner = true)"> 
@@ -528,8 +528,31 @@ where output needs to be restricted.
 </argument> 
 </method> 
  
+<method name="Pythia::Pythia(Settings& settingsIn, 
+ParticleData& particleDataIn, bool printBanner = true)"> 
+creates an instance of the <code>Pythia</code> event generators, 
+and sets initial default values, notably for all settings and 
+particle data. This option is intended for runs with multiple 
+Pythia instances, where only the first one needs to read the 
+<code>xmldoc</code> files, while subsequent ones can "inherit" 
+this information. 
+</argument> 
+<argument name="printBanner" default="true"> can be set 
+<code>false</code> to stop the program from printing a banner. 
+The banner contains useful information, so this option is only 
+intended for runs with multiple <code>Pythia</code> instances, 
+where output needs to be restricted. 
+</argument> 
+</method> 
+ 
 <method name="Pythia::~Pythia"> 
 the destructor deletes the objects created by the constructor. 
+ 
+<method name="void Pythia::initPtrs()"> 
+</method> 
+<methodmore name="bool Pythia::checkVersion()"> 
+helper methods, that collects common tasks of the two constructors. 
+</methodmore> 
  
 <h3>Set up run</h3> 
  
@@ -1043,4 +1066,4 @@ see <aloc href="AdvancedUsage">here</aloc> for further details.
  
 </chapter> 
  
-<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 

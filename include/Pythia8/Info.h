@@ -1,5 +1,5 @@
 // Info.h is a part of the PYTHIA event generator.
-// Copyright (C) 2015 Torbjorn Sjostrand.
+// Copyright (C) 2016 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -11,6 +11,7 @@
 
 #include "Pythia8/PythiaStdlib.h"
 #include "Pythia8/LHEF3.h"
+#include "Pythia8/Basics.h"
 
 namespace Pythia8 {
 
@@ -141,6 +142,8 @@ public:
   double bMPI()               const {return (bIsSet) ? bMPISave : 1.;}
   double enhanceMPI()         const {return (bIsSet) ? enhanceMPISave : 1.;}
   double eMPI(int i)          const {return (bIsSet) ? eMPISave[i] : 1.;}
+  double bMPIold()            const {return (bIsSet) ? bMPIoldSave : 1.;}
+  double enhanceMPIold()      const {return (bIsSet) ? enhanceMPIoldSave : 1.;}
 
   // Number of multiparton interactions, with code and pT for them.
   int    nMPI()               const {return nMPISave;}
@@ -324,6 +327,19 @@ public:
   double tPomeronA()          const {return tPomA;}
   double tPomeronB()          const {return tPomB;}
 
+  // History information needed to setup the weak shower for 2 -> n.
+  vector<int> getWeakModes() {return weakModes;}
+  vector<pair<int,int> > getWeakDipoles() {return weakDipoles;}
+  vector<Vec4> getWeakMomenta() {return weakMomenta;}
+  vector<int> getWeak2to2lines() {return weak2to2lines;}
+  void setWeakModes(vector<int> weakModesIn) {weakModes = weakModesIn;}
+  void setWeakDipoles(vector<pair<int,int> > weakDipolesIn)
+    {weakDipoles = weakDipolesIn;}
+  void setWeakMomenta(vector<Vec4> weakMomentaIn)
+    {weakMomenta = weakMomentaIn;}
+  void setWeak2to2lines(vector<int> weak2to2linesIn)
+    {weak2to2lines = weak2to2linesIn;}
+
 private:
 
   // Number of times the same error message is repeated, unless overridden.
@@ -362,8 +378,9 @@ private:
          pdf2Save[4], Q2FacSave[4], alphaEMSave[4], alphaSSave[4],
          Q2RenSave[4], scalupSave[4], sH[4], tH[4], uH[4], pTH[4], m3H[4],
          m4H[4], thetaH[4], phiH[4], weightSave, bMPISave, enhanceMPISave,
-         pTmaxMPISave, pTmaxISRSave, pTmaxFSRSave, pTnowSave,
-         zNowISRSave, pT2NowISRSave, xPomA, xPomB, tPomA, tPomB;
+         bMPIoldSave, enhanceMPIoldSave, pTmaxMPISave, pTmaxISRSave,
+         pTmaxFSRSave, pTnowSave, zNowISRSave, pT2NowISRSave, xPomA, xPomB,
+         tPomA, tPomB;
   string nameSave, nameSubSave[4];
   vector<int>    codeMPISave, iAMPISave, iBMPISave;
   vector<double> pTMPISave, eMPISave;
@@ -404,7 +421,8 @@ private:
       = isHardDiffA = isHardDiffB = hasUnresBeams = hasPomPsys = false;
     codeSave = nFinalSave = nTotal = nMPISave = nISRSave = nFSRinProcSave
       = nFSRinResSave = 0;
-    weightSave = bMPISave = enhanceMPISave = weightCKKWLSave = 1.;
+    weightSave = bMPISave = enhanceMPISave = bMPIoldSave = enhanceMPIoldSave
+      = weightCKKWLSave = 1.;
     pTmaxMPISave = pTmaxISRSave = pTmaxFSRSave = pTnowSave = zNowISRSave
       = pT2NowISRSave = weightFIRSTSave = 0.;
     nameSave = " ";
@@ -479,7 +497,9 @@ private:
     sigErrM[i] = sqrtpos(sigErrM[i]*sigErrM[i] + sigErrIn*sigErrIn); }
 
   // Set info on impact parameter: from PartonLevel.
-  void setImpact( double bMPIIn, double enhanceMPIIn, bool bIsSetIn = true) {
+  void setImpact( double bMPIIn, double enhanceMPIIn, bool bIsSetIn = true,
+    bool pushBack = false) {
+    if (pushBack) {bMPIoldSave = bMPISave; enhanceMPIoldSave = enhanceMPISave;}
     bMPISave = bMPIIn; enhanceMPISave = eMPISave[0] = enhanceMPIIn,
     bIsSet = bIsSetIn;}
 
@@ -526,6 +546,11 @@ private:
   void setHasUnresolvedBeams(bool hasUnresBeamsIn)
     {hasUnresBeams = hasUnresBeamsIn;}
   void setHasPomPsystem(bool hasPomPsysIn) {hasPomPsys = hasPomPsysIn;}
+
+  // Variables for weak shower setup.
+  vector<int> weakModes, weak2to2lines;
+  vector<Vec4> weakMomenta;
+  vector<pair<int, int> > weakDipoles;
 
 };
 

@@ -12,6 +12,176 @@ but this should only affect a small part of the user code.
  
 <ul> 
  
+<li>8.215: 4 January 2016 
+<ul> 
+ 
+<li>Ilkka Helenius joins as new PYTHIA co-author.</li> 
+ 
+<li>A new machinery for <ei>gamma-gamma</ei> collisions is now available, 
+see <aloc href="PhotonPhoton">Photon-photon Interactions</aloc>. 
+So far only hard processes can be generated, along with parton showers 
+and hadronization, but without multiparton interactions. The CJKL parton 
+distributions of the photon have been implemented and are used.</li> 
+ 
+<li>Double production of charmonium and bottomonium <ei>3S1</ei> states 
+is now available, but with only the colour-singlet processes included, 
+see <aloc href="OniaProcesses">Onia Processes</aloc> for details.</li> 
+ 
+<li>Weak merging implemented, i.e. <ei>W</ei> gauge bosons can be 
+produced either as part of the hard matrix element or in the parton 
+shower, and a proper treatment merges these two possibilities consistently. 
+See the <aloc href="CKKWLMerging">CKKW-L</aloc> page for details.</li> 
+ 
+<li>Running <ei>alpha_em</ei> in merging description.</li> 
+ 
+<li>Improved interface to external parton showers, such as 
+<a href="http://vincia.hepforge.org/" target="_top">VINCIA</a> and 
+<a href="http://www.slac.stanford.edu/~prestel/DIRE/" target="_top">DIRE</a>, 
+so that these now also can use the various matching and merging 
+frameworks implemented in Pythia.</li> 
+ 
+<li>New options in the <aloc href="JetMatching">jet matching</aloc> 
+framework, such that expert users can use their own veto code for 
+Madgraph-style jet matching.</li> 
+ 
+<li>New convenient possibility to run Madgraph5_aMC@NLO from within 
+Pythia, by wrapping the Madgraph5_aMC@NLO executable inside a new 
+<code>LHAupMadgraph</code> class that derives from the Pythia 
+<code>LHAup</code> base class. 
+See <aloc href="MadGraph5Processes">MadGraph5 Processes</aloc> 
+for a brief overview, and <code>examples/main34.cc</code> for an example 
+how to use it. Still at an experimental stage, and only tested for 
+Madgraph5_aMC@NLO v2.3.3.</li> 
+ 
+<li>By default the program will now assign the PYTHIA mass for 
+massless <ei>c</ei> and <ei>b</ei> quarks in Les Houches input, see 
+<code><aloc href="LesHouchesAccord">LesHouches:setQuarkMass</aloc></code>. 
+Usually a logical recoiler is found that can transfer the needed 
+four-momentum to the quark. The already existing machinery for 
+giving masses to massless leptons has been expanded to use the more 
+sophisticated algorithm now in place.</li> 
+ 
+<li>Significant bug found in timelike and spacelike showers, whereby 
+the azimuthal anisotropy from gluon polarization in the past has been 
+overestimated. This does not affect multijet rates, but can influence 
+distributions sensitive to angular correlations, although checks have 
+not revealed any appreciable effects. New switches 
+<code>TimeShower:phiPolAsymHard</code> and 
+<code>SpaceShower:phiPolAsymHard</code> regulate whether the first 
+branching after/before the hard process can correlate with the 
+hard-process event plane. Thanks to Radek Zlebcik.</li> 
+ 
+<li>Some further new options and minor additions in the machinery for 
+hard diffraction. This includes three options for setting the impact 
+parameter for the <ei>Pomeron p</ei> subcollision, a possibility to 
+access both it and the impact parameter both for the original 
+<ei>p p</ei>, and options to rescale the Pomeron flux, including one 
+that uses the MBR renormalization. Some default values changed, notably 
+that now MPI is checked.</li> 
+ 
+<li>A new constructor for the <code>Pythia</code> class takes references 
+to a <code>Settings</code> and a <code>ParticleData</code> object as 
+inputs. In cases where multiple <code>Pythia</code> copies are created 
+this allows the  <code>xmldoc</code> files to be read only once. 
+Updated <code>examples/main19.cc</code> illustrates.</li> 
+ 
+<li>New method <code>Particle::daughterListRecursive()</code> 
+that uses the <code>daughterList()</code> method to trace 
+consecutive generations of decay products.</li> 
+ 
+<li>New <code>Vec4</code> friend method <code>pShift(...)</code> 
+to transfer four-momentum between two four-vectors so as to bring them 
+to have specified new masses.</li> 
+ 
+<li>New particle method <code>intPol()</code> returns the polarization 
+as an integer if the stored double-precision number is very close to 
+0, +-1, +-2 or 9, and else -9.</li> 
+ 
+<li>Initialize the random number generator earlier, so a non-default 
+seed choice also could benefit early external initialization making 
+use of it.</li> 
+ 
+<li>Minor fix in interface to zlib.</li> 
+ 
+<li>Changed default setting in <code>main89mlm.cmnd</code>, to better 
+agree with common practice.</li> 
+ 
+<li>Minor improvements and fixes in the weighting facilities for 
+initial- and final-state showers.</li> 
+ 
+<li>Minor update in the beam-remnant handling for DIS.</li> 
+ 
+<li>Minor improvements in the handling of resonance mass selection.</li> 
+ 
+<li>The GetDJR function of the <code>JetMatchingMadgraph</code> class 
+has been renamed <code>getDJR</code> to adhere to standard naming 
+conventions. A pointer in the same class is explicitly nulled.</li> 
+ 
+<li>Bug fix in the selection of masses in resonance decays. 
+In rare situations this could give wrong masses for particles. 
+Thanks to Are Raklev and Anders Kvellestad.</li> 
+ 
+<li>The <code>StringFlav::combine( int, int bool)</code> method is 
+renamed <code>combineId</code> to avoid a potential incorrect 
+method overloading. Thanks to James Monk.</li> 
+ 
+<li>Bug fix: copy vertex information when a long-lived particle 
+decays to three quarks (typically with baryon number violation), 
+whereof two have such a small invariant mass that they collapse to a 
+diquark. Thanks to Cristiano Alpigiani.</li> 
+ 
+<li>Bug fix for excited quarks <ei>q^*</ei> and leptons <ei>l^*</ei>, 
+that if new decay channels were introduced they could incorrectly make 
+use of the matrix element expressions for the existing decay modes. 
+Thanks to Simone Amoroso.</li> 
+ 
+<li>Bug fix in the kinematics of four or more resonance decay products 
+when  kinematics is redone owing to matrix-element corrections. 
+Thanks to Simone Amoroso.</li> 
+ 
+<li>Changed off-shell behaviour for squark pair production.</li> 
+ 
+<li>Minor fix for random number start-up in the PowhegBox interface, 
+and inserted warning that using LHAPDF5 in both Pythia and PowhegBox 
+can be dangerous.</li> 
+ 
+<li>Correct two misspelt endtags for LHEF3 output from Pythia. 
+Minor technical changes in the LHEF3 machinery.</li> 
+ 
+<li>Bug fix for information on the pdf value chosen for the hardest MPI, 
+which was reported a factor 9/4 too large for an incoming gluon. Does 
+not affect the event generation itself.</li> 
+ 
+<li>Correct <code>BeamRemnants:primordialKThard</code> from 2.0 to 1.71 
+for ATLAS tune AZ. Thanks to Christian Bauer.</li> 
+ 
+<li>Introduce protection against (close-to-)zero-energy partons in string 
+length calculations, and against topologies with extremely small angles 
+between two junction legs. Thanks to Jan Fiete Grosse-Oetringhaus.</li> 
+ 
+<li>Check by trial whether a given LHAPDF5 set contains photons or not, 
+therey avoiding explicit enumeration of such sets.</li> 
+ 
+<li>When the ARCH environment variable does not have a valid value it 
+is set to LINUX in configure. Thanks to Alessandro Degano.</li> 
+ 
+<li>Make the BOOST include directory available when the LHAPDF6 plugin 
+is used.</li> 
+ 
+<li>Minor corrections for the LHAPDF6 description in README. 
+Thanks to Radek Zlebcik.</li> 
+ 
+<li>Fix harmless name overloading in <code>ProcessContainer.cc</code>.</li> 
+ 
+<li>Updated address for Philip Ilten.</li> 
+ 
+<li>A few bibliography updates.</li> 
+ 
+<li>Year updated to 2016.</li> 
+ 
+</ul> 
+</li> 
+ 
 <li>8.212: 23 September 2015 
 <ul> 
  
@@ -501,7 +671,7 @@ Alexander Pukhov.</li>
 <li>Bug fix in the conversion from the <code>xml</code> settings files 
 to their <code>php</code> radio-button equivalents, whereby the text 
 describing some options was not set properly. (Typically the text of 
-the previous option was repeated.) Thanks to Radek Ziebcik.</li> 
+the previous option was repeated.) Thanks to Radek Zlebcik.</li> 
  
 <li>Minor fixes in the LHEF version 3 reader. Introduce a new 
 matching writer of LHEF version 1 or 3 files.</li> 
@@ -545,7 +715,7 @@ beam contents were not properly reset. Thanks to Josh Bendavid.</li>
  
 <li>Bug fix such that the valence content of a <ei>pi^0</ei>, 
 <ei>K^0_S</ei>, <ei>K^0_L</ei> and Pomeron is reselected for each 
-new event. Thanks to Radek Ziebcik.</li> 
+new event. Thanks to Radek Zlebcik.</li> 
  
 <li>Fix typo in constants of the <ei>tau &rarr; 3 pi</ei> current 
 for the amplitudes of the <ei>rho</ei>, <ei>rho(1450)</ei>, and 
@@ -831,4 +1001,4 @@ to six flavours at the top mass.</li>
  
 </chapter> 
  
-<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 

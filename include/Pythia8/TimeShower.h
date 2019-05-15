@@ -1,5 +1,5 @@
 // TimeShower.h is a part of the PYTHIA event generator.
-// Copyright (C) 2015 Torbjorn Sjostrand.
+// Copyright (C) 2016 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -159,37 +159,36 @@ public:
   // Please see the documentation under "Implement New Showers" for details.
 
   // Return clustering kinematics - as needed for merging.
-  // Usage: clustered( const Event& event, string name, int iRad, int iEmt,
-  //                   int iRec)
-  virtual Event clustered( const Event&, string, int, int, int)
+  virtual Event clustered( const Event&, int, int, int, string)
     { return Event();}
 
-  // Return state after a branching, as needed to evaluate more complicated
-  // kernels.
-  // Usage: branched( const Event& event, int iRadBef, int iRecBef, int idEmt,
-  //                  double pT2, double z, double RN, vector<double> aux)
-  virtual Event branched( const Event&, int, int, int, double,
-    double, double, vector<double>) { return Event();}
-
   // Return the evolution variable.
-  // Usage: pT2Times( const Particle& rad, const Particle& emt,
-  //                  const Particle& rec)
-  virtual double pT2Times ( const Particle&, const Particle&, const Particle&)
-    { return 0.;}
+  // Usage: getStateVariables( const Event& event,  int iRad, int iEmt,
+  //                   int iRec, string name)
+  // Important note:
+  //  - The first element of the return vector *must* be the value of the
+  //    shower evolution variable corresponding to the branching defined by
+  //    the integers.
+  //  - The second element of the return vector *must* be the value of the
+  //    shower evolution variable from which the shower would restart after
+  //    the branching (two values will often be identical).
+  virtual vector<double> getStateVariables (const Event&,int,int,int,string)
+    { return vector<double>();}
 
-  // Return the auxiliary (energy sharing) variable.
-  // Usage: zTimes( const Particle& rad, const Particle& emt,
-  //                const Particle& rec)
-  virtual double zTimes ( const Particle&, const Particle&, const Particle&)
-    { return 0.;}
+  // Check if attempted clustering is handled by timelike shower
+  // Usage: isTimelike( const Event& event,  int iRad, int iEmt,
+  //                   int iRec, string name)
+  virtual bool isTimelike(const Event&, int, int, int, string)
+    { return false; }
 
   // Return a string identifier of a splitting.
-  // Uage: getSplittingName( const Event& event, int iRad, int iEmt)
-  virtual string getSplittingName( const Event&, int, int) { return "";}
+  // Usage: getSplittingName( const Event& event, int iRad, int iEmt, int iRec)
+  virtual string getSplittingName( const Event&, int, int, int) { return "";}
 
   // Return the splitting probability.
   // Usage: getSplittingProb( const Event& event, int iRad, int iEmt, int iRec)
-  virtual double getSplittingProb( const Event&, int, int, int ) { return 0.;}
+  virtual double getSplittingProb( const Event&, int, int, int, string)
+    { return 0.;}
 
 protected:
 
@@ -238,11 +237,11 @@ private:
   // Initialization data, normally only set once.
   bool   doQCDshower, doQEDshowerByQ, doQEDshowerByL, doQEDshowerByGamma,
          doWeakShower, doMEcorrections, doMEafterFirst, doPhiPolAsym,
-         doInterleave, allowBeamRecoil, dampenBeamRecoil, recoilToColoured,
-         useFixedFacScale, allowRescatter, canVetoEmission, doHVshower,
-         brokenHVsym, globalRecoil, useLocalRecoilNow, doSecondHard,
-         hasUserHooks, singleWeakEmission, alphaSuseCMW, vetoWeakJets,
-         allowMPIdipole;
+         doPhiPolAsymHard, doInterleave, allowBeamRecoil, dampenBeamRecoil,
+         recoilToColoured, useFixedFacScale, allowRescatter, canVetoEmission,
+         doHVshower, brokenHVsym, globalRecoil, useLocalRecoilNow,
+         doSecondHard, hasUserHooks, singleWeakEmission, alphaSuseCMW,
+         vetoWeakJets, allowMPIdipole, weakExternal;
   int    pTmaxMatch, pTdampMatch, alphaSorder, alphaSnfmax, nGluonToQuark,
          weightGluonToQuark, alphaEMorder, nGammaToQuark, nGammaToLepton,
          nCHV, idHV, nMaxGlobalRecoil, weakMode;
@@ -283,6 +282,8 @@ private:
     bool limitPTmaxIn = true);
   void setupWeakdip( int iSys, int i,int weakType, Event& event,
     bool limitPTmaxIn = true);
+  // Special setup for weak dipoles if already specified in info ptr.
+  void setupWeakdipExternal(Event& event, bool limitPTmaxIn = true);
   void setupHVdip( int iSys, int i, Event& event, bool limitPTmaxIn = true);
 
   // Evolve a QCD dipole end.
@@ -344,6 +345,11 @@ private:
 
   // Pointer to MergingHooks object for NLO merging.
   MergingHooks* mergingHooksPtr;
+
+  // 2 -> 2 information needed for the external weak setup.
+  vector<Vec4> weakMomenta;
+  vector<int> weak2to2lines;
+  int weakHardSize;
 
 };
 

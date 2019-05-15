@@ -1,5 +1,5 @@
 // ProcessLevel.h is a part of the PYTHIA event generator.
-// Copyright (C) 2015 Torbjorn Sjostrand.
+// Copyright (C) 2016 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -87,7 +87,7 @@ private:
 
   // Generic info for process generation.
   bool   doSecondHard, doSameCuts, allHardSame, noneHardSame,
-         someHardSame, cutsAgree, cutsOverlap, doResDecays;
+         someHardSame, cutsAgree, cutsOverlap, doResDecays, doISR;
   int    nImpact, startColTag;
   double mHatMin1, mHatMax1, pTHatMin1, pTHatMax1, mHatMin2, mHatMax2,
          pTHatMin2, pTHatMax2, sigmaND, sumImpactFac, sum2ImpactFac;
@@ -141,6 +141,9 @@ private:
 
   // Generate the next event with two hard interactions.
   bool nextTwo( Event& process);
+
+  // Check that enough room for beam remnants in photon beam.
+  bool roomForRemnants();
 
   // Append the second to the first process list.
   void combineProcessRecords( Event& process, Event& process2);

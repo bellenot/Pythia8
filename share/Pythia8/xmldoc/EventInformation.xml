@@ -514,6 +514,18 @@ size of the proton depends on the <ei>x</ei> values of the colliding
 partons. Note that <code>eMPI(0) = enhanceMPI()</code>. 
 </method> 
  
+<method name="double Info::bMPIold()"> 
+</method> 
+ <methodmore name="double Info::enhanceMPIold()"> 
+These methods are only relevant for hard diffraction with the requirement 
+of no MPI in the hadron-hadron collision. Then an impact parameter 
+and associated enhancement factor is picked for this collision, but 
+afterwards overwritten when the Pomeron-hadron subcollision is considered. 
+In such cases the old hadron-hadron values can be found here, while 
+<code>bMPI</code> and <code>enhanceMPI</code> provide the new 
+Pomeron-hadron ones. 
+</methodmore> 
+ 
 <h3>Cross sections</h3> 
  
 Here are the currently available methods related to the event sample 
@@ -920,4 +932,4 @@ set the header named <code>key</code> with the contents of <code>val</code>
  
 </chapter> 
  
-<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 

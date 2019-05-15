@@ -1,5 +1,5 @@
 // PhaseSpace.h is a part of the PYTHIA event generator.
-// Copyright (C) 2015 Torbjorn Sjostrand.
+// Copyright (C) 2016 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -231,9 +231,9 @@ protected:
   bool   useBW[6];
   int    idMass[6];
   double mPeak[6], sPeak[6], mWidth[6], mMin[6], mMax[6], mw[6], wmRat[6],
-         mLower[6], mUpper[6], sLower[6], sUpper[6], fracFlat[6], fracInv[6],
-         fracInv2[6], atanLower[6], atanUpper[6], intBW[6], intFlat[6],
-         intInv[6], intInv2[6];
+         mLower[6], mUpper[6], sLower[6], sUpper[6], fracFlatS[6],
+         fracFlatM[6], fracInv[6], fracInv2[6], atanLower[6], atanUpper[6],
+         intBW[6], intFlatS[6], intFlatM[6], intInv[6], intInv2[6];
 
   // Setup mass selection for one resonance at a time. Split in two parts.
   void   setupMass1(int iM);

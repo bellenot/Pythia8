@@ -1,5 +1,5 @@
 // JetMatching.h is a part of the PYTHIA event generator.
-// Copyright (C) 2015 Torbjorn Sjostrand.
+// Copyright (C) 2016 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -169,7 +169,7 @@ class JetMatchingMadgraph : virtual public JetMatching {
 public:
 
   // Constructor and destructor
-  JetMatchingMadgraph() { }
+  JetMatchingMadgraph() : slowJetDJR(NULL) { }
   ~JetMatchingMadgraph() { if (slowJetDJR) delete slowJetDJR; }
 
   // Initialisation
@@ -189,10 +189,30 @@ public:
   SlowJet* slowJetDJR;
   // Functions to return the jet clustering scales and number of ME partons.
   // These are useful to investigate the matching systematics.
-  vector<double> GetDJR() { return DJR;}
+  vector<double> getDJR() { return DJR;}
+  //vector<double> GetDJR() { return getDJR();}
   pair<int,int> nMEpartons() { return nMEpartonsSave;}
 
+  // For systematic variations of the jet matching parameters, it is helpful
+  // to decouple the jet matching veto from the internal book-keeping. The
+  // veto can then be applied in hindsight by an expert user. The functions
+  // below return all the necessary information to do this.
+  Event getWorkEventJet() { return workEventJetSave; }
+  Event getProcessSubset() { return processSubsetSave; }
+  bool  getExclusive() { return exclusive; }
+  double getPTfirst() { return pTfirstSave; }
+
 protected:
+
+  // Stored values of all inputs necessary to perform the jet matching, as
+  // needed when the veto is applied externally.
+  Event processSubsetSave;
+  Event workEventJetSave;
+  double pTfirstSave;
+
+  // Save if code should apply the veto, or simply store the things necessary
+  // to perform the veto externally.
+  bool performVeto;
 
   // Different steps of the matching algorithm.
   void sortIncomingProcess(const Event &);
@@ -204,8 +224,8 @@ protected:
   bool doShowerKtVeto(double pTfirst);
 
   // Functions to clear and set the jet clustering scales.
-  void ClearDJR() { DJR.resize(0);}
-  void SetDJR( const Event& event);
+  void clearDJR() { DJR.resize(0);}
+  void setDJR( const Event& event);
   // Functions to clear and set the jet clustering scales.
   void clear_nMEpartons() { nMEpartonsSave.first = nMEpartonsSave.second =-1;}
   void set_nMEpartons( const int nOrig, const int nMatch) {
@@ -895,6 +915,11 @@ inline int JetMatchingAlpgen::matchPartonsToJetsHeavy() {
 
 inline bool JetMatchingMadgraph::initAfterBeams() {
 
+  // Initialise values for stored jet matching veto inputs.
+  pTfirstSave = -1.;
+  processSubsetSave.init("(eventProcess)", particleDataPtr);
+  workEventJetSave.init("(workEventJet)", particleDataPtr);
+
   // Read in Madgraph specific configuration variables
   bool setMad    = settingsPtr->flag("JetMatching:setMad");
 
@@ -961,6 +986,9 @@ inline bool JetMatchingMadgraph::initAfterBeams() {
   exclusiveMode  = settingsPtr->mode("JetMatching:exclusive");
   qCutSq         = pow(qCut,2);
   etaJetMaxAlgo  = etaJetMax;
+
+  // Read if veto should be performed internally.
+  performVeto    = settingsPtr->flag("JetMatching:doVeto");
 
   // If not merging, then done
   if (!doMerge) return true;
@@ -1107,6 +1135,11 @@ inline bool JetMatchingMadgraph::doVetoStep(int iPos, int nISR, int nFSR,
     }
   }
 
+  // Store things that are necessary to perform the shower-kT veto externally.
+  pTfirstSave   = pTfirst;
+  // Done if only inputs for an external vetoing procedure should be stored.
+  if (!performVeto) return false;
+
   // Check veto.
   if ( doShowerKtVeto(pTfirst) ) return true;
 
@@ -1154,15 +1187,15 @@ inline bool JetMatchingMadgraph::doShowerKtVeto(double pTfirst) {
 
 // Function to set the jet clustering scales (to be used as output)
 
-inline void JetMatchingMadgraph::SetDJR( const Event& event) {
+inline void JetMatchingMadgraph::setDJR( const Event& event) {
 
  // Clear members.
- ClearDJR();
+ clearDJR();
  vector<double> result;
 
   // Initialize SlowJetDJR jet algorithm with event
   if (!slowJetDJR->setup(event) ) {
-    infoPtr->errorMsg("Warning in JetMatchingMadgraph:iGetDJR"
+    infoPtr->errorMsg("Warning in JetMatchingMadgraph:setDJR"
       ": the SlowJet algorithm failed on setup");
     return;
   }
@@ -1176,7 +1209,7 @@ inline void JetMatchingMadgraph::SetDJR( const Event& event) {
   }
 
   // Save clustering scales in reserve order.
-  for (int i=int(result.size())-1; i > 0; --i)
+  for (int i=int(result.size())-1; i >= 0; --i)
     DJR.push_back(result[i]);
 
 }
@@ -1203,7 +1236,7 @@ inline void JetMatchingMadgraph::sortIncomingProcess(const Event &event) {
   // Remove resonance decays from original process and keep only final
   // state. Resonances will have positive status code after this step.
   omitResonanceDecays(eventProcessOrig, true);
-  ClearDJR();
+  clearDJR();
   clear_nMEpartons();
 
   // For FxFx, pre-cluster partons in the event into jets.
@@ -1337,6 +1370,13 @@ inline void JetMatchingMadgraph::sortIncomingProcess(const Event &event) {
   // Extract partons from hardest subsystem + ISR + FSR only into
   // workEvent. Note no resonance showers or MPIs.
   subEvent(event);
+
+  // Store things that are necessary to perform the kT-MLM veto externally.
+  int nParton = typeIdx[0].size();
+  processSubsetSave.clear();
+  for ( int i = 0; i < nParton; ++i)
+    processSubsetSave.append( eventProcess[typeIdx[0][i]] );
+
 }
 
 //--------------------------------------------------------------------------
@@ -1427,7 +1467,7 @@ inline bool JetMatchingMadgraph::matchPartonsToJets(int iType) {
   if (iType == 0) {
     // Record the jet separations here, also if matchPartonsToJetsLight
     // returns preemptively.
-    SetDJR(workEventJet);
+    setDJR(workEventJet);
     set_nMEpartons(origTypeIdx[0].size(), typeIdx[0].size());
     // Perform jet matching.
     return (matchPartonsToJetsLight() > 0);
@@ -1448,6 +1488,11 @@ inline bool JetMatchingMadgraph::matchPartonsToJets(int iType) {
 //   4 = veto as there is a parton which does not match a jet
 
 inline int JetMatchingMadgraph::matchPartonsToJetsLight() {
+
+  // Store things that are necessary to perform the kT-MLM veto externally.
+  workEventJetSave  = workEventJet;
+  // Done if only inputs for an external vetoing procedure should be stored.
+  if (!performVeto) return false;
 
   // Count the number of hard partons
   int nParton = typeIdx[0].size();
@@ -1676,7 +1721,7 @@ inline int JetMatchingMadgraph::matchPartonsToJetsLight() {
   else eTpTlightMin = -1.;
 
   // Record the jet separations.
-  SetDJR(workEventJet);
+  setDJR(workEventJet);
 
   // No veto
   return NONE;

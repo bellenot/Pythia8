@@ -1,5 +1,5 @@
 // LHEF3.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2015 Torbjorn Sjostrand.
+// Copyright (C) 2016 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -69,7 +69,7 @@ LHAscales::LHAscales(const XMLTag & tag, double defscale)
     if ( it->first == "muf" ) muf = v;
     else if ( it->first == "mur" ) mur = v;
     else if ( it->first == "mups" ) mups = v;
-    else attributes[it->first] = v;
+    else attributes.insert(make_pair(it->first, v));
   }
   contents = tag.contents;
 }
@@ -102,10 +102,9 @@ LHAgenerator::LHAgenerator(const XMLTag & tag, string defname)
   : name(defname), version(defname), contents(defname) {
   for ( map<string,string>::const_iterator it = tag.attr.begin();
         it != tag.attr.end(); ++it ) {
-    string v = it->second.c_str();
-    if ( it->first == "name" ) name = v;
-    else if ( it->first == "version" ) version = v;
-    else attributes[it->first] = v;
+    if ( it->first == "name" ) name = it->second;
+    else if ( it->first == "version" ) version = it->second;
+    else attributes.insert(make_pair(it->first, it->second));
   }
   contents = tag.contents;
 }
@@ -138,9 +137,8 @@ LHAwgt::LHAwgt(const XMLTag & tag, double defwgt)
   : id(""), contents(defwgt) {
   for ( map<string,string>::const_iterator it = tag.attr.begin();
         it != tag.attr.end(); ++it ) {
-    string v = it->second;
-    if ( it->first == "id" ) id = v;
-    else attributes[it->first] = v;
+    if ( it->first == "id" ) id = it->second;
+    else attributes.insert(make_pair(it->first, it->second));
   }
   contents = atof(tag.contents.c_str());
 }
@@ -172,9 +170,8 @@ LHAweight::LHAweight(const XMLTag & tag, string defname)
   : id(defname), contents(defname) {
   for ( map<string,string>::const_iterator it = tag.attr.begin();
         it != tag.attr.end(); ++it ) {
-    string v = it->second;
-    if ( it->first == "id" ) id = v;
-    else attributes[it->first] = v;
+    if ( it->first == "id" ) id = it->second;
+    else attributes.insert(make_pair(it->first, it->second));
   }
   contents = tag.contents;
 }
@@ -208,9 +205,8 @@ LHAweightgroup::LHAweightgroup(const XMLTag & tag) {
 
   for ( map<string,string>::const_iterator it = tag.attr.begin();
         it != tag.attr.end(); ++it ) {
-    string v = it->second.c_str();
-    if ( it->first == "name" ) name = v;
-    else attributes[it->first] = v;
+    if ( it->first == "name" ) name = it->second;
+    else attributes.insert(make_pair(it->first,it->second));
   }
 
   contents = tag.contents;
@@ -297,7 +293,7 @@ void LHArwgt::print(ostream & file) const {
   file << " >\n";
   for ( map<string,LHAwgt>::const_iterator it = wgts.begin();
         it != wgts.end(); ++it ) it->second.print(file);
-  file << "</rgwt>" << endl;
+  file << "</rwgt>" << endl;
 }
 
 //==========================================================================
@@ -397,7 +393,7 @@ void LHAinitrwgt::print(ostream & file) const {
         it != weightgroups.end(); ++it ) it->second.print(file);
   for ( map<string,LHAweight>::const_iterator it = weights.begin();
         it != weights.end(); ++it ) it->second.print(file);
-  file << "</initrgwt>" << endl;
+  file << "</initrwgt>" << endl;
 }
 
 //==========================================================================
@@ -703,8 +699,7 @@ bool Reader::readEvent(HEPEUP * peup) {
     XMLTag & evtag = *evtags[0];
     for ( map<string,string>::const_iterator it = evtag.attr.begin();
           it != evtag.attr.end(); ++it ) {
-      string v = it->second.c_str();
-      eup.attributes[it->first] = v;
+      eup.attributes.insert(make_pair(it->first,it->second));
     }
     for ( int i = 0, N = evtags.size(); i < N; ++i )
       if (evtags[i]) delete evtags[i];

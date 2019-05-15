@@ -1,5 +1,5 @@
 // Pythia.h is a part of the PYTHIA event generator.
-// Copyright (C) 2015 Torbjorn Sjostrand.
+// Copyright (C) 2016 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -10,7 +10,7 @@
 #define Pythia8_Pythia_H
 
 // Version number defined for use in macros and for consistency checks.
-#define PYTHIA_VERSION 8.212
+#define PYTHIA_VERSION 8.215
 
 // Header files for the Pythia class and for what else the user may need.
 #include "Pythia8/Analysis.h"
@@ -56,8 +56,19 @@ public:
   // Constructor. (See Pythia.cc file.)
   Pythia(string xmlDir = "../share/Pythia8/xmldoc", bool printBanner = true);
 
+  // Constructor to copy settings and particle database from another Pythia
+  // object instead of XML files (to speed up multiple initialisations).
+  Pythia(Settings& settingsIn, ParticleData& particleDataIn,
+    bool printBanner = true);
+
   // Destructor. (See Pythia.cc file.)
   ~Pythia();
+
+  // Initialise new Pythia object (called by constructors).
+  void initPtrs();
+
+  // Check consistency of version numbers (called by constructors).
+  bool checkVersion();
 
   // Read in one update for a setting or particle data from a single line.
   bool readString(string, bool warn = true);

@@ -108,7 +108,8 @@ want to study further. The event record itself remains unchanged.</li>
  
 <li><code>main19.cc</code> : use several instances of Pythia, one for 
 signal events and others for a variable number of pileup and "beam-gas" 
-events, combined into one common event record.</li> 
+events, combined into one common event record. Illustrates how new 
+Pythia instances can copy existing settings and particle data.</li> 
  
 <li><code>main20.cc</code> : shows how PYTHIA 8 can write a Les Houches 
 Event File, using facilities potentially useful also for other programs 
@@ -197,6 +198,11 @@ facilitates loading the POWHEG plugins. In addition
 <code>main33.cmnd</code> contains the commands needed for POWHEGBOX 
 to run the example. 
 </li> 
+ 
+<li><code>main34.cc</code> : demonstrates how Madgraph5_aMC@NLO can 
+be run "from within" Pythia, making use of the <code>LHAupMadgraph</code> 
+wrapper/interface of Madgraph5_aMC@NLO and the Pythia jet matching 
+facilities.</li> 
  
 <li><code>main37.cc</code> : shows how LHEF version 3.0 files can be 
 read and used to fill several histograms of the same property, but with 
@@ -376,4 +382,4 @@ ROOT trees.</li>
 </body>
 </html>
  
-<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 

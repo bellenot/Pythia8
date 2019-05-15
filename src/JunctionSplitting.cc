@@ -1,5 +1,5 @@
 // JunctionSplitting.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2015 Torbjorn Sjostrand.
+// Copyright (C) 2016 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -31,6 +31,9 @@ const int JunctionSplitting::NTRYJNREST        = 20;
 
 // Typical average transvere primary hadron mass <mThad>.
 const double JunctionSplitting::MTHAD          = 0.9;
+
+// Minimum angle between two partons, to avoid problems with infinities.
+const double JunctionSplitting::MINANGLE       = 1e-7;
 
 //--------------------------------------------------------------------------
 
@@ -559,12 +562,12 @@ bool JunctionSplitting::splitJunPairs(Event& event,
           if (- iPartonJun[l][0]/10 - 1 == iJun) {
             iJunList = l;
             break;
-          }
+        }
         for (int l = 0;l < int(iPartonAntiJun.size()); ++l)
           if (- iPartonAntiJun[l][0]/10 - 1 == iAnti) {
             iAntiList = l;
             break;
-          }
+        }
         if (iJunList == -1 || iAntiList == -1) {
           infoPtr->errorMsg("Error in JunctionSplitting::SplitJunChain:"
             " failed to find junctions in the parton list");
@@ -606,6 +609,18 @@ bool JunctionSplitting::splitJunPairs(Event& event,
         Vec4 pJunLeg1 = event[ iJunLeg1[1] ].p();
         Vec4 pAntiLeg0 = event[ iAntiLeg0[1] ].p();
         Vec4 pAntiLeg1 = event[ iAntiLeg1[1] ].p();
+
+        // Check that no two legs are parallel.
+        if ( theta(pJunLeg0,pJunLeg1)   < MINANGLE
+          || theta(pAntiLeg0,pAntiLeg1) < MINANGLE
+          || theta(pJunLeg0,pAntiLeg0)  < MINANGLE
+          || theta(pJunLeg0,pAntiLeg1)  < MINANGLE
+          || theta(pJunLeg1,pAntiLeg0)  < MINANGLE
+          || theta(pJunLeg1,pAntiLeg1)  < MINANGLE) {
+          infoPtr->errorMsg("Warning in JunctionSplitting::SplitJunPairs: "
+            "parallel junction state not allowed.");
+          return false;
+        }
 
       // Starting frame hopefully intermediate to two junction directions.
       Vec4 pStart = pJunLeg0 / pJunLeg0.e() + pJunLeg1 / pJunLeg1.e()

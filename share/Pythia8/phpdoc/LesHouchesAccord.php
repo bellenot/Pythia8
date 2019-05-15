@@ -507,7 +507,6 @@ This information is returned by the method
 <code>double LHAup::scale(int i)</code>. When no such information 
 has been read from the LHEF, the scale defaults to -1. 
  
- 
 <p/> 
 <a name="method30"></a>
 <p/><strong>void LHAup::listEvent(ostream& os = cout) &nbsp;</strong> <br/>
@@ -557,10 +556,11 @@ correlations implemented for internal processes are used. If part of
 the decay chain has already been set, however (e.g. <i>H &rarr; WW/ZZ</i> 
 or <i>t &rarr; b W</i>), then decay is still isotropic. 
  
-<p/> 
-There are four settings available for event input. They take effect when 
+<h3>Transfer to the PYTHIA process record</h3> 
+ 
+There are a few settings available for event input. They take effect when 
 the LHA event record is translated to the PYTHIA <code>process</code> 
-event record. 
+event record, but leaves the LHA event record itself unchanged. 
  
 <br/><br/><table><tr><td><strong>LesHouches:idRenameBeams  </td><td></td><td> <input type="text" name="1" value="1000022" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1000022</strong></code>; <code>minimum = 0</code>)</td></tr></table>
 PYTHIA only implements a certain number of incoming beam particles. 
@@ -594,14 +594,65 @@ simplify calculations. This is particularly common for the <ei>e</ei> and
 afflicted. Incoming leptons are not affected by this procedure. 
 <br/>
 <input type="radio" name="3" value="0"><strong>0 </strong>:  all lepton masses are taken from the Les Houches input.  <br/>
-<input type="radio" name="3" value="1" checked="checked"><strong>1 </strong>:  if the input lepton mass deviates by more than 10%  from the PYTHIA (data table) mass then its mass is reset according to the  PYTHIA value, and the energy is recalculated from this mass and the  three-momentum. This should catch weird masses, while allowing sensible  variations.  <br/>
-<input type="radio" name="3" value="2"><strong>2 </strong>:  each lepton mass is reset according to the PYTHIA value,  and the energy is recalculated from this mass and the three-momentum.  <br/>
-<br/><b>Warning:</b> the change of masses and the resultant change of 
-energies can result in energy-momentum non-conservation warnings and, 
-in extreme cases, also to aborts. One possibility then is to change the 
+<input type="radio" name="3" value="1" checked="checked"><strong>1 </strong>:  if the input lepton mass deviates by more than 10%  from the PYTHIA (data table) mass then its mass is reset according to the  PYTHIA value. This should catch weird masses, while allowing sensible  variations.  <br/>
+<input type="radio" name="3" value="2"><strong>2 </strong>:  each lepton mass is reset according to the PYTHIA value.  <br/>
+<br/><b>Warning:</b> when the mass is changed, also energy and/or momentum 
+need to be shifted. This cannot be done for the lepton in isolation, 
+but should be made so as to preserve the energy and momentum of the event 
+as a whole. An attempt is therefore made to find another final-state 
+particle recoiler that can transfer the appropriate amount of energy 
+and momentum. The recoiler may be unstable, and if so the transfer is 
+inherited by its decay products. The choice is straightforward if only 
+two final-state particles exist, or in a two-body decay of an intermediate 
+resonance, else a matching (anti)neutrino or (anti)lepton is searched for. 
+These rules catch most of the standard cases for lepton production, such as 
+<ei>gamma^*/Z^0/W^+-</ei>, but not necessarily all. Should they all fail 
+the potential final-state recoiler with largest relative invariant mass 
+is picked. In either case, if the transfer fails because the intended 
+recoiler has too little energy to give up, then instead the energy is 
+recalculated for the new mass without any transfer. The energy violation 
+is partly compensated by changed energies for the incoming partons to 
+the hard collision if <code>LesHouches:matchInOut = on</code>, but not 
+always perfectly. One possibility then is to change the 
 <aloc href="ErrorChecks">tolerance</aloc> to such errors. 
  
-<br/><br/><table><tr><td><strong>LesHouches:mRecalculate </td><td></td><td> <input type="text" name="4" value="-1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>-1.</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>LesHouches:setQuarkMass  </td><td>  &nbsp;&nbsp;(<code>default = <strong>1</strong></code>; <code>minimum = 0</code>; <code>maximum = 2</code>)</td></tr></table>
+setting of mass for final-state quarks. The reason here is that some 
+matrix-element generators assume all quarks to be massless, except for 
+the top, so as to simplify calculations. Especially for <ei>c</ei> and 
+<ei>b</ei> quarks this is a poor approximation, although PYTHIA most of 
+the time still manages to shower and hadronize even such events. The 
+reason is the resilience of the string fragmentation model, where 
+the excess gluons near (in colour and momentum) to a massless <ei>b</ei> 
+are "eaten up" when string fragmentation needs to gather enough invariant 
+mass to give to the <ei>B</ei> hadron. Nevertheless it is an uncomfortable 
+situation, to be avoided where possible. For <ei>d</ei>, <ei>u</ei> and 
+<ei>s</ei> quarks the issue is less critical. Incoming or intermediate 
+quarks are not affected by this procedure. 
+<br/>
+<input type="radio" name="4" value="0"><strong>0 </strong>:  all quark masses are taken from the Les Houches input.  <br/>
+<input type="radio" name="4" value="1" checked="checked"><strong>1 </strong>:  if the input <ei>c</ei> or <ei>b</ei> mass is  more than 50% away from the PYTHIA (data table) mass then its mass is  reset according to the PYTHIA value.  <br/>
+<input type="radio" name="4" value="2"><strong>2 </strong>: if the input mass, for all quarks except the top, is  more than 50% away from the PYTHIA (data table) mass then its mass is  reset according to the PYTHIA value.  <br/>
+<br/><b>Warning:</b> when the mass is changed, also energy and/or momentum 
+need to be shifted. This cannot be done for the quark in isolation, 
+but should be made so as to preserve the energy and momentum of the event 
+as a whole. An attempt is therefore made to find another final-state 
+particle recoiler that can transfer the appropriate amount of energy 
+and momentum. The recoiler may be unstable, and if so the transfer is 
+inherited by its decay products. The choice is straightforward if only 
+two final-state particles exist, or in a two-body decay of an intermediate 
+resonance. If no recoiler is found this way a matching opposite-coloured 
+parton is searched for. Should also this fail the potential final-state 
+recoiler with largest relative invariant mass is picked. In either case, 
+if the transfer fails because the intended recoiler has too little energy 
+to give up, then instead the energy is recalculated for the new mass 
+without any transfer. The energy violation is partly compensated by 
+changed energies for the incoming partons to the hard collision if 
+<code>LesHouches:matchInOut = true</code>, but not always perfectly. 
+One possibility then is to change the 
+<aloc href="ErrorChecks">tolerance</aloc> to such errors. 
+ 
+<br/><br/><table><tr><td><strong>LesHouches:mRecalculate </td><td></td><td> <input type="text" name="5" value="-1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>-1.</strong></code>)</td></tr></table>
 Does not have any effect by default, or more generally when it is negative. 
 If it is positive then all particles with an input mass above this 
 value will have the mass recalculated and reset from the four-momentum, 
@@ -619,8 +670,8 @@ from its three-momntum and mass. This is to avoid spurious mismatches
 from limited numerical precision in an LHEF. 
    
  
-<br/><br/><strong>LesHouches:matchInOut</strong>  <input type="radio" name="5" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="5" value="off"><strong>Off</strong>
+<br/><br/><strong>LesHouches:matchInOut</strong>  <input type="radio" name="6" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="6" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 The energies and longitudinal momenta of the two incoming partons are 
 recalculated from the sum of the outgoing final (i.e. status 1) particles. 
@@ -628,8 +679,8 @@ The incoming partons are set massless. There are two main applications
 for this option. Firstly, if there is a mismatch in the Les Houches 
 input itself, e.g. owing to limited precision in the stored momenta. 
 Secondly, if a mismatch is induced by PYTHIA recalculations, notably when 
-an outgoing lepton is assigned a mass although assumed massles in the 
-Les Houches input. 
+an outgoing lepton or quark is assigned a mass although assumed massless 
+in the Les Houches input. 
 <br/><b>Warning:</b> it is assumed that the incoming partons are along 
 the <i>+-z</i> axis; else the kinematics construction will fail. 
    
@@ -1119,14 +1170,19 @@ if($_POST["3"] != "1")
 $data = "LesHouches:setLeptonMass = ".$_POST["3"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["4"] != "-1.")
+if($_POST["4"] != "1")
 {
-$data = "LesHouches:mRecalculate = ".$_POST["4"]."\n";
+$data = "LesHouches:setQuarkMass = ".$_POST["4"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["5"] != "on")
+if($_POST["5"] != "-1.")
 {
-$data = "LesHouches:matchInOut = ".$_POST["5"]."\n";
+$data = "LesHouches:mRecalculate = ".$_POST["5"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["6"] != "on")
+{
+$data = "LesHouches:matchInOut = ".$_POST["6"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);
@@ -1136,4 +1192,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 

@@ -1,5 +1,5 @@
 // ParticleData.h is a part of the PYTHIA event generator.
-// Copyright (C) 2015 Torbjorn Sjostrand.
+// Copyright (C) 2016 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -35,6 +35,7 @@ class SUSYResonanceWidths;
 class DecayChannel {
 
 public:
+
   // Constructor.
   DecayChannel(int onModeIn = 0, double bRatioIn = 0., int meModeIn = 0,
     int prod0 = 0, int prod1 = 0, int prod2 = 0, int prod3 = 0,
@@ -45,6 +46,15 @@ public:
     prod[0] = prod0; prod[1] = prod1; prod[2] = prod2; prod[3] = prod3;
     prod[4] = prod4; prod[5] = prod5; prod[6] = prod6; prod[7] = prod7;
     for (int j = 0; j < 8; ++j) if (prod[j] != 0 && j == nProd) ++nProd; }
+
+  // Copy constructor.
+  DecayChannel& operator=( const DecayChannel& oldDC) { if (this != &oldDC) {
+    onModeSave = oldDC.onModeSave; bRatioSave = oldDC.bRatioSave;
+    currentBRSave = oldDC.currentBRSave;
+    onShellWidthSave = oldDC.onShellWidthSave; openSecPos = oldDC.openSecPos;
+    openSecNeg = oldDC.openSecNeg; meModeSave = oldDC.meModeSave;
+    nProd = oldDC.nProd; for (int j = 0; j < 8; ++j) prod[j] = oldDC.prod[j];
+    hasChangedSave = oldDC.hasChangedSave; } return *this; }
 
   // Member functions for input.
   void onMode(int onModeIn) {onModeSave = onModeIn; hasChangedSave = true;}
@@ -127,6 +137,26 @@ public:
     tau0Save(tau0In), hasAntiSave(true), hasChangedSave(true),
     resonancePtr(0) {setDefaults();
     if (toLower(antiNameIn) == "void") hasAntiSave = false;}
+
+  // Copy constructor.
+  ParticleDataEntry& operator=( const ParticleDataEntry& oldPDE) {
+    if (this != &oldPDE) { idSave = oldPDE.idSave;
+    nameSave = oldPDE.nameSave; antiNameSave = oldPDE.antiNameSave;
+    spinTypeSave = oldPDE.spinTypeSave; chargeTypeSave = oldPDE.chargeTypeSave;
+    colTypeSave = oldPDE.colTypeSave; m0Save = oldPDE.m0Save;
+    mWidthSave = oldPDE.mWidthSave;  mMinSave = oldPDE.mMinSave;
+    mMaxSave = oldPDE.mMaxSave;  tau0Save = oldPDE.tau0Save;
+    constituentMassSave = oldPDE.constituentMassSave;
+    hasAntiSave = oldPDE.hasAntiSave; isResonanceSave = oldPDE.isResonanceSave;
+    mayDecaySave = oldPDE.mayDecaySave; doExternalDecaySave
+    = oldPDE.doExternalDecaySave; isVisibleSave = oldPDE.isVisibleSave;
+    doForceWidthSave = oldPDE.doForceWidthSave; hasChangedSave
+    = oldPDE.hasChangedSave; modeBWnow = oldPDE.modeBWnow;
+    atanLow = oldPDE.atanLow; atanDif = oldPDE.atanDif; mThr = oldPDE.mThr;
+    for (int i = 0; i < int(oldPDE.channels.size()); ++i) {
+      DecayChannel oldDC = oldPDE.channels[i]; channels.push_back(oldDC); }
+    currentBRSum = oldPDE.currentBRSum; resonancePtr = 0;
+    particleDataPtr = 0; } return *this; }
 
   // Destructor: delete any ResonanceWidths object.
   ~ParticleDataEntry();
@@ -336,6 +366,18 @@ public:
   // Constructor.
   ParticleData() : infoPtr(0), settingsPtr(0), rndmPtr(0), couplingsPtr(0),
     particlePtr(0), isInit(false), readingFailedSave(false) {}
+
+  // Copy constructors.
+  ParticleData& operator=( const ParticleData& oldPD) { if (this != &oldPD) {
+    modeBreitWigner = oldPD.modeBreitWigner; maxEnhanceBW = oldPD.maxEnhanceBW;
+    for (int i = 0; i < 7; ++i) mQRun[i] = oldPD.mQRun[i];
+    Lambda5Run = oldPD.Lambda5Run;
+    infoPtr = 0; settingsPtr = 0; rndmPtr = 0; couplingsPtr = 0;
+    for ( map<int, ParticleDataEntry>::const_iterator pde = oldPD.pdt.begin();
+      pde != oldPD.pdt.end(); pde++) { int idTmp = pde->first;
+      pdt[idTmp] = pde->second; pdt[idTmp].initPtr(this); }
+    particlePtr = 0; isInit = oldPD.isInit;
+    readingFailedSave = oldPD.readingFailedSave; } return *this; }
 
   // Initialize pointers.
   void initPtr(Info* infoPtrIn, Settings* settingsPtrIn, Rndm* rndmPtrIn,
@@ -559,6 +601,9 @@ public:
   // Return pointer to entry.
   ParticleDataEntry* particleDataEntryPtr(int idIn) {
     return (isParticle(idIn)) ? &pdt[abs(idIn)] : &pdt[0]; }
+
+  // Check initialisation status.
+  bool getIsInit() {return isInit;}
 
 private:
 

@@ -1,5 +1,5 @@
 // Settings.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2015 Torbjorn Sjostrand.
+// Copyright (C) 2016 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -2103,7 +2103,7 @@ void Settings::initTunePP( int ppTune) {
       parm("SpaceShower:alphaSvalue",           0.1237);
       parm("SpaceShower:pT0Ref",                0.59  );
       parm("MultipartonInteractions:pT0Ref",    2.18  );
-      parm("BeamRemnants:primordialKThard",     2.0   );
+      parm("BeamRemnants:primordialKThard",     1.71  );
     }
   }
 

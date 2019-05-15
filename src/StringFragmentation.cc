@@ -1,5 +1,5 @@
 // StringFragmentation.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2015 Torbjorn Sjostrand.
+// Copyright (C) 2016 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -924,15 +924,15 @@ bool StringFragmentation::fragmentToJunction(Event& event) {
   int leg = -1;
   // PS (4/10/2011) Protect against invalid systems
   if (iParton[0] > 0) {
-    infoPtr->errorMsg("Error in StringFragmentation::fragmentToJunction: "
-      "iParton[0] not a valid junctionNumber");
+    infoPtr->errorMsg("Error in StringFragmentation::fragment"
+      "ToJunction: iParton[0] not a valid junctionNumber");
     return false;
   }
   for (int i = 0; i < int(iParton.size()); ++i) {
     if (iParton[i] < 0) {
       if (leg == 2) {
-        infoPtr->errorMsg("Error in StringFragmentation::fragmentToJunction: "
-          "unprocessed multi-junction system");
+        infoPtr->errorMsg("Error in StringFragmentation::fragment"
+          "ToJunction: unprocessed multi-junction system");
         return false;
       }
       legBeg[++leg] = i + 1;
@@ -946,9 +946,9 @@ bool StringFragmentation::fragmentToJunction(Event& event) {
   Vec4 pWTinJRF[3];
   int iter = 0;
   double errInCM = 0.;
+
   do {
     ++iter;
-
     // Find weighted sum of momenta on the three sides of the junction.
     for (leg = 0; leg < 3; ++ leg) {
       pWTinJRF[leg] = 0.;
@@ -967,15 +967,16 @@ bool StringFragmentation::fragmentToJunction(Event& event) {
       + pow2(costheta(pWTinJRF[0], pWTinJRF[2]) + 0.5)
       + pow2(costheta(pWTinJRF[1], pWTinJRF[2]) + 0.5);
 
-    // Check that no two legs has unreasonably small invariant mass.
+    // Check numerical instabilities in boost, use rest frame if it fails.
     if ( (pWTinJRF[0] + pWTinJRF[1]).m2Calc() < M2MINJRF
       || (pWTinJRF[0] + pWTinJRF[2]).m2Calc() < M2MINJRF
       || (pWTinJRF[1] + pWTinJRF[2]).m2Calc() < M2MINJRF ) {
-      infoPtr->errorMsg("Error in StringFragmentation::fragmentToJunction: "
-        "too small leg-leg invariant mass");
-      return false;
+      infoPtr->errorMsg("Warning in StringFragmentation::fragmentTo"
+      "Junction: Negative invariant masses in junction rest frame");
+      MtoJRF.reset();
+      MtoJRF.bstback(pSum);
+      break;
     }
-
     // Find new JRF from the set of weighted momenta.
     Mstep = junctionRestFrame( pWTinJRF[0], pWTinJRF[1], pWTinJRF[2]);
     // Fortran code will not take full step after the first few
@@ -988,8 +989,8 @@ bool StringFragmentation::fragmentToJunction(Event& event) {
     + pow2(costheta(pWTinJRF[0], pWTinJRF[2]) + 0.5)
     + pow2(costheta(pWTinJRF[1], pWTinJRF[2]) + 0.5);
   if (errInJRF > errInCM + CONVJNREST) {
-    infoPtr->errorMsg("Warning in StringFragmentation::fragmentToJunction: "
-      "bad convergence junction rest frame");
+    infoPtr->errorMsg("Warning in StringFragmentation::fragmentTo"
+      "Junction: bad convergence junction rest frame");
     MtoJRF.reset();
     MtoJRF.bstback(pSum);
   }

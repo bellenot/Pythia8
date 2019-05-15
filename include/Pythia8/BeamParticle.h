@@ -1,5 +1,5 @@
 // BeamParticle.h is a part of the PYTHIA event generator.
-// Copyright (C) 2015 Torbjorn Sjostrand.
+// Copyright (C) 2016 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -153,6 +153,7 @@ public:
   bool isHadron() const {return isHadronBeam;}
   bool isMeson() const {return isMesonBeam;}
   bool isBaryon() const {return isBaryonBeam;}
+  bool isGamma() const {return isGammaBeam;}
 
   // Maximum x remaining after previous MPI and ISR, plus safety margin.
   double xMax(int iSkip = -1);
@@ -263,6 +264,26 @@ public:
 
   vector<pair <int,int> > getColUpdates() {return colUpdates;}
 
+  // Set valence content for photon beams using hard process.
+  bool gammaInitiatorIsVal(int id, double x, double Q2);
+  bool gammaInitiatorIsVal(int iResolved, double Q2);
+  int  getGammaValFlavour() { return abs(idVal[0]); }
+  int  gammaValSeaComp(int iResolved);
+  void initiatorVal(bool isValence) { initiatorValence = isValence; }
+  void setGammaRemnants(bool remnants) { gammaRemnants = remnants; }
+  bool getGammaRemnants() { return gammaRemnants; }
+
+  // Check whether room for beam remnants.
+  bool roomFor1Remnant(double eCM);
+  bool roomFor1Remnant(int id1, double x1, double eCM);
+  bool roomFor2Remnants(int id1, double x1, double eCM);
+
+  // Functions to approximate pdfs for ISR.
+  double gammaPDFxDependence(int flavour, double x)
+    { return pdfBeamPtr->gammaPDFxDependence(flavour, x); }
+  double gammaPDFRefScale(int flavour)
+    { return pdfBeamPtr->gammaPDFRefScale(flavour); }
+
 private:
 
   // Constants: could only be changed in the code itself.
@@ -299,12 +320,16 @@ private:
   double mBeam;
   // Beam kind. Valence flavour content for hadrons.
   bool   isUnresolvedBeam, isLeptonBeam, isHadronBeam, isMesonBeam,
-         isBaryonBeam;
+         isBaryonBeam, isGammaBeam;
   int    nValKinds, idVal[3], nVal[3];
 
   // Current parton density, by valence, sea and companion.
   int    idSave, iSkipSave, nValLeft[3];
   double xqgTot, xqVal, xqgSea, xqCompSum;
+
+  // Variables related to photon beams.
+  bool   doISR, gammaRemnants, initiatorValence;
+  double pTminISR;
 
   // The list of resolved partons.
   vector<ResolvedParton> resolved;

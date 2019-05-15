@@ -327,4 +327,4 @@ echo "<a href='CKKWLMerging.php?filepath=".$filepath."' target='page'>";?>CKKW-L
 </body>
 </html>
  
-<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 

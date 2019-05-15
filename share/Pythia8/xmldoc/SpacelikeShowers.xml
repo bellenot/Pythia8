@@ -371,6 +371,11 @@ switched on.
 Azimuthal asymmetry induced by gluon polarization; on/off = true/false. 
 </flag> 
  
+<flag name="SpaceShower:phiPolAsymHard" default="on"> 
+Extend the above azimuthal asymmetry (if on) also back to gluons produced 
+in the hard process itself, where feasible; on/off = true/false. 
+</flag> 
+ 
 <flag name="SpaceShower:phiIntAsym" default="on"> 
 Azimuthal asymmetry induced by interference; on/off = true/false. 
 </flag> 
@@ -448,4 +453,4 @@ photon backwards-evolution in lepton beams.
  
 </chapter> 
  
-<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 

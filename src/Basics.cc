@@ -1,5 +1,5 @@
 // Basics.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2015 Torbjorn Sjostrand.
+// Copyright (C) 2016 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -563,6 +563,35 @@ ostream& operator<<(ostream& os, const Vec4& v) {
      << setw(9) << v.yy << " " << setw(9) << v.zz << " " << setw(9)
      << v.tt << " (" << setw(9) << v.mCalc() << ")\n";
   return os;
+}
+
+//--------------------------------------------------------------------------
+
+// Shift four-momenta within pair from old to new masses.
+// Note that p1Move and p2Move change values during operation.
+
+bool pShift( Vec4& p1Move, Vec4& p2Move, double m1New, double m2New) {
+
+  // Standard kinematics variables.
+  double sH  = (p1Move + p2Move).m2Calc();
+  double r1  = p1Move.m2Calc() / sH;
+  double r2  = p2Move.m2Calc() / sH;
+  double r3  = m1New * m1New / sH;
+  double r4  = m2New * m2New / sH;
+  double l12 = sqrtpos(pow2(1. - r1 - r2) - 4. * r1 * r2);
+  double l34 = sqrtpos(pow2(1. - r3 - r4) - 4. * r3 * r4);
+
+  // Check that shift operation possible.
+  if (sH <= pow2(m1New + m2New) || l12 < Vec4::TINY || l34 < Vec4::TINY)
+    return false;
+
+  // Calculate needed shift and apply it.
+  double c1  = 0.5 * ( (1. - r1 + r2) * l34 / l12 - (1. - r3 + r4) );
+  double c2  = 0.5 * ( (1. + r1 - r2) * l34 / l12 - (1. + r3 - r4) );
+  Vec4   pSh = c1 * p1Move - c2 * p2Move;
+  p1Move    += pSh;
+  p2Move    -= pSh;
+  return true;
 }
 
 //==========================================================================

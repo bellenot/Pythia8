@@ -1,5 +1,5 @@
 // Merging.h is a part of the PYTHIA event generator.
-// Copyright (C) 2015 Torbjorn Sjostrand.
+// Copyright (C) 2016 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -13,13 +13,14 @@
 #include "Pythia8/Basics.h"
 #include "Pythia8/BeamParticle.h"
 #include "Pythia8/Event.h"
+#include "Pythia8/History.h"
 #include "Pythia8/Info.h"
+#include "Pythia8/MergingHooks.h"
 #include "Pythia8/ParticleData.h"
+#include "Pythia8/PartonLevel.h"
 #include "Pythia8/PythiaStdlib.h"
 #include "Pythia8/Settings.h"
-#include "Pythia8/PartonLevel.h"
-#include "Pythia8/MergingHooks.h"
-#include "Pythia8/History.h"
+#include "Pythia8/StandardModel.h"
 
 namespace Pythia8 {
 
@@ -72,6 +73,9 @@ protected:
   BeamParticle* beamAPtr;
   BeamParticle* beamBPtr;
 
+  // Pointer to standard model couplings.
+  CoupSM* coupSMPtr;
+
   // Minimal value found for the merging scale in events.
   double tmsNowMin;
   static const double TMSMISMATCH;
@@ -80,7 +84,8 @@ protected:
   void init( Settings* settingsPtrIn, Info* infoPtrIn,
     ParticleData* particleDataPtrIn, Rndm* rndmPtrIn,
     BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn,
-    MergingHooks* mergingHooksPtrIn, PartonLevel* trialPartonLevelPtrIn );
+    MergingHooks* mergingHooksPtrIn, PartonLevel* trialPartonLevelPtrIn,
+    CoupSM* coupSMPtrIn);
 
   // Function to print statistics.
   void statistics(ostream& os = cout);

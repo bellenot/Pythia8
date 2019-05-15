@@ -1,5 +1,5 @@
 // LHAPDF5.h is a part of the PYTHIA event generator.
-// Copyright (C) 2015 Torbjorn Sjostrand.
+// Copyright (C) 2016 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -76,18 +76,24 @@ namespace LHAPDF5Interface {
     setlhaparm_( cName, lenName);
   }
 
+  // Simple structure to hold LHAPDF set information.
+  struct LHAPDFInfo {
+    string name;
+    int member;
+    bool photon;
+  };
+
   // Global tracking of opened PDF sets.
-  map< int, pair<string, int> > initializedSets;
+  map<int, LHAPDFInfo> initializedSets;
 
   // Method to find the nSet number corresponding to a name and member.
   // Returns -1 if no such LHAPDF5 set has been initialized.
   int findNSet(string setName, int member) {
-    for (map<int, pair<string, int> >::const_iterator
-         i = initializedSets.begin();
-         i != initializedSets.end(); ++i) {
+    for (map<int, LHAPDFInfo>::const_iterator i = initializedSets.begin();
+      i != initializedSets.end(); ++i) {
       int    iSet    = i->first;
-      string iName   = i->second.first;
-      int    iMember = i->second.second;
+      string iName   = i->second.name;
+      int    iMember = i->second.member;
       if (iName == setName && iMember == member) return iSet;
     }
     return -1;
@@ -146,24 +152,12 @@ private:
 
 void LHAPDF5::init(string setName, int member, Info*) {
 
-  // Determine whether the pdf set contains the photon or not.
-  // So far only MRST2004QED and  NNPDF2.3QED.
-  if ( setName == "MRST2004qed.LHgrid"
-    || setName == "NNPDF23_lo_as_0130_qed.LHgrid"
-    || setName == "NNPDF23_lo_as_0130_qed_mem0.LHgrid"
-    || setName == "NNPDF23_lo_as_0119_qed_mem0.LHgrid"
-    || setName == "NNPDF23_lo_as_0130_qed_mem0.LHgrid"
-    || setName == "NNPDF23_nlo_as_0119_qed_mc.LHgrid"
-    || setName == "NNPDF23_nlo_as_0119_qed_mc_mem0.LHgrid"
-    || setName == "NNPDF23_nnlo_as_0119_qed_mc.LHgrid"
-    || setName == "NNPDF23_nnlo_as_0119_qed_mc_mem0.LHgrid" ) hasPhoton = true;
-  else hasPhoton = false;
-
   // If already initialized then need not do anything further.
-  pair<string, int> initializedNameMember =
+  LHAPDF5Interface::LHAPDFInfo initializedInfo =
     LHAPDF5Interface::initializedSets[nSet];
-  string initializedSetName   = initializedNameMember.first;
-  int    initializedMember    = initializedNameMember.second;
+  string initializedSetName   = initializedInfo.name;
+  int    initializedMember    = initializedInfo.member;
+  hasPhoton                   = initializedInfo.photon;
   if (setName == initializedSetName && member == initializedMember) return;
 
   // Initialize set. If first character is '/' then assume that name
@@ -179,9 +173,16 @@ void LHAPDF5::init(string setName, int member, Info*) {
   LHAPDF5Interface::setPDFparm( "NOSTAT" );
   LHAPDF5Interface::setPDFparm( "LOWKEY" );
 
+  // Check if photon PDF available (has_photon does not work properly).
+  xPhoton = 0;
+  LHAPDF5Interface::evolvePDFPHOTONM(nSet, 0.01, 1, xfArray, xPhoton);
+  hasPhoton = xPhoton != 0;
+
   // Save values to avoid unnecessary reinitializations.
-  if (nSet > 0) LHAPDF5Interface::initializedSets[nSet] =
-                  make_pair(setName, member);
+  initializedInfo.name   = setName;
+  initializedInfo.member = member;
+  initializedInfo.photon = hasPhoton;
+  if (nSet > 0) LHAPDF5Interface::initializedSets[nSet] = initializedInfo;
 
 }
 

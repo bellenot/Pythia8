@@ -1,5 +1,5 @@
 # Makefile is a part of the PYTHIA event generator.
-# Copyright (C) 2015 Torbjorn Sjostrand.
+# Copyright (C) 2016 Torbjorn Sjostrand.
 # PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 # Please respect the MCnet Guidelines, see GUIDELINES for details.
 # Author: Philip Ilten, October 2014 - May 2015.
@@ -97,7 +97,8 @@ $(LOCAL_LIB)/libpythia8$(LIB_SUFFIX): $(OBJECTS)
 
 # LHAPDF (turn off all warnings for readability).
 $(LOCAL_TMP)/LHAPDF%Plugin.o: $(LOCAL_INCLUDE)/Pythia8Plugins/$$(LHAPDF%_PLUGIN)
-	$(CXX) -x c++ $< -o $@ -c -MD -w -I$(LHAPDF$*_INCLUDE) $(CXX_COMMON)
+	$(CXX) -x c++ $< -o $@ -c -MD -w -I$(LHAPDF$*_INCLUDE)\
+	 -I$(BOOST_INCLUDE) $(CXX_COMMON)
 $(LOCAL_LIB)/libpythia8lhapdf5.so: $(LOCAL_TMP)/LHAPDF5Plugin.o\
 	$(LOCAL_LIB)/libpythia8.a
 	$(CXX) $^ -o $@ $(CXX_COMMON) $(CXX_SHARED) $(CXX_SONAME),$(notdir $@)\

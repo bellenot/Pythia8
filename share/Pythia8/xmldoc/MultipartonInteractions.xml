@@ -65,8 +65,8 @@ particles. This may be more relevant than option 0 for multiparton
 final states, where the factorization scale could be associated with 
 the lowest <ei>pT</ei> of any parton, as appropriate for parton 
 showers, but not for MPI. The scale for no doublecounting and no gaps 
-should rather be associated with the "core" <ei>2 &rarr 2</ei> hard 
-process, whioch here is approximated by <ei>sum pT / 2</ei>. 
+should rather be associated with the "core" <ei>2 &rarr; 2</ei> hard 
+process, which here is approximated by <ei>sum pT / 2</ei>. 
 </option> 
 <note>Note:</note> If a "second hard" process is present, the two 
 are analyzed separately for the default 0 option, and for 3. It is 
@@ -587,4 +587,4 @@ interactions.
  
 </chapter> 
  
-<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 

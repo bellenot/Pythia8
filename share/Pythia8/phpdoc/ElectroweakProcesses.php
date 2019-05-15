@@ -338,8 +338,9 @@ Code 254.
  
 A few electroweak two-photon production processes are available. 
 To use them, photon PDFs have to be defined for the incoming 
-beam particles. For proton beams an appropriate set would be 
-MRST QED 2004 [<a href="Bibliography.php" target="page">Mar05</a>], available in the LHAPDF library. 
+beam particles. This is the case for the internal NNPDF 2.3 QCD+QED 
+sets, as well as some further ones available in the LHAPDF library, 
+but not for all PDFs. 
  
 <br/><br/><strong>PhotonCollision:all</strong>  <input type="radio" name="31" value="on"><strong>On</strong>
 <input type="radio" name="31" value="off" checked="checked"><strong>Off</strong>
@@ -597,4 +598,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 

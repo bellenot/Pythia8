@@ -732,6 +732,11 @@ switched on.
 Azimuthal asymmetry induced by gluon polarization; on/off = true/false. 
 </flag> 
  
+<flag name="TimeShower:phiPolAsymHard" default="on"> 
+Extend the above azimuthal asymmetry (if on) also back to gluons produced 
+in the hard process itself, where feasible; on/off = true/false. 
+</flag> 
+ 
 <flag name="TimeShower:recoilToColoured" default="on"> 
 In the decays of coloured resonances, say <ei>t &rarr; b W</ei>, it is not 
 possible to set up dipoles with matched colours. Originally the 
@@ -763,4 +768,4 @@ evaluation of parton densities if the <code>flag</code> above is on.
  
 </chapter> 
  
-<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 

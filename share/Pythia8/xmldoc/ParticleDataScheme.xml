@@ -551,6 +551,13 @@ quantity of the expected type.
 the constructor has no arguments and does not do anything. Internal. 
 </method> 
  
+<method name="ParticleData& operator=( const ParticleData& particleDataIn)"> 
+copy the database from an existing <code>ParticleData</code> object. 
+Can be useful when running with multiple <code>Pythia</code> instances. 
+Does not include the links to the resonance decay handling set up by 
+<code>initWidths(...)</code>. 
+</method> 
+ 
 <method name="void ParticleData::initPtr(Info* infoPtr, 
 Settings* settingsPtrIn, Rndm* rndmPtrIn, CoupSM* coupSMPtrIn)"> 
 initialize pointers to a few other classes. Internal. 
@@ -1017,6 +1024,10 @@ The methods in the next section can then be used to manipulate
 this object. 
 </method> 
  
+<method name="bool ParticleData::getIsInit()"> 
+return true if the database has been initialized, else false. 
+</method> 
+ 
 <h3>The ParticleDataEntry methods</h3> 
  
 Most of the methods that can be applied to a single 
@@ -1044,6 +1055,12 @@ is only one particle, the latter that there is a
 particle-antiparticle pair (but if the antiparticle name is 
 <code>void</code> one reverts back to the particle-only case). 
 </methodmore> 
+ 
+<method name="ParticleDataEntry& operator=( const ParticleDataEntry& 
+particleDataEntryIn)"> 
+copy the values stored in an existing <code>ParticleDataEntry</code> 
+object. 
+</method> 
  
 <method name="ParticleDataEntry::~ParticleDataEntry"> 
 the destructor is needed to delete any <code>ResonanceWidths</code> 
@@ -1423,6 +1440,10 @@ int prod6 = 0, int prod7 = 0)">
 the constructor for a decay channel. Internal. 
 </method> 
  
+<method name="DecayChannel& operator=( const DecayChannel& decayChannelIn)"> 
+copy the values stored in an existing <code>DecayChannel</code> object. 
+</method> 
+ 
 <method name="void DecayChannel::onMode(int onMode)"> 
 </method> 
 <methodmore name="int DecayChannel::onMode()"> 
@@ -1518,4 +1539,4 @@ positive and negative particles. For internal use.
  
 </chapter> 
  
-<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 

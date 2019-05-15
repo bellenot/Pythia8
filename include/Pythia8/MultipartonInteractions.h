@@ -1,5 +1,5 @@
 // MultipartonInteractions.h is a part of the PYTHIA event generator.
-// Copyright (C) 2015 Torbjorn Sjostrand.
+// Copyright (C) 2016 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -122,8 +122,8 @@ public:
   double scaleLimitPT() const {return scaleLimitPTsave;}
 
   // Prepare system for evolution.
-  void prepare(Event& event, double pTscale = 1000.) {
-    if (!bSetInFirst) overlapNext(event, pTscale); }
+  void prepare(Event& event, double pTscale = 1000., bool rehashB = false) {
+    if (!bSetInFirst) overlapNext(event, pTscale, rehashB); }
 
   // Select next pT in downwards evolution.
   double pTnext( double pTbegAll, double pTendAll, Event& event);
@@ -142,9 +142,9 @@ public:
   double x1H()        const {return x1;}
   double x2H()        const {return x2;}
   double Q2Fac()      const {return pT2Fac;}
-  double pdf1()       const {return xPDF1now;}
-  double pdf2()       const {return xPDF2now;}
-  double bMPI()       const {return (bIsSet) ? bNow / bAvg : 0.;}
+  double pdf1()       const {return (id1 == 21 ? 4./9. : 1.) * xPDF1now;}
+  double pdf2()       const {return (id2 == 21 ? 4./9. : 1.) * xPDF2now;}
+  double bMPI()       const {return (bIsSet) ? bNow : 0.;}
   double enhanceMPI() const {return (bIsSet) ? enhanceB / zeroIntCorr : 1.;}
 
   // For x-dependent matter profile, return incoming valence/sea
@@ -212,7 +212,7 @@ private:
 
   // Other initialization data.
   bool   hasBaryonBeams, hasLowPow, globalRecoilFSR;
-  int    iDiffSys, nMaxGlobalRecoilFSR;
+  int    iDiffSys, nMaxGlobalRecoilFSR, bSelHard;
   double eCM, sCM, pT0, pT20, pT2min, pTmax, pT2max, pT20R, pT20minR,
          pT20maxR, pT20min0maxR, pT2maxmin, sigmaND, pT4dSigmaMax,
          pT4dProbMax, dSigmaApprox, sigmaInt, sudExpPT[101],
@@ -301,7 +301,7 @@ private:
   // Pick impact parameter and interaction rate enhancement,
   // either before the first interaction (for nondiffractive) or after it.
   void overlapFirst();
-  void overlapNext(Event& event, double pTscale);
+  void overlapNext(Event& event, double pTscale, bool rehashB);
 
 };
 

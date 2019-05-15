@@ -1,5 +1,5 @@
 // ResonanceDecays.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2015 Torbjorn Sjostrand.
+// Copyright (C) 2016 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -93,6 +93,7 @@ bool ResonanceDecays::next( Event& process, int iDecNow) {
         }
 
         // Pick masses. Pick new channel if fail.
+        mProd.resize(1);
         if (!pickMasses()) continue;
         foundChannel = true;
         break;

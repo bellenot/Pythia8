@@ -1,5 +1,5 @@
 // HardDiffraction.h is a part of the PYTHIA event generator.
-// Copyright (C) 2015 Torbjorn Sjostrand.
+// Copyright (C) 2016 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -61,7 +61,7 @@ private:
 
   // Initialization and event data.
   int    pomSet, pomFlux, iBeam, idA, idB;
-  double normPom, a1, a2, a3, A1, A2, A3, a0, ap, b0,
+  double rescale, normPom, a1, a2, a3, A1, A2, A3, a0, ap, b0,
          mA, mB, s, s1, s2, s3, s4,
          xPomA, xPomB, tPomA, tPomB, thetaPomA, thetaPomB;
 
