@@ -186,7 +186,7 @@ bool LHAup::initLHEF() {
 
 // Write event information to a Les Houches Event File.
 // Normal mode is to line up event info in columns, but the non-verbose
-// altnernative saves space at the expense of human readability.
+// alternative saves space at the expense of human readability.
 
 bool LHAup::eventLHEF(bool verbose) {
 
@@ -1110,7 +1110,7 @@ bool LHAupFromPYTHIA8::setEvent( int) {
     idup     = particle.id();
     // Convert from PYTHIA8 to LHA status codes.
     statusup = particle.status();
-    if (ip < 3)            istup = -1;
+    if (statusup == -21)   istup = -1;
     else if (statusup < 0) istup =  2;
     else                   istup =  1;
     mothup1  = max(0, particle.mother1() - 2);

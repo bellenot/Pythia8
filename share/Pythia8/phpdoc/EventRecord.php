@@ -28,6 +28,14 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 <form method='post' action='EventRecord.php'>
  
 <h2>The Event Record</h2> 
+<ol id="toc">
+  <li><a href="#section0">Basic output methods</a></li>
+  <li><a href="#section1">Further output methods</a></li>
+  <li><a href="#section2">Constructors and modifications of the event record</a></li>
+  <li><a href="#section3">The Junction Class</a></li>
+  <li><a href="#section4">Subsystems</a></li>
+</ol>
+
  
 A <code>Pythia</code> instance contains two members of the 
 <code>Event</code> class. The one called <code>process</code> provides 
@@ -67,6 +75,7 @@ danger of indexing errors.
 In the following we will list the methods available. 
 Only a few of them have a function to fill in normal user code. 
  
+<a name="section0"></a> 
 <h3>Basic output methods</h3> 
  
 Some methods are available to read out information on the 
@@ -128,6 +137,7 @@ has been made to stretch header and footer to match.
    
    
  
+<a name="section1"></a> 
 <h3>Further output methods</h3> 
  
 Many event properties are accessible via the <code>Info</code> class, 
@@ -188,6 +198,7 @@ increases the current maximum colour tag by one and returns this
 new value. This method is used whenever a new colour tag is needed. 
    
  
+<a name="section2"></a> 
 <h3>Constructors and modifications of the event record</h3> 
  
 Although you would not normally need to create your own 
@@ -369,6 +380,7 @@ rotate and boost by the combined action encoded in the
 echo "<a href='FourVectors.php?filepath=".$filepath."' target='page'>";?>RotBstMatrix</a> M</code>. 
    
  
+<a name="section3"></a> 
 <h3>The Junction Class</h3> 
  
 The event record also contains a vector of junctions, which often 
@@ -426,6 +438,7 @@ common interest and so not described here.
 A listing of current junctions can be obtained with the 
 <code>listJunctions()</code> method. 
  
+<a name="section4"></a> 
 <h3>Subsystems</h3> 
  
 Separate from the event record as such, but closely tied to it is the 

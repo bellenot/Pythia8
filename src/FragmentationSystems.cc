@@ -494,7 +494,8 @@ bool StringRegion::massiveOffset( int iPos, int iNeg, int iMax,
 
 // Set up four-vectors for longitudinal and transverse directions.
 
-void StringRegion::setUp(Vec4 p1, Vec4 p2, bool isMassless) {
+void StringRegion::setUp(Vec4 p1, Vec4 p2, int col1, int col2,
+  bool isMassless) {
 
   // Store the original four-momenta; needed for the massive-quark case.
   pPosMass = p1;
@@ -576,6 +577,10 @@ void StringRegion::setUp(Vec4 p1, Vec4 p2, bool isMassless) {
   eX = kXX * (eX - kXNeg * pPos - kXPos * pNeg);
   eY = kYY * (eY - kYNeg * pPos - kYPos * pNeg - kYX * eX);
 
+  // Remember colour indices.
+  colPos = col1;
+  colNeg = col2;
+
   // Done.
   isSetUp = true;
   isEmpty = false;
@@ -616,6 +621,7 @@ void StringSystem::setUp(vector<int>& iSys, Event& event) {
   // Reserve space for the required number of regions.
   system.clear();
   system.resize(sizeRegions);
+  bool forward = ( event[iSys[0]].col() != 0 );
 
   // Set up the lowest-lying regions.
   for (int i = 0; i < sizeStrings; ++i) {
@@ -623,7 +629,8 @@ void StringSystem::setUp(vector<int>& iSys, Event& event) {
     if ( event[ iSys[i] ].isGluon() ) p1 *= 0.5;
     Vec4 p2 = event[ iSys[i+1] ].p();
     if ( event[ iSys[i+1] ].isGluon() ) p2 *= 0.5;
-    system[ iReg(i, iMax - i) ].setUp( p1, p2, false);
+    int col = forward ? event[ iSys[i] ].col() : event[ iSys[i] ].acol();
+    system[ iReg(i, iMax - i) ].setUp( p1, p2, col, col, false);
   }
 
 }

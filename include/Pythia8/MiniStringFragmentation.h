@@ -31,7 +31,10 @@ class MiniStringFragmentation {
 public:
 
   // Constructor.
-  MiniStringFragmentation() {}
+  MiniStringFragmentation() : infoPtr(), particleDataPtr(), rndmPtr(),
+    flavSelPtr(), pTSelPtr(), zSelPtr(), setVertices(), constantTau(),
+    smearOn(), nTryMass(), hadronVertex(), bLund(), xySmear(), kappaVtx(),
+    mc(), mb(), isClosed(), mSum(), m2Sum() {}
 
   // Initialize and save pointers.
   void init(Info* infoPtrIn, Settings& settings,

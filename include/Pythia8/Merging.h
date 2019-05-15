@@ -64,9 +64,9 @@ protected:
   //----------------------------------------------------------------------//
 
   // Constructor.
-  Merging() { settingsPtr = 0; infoPtr = 0; particleDataPtr = 0;
-    rndmPtr = 0; beamAPtr = 0; beamBPtr = 0; trialPartonLevelPtr = 0;
-    mergingHooksPtr = 0; }
+  Merging() : settingsPtr(), infoPtr(), particleDataPtr(), rndmPtr(),
+    trialPartonLevelPtr(), mergingHooksPtr(), beamAPtr(), beamBPtr(),
+    coupSMPtr(), tmsNowMin() {}
 
   // Make Pythia class friend
   friend class Pythia;

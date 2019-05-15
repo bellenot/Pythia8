@@ -43,6 +43,7 @@ bool HadronLevel::init(Info* infoPtrIn, Settings& settings,
   doHadronScatter = settings.flag("hadronLevel:HadronScatter");
   doDecay         = settings.flag("HadronLevel:Decay");
   doBoseEinstein  = settings.flag("HadronLevel:BoseEinstein");
+  doDeuteronProd  = settings.flag("HadronLevel:DeuteronProduction");
 
   // Boundary mass between string and ministring handling.
   mStringMin      = settings.parm("HadronLevel:mStringMin");
@@ -97,6 +98,10 @@ bool HadronLevel::init(Info* infoPtrIn, Settings& settings,
   // Initialize BoseEinstein.
   boseEinstein.init(infoPtr, settings, *particleDataPtr);
 
+  // Initialize DeuteronProduction.
+  if (doDeuteronProd)
+    deuteronProd.init(infoPtr, settings, particleDataPtr, rndmPtr);
+
   // Initialize HadronScatter.
   if (doHadronScatter)
     hadronScatter.init(infoPtr, settings, rndmPtr, particleDataPtr);
@@ -149,6 +154,7 @@ bool HadronLevel::next( Event& event) {
   // Hadron scattering, first pass only --rjc
   bool moreToDo, firstPass = true;
   bool doBoseEinsteinNow = doBoseEinstein;
+  bool doDeuteronProdNow = doDeuteronProd;
   do {
     moreToDo = false;
 
@@ -233,7 +239,7 @@ bool HadronLevel::next( Event& event) {
     if (doHadronScatter) {
       // New model.
       if (hadronScatMode < 2) hadronScatter.scatter(event);
-      // Old model, before dacys.
+      // Old model, before decays.
       else if ((hadronScatMode == 2) && !hsAfterDecay && firstPass)
         hadronScatter.scatterOld(event);
     }
@@ -275,6 +281,13 @@ bool HadronLevel::next( Event& event) {
           if (decays.moreToDo()) moreToDo = true;
         }
       } while (++iDec < event.size());
+    }
+
+    // Fifth part: deuteron production.
+    if (doDeuteronProdNow) {
+      if (!deuteronProd.combine(event)) return false;
+      doDeuteronProdNow = false;
+      moreToDo = doDecay;
     }
 
   // Normally done first time around, but sometimes not (e.g. Upsilon).

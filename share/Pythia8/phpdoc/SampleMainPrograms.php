@@ -353,8 +353,13 @@ contributed add-ons to the FastJet package. In this case the
 modified Mass Drop Tagger is used to improve the mass reconstruction 
 of a boosted hadronically decaying <i>Z^0</i>.</li> 
  
-<li><code>main75.cc</code> : setup for Dark Matter production, where the 
-visible jets are found with the FastJet package.</li> 
+<li><code>main75.cc</code> : setup (in <code>main75.cmnd</code>) 
+for Dark Matter production via an <i>s</i>-channel mediator, where a 
+mono-jet <i>pT</i> spectrum is found with the FastJet package.</li> 
+ 
+<li><code>main76.cc</code> : simple setup for Dark Matter production 
+in several different scenarios, as specified in <code>main76.cmnd</code>, 
+notably with long-lived particle signatures.</li> 
  
 <li><code>main80.cc</code> : do CKKW-L merging with a merging scale 
 defined in <i>kT</i>. Input is provided by the <code>main80.cmnd</code> 

@@ -35,10 +35,11 @@ const double SigmaMultiparton::OTHERFRAC  = 0.2;
 // Initialize the generation process for given beams.
 
 bool SigmaMultiparton::init(int inState, int processLevel, Info* infoPtr,
-    Settings* settingsPtr, ParticleData* particleDataPtr, Rndm* rndmPtrIn,
+    Settings* settingsPtr, ParticleData* particleDataPtrIn, Rndm* rndmPtrIn,
     BeamParticle* beamAPtr, BeamParticle* beamBPtr, Couplings* couplingsPtr) {
 
   // Store input pointer for future use.
+  particleDataPtr  = particleDataPtrIn;
   rndmPtr          = rndmPtrIn;
 
   // Reset vector sizes (necessary in case of re-initialization).
@@ -144,8 +145,12 @@ bool SigmaMultiparton::init(int inState, int processLevel, Info* infoPtr,
   m3Fix.resize(nChan);
   m4Fix.resize(nChan);
   sHatMin.resize(nChan);
+  useNarrowBW3.resize(nChan);
+  useNarrowBW4.resize(nChan);
   sigmaTval.resize(nChan);
   sigmaUval.resize(nChan);
+  bool   useBreitWigners  = settingsPtr->flag("PhaseSpace:useBreitWigners");
+  double minWidthNarrowBW = settingsPtr->parm("PhaseSpace:minWidthNarrowBW");
 
   // Initialize the processes.
   for (int i = 0; i < nChan; ++i) {
@@ -156,18 +161,19 @@ bool SigmaMultiparton::init(int inState, int processLevel, Info* infoPtr,
       beamAPtr, beamBPtr, couplingsPtr);
     sigmaU[i]->initProc();
 
-    // Prepare for massive kinematics (but fixed masses!) where required.
-    needMasses[i] = false;
+    // Prepare for massive kinematics where required.
     int id3Mass =  sigmaT[i]->id3Mass();
     int id4Mass =  sigmaT[i]->id4Mass();
-    m3Fix[i] = 0.;
-    m4Fix[i] = 0.;
-    if (id3Mass > 0 || id4Mass > 0) {
-      needMasses[i] = true;
-      m3Fix[i] =  particleDataPtr->m0(id3Mass);
-      m4Fix[i] =  particleDataPtr->m0(id4Mass);
-    }
+    needMasses[i] = (id3Mass > 0 || id4Mass > 0);
+    m3Fix[i] = (id3Mass > 0) ? particleDataPtr->m0(id3Mass) : 0.;
+    m4Fix[i] = (id4Mass > 0) ? particleDataPtr->m0(id4Mass) : 0.;
     sHatMin[i] = pow2( m3Fix[i] + m4Fix[i] + MASSMARGIN);
+
+    // Prepare for (narrow) Breit-Wigner mass distribution.
+    useNarrowBW3[i] = (useBreitWigners && id3Mass > 0
+      && particleDataPtr->mWidth(id3Mass) > minWidthNarrowBW);
+    useNarrowBW4[i] = (useBreitWigners && id4Mass > 0
+      && particleDataPtr->mWidth(id4Mass) > minWidthNarrowBW);
   }
 
   // Done.
@@ -197,6 +203,14 @@ double SigmaMultiparton::sigma( int id1, int id2, double x1, double x2,
     // Skip the not chosen processes.
     if (i == 0 && pickOther) continue;
     if (i > 0 && !pickOther) continue;
+
+    // Check if variable mass is needed (and then ...Fix becomes misleading).
+    if (useNarrowBW3[i])
+      m3Fix[i] = particleDataPtr->mSel(sigmaT[i]->id3Mass());
+    if (useNarrowBW4[i])
+      m4Fix[i] = particleDataPtr->mSel(sigmaT[i]->id4Mass());
+    if ((useNarrowBW3[i] || useNarrowBW4[i])
+      && pow2( m3Fix[i] + m4Fix[i] + MASSMARGIN) > sHat) return 0.;
 
     // t-channel-sampling contribution.
     if (sHat > sHatMin[i]) {
@@ -517,8 +531,11 @@ bool MultipartonInteractions::init( bool doMPIinit, int iDiffSysIn,
 
   // Get the total inelastic and nondiffractive cross section.
   // Ensure correct cross sections for VMD photons.
-  if (infoPtr->isVMDstateA() || infoPtr->isVMDstateB())
-    sigmaTotPtr->calc(infoPtr->idA(), infoPtr->idB(), infoPtr->eCM());
+  if (infoPtr->isVMDstateA() || infoPtr->isVMDstateB()) {
+    int idVMDA = infoPtr->isVMDstateA() ? 22 : infoPtr->idA();
+    int idVMDB = infoPtr->isVMDstateB() ? 22 : infoPtr->idB();
+    sigmaTotPtr->calc(idVMDA, idVMDB, infoPtr->eCM());
+  }
   // Ensure correct cross sections also for non-VMD photon beams.
   else if  ( (isGammaGamma || isGammaHadron || isHadronGamma) && !hasGamma)
     sigmaTotPtr->calc(infoPtr->idA(), infoPtr->idB(), infoPtr->eCM());

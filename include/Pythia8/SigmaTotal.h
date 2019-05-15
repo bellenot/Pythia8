@@ -33,6 +33,12 @@ class SigmaTotAux {
 
 public:
 
+  // Constructor.
+  SigmaTotAux() : isExpEl(), hasCou(), sigTot(), rhoOwn(), sigEl(), bEl(),
+    sigTotCou(), sigElCou(), sigXB(), sigAX(), sigXX(), sigAXB(), idA(),
+    idB(), tryCoulomb(), chgSgn(), tAbsMin(), lambda(), phaseCst(),
+    particleDataPtr(), rndmPtr() {}
+
   // Destructor.
   virtual ~SigmaTotAux() {};
 
@@ -133,10 +139,13 @@ class SigmaTotal {
 public:
 
   // Constructor.
-  SigmaTotal() : isCalc(false), sigTotElPtr(NULL), sigDiffPtr(NULL) {};
+  SigmaTotal() : isCalc(false), ispp(), modeTotEl(), modeTotElNow(),
+    modeDiff(), modeDiffNow(), idAbsA(), idAbsB(), s(), sigND(),
+    sigTotElPtr(NULL), sigDiffPtr(NULL), infoPtr(), settingsPtr(),
+    particleDataPtr(), rndmPtr() {};
 
   // Destructor.
-  ~SigmaTotal() { if (sigTotElPtr) delete sigTotElPtr;
+  virtual ~SigmaTotal() { if (sigTotElPtr) delete sigTotElPtr;
     if (sigDiffPtr) delete sigDiffPtr; }
 
   // Store pointers and initialize data members.
@@ -237,7 +246,10 @@ class SigmaTotOwn : public SigmaTotAux {
 public:
 
   // Constructor.
-  SigmaTotOwn() {};
+  SigmaTotOwn() : dampenGap(), pomFlux(), s(), a0(), ap(), b0(), A1(), A2(),
+    A3(), a1(), a2(), a3(), bMinDD(), ygap(), ypow(), expPygap(), mMinCDnow(),
+    wtNow(), yNow(), yNow1(), yNow2(), b(), b1(), b2(), Q(), Q1(),
+    Q2() {};
 
   // Store pointers and initialize data members.
   virtual void init( Info* , Settings& settings,
@@ -287,7 +299,13 @@ class SigmaSaSDL : public SigmaTotAux {
 public:
 
   // Constructor.
-  SigmaSaSDL() {};
+  SigmaSaSDL() : doDampen(), zeroAXB(), swapped(), sameSign(), idAbsA(),
+    idAbsB(), iProc(), iHadA(), iHadB(), iHadAtmp(), iHadBtmp(), iProcVP(),
+    iProcVV(), s(), mA(), mB(), bA(), bB(), maxXBOwn(), maxAXOwn(), maxXXOwn(),
+    maxAXBOwn(), epsSaS(), sigmaPomP(), mPomP(), pPomP(), sigAXB2TeV(),
+    mMin0(), cRes(), mRes0(), mMinCDnow(), alP2(), s0(), mMinXB(), mMinAX(),
+    mMinAXB(), mResXB(), mResAX(), sResXB(), sResAX(), wtNow(), mAtmp(),
+    mBtmp(), multVP(), multVV(), infoPtr() {};
 
   // Store pointers and initialize data members.
   virtual void init( Info* infoPtrIn, Settings& settings,
@@ -352,7 +370,11 @@ class SigmaMBR : public SigmaTotAux {
 public:
 
   // Constructor.
-  SigmaMBR() {};
+  SigmaMBR() : s(), sigSD(), sigDD(), sigCD(), eps(), alph(), beta0gev(),
+    beta0mb(), sigma0mb(), sigma0gev(), m2min(), dyminSDflux(),
+    dyminDDflux(), dyminCDflux(), dyminSD(), dyminDD(), dyminCD(),
+    dyminSigSD(), dyminSigDD(), dyminSigCD(), a1(), a2(), b1(), b2(),
+    sdpmax(), ddpmax(), dpepmax() {};
 
   // Initialize data members.
   virtual void init( Info* , Settings& settings,
@@ -413,7 +435,10 @@ class SigmaABMST : public SigmaTotAux {
 public:
 
   // Constructor.
-  SigmaABMST() {};
+  SigmaABMST() : ispp(), dampenGap(), useBMin(), modeSD(), modeDD(), modeCD(),
+    s(), facEl(), m2minp(), m2minm(), alp0(), alpt(), s0(), c0(), ygap(),
+    ypow(), expPygap(), multSD(), powSD(), multDD(), powDD(), multCD(),
+    powCD(), mMinCDnow(), bMinSD(), bMinDD(), bMinCD() {};
 
   // Initialize data members.
   virtual void init( Info* , Settings& settings, ParticleData* ,
@@ -508,7 +533,7 @@ class SigmaRPP : public SigmaTotAux {
 public:
 
   // Constructor.
-  SigmaRPP() {};
+  SigmaRPP() : ispp(), s(), facEl() {};
 
   // Initialize data members.
   virtual void init( Info* , Settings& settings, ParticleData* , Rndm* ) {

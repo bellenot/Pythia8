@@ -195,9 +195,14 @@ In detail, the list of used or foreseen status codes is:
   (re)scattering</li> 
   <ul> 
   <li>111 : first time scattering</li> 
-  <li>112 : second or more time scattering</li> 
+  <li>112 : second or further time scattering</li> 
   </ul> 
-<li>121 - 199 : reserved for future expansion</li> 
+<li>121 - 129 : other special hadron production mechanisms</li> 
+  <ul> 
+  <li>121 : deuteron formed by coalescence, and other particles formed 
+  simultaneously (like a <ei>gamma</ei> or <ei>pi</ei>)</li> 
+  </ul> 
+<li>131 - 199 : reserved for future expansion</li> 
 <li>201 - : free to be used by anybody.</li> 
 </ul> 
 <note>Note:</note> a clarification on the role of the "hardest" vs. the 
@@ -413,6 +418,10 @@ sets the four-momentum components in one go.
 <method name="void Particle::vProd(double xProd, double yProd, 
 double zProd, double tProd)"> 
 sets the production vertex components in one go. 
+</method> 
+ 
+<method name="void Particle::vProdAdd(Vec4 vProdIn)"> 
+shifts the production vertex four-vector by the input four-vector amount. 
 </method> 
  
 <h3>Further output methods</h3> 

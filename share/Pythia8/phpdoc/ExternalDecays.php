@@ -151,6 +151,7 @@ This method is called for each particle that is to be decayed externally.
 A sample test program is available in <code>main17.cc</code>, providing 
 a simple example of how to use this facility. 
  
+<a name="section0"></a> 
 <h3>EvtGen</h3> 
  
 The external <i>B</i> and <i>C</i>-hadron decay program EvtGen 

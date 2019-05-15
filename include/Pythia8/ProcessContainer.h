@@ -42,8 +42,20 @@ public:
   // Constructor.
   ProcessContainer(SigmaProcess* sigmaProcessPtrIn = 0,
     bool externalPtrIn = false, PhaseSpace* phaseSpacePtrIn = 0) :
-      sigmaProcessPtr(sigmaProcessPtrIn),
-      externalPtr(externalPtrIn), phaseSpacePtr(phaseSpacePtrIn) {}
+      sigmaProcessPtr(sigmaProcessPtrIn), externalPtr(externalPtrIn),
+      phaseSpacePtr(phaseSpacePtrIn), infoPtr(), particleDataPtr(), rndmPtr(),
+      resDecaysPtr(), sigmaTotPtr(), userHooksPtr(), lhaUpPtr(), beamAPtr(),
+      beamBPtr(), gammaKinPtr(), matchInOut(), idRenameBeams(), setLifetime(),
+      setQuarkMass(), setLeptonMass(), idNewM(), mRecalculate(), mNewM(),
+      isLHA(), isNonDiff(), isResolved(), isDiffA(), isDiffB(), isDiffC(),
+      isQCD3body(), allowNegSig(), isSameSave(), increaseMaximum(),
+      canVetoResDecay(), lhaStrat(), lhaStratAbs(), useStrictLHEFscales(),
+      newSigmaMx(), nTry(), nSel(), nAcc(), nTryStat(), sigmaMx(), sigmaSgn(),
+      sigmaSum(), sigma2Sum(), sigmaNeg(), sigmaAvg(), sigmaFin(), deltaFin(),
+      weightNow(), wtAccSum(), beamAhasResGamma(), beamBhasResGamma(),
+      beamHasResGamma(), beamHasGamma(), beamAgammaMode(), beamBgammaMode(),
+      gammaModeEvent(), externalFlux(), nTryRequested(), nSelRequested(),
+      nAccRequested(), sigmaTemp(), sigma2Temp() {}
 
   // Destructor. Do not destroy external sigmaProcessPtr.
   ~ProcessContainer() {delete phaseSpacePtr;
@@ -94,11 +106,11 @@ public:
 
   // Set whether (photon) beam is resolved or unresolved.
   // Method propagates the choice of photon process type to beam pointers.
-  void setBeamModes();
+  void setBeamModes(bool setVMD = false, bool isSampled = true);
 
   // If resolved photons, then choose VMD states. Method propagates
   // states to beam pointers and info pointer.
-  pair<int, int> chooseVMDstates(int idA, int idB);
+  pair<int, int> chooseVMDstates(int idA, int idB, bool isSampled);
 
   // Process name and code, and the number of final-state particles.
   string name()             const {return sigmaProcessPtr->name();}
@@ -107,6 +119,7 @@ public:
   bool   isSUSY()           const {return sigmaProcessPtr->isSUSY();}
   bool   isNonDiffractive() const {return isNonDiff;}
   bool   isSoftQCD()        const {return (code() > 100 && code() < 107);}
+  bool   isElastic()        const {return (code() == 102);}
 
   // Member functions for info on generation process.
   bool   newSigmaMax() const {return newSigmaMx;}
@@ -192,10 +205,9 @@ private:
   double mRecalculate, mNewM[9];
 
   // Info on process.
-  bool   isLHA, isNonDiff, isResolved, isDiffA, isDiffB, isDiffC,
-         isDiff, isSingleDiff, isDoubleDiff, isCentralDiff, isQCD3body,
+  bool   isLHA, isNonDiff, isResolved, isDiffA, isDiffB, isDiffC, isQCD3body,
          allowNegSig, isSameSave, increaseMaximum, canVetoResDecay;
-  int    lhaStrat, lhaStratAbs;
+  int    lhaStrat, lhaStratAbs, processCode;
   bool   useStrictLHEFscales;
 
   // Statistics on generation process. (Long integers just in case.)
@@ -236,7 +248,7 @@ class SetupContainers {
 public:
 
   // Constructor.
-  SetupContainers() {}
+  SetupContainers() : nVecA(), nVecB() {}
 
   // Initialization assuming all necessary data already read.
   bool init(vector<ProcessContainer*>& containerPtrs, Info* infoPtr,

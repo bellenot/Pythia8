@@ -10,8 +10,8 @@
 #define Pythia8_Pythia_H
 
 // Version number defined for use in macros and for consistency checks.
-#define PYTHIA_VERSION 8.235
-#define PYTHIA_VERSION_INTEGER 8235
+#define PYTHIA_VERSION 8.240
+#define PYTHIA_VERSION_INTEGER 8240
 
 // Header files for the Pythia class and for what else the user may need.
 #include "Pythia8/Analysis.h"
@@ -40,6 +40,8 @@
 #include "Pythia8/Ropewalk.h"
 #include "Pythia8/Settings.h"
 #include "Pythia8/SigmaTotal.h"
+#include "Pythia8/SimpleSpaceShower.h"
+#include "Pythia8/SimpleTimeShower.h"
 #include "Pythia8/SpaceShower.h"
 #include "Pythia8/StandardModel.h"
 #include "Pythia8/SLHAinterface.h"
@@ -101,6 +103,8 @@ public:
     PDF* pdfHardGamBPtrIn = 0, PDF* pdfUnresAPtrIn = 0,
     PDF* pdfUnresBPtrIn = 0, PDF* pdfUnresGamAPtrIn = 0,
     PDF* pdfUnresGamBPtrIn = 0, PDF* pdfVMDAPtrIn = 0, PDF* pdfVMDBPtrIn = 0);
+  bool setPDFAPtr( PDF* pdfAPtrIn );
+  bool setPDFBPtr( PDF* pdfBPtrIn );
 
   // Set photon fluxes externally. Used with option "PDF:lepton2gammaSet = 2".
   bool setPhotonFluxPtr( PDF* photonFluxAIn, PDF* photonFluxBIn) {

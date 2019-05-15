@@ -1491,10 +1491,10 @@ void HistPlot::plot( bool logY) {
 
     // Histogram information for plotting.
     string legendNow = (legends[iHist] != "void") ? legends[iHist]
-      : histos[iHist]->getTitle();
+      : histos[iHist].getTitle();
     stringstream nBin;
-    nBin << histos[iHist]->getBinNumber();
-    double yAbsNow = histos[iHist]->smallestAbsValue();
+    nBin << histos[iHist].getBinNumber();
+    double yAbsNow = histos[iHist].smallestAbsValue();
     if (yAbsNow < yAbsMin) yAbsMin = yAbsNow;
 
     // Split plotting style and potential colour information.
@@ -1511,7 +1511,7 @@ void HistPlot::plot( bool logY) {
     // Write histogram itself to a data file as two columns of (x,y) values.
     stringstream encode;
     encode << fileName << "-" << nTable + iHist << ".dat";
-    histos[iHist]->pyplotTable( encode.str(), (style1 == "h") );
+    histos[iHist].pyplotTable( encode.str(), (style1 == "h") );
 
     // Write code to plot histogram.
     toPython << "plot = open('" << encode.str() << "')" << endl
@@ -1527,7 +1527,7 @@ void HistPlot::plot( bool logY) {
   }
 
   // Write title, axes and create plot.
-  if (!histos[0]->getLinX()) toPython << "plt.xscale('log')" << endl;
+  if (!histos[0].getLinX()) toPython << "plt.xscale('log')" << endl;
   if (logY) toPython << "plt.yscale('symlog', linthreshy=" << scientific
            << setprecision(2) << yAbsMin << ")" << endl;
   else toPython << "plt.ticklabel_format(axis='y', style='sci', "

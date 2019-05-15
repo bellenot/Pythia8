@@ -61,6 +61,7 @@ echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>";?>LH
 that can be read in and processed further by PYTHIA 8. This is the 
 most commonly used approach, and requires no further description here. 
  
+<a name="section0"></a> 
 <h3>HelacOnia executable inside PYTHIA</h3> 
  
 The <code>Pythia::setLHAupPtr(LHAup* lhaUpPtr)</code> method allows 

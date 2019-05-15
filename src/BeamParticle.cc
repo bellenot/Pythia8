@@ -81,9 +81,6 @@ void BeamParticle::init( int idIn, double pzIn, double eIn, double mIn,
   // Check whether beam has a supplementary photon beam.
   bool beamHasGamma  = settings.flag("PDF:lepton2gamma");
 
-  // To be set process by process but start with this.
-  hasResGammaInBeam  = beamHasGamma;
-
   // Maximum quark kind in allowed incoming beam hadrons.
   maxValQuark       = settings.mode("BeamRemnants:maxValQuark");
 
@@ -136,6 +133,9 @@ void BeamParticle::init( int idIn, double pzIn, double eIn, double mIn,
   initBeamKind();
   pBeam             = Vec4( 0., 0., pzIn, eIn);
   mBeam             = mIn;
+
+  // To be set process by process but start with this.
+  hasResGammaInBeam  = beamHasGamma && (isLepton() || isGamma());
 
   // Initialize parameters related to photon beams.
   resetGamma();
@@ -941,7 +941,7 @@ bool BeamParticle::remnantColours(Event& event, vector<int>& colFrom,
     iValSel = iVal[0];
     if (iVal.size() == 2) {
       if ( abs(resolved[iValSel].id()) > 10 ) iValSel = iVal[1];
-    } else {
+    } else if (iVal.size() >= 3) {
       double rndmValSel = 3. * rndmPtr->flat();
       if (rndmValSel > 1.) iValSel= iVal[1];
       if (rndmValSel > 2.) iValSel= iVal[2];

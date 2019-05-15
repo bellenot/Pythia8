@@ -28,6 +28,12 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 <form method='post' action='ProgramFlow.php'>
  
 <h2>Program Flow</h2> 
+<ol id="toc">
+  <li><a href="#section0">Normal usage</a></li>
+  <li><a href="#section1">Advanced usage, mainly for initialization</a></li>
+  <li><a href="#section2">The Pythia class methods and members</a></li>
+</ol>
+
  
 Recall that, to first order, the event generation process can be 
 subdivided into three stages: 
@@ -50,7 +56,11 @@ At the bottom of this webpage is a complete survey of all public
 than the task-oriented descriptions found in the preceding sections. 
 This offers complementary information. 
  
-<h3>Initialization - normal usage</h3> 
+ 
+<a name="section0"></a> 
+<h3>Normal usage</h3> 
+ 
+<h4>Initialization</h4> 
  
 <ol> 
  
@@ -191,7 +201,7 @@ either only what has been changed or everything, you can use
  
 </ol> 
  
-<h3>The event loop</h3> 
+<h4>The event loop</h4> 
  
 <ol> 
  
@@ -236,7 +246,7 @@ event.
  
 </ol> 
  
-<h3>Finishing</h3> 
+<h4>Finishing</h4> 
  
 <ol> 
  
@@ -250,6 +260,7 @@ and warnings encountered.
  
 </ol> 
  
+<a name="section1"></a> 
 <h3>Advanced usage, mainly for initialization</h3> 
  
 A) Necessary data are automatically loaded when you use the 
@@ -580,12 +591,14 @@ first-read file, when the full initialization is performed.
  
 </ol> 
  
-<h2>The Pythia Class</h2> 
+<br/><hr/> 
+<a name="section2"></a> 
+<h3>The Pythia class methods and members</h3> 
  
 Here follows the complete survey of all public <code>Pythia</code> 
 methods and data members. 
  
-<h3>Constructors and destructor</h3> 
+<h4>Constructors and destructor</h4> 
  
 <a name="anchor1"></a>
 <p/><strong> Pythia::Pythia(string xmlDir = &quot;../share/Pythia8/xmldoc&quot;, bool printBanner = true) &nbsp;</strong> <br/>
@@ -656,7 +669,7 @@ the destructor deletes the objects created by the constructor.
 helper methods, that collects common tasks of the two constructors. 
    
  
-<h3>Set up run</h3> 
+<h4>Set up run</h4> 
  
 <a name="anchor7"></a>
 <p/><strong> bool Pythia::readString(string line, bool warn = true) &nbsp;</strong> <br/>
@@ -1013,7 +1026,7 @@ echo "<a href='RopeHadronization.php?filepath=".$filepath."' target='page'>";?>R
 <br/><b>Note:</b> The method currently always returns true. 
    
  
-<h3>Initialize</h3> 
+<h4>Initialize</h4> 
  
 At the initialization stage all the information provided above is 
 processed, and the stage is set up for the subsequent generation 
@@ -1033,7 +1046,7 @@ initialization fails. It is then not possible to generate any
 events. 
    
  
-<h3>Generate events</h3> 
+<h4>Generate events</h4> 
  
 The <code>next()</code> method is the main one to generate events. 
 In this section we also put a few other specialized methods that 
@@ -1162,7 +1175,7 @@ specifically if the end of a LHEF has been reached, cf.
 <code>next()</code> above. 
    
  
-<h3>Finalize</h3> 
+<h4>Finalize</h4> 
  
 There is no required finalization step; you can stop generating events 
 when and how you want. It is still recommended that you make it a 
@@ -1179,7 +1192,7 @@ echo "<a href='EventStatistics.php?filepath=".$filepath."' target='page'>";?>her
 echo "<a href='MainProgramSettings.php?filepath=".$filepath."' target='page'>";?>here</a>. 
    
  
-<h3>Interrogate settings</h3> 
+<h4>Interrogate settings</h4> 
  
 Normally settings are used in the setup and initialization stages 
 to determine the character of a run, e.g. read from a file with the 
@@ -1228,7 +1241,7 @@ the name of the variable to be read.
    
    
  
-<h3>Get a PDF set</h3> 
+<h4>Get a PDF set</h4> 
  
 <code>Pythia</code> contains an number of parton density sets 
 internally, plus an interface to LHAPDF (5 or 6). With the method below, 
@@ -1249,7 +1262,7 @@ selection be determined by the special settings for hard processes
    
    
  
-<h3>Data members</h3> 
+<h4>Data members</h4> 
  
 The <code>Pythia</code> class contains a few public data members, 
 several of which play a central role. We list them here, with 

@@ -1945,9 +1945,9 @@ complex SigmaABMST::amplitude( double t, bool useCoulomb,
     double phase   = (GAMMAEUL  + log( -0.5 * t * (bApp + 8. / LAM2FF)) +
                    - 4. * t / LAM2FF * log(- 4. * t / LAM2FF)
                    - 2. * t / LAM2FF) * (ispp ? 1. : -1.);
-    complex ampCou = exp( complex( 0., ALPHAEM * phase) ) * 8. * M_PI
+    complex ampCou = exp( complex( 0., -ALPHAEM * phase) ) * 8. * M_PI
                    * ALPHAEM * ampt / t;
-    ampSum += (ispp) ? -ampCou : +ampCou;
+    ampSum += (ispp) ? ampCou : -ampCou;
   }
 
   // Done.
@@ -2647,13 +2647,13 @@ complex SigmaRPP::amplitude( double t, bool useCoulomb) {
                  * 4. * M_PI * HBARC2 );
     double phase = (log( -0.5 * t * (bAppr + 8. / LAM2FF)) + GAMMAEUL
                  - 4. * t / LAM2FF * log(- 4. * t / LAM2FF)
-                 - 2. * t / LAM2FF) * (ispp ? 1. : -1.);
+                 - 2. * t / LAM2FF) * (ispp ? -1. : 1.);
     ampCou       = exp( complex( 0., ALPHAEM * phase) ) * 8. * M_PI * HBARC2
                  * ALPHAEM * s / t * pow(1 - t / LAM2FF, -4.);
   }
 
   // Combine and return.
-  return ispp ? ampSum - ampCou : ampSum + ampCou;
+  return ispp ? ampSum + ampCou : ampSum - ampCou;
 
 }
 

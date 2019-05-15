@@ -62,7 +62,8 @@ class ColConfig {
 public:
 
   // Constructor.
-  ColConfig() {singlets.resize(0);}
+  ColConfig() : infoPtr(), flavSelPtr(), mJoin(), mJoinJunction(),
+    mStringMin() {singlets.resize(0);}
 
   // Initialize and save pointers.
   void init(Info* infoPtrIn, Settings& settings, StringFlav* flavSelPtrIn);
@@ -132,7 +133,7 @@ public:
 
   // Constructor.
   StringRegion() : isSetUp(false), isEmpty(true), w2(0.), xPosProj(0.),
-    xNegProj(0.), pxProj(0.), pyProj(0.) {}
+    xNegProj(0.), pxProj(0.), pyProj(0.), colPos(0), colNeg(0) {}
 
   // Constants: could only be changed in the code itself.
   static const double MJOIN, TINY;
@@ -141,6 +142,7 @@ public:
   bool   isSetUp, isEmpty;
   Vec4   pPos, pNeg, eX, eY, pPosMass, pNegMass, massOffset;
   double w2, xPosProj, xNegProj, pxProj, pyProj;
+  int    colPos, colNeg;
 
   // Calculate offset of the region from parton list. Special junction case.
   Vec4 gluonOffset(vector<int>& iSys, Event& event, int iPos, int iNeg);
@@ -152,7 +154,7 @@ public:
     double mc, double mb);
 
   // Set up four-vectors for longitudinal and transverse directions.
-  void setUp(Vec4 p1, Vec4 p2, bool isMassless = false);
+  void setUp(Vec4 p1, Vec4 p2, int col1, int col2, bool isMassless = false);
 
   // Construct a four-momentum from (x+, x-, px, py).
   Vec4 pHad( double xPosIn, double xNegIn, double pxIn, double pyIn)
@@ -179,7 +181,8 @@ class StringSystem {
 public:
 
   // Constructor.
-  StringSystem() {}
+  StringSystem() : sizePartons(), sizeStrings(), sizeRegions(), indxReg(),
+    iMax(), mJoin(), m2Join() {}
 
   // Set up system from parton list.
   void setUp(vector<int>& iSys, Event& event);

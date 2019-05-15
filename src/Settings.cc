@@ -485,7 +485,7 @@ bool Settings::readString(string line, bool warn) {
       savedLine = lineNow;
       return true;
     }
-    valueString = lineNow.substr( openBrace + 1, closeBrace - openBrace - 1);
+    valueString = lineNow.substr(openBrace, closeBrace - openBrace + 1);
   }
 
   // Update flag map; allow many ways to say yes.
@@ -1912,6 +1912,9 @@ void Settings::resetTunePP() {
 
 void Settings::initTuneEE( int eeTune) {
 
+  // Do nothing for tune 0.
+  if (eeTune == 0) return;
+
   // Restore all e+e- settings to their original values.
   // Is first step for setting up a specific tune.
   if (eeTune != 0) resetTuneEE();
@@ -2146,6 +2149,9 @@ void Settings::initTuneEE( int eeTune) {
 // i.e. mainly for initial-state radiation and multiparton interactions.
 
 void Settings::initTunePP( int ppTune) {
+
+  // Do nothing for tune 0.
+  if (ppTune == 0) return;
 
   // Restore all pp/ppbar settings to their original values.
   // Is first step for setting up a specific tune.
@@ -2432,7 +2438,7 @@ void Settings::initTunePP( int ppTune) {
   }
 
   // Several ATLAS and CMS tunes start out from Tune 4C.
-  else if (ppTune < 18) {
+  else if (ppTune > 0 && ppTune < 18) {
     parm("SigmaProcess:alphaSvalue",            0.135 );
     flag("SigmaTotal:zeroAXB",                  true  );
     flag("SigmaDiffractive:dampen",             true  );
@@ -3014,6 +3020,10 @@ vector<bool> Settings::boolVectorAttributeValue(string line,
   string attribute) {
   string valString = attributeValue(line, attribute);
   if (valString == "") return vector<bool>(1, false);
+  size_t openBrace  = valString.find_first_of("{");
+  size_t closeBrace = valString.find_last_of("}");
+  if (openBrace != string::npos)
+    valString = valString.substr(openBrace + 1, closeBrace - openBrace - 1);
   vector<bool> vectorVal;
   size_t       stringPos(0);
   while (stringPos != string::npos) {
@@ -3034,6 +3044,10 @@ vector<int> Settings::intVectorAttributeValue(string line,
   string attribute) {
   string valString = attributeValue(line, attribute);
   if (valString == "") return vector<int>(1, 0);
+  size_t openBrace  = valString.find_first_of("{");
+  size_t closeBrace = valString.find_last_of("}");
+  if (openBrace != string::npos)
+    valString = valString.substr(openBrace + 1, closeBrace - openBrace - 1);
   int         intVal;
   vector<int> vectorVal;
   size_t      stringPos(0);
@@ -3056,6 +3070,10 @@ vector<double> Settings::doubleVectorAttributeValue(string line,
   string attribute) {
   string valString = attributeValue(line, attribute);
   if (valString == "") return vector<double>(1, 0.);
+  size_t openBrace  = valString.find_first_of("{");
+  size_t closeBrace = valString.find_last_of("}");
+  if (openBrace != string::npos)
+    valString = valString.substr(openBrace + 1, closeBrace - openBrace - 1);
   double         doubleVal;
   vector<double> vectorVal;
   size_t         stringPos(0);
@@ -3078,6 +3096,10 @@ vector<string> Settings::stringVectorAttributeValue(string line,
   string attribute) {
   string valString = attributeValue(line, attribute);
   if (valString == "") return vector<string>(1, " ");
+  size_t openBrace  = valString.find_first_of("{");
+  size_t closeBrace = valString.find_last_of("}");
+  if (openBrace != string::npos)
+    valString = valString.substr(openBrace + 1, closeBrace - openBrace - 1);
   string         stringVal;
   vector<string> vectorVal;
   size_t         stringPos(0);

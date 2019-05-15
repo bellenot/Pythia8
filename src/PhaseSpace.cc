@@ -183,6 +183,7 @@ void PhaseSpace::init(bool isFirst, SigmaProcess* sigmaProcessPtrIn,
   // When to use Breit-Wigners.
   useBreitWigners      = settingsPtr->flag("PhaseSpace:useBreitWigners");
   minWidthBreitWigners = settingsPtr->parm("PhaseSpace:minWidthBreitWigners");
+  minWidthNarrowBW     = settingsPtr->parm("PhaseSpace:minWidthNarrowBW");
 
   // Whether generation is with variable energy.
   doEnergySpread       = settingsPtr->flag("Beams:allowMomentumSpread");
@@ -1800,12 +1801,14 @@ void PhaseSpace::setupMass1(int iM) {
   }
 
   // Mass and width combinations for Breit-Wigners.
-  sPeak[iM]    = mPeak[iM] * mPeak[iM];
-  useBW[iM]    = useBreitWigners && (mWidth[iM] > minWidthBreitWigners);
-  if (!useBW[iM]) mWidth[iM] = 0.;
-  mw[iM]       = mPeak[iM] * mWidth[iM];
-  wmRat[iM]    = (idMass[iM] == 0 || mPeak[iM] == 0.)
-               ? 0. : mWidth[iM] / mPeak[iM];
+  sPeak[iM]       = mPeak[iM] * mPeak[iM];
+  useBW[iM]       = useBreitWigners && (mWidth[iM] > minWidthBreitWigners);
+  useNarrowBW[iM] = useBreitWigners && !useBW[iM]
+                  && (mWidth[iM] > minWidthNarrowBW);
+  if (!useBW[iM] && !useNarrowBW[iM]) mWidth[iM] = 0.;
+  mw[iM]          = mPeak[iM] * mWidth[iM];
+  wmRat[iM]       = (idMass[iM] == 0 || mPeak[iM] == 0.)
+                  ? 0. : mWidth[iM] / mPeak[iM];
 
   // Simple Breit-Wigner range, upper edge to be corrected subsequently.
   if (useBW[iM]) {
@@ -1891,6 +1894,11 @@ void PhaseSpace::trialMass(int iM) {
     else sSet = sLower[iM] * sUpper[iM]
       / (sLower[iM] + rndmPtr->flat() * (sUpper[iM] - sLower[iM]));
     mSet = sqrt(sSet);
+
+  // Distribution for m_i is simple BW.
+  } else if (useNarrowBW[iM]) {
+    mSet = particleDataPtr->mSel(idMass[iM]);
+    sSet = mSet * mSet;
 
   // Else m_i is fixed at peak value.
   } else {
@@ -2512,7 +2520,7 @@ double PhaseSpace2to2tauyz::weightGammaPDFApprox(){
   double sigmaCorr = sigmaProcessPtr->sigmaPDF(false, false, true,
                                                x1Hadr, x2Hadr);
 
-  // Make sure that the over estimate is finite.
+  // Make sure that the overestimate is finite.
   if (sigmaOver < TINY) return 0.;
 
   // Return weight.
@@ -2549,8 +2557,34 @@ const double PhaseSpace2to2elastic::TOFFSET  = -0.2;
 
 bool PhaseSpace2to2elastic::setupSampling() {
 
-  // Find maximum = value of cross section.
-  sigmaNw    = sigmaProcessPtr->sigmaHatWrap();
+  // Flag if a photon inside lepton beam.
+  hasGamma = settingsPtr->flag("PDF:lepton2gamma");
+
+  // If not photoproduction, calculate the cross-section estimates directly.
+  if (!hasGamma) {
+
+    // Find maximum = value of cross section.
+    sigmaNw    = sigmaProcessPtr->sigmaHatWrap();
+
+  // For photoproduction calculate the estimates for photon-hadron system.
+  } else {
+
+    // Total cross section using a photon instead of the actual beam.
+    idAin   = gammaKinPtr->idInA();
+    idBin   = gammaKinPtr->idInB();
+    sigmaTotPtr->calc( idAin, idBin, eCM);
+    sigmaProcessPtr->setIdInDiff(idAin, idBin);
+
+    // Zero mass for photons from lepton beam.
+    if (idAin == 22) mA = 0.;
+    if (idBin == 22) mB = 0.;
+
+    // Use the elastic cross section for overestimate.
+    sigmaMxGm = sigmaTotPtr->sigmaEl();
+    sigmaNw   = gammaKinPtr->setupSoftPhaseSpaceSampling(sigmaMxGm);
+  }
+
+  // Save the maximum value.
   sigmaMx    = sigmaNw;
 
   // Squared and outgoing masses of particles.
@@ -2606,6 +2640,38 @@ bool PhaseSpace2to2elastic::trialKin( bool, bool ) {
     s         = eCM * eCM;
     lambda12S = pow2(s - s1 - s2) - 4. * s1 * s2 ;
     tLow      = - lambda12S / s;
+  }
+
+  // Sample kinematics for gamma+gamma(hadron) sub-event and reject
+  // to account for over sampling.
+  if (hasGamma) {
+
+    // Current weight.
+    double wt = 1.0;
+
+    // Sample gamma kinematics.
+    if (!gammaKinPtr->trialKinSoftPhaseSpaceSampling() ) return false;
+
+    // Calculate the cross sections with invariant mass of the sub-system.
+    double Wgmgm = gammaKinPtr->eCMsub();
+    sigmaTotPtr->calc( idAin, idBin, Wgmgm );
+
+    // Correct for the over-estimated sigmaZZ.
+    double sigmaW  = sigmaTotPtr->sigmaEl();
+    double wtSigma = sigmaW/sigmaMxGm;
+
+    // Calculate the total weight and warn if unphysical weight.
+    wt *= wtSigma * gammaKinPtr->weight();
+    if ( wt > 1. ) infoPtr->errorMsg("Warning in PhaseSpace2to2diffractive::"
+      "trialKin: weight above unity");
+
+    // Correct for over-estimated cross section and x_gamma limits.
+    if ( wt < rndmPtr->flat() ) return false;
+
+    // For accepted kinematics use the sub-collision energy.
+    eCM       = Wgmgm;
+    s         = eCM * eCM;
+    lambda12S = pow2( s - s1 - s2) - 4. * s1 * s2 ;
   }
 
   // Repeated tries until accepted.
@@ -2680,6 +2746,9 @@ bool PhaseSpace2to2elastic::finalKin() {
   betaZ = 0.;
   pTH = pAbs * sin(theta);
 
+  // Save the sampled photon kinematics.
+  if (hasGamma) gammaKinPtr->finalize();
+
   // Done.
   return true;
 
@@ -2730,9 +2799,38 @@ const double PhaseSpace2to2diffractive::SPROTON = 0.8803544;
 
 bool PhaseSpace2to2diffractive::setupSampling() {
 
-  // Find maximum = value of cross section.
-  sigmaNw  = sigmaProcessPtr->sigmaHatWrap();
-  sigmaMx  = sigmaNw;
+  // Flag if a photon inside lepton beam.
+  hasGamma = settingsPtr->flag("PDF:lepton2gamma");
+
+  // If not photoproduction, calculate the cross-section estimates directly.
+  if (!hasGamma) {
+
+    // Find maximum = value of cross section.
+    sigmaNw    = sigmaProcessPtr->sigmaHatWrap();
+
+  // For photoproduction calculate the estimates for photon-hadron system.
+  } else {
+
+    // Total cross section using a photon instead of the actual beam.
+    idAin   = gammaKinPtr->idInA();
+    idBin   = gammaKinPtr->idInB();
+    sigmaTotPtr->calc( idAin, idBin, eCM);
+    sigmaProcessPtr->setIdInDiff(idAin, idBin);
+
+    // Zero mass for photons from lepton beam.
+    if (idAin == 22) mA = 0.;
+    if (idBin == 22) mB = 0.;
+
+    // Use the correct diffractive cross section for overestimate.
+    sigmaMxGm = 0.;
+    if      (isDiffA && isSD)    sigmaMxGm = sigmaTotPtr->sigmaAX();
+    else if (isDiffB && isSD)    sigmaMxGm = sigmaTotPtr->sigmaXB();
+    else if (isDiffB && isDiffA) sigmaMxGm = sigmaTotPtr->sigmaXX();
+    sigmaNw   = gammaKinPtr->setupSoftPhaseSpaceSampling(sigmaMxGm);
+  }
+
+  // Save the maximum value.
+  sigmaMx    = sigmaNw;
 
   // Masses of particles and minimal masses of diffractive states.
   double mPi = particleDataPtr->m0(211);
@@ -2801,6 +2899,41 @@ bool PhaseSpace2to2diffractive::trialKin( bool, bool ) {
     eCM       = infoPtr->eCM();
     s         = eCM * eCM;
     lambda12 = sqrtpos( pow2( s - s1 - s2) - 4. * s1 * s2 );
+  }
+
+  // Sample kinematics for gamma+gamma(hadron) sub-event and reject
+  // to account for over sampling.
+  if (hasGamma) {
+
+    // Current weight.
+    double wt = 1.0;
+
+    // Sample gamma kinematics.
+    if (!gammaKinPtr->trialKinSoftPhaseSpaceSampling() ) return false;
+
+    // Calculate the cross sections with invariant mass of the sub-system.
+    double Wgmgm = gammaKinPtr->eCMsub();
+    sigmaTotPtr->calc( idAin, idBin, Wgmgm );
+
+    // Correct for the over-estimated sigmaZZ.
+    double sigmaW = 0.;
+    if      (isDiffA && isSD)    sigmaW = sigmaTotPtr->sigmaAX();
+    else if (isDiffB && isSD)    sigmaW = sigmaTotPtr->sigmaXB();
+    else if (isDiffB && isDiffA) sigmaW = sigmaTotPtr->sigmaXX();
+    double wtSigma = sigmaW/sigmaMxGm;
+
+    // Calculate the total weight and warn if unphysical weight.
+    wt *= wtSigma * gammaKinPtr->weight();
+    if ( wt > 1. ) infoPtr->errorMsg("Warning in PhaseSpace2to2diffractive::"
+      "trialKin: weight above unity");
+
+    // Correct for over-estimated cross section and x_gamma limits.
+    if ( wt < rndmPtr->flat() ) return false;
+
+    // For accepted kinematics use the sub-collision energy.
+    eCM       = Wgmgm;
+    s         = eCM * eCM;
+    lambda12  = sqrtpos( pow2( s - s1 - s2) - 4. * s1 * s2 );
   }
 
   // Normally xi and t in one step, but possible to split into two.
@@ -2916,6 +3049,9 @@ bool PhaseSpace2to2diffractive::finalKin() {
   p2Abs = pAbs * pAbs;
   betaZ = 0.;
   pTH   = pAbs * sin(theta);
+
+  // Save the sampled photon kinematics.
+  if (hasGamma) gammaKinPtr->finalize();
 
   // Done.
   return true;
@@ -3175,210 +3311,70 @@ bool PhaseSpace2to3diffractive::finalKin() {
 
 //==========================================================================
 
-// PhaseSpace2to2nondiffractiveGamma class.
-// 2 -> 2 kinematics for non-diffractive events in gamma+gamma.
+// PhaseSpace2to2nondiffractive class.
+// 2 -> 2 kinematics for non-diffractive events.
 
 //--------------------------------------------------------------------------
 
-// Samples the x_gamma and estimates the cross section from convolution
-// integral between EPA and sigmaND.
+// Set up for phase space sampling. Trivial if not photoproduction.
 
-bool PhaseSpace2to2nondiffractiveGamma::setupSampling() {
+bool PhaseSpace2to2nondiffractive::setupSampling(){
 
-  // Read in relevant cuts.
-  Q2maxGamma    = settingsPtr->parm("Photon:Q2max");
-  Wmin          = settingsPtr->parm("Photon:Wmin");
-  bool hasGamma = settingsPtr->flag("PDF:lepton2gamma");
-  externalFlux  = settingsPtr->mode("PDF:lepton2gammaSet") == 2;
-  sampleQ2      = settingsPtr->flag("Photon:sampleQ2");
+  // Flag if a photon inside lepton beam.
+  hasGamma = settingsPtr->flag("PDF:lepton2gamma");
 
-  // Save relevant parameters and calculate sigmaND.
-  alphaEM = couplingsPtr->alphaEM(Q2maxGamma);
-  sCM     = s;
-  gammaA  = beamAPtr->isGamma() || (beamAPtr->isLepton() && hasGamma);
-  gammaB  = beamBPtr->isGamma() || (beamBPtr->isLepton() && hasGamma);
-  idAin   = gammaA ? 22 : beamAPtr->id();
-  idBin   = gammaB ? 22 : beamBPtr->id();
-  sigmaTotPtr->calc( idAin, idBin, eCM);
-  sigmaNDmax = sigmaTotPtr->sigmaND();
+  // Default behaviour with usual hadron beams.
+  if (!hasGamma) {
+    sigmaNw = sigmaProcessPtr->sigmaHat();
+    sigmaMx = sigmaNw;
 
-  // Get the masses of beam particles and derive useful ratios.
-  m2BeamA    = pow2( mA );
-  m2BeamB    = pow2( mB );
-  m2sA       = 4. * m2BeamA / sCM;
-  m2sB       = 4. * m2BeamB / sCM;
-
-  // Calculate the square of the minimum invariant mass for sampling.
-  double m2GmGmMin = pow2(Wmin);
-  double xGamAMax  = 1.;
-  double xGamBMax  = 1.;
-  double xGamAMin  = m2GmGmMin / sCM ;
-  double xGamBMin  = m2GmGmMin / sCM ;
-
-  xGamma1   = 1.;
-  xGamma2   = 1.;
-  log2xMinA = 0.;
-  log2xMaxA = 0.;
-
-  // Calculate limit for x1 (if applicable) and derive useful logs.
-  if (gammaA) {
-    xGamAMax = Q2maxGamma / (2. * m2BeamA)
-      * (sqrt( (1. + 4. * m2BeamA / Q2maxGamma) * (1. - m2sA) ) - 1.);
-    if ( !externalFlux) {
-      log2xMinA = pow2( log( Q2maxGamma/ ( m2BeamA * pow2(xGamAMin) ) ) );
-      log2xMaxA = pow2( log( Q2maxGamma/ ( m2BeamA * pow2(xGamAMax) ) ) );
-    }
-  }
-
-  // Calculate limit for x2 (if applicable) and derive useful logs.
-  if (gammaB) {
-    xGamBMax = Q2maxGamma / (2. * m2BeamB)
-      * (sqrt( (1. + 4. * m2BeamB / Q2maxGamma) * (1. - m2sB) ) - 1.);
-    if ( !externalFlux) {
-      log2xMinB = pow2( log( Q2maxGamma/ ( m2BeamB * pow2(xGamBMin) ) ) );
-      log2xMaxB = pow2( log( Q2maxGamma/ ( m2BeamB * pow2(xGamBMax) ) ) );
-    }
-  }
-
-  // Derive the overestimate for sigmaND integral with l+l-/p -> gm+gm/p.
-  if ( !externalFlux) {
-    if ( gammaA && gammaB) {
-      sigmaNDestimate = pow2( 0.5 * alphaEM / M_PI ) * 0.25
-        * (log2xMinA - log2xMaxA) * (log2xMinB - log2xMaxB) * sigmaNDmax;
-    } else if (gammaA) {
-      sigmaNDestimate = 0.5 * alphaEM / M_PI
-        * 0.5 * (log2xMinA - log2xMaxA) * sigmaNDmax;
-    } else if (gammaB) {
-      sigmaNDestimate = 0.5 * alphaEM / M_PI
-        * 0.5 * (log2xMinB - log2xMaxB) * sigmaNDmax;
-    }
-
-  // Slightly different overestimate for externally provided fluxes.
+  // Derive overestimate for sigmaND for photons in leptons.
   } else {
-
-    // Get the minimum virtualities and rescalings of the approximated fluxes.
-    double Q2minA   = beamAPtr->Q2minPDF();
-    double Q2minB   = beamBPtr->Q2minPDF();
-    double rescaleA = beamAPtr->gammaFluxNorm();
-    double rescaleB = beamBPtr->gammaFluxNorm();
-
-    // Calculate the overestimate for sigmaND.
-    if ( gammaA && gammaB) {
-      sigmaNDestimate = pow2( alphaEM / M_PI ) * sigmaNDmax
-        * rescaleA * log(xGamAMax / xGamAMin) * log(Q2maxGamma / Q2minA)
-        * rescaleB * log(xGamBMax / xGamBMin) * log(Q2maxGamma / Q2minB);
-    } else if (gammaA) {
-      sigmaNDestimate = alphaEM / M_PI * sigmaNDmax
-        * rescaleA * log(xGamAMax / xGamAMin) * log(Q2maxGamma / Q2minA);
-    } else if (gammaB) {
-      sigmaNDestimate = alphaEM / M_PI * sigmaNDmax
-        * rescaleB * log(xGamBMax / xGamBMin) * log(Q2maxGamma / Q2minB);
-    }
+    idAin     = gammaKinPtr->idInA();
+    idBin     = gammaKinPtr->idInB();
+    sigmaTotPtr->calc( idAin, idBin, eCM);
+    sigmaMxGm = sigmaTotPtr->sigmaND();
+    sigmaNw   = gammaKinPtr->setupSoftPhaseSpaceSampling(sigmaMxGm);
+    sigmaMx   = sigmaNw;
   }
-
-  // Save the cross-section estimate.
-  sigmaNw = sigmaNDestimate;
-  sigmaMx = sigmaNDestimate;
 
   // Done.
   return true;
+
 }
 
 //--------------------------------------------------------------------------
 
-// Sample the kinematics for the gm+gm sub-collision.
-// The virtuality and kT sampled by GammaKinematics.
+// Select a trial kinematics phase space point. Trivial if not photoproduction.
 
-bool PhaseSpace2to2nondiffractiveGamma::trialKin(bool , bool) {
+bool PhaseSpace2to2nondiffractive::trialKin( bool, bool) {
 
-  // Current weight.
-  double wt = 1.0;
+  // Sample kinematics for gamma+gamma(hadron) sub-event and reject
+  // to account for over sampling.
+  if (hasGamma) {
 
-  // Sample x_gamma's when using internal photon flux.
-  if ( !externalFlux) {
-    if (gammaA) xGamma1 = sqrt( (Q2maxGamma / m2BeamA) * exp( -sqrt( log2xMinA
-                      + rndmPtr->flat() * (log2xMaxA - log2xMinA) ) ) );
-    if (gammaB) xGamma2 = sqrt( (Q2maxGamma / m2BeamB) * exp( -sqrt( log2xMinB
-                      + rndmPtr->flat() * (log2xMaxB - log2xMinB) ) ) );
+    // Current weight.
+    double wt = 1.0;
 
-    // Save the x_gamma values to beam particles for further use.
-    beamAPtr->xGamma(xGamma1);
-    beamBPtr->xGamma(xGamma2);
+    // Sample gamma kinematics.
+    if (!gammaKinPtr->trialKinSoftPhaseSpaceSampling() ) return false;
+
+    // Correct for the estimated sigmaND.
+    sigmaTotPtr->calc( idAin, idBin, gammaKinPtr->eCMsub() );
+    double wtSigma = sigmaTotPtr->sigmaND()/sigmaMxGm;
+
+    // Calculate the total weight and warn if unphysical weight.
+    wt *= wtSigma * gammaKinPtr->weight();
+    if ( wt > 1. ) infoPtr->errorMsg("Warning in PhaseSpace2to2nondiffractive"
+      "::trialKin: weight above unity");
+
+    // Correct for over-estimated cross section and x_gamma limits.
+    if ( wt < rndmPtr->flat() ) return false;
+
   }
-
-  // Sample the kT of photons, special behaviour for non-diffractive events.
-  if ( !(gammaKinPtr->sampleKTgamma(true) ) ) return false;
-
-  // Save the sampled x_gamma values with external flux.
-  if (externalFlux) {
-    xGamma1 = beamAPtr->xGamma();
-    xGamma2 = beamBPtr->xGamma();
-  }
-
-  // Obtain the sampled values.
-  Q2gamma1 = gammaKinPtr->getQ2gamma1();
-  Q2gamma2 = gammaKinPtr->getQ2gamma2();
-  Q2min1   = gammaKinPtr->getQ2min1();
-  Q2min2   = gammaKinPtr->getQ2min2();
-  mGmGm    = gammaKinPtr->eCMsub();
-
-  // Correct for x1 and x2 oversampling.
-  double wt1 = 1.;
-  double wt2 = 1.;
-
-  // Calculate the weight for beam A from oversampling.
-  if ( gammaA) {
-    if ( !externalFlux) {
-      wt1 = ( 0.5 * ( 1. + pow2(1 - xGamma1) ) ) * log( Q2maxGamma/Q2min1 )
-        / log( Q2maxGamma / ( m2BeamA * pow2( xGamma1 ) ) );
-
-    // For external flux weight depends whether Q2 is sampled.
-    } else {
-      wt1 = sampleQ2 ? beamAPtr->xfFlux(22, xGamma1, Q2gamma1)
-        / beamAPtr->xfApprox(22, xGamma1, Q2gamma1) :
-        beamAPtr->xfFlux(22, xGamma1, Q2gamma1)
-        / beamAPtr->xf(22, xGamma1, Q2gamma1);
-    }
-  }
-
-  // Calculate the weight for beam B from oversampling.
-  if ( gammaB) {
-    if ( !externalFlux) {
-      wt2 = ( 0.5 * ( 1. + pow2(1 - xGamma2) ) ) * log( Q2maxGamma/Q2min2 )
-        / log( Q2maxGamma / ( m2BeamB * pow2( xGamma2 ) ) );
-
-    // For external flux weight depends whether Q2 is sampled.
-    } else {
-      wt2 = sampleQ2 ? beamBPtr->xfFlux(22, xGamma2, Q2gamma2)
-        / beamBPtr->xfApprox(22, xGamma2, Q2gamma2) :
-        beamBPtr->xfFlux(22, xGamma2, Q2gamma2)
-        / beamBPtr->xf(22, xGamma2, Q2gamma2);
-    }
-  }
-
-  // Correct for the estimated sigmaND.
-  sigmaTotPtr->calc( idAin, idBin, mGmGm );
-  double sigmaNDnow = sigmaTotPtr->sigmaND();
-  double wtSigma    = sigmaNDnow/sigmaNDmax;
-
-  // Correct for alpha_EM with the sampled Q2 values.
-  double wtAlphaEM1 = gammaA ? couplingsPtr->alphaEM(Q2gamma1) / alphaEM : 1.;
-  double wtAlphaEM2 = gammaB ? couplingsPtr->alphaEM(Q2gamma2) / alphaEM : 1.;
-  double wtAlphaEM  = wtAlphaEM1 * wtAlphaEM2;
-
-  // Calculate the total weight and warn if unphysical weight.
-  wt *= wt1 * wt2 * wtSigma * wtAlphaEM;
-  if ( wt > 1. ) {
-    infoPtr->errorMsg("Warning in PhaseSpace2to2nondiffractiveGamma::trialKin:"
-                      " weight above unity");
-  }
-
-  // Correct for over-estimated cross section and x_gamma limits.
-  if ( wt < rndmPtr->flat() ) return false;
 
   // Done.
   return true;
-
 }
 
 //==========================================================================

@@ -77,6 +77,9 @@ public:
     tauSave = pt.tauSave; pdePtr = pt.pdePtr; evtPtr = pt.evtPtr; }
     return *this; }
 
+  // Destructor.
+  virtual ~Particle() {}
+
   // Member functions to set the Event and ParticleDataEntry pointers.
   void setEvtPtr(Event* evtPtrIn) { evtPtr = evtPtrIn; setPDEPtr();}
   void setPDEPtr(ParticleDataEntry* pdePtrIn = 0);
@@ -117,6 +120,7 @@ public:
   void yProd(double yProdIn) {vProdSave.py(yProdIn); hasVertexSave = true;}
   void zProd(double zProdIn) {vProdSave.pz(zProdIn); hasVertexSave = true;}
   void tProd(double tProdIn) {vProdSave.e(tProdIn); hasVertexSave = true;}
+  void vProdAdd(Vec4 vProdIn) {vProdSave += vProdIn; hasVertexSave = true;}
   void tau(double tauIn) {tauSave = tauIn;}
 
   // Member functions for output.
@@ -325,16 +329,18 @@ class Junction {
 public:
 
   // Constructors.
-  Junction() : remainsSave(true), kindSave(0) {
-    for (int j = 0; j < 3; ++j) {
-    colSave[j] = 0; endColSave[j] = 0; statusSave[j] = 0; } }
+  Junction() : remainsSave(true), kindSave(0), colSave(), endColSave(),
+    statusSave() { }
+
   Junction( int kindIn, int col0In, int col1In, int col2In)
-    : remainsSave(true), kindSave(kindIn) {colSave[0] = col0In;
-    colSave[1] = col1In; colSave[2] = col2In;
-    for (int j = 0; j < 3; ++j) {
-    endColSave[j] = colSave[j]; statusSave[j] = 0; } }
+    : remainsSave(true), kindSave(kindIn), colSave(), endColSave(),
+    statusSave() {
+      colSave[0] = col0In; colSave[1] = col1In; colSave[2] = col2In;
+      for (int j = 0; j < 3; ++j) {
+      endColSave[j] = colSave[j];  } }
   Junction(const Junction& ju) : remainsSave(ju.remainsSave),
-    kindSave(ju.kindSave) { for (int j = 0; j < 3; ++j) {
+    kindSave(ju.kindSave), colSave(), endColSave(), statusSave() {
+    for (int j = 0; j < 3; ++j) {
     colSave[j] = ju.colSave[j]; endColSave[j] = ju.endColSave[j];
     statusSave[j] = ju.statusSave[j]; } }
   Junction& operator=(const Junction& ju) {if (this != &ju) {

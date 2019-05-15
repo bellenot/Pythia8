@@ -957,6 +957,41 @@ bool BeamRemnants::setOneRemnKinematics( Event& event, int beamOffset) {
 
   // Identify remnant-side hadronic four-momentum and scattered lepton if DIS.
   int iLepScat = isDIS ? (beamOther[0].iPos() + 2) : -1;
+
+  // Definition of scattered lepton more intricate in the presence of QED
+  // radiation. For now, define highest energy lepton as scattered.
+  int iLepOut = particleDataPtr->isLepton(beamAPtr->id())
+              ? 1 + beamOffset + 2 + 2 : 2 + beamOffset + 2 + 2;
+  if ( !beamOther.isGamma()
+    && (!event[iLepOut].isLepton()
+    || !event[iLepScat].isLepton()
+    || !event[iLepScat].isFinal()
+    || iLepScat > event.size()-1)) {
+    double eMax = -1.0;
+    for (int i = event.size()-1; i > 0 ; --i) {
+      if ( event[i].isFinal()
+        && event[iLepOut].id() == event[i].id()
+        && event[i].e() > eMax) {
+        iLepScat = i;
+        eMax = event[i].e();
+        break;
+      }
+    }
+  }
+
+  // In the presence of QED radiation from the beam particles, we should now
+  // find beam particles and transform to CM frame of the final beam
+  // configuration.
+  if (beamAPtr->isLepton() && beamBPtr->isHadron())
+    { iBeamA = (*beamAPtr)[0].iPos(); }
+  if (beamBPtr->isLepton() && beamAPtr->isHadron())
+    { iBeamB = (*beamBPtr)[0].iPos(); }
+  double etot = (event[iBeamA].p() + event[iBeamB].p()).mCalc();
+  RotBstMatrix MtoRest;
+  MtoRest.bst( event[iBeamA].p() + event[iBeamB].p(), Vec4(0.,0.,0.,etot));
+  if ( abs(event[iBeamA].pz() + event[iBeamB].pz()) > 1e-5)
+    event.rotbst(MtoRest);
+
   Vec4 pHadScat;
   for (int i = 5 + beamOffset; i < event.size(); ++i)
     if (event[i].isFinal() && i != iLepScat) pHadScat += event[i].p();
@@ -971,9 +1006,6 @@ bool BeamRemnants::setOneRemnKinematics( Event& event, int beamOffset) {
 
   // Find a boost to the hadronic rest frame.
   RotBstMatrix MtoHadRest;
-  RotBstMatrix MtoHadRest2;
-  MtoHadRest2.toCMframe( pHadScat, pRemnant);
-
   // Do not flip the direction with boosts.
   if (iBeamHad == 1) MtoHadRest.toCMframe( pRemnant, pHadScat);
   else MtoHadRest.toCMframe( pHadScat, pRemnant);

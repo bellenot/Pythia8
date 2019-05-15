@@ -37,7 +37,15 @@ class ProcessLevel {
 public:
 
   // Constructor.
-  ProcessLevel() : iLHACont(-1) {}
+  ProcessLevel() : doSecondHard(), doSameCuts(), allHardSame(), noneHardSame(),
+    someHardSame(), cutsAgree(), cutsOverlap(), doResDecays(), doISR(),
+    doMPI(), doWt2(), startColTag(), maxPDFreweight(), mHatMin1(), mHatMax1(),
+    pTHatMin1(), pTHatMax1(), mHatMin2(), mHatMax2(), pTHatMin2(), pTHatMax2(),
+    sigmaND(), beamHasGamma(), gammaMode(), iContainer(), iLHACont(-1),
+    sigmaMaxSum(), i2Container(), sigma2MaxSum(), infoPtr(), particleDataPtr(),
+    rndmPtr(),  beamAPtr(), beamBPtr(), beamGamAPtr(), beamGamBPtr(),
+    beamVMDAPtr(), beamVMDBPtr(), couplingsPtr(), sigmaTotPtr(),
+    slhaInterfacePtr(), userHooksPtr(), lhaUpPtr() {}
 
   // Destructor to delete processes in containers.
   ~ProcessLevel();
@@ -89,11 +97,11 @@ private:
   static const int MAXLOOP;
 
   // Generic info for process generation.
-  bool   doSecondHard, doSameCuts, allHardSame, noneHardSame,
-         someHardSame, cutsAgree, cutsOverlap, doResDecays, doISR, doMPI;
+  bool   doSecondHard, doSameCuts, allHardSame, noneHardSame, someHardSame,
+         cutsAgree, cutsOverlap, doResDecays, doISR, doMPI, doWt2;
   int    startColTag;
-  double mHatMin1, mHatMax1, pTHatMin1, pTHatMax1, mHatMin2, mHatMax2,
-         pTHatMin2, pTHatMax2, sigmaND;
+  double maxPDFreweight, mHatMin1, mHatMax1, pTHatMin1, pTHatMax1, mHatMin2,
+         mHatMax2, pTHatMin2, pTHatMax2, sigmaND;
 
   // Info for process generation with photon beams.
   bool   beamHasGamma;

@@ -119,6 +119,34 @@ struct XMLTag {
         continue;
       }
 
+      // Do not extract tags from #-commented lines.
+      string id = str.substr(begin + 1, str.find_first_of(" \t\n/>",
+      begin)-begin-1);
+      while(id.find(" ", 0) != string::npos)
+        id.erase(id.begin()+id.find(" ",0));
+      pos_t lasthash  = str.find_last_of("#", begin);
+      pos_t lastbreak = str.find_last_of("\n", begin);
+      pos_t now       = str.find("<"+id, curr);
+      if ( begin      != end
+        && lasthash   != string::npos
+        && (lastbreak != string::npos  || curr == 0)
+        && (lasthash  >  lastbreak     || curr == 0)
+        && now        != string::npos
+        && lasthash   <  now)     {
+        pos_t endcom = str.find("</"+id+">", begin);
+        pos_t endcom2 = str.find_first_of("\n", begin);
+        if ( endcom == end && endcom2 == end) {
+          if ( leftover ) *leftover += str.substr(curr);
+             return tags;
+        } else if ( endcom == end)
+          endcom = endcom2;
+        else
+          endcom += ("</"+id+">").size();
+        if ( leftover ) *leftover += str.substr(curr, endcom - curr);
+        curr = endcom;
+        continue;
+      }
+
       // Also skip CDATA statements.
       // Used for text data that should not be parsed by the XML parser.
       // (e.g., JavaScript code contains a lot of "<" or "&" characters
@@ -658,9 +686,7 @@ public:
       SCALUP(0.0), AQEDUP(0.0), AQCDUP(0.0), heprup(0) {}
 
   // Copy constructor
-  HEPEUP(const HEPEUP & x) {
-    operator=(x);
-  }
+  HEPEUP(const HEPEUP & x) { operator=(x); }
 
   // Copy information from the given HEPEUP.
   HEPEUP & setEvent(const HEPEUP & x);
@@ -807,14 +833,14 @@ public:
   // filename: the name of the file to read from.
   //
   Reader(string filenameIn)
-    : filename(filenameIn), intstream(NULL), file(NULL) {
+    : filename(filenameIn), intstream(NULL), file(NULL), version() {
     intstream = new igzstream(filename.c_str());
     file = intstream;
     isGood = init();
   }
 
   Reader(istream* is)
-    : filename(""), intstream(NULL), file(is) {
+    : filename(""), intstream(NULL), file(is), version() {
     isGood = init();
   }
 

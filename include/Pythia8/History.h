@@ -19,7 +19,7 @@
 #include "Pythia8/PythiaStdlib.h"
 #include "Pythia8/Settings.h"
 #include "Pythia8/StandardModel.h"
-#include "Pythia8/WeakShowerMEs.h"
+#include "Pythia8/SimpleWeakShowerMEs.h"
 
 namespace Pythia8 {
 
@@ -59,38 +59,21 @@ public:
   int recBef;
 
   // Default constructor
-  Clustering(){
-    emitted    = 0;
-    emittor    = 0;
-    recoiler   = 0;
-    partner    = 0;
-    flavRadBef = 0;
-    spinRad    = 9;
-    spinEmt    = 9;
-    spinRec    = 9;
-    spinRadBef = 9;
-    recBef     = 0;
-    radBef     = 0;
-  }
+  Clustering() : emitted(0), emittor(0), recoiler(0), partner(0), pTscale(),
+    flavRadBef(0), spinRad(9), spinEmt(9), spinRec(9), spinRadBef(9),
+    radBef(0), recBef(0) {}
 
   // Default destructor
   ~Clustering(){}
 
   // Copy constructor
-  Clustering( const Clustering& inSystem ){
-    emitted    = inSystem.emitted;
-    emittor    = inSystem.emittor;
-    recoiler   = inSystem.recoiler;
-    partner    = inSystem.partner;
-    pTscale    = inSystem.pTscale;
-    flavRadBef = inSystem.flavRadBef;
-    spinRad    = inSystem.spinRad;
-    spinEmt    = inSystem.spinEmt;
-    spinRec    = inSystem.spinRec;
-    spinRadBef = inSystem.spinRad;
-    radBef     = inSystem.radBef;
-    recBef     = inSystem.recBef;
-  }
+  Clustering( const Clustering& inSystem ) :
+    emitted(inSystem.emitted), emittor(inSystem.emittor),
+    recoiler(inSystem.recoiler), partner(inSystem.partner),
+    pTscale(inSystem.pTscale), flavRadBef(inSystem.flavRadBef),
+    spinRad(inSystem.spinRad), spinEmt(inSystem.spinEmt),
+    spinRec(inSystem.spinRec), spinRadBef(inSystem.spinRad),
+    radBef(inSystem.radBef), recBef(inSystem.recBef) {}
 
   // Constructor with input
   Clustering( int emtIn, int radIn, int recIn, int partnerIn,
@@ -140,7 +123,7 @@ public:
   // clustering (=1 for FSR clusterings). \a probin is the accumulated
   // probabilities for the previous clusterings, and \ mothin is the
   // previous history node (null for the initial node).
-  History( int depth,
+  History( int depthIn,
            double scalein,
            Event statein,
            Clustering c,
@@ -199,16 +182,16 @@ public:
   // For unitary NL3:
   double weight_UNLOPS_TREE(PartonLevel* trial, AlphaStrong * asFSR,
     AlphaStrong * asISR, AlphaEM * aemFSR, AlphaEM * aemISR, double RN,
-    int depth = -1);
+    int depthIn = -1);
   double weight_UNLOPS_SUBT(PartonLevel* trial, AlphaStrong * asFSR,
     AlphaStrong * asISR, AlphaEM * aemFSR, AlphaEM * aemISR, double RN,
-    int depth = -1);
+    int depthIn = -1);
   double weight_UNLOPS_LOOP(PartonLevel* trial, AlphaStrong * asFSR,
      AlphaStrong * asISR, AlphaEM * aemFSR, AlphaEM * aemISR, double RN,
-     int depth = -1);
+     int depthIn = -1);
   double weight_UNLOPS_SUBTNLO(PartonLevel* trial, AlphaStrong * asFSR,
     AlphaStrong * asISR, AlphaEM * aemFSR, AlphaEM * aemISR, double RN,
-    int depth = -1);
+    int depthIn = -1);
   double weight_UNLOPS_CORRECTION( int order, PartonLevel* trial,
     AlphaStrong* asFSR, AlphaStrong * asISR, AlphaEM * aemFSR,
     AlphaEM * aemISR, double RN, Rndm* rndmPtr );
@@ -796,10 +779,10 @@ private:
   void setSelectedChild();
 
   // Setup the weak dipole showers.
-  void setupWeakShower(int nSteps);
+  void setupSimpleWeakShower(int nSteps);
 
   // Update weak dipoles after an emission.
-  void transferWeakShower(vector<int> &mode, vector<Vec4> &mom,
+  void transferSimpleWeakShower(vector<int> &mode, vector<Vec4> &mom,
     vector<int> fermionLines, vector<pair<int,int> > &dipoles, int nSteps);
 
   // Update the weak modes after an emission.
@@ -901,7 +884,11 @@ private:
   MergingHooks* mergingHooksPtr;
 
    // The default constructor is private.
-  History() {}
+  History() : mother(), selectedChild(), sumpath(), sumGoodBranches(),
+    sumBadBranches(), foundOrderedPath(), foundStronglyOrderedPath(),
+    foundAllowedPath(), foundCompletePath(), scale(), nextInInput(), prob(),
+    iReclusteredOld(), iReclusteredNew(), doInclude(), mergingHooksPtr(),
+    particleDataPtr(), infoPtr(), showers(), coupSMPtr(), sumScalarPT() {}
 
   // The copy-constructor is private.
   History(const History &) {}
@@ -922,7 +909,7 @@ private:
   Info* infoPtr;
 
   // Class for calculation weak shower ME.
-  WeakShowerMEs weakShowerMEs;
+  SimpleWeakShowerMEs simpleWeakShowerMEs;
 
   // Pointer to showers, to simplify external clusterings.
   PartonLevel* showers;
@@ -932,6 +919,27 @@ private:
 
   // Minimal scalar sum of pT used in Herwig to choose history
   double sumScalarPT;
+
+  double probMaxSave;
+  double probMax() {
+    if (mother) return mother->probMax();
+    return probMaxSave;
+  }
+  void updateProbMax(double probIn, bool isComplete = false) {
+    if (mother) mother->updateProbMax(probIn, isComplete);
+    if (!isComplete && !foundCompletePath) return;
+    if (abs(probIn) > probMaxSave) probMaxSave = probIn;
+  }
+
+  int depth, minDepthSave;
+  int minDepth() {
+    if ( mother ) return mother->minDepth();
+    return minDepthSave;
+  }
+  void updateMinDepth(int depthIn) {
+    if ( mother ) return mother->updateMinDepth(depthIn);
+    minDepthSave = (minDepthSave>0) ? min(minDepthSave,depthIn) : depthIn;
+  }
 
 };
 

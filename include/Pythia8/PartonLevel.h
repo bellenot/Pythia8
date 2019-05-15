@@ -45,7 +45,33 @@ class PartonLevel {
 public:
 
   // Constructor.
-  PartonLevel() : userHooksPtr(0) {}
+  PartonLevel() : timesDecPtr(), timesPtr(), spacePtr(), userHooksPtr(0),
+    doNonDiff(), doDiffraction(), doMPI(), doMPIMB(), doMPISDA(), doMPISDB(),
+    doMPICD(), doMPIinit(), doISR(), doFSRduringProcess(), doFSRafterProcess(),
+    doFSRinResonances(), doRemnants(), doSecondHard(), hasOneLeptonBeam(),
+    hasTwoLeptonBeams(), hasPointLeptons(), canVetoPT(), canVetoStep(),
+    canVetoMPIStep(), canVetoEarly(), canSetScale(), allowRH(), earlyResDec(),
+    vetoWeakJets(), canReconResSys(), doReconnect(), doHardDiff(),
+    forceResonanceCR(), doNDgamma(), doMPIgmgm(), showUnresGamma(),
+    pTmaxMatchMPI(), mMinDiff(), mWidthDiff(), pMaxDiff(), vetoWeakDeltaR2(),
+    doVeto(), nMPI(), nISR(), nFSRinProc(), nFSRinRes(), nISRhard(),
+    nFSRhard(), typeLatest(), nVetoStep(), typeVetoStep(), nVetoMPIStep(),
+    iSysNow(), reconnectMode(), hardDiffSide(), sampleTypeDiff(), pTsaveMPI(),
+    pTsaveISR(), pTsaveFSR(), pTvetoPT(), isNonDiff(), isDiffA(), isDiffB(),
+    isDiffC(), isDiff(), isSingleDiff(), isDoubleDiff(), isCentralDiff(),
+    isResolved(), isResolvedA(), isResolvedB(), isResolvedC(), isHardDiffA(),
+    isHardDiffB(), isHardDiff(), doDiffVeto(), hardDiffSet(), isElastic(),
+    twoHard(), sizeProcess(), sizeEvent(), nHardDone(), nHardDoneRHad(), iDS(),
+    eCMsave(), hasGammaA(), hasGammaB(), beamHasGamma(), beamAisGamma(),
+    beamBisGamma(), beamAhasGamma(), beamBhasGamma(), beamAhasResGamma(),
+    beamBhasResGamma(), beamHasResGamma(), isGammaHadronDir(), gammaMode(),
+    gammaModeEvent(), gammaOffset(), eCMsaveGamma(), infoPtr(),
+    particleDataPtr(), rndmPtr(), beamAPtr(), beamBPtr(), beamHadAPtr(),
+    beamHadBPtr(), beamPomAPtr(), beamPomBPtr(), beamGamAPtr(), beamGamBPtr(),
+    beamVMDAPtr(), beamVMDBPtr(), couplingsPtr(), partonSystemsPtr(),
+    partonVertexPtr(), multiPtr(), rHadronsPtr(), mergingHooksPtr(), doTrial(),
+    nTrialEmissions(), pTLastBranch(), typeLastBranch(), canRemoveEvent(),
+    canRemoveEmission() {}
 
   // Initialization of all classes at the parton level.
   bool init( Info* infoPtrIn, Settings& settings,
@@ -126,14 +152,14 @@ private:
   bool   doVeto;
   int    nMPI, nISR, nFSRinProc, nFSRinRes, nISRhard, nFSRhard,
          typeLatest, nVetoStep, typeVetoStep, nVetoMPIStep, iSysNow,
-         reconnectMode, sampleTypeDiff;
+         reconnectMode, hardDiffSide, sampleTypeDiff;
   double pTsaveMPI, pTsaveISR, pTsaveFSR, pTvetoPT;
 
   // Current event properties.
   bool   isNonDiff, isDiffA, isDiffB, isDiffC, isDiff, isSingleDiff,
          isDoubleDiff, isCentralDiff, isResolved, isResolvedA,
          isResolvedB, isResolvedC, isHardDiffA, isHardDiffB, isHardDiff,
-         doDiffVeto, hardDiffSet;
+         doDiffVeto, hardDiffSet, isElastic, twoHard;
   int    sizeProcess, sizeEvent, nHardDone, nHardDoneRHad, iDS;
   double eCMsave;
   vector<bool> inRHadDecay;

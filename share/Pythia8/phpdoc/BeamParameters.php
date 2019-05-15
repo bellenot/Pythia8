@@ -28,12 +28,19 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 <form method='post' action='BeamParameters.php'>
  
 <h2>Beam Parameters</h2> 
+<ol id="toc">
+  <li><a href="#section0">Incoming beams</a></li>
+  <li><a href="#section1">Beam momentum spread</a></li>
+  <li><a href="#section2">Beam interaction vertex</a></li>
+</ol>
+
  
 The settings on this page relate to the beam identities and energies, 
 to a beam momentum spread and to a beam interaction spot. 
 As always, momenta and energies are to be given in units of GeV, 
 and of space and time in mm. 
  
+<a name="section0"></a> 
 <h3>Incoming beams</h3> 
  
 The identities and energies of the two incoming beam particles 
@@ -211,6 +218,7 @@ of particles three and four to 100 GeV and 50 GeV, respectively, provided
 that these particles have status 1. 
    
  
+<a name="section1"></a> 
 <h3>Beam momentum spread</h3> 
  
 This framework currently is intended for a modest beam spread, such as 
@@ -290,6 +298,7 @@ for the second incoming particle, like
 used to pick <i>(p_x, p_y, p_z)</i>.) 
    
  
+<a name="section2"></a> 
 <h3>Beam interaction vertex</h3> 
  
 On this page you can set the spread of the interaction vertex according to 

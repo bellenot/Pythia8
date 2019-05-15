@@ -30,7 +30,7 @@ class HVStringFlav : public StringFlav {
 public:
 
   // Constructor.
-  HVStringFlav() {}
+  HVStringFlav() : nFlav(), probVector() {}
 
   // Destructor.
   ~HVStringFlav() {}
@@ -82,10 +82,10 @@ class HVStringZ : public StringZ {
 public:
 
   // Constructor.
-  HVStringZ() {}
+  HVStringZ() : mqv2(), bmqv2(), rFactqv(), mhvMeson() {}
 
   // Destructor.
-  ~HVStringZ() {}
+  virtual ~HVStringZ() {}
 
   // Initialize data members.
   void init(Settings& settings, ParticleData& particleData,
@@ -116,8 +116,9 @@ class HiddenValleyFragmentation {
 public:
 
   // Constructor.
-  HiddenValleyFragmentation() : doHVfrag(false), hvFlavSelPtr(NULL),
-    hvPTSelPtr(NULL), hvZSelPtr(NULL) {}
+  HiddenValleyFragmentation() : infoPtr(), particleDataPtr(), rndmPtr(),
+    doHVfrag(false), nFlav(), hvOldSize(), hvNewSize(), mhvMeson(), mSys(),
+    hvFlavSelPtr(NULL), hvPTSelPtr(NULL), hvZSelPtr(NULL) {}
 
   // Destructor.
   ~HiddenValleyFragmentation() { if (doHVfrag) {

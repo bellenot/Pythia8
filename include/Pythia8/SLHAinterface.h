@@ -29,7 +29,7 @@ class SLHAinterface {
 public:
 
   // Constructor.
-  SLHAinterface() {} ;
+  SLHAinterface() : couplingsPtr(), infoPtr(), settingsPtr(), meMode() {} ;
 
   // Set pointers
   void setPtr( Info* infoPtrIn ) {infoPtr     = infoPtrIn;}

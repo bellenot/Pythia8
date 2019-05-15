@@ -98,7 +98,6 @@ int main() {
   }
   pythia.stat();
   cout << pTj;
-  mRec.table();
 
   // Done.
   return 0;

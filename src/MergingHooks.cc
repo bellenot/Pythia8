@@ -2435,11 +2435,10 @@ bool MergingHooks::doVetoStep( const Event& process, const Event& event,
     nSteps = getNumberOfClusteringSteps( bareEvent( process, false) );
   else nSteps  = (doResonance) ? getNumberOfClusteringSteps(process)
          : getNumberOfClusteringSteps( bareEvent( process, false) );
-
   int nStepsAfter = getNumberOfClusteringSteps(event);
-
   // Get maximal number of additional jets.
   int nJetMax = nMaxJets();
+
   // Get merging scale in current event.
   double tnow = tmsNow( event );
 
@@ -2456,13 +2455,24 @@ bool MergingHooks::doVetoStep( const Event& process, const Event& event,
     // Store veto inputs to perform veto at a later stage.
     if (!applyVeto) {
       setEventVetoInfo(nSteps, tnow);
+      if ( nStepsAfter > nSteps && nSteps > nMaxJetsNLO() && nSteps < nJetMax
+        && tnow > tms() ) {
+        // Set weight to zero if event should be vetoed.
+        weightCKKWL1Save = 0.;
+        // Save weight before veto, in case veto needs to be revoked.
+        weightCKKWL2Save = getWeightCKKWL();
+        // Reset stored weights.
+        if ( !includeWGTinXSEC() ) setWeightCKKWL(0.);
+        if (  includeWGTinXSEC() ) infoPtr->updateWeight(0.);
+      }
       return false;
     }
 
     // Check merging veto condition.
     bool veto = false;
+
     if ( nStepsAfter > nSteps && nSteps > nMaxJetsNLO() && nSteps < nJetMax
-      && tnow > tms() ) {
+      && tnow > tms()) {
       // Set weight to zero if event should be vetoed.
       weightCKKWL1Save = 0.;
       // Save weight before veto, in case veto needs to be revoked.
@@ -3216,6 +3226,7 @@ double MergingHooks::tmsNow( const Event& event ) {
 
   // Get merging scale in current event.
   double tnow = 0.;
+  int unlopsType = settingsPtr->mode("Merging:unlopsTMSdefinition");
   // Use KT/Durham merging scale definition.
   if ( doKTMerging()  || doMGMerging() )
     tnow = kTms(event);
@@ -3230,7 +3241,7 @@ double MergingHooks::tmsNow( const Event& event ) {
     tnow = rhoms(event, false);
   // Use NLO merging (Lund PT) merging scale definition.
   else if ( doUNLOPSMerging() )
-    tnow = rhoms(event, false);
+    tnow = (unlopsType < 0) ? rhoms(event, false) : tmsDefinition(event);
   // Use UMEPS (Lund PT) merging scale definition.
   else if ( doUMEPSMerging() )
     tnow = rhoms(event, false);

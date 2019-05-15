@@ -908,6 +908,8 @@ double Sigma3ff2HfftWW::weightDecay( Event& process, int iResBeg,
 
 // Sigma3gg2HQQbar class.
 // Cross section for g g -> H0 Q Qbar (Q Qbar fusion of SM or BSM Higgs).
+// REDUCE output and part of the rest courtesy Z. Kunszt,
+// see Z. Kunszt, Nucl. Phys. B247 (1984) 339.
 
 //--------------------------------------------------------------------------
 

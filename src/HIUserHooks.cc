@@ -529,6 +529,43 @@ getCollisions(vector<Nucleon> & proj, vector<Nucleon> & targ,
   return ret;
 }
 
+
+//==========================================================================
+
+// The BlackSubCollisionModel uses fixed size, black-disk
+// nucleon-nucleon cross section, equal to the total inelastic pp cross
+// section. Everything else is elastic -- Diffraction not included.
+
+//--------------------------------------------------------------------------
+
+multiset<SubCollision> BlackSubCollisionModel::
+getCollisions(vector<Nucleon> & proj, vector<Nucleon> & targ,
+              const Vec4 & bvec, double & T) {
+  // Always call base class to reset nucleons and shift them into
+  // position.
+  multiset<SubCollision> ret =
+    SubCollisionModel::getCollisions(proj, targ, bvec, T);
+
+  T = 0.0;
+  // Go through all pairs of nucleons
+  for ( int ip = 0, Np = proj.size(); ip < Np; ++ip )
+    for ( int it = 0, Nt = targ.size(); it < Nt; ++it ) {
+      Nucleon & p = proj[ip];
+      Nucleon & t = targ[it];
+      double b = (p.bPos() - t.bPos()).pT();
+      if ( b > sqrt(sigTot()/M_PI) ) continue;
+      T = 0.5; // The naive cross section only gets the total xsec correct.
+      if ( b < sqrt((sigTot() - sigEl())/M_PI) ) {
+        ret.insert(SubCollision(p, t, b, b/avNDb, SubCollision::ABS));
+      }
+      else {
+        ret.insert(SubCollision(p, t, b, b/avNDb, SubCollision::ELASTIC));
+      }
+    }
+
+  return ret;
+}
+
 //==========================================================================
 
 // The NaiveSubCollisionModel uses a fixed size, black-disk-like

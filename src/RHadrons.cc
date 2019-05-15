@@ -960,6 +960,7 @@ bool RHadrons::produceGluino( ColConfig& colConfig, Event& event) {
       pSide2   += event[ iTmp ].p();
     }
   }
+  int iGluiFix = iGlui;
 
   // Order sides from gluino outwards and with lowest relative mass first.
   for (int i = int(iSideTmp.size()) - 1; i >= 0; --i)
@@ -1029,7 +1030,7 @@ bool RHadrons::produceGluino( ColConfig& colConfig, Event& event) {
          return false;
       }
       statusRHad  = 104;
-      mRHad       = particleDataPtr->m0(idRHad) + event[iBeg].m() - m0Go;
+      mRHad       = particleDataPtr->m0(idRHad) + event[iGluiFix].m() - m0Go;
     }
 
     // z value of fragmentation function.
