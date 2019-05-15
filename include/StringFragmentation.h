@@ -1,5 +1,5 @@
 // StringFragmentation.h is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -21,7 +21,7 @@
 
 namespace Pythia8 {
  
-//**************************************************************************
+//==========================================================================
 
 // The StringEnd class contains the information related to 
 // one of the current endpoints of the string system.
@@ -35,8 +35,9 @@ public:
   StringEnd() {}
 
   // Save pointers.
-  void init(StringFlav* flavSelPtrIn, StringPT* pTSelPtrIn, 
-    StringZ* zSelPtrIn) {flavSelPtr = flavSelPtrIn;
+  void init( ParticleData* particleDataPtrIn, StringFlav* flavSelPtrIn, 
+    StringPT* pTSelPtrIn, StringZ* zSelPtrIn) {
+    particleDataPtr = particleDataPtrIn; flavSelPtr = flavSelPtrIn;
     pTSelPtr = pTSelPtrIn; zSelPtr = zSelPtrIn;}
    
   // Set up initial endpoint values from input.
@@ -56,10 +57,13 @@ public:
   // Constants: could only be changed in the code itself.
   static const double TINY, PT2SAME;
 
+  // Pointer to the particle data table.
+  ParticleData* particleDataPtr;
+
   // Pointers to classes for flavour, pT and z generation.
-  StringFlav* flavSelPtr;
-  StringPT*   pTSelPtr;
-  StringZ*    zSelPtr;
+  StringFlav*   flavSelPtr;
+  StringPT*     pTSelPtr;
+  StringZ*      zSelPtr;
  
   // Data members.
   bool   fromPos;
@@ -72,7 +76,7 @@ public:
 
 };
   
-//**************************************************************************
+//==========================================================================
 
 // The StringFragmentation class contains the top-level routines 
 // to fragment a colour singlet partonic system.
@@ -85,8 +89,9 @@ public:
   StringFragmentation() {}
 
   // Initialize and save pointers.
-  void init(Info* infoPtrIn, StringFlav* flavSelPtrIn, 
-    StringPT* pTSelPtrIn, StringZ* zSelPtrIn);
+  void init(Info* infoPtrIn, Settings& settings, 
+    ParticleData* particleDataPtrIn, Rndm* rndmPtrIn, 
+    StringFlav* flavSelPtrIn, StringPT* pTSelPtrIn, StringZ* zSelPtrIn);
 
   // Do the fragmentation: driver routine.
   bool fragment( int iSub, ColConfig& colConfig, Event& event);
@@ -104,12 +109,18 @@ private:
                       CONVJRFEQ;
 
   // Pointer to various information on the generation.
-  Info*       infoPtr;
+  Info*         infoPtr;
+
+  // Pointer to the particle data table.
+  ParticleData* particleDataPtr;
+
+  // Pointer to the random number generator.
+  Rndm*         rndmPtr;
 
   // Pointers to classes for flavour, pT and z generation.
-  StringFlav* flavSelPtr;
-  StringPT*   pTSelPtr;
-  StringZ*    zSelPtr;
+  StringFlav*   flavSelPtr;
+  StringPT*     pTSelPtr;
+  StringZ*      zSelPtr;
 
   // Initialization data, read from Settings.
   double stopMass, stopNewFlav, stopSmear, eNormJunction,
@@ -156,7 +167,7 @@ private:
 
 };  
  
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8
 

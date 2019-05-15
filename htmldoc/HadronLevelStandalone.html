@@ -143,7 +143,7 @@ anew. This could be the case e.g. in <i>B</i> physics applications.
 Then you can use the <code>pythia.moreDecays()</code> method, which 
 decays all particles in the event record that have not been decayed 
 but should have been done so. The 
-<code>ParticleDataTable::mayDecay( id, false/true)</code> method 
+<code>pythia.particleData.mayDecay( id, false/true)</code> method 
 may be used to switch off/on the decays of a particle species 
 <code>id</code>, so that it is not decayed in the 
 <code>pythia.next()</code> call but only inside a loop over a number of
@@ -169,4 +169,4 @@ events.
 </body>
 </html>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->

@@ -1,5 +1,5 @@
 // Pythia.h is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -28,13 +28,14 @@
 #include "Settings.h"
 #include "SigmaTotal.h"
 #include "SpaceShower.h"
+#include "StandardModel.h"
 #include "SusyLesHouches.h"
 #include "TimeShower.h"
 #include "UserHooks.h"
 
 namespace Pythia8 {
  
-//**************************************************************************
+//==========================================================================
 
 // The Pythia class contains the top-level routines to generate an event.
 
@@ -74,7 +75,7 @@ public:
 
   // Possibility to pass in pointer for external random number generation.
   bool setRndmEnginePtr( RndmEngine* rndmEnginePtrIn) 
-    { return Rndm::rndmEnginePtr( rndmEnginePtrIn);}  
+    { return rndm.rndmEnginePtr( rndmEnginePtrIn);}  
 
   // Possibility to pass in pointer for user hooks. 
   bool setUserHooksPtr( UserHooks* userHooksPtrIn) 
@@ -97,6 +98,9 @@ public:
     TimeShower* timesPtrIn = 0, SpaceShower* spacePtrIn = 0) 
     { timesDecPtr = timesDecPtrIn; timesPtr = timesPtrIn;
     spacePtr = spacePtrIn; return true;} 
+
+  // Initialize tunes to e+e- and pp/ppbar data.
+  void initTunes(int eeTune = 0, int ppTune = 0);
 
   // Initialization in the CM frame.
   bool init( int idAin, int idBin, double eCMin);
@@ -144,25 +148,31 @@ public:
   string word(string key) {return settings.word(key);}
 
   // The event record for the parton-level central process.
-  Event process;
+  Event          process;
 
   // The event record for the complete event history.
-  Event event;
-
-  // The partonic content of each subcollision system (auxiliary to event).
-  PartonSystems partonSystems; 
+  Event          event;
 
   // Information on the generation: current subprocess and error statistics.
-  Info info;
+  Info           info;
 
-  // Settings - is static but declared here for ease of use.
-  Settings settings;
+  // Settings: databases of flags/modes/parms/words to control run.
+  Settings       settings;
 
-  // ParticleDataTable - is static but declared here for ease of use.
-  ParticleDataTable particleData;
+  // ParticleData: the particle data table/database.
+  ParticleData   particleData;
+
+  // Random number generator.
+  Rndm           rndm;
+
+  // Standard Model couplings, including alphaS and alphaEM.
+  CoupSM         coupSM;
 
   // SusyLesHouches - SLHA object for interface to SUSY spectra.
   SusyLesHouches slha;
+
+  // The partonic content of each subcollision system (auxiliary to event).
+  PartonSystems  partonSystems; 
 
 private: 
 
@@ -171,7 +181,8 @@ private:
 
   // Initialization data, extracted from database.
   string xmlPath;
-  bool   doProcessLevel, doPartonLevel, doHadronLevel, checkEvent;
+  bool   doProcessLevel, doPartonLevel, doHadronLevel, checkEvent, 
+         doDiffraction;
   int    nErrList;
   double epTolErr, epTolWarn;
 
@@ -211,20 +222,20 @@ private:
   BeamParticle beamPomB;
 
   // LHAup object for generating external events.
-  bool doLHA, useNewLHA;
+  bool   doLHA, useNewLHA;
   LHAup* lhaUpPtr;
 
   // Pointer to external decay handler and list of particles it handles.
   DecayHandler* decayHandlePtr;
-  vector<int> handledParticles;
+  vector<int>   handledParticles;
 
   // Pointer to UserHooks object for user interaction with program.
   UserHooks* userHooksPtr;
-  bool hasUserHooks, doVetoProcess, doVetoPartons;
+  bool       hasUserHooks, doVetoProcess, doVetoPartons;
 
   // Pointer to BeamShape object for beam momentum and interaction vertex.
   BeamShape* beamShapePtr;
-  bool useNewBeamShape, doMomentumSpread, doVertexSpread;
+  bool       useNewBeamShape, doMomentumSpread, doVertexSpread;
 
   // Pointers to external processes derived from the Pythia base classes.
   vector<SigmaProcess*> sigmaPtrs;  
@@ -236,7 +247,7 @@ private:
   TimeShower*  timesDecPtr;
   TimeShower*  timesPtr;
   SpaceShower* spacePtr;
-  bool useNewTimes, useNewSpace;
+  bool         useNewTimes, useNewSpace;
 
   // The main generator class to define the core process of the event.
   ProcessLevel processLevel;
@@ -259,14 +270,17 @@ private:
   // Initialization routine to set up the whole generation machinery.
   bool initInternal();
 
-  // Initialize tunes to e+e- and pp/ppbar data.
-  void initTunes();
-
   // Check that combinations of settings are allowed; change if not.
   void checkSettings();
 
+  // Check that beams and beam combination can be handled.
+  bool checkBeams();
+
   // Calculate kinematics at initialization.
   bool initKinematics();
+
+  // Set up pointers to PDFs.
+  bool initPDFs();
 
   // Recalculate kinematics for each event when beam momentum has a spread.
   void nextKinematics();
@@ -282,7 +296,7 @@ private:
 
 };
  
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8
 

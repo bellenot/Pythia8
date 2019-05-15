@@ -1,5 +1,5 @@
 // ProcessContainer.h is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -22,12 +22,14 @@
 #include "Settings.h"
 #include "SigmaProcess.h"
 #include "SigmaTotal.h"
+#include "StandardModel.h"
+#include "SusyCouplings.h"
 #include "SusyLesHouches.h"
 #include "UserHooks.h"
 
 namespace Pythia8 {
 
-//**************************************************************************
+//==========================================================================
 
 // The ProcessContainer class combines pointers to matrix element and 
 // phase space generator with general generation info. 
@@ -46,9 +48,10 @@ public:
     if (!externalPtr) delete sigmaProcessPtr;}
   
   // Initialize phase space and counters.
-  bool init(bool isFirst, Info* infoPtrIn, BeamParticle* beamAPtr, 
-    BeamParticle* beamBPtr, AlphaStrong* alphaSPtr, AlphaEM* alphaEMPtr, 
-    SigmaTotal* sigmaTotPtr, ResonanceDecays* resDecaysPtrIn, 
+  bool init(bool isFirst, Info* infoPtrIn, Settings& settings, 
+    ParticleData* particleDataPtrIn, Rndm* rndmPtrIn, BeamParticle* beamAPtr, 
+    BeamParticle* beamBPtr, CoupSM* coupSMPtr, SigmaTotal* sigmaTotPtr, 
+    CoupSUSY* coupSUSYPtr, ResonanceDecays* resDecaysPtrIn, 
     SusyLesHouches* slhaPtr, UserHooks* userHooksPtr); 
 
   // Store or replace Les Houches pointer.
@@ -78,6 +81,7 @@ public:
   string name()        const {return sigmaProcessPtr->name();}
   int    code()        const {return sigmaProcessPtr->code();}
   int    nFinal()      const {return sigmaProcessPtr->nFinal();}
+  bool   isSUSY()      const {return sigmaProcessPtr->isSUSY();}
 
   // Member functions for info on generation process.
   bool   newSigmaMax() const {return newSigmaMx;}
@@ -120,6 +124,12 @@ private:
   // Pointer to various information on the generation.
   Info*            infoPtr;
 
+  // Pointer to the particle data table.
+  ParticleData*    particleDataPtr;
+
+  // Pointer to the random number generator.
+  Rndm*            rndmPtr;
+
   // Pointer to ResonanceDecays object for sequential resonance decays.
   ResonanceDecays* resDecaysPtr;
 
@@ -132,7 +142,7 @@ private:
   int    lhaStrat, lhaStratAbs;
 
   // Statistics on generation process. (Long integers just in case.)
-  int    newSigmaMx;
+  bool   newSigmaMx;
   long   nTry, nSel, nAcc, nTryStat;  
   double sigmaMx, sigmaSgn, sigmaSum, sigma2Sum, sigmaNeg, sigmaAvg, 
          sigmaFin, deltaFin;
@@ -142,7 +152,7 @@ private:
 
 };
  
-//**************************************************************************
+//==========================================================================
 
 // The SetupContainers class turns the list of user-requested processes
 // into a vector of ProcessContainer objects, each with a process.
@@ -155,14 +165,15 @@ public:
   SetupContainers() {} 
  
   // Initialization assuming all necessary data already read.
-  bool init(vector<ProcessContainer*>& containerPtrs);
+  bool init(vector<ProcessContainer*>& containerPtrs, Settings& settings,
+    ParticleData* particleDataPtr, CoupSUSY& coupSUSY);
  
   // Initialization of a second hard process.
-  bool init2(vector<ProcessContainer*>& container2Ptrs);
+  bool init2(vector<ProcessContainer*>& container2Ptrs, Settings& settings);
 
 };
 
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8
 

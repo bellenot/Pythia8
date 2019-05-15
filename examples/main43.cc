@@ -31,7 +31,7 @@ int main() {
   bool showCPD = pythia.flag("Main:showChangedParticleData");
   bool showAPD = pythia.flag("Main:showAllParticleData");
 
-  // Initialize. Either of two opions, to be piced in main43.cmnd.
+  // Initialize. Either of two opions, to be picked in main43.cmnd.
   // 1) Read in external event with incoming photon in the ME,
   // from pre-generated .lhe file (thanks to SANC and R. Sadykov).
   // 2) Use internal fermion gamma -> W+- fermion' process.

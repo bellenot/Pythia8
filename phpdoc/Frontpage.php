@@ -65,7 +65,8 @@ to PYTHIA 8.1</b></a>
 <br/>T. Sj&ouml;strand, S. Mrenna and P. Skands, 
 Comput. Phys. Comm. 178 (2008) 852 [arXiv:0710.3820].
 <br/>You are strongly recommended to read this summary when you 
-start out to learn how to use PYTHIA 8.1. 
+start out to learn how to use PYTHIA 8.1. Note that some details
+have changed since the 8.100 version described there.
 
 <p/>
 For the physics description we refer to the complete 
@@ -112,24 +113,33 @@ phone: + 46 - 46 - 222 31 92, e-mail: richard.corke@thep.lu.se
 <p/>
 <b>Stephen Mrenna</b><br/> 
 Computing Division, Simulations Group, 
-Fermi National Accelerator Laboratory,<br/>
+Fermi National Accelerator Laboratory,
 MS 234, Batavia, IL 60510, USA<br/>
 phone: + 1 - 630 - 840 - 2556, e-mail: mrenna@fnal.gov
 
 <p/>
 <b>Peter Skands</b><br/> 
-Theoretical Physics Department,
-Fermi National Accelerator Laboratory,<br/>
-MS 106, Batavia, IL 60510, USA<br/> 
-phone: + 1 - 630 - 840 - 2270, e-mail: skands@fnal.gov 
+Theoretical Physics, CERN, CH-1211 Geneva 23, Switerland<br/> 
+phone: + 41 - 22 - 767 2447, e-mail: peter.skands@cern.ch 
 
-<p/>
+<h2>Further contributions</h2>
+
 Makefiles, configure scripts and HepMC interface by <b>Mikhail Kirsanov</b>.
 <br/>Conversion of XML files to PHP ones by <b>Ben Lloyd</b>.
 <br/>Simple Makefile for Win32/NMAKE by <b>Bertrand Bellenot</b>.
 <br/>Extended Higgs sector partly implemented by <b>Marc Montull</b>.
 <br/>Parts of charm and bottom decay tables courtesy <b>DELPHI</b> and
 <b>LHCb</b> collaborations.
+<br/>Code and data for MRST/MSTW PDFs by <b>Robert Thorne</b> and
+<b>Graeme Watt</b>.
+<br/>Code and data for the CTEQ/CT PDFs by <b>Joey Huston</b> 
+and colleagues. 
+<br/>Help with implementing new proton PDFs by <b>Tomas Kasemets</b>.
+<br/>Code and data for Pomeron PDFs by <b>H1</b> collaboration.  
+<br/>Help with implementing new Pomeron fluxes and PDFs by <b>Sparsh Navin</b>.
+<br/><b>Note</b>: in several cases modifications have been made to
+the original code, in order to integrate it with PYTHIA. In these cases
+the blame for any mistakes has to rest with the regular authors.
 
 <h2>Licence</h2>
 
@@ -142,10 +152,10 @@ for Event Generator Authors and Users.
 
 <p/>
 The program and the documentation is
-Copyright &copy; 2009 Torbj&ouml;rn Sj&ouml;strand 
+Copyright &copy; 2010 Torbj&ouml;rn Sj&ouml;strand 
  
 
 </body>
 </html>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->

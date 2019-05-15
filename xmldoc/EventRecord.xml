@@ -16,9 +16,10 @@ event size. The index operator is overloaded, so that e.g.
 <code>event[i]</code> corresponds to the <ei>i</ei>'th particle 
 of the object <code>event</code>. Thus <code>event[i].id()</code> 
 returns the identity of the <ei>i</ei>'th particle, and so on. 
-Therefore the methods of the <code>Particle</code> class, 
-<aloc href="ParticleProperties">see here</aloc>, are at least as 
-essential as those of the <code>Event</code> class itself. 
+Therefore the methods of the 
+<code><aloc href="ParticleProperties">Particle</aloc></code> class 
+are at least as essential as those of the <code>Event</code> class 
+itself. 
 
 <p/>
 As used inside PYTHIA, some conventions are imposed on the structure
@@ -291,19 +292,20 @@ but the zeroth particle of the combined event is updated to the
 full energy-momentum content.
 </method>
 
-<method name="void Event::init(string headerIn = &quot;&quot;)">
-initializes colour,  and the header specification used for the 
-event listing. We remind that a <code>Pythia</code> object
-contains two event records <code>process</code> and
-<code>event</code>. Thus one may e.g. call either 
-<code>pythia.process.list()</code> or <code>pythia.event.list()</code>. 
-To distinguish those two rapidly at visual inspection, the 
-<code>"Pythia Event Listing"</code> header is printed out differently, 
-in one case adding <code>"(hard process)"</code> and in the other 
+<method name="void Event::init(string headerIn = &quot;&quot;, 
+ParticleData* particleDataPtrIn = 0, int startColTagIn = 100)">
+initializes colour, the pointer to the particle database, and the 
+header specification used for the event listing. We remind that a 
+<code>Pythia</code> object contains two event records 
+<code>process</code> and <code>event</code>. Thus one may e.g. 
+call either  <code>pythia.process.list()</code> or 
+<code>pythia.event.list()</code>. To distinguish those two rapidly 
+at visual inspection, the <code>"Pythia Event Listing"</code> header 
+is printed out differently, in one case adding 
+<code>"(hard process)"</code> and in the other 
 <code>"(complete event)"</code>. When <code>+=</code> is used to 
 append an event, the modified event is printed with 
 <code>"(combination of several events)"</code> as a reminder.
-</method>
 </method>
 
 <method name="void Event::clear()">
@@ -356,6 +358,14 @@ returns the index of this position, as above but with vanishing
 (i.e. zero) mother and daughter indices.
 </method>
 
+<method name="int Event::setPDTPtr(int iSet = -1)">
+send in a pointer to the <code>ParticleData</code> database for 
+particle <code>iSet</iset>, by default the most recently appended 
+particle. Also generates a pointer to the 
+<code>ParticleDataEntry</code> object of the identity code
+of the particle.
+</method>
+
 <method name="int Event::copy(int iCopy, int newStatus = 0)">
 copies the existing particle in entry <code>iCopy</code> to the
 bottom of the event record and returns the index of this position.
@@ -374,12 +384,14 @@ returns a reference to the last particle in the event record.
 </method>
 
 <method name="void Event::restorePtrs()">
-each particle in the event record has a pointer to the corresponding
-particle species in the particle database, used to find some particle
-properties. This pointer is automatically set whenever the particle
-identity is set by one of the normal methods. Of course its value is 
-specific to the memory location of the current run, and so it has no
-sense to save it if events are written to file. Should you use some
+each particle in the event record has a pointer to the whole database
+and another to the particle species itself, used to find some particle
+properties. The latter pointer is automatically set/changed whenever 
+the particle identity is set/changed by one of the normal methods. 
+(It is the "changed" part that prompts the inclusion of a pointer 
+to the whole database.) Of course the pointer values are specific to 
+the memory locations of the current run, and so it has no sense to 
+save them if events are written to file. Should you use some
 persistency scheme that bypasses the normal methods when the event is 
 read back in, you can use <code>restorePtrs()</code> afterwards to set 
 these pointers appropriately.
@@ -410,7 +422,7 @@ becomes <ei>beta = p/E</ei>.
 
 <method name="void Event::rotbst(const RotBstMatrix& M)"> 
 rotate and boost by the combined action encoded in the 
-<aloc href="FourVectors"><code>RotBstMatrix</code></aloc> <code>M</code>.
+<code><aloc href="FourVectors">RotBstMatrix</aloc> M</code>.
 </method>
 
 <h3>The Junction Class</h3>
@@ -475,7 +487,7 @@ A listing of current junctions can be obtained with the
 <h3>Subsystems</h3>
 
 Separate from the event record as such, but closely tied to it is the 
-<aloc href="AdvancedUsage"><code>PartonSystems</code></aloc> class, 
+<code><aloc href="AdvancedUsage">PartonSystems</aloc></code> class, 
 which mainly stores the parton indices of incoming and outgoing partons, 
 classified by collision subsystem. Such information is needed to 
 interleave multiple interactions, initial-state showers and final-state 
@@ -485,4 +497,4 @@ It is intended to be accessed only by experts, such as implementors of
 
 </chapter>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->

@@ -1,5 +1,5 @@
 // TimeShower.h is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -23,7 +23,7 @@
 
 namespace Pythia8 {
 
-//**************************************************************************
+//==========================================================================
 
 // Data on radiating dipole ends; only used inside TimeShower class.
 
@@ -66,7 +66,7 @@ public:
   
 } ;
 
-//**************************************************************************
+//==========================================================================
 
 // The TimeShower class does timelike showers.
 
@@ -80,10 +80,14 @@ public:
   // Destructor.
   virtual ~TimeShower() {}
 
-  // Initialize pointers to Info, PartonSystems and UserHooks. 
+  // Initialize various pointers. 
   // (Separated from rest of init since not virtual.)
-  void initPtr(Info* infoPtrIn, PartonSystems* partonSystemsPtrIn,
-    UserHooks* userHooksPtrIn) {infoPtr = infoPtrIn; 
+  void initPtr(Info* infoPtrIn, Settings* settingsPtrIn, 
+    ParticleData* particleDataPtrIn, Rndm* rndmPtrIn,
+    CoupSM* coupSMPtrIn, PartonSystems* partonSystemsPtrIn, 
+    UserHooks* userHooksPtrIn) { infoPtr = infoPtrIn; 
+    settingsPtr = settingsPtrIn; particleDataPtr = particleDataPtrIn; 
+    rndmPtr = rndmPtrIn; coupSMPtr = coupSMPtrIn;
     partonSystemsPtr = partonSystemsPtrIn; userHooksPtr = userHooksPtrIn;}
 
   // Initialize alphaStrong and related pTmin parameters.
@@ -129,18 +133,30 @@ public:
 protected:
 
   // Pointer to various information on the generation.
-  Info* infoPtr;
+  Info*          infoPtr;
+
+  // Pointer to the settings database.
+  Settings*      settingsPtr;
+
+  // Pointer to the particle data table.
+  ParticleData*  particleDataPtr;
+
+  // Pointer to the random number generator.
+  Rndm*          rndmPtr;
+
+  // Pointer to Standard Model couplings.
+  CoupSM*        coupSMPtr;
 
   // Pointers to the two incoming beams. Offset their location in event.
-  BeamParticle* beamAPtr;
-  BeamParticle* beamBPtr;
-  int beamOffset;
+  BeamParticle*  beamAPtr;
+  BeamParticle*  beamBPtr;
+  int            beamOffset;
 
   // Pointer to information on subcollision parton locations.
   PartonSystems* partonSystemsPtr;
 
   // Pointer to userHooks object for user interaction with program.
-  UserHooks* userHooksPtr;
+  UserHooks*     userHooksPtr;
 
   // Store properties to be returned by methods.
   int    iSysSel;
@@ -150,7 +166,7 @@ private:
 
   // Constants: could only be changed in the code itself.
   static const double SIMPLIFYROOT, XMARGIN, XMARGINCOMB, TINYPDF, LARGEM2, 
-         THRESHM2, LAMBDA3MARGIN;
+                      THRESHM2, LAMBDA3MARGIN;
   // Rescatter: try to fix up recoil between systems
   static const bool   FIXRESCATTER, VETONEGENERGY;
   static const double MAXVIRTUALITYFRACTION, MAXNEGENERGYFRACTION;
@@ -158,7 +174,7 @@ private:
   // Initialization data, normally only set once.
   bool   doQCDshower, doQEDshowerByQ, doQEDshowerByL, doQEDshowerByGamma, 
          doMEcorrections, doPhiPolAsym, doInterleave, allowBeamRecoil,
-         allowRescatter, doHVshower;
+         allowRescatter, canVetoEmission, doHVshower;
   int    alphaSorder, nGluonToQuark, alphaEMorder, nGammaToQuark, 
          nGammaToLepton, nCHV;
   double mc, mb, m2c, m2b, alphaSvalue, alphaS2pi, Lambda3flav, 
@@ -166,7 +182,7 @@ private:
          Lambda5flav2, pTcolCutMin, pTcolCut, pT2colCut, pTchgQCut, 
          pT2chgQCut, pTchgLCut, pT2chgLCut, mMaxGamma, m2MaxGamma, 
          octetOniumFraction, octetOniumColFac, mZ, gammaZ, thetaWRat,
-         CFHV, alphaHVfix, pThvCut, pT2hvCut;
+         CFHV, alphaHVfix, pThvCut, pT2hvCut, pTmaxFudgeMI;
 
   // alphaStrong and alphaEM calculations.
   AlphaStrong alphaS;
@@ -220,7 +236,7 @@ private:
 
 };
 
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8
 

@@ -34,13 +34,13 @@ decays. It is intended for normal particle decays, primarily
 <i>B</i> mesons and <i>tau</i>, and cannot be used to redirect
 decays of heavy resonances like <i>t</i> or <i>Z^0</i>.  
 The user-written derived class is called if a pointer to it has
-been given with the <?php $filepath = $_GET["filepath"];
-echo "<a href='ProgramFlow.php?filepath=".$filepath."' target='page'>";?>
-<code>pythia.decayPtr()</code></a> 
+been given with the 
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='ProgramFlow.php?filepath=".$filepath."' target='page'>";?>pythia.decayPtr()</a></code> 
 method, where it also is specified which particles it will be called for. 
 This particle information is accessible with the
-<?php $filepath = $_GET["filepath"];
-echo "<a href='ParticleDataScheme.php?filepath=".$filepath."' target='page'>";?><code>doExternalDecay()</code></a>
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='ParticleDataScheme.php?filepath=".$filepath."' target='page'>";?>doExternalDecay()</a></code>
 method. 
 
 <p/>
@@ -98,4 +98,4 @@ a simple example of how to use this facility.
 </body>
 </html>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->

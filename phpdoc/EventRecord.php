@@ -43,10 +43,11 @@ event size. The index operator is overloaded, so that e.g.
 <code>event[i]</code> corresponds to the <i>i</i>'th particle 
 of the object <code>event</code>. Thus <code>event[i].id()</code> 
 returns the identity of the <i>i</i>'th particle, and so on. 
-Therefore the methods of the <code>Particle</code> class, 
-<?php $filepath = $_GET["filepath"];
-echo "<a href='ParticleProperties.php?filepath=".$filepath."' target='page'>";?>see here</a>, are at least as 
-essential as those of the <code>Event</code> class itself. 
+Therefore the methods of the 
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='ParticleProperties.php?filepath=".$filepath."' target='page'>";?>Particle</a></code> class 
+are at least as essential as those of the <code>Event</code> class 
+itself. 
 
 <p/>
 As used inside PYTHIA, some conventions are imposed on the structure
@@ -341,19 +342,19 @@ full energy-momentum content.
   
 
 <a name="method20"></a>
-<p/><strong>void Event::init(string headerIn = &quot;&quot;) &nbsp;</strong> <br/>
-initializes colour,  and the header specification used for the 
-event listing. We remind that a <code>Pythia</code> object
-contains two event records <code>process</code> and
-<code>event</code>. Thus one may e.g. call either 
-<code>pythia.process.list()</code> or <code>pythia.event.list()</code>. 
-To distinguish those two rapidly at visual inspection, the 
-<code>"Pythia Event Listing"</code> header is printed out differently, 
-in one case adding <code>"(hard process)"</code> and in the other 
+<p/><strong>void Event::init(string headerIn = &quot;&quot;, ParticleData* particleDataPtrIn = 0, int startColTagIn = 100) &nbsp;</strong> <br/>
+initializes colour, the pointer to the particle database, and the 
+header specification used for the event listing. We remind that a 
+<code>Pythia</code> object contains two event records 
+<code>process</code> and <code>event</code>. Thus one may e.g. 
+call either  <code>pythia.process.list()</code> or 
+<code>pythia.event.list()</code>. To distinguish those two rapidly 
+at visual inspection, the <code>"Pythia Event Listing"</code> header 
+is printed out differently, in one case adding 
+<code>"(hard process)"</code> and in the other 
 <code>"(complete event)"</code>. When <code>+=</code> is used to 
 append an event, the modified event is printed with 
 <code>"(combination of several events)"</code> as a reminder.
-  
   
 
 <a name="method21"></a>
@@ -408,6 +409,15 @@ returns the index of this position, as above but with vanishing
   
 
 <a name="method28"></a>
+<p/><strong>int Event::setPDTPtr(int iSet = -1) &nbsp;</strong> <br/>
+send in a pointer to the <code>ParticleData</code> database for 
+particle <code>iSet</iset>, by default the most recently appended 
+particle. Also generates a pointer to the 
+<code>ParticleDataEntry</code> object of the identity code
+of the particle.
+  
+
+<a name="method29"></a>
 <p/><strong>int Event::copy(int iCopy, int newStatus = 0) &nbsp;</strong> <br/>
 copies the existing particle in entry <code>iCopy</code> to the
 bottom of the event record and returns the index of this position.
@@ -421,19 +431,21 @@ code of <code>iCopy</code> is negated. With a negative
 mother of <code>iCopy</code>.
   
 
-<a name="method29"></a>
+<a name="method30"></a>
 <p/><strong>Particle& Event::back() &nbsp;</strong> <br/>
 returns a reference to the last particle in the event record.
   
 
-<a name="method30"></a>
+<a name="method31"></a>
 <p/><strong>void Event::restorePtrs() &nbsp;</strong> <br/>
-each particle in the event record has a pointer to the corresponding
-particle species in the particle database, used to find some particle
-properties. This pointer is automatically set whenever the particle
-identity is set by one of the normal methods. Of course its value is 
-specific to the memory location of the current run, and so it has no
-sense to save it if events are written to file. Should you use some
+each particle in the event record has a pointer to the whole database
+and another to the particle species itself, used to find some particle
+properties. The latter pointer is automatically set/changed whenever 
+the particle identity is set/changed by one of the normal methods. 
+(It is the "changed" part that prompts the inclusion of a pointer 
+to the whole database.) Of course the pointer values are specific to 
+the memory locations of the current run, and so it has no sense to 
+save them if events are written to file. Should you use some
 persistency scheme that bypasses the normal methods when the event is 
 read back in, you can use <code>restorePtrs()</code> afterwards to set 
 these pointers appropriately.
@@ -445,13 +457,13 @@ A few methods exist to rotate and boost events. These derive from the
 echo "<a href='FourVectors.php?filepath=".$filepath."' target='page'>";?>Vec4</a> methods, and affect both the 
 momentum and the vertex (position) components of all particles. 
 
-<a name="method31"></a>
+<a name="method32"></a>
 <p/><strong>void Event::rot(double theta, double phi) &nbsp;</strong> <br/>
 rotate all particles in the event by this polar and azimuthal angle 
 (expressed in radians). 
   
 
-<a name="method32"></a>
+<a name="method33"></a>
 <p/><strong>void Event::bst(double betaX, double betaY, double betaZ) &nbsp;</strong> <br/>
   
 <strong>void Event::bst(double betaX, double betaY, double betaZ, double gamma) &nbsp;</strong> <br/>
@@ -464,11 +476,11 @@ supply a <code>Vec4</code> four-vector, in which case the boost vector
 becomes <i>beta = p/E</i>.
   
 
-<a name="method33"></a>
+<a name="method34"></a>
 <p/><strong>void Event::rotbst(const RotBstMatrix& M) &nbsp;</strong> <br/>
 rotate and boost by the combined action encoded in the 
-<?php $filepath = $_GET["filepath"];
-echo "<a href='FourVectors.php?filepath=".$filepath."' target='page'>";?><code>RotBstMatrix</code></a> <code>M</code>.
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='FourVectors.php?filepath=".$filepath."' target='page'>";?>RotBstMatrix</a> M</code>.
   
 
 <h3>The Junction Class</h3>
@@ -533,8 +545,8 @@ A listing of current junctions can be obtained with the
 <h3>Subsystems</h3>
 
 Separate from the event record as such, but closely tied to it is the 
-<?php $filepath = $_GET["filepath"];
-echo "<a href='AdvancedUsage.php?filepath=".$filepath."' target='page'>";?><code>PartonSystems</code></a> class, 
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='AdvancedUsage.php?filepath=".$filepath."' target='page'>";?>PartonSystems</a></code> class, 
 which mainly stores the parton indices of incoming and outgoing partons, 
 classified by collision subsystem. Such information is needed to 
 interleave multiple interactions, initial-state showers and final-state 
@@ -570,4 +582,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->

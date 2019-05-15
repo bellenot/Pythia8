@@ -1,16 +1,18 @@
 // PartonDistributions.h is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 // Header file for parton densities.
 // PDF: base class.
+// LHAPDF: derived class for interface to the LHAPDF library.
 // GRV94L: derived class for the GRV 94L parton densities.
 // CTEQ5L: derived class for the CTEQ 5L parton densities.
-// LHAPDF: derived class for interface to the LHAPDF library.
+// MSTWpdf: derived class for MRST LO*, LO**, MSTW 2008 LO, NLO. 
+// CTEQ6pdf : derived class for CTEQ 6L, 6L1, 66, CT09 MC1, MC2, (MCS?). 
 // GRVpiL: derived class for the GRV LO pion parton densities.
 // PomFix: derived class for Q2-independent Pomeron parton densities.
-// PomH1FitAB: derived class for the H1 2006 Fit A and FitB Pomeron PDFs. 
+// PomH1FitAB: derived class for the H1 2006 Fit A and Fit B Pomeron PDFs. 
 // PomH1Jets: derived class for the H1 2007 Jets Pomeron PDFs.
 // Lepton: derived class for parton densities inside a lepton.
 // LeptonPoint: derived class for unresolved lepton (mainly dummy).
@@ -25,7 +27,7 @@
 
 namespace Pythia8 {
 
-//**************************************************************************
+//==========================================================================
 
 // Base class for parton distribution functions.
 
@@ -36,8 +38,8 @@ public:
   // Constructor.
   PDF(int idBeamIn = 2212) {idBeam = idBeamIn; idBeamAbs = abs(idBeam);
     setValenceContent(); idSav = 9; xSav = -1.; Q2Sav = -1.;
-    xu = 0.; xd = 0.; xubar = 0.; xdbar = 0.; xs = 0.; xc = 0.; xb = 0.; 
-    xg = 0.; xlepton = 0.; xgamma = 0.; xuVal = 0.; xuSea = 0.;
+    xu = 0.; xd = 0.; xs = 0.; xubar = 0.; xdbar = 0.; xsbar = 0.; xc = 0.; 
+    xb = 0.; xg = 0.; xlepton = 0.; xgamma = 0.; xuVal = 0.; xuSea = 0.;
     xdVal = 0.; xdSea = 0.; isSet = true; isInit = false;}
 
   // Destructor.
@@ -65,7 +67,7 @@ protected:
   // Store relevant quantities.
   int    idBeam, idBeamAbs, idSav, idVal1, idVal2;
   double xSav, Q2Sav;
-  double xu, xd, xubar, xdbar, xs, xc, xb, xg, xlepton, xgamma,
+  double xu, xd, xs, xubar, xdbar, xsbar, xc, xb, xg, xlepton, xgamma,
          xuVal, xuSea, xdVal, xdSea;
   bool   isSet, isInit; 
 
@@ -77,53 +79,7 @@ protected:
 
 };
  
-//**************************************************************************
-
-// Gives the GRV 94 L (leading order) parton distribution function set
-// in parametrized form. Authors: M. Glueck, E. Reya and A. Vogt.
-
-class GRV94L : public PDF {
-
-public:
-
-  // Constructor.
-  GRV94L(int idBeamIn = 2212) : PDF(idBeamIn) {}
-
-private:
-
-  // Update PDF values.
-  void xfUpdate(int id, double x, double Q2);
-
-  // Auxiliary routines used during the updating.
-  double grvv (double x, double n, double ak, double bk, double a, 
-    double b, double c, double d);
-  double grvw (double x, double s, double al, double be, double ak, 
-    double bk, double a, double b, double c, double d, double e, double es);
-  double grvs (double x, double s, double sth, double al, double be, 
-    double ak, double ag, double b, double d, double e, double es);
-
-};
- 
-//**************************************************************************
-
-// Gives the CTEQ 5 L (leading order) parton distribution function set
-// in parametrized form. Parametrization by J. Pumplin. Authors: CTEQ.
-
-class CTEQ5L : public PDF {
-
-public:
-
-  // Constructor.
-  CTEQ5L(int idBeamIn = 2212) : PDF(idBeamIn) {}
-
-private:
-
-  // Update PDF values.
-  void xfUpdate(int id, double x, double Q2);
-
-};
- 
-//**************************************************************************
+//==========================================================================
 
 // Provide interface to the LHAPDF library of parton densities.
 
@@ -158,7 +114,151 @@ private:
 
 };
  
-//**************************************************************************
+//==========================================================================
+
+// Gives the GRV 94L (leading order) parton distribution function set
+// in parametrized form. Authors: M. Glueck, E. Reya and A. Vogt.
+
+class GRV94L : public PDF {
+
+public:
+
+  // Constructor.
+  GRV94L(int idBeamIn = 2212) : PDF(idBeamIn) {}
+
+private:
+
+  // Update PDF values.
+  void xfUpdate(int id, double x, double Q2);
+
+  // Auxiliary routines used during the updating.
+  double grvv (double x, double n, double ak, double bk, double a, 
+    double b, double c, double d);
+  double grvw (double x, double s, double al, double be, double ak, 
+    double bk, double a, double b, double c, double d, double e, double es);
+  double grvs (double x, double s, double sth, double al, double be, 
+    double ak, double ag, double b, double d, double e, double es);
+
+};
+ 
+//==========================================================================
+
+// Gives the CTEQ 5L (leading order) parton distribution function set
+// in parametrized form. Parametrization by J. Pumplin. Authors: CTEQ.
+
+class CTEQ5L : public PDF {
+
+public:
+
+  // Constructor.
+  CTEQ5L(int idBeamIn = 2212) : PDF(idBeamIn) {}
+
+private:
+
+  // Update PDF values.
+  void xfUpdate(int id, double x, double Q2);
+
+};
+ 
+//==========================================================================
+
+// The MSTWpdf class.
+// MRST LO*(*) and MSTW 2008 PDF's, specifically the LO one.
+// Original C++ version by Jeppe Andersen.
+// Modified by Graeme Watt <watt(at)hep.ucl.ac.uk>.
+// Sets available:
+// iFit = 1 : MRST LO*  (2007).
+// iFit = 2 : MRST LO** (2008).
+// iFit = 3 : MSTW 2008 LO, central member.
+// iFit = 4 : MSTW 2008 NLO, central member. (Warning!)
+
+class MSTWpdf : public PDF {
+
+public:
+
+  // Constructor.
+  MSTWpdf(int idBeamIn = 2212, int iFitIn = 1, string xmlPath = "../xmldoc/", 
+    Info* infoPtr = 0) : PDF(idBeamIn) {init( iFitIn,  xmlPath, infoPtr);}
+
+private:
+
+  // Constants: could only be changed in the code itself.
+  static const int    np, nx, nq, nqc0, nqb0;
+  static const double xmin, xmax, qsqmin, qsqmax, xxInit[65], qqInit[49];
+
+  // Data read in from grid file or set at initialization.
+  int    iFit, alphaSorder, alphaSnfmax;
+  double mCharm, mBottom, alphaSQ0, alphaSMZ, distance, tolerance, 
+         xx[65], qq[49], c[13][64][48][5][5];
+
+  // Initialization of data array.
+  void init( int iFitIn, string xmlPath, Info* infoPtr);
+
+  // Update PDF values.
+  void xfUpdate(int id, double x, double Q2);
+
+  // Evaluate PDF of one flavour species.
+  double parton(int flavour,double x,double q);
+  double parton_interpolate(int flavour,double xxx,double qqq);
+  double parton_extrapolate(int flavour,double xxx,double qqq);
+
+  // Auxiliary routines for evaluation.
+  int locate(double xx[],int n,double x);
+  double polderivative1(double x1, double x2, double x3, double y1,
+    double y2, double y3);
+  double polderivative2(double x1, double x2, double x3, double y1, 
+    double y2, double y3);
+  double polderivative3(double x1, double x2, double x3, double y1, 
+    double y2, double y3);
+
+};
+ 
+//==========================================================================
+
+// The CTEQ6pdf class.
+// Sets available:
+// iFit = 1 : CTEQ6L
+// iFit = 2 : CTEQ6L1
+// iFit = 3 : CTEQ66.00 (NLO, central member) 
+// iFit = 4 : CT09MC1
+// iFit = 5 : CT09MC2
+// iFit = 6 : CT09MCS (not yet implemented)
+
+class CTEQ6pdf : public PDF {
+
+public:
+
+  // Constructor.
+  CTEQ6pdf(int idBeamIn = 2212, int iFitIn = 1, string xmlPath = "../xmldoc/", 
+    Info* infoPtr = 0) : PDF(idBeamIn) {init( iFitIn, xmlPath, infoPtr);}
+
+private:
+
+  // Constants: could only be changed in the code itself.
+  static const double EPSILON, XPOWER;
+
+  // Data read in from grid file or set at initialization.
+  int    iFit, order, nQuark, nfMx, mxVal, nX, nT, nG,
+         iGridX, iGridQ, iGridLX, iGridLQ;
+  double lambda, mQ[7], qIni, qMax, tv[26], xMin, xv[202], upd[57773],
+         xvpow[202], xMinEps, xMaxEps, qMinEps, qMaxEps, fVec[5],
+         tConst[9], xConst[9], xLast, qLast;
+
+  // Initialization of data array.
+  void init( int iFitIn, string xmlPath, Info* infoPtr);
+
+  // Update PDF values.
+  void xfUpdate(int id, double x, double Q2);
+
+  // Evaluate PDF of one flavour species.
+  double parton6(int iParton, double x, double q);
+
+  // Interpolation in grid.
+  double polint4F(double xgrid[], double fgrid[], double xin);
+
+};
+ 
+//==========================================================================
 
 // Gives the GRV 1992 pi+ (leading order) parton distribution function set
 // in parametrized form. Authors: Glueck, Reya and Vogt.
@@ -177,7 +277,7 @@ private:
 
 };
 
-//**************************************************************************
+//==========================================================================
 
 // Gives generic Q2-independent Pomeron PDF.
 
@@ -209,7 +309,7 @@ private:
 
 };
  
-//**************************************************************************
+//==========================================================================
 
 // The H1 2006 Fit A and Fit B Pomeron parametrization.
 // H1 Collaboration, A. Aktas et al., "Measurement and QCD Analysis of
@@ -241,7 +341,7 @@ private:
 
 };
  
-//**************************************************************************
+//==========================================================================
 
 // The H1 2007 Jets Pomeron parametrization..
 // H1 Collaboration, A. Aktas et al., "Dijet Cross Sections and Parton     
@@ -275,7 +375,7 @@ private:
 
 };
  
-//**************************************************************************
+//==========================================================================
 
 // Gives electron (or muon, or tau) parton distribution.
  
@@ -289,17 +389,17 @@ public:
 private:
 
   // Constants: could only be changed in the code itself.
-  static const double ALPHAEM;
+  static const double ALPHAEM, ME, MMU, MTAU;
 
   // Update PDF values.
   void xfUpdate(int id, double x, double Q2);
 
-  // The lepton mass, set at initialization.
+  // The squared lepton mass, set at initialization.
   double m2Lep;
 
 };
  
-//**************************************************************************
+//==========================================================================
 
 // Gives electron (or other lepton) parton distribution when unresolved.
  
@@ -319,6 +419,6 @@ private:
 
 } // end namespace Pythia8
  
-//**************************************************************************
+//==========================================================================
 
 #endif // Pythia8_PartonDistributions_H

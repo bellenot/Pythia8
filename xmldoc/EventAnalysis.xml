@@ -359,12 +359,16 @@ anti-<ei>kT</ei> algorithm <ref>Cac08</ref>.
 
 <p/>  
 To do jet finding analyses you have to set up a <code>CellJet</code>
-instance, and then feed in events to it, one at a time. The results 
-for the latest event are available as output from a few methods.
+instance, and then feed in events to it, one at a time. Especially note 
+that, if you want to use the options where energies are smeared in
+order so emulate detector imperfections, you must hand in an external
+random number generator, preferably the one residing in the 
+<code>Pythia</code> class. The results for the latest event are 
+available as output from a few methods.
 
 <method name="CellJet::CellJet(double etaMax = 5., int nEta = 50, 
 int nPhi = 32, int select = 2, int smear = 0, double resolution = 0.5, 
-double upperCut = 2., double threshold = 0.)">
+double upperCut = 2., double threshold = 0., Rndm* rndmPtr = 0)">
 create a <code>CellJet</code> instance, where 
 <argument name="etaMax" default="5."> 
 the maximum +-pseudorapidity that the detector is assumed to cover.
@@ -398,13 +402,19 @@ to a Gaussian with width <ei>resolution * sqrt(e)</ei>, with the
 Gaussian truncated at 0 and <ei>upperCut * e</ei>.</argoption>
 </argument>
 <argument name="resolution" default="0.5">
-see above
+see above.
 </argument>
 <argument name="upperCut" default="2.">
-see above
+see above.
 </argument>
 <argument name="threshold" default="0 GeV">
 completely neglect all bins with an <ei>eT &lt; threshold</ei>.
+</argument>
+<argument name="rndmPtr" default="0">
+the random-number generator used to select the smearing described
+above. Must be handed in for smearing to be possible. If your 
+<code>Pythia</code> class instance is named <code>pythia</code>,
+then <code>&pythia.rndm</code> would be the logical choice.
 </argument>
 </class>
 
@@ -499,4 +509,4 @@ events, i.e. returned <code>false</code>.
 
 </chapter>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->

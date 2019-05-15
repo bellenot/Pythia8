@@ -1,21 +1,19 @@
 // ProcessLevel.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 // Function definitions (not found in the header) for the ProcessLevel class.
 
 #include "ProcessLevel.h"
-// Following header needed to intialize static CoupSUSY class.
-#include "SigmaSUSY.h"
 
 namespace Pythia8 {
  
-//**************************************************************************
+//==========================================================================
 
 // The ProcessLevel class.
 
-//*********
+//--------------------------------------------------------------------------
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -23,7 +21,7 @@ namespace Pythia8 {
 // Allow a few failures in final construction of events.
 const int ProcessLevel::MAXLOOP = 5;
 
-//*********
+//--------------------------------------------------------------------------
   
 // Destructor.
 
@@ -39,28 +37,32 @@ ProcessLevel::~ProcessLevel() {
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Main routine to initialize generation process.
 
-bool ProcessLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn, 
-  BeamParticle* beamBPtrIn, SigmaTotal* sigmaTotPtrIn, bool doLHA, 
-  SusyLesHouches* slhaPtrIn, UserHooks* userHooksPtrIn, 
-  vector<SigmaProcess*>& sigmaPtrs, ostream& os) {
+bool ProcessLevel::init( Info* infoPtrIn, Settings& settings, 
+  ParticleData* particleDataPtrIn, Rndm* rndmPtrIn, 
+  BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, CoupSM* coupSMPtrIn,
+  SigmaTotal* sigmaTotPtrIn, bool doLHA, SusyLesHouches* slhaPtrIn, 
+  UserHooks* userHooksPtrIn, vector<SigmaProcess*>& sigmaPtrs, ostream& os) {
 
   // Store input pointers for future use. 
-  infoPtr       = infoPtrIn;
-  beamAPtr      = beamAPtrIn;
-  beamBPtr      = beamBPtrIn;
-  sigmaTotPtr   = sigmaTotPtrIn;
-  userHooksPtr  = userHooksPtrIn;
-  slhaPtr       = slhaPtrIn;
+  infoPtr         = infoPtrIn;
+  particleDataPtr = particleDataPtrIn;
+  rndmPtr         = rndmPtrIn;
+  beamAPtr        = beamAPtrIn;
+  beamBPtr        = beamBPtrIn;
+  coupSMPtr       = coupSMPtrIn;
+  sigmaTotPtr     = sigmaTotPtrIn;
+  userHooksPtr    = userHooksPtrIn;
+  slhaPtr         = slhaPtrIn;
 
   // Send on some input pointers.
-  resonanceDecays.init( infoPtr);
+  resonanceDecays.init( infoPtr, particleDataPtr, rndmPtr);
 
   // Set up SigmaTotal. Store sigma_nondiffractive for future use.
-  sigmaTotPtr->init( infoPtr);
+  sigmaTotPtr->init( infoPtr, settings, particleDataPtr);
   int    idA = infoPtr->idA();
   int    idB = infoPtr->idB();
   double eCM = infoPtr->eCM();
@@ -68,22 +70,23 @@ bool ProcessLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn,
   sigmaND = sigmaTotPtr->sigmaND();
 
   // Options to allow second hard interaction and resonance decays.
-  doSecondHard  = Settings::flag("SecondHard:generate");
-  doSameCuts    = Settings::flag("PhaseSpace:sameForSecond");
-  doResDecays   = Settings::flag("ProcessLevel:resonanceDecays");
+  doSecondHard  = settings.flag("SecondHard:generate");
+  doSameCuts    = settings.flag("PhaseSpace:sameForSecond");
+  doResDecays   = settings.flag("ProcessLevel:resonanceDecays");
+  startColTag   = settings.mode("Event:startColTag");
 
   // Mass and pT cuts for two hard processes.
-  mHatMin1      = Settings::parm("PhaseSpace:mHatMin");
-  mHatMax1      = Settings::parm("PhaseSpace:mHatMax");
+  mHatMin1      = settings.parm("PhaseSpace:mHatMin");
+  mHatMax1      = settings.parm("PhaseSpace:mHatMax");
   if (mHatMax1 < mHatMin1) mHatMax1 = eCM;
-  pTHatMin1     = Settings::parm("PhaseSpace:pTHatMin");
-  pTHatMax1     = Settings::parm("PhaseSpace:pTHatMax");
+  pTHatMin1     = settings.parm("PhaseSpace:pTHatMin");
+  pTHatMax1     = settings.parm("PhaseSpace:pTHatMax");
   if (pTHatMax1 < pTHatMin1) pTHatMax1 = eCM;
-  mHatMin2      = Settings::parm("PhaseSpace:mHatMinSecond");
-  mHatMax2      = Settings::parm("PhaseSpace:mHatMaxSecond");
+  mHatMin2      = settings.parm("PhaseSpace:mHatMinSecond");
+  mHatMax2      = settings.parm("PhaseSpace:mHatMaxSecond");
   if (mHatMax2 < mHatMin2) mHatMax2 = eCM;
-  pTHatMin2     = Settings::parm("PhaseSpace:pTHatMinSecond");
-  pTHatMax2     = Settings::parm("PhaseSpace:pTHatMaxSecond");
+  pTHatMin2     = settings.parm("PhaseSpace:pTHatMinSecond");
+  pTHatMax2     = settings.parm("PhaseSpace:pTHatMaxSecond");
   if (pTHatMax2 < pTHatMin2) pTHatMax2 = eCM;
   
   // Check whether mass and pT ranges agree or overlap.
@@ -100,11 +103,11 @@ bool ProcessLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn,
   }
 
   // Initialize SUSY Les Houches Accord data
-  if (!initSLHA()) return false;
+  if (!initSLHA(settings)) return false;
 
   // Set up containers for all the internal hard processes.
   SetupContainers setupContainers;
-  setupContainers.init(containerPtrs);
+  setupContainers.init(containerPtrs, settings, particleDataPtr, coupSUSY);
 
   // Append containers for external hard processes, if any.
   if (sigmaPtrs.size() > 0) {
@@ -130,21 +133,19 @@ bool ProcessLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn,
     return false;
   }
 
-  // Initialize alphaStrong generation for SigmaProcess.
-  double alphaSvalue  = Settings::parm("SigmaProcess:alphaSvalue");
-  int    alphaSorder  = Settings::mode("SigmaProcess:alphaSorder");
-  alphaS.init( alphaSvalue, alphaSorder); 
-
-  // Initialize alphaEM generation for SigmaProcess.
-  int    alphaEMorder = Settings::mode("SigmaProcess:alphaEMorder");
-  alphaEM.init( alphaEMorder); 
+  // Check that SUSY couplings were indeed initialized where necessary.
+  bool hasSUSY = false;
+  for (int i = 0; i < int(containerPtrs.size()); ++i)
+    if (containerPtrs[i]->isSUSY()) hasSUSY = true;
+  if (hasSUSY && !coupSUSY.isInit) coupSUSY.init(slhaPtr, &settings, 
+    particleDataPtr, coupSMPtr); 
 
   // Initialize each process. 
   int numberOn = 0;
   for (int i = 0; i < int(containerPtrs.size()); ++i)
-    if (containerPtrs[i]->init(true, infoPtr, beamAPtr, beamBPtr, 
-      &alphaS, &alphaEM, sigmaTotPtr, &resonanceDecays, slhaPtr, 
-      userHooksPtr)) ++numberOn;
+    if (containerPtrs[i]->init(true, infoPtr, settings, particleDataPtr, 
+      rndmPtr, beamAPtr, beamBPtr, coupSMPtr, sigmaTotPtr, &coupSUSY, 
+      &resonanceDecays, slhaPtr, userHooksPtr)) ++numberOn;
 
   // Sum maxima for Monte Carlo choice.
   sigmaMaxSum = 0.;
@@ -154,24 +155,24 @@ bool ProcessLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn,
   // Option to pick a second hard interaction: repeat as above.
   int number2On = 0;
   if (doSecondHard) {
-    setupContainers.init2(container2Ptrs);
+    setupContainers.init2(container2Ptrs, settings);
     if ( int(container2Ptrs.size()) == 0) {
       infoPtr->errorMsg("Error in ProcessLevel::init: "
         "no second hard process switched on"); 
       return false;
     }
     for (int i2 = 0; i2 < int(container2Ptrs.size()); ++i2)
-      if (container2Ptrs[i2]->init(false, infoPtr, beamAPtr, beamBPtr, 
-        &alphaS, &alphaEM, sigmaTotPtr, &resonanceDecays, slhaPtr, 
-        userHooksPtr)) ++number2On;
+      if (container2Ptrs[i2]->init(false, infoPtr, settings, particleDataPtr, 
+        rndmPtr, beamAPtr, beamBPtr, coupSMPtr, sigmaTotPtr, &coupSUSY, 
+        &resonanceDecays, slhaPtr, userHooksPtr)) ++number2On;
     sigma2MaxSum = 0.;
     for (int i2 = 0; i2 < int(container2Ptrs.size()); ++i2)
       sigma2MaxSum += container2Ptrs[i2]->sigmaMax();
   }
 
   // Construct string with incoming beams and for cm energy.
-  string collision = "We collide " + ParticleDataTable::name(idA)
-    + " with " + ParticleDataTable::name(idB) + " at a CM energy of "; 
+  string collision = "We collide " + particleDataPtr->name(idA)
+    + " with " + particleDataPtr->name(idB) + " at a CM energy of "; 
   string pad( 51 - collision.length(), ' ');
 
   // Print initialization information: header.
@@ -287,7 +288,7 @@ bool ProcessLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn,
   return true;
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Main routine to generate the hard process.
 
@@ -303,7 +304,7 @@ bool ProcessLevel::next( Event& process) {
   return physical;
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Accumulate and update statistics (after possible user veto).
   
@@ -393,7 +394,7 @@ void ProcessLevel::accumulate() {
  
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Print statistics on cross sections and number of events.
 
@@ -479,23 +480,27 @@ void ProcessLevel::statistics(bool reset, ostream& os) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize SUSY Les Houches Accord data.
 
-bool ProcessLevel::initSLHA() {
+bool ProcessLevel::initSLHA(Settings& settings) {
 
-  // Init
-  int    ifailLHE = 1;
-  int    ifailSpc = 1;
-  int    ifailDec = 1;
-  string lhefFile = Settings::word("Beams:LHEF");
-  string slhaFile = Settings::word("SLHA:file");
-  int verboseSLHA = Settings::mode("SLHA:verbose");
+  // Initial and settings values.
+  int    ifailLHE    = 1;
+  int    ifailSpc    = 1;
+  int    ifailDec    = 1;
+  int    readFrom    = settings.mode("SLHA:readFrom");
+  string lhefFile    = settings.word("Beams:LHEF");
+  string slhaFile    = settings.word("SLHA:file");
+  int    verboseSLHA = settings.mode("SLHA:verbose");
+
+  // Option with no SLHA read-in at all.
+  if (readFrom == 0) return true;  
 
   // First check LHEF header (if reading from LHEF)
-  if ( lhefFile != "void") {
-    ifailLHE = slhaPtr->readFile(lhefFile,verboseSLHA);    
+  if (readFrom == 1 && lhefFile != "void") {
+    ifailLHE = slhaPtr->readFile(lhefFile, verboseSLHA);    
   }
 
   // If LHEF read successful, everything needed should already be ready
@@ -505,10 +510,10 @@ bool ProcessLevel::initSLHA() {
   // If no LHEF file or no SLHA info in header, read from SLHA:file
   } else {
     lhefFile = "void";
-    if ( Settings::word("SLHA:file") == "none"
-	 || Settings::word("SLHA:file") == "void" 
-	 || Settings::word("SLHA:file") == "" 
-	 || Settings::word("SLHA:file") == " ") return true;      
+    if ( settings.word("SLHA:file") == "none"
+	 || settings.word("SLHA:file") == "void" 
+	 || settings.word("SLHA:file") == "" 
+	 || settings.word("SLHA:file") == " ") return true;      
     ifailSpc = slhaPtr->readFile(slhaFile,verboseSLHA);
   }
 
@@ -547,50 +552,55 @@ bool ProcessLevel::initSLHA() {
     infoPtr->errorMsg("Warning in ProcessLevel::initSLHA: "
 		      "Problem with SLHA spectrum.", 
 		      "\n Only using masses and switching off SUSY.");
-    Settings::flag("SUSY:all", false);
+    settings.flag("SUSY:all", false);
     slhaPtr->printSpectrum();
   } 
 
-  // Import mass spectrum
+  // Import mass spectrum.
+  bool   keepSM    = settings.flag("SLHA:keepSM");
+  double minMassSM = settings.parm("SLHA:minMassSM");
   if (ifailSpc == 1 || ifailSpc == 0) {
 
-    // Update particle data.
-    int id = slhaPtr->mass.first();
-    double minMassSM = Settings::parm("SLHA:minMassSM");
+    // Loop through to update particle data.
+    int    id = slhaPtr->mass.first();
     for (int i = 1; i <= slhaPtr->mass.size() ; i++) {
       double mass = abs(slhaPtr->mass(id));
-      // Ignore settings for SM particles with default masses < minMassSM
-      if (id > 1000000 || ParticleDataTable::m0(id) > minMassSM) {
-	ParticleDataTable::m0(id,mass);
-      } else {
+
+      // Ignore masses for known SM particles or particles with 
+      // default masses < minMassSM; overwrite masses for rest.
+      if (keepSM && (id < 25 || (id > 80 && id < 1000000))) ;
+      else if (id < 1000000 && particleDataPtr->m0(id) < minMassSM) {
 	ostringstream idCode;
 	idCode << id;      
 	infoPtr->errorMsg("Warning in ProcessLevel::initSLHA: "
 	  "ignoring MASS entry", "for id = "+idCode.str()
 	  +" (m0 < SLHA:minMassSM)", true);
-      }
+      } 
+      else particleDataPtr->m0(id,mass);
       id = slhaPtr->mass.next();
     };
 
     // Init SUSY couplings
-    if (ifailSpc == 0) CoupSUSY::initStatic(slhaPtr);       
+    if (ifailSpc == 0) coupSUSY.init(slhaPtr, &settings, particleDataPtr, 
+      coupSMPtr);       
 
   }
 
   // Update decay data.
-  for (int iTable=0; iTable<int(slhaPtr->decays.size()); iTable++) {
+  for (int iTable=0; iTable < int(slhaPtr->decays.size()); iTable++) {
     
     // Pointer to this SLHA table
     SusyLesHouches::decayTable* slhaTable=&slhaPtr->decays[iTable];
     
     // Extract ID and create pointer to corresponding particle data object
     int idRes     = slhaTable->getId();
-    ParticleDataEntry* particlePtr = ParticleDataTable::particleDataPtr(idRes);
+    ParticleDataEntry* particlePtr 
+      = particleDataPtr->particleDataEntryPtr(idRes);
     
-    // Extract and store individual channels, with branching ratios
-    // Ignore settings for SM particles with default masses < minMassSM
-    double minMassSM = Settings::parm("SLHA:minMassSM");
-    if ( idRes < 1000000 && ParticleDataTable::m0(idRes) < minMassSM) {
+    // Ignore decay channels for known SM particles or particles with 
+    // default masses < minMassSM; overwrite masses for rest.
+    if (keepSM && (idRes < 25 || (idRes > 80 && idRes < 1000000))) continue;
+    else if (idRes < 1000000 && particleDataPtr->m0(idRes) < minMassSM) {
       ostringstream idCode;
       idCode << idRes;      
       infoPtr->errorMsg("Warning in ProcessLevel::initSLHA: "
@@ -605,12 +615,12 @@ bool ProcessLevel::initSLHA() {
     
     // Reset decay table of the particle. Allow decays.
     if (slhaTable->size() > 0) {
-      particlePtr->decay.clear();
-      ParticleDataTable::mayDecay(idRes,true);
+      particlePtr->clearChannels();
+      particleDataPtr->mayDecay(idRes,true);
     }        
     
     // Reset to stable if width <= 0.0
-    if (slhaTable->getWidth() <= 0.0) ParticleDataTable::mayDecay(idRes,false);
+    if (slhaTable->getWidth() <= 0.0) particleDataPtr->mayDecay(idRes,false);
     
     // Mass margin between lowest mass allowed and "average" decay channel.
     double massMargin = 1.;
@@ -640,8 +650,8 @@ bool ProcessLevel::initSLHA() {
 	// Check phase space, including margin
 	double massSum = massMargin;
 	for (int jDa=0; jDa<int(idDa.size()); ++jDa) 
-	  massSum += ParticleDataTable::m0( idDa[jDa] ); 
-	if (onMode == 1 && brat > 0.0 && massSum > ParticleDataTable::m0(idRes) ) {
+	  massSum += particleDataPtr->m0( idDa[jDa] ); 
+	if (onMode == 1 && brat > 0.0 && massSum > particleDataPtr->m0(idRes) ) {
 	  // String containing decay name
 	  ostringstream errCode;
 	  errCode << idRes <<" ->";
@@ -666,23 +676,25 @@ bool ProcessLevel::initSLHA() {
 	int id5 = (idDa.size() >= 6) ? idDa[5] : 0;
 	int id6 = (idDa.size() >= 7) ? idDa[6] : 0;
 	int id7 = (idDa.size() >= 8) ? idDa[7] : 0;
-	particlePtr->decay.addChannel(onMode,abs(brat),101,
+	particlePtr->addChannel(onMode,abs(brat),101,
 				      id0,id1,id2,id3,id4,id5,id6,id7);
 	
       }
     }
-    double massAvg = massWTsum / brWTsum;
     
     // Set minimal mass, but always below nominal one.
-    double massMin = min( massAvg, particlePtr->m0()) - massMargin;
-    particlePtr->setMMin(massMin);
+    if (slhaTable->size() > 0) {
+      double massAvg = massWTsum / brWTsum;
+      double massMin = min( massAvg, particlePtr->m0()) - massMargin;
+      particlePtr->setMMin(massMin);
+    }
   }
   
   return true;
   
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Generate the next event with one interaction.
   
@@ -703,7 +715,7 @@ bool ProcessLevel::nextOne( Event& process) {
     for ( ; ; ) {
 
       // Pick one of the subprocesses.
-      double sigmaMaxNow = sigmaMaxSum * Rndm::flat();
+      double sigmaMaxNow = sigmaMaxSum * rndmPtr->flat();
       int iMax = containerPtrs.size() - 1;
       iContainer = -1;
       do sigmaMaxNow -= containerPtrs[++iContainer]->sigmaMax();
@@ -743,7 +755,7 @@ bool ProcessLevel::nextOne( Event& process) {
   return physical;
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Generate the next event with two hard interactions.
   
@@ -769,7 +781,7 @@ bool ProcessLevel::nextTwo( Event& process) {
       for ( ; ; ) {
 
         // Pick one of the subprocesses.
-        double sigmaMaxNow = sigmaMaxSum * Rndm::flat();
+        double sigmaMaxNow = sigmaMaxSum * rndmPtr->flat();
         int iMax = containerPtrs.size() - 1;
         iContainer = -1;
         do sigmaMaxNow -= containerPtrs[++iContainer]->sigmaMax();
@@ -793,7 +805,7 @@ bool ProcessLevel::nextTwo( Event& process) {
       for ( ; ; ) {
 
         // Pick one of the subprocesses.
-        double sigma2MaxNow = sigma2MaxSum * Rndm::flat();
+        double sigma2MaxNow = sigma2MaxSum * rndmPtr->flat();
         int i2Max = container2Ptrs.size() - 1;
         i2Container = -1;
         do sigma2MaxNow -= container2Ptrs[++i2Container]->sigmaMax();
@@ -842,7 +854,7 @@ bool ProcessLevel::nextTwo( Event& process) {
       double pdfA2Mod = beamAPtr->xfMI( idA2, xA2,Q2Fac2);
       double pdfB2Mod = beamBPtr->xfMI( idB2, xB2,Q2Fac2);
       double wtPdfMod = (pdfA2Mod * pdfB2Mod) / (pdfA2Raw * pdfB2Raw); 
-      if (wtPdfMod < Rndm::flat()) continue;
+      if (wtPdfMod < rndmPtr->flat()) continue;
 
       // Reduce by a factor of 2 for identical processes when others not,
       // and when in same phase space region.
@@ -850,7 +862,7 @@ bool ProcessLevel::nextTwo( Event& process) {
       if ( someHardSame && containerPtrs[iContainer]->isSame() 
         && container2Ptrs[i2Container]->isSame()) {
         if (cutsAgree) {
-          if (Rndm::flat() > 0.5) toLoop = true;
+          if (rndmPtr->flat() > 0.5) toLoop = true;
         } else {
         double mHat1 = containerPtrs[iContainer]->mHat();
         double pTHat1 = containerPtrs[iContainer]->pTHat();
@@ -860,7 +872,7 @@ bool ProcessLevel::nextTwo( Event& process) {
            && pTHat1 > pTHatMin2 && pTHat1 < pTHatMax2
            && mHat2 > mHatMin1 && mHat2 < mHatMax1 
 	   && pTHat2 > pTHatMin1 && pTHat2 < pTHatMax1
-           && Rndm::flat() > 0.5) toLoop = true;
+           && rndmPtr->flat() > 0.5) toLoop = true;
         }
       }
       if (toLoop) continue;    
@@ -871,12 +883,12 @@ bool ProcessLevel::nextTwo( Event& process) {
 
     // Construct kinematics of acceptable processes.
     Event process2;
+    process2.init( "(second hard)", particleDataPtr, startColTag);
     process2.initColTag();
-    startColTag2 = process2.lastColTag();
     if ( !containerPtrs[iContainer]->constructProcess( process) ) 
       physical = false;
-    if (physical && !container2Ptrs[i2Container]->constructProcess( process2, false) )
-      physical = false;
+    if (physical && !container2Ptrs[i2Container]->constructProcess( process2, 
+      false) ) physical = false;
 
     // Do all resonance decays.
     if ( physical && doResDecays 
@@ -900,7 +912,7 @@ bool ProcessLevel::nextTwo( Event& process) {
   return physical;
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Append second hard interaction to normal process object.
 // Complication: all resonance decay chains must be put at the end.
@@ -926,7 +938,7 @@ void ProcessLevel::combineProcessRecords( Event& process, Event& process2) {
 
   // Find amount of necessary position and colour offset for second process.
   int addPos  = nHard  - 3;
-  int addCol  = process.lastColTag() - startColTag2;
+  int addCol  = process.lastColTag() - startColTag;
 
   // Loop over all particles (except beams) from second process.
   for (int i = 3; i < nSize2; ++i) {
@@ -975,7 +987,7 @@ void ProcessLevel::combineProcessRecords( Event& process, Event& process2) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Add any junctions to the process event record list.
 // First try, so still incomplete. ?? 
@@ -1031,7 +1043,7 @@ void ProcessLevel::findJunctions( Event& junEvent) {
   // Done.
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Check that colours match up.
 
@@ -1135,7 +1147,7 @@ bool ProcessLevel::checkColours( Event& process) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Print statistics when two hard processes allowed.
 
@@ -1313,6 +1325,6 @@ void ProcessLevel::statistics2(bool reset, ostream& os) {
      
 }
 
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8

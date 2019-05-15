@@ -1,5 +1,5 @@
 // main17.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -15,7 +15,7 @@
 
 using namespace Pythia8; 
 
-//**************************************************************************
+//==========================================================================
 
 // Put most of your Pythia interaction in the PythiaWrapper class.
 // Note: this way you restrict yourself to a subset of the full Pythia
@@ -55,7 +55,7 @@ private:
 
 };
 
-//*********
+//--------------------------------------------------------------------------
 
 // The initialization code. 
 
@@ -87,8 +87,8 @@ bool PythiaWrapper::beg(int argc, char* argv[]) {
   if ( !pythia.init() ) return false;
 
   // Shorthand for pythia.settings and pythia.particleData.
-  Settings&          pSet = pythia.settings;
-  ParticleDataTable& pDat = pythia.particleData;
+  Settings&     pSet = pythia.settings;
+  ParticleData& pDat = pythia.particleData;
 
   // List settings: changed or all.
   if ( pSet.flag("Main:showChangedSettings") )  pSet.listChanged();
@@ -118,7 +118,7 @@ bool PythiaWrapper::beg(int argc, char* argv[]) {
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // The event generation code. 
 
@@ -159,7 +159,7 @@ bool PythiaWrapper::gen() {
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // The finishing code. 
 
@@ -173,7 +173,7 @@ bool PythiaWrapper::fin() {
 
 } 
 
-//**************************************************************************
+//==========================================================================
 
 // You should not need to touch the main program: its actions are 
 // determined by the .cmnd file and the rest belongs in MyAnalysis.

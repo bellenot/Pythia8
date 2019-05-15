@@ -7,11 +7,11 @@ decays. It is intended for normal particle decays, primarily
 <ei>B</ei> mesons and <ei>tau</ei>, and cannot be used to redirect
 decays of heavy resonances like <ei>t</ei> or <ei>Z^0</ei>.  
 The user-written derived class is called if a pointer to it has
-been given with the <aloc href="ProgramFlow">
-<code>pythia.decayPtr()</code></aloc> 
+been given with the 
+<code><aloc href="ProgramFlow">pythia.decayPtr()</aloc></code> 
 method, where it also is specified which particles it will be called for. 
 This particle information is accessible with the
-<aloc href="ParticleDataScheme"><code>doExternalDecay()</code></aloc>
+<code><aloc href="ParticleDataScheme">doExternalDecay()</aloc></code>
 method. 
 
 <p/>
@@ -69,4 +69,4 @@ a simple example of how to use this facility.
 
 </chapter>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->

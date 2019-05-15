@@ -1,5 +1,5 @@
 // main27.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -11,7 +11,7 @@
 
 using namespace Pythia8; 
  
-//**************************************************************************
+//==========================================================================
 
 // A derived class to set beam momentum and interaction vertex spread.
 
@@ -25,14 +25,14 @@ public:
   // Initialize beam parameters.
   // In this particular example we will reuse the existing settings names
   // but with modified meaning, so init() in the base class can be kept. 
-  //virtual void init();
+  //virtual void init( Settings& settings, Rndm* rndmPtrIn);
 
   // Set the two beam momentum deviations and the beam vertex.
   virtual void pick();
 
 };
 
-//*********
+//--------------------------------------------------------------------------
 
 // Set the two beam momentum deviations and the beam vertex.
 // Note that momenta are in units of GeV and vertices in mm,
@@ -50,12 +50,12 @@ void MyBeamShape::pick() {
     do {
       totalDev = 0.;
       if (sigmaPxA > 0.) {
-        gauss     = Rndm::gauss();
+        gauss     = rndmPtr->gauss();
         deltaPxA  = sigmaPxA * gauss;
         totalDev += gauss * gauss; 
       }
       if (sigmaPyA > 0.) {
-        gauss     = Rndm::gauss();
+        gauss     = rndmPtr->gauss();
         deltaPyA  = sigmaPyA * gauss;
         totalDev += gauss * gauss; 
       }
@@ -64,20 +64,20 @@ void MyBeamShape::pick() {
     // Set beam A longitudinal momentum as a triangular shape.
     // Reuse sigmaPzA to represent maximum deviation in this case.
     if (sigmaPzA > 0.) {
-      deltaPzA    = sigmaPzA * ( 1. - sqrt(Rndm::flat()) );
-      if (Rndm::flat() < 0.5) deltaPzA = -deltaPzA; 
+      deltaPzA    = sigmaPzA * ( 1. - sqrt(rndmPtr->flat()) );
+      if (rndmPtr->flat() < 0.5) deltaPzA = -deltaPzA; 
     }
 
     // Set beam B transverse momentum deviation by a two-dimensional Gaussian.
     do {
       totalDev = 0.;
       if (sigmaPxB > 0.) {
-        gauss     = Rndm::gauss();
+        gauss     = rndmPtr->gauss();
         deltaPxB  = sigmaPxB * gauss;
         totalDev += gauss * gauss; 
       }
       if (sigmaPyB > 0.) {
-        gauss     = Rndm::gauss();
+        gauss     = rndmPtr->gauss();
         deltaPyB  = sigmaPyB * gauss;
         totalDev += gauss * gauss; 
       }
@@ -86,8 +86,8 @@ void MyBeamShape::pick() {
     // Set beam B longitudinal momentum as a triangular shape.
     // Reuse sigmaPzB to represent maximum deviation in this case.
     if (sigmaPzB > 0.) {
-      deltaPzB = sigmaPzB * ( 1. - sqrt(Rndm::flat()) );
-      if (Rndm::flat() < 0.5) deltaPzB = -deltaPzB; 
+      deltaPzB = sigmaPzB * ( 1. - sqrt(rndmPtr->flat()) );
+      if (rndmPtr->flat() < 0.5) deltaPzB = -deltaPzB; 
     }
   }
 
@@ -97,12 +97,12 @@ void MyBeamShape::pick() {
     do {
       totalDev = 0.;
       if (sigmaVertexX > 0.) {
-        gauss     = Rndm::gauss();
+        gauss     = rndmPtr->gauss();
         vertexX   = sigmaVertexX * gauss;
         totalDev += gauss * gauss; 
       }
       if (sigmaVertexY > 0.) {
-        gauss     = Rndm::gauss();
+        gauss     = rndmPtr->gauss();
         vertexY   = sigmaVertexY * gauss;
         totalDev += gauss * gauss; 
       }
@@ -112,12 +112,12 @@ void MyBeamShape::pick() {
     // This corresponds to two step-function beams colliding.
     // Reuse sigmaVertexZ to represent maximum deviation in this case.
     if (sigmaVertexZ > 0.) {
-      vertexZ     = sigmaVertexZ * ( 1. - sqrt(Rndm::flat()) );
-      if (Rndm::flat() < 0.5) vertexZ = -vertexZ; 
+      vertexZ     = sigmaVertexZ * ( 1. - sqrt(rndmPtr->flat()) );
+      if (rndmPtr->flat() < 0.5) vertexZ = -vertexZ; 
 
       // Set beam collision time flat between +-(sigmaVertexZ - |vertexZ|). 
       // This corresponds to two step-function beams colliding (with v = c).
-      vertexT = (2. * Rndm::flat() - 1.) * (sigmaVertexZ - abs(vertexZ));  
+      vertexT = (2. * rndmPtr->flat() - 1.) * (sigmaVertexZ - abs(vertexZ));  
     }
 
     // Add offset to beam vertex.
@@ -129,7 +129,7 @@ void MyBeamShape::pick() {
 
 }
  
-//**************************************************************************
+//==========================================================================
 
 int main() {
 

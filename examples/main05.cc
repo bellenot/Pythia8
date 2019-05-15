@@ -1,5 +1,5 @@
 // main05.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -12,8 +12,8 @@ using namespace Pythia8;
 int main() {
 
   // Number of events, generated and listed ones.
-  int nEvent = 200;
-  int nList = 0;
+  int nEvent    = 200;
+  int nList     = 0;
   int nListJets = 5;
 
   // Generator. Process selection. LHC initialization.
@@ -22,8 +22,21 @@ int main() {
   pythia.readString("PhaseSpace:pTHatMin = 200.");    
   pythia.init( 2212, 2212, 14000.);
 
-  // Jet finder. Note that arguments can be used to override defaults. 
-  CellJet cellJet;
+  // Range and granularity of jet finder.
+  double etaMax     = 4.;
+  int    nEta       = 80;
+  int    nPhi       = 64;
+  // Exclude neutrinos (and other invisible) from study
+  int    nSel       = 2;
+  // Character and amount of energy smearing, cell by cell.
+  int    smear      = 2;
+  double resolution = 0.3;
+  double upperCut   = 2.;
+  double threshold  = 0.1;
+  Rndm*  rndmPtr    = &pythia.rndm;
+  // The  jet finder itself. 
+  CellJet cellJet( etaMax, nEta, nPhi, nSel, smear, resolution,
+    upperCut, threshold, rndmPtr);
 
   // Histograms.
   Hist nJets("number of jets", 20, -0.5, 19.5);

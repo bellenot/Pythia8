@@ -51,6 +51,13 @@ the page contains information of more general interest.
 </tr>
 
 <tr> 
+<td><code>BeamShape</code></td> 
+<td><?php $filepath = $_GET["filepath"];
+echo "<a href='BeamShape.php?filepath=".$filepath."' target='page'>";?>Beam Shape</a></td> 
+<td>vertex amd beam momentum spread</td> 
+</tr>
+
+<tr> 
 <td><code>CellJet</code></td> 
 <td><?php $filepath = $_GET["filepath"];
 echo "<a href='EventAnalysis.php?filepath=".$filepath."' target='page'>";?>Event Analysis</a></td> 
@@ -67,17 +74,24 @@ collider topologies</td>
 </tr>
 
 <tr> 
+<td><code>CoupSM</code></td> 
+<td><?php $filepath = $_GET["filepath"];
+echo "<a href='StandardModelParameters.php?filepath=".$filepath."' target='page'>";?>Standard Model Parameters</a></td> 
+<td>couplings and mixing matrices</td> 
+</tr>
+
+<tr> 
+<td><code>CoupSUSY</code></td> 
+<td><?php $filepath = $_GET["filepath"];
+echo "<a href='SUSYLesHouchesAccord.php?filepath=".$filepath."' target='page'>";?>SUSY Les Houches Accord</a></td> 
+<td>compute and store SUSY couplings, using input from SusyLesHouches</td> 
+</tr>
+
+<tr> 
 <td><code>DecayChannel</code></td> 
 <td><?php $filepath = $_GET["filepath"];
 echo "<a href='ParticleDataScheme.php?filepath=".$filepath."' target='page'>";?>Particle Data Scheme</a></td> 
 <td>the properties of a single decay channel of  particle species</td> 
-</tr>
-
-<tr> 
-<td><code>DecayTable</code></td> 
-<td><?php $filepath = $_GET["filepath"];
-echo "<a href='ParticleDataScheme.php?filepath=".$filepath."' target='page'>";?>Particle Data Scheme</a></td> 
-<td>the decay channels table of a particle species</td> 
 </tr>
 
 <tr> 
@@ -109,10 +123,31 @@ echo "<a href='EventInformation.php?filepath=".$filepath."' target='page'>";?>Ev
 </tr>
 
 <tr> 
+<td><code>LHAPDFInterface</code></td> 
+<td><?php $filepath = $_GET["filepath"];
+echo "<a href='PartonDistributions.php?filepath=".$filepath."' target='page'>";?>Parton Distributions</a></td> 
+<td>use PDF sets from the LHAPDF library</td> 
+</tr>
+
+<tr> 
+<td><code>LHAup</code></td> 
+<td><?php $filepath = $_GET["filepath"];
+echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>";?>Les Houches Accord</a></td> 
+<td>base class for Les Houches external hard-event input</td> 
+</tr>
+
+<tr> 
 <td><code>Particle</code></td> 
 <td><?php $filepath = $_GET["filepath"];
 echo "<a href='ParticleProperties.php?filepath=".$filepath."' target='page'>";?>Particle Properties</a></td> 
 <td>the properties of a particle in the event record</td> 
+</tr>
+
+<tr> 
+<td><code>ParticleData</code></td> 
+<td><?php $filepath = $_GET["filepath"];
+echo "<a href='ParticleDataScheme.php?filepath=".$filepath."' target='page'>";?>Particle Data Scheme</a></td> 
+<td>the database of particle species properties</td> 
 </tr>
 
 <tr> 
@@ -123,10 +158,10 @@ echo "<a href='ParticleDataScheme.php?filepath=".$filepath."' target='page'>";?>
 </tr>
 
 <tr> 
-<td><code>ParticleDataTable</code></td> 
+<td><code>PDF</code></td> 
 <td><?php $filepath = $_GET["filepath"];
-echo "<a href='ParticleDataScheme.php?filepath=".$filepath."' target='page'>";?>Particle Data Scheme</a></td> 
-<td>the database of particle species properties</td> 
+echo "<a href='PartonDistributions.php?filepath=".$filepath."' target='page'>";?>Parton Distributions</a></td> 
+<td>base class for all PDFs</td> 
 </tr>
 
 <tr> 
@@ -134,6 +169,20 @@ echo "<a href='ParticleDataScheme.php?filepath=".$filepath."' target='page'>";?>
 <td><?php $filepath = $_GET["filepath"];
 echo "<a href='ProgramFlow.php?filepath=".$filepath."' target='page'>";?>Program Flow</a></td> 
 <td>the top-level class, that drives the generation process</td> 
+</tr>
+
+<tr> 
+<td><code>ResonanceWidths</code></td> 
+<td><?php $filepath = $_GET["filepath"];
+echo "<a href='SemiInternalResonances.php?filepath=".$filepath."' target='page'>";?>Semi-Internal Resonances</a></td> 
+<td>base class for all resonance-width treatment</td> 
+</tr>
+
+<tr> 
+<td><code>Rndm</code></td> 
+<td><?php $filepath = $_GET["filepath"];
+echo "<a href='RandomNumbers.php?filepath=".$filepath."' target='page'>";?>RandomNumbers</a></td> 
+<td>a primitive built-in histogramming package</td> 
 </tr>
 
 <tr> 
@@ -151,10 +200,31 @@ echo "<a href='SettingsScheme.php?filepath=".$filepath."' target='page'>";?>Sett
 </tr>
 
 <tr> 
+<td><code>SigmaProcess</code></td> 
+<td><?php $filepath = $_GET["filepath"];
+echo "<a href='SemiInternalProcesses.php?filepath=".$filepath."' target='page'>";?>Semi-Internal Processes</a></td> 
+<td>base class for all hard-process cross sections</td> 
+</tr>
+
+<tr> 
+<td><code>SpaceShower</code></td> 
+<td><?php $filepath = $_GET["filepath"];
+echo "<a href='ImplementNewShowers.php?filepath=".$filepath."' target='page'>";?>Implement New Showers</a></td> 
+<td>spacelike, i..e. initial-state showers</td> 
+</tr>
+
+<tr> 
 <td><code>Sphericity</code></td> 
 <td><?php $filepath = $_GET["filepath"];
 echo "<a href='EventAnalysis.php?filepath=".$filepath."' target='page'>";?>Event Analysis</a></td> 
 <td>sphericity analysis of events</td> 
+</tr>
+
+<tr> 
+<td><code>SusyLesHouches</code></td> 
+<td><?php $filepath = $_GET["filepath"];
+echo "<a href='SUSYLesHouchesAccord.php?filepath=".$filepath."' target='page'>";?>SUSY Les Houches Accord</a></td> 
+<td>reading in of SLHA information</td> 
 </tr>
 
 <tr> 
@@ -165,17 +235,24 @@ echo "<a href='EventAnalysis.php?filepath=".$filepath."' target='page'>";?>Event
 </tr>
 
 <tr> 
+<td><code>TimeShower</code></td> 
+<td><?php $filepath = $_GET["filepath"];
+echo "<a href='ImplementNewShowers.php?filepath=".$filepath."' target='page'>";?>Implement New Showers</a></td> 
+<td>timelike, i..e. final-state showers</td> 
+</tr>
+
+<tr> 
+<td><code>UserHooks</code></td> 
+<td><?php $filepath = $_GET["filepath"];
+echo "<a href='UserHooks.php?filepath=".$filepath."' target='page'>";?>User Hooks</a></td> 
+<td>get access to some steps of the generation process</td> 
+</tr>
+
+<tr> 
 <td><code>Vec4</code></td> 
 <td><?php $filepath = $_GET["filepath"];
 echo "<a href='FourVectors.php?filepath=".$filepath."' target='page'>";?>Four-Vectors</a></td> 
 <td>four-vectors</td> 
-</tr>
-
-<tr> 
-<td><code></code></td> 
-<td><?php $filepath = $_GET["filepath"];
-echo "<a href='.php?filepath=".$filepath."' target='page'>";?></a></td> 
-<td></td> 
 </tr>
 
 <tr> 
@@ -200,4 +277,4 @@ You can also access an extensive list of the public
 echo "<a href='ProgramMethods.php?filepath=".$filepath."' target='page'>";?>methods</a> in these classes, 
 which compensates for the brevity of the current page. 
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->

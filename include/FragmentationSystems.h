@@ -1,5 +1,5 @@
 // FragmentationSystems.h is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -22,7 +22,7 @@
 
 namespace Pythia8 {
  
-//**************************************************************************
+//==========================================================================
 
 // The ColSinglet class contains info on an individual singlet.
 // Only to be used inside ColConfig, so no private members. 
@@ -52,7 +52,7 @@ public:
   
 };
  
-//**************************************************************************
+//==========================================================================
 
 // The ColConfig class describes the colour configuration of the whole event. 
 
@@ -64,7 +64,7 @@ public:
   ColConfig() {singlets.resize(0);}
 
   // Initialize and save pointers.
-  void init(Info* infoPtrIn, StringFlav* flavSelPtrIn);
+  void init(Info* infoPtrIn, Settings& settings, StringFlav* flavSelPtrIn);
 
   // Number of colour singlets.
   int size() const {return singlets.size();}
@@ -87,6 +87,9 @@ public:
 
 private:
 
+  // Constants: could only be changed in the code itself.
+  static const double CONSTITUENTMASS;
+
   // Pointer to various information on the generation.
   Info* infoPtr;
 
@@ -105,7 +108,7 @@ private:
 
 };
  
-//**************************************************************************
+//==========================================================================
 
 // The StringRegion class contains the information related to 
 // one string section in the evolution of a multiparton system. 
@@ -145,7 +148,7 @@ public:
 
 };
  
-//**************************************************************************
+//==========================================================================
 
 // The StringSystem class contains the complete set of all string regions.
 // Only to be used inside StringFragmentation, so no private members.
@@ -180,7 +183,7 @@ public:
 
 };
  
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8
 

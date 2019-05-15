@@ -86,6 +86,11 @@ the overall energy-momentum picture. Also ties together all the
 colour lines into consistent singlets. 
   
 
+<p/><code>file&nbsp; </code><strong> BeamShape &nbsp;</strong> <br/>
+generates momentum spread of beams, and spread of collision vertex
+position. 
+  
+
 <p/><code>file&nbsp; </code><strong> BoseEinstein &nbsp;</strong> <br/>
 provides a simple method to impose Bose-Einstein correlations on 
 pairs of identical mesons.
@@ -185,6 +190,12 @@ adding initial- and final-state radiation, multiple parton--parton
 interactions, and beam remnants.
   
 
+<p/><code>file&nbsp; </code><strong> PartonSystems &nbsp;</strong> <br/>
+keeps track of which partons belong to which partonic susbsystem,
+i.e. one of the multiple (semi)hard interactiosn with associated
+showers.
+  
+
 <p/><code>file&nbsp; </code><strong> PhaseSpace &nbsp;</strong> <br/>
 selects a point in phase space for the hard-process generation,
 optimized separately for each process to give improved Monte Carlo 
@@ -264,6 +275,11 @@ contains the cross sections and matrix elements for processes in
 scenarios involving extra dimensions.
   
 
+<p/><code>file&nbsp; </code><strong> SigmaGeneric &nbsp;</strong> <br/>
+contains the cross sections and matrix elements for some generic
+processes, to be used as building blocks for a few BSM scenarios.
+  
+
 <p/><code>file&nbsp; </code><strong> SigmaHiggs &nbsp;</strong> <br/>
 contains the cross sections and matrix elements for Higgs production.
   
@@ -297,8 +313,8 @@ cross sections are found in several separate files of derived classes:
 <code>SigmaQCD</code>, <code>SigmaEW</code>, <code>SigmaOnia</code>, 
 <code>SigmaHiggs</code>, <code>SigmaSUSY</code>,  
 <code>SigmaNewGaugeBosons</code>, <code>SigmaLeftRightSym</code>,
-<code>SigmaLeptoquark</code>, <code>SigmaCompositeness</code> and
-<code>SigmaExtraDim</code>.
+<code>SigmaLeptoquark</code>, <code>SigmaCompositeness</code>,
+<code>SigmaExtraDim</code> and <code>SigmaGeneric</code>.
   
 
 <p/><code>file&nbsp; </code><strong> SigmaQCD &nbsp;</strong> <br/>
@@ -332,6 +348,12 @@ CKM mixing matrices, and a few other parameters such as
 performs string fragmentation of a given set of partons.
   
 
+<p/><code>file&nbsp; </code><strong> SusyCouplings &nbsp;</strong> <br/>
+stores the various couplings used for SUSY cross sections and
+decays, as calculated from input e.g. based on the SUSY Les Houches 
+Accord.
+  
+
 <p/><code>file&nbsp; </code><strong> SusyLesHouches &nbsp;</strong> <br/>
 contains information on SUSY parameters and particle data as specified
 by the SUSY Les Houches Accord.
@@ -351,4 +373,4 @@ its cross-section weight.
 </body>
 </html>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->

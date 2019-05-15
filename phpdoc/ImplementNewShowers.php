@@ -72,9 +72,9 @@ showers in those decays would never be interleaved with anything
 else, so are much simpler to administrate.
 
 <p/>
-Therefore the <?php $filepath = $_GET["filepath"];
+Therefore the <code><?php $filepath = $_GET["filepath"];
 echo "<a href='ProgramFlow.php?filepath=".$filepath."' target='page'>";?>
-<code>pythia.setShowerPtr( timesDecPtr, timesPtr, spacePtr)</code></a>
+pythia.setShowerPtr( timesDecPtr, timesPtr, spacePtr)</a></code>
 method allows two separate pointers to be set to instances of
 derived <code>TimeShower</code> classes. The first is only required 
 to handle decays, say of <i>Z^0</i> or <i>Upsilon</i>, with no
@@ -135,8 +135,8 @@ assigned scale 0.
 
 <p/>
 Auxiliary to the event record proper is the 
-<?php $filepath = $_GET["filepath"];
-echo "<a href='AdvancedUsage.php?filepath=".$filepath."' target='page'>";?><code>PartonSystems</code></a>  
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='AdvancedUsage.php?filepath=".$filepath."' target='page'>";?>PartonSystems</a></code>  
 class, that keep track of which partons belong together in the 
 same scattering subsystem. This information must be kept up-to-date 
 during the shower evolution.
@@ -145,8 +145,8 @@ during the shower evolution.
 For initial-state showers it is also necessary to keep track of
 the partonic content extracted from the beams. This information
 is stored in the 
-<?php $filepath = $_GET["filepath"];
-echo "<a href='AdvancedUsage.php?filepath=".$filepath."' target='page'>";?><code>BeamParticle</code></a>  
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='AdvancedUsage.php?filepath=".$filepath."' target='page'>";?>BeamParticle</a></code>  
 class.  
 
 <h3>The TimeShower interface</h3>
@@ -165,7 +165,7 @@ The destructor does not need to do anything.
   
 
 <a name="method3"></a>
-<p/><strong>void TimeShower::initPtr(Info* infoPtr, PartonSystems* partonSystemsPtr) &nbsp;</strong> <br/>
+<p/><strong>void TimeShower::initPtr(Info* infoPtr, Settings* settingsPtr, ParticleData* particleDataPtr, Rndm* rndmPtr, CoupSM* coupSMPtr, PartonSystems* partonSystemsPtr, UserHooks* userHooksPtr) &nbsp;</strong> <br/>
 This method only imports pointers to standard facilities, 
 and is not virtual.
   
@@ -355,7 +355,7 @@ Also the destructor does not need to do anything.
   
 
 <a name="method18"></a>
-<p/><strong>void SpaceShower::initPtr(Info* infoPtr, PartonSystems* partonSystemsPtr) &nbsp;</strong> <br/>
+<p/><strong>void SpaceShower::initPtr(Info* infoPtr, Settings* settingsPtr, ParticleData* particleDataPtr, Rndm* rndmPtr, PartonSystems* partonSystemsPtr, UserHooks* userHooksPtr) &nbsp;</strong> <br/>
 This method only imports pointers to standard facilities, 
 and is not virtual.
   
@@ -499,4 +499,4 @@ development/debug phase.
 </body>
 </html>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->

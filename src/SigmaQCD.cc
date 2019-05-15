@@ -1,5 +1,5 @@
 // SigmaQCD.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -10,12 +10,12 @@
 
 namespace Pythia8 {
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma0AB2AB class.
 // Cross section for elastic scattering A B -> A B.
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -26,12 +26,12 @@ void Sigma0AB2AB::setIdColAcol() {
   setColAcol( 0, 0, 0, 0, 0, 0, 0, 0);
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma0AB2XB class.
 // Cross section for single diffractive scattering A B -> X B.
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -45,12 +45,12 @@ void Sigma0AB2XB::setIdColAcol() {
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma0AB2AX class.
 // Cross section for single diffractive scattering A B -> A X.
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -64,12 +64,12 @@ void Sigma0AB2AX::setIdColAcol() {
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma0AB2XX class.
 // Cross section for double diffractive scattering A B -> X X.
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -85,12 +85,12 @@ void Sigma0AB2XX::setIdColAcol() {
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma2gg2gg class.
 // Cross section for g g -> g g.
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate d(sigmaHat)/d(tHat) - no incoming flavour dependence.
 
@@ -110,7 +110,7 @@ void Sigma2gg2gg::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -120,40 +120,40 @@ void Sigma2gg2gg::setIdColAcol() {
   setId( id1, id2, 21, 21);
 
   // Three colour flow topologies, each with two orientations.
-  double sigRand = sigSum * Rndm::flat();
+  double sigRand = sigSum * rndmPtr->flat();
   if (sigRand < sigTS) setColAcol( 1, 2, 2, 3, 1, 4, 4, 3);
   else if (sigRand < sigTS + sigUS) 
                        setColAcol( 1, 2, 3, 1, 3, 4, 4, 2);
   else                 setColAcol( 1, 2, 3, 4, 1, 4, 3, 2); 
-  if (Rndm::flat() > 0.5) swapColAcol();
+  if (rndmPtr->flat() > 0.5) swapColAcol();
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma2gg2qqbar class.
 // Cross section for g g -> q qbar (q = u, d, s, i.e. almost massless).
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
 void Sigma2gg2qqbar::initProc() {
 
   // Read number of quarks to be considered in massless approximation.
-  nQuarkNew       = Settings::mode("HardQCD:nQuarkNew");
+  nQuarkNew       = settingsPtr->mode("HardQCD:nQuarkNew");
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate d(sigmaHat)/d(tHat) - no incoming flavour dependence. 
 
 void Sigma2gg2qqbar::sigmaKin() { 
 
   // Pick new flavour.
-  idNew = 1 + int( nQuarkNew * Rndm::flat() ); 
-  mNew  = ParticleDataTable::m0(idNew);
+  idNew = 1 + int( nQuarkNew * rndmPtr->flat() ); 
+  mNew  = particleDataPtr->m0(idNew);
   m2New = mNew*mNew;
   
   // Calculate kinematics dependence.
@@ -170,7 +170,7 @@ void Sigma2gg2qqbar::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -180,18 +180,18 @@ void Sigma2gg2qqbar::setIdColAcol() {
   setId( id1, id2, idNew, -idNew);
 
   // Two colour flow topologies.
-  double sigRand = sigSum * Rndm::flat();
+  double sigRand = sigSum * rndmPtr->flat();
   if (sigRand < sigTS) setColAcol( 1, 2, 2, 3, 1, 0, 0, 3);
   else                 setColAcol( 1, 2, 3, 1, 3, 0, 0, 2); 
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma2qg2qg class.
 // Cross section for q g -> q g.
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate d(sigmaHat)/d(tHat) - no incoming flavour dependence. 
 
@@ -207,7 +207,7 @@ void Sigma2qg2qg::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -217,7 +217,7 @@ void Sigma2qg2qg::setIdColAcol() {
   setId( id1, id2, id1, id2);
 
   // Two colour flow topologies. Swap if first is gluon, or when antiquark.
-  double sigRand = sigSum * Rndm::flat();
+  double sigRand = sigSum * rndmPtr->flat();
   if (sigRand < sigTS) setColAcol( 1, 0, 2, 1, 3, 0, 2, 3);
   else                 setColAcol( 1, 0, 2, 3, 2, 0, 1, 3); 
   if (id1 == 21) swapCol1234();
@@ -225,13 +225,13 @@ void Sigma2qg2qg::setIdColAcol() {
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma2qq2qq class.
 // Cross section for q qbar' -> q qbar' or q q' -> q q' 
 // (qbar qbar' -> qbar qbar'), q' may be same as q.
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate d(sigmaHat)/d(tHat), part independent of incoming flavour. 
 
@@ -245,7 +245,7 @@ void Sigma2qq2qq::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 
 // Evaluate d(sigmaHat)/d(tHat), including incoming flavour dependence. 
@@ -262,7 +262,7 @@ double Sigma2qq2qq::sigmaHat() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -274,18 +274,18 @@ void Sigma2qq2qq::setIdColAcol() {
   // Colour flow topologies. Swap when antiquarks.
   if (id1 * id2 > 0)  setColAcol( 1, 0, 2, 0, 2, 0, 1, 0);
   else                setColAcol( 1, 0, 0, 1, 2, 0, 0, 2);
-  if (id2 == id1 && (sigT + sigU) * Rndm::flat() > sigT)
+  if (id2 == id1 && (sigT + sigU) * rndmPtr->flat() > sigT)
                       setColAcol( 1, 0, 2, 0, 1, 0, 2, 0);
   if (id1 < 0) swapColAcol();
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma2qqbar2gg class.
 // Cross section for q qbar -> g g.
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate d(sigmaHat)/d(tHat) - no incoming flavour dependence. 
 
@@ -301,7 +301,7 @@ void Sigma2qqbar2gg::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -311,38 +311,38 @@ void Sigma2qqbar2gg::setIdColAcol() {
   setId( id1, id2, 21, 21);
 
   // Two colour flow topologies. Swap if first is antiquark.
-  double sigRand = sigSum * Rndm::flat();
+  double sigRand = sigSum * rndmPtr->flat();
   if (sigRand < sigTS) setColAcol( 1, 0, 0, 2, 1, 3, 3, 2);
   else                 setColAcol( 1, 0, 0, 2, 3, 2, 1, 3); 
   if (id1 < 0) swapColAcol();
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma2qqbar2qqbarNew class.
 // Cross section q qbar -> q' qbar'.
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
 void Sigma2qqbar2qqbarNew::initProc() {
 
   // Read number of quarks to be considered in massless approximation.
-  nQuarkNew       = Settings::mode("HardQCD:nQuarkNew");
+  nQuarkNew       = settingsPtr->mode("HardQCD:nQuarkNew");
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate d(sigmaHat)/d(tHat) - no incoming flavour dependence. 
 
 void Sigma2qqbar2qqbarNew::sigmaKin() { 
 
   // Pick new flavour.
-  idNew = 1 + int( nQuarkNew * Rndm::flat() ); 
-  mNew  = ParticleDataTable::m0(idNew);
+  idNew = 1 + int( nQuarkNew * rndmPtr->flat() ); 
+  mNew  = particleDataPtr->m0(idNew);
   m2New = mNew*mNew;
 
   // Calculate kinematics dependence.
@@ -354,7 +354,7 @@ void Sigma2qqbar2qqbarNew::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -370,7 +370,7 @@ void Sigma2qqbar2qqbarNew::setIdColAcol() {
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma2gg2QQbar class.
 // Cross section g g -> Q Qbar (Q = c, b or t).
@@ -380,7 +380,7 @@ void Sigma2qqbar2qqbarNew::setIdColAcol() {
 //     but tH - uH = sH beta34 cos(thetaH) also for m3 != m4, so use
 //     tH, uH selected for m3 != m4 to derive tHQ, uHQ valid for m3 = m4.   
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
@@ -395,11 +395,11 @@ void Sigma2gg2QQbar::initProc() {
   if (idNew == 8) nameSave = "g g -> t' t'bar";
 
   // Secondary open width fraction.
-  openFracPair = ParticleDataTable::resOpenFrac(idNew, -idNew);
+  openFracPair = particleDataPtr->resOpenFrac(idNew, -idNew);
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate d(sigmaHat)/d(tHat) - no incoming flavour dependence. 
 
@@ -427,7 +427,7 @@ void Sigma2gg2QQbar::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -437,13 +437,13 @@ void Sigma2gg2QQbar::setIdColAcol() {
   setId( id1, id2, idNew, -idNew);
 
   // Two colour flow topologies.
-  double sigRand = sigSum * Rndm::flat();
+  double sigRand = sigSum * rndmPtr->flat();
   if (sigRand < sigTS) setColAcol( 1, 2, 2, 3, 1, 0, 0, 3);
   else                 setColAcol( 1, 2, 3, 1, 3, 0, 0, 2); 
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate weight for decay angles of W in top decay.
 
@@ -457,7 +457,7 @@ double Sigma2gg2QQbar::weightDecay( Event& process, int iResBeg,
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma2qqbar2QQbar class.
 // Cross section q qbar -> Q Qbar (Q = c, b or t).
@@ -467,7 +467,7 @@ double Sigma2gg2QQbar::weightDecay( Event& process, int iResBeg,
 //     but tH - uH = sH beta34 cos(thetaH) also for m3 != m4, so use
 //     tH, uH selected for m3 != m4 to derive tHQ, uHQ valid for m3 = m4.   
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process, especially parton-flux object. 
   
@@ -482,11 +482,11 @@ void Sigma2qqbar2QQbar::initProc() {
   if (idNew == 8) nameSave = "q qbar -> t' t'bar";
 
   // Secondary open width fraction.
-  openFracPair = ParticleDataTable::resOpenFrac(idNew, -idNew);
+  openFracPair = particleDataPtr->resOpenFrac(idNew, -idNew);
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate d(sigmaHat)/d(tHat) - no incoming flavour dependence. 
 
@@ -507,7 +507,7 @@ void Sigma2qqbar2QQbar::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -523,7 +523,7 @@ void Sigma2qqbar2QQbar::setIdColAcol() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate weight for decay angles of W in top decay.
 
@@ -537,6 +537,6 @@ double Sigma2qqbar2QQbar::weightDecay( Event& process, int iResBeg,
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8

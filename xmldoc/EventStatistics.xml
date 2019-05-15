@@ -90,7 +90,10 @@ generation phase, and will store each distinct message, with a counter
 for how many times it is issued. Thus it is possible to limit the number 
 of identical messages issued, currently hardcoded so that each kind of 
 error message is only printed once 
-(<code>static const int TIMESTOPRINT = 1</code>). 
+(<code>static const int TIMESTOPRINT = 1</code>).
+This can be overridden by the calling routine, so that all messages of
+this kind are shown, which is particularly relevant for the 
+initialization  stage.
 The summary table printed by <code>Pythia::statistics()</code> 
 provides a table with all the different messages issued, in 
 alphabetical order, with the total number of times each was generated.
@@ -112,4 +115,4 @@ between the two.)
 
 </chapter>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->

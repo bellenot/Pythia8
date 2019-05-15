@@ -1,5 +1,5 @@
 // main25.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -12,7 +12,7 @@
 
 using namespace Pythia8; 
  
-//**************************************************************************
+//==========================================================================
 
 // A derived class for b g -> H0 b (Standard Model Higgs).
 
@@ -52,23 +52,23 @@ private:
 
 };
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
 void Sigma2bg2Hb::initProc() {
 
   // Masses and couplings.
-  m2b       = pow2( ParticleDataTable::m0(5) );
-  m2W       = pow2( ParticleDataTable::m0(24) );
-  thetaWRat = 1. / (24. * CoupEW::sin2thetaW()); 
+  m2b       = pow2( particleDataPtr->m0(5) );
+  m2W       = pow2( particleDataPtr->m0(24) );
+  thetaWRat = 1. / (24. * coupSMPtr->sin2thetaW()); 
 
   // Suppression from secondary widths.
-  openFrac = ParticleDataTable::resOpenFrac(25);
+  openFrac = particleDataPtr->resOpenFrac(25);
   
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat); first step when inflavours unknown. 
 
@@ -76,7 +76,7 @@ void Sigma2bg2Hb::sigmaKin() {
 
   // Initial values. Running mass provides coupling.
   double mHat   = sqrt(sH);
-  double m2bRun = pow2( ParticleDataTable::mRun(5, mHat) );
+  double m2bRun = pow2( particleDataPtr->mRun(5, mHat) );
 
   // Cross section.
   sigma = (M_PI / sH2) * alpS * alpEM * thetaWRat * (m2bRun/m2W) 
@@ -87,7 +87,7 @@ void Sigma2bg2Hb::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat); second step for given inflavours.
 
@@ -101,7 +101,7 @@ double Sigma2bg2Hb::sigmaHat() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -121,7 +121,7 @@ void Sigma2bg2Hb::setIdColAcol() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate weight for Z0 Z0 or W+W- decay angles in Higgs decay.
 
@@ -135,7 +135,7 @@ double Sigma2bg2Hb::weightDecay( Event& process, int iResBeg,
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 int main() {
 

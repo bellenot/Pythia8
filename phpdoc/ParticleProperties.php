@@ -42,9 +42,11 @@ What is stored for each particle is
 <li>two mother indices,</li>
 <li>two daughter indices,</li> 
 <li>a colour and an anticolour index,</li> 
-<li>the four-momentum and mass,</li> 
-<li>the production vertex and proper lifetime,</li>
-<li>a pointer to the particle kind in the particle data tables.</li>
+<li>the four-momentum and mass,</li>
+<li>the scale at which the particle was produced (optional),</li> 
+<li>the production vertex and proper lifetime (optional),</li>
+<li>a pointer to the particle kind in the particle data table, and</li>
+<li>a pointer to the whole particle data table.</li>
 </ul>
 From these, a number of further quantities may be derived.
 
@@ -504,8 +506,8 @@ there mainly for convenience, and should be thrown if an event is
 written to disk, to avoid any problems of object persistency. Should 
 an event later be read back in, the pointer will be recreated from the 
 <code>id</code> code if the normal input methods are used. (Use the
-<?php $filepath = $_GET["filepath"];
-echo "<a href='EventRecord.php?filepath=".$filepath."' target='page'>";?><code>Event::restorePtrs()</code></a> method 
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='EventRecord.php?filepath=".$filepath."' target='page'>";?>Event::restorePtrs()</a></code> method 
 if your persistency scheme bypasses the normal methods.) This pointer is 
 used by the following member functions:
 
@@ -631,7 +633,7 @@ i.e. not for R-hadrons and other exotic states).
   
 
 <a name="method57"></a>
-<p/><strong>ParticleDataEntry& particleData() &nbsp;</strong> <br/>
+<p/><strong>ParticleDataEntry& particleDataEntry() &nbsp;</strong> <br/>
 a reference to the ParticleDataEntry.
   
 
@@ -721,51 +723,57 @@ add a positive offset to colour indices, i.e. if <code>col</code> is
 positive then <code>addCol</code> is added to it, same with <code>acol</code>.
   
 
-<a name="method71"></a>
-<p/><strong>void Particle::setParticlePtr() &nbsp;</strong> <br/>
-sets the pointer to the <code>ParticleDataEntry</code> object of the
-particle, based on its current <code>id</code> code.
-  
-
 <h3>Constructors and operators</h3>
 
 Normally a user would not need to create new particles. However, if 
 necessary, the following constructors and methods may be of interest.
 
-<a name="method72"></a>
+<a name="method71"></a>
 <p/><strong>Particle::Particle() &nbsp;</strong> <br/>
 constructs an empty particle, i.e. where all properties have been set 0
 or equivalent.
   
 
-<a name="method73"></a>
+<a name="method72"></a>
 <p/><strong>Particle::Particle(int id, int status = 0, int mother1 = 0, int mother2 = 0, int daughter1 = 0, int daughter2 = 0, int col = 0, int acol = 0, double px = 0., double py = 0., double pz = 0., double e = 0., double m = 0., double scale = 0.) &nbsp;</strong> <br/>
 constructs a particle with the input properties provided, and non-provided
 ones set 0.
   
 
-<a name="method74"></a>
+<a name="method73"></a>
 <p/><strong>Particle::Particle(int id, int status, int mother1, int mother2, int daughter1, int daughter2, int col, int acol, Vec4 p, double m = 0., double scale = 0.) &nbsp;</strong> <br/>
 constructs a particle with the input properties provided, and non-provided
 ones set 0.
   
 
-<a name="method75"></a>
+<a name="method74"></a>
 <p/><strong>Particle::Particle(const Particle& pt) &nbsp;</strong> <br/>
 constructs an particle that is a copy of the input one.
   
 
-<a name="method76"></a>
+<a name="method75"></a>
 <p/><strong>Particle& Particle::operator=(const Particle& pt) &nbsp;</strong> <br/>
 copies the input particle.
   
 
+<a name="method76"></a>
+<p/><strong>void Particle::setPDTPtr() &nbsp;</strong> <br/>
+sets the pointer to the <code>ParticleData</code> objects,
+i.e. to the full particle data table. Also calls <code>setPDEPtr</code>
+below.
+  
+
+<a name="method77"></a>
+<p/><strong>void Particle::setPDEPtr() &nbsp;</strong> <br/>
+sets the pointer to the <code>ParticleDataEntry</code> object of the
+particle, based on its current <code>id</code> code.
+  
 
 <h3>Final notes</h3>
 
 The 
-<?php $filepath = $_GET["filepath"];
-echo "<a href='EventRecord.php?filepath=".$filepath."' target='page'>";?><code>Event</code></a> 
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='EventRecord.php?filepath=".$filepath."' target='page'>";?>Event</a></code> 
 class also contains a few methods defined for individual particles, 
 but these may require some search in the event record and therefore 
 cannot be defined as  <code>Particle</code> methods.
@@ -776,5 +784,5 @@ Currently there is no information on polarization states.
 </body>
 </html>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->
 

@@ -1,5 +1,5 @@
 // SigmaGeneric.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Johan Bijnens, Torbjorn Sjostrand.
+// Copyright (C) 2010 Johan Bijnens, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -18,28 +18,28 @@
 
 namespace Pythia8 {
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma2gg2qGqGbar class.
 // Cross section for g g -> qG qGbar (generic quark of spin 0, 1/2 or 1). 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
 void Sigma2gg2qGqGbar::initProc() {
 
   // Number of colours. Anomalous coupling kappa - 1 used for vector state.
-  nCHV         = Settings::mode("HiddenValley:Ngauge");
-  kappam1      = Settings::parm("HiddenValley:kappa") - 1.;
+  nCHV         = settingsPtr->mode("HiddenValley:Ngauge");
+  kappam1      = settingsPtr->parm("HiddenValley:kappa") - 1.;
   hasKappa     = (abs(kappam1) > 1e-8);
 
   // Secondary open width fraction.
-  openFracPair = ParticleDataTable::resOpenFrac(idNew, -idNew);
+  openFracPair = particleDataPtr->resOpenFrac(idNew, -idNew);
   
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate d(sigmaHat)/d(tHat), part independent of incoming flavour. 
 
@@ -122,7 +122,7 @@ void Sigma2gg2qGqGbar::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -132,33 +132,33 @@ void Sigma2gg2qGqGbar::setIdColAcol() {
   setId( 21, 21, idNew, -idNew);
 
   // Two colour flow topologies.
-  double sigRand = sigSum * Rndm::flat();
+  double sigRand = sigSum * rndmPtr->flat();
   if (sigRand < sigTS) setColAcol( 1, 2, 2, 3, 1, 0, 0, 3);
   else                 setColAcol( 1, 2, 3, 1, 3, 0, 0, 2); 
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma2qqbar2qGqGbar class.
 // Cross section for q qbar -> qG qGbar (generic quark of spin 0, 1/2 or 1). 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
 void Sigma2qqbar2qGqGbar::initProc() {
 
   // Number of colours. Coupling kappa used for vector state.
-  nCHV         = Settings::mode("HiddenValley:Ngauge");
-  kappa        = Settings::parm("HiddenValley:kappa");
+  nCHV         = settingsPtr->mode("HiddenValley:Ngauge");
+  kappa        = settingsPtr->parm("HiddenValley:kappa");
 
    // Secondary open width fraction.
-  openFracPair = ParticleDataTable::resOpenFrac(idNew, -idNew);
+  openFracPair = particleDataPtr->resOpenFrac(idNew, -idNew);
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate d(sigmaHat)/d(tHat), part independent of incoming flavour. 
 
@@ -199,7 +199,7 @@ void Sigma2qqbar2qGqGbar::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -218,33 +218,33 @@ void Sigma2qqbar2qGqGbar::setIdColAcol() {
 }
 
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma2ffbar2fGfGbar class.
 // Cross section for f fbar -> qG qGbar (generic quark of spin 0, 1/2 or 1)
 // via gamma^*/Z^* s-channel exchange. Still under development!! ??  
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
 void Sigma2ffbar2fGfGbar::initProc() {
 
   // Charge and number of colours. Coupling kappa used for vector state.
-  eQHV2        = pow2( ParticleDataTable::charge(idNew) ); 
-  nCHV         = Settings::mode("HiddenValley:Ngauge");
-  kappa        = Settings::parm("HiddenValley:kappa");
+  eQHV2        = pow2( particleDataPtr->charge(idNew) ); 
+  nCHV         = settingsPtr->mode("HiddenValley:Ngauge");
+  kappa        = settingsPtr->parm("HiddenValley:kappa");
 
   // Coloured or uncoloured particle.
-  hasColour    = (ParticleDataTable::colType(idNew) != 0);
+  hasColour    = (particleDataPtr->colType(idNew) != 0);
   colFac       = (hasColour) ? 3. : 1.;
 
    // Secondary open width fraction.
-  openFracPair = ParticleDataTable::resOpenFrac(idNew, -idNew);
+  openFracPair = particleDataPtr->resOpenFrac(idNew, -idNew);
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate d(sigmaHat)/d(tHat), part independent of incoming flavour. 
 
@@ -286,14 +286,14 @@ void Sigma2ffbar2fGfGbar::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate d(sigmaHat)/d(tHat), including incoming flavour dependence. 
 
 double Sigma2ffbar2fGfGbar::sigmaHat() { 
 
   // Charge and colour factors.
-  double eNow  = CoupEW::ef( abs(id1) );    
+  double eNow  = coupSMPtr->ef( abs(id1) );    
   double sigma = sigma0 * pow2(eNow);
   if (abs(id1) < 9) sigma /= 3.;
 
@@ -302,7 +302,7 @@ double Sigma2ffbar2fGfGbar::sigmaHat() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -328,6 +328,6 @@ void Sigma2ffbar2fGfGbar::setIdColAcol() {
 }
 
 
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8

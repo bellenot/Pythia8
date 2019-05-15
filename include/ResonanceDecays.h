@@ -1,5 +1,5 @@
 // ResonanceDecays.h is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -19,7 +19,7 @@
 
 namespace Pythia8 {
   
-//**************************************************************************
+//==========================================================================
 
 // The ResonanceDecays class handles the sequential decay of resonances
 // that are part of the hard process (t, W, Z, H, SUSY,...).
@@ -31,8 +31,10 @@ public:
   // Constructor. 
   ResonanceDecays() {} 
 
-  // Store pointer to Info for error messages.
-  void init(Info* infoPtrIn) {infoPtr = infoPtrIn;}
+  // Store pointers to Info and Rndm for error messages and random numbers.
+  void init(Info* infoPtrIn,  ParticleData* particleDataPtrIn, 
+    Rndm* rndmPtrIn) {infoPtr = infoPtrIn; 
+    particleDataPtr = particleDataPtrIn; rndmPtr = rndmPtrIn;}
  
   // Generate the next decay sequence.
   bool next( Event& process); 
@@ -45,7 +47,13 @@ private:
                       WTCORRECTION[11];
 
   // Pointer to various information on the generation.
-  Info* infoPtr;
+  Info*         infoPtr;
+
+  // Pointer to the particle data table.
+  ParticleData* particleDataPtr;
+
+  // Pointer to the random number generator.
+  Rndm*         rndmPtr;
 
   // Select masses of decay products.
   bool pickMasses(); 
@@ -65,7 +73,7 @@ private:
 
 };
 
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8
 

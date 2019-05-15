@@ -1,5 +1,5 @@
 // main26.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -16,7 +16,7 @@
 
 using namespace Pythia8; 
   
-//**************************************************************************
+//==========================================================================
 
 // The ResonanceTheta class handles a toponium resonance.
 
@@ -44,7 +44,7 @@ private:
 
 };
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize constants.
 
@@ -56,7 +56,7 @@ void ResonanceTheta::initConstants() {
   normTheta2ggg   = 0.001; 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Calculate width for currently considered channel.
 
@@ -74,7 +74,7 @@ void ResonanceTheta::calcWidth(bool) {
 
 }
  
-//**************************************************************************
+//==========================================================================
 
 // A derived class for q qbar -> Theta (toponium bound state).
 
@@ -117,7 +117,7 @@ private:
 
 };
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
@@ -125,8 +125,8 @@ void Sigma1qqbar2Theta::initProc() {
 
   // Store Theta mass and width for propagator. 
   idTheta  = 663;
-  mRes     = ParticleDataTable::m0(idTheta);
-  GammaRes = ParticleDataTable::mWidth(idTheta);
+  mRes     = particleDataPtr->m0(idTheta);
+  GammaRes = particleDataPtr->mWidth(idTheta);
   m2Res    = mRes*mRes;
   GamMRat  = GammaRes / mRes;
 
@@ -134,11 +134,11 @@ void Sigma1qqbar2Theta::initProc() {
   normTheta2qqbar = 0.0001;
 
   // Set pointer to particle properties and decay table.
-  particlePtr = ParticleDataTable::particleDataPtr(idTheta);
+  particlePtr = particleDataPtr->particleDataEntryPtr(idTheta);
   
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat); first step when inflavours unknown. 
 
@@ -158,7 +158,7 @@ void Sigma1qqbar2Theta::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -173,7 +173,7 @@ void Sigma1qqbar2Theta::setIdColAcol() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate weight for Theta -> g g g.
 
@@ -207,7 +207,7 @@ double Sigma1qqbar2Theta::weightDecay( Event& process, int iResBeg,
  
 }
 
-//**************************************************************************
+//==========================================================================
 
 int main() {
 

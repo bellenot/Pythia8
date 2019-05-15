@@ -1,5 +1,5 @@
 // SigmaLeptoquark.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -10,42 +10,42 @@
 
 namespace Pythia8 {
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma1ql2LeptoQuark class.
 // Cross section for q l -> LQ (leptoquark state). 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
 void Sigma1ql2LeptoQuark::initProc() {
 
   // Store LQ mass and width for propagator. 
-  mRes     = ParticleDataTable::m0(42);
-  GammaRes = ParticleDataTable::mWidth(42);
+  mRes     = particleDataPtr->m0(42);
+  GammaRes = particleDataPtr->mWidth(42);
   m2Res    = mRes*mRes;
   GamMRat  = GammaRes / mRes;
 
   // Yukawa coupling strength.
-  kCoup    = Settings::parm("LeptoQuark:kCoup");
+  kCoup    = settingsPtr->parm("LeptoQuark:kCoup");
 
   // Set pointer to particle properties and decay table.
-  LQPtr    = ParticleDataTable::particleDataPtr(42);
+  LQPtr    = particleDataPtr->particleDataEntryPtr(42);
 
   // Read out quark and lepton the LQ couples to.
-  idQuark  = LQPtr->decay[0].product(0);
-  idLepton = LQPtr->decay[0].product(1);
+  idQuark  = LQPtr->channel(0).product(0);
+  idLepton = LQPtr->channel(0).product(1);
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), part independent of incoming flavour. 
 
 void Sigma1ql2LeptoQuark::sigmaKin() { 
 
-  // Incoming width for correct quark-lepton pair..
+  // Incoming width for correct quark-lepton pair.
   widthIn  = 0.25 * alpEM * kCoup * mH;
 
   // Set up Breit-Wigner.
@@ -53,7 +53,7 @@ void Sigma1ql2LeptoQuark::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat) for specific incoming flavours.
 
@@ -72,7 +72,7 @@ double Sigma1ql2LeptoQuark::sigmaHat() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -90,30 +90,30 @@ void Sigma1ql2LeptoQuark::setIdColAcol() {
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma2qg2LeptoQuarkl class.
 // Cross section for q g -> LQ l (leptoquark state). 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
 void Sigma2qg2LeptoQuarkl::initProc() {
 
   // Store LQ mass and width for propagator. 
-  mRes     = ParticleDataTable::m0(42);
-  GammaRes = ParticleDataTable::mWidth(42);
+  mRes     = particleDataPtr->m0(42);
+  GammaRes = particleDataPtr->mWidth(42);
   m2Res    = mRes*mRes;
   GamMRat  = GammaRes / mRes;
 
   // Yukawa coupling strength.
-  kCoup    = Settings::parm("LeptoQuark:kCoup");
+  kCoup    = settingsPtr->parm("LeptoQuark:kCoup");
 
   // Read out quark and lepton the LQ couples to.
-  ParticleDataEntry* LQPtr = ParticleDataTable::particleDataPtr(42);
-  idQuark  = LQPtr->decay[0].product(0);
-  idLepton = LQPtr->decay[0].product(1);
+  ParticleDataEntry* LQPtr = particleDataPtr->particleDataEntryPtr(42);
+  idQuark  = LQPtr->channel(0).product(0);
+  idLepton = LQPtr->channel(0).product(1);
 
    // Secondary open width fraction.
   openFracPos = LQPtr->resOpenFrac( 42);
@@ -121,7 +121,7 @@ void Sigma2qg2LeptoQuarkl::initProc() {
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), part independent of incoming flavour. 
 
@@ -133,7 +133,7 @@ void Sigma2qg2LeptoQuarkl::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat) for specific incoming flavours.
 
@@ -149,7 +149,7 @@ double Sigma2qg2LeptoQuarkl::sigmaHat() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -171,29 +171,29 @@ void Sigma2qg2LeptoQuarkl::setIdColAcol() {
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma2gg2LQLQbar class.
 // Cross section for g g -> LQ LQbar (leptoquark state). 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
 void Sigma2gg2LQLQbar::initProc() {
 
   // Store LQ mass and width for propagator. 
-  mRes     = ParticleDataTable::m0(42);
-  GammaRes = ParticleDataTable::mWidth(42);
+  mRes     = particleDataPtr->m0(42);
+  GammaRes = particleDataPtr->mWidth(42);
   m2Res    = mRes*mRes;
   GamMRat  = GammaRes / mRes;
 
    // Secondary open width fraction.
-  openFrac = ParticleDataTable::resOpenFrac(42, -42);
+  openFrac = particleDataPtr->resOpenFrac(42, -42);
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), part independent of incoming flavour. 
 
@@ -215,7 +215,7 @@ void Sigma2gg2LQLQbar::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -225,41 +225,41 @@ void Sigma2gg2LQLQbar::setIdColAcol() {
   setId( 21, 21, 42, -42);
 
   // Colour flow topologies: random choice between two mirrors.
-  if (Rndm::flat() < 0.5) setColAcol( 1, 2, 2, 3, 1, 0, 0, 3);
-  else                    setColAcol( 1, 2, 3, 1, 3, 0, 0, 2);
+  if (rndmPtr->flat() < 0.5) setColAcol( 1, 2, 2, 3, 1, 0, 0, 3);
+  else                       setColAcol( 1, 2, 3, 1, 3, 0, 0, 2);
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma2qqbar2LQLQbar class.
 // Cross section for q qbar -> LQ LQbar (leptoquark state). 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
 void Sigma2qqbar2LQLQbar::initProc() {
 
   // Store LQ mass and width for propagator. 
-  mRes     = ParticleDataTable::m0(42);
-  GammaRes = ParticleDataTable::mWidth(42);
+  mRes     = particleDataPtr->m0(42);
+  GammaRes = particleDataPtr->mWidth(42);
   m2Res    = mRes*mRes;
   GamMRat  = GammaRes / mRes;
 
   // Yukawa coupling strength.
-  kCoup    = Settings::parm("LeptoQuark:kCoup");
+  kCoup    = settingsPtr->parm("LeptoQuark:kCoup");
 
   // Read out quark and lepton the LQ couples to.
-  ParticleDataEntry* LQPtr = ParticleDataTable::particleDataPtr(42);
-  idQuark  = LQPtr->decay[0].product(0);
+  ParticleDataEntry* LQPtr = particleDataPtr->particleDataEntryPtr(42);
+  idQuark  = LQPtr->channel(0).product(0);
 
    // Secondary open width fraction.
-  openFrac = ParticleDataTable::resOpenFrac(42, -42);
+  openFrac = particleDataPtr->resOpenFrac(42, -42);
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), part independent of incoming flavour. 
 
@@ -287,7 +287,7 @@ void Sigma2qqbar2LQLQbar::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -305,6 +305,6 @@ void Sigma2qqbar2LQLQbar::setIdColAcol() {
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8

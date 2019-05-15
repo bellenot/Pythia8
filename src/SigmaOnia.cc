@@ -1,5 +1,5 @@
 // SigmaOnia.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -10,12 +10,12 @@
 
 namespace Pythia8 {
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma2gg2QQbar3S11g class.
 // Cross section g g -> QQbar[3S1(1)] g (Q = c or b).
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
@@ -25,12 +25,12 @@ void Sigma2gg2QQbar3S11g::initProc() {
   idHad = (idNew == 4) ? 443 : 553;
   nameSave = (idNew == 4) ? "g g -> ccbar[3S1(1)] g" 
     : "g g -> bbbar[3S1(1)] g";
-  oniumME = (idNew == 4) ? Settings::parm("Charmonium:OJpsi3S11")
-    : Settings::parm("Bottomonium:OUpsilon3S11");
+  oniumME = (idNew == 4) ? settingsPtr->parm("Charmonium:OJpsi3S11")
+    : settingsPtr->parm("Bottomonium:OUpsilon3S11");
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate d(sigmaHat)/d(tHat); no explicit flavour dependence. 
 
@@ -48,7 +48,7 @@ void Sigma2gg2QQbar3S11g::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -59,16 +59,16 @@ void Sigma2gg2QQbar3S11g::setIdColAcol() {
 
   // Two orientations of colour flow..
   setColAcol( 1, 2, 2, 3, 0, 0, 1, 3);
-  if (Rndm::flat() > 0.5) swapColAcol();
+  if (rndmPtr->flat() > 0.5) swapColAcol();
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma2gg2QQbar3PJ1g class.
 // Cross section g g -> QQbar[3PJ(1)] g (Q = c or b, J = 0, 1 or 2).
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
@@ -90,12 +90,12 @@ void Sigma2gg2QQbar3PJ1g::initProc() {
     nameSave = (idNew == 4) ? "g g -> ccbar[3P2(1)] g" 
       : "g g -> bbbar[3P2(1)] g";
   } 
-  oniumME = (idNew == 4) ? Settings::parm("Charmonium:Ochic03P01")
-    : Settings::parm("Bottomonium:Ochib03P01");
+  oniumME = (idNew == 4) ? settingsPtr->parm("Charmonium:Ochic03P01")
+    : settingsPtr->parm("Bottomonium:Ochib03P01");
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate d(sigmaHat)/d(tHat); no explicit flavour dependence. 
 
@@ -143,7 +143,7 @@ void Sigma2gg2QQbar3PJ1g::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -154,16 +154,16 @@ void Sigma2gg2QQbar3PJ1g::setIdColAcol() {
 
   // Two orientations of colour flow.
   setColAcol( 1, 2, 2, 3, 0, 0, 1, 3);
-  if (Rndm::flat() > 0.5) swapColAcol();
+  if (rndmPtr->flat() > 0.5) swapColAcol();
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma2qg2QQbar3PJ1q class.
 // Cross section q g -> QQbar[3PJ(1)] q (Q = c or b, J = 0, 1 or 2).
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
@@ -185,12 +185,12 @@ void Sigma2qg2QQbar3PJ1q::initProc() {
     nameSave = (idNew == 4) ? "q g -> ccbar[3P2(1)] q" 
       : "q g -> bbbar[3P2(1)] q";
   } 
-  oniumME = (idNew == 4) ? Settings::parm("Charmonium:Ochic03P01")
-    : Settings::parm("Bottomonium:Ochib03P01");
+  oniumME = (idNew == 4) ? settingsPtr->parm("Charmonium:Ochic03P01")
+    : settingsPtr->parm("Bottomonium:Ochib03P01");
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate d(sigmaHat)/d(tHat); no explicit flavour dependence. 
 
@@ -215,7 +215,7 @@ void Sigma2qg2QQbar3PJ1q::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -235,12 +235,12 @@ void Sigma2qg2QQbar3PJ1q::setIdColAcol() {
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma2qqbar2QQbar3PJ1g class.
 // Cross section q qbar -> QQbar[3PJ(1)] g (Q = c or b, J = 0, 1 or 2).
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
@@ -262,12 +262,12 @@ void Sigma2qqbar2QQbar3PJ1g::initProc() {
     nameSave = (idNew == 4) ? "q qbar -> ccbar[3P2(1)] g" 
       : "q qbar -> bbbar[3P2(1)] g";
   } 
-  oniumME = (idNew == 4) ? Settings::parm("Charmonium:Ochic03P01")
-    : Settings::parm("Bottomonium:Ochib03P01");
+  oniumME = (idNew == 4) ? settingsPtr->parm("Charmonium:Ochic03P01")
+    : settingsPtr->parm("Bottomonium:Ochib03P01");
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate d(sigmaHat)/d(tHat); no explicit flavour dependence. 
 
@@ -292,7 +292,7 @@ void Sigma2qqbar2QQbar3PJ1g::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -307,12 +307,12 @@ void Sigma2qqbar2QQbar3PJ1g::setIdColAcol() {
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma2gg2QQbarX8g class.
 // Cross section g g -> QQbar[X(8)] g (Q = c or b, X = 3S1, 1S0 or 3PJ).
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
@@ -325,25 +325,25 @@ void Sigma2gg2QQbarX8g::initProc() {
     idHad = (idNew == 4) ? 9900443 : 9900553;
     nameSave = (idNew == 4) ? "g g -> ccbar[3S1(8)] g" 
       : "g g -> bbbar[3S1(8)] g";
-    oniumME = (idNew == 4) ? Settings::parm("Charmonium:OJpsi3S18")
-      : Settings::parm("Bottomonium:OUpsilon3S18");
+    oniumME = (idNew == 4) ? settingsPtr->parm("Charmonium:OJpsi3S18")
+      : settingsPtr->parm("Bottomonium:OUpsilon3S18");
   } else if (stateSave == 1) {
     idHad = (idNew == 4) ? 9900441 : 9900551;
     nameSave = (idNew == 4) ? "g g -> ccbar[1S0(8)] g" 
       : "g g -> bbbar[1S0(8)] g";
-    oniumME = (idNew == 4) ? Settings::parm("Charmonium:OJpsi1S08")
-      : Settings::parm("Bottomonium:OUpsilon1S08");
+    oniumME = (idNew == 4) ? settingsPtr->parm("Charmonium:OJpsi1S08")
+      : settingsPtr->parm("Bottomonium:OUpsilon1S08");
   } else if (stateSave == 2) {
     idHad = (idNew == 4) ? 9910441 : 9910551;
     nameSave = (idNew == 4) ? "g g -> ccbar[3PJ(8)] g" 
       : "g g -> bbbar[3PJ(8)] g";
-    oniumME = (idNew == 4) ? Settings::parm("Charmonium:OJpsi3P08")
-      : Settings::parm("Bottomonium:OUpsilon3P08");
+    oniumME = (idNew == 4) ? settingsPtr->parm("Charmonium:OJpsi3P08")
+      : settingsPtr->parm("Bottomonium:OUpsilon3P08");
   } 
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate d(sigmaHat)/d(tHat); no explicit flavour dependence. 
 
@@ -404,7 +404,7 @@ void Sigma2gg2QQbarX8g::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -423,22 +423,22 @@ void Sigma2gg2QQbarX8g::setIdColAcol() {
   double sigSum = sigTS + sigUS + sigTU;
 
   // Three colour flow topologies, each with two orientations.
-  double sigRand = sigSum * Rndm::flat();
+  double sigRand = sigSum * rndmPtr->flat();
   if (sigRand < sigTS) setColAcol( 1, 2, 2, 3, 1, 4, 4, 3);
   else if (sigRand < sigTS + sigUS) 
                        setColAcol( 1, 2, 3, 1, 3, 4, 4, 2);
   else                 setColAcol( 1, 2, 3, 4, 1, 4, 3, 2); 
-  if (Rndm::flat() > 0.5) swapColAcol();
+  if (rndmPtr->flat() > 0.5) swapColAcol();
 
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma2qg2QQbarX8q class.
 // Cross section q g -> QQbar[X(8)] q (Q = c or b, X = 3S1, 1S0 or 3PJ).
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
@@ -451,25 +451,25 @@ void Sigma2qg2QQbarX8q::initProc() {
     idHad = (idNew == 4) ? 9900443 : 9900553;
     nameSave = (idNew == 4) ? "q g -> ccbar[3S1(8)] q" 
       : "q g -> bbbar[3S1(8)] q";
-    oniumME = (idNew == 4) ? Settings::parm("Charmonium:OJpsi3S18")
-      : Settings::parm("Bottomonium:OUpsilon3S18");
+    oniumME = (idNew == 4) ? settingsPtr->parm("Charmonium:OJpsi3S18")
+      : settingsPtr->parm("Bottomonium:OUpsilon3S18");
   } else if (stateSave == 1) {
     idHad = (idNew == 4) ? 9900441 : 9900551;
     nameSave = (idNew == 4) ? "q g -> ccbar[1S0(8)] q" 
       : "q g -> bbbar[1S0(8)] q";
-    oniumME = (idNew == 4) ? Settings::parm("Charmonium:OJpsi1S08")
-      : Settings::parm("Bottomonium:OUpsilon1S08");
+    oniumME = (idNew == 4) ? settingsPtr->parm("Charmonium:OJpsi1S08")
+      : settingsPtr->parm("Bottomonium:OUpsilon1S08");
   } else if (stateSave == 2) {
     idHad = (idNew == 4) ? 9910441 : 9910551;
     nameSave = (idNew == 4) ? "q g -> ccbar[3PJ(8)] q" 
       : "q g -> bbbar[3PJ(8)] q";
-    oniumME = (idNew == 4) ? Settings::parm("Charmonium:OJpsi3P08")
-      : Settings::parm("Bottomonium:OUpsilon3P08");
+    oniumME = (idNew == 4) ? settingsPtr->parm("Charmonium:OJpsi3P08")
+      : settingsPtr->parm("Bottomonium:OUpsilon3P08");
   } 
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate d(sigmaHat)/d(tHat); no explicit flavour dependence. 
 
@@ -499,7 +499,7 @@ void Sigma2qg2QQbarX8q::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -521,7 +521,7 @@ void Sigma2qg2QQbarX8q::setIdColAcol() {
   double sigSum = sigTS + sigTU;
 
   // Two colour flow topologies. Swap if first is gluon, or when antiquark.
-  double sigRand = sigSum * Rndm::flat();
+  double sigRand = sigSum * rndmPtr->flat();
   if (sigRand < sigTS) setColAcol( 1, 0, 2, 1, 2, 3, 3, 0);
   else                 setColAcol( 1, 0, 2, 3, 1, 3, 2, 0); 
   if (id1 == 21) swapCol12();
@@ -529,12 +529,12 @@ void Sigma2qg2QQbarX8q::setIdColAcol() {
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma2qqbar2QQbarX8g class.
 // Cross section q qbar -> QQbar[X(8)] g (Q = c or b, X = 3S1, 1S0 or 3PJ).
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
@@ -547,25 +547,25 @@ void Sigma2qqbar2QQbarX8g::initProc() {
     idHad = (idNew == 4) ? 9900443 : 9900553;
     nameSave = (idNew == 4) ? "q qbar -> ccbar[3S1(8)] g" 
       : "q qbar -> bbbar[3S1(8)] g";
-    oniumME = (idNew == 4) ? Settings::parm("Charmonium:OJpsi3S18")
-      : Settings::parm("Bottomonium:OUpsilon3S18");
+    oniumME = (idNew == 4) ? settingsPtr->parm("Charmonium:OJpsi3S18")
+      : settingsPtr->parm("Bottomonium:OUpsilon3S18");
   } else if (stateSave == 1) {
     idHad = (idNew == 4) ? 9900441 : 9900551;
     nameSave = (idNew == 4) ? "q qbar -> ccbar[1S0(8)] g" 
       : "q qbar -> bbbar[1S0(8)] g";
-    oniumME = (idNew == 4) ? Settings::parm("Charmonium:OJpsi1S08")
-      : Settings::parm("Bottomonium:OUpsilon1S08");
+    oniumME = (idNew == 4) ? settingsPtr->parm("Charmonium:OJpsi1S08")
+      : settingsPtr->parm("Bottomonium:OUpsilon1S08");
   } else if (stateSave == 2) {
     idHad = (idNew == 4) ? 9910441 : 9910551;
     nameSave = (idNew == 4) ? "q qbar -> ccbar[3PJ(8)] g" 
       : "q qbar -> bbbar[3PJ(8)] g";
-    oniumME = (idNew == 4) ? Settings::parm("Charmonium:OJpsi3P08")
-      : Settings::parm("Bottomonium:OUpsilon3P08");
+    oniumME = (idNew == 4) ? settingsPtr->parm("Charmonium:OJpsi3P08")
+      : settingsPtr->parm("Bottomonium:OUpsilon3P08");
   } 
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate d(sigmaHat)/d(tHat); no explicit flavour dependence. 
 
@@ -595,7 +595,7 @@ void Sigma2qqbar2QQbarX8g::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -613,14 +613,14 @@ void Sigma2qqbar2QQbarX8g::setIdColAcol() {
   double sigSum = sigTS + sigUS;
 
   // Two colour flow topologies. Swap if first is antiquark.
-  double sigRand = sigSum * Rndm::flat();
+  double sigRand = sigSum * rndmPtr->flat();
   if (sigRand < sigTS) setColAcol( 1, 0, 0, 2, 1, 3, 3, 2);
   else                 setColAcol( 1, 0, 0, 2, 3, 2, 1, 3); 
   if (id1 < 0) swapColAcol();
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8
 

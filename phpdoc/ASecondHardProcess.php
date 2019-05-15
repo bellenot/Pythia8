@@ -44,8 +44,12 @@ precisely. The options on this page allow you to do precisely that.
 <input type="radio" name="1" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Generate two hard scatterings in a collision between hadron beams.
-You must further specify which set of processes to allow for
-the second, see below.
+The hardest process can be any combination of internal processes,
+available in the normal <?php $filepath = $_GET["filepath"];
+echo "<a href='ProcessSelection.php?filepath=".$filepath."' target='page'>";?>process 
+selection</a> machinery, or external input. Here you must further 
+specify which set of processes to allow for the second hard one, see 
+the following.
   
 
 <h3>Process Selection</h3>
@@ -432,8 +436,8 @@ full <code>event</code> event record.
 
 <p/>
 Most of the properties accessible by the  
-<?php $filepath = $_GET["filepath"];
-echo "<a href='EventInformation.php?filepath=".$filepath."' target='page'>";?><code>pythia.info</code></a>
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='EventInformation.php?filepath=".$filepath."' target='page'>";?>pythia.info</a></code>
 methods refer to the first process, whether that happens to be the
 hardest or not. The code and <i>pT</i> scale of the second process
 are accessible by the <code>info.codeMI(1)</code> and 
@@ -537,4 +541,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->

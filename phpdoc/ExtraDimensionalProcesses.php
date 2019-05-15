@@ -231,7 +231,7 @@ Fundamental scale of gravity in <i>D = 4 + n</i> dimensions.
 Ultraviolet cutoff parameter for the virtual graviton exchange processes.
   
 
-<br/><br/><table><tr><td><strong>ExtraDimensionsLED:CutOffmode  </td><td>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 3</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ExtraDimensionsLED:CutOffMode  </td><td>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 3</code>)</td></tr></table>
 Options for when the hard scale of the process (e.g. <ei>sHat</ei>) 
 approaches or exceed the scale of validity of the low energy effective 
 theory (e.g. <ei>M_D</ei>). Note: Option 1 only concerns the graviton 
@@ -372,7 +372,7 @@ give rise to an IR divergence which makes the event generation very slow, so
 this values is fixed to <i>ratio = 1</i> for the moment.
   
 
-<br/><br/><table><tr><td><strong>ExtraDimensionsUnpart:CutOffmode  </td><td>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 1</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ExtraDimensionsUnpart:CutOffMode  </td><td>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 1</code>)</td></tr></table>
 Options for when the hard scale of the process (e.g. <ei>sHat</ei>) 
 approaches or exceed the scale of validity of the low energy effective 
 theory (<ei>Lambda_U</ei>). This mode only concerns the unparticle emission processes. 
@@ -436,13 +436,13 @@ gravitational coupling runs. <i>t</i> is of order 1 and [<a href="Bibliography.p
 argues that it should be less than or about 2.
 
 <p/>
-If the option <code>ExtraDimensionsLED:CutOffmode = 2</code> is used the 
+If the option <code>ExtraDimensionsLED:CutOffMode = 2</code> is used the 
 hard scale <i>mu^2</i> is set by using <code>SigmaProcess:renormScale2</code>. 
 In this case the options 1 and 4 corresponds to what was used in 
 [<a href="Bibliography.php" target="page">Hew07</a>] for the graviton emission and virtual graviton exchange 
 processes respectively. For the graviton emission processes it is also 
 possible to use <i>mu = E_jet</i> in the center-of-mass system by 
-setting <code>ExtraDimensionsLED:CutOffmode = 3</code>. Option 2 and 3 are 
+setting <code>ExtraDimensionsLED:CutOffMode = 3</code>. Option 2 and 3 are 
 equivalent for the virtual graviton exchange.
 
 <input type="hidden" name="saved" value="1"/>
@@ -562,7 +562,7 @@ fwrite($handle,$data);
 }
 if($_POST["21"] != "0")
 {
-$data = "ExtraDimensionsLED:CutOffmode = ".$_POST["21"]."\n";
+$data = "ExtraDimensionsLED:CutOffMode = ".$_POST["21"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["22"] != "1.")
@@ -647,7 +647,7 @@ fwrite($handle,$data);
 }
 if($_POST["38"] != "0")
 {
-$data = "ExtraDimensionsUnpart:CutOffmode = ".$_POST["38"]."\n";
+$data = "ExtraDimensionsUnpart:CutOffMode = ".$_POST["38"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["39"] != "0")
@@ -667,5 +667,5 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->
 

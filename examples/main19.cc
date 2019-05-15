@@ -1,5 +1,5 @@
 // main19.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -10,35 +10,29 @@
 // The = and += overloaded operators are used to join several 
 // event records into one, but should be used with caution.
 
-// Warning: several elements of Pythia are static, so this facility
-// should be used with caution:
-// 1) The Settings database is static, but the initialization step of
-//    most classes store their values in local non-static copies. 
-//    It is therefore possible to initialize with different settings.
-//    In particular, it is possible to set up two Pythia instances 
-//    that have different beams and generate different sets of processes.
-// 2) The ParticleData database is also static, but used all the time,
-//    so it is not possible to use different particle data 
-//    (and also not different resonance width expressions).
-// 3) The random-number generation is static.
-// 4) Interfaces to external Fortran programs are "by definition" static.
+// Note that each instance of Pythia is independent of any other,
+// but with two important points to remember.
+// 1) By default all generate the same random number sequence,
+//    which has to be corrected if they are to generate the same
+//    physics, like the two beam-gas ones below.
+// 2) Interfaces to external Fortran programs are "by definition" static.
 //    Thus it is not a good idea to use LHAPDF to set different PDF's
 //    in different instances.
 
 #include "Pythia.h"
 using namespace Pythia8; 
 
-//**************************************************************************
+//==========================================================================
 
 // Method to pick a number according to a Poissonian distribution.
 
-int poisson(double nAvg) {
+int poisson(double nAvg, Rndm& rndm) {
 
   // Set maximum to avoid overflow.
   const int NMAX = 100;
 
   // Random number.
-  double rPoisson = Rndm::flat() * exp(nAvg);
+  double rPoisson = rndm.flat() * exp(nAvg);
 
   // Initialize.
   double rSum  = 0.;
@@ -58,7 +52,7 @@ int poisson(double nAvg) {
   return NMAX; 
 }
 
-//**************************************************************************
+//==========================================================================
 
 int main() {
 
@@ -88,16 +82,23 @@ int main() {
   pythiaSignal.readString("HardQCD:all = on");    
   pythiaSignal.readString("PhaseSpace:pTHatMin = 50.");
   pythiaSignal.init( 2212, 2212, 2. * eBeam);
-  // Selected process(es) must be switched back off before next init,
-  // since Settings database is static.
-  pythiaSignal.readString("HardQCD:all = off");    
 
-  // Initialize generator for pileup (background) processes. 
+  // Initialize generator for pileup (background) processes.
+  pythiaPileup.readString("Random:setSeed = on");    
+  pythiaPileup.readString("Random:seed = 10000002");     
   pythiaPileup.readString("SoftQCD:all = on");    
   pythiaPileup.init( 2212, 2212, 2. * eBeam);
 
-  // Initialize generators for beam-gas (background) processes. 
+  // Initialize generators for beam A - gas (background) processes. 
+  pythiaBeamAGas.readString("Random:setSeed = on");    
+  pythiaBeamAGas.readString("Random:seed = 10000003");     
+  pythiaBeamAGas.readString("SoftQCD:all = on");    
   pythiaBeamAGas.init( 2212, 2212, eBeam, 0.);
+
+  // Initialize generators for beam B - gas (background) processes. 
+  pythiaBeamBGas.readString("Random:setSeed = on");    
+  pythiaBeamBGas.readString("Random:seed = 10000004");     
+  pythiaBeamBGas.readString("SoftQCD:all = on");    
   pythiaBeamBGas.init( 2212, 2212, 0., eBeam);
 
   // Histograms: number of pileups, total charged multiplicity.
@@ -115,7 +116,7 @@ int main() {
     sumEvent = pythiaSignal.event;
 
     // Select the number of pileup events to generate.
-    int nPileup = poisson(nPileupAvg); 
+    int nPileup = poisson(nPileupAvg, pythiaPileup.rndm); 
     nPileH.fill( nPileup );
 
     // Generate a number of pileup events. Add them to sumEvent.      
@@ -125,7 +126,7 @@ int main() {
     }
 
     // Select the number of beam A + gas events to generate.
-    int nBeamAGas = poisson(nBeamAGasAvg); 
+    int nBeamAGas = poisson(nBeamAGasAvg, pythiaBeamAGas.rndm); 
     nAGH.fill( nBeamAGas );
 
     // Generate a number of beam A + gas events. Add them to sumEvent.      
@@ -135,7 +136,7 @@ int main() {
     }
   
     // Select the number of beam B + gas events to generate.
-    int nBeamBGas = poisson(nBeamBGasAvg); 
+    int nBeamBGas = poisson(nBeamBGasAvg, pythiaBeamBGas.rndm); 
     nBGH.fill( nBeamBGas );
 
     // Generate a number of beam B + gas events. Add them to sumEvent.      

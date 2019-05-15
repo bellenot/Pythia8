@@ -1,5 +1,5 @@
 // SigmaTotal.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -9,7 +9,7 @@
 
 namespace Pythia8 {
 
-//**************************************************************************
+//==========================================================================
 
 // The SigmaTotal class.
 
@@ -27,7 +27,7 @@ namespace Pythia8 {
 // = 10 : phi + phi; = 11 : phi + J/psi; = 12 : J/psi + J/psi.  
 // = 13 : Pom + p (preliminary). 
 
-//*********
+//--------------------------------------------------------------------------
  
 // Definitions of static variables.
 // Note that a lot of parameters are hardcoded as const here, rather 
@@ -104,33 +104,35 @@ const double SigmaTotal::CDD[10][9] = {
   { 4.18, -29.2,  56.2, 0.074, -1.36, 6.67, -1.14, 116.2, 6532.  } };
 const double SigmaTotal::SPROTON = 0.880;
 
-//*********
+//--------------------------------------------------------------------------
 
 // Store pointer to Info and initialize data members.
 
-void SigmaTotal::init(Info* infoPtrIn) {
+void SigmaTotal::init(Info* infoPtrIn, Settings& settings,
+  ParticleData* particleDataPtrIn) {
 
-  // Store pointer.
-  infoPtr    = infoPtrIn;
+  // Store pointers.
+  infoPtr         = infoPtrIn;
+  particleDataPtr = particleDataPtrIn;
 
   // User-set values for cross sections.  
-  setTotal   = Settings::flag("SigmaTotal:setOwn");
-  sigTotOwn  = Settings::parm("SigmaTotal:sigmaTot");
-  sigElOwn   = Settings::parm("SigmaTotal:sigmaEl");
-  sigXBOwn   = Settings::parm("SigmaTotal:sigmaXB");
-  sigAXOwn   = Settings::parm("SigmaTotal:sigmaAX");
-  sigXXOwn   = Settings::parm("SigmaTotal:sigmaXX");
+  setTotal   = settings.flag("SigmaTotal:setOwn");
+  sigTotOwn  = settings.parm("SigmaTotal:sigmaTot");
+  sigElOwn   = settings.parm("SigmaTotal:sigmaEl");
+  sigXBOwn   = settings.parm("SigmaTotal:sigmaXB");
+  sigAXOwn   = settings.parm("SigmaTotal:sigmaAX");
+  sigXXOwn   = settings.parm("SigmaTotal:sigmaXX");
 
   // User-set values for handling of elastic sacattering. 
-  setElastic = Settings::flag("SigmaElastic:setOwn");
-  bSlope     = Settings::parm("SigmaElastic:bSlope");  
-  rho        = Settings::parm("SigmaElastic:rho");  
-  lambda     = Settings::parm("SigmaElastic:lambda");  
-  tAbsMin    = Settings::parm("SigmaElastic:tAbsMin");  
-  alphaEM0   = Settings::parm("StandardModel:alphaEM0");
+  setElastic = settings.flag("SigmaElastic:setOwn");
+  bSlope     = settings.parm("SigmaElastic:bSlope");  
+  rho        = settings.parm("SigmaElastic:rho");  
+  lambda     = settings.parm("SigmaElastic:lambda");  
+  tAbsMin    = settings.parm("SigmaElastic:tAbsMin");  
+  alphaEM0   = settings.parm("StandardModel:alphaEM0");
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Function that calculates the relevant properties.
 
@@ -187,8 +189,8 @@ bool SigmaTotal::calc( int idA, int idB, double eCM) {
   // For mesons use the corresponding vector meson masses.
   int idModA = (idAbsA > 1000) ? idAbsA : 10 * (idAbsA/10) + 3; 
   int idModB = (idAbsB > 1000) ? idAbsB : 10 * (idAbsB/10) + 3; 
-  double mA  = ParticleDataTable::m0(idModA);
-  double mB  = ParticleDataTable::m0(idModB);
+  double mA  = particleDataPtr->m0(idModA);
+  double mB  = particleDataPtr->m0(idModB);
   if (eCM < mA + mB + MMIN) return false; 
   
   // Evaluate the total cross section.
@@ -305,6 +307,6 @@ bool SigmaTotal::calc( int idA, int idB, double eCM) {
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8

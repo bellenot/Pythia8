@@ -39,10 +39,11 @@ and of space and time in mm.
 There are two ways to set the identities and energies of the two incoming 
 beam particles. One is to use the <code>init()</code> method with no 
 arguments. Then the settings variables below will be read and used. The 
-alternative is to call <code>init(...)</code> with arguments that provide 
-this information. Then you need not use the variables below (although it 
-would still be possible). Note that, if nothing is done, you will default 
-to LHC at the nominal energy.
+alternative is to call <code><?php $filepath = $_GET["filepath"];
+echo "<a href='ProgramFlow.php?filepath=".$filepath."' target='page'>";?>init(...)</a></code> 
+with arguments that provide this information. Then you need not use the 
+variables below (although it would still be possible). Note that, if nothing 
+is done, you will default to LHC at 14 TeV.
 
 <p/>
 Currently the beam particles must be either a hadron pair or a lepton
@@ -55,10 +56,14 @@ appropriate hard process.
 
 <br/><br/><table><tr><td><strong>Beams:idA  </td><td></td><td> <input type="text" name="1" value="2212" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2212</strong></code>)</td></tr></table>
 The PDG <code>id</code> code for the first incoming particle.
-Allowed codes include <i>2212 = p</i>, <i>-2212 = pbar</i>, 
-<i>211 = pi^+</i>, <i>-211 = pi^-</i>, <i>111 = pi^0</i>,  
-<i>11 = e^-</i>, <i>-11 = e^+</i>, <i>13 = mu^-</i>, 
-<i>-13 = mu^+</i>, and a few more leptons.
+Allowed codes include 
+<br/><i>2212 = p</i>, <i>-2212 = pbar</i>, 
+<br/><i>211 = pi^+</i>, <i>-211 = pi^-</i>, <i>111 = pi^0</i>,  
+<br/><i>990 = Pomeron</i> (used in diffractive machinery;
+here mainly for debug purposes),
+<br/><i>11 = e^-</i>, <i>-11 = e^+</i>, 
+<br/><i>13 = mu^-</i>, <i>-13 = mu^+</i>, 
+<br/>and a few more leptons/neutrinos in a few combinations.
   
 
 <br/><br/><table><tr><td><strong>Beams:idB  </td><td></td><td> <input type="text" name="2" value="2212" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2212</strong></code>)</td></tr></table>
@@ -141,8 +146,8 @@ parton-level events is at own risk.
 On this page you can set the momentum spread according to a simple 
 Gaussian distribution. If you instead want a more sophisticated 
 parametrization, you can write and link your own 
-<?php $filepath = $_GET["filepath"];
-echo "<a href='BeamShape.php?filepath=".$filepath."' target='page'>";?><code>BeamShape</code></a> class.
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='BeamShape.php?filepath=".$filepath."' target='page'>";?>BeamShape</a></code> class.
 
 <br/><br/><strong>Beams:allowMomentumSpread</strong>  <input type="radio" name="14" value="on"><strong>On</strong>
 <input type="radio" name="14" value="off" checked="checked"><strong>Off</strong>
@@ -210,8 +215,8 @@ used to pick <i>(p_x, p_y, p_z)</i>.)
 On this page you can set the spread of the interaction vertex according to 
 a simple Gaussian distribution. If you instead want a more sophisticated 
 parametrization, you can write and link your own 
-<?php $filepath = $_GET["filepath"];
-echo "<a href='BeamShape.php?filepath=".$filepath."' target='page'>";?><code>BeamShape</code></a> class.
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='BeamShape.php?filepath=".$filepath."' target='page'>";?>BeamShape</a></code> class.
 
 <br/><br/><strong>Beams:allowVertexSpread</strong>  <input type="radio" name="23" value="on"><strong>On</strong>
 <input type="radio" name="23" value="off" checked="checked"><strong>Off</strong>
@@ -470,4 +475,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->

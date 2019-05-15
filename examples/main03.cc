@@ -1,5 +1,5 @@
 // main03.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -16,10 +16,10 @@ int main() {
   // Generator.
   Pythia pythia;
 
-  // Shorthand for some public members of pythia (also static ones).
-  Event& event = pythia.event;
-  ParticleDataTable& pdt = pythia.particleData;
-  Info& info = pythia.info;
+  // Shorthand for some public members of pythia.
+  Event& event      = pythia.event;
+  ParticleData& pdt = pythia.particleData;
+  Info& info        = pythia.info;
 
   // Read in commands from external file.
   pythia.readFile("main03.cmnd");    
@@ -35,7 +35,7 @@ int main() {
   pythia.init();
 
   // List changed data.
-  if (showCS) pythia.settings.listChanged();
+  if (showCS)  pythia.settings.listChanged();
   if (showCPD) pdt.listChanged();
 
   // Book histograms.

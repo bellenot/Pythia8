@@ -1,5 +1,5 @@
 // SigmaProcess.h is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -36,11 +36,12 @@
 #include "Settings.h"
 #include "SigmaTotal.h"
 #include "StandardModel.h"
+#include "SusyCouplings.h"
 #include "SusyLesHouches.h"
 
 namespace Pythia8 {
 
-//**************************************************************************
+//==========================================================================
 
 // InBeam is a simple helper class for partons and their flux in a beam.
 
@@ -57,7 +58,7 @@ public:
 
 };
 
-//**************************************************************************
+//==========================================================================
 
 // InPair is a simple helper class for colliding parton pairs and their flux.
 
@@ -75,7 +76,7 @@ public:
 
 };
  
-//**************************************************************************
+//==========================================================================
 
 // SigmaProcess is the base class for cross section calculations.
 
@@ -87,10 +88,11 @@ public:
   virtual ~SigmaProcess() {}
 
   // Perform simple initialization and store pointers.
-  void init(Info* infoPtrIn, BeamParticle* beamAPtrIn, 
-    BeamParticle* beamBPtrIn, AlphaStrong* alphaSPtrIn, 
-    AlphaEM* alphaEMPtrIn, SigmaTotal* sigmaTotPtrIn,
-    SusyLesHouches* slhaPtrIn);
+  void init(Info* infoPtrIn, Settings* settingsPtrIn,
+    ParticleData* particleDataPtrIn, Rndm* rndmPtrIn,
+    BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, CoupSM* coupSMPtrIn, 
+    SigmaTotal* sigmaTotPtrIn = 0, CoupSUSY* coupSUSYPtrIn = 0, 
+    SusyLesHouches* slhaPtrIn = 0);
 
   // Store or replace Les Houches pointer.
   void setLHAPtr( LHAup* lhaUpPtrIn) {lhaUpPtr = lhaUpPtrIn;}  
@@ -181,6 +183,9 @@ public:
   virtual bool   isDiffA()         const {return false;}
   virtual bool   isDiffB()         const {return false;}
 
+  // Special treatment needed for SUSY processes.
+  virtual bool   isSUSY()          const {return false;}  
+
   // Special treatment needed if negative cross sections allowed.
   virtual bool   allowNegativeSigma() const {return false;}
 
@@ -247,23 +252,34 @@ protected:
 
   // Pointer to various information on the generation.
   Info*           infoPtr;
+ 
+  // Pointer to the settings database.
+  Settings*       settingsPtr;
+
+  // Pointer to the particle data table.
+  ParticleData*   particleDataPtr;
+
+  // Pointer to the random number generator.
+  Rndm*           rndmPtr;
 
   // Pointers to incoming beams.
   BeamParticle*   beamAPtr;
   BeamParticle*   beamBPtr;
 
-  // Pointers to alphaStrong and alphaElectromagnetic calculation.
-  AlphaStrong*    alphaSPtr;
-  AlphaEM*        alphaEMPtr;
+  // Pointer to Standard Model couplings, including alphaS and alphaEM.
+  CoupSM*         coupSMPtr;
   
   // Pointer to the total/elastic/diffractive cross section object.
   SigmaTotal*     sigmaTotPtr;
 
-  // Pointer to LHAup for generating external events.
-  LHAup*          lhaUpPtr;
+  // Pointer to SUSY couplings.
+  CoupSUSY*       coupSUSYPtr;
 
   // Pointer to the SLHA object.
   SusyLesHouches* slhaPtr;
+
+  // Pointer to LHAup for generating external events.
+  LHAup*          lhaUpPtr;
 
   // Initialization data, normally only set once.
   int    nQuarkIn, renormScale1, renormScale2, renormScale3, renormScale3VV, 
@@ -335,7 +351,7 @@ protected:
 
 };
  
-//**************************************************************************
+//==========================================================================
 
 // Sigma0Process is the base class for unresolved and minimum-bias processes. 
 // It is derived from SigmaProcess.
@@ -369,7 +385,7 @@ protected:
 
 };
  
-//**************************************************************************
+//==========================================================================
 
 // Sigma1Process is the base class for 2 -> 1 processes.
 // It is derived from SigmaProcess.
@@ -404,7 +420,7 @@ protected:
 
 };
  
-//**************************************************************************
+//==========================================================================
 
 // Sigma2Process is the base class for 2 -> 2 processes.
 // It is derived from SigmaProcess.
@@ -457,7 +473,7 @@ protected:
 
 };
  
-//**************************************************************************
+//==========================================================================
 
 // Sigma3Process is the base class for 2 -> 3 processes.
 // It is derived from SigmaProcess.
@@ -498,7 +514,7 @@ protected:
 
 };
  
-//**************************************************************************
+//==========================================================================
 
 // SigmaLHAProcess is a wrapper class for Les Houches Accord external input.
 // It is derived from SigmaProcess.
@@ -543,7 +559,7 @@ private:
 
 };
  
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8
 

@@ -62,26 +62,47 @@ would be smarter to hardcode the desired limiting behaviour.
 
 <h3>Derived classes</h3>
 
-There is only one pure virtual method, <code>xfUpdate</code>, that therefore 
-must be implemented in any derived class. Currently the list of such 
-classes is tiny:
+There is only one pure virtual method, <code>xfUpdate</code>, that 
+therefore must be implemented in any derived class. A reasonable 
+number of such classes come with the program:
 
 <p/>
 For protons:
 <ul>
+<li><code>LHAPDFinterface</code> provides an interface to the 
+LHAPDF library<ref>Wha05</ref>.</li>
 <li><code>GRV94L</code> gives the GRV 94 L parametrization 
 <ref>Glu95</ref>.</li>
 <li><code>CTEQ5L</code> gives the CTEQ 5 L parametrization 
 <ref>Lai00</ref>.</li>
-<li><code>LHAPDFinterface</code> provides an interface to the 
-LHAPDF library<ref>Wha05</ref>.</li>
+<li><code>MSTWpdf</code> gives the four distributions of the
+MRST/MSTW group that have been implemented.</li>
+<li><code>CTEQ6pdf</code> gives the six distributions of the
+CTEQ/CT group that have been implemented.</li>
 </ul>
-The default is CTEQ 5L, which is the most recent of the two hardcoded sets.
+The current default is CTEQ 5L, which has been used in most studies
+to date.
+
+<p/>
+For charged pions:
+<ul>
+<li><code>GRVpiL</code> gives the GRV 1992 pi+ parametrization.</li>
+</ul>
+
+<p/>
+For Pomerons (used to describe diffraction):
+<ul>
+<li><code>PomFix</code> gives a simple but flexible 
+<ei>Q2</ei>-independent parametrization.</li>
+<li><code>PomH1FitAB</code> gives the H1 2006 Fit A and Fit B
+parametrizations.</li>
+<li><code>PomH1Jets</code> gives the H1 2007 Jets parametrization.</li>
+</ul>
 
 <p/>
 For charged leptons (e, mu, tau): 
 <ul>
-<li>Lepton gives a QED parametrization <ref>Kle89</ref>.
+<li><code>Lepton</code> gives a QED parametrization <ref>Kle89</ref>.
 In QED there are not so many ambiguities, so here one set should be 
 enough. On the other hand, there is the problem that the 
 lepton-inside-lepton pdf is integrably divergent for <ei>x -> 1</ei>, 
@@ -89,6 +110,8 @@ which gives numerical problems. Like in PYTHIA 6, the pdf is therefore
 made to vanish for <ei>x > 1 - 10^{-10}</ei>, and scaled up in the range
 <ei>1 - 10^{-7} &lt; x &lt; 1 - 10^{-10}</ei> in such a way that the 
 total area under the pdf is preserved.</li>
+<li><code>LeptonPoint</code> gives the trivial distribution of a
+pointlike (i.e. unresolved) lepton or neutrino.</li>
 </ul>   
 
 There is another method, <code>isSetup()</code>, that returns the 
@@ -97,6 +120,13 @@ initially <code>true</code>, but could be set <code>false</code> if the
 setup procedure of a PDF failed, e.g. if the user has chosen an unknown 
 PDF set.  
 
+<p/> 
+The MRST/MSTW, CTEQ/CT and H1 PDF routines are based on the interpolation
+in <ei>(x, Q)</ei> grids. The grid files are stored in the 
+<code>xmldoc</code> subdirectory, like settings and particle data.
+Only PDF sets that will be used are read in during the initialization 
+stage.
+
 </chapter>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->

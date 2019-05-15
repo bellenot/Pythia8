@@ -1,5 +1,5 @@
 // TimeShower.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -9,11 +9,11 @@
 
 namespace Pythia8 {
 
-//**************************************************************************
+//==========================================================================
 
 // The TimeShower class.
 
-//*********
+//--------------------------------------------------------------------------
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -50,7 +50,7 @@ const double TimeShower::MAXVIRTUALITYFRACTION = 0.5;
 // Do not allow too large negative spacelike energy in system rest frame.
 const double TimeShower::MAXNEGENERGYFRACTION  = 0.7; 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize alphaStrong, alphaEM and related pTmin parameters.
 
@@ -62,27 +62,28 @@ void TimeShower::init( BeamParticle* beamAPtrIn,
   beamBPtr           = beamBPtrIn;
 
   // Main flags.
-  doQCDshower        = Settings::flag("TimeShower:QCDshower");
-  doQEDshowerByQ     = Settings::flag("TimeShower:QEDshowerByQ");
-  doQEDshowerByL     = Settings::flag("TimeShower:QEDshowerByL");
-  doQEDshowerByGamma = Settings::flag("TimeShower:QEDshowerByGamma");
-  doMEcorrections    = Settings::flag("TimeShower:MEcorrections");
-  doPhiPolAsym       = Settings::flag("TimeShower:phiPolAsym"); 
-  doInterleave       = Settings::flag("TimeShower:interleave"); 
-  allowBeamRecoil    = Settings::flag("TimeShower:allowBeamRecoil"); 
+  doQCDshower        = settingsPtr->flag("TimeShower:QCDshower");
+  doQEDshowerByQ     = settingsPtr->flag("TimeShower:QEDshowerByQ");
+  doQEDshowerByL     = settingsPtr->flag("TimeShower:QEDshowerByL");
+  doQEDshowerByGamma = settingsPtr->flag("TimeShower:QEDshowerByGamma");
+  doMEcorrections    = settingsPtr->flag("TimeShower:MEcorrections");
+  doPhiPolAsym       = settingsPtr->flag("TimeShower:phiPolAsym"); 
+  doInterleave       = settingsPtr->flag("TimeShower:interleave"); 
+  allowBeamRecoil    = settingsPtr->flag("TimeShower:allowBeamRecoil"); 
 
-  // Matching in pT of hard interaction to shower evolution.
-  pTmaxFudge         = Settings::parm("TimeShower:pTmaxFudge"); 
+  // Matching in pT of hard interaction or MI to shower evolution.
+  pTmaxFudge         = settingsPtr->parm("TimeShower:pTmaxFudge"); 
+  pTmaxFudgeMI       = settingsPtr->parm("TimeShower:pTmaxFudgeMI"); 
 
   // Charm and bottom mass thresholds.
-  mc                 = ParticleDataTable::m0(4); 
-  mb                 = ParticleDataTable::m0(5); 
+  mc                 = particleDataPtr->m0(4); 
+  mb                 = particleDataPtr->m0(5); 
   m2c                = mc * mc;
   m2b                = mb * mb;
        
   // Parameters of alphaStrong generation .
-  alphaSvalue        = Settings::parm("TimeShower:alphaSvalue");
-  alphaSorder        = Settings::mode("TimeShower:alphaSorder");
+  alphaSvalue        = settingsPtr->parm("TimeShower:alphaSvalue");
+  alphaSorder        = settingsPtr->mode("TimeShower:alphaSorder");
   alphaS2pi          = 0.5 * alphaSvalue / M_PI;
 
   // Initialize alphaStrong generation.
@@ -97,8 +98,8 @@ void TimeShower::init( BeamParticle* beamAPtrIn,
   Lambda3flav2       = pow2(Lambda3flav);
  
   // Parameters of QCD evolution. Warn if pTmin must be raised.
-  nGluonToQuark      = Settings::mode("TimeShower:nGluonToQuark");
-  pTcolCutMin        = Settings::parm("TimeShower:pTmin");
+  nGluonToQuark      = settingsPtr->mode("TimeShower:nGluonToQuark");
+  pTcolCutMin        = settingsPtr->parm("TimeShower:pTmin");
   if (pTcolCutMin > LAMBDA3MARGIN * Lambda3flav) 
     pTcolCut         = pTcolCutMin;
   else { 
@@ -112,47 +113,53 @@ void TimeShower::init( BeamParticle* beamAPtrIn,
   pT2colCut          = pow2(pTcolCut);  
        
   // Parameters of alphaEM generation .
-  alphaEMorder       = Settings::mode("TimeShower:alphaEMorder");
+  alphaEMorder       = settingsPtr->mode("TimeShower:alphaEMorder");
 
   // Initialize alphaEM generation.
-  alphaEM.init( alphaEMorder); 
+  alphaEM.init( alphaEMorder, settingsPtr); 
  
   // Parameters of QED evolution.
-  nGammaToQuark      = Settings::mode("TimeShower:nGammaToQuark");
-  nGammaToLepton     = Settings::mode("TimeShower:nGammaToLepton");
-  pTchgQCut          = Settings::parm("TimeShower:pTminChgQ"); 
+  nGammaToQuark      = settingsPtr->mode("TimeShower:nGammaToQuark");
+  nGammaToLepton     = settingsPtr->mode("TimeShower:nGammaToLepton");
+  pTchgQCut          = settingsPtr->parm("TimeShower:pTminChgQ"); 
   pT2chgQCut         = pow2(pTchgQCut);
-  pTchgLCut          = Settings::parm("TimeShower:pTminChgL"); 
+  pTchgLCut          = settingsPtr->parm("TimeShower:pTminChgL"); 
   pT2chgLCut         = pow2(pTchgLCut);
-  mMaxGamma          = Settings::parm("TimeShower:mMaxGamma"); 
+  mMaxGamma          = settingsPtr->parm("TimeShower:mMaxGamma"); 
   m2MaxGamma         = pow2(mMaxGamma);
 
   // Consisteny check for gamma -> f fbar variables.
   if (nGammaToQuark <= 0 && nGammaToLepton <= 0) doQEDshowerByGamma = false;  
 
   // Fraction and colour factor of gluon emission off onium octat state.
-  octetOniumFraction = Settings::parm("TimeShower:octetOniumFraction");
-  octetOniumColFac   = Settings::parm("TimeShower:octetOniumColFac");
+  octetOniumFraction = settingsPtr->parm("TimeShower:octetOniumFraction");
+  octetOniumColFac   = settingsPtr->parm("TimeShower:octetOniumColFac");
 
   // Z0 properties needed for gamma/Z0 mixing.
-  mZ                 = ParticleDataTable::m0(23);
-  gammaZ             = ParticleDataTable::mWidth(23);
-  thetaWRat          = 1. / (16. * CoupEW::sin2thetaW() * CoupEW::cos2thetaW());
+  mZ                 = particleDataPtr->m0(23);
+  gammaZ             = particleDataPtr->mWidth(23);
+  thetaWRat          = 1. / (16. * coupSMPtr->sin2thetaW() 
+                       * coupSMPtr->cos2thetaW());
 
   // May have to fix up recoils related to rescattering. 
-  allowRescatter     = Settings::flag("PartonLevel:MI") 
-                    && Settings::flag("MultipleInteractions:allowRescatter");
+  allowRescatter     = settingsPtr->flag("PartonLevel:MI") 
+                    && settingsPtr->flag("MultipleInteractions:allowRescatter");
 
   // Hidden Valley scenario with further shower activity.
-  doHVshower         = Settings::flag("HiddenValley:FSR");
-  nCHV               = Settings::mode("HiddenValley:Ngauge");
-  alphaHVfix         = Settings::parm("HiddenValley:alphaFSR");
-  pThvCut            = Settings::parm("HiddenValley:pTminFSR");
+  doHVshower         = settingsPtr->flag("HiddenValley:FSR");
+  nCHV               = settingsPtr->mode("HiddenValley:Ngauge");
+  alphaHVfix         = settingsPtr->parm("HiddenValley:alphaFSR");
+  pThvCut            = settingsPtr->parm("HiddenValley:pTminFSR");
   pT2hvCut           = pThvCut * pThvCut; 
   CFHV               = (nCHV == 1) ? 1. : (nCHV * nCHV - 1.)/(2. * nCHV); 
+
+  // Possibility to allow user veto of emission step.
+  canVetoEmission = (userHooksPtr > 0) ? userHooksPtr->canVetoFSREmission() 
+    : false;
+
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Top-level routine to do a full time-like shower in resonance decay.
 
@@ -197,7 +204,7 @@ int TimeShower::shower( int iBeg, int iEnd, Event& event, double pTmax,
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Prepare system for evolution; identify ME.
 
@@ -221,7 +228,7 @@ void TimeShower::prepare( int iSys, Event& event) {
         = ( idRad == 9900441 || idRad == 9900443 || idRad == 9910441 
          || idRad == 9900551 || idRad == 9900553 || idRad == 9910551 ); 
       bool doQCD = doQCDshower;
-      if (doQCD && isOctetOnium) doQCD = (Rndm::flat() < octetOniumFraction);
+      if (doQCD && isOctetOnium) doQCD = (rndmPtr->flat() < octetOniumFraction);
 
       // Find dipole end formed by colour index.
       int colTag = event[iRad].col();    
@@ -263,7 +270,7 @@ void TimeShower::prepare( int iSys, Event& event) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Update dipole list after a multiple interactions rescattering. 
 void TimeShower::rescatterUpdate( int iSys, Event& event) {
@@ -450,7 +457,7 @@ void TimeShower::rescatterUpdate( int iSys, Event& event) {
    
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Update dipole list after each ISR emission (so not used for resonances).  
 
@@ -638,7 +645,7 @@ void TimeShower::update( int iSys, Event& event) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Setup a dipole end for a QCD colour charge.
 
@@ -723,7 +730,7 @@ void TimeShower::setupQCDdip( int iSys, int i, int colTag, int colSign,
       for (int iJun = 0; iJun < event.sizeJunction(); ++ iJun)
       for (int iLeg = 0; iLeg < 3; ++iLeg) 
       if (event.endColJunction( iJun, iLeg) == colTag) {
-        int iLegRec = iLeg + 1 + int(2. * Rndm::flat());
+        int iLegRec = iLeg + 1 + int(2. * rndmPtr->flat());
         if (iLegRec >= 3) iLegRec -= 3;
         int colTagRec = event.endColJunction( iJun, iLegRec);
         for (int j = 0; j < event.size(); ++j) if (event[j].isFinal()) 
@@ -773,6 +780,7 @@ void TimeShower::setupQCDdip( int iSys, int i, int colTag, int colSign,
   if (iRec > 0) { 
     double pTmax = event[iRad].scale();
     if (iSys == 0) pTmax *= pTmaxFudge;
+    if (iSys > 0 && sizeIn > 0) pTmax *= pTmaxFudgeMI;
     int colType  = (event[iRad].id() == 21) ? 2 * colSign : colSign;
     int isrType  = (event[iRec].isFinal()) ? 0 : event[iRec].mother1();
     // This line in case mother is a rescattered parton.
@@ -794,7 +802,7 @@ void TimeShower::setupQCDdip( int iSys, int i, int colTag, int colSign,
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Setup a dipole end for a QED colour charge or a photon.
 // No failsafe choice of recoiler, so gradually widen search.
@@ -917,6 +925,7 @@ void TimeShower::setupQEDdip( int iSys, int i, int chgType, int gamType,
   if (iRec > 0) {
     double pTmax = event[iRad].scale();
     if (iSys == 0) pTmax *= pTmaxFudge;
+    if (iSys > 0 && sizeIn > 0) pTmax *= pTmaxFudgeMI;
     int isrType = (event[iRec].isFinal()) ? 0 : event[iRec].mother1();
     // This line in case mother is a rescattered parton.
     while (isrType > 2 + beamOffset) isrType = event[isrType].mother1();
@@ -939,7 +948,7 @@ void TimeShower::setupQEDdip( int iSys, int i, int chgType, int gamType,
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Setup a dipole end for a Hidden Valley colour charge.
 
@@ -987,7 +996,7 @@ void TimeShower::setupHVdip( int iSys, int i, Event& event) {
 
 }
  
-//*********
+//--------------------------------------------------------------------------
 
 // Select next pT in downwards evolution of the existing dipoles.
 
@@ -1037,7 +1046,7 @@ double TimeShower::pTnext( Event& event, double pTbegAll, double pTendAll) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evolve a QCD dipole end. 
 
@@ -1112,19 +1121,19 @@ void TimeShower::pT2nextQCD(double pT2begDip, double pT2sel,
 
     // Pick pT2 (in overestimated z range) for fixed alpha_strong.
     if (alphaSorder == 0) {
-      dip.pT2 = dip.pT2 * pow( Rndm::flat(), 
+      dip.pT2 = dip.pT2 * pow( rndmPtr->flat(), 
         1. / (alphaS2pi * emitCoefTot) );
 
     // Ditto for first-order alpha_strong.
     } else if (alphaSorder == 1) {
       dip.pT2 = Lambda2 * pow( dip.pT2 / Lambda2, 
-        pow( Rndm::flat(), b0 / emitCoefTot) );
+        pow( rndmPtr->flat(), b0 / emitCoefTot) );
 
       // For second order reject by second term in alpha_strong expression.
     } else {
       do dip.pT2 = Lambda2 * pow( dip.pT2 / Lambda2, 
-        pow( Rndm::flat(), b0 / emitCoefTot) );
-      while (alphaS.alphaS2OrdCorr(dip.pT2) < Rndm::flat() 
+        pow( rndmPtr->flat(), b0 / emitCoefTot) );
+      while (alphaS.alphaS2OrdCorr(dip.pT2) < rndmPtr->flat() 
         && dip.pT2 > pT2min);
     }
     wt = 0.;
@@ -1144,14 +1153,14 @@ void TimeShower::pT2nextQCD(double pT2begDip, double pT2sel,
       // Pick kind of branching: X -> X g or g -> q qbar. 
       dip.flavour  = 21;
       dip.mFlavour = 0.;
-      if (colTypeAbs == 2 && emitCoefQqbar > Rndm::flat() 
+      if (colTypeAbs == 2 && emitCoefQqbar > rndmPtr->flat() 
         * emitCoefTot) dip.flavour = 0; 
 
       // Pick z: either dz/(1-z) or flat dz.
       if (dip.flavour == 21) {
-        dip.z = 1. - zMinAbs * pow( 1. / zMinAbs - 1., Rndm::flat() );
+        dip.z = 1. - zMinAbs * pow( 1. / zMinAbs - 1., rndmPtr->flat() );
       } else { 
-        dip.z = zMinAbs + (1. - 2. * zMinAbs) * Rndm::flat();   
+        dip.z = zMinAbs + (1. - 2. * zMinAbs) * rndmPtr->flat();   
       }
   
       // Do not accept branching if outside allowed z range.
@@ -1164,8 +1173,8 @@ void TimeShower::pT2nextQCD(double pT2begDip, double pT2sel,
 
         // Flavour choice for g -> q qbar.
         if (dip.flavour == 0) {
-          dip.flavour  = min(5, 1 + int(nGluonToQuark * Rndm::flat())); 
-          dip.mFlavour = ParticleDataTable::m0(dip.flavour);
+          dip.flavour  = min(5, 1 + int(nGluonToQuark * rndmPtr->flat())); 
+          dip.mFlavour = particleDataPtr->m0(dip.flavour);
         }
 
         // No z weight, except threshold, if to do ME corrections later on.
@@ -1213,11 +1222,11 @@ void TimeShower::pT2nextQCD(double pT2begDip, double pT2sel,
     }
 
   // Iterate until acceptable pT (or have fallen below pTmin).
-  } while (wt < Rndm::flat());
+  } while (wt < rndmPtr->flat());
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evolve a QED dipole end, either charged or photon. 
 
@@ -1277,7 +1286,7 @@ void TimeShower::pT2nextQED(double pT2begDip, double pT2sel,
   do { 
  
     // Pick pT2 (in overestimated z range).
-    dip.pT2 = dip.pT2 * pow(Rndm::flat(), 1. / emitCoefTot);
+    dip.pT2 = dip.pT2 * pow(rndmPtr->flat(), 1. / emitCoefTot);
     wt = 0.;
 
     // Abort evolution if below cutoff scale, or below another branching.
@@ -1285,8 +1294,8 @@ void TimeShower::pT2nextQED(double pT2begDip, double pT2sel,
 
     // Pick z according to dz/(1-z) or flat.
     if (hasCharge) dip.z = 1. - zMinAbs 
-      * pow( 1. / zMinAbs - 1., Rndm::flat() );
-    else           dip.z = Rndm::flat();
+      * pow( 1. / zMinAbs - 1., rndmPtr->flat() );
+    else           dip.z = rndmPtr->flat();
   
     // Do not accept branching if outside allowed z range.
     double zMin = 0.5 - sqrtpos( 0.25 - dip.pT2 / dip.m2DipCorr ); 
@@ -1305,17 +1314,17 @@ void TimeShower::pT2nextQED(double pT2begDip, double pT2sel,
 
       // Photon branching: either lepton or quark flavour choice.   
       } else {
-        if (Rndm::flat() * chg2Sum < chg2SumL)  
-          dip.flavour  = 9 + 2 * min(3, 1 + int(chg2SumL * Rndm::flat()));
+        if (rndmPtr->flat() * chg2Sum < chg2SumL)  
+          dip.flavour  = 9 + 2 * min(3, 1 + int(chg2SumL * rndmPtr->flat()));
         else { 
-          double rndmQ = 9. * chg2SumQ * Rndm::flat();
+          double rndmQ = 9. * chg2SumQ * rndmPtr->flat();
           if      (rndmQ <  1.) dip.flavour = 1;
           else if (rndmQ <  5.) dip.flavour = 2;
           else if (rndmQ <  6.) dip.flavour = 3;
           else if (rndmQ < 10.) dip.flavour = 4;
           else                  dip.flavour = 5;
         }
-        dip.mFlavour = ParticleDataTable::m0(dip.flavour);
+        dip.mFlavour = particleDataPtr->m0(dip.flavour);
       }
                       
 
@@ -1365,11 +1374,11 @@ void TimeShower::pT2nextQED(double pT2begDip, double pT2sel,
     }
 
   // Iterate until acceptable pT (or have fallen below pTmin).
-  } while (wt < Rndm::flat());  
+  } while (wt < rndmPtr->flat());  
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evolve a Hidden Valley dipole end. 
 
@@ -1398,14 +1407,14 @@ void TimeShower::pT2nextHV(double pT2begDip, double pT2sel,
   do { 
  
     // Pick pT2 (in overestimated z range).
-    dip.pT2 = dip.pT2 * pow(Rndm::flat(), 1. / emitCoefTot);
+    dip.pT2 = dip.pT2 * pow(rndmPtr->flat(), 1. / emitCoefTot);
     wt = 0.;
 
     // Abort evolution if below cutoff scale, or below another branching.
     if ( dip.pT2 < pT2endDip) { dip.pT2 = 0.; return; }
 
     // Pick z according to dz/(1-z).
-    dip.z = 1. - zMinAbs * pow( 1. / zMinAbs - 1., Rndm::flat() );
+    dip.z = 1. - zMinAbs * pow( 1. / zMinAbs - 1., rndmPtr->flat() );
   
     // Do not accept branching if outside allowed z range.
     double zMin = 0.5 - sqrtpos( 0.25 - dip.pT2 / dip.m2DipCorr ); 
@@ -1428,11 +1437,11 @@ void TimeShower::pT2nextHV(double pT2begDip, double pT2sel,
     }
 
   // Iterate until acceptable pT (or have fallen below pTmin).
-  } while (wt < Rndm::flat());  
+  } while (wt < rndmPtr->flat());  
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // ME corrections and kinematics that may give failure.
 // Notation: radBef, recBef = radiator, recoiler before emission,
@@ -1481,7 +1490,7 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
     acolEmt = acolRad;
     acolRad = 0; 
   // New flavours for gamma -> f fbar, and maybe also colours.
-  } else if (dipSel->gamType == 1 && Rndm::flat() > 0.5) {   
+  } else if (dipSel->gamType == 1 && rndmPtr->flat() > 0.5) {   
     idEmt   = -dipSel->flavour ;
     idRad   = -idEmt;
     if (idRad < 10) colRad = event.nextColTag(); 
@@ -1537,7 +1546,7 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
   Vec4 pRad, pEmt, pRec;
   double wtPhi = 1.;
   do { 
-    double phi = 2. * M_PI * Rndm::flat();
+    double phi = 2. * M_PI * rndmPtr->flat();
 
     // Define kinematics of branching in dipole rest frame.
     pRad = Vec4( pTcorr * cos(phi), pTcorr * sin(phi), pzRad, 
@@ -1560,7 +1569,7 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
       wtPhi = ( 1. + dipSel->asymPol * (2. * pow2(cosPhi) - 1.) )
         / ( 1. + abs(dipSel->asymPol) );
     } 
-  } while (wtPhi < Rndm::flat()) ;
+  } while (wtPhi < rndmPtr->flat()) ;
 
   // Kinematics when recoiler is initial-state parton.
   int isrTypeNow = dipSel->isrType;
@@ -1584,7 +1593,7 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
   if (dipSel->MEtype > 0) {
     Particle& partner = (dipSel->iMEpartner == iRecBef) 
       ? rec : event[dipSel->iMEpartner];
-    if ( findMEcorr( dipSel, rad, partner, emt) < Rndm::flat() ) 
+    if ( findMEcorr( dipSel, rad, partner, emt) < rndmPtr->flat() ) 
       return false;
   }
 
@@ -1597,25 +1606,58 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
     if (!rescatterPropagateRecoil(event, pNew)) return false;
   }
 
+  // Save properties to be restored in case of user-hook veto of emission.
+  int eventSizeOld = event.size();
+  int iRadStatusV  = event[iRadBef].status();
+  int iRadDau1V    = event[iRadBef].daughter1();
+  int iRadDau2V    = event[iRadBef].daughter2();
+  int iRecStatusV  = event[iRecBef].status();
+  int iRecMot1V    = event[iRecBef].mother1();
+  int iRecMot2V    = event[iRecBef].mother2();
+  int iRecDau1V    = event[iRecBef].daughter1();
+  int iRecDau2V    = event[iRecBef].daughter2();
+  int beamOff1     = 1 + beamOffset;
+  int beamOff2     = 2 + beamOffset;
+  int ev1Dau1V     = event[beamOff1].daughter1();
+  int ev2Dau1V     = event[beamOff2].daughter1();
+
   // Put new particles into the event record.
   int iRad = event.append(rad);
   int iEmt = event.append(emt);
   int iRec = event.append(rec);
 
   // Mark original dipole partons as branched and set daughters/mothers.
-  event[dipSel->iRadiator].statusNeg();
-  event[dipSel->iRadiator].daughters( iRad, iEmt); 
+  event[iRadBef].statusNeg();
+  event[iRadBef].daughters( iRad, iEmt); 
   if (isrTypeNow == 0) {
-    event[dipSel->iRecoiler].statusNeg();
-    event[dipSel->iRecoiler].daughters( iRec, iRec);
+    event[iRecBef].statusNeg();
+    event[iRecBef].daughters( iRec, iRec);
   } else {
-    int mother1 = event[dipSel->iRecoiler].mother1();  
-    int mother2 = event[dipSel->iRecoiler].mother2();  
-    event[dipSel->iRecoiler].mothers( iRec, iRec);
-    event[iRec].mothers( mother1, mother2);  
-    if (mother1 == 1 + beamOffset) event[1 + beamOffset].daughter1( iRec);  
-    if (mother1 == 2 + beamOffset) event[2 + beamOffset].daughter1( iRec);  
-    // For initial-state recoiler also update beam and sHat info.
+    event[iRecBef].mothers( iRec, iRec);
+    event[iRec].mothers( iRecMot1V, iRecMot2V);  
+    if (iRecMot1V == beamOff1) event[beamOff1].daughter1( iRec);  
+    if (iRecMot1V == beamOff2) event[beamOff2].daughter1( iRec);
+  } 
+
+  // Allow veto of branching. If so restore event record to before emission.
+  if ( canVetoEmission 
+    && userHooksPtr->doVetoFSREmission(eventSizeOld, event) ) {
+    event.popBack( event.size() - eventSizeOld);
+    event[iRadBef].status( iRadStatusV);
+    event[iRadBef].daughters( iRadDau1V, iRadDau2V);
+    if (isrTypeNow == 0) {
+      event[iRecBef].status( iRecStatusV);
+      event[iRecBef].daughters( iRecDau1V, iRecDau2V);
+    } else {
+      event[iRecBef].mothers( iRecMot1V, iRecMot2V);
+      if (iRecMot1V == beamOff1) event[beamOff1].daughter1( ev1Dau1V);  
+      if (iRecMot1V == beamOff2) event[beamOff2].daughter1( ev2Dau1V);
+    } 
+    return false;
+  }
+
+  // For initial-state recoiler also update beam and sHat info.
+  if (isrTypeNow != 0) {
     BeamParticle& beamRec = (isrTypeNow == 1) ? *beamAPtr : *beamBPtr;
     double xOld = beamRec[iSysSelRec].x();
     double xRec = 2. * pRec.e() / (beamAPtr->e() + beamBPtr->e());
@@ -1745,8 +1787,8 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
   if (event[iRad].id() == event[iRadBef].id()) {
     event[iRad].tau( event[iRadBef].tau() );
   } else {
-    event[iRad].tau( event[iRad].tau0() * Rndm::exp() );
-    event[iEmt].tau( event[iEmt].tau0() * Rndm::exp() );
+    event[iRad].tau( event[iRad].tau0() * rndmPtr->exp() );
+    event[iEmt].tau( event[iEmt].tau0() * rndmPtr->exp() );
   } 
   event[iRec].tau( event[iRecBef].tau() );
 
@@ -1770,7 +1812,7 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Rescatter: If a dipole stretches between two different systems, those
 //            systems will no longer locally conserve momentum. These
@@ -1787,7 +1829,7 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
 typedef pair < int, int >  pairInt;
 typedef vector < pairInt > vectorPairInt;
 
-//*********
+//--------------------------------------------------------------------------
 
 // findParentSystems
 //  Utility routine to find all parent systems of a given system
@@ -1804,8 +1846,8 @@ typedef vector < pairInt > vectorPairInt;
 //  Note: this assumes single rescattering only and therefore only
 //        one possible parent system
 
-static inline vectorPairInt findParentSystems(const int sys, 
-  Event &event, PartonSystems *partonSystemsPtr, bool forwards) {
+inline vectorPairInt findParentSystems(const int sys, 
+  Event& event, PartonSystems* partonSystemsPtr, bool forwards) {
 
   vectorPairInt parentSystems;
   parentSystems.reserve(10);
@@ -1851,7 +1893,7 @@ static inline vectorPairInt findParentSystems(const int sys,
   return parentSystems;
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // rescatterPropagateRecoil
 //  Fix up momentum in all intermediate systems when radiator and recoiler
@@ -2100,7 +2142,7 @@ bool TimeShower::rescatterPropagateRecoil( Event& event, Vec4& pNew) {
 }
 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Find class of QCD ME correction.
 // MEtype classification follow codes in Norrbin article,
@@ -2285,7 +2327,7 @@ void TimeShower::findMEtype( Event& event, TimeDipoleEnd& dip) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
  
 // Find type of particle for ME type: 0 = unknown, 1 = quark, 2 = squark,
 // 3 = spare triplet, 4 = gluon, 5 = gluino, 6 = spare octet, 
@@ -2295,8 +2337,8 @@ int TimeShower::findMEparticle( int id) {
 
   // find colour and spin of particle.
   int type = 0;
-  int colType = abs(ParticleDataTable::colType(id)); 
-  int spinType = ParticleDataTable::spinType(id);
+  int colType = abs(particleDataPtr->colType(id)); 
+  int spinType = particleDataPtr->spinType(id);
 
   // Find particle type from colour and spin.
   if      (colType == 1 && spinType == 2) type = 1;
@@ -2314,7 +2356,7 @@ int TimeShower::findMEparticle( int id) {
 
 }  
 
-//*********
+//--------------------------------------------------------------------------
 
 // Find mixture of V and A in gamma/Z: energy- and flavour-dependent. 
 
@@ -2336,17 +2378,17 @@ double TimeShower::gammaZmix( Event& event, int iRes, int iDau1, int iDau2) {
   if (idIn1 + idIn2 != 0 ) return 0.5;
   int idInAbs = abs(idIn1);
   if (idInAbs == 0 || idInAbs > 18 ) return 0.5; 
-  double ei = CoupEW::ef(idInAbs);
-  double vi = CoupEW::vf(idInAbs);
-  double ai = CoupEW::af(idInAbs);
+  double ei = coupSMPtr->ef(idInAbs);
+  double vi = coupSMPtr->vf(idInAbs);
+  double ai = coupSMPtr->af(idInAbs);
 
   // Final flavours and couplings; return if don't make sense.
   if (event[iDau1].id() + event[iDau2].id() != 0) return 0.5;
   int idOutAbs = abs(event[iDau1].id());
   if (idOutAbs == 0 || idOutAbs >18 ) return 0.5; 
-  double ef = CoupEW::ef(idOutAbs);
-  double vf = CoupEW::vf(idOutAbs);
-  double af = CoupEW::af(idOutAbs);
+  double ef = coupSMPtr->ef(idOutAbs);
+  double vf = coupSMPtr->vf(idOutAbs);
+  double af = coupSMPtr->af(idOutAbs);
 
   // Calculate prefactors for interference and resonance part.
   Vec4 psum = event[iDau1].p() + event[iDau2].p();
@@ -2363,7 +2405,7 @@ double TimeShower::gammaZmix( Event& event, int iRes, int iDau1, int iDau2) {
   return vect / (vect + axiv);
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Set up to calculate QCD ME correction with calcMEcorr.
 // Normally for primary particles, but also from g/gamma -> f fbar.
@@ -2408,8 +2450,8 @@ double TimeShower::findMEcorr(TimeDipoleEnd* dip, Particle& rad,
   // For generic charge combination currently only massless expression.
   // (Masses included only to respect phase space boundaries.)
   } else if (dip->chgType !=0 && dip->MEtype == 101) {
-    double chg1 = ParticleDataTable::charge(rad.id());
-    double chg2 = ParticleDataTable::charge(partner.id());
+    double chg1 = particleDataPtr->charge(rad.id());
+    double chg2 = particleDataPtr->charge(partner.id());
     wtME = (x1*x1 + x2*x2) * pow2( chg1 * x1minus / x3 
       - chg2 * x2minus / x3 );
     wtPS = 2. * ( chg1*chg1 * x1minus / x3 + chg2*chg2 * x2minus / x3 ); 
@@ -2426,7 +2468,7 @@ double TimeShower::findMEcorr(TimeDipoleEnd* dip, Particle& rad,
   return wtME / wtPS; 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Matrix elements for gluon (or photon) emission from
 // a two-body state; to be used by the parton shower routine.
@@ -3155,7 +3197,7 @@ double TimeShower::calcMEcorr( int kind, int combiIn, double mixIn,
   return rFO / rLO;
 }  
 
-//*********
+//--------------------------------------------------------------------------
 
 // Find coefficient of azimuthal asymmetry from gluon polarization.
 
@@ -3191,7 +3233,7 @@ void TimeShower::findAsymPol( Event& event, TimeDipoleEnd* dip) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Print the list of dipoles.
 
@@ -3222,6 +3264,6 @@ void TimeShower::list(ostream& os) const {
   
 }
 
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8

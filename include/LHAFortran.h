@@ -1,5 +1,5 @@
 // LHAFortran.h is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -14,7 +14,7 @@
 
 namespace Pythia8 {
 
-//**************************************************************************
+//==========================================================================
 
 // Give access to the HEPRUP and HEPEUP Fortran commonblocks.
 
@@ -42,7 +42,7 @@ extern "C" {
 
 }
 
-//*********
+//==========================================================================
 
 // A derived class with initialization information from the HEPRUP 
 // Fortran commonblock and event information from the HEPEUP one.
@@ -70,6 +70,9 @@ public:
       addProcess( heprup_.lprup[ip], xsec, heprup_.xerrup[ip], 
         heprup_.xmaxup[ip] );
     }
+    // Store the beam energies to calculate x values later.
+    eBeamA = heprup_.ebmup[0];
+    eBeamB = heprup_.ebmup[1];    
     // Done.
     return true;
   } 
@@ -89,11 +92,17 @@ public:
       hepeup_.icolup[ip][0], hepeup_.icolup[ip][1], hepeup_.pup[ip][0], 
       hepeup_.pup[ip][1], hepeup_.pup[ip][2], hepeup_.pup[ip][3], 
       hepeup_.pup[ip][4], hepeup_.vtimup[ip], hepeup_.spinup[ip]) ;
+    // Store x values (here E = pup[ip][3]), but note incomplete info.
+    setPdf( hepeup_.idup[0], hepeup_.idup[1], hepeup_.pup[0][3]/eBeamA, 
+	    hepeup_.pup[1][3]/eBeamB, 0., 0., 0., false);
     // Done.
     return true;
   }
 
 private:
+
+  // Save beam energies to calculate x values.
+  double eBeamA, eBeamB;
 
   // User-written routine that does the intialization and fills heprup.
   bool fillHepRup();
@@ -103,7 +112,7 @@ private:
 
 };
 
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8
 

@@ -1,5 +1,5 @@
 // LHAPDFInterface.h is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -11,7 +11,7 @@
 
 namespace Pythia8 {
  
-//**************************************************************************
+//==========================================================================
 
 // Declare the LHAPDF f77 subroutines that are needed.
 
@@ -31,7 +31,7 @@ extern "C" {
     
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Interfaces to the above routines, to make the C++ calls similar to f77.
 
@@ -76,7 +76,7 @@ public:
 
 };
  
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8
 

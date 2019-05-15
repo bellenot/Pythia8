@@ -64,13 +64,20 @@ and option 2 give the correct result, while option 1 should never
 be used. 
 </modepick>
 
-<parm name="SpaceShower:pTmaxFudge" default="1.0" min="0.5" max="2.0">
+<parm name="SpaceShower:pTmaxFudge" default="1.0" min="0.25" max="2.0">
 In cases where the above <code>pTmaxMatch</code> rules would imply
 that <ei>pT_max = pT_factorization</ei>, <code>pTmaxFudge</code> 
 introduced a multiplicative factor <ei>f</ei> such that instead
 <ei>pT_max = f * pT_factorization</ei>. Only applies to the hardest
-interaction in an event. It is strongly suggested that <ei>f = 1</ei>, 
-but variations around this default can be useful to test this assumption. 
+interaction in an event, cf. below. It is strongly suggested that 
+<ei>f = 1</ei>, but variations around this default can be useful to 
+test this assumption. 
+</parm>
+
+<parm name="SpaceShower:pTmaxFudgeMI" default="1.0" min="0.25" max="2.0">
+A multiplicative factor <ei>f</ei> such that 
+<ei>pT_max = f * pT_factorization</ei>, as above, but here for the
+non-hardest interactions (when multiple interactions are allowed).
 </parm>
 
 <modepick name="SpaceShower:pTdampMatch" default="0" min="0" max="2">
@@ -320,5 +327,5 @@ been included, nor has photon backwards-evolution in lepton beams.
 
 </chapter>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->
 

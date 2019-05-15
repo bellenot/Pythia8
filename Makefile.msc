@@ -1,5 +1,5 @@
 # Makefile.msc for Pythia8 on Win32/NMAKE
-# Author: Bertrand Bellenot, 02/05/2007
+# Author: Bertrand Bellenot, 02/05/2007, 04/11/2009
 !IF "$(CFG)" == ""
 CFG = Win32 Release
 !MESSAGE No configuration specified. Defaulting to Win32 Release.
@@ -100,6 +100,7 @@ OBJS =   $(OUTDIR)/Analysis.obj \
          $(OUTDIR)/SigmaCompositeness.obj \
          $(OUTDIR)/SigmaEW.obj \
          $(OUTDIR)/SigmaExtraDim.obj \
+         $(OUTDIR)/SigmaGeneric.obj \
          $(OUTDIR)/SigmaHiggs.obj \
          $(OUTDIR)/SigmaLeftRightSym.obj \
          $(OUTDIR)/SigmaLeptoquark.obj \
@@ -112,6 +113,7 @@ OBJS =   $(OUTDIR)/Analysis.obj \
          $(OUTDIR)/SpaceShower.obj \
          $(OUTDIR)/StandardModel.obj \
          $(OUTDIR)/StringFragmentation.obj \
+         $(OUTDIR)/SusyCouplings.obj \
          $(OUTDIR)/SusyLesHouches.obj \
          $(OUTDIR)/TimeShower.obj \
          $(OUTDIR)/UserHooks.obj \
@@ -146,9 +148,12 @@ $(LIBLIB) : $(OBJS)
     $(CXX) $(CXXFLAGS) $(EXTRAFLAGS) $(CXXOPT) /Fo"$(OUTDIR)/" -c $<
 
 clean:
-    @del "$(OUTDIR)\*.obj"
+   -@erase /q /s *.obj >nul 2>&1
+   -@rmdir /q /s Debug >nul 2>&1
+   -@rmdir /q /s Release >nul 2>&1
 
 distclean:      clean
-    @del "$(LIBDIR)\*.lib"
+   -@erase /q "$(LIBDIR)\*.*" >nul 2>&1
+   -@rmdir /q /s lib >nul 2>&1
 
 

@@ -89,7 +89,7 @@ ifeq ($(SHAREDLIBS),yes)
 	mkdir -p $(TMPDIR); \
 	$(CC) -M -I$(INCDIR) $< | \
 	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' | \
-	sed 's/$*.o/$(TMPDIR)\/$*.o/' > $@; \
+	sed 's/$*\.o/$(TMPDIR)\/$*.o/' > $@; \
 	[ -s $@ ] || rm -f $@
 endif
 
@@ -98,7 +98,7 @@ $(TMPDIR)/archive/%.d : $(SRCDIR)/%.cc
 	mkdir -p $(TMPDIR)/archive; \
 	$(CC) -M -I$(INCDIR) $< | \
 	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' | \
-	sed 's/$*.o/$(TMPDIR)\/archive\/$*.o/' > $@; \
+	sed 's/$*\.o/$(TMPDIR)\/archive\/$*.o/' > $@; \
 	[ -s $@ ] || rm -f $@
 
 objects := $(patsubst $(SRCDIR)/%.cc,$(TMPDIR)/%.o,$(wildcard $(SRCDIR)/*.cc))

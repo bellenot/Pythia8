@@ -1,5 +1,5 @@
 // Settings.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -12,24 +12,12 @@
 
 namespace Pythia8 {
 
-//**************************************************************************
+//==========================================================================
 
 // Settings class.
 // This class contains flags, modes, parms and words used in generation.
 
-//*********
-
-// Definitions of static variables. 
-map<string, Flag> Settings::flags;
-map<string, Mode> Settings::modes;
-map<string, Parm> Settings::parms;
-map<string, Word> Settings::words;
-bool Settings::isInit = false;
-
-// Static copy of Info - not optimal solution??
-Info* Settings::infoPtr = 0;
-
-//*********
+//--------------------------------------------------------------------------
 
 // Read in database from specific file.
 
@@ -54,7 +42,7 @@ bool Settings::init(string startFile, bool append, ostream& os) {
     ifstream is(cstring);  
 
     // Check that instream is OK.
-    if (!is) {
+    if (!is.good()) {
       os << "\n PYTHIA Error: settings file " << files[i] 
          << " not found" << endl; 
       return false;
@@ -154,11 +142,11 @@ bool Settings::init(string startFile, bool append, ostream& os) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Overwrite existing database by reading from specific file.
 
-bool Settings::reInit(string startFile) {
+bool Settings::reInit(string startFile, ostream& os) {
 
   // Reset maps to empty.
   flags.clear();
@@ -168,11 +156,11 @@ bool Settings::reInit(string startFile) {
 
   // Then let normal init do the rest.
   isInit = false;
-  return init(startFile);
+  return init(startFile, false, os);
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Read in updates from a character string, like a line of a file. 
 // Is used by readString (and readFile) in Pythia.
@@ -263,7 +251,7 @@ bool Settings::readString(string line, bool warn, ostream& os) {
   return true;
 }
 
-//*********
+//--------------------------------------------------------------------------
  
 // Write updates or everything to user-defined file.
 
@@ -283,7 +271,7 @@ bool Settings::writeFile(string toFile, bool writeAll) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
  
 // Write updates or everything to user-defined stream (or file).
 
@@ -362,18 +350,18 @@ bool Settings::writeFile(ostream& os, bool writeAll) {
   return true;
 }
 
-//*********
+//--------------------------------------------------------------------------
  
 // Print out table of database in lexigraphical order.
 
-void Settings::list(bool listAll,  bool listString, string match,
+void Settings::list(bool doListAll,  bool doListString, string match,
   ostream& os) {
 
   // Table header; output for bool as off/on.
-  if (listAll) 
+  if (doListAll) 
     os << "\n *-------  PYTHIA Flag + Mode + Parm + Word Settings (all) "
        << " -------------------------------------------------------* \n";
-  else if (!listString) 
+  else if (!doListString) 
     os << "\n *-------  PYTHIA Flag + Mode + Parm + Word Settings (chang" 
        << "es only)  ----------------------------------------------* \n" ;
   else
@@ -409,8 +397,8 @@ void Settings::list(bool listAll,  bool listString, string match,
       string state[2] = {"off", "on"};
       bool valNow = flagEntry->second.valNow;
       bool valDefault = flagEntry->second.valDefault;
-      if ( listAll || (!listString && valNow != valDefault)
-        || (listString && flagEntry->first.find(match) != string::npos) )
+      if ( doListAll || (!doListString && valNow != valDefault)
+        || (doListString && flagEntry->first.find(match) != string::npos) )
         os << " | " << setw(45) << left 
            << flagEntry->second.name << " | " << setw(24) << right
            << state[valNow] << " | " << setw(12) << state[valDefault] 
@@ -424,8 +412,8 @@ void Settings::list(bool listAll,  bool listString, string match,
       ) {
       int valNow = modeEntry->second.valNow;
       int valDefault = modeEntry->second.valDefault;
-      if ( listAll || (!listString && valNow != valDefault)
-        || (listString && modeEntry->first.find(match) != string::npos) ) {
+      if ( doListAll || (!doListString && valNow != valDefault)
+        || (doListString && modeEntry->first.find(match) != string::npos) ) {
         os << " | " << setw(45) << left 
            << modeEntry->second.name << " | " << setw(24) << right 
            << valNow << " | " << setw(12) << valDefault; 
@@ -446,8 +434,8 @@ void Settings::list(bool listAll,  bool listString, string match,
       ) {
       double valNow = parmEntry->second.valNow;
       double valDefault = parmEntry->second.valDefault;      
-      if ( listAll || (!listString && valNow != valDefault ) 
-        || (listString && parmEntry->first.find(match) != string::npos) ) {
+      if ( doListAll || (!doListString && valNow != valDefault ) 
+        || (doListString && parmEntry->first.find(match) != string::npos) ) {
         os << " | " << setw(45) << left 
            << parmEntry->second.name << right << " |             ";
 	for (int i = 0; i < 4; ++i) { 
@@ -482,8 +470,8 @@ void Settings::list(bool listAll,  bool listString, string match,
       int blankLeft = max(0, 60 - max(24, int(valNow.length()) ) 
         - max(12, int(valDefault.length()) ) );  
       string blankPad( blankLeft, ' '); 
-      if ( listAll || (!listString && valNow != valDefault)
-        || (listString && wordEntry->first.find(match) != string::npos) )
+      if ( doListAll || (!doListString && valNow != valDefault)
+        || (doListString && wordEntry->first.find(match) != string::npos) )
         os << " | " << setw(45) << left 
            << wordEntry->second.name << " | " << setw(24) << right
            << valNow << " | " << setw(12) << valDefault << blankPad 
@@ -500,7 +488,7 @@ void Settings::list(bool listAll,  bool listString, string match,
 
 }
 
-//*********
+//--------------------------------------------------------------------------
  
 // Reset all values to their defaults.
 
@@ -536,7 +524,7 @@ void Settings::resetAll() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
  
 // Give back current value, with check that key exists.
 
@@ -564,7 +552,7 @@ string Settings::word(string keyIn) {
   return " "; 
 }
 
-//*********
+//--------------------------------------------------------------------------
  
 // Change current value, respecting limits.
 
@@ -598,7 +586,7 @@ void Settings::word(string keyIn, string nowIn) {
     if (isWord(keyIn)) words[toLower(keyIn)].valNow = nowIn; 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Convert string to lowercase for case-insensitive comparisons.
 // Also remove initial and trailing blanks, if any.
@@ -618,7 +606,7 @@ string Settings::toLower(const string& name) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Allow several alternative inputs for true/false.
 
@@ -630,7 +618,7 @@ bool Settings::boolString(string tag) {
 
 }  
 
-//*********
+//--------------------------------------------------------------------------
 
 // Extract XML value string following XML attribute.
 
@@ -644,7 +632,7 @@ string Settings::attributeValue(string line, string attribute) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Extract XML bool value following XML attribute.
 
@@ -656,7 +644,7 @@ bool Settings::boolAttributeValue(string line, string attribute) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Extract XML int value following XML attribute.
 
@@ -670,7 +658,7 @@ int Settings::intAttributeValue(string line, string attribute) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Extract XML double value following XML attribute.
 
@@ -684,6 +672,6 @@ double Settings::doubleAttributeValue(string line, string attribute) {
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8

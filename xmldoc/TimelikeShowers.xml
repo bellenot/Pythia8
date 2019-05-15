@@ -28,15 +28,21 @@ maximum evolution scale. This would be the <ei>pT</ei> for a
 <ei>2 -> 2</ei> process, supplemented by mass terms for massive outgoing 
 particles. Some small amount of freedom is offered by
 
-<parm name="TimeShower:pTmaxFudge" default="1.0" min="0.0" max="2.0">
+<parm name="TimeShower:pTmaxFudge" default="1.0" min="0.25" max="2.0">
 While the above rules would imply that <ei>pT_max = pT_factorization</ei>, 
 <code>pTmaxFudge</code> introduced a multiplicative factor <ei>f</ei> such 
 that instead <ei>pT_max = f * pT_factorization</ei>. Only applies to the 
-hardest interaction in an event. It is strongly suggested that 
+hardest interaction in an event, cf. below. It is strongly suggested that 
 <ei>f = 1</ei>, but variations around this default can be useful to test 
 this assumption. 
 <note>Note:</note>Scales for resonance decays are not affected, but can be 
 set separately by <aloc href="UserHooks">user hooks</aloc>.
+</parm>
+
+<parm name="TimeShower:pTmaxFudgeMI" default="1.0" min="0.25" max="2.0">
+A multiplicative factor <ei>f</ei> such that 
+<ei>pT_max = f * pT_factorization</ei>, as above, but here for the
+non-hardest interactions (when multiple interactions are allowed).
 </parm>
 
 <p/>
@@ -326,4 +332,4 @@ Azimuthal asymmetry induced by gluon polarization; on/off = true/false.
 
 </chapter>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->

@@ -1,5 +1,5 @@
 // main23.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -10,7 +10,7 @@
 
 using namespace Pythia8; 
 
-//**************************************************************************
+//==========================================================================
 
 // A derived class to do J/psi decays.
 
@@ -19,7 +19,8 @@ class JpsiDecay : public DecayHandler {
 public:
 
   // Constructor.
-  JpsiDecay() {times = 0;}
+  JpsiDecay(ParticleData* pdtPtrIn, Rndm* rndmPtrIn) {times = 0; 
+    pdtPtr = pdtPtrIn; rndmPtrIn = rndmPtr;}
 
   // Routine for doing the decay.
   bool decay(vector<int>& idProd, vector<double>& mProd, 
@@ -30,9 +31,15 @@ private:
   // Count number of times JpsiDecay is called.
   int times;
 
+  // Pointer to the particle data table.
+  ParticleData* pdtPtr;
+
+  // Pointer to the random number generator.
+  Rndm* rndmPtr;
+
 };
 
-//*********
+//--------------------------------------------------------------------------
 
 // The actual J/psi decay routine.
 // Not intended for realism, just to illustrate the principles.
@@ -45,7 +52,7 @@ bool JpsiDecay::decay(vector<int>& idProd, vector<double>& mProd,
   idProd.push_back(13);
   
   // Muon mass(es), here from Pythia tables, also stored.
-  double mMuon = ParticleDataTable::m0(13); 
+  double mMuon = pdtPtr->m0(13); 
   mProd.push_back(mMuon);
   mProd.push_back(mMuon);
 
@@ -54,9 +61,9 @@ bool JpsiDecay::decay(vector<int>& idProd, vector<double>& mProd,
   double pAbsMuon = sqrt(eMuon * eMuon - mMuon * mMuon);
 
   // Assume decay angles isotropic in rest frame.
-  double cosTheta = 2. * Rndm::flat() - 1.;
+  double cosTheta = 2. * rndmPtr->flat() - 1.;
   double sinTheta = sqrt(max(0., 1. - cosTheta * cosTheta));
-  double phi = 2. * M_PI * Rndm::flat();
+  double phi = 2. * M_PI * rndmPtr->flat();
   double pxMuon = pAbsMuon * sinTheta * cos(phi); 
   double pyMuon = pAbsMuon * sinTheta * sin(phi); 
   double pzMuon = pAbsMuon * cosTheta; 
@@ -84,7 +91,7 @@ bool JpsiDecay::decay(vector<int>& idProd, vector<double>& mProd,
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 int main() {
 
@@ -97,7 +104,8 @@ int main() {
   Pythia pythia;
 
   // A class to do J/psi decays externally. 
-  DecayHandler* handleDecays = new JpsiDecay();
+  DecayHandler* handleDecays = new JpsiDecay(&pythia.particleData, 
+    &pythia.rndm);
 
   // The list of particles the class can handle.
   vector<int> handledParticles;

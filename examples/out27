@@ -5,10 +5,10 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.130      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 15 Sep 2009  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.135      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 10 Jan 2010  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 15 Sep 2009 at 09:09:13    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 10 Jan 2010 at 11:01:57    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Theoretical Physics, Lund University,   |  | 
  |  |      Solvegatan 14A, SE-223 62 Lund, Sweden;                                 |  | 
@@ -22,9 +22,8 @@
  |  |   Stephen Mrenna;  Computing Division, Simulations Group,                    |  | 
  |  |      Fermi National Accelerator Laboratory, MS 234, Batavia, IL 60510, USA;  |  | 
  |  |      phone: + 1 - 630 - 840 - 2556; e-mail: mrenna@fnal.gov                  |  | 
- |  |   Peter Skands;  Theoretical Physics Department,                             |  | 
- |  |      Fermi National Accelerator Laboratory, MS 106, Batavia, IL 60510, USA;  |  | 
- |  |      phone: + 1 - 630 - 840 - 2270; e-mail: skands@fnal.gov                  |  | 
+ |  |   Peter Skands;  Theoretical Physics, CERN, CH-1211 Geneva 23, Switzerland;  |  | 
+ |  |      phone: + 41 - 22 - 767 2447; e-mail: peter.skands@cern.ch               |  | 
  |  |                                                                              |  | 
  |  |   The main program reference is the 'Brief Introduction to PYTHIA 8.1',      |  | 
  |  |   T. Sjostrand, S. Mrenna and P. Skands, Comput. Phys. Comm. 178 (2008) 85   |  | 
@@ -42,7 +41,7 @@
  |  |   Disclaimer: this program comes without any guarantees.                     |  | 
  |  |   Beware of errors and use common sense when interpreting results.           |  | 
  |  |                                                                              |  | 
- |  |   Copyright (C) 2009 Torbjorn Sjostrand                                      |  | 
+ |  |   Copyright (C) 2010 Torbjorn Sjostrand                                      |  | 
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  *------------------------------------------------------------------------------*  | 
@@ -138,36 +137,36 @@
  *-------  End PYTHIA Error and Warning Messages Statistics  ------------------------------------------------------* 
 
 
-  2009-09-15 09:09       center-of-mass energy deviation
+  2010-01-10 11:01       center-of-mass energy deviation
 
         5.60*10^ 2                                                      1                                               
-        5.40*10^ 2                                                 319  X                                               
-        5.20*10^ 2                                                4XXX11X                                               
-        5.00*10^ 2                                                XXXXXXX                                               
-        4.80*10^ 2                                                XXXXXXX1                                              
+        5.40*10^ 2                                                 3191 X                                               
+        5.20*10^ 2                                                4XXXX1X                                               
+        5.00*10^ 2                                                XXXXXXX1                                              
+        4.80*10^ 2                                                XXXXXXXX                                              
         4.60*10^ 2                                               1XXXXXXXX                                              
         4.40*10^ 2                                               XXXXXXXXX9                                             
-        4.20*10^ 2                                              4XXXXXXXXXX                                             
+        4.20*10^ 2                                              5XXXXXXXXXX                                             
         4.00*10^ 2                                              XXXXXXXXXXX72                                           
         3.80*10^ 2                                             6XXXXXXXXXXXXX                                           
         3.60*10^ 2                                             XXXXXXXXXXXXXX                                           
-        3.40*10^ 2                                            6XXXXXXXXXXXXXX9                                          
+        3.40*10^ 2                                            6XXXXXXXXXXXXXXX                                          
         3.20*10^ 2                                           2XXXXXXXXXXXXXXXX                                          
         3.00*10^ 2                                           XXXXXXXXXXXXXXXXX                                          
         2.80*10^ 2                                           XXXXXXXXXXXXXXXXX8                                         
         2.60*10^ 2                                          7XXXXXXXXXXXXXXXXXX1                                        
         2.40*10^ 2                                          XXXXXXXXXXXXXXXXXXXX                                        
         2.20*10^ 2                                          XXXXXXXXXXXXXXXXXXXXX                                       
-        2.00*10^ 2                                         4XXXXXXXXXXXXXXXXXXXXX                                       
-        1.80*10^ 2                                         XXXXXXXXXXXXXXXXXXXXXX1                                      
+        2.00*10^ 2                                         4XXXXXXXXXXXXXXXXXXXXX1                                      
+        1.80*10^ 2                                         XXXXXXXXXXXXXXXXXXXXXXX                                      
         1.60*10^ 2                                       6XXXXXXXXXXXXXXXXXXXXXXXX                                      
         1.40*10^ 2                                       XXXXXXXXXXXXXXXXXXXXXXXXX2                                     
         1.20*10^ 2                                       XXXXXXXXXXXXXXXXXXXXXXXXXX1                                    
         1.00*10^ 2                                     15XXXXXXXXXXXXXXXXXXXXXXXXXXX                                    
         0.80*10^ 2                                     XXXXXXXXXXXXXXXXXXXXXXXXXXXXX4                                   
         0.60*10^ 2                                    7XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX4                                  
-        0.40*10^ 2                                  58XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX66                                
-        0.20*10^ 2                              2261XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX7632                            
+        0.40*10^ 2                                 158XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX76                                
+        0.20*10^ 2                              226XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX7631                            
 
           Contents                                                                                                      
             *10^ 2  0000000000000000000000000000000000000111233344555555544333222111000000000000000000000000000000000000
@@ -184,16 +183,16 @@
    All chan =  1.0000e+04    Rms  =  2.8558e+00    Overflow  =  0.0000e+00    High edge =  2.0000e+01
 
 
-  2009-09-15 09:09       net pX offset
+  2010-01-10 11:01       net pX offset
 
         6.00*10^ 2                                                    8                                                 
-        5.80*10^ 2                                                 959X                                                 
+        5.80*10^ 2                                                 X5XX                                                 
         5.60*10^ 2                                                 XXXX 4                                               
         5.40*10^ 2                                                6XXXX X5                                              
         5.20*10^ 2                                                XXXXX5XX                                              
         5.00*10^ 2                                                XXXXXXXX                                              
         4.80*10^ 2                                               1XXXXXXXX                                              
-        4.60*10^ 2                                               XXXXXXXXX9                                             
+        4.60*10^ 2                                               XXXXXXXXXX                                             
         4.40*10^ 2                                               XXXXXXXXXX                                             
         4.20*10^ 2                                               XXXXXXXXXX6                                            
         4.00*10^ 2                                              XXXXXXXXXXXX                                            
@@ -207,15 +206,15 @@
         2.40*10^ 2                                           XXXXXXXXXXXXXXXXXX                                         
         2.20*10^ 2                                          2XXXXXXXXXXXXXXXXXX9                                        
         2.00*10^ 2                                          XXXXXXXXXXXXXXXXXXXX4                                       
-        1.80*10^ 2                                         9XXXXXXXXXXXXXXXXXXXXX                                       
+        1.80*10^ 2                                         XXXXXXXXXXXXXXXXXXXXXX                                       
         1.60*10^ 2                                        XXXXXXXXXXXXXXXXXXXXXXX9                                      
         1.40*10^ 2                                        XXXXXXXXXXXXXXXXXXXXXXXX                                      
         1.20*10^ 2                                        XXXXXXXXXXXXXXXXXXXXXXXX5                                     
         1.00*10^ 2                                      86XXXXXXXXXXXXXXXXXXXXXXXXX                                     
-        0.80*10^ 2                                     5XXXXXXXXXXXXXXXXXXXXXXXXXXX61                                   
-        0.60*10^ 2                                    8XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX5                                  
+        0.80*10^ 2                                     5XXXXXXXXXXXXXXXXXXXXXXXXXXX62                                   
+        0.60*10^ 2                                    7XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX5                                  
         0.40*10^ 2                                   5XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX55                                
-        0.20*10^ 2                           2143768XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX545321                          
+        0.20*10^ 2                           1143768XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX545321   1                      
 
           Contents                                                                                                      
             *10^ 2  0000000000000000000000000000000000000011223344555555554433221110000000000000000000000000000000000000
@@ -232,10 +231,10 @@
    All chan =  1.0000e+04    Rms  =  1.3855e-01    Overflow  =  0.0000e+00    High edge =  1.0000e+00
 
 
-  2009-09-15 09:09       net pY offset
+  2010-01-10 11:01       net pY offset
 
         6.00*10^ 2                                                    1                                                 
-        5.80*10^ 2                                                    X9                                                
+        5.80*10^ 2                                                    XX                                                
         5.60*10^ 2                                                    XX                                                
         5.40*10^ 2                                                 5 6XX6                                               
         5.20*10^ 2                                                 X9XXXX                                               
@@ -244,26 +243,26 @@
         4.60*10^ 2                                              X XXXXXXXX6                                             
         4.40*10^ 2                                              X XXXXXXXXX                                             
         4.20*10^ 2                                              X2XXXXXXXXX                                             
-        4.00*10^ 2                                              XXXXXXXXXXX9X                                           
+        4.00*10^ 2                                              XXXXXXXXXXXXX                                           
         3.80*10^ 2                                             5XXXXXXXXXXXXX                                           
         3.60*10^ 2                                            1XXXXXXXXXXXXXX                                           
         3.40*10^ 2                                            XXXXXXXXXXXXXXX                                           
         3.20*10^ 2                                            XXXXXXXXXXXXXXXX                                          
         3.00*10^ 2                                            XXXXXXXXXXXXXXXX                                          
-        2.80*10^ 2                                           8XXXXXXXXXXXXXXXX9                                         
+        2.80*10^ 2                                           9XXXXXXXXXXXXXXXXX                                         
         2.60*10^ 2                                           XXXXXXXXXXXXXXXXXX                                         
         2.40*10^ 2                                          4XXXXXXXXXXXXXXXXXX7                                        
         2.20*10^ 2                                          XXXXXXXXXXXXXXXXXXXX9                                       
-        2.00*10^ 2                                          XXXXXXXXXXXXXXXXXXXXX                                       
-        1.80*10^ 2                                         1XXXXXXXXXXXXXXXXXXXXX8                                      
+        2.00*10^ 2                                         1XXXXXXXXXXXXXXXXXXXXX                                       
+        1.80*10^ 2                                         XXXXXXXXXXXXXXXXXXXXXX8                                      
         1.60*10^ 2                                         XXXXXXXXXXXXXXXXXXXXXXX                                      
-        1.40*10^ 2                                       39XXXXXXXXXXXXXXXXXXXXXXX                                      
+        1.40*10^ 2                                       29XXXXXXXXXXXXXXXXXXXXXXX                                      
         1.20*10^ 2                                       XXXXXXXXXXXXXXXXXXXXXXXXX7                                     
         1.00*10^ 2                                       XXXXXXXXXXXXXXXXXXXXXXXXXX2                                    
         0.80*10^ 2                                     5XXXXXXXXXXXXXXXXXXXXXXXXXXXXX                                   
         0.60*10^ 2                                   24XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX5                                  
-        0.40*10^ 2                                  6XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX614                               
-        0.20*10^ 2                            232451XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX93221 21                       
+        0.40*10^ 2                                 16XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX624                               
+        0.20*10^ 2                      1 1 1 13245XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX93111111                       
 
           Contents                                                                                                      
             *10^ 2  0000000000000000000000000000000000000111223344455555544343222110000000000000000000000000000000000000
@@ -280,7 +279,7 @@
    All chan =  1.0000e+04    Rms  =  1.4276e-01    Overflow  =  0.0000e+00    High edge =  1.0000e+00
 
 
-  2009-09-15 09:09       net pZ offset
+  2010-01-10 11:01       net pZ offset
 
         2.90*10^ 2                                                 2     5                                              
         2.80*10^ 2                                                 X  7  X                                              
@@ -327,7 +326,7 @@
    All chan =  1.0000e+04    Rms  =  2.8870e+00    Overflow  =  0.0000e+00    High edge =  1.0000e+01
 
 
-  2009-09-15 09:09       individual abs(pZ) offset
+  2010-01-10 11:01       individual abs(pZ) offset
 
         8.10*10^ 2                                                   6                                                  
         7.80*10^ 2                                                  5X95                                                
@@ -372,7 +371,7 @@
    All chan =  2.0000e+04    Rms  =  2.0309e+00    Overflow  =  0.0000e+00    High edge =  1.0000e+01
 
 
-  2009-09-15 09:09       vertex x position
+  2010-01-10 11:01       vertex x position
 
         3.00*10^ 2                                                  7 1                                                 
         2.90*10^ 2                                                  X X  8                                              
@@ -420,7 +419,7 @@
    All chan =  9.9890e+03    Rms  =  2.9891e-01    Overflow  =  5.0000e+00    High edge =  1.0000e+00
 
 
-  2009-09-15 09:09       vertex y position
+  2010-01-10 11:01       vertex y position
 
         2.70*10^ 2                                               8X    3                                                
         2.60*10^ 2                                               XX 379X 2                                              
@@ -465,7 +464,7 @@
    All chan =  9.9950e+03    Rms  =  3.0114e-01    Overflow  =  2.0000e+00    High edge =  1.0000e+00
 
 
-  2009-09-15 09:09       vertex z position
+  2010-01-10 11:01       vertex z position
 
         4.20*10^ 2                                                   9 4                                                
         4.05*10^ 2                                                   X5X                                                
@@ -511,7 +510,7 @@
    All chan =  1.0000e+04    Rms  =  2.0296e+01    Overflow  =  0.0000e+00    High edge =  1.0000e+02
 
 
-  2009-09-15 09:09       vertex time
+  2010-01-10 11:01       vertex time
 
         4.50*10^ 2                                                   3                                                  
         4.35*10^ 2                                                   X                                                  
@@ -559,7 +558,7 @@
    All chan =  1.0000e+04    Rms  =  2.0600e+01    Overflow  =  0.0000e+00    High edge =  1.0000e+02
 
 
-  2009-09-15 09:09       vertex |x| + |t|
+  2010-01-10 11:01       vertex |x| + |t|
 
         4.05*10^ 2                                                12 4                                                  
         3.90*10^ 2                                                XX X                                                  

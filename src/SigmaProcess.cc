@@ -1,5 +1,5 @@
 // SigmaProcess.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -10,12 +10,12 @@
 
 namespace Pythia8 {
 
-//**************************************************************************
+//==========================================================================
 
 // The SigmaProcess class.
 // Base class for cross sections.
 
-//*********
+//--------------------------------------------------------------------------
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -26,72 +26,75 @@ const double SigmaProcess::CONVERT2MB    = 0.389380;
 // The sum of outgoing masses must not be too close to the cm energy.
 const double SigmaProcess::MASSMARGIN    = 0.1;
 
-//*********
+//--------------------------------------------------------------------------
 
 // Perform simple initialization and store pointers.
 
-void SigmaProcess::init(Info* infoPtrIn, BeamParticle* beamAPtrIn, 
-  BeamParticle* beamBPtrIn, AlphaStrong* alphaSPtrIn, 
-  AlphaEM* alphaEMPtrIn,SigmaTotal* sigmaTotPtrIn,
-  SusyLesHouches* slhaPtrIn) {
+void SigmaProcess::init(Info* infoPtrIn, Settings* settingsPtrIn,
+  ParticleData* particleDataPtrIn, Rndm* rndmPtrIn, BeamParticle* beamAPtrIn, 
+  BeamParticle* beamBPtrIn, CoupSM* coupSMPtrIn, SigmaTotal* sigmaTotPtrIn, 
+  CoupSUSY* coupSUSYPtrIn, SusyLesHouches* slhaPtrIn) {
 
   // Store pointers.
-  infoPtr     = infoPtrIn;
-  beamAPtr    = beamAPtrIn;
-  beamBPtr    = beamBPtrIn;
-  alphaSPtr   = alphaSPtrIn;
-  alphaEMPtr  = alphaEMPtrIn;
-  sigmaTotPtr = sigmaTotPtrIn;
-  slhaPtr     = slhaPtrIn;
+  infoPtr         = infoPtrIn;
+  settingsPtr     = settingsPtrIn;
+  particleDataPtr = particleDataPtrIn;
+  rndmPtr         = rndmPtrIn;
+  beamAPtr        = beamAPtrIn;
+  beamBPtr        = beamBPtrIn;
+  coupSMPtr       = coupSMPtrIn;
+  sigmaTotPtr     = sigmaTotPtrIn;
+  coupSUSYPtr     = coupSUSYPtrIn;
+  slhaPtr         = slhaPtrIn;
 
   // Read out some properties of beams to allow shorthand.
-  idA         = beamAPtr->id();
-  idB         = beamBPtr->id();
-  mA          = beamAPtr->m();
-  mB          = beamBPtr->m();
-  isLeptonA   = beamAPtr->isLepton();
-  isLeptonB   = beamBPtr->isLepton();
-  hasLeptonBeams = isLeptonA || isLeptonB;
+  idA             = beamAPtr->id();
+  idB             = beamBPtr->id();
+  mA              = beamAPtr->m();
+  mB              = beamBPtr->m();
+  isLeptonA       = beamAPtr->isLepton();
+  isLeptonB       = beamBPtr->isLepton();
+  hasLeptonBeams  = isLeptonA || isLeptonB;
 
   // K factor, multiplying resolved processes. (But not here for MI.)
-  Kfactor         = Settings::parm("SigmaProcess:Kfactor");
+  Kfactor         = settingsPtr->parm("SigmaProcess:Kfactor");
 
   // Maximum incoming quark flavour.
-  nQuarkIn        = Settings::mode("PDFinProcess:nQuarkIn");
+  nQuarkIn        = settingsPtr->mode("PDFinProcess:nQuarkIn");
 
   // Renormalization scale choice.
-  renormScale1    = Settings::mode("SigmaProcess:renormScale1"); 
-  renormScale2    = Settings::mode("SigmaProcess:renormScale2"); 
-  renormScale3    = Settings::mode("SigmaProcess:renormScale3"); 
-  renormScale3VV  = Settings::mode("SigmaProcess:renormScale3VV"); 
-  renormMultFac   = Settings::parm("SigmaProcess:renormMultFac"); 
-  renormFixScale  = Settings::parm("SigmaProcess:renormFixScale"); 
+  renormScale1    = settingsPtr->mode("SigmaProcess:renormScale1"); 
+  renormScale2    = settingsPtr->mode("SigmaProcess:renormScale2"); 
+  renormScale3    = settingsPtr->mode("SigmaProcess:renormScale3"); 
+  renormScale3VV  = settingsPtr->mode("SigmaProcess:renormScale3VV"); 
+  renormMultFac   = settingsPtr->parm("SigmaProcess:renormMultFac"); 
+  renormFixScale  = settingsPtr->parm("SigmaProcess:renormFixScale"); 
 
   // Factorization scale choice.
-  factorScale1    = Settings::mode("SigmaProcess:factorScale1"); 
-  factorScale2    = Settings::mode("SigmaProcess:factorScale2"); 
-  factorScale3    = Settings::mode("SigmaProcess:factorScale3"); 
-  factorScale3VV  = Settings::mode("SigmaProcess:factorScale3VV"); 
-  factorMultFac   = Settings::parm("SigmaProcess:factorMultFac"); 
-  factorFixScale  = Settings::parm("SigmaProcess:factorFixScale"); 
+  factorScale1    = settingsPtr->mode("SigmaProcess:factorScale1"); 
+  factorScale2    = settingsPtr->mode("SigmaProcess:factorScale2"); 
+  factorScale3    = settingsPtr->mode("SigmaProcess:factorScale3"); 
+  factorScale3VV  = settingsPtr->mode("SigmaProcess:factorScale3VV"); 
+  factorMultFac   = settingsPtr->parm("SigmaProcess:factorMultFac"); 
+  factorFixScale  = settingsPtr->parm("SigmaProcess:factorFixScale"); 
 
   // CP violation parameters for the BSM Higgs sector.
-  higgsH1parity   = Settings::mode("HiggsH1:parity");
-  higgsH1eta      = Settings::parm("HiggsH1:etaParity");
-  higgsH2parity   = Settings::mode("HiggsH2:parity");
-  higgsH2eta      = Settings::parm("HiggsH2:etaParity");
-  higgsA3parity   = Settings::mode("HiggsA3:parity");
-  higgsA3eta      = Settings::parm("HiggsA3:etaParity");
+  higgsH1parity   = settingsPtr->mode("HiggsH1:parity");
+  higgsH1eta      = settingsPtr->parm("HiggsH1:etaParity");
+  higgsH2parity   = settingsPtr->mode("HiggsH2:parity");
+  higgsH2eta      = settingsPtr->parm("HiggsH2:etaParity");
+  higgsA3parity   = settingsPtr->mode("HiggsA3:parity");
+  higgsA3eta      = settingsPtr->parm("HiggsA3:etaParity");
 
   // If BSM not switched on then H1 should have SM properties.
-  if (!Settings::flag("Higgs:useBSM")){
+  if (!settingsPtr->flag("Higgs:useBSM")){
     higgsH1parity = 1;
     higgsH1eta    = 0.;
   }
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Set up allowed flux of incoming partons.
 // addBeam: set up PDF's that need to be evaluated for the two beams.
@@ -215,8 +218,8 @@ bool SigmaProcess::initFlux() {
   // Case with f fbar' charged(+-1) incoming state.
   else if (fluxType == "ffbarChg") {
     // If beams are leptons then also colliding partons.
-    if ( isLeptonA && isLeptonB && abs( ParticleDataTable::chargeType(idA) 
-             + ParticleDataTable::chargeType(idB) ) == 3 ) {
+    if ( isLeptonA && isLeptonB && abs( particleDataPtr->chargeType(idA) 
+             + particleDataPtr->chargeType(idB) ) == 3 ) {
       addBeamA(idA);
       addBeamB(idB);
       addPair(idA, idB);
@@ -313,7 +316,7 @@ bool SigmaProcess::initFlux() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Convolute matrix-element expression(s) with parton flux and K factor.
 
@@ -356,7 +359,7 @@ double SigmaProcess::sigmaPDF() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select incoming parton channel and extract parton densities (resolved).
 
@@ -369,7 +372,7 @@ void SigmaProcess::pickInState(int id1in, int id2in) {
   }
 
   // Pick channel. Extract channel flavours and pdf's.
-  double sigmaRand =  sigmaSumSave * Rndm::flat();
+  double sigmaRand =  sigmaSumSave * rndmPtr->flat();
   for (int i = 0; i < sizePair(); ++i) {
     sigmaRand -= inPair[i].pdfSigma;
     if (sigmaRand <= 0.) {
@@ -383,7 +386,7 @@ void SigmaProcess::pickInState(int id1in, int id2in) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate weight for W decay distribution in t -> W b -> f fbar b.
 
@@ -421,7 +424,7 @@ double SigmaProcess::weightTopDecay( Event& process, int iResBeg,
 }
 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate weight for Z0/W+- decay distributions in H -> Z0/W+ Z0/W- -> 4f.
 
@@ -514,13 +517,13 @@ double SigmaProcess::weightHiggsDecay( Event& process, int iResBeg,
 
   // Z0 Z0 decay: vector and axial couplings of two fermion pairs.
   if (idZW1 == 23) {
-    double vf1 = CoupEW::vf(process[i3].idAbs());
-    double af1 = CoupEW::af(process[i3].idAbs());
-    double vf2 = CoupEW::vf(process[i5].idAbs());
-    double af2 = CoupEW::af(process[i5].idAbs());
+    double vf1 = coupSMPtr->vf(process[i3].idAbs());
+    double af1 = coupSMPtr->af(process[i3].idAbs());
+    double vf2 = coupSMPtr->vf(process[i5].idAbs());
+    double af2 = coupSMPtr->af(process[i5].idAbs());
     double va12asym = 4. * vf1 * af1 * vf2 * af2 
       / ( (vf1*vf1 + af1*af1) * (vf2*vf2 + af2*af2) );
-    double etaMod = higgsEta / pow2( ParticleDataTable::m0(23) );
+    double etaMod = higgsEta / pow2( particleDataPtr->m0(23) );
     
     // Normal CP-even decay.
     if (higgsParity == 1) wt = 8. * (1. + va12asym) * p35 * p46 
@@ -546,7 +549,7 @@ double SigmaProcess::weightHiggsDecay( Event& process, int iResBeg,
 
   // W+ W- decay.
   } else if (idZW1 == 24) {
-    double etaMod = higgsEta / pow2( ParticleDataTable::m0(24) );
+    double etaMod = higgsEta / pow2( particleDataPtr->m0(24) );
     
     // Normal CP-even decay.
     if (higgsParity == 1) wt = 16. * p35 * p46; 
@@ -572,12 +575,12 @@ double SigmaProcess::weightHiggsDecay( Event& process, int iResBeg,
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // The Sigma1Process class.
 // Base class for resolved 2 -> 1 cross sections; derived from SigmaProcess.
 
-//*********
+//--------------------------------------------------------------------------
 
 // Input and complement kinematics for resolved 2 -> 1 process. 
 
@@ -602,17 +605,17 @@ void Sigma1Process::store1Kin( double x1in, double x2in, double sHin) {
   if (factorScale1 == 2) Q2FacSave = factorFixScale; 
 
   // Evaluate alpha_strong and alpha_EM.
-  alpS   = alphaSPtr->alphaS(Q2RenSave);  
-  alpEM  = alphaEMPtr->alphaEM(Q2RenSave);  
+  alpS   = coupSMPtr->alphaS(Q2RenSave);  
+  alpEM  = coupSMPtr->alphaEM(Q2RenSave);  
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // The Sigma2Process class.
 // Base class for resolved 2 -> 2 cross sections; derived from SigmaProcess.
 
-//*********
+//--------------------------------------------------------------------------
 
 // Input and complement kinematics for resolved 2 -> 2 process. 
 
@@ -690,12 +693,12 @@ void Sigma2Process::store2Kin( double x1in, double x2in, double sHin,
   }
 
   // Evaluate alpha_strong and alpha_EM.
-  alpS = alphaSPtr->alphaS(Q2RenSave);  
-  alpEM = alphaEMPtr->alphaEM(Q2RenSave);  
+  alpS  = coupSMPtr->alphaS(Q2RenSave);  
+  alpEM = coupSMPtr->alphaEM(Q2RenSave);  
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // As above, special kinematics for multiple interactions. 
 
@@ -753,7 +756,7 @@ void Sigma2Process::store2KinMI( double x1in, double x2in,
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Perform kinematics for a Multiple Interaction, including a rescattering.
 
@@ -764,8 +767,8 @@ bool Sigma2Process::final2KinMI( int i1Res, int i2Res, Vec4 p1Res, Vec4 p2Res,
   setIdColAcol();
 
   // Check that masses of outgoing particles not too big.
-  m3           = ParticleDataTable::m0(idSave[3]);
-  m4           = ParticleDataTable::m0(idSave[4]);
+  m3           = particleDataPtr->m0(idSave[3]);
+  m4           = particleDataPtr->m0(idSave[4]);
   mH           = sqrt(sH);
   if (m3 + m4 + MASSMARGIN > mH) return false;
   s3           = m3 * m3;
@@ -787,7 +790,7 @@ bool Sigma2Process::final2KinMI( int i1Res, int i2Res, Vec4 p1Res, Vec4 p2Res,
   double e3    = 0.5 * (sH + s3 - s4) / mH;
   double e4    = 0.5 * (sH + s4 - s3) / mH;
   double pAbs  = sqrtpos( e3*e3 - s3 );
-  phi          = 2. * M_PI * Rndm::flat();
+  phi          = 2. * M_PI * rndmPtr->flat();
   double pZ    = pAbs * cosTheta;
   pTFin        = pAbs * sinTheta;
   double pX    = pTFin * sin(phi);
@@ -823,12 +826,12 @@ bool Sigma2Process::final2KinMI( int i1Res, int i2Res, Vec4 p1Res, Vec4 p2Res,
 
 }  
 
-//**************************************************************************
+//==========================================================================
 
 // The Sigma3Process class.
 // Base class for resolved 2 -> 3 cross sections; derived from SigmaProcess.
 
-//*********
+//--------------------------------------------------------------------------
 
 // Input and complement kinematics for resolved 2 -> 3 process. 
 
@@ -914,8 +917,8 @@ void Sigma3Process::store3Kin( double x1in, double x2in, double sHin,
 
   // Vector boson fusion 2 -> 3 processes; recoils in positions 4 and 5.
   } else {
-    double sV4   = pow2( ParticleDataTable::m0(idTchan1()) ); 
-    double sV5   = pow2( ParticleDataTable::m0(idTchan2()) ); 
+    double sV4   = pow2( particleDataPtr->m0(idTchan1()) ); 
+    double sV5   = pow2( particleDataPtr->m0(idTchan2()) ); 
     double mT3S  = s3  + p3cm.pT2();
     double mTV4S = sV4 + p4cm.pT2();
     double mTV5S = sV5 + p5cm.pT2();
@@ -942,18 +945,18 @@ void Sigma3Process::store3Kin( double x1in, double x2in, double sHin,
   }
 
   // Evaluate alpha_strong and alpha_EM.
-  alpS = alphaSPtr->alphaS(Q2RenSave);  
-  alpEM = alphaEMPtr->alphaEM(Q2RenSave);  
+  alpS  = coupSMPtr->alphaS(Q2RenSave);  
+  alpEM = coupSMPtr->alphaEM(Q2RenSave);  
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // The SigmaLHAProcess class.
 // Wrapper for Les Houches Accord external input; derived from SigmaProcess.
 // Note: arbitrary subdivision into PhaseSpaceLHA and SigmaLHAProcess tasks.
 
-//*********
+//--------------------------------------------------------------------------
 
 // Set scale, alpha_strong and alpha_EM when not set.
 
@@ -1034,16 +1037,16 @@ void SigmaLHAProcess::setScale() {
   // If alpha_strong and alpha_EM have not been set, then set them.
   if (lhaUpPtr->alphaQCD() < 0.001) {
     double Q2RenNow = (scaleLHA < 0.) ? Q2RenSave : pow2(scaleLHA);
-    alpS = alphaSPtr->alphaS(Q2RenNow);
+    alpS = coupSMPtr->alphaS(Q2RenNow);
   }
   if (lhaUpPtr->alphaQED() < 0.001) {
     double Q2RenNow = (scaleLHA < 0.) ? Q2RenSave : pow2(scaleLHA);
-    alpEM = alphaEMPtr->alphaEM(Q2RenNow);  
+    alpEM = coupSMPtr->alphaEM(Q2RenNow);  
   }
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Obtain number of final-state partons from LHA object.
 
@@ -1060,6 +1063,6 @@ int SigmaLHAProcess::nFinal() const {
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8

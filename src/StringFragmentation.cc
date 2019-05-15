@@ -1,5 +1,5 @@
 // StringFragmentation.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -10,11 +10,11 @@
 
 namespace Pythia8 {
  
-//**************************************************************************
+//==========================================================================
 
 // The StringEnd class.
 
-//*********
+//--------------------------------------------------------------------------
  
 // Constants: could be changed here if desired, but normally should not.
 
@@ -24,7 +24,7 @@ const double StringEnd::TINY = 1e-6;
 // Assume two (eX, eY) regions are related if pT2 differs by less.
 const double StringEnd::PT2SAME = 0.01;
 
-//*********
+//--------------------------------------------------------------------------
 
 // Set up initial endpoint values from input.
 
@@ -46,7 +46,7 @@ void StringEnd::setUp(bool fromPosIn, int iEndIn, int idOldIn, int iMaxIn,
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Fragment off one hadron from the string system, in flavour and pT.
 
@@ -65,12 +65,12 @@ void StringEnd::newHadron() {
   pyHad = pyOld + pyNew;
 
   // Pick its mass and thereby define its transverse mass.
-  mHad   = ParticleDataTable::mass(idHad);
+  mHad   = particleDataPtr->mass(idHad);
   mT2Had = pow2(mHad) + pow2(pxHad) + pow2(pyHad);
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Fragment off one hadron from the string system, in momentum space,
 // by taking steps from positive end.
@@ -244,7 +244,7 @@ Vec4 StringEnd::kinematicsHadron( StringSystem& system) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Update string end information after a hadron has been removed.
 
@@ -261,11 +261,11 @@ void StringEnd::update() {
 
 }
   
-//**************************************************************************
+//==========================================================================
 
 // The StringFragmentation class.
 
-//*********
+//--------------------------------------------------------------------------
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -305,41 +305,47 @@ const double StringFragmentation::M2MAXJRF     = 1e-4;
 const double StringFragmentation::CONVJRFEQ    = 1e-12;
 const int    StringFragmentation::NTRYJRFEQ    = 40; 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize and save pointers. 
 
-void StringFragmentation::init(Info* infoPtrIn, StringFlav* flavSelPtrIn, 
+void StringFragmentation::init(Info* infoPtrIn, Settings& settings, 
+  ParticleData* particleDataPtrIn, Rndm* rndmPtrIn, StringFlav* flavSelPtrIn,  
   StringPT* pTSelPtrIn, StringZ* zSelPtrIn) {
 
   // Save pointers.
-  infoPtr       = infoPtrIn;
-  flavSelPtr    = flavSelPtrIn;
-  pTSelPtr      = pTSelPtrIn;
-  zSelPtr       = zSelPtrIn;
+  infoPtr         = infoPtrIn;
+  particleDataPtr = particleDataPtrIn;
+  rndmPtr         = rndmPtrIn;
+  flavSelPtr      = flavSelPtrIn;
+  pTSelPtr        = pTSelPtrIn;
+  zSelPtr         = zSelPtrIn;
 
   // Initialize the StringFragmentation class.
-  stopMass      = Settings::parm("StringFragmentation:stopMass");
-  stopNewFlav   = Settings::parm("StringFragmentation:stopNewFlav");
-  stopSmear     = Settings::parm("StringFragmentation:stopSmear");
-  eNormJunction = Settings::parm("StringFragmentation:eNormJunction");
+  stopMass        = settings.parm("StringFragmentation:stopMass");
+  stopNewFlav     = settings.parm("StringFragmentation:stopNewFlav");
+  stopSmear       = settings.parm("StringFragmentation:stopSmear");
+  eNormJunction   = settings.parm("StringFragmentation:eNormJunction");
   eBothLeftJunction 
-     = Settings::parm("StringFragmentation:eBothLeftJunction");
+     = settings.parm("StringFragmentation:eBothLeftJunction");
   eMaxLeftJunction 
-    = Settings::parm("StringFragmentation:eMaxLeftJunction");
+    = settings.parm("StringFragmentation:eMaxLeftJunction");
   eMinLeftJunction 
-    = Settings::parm("StringFragmentation:eMinLeftJunction");
+    = settings.parm("StringFragmentation:eMinLeftJunction");
 
   // Initialize the b parameter of the z spectrum, used when joining jets.
-  bLund         = Settings::parm("StringZ:bLund");
+  bLund           = settings.parm("StringZ:bLund");
+
+  // Initialize the hadrons instance of an event record.
+  hadrons.init( "(string fragmentation)", particleDataPtr);
 
   // Send on pointers to the two StringEnd instances.
-  posEnd.init( flavSelPtr, pTSelPtr, zSelPtr);   
-  negEnd.init( flavSelPtr, pTSelPtr, zSelPtr);   
+  posEnd.init( particleDataPtr, flavSelPtr, pTSelPtr, zSelPtr);   
+  negEnd.init( particleDataPtr, flavSelPtr, pTSelPtr, zSelPtr);   
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Perform the fragmentation.
 
@@ -399,7 +405,7 @@ bool StringFragmentation::fragment( int iSub, ColConfig& colConfig,
     for ( ; ; ) {
 
       // Take a step either from the positive or the negative end.
-      fromPos           = (Rndm::flat() < 0.5);
+      fromPos           = (rndmPtr->flat() < 0.5);
       StringEnd& nowEnd = (fromPos) ? posEnd : negEnd;
      
       // Construct trial hadron and check that energy remains.
@@ -419,7 +425,7 @@ bool StringFragmentation::fragment( int iSub, ColConfig& colConfig,
 
     // End of fragmentation loop.
     }
-    
+   
     // When done, join in the middle. If this works, then really done.
     if ( finalTwo(fromPos) ) break;
 
@@ -443,7 +449,7 @@ bool StringFragmentation::fragment( int iSub, ColConfig& colConfig,
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Find region where to put first string break for closed gluon loop.
   
@@ -462,7 +468,7 @@ vector<int> StringFragmentation::findFirstRegion(vector<int>& iPartonIn,
   }
    
   // Pick breakup region with probability proportional to mass-squared.
-  double m2Reg = m2Sum * Rndm::flat();
+  double m2Reg = m2Sum * rndmPtr->flat();
   int iReg = -1;
   do m2Reg -= m2Pair[++iReg];
   while (m2Reg > 0 && iReg < size - 1); 
@@ -477,7 +483,7 @@ vector<int> StringFragmentation::findFirstRegion(vector<int>& iPartonIn,
  
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Set flavours and momentum position for initial string endpoints. 
 
@@ -529,7 +535,7 @@ void StringFragmentation::setStartEnds( int idPos, int idNeg,
   if (isClosed) {
     flavSelPtr->assignPopQ(posEnd.flavOld);
     flavSelPtr->assignPopQ(negEnd.flavOld);
-    if (Rndm::flat() < 0.5) posEnd.flavOld.nPop = 0;    
+    if (rndmPtr->flat() < 0.5) posEnd.flavOld.nPop = 0;    
     else                    negEnd.flavOld.nPop = 0;
     posEnd.flavOld.rank = 1;
     negEnd.flavOld.rank = 1;
@@ -539,7 +545,7 @@ void StringFragmentation::setStartEnds( int idPos, int idNeg,
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Check remaining energy-momentum whether it is OK to continue.
 
@@ -550,13 +556,13 @@ bool StringFragmentation::energyUsedUp(bool fromPos) {
 
   // Calculate W2_minimum and done if remaining W2 is below it.
   double wMin = stopMassNow 
-    + ParticleDataTable::constituentMass(posEnd.flavOld.id)
-    + ParticleDataTable::constituentMass(negEnd.flavOld.id);
+    + particleDataPtr->constituentMass(posEnd.flavOld.id)
+    + particleDataPtr->constituentMass(negEnd.flavOld.id);
   if (fromPos) wMin += stopNewFlav 
-    * ParticleDataTable::constituentMass(posEnd.flavNew.id);
+    * particleDataPtr->constituentMass(posEnd.flavNew.id);
   else         wMin += stopNewFlav 
-    * ParticleDataTable::constituentMass(negEnd.flavNew.id);
-  wMin *= 1. + (2. * Rndm::flat() - 1.) * stopSmear;
+    * particleDataPtr->constituentMass(negEnd.flavNew.id);
+  wMin *= 1. + (2. * rndmPtr->flat() - 1.) * stopSmear;
   w2Rem = pRem.m2Calc(); 
   if (w2Rem < pow2(wMin)) return true;
 
@@ -565,7 +571,7 @@ bool StringFragmentation::energyUsedUp(bool fromPos) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Produce the final two partons to complete the system.
 
@@ -598,12 +604,12 @@ bool StringFragmentation::finalTwo(bool fromPos) {
     negEnd.idHad = idHad;
     negEnd.pxNew = -posEnd.pxNew;
     negEnd.pyNew = -posEnd.pyNew;
-    negEnd.mHad  = ParticleDataTable::mass(idHad);
+    negEnd.mHad  = particleDataPtr->mass(idHad);
   } else {     
     posEnd.idHad = idHad;
     posEnd.pxNew = -negEnd.pxNew;
     posEnd.pyNew = -negEnd.pyNew;
-    posEnd.mHad  = ParticleDataTable::mass(idHad);
+    posEnd.mHad  = particleDataPtr->mass(idHad);
   }
 
   // String region in which to do the joining.
@@ -648,7 +654,7 @@ bool StringFragmentation::finalTwo(bool fromPos) {
   double lambda = sqrt(lambda2);
     double probReverse = 1. / (1. + exp( min( EXPMAX, bLund * lambda) ) ); 
   double xpzPos = 0.5 * lambda/ wT2Rem;
-  if (probReverse > Rndm::flat()) xpzPos = -xpzPos; 
+  if (probReverse > rndmPtr->flat()) xpzPos = -xpzPos; 
   double xmDiff = (posEnd.mT2Had - negEnd.mT2Had) / wT2Rem;
   double xePos  = 0.5 * (1. + xmDiff);
   double xeNeg  = 0.5 * (1. - xmDiff ); 
@@ -670,7 +676,7 @@ bool StringFragmentation::finalTwo(bool fromPos) {
   
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 //  Construct a special joining region for the final two hadrons.
 
@@ -748,7 +754,7 @@ StringRegion StringFragmentation::finalRegion() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Store the hadrons in the normal event record, ordered from one end.
 
@@ -781,7 +787,7 @@ void StringFragmentation::store(Event& event) {
 
   // Set lifetime of hadrons.
   for (int i = iFirst; i <= iLast; ++i) 
-    event[i].tau( event[i].tau0() * Rndm::exp() );
+    event[i].tau( event[i].tau0() * rndmPtr->exp() );
 
   // Mark original partons as hadronized and set their daughter range.
   for (int i = 0; i < int(iParton.size()); ++i)
@@ -792,7 +798,7 @@ void StringFragmentation::store(Event& event) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Fragment off two of the string legs in to a junction. 
 
@@ -914,14 +920,14 @@ bool StringFragmentation::fragmentToJunction(Event& event) {
   // Define fictitious opposing partons in JRF and store as string ends.
   Vec4 pOppose = pWTinJRF[legMin];   
   pOppose.flip3();
-  int idOppose = (Rndm::flat() > 0.5) ? 2 : 1;
+  int idOppose = (rndmPtr->flat() > 0.5) ? 2 : 1;
   if (event[ iPartonMin[0] ].col() > 0) idOppose = -idOppose;
   int iOppose = event.append( idOppose, 77, 0, 0, 0, 0, 0, 0,
     pOppose, 0.); 
   iPartonMin.push_back( iOppose);
   pOppose = pWTinJRF[legMid];   
   pOppose.flip3();
-  idOppose = (Rndm::flat() > 0.5) ? 2 : 1;
+  idOppose = (rndmPtr->flat() > 0.5) ? 2 : 1;
   if (event[ iPartonMid[0] ].col() > 0) idOppose = -idOppose;
   iOppose = event.append( idOppose, 77, 0, 0, 0, 0, 0, 0,
     pOppose, 0.); 
@@ -1007,7 +1013,7 @@ bool StringFragmentation::fragmentToJunction(Event& event) {
       }
 
       // End of both-leg fragmentation. Middle loopback if too much energy left.
-      double eTrial = eBothLeftJunction + Rndm::flat() * eMaxLeftJunction;
+      double eTrial = eBothLeftJunction + rndmPtr->flat() * eMaxLeftJunction;
       if (iTryMiddle > NTRYJNMATCH 
         || ( min( eLeftMin, eLeftMid) < eBothLeftJunction
         && max( eLeftMin, eLeftMid) < eTrial ) ) break;
@@ -1055,7 +1061,7 @@ bool StringFragmentation::fragmentToJunction(Event& event) {
   return true;
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Find the boost matrix to the rest frame of a junction,
 // given the three respective endpoint four-momenta.
@@ -1207,6 +1213,6 @@ RotBstMatrix StringFragmentation::junctionRestFrame(Vec4& p0, Vec4& p1,
 
 }
   
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8

@@ -1,5 +1,5 @@
 // MultipleInteractions.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -15,11 +15,11 @@
 
 namespace Pythia8 {
 
-//**************************************************************************
+//==========================================================================
 
 // The SigmaMultiple class.
 
-//*********
+//--------------------------------------------------------------------------
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -30,11 +30,16 @@ const double SigmaMultiple::MASSMARGIN = 0.1;
 // Fraction of time not the dominant "gluon t-channel" process is picked.
 const double SigmaMultiple::OTHERFRAC  = 0.2;
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize the generation process for given beams.
 
-bool SigmaMultiple::init(int inState, int processLevel) {
+  bool SigmaMultiple::init(int inState, int processLevel, Info* infoPtr, 
+    Settings* settingsPtr, ParticleData* particleDataPtr, Rndm* rndmPtrIn,  
+    BeamParticle* beamAPtr, BeamParticle* beamBPtr, CoupSM* coupSMPtr) {
+
+  // Store input pointer for future use. 
+  rndmPtr          = rndmPtrIn;
 
   // Reset vector sizes (necessary in case of re-initialization).
   if (sigmaT.size() > 0) {
@@ -203,10 +208,14 @@ bool SigmaMultiple::init(int inState, int processLevel) {
   sHatMin.resize(nChan);
   sigmaTval.resize(nChan);
   sigmaUval.resize(nChan);
-
+ 
   // Initialize the processes.
   for (int i = 0; i < nChan; ++i) {
+    sigmaT[i]->init( infoPtr, settingsPtr, particleDataPtr, rndmPtr, 
+      beamAPtr, beamBPtr, coupSMPtr);
     sigmaT[i]->initProc();
+    sigmaU[i]->init( infoPtr, settingsPtr, particleDataPtr, rndmPtr, 
+      beamAPtr, beamBPtr, coupSMPtr);
     sigmaU[i]->initProc();
 
     // Prepare for massive kinematics (but fixed masses!) where required.
@@ -217,8 +226,8 @@ bool SigmaMultiple::init(int inState, int processLevel) {
     m4Fix[i] = 0.;
     if (id3Mass > 0 || id4Mass > 0) {
       needMasses[i] = true;
-      m3Fix[i] =  ParticleDataTable::m0(id3Mass); 
-      m4Fix[i] =  ParticleDataTable::m0(id4Mass); 
+      m3Fix[i] =  particleDataPtr->m0(id3Mass); 
+      m4Fix[i] =  particleDataPtr->m0(id4Mass); 
     }
     sHatMin[i] = pow2( m3Fix[i] + m4Fix[i] + MASSMARGIN); 
   }
@@ -228,7 +237,7 @@ bool SigmaMultiple::init(int inState, int processLevel) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Calculate cross section summed over possibilities.
 
@@ -238,7 +247,7 @@ double SigmaMultiple::sigma( int id1, int id2, double x1, double x2,
 
   // Choose either the dominant process (in slot 0) or the rest of them.
   if (restore) pickOther = pickOtherIn;
-  else         pickOther = (Rndm::flat() < OTHERFRAC);
+  else         pickOther = (rndmPtr->flat() < OTHERFRAC);
 
   // Iterate over all subprocesses.
   sigmaTsum = 0.;
@@ -282,18 +291,18 @@ double SigmaMultiple::sigma( int id1, int id2, double x1, double x2,
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Return one subprocess, picked according to relative cross sections.
 
 SigmaProcess* SigmaMultiple::sigmaSel() { 
 
   // Decide between t- and u-channel-sampled kinematics.
-  pickedU = (Rndm::flat() * (sigmaTsum + sigmaUsum) < sigmaUsum);
+  pickedU = (rndmPtr->flat() * (sigmaTsum + sigmaUsum) < sigmaUsum);
 
   // Pick one of t-channel-sampled processes.
   if (!pickedU) {
-    double sigmaRndm = sigmaTsum * Rndm::flat();
+    double sigmaRndm = sigmaTsum * rndmPtr->flat();
     int    iPick = -1;
     do     sigmaRndm -= sigmaTval[++iPick];
     while  (sigmaRndm > 0.);
@@ -301,7 +310,7 @@ SigmaProcess* SigmaMultiple::sigmaSel() {
 
   // Pick one of u-channel-sampled processes.
   } else {
-    double sigmaRndm = sigmaUsum * Rndm::flat();
+    double sigmaRndm = sigmaUsum * rndmPtr->flat();
     int    iPick = -1;
     do     sigmaRndm -= sigmaUval[++iPick];
     while  (sigmaRndm > 0.);
@@ -310,11 +319,11 @@ SigmaProcess* SigmaMultiple::sigmaSel() {
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // The MultipleInteractions class.
 
-//*********
+//--------------------------------------------------------------------------
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -366,20 +375,23 @@ const double MultipleInteractions::ROOTMIN       = 0.01;
 // No need to reinitialize parameters if energy close to previous.
 const double MultipleInteractions::ECMDEV        = 0.01; 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize the generation process for given beams.
 
 bool MultipleInteractions::init( bool doMIinit, int diffractiveModeIn,
-  Info* infoPtrIn, BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, 
-  PartonSystems* partonSystemsPtrIn, SigmaTotal* sigmaTotPtrIn, 
-  ostream& os) {
+  Info* infoPtrIn, Settings& settings, ParticleData* particleDataPtr,  
+  Rndm* rndmPtrIn, BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, 
+  CoupSM* coupSMPtrIn, PartonSystems* partonSystemsPtrIn,  
+  SigmaTotal* sigmaTotPtrIn, ostream& os) {
 
   // Store input pointers for future use. Done if no initialization. 
   diffractiveMode  = diffractiveModeIn;
   infoPtr          = infoPtrIn;
+  rndmPtr          = rndmPtrIn;
   beamAPtr         = beamAPtrIn;
   beamBPtr         = beamBPtrIn;
+  coupSMPtr        = coupSMPtrIn;
   partonSystemsPtr = partonSystemsPtrIn;
   sigmaTotPtr      = sigmaTotPtrIn;
   if (!doMIinit) return false;
@@ -388,51 +400,51 @@ bool MultipleInteractions::init( bool doMIinit, int diffractiveModeIn,
   hasBaryonBeams = ( beamAPtr->isBaryon() && beamBPtr->isBaryon() );
 
   // Matching in pT of hard interaction to further interactions.
-  pTmaxMatch     = Settings::mode("MultipleInteractions:pTmaxMatch"); 
+  pTmaxMatch     = settings.mode("MultipleInteractions:pTmaxMatch"); 
 
   //  Parameters of alphaStrong generation.
-  alphaSvalue    = Settings::parm("MultipleInteractions:alphaSvalue");
-  alphaSorder    = Settings::mode("MultipleInteractions:alphaSorder");
+  alphaSvalue    = settings.parm("MultipleInteractions:alphaSvalue");
+  alphaSorder    = settings.mode("MultipleInteractions:alphaSorder");
 
   // Parameters of alphaEM generation.
-  alphaEMorder   = Settings::mode("MultipleInteractions:alphaEMorder");
+  alphaEMorder   = settings.mode("MultipleInteractions:alphaEMorder");
 
   //  Parameters of cross section generation.
-  Kfactor        = Settings::parm("MultipleInteractions:Kfactor");
+  Kfactor        = settings.parm("MultipleInteractions:Kfactor");
 
   // Regularization of QCD evolution for pT -> 0. 
-  pT0Ref         = Settings::parm("MultipleInteractions:pT0Ref");
-  ecmRef         = Settings::parm("MultipleInteractions:ecmRef");
-  ecmPow         = Settings::parm("MultipleInteractions:ecmPow");
-  pTmin          = Settings::parm("MultipleInteractions:pTmin");
+  pT0Ref         = settings.parm("MultipleInteractions:pT0Ref");
+  ecmRef         = settings.parm("MultipleInteractions:ecmRef");
+  ecmPow         = settings.parm("MultipleInteractions:ecmPow");
+  pTmin          = settings.parm("MultipleInteractions:pTmin");
 
   // Impact parameter profile.
-  bProfile       = Settings::mode("MultipleInteractions:bProfile");
-  coreRadius     = Settings::parm("MultipleInteractions:coreRadius");
-  coreFraction   = Settings::parm("MultipleInteractions:coreFraction");
-  expPow         = Settings::parm("MultipleInteractions:expPow");
+  bProfile       = settings.mode("MultipleInteractions:bProfile");
+  coreRadius     = settings.parm("MultipleInteractions:coreRadius");
+  coreFraction   = settings.parm("MultipleInteractions:coreFraction");
+  expPow         = settings.parm("MultipleInteractions:expPow");
   expPow         = max(EXPPOWMIN, expPow);
 
   // Process sets to include in machinery.
-  processLevel   = Settings::mode("MultipleInteractions:processLevel");
+  processLevel   = settings.mode("MultipleInteractions:processLevel");
 
   // Parameters of rescattering description.
-  allowRescatter = Settings::flag("MultipleInteractions:allowRescatter");
-  allowDoubleRes = Settings::flag("MultipleInteractions:allowDoubleRescatter");
-  rescatterMode  = Settings::mode("MultipleInteractions:rescatterMode");
-  ySepResc       = Settings::parm("MultipleInteractions:ySepRescatter");
-  deltaYResc     = Settings::parm("MultipleInteractions:deltaYRescatter");
+  allowRescatter = settings.flag("MultipleInteractions:allowRescatter");
+  allowDoubleRes = settings.flag("MultipleInteractions:allowDoubleRescatter");
+  rescatterMode  = settings.mode("MultipleInteractions:rescatterMode");
+  ySepResc       = settings.parm("MultipleInteractions:ySepRescatter");
+  deltaYResc     = settings.parm("MultipleInteractions:deltaYRescatter");
 
   // Various other parameters. 
-  nQuarkIn       = Settings::mode("MultipleInteractions:nQuarkIn");
-  nSample        = Settings::mode("MultipleInteractions:nSample");
+  nQuarkIn       = settings.mode("MultipleInteractions:nQuarkIn");
+  nSample        = settings.mode("MultipleInteractions:nSample");
 
   // Optional dampening at small pT's when large multiplicities.
-  enhanceScreening = Settings::mode("MultipleInteractions:enhanceScreening");
+  enhanceScreening = settings.mode("MultipleInteractions:enhanceScreening");
 
   // Parameters for diffractive systems.
-  sigmaPomP      = Settings::parm("Diffraction:sigmaPomP");
-  mMinPertDiff   = Settings::parm("Diffraction:mMinPert");
+  sigmaPomP      = settings.parm("Diffraction:sigmaPomP");
+  mMinPertDiff   = settings.parm("Diffraction:mMinPert");
 
   // Some common combinations for double Gaussian, as shorthand.
   if (bProfile == 2) {
@@ -453,13 +465,17 @@ bool MultipleInteractions::init( bool doMIinit, int diffractiveModeIn,
   double Lambda3 = alphaS.Lambda3(); 
 
   // Initialize alphaEM generation.
-  alphaEM.init( alphaEMorder); 
+  alphaEM.init( alphaEMorder, &settings); 
 
   // Attach matrix-element calculation objects.
-  sigma2gg.init( 0, processLevel);
-  sigma2qg.init( 1, processLevel);
-  sigma2qqbarSame.init( 2, processLevel);
-  sigma2qq.init( 3, processLevel);
+  sigma2gg.init( 0, processLevel, infoPtr, &settings, particleDataPtr,
+    rndmPtr, beamAPtr, beamBPtr, coupSMPtr);
+  sigma2qg.init( 1, processLevel, infoPtr, &settings, particleDataPtr,
+    rndmPtr, beamAPtr, beamBPtr, coupSMPtr);
+  sigma2qqbarSame.init( 2, processLevel, infoPtr, &settings, particleDataPtr, 
+    rndmPtr, beamAPtr, beamBPtr, coupSMPtr);
+  sigma2qq.init( 3, processLevel, infoPtr, &settings, particleDataPtr,
+    rndmPtr,  beamAPtr, beamBPtr, coupSMPtr);
 
   // Calculate invariant mass of system.
   eCM          = infoPtr->eCM();
@@ -611,7 +627,7 @@ bool MultipleInteractions::init( bool doMIinit, int diffractiveModeIn,
   return true;
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Reset impact parameter choice and update the CM energy.
 // For diffraction also interpolate parameters to current CM energy.
@@ -687,7 +703,7 @@ void MultipleInteractions::reset( ) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select first = hardest pT in minbias process.
 // Requires separate treatment at low and high b values
@@ -716,12 +732,12 @@ void MultipleInteractions::pTfirst() {
       } else WTacc = sigmaPT2scatter(true) / dSigmaApprox;
     
     // Loop until acceptable pT and acceptable kinematics.
-    } while (WTacc < Rndm::flat() || !dSigmaDtSel->final2KinMI()); 
+    } while (WTacc < rndmPtr->flat() || !dSigmaDtSel->final2KinMI()); 
 
   // At high b values make preliminary pT choice without Sudakov factor.
   } else {
     do {
-      pT2 = pT20min0maxR / (pT20minR + Rndm::flat() * pT2maxmin) - pT20R; 
+      pT2 = pT20min0maxR / (pT20minR + rndmPtr->flat() * pT2maxmin) - pT20R; 
 
       // Evaluate upper estimate of cross section for this pT2 choice.  
       dSigmaApprox = pT4dSigmaMax / pow2(pT2 + pT20R);
@@ -733,12 +749,12 @@ void MultipleInteractions::pTfirst() {
       WTacc *= sudakov( pT2, enhanceB);
     
     // Loop until acceptable pT and acceptable kinematics.
-    } while (WTacc < Rndm::flat() || !dSigmaDtSel->final2KinMI()); 
+    } while (WTacc < rndmPtr->flat() || !dSigmaDtSel->final2KinMI()); 
   }
   
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Set up kinematics for first = hardest pT in minbias process.
 
@@ -804,7 +820,7 @@ void MultipleInteractions::setupFirstSys( Event& process) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Find whether to limit maximum scale of emissions.
 
@@ -825,7 +841,7 @@ bool MultipleInteractions::limitPTmax( Event& event) {
  
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select next pT in downwards evolution.
 
@@ -874,7 +890,7 @@ double MultipleInteractions::pTnext( double pTbegAll, double pTendAll,
       } 
  
       // Decide whether to keep the event based on weight.
-    } while (WTacc < Rndm::flat());
+    } while (WTacc < rndmPtr->flat());
 
     // When rescattering possible: new interaction or rescattering?
     if (allowRescatter) {
@@ -916,7 +932,7 @@ double MultipleInteractions::pTnext( double pTbegAll, double pTendAll,
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Set up the kinematics of the 2 -> 2 scattering process,
 // and store the scattering in the event record.
@@ -1051,7 +1067,7 @@ void MultipleInteractions::scatter( Event& event) {
   // Done.
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Determine constant in d(Prob)/d(pT2) < const / (pT2 + r * pT20)^2.  
 
@@ -1100,7 +1116,7 @@ void MultipleInteractions::upperEnvelope() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Integrate the parton-parton interaction cross section,
 // using stratified Monte Carlo sampling.
@@ -1120,7 +1136,7 @@ void MultipleInteractions::jetCrossSection() {
 
     // In each pT bin sample a number of random pT values.
     for (int iSample = 0; iSample < nSample; ++iSample) {
-      double mappedPT2 = 1. - 0.01 * (iPT + Rndm::flat());
+      double mappedPT2 = 1. - 0.01 * (iPT + rndmPtr->flat());
       pT2 = pT20min0maxR / (pT20minR + mappedPT2 * pT2maxmin) - pT20R;
 
       // Evaluate cross section dSigma/dpT2 in phase space point.
@@ -1148,7 +1164,7 @@ void MultipleInteractions::jetCrossSection() {
 
 }  
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate "Sudakov form factor" for not having a harder interaction
 // at the selected b value, given the pT scale of the event.
@@ -1168,7 +1184,7 @@ double MultipleInteractions::sudakov(double pT2sud, double enhance) {
   
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Pick a trial next pT, based on a simple upper estimate of the
 // d(sigma)/d(pT2) spectrum.
@@ -1179,7 +1195,7 @@ double MultipleInteractions::fastPT2( double pT2beg) {
   double pT20begR       = pT2beg + pT20R;
   double pT4dProbMaxNow = pT4dProbMax * enhanceB; 
   double pT2try         = pT4dProbMaxNow * pT20begR 
-    / (pT4dProbMaxNow - pT20begR * log(Rndm::flat())) - pT20R;
+    / (pT4dProbMaxNow - pT20begR * log(rndmPtr->flat())) - pT20R;
 
   // Save cross section associated with ansatz above. Done.
   dSigmaApprox = pT4dSigmaMax / pow2(pT2try + pT20R);
@@ -1187,7 +1203,7 @@ double MultipleInteractions::fastPT2( double pT2beg) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Calculate the actual cross section to decide whether fast choice is OK.
 // Select flavours and kinematics for interaction at given pT.
@@ -1209,15 +1225,15 @@ double MultipleInteractions::sigmaPT2scatter(bool isFirst) {
   double yMax = log(1./xT + sqrt(1./xT2 - 1.));
 
   // Select rapidities y3 and y4 of the two produced partons.
-  double y3 = yMax * (2. * Rndm::flat() - 1.);
-  double y4 = yMax * (2. * Rndm::flat() - 1.);
+  double y3 = yMax * (2. * rndmPtr->flat() - 1.);
+  double y4 = yMax * (2. * rndmPtr->flat() - 1.);
   y = 0.5 * (y3 + y4);
 
   // Reject some events at large rapidities to improve efficiency.
   // (Works for baryons, not pions or Pomerons if they have hard PDF's.) 
   double WTy = (hasBaryonBeams) 
              ? (1. - pow2(y3/yMax)) * (1. - pow2(y4/yMax)) : 1.;
-  if (WTy < Rndm::flat()) return 0.; 
+  if (WTy < rndmPtr->flat()) return 0.; 
 
   // Failure if x1 or x2 exceed what is left in respective beam.
   x1 = 0.5 * xT * (exp(y3) + exp(y4));
@@ -1264,12 +1280,12 @@ double MultipleInteractions::sigmaPT2scatter(bool isFirst) {
 
   // Select incoming flavours according to actual PDF's.
   id1 = -nQuarkIn - 1;
-  double temp = xPDF1sum * Rndm::flat();
+  double temp = xPDF1sum * rndmPtr->flat();
   do { xPDF1now = xPDF1[(++id1) + 10]; temp -= xPDF1now; } 
   while (temp > 0. && id1 < nQuarkIn);
   if (id1 == 0) id1 = 21; 
   id2 = -nQuarkIn-1;
-  temp = xPDF2sum * Rndm::flat();
+  temp = xPDF2sum * rndmPtr->flat();
   do { xPDF2now = xPDF2[(++id2) + 10]; temp -= xPDF2now;} 
   while (temp > 0. && id2 < nQuarkIn);  
   if (id2 == 0) id2 = 21; 
@@ -1336,7 +1352,7 @@ double MultipleInteractions::sigmaPT2scatter(bool isFirst) {
   return dSigmaScat;
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Find the partons that are allowed to rescatter.
 
@@ -1371,18 +1387,18 @@ void MultipleInteractions::findScatteredPartons( Event& event) {
     // Case 2: linear rise from ySep - deltaY to ySep + deltaY. 
     case 2:
       probA = 0.5 * (1. + ( yTmp - ySepResc) / deltaYResc);
-      if (probA > Rndm::flat()) scatteredA.push_back( i);
+      if (probA > rndmPtr->flat()) scatteredA.push_back( i);
       probB = 0.5 * (1. + (-yTmp - ySepResc) / deltaYResc);
-      if (probB > Rndm::flat()) scatteredB.push_back( i);
+      if (probB > rndmPtr->flat()) scatteredB.push_back( i);
       break;
 
     // Case 3: rise like (1/2) * ( 1 + tanh((y - ySep) / deltaY) ).
     // Use that (1/2) (1 + tanh(x)) = 1 / (1 + exp(-2x)).    
     case 3:
       probA = 1. / (1. + exp(-2. * ( yTmp - ySepResc) / deltaYResc));
-      if (probA > Rndm::flat()) scatteredA.push_back( i);
+      if (probA > rndmPtr->flat()) scatteredA.push_back( i);
       probB = 1. / (1. + exp(-2. * (-yTmp - ySepResc) / deltaYResc));
-      if (probB > Rndm::flat()) scatteredB.push_back( i);
+      if (probB > rndmPtr->flat()) scatteredB.push_back( i);
       break;
  
     // Case 4 and undefined values: all partons can rescatter.
@@ -1397,7 +1413,7 @@ void MultipleInteractions::findScatteredPartons( Event& event) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Rescattering contribution summed over all already scattered partons.
 // Calculate the actual cross section to decide whether fast choice is OK.
@@ -1418,7 +1434,7 @@ double MultipleInteractions::sigmaPT2rescatter( Event& event) {
   int nScatA = scatteredA.size();
   int iScatA = -1;
   if (PREPICKRESCATTER && nScatA > 0) iScatA = min( nScatA - 1,
-    int( Rndm::flat() * double(nScatA) ) );   
+    int( rndmPtr->flat() * double(nScatA) ) );   
 
   // Loop over all already scattered partons from side A.
   for (int iScat = 0; iScat < nScatA; ++iScat) {
@@ -1434,7 +1450,7 @@ double MultipleInteractions::sigmaPT2rescatter( Event& event) {
     // Select rapidity separation between two produced partons.
     double dyMax   = log( sqrt(0.25 * sHatMax / pT2) 
                    * (1. + sqrtpos(1. - 4. * pT2 / sHatMax)) );
-    double dy      = dyMax * (2. * Rndm::flat() - 1.);
+    double dy      = dyMax * (2. * rndmPtr->flat() - 1.);
 
     // Reconstruct kinematical variables, especially x2.
     // Incoming c/b masses handled better if tau != x1 * x2.
@@ -1459,7 +1475,7 @@ double MultipleInteractions::sigmaPT2rescatter( Event& event) {
 
     // Select incoming flavour according to actual PDF's.
     int id2Tmp = -nQuarkIn - 1;
-    double temp = xPDF2sum * Rndm::flat();
+    double temp = xPDF2sum * rndmPtr->flat();
     do { xPDF2now = xPDF2[(++id2Tmp) + 10]; temp -= xPDF2now;} 
     while (temp > 0. && id2Tmp < nQuarkIn);  
     if (id2Tmp == 0) id2Tmp = 21; 
@@ -1498,7 +1514,7 @@ double MultipleInteractions::sigmaPT2rescatter( Event& event) {
     dSigmaResc += dSigmaCorr;
 
     // Determine whether current rescattering should be selected.
-    if (dSigmaCorr > Rndm::flat() * dSigmaSum) {
+    if (dSigmaCorr > rndmPtr->flat() * dSigmaSum) {
       i1Sel        = iA;
       i2Sel        = 0;
       id1Sel       = id1Tmp;
@@ -1517,7 +1533,7 @@ double MultipleInteractions::sigmaPT2rescatter( Event& event) {
   int nScatB = scatteredB.size();
   int iScatB = -1;
   if (PREPICKRESCATTER && nScatB > 0) iScatB = min( nScatB - 1,
-    int( Rndm::flat() * double(nScatB) ) );   
+    int( rndmPtr->flat() * double(nScatB) ) );   
 
   // Loop over all already scattered partons from side B.
   for (int iScat = 0; iScat < nScatB; ++iScat) {
@@ -1533,7 +1549,7 @@ double MultipleInteractions::sigmaPT2rescatter( Event& event) {
     // Select rapidity separation between two produced partons.
     double dyMax   = log( sqrt(0.25 * sHatMax / pT2) 
                    * (1. + sqrtpos(1. - 4. * pT2 / sHatMax)) );
-    double dy      = dyMax * (2. * Rndm::flat() - 1.);
+    double dy      = dyMax * (2. * rndmPtr->flat() - 1.);
 
     // Reconstruct kinematical variables, especially x1.
     // Incoming c/b masses handled better if tau != x1 * x2.
@@ -1558,7 +1574,7 @@ double MultipleInteractions::sigmaPT2rescatter( Event& event) {
 
     // Select incoming flavour according to actual PDF's.
     int id1Tmp = -nQuarkIn - 1;
-    double temp = xPDF1sum * Rndm::flat();
+    double temp = xPDF1sum * rndmPtr->flat();
     do { xPDF1now = xPDF1[(++id1Tmp) + 10]; temp -= xPDF1now;} 
     while (temp > 0. && id1Tmp < nQuarkIn);  
     if (id1Tmp == 0) id1Tmp = 21; 
@@ -1597,7 +1613,7 @@ double MultipleInteractions::sigmaPT2rescatter( Event& event) {
     dSigmaResc += dSigmaCorr;
 
     // Determine whether current rescattering should be selected.
-    if (dSigmaCorr > Rndm::flat() * dSigmaSum) {
+    if (dSigmaCorr > rndmPtr->flat() * dSigmaSum) {
       i1Sel        = 0;
       i2Sel        = iB;
       id1Sel       = id1Tmp;
@@ -1667,7 +1683,7 @@ double MultipleInteractions::sigmaPT2rescatter( Event& event) {
         dSigmaResc += dSigmaCorr;
 
         // Determine whether current rescattering should be selected.
-        if (dSigmaCorr > Rndm::flat() * dSigmaSum) {
+        if (dSigmaCorr > rndmPtr->flat() * dSigmaSum) {
           i1Sel        = iA;
           i2Sel        = iB;
           id1Sel       = id1Tmp;
@@ -1689,7 +1705,7 @@ double MultipleInteractions::sigmaPT2rescatter( Event& event) {
 }
 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Calculate factor relating matter overlap and interaction rate,
 // i.e. k in <n_interaction(b)> = k * overlap(b) (neglecting
@@ -1827,7 +1843,7 @@ void MultipleInteractions::overlapInit() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Pick impact parameter and interaction rate enhancement beforehand,
 // i.e. before even the hardest interaction for minimum-bias events. 
@@ -1849,9 +1865,9 @@ void MultipleInteractions::overlapFirst() {
   do {
 
     // Treatment in low-b region: pick b flat in area.
-    if (Rndm::flat() < probLowB) {
+    if (rndmPtr->flat() < probLowB) {
       isAtLowB = true;
-      bNow = bDiv * sqrt(Rndm::flat());
+      bNow = bDiv * sqrt(rndmPtr->flat());
 
       // Evaluate overlap and from that acceptance probability. 
       if (bProfile == 1) overlapNow = normPi * exp( -bNow*bNow);
@@ -1868,14 +1884,14 @@ void MultipleInteractions::overlapFirst() {
 
       // For simple and double Gaussian pick b according to exp(-b^2 / r^2).
       if (bProfile == 1) {
-        bNow = sqrt(bDiv*bDiv - log(Rndm::flat()));
+        bNow = sqrt(bDiv*bDiv - log(rndmPtr->flat()));
         overlapNow = normPi * exp( -min(EXPMAX, bNow*bNow));
       } else if (bProfile == 2) {
-        double pickFrac = Rndm::flat() * fracABChigh; 
-        if (pickFrac < fracAhigh) bNow = sqrt(bDiv*bDiv - log(Rndm::flat()));
+        double pickFrac = rndmPtr->flat() * fracABChigh; 
+        if (pickFrac < fracAhigh) bNow = sqrt(bDiv*bDiv - log(rndmPtr->flat()));
         else if (pickFrac < fracAhigh + fracBhigh) 
-          bNow = sqrt(bDiv*bDiv - radius2B * log(Rndm::flat()));
-        else bNow = sqrt(bDiv*bDiv - radius2C * log(Rndm::flat()));
+          bNow = sqrt(bDiv*bDiv - radius2B * log(rndmPtr->flat()));
+        else bNow = sqrt(bDiv*bDiv - radius2C * log(rndmPtr->flat()));
         overlapNow = normPi * ( fracA * exp( -min(EXPMAX, bNow*bNow))
           + fracB * exp( -min(EXPMAX, bNow*bNow / radius2B)) / radius2B
           + fracC * exp( -min(EXPMAX, bNow*bNow / radius2C)) / radius2C );
@@ -1887,9 +1903,9 @@ void MultipleInteractions::overlapFirst() {
       } else if (hasLowPow) {
         double cNow, acceptC;
         do {      
-          cNow = cDiv - 2. * log(Rndm::flat());
+          cNow = cDiv - 2. * log(rndmPtr->flat());
           acceptC = pow(cNow / cMax, expRev) * exp( -0.5 * (cNow - cMax));
-        } while (acceptC < Rndm::flat());
+        } while (acceptC < rndmPtr->flat());
         bNow = pow( cNow, 1. / expPow);
         overlapNow = normPi * exp( -cNow);
 
@@ -1898,9 +1914,9 @@ void MultipleInteractions::overlapFirst() {
       } else {
         double cNow, acceptC;
         do {      
-          cNow = cDiv - log(Rndm::flat());
+          cNow = cDiv - log(rndmPtr->flat());
           acceptC = pow(cNow / cDiv, expRev);
-        } while (acceptC < Rndm::flat());
+        } while (acceptC < rndmPtr->flat());
         bNow = pow( cNow, 1. / expPow);
         overlapNow = normPi * exp( -cNow);    
       }
@@ -1909,7 +1925,7 @@ void MultipleInteractions::overlapFirst() {
     }
 
   // Confirm choice of b value. Derive enhancement factor.
-  } while (probAccept < Rndm::flat());
+  } while (probAccept < rndmPtr->flat());
   enhanceB = (normOverlap / normPi) * overlapNow ; 
 
   // Done. 
@@ -1917,7 +1933,7 @@ void MultipleInteractions::overlapFirst() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Pick impact parameter and interaction rate enhancement afterwards,
 // i.e. after a hard interaction is known but before rest of MI treatment.
@@ -1934,14 +1950,14 @@ void MultipleInteractions::overlapNext(double pTscale) {
 
     // Flat enhancement distribution for simple Gaussian.
     if (bProfile == 1) {
-      double expb2 = Rndm::flat();
+      double expb2 = rndmPtr->flat();
       enhanceB = normOverlap * expb2;  
       bNow = sqrt( -log(expb2));
 
     // For double Gaussian go the way via b, according to each Gaussian.
     } else if (bProfile == 2) {
-      double bType = Rndm::flat();  
-      double b2 = -log( Rndm::flat() );
+      double bType = rndmPtr->flat();  
+      double b2 = -log( rndmPtr->flat() );
       if (bType < fracA) ;
       else if (bType < fracA + fracB) b2 *= radius2B;
       else b2 *= radius2C; 
@@ -1958,14 +1974,14 @@ void MultipleInteractions::overlapNext(double pTscale) {
       double cNow, acceptC;
       double probLowC = expRev / (expRev + pow(2., expRev) * exp( - expRev));
       do {
-        if (Rndm::flat() < probLowC) {
-          cNow = 2. * expRev * Rndm::flat();
+        if (rndmPtr->flat() < probLowC) {
+          cNow = 2. * expRev * rndmPtr->flat();
           acceptC = pow( cNow / expRev, expRev) * exp(expRev - cNow);
         } else {
-          cNow = 2. * (expRev - log( Rndm::flat() )); 
+          cNow = 2. * (expRev - log( rndmPtr->flat() )); 
           acceptC = pow(0.5 * cNow / expRev, expRev) * exp(expRev - 0.5 * cNow);
         }
-      } while (acceptC < Rndm::flat()); 
+      } while (acceptC < rndmPtr->flat()); 
       enhanceB = normOverlap *exp(-cNow);  
       bNow = pow( cNow, 1. / expPow);
 
@@ -1975,26 +1991,26 @@ void MultipleInteractions::overlapNext(double pTscale) {
       double cNow, acceptC;
       double probLowC = expPow / (2. * exp(-1.) + expPow);
       do { 
-        if (Rndm::flat() < probLowC) {
-          cNow = pow( Rndm::flat(), 0.5 * expPow);
+        if (rndmPtr->flat() < probLowC) {
+          cNow = pow( rndmPtr->flat(), 0.5 * expPow);
           acceptC = exp(-cNow);
         } else {
-          cNow = 1. - log( Rndm::flat() );
+          cNow = 1. - log( rndmPtr->flat() );
           acceptC = pow( cNow, expRev);    
         } 
-      } while (acceptC < Rndm::flat());
+      } while (acceptC < rndmPtr->flat());
       enhanceB = normOverlap * exp(-cNow);  
       bNow = pow( cNow, 1. / expPow);
     }
 
     // Evaluate "Sudakov form factor" for not having a harder interaction.
-  } while (sudakov(pT2scale, enhanceB) < Rndm::flat());
+  } while (sudakov(pT2scale, enhanceB) < rndmPtr->flat());
 
   // Done.
   bIsSet = true;
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Printe statistics on number of multiple-interactions processes.
 
@@ -2067,6 +2083,6 @@ void MultipleInteractions::statistics(bool resetStat, ostream& os) {
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8

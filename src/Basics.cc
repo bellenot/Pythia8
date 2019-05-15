@@ -1,5 +1,5 @@
 // Basics.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -13,35 +13,29 @@
 
 namespace Pythia8 {
 
-//**************************************************************************
+//==========================================================================
 
 // Rndm class.
 // This class handles random number generation according to the
 // Marsaglia-Zaman-Tsang algorithm
 
-//*********
+//--------------------------------------------------------------------------
 
-// Definitions of static variables. 
+// Constants: could be changed here if desired, but normally should not.
+// These are of technical nature, as described for each.
 
-bool   Rndm::initRndm        = false;
-bool   Rndm::saveGauss       = false;
-int    Rndm::i97, Rndm::j97;
-int    Rndm::defaultSeed     = 19780503;
-int    Rndm::seedSave        = 0;
-long   Rndm::sequence        = 0;
-double Rndm::u[97], Rndm::c, Rndm::cd, Rndm::cm, Rndm::save;
-bool   Rndm::useExternalRndm = false;
-RndmEngine* Rndm::rndmPtr    = 0;
+// The default seed, i.e. the Marsaglia-Zaman random number sequence.
+const int Rndm::DEFAULTSEED     = 19780503;
 
-//*********
+//--------------------------------------------------------------------------
 
 // Method to pass in pointer for external random number generation.
 
-bool Rndm::rndmEnginePtr( RndmEngine* rndmPtrIn) {
+bool Rndm::rndmEnginePtr( RndmEngine* rndmEngPtrIn) {
 
   // Save pointer.
-  if (rndmPtrIn == 0) return false; 
-  rndmPtr         = rndmPtrIn;
+  if (rndmEngPtrIn == 0) return false; 
+  rndmEngPtr      = rndmEngPtrIn;
   useExternalRndm = true;
 
   // Done.
@@ -49,7 +43,7 @@ bool Rndm::rndmEnginePtr( RndmEngine* rndmPtrIn) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize, normally at construction or in first call.
 
@@ -57,7 +51,7 @@ void Rndm::init(int seedIn) {
 
   // Pick seed in convenient way. Assure it to be non-negative.
   int seed = seedIn;
-  if (seedIn < 0) seed = defaultSeed;
+  if (seedIn < 0) seed = DEFAULTSEED;
   else if (seedIn == 0) seed = int(time(0));
   if (seed < 0) seed = -seed;
 
@@ -101,17 +95,17 @@ void Rndm::init(int seedIn) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Generate next random number uniformly between 0 and 1.
 
 double Rndm::flat() {
 
   // Use external random number generator if such has been linked.
-  if(useExternalRndm) return rndmPtr->flat();   
+  if (useExternalRndm) return rndmEngPtr->flat();   
 
   // Ensure that already initialized.
-  if (!initRndm) init(defaultSeed); 
+  if (!initRndm) init(DEFAULTSEED); 
 
   // Find next random number and update saved state.
   ++sequence;
@@ -131,7 +125,7 @@ double Rndm::flat() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Generate random numbers according to exp(-x^2/2).
 
@@ -153,7 +147,7 @@ double Rndm::gauss() {
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Pick one option among  vector of (positive) probabilities.
 
@@ -168,7 +162,7 @@ int Rndm::pick(const vector<double>& prob) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
  
 // Save current state of the random number generator to a binary file.
  
@@ -200,7 +194,7 @@ bool Rndm::dumpState(string fileName) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
  
 // Read in the state of the random number generator from a binary file.
 
@@ -232,13 +226,13 @@ bool Rndm::readState(string fileName) {
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Vec4 class.
 // This class implements four-vectors, in energy-momentum space.
 // (But could also be used to hold space-time four-vectors.)
 
-//*********
+//--------------------------------------------------------------------------
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -246,7 +240,7 @@ bool Rndm::readState(string fileName) {
 // Small number to avoid division by zero.
 const double Vec4::TINY = 1e-20;
 
-//*********
+//--------------------------------------------------------------------------
 
 // Rotation (simple).
 
@@ -265,7 +259,7 @@ void Vec4::rot(double thetaIn, double phiIn) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Azimuthal rotation phi around an arbitrary axis (nz, ny, nz).
 
@@ -287,7 +281,7 @@ void Vec4::rotaxis(double phiIn, double nx, double ny, double nz) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Azimuthal rotation phi around an arbitrary (3-vector component of) axis.
 
@@ -312,7 +306,7 @@ void Vec4::rotaxis(double phiIn, const Vec4& n) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Boost (simple).
 
@@ -329,7 +323,7 @@ void Vec4::bst(double betaX, double betaY, double betaZ) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Boost (simple, given gamma).
 
@@ -344,7 +338,7 @@ void Vec4::bst(double betaX, double betaY, double betaZ, double gamma) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Boost given by a Vec4 p.
 
@@ -364,7 +358,7 @@ void Vec4::bst(const Vec4& pIn) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Boost given by a Vec4 p and double m.
 
@@ -383,7 +377,7 @@ void Vec4::bst(const Vec4& pIn, double mIn) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Boost given by a Vec4 p; boost in opposite direction.
 
@@ -403,7 +397,7 @@ void Vec4::bstback(const Vec4& pIn) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Boost given by a Vec4 p and double m; boost in opposite direction.
 
@@ -422,7 +416,7 @@ void Vec4::bstback(const Vec4& pIn, double mIn) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Arbitrary combination of rotations and boosts defined by 4 * 4 matrix.
 
@@ -436,7 +430,7 @@ void Vec4::rotbst(const RotBstMatrix& M) {
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // The invariant mass of two four-vectors.
 
@@ -446,7 +440,7 @@ double m(const Vec4& v1, const Vec4& v2) {
   return (m2 > 0.) ? sqrt(m2) : 0.; 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // The squared invariant mass of two four-vectors.
 
@@ -456,7 +450,7 @@ double m2(const Vec4& v1, const Vec4& v2) {
   return m2; 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // The scalar product of two three-vectors.
 
@@ -464,7 +458,7 @@ double dot3(const Vec4& v1, const Vec4& v2) {
   return v1.xx*v2.xx + v1.yy*v2.yy + v1.zz*v2.zz;
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // The cross product of two three-vectors.
 
@@ -475,7 +469,7 @@ Vec4 cross3(const Vec4& v1, const Vec4& v2) {
   v.zz = v1.xx * v2.yy - v1.yy * v2.xx; return v; 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Opening angle between two three-vectors.
 
@@ -487,7 +481,7 @@ double theta(const Vec4& v1, const Vec4& v2) {
   return acos(cthe); 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Cosine of the opening angle between two three-vectors.
 
@@ -499,7 +493,7 @@ double costheta(const Vec4& v1, const Vec4& v2) {
   return cthe; 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Azimuthal angle between two three-vectors.
 
@@ -510,7 +504,7 @@ double phi(const Vec4& v1, const Vec4& v2) {
   return acos(cphi); 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Cosine of the azimuthal angle between two three-vectors.
 
@@ -521,7 +515,7 @@ double cosphi(const Vec4& v1, const Vec4& v2) {
   return cphi; 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Azimuthal angle between two three-vectors around a third.
 
@@ -540,7 +534,7 @@ double phi(const Vec4& v1, const Vec4& v2, const Vec4& n) {
   return acos(cphi); 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Cosine of the azimuthal angle between two three-vectors around a third.
 
@@ -559,7 +553,7 @@ double cosphi(const Vec4& v1, const Vec4& v2, const Vec4& n) {
   return cphi; 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Print a four-vector: also operator overloading with friend.
 
@@ -570,13 +564,13 @@ ostream& operator<<(ostream& os, const Vec4& v) {
   return os;
 }
 
-//**************************************************************************
+//==========================================================================
 
 // RotBstMatrix class.
 // This class implements 4 * 4 matrices that encode an arbitrary combination
 // of rotations and boosts, that can be applied to Vec4 four-vectors.
 
-//*********
+//--------------------------------------------------------------------------
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -584,7 +578,7 @@ ostream& operator<<(ostream& os, const Vec4& v) {
 // Small number to avoid division by zero.
 const double RotBstMatrix::TINY = 1e-20;
 
-//*********
+//--------------------------------------------------------------------------
 
 // Rotate by polar angle theta and azimuthal angle phi.
 
@@ -615,7 +609,7 @@ void RotBstMatrix::rot(double theta, double phi) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Rotate so that vector originally along z axis becomes parallel with p.
 
@@ -628,7 +622,7 @@ void RotBstMatrix::rot(const Vec4& p) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Boost with velocity vector (betaX, betaY, betaZ).
 
@@ -660,7 +654,7 @@ void RotBstMatrix::bst(double betaX, double betaY, double betaZ) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Boost so that vector originally at rest obtains same velocity as p.
 
@@ -671,7 +665,7 @@ void RotBstMatrix::bst(const Vec4& p) {
   bst(betaX, betaY, betaZ);
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Boost so vector originally with same velocity as p is brought to rest.
 
@@ -682,7 +676,7 @@ void RotBstMatrix::bstback(const Vec4& p) {
   bst(betaX, betaY, betaZ);
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Boost that transforms p1 to p2, where p1^2 = p2^2 is assumed.
 
@@ -696,7 +690,7 @@ void RotBstMatrix::bst(const Vec4& p1, const Vec4& p2) {
   bst(betaX, betaY, betaZ);
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Boost and rotation that transforms from p1 and p2 
 // to their rest frame with p1 along +z axis.
@@ -712,7 +706,7 @@ void RotBstMatrix::toCMframe(const Vec4& p1, const Vec4& p2) {
   rot(-theta, phi);
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Rotation and boost that transforms from rest frame of p1 and p2
 // with p1 along +z axis to actual frame of p1 and p2. (Inverse of above.)
@@ -728,7 +722,7 @@ void RotBstMatrix::fromCMframe(const Vec4& p1, const Vec4& p2) {
   bst(pSum);
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Combine existing rotation/boost matrix with another one.
 
@@ -747,7 +741,7 @@ void RotBstMatrix::rotbst(const RotBstMatrix& Mrb) {
   } 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Invert the rotation and boost.
 
@@ -766,7 +760,7 @@ void RotBstMatrix::invert() {
   } 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Reset to diagonal matrix.
 
@@ -778,7 +772,7 @@ void RotBstMatrix::reset() {
   } 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Crude estimate deviation from unit matrix.
 
@@ -792,7 +786,7 @@ double RotBstMatrix::deviation() const {
   return devSum;
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Print a rotation and boost matrix: operator overloading with friend.
 
@@ -805,13 +799,13 @@ ostream& operator<<(ostream& os, const RotBstMatrix& M) {
   return os; 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Hist class.
 // This class handles a single histogram at a time 
 // (or a vector of histograms).
 
-//*********
+//--------------------------------------------------------------------------
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -837,7 +831,7 @@ const double DYAC[] = {0.04, 0.05, 0.06, 0.08, 0.10,
 const char NUMBER[] = {'0', '1', '2', '3', '4', '5', 
   '6', '7', '8', '9', 'X' };
 
-//*********
+//--------------------------------------------------------------------------
 
 // Book a histogram.
 
@@ -856,7 +850,7 @@ void Hist::book(string titleIn, int nBinIn, double xMinIn,
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Reset bin contents.
 
@@ -870,7 +864,7 @@ void Hist::null() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Fill bin with weight.
 
@@ -884,7 +878,7 @@ void Hist::fill(double x, double w) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Print a histogram: also operator overloading with friend.
 
@@ -1017,7 +1011,7 @@ ostream& operator<<(ostream& os, const Hist& h) {
   return os;
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Print histogram contents as a table (e.g. for Gnuplot).
 
@@ -1032,7 +1026,7 @@ void Hist::table(ostream& os) const {
   }
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Get content of specific bin.
 // Special values are bin 0 for underflow and bin nBin+1 for overflow.
@@ -1047,7 +1041,7 @@ double Hist::getBinContent(int iBin) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Check whether another histogram has same size and limits.
 
@@ -1059,7 +1053,7 @@ bool Hist::sameSize(const Hist& h) const {
 
 }  
 
-//*********
+//--------------------------------------------------------------------------
 
 // Take 10-logarithm or natural logarithm of contents bin by bin.
 
@@ -1088,7 +1082,7 @@ void Hist::takeLog(bool tenLog) {
 
 }  
 
-//*********
+//--------------------------------------------------------------------------
 
 // Add histogram to existing one.
 
@@ -1102,7 +1096,7 @@ Hist& Hist::operator+=(const Hist& h) {
   return *this;
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Subtract histogram from existing one.
 
@@ -1116,7 +1110,7 @@ Hist& Hist::operator-=(const Hist& h) {
   return *this;
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Multiply existing histogram by another one.
 
@@ -1130,7 +1124,7 @@ Hist& Hist::operator*=(const Hist& h) {
   return *this;
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Divide existing histogram by another one.
 
@@ -1146,7 +1140,7 @@ Hist& Hist::operator/=(const Hist& h) {
   return *this;
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Add constant offset to histogram.
 
@@ -1158,7 +1152,7 @@ Hist& Hist::operator+=(double f) {
   return *this;
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Subtract constant offset from histogram.
 
@@ -1170,7 +1164,7 @@ Hist& Hist::operator-=(double f) {
   return *this;
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Multiply histogram by constant
 
@@ -1182,7 +1176,7 @@ Hist& Hist::operator*=(double f) {
   return *this;
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Divide histogram by constant
 
@@ -1194,7 +1188,7 @@ Hist& Hist::operator/=(double f) {
   return *this;
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Implementation of operator overloading with friends.
 
@@ -1246,6 +1240,6 @@ Hist operator/(const Hist& h1, double f)
 Hist operator/(const Hist& h1, const Hist& h2) 
   {Hist h = h1; return h /= h2;}
 
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8

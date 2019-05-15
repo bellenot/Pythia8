@@ -1,5 +1,5 @@
 // FragmentationFlavZpT.h is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -19,7 +19,7 @@
 namespace Pythia8 {
 
 
-//**************************************************************************
+//==========================================================================
 
 // The FlavContainer class is a simple container for flavour, 
 // including the extra properties needed for popcorn baryon handling.
@@ -59,7 +59,7 @@ public:
   
 };
 
-//**************************************************************************
+//==========================================================================
 
 // The StringFlav class is used to select quark and hadron flavours.
 
@@ -71,10 +71,10 @@ public:
   StringFlav() {}
 
   // Initialize data members.
-  void init();
+  void init(Settings& settings, Rndm* rndmPtrIn);
 
   // Pick a light d, u or s quark according to fixed ratios.
-  int pickLightQ() { double rndmFlav = probQandS * Rndm::flat();
+  int pickLightQ() { double rndmFlav = probQandS * rndmPtr->flat();
     if (rndmFlav < 1.) return 1; if (rndmFlav < 2.) return 2; return 3; }
 
   // Pick a new flavour (including diquarks) given an incoming one.
@@ -103,9 +103,13 @@ private:
          etaSup, etaPrimeSup, decupletSup, baryonCGSum[6], baryonCGMax[6], 
          popcornRate, popcornSpair, popcornSmeson, scbBM[3], popFrac, 
          popS[3], dWT[3][7], lightLeadingBSup, heavyLeadingBSup;
+
+  // Pointer to the random number generator.
+  Rndm*  rndmPtr;
+
 };
  
-//**************************************************************************
+//==========================================================================
 
 // The StringZ class is used to sample the fragmentation function f(z).
 
@@ -117,7 +121,7 @@ public:
   StringZ() {}
 
   // Initialize data members.
-  void init();
+  void init(Settings& settings, ParticleData& particleData, Rndm* rndmPtrIn);
   
   // Fragmentation function: top-level to determine parameters.
   double zFrag( int idOld, int idNew = 0, double mT2 = 1.);
@@ -136,9 +140,12 @@ private:
   double zLund( double a, double b, double c = 1.);
   double zPeterson( double epsilon);
 
+  // Pointer to the random number generator.
+  Rndm*  rndmPtr;
+
 };
  
-//**************************************************************************
+//==========================================================================
 
 // The StringPT class is used to select select transverse momenta.
 
@@ -150,7 +157,7 @@ public:
   StringPT() {}
 
   // Initialize data members.
-  void init();
+  void init(Settings& settings, Rndm* rndmPtrIn);
 
   // Return px and py separately, but really same routine.
   double px() {return pxy();}
@@ -164,9 +171,12 @@ private:
   // pT fragmentation spectrum.
   double pxy();
 
+  // Pointer to the random number generator.
+  Rndm*  rndmPtr;
+
 };
  
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8
 

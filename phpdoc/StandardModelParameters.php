@@ -68,7 +68,6 @@ of evolution equations.
 
 <h3>The electromagnetic coupling</h3> 
 
-<p/>
 The <code>AlphaEM</code> class is used to generate a running
 <i>alpha_em</i>. The input <code>StandardModel:alphaEMmZ</code>
 value at the <i>M_Z</i> mass is matched to a low-energy behaviour
@@ -110,42 +109,18 @@ There are two degrees of freedom that can be set, related to the
 electroweak mixing angle:
 
 <br/><br/><table><tr><td><strong>StandardModel:sin2thetaW </td><td></td><td> <input type="text" name="3" value="0.2312" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.2312</strong></code>; <code>minimum = 0.225</code>; <code>maximum = 0.240</code>)</td></tr></table>
-The weak mixing angle, as used in all <i>Z^0</i> and <i>W^+-</i>
-masses and couplings, except for the vector couplings of fermions
-to the <i>Z^0</i>, see below. Default is the MSbar value from
-[<a href="Bibliography.php" target="page">Yao06</a>].
+The sine-squared of the weak mixing angle, as used in all <i>Z^0</i> 
+and <i>W^+-</i> masses and couplings, except for the vector couplings 
+of fermions to the <i>Z^0</i>, see below. Default is the MSbar value 
+from [<a href="Bibliography.php" target="page">Yao06</a>].
   
 
 <br/><br/><table><tr><td><strong>StandardModel:sin2thetaWbar </td><td></td><td> <input type="text" name="4" value="0.2315" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.2315</strong></code>; <code>minimum = 0.225</code>; <code>maximum = 0.240</code>)</td></tr></table>
-The weak mixing angle, as used to derive the vector couplings of fermions
-to the <i>Z^0</i>, in the relation 
+The sine-squared of the weak mixing angle, as used to derive the vector 
+couplings of fermions to the <i>Z^0</i>, in the relation 
 <i>v_f = a_f - 4 e_f sin^2(theta_W)bar</i>. Default is the
 effective-angle value from [<a href="Bibliography.php" target="page">Yao06</a>].
   
-
-<p/>
-These and various couplings can be read out from the static 
-<code>CoupEW</code> class:<br/>
-<code>CoupEW::sin2thetaW()</code> gives the weak mixing angle set above.<br/>
-<code>CoupEW::cos2thetaW()</code> gives 1 minus it.<br/>
-<code>CoupEW::sin2thetaWbar()</code> gives the weak mixing angle as used
-in fermion couplings.<br/>
-<code>CoupEW::ef(idAbs)</code> gives the electrical charge. Note that this 
-and subsequent routines should be called with a positive 
-<code>idAbs</code>.<br/>
-<code>CoupEW::vf(idAbs)</code> gives the vector coupling to 
-<i>Z^0</i>.<br/>
-<code>CoupEW::af(idAbs)</code> gives the axial vector coupling.<br/>
-<code>CoupEW::t3f(idAbs)</code> gives the weak isospin of lefthanded quarks, 
-i.e. <i>a_f/2</i>.<br/> 
-<code>CoupEW::lf(idAbs)</code> gives the lefthanded coupling, i.e.
-<i>(v_f + a_f/2)/2</i> (other definitions may differ by a factor 
-of 2).<br/> 
-<code>CoupEW::rf(idAbs)</code> gives the righthanded coupling, i.e.
-<i>(v_f - a_f/2)/2</i> (with comment as above).<br/> 
-<code>CoupEW::ef2(idAbs)</code> gives <i>e_f^2</i>.<br/>
-<code>CoupEW::vf2(idAbs)</code> gives <i>v_f^2</i>.<br/>
-<code>CoupEW::af2(idAbs)</code> gives <i>a_f^2</i>.
 
 <h3>The quark weak-mixing matrix</h3>
 
@@ -191,24 +166,162 @@ The <i>V_ts</i> CKM matrix element.
 The <i>V_tb</i> CKM matrix element.
   
 
-<p/>
-These couplings can be read back out in a few alternative forms:<br/>
-<code>VCKM::Vgen(genU, genD)</code> gives the CKM mixing element for
-up-type generation index <code>genU</code> (1, 2 or 3) and
-down-type generation index <code>genD</code>.<br/>
-<code>VCKM::V2gen(genU, genD)</code> gives the square of the above.<br/>
-<code>VCKM::Vid(id1, id2)</code> gives the CKM mixing element between
-two quark flavours <code>id1</code> and <code>id2</code>. The sign of 
-the flavours is irrelevant, since the process may be either of the type
-<i>q qbar' -> W</i> or <i>q g -> W q'</i>. Flavour combinations 
-with no CKM mixing (e.g. <i>u u</i>) are given a vanishing value.<br/>
-<code>VCKM::V2id(id1, id2)</code> gives the square of the above.<br/>
-<code>VCKM::V2sum(id)</code> gives the sum of squares that a given
-flavour can couple to, excluding the top quark. Is close to unity
-for the first two generations.<br/>
-<code>VCKM::V2pick(id)</code> picks a CKM partner quark (with the same 
-sign as <code>id</code>) according to the respective squared elements,
-again excluding the top quark from the list of possibilities.
+<h3>The CoupSM class</h3> 
+
+The <code><?php $filepath = $_GET["filepath"];
+echo "<a href='ProgramFlow.php?filepath=".$filepath."' target='page'>";?>Pythia</a></code> class contains a
+public instance <code>coupSM</code> of the <code>CoupSM</code> class.
+This class contains one instance each of the <code>AlphaStrong</code>    
+and <code>AlphaEM</code> classes, and additionally stores the weak couplings
+and the quark mixing matrix mentioned above. This class is used especially
+in the calculation of cross sections and resonance widths, but could also
+be used elsewhere. Specifically, as already mentioned, there are separate 
+<code>AlphaStrong</code> and <code>AlphaEM</code> instances for timelike 
+and spacelike showers and for multiple interactions, while weak couplings 
+and the quark mixing matrix are only stored here. With the exception of the 
+first two methods below, which are for internal use, the subsequent ones
+could also be used externally.
+
+<a name="method1"></a>
+<p/><strong>CoupSM::CoupSM() &nbsp;</strong> <br/>
+the constructor does nothing. Internal.
+  
+
+<a name="method2"></a>
+<p/><strong>void CoupSM::init(Settings& settings, Rndm* rndmPtr) &nbsp;</strong> <br/>
+this is where the <code>AlphaStrong</code> and <code>AlphaEM</code>
+instances are initialized, and weak couplings and the quark mixing matrix
+are read in and set. This is based on the values stored on this page and
+among the <?php $filepath = $_GET["filepath"];
+echo "<a href='CouplingsAndScales.php?filepath=".$filepath."' target='page'>";?>Couplings and Scales</a>. 
+Internal.
+  
+
+<a name="method3"></a>
+<p/><strong>double CoupSM::alphaS(double scale2) &nbsp;</strong> <br/>
+the <i>alpha_strong</i> value at the quadratic scale <code>scale2</code>.
+  
+
+<a name="method4"></a>
+<p/><strong>double CoupSM::alphaS1Ord(double scale2) &nbsp;</strong> <br/>
+a first-order overestimate of the full second-order <i>alpha_strong</i> 
+value at the quadratic scale <code>scale2</code>.
+  
+
+<a name="method5"></a>
+<p/><strong>double CoupSM::alphaS2OrdCorr(double scale2) &nbsp;</strong> <br/>
+a multiplicative correction factor, below unity, that brings the 
+first-order overestimate above into agreement with the full second-order
+<i>alpha_strong</i> value at the quadratic scale <code>scale2</code>.
+  
+
+<a name="method6"></a>
+<p/><strong>double CoupSM::Lambda3() &nbsp;</strong> <br/>
+  
+<strong>double CoupSM::Lambda4() &nbsp;</strong> <br/>
+  
+<strong>double CoupSM::Lambda5() &nbsp;</strong> <br/>
+the three-, four-, and five-flavour <i>Lambda</i> scale.
+  
+
+<a name="method7"></a>
+<p/><strong>double CoupSM::alphaEM(double scale2) &nbsp;</strong> <br/>
+the <i>alpha_em</i> value at the quadratic scale <code>scale2</code>.
+  
+
+<a name="method8"></a>
+<p/><strong>double CoupSM::sin2thetaW() &nbsp;</strong> <br/>
+  
+<strong>double CoupSM::cos2thetaW() &nbsp;</strong> <br/>
+the sine-squared and cosine-squared of the weak mixing angle, as used in 
+the gauge-boson sector.
+  
+
+<a name="method9"></a>
+<p/><strong>double CoupSM::sin2thetaWbar() &nbsp;</strong> <br/>
+the sine-squared of the weak mixing angle, as used to derive the vector 
+couplings of fermions to the <i>Z^0</i>.
+  
+
+<a name="method10"></a>
+<p/><strong>double CoupSM::ef(int idAbs) &nbsp;</strong> <br/>
+the electrical charge of a fermion, by the absolute sign of the PDF code,
+i.e. <code>idAbs</code> must be in the range between 1 and 18.
+  
+
+<a name="method11"></a>
+<p/><strong>double CoupSM::vf(int idAbs) &nbsp;</strong> <br/>
+  
+<strong>double CoupSM::af(int idAbs) &nbsp;</strong> <br/>
+the vector and axial charges of a fermion, by the absolute sign of the PDF 
+code (<i>a_f = +-1, v_f = a_f - 4. * sin2thetaWbar * e_f</i>).
+  
+
+<a name="method12"></a>
+<p/><strong>double CoupSM::t3f(int idAbs) &nbsp;</strong> <br/>
+  
+<strong>double CoupSM::lf(int idAbs) &nbsp;</strong> <br/>
+  
+<strong>double CoupSM::rf(int idAbs) &nbsp;</strong> <br/>
+the weak isospin, left- and righthanded charges of a fermion, by the 
+absolute sign of the PDF code (<i>t^3_f = a_f/2, l_f = (v_f + a_f)/2,
+r_f = (v_f - a_f)/2</i>; you may find other conventions in the literature
+that differ by a factor of 2).
+  
+
+<a name="method13"></a>
+<p/><strong>double CoupSM::ef2(int idAbs) &nbsp;</strong> <br/>
+  
+<strong>double CoupSM::vf2(int idAbs) &nbsp;</strong> <br/>
+  
+<strong>double CoupSM::af2(int idAbs) &nbsp;</strong> <br/>
+  
+<strong>double CoupSM::efvf(int idAbs) &nbsp;</strong> <br/>
+  
+<strong>double CoupSM::vf2af2(int idAbs) &nbsp;</strong> <br/>
+common quadratic combinations of the above couplings:
+<i>e_f^2, v_f^2, a_f^2, e_f * v_f, v_f^2 + a_f^2</i>.
+  
+
+<a name="method14"></a>
+<p/><strong>double CoupSM::VCKMgen(int genU, int genD) &nbsp;</strong> <br/>
+  
+<strong>double CoupSM::V2CKMgen(int genU, int genD) &nbsp;</strong> <br/>
+the CKM mixing element,or the square of it, for
+up-type generation index <code>genU</code> 
+(<i>1 = u, 2 = c, 3 = t, 4 = t'</i>) and
+down-type generation index <code>genD</code>
+(<i>1 = d, 2 = s, 3 = b, 4 = b'</i>).
+  
+
+<a name="method15"></a>
+<p/><strong>double CoupSM::VCKMid(int id1, int id2) &nbsp;</strong> <br/>
+  
+<strong>double CoupSM::V2CKMid(int id1, int id2) &nbsp;</strong> <br/>
+the CKM mixing element,or the square of it, for
+flavours <code>id1</code> and <code>id2</code>, both in the 
+range from <i>-18</i> to <i>+18</i>. The sign is here not 
+checked (so it can be used both for <i>u + dbar -> W+</i>
+and <i>u -> d + W+</i>, say), but impossible flavour combinations
+evaluate to zero. The neutrino sector is numbered by flavor
+eigenstates, so there is no mixing in the lepton-neutrino system. 
+  
+
+<a name="method16"></a>
+<p/><strong>double CoupSM::V2CKMsum(int id) &nbsp;</strong> <br/>
+the sum of squared CKM mixing element that a given flavour can couple to, 
+excluding the top quark and fourth generation. Is close to unity
+for the first two generations. Returns unity for the lepton-neutrino
+sector. 
+  
+
+<a name="method17"></a>
+<p/><strong>int CoupSM::V2CKMpick(int id) &nbsp;</strong> <br/>
+picks a random CKM partner quark or lepton (with the same sign as 
+<code>id</code>) according to the respective squared elements, again 
+excluding the top quark and fourth generation from the list of 
+possibilities. Unambiguous choice for the lepton-neutrino sector. 
+  
 
 <input type="hidden" name="saved" value="1"/>
 
@@ -297,4 +410,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->

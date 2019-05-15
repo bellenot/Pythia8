@@ -1,5 +1,5 @@
 // BeamShape.h is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -14,7 +14,7 @@
 
 namespace Pythia8 {
  
-//**************************************************************************
+//==========================================================================
 
 // Base class to set beam momentum and interaction spot spread.
 
@@ -29,7 +29,7 @@ public:
   virtual ~BeamShape() {}
 
   // Initialize beam parameters.
-  virtual void init();
+  virtual void init( Settings& settings, Rndm* rndmPtrIn);
 
   // Set the two beam momentum deviations and the beam vertex.
   virtual void pick();
@@ -52,9 +52,12 @@ protected:
          maxDevVertex, sigmaTime, maxDevTime, offsetX, offsetY, 
          offsetZ, offsetT;
 
+  // Pointer to the random number generator.
+  Rndm*  rndmPtr;
+
 };
  
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8
 

@@ -1,5 +1,5 @@
 // SigmaGeneric.h is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Johan Bijnens,Torbjorn Sjostrand.
+// Copyright (C) 2010 Johan Bijnens,Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -15,7 +15,7 @@
 
 namespace Pythia8 {
  
-//**************************************************************************
+//==========================================================================
 
 // A derived class for g g -> qG qGbar (generic quark of spin 0, 1/2 or 1). 
 
@@ -57,7 +57,7 @@ private:
 
 };
  
-//**************************************************************************
+//==========================================================================
 
 // A derived class for q qbar -> qG qGbar (generic quark of spin 0, 1/2 or 1). 
 
@@ -98,7 +98,7 @@ private:
 
 };
  
-//**************************************************************************
+//==========================================================================
 
 // A derived class for f fbar -> fG fGbar (generic particle of spin 0, 1/2 or 1)
 // via gamma^*/Z^* s-channel exchange. Still under development!! ?? 
@@ -141,7 +141,7 @@ private:
 
 };
 
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8
 

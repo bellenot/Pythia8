@@ -152,7 +152,7 @@ therefore fail at that stage.
 
 <h3>Special properties and methods for resonances</h3>
 
-The method <code>ParticleDataTable::isResonance(id)</code> allows you to 
+The method <code>ParticleData::isResonance(id)</code> allows you to 
 query whether a given particle species is considered a resonance or not. 
 You can also change the default value of this flag in the normal way, 
 e.g. <code>pythia.readString("id:isResonance = true")</code>.
@@ -160,15 +160,15 @@ e.g. <code>pythia.readString("id:isResonance = true")</code>.
 <p/>
 An option with a forced width can be set with the 
 <code>id:doForceWidth</code> flag as above, and queried with
-<code>ParticleDataTable::doForceWidth(id)</code>. It is by default 
+<code>ParticleData::doForceWidth(id)</code>. It is by default 
 <code>off</code>, and should normally so remain. If switched 
 <code>on</code> then the width stored in <code>id:mWidth</code> is 
 strictly used to describe the Breit-Wigner of the resonance. This is 
 unlike the normal behaviour of standard resonances such as the 
 <i>Z^0</i>, <i>W^+-</i>, <i>t</i> or <i>h^0</i>, which have 
 explicit decay-widths formulae encoded, in classes derived from the 
-<?php $filepath = $_GET["filepath"];
-echo "<a href='SemiInternalResonances.php?filepath=".$filepath."' target='page'>";?><code>ResonanceWidths</code></a> 
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='SemiInternalResonances.php?filepath=".$filepath."' target='page'>";?>ResonanceWidths</a></code> 
 base class. These formulae are used, e.g., to derive all the Higgs partial
 widths as a function of the Higgs mass you choose, and at initialization
 overwrites the existing total width value. The reason for forcing the 
@@ -192,7 +192,9 @@ ratios as is (with the optional variations explained in the next section),
 and thus the rescaling approach brings no further freedom.  
 
 <p/>
-Mainly for internal usage, the <code>ParticleDataTable</code> contain
+Mainly for internal usage, the 
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='ParticleDataScheme.php?filepath=".$filepath."' target='page'>";?>ParticleData</a></code> contain
 some special methods that are only meaningful for resonances:
 <ul>
 <li><code>resInit(...)</code> to initialize a resonance, possibly
@@ -209,8 +211,8 @@ selected mass, and store those as input for a subsequent selection of
 decay channel;</li> 
 <li><code>resOpenFrac(...)</code> to return the fraction of the total 
 width that is open by the decay channel selection made by users (based on
-the choice of <?php $filepath = $_GET["filepath"];
-echo "<a href='ParticleDataScheme.php?filepath=".$filepath."' target='page'>";?><code>onMode</code></a>
+the choice of <code><?php $filepath = $_GET["filepath"];
+echo "<a href='ParticleDataScheme.php?filepath=".$filepath."' target='page'>";?>onMode</a></code>
 for the various decay channels, recursively calculated for sequential 
 decays);</li> 
 <li><code>resWidthRescaleFactor(...)</code> returns the factor by which 
@@ -376,5 +378,5 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->
 

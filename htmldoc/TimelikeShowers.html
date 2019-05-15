@@ -35,15 +35,22 @@ maximum evolution scale. This would be the <i>pT</i> for a
 particles. Some small amount of freedom is offered by
 
 <p/><code>parm&nbsp; </code><strong> TimeShower:pTmaxFudge &nbsp;</strong> 
- (<code>default = <strong>1.0</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 2.0</code>)<br/>
+ (<code>default = <strong>1.0</strong></code>; <code>minimum = 0.25</code>; <code>maximum = 2.0</code>)<br/>
 While the above rules would imply that <i>pT_max = pT_factorization</i>, 
 <code>pTmaxFudge</code> introduced a multiplicative factor <i>f</i> such 
 that instead <i>pT_max = f * pT_factorization</i>. Only applies to the 
-hardest interaction in an event. It is strongly suggested that 
+hardest interaction in an event, cf. below. It is strongly suggested that 
 <i>f = 1</i>, but variations around this default can be useful to test 
 this assumption. 
 <br/><b>Note:</b>Scales for resonance decays are not affected, but can be 
 set separately by <a href="UserHooks.html" target="page">user hooks</a>.
+  
+
+<p/><code>parm&nbsp; </code><strong> TimeShower:pTmaxFudgeMI &nbsp;</strong> 
+ (<code>default = <strong>1.0</strong></code>; <code>minimum = 0.25</code>; <code>maximum = 2.0</code>)<br/>
+A multiplicative factor <i>f</i> such that 
+<i>pT_max = f * pT_factorization</i>, as above, but here for the
+non-hardest interactions (when multiple interactions are allowed).
   
 
 <p/>
@@ -352,4 +359,4 @@ Azimuthal asymmetry induced by gluon polarization; on/off = true/false.
 </body>
 </html>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->

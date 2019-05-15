@@ -1,5 +1,5 @@
 // UserHooks.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -9,11 +9,11 @@
 
 namespace Pythia8 {
  
-//**************************************************************************
+//==========================================================================
 
 // The UserHooks class.
 
-//*********
+//--------------------------------------------------------------------------
 
 // multiplySigmaBy allows the user to introduce a multiplicative factor 
 // that modifies the cross section of a hard process. Since it is called
@@ -63,7 +63,49 @@ double UserHooks::multiplySigmaBy( const SigmaProcess* sigmaProcessPtr,
 
 }
 
-//*********
+//--------------------------------------------------------------------------
+
+// omitResonanceDecays omits resonance decay chains from process record.
+
+void UserHooks::omitResonanceDecays(const Event& process) {
+
+  // Reset work event to be empty
+  workEvent.clear(); 
+
+  // Loop through all partons. Beam particles should be copied.
+  for (int i = 0; i < process.size(); ++i) {
+    bool doCopy  = false;
+    bool isFinal = false;
+    if (i < 3) doCopy = true;
+
+    // Daughters of beams should be copied.
+    else {
+      int iMother = process[i].mother1();
+      if (iMother == 1 || iMother == 2) doCopy = true;
+       
+      // Granddaughters of beams should be copied and are final.
+      else if (iMother > 2) {
+        int iGrandMother =  process[iMother].mother1(); 
+        if (iGrandMother == 1 || iGrandMother == 2) {
+          doCopy  = true;
+          isFinal = true;
+        }  
+      }
+    }
+   
+    // Do copying and modify status/daughters of final.
+    if (doCopy) {
+      int iNew = workEvent.append( process[i]);
+      if (isFinal) {
+        workEvent[iNew].statusPos();
+        workEvent[iNew].daughters( 0, 0);
+      }
+    }
+  }
+
+}
+
+//--------------------------------------------------------------------------
 
 // subEvent extracts currently resolved partons in the hard process.
 
@@ -90,11 +132,11 @@ void UserHooks::subEvent(const Event& event, bool isHardest) {
  
 }
  
-//**************************************************************************
+//==========================================================================
 
 // The SuppressSmallPT class, derived from UserHooks.
 
-//*********
+//--------------------------------------------------------------------------
 
 // Modify event weight at the trial level, before selection.
 
@@ -107,9 +149,9 @@ double SuppressSmallPT::multiplySigmaBy( const SigmaProcess* sigmaProcessPtr,
     // Calculate pT0 as for multiple interactions.
     // Fudge factor allows offset relative to MI framework.
     double eCM    = phaseSpacePtr->ecm();
-    double pT0Ref = Settings::parm("MultipleInteractions:pT0Ref");
-    double ecmRef = Settings::parm("MultipleInteractions:ecmRef");
-    double ecmPow = Settings::parm("MultipleInteractions:ecmPow");
+    double pT0Ref = settingsPtr->parm("MultipleInteractions:pT0Ref");
+    double ecmRef = settingsPtr->parm("MultipleInteractions:ecmRef");
+    double ecmPow = settingsPtr->parm("MultipleInteractions:ecmPow");
     double pT0    = pT0timesMI * pT0Ref * pow(eCM / ecmRef, ecmPow);
     pT20          = pT0 * pT0;
   
@@ -118,11 +160,11 @@ double SuppressSmallPT::multiplySigmaBy( const SigmaProcess* sigmaProcessPtr,
     double alphaSvalue;
     int    alphaSorder;    
     if (useSameAlphaSasMI) {
-      alphaSvalue = Settings::parm("MultipleInteractions:alphaSvalue");
-      alphaSorder = Settings::mode("MultipleInteractions:alphaSorder");
+      alphaSvalue = settingsPtr->parm("MultipleInteractions:alphaSvalue");
+      alphaSorder = settingsPtr->mode("MultipleInteractions:alphaSorder");
     } else {
-      alphaSvalue = Settings::parm("SigmaProcess:alphaSvalue");
-      alphaSorder = Settings::mode("SigmaProcess:alphaSorder");
+      alphaSvalue = settingsPtr->parm("SigmaProcess:alphaSvalue");
+      alphaSorder = settingsPtr->mode("SigmaProcess:alphaSorder");
     }
     alphaS.init( alphaSvalue, alphaSorder); 
 
@@ -156,6 +198,6 @@ double SuppressSmallPT::multiplySigmaBy( const SigmaProcess* sigmaProcessPtr,
 }
 
  
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8

@@ -1,5 +1,5 @@
 // SigmaNewGaugeBosons.h is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -14,7 +14,7 @@
 
 namespace Pythia8 {
  
-//**************************************************************************
+//==========================================================================
 
 // An intermediate class for f fbar -> Z'/W' -> WW/WZ -> 4 fermions.
 // Copied from SigmaEW for gauge-boson-pair production.
@@ -50,7 +50,7 @@ private:
 
 };
  
-//**************************************************************************
+//==========================================================================
 
 // A derived class for f fbar -> gamma*/Z0/Z'0.
 
@@ -97,7 +97,7 @@ private:
 
 };
 
-//**************************************************************************
+//==========================================================================
 
 // A derived class for f fbar' -> W'+-.
 
@@ -139,7 +139,7 @@ private:
   ParticleDataEntry* particlePtr;
 
 };
-//**************************************************************************
+//==========================================================================
 
 // A derived class for f fbar' -> R^0 (horizontal gauge boson).
 
@@ -178,7 +178,7 @@ private:
 
 };
  
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8
 

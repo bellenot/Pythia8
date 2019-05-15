@@ -405,11 +405,15 @@ anti-<i>kT</i> algorithm [<a href="Bibliography.php" target="page">Cac08</a>].
 
 <p/>  
 To do jet finding analyses you have to set up a <code>CellJet</code>
-instance, and then feed in events to it, one at a time. The results 
-for the latest event are available as output from a few methods.
+instance, and then feed in events to it, one at a time. Especially note 
+that, if you want to use the options where energies are smeared in
+order so emulate detector imperfections, you must hand in an external
+random number generator, preferably the one residing in the 
+<code>Pythia</code> class. The results for the latest event are 
+available as output from a few methods.
 
 <a name="method24"></a>
-<p/><strong>CellJet::CellJet(double etaMax = 5., int nEta = 50, int nPhi = 32, int select = 2, int smear = 0, double resolution = 0.5, double upperCut = 2., double threshold = 0.) &nbsp;</strong> <br/>
+<p/><strong>CellJet::CellJet(double etaMax = 5., int nEta = 50, int nPhi = 32, int select = 2, int smear = 0, double resolution = 0.5, double upperCut = 2., double threshold = 0., Rndm* rndmPtr = 0) &nbsp;</strong> <br/>
 create a <code>CellJet</code> instance, where 
 <br/><code>argument</code><strong> etaMax </strong> (<code>default = <strong>5.</strong></code>) :  
 the maximum +-pseudorapidity that the detector is assumed to cover.
@@ -443,13 +447,19 @@ to a Gaussian with width <i>resolution * sqrt(e)</i>, with the
 Gaussian truncated at 0 and <i>upperCut * e</i>.  
   
 <br/><code>argument</code><strong> resolution </strong> (<code>default = <strong>0.5</strong></code>) : 
-see above
+see above.
   
 <br/><code>argument</code><strong> upperCut </strong> (<code>default = <strong>2.</strong></code>) : 
-see above
+see above.
   
 <br/><code>argument</code><strong> threshold </strong> (<code>default = <strong>0 GeV</strong></code>) : 
 completely neglect all bins with an <i>eT &lt; threshold</i>.
+  
+<br/><code>argument</code><strong> rndmPtr </strong> (<code>default = <strong>0</strong></code>) : 
+the random-number generator used to select the smearing described
+above. Must be handed in for smearing to be possible. If your 
+<code>Pythia</code> class instance is named <code>pythia</code>,
+then <code>&pythia.rndm</code> would be the logical choice.
   
   
 
@@ -554,4 +564,4 @@ events, i.e. returned <code>false</code>.
 </body>
 </html>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->

@@ -1,5 +1,5 @@
 // PartonLevel.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -9,11 +9,11 @@
 
 namespace Pythia8 {
  
-//**************************************************************************
+//==========================================================================
 
 // The PartonLevel class.
 
-//*********
+//--------------------------------------------------------------------------
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -21,25 +21,29 @@ namespace Pythia8 {
 // Maximum number of tries to produce parton level from given input.
 const int PartonLevel::NTRY = 10; 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Main routine to initialize the parton-level generation process.
 
-bool PartonLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn, 
-  BeamParticle* beamBPtrIn, BeamParticle* beamPomAPtrIn, 
-  BeamParticle* beamPomBPtrIn, PartonSystems* partonSystemsPtrIn, 
-  SigmaTotal* sigmaTotPtr, TimeShower* timesDecPtrIn, 
-  TimeShower* timesPtrIn, SpaceShower* spacePtrIn, 
-  UserHooks* userHooksPtrIn) {
+bool PartonLevel::init( Info* infoPtrIn, Settings& settings, 
+  ParticleData* particleDataPtrIn, Rndm* rndmPtrIn,
+  BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, 
+  BeamParticle* beamPomAPtrIn, BeamParticle* beamPomBPtrIn, 
+  CoupSM* coupSMPtrIn, PartonSystems* partonSystemsPtrIn, 
+  SigmaTotal* sigmaTotPtr, TimeShower* timesDecPtrIn, TimeShower* timesPtrIn, 
+  SpaceShower* spacePtrIn, UserHooks* userHooksPtrIn) {
 
   // Store input pointers and modes for future use. 
   infoPtr            = infoPtrIn;
+  particleDataPtr    = particleDataPtrIn;  
+  rndmPtr            = rndmPtrIn;
   beamAPtr           = beamAPtrIn;
   beamBPtr           = beamBPtrIn;
   beamHadAPtr        = beamAPtr;
   beamHadBPtr        = beamBPtr;
   beamPomAPtr        = beamPomAPtrIn;
   beamPomBPtr        = beamPomBPtrIn;
+  coupSMPtr          = coupSMPtrIn;
   partonSystemsPtr   = partonSystemsPtrIn;
   timesDecPtr        = timesDecPtrIn;
   timesPtr           = timesPtrIn;
@@ -47,39 +51,39 @@ bool PartonLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn,
   userHooksPtr       = userHooksPtrIn;
 
   // Min bias and single diffraction processes need special treatment.
-  doMinBias          =  Settings::flag("SoftQCD:all") 
-                     || Settings::flag("SoftQCD:minBias");
-  doDiffraction      =  Settings::flag("SoftQCD:all") 
-                     || Settings::flag("SoftQCD:singleDiffractive")
-                     || Settings::flag("SoftQCD:doubleDiffractive");
+  doMinBias          =  settings.flag("SoftQCD:all") 
+                     || settings.flag("SoftQCD:minBias");
+  doDiffraction      =  settings.flag("SoftQCD:all") 
+                     || settings.flag("SoftQCD:singleDiffractive")
+                     || settings.flag("SoftQCD:doubleDiffractive");
 
   // Separate low-mass (unresolved) and high-mass (perturbative) diffraction.
-  mMinDiff           = Settings::parm("Diffraction:mMinPert");
-  mWidthDiff         = Settings::parm("Diffraction:mWidthPert");
+  mMinDiff           = settings.parm("Diffraction:mMinPert");
+  mWidthDiff         = settings.parm("Diffraction:mWidthPert");
   if (mMinDiff + mWidthDiff > infoPtr->eCM()) doDiffraction = false;
 
   // Need MI initialization for soft QCD processes, even if only first MI.
   // But no need to initialize MI if never going to use it.
-  doMI               = Settings::flag("PartonLevel:MI");
+  doMI               = settings.flag("PartonLevel:MI");
   doMIMB             = doMI;
   doMISDA            = doMI;
   doMISDB            = doMI;
   doMIinit           = doMI;
   if (doMinBias || doDiffraction) doMIinit = true;
-  if (!Settings::flag("PartonLevel:all")) doMIinit = false;  
+  if (!settings.flag("PartonLevel:all")) doMIinit = false;  
 
   // Flags for showers: ISR and FSR.
-  doISR              = Settings::flag("PartonLevel:ISR");
-  bool FSR           = Settings::flag("PartonLevel:FSR");
-  bool FSRinProcess  = Settings::flag("PartonLevel:FSRinProcess");
-  bool interleaveFSR = Settings::flag("TimeShower:interleave");
+  doISR              = settings.flag("PartonLevel:ISR");
+  bool FSR           = settings.flag("PartonLevel:FSR");
+  bool FSRinProcess  = settings.flag("PartonLevel:FSRinProcess");
+  bool interleaveFSR = settings.flag("TimeShower:interleave");
   doFSRduringProcess = FSR && FSRinProcess &&  interleaveFSR;
   doFSRafterProcess  = FSR && FSRinProcess && !interleaveFSR;
-  doFSRinResonances  = FSR && Settings::flag("PartonLevel:FSRinResonances");
+  doFSRinResonances  = FSR && settings.flag("PartonLevel:FSRinResonances");
 
   // Some other flags.
-  doRemnants         = Settings::flag("PartonLevel:Remnants");
-  doSecondHard       = Settings::flag("SecondHard:generate");
+  doRemnants         = settings.flag("PartonLevel:Remnants");
+  doSecondHard       = settings.flag("SecondHard:generate");
 
   // Flag if lepton beams, and if non-resolved ones. May change main flags.
   hasLeptonBeams  = ( beamAPtr->isLepton() || beamBPtr->isLepton() );
@@ -111,13 +115,16 @@ bool PartonLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn,
   // Set info and initialize the respective program elements.
   timesPtr->init( beamAPtr, beamBPtr);
   if (doISR) spacePtr->init( beamAPtr, beamBPtr);
-  doMIMB  =  multiMB.init( doMIinit, 0, infoPtr, 
-    beamAPtr, beamBPtr, partonSystemsPtr, sigmaTotPtr);
+  doMIMB  =  multiMB.init( doMIinit, 0, infoPtr, settings, particleDataPtr,
+    rndmPtr, beamAPtr, beamBPtr, coupSMPtr, partonSystemsPtr, sigmaTotPtr);
   if (doDiffraction) doMISDA = multiSDA.init( doMIinit, 1, infoPtr, 
-    beamPomBPtr, beamAPtr, partonSystemsPtr, sigmaTotPtr);
+    settings, particleDataPtr, rndmPtr, beamPomBPtr, beamAPtr, coupSMPtr,
+    partonSystemsPtr, sigmaTotPtr);
   if (doDiffraction) doMISDB = multiSDB.init( doMIinit, 2, infoPtr, 
-    beamPomAPtr, beamBPtr, partonSystemsPtr, sigmaTotPtr);
-  remnants.init( infoPtr, beamAPtr, beamBPtr, partonSystemsPtr);  
+    settings, particleDataPtr, rndmPtr, beamPomAPtr, beamBPtr, coupSMPtr, 
+    partonSystemsPtr, sigmaTotPtr);
+  remnants.init( infoPtr, settings, rndmPtr, beamAPtr, beamBPtr, 
+    partonSystemsPtr);  
 
   // Succeeded, or not.
   multiPtr       = &multiMB;
@@ -127,7 +134,7 @@ bool PartonLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn,
   return true;
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Main routine to do the parton-level evolution.
 
@@ -163,6 +170,8 @@ bool PartonLevel::next( Event& process, Event& event) {
   // Big outer loop to handle up to two systems (in double diffraction),
   // but normally one. (Not indented in following, but end clearly marked.)
   for (int iHardLoop = 1; iHardLoop <= nHardLoop; ++iHardLoop) { 
+    infoPtr->setCounter(20, iHardLoop);
+    infoPtr->setCounter(21); 
 
   // Process and event records can be out of step for diffraction.
   if (iHardLoop == 2) {
@@ -194,6 +203,8 @@ bool PartonLevel::next( Event& process, Event& event) {
   bool physical = true;
   int  nRad     = 0;
   for (int iTry = 0; iTry < NTRY; ++ iTry) {
+    infoPtr->addCounter(21); 
+    for (int i = 22; i < 32; ++i) infoPtr->setCounter(i); 
 
     // Reset flag, counters and max scales.
     physical   = true;
@@ -253,7 +264,7 @@ bool PartonLevel::next( Event& process, Event& event) {
 
     // Begin evolution down in pT from hard pT scale.  
     do {
- 
+      infoPtr->addCounter(22); 
       typeVetoStep = 0;
       nRad         =  nISR + nFSRinProc;
 
@@ -283,6 +294,7 @@ bool PartonLevel::next( Event& process, Event& event) {
 
       // Do a multiple interaction (if allowed). 
       if (pTmulti > 0. && pTmulti > pTspace && pTmulti > pTtimes) {
+        infoPtr->addCounter(23); 
         multiPtr->scatter( event);  
         typeLatest = 1;
         ++nMI;
@@ -301,6 +313,7 @@ bool PartonLevel::next( Event& process, Event& event) {
    
       // Do an initial-state emission (if allowed).
       else if (pTspace > 0. && pTspace > pTtimes) { 
+        infoPtr->addCounter(24); 
         if (spacePtr->branch( event)) {
           typeLatest = 2;
           iSysNow = spacePtr->system();
@@ -328,6 +341,7 @@ bool PartonLevel::next( Event& process, Event& event) {
 
       // Do a final-state emission (if allowed).
       else if (pTtimes > 0.) {
+        infoPtr->addCounter(25); 
         if (timesPtr->branch( event, true)) {
           typeLatest = 3;
           iSysNow = timesPtr->system();
@@ -366,6 +380,8 @@ bool PartonLevel::next( Event& process, Event& event) {
       }
 
       // Keep on evolving until nothing is left to be done.
+      if (typeLatest > 0 && typeLatest < 4) 
+        infoPtr->addCounter(25 + typeLatest); 
       infoPtr->setPartEvolved( nMI, nISR);
     } while (pTmax > 0.); 
 
@@ -389,6 +405,7 @@ bool PartonLevel::next( Event& process, Event& event) {
 
       // Begin evolution down in pT from hard pT scale. 
       do {
+        infoPtr->addCounter(29);
         typeVetoStep = 0;
         double pTtimes = timesPtr->pTnext( event, pTmax, 0.);
 
@@ -405,6 +422,7 @@ bool PartonLevel::next( Event& process, Event& event) {
 
         // Do a final-state emission (if allowed).
         if (pTtimes > 0.) {
+          infoPtr->addCounter(30);
           if (timesPtr->branch( event, true)) {
             iSysNow = timesPtr->system();
             ++nFSRinProc; 
@@ -430,6 +448,7 @@ bool PartonLevel::next( Event& process, Event& event) {
         }
 
       // Keep on evolving until nothing is left to be done.
+        infoPtr->addCounter(31);
       } while (pTmax > 0.);
     }
 
@@ -471,7 +490,7 @@ bool PartonLevel::next( Event& process, Event& event) {
   return true;
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Decide which diffractive subsystems are resolved (= perturbative). 
 
@@ -485,7 +504,7 @@ int PartonLevel::decideResolvedDiff( Event& process) {
     // Only high-mass diffractive systems should be resolved.
     double mDiff = process[iDiffMot].m();
     bool isHighMass = ( mDiff > mMinDiff 
-      && Rndm::flat() < 1. - exp( -(mDiff - mMinDiff) / mWidthDiff ) );
+      && rndmPtr->flat() < 1. - exp( -(mDiff - mMinDiff) / mWidthDiff ) );
 
     // Set outcome and done.
     if (isHighMass) ++nHighMass;
@@ -496,7 +515,7 @@ int PartonLevel::decideResolvedDiff( Event& process) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Set up an unresolved process, i.e. elastic or diffractive.
 
@@ -528,8 +547,8 @@ bool PartonLevel::setupUnresolvedSys( Event& process, Event& event) {
     int id2 = beamPtr->pickRemnant();
 
     // Find flavour masses. Scale them down if too big.
-    double m1 = ParticleDataTable::constituentMass(id1);
-    double m2 = ParticleDataTable::constituentMass(id2);
+    double m1 = particleDataPtr->constituentMass(id1);
+    double m2 = particleDataPtr->constituentMass(id2);
     if (m1 + m2 > 0.5 * mDiff) { 
       double reduce = 0.5 * mDiff / (m1 + m2);
       m1 *= reduce;
@@ -551,7 +570,7 @@ bool PartonLevel::setupUnresolvedSys( Event& process, Event& event) {
 
       // Set colours.
       int col1, acol1, col2, acol2;
-      if (ParticleDataTable::colType(id1) == 1) {
+      if (particleDataPtr->colType(id1) == 1) {
         col1 = event.nextColTag(); acol1 = 0;
         col2 = 0; acol2 = col1;
       } else {  
@@ -600,7 +619,7 @@ bool PartonLevel::setupUnresolvedSys( Event& process, Event& event) {
 
       // Set colours.
       int colG, acolG, col1, acol1, col2, acol2;
-      if (ParticleDataTable::colType(id1) == 1) {
+      if (particleDataPtr->colType(id1) == 1) {
         col1 = event.nextColTag(); acol1 = 0;
         colG = event.nextColTag(); acolG = col1;
         col2 = 0; acol2 = colG;
@@ -629,7 +648,7 @@ bool PartonLevel::setupUnresolvedSys( Event& process, Event& event) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Set up the hard process(es), excluding subsequent resonance decays.
 
@@ -797,7 +816,7 @@ bool PartonLevel::setupUnresolvedSys( Event& process, Event& event) {
   // Done. 
 }
   
-//*********
+//--------------------------------------------------------------------------
 
 // Resolved diffraction: replace full event with diffractive subsystem.
 
@@ -859,7 +878,7 @@ void PartonLevel::setupResolvedDiff(int iHardLoop, Event& process) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Resolved diffraction: restore to original behaviour.
 
@@ -898,7 +917,7 @@ void PartonLevel::leaveResolvedDiff( int iHardLoop, Event& event) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Handle showers in successive resonance decays.
 
@@ -1025,6 +1044,6 @@ bool PartonLevel::resonanceShowers( Event& process, Event& event) {
 
 }
  
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8

@@ -70,7 +70,7 @@ This section provides the standard set of processes that can be
 run together to provide a reasonably complete overview of possible
 production channels for a single SM Higgs. 
 The main parameter is the choice of Higgs mass, which can be set in the
-normal <code>ParticleDataTable</code> database; thereafter the properties 
+normal <code>ParticleData</code> database; thereafter the properties 
 within the SM are essentially fixed. 
 
 <br/><br/><strong>HiggsSM:all</strong>  <input type="radio" name="3" value="on"><strong>On</strong>
@@ -862,7 +862,7 @@ of the internal calculations of partial widths from the parameters provided
 do not include mixing between the scalar and pseudoscalar states. 
 
 <p/>
-Masses would be set in the <code>ParticleDataTable</code> database,
+Masses would be set in the <code>ParticleData</code> database,
 while couplings are set below. When possible, the couplings of the Higgs 
 states are normalized to the corresponding coupling within the SM. 
 When not, their values within the MSSM are indicated, from which
@@ -1655,5 +1655,5 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->
 

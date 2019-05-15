@@ -1,5 +1,5 @@
 // main10.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -8,6 +8,8 @@
 
 #include "Pythia.h"
 using namespace Pythia8; 
+
+//==========================================================================
 
 // Put histograms here to make them global, so they can be used both 
 // in MyUserHooks and in the main program.
@@ -21,7 +23,7 @@ Hist nPartonsA("number of partons after veto", 20, -0.5, 19.5);
 Hist nFSRatISR("number of FSR emissions at first ISR emission", 
   20, -0.5, 19.5);
 
-//**************************************************************************
+//==========================================================================
 
 // Write own derived UserHooks class.
 
@@ -116,7 +118,7 @@ private:
 
 };
 
-//**************************************************************************
+//==========================================================================
 
 int main() {
 

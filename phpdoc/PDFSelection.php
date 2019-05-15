@@ -65,26 +65,67 @@ behaviours, e.g. NLO ones have less gluons at small x, which then is
 compensated by positive corrections in the NLO matrix elements.
 Therefore do not blindly assume that an NLO tune has to be better than 
 an LO one when combined with the LO matrix elements in PYTHIA. There are 
-explicit examples where such thinking can lead you down the wrong alley.
+explicit examples where such thinking can lead you down the wrong alley,
+especially if you study low-<i>pT</i> physics. In the list below you 
+should therefore be extra cautious when using set 6 or set 9.
 
 <p/>
 The simplest option is to pick one 
-of the few distributions available internally:
+of the distributions available internally:
 
-<br/><br/><table><tr><td><strong>PDF:pSet  </td><td>  &nbsp;&nbsp;(<code>default = <strong>2</strong></code>; <code>minimum = 1</code>; <code>maximum = 2</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>PDF:pSet  </td><td>  &nbsp;&nbsp;(<code>default = <strong>2</strong></code>; <code>minimum = 1</code>; <code>maximum = 12</code>)</td></tr></table>
 Parton densities to be used for proton beams (and, by implication,
 antiproton ones):
 <br/>
-<input type="radio" name="1" value="1"><strong>1 </strong>: GRV 94 L;<br/>
-<input type="radio" name="1" value="2" checked="checked"><strong>2 </strong>: CTEQ 5 L.<br/>
+<input type="radio" name="1" value="1"><strong>1 </strong>: GRV 94L, LO <ei>alpha_s(M_Z) = 0.128</ei> (this set is out of date, but retained for historical comparisons).<br/>
+<input type="radio" name="1" value="2" checked="checked"><strong>2 </strong>: CTEQ 5L, LO <ei>alpha_s(M_Z) = 0.127</ei> (this set is also out of date, but not badly so, and many tunes  are based on it).<br/>
+<input type="radio" name="1" value="3"><strong>3 </strong>: MRST LO* (2007),  NLO <ei>alpha_s(M_Z) = 0.12032</ei>.<br/>
+<input type="radio" name="1" value="4"><strong>4 </strong>: MRST LO** (2008),  NLO <ei>alpha_s(M_Z) = 0.11517</ei>.<br/>
+<input type="radio" name="1" value="5"><strong>5 </strong>: MSTW 2008 LO (central member),  LO <ei>alpha_s(M_Z) = 0.13939</ei>.<br/>
+<input type="radio" name="1" value="6"><strong>6 </strong>: MSTW 2008 NLO (central member),  NLO <ei>alpha_s(M_Z) = 0.12018</ei> (NLO, see Warning 3 above).<br/>
+<input type="radio" name="1" value="7"><strong>7 </strong>: CTEQ6L, NLO <ei>alpha_s(M_Z) = 0.1180</ei>.<br/>
+<input type="radio" name="1" value="8"><strong>8 </strong>: CTEQ6L1, LO <ei>alpha_s(M_Z) = 0.1298</ei>.<br/>
+<input type="radio" name="1" value="9"><strong>9 </strong>: CTEQ66.00 (NLO, central member),  NLO <ei>alpha_s(M_Z) = 0.1180</ei> (NLO, see Warning 3 above).<br/>
+<input type="radio" name="1" value="10"><strong>10 </strong>: CT09MC1, LO <ei>alpha_s(M_Z) = 0.1300</ei>.<br/>
+<input type="radio" name="1" value="11"><strong>11 </strong>: CT09MC2, NLO <ei>alpha_s(M_Z) = 0.1180</ei>.<br/>
+<input type="radio" name="1" value="12"><strong>12 </strong>: CT09MCS, NLO <ei>alpha_s(M_Z) = 0.1180</ei>.<br/>
+<br/><b>Note:</b> the <i>alpha_s(M_Z)</i> values and the order of the
+running in the description above is purely informative, and does not 
+affect any other parts of the program. Instead you have the freedom to
+set <i>alpha_s(M_Z)</i> value and running separately for 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='CouplingsAndScales.php?filepath=".$filepath."' target='page'>";?>hard processes</a> 
+(including resonance decays),
+<?php $filepath = $_GET["filepath"];
+echo "<a href='MultipleInteractions.php?filepath=".$filepath."' target='page'>";?>multiple interactions</a>,
+<?php $filepath = $_GET["filepath"];
+echo "<a href='SpacelikeShowers.php?filepath=".$filepath."' target='page'>";?>initial-state radiation</a>, and
+<?php $filepath = $_GET["filepath"];
+echo "<a href='TimelikeShowers.php?filepath=".$filepath."' target='page'>";?>final-state radiation</a>.
 
 <p/>
-Obviously this choice is mainly intended to get going, and if you link to
-the <a href="http://projects.hepforge.org/lhapdf/" target="page">LHAPDF 
+This is a reasonably complete list of recent LO fits, both
+ones within the normal LO context and ones with modifications for better
+matching to event generators. In addition two older sets are 
+included for backwards reference (most studies to date are based on 
+CTEQ 5L). If you link to the 
+<a href="http://projects.hepforge.org/lhapdf/" target="page">LHAPDF 
 library</a> [<a href="Bibliography.php" target="page">Wha05</a>] you get access to a much wider selection.
-<br/><b>Warning:</b> owing to previous problems with the behaviour of PDF's
-beyond the <i>x</i> and <i>Q^2</i> boundaries of a set, you should
-only use LHAPDF <b>version 5.3.0 or later</b>.
+<br/><b>Warning 1:</b> owing to previous problems with the behaviour 
+of PDF's beyond the <i>x</i> and <i>Q^2</i> boundaries of a set, 
+you should only use LHAPDF <b>version 5.3.0 or later</b>.
+<br/><b>Warning 2:</b> the behaviour of the LHAPDF sets need not be
+identical with the implementation found in PYTHIA. Specifically we
+are aware of the following points that may influence a comparison.
+<br/>(a) CTEQ 5L in PYTHIA is the parametrization, in LHAPDF the grid
+interpolation. 
+<br/>(b) MRST LO* and LO** in PYTHIA is based on an updated edition,
+where one makes use of the expanded MSTW grid format, while LHAPDF
+is based on the original smaller grid. 
+<br/>(c) The CTEQ 6 and CT09MC sets in PYTHIA are frozen at the 
+boundaries of the grid, by recommendation of the authors, while 
+LHAPDF also offers an option with a smooth extrapolation outside 
+the grid boundaries. 
 
 <br/><br/><strong>PDF:useLHAPDF</strong>  <input type="radio" name="2" value="on"><strong>On</strong>
 <input type="radio" name="2" value="off" checked="checked"><strong>Off</strong>
@@ -103,7 +144,8 @@ directory for further instructions.
 Name of proton PDF set from LHAPDF to be used. You have to choose 
 from the 
 <a href="http://projects.hepforge.org/lhapdf/pdfsets" target="page">
-list of available sets</a>. Examples of some recent ones would be 
+list of available sets</a>. Examples of some fairly recent ones 
+(but still less recent than found above) would be 
 cteq61.LHpdf, cteq61.LHgrid, cteq6l.LHpdf, cteq6ll.LHpdf, 
 MRST2004nlo.LHpdf, MRST2004nlo.LHgrid, MRST2004nnlo.LHgrid and 
 MRST2004FF3lo.LHgrid. If you pick a LHpdf set it will require some 
@@ -191,12 +233,22 @@ variables below. If off then use the same PDF set for everything,
 as already chosen above.   
   
 
-<br/><br/><table><tr><td><strong>PDF:pHardSet  </td><td>  &nbsp;&nbsp;(<code>default = <strong>2</strong></code>; <code>minimum = 1</code>; <code>maximum = 2</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>PDF:pHardSet  </td><td>  &nbsp;&nbsp;(<code>default = <strong>2</strong></code>; <code>minimum = 1</code>; <code>maximum = 12</code>)</td></tr></table>
 Parton densities to be used for proton beams (and, by implication,
 antiproton ones):
 <br/>
-<input type="radio" name="7" value="1"><strong>1 </strong>: GRV 94 L;<br/>
-<input type="radio" name="7" value="2" checked="checked"><strong>2 </strong>: CTEQ 5 L.<br/>
+<input type="radio" name="7" value="1"><strong>1 </strong>: GRV 94L, LO <ei>alpha_s(M_Z) = 0.128</ei> (out of date).<br/>
+<input type="radio" name="7" value="2" checked="checked"><strong>2 </strong>: CTEQ 5L, LO <ei>alpha_s(M_Z) = 0.127</ei> (slightly out of date; many tunes are based on it).<br/>
+<input type="radio" name="7" value="3"><strong>3 </strong>: MRST LO* (2007),  NLO <ei>alpha_s(M_Z) = 0.12032</ei>.<br/>
+<input type="radio" name="7" value="4"><strong>4 </strong>: MRST LO** (2008),  NLO <ei>alpha_s(M_Z) = 0.11517</ei>.<br/>
+<input type="radio" name="7" value="5"><strong>5 </strong>: MSTW 2008 LO (central member),  LO <ei>alpha_s(M_Z) = 0.13939</ei>.<br/>
+<input type="radio" name="7" value="6"><strong>6 </strong>: MSTW 2008 NLO (central member),  LO <ei>alpha_s(M_Z) = 0.12018</ei>.<br/>
+<input type="radio" name="7" value="7"><strong>7 </strong>: CTEQ6L, NLO <ei>alpha_s(M_Z) = 0.1180</ei>.<br/>
+<input type="radio" name="7" value="8"><strong>8 </strong>: CTEQ6L1, LO <ei>alpha_s(M_Z) = 0.1298</ei>.<br/>
+<input type="radio" name="7" value="9"><strong>9 </strong>: CTEQ66.00 (NLO, central member),  NLO <ei>alpha_s(M_Z) = 0.1180</ei>.<br/>
+<input type="radio" name="7" value="10"><strong>10 </strong>: CT09MC1, LO <ei>alpha_s(M_Z) = 0.1300</ei>.<br/>
+<input type="radio" name="7" value="11"><strong>11 </strong>: CT09MC2, NLO <ei>alpha_s(M_Z) = 0.1180</ei>.<br/>
+<input type="radio" name="7" value="12"><strong>12 </strong>: CT09MCS, NLO <ei>alpha_s(M_Z) = 0.1180</ei>.<br/>
 
 <br/><br/><strong>PDF:useHardLHAPDF</strong>  <input type="radio" name="8" value="on"><strong>On</strong>
 <input type="radio" name="8" value="off" checked="checked"><strong>Off</strong>
@@ -226,7 +278,7 @@ The parton densities of the pion are considerably less well known than
 those of the proton. There are only rather few sets on the market,
 and none particularly recent. Only one comes built-in, but others can 
 be accessed from LHAPDF. Input parametrizations are for the <i>pi+</i>.
-From this the <i>pi-</i> is obtained by charge conjugation and the 
+>From this the <i>pi-</i> is obtained by charge conjugation and the 
 <i>pi0</i> from averaging (half the pions have <i>d dbar</i> 
 valence quark content, half <i>u ubar</i>.
 
@@ -263,21 +315,21 @@ Further choice of a specific member from the set picked above.
 
 <h3>Parton densities for Pomerons</h3>
 
-The Pomeron is introduced in the description of diffractive events
-(under development), i.e. a diffractive system is viewed as a 
-Pomeron-proton collision at a reduced CM energy. Here the PDF's are even 
-less well known. There are sets to be found in LHAPDF, and none
-that explicitly provide the Q2-dependence. Therefore only very simple
-alternatives are provided.
+The Pomeron is introduced in the description of diffractive events, 
+i.e. a diffractive system is viewed as a Pomeron-proton collision at a 
+reduced CM energy. Here the PDF's are even less well known. 
+The experimental parametrizations are NLO, which makes them less
+well suited for Monte Carlo applications. Furthemore note that 
+the momentum sum is arbitrarily normalized to a non-unity value.
 
 <br/><br/><table><tr><td><strong>PDF:PomSet  </td><td>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 1</code>; <code>maximum = 5</code>)</td></tr></table>
 Parton densities that can be used for Pomeron beams. 
 <br/>
 <input type="radio" name="15" value="1"><strong>1 </strong>: <ei>Q^2</ei>-independent parametrizations <ei>xf(x) = N_ab x^a (1 - x)^b</ei>, where <ei>N_ab</ei> ensures unit momentum sum. The <ei>a</ei> and <ei>b</ei> parameters can be  set separately for the gluon and the quark distributions. The momentum fraction of gluons and quarks can be freely mixed, and  production of <ei>s</ei> quarks can be suppressed relative to  that of <ei>d</ei> and <ei>u</ei> ones, with antiquarks as likely  as quarks. See further below how to set the six parameters of this  approach. <br/>
 <input type="radio" name="15" value="2"><strong>2 </strong>: <ei>pi0</ei> distributions, as specified in the  section above. <br/>
-<input type="radio" name="15" value="3"><strong>3 </strong>: the H1 2006 Fit A <ei>Q^2</ei>-dependent  parametrization, based on a tune to their data <ref>H1P06</ref>, rescaled by the factor <code>PomRescale</code> below. <br/>
-<input type="radio" name="15" value="4"><strong>4 </strong>: the H1 2006 Fit B <ei>Q^2</ei>-dependent  parametrization, based on a tune to their data <ref>H1P06</ref>, rescaled by the factor <code>PomRescale</code> below. <br/>
-<input type="radio" name="15" value="5" checked="checked"><strong>5 </strong>: the H1 2007 Jets <ei>Q^2</ei>-dependent  parametrization, based on a tune to their data <ref>H1P07</ref>, rescaled by the factor <code>PomRescale</code> below. <br/>
+<input type="radio" name="15" value="3"><strong>3 </strong>: the H1 2006 Fit A NLO <ei>Q^2</ei>-dependent  parametrization, based on a tune to their data <ref>H1P06</ref>, rescaled by the factor <code>PomRescale</code> below. <br/>
+<input type="radio" name="15" value="4"><strong>4 </strong>: the H1 2006 Fit B NLO <ei>Q^2</ei>-dependent  parametrization, based on a tune to their data <ref>H1P06</ref>, rescaled by the factor <code>PomRescale</code> below. <br/>
+<input type="radio" name="15" value="5" checked="checked"><strong>5 </strong>: the H1 2007 Jets NLO <ei>Q^2</ei>-dependent  parametrization, based on a tune to their data <ref>H1P07</ref>, rescaled by the factor <code>PomRescale</code> below. <br/>
 
 <br/><br/><table><tr><td><strong>PDF:PomGluonA </td><td></td><td> <input type="text" name="16" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>; <code>minimum = -0.5</code>; <code>maximum = 2.</code>)</td></tr></table>
 the parameter <i>a</i> in the ansatz <i>xg(x) = N_ab x^a (1 - x)^b</i>
@@ -498,4 +550,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->

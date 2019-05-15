@@ -38,8 +38,8 @@ echo "<a href='ParticleDataScheme.php?filepath=".$filepath."' target='page'>";?>
 to introduce a new particle (<code>id:all = ...</code>) and new
 decay channels (<code>id:addChannel = ...</code>). By default this 
 only allows you to define a fixed total width and fixed branching
-ratios. Using <?php $filepath = $_GET["filepath"];
-echo "<a href='ResonanceDecays.php?filepath=".$filepath."' target='page'>";?><code>meMode</code></a> 
+ratios. Using <code><?php $filepath = $_GET["filepath"];
+echo "<a href='ResonanceDecays.php?filepath=".$filepath."' target='page'>";?>meMode</a></code> 
 values 100 or bigger provides the possibility of a very 
 simple threshold behaviour. 
 
@@ -97,9 +97,11 @@ the Breit-Wigner expression. Then the methods in the base class take
 care of selecting only allowed channels where that is required, and 
 also of including effects of closed channels in secondary decays. 
 These methods can be accessed indirectly via the 
-<?php $filepath = $_GET["filepath"];
-echo "<a href='ResonanceDecays.php?filepath=".$filepath."' target='page'>";?><code>res...</code></a>
-methods of the normal particle database. 
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='ResonanceDecays.php?filepath=".$filepath."' target='page'>";?>res...</a></code>
+methods of the normal 
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='ParticleDataScheme.php?filepath=".$filepath."' target='page'>";?>particle database</a></code>. 
 
 <p/>
 A <b>constructor</b> for the derived class obviously must be available.
@@ -231,7 +233,7 @@ it would be simple to include it as a permanently available process
 in the standard program distribution. The final step of that integration 
 ought to be left for the PYTHIA authors, but basically all that is 
 needed is to add one line in 
-<code>ParticleDataTable::initResonances</code>, where one creates an 
+<code>ParticleData::initResonances</code>, where one creates an 
 instance of the resonance in the same way as for the resonances already 
 there. In addition, the particle data and decay table for the new
 resonance has to be added to the permanent
@@ -243,4 +245,4 @@ to <code>include/ResonanceWidths.h</code> and
 </body>
 </html>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->

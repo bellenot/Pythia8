@@ -1,5 +1,5 @@
 // ProcessLevel.h is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -20,12 +20,14 @@
 #include "ResonanceDecays.h"
 #include "Settings.h"
 #include "SigmaTotal.h"
+#include "SusyCouplings.h"
 #include "SusyLesHouches.h"
+#include "StandardModel.h"
 #include "UserHooks.h"
 
 namespace Pythia8 {
   
-//**************************************************************************
+//==========================================================================
 
 // The ProcessLevel class contains the top-level routines to generate
 // the characteristic "hard" process of an event.
@@ -41,10 +43,12 @@ public:
   ~ProcessLevel();
  
   // Initialization.
-  bool init( Info* infoPtrIn, BeamParticle* beamAPtrIn, 
-    BeamParticle* beamBPtrIn, SigmaTotal* sigmaTotPtrIn, bool doLHAin, 
-    SusyLesHouches* slhaPtrIn, UserHooks* userHooksPtrIn, 
-    vector<SigmaProcess*>& sigmaPtrs, ostream& os = cout);
+  bool init( Info* infoPtrIn, Settings& settings,
+    ParticleData* particleDataPtrIn, Rndm* rndmPtrIn, 
+    BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, CoupSM* CoupSMPtrIn, 
+    SigmaTotal* sigmaTotPtrIn, bool doLHAin, SusyLesHouches* slhaPtrIn, 
+    UserHooks* userHooksPtrIn, vector<SigmaProcess*>& sigmaPtrs, 
+    ostream& os = cout);
 
   // Store or replace Les Houches pointer.
   void setLHAPtr( LHAup* lhaUpPtrIn) {lhaUpPtr = lhaUpPtrIn;
@@ -70,7 +74,7 @@ private:
   // Generic info for process generation.
   bool   doSecondHard, doSameCuts, allHardSame, noneHardSame, 
          someHardSame, cutsAgree, cutsOverlap, doResDecays;
-  int    nImpact, startColTag2;
+  int    nImpact, startColTag;
   double mHatMin1, mHatMax1, pTHatMin1, pTHatMax1, mHatMin2, mHatMax2, 
          pTHatMin2, pTHatMax2, sigmaND, sumImpactFac, sum2ImpactFac;
 
@@ -87,12 +91,24 @@ private:
   // Pointer to various information on the generation.
   Info*           infoPtr;
 
+  // Pointer to the particle data table.
+  ParticleData*   particleDataPtr;
+
+  // Pointer to the random number generator.
+  Rndm*           rndmPtr;
+
   // Pointers to the two incoming beams.
   BeamParticle*   beamAPtr;
   BeamParticle*   beamBPtr;
 
+  // Pointer to Standard Model couplings, including alphaS and alphaEM.
+  CoupSM*         coupSMPtr;
+
   // Pointer to SigmaTotal object needed to handle soft QCD processes.
   SigmaTotal*     sigmaTotPtr;
+
+  // The CoupSUSY object needed to handle SUSY processes.
+  CoupSUSY        coupSUSY;
 
   // Pointer to SusyLesHouches object for interface to SUSY spectra.
   SusyLesHouches* slhaPtr;
@@ -103,12 +119,8 @@ private:
   // Pointer to LHAup for generating external events.
   LHAup*          lhaUpPtr;
 
-  // Common alphaStrong and alphaElectromagnetic calculation for SigmaProcess.
-  AlphaStrong     alphaS;
-  AlphaEM         alphaEM;
-
   // Initialization routine for SUSY spectra.
-  bool initSLHA();
+  bool initSLHA(Settings& settings);
 
   // ResonanceDecay object does sequential resonance decays.
   ResonanceDecays resonanceDecays;
@@ -133,7 +145,7 @@ private:
 
 };
 
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8
 

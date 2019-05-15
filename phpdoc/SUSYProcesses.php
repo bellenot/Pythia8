@@ -32,7 +32,7 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 The implementation of SUSY processes is currently still in a <b>development</b>
 stage, so careful case-by-case validations against other codes are
 strongly recommended and should be considered mandatory. 
-Please notify the authors (skands@fnal.gov) 
+Please notify the authors (peter.skands@cern.ch) 
 of any significant deviations (i.e., larger than 10%). In some cases,
 limited preliminary validations have 
 already been carried out by the authors. This is remarked on process by
@@ -407,5 +407,5 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2009 Peter Skands, Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Peter Skands, Torbjorn Sjostrand -->
 

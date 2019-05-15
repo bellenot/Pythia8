@@ -1,5 +1,5 @@
 // Analysis.h is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -18,7 +18,7 @@
 
 namespace Pythia8 {
 
-//**************************************************************************
+//==========================================================================
 
 // Sphericity class.
 // This class performs (optionally modified) sphericity analysis on an event.
@@ -71,7 +71,7 @@ private:
 
 };  
 
-//**************************************************************************
+//==========================================================================
 
 // Thrust class.
 // This class performs thrust analysis on an event.
@@ -118,7 +118,7 @@ private:
 
 };  
 
-//**************************************************************************
+//==========================================================================
 
 // SingleClusterJet class.
 // Simple helper class to ClusterJet for a jet and its contents. 
@@ -156,7 +156,7 @@ private:
 
 } ;
 
-//**************************************************************************
+//==========================================================================
 
 // ClusterJet class.
 // This class performs a jet clustering according to different
@@ -174,7 +174,6 @@ public:
     char firstChar = toupper(measureIn[0]);
     if (firstChar == 'J') measure = 2;
     if (firstChar == 'D') measure = 3; 
-    piMass = ParticleDataTable::m0(211);
   }
       
   // Analyze event.
@@ -206,7 +205,7 @@ private:
 
   // Constants: could only be changed in the code itself.
   static const int    TIMESTOPRINT;
-  static const double PABSMIN, PRECLUSTERFRAC, PRECLUSTERSTEP;
+  static const double PIMASS, PABSMIN, PRECLUSTERFRAC, PRECLUSTERSTEP;
 
   // Properties of analysis.
   int    measure, select, massSet; 
@@ -234,7 +233,7 @@ private:
 
 };  
 
-//**************************************************************************
+//==========================================================================
 
 // SingleCell class.
 // Simple helper class to CellJet for a cell and its contents. 
@@ -258,7 +257,7 @@ public:
 
 } ;
 
-//**************************************************************************
+//==========================================================================
 
 // SingleCellJet class.
 // Simple helper class to CellJet for a jet and its contents. 
@@ -283,7 +282,7 @@ public:
 
 } ;
 
-//**************************************************************************
+//==========================================================================
 
 // CellJet class.
 // This class performs a cone jet search in (eta, phi, E_T) space.
@@ -295,10 +294,10 @@ public:
   // Constructor.
   CellJet(double etaMaxIn = 5., int nEtaIn = 50, int nPhiIn = 32, 
     int selectIn = 2, int smearIn = 0, double resolutionIn = 0.5, 
-    double upperCutIn = 2., double thresholdIn = 0.) : etaMax(etaMaxIn), 
-    nEta(nEtaIn), nPhi(nPhiIn), select(selectIn), smear(smearIn),
-    resolution(resolutionIn), upperCut(upperCutIn), 
-    threshold(thresholdIn), nFew(0) { }
+    double upperCutIn = 2., double thresholdIn = 0., Rndm* rndmPtrIn = 0) 
+    : etaMax(etaMaxIn), nEta(nEtaIn), nPhi(nPhiIn), select(selectIn), 
+    smear(smearIn), resolution(resolutionIn), upperCut(upperCutIn), 
+    threshold(thresholdIn), nFew(0), rndmPtr(rndmPtrIn) { }
   
   // Analyze event.
   bool analyze(const Event& event, double eTjetMinIn = 20., 
@@ -341,9 +340,12 @@ private:
   // Outcome of analysis: ET-ordered list of jets. 
   vector<SingleCellJet> jets;
 
+  // Pointer to the random number generator (needed for energy smearing).
+  Rndm* rndmPtr;
+
 };  
 
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8
 

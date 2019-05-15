@@ -1,5 +1,5 @@
 // SpaceShower.h is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -19,10 +19,11 @@
 #include "PythiaStdlib.h"
 #include "Settings.h"
 #include "StandardModel.h"
+#include "UserHooks.h"
 
 namespace Pythia8 {
  
-//**************************************************************************
+//==========================================================================
 
 // Data on radiating dipole ends, only used inside SpaceShower.
 
@@ -62,7 +63,7 @@ public:
 
 } ;
  
-//**************************************************************************
+//==========================================================================
 
 // The SpaceShower class does spacelike showers.
 
@@ -76,10 +77,14 @@ public:
   // Destructor.
   virtual ~SpaceShower() {}
 
-  // Initialize pointer to Info for error messages.
+  // Initialize various pointers.
   // (Separated from rest of init since not virtual.)
-  void initPtr(Info* infoPtrIn, PartonSystems* partonSystemsPtrIn)    
-    {infoPtr = infoPtrIn; partonSystemsPtr = partonSystemsPtrIn;}
+  void initPtr(Info* infoPtrIn, Settings* settingsPtrIn, 
+    ParticleData* particleDataPtrIn, Rndm* rndmPtrIn,
+    PartonSystems* partonSystemsPtrIn, UserHooks* userHooksPtrIn)  {
+    infoPtr = infoPtrIn; settingsPtr = settingsPtrIn; 
+    particleDataPtr = particleDataPtrIn; rndmPtr = rndmPtrIn; 
+    partonSystemsPtr = partonSystemsPtrIn; userHooksPtr = userHooksPtrIn;}
 
   // Initialize generation. Possibility to force re-initialization by hand.
   virtual void init(BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn);
@@ -121,14 +126,26 @@ public:
 protected:
 
   // Pointer to various information on the generation.
-  Info* infoPtr;
+  Info*          infoPtr;
+
+  // Pointer to the settings database.
+  Settings*      settingsPtr;
+
+  // Pointer to the particle data table.
+  ParticleData*  particleDataPtr;
+
+  // Pointer to the random number generator.
+  Rndm*          rndmPtr;
 
   // Pointers to the two incoming beams.
-  BeamParticle* beamAPtr;
-  BeamParticle* beamBPtr;
+  BeamParticle*  beamAPtr;
+  BeamParticle*  beamBPtr;
 
   // Pointer to information on subcollision parton locations.
   PartonSystems* partonSystemsPtr;
+
+  // Pointer to userHooks object for user interaction with program.
+  UserHooks*     userHooksPtr;
 
   // Store properties to be returned by methods.
   bool   rescatterFail;
@@ -146,13 +163,14 @@ private:
 
   // Initialization data, normally only set once.
   bool   doQCDshower, doQEDshowerByQ, doQEDshowerByL, useSamePTasMI,
-         doMEcorrections, doPhiPolAsym, doRapidityOrder;
+         doMEcorrections, doPhiPolAsym, doRapidityOrder, canVetoEmission;
   int    pTmaxMatch, pTdampMatch, alphaSorder, alphaEMorder, nQuarkIn, 
          enhanceScreening;
   double pTdampFudge, mc, mb, m2c, m2b, alphaSvalue, alphaS2pi, 
          Lambda3flav, Lambda4flav, Lambda5flav, Lambda3flav2, Lambda4flav2, 
          Lambda5flav2, pT0Ref, ecmRef, ecmPow, pTmin, sCM, eCM, pT0, 
-         pTminChgQ, pTminChgL, pT20, pT2min, pT2minChgQ, pT2minChgL; 
+         pTminChgQ, pTminChgL, pT20, pT2min, pT2minChgQ, pT2minChgL, 
+         pTmaxFudgeMI; 
 
   // alphaStrong and alphaEM calculations.
   AlphaStrong alphaS;
@@ -198,7 +216,7 @@ private:
 
 };
  
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8
 

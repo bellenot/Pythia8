@@ -1,5 +1,5 @@
 // Info.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -9,13 +9,13 @@
 
 namespace Pythia8 {
 
-//**************************************************************************
+//==========================================================================
 
 // Info class.
 // This class contains a mixed bag of information on the event generation 
 // activity, especially on the current subprocess properties.
 
-//*********
+//--------------------------------------------------------------------------
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -23,7 +23,7 @@ namespace Pythia8 {
 // Number of times the same error message will be repeated at most.
 const int Info::TIMESTOPRINT = 1; 
 
-//*********
+//--------------------------------------------------------------------------
 
 // List (almost) all information currently set.
 
@@ -110,7 +110,7 @@ void Info::list(ostream& os) const {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
   
 // Print a message the first few times. Insert in database.
  
@@ -127,7 +127,7 @@ void Info::list(ostream& os) const {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Provide total number of errors/aborts/warnings experienced to date.
 
@@ -141,7 +141,7 @@ int Info::errorTotalNumber() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Print statistics on errors/aborts/warnings.
 
@@ -181,7 +181,7 @@ void Info::errorStatistics(ostream& os) {
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8
 

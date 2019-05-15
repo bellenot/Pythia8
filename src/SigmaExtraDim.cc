@@ -1,6 +1,6 @@
 // SigmaExtraDim.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
-// Copyright (C) 2009 Stefan Ask for the *LED* routines.
+// Copyright (C) 2010 Torbjorn Sjostrand.
+// Copyright (C) 2010 Stefan Ask for the *LED* routines.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -11,12 +11,12 @@
 
 namespace Pythia8 {
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma1gg2GravitonStar class.
 // Cross section for g g -> G* (excited graviton state). 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
@@ -24,20 +24,20 @@ void Sigma1gg2GravitonStar::initProc() {
 
   // Store G* mass and width for propagator. 
   idGstar  = 5100039;
-  mRes     = ParticleDataTable::m0(idGstar);
-  GammaRes = ParticleDataTable::mWidth(idGstar);
+  mRes     = particleDataPtr->m0(idGstar);
+  GammaRes = particleDataPtr->mWidth(idGstar);
   m2Res    = mRes*mRes;
   GamMRat  = GammaRes / mRes;
 
   // Overall coupling strength kappa * m_G*.
-  kappaMG  = Settings::parm("ExtraDimensionsG*:kappaMG");
+  kappaMG  = settingsPtr->parm("ExtraDimensionsG*:kappaMG");
 
   // Set pointer to particle properties and decay table.
-  gStarPtr = ParticleDataTable::particleDataPtr(idGstar);
+  gStarPtr = particleDataPtr->particleDataEntryPtr(idGstar);
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), part independent of incoming flavour. 
 
@@ -55,7 +55,7 @@ void Sigma1gg2GravitonStar::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -69,7 +69,7 @@ void Sigma1gg2GravitonStar::setIdColAcol() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate weight for G* decay angle.
   
@@ -108,12 +108,12 @@ double Sigma1gg2GravitonStar::weightDecay( Event& process, int iResBeg,
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma1ffbar2GravitonStar class.
 // Cross section for f fbar -> G* (excited graviton state). 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
@@ -121,20 +121,20 @@ void Sigma1ffbar2GravitonStar::initProc() {
 
   // Store G* mass and width for propagator. 
   idGstar  = 5100039;
-  mRes     = ParticleDataTable::m0(idGstar);
-  GammaRes = ParticleDataTable::mWidth(idGstar);
+  mRes     = particleDataPtr->m0(idGstar);
+  GammaRes = particleDataPtr->mWidth(idGstar);
   m2Res    = mRes*mRes;
   GamMRat  = GammaRes / mRes;
 
   // Overall coupling strength kappa * m_G*.
-  kappaMG  = Settings::parm("ExtraDimensionsG*:kappaMG");
+  kappaMG  = settingsPtr->parm("ExtraDimensionsG*:kappaMG");
 
   // Set pointer to particle properties and decay table.
-  gStarPtr = ParticleDataTable::particleDataPtr(idGstar);
+  gStarPtr = particleDataPtr->particleDataEntryPtr(idGstar);
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), part independent of incoming flavour. 
 
@@ -152,7 +152,7 @@ void Sigma1ffbar2GravitonStar::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -168,7 +168,7 @@ void Sigma1ffbar2GravitonStar::setIdColAcol() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate weight for G* decay angle.
   
@@ -208,12 +208,12 @@ double Sigma1ffbar2GravitonStar::weightDecay( Event& process, int iResBeg,
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma2gg2GravitonStarg class.
 // Cross section for g g -> G* g (excited graviton state). 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
@@ -221,20 +221,20 @@ void Sigma2gg2GravitonStarg::initProc() {
 
   // Store G* mass and width for propagator. 
   idGstar  = 5100039;
-  mRes     = ParticleDataTable::m0(idGstar);
-  GammaRes = ParticleDataTable::mWidth(idGstar);
+  mRes     = particleDataPtr->m0(idGstar);
+  GammaRes = particleDataPtr->mWidth(idGstar);
   m2Res    = mRes*mRes;
   GamMRat  = GammaRes / mRes;
 
   // Overall coupling strength kappa * m_G*.
-  kappaMG  = Settings::parm("ExtraDimensionsG*:kappaMG");
+  kappaMG  = settingsPtr->parm("ExtraDimensionsG*:kappaMG");
 
    // Secondary open width fraction.
-  openFrac = ParticleDataTable::resOpenFrac(idGstar);
+  openFrac = particleDataPtr->resOpenFrac(idGstar);
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), part independent of incoming flavour. 
 
@@ -249,7 +249,7 @@ void Sigma2gg2GravitonStarg::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -259,12 +259,12 @@ void Sigma2gg2GravitonStarg::setIdColAcol() {
   setId( 21, 21, idGstar, 21);
 
   // Colour flow topologies: random choice between two mirrors.
-  if (Rndm::flat() < 0.5) setColAcol( 1, 2, 2, 3, 0, 0, 1, 3);
+  if (rndmPtr->flat() < 0.5) setColAcol( 1, 2, 2, 3, 0, 0, 1, 3);
   else                    setColAcol( 1, 2, 3, 1, 0, 0, 3, 2);
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate weight for decay angles: currently G* assumed isotropic.
   
@@ -283,12 +283,12 @@ double Sigma2gg2GravitonStarg::weightDecay( Event& process, int iResBeg,
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma2qg2GravitonStarq class.
 // Cross section for q g -> G* q (excited graviton state). 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
@@ -296,20 +296,20 @@ void Sigma2qg2GravitonStarq::initProc() {
 
   // Store G* mass and width for propagator. 
   idGstar  = 5100039;
-  mRes     = ParticleDataTable::m0(idGstar);
-  GammaRes = ParticleDataTable::mWidth(idGstar);
+  mRes     = particleDataPtr->m0(idGstar);
+  GammaRes = particleDataPtr->mWidth(idGstar);
   m2Res    = mRes*mRes;
   GamMRat  = GammaRes / mRes;
 
   // Overall coupling strength kappa * m_G*.
-  kappaMG  = Settings::parm("ExtraDimensionsG*:kappaMG");
+  kappaMG  = settingsPtr->parm("ExtraDimensionsG*:kappaMG");
 
    // Secondary open width fraction.
-  openFrac = ParticleDataTable::resOpenFrac(idGstar);
+  openFrac = particleDataPtr->resOpenFrac(idGstar);
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), part independent of incoming flavour. 
 
@@ -324,7 +324,7 @@ void Sigma2qg2GravitonStarq::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -344,7 +344,7 @@ void Sigma2qg2GravitonStarq::setIdColAcol() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate weight for decay angles: currently G* assumed isotropic.
   
@@ -363,12 +363,12 @@ double Sigma2qg2GravitonStarq::weightDecay( Event& process, int iResBeg,
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma2qqbar2GravitonStarg class.
 // Cross section for q qbar -> G* g (excited graviton state). 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
@@ -376,20 +376,20 @@ void Sigma2qqbar2GravitonStarg::initProc() {
 
   // Store G* mass and width for propagator. 
   idGstar  = 5100039;
-  mRes     = ParticleDataTable::m0(idGstar);
-  GammaRes = ParticleDataTable::mWidth(idGstar);
+  mRes     = particleDataPtr->m0(idGstar);
+  GammaRes = particleDataPtr->mWidth(idGstar);
   m2Res    = mRes*mRes;
   GamMRat  = GammaRes / mRes;
 
   // Overall coupling strength kappa * m_G*.
-  kappaMG  = Settings::parm("ExtraDimensionsG*:kappaMG");
+  kappaMG  = settingsPtr->parm("ExtraDimensionsG*:kappaMG");
 
    // Secondary open width fraction.
-  openFrac = ParticleDataTable::resOpenFrac(idGstar);
+  openFrac = particleDataPtr->resOpenFrac(idGstar);
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), part independent of incoming flavour. 
 
@@ -404,7 +404,7 @@ void Sigma2qqbar2GravitonStarg::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -419,7 +419,7 @@ void Sigma2qqbar2GravitonStarg::setIdColAcol() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate weight for decay angles: currently G* assumed isotropic.
   
@@ -438,20 +438,20 @@ double Sigma2qqbar2GravitonStarg::weightDecay( Event& process, int iResBeg,
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma2gg2LEDUnparticleg class.
 // Cross section for g g -> U/G g (real graviton emission in 
 // large extra dimensions or unparticle emission). 
 
-//*********
+//--------------------------------------------------------------------------
 
 Sigma2gg2LEDUnparticleg::Sigma2gg2LEDUnparticleg( bool Graviton ) 
   : m_graviton(Graviton) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 void Sigma2gg2LEDUnparticleg::initProc() {
   
@@ -459,18 +459,18 @@ void Sigma2gg2LEDUnparticleg::initProc() {
   m_idG    = 5000039;
   if (m_graviton) {
     m_spin     = 2;
-    m_nGrav    = Settings::mode("ExtraDimensionsLED:n");
+    m_nGrav    = settingsPtr->mode("ExtraDimensionsLED:n");
     m_dU       = 0.5 * m_nGrav + 1;
-    m_LambdaU  = Settings::parm("ExtraDimensionsLED:MD");
+    m_LambdaU  = settingsPtr->parm("ExtraDimensionsLED:MD");
     m_lambda   = 1;
-    m_cutoff   = Settings::mode("ExtraDimensionsLED:CutOffmode"); 
-    m_tff      = Settings::parm("ExtraDimensionsLED:t");
+    m_cutoff   = settingsPtr->mode("ExtraDimensionsLED:CutOffMode"); 
+    m_tff      = settingsPtr->parm("ExtraDimensionsLED:t");
   } else {
-    m_spin     = Settings::mode("ExtraDimensionsUnpart:spinU");
-    m_dU       = Settings::parm("ExtraDimensionsUnpart:dU");
-    m_LambdaU  = Settings::parm("ExtraDimensionsUnpart:LambdaU");
-    m_lambda   = Settings::parm("ExtraDimensionsUnpart:lambda");
-    m_cutoff   = Settings::mode("ExtraDimensionsUnpart:CutOffmode"); 
+    m_spin     = settingsPtr->mode("ExtraDimensionsUnpart:spinU");
+    m_dU       = settingsPtr->parm("ExtraDimensionsUnpart:dU");
+    m_LambdaU  = settingsPtr->parm("ExtraDimensionsUnpart:LambdaU");
+    m_lambda   = settingsPtr->parm("ExtraDimensionsUnpart:lambda");
+    m_cutoff   = settingsPtr->mode("ExtraDimensionsUnpart:CutOffMode"); 
   }
   
   //+++ The A(dU) or S'(n) value.
@@ -501,7 +501,7 @@ void Sigma2gg2LEDUnparticleg::initProc() {
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 void Sigma2gg2LEDUnparticleg::sigmaKin() { 
 
@@ -551,7 +551,7 @@ void Sigma2gg2LEDUnparticleg::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 double Sigma2gg2LEDUnparticleg::sigmaHat() { 
 
@@ -581,7 +581,7 @@ double Sigma2gg2LEDUnparticleg::sigmaHat() {
   return sigma;  
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 void Sigma2gg2LEDUnparticleg::setIdColAcol() {
 
@@ -589,25 +589,25 @@ void Sigma2gg2LEDUnparticleg::setIdColAcol() {
   setId( 21, 21, m_idG, 21);
 
   //+++ Colour flow topologies: random choice between two mirrors.
-  if (Rndm::flat() < 0.5) setColAcol( 1, 2, 2, 3, 0, 0, 1, 3);
+  if (rndmPtr->flat() < 0.5) setColAcol( 1, 2, 2, 3, 0, 0, 1, 3);
   else                    setColAcol( 1, 2, 3, 1, 0, 0, 3, 2);
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma2qg2LEDUnparticleq class.
 // Cross section for q g -> U/G q (real graviton emission in 
 // large extra dimensions or unparticle emission). 
 
-//*********
+//--------------------------------------------------------------------------
 
 Sigma2qg2LEDUnparticleq::Sigma2qg2LEDUnparticleq ( bool Graviton ) 
   : m_graviton(Graviton) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 void Sigma2qg2LEDUnparticleq::initProc() {
   
@@ -615,18 +615,18 @@ void Sigma2qg2LEDUnparticleq::initProc() {
   m_idG    = 5000039;
   if (m_graviton) {
     m_spin     = 2;
-    m_nGrav    = Settings::mode("ExtraDimensionsLED:n");
+    m_nGrav    = settingsPtr->mode("ExtraDimensionsLED:n");
     m_dU       = 0.5 * m_nGrav + 1;
-    m_LambdaU  = Settings::parm("ExtraDimensionsLED:MD");
+    m_LambdaU  = settingsPtr->parm("ExtraDimensionsLED:MD");
     m_lambda   = 1;
-    m_cutoff   = Settings::mode("ExtraDimensionsLED:CutOffmode"); 
-    m_tff      = Settings::parm("ExtraDimensionsLED:t");
+    m_cutoff   = settingsPtr->mode("ExtraDimensionsLED:CutOffMode"); 
+    m_tff      = settingsPtr->parm("ExtraDimensionsLED:t");
   } else {
-    m_spin     = Settings::mode("ExtraDimensionsUnpart:spinU");
-    m_dU       = Settings::parm("ExtraDimensionsUnpart:dU");
-    m_LambdaU  = Settings::parm("ExtraDimensionsUnpart:LambdaU");
-    m_lambda   = Settings::parm("ExtraDimensionsUnpart:lambda");
-    m_cutoff   = Settings::mode("ExtraDimensionsUnpart:CutOffmode"); 
+    m_spin     = settingsPtr->mode("ExtraDimensionsUnpart:spinU");
+    m_dU       = settingsPtr->parm("ExtraDimensionsUnpart:dU");
+    m_LambdaU  = settingsPtr->parm("ExtraDimensionsUnpart:LambdaU");
+    m_lambda   = settingsPtr->parm("ExtraDimensionsUnpart:lambda");
+    m_cutoff   = settingsPtr->mode("ExtraDimensionsUnpart:CutOffMode"); 
   }
 
   //+++ The A(dU) or S'(n) value.
@@ -659,7 +659,7 @@ void Sigma2qg2LEDUnparticleq::initProc() {
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 void Sigma2qg2LEDUnparticleq::sigmaKin() { 
 
@@ -714,7 +714,7 @@ void Sigma2qg2LEDUnparticleq::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 double Sigma2qg2LEDUnparticleq::sigmaHat() { 
 
@@ -746,7 +746,7 @@ double Sigma2qg2LEDUnparticleq::sigmaHat() {
   return sigma;  
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 void Sigma2qg2LEDUnparticleq::setIdColAcol() {
 
@@ -764,20 +764,20 @@ void Sigma2qg2LEDUnparticleq::setIdColAcol() {
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma2qqbar2LEDUnparticleg class.
 // Cross section for q qbar -> U/G g (real graviton emission in 
 // large extra dimensions or unparticle emission). 
 
-//*********
+//--------------------------------------------------------------------------
 
 Sigma2qqbar2LEDUnparticleg::Sigma2qqbar2LEDUnparticleg( bool Graviton ) 
   : m_graviton(Graviton) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 void Sigma2qqbar2LEDUnparticleg::initProc() {
   
@@ -785,18 +785,18 @@ void Sigma2qqbar2LEDUnparticleg::initProc() {
   m_idG    = 5000039;
   if (m_graviton) {
     m_spin     = 2;
-    m_nGrav    = Settings::mode("ExtraDimensionsLED:n");
+    m_nGrav    = settingsPtr->mode("ExtraDimensionsLED:n");
     m_dU       = 0.5 * m_nGrav + 1;
-    m_LambdaU  = Settings::parm("ExtraDimensionsLED:MD");
+    m_LambdaU  = settingsPtr->parm("ExtraDimensionsLED:MD");
     m_lambda   = 1;
-    m_cutoff   = Settings::mode("ExtraDimensionsLED:CutOffmode"); 
-    m_tff      = Settings::parm("ExtraDimensionsLED:t");
+    m_cutoff   = settingsPtr->mode("ExtraDimensionsLED:CutOffMode"); 
+    m_tff      = settingsPtr->parm("ExtraDimensionsLED:t");
   } else {
-    m_spin     = Settings::mode("ExtraDimensionsUnpart:spinU");
-    m_dU       = Settings::parm("ExtraDimensionsUnpart:dU");
-    m_LambdaU  = Settings::parm("ExtraDimensionsUnpart:LambdaU");
-    m_lambda   = Settings::parm("ExtraDimensionsUnpart:lambda");
-    m_cutoff   = Settings::mode("ExtraDimensionsUnpart:CutOffmode"); 
+    m_spin     = settingsPtr->mode("ExtraDimensionsUnpart:spinU");
+    m_dU       = settingsPtr->parm("ExtraDimensionsUnpart:dU");
+    m_LambdaU  = settingsPtr->parm("ExtraDimensionsUnpart:LambdaU");
+    m_lambda   = settingsPtr->parm("ExtraDimensionsUnpart:lambda");
+    m_cutoff   = settingsPtr->mode("ExtraDimensionsUnpart:CutOffMode"); 
   }
 
   //+++ The A(dU) or S'(n) value.
@@ -828,7 +828,7 @@ void Sigma2qqbar2LEDUnparticleg::initProc() {
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 void Sigma2qqbar2LEDUnparticleg::sigmaKin() { 
 
@@ -880,7 +880,7 @@ void Sigma2qqbar2LEDUnparticleg::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 double Sigma2qqbar2LEDUnparticleg::sigmaHat() { 
 
@@ -912,7 +912,7 @@ double Sigma2qqbar2LEDUnparticleg::sigmaHat() {
   return sigma;  
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 void Sigma2qqbar2LEDUnparticleg::setIdColAcol() {
 
@@ -925,13 +925,13 @@ void Sigma2qqbar2LEDUnparticleg::setIdColAcol() {
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma2ffbar2LEDUnparticleZ class.
 // Cross section for f fbar -> U/G Z (real LED graviton or unparticle 
 // emission).
 
-//*********
+//--------------------------------------------------------------------------
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -943,14 +943,14 @@ void Sigma2qqbar2LEDUnparticleg::setIdColAcol() {
 // investigated further.
 const double Sigma2ffbar2LEDUnparticleZ::FIXRATIO = 1.;
 
-//*********
+//--------------------------------------------------------------------------
 
 Sigma2ffbar2LEDUnparticleZ::Sigma2ffbar2LEDUnparticleZ( bool Graviton ):
   m_graviton(Graviton) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 void Sigma2ffbar2LEDUnparticleZ::initProc() {
 
@@ -958,25 +958,25 @@ void Sigma2ffbar2LEDUnparticleZ::initProc() {
   m_idG        = 5000039;
   if (m_graviton) {
     m_spin     = 2;
-    m_nGrav    = Settings::mode("ExtraDimensionsLED:n");
+    m_nGrav    = settingsPtr->mode("ExtraDimensionsLED:n");
     m_dU       = 0.5 * m_nGrav + 1; 
-    m_LambdaU  = Settings::parm("ExtraDimensionsLED:MD");
+    m_LambdaU  = settingsPtr->parm("ExtraDimensionsLED:MD");
     m_lambda   = 1;
-    m_cutoff   = Settings::mode("ExtraDimensionsLED:CutOffmode"); 
-    m_tff      = Settings::parm("ExtraDimensionsLED:t");
+    m_cutoff   = settingsPtr->mode("ExtraDimensionsLED:CutOffMode"); 
+    m_tff      = settingsPtr->parm("ExtraDimensionsLED:t");
   } else {
-    m_spin     = Settings::mode("ExtraDimensionsUnpart:spinU");
-    m_dU       = Settings::parm("ExtraDimensionsUnpart:dU");
-    m_LambdaU  = Settings::parm("ExtraDimensionsUnpart:LambdaU");
-    m_lambda   = Settings::parm("ExtraDimensionsUnpart:lambda");
+    m_spin     = settingsPtr->mode("ExtraDimensionsUnpart:spinU");
+    m_dU       = settingsPtr->parm("ExtraDimensionsUnpart:dU");
+    m_LambdaU  = settingsPtr->parm("ExtraDimensionsUnpart:LambdaU");
+    m_lambda   = settingsPtr->parm("ExtraDimensionsUnpart:lambda");
     m_ratio    = FIXRATIO; 
-    //         = Settings::parm("ExtraDimensionsUnpart:ratio");
-    m_cutoff   = Settings::mode("ExtraDimensionsUnpart:CutOffmode");
+    //         = settingsPtr->parm("ExtraDimensionsUnpart:ratio");
+    m_cutoff   = settingsPtr->mode("ExtraDimensionsUnpart:CutOffMode");
   }
 
   //+++ Store Z0 mass and width for propagator.
-  mZ        = ParticleDataTable::m0(23);
-  widZ      = ParticleDataTable::mWidth(23);
+  mZ        = particleDataPtr->m0(23);
+  widZ      = particleDataPtr->mWidth(23);
   mZS       = mZ*mZ;
   mwZS      = pow2(mZ * widZ);
 
@@ -1024,7 +1024,7 @@ void Sigma2ffbar2LEDUnparticleZ::initProc() {
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 void Sigma2ffbar2LEDUnparticleZ::sigmaKin() { 
 
@@ -1121,7 +1121,7 @@ void Sigma2ffbar2LEDUnparticleZ::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 double Sigma2ffbar2LEDUnparticleZ::sigmaHat() { 
 
@@ -1129,8 +1129,8 @@ double Sigma2ffbar2LEDUnparticleZ::sigmaHat() {
   int idAbs    = abs(id1);
   //+++ Note: 1/2 * (g_L^2 + g_R^2) = (g_v^2 + g_a^2) 
   double facEWS  = 4 * M_PI * alpEM  
-                   / (CoupEW::sin2thetaW() * CoupEW::cos2thetaW()) 
-                   * ( 0.25 * 0.25 * CoupEW::vf2af2(idAbs) );   
+                   / (coupSMPtr->sin2thetaW() * coupSMPtr->cos2thetaW()) 
+                   * ( 0.25 * 0.25 * coupSMPtr->vf2af2(idAbs) );   
 
   //+++ Mass Spectrum, (m^2)^(d-2)
   double tmpExp = m_dU - 2;
@@ -1162,7 +1162,7 @@ double Sigma2ffbar2LEDUnparticleZ::sigmaHat() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 void Sigma2ffbar2LEDUnparticleZ::setIdColAcol() {
 
@@ -1176,13 +1176,13 @@ void Sigma2ffbar2LEDUnparticleZ::setIdColAcol() {
 
 }
   
-//**************************************************************************
+//==========================================================================
 
 // Sigma2ffbar2LEDUnparticlegamma class.
 // Cross section for f fbar -> U/G gamma (real LED graviton or unparticle 
 // emission).
 
-//*********
+//--------------------------------------------------------------------------
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -1194,43 +1194,43 @@ void Sigma2ffbar2LEDUnparticleZ::setIdColAcol() {
 // investigated further.
 const double Sigma2ffbar2LEDUnparticlegamma::FIXRATIO = 1.;
 
-//*********
+//--------------------------------------------------------------------------
 
 Sigma2ffbar2LEDUnparticlegamma::Sigma2ffbar2LEDUnparticlegamma( 
   bool Graviton ): m_graviton(Graviton) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 void Sigma2ffbar2LEDUnparticlegamma::initProc() {
 
   //+++ WARNING: Keep in mind that this class uses the photon limit 
   //+++          of the Z+G/U ME code. This might give rise to some 
-  //+++          confusing things, e.g. mZ = ParticleDataTable::m0(22);          
+  //+++          confusing things, e.g. mZ = particleDataPtr->m0(22);          
   
   //+++ Init model parameters.
   m_idG        = 5000039;
   if (m_graviton) {
     m_spin     = 2;
-    m_nGrav    = Settings::mode("ExtraDimensionsLED:n");
+    m_nGrav    = settingsPtr->mode("ExtraDimensionsLED:n");
     m_dU       = 0.5 * m_nGrav + 1; 
-    m_LambdaU  = Settings::parm("ExtraDimensionsLED:MD");
+    m_LambdaU  = settingsPtr->parm("ExtraDimensionsLED:MD");
     m_lambda   = 1;
-    m_cutoff   = Settings::mode("ExtraDimensionsLED:CutOffmode"); 
-    m_tff      = Settings::parm("ExtraDimensionsLED:t");
+    m_cutoff   = settingsPtr->mode("ExtraDimensionsLED:CutOffMode"); 
+    m_tff      = settingsPtr->parm("ExtraDimensionsLED:t");
   } else {
-    m_spin     = Settings::mode("ExtraDimensionsUnpart:spinU");
-    m_dU       = Settings::parm("ExtraDimensionsUnpart:dU");
-    m_LambdaU  = Settings::parm("ExtraDimensionsUnpart:LambdaU");
-    m_lambda   = Settings::parm("ExtraDimensionsUnpart:lambda");
+    m_spin     = settingsPtr->mode("ExtraDimensionsUnpart:spinU");
+    m_dU       = settingsPtr->parm("ExtraDimensionsUnpart:dU");
+    m_LambdaU  = settingsPtr->parm("ExtraDimensionsUnpart:LambdaU");
+    m_lambda   = settingsPtr->parm("ExtraDimensionsUnpart:lambda");
     m_ratio    = FIXRATIO; 
-    //         = Settings::parm("ExtraDimensionsUnpart:ratio");
-    m_cutoff   = Settings::mode("ExtraDimensionsUnpart:CutOffmode");
+    //         = settingsPtr->parm("ExtraDimensionsUnpart:ratio");
+    m_cutoff   = settingsPtr->mode("ExtraDimensionsUnpart:CutOffMode");
   }
 
   //+++ Store Z0 mass.
-  mZ        = ParticleDataTable::m0(22);
+  mZ        = particleDataPtr->m0(22);
   mZS       = mZ*mZ;  
 
   //+++ Init spin-2 parameters
@@ -1277,7 +1277,7 @@ void Sigma2ffbar2LEDUnparticlegamma::initProc() {
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 void Sigma2ffbar2LEDUnparticlegamma::sigmaKin() { 
 
@@ -1376,13 +1376,13 @@ void Sigma2ffbar2LEDUnparticlegamma::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 double Sigma2ffbar2LEDUnparticlegamma::sigmaHat() { 
 
   //+++ Electroweak couplings..
   int idAbs    = abs(id1);
-  double facEWS = 4 * M_PI * alpEM * CoupEW::ef2(idAbs);
+  double facEWS = 4 * M_PI * alpEM * coupSMPtr->ef2(idAbs);
 
   //+++ Mass Spectrum, (m^2)^(d-2)
   double tmpExp = m_dU - 2;
@@ -1414,7 +1414,7 @@ double Sigma2ffbar2LEDUnparticlegamma::sigmaHat() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 void Sigma2ffbar2LEDUnparticlegamma::setIdColAcol() {
 
@@ -1428,37 +1428,37 @@ void Sigma2ffbar2LEDUnparticlegamma::setIdColAcol() {
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma2ffbar2LEDgammagamma class.
 // Cross section for f fbar -> (LED G*/U*) -> gamma gamma 
 // (virtual graviton/unparticle exchange).
 
-//*********
+//--------------------------------------------------------------------------
 
 Sigma2ffbar2LEDgammagamma::Sigma2ffbar2LEDgammagamma( bool Graviton ) 
   : m_graviton(Graviton) {
   
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 void Sigma2ffbar2LEDgammagamma::initProc() {
   
   //+++ Init model parameters.
   if (m_graviton) {
     m_spin     = 2;
-    m_nGrav    = Settings::mode("ExtraDimensionsLED:n");
+    m_nGrav    = settingsPtr->mode("ExtraDimensionsLED:n");
     m_dU       = 2;
-    m_LambdaU  = Settings::parm("ExtraDimensionsLED:LambdaT");
+    m_LambdaU  = settingsPtr->parm("ExtraDimensionsLED:LambdaT");
     m_lambda   = 1;
-    m_cutoff   = Settings::mode("ExtraDimensionsLED:CutOffmode"); 
-    m_tff      = Settings::parm("ExtraDimensionsLED:t");
+    m_cutoff   = settingsPtr->mode("ExtraDimensionsLED:CutOffMode"); 
+    m_tff      = settingsPtr->parm("ExtraDimensionsLED:t");
   } else {
-    m_spin     = Settings::mode("ExtraDimensionsUnpart:spinU");
-    m_dU       = Settings::parm("ExtraDimensionsUnpart:dU");
-    m_LambdaU  = Settings::parm("ExtraDimensionsUnpart:LambdaU");
-    m_lambda   = Settings::parm("ExtraDimensionsUnpart:lambda");
+    m_spin     = settingsPtr->mode("ExtraDimensionsUnpart:spinU");
+    m_dU       = settingsPtr->parm("ExtraDimensionsUnpart:dU");
+    m_LambdaU  = settingsPtr->parm("ExtraDimensionsUnpart:LambdaU");
+    m_lambda   = settingsPtr->parm("ExtraDimensionsUnpart:lambda");
   }
 
   //+++ Model dependent constants.
@@ -1485,7 +1485,7 @@ void Sigma2ffbar2LEDgammagamma::initProc() {
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 void Sigma2ffbar2LEDgammagamma::sigmaKin() { 
 
@@ -1525,7 +1525,7 @@ void Sigma2ffbar2LEDgammagamma::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 double Sigma2ffbar2LEDgammagamma::sigmaHat() { 
 
@@ -1539,7 +1539,7 @@ double Sigma2ffbar2LEDgammagamma::sigmaHat() {
   if (m_spin == 0) {
     sigma = pow2(m_lambda2chi) * m_term1 / 8;
   } else {
-    double tmp_e2Q2 = 4 * M_PI * alpEM * CoupEW::ef2(idAbs);
+    double tmp_e2Q2 = 4 * M_PI * alpEM * coupSMPtr->ef2(idAbs);
     double tmp_dUpi = m_dU * M_PI;
     sigma = pow2(tmp_e2Q2) * m_term1
           - tmp_e2Q2 * m_lambda2chi * cos(tmp_dUpi) * m_term2
@@ -1555,7 +1555,7 @@ double Sigma2ffbar2LEDgammagamma::sigmaHat() {
   return sigma;  
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 void Sigma2ffbar2LEDgammagamma::setIdColAcol() {
 
@@ -1569,37 +1569,37 @@ void Sigma2ffbar2LEDgammagamma::setIdColAcol() {
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma2gg2LEDgammagamma class.
 // Cross section for g g -> (LED G*/U*) -> gamma gamma 
 // (virtual graviton/unparticle exchange).
 
-//*********
+//--------------------------------------------------------------------------
 
 Sigma2gg2LEDgammagamma::Sigma2gg2LEDgammagamma( bool Graviton ) 
   : m_graviton(Graviton) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 void Sigma2gg2LEDgammagamma::initProc() {
 
   //+++ Init model parameters.
   if (m_graviton) {
     m_spin     = 2;
-    m_nGrav    = Settings::mode("ExtraDimensionsLED:n");
+    m_nGrav    = settingsPtr->mode("ExtraDimensionsLED:n");
     m_dU       = 2;
-    m_LambdaU  = Settings::parm("ExtraDimensionsLED:LambdaT");
+    m_LambdaU  = settingsPtr->parm("ExtraDimensionsLED:LambdaT");
     m_lambda   = 1;
-    m_cutoff   = Settings::mode("ExtraDimensionsLED:CutOffmode"); 
-    m_tff      = Settings::parm("ExtraDimensionsLED:t");
+    m_cutoff   = settingsPtr->mode("ExtraDimensionsLED:CutOffMode"); 
+    m_tff      = settingsPtr->parm("ExtraDimensionsLED:t");
   } else {
-    m_spin     = Settings::mode("ExtraDimensionsUnpart:spinU");
-    m_dU       = Settings::parm("ExtraDimensionsUnpart:dU");
-    m_LambdaU  = Settings::parm("ExtraDimensionsUnpart:LambdaU");
-    m_lambda   = Settings::parm("ExtraDimensionsUnpart:lambda");
+    m_spin     = settingsPtr->mode("ExtraDimensionsUnpart:spinU");
+    m_dU       = settingsPtr->parm("ExtraDimensionsUnpart:dU");
+    m_LambdaU  = settingsPtr->parm("ExtraDimensionsUnpart:LambdaU");
+    m_lambda   = settingsPtr->parm("ExtraDimensionsUnpart:lambda");
   }
 
   //+++ Model dependent constants.
@@ -1626,7 +1626,7 @@ void Sigma2gg2LEDgammagamma::initProc() {
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 void Sigma2gg2LEDgammagamma::sigmaKin() { 
   
@@ -1661,7 +1661,7 @@ void Sigma2gg2LEDgammagamma::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 double Sigma2gg2LEDgammagamma::sigmaHat() { 
 
@@ -1681,7 +1681,7 @@ double Sigma2gg2LEDgammagamma::sigmaHat() {
   return sigma;  
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 void Sigma2gg2LEDgammagamma::setIdColAcol() {
 
@@ -1693,45 +1693,45 @@ void Sigma2gg2LEDgammagamma::setIdColAcol() {
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma2ffbar2LEDllbar class.
 // Cross section for f fbar -> (LED G*/U*) -> l lbar
 // (virtual graviton/unparticle exchange).
 // Does not include t-channel contributions relevant for e^+e^- to e^+e^-
 
-//*********
+//--------------------------------------------------------------------------
 
 Sigma2ffbar2LEDllbar::Sigma2ffbar2LEDllbar( bool Graviton ) 
   : m_graviton(Graviton) {
   
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 void Sigma2ffbar2LEDllbar::initProc() {
   
   //+++ Init model parameters.
   if (m_graviton) {
     m_spin     = 2;
-    m_nGrav    = Settings::mode("ExtraDimensionsLED:n");
+    m_nGrav    = settingsPtr->mode("ExtraDimensionsLED:n");
     m_dU       = 2;
-    m_LambdaU  = Settings::parm("ExtraDimensionsLED:LambdaT");
+    m_LambdaU  = settingsPtr->parm("ExtraDimensionsLED:LambdaT");
     m_lambda   = 1;
-    m_cutoff   = Settings::mode("ExtraDimensionsLED:CutOffmode"); 
-    m_tff      = Settings::parm("ExtraDimensionsLED:t");
+    m_cutoff   = settingsPtr->mode("ExtraDimensionsLED:CutOffMode"); 
+    m_tff      = settingsPtr->parm("ExtraDimensionsLED:t");
   } else {
-    m_spin     = Settings::mode("ExtraDimensionsUnpart:spinU");
-    m_dU       = Settings::parm("ExtraDimensionsUnpart:dU");
-    m_LambdaU  = Settings::parm("ExtraDimensionsUnpart:LambdaU");
-    m_lambda   = Settings::parm("ExtraDimensionsUnpart:lambda");
-    m_nxx      = Settings::mode("ExtraDimensionsUnpart:gXX");
-    m_nxy      = Settings::mode("ExtraDimensionsUnpart:gXY");
+    m_spin     = settingsPtr->mode("ExtraDimensionsUnpart:spinU");
+    m_dU       = settingsPtr->parm("ExtraDimensionsUnpart:dU");
+    m_LambdaU  = settingsPtr->parm("ExtraDimensionsUnpart:LambdaU");
+    m_lambda   = settingsPtr->parm("ExtraDimensionsUnpart:lambda");
+    m_nxx      = settingsPtr->mode("ExtraDimensionsUnpart:gXX");
+    m_nxy      = settingsPtr->mode("ExtraDimensionsUnpart:gXY");
   }
 
-  m_mZ  = ParticleDataTable::m0(23);
+  m_mZ  = particleDataPtr->m0(23);
   m_mZS = m_mZ * m_mZ;
-  m_GZ  = ParticleDataTable::mWidth(23);
+  m_GZ  = particleDataPtr->mWidth(23);
   m_GZS = m_GZ * m_GZ;
 
   //+++ Model dependent constants.
@@ -1758,7 +1758,7 @@ void Sigma2ffbar2LEDllbar::initProc() {
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 void Sigma2ffbar2LEDllbar::sigmaKin() { 
 
@@ -1806,7 +1806,7 @@ void Sigma2ffbar2LEDllbar::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 double Sigma2ffbar2LEDllbar::sigmaHat() { 
 
@@ -1814,20 +1814,21 @@ double Sigma2ffbar2LEDllbar::sigmaHat() {
   int idAbs      = abs(id1);
 
   //+++ Couplings and constants.
-  //+++ Qq = CoupEW::ef(idAbs), quark, i.e. id > 0.
-  //+++ Ql = CoupEW::ef(11), electron.
-  //  double tmp_e2QfQl = 4 * M_PI * alpEM * abs(CoupEW::ef(idAbs)); // OLD WRONG
-  double tmp_e2QfQl = 4 * M_PI * alpEM * CoupEW::ef(idAbs) * CoupEW::ef(11);
-  double tmp_gvq = 0.25 * CoupEW::vf(idAbs);
-  double tmp_gaq = 0.25 * CoupEW::af(idAbs);
+  //+++ Qq = coupSMPtr->ef(idAbs), quark, i.e. id > 0.
+  //+++ Ql = coupSMPtr->ef(11), electron.
+  //  double tmp_e2QfQl = 4 * M_PI * alpEM * abs(coupSMPtr->ef(idAbs)); // OLD WRONG
+  double tmp_e2QfQl = 4 * M_PI * alpEM * coupSMPtr->ef(idAbs) 
+                      * coupSMPtr->ef(11);
+  double tmp_gvq = 0.25 * coupSMPtr->vf(idAbs);
+  double tmp_gaq = 0.25 * coupSMPtr->af(idAbs);
   double tmp_gLq = tmp_gvq  + tmp_gaq;
   double tmp_gRq = tmp_gvq  - tmp_gaq;
-  double tmp_gvl = 0.25 * CoupEW::vf(11);
-  double tmp_gal = 0.25 * CoupEW::af(11);
+  double tmp_gvl = 0.25 * coupSMPtr->vf(11);
+  double tmp_gal = 0.25 * coupSMPtr->af(11);
   double tmp_gLl = tmp_gvl  + tmp_gal;
   double tmp_gRl = tmp_gvl  - tmp_gal;
   double tmp_e2s2c2 = 4 * M_PI * alpEM 
-                    / (CoupEW::sin2thetaW() * CoupEW::cos2thetaW());
+                    / (coupSMPtr->sin2thetaW() * coupSMPtr->cos2thetaW());
      
   //+++ LL, RR, LR, RL  couplings.
   std::vector<double> tmp_coupZ; 
@@ -1908,11 +1909,11 @@ double Sigma2ffbar2LEDllbar::sigmaHat() {
   return sigma;  
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 void Sigma2ffbar2LEDllbar::setIdColAcol() {
 
-  double tmp_rand = Rndm::flat();
+  double tmp_rand = rndmPtr->flat();
   //+++ Flavours trivial.
   if (tmp_rand < 0.33333333) {      setId( id1, id2, 11, -11); } 
   else if (tmp_rand < 0.66666667) { setId( id1, id2, 13, -13); } 
@@ -1928,37 +1929,37 @@ void Sigma2ffbar2LEDllbar::setIdColAcol() {
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma2gg2LEDllbar class.
 // Cross section for g g -> (LED G*/U*) -> l lbar 
 // (virtual graviton/unparticle exchange).
 
-//*********
+//--------------------------------------------------------------------------
 
 Sigma2gg2LEDllbar::Sigma2gg2LEDllbar( bool Graviton ) 
   : m_graviton(Graviton) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 void Sigma2gg2LEDllbar::initProc() {
 
   //+++ Init model parameters.
   if (m_graviton) {
     m_spin     = 2;
-    m_nGrav    = Settings::mode("ExtraDimensionsLED:n");
+    m_nGrav    = settingsPtr->mode("ExtraDimensionsLED:n");
     m_dU       = 2;
-    m_LambdaU  = Settings::parm("ExtraDimensionsLED:LambdaT");
+    m_LambdaU  = settingsPtr->parm("ExtraDimensionsLED:LambdaT");
     m_lambda   = 1;
-    m_cutoff   = Settings::mode("ExtraDimensionsLED:CutOffmode"); 
-    m_tff      = Settings::parm("ExtraDimensionsLED:t");
+    m_cutoff   = settingsPtr->mode("ExtraDimensionsLED:CutOffMode"); 
+    m_tff      = settingsPtr->parm("ExtraDimensionsLED:t");
   } else {
-    m_spin     = Settings::mode("ExtraDimensionsUnpart:spinU");
-    m_dU       = Settings::parm("ExtraDimensionsUnpart:dU");
-    m_LambdaU  = Settings::parm("ExtraDimensionsUnpart:LambdaU");
-    m_lambda   = Settings::parm("ExtraDimensionsUnpart:lambda");
+    m_spin     = settingsPtr->mode("ExtraDimensionsUnpart:spinU");
+    m_dU       = settingsPtr->parm("ExtraDimensionsUnpart:dU");
+    m_LambdaU  = settingsPtr->parm("ExtraDimensionsUnpart:LambdaU");
+    m_lambda   = settingsPtr->parm("ExtraDimensionsUnpart:lambda");
   }
 
   //+++ Model dependent constants.
@@ -1985,7 +1986,7 @@ void Sigma2gg2LEDllbar::initProc() {
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 void Sigma2gg2LEDllbar::sigmaKin() { 
 
@@ -2013,11 +2014,11 @@ void Sigma2gg2LEDllbar::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 void Sigma2gg2LEDllbar::setIdColAcol() {
 
-  double tmp_rand = Rndm::flat();
+  double tmp_rand = rndmPtr->flat();
   //+++ Flavours trivial.
   if (tmp_rand < 0.33333333) {      setId( 21, 21, 11, -11); } 
   else if (tmp_rand < 0.66666667) { setId( 21, 21, 13, -13); } 
@@ -2029,6 +2030,6 @@ void Sigma2gg2LEDllbar::setIdColAcol() {
 }
 
 
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8

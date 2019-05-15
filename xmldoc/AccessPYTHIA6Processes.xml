@@ -34,7 +34,7 @@ Details on allowed arguments are given in the PYTHIA 6.4 manual.
 
 <p/>
 These methods can be used in context of the  
-<aloc href="LesHouchesAccord"><code>LHAupFortran</code></aloc> class. 
+<code><aloc href="LesHouchesAccord">LHAupFortran</aloc></code> class. 
 The existing code there takes care of converting <code>HEPRUP</code> 
 and <code>HEPEUP</code> commonblock information from Fortran to C++,
 and of making it available to the PYTHIA 8 methods. What needs to be 
@@ -107,4 +107,4 @@ input in <code>main52.cc</code> and a third with HepMC output in
 
 </chapter>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->

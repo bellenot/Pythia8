@@ -55,7 +55,8 @@ see below;
 as low-mass unresolved, which gives a simple low-<i>pT</i> string
 topology, or as high-mass resolved, for which the full machinery of 
 multiple interactions and parton showers are applied, making use of
-Pomeron PDFs, see below.
+<?php $filepath = $_GET["filepath"];
+echo "<a href='PDFSelection.php?filepath=".$filepath."' target='page'>";?>Pomeron PDFs</a>.
 <br/>The parameters related to multiple interactions, parton showers
 and hadronization are kept the same as for normal nondiffractive events,
 with only one exception. This may be questioned, especially for the 
@@ -314,4 +315,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->

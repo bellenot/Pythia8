@@ -21,7 +21,7 @@ commonblocks, or from PYTHIA 8 itself.
 You are free to write your own derived classes, using the rules and 
 methods to be described below. Normally, pointers to objects of such 
 derived classes should be handed in with the 
-<aloc href="ProgramFlow"><code>Pythia::init( LHAup*)</code></aloc> 
+<code><aloc href="ProgramFlow">Pythia::init( LHAup*)</aloc></code> 
 method. However, with the LHEF format a filename can replace the 
 pointer, see further below. 
 
@@ -92,7 +92,7 @@ is should be kept, based on a comparison with <code>xMax</code>.
 Accepted events therefore have unit weight.</argoption>
 <argoption value="-1"> as option 1, except that cross sections can now be
 negative and events after unweighting have weight +-1. You can use 
-<aloc href="EventInformation"><code>Info::weight()</code></aloc> 
+<code><aloc href="EventInformation">Info::weight()</aloc></code> 
 to find the weight of the current event. A correct event mixing requires 
 that a process that can take both signs should be split in two, one limited 
 to positive or zero and the other to negative or zero values, with 
@@ -250,7 +250,7 @@ for strategies +-3 and +-4. The method should return false if it fails
 to set the info, i.e. normally that the supply of events in a file is 
 exhausted. If so, no event is generated, and <code>Pythia::next()</code> 
 returns false. You can then interrogate 
-<aloc href="EventInformation"><code>Info::atEndOfFile()</code></aloc> 
+<code><aloc href="EventInformation">Info::atEndOfFile()</aloc></code> 
 to confirm that indeed the failure is caused in this method, and decide 
 to break out of the event generation loop.
 
@@ -407,7 +407,7 @@ The LHEF standard <ref>Alw06</ref> specifies a format where a single file
 packs initialization and event information. This has become the most 
 frequently used procedure to process external parton-level events in 
 Pythia. Therefore a special 
-<aloc href="ProgramFlow"><code>Pythia::init(fileName)</code></aloc>
+<code><aloc href="ProgramFlow">Pythia::init(fileName)</aloc></code>
 initialization option exists, where the LHEF name is provided as input. 
 Internally this name is then used to create an instance of the derived 
 class <code>LHAupLHEF</code>, which can do the job of reading an LHEF.
@@ -501,26 +501,13 @@ convenient in the early days of PYTHIA 8 evolution, when this program
 did not yet contain hard-process generation, and the LHEF standard 
 did not yet exist. Nowadays it is more of a bother, since a full
 cross-platform support leads to many possible combinations. Therefore
-it has been removed in the current version. Nevertheless, should you
-wish to use it, the relevant pieces could be picked up from 8.125
-and reinserted into a later version. These pieces are:
-<ul>
-<li>The <code>include/Pythia6Interface.h</code> file, which provides the
-interfaces to the PYTHIA 6.4 methods you will need to generate
-hard processes.</li>
-<li>The <code>htmldoc/AccessPYTHIA6Processes.html</code> file, 
-which describes the facility.</li>  
-<li>In the <code>examples</code> subdirectory the files 
-<code>main51.cc</code>, <code>main52.cc</code>,
-<code>main52.ccmnd</code>, <code>main52.fcmnd</code>,
-<code>main53.f</code> (!), <code>main54.cc</code> and
-<code>main54.cmnd</code> may serve as useful templates.</li>
-<li>To run them, you need to use the <code>examples/configure</code> 
-and <code>examples/Makefile</code> files, either to replace the current
-one, or to borrow the relevant pieces from (i.e. those pertaining
-to PYTHIA6 variables in <code>configure</code> and to the 
-<code>main51 - main54</code> programs in <code>Makefile</code>).</li>
-</ul>
+the support has been reduced in the current version. Only the 
+<code>main51.cc</code> example remains as an illustration, where the
+previously separate interface code 
+(<code>include/Pythia6Interface.h</code>) has been inserted in the 
+beginning. You also need to modify the <code>examples/Makefile</code> 
+to link <code>main51.cc</code> properly also to a PYTHIA 6.4 library
+version, see commented-out section for ideas how to to this.
 
 <h3>Methods for LHEF output</h3>
 
@@ -603,4 +590,4 @@ for the case that <code>Pythia::process</code> is not in this frame.
  
 </chapter>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->

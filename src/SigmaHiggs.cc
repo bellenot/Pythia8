@@ -1,5 +1,5 @@
 // SigmaHiggs.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // Part of code written by Marc Montull, CERN summer student 2007.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
@@ -10,13 +10,13 @@
 
 namespace Pythia8 {
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma1ffbar2H class.
 // Cross section for f fbar -> H0 , H1, H2 or A3.
 // (f is quark or lepton, H0 SM Higgs and H1, H2, A3 BSM Higgses ). 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
@@ -45,7 +45,7 @@ void Sigma1ffbar2H::initProc() {
   }
 
   // Find pointer to H0, H1, H2 or A3 depending on the value of idRes.
-  HResPtr = ParticleDataTable::particleDataPtr(idRes);
+  HResPtr = particleDataPtr->particleDataEntryPtr(idRes);
   
   // Store H0, H1, H2 or A3 mass and width for propagator. 
   mRes     = HResPtr->m0();
@@ -56,7 +56,7 @@ void Sigma1ffbar2H::initProc() {
 } 
 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate d(sigmaHat)/d(tHat), part independent of incoming flavour. 
 
@@ -71,7 +71,7 @@ void Sigma1ffbar2H::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), including incoming flavour dependence. 
 
@@ -87,7 +87,7 @@ double Sigma1ffbar2H::sigmaHat() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -103,7 +103,7 @@ void Sigma1ffbar2H::setIdColAcol() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate weight for decay angles.
 
@@ -126,12 +126,12 @@ double Sigma1ffbar2H::weightDecay( Event& process, int iResBeg,
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma1gg2H class.
 // Cross section for g g -> H0, H1, H2 or A3 (H0 SM Higgs, H1, H2, A3 BSM). 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
@@ -160,7 +160,7 @@ void Sigma1gg2H::initProc() {
   }
 
   // Find pointer to H0, H1, H2 or A3 depending on idRes.
-  HResPtr = ParticleDataTable::particleDataPtr(idRes);
+  HResPtr = particleDataPtr->particleDataEntryPtr(idRes);
 
   // Store H0, H1, H2 or A3 mass and width for propagator. 
   mRes     = HResPtr->m0();
@@ -170,7 +170,7 @@ void Sigma1gg2H::initProc() {
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), part independent of incoming flavour. 
 
@@ -191,7 +191,7 @@ void Sigma1gg2H::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -205,7 +205,7 @@ void Sigma1gg2H::setIdColAcol() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate weight for decay angles.
 
@@ -228,13 +228,13 @@ double Sigma1gg2H::weightDecay( Event& process, int iResBeg,
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma1gmgm2H class.
 // Cross section for gamma gamma -> H0, H1, H2 or H3.
 // (H0 SM Higgs, H1, H2 and A3 BSM Higgses).
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
@@ -263,7 +263,7 @@ void Sigma1gmgm2H::initProc() {
   }
 
   // Find pointer to H0, H1, H2 or A3.
-  HResPtr = ParticleDataTable::particleDataPtr(idRes);
+  HResPtr = particleDataPtr->particleDataEntryPtr(idRes);
 
   // Store H0, H1, H2 or A3 mass and width for propagator. 
   mRes     = HResPtr->m0();
@@ -273,7 +273,7 @@ void Sigma1gmgm2H::initProc() {
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), part independent of incoming flavour. 
 
@@ -294,7 +294,7 @@ void Sigma1gmgm2H::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -308,7 +308,7 @@ void Sigma1gmgm2H::setIdColAcol() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate weight for decay angles.
 
@@ -331,13 +331,13 @@ double Sigma1gmgm2H::weightDecay( Event& process, int iResBeg,
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma2ffbar2HZ class.
 // Cross section for f fbar -> H0 Z0, H1 Z0, H2 Z0 or A3 Z0.
 // (H0 SM Higgs, H1, H2 and A3 BSM Higgses). 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
@@ -354,34 +354,35 @@ void Sigma2ffbar2HZ::initProc() {
     nameSave = "f fbar -> h0(H1) Z0";
     codeSave = 1004;
     idRes    = 25;
-    coup2Z   = Settings::parm("HiggsH1:coup2Z");
+    coup2Z   = settingsPtr->parm("HiggsH1:coup2Z");
   }
   else if (higgsType == 2) {
     nameSave = "f fbar -> H0(H2) Z0";
     codeSave = 1024;
     idRes    = 35;
-    coup2Z   = Settings::parm("HiggsH2:coup2Z");
+    coup2Z   = settingsPtr->parm("HiggsH2:coup2Z");
   }
   else if (higgsType == 3) {
     nameSave = "f fbar -> A0(A3) ZO";
     codeSave = 1044;
     idRes    = 36;
-    coup2Z   = Settings::parm("HiggsA3:coup2Z");
+    coup2Z   = settingsPtr->parm("HiggsA3:coup2Z");
   }
 
   // Store Z0 mass and width for propagator. Common coupling factor.
-  mZ           = ParticleDataTable::m0(23);
-  widZ         = ParticleDataTable::mWidth(23);
+  mZ           = particleDataPtr->m0(23);
+  widZ         = particleDataPtr->mWidth(23);
   mZS          = mZ*mZ;
   mwZS         = pow2(mZ * widZ);
-  thetaWRat    = 1. / (16. * CoupEW::sin2thetaW() * CoupEW::cos2thetaW());  
+  thetaWRat    = 1. / (16. * coupSMPtr->sin2thetaW() 
+                 * coupSMPtr->cos2thetaW());  
 
   // Secondary open width fraction.
-  openFracPair = ParticleDataTable::resOpenFrac(idRes, 23);
+  openFracPair = particleDataPtr->resOpenFrac(idRes, 23);
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate d(sigmaHat)/d(tHat), part independent of incoming flavour. 
 
@@ -393,7 +394,7 @@ void Sigma2ffbar2HZ::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate d(sigmaHat)/d(tHat), including incoming flavour dependence. 
 
@@ -401,7 +402,7 @@ double Sigma2ffbar2HZ::sigmaHat() {
 
   // Coupling a_f^2 + v_f^2 to s-channel Z0 and colour factor.
   int idAbs    = abs(id1);
-  double sigma = sigma0 * CoupEW::vf2af2(idAbs);
+  double sigma = sigma0 * coupSMPtr->vf2af2(idAbs);
   if (idAbs < 9) sigma /= 3.;
 
   // Secondary width for H0 and Z0 or H1 and Z0 or H2 and Z0 or A3 and Z0.
@@ -412,7 +413,7 @@ double Sigma2ffbar2HZ::sigmaHat() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -428,7 +429,7 @@ void Sigma2ffbar2HZ::setIdColAcol() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate weight for decay angles.
 
@@ -458,11 +459,11 @@ double Sigma2ffbar2HZ::weightDecay( Event& process, int iResBeg,
 
   // Find left- and righthanded couplings of fermion pairs.
   int    idAbs = process[i1].idAbs(); 
-  double liS   = pow2( CoupEW::lf(idAbs) );
-  double riS   = pow2( CoupEW::rf(idAbs) );
+  double liS   = pow2( coupSMPtr->lf(idAbs) );
+  double riS   = pow2( coupSMPtr->rf(idAbs) );
   idAbs        = process[i3].idAbs(); 
-  double lfS   = pow2( CoupEW::lf(idAbs) );
-  double rfS   = pow2( CoupEW::rf(idAbs) );
+  double lfS   = pow2( coupSMPtr->lf(idAbs) );
+  double rfS   = pow2( coupSMPtr->rf(idAbs) );
 
   // Evaluate relevant four-products.
   double pp13  = process[i1].p() * process[i3].p();
@@ -480,13 +481,13 @@ double Sigma2ffbar2HZ::weightDecay( Event& process, int iResBeg,
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma2ffbar2HW class.
 // Cross section for f fbar -> H0 W+-, H1 W+-, H2 W+- or A3 W+-.
 // (H0 SM Higgs, H1, H2 and A3 BSM Higgses).  
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
@@ -503,35 +504,35 @@ void Sigma2ffbar2HW::initProc() {
     nameSave = "f fbar -> h0(H1) W+-";
     codeSave = 1005;
     idRes    = 25;
-    coup2W   = Settings::parm("HiggsH1:coup2W");
+    coup2W   = settingsPtr->parm("HiggsH1:coup2W");
   }
   else if (higgsType == 2) {
     nameSave = "f fbar -> H0(H2) W+-";
     codeSave = 1025;
     idRes    = 35;
-    coup2W   = Settings::parm("HiggsH2:coup2W");
+    coup2W   = settingsPtr->parm("HiggsH2:coup2W");
   }
   else if (higgsType == 3) {
     nameSave = "f fbar -> A0(A3) W+-";
     codeSave = 1045;
     idRes    = 36;
-    coup2W   = Settings::parm("HiggsA3:coup2W");
+    coup2W   = settingsPtr->parm("HiggsA3:coup2W");
   }
 
   // Store W+- mass and width for propagator. Common coupling factor.
-  mW              = ParticleDataTable::m0(24);
-  widW            = ParticleDataTable::mWidth(24);
+  mW              = particleDataPtr->m0(24);
+  widW            = particleDataPtr->mWidth(24);
   mWS             = mW*mW;
   mwWS            = pow2(mW * widW);
-  thetaWRat       = 1. / (4. * CoupEW::sin2thetaW());  
+  thetaWRat       = 1. / (4. * coupSMPtr->sin2thetaW());  
 
   // Secondary open width fractions.
-  openFracPairPos = ParticleDataTable::resOpenFrac(idRes,  24);
-  openFracPairNeg = ParticleDataTable::resOpenFrac(idRes, -24);
+  openFracPairPos = particleDataPtr->resOpenFrac(idRes,  24);
+  openFracPairNeg = particleDataPtr->resOpenFrac(idRes, -24);
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate d(sigmaHat)/d(tHat), part independent of incoming flavour. 
 
@@ -543,7 +544,7 @@ void Sigma2ffbar2HW::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate d(sigmaHat)/d(tHat), including incoming flavour dependence. 
 
@@ -551,7 +552,7 @@ double Sigma2ffbar2HW::sigmaHat() {
 
   // CKM and colour factors.
   double sigma = sigma0;
-  if (abs(id1) < 9) sigma *= VCKM::V2id(abs(id1), abs(id2)) / 3.;
+  if (abs(id1) < 9) sigma *= coupSMPtr->V2CKMid(abs(id1), abs(id2)) / 3.;
 
   // Secondary width for H0 and W+-.
   int idUp     = (abs(id1)%2 == 0) ? id1 : id2;
@@ -562,7 +563,7 @@ double Sigma2ffbar2HW::sigmaHat() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -580,7 +581,7 @@ void Sigma2ffbar2HW::setIdColAcol() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate weight for decay angles.
 
@@ -623,13 +624,13 @@ double Sigma2ffbar2HW::weightDecay( Event& process, int iResBeg,
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma3ff2HfftZZ class.
 // Cross section for f f' -> H f f' (Z0 Z0 fusion of SM or BSM Higgs).
 // (H can be H0 SM or H1, H2, A3 from BSM).
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
@@ -646,32 +647,32 @@ void Sigma3ff2HfftZZ::initProc() {
     nameSave = "f f' -> h0(H1) f f' (Z0 Z0 fusion)";
     codeSave = 1006;
     idRes    = 25;
-    coup2Z  = Settings::parm("HiggsH1:coup2Z");
+    coup2Z  = settingsPtr->parm("HiggsH1:coup2Z");
   }
   else if (higgsType == 2) {
     nameSave = "f f' -> H0(H2) f f' (Z0 Z0 fusion)";
     codeSave = 1026;
     idRes    = 35;
-    coup2Z  = Settings::parm("HiggsH2:coup2Z");
+    coup2Z  = settingsPtr->parm("HiggsH2:coup2Z");
   }
   else if (higgsType == 3) {
     nameSave = "f f' -> A0(A3) f f' (Z0 Z0 fusion)";
     codeSave = 1046;
     idRes    = 36;
-    coup2Z  = Settings::parm("HiggsA3:coup2Z");
+    coup2Z  = settingsPtr->parm("HiggsA3:coup2Z");
   }
 
   // Common fixed mass and coupling factor.
-  mZS = pow2( ParticleDataTable::m0(23) );
-  prefac = 0.25 * mZS
-    * pow3( 4. * M_PI / (CoupEW::sin2thetaW() * CoupEW::cos2thetaW()) );  
+  mZS = pow2( particleDataPtr->m0(23) );
+  prefac = 0.25 * mZS * pow3( 4. * M_PI / (coupSMPtr->sin2thetaW() 
+           * coupSMPtr->cos2thetaW()) );  
 
   // Secondary open width fraction.
-  openFrac = ParticleDataTable::resOpenFrac(idRes);
+  openFrac = particleDataPtr->resOpenFrac(idRes);
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), part independent of incoming flavour. 
 
@@ -692,7 +693,7 @@ void Sigma3ff2HfftZZ::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), including incoming flavour dependence. 
 
@@ -701,10 +702,10 @@ double Sigma3ff2HfftZZ::sigmaHat() {
   // Flavour-dependent coupling factors for two incoming flavours.
   int id1Abs = abs(id1);
   int id2Abs = abs(id2);
-  double lf1S  = pow2( CoupEW::lf(id1Abs) );    
-  double rf1S  = pow2( CoupEW::rf(id1Abs) );    
-  double lf2S  = pow2( CoupEW::lf(id2Abs) );    
-  double rf2S  = pow2( CoupEW::rf(id2Abs) );    
+  double lf1S  = pow2( coupSMPtr->lf(id1Abs) );    
+  double rf1S  = pow2( coupSMPtr->rf(id1Abs) );    
+  double lf2S  = pow2( coupSMPtr->lf(id2Abs) );    
+  double rf2S  = pow2( coupSMPtr->rf(id2Abs) );    
   double c1    = lf1S * lf2S + rf1S * rf2S;
   double c2    = lf1S * rf2S + rf1S * lf2S;
 
@@ -719,7 +720,7 @@ double Sigma3ff2HfftZZ::sigmaHat() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -741,7 +742,7 @@ void Sigma3ff2HfftZZ::setIdColAcol() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate weight for decay angles.
 
@@ -764,12 +765,12 @@ double Sigma3ff2HfftZZ::weightDecay( Event& process, int iResBeg,
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma3ff2HfftWW class.
 // Cross section for f_1 f_2 -> H0 f_3 f_4 (W+ W- fusion of SM or BSM Higgs).
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
@@ -786,31 +787,31 @@ void Sigma3ff2HfftWW::initProc() {
     nameSave = "f_1 f_2 -> h0(H1) f_3 f_4 (W+ W- fusion)";
     codeSave = 1007;
     idRes    = 25;
-    coup2W   = Settings::parm("HiggsH1:coup2W");
+    coup2W   = settingsPtr->parm("HiggsH1:coup2W");
   }
   else if (higgsType == 2) {
     nameSave = "f_1 f_2 -> H0(H2) f_3 f_4 (W+ W- fusion)";
     codeSave = 1027;
     idRes    = 35;
-    coup2W   = Settings::parm("HiggsH2:coup2W");
+    coup2W   = settingsPtr->parm("HiggsH2:coup2W");
   }
   else if (higgsType == 3) {
     nameSave = "f_1 f_2 -> A0(A3) f_3 f_4 (W+ W- fusion)";
     codeSave = 1047;
     idRes    = 36;
-    coup2W   = Settings::parm("HiggsA3:coup2W");
+    coup2W   = settingsPtr->parm("HiggsA3:coup2W");
   }
 
   // Common fixed mass and coupling factor.
-  mWS = pow2( ParticleDataTable::m0(24) );
-  prefac = mWS * pow3( 4. * M_PI / CoupEW::sin2thetaW() );  
+  mWS = pow2( particleDataPtr->m0(24) );
+  prefac = mWS * pow3( 4. * M_PI / coupSMPtr->sin2thetaW() );  
 
   // Secondary open width fraction.
-  openFrac = ParticleDataTable::resOpenFrac(idRes);
+  openFrac = particleDataPtr->resOpenFrac(idRes);
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), part independent of incoming flavour. 
 
@@ -828,7 +829,7 @@ void Sigma3ff2HfftWW::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), including incoming flavour dependence. 
 
@@ -841,8 +842,8 @@ double Sigma3ff2HfftWW::sigmaHat() {
     || (id1Abs%2 != id2Abs%2 && id1 * id2 < 0) ) return 0.;
 
   // Basic cross section. CKM factors for final states.
-  double sigma = sigma0 * pow3(alpEM) * VCKM::V2sum(id1Abs) 
-    * VCKM::V2sum(id2Abs);
+  double sigma = sigma0 * pow3(alpEM) * coupSMPtr->V2CKMsum(id1Abs) 
+    * coupSMPtr->V2CKMsum(id2Abs);
 
   // Secondary width for H0, H1, H2 or A3.
   sigma       *= openFrac;
@@ -856,15 +857,15 @@ double Sigma3ff2HfftWW::sigmaHat() {
  
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
 void Sigma3ff2HfftWW::setIdColAcol() {
 
   // Pick out-flavours by relative CKM weights.
-  id4 = VCKM::V2pick(id1);
-  id5 = VCKM::V2pick(id2);
+  id4 = coupSMPtr->V2CKMpick(id1);
+  id5 = coupSMPtr->V2CKMpick(id2);
   setId( id1, id2, idRes, id4, id5);
 
   // Colour flow topologies. Swap when antiquarks.
@@ -880,7 +881,7 @@ void Sigma3ff2HfftWW::setIdColAcol() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate weight for decay angles.
 
@@ -903,12 +904,12 @@ double Sigma3ff2HfftWW::weightDecay( Event& process, int iResBeg,
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma3gg2HQQbar class.
 // Cross section for g g -> H0 Q Qbar (Q Qbar fusion of SM or BSM Higgs).
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
@@ -926,19 +927,19 @@ void Sigma3gg2HQQbar::initProc() {
     nameSave = "g g -> h0(H1) t tbar";
     codeSave = 1008;
     idRes    = 25;
-    coup2Q   = Settings::parm("HiggsH1:coup2u");
+    coup2Q   = settingsPtr->parm("HiggsH1:coup2u");
   }
   else if (higgsType == 2 && idNew == 6) {
     nameSave = "g g -> H0(H2) t tbar";
     codeSave = 1028;
     idRes    = 35;
-    coup2Q   = Settings::parm("HiggsH2:coup2u");
+    coup2Q   = settingsPtr->parm("HiggsH2:coup2u");
   }
   else if (higgsType == 3 && idNew == 6) {
     nameSave = "g g -> A0(A3) t tbar";
     codeSave = 1048;
     idRes    = 36;
-    coup2Q   = Settings::parm("HiggsA3:coup2u");
+    coup2Q   = settingsPtr->parm("HiggsA3:coup2u");
   }
 
   // Properties specific to Higgs state for the "g g -> H b bbar" process.
@@ -953,39 +954,39 @@ void Sigma3gg2HQQbar::initProc() {
     nameSave = "g g -> h0(H1) b bbar";
     codeSave = 1012;
     idRes    = 25;
-    coup2Q   = Settings::parm("HiggsH1:coup2d");
+    coup2Q   = settingsPtr->parm("HiggsH1:coup2d");
   }
   else if (higgsType == 2 && idNew == 5) {
     nameSave = "g g -> H0(H2) b bbar";
     codeSave = 1032;
     idRes    = 35;
-    coup2Q   = Settings::parm("HiggsH2:coup2d");
+    coup2Q   = settingsPtr->parm("HiggsH2:coup2d");
   }
   else if (higgsType == 3 && idNew == 5) {
     nameSave = "g g -> A0(A3) b bbar";
     codeSave = 1052;
     idRes    = 36;
-    coup2Q   = Settings::parm("HiggsA3:coup2d");
+    coup2Q   = settingsPtr->parm("HiggsA3:coup2d");
   }
 
   // Common mass and coupling factors.
-  double mWS      = pow2(ParticleDataTable::m0(24));
-  prefac          = (4. * M_PI / CoupEW::sin2thetaW()) * pow2(4. * M_PI) 
+  double mWS      = pow2(particleDataPtr->m0(24));
+  prefac          = (4. * M_PI / coupSMPtr->sin2thetaW()) * pow2(4. * M_PI) 
                   * 0.25 / mWS;
 
   // Secondary open width fraction.
-  openFracTriplet = ParticleDataTable::resOpenFrac(idRes, idNew, -idNew);
+  openFracTriplet = particleDataPtr->resOpenFrac(idRes, idNew, -idNew);
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), part independent of incoming flavour. 
 
 void Sigma3gg2HQQbar::sigmaKin() { 
 
   // Running mass of heavy quark.
-  double mQ2run = pow2( ParticleDataTable::mRun(idNew, mH) ); 
+  double mQ2run = pow2( particleDataPtr->mRun(idNew, mH) ); 
 
   // Linear combination of p_Q and p_Qbar to ensure common mass.
   double mQ2  = m4 * m5;
@@ -1334,7 +1335,7 @@ void Sigma3gg2HQQbar::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -1344,12 +1345,12 @@ void Sigma3gg2HQQbar::setIdColAcol() {
   setId( id1, id2, idRes, idNew, -idNew);
 
   // Colour flow topologies.
-  if (Rndm::flat() < 0.5) setColAcol( 1, 2, 2, 3, 0, 0, 1, 0, 0, 3);  
+  if (rndmPtr->flat() < 0.5) setColAcol( 1, 2, 2, 3, 0, 0, 1, 0, 0, 3);  
   else                    setColAcol( 1, 2, 3, 1, 0, 0, 3, 0, 0, 2);  
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate weight for decay angles.
 
@@ -1372,14 +1373,14 @@ double Sigma3gg2HQQbar::weightDecay( Event& process, int iResBeg,
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma3qqbar2HQQbar class.
 // Cross section for q qbar -> H0 Q Qbar (Q Qbar fusion of SM Higgs).
 // REDUCE output and part of the rest courtesy Z. Kunszt,
 // see Z. Kunszt, Nucl. Phys. B247 (1984) 339.
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
@@ -1398,19 +1399,19 @@ void Sigma3qqbar2HQQbar::initProc() {
     nameSave = "q qbar -> h0(H1) t tbar";
     codeSave = 1009;
     idRes    = 25;
-    coup2Q   = Settings::parm("HiggsH1:coup2u");
+    coup2Q   = settingsPtr->parm("HiggsH1:coup2u");
   }
   else if (higgsType == 2 && idNew == 6) {
     nameSave = "q qbar -> H0(H2) t tbar";
     codeSave = 1029;
     idRes    = 35;
-    coup2Q   = Settings::parm("HiggsH2:coup2u");
+    coup2Q   = settingsPtr->parm("HiggsH2:coup2u");
   }
   else if (higgsType == 3 && idNew == 6) {
     nameSave = "q qbar -> A0(A3) t tbar";
     codeSave = 1049;
     idRes    = 36;
-    coup2Q   = Settings::parm("HiggsA3:coup2u");
+    coup2Q   = settingsPtr->parm("HiggsA3:coup2u");
   }
 
  // Properties specific to Higgs state for the "q qbar -> H b bbar" process.
@@ -1425,39 +1426,39 @@ void Sigma3qqbar2HQQbar::initProc() {
     nameSave = "q qbar -> h0(H1) b bbar";
     codeSave = 1013;
     idRes    = 25;
-    coup2Q   = Settings::parm("HiggsH1:coup2d");
+    coup2Q   = settingsPtr->parm("HiggsH1:coup2d");
   }
   else if (higgsType == 2 && idNew == 5) {
     nameSave = "q qbar -> H0(H2) b bbar";
     codeSave = 1033;
     idRes    = 35;
-    coup2Q   = Settings::parm("HiggsH2:coup2d");
+    coup2Q   = settingsPtr->parm("HiggsH2:coup2d");
   }
   else if (higgsType == 3 && idNew == 5) {
     nameSave = "q qbar -> A0(A3) b bbar";
     codeSave = 1053;
     idRes    = 36;
-    coup2Q   = Settings::parm("HiggsA3:coup2d");
+    coup2Q   = settingsPtr->parm("HiggsA3:coup2d");
   }
 
   // Common mass and coupling factors.
-  double mWS      = pow2(ParticleDataTable::m0(24));
-  prefac          = (4. * M_PI / CoupEW::sin2thetaW()) * pow2(4. * M_PI) 
+  double mWS      = pow2(particleDataPtr->m0(24));
+  prefac          = (4. * M_PI / coupSMPtr->sin2thetaW()) * pow2(4. * M_PI) 
                   * 0.25 / mWS;
 
   // Secondary open width fraction.
-  openFracTriplet = ParticleDataTable::resOpenFrac(idRes, idNew, -idNew);
+  openFracTriplet = particleDataPtr->resOpenFrac(idRes, idNew, -idNew);
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigma(sHat), part independent of incoming flavour. 
 
 void Sigma3qqbar2HQQbar::sigmaKin() { 
 
   // Running mass of heavy quark.
-  double mQ2run = pow2( ParticleDataTable::mRun(idNew, mH) );  
+  double mQ2run = pow2( particleDataPtr->mRun(idNew, mH) );  
 
   // Linear combination of p_Q and p_Qbar to ensure common mass.
   double mQ2  = m4 * m5;
@@ -1526,7 +1527,7 @@ void Sigma3qqbar2HQQbar::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -1541,7 +1542,7 @@ void Sigma3qqbar2HQQbar::setIdColAcol() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate weight for decay angles.
 
@@ -1564,13 +1565,13 @@ double Sigma3qqbar2HQQbar::weightDecay( Event& process, int iResBeg,
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma2qg2Hq class.
 // Cross section for q g -> H q. 
 // (H can be H0 SM or H1, H2, A3 from BSM).
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
@@ -1623,23 +1624,23 @@ void Sigma2qg2Hq::initProc() {
   }
 
   // Standard parameters.
-  m2W       = pow2( ParticleDataTable::m0(24) );
-  thetaWRat = 1. / (24. * CoupEW::sin2thetaW()); 
+  m2W       = pow2( particleDataPtr->m0(24) );
+  thetaWRat = 1. / (24. * coupSMPtr->sin2thetaW()); 
  
   // Secondary open width fraction.
-  openFrac = ParticleDataTable::resOpenFrac(idRes);
+  openFrac = particleDataPtr->resOpenFrac(idRes);
 
   
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), part independent of incoming flavour. 
 
 void Sigma2qg2Hq::sigmaKin() { 
 
   // Running mass provides coupling.
-  double m2Run = pow2( ParticleDataTable::mRun(idNew, mH) );
+  double m2Run = pow2( particleDataPtr->mRun(idNew, mH) );
 
   // Cross section, including couplings and kinematics.
   sigma = (M_PI / sH2) * alpS * alpEM * thetaWRat * (m2Run/m2W)
@@ -1652,7 +1653,7 @@ void Sigma2qg2Hq::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), including incoming flavour dependence. 
 
@@ -1667,7 +1668,7 @@ double Sigma2qg2Hq::sigmaHat() {
 }
 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -1687,7 +1688,7 @@ void Sigma2qg2Hq::setIdColAcol() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate weight for decay angles.
 
@@ -1710,13 +1711,13 @@ double Sigma2qg2Hq::weightDecay( Event& process, int iResBeg,
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma2gg2Hglt class.
 // Cross section for g g -> H g (H SM Higgs or BSM Higgs) via top loop. 
 // (H can be H0 SM or H1, H2, A3 from BSM).
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
@@ -1746,15 +1747,15 @@ void Sigma2gg2Hglt::initProc() {
   
   // Normalization factor by g g -> H partial width.
   // (H can be H0 SM or H1, H2, A3 from BSM).
-  double mHiggs = ParticleDataTable::m0(idRes);
-  widHgg = ParticleDataTable::resWidthChan(idRes, mHiggs, 21, 21);
+  double mHiggs = particleDataPtr->m0(idRes);
+  widHgg = particleDataPtr->resWidthChan(idRes, mHiggs, 21, 21);
 
    // Secondary open width fraction.
-  openFrac = ParticleDataTable::resOpenFrac(idRes);
+  openFrac = particleDataPtr->resOpenFrac(idRes);
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), part independent of incoming flavour. 
 
@@ -1768,7 +1769,7 @@ void Sigma2gg2Hglt::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -1779,12 +1780,12 @@ void Sigma2gg2Hglt::setIdColAcol() {
   setId( 21, 21, idRes, 21);
 
   // Colour flow topologies: random choice between two mirrors.
-  if (Rndm::flat() < 0.5) setColAcol( 1, 2, 2, 3, 0, 0, 1, 3);
+  if (rndmPtr->flat() < 0.5) setColAcol( 1, 2, 2, 3, 0, 0, 1, 3);
   else                    setColAcol( 1, 2, 3, 1, 0, 0, 3, 2);
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate weight for decay angles.
 
@@ -1807,13 +1808,13 @@ double Sigma2gg2Hglt::weightDecay( Event& process, int iResBeg,
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma2qg2Hqlt class.
 // Cross section for q g -> H q (H SM or BSM Higgs) via top loop. 
 // (H can be H0 SM or H1, H2, A3 from BSM).
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
@@ -1843,15 +1844,15 @@ void Sigma2qg2Hqlt::initProc() {
 
   // Normalization factor by g g -> H partial width.
   // (H can be H0 SM or H1, H2, A3 from BSM).
-  double mHiggs = ParticleDataTable::m0(idRes);
-  widHgg = ParticleDataTable::resWidthChan(idRes, mHiggs, 21, 21);
+  double mHiggs = particleDataPtr->m0(idRes);
+  widHgg = particleDataPtr->resWidthChan(idRes, mHiggs, 21, 21);
 
   // Secondary open width fraction.
-  openFrac = ParticleDataTable::resOpenFrac(idRes);
+  openFrac = particleDataPtr->resOpenFrac(idRes);
   
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat, part independent of incoming flavour). 
 
@@ -1864,7 +1865,7 @@ void Sigma2qg2Hqlt::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -1885,7 +1886,7 @@ void Sigma2qg2Hqlt::setIdColAcol() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate weight for decay angles.
 
@@ -1908,13 +1909,13 @@ double Sigma2qg2Hqlt::weightDecay( Event& process, int iResBeg,
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma2qqbar2Hglt class.
 // Cross section for q qbar -> H g (H SM or BSM Higgs) via top loop. 
 // (H can be H0 SM or H1, H2, A3 from BSM).
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
@@ -1944,16 +1945,16 @@ void Sigma2qqbar2Hglt::initProc() {
 
   // Normalization factor by g g -> H partial width.
   // (H can be H0 SM or H1, H2, A3 from BSM). 
-  double mHiggs = ParticleDataTable::m0(idRes);
-  widHgg = ParticleDataTable::resWidthChan(idRes, mHiggs, 21, 21);
+  double mHiggs = particleDataPtr->m0(idRes);
+  widHgg = particleDataPtr->resWidthChan(idRes, mHiggs, 21, 21);
 
   // Secondary open width fraction.
-  openFrac = ParticleDataTable::resOpenFrac(idRes);
+  openFrac = particleDataPtr->resOpenFrac(idRes);
 
   
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), part independent of incoming flavour. 
 
@@ -1966,7 +1967,7 @@ void Sigma2qqbar2Hglt::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -1981,7 +1982,7 @@ void Sigma2qqbar2Hglt::setIdColAcol() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate weight for decay angles.
 
@@ -2005,19 +2006,19 @@ double Sigma2qqbar2Hglt::weightDecay( Event& process, int iResBeg,
 }
 
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma1ffbar2Hchg class.
 // Cross section for f fbar -> H+- (f is quark or lepton). 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
 void Sigma1ffbar2Hchg::initProc() {
 
   // Find pointer to H+-.
-  HResPtr = ParticleDataTable::particleDataPtr(37);
+  HResPtr = particleDataPtr->particleDataEntryPtr(37);
 
   // Store H+- mass and width for propagator. 
   mRes      = HResPtr->m0();
@@ -2026,13 +2027,13 @@ void Sigma1ffbar2Hchg::initProc() {
   GamMRat   = GammaRes / mRes;
 
   // Couplings.
-  m2W       = pow2(ParticleDataTable::m0(24));
-  thetaWRat = 1. / (8. * CoupEW::sin2thetaW());
-  tan2Beta  = pow2(Settings::parm("HiggsHchg:tanBeta"));
+  m2W       = pow2(particleDataPtr->m0(24));
+  thetaWRat = 1. / (8. * coupSMPtr->sin2thetaW());
+  tan2Beta  = pow2(settingsPtr->parm("HiggsHchg:tanBeta"));
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate d(sigmaHat)/d(tHat), part independent of incoming flavour. 
 
@@ -2045,7 +2046,7 @@ void Sigma1ffbar2Hchg::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), including incoming flavour dependence. 
 
@@ -2059,8 +2060,8 @@ double Sigma1ffbar2Hchg::sigmaHat() {
   if (idUp%2 != 0 || idUp - idDn != 1) return 0.;
 
   // Calculate mass-dependent incoming width. Total cross section.
-  double m2RunUp = pow2(ParticleDataTable::mRun(idUp, mH));
-  double m2RunDn = pow2(ParticleDataTable::mRun(idDn, mH));
+  double m2RunUp = pow2(particleDataPtr->mRun(idUp, mH));
+  double m2RunDn = pow2(particleDataPtr->mRun(idDn, mH));
   double widthIn = alpEM * thetaWRat * (mH/m2W)  
      * (m2RunDn * tan2Beta + m2RunUp / tan2Beta);
   int idUpChg    = (id1Abs%2 == 0) ? id1 : id2;
@@ -2073,7 +2074,7 @@ double Sigma1ffbar2Hchg::sigmaHat() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -2091,7 +2092,7 @@ void Sigma1ffbar2Hchg::setIdColAcol() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate weight for decay angles.
 
@@ -2114,21 +2115,21 @@ double Sigma1ffbar2Hchg::weightDecay( Event& process, int iResBeg,
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma2qg2Hq class.
 // Cross section for q g -> H+- q'. 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
 void Sigma2qg2Hchgq::initProc() {
 
   // Standard parameters.
-  m2W       = pow2( ParticleDataTable::m0(24) );
-  thetaWRat = 1. / (24. * CoupEW::sin2thetaW()); 
-  tan2Beta  = pow2(Settings::parm("HiggsHchg:tanBeta"));
+  m2W       = pow2( particleDataPtr->m0(24) );
+  thetaWRat = 1. / (24. * coupSMPtr->sin2thetaW()); 
+  tan2Beta  = pow2(settingsPtr->parm("HiggsHchg:tanBeta"));
 
   // Incoming flavour within same doublet. Uptype and downtype flavours.
   idOld     = (idNew%2 == 0) ? idNew - 1 : idNew + 1;
@@ -2136,22 +2137,22 @@ void Sigma2qg2Hchgq::initProc() {
   idDn      = min(idOld, idNew);
 
   // Secondary open width fraction.
-  openFracPos = (idOld%2 == 0) ? ParticleDataTable::resOpenFrac( 37,  idNew)
-                               : ParticleDataTable::resOpenFrac(-37,  idNew);
-  openFracNeg = (idOld%2 == 0) ? ParticleDataTable::resOpenFrac(-37, -idNew)
-                               : ParticleDataTable::resOpenFrac( 37, -idNew);
+  openFracPos = (idOld%2 == 0) ? particleDataPtr->resOpenFrac( 37,  idNew)
+                               : particleDataPtr->resOpenFrac(-37,  idNew);
+  openFracNeg = (idOld%2 == 0) ? particleDataPtr->resOpenFrac(-37, -idNew)
+                               : particleDataPtr->resOpenFrac( 37, -idNew);
   
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), part independent of incoming flavour. 
 
 void Sigma2qg2Hchgq::sigmaKin() { 
 
   // Running masses provides coupling.
-  double m2RunUp = pow2(ParticleDataTable::mRun(idUp, mH));
-  double m2RunDn = pow2(ParticleDataTable::mRun(idDn, mH));
+  double m2RunUp = pow2(particleDataPtr->mRun(idUp, mH));
+  double m2RunDn = pow2(particleDataPtr->mRun(idDn, mH));
 
   // Cross section, including couplings and kinematics.
   sigma = (M_PI / sH2) * alpS * alpEM * thetaWRat 
@@ -2162,7 +2163,7 @@ void Sigma2qg2Hchgq::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), including incoming flavour dependence. 
 
@@ -2177,7 +2178,7 @@ double Sigma2qg2Hchgq::sigmaHat() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -2200,7 +2201,7 @@ void Sigma2qg2Hchgq::setIdColAcol() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate weight for decay angles.
 
@@ -2223,12 +2224,12 @@ double Sigma2qg2Hchgq::weightDecay( Event& process, int iResBeg,
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma2ffbar2A3H12 class.
 // Cross section for f fbar -> A0(H_3) h0(H_1) or A0(H_3) H0(H_2). 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
@@ -2239,22 +2240,22 @@ void Sigma2ffbar2A3H12::initProc() {
   codeSave   = (higgsType == 1) ? 1081 : 1082; 
   nameSave   = (higgsType == 1) ? "f fbar -> A0(H3) h0(H1)" 
                                 : "f fbar -> A0(H3) H0(H2)";  
-  coupZA3H12 = (higgsType == 1) ? Settings::parm("HiggsA3:coup2H1Z")
-                                : Settings::parm("HiggsA3:coup2H2Z");
+  coupZA3H12 = (higgsType == 1) ? settingsPtr->parm("HiggsA3:coup2H1Z")
+                                : settingsPtr->parm("HiggsA3:coup2H2Z");
 
   // Standard parameters.
-  double mZ  = ParticleDataTable::m0(23);
-  double GammaZ = ParticleDataTable::mWidth(23);
+  double mZ  = particleDataPtr->m0(23);
+  double GammaZ = particleDataPtr->mWidth(23);
   m2Z        = mZ * mZ;
   mGammaZ    = mZ * GammaZ;
-  thetaWRat  = 1. / (4. * CoupEW::sin2thetaW() * CoupEW::cos2thetaW()); 
+  thetaWRat  = 1. / (4. * coupSMPtr->sin2thetaW() * coupSMPtr->cos2thetaW()); 
 
   // Secondary open width fraction.
-  openFrac   = ParticleDataTable::resOpenFrac(36, higgs12);
+  openFrac   = particleDataPtr->resOpenFrac(36, higgs12);
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), part independent of incoming flavour. 
 
@@ -2266,7 +2267,7 @@ void Sigma2ffbar2A3H12::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), including incoming flavour dependence. 
 
@@ -2274,8 +2275,8 @@ double Sigma2ffbar2A3H12::sigmaHat() {
 
   // Couplings for incoming flavour.
   int idAbs    = abs(id1);
-  double lIn   = CoupEW::lf(idAbs);
-  double rIn   = CoupEW::rf(idAbs);
+  double lIn   = coupSMPtr->lf(idAbs);
+  double rIn   = coupSMPtr->rf(idAbs);
 
   // Combine to total cross section. Colour factor.
   double sigma = (pow2(lIn) + pow2(rIn)) * sigma0 * openFrac;        
@@ -2284,7 +2285,7 @@ double Sigma2ffbar2A3H12::sigmaHat() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -2300,7 +2301,7 @@ void Sigma2ffbar2A3H12::setIdColAcol() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate weight for decay angles.
 
@@ -2323,12 +2324,12 @@ double Sigma2ffbar2A3H12::weightDecay( Event& process, int iResBeg,
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma2ffbar2HchgH12 class.
 // Cross section for f fbar -> H+- h0(H_1) or H+- H0(H_2). 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
@@ -2339,23 +2340,23 @@ void Sigma2ffbar2HchgH12::initProc() {
   codeSave   = (higgsType == 1) ? 1083 : 1084; 
   nameSave   = (higgsType == 1) ? "f fbar' -> H+- h0(H1)" 
                                 : "f fbar' -> H+- H0(H2)";  
-  coupWHchgH12 = (higgsType == 1) ? Settings::parm("HiggsHchg:coup2H1W")
-                                  : Settings::parm("HiggsHchg:coup2H2W");
+  coupWHchgH12 = (higgsType == 1) ? settingsPtr->parm("HiggsHchg:coup2H1W")
+                                  : settingsPtr->parm("HiggsHchg:coup2H2W");
 
   // Standard parameters.
-  double mW  = ParticleDataTable::m0(24);
-  double GammaW = ParticleDataTable::mWidth(24);
+  double mW  = particleDataPtr->m0(24);
+  double GammaW = particleDataPtr->mWidth(24);
   m2W        = mW * mW;
   mGammaW    = mW * GammaW;
-  thetaWRat  = 1. / (2. * CoupEW::sin2thetaW()); 
+  thetaWRat  = 1. / (2. * coupSMPtr->sin2thetaW()); 
 
   // Secondary open width fraction.
-  openFracPos   = ParticleDataTable::resOpenFrac( 37, higgs12);
-  openFracNeg   = ParticleDataTable::resOpenFrac(-37, higgs12);
+  openFracPos   = particleDataPtr->resOpenFrac( 37, higgs12);
+  openFracNeg   = particleDataPtr->resOpenFrac(-37, higgs12);
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), part independent of incoming flavour. 
 
@@ -2367,7 +2368,7 @@ void Sigma2ffbar2HchgH12::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), including incoming flavour dependence. 
 
@@ -2376,12 +2377,12 @@ double Sigma2ffbar2HchgH12::sigmaHat() {
   // Combine to total cross section. CKM and colour factor.
   int idUp = (abs(id1)%2 == 0) ? id1 : id2;
   double sigma = (idUp > 0) ? sigma0 * openFracPos : sigma0 * openFracNeg;
-  if (abs(id1) < 9) sigma *= VCKM::V2id(abs(id1), abs(id2)) / 3.;
+  if (abs(id1) < 9) sigma *= coupSMPtr->V2CKMid(abs(id1), abs(id2)) / 3.;
   return sigma;
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -2399,7 +2400,7 @@ void Sigma2ffbar2HchgH12::setIdColAcol() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate weight for decay angles.
 
@@ -2422,34 +2423,34 @@ double Sigma2ffbar2HchgH12::weightDecay( Event& process, int iResBeg,
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma2ffbar2HposHneg class.
 // Cross section for q g -> H+- q'. 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
 void Sigma2ffbar2HposHneg::initProc() {
 
   // Standard parameters.
-  double mZ = ParticleDataTable::m0(23);
-  double GammaZ = ParticleDataTable::mWidth(23);
+  double mZ = particleDataPtr->m0(23);
+  double GammaZ = particleDataPtr->mWidth(23);
   m2Z       = mZ * mZ;
   mGammaZ   = mZ * GammaZ;
-  thetaWRat = 1. / (4. * CoupEW::sin2thetaW() * CoupEW::cos2thetaW()); 
+  thetaWRat = 1. / (4. * coupSMPtr->sin2thetaW() * coupSMPtr->cos2thetaW()); 
 
   // Charged Higgs coupling to gamma and Z0.
   eH        = -1.;
-  lH        = -1. + 2. * CoupEW::sin2thetaW();
+  lH        = -1. + 2. * coupSMPtr->sin2thetaW();
 
   // Secondary open width fraction.
-  openFrac  = ParticleDataTable::resOpenFrac(37, -37);
+  openFrac  = particleDataPtr->resOpenFrac(37, -37);
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), part independent of incoming flavour. 
 
@@ -2466,7 +2467,7 @@ void Sigma2ffbar2HposHneg::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), including incoming flavour dependence. 
 
@@ -2474,9 +2475,9 @@ double Sigma2ffbar2HposHneg::sigmaHat() {
 
   // Couplings for incoming flavour.
   int idAbs    = int(id1);
-  double eIn   = CoupEW::ef(idAbs);
-  double lIn   = CoupEW::lf(idAbs);
-  double rIn   = CoupEW::rf(idAbs);
+  double eIn   = coupSMPtr->ef(idAbs);
+  double lIn   = coupSMPtr->lf(idAbs);
+  double rIn   = coupSMPtr->rf(idAbs);
 
   // Combine to total cross section. Colour factor.
   double sigma = (pow2(eIn) * gamSig + eIn * (lIn + rIn) * intSig 
@@ -2486,7 +2487,7 @@ double Sigma2ffbar2HposHneg::sigmaHat() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -2502,7 +2503,7 @@ void Sigma2ffbar2HposHneg::setIdColAcol() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate weight for decay angles.
 
@@ -2525,6 +2526,6 @@ double Sigma2ffbar2HposHneg::weightDecay( Event& process, int iResBeg,
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8

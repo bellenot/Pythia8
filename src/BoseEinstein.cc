@@ -1,5 +1,5 @@
 // BoseEinstein.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -9,11 +9,11 @@
 
 namespace Pythia8 {
 
-//**************************************************************************
+//==========================================================================
 
 // The BoseEinstein class.
 
-//*********
+//--------------------------------------------------------------------------
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -35,23 +35,24 @@ const double BoseEinstein::COMPRELERR = 1e-10;
 const double BoseEinstein::COMPFACMAX = 1000.;
 const int    BoseEinstein::NCOMPSTEP  = 10;
 
-//*********
+//--------------------------------------------------------------------------
 
 // Find settings. Precalculate table used to find momentum shifts.
 
-bool BoseEinstein::init(Info* infoPtrIn) {
+bool BoseEinstein::init(Info* infoPtrIn, Settings& settings, 
+  ParticleData& particleData) {
 
   // Save pointer.
-  infoPtr  = infoPtrIn;
+  infoPtr         = infoPtrIn;
 
   // Main flags.
-  doPion   = Settings::flag("BoseEinstein:Pion");
-  doKaon   = Settings::flag("BoseEinstein:Kaon");
-  doEta    = Settings::flag("BoseEinstein:Eta");
+  doPion   = settings.flag("BoseEinstein:Pion");
+  doKaon   = settings.flag("BoseEinstein:Kaon");
+  doEta    = settings.flag("BoseEinstein:Eta");
 
   // Shape of Bose-Einstein enhancement/suppression.
-  lambda   = Settings::parm("BoseEinstein:lambda");
-  QRef     = Settings::parm("BoseEinstein:QRef");
+  lambda   = settings.parm("BoseEinstein:lambda");
+  QRef     = settings.parm("BoseEinstein:QRef");
 
   // Multiples and inverses (= "radii") of distance parameters in Q-space.
   QRef2    = 2. * QRef;
@@ -62,7 +63,7 @@ bool BoseEinstein::init(Info* infoPtrIn) {
 
   // Masses of particles with Bose-Einstein implemented.
   for (int iSpecies = 0; iSpecies < 9; ++iSpecies) 
-    mHadron[iSpecies] = ParticleDataTable::m0( IDHADRON[iSpecies] );
+    mHadron[iSpecies] = particleData.m0( IDHADRON[iSpecies] );
 
   // Pair pi, K, eta and eta' masses for use in tables.
   mPair[0] = 2. * mHadron[0];   
@@ -112,7 +113,7 @@ bool BoseEinstein::init(Info* infoPtrIn) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Perform Bose-Einstein corrections on an event.
 
@@ -199,7 +200,7 @@ bool BoseEinstein::shiftEvent( Event& event) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Calculate shift and (unnormalized) compensation for pair.
 
@@ -274,7 +275,7 @@ void BoseEinstein::shiftPair( int i1, int i2, int iTab) {
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8
 

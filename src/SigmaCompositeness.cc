@@ -1,5 +1,5 @@
 // SigmaCompositeness.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -10,13 +10,13 @@
 
 namespace Pythia8 {
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma1qg2qStar class.
 // Cross section for q g -> q^* (excited quark state). 
 // Note: for simplicity decay is assumed isotropic.
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
@@ -32,21 +32,21 @@ void Sigma1qg2qStar::initProc() {
   else               nameSave = "b g -> b^*";
 
   // Store q* mass and width for propagator. 
-  mRes          = ParticleDataTable::m0(idRes);
-  GammaRes      = ParticleDataTable::mWidth(idRes);
+  mRes          = particleDataPtr->m0(idRes);
+  GammaRes      = particleDataPtr->mWidth(idRes);
   m2Res         = mRes*mRes;
   GamMRat       = GammaRes / mRes;
 
   // Locally stored properties and couplings.
-  Lambda        = Settings::parm("ExcitedFermion:Lambda");
-  coupFcol      = Settings::parm("ExcitedFermion:coupFcol");
+  Lambda        = settingsPtr->parm("ExcitedFermion:Lambda");
+  coupFcol      = settingsPtr->parm("ExcitedFermion:coupFcol");
 
   // Set pointer to particle properties and decay table.
-  qStarPtr      = ParticleDataTable::particleDataPtr(idRes);
+  qStarPtr      = particleDataPtr->particleDataEntryPtr(idRes);
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), part independent of incoming flavour. 
 
@@ -60,7 +60,7 @@ void Sigma1qg2qStar::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat) for specific incoming flavours.
 
@@ -75,7 +75,7 @@ double Sigma1qg2qStar::sigmaHat() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -93,7 +93,7 @@ void Sigma1qg2qStar::setIdColAcol() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate weight for q* decay angle. 
   
@@ -136,13 +136,13 @@ double Sigma1qg2qStar::weightDecay( Event& process, int iResBeg,
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma1lgm2lStar class.
 // Cross section for l gamma -> l^* (excited lepton state). 
 // Note: for simplicity decay is assumed isotropic.
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
@@ -156,23 +156,23 @@ void Sigma1lgm2lStar::initProc() {
   else                nameSave = "tau gamma -> tau^*";
 
   // Store l* mass and width for propagator. 
-  mRes          = ParticleDataTable::m0(idRes);
-  GammaRes      = ParticleDataTable::mWidth(idRes);
+  mRes          = particleDataPtr->m0(idRes);
+  GammaRes      = particleDataPtr->mWidth(idRes);
   m2Res         = mRes*mRes;
   GamMRat       = GammaRes / mRes;
 
   // Locally stored properties and couplings.
-  Lambda        = Settings::parm("ExcitedFermion:Lambda");
-  double coupF  = Settings::parm("ExcitedFermion:coupF");
-  double coupFp = Settings::parm("ExcitedFermion:coupFprime");
+  Lambda        = settingsPtr->parm("ExcitedFermion:Lambda");
+  double coupF  = settingsPtr->parm("ExcitedFermion:coupF");
+  double coupFp = settingsPtr->parm("ExcitedFermion:coupFprime");
   coupChg       = -0.5 * coupF - 0.5 * coupFp;
 
   // Set pointer to particle properties and decay table.
-  qStarPtr      = ParticleDataTable::particleDataPtr(idRes);
+  qStarPtr      = particleDataPtr->particleDataEntryPtr(idRes);
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), part independent of incoming flavour. 
 
@@ -186,7 +186,7 @@ void Sigma1lgm2lStar::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat) for specific incoming flavours.
 
@@ -201,7 +201,7 @@ double Sigma1lgm2lStar::sigmaHat() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -217,7 +217,7 @@ void Sigma1lgm2lStar::setIdColAcol() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate weight for l* decay angle. 
   
@@ -260,13 +260,13 @@ double Sigma1lgm2lStar::weightDecay( Event& process, int iResBeg,
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma2qq2qStarq class.
 // Cross section for q q' -> q^* q' (excited quark state). 
 // Note: for simplicity decay is assumed isotropic.
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
@@ -282,16 +282,16 @@ void Sigma2qq2qStarq::initProc() {
   else               nameSave = "q q -> b^* q";
 
   // Locally stored properties and couplings.
-  Lambda        = Settings::parm("ExcitedFermion:Lambda");
+  Lambda        = settingsPtr->parm("ExcitedFermion:Lambda");
   preFac        = M_PI / pow4(Lambda);
 
   // Secondary open width fractions.
-  openFracPos = ParticleDataTable::resOpenFrac( idRes);
-  openFracNeg = ParticleDataTable::resOpenFrac(-idRes);
+  openFracPos = particleDataPtr->resOpenFrac( idRes);
+  openFracNeg = particleDataPtr->resOpenFrac(-idRes);
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), part independent of incoming flavour. 
 
@@ -303,7 +303,7 @@ void Sigma2qq2qStarq::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat) for specific incoming flavours.
 
@@ -329,7 +329,7 @@ double Sigma2qq2qStarq::sigmaHat() {
  
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -346,7 +346,7 @@ void Sigma2qq2qStarq::setIdColAcol() {
   }
   bool excite1 = (open1 > 0.);
   if (open1 > 0. && open2 > 0.) excite1 
-    = (Rndm::flat() * (open1 + open2) < open1);
+    = (rndmPtr->flat() * (open1 + open2) < open1);
 
   // Always excited quark in slot 3 so colour flow flipped or not.
   if (excite1) {  
@@ -367,13 +367,13 @@ void Sigma2qq2qStarq::setIdColAcol() {
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma2qqbar2lStarlbar class.
 // Cross section for q qbar -> l^* lbar (excited lepton state). 
 // Note: for simplicity decay is assumed isotropic.
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
@@ -390,16 +390,16 @@ void Sigma2qqbar2lStarlbar::initProc() {
   else                nameSave = "q qbar -> nu_tau^* nu_taubar";
 
   // Secondary open width fractions.
-  openFracPos = ParticleDataTable::resOpenFrac( idRes);
-  openFracNeg = ParticleDataTable::resOpenFrac(-idRes);
+  openFracPos = particleDataPtr->resOpenFrac( idRes);
+  openFracNeg = particleDataPtr->resOpenFrac(-idRes);
 
   // Locally stored properties and couplings.
-  Lambda        = Settings::parm("ExcitedFermion:Lambda");
+  Lambda        = settingsPtr->parm("ExcitedFermion:Lambda");
   preFac        = (M_PI / pow4(Lambda)) * (openFracPos + openFracNeg) / 3.;
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), part independent of incoming flavour. 
 
@@ -410,14 +410,14 @@ void Sigma2qqbar2lStarlbar::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
 void Sigma2qqbar2lStarlbar::setIdColAcol() {
 
   // Flavours: either lepton or antilepton may be excited.
-  if (Rndm::flat() * (openFracPos + openFracNeg) < openFracPos) {
+  if (rndmPtr->flat() * (openFracPos + openFracNeg) < openFracPos) {
     setId( id1, id2, idRes, -idl);
     if (id1 < 0) swapTU = true; 
   } else {
@@ -431,6 +431,6 @@ void Sigma2qqbar2lStarlbar::setIdColAcol() {
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8

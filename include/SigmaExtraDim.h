@@ -1,6 +1,6 @@
 // SigmaExtraDim.h is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
-// Copyright (C) 2009 Stefan Ask for the *LED* routines.
+// Copyright (C) 2010 Torbjorn Sjostrand.
+// Copyright (C) 2010 Stefan Ask for the *LED* routines.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -14,7 +14,7 @@
 
 namespace Pythia8 {
  
-//**************************************************************************
+//==========================================================================
 
 // A derived class for g g -> G^* (excited graviton state).
 
@@ -57,7 +57,7 @@ private:
 
 };
  
-//**************************************************************************
+//==========================================================================
 
 // A derived class for f fbar -> G^* (excited graviton state).
 
@@ -100,7 +100,7 @@ private:
 
 };
  
-//**************************************************************************
+//==========================================================================
 
 // A derived class for g g -> G^* g (excited graviton state).
 
@@ -140,7 +140,7 @@ private:
 
 };
  
-//**************************************************************************
+//==========================================================================
 
 // A derived class for q g -> G^* q (excited graviton state).
 
@@ -180,7 +180,7 @@ private:
 
 };
  
-//**************************************************************************
+//==========================================================================
 
 // A derived class for q qbar -> G^* g (excited graviton state).
 
@@ -220,7 +220,7 @@ private:
 
 };
  
-//**************************************************************************
+//==========================================================================
 
 // A derived class for g g -> U/G g (real graviton emission in 
 // large extra dimensions or unparticle emission). 
@@ -265,7 +265,7 @@ private:
 
 };
 
-//**************************************************************************
+//==========================================================================
 
 // A derived class for q g -> U/G q (real graviton emission in 
 // large extra dimensions or unparticle emission). 
@@ -309,7 +309,7 @@ private:
   
 };
 
-//**************************************************************************
+//==========================================================================
 
 // A derived class for q qbar -> U/G g (real graviton emission in 
 // large extra dimensions or unparticle emission). 
@@ -354,7 +354,7 @@ private:
  
 };
 
-//**************************************************************************
+//==========================================================================
 
 // A derived class for f fbar -> U/G Z (real graviton emission in 
 // large extra dimensions or unparticle emission). 
@@ -406,7 +406,7 @@ private:
 
 };
 
-//**************************************************************************
+//==========================================================================
 
 // A derived class for f fbar -> U/G gamma (real graviton emission in 
 // large extra dimensions or unparticle emission). 
@@ -456,7 +456,7 @@ private:
 
 };
 
-//**************************************************************************
+//==========================================================================
 
 // A derived class for f fbar -> (LED G*/U*) -> gamma gamma 
 // (virtual graviton/unparticle exchange). 
@@ -499,7 +499,7 @@ private:
   
 };
 
-//**************************************************************************
+//==========================================================================
 
 // A derived class for g g -> (LED G*/U*) -> gamma gamma 
 // (virtual graviton/unparticle exchange). 
@@ -541,7 +541,7 @@ private:
   
 };
 
-//**************************************************************************
+//==========================================================================
 
 // A derived class for f fbar -> (LED G*/U*) -> l lbar  
 // (virtual graviton/unparticle exchange). 
@@ -588,7 +588,7 @@ private:
   
 };
 
-//**************************************************************************
+//==========================================================================
 
 // A derived class for g g -> (LED G*/U*) -> l lbar 
 // (virtual graviton/unparticle exchange). 
@@ -630,7 +630,7 @@ private:
   
 };
 
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8
 

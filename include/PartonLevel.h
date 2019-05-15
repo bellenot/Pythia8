@@ -1,5 +1,5 @@
 // PartonLevel.h is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -21,12 +21,13 @@
 #include "Settings.h"
 #include "SigmaTotal.h"
 #include "SpaceShower.h"
+#include "StandardModel.h"
 #include "TimeShower.h"
 #include "UserHooks.h"
 
 namespace Pythia8 {
  
-//**************************************************************************
+//==========================================================================
 
 // The PartonLevel class contains the top-level routines to generate
 // the partonic activity of an event.
@@ -39,9 +40,11 @@ public:
   PartonLevel() : userHooksPtr(0) {} 
  
   // Initialization of all classes at the parton level.
-  bool init( Info* infoPtrIn, BeamParticle* beamAPtrIn, 
-    BeamParticle* beamBPtrIn, BeamParticle* beamPomAPtrIn, 
-    BeamParticle* beamPomBPtrIn, PartonSystems* partonSystemsPtrIn,
+  bool init( Info* infoPtrIn, Settings& settings,
+    ParticleData* particleDataPtrIn, Rndm* rndmPtrIn, 
+    BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, 
+    BeamParticle* beamPomAPtrIn, BeamParticle* beamPomBPtrIn, 
+    CoupSM* coupSMPtrIn, PartonSystems* partonSystemsPtrIn, 
     SigmaTotal* sigmaTotPtr, TimeShower* timesDecPtrIn, 
     TimeShower* timesPtrIn, SpaceShower* spacePtrIn, 
     UserHooks* userHooksPtrIn);
@@ -85,30 +88,39 @@ private:
   double eCMsave; 
 
   // Pointer to various information on the generation.
-  Info* infoPtr;
+  Info*          infoPtr;
+
+  // Pointer to the particle data table.
+  ParticleData*  particleDataPtr;
+
+  // Pointer to the random number generator.
+  Rndm*          rndmPtr;
 
   // Pointers to the two incoming beams.
-  BeamParticle* beamAPtr;
-  BeamParticle* beamBPtr;
+  BeamParticle*  beamAPtr;
+  BeamParticle*  beamBPtr;
 
   // Spare copies of normal pointers. Pointers to Pomeron beam-inside-beam.
-  BeamParticle* beamHadAPtr;  
-  BeamParticle* beamHadBPtr;  
-  BeamParticle* beamPomAPtr;
-  BeamParticle* beamPomBPtr;
+  BeamParticle*  beamHadAPtr;  
+  BeamParticle*  beamHadBPtr;  
+  BeamParticle*  beamPomAPtr;
+  BeamParticle*  beamPomBPtr;
 
+  // Pointers to Standard Model couplings.
+  CoupSM*        coupSMPtr;
+  
   // Pointer to information on subcollision parton locations.
   PartonSystems* partonSystemsPtr;
 
   // Pointer to userHooks object for user interaction with program.
-  UserHooks* userHooksPtr;
+  UserHooks*     userHooksPtr;
 
   // Pointers to timelike showers for resonance decays and the rest.
-  TimeShower* timesDecPtr;
-  TimeShower* timesPtr;
+  TimeShower*    timesDecPtr;
+  TimeShower*    timesPtr;
 
   // Pointer to spacelike showers.
-  SpaceShower* spacePtr;
+  SpaceShower*   spacePtr;
 
   // The generator classes for multiple interactions.
   MultipleInteractions  multiMB;
@@ -144,7 +156,7 @@ private:
   
 };
 
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8
 

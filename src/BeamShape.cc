@@ -1,5 +1,5 @@
 // BeamShape.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -9,49 +9,52 @@
 
 namespace Pythia8 {
  
-//**************************************************************************
+//==========================================================================
 
 // The BeamShape class.
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize beam parameters.
 
-void BeamShape::init() { 
+  void BeamShape::init( Settings& settings, Rndm* rndmPtrIn) { 
+
+  // Save pointer.
+  rndmPtr             = rndmPtrIn;
 
   // Main flags.
-  allowMomentumSpread = Settings::flag("Beams:allowMomentumSpread");
-  allowVertexSpread   = Settings::flag("Beams:allowVertexSpread");
+  allowMomentumSpread = settings.flag("Beams:allowMomentumSpread");
+  allowVertexSpread   = settings.flag("Beams:allowVertexSpread");
 
   // Parameters for beam A momentum spread.
-  sigmaPxA            = Settings::parm("Beams:sigmaPxA");
-  sigmaPyA            = Settings::parm("Beams:sigmaPyA");
-  sigmaPzA            = Settings::parm("Beams:sigmaPzA");
-  maxDevA             = Settings::parm("Beams:maxDevA");
+  sigmaPxA            = settings.parm("Beams:sigmaPxA");
+  sigmaPyA            = settings.parm("Beams:sigmaPyA");
+  sigmaPzA            = settings.parm("Beams:sigmaPzA");
+  maxDevA             = settings.parm("Beams:maxDevA");
 
   // Parameters for beam B momentum spread.
-  sigmaPxB            = Settings::parm("Beams:sigmaPxB");
-  sigmaPyB            = Settings::parm("Beams:sigmaPyB");
-  sigmaPzB            = Settings::parm("Beams:sigmaPzB");
-  maxDevB             = Settings::parm("Beams:maxDevB");
+  sigmaPxB            = settings.parm("Beams:sigmaPxB");
+  sigmaPyB            = settings.parm("Beams:sigmaPyB");
+  sigmaPzB            = settings.parm("Beams:sigmaPzB");
+  maxDevB             = settings.parm("Beams:maxDevB");
  
   // Parameters for beam vertex spread.
-  sigmaVertexX        = Settings::parm("Beams:sigmaVertexX");
-  sigmaVertexY        = Settings::parm("Beams:sigmaVertexY");
-  sigmaVertexZ        = Settings::parm("Beams:sigmaVertexZ");
-  maxDevVertex        = Settings::parm("Beams:maxDevVertex");
-  sigmaTime           = Settings::parm("Beams:sigmaTime");
-  maxDevTime          = Settings::parm("Beams:maxDevTime");
+  sigmaVertexX        = settings.parm("Beams:sigmaVertexX");
+  sigmaVertexY        = settings.parm("Beams:sigmaVertexY");
+  sigmaVertexZ        = settings.parm("Beams:sigmaVertexZ");
+  maxDevVertex        = settings.parm("Beams:maxDevVertex");
+  sigmaTime           = settings.parm("Beams:sigmaTime");
+  maxDevTime          = settings.parm("Beams:maxDevTime");
  
   // Parameters for beam vertex offset.
-  offsetX             = Settings::parm("Beams:offsetVertexX"); 
-  offsetY             = Settings::parm("Beams:offsetVertexY");
-  offsetZ             = Settings::parm("Beams:offsetVertexZ");
-  offsetT             = Settings::parm("Beams:offsetTime");
+  offsetX             = settings.parm("Beams:offsetVertexX"); 
+  offsetY             = settings.parm("Beams:offsetVertexY");
+  offsetZ             = settings.parm("Beams:offsetVertexZ");
+  offsetT             = settings.parm("Beams:offsetTime");
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Set the two beam momentum deviations and the beam vertex.
 
@@ -67,17 +70,17 @@ void BeamShape::pick() {
     do {
       totalDev = 0.;
       if (sigmaPxA > 0.) {
-        gauss     = Rndm::gauss();
+        gauss     = rndmPtr->gauss();
         deltaPxA  = sigmaPxA * gauss;
         totalDev += gauss * gauss; 
       }
       if (sigmaPyA > 0.) {
-        gauss     = Rndm::gauss();
+        gauss     = rndmPtr->gauss();
         deltaPyA  = sigmaPyA * gauss;
         totalDev += gauss * gauss; 
       }
       if (sigmaPzA > 0.) {
-        gauss     = Rndm::gauss();
+        gauss     = rndmPtr->gauss();
         deltaPzA  = sigmaPzA * gauss;
         totalDev += gauss * gauss; 
       }
@@ -87,17 +90,17 @@ void BeamShape::pick() {
     do {
       totalDev = 0.;
       if (sigmaPxB > 0.) {
-        gauss     = Rndm::gauss();
+        gauss     = rndmPtr->gauss();
         deltaPxB  = sigmaPxB * gauss;
         totalDev += gauss * gauss; 
       }
       if (sigmaPyB > 0.) {
-        gauss     = Rndm::gauss();
+        gauss     = rndmPtr->gauss();
         deltaPyB  = sigmaPyB * gauss;
         totalDev += gauss * gauss; 
       }
       if (sigmaPzB > 0.) {
-        gauss     = Rndm::gauss();
+        gauss     = rndmPtr->gauss();
         deltaPzB  = sigmaPzB * gauss;
         totalDev += gauss * gauss; 
       }
@@ -110,17 +113,17 @@ void BeamShape::pick() {
     do {
       totalDev = 0.;
       if (sigmaVertexX > 0.) {
-        gauss     = Rndm::gauss();
+        gauss     = rndmPtr->gauss();
         vertexX   = sigmaVertexX * gauss;
         totalDev += gauss * gauss; 
       }
       if (sigmaVertexY > 0.) {
-        gauss     = Rndm::gauss();
+        gauss     = rndmPtr->gauss();
         vertexY   = sigmaVertexY * gauss;
         totalDev += gauss * gauss; 
       }
       if (sigmaVertexZ > 0.) {
-        gauss     = Rndm::gauss();
+        gauss     = rndmPtr->gauss();
         vertexZ   = sigmaVertexZ * gauss;
         totalDev += gauss * gauss; 
       }
@@ -128,7 +131,7 @@ void BeamShape::pick() {
 
     // Set beam collision time by a Gaussian.
     if (sigmaTime > 0.) {
-      do gauss    = Rndm::gauss();
+      do gauss    = rndmPtr->gauss();
       while (abs(gauss) > maxDevTime);
       vertexT     = sigmaTime * gauss;
     }
@@ -142,7 +145,7 @@ void BeamShape::pick() {
 
 }
  
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8
 

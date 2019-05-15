@@ -1,5 +1,5 @@
 // SigmaTotal.h is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -16,7 +16,7 @@
 
 namespace Pythia8 {
  
-//**************************************************************************
+//==========================================================================
 
 // The SigmaTotal class contains parametrizations of total, elastic and 
 // diffractive cross sections, and of the respective slope parameter.
@@ -28,8 +28,9 @@ public:
   // Constructor.
   SigmaTotal() : isCalc(false) {};
 
-  // Storee pointer to Info and initialize data members.
-  void init(Info* infoPtrIn);
+  // Store pointers and initialize data members.
+  void init(Info* infoPtrIn, Settings& settings, 
+    ParticleData* particleDataPtrIn );
 
   // Calculate, or recalculate for new beams or new energy.
   bool calc(int idA, int idB, double eCM); 
@@ -79,7 +80,10 @@ private:
                       CRES, MRES0, CSD[10][8], CDD[10][9], SPROTON;
 
   // Pointer to various information on the generation.
-  Info*  infoPtr;
+  Info*         infoPtr;
+
+  // Pointer to the particle data table.
+  ParticleData* particleDataPtr;
 
   // Store values found by calc.
   double sigTot, sigEl, sigXB, sigAX, sigXX, sigND, bEl, s, bA, bB,
@@ -87,7 +91,7 @@ private:
 
 };
  
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8
 

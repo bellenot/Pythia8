@@ -1,5 +1,5 @@
 // UserHooks.h is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -18,12 +18,12 @@
 
 namespace Pythia8 {
 
-//**************************************************************************
+//==========================================================================
 
 // Forward reference to the PhaseSpace class.
 class PhaseSpace;
 
-//**************************************************************************
+//==========================================================================
 
 // UserHooks is base class for user access to program execution.
 
@@ -34,9 +34,13 @@ public:
   // Destructor.
   virtual ~UserHooks() {}
 
-  // Initialize pointer to PartonSystems. Note: not virtual.
-  void initPtr(PartonSystems* partonSystemsPtrIn) 
-    {partonSystemsPtr = partonSystemsPtrIn;}
+  // Initialize pointers and workEvent. Note: not virtual.
+  void initPtr( Info* infoPtrIn, Settings* settingsPtrIn, 
+    ParticleData* particleDataPtrIn, PartonSystems* partonSystemsPtrIn) {
+    infoPtr = infoPtrIn; settingsPtr = settingsPtrIn; 
+    particleDataPtr = particleDataPtrIn; 
+    partonSystemsPtr = partonSystemsPtrIn;
+    workEvent.init("(work event)", particleDataPtr);}
 
   // Possibility to modify cross section of process.
   virtual bool canModifySigma() {return false;}
@@ -103,13 +107,41 @@ public:
   // of decaying resonance in the event record. 
   virtual double scaleResonance( const int, const Event& ) {return 0.;} 
 
+  // Possibility to veto an emission in the ISR machinery.
+  virtual bool canVetoISREmission() {return false;}
+
+  // Decide whether to veto current emission or not, based on event record.
+  // Usage: doVetoISREmission( sizeOld, event) where sizeOld is size
+  // of event record before current emission-to-be-scrutinied was added. 
+  virtual bool doVetoISREmission( const int, const Event& ) {return false;} 
+
+  // Possibility to veto an emission in the FSR machinery.
+  virtual bool canVetoFSREmission() {return false;}
+
+  // Decide whether to veto current emission or not, based on event record.
+  // Usage: doVetoFSREmission( sizeOld, event) where sizeOld is size
+  // of event record before current emission-to-be-scrutinied was added. 
+  virtual bool doVetoFSREmission( const int, const Event& ) {return false;} 
+
 protected:
 
   // Constructor.
   UserHooks() {}
 
+  // Pointer to various information on the generation.
+  Info*          infoPtr;
+
+  // Pointer to the settings database.
+  Settings*      settingsPtr;
+
+  // Pointer to the particle data table.
+  ParticleData*  particleDataPtr;
+
   // Pointer to information on subcollision parton locations.
   PartonSystems* partonSystemsPtr;
+
+  // omitResonanceDecays omits resonance decay chains from process record.
+  void omitResonanceDecays(const Event& process); 
 
   // subEvent extracts currently resolved partons in the hard process.
   void subEvent(const Event& event, bool isHardest = true); 
@@ -119,7 +151,7 @@ protected:
 
 };
 
-//**************************************************************************
+//==========================================================================
 
 // SuppressSmallPT is a derived class for user access to program execution.
 // It is a simple example, illustrating how to suppress the cross section
@@ -156,7 +188,7 @@ private:
 
 };
 
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8
 

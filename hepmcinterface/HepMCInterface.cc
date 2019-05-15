@@ -1,21 +1,25 @@
 // HepMCInterface.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Mikhail Kirsanov, Torbjorn Sjostrand.
+// Copyright (C) 2010 Mikhail Kirsanov, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-//////////////////////////////////////////////////////////////////////////
+// Function definitions (not found in the header) for the I_Pythia8 class, 
+// which converts a PYTHIA event record to the standard HepMC format.
+
 // Mikhail.Kirsanov@cern.ch
-// Pythia8 I class
 //
-//    Modified 17.12.2007: beam particles (# 1 and 2) are put in the record;
-//                         possibility to momentum-energy convert to MeV
-//
-//////////////////////////////////////////////////////////////////////////
+// Modified 17.12.2007: beam particles (# 1 and 2) are put in the record;
+//                      possibility to momentum-energy convert to MeV
+//          19.10.2009: optionally set cross-section info
 
 #include "HepMCInterface.h"
 #include "HepMC/GenEvent.h"
 
 namespace HepMC {
+
+//==========================================================================
+
+// Constructor and destructor.
 
   I_Pythia8::I_Pythia8(): m_trust_mothers_before_daughters(1),
                           m_trust_both_mothers_and_daughters(0),
@@ -29,12 +33,16 @@ namespace HepMC {
   I_Pythia8::~I_Pythia8()
   {;}
 
+//--------------------------------------------------------------------------
+
+// Main method for conversion from PYTHIA event to HepMC event.
+
   bool I_Pythia8::fill_next_event( Pythia8::Event& pyev, GenEvent* evt,
                                    int ievnum )
   {
     // read one event from the Pythia8 and fill GenEvent
     // return T/F =success/failure
-    // this method does not fill PDF info
+    // this method also fills PDF and cross-section info
     //
     if ( !evt ) {
       std::cerr << "I_Pythia8::fill_next_event error - passed null event." 
@@ -202,6 +210,9 @@ namespace HepMC {
 	return 1;
   }
 
+//--------------------------------------------------------------------------
+
+// Conversion from PYTHIA event to HepMC event, with PDF info included.
 
   bool I_Pythia8::fill_next_event( Pythia8::Pythia& pythia, GenEvent* evt,
                                    int ievnum, bool convertGluonTo0 )
@@ -212,10 +223,22 @@ namespace HepMC {
     //
 
     bool result = fill_next_event( pythia.event, evt, ievnum );
-    if( result ) put_pdf_info(evt, pythia, convertGluonTo0 );
+    if( result ) {
+      put_pdf_info(evt, pythia, convertGluonTo0 );
+      // HepMC 2.05 supports cross-section information in pb:
+#ifdef HEPMC_HAS_CROSS_SECTION
+      HepMC::GenCrossSection xsec;
+      xsec.set_cross_section( pythia.info.sigmaGen() * 1e9, 
+        pythia.info.sigmaErr() * 1e9);
+      evt->set_cross_section(xsec);
+#endif
+    }
     return result;
   }
 
+//--------------------------------------------------------------------------
+
+// Conversion of PDF info.
 
   void I_Pythia8::put_pdf_info( GenEvent* evt, Pythia8::Pythia& pythia,
                                 bool convertGluonTo0 )
@@ -235,5 +258,6 @@ namespace HepMC {
     evt->set_pdf_info( PdfInfo(id1,id2,x1,x2,Q,pdf1,pdf2) ) ;
   }
 
+//==========================================================================
 
-}
+} // end namespace HepMC

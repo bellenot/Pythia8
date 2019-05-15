@@ -59,6 +59,11 @@ the overall energy-momentum picture. Also ties together all the
 colour lines into consistent singlets. 
 </file>
 
+<file name="BeamShape">
+generates momentum spread of beams, and spread of collision vertex
+position. 
+</file>
+
 <file name="BoseEinstein"> 
 provides a simple method to impose Bose-Einstein correlations on 
 pairs of identical mesons.
@@ -158,6 +163,12 @@ adding initial- and final-state radiation, multiple parton--parton
 interactions, and beam remnants.
 </file>
 
+<file name="PartonSystems">
+keeps track of which partons belong to which partonic susbsystem,
+i.e. one of the multiple (semi)hard interactiosn with associated
+showers.
+</file>
+
 <file name="PhaseSpace">
 selects a point in phase space for the hard-process generation,
 optimized separately for each process to give improved Monte Carlo 
@@ -237,6 +248,11 @@ contains the cross sections and matrix elements for processes in
 scenarios involving extra dimensions.
 </file>
 
+<file name="SigmaGeneric">
+contains the cross sections and matrix elements for some generic
+processes, to be used as building blocks for a few BSM scenarios.
+</file>
+
 <file name="SigmaHiggs">
 contains the cross sections and matrix elements for Higgs production.
 </file>
@@ -270,8 +286,8 @@ cross sections are found in several separate files of derived classes:
 <code>SigmaQCD</code>, <code>SigmaEW</code>, <code>SigmaOnia</code>, 
 <code>SigmaHiggs</code>, <code>SigmaSUSY</code>,  
 <code>SigmaNewGaugeBosons</code>, <code>SigmaLeftRightSym</code>,
-<code>SigmaLeptoquark</code>, <code>SigmaCompositeness</code> and
-<code>SigmaExtraDim</code>.
+<code>SigmaLeptoquark</code>, <code>SigmaCompositeness</code>,
+<code>SigmaExtraDim</code> and <code>SigmaGeneric</code>.
 </file>
 
 <file name="SigmaQCD">
@@ -305,6 +321,12 @@ CKM mixing matrices, and a few other parameters such as
 performs string fragmentation of a given set of partons.
 </file>
 
+<file name="SusyCouplings">
+stores the various couplings used for SUSY cross sections and
+decays, as calculated from input e.g. based on the SUSY Les Houches 
+Accord.
+</file>
+
 <file name="SusyLesHouches">
 contains information on SUSY parameters and particle data as specified
 by the SUSY Les Houches Accord.
@@ -323,4 +345,4 @@ its cross-section weight.
 
 </chapter>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->

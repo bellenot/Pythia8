@@ -1,5 +1,5 @@
 // SigmaLeftRightSym.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -10,12 +10,12 @@
 
 namespace Pythia8 {
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma1ffbar2ZRight class.
 // Cross section for f fbar -> Z_R^0 (righthanded gauge boson). 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
@@ -23,18 +23,18 @@ void Sigma1ffbar2ZRight::initProc() {
 
   // Store Z_R mass and width for propagator. 
   idZR     = 9900023;
-  mRes     = ParticleDataTable::m0(idZR);
-  GammaRes = ParticleDataTable::mWidth(idZR);
+  mRes     = particleDataPtr->m0(idZR);
+  GammaRes = particleDataPtr->mWidth(idZR);
   m2Res    = mRes*mRes;
   GamMRat  = GammaRes / mRes;
-  sin2tW   = CoupEW::sin2thetaW();
+  sin2tW   = coupSMPtr->sin2thetaW();
 
   // Set pointer to particle properties and decay table.
-  ZRPtr    = ParticleDataTable::particleDataPtr(idZR);
+  ZRPtr    = particleDataPtr->particleDataEntryPtr(idZR);
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), part independent of incoming flavour. 
 
@@ -51,7 +51,7 @@ void Sigma1ffbar2ZRight::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), including incoming flavour dependence. 
 
@@ -79,7 +79,7 @@ double Sigma1ffbar2ZRight::sigmaHat() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -95,7 +95,7 @@ void Sigma1ffbar2ZRight::setIdColAcol() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate weight for Z_R decay angle.
   
@@ -158,12 +158,12 @@ double Sigma1ffbar2ZRight::weightDecay( Event& process, int iResBeg,
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma1ffbar2WRight class.
 // Cross section for f fbar' -> W_R^+- (righthanded gauge boson). 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
@@ -171,18 +171,18 @@ void Sigma1ffbar2WRight::initProc() {
 
   // Store W_R^+- mass and width for propagator. 
   idWR     = 9900024;
-  mRes     = ParticleDataTable::m0(idWR);
-  GammaRes = ParticleDataTable::mWidth(idWR);
+  mRes     = particleDataPtr->m0(idWR);
+  GammaRes = particleDataPtr->mWidth(idWR);
   m2Res    = mRes*mRes;
   GamMRat  = GammaRes / mRes;
-  thetaWRat = 1. / (12. * CoupEW::sin2thetaW());
+  thetaWRat = 1. / (12. * coupSMPtr->sin2thetaW());
 
   // Set pointer to particle properties and decay table.
-  particlePtr = ParticleDataTable::particleDataPtr(idWR);
+  particlePtr = particleDataPtr->particleDataEntryPtr(idWR);
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), part independent of incoming flavour. 
 
@@ -198,16 +198,16 @@ void Sigma1ffbar2WRight::sigmaKin() {
   double widNow, widSecPos, widSecNeg, mf1, mf2, mr1, mr2, kinFac;
 
   // Loop over all W_R^+- decay channels. 
-  for (int i = 0; i < particlePtr->decay.size(); ++i) {
+  for (int i = 0; i < particlePtr->sizeChannels(); ++i) {
     widNow = 0.;
-    id1Now      = particlePtr->decay[i].product(0);
-    id2Now      = particlePtr->decay[i].product(1);
+    id1Now      = particlePtr->channel(i).product(0);
+    id2Now      = particlePtr->channel(i).product(1);
     id1Abs      = abs(id1Now);
     id2Abs      = abs(id2Now);
 
     // Check that above threshold. Phase space.
-    mf1 = ParticleDataTable::m0(id1Abs);
-    mf2 = ParticleDataTable::m0(id2Abs);
+    mf1 = particleDataPtr->m0(id1Abs);
+    mf2 = particleDataPtr->m0(id2Abs);
     if (mH > mf1 + mf2 + MASSMARGIN) {
       mr1    = pow2(mf1 / mH);
       mr2    = pow2(mf2 / mH);
@@ -216,16 +216,16 @@ void Sigma1ffbar2WRight::sigmaKin() {
 
       // Combine kinematics with colour factor and CKM couplings.
       widNow = kinFac;
-      if (id1Abs < 9) widNow *= colQ * VCKM::V2id(id1Abs, id2Abs);
+      if (id1Abs < 9) widNow *= colQ * coupSMPtr->V2CKMid(id1Abs, id2Abs);
  
       // Secondary width from top and righthanded neutrino decay.
       id1Neg    = (id1Abs < 19) ? -id1Now : id1Abs; 
       id2Neg    = (id2Abs < 19) ? -id2Now : id2Abs; 
-      widSecPos = ParticleDataTable::resOpenFrac(id1Now, id2Now); 
-      widSecNeg = ParticleDataTable::resOpenFrac(id1Neg, id2Neg); 
+      widSecPos = particleDataPtr->resOpenFrac(id1Now, id2Now); 
+      widSecNeg = particleDataPtr->resOpenFrac(id1Neg, id2Neg); 
 
       // Add weight for channels on for all, W_R^+ and W_R^-, respectively.
-      onMode = particlePtr->decay[i].onMode();
+      onMode = particlePtr->channel(i).onMode();
       if (onMode == 1 || onMode == 2) widOutPos += widNow * widSecPos;
       if (onMode == 1 || onMode == 3) widOutNeg += widNow * widSecNeg;
 
@@ -241,7 +241,7 @@ void Sigma1ffbar2WRight::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), including incoming flavour dependence. 
 
@@ -250,14 +250,14 @@ double Sigma1ffbar2WRight::sigmaHat() {
   // Secondary width for W_R^+ or W_R^-. CKM and colour factors.
   int idUp = (abs(id1)%2 == 0) ? id1 : id2;
   double sigma = (idUp > 0) ? sigma0Pos : sigma0Neg;
-  if (abs(id1) < 9) sigma *= VCKM::V2id(abs(id1), abs(id2)) / 3.;
+  if (abs(id1) < 9) sigma *= coupSMPtr->V2CKMid(abs(id1), abs(id2)) / 3.;
 
   // Answer.
   return sigma;    
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -275,7 +275,7 @@ void Sigma1ffbar2WRight::setIdColAcol() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate weight for W_R decay angle.
   
@@ -311,12 +311,12 @@ double Sigma1ffbar2WRight::weightDecay( Event& process, int iResBeg,
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma1ll2Hchgchg class.
 // Cross section for l l -> H_L^++-- or H_R^++-- (doubly charged Higgs).
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
@@ -334,25 +334,25 @@ void Sigma1ll2Hchgchg::initProc() {
   }
 
   // Read in Yukawa matrix for couplings to a lepton pair.
-  yukawa[1][1]  = Settings::parm("LeftRightSymmmetry:coupHee");
-  yukawa[2][1]  = Settings::parm("LeftRightSymmmetry:coupHmue");
-  yukawa[2][2]  = Settings::parm("LeftRightSymmmetry:coupHmumu");
-  yukawa[3][1]  = Settings::parm("LeftRightSymmmetry:coupHtaue");
-  yukawa[3][2]  = Settings::parm("LeftRightSymmmetry:coupHtaumu");
-  yukawa[3][3]  = Settings::parm("LeftRightSymmmetry:coupHtautau");
+  yukawa[1][1]  = settingsPtr->parm("LeftRightSymmmetry:coupHee");
+  yukawa[2][1]  = settingsPtr->parm("LeftRightSymmmetry:coupHmue");
+  yukawa[2][2]  = settingsPtr->parm("LeftRightSymmmetry:coupHmumu");
+  yukawa[3][1]  = settingsPtr->parm("LeftRightSymmmetry:coupHtaue");
+  yukawa[3][2]  = settingsPtr->parm("LeftRightSymmmetry:coupHtaumu");
+  yukawa[3][3]  = settingsPtr->parm("LeftRightSymmmetry:coupHtautau");
 
   // Store H_L/R mass and width for propagator. 
-  mRes     = ParticleDataTable::m0(idHLR);
-  GammaRes = ParticleDataTable::mWidth(idHLR);
+  mRes     = particleDataPtr->m0(idHLR);
+  GammaRes = particleDataPtr->mWidth(idHLR);
   m2Res    = mRes*mRes;
   GamMRat  = GammaRes / mRes;
 
   // Set pointer to particle properties and decay table.
-  particlePtr = ParticleDataTable::particleDataPtr(idHLR);
+  particlePtr = particleDataPtr->particleDataEntryPtr(idHLR);
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), including incoming flavour dependence. 
 
@@ -377,7 +377,7 @@ double Sigma1ll2Hchgchg::sigmaHat() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -392,7 +392,7 @@ void Sigma1ll2Hchgchg::setIdColAcol() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate weight for H_L/R sequential decay angles.
   
@@ -411,12 +411,12 @@ double Sigma1ll2Hchgchg::weightDecay( Event& process, int iResBeg,
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma2lgm2Hchgchgl class.
 // Cross section for l l -> H_L^++-- or H_R^++-- (doubly charged Higgs).
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
@@ -436,26 +436,26 @@ void Sigma2lgm2Hchgchgl::initProc() {
 
   // Read in relevantYukawa matrix for couplings to a lepton pair.
   if (idLep == 11) {
-    yukawa[1]  = Settings::parm("LeftRightSymmmetry:coupHee");
-    yukawa[2]  = Settings::parm("LeftRightSymmmetry:coupHmue");
-    yukawa[3]  = Settings::parm("LeftRightSymmmetry:coupHtaue");
+    yukawa[1]  = settingsPtr->parm("LeftRightSymmmetry:coupHee");
+    yukawa[2]  = settingsPtr->parm("LeftRightSymmmetry:coupHmue");
+    yukawa[3]  = settingsPtr->parm("LeftRightSymmmetry:coupHtaue");
   } else if (idLep == 13) { 
-    yukawa[1]  = Settings::parm("LeftRightSymmmetry:coupHmue");
-    yukawa[2]  = Settings::parm("LeftRightSymmmetry:coupHmumu");
-    yukawa[3]  = Settings::parm("LeftRightSymmmetry:coupHtaumu");
+    yukawa[1]  = settingsPtr->parm("LeftRightSymmmetry:coupHmue");
+    yukawa[2]  = settingsPtr->parm("LeftRightSymmmetry:coupHmumu");
+    yukawa[3]  = settingsPtr->parm("LeftRightSymmmetry:coupHtaumu");
   } else {
-    yukawa[1]  = Settings::parm("LeftRightSymmmetry:coupHtaue");
-    yukawa[2]  = Settings::parm("LeftRightSymmmetry:coupHtaumu");
-    yukawa[3]  = Settings::parm("LeftRightSymmmetry:coupHtautau");
+    yukawa[1]  = settingsPtr->parm("LeftRightSymmmetry:coupHtaue");
+    yukawa[2]  = settingsPtr->parm("LeftRightSymmmetry:coupHtaumu");
+    yukawa[3]  = settingsPtr->parm("LeftRightSymmmetry:coupHtautau");
   }
 
   // Secondary open width fractions.
-  openFracPos  = ParticleDataTable::resOpenFrac( idHLR);
-  openFracNeg  = ParticleDataTable::resOpenFrac(-idHLR);
+  openFracPos  = particleDataPtr->resOpenFrac( idHLR);
+  openFracNeg  = particleDataPtr->resOpenFrac(-idHLR);
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), including incoming flavour dependence. 
 
@@ -467,7 +467,7 @@ double Sigma2lgm2Hchgchgl::sigmaHat() {
   if (idInAbs != 11 && idInAbs != 13 && idInAbs != 15) return 0.;
 
   // Incoming squared lepton mass.
-  double s1    = pow2( ParticleDataTable::m0(idInAbs) );
+  double s1    = pow2( particleDataPtr->m0(idInAbs) );
   
   // Kinematical expressions.
   double smm1  = 8. * (sH + tH - s3) * (sH + tH - 2. * s3 - s1 - s4) 
@@ -497,7 +497,7 @@ double Sigma2lgm2Hchgchgl::sigmaHat() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -517,7 +517,7 @@ void Sigma2lgm2Hchgchgl::setIdColAcol() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate weight for H_L/R sequential decay angles.
   
@@ -536,12 +536,12 @@ double Sigma2lgm2Hchgchgl::weightDecay( Event& process, int iResBeg,
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma3ff2HchgchgfftWW class.
 // Cross section for  f_1 f_2 -> H_(L/R)^++-- f_3 f_4 (W+- W+- fusion).
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
@@ -559,21 +559,21 @@ void Sigma3ff2HchgchgfftWW::initProc() {
   }
 
   // Common fixed mass and coupling factor.
-  double mW    = ParticleDataTable::m0(24); 
-  double mWR   = ParticleDataTable::m0(9900024);
+  double mW    = particleDataPtr->m0(24); 
+  double mWR   = particleDataPtr->m0(9900024);
   mWS          = (leftRight == 1) ? pow2(mW) : pow2(mWR);
-  double gL    = Settings::parm("LeftRightSymmmetry:gL");
-  double gR    = Settings::parm("LeftRightSymmmetry:gR");
-  double vL    = Settings::parm("LeftRightSymmmetry:vL"); 
+  double gL    = settingsPtr->parm("LeftRightSymmmetry:gL");
+  double gR    = settingsPtr->parm("LeftRightSymmmetry:gR");
+  double vL    = settingsPtr->parm("LeftRightSymmmetry:vL"); 
   prefac       = (leftRight == 1) ? pow2(pow4(gL) * vL) 
                                   : 2. * pow2(pow3(gR) * mWR); 
   // Secondary open width fractions.
-  openFracPos  = ParticleDataTable::resOpenFrac( idHLR);
-  openFracNeg  = ParticleDataTable::resOpenFrac(-idHLR);
+  openFracPos  = particleDataPtr->resOpenFrac( idHLR);
+  openFracNeg  = particleDataPtr->resOpenFrac(-idHLR);
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), part independent of incoming flavour. 
 
@@ -595,7 +595,7 @@ void Sigma3ff2HchgchgfftWW::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), including incoming flavour dependence. 
 
@@ -615,7 +615,7 @@ double Sigma3ff2HchgchgfftWW::sigmaHat() {
 
   // Basic cross section. CKM factors for final states.
   double sigma = (id2 == id1 && id1Abs > 10) ? sigma0TU : sigma0T;
-  sigma       *= VCKM::V2sum(id1Abs) * VCKM::V2sum(id2Abs);
+  sigma       *= coupSMPtr->V2CKMsum(id1Abs) * coupSMPtr->V2CKMsum(id2Abs);
 
   // Secondary width for H0.
   sigma       *= (chg1 + chg2 == 2) ? openFracPos : openFracNeg;
@@ -629,7 +629,7 @@ double Sigma3ff2HchgchgfftWW::sigmaHat() {
  
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -638,8 +638,8 @@ void Sigma3ff2HchgchgfftWW::setIdColAcol() {
   // Pick out-flavours by relative CKM weights.
   int id1Abs   = abs(id1);
   int id2Abs   = abs(id2);
-  id4          = VCKM::V2pick(id1);
-  id5          = VCKM::V2pick(id2);
+  id4          = coupSMPtr->V2CKMpick(id1);
+  id5          = coupSMPtr->V2CKMpick(id2);
 
   // Find charge of Higgs .
   id3 = (( id1Abs%2 == 0 && id1 > 0) || (id1Abs%2 == 1 && id1 < 0) ) 
@@ -659,7 +659,7 @@ void Sigma3ff2HchgchgfftWW::setIdColAcol() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate weight for decay angles.
 
@@ -678,12 +678,12 @@ double Sigma3ff2HchgchgfftWW::weightDecay( Event& process, int iResBeg,
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma2ffbar2HchgchgHchgchg class.
 // Cross section for f fbar -> H_(L/R)^++ H_(L/R)^-- (doubly charged Higgs).
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
@@ -701,27 +701,27 @@ void Sigma2ffbar2HchgchgHchgchg::initProc() {
   }
 
   // Read in Yukawa matrix for couplings to a lepton pair.
-  yukawa[1][1] = Settings::parm("LeftRightSymmmetry:coupHee");
-  yukawa[2][1] = Settings::parm("LeftRightSymmmetry:coupHmue");
-  yukawa[2][2] = Settings::parm("LeftRightSymmmetry:coupHmumu");
-  yukawa[3][1] = Settings::parm("LeftRightSymmmetry:coupHtaue");
-  yukawa[3][2] = Settings::parm("LeftRightSymmmetry:coupHtaumu");
-  yukawa[3][3] = Settings::parm("LeftRightSymmmetry:coupHtautau");
+  yukawa[1][1] = settingsPtr->parm("LeftRightSymmmetry:coupHee");
+  yukawa[2][1] = settingsPtr->parm("LeftRightSymmmetry:coupHmue");
+  yukawa[2][2] = settingsPtr->parm("LeftRightSymmmetry:coupHmumu");
+  yukawa[3][1] = settingsPtr->parm("LeftRightSymmmetry:coupHtaue");
+  yukawa[3][2] = settingsPtr->parm("LeftRightSymmmetry:coupHtaumu");
+  yukawa[3][3] = settingsPtr->parm("LeftRightSymmmetry:coupHtautau");
 
   // Electroweak parameters.
-  mRes         = ParticleDataTable::m0(23);
-  GammaRes     = ParticleDataTable::mWidth(23);
+  mRes         = particleDataPtr->m0(23);
+  GammaRes     = particleDataPtr->mWidth(23);
   m2Res        = mRes*mRes;
   GamMRat      = GammaRes / mRes;
-  sin2tW       = CoupEW::sin2thetaW();
+  sin2tW       = coupSMPtr->sin2thetaW();
   preFac       = (1. - 2. * sin2tW) / ( 8. * sin2tW * (1. - sin2tW) );
 
   // Open fraction from secondary widths.
-  openFrac     = ParticleDataTable::resOpenFrac( idHLR, -idHLR);
+  openFrac     = particleDataPtr->resOpenFrac( idHLR, -idHLR);
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), including incoming flavour dependence. 
 
@@ -729,9 +729,9 @@ double Sigma2ffbar2HchgchgHchgchg::sigmaHat() {
 
   // Electroweak couplings to gamma^*/Z^0.
   int    idAbs   = abs(id1);
-  double ei      = CoupEW::ef(idAbs);
-  double vi      = CoupEW::vf(idAbs); 
-  double ai      = CoupEW::af(idAbs); 
+  double ei      = coupSMPtr->ef(idAbs);
+  double vi      = coupSMPtr->vf(idAbs); 
+  double ai      = coupSMPtr->af(idAbs); 
 
   // Part via gamma^*/Z^0 propagator.No Z^0 coupling to H_R.
   double resProp = 1. / ( pow2(sH - m2Res) + pow2(sH * GamMRat) );
@@ -765,7 +765,7 @@ double Sigma2ffbar2HchgchgHchgchg::sigmaHat() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -784,7 +784,7 @@ void Sigma2ffbar2HchgchgHchgchg::setIdColAcol() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate weight for H_L/R sequential decay angles.
   
@@ -803,6 +803,6 @@ double Sigma2ffbar2HchgchgHchgchg::weightDecay( Event& process,
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8

@@ -1,5 +1,5 @@
 // Analysis.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -10,12 +10,12 @@
 
 namespace Pythia8 {
 
-//**************************************************************************
+//==========================================================================
 
 // Sphericity class.
 // This class finds sphericity-related properties of an event.
 
-//*********
+//--------------------------------------------------------------------------
  
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -32,7 +32,7 @@ const double Sphericity::P2MIN         = 1e-20;
 // Second eigenvalue not too low or not possible to find eigenvectors.
 const double Sphericity::EIGENVALUEMIN = 1e-10;
 
-//*********
+//--------------------------------------------------------------------------
  
 // Analyze event.
 
@@ -145,7 +145,7 @@ bool Sphericity::analyze(const Event& event, ostream& os) {
       } 
     }
 
-    // Construct eigenvector. Normalize to unit length. Random sign.
+    // Construct eigenvector. Normalize to unit length; sign irrelevant.
     int k1 = kMax + 1; if (k1 > 3) k1 -= 3;
     int k2 = kMax + 2; if (k2 > 3) k2 -= 3;
     double eVec[4];
@@ -155,8 +155,7 @@ bool Sphericity::analyze(const Event& event, ostream& os) {
       - dd[jMax][k2] * dd[jMax2][k1]) / dd[jMax][kMax];
     double length = sqrt( pow2(eVec[1]) + pow2(eVec[2])
       + pow2(eVec[3]) );
-    if (Rndm::flat() > 0.5) length = -length;
-
+ 
     // Store eigenvectors.
     if (iVal == 0) eVec1 = Vec4( eVec[1] / length,
       eVec[2] / length, eVec[3] / length, 0.);
@@ -164,16 +163,15 @@ bool Sphericity::analyze(const Event& event, ostream& os) {
       eVec[2] / length, eVec[3] / length, 0.);
   }
 
-  // Middle eigenvector is orthogonal to the other two.
+  // Middle eigenvector is orthogonal to the other two; sign irrelevant.
   eVec2 = cross3( eVec1, eVec3);
-  if (Rndm::flat() > 0.5) eVec2 = -eVec2;
 
   // Done.
   return true;
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Provide a listing of the info.
   
@@ -200,12 +198,12 @@ void Sphericity::list(ostream& os) const {
 }
 
 
-//**************************************************************************
+//==========================================================================
 
 // Thrust class.
 // This class finds thrust-related properties of an event.
 
-//*********
+//--------------------------------------------------------------------------
  
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -219,7 +217,7 @@ const int    Thrust::TIMESTOPRINT = 1;
 // Major not too low or not possible to find major axis.
 const double Thrust::MAJORMIN     = 1e-10;
 
-//*********
+//--------------------------------------------------------------------------
  
 // Analyze event.
 
@@ -336,7 +334,7 @@ bool Thrust::analyze(const Event& event, ostream& os) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Provide a listing of the info.
   
@@ -360,12 +358,12 @@ void Thrust::list(ostream& os) const {
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // SingleClusterJet class.
 // Simple helper class to ClusterJet for a jet and its contents. 
 
-//*********
+//--------------------------------------------------------------------------
  
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -373,7 +371,7 @@ void Thrust::list(ostream& os) const {
 // Assign minimal pAbs to avoid division by zero.
 const double SingleClusterJet::PABSMIN  = 1e-10; 
 
-//*********
+//--------------------------------------------------------------------------
  
 // Distance measures between two SingleClusterJet objects.
 
@@ -394,19 +392,22 @@ double dist2Fun(int measure, const SingleClusterJet& j1,
 
 }  
 
-//**************************************************************************
+//==========================================================================
 
 // ClusterJet class.
 // This class performs a jet clustering according to different
 // distance measures: Lund, JADE or Durham.
 
-//*********
+//--------------------------------------------------------------------------
  
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
 
 // Maximum number of times that an error warning will be printed.
 const int    ClusterJet::TIMESTOPRINT   = 1;
+
+// Assume the pi+- mass for all particles exceptthe photon in one option.
+const double ClusterJet::PIMASS        = 0.13957; 
 
 // Assign minimal pAbs to avoid division by zero.
 const double ClusterJet::PABSMIN        = 1e-10; 
@@ -417,7 +418,7 @@ const double ClusterJet::PRECLUSTERFRAC = 0.1;
 // Step with which pT/m is reduced if preclustering gives too few jets.
 const double ClusterJet::PRECLUSTERSTEP = 0.8;
 
-//*********
+//--------------------------------------------------------------------------
  
 // Analyze event.
 
@@ -444,7 +445,7 @@ bool ClusterJet::analyze(const Event& event, double yScaleIn,
     Vec4 pTemp = event[i].p();
     if (massSet == 0 || massSet == 1) {
       double mTemp = (massSet == 0 || event[i].id() == 22) 
-        ? 0. : piMass; 
+        ? 0. : PIMASS; 
       double eTemp = sqrt(pTemp.pAbs2() + pow2(mTemp));
       pTemp.e(eTemp);
     }
@@ -539,7 +540,7 @@ bool ClusterJet::analyze(const Event& event, double yScaleIn,
   return true;
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Precluster nearby particles to save computer time.
   
@@ -608,7 +609,7 @@ void ClusterJet::precluster() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Reassign particles to nearest jet to correct misclustering.
   
@@ -675,7 +676,7 @@ void ClusterJet::reassign() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Provide a listing of the info.
   
@@ -703,12 +704,12 @@ void ClusterJet::list(ostream& os) const {
      << "--------" << endl;
 }
 
-//**************************************************************************
+//==========================================================================
 
 // CellJet class.
 // This class performs a cone jet search in (eta, phi, E_T) space.
 
-//*********
+//--------------------------------------------------------------------------
  
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -716,7 +717,7 @@ void ClusterJet::list(ostream& os) const {
 // Minimum number of particles to perform study.
 const int CellJet::TIMESTOPRINT = 1;
 
-//*********
+//--------------------------------------------------------------------------
  
 // Analyze event.
 
@@ -765,12 +766,12 @@ bool CellJet::analyze(const Event& event, double eTjetMinIn,
   }
 
   // Smear true bin content by calorimeter resolution.
-  if (smear > 0) 
+  if (smear > 0 && rndmPtr > 0) 
   for (int j = 0; j < int(cells.size()); ++j) {
     double eTeConv = (smear < 2) ? 1. : cosh( cells[j].etaCell );
     double eBef = cells[j].eTcell * eTeConv; 
     double eAft = 0.;
-    do eAft = eBef + resolution * sqrt(eBef) * Rndm::gauss();
+    do eAft = eBef + resolution * sqrt(eBef) * rndmPtr->gauss();
     while (eAft < 0 || eAft > upperCut * eBef);
     cells[j].eTcell = eAft / eTeConv;
   }
@@ -854,7 +855,7 @@ bool CellJet::analyze(const Event& event, double eTjetMinIn,
   return true;
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Provide a listing of the info.
   
@@ -886,6 +887,6 @@ void CellJet::list(ostream& os) const {
      << endl;
 }
 
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8

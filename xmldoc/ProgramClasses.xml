@@ -23,6 +23,12 @@ the page contains information of more general interest.
 </tr>
 
 <tr> 
+<td><code>BeamShape</code></td> 
+<td><aloc href="BeamShape">Beam Shape</aloc></td> 
+<td>vertex amd beam momentum spread</td> 
+</tr>
+
+<tr> 
 <td><code>CellJet</code></td> 
 <td><aloc href="EventAnalysis">Event Analysis</aloc></td> 
 <td>jet cone clustering analysis, intended for hadron collider 
@@ -37,15 +43,21 @@ collider topologies</td>
 </tr>
 
 <tr> 
-<td><code>DecayChannel</code></td> 
-<td><aloc href="ParticleDataScheme">Particle Data Scheme</aloc></td> 
-<td>the properties of a single decay channel of  particle species</td> 
+<td><code>CoupSM</code></td> 
+<td><aloc href="StandardModelParameters">Standard Model Parameters</aloc></td> 
+<td>couplings and mixing matrices</td> 
 </tr>
 
 <tr> 
-<td><code>DecayTable</code></td> 
+<td><code>CoupSUSY</code></td> 
+<td><aloc href="SUSYLesHouchesAccord">SUSY Les Houches Accord</aloc></td> 
+<td>compute and store SUSY couplings, using input from SusyLesHouches</td> 
+</tr>
+
+<tr> 
+<td><code>DecayChannel</code></td> 
 <td><aloc href="ParticleDataScheme">Particle Data Scheme</aloc></td> 
-<td>the decay channels table of a particle species</td> 
+<td>the properties of a single decay channel of  particle species</td> 
 </tr>
 
 <tr> 
@@ -73,9 +85,27 @@ collider topologies</td>
 </tr>
 
 <tr> 
+<td><code>LHAPDFInterface</code></td> 
+<td><aloc href="PartonDistributions">Parton Distributions</aloc></td> 
+<td>use PDF sets from the LHAPDF library</td> 
+</tr>
+
+<tr> 
+<td><code>LHAup</code></td> 
+<td><aloc href="LesHouchesAccord">Les Houches Accord</aloc></td> 
+<td>base class for Les Houches external hard-event input</td> 
+</tr>
+
+<tr> 
 <td><code>Particle</code></td> 
 <td><aloc href="ParticleProperties">Particle Properties</aloc></td> 
 <td>the properties of a particle in the event record</td> 
+</tr>
+
+<tr> 
+<td><code>ParticleData</code></td> 
+<td><aloc href="ParticleDataScheme">Particle Data Scheme</aloc></td> 
+<td>the database of particle species properties</td> 
 </tr>
 
 <tr> 
@@ -85,15 +115,27 @@ collider topologies</td>
 </tr>
 
 <tr> 
-<td><code>ParticleDataTable</code></td> 
-<td><aloc href="ParticleDataScheme">Particle Data Scheme</aloc></td> 
-<td>the database of particle species properties</td> 
+<td><code>PDF</code></td> 
+<td><aloc href="PartonDistributions">Parton Distributions</aloc></td> 
+<td>base class for all PDFs</td> 
 </tr>
 
 <tr> 
 <td><code>Pythia</code></td> 
 <td><aloc href="ProgramFlow">Program Flow</aloc></td> 
 <td>the top-level class, that drives the generation process</td> 
+</tr>
+
+<tr> 
+<td><code>ResonanceWidths</code></td> 
+<td><aloc href="SemiInternalResonances">Semi-Internal Resonances</aloc></td> 
+<td>base class for all resonance-width treatment</td> 
+</tr>
+
+<tr> 
+<td><code>Rndm</code></td> 
+<td><aloc href="RandomNumbers">RandomNumbers</aloc></td> 
+<td>a primitive built-in histogramming package</td> 
 </tr>
 
 <tr> 
@@ -109,9 +151,27 @@ collider topologies</td>
 </tr>
 
 <tr> 
+<td><code>SigmaProcess</code></td> 
+<td><aloc href="SemiInternalProcesses">Semi-Internal Processes</aloc></td> 
+<td>base class for all hard-process cross sections</td> 
+</tr>
+
+<tr> 
+<td><code>SpaceShower</code></td> 
+<td><aloc href="ImplementNewShowers">Implement New Showers</aloc></td> 
+<td>spacelike, i..e. initial-state showers</td> 
+</tr>
+
+<tr> 
 <td><code>Sphericity</code></td> 
 <td><aloc href="EventAnalysis">Event Analysis</aloc></td> 
 <td>sphericity analysis of events</td> 
+</tr>
+
+<tr> 
+<td><code>SusyLesHouches</code></td> 
+<td><aloc href="SUSYLesHouchesAccord">SUSY Les Houches Accord</aloc></td> 
+<td>reading in of SLHA information</td> 
 </tr>
 
 <tr> 
@@ -121,15 +181,21 @@ collider topologies</td>
 </tr>
 
 <tr> 
-<td><code>Vec4</code></td> 
-<td><aloc href="FourVectors">Four-Vectors</aloc></td> 
-<td>four-vectors</td> 
+<td><code>TimeShower</code></td> 
+<td><aloc href="ImplementNewShowers">Implement New Showers</aloc></td> 
+<td>timelike, i..e. final-state showers</td> 
 </tr>
 
 <tr> 
-<td><code></code></td> 
-<td><aloc href=""></aloc></td> 
-<td></td> 
+<td><code>UserHooks</code></td> 
+<td><aloc href="UserHooks">User Hooks</aloc></td> 
+<td>get access to some steps of the generation process</td> 
+</tr>
+
+<tr> 
+<td><code>Vec4</code></td> 
+<td><aloc href="FourVectors">Four-Vectors</aloc></td> 
+<td>four-vectors</td> 
 </tr>
 
 <tr> 
@@ -151,4 +217,4 @@ You can also access an extensive list of the public
 <aloc href="ProgramMethods">methods</aloc> in these classes, 
 which compensates for the brevity of the current page. 
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->

@@ -1,5 +1,5 @@
 // PhaseSpace.h is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -22,16 +22,17 @@
 #include "SigmaProcess.h"
 #include "SigmaTotal.h"
 #include "Settings.h"
+#include "StandardModel.h"
 #include "UserHooks.h"
 
 namespace Pythia8 {
 
-//**************************************************************************
+//==========================================================================
 
 // Forward reference to the UserHooks class.
 class UserHooks;
  
-//**************************************************************************
+//==========================================================================
 
 // PhaseSpace is a base class for  phase space generators 
 // used in the selection of hard-process kinematics.
@@ -45,8 +46,9 @@ public:
 
   // Perform simple initialization and store pointers.
   void init(bool isFirst, SigmaProcess* sigmaProcessPtrIn, 
-    Info* infoPtrIn, BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn,
-    SigmaTotal* sigmaTotPtrIn, UserHooks* userHooksPtrIn);
+    Info* infoPtrIn, Settings* settingsPtrIn, ParticleData* particleDataPtrIn,  
+    Rndm* rndmPtrIn, BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, 
+    CoupSM* coupSMPtrIn, SigmaTotal* sigmaTotPtrIn, UserHooks* userHooksPtrIn);
 
   // Update the CM energy of the event.
   void newECM(double eCMin) {eCM = eCMin; s = eCM * eCM;}
@@ -118,9 +120,21 @@ protected:
   // Pointer to various information on the generation.
   Info*         infoPtr;
 
+  // Pointer to the settings database.
+  Settings*     settingsPtr;
+
+  // Pointer to the particle data table.
+  ParticleData* particleDataPtr;
+
+  // Pointer to the random number generator.
+  Rndm*         rndmPtr;
+
   // Pointers to incoming beams.
   BeamParticle* beamAPtr;
   BeamParticle* beamBPtr;
+
+  // Pointer to Standard Model couplings.
+  CoupSM*         coupSMPtr;
   
   // Pointer to the total/elastic/diffractive cross section object.
   SigmaTotal*   sigmaTotPtr;
@@ -221,7 +235,7 @@ protected:
 
 };
  
-//**************************************************************************
+//==========================================================================
 
 // A derived class with 2 -> 1 kinematics set up in tau, y.
 
@@ -250,7 +264,7 @@ private:
 
 };
  
-//**************************************************************************
+//==========================================================================
 
 // A derived class with 2 -> 2 kinematics set up in tau, y, z = cos(theta).
 
@@ -288,7 +302,7 @@ private:
 
 };
  
-//**************************************************************************
+//==========================================================================
 
 // A derived class with 2 -> 2 kinematics set up for elastic scattering.
 
@@ -322,7 +336,7 @@ private:
 
 };
  
-//**************************************************************************
+//==========================================================================
 
 // A derived class with 2 -> 2 kinematics set up for diffractive scattering.
 
@@ -360,7 +374,7 @@ private:
 
 };
  
-//**************************************************************************
+//==========================================================================
 
 // A derived class for minumum bias events. Hardly does anything, since
 // the real action is taken care of by the MultipleInteractions class.
@@ -382,7 +396,7 @@ private:
 
 };
  
-//**************************************************************************
+//==========================================================================
 
 // A derived class with 2 -> 3 kinematics 1 + 2 -> 3 + 4 + 5 set up in 
 // tau, y, pT2_4, pT2_5, phi_4, phi_5 and y_3 (partial cylindrical symmetry).
@@ -419,7 +433,7 @@ private:
 
 };
  
-//**************************************************************************
+//==========================================================================
 
 // A derived class for Les Houches events. 
 
@@ -455,7 +469,7 @@ private:
 
 };
 
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8
 

@@ -60,6 +60,18 @@ status 2, is available as a commented-out line in the
 <code>I_Pythia8::fill_next_event(...)</code> method, and so is simple
 to recover.
 
+<p/>
+In HepMC 2.05 it also becomes possible to store the generated cross 
+section and its error. The environment variable
+<code>HEPMC_HAS_CROSS_SECTION</code> is used to check whether this
+possibility exists and, if it does the current values from 
+<code>pythia.info.sigmaGen()</code> and 
+<code>pythia.info.sigmaErr()</code> are stored for each event,
+multiplied by <i>10^9</i> to convert from mb to pb. Note that
+PYTHIA improves it accuracy by Monte Carlo integration in the course
+of the run, so the values associated with the last generated event
+should be the most accurate ones. 
+
 <h2>The public methods</h2>
 
 Here comes a complete list of all public methods of the 
@@ -172,4 +184,4 @@ Currently not implemented, so everything always is stored as GeV.
 </body>
 </html>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->

@@ -74,6 +74,9 @@
    examples with previous versions, pay attention to the environment 
    variable LD_LIBRARY_PATH (see README in examples).
 
+   Hints on how to install HepMC from scratch can be found in the
+   separate README.HepMC file.
+
 3) If you have two CPUs or cores on your computer then using the -j2 
    option on make/gmake may speed up compilation.
 
@@ -112,7 +115,8 @@ The Makefile.msc file is intended for use on Win32/NMAKE systems with
 the  Microsoft Visual C/C++ compiler. This alternative installation
 is not the development platform, however, and therefore not as well 
 tested. Not all parts of the above installation procedure are the same,
-so some experimentation may be required.    
+so some experimentation may be required. A few suggestions are found 
+in the the separate README.Win32 file.    
 
 ----------------------------------------------------------------------
 

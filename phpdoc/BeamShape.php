@@ -40,9 +40,9 @@ for realistic applications.
 <p/>
 It is therefore possible to define your own class, derived from the 
 <code>BeamShape</code> base class, and hand it in to Pythia with the
-<?php $filepath = $_GET["filepath"];
+<code><?php $filepath = $_GET["filepath"];
 echo "<a href='ProgramFlow.php?filepath=".$filepath."' target='page'>";?>
-<code>pythia.setBeamShapePtr( BeamShape*)</code></a> method. 
+pythia.setBeamShapePtr( BeamShape*)</a></code> method. 
 Below we describe what such a class has to do. An explicit toy example 
 is shown in <code>main27.cc</code>.
 
@@ -60,9 +60,10 @@ the constructor and destructor do not need to do anything.
   
 
 <a name="method2"></a>
-<p/><strong>virtual void BeamShape::init() &nbsp;</strong> <br/>
-the base-class method simply reads in the values stored in the 
-<code>Settings</code> data base. You are free to write your own 
+<p/><strong>virtual void BeamShape::init( Settings& settings, Rndm* rndmPtrIn) &nbsp;</strong> <br/>
+the base-class method simply reads in the relevant values stored 
+in the <code>Settings</code> data base, and saves a pointer to the 
+random-number generator. You are free to write your own 
 derived initialization routine, or use the existing one. In the 
 latter case you can then give your own modified interpretation 
 to the beam spread parameters defined there.
@@ -109,4 +110,4 @@ read out the production-vertex position and time that were set by
 </body>
 </html>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->

@@ -240,7 +240,7 @@ effective <i>pT0</i> for consecutive interactions.
 is fixed.  
 <br/><code>option </code><strong> 1</strong> : The <i>pT0</i> scale is increased as a function
 of the number of MI's, as explained above. ISR is not affected,
-but note that, if <code>SpaceShower:samePTasMI</code> is on (default),
+but note that, if <code>SpaceShower:samePTasMI</code> is on,
 then <code>MultipleInteractions:pT0Ref</code> is used also for ISR, 
 which may or may not be desirable.
    
@@ -303,9 +303,8 @@ becomes slow and unstable, so the min limit must be respected.
  
 It is possible that a parton may rescatter, i.e. undergo a further
 interaction subsequent to the first one. The machinery to model this
-kind of physics has only recently become fully operational, and may
-still undergo some further development and bug fixing. It can therefore 
-not be recommended for general usage. 
+kind of physics has only recently become fully operational
+[<a href="Bibliography.html" target="page">Cor09</a>], and is therefore not yet so well explored. 
 
 <p/>
 The rescatting framework has ties with other parts of the program,
@@ -530,4 +529,4 @@ interactions.
 </body>
 </html>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->

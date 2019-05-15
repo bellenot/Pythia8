@@ -30,14 +30,15 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 <h2>The Settings Scheme</h2>
 
 The <code>Settings</code> class keeps track of all the flags, modes, 
-parameters and words in the program. As such, it serves the other program 
-elements from one central repository. Accessing it allows the user to 
-modify the behaviour of the program. The <code>Settings</code> class is 
-purely static, i.e. you can interact with it directly by 
-<code>Settings::command(argument)</code>. 
-However, a <code>settings</code> object of the <code>Settings</code> class 
-is a public member of the <code>Pythia</code> class, so an alternative 
-notation would be <code>pythia.settings.command(argument)</code>,
+parameters and words used during the event generation. As such, it 
+serves all the <code>Pythia</code> program elements from one central 
+repository. Accessing it allows the user to modify the generator 
+behaviour. 
+
+<p/>
+Each <code>Pythia</code> object has a public member <code>settings</code> 
+of the <code>Settings</code> class. Therefore you access the 
+settings methods as <code>pythia.settings.command(argument)</code>,
 assuming that <code>pythia</code> is an instance of the <code>Pythia</code> 
 class. Further, for the most frequent user tasks, <code>Pythia</code> 
 methods have been defined, so that <code>pythia.command(argument)</code> 
@@ -63,7 +64,7 @@ they have to be stored:
 code and XML tags, so that all four kinds are represented by
 four-letter type names.</li>
 <li>Words are simple character strings and are stored as 
-<code>string</code>. No blanks or double quotation marks (") may 
+<code>string</code>. No blanks or double quotation marks (&quot;) may 
 appear inside a word, the former to simplify parsing of an input file
 and the latter not to cause conflicts with XML attribute delimiters.
 Currently the main application is to store file names.</li>
@@ -146,9 +147,8 @@ the character string, separated by blanks and/or a =, e.g.
 </pre>
 The match of the name to the database is case-insensitive. Names 
 that do not match an existing variable are ignored. A warning is
-printed, however, unless an optional second argument <code>false</code> 
-is used. Strings beginning with a non-alphanumeric character, like 
-# or !, are assumed to be comments and are not processed at all. 
+printed, however. Strings beginning with a non-alphanumeric character, 
+like # or !, are assumed to be comments and are not processed at all. 
 Values below the minimum or above the maximum are set at 
 the respective border. For <code>bool</code> values, the following 
 notation may be used interchangeably: 
@@ -160,7 +160,8 @@ notation may be used interchangeably:
 b) The <code>Pythia</code> <code>readString(string)</code> method 
 actually does not do changes itself, but sends on the string either 
 to the <code>Settings</code> class or to <code>ParticleData</code>. 
-If desired, it is possible to communicate
+The former holds if the string begins with a letter, the latter
+if it begins with a digit. If desired, it is possible to communicate
 directly with the corresponding <code>Settings</code> method:
 <pre>
     pythia.settings.readString("TimeShower:pTmin = 1.0"); 
@@ -176,9 +177,12 @@ are split by names containing <code>flag</code>, <code>mode</code>,
 <pre>
     pythia.settings.parm("TimeShower:pTmin", 1.0); 
 </pre>
-Boolean values should here be given as <code>true</code> or 
-<code>false</code> i.e. there is less flexibility in the lower-level 
-methods.
+Such a form could be convenient e.g. if a parameter is calculated
+at the beginning of the main program, and thus is available as a 
+variable rather than as a character string.
+Note that Boolean values must here be given as <code>true</code> or 
+<code>false</code> i.e. there is less flexibility than with the 
+previous methods.
 
 <p/> 
 At the same level, there are several different methods available.
@@ -202,13 +206,11 @@ method (or an <code>istream</code> instead of a <code>fileName</code>).
 The file can freely mix commands to the <code>Settings</code> and 
 <code>ParticleData</code> classes, and so is preferable. Lines with 
 settings are handled by calls to the 
-<code>pythia.settings.readString(string)</code> method. Again, an optional 
-second argument <code>false</code> allows you to switch off warning 
-messages for unknown variables.
+<code>pythia.settings.readString(string)</code> method.
 </li>
 
 <p/> <li>
-In the <code>Pythia init</code> call, many of the various other program  
+In the <code>pythia.init(...)</code> call, many of the various other program  
 elements are initialized, making use of the current values in the database. 
 Once initialized, the common <code>Settings</code> database is likely not 
 consulted again by these routines. It is therefore not productive to do 
@@ -217,12 +219,12 @@ set up inconsistencies.
 
 <p/>
 A routine <code>reInit(fileName)</code> is provided, and can be used to 
-zero all the maps and reinitialize  from scratch. Such a call might be 
-required if several <code>Pythia</code> objects are created in the same run, 
-and requested to have different values - by default the <code>init()</code> 
-call is only made the first time. However, a more economical solution 
-is then offered by <code>resetAll()</code>, which sets all variables to 
-their default values.
+zero all the maps and reinitialize them from scratch. Such a call might be 
+useful if several subruns are to be made with widely different parameter 
+sets - normally the maps are only built from scratch once, namely when the 
+<code>Pythia()</code> object is created. A more economical alternative is 
+offered by <code>resetAll()</code>, however, which sets all variables back 
+to their default values.
 </li> 
 
 <p/> <li>
@@ -257,9 +259,7 @@ you read in changes from several files), you can do that by calling
 </pre>
 This file could then directly be read in by 
 <code>readFile(fileName)</code> in a subsequent (identical) run.
-A second argument <code>true</code> would print all settings, not
-only the changed ones. Further, the first argument can be replaced by
-(a reference to) an <code>ostream</code>, by default <code>cout</code>.   
+Some variants of this command are listed below. 
 </li>
 </ol>
 
@@ -283,78 +283,116 @@ the constructor, which takes no arguments. Internal.
   
 
 <a name="method2"></a>
-<p/><strong>static bool Settings::initPtr(Info* infoPtrIn) &nbsp;</strong> <br/>
+<p/><strong>bool Settings::initPtr(Info* infoPtrIn) &nbsp;</strong> <br/>
 initialize pointer to error-message database. Internal.
   
 
 <a name="method3"></a>
-<p/><strong>static bool Settings::init(string startFile = &quot;../xmldoc/Index.xml&quot;, bool append = false, ostream& os = cout) &nbsp;</strong> <br/>
-read in the database from the files listed in the
-<code>startFile</code> file. Nothing will be done if this method has 
-already been called once, unless <code>append = true</code>. By default
-<code>cout</code> is used for error printout. Returns <code>false</code>
-if fails.
+<p/><strong>bool Settings::init(string startFile = &quot;../xmldoc/Index.xml&quot;, bool append = false, ostream& os = cout) &nbsp;</strong> <br/>
+read in the settings database.
+<br/><code>argument</code><strong> startFile </strong> (<code>default = <strong>&quot;../xmldoc/Index.xml&quot;</strong></code>) :   
+read in the settings from all the files listed in this file, and 
+assumed to be located in the same subdirectory.
+  
+<br/><code>argument</code><strong> append </strong> (<code>default = <strong>false</strong></code>) :   
+By default nothing is done if the method has already been called once.
+If true the further settings read in are added to the current database.
+  
+<br/><code>argument</code><strong> os </strong> (<code>default = <strong>cout</strong></code>) : 
+stream for error printout.  
+  
+<br/><b>Note:</b> The method returns false if it fails.
   
 
 <a name="method4"></a>
-<p/><strong>static bool Settings::reInit(string startFile = &quot;../xmldoc/Index.xml&quot;) &nbsp;</strong> <br/>
-overwrite the existing database by reading from the specified file,
-like with <code>init(...)</code>. Returns <code>false</code>
-if fails.
+<p/><strong>bool Settings::reInit(string startFile = &quot;../xmldoc/Index.xml&quot;, ostream& os = cout) &nbsp;</strong> <br/>
+overwrite the existing database.
+<br/><code>argument</code><strong> startFile </strong> (<code>default = <strong>&quot;../xmldoc/Index.xml&quot;</strong></code>) :   
+read in the settings from all the files listed in this file, and 
+assumed to be located in the same subdirectory.
+  
+<br/><code>argument</code><strong> os </strong> (<code>default = <strong>cout</strong></code>) : 
+stream for error printout.  
+  
+<br/><b>Note:</b> The method returns false if it fails.
   
 
 <a name="method5"></a>
-<p/><strong>static bool Settings::readString(string line, bool warn = true, ostream& os = cout) &nbsp;</strong> <br/>
+<p/><strong>bool Settings::readString(string line, bool warn = true, ostream& os = cout) &nbsp;</strong> <br/>
 read in a string, and change the relevant quantity in the database.
-Returns <code>false</code> if fails. Then also prints an error on
-<code>os</code> unless <code>warn = false</code>.  
+It is normally used indirectly, via 
+<code>Pythia::readString(...)</code> and
+<code>Pythia::readFile(...)</code>.
+<br/><code>argument</code><strong> line </strong>  : 
+the string to be interpreted as an instruction.
+  
+<br/><code>argument</code><strong> warn </strong> (<code>default = <strong>true</strong></code>) : 
+write a warning message or not whenever the instruction does not make
+sense, e.g. if the variable does not exist in the databases.
+  
+<br/><code>argument</code><strong> os </strong> (<code>default = <strong>cout</strong></code>) : 
+stream for error printout.  
+  
+<br/><b>Note:</b> the method returns false if it fails to 
+make sense out of the input string.
   
 
 <a name="method6"></a>
-<p/><strong>static bool Settings::writeFile(string toFile, bool writeAll = false) &nbsp;</strong> <br/>
+<p/><strong>bool Settings::writeFile(string toFile, bool writeAll = false) &nbsp;</strong> <br/>
   
-<strong>static bool Settings::writeFile(ostream& os = cout, bool writeAll = false) &nbsp;</strong> <br/>
+<strong>bool Settings::writeFile(ostream& os = cout, bool writeAll = false) &nbsp;</strong> <br/>
 write current settings to a file or to an <code>ostream</code>.
-Normally only settings that have ben changed are written, but with
-<code>writeAll = true</code> all settings are output.
-Returns <code>false</code> if fails.
+<br/><code>argument</code><strong> toFile, os </strong>  : 
+file or stream on which settings are written.  
+  
+<br/><code>argument</code><strong> writeAll </strong> (<code>default = <strong>false</strong></code>) : 
+normally only settings that have been changed are written, 
+but if true then all settings are output.
+  
+<br/><b>Note:</b> the method returns false if it fails.
   
 
 <a name="method7"></a>
-<p/><strong>static void Settings::listAll(ostream& os = cout) &nbsp;</strong> <br/>
+<p/><strong>void Settings::listAll(ostream& os = cout) &nbsp;</strong> <br/>
   
-<strong>static void Settings::listChanged(ostream& os = cout) &nbsp;</strong> <br/>
+<strong>void Settings::listChanged(ostream& os = cout) &nbsp;</strong> <br/>
   
-<strong>static void Settings::list(string match, ostream& os = cout) &nbsp;</strong> <br/>
-list all or changed settings, or ones where the settings name contains
-the <code>match</code> (sub)string (case-insensitive). 
+<strong>void Settings::list(string match, ostream& os = cout) &nbsp;</strong> <br/>
+list all or changed settings, or a group of them.
+<br/><code>argument</code><strong> match </strong>  : 
+list all those settings where the name contains
+the <code>match</code> (sub)string (case-insensitive).
+  
+<br/><code>argument</code><strong> os </strong> (<code>default = <strong>cout</strong></code>) : 
+output stream for the listing.
+  
   
 
 <a name="method8"></a>
-<p/><strong>static void Settings::resetAll() &nbsp;</strong> <br/>
+<p/><strong>void Settings::resetAll() &nbsp;</strong> <br/>
 reset all current values to their defaults.
   
 
 <a name="method9"></a>
-<p/><strong>static bool Settings::isFlag(string key) &nbsp;</strong> <br/>
+<p/><strong>bool Settings::isFlag(string key) &nbsp;</strong> <br/>
   
-<strong>static bool Settings::isMode(string key) &nbsp;</strong> <br/>
+<strong>bool Settings::isMode(string key) &nbsp;</strong> <br/>
   
-<strong>static bool Settings::isParm(string key) &nbsp;</strong> <br/>
+<strong>bool Settings::isParm(string key) &nbsp;</strong> <br/>
   
-<strong>static bool Settings::isWord(string key) &nbsp;</strong> <br/>
-return <code>true</code> if an entry of the given name and kind 
-exists, else <code>false</code>.
+<strong>bool Settings::isWord(string key) &nbsp;</strong> <br/>
+return true if an entry of the given name and kind 
+exists, else false.
   
 
 <a name="method10"></a>
-<p/><strong>static void Settings::addFlag(string key, bool default) &nbsp;</strong> <br/>
+<p/><strong>void Settings::addFlag(string key, bool default) &nbsp;</strong> <br/>
   
-<strong>static void Settings::addMode(string key, int default, bool hasMin, bool hasMax, int min, int max) &nbsp;</strong> <br/>
+<strong>void Settings::addMode(string key, int default, bool hasMin, bool hasMax, int min, int max) &nbsp;</strong> <br/>
   
-<strong>static void Settings::addParm(string key, double default, bool hasMin, bool hasMax, double min, double max) &nbsp;</strong> <br/>
+<strong>void Settings::addParm(string key, double default, bool hasMin, bool hasMax, double min, double max) &nbsp;</strong> <br/>
   
-<strong>static void Settings::addWord(string key, string default) &nbsp;</strong> <br/>
+<strong>void Settings::addWord(string key, string default) &nbsp;</strong> <br/>
 add an entry of the respective kind to the database. The name and default
 value always has to be supplied, for <code>Mode</code> and 
 <code>Word</code> additionally if lower and/or upper limits are to be 
@@ -362,13 +400,13 @@ imposed and, if so, what those limit are.
   
 
 <a name="method11"></a>
-<p/><strong>static bool Settings::flag(string key) &nbsp;</strong> <br/>
+<p/><strong>bool Settings::flag(string key) &nbsp;</strong> <br/>
   
-<strong>static int Settings::mode(string key) &nbsp;</strong> <br/>
+<strong>int Settings::mode(string key) &nbsp;</strong> <br/>
   
-<strong>static double Settings::parm(string key) &nbsp;</strong> <br/>
+<strong>double Settings::parm(string key) &nbsp;</strong> <br/>
   
-<strong>static string Settings::word(string key) &nbsp;</strong> <br/>
+<strong>string Settings::word(string key) &nbsp;</strong> <br/>
 return the current value of the respective setting. If the name 
 does not exist in the database, a value <code>false</code>,
 <code>0</code>, <code>0.</code> and <code>&quot; &quot;</code> 
@@ -376,13 +414,13 @@ is returned, respectively.
   
 
 <a name="method12"></a>
-<p/><strong>static void Settings::flag(string key, bool now) &nbsp;</strong> <br/>
+<p/><strong>void Settings::flag(string key, bool now) &nbsp;</strong> <br/>
   
-<strong>static void Settings::mode(string key, int now) &nbsp;</strong> <br/>
+<strong>void Settings::mode(string key, int now) &nbsp;</strong> <br/>
   
-<strong>static void Settings::parm(string key, double now) &nbsp;</strong> <br/>
+<strong>void Settings::parm(string key, double now) &nbsp;</strong> <br/>
   
-<strong>static void Settings::word(string key, string now) &nbsp;</strong> <br/>
+<strong>void Settings::word(string key, string now) &nbsp;</strong> <br/>
 change the current value of the respective setting to the provided 
 new value. If lower or upper limits have been set, input values 
 outside the allowed range are reinterpreted as being a the nearest 
@@ -390,25 +428,25 @@ limit.
   
 
 <a name="method13"></a>
-<p/><strong>static void Settings::forceMode(string key, int now) &nbsp;</strong> <br/>
+<p/><strong>void Settings::forceMode(string key, int now) &nbsp;</strong> <br/>
   
-<strong>static void Settings::forceParm(string key, double now) &nbsp;</strong> <br/>
+<strong>void Settings::forceParm(string key, double now) &nbsp;</strong> <br/>
 as above, but do not check lower and upper limits, so that the current 
 value can be put outside the intended borders.
   
 
 <a name="method14"></a>
-<p/><strong>static void Settings::resetFlag(string key) &nbsp;</strong> <br/>
+<p/><strong>void Settings::resetFlag(string key) &nbsp;</strong> <br/>
   
-<strong>static void Settings::resetMode(string key) &nbsp;</strong> <br/>
+<strong>void Settings::resetMode(string key) &nbsp;</strong> <br/>
   
-<strong>static void Settings::resetParm(string key) &nbsp;</strong> <br/>
+<strong>void Settings::resetParm(string key) &nbsp;</strong> <br/>
   
-<strong>static void Settings::resetWord(string key) &nbsp;</strong> <br/>
+<strong>void Settings::resetWord(string key) &nbsp;</strong> <br/>
 reset the current value to the default one.
   
 
 </body>
 </html>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->

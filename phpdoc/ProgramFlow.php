@@ -74,15 +74,12 @@ e.g. with
      Pythia pythia;
 </pre>
 It is this object that we will use from now on. Normally a run
-will only contain one <code>Pythia</code> object. (Hypothetically 
-you  could use several <code>Pythia</code> objects sequentially, 
-but if done in parallel the <code>static</code> character of some
-program elements is likely not to give the desired behaviour.)<br/>
+will only contain one <code>Pythia</code> object. (But you can 
+use several <code>Pythia</code> objects, which then will be
+independent of each other.)<br/>
 By default all output from <code>Pythia</code> will be on the 
 <code>cout</code> stream, but the <code>list</code> methods below do
-allow output to alternative streams or files (by an optional
-last argument, a reference to an <code>ostream</code>, usually not
-explicitly written out here).
+allow output to alternative streams or files.
 </li>  
 
 <p/>
@@ -96,19 +93,17 @@ one for <?php $filepath = $_GET["filepath"];
 echo "<a href='SettingsScheme.php?filepath=".$filepath."' target='page'>";?>generic settings</a>
 and one for <?php $filepath = $_GET["filepath"];
 echo "<a href='ParticleDataScheme.php?filepath=".$filepath."' target='page'>";?>particle data</a>. 
-Both of these are static classes, and are 
-initialized with their default values by the <code>Pythia</code> 
-constructor. The default values can then be changed, primarily
-by one of the two ways below, or by a combination of them.<br/>  
+Both of these are initialized with their default values by the 
+<code>Pythia</code> constructor. The default values can then be 
+changed, primarily by one of the two ways below, or by a combination 
+of them.<br/>  
 
 <p/>
-a) You can use the dedicated methods of each class to change the 
-database default values to fit the needs of your current run. However, 
-the
+a) You can use the
 <pre>
     pythia.readString(string);
 </pre>
-method provides a covenient uniform interface to all of them.
+method repeatedly to do a change of a property at a time.
 The information in the string is case-insensitive, but upper- and
 lowercase can be combined for clarity. The rules are that<br/>
 (i) if the first nonblank character of the string is a letter
@@ -120,9 +115,7 @@ contain particle data updates, and so sent on to
 (iii) if none of the above, the string is assumed to be a comment,
 i.e. nothing will be done.<br/>
 In the former two cases, a warning is issued whenever a string
-cannot be recognized (maybe because of a spelling mistake),
-unless an optional second argument <code>false</code> is used to 
-switch off warnings.<br/>
+cannot be recognized (maybe because of a spelling mistake).<br/>
 Some examples would be
 <pre>
     pythia.readString("TimeShower:pTmin = 1.0");
@@ -130,8 +123,8 @@ Some examples would be
 </pre>
 The <code>readString(string)</code> method is intended primarily for 
 a few changes. It can also be useful if you want to construct a
-parser of input files that contain commands to several different 
-libraries.<br/>
+parser for input files that contain commands both to PYTHIA and to 
+other libraries.<br/>
 
 <p/>
 b) You can read in a file containing a list of those variables 
@@ -142,9 +135,7 @@ you want to see changed, with a
 Each line in this file with be processes by the 
 <code>readString(string)</code> method introduced above. You can thus 
 freely mix comment lines and lines handed on to <code>Settings</code> 
-or to <code>ParticleDataTable</code>.   
-Again, an optional second argument <code>false</code> allows 
-you to switch off warning messages for unknown variables.<br/>
+or to <code>ParticleData</code>.<br/>
 This approach is better suited for more extensive changes than a direct
 usage of <code>readString(string)</code>, and can also avoid having to
 recompile and relink your main program between runs.<br/>
@@ -183,13 +174,13 @@ to allow for arbitrary beam directions.
 d) <code>pythia.init(fileName);</code> <br/> 
 assumes a file in the <?php $filepath = $_GET["filepath"];
 echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>";?>Les Houches 
-Event File</a> format [<a href="Bibliography.php" target="page">Alw06</a>] is provided.
+Event File</a> format is provided.
 
 <p/>
 e) <code>pythia.init();</code><br/>
 with no arguments will read the beam parameters from the 
-<?php $filepath = $_GET["filepath"];
-echo "<a href='MainProgramSettings.php?filepath=".$filepath."' target='page'>";?><code>Main</code></a> 
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='MainProgramSettings.php?filepath=".$filepath."' target='page'>";?>Main</a></code> 
 group of variables, which provides you with the same possibilities as
 the above options a, b, c and d. If you don't change any of those you will 
 default to proton-proton collisions at 14 TeV, i.e. the nominal LHC 
@@ -199,9 +190,8 @@ values.
 f) <code>pythia.init( LHAup*);</code> <br/>
 assumes <?php $filepath = $_GET["filepath"];
 echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>";?>Les Houches Accord</a> 
-[<a href="Bibliography.php" target="page">Boo01</a>] initialization and event information is available 
-in an <code>LHAup</code> class object, and that a pointer to this object 
-is handed in.
+initialization and event information is available in an <code>LHAup</code> 
+class object, and that a pointer to this object is handed in.
 
 <p/>
 <li>
@@ -230,10 +220,10 @@ next event using the <code>next()</code> method,
 This method takes no arguments; everything has already been specified. 
 It does return a bool value, however, <code>false</code> when the
 generation failed. This can be a "programmed death" when the
-supply of input parton-level configurations on file is exhausted,
-but also caused by a failure of <code>Pythia</code> to generate an event,
-or that an event was generated but something strange was detected
-in it. It makes sense to allow a few <code>false</code> 
+supply of input parton-level configurations on file is exhausted.
+It can alternatively signal a failure of <code>Pythia</code> to 
+generate an event, or unphysical features in the event record at the
+end of the generation step. It makes sense to allow a few <code>false</code> 
 values before a run is aborted, so long as the related faulty
 events are skipped.
 </li>  
@@ -241,8 +231,8 @@ events are skipped.
 <p/>
 <li>
 The generated event is now stored in the <code>event</code> 
-object, of type <?php $filepath = $_GET["filepath"];
-echo "<a href='EventRecord.php?filepath=".$filepath."' target='page'>";?><code>Event</code></a>, 
+object, of type <code><?php $filepath = $_GET["filepath"];
+echo "<a href='EventRecord.php?filepath=".$filepath."' target='page'>";?>Event</a></code>, 
 which is a public member of <code>pythia</code>. You therefore have 
 access to all the tools described on the pages under the "Study Output" 
 header in the index. For instance, an event can be listed with 
@@ -253,9 +243,9 @@ echo "<a href='ParticleProperties.php?filepath=".$filepath."' target='page'>";?>
 The hard process - roughly the information normally stored in the 
 Les Houches Accord event record - is available as a second object, 
 <code>process</code>, also of type <code>Event</code>.<br/> 
-A third public object is 
-<?php $filepath = $_GET["filepath"];
-echo "<a href='EventInformation.php?filepath=".$filepath."' target='page'>";?><code>info</code></a>, which offers 
+A third useful public object is 
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='EventInformation.php?filepath=".$filepath."' target='page'>";?>info</a></code>, which offers 
 a set of one-of-a kind pieces of information about the most recent
 event.
 </li> 
@@ -271,10 +261,7 @@ event.
     pythia.statistics(); 
 </pre>
 to get some run statistics, on cross sections and the number of errors 
-and warnings encountered. With optional argument <code>true</code>
-also further statistics is printed. Currently this means the number of
-different subprocesses generated in the multiple-interactions
-framework. 
+and warnings encountered. 
 </li> 
 
 </ol>
@@ -284,9 +271,9 @@ framework.
 A) Necessary data are automatically loaded when you use the 
 default PYTHIA installation directory structure and run the main 
 programs in the <code>examples</code> subdirectory. However, in the 
-general case, you must provide the path to the <code>.xml</code> files, 
-originally stored in the <code>xmldoc</code> directory, where default 
-settings and particle data are found. This can be done in two ways.
+general case, you must provide the path of the <code>xmldoc</code> 
+directory, where default settings and particle data are found. 
+This can be done in two ways.
 
 <ol>
 
@@ -368,8 +355,8 @@ method
       pythia.setDecayPtr( decayHandlePtr, particles);
 </pre>
 where the <code>decayHandlePtr</code> derives from the 
-<?php $filepath = $_GET["filepath"];
-echo "<a href='ExternalDecays.php?filepath=".$filepath."' target='page'>";?><code>DecayHandler</code></a> base 
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='ExternalDecays.php?filepath=".$filepath."' target='page'>";?>DecayHandler</a></code> base 
 class and <code>particles</code> is a vector of particle codes to be 
 handled. 
 </li>
@@ -382,8 +369,8 @@ you can call the <code>setRndmEnginePtr(...)</code> method
       pythia.setRndmEnginePtr( rndmEnginePtr); 
 </pre>
 where <code>rndmEnginePtr</code> derives from the 
-<?php $filepath = $_GET["filepath"];
-echo "<a href='RandomNumbers.php?filepath=".$filepath."' target='page'>";?><code>RndmEngine</code></a> base class. 
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='RandomNumbers.php?filepath=".$filepath."' target='page'>";?>RndmEngine</a></code> base class. 
 The <code>Pythia</code> default random number generator is perfectly 
 good, so this is only intended for consistency in bigger frameworks.
 </li>
@@ -397,8 +384,8 @@ reweight the cross section, you can use
       pythia.setUserHooksPtr( userHooksPtr); 
 </pre>
 where <code>userHooksPtr</code> derives from the 
-<?php $filepath = $_GET["filepath"];
-echo "<a href='UserHooks.php?filepath=".$filepath."' target='page'>";?><code>UserHooks</code></a> base class.
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='UserHooks.php?filepath=".$filepath."' target='page'>";?>UserHooks</a></code> base class.
 </li>
 
 <p/>
@@ -410,8 +397,8 @@ parametrization (off by default), you can call
       pythia.setBeamShapePtr( beamShapePtr); 
 </pre>
 where <code>beamShapePtr</code> derives from the 
-<?php $filepath = $_GET["filepath"];
-echo "<a href='BeamShape.php?filepath=".$filepath."' target='page'>";?><code>BeamShape</code></a> base class.
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='BeamShape.php?filepath=".$filepath."' target='page'>";?>BeamShape</a></code> base class.
 </li>
 
 <p/>
@@ -425,8 +412,8 @@ where <code>sigmaPtr</code> of type <code>SigmaProcess*</code> is an
 instance of a class derived from one of the <code>Sigma1Process</code>,
 <code>Sigma2Process</code> and  <code>Sigma3Process</code> base classes
 in their turn derived from 
-<?php $filepath = $_GET["filepath"];
-echo "<a href='SemiInternalProcesses.php?filepath=".$filepath."' target='page'>";?><code>SigmaProcess</code></a>. 
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='SemiInternalProcesses.php?filepath=".$filepath."' target='page'>";?>SigmaProcess</a></code>. 
 This call can be used repeatedly to hand in several different processes.
 </li>
 
@@ -440,8 +427,8 @@ you can make this resonance available to the program with
 </pre>
 where <code>resonancePtr</code> of type <code>ResonanceWidths*</code> 
 is an instance of a class derived from the 
-<?php $filepath = $_GET["filepath"];
-echo "<a href='SemiInternalResonances.php?filepath=".$filepath."' target='page'>";?><code>ResonanceWidths</code></a> 
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='SemiInternalResonances.php?filepath=".$filepath."' target='page'>";?>ResonanceWidths</a></code> 
 base class. In addition you need to add the particle to the normal 
 <?php $filepath = $_GET["filepath"];
 echo "<a href='ParticleDataScheme.php?filepath=".$filepath."' target='page'>";?>particle and decay database</a>.
@@ -451,16 +438,25 @@ resonances.
 
 <p/>
 <li>
-If you are a real expert and want to replace the PYTHIA initial- and 
-final-state showers, you can use
+If you are a real expert and want to <?php $filepath = $_GET["filepath"];
+echo "<a href='ImplementNewShowers.php?filepath=".$filepath."' target='page'>";?>replace 
+the PYTHIA initial- and final-state showers</a>, you can use
 <pre>
       pythia.setShowerPtr( timesDecPtr, timesPtr, spacePtr);
 </pre>
 where <code>timesDecPtr</code> and <code>timesPtr</code>
 derive from the <code>TimeShower</code> base class, and 
-<code>spacePtr</code> from <code>SpaceShower</code> 
-(<?php $filepath = $_GET["filepath"];
-echo "<a href='ImplementNewShowers.php?filepath=".$filepath."' target='page'>";?>further instructions</a>). 
+<code>spacePtr</code> from <code>SpaceShower</code>. 
+</li>
+
+<p/>
+<li>
+The <code>initTunes(...)</code> method allows you to initialize the settings
+of a specific tune at an early stage, so that you can change some of the
+tune values between the <code>initTunes(...)</code> and the 
+<code>init(...)</code> calls. This method should not be used if you want 
+to use an existing tune as is, or make your own changes altogether. 
+See the <code>initTunes(...)</code> description below for more details. 
 </li>
 
 </ol>
@@ -470,23 +466,20 @@ C) Some comments on collecting several tasks in the same run.
 <ol>
 
 <li>
-PYTHIA has not been written for threadsafe execution. As a rule, you 
-should not have more than one <code>Pythia</code> object in an executable
-at any time. For multicore processors, if you want to use all cores, 
+PYTHIA has not been written for threadsafe execution on multicore 
+processors. If you want to use all cores, 
 the most efficient way presumably is to start correspondingly many jobs, 
 with different random number seeds, and add the statistics at the end.
+</li>
 
 <p/>
-In some cases it is possible to use more than one <code>Pythia</code> 
+<li>
+In some cases it is convenient to use more than one <code>Pythia</code> 
 object. The key example would be the simultaneous generation of signal 
-and pileup events, see <code>main19.cc</code>. Here all signal processes 
-must be switched on before the first initialization, and then switched 
-off and replaced by the background ones before the second initialization. 
-Also most other settings can be changed consistently in between the two
-initializations, but in a few cases the last value will be used. Particle 
-data is always based on the latest information. As a rule, however, it is 
-safer to use two separate runs to store events on disk, in two separate 
-files, and mix afterwards.
+and pileup events, see <code>main19.cc</code>. The two objects are then
+set up and initialized separately, and generate events completely 
+independently of each other. It is only afterwards that the event records
+are combined into one single super-event per beam crossing.
 </li>
 
 <p/>
@@ -494,8 +487,8 @@ files, and mix afterwards.
 When time is not an issue, it may be that you want to perform several 
 separate subruns sequentially inside a run, e.g. to combine results for
 several kinematical regions or to compare results for some different 
-tunes of the underlying event. One way to go is to create and destroy a 
-<code>pythia</code> object once for each subrun, in which case they are 
+tunes of the underlying event. One way to go is to create (and destroy) 
+one <code>pythia</code> object for each subrun, in which case they are 
 completely separate. You can also use the same <code>pythia</code> object, 
 only doing a new <code>init(...)</code> call for each subrun. In that 
 case, the settings and particle databases remain as they were in the  
@@ -553,11 +546,10 @@ methods and data members.
 creates an instance of the <code>Pythia</code> event generators,
 and sets initial default values, notably for all settings and 
 particle data. You may use several <code>Pythia</code> instances 
-in the same run, but note that some parts of the code are static 
-and thus shared by all instances. It is therefore not recommended 
-to have several instances simultaneously, except in 
-<?php $filepath = $_GET["filepath"];
-echo "<a href='ProgramFlow.php?filepath=".$filepath."' target='page'>";?>special cases</a>. 
+in the same run; only when you want to access external static 
+libraries could this cause problems. (This includes in particular
+Fortran libraries such as <?php $filepath = $_GET["filepath"];
+echo "<a href='PDFSelection.php?filepath=".$filepath."' target='page'>";?>LHAPDF</a>.)
 <br/><code>argument</code><strong> xmlDir </strong> (<code>default = <strong>../xmldoc</strong></code>) : allows you to choose
 from which directory the default settings and particle data values 
 are read in. If the <code>PYTHIA8DATA</code> environment variable 
@@ -581,7 +573,8 @@ reads in a single string, that is interpreted as an instruction to
 modify the value of a <?php $filepath = $_GET["filepath"];
 echo "<a href='SettingsScheme.php?filepath=".$filepath."' target='page'>";?>setting</a> or
 <?php $filepath = $_GET["filepath"];
-echo "<a href='ParticleDataScheme.php?filepath=".$filepath."' target='page'>";?>particle data</a>.
+echo "<a href='ParticleDataScheme.php?filepath=".$filepath."' target='page'>";?>particle data</a>, as already described
+above.
 <br/><code>argument</code><strong> line </strong>  : 
 the string to be interpreted as an instruction.
   
@@ -594,13 +587,13 @@ make sense out of the string.
   
 
 <a name="method4"></a>
-<p/><strong>bool Pythia::readFile(string fileName, bool warn = true,int subrun = SUBRUNDEFAULT) &nbsp;</strong> <br/>
+<p/><strong>bool Pythia::readFile(string fileName, bool warn = true, int subrun = SUBRUNDEFAULT) &nbsp;</strong> <br/>
   
-<strong>bool Pythia::readFile(string fileName,int subrun = SUBRUNDEFAULT) &nbsp;</strong> <br/>
+<strong>bool Pythia::readFile(string fileName, int subrun = SUBRUNDEFAULT) &nbsp;</strong> <br/>
   
-<strong>bool Pythia::readFile(istream& inStream = cin, bool warn = true, int subrun = SUBRUNDEFAULT) &nbsp;</strong> <br/>
+<strong>bool Pythia::readFile(istream& inStream = cin,  bool warn = true, int subrun = SUBRUNDEFAULT) &nbsp;</strong> <br/>
   
-<strong>bool Pythia::readFile(istream& inStream = cin,int subrun = SUBRUNDEFAULT) &nbsp;</strong> <br/>
+<strong>bool Pythia::readFile(istream& inStream = cin, int subrun = SUBRUNDEFAULT) &nbsp;</strong> <br/>
 reads in a whole file, where each line is interpreted as an instruction 
 to modify the value of a <?php $filepath = $_GET["filepath"];
 echo "<a href='SettingsScheme.php?filepath=".$filepath."' target='page'>";?>setting</a> or
@@ -809,6 +802,44 @@ the default value 0 then the internal shower routine will be used.
 <br/><b>Note:</b> The method currently always returns true.
   
 
+<a name="method13"></a>
+<p/><strong>void initTunes(int eeTune = 0, int ppTune = 0) &nbsp;</strong> <br/>
+prepackages the parameter settings of some PYTHIA tunes. While 
+the <code>readString(...)</code> and <code>readFile(...)</code> 
+methods can be used to set the parameters of some already 
+existing tune, one by one, this is time-consuming and error-prone. 
+Therefore the <code>initTunes(...)</code> method provides a set of
+tunes, hopefully growing with time, that can be selected by the  
+two switches <code><?php $filepath = $_GET["filepath"];
+echo "<a href='Tunes.php?filepath=".$filepath."' target='page'>";?>Tune:ee</a></code> and 
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='Tunes.php?filepath=".$filepath."' target='page'>";?>Tune:pp</a></code>. Default is 0, 
+meaning no changes. Nornally <code>initTunes(...)</code> is 
+automatically called from inside the <code>init(...)</code> method, 
+so you would not call it yourself. This can be constraining if you 
+want to use almost, but not quite, an existing tune. Specifically, 
+any attempts to set one or a few of the parameters differently by 
+<code>readString(...)</code> or <code>readFile(...)</code> calls
+before initialization would not work, since they would be overwritten
+during <code>init(...)</code>. This is where the possibility to call 
+<code>initTunes(...)</code> directly comes to the rescue. You could 
+then by hand pick the desired tune, afterwards change whatever settings 
+you wish, and retain these changes during initialization by having    
+<code>Tune:ee = Tune:pp = 0</code>.
+<br/><code>argument</code><strong> eeTune </strong> (<code>default = <strong>0</strong></code>) :  the settings obtained from 
+<i>e^+e^-</i> data, see <code><?php $filepath = $_GET["filepath"];
+echo "<a href='Tunes.php?filepath=".$filepath."' target='page'>";?>Tune:ee</a></code> 
+for a list of valid values. If you call <code>initTunes(...)</code>
+with this option nonzero you would want to keep <code>Tune:ee</code> 
+equal to zero, or else the whole point is lost.
+  
+<br/><code>argument</code><strong> eeTune </strong> (<code>default = <strong>0</strong></code>) :  the additional settings that 
+can only be extracted from <i>pp/ppbar</i> data see 
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='Tunes.php?filepath=".$filepath."' target='page'>";?>Tune:pp</a></code> for a list of valid 
+values. Comment as above.
+  
+
 <h3>Initialize</h3>
 
 At the initialization stage all the information provided above is 
@@ -816,7 +847,7 @@ processed, and the stage is set up for the subsequent generation
 of events. Several alterative forms of the <code>init</code> method
 are available for this stage; pick the one most convenient. 
 
-<a name="method13"></a>
+<a name="method14"></a>
 <p/><strong>bool Pythia::init( int idA, int idB, double eCM) &nbsp;</strong> <br/>
 initialize for collisions in the center-of-mass frame, with the
 beams moving in the <i>+-z</i> directions.
@@ -831,7 +862,7 @@ initialization fails. It is then not possible to generate any
 events.
   
 
-<a name="method14"></a>
+<a name="method15"></a>
 <p/><strong>bool Pythia::init( int idA, int idB, double eA, double eB) &nbsp;</strong> <br/>
 initialize for collisions with back-to-back beams,
 moving in the <i>+-z</i> directions, but with different energies.
@@ -849,7 +880,7 @@ initialization fails. It is then not possible to generate any
 events.
   
 
-<a name="method15"></a>
+<a name="method16"></a>
 <p/><strong>bool Pythia::init( int idA, int idB, double pxA, double pyA, double pzA, double pxB, double pyB, double pzB) &nbsp;</strong> <br/>
 initialize for collisions with arbitrary beam directions.
 <br/><code>argument</code><strong> idA, idB </strong>  :   
@@ -868,7 +899,7 @@ initialization fails. It is then not possible to generate any
 events.
   
 
-<a name="method16"></a>
+<a name="method17"></a>
 <p/><strong>bool Pythia::init( string LesHouchesEventFile, bool skipInit = false) &nbsp;</strong> <br/>
 initialize for hard-process collisions fed in from an external file 
 with events, written according to the 
@@ -896,7 +927,7 @@ initialization fails. It is then not possible to generate any
 events.
   
 
-<a name="method17"></a>
+<a name="method18"></a>
 <p/><strong>bool Pythia::init() &nbsp;</strong> <br/>
 initialize for collisions, in any of the four above possibilities.
 In this option the beams are not specified by input arguments,
@@ -910,7 +941,7 @@ initialization fails. It is then not possible to generate any
 events.
   
 
-<a name="method18"></a>
+<a name="method19"></a>
 <p/><strong>bool Pythia::init( LHAup* lhaUpPtr) &nbsp;</strong> <br/>
 initialize for hard-process collisions fed in from an external
 source of events, consistent with the Les Houches Accord standard.
@@ -933,7 +964,7 @@ The <code>next()</code> method is the main one to generate events.
 In this section we also put a few other specialized methods that 
 may be useful in some circumstances.
 
-<a name="method19"></a>
+<a name="method20"></a>
 <p/><strong>bool Pythia::next() &nbsp;</strong> <br/>
 generate the next event. No input parameters are required; all
 instructions have already been set up in the initialization stage.
@@ -942,12 +973,12 @@ fails. The event record is then not consistent and should not be
 studied. When reading in hard collisions from a Les Houches Event File
 the problem may be that the end of the file has been reached. This
 can be checked with the 
-<?php $filepath = $_GET["filepath"];
-echo "<a href='EventInformation.php?filepath=".$filepath."' target='page'>";?><code>Info::atEndOfFile()</code></a> 
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='EventInformation.php?filepath=".$filepath."' target='page'>";?>Info::atEndOfFile()</a></code> 
 method.
   
 
-<a name="method20"></a>
+<a name="method21"></a>
 <p/><strong>bool Pythia::forceHadronLevel() &nbsp;</strong> <br/>
 hadronize the existing event record, i.e. perform string fragmentation
 and particle decays. There are two main applications. Firstly,
@@ -964,7 +995,7 @@ fails. The event record is then not consistent and should not be
 studied.
   
 
-<a name="method21"></a>
+<a name="method22"></a>
 <p/><strong>bool Pythia::moreDecays() &nbsp;</strong> <br/>
 perform decays of all particles in the event record that have not been 
 decayed but should have been done so. This can be used e.g. for
@@ -975,11 +1006,11 @@ echo "<a href='HadronLevelStandalone.php?filepath=".$filepath."' target='page'>"
 event record is then not consistent and should not be studied.
   
 
-<a name="method22"></a>
+<a name="method23"></a>
 <p/><strong>void Pythia::LHAeventList(ostream& os = cout) &nbsp;</strong> <br/>
 list the Les Houches Accord information on the current event, see
-<?php $filepath = $_GET["filepath"];
-echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>";?>LHAup::listEvent(...)</a>. 
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>";?>LHAup::listEvent(...)</a></code>. 
 (Other listings are available via the class members below, so this
 listing is a special case that would not fit elsewhere.)
 <br/><code>argument</code><strong> os </strong> (<code>default = <strong>cout</strong></code>) :   
@@ -987,19 +1018,20 @@ output stream where the listing occurs.
   
   
 
-<a name="method23"></a>
+<a name="method24"></a>
 <p/><strong>bool Pythia::LHAeventSkip(int nSkip) &nbsp;</strong> <br/>
 skip ahead a number of events in the Les Houches generation
 sequence, without doing anything further with them, see
-<?php $filepath = $_GET["filepath"];
-echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>";?>LHAup::skipEvent(nSkip)</a>. 
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>";?>LHAup::skipEvent(nSkip)</a></code>. 
 Mainly intended for debug purposes, e.g. when an event at a known 
 location in a Les Houches Event File is causing problems.
-Will return false if operation fails, specifically if the 
-end of a LHEF has been reached, cf. <code>next()</code> above. 
 <br/><code>argument</code><strong> nSkip </strong>  :   
 number of events to skip.
   
+<br/><b>Note:</b> The method returns false if the operation fails, 
+specifically if the end of a LHEF has been reached, cf. 
+<code>next()</code> above.
   
 
 <h3>Finalize</h3>
@@ -1008,7 +1040,7 @@ There is no required finalization step; you can stop generating events
 when and how you want. It is still recommended that you make it a 
 routine to call the following method at the end.
 
-<a name="method24"></a>
+<a name="method25"></a>
 <p/><strong>void Pythia::statistics(bool all = false, bool reset = false) &nbsp;</strong> <br/>
 list statistics on the event generation, specifically total and partial
 cross sections and the number of different errors. For more details see
@@ -1044,7 +1076,7 @@ be the number of events to generate. For such applications the
 following shortcuts to some <code>Settings</code> methods may be 
 convenient.
 
-<a name="method25"></a>
+<a name="method26"></a>
 <p/><strong>bool Pythia::flag(string key) &nbsp;</strong> <br/>
 read in a boolean variable from the <code>Settings</code> database.
 <br/><code>argument</code><strong> key </strong>  :   
@@ -1052,7 +1084,7 @@ the name of the variable to be read.
   
   
  
-<a name="method26"></a>
+<a name="method27"></a>
 <p/><strong>int Pythia::mode(string key) &nbsp;</strong> <br/>
 read in an integer variable from the <code>Settings</code> database.
 <br/><code>argument</code><strong> key </strong>  :   
@@ -1060,7 +1092,7 @@ the name of the variable to be read.
   
   
  
-<a name="method27"></a>
+<a name="method28"></a>
 <p/><strong>double Pythia::parm(string key) &nbsp;</strong> <br/>
 read in a double-precision variable from the <code>Settings</code> 
 database.
@@ -1069,7 +1101,7 @@ the name of the variable to be read.
   
   
  
-<a name="method28"></a>
+<a name="method29"></a>
 <p/><strong>string Pythia::word(string key) &nbsp;</strong> <br/>
 read in a string variable from the <code>Settings</code> database.
 <br/><code>argument</code><strong> key </strong>  :   
@@ -1083,25 +1115,18 @@ The <code>Pythia</code> class contains a few public data members,
 several of which play a central role. We list them here, with 
 links to the places where they are further described. 
  
-<a name="method29"></a>
+<a name="method30"></a>
 <p/><strong>Event Pythia::process &nbsp;</strong> <br/>
 the hard-process event record, see <?php $filepath = $_GET["filepath"];
 echo "<a href='EventRecord.php?filepath=".$filepath."' target='page'>";?>here</a>
 for further details.
   
  
-<a name="method30"></a>
+<a name="method31"></a>
 <p/><strong>Event Pythia::event &nbsp;</strong> <br/>
 the complete event record, see <?php $filepath = $_GET["filepath"];
 echo "<a href='EventRecord.php?filepath=".$filepath."' target='page'>";?>here</a>
 for further details.
-  
- 
-<a name="method31"></a>
-<p/><strong>PartonSystems Pythia::partonSystems &nbsp;</strong> <br/>
-a grouping of the partons in the event record by subsystem, 
-see <?php $filepath = $_GET["filepath"];
-echo "<a href='AdvancedUsage.php?filepath=".$filepath."' target='page'>";?>here</a> for further details.
   
  
 <a name="method32"></a>
@@ -1115,27 +1140,46 @@ echo "<a href='EventInformation.php?filepath=".$filepath."' target='page'>";?>he
 <p/><strong>Settings Pythia::settings &nbsp;</strong> <br/>
 the settings database, see <?php $filepath = $_GET["filepath"];
 echo "<a href='SettingsScheme.php?filepath=".$filepath."' target='page'>";?>here</a>
-for further details. Note that the <code>Settings</code> class is 
-purely static, so it would not have needed to be inlcuded here.
+for further details. 
   
  
 <a name="method34"></a>
-<p/><strong>ParticleDataTable Pythia::particleData &nbsp;</strong> <br/>
+<p/><strong>ParticleData Pythia::particleData &nbsp;</strong> <br/>
 the particle properties and decay tables database, see 
 <?php $filepath = $_GET["filepath"];
 echo "<a href='ParticleDataScheme.php?filepath=".$filepath."' target='page'>";?>here</a> for further details. 
-Note that the <code>ParticleDataTable</code> class is 
-purely static, so it would not have needed to be inlcuded here.
   
  
 <a name="method35"></a>
+<p/><strong>Rndm Pythia::rndm &nbsp;</strong> <br/>
+the random number generator, see <?php $filepath = $_GET["filepath"];
+echo "<a href='RandomNumberSeed.php?filepath=".$filepath."' target='page'>";?>here</a>
+and <?php $filepath = $_GET["filepath"];
+echo "<a href='RandomNumbers.php?filepath=".$filepath."' target='page'>";?>here</a> for further details. 
+  
+ 
+<a name="method36"></a>
+<p/><strong>CoupSM Pythia::coupSM &nbsp;</strong> <br/>
+Standard Model couplings and mixing matrices, see 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='StandardModelParameters.php?filepath=".$filepath."' target='page'>";?>here</a> for further details. 
+  
+ 
+<a name="method37"></a>
 <p/><strong>SusyLesHouches Pythia::slha &nbsp;</strong> <br/>
 parameters and particle data in the context of supersymmetric models, 
 see <?php $filepath = $_GET["filepath"];
 echo "<a href='SUSYLesHouchesAccord.php?filepath=".$filepath."' target='page'>";?>here</a> for further details.
   
+ 
+<a name="method38"></a>
+<p/><strong>PartonSystems Pythia::partonSystems &nbsp;</strong> <br/>
+a grouping of the partons in the event record by subsystem, 
+see <?php $filepath = $_GET["filepath"];
+echo "<a href='AdvancedUsage.php?filepath=".$filepath."' target='page'>";?>here</a> for further details.
+  
    
 </body>
 </html>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->

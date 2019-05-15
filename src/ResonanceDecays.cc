@@ -1,5 +1,5 @@
 // ResonanceDecays.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -10,12 +10,12 @@
 
 namespace Pythia8 {
 
-//**************************************************************************
+//==========================================================================
 
 // The ResonanceDecays class.
 // Do all resonance decays sequentially.
 
-//*********
+//--------------------------------------------------------------------------
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -43,7 +43,7 @@ const double ResonanceDecays::TINYBWRANGE = 1e-8;
 const double ResonanceDecays::WTCORRECTION[11] = { 1., 1., 1., 
   2., 5., 15., 60., 250., 1250., 7000., 50000. };
 
-//*********
+//--------------------------------------------------------------------------
   
 bool ResonanceDecays::next( Event& process) {
 
@@ -66,14 +66,14 @@ bool ResonanceDecays::next( Event& process) {
       int idIn = process[decayer.mother1()].id();
 
       // Prepare decay selection.
-      decayer.particleData().preparePick(id0, m0, idIn);
+      decayer.particleDataEntry().preparePick(id0, m0, idIn);
 
       // Pick a decay channel; allow up to ten tries.
       bool foundChannel = false;
       for (int iTryChannel = 0; iTryChannel < NTRYCHANNEL; ++iTryChannel) {
 
         // Pick decay channel. Find multiplicity.
-        DecayChannel& channel = decayer.particleData().pickChannel();  
+        DecayChannel& channel = decayer.particleDataEntry().pickChannel();  
         mult = channel.multiplicity();
 
         // Read out flavours.
@@ -81,7 +81,7 @@ bool ResonanceDecays::next( Event& process) {
         int idNow;
         for (int i = 1; i <= mult; ++i) {
           idNow = channel.product(i - 1);
-          if (id0 < 0 && ParticleDataTable::hasAnti(idNow)) idNow = -idNow;
+          if (id0 < 0 && particleDataPtr->hasAnti(idNow)) idNow = -idNow;
           idProd.push_back( idNow);
 	}
 
@@ -111,7 +111,7 @@ bool ResonanceDecays::next( Event& process) {
         for (int i = 1; i <= mult; ++i) {
           int j = process.append( idProd[i], 23, iDec, 0, 0, 0, 
           cols[i], acols[i], pProd[i], mProd[i], m0);
-          process[j].tau( process[j].tau0() * Rndm::exp() );
+          process[j].tau( process[j].tau0() * rndmPtr->exp() );
 	}
       int iLast = process.size() - 1;
 
@@ -147,12 +147,12 @@ bool ResonanceDecays::pickMasses() {
   bool   useBWNow; 
   double m0Now, mMinNow, mMaxNow, widthNow;
   for (int i = 1; i <= mult; ++i) {
-    useBWNow  = ParticleDataTable::useBreitWigner( idProd[i] ); 
-    m0Now     = ParticleDataTable::m0( idProd[i] );   
-    mMinNow   = ParticleDataTable::m0Min( idProd[i] );   
-    mMaxNow   = ParticleDataTable::m0Max( idProd[i] );
+    useBWNow  = particleDataPtr->useBreitWigner( idProd[i] ); 
+    m0Now     = particleDataPtr->m0( idProd[i] );   
+    mMinNow   = particleDataPtr->m0Min( idProd[i] );   
+    mMaxNow   = particleDataPtr->m0Max( idProd[i] );
     if (useBWNow && mMaxNow < mMinNow) mMaxNow = mMother;   
-    widthNow  = ParticleDataTable::mWidth( idProd[i] );
+    widthNow  = particleDataPtr->mWidth( idProd[i] );
     useBW.push_back( useBWNow );
     m0BW.push_back( m0Now );
     mMinBW.push_back( mMinNow );
@@ -185,12 +185,12 @@ bool ResonanceDecays::pickMasses() {
       if (iTryMasses == NTRYMASSES) return false;
       mSum = 0.;
       for (int i = 1; i <= mult; ++i) {
-        if (useBW[i])  mProd[i] = ParticleDataTable::mass( idProd[i] ); 
+        if (useBW[i])  mProd[i] = particleDataPtr->mass( idProd[i] ); 
         mSum += mProd[i];   
       }
       wt = (mSum + 0.5 * MSAFETY < mMother)
          ? sqrtpos(1. - mSum*mSum / m2Mother) : 0.;
-      if (wt > Rndm::flat() * wtMax) break;
+      if (wt > rndmPtr->flat() * wtMax) break;
     } 
     return true;
   }
@@ -243,10 +243,10 @@ bool ResonanceDecays::pickMasses() {
       double m2Now, wt;
       for (int iTryMasses = 0; iTryMasses <= NTRYMASSES; ++ iTryMasses) {
         if (iTryMasses == NTRYMASSES) return false;
-        m2Now = m2Nom + mmWid * tan(atanMin + Rndm::flat() * atanDif);
+        m2Now = m2Nom + mmWid * tan(atanMin + rndmPtr->flat() * atanDif);
         mr2   = m2Now / m2Mother;
         wt    = sqrtpos( pow2(1. - mr1 - mr2) - 4. * mr1 * mr2 );
-        if (wt > Rndm::flat() * wtMax) break;
+        if (wt > rndmPtr->flat() * wtMax) break;
       } 
 
       // Prepare to iterate for more. Done for one Breit-Wigner. 
@@ -322,15 +322,15 @@ bool ResonanceDecays::pickMasses() {
     if (iTryMasses == NTRYMASSES) return false;
  
     // Pick either below half remaining mass.    
-    if (Rndm::flat() < probLow1) {
+    if (rndmPtr->flat() < probLow1) {
       atanDif1 = atanMid1 - atanMin1;
       atanDif2 = atanMax2 - atanMin2;
     } else {
       atanDif1 = atanMax1 - atanMin1;
       atanDif2 = atanMid2 - atanMin2;
     }
-    m2Now1 = m2Nom1 + mmWid1 * tan(atanMin1 + Rndm::flat() * atanDif1);
-    m2Now2 = m2Nom2 + mmWid2 * tan(atanMin2 + Rndm::flat() * atanDif2);
+    m2Now1 = m2Nom1 + mmWid1 * tan(atanMin1 + rndmPtr->flat() * atanDif1);
+    m2Now2 = m2Nom2 + mmWid2 * tan(atanMin2 + rndmPtr->flat() * atanDif2);
     mNow1  = sqrt(m2Now1);
     mNow2  = sqrt(m2Now2);
 
@@ -347,7 +347,7 @@ bool ResonanceDecays::pickMasses() {
       else if (psMode == 5) wt = ps 
         * (pow2(1. - mr1 - mr2) + 8. * mr1 * mr2);
     }
-    if (wt > Rndm::flat() * wtMax) break;
+    if (wt > rndmPtr->flat() * wtMax) break;
   }
   mProd[iBW1] = mNow1; 
   mProd[iBW2] = mNow2; 
@@ -357,7 +357,7 @@ bool ResonanceDecays::pickMasses() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select colours of decay products.
   
@@ -381,7 +381,7 @@ bool ResonanceDecays::pickColours(int iDec, Event& process) {
     cols.push_back(0);
     acols.push_back(0);
     // Find character (singlet, triplet, antitriplet, octet) of daughters.
-    colTypeNow = ParticleDataTable::colType( idProd[i] );
+    colTypeNow = particleDataPtr->colType( idProd[i] );
     if      (colTypeNow ==  0);
     else if (colTypeNow ==  1) iTriplet.push_back(i);
     else if (colTypeNow == -1) iAtriplet.push_back(i);
@@ -418,7 +418,7 @@ bool ResonanceDecays::pickColours(int iDec, Event& process) {
       // Pick final-state triplets to carry these new colours.
       else {      
         int pickT    = (iTriplet.size() == 1) ? 0
-          : int( TINY + Rndm::flat() * (iTriplet.size() - TINY) );
+          : int( TINY + rndmPtr->flat() * (iTriplet.size() - TINY) );
         int iPickT   = iTriplet[pickT];
         cols[iPickT] = colJun[leg];
 
@@ -453,7 +453,7 @@ bool ResonanceDecays::pickColours(int iDec, Event& process) {
       // Pick final-state antitriplets to carry these new anticolours.
       else {      
         int pickA     = (iAtriplet.size() == 1) ? 0
-          : int( TINY + Rndm::flat() * (iAtriplet.size() - TINY) );
+          : int( TINY + rndmPtr->flat() * (iAtriplet.size() - TINY) );
         int iPickA    = iAtriplet[pickA];
         acols[iPickA] = acolJun[leg];
 
@@ -479,7 +479,7 @@ bool ResonanceDecays::pickColours(int iDec, Event& process) {
   // Pick final-state triplet (if any) to carry initial colour.
   if (col0 != 0 && iTriplet.size() > 0) {
     int pickT    = (iTriplet.size() == 1) ? 0
-      : int( TINY + Rndm::flat() * (iTriplet.size() - TINY) );
+      : int( TINY + rndmPtr->flat() * (iTriplet.size() - TINY) );
     int iPickT   = iTriplet[pickT];
     cols[iPickT] = col0;
 
@@ -494,7 +494,7 @@ bool ResonanceDecays::pickColours(int iDec, Event& process) {
   // Pick final-state antitriplet (if any) to carry initial anticolour.
   if (acol0 != 0 && iAtriplet.size() > 0) {
     int pickA = (iAtriplet.size() == 1) ? 0
-      : int( TINY + Rndm::flat() * (iAtriplet.size() - TINY) );
+      : int( TINY + rndmPtr->flat() * (iAtriplet.size() - TINY) );
     int iPickA = iAtriplet[pickA];
     acols[iPickA] = acol0;
 
@@ -518,7 +518,7 @@ bool ResonanceDecays::pickColours(int iDec, Event& process) {
   for (int pickT = 0; pickT < int(iTriplet.size()); ++pickT) {
     int iPickT = iTriplet[pickT];    
     int pickA  = (iAtriplet.size() == 1) ? 0
-      : int( TINY + Rndm::flat() * (iAtriplet.size() - TINY) );
+      : int( TINY + rndmPtr->flat() * (iAtriplet.size() - TINY) );
     int iPickA = iAtriplet[pickA];
 
     // Connect pair with new colour tag.
@@ -556,7 +556,7 @@ bool ResonanceDecays::pickColours(int iDec, Event& process) {
     // Else attach to existing dipole picked at random.
     else { 
       int pickDip = (iDipCol.size() == 1) ? 0
-        : int( TINY + Rndm::flat() * (iDipCol.size() - TINY) );
+        : int( TINY + rndmPtr->flat() * (iDipCol.size() - TINY) );
 
       // Case with dipole in initial state: reattach existing colours.
       if (iDipCol[pickDip] == 0 && iDipAcol[pickDip] == 0) {
@@ -602,7 +602,7 @@ bool ResonanceDecays::pickColours(int iDec, Event& process) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select decay products momenta isotropically in phase space.
 // Process-dependent angular distributions may be imposed in SigmaProcess.
@@ -624,9 +624,9 @@ bool ResonanceDecays::pickKinematics() {
       * (m0 + m1 - m2) * (m0 - m1 + m2) ) / m0;  
 
     // Pick isotropic angles to give three-momentum. 
-    double cosTheta = 2. * Rndm::flat() - 1.;
+    double cosTheta = 2. * rndmPtr->flat() - 1.;
     double sinTheta = sqrt(1. - cosTheta*cosTheta);
-    double phi      = 2. * M_PI * Rndm::flat();
+    double phi      = 2. * M_PI * rndmPtr->flat();
     double pX       = pAbs * sinTheta * cos(phi);  
     double pY       = pAbs * sinTheta * sin(phi);  
     double pZ       = pAbs * cosTheta;  
@@ -663,7 +663,7 @@ bool ResonanceDecays::pickKinematics() {
     // Pick an intermediate mass m23 flat in the allowed range.
     double wtPS, m23, p1Abs, p23Abs;
     do {      
-      m23 = m23Min + Rndm::flat() * mDiff;
+      m23 = m23Min + rndmPtr->flat() * mDiff;
 
       // Translate into relative momenta and find phase-space weight.
       p1Abs  = 0.5 * sqrtpos( (m0 - m1 - m23) * (m0 + m1 + m23)
@@ -673,12 +673,12 @@ bool ResonanceDecays::pickKinematics() {
       wtPS   = p1Abs * p23Abs;
 
     // If rejected, try again with new invariant masses.
-    } while ( wtPS < Rndm::flat() * wtPSmax ); 
+    } while ( wtPS < rndmPtr->flat() * wtPSmax ); 
 
     // Set up m23 -> m2 + m3 isotropic in its rest frame.
-    double cosTheta = 2. * Rndm::flat() - 1.;
+    double cosTheta = 2. * rndmPtr->flat() - 1.;
     double sinTheta = sqrt(1. - cosTheta*cosTheta);
-    double phi      = 2. * M_PI * Rndm::flat();
+    double phi      = 2. * M_PI * rndmPtr->flat();
     double pX       = p23Abs * sinTheta * cos(phi);  
     double pY       = p23Abs * sinTheta * sin(phi);  
     double pZ       = p23Abs * cosTheta;  
@@ -688,9 +688,9 @@ bool ResonanceDecays::pickKinematics() {
     Vec4 p3( -pX, -pY, -pZ, e3);
 
     // Set up 0 -> 1 + 23 isotropic in its rest frame.
-    cosTheta        = 2. * Rndm::flat() - 1.;
+    cosTheta        = 2. * rndmPtr->flat() - 1.;
     sinTheta        = sqrt(1. - cosTheta*cosTheta);
-    phi             = 2. * M_PI * Rndm::flat();
+    phi             = 2. * M_PI * rndmPtr->flat();
     pX              = p1Abs * sinTheta * cos(phi);  
     pY              = p1Abs * sinTheta * sin(phi);  
     pZ              = p1Abs * cosTheta;  
@@ -746,7 +746,7 @@ bool ResonanceDecays::pickKinematics() {
     rndmOrd.resize(0);
     rndmOrd.push_back(1.);
     for (int i = 1; i < mult - 1; ++i) { 
-      double rndm = Rndm::flat();
+      double rndm = rndmPtr->flat();
       rndmOrd.push_back(rndm);
       for (int j = i - 1; j > 0; --j) {
         if (rndm > rndmOrd[j]) swap( rndmOrd[j], rndmOrd[j+1] );
@@ -764,7 +764,7 @@ bool ResonanceDecays::pickKinematics() {
     }
 
   // If rejected, try again with new invariant masses.
-  } while ( wtPS < Rndm::flat() * wtPSmax ); 
+  } while ( wtPS < rndmPtr->flat() * wtPSmax ); 
 
   // Perform two-particle decays in the respective rest frame.
   vector<Vec4> pInv;
@@ -775,9 +775,9 @@ bool ResonanceDecays::pickKinematics() {
       * (mInv[i] - mInv[i+1] + mProd[i]) ) / mInv[i]; 
 
     // Isotropic angles give three-momentum.
-    double cosTheta = 2. * Rndm::flat() - 1.;
+    double cosTheta = 2. * rndmPtr->flat() - 1.;
     double sinTheta = sqrt(1. - cosTheta*cosTheta);
-    double phi      = 2. * M_PI * Rndm::flat();
+    double phi      = 2. * M_PI * rndmPtr->flat();
     double pX       = pAbs * sinTheta * cos(phi);  
     double pY       = pAbs * sinTheta * sin(phi);  
     double pZ       = pAbs * cosTheta;  
@@ -800,6 +800,6 @@ bool ResonanceDecays::pickKinematics() {
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8

@@ -150,7 +150,7 @@ partons; could be used e.g. for reweighting purposes.
 <method name="double Info::QFac()"> 
 </method>
 <methodmore name="double Info::Q2Fac()">
-the <ei>Q^2</ei> or <ei>Q^2</ei> factorization scale at which the 
+the <ei>Q</ei> or <ei>Q^2</ei> factorization scale at which the 
 densities were evaluated.
 </methodmore>
 
@@ -315,6 +315,139 @@ summed over all allowed subprocesses, in units of mb. The numbers refer to
 the accepted event sample above, i.e. after any user veto. 
 </methodmore>
 
+<h3>Loop counters</h3>
+
+Mainly for internal/debug purposes, a number of loop counters from
+various parts of the program are stored in the <code>Info</code> class,
+so that one can keep track of how the event generation is progressing.
+This may be especially useful in the context of the  
+<code><aloc href="UserHooks">User Hooks</aloc></code> facility.
+
+<method name="int Info::getCounter(int i)">
+the method that gives you access to the value of the various loop 
+counters.
+<argument name="i"> the counter number you want to access:
+<argoption value="0 - 9"> counters that refer to the run as a whole, 
+i.e. are set 0 at the beginning of the run and then only can increase.
+</argoption>
+<argoption value="0"> the number of successful constructor calls for the
+<code>Pythia</code> class (can only be 0 or 1).
+</argoption>
+<argoption value="1"> the number of times a <code>Pythia::init(...)</code>
+call has been begun.  
+</argoption>
+<argoption value="2"> the number of times a <code>Pythia::init(...)</code>
+call has been completed successfully.  
+</argoption>
+<argoption value="3"> the number of times a <code>Pythia::next()</code>
+call has been begun.  
+</argoption>
+<argoption value="4"> the number of times a <code>Pythia::next()</code>
+call has been completed successfully.  
+</argoption>
+<argoption value="10 - 19"> counters that refer to each individual event, 
+and are reset and updated in the top-level <code>Pythia::next()</code> 
+method.  
+</argoption>
+<argoption value="10"> the number of times the selection of a new hard 
+process has been begun. Normally this should only happen once, unless a 
+user veto is set to abort the current process and try a new one.
+</argoption>
+<argoption value="11"> the number of times the selection of a new hard 
+process has been completed successfully.  
+</argoption>
+<argoption value="12"> as 11, but additionally the process should
+survive any user veto and go on to the parton- and hadron-level stages. 
+</argoption>
+<argoption value="13"> as 11, but additionally the process should 
+survive the parton- and hadron-level stage and any user cuts. 
+</argoption>
+<argoption value="14"> the number of times the loop over parton- and
+hadron-level processing has begun for a hard process. Is reset each
+time counter 12 above is reached. 
+</argoption>
+<argoption value="15"> the number of times the above loop has successfully
+completed the parton-level step.
+</argoption>
+<argoption value="16"> the number of times the above loop has successfully
+completed the checks and user vetoes after the parton-level step.
+</argoption>
+<argoption value="17"> the number of times the above loop has successfully
+completed the hadron-level step.
+</argoption>
+<argoption value="18"> the number of times the above loop has successfully
+completed the checks and user vetoes after the hadron-level step.
+</argoption>
+<argoption value="20 - 39"> counters that refer to a local part of the 
+individual event, and are reset at the beginning of this part.
+</argoption>
+<argoption value="20"> the current system being processed in 
+<code>PartonLevel::next()</code>. Is almost always 1, but for double
+diffraction the two diffractive systems are 1 and 2, respectively.
+</argoption>
+<argoption value="21"> the number of times the processing of the 
+current system (see above) has begun.
+</argoption>
+<argoption value="22"> the number of times a step has begun in the 
+combined MI/ISR/FSR evolution downwards in <ei>pT</ei> 
+for the current system.
+</argoption>
+<argoption value="23"> the number of time MI has been selected for the 
+downwards step above.
+</argoption>
+<argoption value="24"> the number of time ISR has been selected for the 
+downwards step above.
+</argoption>
+<argoption value="25"> the number of time FSR has been selected for the 
+downwards step above.
+</argoption>
+<argoption value="26">  the number of time MI has been accepted as the 
+downwards step above, after the vetoes.
+</argoption>
+<argoption value="27">  the number of time ISR has been accepted as the 
+downwards step above, after the vetoes.
+</argoption>
+<argoption value="28">  the number of time FSR has been accepted as the 
+downwards step above, after the vetoes.
+</argoption>
+<argoption value="29"> the number of times a step has begun in the 
+separate (optional) FSR evolution downwards in <ei>pT</ei> 
+for the current system.
+</argoption>
+<argoption value="30"> the number of time FSR has been selected for the 
+downwards step above.
+</argoption>
+<argoption value="31">  the number of time FSR has been accepted as the 
+downwards step above, after the vetoes.
+</argoption>
+<argoption value="40 - 49"> counters that are unused (currently), and
+that therefore are free to use, with the help of the two methods below.
+</argoption>
+</argument>
+</method>
+
+<method name="void Info::setCounter(int i, int value = 0)">
+set the above counters to a given value. Only to be used by you 
+for the unassigned counters 30 - 39.
+<argument name="i"> the counter number, see above.
+</argument>
+<argument name="value" default="0"> set the counter to this number;
+normally the default value is what you want.
+</argument>
+
+<method name="void Info::addCounter(int i, int value = 0)">
+increase the above counters by a given amount. Only to be used by you 
+for the unassigned counters 30 - 39.
+<argument name="i"> the counter number, see above.
+</argument>
+<argument name="value" default="1"> increase the counter by this amount;
+normally the default value is what you want.
+</argument>
+
+</method>
+
+
+
 </chapter>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->

@@ -1,5 +1,5 @@
 // MiniStringFragmentation.h is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -20,7 +20,7 @@
 
 namespace Pythia8 {
 
-//**************************************************************************
+//==========================================================================
 
 // The MiniStringFragmentation class contains the routines to fragment 
 // occasional low-mass colour singlet partonic systems, where the string 
@@ -34,7 +34,9 @@ public:
   MiniStringFragmentation() {}
 
   // Initialize and save pointers.
-  void init(Info* infoPtrIn, StringFlav* flavSelPtrIn);
+  void init(Info* infoPtrIn, Settings& settings,  
+    ParticleData* particleDataPtrIn, Rndm* rndmPtrIn, 
+    StringFlav* flavSelPtrIn);
 
   // Do the fragmentation: driver routine.
   bool fragment( int iSub, ColConfig& colConfig, Event& event, 
@@ -47,10 +49,16 @@ private:
   static const double SIGMAMIN;
 
   // Pointer to various information on the generation.
-  Info*       infoPtr;
+  Info*         infoPtr;
+
+  // Pointer to the particle data table.
+  ParticleData* particleDataPtr;
+
+  // Pointer to the random number generator.
+  Rndm*         rndmPtr;
 
   // Pointer to class for flavour generation.
-  StringFlav* flavSelPtr;
+  StringFlav*   flavSelPtr;
 
   // Initialization data, read from Settings.
   int    nTryMass;
@@ -71,7 +79,7 @@ private:
 
 };
 
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8
 

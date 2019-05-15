@@ -1,5 +1,5 @@
 // main24.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -10,7 +10,7 @@
 
 using namespace Pythia8; 
 
-//**************************************************************************
+//==========================================================================
 
 // A derived class to generate random numbers.
 // A guranteed VERY STUPID generator, just to show principles.
@@ -36,7 +36,7 @@ private:
 
 };
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialization method for the random numbers.
 
@@ -55,7 +55,7 @@ void stupidRndm::init() {
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialization method for the random numbers.
 
@@ -75,7 +75,7 @@ double stupidRndm::flat() {
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 int main() {
 
@@ -91,9 +91,9 @@ int main() {
   Hist rndmDist("standard random number distribution", 100, 0., 1.);
   Hist rndmCorr("standard random number correlation", 100, 0., 1.);
   double rndmNow;
-  double rndmOld = Rndm::flat();
+  double rndmOld = pythia.rndm.flat();
   for (int i = 0; i < 1000000; ++i) {
-    rndmNow = Rndm::flat();
+    rndmNow = pythia.rndm.flat();
     rndmDist.fill(rndmNow);
     rndmCorr.fill( abs(rndmNow - rndmOld) );
     rndmOld = rndmNow;
@@ -108,7 +108,7 @@ int main() {
   /*
   cout << fixed << setprecision(8); 
   for (int i = 0; i < 500; ++i) {
-    cout << setw(12) << Rndm::flat();
+    cout << setw(12) << pythia.rndm.flat();
     if(i%10 == 9) cout << "\n";
   } 
   */
@@ -116,9 +116,9 @@ int main() {
   // Study bad "new" random number generator.
   Hist rndmDist2("stupid random number distribution", 100, 0., 1.);
   Hist rndmCorr2("stupid random number correlation", 100, 0., 1.);
-  rndmOld = Rndm::flat();
+  rndmOld = pythia.rndm.flat();
   for (int i = 0; i < 100000; ++i) {
-    rndmNow = Rndm::flat();
+    rndmNow = pythia.rndm.flat();
     rndmDist2.fill(rndmNow);
     rndmCorr2.fill( abs(rndmNow - rndmOld) );
     rndmOld = rndmNow;

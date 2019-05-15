@@ -1,5 +1,5 @@
 // HadronLevel.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -9,11 +9,11 @@
 
 namespace Pythia8 {
 
-//**************************************************************************
+//==========================================================================
 
 // The HadronLevel class.
 
-//*********
+//--------------------------------------------------------------------------
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -29,55 +29,58 @@ const int HadronLevel::NTRYJNREST        = 20;
 // Typical average transvere primary hadron mass <mThad>. 
 const double HadronLevel::MTHAD          = 0.9; 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Find settings. Initialize HadronLevel classes as required.
 
-bool HadronLevel::init(Info* infoPtrIn, TimeShower* timesDecPtr,
+bool HadronLevel::init(Info* infoPtrIn, Settings& settings, 
+  ParticleData& particleData, Rndm* rndmPtrIn, TimeShower* timesDecPtr, 
   DecayHandler* decayHandlePtr, vector<int> handledParticles) {
 
-  // Save pointer.
+  // Save pointers.
   infoPtr        = infoPtrIn;
+  rndmPtr        = rndmPtrIn;
 
   // Main flags.
-  doHadronize    = Settings::flag("HadronLevel:Hadronize");
-  doDecay        = Settings::flag("HadronLevel:Decay");
-  doBoseEinstein = Settings::flag("HadronLevel:BoseEinstein");
+  doHadronize    = settings.flag("HadronLevel:Hadronize");
+  doDecay        = settings.flag("HadronLevel:Decay");
+  doBoseEinstein = settings.flag("HadronLevel:BoseEinstein");
 
   // Boundary mass between string and ministring handling.
-  mStringMin     = Settings::parm("HadronLevel:mStringMin");
+  mStringMin     = settings.parm("HadronLevel:mStringMin");
 
   // For junction processing.
-  eNormJunction  = Settings::parm("StringFragmentation:eNormJunction");
+  eNormJunction  = settings.parm("StringFragmentation:eNormJunction");
 
   // Particles that should decay or not before Bose-Einstein stage.
-  widthSepBE     = Settings::parm("BoseEinstein:widthSep");
+  widthSepBE     = settings.parm("BoseEinstein:widthSep");
 
   // Initialize string and ministring fragmentation.
-  stringFrag.init(infoPtr, &flavSel, &pTSel, &zSel);
-  ministringFrag.init(infoPtr, &flavSel);
+  stringFrag.init(infoPtr, settings, &particleData, rndmPtr, &flavSel, &pTSel, 
+    &zSel);
+  ministringFrag.init(infoPtr, settings, &particleData, rndmPtr, &flavSel);
  
   // Initialize particle decays.  
-  decays.init(infoPtr, timesDecPtr, &flavSel, decayHandlePtr, 
-    handledParticles); 
+  decays.init(infoPtr, settings, &particleData, rndmPtr, timesDecPtr, &flavSel, 
+    decayHandlePtr, handledParticles); 
 
   // Initialize BoseEinstein. 
-  boseEinstein.init(infoPtr); 
+  boseEinstein.init(infoPtr, settings, particleData); 
 
   // Initialize auxiliary administrative classes.
-  colConfig.init(infoPtr, &flavSel);
+  colConfig.init(infoPtr, settings, &flavSel);
 
   // Initialize auxiliary fragmentation classes.
-  flavSel.init();
-  pTSel.init();
-  zSel.init();
+  flavSel.init(settings, rndmPtr);
+  pTSel.init(settings, rndmPtr);
+  zSel.init(settings, particleData, rndmPtr);
 
   // Done.
   return true;
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Hadronize and decay the next parton-level.
 
@@ -153,7 +156,6 @@ bool HadronLevel::next( Event& event) {
       } while (++iDec < event.size());
     }
 
-
   // Normally done first time around, but sometimes not (e.g. Upsilon).
   } while (moreToDo);
 
@@ -162,7 +164,7 @@ bool HadronLevel::next( Event& event) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Allow more decays if on/off switches changed.
 // Note: does not do sequential hadronization, e.g. for Upsilon.
@@ -184,7 +186,7 @@ bool HadronLevel::moreDecays( Event& event) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Decay colour-octet onium states.
 
@@ -216,7 +218,7 @@ bool HadronLevel::decayOctetOnia(Event& event) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Trace colour flow in the event to form colour singlet subsystems.
 
@@ -319,7 +321,7 @@ bool HadronLevel::findSinglets(Event& event) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Trace a colour line, from a colour to an anticolour.
 
@@ -390,7 +392,7 @@ bool HadronLevel::traceFromCol(int indxCol, Event& event, int iJun,
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Trace a colour line, from an anticolour to a colour.
 
@@ -461,7 +463,7 @@ bool HadronLevel::traceFromAcol(int indxCol, Event& event, int iJun,
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Trace a colour loop, from a colour back to the anticolour of the same.
 
@@ -499,7 +501,7 @@ bool HadronLevel::traceInLoop(int indxCol, int indxAcol, Event& event) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Split junction-antijunction system into two, or simplify other way.
 
@@ -599,7 +601,7 @@ bool HadronLevel::splitJunctionPair(Event& event) {
       }
    
       // Pick breakup region with probability proportional to mass-squared.
-      double m2Reg = m2Sum * Rndm::flat();
+      double m2Reg = m2Sum * rndmPtr->flat();
       int iReg = -1;
       do m2Reg -= m2Pair[++iReg];
       while (m2Reg > 0. && iReg < int(iGluLeg.size()) - 1); 
@@ -614,7 +616,7 @@ bool HadronLevel::splitJunctionPair(Event& event) {
         xPos = 1. - zTemp;
         xNeg = m2Temp / (zTemp * m2Reg);
       } while (xNeg > 1.);
-      if (Rndm::flat() > 0.5) swap(xPos, xNeg); 
+      if (rndmPtr->flat() > 0.5) swap(xPos, xNeg); 
 
       // Pick up two "mother" gluons of breakup. Mark them decayed.
       Particle& gJun = event[ iGluLeg[iReg] ]; 
@@ -911,7 +913,7 @@ bool HadronLevel::splitJunctionPair(Event& event) {
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8
 

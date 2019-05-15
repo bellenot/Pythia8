@@ -198,7 +198,7 @@ partons; could be used e.g. for reweighting purposes.
 <p/><strong>double Info::QFac() &nbsp;</strong> <br/>
   
 <strong>double Info::Q2Fac() &nbsp;</strong> <br/>
-the <i>Q^2</i> or <i>Q^2</i> factorization scale at which the 
+the <i>Q</i> or <i>Q^2</i> factorization scale at which the 
 densities were evaluated.
   
 
@@ -382,7 +382,144 @@ summed over all allowed subprocesses, in units of mb. The numbers refer to
 the accepted event sample above, i.e. after any user veto. 
   
 
+<h3>Loop counters</h3>
+
+Mainly for internal/debug purposes, a number of loop counters from
+various parts of the program are stored in the <code>Info</code> class,
+so that one can keep track of how the event generation is progressing.
+This may be especially useful in the context of the  
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='UserHooks.php?filepath=".$filepath."' target='page'>";?>User Hooks</a></code> facility.
+
+<a name="method40"></a>
+<p/><strong>int Info::getCounter(int i) &nbsp;</strong> <br/>
+the method that gives you access to the value of the various loop 
+counters.
+<br/><code>argument</code><strong> i </strong>  :  the counter number you want to access:
+<br/><code>argumentoption </code><strong> 0 - 9</strong> :  counters that refer to the run as a whole, 
+i.e. are set 0 at the beginning of the run and then only can increase.
+  
+<br/><code>argumentoption </code><strong> 0</strong> :  the number of successful constructor calls for the
+<code>Pythia</code> class (can only be 0 or 1).
+  
+<br/><code>argumentoption </code><strong> 1</strong> :  the number of times a <code>Pythia::init(...)</code>
+call has been begun.  
+  
+<br/><code>argumentoption </code><strong> 2</strong> :  the number of times a <code>Pythia::init(...)</code>
+call has been completed successfully.  
+  
+<br/><code>argumentoption </code><strong> 3</strong> :  the number of times a <code>Pythia::next()</code>
+call has been begun.  
+  
+<br/><code>argumentoption </code><strong> 4</strong> :  the number of times a <code>Pythia::next()</code>
+call has been completed successfully.  
+  
+<br/><code>argumentoption </code><strong> 10 - 19</strong> :  counters that refer to each individual event, 
+and are reset and updated in the top-level <code>Pythia::next()</code> 
+method.  
+  
+<br/><code>argumentoption </code><strong> 10</strong> :  the number of times the selection of a new hard 
+process has been begun. Normally this should only happen once, unless a 
+user veto is set to abort the current process and try a new one.
+  
+<br/><code>argumentoption </code><strong> 11</strong> :  the number of times the selection of a new hard 
+process has been completed successfully.  
+  
+<br/><code>argumentoption </code><strong> 12</strong> :  as 11, but additionally the process should
+survive any user veto and go on to the parton- and hadron-level stages. 
+  
+<br/><code>argumentoption </code><strong> 13</strong> :  as 11, but additionally the process should 
+survive the parton- and hadron-level stage and any user cuts. 
+  
+<br/><code>argumentoption </code><strong> 14</strong> :  the number of times the loop over parton- and
+hadron-level processing has begun for a hard process. Is reset each
+time counter 12 above is reached. 
+  
+<br/><code>argumentoption </code><strong> 15</strong> :  the number of times the above loop has successfully
+completed the parton-level step.
+  
+<br/><code>argumentoption </code><strong> 16</strong> :  the number of times the above loop has successfully
+completed the checks and user vetoes after the parton-level step.
+  
+<br/><code>argumentoption </code><strong> 17</strong> :  the number of times the above loop has successfully
+completed the hadron-level step.
+  
+<br/><code>argumentoption </code><strong> 18</strong> :  the number of times the above loop has successfully
+completed the checks and user vetoes after the hadron-level step.
+  
+<br/><code>argumentoption </code><strong> 20 - 39</strong> :  counters that refer to a local part of the 
+individual event, and are reset at the beginning of this part.
+  
+<br/><code>argumentoption </code><strong> 20</strong> :  the current system being processed in 
+<code>PartonLevel::next()</code>. Is almost always 1, but for double
+diffraction the two diffractive systems are 1 and 2, respectively.
+  
+<br/><code>argumentoption </code><strong> 21</strong> :  the number of times the processing of the 
+current system (see above) has begun.
+  
+<br/><code>argumentoption </code><strong> 22</strong> :  the number of times a step has begun in the 
+combined MI/ISR/FSR evolution downwards in <i>pT</i> 
+for the current system.
+  
+<br/><code>argumentoption </code><strong> 23</strong> :  the number of time MI has been selected for the 
+downwards step above.
+  
+<br/><code>argumentoption </code><strong> 24</strong> :  the number of time ISR has been selected for the 
+downwards step above.
+  
+<br/><code>argumentoption </code><strong> 25</strong> :  the number of time FSR has been selected for the 
+downwards step above.
+  
+<br/><code>argumentoption </code><strong> 26</strong> :   the number of time MI has been accepted as the 
+downwards step above, after the vetoes.
+  
+<br/><code>argumentoption </code><strong> 27</strong> :   the number of time ISR has been accepted as the 
+downwards step above, after the vetoes.
+  
+<br/><code>argumentoption </code><strong> 28</strong> :   the number of time FSR has been accepted as the 
+downwards step above, after the vetoes.
+  
+<br/><code>argumentoption </code><strong> 29</strong> :  the number of times a step has begun in the 
+separate (optional) FSR evolution downwards in <i>pT</i> 
+for the current system.
+  
+<br/><code>argumentoption </code><strong> 30</strong> :  the number of time FSR has been selected for the 
+downwards step above.
+  
+<br/><code>argumentoption </code><strong> 31</strong> :   the number of time FSR has been accepted as the 
+downwards step above, after the vetoes.
+  
+<br/><code>argumentoption </code><strong> 40 - 49</strong> :  counters that are unused (currently), and
+that therefore are free to use, with the help of the two methods below.
+  
+  
+  
+
+<a name="method41"></a>
+<p/><strong>void Info::setCounter(int i, int value = 0) &nbsp;</strong> <br/>
+set the above counters to a given value. Only to be used by you 
+for the unassigned counters 30 - 39.
+<br/><code>argument</code><strong> i </strong>  :  the counter number, see above.
+  
+<br/><code>argument</code><strong> value </strong> (<code>default = <strong>0</strong></code>) :  set the counter to this number;
+normally the default value is what you want.
+  
+
+<a name="method42"></a>
+<p/><strong>void Info::addCounter(int i, int value = 0) &nbsp;</strong> <br/>
+increase the above counters by a given amount. Only to be used by you 
+for the unassigned counters 30 - 39.
+<br/><code>argument</code><strong> i </strong>  :  the counter number, see above.
+  
+<br/><code>argument</code><strong> value </strong> (<code>default = <strong>1</strong></code>) :  increase the counter by this amount;
+normally the default value is what you want.
+  
+
+  
+
+
+
 </body>
 </html>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->

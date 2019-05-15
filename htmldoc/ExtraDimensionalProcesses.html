@@ -198,7 +198,7 @@ Fundamental scale of gravity in <i>D = 4 + n</i> dimensions.
 Ultraviolet cutoff parameter for the virtual graviton exchange processes.
   
 
-<p/><code>mode&nbsp; </code><strong> ExtraDimensionsLED:CutOffmode &nbsp;</strong> 
+<p/><code>mode&nbsp; </code><strong> ExtraDimensionsLED:CutOffMode &nbsp;</strong> 
  (<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 3</code>)<br/>
 Options for when the hard scale of the process (e.g. <i>sHat</i>) 
 approaches or exceed the scale of validity of the low energy effective 
@@ -336,7 +336,7 @@ give rise to an IR divergence which makes the event generation very slow, so
 this values is fixed to <i>ratio = 1</i> for the moment.
   
 
-<p/><code>mode&nbsp; </code><strong> ExtraDimensionsUnpart:CutOffmode &nbsp;</strong> 
+<p/><code>mode&nbsp; </code><strong> ExtraDimensionsUnpart:CutOffMode &nbsp;</strong> 
  (<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 1</code>)<br/>
 Options for when the hard scale of the process (e.g. <i>sHat</i>) 
 approaches or exceed the scale of validity of the low energy effective 
@@ -403,17 +403,17 @@ gravitational coupling runs. <i>t</i> is of order 1 and [<a href="Bibliography.h
 argues that it should be less than or about 2.
 
 <p/>
-If the option <code>ExtraDimensionsLED:CutOffmode = 2</code> is used the 
+If the option <code>ExtraDimensionsLED:CutOffMode = 2</code> is used the 
 hard scale <i>mu^2</i> is set by using <code>SigmaProcess:renormScale2</code>. 
 In this case the options 1 and 4 corresponds to what was used in 
 [<a href="Bibliography.html" target="page">Hew07</a>] for the graviton emission and virtual graviton exchange 
 processes respectively. For the graviton emission processes it is also 
 possible to use <i>mu = E_jet</i> in the center-of-mass system by 
-setting <code>ExtraDimensionsLED:CutOffmode = 3</code>. Option 2 and 3 are 
+setting <code>ExtraDimensionsLED:CutOffMode = 3</code>. Option 2 and 3 are 
 equivalent for the virtual graviton exchange.
 
 </body>
 </html>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->
 

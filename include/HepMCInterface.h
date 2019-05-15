@@ -1,17 +1,13 @@
 // HepMCInterface.h is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Mikhail Kirsanov, Torbjorn Sjostrand.
+// Copyright (C) 2010 Mikhail Kirsanov, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-//--------------------------------------------------------------------------
+// Header file for I_Pythia8 class,
+// which converts a PYTHIA event record to the standard HepMC format.
+
 #ifndef Pythia8_HepMCInterface_H
 #define Pythia8_HepMCInterface_H
-
-//////////////////////////////////////////////////////////////////////////
-// Mikhail.Kirsanov@Cern.CH
-// Pythia8 I class
-//////////////////////////////////////////////////////////////////////////
-//
 
 #include <set>
 #include <vector>
@@ -25,6 +21,8 @@ namespace HepMC {
   class GenParticle;
   class ParticleDataTable;
 
+//==========================================================================
+
   class I_Pythia8 : public IO_BaseClass {
     public:
                         I_Pythia8();
@@ -37,7 +35,7 @@ namespace HepMC {
       void              put_pdf_info( GenEvent* evt, Pythia8::Pythia& pythia,
                                       bool convertGluonTo0 = false );
 
-	// see comments below for these switches.
+      // See comments below for these switches.
       bool              trust_both_mothers_and_daughters() const;
       bool              trust_mothers_before_daughters() const;
       bool              print_inconsistency_errors() const;
@@ -69,9 +67,8 @@ namespace HepMC {
 
   };
 
-  ////////////////////////////
-  // INLINES access methods //
-  ////////////////////////////
+  // INLINES access methods.
+
   inline bool I_Pythia8::trust_both_mothers_and_daughters() const 
   { return m_trust_both_mothers_and_daughters; }
     
@@ -96,8 +93,8 @@ namespace HepMC {
   inline void I_Pythia8::set_convert_to_mev( bool b  )
   { m_convert_to_mev = b; m_mom_scale_factor = 1000.; }
 
-} // HepMC
+//==========================================================================
 
-#endif  // Pythia8_HepMCInterface_H
+} // end namespace HepMC
 
-//--------------------------------------------------------------------------
+#endif  // end Pythia8_HepMCInterface_H

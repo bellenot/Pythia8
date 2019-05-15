@@ -1,5 +1,5 @@
 // main29.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -15,7 +15,7 @@
 
 using namespace Pythia8; 
  
-//**************************************************************************
+//==========================================================================
 
 // A derived class for (e+ e- ->) GenericResonance -> various final states.
 
@@ -40,7 +40,7 @@ public:
 
 };
 
-//**************************************************************************
+//==========================================================================
 
 int main() {
 

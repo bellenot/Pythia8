@@ -74,8 +74,8 @@ Since the current description is handled by the multiple-interactions
 machinery as part of the parton-level processing, no hard process at 
 all is defined at the process-level part of the event generation.
 Fortunately, in this case a special
-<?php $filepath = $_GET["filepath"];
-echo "<a href='EventInformation.php?filepath=".$filepath."' target='page'>";?><code>codeSub()</code></a> 
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='EventInformation.php?filepath=".$filepath."' target='page'>";?>codeSub()</a></code> 
 method provides information on the first, i.e. hardest, subprocess 
 selected by the multiple-interactions machinery.
 
@@ -326,5 +326,5 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->
 

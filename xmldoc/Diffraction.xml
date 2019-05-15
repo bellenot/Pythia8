@@ -27,7 +27,7 @@ see below;
 as low-mass unresolved, which gives a simple low-<ei>pT</ei> string
 topology, or as high-mass resolved, for which the full machinery of 
 multiple interactions and parton showers are applied, making use of
-Pomeron PDFs, see below.
+<aloc href="PDFSelection">Pomeron PDFs</aloc>.
 <br/>The parameters related to multiple interactions, parton showers
 and hadronization are kept the same as for normal nondiffractive events,
 with only one exception. This may be questioned, especially for the 
@@ -231,4 +231,4 @@ appreciably slower when perturbative high-mass diffraction is allowed.
 
 </chapter>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->

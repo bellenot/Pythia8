@@ -1,11 +1,11 @@
 // Basics.h is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 // Header file for basic, often-used helper classes.
 // RndmEngine: base class for external random number generators.
-// Rndm: random number generator (static member functions).
+// Rndm: random number generator.
 // Vec4: simple four-vectors.
 // RotBstMatrix: matrices encoding rotations and boosts of Vec4 objects.
 // Hist: simple one-dimensional histograms.
@@ -17,7 +17,7 @@
 
 namespace Pythia8 {
  
-//**************************************************************************
+//==========================================================================
 
 // RndmEngine is the base class for external random number generators.
 // There is only one pure virtual method, that should do the generation. 
@@ -37,7 +37,7 @@ protected:
 
 }; 
 
-//**************************************************************************
+//==========================================================================
 
 // Rndm class.
 // This class handles random number generation according to the
@@ -48,54 +48,59 @@ class Rndm {
 public:
 
   // Constructors.
-  Rndm() {} 
-  Rndm(int seedIn) { init(seedIn);} 
+  Rndm() : initRndm(false), saveGauss(false), seedSave(0), 
+    sequence(0), useExternalRndm(false), rndmEngPtr(0) { } 
+  Rndm(int seedIn) : initRndm(false), saveGauss(false), seedSave(0), 
+    sequence(0), useExternalRndm(false), rndmEngPtr(0) { init(seedIn);} 
 
   // Possibility to pass in pointer for external random number generation.
-  static bool rndmEnginePtr( RndmEngine* rndmPtrIn);  
+  bool rndmEnginePtr( RndmEngine* rndmEngPtrIn);  
 
   // Initialize, normally at construction or in first call.
-  static void init(int seedIn = 0) ;
+  void init(int seedIn = 0) ;
 
   // Generate next random number uniformly between 0 and 1.
-  static double flat() ;
+  double flat() ;
 
   // Generate random numbers according to exp(-x).
-  static double exp() { return -log(flat()) ;} 
+  double exp() { return -log(flat()) ;} 
 
   // Generate random numbers according to x * exp(-x).
-  static double xexp() { return -log(flat() * flat()) ;} 
+  double xexp() { return -log(flat() * flat()) ;} 
 
   // Generate random numbers according to exp(-x^2/2).
-  static double gauss() ;
+  double gauss() ;
 
   // Pick one option among  vector of (positive) probabilities.
-  static int pick(const vector<double>& prob) ; 
+  int pick(const vector<double>& prob) ; 
 
   // Save or read current state to or from a binary file.
-  static bool dumpState(string fileName);
-  static bool readState(string fileName);
+  bool dumpState(string fileName);
+  bool readState(string fileName);
 
 private:
 
+  // Default random number sequence.
+  static const int DEFAULTSEED;
+
   // State of the random number generator.
-  static bool   initRndm, saveGauss; 
-  static int    i97, j97, defaultSeed, seedSave;
-  static long   sequence;
-  static double u[97], c, cd, cm, save;
+  bool   initRndm, saveGauss; 
+  int    i97, j97, defaultSeed, seedSave;
+  long   sequence;
+  double u[97], c, cd, cm, save;
 
   // Pointer for external random number generation.
-  static bool   useExternalRndm; 
-  static RndmEngine* rndmPtr;
+  bool   useExternalRndm; 
+  RndmEngine* rndmEngPtr;
 
 };
 
-//**************************************************************************
+//==========================================================================
 
 // Forward reference to RotBstMatrix class.
 class RotBstMatrix;
 
-//**************************************************************************
+//==========================================================================
 
 // Vec4 class.
 // This class implements four-vectors, in energy-momentum space.
@@ -235,7 +240,7 @@ inline Vec4 operator/(const Vec4& v1, double f)
 inline double operator*(const Vec4& v1, const Vec4& v2)
   {return v1.tt*v2.tt - v1.xx*v2.xx - v1.yy*v2.yy - v1.zz*v2.zz;}  
 
-//**************************************************************************
+//==========================================================================
 
 // RotBstMatrix class.
 // This class implements 4 * 4 matrices that encode an arbitrary combination
@@ -287,7 +292,7 @@ private:
 
 };
 
-//**************************************************************************
+//==========================================================================
 
 // Hist class.
 // This class handles a single histogram at a time.
@@ -387,7 +392,7 @@ private:
 
 };
 
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8
 

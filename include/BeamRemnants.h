@@ -1,5 +1,5 @@
 // BeamRemnants.h is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -22,7 +22,7 @@
 
 namespace Pythia8 {
 
-//**************************************************************************
+//==========================================================================
 
 // This class matches the kinematics of the hard-scattering subsystems
 // (with primordial kT added) to that of the two beam remnants.  
@@ -35,8 +35,9 @@ public:
   BeamRemnants() { }  
 
   // Initialization.
-  bool init( Info* infoPtrIn, BeamParticle* beamAPtrIn, 
-    BeamParticle* beamBPtrIn, PartonSystems* partonSystemsPtrIn);
+  bool init( Info* infoPtrIn, Settings& settings, Rndm* rndmPtrIn, 
+    BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, 
+    PartonSystems* partonSystemsPtrIn);
 
   // New beams possible for handling of hard diffraction.
   void reassignBeamPtrs( BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn) 
@@ -65,11 +66,14 @@ private:
   vector<int> colFrom, colTo;
 
   // Pointer to various information on the generation.
-  Info* infoPtr;
+  Info*          infoPtr;
+
+  // Pointer to the random number generator.
+  Rndm*          rndmPtr;
 
   // Pointers to the two incoming beams.
-  BeamParticle* beamAPtr;
-  BeamParticle* beamBPtr;
+  BeamParticle*  beamAPtr;
+  BeamParticle*  beamBPtr;
 
   // Pointer to information on subcollision parton locations.
   PartonSystems* partonSystemsPtr;
@@ -85,7 +89,7 @@ private:
 
 };
  
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8
 

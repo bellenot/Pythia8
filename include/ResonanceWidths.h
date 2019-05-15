@@ -1,5 +1,5 @@
 // ResonanceWidths.h is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -19,16 +19,15 @@
 
 namespace Pythia8 {
 
-//**************************************************************************
+//==========================================================================
 
 // Forward references to ParticleData and StandardModel classes.
 class DecayChannel;
-class DecayTable;
+class ParticleData;
 class ParticleDataEntry;
-class AlphaStrong;
-class AlphaEM;
+class CoupSM;
   
-//**************************************************************************
+//==========================================================================
 
 // The ResonanceWidths is the base class. Also used for generic resonaces.
 
@@ -39,14 +38,13 @@ public:
   // Destructor.
   virtual ~ResonanceWidths() {}
 
-  // Initialize static data members in base class.
-  static void initStatic(Info* infoPtrIn);
-
   // Set up standard properties.
-  bool initBasic(int idResIn, bool isGenericIn = false);
+  void initBasic(int idResIn, bool isGenericIn = false) {
+    idRes = idResIn; isGeneric = isGenericIn;}
  
   // Calculate and store partial and total widths at the nominal mass. 
-  void init();
+  bool init(Info* infoPtrIn, Settings* settingsPtrIn,
+    ParticleData* particleDataPtrIn, CoupSM* coupSMPtrIn);
 
   // Return identity of particle species.
   int id() const {return idRes;}
@@ -80,34 +78,36 @@ protected:
   // Constructor.
   ResonanceWidths() {}
 
-  // Static initialization data, normally only set once.
-  static int    alphaSorder, alphaEMorder;
-  static double alphaSvalue, minWidth, minThreshold;
-
-  // Static alphaStrong and alphaElectromagnetic calculation.
-  static AlphaStrong alphaS;
-  static AlphaEM     alphaEM;
-
   // Constants: could only be changed in the code itself.
   static const int    NPOINT;
   static const double MASSMARGIN;
 
-  // Pointer to various information on the generation.
-  static Info* infoPtr;
-
-  // Pointer to properties of the particle species.
-  ParticleDataEntry* particlePtr;
-
-  // Particle properties always locally present.
+  // Particle properties always present.
   int    idRes, hasAntiRes;
   bool   doForceWidth, isGeneric;
-  double mRes, GammaRes, m2Res, GamMRat, openPos, openNeg, forceFactor;
+  double minWidth, minThreshold, mRes, GammaRes, m2Res, GamMRat, 
+         openPos, openNeg, forceFactor;
 
   // Properties for currently studied decay channel(s).
   int    iChannel, onMode, meMode, mult, id1, id2, id3, id1Abs, 
          id2Abs, id3Abs, idInFlav;
   double widNow, mHat, mf1, mf2, mf3, mr1, mr2, mr3, ps, kinFac,
          alpEM, alpS, colQ, preFac; 
+
+  // Pointer to properties of the particle species.
+  ParticleDataEntry* particlePtr;
+
+  // Pointer to various information on the generation.
+  Info*         infoPtr;
+
+  // Pointer to the settings database.
+  Settings*     settingsPtr;
+
+  // Pointer to the particle data table.
+  ParticleData* particleDataPtr;
+
+  // Pointer to Standard Model couplings.
+  CoupSM*       coupSMPtr;
  
   // Initialize constants.
   virtual void initConstants() {} 
@@ -128,7 +128,7 @@ protected:
 
 };
   
-//**************************************************************************
+//==========================================================================
 
 // The ResonanceGeneric class handles a generic resonance.
 // Only needs a constructor; for the rest uses defaults in base class. 
@@ -142,7 +142,7 @@ public:
 
 };
   
-//**************************************************************************
+//==========================================================================
 
 // The ResonanceGmZ class handles the gamma*/Z0 resonance.
 
@@ -170,7 +170,7 @@ private:
 
 };
   
-//**************************************************************************
+//==========================================================================
 
 // The ResonanceW class handles the W+- resonance.
 
@@ -197,7 +197,7 @@ private:
 
 };
   
-//**************************************************************************
+//==========================================================================
 
 // The ResonanceTop class handles the top/antitop resonance.
 
@@ -224,7 +224,7 @@ private:
 
 };
   
-//**************************************************************************
+//==========================================================================
 
 // The ResonanceFour class handles fourth-generation resonances.
 
@@ -251,7 +251,7 @@ private:
 
 };
   
-//**************************************************************************
+//==========================================================================
 
 // The ResonanceH class handles the SM and BSM Higgs resonance.
 // higgsType = 0 : SM H; = 1: h^0/H_1; = 2 : H^0/H_2; = 3 : A^0/A_3.
@@ -299,7 +299,7 @@ private:
 
 };
   
-//**************************************************************************
+//==========================================================================
 
 // The ResonanceHchg class handles the H+- resonance.
 
@@ -327,7 +327,7 @@ private:
 
 };
   
-//**************************************************************************
+//==========================================================================
 
 // The ResonanceZprime class handles the gamma*/Z0 /Z'^0 resonance.
 
@@ -357,7 +357,7 @@ private:
 
 };
   
-//**************************************************************************
+//==========================================================================
 
 // The ResonanceWprime class handles the W'+- resonance.
 
@@ -384,7 +384,7 @@ private:
 
 };
   
-//**************************************************************************
+//==========================================================================
 
 // The ResonanceRhorizontal class handles the R^0 resonance.
 
@@ -411,7 +411,7 @@ private:
 
 };
    
-//**************************************************************************
+//==========================================================================
 
 // The ResonanceExcited class handles excited-fermion resonances.
 
@@ -438,7 +438,7 @@ private:
 
 };
   
-//**************************************************************************
+//==========================================================================
 
 // The ResonanceGraviton class handles the excited Graviton resonance.
 
@@ -465,7 +465,7 @@ private:
 
 };
 
-//**************************************************************************
+//==========================================================================
 
 // The ResonanceLeptoquark class handles the LQ/LQbar resonance.
 
@@ -492,7 +492,7 @@ private:
 
 };
 
-//**************************************************************************
+//==========================================================================
 
 // The ResonanceNuRight class handles righthanded Majorana neutrinos.
 
@@ -519,7 +519,7 @@ private:
 
 };
   
-//**************************************************************************
+//==========================================================================
 
 // The ResonanceZRight class handles the Z_R^0 resonance.
 
@@ -546,7 +546,7 @@ private:
 
 };
   
-//**************************************************************************
+//==========================================================================
 
 // The ResonanceWRight class handles the W_R+- resonance.
 
@@ -573,7 +573,7 @@ private:
 
 };
   
-//**************************************************************************
+//==========================================================================
 
 // The ResonanceHchgchgLeft class handles the H++/H-- (left) resonance.
 
@@ -600,7 +600,7 @@ private:
 
 };
    
-//**************************************************************************
+//==========================================================================
 
 // The ResonanceHchgchgRight class handles the H++/H-- (right) resonance.
 
@@ -628,7 +628,7 @@ private:
 
 };
   
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8
 

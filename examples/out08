@@ -5,10 +5,10 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.130      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 15 Sep 2009  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.135      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 10 Jan 2010  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 15 Sep 2009 at 08:58:32    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 10 Jan 2010 at 10:56:57    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Theoretical Physics, Lund University,   |  | 
  |  |      Solvegatan 14A, SE-223 62 Lund, Sweden;                                 |  | 
@@ -22,9 +22,8 @@
  |  |   Stephen Mrenna;  Computing Division, Simulations Group,                    |  | 
  |  |      Fermi National Accelerator Laboratory, MS 234, Batavia, IL 60510, USA;  |  | 
  |  |      phone: + 1 - 630 - 840 - 2556; e-mail: mrenna@fnal.gov                  |  | 
- |  |   Peter Skands;  Theoretical Physics Department,                             |  | 
- |  |      Fermi National Accelerator Laboratory, MS 106, Batavia, IL 60510, USA;  |  | 
- |  |      phone: + 1 - 630 - 840 - 2270; e-mail: skands@fnal.gov                  |  | 
+ |  |   Peter Skands;  Theoretical Physics, CERN, CH-1211 Geneva 23, Switzerland;  |  | 
+ |  |      phone: + 41 - 22 - 767 2447; e-mail: peter.skands@cern.ch               |  | 
  |  |                                                                              |  | 
  |  |   The main program reference is the 'Brief Introduction to PYTHIA 8.1',      |  | 
  |  |   T. Sjostrand, S. Mrenna and P. Skands, Comput. Phys. Comm. 178 (2008) 85   |  | 
@@ -42,7 +41,7 @@
  |  |   Disclaimer: this program comes without any guarantees.                     |  | 
  |  |   Beware of errors and use common sense when interpreting results.           |  | 
  |  |                                                                              |  | 
- |  |   Copyright (C) 2009 Torbjorn Sjostrand                                      |  | 
+ |  |   Copyright (C) 2010 Torbjorn Sjostrand                                      |  | 
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  *------------------------------------------------------------------------------*  | 
@@ -241,7 +240,7 @@
  | g g -> c cbar                                  121 |   2.234e-07 |
  | q qbar -> c cbar                               122 |   3.900e-08 |
  | g g -> b bbar                                  123 |   2.232e-07 |
- | q qbar -> b bbar                               124 |   3.899e-08 |
+ | q qbar -> b bbar                               124 |   3.898e-08 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
 
@@ -322,7 +321,7 @@
  | q q(bar)' -> q q(bar)'                         114 |   2.430e-06 |
  | q qbar -> g g                                  115 |   2.331e-08 |
  | q qbar -> q' qbar' (uds)                       116 |   1.795e-08 |
- | g g -> c cbar                                  121 |   2.046e-08 |
+ | g g -> c cbar                                  121 |   2.049e-08 |
  | q qbar -> c cbar                               122 |   5.983e-09 |
  | g g -> b bbar                                  123 |   2.049e-08 |
  | q qbar -> b bbar                               124 |   5.982e-09 |
@@ -401,14 +400,14 @@
  |------------------------------------------------------------------|
  |                                                    |             |
  | g g -> g g                                     111 |   2.924e-07 |
- | g g -> q qbar (uds)                            112 |   7.175e-09 |
+ | g g -> q qbar (uds)                            112 |   7.192e-09 |
  | q g -> q g                                     113 |   1.067e-06 |
  | q q(bar)' -> q q(bar)'                         114 |   4.812e-07 |
  | q qbar -> g g                                  115 |   4.498e-09 |
  | q qbar -> q' qbar' (uds)                       116 |   2.944e-09 |
  | g g -> c cbar                                  121 |   2.397e-09 |
  | q qbar -> c cbar                               122 |   9.813e-10 |
- | g g -> b bbar                                  123 |   2.397e-09 |
+ | g g -> b bbar                                  123 |   2.391e-09 |
  | q qbar -> b bbar                               124 |   9.812e-10 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
@@ -447,10 +446,10 @@
  |                                                    |                                   |                        |
  |-----------------------------------------------------------------------------------------------------------------|
  |                                                    |                                   |                        |
- | g g -> g g                                     111 |       11649       1787       1787 |   4.392e-08  5.409e-10 |
- | g g -> q qbar (uds)                            112 |         282         43         43 |   1.161e-09  9.300e-11 |
- | q g -> q g                                     113 |       43142       5439       5439 |   1.359e-07  9.057e-10 |
- | q q(bar)' -> q q(bar)'                         114 |       19820       2587       2587 |   6.222e-08  6.054e-10 |
+ | g g -> g g                                     111 |       11656       1790       1790 |   4.391e-08  5.408e-10 |
+ | g g -> q qbar (uds)                            112 |         283         43         43 |   1.148e-09  9.252e-11 |
+ | q g -> q g                                     113 |       43140       5439       5439 |   1.359e-07  9.057e-10 |
+ | q q(bar)' -> q q(bar)'                         114 |       19812       2584       2584 |   6.226e-08  6.058e-10 |
  | q qbar -> g g                                  115 |         208         50         50 |   9.703e-10  8.005e-11 |
  | q qbar -> q' qbar' (uds)                       116 |         110         32         32 |   8.534e-10  9.289e-11 |
  | g g -> c cbar                                  121 |         108         21         21 |   5.160e-10  6.080e-11 |
@@ -458,7 +457,7 @@
  | g g -> b bbar                                  123 |         102         19         19 |   4.467e-10  5.414e-11 |
  | q qbar -> b bbar                               124 |          42         12         12 |   2.358e-10  4.676e-11 |
  |                                                    |                                   |                        |
- | sum                                                |       75504      10000      10000 |   2.465e-07  1.231e-09 |
+ | sum                                                |       75502      10000      10000 |   2.466e-07  1.231e-09 |
  |                                                                                                                 |
  *-------  End PYTHIA Event and Cross Section Statistics ----------------------------------------------------------*
 
@@ -471,7 +470,7 @@
  *-------  End PYTHIA Error and Warning Messages Statistics  ------------------------------------------------------* 
 
 
-  2009-09-15 08:58       pTHat distribution, unweighted
+  2010-01-10 10:57       pTHat distribution, unweighted
 
         4.05*10^ 3            8                                                                                         
         3.90*10^ 3            X                                                                                         
@@ -497,7 +496,7 @@
         0.90*10^ 3            XXXX1XXXX2     XXXX6          XXX63               41                                      
         0.75*10^ 3            XXXXXXXXXX5    XXXXX7         XXXXX4              XX85                                    
         0.60*10^ 3            XXXXXXXXXXX3   XXXXXX82       XXXXXXX2            XXXXX43                                 
-        0.45*10^ 3            XXXXXXXXXXXX4  XXXXXXXX432    XXXXXXXXX931        XXXXXXXX6312                            
+        0.45*10^ 3            XXXXXXXXXXXX4  XXXXXXXX432    XXXXXXXXX931        XXXXXXXX6412                            
         0.30*10^ 3            XXXXXXXXXXXXX95XXXXXXXXXXX531 XXXXXXXXXXXXX64311  XXXXXXXXXXXX69544 1                     
         0.15*10^ 3            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX9XXXXXXXXXXXXXXXXXXXXX9876566534443333342
 
@@ -505,18 +504,18 @@
             *10^ 3  0000000000421102111000000111100000000000110000000000000000000000000000000000000000000000000000000000
             *10^ 2  0000000000056078930764322842087543332211329876544433322111118776654433332222211111110000000000000000
             *10^ 1  0000000000161460872779592773530686422074507496985242041866430627009485134721156542219888756655544353
-            *10^ 0  0000000001903079526512820346089773240025012485604842024830546733176342362824272449405043723290066853
+            *10^ 0  0000000001903079526512820346089773240025012485604842024830547642075433373824272449405043724290066853
 
           Low edge                                                                                                      
             *10^ 2  0000000000111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999
             *10^ 1  0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
             *10^ 0  0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 
-   Entries  =       50000    Mean =  3.4757e+02    Underflow =  0.0000e+00    Low edge  =  0.0000e+00
-   All chan =  4.9522e+04    Rms  =  2.1575e+02    Overflow  =  4.7800e+02    High edge =  1.0000e+03
+   Entries  =       50000    Mean =  3.4759e+02    Underflow =  0.0000e+00    Low edge  =  0.0000e+00
+   All chan =  4.9524e+04    Rms  =  2.1577e+02    Overflow  =  4.7600e+02    High edge =  1.0000e+03
 
 
-  2009-09-15 08:58       pTHat distribution, weighted
+  2010-01-10 10:57       pTHat distribution, weighted
 
         4.60*10^-5            7                                                                                         
         4.40*10^-5            X                                                                                         
@@ -554,10 +553,10 @@
             *10^ 0  0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 
    Entries  =       50000    Mean =  1.2974e+02    Underflow =  0.0000e+00    Low edge  =  0.0000e+00
-   All chan =  1.3635e-04    Rms  =  3.6976e+01    Overflow  =  1.1784e-09    High edge =  1.0000e+03
+   All chan =  1.3635e-04    Rms  =  3.6976e+01    Overflow  =  1.1737e-09    High edge =  1.0000e+03
 
 
-  2009-09-15 08:58       pTHat distribution, pT3*weighted
+  2010-01-10 10:57       pTHat distribution, pT3*weighted
 
         5.20*10^ 1            X                                                                                         
         5.00*10^ 1            X                                                                                         
@@ -590,18 +589,18 @@
             *10^ 1  0000000000543222111111000000000000000000000000000000000000000000000000000000000000000000000000000000
             *10^ 0  0000000000235861853220886655443332222211111111100100000000000000000000000000000000000000000000000000
             *10^-1  0000000000064729746012608140729537781097764332199088876655554444433332232222211111111111101111111010
-            *10^-2  0000000001250087978649012227956000761847253350599054317268644432056409703733389987764234392210000938
+            *10^-2  0000000001250087978649012227956000761847253350599054317268644442056409703733389987764234392210000938
 
           Low edge                                                                                                      
             *10^ 2  0000000000111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999
             *10^ 1  0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
             *10^ 0  0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 
-   Entries  =       50000    Mean =  1.9993e+02    Underflow =  0.0000e+00    Low edge  =  0.0000e+00
-   All chan =  3.9470e+02    Rms  =  1.2574e+02    Overflow  =  2.1558e+00    High edge =  1.0000e+03
+   Entries  =       50000    Mean =  1.9994e+02    Underflow =  0.0000e+00    Low edge  =  0.0000e+00
+   All chan =  3.9470e+02    Rms  =  1.2576e+02    Overflow  =  2.1495e+00    High edge =  1.0000e+03
 
 
-  2009-09-15 08:58       pTHat distribution, pT5*weighted
+  2010-01-10 10:57       pTHat distribution, pT5*weighted
 
         5.80*10^ 5            68                                                                                        
         5.60*10^ 5            XX6 6                                                                                     
@@ -623,11 +622,11 @@
         2.40*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX17X 25                                               
         2.20*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX8XX2                                              
         2.00*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX95 656                                        
-        1.80*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX 3563                                   
-        1.60*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX5961  7 3                          
+        1.80*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX13553                                   
+        1.60*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX59711 8 3                          
         1.40*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX7X X358                     3 
-        1.20*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX4XXX785   21         X 
-        1.00*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX5XXX 79946581X 
+        1.20*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX4XXX785   31         X 
+        1.00*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX5XXX 89946581X 
         0.80*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX7XXXXXXXXXX
         0.60*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
         0.40*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
@@ -635,14 +634,14 @@
 
           Contents                                                                                                      
             *10^ 5  0000000000555555544454444333333333332222222222222222221111111111111111111111111111111011100000000010
-            *10^ 4  0000000000775252176507340988866440268987885564423412309989996667655544351422301211110900079998989827
-            *10^ 3  0000000000152117138694529703898792900275238178823363037002011691508320449659689094700005234787395259
-            *10^ 2  0000000001693650721907192583441228335877244823535661458048310372569086387955821674029320762929081635
+            *10^ 4  0000000000775252176507340988866440268987885564423412309989996677655544352422301211110900079998989827
+            *10^ 3  0000000000152117138694529703898792900275238178823363037002011601508321450759689094700005235787395259
+            *10^ 2  0000000001693660721907192583441228335877244823535661458048312100267440332055822685029320767929081635
 
           Low edge                                                                                                      
             *10^ 2  0000000000111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999
             *10^ 1  0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
             *10^ 0  0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 
-   Entries  =       50000    Mean =  4.0567e+02    Underflow =  0.0000e+00    Low edge  =  0.0000e+00
-   All chan =  2.2002e+07    Rms  =  2.3856e+02    Overflow  =  3.9640e+06    High edge =  1.0000e+03
+   Entries  =       50000    Mean =  4.0572e+02    Underflow =  0.0000e+00    Low edge  =  0.0000e+00
+   All chan =  2.2005e+07    Rms  =  2.3860e+02    Overflow  =  3.9565e+06    High edge =  1.0000e+03

@@ -1,7 +1,7 @@
-a:link {color:#4444ff;text-decoration:none;}
-a:visited {color:#4444ff;text-decoration:none;}
-a:active {color:#0000ff; text-decoration:underline;}
-a:hover {color:#0000ff; text-decoration:underline;}
+a:link {color:#bb4444;text-decoration:none;}
+a:visited {color:#bb4444;text-decoration:none;}
+a:active {color:#ff0000; text-decoration:underline;}
+a:hover {color:#ff0000; text-decoration:underline;}
 
 body, td, div, span {
 	font-size:16px;
@@ -39,17 +39,17 @@ h4 {
 }
 
 code {
-	color:#bb0000;
+	color:#0000bb;
 }
 
 pre {
-	color:#bb0000;
+	color:#0000bb;
         margin-top:0.25em;
         margin-bottom:0.25em;
 }
 
 strong {
-	color:#bb4444;
+	color:#0000bb;
 }
 
 input {
@@ -59,7 +59,7 @@ input {
 }
 
 i, dt {
-	color:#004444;
+	color:#006600;
 }
 
 p { 

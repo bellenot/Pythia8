@@ -1,5 +1,5 @@
 // main21.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -10,20 +10,20 @@
 #include "Pythia.h"
 using namespace Pythia8; 
 
-//**************************************************************************
+//==========================================================================
 
 // Single-particle gun. The particle must be a colour singlet.
 // Input: flavour, energy, direction (theta, phi).
 // If theta < 0 then random choice over solid angle. 
 
 void fillParticle(int id, double ee, double thetaIn, double phiIn, 
-  Event& event) {
+		  Event& event, ParticleData& pdt, Rndm& rndm) {
 
   // Reset event record to allow for new event.
   event.reset();
 
   // Select particle mass; where relevant according to Breit-Wigner. 
-  double mm = ParticleDataTable::mass(id);
+  double mm = pdt.mass(id);
   double pp = sqrtpos(ee*ee - mm*mm);
 
   // Angles as input or uniform in solid angle.
@@ -33,9 +33,9 @@ void fillParticle(int id, double ee, double thetaIn, double phiIn,
     sThe = sin(thetaIn);
     phi  = phiIn;
   } else {
-    cThe = 2. * Rndm::flat() - 1.;
+    cThe = 2. * rndm.flat() - 1.;
     sThe = sqrtpos(1. - cThe * cThe);
-    phi = 2. * M_PI * Rndm::flat();
+    phi = 2. * M_PI * rndm.flat();
   }
 
   // Store the particle in the event record.
@@ -43,11 +43,12 @@ void fillParticle(int id, double ee, double thetaIn, double phiIn,
     pp * cThe, ee, mm); 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Simple method to do the filling of partons into the event record.
 
-void fillPartons(int type, double ee, Event& event) {
+void fillPartons(int type, double ee, Event& event, ParticleData& pdt, 
+  Rndm& rndm) {
 
   // Reset event record to allow for new event.
   event.reset();
@@ -55,7 +56,7 @@ void fillPartons(int type, double ee, Event& event) {
   // Information on a q qbar system, to be hadronized.
   if (type == 1) {
     int    id = 2;
-    double mm = ParticleDataTable::m0(id);
+    double mm = pdt.m0(id);
     double pp = sqrtpos(ee*ee - mm*mm);
     event.append(  id, 23, 101,   0, 0., 0.,  pp, ee, mm); 
     event.append( -id, 23,   0, 101, 0., 0., -pp, ee, mm);
@@ -100,12 +101,12 @@ void fillPartons(int type, double ee, Event& event) {
       
       // Add a few gluons (almost) at random. 
       for (int nglu = 0; nglu < 5; ++nglu) { 
-        int iq = 1 + int( 2.99999 * Rndm::flat() );
+        int iq = 1 + int( 2.99999 * rndm.flat() );
         double px, py, pz, e, prod; 
         do {
-          e =  ee * Rndm::flat();
-          double cThe = 2. * Rndm::flat() - 1.;
-          double phi = 2. * M_PI * Rndm::flat(); 
+          e =  ee * rndm.flat();
+          double cThe = 2. * rndm.flat() - 1.;
+          double phi = 2. * M_PI * rndm.flat(); 
           px = e * sqrt(1. - cThe*cThe) * cos(phi);
           py = e * sqrt(1. - cThe*cThe) * sin(phi);
           pz = e * cThe;
@@ -173,7 +174,7 @@ void fillPartons(int type, double ee, Event& event) {
   } 
 }
 
-//**************************************************************************
+//==========================================================================
 
 int main() {
 
@@ -199,9 +200,10 @@ int main() {
   int nEvent = 10000;
   int nList = 3;
 
-  // Generator; shorthand for event.                           
+  // Generator; shorthand for event and particleData.                           
   Pythia pythia;  
-  Event& event = pythia.event;
+  Event& event      = pythia.event;
+  ParticleData& pdt = pythia.particleData;
 
   // Key requirement: switch off ProcessLevel, and thereby also PartonLevel.
   pythia.readString("ProcessLevel:all = off");
@@ -237,10 +239,10 @@ int main() {
       << iEvent << endl;
 
     // Set up single particle, with random direction in solid angle.
-    if (type == 0) fillParticle( idGun, eeGun, -1., 0., event);
+    if (type == 0) fillParticle( idGun, eeGun, -1., 0., event, pdt, pythia.rndm);
 
     // Set up parton-level configuration.
-    else fillPartons( type, ee, event); 
+    else fillPartons( type, ee, event, pdt, pythia.rndm); 
 
     // Generate events. Quit if failure.
     if (!pythia.next()) {
@@ -272,7 +274,7 @@ int main() {
 
       // Find any unrecognized particle codes.
       int id = event[i].id();
-      if (id == 0 || !ParticleDataTable::isParticle(id))
+      if (id == 0 || !pdt.isParticle(id))
         cout << " Error! Unknown code id = " << id << "\n"; 
 
       // Find particles with E-p mismatch.

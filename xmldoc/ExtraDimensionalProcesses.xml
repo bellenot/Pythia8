@@ -172,7 +172,7 @@ Fundamental scale of gravity in <ei>D = 4 + n</ei> dimensions.
 Ultraviolet cutoff parameter for the virtual graviton exchange processes.
 </parm>
 
-<modepick name="ExtraDimensionsLED:CutOffmode" default="0" min="0" max="3">
+<modepick name="ExtraDimensionsLED:CutOffMode" default="0" min="0" max="3">
 Options for when the hard scale of the process (e.g. <ei>sHat</ei>) 
 approaches or exceed the scale of validity of the low energy effective 
 theory (e.g. <ei>M_D</ei>). Note: Option 1 only concerns the graviton 
@@ -293,7 +293,7 @@ give rise to an IR divergence which makes the event generation very slow, so
 this values is fixed to <ei>ratio = 1</ei> for the moment.
 </parm>
 
-<modepick name="ExtraDimensionsUnpart:CutOffmode" default="0" min="0" max="1">
+<modepick name="ExtraDimensionsUnpart:CutOffMode" default="0" min="0" max="1">
 Options for when the hard scale of the process (e.g. <ei>sHat</ei>) 
 approaches or exceed the scale of validity of the low energy effective 
 theory (<ei>Lambda_U</ei>). This mode only concerns the unparticle emission processes. 
@@ -357,16 +357,16 @@ gravitational coupling runs. <ei>t</ei> is of order 1 and <ref>Hew07</ref>
 argues that it should be less than or about 2.
 
 <p/>
-If the option <code>ExtraDimensionsLED:CutOffmode = 2</code> is used the 
+If the option <code>ExtraDimensionsLED:CutOffMode = 2</code> is used the 
 hard scale <ei>mu^2</ei> is set by using <code>SigmaProcess:renormScale2</code>. 
 In this case the options 1 and 4 corresponds to what was used in 
 <ref>Hew07</ref> for the graviton emission and virtual graviton exchange 
 processes respectively. For the graviton emission processes it is also 
 possible to use <ei>mu = E_jet</ei> in the center-of-mass system by 
-setting <code>ExtraDimensionsLED:CutOffmode = 3</code>. Option 2 and 3 are 
+setting <code>ExtraDimensionsLED:CutOffMode = 3</code>. Option 2 and 3 are 
 equivalent for the virtual graviton exchange.
 
 </chapter>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->
 

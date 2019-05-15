@@ -1,5 +1,5 @@
 // HadronLevel.h is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -25,7 +25,7 @@
 
 namespace Pythia8 {
  
-//**************************************************************************
+//==========================================================================
 
 // The HadronLevel class contains the top-level routines to generate
 // the transition from the partonic to the hadronic stage of an event.
@@ -38,8 +38,9 @@ public:
   HadronLevel() {}
 
   // Initialize HadronLevel classes as required.
-  bool init(Info* infoPtrIn, TimeShower* timesDecPtr,
-    DecayHandler* decayHandlePtr, vector<int> handledParticles);
+  bool init(Info* infoPtrIn, Settings& settings, ParticleData& particleData,
+    Rndm* rndmPtrIn, TimeShower* timesDecPtr, DecayHandler* decayHandlePtr, 
+    vector<int> handledParticles);
 
   // Get pointer to StringFlav instance (needed by BeamParticle).
   StringFlav* getStringFlavPtr() {return &flavSel;}
@@ -61,7 +62,10 @@ private:
   double mStringMin, eNormJunction, widthSepBE;
 
   // Pointer to various information on the generation.
-  Info* infoPtr;
+  Info*     infoPtr;
+
+  // Pointer to the random number generator.
+  Rndm*     rndmPtr;
 
   // Configuration of colour-singlet systems.
   ColConfig colConfig;   
@@ -105,7 +109,7 @@ private:
   
 };
  
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8
 

@@ -1,5 +1,5 @@
 // LesHouches.h is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -20,7 +20,7 @@
 
 namespace Pythia8 {
 
-//**************************************************************************
+//==========================================================================
 
 // A class for the processes stored in LHAup.
   
@@ -40,7 +40,7 @@ public:
 
 } ;
 
-//**************************************************************************
+//==========================================================================
 
 // A class for the particles stored in LHAup.
 
@@ -66,7 +66,7 @@ public:
 
 } ;
 
-//**************************************************************************
+//==========================================================================
 
 // LHAup is base class for initialization and event information 
 // from an external parton-level generator.
@@ -273,7 +273,7 @@ private:
 
 };
 
-//**************************************************************************
+//==========================================================================
 
 // A derived class with information read from a Les Houches Event File.
 
@@ -288,7 +288,7 @@ public:
   ~LHAupLHEF() {}
 
   // Confirm that file was found and opened as expected.
-  bool fileFound() {return is;} 
+  bool fileFound() {return is.good();} 
 
   // Routine for doing the job of reading and setting initialization info.  
   bool setInit() {return setInitLHEF(is);} 
@@ -308,7 +308,7 @@ private:
 
 };
 
-//**************************************************************************
+//==========================================================================
 
 // A derived class with information read from PYTHIA 8 itself, for output.
 
@@ -340,7 +340,7 @@ private:
 
 };
 
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8
 

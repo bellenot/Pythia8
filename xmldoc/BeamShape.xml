@@ -12,8 +12,8 @@ for realistic applications.
 <p/>
 It is therefore possible to define your own class, derived from the 
 <code>BeamShape</code> base class, and hand it in to Pythia with the
-<aloc href="ProgramFlow">
-<code>pythia.setBeamShapePtr( BeamShape*)</code></aloc> method. 
+<code><aloc href="ProgramFlow">
+pythia.setBeamShapePtr( BeamShape*)</aloc></code> method. 
 Below we describe what such a class has to do. An explicit toy example 
 is shown in <code>main27.cc</code>.
 
@@ -29,9 +29,11 @@ beam momentum and production vertex in the current event.
 the constructor and destructor do not need to do anything.
 </methodmore>
 
-<method name="virtual void BeamShape::init()"> 
-the base-class method simply reads in the values stored in the 
-<code>Settings</code> data base. You are free to write your own 
+<method name="virtual void BeamShape::init( Settings& settings, 
+Rndm* rndmPtrIn)"> 
+the base-class method simply reads in the relevant values stored 
+in the <code>Settings</code> data base, and saves a pointer to the 
+random-number generator. You are free to write your own 
 derived initialization routine, or use the existing one. In the 
 latter case you can then give your own modified interpretation 
 to the beam spread parameters defined there.
@@ -74,4 +76,4 @@ read out the production-vertex position and time that were set by
 
 </chapter>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->

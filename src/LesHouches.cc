@@ -1,5 +1,5 @@
 // LesHouches.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -13,11 +13,11 @@
 
 namespace Pythia8 {
 
-//**************************************************************************
+//==========================================================================
 
 // LHAup class.
 
-//*********
+//--------------------------------------------------------------------------
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -25,7 +25,7 @@ namespace Pythia8 {
 // LHA convention with cross section in pb may require conversion from mb.
 const double LHAup::CONVERTMB2PB = 1e9;
 
-//*********
+//--------------------------------------------------------------------------
 
 // Print the initialization info; to check it worked.
 
@@ -66,7 +66,7 @@ void LHAup::listInit(ostream& os) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Print the event info; to check it worked.
 
@@ -122,7 +122,7 @@ void LHAup::listEvent(ostream& os) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Open and write header to a Les Houches Event File.
 
@@ -155,7 +155,7 @@ bool LHAup::openLHEF(string fileNameIn) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Write initialization information to a Les Houches Event File.
 
@@ -182,7 +182,7 @@ bool LHAup::initLHEF() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Write event information to a Les Houches Event File.
 
@@ -233,7 +233,7 @@ bool LHAup::eventLHEF() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Write end of a Les Houches Event File and close it.
 
@@ -265,7 +265,7 @@ bool LHAup::closeLHEF(bool updateInit) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Read in initialization information from a Les Houches Event File.
 
@@ -317,7 +317,7 @@ bool LHAup::setInitLHEF(ifstream& is) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Read in event information from a Les Houches Event File,
 // into a staging area where it can be reused by setOldEventLHEF.
@@ -392,7 +392,7 @@ bool LHAup::setNewEventLHEF(ifstream& is) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Make current event information read in by setNewEventLHEF.
 
@@ -409,11 +409,11 @@ bool LHAup::setOldEventLHEF() {
 
 }
  
-//**************************************************************************
+//==========================================================================
 
 // LHAupFromPYTHIA8 class.
 
-//*********
+//--------------------------------------------------------------------------
 
 // Read in initialization information from PYTHIA 8.
 
@@ -447,7 +447,7 @@ bool LHAupFromPYTHIA8::setInit() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Read in event information from PYTHIA 8.
 
@@ -507,7 +507,7 @@ bool LHAupFromPYTHIA8::setEvent( int ) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 //  Update cross-section information at the end of the run.
 
@@ -524,6 +524,6 @@ bool LHAupFromPYTHIA8::updateSigma() {
 
 }
  
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8

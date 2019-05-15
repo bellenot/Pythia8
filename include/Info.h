@@ -1,5 +1,5 @@
 // Info.h is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -13,19 +13,21 @@
 
 namespace Pythia8 {
  
-//**************************************************************************
+//==========================================================================
 
 // The Info class contains a mixed bag of information on the event
 // generation activity, especially on the current subprocess properties,
 // and on the number of errors encountered. This is used by the 
 // generation machinery, but can also be read by the user.
+// Note: some methods that maybe should not be accessible to the user
+// are still public, to work also for user-written FSR/ISR classes.
 
 class Info {
 
 public:
 
   // Constructor. 
-  Info() {lowPTmin = false;} 
+  Info() {lowPTmin = false; for (int i = 0; i < 40; ++i) counters[i] = 0;} 
 
   // Listing of most available information on current event.
   void   list(ostream& os = cout) const;
@@ -129,23 +131,33 @@ public:
   double sigmaGen()       const {return sigGen;}
   double sigmaErr()       const {return sigErr;}
 
+  // Counters for number of loops in various places.
+  int    getCounter( int i)  const {return counters[i];}    
+
+  // Set or increase the value stored in a counter.
+  void   setCounter( int i, int value = 0) {counters[i]  = value;}
+  void   addCounter( int i, int value = 1) {counters[i] += value;}
+
   // Reset to empty map of error messages.
-  void errorReset() {messages.clear();}
+  void   errorReset() {messages.clear();}
   
   // Print a message the first few times. Insert in database.
-  void errorMsg(string messageIn, string extraIn = " ", 
+  void   errorMsg(string messageIn, string extraIn = " ", 
     bool showAlways = false, ostream& os = cout);
 
   // Provide total number of errors/aborts/warnings experienced to date.
-  int  errorTotalNumber();
+  int    errorTotalNumber();
 
   // Print statistics on errors/aborts/warnings.
-  void errorStatistics(ostream& os = cout);
+  void   errorStatistics(ostream& os = cout);
 
   // Set initialization warning flag when too low pTmin in ISR/FSR/MI.
-  void setTooLowPTmin(bool lowPTminIn) {lowPTmin = lowPTminIn;} 
+  void   setTooLowPTmin(bool lowPTminIn) {lowPTmin = lowPTminIn;} 
 
 private:
+
+  // Number of times the same error message is repeated, unless overridden.
+  static const int TIMESTOPRINT;
 
   // Store common beam quantities. 
   int    idASave, idBSave;
@@ -170,6 +182,12 @@ private:
   string nameSave, nameSubSave;
   vector<int>    codeMISave, iAMISave, iBMISave;
   vector<double> pTMISave;
+
+  // Vector of various loop counters.
+  int    counters[50];
+
+  // Map for all error messages.
+  map<string, int> messages;
 
   // Friend classes allowed to set info.
   friend class Pythia;
@@ -251,15 +269,9 @@ private:
   // Set event weight; currently only for Les Houches description.
   void setWeight( double weightIn) {weightSave = weightIn;}
 
-  // Number of times the same error message is repeated.
-  static const int TIMESTOPRINT;
-
-  // Map for all error messages.
-  map<string, int> messages;
-
 };
  
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8
 

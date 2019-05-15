@@ -65,9 +65,11 @@ A value below <code>mHatMin</code> means there is no upper limit.
 <h3>Cuts in <i>2 -> 1</i> processes</h3>
 
 When a resonance <code>id</code> is produced, the 
-<?php $filepath = $_GET["filepath"];
-echo "<a href='ParticleDataScheme.php?filepath=".$filepath."' target='page'>";?><code>mMin(id)</code>and 
-<code>mMax(id)</code></a> methods restrict the allowed mass range
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='ParticleDataScheme.php?filepath=".$filepath."' target='page'>";?>mMin(id)</a></code> and 
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='ParticleDataScheme.php?filepath=".$filepath."' target='page'>";?>mMax(id)</a></code> 
+methods restrict the allowed mass range
 of this resonance. Therefore the allowed range is chosen to be the 
 overlap of this range and the <code>mHatMin</code> to 
 <code>mHatMax</code> range above. Most resonances by default have no 
@@ -115,10 +117,12 @@ mass value is always used.
 <p/>
 For a particle with a Breit-Wigner shape selected, according to the 
 rules above and to the rules of the particle species itself, the 
-<?php $filepath = $_GET["filepath"];
-echo "<a href='ParticleDataScheme.php?filepath=".$filepath."' target='page'>";?><code>mMin(id)</code>
-and <code>mMax(id)</code></a> methods restrict the allowed mass range
-of the particle, just like for the <i>2 -> 1 </i> processes.   
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='ParticleDataScheme.php?filepath=".$filepath."' target='page'>";?>mMin(id)</a></code> and 
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='ParticleDataScheme.php?filepath=".$filepath."' target='page'>";?>mMax(id)</a></code> 
+methods restrict the allowed mass range of the particle, just like for 
+the <i>2 -> 1 </i> processes.   
 
 <h3>Cuts in <i>2 -> 3</i> processes</h3>
 
@@ -282,4 +286,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->

@@ -1,5 +1,5 @@
 // BeamRemnants.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -10,7 +10,7 @@
 
 namespace Pythia8 {
 
-//**************************************************************************
+//==========================================================================
 
 // The BeamDipole class is purely internal to reconnectColours.
 
@@ -28,11 +28,11 @@ public:
  
 };
 
-//**************************************************************************
+//==========================================================================
 
 // The BeamRemnants class.
 
-//*********
+//--------------------------------------------------------------------------
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -49,38 +49,40 @@ const int    BeamRemnants::NTRYKINMATCH     = 10;
 // and primordial kT is added. Should hopefully not be needed.
 const bool   BeamRemnants::CORRECTMISMATCH  = false; 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialization.
 
-bool BeamRemnants::init( Info* infoPtrIn, BeamParticle* beamAPtrIn, 
-  BeamParticle* beamBPtrIn, PartonSystems* partonSystemsPtrIn) {
+bool BeamRemnants::init( Info* infoPtrIn, Settings& settings, Rndm* rndmPtrIn, 
+  BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, 
+  PartonSystems* partonSystemsPtrIn) {
 
   // Save pointers.
   infoPtr             = infoPtrIn;
+  rndmPtr             = rndmPtrIn;
   beamAPtr            = beamAPtrIn;
   beamBPtr            = beamBPtrIn;
   partonSystemsPtr    = partonSystemsPtrIn;
 
   // Width of primordial kT distribution.
-  doPrimordialKT      = Settings::flag("BeamRemnants:primordialKT");
-  primordialKTsoft    = Settings::parm("BeamRemnants:primordialKTsoft");
-  primordialKThard    = Settings::parm("BeamRemnants:primordialKThard");
-  primordialKTremnant = Settings::parm("BeamRemnants:primordialKTremnant");
-  halfScaleForKT      = Settings::parm("BeamRemnants:halfScaleForKT");
-  halfMassForKT       = Settings::parm("BeamRemnants:halfMassForKT");
+  doPrimordialKT      = settings.flag("BeamRemnants:primordialKT");
+  primordialKTsoft    = settings.parm("BeamRemnants:primordialKTsoft");
+  primordialKThard    = settings.parm("BeamRemnants:primordialKThard");
+  primordialKTremnant = settings.parm("BeamRemnants:primordialKTremnant");
+  halfScaleForKT      = settings.parm("BeamRemnants:halfScaleForKT");
+  halfMassForKT       = settings.parm("BeamRemnants:halfMassForKT");
 
   // Handling of rescattering kinematics uncertainties from primodial kT.
-  allowRescatter      = Settings::flag("MultipleInteractions:allowRescatter");
-  doRescatterRestoreY = Settings::flag("BeamRemnants:rescatterRestoreY");
+  allowRescatter      = settings.flag("MultipleInteractions:allowRescatter");
+  doRescatterRestoreY = settings.flag("BeamRemnants:rescatterRestoreY");
 
   // Parameters for colour reconnection scenario, partly borrowed from
   // multiple interactions not to introduce too many new ones.
-  doReconnect         = Settings::flag("BeamRemnants:reconnectColours");
-  reconnectRange      = Settings::parm("BeamRemnants:reconnectRange");
-  pT0Ref              = Settings::parm("MultipleInteractions:pT0Ref");
-  ecmRef              = Settings::parm("MultipleInteractions:ecmRef");
-  ecmPow              = Settings::parm("MultipleInteractions:ecmPow");
+  doReconnect         = settings.flag("BeamRemnants:reconnectColours");
+  reconnectRange      = settings.parm("BeamRemnants:reconnectRange");
+  pT0Ref              = settings.parm("MultipleInteractions:pT0Ref");
+  ecmRef              = settings.parm("MultipleInteractions:ecmRef");
+  ecmPow              = settings.parm("MultipleInteractions:ecmPow");
 
   // Total and squared CM energy at nominal energy.
   eCM                 = infoPtr->eCM();
@@ -95,7 +97,7 @@ bool BeamRemnants::init( Info* infoPtrIn, BeamParticle* beamAPtrIn,
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select the flavours/kinematics/colours of the two beam remnants. 
 // Notation: iPar = all partons, iSys = matched systems of two beams,
@@ -194,7 +196,7 @@ bool BeamRemnants::add( Event& event) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Set up trial transverse and longitudinal kinematics for each beam 
 // separately. Final decisions involve comparing the two beams.
@@ -289,8 +291,8 @@ bool BeamRemnants::setKinematics( Event& event) {
         double pySum = 0.;
         for (int iPar = 0; iPar < nPar; ++iPar) { 
           if ( beam[iPar].isFromBeam() ) {
-            double px = kTwidth[iPar] * Rndm::gauss();
-            double py = kTwidth[iPar] * Rndm::gauss();
+            double px = kTwidth[iPar] * rndmPtr->gauss();
+            double py = kTwidth[iPar] * rndmPtr->gauss();
             beam[iPar].px(px);
             beam[iPar].py(py);
             pxSum += px;
@@ -655,7 +657,7 @@ bool BeamRemnants::setKinematics( Event& event) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Allow colour reconnections by mergings of collision subsystems.
 // iRec is system that may be reconnected, by moving its gluons to iSys,   
@@ -698,7 +700,7 @@ bool BeamRemnants::reconnectColours( Event&  event) {
     // Loop over other systems iSys at higher pT scale and 
     // decide whether to reconnect the iRec gluons onto one of them.
     for (int iSys = iRec - 1; iSys >= 0; --iSys)
-    if (hasColour[iSys] && probRec > Rndm::flat()) { 
+    if (hasColour[iSys] && probRec > rndmPtr->flat()) { 
 
       // The iRec system and all merged with it to be merged with iSys.
       iMerge[iRec] = iSys;       
@@ -931,7 +933,7 @@ bool BeamRemnants::reconnectColours( Event&  event) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Collapse colours and check that they are consistent.
 
@@ -1003,14 +1005,14 @@ bool BeamRemnants::checkColours( Event& event) {
   // (i,j) that offers smallest (p_g p_i) * (p_g p_j) / (p_i p_j).
   for (int iS = 0; iS < int(iSingletGluon.size()); ++iS) {
     int    iGlu      = iSingletGluon[iS];
-    int    iAcolDip  = 0;
+    int    iAcolDip  = -1;
     double pT2DipMin = sCM;
     for (int iC = oldSize; iC < event.size(); ++iC) 
-    if (iC != iGlu && event[iC].status() > 0) {
+      if (iC != iGlu && event[iC].isFinal()) {
       int colDip = event[iC].col();
       if (colDip > 0 && event[iC].acol() !=colDip)
       for (int iA = oldSize; iA < event.size(); ++iA)
-      if (iA != iGlu && iA != iC && event[iA].status() > 0 
+	if (iA != iGlu && iA != iC && event[iA].isFinal() 
         && event[iA].acol() == colDip && event[iA].col() !=colDip) {
         double pT2Dip = (event[iGlu].p() * event[iC].p()) 
           * (event[iGlu].p() * event[iA].p())
@@ -1021,6 +1023,9 @@ bool BeamRemnants::checkColours( Event& event) {
         }
       }
     }
+
+    // Fail if no dipole. Else insert singlet gluon onto relevant dipole.
+    if (iAcolDip == -1)  return false;
     event[iGlu].acol( event[iAcolDip].acol() );
     event[iAcolDip].acol( event[iGlu].col() );
   }
@@ -1108,12 +1113,12 @@ bool BeamRemnants::checkColours( Event& event) {
     colList.pop_back();     
     acolList.pop_back();     
     for (int i = oldSize; i < event.size(); ++i) 
-    if (event[i].isFinal() > 0 && event[i].col() == colMatch) {
+    if (event[i].isFinal() && event[i].col() == colMatch) {
       event[i].col( colNew);
       break;
     }
     for (int i = oldSize; i < event.size(); ++i) 
-    if (event[i].isFinal() > 0 && event[i].acol() == acolMatch) {
+    if (event[i].isFinal() && event[i].acol() == acolMatch) {
       event[i].acol( colNew);
       break;
     }
@@ -1124,6 +1129,6 @@ bool BeamRemnants::checkColours( Event& event) {
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8

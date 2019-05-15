@@ -1,5 +1,5 @@
 // SigmaNewGaugeBosons.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -11,13 +11,13 @@
 namespace Pythia8 {
 
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma1ffbarZprimeWprime class.
 // Collects common methods for f fbar -> Z'/W' -> WW/WZ -> 4 fermions.
 // Copied from SigmaEW for gauge-boson-pair production.
 
-//*********
+//--------------------------------------------------------------------------
 
 // Calculate and store internal products.
 
@@ -36,8 +36,8 @@ void Sigma1ffbarZprimeWprime::setupProd( Event& process, int i1, int i2,
   bool smallPT = false;
   do {
     smallPT = false;
-    double thetaNow = acos(2. * Rndm::flat() - 1.);
-    double phiNow   = 2. * M_PI * Rndm::flat();
+    double thetaNow = acos(2. * rndmPtr->flat() - 1.);
+    double phiNow   = 2. * M_PI * rndmPtr->flat();
     for (int i = 1; i <= 6; ++i) { 
       pRot[i].rot( thetaNow, phiNow);
       if (pRot[i].pT2() < 1e-4 * pRot[i].pAbs2()) smallPT = true;
@@ -64,7 +64,7 @@ void Sigma1ffbarZprimeWprime::setupProd( Event& process, int i1, int i2,
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate the F function of Gunion and Kunszt.
 
@@ -76,7 +76,7 @@ complex Sigma1ffbarZprimeWprime::fGK(int j1, int j2, int j3, int j4,
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate the Xi function of Gunion and Kunszt.
 
@@ -90,7 +90,7 @@ double Sigma1ffbarZprimeWprime::xiGK( double tHnow, double uHnow,
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate the Xj function of Gunion and Kunszt.
 
@@ -104,32 +104,32 @@ double Sigma1ffbarZprimeWprime::xjGK( double tHnow, double uHnow,
 
 }
 
-//*************************************************************************
+//==========================================================================
 
 // Sigma1ffbar2gmZZprime class.
 // Cross section for f fbar -> gamma*/Z0/Z'0 (f is quark or lepton). 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
 void Sigma1ffbar2gmZZprime::initProc() {
 
   // Allow to pick only parts of full gamma*/Z0/Z'0 expression.
-  gmZmode     = Settings::mode("Zprime:gmZmode");
+  gmZmode     = settingsPtr->mode("Zprime:gmZmode");
 
   // Store Z'0 mass and width for propagator. 
-  mRes        = ParticleDataTable::m0(32);
-  GammaRes    = ParticleDataTable::mWidth(32);
+  mRes        = particleDataPtr->m0(32);
+  GammaRes    = particleDataPtr->mWidth(32);
   m2Res       = mRes*mRes;
   GamMRat     = GammaRes / mRes;
-  sin2tW      = CoupEW::sin2thetaW();
+  sin2tW      = coupSMPtr->sin2thetaW();
   cos2tW      = 1. - sin2tW;
   thetaWRat   = 1. / (16. * sin2tW * cos2tW);
 
   // Properties of Z0 resonance also needed.
-  mZ          = ParticleDataTable::m0(23);
-  GammaZ      = ParticleDataTable::mWidth(23);
+  mZ          = particleDataPtr->m0(23);
+  GammaZ      = particleDataPtr->mWidth(23);
   m2Z         = mZ*mZ;
   GamMRatZ    = GammaZ / mZ;
 
@@ -138,17 +138,17 @@ void Sigma1ffbar2gmZZprime::initProc() {
   for (int i = 0; i < 20; ++i) vfZp[i] = 0.;
   
   // Store first-generation axial and vector couplings.
-  afZp[1]     = Settings::parm("Zprime:ad");
-  afZp[2]     = Settings::parm("Zprime:au");
-  afZp[11]    = Settings::parm("Zprime:ae");
-  afZp[12]    = Settings::parm("Zprime:anue");
-  vfZp[1]     = Settings::parm("Zprime:vd");
-  vfZp[2]     = Settings::parm("Zprime:vu");
-  vfZp[11]    = Settings::parm("Zprime:ve");
-  vfZp[12]    = Settings::parm("Zprime:vnue");
+  afZp[1]     = settingsPtr->parm("Zprime:ad");
+  afZp[2]     = settingsPtr->parm("Zprime:au");
+  afZp[11]    = settingsPtr->parm("Zprime:ae");
+  afZp[12]    = settingsPtr->parm("Zprime:anue");
+  vfZp[1]     = settingsPtr->parm("Zprime:vd");
+  vfZp[2]     = settingsPtr->parm("Zprime:vu");
+  vfZp[11]    = settingsPtr->parm("Zprime:ve");
+  vfZp[12]    = settingsPtr->parm("Zprime:vnue");
 
   // Second and third generation could be carbon copy of this...
-  if (Settings::flag("Zprime:universality")) {
+  if (settingsPtr->flag("Zprime:universality")) {
     for (int i = 3; i <= 6; ++i) {
       afZp[i]    = afZp[i-2];
       vfZp[i]    = vfZp[i-2];
@@ -158,34 +158,34 @@ void Sigma1ffbar2gmZZprime::initProc() {
 
   // ... or could have different couplings.   
   } else {
-    afZp[3]   = Settings::parm("Zprime:as");
-    afZp[4]   = Settings::parm("Zprime:ac");
-    afZp[5]   = Settings::parm("Zprime:ab");
-    afZp[6]   = Settings::parm("Zprime:at");
-    afZp[13]  = Settings::parm("Zprime:amu");
-    afZp[14]  = Settings::parm("Zprime:anumu");
-    afZp[15]  = Settings::parm("Zprime:atau");
-    afZp[16]  = Settings::parm("Zprime:anutau");
-    vfZp[3]   = Settings::parm("Zprime:vs");
-    vfZp[4]   = Settings::parm("Zprime:vc");
-    vfZp[5]   = Settings::parm("Zprime:vb");
-    vfZp[6]   = Settings::parm("Zprime:vt");
-    vfZp[13]  = Settings::parm("Zprime:vmu");
-    vfZp[14]  = Settings::parm("Zprime:vnumu");
-    vfZp[15]  = Settings::parm("Zprime:vtau");
-    vfZp[16]  = Settings::parm("Zprime:vnutau");
+    afZp[3]   = settingsPtr->parm("Zprime:as");
+    afZp[4]   = settingsPtr->parm("Zprime:ac");
+    afZp[5]   = settingsPtr->parm("Zprime:ab");
+    afZp[6]   = settingsPtr->parm("Zprime:at");
+    afZp[13]  = settingsPtr->parm("Zprime:amu");
+    afZp[14]  = settingsPtr->parm("Zprime:anumu");
+    afZp[15]  = settingsPtr->parm("Zprime:atau");
+    afZp[16]  = settingsPtr->parm("Zprime:anutau");
+    vfZp[3]   = settingsPtr->parm("Zprime:vs");
+    vfZp[4]   = settingsPtr->parm("Zprime:vc");
+    vfZp[5]   = settingsPtr->parm("Zprime:vb");
+    vfZp[6]   = settingsPtr->parm("Zprime:vt");
+    vfZp[13]  = settingsPtr->parm("Zprime:vmu");
+    vfZp[14]  = settingsPtr->parm("Zprime:vnumu");
+    vfZp[15]  = settingsPtr->parm("Zprime:vtau");
+    vfZp[16]  = settingsPtr->parm("Zprime:vnutau");
   }
 
   // Coupling for Z' -> W+ W- and decay angular admixture.
-  coupZpWW    = Settings::parm("Zprime:coup2WW");
-  anglesZpWW  = Settings::parm("Zprime:anglesWW");
+  coupZpWW    = settingsPtr->parm("Zprime:coup2WW");
+  anglesZpWW  = settingsPtr->parm("Zprime:anglesWW");
 
   // Set pointer to particle properties and decay table.
-  particlePtr = ParticleDataTable::particleDataPtr(32);
+  particlePtr = particleDataPtr->particleDataEntryPtr(32);
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), part independent of incoming flavour. 
 
@@ -206,14 +206,14 @@ void Sigma1ffbar2gmZZprime::sigmaKin() {
          ef2, efvf, vaf2, efvpf, vafvapf, vapf2, colf;
 
   // Loop over all open Z'0 decay channels. 
-  for (int i = 0; i < particlePtr->decay.size(); ++i) {
-    onMode = particlePtr->decay[i].onMode();
+  for (int i = 0; i < particlePtr->sizeChannels(); ++i) {
+    onMode = particlePtr->channel(i).onMode();
     if (onMode != 1 && onMode != 2) continue;
-    idAbs = abs( particlePtr->decay[i].product(0) );
+    idAbs = abs( particlePtr->channel(i).product(0) );
 
     // Contributions from three fermion generations.
     if ( (idAbs > 0 && idAbs < 7) || ( idAbs > 10 && idAbs < 17) ) {
-      mf = ParticleDataTable::m0(idAbs);
+      mf = particleDataPtr->m0(idAbs);
 
       // Check that above threshold. 
       if (mH > 2. * mf + MASSMARGIN) {
@@ -221,9 +221,9 @@ void Sigma1ffbar2gmZZprime::sigmaKin() {
         ps        = sqrtpos(1. - 4. * mr); 
 
         // Couplings of gamma^*/Z^0/Z'^0  to final flavour 
-        ef        = CoupEW::ef(idAbs);
-        af        = CoupEW::af(idAbs);
-        vf        = CoupEW::vf(idAbs);
+        ef        = coupSMPtr->ef(idAbs);
+        af        = coupSMPtr->af(idAbs);
+        vf        = coupSMPtr->vf(idAbs);
         apf       = afZp[idAbs];
         vpf       = vfZp[idAbs];
 
@@ -239,7 +239,7 @@ void Sigma1ffbar2gmZZprime::sigmaKin() {
 
         // Colour factor. Additionally secondary width for top.
         colf      = (idAbs < 9) ? colQ : 1.;
-        if (idAbs == 6) colf *= ParticleDataTable::resOpenFrac(6, -6);
+        if (idAbs == 6) colf *= particleDataPtr->resOpenFrac(6, -6);
 
         // Store sum of combinations.
         gamSum   += colf * ef2;
@@ -252,13 +252,13 @@ void Sigma1ffbar2gmZZprime::sigmaKin() {
 
     // Optional contribution from W+ W-.
     } else if (idAbs == 24) {
-      mf = ParticleDataTable::m0(idAbs);
+      mf = particleDataPtr->m0(idAbs);
       if (mH > 2. * mf + MASSMARGIN) {
         mr        = pow2(mf / mH);
         ps        = sqrtpos(1. - 4. * mr); 
         ZpSum    += pow2(coupZpWW * cos2tW) * pow3(ps)
           	  * (1. + 20. * mr + 12. * mr*mr)
-                  * ParticleDataTable::resOpenFrac(24, -24);
+                  * particleDataPtr->resOpenFrac(24, -24);
       }
     }
   }
@@ -287,7 +287,7 @@ void Sigma1ffbar2gmZZprime::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), including incoming flavour dependence. 
 
@@ -295,9 +295,9 @@ double Sigma1ffbar2gmZZprime::sigmaHat() {
 
   // Couplings to an incoming flavour.
   int idAbs      = abs(id1); 
-  double ei      = CoupEW::ef(idAbs);
-  double ai      = CoupEW::af(idAbs);
-  double vi      = CoupEW::vf(idAbs);
+  double ei      = coupSMPtr->ef(idAbs);
+  double ai      = coupSMPtr->af(idAbs);
+  double vi      = coupSMPtr->vf(idAbs);
   double api     = afZp[idAbs];
   double vpi     = vfZp[idAbs];
   double ei2     = ei * ei;
@@ -318,7 +318,7 @@ double Sigma1ffbar2gmZZprime::sigmaHat() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -334,7 +334,7 @@ void Sigma1ffbar2gmZZprime::setIdColAcol() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate weight for gamma*/Z0/Z'0 decay angle.
   
@@ -352,14 +352,14 @@ double Sigma1ffbar2gmZZprime::weightDecay( Event& process, int iResBeg,
     (idOutAbs < 7 || ( idOutAbs > 10 && idOutAbs < 17)) ) {
 
     // Couplings for in- and out-flavours.
-    double ei  = CoupEW::ef(idInAbs);
-    double vi  = CoupEW::vf(idInAbs);
-    double ai  = CoupEW::af(idInAbs);
+    double ei  = coupSMPtr->ef(idInAbs);
+    double vi  = coupSMPtr->vf(idInAbs);
+    double ai  = coupSMPtr->af(idInAbs);
     double vpi = vfZp[idInAbs];
     double api = afZp[idInAbs];
-    double ef  = CoupEW::ef(idOutAbs);
-    double vf  = CoupEW::vf(idOutAbs);
-    double af  = CoupEW::af(idOutAbs);
+    double ef  = coupSMPtr->ef(idOutAbs);
+    double vf  = coupSMPtr->vf(idOutAbs);
+    double af  = coupSMPtr->af(idOutAbs);
     double vpf = vfZp[idOutAbs];
     double apf = afZp[idOutAbs];
 
@@ -413,7 +413,7 @@ double Sigma1ffbar2gmZZprime::weightDecay( Event& process, int iResBeg,
     wtMax = cFlat + max(0., cCos2);
   }
 
-  // Angular weight for f + fbar -> Z' -> W+ + W- -> 4 fermions..
+  // Angular weight for f + fbar -> Z' -> W+ + W- -> 4 fermions.
   else if (iResBeg == 6 && iResEnd == 7 && idOutAbs == 24) {
  
     // Order so that fbar(1) f(2) -> f'(3) fbar'(4) f"(5) fbar"(6).
@@ -427,7 +427,7 @@ double Sigma1ffbar2gmZZprime::weightDecay( Event& process, int iResBeg,
     if (process[6].id() > 0) {swap(i3, i5); swap(i4, i6);}
   
     // Decay distribution like in f fbar -> Z^* -> W+ W-. 
-    if (Rndm::flat() > anglesZpWW) {
+    if (rndmPtr->flat() > anglesZpWW) {
 
       // Set up four-products and internal products.
       setupProd( process, i1, i2, i3, i4, i5, i6); 
@@ -474,40 +474,40 @@ double Sigma1ffbar2gmZZprime::weightDecay( Event& process, int iResBeg,
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma1ffbar2Wprime class.
 // Cross section for f fbar' -> W'+- (f is quark or lepton). 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
 void Sigma1ffbar2Wprime::initProc() {
 
   // Store W+- mass and width for propagator. 
-  mRes     = ParticleDataTable::m0(34);
-  GammaRes = ParticleDataTable::mWidth(34);
+  mRes     = particleDataPtr->m0(34);
+  GammaRes = particleDataPtr->mWidth(34);
   m2Res    = mRes*mRes;
   GamMRat  = GammaRes / mRes;
-  thetaWRat = 1. / (12. * CoupEW::sin2thetaW());
+  thetaWRat = 1. / (12. * coupSMPtr->sin2thetaW());
 
   // Axial and vector couplings of fermions.
-  aqWp      = Settings::parm("Wprime:aq");
-  vqWp      = Settings::parm("Wprime:vq");
-  alWp      = Settings::parm("Wprime:al");
-  vlWp      = Settings::parm("Wprime:vl");
+  aqWp      = settingsPtr->parm("Wprime:aq");
+  vqWp      = settingsPtr->parm("Wprime:vq");
+  alWp      = settingsPtr->parm("Wprime:al");
+  vlWp      = settingsPtr->parm("Wprime:vl");
 
   // Coupling for W' -> W Z and decay angular admixture.
-  coupWpWZ    = Settings::parm("Wprime:coup2WZ");
-  anglesWpWZ  = Settings::parm("Wprime:anglesWZ");
+  coupWpWZ    = settingsPtr->parm("Wprime:coup2WZ");
+  anglesWpWZ  = settingsPtr->parm("Wprime:anglesWZ");
 
   // Set pointer to particle properties and decay table.
-  particlePtr = ParticleDataTable::particleDataPtr(34);
+  particlePtr = particleDataPtr->particleDataEntryPtr(34);
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), part independent of incoming flavour. 
 
@@ -521,7 +521,7 @@ void Sigma1ffbar2Wprime::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), including incoming flavour dependence. 
 
@@ -530,7 +530,7 @@ double Sigma1ffbar2Wprime::sigmaHat() {
   // Secondary width for W+ or W-. CKM and colour factors.
   int idUp = (abs(id1)%2 == 0) ? id1 : id2;
   double sigma = (idUp > 0) ? sigma0Pos : sigma0Neg;
-  if (abs(id1) < 7) sigma *= VCKM::V2id(abs(id1), abs(id2)) / 3.;
+  if (abs(id1) < 7) sigma *= coupSMPtr->V2CKMid(abs(id1), abs(id2)) / 3.;
 
   // Couplings.
   if (abs(id1) < 7) sigma *= 0.5 * (aqWp * aqWp + vqWp * vqWp);
@@ -541,7 +541,7 @@ double Sigma1ffbar2Wprime::sigmaHat() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -559,7 +559,7 @@ void Sigma1ffbar2Wprime::setIdColAcol() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate weight for W decay angle.
   
@@ -633,7 +633,7 @@ double Sigma1ffbar2Wprime::weightDecay( Event& process, int iResBeg,
     if (process[6].id() == 23) {swap(i3, i5); swap(i4, i6);}
   
     // Decay distribution like in f fbar -> Z^* -> W+ W-. 
-    if (Rndm::flat() > anglesWpWZ) {
+    if (rndmPtr->flat() > anglesWpWZ) {
 
       // Set up four-products and internal products.
       setupProd( process, i1, i2, i3, i4, i5, i6); 
@@ -655,8 +655,8 @@ double Sigma1ffbar2Wprime::weightDecay( Event& process, int iResBeg,
 
       //  Couplings of outgoing fermion from Z. Combine with kinematics.
       int idAbs     = process[i5].idAbs();
-      double lfZ    = CoupEW::lf(idAbs); 
-      double rfZ    = CoupEW::rf(idAbs); 
+      double lfZ    = coupSMPtr->lf(idAbs); 
+      double rfZ    = coupSMPtr->rf(idAbs); 
       wt            = lfZ*lfZ * fGK135 + rfZ*rfZ * fGK136;
       wtMax         = 4. * s3now * s4now * (lfZ*lfZ + rfZ*rfZ) 
                     * (xiT + xiU - xjTU);
@@ -680,30 +680,30 @@ double Sigma1ffbar2Wprime::weightDecay( Event& process, int iResBeg,
 }
 
 
-//**************************************************************************
+//==========================================================================
 
 // Sigma1ffbar2Rhorizontal class.
 // Cross section for f fbar' -> R^0 (f is a quark or lepton). 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize process. 
   
 void Sigma1ffbar2Rhorizontal::initProc() {
 
   // Store R^0 mass and width for propagator. 
-  mRes     = ParticleDataTable::m0(41);
-  GammaRes = ParticleDataTable::mWidth(41);
+  mRes     = particleDataPtr->m0(41);
+  GammaRes = particleDataPtr->mWidth(41);
   m2Res    = mRes*mRes;
   GamMRat  = GammaRes / mRes;
-  thetaWRat = 1. / (12. * CoupEW::sin2thetaW());
+  thetaWRat = 1. / (12. * coupSMPtr->sin2thetaW());
 
   // Set pointer to particle properties and decay table.
-  particlePtr = ParticleDataTable::particleDataPtr(41);
+  particlePtr = particleDataPtr->particleDataEntryPtr(41);
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), part independent of incoming flavour. 
 
@@ -717,7 +717,7 @@ void Sigma1ffbar2Rhorizontal::sigmaKin() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Evaluate sigmaHat(sHat), including incoming flavour dependence. 
 
@@ -735,7 +735,7 @@ double Sigma1ffbar2Rhorizontal::sigmaHat() {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Select identity, colour and anticolour.
 
@@ -752,6 +752,6 @@ void Sigma1ffbar2Rhorizontal::setIdColAcol() {
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8

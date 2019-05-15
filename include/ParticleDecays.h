@@ -1,5 +1,5 @@
 // ParticleDecays.h is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -21,7 +21,7 @@
 
 namespace Pythia8 {
  
-//**************************************************************************
+//==========================================================================
 
 // DecayHandler is base class for the external handling of decays.
 // There is only one pure virtual method, that should do the decay. 
@@ -41,7 +41,7 @@ protected:
 
 };
  
-//**************************************************************************
+//==========================================================================
 
 // The ParticleDecays class contains the routines to decay a particle.
 
@@ -53,9 +53,10 @@ public:
   ParticleDecays() {}
 
   // Initialize: store pointers and find settings
-  void init(Info* infoPtrIn, TimeShower* timesDecPtrIn, 
-    StringFlav* flavSelPtrIn, DecayHandler* decayHandlePtrIn, 
-    vector<int> handledParticles); 
+  void init(Info* infoPtrIn, Settings& settings, 
+    ParticleData* particleDataPtrIn, Rndm* rndmPtrIn, 
+    TimeShower* timesDecPtrIn, StringFlav* flavSelPtrIn, 
+    DecayHandler* decayHandlePtrIn, vector<int> handledParticles); 
  
   // Perform a decay of a single particle.
   bool decay(int iDec, Event& event); 
@@ -70,13 +71,19 @@ private:
   static const double MSAFEDALITZ, WTCORRECTION[11];
 
   // Pointer to various information on the generation.
-  Info* infoPtr;
+  Info*         infoPtr;
+
+  // Pointer to the particle data table.
+  ParticleData* particleDataPtr;
+
+  // Pointer to the random number generator.
+  Rndm*         rndmPtr;
 
   // Pointers to timelike showers, for decays to partons (e.g. Upsilon).
-  TimeShower* timesDecPtr;
+  TimeShower*   timesDecPtr;
 
   // Pointer to class for flavour generation; needed when to pick hadrons.
-  StringFlav* flavSelPtr;
+  StringFlav*   flavSelPtr;
 
   // Pointer to a handler of external decays.
   DecayHandler* decayHandlePtr;
@@ -132,7 +139,7 @@ private:
   
 };
  
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8
 

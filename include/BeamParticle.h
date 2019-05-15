@@ -1,5 +1,5 @@
 // BeamParticle.h is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -21,7 +21,7 @@
 
 namespace Pythia8 {
 
-//**************************************************************************
+//==========================================================================
 
 // This class holds info on a parton resolved inside the incoming beam,
 // i.e. either an initiator (part of a hard or a multiple interaction)
@@ -107,7 +107,7 @@ private:
 
 };
 
-//**************************************************************************
+//==========================================================================
 
 // This class holds info on a beam particle in the evolution of 
 // initial-state radiation and multiple interactions.
@@ -117,12 +117,13 @@ class BeamParticle {
 public:
 
   // Constructor.
-  BeamParticle() {Q2ValFracSav = -1.;}  
+  BeamParticle() : nInit(0) {Q2ValFracSav = -1.;}  
 
   // Initialize data on a beam particle and save pointers.
   void init( int idIn, double pzIn, double eIn, double mIn, 
-    Info* infoPtrIn, PDF* pdfInPtr, PDF* pdfHardInPtr, 
-    bool isUnresolvedIn, StringFlav* flavSelPtrIn);
+    Info* infoPtrIn, Settings& settings, ParticleData* particleDataPtrIn, 
+    Rndm* rndmPtrIn, PDF* pdfInPtr, PDF* pdfHardInPtr, bool isUnresolvedIn, 
+    StringFlav* flavSelPtrIn);
 
   // For mesons like pi0 valence content varies from event to event.
   void newValenceContent();
@@ -235,14 +236,20 @@ private:
   static const double XMINUNRESOLVED;
 
   // Pointer to various information on the generation.
-  Info*       infoPtr;
+  Info*         infoPtr;
+
+  // Pointer to the particle data table.
+  ParticleData* particleDataPtr;
+
+  // Pointer to the random number generator.
+  Rndm*         rndmPtr;
  
   // Pointers to PDF sets.
-  PDF*        pdfBeamPtr;
-  PDF*        pdfHardBeamPtr;
+  PDF*          pdfBeamPtr;
+  PDF*          pdfHardBeamPtr;
 
   // Pointer to class for flavour generation.
-  StringFlav* flavSelPtr;
+  StringFlav*   flavSelPtr;
 
   // Initialization data, normally only set once.
   bool   allowJunction;
@@ -291,7 +298,7 @@ private:
 
 };
  
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8
 

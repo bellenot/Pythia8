@@ -1,5 +1,5 @@
 // main18.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -12,7 +12,7 @@
 
 using namespace Pythia8; 
 
-//**************************************************************************
+//==========================================================================
 
 // The EventFilter class. 
 
@@ -71,7 +71,7 @@ private:
 
 };
 
-//*********
+//--------------------------------------------------------------------------
 
 // The filter method. 
 
@@ -106,7 +106,7 @@ void EventFilter::filter(Event& event) {
 
 } 
 
-//*********
+//--------------------------------------------------------------------------
 
 // The list method: downscaled version of Event::list. 
 
@@ -147,7 +147,7 @@ void EventFilter::list(ostream& os) {
 }
 
 
-//**************************************************************************
+//==========================================================================
 
 // Use the EventFilter method to plot some event properties.
 

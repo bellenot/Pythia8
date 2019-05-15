@@ -47,15 +47,12 @@ e.g. with
      Pythia pythia;
 </pre>
 It is this object that we will use from now on. Normally a run
-will only contain one <code>Pythia</code> object. (Hypothetically 
-you  could use several <code>Pythia</code> objects sequentially, 
-but if done in parallel the <code>static</code> character of some
-program elements is likely not to give the desired behaviour.)<br/>
+will only contain one <code>Pythia</code> object. (But you can 
+use several <code>Pythia</code> objects, which then will be
+independent of each other.)<br/>
 By default all output from <code>Pythia</code> will be on the 
 <code>cout</code> stream, but the <code>list</code> methods below do
-allow output to alternative streams or files (by an optional
-last argument, a reference to an <code>ostream</code>, usually not
-explicitly written out here).
+allow output to alternative streams or files.
 </li>  
 
 <p/>
@@ -67,19 +64,17 @@ found on the other pages).
 The default values and your modifications are stored in two databases, 
 one for <aloc href="SettingsScheme">generic settings</aloc>
 and one for <aloc href="ParticleDataScheme">particle data</aloc>. 
-Both of these are static classes, and are 
-initialized with their default values by the <code>Pythia</code> 
-constructor. The default values can then be changed, primarily
-by one of the two ways below, or by a combination of them.<br/>  
+Both of these are initialized with their default values by the 
+<code>Pythia</code> constructor. The default values can then be 
+changed, primarily by one of the two ways below, or by a combination 
+of them.<br/>  
 
 <p/>
-a) You can use the dedicated methods of each class to change the 
-database default values to fit the needs of your current run. However, 
-the
+a) You can use the
 <pre>
     pythia.readString(string);
 </pre>
-method provides a covenient uniform interface to all of them.
+method repeatedly to do a change of a property at a time.
 The information in the string is case-insensitive, but upper- and
 lowercase can be combined for clarity. The rules are that<br/>
 (i) if the first nonblank character of the string is a letter
@@ -91,9 +86,7 @@ contain particle data updates, and so sent on to
 (iii) if none of the above, the string is assumed to be a comment,
 i.e. nothing will be done.<br/>
 In the former two cases, a warning is issued whenever a string
-cannot be recognized (maybe because of a spelling mistake),
-unless an optional second argument <code>false</code> is used to 
-switch off warnings.<br/>
+cannot be recognized (maybe because of a spelling mistake).<br/>
 Some examples would be
 <pre>
     pythia.readString("TimeShower:pTmin = 1.0");
@@ -101,8 +94,8 @@ Some examples would be
 </pre>
 The <code>readString(string)</code> method is intended primarily for 
 a few changes. It can also be useful if you want to construct a
-parser of input files that contain commands to several different 
-libraries.<br/>
+parser for input files that contain commands both to PYTHIA and to 
+other libraries.<br/>
 
 <p/>
 b) You can read in a file containing a list of those variables 
@@ -113,9 +106,7 @@ you want to see changed, with a
 Each line in this file with be processes by the 
 <code>readString(string)</code> method introduced above. You can thus 
 freely mix comment lines and lines handed on to <code>Settings</code> 
-or to <code>ParticleDataTable</code>.   
-Again, an optional second argument <code>false</code> allows 
-you to switch off warning messages for unknown variables.<br/>
+or to <code>ParticleData</code>.<br/>
 This approach is better suited for more extensive changes than a direct
 usage of <code>readString(string)</code>, and can also avoid having to
 recompile and relink your main program between runs.<br/>
@@ -153,12 +144,12 @@ to allow for arbitrary beam directions.
 <p/>
 d) <code>pythia.init(fileName);</code> <br/> 
 assumes a file in the <aloc href="LesHouchesAccord">Les Houches 
-Event File</aloc> format <ref>Alw06</ref> is provided.
+Event File</aloc> format is provided.
 
 <p/>
 e) <code>pythia.init();</code><br/>
 with no arguments will read the beam parameters from the 
-<aloc href="MainProgramSettings"><code>Main</code></aloc> 
+<code><aloc href="MainProgramSettings">Main</aloc></code> 
 group of variables, which provides you with the same possibilities as
 the above options a, b, c and d. If you don't change any of those you will 
 default to proton-proton collisions at 14 TeV, i.e. the nominal LHC 
@@ -167,9 +158,8 @@ values.
 <p/>
 f) <code>pythia.init( LHAup*);</code> <br/>
 assumes <aloc href="LesHouchesAccord">Les Houches Accord</aloc> 
-<ref>Boo01</ref> initialization and event information is available 
-in an <code>LHAup</code> class object, and that a pointer to this object 
-is handed in.
+initialization and event information is available in an <code>LHAup</code> 
+class object, and that a pointer to this object is handed in.
 
 <p/>
 <li>
@@ -198,10 +188,10 @@ next event using the <code>next()</code> method,
 This method takes no arguments; everything has already been specified. 
 It does return a bool value, however, <code>false</code> when the
 generation failed. This can be a "programmed death" when the
-supply of input parton-level configurations on file is exhausted,
-but also caused by a failure of <code>Pythia</code> to generate an event,
-or that an event was generated but something strange was detected
-in it. It makes sense to allow a few <code>false</code> 
+supply of input parton-level configurations on file is exhausted.
+It can alternatively signal a failure of <code>Pythia</code> to 
+generate an event, or unphysical features in the event record at the
+end of the generation step. It makes sense to allow a few <code>false</code> 
 values before a run is aborted, so long as the related faulty
 events are skipped.
 </li>  
@@ -209,7 +199,7 @@ events are skipped.
 <p/>
 <li>
 The generated event is now stored in the <code>event</code> 
-object, of type <aloc href="EventRecord"><code>Event</code></aloc>, 
+object, of type <code><aloc href="EventRecord">Event</aloc></code>, 
 which is a public member of <code>pythia</code>. You therefore have 
 access to all the tools described on the pages under the "Study Output" 
 header in the index. For instance, an event can be listed with 
@@ -219,8 +209,8 @@ header in the index. For instance, an event can be listed with
 The hard process - roughly the information normally stored in the 
 Les Houches Accord event record - is available as a second object, 
 <code>process</code>, also of type <code>Event</code>.<br/> 
-A third public object is 
-<aloc href="EventInformation"><code>info</code></aloc>, which offers 
+A third useful public object is 
+<code><aloc href="EventInformation">info</aloc></code>, which offers 
 a set of one-of-a kind pieces of information about the most recent
 event.
 </li> 
@@ -236,10 +226,7 @@ event.
     pythia.statistics(); 
 </pre>
 to get some run statistics, on cross sections and the number of errors 
-and warnings encountered. With optional argument <code>true</code>
-also further statistics is printed. Currently this means the number of
-different subprocesses generated in the multiple-interactions
-framework. 
+and warnings encountered. 
 </li> 
 
 </ol>
@@ -249,9 +236,9 @@ framework.
 A) Necessary data are automatically loaded when you use the 
 default PYTHIA installation directory structure and run the main 
 programs in the <code>examples</code> subdirectory. However, in the 
-general case, you must provide the path to the <code>.xml</code> files, 
-originally stored in the <code>xmldoc</code> directory, where default 
-settings and particle data are found. This can be done in two ways.
+general case, you must provide the path of the <code>xmldoc</code> 
+directory, where default settings and particle data are found. 
+This can be done in two ways.
 
 <ol>
 
@@ -331,7 +318,7 @@ method
       pythia.setDecayPtr( decayHandlePtr, particles);
 </pre>
 where the <code>decayHandlePtr</code> derives from the 
-<aloc href="ExternalDecays"><code>DecayHandler</code></aloc> base 
+<code><aloc href="ExternalDecays">DecayHandler</aloc></code> base 
 class and <code>particles</code> is a vector of particle codes to be 
 handled. 
 </li>
@@ -344,7 +331,7 @@ you can call the <code>setRndmEnginePtr(...)</code> method
       pythia.setRndmEnginePtr( rndmEnginePtr); 
 </pre>
 where <code>rndmEnginePtr</code> derives from the 
-<aloc href="RandomNumbers"><code>RndmEngine</code></aloc> base class. 
+<code><aloc href="RandomNumbers">RndmEngine</aloc></code> base class. 
 The <code>Pythia</code> default random number generator is perfectly 
 good, so this is only intended for consistency in bigger frameworks.
 </li>
@@ -358,7 +345,7 @@ reweight the cross section, you can use
       pythia.setUserHooksPtr( userHooksPtr); 
 </pre>
 where <code>userHooksPtr</code> derives from the 
-<aloc href="UserHooks"><code>UserHooks</code></aloc> base class.
+<code><aloc href="UserHooks">UserHooks</aloc></code> base class.
 </li>
 
 <p/>
@@ -370,7 +357,7 @@ parametrization (off by default), you can call
       pythia.setBeamShapePtr( beamShapePtr); 
 </pre>
 where <code>beamShapePtr</code> derives from the 
-<aloc href="BeamShape"><code>BeamShape</code></aloc> base class.
+<code><aloc href="BeamShape">BeamShape</aloc></code> base class.
 </li>
 
 <p/>
@@ -384,7 +371,7 @@ where <code>sigmaPtr</code> of type <code>SigmaProcess*</code> is an
 instance of a class derived from one of the <code>Sigma1Process</code>,
 <code>Sigma2Process</code> and  <code>Sigma3Process</code> base classes
 in their turn derived from 
-<aloc href="SemiInternalProcesses"><code>SigmaProcess</code></aloc>. 
+<code><aloc href="SemiInternalProcesses">SigmaProcess</aloc></code>. 
 This call can be used repeatedly to hand in several different processes.
 </li>
 
@@ -398,7 +385,7 @@ you can make this resonance available to the program with
 </pre>
 where <code>resonancePtr</code> of type <code>ResonanceWidths*</code> 
 is an instance of a class derived from the 
-<aloc href="SemiInternalResonances"><code>ResonanceWidths</code></aloc> 
+<code><aloc href="SemiInternalResonances">ResonanceWidths</aloc></code> 
 base class. In addition you need to add the particle to the normal 
 <aloc href="ParticleDataScheme">particle and decay database</aloc>.
 This procedure can be used repeatedly to hand in several different 
@@ -407,15 +394,24 @@ resonances.
 
 <p/>
 <li>
-If you are a real expert and want to replace the PYTHIA initial- and 
-final-state showers, you can use
+If you are a real expert and want to <aloc href="ImplementNewShowers">replace 
+the PYTHIA initial- and final-state showers</aloc>, you can use
 <pre>
       pythia.setShowerPtr( timesDecPtr, timesPtr, spacePtr);
 </pre>
 where <code>timesDecPtr</code> and <code>timesPtr</code>
 derive from the <code>TimeShower</code> base class, and 
-<code>spacePtr</code> from <code>SpaceShower</code> 
-(<aloc href="ImplementNewShowers">further instructions</aloc>). 
+<code>spacePtr</code> from <code>SpaceShower</code>. 
+</li>
+
+<p/>
+<li>
+The <code>initTunes(...)</code> method allows you to initialize the settings
+of a specific tune at an early stage, so that you can change some of the
+tune values between the <code>initTunes(...)</code> and the 
+<code>init(...)</code> calls. This method should not be used if you want 
+to use an existing tune as is, or make your own changes altogether. 
+See the <code>initTunes(...)</code> description below for more details. 
 </li>
 
 </ol>
@@ -425,23 +421,20 @@ C) Some comments on collecting several tasks in the same run.
 <ol>
 
 <li>
-PYTHIA has not been written for threadsafe execution. As a rule, you 
-should not have more than one <code>Pythia</code> object in an executable
-at any time. For multicore processors, if you want to use all cores, 
+PYTHIA has not been written for threadsafe execution on multicore 
+processors. If you want to use all cores, 
 the most efficient way presumably is to start correspondingly many jobs, 
 with different random number seeds, and add the statistics at the end.
+</li>
 
 <p/>
-In some cases it is possible to use more than one <code>Pythia</code> 
+<li>
+In some cases it is convenient to use more than one <code>Pythia</code> 
 object. The key example would be the simultaneous generation of signal 
-and pileup events, see <code>main19.cc</code>. Here all signal processes 
-must be switched on before the first initialization, and then switched 
-off and replaced by the background ones before the second initialization. 
-Also most other settings can be changed consistently in between the two
-initializations, but in a few cases the last value will be used. Particle 
-data is always based on the latest information. As a rule, however, it is 
-safer to use two separate runs to store events on disk, in two separate 
-files, and mix afterwards.
+and pileup events, see <code>main19.cc</code>. The two objects are then
+set up and initialized separately, and generate events completely 
+independently of each other. It is only afterwards that the event records
+are combined into one single super-event per beam crossing.
 </li>
 
 <p/>
@@ -449,8 +442,8 @@ files, and mix afterwards.
 When time is not an issue, it may be that you want to perform several 
 separate subruns sequentially inside a run, e.g. to combine results for
 several kinematical regions or to compare results for some different 
-tunes of the underlying event. One way to go is to create and destroy a 
-<code>pythia</code> object once for each subrun, in which case they are 
+tunes of the underlying event. One way to go is to create (and destroy) 
+one <code>pythia</code> object for each subrun, in which case they are 
 completely separate. You can also use the same <code>pythia</code> object, 
 only doing a new <code>init(...)</code> call for each subrun. In that 
 case, the settings and particle databases remain as they were in the  
@@ -507,10 +500,9 @@ methods and data members.
 creates an instance of the <code>Pythia</code> event generators,
 and sets initial default values, notably for all settings and 
 particle data. You may use several <code>Pythia</code> instances 
-in the same run, but note that some parts of the code are static 
-and thus shared by all instances. It is therefore not recommended 
-to have several instances simultaneously, except in 
-<aloc href="ProgramFlow">special cases</aloc>. 
+in the same run; only when you want to access external static 
+libraries could this cause problems. (This includes in particular
+Fortran libraries such as <aloc href="PDFSelection">LHAPDF</aloc>.)
 <argument name="xmlDir" default="../xmldoc">allows you to choose
 from which directory the default settings and particle data values 
 are read in. If the <code>PYTHIA8DATA</code> environment variable 
@@ -530,7 +522,8 @@ the destructor deletes the objects created by the constructor.
 <method name="bool Pythia::readString(string line, bool warn = true)">
 reads in a single string, that is interpreted as an instruction to
 modify the value of a <aloc href="SettingsScheme">setting</aloc> or
-<aloc href="ParticleDataScheme">particle data</aloc>.
+<aloc href="ParticleDataScheme">particle data</aloc>, as already described
+above.
 <argument name="line">
 the string to be interpreted as an instruction.
 </argument>
@@ -542,16 +535,16 @@ sense, e.g. if the variable does not exist in the databases.
 make sense out of the string.
 </method>
 
-<method name="bool Pythia::readFile(string fileName, bool warn = true,
+<method name="bool Pythia::readFile(string fileName, bool warn = true, 
 int subrun = SUBRUNDEFAULT)">
 </method>
-<methodmore name="bool Pythia::readFile(string fileName,
+<methodmore name="bool Pythia::readFile(string fileName, 
 int subrun = SUBRUNDEFAULT)">
 </methodmore>
-<methodmore name="bool Pythia::readFile(istream& inStream = cin, 
+<methodmore name="bool Pythia::readFile(istream& inStream = cin,  
 bool warn = true, int subrun = SUBRUNDEFAULT)">
 </methodmore>
-<methodmore name="bool Pythia::readFile(istream& inStream = cin,
+<methodmore name="bool Pythia::readFile(istream& inStream = cin, 
 int subrun = SUBRUNDEFAULT)">
 reads in a whole file, where each line is interpreted as an instruction 
 to modify the value of a <aloc href="SettingsScheme">setting</aloc> or
@@ -746,6 +739,39 @@ the default value 0 then the internal shower routine will be used.
 <note>Note:</note> The method currently always returns true.
 </method>
 
+<method name="void initTunes(int eeTune = 0, int ppTune = 0)">
+prepackages the parameter settings of some PYTHIA tunes. While 
+the <code>readString(...)</code> and <code>readFile(...)</code> 
+methods can be used to set the parameters of some already 
+existing tune, one by one, this is time-consuming and error-prone. 
+Therefore the <code>initTunes(...)</code> method provides a set of
+tunes, hopefully growing with time, that can be selected by the  
+two switches <code><aloc href="Tunes">Tune:ee</aloc></code> and 
+<code><aloc href="Tunes">Tune:pp</aloc></code>. Default is 0, 
+meaning no changes. Nornally <code>initTunes(...)</code> is 
+automatically called from inside the <code>init(...)</code> method, 
+so you would not call it yourself. This can be constraining if you 
+want to use almost, but not quite, an existing tune. Specifically, 
+any attempts to set one or a few of the parameters differently by 
+<code>readString(...)</code> or <code>readFile(...)</code> calls
+before initialization would not work, since they would be overwritten
+during <code>init(...)</code>. This is where the possibility to call 
+<code>initTunes(...)</code> directly comes to the rescue. You could 
+then by hand pick the desired tune, afterwards change whatever settings 
+you wish, and retain these changes during initialization by having    
+<code>Tune:ee = Tune:pp = 0</code>.
+<argument name="eeTune" default="0"> the settings obtained from 
+<ei>e^+e^-</ei> data, see <code><aloc href="Tunes">Tune:ee</aloc></code> 
+for a list of valid values. If you call <code>initTunes(...)</code>
+with this option nonzero you would want to keep <code>Tune:ee</code> 
+equal to zero, or else the whole point is lost.
+</argument>
+<argument name="eeTune" default="0"> the additional settings that 
+can only be extracted from <ei>pp/ppbar</ei> data see 
+<code><aloc href="Tunes">Tune:pp</aloc></code> for a list of valid 
+values. Comment as above.
+</method>
+
 <h3>Initialize</h3>
 
 At the initialization stage all the information provided above is 
@@ -871,7 +897,7 @@ fails. The event record is then not consistent and should not be
 studied. When reading in hard collisions from a Les Houches Event File
 the problem may be that the end of the file has been reached. This
 can be checked with the 
-<aloc href="EventInformation"><code>Info::atEndOfFile()</code></aloc> 
+<code><aloc href="EventInformation">Info::atEndOfFile()</aloc></code> 
 method.
 </method>
 
@@ -901,7 +927,7 @@ event record is then not consistent and should not be studied.
 
 <method name="void Pythia::LHAeventList(ostream& os = cout)">
 list the Les Houches Accord information on the current event, see
-<aloc href="LesHouchesAccord">LHAup::listEvent(...)</aloc>. 
+<code><aloc href="LesHouchesAccord">LHAup::listEvent(...)</aloc></code>. 
 (Other listings are available via the class members below, so this
 listing is a special case that would not fit elsewhere.)
 <argument name="os" default = "cout">  
@@ -912,14 +938,15 @@ output stream where the listing occurs.
 <method name="bool Pythia::LHAeventSkip(int nSkip)">
 skip ahead a number of events in the Les Houches generation
 sequence, without doing anything further with them, see
-<aloc href="LesHouchesAccord">LHAup::skipEvent(nSkip)</aloc>. 
+<code><aloc href="LesHouchesAccord">LHAup::skipEvent(nSkip)</aloc></code>. 
 Mainly intended for debug purposes, e.g. when an event at a known 
 location in a Les Houches Event File is causing problems.
-Will return false if operation fails, specifically if the 
-end of a LHEF has been reached, cf. <code>next()</code> above. 
 <argument name="nSkip">  
 number of events to skip.
 </argument>
+<note>Note:</note> The method returns false if the operation fails, 
+specifically if the end of a LHEF has been reached, cf. 
+<code>next()</code> above.
 </method>
 
 <h3>Finalize</h3>
@@ -1006,11 +1033,6 @@ the complete event record, see <aloc href="EventRecord">here</aloc>
 for further details.
 </method>
  
-<method name="PartonSystems Pythia::partonSystems">
-a grouping of the partons in the event record by subsystem, 
-see <aloc href="AdvancedUsage">here</aloc> for further details.
-</method>
- 
 <method name="Info Pythia::info">
 further information on the event-generation process, see 
 <aloc href="EventInformation">here</aloc> for further details.
@@ -1018,22 +1040,34 @@ further information on the event-generation process, see
  
 <method name="Settings Pythia::settings">
 the settings database, see <aloc href="SettingsScheme">here</aloc>
-for further details. Note that the <code>Settings</code> class is 
-purely static, so it would not have needed to be inlcuded here.
+for further details. 
 </method>
  
-<method name="ParticleDataTable Pythia::particleData">
+<method name="ParticleData Pythia::particleData">
 the particle properties and decay tables database, see 
 <aloc href="ParticleDataScheme">here</aloc> for further details. 
-Note that the <code>ParticleDataTable</code> class is 
-purely static, so it would not have needed to be inlcuded here.
+</method>
+ 
+<method name="Rndm Pythia::rndm">
+the random number generator, see <aloc href="RandomNumberSeed">here</aloc>
+and <aloc href="RandomNumbers">here</aloc> for further details. 
+</method>
+ 
+<method name="CoupSM Pythia::coupSM">
+Standard Model couplings and mixing matrices, see 
+<aloc href="StandardModelParameters">here</aloc> for further details. 
 </method>
  
 <method name="SusyLesHouches Pythia::slha">
 parameters and particle data in the context of supersymmetric models, 
 see <aloc href="SUSYLesHouchesAccord">here</aloc> for further details.
 </method>
+ 
+<method name="PartonSystems Pythia::partonSystems">
+a grouping of the partons in the event record by subsystem, 
+see <aloc href="AdvancedUsage">here</aloc> for further details.
+</method>
    
 </chapter>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->

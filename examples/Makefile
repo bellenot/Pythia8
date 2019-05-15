@@ -59,6 +59,19 @@ main41 main42 main43: ../$(LIBDIRARCH)/libpythia8.a
 	$(FLIBS)
 	@ln -fs ../$(BINDIR)/$@.exe $@.exe
 
+# Create an executable that links to Pythia6. This part is obsolete and 
+# only retained, in a watered-down version, for debug purposes.
+# Library created with "gfortran -c pythia64xx.f" (xx = current subversion),
+# followed by "ar cru libpythia6.a pythia64xx.o" (on Linux).
+# You would need to uncomment below and correct pythia6 library path.
+#main51: ../$(LIBDIRARCH)/libpythia8.a
+#	@mkdir -p ../$(BINDIR)
+#	$(CXX) $(CXXFLAGS) -I../$(INCDIR) $@.cc -o ../$(BINDIR)/$@.exe \
+#	-L../$(LIBDIRARCH) -lpythia8 -llhapdfdummy \
+#	-L/directoryoflibpythia6.a -lpythia6 \
+#	$(FLIBS)
+#	@ln -fs ../$(BINDIR)/$@.exe $@.exe
+
 # Create an executable that links to Fastjet
 ifneq (x$(FASTJETLOCATION),x)
   main61: ../$(LIBDIRARCH)/libpythia8.a

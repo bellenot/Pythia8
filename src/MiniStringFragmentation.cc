@@ -1,5 +1,5 @@
 // MiniStringFragmentation.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -10,11 +10,11 @@
 
 namespace Pythia8 {
 
-//**************************************************************************
+//==========================================================================
 
 // The MiniStringFragmentation class.
 
-//*********
+//--------------------------------------------------------------------------
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -31,28 +31,31 @@ const double MiniStringFragmentation::SIGMAMIN     = 0.01;
 // Loop try to combine available endquarks to valid hadron. 
 const int MiniStringFragmentation::NTRYFLAV        = 10;
 
-//*********
+//--------------------------------------------------------------------------
 
 // Initialize and save pointers.
 
-void MiniStringFragmentation::init(Info* infoPtrIn, 
-  StringFlav* flavSelPtrIn) {
+void MiniStringFragmentation::init(Info* infoPtrIn, Settings& settings,
+   ParticleData* particleDataPtrIn, Rndm* rndmPtrIn, 
+   StringFlav* flavSelPtrIn) {
 
   // Save pointers.
-  infoPtr    = infoPtrIn;
-  flavSelPtr = flavSelPtrIn;
+  infoPtr         = infoPtrIn;
+  particleDataPtr = particleDataPtrIn;
+  rndmPtr         = rndmPtrIn;
+  flavSelPtr      = flavSelPtrIn;
 
   // Initialize the MiniStringFragmentation class proper.
-  nTryMass   = Settings::mode("MiniStringFragmentation:nTry");
-  sigma      = Settings::parm("StringPT:sigma");
+  nTryMass   = settings.mode("MiniStringFragmentation:nTry");
+  sigma      = settings.parm("StringPT:sigma");
   sigma2Had  = 2. * pow2( max( SIGMAMIN, sigma) );
 
   // Initialize the b parameter of the z spectrum, used when joining jets.
-  bLund      = Settings::parm("StringZ:bLund");
+  bLund      = settings.parm("StringZ:bLund");
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Do the fragmentation: driver routine.
   
@@ -87,7 +90,7 @@ bool MiniStringFragmentation::fragment(int iSub, ColConfig& colConfig,
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
   // Attempt to produce two particles from the ministring.
   
@@ -116,15 +119,15 @@ bool MiniStringFragmentation::ministring2two( int nTry, Event& event) {
     // Start from a diquark, if any.
     do {
       FlavContainer flav3 =
-        (abs(flav1.id) > 8 || (abs(flav2.id) < 9 && Rndm::flat() < 0.5) )
+        (abs(flav1.id) > 8 || (abs(flav2.id) < 9 && rndmPtr->flat() < 0.5) )
         ? flavSelPtr->pick( flav1) : flavSelPtr->pick( flav2).anti();
       idHad1 = flavSelPtr->combine( flav1, flav3);
       idHad2 = flavSelPtr->combine( flav2, flav3.anti());
     } while (idHad1 == 0 || idHad2 == 0);
 
     // Check whether the mass sum fits inside the available phase space.  
-    mHad1 = ParticleDataTable::mass(idHad1);
-    mHad2 = ParticleDataTable::mass(idHad2);
+    mHad1 = particleDataPtr->mass(idHad1);
+    mHad2 = particleDataPtr->mass(idHad2);
     mHadSum = mHad1 + mHad2;
     if (mHadSum < mSum) break;
   } 
@@ -156,10 +159,10 @@ bool MiniStringFragmentation::ministring2two( int nTry, Event& event) {
     - pow2(2. * mHad1 * mHad2) ) / m2Sum; 
   double pT2 = 0.;
   do {
-    double cosTheta = Rndm::flat();
+    double cosTheta = rndmPtr->flat();
     if (sigma < SIGMAMIN) cosTheta = 1.;
     pT2 = (1. - pow2(cosTheta)) * pAbs2;
-  } while ( exp( -pT2 / sigma2Had) < Rndm::flat() ); 
+  } while ( exp( -pT2 / sigma2Had) < rndmPtr->flat() ); 
 
   // Construct the forward-backward asymmetry of the two particles.
   double mT21 = mHad1*mHad1 + pT2;
@@ -169,13 +172,13 @@ bool MiniStringFragmentation::ministring2two( int nTry, Event& event) {
 
   // Construct kinematics, as viewed in the transverse rest frame. 
   double xpz1 = 0.5 * lambda/ m2Sum;
-  if (probReverse > Rndm::flat()) xpz1 = -xpz1; 
+  if (probReverse > rndmPtr->flat()) xpz1 = -xpz1; 
   double xmDiff = (mT21 - mT22) / m2Sum;
   double xe1 = 0.5 * (1. + xmDiff);
   double xe2 = 0.5 * (1. - xmDiff ); 
 
   // Distribute pT isotropically in angle.
-  double phi = 2. * M_PI * Rndm::flat();
+  double phi = 2. * M_PI * rndmPtr->flat();
   double pT  = sqrt(pT2);
   double px  = pT * cos(phi);
   double py  = pT * sin(phi);
@@ -198,8 +201,8 @@ bool MiniStringFragmentation::ministring2two( int nTry, Event& event) {
   }
 
   // Set lifetime of hadrons.
-  event[iFirst].tau( event[iFirst].tau0() * Rndm::exp() );
-  event[iLast].tau( event[iLast].tau0() * Rndm::exp() );
+  event[iFirst].tau( event[iFirst].tau0() * rndmPtr->exp() );
+  event[iLast].tau( event[iLast].tau0() * rndmPtr->exp() );
 
   // Mark original partons as hadronized and set their daughter range.
   for (int i = 0; i < int(iParton.size()); ++i) {
@@ -212,7 +215,7 @@ bool MiniStringFragmentation::ministring2two( int nTry, Event& event) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Attempt to produce one particle from a ministring.
 // Current algorithm: find the system with largest invariant mass
@@ -243,7 +246,7 @@ bool MiniStringFragmentation::ministring2one( int iSub,
   if (idHad == 0) return false;
 
   // Find mass.  
-  double mHad = ParticleDataTable::mass(idHad);
+  double mHad = particleDataPtr->mass(idHad);
   
   // Find the untreated parton system which combines to the largest 
   // squared mass above mimimum required. 
@@ -284,7 +287,7 @@ bool MiniStringFragmentation::ministring2one( int iSub,
   }
 
   // Set lifetime of hadron.
-  event[iHad].tau( event[iHad].tau0() * Rndm::exp() );
+  event[iHad].tau( event[iHad].tau0() * rndmPtr->exp() );
 
   // Mark original partons as hadronized and set their daughter range.
   for (int i = 0; i < int(iParton.size()); ++i) {
@@ -312,6 +315,6 @@ bool MiniStringFragmentation::ministring2one( int iSub,
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8

@@ -42,7 +42,7 @@ Since the current description is handled by the multiple-interactions
 machinery as part of the parton-level processing, no hard process at 
 all is defined at the process-level part of the event generation.
 Fortunately, in this case a special
-<aloc href="EventInformation"><code>codeSub()</code></aloc> 
+<code><aloc href="EventInformation">codeSub()</aloc></code> 
 method provides information on the first, i.e. hardest, subprocess 
 selected by the multiple-interactions machinery.
 
@@ -160,5 +160,5 @@ Code 124.
 
 </chapter>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->
 

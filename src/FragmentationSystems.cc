@@ -1,5 +1,5 @@
 // FragmentationSystems.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -10,33 +10,42 @@
 
 namespace Pythia8 {
 
-//**************************************************************************
+//==========================================================================
 
 // The ColConfig class.
 
-//*********
+//--------------------------------------------------------------------------
+
+// Constants: could be changed here if desired, but normally should not.
+// These are of technical nature, as described for each.
+
+// A typical u/d constituent mass.
+const double ColConfig::CONSTITUENTMASS = 0.325;
+
+//--------------------------------------------------------------------------
 
 // Initialize and save pointers.
 
-void ColConfig::init(Info* infoPtrIn, StringFlav* flavSelPtrIn) {
+void ColConfig::init(Info* infoPtrIn, Settings& settings, 
+  StringFlav* flavSelPtrIn) {
 
   // Save pointers.
   infoPtr       = infoPtrIn;
   flavSelPtr    = flavSelPtrIn;
 
   // Joining of nearby partons along the string.
-  mJoin         = Settings::parm("FragmentationSystems:mJoin");
+  mJoin         = settings.parm("FragmentationSystems:mJoin");
 
   // For consistency ensure that mJoin is bigger than in StringRegion.
   mJoin         = max( mJoin, 2. * StringRegion::MJOIN);
 
   // Simplification of q q q junction topology to quark - diquark one.
-  mJoinJunction = Settings::parm("FragmentationSystems:mJoinJunction");
-  mStringMin    = Settings::parm("HadronLevel:mStringMin");
+  mJoinJunction = settings.parm("FragmentationSystems:mJoinJunction");
+  mStringMin    = settings.parm("HadronLevel:mStringMin");
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Insert a new colour singlet system in ascending mass order. 
 // Calculate its properties. Join nearby partons.
@@ -69,7 +78,7 @@ bool ColConfig::insert( vector<int>& iPartonIn, Event& event) {
 
   // Identify closed gluon loop. Assign "endpoint" masses as light quarks.
   bool isClosedIn = (iPartonIn[0] >= 0 && event[ iPartonIn[0] ].isGluon());
-  if (isClosedIn) massExcessIn -= 2. * ParticleDataTable::constituentMass(1);  
+  if (isClosedIn) massExcessIn -= 2. * CONSTITUENTMASS;  
 
   // For junction topology: join two nearby legs into a diquark.
   if (hasJunctionIn && joinJunction( iPartonIn, event, massExcessIn)) 
@@ -156,7 +165,7 @@ bool ColConfig::insert( vector<int>& iPartonIn, Event& event) {
   return true;
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Join two legs of junction to a diquark for small invariant masses.
 // Note: for junction system, iPartonIn points to structure
@@ -278,7 +287,7 @@ bool ColConfig::joinJunction( vector<int>& iPartonIn, Event& event,
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Collect all partons of singlet to be consecutively ordered.
 
@@ -310,7 +319,7 @@ void ColConfig::collect(int iSub, Event& event) {
   // Done.
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // List all currently identified singlets.
 
@@ -330,7 +339,7 @@ void ColConfig::list(ostream& os) const {
   }
 }
  
-//**************************************************************************
+//==========================================================================
 
 // The StringRegion class.
 
@@ -338,7 +347,7 @@ void ColConfig::list(ostream& os) const {
 // 1) No popcorn baryon production.
 // 2) Simplified treatment of pT in stepping and joining.
 
-//*********
+//--------------------------------------------------------------------------
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -349,7 +358,7 @@ const double StringRegion::MJOIN = 0.1;
 // Avoid division by zero.
 const double StringRegion::TINY  = 1e-20;
 
-//*********
+//--------------------------------------------------------------------------
 
 // Set up four-vectors for longitudinal and transverse directions.
 
@@ -431,7 +440,7 @@ void StringRegion::setUp(Vec4 p1, Vec4 p2, bool isMassless) {
 
 }
 
-//*********
+//--------------------------------------------------------------------------
 
 // Project a four-momentum onto (x+, x-, px, py).
 
@@ -445,11 +454,11 @@ void StringRegion::project(Vec4 pIn) {
 
 }
  
-//**************************************************************************
+//==========================================================================
 
 // The StringSystem class.
 
-//*********
+//--------------------------------------------------------------------------
 
 // Set up system from parton list. 
 
@@ -477,6 +486,6 @@ void StringSystem::setUp(vector<int>& iSys, Event& event) {
 
 }
 
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8

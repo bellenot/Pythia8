@@ -15,9 +15,11 @@ What is stored for each particle is
 <li>two mother indices,</li>
 <li>two daughter indices,</li> 
 <li>a colour and an anticolour index,</li> 
-<li>the four-momentum and mass,</li> 
-<li>the production vertex and proper lifetime,</li>
-<li>a pointer to the particle kind in the particle data tables.</li>
+<li>the four-momentum and mass,</li>
+<li>the scale at which the particle was produced (optional),</li> 
+<li>the production vertex and proper lifetime (optional),</li>
+<li>a pointer to the particle kind in the particle data table, and</li>
+<li>a pointer to the whole particle data table.</li>
 </ul>
 From these, a number of further quantities may be derived.
 
@@ -441,7 +443,7 @@ there mainly for convenience, and should be thrown if an event is
 written to disk, to avoid any problems of object persistency. Should 
 an event later be read back in, the pointer will be recreated from the 
 <code>id</code> code if the normal input methods are used. (Use the
-<aloc href="EventRecord"><code>Event::restorePtrs()</code></aloc> method 
+<code><aloc href="EventRecord">Event::restorePtrs()</aloc></code> method 
 if your persistency scheme bypasses the normal methods.) This pointer is 
 used by the following member functions:
 
@@ -546,7 +548,7 @@ true for a hadron (made up out of normal quarks and gluons,
 i.e. not for R-hadrons and other exotic states).
 </method>
 
-<method name="ParticleDataEntry& particleData()">
+<method name="ParticleDataEntry& particleDataEntry()">
 a reference to the ParticleDataEntry.
 </method>
 
@@ -625,11 +627,6 @@ add a positive offset to colour indices, i.e. if <code>col</code> is
 positive then <code>addCol</code> is added to it, same with <code>acol</code>.
 </method>
 
-<method name="void Particle::setParticlePtr()">
-sets the pointer to the <code>ParticleDataEntry</code> object of the
-particle, based on its current <code>id</code> code.
-</method>
-
 <h3>Constructors and operators</h3>
 
 Normally a user would not need to create new particles. However, if 
@@ -663,11 +660,21 @@ constructs an particle that is a copy of the input one.
 copies the input particle.
 </method>
 
+<method name="void Particle::setPDTPtr()">
+sets the pointer to the <code>ParticleData</code> objects,
+i.e. to the full particle data table. Also calls <code>setPDEPtr</code>
+below.
+</method>
+
+<method name="void Particle::setPDEPtr()">
+sets the pointer to the <code>ParticleDataEntry</code> object of the
+particle, based on its current <code>id</code> code.
+</method>
 
 <h3>Final notes</h3>
 
 The 
-<aloc href="EventRecord"><code>Event</code></aloc> 
+<code><aloc href="EventRecord">Event</aloc></code> 
 class also contains a few methods defined for individual particles, 
 but these may require some search in the event record and therefore 
 cannot be defined as  <code>Particle</code> methods.
@@ -677,5 +684,5 @@ Currently there is no information on polarization states.
 
 </chapter>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->
 

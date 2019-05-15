@@ -5,10 +5,10 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.130      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 15 Sep 2009  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.135      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 10 Jan 2010  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 15 Sep 2009 at 09:09:16    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 10 Jan 2010 at 11:02:00    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Theoretical Physics, Lund University,   |  | 
  |  |      Solvegatan 14A, SE-223 62 Lund, Sweden;                                 |  | 
@@ -22,9 +22,8 @@
  |  |   Stephen Mrenna;  Computing Division, Simulations Group,                    |  | 
  |  |      Fermi National Accelerator Laboratory, MS 234, Batavia, IL 60510, USA;  |  | 
  |  |      phone: + 1 - 630 - 840 - 2556; e-mail: mrenna@fnal.gov                  |  | 
- |  |   Peter Skands;  Theoretical Physics Department,                             |  | 
- |  |      Fermi National Accelerator Laboratory, MS 106, Batavia, IL 60510, USA;  |  | 
- |  |      phone: + 1 - 630 - 840 - 2270; e-mail: skands@fnal.gov                  |  | 
+ |  |   Peter Skands;  Theoretical Physics, CERN, CH-1211 Geneva 23, Switzerland;  |  | 
+ |  |      phone: + 41 - 22 - 767 2447; e-mail: peter.skands@cern.ch               |  | 
  |  |                                                                              |  | 
  |  |   The main program reference is the 'Brief Introduction to PYTHIA 8.1',      |  | 
  |  |   T. Sjostrand, S. Mrenna and P. Skands, Comput. Phys. Comm. 178 (2008) 85   |  | 
@@ -42,7 +41,7 @@
  |  |   Disclaimer: this program comes without any guarantees.                     |  | 
  |  |   Beware of errors and use common sense when interpreting results.           |  | 
  |  |                                                                              |  | 
- |  |   Copyright (C) 2009 Torbjorn Sjostrand                                      |  | 
+ |  |   Copyright (C) 2010 Torbjorn Sjostrand                                      |  | 
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  *------------------------------------------------------------------------------*  | 
@@ -97,7 +96,7 @@
 
  Impact parameter b = 1.758e+00 gives enhancement factor =  3.351e-02.
  Max pT scale for MI =  1.400e+04, ISR =  7.911e+02, FSR =  7.911e+02.
- Number of MI =     1, ISR =     7, FSRproc =   106, FSRreson =     0.
+ Number of MI =     1, ISR =     7, FSRproc =   104, FSRreson =     0.
 
  --------  End PYTHIA Info Listing  ------------------------------------
 
@@ -114,8 +113,6 @@
                                    Charge sum: -0.333           Momentum sum:      0.000      0.000   1943.359   3970.496   3462.397
 
  --------  End PYTHIA Event Listing  -----------------------------------------------------------------------------------------------
- PYTHIA Error in StringFragmentation::fragment: stuck in joining  
- PYTHIA Error in Pythia::next: hadronLevel failed; try again  
  Now begin event 5
  Now begin event 10
  Now begin event 15
@@ -143,11 +140,11 @@
  |                                                    |                                   |                        |
  |-----------------------------------------------------------------------------------------------------------------|
  |                                                    |                                   |                        |
- | g g -> G g                                    5021 |         289         17         17 |   1.052e-11  1.439e-12 |
- | q g -> G q                                    5022 |        1050         70         70 |   4.632e-11  2.845e-12 |
- | q qbar -> G g                                 5023 |         418         13         13 |   8.918e-12  8.765e-13 |
+ | g g -> G g                                    5021 |         264         19         19 |   1.088e-11  1.683e-12 |
+ | q g -> G q                                    5022 |        1006         65         65 |   4.567e-11  2.827e-12 |
+ | q qbar -> G g                                 5023 |         399         16         16 |   9.216e-12  1.060e-12 |
  |                                                    |                                   |                        |
- | sum                                                |        1757        100        100 |   6.576e-11  3.306e-12 |
+ | sum                                                |        1669        100        100 |   6.576e-11  3.456e-12 |
  |                                                                                                                 |
  *-------  End PYTHIA Event and Cross Section Statistics ----------------------------------------------------------*
 
@@ -155,8 +152,6 @@
  |                                                                                                                 | 
  |  times   message                                                                                                | 
  |                                                                                                                 | 
- |      1   Error in Pythia::next: hadronLevel failed; try again                                                   | 
- |      1   Error in StringFragmentation::fragment: stuck in joining                                               | 
  |      1   Warning in MultipleInteractions::init: maximum increased                                               | 
  |      3   Warning in ParticleDataEntry::initBWmass: switching off width                                          | 
  |      7   Warning in PhaseSpace2to2tauyz::trialKin: maximum for cross section violated                           | 
@@ -165,39 +160,35 @@
 -------------- Graviton mass  ------------
 
 
-  2009-09-15 09:09       dN/mG
+  2010-01-10 11:02       dN/mG
 
-        7.00*10^ 0                                     X                                                                
-        6.75*10^ 0                                     X                                                                
-        6.50*10^ 0                                     X                                                                
-        6.25*10^ 0                                     X                                                                
-        6.00*10^ 0                     X               X                                                                
-        5.75*10^ 0                     X               X                                                                
-        5.50*10^ 0                     X               X                                                                
-        5.25*10^ 0                     X               X                                                                
-        5.00*10^ 0                   X X   X           X                                                                
-        4.75*10^ 0                   X X   X           X                                                                
-        4.50*10^ 0                   X X   X           X                                                                
-        4.25*10^ 0                   X X   X           X                                                                
-        4.00*10^ 0                   X X   X  X   X    X            X                                                   
-        3.75*10^ 0                   X X   X  X   X    X            X                                                   
-        3.50*10^ 0                   X X   X  X   X    X            X                                                   
-        3.25*10^ 0                   X X   X  X   X    X            X                                                   
-        3.00*10^ 0                X  X X  XX  X  XX  X XX       X   X      X                                            
-        2.75*10^ 0                X  X X  XX  X  XX  X XX       X   X      X                                            
-        2.50*10^ 0                X  X X  XX  X  XX  X XX       X   X      X                                            
-        2.25*10^ 0                X  X X  XX  X  XX  X XX       X   X      X                                            
-        2.00*10^ 0            X   X XX X XXXXXXXXXX  X XX       X   X  X   X  X   X                X                    
-        1.75*10^ 0            X   X XX X XXXXXXXXXX  X XX       X   X  X   X  X   X                X                    
-        1.50*10^ 0            X   X XX X XXXXXXXXXX  X XX       X   X  X   X  X   X                X                    
-        1.25*10^ 0            X   X XX X XXXXXXXXXX  X XX       X   X  X   X  X   X                X                    
-        1.00*10^ 0     X     XXXX XXXXXX XXXXXXXXXXXXXXXXXX   XXX X X XXX XX  XX  X X              X  X    XX           
-        0.75*10^ 0     X     XXXX XXXXXX XXXXXXXXXXXXXXXXXX   XXX X X XXX XX  XX  X X              X  X    XX           
-        0.50*10^ 0     X     XXXX XXXXXX XXXXXXXXXXXXXXXXXX   XXX X X XXX XX  XX  X X              X  X    XX           
-        0.25*10^ 0     X     XXXX XXXXXX XXXXXXXXXXXXXXXXXX   XXX X X XXX XX  XX  X X              X  X    XX           
+        6.00*10^ 0                                 X                                                                    
+        5.75*10^ 0                                 X                                                                    
+        5.50*10^ 0                                 X                                                                    
+        5.25*10^ 0                                 X                                                                    
+        5.00*10^ 0            X                   XX                                                                    
+        4.75*10^ 0            X                   XX                                                                    
+        4.50*10^ 0            X                   XX                                                                    
+        4.25*10^ 0            X                   XX                                                                    
+        4.00*10^ 0            X    X           X  XX   X                                                                
+        3.75*10^ 0            X    X           X  XX   X                                                                
+        3.50*10^ 0            X    X           X  XX   X                                                                
+        3.25*10^ 0            X    X           X  XX   X                                                                
+        3.00*10^ 0            X    X  X    X X X XXXX XX XX           X  X                                              
+        2.75*10^ 0            X    X  X    X X X XXXX XX XX           X  X                                              
+        2.50*10^ 0            X    X  X    X X X XXXX XX XX           X  X                                              
+        2.25*10^ 0            X    X  X    X X X XXXX XX XX           X  X                                              
+        2.00*10^ 0            XXX  X XX    XXX XXXXXX XXXXXX         XXXXX X                                            
+        1.75*10^ 0            XXX  X XX    XXX XXXXXX XXXXXX         XXXXX X                                            
+        1.50*10^ 0            XXX  X XX    XXX XXXXXX XXXXXX         XXXXX X                                            
+        1.25*10^ 0            XXX  X XX    XXX XXXXXX XXXXXX         XXXXX X                                            
+        1.00*10^ 0         XX XXX  XXXXXXXXXXXXXXXXXX XXXXXXXXX XXX XXXXXXXX  X       X        X       X                
+        0.75*10^ 0         XX XXX  XXXXXXXXXXXXXXXXXX XXXXXXXXX XXX XXXXXXXX  X       X        X       X                
+        0.50*10^ 0         XX XXX  XXXXXXXXXXXXXXXXXX XXXXXXXXX XXX XXXXXXXX  X       X        X       X                
+        0.25*10^ 0         XX XXX  XXXXXXXXXXXXXXXXXX XXXXXXXXX XXX XXXXXXXX  X       X        X       X                
 
           Contents                                                                                                      
-            *10^ 0  0001000001211031251602352242234113173110001130104012101300210020100000000000000200100001100000000000
+            *10^ 0  0000000110522004123111132314235630342332111011101232231200100000001000000001000000010000000000000000
             *10^-1  0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
             *10^-2  0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
             *10^-3  0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
@@ -207,44 +198,44 @@
             *10^ 2  0012234456778990112344566788901123345567889001223455677899012234456678990112334566788900123345567789
             *10^ 1  0741852963074185296307418529630741852963074185296307418529630741852963074185296307418529630741852963
 
-   Entries  =         100    Mean =  2.4031e+03    Underflow =  0.0000e+00    Low edge  =  0.0000e+00
-   All chan =  1.0000e+02    Rms  =  1.2512e+03    Overflow  =  0.0000e+00    High edge =  7.0000e+03
+   Entries  =         100    Mean =  2.3030e+03    Underflow =  0.0000e+00    Low edge  =  0.0000e+00
+   All chan =  1.0000e+02    Rms  =  1.0523e+03    Overflow  =  0.0000e+00    High edge =  7.0000e+03
 -------------- Mono-jet check ------------
 
 
-  2009-09-15 09:09       dN/dETjet
+  2010-01-10 11:02       dN/dETjet
 
-        7.00*10^ 0                X                                                                                     
-        6.75*10^ 0                X                                                                                     
-        6.50*10^ 0                X                                                                                     
-        6.25*10^ 0                X                                                                                     
-        6.00*10^ 0                XXX                                                                                   
-        5.75*10^ 0                XXX                                                                                   
-        5.50*10^ 0                XXX                                                                                   
-        5.25*10^ 0                XXX                                                                                   
-        5.00*10^ 0                XXX                                                                                   
-        4.75*10^ 0                XXX                                                                                   
-        4.50*10^ 0                XXX                                                                                   
-        4.25*10^ 0                XXX                                                                                   
-        4.00*10^ 0                XXX X                                                                                 
-        3.75*10^ 0                XXX X                                                                                 
-        3.50*10^ 0                XXX X                                                                                 
-        3.25*10^ 0                XXX X                                                                                 
-        3.00*10^ 0                XXX X X                                                                               
-        2.75*10^ 0                XXX X X                                                                               
-        2.50*10^ 0                XXX X X                                                                               
-        2.25*10^ 0                XXX X X                                                                               
-        2.00*10^ 0                XXXXX XX                                                                              
-        1.75*10^ 0                XXXXX XX                                                                              
-        1.50*10^ 0                XXXXX XX                                                                              
-        1.25*10^ 0                XXXXX XX                                                                              
-        1.00*10^ 0                XXXXXXXXX  X   X      X X                                                             
-        0.75*10^ 0                XXXXXXXXX  X   X      X X                                                             
-        0.50*10^ 0                XXXXXXXXX  X   X      X X                                                             
-        0.25*10^ 0                XXXXXXXXX  X   X      X X                                                             
+        7.00*10^ 0                  X                                                                                   
+        6.75*10^ 0                  X                                                                                   
+        6.50*10^ 0                  X                                                                                   
+        6.25*10^ 0                  X                                                                                   
+        6.00*10^ 0                  X                                                                                   
+        5.75*10^ 0                  X                                                                                   
+        5.50*10^ 0                  X                                                                                   
+        5.25*10^ 0                  X                                                                                   
+        5.00*10^ 0                 XXX                                                                                  
+        4.75*10^ 0                 XXX                                                                                  
+        4.50*10^ 0                 XXX                                                                                  
+        4.25*10^ 0                 XXX                                                                                  
+        4.00*10^ 0                 XXX X                                                                                
+        3.75*10^ 0                 XXX X                                                                                
+        3.50*10^ 0                 XXX X                                                                                
+        3.25*10^ 0                 XXX X                                                                                
+        3.00*10^ 0                 XXX X                                                                                
+        2.75*10^ 0                 XXX X                                                                                
+        2.50*10^ 0                 XXX X                                                                                
+        2.25*10^ 0                 XXX X                                                                                
+        2.00*10^ 0                XXXXXXX X                                                                             
+        1.75*10^ 0                XXXXXXX X                                                                             
+        1.50*10^ 0                XXXXXXX X                                                                             
+        1.25*10^ 0                XXXXXXX X                                                                             
+        1.00*10^ 0                XXXXXXXXXX X  X                                                                       
+        0.75*10^ 0                XXXXXXXXXX X  X                                                                       
+        0.50*10^ 0                XXXXXXXXXX X  X                                                                       
+        0.25*10^ 0                XXXXXXXXXX X  X                                                                       
 
           Contents                                                                                                      
-            *10^ 0  0000000000000076624132100100010000001010000000000000000000000000000000000000000000000000000000000000
+            *10^ 0  0000000000000025752421210100100000000000000000000000000000000000000000000000000000000000000000000000
             *10^-1  0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
             *10^-2  0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
             *10^-3  0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
@@ -254,6 +245,6 @@
             *10^ 2  0012234456778990112344566788901123345567889001223455677899012234456678990112334566788900123345567789
             *10^ 1  0741852963074185296307418529630741852963074185296307418529630741852963074185296307418529630741852963
 
-   Entries  =          36    Mean =  1.3203e+03    Underflow =  0.0000e+00    Low edge  =  0.0000e+00
-   All chan =  3.6000e+01    Rms  =  3.9189e+02    Overflow  =  0.0000e+00    High edge =  7.0000e+03
+   Entries  =          33    Mean =  1.2929e+03    Underflow =  0.0000e+00    Low edge  =  0.0000e+00
+   All chan =  3.3000e+01    Rms  =  2.2368e+02    Overflow  =  0.0000e+00    High edge =  7.0000e+03
 ------------------------------------------

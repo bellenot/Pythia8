@@ -21,8 +21,11 @@ precisely. The options on this page allow you to do precisely that.
 <p/><code>flag&nbsp; </code><strong> SecondHard:generate &nbsp;</strong> 
  (<code>default = <strong>off</strong></code>)<br/>
 Generate two hard scatterings in a collision between hadron beams.
-You must further specify which set of processes to allow for
-the second, see below.
+The hardest process can be any combination of internal processes,
+available in the normal <a href="ProcessSelection.html" target="page">process 
+selection</a> machinery, or external input. Here you must further 
+specify which set of processes to allow for the second hard one, see 
+the following.
   
 
 <h3>Process Selection</h3>
@@ -392,7 +395,7 @@ full <code>event</code> event record.
 
 <p/>
 Most of the properties accessible by the  
-<a href="EventInformation.html" target="page"><code>pythia.info</code></a>
+<code><a href="EventInformation.html" target="page">pythia.info</a></code>
 methods refer to the first process, whether that happens to be the
 hardest or not. The code and <i>pT</i> scale of the second process
 are accessible by the <code>info.codeMI(1)</code> and 
@@ -412,4 +415,4 @@ anyway less relevant, since systematical errors are likely to dominate.
 </body>
 </html>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->

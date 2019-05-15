@@ -1,5 +1,5 @@
 // main14.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -30,7 +30,7 @@ using namespace Pythia8;
 int main() {
 
   // First and last process to test: can run from 0 through 40.
-  int iFirst =  0;
+  int iFirst = 0;
   int iLast  = 56;   
 
   // Statistics. Pythia6 run was with 10000, so no point to use more.
@@ -120,7 +120,7 @@ int main() {
     cout << "\n Begin subrun number " << iProc << endl;
 
     // Switch off previous process(es) and switch on new one(s).
-    if (iProc > iFirst) for (int i = iBeg[iProc - 1]; i < iBeg[iProc]; ++i)
+    if (iProc > iFirst) for (int i = iBeg[iProc - 1]; i < iBeg[iProc]; ++i) 
       pythia.readString( processes[i] + " = off" );
     for (int i = iBeg[iProc]; i < iBeg[iProc + 1]; ++i)
       pythia.readString( processes[i] + " = on" );

@@ -1,5 +1,5 @@
 // MultipleInteractions.h is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -23,7 +23,7 @@
 
 namespace Pythia8 {
  
-//**************************************************************************
+//==========================================================================
 
 // SigmaMultiple is a helper class to MultipleInteractions.
 // It packs pointers to the allowed processes for different 
@@ -42,7 +42,9 @@ public:
     for (int i = 0; i < int(sigmaU.size()); ++i) delete sigmaU[i];}   
 
   // Initialize list of processes.
-  bool init(int inState, int processLevel);
+  bool init(int inState, int processLevel, Info* infoPtr, 
+    Settings* settingsPtr, ParticleData* particleDataPtr, Rndm* rndmPtrIn, 
+    BeamParticle* beamAPtr, BeamParticle* beamBPtr, CoupSM* coupSMPtr);
 
   // Calculate cross section summed over possibilities.
   double sigma( int id1, int id2, double x1, double x2, double sHat, 
@@ -78,10 +80,13 @@ private:
   vector<double> sigmaTval, sigmaUval;
   double         sigmaTsum, sigmaUsum;
   bool           pickOther, pickedU;
+
+  // Pointer to the random number generator.
+  Rndm*          rndmPtr;
   
 };
  
-//**************************************************************************
+//==========================================================================
 
 // The MultipleInteractions class contains the main methods for the 
 // generation of multiple parton-parton interactions in hadronic collisions.
@@ -95,7 +100,8 @@ public:
 
   // Initialize the generation process for given beams.
   bool init( bool doMIinit, int diffractiveModeIn, Info* infoPtrIn, 
-    BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, 
+    Settings& settings, ParticleData* particleDataPtr, Rndm* rndmPtrIn, 
+    BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, CoupSM* coupSMPtrIn, 
     PartonSystems* partonSystemsPtrIn, SigmaTotal* sigmaTotPtrIn, 
     ostream& os = cout);
 
@@ -181,17 +187,23 @@ private:
          fracABChighSave[5], cDivSave[5], cMaxSave[5];
 
   // Pointer to various information on the generation.
-  Info*  infoPtr;
+  Info*          infoPtr;
+
+  // Pointer to the random number generator.
+  Rndm*          rndmPtr;
 
   // Pointers to the two incoming beams.
-  BeamParticle* beamAPtr;
-  BeamParticle* beamBPtr;
+  BeamParticle*  beamAPtr;
+  BeamParticle*  beamBPtr;
+
+  // Pointers to Standard Model couplings.
+  CoupSM*        coupSMPtr;
 
   // Pointer to information on subcollision parton locations.
   PartonSystems* partonSystemsPtr;
 
   // Pointer to total cross section parametrization.
-  SigmaTotal* sigmaTotPtr;
+  SigmaTotal*    sigmaTotPtr;
 
   // Collections of parton-level 2 -> 2 cross sections. Selected one.
   SigmaMultiple  sigma2gg, sigma2qg, sigma2qqbarSame, sigma2qq;
@@ -199,14 +211,14 @@ private:
   SigmaProcess*  dSigmaDtSel;
 
   // Statistics on generated 2 -> 2 processes.
-  map<int, int> nGen;
+  map<int, int>  nGen;
 
   // alphaStrong and alphaEM calculations.
-  AlphaStrong alphaS;
-  AlphaEM alphaEM;
+  AlphaStrong    alphaS;
+  AlphaEM        alphaEM;
 
   // Scattered partons.
-  vector<int> scatteredA, scatteredB;
+  vector<int>    scatteredA, scatteredB;
 
   // Determine constant in d(Prob)/d(pT2) < const / (pT2 + r * pT20)^2.  
   void upperEnvelope();
@@ -240,7 +252,7 @@ private:
 
 };
  
-//**************************************************************************
+//==========================================================================
 
 } // end namespace Pythia8
 

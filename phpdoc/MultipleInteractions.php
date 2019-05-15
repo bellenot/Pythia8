@@ -215,7 +215,7 @@ Choice to activate the above screening scenario, i.e. an increasing
 effective <ei>pT0</ei> for consecutive interactions.
 <br/>
 <input type="radio" name="11" value="0" checked="checked"><strong>0 </strong>: No activity-dependent screening, i.e. <ei>pT0</ei> is fixed.<br/>
-<input type="radio" name="11" value="1"><strong>1 </strong>: The <ei>pT0</ei> scale is increased as a function of the number of MI's, as explained above. ISR is not affected, but note that, if <code>SpaceShower:samePTasMI</code> is on (default), then <code>MultipleInteractions:pT0Ref</code> is used also for ISR,  which may or may not be desirable.  <br/>
+<input type="radio" name="11" value="1"><strong>1 </strong>: The <ei>pT0</ei> scale is increased as a function of the number of MI's, as explained above. ISR is not affected, but note that, if <code>SpaceShower:samePTasMI</code> is on, then <code>MultipleInteractions:pT0Ref</code> is used also for ISR,  which may or may not be desirable.  <br/>
 <input type="radio" name="11" value="2"><strong>2 </strong>: Both MI and ISR influence and are influenced by the screening. That is, the dampening is reduced based on the total number  of MI and ISR steps considered so far, including the current one. This dampening is implemented both for MI and for ISR emissions,  for the latter provided that <code>SpaceShower:samePTasMI</code> is on  (default).   <br/>
 
 <h4>Impact-parameter dependence</h4>
@@ -258,9 +258,8 @@ becomes slow and unstable, so the min limit must be respected.
  
 It is possible that a parton may rescatter, i.e. undergo a further
 interaction subsequent to the first one. The machinery to model this
-kind of physics has only recently become fully operational, and may
-still undergo some further development and bug fixing. It can therefore 
-not be recommended for general usage. 
+kind of physics has only recently become fully operational
+[<a href="Bibliography.php" target="page">Cor09</a>], and is therefore not yet so well explored. 
 
 <p/>
 The rescatting framework has ties with other parts of the program,
@@ -603,4 +602,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->

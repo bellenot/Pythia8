@@ -1,5 +1,5 @@
 // main44.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2009 Torbjorn Sjostrand.
+// Copyright (C) 2010 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -9,7 +9,7 @@
 #include "Pythia.h"
 using namespace Pythia8; 
  
-//**************************************************************************
+//==========================================================================
 
 // A simple scaling PDF. Not realistic; only to check that it works.
 
@@ -27,7 +27,7 @@ private:
 
 };
 
-//*********
+//--------------------------------------------------------------------------
 
 // No dependence on Q2, so leave out name for last argument.
 
@@ -63,7 +63,7 @@ void Scaling::xfUpdate(int id, double x, double ) {
 
 } 
 
-//**************************************************************************
+//==========================================================================
 
 int main() {
 

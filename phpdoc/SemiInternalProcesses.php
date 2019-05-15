@@ -480,4 +480,4 @@ a composite <i>d</i>. Obviously these variations may be combined.
 </body>
 </html>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2010 Torbjorn Sjostrand -->
