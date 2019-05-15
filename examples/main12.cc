@@ -2,7 +2,7 @@
 // This is a simple test program. 
 // It compares Pythia6 and Pythia8 cross sections for many processes.
 // All input is specified in the main12.cmnd file, where the real action is.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #include "Pythia.h"
 

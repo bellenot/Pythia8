@@ -1,6 +1,6 @@
 // Function definitions (not found in the header) for the
 // ColConfig, StringRegion and StringSystem classes.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #include "FragmentationSystems.h"
 
@@ -15,9 +15,9 @@ namespace Pythia8 {
 // Definitions of static variables.
 // (Values will be overwritten in initStatic call, so are purely dummy.)
 
-double ColConfig::mJoin = 0.1;
+double ColConfig::mJoin         = 0.1;
 double ColConfig::mJoinJunction = 1.0;
-double ColConfig::mStringMin = 1.0;
+double ColConfig::mStringMin    = 1.0;
 
 //*********
 
@@ -26,11 +26,11 @@ double ColConfig::mStringMin = 1.0;
 void ColConfig::initStatic() {
 
   // Joining of nearby partons along the string.
-  mJoin = Settings::parm("FragmentationSystems:mJoin");
+  mJoin         = Settings::parm("FragmentationSystems:mJoin");
 
   // Simplification of q q q junction topology to quark - diquark one.
   mJoinJunction = Settings::parm("FragmentationSystems:mJoinJunction");
-  mStringMin = Settings::parm("HadronLevel:mStringMin");
+  mStringMin    = Settings::parm("HadronLevel:mStringMin");
 
 }
 
@@ -48,15 +48,14 @@ void ColConfig::insert( vector<int>& iPartonIn, Event& event) {
   for (int i = 0; i < int(iPartonIn.size()); ++i) {
   if (iPartonIn[i] < 0) { hasJunctionIn = true; continue;}
     pSumIn += event[ iPartonIn[i] ].p();
-    if (event[ iPartonIn[i] ].isNotG()) 
+    if (!event[ iPartonIn[i] ].isGluon()) 
       mSumIn += event[ iPartonIn[i] ].constituentMass();
   } 
   double massIn = pSumIn.mCalc(); 
   double massExcessIn = massIn - mSumIn;
 
   // Identify closed gluon loop. Assign "endpoint" masses as light quarks.
-  bool isClosedIn = (iPartonIn[0] >= 0 && event[ iPartonIn[0] ].isG()) 
-    ? true : false;
+  bool isClosedIn = (iPartonIn[0] >= 0 && event[ iPartonIn[0] ].isGluon());
   if (isClosedIn) massExcessIn -= 2. * ParticleDataTable::constituentMass(1);  
 
   // For junction topology: join two nearby legs into a diquark.
@@ -79,11 +78,11 @@ void ColConfig::insert( vector<int>& iPartonIn, Event& event) {
       Particle& parton1 = event[ iPartonIn[i] ];
       Particle& parton2 = event[ iPartonIn[(i + 1)%nSize] ];
       Vec4 pSumNow;
-      pSumNow += (parton1.isNotG()) ? parton1.p() : 0.5 * parton1.p();  
-      pSumNow += (parton2.isNotG()) ? parton2.p() : 0.5 * parton2.p();  
+      pSumNow += (parton1.isGluon()) ? 0.5 * parton1.p() : parton1.p();  
+      pSumNow += (parton2.isGluon()) ? 0.5 * parton2.p() : parton2.p();  
       double mJoinNow = pSumNow.mCalc(); 
-      if (parton1.isNotG()) mJoinNow -= parton1.m();
-      if (parton2.isNotG()) mJoinNow -= parton2.m();
+      if (!parton1.isGluon()) mJoinNow -= parton1.m();
+      if (!parton2.isGluon()) mJoinNow -= parton2.m();
       if (mJoinNow < mJoinMin) { iJoinMin = i; mJoinMin = mJoinNow; }
     }
 
@@ -92,8 +91,8 @@ void ColConfig::insert( vector<int>& iPartonIn, Event& event) {
     if (mJoinMin < mJoin) { 
       int iJoin1 = iPartonIn[iJoinMin];
       int iJoin2 = iPartonIn[(iJoinMin + 1)%nSize];
-      int idNew = (event[iJoin1].isNotG()) ? event[iJoin1].id() 
-        : event[iJoin2].id();
+      int idNew = (event[iJoin1].isGluon()) ? event[iJoin2].id() 
+        : event[iJoin1].id();
       int colNew = event[iJoin1].col();
       int acolNew = event[iJoin2].acol();
       if (colNew == acolNew) {
@@ -311,8 +310,8 @@ void ColConfig::list(ostream& os) {
 // Definitions of static variables.
 // (Values will be overwritten in initStatic call, so are purely dummy.)
 
-double StringRegion::mJoin = 0.1;
-double StringRegion::m2Join = 0.01;
+double StringRegion::mJoin      = 0.1;
+double StringRegion::m2Join     = 0.01;
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -327,7 +326,7 @@ const double StringRegion::TINY = 1e-20;
 void StringRegion::initStatic() {
 
   // Joining of nearby partons along the string.
-  mJoin = Settings::parm("FragmentationSystems:mJoin");
+  mJoin  = Settings::parm("FragmentationSystems:mJoin");
   m2Join = mJoin*mJoin;
 
 }
@@ -452,9 +451,9 @@ void StringSystem::setUp(vector<int>& iSys, Event& event) {
   // Set up the lowest-lying regions.
   for (int i = 0; i < sizeStrings; ++i) {
     Vec4 p1 = event[ iSys[i] ].p();
-    if ( event[ iSys[i] ].isG()) p1 *= 0.5;
+    if ( event[ iSys[i] ].isGluon() ) p1 *= 0.5;
     Vec4 p2 = event[ iSys[i+1] ].p();
-    if ( event[ iSys[i+1] ].isG()) p2 *= 0.5;
+    if ( event[ iSys[i+1] ].isGluon() ) p2 *= 0.5;
     system[ iReg(i, iMax - i) ].setUp( p1, p2, false);
   }
 

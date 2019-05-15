@@ -2,7 +2,7 @@
 // Particle: information on an instance of a particle.
 // Junction: information on a junction between three colours.
 // Event: list of particles in the current event.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_Event_H
 #define Pythia8_Event_H
@@ -129,17 +129,7 @@ public:
   // Member functions for output; derived int and bool quantities.
   int idAbs() const {return abs(idSave);}
   int statusAbs() const {return abs(statusSave);}
-  bool isFinal() const {return (statusSave > 0) ? true : false;}
-  bool isQ() const {return (abs(idSave) < 9 && idSave != 0) ? true : false;}
-  bool isNotQ() const {return (abs(idSave) > 9 || idSave == 0) ? true : false;}
-  bool isG() const {return (idSave == 21) ? true : false;}
-  bool isNotG() const {return (idSave == 21) ? false : true;}
-  bool isQorG() const {return ( isQ() || isG() ) ? true : false;}
-  bool isQQ() const {int idAbs = abs(idSave); return ( idAbs > 1000 
-    && idAbs < 10000 && (idAbs/10)%10 == 0) ? true : false;}
-  bool isQorQQ() const {return ( isQ() || isQQ() ) ? true : false;} 
-  bool isL() const {return (abs(idSave) > 10 && abs(idSave) < 19) ? true : false;}
-  bool hasCol() const {return (colSave > 0 || acolSave > 0) ? true : false;}
+  bool isFinal() const {return (statusSave > 0);}
 
   // Member functions for output; derived double quantities.
   double m2() const {return mSave*mSave;}
@@ -171,10 +161,8 @@ public:
   int spinType() const {return particlePtr->spinType();}
   int chargeType() const {return particlePtr->chargeType(idSave);}
   double charge() const {return  particlePtr->charge(idSave);}
-  bool isCharged() const {return (particlePtr->chargeType(idSave) == 0) 
-    ? false : true;}
-  bool isNeutral() const {return (particlePtr->chargeType(idSave) == 0) 
-    ? true : false;}
+  bool isCharged() const {return (particlePtr->chargeType(idSave) != 0);}
+  bool isNeutral() const {return (particlePtr->chargeType(idSave) == 0);}
   int colType() const {return particlePtr->colType(idSave);}
   double m0() const {return particlePtr->m0();}
   double mWidth() const {return particlePtr->mWidth();}
@@ -185,9 +173,13 @@ public:
   double tau0() const {return particlePtr->tau0();}
   bool mayDecay() const {return particlePtr->mayDecay();}
   bool canDecay() const {return particlePtr->canDecay();}
+  bool externalDecay() const {return particlePtr->externalDecay();}
   bool isResonance() const {return particlePtr->isResonance();}
   bool isVisible() const {return particlePtr->isVisible();}
-  bool externalDecay() const {return particlePtr->externalDecay();}
+  bool isLepton() const {return particlePtr->isLepton();}
+  bool isQuark() const {return particlePtr->isQuark();}
+  bool isGluon() const {return particlePtr->isGluon();}
+  bool isHadron() const {return particlePtr->isHadron();}
   ParticleDataEntry& particleData() const {return *particlePtr;}
 
   // Member functions that perform operations.
@@ -204,6 +196,8 @@ public:
     if (hasVertexSave) vProdSave.bst(betaX, betaY, betaZ, gamma);}
   void bst(const Vec4& vec) {pSave.bst(vec);
     if (hasVertexSave) vProdSave.bst(vec);}
+  void bstback(const Vec4& vec) {pSave.bstback(vec);
+    if (hasVertexSave) vProdSave.bstback(vec);}
   void rotbst(const RotBstMatrix& M) {pSave.rotbst(M);
     if (hasVertexSave) vProdSave.rotbst(M);} 
 
@@ -365,7 +359,7 @@ public:
 
   // Find list of sisters, also tracking up and down identical copies.
   vector<int> sisterList(int i);
-  vector<int> sisterListTopBot(int i);
+  vector<int> sisterListTopBot(int i, bool widenSearch = true);
 
   // Check whether two particles have a direct mother-daughter relation.
   bool isAncestor(int i, int iAncestor);

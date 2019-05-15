@@ -37,7 +37,7 @@ of an event, and could therefore not be covered in the
 <code>BeamParticle</code> class, which only considers one beam at a time. 
 
 <p/>
-Neither of the methods of these classes are intended for general use,
+The methods of these classes are not intended for general use,
 and so are not described here. 
 
 <h3>Main variables</h3>
@@ -166,6 +166,7 @@ The abovementioned mass-dependence power <i>p</i> for the relative
 quark rate in diffractive systems.
   
 
+<p/>
 When a gluon is kicked out from the hadron, the longitudinal momentum
 sharing between the the two remnant partons is determined by the
 same parameters as above. It is plausible that the primordial 
@@ -183,11 +184,12 @@ beam remnants when a gluon is kicked out of a diffractive system.
 parm name="Beams:diffLargeMassSuppress" default="2." min="0."
 </strong><br/>
 The choice of longitudinal and transverse structure of a diffractive
-beam remnant implies a remnant mass <i>m_rem</i> distribution that 
-knows no bounds. A suppression like <i>(1 - m_rem^2 / m_diff^2)^p</i> 
-is therefore introduced, where <i>p</i> is the 
-<code>diffLargeMassSuppress</code> parameter.    
+beam remnant for a kicked-out gluon implies a remnant mass 
+<i>m_rem</i> distribution (i.e. quark plus diquark invariant mass 
+for a baryon beam) that knows no bounds. A suppression like 
+<i>(1 - m_rem^2 / m_diff^2)^p</i> is therefore introduced, where 
+<i>p</i> is the <code>diffLargeMassSuppress</code> parameter.    
 
   
 
-<!-- Copyright C 2006 Torbjorn Sjostrand -->
+<!-- Copyright C 2007 Torbjorn Sjostrand -->

@@ -5,10 +5,10 @@
 <code>DecayHandler</code> is a base class for the external handling of 
 decays. The user-written derived class is called if a pointer to it has
 been given with the 
-<a href="Flow.xml" target="page"><code>pythia.decayPtr()</code></a> method, 
-where it also is specified which particles it will be called for. 
+<a href="ProgramFlow.xml" target="page"><code>pythia.decayPtr()</code></a> 
+method, where it also is specified which particles it will be called for. 
 This particle information is accessible with the 
-<a href="ParticleDataScheme.xml" target="page"><code>externalDecays()</code></a>
+<a href="ParticleDataScheme.xml" target="page"><code>externalDecay()</code></a>
 method. 
 
 <p/>
@@ -60,4 +60,4 @@ a simple example of how to use thing facility.
 
 </chapter>
 
-<!-- Copyright C 2006 Torbjorn Sjostrand -->
+<!-- Copyright C 2007 Torbjorn Sjostrand -->

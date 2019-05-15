@@ -4,7 +4,7 @@
 // Parm: (short for parameter) helper class with double parameters.
 // Word: helper class with string words.
 // Settings: maps of flags, modes, parms and words with input/output.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_Settings_H
 #define Pythia8_Settings_H
@@ -135,35 +135,31 @@ public:
 
   // Query existence of an entry.
   static bool isFlag(string keyIn) {
-    return (flags.find(tolower(keyIn)) == flags.end()) ? false : true ; }
+    return (flags.find(toLower(keyIn)) != flags.end()); }
   static bool isMode(string keyIn) { 
-    return (modes.find(tolower(keyIn)) == modes.end()) ? false : true ; }
+    return (modes.find(toLower(keyIn)) != modes.end()); }
   static bool isParm(string keyIn) {
-    return (parms.find(tolower(keyIn)) == parms.end()) ? false : true ; }
+    return (parms.find(toLower(keyIn)) != parms.end()); }
   static bool isWord(string keyIn) {
-    return (words.find(tolower(keyIn)) == words.end()) ? false : true ; }
+    return (words.find(toLower(keyIn)) != words.end()); }
  
   // Add new entry.
   static void addFlag(string keyIn, bool defaultIn) {
-    flags[tolower(keyIn)] = Flag(keyIn, defaultIn); }  
+    flags[toLower(keyIn)] = Flag(keyIn, defaultIn); }  
   static void addMode(string keyIn, int defaultIn, bool hasMinIn, 
-    bool hasMaxIn, int minIn, int maxIn) { modes[tolower(keyIn)] 
+    bool hasMaxIn, int minIn, int maxIn) { modes[toLower(keyIn)] 
     = Mode(keyIn, defaultIn, hasMinIn, hasMaxIn, minIn, maxIn); }      
   static void addParm(string keyIn, double defaultIn, bool hasMinIn, 
-    bool hasMaxIn, double minIn, double maxIn) { parms[tolower(keyIn)] 
+    bool hasMaxIn, double minIn, double maxIn) { parms[toLower(keyIn)] 
     = Parm(keyIn, defaultIn, hasMinIn, hasMaxIn, minIn, maxIn); }  
   static void addWord(string keyIn, string defaultIn) {
-    words[tolower(keyIn)] = Word(keyIn, defaultIn); }  
+    words[toLower(keyIn)] = Word(keyIn, defaultIn); }  
 
-  // Give back current value. 
-  static bool flag(string keyIn) {
-    return isFlag(keyIn) ? flags[tolower(keyIn)].valNow : false ; } 
-  static int mode(string keyIn) { 
-    return isMode(keyIn) ? modes[tolower(keyIn)].valNow : 0 ; }
-  static double parm(string keyIn) {
-    return isParm(keyIn) ? parms[tolower(keyIn)].valNow : 0. ; }
-  static string word(string keyIn) {
-    return isWord(keyIn) ? words[tolower(keyIn)].valNow : " " ; } 
+  // Give back current value, with check that key exists. 
+  static bool flag(string keyIn);
+  static int mode(string keyIn);
+  static double parm(string keyIn);
+  static string word(string keyIn); 
   
   // Change current value, respecting limits.
   static void flag(string keyIn, bool nowIn); 
@@ -173,23 +169,23 @@ public:
 
   // Change current value, disregarding limits.
   static void forceMode(string keyIn, int nowIn) { 
-    if (isMode(keyIn)) modes[tolower(keyIn)].valNow = nowIn; }
+    if (isMode(keyIn)) modes[toLower(keyIn)].valNow = nowIn; }
   static void forceParm(string keyIn, double nowIn) { 
-    if (isParm(keyIn)) parms[tolower(keyIn)].valNow = nowIn; }
+    if (isParm(keyIn)) parms[toLower(keyIn)].valNow = nowIn; }
      
   // Restore current value to default. 
   static void resetFlag(string keyIn) {
-    if (isFlag(keyIn)) flags[tolower(keyIn)].valNow 
-      = flags[tolower(keyIn)].valDefault ; }
+    if (isFlag(keyIn)) flags[toLower(keyIn)].valNow 
+      = flags[toLower(keyIn)].valDefault ; }
   static void resetMode(string keyIn) {
-    if (isMode(keyIn)) modes[tolower(keyIn)].valNow 
-      = modes[tolower(keyIn)].valDefault ; }
+    if (isMode(keyIn)) modes[toLower(keyIn)].valNow 
+      = modes[toLower(keyIn)].valDefault ; }
   static void resetParm(string keyIn) {
-    if (isParm(keyIn)) parms[tolower(keyIn)].valNow 
-      = parms[tolower(keyIn)].valDefault ; }
+    if (isParm(keyIn)) parms[toLower(keyIn)].valNow 
+      = parms[toLower(keyIn)].valDefault ; }
   static void resetWord(string keyIn) {
-    if (isWord(keyIn)) words[tolower(keyIn)].valNow 
-      = words[tolower(keyIn)].valDefault ; }
+    if (isWord(keyIn)) words[toLower(keyIn)].valNow 
+      = words[toLower(keyIn)].valDefault ; }
 
 private:
 
@@ -211,6 +207,14 @@ private:
   // Print out table of database, called from listAll and listChanged.
   static void list(bool listAll, bool listString, string match,
     ostream& os = cout) ; 
+
+  // Useful functions for string handling.
+  static string toLower(const string& name);
+  static bool boolString(string tag);
+  static string attributeValue(string line, string attribute);
+  static bool boolAttributeValue(string line, string attribute);
+  static int intAttributeValue(string line, string attribute);
+  static double doubleAttributeValue(string line, string attribute);
 
 };
 

@@ -2,7 +2,7 @@
 // StringFlav is used to select quark and hadron flavours.
 // StringPT is used to select transverse momenta.
 // StringZ is used to sample the fragmentation function f(z).
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_FragmentationFlavZpT_H
 #define Pythia8_FragmentationFlavZpT_H
@@ -13,6 +13,47 @@
 #include "Settings.h"
 
 namespace Pythia8 {
+
+
+//**************************************************************************
+
+// The FlavContainer class is a simple container for flavour, 
+// including the extra properties needed for popcorn baryon handling.
+// id = current flavour. 
+// rank = current rank; 0 for endpoint flavour and then increase by 1.
+// nPop = number of popcorn mesons yet to be produced (1 or 0).
+// idPop = (absolute sign of) popcorn quark, shared between B and Bbar.
+// idVtx = (absolute sign of) vertex (= non-shared) quark in diquark.
+
+class FlavContainer {
+
+public:
+
+  // Constructor. 
+  FlavContainer(int idIn = 0, int rankIn = 0, int nPopIn = 0, 
+    int idPopIn = 0, int idVtxIn = 0) : id(idIn), rank(rankIn), 
+    nPop(nPopIn), idPop(idPopIn), idVtx(idVtxIn) {}
+
+  // Overloaded equal operator.
+  FlavContainer& operator=(const FlavContainer& flav) { if (this != &flav) { 
+    id = flav.id; rank = flav.rank; nPop = flav.nPop; idPop = flav.idPop;
+    idVtx = flav.idVtx; } return *this; }
+
+  // Invert flavour.
+  FlavContainer& anti() {id = -id; return *this;}
+
+  // Read in a container into another, without/with id sign flip.
+  FlavContainer& copy(const FlavContainer& flav) { if (this != &flav) { 
+    id = flav.id; rank = flav.rank; nPop = flav.nPop; idPop = flav.idPop;
+    idVtx = flav.idVtx; } return *this; }
+  FlavContainer& anti(const FlavContainer& flav) { if (this != &flav) { 
+    id = -flav.id; rank = flav.rank; nPop = flav.nPop; idPop = flav.idPop;
+    idVtx = flav.idVtx; } return *this; }
+
+  // Stored properties.
+  int id, rank, nPop, idPop, idVtx;
+  
+};
 
 //**************************************************************************
 
@@ -29,11 +70,18 @@ public:
   // Initialize static data members.
   static void initStatic();
 
+  // Pick a light d, u or s quark according to fixed ratios.
+  static int pickLightQ() { double rndmFlav = probQandS * Rndm::flat();
+    if (rndmFlav < 1.) return 1; if (rndmFlav < 2.) return 2; return 3; }
+
   // Pick a new flavour (including diquarks) given an incoming one.
-  static int pick(int idOld);
+  static FlavContainer pick(FlavContainer& flavOld);
 
   // Combine two flavours (including diquarks) to produce a hadron.
-  static int combine(int id1, int id2);
+  static int combine(FlavContainer& flav1, FlavContainer& flav2);
+
+  // Assign popcorn quark inside an original (= rank 0) diquark.
+  static void assignPopQ(FlavContainer& flav);
 
   // Combine two quarks to produce a diquark.
   static int makeDiquark(int id1, int id2, int idHad = 0);
@@ -41,12 +89,15 @@ public:
 private: 
 
   // Static initialization data, normally only set once.
-  static double probQQtoQ, probStoU, probSQtoQQ, probQQ1toQQ0, 
+  static double probQQtoQ, probStoUD, probSQtoQQ, probQQ1toQQ0, 
     probQandQQ, probQandS, probQandSinQQ, probQQ1corr, probQQ1corrInv,
-    probQQ1norm, mesonUspin1, mesonSspin1, mesonCspin1, mesonBspin1,
-    mesonMix1[2][4], mesonMix2[2][4], suppressEta, suppressEtaPrime,
-    baryonClebsch12[6], baryonClebsch32[6], baryonClebschSum[6];
-
+    probQQ1norm, mesonRate[4][6], mesonRateSum[4], mesonMix1[2][6], 
+    mesonMix2[2][6], etaSup, etaPrimeSup, decupletSup,
+    baryonCGOct[6], baryonCGDec[6], baryonCGSum[6], baryonCGMax[6],
+    popcornRate, popcornSpair, popcornSmeson, scbBM[3], popFrac, popS[3], 
+    dWT[3][7], lightLeadingBSup, heavyLeadingBSup;
+  static bool suppressLeadingB;
+  static int mesonMultipletCode[6];
 };
  
 //**************************************************************************

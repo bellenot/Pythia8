@@ -1,7 +1,7 @@
 // Header file for resonance properties: dynamical widths etc. 
 // ResonanceProperties: base class for all resonances.
 // ResonanceGmZ, ...: derived classes for individual resonances.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_ResonanceProperties_H
 #define Pythia8_ResonanceProperties_H
@@ -31,12 +31,12 @@ public:
 protected:
 
   // Static initialization data, normally only set once.
-  static int alphaSorder;
+  static int alphaSorder, alphaEMorder;
   static double alphaSvalue, alphaEMfix;
 
   // Static alphaStrong and alphaElectromagnetic calculation.
-  static AlphaStrong alphaScalc;
-  static AlphaEM alphaEMcalc;
+  static AlphaStrong alphaS;
+  static AlphaEM alphaEM;
 
   // Constants: could only be changed in the code itself.
   static const double MASSMARGIN;

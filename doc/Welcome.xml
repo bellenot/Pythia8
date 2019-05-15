@@ -4,7 +4,7 @@
 <frame src="Index.html" name="index" scrolling="auto" border="0" 
   marginwidth="20" marginheight="20" frameborder="0">
 </frame>
-<frame src="Front.html" name="page" scrolling="auto" border="0" 
+<frame src="Frontpage.html" name="page" scrolling="auto" border="0" 
   marginwidth="20" marginheight="20" frameborder="0">
 </frame>
 </frameset>
@@ -110,4 +110,4 @@ b) smarter way to handle references to articles?
 
 -->
 
-<!-- Copyright C 2006 Torbjorn Sjostrand -->
+<!-- Copyright C 2007 Torbjorn Sjostrand -->

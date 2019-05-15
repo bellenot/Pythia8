@@ -1,0 +1,139 @@
+<chapter name="QCD Processes">
+
+<h2>QCD Processes</h2>
+
+This section is subdivided into soft and hard QCD processes, with
+open charm and bottom production set aside as a special part of the
+latter. 
+
+<h3>Soft QCD processes</h3>
+
+As a rule, the processes in this class should not be mixed with
+the simulation of other processes. All by themselves, they are
+intended to represent the total cross section of hadron collisions,
+with the exception of the "rare processes" that one wishes to study
+separately. In particular, jet physics at all scales occurs as part 
+of the minimum-bias description. 
+
+<p/>
+We here use the "minimum bias" expression as a shorthand for 
+inelastic, nondiffractive events. Strictly speaking, "minimum bias" 
+represents an experimental procedure of accepting "everything", with 
+some non-universal cuts to exclude elastic and diffractive topologies. 
+In practice, the experimental mimimum-bias sample may then contain
+some contamination of what is in PYTHIA classified as diffractive,
+especially (high-mass) double diffractive. 
+
+<flag name="SoftQCD:all" default="off">
+Common switch for the group of all soft QCD processes, 
+as listed separately in the following.
+</flag>
+
+<flag name="SoftQCD:minBias" default="off">
+Minimum-bias events, based on an eikonalized description of all the 
+hard QCD processes, so includes them in combinationation with 
+low-<ei>pT</ei> events. Code 101.<br/>
+Since the current description is handled by the multiple-interactions 
+machinery as part of the parton-level processing, no hard process at 
+all is defined at the process-level part of the event generation.
+Fortunately, in this case a special 
+<a href="EventInformation.xml" target="page"><code>codeSub()</code></a> 
+method provides information on the first, i.e. hardest, subprocess 
+selected by the multiple-interactions machinery.
+
+</flag>
+
+<flag name="SoftQCD:elastic" default="off">
+Elastic scattering <ei>A B -> A B</ei>.
+Code 102.
+</flag>
+
+<flag name="SoftQCD:singleDiffractive" default="off">
+Single diffractive scattering <ei>A B -> X B</ei> and 
+<ei>A B -> A X</ei>. 
+Codes 103 and 104.
+</flag>
+
+<flag name="SoftQCD:doubleDiffractive" default="off">
+Double diffractive scattering <ei>A B -> X_1 X_2</ei>.
+Code 105.
+</flag>
+
+<h3>Hard QCD processes</h3>
+
+This group contains the processes for QCD jet production above
+some minimum <ei>pT</ei> threshold, as opposed to the minimum-bias
+process above, where all <ei>pT</ei> scales can be probed. 
+The <ei>pT_min</ei> cut cannot be put too low, or else unreasonably
+large jet cross sections will be obtained.
+  
+<flag name="HardQCD:all" default="off">
+Common switch for the group of all hard QCD processes, 
+as listed separately in the following.
+</flag>
+
+<flag name="HardQCD:gg2gg" default="off">
+Scatterings <ei>g g -> g g</ei>.
+Code 111.
+</flag>
+
+<flag name="HardQCD:gg2qqbar" default="off">
+Scatterings <ei>g g -> q qbar</ei>.
+Code 112.
+</flag>
+
+<flag name="HardQCD:qg2qg" default="off">
+Scatterings <ei>q g -> q g</ei> and <ei>qbar g -> qbar g</ei>.
+Code 113.
+</flag>
+
+<flag name="HardQCD:qq2qq" default="off">
+Scatterings <ei>q q' -> q q'</ei>, <ei>q qbar' -> q qbar'</ei>, 
+<ei>qbar qbar' -> qbar qbar'</ei>, where <ei>q'</ei> and <ei>q</ei> 
+may agree, but the outgoing flavours equals the incoming ones 
+Codes 114, 115 and 116.
+</flag>
+
+<flag name="HardQCD:qqbar2qqbarNew" default="off">
+Scatterings <ei>q qbar -> q' qbar'</ei>, where the outgoing flavours 
+are different from the incoming ones. 
+Code 117.
+</flag>
+
+<flag name="HardQCD:qqbar2gg" default="off">
+Scatterings <ei>q qbar -> g g</ei>. 
+Code 118.
+</flag>
+
+<h3>Hard QCD processes: heavy-flavour subset</h3>
+
+These processes form a natural part of the above class, but can
+also be generated separately. Formally the heavy-quark mass makes
+these matrix elements finite in the <ei>pT -> 0</ei> limit, but at
+high energies one may still question the validity of the expressions
+at low <ei>pT</ei> values, like for the other hard-QCD processes.  
+
+<flag name="HardQCD:gg2ccbar" default="off">
+Scatterings <ei>g g -> c cbar</ei>. 
+Code 121.
+</flag>
+
+<flag name="HardQCD:qqbar2ccbar" default="off">
+Scatterings <ei>q qbar -> c cbar</ei>. 
+Code 122.
+</flag>
+
+<flag name="HardQCD:gg2bbbar" default="off">
+Scatterings <ei>g g -> b bbar</ei>. 
+Code 123.
+</flag>
+
+<flag name="HardQCD:qqbar2bbbar" default="off">
+Scatterings <ei>q qbar -> b bbar</ei>. 
+Code 124.
+</flag>
+
+</chapter>
+
+<!-- Copyright C 2007 Torbjorn Sjostrand -->
+

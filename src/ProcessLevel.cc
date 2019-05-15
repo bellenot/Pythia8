@@ -1,5 +1,5 @@
 // Function definitions (not found in the header) for the ProcessLevel class.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #include "ProcessLevel.h"
 
@@ -14,18 +14,18 @@ bool ProcessLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn,
   LHAinit* lhaInitPtrIn, LHAevnt* lhaEvntPtrIn) {
 
   // Store input pointers for future use. 
-  infoPtr = infoPtrIn;
-  beamAPtr = beamAPtrIn;
-  beamBPtr = beamBPtrIn;
+  infoPtr     = infoPtrIn;
+  beamAPtr    = beamAPtrIn;
+  beamBPtr    = beamBPtrIn;
 
   // Store pointers to Les Houches Accord input if any.
-  hasLHA = hasLHAin;
-  lhaInitPtr = lhaInitPtrIn;
-  lhaEvntPtr = lhaEvntPtrIn;
+  hasLHA      = hasLHAin;
+  lhaInitPtr  = lhaInitPtrIn;
+  lhaEvntPtr  = lhaEvntPtrIn;
   strategyLHA = (hasLHA) ? lhaInitPtr->strategy() : 0;  
 
   // Initialize event generation from Pythia 6.3.
-  hasPythia6 = hasPythia6In;
+  hasPythia6  = hasPythia6In;
   if (hasPythia6) initPythia6( infoPtr->idA(), infoPtr->idB(), 
     infoPtr->eCM() );
 
@@ -53,6 +53,7 @@ bool ProcessLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn,
   // Read in a simple event in the LHAevnt format. Default info.
   if (strategyLHA >= 10) {
     infoPtr->setType( "Simple LHA process", 0, 0, false, true, false, false);
+    infoPtr->setTypeMI( 0, 0.);
     return getSimpleLHAevnt( process);
   }
 
@@ -89,9 +90,9 @@ void ProcessLevel::statistics(ostream& os) {
        << "            |                        |\n";
 
     // Reset sum counters.
-    int nTrySum = 0; 
-    int nAccSum = 0;
-    double sigmaSum = 0.;
+    int    nTrySum   = 0; 
+    int    nAccSum   = 0;
+    double sigmaSum  = 0.;
     double delta2Sum = 0.;
 
     // Loop over existing processes.
@@ -99,13 +100,13 @@ void ProcessLevel::statistics(ostream& os) {
     if (containerPtrs[i]->sigmaMax() != 0.) {
 
       // Read info for process. Sum counters.
-      int nTry = containerPtrs[i]->nTried();
-      int nAcc = containerPtrs[i]->nAccepted();
+      int    nTry  = containerPtrs[i]->nTried();
+      int    nAcc  = containerPtrs[i]->nAccepted();
       double sigma = containerPtrs[i]->sigmaMC();
       double delta = containerPtrs[i]->deltaMC(); 
-      nTrySum += nTry;
-      nAccSum += nAcc; 
-      sigmaSum += sigma;
+      nTrySum   += nTry;
+      nAccSum   += nAcc; 
+      sigmaSum  += sigma;
       delta2Sum += pow2(delta);    
 
       // Print individual process info.
@@ -122,7 +123,7 @@ void ProcessLevel::statistics(ostream& os) {
        << " | " << left << setw(45) << "sum" << right << " | " << setw(11) 
        << nTrySum << " " << setw(10) << nAccSum << " | " << scientific 
        << setprecision(3) << setw(11) << sigmaSum << setw(11) 
-       << sqrt(max(0., delta2Sum)) << " |\n";
+       << sqrtpos(delta2Sum) << " |\n";
 
     // Listing finished.
     os << " |                                                            "
@@ -144,16 +145,17 @@ void ProcessLevel::statistics(ostream& os) {
 bool ProcessLevel::initInternal( ostream& os) {
 
   // Set up SigmaTotal.
-  int idA = infoPtr->idA();
-  int idB = infoPtr->idB();
+  int    idA = infoPtr->idA();
+  int    idB = infoPtr->idB();
   double eCM = infoPtr->eCM();
   sigmaTot.init( idA, idB, eCM);
 
-  // Send cross section and beam info to processes and phase space.
+  // Send cross section and beam info to influx, processes and phase space.
   double mA = beamAPtr->m();
   double mB = beamBPtr->m();
+  InFlux::setBeamPtr( beamAPtr, beamBPtr); 
   SigmaProcess::setSigmaTotalPtr( &sigmaTot, idA, idB, mA, mB);
-  PhaseSpace::setSigmaTotalPtr( &sigmaTot, idA, idB, mA, mB);
+  PhaseSpace::setBeamSigmaPtr( beamAPtr, beamBPtr, &sigmaTot);
 
   // Sets up containers for all the hard processes.
   SetupContainers setupContainers;
@@ -161,7 +163,7 @@ bool ProcessLevel::initInternal( ostream& os) {
 
   // If no processes found then refuse to do anything.
   if ( int(containerPtrs.size()) == 0) {
-    ErrorMessages::message("Error in ProcessLevel::initInternal: "
+    ErrorMsg::message("Error in ProcessLevel::initInternal: "
       "no processes switched on"); 
     return false;
   }
@@ -211,7 +213,7 @@ bool ProcessLevel::initInternal( ostream& os) {
 
   // If sum of maxima vanishes then refuse to do anything. Done.
   if ( numberOn == 0  || sigmaMaxSum <= 0.) {
-    ErrorMessages::message("Error in ProcessLevel::initInternal: "
+    ErrorMsg::message("Error in ProcessLevel::initInternal: "
       "all processes have vanishing cross sections"); 
     return false;
   }
@@ -375,8 +377,8 @@ bool ProcessLevel::getLHAevnt( Event& process) {
     double px = lhaEvntPtr->px(iOld);  
     double py = lhaEvntPtr->py(iOld);  
     double pz = lhaEvntPtr->pz(iOld);  
-    double e = lhaEvntPtr->e(iOld);  
-    double m = lhaEvntPtr->m(iOld);
+    double e  = lhaEvntPtr->e(iOld);  
+    double m  = lhaEvntPtr->m(iOld);
 
     // For resonance decay products use resonance mass as scale.
     double scaleNow = scale;
@@ -394,35 +396,35 @@ bool ProcessLevel::getLHAevnt( Event& process) {
   int nFinal = 0;
   for (int i = 5; i < process.size(); ++i) 
     if (process[i].mother1() == 3) ++nFinal;
-  int id1 =  process[3].id(); 
-  int id2 =  process[4].id(); 
-  double Q2Fac = pow2(lhaEvntPtr->scale());
+  int    id1     =  process[3].id(); 
+  int    id2     =  process[4].id(); 
+  double Q2Fac   = pow2(lhaEvntPtr->scale());
   double alphaEM = lhaEvntPtr->alphaQED();
-  double alphaS = lhaEvntPtr->alphaQCD();
-  double Q2Ren = Q2Fac;
-  double x1 = 2. * process[3].e() / infoPtr->eCM();
-  double x2 = 2. * process[4].e() / infoPtr->eCM();
-  Vec4 pSum = process[3].p() + process[4].p();
-  double sHat = pSum*pSum;
+  double alphaS  = lhaEvntPtr->alphaQCD();
+  double Q2Ren   = Q2Fac;
+  double x1      = 2. * process[3].e() / infoPtr->eCM();
+  double x2      = 2. * process[4].e() / infoPtr->eCM();
+  Vec4   pSum    = process[3].p() + process[4].p();
+  double sHat    = pSum*pSum;
 
   // Reset quantities that may or may not be known.
-  double pdf1 = 0.;
-  double pdf2 = 0.;
-  double tHat = 0.;
-  double uHat = 0.;
+  double pdf1  = 0.;
+  double pdf2  = 0.;
+  double tHat  = 0.;
+  double uHat  = 0.;
   double pTHat = 0.;
-  double m3 = 0.;
-  double m4 = 0.;
+  double m3    = 0.;
+  double m4    = 0.;
   double theta = 0.;
-  double phi = 0.;
+  double phi   = 0.;
 
   // Read info om parton densities if provided.
   if (lhaEvntPtr->pdfIsSet()) {
-    pdf1 = lhaEvntPtr->xpdf1();
-    pdf2 = lhaEvntPtr->xpdf2();
+    pdf1  = lhaEvntPtr->xpdf1();
+    pdf2  = lhaEvntPtr->xpdf2();
     Q2Fac = pow2(lhaEvntPtr->scalePDF());
-    x1 = lhaEvntPtr->x1();
-    x2 = lhaEvntPtr->x2();
+    x1    = lhaEvntPtr->x1();
+    x2    = lhaEvntPtr->x2();
   }
 
   // Reconstruct kinematics of 2 -> 2 processes from momenta.
@@ -435,8 +437,7 @@ bool ProcessLevel::getLHAevnt( Event& process) {
     m3 = process[5].m();    
     m4 = process[6].m(); 
     Vec4 p5 = process[5].p();
-    pSum.flip3();
-    p5.bst(pSum);
+    p5.bstback(pSum);
     theta = p5.theta();   
     phi = process[5].phi();   
   }
@@ -445,6 +446,7 @@ bool ProcessLevel::getLHAevnt( Event& process) {
   infoPtr->setType( name, code, nFinal, false, true, false, false);
   infoPtr->setPDFalpha( id1, id2, pdf1, pdf2, Q2Fac, alphaEM, alphaS, Q2Ren);
   infoPtr->setKin( x1, x2, sHat, tHat, uHat, pTHat, m3, m4, theta, phi);  
+  infoPtr->setTypeMI( code, pTHat);
 
   // Done.
   return true;
@@ -508,8 +510,8 @@ bool ProcessLevel::getSimpleLHAevnt( Event& process) {
     double px = lhaEvntPtr->px(i);  
     double py = lhaEvntPtr->py(i);  
     double pz = lhaEvntPtr->pz(i);  
-    double e = lhaEvntPtr->e(i);  
-    double m = lhaEvntPtr->m(i);
+    double e  = lhaEvntPtr->e(i);  
+    double m  = lhaEvntPtr->m(i);
 
     // Store the information, particle by particle.
     process.append( id, status, mother1, mother2, daughter1, daughter2, 
@@ -538,9 +540,9 @@ void ProcessLevel::findJunctions( Event& process) {
     vector<int> daughters = process.daughterList(i);
     vector<int> cols, acols;
     for (int j = 0; j < int(daughters.size()); ++j) {
-      int colDau = process[ daughters[j] ].col();
+      int colDau  = process[ daughters[j] ].col();
       int acolDau = process[ daughters[j] ].acol();
-      if (colDau > 0) cols.push_back( colDau);      
+      if (colDau > 0)  cols.push_back( colDau);      
       if (acolDau > 0) acols.push_back( acolDau);      
     }
 
@@ -551,7 +553,7 @@ void ProcessLevel::findJunctions( Event& process) {
       for (int j = 0; j < int(cols.size()); ++j) {
         for (int k = 0; k < int(acols.size()); ++k) {
 	  if (acols[k] == cols[j]) { 
-            cols[j] = cols.back(); cols.pop_back();     
+            cols[j]  = cols.back();  cols.pop_back();     
             acols[k] = acols.back(); acols.pop_back();     
             foundPair = true; break;
 	  }

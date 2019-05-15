@@ -16,6 +16,7 @@ Main:showChangedSettings = on      ! print changed flags/modes/parameters
 #Main:showAllSettings = on          ! print all flags/modes/parameters
 #Main:showChangedParticleData = on  ! print changed particle and decay data
 #Main:showAllParticleData = on      ! print all particle and decay data
+Main:showAllStatistics = on        ! more statistics on multiple interactions
 
 ! 3) Settings for hard-process generation internal to Pythia8.
 SoftQCD:minbias = on               ! minimum bias QCD processes
@@ -23,7 +24,7 @@ SoftQCD:minbias = on               ! minimum bias QCD processes
 #PhaseSpace:pTHatMin = 20.           ! minimum pT in hard process
 
 ! 4) Switch off some key components of the simulation, for comparisons.
-#Pythia:afterProcessLevel = off      ! stop after hard process 
+#Pythia:partonLevel = off      ! stop after hard process 
 #PartonLevel:MI = off               ! no multiple interactions
 #PartonLevel:ISR = off              ! no initial-state radiation 
 #PartonLevel:FSRinProcess = off     ! no final-state radiation

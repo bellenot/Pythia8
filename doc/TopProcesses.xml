@@ -1,0 +1,34 @@
+<chapter name="Top Processes">
+
+<h2>Top Processes</h2>
+
+Different ways to produce top quarks, singly or (more frequently)
+in pairs.
+
+<p/>
+The processes in this set are not yet fully handled.
+
+<flag name="Top:all" default="off">
+Common switch for the group of top production.
+</flag>
+
+<flag name="Top:gg2ttbar" default="off">
+Scatterings <ei>g g -> t tbar</ei>. 
+Code 601.
+</flag>
+
+<flag name="Top:qqbar2ttbar" default="off">
+Scatterings <ei>q qbar -> t tbar</ei>. 
+Code 602.
+</flag>
+
+<flag name="Top:qq2tq(t:W)" default="off">
+Scatterings <ei>q q' -> t q''</ei> by t-channel exchange of W boson. 
+Code 603.
+</flag>
+
+
+</chapter>
+
+<!-- Copyright C 2007 Torbjorn Sjostrand -->
+

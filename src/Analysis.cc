@@ -1,6 +1,6 @@
 // Function definitions (not found in the header) for the 
 // Sphericity, Thrust, ClusJet and CellJet classes.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #include "Analysis.h"
 
@@ -17,10 +17,10 @@ namespace Pythia8 {
 // These are of technical nature, as described for each.
 
 // Minimum number of particles to perform study.
-const int Sphericity::NSTUDYMIN = 2;
+const int    Sphericity::NSTUDYMIN     = 2;
 
 // Assign mimimum squared momentum in weight to avoid division by zero. 
-const double Sphericity::P2MIN = 1e-20;
+const double Sphericity::P2MIN         = 1e-20;
 
 // Second eigenvalue not too low or not possible to find eigenvectors.
 const double Sphericity::EIGENVALUEMIN = 1e-10;
@@ -43,7 +43,7 @@ bool Sphericity::analyze(Event& event) {
   // Loop over desired particles in the event.
   for (int i = 0; i < event.size(); ++i) 
   if (event[i].isFinal()) {
-    if (select > 2 && event[i].isNeutral() ) continue;
+    if (select >  2 &&  event[i].isNeutral() ) continue;
     if (select == 2 && !event[i].isVisible() ) continue;
     ++nStudy;
 
@@ -63,7 +63,7 @@ bool Sphericity::analyze(Event& event) {
 
   // Very low multiplicities (0 or 1) not considered.
   if (nStudy < NSTUDYMIN) {
-    ErrorMessages::message("Warning in Sphericity::analyze: "
+    ErrorMsg::message("Warning in Sphericity::analyze: "
     " too few particles"); 
     return false;
   }
@@ -84,7 +84,7 @@ bool Sphericity::analyze(Event& event) {
   double pTemp = max( min( rCoef / pow3(qCoefRt), 1.), -1.);
   double pCoef = cos( acos(pTemp) / 3.);
   double pCoefRt = sqrt( 3. * (1. - pow2(pCoef)) );
-  eVal1 = 1./3. + qCoefRt * max( 2. * pCoef, pCoefRt - pCoef);
+  eVal1 = 1./3. + qCoefRt * max( 2. * pCoef,  pCoefRt - pCoef);
   eVal3 = 1./3. + qCoefRt * min( 2. * pCoef, -pCoefRt - pCoef);
   eVal2 = 1. - eVal1 - eVal3;
 
@@ -94,7 +94,7 @@ bool Sphericity::analyze(Event& event) {
 
     // If all particles are back-to-back then only first axis meaningful.
     if (iVal > 1 && eVal2 < EIGENVALUEMIN) {
-      ErrorMessages::message("Warning in Sphericity::analyze: "
+      ErrorMsg::message("Warning in Sphericity::analyze: "
       " particles too back-to-back"); 
       return false;
     }
@@ -140,8 +140,8 @@ bool Sphericity::analyze(Event& event) {
     int k1 = kMax + 1; if (k1 > 3) k1 -= 3;
     int k2 = kMax + 2; if (k2 > 3) k2 -= 3;
     double eVec[4];
-    eVec[k1] = -dd[jMax2][k2];    
-    eVec[k2] = dd[jMax2][k1];    
+    eVec[k1]   = -dd[jMax2][k2];    
+    eVec[k2]   =  dd[jMax2][k1];    
     eVec[kMax] = (dd[jMax][k1] * dd[jMax2][k2]
       - dd[jMax][k2] * dd[jMax2][k1]) / dd[jMax][kMax];
     double length = sqrt( pow2(eVec[1]) + pow2(eVec[2])
@@ -202,10 +202,10 @@ void Sphericity::list(ostream& os) {
 // These are of technical nature, as described for each.
 
 // Minimum number of particles to perform study.
-const int Thrust::NSTUDYMIN = 2;
+const int    Thrust::NSTUDYMIN = 2;
 
 // Major not too low or not possible to find major axis.
-const double Thrust::MAJORMIN = 1e-10;
+const double Thrust::MAJORMIN  = 1e-10;
 
 //*********
  
@@ -223,7 +223,7 @@ bool Thrust::analyze(Event& event) {
   // Loop over desired particles in the event.
   for (int i = 0; i < event.size(); ++i) 
   if (event[i].isFinal()) {
-    if (select > 2 && event[i].isNeutral() ) continue;
+    if (select >  2 &&  event[i].isNeutral() ) continue;
     if (select == 2 && !event[i].isVisible() ) continue;
     ++nStudy;
 
@@ -236,7 +236,7 @@ bool Thrust::analyze(Event& event) {
 
   // Very low multiplicities (0 or 1) not considered.
   if (nStudy < NSTUDYMIN) {
-    ErrorMessages::message("Warning in Thrust::analyze: "
+    ErrorMsg::message("Warning in Thrust::analyze: "
     " too few particles"); 
     return false;
   }
@@ -282,7 +282,7 @@ bool Thrust::analyze(Event& event) {
     else                        eVec2 = Vec4( 0., 0., 1., 0.); 
     eVec2 -= dot3( eVec1, eVec2) * eVec1;
     eVec2 /= eVec2.pAbs();
-    eVec3 = cross3( eVec1, eVec2);
+    eVec3  = cross3( eVec1, eVec2);
     return true;
   }
 
@@ -397,7 +397,7 @@ bool ClusterJet::analyze(Event& event, double yScaleIn, double pTscaleIn,
   int nJetMinIn, int nJetMaxIn) {
 
   // Input values. Initial values zero.
-  yScale = yScaleIn;
+  yScale  = yScaleIn;
   pTscale = pTscaleIn;
   nJetMin = nJetMinIn;
   nJetMax = nJetMaxIn;
@@ -408,7 +408,7 @@ bool ClusterJet::analyze(Event& event, double yScaleIn, double pTscaleIn,
   // Loop over desired particles in the event.
   for (int i = 0; i < event.size(); ++i) 
   if (event[i].isFinal()) {
-    if (select > 2 && event[i].isNeutral() ) continue;
+    if (select >  2 &&  event[i].isNeutral() ) continue;
     if (select == 2 && !event[i].isVisible() ) continue;
 
     // Store them, possibly with modified mass => new energy.
@@ -426,7 +426,7 @@ bool ClusterJet::analyze(Event& event, double yScaleIn, double pTscaleIn,
   // Very low multiplicities not considered.
   nParticles = particles.size();
   if (nParticles < nJetMin) {
-    ErrorMessages::message("Warning in ClusterJet::analyze: "
+    ErrorMsg::message("Warning in ClusterJet::analyze: "
     " too few particles"); 
     return false;
   }
@@ -470,10 +470,10 @@ bool ClusterJet::analyze(Event& event, double yScaleIn, double pTscaleIn,
       && (nJetMax < nJetMin || int(jets.size()) <= nJetMax) ) break;
 
     // Join two closest jets.
-    jets[jMin].pJet += jets[kMin].pJet;
-    jets[jMin].pAbs = jets[jMin].pJet.pAbs();
+    jets[jMin].pJet         += jets[kMin].pJet;
+    jets[jMin].pAbs          = jets[jMin].pJet.pAbs();
     jets[jMin].multiplicity += jets[kMin].multiplicity;
-    jets[kMin] = jets.back();
+    jets[kMin]               = jets.back();
     jets.pop_back();
     for (int i = 0; i < nParticles; ++i) 
     if (particles[i].daughter == kMin) particles[i].daughter = jMin;
@@ -512,7 +512,7 @@ void ClusterJet::doPrecluster() {
     distPre *= PRECLUSTERSTEP;
     dist2Pre = pow2(distPre);
     for (int i = 0; i < nParticles; ++i) { 
-      particles[i].daughter = -1;
+      particles[i].daughter   = -1;
       particles[i].isAssigned = false;
     }
 
@@ -521,7 +521,7 @@ void ClusterJet::doPrecluster() {
     int multCentral = 0;
     for (int i = 0; i < nParticles; ++i) 
     if (particles[i].pAbs < 2. * distPre) {
-      pCentral += particles[i].pJet;      
+      pCentral    += particles[i].pJet;      
       multCentral += particles[i].multiplicity;      
       particles[i].isAssigned = true;
     }
@@ -555,7 +555,7 @@ void ClusterJet::doPrecluster() {
           pPre += particles[i].pJet;
           ++multPre;
           particles[i].isAssigned = true;
-          particles[i].daughter = jets.size();
+          particles[i].daughter   = jets.size();
         } else ++nRemain;
       }
       jets.push_back( SingleClusterJet(pPre) ); 
@@ -577,7 +577,7 @@ void ClusterJet::doReassign() {
  
   // Reset clustered momenta.
   for (int j = 0; j < int(jets.size()); ++j) {
-    jets[j].pTemp = 0.;
+    jets[j].pTemp        = 0.;
     jets[j].multiplicity = 0;
   }
 
@@ -625,9 +625,9 @@ void ClusterJet::doReassign() {
 
     // Let this particle form new jet and subtract off from existing.
     int jSplit = particles[iSplit].daughter;    
-    jets[jEmpty] = SingleClusterJet( particles[iSplit].pJet ); 
+    jets[jEmpty]       = SingleClusterJet( particles[iSplit].pJet ); 
     jets[jSplit].pJet -=  particles[iSplit].pJet;
-    jets[jSplit].pAbs = jets[jSplit].pJet.pAbs();
+    jets[jSplit].pAbs  = jets[jSplit].pJet.pAbs();
     --jets[jSplit].multiplicity;
   }      
 
@@ -674,23 +674,23 @@ bool CellJet::analyze(Event& event, double eTjetMinIn,
   double coneRadiusIn, double eTseedIn) {
 
   // Input values. Initial values zero.
-  eTjetMin = eTjetMinIn;
+  eTjetMin   = eTjetMinIn;
   coneRadius = coneRadiusIn;
-  eTseed = eTseedIn;
+  eTseed     = eTseedIn;
   jets.resize(0);
   vector<SingleCell> cells;
 
   // Loop over desired particles in the event.
   for (int i = 0; i < event.size(); ++i) 
   if (event[i].isFinal()) {
-    if (select > 2 && event[i].isNeutral() ) continue;
+    if (select >  2 &&  event[i].isNeutral() ) continue;
     if (select == 2 && !event[i].isVisible() ) continue;
 
     // Find particle position in (eta, phi, pT) space.
     double etaNow = event[i].eta();
     if (abs(etaNow) > etaMax) continue;
     double phiNow = event[i].phi();
-    double pTnow = event[i].pT();
+    double pTnow  = event[i].pT();
     int iEtaNow = max(1, min( nEta, 1 + int(nEta * 0.5 
       * (1. + etaNow / etaMax) ) ) );
     int iPhiNow = max(1, min( nPhi, 1 + int(nPhi * 0.5
@@ -727,8 +727,8 @@ bool CellJet::analyze(Event& event, double eTjetMinIn,
 
   // Remove cells below threshold for seed or for use at all.
   for (int j = 0; j < int(cells.size()); ++j) { 
-    if (cells[j].eTcell < eTseed) cells[j].canBeSeed = false;
-    if (cells[j].eTcell < threshold) cells[j].isUsed = true;
+    if (cells[j].eTcell < eTseed)    cells[j].canBeSeed = false;
+    if (cells[j].eTcell < threshold) cells[j].isUsed    = true;
   }
 
   // Find seed cell: the one with highest pT of not yet probed ones.
@@ -770,22 +770,22 @@ bool CellJet::analyze(Event& event, double eTjetMinIn,
     } else {
       double etaWeighted = 0.;
       double phiWeighted = 0.;
-      int multiplicity = 0;
+      int multiplicity   = 0;
       Vec4 pMassive;
       for (int j = 0; j < int(cells.size()); ++j) 
       if (cells[j].isAssigned) {
-        cells[j].canBeSeed = false; 
-        cells[j].isUsed = true; 
+        cells[j].canBeSeed  = false; 
+        cells[j].isUsed     = true; 
         cells[j].isAssigned = false; 
         etaWeighted += cells[j].eTcell * cells[j].etaCell;
         double phiCell = cells[j].phiCell; 
         if (abs(phiCell - phiCenter) > M_PI) 
           phiCell += (phiCenter > 0.) ? 2. * M_PI : -2. * M_PI;
-        phiWeighted += cells[j].eTcell * phiCell;
+        phiWeighted  += cells[j].eTcell * phiCell;
         multiplicity += cells[j].multiplicity;
-        pMassive += cells[j].eTcell * Vec4( cos(cells[j].phiCell), 
-          sin(cells[j].phiCell), sinh(cells[j].etaCell), 
-          cosh(cells[j].etaCell) );
+        pMassive     += cells[j].eTcell * Vec4( 
+           cos(cells[j].phiCell),  sin(cells[j].phiCell), 
+          sinh(cells[j].etaCell), cosh(cells[j].etaCell) );
       } 
       etaWeighted /= eTjet;
       phiWeighted /= eTjet; 

@@ -2,7 +2,7 @@
 // This is a simple test program. 
 // It illustrates how to generate and analyze minimum-bias events..
 // All input is specified in the main07.cmnd file.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #include "Pythia.h"
 
@@ -36,6 +36,7 @@ int main() {
   bool showChangedParticleData 
     = settings.flag("Main:showChangedParticleData");
   bool showAllParticleData = settings.flag("Main:showAllParticleData");
+  bool showAllStatistics = settings.flag("Main:showAllStatistics");
  
   // Initialization for Pythia6 event input.
   if (inCMframe) pythia.init( idBeamA, idBeamB, eCM);
@@ -115,7 +116,7 @@ int main() {
   }
 
   // Final statistics.
-  pythia.statistics();
+  pythia.statistics(showAllStatistics);
   cout << nChg << pTspec << bSpec << enhanceSpec << number;
   cout << pTb1 << pTb2 << pTb3 << pTb4;
   cout << bpT1 << bpT2 << bpT3 << bpT4;

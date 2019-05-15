@@ -1,5 +1,5 @@
 // Header file for the Pythia 6.4 f77 external linkage to C++.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia6_H
 #define Pythia6_H

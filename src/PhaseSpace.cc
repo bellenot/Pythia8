@@ -1,6 +1,6 @@
 // Function definitions (not found in the header) for the 
 // PhaseSpace and PhaseSpace2to2tauyz classes.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #include "PhaseSpace.h"
 
@@ -16,58 +16,75 @@ namespace Pythia8 {
 // Definitions of static variables and functions.
 // (Values will be overwritten in initStatic call, so are purely dummy.)
 
-double PhaseSpace::mHatGlobalMin = 4.;
-double PhaseSpace::mHatGlobalMax = -1.;
-double PhaseSpace::pTHatMin = 0.;
-double PhaseSpace::pTHatMax = -1.;
-double PhaseSpace::pTHatMinDiverge = 1.;
-double PhaseSpace::pT2HatMin = 0.;
-double PhaseSpace::pT2HatMax = 1.;
-bool PhaseSpace::useBreitWigners = true;
+double PhaseSpace::mHatGlobalMin        = 4.;
+double PhaseSpace::mHatGlobalMax        = -1.;
+double PhaseSpace::pTHatMin             = 0.;
+double PhaseSpace::pTHatMax             = -1.;
+double PhaseSpace::pTHatMinDiverge      = 1.;
+double PhaseSpace::pT2HatMin            = 0.;
+double PhaseSpace::pT2HatMax            = 1.;
+bool   PhaseSpace::useBreitWigners      = true;
 double PhaseSpace::minWidthBreitWigners = 0.01;
-bool PhaseSpace::showSearch = false;
-bool PhaseSpace::showViolation = false;
-int PhaseSpace::gmZmode = 0;
+bool   PhaseSpace::showSearch           = false;
+bool   PhaseSpace::showViolation        = false;
+int    PhaseSpace::gmZmode              = 0;
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
 
 // Maximum cross section increase, just in case true maximum not found.
-const double PhaseSpace::SAFETYMARGIN = 1.05;
+const double PhaseSpace::SAFETYMARGIN   = 1.05;
 
 // Small number to avoid division by zero.
-const double PhaseSpace::TINY = 1e-20;
+const double PhaseSpace::TINY           = 1e-20;
 
 // Fraction of total weight that is shared evenly between all shapes.
-const double PhaseSpace::EVENFRAC = 0.4;
+const double PhaseSpace::EVENFRAC       = 0.4;
 
 // Two cross sections with a small relative error are assumed same.
-const double PhaseSpace::SAMESIGMA = 1e-6;
+const double PhaseSpace::SAMESIGMA      = 1e-6;
 
 // Do not include resonances peaked too far outside allowed mass region.
-const double PhaseSpace::WIDTHMARGIN = 20.;
+const double PhaseSpace::WIDTHMARGIN    = 20.;
 
 // Special optimization treatment when two resonances at almost same mass.
-const double PhaseSpace::SAMEMASS = 0.01;
+const double PhaseSpace::SAMEMASS       = 0.01;
 
 // Minimum phase space left when kinematics constraints are combined.
-const double PhaseSpace::MASSMARGIN = 0.01;
+const double PhaseSpace::MASSMARGIN     = 0.01;
 
 // When using Breit-Wigners in 2 -> 2 raise maximum weight estimate.
-const double PhaseSpace::EXTRABWWTMAX = 1.25;
+const double PhaseSpace::EXTRABWWTMAX   = 1.25;
 
 // Size of Breit-Wigner threshold region, for mass selection biasing.
-const double PhaseSpace::THRESHOLDSIZE = 3.;
+const double PhaseSpace::THRESHOLDSIZE  = 3.;
 
 // Step size in optimal-mass search, for mass selection biasing.
-const double PhaseSpace::THRESHOLDSTEP = 0.2;
+const double PhaseSpace::THRESHOLDSTEP  = 0.2;
 
-// Static information on incoming beams.
-int PhaseSpace::idA, PhaseSpace::idB;
-double PhaseSpace::mA, PhaseSpace::mB; 
+// Cutoff for f_e^e at x < 1 - 10^{-10} to be used in phase space selection.
+// Note: the ...MIN quantities come from 1 - x_max or 1 - tau_max.
+const double PhaseSpace::LEPTONXMIN     = 1e-10;
+const double PhaseSpace::LEPTONXMAX     = 1. - 1e-10;
+const double PhaseSpace::LEPTONXLOGMIN  = log(1e-10);
+const double PhaseSpace::LEPTONXLOGMAX  = log(1. - 1e-10);
+const double PhaseSpace::LEPTONTAUMIN   = 2e-10;
+
+// Number of trial maxima around which maximum search is performed.
+const int    PhaseSpace::NMAXTRY        = 2;
+
+// Information on incoming beams.
+BeamParticle* PhaseSpace::beamAPtr      = 0;
+BeamParticle* PhaseSpace::beamBPtr      = 0;
+int    PhaseSpace::idA                  = 0;
+int    PhaseSpace::idB                  = 0;
+double PhaseSpace::mA                   = 0.; 
+double PhaseSpace::mB                   = 0.;
+bool   PhaseSpace::hasLeptonBeams       = false;
+bool   PhaseSpace::hasPointLeptons      = false;
   
-// Static pointer to the total/elastic/diffractive cross section object.
-SigmaTotal* PhaseSpace::sigmaTotPtr;
+// Pointer to the total/elastic/diffractive cross section object.
+SigmaTotal* PhaseSpace::sigmaTotPtr     = 0;
 
 //*********
 
@@ -76,26 +93,51 @@ SigmaTotal* PhaseSpace::sigmaTotPtr;
 void PhaseSpace::initStatic() {
 
   // Standard phase space cuts.
-  mHatGlobalMin = Settings::parm("PhaseSpace:mHatMin");
-  mHatGlobalMax = Settings::parm("PhaseSpace:mHatMax");
-  pTHatMin = Settings::parm("PhaseSpace:pTHatMin");
-  pTHatMax = Settings::parm("PhaseSpace:pTHatMax");
-  pTHatMinDiverge = Settings::parm("PhaseSpace:pTHatMinDiverge");
+  mHatGlobalMin        = Settings::parm("PhaseSpace:mHatMin");
+  mHatGlobalMax        = Settings::parm("PhaseSpace:mHatMax");
+  pTHatMin             = Settings::parm("PhaseSpace:pTHatMin");
+  pTHatMax             = Settings::parm("PhaseSpace:pTHatMax");
+  pTHatMinDiverge      = Settings::parm("PhaseSpace:pTHatMinDiverge");
 
   // When to use Breit-Wigners.
-  useBreitWigners = Settings::flag("PhaseSpace:useBreitWigners");
+  useBreitWigners      = Settings::flag("PhaseSpace:useBreitWigners");
   minWidthBreitWigners = Settings::parm("PhaseSpace:minWidthBreitWigners");
 
   // Quadratic limits often needed, so calculate them.
-  pT2HatMin = pow2(pTHatMin);
-  pT2HatMax = pow2(pTHatMax);
+  pT2HatMin            = pow2(pTHatMin);
+  pT2HatMax            = pow2(pTHatMax);
 
   // Print flag for maximization information.
-  showSearch = Settings::flag("PhaseSpace:showSearch");
-  showViolation = Settings::flag("PhaseSpace:showViolation");
+  showSearch           = Settings::flag("PhaseSpace:showSearch");
+  showViolation        = Settings::flag("PhaseSpace:showViolation");
 
   // Know whether a Z0 is pure Z0 or admixed with gamma*.
-  gmZmode = Settings::mode("SigmaProcess:gmZmode");  
+  gmZmode              = Settings::mode("SigmaProcess:gmZmode");  
+
+}
+
+//*********
+
+// Store pointers to beams and SigmaTotal.
+ 
+void PhaseSpace::setBeamSigmaPtr( BeamParticle* beamAPtrIn, 
+  BeamParticle* beamBPtrIn, SigmaTotal* sigmaTotPtrIn) {
+
+  // Store input.
+  beamAPtr = beamAPtrIn;
+  beamBPtr = beamBPtrIn;
+  sigmaTotPtr = sigmaTotPtrIn; 
+
+  // Some commonly used beam information.
+  idA = beamAPtr->id(); 
+  idB = beamBPtr->id(); 
+  mA  = beamAPtr->m(); 
+  mB  = beamBPtr->m(); 
+
+  // Flag if lepton beams, and if non-resolved ones.
+  hasLeptonBeams = ( beamAPtr->isLepton() || beamBPtr->isLepton() );
+  hasPointLeptons = ( hasLeptonBeams 
+    && (beamAPtr->isUnresolved() || beamBPtr->isUnresolved() ) );
 
 }
 
@@ -103,7 +145,7 @@ void PhaseSpace::initStatic() {
 
 // Save pointers and values.
 
-  void PhaseSpace::initInfo(SigmaProcess* sigmaProcessPtrIn, double eCMIn) {
+void PhaseSpace::initInfo(SigmaProcess* sigmaProcessPtrIn, double eCMIn) {
 
   // Store input pointers for future use. CM energy.
   sigmaProcessPtr = sigmaProcessPtrIn;
@@ -148,27 +190,27 @@ bool PhaseSpace::setupSampling1or2(bool is2, ostream& os) {
   double vecTau[8], matTau[8][8], vecY[8], matY[8][8], vecZ[8], matZ[8][8];
   for (int i = 0; i < 8; ++i) {
     tauCoef[i] = 0.;
-    yCoef[i] = 0.;
-    zCoef[i] = 0.;
-    binTau[i] = 0;
-    binY[i] = 0;
-    binZ[i] = 0;
-    vecTau[i] = 0.;
-    vecY[i] = 0.;
-    vecZ[i] = 0.;
+    yCoef[i]   = 0.;
+    zCoef[i]   = 0.;
+    binTau[i]  = 0;
+    binY[i]    = 0;
+    binZ[i]    = 0;
+    vecTau[i]  = 0.;
+    vecY[i]    = 0.;
+    vecZ[i]    = 0.;
     for (int j = 0; j < 8; ++j) { 
       matTau[i][j] = 0.;
-      matY[i][j] = 0.;
-      matZ[i][j] = 0.;
+      matY[i][j]   = 0.;
+      matZ[i][j]   = 0.;
     }  
   }
-  sigmaMx = 0.;
+  sigmaMx  = 0.;
   sigmaNeg = 0.;
   
   // Number of used coefficients/points for each dimension: tau, y, c.
-  int nTau = 2;
-  int nY = 3;
-  int nZ = (is2)? 5 : 1; 
+  nTau = (hasPointLeptons) ? 1 : 2;
+  nY   = (hasPointLeptons) ? 1 : 3;
+  nZ   = (is2) ? 5 : 1; 
 
   // Identify if any resonances contribute in s-channel.
   idResA = sigmaProcessPtr->resonanceA();
@@ -193,15 +235,21 @@ bool PhaseSpace::setupSampling1or2(bool is2, ostream& os) {
   }
 
   // More sampling in tau if resonances in s-channel.
-  if (idResA !=0) {
+  if (idResA !=0 && !hasPointLeptons) {
     nTau += 2;
     tauResA = mResA * mResA / s;
     widResA = mResA * GammaResA / s;
   }
-  if (idResB != 0) {
+  if (idResB != 0 && !hasPointLeptons) {
     nTau += 2;
     tauResB = mResB * mResB / s;
     widResB = mResB * GammaResB / s;
+  }
+  
+  // More sampling in tau and y if incoming lepton beams.
+  if (hasLeptonBeams && !hasPointLeptons) {
+    ++nTau;
+    nY += 2;
   }
 
   // Special case when both resonances have same mass.
@@ -216,9 +264,9 @@ bool PhaseSpace::setupSampling1or2(bool is2, ostream& os) {
 
   // Initial values, to be modified later.
   tauCoef[0] = 1.;
-  yCoef[0] = 0.5;
-  yCoef[1] = 0.5;
-  zCoef[0] = 1.; 
+  yCoef[0]   = 0.5;
+  yCoef[1]   = 0.5;
+  zCoef[0]   = 1.; 
 
   // Step through grid in tau. Set limits on y and z generation. 
   for (int iTau = 0; iTau < nTau; ++iTau) {
@@ -249,33 +297,45 @@ bool PhaseSpace::setupSampling1or2(bool is2, ostream& os) {
         if (sigmaNow < 0.) sigmaNow = 0.; 
 
         // Sum up tau cross-section pieces in points used.
-        binTau[iTau] += 1;
-        vecTau[iTau] += sigmaNow;
-        matTau[iTau][0] += 1. / intTau0;
-        matTau[iTau][1] += (1. /intTau1) / tau;
-        if (idResA != 0) {
-          matTau[iTau][2] += (1. /intTau2) / (tau + tauResA);
-          matTau[iTau][3] += (1. /intTau3) 
-            * tau / ( pow2(tau - tauResA) + pow2(widResA) );
+        if (!hasPointLeptons) {
+          binTau[iTau] += 1;
+          vecTau[iTau] += sigmaNow;
+          matTau[iTau][0] += 1. / intTau0;
+          matTau[iTau][1] += (1. / intTau1) / tau;
+          if (idResA != 0) {
+            matTau[iTau][2] += (1. / intTau2) / (tau + tauResA);
+            matTau[iTau][3] += (1. / intTau3) 
+              * tau / ( pow2(tau - tauResA) + pow2(widResA) );
+          }
+          if (idResB != 0) {
+            matTau[iTau][4] += (1. / intTau4) / (tau + tauResB);
+            matTau[iTau][5] += (1. / intTau5) 
+              * tau / ( pow2(tau - tauResB) + pow2(widResB) );
+          }
+          if (hasLeptonBeams) matTau[iTau][nTau - 1] += (1. / intTau6) 
+              * tau / max( LEPTONTAUMIN, 1. - tau);
         }
-        if (idResB != 0) {
-          matTau[iTau][4] += (1. /intTau4) / (tau + tauResB);
-          matTau[iTau][5] += (1. /intTau5) 
-            * tau / ( pow2(tau - tauResB) + pow2(widResB) );
-        }
- 
+
         // Sum up y cross-section pieces in points used.
-        binY[iY] += 1;
-        vecY[iY] += sigmaNow;
-        matY[iY][0] += (1. / intY01) * (y + yMax);
-        matY[iY][1] += (1. / intY01) * (yMax - y);
-        matY[iY][2] += (1. / intY2) /cosh(y);
+        if (!hasPointLeptons) {
+          binY[iY] += 1;
+          vecY[iY] += sigmaNow;
+          matY[iY][0] += (yMax / intY01) * (y + yMax);
+          matY[iY][1] += (yMax / intY01) * (yMax - y);
+          matY[iY][2] += (yMax / intY2) / cosh(y);
+          if (hasLeptonBeams) {
+            matY[iY][3] += (yMax / intY34) 
+              / max( LEPTONXMIN, 1. - exp( y - yMax) );
+            matY[iY][4] += (yMax / intY34) 
+              / max( LEPTONXMIN, 1. - exp(-y - yMax) );
+          }
+	}
 
         // Integrals over z expressions at tauMax, to be used below.
         if (is2) {
           double p2AbsMax = 0.25 * (pow2(tauMax * s - s3 - s4) 
             - 4. * s3 * s4) / (tauMax * s);         
-          double zMaxMax = sqrt( max( 0., 1. - pT2HatMinNow / p2AbsMax) );
+          double zMaxMax = sqrtpos( 1. - pT2HatMinNow / p2AbsMax );
           double zPosMaxMax = max(ratio34, unity34 + zMaxMax);
           double zNegMaxMax = max(ratio34, unity34 - zMaxMax);
           double intZ0Max = 2. * zMaxMax;
@@ -285,11 +345,11 @@ bool PhaseSpace::setupSampling1or2(bool is2, ostream& os) {
           // Sum up z cross-section pieces in points used.
           binZ[iZ] += 1;
           vecZ[iZ] += sigmaNow;
-          matZ[iZ][0] += 1. / intZ0Max; 
-          matZ[iZ][1] += (1. / intZ12Max) / zNeg;
-          matZ[iZ][2] += (1. / intZ12Max) / zPos;
-          matZ[iZ][3] += (1. / intZ34Max) / pow2(zNeg);
-          matZ[iZ][4] += (1. / intZ34Max) / pow2(zPos);
+          matZ[iZ][0] += 1.; 
+          matZ[iZ][1] += (intZ0Max / intZ12Max) / zNeg;
+          matZ[iZ][2] += (intZ0Max / intZ12Max) / zPos;
+          matZ[iZ][3] += (intZ0Max / intZ34Max) / pow2(zNeg);
+          matZ[iZ][4] += (intZ0Max / intZ34Max) / pow2(zPos);
 	}
 
       // End of loops over phase space points. 
@@ -304,14 +364,29 @@ bool PhaseSpace::setupSampling1or2(bool is2, ostream& os) {
   }   
 
   // Solve respective equation system for better phase space coefficients.
-  solveSys( nTau, binTau, vecTau, matTau, tauCoef);
-  solveSys( nY, binY, vecY, matY, yCoef);
-  if (is2) solveSys( nZ, binZ, vecZ, matZ, zCoef);
+  if (!hasPointLeptons) solveSys( nTau, binTau, vecTau, matTau, tauCoef);
+  if (!hasPointLeptons) solveSys( nY, binY, vecY, matY, yCoef);
+  if (is2)              solveSys( nZ, binZ, vecZ, matZ, zCoef);
   if (showSearch) os << "\n";
 
+  // Provide cumulative sum of coefficients.
+  tauCoefSum[0] = tauCoef[0];
+    yCoefSum[0] =   yCoef[0];
+    zCoefSum[0] =   zCoef[0];
+  for (int i = 1; i < 8; ++ i) {
+    tauCoefSum[i] = tauCoefSum[i - 1] + tauCoef[i]; 
+      yCoefSum[i] =   yCoefSum[i - 1] +   yCoef[i]; 
+      zCoefSum[i] =   zCoefSum[i - 1] +   zCoef[i]; 
+  }
+  // The last element should be > 1 to be on safe side in selection below.
+  tauCoefSum[nTau - 1] = 2.;
+    yCoefSum[nY   - 1] = 2.;
+    zCoefSum[nZ   - 1] = 2.;
+  
+  
   // Begin find two most promising maxima among same points as before.
-  int iMaxTau[4], iMaxY[4], iMaxZ[4];
-  double sigMax[4];
+  int iMaxTau[NMAXTRY + 2], iMaxY[NMAXTRY + 2], iMaxZ[NMAXTRY + 2];
+  double sigMax[NMAXTRY + 2];
   int nMax = 0;
 
   // Scan same grid as before in tau, y, z. 
@@ -360,7 +435,7 @@ bool PhaseSpace::setupSampling1or2(bool is2, ostream& os) {
 	  iMaxY[iInsert] = iY;
 	  iMaxZ[iInsert] = iZ;
 	  sigMax[iInsert] = sigmaNow;
-          if (nMax < 2) ++nMax;  
+          if (nMax < NMAXTRY) ++nMax;  
 	}
 
       // Found two most promising maxima.
@@ -370,6 +445,7 @@ bool PhaseSpace::setupSampling1or2(bool is2, ostream& os) {
 
   // Read out starting position for search.
   sigmaMx = sigMax[0]; 
+  int beginVar = (hasPointLeptons) ? 2 : 0;
   for (int iMax = 0; iMax < nMax; ++iMax) {
     int iTau = iMaxTau[iMax];
     int iY = iMaxY[iMax];
@@ -382,7 +458,8 @@ bool PhaseSpace::setupSampling1or2(bool is2, ostream& os) {
 
     // Starting point and step size in parameter space.
     for (int iRepeat = 0; iRepeat < 2; ++iRepeat) {
-      for (int iVar = 0; iVar < nVar; ++iVar) {
+      // Run through (possibly a subset of) tau, y and z.
+      for (int iVar = beginVar; iVar < nVar; ++iVar) {
         if (iVar == 0) varVal = tauVal;
         else if (iVar == 1) varVal = yVal;
         else varVal = zVal;
@@ -493,26 +570,26 @@ bool PhaseSpace::trialKin1or2(bool is2, ostream& os) {
 
   // Choose tau according to h1(tau)/tau, where
   // h1(tau) = c0/I0 + (c1/I1) * 1/tau 
-  // + (c2/I2) / (tau + tauResA) + (c3/I3) * tau / ((tau - tauResA)^2 + widResA^2) 
+  // + (c2/I2) / (tau + tauResA) + (c3/I3) * tau / ((tau - tauResA)^2 + widResA^2)
   // + (c4/I4) / (tau + tauResB) + (c5/I5) * tau / ((tau - tauResB)^2 + widResB^2)
+  // + (c6/I6) * tau / (1 - tau).
   if (!limitTau(is2)) return false;
   int iTau = 0;
-  double rTau = Rndm::flat(); 
-  if (rTau > tauCoef[0]) iTau = 1;
-  if (rTau > tauCoef[0] +  tauCoef[1]) iTau = 2;
-  if (rTau > tauCoef[0] +  tauCoef[1] + tauCoef[2]) iTau = 3;
-  if (rTau > tauCoef[0] +  tauCoef[1] + tauCoef[2] + tauCoef[3]) iTau = 4;
-  if (rTau > tauCoef[0] +  tauCoef[1] + tauCoef[2] + tauCoef[3] + tauCoef[4]) 
-    iTau = 5;
+  if (!hasPointLeptons) {
+    double rTau = Rndm::flat(); 
+    while (rTau > tauCoefSum[iTau]) ++iTau; 
+  }
   selectTau( iTau, Rndm::flat(), is2);
 
   // Choose y according to h2(y), where
-  // h2(y) = (c0/I0) * (y-ymin) + (c1/I1) * (ymax-y) + (c2/I2) * 1/cosh(y).
+  // h2(y) = (c0/I0) * (y-ymin) + (c1/I1) * (ymax-y) + (c2/I2) * 1/cosh(y)
+  // + (c3/I3) * 1 / (1 - exp(y-ymax)) + (c4/I4) * 1 / (1 - exp(ymin-y)).
   if (!limitY()) return false;
   int iY = 0;
-  double rY = Rndm::flat(); 
-  if (rY > yCoef[0]) iY = 1;
-  if (rY > yCoef[0] + yCoef[1]) iY = 2;
+  if (!hasPointLeptons) {
+    double rY = Rndm::flat(); 
+    while (rY > yCoefSum[iY]) ++iY; 
+  }
   selectY( iY, Rndm::flat());
 
   // Choose z = cos(thetaHat) according to h3(z), where
@@ -523,10 +600,7 @@ bool PhaseSpace::trialKin1or2(bool is2, ostream& os) {
     if (!limitZ()) return false;
     int iZ = 0;
     double rZ = Rndm::flat(); 
-    if (rZ > zCoef[0]) iZ = 1;
-    if (rZ > zCoef[0] + zCoef[1]) iZ = 2;
-    if (rZ > zCoef[0] + zCoef[1] + zCoef[2]) iZ = 3;
-    if (rZ > zCoef[0] + zCoef[1] + zCoef[2] + zCoef[3]) iZ = 4;
+    while (rZ > zCoefSum[iZ]) ++iZ; 
     selectZ( iZ, Rndm::flat());
   }
    
@@ -539,7 +613,7 @@ bool PhaseSpace::trialKin1or2(bool is2, ostream& os) {
 
   // Check if maximum violated.
   if (sigmaNw > sigmaMx) {
-    ErrorMessages::message("Warning in PhaseSpace2to2tauyz::trialKin: "
+    ErrorMsg::message("Warning in PhaseSpace2to2tauyz::trialKin: "
       "maximum for cross section violated");
     double violFact = SAFETYMARGIN * sigmaNw / sigmaMx;
     sigmaMx = SAFETYMARGIN * sigmaNw; 
@@ -552,7 +626,7 @@ bool PhaseSpace::trialKin1or2(bool is2, ostream& os) {
 
   // Check if negative cross section.
   if (sigmaNw < sigmaNeg) {
-    ErrorMessages::message("Warning in PhaseSpace2to2tauyz::trialKin:"
+    ErrorMsg::message("Warning in PhaseSpace2to2tauyz::trialKin:"
       " negative cross section set 0", "for " +  sigmaProcessPtr->name() );
     sigmaNeg = sigmaNw;
     // Optional printout of (all) violations.
@@ -572,6 +646,13 @@ bool PhaseSpace::trialKin1or2(bool is2, ostream& os) {
 
 bool PhaseSpace::limitTau(bool is2) {
 
+  // Trivial reply for unresolved lepton beams.
+  if (hasPointLeptons) {
+    tauMin = 1.;
+    tauMax = 1.;
+    return true;
+  }
+
   // Requirements from allowed mHat range.
   tauMin = sHatMin / s; 
   tauMax = (mHatMax < mHatMin) ? 1. : min( 1., sHatMax / s); 
@@ -584,7 +665,7 @@ bool PhaseSpace::limitTau(bool is2) {
   }
   
   // Check that there is an open range.
-  return (tauMax > tauMin) ? true : false;
+  return (tauMax > tauMin);
 }
 
 //*********
@@ -593,11 +674,20 @@ bool PhaseSpace::limitTau(bool is2) {
 
 bool PhaseSpace::limitY() {
 
+  // Trivial reply for unresolved lepton beams.
+  if (hasPointLeptons) {
+    yMax = 1.;
+    return true;
+  }
+
   // Requirements from selected tau value.
   yMax = -0.5 * log(tau); 
 
+  // For lepton beams requirements from cutoff for f_e^e.
+  double yMaxMargin = (hasLeptonBeams) ? yMax + LEPTONXLOGMAX : yMax;
+
   // Check that there is an open range.
-  return (yMax > 0.) ? true : false;
+  return (yMaxMargin > 0.);
 }
 
 //*********
@@ -611,11 +701,11 @@ bool PhaseSpace::limitZ() {
   zMax = 1.;
 
   // Requirements from pTHat limits.
-  zMax = sqrt( max( 0., 1. - pT2HatMinNow / p2Abs) );
-  if (pTHatMax > pTHatMin) zMin = sqrt( max( 0., 1. - pT2HatMax / p2Abs) );
+  zMax = sqrtpos( 1. - pT2HatMinNow / p2Abs );
+  if (pTHatMax > pTHatMin) zMin = sqrtpos( 1. - pT2HatMax / p2Abs );
  
   // Check that there is an open range.
-  return (zMax > zMin) ? true : false;
+  return (zMax > zMin);
 }
 
 //*********
@@ -623,6 +713,19 @@ bool PhaseSpace::limitZ() {
 // Select tau according to a choice of shapes.
 
 void PhaseSpace::selectTau(int iTau, double tauVal, bool is2) {
+
+  // Trivial reply for unresolved lepton beams.
+  if (hasPointLeptons) {
+    tau = 1.;
+    wtTau = 1.;
+    sH = s;
+    mHat = sqrt(sH);
+    if (is2) {
+      p2Abs = 0.25 * (pow2(sH - s3 - s4) - 4. * s3 * s4) / sH; 
+      pAbs = sqrtpos( p2Abs );
+    }
+    return;
+  }
 
   // Contributions from s-channel resonances.
   double tRatA = 0.;
@@ -641,11 +744,24 @@ void PhaseSpace::selectTau(int iTau, double tauVal, bool is2) {
     aLowB = atan( (tauMin - tauResB) / widResB);
     aUppB = atan( (tauMax - tauResB) / widResB);
   }
+ 
+  // Contributions from 1 / (1 - tau)  for lepton beams.
+  double aLowT = 0.;
+  double aUppT = 0.;
+  if (hasLeptonBeams) { 
+    aLowT = log( max( LEPTONTAUMIN, 1. - tauMin) );
+    aUppT = log( max( LEPTONTAUMIN, 1. - tauMax) ); 
+    intTau6 = aLowT - aUppT;
+  }  
 
   // Select according to 1/tau or 1/tau^2.
   if (iTau == 0) tau = tauMin * pow( tauMax / tauMin, tauVal);
   else if (iTau == 1) tau = tauMax * tauMin 
     / (tauMin + (tauMax - tauMin) * tauVal);  
+
+  // Select according to 1 / (1 - tau) for lepton beams.
+  else if (hasLeptonBeams && iTau == nTau - 1) 
+    tau = 1. - exp( aUppT + intTau6 * tauVal );
 
   // Select according to 1 / (tau * (tau + tauRes)) or 
   // 1 / ((tau - tauRes)^2 + widRes^2) for resonances A and B.
@@ -674,6 +790,9 @@ void PhaseSpace::selectTau(int iTau, double tauVal, bool is2) {
     invWtTau += (tauCoef[4] / intTau4) / (tau + tauResB) 
       + (tauCoef[5] / intTau5) * tau / ( pow2(tau - tauResB) + pow2(widResB) );
   }
+  if (hasLeptonBeams) 
+    invWtTau += (tauCoef[nTau - 1] / intTau6) 
+      * tau / max( LEPTONTAUMIN, 1. - tau);
   wtTau = 1. / invWtTau;
 
   // Calculate sHat and absolute momentum of outgoing partons.
@@ -681,7 +800,7 @@ void PhaseSpace::selectTau(int iTau, double tauVal, bool is2) {
   mHat = sqrt(sH);
   if (is2) {
     p2Abs = 0.25 * (pow2(sH - s3 - s4) - 4. * s3 * s4) / sH; 
-    pAbs = sqrt( max(0., p2Abs) );
+    pAbs = sqrtpos( p2Abs );
   }
 
 }
@@ -692,23 +811,45 @@ void PhaseSpace::selectTau(int iTau, double tauVal, bool is2) {
 
 void PhaseSpace::selectY(int iY, double yVal) {
 
-  // y - y_min, y_max - y.
-  if (iY <= 1) {
-    y = yMax * (2. * sqrt(yVal) - 1.);
-    if (iY == 1) y = -y;
+  // Trivial reply for unresolved lepton beams.
+  if (hasPointLeptons) {
+    y = 0.;
+    wtY = 1.;
+    x1H = 1.;
+    x2H = 1.;
+    return;
+  }
+
+  // Standard expressions used below.
+  double atanMax = atan( exp(yMax) );  
+  double atanMin = atan( exp(-yMax) );  
+  double aUppY = (hasLeptonBeams) 
+    ? log( max( LEPTONXMIN, LEPTONXMAX / tau - 1. ) ) : 0.;
+  double aLowY = LEPTONXLOGMIN;
+
+  // y - y_min or mirrored y_max - y.
+  if (iY <= 1) y = yMax * (2. * sqrt(yVal) - 1.); 
 
   // 1 / cosh(y).
-  } else if (iY == 2) {
-    double atanMax = atan( exp(yMax) );  
-    double atanMin = atan( exp(-yMax) );  
+  else if (iY == 2) 
     y = log( tan( atanMin + (atanMax - atanMin) * yVal ) );
-  } 
+
+  // 1 / (1 - exp(y - y_max)) or mirrored 1 / (1 - exp(y_min - y)).
+  else y = yMax - log( 1. + exp(aLowY + (aUppY - aLowY) * yVal) );
+
+  // Mirror two cases. 
+  if (iY == 1 || iY == 4) y = -y;
 
   // Phase space integral in y.
   intY01 = 0.5 * pow2(2. * yMax);
-  intY2 = 2. * (atan(exp(yMax)) - atan(exp(-yMax)));
-  wtY = 1. / ( (yCoef[0] / intY01) * (y + yMax)
-    + (yCoef[1] / intY01) * (yMax - y) + (yCoef[2] / intY2) / cosh(y) );
+  intY2  = 2. * (atanMax - atanMin);
+  intY34 = aUppY - aLowY;
+  double invWtY = (yCoef[0] / intY01) * (y + yMax)
+    + (yCoef[1] / intY01) * (yMax - y) + (yCoef[2] / intY2) / cosh(y);
+  if (hasLeptonBeams) invWtY 
+    += (yCoef[3] / intY34) / max( LEPTONXMIN, 1. - exp( y - yMax) )
+    +  (yCoef[4] / intY34) / max( LEPTONXMIN, 1. - exp(-y - yMax) );  
+  wtY = 1. / invWtY;
 
   // Calculate x1 and x2.
   x1H = sqrt(tau) * exp(y);
@@ -1097,8 +1238,8 @@ bool PhaseSpace2to2tauyz::setupMasses() {
   }
 
   // Initialization masses. Special cases when constrained phase space.
-  m3 = min(m3Peak, m3Upper);
-  m4 = min(m4Peak, m4Upper);
+  m3 = (useBW3) ? min(m3Peak, m3Upper) : m3Peak;
+  m4 = (useBW4) ? min(m4Peak, m4Upper) : m4Peak;
   if (m3 + m4 + THRESHOLDSIZE * (m3Width + m4Width) + MASSMARGIN > m34Max) {
     if (useBW3 && useBW4) physical = constrainedM3M4();
     else if (useBW3) physical = constrainedM3();
@@ -1429,7 +1570,7 @@ bool PhaseSpace2to2tauyz::finalKin() {
   // Check that phase space still open after new mass assignment.
   if (m3 + m4 + MASSMARGIN > mHat) return false; 
   p2Abs = 0.25 * (pow2(sH - s3 - s4) - 4. * s3 * s4) / sH; 
-  pAbs = sqrt( max(0., p2Abs) );
+  pAbs = sqrtpos( p2Abs );
 
   // Particle masses; incoming always on mass shell.
   mH[1] = 0.;
@@ -1510,8 +1651,8 @@ bool PhaseSpace2to2eldiff::setupSampling() {
   else bMin = sigmaTotPtr->bMinSlopeXX(); 
  
   // Determine maximum possible t range and coefficient of generation.
-  lambda12 = sqrt( max( 0., pow2( s - s1 - s2) - 4. * s1 * s2));
-  lambda34 = sqrt( max( 0., pow2( s - s3 - s4) - 4. * s3 * s4));
+  lambda12 = sqrtpos( pow2( s - s1 - s2) - 4. * s1 * s2 );
+  lambda34 = sqrtpos( pow2( s - s3 - s4) - 4. * s3 * s4 );
   double tempA = s - (s1 + s2 + s3 + s4) + (s1 - s2) * (s3 - s4) / s;
   double tempB = lambda12 *  lambda34 / s;
   double tempC = (s3 - s1) * (s4 - s2) + (s1 + s4 - s2 - s3)
@@ -1534,7 +1675,7 @@ bool PhaseSpace2to2eldiff::trialKin() {
   // Loop over attempts to set up masses and t consistently.
   for (int loop = 0; ; ++loop) { 
     if (loop == NTRY) {
-      ErrorMessages::message("Error in PhaseSpace2to2eldiff::trialKin: "
+      ErrorMsg::message("Error in PhaseSpace2to2eldiff::trialKin: "
         " quit after repeated tries");
       return false;
     }
@@ -1577,7 +1718,7 @@ bool PhaseSpace2to2eldiff::trialKin() {
     }
  
     // Check whether m^2 and t choices are consistent.
-    lambda34 = sqrt( max( 0., pow2( s - s3 - s4) - 4. * s3 * s4));
+    lambda34 = sqrtpos( pow2( s - s3 - s4) - 4. * s3 * s4 );
     double tempA = s - (s1 + s2 + s3 + s4) + (s1 - s2) * (s3 - s4) / s;
     double tempB = lambda12 *  lambda34 / s;
     if (tempB < DIFFMASSMAX) continue;
@@ -1589,7 +1730,7 @@ bool PhaseSpace2to2eldiff::trialKin() {
 
     // Careful reconstruction of scattering angle.
     double cosTheta = min(1., max(-1., (tempA + 2. * tH) / tempB));
-    double sinTheta = 2. * sqrt( max(0., -(tempC + tempA * tH + tH * tH)))
+    double sinTheta = 2. * sqrtpos( -(tempC + tempA * tH + tH * tH) )
       / tempB;
     theta = asin( min(1., sinTheta));
     if (cosTheta < 0.) theta = M_PI - theta;

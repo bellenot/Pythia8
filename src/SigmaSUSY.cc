@@ -1,6 +1,6 @@
 // Function definitions (not found in the header) for the 
 // supersymmetry simulation classes. 
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #include "SigmaSUSY.h"
 
@@ -13,16 +13,16 @@ namespace Pythia8 {
 
 //*********
 
-// Initialize process, especially parton-flux object. 
+// Initialize process. 
   
 void Sigma2qqbar2chi0chi0::initProc() {
 
   // Construct neutralino id codes from ordering indices.
-  id3 = 1000022; 
+  id3                  = 1000022; 
   if (id3chi == 2) id3 = 1000023; 
   if (id3chi == 3) id3 = 1000025; 
   if (id3chi == 4) id3 = 1000035; 
-  id4 = 1000022; 
+  id4                  = 1000022; 
   if (id4chi == 2) id4 = 1000023; 
   if (id4chi == 3) id4 = 1000025; 
   if (id4chi == 4) id4 = 1000035; 
@@ -31,19 +31,10 @@ void Sigma2qqbar2chi0chi0::initProc() {
   nameSave = "q qbar -> " + ParticleDataTable::name(id3) + " " 
     + ParticleDataTable::name(id4);
 
-  // Set up for q qbar initial state.
-  inFluxPtr = new InFluxqqbarSame();
-
-  // Multiply by colour factor 1/3.
-  inFluxPtr->weightInvCol();
-
-  // Identical-fermion factor
-  if (id3chi == id4chi) inFluxPtr->weightFixed(0.5);
-
   // Set up couplings
   sin2W = CoupEW::sin2thetaW();
-  mZ = ParticleDataTable::m0(23);
-  wZ = ParticleDataTable::mWidth(23);
+  mZ    = ParticleDataTable::m0(23);
+  wZ    = ParticleDataTable::mWidth(23);
 
   // For future use, when full mixing is implemented:
   // Shorthand for SUSY couplings
@@ -84,7 +75,6 @@ void Sigma2qqbar2chi0chi0::initProc() {
     nj4 *= iRot;
   };
 
-
   // Z chi_i chi_j 
   OL = -0.5 * ni3 * conj(nj3) + 0.5 * ni4 * conj(nj4);
   OR =  0.5 * conj(ni3) * nj3 - 0.5 * conj(ni4) * nj4;
@@ -95,6 +85,22 @@ void Sigma2qqbar2chi0chi0::initProc() {
     LqqZ[iq] = CoupEW::lf(iq);
     RqqZ[iq] = CoupEW::rf(iq);
   }
+
+}
+//*********
+
+// Initialize parton-flux object. 
+  
+void Sigma2qqbar2chi0chi0::initFlux() {
+
+  // Set up for q qbar initial state.
+  inFluxPtr = new InFluxqqbarSame();
+
+  // Multiply by colour factor 1/3.
+  inFluxPtr->weightInvCol();
+
+  // Identical-fermion factor
+  if (id3chi == id4chi) inFluxPtr->weightFixed(0.5);
 
 }
 
@@ -113,7 +119,7 @@ double Sigma2qqbar2chi0chi0::sigmaHat() {
   double ti = tH - s3;
   double tj = tH - s4;
   double sz = sH - pow2(mZ);
-  double d = pow2(sz) + pow2(mZ * wZ);
+  double d  = pow2(sz) + pow2(mZ * wZ);
   complex propZ( sz / d, mZ * wZ / d);
  
   // Flavour-dependent factors. Sum over diagonal in-flavours.

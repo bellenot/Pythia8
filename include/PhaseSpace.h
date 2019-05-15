@@ -1,7 +1,7 @@
 // Header file for phase space generators in kinematics selection.
 // PhaseSpace: base class for phase space generators.
 // PhaseSpace2to2tauyz: 2 -> 2 processes in tau, y, z = cos(theta).
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_PhaseSpace_H
 #define Pythia8_PhaseSpace_H
@@ -34,10 +34,9 @@ public:
   // Initialize static data members.
   static void initStatic();
 
-  // Store pointer to SigmaTotal and info on beams.
-  static void setSigmaTotalPtr(SigmaTotal* sigmaTotPtrIn, int idAIn, 
-    int idBIn, double mAIn, double mBIn) { sigmaTotPtr = sigmaTotPtrIn; 
-    idA = idAIn; idB = idBIn; mA = mAIn; mB = mBIn;}
+  // Store pointers to beams and SigmaTotal.
+  static void setBeamSigmaPtr( BeamParticle* beamAPtrIn, 
+    BeamParticle* beamBPtrIn, SigmaTotal* sigmaTotPtrIn);
 
   // Give in pointer to cross section and cm energy.
   void initInfo(SigmaProcess* sigmaProcessPtrIn, double eCMIn);
@@ -90,11 +89,16 @@ protected:
   // Constants: could only be changed in the code itself.
   static const double SAFETYMARGIN, TINY, EVENFRAC, SAMESIGMA, 
     WIDTHMARGIN, SAMEMASS, MASSMARGIN, EXTRABWWTMAX, THRESHOLDSIZE, 
-    THRESHOLDSTEP;
+    THRESHOLDSTEP, LEPTONXMIN, LEPTONXMAX, LEPTONXLOGMIN, 
+    LEPTONXLOGMAX, LEPTONTAUMIN;
+  static const int NMAXTRY;
 
   // Static information on incoming beams.
+  static BeamParticle* beamAPtr;
+  static BeamParticle* beamBPtr;
   static int idA, idB;
   static double mA, mB; 
+  static bool hasLeptonBeams, hasPointLeptons;
   
   // Static pointer to the total/elastic/diffractive cross section object.
   static SigmaTotal* sigmaTotPtr;
@@ -132,12 +136,14 @@ protected:
   bool sameResMass;
 
   // Kinematics properties specific to 2 -> 1/2.
-  double tau, y, z, tauMin, tauMax, yMax, zMin, zMax, ratio34, unity34,
-   zNeg, zPos, wtTau, wtY, wtZ, intTau0, intTau1, intTau2, intTau3, 
-   intTau4, intTau5, intY01, intY2; 
+  double tau, y, z, tauMin, tauMax, yMax, zMin, zMax, ratio34, unity34, 
+    zNeg, zPos, wtTau, wtY, wtZ, intTau0, intTau1, intTau2, intTau3, 
+    intTau4, intTau5, intTau6, intY01, intY2, intY34; 
 
   // Coefficients for optimized selection in 2 -> 1/2.
-  double tauCoef[8], yCoef[8], zCoef[8];
+  int nTau, nY, nZ;
+  double tauCoef[8], yCoef[8], zCoef[8], tauCoefSum[8], yCoefSum[8], 
+    zCoefSum[8];
 
   // Calculate kinematical limits for 2 -> 1/2.
   bool limitTau(bool is2);

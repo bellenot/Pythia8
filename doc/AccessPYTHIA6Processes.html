@@ -1,0 +1,80 @@
+<html>
+<head>
+<title>Accessing Pythia6 Processes</title>
+</head>
+<body>
+
+<h2>Access PYTHIA 6 Processes</h2>
+
+In order to give access to the Fortran PYTHIA process library
+at runtime (and not only by writing/reading event files)
+an interface is provided to C++. This interface is residing in 
+<code>Pythia6.h</code>, while the ordinary Fortran code is in 
+<code>Pythia6.f</code>. The latter should normally be the most recent 
+Fortran PYTHIA version, but must be at least 6.314, since this is 
+the first version that allows processes to be output in the Les 
+Houches format (and not only input).
+
+<p/>
+The communication with PYTHIA 6 is transparent to the user, 
+and the main choices are made in the <code>Pythia</code> class. 
+It may be useful to understand what the interface can and cannot do, however.
+
+<p/>
+The normal <code>Pythia</code> routines <code>readString</code> and 
+<code>readFile</code> can be used to modify the performance of the 
+PYTHIA 6 generator. The name of any variable must be preceded by 
+<code>Pythia6:</code> to distinguish it from normal PYTHIA 8 
+parameters, either in the <code>Settings</code> or the 
+<code>ParticleDataTable</code> classes. An example would be
+<pre>
+    pythia.readString("Pythia6:ckin(3) = 10.")
+</pre> 
+The first part is then peeled off, to give the string 
+<code>ckin(3) = 10.</code>. This string is given as argument to 
+<code>pygive</code>, accessed via the <code>extern "C" pygive_</code> 
+interface. Thus all parameters that could be set with the 
+<code>PYGIVE</code> Fortran routine can also be set by 
+<code>readString</code> and <code>readFile</code>. Only those commands 
+that influence the generation of the hard process have any impact, 
+however, since this is the only part of the Fortran code that is used.
+
+<p/>
+The other routines interfaced are
+<ul>
+<li><code>pyinit(...)</code> to initialize the event generation 
+chain,</li>
+<li><code>pyupev()</code> to generate the next process,</li>
+<li><code>pylist(mode)</code> to list the event at the process 
+level,</li>
+<li><code>pystat(mode)</code> to print statistics on the event 
+generation process.</li>
+</ul> 
+The modes for the last two routines are as given in the PYTHIA 6.4
+manual, and these two are the only ones a user might wish to access
+directly.
+
+<p/>
+This means that all other Fortran routines have not been interfaced
+and cannot be accessed directly from the C++ code; there is no need
+for them in the current setup.
+
+<p/>
+All hard PYTHIA 6 processes should be available for full generation
+in PYTHIA 8, at least to the extent that they are defined for beams 
+of protons and antiprotons, which are the only ones fully implemented 
+in PYTHIA 8 so far. Soft processes, i.e. elastic and diffractive 
+scattering, as well as minimum-bias events, require a different 
+kinematics machinery, and can only be generated with the internal 
+PYTHIA 8 processes.
+
+<p/>
+Finally, note that it is not possible to mix processes from PYTHIA 6 
+with those from PYTHIA 8. If you give but a single command beginning 
+with <code>Pythia6:</code>, even if not for a specific process, it is
+assumed that PYTHIA 6 should be used for all hard-process generation.
+
+</body>
+</html>
+
+<!-- Copyright C 2007 Torbjorn Sjostrand -->

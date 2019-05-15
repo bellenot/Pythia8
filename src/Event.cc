@@ -1,6 +1,6 @@
 // Function definitions (not found in the header) for the 
 // Particle and Event classes, and some related global functions.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #include "Event.h"
 
@@ -76,18 +76,18 @@ double m2(const Particle& pp1, const Particle& pp2) {
 // Definitions of static variables.
 // (Values will be overwritten in initStatic call, so are purely dummy.)
 
-int Event::startColTag = 100;
-bool Event::listFinalOnly = false;
-bool Event::listScaleAndVertex = false;
+int  Event::startColTag             = 100;
+bool Event::listFinalOnly           = false;
+bool Event::listScaleAndVertex      = false;
 bool Event::listMothersAndDaughters = false;
-bool Event::extraBlankLine = false;
-bool Event::listJunctions = false;
+bool Event::extraBlankLine          = false;
+bool Event::listJunctions           = false;
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
 
 // Maxmimum number of mothers or daughter indices per line in listing.
-const int Event::IPERLINE = 20;
+const int Event::IPERLINE           = 20;
 
 
 //*********
@@ -97,14 +97,14 @@ const int Event::IPERLINE = 20;
 void Event::initStatic() { 
   
   // The starting colour tag for the event.
-  startColTag = Settings::mode("Event:startColTag");
+  startColTag             = Settings::mode("Event:startColTag");
 
   // Flags for event listing modes.
-  listFinalOnly = Settings::flag("Event:listFinalOnly");
-  listScaleAndVertex = Settings::flag("Event:listScaleAndVertex");
+  listFinalOnly           = Settings::flag("Event:listFinalOnly");
+  listScaleAndVertex      = Settings::flag("Event:listScaleAndVertex");
   listMothersAndDaughters = Settings::flag("Event:listMothersAndDaughters");
-  extraBlankLine = Settings::flag("Event:extraBlankLine");
-  listJunctions = Settings::flag("Event:listJunctions");
+  extraBlankLine          = Settings::flag("Event:extraBlankLine");
+  listJunctions           = Settings::flag("Event:listJunctions");
 
 }
 
@@ -149,12 +149,13 @@ void Event::list(ostream& os) {
 
   // Header.
   os << "\n --------  PYTHIA Event Listing  " << headerList << "----------"
-     << "-------------------------------------------- \n \n    no        "
-     << "id   name       status     mothers   daughters     colours      "
-     << "p_x        p_y        p_z         e          m \n";
+     << "------------------------------------------------- \n \n    no    "
+     << "    id   name            status     mothers   daughters     colou"
+     << "rs      p_x        p_y        p_z         e          m \n";
   if (listScaleAndVertex) 
-    os << "                                           scale                "
-       << "             xProd      yProd      zProd      tProd       tau\n";  
+    os << "                                    scale                      "
+       << "                   xProd      yProd      zProd      tProd      "
+       << " tau\n";  
   if (extraBlankLine) os << "\n";
 
   // Listing of complete event.
@@ -166,7 +167,7 @@ void Event::list(ostream& os) {
 
     // Basic line for a particle, always printed.
     os << setw(6) << i << setw(10) << pt.id() << "   " << left 
-       << setw(12) << pt.nameWithStatus(12) << right << setw(5) 
+       << setw(18) << pt.nameWithStatus(18) << right << setw(4) 
        << pt.status() << setw(6) << pt.mother1() << setw(6) 
        << pt.mother2() << setw(6) << pt.daughter1() << setw(6) 
        << pt.daughter2() << setw(6) << pt.col() << setw(6) << pt.acol() 
@@ -176,8 +177,8 @@ void Event::list(ostream& os) {
 
     // Optional extra line for scale value and production vertex.
     if (listScaleAndVertex) 
-      os << "                                     " << setw(11) 
-         << pt.scale() << "                        " << scientific 
+      os << "                              " << setw(11) << pt.scale() 
+         << "                                    " << scientific 
          << setprecision(3) << setw(11) << pt.xProd() << setw(11) 
          << pt.yProd() << setw(11) << pt.zProd() << setw(11) 
          << pt.tProd() << setw(11) << pt.tau() << "\n";
@@ -211,8 +212,8 @@ void Event::list(ostream& os) {
   }
 
   // Line with sum charge, momentum, energy and invariant mass.
-  os << fixed << setprecision(3) << "                              Charge"
-     << " sum:" << setw(7) << chargeSum << "           Momentum sum:" 
+  os << fixed << setprecision(3) << "                                   "
+     << "Charge sum:" << setw(7) << chargeSum << "           Momentum sum:" 
      << setw(11) << pSum.px() << setw(11) << pSum.py() << setw(11) 
      << pSum.pz() << setw(11) << pSum.e() << setw(11) << pSum.mCalc() 
      << "\n";
@@ -231,8 +232,8 @@ void Event::list(ostream& os) {
   } 
 
   // Listing finished.
-  os << "\n --------  End PYTHIA Event Listing  --------------------------"
-     << "---------------------------------------------------------------- "
+  os << "\n --------  End PYTHIA Event Listing  ----------------------------"
+     << "-------------------------------------------------------------------"
      << endl;
 }
 
@@ -407,8 +408,9 @@ vector<int> Event::sisterList(int i) {
 
 // Find complete list of sisters. Traces up with iTopCopy and
 // down with iBotCopy to give sisters at same level of evolution.
+// Should this not give any final particles, the search is widened.
 
-vector<int> Event::sisterListTopBot(int i) {
+vector<int> Event::sisterListTopBot(int i, bool widenSearch) {
 
   // Vector of all the sisters; created empty.
   vector<int> sisters;
@@ -425,6 +427,40 @@ vector<int> Event::sisterListTopBot(int i) {
   for (int j = 0; j < int(daughters.size()); ++j) 
   if (daughters[j] != iUp) 
     sisters.push_back( iBotCopy( daughters[j] ) );
+
+  // Prune any non-final particles from list.
+  int j = 0;
+  while (j < int(sisters.size())) {
+    if (entry[sisters[j]].status() > 0) ++j;
+    else {
+      sisters[j] = sisters.back();
+      sisters.pop_back();
+    }
+  } 
+
+  // If empty list then restore immediate daughters.
+  if (sisters.size() == 0 && widenSearch) { 
+    for (int j = 0; j < int(daughters.size()); ++j) 
+    if (daughters[j] != iUp) 
+      sisters.push_back( iBotCopy( daughters[j] ) );
+    
+    // Then trace all daughters, not only bottom copy.
+    for (int j = 0; j < int(sisters.size()); ++j) {
+      daughters = daughterList( sisters[j] );
+      for (int k = 0; k < int(daughters.size()); ++k)    
+        sisters.push_back( daughters[k] );
+    }
+  
+    // And then prune any non-final particles from list.
+    int j = 0;
+    while (j < int(sisters.size())) {
+      if (entry[sisters[j]].status() > 0) ++j;
+      else {
+        sisters[j] = sisters.back();
+        sisters.pop_back();
+      }
+    } 
+  }
 
   // Done.       
   return sisters;

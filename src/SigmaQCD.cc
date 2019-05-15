@@ -1,6 +1,6 @@
 // Function definitions (not found in the header) for the 
 // QCD simulation classes. 
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #include "SigmaQCD.h"
 
@@ -34,7 +34,7 @@ void Sigma0AB2AB::setIdColAcol() {
 void Sigma0AB2XB::setIdColAcol() {
 
   // Flavours and colours are trivial. 
-  int idX = 10* (abs(idA) / 10) + 9900000; 
+  int idX          = 10* (abs(idA) / 10) + 9900000; 
   if (idA < 0) idX = -idX;
   setId( idA, idB, idX, idB);
   setColAcol( 0, 0, 0, 0, 0, 0, 0, 0);
@@ -53,7 +53,7 @@ void Sigma0AB2XB::setIdColAcol() {
 void Sigma0AB2AX::setIdColAcol() {
 
   // Flavours and colours are trivial. 
-  int idX = 10* (abs(idB) / 10) + 9900000; 
+  int idX          = 10* (abs(idB) / 10) + 9900000; 
   if (idB < 0) idX = -idX;
   setId( idA, idB, idA, idX);
   setColAcol( 0, 0, 0, 0, 0, 0, 0, 0);
@@ -72,9 +72,9 @@ void Sigma0AB2AX::setIdColAcol() {
 void Sigma0AB2XX::setIdColAcol() {
 
   // Flavours and colours are trivial. 
-  int idX1 = 10* (abs(idA) / 10) + 9900000; 
+  int          idX1 = 10* (abs(idA) / 10) + 9900000; 
   if (idA < 0) idX1 = -idX1;
-  int idX2 = 10* (abs(idB) / 10) + 9900000; 
+  int          idX2 = 10* (abs(idB) / 10) + 9900000; 
   if (idB < 0) idX2 = -idX2;
   setId( idA, idB, idX1, idX2);
   setColAcol( 0, 0, 0, 0, 0, 0, 0, 0);
@@ -88,25 +88,14 @@ void Sigma0AB2XX::setIdColAcol() {
 
 //*********
 
-// Initialize process, especially parton-flux object. 
-  
-void Sigma2gg2gg::initProc() {
-
-  // Set up for g g initial state.
-  inFluxPtr = new InFluxgg();
-
-} 
-
-//*********
-
 // Evaluate d(sigmaHat)/d(tHat).
 
 double Sigma2gg2gg::sigmaHat() {
 
   // Calculate kinematics dependence.
-  sigTS = (9./4.) * (tH2/sH2 + 2.*tH/sH + 3. + 2.*sH/tH + sH2/tH2);
-  sigUS = (9./4.) * (uH2/sH2 + 2.*uH/sH + 3. + 2.*sH/uH + sH2/uH2);
-  sigTU = (9./4.) * (tH2/uH2 + 2.*tH/uH + 3. + 2.*uH/tH + uH2/tH2);
+  sigTS  = (9./4.) * (tH2/sH2 + 2.*tH/sH + 3. + 2.*sH/tH + sH2/tH2);
+  sigUS  = (9./4.) * (uH2/sH2 + 2.*uH/sH + 3. + 2.*sH/uH + sH2/uH2);
+  sigTU  = (9./4.) * (tH2/uH2 + 2.*tH/uH + 3. + 2.*uH/tH + uH2/tH2);
   sigSum = sigTS + sigUS + sigTU;
 
   // Answer contains factor 1/2 from identical gluons.
@@ -140,24 +129,13 @@ void Sigma2gg2gg::setIdColAcol() {
 
 //*********
 
-// Initialize process, especially parton-flux object. 
-  
-void Sigma2gg2qqbar::initProc() {
-
-  // Set up for g g initial state.
-  inFluxPtr = new InFluxgg();
-
-} 
-
-//*********
-
 // Evaluate d(sigmaHat)/d(tHat). 
 
 double Sigma2gg2qqbar::sigmaHat() { 
 
   // Pick new flavour.
   idNew = 1 + int( nQuark * Rndm::flat() ); 
-  mNew = ParticleDataTable::m0(idNew);
+  mNew  = ParticleDataTable::m0(idNew);
   m2New = mNew*mNew;
   
   // Calculate kinematics dependence.
@@ -197,24 +175,13 @@ void Sigma2gg2qqbar::setIdColAcol() {
 
 //*********
 
-// Initialize process, especially parton-flux object. 
-  
-void Sigma2qg2qg::initProc() {
-
-  // Set up for q qbar initial state.
-  inFluxPtr = new InFluxqg();
-
-} 
-
-//*********
-
 // Evaluate d(sigmaHat)/d(tHat). 
 
 double Sigma2qg2qg::sigmaHat() { 
 
   // Calculate kinematics dependence.
-  sigTS = uH2/tH2 - (4./9.) * uH/sH;
-  sigTU = sH2/tH2 - (4./9.) * sH/uH;
+  sigTS  = uH2/tH2 - (4./9.) * uH/sH;
+  sigTU  = sH2/tH2 - (4./9.) * sH/uH;
   sigSum = sigTS + sigTU;
 
   // Answer.
@@ -245,17 +212,6 @@ void Sigma2qg2qg::setIdColAcol() {
 // Sigma2qq2qqDiff class.
 // Cross section for q qbar' -> q qbar' or q q' -> q q' 
 // (qbar qbar' -> qbar qbar'), q' != q.
-
-//*********
-
-// Initialize process, especially parton-flux object. 
-  
-void Sigma2qq2qqDiff::initProc() {
-
-  // Set up for q qbar initial state.
-  inFluxPtr = new InFluxqqbarqqDiff();
-
-} 
 
 //*********
 
@@ -294,25 +250,14 @@ void Sigma2qq2qqDiff::setIdColAcol() {
 
 //*********
 
-// Initialize process, especially parton-flux object. 
-  
-void Sigma2qq2qqSame::initProc() {
-
-  // Set up for q qbar initial state.
-  inFluxPtr = new InFluxqqSame();
-
-} 
-
-//*********
-
 // Evaluate d(sigmaHat)/d(tHat). 
 
 double Sigma2qq2qqSame::sigmaHat() { 
 
   // Calculate kinematics dependence.
-  sigT = (4./9.) * (sH2+uH2)/tH2;
-  sigU = (4./9.) * (sH2+tH2)/uH2;
-  sigTU = - (8./27.) * sH2/(tH*uH);
+  sigT   = (4./9.) * (sH2+uH2)/tH2;
+  sigU   = (4./9.) * (sH2+tH2)/uH2;
+  sigTU  = - (8./27.) * sH2/(tH*uH);
   sigSum = sigT + sigU + sigTU;
 
   // Answer contains factor 1/2 from identical quarks.
@@ -341,17 +286,6 @@ void Sigma2qq2qqSame::setIdColAcol() {
 
 // Sigma2qqbar2qqbarSame class.
 // Cross section q qbar -> q qbar.
-
-//*********
-
-// Initialize process, especially parton-flux object. 
-  
-void Sigma2qqbar2qqbarSame::initProc() {
-
-  // Set up for q qbar initial state.
-  inFluxPtr = new InFluxqqbarSame();
-
-} 
 
 //*********
 
@@ -389,28 +323,17 @@ void Sigma2qqbar2qqbarSame::setIdColAcol() {
 
 //*********
 
-// Initialize process, especially parton-flux object. 
-  
-void Sigma2qqbar2qqbarNew::initProc() {
-
-  // Set up for q qbar initial state.
-  inFluxPtr = new InFluxqqbarSame();
-
-} 
-
-//*********
-
 // Evaluate d(sigmaHat)/d(tHat). 
 
 double Sigma2qqbar2qqbarNew::sigmaHat() { 
 
   // Pick new flavour.
   idNew = 1 + int( nQuark * Rndm::flat() ); 
-  mNew = ParticleDataTable::m0(idNew);
+  mNew  = ParticleDataTable::m0(idNew);
   m2New = mNew*mNew;
 
   // Calculate kinematics dependence.
-  sigS = 0.;
+  sigS                      = 0.;
   if (sH > 4. * m2New) sigS = (4./9.) * (tH2+uH2)/sH2; 
 
   // Answer is proportional to number of outgoing flavours.
@@ -441,24 +364,13 @@ void Sigma2qqbar2qqbarNew::setIdColAcol() {
 
 //*********
 
-// Initialize process, especially parton-flux object. 
-  
-void Sigma2qqbar2gg::initProc() {
-
-  // Set up for q qbar initial state.
-  inFluxPtr = new InFluxqqbarSame();
-
-} 
-
-//*********
-
 // Evaluate d(sigmaHat)/d(tHat). 
 
 double Sigma2qqbar2gg::sigmaHat() { 
 
   // Calculate kinematics dependence.
-  sigTS = (32./27.) * uH/tH - (8./3.) * uH2/sH2;
-  sigUS = (32./27.) * tH/uH - (8./3.) * tH2/sH2;
+  sigTS  = (32./27.) * uH/tH - (8./3.) * uH2/sH2;
+  sigUS  = (32./27.) * tH/uH - (8./3.) * tH2/sH2;
   sigSum = sigTS + sigUS;
 
   // Answer contains factor 1/2 from identical gluons.
@@ -495,12 +407,15 @@ void Sigma2qqbar2gg::setIdColAcol() {
 
 //*********
 
-// Initialize process, especially parton-flux object. 
+// Initialize process. 
   
 void Sigma2gg2QQbar::initProc() {
 
-  // Set up for q qbar initial state.
-  inFluxPtr = new InFluxgg();
+  // Process name.
+  nameSave                 = "g g -> Q Qbar";
+  if (idNew == 4) nameSave = "g g -> c cbar";
+  if (idNew == 5) nameSave = "g g -> b bbar";
+  if (idNew == 6) nameSave = "g g -> t tbar";
 
 } 
 
@@ -512,10 +427,10 @@ double Sigma2gg2QQbar::sigmaHat() {
 
   // Modified Mandelstam variables for massive kinematics with m3 = m4.
   double s34Avg = 0.5 * (s3 + s4) - 0.25 * pow2(s3 - s4) / sH; 
-  double tHQ = -0.5 * (sH - tH + uH);
-  double uHQ = -0.5 * (sH + tH - uH); 
-  double tHQ2 = tHQ * tHQ;
-  double uHQ2 = uHQ * uHQ;
+  double tHQ    = -0.5 * (sH - tH + uH);
+  double uHQ    = -0.5 * (sH + tH - uH); 
+  double tHQ2   = tHQ * tHQ;
+  double uHQ2   = uHQ * uHQ;
 
   // Calculate kinematics dependence.
   double tumHQ = tHQ * uHQ - s34Avg * sH;
@@ -564,8 +479,11 @@ void Sigma2gg2QQbar::setIdColAcol() {
   
 void Sigma2qqbar2QQbar::initProc() {
 
-  // Set up for q qbar initial state.
-  inFluxPtr = new InFluxqqbarSame();
+  // Process name.
+  nameSave                 = "q qbar -> Q Qbar";
+  if (idNew == 4) nameSave = "q qbar -> c cbar";
+  if (idNew == 5) nameSave = "q qbar -> b bbar";
+  if (idNew == 6) nameSave = "q qbar -> t tbar";
 
 } 
 
@@ -577,10 +495,10 @@ double Sigma2qqbar2QQbar::sigmaHat() {
 
   // Modified Mandelstam variables for massive kinematics with m3 = m4.
   double s34Avg = 0.5 * (s3 + s4) - 0.25 * pow2(s3 - s4) / sH; 
-  double tHQ = -0.5 * (sH - tH + uH);
-  double uHQ = -0.5 * (sH + tH - uH); 
-  double tHQ2 = tHQ * tHQ;
-  double uHQ2 = uHQ * uHQ;
+  double tHQ    = -0.5 * (sH - tH + uH);
+  double uHQ    = -0.5 * (sH + tH - uH); 
+  double tHQ2   = tHQ * tHQ;
+  double uHQ2   = uHQ * uHQ;
 
   // Calculate kinematics dependence.
   double sigS = (4./9.) * ((tHQ2 + uHQ2) / sH2 + 2. * s34Avg / sH); 

@@ -1,6 +1,6 @@
 // Function definitions (not found in the header) for the 
 // InFlux class, and classes derived from it.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #include "InFlux.h"
 
@@ -16,12 +16,12 @@ namespace Pythia8 {
 // Definitions of static variables and functions.
 // (Values will be overwritten in initStatic call, so are purely dummy.)
 
-int InFlux::nQuark = 5;
+int  InFlux::nQuark = 5;
 bool InFlux::showChannels = false;
 
 // Pointers to the parton densities of the incoming beams.
-PDF* InFlux::pdfAPtr; 
-PDF* InFlux::pdfBPtr; 
+BeamParticle* InFlux::beamAPtr; 
+BeamParticle* InFlux::beamBPtr; 
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -38,7 +38,7 @@ const int InFlux::MAPTOFIRST[40] = {0, 0, -12, -11, -12, -11, -12, -11,
 void InFlux::initStatic() {
 
   // Maximum incoming quark flavour.
-  nQuark = Settings::mode("inFlux:nQuark");
+  nQuark       = Settings::mode("inFlux:nQuark");
 
   // Print or not initialization data.
   showChannels = Settings::flag("inFlux:showChannels");
@@ -52,8 +52,11 @@ void InFlux::initStatic() {
 void InFlux::weightCharge2() {
 
   for (int i = 0; i < sizePair(); ++i) {
-    int id = (abs(inPair[i].idA) < 9) ? inPair[i].idA : inPair[i].idB;
-    inPair[i].fixWeight *= (id%2 == 0) ? 4./9. : 1./9.;
+    int idAabs = abs(inPair[i].idA);
+    int idBabs = abs(inPair[i].idB); 
+    int id = (idAabs < 19) ? idAabs : idBabs;
+    if (id < 9) inPair[i].fixWeight *= (id%2 == 0) ? 4./9. : 1./9.;
+    else if (id%2 == 0) inPair[i].fixWeight = 0.; 
   }
 
 }
@@ -61,7 +64,7 @@ void InFlux::weightCharge2() {
 //*********
 
 // Weight channels by two powers of CKM matrix elements.
-// Currently assume already known instate is q qbar'.
+// Currently assume already known instate is q qbar'??
 
 void InFlux::weightCKM2() {
 
@@ -302,9 +305,9 @@ double InFlux::flux(double x1, double x2, double Q2) {
 
   // Evaluate and store the required parton densities.
   for (int j = 0; j < sizeBeamA(); ++j) 
-    inBeamA[j].pdf = pdfAPtr->xf( inBeamA[j].id, x1, Q2); 
+    inBeamA[j].pdf = beamAPtr->xf( inBeamA[j].id, x1, Q2); 
   for (int j = 0; j < sizeBeamB(); ++j) 
-    inBeamB[j].pdf = pdfBPtr->xf( inBeamB[j].id, x2, Q2); 
+    inBeamB[j].pdf = beamBPtr->xf( inBeamB[j].id, x2, Q2); 
 
   // Multiply on these densities for each of the allowed channels. Sum.
   fluxwtSum = 0.;
@@ -536,9 +539,16 @@ void InFluxqqbarSame::initChannels() {
 //*********
 
 // Fill arrays for a f f' incoming state at initialization.
-// Still needs to do for lepton beams??
 
 void InFluxff::initChannels() {
+
+  // If beams are leptons then they are also the colliding partons.
+  if ( beamAPtr->isLepton() && beamBPtr->isLepton() ) {
+    addBeamA( beamAPtr->id() );
+    addBeamB( beamBPtr->id() );
+    addPair( beamAPtr->id(), beamBPtr->id() );
+    return;
+  }
 
   // The beams individually.
   for (int id = -nQuark; id <= nQuark; ++id) 
@@ -564,10 +574,18 @@ void InFluxff::initChannels() {
 //*********
 
 // Fill arrays for a f fbar incoming state at initialization.
-// Still needs to do for lepton beams??
 
 void InFluxffbarSame::initChannels() {
 
+  // If beams are antiparticle pair and leptons then also colliding partons.
+  if ( beamAPtr->id() + beamBPtr->id() == 0 && beamAPtr->isLepton() ) {
+    addBeamA( beamAPtr->id() );
+    addBeamB( beamBPtr->id() );
+    addPair( beamAPtr->id(), beamBPtr->id() );
+    return;
+  }
+
+  // Else assume both to be hadrons, for better or worse.
   // The beams individually.
   for (int id = -nQuark; id <= nQuark; ++id) 
   if (id != 0) {

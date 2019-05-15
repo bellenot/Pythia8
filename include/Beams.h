@@ -2,7 +2,7 @@
 // ResolvedParton: an initiator or remnant in beam.
 // BeamParticle: contains partons, parton densities, etc.
 // BeamRemnants: matches the remnants between the two beams.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_Beams_H
 #define Pythia8_Beams_H
@@ -62,9 +62,9 @@ public:
   int id() const {return idRes;} 
   double x() const {return xRes;} 
   int companion() const {return companionRes;} 
-  bool isValence() const {return (companionRes == -3) ? true : false;}
-  bool isUnmatched() const {return (companionRes == -2) ? true : false;}
-  bool isCompanion() const {return (companionRes >= 0) ? true : false;}
+  bool isValence() const {return (companionRes == -3);}
+  bool isUnmatched() const {return (companionRes == -2);}
+  bool isCompanion() const {return (companionRes >= 0);}
   double xqCompanion() const {return xqCompRes;} 
   Vec4 p() const {return pRes;}
   double px() const {return pRes.px();}
@@ -109,7 +109,8 @@ public:
   static void initStatic();
 
   // Initialize. Possibility to force re-initialization by hand.
-  void init( int idIn, double pzIn, double eIn, double mIn, PDF* pdfInPtr);
+  void init( int idIn, double pzIn, double eIn, double mIn, PDF* pdfInPtr,
+    bool isUnresolvedIn = false);
 
   // Member functions for detailed input.
   void id(int idIn) {idBeam = idIn; initBeamKind();}
@@ -129,8 +130,8 @@ public:
   double pz() const {return pBeam.pz();}
   double e() const {return pBeam.e();}
   double m() const {return mBeam;}
-  PDF* pdf() const {return pdfBeamPtr;}
   bool isLepton() const {return isLeptonBeam;}
+  bool isUnresolved() const {return isUnresolvedBeam;}
   // As hadrons here we only count those we know how to handle remnants for.
   bool isHadron() const {return isHadronBeam;}
   bool isMeson() const {return isMesonBeam;}
@@ -233,7 +234,8 @@ private:
   PDF* pdfBeamPtr;
 
   // Beam kind. Valence flavour content for hadrons.
-  bool isLeptonBeam, isHadronBeam, isMesonBeam, isBaryonBeam;
+  bool isLeptonBeam, isUnresolvedBeam, isHadronBeam, isMesonBeam, 
+    isBaryonBeam;
   int nValKinds, idVal[3], nVal[3];
 
   // Current parton density, by valence, sea and companion.

@@ -1,8 +1,11 @@
 // Function definitions (not found in the header) for the Rndm, Vec4, 
 // RotBstMatrix and Hist classes, and some related global functions.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #include "Basics.h"
+
+// Access time information.
+#include <ctime>
 
 namespace Pythia8 {
 
@@ -16,13 +19,13 @@ namespace Pythia8 {
 
 // Definitions of static variables. 
 
-bool Rndm::initRndm = false;
-bool Rndm::saveGauss = false;
-int Rndm::i97, Rndm::j97;
-int Rndm::defaultSeed = 19780503;
+bool   Rndm::initRndm        = false;
+bool   Rndm::saveGauss       = false;
+int    Rndm::i97, Rndm::j97;
+int    Rndm::defaultSeed     = 19780503;
 double Rndm::u[97], Rndm::c, Rndm::cd, Rndm::cm, Rndm::save;
-RndmEngine* Rndm::rndmPtr = 0;
-bool Rndm::useExternalRndm = false;
+bool   Rndm::useExternalRndm = false;
+RndmEngine* Rndm::rndmPtr    = 0;
 
 //*********
 
@@ -260,6 +263,26 @@ void Vec4::bst(const Vec4& vec) {
   double betaX = vec.xx/vec.tt;
   double betaY = vec.yy/vec.tt;
   double betaZ = vec.zz/vec.tt;
+  double beta2 = betaX*betaX + betaY*betaY + betaZ*betaZ;
+  double gamma = 1. / sqrt(1. - beta2);
+  double prod1 = betaX * xx + betaY * yy + betaZ * zz;
+  double prod2 = gamma * (gamma * prod1 / (1. + gamma) + tt);
+  xx += prod2 * betaX;
+  yy += prod2 * betaY;
+  zz += prod2 * betaZ;
+  tt = gamma * (tt + prod1);
+
+}
+
+//*********
+
+// Boost given by a Vec4; boost in opposite direction.
+
+void Vec4::bstback(const Vec4& vec) {
+
+  double betaX = -vec.xx/vec.tt;
+  double betaY = -vec.yy/vec.tt;
+  double betaZ = -vec.zz/vec.tt;
   double beta2 = betaX*betaX + betaY*betaY + betaZ*betaZ;
   double gamma = 1. / sqrt(1. - beta2);
   double prod1 = betaX * xx + betaY * yy + betaZ * zz;
@@ -547,12 +570,11 @@ void RotBstMatrix::invert() {
 
 void RotBstMatrix::toCMframe(const Vec4& p1, const Vec4& p2) {
   Vec4 pSum = p1 + p2; 
-  pSum.flip3();
   Vec4 dir = p1;
-  dir.bst(pSum);
+  dir.bstback(pSum);
   double theta = dir.theta();
   double phi = dir.phi();
-  bst(pSum);
+  bstback(pSum);
   rot(0., -phi);
   rot(-theta, phi);
 }
@@ -564,10 +586,8 @@ void RotBstMatrix::toCMframe(const Vec4& p1, const Vec4& p2) {
 
 void RotBstMatrix::fromCMframe(const Vec4& p1, const Vec4& p2) {
   Vec4 pSum = p1 + p2;
-  pSum.flip3();
   Vec4 dir = p1;
-  dir.bst(pSum);
-  pSum.flip3();
+  dir.bstback(pSum);
   double theta = dir.theta();
   double phi = dir.phi();
   rot(0., -phi);
@@ -626,16 +646,16 @@ ostream& operator<<(ostream& os, const RotBstMatrix& M) {
 // These are of technical nature, as described for each.
 
 // Maximum number of bins in a histogram.
-const int Hist::NBINMAX = 100;
+const int    Hist::NBINMAX   = 100;
 
 // Maximum number of lines a histogram can use at output.
-const int Hist::NLINES = 30;
+const int    Hist::NLINES    = 30;
 
 // Tolerance in deviation of xMin and xMax between two histograms.
 const double Hist::TOLERANCE = 0.001;
 
 // Small number to avoid division by zero.
-const double Hist::TINY = 1e-20;
+const double Hist::TINY      = 1e-20;
 
 // When minbin/maxbin < SMALLFRAC the y scale goes down to zero.
 const double Hist::SMALLFRAC = 0.1;

@@ -1,7 +1,7 @@
 // File: main02.cc
 // This is a simple test program. It fits on one slide in a talk.
 // It studies the pT_Z spectrum at the Tevatron.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 #include "Pythia.h"
 using namespace Pythia8; 
 int main() {

@@ -1,6 +1,6 @@
 // This file gives access to some Standard Model parameters.
 // AlphaStrong: fix or first- or second-order running alpha_strong.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_StandardModel_H
 #define Pythia8_StandardModel_H
@@ -59,19 +59,24 @@ class AlphaEM {
 public:
 
   // Constructors.
-  AlphaEM() {}
+  AlphaEM(int orderIn = 1) {init(orderIn);}
 
-  // Initialization for given value at M_Z and given order.
+  // First-order initialization for given value at M_Z.
   static void initStatic();
 
+  // Initialization for a given order.
+  void init(int orderIn = 1) {order = orderIn;}
+
   // alpha_EM value.
-  static double alphaEM(double scale2);
+  double alphaEM(double scale2);
 
 private:
 
+  // Static data members, mostly for first-order matching.
+  static double alpEM0, alpEMmZ, mZ2, Q2step[5], bRun[5], alpEMstep[5];
+
   // Data members.
-  static int order;
-  static double alpEM0, alpEMmZ, mZ2, bRun, Q2freeze;
+  int order;
 
 };
 

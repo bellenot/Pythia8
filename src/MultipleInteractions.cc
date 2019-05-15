@@ -1,10 +1,316 @@
 // Function definitions (not found in the header) for the
-// MultipleInteractions class.
-// Copyright C 2006 Torbjorn Sjostrand
+// SigmaMultiple and MultipleInteractions classes.
+// Copyright C 2007 Torbjorn Sjostrand
   
 #include "MultipleInteractions.h"
 
+// Internal headers for special processes.
+#include "SigmaQCD.h"
+#include "SigmaEW.h"
+#include "SigmaOnia.h"
+
 namespace Pythia8 {
+
+//**************************************************************************
+
+// The SigmaMultiple class.
+
+//*********
+
+// Constants: could be changed here if desired, but normally should not.
+// These are of technical nature, as described for each.
+
+// The sum of outgoing masses must not be too close to the cm energy.
+const double SigmaMultiple::MASSMARGIN = 0.1;
+
+// Fraction of time not the dominant "gluon t-channel" process is picked.
+const double SigmaMultiple::OTHERFRAC  = 0.2;
+
+//*********
+
+// Initialize the generation process for given beams.
+
+bool SigmaMultiple::init(int inState, int processLevel) {
+
+  // Reset vector sizes (just in case).
+  if (sigmaT.size() > 0) {
+    for (int i = 0; i < int(sigmaT.size()); ++i) delete sigmaT[i];
+    sigmaT.resize(0);
+  }
+  if (sigmaU.size() > 0) {
+    for (int i = 0; i < int(sigmaU.size()); ++i) delete sigmaU[i];
+    sigmaU.resize(0);
+  }
+
+  // Always store mimimal set of processes:QCD 2 -> 2 t-channel.
+
+  // Gluon-gluon instate.
+  if (inState == 0) {
+    sigmaT.push_back( new Sigma2gg2gg() );
+    sigmaU.push_back( new Sigma2gg2gg() );
+
+  // Quark-gluon instate.
+  } else if (inState == 1) { 
+    sigmaT.push_back( new Sigma2qg2qg() );
+    sigmaU.push_back( new Sigma2qg2qg() );
+
+  // Quark-quark instate, identical flavours.
+  } else if (inState == 2) { 
+    sigmaT.push_back( new Sigma2qq2qqSame() );
+    sigmaU.push_back( new Sigma2qq2qqSame() );
+
+  // Quark-antiquark instate, identical flavours.
+  } else if (inState == 3) { 
+    sigmaT.push_back( new Sigma2qqbar2qqbarSame() );
+    sigmaU.push_back( new Sigma2qqbar2qqbarSame() );
+
+  // Quark-quark or quark-antiquark instate, different flavours.
+  } else if (inState == 4) { 
+    sigmaT.push_back( new Sigma2qq2qqDiff() );
+    sigmaU.push_back( new Sigma2qq2qqDiff() );
+  }
+
+  // Normally store QCD processes to new flavour.
+  if (processLevel > 0) { 
+    if (inState == 0) {
+      sigmaT.push_back( new Sigma2gg2qqbar() );
+      sigmaU.push_back( new Sigma2gg2qqbar() );   
+      sigmaT.push_back( new Sigma2gg2QQbar(4, 121) );
+      sigmaU.push_back( new Sigma2gg2QQbar(4, 121) );   
+      sigmaT.push_back( new Sigma2gg2QQbar(5, 123) );
+      sigmaU.push_back( new Sigma2gg2QQbar(5, 123) );   
+    } else if (inState == 3) { 
+      sigmaT.push_back( new Sigma2qqbar2gg() );
+      sigmaU.push_back( new Sigma2qqbar2gg() );
+      sigmaT.push_back( new Sigma2qqbar2qqbarNew() );
+      sigmaU.push_back( new Sigma2qqbar2qqbarNew() );
+      sigmaT.push_back( new Sigma2qqbar2QQbar(4, 122) );
+      sigmaU.push_back( new Sigma2qqbar2QQbar(4, 122) );   
+      sigmaT.push_back( new Sigma2qqbar2QQbar(5, 124) );
+      sigmaU.push_back( new Sigma2qqbar2QQbar(5, 124) );   
+    }  
+  }
+
+  // Optionally store electroweak processes, mainly photon production.
+  if (processLevel > 1) { 
+    if (inState == 0) {
+      sigmaT.push_back( new Sigma2gg2ggamma() );
+      sigmaU.push_back( new Sigma2gg2ggamma() );   
+      sigmaT.push_back( new Sigma2gg2gammagamma() );
+      sigmaU.push_back( new Sigma2gg2gammagamma() );   
+    } else if (inState == 1) { 
+      sigmaT.push_back( new Sigma2qg2qgamma() );
+      sigmaU.push_back( new Sigma2qg2qgamma() );
+    } else if (inState == 3) { 
+      sigmaT.push_back( new Sigma2qqbar2ggamma() );
+      sigmaU.push_back( new Sigma2qqbar2ggamma() );
+      sigmaT.push_back( new Sigma2qqbar2gammagamma() );
+      sigmaU.push_back( new Sigma2qqbar2gammagamma() );
+      sigmaT.push_back( new Sigma2ffbar2ffbarsgm() );
+      sigmaU.push_back( new Sigma2ffbar2ffbarsgm() );
+    }
+    if (inState >= 2) {
+      sigmaT.push_back( new Sigma2ff2fftgmZ() );
+      sigmaU.push_back( new Sigma2ff2fftgmZ() );         
+      sigmaT.push_back( new Sigma2ff2fftW() );
+      sigmaU.push_back( new Sigma2ff2fftW() );         
+    }
+  }
+
+  // Optionally store charmonium and bottomonium production.
+  if (processLevel > 2) { 
+    if (inState == 0) {
+      sigmaT.push_back( new Sigma2gg2QQbar3S11g(4, 401) );
+      sigmaU.push_back( new Sigma2gg2QQbar3S11g(4, 401) );
+      sigmaT.push_back( new Sigma2gg2QQbar3PJ1g(4, 0, 402) );
+      sigmaU.push_back( new Sigma2gg2QQbar3PJ1g(4, 0, 402) );
+      sigmaT.push_back( new Sigma2gg2QQbar3PJ1g(4, 1, 403) );
+      sigmaU.push_back( new Sigma2gg2QQbar3PJ1g(4, 1, 403) );
+      sigmaT.push_back( new Sigma2gg2QQbar3PJ1g(4, 2, 404) );
+      sigmaU.push_back( new Sigma2gg2QQbar3PJ1g(4, 2, 404) );
+      sigmaT.push_back( new Sigma2gg2QQbarX8g(4, 0, 411) );
+      sigmaU.push_back( new Sigma2gg2QQbarX8g(4, 0, 411) );
+      sigmaT.push_back( new Sigma2gg2QQbarX8g(4, 1, 412) );
+      sigmaU.push_back( new Sigma2gg2QQbarX8g(4, 1, 412) );
+      sigmaT.push_back( new Sigma2gg2QQbarX8g(4, 2, 413) );
+      sigmaU.push_back( new Sigma2gg2QQbarX8g(4, 2, 413) );
+      sigmaT.push_back( new Sigma2gg2QQbar3S11g(5, 501) );
+      sigmaU.push_back( new Sigma2gg2QQbar3S11g(5, 501) );
+      sigmaT.push_back( new Sigma2gg2QQbar3PJ1g(5, 0, 502) );
+      sigmaU.push_back( new Sigma2gg2QQbar3PJ1g(5, 0, 502) );
+      sigmaT.push_back( new Sigma2gg2QQbar3PJ1g(5, 1, 503) );
+      sigmaU.push_back( new Sigma2gg2QQbar3PJ1g(5, 1, 503) );
+      sigmaT.push_back( new Sigma2gg2QQbar3PJ1g(5, 2, 504) );
+      sigmaU.push_back( new Sigma2gg2QQbar3PJ1g(5, 2, 504) );
+      sigmaT.push_back( new Sigma2gg2QQbarX8g(5, 0, 511) );
+      sigmaU.push_back( new Sigma2gg2QQbarX8g(5, 0, 511) );
+      sigmaT.push_back( new Sigma2gg2QQbarX8g(5, 1, 512) );
+      sigmaU.push_back( new Sigma2gg2QQbarX8g(5, 1, 512) );
+      sigmaT.push_back( new Sigma2gg2QQbarX8g(5, 2, 513) );
+      sigmaU.push_back( new Sigma2gg2QQbarX8g(5, 2, 513) );
+    } else if (inState == 1) { 
+      sigmaT.push_back( new Sigma2qg2QQbar3PJ1q(4, 0, 405) );
+      sigmaU.push_back( new Sigma2qg2QQbar3PJ1q(4, 0, 405) );
+      sigmaT.push_back( new Sigma2qg2QQbar3PJ1q(4, 1, 406) );
+      sigmaU.push_back( new Sigma2qg2QQbar3PJ1q(4, 1, 406) );
+      sigmaT.push_back( new Sigma2qg2QQbar3PJ1q(4, 2, 407) );
+      sigmaU.push_back( new Sigma2qg2QQbar3PJ1q(4, 2, 407) );
+      sigmaT.push_back( new Sigma2qg2QQbarX8q(4, 0, 414) );
+      sigmaU.push_back( new Sigma2qg2QQbarX8q(4, 0, 414) );
+      sigmaT.push_back( new Sigma2qg2QQbarX8q(4, 1, 415) );
+      sigmaU.push_back( new Sigma2qg2QQbarX8q(4, 1, 415) );
+      sigmaT.push_back( new Sigma2qg2QQbarX8q(4, 2, 416) );
+      sigmaU.push_back( new Sigma2qg2QQbarX8q(4, 2, 416) );
+      sigmaT.push_back( new Sigma2qg2QQbar3PJ1q(5, 0, 505) );
+      sigmaU.push_back( new Sigma2qg2QQbar3PJ1q(5, 0, 505) );
+      sigmaT.push_back( new Sigma2qg2QQbar3PJ1q(5, 1, 506) );
+      sigmaU.push_back( new Sigma2qg2QQbar3PJ1q(5, 1, 506) );
+      sigmaT.push_back( new Sigma2qg2QQbar3PJ1q(5, 2, 507) );
+      sigmaU.push_back( new Sigma2qg2QQbar3PJ1q(5, 2, 507) );
+      sigmaT.push_back( new Sigma2qg2QQbarX8q(5, 0, 514) );
+      sigmaU.push_back( new Sigma2qg2QQbarX8q(5, 0, 514) );
+      sigmaT.push_back( new Sigma2qg2QQbarX8q(5, 1, 515) );
+      sigmaU.push_back( new Sigma2qg2QQbarX8q(5, 1, 515) );
+      sigmaT.push_back( new Sigma2qg2QQbarX8q(5, 2, 516) );
+      sigmaU.push_back( new Sigma2qg2QQbarX8q(5, 2, 516) );
+    } else if (inState == 3) { 
+      sigmaT.push_back( new Sigma2qqbar2QQbar3PJ1g(4, 0, 408) );
+      sigmaU.push_back( new Sigma2qqbar2QQbar3PJ1g(4, 0, 408) );
+      sigmaT.push_back( new Sigma2qqbar2QQbar3PJ1g(4, 1, 409) );
+      sigmaU.push_back( new Sigma2qqbar2QQbar3PJ1g(4, 1, 409) );
+      sigmaT.push_back( new Sigma2qqbar2QQbar3PJ1g(4, 2, 410) );
+      sigmaU.push_back( new Sigma2qqbar2QQbar3PJ1g(4, 2, 410) );
+      sigmaT.push_back( new Sigma2qqbar2QQbarX8g(4, 0, 417) );
+      sigmaU.push_back( new Sigma2qqbar2QQbarX8g(4, 0, 417) );
+      sigmaT.push_back( new Sigma2qqbar2QQbarX8g(4, 1, 418) );
+      sigmaU.push_back( new Sigma2qqbar2QQbarX8g(4, 1, 418) );
+      sigmaT.push_back( new Sigma2qqbar2QQbarX8g(4, 2, 419) );
+      sigmaU.push_back( new Sigma2qqbar2QQbarX8g(4, 2, 419) );
+      sigmaT.push_back( new Sigma2qqbar2QQbar3PJ1g(5, 0, 508) );
+      sigmaU.push_back( new Sigma2qqbar2QQbar3PJ1g(5, 0, 508) );
+      sigmaT.push_back( new Sigma2qqbar2QQbar3PJ1g(5, 1, 509) );
+      sigmaU.push_back( new Sigma2qqbar2QQbar3PJ1g(5, 1, 509) );
+      sigmaT.push_back( new Sigma2qqbar2QQbar3PJ1g(5, 2, 510) );
+      sigmaU.push_back( new Sigma2qqbar2QQbar3PJ1g(5, 2, 510) );
+      sigmaT.push_back( new Sigma2qqbar2QQbarX8g(5, 0, 517) );
+      sigmaU.push_back( new Sigma2qqbar2QQbarX8g(5, 0, 517) );
+      sigmaT.push_back( new Sigma2qqbar2QQbarX8g(5, 1, 518) );
+      sigmaU.push_back( new Sigma2qqbar2QQbarX8g(5, 1, 518) );
+      sigmaT.push_back( new Sigma2qqbar2QQbarX8g(5, 2, 519) );
+      sigmaU.push_back( new Sigma2qqbar2QQbarX8g(5, 2, 519) );
+    }
+  }
+
+  // Resize arrays to match sizes above.
+  nChan = sigmaT.size();
+  needMasses.resize(nChan);
+  m3Fix.resize(nChan);
+  m4Fix.resize(nChan);
+  sHatMin.resize(nChan);
+  sigmaTval.resize(nChan);
+  sigmaUval.resize(nChan);
+
+  // Initialize the processes.
+  for (int i = 0; i < nChan; ++i) {
+    sigmaT[i]->initProc();
+    sigmaU[i]->initProc();
+
+    // Prepare for massive kinematics (but fixed masses!) where required.
+    needMasses[i] = false;
+    int id3Mass =  sigmaT[i]->id3Mass();
+    int id4Mass =  sigmaT[i]->id4Mass();
+    m3Fix[i] = 0.;
+    m4Fix[i] = 0.;
+    if (id3Mass > 0 || id4Mass > 0) {
+      needMasses[i] = true;
+      m3Fix[i] =  ParticleDataTable::m0(id3Mass); 
+      m4Fix[i] =  ParticleDataTable::m0(id4Mass); 
+    }
+    sHatMin[i] = pow2( m3Fix[i] + m4Fix[i] + MASSMARGIN); 
+  }
+
+  // Done.
+  return true;
+
+}
+
+//*********
+
+// Calculate cross section summed over possibilities.
+
+double SigmaMultiple::sigma( int id1, int id2, double x1, double x2, 
+  double sHat, double tHat, double uHat, double alpS, double alpEM) {
+
+  // Choose either the dominant process (in slot 0) or the rest of them.
+  bool pickOther = (Rndm::flat() < OTHERFRAC);
+
+  // Iterate over all subprocesses.
+  sigmaTsum = 0.;
+  sigmaUsum = 0.;
+  for (int i = 0; i < nChan; ++i) {
+    sigmaTval[i] = 0.;
+    sigmaUval[i] = 0.;
+
+    // Skip the not chosen processes.
+    if (i == 0 && pickOther) continue;
+    if (i > 0 && !pickOther) continue; 
+
+    // t-channel-sampling contribution. 
+    if (sHat > sHatMin[i]) { 
+      sigmaT[i]->set2KinMI( id1, id2, x1, x2, sHat, tHat, uHat, 
+        alpS, alpEM, needMasses[i], m3Fix[i], m4Fix[i]);
+      sigmaTval[i] = sigmaT[i]->sigmaHat();
+      // Correction factor for tHat rescaling in massive kinematics.
+      if (needMasses[i]) sigmaTval[i] *= sigmaT[i]->sHBetaMI() / sHat;
+      sigmaTsum += sigmaTval[i];
+    } 
+   
+    // u-channel-sampling contribution.
+    if (sHat > sHatMin[i]) { 
+      sigmaU[i]->set2KinMI( id1, id2, x1, x2, sHat, uHat, tHat, 
+        alpS, alpEM, needMasses[i], m3Fix[i], m4Fix[i]);
+      sigmaUval[i] = sigmaU[i]->sigmaHat();
+      // Correction factor for tHat rescaling in massive kinematics.
+      if (needMasses[i]) sigmaUval[i] *= sigmaU[i]->sHBetaMI() / sHat;
+      sigmaUsum += sigmaUval[i];
+    } 
+
+  // Average of t- and u-channel sampling; corrected for not selected channels.
+  }
+  double sigmaAvg = 0.5 * (sigmaTsum + sigmaUsum);
+  if (pickOther) sigmaAvg /= OTHERFRAC;
+  if (!pickOther) sigmaAvg /= (1. - OTHERFRAC); 
+  return sigmaAvg;
+
+}
+
+//*********
+
+// Return one subprocess, picked according to relative cross sections.
+
+SigmaProcess* SigmaMultiple::sigmaSel() { 
+
+  // Decide between t- and u-channel-sampled kinematics.
+  pickedU = (Rndm::flat() * (sigmaTsum + sigmaUsum) < sigmaUsum);
+
+  // Pick one of t-channel-sampled processes.
+  if (!pickedU) {
+    double sigmaRndm = sigmaTsum * Rndm::flat();
+    int iPick = -1;
+    do sigmaRndm -= sigmaTval[++iPick];
+    while (sigmaRndm > 0.);
+    return sigmaT[iPick];
+
+  // Pick one of u-channel-sampled processes.
+  } else {
+    double sigmaRndm = sigmaUsum * Rndm::flat();
+    int iPick = -1;
+    do sigmaRndm -= sigmaUval[++iPick];
+    while (sigmaRndm > 0.);
+    return sigmaU[iPick];
+  }
+
+}
 
 //**************************************************************************
 
@@ -15,62 +321,63 @@ namespace Pythia8 {
 // Definitions of static variables.
 // (Values will be overwritten in initStatic call, so are purely dummy.)
 
-int MultipleInteractions::pTmaxMatch = 0;
-double MultipleInteractions::alphaSvalue = 0.127;
-int MultipleInteractions::alphaSorder = 1; 
-double MultipleInteractions::alphaEMfix =  0.00729735;
-double MultipleInteractions::Kfactor = 1.0; 
-double MultipleInteractions::pT0Ref= 2.2; 
-double MultipleInteractions::ecmRef = 1800.; 
-double MultipleInteractions::ecmPow = 0.16; 
-double MultipleInteractions::pTmin = 0.2; 
-int MultipleInteractions::bProfile = 2; 
-double MultipleInteractions::coreRadius = 0.4; 
+int    MultipleInteractions::pTmaxMatch   = 0;
+double MultipleInteractions::alphaSvalue  = 0.127;
+int    MultipleInteractions::alphaSorder  = 1; 
+int    MultipleInteractions::alphaEMorder = 1; 
+double MultipleInteractions::Kfactor      = 1.0; 
+double MultipleInteractions::pT0Ref       = 2.2; 
+double MultipleInteractions::ecmRef       = 1800.; 
+double MultipleInteractions::ecmPow       = 0.16; 
+double MultipleInteractions::pTmin        = 0.2; 
+int    MultipleInteractions::bProfile     = 2; 
+double MultipleInteractions::coreRadius   = 0.4; 
 double MultipleInteractions::coreFraction = 0.5; 
-double MultipleInteractions::expPow = 1.; 
-int MultipleInteractions::nQuark = 5; 
-int MultipleInteractions::nSample = 1000; 
+double MultipleInteractions::expPow       = 1.; 
+int    MultipleInteractions::processLevel = 1; 
+int    MultipleInteractions::nQuark       = 5; 
+int    MultipleInteractions::nSample      = 1000; 
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
 
 // Factorization scale pT2 by default, but could be shifted to pT2 + pT02.
 // (A priori possible, but problems for flavour threshold interpretation.)
-const bool MultipleInteractions::SHIFTFACSCALE = false;
+const bool   MultipleInteractions::SHIFTFACSCALE = false;
 
 // Naive upper estimate of cross section too pessimistic, so reduce by this.
-const double MultipleInteractions::SIGMAFUDGE = 0.7; 
+const double MultipleInteractions::SIGMAFUDGE    = 0.7; 
 
 // Number of bins that the dpT2 / (pT2 + r * pT20)^2 range is split into.
-const int MultipleInteractions::NBINS = 100;
+const int    MultipleInteractions::NBINS         = 100;
 
 // The r value above, picked to allow a flatter correct/trial cross section.
-const double MultipleInteractions::RPT20 = 0.25;
+const double MultipleInteractions::RPT20         = 0.25;
 
 // Reduce pT0 by factor pT0STEP if sigmaInt < SIGMASTEP * sigmaND.
-const double MultipleInteractions::PT0STEP = 0.9;
-const double MultipleInteractions::SIGMASTEP = 1.1;
+const double MultipleInteractions::PT0STEP       = 0.9;
+const double MultipleInteractions::SIGMASTEP     = 1.1;
 
 // Refuse too low expPow in impact parameter profile.
-const double MultipleInteractions::EXPPOWMIN = 0.4; 
+const double MultipleInteractions::EXPPOWMIN     = 0.4; 
 
 // Define low-b region by interaction rate above given number.
-const double MultipleInteractions::PROBATLOWB = 0.6;
+const double MultipleInteractions::PROBATLOWB    = 0.6;
 
 // Basic step size for b integration; sometimes modified.
-const double MultipleInteractions::BSTEP = 0.01;
+const double MultipleInteractions::BSTEP         = 0.01;
 
 // Stop b integration when integrand dropped enough.
-const double MultipleInteractions::BMAX = 1e-8;
+const double MultipleInteractions::BMAX          = 1e-8;
 
 // Do not allow too large argument to exp function.
-const double MultipleInteractions::EXPMAX = 50.;
+const double MultipleInteractions::EXPMAX        = 50.;
 
 // Convergence criterion for k iteration.
-const double MultipleInteractions::KCONVERGE = 1e-7;
+const double MultipleInteractions::KCONVERGE     = 1e-7;
 
 // Conversion of GeV^{-2} to mb for cross section.
-const double MultipleInteractions::CONVERT2MB = 0.389380; 
+const double MultipleInteractions::CONVERT2MB    = 0.389380; 
 
 //*********
 
@@ -79,29 +386,37 @@ const double MultipleInteractions::CONVERT2MB = 0.389380;
 void MultipleInteractions::initStatic() {
 
   // Matching in pT of hard interaction to further interactions.
-  pTmaxMatch = Settings::mode("MultipleInteractions:pTmaxMatch"); 
+  pTmaxMatch   = Settings::mode("MultipleInteractions:pTmaxMatch"); 
 
-  //  Parameters of alphaStrong and cross section generation.
-  alphaSvalue = Settings::parm("MultipleInteractions:alphaSvalue");
-  alphaSorder = Settings::mode("MultipleInteractions:alphaSorder");
-  alphaEMfix = Settings::parm("StandardModel:alphaEMfix"); 
-  Kfactor = Settings::parm("MultipleInteractions:Kfactor");
+  //  Parameters of alphaStrong generation.
+  alphaSvalue  = Settings::parm("MultipleInteractions:alphaSvalue");
+  alphaSorder  = Settings::mode("MultipleInteractions:alphaSorder");
+
+  // Parameters of alphaEM generation.
+  alphaEMorder = Settings::mode("MultipleInteractions:alphaEMorder");
+
+  //  Parameters of cross section generation.
+  Kfactor      = Settings::parm("MultipleInteractions:Kfactor");
 
   // Regularization of QCD evolution for pT -> 0. 
-  pT0Ref = Settings::parm("MultipleInteractions:pT0Ref");
-  ecmRef = Settings::parm("MultipleInteractions:ecmRef");
-  ecmPow = Settings::parm("MultipleInteractions:ecmPow");
-  pTmin = Settings::parm("MultipleInteractions:pTmin");
+  pT0Ref       = Settings::parm("MultipleInteractions:pT0Ref");
+  ecmRef       = Settings::parm("MultipleInteractions:ecmRef");
+  ecmPow       = Settings::parm("MultipleInteractions:ecmPow");
+  pTmin        = Settings::parm("MultipleInteractions:pTmin");
 
   // Impact parameter profile.
-  bProfile = Settings::mode("MultipleInteractions:bProfile");
-  coreRadius = Settings::parm("MultipleInteractions:coreRadius");
+  bProfile     = Settings::mode("MultipleInteractions:bProfile");
+  coreRadius   = Settings::parm("MultipleInteractions:coreRadius");
   coreFraction = Settings::parm("MultipleInteractions:coreFraction");
-  expPow = max( EXPPOWMIN, Settings::parm("MultipleInteractions:expPow"));
+  expPow       = Settings::parm("MultipleInteractions:expPow");
+  expPow       = max(EXPPOWMIN, expPow);
+
+  // Process sets to include in machinery.
+  processLevel = Settings::mode("MultipleInteractions:processLevel");
 
   // Various other parameters. 
-  nQuark = Settings::mode("MultipleInteractions:nQuark");
-  nSample = Settings::mode("MultipleInteractions:nSample");
+  nQuark       = Settings::mode("MultipleInteractions:nQuark");
+  nSample      = Settings::mode("MultipleInteractions:nSample");
 
 }
 
@@ -121,38 +436,36 @@ bool MultipleInteractions::init( BeamParticle* beamAPtrIn,
 
   // Some common combinations for double Gaussian, as shorthand.
   if (bProfile == 2) {
-    fracA = pow2(1. - coreFraction);
-    fracB = 2. * coreFraction * (1. - coreFraction);
-    fracC = pow2(coreFraction); 
+    fracA    = pow2(1. - coreFraction);
+    fracB    = 2. * coreFraction * (1. - coreFraction);
+    fracC    = pow2(coreFraction); 
     radius2B = 0.5 * (1. + pow2(coreRadius));
     radius2C = pow2(coreRadius);
 
   // Some common combinations for exp(b^pow), as shorthand.
   } else if (bProfile == 3) {
-    lowPow = (expPow < 2.) ? true : false;
+    lowPow = (expPow < 2.);
     expRev = 2. / expPow - 1.;
   } 
 
   // Initialize alpha_strong generation.
   alphaS.init( alphaSvalue, alphaSorder); 
 
+  // Initialize alphaEM generation.
+  alphaEM.init( alphaEMorder); 
+
   // Attach matrix-element calculation objects.
   if (!reInit) {
-    sigma2gg2ggT = new Sigma2gg2gg();
-    sigma2gg2ggU = new Sigma2gg2gg();
-    sigma2qg2qgT = new Sigma2qg2qg();
-    sigma2qg2qgU = new Sigma2qg2qg();
-    sigma2qq2qqSameT = new Sigma2qq2qqSame();
-    sigma2qq2qqSameU = new Sigma2qq2qqSame();
-    sigma2qqbar2qqbarSameT = new Sigma2qqbar2qqbarSame();
-    sigma2qqbar2qqbarSameU = new Sigma2qqbar2qqbarSame();
-    sigma2qq2qqDiffT = new Sigma2qq2qqDiff();
-    sigma2qq2qqDiffU = new Sigma2qq2qqDiff();
+    sigma2gg.init( 0, processLevel);
+    sigma2qg.init( 1, processLevel);
+    sigma2qqSame.init( 2, processLevel);
+    sigma2qqbarSame.init( 3, processLevel);
+    sigma2qqDiff.init( 4, processLevel);
   }
 
   // Calculate invariant mass of system. Set current pT0 scale.
-  sCM = m2( beamAPtr->p(), beamBPtr->p());
-  eCM = sqrt(sCM);
+  sCM  = m2( beamAPtr->p(), beamBPtr->p());
+  eCM  = sqrt(sCM);
   pT0 = pT0Ref * pow(eCM / ecmRef, ecmPow);
 
   // Get the total inelastic and nondiffractive cross section. Output.
@@ -169,23 +482,25 @@ bool MultipleInteractions::init( BeamParticle* beamAPtrIn,
      << "     | \n";
 
   // The pT0 value may need to be decreased, if sigmaInt < sigmaND.
+  double pT4dSigmaMaxBeg = 0.;
   for ( ; ; ) { 
 
     // Derived pT kinematics combinations.
-    pT20 = pT0*pT0;
-    pT2min = pTmin*pTmin;
-    pTmax = 0.5*eCM;
-    pT2max = pTmax*pTmax;
-    pT20R = RPT20 * pT20;
-    pT20minR = pT2min + pT20R;
-    pT20maxR = pT2max + pT20R;
+    pT20         = pT0*pT0;
+    pT2min       = pTmin*pTmin;
+    pTmax        = 0.5*eCM;
+    pT2max       = pTmax*pTmax;
+    pT20R        = RPT20 * pT20;
+    pT20minR     = pT2min + pT20R;
+    pT20maxR     = pT2max + pT20R;
     pT20min0maxR = pT20minR * pT20maxR;
-    pT2maxmin = pT2max - pT2min;   
+    pT2maxmin    = pT2max - pT2min;   
 
     // Provide upper estimate of interaction rate d(Prob)/d(pT2).
     upperEnvelope();
 
     // Integrate the parton-parton interaction cross section.
+    pT4dSigmaMaxBeg = pT4dSigmaMax;
     jetCrossSection();
 
     // Sufficiently big SigmaInt or reduce pT0. Output.
@@ -201,8 +516,30 @@ bool MultipleInteractions::init( BeamParticle* beamAPtrIn,
      << " *-------  End PYTHIA Multiple Interactions Initialization"
      << "  ---* " << endl;
 
+  // Amount of violation from upperEnvelope to jetCrossSection.
+  if (pT4dSigmaMax > pT4dSigmaMaxBeg) {  
+    ostringstream osWarn;
+    osWarn << "by factor " << fixed << setprecision(3) 
+           << pT4dSigmaMax/pT4dSigmaMaxBeg;
+    ErrorMsg::message("Warning in MultipleInteractions::init:"
+      " maximum increased", osWarn.str());
+  }
+
   // Calculate factor relating matter overlap and interaction rate.
   overlapInit();
+
+  // Ensure that process list is complete, and reset statistics.
+  SigmaMultiple* dSigma;
+  for (int i = 0; i < 5; ++i) {
+    if      (i == 0) dSigma = &sigma2gg; 
+    else if (i == 1) dSigma = &sigma2qg;
+    else if (i == 2) dSigma = &sigma2qqSame;
+    else if (i == 3) dSigma = &sigma2qqbarSame;
+    else             dSigma = &sigma2qqDiff;
+    int nProc = dSigma->nProc();
+    for (int iProc = 0; iProc < nProc; ++iProc)
+      nGen[ dSigma->codeProc(iProc) ] = 0;
+  }
 
   // Done.
   isInit = true;
@@ -274,6 +611,7 @@ void MultipleInteractions::setupFirstSys( Info* infoPtr, Event& process) {
 
   // Loop over four partons and offset info relative to subprocess itself.
   int colOffset = process.lastColTag();
+  double pTMI= 0.;
   for (int i = 1; i <= 4; ++i) {
     Particle parton = dSigmaDtSel->getParton(i);
     if (i <= 2 ) parton.mothers( i, 0);  
@@ -287,6 +625,7 @@ void MultipleInteractions::setupFirstSys( Info* infoPtr, Event& process) {
 
     // Put the partons into the event record.
     process.append(parton);
+    if (i == 3) pTMI = parton.pT();
   }
 
   // Set scale from which to begin evolution.
@@ -297,14 +636,15 @@ void MultipleInteractions::setupFirstSys( Info* infoPtr, Event& process) {
   int codeSub = dSigmaDtSel->code();
   int nFinalSub = dSigmaDtSel->nFinal();
   infoPtr->setSubType( nameSub, codeSub, nFinalSub);
+  infoPtr->setTypeMI( codeSub, pTMI);
 
   // Further standard info on process.
   infoPtr->setPDFalpha( id1, id2, xPDF1now, xPDF2now, pT2Fac, alpEM, alpS, 
     pT2Ren);
   double m3 = dSigmaDtSel->m(3);
   double m4 = dSigmaDtSel->m(4); 
-  double theta = dSigmaDtSel->theta(); 
-  double phi = dSigmaDtSel->phi(); 
+  double theta = dSigmaDtSel->thetaMI(); 
+  double phi = dSigmaDtSel->phiMI(); 
   infoPtr->setKin( x1, x2, sHat, tHat, uHat, sqrt(pT2), m3, m4, theta, phi);
 
 }
@@ -325,7 +665,7 @@ bool MultipleInteractions::limitPTmax( Event& event) {
     int idAbs = event[i].idAbs();
     if (idAbs > 5 && idAbs != 21 && idAbs != 22) onlyQGP = false;
   }
-  return (onlyQGP) ? true : false;
+  return (onlyQGP);
  
 }
 
@@ -359,11 +699,12 @@ double MultipleInteractions::pTnext( double pTbegAll, double pTendAll) {
 // Set up the kinematics of the 2 -> 2 scattering process,
 // and store the scattering in the event record.
 
-void MultipleInteractions::scatter( Event& event) {
+void MultipleInteractions::scatter( Info* infoPtr, Event& event) {
 
   // Loop over four partons and offset info relative to subprocess itself.
   int motherOffset = event.size();
   int colOffset = event.lastColTag();
+  double pTMI= 0.;
   for (int i = 1; i <= 4; ++i) {
     Particle parton = dSigmaDtSel->getParton(i);
     if (i <= 2 ) parton.mothers( i, 0);  
@@ -377,6 +718,7 @@ void MultipleInteractions::scatter( Event& event) {
 
     // Put the partons into the event record.
     event.append(parton);
+    if (i == 3) pTMI = parton.pT();
   }
 
   // Add scattered partons to list in beam remnants.
@@ -388,6 +730,10 @@ void MultipleInteractions::scatter( Event& event) {
   beamAPtr->pickValSeaComp(); 
   beamBPtr->xfISR( iB, id2, x2, pT2);
   beamBPtr->pickValSeaComp(); 
+
+  // Store info on subprocess code.
+  int codeMI = dSigmaDtSel->code();
+  infoPtr->setTypeMI( codeMI, pTMI);
 
   // Done.
 } 
@@ -421,8 +767,9 @@ void MultipleInteractions::upperEnvelope() {
       xPDF2sumMax += beamBPtr->xf(id, xT, pT2Fac) 
         + beamBPtr->xf(-id, xT, pT2Fac);
 
-    // Evaluate alpha_strong, matrix element and phase space volume.
+    // Evaluate alpha_strong and _EM, matrix element and phase space volume.
     alpS = alphaS.alphaS(pT2Ren);
+    alpEM = alphaEM.alphaEM(pT2Ren);
     double dSigmaPartonApprox = CONVERT2MB * Kfactor * 0.5 * M_PI 
       * pow2(alpS / pT2shift);
     double yMax = log(1./xT + sqrt(1./(xT*xT) - 1.));
@@ -608,70 +955,44 @@ double MultipleInteractions::sigmaPT2(bool isFirst) {
   while (temp > 0. && id2 < nQuark);  
   if (id2 == 0) id2 = 21; 
 
-  // Assign pointers to processes relevant for incoming flavour choice.
+  // Assign pointers to processes relevant for incoming flavour choice:
+  // g + g, q + g, q + q (same flavour), q + qbar (same flavour), 
+  // q + q or q + qbar (different flavours).  
   // Factor 4./9. per incoming gluon to compensate for preweighting.  
-  SigmaProcess *dSigmaT, *dSigmaU;
+  SigmaMultiple* dSigma;
   double gluFac = 1.;
-
-  // g + g -> g + g.  
-  if (id1 == 21 && id2 == 21) {
-    dSigmaT = sigma2gg2ggT;
-    dSigmaU = sigma2gg2ggU;
-    gluFac = 16. / 81.;
-
-  // q + g -> q + g.   
-  } else if (id1 == 21 || id2 == 21) {
-    dSigmaT = sigma2qg2qgT;
-    dSigmaU = sigma2qg2qgU;
-    gluFac = 4. / 9.;
-
-  // q + q -> q + q, involving identical quarks.
-  } else if (id1 == id2) {
-    dSigmaT = sigma2qq2qqSameT;
-    dSigmaU = sigma2qq2qqSameU;
-
-  // q + qbar -> q + qbar, pair of same flavour.
-  } else if (id1 == -id2) {
-    dSigmaT = sigma2qqbar2qqbarSameT;
-    dSigmaU = sigma2qqbar2qqbarSameU;
-
-  // q1 + q2 -> q1 + q2 or q1 + q2bar -> q1 + q2bar, different flavours.  
-  } else {
-    dSigmaT = sigma2qq2qqDiffT;
-    dSigmaU = sigma2qq2qqDiffU;
-  }
+  if (id1 == 21 && id2 == 21) { dSigma = &sigma2gg; gluFac = 16. / 81.;}
+  else if (id1 == 21 || id2 == 21) { dSigma = &sigma2qg; gluFac = 4. / 9.;}
+  else if (id1 == id2) dSigma = &sigma2qqSame;
+  else if (id1 == -id2) dSigma = &sigma2qqbarSame;
+  else dSigma = &sigma2qqDiff;
 
   // Prepare to generate differential cross sections.
   sHat = tau * sCM;
   double root = sqrtpos(1. - xT2 / tau);
   alpS = alphaS.alphaS(pT2Ren);
-  alpEM = alphaEMfix;
-
-  // Set kinematics for two symmetrical configurations (tHat <-> uHat).
-  // (Not necessary, but makes for better MC efficiency.)
+  alpEM = alphaEM.alphaEM(pT2Ren);
   tHat = -0.5 * sHat * (1. - root);
   uHat = -0.5 * sHat * (1. + root);
-  dSigmaT->set2KinMI( id1, id2, x1, x2, sHat, tHat, uHat, alpS);
-  dSigmaU->set2KinMI( id1, id2, x1, x2, sHat, uHat, tHat, alpS);
 
   // Evaluate cross sections, include possibility of K factor.
-  double dSigmaNowT = Kfactor * gluFac * dSigmaT->sigmaHat();
-  double dSigmaNowU = Kfactor * gluFac * dSigmaU->sigmaHat();
+  // Use kinematics for two symmetrical configurations (tHat <-> uHat).
+  // (Not necessary, but makes for better MC efficiency.)
+  double dSigmaPartonCorr = Kfactor * gluFac 
+    * dSigma->sigma( id1, id2, x1, x2, sHat, tHat, uHat, alpS, alpEM);
 
-  // Form average dSigmaHat/dt, representing dSigmaHat/dpT2 (up to factors).
-  double dSigmaPartonCorr = (dSigmaNowT + dSigmaNowU) / 2.;
-
-  // Pick one of two possible tHat values for acceptable pT.
-  dSigmaDtSel = ((dSigmaNowT + dSigmaNowU) * Rndm::flat() < dSigmaNowT) 
-    ? dSigmaT : dSigmaU;
-  if (dSigmaDtSel == dSigmaU) swap( tHat, uHat);
+  // Pick one of the possible channels summed above.
+  dSigmaDtSel = dSigma->sigmaSel();
+  if (dSigma->swapTU()) swap( tHat, uHat);
 
   // Combine cross section, pdf's and phase space integral.
   double volumePhSp = pow2(2. * yMax) / WTy;
   double dSigmaCorr = dSigmaPartonCorr * xPDF1sum * xPDF2sum * volumePhSp;
 
   // Dampen cross section at small pT values; part of formalism.
-  dSigmaCorr *= pow2(pT2 / pT2shift);
+  // Use pT2 corrected for massive kinematics at this step.
+  double pT2massive = dSigmaDtSel->pT2MI();
+  dSigmaCorr *= pow2( pT2massive / (pT2massive + pT20) );
 
   // Done.
   return dSigmaCorr;
@@ -695,18 +1016,18 @@ void MultipleInteractions::overlapInit() {
   if (bProfile == 3) deltaB *= max(1., pow(2. / expPow, 1. / expPow)); 
   
   // Further variables, with dummy initial values.
-  double nNow = 0.;
-  double kLow = 0.;
-  double nLow = 0.;
-  double kHigh = 0.;
-  double nHigh = 0.;
-  double overlapNow = 0.;
-  double probNow = 0.; 
-  double overlapInt = 0.5;
-  double probInt = 0.; 
+  double nNow           = 0.;
+  double kLow           = 0.;
+  double nLow           = 0.;
+  double kHigh          = 0.;
+  double nHigh          = 0.;
+  double overlapNow     = 0.;
+  double probNow        = 0.; 
+  double overlapInt     = 0.5;
+  double probInt        = 0.; 
   double probOverlapInt = 0.;
-  double bProbInt = 0.;
-  normPi = 1. / (2. * M_PI);
+  double bProbInt       = 0.;
+  normPi                = 1. / (2. * M_PI);
 
   // Subdivision into low-b and high-b region by interaction rate.
   bool pastBDiv = false;  
@@ -729,19 +1050,19 @@ void MultipleInteractions::overlapInit() {
     } else { 
 
       // Reset integrals.
-      overlapInt = (bProfile == 3) ? 0. : 0.5;
-      probInt = 0.; 
+      overlapInt     = (bProfile == 3) ? 0. : 0.5;
+      probInt        = 0.; 
       probOverlapInt = 0.;
-      bProbInt = 0.;
-      pastBDiv = false;
-      overlapHighB = 0.;
+      bProbInt       = 0.;
+      pastBDiv       = false;
+      overlapHighB    = 0.;
 
       // Step in b space.
-      double b = -0.5 * deltaB;
+      double b     = -0.5 * deltaB;
       double bArea = 0.;
       do {
-        b += deltaB;
-        bArea = 2. * M_PI * b * deltaB;
+        b     += deltaB;
+        bArea  = 2. * M_PI * b * deltaB;
 
         // Evaluate overlap at current b value.
         if (bProfile == 1) { 
@@ -751,20 +1072,20 @@ void MultipleInteractions::overlapInit() {
             + fracB * exp( -min(EXPMAX, b*b / radius2B)) / radius2B
             + fracC * exp( -min(EXPMAX, b*b / radius2C)) / radius2C );
 	} else {
-          overlapNow = normPi * exp( -pow( b, expPow));  
+          overlapNow  = normPi * exp( -pow( b, expPow));  
           overlapInt += bArea * overlapNow;
 	}
         if (pastBDiv) overlapHighB += bArea * overlapNow;
 
         // Calculate interaction probability and integrate.
-        probNow = 1. - exp( -min(EXPMAX, M_PI * kNow * overlapNow));
-        probInt += bArea * probNow;
+        probNow         = 1. - exp( -min(EXPMAX, M_PI * kNow * overlapNow));
+        probInt        += bArea * probNow;
         probOverlapInt += bArea * overlapNow * probNow;
-        bProbInt += b * bArea * probNow;
+        bProbInt       += b * bArea * probNow;
 
         // Check when interaction probability has dropped sufficiently.
         if (!pastBDiv && probNow < PROBATLOWB) {
-          bDiv = b + 0.5 * deltaB;
+          bDiv     = b + 0.5 * deltaB;
           pastBDiv = true;
         }
 
@@ -802,11 +1123,11 @@ void MultipleInteractions::overlapInit() {
     double probHighB = M_PI * kNow * overlapHighB;
     if (bProfile == 1) probHighB = M_PI * kNow * 0.5 * exp( -bDiv*bDiv);
     else if (bProfile == 2) {
-      fracAhigh = fracA * exp( -bDiv*bDiv);
-      fracBhigh = fracB * exp( -bDiv*bDiv / radius2B);
-      fracChigh = fracC * exp( -bDiv*bDiv / radius2C);
+      fracAhigh   = fracA * exp( -bDiv*bDiv);
+      fracBhigh   = fracB * exp( -bDiv*bDiv / radius2B);
+      fracChigh   = fracC * exp( -bDiv*bDiv / radius2C);
       fracABChigh = fracAhigh + fracBhigh + fracChigh;
-      probHighB = M_PI * kNow * 0.5 * fracABChigh;
+      probHighB   = M_PI * kNow * 0.5 * fracABChigh;
     } else { 
       cDiv = pow( bDiv, expPow);
       cMax = max(2. * expRev, cDiv); 
@@ -825,10 +1146,10 @@ void MultipleInteractions::overlapFirst() {
 
   // Trivial values if no impact parameter dependence.
   if (bProfile <= 0 || bProfile > 3) {
-    bNow = bAvg;
+    bNow     = bAvg;
     enhanceB = zeroIntCorr;
-    bIsSet = true;
-    atLowB = true;
+    bIsSet   = true;
+    atLowB   = true;
     return;
   }
 
@@ -978,6 +1299,76 @@ void MultipleInteractions::overlapNext(double pTscale) {
 
   // Done.
   bIsSet = true;
+}
+
+//*********
+
+// Printe statistics on number of multiple-interactions processes.
+
+void MultipleInteractions::statistics(ostream& os) {
+    
+  // Header.
+  os << "\n *-------  PYTHIA Multiple Interactions Statistics  --------"
+     << "---*\n"
+     << " |                                                            "
+     << " |\n" 
+     << " |  Note: excludes hardest subprocess if already listed above " 
+     << " |\n" 
+     << " |                                                            "
+     << " |\n" 
+     << " | Subprocess                               Code |       Times"
+     << " |\n" 
+     << " |                                               |            "
+     << " |\n"
+     << " |------------------------------------------------------------"
+     << "-|\n"
+     << " |                                               |            "
+     << " |\n";
+
+  // Loop over existing processes. Sum of all subprocesses.
+  int numberSum = 0;
+  for ( map<int, int>::iterator iter = nGen.begin(); iter != nGen.end(); 
+    ++iter) {  
+    int code = iter -> first;
+    int number = iter->second;
+    numberSum += number;
+  
+    // Find process name that matches code.
+    string name = " ";
+    bool foundName = false;
+    SigmaMultiple* dSigma;
+    for (int i = 0; i < 5; ++i) {
+      if      (i == 0) dSigma = &sigma2gg; 
+      else if (i == 1) dSigma = &sigma2qg;
+      else if (i == 2) dSigma = &sigma2qqSame;
+      else if (i == 3) dSigma = &sigma2qqbarSame;
+      else             dSigma = &sigma2qqDiff;
+      int nProc = dSigma->nProc();
+      for (int iProc = 0; iProc < nProc; ++iProc)
+      if (dSigma->codeProc(iProc) == code) {
+        name = dSigma->nameProc(iProc);
+        foundName = true;
+      } 
+      if (foundName) break;      
+    }
+
+    // Print individual process info.
+    os << " | " << left << setw(40) << name << right << setw(5) << code 
+       << " | " << setw(11) << number << " |\n";
+  }
+
+  // Print summed process info.
+  os << " |                                                            "
+     << " |\n" 
+     << " | " << left << setw(45) << "sum" << right << " | " << setw(11) 
+       << numberSum  << " |\n";
+
+    // Listing finished.
+  os << " |                                               |            "
+     << " |\n" 
+     << " *-------  End PYTHIA Multiple Interactions Statistics -------"
+     << "-*" << endl;
+
 }
 
 //**************************************************************************

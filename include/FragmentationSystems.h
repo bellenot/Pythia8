@@ -3,7 +3,7 @@
 // ColConfig describes the colour configuration of the whole event.
 // StringRegion keeps track on string momenta and directions.
 // StringSystem contains all the StringRegions of the colour singlet.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_FragmentationSystems_H
 #define Pythia8_FragmentationSystems_H

@@ -1,14 +1,14 @@
 // File: main01.cc
 // This is a simple test program. It fits on one slide in a talk. 
 // It studies the charged multiplicity distribution at the LHC.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 #include "Pythia.h"
 using namespace Pythia8; 
 int main() {
   // Generator. Process selection. LHC initialization. Histogram.
   Pythia pythia;
   pythia.readString("HardQCD:all = on");    
-  pythia.readString("PhaseSpace:pTHatMin = 20.");    
+  pythia.readString("PhaseSpace:pTHatMin = 20.");  
   pythia.init( 2212, 2212, 14000.);
   Hist mult("charged multiplicity", 100, -0.5, 799.5);
   // Begin event loop. Generate event. Skip if error. List first one.

@@ -1,6 +1,6 @@
 // This file contains the class for cross section parametrizations.
 // SigmaTotal: total and partial cross section in hadron-hadron collisions.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_SigmaTotal_H
 #define Pythia8_SigmaTotal_H

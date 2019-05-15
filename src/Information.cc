@@ -1,6 +1,6 @@
 // Function definitions (not found in the header) for the Info
 // and ErrorMessages classes.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #include "Information.h"
 
@@ -96,16 +96,16 @@ void Info::list(ostream& os) {
 // Definitions of static variables. 
 // (Values will be overwritten in initStatic call, so are purely dummy.)
 
-int ErrorMessages::timesToPrint = 1;
-map<string, int> ErrorMessages::messages;
+int ErrorMsg::timesToPrint = 3;
+map<string, int> ErrorMsg::messages;
 
 //*********
 
 // Initialize static data members.
 
-void ErrorMessages::initStatic() {
+void ErrorMsg::initStatic() {
 
-  timesToPrint = Settings::mode("ErrorMessages:timesToPrint"); 
+  timesToPrint = Settings::mode("ErrorMsg:timesToPrint"); 
 
 }
 
@@ -113,7 +113,7 @@ void ErrorMessages::initStatic() {
   
 // Print a message the first few times. Insert in database.
  
-void ErrorMessages::message(string messageIn, string extraIn, 
+void ErrorMsg::message(string messageIn, string extraIn, 
   ostream& os) {
    
   // Recover number of times message occured. Also inserts new string.
@@ -121,7 +121,7 @@ void ErrorMessages::message(string messageIn, string extraIn,
   ++messages[messageIn];
 
   // Print message the first few times.
-  if (times < timesToPrint) os << " " << messageIn << " " 
+  if (times < timesToPrint) os << " PYTHIA " << messageIn << " " 
     << extraIn << "\n";
 
 }
@@ -130,7 +130,7 @@ void ErrorMessages::message(string messageIn, string extraIn,
 
 // Print statistics on errors/warnings.
 
-void ErrorMessages::statistics(ostream& os) {
+void ErrorMsg::statistics(ostream& os) {
 
   // Header.
   os << "\n *-------  PYTHIA Error and Warning Messages Statistics  "

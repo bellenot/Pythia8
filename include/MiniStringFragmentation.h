@@ -1,6 +1,6 @@
 // This file contains the class for "cluster" fragmentation.
 // MiniStringFragmentation: handle the fragmentation of low-mass systems.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_MiniStringFragmentation_H
 #define Pythia8_MiniStringFragmentation_H
@@ -56,7 +56,7 @@ private:
 
   // Data members.
   vector<int> iParton;
-  int id1, id2;
+  FlavContainer flav1, flav2;
   Vec4 pSum;
   double mSum, m2Sum;
   bool isClosed;

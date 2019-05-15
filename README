@@ -1,5 +1,5 @@
-1) First edit file "config.csh" if you use the csh or tcsh shells,
-   else edit "config.sh". (If in doubt, use "echo $SHELL" to find out.)
+1) First edit file "configure". You can change compilation mode (OPT
+   for optimised compilation, DBG for compilation with debugger).
    Put there the locations of available libraries. If some libraries 
    are unavailable, comment out the respective lines. 
    If a compiled Pythia6 is unavailable, the source code included in 
@@ -8,8 +8,11 @@
    not be built and some examples will be impossible to use. 
    The program will work perfectly well standalone, however.
 
-2) Type "source config.csh" for csh and tcsh shells, else type
-   "source config.sh". This makes the above library paths take effect.
+2) Type "configure" (or "./configure" if the directory is not in your 
+   path). This creates file config.mk and files examples/config.sh, 
+   examples/config.csh. This step is optional since Make will run the 
+   script configure anyway, but possible errors in the paths will be 
+   less clearly visible.
 
 3) Type "gmake" or "make". This will create the libraries (up to three 
    of them). On Linux systems gmake and make are usually equivalent.
@@ -18,7 +21,11 @@
 4) The libraries should now be ready for use. To study some examples,
    go to the "examples" subdirectory. There you can use "gmake mainNN",
    for NN a two-digit number corresponding to one of the existing examples.
-   This will build an executable "mainNN.exe", that you then can run
+   This will build an executable "mainNN.exe". If you work with HepMC,
+   then before running your executable for the first time type
+   "source config.csh" for csh or tcsh, or "source config.sh"
+   for bash and similar shells. This will add HepMC and CLHEP locations
+   to the variable LD_LIBRARY_PATH. Then you can run the executable
    with "./mainNN.exe > outputfile" (where the initial "./" may not 
    be necessary). 
    
@@ -27,7 +34,8 @@
    it in the main directory it will apply to all subdirectories, if in
    examples then only for that subdirectory.) 
 
-There are no shared libraries for the moment.
+The shared libraries are created by default together with archive libraries,
+but by default are not used in examples.
 
 To learn more about the current program:
 

@@ -1,6 +1,6 @@
 // This file contains the main class for performing resonance decays.
 // ResonanceDecays: handles the sequential decay of resonances in process.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_ResonanceDecays_H
 #define Pythia8_ResonanceDecays_H

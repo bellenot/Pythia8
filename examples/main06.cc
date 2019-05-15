@@ -3,7 +3,7 @@
 // It illustrates how to use internal Pythia8 processes,
 // with special emphasis on elastic/diffractive processes.
 // All input is specified in the main06.cmnd file.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #include "Pythia.h"
 

@@ -1,5 +1,5 @@
 // Function definitions (not found in the header) for the PartonLevel class.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #include "PartonLevel.h"
 
@@ -31,17 +31,28 @@ bool PartonLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn,
   strategyLHA = strategyIn;
 
   // Main flags.
-  ISR = Settings::flag("PartonLevel:ISR");
-  FSRinProcess = Settings::flag("PartonLevel:FSRinProcess");
-  FSRinResonances = Settings::flag("PartonLevel:FSRinResonances");
-  MI = Settings::flag("PartonLevel:MI");
-  if (!Settings::flag("Pythia:afterProcessLevel")) MI = false;
+  doISR = Settings::flag("PartonLevel:ISR");
+  doFSRinProcess = Settings::flag("PartonLevel:FSRinProcess");
+  doFSRinResonances = Settings::flag("PartonLevel:FSRinResonances");
+  doMI = Settings::flag("PartonLevel:MI");
+  if (!Settings::flag("Pythia:partonLevel")) doMI = false;
+  doRemnants = true;
+
+  // Flag if lepton beams, and if non-resolved ones. May change main flags.
+  hasLeptonBeams = ( beamAPtr->isLepton() || beamBPtr->isLepton() );
+  hasPointLeptons = ( hasLeptonBeams 
+    && (beamAPtr->isUnresolved() || beamBPtr->isUnresolved() ) );
+  if (hasLeptonBeams) doMI = false;
+  if (hasPointLeptons) {
+    doISR = false;
+    doRemnants = false;
+  }
 
   // Set info in the respective program elements.
   if (strategyLHA < 10) {
     times.init();
-    if (ISR) space.init( beamAPtr, beamBPtr);
-    if (MI) MI = multi.init( beamAPtr, beamBPtr);
+    if (doISR) space.init( beamAPtr, beamBPtr);
+    if (doMI) doMI = multi.init( beamAPtr, beamBPtr);
   }
 
   // Succeeded. (Check return values from other classes??)
@@ -98,9 +109,9 @@ bool PartonLevel::next( Event& process, Event& event) {
 
     // Prepare the classes to begin the generation.
     // Need to redo everything??
-    if  (MI) multi.prepare( pTmaxMI);
-    if (ISR) space.prepare( event, limitPTmaxISR);
-    //if (FSRinProcess) times.prepare( event);
+    if  (doMI) multi.prepare( pTmaxMI);
+    if (doISR) space.prepare( event, limitPTmaxISR);
+    //if (doFSRinProcess) times.prepare( event);
 
     // Begin evolution down in pT from hard pT scale.  
     do {
@@ -110,14 +121,14 @@ bool PartonLevel::next( Event& process, Event& event) {
       int sizeOld = event.size();
       double pTgen = 0.;
       // Currently timelike showers are not interleaved??
-      //double pTtimes = (FSRinProcess) ? times.pTnext( event, pTmax, pTgen) 
+      //double pTtimes = (doFSRinProcess) ? times.pTnext( event, pTmax, pTgen) 
       //  : -1.;
       double pTtimes = -1.;
       pTgen = max( pTgen, pTtimes);
-      double pTmulti =  (MI) ? multi.pTnext( pTmaxMI, pTgen) 
+      double pTmulti =  (doMI) ? multi.pTnext( pTmaxMI, pTgen) 
         : -1.;
       pTgen = max( pTgen, pTmulti);
-      double pTspace = (ISR) ? space.pTnext( pTmaxISR, pTgen) 
+      double pTspace = (doISR) ? space.pTnext( pTmaxISR, pTgen) 
         : -1.;
 
       // One further possibility is that all pT have fallen
@@ -126,9 +137,9 @@ bool PartonLevel::next( Event& process, Event& event) {
 
       // Do a multiple interaction (if allowed).
       if (pTmulti > 0. && pTmulti > pTspace && pTmulti > pTtimes) {
-        multi.scatter( event);  
+        multi.scatter( infoPtr, event);  
         ++nMI;
-        if (ISR) space.prepare( event, true, sizeOld);
+        if (doISR) space.prepare( event, true, sizeOld);
         // times.update( event);
         pTmax = pTmulti;
         pTmaxMI = pTmulti;
@@ -157,10 +168,11 @@ bool PartonLevel::next( Event& process, Event& event) {
     } while (pTmax > 0.);   
 
     // Now add beam remnants. Includes primordial kT kick and colour tracing.
-    if (!remnants.add( *beamAPtr, *beamBPtr, event)) physical = false;
+    if (doRemnants && !remnants.add( *beamAPtr, *beamBPtr, event)) 
+      physical = false;
 
     // Temporary position for final-state emissions??
-    if (FSRinProcess && physical) {
+    if (doFSRinProcess && physical) {
       // Find largest scale for final partons.
       double pTmaxFSR = 0.;
       for (int i = 0; i < event.size(); ++i) 
@@ -184,7 +196,7 @@ bool PartonLevel::next( Event& process, Event& event) {
   // Perform showers in resonance decay chains.
   nFSRinRes = resonanceShowers( process, event); 
 
-  // Store statistics.
+  // Store event properties.
   infoPtr->setImpact( multi.bMI(), multi.enhanceMI());
   infoPtr->setEvolution( pTsaveMI, pTsaveISR, pTsaveFSR, 
     nMI, nISR, nFSRinProc, nFSRinRes);
@@ -464,7 +476,7 @@ int PartonLevel::resonanceShowers( Event& process, Event& event) {
     int iEnd = nHardDone - 1;
 
     // Do parton showers inside subsystem.
-    if (FSRinResonances) {
+    if (doFSRinResonances) {
       double pTmax = 0.5 * hardMother.m();
       nFSRinRes += times.shower( event, iPosBefShow[iBegin], 
         iPosBefShow[iEnd], pTmax);
@@ -483,7 +495,7 @@ int PartonLevel::resonanceShowers( Event& process, Event& event) {
 void PartonLevel::statistics() {
 
   // Preliminary list, to expand.
-  if (MI) multi.statistics();
+  if (doMI) multi.statistics();
 
 }
  

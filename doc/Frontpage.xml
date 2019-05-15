@@ -1,0 +1,65 @@
+<chapter name="Front">
+
+<h1>PYTHIA 8</h1>
+
+<h2>Welcome to PYTHIA - The Lund Monte Carlo!</h2>
+
+<p/>
+PYTHIA 8 is still incomplete, and should not be 
+used for any production runs. What is offered here is only a snapshot, 
+to allow interested users to provide feedback on the basic structure. 
+The program is under active development, however, and is intended to 
+replace the existing PYTHIA 6 as the official version within a year.
+
+<p/>
+Use the left-hand index to navigate in the existing documentation, 
+e.g. to learn which flags, modes and parameters can be set by the user.
+Also note that there is a separate
+<a href="pythia8060.pdf" target="page"><b>Brief Introduction</b></a>
+(as a pdf file), 
+that offers the best way to get to understand the basic structure of 
+PYTHIA 8. The current pages offer the more detailed picture, 
+with the corresponding danger of then losing overview.  
+
+<p/>
+The complete <b>PYTHIA 6.4 Physics and Manual</b>, published in<br/>
+<b>T. Sj&ouml;strand, S. Mrenna and P. Skands, JHEP05 (2006) 026</b>,<br/>
+in detail describes the physics (partly) implemented also in 
+PYTHIA 8. It therefore is the main reference that you should
+quote, whether you use PYTHIA 6 or PYTHIA 8.
+
+
+<p/>
+Main author:<br/> 
+Torbj&ouml;rn Sj&ouml;strand<br/> 
+CERN/PH, CH-1211 Geneva, Switzerland, and<br/>
+Department of Theoretical Physics, Lund University, Lund, Sweden<br/>
+phone: + 41 - 22 - 767 82 27<br/>
+e-mail: torbjorn@thep.lu.se   
+
+<p/>
+Author:<br/> 
+Stephen Mrenna<br/> 
+Computing Division, Simulations Group<br/> 
+Fermi National Accelerator Laboratory<br/>
+MS 234, Batavia, IL 60510, USA<br/>
+phone: + 1 - 630 - 840 - 2556<br/>
+e-mail: mrenna@fnal.gov
+
+<p/>
+Author:<br/> 
+Peter Skands<br/> 
+Theoretical Physics Department<br/>
+Fermi National Accelerator Laboratory<br/>
+MS 106, Batavia, IL 60510, USA<br/> 
+phone: + 1 - 630 - 840 - 2270<br/> 
+e-mail: skands@fnal.gov 
+
+<p/>
+The program and the documentation is
+Copyright &copy; 2007 Torbj&ouml;rn Sj&ouml;strand 
+ 
+
+</chapter>
+
+<!-- Copyright C 2007 Torbjorn Sjostrand -->

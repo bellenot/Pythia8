@@ -1,0 +1,214 @@
+#!/bin/sh
+#
+# Configuration script, to be run before compilation
+#
+# Author: M. Kirsanov
+
+#
+# User-changeable part -------------------------------
+#
+
+#LCG platform. Can be needed if external libraries are specified
+if [ x$MYLCGPLATFORM = x ]; then
+  export MYLCGPLATFORM=slc3_ia32_gcc323
+fi
+
+#Compilation mode. Is not changed if specified outside
+if [ x$COMPMODE = x ]; then
+  export COMPMODE=OPT
+fi
+#if [ x$COMPMODE = x ]; then
+#  export COMPMODE=DBG
+#fi
+echo compilation mode is $COMPMODE
+
+# Environment variables managing the usage of Pythia6 library. If the
+# variables below are not set, the local Pythia6 library will be built
+# and used.
+# The default values here correspond to CERN AFS (but you may want to change
+# the version and/or platform).
+#
+#export PYTHIA6LOCATION=/afs/cern.ch/sw/lcg/app/releases/GENSER/GENSER_1_4_1/${MYLCGPLATFORM}/lib/archive
+#export PYTHIA6VERSION=6_406
+#export PYTHIA6LIBNAME="-lpythia${PYTHIA6VERSION} -ldummy_pythia${PYTHIA6VERSION} -lpdfdummy_pythia${PYTHIA6VERSION}"
+#
+# Environment variables for building HepMC interface library. Comment out ALL
+# of them if this interface is not needed or if you don't have both CLHEP
+# and HepMC in your computer (remark: starting from HepMC version 2.00.00
+# CLHEP is not needed). Note that this library is used by the examples
+# main21, main22. Attention: if you change HepMC or CLHEP version, you should
+# reset your LD_LIBRARY_PATH
+# The default values here correspond to CERN AFS (but you may want to change
+# the version and/or platform).
+#
+#export HEPMCVERSION=1.27.02
+#export HEPMCLOCATION=/afs/cern.ch/sw/lcg/external/HepMC/${HEPMCVERSION}/${MYLCGPLATFORM}
+#export CLHEPVERSION=1.9.2.3-aa
+#export CLHEPLOCATION=/afs/cern.ch/sw/lcg/external/clhep/${CLHEPVERSION}/${MYLCGPLATFORM}
+
+#
+# User-changeable part, experts  -----------------------------
+#
+
+# export FFLAGS_OPT="-O2 -Wuninitialized"
+# -Wuninitialized outputs many irrelevant warnings and therefore obscurs 
+export FFLAGS_OPT="-O2"
+export FFLAGS_DBG=-g
+export CFLAGS_OPT=-O2
+export CFLAGS_DBG=-g
+export CXXFLAGS_OPT="-O2 -ansi -pedantic -W -Wall"
+export CXXFLAGS_DBG="-g -ansi -pedantic -W -Wall"
+#
+# Find platform.
+#
+export ARCH="`uname`"
+export theGcc1=`g++ --version | awk '{print$3}'`
+export theGcc=`echo ${theGcc1} | awk -F . '{print $1}'`
+if [ ${theGcc} = 4 ]; then
+  export ARCH=${ARCH}-gcc4
+fi
+echo Platform is $ARCH
+
+#default platform settings:
+export FC=g77
+export FFLAGS="${FFLAGS_OPT}"
+export CFLAGS="${CFLAGS_OPT}"
+export CXXFLAGS="${CXXFLAGS_OPT}"
+export FLIBS="-lfrtbegin -lg2c"
+if [ ${COMPMODE} = OPT ]; then
+  export FFLAGS="${FFLAGS_OPT}"
+  export CFLAGS="${CFLAGS_OPT}"
+  export CXXFLAGS="${CXXFLAGS_OPT}"
+fi
+if [ ${COMPMODE} = DBG ]; then
+  export FFLAGS="${FFLAGS_DBG}"
+  export CFLAGS="${CFLAGS_DBG}"
+  export CXXFLAGS="${CXXFLAGS_DBG}"
+fi
+if [ $ARCH = Linux ]; then
+  export FC=g77
+  export FFLAGS="${FFLAGS_OPT} -Wno-globals"
+  export CFLAGS="${CFLAGS_OPT}"
+  export CXXFLAGS="${CXXFLAGS_OPT}"
+  export FLIBS="-lfrtbegin -lg2c"
+  if [ ${COMPMODE} = OPT ]; then
+    export FFLAGS="${FFLAGS_OPT}"
+    export CFLAGS="${CFLAGS_OPT}"
+    export CXXFLAGS="${CXXFLAGS_OPT}"
+  fi
+  if [ ${COMPMODE} = DBG ]; then
+    export FFLAGS="${FFLAGS_DBG} -Wno-globals"
+    export CFLAGS="${CFLAGS_DBG}"
+    export CXXFLAGS="${CXXFLAGS_DBG}"
+  fi
+fi
+# Linux platform with gcc4: new Fortran90 compiler.
+if [ $ARCH = Linux-gcc4 ]; then
+  export FC=gfortran
+  export FFLAGS="${FFLAGS_OPT}"
+  export CFLAGS="${CFLAGS_OPT}"
+  export CXXFLAGS="${CXXFLAGS_OPT}"
+  export FLIBS="-lgfortran -lgfortranbegin"
+  if [ ${COMPMODE} = OPT ]; then
+    export FFLAGS="${FFLAGS_OPT}"
+    export CFLAGS="${CFLAGS_OPT}"
+    export CXXFLAGS="${CXXFLAGS_OPT}"
+  fi
+  if [ ${COMPMODE} = DBG ]; then
+    export FFLAGS="${FFLAGS_DBG}"
+    export CFLAGS="${CFLAGS_DBG}"
+    export CXXFLAGS="${CXXFLAGS_DBG}"
+  fi
+fi
+
+#Platform & opt/dbg - independent flags and variables:
+
+
+#
+# End of the user-changeable part ---------------------------
+#
+# Checks
+#
+if [ $?PYTHIA6LOCATION ]; then
+  if [ x${PYTHIA6LOCATION} != x ]; then
+    if [ ! -d ${PYTHIA6LOCATION} ]; then
+      echo ERROR in PYTHIA6LOCATION: directory ${PYTHIA6LOCATION} does not exist
+    fi
+  fi
+fi
+if [ $?HEPMCLOCATION ]; then
+  if [ x${HEPMCLOCATION} != x ]; then
+    if [ ! -d ${HEPMCLOCATION}/include ]; then
+      echo ERROR in HEPMCLOCATION: directory ${HEPMCLOCATION}/include does not exist
+    fi
+    if [ ! -d ${HEPMCLOCATION}/lib ]; then
+      echo ERROR in HEPMCLOCATION: directory ${HEPMCLOCATION}/lib does not exist
+    fi
+  fi
+fi
+if [ $?CLHEPLOCATION ]; then
+  if [ x${CLHEPLOCATION} != x ]; then
+    if [ ! -d ${CLHEPLOCATION}/include ]; then
+      echo ERROR in CLHEPLOCATION: directory ${CLHEPLOCATION}/include does not exist
+    fi
+    if [ ! -d ${CLHEPLOCATION}/lib ]; then
+      echo ERROR in CLHEPLOCATION: directory ${CLHEPLOCATION}/lib does not exist
+    fi
+  fi
+fi
+
+rm -f config.mk
+
+echo SHELL = /bin/sh > config.mk
+echo ARCH = ${ARCH} >> config.mk
+echo FC = ${FC} >> config.mk
+echo FFLAGS = ${FFLAGS} >> config.mk
+echo CFLAGS = ${CFLAGS} >> config.mk
+echo CXXFLAGS = ${CXXFLAGS} >> config.mk
+echo FLIBS = ${FLIBS} >> config.mk
+#
+if [ x${PYTHIA6LOCATION} != x ]; then
+  echo PYTHIA6LOCATION = ${PYTHIA6LOCATION} >> config.mk
+fi
+if [ x${PYTHIA6VERSION} != x ]; then
+  echo PYTHIA6VERSION = ${PYTHIA6VERSION} >> config.mk
+  echo PYTHIA6LIBNAME = "${PYTHIA6LIBNAME}" >> config.mk
+fi
+if [ x${HEPMCVERSION} != x ]; then
+  echo HEPMCVERSION = ${HEPMCVERSION} >> config.mk
+fi
+if [ x${HEPMCLOCATION} != x ]; then
+  echo HEPMCLOCATION = ${HEPMCLOCATION} >> config.mk
+fi
+if [ x${CLHEPVERSION} != x ]; then
+  echo CLHEPVERSION = ${CLHEPVERSION} >> config.mk
+fi
+if [ x${CLHEPLOCATION} != x ]; then
+  echo CLHEPLOCATION = ${CLHEPLOCATION} >> config.mk
+fi
+#
+#
+#
+rm -f examples/config.sh
+rm -f examples/config.csh
+if [ x${HEPMCLOCATION} != x ]; then
+  echo "#!/bin/csh" > examples/config.csh
+  echo 'if( ! $?LD_LIBRARY_PATH ) then' >> examples/config.csh
+  echo "  setenv LD_LIBRARY_PATH ${HEPMCLOCATION}/lib" >> examples/config.csh
+  echo "else" >> examples/config.csh
+  echo "  setenv LD_LIBRARY_PATH" '${LD_LIBRARY_PATH}'":${HEPMCLOCATION}/lib" >> examples/config.csh
+  echo "endif" >> examples/config.csh
+  if [ x${CLHEPLOCATION} != x ]; then
+    echo "setenv LD_LIBRARY_PATH" '${LD_LIBRARY_PATH}'":${CLHEPLOCATION}/lib" >> examples/config.csh
+  fi
+  echo "#!/bin/sh" > examples/config.sh
+  echo 'if [ ! $?LD_LIBRARY_PATH ]; then' >> examples/config.sh
+  echo "  export LD_LIBRARY_PATH=${HEPMCLOCATION}/lib" >> examples/config.sh
+  echo fi >> examples/config.sh
+  echo 'if [ $?LD_LIBRARY_PATH ]; then' >> examples/config.sh
+  echo "  export LD_LIBRARY_PATH="'${LD_LIBRARY_PATH}'":${HEPMCLOCATION}/lib" >> examples/config.sh
+  echo fi >> examples/config.sh
+  if [ x${CLHEPLOCATION} != x ]; then
+    echo "export LD_LIBRARY_PATH="'${LD_LIBRARY_PATH}'":${CLHEPLOCATION}/lib" >> examples/config.sh
+  fi
+fi

@@ -14,10 +14,11 @@ more massive resonances, such as top, <i>Z^0</i> or SUSY, where decays
 must be performed already at the <code>ProcessLevel</code> of the event 
 generation.
 
+<p/>
 The decay description essentially copies the one present in 
-PYTHIA since many years, currently with some simplifications 
-for some charm and bottom channels, and updates will need to be
-introduced eventually.
+PYTHIA since many years, but with some improvements, e.g. in the decay
+tables and the number of decay models available. Some issues may need 
+further polishing.
 
 <h3>Variables determining whether a particle decays</h3>
 
@@ -121,18 +122,19 @@ Allow or not <i>B^0 - B^0bar</i> and <i>B_s^0 - B_s^0bar</i> mixing.
   
 
 <p/><strong>
-parm name="ParticleDecays:xBdMix" default="0.771" 
-min="0.70" max="0.85"
+parm name="ParticleDecays:xBdMix" default="0.776" 
+min="0.74" max="0.81"
 </strong><br/>
 The mixing parameter <i>x_d = Delta(m_B^0)/Gamma_B^0</i> in the 
-<i>B^0 - B^0bar</i> system.
+<i>B^0 - B^0bar</i> system. (Default from RPP2006.)
   
 
 <p/><strong>
-parm name="ParticleDecays:xBsMix" default="25.0" min="15.0" 
+parm name="ParticleDecays:xBsMix" default="26.05" min="22.0" max="30.0" 
 </strong><br/>
 The mixing parameter <i>x_s = Delta(m_B_s^0)/Gamma_B_s^0</i> in the 
-<i>B_s^0 - B_s^0bar</i> system.
+<i>B_s^0 - B_s^0bar</i> system. (Delta-m from CDF hep-ex-0609040,
+Gamma from RPP2006.)
   
 
 <h3>Other variables</h3>
@@ -146,22 +148,37 @@ and the sum of the daughter masses, kept as a safety margin to avoid
 numerical problems in the decay generation.
   
 
+<p/><strong>
+parm name="ParticleDecays:sigmaSoft" default="0.5" min="0.2" max="2."
+</strong><br/>
+In semileptonic decays to more than one hadron, such as 
+<i>B -> nu l D pi</i>, decay products after the first three are 
+dampened in momentum by an explicit weight factor 
+<i>exp(-p^2/sigmaSoft^2)</i>, where <i>p</i> is the 
+three-momentum in the rest frame of the decaying particle.
+This takes into account that such further particles come from the
+fragmentation of the spectator parton and thus should be soft.   
+  
+
 <p/>
 When a decay mode is defined in terms of a partonic content, a random 
 multiplicity (and a random flavour set) of hadrons is to be picked, 
 especially for some charm and bottom decays. This is done according to 
-a Gaussian distribution, for <i>n_q</i> quarks centered at 
-<i>c + n_q/4</i> and with a width <i>sqrt(c)</i>, with the final 
-number rounded off to the nearest integer. Here
+a Poissonian distribution, for <i>n_p</i> normal particles and 
+<i>n_q</i> quarks the average value is chosen as  
 <br/><i>
-   c = multIncrease * ln ( mDiff / multRefMass)
+  n_p/ 2 + n_q/4 + multIncrease * ln ( mDiff / multRefMass)
 </i><br/>
 with <i>mDiff</i> the difference between the decaying particle mass 
-and the sum of the constituent quark masses. For gluonic systems 
-<i>multGoffset</i> offers and optional additonal term to the 
-multiplicity. There is always some lower limit for the allowed 
-multiplicity; if a number smaller than this is picked the choice 
-is repeated.
+and the sum of the normal-particle masses and the constituent quark masses. 
+For gluonic systems <i>multGoffset</i> offers and optional additional 
+term to the multiplicity. The lowest possible multiplicity is 
+<i>n_p + n_q/2</i> (but at least 2) and the highest possible 10.
+If the picked hadrons have a summed mass above that of the mother a 
+new try is made, including a new multiplicity. These constraints 
+imply that the actual average multiplicity does not quite agree with
+the formula above.
+
 <p/><strong>
 parm name="ParticleDecays:multIncrease" default="4.5" 
 min="3." max="6."
@@ -177,7 +194,7 @@ The above <i>multRefMass</i> parameter.
   
 
 <p/><strong>
-parm name="ParticleDecays:multGoffset" default="0.0" 
+parm name="ParticleDecays:multGoffset" default="0.5" 
 min="0.0" max="2.0"
 </strong><br/>
 The above <i>multGoffset</i> parameter.
@@ -188,10 +205,10 @@ parm name="ParticleDecays:colRearrange" default="0.5"
 min="0." max="1.0"
 </strong><br/>
 When a decay is given as a list of four partons to be turned into
-hadrons (i.e. for mode 11 - 30), it is assumed that they are listed
-in pairs, as a first and a second colour singlet, which could give rise 
-to separate sets of hadrons. Here <i>colRearrange</i> is the 
-probability that this original assignment is not respected, and 
+hadrons (primarily for modes 41 - 80)  it is assumed that they are 
+listed in pairs, as a first and a second colour singlet, which could 
+give rise to separate sets of hadrons. Here <i>colRearrange</i> is 
+the probability that this original assignment is not respected, and 
 default corresponds to no memory of this original colour topology.
   
 
@@ -199,9 +216,9 @@ default corresponds to no memory of this original colour topology.
 flag name="ParticleDecays:FSRinDecays" default="true"
 </strong><br/>
 When a particle decays to <i>q qbar</i>, <i>g g</i>, <i>g g g</i> 
-or <i>gamma g g</i>, allow or not a shower to develop from it, before 
-the partonic system is hadronized. (The typical example is 
-<i>Upsilon</i> decay.)
+or <i>gamma g g</i>, with <code>meMode > 90</code>, allow or not a 
+shower to develop from it, before the partonic system is hadronized. 
+(The typical example is <i>Upsilon</i> decay.)
   
 
 In addition, some variables defined for string fragmentation and for
@@ -210,44 +227,80 @@ flavour production are used also here.
 <h3>Modes for Matrix Element Processing</h3>
 
 Some decays can be treated better than what pure phase space allows,
-by reweighting with appropriate matrix elements. The presence of such
+by reweighting with appropriate matrix elements. In others a partonic
+content has to be converted to a set of hadrons. The presence of such
 corrections is signalled by a nonvanishing <code>meMode()</code> value
 for a decay mode in the 
 <a href="ParticleDataScheme.html" target="page">particle
-data table</a>. The list of allowed values almost agrees with the 
-PYTHIA 6 ones, but several obsolete choices have been removed, and 
-a few moved for better consistency. Here is the list of currently 
-allowed <code>meMode()</code> codes:
+data table</a>. The list of allowed possibilities almost agrees with the 
+PYTHIA 6 ones, but several obsolete choices have been removed, 
+a few new introduced, and most have been moved for better consistency. 
+Here is the list of currently allowed <code>meMode()</code> codes:
 <ul>
-<li>  0 : pure phace space of produced particles ("default")</li>
+<li>  0 : pure phace space of produced particles ("default");
+input of partons is allowed and then the partonic content is 
+converted into the minimal number of hadrons (i.e. one per
+parton pair, but at least two particles in total)</li>
 <li>  1 : <i>omega</i> and <i>phi -> pi+ pi- pi0</i></li>
-<li>  2 : Dalitz decay of <i>pi0</i> and <i>eta</i></li>
-<li>  3 : polarization in <i>V -> PS + PS</i> (<i>V</i> = vector, 
+<li>  2 : polarization in <i>V -> PS + PS</i> (<i>V</i> = vector, 
 <i>PS</i> = pseudoscalar), when <i>V</i> is produced by 
 <i>PS -> PS + V</i> or <i>PS -> gamma + V</i></li>
-<li> 11 : turn partons into hadrons and distribute in pure phase 
-space</li>  
-<li> 12 : ditto, but with higher average multiplicity 
-(imagined <i>q -> g</i>)</li>
-<li> 13 - 15 : as 11, but require at least <code>code</code> - 10 number 
-of particles in the decay channel</li>
-<li> 22 - 30 : as 11, but fixed multiplicity <code>code</code> - 20</li>
-<li> 32 : decay to <i>q qbar</i> or <i>g g</i>, which should shower 
-and hadronize</li>
-<li> 33 (was 4) : decay onium to <i>g g g</i> or <i>g g gamma</i> 
-(with matrix element), which should shower and hadronize</li>
-<li> 41 : decay to phase space, but weight up <i>neutrino_tau</i> spectrum
+<li> 11 : Dalitz decay into one particle, in addition to the 
+lepton pair (also allowed to specify a quark-antiquark pair that 
+should collapse to a single hadron)</li>
+<li> 12 : Dalitz decay into two or more particles in addition 
+to the lepton pair</li>
+<li> 13 : double Dalitz decay into two lepton pairs</li>
+<li> 21 : decay to phase space, but weight up <i>neutrino_tau</i> spectrum
 in <i>tau</i> decay</li>
-<li> 42 : weak decay; if there is a quark spectator system it collapses to 
+<li> 22 : weak decay; if there is a quark spectator system it collapses to 
 one hadron; for leptonic/semileptonic decays the <i>V-A</i> matrix element
 is used, for hadronic decays simple phase space (gives somewhat softer 
 <i>B -> D</i> spectrum than PYTHIA 6; to be improved!??)</li>
-<li> 43 (was 48) : as 42, but require at least three particles 
-in decay</li>
+<li> 23 : as 22, but require at least three particles in decay</li>
+<li> 31 : decays of type B -> gamma X, very primitive simulation where
+X is given in terms of its flavour content, the X multiplicity is picked 
+according to a geometrical distribution with average number 2, and 
+the photon energy spectrum is weighted up relative to pure phase space</li>
+<li> 42 - 50 : turn partons into a random number of hadrons, picked according 
+to a Poissonian with average value as described above, but at least 
+<code>code</code> - 40 and at most 10, and then distribute then in pure 
+phase space; make a new try with another multiplicity if the sum of daughter
+masses exceed the mother one </li>
+<li> 52 - 60 : as 42 - 50, with multiplicity between <code>code</code> - 50 
+and 10, but avoid already explicitly listed non-partonic channels</li>
+<li> 62 - 70 : as 42 - 50, but fixed multiplicity <code>code</code> - 60</li>
+<li> 72 - 80 : as 42 - 50, but fixed multiplicity <code>code</code> - 70,
+and avoid already explicitly listed non-partonic channels</li>
+<li> 91 : decay to <i>q qbar</i> or <i>g g</i>, which should shower 
+and hadronize</li>
+<li> 92 : decay onium to <i>g g g</i> or <i>g g gamma</i> 
+(with matrix element), which should shower and hadronize</li>
+<li>101 - : reserved for resonance decays and should not be used for
+normal particles.</li>
+</ul>
+
+Three special decay product identity codes are defined.
+<ul>
+<li>81: remnant flavour. Used for weak decays of c and b hadrons, where the
+c or b quark decays and the other quarks are considered as a spectator
+remnant in this decay. In practice only used for baryons with multiple 
+c and b quarks, which presumably would never be used, but have simple
+(copied) just-in-case decay tables. Assumed to be last decay product.</li> 
+<li>82: random flavour, picked by the standard fragmentation flavour
+machinery, used to start a sequence of hadrons, for matrix element
+codes in 41 - 80. Assumed to be first decay product, with -82 as second
+and last. Where multiplicity is free to be picked it is selected as for
+normal quarkonic systems. Currently unused.</li>  
+<li>83: as for 82, with matched pair 83, -83 of decay products. The 
+difference is that here the pair is supposed to come from a closed gluon 
+loop (e.g. <i>eta_c -> g g</i>) and so have a somewhat higher average
+multiplicity than the simple string assumed for 82, see the
+<code>ParticleDecays:multGoffset</code> parameter above.</li>
 </ul>
 
 </body>
 </html>
 
-<!-- Copyright C 2006 Torbjorn Sjostrand -->
+<!-- Copyright C 2007 Torbjorn Sjostrand -->
 

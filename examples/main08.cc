@@ -1,7 +1,7 @@
 // File: main08.cc
 // This is a simple test program. 
 // It illustrates how to combine subruns in pT bins.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #include "Pythia.h"
 
@@ -16,11 +16,11 @@ int main() {
   // Book histograms.
   Hist pTraw("pTHat distribution, unweighted", 100, 0., 1000.);
   Hist pTnorm("pTHat distribution, weighted", 100, 0., 1000.);
-  Hist pTpow4("pTHat distribution, pT4*weighted", 100, 0., 1000.);
-  Hist pTpow6("pTHat distribution, pT6*weighted", 100, 0., 1000.);
+  Hist pTpow3("pTHat distribution, pT3*weighted", 100, 0., 1000.);
+  Hist pTpow5("pTHat distribution, pT5*weighted", 100, 0., 1000.);
   Hist pTnormPart("pTHat distribution, weighted", 100, 0., 1000.);
-  Hist pTpow4Part("pTHat distribution, pT4*weighted", 100, 0., 1000.);
-  Hist pTpow6Part("pTHat distribution, pT6*weighted", 100, 0., 1000.);
+  Hist pTpow3Part("pTHat distribution, pT3*weighted", 100, 0., 1000.);
+  Hist pTpow5Part("pTHat distribution, pT5*weighted", 100, 0., 1000.);
 
   // Generator.
   Pythia pythia;
@@ -31,7 +31,7 @@ int main() {
 
   // Set up to generate QCD jets.
   pythia.readString("HardQCD:all = on");  
-  pythia.readString("Pythia:afterProcessLevel = off");  
+  pythia.readString("Pythia:partonLevel = off");  
 
   // Set up five pT bins - last one open-ended.
   double pTlimit[6] = {100., 150., 250., 400., 600., 0.};
@@ -47,8 +47,8 @@ int main() {
 
     // Reset local histograms (that need to be rescaled before added).
     pTnormPart.null();
-    pTpow4Part.null();
-    pTpow6Part.null();
+    pTpow3Part.null();
+    pTpow5Part.null();
 
     // Begin event loop.
     for (int iEvent = 0; iEvent < nEvent; ++iEvent) {
@@ -63,8 +63,8 @@ int main() {
       double pTHat = info. pTHat();
       pTraw.fill( pTHat );
       pTnormPart.fill( pTHat );
-      pTpow4Part.fill( pTHat, pow4(pTHat) );
-      pTpow6Part.fill( pTHat, pow3(pTHat*pTHat) );
+      pTpow3Part.fill( pTHat, pow3(pTHat) );
+      pTpow5Part.fill( pTHat, pow5(pTHat) );
 
 
     // End of event loop. Statistics.
@@ -74,14 +74,14 @@ int main() {
     // Normalize each case to cross section/(bin * event), and add to sum.
     double sigmaNorm = info.sigmaGen() / (10. * nEvent);
     pTnorm += sigmaNorm * pTnormPart;
-    pTpow4 += sigmaNorm * pTpow4Part;
-    pTpow6 += sigmaNorm * pTpow6Part;
+    pTpow3 += sigmaNorm * pTpow3Part;
+    pTpow5 += sigmaNorm * pTpow5Part;
 
   // End of pT-bin loop.
   }
 
   // Output histograms.
-  cout << pTraw << pTnorm << pTpow4 << pTpow6; 
+  cout << pTraw << pTnorm << pTpow3 << pTpow5; 
 
   // Done.
   return 0;

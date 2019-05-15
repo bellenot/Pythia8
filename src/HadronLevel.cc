@@ -1,5 +1,5 @@
 // Function definitions (not found in the header) for the HadronLevel class.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #include "HadronLevel.h"
 
@@ -14,24 +14,24 @@ namespace Pythia8 {
 // Definitions of static variables.
 // (Values will be overwritten in initStatic call, so are purely dummy.)
 
-bool HadronLevel::Hadronize = true;
-bool HadronLevel::Decay = true;
-double HadronLevel::mStringMin = 1.;
-double HadronLevel::eNormJunction = 2.0;
+bool HadronLevel::Hadronize              = true;
+bool HadronLevel::Decay                  = true;
+double HadronLevel::mStringMin           = 1.;
+double HadronLevel::eNormJunction        = 2.0;
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
 
 // For breaking J-J string, pick a Gamma by taking a step with fictitious mass.
-const double HadronLevel::JJSTRINGM2MAX = 25.; 
+const double HadronLevel::JJSTRINGM2MAX  = 25.; 
 const double HadronLevel::JJSTRINGM2FRAC = 0.1; 
 
 // Iterate junction rest frame boost until convergence or too many tries.
-const double HadronLevel::CONVJNREST = 1e-5;
-const int HadronLevel::NTRYJNREST = 20; 
+const double HadronLevel::CONVJNREST     = 1e-5;
+const int HadronLevel::NTRYJNREST        = 20; 
 
 // Typical average transvere primary hadron mass <mThad>. 
-const double HadronLevel::MTHAD = 0.9; 
+const double HadronLevel::MTHAD          = 0.9; 
 
 //*********
 
@@ -40,11 +40,11 @@ const double HadronLevel::MTHAD = 0.9;
 void HadronLevel::initStatic() {
 
   // Main flags.
-  Hadronize = Settings::flag("HadronLevel:Hadronize");
-  Decay = Settings::flag("HadronLevel:Decay");
+  Hadronize     = Settings::flag("HadronLevel:Hadronize");
+  Decay         = Settings::flag("HadronLevel:Decay");
 
   // Boundary mass between string and ministring handling.
-  mStringMin = Settings::parm("HadronLevel:mStringMin");
+  mStringMin    = Settings::parm("HadronLevel:mStringMin");
 
   // For junction processing.
   eNormJunction = Settings::parm("StringFragmentation:eNormJunction");
@@ -56,6 +56,9 @@ void HadronLevel::initStatic() {
 // Hadronize and decay the next parton-level.
 
 bool HadronLevel::next( Event& event) {
+
+  // Colour-octet onia states must be decayed to singlet + gluon.
+  decayOctetOnia(event);
 
   // Possibility of hadronization inside decay (e.g. Upsilon).
   bool moreToDo;
@@ -108,6 +111,35 @@ bool HadronLevel::next( Event& event) {
 
   // Done.
   return true;
+
+}
+
+//*********
+
+// Decay colour-octet onium states.
+
+void HadronLevel::decayOctetOnia(Event& event) {
+
+  // Onium states to be decayed.
+  int idOnium[6] = { 9900443, 9900441, 9910441, 
+                     9900553, 9900551, 9910551 };
+  
+  // Loop over particles and identify onia.
+  for (int iDec = 0; iDec < event.size(); ++iDec) 
+  if (event[iDec].isFinal()) {
+    int id = event[iDec].id();  
+    bool isOnium = false;
+    for (int j = 0; j < 6; ++j) if (id == idOnium[j]) isOnium = true;
+    
+    // Decay any onia encountered.
+    if (isOnium) { 
+      decays.decay( iDec, event);
+
+      // Set colour flow by hand: gluon inherits octet-onium state.
+      int iGlu = event.size() - 1;
+      event[iGlu].cols( event[iDec].col(), event[iDec].acol() );
+    }
+  }
 
 }
 
@@ -179,7 +211,7 @@ bool HadronLevel::findSinglets(Event& event) {
       colConfig.insert(iPartonAntiJun, event);
   // Error if only one of junction and antijuction left here.
   } else if (iPartonJun.size() > 0 || iPartonAntiJun.size() > 0) {
-    ErrorMessages::message("Error in HadronLevel::findSinglets: "
+    ErrorMsg::message("Error in HadronLevel::findSinglets: "
       "unmatched (anti)junction"); 
     return false;
   } 
@@ -275,7 +307,7 @@ bool HadronLevel::traceFromCol(int indxCol, Event& event, int iJun,
 
   // Something went wrong in colour tracing.
   if (!hasFound || loop == loopMax) {
-    ErrorMessages::message("Error in HadronLevel::traceFromCol: "
+    ErrorMsg::message("Error in HadronLevel::traceFromCol: "
       "colour tracing failed"); 
     return false;
   } 
@@ -346,7 +378,7 @@ bool HadronLevel::traceFromAcol(int indxCol, Event& event, int iJun,
 
   // Something went wrong in colour tracing.
   if (!hasFound || loop == loopMax) {
-    ErrorMessages::message("Error in HadronLevel::traceFromAcol: "
+    ErrorMsg::message("Error in HadronLevel::traceFromAcol: "
       "colour tracing failed"); 
     return false;
   }
@@ -384,7 +416,7 @@ bool HadronLevel::traceInLoop(int indxCol, int indxAcol, Event& event) {
 
   // Something went wrong in colour tracing.
   if (!hasFound || loop == loopMax) {
-    ErrorMessages::message("Error in HadronLevel::traceInLoop: "
+    ErrorMsg::message("Error in HadronLevel::traceInLoop: "
       "colour tracing failed"); 
     return false; 
   } 
@@ -458,12 +490,8 @@ bool HadronLevel::splitJunctionPair(Event& event) {
     iJunLeg.resize(1);
     iAntiLeg.resize(1);
 
-   // Pick a new quark at random; for simplicity reject diquarks.
-    int idQ = 0;
-    do {
-      int idStart = (Rndm::flat() < 0.5) ? -1 : -2; 
-      idQ = StringFlav::pick( idStart);  
-    } while (idQ <= 0);
+   // Pick a new quark at random; for simplicity no diquarks (??).
+    int idQ = StringFlav::pickLightQ();
     int colQ, acolQ;
 
     // If one gluon on leg, split it into a collinear q-qbar pair.
@@ -574,7 +602,7 @@ bool HadronLevel::splitJunctionPair(Event& event) {
 
   // Should not ever have three empty interjunction legs.
   if (nMatch == 3) {
-    ErrorMessages::message("Error in HadronLevel::splitJunctionPair: "
+    ErrorMsg::message("Error in HadronLevel::splitJunctionPair: "
       "three empty junction-junction legs"); 
     return false;
   }
@@ -745,12 +773,8 @@ bool HadronLevel::splitJunctionPair(Event& event) {
     event[iNew].rescale5(1. - fracA1);
     iAntiLeg1[1] = iNew;
 
-   // Pick a new quark at random; for simplicity reject diquarks.
-    int idQ = 0;
-    do {
-      int idStart = (Rndm::flat() < 0.5) ? -1 : -2; 
-      idQ = StringFlav::pick( idStart);  
-    } while (idQ <= 0);
+   // Pick a new quark at random; for simplicity no diquarks (??).
+    int idQ = StringFlav::pickLightQ();
 
     // Update junction colours for new quark and antiquark.
     int colQ = event.nextColTag();

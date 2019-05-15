@@ -1,6 +1,6 @@
 // This file contains the main class for process-level event generation.
 // ProcessLevel: administrates the selection of "hard" process.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_ProcessLevel_H
 #define Pythia8_ProcessLevel_H

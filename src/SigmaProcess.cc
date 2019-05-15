@@ -1,6 +1,6 @@
 // Function definitions (not found in the header) for the 
 // SigmaProcess class, and classes derived from it.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #include "SigmaProcess.h"
 
@@ -16,29 +16,31 @@ namespace Pythia8 {
 // Definitions of static variables and functions.
 // (Values will be overwritten in initStatic call, so are purely dummy.)
 
-int SigmaProcess::alphaSorder = 1;
-int SigmaProcess::nQuark = 3;
-double SigmaProcess::alphaSvalue = 0.1265;
-AlphaStrong SigmaProcess::alphaScalc;
-AlphaEM SigmaProcess::alphaEMcalc;
+int         SigmaProcess::alphaSorder  = 1;
+int         SigmaProcess::alphaEMorder = 1;
+int         SigmaProcess::nQuark       = 3;
+double      SigmaProcess::alphaSvalue  = 0.1265;
+AlphaStrong SigmaProcess::alphaS;
+AlphaEM     SigmaProcess::alphaEM;
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
 
 // Conversion of GeV^{-2} to mb for cross section.
-const double SigmaProcess::CONVERT2MB = 0.389380; 
+const double SigmaProcess::CONVERT2MB  = 0.389380; 
 
 // The sum of outgoing masses must not be too close to the cm energy.
-const double SigmaProcess::MASSMARGIN = 0.1;
+const double SigmaProcess::MASSMARGIN  = 0.1;
 
 // Information on incoming beams.
-int SigmaProcess::idA, SigmaProcess::idB;
-double SigmaProcess::mA, SigmaProcess::mB; 
+int    SigmaProcess::idA, SigmaProcess::idB;
+double SigmaProcess::mA,  SigmaProcess::mB; 
+bool   SigmaProcess::hasLeptonBeams    = false;
   
 // Pointer to the total/elastic/diffractive cross section object.
 SigmaTotal* SigmaProcess::sigmaTotPtr;
 
-// Pointer to the SLHA object
+// Pointer to the SLHA object.
 SusyLesHouches* SigmaProcess::slha;
 
 //*********
@@ -48,11 +50,17 @@ SusyLesHouches* SigmaProcess::slha;
 void SigmaProcess::initStatic() {
 
   // Parameters of alphaStrong generation .
-  alphaSvalue = Settings::parm("SigmaProcess:alphaSvalue");
-  alphaSorder = Settings::mode("SigmaProcess:alphaSorder");
+  alphaSvalue  = Settings::parm("SigmaProcess:alphaSvalue");
+  alphaSorder  = Settings::mode("SigmaProcess:alphaSorder");
 
   // Initialize alphaStrong generation.
-  alphaScalc.init( alphaSvalue, alphaSorder); 
+  alphaS.init( alphaSvalue, alphaSorder); 
+
+  // Parameters of alphaEM generation.
+  alphaEMorder = Settings::mode("SigmaProcess:alphaEMorder");
+
+  // Initialize alphaEM generation.
+  alphaEM.init( alphaEMorder); 
 
   // Maximum new quark flavour.
   nQuark = Settings::mode("SigmaProcess:nQuark");
@@ -74,15 +82,15 @@ bool Sigma1Process::set1Kin( double x1in, double x2in, double sHin) {
   swapTU = false;
 
   // Incoming parton momentum fractions and sHat.
-  x1 = x1in;
-  x2 = x2in;
-  sH = sHin;
+  x1  = x1in;
+  x2  = x2in;
+  sH  = sHin;
   sH2 = sH * sH;
 
   // Use sHat as renormalization scale. Evaluate alpha_strong and alpha_EM.
   Q2RenH = sH;
-  alpS = alphaScalc.alphaS(Q2RenH);  
-  alpEM = alphaEMcalc.alphaEM(Q2RenH);  
+  alpS   = alphaS.alphaS(Q2RenH);  
+  alpEM  = alphaEM.alphaEM(Q2RenH);  
 
   // Use sHat as factorization scale.
   Q2FacH = sH;
@@ -104,6 +112,9 @@ bool Sigma1Process::set1Kin( double x1in, double x2in, double sHin) {
 bool Sigma2Process::set2Kin( double x1in, double x2in, double sHin, 
   double tHin, double m3in, double m4in) {
 
+  // Incoming flavours not known.
+  id12IsSet = false;
+
   // Default ordering of particles 3 and 4.
   swapTU = false;
 
@@ -122,13 +133,13 @@ bool Sigma2Process::set2Kin( double x1in, double x2in, double sHin,
   }
   mH[3] = m3;
   mH[4] = m4;
-  s3 = m3*m3;
-  s4 = m4*m4;
+  s3    = m3 * m3;
+  s4    = m4 * m4;
 
   // Standard Mandelstam variables and their squares.
-  sH = sHin;
-  tH = tHin;
-  uH = (masslessKin) ? -(sH + tH) : s3 + s4 - (sH + tH); 
+  sH  = sHin;
+  tH  = tHin;
+  uH  = (masslessKin) ? -(sH + tH) : s3 + s4 - (sH + tH); 
   sH2 = sH * sH;
   tH2 = tH * tH;
   uH2 = uH * uH;
@@ -142,8 +153,8 @@ bool Sigma2Process::set2Kin( double x1in, double x2in, double sHin,
   Q2RenH = (masslessKin) ? pT2 : sqrt((pT2 + s3) * (pT2 + s4));
   // For comparisons with Pythia 6.4 use scale similar to there.
   // Q2RenH = (masslessKin) ? pT2 : 0.5 * (s3 + s4) + pT2;
-  alpS = alphaScalc.alphaS(Q2RenH);  
-  alpEM = alphaEMcalc.alphaEM(Q2RenH);  
+  alpS = alphaS.alphaS(Q2RenH);  
+  alpEM = alphaEM.alphaEM(Q2RenH);  
 
   // Use pT^2 as factorization scale, generalized to min( m_T3^2, m_T4^2)
   // for massive case. 
@@ -162,34 +173,58 @@ bool Sigma2Process::set2Kin( double x1in, double x2in, double sHin,
 // As above, special kinematics for multiple interactions. 
 
 bool Sigma2Process::set2KinMI( int id1in, int id2in, double x1in, double x2in,
-  double sHin, double tHin, double uHin, double alpSin) {
+  double sHin, double tHin, double uHin, double alpSin, double alpEMin,
+  bool needMasses, double m3in, double m4in) {
 
   // Default ordering of particles 3 and 4.
   swapTU = false;
  
   // Incoming flavours and x values.
-  id1 = id1in;
-  id2 = id2in;
-  x1 = x1in;
-  x2 = x2in;
+  id1       = id1in;
+  id2       = id2in;
+  id12IsSet = true;
+  x1        = x1in;
+  x2        = x2in;
 
   // Standard Mandelstam variables and their squares.
-  sH = sHin;
-  tH = tHin;
-  uH = uHin; 
-  sH2 = sH * sH;
-  tH2 = tH * tH;
-  uH2 = uH * uH;
+  sH        = sHin;
+  tH        = tHin;
+  uH        = uHin; 
+  sH2       = sH * sH;
+  tH2       = tH * tH;
+  uH2       = uH * uH;
 
-  // Strong coupling.
-  alpS = alpSin;
+  // Strong and electroweak couplings.
+  alpS      = alpSin;
+  alpEM     = alpEMin;
 
   // Assume vanishing masses. (Will be modified in final kinematics.) 
-  // Or are masses set elsewhere for MI??
-  m3 = 0.;
-  s3 = 0.;
-  m4 = 0.;
-  s4 = 0.; 
+  m3        = 0.;
+  s3        = 0.;
+  m4        = 0.;
+  s4        = 0.;
+  sHBeta    = sH; 
+
+  // Scattering angle.
+  cosTheta  = (tH - uH) / sH;
+  sinTheta  = 2. * sqrtpos( tH * uH ) / sH;
+
+  // In some cases must use masses and redefine meaning of tHat and uHat.
+  if (needMasses) { 
+    m3      = m3in;
+    s3      = m3 * m3;
+    m4      = m4in;
+    s4      = m4 * m4;
+    sHMass  = sH - s3 - s4;
+    sHBeta  = sqrtpos(sHMass*sHMass - 4. * s3 * s4);   
+    tH      = -0.5 * (sHMass - sHBeta * cosTheta); 
+    uH      = -0.5 * (sHMass + sHBeta * cosTheta); 
+    tH2     = tH * tH;
+    uH2     = uH * uH;
+  }
+
+  // pT2 with masses (at this stage) included.
+  pT2Mass   = 0.25 * sHBeta * pow2(sinTheta);
 
   //  Done.
   return true;
@@ -206,25 +241,22 @@ bool Sigma2Process::final2KinMI() {
   setIdColAcol();
 
   // Check that masses of outgoing particles not too big.
-  m3 = ParticleDataTable::m0(idH[3]);
-  m4 = ParticleDataTable::m0(idH[4]);
-  double eCM = sqrt(sH);
+  m3           = ParticleDataTable::m0(idH[3]);
+  m4           = ParticleDataTable::m0(idH[4]);
+  double eCM   = sqrt(sH);
   if (m3 + m4 + MASSMARGIN > eCM) return false;
-  s3 = m3*m3;
-  s4 = m4*m4;
+  s3           = m3 * m3;
+  s4           = m4 * m4;
 
   // Do kinematics of the decay.
-  double eIn = 0.5 * eCM;
-  double e3 = 0.5 * (sH + s3 - s4) / eCM;
-  double e4 = 0.5 * (sH + s4 - s3) / eCM;
-  double pAbs = sqrtpos( e3*e3 - s3 );
-  double cosTheta = 1. + 2. * tH / sH;
-  double sinTheta = 2. * sqrtpos( tH * uH ) / sH;
-  thetaH = atan2( sinTheta, cosTheta);
-  phiH = 2. * M_PI * Rndm::flat();
-  double pZ = pAbs * cosTheta;
-  double pX = pAbs * sinTheta * sin(phiH);
-  double pY = pAbs * sinTheta * cos(phiH);
+  double eIn   = 0.5 * eCM;
+  double e3    = 0.5 * (sH + s3 - s4) / eCM;
+  double e4    = 0.5 * (sH + s4 - s3) / eCM;
+  double pAbs  = sqrtpos( e3*e3 - s3 );
+  phi          = 2. * M_PI * Rndm::flat();
+  double pZ    = pAbs * cosTheta;
+  double pX    = pAbs * sinTheta * sin(phi);
+  double pY    = pAbs * sinTheta * cos(phi);
   double scale = eIn * sinTheta;
 
   // Fill particle info.

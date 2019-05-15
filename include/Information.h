@@ -1,7 +1,7 @@
 // This file contains classes that keep track of generic event info.
 // Info: contains information on the generation process.
 // ErrorMessages: table with all warnings and errors encountered.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_Information_H
 #define Pythia8_Information_H
@@ -45,7 +45,7 @@ public:
   int code() const {return codeSave;}    
   int nFinal() const {return nFinalSave;}
 
-  // Are beam particles resolved, with pdf's? Are they diffractive?
+  // Are beam particles resolved, with pdf's? Are they diffractive? 
   bool isResolved() const {return isRes;}
   bool isDiffractiveA() const {return isDiffA;} 
   bool isDiffractiveB() const {return isDiffB;} 
@@ -102,8 +102,12 @@ public:
   double pTmaxISR() const {return pTmaxISRH;}
   double pTmaxFSR() const {return pTmaxFSRH;}
 
-  // Number of times steps have been carried out.
+  // Number of multiple interactions, with code and pT for them.
   int nMI() const {return nMIH;}
+  int codeMI(int i) const {return (i >= 0 && i < nMIH) ? codeMISave[i] : 0;} 
+  double pTMI(int i) const {return (i >= 0 && i < nMIH) ? pTMISave[i] : 0.;} 
+
+  // Number of times other steps have been carried out.
   int nISR() const {return nISRH;}
   int nFSRinProc() const {return nFSRinProcH;}
   int nFSRinRes() const {return nFSRinResH;}
@@ -122,6 +126,8 @@ private:
   double x1H, x2H, pdf1H, pdf2H, Q2FacH, alphaEMH, alphaSH, Q2RenH, 
     sH, tH, uH, pTH, m3H, m4H, thetaH, phiH, bH, enhanceH, pTmaxMIH,
     pTmaxISRH, pTmaxFSRH;
+  vector<int> codeMISave;
+  vector<double> pTMISave;
 
   // Set info on the two incoming beams: only from Pythia class.
   friend class Pythia;
@@ -133,10 +139,11 @@ private:
 
   // Reset info for current event: only from Pythia class.
   void clear() {nameSave = " "; codeSave = nFinalSave = nTotal = id1H
-    = id2H = nMIH = nISRH = nFSRinProcH = nFSRinResH; isRes = isDiffA
+    = id2H = nMIH = nISRH = nFSRinProcH = nFSRinResH = 0; isRes = isDiffA
     = isDiffB = bIsSet = false; x1H = x2H = pdf1H = pdf2H = Q2FacH 
-    = alphaEMH = alphaSH = Q2RenH = sH = tH = uH = pTH = m3H = m4H
-    = thetaH = phiH = bH = enhanceH = 0.;}
+    = alphaEMH = alphaSH = Q2RenH = sH = tH = uH = pTH = m3H = m4H 
+    = thetaH = phiH = bH = enhanceH = 0.; codeMISave.resize(0);
+    pTMISave.resize(0);}
 
   // Friend classes allowed to set info.
   friend class ProcessLevel;
@@ -151,7 +158,7 @@ private:
     bool isDiffractiveAin = false, bool isDiffractiveBin = false) {
     nameSave = nameIn; codeSave = codeIn; nFinalSave = nFinalIn; 
     isMB = isMinBiasIn; isRes = isResolvedIn; isDiffA = isDiffractiveAin; 
-    isDiffB = isDiffractiveBin; nTotal = 2 + nFinalSave; bIsSet = false;
+    isDiffB = isDiffractiveBin; nTotal = 2 + nFinalSave; bIsSet = false; 
     hasSubSave = false; nameSubSave = " "; codeSubSave = 0; 
     nFinalSubSave = 0; evolIsSet = false;}
   void setSubType( string nameSubIn, int codeSubIn, int nFinalSubIn) {  
@@ -167,6 +174,8 @@ private:
     double thetaHatIn, double phiHatIn) {x1H = x1In; x2H = x2In; 
     sH = sHatIn; tH = tHatIn; uH = uHatIn; pTH = pTHatIn; m3H = m3HatIn; 
     m4H = m4HatIn; thetaH = thetaHatIn; phiH = phiHatIn;}
+  void setTypeMI( int codeMIIn, double pTMIIn) {
+    codeMISave.push_back(codeMIIn); pTMISave.push_back(pTMIIn);}
 
   // Set info on cross section: from ProcessLevel.
   void setSigma( int nTryIn, int nAccIn, double sigGenIn, double sigErrIn)
@@ -189,12 +198,12 @@ private:
 
 // This class holds info on all messages received and how many times.
 
-class ErrorMessages {
+class ErrorMsg {
 
 public:
 
   // Constructor.
-  ErrorMessages() {}
+  ErrorMsg() {}
 
   // Normal init not needed for now. reInit resets to empty map.
   static void init() {}

@@ -1,5 +1,5 @@
 // Function definitions (not found in the header) for the AlphaStrong class.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #include "StandardModel.h"
 
@@ -26,12 +26,12 @@ void AlphaStrong::init( double valueIn, int orderIn) {
   // Order of alpha_s evaluation. Charm, bottom and Z0 masses. 
   // Pick defaults if ParticleDataTable not properly initialized.
   valueRef = valueIn;
-  order = max( 0, min( 2, orderIn ) );
-  mc = ParticleDataTable::m0(4);
-  if (mc < 1. || mc > 2.) mc = 1.5;
-  mb = ParticleDataTable::m0(5);
-  if (mb < 3. || mb > 6.) mb = 4.8;
-  mZ = ParticleDataTable::m0(23);
+  order    = max( 0, min( 2, orderIn ) );
+  mc                           = ParticleDataTable::m0(4);
+  if (mc < 1. || mc > 2.) mc   = 1.5;
+  mb                           = ParticleDataTable::m0(5);
+  if (mb < 3. || mb > 6.) mb   = 4.8;
+  mZ                           = ParticleDataTable::m0(23);
   if (mZ < 90. || mZ > 92.) mZ = 91.188;
 
   // Fix alpha_s.
@@ -50,45 +50,45 @@ void AlphaStrong::init( double valueIn, int orderIn) {
     // Find Lambda_5 at m_Z.
     Lambda5Save = mZ * exp( -6. * M_PI / (23. * valueRef) );
     for (int iter = 0; iter < NITER; ++iter) {
-      double logScale = 2. * log(mZ/Lambda5Save);
+      double logScale   = 2. * log(mZ/Lambda5Save);
       double correction = 1. - (348./529.) * log(logScale) / logScale;
-      double valueIter = valueRef / correction; 
-      Lambda5Save = mZ * exp( -6. * M_PI / (23. * valueIter) );
+      double valueIter  = valueRef / correction; 
+      Lambda5Save       = mZ * exp( -6. * M_PI / (23. * valueIter) );
     }
 
     // Find Lambda_4 at m_b.
-    double logScaleB = 2. * log(mb/Lambda5Save);
-    double valueB = 12. * M_PI / (23. * logScaleB) 
+    double logScaleB    = 2. * log(mb/Lambda5Save);
+    double valueB       = 12. * M_PI / (23. * logScaleB) 
         * (1. - (348./529.) * log(logScaleB) / logScaleB);
-    Lambda4Save = Lambda5Save;
+    Lambda4Save         = Lambda5Save;
     for (int iter = 0; iter < NITER; ++iter) {
-      double logScale = 2. * log(mb/Lambda4Save);
+      double logScale   = 2. * log(mb/Lambda4Save);
       double correction = 1. - (462./625.) * log(logScale) / logScale;
-      double valueIter = valueB / correction; 
-      Lambda4Save = mb * exp( -6. * M_PI / (25. * valueIter) );
+      double valueIter  = valueB / correction; 
+      Lambda4Save       = mb * exp( -6. * M_PI / (25. * valueIter) );
     }
 
     // Find Lambda_3 at m_c.
-    double logScaleC = 2. * log(mc/Lambda4Save);
-    double valueC = 12. * M_PI / (25. * logScaleC) 
+    double logScaleC    = 2. * log(mc/Lambda4Save);
+    double valueC       = 12. * M_PI / (25. * logScaleC) 
         * (1. - (462./625.) * log(logScaleC) / logScaleC);
     Lambda3Save = Lambda4Save;
     for (int iter = 0; iter < NITER; ++iter) {
-      double logScale = 2. * log(mc/Lambda3Save);
+      double logScale   = 2. * log(mc/Lambda3Save);
       double correction = 1. - (64./81.) * log(logScale) / logScale;
-      double valueIter = valueC / correction; 
-      Lambda3Save = mc * exp( -6. * M_PI / (27. * valueIter) );
+      double valueIter  = valueC / correction; 
+      Lambda3Save       = mc * exp( -6. * M_PI / (27. * valueIter) );
     }
   }
 
   // Save squares of mass and Lambda values as well.
-  mc2 = pow2(mc);
-  mb2 = pow2(mb);
+  mc2          = pow2(mc);
+  mb2          = pow2(mb);
   Lambda3Save2 = pow2(Lambda3Save);
   Lambda4Save2 = pow2(Lambda4Save);
   Lambda5Save2 = pow2(Lambda5Save);
-  valueNow = valueIn;
-  scale2Now = mZ*mZ;
+  valueNow     = valueIn;
+  scale2Now    = mZ * mZ;
   isInit = true;
 
 }
@@ -102,7 +102,7 @@ double AlphaStrong::alphaS( double scale2) {
   // If equal to old scale then same answer.
   if (!isInit) return 0.;
   if (scale2 == scale2Now && (order < 2 || lastCallToFull)) return valueNow;
-  scale2Now = scale2;
+  scale2Now      = scale2;
   lastCallToFull = true;
 
   // Fix alpha_s.
@@ -132,6 +132,7 @@ double AlphaStrong::alphaS( double scale2) {
 
   // Done.
   return valueNow;
+
 } 
 
 //*********
@@ -144,7 +145,7 @@ double  AlphaStrong::alphaS1Ord( double scale2) {
   // If equal to old scale then same answer.
   if (!isInit) return 0.;
   if (scale2 == scale2Now && (order < 2 || !lastCallToFull)) return valueNow;
-  scale2Now = scale2;
+  scale2Now      = scale2;
   lastCallToFull = false;
 
   // Fix alpha_S.
@@ -172,7 +173,7 @@ double  AlphaStrong::alphaS1Ord( double scale2) {
 double AlphaStrong::alphaS2OrdCorr( double scale2) {
 
   // Only meaningful for second order calculations.
-  if (!isInit) return 1.;
+  if (!isInit)   return 1.;
   if (order < 2) return 1.; 
   
   // Second order correction term: differs by mass region.  
@@ -191,13 +192,15 @@ double AlphaStrong::alphaS2OrdCorr( double scale2) {
 //*********
 
 // Definitions of static variables.
-
-int AlphaEM::order = 1;
-double AlphaEM::alpEM0 = 0.00729735;
+double AlphaEM::alpEM0  = 0.00729735;
 double AlphaEM::alpEMmZ = 0.00781751;
-double AlphaEM::mZ2 = 8315.;
-double AlphaEM::bRun = 0.70736;
-double AlphaEM::Q2freeze = 0.021;
+double AlphaEM::mZ2     = 8315.;
+// Effective thresholds for electron, muon, light quarks, tau+c, b.
+double AlphaEM::Q2step[5]    = {0.26e-6, 0.011, 0.25, 3.5, 90.};
+// Running coefficients are sum charge2 / 3 pi in pure QED, here slightly
+// enhanced for quarks to approximately account for QCD corrections.
+double AlphaEM::bRun[5]      = {0.1061, 0.2122, 0.460, 0.700, 0.725};
+double AlphaEM::alpEMstep[5] = {};
 
 //*********
 
@@ -206,18 +209,29 @@ double AlphaEM::Q2freeze = 0.021;
 void AlphaEM::initStatic() {
 
   // Read in alpha_EM value at 0 and m_Z, and mass of Z.
-  order = Settings::mode("StandardModel:alphaEMorder");
-  alpEM0 = Settings::parm("StandardModel:alphaEM0");
-  alpEMmZ = Settings::parm("StandardModel:alphaEMmZ");
+  alpEM0    = Settings::parm("StandardModel:alphaEM0");
+  alpEMmZ   = Settings::parm("StandardModel:alphaEMmZ");
   double mZ = ParticleDataTable::m0(23);   
-  mZ2 = mZ*mZ;
+  mZ2       = mZ * mZ;
 
-  // Coefficient for running; scale for freezing.
-  if (order == 1) { 
-    double charge2Sum = 3. + 3. * (1./9. + 4./9. + 1./9. + 4./9. + 1./9.);  
-    bRun = charge2Sum / (3. * M_PI);
-    Q2freeze = mZ2 * exp( (1./alpEMmZ - 1./alpEM0) / bRun);
-  }
+  // AlphaEM values at matching scales and matching b value.
+
+  // Step down from mZ to tau/charm threshold. 
+  alpEMstep[4] = alpEMmZ / ( 1. + alpEMmZ * bRun[4] 
+    * log(mZ2 / Q2step[4]) );
+  alpEMstep[3] = alpEMstep[4] / ( 1. - alpEMstep[4] * bRun[3] 
+    * log(Q2step[3] / Q2step[4]) );
+
+  // Step up from me to light-quark threshold.
+  alpEMstep[0] = alpEM0;   
+  alpEMstep[1] = alpEMstep[0] / ( 1. - alpEMstep[0] * bRun[0] 
+    * log(Q2step[1] / Q2step[0]) );
+  alpEMstep[2] = alpEMstep[1] / ( 1. - alpEMstep[1] * bRun[1] 
+    * log(Q2step[2] / Q2step[1]) );
+
+  // Fit b in range between light-quark and tau/charm to join smoothly.
+  bRun[2] = (1./alpEMstep[3] - 1./alpEMstep[2])
+    / log(Q2step[2] / Q2step[3]);
 
 }
 
@@ -227,10 +241,15 @@ void AlphaEM::initStatic() {
 
 double AlphaEM::alphaEM( double scale2) {
 
-  if (order > 0 && scale2 > Q2freeze) 
-    return alpEMmZ / (1. - bRun * alpEMmZ * log(scale2 / mZ2));  
-  else if (order >= 0) return alpEM0;
-  else return alpEMmZ;
+  // Fix alphaEM; for order = -1 fixed at m_Z.
+  if (order == 0)  return alpEM0;
+  if (order <  0)  return alpEMmZ;
+
+  // Running alphaEM.
+  for (int i = 4; i >= 0; --i) if (scale2 > Q2step[i])
+    return alpEMstep[i] / (1. - bRun[i] * alpEMstep[i] 
+      * log(scale2 / Q2step[i]) );
+  return alpEM0;
 
 }
 
@@ -269,9 +288,9 @@ void CoupEW::initStatic() {
 
   // Initialize electroweak couplings.
   for (int i = 0; i < 20; ++i) {  
-    vfSave[i] = afSave[i] - 4. * s2tWbar * efSave[i];
-    lfSave[i] = afSave[i] - 2. * s2tWbar * efSave[i];
-    rfSave[i] =           - 2. * s2tWbar * efSave[i];
+    vfSave[i]  = afSave[i] - 4. * s2tWbar * efSave[i];
+    lfSave[i]  = afSave[i] - 2. * s2tWbar * efSave[i];
+    rfSave[i]  =           - 2. * s2tWbar * efSave[i];
     ef2Save[i] = pow2(efSave[i]);
     vf2Save[i] = pow2(vfSave[i]);
     af2Save[i] = pow2(afSave[i]);
@@ -288,7 +307,7 @@ void CoupEW::initStatic() {
 // Definitions of static variables. Initialize to all elements zero.
 
 double VCKM::Vsave[4][4] = { };
-double VCKM::V2out[20] = { };
+double VCKM::V2out[20]   = { };
 
 //*********
 
@@ -323,14 +342,14 @@ void VCKM::initStatic() {
 
 double VCKM::Vid(int id1, int id2) {
 
-  // Use absolute sign (want to cover both q -> q' W and q qbar' -> W).
+  // Use absolute sign (want to cover both f -> f' W and f fbar' -> W).
   int id1Abs = abs(id1);
   int id2Abs = abs(id2);
   if (id1Abs == 0 || id2Abs == 0 || (id1Abs + id2Abs)%2 != 1) return 0.;
 
   // Ensure proper order before reading out from Vsave or lepton match.
   if (id1Abs%2 == 1) swap(id1Abs, id2Abs);
-  if (id1Abs <=6 && id2Abs <=6) return Vsave[id1Abs/2][(id2Abs + 1)/2];
+  if (id1Abs <= 6 && id2Abs <= 6) return Vsave[id1Abs/2][(id2Abs + 1)/2];
   if ( (id1Abs == 12 || id1Abs == 14 || id1Abs == 16) 
     && id2Abs == id1Abs - 1 ) return 1.;
   
@@ -363,11 +382,11 @@ int VCKM::V2pick(int id) {
   // Leptons: unambiguous. 
   } else if (idIn >= 11 && idIn <= 16) {
     if (idIn%2 == 1) idOut = idIn + 1;
-    else idOut = idIn - 1;
+    else idOut             = idIn - 1;
   } 
 
   // Done. Return with sign.
-  return ( (id > 0) ? idOut : -idOut);
+  return ( (id > 0) ? idOut : -idOut );
 
 }
 

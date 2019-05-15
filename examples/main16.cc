@@ -2,7 +2,7 @@
 // This is a simple test program. 
 // It illustrates how Les Houches Accord input can be used 
 // to feed in toy parton-level configurations.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #include "Pythia.h"
 using namespace Pythia8; 

@@ -2,38 +2,11 @@
 # Examples Makefile.
 #
 #                  M. Kirsanov 07.04.2006
+#                     Modified 18.11.2006
 
 SHELL = /bin/sh
 
-# Compilers and compiler options.
-# Default.
-FC   = g77
-CC   = gcc
-CPP  = g++
-FFLAGS= -O
-CCFLAGS= -O
-CPPFLAGS= -g -ansi -pedantic -O -W -Wall
-FLIBS = -lfrtbegin -lg2c
-# Linux platform with gcc3: as default.
-ifeq ($(ARCH), Linux)
- FC   = g77
- CC   = gcc
- CPP  = g++
- FFLAGS= -O
- CCFLAGS= -O
- CPPFLAGS= -g -ansi -pedantic -O -W -Wall
- FLIBS = -lfrtbegin -lg2c
-endif
-# Linux platform with gcc4: new Fortran90 compiler.
-ifeq ($(ARCH), Linux-gcc4)
- FC   = gfortran
- CC   = gcc
- CPP  = g++
- FFLAGS= -O
- CCFLAGS= -O
- CPPFLAGS= -g -ansi -pedantic -O -W -Wall
- FLIBS = -lgfortran -lgfortranbegin
-endif
+-include ../config.mk
 
 # Location of directories.
 TMPDIR=tmp
@@ -41,6 +14,7 @@ TOPDIR=$(shell \pwd)
 INCDIR=include
 SRCDIR=src
 LIBDIR=lib
+LIBDIRARCH=lib/archive
 BINDIR=bin
 
 # Pythia6 library location: in this directory or set in config file.
@@ -53,7 +27,7 @@ ifneq (x$(PYTHIA6LOCATION),x)
   exit 1
  endif
 else
- MYPYTHIA6LOCATION=../$(LIBDIR)
+ MYPYTHIA6LOCATION=../$(LIBDIRARCH)
  MYPYTHIA6LIBNAME=-lpythia6
 endif
 
@@ -64,15 +38,15 @@ all:
 # Create an executable for one of the normal test programs
 main01 main02 main03 main04 main05 main06 main07 main08 \
 	main11 main12 main13 main14 main15 main16 main17 main18: \
-	../$(LIBDIR)/libpythia8.a
+	../$(LIBDIRARCH)/libpythia8.a
 	@mkdir -p ../$(BINDIR)
-	$(CPP) $(CPPFLAGS) -I../$(INCDIR) $@.cc -o ../$(BINDIR)/$@.exe \
-	-L../$(LIBDIR) -lpythia8 -L$(MYPYTHIA6LOCATION) $(MYPYTHIA6LIBNAME) \
+	$(CXX) $(CXXFLAGS) -I../$(INCDIR) $@.cc -o ../$(BINDIR)/$@.exe \
+	-L../$(LIBDIRARCH) -lpythia8 -L$(MYPYTHIA6LOCATION) $(MYPYTHIA6LIBNAME) \
 	$(FLIBS)
 	@ln -fs ../$(BINDIR)/$@.exe $@.exe
 
 # Create an executable for the Fortran test program, as prelude to main14.cc. 
-main14for:
+main14for: ../$(LIBDIRARCH)/libpythia8.a
 	@mkdir -p ../$(BINDIR)
 	$(FC) $(FFLAGS) $@.f -o ../$(BINDIR)/$@.exe \
 	-L$(MYPYTHIA6LOCATION) $(MYPYTHIA6LIBNAME) $(FLIBS)
@@ -80,24 +54,36 @@ main14for:
 
 # Create an executable linked to HepMC and CLHEP (if all goes well).
 ifneq (x$(HEPMCLOCATION),x)
- ifneq (x$(CLHEPLOCATION),x)
-  main21:
+ ifeq ($(findstring x2,x$(HEPMCVERSION)),x2)
+   main21 main22: ../$(LIBDIRARCH)/libpythia8.a ../$(LIBDIRARCH)/libhepmcinterface.a
 	 @mkdir -p ../$(BINDIR)
-	 $(CPP) $(CPPFLAGS) -I../$(INCDIR) -I$(HEPMCLOCATION)/include \
+	 $(CXX) $(CXXFLAGS) -I../$(INCDIR) -I$(HEPMCLOCATION)/include \
+	 $@.cc -o ../$(BINDIR)/$@.exe \
+	 -L../$(LIBDIRARCH) -lpythia8 -L$(MYPYTHIA6LOCATION) $(MYPYTHIA6LIBNAME) \
+	 -lhepmcinterface \
+	 -L$(HEPMCLOCATION)/lib -lHepMC \
+	 $(FLIBS)
+	 @ln -fs ../$(BINDIR)/$@.exe $@.exe
+ else
+  ifneq (x$(CLHEPLOCATION),x)
+   main21 main22: ../$(LIBDIRARCH)/libpythia8.a ../$(LIBDIRARCH)/libhepmcinterface.a
+	 @mkdir -p ../$(BINDIR)
+	 $(CXX) $(CXXFLAGS) -I../$(INCDIR) -I$(HEPMCLOCATION)/include \
      -I$(CLHEPLOCATION)/include $@.cc -o ../$(BINDIR)/$@.exe \
-	 -L../$(LIBDIR) -lpythia8 -L$(MYPYTHIA6LOCATION) $(MYPYTHIA6LIBNAME) \
+	 -L../$(LIBDIRARCH) -lpythia8 -L$(MYPYTHIA6LOCATION) $(MYPYTHIA6LIBNAME) \
      -lhepmcinterface \
 	 -L$(HEPMCLOCATION)/lib -lHepMC \
      -L$(CLHEPLOCATION)/lib -lCLHEP \
 	 $(FLIBS)
 	 @ln -fs ../$(BINDIR)/$@.exe $@.exe
- else
-  main21:
+  else
+   main21 main22:
 	@echo ERROR, apart from HepMC this target needs CLHEP, \
 	variable CLHEPLOCATION
+  endif
  endif
 else
- main21:
+ main21 main22:
 	@echo ERROR, this target needs HepMC, variable HEPMCLOCATION
 endif
 

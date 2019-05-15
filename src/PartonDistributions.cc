@@ -1,6 +1,6 @@
 // Function definitions (not found in the header) for the PDF,
 // GRV94L, CTEQ5L and Lepton classes.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #include "PartonDistributions.h"
 
@@ -66,7 +66,7 @@ double PDF::xfVal(int id, double x, double Q2) {
 
   // Lepton beam.
   } else {
-    if (id == idBeam ) return max(0., xlepton);
+    if (id == idBeam) return max(0., xlepton);
     return 0.;
   }
    
@@ -118,10 +118,10 @@ void GRV94L::xfUpdate(int id, double x, double Q2) {
   // Common expressions.
   double mu2  = 0.23;
   double lam2 = 0.2322 * 0.2322;
-  double s  = log (log(Q2/lam2) / log(mu2/lam2));
-  double ds = sqrt(s);
-  double s2 = s * s;
-  double s3 = s2 * s;
+  double s    = log (log(Q2/lam2) / log(mu2/lam2));
+  double ds   = sqrt(s);
+  double s2   = s * s;
+  double s3   = s2 * s;
  
   // uv :
   double nu  =  2.284 + 0.802 * s + 0.055 * s2;
@@ -218,14 +218,14 @@ void GRV94L::xfUpdate(int id, double x, double Q2) {
     dg, eg, esg);
 
   // Update values
-  xg = gl;
-  xu = uv + 0.5*(udb - del);
-  xd = dv + 0.5*(udb + del); 
+  xg    = gl;
+  xu    = uv + 0.5*(udb - del);
+  xd    = dv + 0.5*(udb + del); 
   xubar = 0.5*(udb - del); 
   xdbar = 0.5*(udb + del);
-  xs = sb;
-  xc = chm;
-  xb = bot;
+  xs    = sb;
+  xc    = chm;
+  xb    = bot;
 
   // Subdivision of valence and sea.
   xuVal = uv;
@@ -429,7 +429,7 @@ void CTEQ5L::xfUpdate(int id, double x, double Q2) {
   xdVal = xd - xdbar;
   xdSea = xdbar;
 
-  // idSav = 9 to indicate that all flavours reset. id change dummy. 
+  // idSav = 9 to indicate that all flavours reset. id change is dummy here. 
   idSav = 9;
   id = 0;
 
@@ -470,7 +470,7 @@ void Lepton::xfUpdate(int id, double x, double Q2) {
   // Photon inside electron (one possible scheme - primitive).
   xgamma = (0.5 * alphaEM / M_PI) * Q2Log * (1. + pow2(1. - x));
 
-  // idSav = 9 to indicate that all flavours reset. id change dummy. 
+  // idSav = 9 to indicate that all flavours reset. id change is dummy here. 
   idSav = 9;
   id = 0;
 

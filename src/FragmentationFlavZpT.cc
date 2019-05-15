@@ -1,6 +1,6 @@
 // Function definitions (not found in the header) for the 
 // StringFlav, StringZ and StringPT classes.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #include "FragmentationFlavZpT.h"
 
@@ -14,36 +14,49 @@ namespace Pythia8 {
  
 // Definitions of static variables.
 // (Values will be overwritten in initStatic call, so are purely dummy.)
-
-double StringFlav::probQQtoQ = 0.1;
-double StringFlav::probStoU = 0.3;
-double StringFlav::probSQtoQQ = 0.4;
-double StringFlav::probQQ1toQQ0 = 0.05;
-double StringFlav::probQandQQ = 1.1;
-double StringFlav::probQandS = 2.3;
-double StringFlav::probQandSinQQ = 2.12;
-double StringFlav::probQQ1corr = 0.15;
-double StringFlav::probQQ1corrInv = 6.667;
-double StringFlav::probQQ1norm = 0.13;
-double StringFlav::mesonUspin1 = 0.5;
-double StringFlav::mesonSspin1 = 0.6;
-double StringFlav::mesonCspin1 = 0.7;
-double StringFlav::mesonBspin1 = 0.75;
-double StringFlav::mesonMix1[2][4] 
-  = {{ 0., 0.5, 0.5, 0.},  {0., 0.5, 0.5, 0.} };
-double StringFlav::mesonMix2[2][4] 
-  = { {0., 0.75, 0.75, 0.5}, {0., 1., 1., 0.} };
-double StringFlav::suppressEta = 1.0;
-double StringFlav::suppressEtaPrime = 0.4;
+double StringFlav::probQQtoQ        = 0.1;
+double StringFlav::probStoUD        = 0.3;
+double StringFlav::probSQtoQQ       = 0.4;
+double StringFlav::probQQ1toQQ0     = 0.05;
+double StringFlav::probQandQQ       = 1.1;
+double StringFlav::probQandS        = 2.3;
+double StringFlav::probQandSinQQ    = 2.12;
+double StringFlav::probQQ1corr      = 0.15;
+double StringFlav::probQQ1corrInv   = 6.667;
+double StringFlav::probQQ1norm      = 0.13;
+double StringFlav::mesonRate[4][6]  = {{0.}};
+double StringFlav::mesonRateSum[4]  = {0.};
+double StringFlav::mesonMix1[2][6]  = {{0.}}; 
+double StringFlav::mesonMix2[2][6]  = {{0.}};
+double StringFlav::etaSup           = 1.0;
+double StringFlav::etaPrimeSup      = 0.4;
+double StringFlav::decupletSup      = 1.0;
+double StringFlav::popcornRate      = 0.5;
+double StringFlav::popcornSpair     = 0.5;
+double StringFlav::popcornSmeson    = 0.5;
+bool   StringFlav::suppressLeadingB = false;
+double StringFlav::lightLeadingBSup = 0.5;
+double StringFlav::heavyLeadingBSup = 0.8;
+double StringFlav::scbBM[3]         = {0.};
+double StringFlav::popFrac          = 0.;
+double StringFlav::popS[3]          = {0.};
+double StringFlav::dWT[3][7]        = {{0.}};
 
 // Clebsch-Gordan coefficients for baryon octet and decuplet are
 // fixed once and for all, so only weighted sum needs to be edited.
-double StringFlav::baryonClebsch12[6] 
+// Order: ud0 + u, ud0 + s, uu1 + u, uu1 + d, ud1 + u, ud1 + s.
+double StringFlav::baryonCGOct[6] 
   = { 0.75, 0.5, 0., 0.1667, 0.0833, 0.1667};
-double StringFlav::baryonClebsch32[6] 
+double StringFlav::baryonCGDec[6] 
   = { 0.,  0.,  1., 0.3333, 0.6667, 0.3333};
-double StringFlav::baryonClebschSum[6] 
+double StringFlav::baryonCGSum[6] 
   = { 0.75, 0.5, 1., 0.5, 0.75, 0.5};
+double StringFlav::baryonCGMax[6]
+  = {0.75, 0.75, 1., 1., 0.75, 0.75};
+
+// Offset for different meson multiplet id values.
+int StringFlav::mesonMultipletCode[6] 
+  = { 1, 3, 10003, 10001, 20003, 5};
 
 //*********
 
@@ -52,53 +65,215 @@ double StringFlav::baryonClebschSum[6]
 void StringFlav::initStatic() {
 
   // Basic parameters for generation of new flavour.
-  probQQtoQ = Settings::parm("StringFlav:probQQtoQ");
-  probStoU = Settings::parm("StringFlav:probStoU");
-  probSQtoQQ = Settings::parm("StringFlav:probSQtoQQ");
-  probQQ1toQQ0 = Settings::parm("StringFlav:probQQ1toQQ0");
+  probQQtoQ       = Settings::parm("StringFlav:probQQtoQ");
+  probStoUD       = Settings::parm("StringFlav:probStoUD");
+  probSQtoQQ      = Settings::parm("StringFlav:probSQtoQQ");
+  probQQ1toQQ0    = Settings::parm("StringFlav:probQQ1toQQ0");
 
   // Parameters derived from above.
-  probQandQQ = 1. + probQQtoQ;
-  probQandS = 2. + probStoU;
-  probQandSinQQ = 2. + probSQtoQQ * probStoU;
-  probQQ1corr = 3. * probQQ1toQQ0;
-  probQQ1corrInv = 1. / probQQ1corr;
-  probQQ1norm = probQQ1corr / (1. + probQQ1corr);
+  probQandQQ      = 1. + probQQtoQ;
+  probQandS       = 2. + probStoUD;
+  probQandSinQQ   = 2. + probSQtoQQ * probStoUD;
+  probQQ1corr     = 3. * probQQ1toQQ0;
+  probQQ1corrInv  = 1. / probQQ1corr;
+  probQQ1norm     = probQQ1corr / (1. + probQQ1corr);
 
-  // Parameters for meson production.
-  mesonUspin1 = Settings::parm("StringFlav:mesonUspin1");
-  mesonSspin1 = Settings::parm("StringFlav:mesonSspin1");
-  mesonCspin1 = Settings::parm("StringFlav:mesonCspin1");
-  mesonBspin1 = Settings::parm("StringFlav:mesonBspin1");
-  suppressEta = Settings::parm("StringFlav:suppressEta");
-  suppressEtaPrime = Settings::parm("StringFlav:suppressEtaPrime");
+  // Parameters for normal meson production.
+  for (int i = 0; i < 4; ++i) mesonRate[i][0] = 1.;
+  mesonRate[0][1] = Settings::parm("StringFlav:mesonUDvector");
+  mesonRate[1][1] = Settings::parm("StringFlav:mesonSvector");
+  mesonRate[2][1] = Settings::parm("StringFlav:mesonCvector");
+  mesonRate[3][1] = Settings::parm("StringFlav:mesonBvector");
 
-  // Set parameters for uubar - ddbar - ssbar meson mixing.
-  for (int spin = 0; spin < 2; ++spin) { 
-    // Mixing angle for pseudoscalar and vector multiplets.
-    double alpha;
-    if (spin == 0) {
-      double thetaPS = Settings::parm("StringFlav:thetaPS");
-      alpha = 90. - (thetaPS + 54.7);
-    } else { 
-      double thetaV = Settings::parm("StringFlav:thetaV");
-      alpha = thetaV + 54.7;
-    } 
+  // Parameters for L=1 excited-meson production.
+  mesonRate[0][2] = Settings::parm("StringFlav:mesonUDL1S0J1");
+  mesonRate[1][2] = Settings::parm("StringFlav:mesonSL1S0J1");
+  mesonRate[2][2] = Settings::parm("StringFlav:mesonCL1S0J1");
+  mesonRate[3][2] = Settings::parm("StringFlav:mesonBL1S0J1");
+  mesonRate[0][3] = Settings::parm("StringFlav:mesonUDL1S1J0");
+  mesonRate[1][3] = Settings::parm("StringFlav:mesonSL1S1J0");
+  mesonRate[2][3] = Settings::parm("StringFlav:mesonCL1S1J0");
+  mesonRate[3][3] = Settings::parm("StringFlav:mesonBL1S1J0");
+  mesonRate[0][4] = Settings::parm("StringFlav:mesonUDL1S1J1");
+  mesonRate[1][4] = Settings::parm("StringFlav:mesonSL1S1J1");
+  mesonRate[2][4] = Settings::parm("StringFlav:mesonCL1S1J1");
+  mesonRate[3][4] = Settings::parm("StringFlav:mesonBL1S1J1");
+  mesonRate[0][5] = Settings::parm("StringFlav:mesonUDL1S1J2");
+  mesonRate[1][5] = Settings::parm("StringFlav:mesonSL1S1J2");
+  mesonRate[2][5] = Settings::parm("StringFlav:mesonCL1S1J2");
+  mesonRate[3][5] = Settings::parm("StringFlav:mesonBL1S1J2");
+
+  // Store sum over multiplets for Monte Carlo generation.
+  for (int i = 0; i < 4; ++i) mesonRateSum[i] 
+    = mesonRate[i][0] + mesonRate[i][1] + mesonRate[i][2] 
+    + mesonRate[i][3] + mesonRate[i][4] + mesonRate[i][5];
+
+  // Parameters for uubar - ddbar - ssbar meson mixing.
+  for (int spin = 0; spin < 6; ++spin) { 
+    double theta;
+    if      (spin == 0) theta = Settings::parm("StringFlav:thetaPS");
+    else if (spin == 1) theta = Settings::parm("StringFlav:thetaV");
+    else if (spin == 2) theta = Settings::parm("StringFlav:thetaL1S0J1");
+    else if (spin == 3) theta = Settings::parm("StringFlav:thetaL1S1J0");
+    else if (spin == 4) theta = Settings::parm("StringFlav:thetaL1S1J1");
+    else                theta = Settings::parm("StringFlav:thetaL1S1J2");
+    double alpha = (spin == 0) ? 90. - (theta + 54.7) : theta + 54.7;
     alpha *= M_PI / 180.;
-    // Fill in (spin, flavour)-dependent probability of producing
+    // Fill in (flavour, spin)-dependent probability of producing
     // the lightest or the lightest two mesons of the nonet. 
-    mesonMix1[spin][1] = 0.5;
-    mesonMix2[spin][1] = 0.5 * (1. + pow2(sin(alpha)));
-    mesonMix1[spin][2] = mesonMix1[spin][1];
-    mesonMix2[spin][2] = mesonMix2[spin][1];
-    mesonMix1[spin][3] = 0.;
-    mesonMix2[spin][3] = pow2(cos(alpha));
+    mesonMix1[0][spin] = 0.5;
+    mesonMix2[0][spin] = 0.5 * (1. + pow2(sin(alpha)));
+    mesonMix1[1][spin] = 0.;
+    mesonMix2[1][spin] = pow2(cos(alpha));
   }
 
+  // Additional suppression of eta and etaPrime.
+  etaSup      = Settings::parm("StringFlav:etaSup");
+  etaPrimeSup = Settings::parm("StringFlav:etaPrimeSup");
+
   // Sum of baryon octet and decuplet weights.
-  double suppressDecuplet = Settings::parm("StringFlav:suppressDecuplet");
-  for (int i = 0; i < 6; ++i) baryonClebschSum[i]
-    = baryonClebsch12[i] + suppressDecuplet * baryonClebsch32[i];
+  double decupletSup = Settings::parm("StringFlav:decupletSup");
+  for (int i = 0; i < 6; ++i) baryonCGSum[i]
+    = baryonCGOct[i] + decupletSup * baryonCGDec[i];
+
+  // Maximum SU(6) weight for ud0, ud1, uu1 types.
+  baryonCGMax[0] = max( baryonCGSum[0], baryonCGSum[1]);
+  baryonCGMax[1] = baryonCGMax[0]; 
+  baryonCGMax[2] = max( baryonCGSum[2], baryonCGSum[3]);
+  baryonCGMax[3] = baryonCGMax[2]; 
+  baryonCGMax[4] = max( baryonCGSum[4], baryonCGSum[5]);
+  baryonCGMax[5] = baryonCGMax[4]; 
+
+  // Popcorn baryon parameters.
+  popcornRate    = Settings::parm("StringFlav:popcornRate");
+  popcornSpair   = Settings::parm("StringFlav:popcornSpair"); 
+  popcornSmeson  = Settings::parm("StringFlav:popcornSmeson");
+  
+  // Suppression of leading (= first-rank) baryons.
+  suppressLeadingB = Settings::flag("StringFlav:suppressLeadingB");
+  lightLeadingBSup = Settings::parm("StringFlav:lightLeadingBSup");
+  heavyLeadingBSup = Settings::parm("StringFlav:heavyLeadingBSup");
+
+  // Begin calculation of derived parameters for baryon production.
+
+  // Enumerate distinguishable diquark types (in diquark first is popcorn q).
+  enum Diquark {ud0, ud1, uu1, us0, su0, us1, su1, ss1};
+
+  // Maximum SU(6) weight by diquark type. 
+  double barCGMax[8];
+  barCGMax[ud0] = baryonCGMax[0]; 
+  barCGMax[ud1] = baryonCGMax[4]; 
+  barCGMax[uu1] = baryonCGMax[2]; 
+  barCGMax[us0] = baryonCGMax[0]; 
+  barCGMax[su0] = baryonCGMax[0]; 
+  barCGMax[us1] = baryonCGMax[4]; 
+  barCGMax[su1] = baryonCGMax[4]; 
+  barCGMax[ss1] = baryonCGMax[2]; 
+
+  // Diquark SU(6) survival = Sum_quark (quark tunnel weight) * SU(6).
+  double dMB[8];
+  dMB[ud0] = 2. * baryonCGSum[0] + probStoUD * baryonCGSum[1];
+  dMB[ud1] = 2. * baryonCGSum[4] + probStoUD * baryonCGSum[5];
+  dMB[uu1] = baryonCGSum[2] + (1. + probStoUD) * baryonCGSum[3];
+  dMB[us0] = (1. + probStoUD) * baryonCGSum[0] + baryonCGSum[1];
+  dMB[su0] = dMB[us0];
+  dMB[us1] = (1. + probStoUD) * baryonCGSum[4] + baryonCGSum[5];  
+  dMB[su1] = dMB[us1];
+  dMB[ss1] = probStoUD * baryonCGSum[2] + 2. * baryonCGSum[3];
+  for (int i = 1; i < 8; ++i) dMB[i] = dMB[i] / dMB[0];
+
+  // Tunneling factors for diquark production; only half a pair = sqrt.
+  double probStoUDroot    = sqrt(probStoUD);
+  double probSQtoQQroot   = sqrt(probSQtoQQ);
+  double probQQ1toQQ0root = sqrt(probQQ1toQQ0);
+  double qBB[8];
+  qBB[ud1] = probQQ1toQQ0root;
+  qBB[uu1] = probQQ1toQQ0root;
+  qBB[us0] = probSQtoQQroot;
+  qBB[su0] = probStoUDroot * probSQtoQQroot;
+  qBB[us1] = probQQ1toQQ0root * qBB[us0];
+  qBB[su1] = probQQ1toQQ0root * qBB[su0];
+  qBB[ss1] = probStoUDroot * pow2(probSQtoQQroot) * probQQ1toQQ0root;
+
+  // spin * (vertex factor) * (half-tunneling factor above).
+  double qBM[8];
+  qBM[ud1] = 3. * qBB[ud1];
+  qBM[uu1] = 6. * qBB[uu1];
+  qBM[us0] = probStoUD * qBB[us0];
+  qBM[su0] = qBB[su0]; 
+  qBM[us1] = probStoUD * 3. * qBB[us1];
+  qBM[su1] = 3. * qBB[su1];
+  qBM[ss1] = probStoUD * 6. * qBB[ss1];
+
+  // Combine above two into total diquark weight for q -> B Bbar.
+  for (int i = 1; i < 8; ++i) qBB[i] = qBB[i] * qBM[i];
+
+  // Suppression from having strange popcorn meson.
+  qBM[us0] *= popcornSmeson;
+  qBM[us1] *= popcornSmeson;
+  qBM[ss1] *= popcornSmeson;
+
+  // Suppression for a heavy quark of a diquark to fit into a baryon
+  // on the other side of popcorn meson: (0) s/u for q -> B M;
+  // (1) s/u for rank 0 diquark su -> M B; (2) ditto for s -> c/b.
+  double uNorm = 1. + qBM[ud1] + qBM[uu1] + qBM[us0] + qBM[us1];
+  scbBM[0] = (2. * (qBM[su0] + qBM[su1]) + qBM[ss1]) / uNorm;  
+  scbBM[1] = scbBM[0] * popcornSpair * qBM[su0] / qBM[us0];
+  scbBM[2] = (1. + qBM[ud1]) * (2. + qBM[us0]) / uNorm; 
+
+  // Include maximum of Clebsch-Gordan coefficients.
+  for (int i = 1; i < 8; ++i) dMB[i] *= qBM[i];
+  for (int i = 1; i < 8; ++i) qBM[i] *= barCGMax[i] / barCGMax[0];
+  for (int i = 1; i < 8; ++i) qBB[i] *= barCGMax[i] / barCGMax[0];
+
+  // Popcorn fraction for normal diquark production.
+  double qNorm = uNorm * popcornRate / 3.;
+  double sNorm = scbBM[0] * popcornSpair;
+  popFrac = qNorm * (1. + qBM[ud1] + qBM[uu1] + qBM[us0] + qBM[us1] 
+    + sNorm * (qBM[su0] + qBM[su1] + 0.5 * qBM[ss1])) / (1. +  qBB[ud1] 
+    + qBB[uu1] + 2. * (qBB[us0] + qBB[us1]) + 0.5 * qBB[ss1]);  
+
+  // Popcorn fraction for rank 0 diquarks, depending on number of s quarks.
+  popS[0] = qNorm * qBM[ud1] / qBB[ud1];
+  popS[1] = qNorm * 0.5 * (qBM[us1] / qBB[us1] 
+    + sNorm * qBM[su1] / qBB[su1]);
+  popS[2] = qNorm * sNorm * qBM[ss1] / qBB[ss1]; 
+
+  // Recombine diquark weights to flavour and spin ratios. Second index: 
+  // 0 = s/u popcorn quark ratio.
+  // 1, 2 = s/u ratio for vertex quark if popcorn quark is u/d or s.
+  // 3 = q/q' vertex quark ratio if popcorn quark is light and = q.
+  // 4, 5, 6 = (spin 1)/(spin 0) ratio for su, us and ud.  
+
+  // Case 0: q -> B B. 
+  dWT[0][0] = (2. * (qBB[su0] + qBB[su1]) + qBB[ss1])
+    / (1. + qBB[ud1] + qBB[uu1] + qBB[us0] + qBB[us1]);
+  dWT[0][1] = 2. * (qBB[us0] + qBB[us1]) / (1. + qBB[ud1] + qBB[uu1]);
+  dWT[0][2] = qBB[ss1] / (qBB[su0] + qBB[su1]);
+  dWT[0][3] = qBB[uu1] / (1. + qBB[ud1] + qBB[uu1]);
+  dWT[0][4] = qBB[su1] / qBB[su0];
+  dWT[0][5] = qBB[us1] / qBB[us0];
+  dWT[0][6] = qBB[ud1];
+
+  // Case 1: q -> B M B.
+  dWT[1][0] = (2. * (qBM[su0] + qBM[su1]) + qBM[ss1])
+    / (1. + qBM[ud1] + qBM[uu1] + qBM[us0] + qBM[us1]);
+  dWT[1][1] = 2. * (qBM[us0] + qBM[us1]) / (1. + qBM[ud1] + qBM[uu1]);
+  dWT[1][2] = qBM[ss1] / (qBM[su0] + qBM[su1]);
+  dWT[1][3] = qBM[uu1] / (1. + qBM[ud1] + qBM[uu1]);
+  dWT[1][4] = qBM[su1] / qBM[su0];
+  dWT[1][5] = qBM[us1] / qBM[us0];
+  dWT[1][6] = qBM[ud1];
+  
+  // Case 2: qq -> M B; diquark inside chain.
+  dWT[2][0] = (2. * (dMB[su0] + dMB[su1]) + dMB[ss1])
+    / (1. + dMB[ud1] + dMB[uu1] + dMB[us0] + dMB[us1]);
+  dWT[2][1] = 2. * (dMB[us0] + dMB[us1]) / (1. + dMB[ud1] + dMB[uu1]);
+  dWT[2][2] = dMB[ss1] / (dMB[su0] + dMB[su1]);
+  dWT[2][3] = dMB[uu1] / (1. + dMB[ud1] + dMB[uu1]);
+  dWT[2][4] = dMB[su1] / dMB[su0];
+  dWT[2][5] = dMB[us1] / dMB[us0];
+  dWT[2][6] = dMB[ud1];
 
 }
 
@@ -106,42 +281,92 @@ void StringFlav::initStatic() {
 
 // Pick a new flavour (including diquarks) given an incoming one.
 
-int StringFlav::pick(int idOld) {
+FlavContainer StringFlav::pick(FlavContainer& flavOld) {
 
-  // Choose whether to generate a meson or a baryon.
-  int idOldAbs = abs(idOld);
-  bool doBaryon = (idOldAbs <9 && probQandQQ * Rndm::flat() < probQQtoQ) 
-    ? true : false; 
+  // Initial values for new flavour.
+  FlavContainer flavNew;
+  flavNew.rank = flavOld.rank + 1;
 
-  // Single quark for new meson or baryon.
-  if (!doBaryon) {
-    double rndmFlav = probQandS * Rndm::flat();
-    int idNewAbs = 1;
-    if (rndmFlav > 1.) idNewAbs = 2;
-    if (rndmFlav > 2.) idNewAbs = 3;
-    return ( (idOld > 0 && idOld < 9) || idOld < -8 ) ? -idNewAbs : idNewAbs; 
+  // For original diquark assign popcorn quark and whether popcorn meson.
+  int idOld = abs(flavOld.id);
+  if (flavOld.rank == 0 && idOld > 1000) assignPopQ(flavOld);
+
+  // Diquark exists, to be forced into baryon now.
+  bool doOldBaryon    = (idOld > 1000 && flavOld.nPop == 0);
+  // Diquark exists, but do meson now.
+  bool doPopcornMeson = flavOld.nPop > 0;
+  // Newly created diquark gives baryon now, antibaryon later.
+  bool doNewBaryon    = false;
+
+  // Choose whether to generate a new meson or a new baryon.
+  if (!doOldBaryon && !doPopcornMeson && probQandQQ * Rndm::flat() > 1.) {
+    doNewBaryon = true;
+    if ((1. + popFrac) * Rndm::flat() > 1.) flavNew.nPop = 1;
   }
 
-  // Constituent flavours in diquark.
-  int idNew1, idNew2, spin;
-  double weight;
-  do {
-    double rndmFlav = probQandSinQQ * Rndm::flat();
-    idNew1 = 1;
-    if (rndmFlav > 1.) idNew1 = 2;
-    if (rndmFlav > 2.) idNew1 = 3;
-    rndmFlav = probQandSinQQ * Rndm::flat();
-    idNew2 = 1;
-    if (rndmFlav > 1.) idNew2 = 2;
-    if (rndmFlav > 2.) idNew2 = 3;
-    // Diquark spin 1 or 0; reweight to get correct mix.
-    spin = (idNew1 >= idNew2) ? 1 : 0;
-    weight = (spin == 0) ? probQQ1corrInv : probQQ1corr; 
-  } while (weight < Rndm::flat());    
-  // Combined diquark code.
-  int idNewAbs = 1000 * max(idNew1, idNew2) + 100 * min(idNew1, idNew2) 
-    + 2 * spin + 1; 
-  return (idOld > 0) ? idNewAbs : -idNewAbs; 
+  // Optional suppression of first-rank baryon.
+  if (flavOld.rank == 0 && doNewBaryon && suppressLeadingB) {
+    double leadingBSup = (idOld < 4) ? lightLeadingBSup : heavyLeadingBSup; 
+    if (Rndm::flat() > leadingBSup) {
+      doNewBaryon = false;
+      flavNew.nPop = 0;
+    }
+  }
+
+  // Single quark for new meson or for baryon where diquark already exists.
+  if (!doPopcornMeson && !doNewBaryon) {
+    flavNew.id = pickLightQ();
+    if ( (flavOld.id > 0 && flavOld.id < 9) || flavOld.id < -1000 ) 
+      flavNew.id = -flavNew.id; 
+
+    // Done for simple-quark case. 
+    return flavNew;
+  }
+
+  // Case: 0 = q -> B B, 1 = q -> B M B, 2 = qq -> M B.
+  int iCase = flavNew.nPop;
+  if (flavOld.nPop == 1) iCase = 2; 
+
+  // Flavour of popcorn quark (= q shared between B and Bbar).
+  if (doNewBaryon) { 
+    double sPopWT = dWT[iCase][0];
+    if (iCase == 1) sPopWT *= scbBM[0] * popcornSpair;
+    double rndmFlav = (2. + sPopWT) * Rndm::flat();
+    flavNew.idPop = 1;
+    if (rndmFlav > 1.) flavNew.idPop = 2;
+    if (rndmFlav > 2.) flavNew.idPop = 3;
+  } else flavNew.idPop = flavOld.idPop;
+  
+  // Flavour of vertex quark.
+  double sVtxWT = dWT[iCase][1];
+  if (flavNew.idPop >= 3) sVtxWT = dWT[iCase][2]; 
+  if (flavNew.idPop > 3) sVtxWT *= 0.5 * (1. + 1./dWT[iCase][4]);
+  double rndmFlav = (2. + sVtxWT) * Rndm::flat();
+  flavNew.idVtx = 1;
+  if (rndmFlav > 1.) flavNew.idVtx = 2;
+  if (rndmFlav > 2.) flavNew.idVtx = 3;
+
+  // Special case for light flavours, possibly identical. 
+  if (flavNew.idPop < 3 && flavNew.idVtx < 3) {  
+    flavNew.idVtx = flavNew.idPop;
+    if (Rndm::flat() > dWT[iCase][3]) flavNew.idVtx = 3 - flavNew.idPop;
+  }
+
+  // Pick 2 * spin + 1.
+  int spin = 3;
+  if (flavNew.idVtx != flavNew.idPop) {
+    double spinWT = dWT[iCase][6];
+    if (flavNew.idVtx == 3) spinWT = dWT[iCase][5];
+    if (flavNew.idPop >= 3) spinWT = dWT[iCase][4];
+    if ((1. + spinWT) * Rndm::flat() < 1.) spin = 1;
+  }
+
+  // Form outgoing diquark. Done. 
+  flavNew.id = 1000 * max(flavNew.idVtx, flavNew.idPop) 
+    + 100 * min(flavNew.idVtx, flavNew.idPop) + spin;
+  if ( (flavOld.id < 0 && flavOld.id > -9) || flavOld.id > 1000 ) 
+    flavNew.id = -flavNew.id; 
+  return flavNew;
 
 }
 
@@ -150,40 +375,51 @@ int StringFlav::pick(int idOld) {
 // Combine two flavours (including diquarks) to produce a hadron.
 // The weighting of the combination may fail, giving output 0.
 
-int StringFlav::combine(int id1, int id2) {
+int StringFlav::combine(FlavContainer& flav1, FlavContainer& flav2) {
 
   // Recognize largest and smallest flavour.
-  int id1Abs = abs(id1);
-  int id2Abs = abs(id2);
+  int id1Abs = abs(flav1.id); 
+  int id2Abs = abs(flav2.id);
   int idMax = max(id1Abs, id2Abs);
   int idMin = min(id1Abs, id2Abs);
  
-  // Form meson: pick spin state and preliminary code.
-  if (idMax < 9) {
-    int spin;
-    if (idMax < 3) spin = (Rndm::flat() < mesonUspin1) ? 1 : 0;
-    else if (idMax == 3) spin = (Rndm::flat() < mesonSspin1) ? 1 : 0;
-    else if (idMax == 4) spin = (Rndm::flat() < mesonCspin1) ? 1 : 0;
-    else spin = (Rndm::flat() < mesonBspin1) ? 1 : 0;
-    int idMeson = 100 * idMax + 10 * idMin + 2 * spin + 1;
+  // Construct a meson.
+  if (idMax < 9 || idMin > 1000) {
+
+    // Popcorn meson: use only vertex quarks.
+    if (idMin > 1000) {
+      id1Abs = flav1.idVtx;
+      id2Abs = flav2.idVtx;
+      idMax = max(id1Abs, id2Abs);
+      idMin = min(id1Abs, id2Abs);
+    }
+
+    // Pick spin state and preliminary code.
+    int flav = (idMax < 3) ? 0 : idMax - 2;
+    double rndmSpin = mesonRateSum[flav] * Rndm::flat();
+    int spin = -1;
+    do rndmSpin -= mesonRate[flav][++spin];
+    while (rndmSpin > 0.);
+    int idMeson = 100 * idMax + 10 * idMin + mesonMultipletCode[spin];
 
     // For nondiagonal mesons distinguish particle/antiparticle.
-    if (id1Abs != id2Abs) {
+    if (idMax != idMin) {
       int sign = (idMax%2 == 0) ? 1 : -1;
-      if ( (idMax == id1Abs && id1 < 0) 
-        || (idMax == id2Abs && id2 < 0) ) sign = -sign;
+      if ( (idMax == id1Abs && flav1.id < 0) 
+        || (idMax == id2Abs && flav2.id < 0) ) sign = -sign;
       idMeson *= sign;  
 
     // For light diagonal mesons include uubar - ddbar - ssbar mixing.
-    } else if (idMax < 4) {
+    } else if (flav < 2) {
       double rMix = Rndm::flat();
-      if (rMix < mesonMix1[spin][idMax]) idMeson = 110 + 2 * spin + 1;
-      else if (rMix < mesonMix2[spin][idMax]) idMeson = 220 + 2 * spin + 1;
-      else idMeson = 330 + 2 * spin + 1;
+      if      (rMix < mesonMix1[flav][spin]) idMeson = 110;
+      else if (rMix < mesonMix2[flav][spin]) idMeson = 220;
+      else                                   idMeson = 330;
+      idMeson += mesonMultipletCode[spin];
 
       // Additional suppression of eta and eta' may give failure.
-      if (idMeson == 221 && suppressEta < Rndm::flat()) return 0;
-      if (idMeson == 331 && suppressEtaPrime < Rndm::flat()) return 0;
+      if (idMeson == 221 && etaSup < Rndm::flat()) return 0;
+      if (idMeson == 331 && etaPrimeSup < Rndm::flat()) return 0;
     }
 
     // Finished for mesons.
@@ -193,41 +429,72 @@ int StringFlav::combine(int id1, int id2) {
   // SU(6) factors for baryon production may give failure.
   int idQQ1 = idMax / 1000;
   int idQQ2 = (idMax / 100) % 10;
-  int spinQQmod = idMax % 10;
-  int spinFlav = spinQQmod - 1;
+  int spinQQ = idMax % 10;
+  int spinFlav = spinQQ - 1;
   if (spinFlav == 2 && idQQ1 != idQQ2) spinFlav = 4;
   if (idMin != idQQ1 && idMin != idQQ2) spinFlav++;   
-  if (baryonClebschSum[spinFlav] < Rndm::flat()) return 0;
+  if (baryonCGSum[spinFlav] < Rndm::flat() * baryonCGMax[spinFlav]) 
+    return 0;
 
   // Order quarks to form baryon. Pick spin.
   int idOrd1 = max( idMin, max( idQQ1, idQQ2) ); 
   int idOrd3 = min( idMin, min( idQQ1, idQQ2) ); 
   int idOrd2 = idMin + idQQ1 + idQQ2 - idOrd1 - idOrd3;
-  int spinMod = (baryonClebschSum[spinFlav] *Rndm::flat() 
-    < baryonClebsch12[spinFlav]) ? 2 : 4;
+  int spinBar = (baryonCGSum[spinFlav] * Rndm::flat() 
+    < baryonCGOct[spinFlav]) ? 2 : 4;
   
   // Distinguish Lambda- and Sigma-like. 
   bool LambdaLike = false;
-  if (spinMod == 2 && idOrd1 > idOrd2 && idOrd2 > idOrd3) {
-    if (spinQQmod == 1 && idOrd1 == idMin) LambdaLike = true;
-    else if (spinQQmod == 1) LambdaLike = (Rndm::flat() < 0.25) 
-      ? false : true;
-    else if (idOrd1 != idMin) LambdaLike = (Rndm::flat() < 0.75)  
-      ? false : true;    
+  if (spinBar == 2 && idOrd1 > idOrd2 && idOrd2 > idOrd3) {
+    LambdaLike = (spinQQ == 1);
+    if (idOrd1 != idMin && spinQQ == 1) LambdaLike = (Rndm::flat() < 0.25); 
+    else if (idOrd1 != idMin)           LambdaLike = (Rndm::flat() < 0.75);
   }
 
   // Form baryon code and return with sign.  
   int idBaryon = (LambdaLike) 
-    ? 1000 * idOrd1 + 100 * idOrd3 + 10 * idOrd2 + spinMod
-    : 1000 * idOrd1 + 100 * idOrd2 + 10 * idOrd3 + spinMod;
-   return (id1 > 0) ? idBaryon : -idBaryon;
+    ? 1000 * idOrd1 + 100 * idOrd3 + 10 * idOrd2 + spinBar
+    : 1000 * idOrd1 + 100 * idOrd2 + 10 * idOrd3 + spinBar;
+   return (flav1.id > 0) ? idBaryon : -idBaryon;
 
 }
 
 //*********
 
+// Assign popcorn quark inside an original (= rank 0) diquark.
+
+void StringFlav::assignPopQ(FlavContainer& flav) {
+
+  // Safety check that intended to do something.
+  int idAbs = abs(flav.id);
+  if (flav.rank > 0 || idAbs < 1000) return;
+
+  // Make choice of popcorn quark.
+  int id1 = (idAbs/1000)%10;
+  int id2 = (idAbs/100)%10;
+  double pop2WT = 1.;
+       if (id1 == 3) pop2WT = scbBM[1];
+  else if (id1 >  3) pop2WT = scbBM[2];  
+       if (id2 == 3) pop2WT /= scbBM[1];
+  else if (id2 >  3) pop2WT /= scbBM[2];
+  // Agrees with Patrik code, but opposite to intention??
+  flav.idPop = ((1. + pop2WT) * Rndm::flat() > 1.) ? id2 : id1; 
+  flav.idVtx = id1 + id2 - flav.idPop;
+
+  // Also determine if to produce popcorn meson.
+  flav.nPop = 0;
+  double popWT = popS[0];
+  if (id1 == 3) popWT = popS[1];
+  if (id2 == 3) popWT = popS[2];
+  if (idAbs%10 == 1) popWT *= sqrt(probQQ1toQQ0);
+  if ((1. + popWT) * Rndm::flat() > 1.) flav.nPop = 1;
+  
+}
+
+//*********
+
 // Combine two quarks to produce a diquark. 
-// Normally according to production compostion, but nonvanishing idHad
+// Normally according to production composition, but nonvanishing idHad
 // means diquark from known hadron content, so use SU(6) wave fucntion.
 
 int StringFlav::makeDiquark(int id1, int id2, int idHad) {
@@ -262,31 +529,31 @@ int StringFlav::makeDiquark(int id1, int id2, int idHad) {
 // Definitions of static variables.
 // (Values will be overwritten in initStatic call, so are purely dummy.)
  
-bool StringZ::usePetersonC = false;
-bool StringZ::usePetersonB = false;
-bool StringZ::usePetersonH = false;
-double StringZ::mc2 = 2.25;
-double StringZ::mb2 = 25.0;
-double StringZ::aLund = 0.3;
-double StringZ::bLund = 0.58;
+bool   StringZ::usePetersonC  = false;
+bool   StringZ::usePetersonB  = false;
+bool   StringZ::usePetersonH  = false;
+double StringZ::mc2           = 2.25;
+double StringZ::mb2           = 25.0;
+double StringZ::aLund         = 0.3;
+double StringZ::bLund         = 0.58;
 double StringZ::aExtraDiquark = 0.5;
-double StringZ::rFactC = 1.0;
-double StringZ::rFactB = 1.0;
-double StringZ::rFactH = 1.0;
-double StringZ::epsilonC = 0.05;
-double StringZ::epsilonB = 0.005;
-double StringZ::epsilonH = 0.005;
+double StringZ::rFactC        = 1.0;
+double StringZ::rFactB        = 1.0;
+double StringZ::rFactH        = 1.0;
+double StringZ::epsilonC      = 0.05;
+double StringZ::epsilonB      = 0.005;
+double StringZ::epsilonH      = 0.005;
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
 
 // When a or c are close to special cases, default to these.
 const double StringZ::CFROMUNITY = 0.01;
-const double StringZ::AFROMZERO = 0.02;
-const double StringZ::AFROMC = 0.01;
+const double StringZ::AFROMZERO  = 0.02;
+const double StringZ::AFROMC     = 0.01;
 
 // Do not take exponent of too large or small number.
-const double StringZ::EXPMAX = 50.; 
+const double StringZ::EXPMAX     = 50.; 
 
 //*********
 
@@ -302,9 +569,9 @@ void StringZ::initStatic() {
   aLund = Settings::parm("StringZ:aLund");
   bLund = Settings::parm("StringZ:bLund");
   aExtraDiquark = Settings::parm("StringZ:aExtraDiquark");
-  rFactC = Settings::parm("StringZ:bExtraC");
-  rFactB = Settings::parm("StringZ:bExtraB");
-  rFactH = Settings::parm("StringZ:bExtraH");
+  rFactC = Settings::parm("StringZ:rFactC");
+  rFactB = Settings::parm("StringZ:rFactB");
+  rFactH = Settings::parm("StringZ:rFactH");
 
   // Flags and parameters of Peterson/SLAC fragmentation function.
   usePetersonC = Settings::flag("StringZ:usePetersonC");
@@ -327,8 +594,8 @@ double StringZ::zFrag( int idOld, int idNew, double mT2) {
   // Find if old or new flavours correspond to diquarks.
   int idOldAbs = abs(idOld);
   int idNewAbs = abs(idNew);
-  bool isOldDiquark = (idOldAbs > 1000 && idOldAbs < 10000) ? true : false;
-  bool isNewDiquark = (idNewAbs > 1000 && idNewAbs < 10000) ? true : false;
+  bool isOldDiquark = (idOldAbs > 1000 && idOldAbs < 10000);
+  bool isNewDiquark = (idNewAbs > 1000 && idNewAbs < 10000);
 
   // Find heaviest quark in fragmenting parton/diquark.
   int idFrag = idOldAbs;
@@ -367,9 +634,9 @@ double StringZ::zFrag( int idOld, int idNew, double mT2) {
 double StringZ::zLund( double a, double b, double c) {
 
   // Special cases for c = 1, a = 0 and a = c. 
-  bool cIsUnity = (abs( c - 1.) < CFROMUNITY) ? true : false;
-  bool aIsZero = (a < AFROMZERO) ? true : false;
-  bool aIsC = (abs(a - c) < AFROMC) ? true : false;
+  bool cIsUnity = (abs( c - 1.) < CFROMUNITY);
+  bool aIsZero = (a < AFROMZERO);
+  bool aIsC = (abs(a - c) < AFROMC);
 
   // Determine position of maximum.
   double zMax;
@@ -379,8 +646,8 @@ double StringZ::zLund( double a, double b, double c) {
          if (zMax > 0.9999 && b > 100.) zMax = min(zMax, 1. - a / b); }   
         
   // Subdivide z range if distribution very peaked near either endpoint.
-  bool peakedNearZero = (zMax < 0.1) ? true : false;
-  bool peakedNearUnity = (zMax > 0.85 && b > 1.) ? true : false;
+  bool peakedNearZero = (zMax < 0.1);
+  bool peakedNearUnity = (zMax > 0.85 && b > 1.);
 
   // Find integral of trial function everywhere bigger than f. 
   // (Dummy start values.)
@@ -500,9 +767,9 @@ double StringZ::zPeterson( double epsilon) {
 // Definitions of static variables.
 // (Values will be overwritten in init call, so are purely dummy.)
 
-double StringPT::sigmaQ = 0.25;
+double StringPT::sigmaQ           = 0.25;
 double StringPT::enhancedFraction = 0.01;
-double StringPT::enhancedWidth = 2.;
+double StringPT::enhancedWidth    = 2.;
 
 //*********
 
@@ -511,9 +778,9 @@ double StringPT::enhancedWidth = 2.;
 void StringPT::initStatic() {
 
   // Parameters of the pT width and enhancement.
-  sigmaQ = Settings::parm("StringPT:sigma") / sqrt(2.);
+  sigmaQ           = Settings::parm("StringPT:sigma") / sqrt(2.);
   enhancedFraction = Settings::parm("StringPT:enhancedFraction");
-  enhancedWidth = Settings::parm("StringPT:enhancedWidth");
+  enhancedWidth    = Settings::parm("StringPT:enhancedWidth");
 
 }
 

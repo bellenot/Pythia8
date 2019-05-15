@@ -1,7 +1,13 @@
 // Function definitions (not found in the header) for the Pythia class.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #include "Pythia.h"
+
+// Access time information.
+#include <ctime>
+
+// Allow string and character manipulation.
+#include <cctype>
 
 namespace Pythia8 {
  
@@ -15,17 +21,57 @@ namespace Pythia8 {
 // Definitions of static variables.
 // (Values will be overwritten in initStatic call, so are purely dummy.)
 
-bool Pythia::afterProcessLevel = true;
-bool Pythia::afterPartonLevel = true;
-bool Pythia::checkEvent = true;
-int Pythia::nErrList = 3;
-double Pythia::epTolerance = 1e-5;
+bool   Pythia::partonLevelOn = true;
+bool   Pythia::hadronLevelOn = true;
+bool   Pythia::checkEvent    = true;
+int    Pythia::nErrList      = 3;
+double Pythia::epTolerance   = 1e-5;
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
 
-// Maximum number of tries to produce parton level from given input..
-const int Pythia::NTRY = 10; 
+// Maximum number of tries to produce parton level from given input.
+const int Pythia::NTRY       = 10; 
+
+//*********
+  
+// Constructor. 
+
+Pythia::Pythia() { 
+    
+  // Initial values for pointers to PDF's.
+  pdfAnew = false; 
+  pdfBnew = false;
+  pdfAPtr = 0; 
+  pdfBPtr = 0; 
+    
+  // Read in files with all flags, modes, parms and words.
+  settings.init();
+
+  // Read in files with all particle data.
+  particleData.init();
+
+  // Write the Pythia banner to output. 
+  banner();
+
+  // Default for some flags.
+  hasPythia6 = false;
+  hasLHA     = false;
+  isInit     = false;
+ 
+} 
+
+//*********
+  
+// Destructor.
+
+Pythia::~Pythia() { 
+
+  // Delete the PDF's created with new.
+  if (pdfAnew) delete pdfAPtr; 
+  if (pdfBnew) delete pdfBPtr; 
+
+} 
 
 //*********
 
@@ -40,7 +86,9 @@ bool Pythia::readString(string line, bool warn) {
   // Identify substring up to colon, i.e. first part of name.
   int firstColon = line.find_first_of(":");
   string name( line, firstChar, firstColon - firstChar);
-  string lowername = tolower(name);
+  string lowername = name;
+  for (int i = 0; i < int(name.length()); ++i) 
+    lowername[i] = std::tolower(name[i]);
 
   // Send on relevant cases to Pythia 6.
   if (lowername == "pythia6") {
@@ -78,7 +126,7 @@ bool Pythia::readString(string line, bool warn) {
   const char* cstring = updateFile.c_str();
   ifstream is(cstring);  
   if (!is) {
-    ErrorMessages::message("Error in Pythia::readFile: did not find file",
+    ErrorMsg::message("Error in Pythia::readFile: did not find file",
       updateFile);
     return false;
   }
@@ -124,13 +172,13 @@ bool Pythia::init( int idAin, int idBin, double eAin, double eBin) {
   // Read in and set values.
   idA = idAin;
   idB = idBin;
-  eA = eAin;
-  eB = eBin;
+  eA  = eAin;
+  eB  = eBin;
   inCMframe = false;
 
   // Send on to common initialization. 
   bool status = init();
-  if (!status) ErrorMessages::message("Abort from Pythia::init: "
+  if (!status) ErrorMsg::message("Abort from Pythia::init: "
     "initialization failed");
   return status;
 
@@ -145,12 +193,12 @@ bool Pythia::init( int idAin, int idBin, double eCMin) {
   // Read in and set values.
   idA = idAin;
   idB = idBin;
-  eCM = eCMin;
+  eCM  = eCMin;
   inCMframe = true;
 
   // Send on to common initialization.
   bool status = init();
-  if (!status) ErrorMessages::message("Abort from Pythia::init: "
+  if (!status) ErrorMsg::message("Abort from Pythia::init: "
     "initialization failed");
   return status;
 
@@ -165,25 +213,25 @@ bool Pythia::init( LHAinit* lhaInitPtrIn, LHAevnt* lhaEvntPtrIn) {
   // Save and set flag for subsequent usage of LHAevnt object.
   lhaInitPtr = lhaInitPtrIn;
   lhaEvntPtr = lhaEvntPtrIn;
-  hasLHA = true;
+  hasLHA     = true;
 
   // Set LHAinit information (in some external program).
   bool status = lhaInitPtr->set();
-  if (!status) ErrorMessages::message("Abort from Pythia::init: "
+  if (!status) ErrorMsg::message("Abort from Pythia::init: "
     "Les Houches initialization failed");
   if (!status) return false;
 
   // Extract beams from values set in an LHAinit object. 
   idA = lhaInitPtr->idBeamA();
   idB = lhaInitPtr->idBeamB();
-  eA = lhaInitPtr->eBeamA();
-  eB = lhaInitPtr->eBeamB();
+  eA  = lhaInitPtr->eBeamA();
+  eB  = lhaInitPtr->eBeamB();
   inCMframe = false;
 
   // Now do normal initialization. List info unless runtime to Pythia6.
   status = init();
-  if (!hasPythia6) lhaInitPtr->list();
-  if (!status) ErrorMessages::message("Abort from Pythia::init: "
+  if (!hasPythia6 && strategyLHA < 10) lhaInitPtr->list();
+  if (!status) ErrorMsg::message("Abort from Pythia::init: "
     "initialization failed");
   return status;
 
@@ -203,21 +251,21 @@ bool Pythia::init( string LesHouchesEventFile) {
 
   // Set LHAinit information (in some external program).
   bool status = lhaInitPtr->set();
-  if (!status) ErrorMessages::message("Abort from Pythia::init: "
+  if (!status) ErrorMsg::message("Abort from Pythia::init: "
     "Les Houches initialization failed");
   if (!status) return false;
 
   // Extract beams from values set in an LHAinit object. 
   idA = lhaInitPtr->idBeamA();
   idB = lhaInitPtr->idBeamB();
-  eA = lhaInitPtr->eBeamA();
-  eB = lhaInitPtr->eBeamB();
+  eA  = lhaInitPtr->eBeamA();
+  eB  = lhaInitPtr->eBeamB();
   inCMframe = false;
 
   // Now do normal initialization. List info unless runtime to Pythia6.
   status = init();
-  if (!hasPythia6) lhaInitPtr->list(); 
-  if (!status) ErrorMessages::message("Abort from Pythia::init: "
+  if (!hasPythia6 && strategyLHA < 10) lhaInitPtr->list(); 
+  if (!status) ErrorMsg::message("Abort from Pythia::init: "
     "initialization failed");
   return status;
 
@@ -233,18 +281,31 @@ bool Pythia::init() {
   // Reset error counter.
   nErrEvent = 0;
 
+  // Strategy for event generation, Les Houches or not.
+  strategyLHA = (hasLHA) ? lhaInitPtr->strategy() : 0;  
+
+  // Check that beams and beam combination can be handled.
+  bool canHandleBeams = false;
+  if (abs(idA) == 2212 && abs(idB) == 2212) canHandleBeams = true;
+  if (abs(idA) == 11 && idA + idB == 0) canHandleBeams = true;
+  if (!canHandleBeams && strategyLHA < 10) {
+    ErrorMsg::message("Error in Pythia::init: "
+      "cannot handle this beam combination");
+    return false;
+  }
+
   // Initialize all accessible static data members.
   initStatic();
 
   // Initialize SUSY Les Houches Accord data
   if (!initSLHA()) return false;
 
+  // Initialize Breit-Wigner mass selection.
+  particleData.initBWmass();
+
   // Set headers to distinguish the two event listing kinds.
   process.header("(hard process)");
   event.header("(complete event)");
-
-  // Strategy for event generation, Les Houches or not.
-  strategyLHA = (hasLHA) ? lhaInitPtr->strategy() : 0;  
 
   // Do not set up beam kinematics when no parton-level processing.
   if (strategyLHA >= 10) inCMframe = true;
@@ -273,19 +334,20 @@ bool Pythia::init() {
     pzA = 0.5 * sqrtpos( (eCM + mA + mB) * (eCM - mA - mB) 
       * (eCM - mA + mB) * (eCM + mA - mB) ) / eCM;
     pzB = -pzA;
-    eA = sqrt(mA*mA + pzA*pzA);
-    eB = sqrt(mB*mB + pzB*pzB);
+    eA  = sqrt(mA*mA + pzA*pzA);
+    eB  = sqrt(mB*mB + pzB*pzB);
 
     // Set up the PDF's, if not already done.
     if (pdfAPtr == 0) {pdfAPtr = setPDFPtr(idA); pdfAnew = true;}
     if (pdfBPtr == 0) {pdfBPtr = setPDFPtr(idB); pdfBnew = true;}
   
     // Set up the two beams and the common remnant system.
-    beamA.init( idA, pzA, eA, mA, pdfAPtr);
-    beamB.init( idB, pzB, eB, mB, pdfBPtr);
- 
-    // Send PDF pointers to InFlux as static objects.
-    InFlux::setPDFPtr( pdfAPtr, pdfBPtr); 
+    bool isUnresolvedA = ( ParticleDataTable::isLepton(idA) 
+      && !settings.flag("Pythia:lPDF") );
+    bool isUnresolvedB = ( ParticleDataTable::isLepton(idB) 
+      && !settings.flag("Pythia:lPDF") );
+    beamA.init( idA, pzA, eA, mA, pdfAPtr, isUnresolvedA);
+    beamB.init( idB, pzB, eB, mB, pdfBPtr, isUnresolvedB);
   }
 
   // Store main info for access in process generation.
@@ -312,17 +374,21 @@ bool Pythia::init() {
 
 void Pythia::initStatic() {
 
+  // Initialize printing of error messages.
+  ErrorMsg::initStatic();
+
   // Initialize the random number generator.
   if ( settings.flag("Pythia:setSeed") )  
     Rndm::init( settings.mode("Pythia:seed") );
 
   // Initialize static data members in the Pythia class.
-  afterProcessLevel = settings.flag("Pythia:afterProcessLevel");
-  afterPartonLevel = settings.flag("Pythia:afterPartonLevel");
-  checkEvent = settings.flag("Pythia:checkEvent");
+  partonLevelOn = settings.flag("Pythia:partonLevel");
+  hadronLevelOn = settings.flag("Pythia:hadronLevel");
+  checkEvent    = settings.flag("Pythia:checkEvent");
+  nErrList      = settings.mode("Pythia:nErrList");
+  epTolerance   = settings.parm("Pythia:epTolerance");
   
   // Initialize all other accessible static data members.
-  ErrorMessages::initStatic();
   ParticleDataEntry::initStatic();
   AlphaEM::initStatic(); 
   CoupEW::initStatic(); 
@@ -366,7 +432,7 @@ bool Pythia::initSLHA() {
 
   // In case of problems, print error and fail init.
   if (ifail != 0) {
-    ErrorMessages::message("Error from Pythia::initSLHA: "
+    ErrorMsg::message("Error from Pythia::initSLHA: "
       "problem reading SLHA file", slhafile);
     return false;
   };
@@ -382,7 +448,7 @@ bool Pythia::initSLHA() {
   // Check spectrum for consistency. Switch off SUSY if necessary.
   ifail = slha.checkSpectrum();
   if (ifail != 0) {
-    ErrorMessages::message("Warning from Pythia::initSLHA: "
+    ErrorMsg::message("Warning from Pythia::initSLHA: "
       "Problem with SLHA spectrum.", 
       "\n Only using masses and switching off SUSY.");
     settings.flag("SUSY", false);
@@ -404,7 +470,7 @@ bool Pythia::next() {
 
   // Can only generate event if initialization worked.
   if (!isInit) {
-    ErrorMessages::message("Abort from Pythia::next: "
+    ErrorMsg::message("Abort from Pythia::next: "
       "not properly initialized so cannot generate events"); 
     return false;
   }
@@ -413,13 +479,13 @@ bool Pythia::next() {
   info.clear();
   process.clear();
   if ( !processLevel.next( process) ) {
-    ErrorMessages::message("Abort from Pythia::next: "
+    ErrorMsg::message("Abort from Pythia::next: "
       "processLevel failed; giving up"); 
     return false;
   }
 
   // Possibility to stop the generation at this stage.
-  if (!afterProcessLevel) {
+  if (!partonLevelOn) {
     if (!inCMframe) process.bst(0., 0., betaZ, gammaZ);
     return true;
   }
@@ -436,7 +502,7 @@ bool Pythia::next() {
    
     // Parton-level evolution: ISR, FSR, MI.
     if ( !partonLevel.next( process, event) ) {
-      ErrorMessages::message("Warning in Pythia::next: "
+      ErrorMsg::message("Error in Pythia::next: "
         "partonLevel failed; try again"); 
       physical = false; 
       continue;
@@ -449,11 +515,11 @@ bool Pythia::next() {
     }    
 
     // Possibility to stop the generation at this stage.
-    if (!afterPartonLevel) return physical;
+    if (!hadronLevelOn) return true;
 
     // Hadron-level: hadronization, decays.
     if ( !hadronLevel.next( event) ) {
-      ErrorMessages::message("Warning in Pythia::next: "
+      ErrorMsg::message("Error in Pythia::next: "
         "hadronLevel failed; try again"); 
       physical = false; 
       continue;
@@ -463,13 +529,22 @@ bool Pythia::next() {
     break;
   }
   if (!physical) {
-    ErrorMessages::message("Abort from Pythia::next: "
+    ErrorMsg::message("Abort from Pythia::next: "
       "parton+hadronLevel failed; giving up");
     return false;
   }
 
-  // Optionally check final event for problems. Done
-  if (checkEvent) return check();
+  // Parton-level statistics.
+  partonLevel.accumulate();
+
+  // Optionally check final event for problems.
+  if (checkEvent && !check()) {
+    ErrorMsg::message("Abort from Pythia::next: "
+      "check of event revealed problems");
+    return false;
+  }
+
+  // Done.
   return true;
 
 }
@@ -478,16 +553,16 @@ bool Pythia::next() {
 
 // Print statistics on event generation.
 
-void Pythia::statistics() {
+void Pythia::statistics(bool all) {
 
   // Statistics on cross section and number of events. 
   processLevel.statistics();  
 
-  // Summary of which and how many warnings/errors encountered.
-  ErrorMessages::statistics();
+  // Statistics from other classes, e.g. multiple interactions.
+  if (all) partonLevel.statistics();  
 
-  // Possibility for statistics from other classes, e.g. for debug.
-  partonLevel.statistics();  
+  // Summary of which and how many warnings/errors encountered.
+  ErrorMsg::statistics();
 
 }
 
@@ -583,7 +658,7 @@ void Pythia::banner(ostream& os) {
      << "physics studies or production runs.   |  | \n"
      << " |  |                                        "
      << "                                      |  | \n"
-     << " |  |   Copyright T. Sjostrand (2006)        " 
+     << " |  |   Copyright C 2007 Torbjorn Sjostrand  " 
      << "                                      |  | \n"
      << " |  |                                        "
      << "                                      |  | \n"
@@ -594,7 +669,7 @@ void Pythia::banner(ostream& os) {
      << " |                                           "
      << "                                         | \n"
      << " *-------------------------------------------" 
-     << "-----------------------------------------* " << endl;
+     << "-----------------------------------------* \n" << endl;
 
 }
 
@@ -622,7 +697,7 @@ bool Pythia::check(ostream& os) {
       string errCode;
       ostringstream writeCode(errCode);
       writeCode << ", id = " << id;
-      ErrorMessages::message("Error in Pythia::check: "
+      ErrorMsg::message("Error in Pythia::check: "
         "unknown particle code", errCode); 
       physical = false;
       iErrId.push_back(i);
@@ -633,7 +708,7 @@ bool Pythia::check(ostream& os) {
       && abs(event[i].pz()) >= 0.  && abs(event[i].e()) >= 0. 
       && abs(event[i].m()) >= 0.) ;
     else {   
-      ErrorMessages::message("Error in Pythia::check: "
+      ErrorMsg::message("Error in Pythia::check: "
         "not-a-number energy/momentum/mass"); 
       physical = false;
       iErrNan.push_back(i);
@@ -652,12 +727,12 @@ bool Pythia::check(ostream& os) {
   double epDev = abs(pSum.e()) + abs(pSum.px()) + abs(pSum.py())
     + abs(pSum.pz());
   if (epDev > epTolerance * eLab) { 
-    ErrorMessages::message("Error in Pythia::check: "
+    ErrorMsg::message("Error in Pythia::check: "
       "energy-momentum badly conserved"); 
     physical = false;
   }
   if (abs(chargeSum) > 0.1) {
-    ErrorMessages::message("Error in Pythia::check: "
+    ErrorMsg::message("Error in Pythia::check: "
       "charge not conserved"); 
     physical = false;
   }
@@ -708,9 +783,13 @@ PDF* Pythia::setPDFPtr(int idIn) {
     if (pPDFset == 1) tempPDFPtr = new GRV94L(idIn);
     else tempPDFPtr = new CTEQ5L(idIn);
 
-  // Lepton beam.
-    } else tempPDFPtr = new Lepton(idIn);
+  // Lepton beam; resolved or not.
+  } else {
+    if (settings.flag("Pythia:lPDF")) tempPDFPtr = new Lepton(idIn);
+    else tempPDFPtr = new LeptonPoint(idIn);
+  }
   
+  // Done.
   return tempPDFPtr; 
 }
 

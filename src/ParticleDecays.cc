@@ -1,6 +1,6 @@
 // Function definitions (not found in the header) for the 
 // ParticleDecays class.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #include "ParticleDecays.h"
 
@@ -16,35 +16,37 @@ namespace Pythia8 {
 // (Values will be overwritten in initStatic call, so are purely dummy.)
 
 double ParticleDecays::mSafety = 0.002;
-bool ParticleDecays::limitTau0 = false;
+bool   ParticleDecays::limitTau0 = false;
 double ParticleDecays::tau0Max = 10.0;
-bool ParticleDecays::limitTau = false;
+bool   ParticleDecays::limitTau = false;
 double ParticleDecays::tauMax = 10.0;
-bool ParticleDecays::limitRadius = false;
+bool   ParticleDecays::limitRadius = false;
 double ParticleDecays::rMax = 10.0;
-bool ParticleDecays::limitCylinder = false;
+bool   ParticleDecays::limitCylinder = false;
 double ParticleDecays::xyMax = 10.0;
 double ParticleDecays::zMax = 10.0;
-bool ParticleDecays::limitDecay = false;
-bool ParticleDecays::mixB = true;
+bool   ParticleDecays::limitDecay = false;
+bool   ParticleDecays::mixB = true;
 double ParticleDecays::xBdMix = 0.771;
 double ParticleDecays::xBsMix = 25.0;
+double ParticleDecays::sigmaSoft = 0.5;
 double ParticleDecays::multIncrease = 4.5;
 double ParticleDecays::multRefMass = 0.7;
 double ParticleDecays::multGoffset = 0.0;
 double ParticleDecays::colRearrange = 0.5;
-double ParticleDecays::probStoU = 0.3;
-double ParticleDecays::probQandS = 2.3;
 double ParticleDecays::stopMass = 1.0;
 double ParticleDecays::sRhoDal = 0.5;
 double ParticleDecays::wRhoDal = 0.02;
-bool ParticleDecays::FSRinDecays = true;
+bool   ParticleDecays::FSRinDecays = true;
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
 
 // Number of times one tries to let decay happen (for 2 nested loops).
-const int ParticleDecays::NTRYDECAY = 10;
+const int ParticleDecays::NTRYDECAY      = 10;
+
+// Minimal Dalitz pair mass this factor above threshold.
+const double ParticleDecays::MSAFEDALITZ = 1.000001;
 
 // These numbers are hardwired empirical parameters, 
 // intended to speed up the M-generator.
@@ -81,39 +83,40 @@ void ParticleDecays::initStatic() {
   mSafety = Settings::parm("ParticleDecays:mSafety");
 
   // Lifetime and vertex rules for determining whether decay allowed.
-  limitTau0 = Settings::flag("ParticleDecays:limitTau0");
-  tau0Max = Settings::parm("ParticleDecays:tau0Max");
-  limitTau = Settings::flag("ParticleDecays:limitTau");
-  tauMax = Settings::parm("ParticleDecays:tauMax");
-  limitRadius = Settings::flag("ParticleDecays:limitRadius");
-  rMax = Settings::parm("ParticleDecays:rMax");
+  limitTau0     = Settings::flag("ParticleDecays:limitTau0");
+  tau0Max       = Settings::parm("ParticleDecays:tau0Max");
+  limitTau      = Settings::flag("ParticleDecays:limitTau");
+  tauMax        = Settings::parm("ParticleDecays:tauMax");
+  limitRadius   = Settings::flag("ParticleDecays:limitRadius");
+  rMax          = Settings::parm("ParticleDecays:rMax");
   limitCylinder = Settings::flag("ParticleDecays:limitCylinder");
-  xyMax = Settings::parm("ParticleDecays:xyMax");
-  zMax = Settings::parm("ParticleDecays:zMax");
-  limitDecay = limitTau0 || limitTau || limitRadius || limitCylinder;
+  xyMax         = Settings::parm("ParticleDecays:xyMax");
+  zMax          = Settings::parm("ParticleDecays:zMax");
+  limitDecay    = limitTau0 || limitTau || limitRadius || limitCylinder;
 
   // B-Bbar mixing parameters.
-  mixB = Settings::flag("ParticleDecays:mixB");
-  xBdMix = Settings::parm("ParticleDecays:xBdMix");
-  xBsMix = Settings::parm("ParticleDecays:xBsMix");
+  mixB          = Settings::flag("ParticleDecays:mixB");
+  xBdMix        = Settings::parm("ParticleDecays:xBdMix");
+  xBsMix        = Settings::parm("ParticleDecays:xBsMix");
+
+  // Suppression of extra-hadron momenta in semileptonic decays.
+  sigmaSoft     = Settings::parm("ParticleDecays:sigmaSoft");
 
   // Selection of multiplicity and colours in "phase space" model.
-  multIncrease = Settings::parm("ParticleDecays:multIncrease");
-  multRefMass = Settings::parm("ParticleDecays:multRefMass");
-  multGoffset = Settings::parm("ParticleDecays:multGoffset");
-  colRearrange = Settings::parm("ParticleDecays:colRearrange");
+  multIncrease  = Settings::parm("ParticleDecays:multIncrease");
+  multRefMass   = Settings::parm("ParticleDecays:multRefMass");
+  multGoffset   = Settings::parm("ParticleDecays:multGoffset");
+  colRearrange  = Settings::parm("ParticleDecays:colRearrange");
 
-  // Flavour parameter from StringFlav and StringFragmentation.
-  probStoU = Settings::parm("StringFlav:probStoU");
-  probQandS = 2. + probStoU;
-  stopMass = Settings::parm("StringFragmentation:stopMass");
+  // Minimum energy in system (+ m_q) from StringFragmentation.
+  stopMass      = Settings::parm("StringFragmentation:stopMass");
 
   // Parameters for Dalitz decay virtual gamma mass spectrum.
-  sRhoDal = pow2(ParticleDataTable::m0(113)); 
-  wRhoDal = pow2(ParticleDataTable::mWidth(113));  
+  sRhoDal       = pow2(ParticleDataTable::m0(113)); 
+  wRhoDal       = pow2(ParticleDataTable::mWidth(113));  
 
   // Allow showers in decays to qqbar/gg/ggg/gammagg.
-  FSRinDecays = Settings::mode("ParticleDecays:FSRinDecays"); 
+  FSRinDecays   = Settings::flag("ParticleDecays:FSRinDecays"); 
 
 }
 
@@ -128,7 +131,7 @@ bool ParticleDecays::decay( int iDec, Event& event) {
   if (limitDecay && !checkVertex(decayer)) return true; 
 
   // Fill the decaying particle in slot 0 of arrays.  
-  int idDec = decayer.id();
+  idDec = decayer.id();
   iProd.resize(0);
   idProd.resize(0);
   mProd.resize(0);
@@ -143,11 +146,11 @@ bool ParticleDecays::decay( int iDec, Event& event) {
   if (hasOscillated) {idDec = - idDec; idProd[0] = idDec;} 
 
   // Particle data for decaying particle.
-  ParticleDataEntry& particleData = decayer.particleData();
+  decDataPtr = &decayer.particleData();
 
   // Optionally send on to external decay program.
   bool doneExternally = false;
-  if (particleData.externalDecay()) {
+  if (decDataPtr->externalDecay()) {
     pProd.resize(0);
     pProd.push_back(decayer.p());
     doneExternally = decayHandlePtr->decay(idProd, mProd, pProd, 
@@ -173,9 +176,11 @@ bool ParticleDecays::decay( int iDec, Event& event) {
   if (!doneExternally) {
 
     // Pick a decay channel; allow up to ten tries.
+    if (!decDataPtr->decay.preparePick(idDec)) return false;
     for (int iTryChannel = 0; iTryChannel < NTRYDECAY; ++iTryChannel) {
-      DecayChannel& channel = particleData.decay.pick();
+      DecayChannel& channel = decDataPtr->decay.pickChannel();
       meMode = channel.meMode();
+      keepPartons = (meMode > 90 && meMode <= 100);
       mult = channel.multiplicity();
 
       // Allow up to ten tries for each channel (e.g with different masses).
@@ -184,21 +189,21 @@ bool ParticleDecays::decay( int iDec, Event& event) {
         mProd.resize(1);
       
         // Extract and store the decay products.
-        bool toPartons = false;
+        hasPartons = false;
         for (int i = 0; i < mult; ++i) {
           int idNow = channel.product(i);
           int idAbs = abs(idNow);
-          if (idAbs < 10 || idAbs == 21 || idAbs == 81 || idAbs == 82) 
-            toPartons = true;
-          if (idDec < 0 && ParticleDataTable::hasAnti(idNow)) idNow = - idNow;
+          if ( idAbs < 10 || idAbs == 21 || idAbs == 81 || idAbs == 82
+            || idAbs == 83 || (idAbs > 1000 && idAbs < 10000 
+            && (idAbs/10)%10 == 0) ) hasPartons = true;
+          if (idDec < 0 && ParticleDataTable::hasAnti(idNow)) idNow = -idNow;
           double mNow = ParticleDataTable::mass(idNow);
           idProd.push_back( idNow);
           mProd.push_back( mNow);
         }  
 
         // Decays into partons usually translate into hadrons.
-        if (toPartons && (meMode < 31 || meMode > 40) 
-          && !pickHadrons(event) ) continue;
+        if (hasPartons && !keepPartons && !pickHadrons()) continue;
 
         // Need to set colour flow if explicit decay to partons.
         cols.resize(0);
@@ -207,8 +212,7 @@ bool ParticleDecays::decay( int iDec, Event& event) {
           cols.push_back(0);
           acols.push_back(0);
         }
-        if (toPartons && (meMode > 30 && meMode < 41) 
-          && !setColours(event) ) continue; 
+        if (hasPartons && keepPartons && !setColours(event)) continue; 
 
         // Check that enough phase space for decay.
         if (mult > 1) {
@@ -232,13 +236,26 @@ bool ParticleDecays::decay( int iDec, Event& event) {
         cols[i], acols[i], Vec4(0., 0., 0., 0.), mProd[i]); 
       iProd.push_back( iPos);
     }
-    
+
+    // Pick mass of Dalitz decay. Temporarily change multiplicity.
+    if (meMode == 11 || meMode == 12 || meMode == 13) {
+      bool foundMass = dalitzMass();
+      if (!foundMass) {
+        event.popBack(mult);
+        return false;
+      } 
+    }   
+
     // Do a decay, split by multiplicity.
     bool decayed = false;
     if (mult == 1) decayed = oneBody(event);
     else if (mult == 2) decayed = twoBody(event);
     else if (mult == 3) decayed = threeBody(event);
     else decayed = mGenerator(event);
+
+    // Kinematics of gamma* -> l- l+ in Dalitz decay. Restore multiplicity.
+    if (meMode == 11 || meMode == 12 || meMode == 13) 
+      dalitzKinematics(event);
 
     // If the decay worked, then mark mother decayed and store daughters.
     if (decayed) {
@@ -266,9 +283,8 @@ bool ParticleDecays::decay( int iDec, Event& event) {
   
   // In a decay explicitly to partons then optionally do a shower,
   // and always flag that partonic system should be fragmented. 
-  if ( (meMode > 30 && meMode < 41) && FSRinDecays ) 
+  if (hasPartons && keepPartons && FSRinDecays) 
     times.shower( event, iProd[1], iProd.back(), mProd[0]);
-  moreHadronization = (meMode > 30 && meMode < 41) ? true : false;
 
   // Done.
   return true;
@@ -305,7 +321,7 @@ bool ParticleDecays::oscillateB(Particle& decayer) {
   double tau = decayer.tau();
   double tau0 = decayer.tau0();
   double probosc = pow2(sin(0.5 * xBmix * tau / tau0));
-  return (probosc > Rndm::flat()) ? true : false;  
+  return (probosc > Rndm::flat());  
 
 }
 
@@ -335,7 +351,7 @@ bool ParticleDecays::oneBody(Event& event) {
 
 bool ParticleDecays::twoBody(Event& event) {
 
-  // References to the particle involved.
+  // References to the particles involved.
   Particle& decayer = event[iProd[0]];
   Particle& prod1 = event[iProd[1]]; 
   Particle& prod2 = event[iProd[2]]; 
@@ -352,11 +368,11 @@ bool ParticleDecays::twoBody(Event& event) {
   double pAbs = 0.5 * sqrtpos( (m0 - m1 - m2) * (m0 + m1 + m2)
     * (m0 + m1 - m2) * (m0 - m1 + m2) ) / m0;  
 
-  // When meMode = 3, for V -> PS2 + PS3 (V = vector, pseudoscalar),
+  // When meMode = 2, for V -> PS2 + PS3 (V = vector, pseudoscalar),
   // need to check if production is PS0 -> PS1/gamma + V.
   int iMother = event[iProd[0]].mother1();
   int idSister = 0;
-  if (meMode == 3) {
+  if (meMode == 2) {
     if (iMother <= 0 || iMother >= iProd[0]) meMode = 0;
     else { 
       int iDaughter1 = event[iMother].daughter1();
@@ -376,7 +392,7 @@ bool ParticleDecays::twoBody(Event& event) {
     } 
   }
 
-  // Begin loop over matrix element corrections.
+  // Begin loop over matrix-element corrections.
   double wtME, wtMEmax;
   do {
     wtME = 1.;
@@ -391,7 +407,7 @@ bool ParticleDecays::twoBody(Event& event) {
     double pZ = pAbs * cosTheta;  
 
     // Fill four-momenta and boost them away from mother rest frame.
-    prod1.p( pX, pY, pZ, e1);
+    prod1.p(  pX,  pY,  pZ, e1);
     prod2.p( -pX, -pY, -pZ, e2);
     prod1.bst( decayer.p() );
     prod2.bst( decayer.p() );
@@ -399,7 +415,7 @@ bool ParticleDecays::twoBody(Event& event) {
     // Matrix element for PS0 -> PS1 + V1 -> PS1 + PS2 + PS3 of form 
     // cos**2(theta02) in V1 rest frame, and for PS0 -> gamma + V1 
     // -> gamma + PS2 + PS3 of form sin**2(theta02).
-    if (meMode == 3) {
+    if (meMode == 2) {
       double p10 = decayer.p() * event[iMother].p();
       double p12 = decayer.p() * prod1.p();
       double p02 = event[iMother].p() * prod1.p();
@@ -423,11 +439,11 @@ bool ParticleDecays::twoBody(Event& event) {
 
 //*********
 
-// Do a three-body decay.
+// Do a three-body decay (except Dalitz decays).
 
 bool ParticleDecays::threeBody(Event& event) {
 
-  // References to the particle involved.
+  // References to the particles involved.
   Particle& decayer = event[iProd[0]];
   Particle& prod1 = event[iProd[1]]; 
   Particle& prod2 = event[iProd[2]]; 
@@ -442,49 +458,26 @@ bool ParticleDecays::threeBody(Event& event) {
   double mDiff = m0 - mSum;   
   if (mDiff < mSafety) return false; 
 
-  // Kinematical limits for 2+3 mass. Variables inside loops.
+  // Kinematical limits for 2+3 mass. Maximum phase-space weight.
   double m23Min = m2 + m3;
   double m23Max = m0 - m1;
-  double wtPS, wtME, wtMEmax, wtDal, p1Abs, p23Abs;
-  double wtPSmax = 1.;
-  double m23 = 0.;
-  double s23 = 0.; 
-  double sMinDal = 1.000001 * m23Min*m23Min; 
-  double sMaxDal = m0*m0;
+  double p1Max = 0.5 * sqrtpos( (m0 - m1 - m23Min) * (m0 + m1 + m23Min)
+    * (m0 + m1 - m23Min) * (m0 - m1 + m23Min) ) / m0; 
+  double p23Max = 0.5 * sqrtpos( (m23Max - m2 - m3) * (m23Max + m2 + m3)
+    * (m23Max + m2 - m3) * (m23Max - m2 + m3) ) / m23Max;
+  double wtPSmax = 0.5 * p1Max * p23Max;
 
-  // Calculate the maximum phase space weight for normal decays.
-  if (meMode != 2) {
-    double p1Max = 0.5 * sqrtpos( (m0 - m1 - m23Min) * (m0 + m1 + m23Min)
-      * (m0 + m1 - m23Min) * (m0 - m1 + m23Min) ) / m0; 
-    double p23Max = 0.5 * sqrtpos( (m23Max - m2 - m3) * (m23Max + m2 + m3)
-      * (m23Max + m2 - m3) * (m23Max - m2 + m3) ) / m23Max;
-    wtPSmax = 0.5 * p1Max * p23Max;
-
-  // Alternatively select virtual gamma mass for Dalitz decay.
-  } else { 
-    do {
-      s23 = sMinDal * pow( sMaxDal / sMinDal, Rndm::flat() );
-      wtDal = (1. + 0.5 * sMinDal / s23) *  sqrt(1. - sMinDal / s23) 
-        * pow3(1. - s23 / sMaxDal) * sRhoDal * (sRhoDal + wRhoDal) 
-        / ( pow2(s23 - sRhoDal) + sRhoDal * wRhoDal ); 
-    } while ( wtDal < Rndm::flat() );   
-    m23 = sqrt(s23);
-  }
-
-  // Begin loop over matrix element corrections.
+  // Begin loop over matrix-element corrections.
+  double wtME, wtMEmax, wtPS, m23, p1Abs, p23Abs;
   do {
     wtME = 1.;
     wtMEmax = 1.;
 
-    // Begin loop to find the intermediate m23 invariant masses.
-    do {
-      wtPS = 1.;
+    // Pick an intermediate mass m23 flat in the allowed range.
+    do {      
+      m23 = m23Min + Rndm::flat() * mDiff;
 
-      // Pick an intermediate mass flat in the allowed range.
-      // (Except for Dalitz, where a mass has already been picked.)
-      if (meMode != 2) m23 = m23Min + Rndm::flat() * mDiff;
-
-      // Translate into relative momenta and find weight.
+      // Translate into relative momenta and find phase-space weight.
       p1Abs = 0.5 * sqrtpos( (m0 - m1 - m23) * (m0 + m1 + m23)
         * (m0 + m1 - m23) * (m0 - m1 + m23) ) / m0; 
       p23Abs = 0.5 * sqrtpos( (m23 - m2 - m3) * (m23 + m2 + m3)
@@ -492,7 +485,7 @@ bool ParticleDecays::threeBody(Event& event) {
       wtPS = p1Abs * p23Abs;
 
     // If rejected, try again with new invariant masses.
-    } while ( meMode !=2 && wtPS < Rndm::flat() * wtPSmax ); 
+    } while ( wtPS < Rndm::flat() * wtPSmax ); 
 
     // Set up m23 -> m2 + m3 isotropic in its rest frame.
     double cosTheta = 2. * Rndm::flat() - 1.;
@@ -503,10 +496,10 @@ bool ParticleDecays::threeBody(Event& event) {
     double pZ = p23Abs * cosTheta;  
     double e2 = sqrt( m2*m2 + p23Abs*p23Abs);
     double e3 = sqrt( m3*m3 + p23Abs*p23Abs);
-    prod2.p( pX, pY, pZ, e2);
+    prod2.p(  pX,  pY,  pZ, e2);
     prod3.p( -pX, -pY, -pZ, e3);
 
-    // Set up m0 -> m1 + m23 isotropic in its rest frame.
+    // Set up 0 -> 1 + 23 isotropic in its rest frame.
     cosTheta = 2. * Rndm::flat() - 1.;
     sinTheta = sqrt(1. - cosTheta*cosTheta);
     phi = 2. * M_PI * Rndm::flat();
@@ -517,12 +510,12 @@ bool ParticleDecays::threeBody(Event& event) {
     double e23 = sqrt( m23*m23 + p1Abs*p1Abs);
     prod1.p( pX, pY, pZ, e1);
 
-    // Boost 2 + 3 to the m0 rest frame.
+    // Boost 2 + 3 to the 0 rest frame.
     Vec4 p23( -pX, -pY, -pZ, e23);
     prod2.bst( p23 );
     prod3.bst( p23 );
 
-    // Matrix element weight for omega/phi -> pi+ pi- pi0.
+    // Matrix-element weight for omega/phi -> pi+ pi- pi0.
     if (meMode == 1) {
       double p12 = prod1.p() * prod2.p(); 
       double p13 = prod1.p() * prod3.p(); 
@@ -531,16 +524,34 @@ bool ParticleDecays::threeBody(Event& event) {
         - pow2(m3 * p12) + 2. * p12 * p13 * p23;
       wtMEmax = pow3(m0 * m0) / 150.;
 
-    // Matrix element weight for Dalitz decay pi0/eta -> gamma e+ e-..
-    } else if (meMode == 2) {
-      double p12 = prod1.p() * prod2.p(); 
-      double p13 = prod1.p() * prod3.p(); 
-      wtME = (s23 - 0.5 * sMinDal) * (p12*p12 + p13*p13) 
-        + sMinDal * (p12*p12 + p13*p13 + p12 * p13);
-      wtMEmax = 0.25 * s23 * pow2(sMaxDal - s23);
+    // Effective matrix element for nu spectrum in tau -> nu + hadrons.
+    } else if (meMode == 21) {
+      double x1 = 2. *  prod1.e() / m0;
+      wtME = x1 * (3. - 2. * x1);
+      double xMax = min( 0.75, 2. * (1. - mSum / m0) ); 
+      wtMEmax = xMax * (3. - 2. * xMax); 
 
-    // Matrix element weight for "onium" -> g + g + g or gamma + g + g.
-    } else if (meMode == 33) {
+    // Matrix element for weak decay (only semileptonic for c and b).
+    } else if ((meMode == 22 || meMode == 23) && prod1.isLepton()) {
+      wtME = m0 * prod1.e() * (prod2.p() * prod3.p());
+      wtMEmax = pow4(m0) / 16.;  
+
+    // Effective matrix element for weak decay to hadrons (B -> D, D -> K).
+    } else if (meMode == 22 || meMode == 23) {
+      double x1 = 2. * prod1.pAbs() / m0;
+      wtME = x1 * (3. - 2. * x1);
+      double xMax = min( 0.75, 2. * (1. - mSum / m0) ); 
+      wtMEmax = xMax * (3. - 2. * xMax); 
+
+    // Effective matrix element for gamma spectrum in B -> gamma + hadrons.
+    } else if (meMode == 31) {
+      double x1 = 2. * prod1.e() / m0;
+      wtME = pow3(x1);
+      double x1Max = 1. - pow2(mSum / m0); 
+      wtMEmax = pow3(x1Max); 
+
+    // Matrix-element weight for "onium" -> g + g + g or gamma + g + g.
+    } else if (meMode == 92) {
       double x1 = 2. * prod1.e() / m0;
       double x2 = 2. * prod2.e() / m0;
       double x3 = 2. * prod3.e() / m0;
@@ -551,13 +562,6 @@ bool ParticleDecays::threeBody(Event& event) {
       if (prod1.id() == 22 && sqrt(1. - x1) * m0 < 2. * stopMass) wtME = 0.;
       if (prod2.id() == 22 && sqrt(1. - x2) * m0 < 2. * stopMass) wtME = 0.;
       if (prod3.id() == 22 && sqrt(1. - x3) * m0 < 2. * stopMass) wtME = 0.;
-
-    // Effective matrix element for nu spectrum in tau -> nu + hadrons.
-    } else if (meMode == 41) {
-      double x1 = 2. *  prod1.e() / m0;
-      wtME = x1 * (3. - 2. * x1);
-      double xMax = min( 0.75, 2. * (1. - mSum / m0) ); 
-      wtMEmax = xMax * (3. - 2. * xMax); 
     } 
 
   // If rejected, try again with new invariant masses.
@@ -579,7 +583,7 @@ bool ParticleDecays::threeBody(Event& event) {
 
 bool ParticleDecays::mGenerator(Event& event) {
 
-  // Mother and sum daughter masses. Fail if too close.
+  // Mother and sum daughter masses. Fail if too close or inconsistent.
   double m0 = mProd[0];
   double mSum = mProd[1];
   for (int i = 2; i <= mult; ++i) mSum += mProd[i]; 
@@ -603,7 +607,7 @@ bool ParticleDecays::mGenerator(Event& event) {
     * (mMax + mMin - mNow) * (mMax - mMin + mNow) ) / mMax;  
   }
 
-  // Begin loop over matrix element corrections.
+  // Begin loop over matrix-element corrections.
   do {
     wtME = 1.;
     wtMEmax = 1.;
@@ -664,11 +668,35 @@ bool ParticleDecays::mGenerator(Event& event) {
       for (int i = iFrame; i <= mult; ++i) event[iProd[i]].bst(pInv[iFrame]);
 
     // Effective matrix element for nu spectrum in tau -> nu + hadrons.
-    if (meMode == 41) {
+    if (meMode == 21 && event[iProd[1]].isLepton()) {
       double x1 = 2. * event[iProd[1]].e() / m0;
       wtME = x1 * (3. - 2. * x1);
       double xMax = min( 0.75, 2. * (1. - mSum / m0) ); 
       wtMEmax = xMax * (3. - 2. * xMax); 
+
+    // Effective matrix element for weak decay (only semileptonic for c and b).
+    // Particles 4 onwards should be made softer explicitly?
+    } else if ((meMode == 22 || meMode == 23) && event[iProd[1]].isLepton()) {
+      Vec4 pRest = event[iProd[3]].p();
+      for (int i = 4; i <= mult; ++i) pRest += event[iProd[i]].p();  
+      wtME = m0 * event[iProd[1]].e() * (event[iProd[2]].p() * pRest);
+      for (int i = 4; i <= mult; ++i) wtME 
+        *= exp(- event[iProd[i]].pAbs2() / pow2(sigmaSoft) );
+      wtMEmax = pow4(m0) / 16.;  
+
+    // Effective matrix element for weak decay to hadrons (B -> D, D -> K).
+    } else if (meMode == 22 || meMode == 23) {
+      double x1 = 2. * event[iProd[1]].pAbs() / m0;
+      wtME = x1 * (3. - 2. * x1);
+      double xMax = min( 0.75, 2. * (1. - mSum / m0) ); 
+      wtMEmax = xMax * (3. - 2. * xMax); 
+
+    // Effective matrix element for gamma spectrum in B -> gamma + hadrons.
+    } else if (meMode == 31) {
+      double x1 = 2. * event[iProd[1]].e() / m0;
+      wtME = pow3(x1);
+      double x1Max = 1. - pow2(mSum / m0);
+      wtMEmax = pow3(x1Max); 
     } 
 
   // If rejected, try again with new invariant masses.
@@ -685,89 +713,256 @@ bool ParticleDecays::mGenerator(Event& event) {
 
 //*********
 
+// Select mass of lepton pair in a Dalitz decay.
+
+bool ParticleDecays::dalitzMass() {
+
+  // Mother and sum daughter masses. 
+  double mSum1 = 0;
+  for (int i = 1; i <= mult - 2; ++i) mSum1 += mProd[i];
+  if (meMode == 13) mSum1 *= MSAFEDALITZ;
+  double mSum2 = MSAFEDALITZ * (mProd[mult -1] + mProd[mult]);
+  double mDiff = mProd[0] - mSum1 - mSum2;  
+
+  // Fail if too close or inconsistent. 
+  if (mDiff < mSafety) return false; 
+  if (idProd[mult - 1] + idProd[mult] != 0 
+    || mProd[mult - 1] != mProd[mult]) {
+    ErrorMsg::message("Error in ParticleDecays::dalitzMass:"
+    " inconsistent flavour/mass assignments");
+    return false;
+  }
+  if ( meMode == 13 && (idProd[1] + idProd[2] != 0 
+    || mProd[1] != mProd[2]) ) {
+    ErrorMsg::message("Error in ParticleDecays::dalitzMass:"
+    " inconsistent flavour/mass assignments");
+    return false;
+  }
+
+  // Case 1: one Dalitz pair.
+  if (meMode == 11 || meMode == 12) {
+
+    // Kinematical limits for gamma* squared mass.
+    double sGamMin = pow2(mSum2);
+    double sGamMax = pow2(mProd[0] - mSum1);
+
+    // Select virtual gamma squared mass. Guessed form for meMode == 12.
+    double sGam, wtGam; 
+    do {
+      sGam = sGamMin * pow( sGamMax / sGamMin, Rndm::flat() );
+      wtGam = (1. + 0.5 * sGamMin / sGam) *  sqrt(1. - sGamMin / sGam) 
+        * pow3(1. - sGam / sGamMax) * sRhoDal * (sRhoDal + wRhoDal) 
+        / ( pow2(sGam - sRhoDal) + sRhoDal * wRhoDal ); 
+    } while ( wtGam < Rndm::flat() ); 
+
+    // Store results in preparation for doing a one-less-body decay.
+    --mult;
+    mProd[mult] = sqrt(sGam);
+
+  // Case 2: two Dalitz pairs.
+  } else { 
+
+    // Kinematical limits for 1 + 2 and 3 + 4 gamma* masses.
+    double s0 = pow2(mProd[0]);
+    double s12Min = pow2(mSum1); 
+    double s12Max = pow2(mProd[0] - mSum2);
+    double s34Min = pow2(mSum2); 
+    double s34Max = pow2(mProd[0] - mSum1);
+
+    // Select virtual gamma squared masses. Guessed form for meMode == 13.
+    double s12, s34, wt12, wt34, wtPAbs, wtAll; 
+    do {
+      s12 = s12Min * pow( s12Max / s12Min, Rndm::flat() );
+      wt12 = (1. + 0.5 * s12Min / s12) *  sqrt(1. - s12Min / s12) 
+        * sRhoDal * (sRhoDal + wRhoDal) 
+        / ( pow2(s12 - sRhoDal) + sRhoDal * wRhoDal ); 
+      s34 = s34Min * pow( s34Max / s34Min, Rndm::flat() );
+      wt34 = (1. + 0.5 * s34Min / s34) *  sqrt(1. - s34Min / s34) 
+        * sRhoDal * (sRhoDal + wRhoDal) 
+        / ( pow2(s34 - sRhoDal) + sRhoDal * wRhoDal ); 
+      wtPAbs = sqrtpos( pow2(1. - (s12 + s34)/ s0) 
+        - 4. * s12 * s34 / (s0 * s0) ); 
+      wtAll = wt12 * wt34 * pow3(wtPAbs); 
+      if (wtAll > 1.) ErrorMsg::message(
+        "Error in ParticleDecays::dalitzMass: weight > 1");
+    } while (wtAll < Rndm::flat()); 
+
+    // Store results in preparation for doing a two-body decay.
+    mult = 2;
+    mProd[1] = sqrt(s12);
+    mProd[2] = sqrt(s34);
+  }
+
+  // Done.
+  return true;
+
+}
+
+//*********
+
+// Do kinematics of gamma* -> l- l+ in Dalitz decay.
+
+bool ParticleDecays::dalitzKinematics(Event& event) {
+
+  // Restore multiplicity.
+  int nDal = (meMode < 13) ? 1 : 2;
+  mult += nDal;
+
+  // Loop over one or two lepton pairs.
+  for (int iDal = 0; iDal < nDal; ++iDal) { 
+
+    // References to the particles involved.
+    Particle& decayer = event[iProd[0]];
+    Particle& prodA = (iDal == 0) ? event[iProd[mult - 1]] 
+      : event[iProd[1]]; 
+    Particle& prodB = (iDal == 0) ? event[iProd[mult]]
+      : event[iProd[2]]; 
+
+    // Reconstruct required rotations and boosts backwards.
+    Vec4 pDec = decayer.p();
+    Vec4 pGam = (meMode < 13) ? event[iProd[mult - 1]].p() 
+      : event[iProd[2 - iDal]].p();
+    pGam.bstback(pDec);
+    double phiGam = pGam.phi();
+    pGam.rot( 0., -phiGam);
+    double thetaGam = pGam.theta();
+    pGam.rot( -thetaGam, 0.);
+
+    // Masses and phase space in gamma* rest frame.
+    double mGam = (meMode < 13) ? mProd[mult - 1] : mProd[2 - iDal];
+    double mA = prodA.m();
+    double mB = prodB.m();
+    double mGamMin = MSAFEDALITZ * (mA + mB);
+    double mGamRat = pow2(mGamMin / mGam);
+    double pGamAbs = 0.5 * sqrtpos( (mGam - mA - mB) * (mGam + mA + mB) );
+
+    // Set up decay in gamma* rest frame, reference along +z axis.
+    double cosTheta, cos2Theta;
+    do {
+      cosTheta = 2. * Rndm::flat() - 1.; 
+      cos2Theta = cosTheta * cosTheta;
+    } while ( 1. + cos2Theta + mGamRat * (1. - cos2Theta)
+      < 2. * Rndm::flat() );    
+    double sinTheta = sqrt(1. - cosTheta*cosTheta);
+    double phi = 2. * M_PI * Rndm::flat();
+    double pX = pGamAbs * sinTheta * cos(phi);  
+    double pY = pGamAbs * sinTheta * sin(phi);  
+    double pZ = pGamAbs * cosTheta;  
+    double eA = sqrt( mA*mA + pGamAbs*pGamAbs);
+    double eB = sqrt( mB*mB + pGamAbs*pGamAbs);
+    prodA.p(  pX,  pY,  pZ, eA);
+    prodB.p( -pX, -pY, -pZ, eB);
+
+    // Boost to lab frame.
+    prodA.bst( pGam);
+    prodB.bst( pGam);
+    prodA.rot( thetaGam, phiGam); 
+    prodB.rot( thetaGam, phiGam); 
+    prodA.bst( pDec);
+    prodB.bst( pDec);
+  }
+
+  // Done.
+  return true;
+
+}
+
+//*********
+
 // Translate a partonic content into a set of actual hadrons.
 
-bool ParticleDecays::pickHadrons(Event& event) {
+bool ParticleDecays::pickHadrons() {
 
-  // Find partonic decay products, assumed at the end of the list.
-  int nPartons = 0;
+  // Find partonic decay products. Rest are known id's, mainly hadrons, 
+  // when necessary shuffled to beginning of idProd list.
   idPartons.resize(0);
+  int nPartons = 0;
+  int nKnown = 0;
+  bool closedGLoop = false;
   for (int i = 1; i <= mult; ++i) {
     int idAbs = abs(idProd[i]);
     if ( idAbs < 9 || (idAbs > 1000 && idAbs < 10000 && (idAbs/10)%10 == 0)
-      || idAbs == 81 || idAbs == 82) {
+      || idAbs == 81 || idAbs == 82 || idAbs == 83) {
       ++nPartons;
-      idPartons.push_back(idProd[i]);   
-    } else if (nPartons > 0) {
-      ErrorMessages::message("Error in ParticleDecays::pickHadrons: "
-        "hadrons and partons out of order"); 
-      return false;
-    } 
+      idPartons.push_back(idProd[i]); 
+      if (idAbs == 83) closedGLoop = true;  
+    } else {
+      ++nKnown;
+      if (nPartons > 0) {
+        idProd[nKnown] = idProd[i];
+        mProd[nKnown] = mProd[i];
+      }
+    }   
   }
-
-  // Number of known decay products.
-  int nKnown = mult - nPartons;
-  int nFilled = nKnown + 1;
 
   // Replace generic spectator flavour code by the actual one.
   for (int i = 0; i < nPartons; ++i) {
     int idProd = idPartons[i];
     int idNew = idProd;
     if (idProd == 81) { 
-      int idDec = event[iProd[0]].id();
       int idAbs = abs(idDec);
-      // Is this right sign for B mesons, recall 521 = bbar u ! ??
-      if ( (idAbs/1000)%10 == 0 ) idNew = - (idAbs/10)%10;  
-      else if ( (idAbs/100)%10 >= (idAbs/10)%10 ) 
+      if ( (idAbs/1000)%10 == 0 ) { 
+        idNew = -(idAbs/10)%10; 
+        if ((idAbs/100)%2 == 1) idNew = -idNew;
+      } else if ( (idAbs/100)%10 >= (idAbs/10)%10 ) 
         idNew = 100 * ((idAbs/10)%100) + 3;
       else idNew = 1000 * ((idAbs/10)%10) + 100 * ((idAbs/100)%10) + 1;
       if (idDec < 0) idNew = -idNew;
 
     // Replace generic random flavour by a randomly selected one.
-    } else if (idProd == 82) {
+    } else if (idProd == 82 || idProd == 83) {
       double mFlav;
       do {
-        double rndmFlav = probQandS * Rndm::flat();
-        int idDummy = -1;
-        if (rndmFlav > 1.) idDummy = -2;
-        if (rndmFlav > 2.) idDummy = -3;
-        do idNew = flavSel.pick(idDummy); 
+        int idDummy = -flavSel.pickLightQ();
+        FlavContainer flavDummy(idDummy, idProd - 82);
+        do idNew = flavSel.pick(flavDummy).id; 
         while (idNew == 0);  
         mFlav = ParticleDataTable::constituentMass(idNew);
       } while (2. * mFlav + stopMass > mProd[0]);
-    } else if (idProd == -82) {
+    } else if (idProd == -82 || idProd == -83) {
       idNew = -idPartons[i-1];
     } 
     idPartons[i] = idNew;
   }
 
   // Determine whether fixed multiplicity or to be selected at random.
-  int nMin = (meMode > 10 && meMode <= 15) ? max( 2, meMode - 10) : 2;
-  if (meMode == 43) nMin = 3;
-  int nFix = (meMode > 20 && meMode <= 30) ? max( 2, meMode - 20) : 0; 
+  int nMin = max( 2, nKnown + nPartons / 2);
+  if (meMode == 23) nMin = 3;
+  if (meMode > 41 && meMode <= 50) nMin = meMode - 40;
+  if (meMode > 51 && meMode <= 60) nMin = meMode - 50;
+  int nFix = 0;
+  if (meMode == 0) nFix = nMin;
+  if (meMode == 11) nFix = 3;
+  if (meMode == 12) nFix = 4; 
+  if (meMode > 61 && meMode <= 70) nFix = meMode - 60;
+  if (meMode > 71 && meMode <= 80) nFix = meMode - 70;
+  if (nFix > 0 && nKnown + nPartons/2 > nFix) return false;
 
   // Now begin loop to set new hadronic content.
-  int nTot, nNew, nSpec, nLeft;
+  int nFilled = nKnown + 1;
+  int nTotal, nNew, nSpec, nLeft;
   double mDiff;
   bool diquarkClash = false;
+  bool usedChannel = false;
   do {
     nFilled = nKnown + 1;
     idProd.resize(nFilled);
     mProd.resize(nFilled);      
-    nTot = nKnown;
+    nTotal = nKnown;
     nNew = 0;
     nSpec = 0;
     nLeft = nPartons;
     mDiff = mProd[0]; 
     for (int i = 1; i < nFilled; ++i) mDiff -= mProd[i];
     diquarkClash = false;
+    usedChannel = false;
 
     // For weak decays collapse spectators to one particle.
-    if ( (meMode == 42 || meMode == 43) && nLeft > 1) {
-      int id1 = idPartons[nPartons - 2];
-      int id2 = idPartons[nPartons - 1];
+    if ( (meMode == 22 || meMode == 23) && nLeft > 1) {
+      FlavContainer flav1( idPartons[nPartons - 2] );
+      FlavContainer flav2( idPartons[nPartons - 1] );
       int idHad; 
-      do idHad = flavSel.combine( id1, id2); 
+      do idHad = flavSel.combine( flav1, flav2); 
       while (idHad == 0);
       double mHad = ParticleDataTable::mass(idHad);
       mDiff -= mHad;
@@ -778,56 +973,82 @@ bool ParticleDecays::pickHadrons(Event& event) {
       nLeft -= 2;
     } 
 
-    // Find mass excess and from there expected multiplicity.
+    // If there are partons left, then determine how many hadrons to pick.
     if (nLeft > 0) {
-      double mDiffPS = mDiff;
-      for (int i = 0; i <= nLeft; ++i) 
-        mDiffPS -= ParticleDataTable::constituentMass( idPartons[i] );
-      double coeff = multIncrease * log( max( 1.1, mDiffPS / multRefMass ) );
-      if (meMode == 12) coeff += multGoffset;
-      if (nFix == 0) {
-        do { 
-          double gauss = sqrt(coeff) * Rndm::gauss();
-          nTot = int( 0.5 + 0.5 * (nKnown + nSpec) + 0.25 * nPartons 
-            + coeff + gauss); 
-	  nNew = nTot - nKnown - nSpec; 
-        } while (nNew < nLeft/2 || nTot < nMin || nTot > 10); 
+
+      // For B -> gamma + X use geometrical distribution.
+      if (meMode == 31) {
+        double geom = Rndm::flat();
+        nTotal = 1;
+        do {
+          ++nTotal;
+          geom *= 2.;
+	} while (geom < 1. && nTotal < 10); 
+
+      // Calculate mass excess and from there average multiplicity.
+      } else if (nFix == 0) {
+        double mDiffPS = mDiff;
+        for (int i = 0; i <= nLeft; ++i) 
+          mDiffPS -= ParticleDataTable::constituentMass( idPartons[i] );
+        double average = 0.5 * (nKnown + nSpec) + 0.25 * nPartons
+          + multIncrease * log( max( 1.1, mDiffPS / multRefMass ) );
+        if (closedGLoop) average += multGoffset;
+
+        // Pick multiplicity according to Poissonian.
+        double value = 1.;
+        double sum = 1.;
+        for (int nNow = nMin + 1; nNow <= 10; ++nNow) {
+          value *= average / nNow;
+          sum += value;
+        }
+        nTotal = nMin;
+        value = 1.;
+        sum *= Rndm::flat();
+        sum -= value;
+        if (sum > 0.) do {
+          ++nTotal;
+          value *= average / nTotal;
+          sum -= value;
+        } while (sum > 0. && nTotal < 10);
 
       // Alternatively predetermined multiplicity.
       } else {
-        nTot = nFix;
-        nNew = nTot - nKnown - nSpec;
-        if (nNew < nLeft/2) return false;
+        nTotal = nFix;
       } 
+      nNew = nTotal - nKnown - nSpec;
 
       // Set up ends of fragmented system, as copy of idPartons.
-      idEnds.resize(0);
-      for (int i = 0; i < nLeft; ++i) idEnds.push_back( idPartons[i] );
+      flavEnds.resize(0);
+      for (int i = 0; i < nLeft; ++i) {
+        flavEnds.push_back( FlavContainer(idPartons[i]) );
+        if (abs(idPartons[i]) > 100) flavSel.assignPopQ( flavEnds[i] );
+      }
     
       // Fragment off at random, but save nLeft/2 for final recombination.
       if (nNew > nLeft/2) {
+        FlavContainer flavNew;
+        int idHad;
         for (int i = 0; i < nNew - nLeft/2; ++i) {
           // When four quarks consider last one to be spectator.
           int iEnd = int( (nLeft - 1.) * Rndm::flat() );
           // Pick new flavour and form a new hadron.
-          int idNew, idHad;
           do {
-            idNew = flavSel.pick( idEnds[iEnd] );
-            idHad = flavSel.combine( idEnds[iEnd], idNew);
+            flavNew = flavSel.pick( flavEnds[iEnd] );
+            idHad = flavSel.combine( flavEnds[iEnd], flavNew);
           } while (idHad == 0);
           // Store new hadron and endpoint flavour.
           idProd.push_back( idHad);  
-          idEnds[iEnd] = - idNew;
+          flavEnds[iEnd].anti(flavNew);
 	}
       }
       
       // When only two quarks left, combine to form final hadron.
       if (nLeft == 2) {
         int idHad;
-        if ( abs(idEnds[0]) > 8 && abs(idEnds[1]) > 8) 
+        if ( abs(flavEnds[0].id) > 8 && abs(flavEnds[1].id) > 8) 
           diquarkClash = true; 
 	else { 
-          do idHad = flavSel.combine( idEnds[0], idEnds[1]);
+          do idHad = flavSel.combine( flavEnds[0], flavEnds[1]);
           while (idHad == 0);
           idProd.push_back( idHad); 
 	} 
@@ -839,27 +1060,28 @@ bool ParticleDecays::pickHadrons(Event& event) {
         int iEnd3 = 2;
         int iEnd4 = 3;
         if ( Rndm::flat() < colRearrange) iEnd2 = 3;
-        int relColSign = ( (idEnds[iEnd1] > 0 && idEnds[iEnd1] < 9)
-          || idEnds[iEnd1] < -10 ) ? 1 : -1;
-        if ( (idEnds[iEnd2] < 0 && idEnds[iEnd2] > -9)
-          || idEnds[iEnd2] > 10 ) relColSign *= -1;
+        int relColSign = 
+          ( (flavEnds[iEnd1].id > 0 && flavEnds[iEnd1].id < 9) 
+          || flavEnds[iEnd1].id < -10 ) ? 1 : -1;
+        if ( (flavEnds[iEnd2].id < 0 && flavEnds[iEnd2].id > -9)
+          || flavEnds[iEnd2].id > 10 ) relColSign *= -1;
         if (relColSign == 1) iEnd2 = 2;
         if (iEnd2 == 2) iEnd3 = 1;
         if (iEnd2 == 3) iEnd4 = 1; 
         
         // Then combine to get final two hadrons.
         int idHad;
-        if ( abs(idEnds[iEnd1]) > 8 && abs(idEnds[iEnd2]) > 8) 
+        if ( abs(flavEnds[iEnd1].id) > 8 && abs(flavEnds[iEnd2].id) > 8) 
           diquarkClash = true; 
 	else { 
-          do idHad = flavSel.combine( idEnds[iEnd1], idEnds[iEnd2]);
+          do idHad = flavSel.combine( flavEnds[iEnd1], flavEnds[iEnd2]);
           while (idHad == 0);
           idProd.push_back( idHad);
 	}  
-        if ( abs(idEnds[iEnd3]) > 8 && abs(idEnds[iEnd4]) > 8) 
+        if ( abs(flavEnds[iEnd3].id) > 8 && abs(flavEnds[iEnd4].id) > 8) 
           diquarkClash = true; 
 	else { 
-          do idHad = flavSel.combine( idEnds[iEnd3], idEnds[iEnd4]);
+          do idHad = flavSel.combine( flavEnds[iEnd3], flavEnds[iEnd4]);
           while (idHad == 0);
           idProd.push_back( idHad); 
 	} 
@@ -873,11 +1095,67 @@ bool ParticleDecays::pickHadrons(Event& event) {
       } 
     }
 
-  // Keep on trying until enough phase space. 
-  } while (mDiff < mSafety || diquarkClash);
+    // Optional: check that this decay mode is not explicitly defined.
+    if ( (meMode > 61 && meMode <= 80) && mDiff > mSafety && !diquarkClash ) {
+      int idMatch[10], idPNow;
+      usedChannel = false;
+      bool matched = false;
+      // Loop through all channels. Done if not same multiplicity.
+      for (int i = 0; i < decDataPtr->decay.size(); ++i) {
+        DecayChannel& channel = decDataPtr->decay[i];
+        if (channel.multiplicity() != nTotal) continue;
+        for (int k = 0; k < nTotal; ++k) idMatch[k] = channel.product(k);
+        // Match particles one by one until fail. 
+        // Do not distinguish K0/K0bar/K0short/K0long at this stage.
+        for (int j = 0; j < nTotal; ++j) {
+          matched = false;
+          idPNow = idProd[j + 1];
+          if (idPNow == -311 || idPNow == 130 || idPNow == 310) idPNow = 311;
+  	  for (int k = 0; k < nTotal - j; ++k) 
+	  if (idMatch[k] == idPNow || (idMatch[k] == -311 && idPNow == 311)) {
+            // Compress list of unmatched when matching worked.
+            idMatch[k] = idMatch[nTotal - 1 - j];
+            matched = true;
+            break;
+	  } 
+          if (!matched) break;
+	}
+        // If matching worked, then chosen channel to be rejected.
+        if (matched) {usedChannel = true; break;} 
+      }   
+    }
+
+  // Keep on trying until enough phase space and no clash. 
+  } while (mDiff < mSafety || diquarkClash || usedChannel);
 
   // Update particle multiplicity.
   mult = idProd.size() - 1;
+
+  // For Dalitz decays shuffle Dalitz pair to the end of the list.
+  if (meMode == 11 || meMode == 12) {
+    int iL1 = 0;
+    int iL2 = 0;
+    for (int i = 1; i <= mult; ++i) {
+      if (idProd[i] ==  11 || idProd[i] ==  13 || idProd[i] ==  15) iL1 = i;
+      if (idProd[i] == -11 || idProd[i] == -13 || idProd[i] == -15) iL2 = i;
+    }
+    if (iL1 > 0 && iL2 > 0) {
+      int idL1 = idProd[iL1];
+      int idL2 = idProd[iL2];
+      double mL1 = mProd[iL1];
+      double mL2 = mProd[iL2];
+      int iMove = 0;
+      for (int i = 1; i <= mult; ++i) if (i != iL1 && i != iL2) {
+        ++iMove;
+        idProd[iMove] = idProd[i];
+        mProd[iMove] = mProd[i];
+      }
+      idProd[mult - 1] = idL1;
+      idProd[mult] = idL2;
+      mProd[mult - 1] = mL1;
+      mProd[mult] = mL2;
+    }
+  } 
 
   // Done.
   return true;
@@ -891,17 +1169,17 @@ bool ParticleDecays::pickHadrons(Event& event) {
 bool ParticleDecays::setColours(Event& event) {
 
   // Decay to q qbar (or qbar q).
-  if (meMode == 32 && idProd[1] > 0 && idProd[1] < 9) {
+  if (meMode == 91 && idProd[1] > 0 && idProd[1] < 9) {
     int newCol = event.nextColTag();
     cols[1] = newCol;
     acols[2] = newCol;
-  } else if (meMode == 32 && idProd[1] < 0 && idProd[1] > -9) {
+  } else if (meMode == 91 && idProd[1] < 0 && idProd[1] > -9) {
     int newCol = event.nextColTag();
     cols[2] = newCol;
     acols[1] = newCol;
 
-  // Decay to gg.
-  } else if (meMode == 32 && idProd[1] == 21) {
+  // Decay to g g.
+  } else if (meMode == 91 && idProd[1] == 21) {
     int newCol1 = event.nextColTag();
     int newCol2 = event.nextColTag();
     cols[1] = newCol1;
@@ -910,7 +1188,7 @@ bool ParticleDecays::setColours(Event& event) {
     acols[2] = newCol1;
 
   // Decay to g g g.
-  } else if (meMode == 33 && idProd[1] == 21 && idProd[2] == 21 
+  } else if (meMode == 92 && idProd[1] == 21 && idProd[2] == 21 
     &&  idProd[3] == 21) { 
     int newCol1 = event.nextColTag();
     int newCol2 = event.nextColTag();
@@ -923,7 +1201,7 @@ bool ParticleDecays::setColours(Event& event) {
     acols[3] = newCol1;
 
   // Decay to g g gamma: locate which is gamma.
-  } else if (meMode == 33) {
+  } else if (meMode == 92) {
     int iGlu1 = (idProd[1] == 21) ? 1 : 3;
     int iGlu2 = (idProd[2] == 21) ? 2 : 3;
     int newCol1 = event.nextColTag();

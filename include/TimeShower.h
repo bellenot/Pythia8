@@ -1,7 +1,7 @@
 // Header file for the timelike final-state showers.
 // TimeDipoleEnd: data on a radiating dipole end.
 // TimeShower: handles the showering description.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_TimeShower_H
 #define Pythia8_TimeShower_H
@@ -25,21 +25,21 @@ public:
 
   // Constructors.
   TimeDipoleEnd() : iRadiator(-1), iRecoiler(-1), pTmax(0.), colType(0), 
-    chgType(0), MEtype(0), iMEpartner(-1), MEmix(0.), MEorder(true), 
-    MEsplit(true), MEgluinoDau(false) { }  
+    chgType(0), gamType(0), MEtype(0), iMEpartner(-1), MEmix(0.), 
+    MEorder(true), MEsplit(true), MEgluinoDau(false) { }  
   TimeDipoleEnd(int iRadiatorIn, int iRecoilerIn, double pTmaxIn = 0., 
-    int colIn = 0, int chgIn = 0, int MEtypeIn = 0, 
+    int colIn = 0, int chgIn = 0, int gamIn = 0, int MEtypeIn = 0, 
     int iMEpartnerIn = -1, double MEmixIn = 0., bool MEorderIn = true, 
     bool MEsplitIn = true, bool MEgluinoDauIn = false) 
     : iRadiator(iRadiatorIn), iRecoiler(iRecoilerIn), pTmax(pTmaxIn), 
-    colType(colIn), chgType(chgIn), MEtype(MEtypeIn), 
+    colType(colIn), chgType(chgIn), gamType(gamIn), MEtype(MEtypeIn), 
     iMEpartner(iMEpartnerIn), MEmix(MEmixIn), MEorder (MEorderIn), 
     MEsplit(MEsplitIn), MEgluinoDau(MEgluinoDauIn) { }
 
   // Basic properties related to dipole and matrix element corrections.
   int iRadiator, iRecoiler;
   double pTmax;
-  int colType, chgType, MEtype, iMEpartner;
+  int colType, chgType, gamType, MEtype, iMEpartner;
   double MEmix;
   bool MEorder, MEsplit, MEgluinoDau;
 
@@ -90,11 +90,12 @@ private:
 
   // Static initialization data, normally only set once.
   static bool doQCDshower, doQEDshowerByQ, doQEDshowerByL, 
-    doMEcorrections, doPhiPolAsym;
-  static int alphaSorder, nQuark;
-  static double mc, mb, mc2, mb2, alphaSvalue, alphaS2pi, pTcolCutMin,
-    alphaEM,alphaEM2pi, pTchgQCut, pT2chgQCut, pTchgLCut, pT2chgLCut, 
-    mZ, gammaZ, thetaWRat;
+    doQEDshowerByGamma, doMEcorrections, doPhiPolAsym;
+  static int alphaSorder, alphaEMorder, nGluonToQuark, nGammaToQuark, 
+    nGammaToLepton;
+  static double mc, mb, m2c, m2b, alphaSvalue, alphaS2pi, pTcolCutMin,
+    pTchgQCut, pT2chgQCut, pTchgLCut, pT2chgLCut, mMaxGamma, m2MaxGamma,
+    octetOniumFraction, mZ, gammaZ, thetaWRat;
 
   // Constants: could only be changed in the code itself.
   static const double SIMPLIFYROOT, XMARGIN;
@@ -103,18 +104,19 @@ private:
   double Lambda3flav, Lambda4flav, Lambda5flav, Lambda3flav2, Lambda4flav2, 
     Lambda5flav2, pTcolCut, pT2colCut;
 
-  // alphaStrong calculation.
+  // alphaStrong and alphaEM calculations.
   AlphaStrong alphaS;
+  AlphaEM alphaEM;
 
   // All dipole ends and a pointer to the selected hardest dipole end.
   vector<TimeDipoleEnd> dipole;
   TimeDipoleEnd* dipSel;
  
   // Evolve a QCD dipole end. 
-  void pT2nextQCD( double pT2begDip, double pT2endDip, TimeDipoleEnd& dip);
+  void pT2nextQCD( double pT2begDip, double pT2sel, TimeDipoleEnd& dip);
 
-  // Evolve a QED dipole end. 
-  void pT2nextQED( double pT2begDip, double pT2endDip, TimeDipoleEnd& dip);
+  // Evolve a QED dipole end (except photon). 
+  void pT2nextQED( double pT2begDip, double pT2sel, TimeDipoleEnd& dip);
 
   // Find kind of QCD ME correction.
   void findMEtype( Event& event, TimeDipoleEnd& dip);

@@ -1,6 +1,6 @@
 // Function definitions (not found in the header) for 
 // the ResonanceDecays class.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #include "ResonanceDecays.h"
 
@@ -36,12 +36,14 @@ bool ResonanceDecays::next( Event& process) {
       double m1 = 0.;
       double m2 = 0.;
       bool physical = false;
+      if (id0 != 23 && abs(id0) != 24) 
+        decayer.particleData().decay.preparePick(id0);
       for (int iTryChannel = 0; iTryChannel < NTRYDECAY; ++iTryChannel) {
         // Correct dynamic treatment so far only for gamma*/Z0 and W+-.
         DecayChannel& channel = (id0 == 23 || abs(id0) == 24) 
           ? ( (id0 == 23) ? gammaZRes.dynamicDecay(m0, idIn) 
             : WRes.dynamicDecay(m0, idIn) ) 
-          : decayer.particleData().decay.pick();
+          : decayer.particleData().decay.pickChannel();
         // int mode = channel.modeME();
         int mult = channel.multiplicity();
 
@@ -110,7 +112,7 @@ bool ResonanceDecays::next( Event& process) {
           col2 = acol1;
           acol2 = col1;
 	} else {
-          ErrorMessages::message("Error in ResonanceDecays::next:"
+          ErrorMsg::message("Error in ResonanceDecays::next:"
             " inconsistent colour tags");
           return false;
         }
@@ -128,7 +130,7 @@ bool ResonanceDecays::next( Event& process) {
           acol1 = process.nextColTag(); 
           col2 = acol1;
 	} else {
-          ErrorMessages::message("Error in ResonanceDecays::next:"
+          ErrorMsg::message("Error in ResonanceDecays::next:"
             " inconsistent colour tags");
           return false;
         }
@@ -146,7 +148,7 @@ bool ResonanceDecays::next( Event& process) {
           col1 = process.nextColTag(); 
           acol2 = col1;
 	} else {
-          ErrorMessages::message("Error in ResonanceDecays::next:"
+          ErrorMsg::message("Error in ResonanceDecays::next:"
             " inconsistent colour tags");
           return false;
         }
@@ -176,7 +178,7 @@ bool ResonanceDecays::next( Event& process) {
           col2 = col0;
           acol2 = col1;
 	} else {
-          ErrorMessages::message("Error in ResonanceDecays::next:"
+          ErrorMsg::message("Error in ResonanceDecays::next:"
             " inconsistent colour tags");
           return false;
         }

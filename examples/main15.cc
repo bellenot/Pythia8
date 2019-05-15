@@ -2,7 +2,7 @@
 // This is a simple test program. 
 // It illustrates how to run SUSY processes in Pythia8.
 // All input is specified in the main16.cmnd file.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #include "Pythia.h"
 

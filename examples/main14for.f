@@ -8,6 +8,10 @@ C...The final call to PYLHEF will pack them into a standard-compliant
 C...Les Houches Event File on your unit MSTP(163), and erase the two
 C...temporary files (unless you set MSTP(164)=1).
 
+C...Copyright C 2007 Torbjorn Sjostrand
+
+C----------------------------------------------------------------------------
+
 C...Double precision and integer declarations.
       IMPLICIT DOUBLE PRECISION(A-H, O-Z)
       INTEGER PYK,PYCHGE,PYCOMP

@@ -1,5 +1,5 @@
 // Function definitions (not found in the header) for the SigmaTotal class.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #include "SigmaTotal.h"
 
@@ -26,12 +26,12 @@ namespace Pythia8 {
  
 // Definitions of static variables.
 // (Values will be overwritten in initStatic call, so are purely dummy.)
-bool SigmaTotal::setOwn = false;
+bool   SigmaTotal::setOwn    = false;
 double SigmaTotal::sigTotOwn = 80.;
-double SigmaTotal::sigElOwn = 20.;
-double SigmaTotal::sigXBOwn = 8.;
-double SigmaTotal::sigAXOwn = 8.;
-double SigmaTotal::sigXXOwn = 4.;
+double SigmaTotal::sigElOwn  = 20.;
+double SigmaTotal::sigXBOwn  = 8.;
+double SigmaTotal::sigAXOwn  = 8.;
+double SigmaTotal::sigXXOwn  = 4.;
 
 // Note that a lot of parameters are hardcoded as const here, rather 
 // than being interfaced for public change, since any changes would
@@ -39,12 +39,12 @@ double SigmaTotal::sigXXOwn = 4.;
 // means a rewrite/replacement of the whole class.
 
 // Minimum threshold below which no cross sections will be defined.
-const double SigmaTotal::MMIN = 2.; 
+const double SigmaTotal::MMIN  = 2.; 
 
 // General constants in total cross section parametrization:
 // sigmaTot = X * s^epsilon + Y * s^eta (pomeron + reggeon).
 const double SigmaTotal::EPSILON = 0.0808;
-const double SigmaTotal::ETA = -0.4525;
+const double SigmaTotal::ETA     = -0.4525;
 const double SigmaTotal::X[] = { 21.70, 21.70, 13.63, 13.63, 13.63, 
   10.01, 0.970, 8.56, 6.29, 0.609, 4.62, 0.447, 0.0434};
 const double SigmaTotal::Y[] = { 56.08, 98.39, 27.56, 36.02, 31.79, 
@@ -73,7 +73,7 @@ const double SigmaTotal::CONVERTDD = 0.0084;
 // Diffractive mass spectrum starts at m + MMIN0 and has a low-mass 
 // enhancement, factor cRes, up to around m + mRes0.
 const double SigmaTotal::MMIN0 = 0.28; 
-const double SigmaTotal::CRES = 2.0; 
+const double SigmaTotal::CRES  = 2.0; 
 const double SigmaTotal::MRES0 = 1.062;
 
 // Parameters and coefficients for single diffractive scattering.
@@ -114,12 +114,12 @@ const double SigmaTotal::SPROTON = 0.880;
 void SigmaTotal::initStatic() {
 
   // User-set values for cross sections.  
-  setOwn = Settings::flag("SigmaTotal:setOwn");
+  setOwn    = Settings::flag("SigmaTotal:setOwn");
   sigTotOwn = Settings::parm("SigmaTotal:sigmaTot");
-  sigElOwn = Settings::parm("SigmaTotal:sigmaEl");
-  sigXBOwn = Settings::parm("SigmaTotal:sigmaXB");
-  sigAXOwn = Settings::parm("SigmaTotal:sigmaAX");
-  sigXXOwn = Settings::parm("SigmaTotal:sigmaXX");
+  sigElOwn  = Settings::parm("SigmaTotal:sigmaEl");
+  sigXBOwn  = Settings::parm("SigmaTotal:sigmaXB");
+  sigAXOwn  = Settings::parm("SigmaTotal:sigmaAX");
+  sigXXOwn  = Settings::parm("SigmaTotal:sigmaXX");
   
 }
 
@@ -131,7 +131,7 @@ bool SigmaTotal::init( int idA, int idB, double eCM) {
 
   // Derived quantities.
   alP2 = 2. * ALPHAPRIME;
-  s0 = 1. / ALPHAPRIME;
+  s0   = 1. / ALPHAPRIME;
 
   // Reset everything to zero to begin with.
   sigTot = sigEl = sigXB = sigAX = sigXX = sigND = bEl = s = bA = bB = 0.;
@@ -144,24 +144,24 @@ bool SigmaTotal::init( int idA, int idB, double eCM) {
     swap( idAbsA, idAbsB);
     swapped = true;
   } 
-  double sameSign = (idA * idB > 0) ? true : false;
+  double sameSign = (idA * idB > 0);
 
   // Find process number.
-  int iProc = -1;
+  int iProc                                       = -1;
   if (idAbsA > 1000) {
-    iProc = (sameSign) ? 0 : 1;
+    iProc                                         = (sameSign) ? 0 : 1;
   } else if (idAbsA > 100 && idAbsB > 1000) {
-    iProc = (sameSign) ? 2 : 3;
+    iProc                                         = (sameSign) ? 2 : 3;
     if (idAbsA/10 == 11 || idAbsA/10 == 22) iProc = 4;
-    if (idAbsA > 300) iProc = 5;
-    if (idAbsA > 400) iProc = 6;
+    if (idAbsA > 300) iProc                       = 5;
+    if (idAbsA > 400) iProc                       = 6;
   } else if (idAbsA > 100) {    
-    iProc = 7;
-    if (idAbsB > 300) iProc = 8;
-    if (idAbsB > 400) iProc = 9;
-    if (idAbsA > 300) iProc = 10;
-    if (idAbsA > 300 && idAbsB > 400) iProc = 11;
-    if (idAbsA > 400) iProc = 12;
+    iProc                                         = 7;
+    if (idAbsB > 300) iProc                       = 8;
+    if (idAbsB > 400) iProc                       = 9;
+    if (idAbsA > 300) iProc                       = 10;
+    if (idAbsA > 300 && idAbsB > 400) iProc       = 11;
+    if (idAbsA > 400) iProc                       = 12;
   }
   if (iProc == -1) return false;
 
@@ -169,24 +169,24 @@ bool SigmaTotal::init( int idA, int idB, double eCM) {
   // For mesons use the corresponding vector meson masses.
   int idModA = (idAbsA > 1000) ? idAbsA : 10 * (idAbsA/10) + 3; 
   int idModB = (idAbsB > 1000) ? idAbsB : 10 * (idAbsB/10) + 3; 
-  double mA = ParticleDataTable::m0(idModA);
-  double mB = ParticleDataTable::m0(idModB);
+  double mA  = ParticleDataTable::m0(idModA);
+  double mB  = ParticleDataTable::m0(idModB);
   if (eCM < mA + mB + MMIN) return false; 
   
   // Evaluate the total cross section.
-  s = eCM*eCM;
+  s           = eCM*eCM;
   double sEps = pow( s, EPSILON);
   double sEta = pow( s, ETA);
-  sigTot = X[iProc] * sEps + Y[iProc] * sEta;
+  sigTot      = X[iProc] * sEps + Y[iProc] * sEta;
 
   // Slope of hadron form factors.
   int iHadA = IHADATABLE[iProc];
   int iHadB = IHADBTABLE[iProc];  
-  bA = BHAD[iHadA];
-  bB = BHAD[iHadB];
+  bA        = BHAD[iHadA];
+  bB        = BHAD[iHadB];
    
   // Elastic slope parameter and cross section.
-  bEl = 2.*bA + 2.*bB + 4.*sEps - 4.2;
+  bEl   = 2.*bA + 2.*bB + 4.*sEps - 4.2;
   sigEl = CONVERTEL * pow2(sigTot) / bEl;
 
   // Lookup coefficients for single and double diffraction.
@@ -195,31 +195,31 @@ bool SigmaTotal::init( int idA, int idB, double eCM) {
   double sum1, sum2, sum3, sum4;
 
   // Single diffractive scattering A + B -> X + B cross section.
-  mMinXBsave = mA + MMIN0;
-  double sMinXB = pow2(mMinXBsave);
-  mResXBsave = mA + MRES0;
-  double sResXB = pow2(mResXBsave);
+  mMinXBsave      = mA + MMIN0;
+  double sMinXB   = pow2(mMinXBsave);
+  mResXBsave      = mA + MRES0;
+  double sResXB   = pow2(mResXBsave);
   double sRMavgXB = mResXBsave * mMinXBsave;
   double sRMlogXB = log(1. + sResXB/sMinXB);
-  double sMaxXB = CSD[iSD][0] * s + CSD[iSD][1];
-  double BcorrXB = CSD[iSD][2] + CSD[iSD][3] / s;
-  sum1 = log( (2.*bB + alP2 * log(s/sMinXB)) 
+  double sMaxXB   = CSD[iSD][0] * s + CSD[iSD][1];
+  double BcorrXB  = CSD[iSD][2] + CSD[iSD][3] / s;
+  sum1  = log( (2.*bB + alP2 * log(s/sMinXB)) 
     / (2.*bB + alP2 * log(s/sMaxXB)) ) / alP2; 
-  sum2 = CRES * sRMlogXB / (2.*bB + alP2 * log(s/sRMavgXB) + BcorrXB) ; 
+  sum2  = CRES * sRMlogXB / (2.*bB + alP2 * log(s/sRMavgXB) + BcorrXB) ; 
   sigXB = CONVERTSD * X[iProc] * BETA0[iHadB] * max( 0., sum1 + sum2);
 
   // Single diffractive scattering A + B -> A + X cross section.
-  mMinAXsave = mB + MMIN0;
-  double sMinAX = pow2(mMinAXsave);
-  mResAXsave = mB + MRES0;
-  double sResAX = pow2(mResAXsave);
+  mMinAXsave      = mB + MMIN0;
+  double sMinAX   = pow2(mMinAXsave);
+  mResAXsave      = mB + MRES0;
+  double sResAX   = pow2(mResAXsave);
   double sRMavgAX = mResAXsave * mMinAXsave;
   double sRMlogAX = log(1. + sResAX/sMinAX);
-  double sMaxAX = CSD[iSD][4] * s + CSD[iSD][5];
-  double BcorrAX = CSD[iSD][6] + CSD[iSD][7] / s;
-  sum1 = log( (2.*bA + alP2 * log(s/sMinAX)) 
+  double sMaxAX   = CSD[iSD][4] * s + CSD[iSD][5];
+  double BcorrAX  = CSD[iSD][6] + CSD[iSD][7] / s;
+  sum1  = log( (2.*bA + alP2 * log(s/sMinAX)) 
     / (2.*bA + alP2 * log(s/sMaxAX)) ) / alP2; 
-  sum2 = CRES * sRMlogAX / (2.*bA + alP2 * log(s/sRMavgAX) + BcorrAX) ;  
+  sum2  = CRES * sRMlogAX / (2.*bA + alP2 * log(s/sRMavgAX) + BcorrAX) ;  
   sigAX = CONVERTSD * X[iProc] * BETA0[iHadA] * max( 0., sum1 + sum2);
  
   // Order single diffractive correctly.
@@ -232,7 +232,7 @@ bool SigmaTotal::init( int idA, int idB, double eCM) {
 
   // Double diffractive scattering A + B -> X1 + X2 cross section.
   double y0min = log( s * SPROTON / (sMinXB * sMinAX) ) ;
-  double sLog = log(s);  
+  double sLog  = log(s);  
   double Delta0 = CDD[iDD][0] + CDD[iDD][1] / sLog 
     + CDD[iDD][2] / pow2(sLog);
   sum1 = (y0min * (log( max( 1e-10, y0min/Delta0) ) - 1.) + Delta0)/ alP2;
@@ -241,29 +241,29 @@ bool SigmaTotal::init( int idA, int idB, double eCM) {
     + CDD[iDD][5] / pow2(sLog) );
   double sLogUp = log( max( 1.1, s * s0 / (sMinXB * sRMavgAX) ));
   double sLogDn = log( max( 1.1, s * s0 / (sMaxXX * sRMavgAX) ));
-  sum2 = CRES * log( sLogUp / sLogDn ) * sRMlogAX / alP2;
+  sum2   = CRES * log( sLogUp / sLogDn ) * sRMlogAX / alP2;
   sLogUp = log( max( 1.1, s * s0 / (sMinAX * sRMavgXB) ));
   sLogDn = log( max( 1.1, s * s0 / (sMaxXX * sRMavgXB) ));
-  sum3 = CRES * log(sLogUp / sLogDn) * sRMlogXB / alP2;
+  sum3   = CRES * log(sLogUp / sLogDn) * sRMlogXB / alP2;
   double BcorrXX =  CDD[iDD][6] + CDD[iDD][7] / eCM + CDD[iDD][8] / s;
-  sum4 = pow2(CRES) * sRMlogAX * sRMlogXB 
+  sum4   = pow2(CRES) * sRMlogAX * sRMlogXB 
     / max( 0.1, alP2 * log( s * s0 / (sRMavgAX * sRMavgXB) ) + BcorrXX);
-  sigXX = CONVERTDD * X[iProc] * max( 0., sum1 + sum2 + sum3 + sum4);
+  sigXX  = CONVERTDD * X[iProc] * max( 0., sum1 + sum2 + sum3 + sum4);
  
   // Option with user-set values for everything.
   // (Is not done earlier since want diffractive slopes anyway.)
   double sigNDOwn = sigTotOwn - sigElOwn - sigXBOwn - sigAXOwn - sigXXOwn; 
   if (setOwn && sigNDOwn > 0.) {
     sigTot = sigTotOwn;
-    sigEl = sigElOwn;
-    sigXB = sigXBOwn;
-    sigAX = sigAXOwn;
-    sigXX = sigXXOwn;
+    sigEl  = sigElOwn;
+    sigXB  = sigXBOwn;
+    sigAX  = sigAXOwn;
+    sigXX  = sigXXOwn;
   }
 
   // Inelastic nondiffractive by unitarity.
   sigND = sigTot - sigEl - sigXB - sigAX - sigXX; 
-  if (sigND < 0.) ErrorMessages::message("Error in SigmaTotal::init: "
+  if (sigND < 0.) ErrorMsg::message("Error in SigmaTotal::init: "
     "sigND < 0"); 
 
   // Done.

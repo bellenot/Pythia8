@@ -2,7 +2,7 @@
 // SpaceDipoleEnd: radiating dipole end in ISR.
 // SpaceSystem: info on one interaction (among multiple ones).
 // SpaceShower: handles the showering description.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_SpaceShower_H
 #define Pythia8_SpaceShower_H
@@ -27,9 +27,9 @@ class SpaceDipoleEnd {
 public:
 
   // Constructor.
-  SpaceDipoleEnd( double pTmaxIn = 0., int sideIn = 0, int colIn = 0, 
-    int chgIn = 0, int MEtypeIn = 0) : pTmax(pTmaxIn), side(sideIn),
-    colType(colIn), chgType(chgIn), MEtype(MEtypeIn) { }
+  SpaceDipoleEnd( double pTmaxIn = 0., int sideIn = 0, int colTypeIn = 0, 
+    int chgTypeIn = 0, int MEtypeIn = 0) : pTmax(pTmaxIn), side(sideIn),
+    colType(colTypeIn), chgType(chgTypeIn), MEtype(MEtypeIn) { }
 
   // Basic properties related to evolution and matrix element corrections.
   double pTmax;
@@ -106,16 +106,17 @@ private:
   // Static initialization data, normally only set once.
   static bool doQCDshower, doQEDshowerByQ, doQEDshowerByL, samePTasMI,
     doMEcorrections, doPhiPolAsym;
-  static int pTmaxMatch, alphaSorder, nQuark;
-  static double mc, mb, mc2, mb2,  alphaSvalue, pT0Ref, ecmRef, ecmPow, 
-    pTmin, alphaEM, pTminChgQ, pTminChgL;
+  static int pTmaxMatch, alphaSorder, alphaEMorder, nQuark;
+  static double mc, mb, m2c, m2b, alphaSvalue, pT0Ref, ecmRef, ecmPow, 
+    pTmin, pTminChgQ, pTminChgL;
 
   // Constants: could only be changed in the code itself.
   static const double CTHRESHOLD, BTHRESHOLD, EVALPDFSTEP, TINYPDF, 
-    TINYKERNELPDF, TINYPT2, HEAVYPT2EVOL, HEAVYXEVOL, EXTRASPACEQ;
+    TINYKERNELPDF, TINYPT2, HEAVYPT2EVOL, HEAVYXEVOL, EXTRASPACEQ,
+    LEPTONXMIN, LEPTONXMAX, LEPTONPT2MIN, LEPTONFUDGE;
 
   // Other non-static initialization data.
-  double alphaS2pi, alphaEM2pi, Lambda3flav, Lambda4flav, Lambda5flav, 
+  double alphaS2pi, Lambda3flav, Lambda4flav, Lambda5flav, 
     Lambda3flav2, Lambda4flav2, Lambda5flav2, sCM, eCM, pT0, pT20,
     pT2min, pT2minChgQ, pT2minChgL; 
 
@@ -123,8 +124,9 @@ private:
   BeamParticle* beamAPtr;
   BeamParticle* beamBPtr;
 
-  // alphaStrong calculation.
+  // alphaStrong and alphaEM calculations.
   AlphaStrong alphaS;
+  AlphaEM alphaEM;
 
   // List of partons in system.
   vector<int> iParton; 

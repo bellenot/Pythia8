@@ -3,7 +3,7 @@
 // Thrust: thrust analysis of the event.
 // ClusterJet: clustering jet finder.
 // CellJet: calorimetric cone jet finder. 
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_Analysis_H
 #define Pythia8_Analysis

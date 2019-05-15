@@ -1,6 +1,6 @@
 // Function definitions (not found in the header) for 
 // the ResonanceProperties class and classes derived from it.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #include "ResonanceProperties.h"
 
@@ -16,13 +16,14 @@ namespace Pythia8 {
 // Definitions of static variables and functions.
 // (Values will be overwritten in initStatic call, so are purely dummy.)
 
-int ResonanceProperties::alphaSorder = 1;
-double ResonanceProperties::alphaSvalue = 0.1265;
-AlphaStrong ResonanceProperties::alphaScalc;
-AlphaEM ResonanceProperties::alphaEMcalc;
+int          ResonanceProperties::alphaSorder  = 1;
+int          ResonanceProperties::alphaEMorder = 1;
+double       ResonanceProperties::alphaSvalue  = 0.1265;
+AlphaStrong  ResonanceProperties::alphaS;
+AlphaEM      ResonanceProperties::alphaEM;
 
 // The sum of product masses must not be too close to the resonance mass.
-const double ResonanceProperties::MASSMARGIN = 0.01;
+const double ResonanceProperties::MASSMARGIN   = 0.01;
 
 //*********
 
@@ -31,11 +32,17 @@ const double ResonanceProperties::MASSMARGIN = 0.01;
 void ResonanceProperties::initStatic() {
 
   // Parameters of alphaStrong generation .
-  alphaSvalue = Settings::parm("SigmaProcess:alphaSvalue");
-  alphaSorder = Settings::mode("SigmaProcess:alphaSorder");
+  alphaSvalue  = Settings::parm("SigmaProcess:alphaSvalue");
+  alphaSorder  = Settings::mode("SigmaProcess:alphaSorder");
 
   // Initialize alphaStrong generation.
-  alphaScalc.init( alphaSvalue, alphaSorder); 
+  alphaS.init( alphaSvalue, alphaSorder); 
+
+  // Parameters of alphaEM generation.
+  alphaEMorder = Settings::mode("SigmaProcess:alphaEMorder");
+
+  // Initialize alphaEM generation.
+  alphaEM.init( alphaEMorder); 
 
 }
  
@@ -63,14 +70,14 @@ void ResonanceGmZ::initStatic() {
   particlePtr = ParticleDataTable::particleDataPtr(idRes);
 
   // Z0 properties.
-  mRes = ParticleDataTable::m0(idRes);
-  GammaRes = ParticleDataTable::mWidth(idRes);
-  m2Res = mRes*mRes;
-  GamMRat = GammaRes / mRes;
+  mRes      = ParticleDataTable::m0(idRes);
+  GammaRes  = ParticleDataTable::mWidth(idRes);
+  m2Res     = mRes*mRes;
+  GamMRat   = GammaRes / mRes;
   thetaWRat = 1. / (16. * CoupEW::sin2thetaW() * CoupEW::cos2thetaW());
 
   // Allow to pick only gamma* or Z0 part of full gamma*/Z0 expression.
-  gmZmode = Settings::mode("SigmaProcess:gmZmode");
+  gmZmode   = Settings::mode("SigmaProcess:gmZmode");
 
 }
 
@@ -81,9 +88,9 @@ void ResonanceGmZ::initStatic() {
 double ResonanceGmZ::width(double mH) {
 
   // Common coupling factors.
-  double sH = mH*mH;
-  double colQ = 3. * (1. + alphaScalc.alphaS(sH) / M_PI);
-  double alpEM = alphaEMcalc.alphaEM(sH); 
+  double sH    = mH*mH;
+  double colQ  = 3. * (1. + alphaS.alphaS(sH) / M_PI);
+  double alpEM = alphaEM.alphaEM(sH); 
 
   // Reset quantities to sum. Declare others.
   for (int i = 0; i < 4; ++i) widSum[i] = 0.; 
@@ -100,12 +107,12 @@ double ResonanceGmZ::width(double mH) {
         m2Rat = pow2(mf / mH);
         betaf = sqrtpos(1. - 4. * m2Rat); 
         psvec = betaf * (1. + 2. * m2Rat);
-        psax = pow3(betaf);
+        psax  = pow3(betaf);
 
         // Combine phase space with couplings.
-        colf = (idAbs < 6) ? colQ : 1.;
-        ef2 = CoupEW::ef2(idAbs) * psvec;
-        efvf = CoupEW::ef(idAbs) * CoupEW::vf(idAbs) * psvec;
+        colf   = (idAbs < 6) ? colQ : 1.;
+        ef2    = CoupEW::ef2(idAbs) * psvec;
+        efvf   = CoupEW::ef(idAbs) * CoupEW::vf(idAbs) * psvec;
         vf2af2 = CoupEW::vf2(idAbs) * psvec + CoupEW::af2(idAbs) * psax; 
 
         // Store sum of combinations. For outstate only open channels.
@@ -166,9 +173,9 @@ double ResonanceGmZ::sigma(int id) {
 DecayChannel& ResonanceGmZ::dynamicDecay( double mH, int idIn) {
 
   // Couplings for the incoming fermion.
-  int idInAbs = abs(idIn);
-  double ei2 = CoupEW::ef2(idInAbs);
-  double eivi = CoupEW::ef(idInAbs) * CoupEW::vf(idInAbs);
+  int idInAbs   = abs(idIn);
+  double ei2    = CoupEW::ef2(idInAbs);
+  double eivi   = CoupEW::ef(idInAbs) * CoupEW::vf(idInAbs);
   double vi2ai2 = CoupEW::vf2(idInAbs) + CoupEW::af2(idInAbs); 
 
   // Calculate prefactors for interference and resonance part.
@@ -184,7 +191,7 @@ DecayChannel& ResonanceGmZ::dynamicDecay( double mH, int idIn) {
   if (gmZmode == 2) {gamNorm = 0.; intNorm = 0.;}
 
   // Common coupling factor for quarks.
-  double colQ = 3. * (1. + alphaScalc.alphaS(sH) / M_PI);
+  double colQ = 3. * (1. + alphaS.alphaS(sH) / M_PI);
 
   // Declare quantities to use.
   double mf, m2Rat, psvec, psax, betaf, colf, ef2, efvf, vf2af2,
@@ -203,12 +210,12 @@ DecayChannel& ResonanceGmZ::dynamicDecay( double mH, int idIn) {
         m2Rat = pow2(mf / mH);
         betaf = sqrtpos(1. - 4. * m2Rat); 
         psvec = betaf * (1. + 2. * m2Rat);
-        psax = pow3(betaf);
+        psax  = pow3(betaf);
 
         // Combine phase space with couplings.
-        colf = (idAbs < 6) ? colQ : 1.;
-        ef2 = CoupEW::ef2(idAbs) * psvec;
-        efvf = CoupEW::ef(idAbs) * CoupEW::vf(idAbs) * psvec;
+        colf   = (idAbs < 6) ? colQ : 1.;
+        ef2    = CoupEW::ef2(idAbs) * psvec;
+        efvf   = CoupEW::ef(idAbs) * CoupEW::vf(idAbs) * psvec;
         vf2af2 = CoupEW::vf2(idAbs) * psvec + CoupEW::af2(idAbs) * psax; 
 
         // Combine instate, propagator and outstate to relative sigma.
@@ -222,7 +229,7 @@ DecayChannel& ResonanceGmZ::dynamicDecay( double mH, int idIn) {
   }
   
   // Pick one channel according to relative sigmas calculated above.
-  return particlePtr->decay.dynamicPick();
+  return particlePtr->decay.dynamicPick(idRes);
 }
 
 //*********
@@ -233,16 +240,16 @@ double ResonanceGmZ::cosTheta( double mH, int idIn, int idOut) {
 
   // Couplings for in- and out-flavours.
   int idInAbs = abs(idIn);
-  double ei = CoupEW::ef(idInAbs);
-  double vi = CoupEW::vf(idInAbs);
-  double ai = CoupEW::af(idInAbs);
+  double ei    = CoupEW::ef(idInAbs);
+  double vi    = CoupEW::vf(idInAbs);
+  double ai    = CoupEW::af(idInAbs);
   int idOutAbs = abs(idOut);
-  double ef = CoupEW::ef(idOutAbs);
-  double vf = CoupEW::vf(idOutAbs);
-  double af = CoupEW::af(idOutAbs);
+  double ef    = CoupEW::ef(idOutAbs);
+  double vf    = CoupEW::vf(idOutAbs);
+  double af    = CoupEW::af(idOutAbs);
 
   // Phase space factors. (One power of beta left out in formulae.)
-  double mf = ParticleDataTable::m0(idOutAbs);
+  double mf    = ParticleDataTable::m0(idOutAbs);
   double m2Rat = pow2(mf / mH);
   double betaf = sqrtpos(1. - 4. * m2Rat); 
 
@@ -305,10 +312,10 @@ void ResonanceW::initStatic() {
   particlePtr = ParticleDataTable::particleDataPtr(idRes);
 
   // W properties.
-  mRes = ParticleDataTable::m0(idRes);
-  GammaRes = ParticleDataTable::mWidth(idRes);
-  m2Res = mRes*mRes;
-  GamMRat = GammaRes / mRes;
+  mRes      = ParticleDataTable::m0(idRes);
+  GammaRes  = ParticleDataTable::mWidth(idRes);
+  m2Res     = mRes*mRes;
+  GamMRat   = GammaRes / mRes;
   thetaWRat = 1. / (12. * CoupEW::sin2thetaW());
 
 }
@@ -320,9 +327,9 @@ void ResonanceW::initStatic() {
 double ResonanceW::width(double mH) {
 
   // Common coupling factors.
-  double sH = mH*mH;
-  double colQ = 3. * (1. + alphaScalc.alphaS(sH) / M_PI);
-  double alpEM = alphaEMcalc.alphaEM(sH); 
+  double sH    = mH*mH;
+  double colQ  = 3. * (1. + alphaS.alphaS(sH) / M_PI);
+  double alpEM = alphaEM.alphaEM(sH); 
 
   // Reset quantities to sum. Declare others.
   widSum = 0.; 
@@ -361,13 +368,13 @@ double ResonanceW::width(double mH) {
   }
 
   // Include prefactors for width. 
-  widSum *= alpEM * mH * thetaWRat;
+  widSum  *= alpEM * mH * thetaWRat;
   widOpen *= alpEM * mH * thetaWRat;
 
   // Prepare cross section info for width() routine.
-  double sigIn = alpEM * sH * thetaWRat;
+  double sigIn   = alpEM * sH * thetaWRat;
   double sigProp = 12. / ( pow2(sH - m2Res) + pow2(sH * GamMRat) );
-  double sigOut = sH * widOpen / mRes; 
+  double sigOut  = sH * widOpen / mRes; 
   sigOpen = (M_PI/sH) * sigIn * sigProp * sigOut;
 
   // Done.
@@ -403,7 +410,7 @@ DecayChannel& ResonanceW::dynamicDecay( double mH, int idIn) {
 
   // Common coupling factor for quarks.
   double sH = mH*mH;
-  double colQ = 3. * (1. + alphaScalc.alphaS(sH) / M_PI);
+  double colQ = 3. * (1. + alphaS.alphaS(sH) / M_PI);
 
   // Declare quantities to use.
   int id1Abs, id2Abs;
@@ -438,7 +445,8 @@ DecayChannel& ResonanceW::dynamicDecay( double mH, int idIn) {
   }
   
   // Pick one channel according to relative sigmas calculated above.
-  return particlePtr->decay.dynamicPick();
+  // Still unfinished: need to know sign of W for onMode = 2, 3 !?? 
+  return particlePtr->decay.dynamicPick(idRes);
 }
 
 //*********
@@ -451,11 +459,12 @@ double ResonanceW::cosTheta( double mH, int idIn, int idOut1, int idOut2) {
   double asymSign = (idIn * idOut1 > 0) ? 1. : -1.;
 
   // Phase space factors. 
-  double mf1 = ParticleDataTable::m0(abs(idOut1));
-  double mf2 = ParticleDataTable::m0(abs(idOut2));
-  double m2Rat1 = pow2(mf1 / mH);
-  double m2Rat2 = pow2(mf2 / mH);
-  double betaf = sqrtpos( pow2(1. - m2Rat1 - m2Rat2) - 4. * m2Rat1 * m2Rat2 ); 
+  double mf1       = ParticleDataTable::m0(abs(idOut1));
+  double mf2       = ParticleDataTable::m0(abs(idOut2));
+  double m2Rat1    = pow2(mf1 / mH);
+  double m2Rat2    = pow2(mf2 / mH);
+  double betaf     = sqrtpos( pow2(1. - m2Rat1 - m2Rat2) 
+    - 4. * m2Rat1 * m2Rat2 ); 
   double m2RatDiff = pow2(m2Rat1 - m2Rat2);
 
   // Do random choice of decay angle and reweight it.

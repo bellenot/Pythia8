@@ -1,6 +1,6 @@
 // Function definitions (not found in the header) for the .
 // MiniStringFragmentation class
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #include "MiniStringFragmentation.h"
 
@@ -15,10 +15,10 @@ namespace Pythia8 {
 // Definitions of static variables.
 // (Values will be overwritten in initStatic call, so are purely dummy.)
 
-int MiniStringFragmentation::nTryMass = 2;
-double MiniStringFragmentation::sigma = 0.35;
-double MiniStringFragmentation::sigma2Had = 0.245;
-double MiniStringFragmentation::bLund = 0.58;
+int    MiniStringFragmentation::nTryMass           = 2;
+double MiniStringFragmentation::sigma              = 0.35;
+double MiniStringFragmentation::sigma2Had          = 0.245;
+double MiniStringFragmentation::bLund              = 0.58;
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -27,13 +27,13 @@ double MiniStringFragmentation::bLund = 0.58;
 const int MiniStringFragmentation::NTRYDIFFRACTIVE = 200;
 
 // After one-body fragmentation failed, try two-body once more. 
-const int MiniStringFragmentation::NTRYLASTRESORT = 100;
+const int MiniStringFragmentation::NTRYLASTRESORT  = 100;
 
 // To avoid division by zero one must have sigma > 0.
-const double MiniStringFragmentation::SIGMAMIN = 0.01;
+const double MiniStringFragmentation::SIGMAMIN     = 0.01;
 
 // Loop try to combine available endquarks to valid hadron. 
-const int MiniStringFragmentation::NTRYFLAV = 10;
+const int MiniStringFragmentation::NTRYFLAV        = 10;
 
 //*********
 
@@ -42,12 +42,12 @@ const int MiniStringFragmentation::NTRYFLAV = 10;
 void MiniStringFragmentation::initStatic() {
 
   // Initialize the MiniStringFragmentation class proper.
-  nTryMass = Settings::mode("MiniStringFragmentation:nTry");
-  sigma = Settings::parm("StringPT:sigma");
+  nTryMass  = Settings::mode("MiniStringFragmentation:nTry");
+  sigma     = Settings::parm("StringPT:sigma");
   sigma2Had = 2. * pow2( max( SIGMAMIN, sigma) );
 
   // Initialize the b parameter of the z spectrum, used when joining jets.
-  bLund = Settings::parm("StringZ:bLund");
+  bLund     = Settings::parm("StringZ:bLund");
 
 }
 
@@ -59,12 +59,12 @@ bool MiniStringFragmentation::fragment(int iSub, ColConfig& colConfig,
   Event& event, bool isDiff) {
 
   // Read in info on system to be treated.
-  iParton = colConfig[iSub].iParton;
-  id1 = event[ iParton.front() ].id();
-  id2 = event[ iParton.back() ].id(); 
-  pSum = colConfig[iSub].pSum;
-  mSum = colConfig[iSub].mass;
-  m2Sum = mSum*mSum;
+  iParton  = colConfig[iSub].iParton;
+  flav1.id = event[ iParton.front() ].id();
+  flav2.id = event[ iParton.back() ].id(); 
+  pSum     = colConfig[iSub].pSum;
+  mSum     = colConfig[iSub].mass;
+  m2Sum    = mSum*mSum;
   isClosed = colConfig[iSub].isClosed;
 
   // Do not want diffractive systems to easily collapse to one particle.
@@ -91,10 +91,10 @@ bool MiniStringFragmentation::fragment(int iSub, ColConfig& colConfig,
 bool MiniStringFragmentation::ministring2two( int nTry, Event& event) {
 
   // Properties of the produced hadrons.
-  int idHad1 = 0;
-  int idHad2 = 0;
-  double mHad1 = 0.;
-  double mHad2 = 0.;
+  int    idHad1  = 0;
+  int    idHad2  = 0;
+  double mHad1   = 0.;
+  double mHad2   = 0.;
   double mHadSum = 0.;
 
   // Allow a few attempts to find a particle pair with low enough masses.
@@ -102,19 +102,21 @@ bool MiniStringFragmentation::ministring2two( int nTry, Event& event) {
 
     // For closed gluon loop need to pick an initial flavour.
     if (isClosed) do {
-      int idTry = (Rndm::flat() < 0.5) ? 1 : 2;
-      idTry = flavSel.pick( idTry);
-      id1 = flavSel.pick( idTry);
-      id2 = -id1;
-    } while (id1 == 0);
+      int idStart = StringFlav::pickLightQ();
+      FlavContainer flavStart(idStart, 1);
+      flavStart = StringFlav::pick( flavStart);
+      flav1 = StringFlav::pick( flavStart);
+      flav2.anti(flav1);
+    } while (flav1.id == 0 || flav1.nPop > 0);
    
     // Create a new q qbar flavour to form two hadrons. 
     // Start from a diquark, if any.
     do {
-      int id3 = (abs(id1) > 8 || (abs(id2) < 9 && Rndm::flat() < 0.5) )
-        ? flavSel.pick( id1) : -flavSel.pick( id2);
-      idHad1 = flavSel.combine( id1, id3);
-      idHad2 = flavSel.combine( id2, -id3);
+      FlavContainer flav3 =
+        (abs(flav1.id) > 8 || (abs(flav2.id) < 9 && Rndm::flat() < 0.5) )
+        ? flavSel.pick( flav1) : flavSel.pick( flav2).anti();
+      idHad1 = flavSel.combine( flav1, flav3);
+      idHad2 = flavSel.combine( flav2, flav3.anti());
     } while (idHad1 == 0 || idHad2 == 0);
 
     // Check whether the mass sum fits inside the available phase space.  
@@ -171,9 +173,9 @@ bool MiniStringFragmentation::ministring2two( int nTry, Event& event) {
 
   // Distribute pT isotropically in angle.
   double phi = 2. * M_PI * Rndm::flat();
-  double pT = sqrt(pT2);
-  double px = pT * cos(phi);
-  double py = pT * sin(phi);
+  double pT  = sqrt(pT2);
+  double px  = pT * cos(phi);
+  double py  = pT * sin(phi);
 
   // Translate this into kinematics in the string frame.
   Vec4 pHad1 = region.pHad( xe1 + xpz1, xe1 - xpz1,  px,  py);
@@ -209,7 +211,7 @@ bool MiniStringFragmentation::ministring2two( int nTry, Event& event) {
 
 //*********
 
-// Attempt to produce one particles from a ministring.
+// Attempt to produce one particle from a ministring.
 // Current algorithm: find the system with largest invariant mass
 // relative to the existing one, and boost that system appropriately.
 // Try more sophisticated alternatives later?? (Z0 mass shifted??)
@@ -219,20 +221,20 @@ bool MiniStringFragmentation::ministring2one( int iSub,
   ColConfig& colConfig, Event& event) {
 
   // Cannot handle qq + qbarqbar system. 
-  if (abs(id1) > 100 && abs(id2) > 100) return false;
+  if (abs(flav1.id) > 100 && abs(flav2.id) > 100) return false;
 
   // For closed gluon loop need to pick an initial flavour.
   if (isClosed) do {
-    int idTry = (Rndm::flat() < 0.5) ? 1 : 2;
-    idTry = flavSel.pick( idTry);
-    id1 = flavSel.pick( idTry);
-    id2 = -id1;
-  } while (abs(id1) > 100);
+    int idStart = StringFlav::pickLightQ(); 
+    FlavContainer flavStart(idStart, 1);
+    flav1 = StringFlav::pick( flavStart);
+    flav2 = flav1.anti();
+  } while (abs(flav1.id) > 100);
 
   // Select hadron flavour from available quark flavours.
   int idHad = 0;
   for (int iTryFlav = 0; iTryFlav < NTRYFLAV; ++iTryFlav) {
-    idHad = flavSel.combine( id1, id2);
+    idHad = flavSel.combine( flav1, flav2);
     if (idHad != 0) break;
   } 
   if (idHad == 0) return false;
@@ -253,20 +255,20 @@ bool MiniStringFragmentation::ministring2one( int iSub,
   if (iMax == -1) return false;  
 
   // Construct kinematics of the hadron and recoiling system. 
-  Vec4& pRec = colConfig[iMax].pSum;
-  double mRec = colConfig[iMax].mass;
+  Vec4& pRec     = colConfig[iMax].pSum;
+  double mRec    = colConfig[iMax].mass;
   double vecProd = pSum * pRec; 
   double coefOld = mSum*mSum + vecProd;
   double coefNew = mHad*mHad + vecProd;
   double coefRec = mRec*mRec + vecProd;
   double coefSum = coefOld + coefNew;
-  double sHat = coefOld + coefRec;
-  double root = sqrtpos( (pow2(coefSum) - 4. * sHat * mHad*mHad)
+  double sHat    = coefOld + coefRec;
+  double root    = sqrtpos( (pow2(coefSum) - 4. * sHat * mHad*mHad)
     / (pow2(vecProd) - pow2(mSum * mRec)) );
-  double k2 = 0.5 * (coefOld * root - coefSum) / sHat;
-  double k1 = (coefRec * k2 + 0.5 * deltaM2) / coefOld;
-  Vec4 pHad = (1. + k1) * pSum - k2 * pRec;
-  Vec4 pRecNew = (1. + k2) * pRec - k1 * pSum;
+  double k2      = 0.5 * (coefOld * root - coefSum) / sHat;
+  double k1      = (coefRec * k2 + 0.5 * deltaM2) / coefOld;
+  Vec4 pHad      = (1. + k1) * pSum - k2 * pRec;
+  Vec4 pRecNew   = (1. + k2) * pRec - k1 * pSum;
   
   // Add the produced particle to the event record.
   int iHad = event.append( idHad, 81, iParton.front(), iParton.back(), 

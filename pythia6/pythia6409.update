@@ -1,0 +1,363 @@
+                  ****************************
+                  *                          *
+                  *       Update notes       *
+                  *                          *
+                  *    PYTHIA version 6.4    *
+                  *                          *
+                  ****************************
+ 
+                 (Last updated 13 November 2006)
+ 
+PYTHIA version 6.4 is a direct continuation of version 6.3;
+actually 6.400 is identical with 6.327. Therefore it should not 
+be a big operation for the normal user to run the program.
+  
+PYTHIA 6.4 comes with an updated big manual, reflecting the status
+as of version 6.400. These update notes document what is new in 
+each subsequent subversion.
+ 
+-----------------------------------------------------------------------
+ 
+6.400 : 25 March 2006
+  - This version is identical with Pythia 6.327. Readers should therefore
+    turn to the Pythia 6.3 update notes to trace the evolution of the
+    program.
+  - The only changes are updates of character strings, 6.3 -> 6.4.
+
+ 6.401 : 16 April 2006
+  - Bug fix in PYRAND: when the Les Houches Accord interface is used 
+    with more than 50 processes, some of them would be mapped into 
+    a range of PYTHIA process numbers assigned to SUSY processes, 
+    where KFPR(ISUB,1) and KFPR(ISUB,2) would be overwritten. 
+  - Modification of string fragmentation, introducing new tolerance
+    parameter.
+    PARU(14): (D=2.) when passing string corners, the (mis)match of
+        transverse momentum directions may need to be compensated
+        by using momentum fractions x outside the allowed range 
+        0 < x < 1, by having a slightly negative x. Occasionally 
+        the x can become quite negative, and then rarely give strange 
+        results. The new parameter sets limits how far outside the
+        allowed range one may go before rejecting the current try
+        and restarting the fragmentation of the current string.
+  - The size of the /PYPART/ commonblock has been expanded, by 
+    replacing the current MAXNUP size parameter by a new MAXNUR one
+    with size 1000. This should avoid some problems with overflows.
+  - Bug correction: for the MSTP(95) > 3 options the colour 
+    reconnection in PYFSCR was not called from PYEVNW.
+
+ 6.402 : 2 May 2006
+  - PYFSCR: bugfix and updates (performing colour reconnections in the
+    new underlying-event framework). A bug for MSTP(95)=2,3 caused an 
+    unintended suppression of connections between free colour octets. 
+    This has now been fixed, so the scenario works as described in the 
+    manual. In addition, a new option has been added, by MSTP(95)=6,7, 
+    where only partons with one and only one free colour tag are allowed 
+    to initiate a string piece. This amounts to saying that the string 
+    collapse is driven by free triplet charges. Finally, the parameter 
+    PARP(78) now also works for MSTP(95)>1, and controls the strength of 
+    the colour reconnections. In addition, the reconnection probability 
+    grows as a function of the number of multiple interactions, to reflect
+    the possibility of a higher amount of reconnections occurring in  
+    collisions with a higher amount of strings. The full description of 
+    the PYFSCR parameters is thus now:
+    MSTP(95) : CR Type
+             = 1  : old cut-and-paste reconnections, handled in PYMIHK
+             = 2  : Type I(no gg loops); hadron-hadron only
+             = 3  : Type I(no gg loops); all beams
+             = 4  : Type II(gg loops)  ; hadron-hadron only
+             = 5  : Type II(gg loops)  ; all beams
+             = 6  : Type S             ; hadron-hadron only 
+             = 7  : Type S             ; all beams
+    Types I and II are described in Sandhoff+Skands, in hep-ph/0604120.
+    Type S is driven by starting only from free triplets, not octets.
+    PARP(78) : CR Strength 
+           The probability to keep a given colour-dipole pair depends 
+           on PARP(78) and the number of interactions, MINT(31):
+                  PKEEP = (1D0-PARP(78))**(MINT(31)) ;
+           PARP(78) -> 1D0 : Full strength. 
+           PARP(78) -> 0D0 : Zero strength. No reconnections.    
+    NOTE: New min-bias/UE tunes with these new models are also available 
+    from the web page.
+  - Speeded-up machinery for minimum-bias events, ISUB = 95.
+    Specifically, the simultaneous choice of impact parameter b and
+    pT for the hardest interaction has been optimized. The key trick 
+    is to split the b range in two, roughly where the probability for
+    an interaction of two hadrons passing through each other has 
+    dropped to 1/2. With such a split it is feasible to pick b once
+    and for all, and then to use two different formalisms for the pT 
+    selection. At small b, one includes the "Sudakov" exponent to
+    generate a trial sequence of falling pT's until accepted. If the
+    sequence reaches pT = 0 the generation is restarted at maximum.
+    At large b the trial pT's are selected unordered over the whole
+    pT range, and then the "Sudakov" exponent is used as (part of) 
+    the acceptance weight. This technical change should not affect 
+    physics.   
+    Internally, two new variables are used:
+    MINT(39) : region of b value in current event.
+        = 0 : not defined (e.g. for MSTP(82) = 1 or 2).
+        = 1 : low-b region.
+        = 2 : high-b region.
+    VINT(139) : current b value. Note that no rescaling to physical
+        units is performed, but only to an average b of 1 in 
+        minimum-bias events, and thereby below 1 for high-pT events.
+        (Related to the jet pedestal effect.) Thus it only has a 
+        relative meaning in the context of comparing different events 
+        inside the same sample (i.e. generated with the same parameter 
+        values).  
+  - Initialization of multiple interactions did not take into account
+    that the old and new multiple interactions scenarios use somewhat
+    different factorization scale choices. This gave partly misleading
+    initialization information for the new scenarios, but hardly affects 
+    the events actually generated for Tevatron or LHC applications. It
+    could be more visible if tunes are extended to lower energies 
+  - PYSLHA: update. When reading in SLHA decay tables for Higgs bosons, a
+    message is printed to alert the user to the fact that the h/H/A->gg
+    decay width is also used to compute the cross section for the inverse 
+    process: gg -> h/H/A
+  - PYFEYN: update. The previous interface to FeynHiggs became obsolete 
+    with FeynHiggs version 2.3, where a number of parameters in the
+    relevant FeynHiggs call routines were changed from DOUBLE PRECISION
+    to DOUBLE COMPLEX. The corresponding change has now been introduced
+    in PYFEYN as well, so that earlier Pythia versions are compatible 
+    with FeynHiggs 2.2, while Pythia versions from 6.402 onward are 
+    compatible with FeynHiggs 2.3.
+  - PYSUGI: small bug fix, removed a CLOSE statement that could lead to
+    crashes if no file had previously been opened.
+  - Production channels g g  and gamma gamma -> Higgs rely on knowledge
+    of the Higgs -> g g and gamma gamma partial widths. If SLHA is 
+    used to replace the internal decay tables the program would be 
+    looking in the wrong place. This has now been corrected. Note,
+    however, that it is not possible to study e.g. g g -> Higgs if the
+    new decay tables do not provide the Higgs -> g g decay channel.      
+
+ 6.403 : 7 June 2006
+  - The Pythia 6.4 Physics and Manual is now published in 
+    T. Sjostrand, S. Mrenna and P. Skands, JHEP05 (2006) 026 
+    [hep-ph/0603175]. 
+    From now on, this is the only correct reference to the Pythia 6
+    program.
+  - PYFEYN: further bug correction in this interface.
+  - Typo in the speeded-up multiple-interactions treatment in 6.402 
+    may affect results for the impact-parameter profile MSTP(82) = 5
+    when PARP(83) < 2, and is now corrected.
+  - Insert Planck scale in PYSUGI in appropriate units:
+    AMPL = 2.4 E18 GeV = {8 pi G_newton}^{1/2}.
+  - Remove superfluous comma in PYSUGI printout statement. 
+  - Move default initialization of the PYLH3P and PYLH3C commonblocks
+    to BLOCK DATA PYDATA for consistency with Fortran standard.
+ -  PYSIGH: An additional possible classification of basic scattering
+    processes now exists, for the special case of Weak Boson Fusion 
+    and g g or q qbar -> Q Qbar Higgs processes:
+    ISJETS = 2: Processes for which the matrix element does contains jets
+      at leading order, but which are not included in ISJETS=1 since they
+      are not of a QCD origin, as for instance the forward jets in
+      WW/ZZ fusion to Higgs, qq -> qqH. The processes classified as 
+      ISJETS=2 are currently ISUB=121-124, 173, 174, 178, 179, 181, 182, 
+      186, 187. The maximum scale for initial state radiation in these 
+      processes is set equal to the factorisation scale, see MSTP(32) 
+      and MSTP(39).
+
+ 6.404 : 10 August 2006
+  - Changes to handle the new proposed Les Houches Event Files (LHEF) 
+    format [hep-ph/0609017].
+    1) The existing two sample routines UPINIT and UPEVNT, which read 
+    the PYTHIA old separate initialization and event files, have been
+    commented out (so the code is still there, just in case...).
+    2) The new (uncommented)  UPINIT and UPEVNT routines handle an LHEF, 
+    for initialization and event read-in. As before, the file to be used 
+    must be opened by the user in the main program, and the file number 
+    set in MSTP(161) and MSTP(162). Previously, with two separate input
+    files, MSTP(161) and MSTP(162) were different. Now they are the same, 
+    but both must still be set.
+    (As before, the routines that come with  PYTHIA are only suggestions. 
+    You are free to supply your own routines and link them instead. The 
+    difference is that now there will be default code that eventually will 
+    work right away with several different parton-level generators.)
+    3) A new routine PYLHEF has been added to produce an LHE file from 
+    a parton-level PYTHIA run output. Recall that, previously, PYUPEV
+    had to be used instead of PYEVNT to produce parton-level-only events
+    and write them to file MSTP(161), and a call to PYUPIN had to be added 
+    at the end to write initialization information to file MSTP(162),
+    both files to be opened by the user. (The PYUPIN call has to come 
+    at the end, since it is only then that cross sections are known.)
+    By adding a call to PYLHEF after the PYUPIN call, the two files
+    will be combined into one single LHE file.
+    MSTP(163) : (D=0) file unit number on which the LHE file will be 
+        written. The corresponding file must be opened by the user in 
+        the main program.
+    MSTP(164) : (D=0) fate of input files when an LHE file is created by
+        PYLHEF.
+        = 0: the input files, associated with units MSTP(161) and
+           MSTP(162), are removed.
+        = 1: the input files are kept unchanged, although the information
+           is now duplicated in the new file.
+    4) Note: it would have been possible to avoid the use of two
+    intermediate files, by a judicious use of dummy cross sections
+    when the beginning of the file is first written, with the correct 
+    ones substituted after a REWIND. This seemed like overkill, given the 
+    small use of PYTHIA as a parton-level-only generastor. The current
+    facility to write LHE files is mainly intended to test the LHEF 
+    structure. 
+    5) The precision with which lifetime and spin are written in PYUPEV
+    has been reduced, in particular since spin is not assigned by PYTHIA 
+    and thus always defaults to 9. = unassigned,. and lifetime is 
+    usually assumed 0. = vanishing.
+  - The processes 381-388 for QCD processes modified by technicolor
+    interactions are reclassified as being QCD processes in PYSIGH
+    (except for top production), i.e. multiple interactions and 
+    initial-state radiation are restricted to be softer than the 
+    hard process itself.
+  - The colour octet wavefunction-at-the-origin default values for 
+    charmonia and bottomonia in PARP(141)-PARP(150) are now set 
+    according to the values in 
+      P. Nason et al., in "Standard model physics (and more) at the LHC",
+      eds. G. Altarelli and M.L. Mangano, CERN 2000-004, p. 231
+      [hep-ph/0003142]
+    as described in talk by M. Bargiotti in the HERA4LHC workshop,
+    CERN, 8 June 2006. 
+  - The values of the parton densities, xf(x,Q2) of the two incoming 
+    partons to the hard interaction (if any) are now stored in PARI(29) 
+    and PARI(30), respectively. (And internally also in VINT(39) and 
+    VINT(40). The XSFX array, which contains this kind of information,
+    is overwritten for each new multiple interaction, and is therefore
+    not so useful.) Since before the related flavours are stored in
+    MSTI(15), MSTI(16), the x values in PARI(33) and PARI(34), and the
+    Q scale in PARI(23). 
+  - The size NMXHEP of the HEPEVT commonblock is now stored in MSTU(8)
+    (for informational purposes).
+  - The two dummy subroutines FHSETPARA and FHIGGSCORR have been updated
+    to take complex variables, cf. update note 6.402 for PYFEYN.
+    Irrelevant in practice, but introduced for consistency. 
+
+6.405 : 31 August 2006
+  - Mistake in 6.404 when processes 381-388 were to be classified as 
+    QCD processes (an .OR. instead of an .AND.) lead to all processes
+    being classified as QCD-type, and thereby, in some cases, to the 
+    maximum scale for ISR and MI being set incorrectly.
+  - Several processes involving photons in the initial, intermediate 
+    or final state have been assigned ISJETS=3 in PYSIGH. This mean 
+    that the maximum shower scale is set equal to the hard-process 
+    scale, typically pT, rather than the full energy. Thereby (in most
+    cases) the old behaviour from Pythia 6.2 should be recovered for 
+    these processes. The ones relevant for hadron colliders are 10, 18, 
+    19, 20, 83, 106 and 114. The ones for incoming photon beams are 
+    33 - 36, 54, 58, 69, 70, 80, 84, 85, 107, 108, 110 and 131 - 140. 
+  - A few processes have been added to the ISJETS = 2 class introduced 
+    in 6.403, i.e. WW/ZZ fusion: 5, 8, 71, 72, 73, 76, 77, 351 and 352.
+  - Showering and PDF scales for elastic and diffractive processes 
+    explicitly set zero, for cosmetics reasons only.  
+  - New option MSTP(123) = 3 gives same bahaviour as = 2 but does not
+    print out warnings.    
+
+6.406 : 14 September 2006
+  - In 6.402 a bug was fixed, where previously an incorrect PDF scale 
+    choice was used at initialization of the new multiple interactions 
+    scenario: intended to have pT^2 but got pT^2 + pT_0^2, as in the 
+    old scenario. The mistake did not have so dramatic consequences, 
+    since the intended scale was used during event generation, so it
+    mainly affected the initialization of the impact-parameter picture.
+    When the bug was fixed in 6.402, unfortunately the fix came to 
+    overwrite the initialization of the old scenario, which therefore 
+    came to suffer from the opposite problem, of being initialized with
+    a PDF scale of pT^2 instead of the pT^2 + pT_0^2 intended for this 
+    scenario. This is now fixed.
+  - Second-order matching formulae for alpha_strong at flavour 
+    thresholds introduced, following W.J. Marciano, Phys. Rev. D29 
+    (1984) 580.
+
+6.407 : 25 September 2006
+  - New option for Les Houches Event Files.
+    MSTP(165) : (D=0) writing or not of an extra line with parton 
+        density information for each event, using the format suggested
+        in the LHEF writeup:
+        #pdf id1 id2 x1 x2 scalePDF xpdf1 xpdf2
+        which here translates into
+        #pdf MSTI(15) MSTI(16) PARI(33) PARI(34) PARI(23) PARI(29) PARI(30)
+        = 0 : no.
+        = 1 : yes, provided that MSTP(162) > 0.
+        Note: currently such information is not read back in when the
+            UPEVNT routine is used. It is read by Pythia8, however. 
+
+6.408 : 24 October 2006
+  - Colour Reconnections: 
+    The new colour annealing models described in the 6.402 update notes 
+    above were previously only available with the new interleaved 
+    underlying-event framework (MSTP(81)=21). To help extricate genuine 
+    colour-reconnection effects from changes in the shower and other 
+    underlying-event aspects, the colour annealing models can now also be  
+    used as an 'afterburner' to the old underlying-event framework (i.e. 
+    with MSTP(81)=1). The models are switched on, as before, using MSTP(95),
+    with values between 2 and 6 currently valid. The strength is regulated 
+    with 0D0 < PARP(78) < 1D0. Since the models do increase the time it
+    takes to generate an event, it may be of interest to note that MSTP(95)=6 
+    is somewhat faster than the other models. In order not to 'double count' 
+    colour reconnections, we also recommend setting the colour connection 
+    parameter PARP(85)=0D0 when using the old framework with these models.
+  - Pythia Tunes for Underlying Event (UE) and Min-Bias (MB):
+    Several sets of widely used PYTHIA parameter settings ('tunes') have 
+    been collected and made more easily available through the auxiliary 
+    routine PYTUNE(ITUNE), which should be called before the call to 
+    PYINIT. At this time, the following values of ITUNE are recognized:
+    ITUNE    NAME 
+        0 Default : No settings changed => linked Pythia version's defaults.
+    ====== Old UE, Q2-ordered showers ========================================
+      100       A : Rick Field's Tune A 
+      101      AW : Rick Field's Tune AW
+      102      BW : Rick Field's Tune BW
+      103      DW : Rick Field's Tune DW
+      104     DWT : Rick Field's Tune DW with slower UE energy scaling
+      105      QW : Rick Field's Tune QW (NB: needs CTEQ6.1 pdfs externally)
+      106   ATLAS : Arthur Moraes' ATLAS tune
+      107     ACR : Tune A modified with annealing CR
+    ====== New UE, Q2-ordered showers ========================================
+      200    IM 1 : Intermediate 1: new UE, Q2-ordered showers, annealing CR
+    ====== New UE, interleaved pT-ordered showers, annealing CR ==============
+      300      S0 : Sandhoff-Skands Tune 0 
+      301      S1 : Sandhoff-Skands Tune 1
+      302      S2 : Sandhoff-Skands Tune 2
+      303     S0A : S0 with "Tune A" UE energy scaling
+      304    NOCR : New UE "best try" without colour reconnections. 
+      305     Old : New UE, original (primitive) colour reconnections
+    Note 1: care should be taken when interpreting results obtained with these
+    tunes. They have not all been tuned to the same data, and not to the same
+    level of sophistication. For more details about each tune / model, see 
+    the list of parameters and useful references printed by PYTUNE for
+    each specific model. (This printout can be switched off with MSTU(13)=0.) 
+    Note 2: care has been taken so that these parameter settings should
+    also work when used 'in sequence', i.e. when several different models 
+    are initialized one after the other during a single Pythia run, but we 
+    have not explicitly verified this for all possible combinations. If 
+    running multiple models in sequence you are therefore advised first 
+    to make a few quick sanity checks first, comparing e.g. <Nch> to what 
+    you get when initializing only one model in each Pythia run.
+    Note 3: the PYTUNE routine also contains tune parameters for the GAL and
+    SCI scenarios of the Uppsala group. These options can only be run with a
+    modified version of PYTHIA 6.215, however, as described in the routine.
+    If you want to use those, you therefore have to extract PYTUNE and link
+    it together with the modified PYTHIA version on the Uppsala web site.
+    The GAL and SCI models cannot be used in sequence with other PYTUNE calls.
+  - SLHA Decay Tables. Bug fix in PYSLHA. When reading in SLHA decay tables 
+    for 3-body decays, erroneous behaviour could occur since Pythia expects 
+    a specific ordering in the list of decay products while the SLHA standard 
+    does not impose such ordering. There were a few cases (e.g. sparticle in 
+    SLHA file appearing as decay product 2, with absolute KF code of number 
+    3 larger than that of number 1, or coloured particle appearing as decay
+    product 2) where PYSLHA failed to correctly reorder the decay products. 
+    This has now been amended.
+  - External particles, QNUMBERS, PARTICLE. Improvements in the read-in 
+    of external particles. PYSLHA is now more intelligent when forming the 
+    name of antiparticles, replacing '+' by '-' etc for charged states, 
+    rather than just appending 'bar'. PYSLHA now also deals better with 
+    reading mass spectra for completely generic external states. Finally, 
+    to test out alternative naming schemes (QNUMBERS may be included in  
+    SLHA2 but the standard has not yet been agreed upon), Pythia will 
+    understand BLOCK PARTICLE to mean the same thing as BLOCK QNUMBERS.
+
+6.409 : 13 November 2006
+  - Division in DATA statements in PYALPS removed, owing to problems 
+    for some compilers.
+  - PYTIME modified so no time information at all by default, again
+    owing to problems for some compilers.
+
+-----------------------------------------------------------------------
+

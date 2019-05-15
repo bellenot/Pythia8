@@ -1,6 +1,6 @@
 // Header file for QCD process differential cross sections.
 // Contains classes derived from SigmaProcess via Sigma(0/2)Process.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_SigmaQCD_H
 #define Pythia8_SigmaQCD_H
@@ -154,11 +154,8 @@ public:
   // Constructor.
   Sigma2gg2gg() {}
 
-  // Destructor.
-  ~Sigma2gg2gg() {}
-
-  // Initialize process, especially parton-flux object. 
-  virtual void initProc(); 
+  // Initialize parton-flux object for g g initial state. 
+  virtual void initFlux() {inFluxPtr = new InFluxgg();} 
 
   // Evaluate d(sigmaHat)/d(tHat). 
   virtual double sigmaHat();
@@ -188,11 +185,8 @@ public:
   // Constructor.
   Sigma2gg2qqbar() {}
 
-  // Destructor.
-  ~Sigma2gg2qqbar() {}
-
-  // Initialize process, especially parton-flux object. 
-  virtual void initProc(); 
+  // Initialize parton-flux object for g g initial state. 
+  virtual void initFlux() {inFluxPtr = new InFluxgg();}  
 
   // Evaluate d(sigmaHat)/d(tHat). 
   virtual double sigmaHat();
@@ -224,11 +218,8 @@ public:
   // Constructor.
   Sigma2qg2qg() {}
 
-  // Destructor.
-  ~Sigma2qg2qg() {}
-
-  // Initialize process, especially parton-flux object. 
-  virtual void initProc(); 
+  // Initialize parton-flux object for q g initial state. 
+  virtual void initFlux() {inFluxPtr = new InFluxqg();}  
 
   // Evaluate d(sigmaHat)/d(tHat). 
   virtual double sigmaHat();
@@ -237,7 +228,7 @@ public:
   virtual void setIdColAcol();
 
   // Info on the subprocess.
-  virtual string name() const {return "q g -> q g (udscb)";}
+  virtual string name() const {return "q g -> q g";}
   virtual int code() const {return 113;}
 
 private:
@@ -259,11 +250,8 @@ public:
   // Constructor.
   Sigma2qq2qqDiff() {}
 
-  // Destructor.
-  ~Sigma2qq2qqDiff() {}
-
-  // Initialize process, especially parton-flux object. 
-  virtual void initProc(); 
+  // Initialize parton-flux object for q qbar' or q q' initial state. 
+  virtual void initFlux() {inFluxPtr = new InFluxqqbarqqDiff();}  
 
   // Evaluate d(sigmaHat)/d(tHat). 
   virtual double sigmaHat();
@@ -293,11 +281,8 @@ public:
   // Constructor.
   Sigma2qq2qqSame() {}
 
-  // Destructor.
-  ~Sigma2qq2qqSame() {}
-
-  // Initialize process, especially parton-flux object. 
-  virtual void initProc(); 
+  // Initialize parton-flux object for q q initial state. 
+  virtual void initFlux() {inFluxPtr = new InFluxqqSame();}  
 
   // Evaluate d(sigmaHat)/d(tHat). 
   virtual double sigmaHat();
@@ -327,11 +312,8 @@ public:
   // Constructor.
   Sigma2qqbar2qqbarSame() {}
 
-  // Destructor.
-  ~Sigma2qqbar2qqbarSame() {}
-
-  // Initialize process, especially parton-flux object. 
-  virtual void initProc(); 
+  // Initialize parton-flux object for q qbar initial state. 
+  virtual void initFlux() {inFluxPtr = new InFluxqqbarSame();}  
 
   // Evaluate d(sigmaHat)/d(tHat). 
   virtual double sigmaHat();
@@ -361,11 +343,8 @@ public:
   // Constructor.
   Sigma2qqbar2qqbarNew() {}
 
-  // Destructor.
-  ~Sigma2qqbar2qqbarNew() {}
-
-  // Initialize process, especially parton-flux object. 
-  virtual void initProc(); 
+  // Initialize parton-flux object for q qbar initial state. 
+  virtual void initFlux() {inFluxPtr = new InFluxqqbarSame();}  
 
   // Evaluate d(sigmaHat)/d(tHat). 
   virtual double sigmaHat();
@@ -396,11 +375,8 @@ public:
   // Constructor.
   Sigma2qqbar2gg() {}
 
-  // Destructor.
-  ~Sigma2qqbar2gg() {}
-
-  // Initialize process, especially parton-flux object. 
-  virtual void initProc(); 
+  // Initialize parton-flux object for q qbar initial state. 
+  virtual void initFlux() {inFluxPtr = new InFluxqqbarSame();}  
 
   // Evaluate d(sigmaHat)/d(tHat). 
   virtual double sigmaHat();
@@ -428,14 +404,13 @@ class Sigma2gg2QQbar : public Sigma2Process {
 public:
 
   // Constructor.
-  Sigma2gg2QQbar(int idIn, int codeIn, string nameIn) 
-    : idNew(idIn), codeSave(codeIn), nameSave(nameIn) {}
+  Sigma2gg2QQbar(int idIn, int codeIn) : idNew(idIn), codeSave(codeIn) {}
 
-  // Destructor.
-  ~Sigma2gg2QQbar() {}
-
-  // Initialize process, especially parton-flux object. 
+  // Initialize process. 
   virtual void initProc(); 
+
+  // Initialize parton-flux object for g g initial state. 
+  virtual void initFlux() {inFluxPtr = new InFluxgg();}  
 
   // Evaluate d(sigmaHat)/d(tHat). 
   virtual double sigmaHat();
@@ -467,14 +442,13 @@ class Sigma2qqbar2QQbar : public Sigma2Process {
 public:
 
   // Constructor.
-  Sigma2qqbar2QQbar(int idIn, int codeIn, string nameIn) 
-    : idNew(idIn), codeSave(codeIn), nameSave(nameIn) {}
+  Sigma2qqbar2QQbar(int idIn, int codeIn) : idNew(idIn), codeSave(codeIn) {}
 
-  // Destructor.
-  ~Sigma2qqbar2QQbar() {}
-
-  // Initialize process, especially parton-flux object. 
+  // Initialize process. 
   virtual void initProc(); 
+
+  // Initialize parton-flux object for q qbar initial state. 
+  virtual void initFlux() {inFluxPtr = new InFluxqqbarSame();}  
 
   // Evaluate d(sigmaHat)/d(tHat). 
   virtual double sigmaHat();

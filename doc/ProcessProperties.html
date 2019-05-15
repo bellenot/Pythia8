@@ -1,0 +1,139 @@
+<html>
+<head>
+<title>Process Properties</title>
+</head>
+<body>
+
+<h2>Process Properties</h2>
+
+Here is collected some possibilities to affect the generation of 
+all internally implemented processes in one go, or some coherent
+subset thereof. Phase space cuts appear on a special page.
+
+<h3>Incoming partons</h3>
+
+<code>InFlux</code> is base class for the combination of allowed incoming 
+partons in a given process, and keeps track of parton densities and 
+common weight factors (such as charge) required to give the process 
+cross section.
+
+<p/>
+There is one useful degree of freedom in this class:
+<p/><strong>
+mode name="InFlux:nQuark" default="5" min="0" max="5"
+</strong><br/>
+Number of allowed incoming quark flavours in the beams; a change 
+to 4 would thus exclude <i>b</i> and <i>bbar</i> as incoming 
+partons, etc.
+  
+
+<p/>
+There is also the possibility to obtain some documentation.
+<p/><strong>
+flag name="InFlux:showChannels" default="off"
+</strong><br/>
+At initialization show which incoming flavours and flavour combinations
+have beeen set up, process by process, along with initial weight 
+(e.g. charges or CKM factors) assigned to each of them.
+  
+
+<h3>Generic cross sections</h3>
+
+<code>SigmaProcess</code> is base class for all hard processes 
+implemented in PYTHIA 8. For <i>2 -> 1</i> processes it 
+should give <i>sigmaHat(sHat)</i>, for <i>2 -> 2</i> ones 
+<i>d(sigmaHat(sHat, tHat))/d(tHat)</i>.
+
+The size of QCD cross sections is mainly determined by 
+<p/><strong>
+parm name="SigmaProcess:alphaSvalue" default="0.1265" 
+min="0.06" max="0.25"
+</strong><br/>
+The <i>alpha_strong</i> value at scale <i>M_Z^2</i>. 
+  
+
+<p/>
+The actual value is then regulated by the running to the scale 
+<i>Q^2</i>, at which <i>alpha_strong</i> is evaluated
+
+<p/><strong>
+mode name="SigmaProcess:alphaSorder" default="1" min="0" max="2"
+</strong><br/>
+Order at which <i>alpha_strong</i> runs,
+<br/><strong>
+option value="0"</strong>: zeroth order, i.e. <i>alpha_strong</i> is kept 
+fixed.  
+<br/><strong>
+option value="1"</strong>: first order, which is the normal value.  
+<br/><strong>
+option value="2"</strong>: second order. Since other parts of the code do 
+not go to second order there is no strong reason to use this option, 
+but there is also nothing wrong with it.  
+  
+
+<p/>
+QED interactions are regulated by the <i>alpha_electromagnetic</i>
+value at the <i>pT^2</i> scale of an interaction.
+ 
+<p/><strong>
+mode name="SigmaProcess:alphaEMorder" default="1" min="-1" max="1"
+</strong><br/>
+The running of <i>alpha_em</i> used in hard processes.
+<br/><strong>
+option value="1"</strong>: first-order running, constrained to agree with
+<code>StandardModel:alphaEMmZ</code> at the <i>Z^0</i> mass.
+  
+<br/><strong>
+option value="0"</strong>: zeroth order, i.e. <i>alpha_em</i> is kept 
+fixed at its value at vanishing momentum transfer.  
+<br/><strong>
+option value="-1"</strong>: zeroth order, i.e. <i>alpha_em</i> is kept 
+fixed, but at <code>StandardModel:alphaEMmZ</code>, i.e. its value
+at the <i>Z^0</i> mass.
+   
+  
+
+<h3>Special cross sections</h3>
+
+Here settings that affect some special group of processes, but not all.
+
+<p/><strong>
+mode name="SigmaProcess:nQuark" default="3" min="0" max="5"
+</strong><br/>
+Number of allowed outgoing new quark flavours in 
+<i>q qbar -> q' qbar'</i> and <i>g g-> q qbar</i> processes, 
+where quarks are treated as massless in the matrix-element expressions 
+(but correctly in the phase space). It is thus assumed that <i>c cbar</i> 
+and <i>b bbar</i> are added separately with masses taken into account. 
+A change to 4 would also include <i>c cbar</i> in the massless 
+approximation, etc. 
+  
+
+<p/><strong>
+mode name="SigmaProcess:nQuarkInLoop" default="5" min="3" max="6"
+</strong><br/>
+Number of quark flavours included in the box graphs resposible for 
+<i>g g -> g gamma</i> and <i>g g-> gamma gamma</i> processes.
+Owing to the complexity if the massive expressions, quarks are treated 
+as massless. The default value should be applicable in the range of 
+transverse momenta above the <i>b</i> mass but below the <i>t</i> one.
+  
+
+<p/><strong>
+mode name="SigmaProcess:gmZmode" default="0" min="0" max="2"
+</strong><br/>
+Choice of full <i>gamma^*/Z^0</i> structure or not in relevant 
+processes.
+<br/><strong>
+option value="0"</strong>: full <i>gamma^*/Z^0</i> structure,
+with interference included.  
+<br/><strong>
+option value="1"</strong>: only pure <i>gamma^*</i> contribution.  
+<br/><strong>
+option value="2"</strong>: only pure <i>Z^0</i> contribution.  
+  
+
+</body>
+</html>
+
+<!-- Copyright C 2007 Torbjorn Sjostrand -->

@@ -1,6 +1,6 @@
 // Function definitions (not found in the header) for the 
 // BeamParticle and BeamRemnants classes.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #include "Beams.h"
 
@@ -15,13 +15,13 @@ namespace Pythia8 {
 // Definitions of static variables.
 // (Values will be overwritten in initStatic call, so are purely dummy.)
 
-int BeamParticle::maxValQuark = 3;
+int    BeamParticle::maxValQuark = 3;
 double BeamParticle::valencePowerMeson = 0.8;
 double BeamParticle::valencePowerUinP = 3.5;
 double BeamParticle::valencePowerDinP = 2.0;
 double BeamParticle::valenceDiqEnhance = 2.0;
-int BeamParticle::companionPower = 4;
-bool BeamParticle::allowJunction = true;
+int    BeamParticle::companionPower = 4;
+bool   BeamParticle::allowJunction = true;
 double BeamParticle::pickQuarkNorm = 5.;
 double BeamParticle::pickQuarkPower = 1.;
 double BeamParticle::diffPrimKTwidth = 0.5;
@@ -34,31 +34,31 @@ double BeamParticle::diffLargeMassSuppress = 2.;
 void BeamParticle::initStatic() {
 
   // Maximum quark kind in allowed incoming beam hadrons.
-  maxValQuark = Settings::mode("Beams:maxValQuark");
+  maxValQuark       = Settings::mode("Beams:maxValQuark");
 
   // Power of (1-x)^power/sqrt(x) for remnant valence quark distribution.
   valencePowerMeson = Settings::parm("Beams:valencePowerMeson");
-  valencePowerUinP = Settings::parm("Beams:valencePowerUinP");
-  valencePowerDinP = Settings::parm("Beams:valencePowerDinP");
+  valencePowerUinP  = Settings::parm("Beams:valencePowerUinP");
+  valencePowerDinP  = Settings::parm("Beams:valencePowerDinP");
 
   // Enhancement factor of x of diquark.
   valenceDiqEnhance = Settings::parm("Beams:valenceDiqEnhance");
 
   // Assume g(x) ~ (1-x)^power/x to constrain companion to sea quark.
-  companionPower = Settings::mode("Beams:companionPower");
+  companionPower    = Settings::mode("Beams:companionPower");
 
   // Assume g(x) ~ (1-x)^power/x to constrain companion to sea quark.
-  companionPower = Settings::mode("Beams:companionPower");
+  companionPower    = Settings::mode("Beams:companionPower");
 
   // Allow or not more than two valence quarks to be kicked out.
-  allowJunction = Settings::flag("Beams:allowJunction");
+  allowJunction     = Settings::flag("Beams:allowJunction");
 
   // For diffractive system kick out q/g = norm / mass^power.
-  pickQuarkNorm = Settings::parm("Beams:pickQuarkNorm");
-  pickQuarkPower = Settings::parm("Beams:pickQuarkPower");
+  pickQuarkNorm     = Settings::parm("Beams:pickQuarkNorm");
+  pickQuarkPower    = Settings::parm("Beams:pickQuarkPower");
 
   // Width of primordial kT distribution in diffractive systems.
-  diffPrimKTwidth = Settings::parm("Beams:diffPrimKTwidth");
+  diffPrimKTwidth   = Settings::parm("Beams:diffPrimKTwidth");
 
   // Suppress large masses of beam remnant in diffractive systems. 
   diffLargeMassSuppress = Settings::parm("Beams:diffLargeMassSuppress");
@@ -69,13 +69,14 @@ void BeamParticle::initStatic() {
 // Initialize data on a beam particle.
 
 void BeamParticle::init( int idIn, double pzIn, double eIn, double mIn, 
-  PDF* pdfInPtr) {
+  PDF* pdfInPtr, bool isUnresolvedIn) {
 
   // Store info on the incoming beam.
   idBeam = idIn; initBeamKind(); 
-  pBeam = Vec4( 0., 0., pzIn, eIn); 
-  mBeam = mIn; 
-  pdfBeamPtr = pdfInPtr; 
+  pBeam  = Vec4( 0., 0., pzIn, eIn); 
+  mBeam  = mIn; 
+  pdfBeamPtr = pdfInPtr;
+  isUnresolvedBeam = isUnresolvedIn; 
 
 }
 
@@ -89,16 +90,22 @@ void BeamParticle::init( int idIn, double pzIn, double eIn, double mIn,
 void BeamParticle::initBeamKind() {
 
   // Reset.
-  idBeamAbs = abs(idBeam);
+  idBeamAbs    = abs(idBeam);
   isLeptonBeam = false;
   isHadronBeam = false;  
-  isMesonBeam = false;  
+  isMesonBeam  = false;  
   isBaryonBeam = false;  
-  nValKinds = 0;
+  nValKinds    = 0;
 
-  // Check for leptons. Done if cannot be lowest-lying hadron state.
-  if (idBeamAbs == 11 || idBeamAbs == 13 || idBeamAbs == 15) 
+  // Check for leptons. 
+  if (idBeamAbs == 11 || idBeamAbs == 13 || idBeamAbs == 15) {
+    nValKinds = 1; 
+    nVal[0]   = 1;
+    idVal[0]  = idBeam;
     isLeptonBeam = true; 
+  }
+
+  //  Done if cannot be lowest-lying hadron state.
   if (idBeamAbs < 101 || idBeamAbs > 9999) return;
   
   // Resolve valence content for assumed meson. Flunk unallowed codes.
@@ -111,9 +118,16 @@ void BeamParticle::initBeamKind() {
     isMesonBeam = true;
     
     // Store valence content of a confirmed meson.
-    nValKinds = 2; nVal[0] = 1 ; nVal[1] = 1;
-    if (id1%2 == 0) {idVal[0] = id1; idVal[1] = -id2;}
-    else {idVal[0] = id2; idVal[1] = -id1;}      
+    nValKinds = 2; 
+    nVal[0]   = 1 ; 
+    nVal[1]   = 1;
+    if (id1%2 == 0) { 
+      idVal[0] = id1; 
+      idVal[1] = -id2;
+    } else {
+      idVal[0] = id2; 
+      idVal[1] = -id1;
+    }      
   
   // Resolve valence content for assumed baryon. Flunk unallowed codes.
   } else { 
@@ -128,10 +142,18 @@ void BeamParticle::initBeamKind() {
     // Store valence content of a confirmed baryon.
     nValKinds = 1; idVal[0] = id1; nVal[0] = 1;
     if (id2 == id1) ++nVal[0];
-    else {nValKinds = 2; idVal[1] = id2; nVal[1] = 1;}
+    else {
+      nValKinds = 2; 
+      idVal[1]  = id2; 
+      nVal[1]   = 1;
+    }
     if (id3 == id1) ++nVal[0];
     else if (id3 == id2) ++nVal[1];
-    else {idVal[nValKinds] = id3; nVal[nValKinds] = 1; ++nValKinds;}
+    else {
+      idVal[nValKinds] = id3; 
+      nVal[nValKinds]  = 1; 
+      ++nValKinds;
+    }
   }
   
   // Flip flavours for antimeson or antibaryon, and then done.
@@ -166,10 +188,10 @@ double BeamParticle::xMax(int iSkip) {
 double BeamParticle::xfModified(int iSkip, int id, double x, double Q2) {
 
   // Initial values.
-  idSave = id;
+  idSave    = id;
   iSkipSave = iSkip;
-  xqVal = 0.;
-  xqgSea = 0.;
+  xqVal     = 0.;
+  xqgSea    = 0.;
   xqCompSum = 0.;
 
   // Fast procedure for first interaction. 
@@ -408,7 +430,7 @@ double BeamParticle::xCompDist(double xc, double xs) {
 bool BeamParticle::remnantFlavours() {
 
   // A baryon will have a junction, unless a diquark is formed later.
-  hasJunctionBeam = (isBaryon()) ? true : false;  
+  hasJunctionBeam = (isBaryon());  
 
   // Store how many hard-scattering partons were removed from beam.
   nInit = size();
@@ -456,8 +478,11 @@ bool BeamParticle::remnantFlavours() {
     resolved[i].companion(size() - 1);
   }
 
-  // If no other remnants found, add a gluon to carry remaining momentum.
-  if ( size() == nInit) append(0, 21, 1., -1);     
+  // If no other remnants found, add a gluon or photon to carry momentum.
+  if (size() == nInit) {
+    int    idRemnant = (isHadronBeam) ? 21 : 22;
+    append(0, idRemnant, 1., -1);     
+  }
 
   // Set initiator and remnant masses.
   for (int i = 0; i < size(); ++i) { 
@@ -479,6 +504,9 @@ bool BeamParticle::remnantFlavours() {
 
 bool BeamParticle::remnantColours(Event& event, vector<int>& colFrom,
   vector<int>& colTo) {
+
+  // No colours in lepton beams so no need to do anything.
+  if (isLeptonBeam) return true;
 
   // Copy initiator colour info from the event record to the beam.
   for (int i = 0; i < nInit; ++i) {
@@ -517,7 +545,7 @@ bool BeamParticle::remnantColours(Event& event, vector<int>& colFrom,
 
   // This valence quark defines initial (anti)colour.
   int iBeg = iValSel;
-  bool hasCol = (resolved[iBeg].col() > 0) ? true : false; 
+  bool hasCol = (resolved[iBeg].col() > 0); 
   int begCol = (hasCol) ? resolved[iBeg].col() : resolved[iBeg].acol();
 
   // Do random stepping through gluon/(sea+companion) list.
@@ -591,9 +619,9 @@ bool BeamParticle::remnantColours(Event& event, vector<int>& colFrom,
   // Usually one unmatched pair left to collapse.
   if (colList.size() == 1 && acolList.size() == 1) {
     int finalFrom = max( colList[0], acolList[0]);
-    int finalTo = min( colList[0], acolList[0]);
+    int finalTo   = min( colList[0], acolList[0]);
     for (int i = 0; i < size(); ++i) {  
-      if (resolved[i].col() == finalFrom) resolved[i].col(finalTo); 
+      if (resolved[i].col()  == finalFrom) resolved[i].col(finalTo); 
       if (resolved[i].acol() == finalFrom) resolved[i].acol(finalTo); 
     }
     colFrom.push_back(finalFrom);
@@ -615,7 +643,7 @@ bool BeamParticle::remnantColours(Event& event, vector<int>& colFrom,
 
   // Any other nonvanishing values indicate failure.
   } else if (colList.size() > 0 || acolList.size() > 0) {
-    ErrorMessages::message("Error in BeamParticle::remnantColours: "
+    ErrorMsg::message("Error in BeamParticle::remnantColours: "
       "leftover unmatched colours"); 
     return false;
   }
@@ -695,10 +723,10 @@ double BeamParticle::xRemnant( int i) {
 void BeamParticle::list(ostream& os) {
 
   // Header.
-  os << "\n --------  Partons resolved in beam  -------------------" 
-     << "-------------------------------------------------------\n "
-     << "   i  line      id       x    comp   xqcomp      colours  " 
-     << "    p_x        p_y        p_z         e          m \n";
+  os << "\n --------  PYTHIA Partons resolved in beam  ------------" 
+     << "--------------------------------------------------------"
+     << "\n    i  line      id       x    comp   xqcomp      colours" 
+     << "      p_x        p_y        p_z         e          m \n";
   
   // Loop over list of removed partons and print it. 
   double xSum = 0.;
@@ -719,7 +747,7 @@ void BeamParticle::list(ostream& os) {
   os << setprecision(6) << "             x sum:" << setw(10) << xSum 
      << setprecision(3) << "                      p sum:" << setw(11) 
      << pSum.px() << setw(11) << pSum.py() << setw(11) << pSum.pz() 
-     << setw(11) << pSum.e() << "\n"; 
+     << setw(11) << pSum.e() << endl; 
 
 }
    
@@ -731,7 +759,7 @@ bool BeamParticle::pickGluon(double mDiff) {
   
   // Relative weight to pick a quark, assumed falling with energy.
   double probPickQuark = pickQuarkNorm / pow( mDiff, pickQuarkPower);
-  return  ( (1. + probPickQuark) * Rndm::flat() < 1. ) ? true : false;
+  return  ( (1. + probPickQuark) * Rndm::flat() < 1. );
   
 }
    
@@ -839,9 +867,9 @@ bool BeamRemnants::add( BeamParticle& beamA, BeamParticle& beamB,
 
   // Temporary solution: do not treat remnants in e+e- annihilation
   // (and similar). Assumes no ISR so no photon remnants ??
-  int idAabs = abs(beamA.id());
-  int idBabs = abs(beamB.id());
-  if (idAabs < 20 || idBabs < 20) return true;
+  //int idAabs = abs(beamA.id());
+  //int idBabs = abs(beamB.id());
+  //if (idAabs < 20 || idBabs < 20) return true;
 
   // Total and squared CM energy.
   double eCM = event[0].m();
@@ -849,8 +877,11 @@ bool BeamRemnants::add( BeamParticle& beamA, BeamParticle& beamB,
 
   // Add required extra remnant flavour content. 
   // Start all over if fails (in option where junctions not allowed).
-  if (!beamA.remnantFlavours()) return false;
-  if (!beamB.remnantFlavours()) return false;
+  if (!beamA.remnantFlavours() || !beamB.remnantFlavours()) {
+    ErrorMsg::message("Error in BeamRemnants::add:"
+      " remnant flavour setup failed"); 
+    return false;
+  }
 
   // Save current complete colour configuration for fast restoration.
   vector<int> colSave;
@@ -890,7 +921,7 @@ bool BeamRemnants::add( BeamParticle& beamA, BeamParticle& beamB,
   // If no solution after several tries then failed.
   }
   if (!physical) {
-    ErrorMessages::message("Error in BeamRemnants::add:"
+    ErrorMsg::message("Error in BeamRemnants::add:"
       " colour tracing failed"); 
     return false;
   }
@@ -906,10 +937,14 @@ bool BeamRemnants::add( BeamParticle& beamA, BeamParticle& beamB,
       double pxSum = 0.;
       double pySum = 0.;
  
-      // Loop over the partons in a beam. Generate Gaussian pT.
+      // Loop over the partons in a beam. Generate Gaussian pT for hadrons..
       for (int i = 0; i < beam.size(); ++i) { 
-        double px = primordialKTwidth * Rndm::gauss();
-        double py = primordialKTwidth * Rndm::gauss();
+        double px = 0.;
+        double py = 0.;
+        if (beam.isHadron()) {
+          px = primordialKTwidth * Rndm::gauss();
+          py = primordialKTwidth * Rndm::gauss();
+	}
         beam[i].px(px);
         beam[i].py(py);
         pxSum += px;
@@ -965,7 +1000,11 @@ bool BeamRemnants::add( BeamParticle& beamA, BeamParticle& beamB,
     if (physical) break;
   }
   // If no solution after ten tries then failed.
-  if (!physical) return false;
+  if (!physical) {
+    ErrorMsg::message("Error in BeamRemnants::add:"
+      " kinematics construction failed"); 
+    return false;
+  }
 
   // Construct energy and pz for each initiator pair.
   for (int i = 0; i < beamA.sizeInit(); ++i) { 
@@ -1058,6 +1097,9 @@ bool BeamRemnants::add( BeamParticle& beamA, BeamParticle& beamB,
 bool BeamRemnants::checkColours( BeamParticle& beamA, BeamParticle& beamB,
   Event& event) {
 
+  // No colours in lepton beams so no need to do anything.
+  if (beamA.isLepton() && beamB.isLepton()) return true;
+
   // Remove ambiguities when one colour collapses two ways.
   // Resolve chains where one colour is mapped to another.
   for (int iCol = 1; iCol < int(colFrom.size()); ++iCol) 
@@ -1125,7 +1167,7 @@ bool BeamRemnants::checkColours( BeamParticle& beamA, BeamParticle& beamB,
     if ( (id > 0 && id < 9 && (col <= 0 || acol != 0) )
       || (id < 0 && id > -9 && (col != 0 || acol <= 0) )
       || (id == 21 && (col <= 0 || acol <= 0) ) ) {
-      ErrorMessages::message("Error in BeamRemnants::checkColours: "
+      ErrorMsg::message("Error in BeamRemnants::checkColours: "
         "q/qbar/g has wrong colour slots set");
       return false;
     }
@@ -1210,7 +1252,7 @@ bool BeamRemnants::checkColours( BeamParticle& beamA, BeamParticle& beamB,
   }
 
   // Done.
-  return (colList.size() == 0 && acolList.size() == 0) ? true : false;
+  return (colList.size() == 0 && acolList.size() == 0);
 
 }
 

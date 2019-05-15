@@ -1,7 +1,7 @@
-// File: main08.cc
+// File: main13.cc
 // This is a simple test program. 
 // It studies event properties of LEP1 events.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #include "Pythia.h"
 
@@ -12,39 +12,28 @@ int main() {
   // Generator.
   Pythia pythia;
 
-  // Currently: set up process in Pythia6.
-  // Process selection.
-  pythia.readString("Pythia6:msel = 1");    
-
-  // No ISR in e+e-.
-  pythia.readString("Pythia6:mstp(11) = 0"); 
-
-  // Switch off Z0 decay to charged leptons and neutrinos. 
-  pythia.readString("Pythia6:mdme(182,1) = 0"); 
-  pythia.readString("Pythia6:mdme(183,1) = 0"); 
-  pythia.readString("Pythia6:mdme(184,1) = 0"); 
-  pythia.readString("Pythia6:mdme(185,1) = 0"); 
-  pythia.readString("Pythia6:mdme(186,1) = 0"); 
-  pythia.readString("Pythia6:mdme(187,1) = 0"); 
-
-  // Future: set up process in Pythia8.
-  // Parton flux and beam remnants not yet set up.
-  /*
+  // Alternative 1: set up process in Pythia8.
+  // Allow no substructure in e+- beams: normal for corrected LEP data.
+  pythia.readString("Pythia:lPDF = off"); 
   // Process selection.
   pythia.readString("WeakSingleBoson:ffbar2gmZ = on");    
+  // Switch off all Z0 decays and then switch back on those to quarks.
+  pythia.readString("23:onMode = off"); 
+  pythia.readString("23:onIfAny = 1 2 3 4 5"); 
 
-  // Switch off Z0 decay to charged leptons and neutrinos. 
-  pythia.readString("23:5:onMode = off"); 
-  pythia.readString("23:6:onMode = off"); 
-  pythia.readString("23:7:onMode = off"); 
-  pythia.readString("23:8:onMode = off"); 
-  pythia.readString("23:9:onMode = off"); 
-  pythia.readString("23:10:onMode = off"); 
-  pythia.readString("23:11:onMode = off"); 
-  */
-
-  // No ISR in e+e-.
-  pythia.readString("PartonLevel:ISR = off"); 
+  // Alternative 2: set up process in Pythia6.
+  // Allow no substructure in e+- beams: normal for corrected LEP data.
+  //pythia.readString("Pythia6:mstp(11) = 0"); 
+  // Process selection.
+  //pythia.readString("Pythia6:msel = 1");    
+  // Switch off Z0 decay to charged leptons and neutrinos.
+  // Warning: absolute numbers only work with default decay table. 
+  //pythia.readString("Pythia6:mdme(182,1) = 0"); 
+  //pythia.readString("Pythia6:mdme(183,1) = 0"); 
+  //pythia.readString("Pythia6:mdme(184,1) = 0"); 
+  //pythia.readString("Pythia6:mdme(185,1) = 0"); 
+  //pythia.readString("Pythia6:mdme(186,1) = 0"); 
+  //pythia.readString("Pythia6:mdme(187,1) = 0"); 
 
   // LEP1 initialization at Z0 mass. 
   double mZ = pythia.particleData.m0(23);  

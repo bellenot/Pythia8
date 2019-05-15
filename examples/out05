@@ -5,10 +5,10 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.060      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 29 Sep 2006  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.070      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change:  5 Jan 2007  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 29 Sep 2006 at 08:55:40    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 05 Jan 2007 at 11:39:26    |  | 
  |  |                                                                              |  | 
  |  |   Main author: Torbjorn Sjostrand; CERN/PH, CH-1211 Geneva, Switzerland,     |  | 
  |  |     and Department of Theoretical Physics, Lund University, Lund, Sweden;    |  | 
@@ -33,12 +33,14 @@
  |  |   In addition, the current 8.0 version is intended for tryout and feedback   |  | 
  |  |   only, and should not be used for any physics studies or production runs.   |  | 
  |  |                                                                              |  | 
- |  |   Copyright T. Sjostrand (2006)                                              |  | 
+ |  |   Copyright C 2007 Torbjorn Sjostrand                                        |  | 
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  *------------------------------------------------------------------------------*  | 
  |                                                                                    | 
  *------------------------------------------------------------------------------------* 
+
+ PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
 
  *-------  PYTHIA Process Initialization  ---------------------*
  |                                                             |
@@ -53,16 +55,16 @@
  |                                               |             |
  | g g -> g g                                111 |   1.107e-04 |
  | g g -> q qbar (uds)                       112 |   1.953e-06 |
- | q g -> q g (udscb)                        113 |   2.769e-04 |
- | q q(bar)' -> q q(bar)'                    114 |   4.050e-05 |
- | q q -> q q                                115 |   5.983e-06 |
- | q qbar -> q qbar                          116 |   6.113e-06 |
+ | q g -> q g                                113 |   2.770e-04 |
+ | q q(bar)' -> q q(bar)'                    114 |   4.054e-05 |
+ | q q -> q q                                115 |   6.005e-06 |
+ | q qbar -> q qbar                          116 |   6.123e-06 |
  | q qbar -> q' qbar' (uds)                  117 |   2.176e-07 |
- | q qbar -> g g                             118 |   3.907e-07 |
- | g g -> c cbar                             121 |   6.510e-07 |
- | q qbar -> c cbar                          122 |   7.252e-08 |
- | g g -> b bbar                             123 |   6.510e-07 |
- | q qbar -> b bbar                          124 |   7.252e-08 |
+ | q qbar -> g g                             118 |   3.908e-07 |
+ | g g -> c cbar                             121 |   6.509e-07 |
+ | q qbar -> c cbar                          122 |   7.251e-08 |
+ | g g -> b bbar                             123 |   6.502e-07 |
+ | q qbar -> b bbar                          124 |   7.246e-08 |
  |                                                             |
  *-------  End PYTHIA Process Initialization ------------------*
 
@@ -70,65 +72,77 @@
  |                                                             | 
  |                 sigmaNonDiffractive =   54.71 mb            | 
  |                                                             | 
- |  pT0 =  3.05 gives sigmaInteraction =  297.89 mb: accepted  | 
+ |  pT0 =  3.05 gives sigmaInteraction =  300.59 mb: accepted  | 
  |                                                             | 
  *-------  End PYTHIA Multiple Interactions Initialization  ---* 
+ PYTHIA Error in BeamRemnants::add: kinematics construction failed  
 
  --------  PYTHIA CellJet Listing, eTjetMin =   20.000, coneRadius = 0.700  ------------------------------ 
  
   no     eTjet  etaCtr  phiCtr   etaWt   phiWt mult      p_x        p_y        p_z         e          m 
-   0   232.300   0.900  -0.491   0.809  -0.507   71    201.597   -112.043    212.137    317.006     47.915
-   1   227.408  -1.300   2.651  -1.294   2.630   46   -197.182    110.555   -384.735    447.320     31.162
-   2    30.730  -1.900  -0.295  -1.819  -0.325   35     28.517     -9.558    -94.581     99.694      9.421
-   3    22.195   1.900  -2.258   1.960  -2.134   34    -11.448    -18.132     80.315     83.576      8.638
-   4    20.307   1.900   3.043   1.936   3.073   35    -19.497      1.369     72.934     76.024      8.847
-
- --------  End PYTHIA CellJet Listing  -------------------------------------------------------------------
- Warning in SpaceShower::pT2nextQCD: weight above unity  
-
- --------  PYTHIA CellJet Listing, eTjetMin =   20.000, coneRadius = 0.700  ------------------------------ 
- 
-  no     eTjet  etaCtr  phiCtr   etaWt   phiWt mult      p_x        p_y        p_z         e          m 
-   0   247.529   0.700  -2.062   0.706  -2.064   34   -117.070   -217.602    190.140    312.530     21.582
-   1   146.614   1.500   1.276   1.652   1.226   52     49.233    137.147    380.163    409.088     39.953
-   2    95.779   2.300   0.884   2.273   0.956   36     54.606     77.325    462.675    472.594     17.770
+   0   248.091   1.100   2.847   1.088   2.838   48   -236.197     73.966    327.631    411.608     28.621
+   1   226.165  -0.100   1.080  -0.006   1.161   75     88.436    201.892     -1.433    229.271     63.101
+   2   204.441  -2.300  -1.276  -2.257  -1.285   47     57.508   -195.560   -971.826    993.377     28.333
+   3   169.734  -1.500  -1.080  -1.499  -1.044   40     84.798   -145.880   -362.195    400.266     23.585
+   4    51.827   0.300   1.669   0.298   1.763   32     -9.675     50.175     15.824     54.610     10.987
+   5    41.282   1.900   1.473   1.869   1.516   43      2.135     39.488    133.776    140.306     15.027
+   6    30.282   1.300  -2.258   1.461  -2.287   38    -19.281    -22.148     63.866     71.149     11.001
+   7    24.461  -1.100   0.491  -1.206   0.388   38     21.816      8.901    -38.922     46.593     10.041
 
  --------  End PYTHIA CellJet Listing  -------------------------------------------------------------------
 
  --------  PYTHIA CellJet Listing, eTjetMin =   20.000, coneRadius = 0.700  ------------------------------ 
  
   no     eTjet  etaCtr  phiCtr   etaWt   phiWt mult      p_x        p_y        p_z         e          m 
-   0   210.284   2.900  -2.062   2.958  -2.025   23    -91.876   -188.259   2029.333   2040.297     27.163
-   1   166.011   0.700   1.473   0.662   1.433   59     22.097    160.754    118.852    205.226     40.762
-   2    91.623   0.300   0.884   0.273   0.730   48     66.879     59.985     25.724     96.316     23.324
-   3    23.165  -0.300  -2.454  -0.246  -2.418   18    -16.971    -15.002     -5.853     24.234      6.321
+   0   326.743   1.700   0.687   1.651   0.776   79    230.190    225.945    829.709    893.134     72.345
+   1   311.532   0.100  -2.062   0.121  -2.167   89   -171.967   -253.924     37.984    317.085     71.063
+   2    55.817   0.700   0.295   0.689   0.359   48     51.344     19.265     42.175     70.637     14.266
+   3    50.353  -0.500   2.258  -0.518   2.288   36    -32.282     36.892    -27.621     57.939     13.819
+   4    47.985  -0.300  -2.651  -0.251  -2.768   37    -44.077    -17.308    -12.375     50.613     12.890
+   5    26.051   0.700   2.847   0.678   2.734   44    -23.191     10.004     19.959     33.811     10.342
+   6    22.102   0.700  -2.454   0.830  -2.603   36    -18.261    -10.922     20.983     30.818      7.530
+   7    20.692  -3.100  -2.258  -3.063  -2.201   41    -11.556    -15.862   -230.051    231.056      8.851
+   8    20.163   0.100  -0.491   0.091  -0.484   34     17.298     -9.031      1.854     20.800      6.959
 
  --------  End PYTHIA CellJet Listing  -------------------------------------------------------------------
 
  --------  PYTHIA CellJet Listing, eTjetMin =   20.000, coneRadius = 0.700  ------------------------------ 
  
   no     eTjet  etaCtr  phiCtr   etaWt   phiWt mult      p_x        p_y        p_z         e          m 
-   0   313.227  -1.700   1.473  -1.670   1.407   61     49.749    301.533   -806.256    865.521     75.373
-   1   259.624  -0.500  -1.473  -0.478  -1.500   50     18.322   -257.693   -129.649    292.098     42.081
-   2    60.659  -1.300   2.651  -1.207   2.613   43    -51.472     30.079    -94.662    113.238     17.549
-   3    47.789   0.500  -1.473   0.516  -1.435   35      6.269    -46.225     26.153     55.054     13.072
-   4    28.573   4.100  -1.865   4.043  -1.873   13     -8.431    -27.088    831.903    832.415      6.872
+   0   278.200   1.300   3.043   1.293   3.049   42   -276.447     25.795    470.320    546.995     30.235
+   1   269.866   1.300   0.098   1.292   0.115   60    266.761     30.965    456.324    530.848     38.052
+   2    54.561   1.300  -1.473   1.282  -1.396   37      9.302    -52.474     92.238    107.651     15.519
+   3    23.625   0.500   0.687   0.552   0.691   35     17.689     14.605     14.046     28.006      7.800
+   4    22.208   4.300  -0.491   4.289  -0.547   36     18.169    -11.037    841.953    842.271      9.195
+   5    21.532   0.700   2.454   0.628   2.543   27    -17.125     11.633     14.871     26.635      7.726
 
  --------  End PYTHIA CellJet Listing  -------------------------------------------------------------------
 
  --------  PYTHIA CellJet Listing, eTjetMin =   20.000, coneRadius = 0.700  ------------------------------ 
  
   no     eTjet  etaCtr  phiCtr   etaWt   phiWt mult      p_x        p_y        p_z         e          m 
-   0   189.179  -1.500   3.043  -1.515   3.028   32   -186.878     21.177   -411.027    452.778     26.323
-   1   160.626   0.900  -0.098   0.839  -0.154   48    157.308    -24.340    152.300    222.319     29.873
-   2    37.810  -1.500  -0.687  -1.452  -0.658   33     29.235    -22.587    -78.620     87.745     12.381
-   3    28.196  -1.100   2.454  -1.091   2.324   19    -18.863     20.118    -37.666     47.249      7.295
-   4    26.910   2.100  -1.080   2.093  -1.054   28     13.001    -22.804    109.769    113.168      8.295
+   0   552.852   0.500  -3.043   0.484  -3.027   65   -547.419    -62.933    279.130    621.167     65.622
+   1   378.213   0.100  -0.295   0.084  -0.434   88    335.499   -155.300     31.905    382.930     94.550
+   2   370.720   1.300   0.687   1.299   0.714   77    278.832    241.614    631.842    733.498     51.678
+   3    71.228   3.500  -2.258   3.477  -2.307   23    -47.356    -52.227   1156.655   1158.868     12.388
+   4    26.532  -3.700   2.454  -3.612   2.465   29    -20.222     16.229   -527.732    528.500     11.749
+   5    24.844  -0.700  -1.473  -0.719  -1.475   19      2.315    -24.377    -19.908     32.303      6.896
 
  --------  End PYTHIA CellJet Listing  -------------------------------------------------------------------
- Warning in StringFragmentation::fragmentToJunction: bad convergence junction rest frame  
- Error in StringFragmentation::fragment: stuck in joining  
- Warning in Pythia::next: hadronLevel failed; try again  
+
+ --------  PYTHIA CellJet Listing, eTjetMin =   20.000, coneRadius = 0.700  ------------------------------ 
+ 
+  no     eTjet  etaCtr  phiCtr   etaWt   phiWt mult      p_x        p_y        p_z         e          m 
+   0   217.582   1.900   2.847   1.885   2.805   36   -204.407     71.410    701.665    734.792     26.526
+   1   217.555   1.100  -0.491   1.147  -0.609   52    176.749   -123.134    309.899    379.326     38.063
+   2    76.252   0.100   1.865   0.038   1.817   27    -18.557     73.663      2.896     76.956     11.974
+   3    35.617  -0.300  -1.473  -0.203  -1.490   23      2.807    -34.808     -7.531     37.938     12.771
+
+ --------  End PYTHIA CellJet Listing  -------------------------------------------------------------------
+ PYTHIA Error in StringFragmentation::fragment: stuck in joining  
+ PYTHIA Error in Pythia::next: hadronLevel failed; try again  
+ PYTHIA Warning in StringFragmentation::fragmentToJunction: bad convergence junction rest frame  
+ PYTHIA Warning in SpaceShower::pT2nextQCD: weight above unity  
 
  *-------  PYTHIA Event and Cross Section Statistics  ---------------------------------------------*
  |                                                                                                 |
@@ -137,20 +151,20 @@
  |                                               |                        |                        |
  |-------------------------------------------------------------------------------------------------|
  |                                               |                        |                        |
- | g g -> g g                                111 |         358         79 |   2.316e-05  1.183e-06 |
- | g g -> q qbar (uds)                       112 |           4          2 |   7.817e-07  2.463e-07 |
- | q g -> q g (udscb)                        113 |         990         97 |   3.024e-05  1.473e-06 |
- | q q(bar)' -> q q(bar)'                    114 |         128         14 |   5.663e-06  7.969e-07 |
- | q q -> q q                                115 |          21          4 |   1.523e-06  2.998e-07 |
- | q qbar -> q qbar                          116 |          21          2 |   1.111e-06  2.841e-07 |
- | q qbar -> q' qbar' (uds)                  117 |           0          0 |   0.000e+00  0.000e+00 |
- | q qbar -> g g                             118 |           2          1 |   1.588e-07  4.982e-08 |
- | g g -> c cbar                             121 |           3          0 |   2.535e-07  2.232e-08 |
- | q qbar -> c cbar                          122 |           0          0 |   0.000e+00  0.000e+00 |
- | g g -> b bbar                             123 |           2          1 |   2.096e-07  9.093e-08 |
+ | g g -> g g                                111 |         382         61 |   2.056e-05  1.051e-06 |
+ | g g -> q qbar (uds)                       112 |           5          0 |   5.325e-07  1.456e-07 |
+ | q g -> q g                                113 |         973        116 |   3.077e-05  1.482e-06 |
+ | q q(bar)' -> q q(bar)'                    114 |         127         19 |   5.470e-06  7.538e-07 |
+ | q q -> q q                                115 |          14          2 |   9.753e-07  3.007e-07 |
+ | q qbar -> q qbar                          116 |          22          2 |   7.578e-07  2.709e-07 |
+ | q qbar -> q' qbar' (uds)                  117 |           1          0 |   5.801e-08  0.000e+00 |
+ | q qbar -> g g                             118 |           2          0 |   7.602e-08  5.375e-08 |
+ | g g -> c cbar                             121 |           2          0 |   1.343e-07  8.161e-08 |
+ | q qbar -> c cbar                          122 |           1          0 |   3.963e-09  0.000e+00 |
+ | g g -> b bbar                             123 |           3          0 |   1.676e-08  1.368e-08 |
  | q qbar -> b bbar                          124 |           0          0 |   0.000e+00  0.000e+00 |
  |                                               |                        |                        |
- | sum                                           |        1529        200 |   6.310e-05  2.108e-06 |
+ | sum                                           |        1532        200 |   5.936e-05  2.016e-06 |
  |                                                                                                 |
  *-------  End PYTHIA Event and Cross Section Statistics ------------------------------------------*
 
@@ -158,48 +172,48 @@
  |                                                                                                                | 
  |  times   message                                                                                               | 
  |                                                                                                                | 
- |      1   Error in StringFragmentation::fragment: stuck in joining                                              | 
- |      1   Warning in Pythia::next: hadronLevel failed; try again                                                | 
- |      3   Warning in SpaceShower::pT2nextQCD: weight above unity                                                | 
- |      3   Warning in StringFragmentation::fragmentToJunction: bad convergence junction rest frame               | 
+ |      1   Error in BeamRemnants::add: kinematics construction failed                                            | 
+ |      4   Error in Pythia::next: hadronLevel failed; try again                                                  | 
+ |      4   Error in StringFragmentation::fragment: stuck in joining                                              | 
+ |      3   Warning in ParticleDataEntry::initBWmass: switching off width                                         | 
+ |      2   Warning in SpaceShower::pT2nextQCD: weight above unity                                                | 
+ |      5   Warning in StringFragmentation::fragmentToJunction: bad convergence junction rest frame               | 
  |                                                                                                                | 
  *-------  End PYTHIA Error and Warning Messages Statistics  -----------------------------------------------------* 
 
 
-  2006-09-29 08:55       number of jets
+  2007-01-05 11:39       number of jets
 
-        4.20*10^ 1      X               
-        4.05*10^ 1      X               
-        3.90*10^ 1     XX               
-        3.75*10^ 1     XX               
-        3.60*10^ 1     XX               
-        3.45*10^ 1     XX               
-        3.30*10^ 1     XX               
-        3.15*10^ 1     XX7              
+        3.90*10^ 1      3               
+        3.75*10^ 1      X               
+        3.60*10^ 1     XX3              
+        3.45*10^ 1     XXX              
+        3.30*10^ 1     XXX              
+        3.15*10^ 1     XXX              
         3.00*10^ 1     XXX              
-        2.85*10^ 1     XXX              
-        2.70*10^ 1     XXX              
-        2.55*10^ 1     XXX              
+        2.85*10^ 1     XXX7             
+        2.70*10^ 1     XXXX             
+        2.55*10^ 1     XXXX             
         2.40*10^ 1     XXXX             
-        2.25*10^ 1    7XXXX             
-        2.10*10^ 1    XXXXX             
-        1.95*10^ 1    XXXXX7            
-        1.80*10^ 1    XXXXXX            
-        1.65*10^ 1    XXXXXX            
-        1.50*10^ 1    XXXXXX            
-        1.35*10^ 1    XXXXXX            
-        1.20*10^ 1    XXXXXX            
-        1.05*10^ 1    XXXXXX            
+        2.25*10^ 1     XXXX             
+        2.10*10^ 1    3XXXX             
+        1.95*10^ 1    XXXXX             
+        1.80*10^ 1    XXXXX X           
+        1.65*10^ 1    XXXXX X           
+        1.50*10^ 1    XXXXX X           
+        1.35*10^ 1    XXXXX7X           
+        1.20*10^ 1    XXXXXXX           
+        1.05*10^ 1    XXXXXXX           
         0.90*10^ 1    XXXXXXX           
         0.75*10^ 1    XXXXXXX           
-        0.60*10^ 1    XXXXXXX           
-        0.45*10^ 1    XXXXXXX77         
-        0.30*10^ 1    XXXXXXXXXX3       
-        0.15*10^ 1    XXXXXXXXXXX 7     
+        0.60*10^ 1    XXXXXXX 3         
+        0.45*10^ 1    XXXXXXX X         
+        0.30*10^ 1    XXXXXXXXX 3       
+        0.15*10^ 1    XXXXXXXXX7X7      
 
           Contents                      
-            *10^ 1  00234321000000000000
-            *10^ 0  00292149944320100000
+            *10^ 1  00233321100000000000
+            *10^ 0  00068583835121000000
             *10^-1  00000000000000000000
             *10^-2  00000000000000000000
 
@@ -208,13 +222,14 @@
             *10^ 0  00123456789012345678
             *10^-1  55555555555555555555
 
-   Entries  =         200    Mean =  4.9000e+00    Underflow =  0.0000e+00    Low edge  = -5.0000e-01
-   All chan =  2.0000e+02    Rms  =  2.2650e+00    Overflow  =  0.0000e+00    High edge =  1.9500e+01
+   Entries  =         200    Mean =  5.0150e+00    Underflow =  0.0000e+00    Low edge  = -5.0000e-01
+   All chan =  2.0000e+02    Rms  =  2.2079e+00    Overflow  =  0.0000e+00    High edge =  1.9500e+01
 
 
-  2006-09-29 08:55       eT for jets
+  2007-01-05 11:39       eT for jets
 
-        1.74*10^ 2      7                                                                                               
+        1.80*10^ 2      8                                                                                               
+        1.74*10^ 2      X                                                                                               
         1.68*10^ 2      X                                                                                               
         1.62*10^ 2      X                                                                                               
         1.56*10^ 2      X                                                                                               
@@ -228,26 +243,26 @@
         1.08*10^ 2      X                                                                                               
         1.02*10^ 2      X                                                                                               
         0.96*10^ 2      X                                                                                               
-        0.90*10^ 2      X3                                                                                              
-        0.84*10^ 2      XX                                                                                              
+        0.90*10^ 2      X                                                                                               
+        0.84*10^ 2      X2                                                                                              
         0.78*10^ 2      XX                                                                                              
         0.72*10^ 2      XX                                                                                              
         0.66*10^ 2      XX                                                                                              
-        0.60*10^ 2      XX3                                                                                             
-        0.54*10^ 2      XXX                                                                                             
-        0.48*10^ 2      XXX                                                                                             
-        0.42*10^ 2      XXX8                                                                                            
-        0.36*10^ 2      XXXX3                                                                                           
-        0.30*10^ 2      XXXXX                                   3                                                       
-        0.24*10^ 2      XXXXX                                  7X755                                                    
-        0.18*10^ 2      XXXXXX28832        3             5 5 X2XXXXX52                                                  
-        0.12*10^ 2      XXXXXXXXXXX X3 3   X  3  2  222  X3XXXXXXXXXXXX8533  3 2  2                                     
-        0.06*10^ 2      XXXXXXXXXXXXXX8X883X77XX7XX3XXXXXXXXXXXXXXXXXXXXXXX5XX7X77X8X3 3235 37 22  23322   22  2       3
+        0.60*10^ 2      XX                                                                                              
+        0.54*10^ 2      XX                                                                                              
+        0.48*10^ 2      XX                                                                                              
+        0.42*10^ 2      XX2X                                                                                            
+        0.36*10^ 2      XXXX82                                                                                          
+        0.30*10^ 2      XXXXXX7                                                                                         
+        0.24*10^ 2      XXXXXXX   8                            X   7                                                    
+        0.18*10^ 2      XXXXXXX77XX                       85  XXX5XX 8 23    2                                          
+        0.12*10^ 2      XXXXXXXXXXX523   22        X  2577XX73XXXXXX8X3XX38  X3                                         
+        0.06*10^ 2      XXXXXXXXXXXXXX7X8XXX77XX877XX8XXXXXXXXXXXXXXXXXXXXXXXXX583X25X33875 325722 222 2  2   2  2  22 2
 
           Contents                                                                                                      
             *10^ 2  0000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-            *10^ 1  0000785431111110100000010000000000000101111222221111000000000000000000000000000000000000000000000000
-            *10^ 0  0000266128377436285855244486476277766585283262115321988368474475620212302401100122110001100100000002
+            *10^ 1  0000773433211120000000000000000100001111101211121101101001000000000000000000000000000000000000000000
+            *10^ 0  0000997251866839784657764466544265790075088485821783481663835261362254302134110111010010001001001101
             *10^-1  0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 
           Low edge                                                                                                      
@@ -255,41 +270,42 @@
             *10^ 1  0011223344556677889900112233445566778899001122334455667788990011223344556677889900112233445566778899
             *10^ 0  0505050505050505050505050505050505050505050505050505050505050505050505050505050505050505050505050505
 
-   Entries  =         980    Mean =  1.2668e+02    Underflow =  0.0000e+00    Low edge  =  0.0000e+00
-   All chan =  9.7100e+02    Rms  =  1.0593e+02    Overflow  =  9.0000e+00    High edge =  5.0000e+02
+   Entries  =        1003    Mean =  1.2763e+02    Underflow =  0.0000e+00    Low edge  =  0.0000e+00
+   All chan =  9.9900e+02    Rms  =  1.0724e+02    Overflow  =  4.0000e+00    High edge =  5.0000e+02
 
 
-  2006-09-29 08:55       eta for jets
+  2007-01-05 11:39       eta for jets
 
-        2.50*10^ 1                                      X         X                                                     
-        2.40*10^ 1                                    X X       X XXX                                                   
-        2.30*10^ 1                                    X X       X XXXX   X X       X                                    
-        2.20*10^ 1                                    X X    X  X XXXX   X X     X X   X                                
-        2.10*10^ 1                                    X X    XX X XXXX   X X  X  X X   X                                
-        2.00*10^ 1                                    XXX X XXX X XXXX   X X  X  XXX   X                                
-        1.90*10^ 1                                    XXX XXXXX XXXXXX   X X XX  XXX   X                                
-        1.80*10^ 1                                    XXX XXXXXXXXXXXX   X X XXX XXX   X                                
-        1.70*10^ 1                                    XXX XXXXXXXXXXXX   XXXXXXX XXXX  X                                
-        1.60*10^ 1                                    XXX XXXXXXXXXXXXXX XXXXXXXXXXXX  X                                
-        1.50*10^ 1                               X X  XXXXXXXXXXXXXXXXXX XXXXXXXXXXXX  X  X                             
-        1.40*10^ 1                               X XX XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  XX X                             
-        1.30*10^ 1                               X XX XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  XX X                             
-        1.20*10^ 1                       X X     XXXX XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXX X                             
-        1.10*10^ 1                       X X  X  XXXX XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX X                             
-        1.00*10^ 1                   X   X X  X  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX X        X                    
-        0.90*10^ 1                   X   X X XX  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXX      X     X              
-        0.80*10^ 1                   X   X X XX XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXX  X  X     X              
-        0.70*10^ 1                   X   X XXXX XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXX  X  X     X    X         
-        0.60*10^ 1                   X X X XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX X  X     X    X         
-        0.50*10^ 1                 X X X X XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX X     X    X         
-        0.40*10^ 1                 X XXXXX XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XX X  X    X         
-        0.30*10^ 1                 X XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XX X  X X         
-        0.20*10^ 1          X      X XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XX X  XXX   X     
-        0.10*10^ 1      X XXXX XXXXX XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  XXXXX XX    
+        3.12*10^ 1                                                               8                                      
+        3.00*10^ 1                                                               X                                      
+        2.88*10^ 1                                                               X                                      
+        2.76*10^ 1                                                               X5                                     
+        2.64*10^ 1                                                 7   7 7       XX                                     
+        2.52*10^ 1                                                 X   X X 8  8  XX                                     
+        2.40*10^ 1                                     XX2    X    X   X X X2 X  XX                                     
+        2.28*10^ 1                                     XXX 3 3X    X   X X XX X  XX                                     
+        2.16*10^ 1                                     XXX X XX    X   X X XX X  XX                                     
+        2.04*10^ 1                                     XXX X XX  7 X   X X XX X 7XX 7                                   
+        1.92*10^ 1                                     XXX X XX  X X   X X8XX8X8XXX X                                   
+        1.80*10^ 1                               2     XXXXX XX 2X X2 XXXXXXXXXXXXX X 2                                 
+        1.68*10^ 1                               X  3  XXXXX XX XX XX XXXXXXXXXXXXX X X                                 
+        1.56*10^ 1                               X  X  XXXXX5XX5XX XX5XXXXXXXXXXXXX X X 5 5                             
+        1.44*10^ 1                              7X  X  XXXXXXXXXXX7XXXXXXXXXXXXXXXX7X X X7X                             
+        1.32*10^ 1                              XX8 X  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX X XXX                             
+        1.20*10^ 1                             2XXXXX 2XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX X2XXX2                            
+        1.08*10^ 1                          3  XXXXXX3XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXX3 3                         
+        0.96*10^ 1                          X  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXX5X55                       
+        0.84*10^ 1                         7X  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXX                       
+        0.72*10^ 1                    8  8 XX 8XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXX  8    8               
+        0.60*10^ 1                 2 2X  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX2XX2 2 X               
+        0.48*10^ 1                 X XX 3XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX X X               
+        0.36*10^ 1                 X5XX XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX5X X               
+        0.24*10^ 1         7  77777XXXX7XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX7X    77 7    7  
+        0.12*10^ 1        8X 8XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX 8  XX8X888 X  
 
           Contents                                                                                                      
-            *10^ 1  0000000000000000010001010010011111222121222121222211121211211222111210100000000100000000000000000000
-            *10^ 0  0000101121011115004642327916852540405509021849544366437379186203712246599865853041431900327110210000
+            *10^ 1  0000000000000000000000001001111111122212122112121112121221212321201111111010000000000000000000000000
+            *10^ 0  0000001201222225357247680671473260144382524570467586869539590174067154510909956753527010022121110200
             *10^-1  0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
             *10^-2  0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 
@@ -298,46 +314,44 @@
             *10^-1  0987654321098765432109876543210987654321098765432101234567890123456789012345678901234567890123456789
             *10^-2  0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 
-   Entries  =         980    Mean = -3.0918e-02    Underflow =  0.0000e+00    Low edge  = -5.0000e+00
-   All chan =  9.8000e+02    Rms  =  1.6979e+00    Overflow  =  0.0000e+00    High edge =  5.0000e+00
+   Entries  =        1003    Mean =  2.2383e-02    Underflow =  0.0000e+00    Low edge  = -5.0000e+00
+   All chan =  1.0030e+03    Rms  =  1.6890e+00    Overflow  =  0.0000e+00    High edge =  5.0000e+00
 
 
-  2006-09-29 08:55       phi for jets
+  2007-01-05 11:39       phi for jets
 
-        2.40*10^ 1                                                                        X                             
-        2.32*10^ 1                                                                        X                             
-        2.24*10^ 1                                                                        X  5                          
-        2.16*10^ 1                                                                        X  X                        2 
-        2.08*10^ 1                                                                        X  X                        X 
-        2.00*10^ 1                      X                                                 X  X                        X 
-        1.92*10^ 1                      X                                                 X  X                        X 
-        1.84*10^ 1                   5  X                                                 X  X                        X 
-        1.76*10^ 1                   X  X                              2                  X  X  2                  2  X 
-        1.68*10^ 1                   X  X                              X                  X  X  X                  X  X 
-        1.60*10^ 1                   X  X        X                     X                  X  X  X                  X  X 
-        1.52*10^ 1                   X  X        X                     X              8   X  X  X               8  X  X 
-        1.44*10^ 1         5  5      X  X        X  5                  X              X   X  X  X               X  X  X 
-        1.36*10^ 1   3  3  X  X      X  X        X  X                3 X              X  3X 3X  X     3         X  X  X 
-        1.28*10^ 1   X  X  X  X      X  X        X  X                X X              X  XX XX  X     X         X  X  X 
-        1.20*10^ 1   XX X  X  X  XX  X  X  XX    X  X                X X         X X  X  XX XX  X    XX   X X   X  X  X 
-        1.12*10^ 1   XX X  X  X  XX  X 7X  XX 7  X  X         7   7  X X   7     X X  X7 XX XX  X  7 XX   X X   X  X  X 
-        1.04*10^ 1   XX X  X  X55XX  X XX  XX5X  X  X  55   5 X  5X 5X X   X     X X  XX XX XX  X  X5XX  5X5X   X 5X  X 
-        0.96*10^ 1   XX X  X2 XXXXX22X2XX2 XXXX  X  X  XX   X X2 XX2XX X  2X     X2X2 XX XX XX  X2 XXXX2 XXXX   X XX2 X 
-        0.88*10^ 1   XX X  XX XXXXXXXXXXXX XXXX  X  X  XX   X XX XXXXX X  XX     XXXX XX XX XX  XX XXXXX XXXX   X XXX X 
-        0.80*10^ 1   XX X  XX XXXXXXXXXXXX XXXXX X  X  XX   X XX XXXXX X  XX   X XXXXXXX XX XX  XX XXXXX XXXX   X XXXXX 
-        0.72*10^ 1   XX X7 XX XXXXXXXXXXXX XXXXX X  X7 XX 7 X7XX XXXXX X 7XX 7 X7XXXXXXX XX7XX 7XX XXXXX7XXXX7  X XXXXX 
-        0.64*10^ 1   XX XX XX XXXXXXXXXXXX5XXXXX X55XX XX X XXXX5XXXXX5X5XXX5X5XXXXXXXXX5XXXXX XXX XXXXXXXXXXX 5X XXXXX 
-        0.56*10^ 1  2XX XX2XX XXXXXXXXXXXXXXXXXX XXXXX2XX2X XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXX2XXXXXXXXXXX2XX XXXXX 
-        0.48*10^ 1  XXX XXXXX XXXXXXXXXXXXXXXXXX XXXXXXXXXX XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXXXX XXXXX 
-        0.40*10^ 1  XXX XXXXX XXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXX 
-        0.32*10^ 1  XXX7XXXXX7XXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX7XXXXX7
-        0.24*10^ 1  XXXXXXXXXXXXXXXXXXXXXXXXXXXX5XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+        2.24*10^ 1                                                                              5                       
+        2.16*10^ 1                            2                                                 X                       
+        2.08*10^ 1                            X                                                 X                       
+        2.00*10^ 1                            X                                                 X                       
+        1.92*10^ 1                            X                                                 X            7          
+        1.84*10^ 1   5                        X                  5                              X            X        5 
+        1.76*10^ 1   X                  2     X                  X                           2  X            X        X 
+        1.68*10^ 1   X                  X     X                  X                           X  X            X        X 
+        1.60*10^ 1   X  X               X     X  X   X     X     X           X               X  X            X        X 
+        1.52*10^ 1   X  X         8     X     X  X   X     X     X        8  X   8           X  X            X  8     X 
+        1.44*10^ 1   X  X         X     X     X  X   X 5   X  5  X        X  X  5X           X  X            X  X     X 
+        1.36*10^ 1   X  X         X  3  X     X  X   X X   X  X  X  3     X  X3 XX 3  3      X  X            X  X     X 
+        1.28*10^ 1   X  X         X  X  X     X  X   X X   X  X  X  X     X  XX XX X  X      X  X            X  X     X 
+        1.20*10^ 1   X  X  X      X  X  X     X  X   XXX  XX XX  X  X     XX XX XX X  X      X  X     X      X  X  X  X 
+        1.12*10^ 1   X  X  X     7X 7X  X   7 X  X 77XXX  XX XX  X  X 77  XX XX XX X  X7     X  X  7  X  77  X  X  X  X 
+        1.04*10^ 1   X  X  X     XX XX  X   X X  X XXXXX5 XX XX  X  X5XX  XX XX XX X  XX     X  X  X  X  XX  X  X  X  X 
+        0.96*10^ 1   X  X  X    2XX XX22X22 X X 2X XXXXXX XX2XX  X  XXXX  XX2XX2XX X  XX     X  X  X  X2 XX  X  X  X  X 
+        0.88*10^ 1   X  X  X    XXX XXXXXXX X X XX XXXXXX XXXXX  X  XXXX  XXXXXXXX X  XX     X  X  X  XX XX  X  X  X  X 
+        0.80*10^ 1   X  X  X  XXXXXXXXXXXXXXX X XX XXXXXX XXXXX  X XXXXX  XXXXXXXXXX  XXX XX X XX  X XXX XXX X  X  X  X 
+        0.72*10^ 1  7X  X 7X77XXXXXXXXXXXXXXX X XX XXXXXX XXXXX7 X XXXXX7 XXXXXXXXXX 7XXX7XX X XX  X XXX7XXX7X77X 7X  X 
+        0.64*10^ 1  XX55X XXXXXXXXXXXXXXXXXXX X5XX XXXXXX XXXXXX X XXXXXX5XXXXXXXXXX5XXXXXXX X5XX  X XXXXXXXXXXXX XX  X 
+        0.56*10^ 1  XXXXX2XXXXXXXXXXXXXXXXXXX2XXXX XXXXXX XXXXXX X XXXXXXXXXXXXXXXXXXXXXXXXX2XXXX22X2XXXXXXXXXXXX2XX22X 
+        0.48*10^ 1  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXX XXXXXX X XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX 
+        0.40*10^ 1  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+        0.32*10^ 1  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+        0.24*10^ 1  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX5XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
         0.16*10^ 1  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
         0.08*10^ 1  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
           Contents                                                                                                      
-            *10^ 1  0110100100111110010120011110010010011000101001101101000100000101001101201200100111100111100010110020
-            *10^ 0  5323375493400229989109622018266647500574071960190367679167687292985163473247795102397020275653079813
+            *10^ 1  0100100100000110110010001020010111111011011001001111001101101101001100000100200100100110010010010010
+            *10^ 0  7866657277889158139979981516964116240426924748283011765296394583673187885768255158297118797755725584
             *10^-1  0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
             *10^-2  0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 
@@ -346,43 +360,47 @@
             *10^-1  1009887765543322100988776554332110098876655433211000112334556678890011233455677889001223345567788900
             *10^-2  4825936048159260471582603715826937148259370481593606395184073952841739628517306285174062951840639528
 
-   Entries  =         980    Mean =  4.6079e-02    Underflow =  2.0000e+00    Low edge  = -3.1416e+00
-   All chan =  9.7700e+02    Rms  =  1.8270e+00    Overflow  =  1.0000e+00    High edge =  3.1416e+00
+   Entries  =        1003    Mean = -5.0996e-02    Underflow =  1.0000e+00    Low edge  = -3.1416e+00
+   All chan =  9.9800e+02    Rms  =  1.7699e+00    Overflow  =  4.0000e+00    High edge =  3.1416e+00
 
 
-  2006-09-29 08:55       R distance between jets
+  2007-01-05 11:39       R distance between jets
 
-        1.30*10^ 2                                 2                                                                    
-        1.25*10^ 2                                 X                                                                    
-        1.20*10^ 2                                 X                                                                    
-        1.15*10^ 2                                2X                                                                    
-        1.10*10^ 2                                XX                                                                    
-        1.05*10^ 2                                XX                                                                    
-        1.00*10^ 2                                XX                                                                    
-        0.95*10^ 2                                XX                                                                    
-        0.90*10^ 2                            4   XX4                                                                   
-        0.85*10^ 2                           2X  XXXX                                                                   
-        0.80*10^ 2                           XXX2XXXX                                                                   
-        0.75*10^ 2                          6XXXXXXXX 4                                                                 
-        0.70*10^ 2                          XXXXXXXXX X                                                                 
-        0.65*10^ 2                   6   4 2XXXXXXXXX8X                                                                 
-        0.60*10^ 2               X4 6X   X XXXXXXXXXXXX                                                                 
-        0.55*10^ 2               XX XX 2XX4XXXXXXXXXXXX4 8                                                              
-        0.50*10^ 2          X62X XX XXXXXXXXXXXXXXXXXXXX6X4                                                             
-        0.45*10^ 2          XXXX8XX XXXXXXXXXXXXXXXXXXXXXXX                                                             
-        0.40*10^ 2          XXXXXXX8XXXXXXXXXXXXXXXXXXXXXXX 4                                                           
-        0.35*10^ 2          XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX6X46                                                         
-        0.30*10^ 2         4XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX6 2                                                      
-        0.25*10^ 2         XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX6X4                                                     
-        0.20*10^ 2         XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX482                                                  
-        0.15*10^ 2         XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX4 8  2                                            
-        0.10*10^ 2        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX4X2 X664 2                                       
-        0.05*10^ 2        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX8X2846 426 622  42                       
+        1.20*10^ 2                                8                                                                     
+        1.16*10^ 2                                X3                                                                    
+        1.12*10^ 2                               5XX                                                                    
+        1.08*10^ 2                               XXX                                                                    
+        1.04*10^ 2                               XXX                                                                    
+        1.00*10^ 2                               XXX                                                                    
+        0.96*10^ 2                               XXX                                                                    
+        0.92*10^ 2                               XXX                                                                    
+        0.88*10^ 2                              8XXX                                                                    
+        0.84*10^ 2                              XXXX                                                                    
+        0.80*10^ 2                           X8 XXXX5  5                                                                
+        0.76*10^ 2                           XXXXXXXX  X                                                                
+        0.72*10^ 2                          XXXXXXXXX  X                                                                
+        0.68*10^ 2                     5X 5 XXXXXXXXX8 X                                                                
+        0.64*10^ 2                 3   XX5X3XXXXXXXXXX X                                                                
+        0.60*10^ 2          5      XX  XXXXXXXXXXXXXXX X                                                                
+        0.56*10^ 2          XX  X  XX  XXXXXXXXXXXXXXX X                                                                
+        0.52*10^ 2          XX  X 5XX 8XXXXXXXXXXXXXXX8X                                                                
+        0.48*10^ 2          XX 8X3XXX8XXXXXXXXXXXXXXXXXX 5                                                              
+        0.44*10^ 2          XX5XXXXXXXXXXXXXXXXXXXXXXXXX8XX8                                                            
+        0.40*10^ 2          XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX35                                                          
+        0.36*10^ 2          XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                                                          
+        0.32*10^ 2          XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                                                          
+        0.28*10^ 2          XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX7X                                                       
+        0.24*10^ 2         7XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX   5                                                   
+        0.20*10^ 2         XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX2 5X52 X                                               
+        0.16*10^ 2        7XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX X 7                                             
+        0.12*10^ 2        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX7X X5 2                                          
+        0.08*10^ 2        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX X27                                        
+        0.04*10^ 2       8XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX8XXX58533538  358 3   3         3           
 
           Contents                                                                                                      
-            *10^ 2  0000000000000000000000000000001100000000000000000000000000000000000000000000000000000000000000000000
-            *10^ 1  0000001254454653565556567888781286754543333222211110100100000000000000000000000000000000000000000000
-            *10^ 0  0000000708604079830152213170651674228473723836279627465188746142302130311002100000000000000000000000
+            *10^ 2  0000000000000000000000000000011100000000000000000000000000000000000000000000000000000000000000000000
+            *10^ 1  0000001255445456645666667877811176574444332221112111201100000000000000000000000000000000000000000000
+            *10^ 0  0000035386276501071682612096709387183643788787682871085039572321121300123010001000000000100000000000
             *10^-1  0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 
           Low edge                                                                                                      
@@ -390,13 +408,14 @@
             *10^-1  0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
             *10^-2  0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 
-   Entries  =        2424    Mean =  2.8163e+00    Underflow =  0.0000e+00    Low edge  =  0.0000e+00
-   All chan =  2.4240e+03    Rms  =  1.2066e+00    Overflow  =  0.0000e+00    High edge =  1.0000e+01
+   Entries  =        2501    Mean =  2.8059e+00    Underflow =  0.0000e+00    Low edge  =  0.0000e+00
+   All chan =  2.5010e+03    Rms  =  1.2157e+00    Overflow  =  0.0000e+00    High edge =  1.0000e+01
 
 
-  2006-09-29 08:55       eT difference
+  2007-01-05 11:39       eT difference
 
-        1.92*10^ 2                      5                                                                               
+        2.00*10^ 2                      8                                                                               
+        1.92*10^ 2                      X                                                                               
         1.84*10^ 2                      X                                                                               
         1.76*10^ 2                      X                                                                               
         1.68*10^ 2                      X                                                                               
@@ -409,22 +428,22 @@
         1.12*10^ 2                      X                                                                               
         1.04*10^ 2                      X                                                                               
         0.96*10^ 2                      X                                                                               
-        0.88*10^ 2                      X4                                                                              
-        0.80*10^ 2                      XX                                                                              
-        0.72*10^ 2                      XX                                                                              
-        0.64*10^ 2                      XX                                                                              
-        0.56*10^ 2                      XX5                                                                             
-        0.48*10^ 2                      XXX1                                                                            
+        0.88*10^ 2                      X                                                                               
+        0.80*10^ 2                      X                                                                               
+        0.72*10^ 2                      X3                                                                              
+        0.64*10^ 2                      XXX                                                                             
+        0.56*10^ 2                      XXX6                                                                            
+        0.48*10^ 2                      XXXX                                                                            
         0.40*10^ 2                      XXXX                                                                            
-        0.32*10^ 2                      XXXX66 1                                                                        
-        0.24*10^ 2                      XXXXXX4X5 4                                                                     
-        0.16*10^ 2                      XXXXXXXXX5XX169 22162       1   11                                              
-        0.08*10^ 2                      XXXXXXXXXXXXXXXXXXXXX869X486X586XXX3X68435 4331114113313 1     13 1    1        
+        0.32*10^ 2                      XXXX2X7                                                                         
+        0.24*10^ 2                      XXXXXXX575 4                                                                    
+        0.16*10^ 2                      XXXXXXXXXXXX9421  2 1  2   5    21                                              
+        0.08*10^ 2                      XXXXXXXXXXXXXXXX66X6X5XX549XX868XX8634438398311134131311  11   1  1       1     
 
           Contents                                                                                                      
             *10^ 2  0000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000
-            *10^ 1  0000000000000000000088542212211101101101100000000000000000000000000000000000000000000000000000000000
-            *10^ 0  0000000000000000000083219995029693580093065783659465998285632403221113112212010000012010000100000000
+            *10^ 1  0000000000000000000096652332221111100010000100010000100000000000000000000000000000000000000000000000
+            *10^ 0  0000000000000000000086436200206951095505948043728656096523326276211123121211001100010010000000100000
             *10^-1  0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 
           Low edge  --------------------                                                                                
@@ -432,5 +451,5 @@
             *10^ 1  0998877665544332211000112233445566778899001122334455667788990011223344556677889900112233445566778899
             *10^ 0  0505050505050505050505050505050505050505050505050505050505050505050505050505050505050505050505050505
 
-   Entries  =         780    Mean =  5.4826e+01    Underflow =  0.0000e+00    Low edge  = -1.0000e+02
-   All chan =  7.7800e+02    Rms  =  6.7499e+01    Overflow  =  2.0000e+00    High edge =  4.0000e+02
+   Entries  =         803    Mean =  5.3834e+01    Underflow =  0.0000e+00    Low edge  = -1.0000e+02
+   All chan =  8.0200e+02    Rms  =  6.7052e+01    Overflow  =  1.0000e+00    High edge =  4.0000e+02

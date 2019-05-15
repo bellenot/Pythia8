@@ -1,29 +1,22 @@
 // This file contains the main class for event generation.
 // Pythia: provide the main user interface to everything else.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_Pythia_H
 #define Pythia8_Pythia_H
 
 #include "Analysis.h"
 #include "Basics.h"
-#include "Beams.h"
 #include "Event.h"
 #include "HadronLevel.h"
 #include "Information.h"
 #include "LesHouches.h"
-#include "MultipleInteractions.h"
-#include "ParticleData.h"
-#include "ParticleDecays.h"
-#include "PartonDistributions.h"
 #include "PartonLevel.h"
-#include "PhaseSpace.h"
+#include "ParticleData.h"
+#include "PartonDistributions.h"
 #include "ProcessLevel.h"
-#include "Pythia6.h"
 #include "PythiaStdlib.h"
-#include "ResonanceProperties.h"
 #include "Settings.h"
-#include "SigmaProcess.h"
 #include "SusyLesHouches.h"
 
 namespace Pythia8 {
@@ -36,24 +29,11 @@ class Pythia {
 
 public:
 
-  // Constructor. 
-  Pythia() { 
-    // Initial values for parton density functions (PDF's).
-    pdfAPtr = 0; pdfBPtr = 0; pdfAnew = false; pdfBnew = false;
-    // Read in files with all flags, modes, parms and words.
-    settings.init();
-    // Read in files with all particle data.
-    particleData.init();
-    // Write the Pythia banner to output. 
-    banner();
-    // Default for some flags.
-    hasPythia6 = false;
-    hasLHA = false;
-    isInit = false;
-  } 
+  // Constructor. (See Pythia.cc file.)
+  Pythia();
 
-  // Destructor to undo the PDF's created with new.
-  ~Pythia() { if (pdfAnew) delete pdfAPtr; if (pdfBnew) delete pdfBPtr; } 
+  // Destructor. (See Pythia.cc file.)
+  ~Pythia();
 
   // Read in one update for setting/particledata/Pythia6 from a single line.
   bool readString(string, bool warn = true); 
@@ -84,6 +64,9 @@ public:
 
   // Initialization by a Les Houches Event File.
   bool init( string LesHouchesEventFile);
+
+  // Initialization of data only - not enough to generate events.
+  bool initData() {initStatic(); particleData.initBWmass(); return true;}
  
   // Generate the next event.
   bool next(); 
@@ -92,7 +75,7 @@ public:
   void LHAevntList(ostream& os = cout) {lhaEvntPtr->list(os);}
 
   // Main routine to provide final statistics on generation.
-  void statistics();
+  void statistics(bool all = false);
 
   // The event record for the parton-level central process.
   Event process;
@@ -115,7 +98,7 @@ public:
 private: 
 
   // Static initialization data, normally only set once.
-  static bool afterProcessLevel, afterPartonLevel, checkEvent;
+  static bool partonLevelOn, hadronLevelOn, checkEvent;
   static int nErrList;
   static double epTolerance;
 
@@ -168,6 +151,9 @@ private:
 
   // The main generator class to produce the hadron level of the event.
   HadronLevel hadronLevel;
+
+  // ErrorMsg is a static class, so not needed here, except as reminder.
+  ErrorMsg errorMsg; 
 
   // Properties found at the initialization of the event generator.
   bool isInit, inCMframe;

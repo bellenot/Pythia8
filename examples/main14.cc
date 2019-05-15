@@ -2,7 +2,7 @@
 // This is a simple test program. 
 // It illustrates how Les Houches Event File input can be used in Pythia8.
 // It uses the ttsample.lhe input file, the latter only with 100 events.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #include "Pythia.h"
 using namespace Pythia8; 

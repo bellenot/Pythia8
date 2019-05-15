@@ -1,7 +1,7 @@
 // File: main17.cc
 // This is a simple test program. 
 // It illustrates how decays could be handled externally.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #include "Pythia.h"
 
@@ -103,8 +103,9 @@ int main() {
   // Hand pointer and list to Pythia.
   pythia.decayPtr( handleDecays, handledParticles);
 
-  // Initialization for ttbar production at the LHC.
-  pythia.readString("Pythia6:msel = 6");
+  // Initialization for charmonium (singlet+octet) production at the LHC.
+  pythia.readString("Charmonium:all = on");
+  pythia.readString("PhaseSpace:pTHatMin = 20.");
   pythia.init( 2212, 2212, 14000.);
 
   // Begin event loop.

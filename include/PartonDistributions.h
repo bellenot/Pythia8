@@ -3,7 +3,7 @@
 // GRV94L: derived class for the GRV 94L parton densities.
 // CTEQ5L: derived class for the CTEQ 5L parton densities.
 // Lepton: derived class for parton densities inside a lepton.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_PartonDistributions_H
 #define Pythia8_PartonDistributions_H
@@ -103,6 +103,24 @@ public:
 private:
 
   void xfUpdate(int id, double x, double Q2);
+
+};
+
+//*********
+
+// Gives electron (or muon, or tau) parton distribution when unresolved.
+ 
+class LeptonPoint : public PDF {
+
+public:
+
+  LeptonPoint(int idBeamIn = 11) : PDF(idBeamIn) {;}
+
+private:
+
+  // Set values. Some dummy operations to avoid compiler warnings.
+  void xfUpdate(int id, double x, double Q2) {xlepton = 1; xgamma = 0.;
+    idSav = 9; id = 0; xSav = x; Q2Sav = Q2;}
 
 };
 

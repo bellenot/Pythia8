@@ -1,6 +1,6 @@
 // This file contains the main class for hadron-level generation.
 // HadronLevel: handles administration of fragmentation and decay.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_HadronLevel_H
 #define Pythia8_HadronLevel_H
@@ -62,6 +62,9 @@ private:
   StringFragmentation stringFrag;
   MiniStringFragmentation ministringFrag;
   ParticleDecays decays;
+
+  // Special case: colour-octet onium decays, to be done initially.
+  void  decayOctetOnia(Event& event);
 
   // Configuration of colour-singlet systems.
   ColConfig colConfig;   

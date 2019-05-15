@@ -4,7 +4,7 @@
 // Vec4: simple four-vectors.
 // RotBstMatrix: matrices encoding rotations and boosts of Vec4 objects.
 // Hist: simple one-dimensional histograms.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_Basics_H
 #define Pythia8_Basics_H
@@ -76,8 +76,8 @@ private:
   static double u[97], c, cd, cm, save;
 
   // Pointer for external random number generation.
-  static RndmEngine* rndmPtr;
   static bool useExternalRndm; 
+  static RndmEngine* rndmPtr;
 
 };
 
@@ -144,6 +144,7 @@ public:
   void bst(double betaX, double betaY, double betaZ); 
   void bst(double betaX, double betaY, double betaZ, double gamma); 
   void bst(const Vec4& vec); 
+  void bstback(const Vec4& vec); 
   void rotbst(const RotBstMatrix& M); 
 
   // Operator overloading with member functions

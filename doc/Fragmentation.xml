@@ -63,7 +63,8 @@ factor
     1/z^{r_Q * b * m_Q^2}
 </eq>
 for heavy quarks. To keep some flexibility, a multiplicative factor
-<ei>r_Q</ei> is introduced, which ought to be unity but can be set in
+<ei>r_Q</ei> is introduced, which ought to be unity (provided that
+quark masses were uniquely defined) but can be set in
 
 <parm name="StringZ:rFactC" default="1.0" min="0.0" max="2.0">
 <ei>r_c</ei>, i.e. the above parameter for <ei>c</ei> quarks.
@@ -315,5 +316,5 @@ junction rest frame).
 
 </chapter>
 
-<!-- Copyright C 2006 Torbjorn Sjostrand -->
+<!-- Copyright C 2007 Torbjorn Sjostrand -->
 

@@ -1,8 +1,14 @@
 // Function definitions (not found in the header) for the 
 // ProcessContainer and SetupContainers classes.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #include "ProcessContainer.h"
+
+// Internal headers for special processes.
+#include "SigmaQCD.h"
+#include "SigmaEW.h"
+#include "SigmaOnia.h"
+#include "SigmaSUSY.h"
 
 namespace Pythia8 {
 
@@ -31,10 +37,10 @@ const int ProcessContainer::NSAMPLE = 100;
 bool ProcessContainer::init() {
 
   // Extract info about current process from SigmaProcess object.
-  isMinBias = sigmaProcessPtr->isMinBias();
+  isMinBias  = sigmaProcessPtr->isMinBias();
   isResolved = sigmaProcessPtr->isResolved();
-  isDiffA = sigmaProcessPtr->isDiffA();
-  isDiffB = sigmaProcessPtr->isDiffB();
+  isDiffA    = sigmaProcessPtr->isDiffA();
+  isDiffB    = sigmaProcessPtr->isDiffB();
   int nFinal = sigmaProcessPtr->nFinal();
 
   // Pick and create phase space generator. Send pointers where required.
@@ -49,15 +55,16 @@ bool ProcessContainer::init() {
   phaseSpacePtr->initInfo( sigmaProcessPtr, eCM);
 
   // Reset cross section statistics.
-  nTry = 0;
-  nAcc = 0;
-  sigmaMx = 0.;
-  sigmaSum = 0.;
+  nTry      = 0;
+  nAcc      = 0;
+  sigmaMx   = 0.;
+  sigmaSum  = 0.;
   sigma2Sum = 0.;
-  sigmaNeg = 0.;
+  sigmaNeg  = 0.;
 
   // Initialize process. Remove empty inFlux channels and optionally list.
   sigmaProcessPtr->initProc();
+  sigmaProcessPtr->initFlux();
   sigmaProcessPtr->checkChannels();
 
   // Find maximum of differential cross section * phasespace.
@@ -95,16 +102,16 @@ bool ProcessContainer::trialProcess() {
 
   // Check that not negative cross section.
   if (sigmaNow < sigmaNeg) {
-    ErrorMessages::message("Warning in ProcessContainer::trialProcess:"
+    ErrorMsg::message("Warning in ProcessContainer::trialProcess:"
       " negative cross section set 0", "for " +  sigmaProcessPtr->name() );
     sigmaNeg = sigmaNow;
   }
   if (sigmaNow < 0.) sigmaNow = 0.;
 
   // Update statistics and maximum.
-  sigmaSum += sigmaNow;
+  sigmaSum  += sigmaNow;
   sigma2Sum += pow2(sigmaNow);
-  sigmaMx = phaseSpacePtr->sigmaMax();
+  sigmaMx    = phaseSpacePtr->sigmaMax();
 
   // Accept or reject trial point.
   bool accept = (sigmaNow > Rndm::flat() * sigmaMx);  
@@ -143,26 +150,27 @@ bool ProcessContainer::constructProcess( Event& process) {
   if (isMinBias) return true;
 
   // Further info on process.
-  int id1 = sigmaProcessPtr->id(1);
-  int id2 = sigmaProcessPtr->id(2);
-  double pdf1 = sigmaProcessPtr->pdf1();
-  double pdf2 = sigmaProcessPtr->pdf2();
-  double Q2Fac = sigmaProcessPtr->Q2Fac();
-  double alphaEM = sigmaProcessPtr->alphaEM();
-  double alphaS = sigmaProcessPtr->alphaS();
-  double Q2Ren = sigmaProcessPtr->Q2Ren();
-  double x1 = phaseSpacePtr->x1();
-  double x2 = phaseSpacePtr->x2();
-  double sHat = phaseSpacePtr->sHat();
-  double tHat = phaseSpacePtr->tHat();
-  double uHat = phaseSpacePtr->uHat();
-  double pTHat = phaseSpacePtr->pTHat();
-  double m3 = phaseSpacePtr->m(3);
-  double m4 = phaseSpacePtr->m(4);
-  double theta = phaseSpacePtr->thetaHat();
-  double phi = phaseSpacePtr->phiHat();
+  int id1        = sigmaProcessPtr->id(1);
+  int id2        = sigmaProcessPtr->id(2);
+  double pdf1    = sigmaProcessPtr->pdf1();
+  double pdf2    = sigmaProcessPtr->pdf2();
+  double Q2Fac   = sigmaProcessPtr->Q2Fac();
+  double alphaEM = sigmaProcessPtr->alphaEMH();
+  double alphaS  = sigmaProcessPtr->alphaSH();
+  double Q2Ren   = sigmaProcessPtr->Q2Ren();
+  double x1      = phaseSpacePtr->x1();
+  double x2      = phaseSpacePtr->x2();
+  double sHat    = phaseSpacePtr->sHat();
+  double tHat    = phaseSpacePtr->tHat();
+  double uHat    = phaseSpacePtr->uHat();
+  double pTHat   = phaseSpacePtr->pTHat();
+  double m3      = phaseSpacePtr->m(3);
+  double m4      = phaseSpacePtr->m(4);
+  double theta   = phaseSpacePtr->thetaHat();
+  double phi     = phaseSpacePtr->phiHat();
   infoPtr->setPDFalpha( id1, id2, pdf1, pdf2, Q2Fac, alphaEM, alphaS, Q2Ren);
   infoPtr->setKin( x1, x2, sHat, tHat, uHat, pTHat, m3, m4, theta, phi);
+  infoPtr->setTypeMI( code(), pTHat);
 
   // Insert the subprocess partons - resolved processes.
   if (isResolved) {
@@ -285,22 +293,22 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs) {
   
   // Set up requested objects for c cbar and b bbar, also hard QCD.
   if (hardQCD || Settings::flag("HardQCD:gg2ccbar")) {
-    SigmaProcess* sigmaPtr = new Sigma2gg2QQbar(4, 121, "g g -> c cbar");
+    SigmaProcess* sigmaPtr = new Sigma2gg2QQbar(4, 121);
     ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
     containerPtrs.push_back( containerPtr);
   } 
   if (hardQCD || Settings::flag("HardQCD:qqbar2ccbar")) {
-    SigmaProcess* sigmaPtr = new Sigma2qqbar2QQbar(4, 122, "q qbar -> c cbar");
+    SigmaProcess* sigmaPtr = new Sigma2qqbar2QQbar(4, 122);
     ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
     containerPtrs.push_back( containerPtr);
   } 
   if (hardQCD || Settings::flag("HardQCD:gg2bbbar")) {
-    SigmaProcess* sigmaPtr = new Sigma2gg2QQbar(5, 123, "g g -> b bbar");
+    SigmaProcess* sigmaPtr = new Sigma2gg2QQbar(5, 123);
     ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
     containerPtrs.push_back( containerPtr);
   } 
   if (hardQCD || Settings::flag("HardQCD:qqbar2bbbar")) {
-    SigmaProcess* sigmaPtr = new Sigma2qqbar2QQbar(5, 124, "q qbar -> b bbar");
+    SigmaProcess* sigmaPtr = new Sigma2qqbar2QQbar(5, 124);
     ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
     containerPtrs.push_back( containerPtr);
   } 
@@ -338,6 +346,21 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs) {
     containerPtrs.push_back( containerPtr);
   } 
 
+  // Set up requested objects for weak gauge boson t-channel exchange.
+  bool weakBosonExchanges = Settings::flag("WeakBosonExchange:all");
+  if (weakBosonExchanges
+    || Settings::flag("WeakBosonExchange:ff2ff(t:gmZ)")) {
+    SigmaProcess* sigmaPtr = new Sigma2ff2fftgmZ;
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  if (weakBosonExchanges
+    || Settings::flag("WeakBosonExchange:ff2ff(t:W)")) {
+    SigmaProcess* sigmaPtr = new Sigma2ff2fftW;
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+
   // Set up requested objects for weak gauge boson processes.
   bool weakSingleBosons = Settings::flag("WeakSingleBoson:all");
   if (weakSingleBosons
@@ -353,21 +376,14 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs) {
     containerPtrs.push_back( containerPtr);
   } 
 
-  // Set up requested objects for weak gauge boson t-channel exchange.
-  bool weakBosonExchanges = Settings::flag("WeakBosonExchange:all");
-  if (weakBosonExchanges
-    || Settings::flag("WeakBosonExchange:ff2ff9gmZ")) {
-    SigmaProcess* sigmaPtr = new Sigma2ff2ff9gmZ;
+  // Set up requested object for s-channel gamma exchange.
+  // Subset of gamma*/Z0 above, intended for Multiple interactions.
+  if (Settings::flag("WeakSingleBoson:ffbar2ffbar(s:gm)")) {
+    SigmaProcess* sigmaPtr = new Sigma2ffbar2ffbarsgm;
     ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
     containerPtrs.push_back( containerPtr);
   } 
-  if (weakBosonExchanges
-    || Settings::flag("WeakBosonExchange:ff2ff9W")) {
-    SigmaProcess* sigmaPtr = new Sigma2ff2ff9W;
-    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
-    containerPtrs.push_back( containerPtr);
-  } 
-  
+   
   // Set up requested objects for weak gauge boson pair processes.
   bool weakDoubleBosons = Settings::flag("WeakDoubleBoson:all");
   if (weakDoubleBosons
@@ -404,27 +420,224 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs) {
     containerPtrs.push_back( containerPtr);
   } 
   
-  // Set up requested objects for top production
-  bool tops = Settings::flag("Top:all");
-  if (tops || Settings::flag("Top:gg2ttbar")) {
-    SigmaProcess* sigmaPtr = new Sigma2gg2QQbar(6, 181, "g g -> t tbar");
+  // Set up requested objects for charmonium production
+  bool charmoniums = Settings::flag("Charmonium:all");
+  if (charmoniums || Settings::flag("Charmonium:gg2QQbar[3S1(1)]g")) {
+    SigmaProcess* sigmaPtr = new Sigma2gg2QQbar3S11g(4, 401);
     ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
     containerPtrs.push_back( containerPtr);
   } 
-  if (tops || Settings::flag("Top:qqbar2ttbar")) {
-    SigmaProcess* sigmaPtr = new Sigma2qqbar2QQbar(6, 182, "q qbar -> t tbar");
+  if (charmoniums || Settings::flag("Charmonium:gg2QQbar[3P0(1)]g")) {
+    SigmaProcess* sigmaPtr = new Sigma2gg2QQbar3PJ1g(4, 0, 402);
     ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
     containerPtrs.push_back( containerPtr);
   } 
-  if (tops || Settings::flag("Top:qq2tq9W")) {
-    SigmaProcess* sigmaPtr = new Sigma2qq2Qq9W(6, 183, "q q -> t q");
+  if (charmoniums || Settings::flag("Charmonium:gg2QQbar[3P1(1)]g")) {
+    SigmaProcess* sigmaPtr = new Sigma2gg2QQbar3PJ1g(4, 1, 403);
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  if (charmoniums || Settings::flag("Charmonium:gg2QQbar[3P2(1)]g")) {
+    SigmaProcess* sigmaPtr = new Sigma2gg2QQbar3PJ1g(4, 2, 404);
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  if (charmoniums || Settings::flag("Charmonium:qg2QQbar[3P0(1)]q")) {
+    SigmaProcess* sigmaPtr = new Sigma2qg2QQbar3PJ1q(4, 0, 405);
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  if (charmoniums || Settings::flag("Charmonium:qg2QQbar[3P1(1)]q")) {
+    SigmaProcess* sigmaPtr = new Sigma2qg2QQbar3PJ1q(4, 1, 406);
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  if (charmoniums || Settings::flag("Charmonium:qg2QQbar[3P2(1)]q")) {
+    SigmaProcess* sigmaPtr = new Sigma2qg2QQbar3PJ1q(4, 2, 407);
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  if (charmoniums || Settings::flag("Charmonium:qqbar2QQbar[3P0(1)]g")) {
+    SigmaProcess* sigmaPtr = new Sigma2qqbar2QQbar3PJ1g(4, 0, 408);
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  if (charmoniums || Settings::flag("Charmonium:qqbar2QQbar[3P1(1)]g")) {
+    SigmaProcess* sigmaPtr = new Sigma2qqbar2QQbar3PJ1g(4, 1, 409);
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  if (charmoniums || Settings::flag("Charmonium:qqbar2QQbar[3P2(1)]g")) {
+    SigmaProcess* sigmaPtr = new Sigma2qqbar2QQbar3PJ1g(4, 2, 410);
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  if (charmoniums || Settings::flag("Charmonium:gg2QQbar[3S1(8)]g")) {
+    SigmaProcess* sigmaPtr = new Sigma2gg2QQbarX8g(4, 0, 411);
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  if (charmoniums || Settings::flag("Charmonium:gg2QQbar[1S0(8)]g")) {
+    SigmaProcess* sigmaPtr = new Sigma2gg2QQbarX8g(4, 1, 412);
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  if (charmoniums || Settings::flag("Charmonium:gg2QQbar[3PJ(8)]g")) {
+    SigmaProcess* sigmaPtr = new Sigma2gg2QQbarX8g(4, 2, 413);
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  if (charmoniums || Settings::flag("Charmonium:qg2QQbar[3S1(8)]q")) {
+    SigmaProcess* sigmaPtr = new Sigma2qg2QQbarX8q(4, 0, 414);
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  if (charmoniums || Settings::flag("Charmonium:qg2QQbar[1S0(8)]q")) {
+    SigmaProcess* sigmaPtr = new Sigma2qg2QQbarX8q(4, 1, 415);
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  if (charmoniums || Settings::flag("Charmonium:qg2QQbar[3PJ(8)]q")) {
+    SigmaProcess* sigmaPtr = new Sigma2qg2QQbarX8q(4, 2, 416);
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  if (charmoniums || Settings::flag("Charmonium:qqbar2QQbar[3S1(8)]g")) {
+    SigmaProcess* sigmaPtr = new Sigma2qqbar2QQbarX8g(4, 0, 417);
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  if (charmoniums || Settings::flag("Charmonium:qqbar2QQbar[1S0(8)]g")) {
+    SigmaProcess* sigmaPtr = new Sigma2qqbar2QQbarX8g(4, 1, 418);
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  if (charmoniums || Settings::flag("Charmonium:qqbar2QQbar[3PJ(8)]g")) {
+    SigmaProcess* sigmaPtr = new Sigma2qqbar2QQbarX8g(4, 2, 419);
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+    
+  // Set up requested objects for bottomonium production
+  bool bottomoniums = Settings::flag("Bottomonium:all");
+  if (bottomoniums || Settings::flag("Bottomonium:gg2QQbar[3S1(1)]g")) {
+    SigmaProcess* sigmaPtr = new Sigma2gg2QQbar3S11g(5, 501);
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  if (bottomoniums || Settings::flag("Bottomonium:gg2QQbar[3P0(1)]g")) {
+    SigmaProcess* sigmaPtr = new Sigma2gg2QQbar3PJ1g(5, 0, 502);
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  if (bottomoniums || Settings::flag("Bottomonium:gg2QQbar[3P1(1)]g")) {
+    SigmaProcess* sigmaPtr = new Sigma2gg2QQbar3PJ1g(5, 1, 503);
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  if (bottomoniums || Settings::flag("Bottomonium:gg2QQbar[3P2(1)]g")) {
+    SigmaProcess* sigmaPtr = new Sigma2gg2QQbar3PJ1g(5, 2, 504);
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  if (bottomoniums || Settings::flag("Bottomonium:qg2QQbar[3P0(1)]q")) {
+    SigmaProcess* sigmaPtr = new Sigma2qg2QQbar3PJ1q(5, 0, 505);
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  if (bottomoniums || Settings::flag("Bottomonium:qg2QQbar[3P1(1)]q")) {
+    SigmaProcess* sigmaPtr = new Sigma2qg2QQbar3PJ1q(5, 1, 506);
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  if (bottomoniums || Settings::flag("Bottomonium:qg2QQbar[3P2(1)]q")) {
+    SigmaProcess* sigmaPtr = new Sigma2qg2QQbar3PJ1q(5, 2, 507);
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  if (bottomoniums || Settings::flag("Bottomonium:qqbar2QQbar[3P0(1)]g")) {
+    SigmaProcess* sigmaPtr = new Sigma2qqbar2QQbar3PJ1g(5, 0, 508);
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  if (bottomoniums || Settings::flag("Bottomonium:qqbar2QQbar[3P1(1)]g")) {
+    SigmaProcess* sigmaPtr = new Sigma2qqbar2QQbar3PJ1g(5, 1, 509);
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  if (bottomoniums || Settings::flag("Bottomonium:qqbar2QQbar[3P2(1)]g")) {
+    SigmaProcess* sigmaPtr = new Sigma2qqbar2QQbar3PJ1g(5, 2, 510);
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  if (bottomoniums || Settings::flag("Bottomonium:gg2QQbar[3S1(8)]g")) {
+    SigmaProcess* sigmaPtr = new Sigma2gg2QQbarX8g(5, 0, 511);
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  if (bottomoniums || Settings::flag("Bottomonium:gg2QQbar[1S0(8)]g")) {
+    SigmaProcess* sigmaPtr = new Sigma2gg2QQbarX8g(5, 1, 512);
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  if (bottomoniums || Settings::flag("Bottomonium:gg2QQbar[3PJ(8)]g")) {
+    SigmaProcess* sigmaPtr = new Sigma2gg2QQbarX8g(5, 2, 513);
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  if (bottomoniums || Settings::flag("Bottomonium:qg2QQbar[3S1(8)]q")) {
+    SigmaProcess* sigmaPtr = new Sigma2qg2QQbarX8q(5, 0, 514);
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  if (bottomoniums || Settings::flag("Bottomonium:qg2QQbar[1S0(8)]q")) {
+    SigmaProcess* sigmaPtr = new Sigma2qg2QQbarX8q(5, 1, 515);
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  if (bottomoniums || Settings::flag("Bottomonium:qg2QQbar[3PJ(8)]q")) {
+    SigmaProcess* sigmaPtr = new Sigma2qg2QQbarX8q(5, 2, 516);
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  if (bottomoniums || Settings::flag("Bottomonium:qqbar2QQbar[3S1(8)]g")) {
+    SigmaProcess* sigmaPtr = new Sigma2qqbar2QQbarX8g(5, 0, 517);
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  if (bottomoniums || Settings::flag("Bottomonium:qqbar2QQbar[1S0(8)]g")) {
+    SigmaProcess* sigmaPtr = new Sigma2qqbar2QQbarX8g(5, 1, 518);
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  if (bottomoniums || Settings::flag("Bottomonium:qqbar2QQbar[3PJ(8)]g")) {
+    SigmaProcess* sigmaPtr = new Sigma2qqbar2QQbarX8g(5, 2, 519);
     ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
     containerPtrs.push_back( containerPtr);
   } 
   
+  // Set up requested objects for top production
+  bool tops = Settings::flag("Top:all");
+  if (tops || Settings::flag("Top:gg2ttbar")) {
+    SigmaProcess* sigmaPtr = new Sigma2gg2QQbar(6, 601);
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  if (tops || Settings::flag("Top:qqbar2ttbar")) {
+    SigmaProcess* sigmaPtr = new Sigma2qqbar2QQbar(6, 602);
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  if (tops || Settings::flag("Top:qq2tq(t:W)")) {
+    SigmaProcess* sigmaPtr = new Sigma2qq2QqtW(6, 603, 
+      "q q -> t q (t-channel W+-)");
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+
   // Set up requested objects for neutralino pair processes.
-  bool SUSY = Settings::flag("SUSY:all");
-  if (SUSY || Settings::flag("SUSY:qqbar2chi0chi0")) {
+  bool SUSYs = Settings::flag("SUSY:all");
+  if (SUSYs || Settings::flag("SUSY:qqbar2chi0chi0")) {
     SigmaProcess* sigmaPtr = new Sigma2qqbar2chi0chi0(1, 1, 1001);
     ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
     containerPtrs.push_back( containerPtr);

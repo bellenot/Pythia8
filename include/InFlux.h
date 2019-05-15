@@ -2,12 +2,13 @@
 // InBeam, InPair: simple helper classes.
 // InFlux: base class for combinations of incoming partons.
 // InFluxgg, InFluxqqAnti, InFluxqg, ...: derived classes.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_InFlux_H
 #define Pythia8_InFlux_H
 
 #include "Basics.h"
+#include "Beams.h"
 #include "PartonDistributions.h"
 #include "PythiaStdlib.h"
 #include "Settings.h"
@@ -65,8 +66,9 @@ public:
   static void initStatic();
 
   // Initialization: store parton-density pointers. 
-  static void setPDFPtr(PDF* pdfAPtrIn, PDF* pdfBPtrIn) 
-    {pdfAPtr = pdfAPtrIn; pdfBPtr = pdfBPtrIn;} 
+  static void setBeamPtr( BeamParticle* beamAPtrIn, 
+    BeamParticle* beamBPtrIn) {beamAPtr = beamAPtrIn; 
+    beamBPtr = beamBPtrIn;} 
 
   // Initialization of process-specific allowed combinations. 
   virtual void initChannels() = 0; 
@@ -128,9 +130,9 @@ protected:
   static int nQuark;
   static bool showChannels;
 
-  // Pointers to parton densities. 
-  static PDF* pdfAPtr; 
-  static PDF* pdfBPtr; 
+  // Static pointers to beams.
+  static BeamParticle* beamAPtr;
+  static BeamParticle* beamBPtr;
 
   // Constants: could only be changed in the code itself.
   static const int MAPTOFIRST[40] ;
@@ -164,9 +166,6 @@ public:
 
   // Constructor.
   InFluxgg() {initChannels();}
-
-  // Destructor.
-  ~InFluxgg() {}
 
 private:
 

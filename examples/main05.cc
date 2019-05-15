@@ -1,7 +1,7 @@
 // File: main05.cc
 // This is a simple test program. 
 // It studies jet production at the LHC, using CellJet.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #include "Pythia.h"
 using namespace Pythia8;

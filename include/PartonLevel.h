@@ -1,6 +1,6 @@
 // This file contains the main class for parton-level event generation
 // PartonLevel: administrates showers, multiple interactions and remnants.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_PartonLevel_H
 #define Pythia8_PartonLevel_H
@@ -37,13 +37,15 @@ public:
   // Generate the next parton-level process.
   bool next( Event& process, Event& event); 
 
-  // Print statistics, if any.
+  // Accumulate and print statistics.
+  void accumulate() {multi.accumulate( infoPtr);}
   void statistics();
 
 private: 
 
   // Initialization data, normally only set once.
-  bool ISR, MI, FSRinProcess, FSRinResonances;
+  bool doISR, doMI, doFSRinProcess, doFSRinResonances, doRemnants, 
+    hasLeptonBeams, hasPointLeptons;
 
   // Constants: could only be changed in the code itself.
   static const int NTRY;

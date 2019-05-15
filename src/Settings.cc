@@ -1,7 +1,10 @@
 // Function definitions (not found in the header) for the Settings class.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #include "Settings.h"
+
+// Allow string and character manipulation.
+#include <cctype>
 
 namespace Pythia8 {
 
@@ -88,8 +91,8 @@ bool Settings::init(string startFile, ostream& os) {
         os << " Error: failed to find default value token in line " << line;
         continue;
       }        
-      bool hasMin = (line.find("min=") != string::npos) ? true : false;
-      bool hasMax = (line.find("max=") != string::npos) ? true : false;
+      bool hasMin = (line.find("min=") != string::npos);
+      bool hasMax = (line.find("max=") != string::npos);
     
       // Check for occurence of a bool and add to flag map.
       if (tag == "<flag") {
@@ -98,14 +101,14 @@ bool Settings::init(string startFile, ostream& os) {
     
       // Check for occurence of an int and add to mode map.
       } else if (tag == "<mode") {
-        int value = intAttributeValue( line, "default="); 
+        int value  = intAttributeValue( line, "default="); 
         int minVal = intAttributeValue( line, "min=");
         int maxVal = intAttributeValue( line, "max=");
         addMode( name, value, hasMin, hasMax, minVal, maxVal);	  
     
       // Check for occurence of a double and add to parm map.
       } else if (tag == "<parm") {
-        double value = doubleAttributeValue( line, "default="); 
+        double value  = doubleAttributeValue( line, "default="); 
         double minVal = doubleAttributeValue( line, "min=");
         double maxVal = doubleAttributeValue( line, "max=");
         addParm( name, value, hasMin, hasMax, minVal, maxVal);
@@ -152,17 +155,18 @@ bool Settings::reInit(string startFile) {
 bool Settings::readString(string line, bool warn, ostream& os) {
 
   // If first character is not a letter, then taken to be a comment line.
-  int firstChar = line.find_first_not_of(" ");
-  if (!isalpha(line[firstChar])) return true; 
+  string lineNow = line;
+  int firstChar = lineNow.find_first_not_of(" ");
+  if (!isalpha(lineNow[firstChar])) return true; 
 
   // Replace an equal sign by a blank to make parsing simpler.
-  while (line.find("=") != string::npos) {
-    int firstEqual = line.find_first_of("=");
-    line.replace(firstEqual, 1, " ");   
+  while (lineNow.find("=") != string::npos) {
+    int firstEqual = lineNow.find_first_of("=");
+    lineNow.replace(firstEqual, 1, " ");   
   }
 
   // Get first word of a line.
-  istringstream splitLine(line);
+  istringstream splitLine(lineNow);
   string name;
   splitLine >> name;
 
@@ -174,7 +178,7 @@ bool Settings::readString(string line, bool warn, ostream& os) {
      
   // Check whether this is in the database. Done if not.
   int inDataBase = 0;
-  if (isFlag(name)) inDataBase = 1;   
+  if      (isFlag(name)) inDataBase = 1;   
   else if (isMode(name)) inDataBase = 2;   
   else if (isParm(name)) inDataBase = 3; 
   else if (isWord(name)) inDataBase = 4; 
@@ -184,31 +188,46 @@ bool Settings::readString(string line, bool warn, ostream& os) {
     return false;  
   }  
 
-  // Find value.
+  // Find value. Warn if none found.
   string valueString;
   splitLine >> valueString;
+  if (!splitLine) {
+    if (warn) os << "\n Warning: variable recognized, but its value"
+      << " not meaningful; skip:\n   " << line << "\n";
+    return false;  
+  }  
 
   // Update flag map; allow many ways to say yes.
-  if (splitLine && inDataBase == 1) {
+  if (inDataBase == 1) {
     bool value = boolString(valueString);
     flag(name, value);
 
   // Update mode map.
-  } else if (splitLine && inDataBase == 2) {
+  } else if (inDataBase == 2) {
     istringstream modeData(valueString);
     int value;
     modeData >> value;
-    if (modeData) mode(name, value);
+    if (!modeData) {
+      if (warn) os << "\n Warning: variable recognized, but its value"
+        << " not meaningful; skip:\n   " << line << "\n";
+      return false;  
+    }  
+    mode(name, value);
         
   // Update parm map.
-  } else if (splitLine && inDataBase == 3) {
+  } else if (inDataBase == 3) {
     istringstream parmData(valueString);
     double value;
     parmData >> value;
-    if (parmData) parm(name, value);
+    if (!parmData) {
+      if (warn) os << "\n Warning: variable recognized, but its value"
+        << " not meaningful; skip:\n   " << line << "\n";
+      return false;  
+    }  
+    parm(name, value);
         
   // Update word map.
-  } else if (splitLine && inDataBase == 4) {
+  } else {
     word(name, valueString);
   }
 
@@ -226,7 +245,7 @@ bool Settings::writeFile(string toFile, bool writeAll) {
   const char* cstring = toFile.c_str();
   ofstream os(cstring);  
   if (!os) {
-    ErrorMessages::message("Error in Settings::writeFile:"
+    ErrorMsg::message("Error in Settings::writeFile:"
       " could not open file", toFile);
     return false;
   }
@@ -338,7 +357,7 @@ void Settings::list(bool listAll,  bool listString, string match,
      << "          |                                      | \n";
  
   // Convert input string to lowercase for match.
-  match = tolower(match);
+  match = toLower(match);
 
   // Iterators for the flag, mode and parm tables.
   map<string, Flag>::iterator flagEntry = flags.begin();
@@ -488,15 +507,43 @@ void Settings::resetAll() {
 
 //*********
  
+// Give back current value, with check that key exists.
+
+bool Settings::flag(string keyIn) {
+  if (isFlag(keyIn)) return flags[toLower(keyIn)].valNow; 
+  ErrorMsg::message("Error in Settings::flag: unknown key", keyIn);
+  return false; 
+}
+
+int Settings::mode(string keyIn) {
+  if (isMode(keyIn)) return modes[toLower(keyIn)].valNow; 
+  ErrorMsg::message("Error in Settings::mode: unknown key", keyIn);
+  return 0; 
+}
+
+double Settings::parm(string keyIn) {
+  if (isParm(keyIn)) return parms[toLower(keyIn)].valNow; 
+  ErrorMsg::message("Error in Settings::parm: unknown key", keyIn);
+  return 0.; 
+}
+
+string Settings::word(string keyIn) {
+  if (isWord(keyIn)) return words[toLower(keyIn)].valNow; 
+  ErrorMsg::message("Error in Settings::word: unknown key", keyIn);
+  return " "; 
+}
+
+//*********
+ 
 // Change current value, respecting limits.
 
 void Settings::flag(string keyIn, bool nowIn) { 
-    if (isFlag(keyIn)) flags[tolower(keyIn)].valNow = nowIn; 
+    if (isFlag(keyIn)) flags[toLower(keyIn)].valNow = nowIn; 
 }
 
 void Settings:: mode(string keyIn, int nowIn) { 
   if (isMode(keyIn)) { 
-    Mode& modeNow = modes[tolower(keyIn)];
+    Mode& modeNow = modes[toLower(keyIn)];
     if (modeNow.hasMin && nowIn < modeNow.valMin) 
       modeNow.valNow = modeNow.valMin; 
     else if (modeNow.hasMax && nowIn > modeNow.valMax) 
@@ -507,7 +554,7 @@ void Settings:: mode(string keyIn, int nowIn) {
 
 void Settings::parm(string keyIn, double nowIn) { 
   if (isParm(keyIn)) {
-    Parm& parmNow = parms[tolower(keyIn)];
+    Parm& parmNow = parms[toLower(keyIn)];
     if (parmNow.hasMin && nowIn < parmNow.valMin) 
       parmNow.valNow = parmNow.valMin; 
     else if (parmNow.hasMax && nowIn > parmNow.valMax) 
@@ -517,7 +564,86 @@ void Settings::parm(string keyIn, double nowIn) {
 }  
 
 void Settings::word(string keyIn, string nowIn) { 
-    if (isWord(keyIn)) words[tolower(keyIn)].valNow = nowIn; 
+    if (isWord(keyIn)) words[toLower(keyIn)].valNow = nowIn; 
+}
+
+//*********
+
+// Convert string to lowercase for case-insensitive comparisons.
+
+string Settings::toLower(const string& name) { 
+
+  string temp(name);
+  for (int i = 0; i < int(temp.length()); ++i) 
+    temp[i] = std::tolower(temp[i]); 
+  return temp; 
+
+}
+
+//*********
+
+// Allow several alternative inputs for true/false.
+
+bool Settings::boolString(string tag) {
+
+  string tagLow = toLower(tag);
+  return ( tagLow == "true" || tagLow == "1" || tagLow == "on" 
+  || tagLow == "yes" || tagLow == "ok" ); 
+
+}  
+
+//*********
+
+// Extract XML value string following XML attribute.
+
+string Settings::attributeValue(string line, string attribute) {
+
+  if (line.find(attribute) == string::npos) return "";
+  int iBegAttri = line.find(attribute); 
+  int iBegQuote = line.find("\"", iBegAttri + 1);
+  int iEndQuote = line.find("\"", iBegQuote + 1);
+  return line.substr(iBegQuote + 1, iEndQuote - iBegQuote - 1);
+
+}
+
+//*********
+
+// Extract XML bool value following XML attribute.
+
+bool Settings::boolAttributeValue(string line, string attribute) {
+
+  string valString = attributeValue(line, attribute);
+  if (valString == "") return false;
+  return boolString(valString);   
+
+}
+
+//*********
+
+// Extract XML int value following XML attribute.
+
+int Settings::intAttributeValue(string line, string attribute) {
+  string valString = attributeValue(line, attribute);
+  if (valString == "") return 0; 
+  istringstream valStream(valString);
+  int intVal; 
+  valStream >> intVal; 
+  return intVal;     
+
+}
+
+//*********
+
+// Extract XML double value following XML attribute.
+
+double Settings::doubleAttributeValue(string line, string attribute) {
+  string valString = attributeValue(line, attribute);
+  if (valString == "") return 0.; 
+  istringstream valStream(valString);
+  double doubleVal; 
+  valStream >> doubleVal; 
+  return doubleVal;     
+
 }
 
 //**************************************************************************

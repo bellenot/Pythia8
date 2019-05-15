@@ -1,7 +1,7 @@
 // This file contains the classes to perform a particle decay.
 // DecayHandler: base class for external handling of decays.
 // ParticleDecays: decay a particle.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_ParticleDecays_H
 #define Pythia8_ParticleDecays_H
@@ -62,7 +62,7 @@ public:
   bool decay(int iDec, Event& event); 
 
   // Did decay result in new partons to hadronize?
-  bool moreToDo() const {return moreHadronization;}
+  bool moreToDo() const {return hasPartons && keepPartons;}
 
 private: 
 
@@ -70,12 +70,12 @@ private:
   static bool limitTau0, limitTau, limitRadius, limitCylinder, limitDecay, 
     mixB, FSRinDecays;
   static double mSafety, tau0Max, tauMax, rMax, xyMax, zMax, xBdMix, 
-    xBsMix, multIncrease, multRefMass, multGoffset, colRearrange, 
-    probStoU, probQandS, stopMass, sRhoDal, wRhoDal;
+    xBsMix, sigmaSoft, multIncrease, multRefMass, multGoffset, 
+    colRearrange, stopMass, sRhoDal, wRhoDal;
 
   // Constants: could only be changed in the code itself.
   static const int NTRYDECAY;
-  static const double WTCORRECTION[11];
+  static const double MSAFEDALITZ, WTCORRECTION[11];
 
   // Check whether a decay is allowed, given the upcoming decay vertex.
   bool checkVertex(Particle& decayer);
@@ -95,8 +95,14 @@ private:
   // Do a multibody decay using the M-generator algorithm.
   bool mGenerator(Event& event); 
 
+  // Select mass of lepton pair in a Dalitz decay.
+  bool dalitzMass();
+
+  // Do kinematics of gamma* -> l- l+ in Dalitz decay.
+  bool dalitzKinematics(Event& event);
+
   // Translate a partonic content into a set of actual hadrons.
-  bool pickHadrons(Event& event);
+  bool pickHadrons();
 
   // Set colour flow and scale in a decay explicitly to partons.
   bool setColours(Event& event);
@@ -104,12 +110,16 @@ private:
   // Pointer to a handler of external decays.
   DecayHandler* decayHandlePtr;
 
+  // Pointer to particle data for currently decaying particle
+  ParticleDataEntry* decDataPtr;
+
   // Multiplicity. Decay products positions and masses.
-  int meMode, mult;
-  vector<int> iProd, idProd, cols, acols, idPartons, idEnds;
+  int idDec, meMode, mult;
+  vector<int> iProd, idProd, cols, acols, idPartons;
+  vector<FlavContainer> flavEnds;
   vector<double> mProd, mInv, rndmOrd;
   vector<Vec4> pInv, pProd;
-  bool moreHadronization;    
+  bool hasPartons, keepPartons;    
 
   // Flavour generator; needed when required to pick hadrons.
   StringFlav flavSel;

@@ -1,10 +1,11 @@
 // Header file for Supersymmetric process differential cross sections.
 // Contains classes derived from SigmaProcess via Sigma2Process.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_SigmaSUSY_H
 #define Pythia8_SigmaSUSY_H
 
+#include "PythiaComplex.h"
 #include "SigmaProcess.h"
 
 namespace Pythia8 {
@@ -21,11 +22,11 @@ public:
   Sigma2qqbar2chi0chi0(int id3chiIn, int id4chiIn, int codeIn) 
    : id3chi(id3chiIn), id4chi(id4chiIn), codeSave(codeIn) {}
 
-  // Destructor.
-  ~Sigma2qqbar2chi0chi0() {}
-
-  // Initialize process, especially parton-flux object. 
+  // Initialize process. 
   virtual void initProc(); 
+
+  // Initialize parton-flux object. 
+  virtual void initFlux(); 
 
   // Evaluate d(sigmaHat)/d(tHat). 
   virtual double sigmaHat();
@@ -39,7 +40,7 @@ public:
   virtual int id3Mass() const {return id3;}
   virtual int id4Mass() const {return id4;}
 
- private:
+private:
 
   // Values stored for colour flow selection.
   int id3chi, id4chi, codeSave;

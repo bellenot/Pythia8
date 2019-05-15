@@ -1,6 +1,7 @@
-// This file contains the main class for multiple interactions physics.
+// This file contains the main classes for multiple interactions physics.
+// SigmaMultiple stores allowed processes by in-flavour combination.
 // MultipleInteractions: generates multiple parton-parton interactions.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_MultipleInteractions_H
 #define Pythia8_MultipleInteractions_H
@@ -13,11 +14,63 @@
 #include "Settings.h"
 #include "SigmaTotal.h"
 #include "SigmaProcess.h"
-#include "SigmaQCD.h"
-#include "SigmaEW.h"
 #include "StandardModel.h"
 
 namespace Pythia8 {
+ 
+//**************************************************************************
+
+// SigmaMultiple is a helper class to MultipleInteractions.
+// It packs pointers to the allowed processes for different 
+// flavour combinations and levels of ambition.
+
+class SigmaMultiple {
+
+public:
+
+  // Constructor.
+  SigmaMultiple() {}
+  
+  // Destructor.
+  ~SigmaMultiple() {
+    for (int i = 0; i < int(sigmaT.size()); ++i) delete sigmaT[i];
+    for (int i = 0; i < int(sigmaU.size()); ++i) delete sigmaU[i];}   
+
+  // Initialize list of processes.
+  bool init(int inState, int processLevel);
+
+  // Calculate cross section summed over possibilities.
+  double sigma( int id1, int id2, double x1, double x2, double sHat, 
+    double tHat, double uHat, double alpS, double alpEM);
+
+  // Return one subprocess, picked according to relative cross sections.
+  SigmaProcess* sigmaSel();
+  bool swapTU() {return pickedU;}
+
+  // Return code or name of a specified process, for statistics table.
+  int nProc() const {return nChan;}
+  int codeProc(int iProc) const {return sigmaT[iProc]->code();}
+  string nameProc(int iProc) const {return sigmaT[iProc]->name();}
+
+private:
+
+  // Constants: could only be changed in the code itself.
+  static const double MASSMARGIN, OTHERFRAC;
+
+  // Number of processes. Some use massive matrix elements.
+  int nChan;
+  vector<bool> needMasses;
+  vector<double> m3Fix, m4Fix, sHatMin;
+
+  // Vector of process list, one for t-channel and one for u-channel.
+  vector<SigmaProcess*> sigmaT, sigmaU;
+
+  // Values of cross sections in process list above.
+  vector<double> sigmaTval, sigmaUval;
+  double sigmaTsum, sigmaUsum;
+  bool pickedU;
+  
+};
  
 //**************************************************************************
 
@@ -59,7 +112,7 @@ public:
   double pTnext( double pTbegAll, double pTendAll);
 
   // Set up kinematics of acceptable interaction.
-  void scatter( Event& event); 
+  void scatter( Info* infoPtr, Event& event); 
 
   // Get some information on current interaction.
   double Q2Ren() const {return pT2Ren;}
@@ -73,14 +126,17 @@ public:
   double bMI() const {return (bIsSet) ? bNow / bAvg : 0.;}
   double enhanceMI() const {return (bIsSet) ? enhanceB / zeroIntCorr : 1.;}
 
-  // Statistics. (Currently dummy.)
-  void statistics() {}
+  // Update and print statistics on number of processes.
+  void accumulate( Info* infoPtr) { int iBeg = (infoPtr->isMinBias()) ? 0 : 1; 
+    for (int i = iBeg; i < infoPtr->nMI(); ++i) ++nGen[ infoPtr->codeMI(i) ];}
+  void statistics(ostream& os = cout);
   
 private: 
 
   // Static initialization data, normally only set once.
-  static int pTmaxMatch, alphaSorder, bProfile, nQuark, nSample;
-  static double alphaSvalue, alphaEMfix, Kfactor, pT0Ref, ecmRef, ecmPow, 
+  static int pTmaxMatch, alphaSorder, alphaEMorder, bProfile, processLevel, 
+    nQuark, nSample;
+  static double alphaSvalue, Kfactor, pT0Ref, ecmRef, ecmPow, 
     pTmin, coreRadius, coreFraction, expPow;
 
   // Constants: could only be changed in the code itself.
@@ -111,14 +167,17 @@ private:
   // Total cross section parametrization.
   SigmaTotal sigmaTot;
 
-  // Pointers to the parton-level 2 -> 2 cross sections.
-  SigmaProcess *sigma2gg2ggT, *sigma2gg2ggU, *sigma2qg2qgT, *sigma2qg2qgU,
-    *sigma2qq2qqSameT, *sigma2qq2qqSameU, *sigma2qqbar2qqbarSameT,
-    *sigma2qqbar2qqbarSameU, *sigma2qq2qqDiffT, *sigma2qq2qqDiffU;
+  // Collections of parton-level 2 -> 2 cross sections. Selected one.
+  SigmaMultiple sigma2gg, sigma2qg, sigma2qqSame, sigma2qqbarSame, 
+    sigma2qqDiff;
   SigmaProcess* dSigmaDtSel;
 
-  // alphaStrong calculation.
+  // Statistics on generated 2 -> 2 processes.
+  map<int, int> nGen;
+
+  // alphaStrong and alphaEM calculations.
   AlphaStrong alphaS;
+  AlphaEM alphaEM;
 
   // Determine constant in d(Prob)/d(pT2) < const / (pT2 + r * pT20)^2.  
   void upperEnvelope();

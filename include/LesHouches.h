@@ -5,7 +5,7 @@
 // LHAevntFortran: derived class with the HEPEUP Fortran event info.
 // LHAinitLHEF: derived class for initilization from Les Houches Event File.
 // LHAevntLHEF: derived class for events from Les Houches Evewnt File.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_LesHouches_H
 #define Pythia8_LesHouches_H

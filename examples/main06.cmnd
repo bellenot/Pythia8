@@ -23,7 +23,6 @@ SoftQCD:singleDiffractive = on      ! single diffractive scattering
 SoftQCD:doubleDiffractive = on      ! double diffractive scattering
 
 ! 3) Switch off some key components of the simulation, for comparisons.
-#Pythia:afterProcessLevel = off      ! stop after hard process 
-PartonLevel:MI = off               ! no need to initialize MI, since not used
+#Pythia:partonLevel = off      ! stop after hard process 
 
 

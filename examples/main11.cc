@@ -2,7 +2,7 @@
 // This is a more extensive test program using Pythia6 or Pythia8 processes. 
 // It illustrates how different quantities can be histogrammed.
 // All input is specified in the main11.cmnd file.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #include "Pythia.h"
 
@@ -134,7 +134,7 @@ int main() {
       // Specialize to final particles. Total multiplicity and momentum.
       if (event[i].isFinal()) {
         ++nfin;
-        if (event[i].isQorG()) ++nfinqg;
+        if (event[i].isQuark() || event[i].isGluon()) ++nfinqg;
         if (event[i].isCharged()) ++nch;
         pSum += event[i].p();
 

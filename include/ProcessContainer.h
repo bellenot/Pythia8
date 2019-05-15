@@ -1,7 +1,7 @@
 // This file contains the collected machinery of a process.
 // ProcessContainer: contains information on a particular process.
 // SetupContainers: administrates the selection/creation of processes.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_ProcessContainer_H
 #define Pythia8_ProcessContainer_H
@@ -16,9 +16,6 @@
 #include "PythiaStdlib.h"
 #include "Settings.h"
 #include "SigmaProcess.h"
-#include "SigmaQCD.h"
-#include "SigmaEW.h"
-#include "SigmaSUSY.h"
 #include "SigmaTotal.h"
 
 namespace Pythia8 {
@@ -62,7 +59,7 @@ public:
   int nAccepted() const {return nAcc;}
   double sigmaMC() const {return (nTry == 0) ? 0. : sigmaSum / nTry;}
   double deltaMC() const {return (nTry <= 1) ? 0. :
-    sqrt( max( 0., (sigma2Sum / nTry - pow2(sigmaSum / nTry)) / nTry) );} 
+    sqrtpos( (sigma2Sum / nTry - pow2(sigmaSum / nTry)) / nTry );} 
 
 private:
 
@@ -79,7 +76,7 @@ private:
   PhaseSpace* phaseSpacePtr;
 
   // Info on process.
-  bool isMinBias, isResolved, isDiffA, isDiffB;
+  bool isMinBias, isResolved, isDiffA, isDiffB, hasOctetOnium;
 
   // Statistics on generation process.
   int nTry, nAcc;  

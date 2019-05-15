@@ -1,7 +1,7 @@
 // This file contains the classes for string fragmentation.
 // StringEnd: keeps track of the fragmentation step.
 // StringFragmentation: is the top-level class.
-// Copyright C 2006 Torbjorn Sjostrand
+// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_StringFragmentation_H
 #define Pythia8_StringFragmentation_H
@@ -49,10 +49,11 @@ public:
  
   // Data members.
   bool fromPos;
-  int iEnd, iMax, idOld, idNew, idHad, iPosOld, iNegOld, iPosNew, iNegNew;
+  int iEnd, iMax, idHad, iPosOld, iNegOld, iPosNew, iNegNew;
   double pxOld, pyOld, pxNew, pyNew, pxHad, pyHad, mHad, mT2Had, zHad,
     GammaOld, GammaNew, xPosOld, xPosNew, xPosHad, xNegOld, xNegNew,
     xNegHad;
+  FlavContainer flavOld, flavNew;
   Vec4 pHad, pSoFar;
 
   // Classes for flavour, pT and z generation.
