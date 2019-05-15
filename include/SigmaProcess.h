@@ -70,9 +70,9 @@ public:
   virtual bool set1Kin( double , double , double ) {return false;} 
 
   // Input and complement kinematics for resolved 2 -> 2 process.
-  // Usage: set2Kin( x1in, x2in, sHin, tHin, m3in, m4in).
+  // Usage: set2Kin( x1in, x2in, sHin, tHin, m3in, m4in, runBW3in, runBW4in).
   virtual bool set2Kin( double , double , double , double , double , 
-    double ) {return false;} 
+    double, double, double ) {return false;} 
 
   // Ditto, but for Multiple Interactions applications, so different input.
   // Usage: set2KinMI( id1in, id2in, x1in, x2in, sHin, tHin, uHin, 
@@ -92,6 +92,15 @@ public:
   // Remove empty inFlux channels and optionally list remaining ones.
   void checkChannels() {
     if (inFluxPtr != 0) inFluxPtr->checkChannels(name());}
+
+  // Evaluate weight for simultaneous flavour choices (only gamma*/Z0 gamma*/Z0).
+  // Usage: weightDecayFlav( process).
+  virtual double weightDecayFlav( Event&) {return 1.;} 
+
+  // Evaluate weight for decay angular configuration.
+  // Usage: weightDecay( process, iResBeg, iResEnd), where 
+  // iResBeg <= i < iResEnd is range of sister partons to test decays of.
+  virtual double weightDecay( Event&, int, int) {return 1.;}
 
   // Process name and code, and the number of final-state particles.
   virtual string name()     const {return "unnamed process";}
@@ -113,6 +122,9 @@ public:
   // Special treatment needed if process contains an s-channel resonance.
   virtual int resonanceA()  const {return 0;}
   virtual int resonanceB()  const {return 0;}
+
+  // Special process-specific gamma*/Z0 choice if >=0 (e.g. f fbar -> H0 Z0).
+  virtual int gmZmode()     const {return -1;}
 
   // Tell whether tHat and uHat are swapped (= same as swap 3 and 4).
   bool swappedTU()          const {return swapTU;}
@@ -144,8 +156,9 @@ protected:
   SigmaProcess() {inFluxPtr = 0; for (int i = 0; i < 6; ++i) mH[i] = 0.;}
 
   // Static initialization data, normally only set once.
-  static int    alphaSorder,alphaEMorder, nQuark;
-  static double alphaSvalue;
+  static int    alphaSorder,alphaEMorder, nQuark, renormScale, factorScale,
+                SMHiggsParity;
+  static double alphaSvalue, renormMult, factorMult, SMHiggsEta;
 
   // Static alphaStrong and alphaElectromagnetic calculation.
   static AlphaStrong alphaS;
@@ -197,6 +210,16 @@ protected:
     swap(acolH[1], acolH[2]); swap(acolH[3], acolH[4]);}
   void swapCol12() { swap(colH[1], colH[2]); swap(acolH[1], acolH[2]);}
   void swapCol34() { swap(colH[3], colH[4]); swap(acolH[3], acolH[4]);}
+
+  // Evaluate weight for W decay distribution in t -> W b -> f fbar b.
+  // Usage: weightTopDecay( process, iResBeg, iResEnd), where 
+  // iResBeg <= i < iResEnd is range of sister partons to test decays of.
+  double weightTopDecay( Event&, int, int);
+
+  // Evaluate weight for Z0/W+- decay distributions in H -> Z0/W+ Z0/W- -> 4f.
+  // Usage: weightHiggsDecay( process, iResBeg, iResEnd), where 
+  // iResBeg <= i < iResEnd is range of sister partons to test decays of.
+  double weightHiggsDecay( Event&, int, int);
 
 };
  
@@ -297,7 +320,7 @@ public:
 
   // Input and complement kinematics for resolved 2 -> 2 process.
   virtual bool set2Kin( double x1in, double x2in, double sHin, double tHin,
-    double m3in, double m4in); 
+    double m3in, double m4in, double runBW3in, double runBW4in); 
 
   // Ditto, but for Multiple Interactions applications, so different input.
   virtual bool set2KinMI( int id1in, int id2in, double x1in, double x2in,
@@ -320,7 +343,8 @@ protected:
   // Store subprocess kinematics quantities.
   bool   id12IsSet;
   int    id1, id2, id3, id4;
-  double x1, x2, sH, tH, uH, sH2, tH2, uH2, m3, s3, m4, s4, pT2;
+  double x1, x2, sH, tH, uH, sH2, tH2, uH2, m3, s3, m4, s4, pT2,
+         runBW3, runBW4;
 
 };
  

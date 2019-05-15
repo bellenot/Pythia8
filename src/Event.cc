@@ -51,6 +51,33 @@ string Particle::nameWithStatus(int maxLen) const {
 
 //*********
 
+// Add offsets to mother and daughter pointers (must be non-negative).
+
+void Particle::offsetHistory( int minMother, int addMother, int minDaughter, 
+  int addDaughter) {
+
+  if (addMother < 0 || addDaughter < 0) return;
+  if (  mother1Save > minMother  )   mother1Save += addMother; 
+  if (  mother2Save > minMother  )   mother2Save += addMother; 
+  if (daughter1Save > minDaughter) daughter1Save += addDaughter; 
+  if (daughter2Save > minDaughter) daughter2Save += addDaughter; 
+ 
+}
+
+//*********
+
+// Add offsets to colour and anticolour (must be positive).
+
+void Particle::offsetCol( int addCol) { 
+
+  if (addCol < 0) return;
+  if ( colSave > 0)  colSave += addCol;
+  if (acolSave > 0) acolSave += addCol;
+
+}
+
+//*********
+
 // Invariant mass of a pair and its square.
 // (Not part of class proper, but tightly linked.)
 
@@ -430,39 +457,39 @@ vector<int> Event::sisterListTopBot(int i, bool widenSearch) const {
   vector<int> daughters = daughterList(iMother);
 
   // Trace all daughters down, excepting the input particle itself.
-  for (int j = 0; j < int(daughters.size()); ++j) 
-  if (daughters[j] != iUp) 
-    sisters.push_back( iBotCopy( daughters[j] ) );
+  for (int jD = 0; jD < int(daughters.size()); ++jD) 
+  if (daughters[jD] != iUp) 
+    sisters.push_back( iBotCopy( daughters[jD] ) );
 
   // Prune any non-final particles from list.
-  int j = 0;
-  while (j < int(sisters.size())) {
-    if (entry[sisters[j]].status() > 0) ++j;
+  int jP = 0;
+  while (jP < int(sisters.size())) {
+    if (entry[sisters[jP]].status() > 0) ++jP;
     else {
-      sisters[j] = sisters.back();
+      sisters[jP] = sisters.back();
       sisters.pop_back();
     }
   } 
 
   // If empty list then restore immediate daughters.
   if (sisters.size() == 0 && widenSearch) { 
-    for (int j = 0; j < int(daughters.size()); ++j) 
-    if (daughters[j] != iUp) 
-      sisters.push_back( iBotCopy( daughters[j] ) );
+    for (int jR = 0; jR < int(daughters.size()); ++jR) 
+    if (daughters[jR] != iUp) 
+      sisters.push_back( iBotCopy( daughters[jR] ) );
     
     // Then trace all daughters, not only bottom copy.
-    for (int j = 0; j < int(sisters.size()); ++j) {
-      daughters = daughterList( sisters[j] );
+    for (int jT = 0; jT < int(sisters.size()); ++jT) {
+      daughters = daughterList( sisters[jT] );
       for (int k = 0; k < int(daughters.size()); ++k)    
         sisters.push_back( daughters[k] );
     }
   
     // And then prune any non-final particles from list.
-    int j = 0;
-    while (j < int(sisters.size())) {
-      if (entry[sisters[j]].status() > 0) ++j;
+    int jN = 0;
+    while (jN < int(sisters.size())) {
+      if (entry[sisters[jN]].status() > 0) ++jN;
       else {
-        sisters[j] = sisters.back();
+        sisters[jN] = sisters.back();
         sisters.pop_back();
       }
     } 

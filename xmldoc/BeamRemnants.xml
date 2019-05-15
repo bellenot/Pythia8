@@ -63,6 +63,11 @@ interactions, <ei>m</ei> the mass of the system, and
 defined beam remnant has a distribution of width <ei>sigma_remn</ei>, 
 independently of kinematical variables.
 
+<flag name="Beams:primordialKT" default="on">
+Allow or not selection of primordial <ei>kT</ei> according to the
+parameter values below.
+</flag>
+
 <parm name="Beams:primordialKTsoft" default="0.4" min="0.">
 The width <ei>sigma_soft</ei> in the above equation, assigned as a 
 primordial <ei>kT</ei> to initiators in the soft-interaction limit.

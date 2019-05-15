@@ -90,19 +90,64 @@ void UserHooks::subEvent(const Event& event, bool isHardest) {
 
 // The SuppressSmallPT class, derived from UserHooks.
 
-double SuppressSmallPT::multiplySigmaBy( const SigmaProcess* sigmaProcessPtr, 
-  const PhaseSpace* phaseSpacePtr, bool inEvent) {
+//*********
 
-  // Dummy to avoid compiler warnings.
-  inEventNow = inEvent;
+// Modify event weight at the trial level, before selection.
+
+double SuppressSmallPT::multiplySigmaBy( const SigmaProcess* sigmaProcessPtr, 
+  const PhaseSpace* phaseSpacePtr, bool ) {
+
+  // Need to initialize first time this method is called.
+  if (!isInit) {
+    
+    // Calculate pT0 as for multiple interactions.
+    // Fudge factor allows offset relative to MI framework.
+    double eCM    = phaseSpacePtr->ecm();
+    double pT0Ref = Settings::parm("MultipleInteractions:pT0Ref");
+    double ecmRef = Settings::parm("MultipleInteractions:ecmRef");
+    double ecmPow = Settings::parm("MultipleInteractions:ecmPow");
+    double pT0    = pT0timesMI * pT0Ref * pow(eCM / ecmRef, ecmPow);
+    pT20          = pT0 * pT0;
+  
+    // Initialize alpha_strong object as for multiple interactions,
+    // alternatively as for hard processes.
+    double alphaSvalue;
+    int    alphaSorder;    
+    if (alphaSasMI) {
+      alphaSvalue = Settings::parm("MultipleInteractions:alphaSvalue");
+      alphaSorder = Settings::mode("MultipleInteractions:alphaSorder");
+    } else {
+      alphaSvalue = Settings::parm("SigmaProcess:alphaSvalue");
+      alphaSorder = Settings::mode("SigmaProcess:alphaSorder");
+    }
+    alphaS.init( alphaSvalue, alphaSorder); 
+
+    // Initialization finished.
+    isInit = true;
+  }
         
   // Only modify 2 -> 2 processes.
   int nFinal = sigmaProcessPtr->nFinal();
   if (nFinal != 2) return 1.;
 
-  // Extract pT and modify by pT^4 / (pT^2 + pT0^2)^2 
-  double pT2 = pow2( phaseSpacePtr->pTHat() );
-  return pow2( pT2 / (pT02 + pT2) ); 
+  // pT scale of process. Weight pT^4 / (pT^2 + pT0^2)^2 
+  double pTHat     = phaseSpacePtr->pTHat();
+  double pT2       = pTHat * pTHat;
+  double wt        = pow2( pT2 / (pT20 + pT2) );
+
+  if (numberAlphaS > 0) {
+    // Renormalization scale and assumed alpha_strong.
+    double Q2RenOld  = sigmaProcessPtr->Q2Ren();
+    double alphaSOld = sigmaProcessPtr->alphaSH();
+
+    // Reweight to new alpha_strong at new scale.
+    double Q2RenNew  = pT20 + Q2RenOld;
+    double alphaSNew = alphaS.alphaS(Q2RenNew);
+    wt              *= pow( alphaSNew / alphaSOld, numberAlphaS);
+  }
+
+  // End weight calculation.
+  return wt;
 
 }
 

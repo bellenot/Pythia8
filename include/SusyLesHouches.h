@@ -119,7 +119,7 @@ public:
       bool finished=false;
       int ibegin=first();
       i=ibegin;
-      while (not finished) {
+      while (!finished) {
 	cout << "  "<< i << " " << entry[i] <<endl;
 	i=next();
 	if (i == ibegin) finished=true;
@@ -169,7 +169,7 @@ public:
 
     // Set matrix entry
     int set(int i,int j, double val) { 
-      if (i>0 and j>0 and i<=size and j<=size) {
+      if (i>0 && j>0 && i<=size && j<=size) {
 	entry[i][j]=val;
 	initialized=true;
 	return 0;
@@ -185,8 +185,8 @@ public:
     };
 
     // () Overloading: Get entry
-    double operator()(int i, int j) {
-      return (i <= size and j <= size and i > 0 and j > 0) ? 
+    double operator()(int i, int j) const {
+      return (i <= size && j <= size && i > 0 && j > 0) ? 
 	entry[i][j] : 0.0;
     };
 

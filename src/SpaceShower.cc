@@ -190,7 +190,8 @@ bool SpaceShower::limitPTmax( Event& event) {
    
   // Look if any quark (u, d, s, c, b), gluon or photon in final state. 
   bool hasQGP = false;
-  for (int i = 5; i < event.size(); ++i) {
+  for (int i = 5; i < event.size(); ++i) 
+  if (event[i].status() != -21) {
     int idAbs = event[i].idAbs();
     if (idAbs <= 5 || idAbs == 21 || idAbs == 22) hasQGP = true;
   }

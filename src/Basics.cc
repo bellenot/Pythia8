@@ -49,10 +49,11 @@ bool Rndm::rndmEnginePtr( RndmEngine* rndmPtrIn) {
 
 void Rndm::init(int seedIn) {
 
-  // Pick seed in convenient way.
+  // Pick seed in convenient way. Assure it to be non-negative.
   int seed = seedIn;
   if (seedIn < 0) seed = defaultSeed;
-  else if (seedIn == 0) seed = time(0);
+  else if (seedIn == 0) seed = int(time(0));
+  if (seed < 0) seed = -seed;
 
   // Unpack seed.
   int ij = (seed/30082) % 31329;
@@ -719,6 +720,7 @@ void Hist::fill(double x, double w) {
 
 void Hist::table(ostream& os) const {
 
+  // Print histogram vector bin by bin, with mean x as first column.
   os << scientific << setprecision(4); 
   for (int ix = 0; ix < nBin; ++ix) {
     os << setw(12) << xMin + (ix + 0.5) * dx      
@@ -1022,55 +1024,6 @@ ostream& operator<<(ostream& os, const Hist& h) {
      << "    Overflow  =" << setw(12) << h.over
      << "    High edge =" << setw(12) << h.xMax << endl;
   return os;
-}
-
-//*********
-
-// Print a vector of histograms.
-
-ostream& operator<<(ostream& os, const vector<Hist>& h) {
-
-  for (int i = 0; i < int(h.size()); ++i) {  
-    if (h[i].nFill > 0) os << h[i];
-  }
-  return os;
-
-}
-
-//*********
-
-// Print the contents of a histogram as a table (e.g. for Gnuplot).
-
-void table(const Hist& h, ostream& os) {
- 
-  // Print histogram vector bin by bin, with mean x as first column.
-  os << scientific << setprecision(4); 
-  for (int ix = 0; ix < h.nBin; ++ix) 
-    os << setw(12) << h.xMin + (ix + 0.5) * h.dx << setw(12) 
-    << h.res[ix] << "\n"; 
-
-}
-
-//*********
-
-// Print vector of histogram contents as a table (e.g. for Gnuplot).
-
-void table(const vector<Hist>& h, ostream& os) {
-  
-  // Check that common format for histograms in vector.
-  for (int i = 1; i < int(h.size()); ++i) {  
-    if (!h[0].sameSize(h[i])) return;
-  }
- 
-  // Print histogram vector bin by bin, with mean x as first column.
-  os << scientific << setprecision(4); 
-  for (int ix = 0; ix < h[0].nBin; ++ix) {
-    os << setw(12) << h[0].xMin + (ix + 0.5) * h[0].dx ;     
-    for (int i = 0; i < int(h.size()); ++i) { 
-      os << setw(12) << h[i].res[ix];     
-    } os << "\n";
-  } 
-
 }
 
 //**************************************************************************

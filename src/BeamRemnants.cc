@@ -33,6 +33,7 @@ public:
 // Definitions of static variables.
 // (Values will be overwritten in initStatic call, so are purely dummy.)
 
+bool   BeamRemnants::primordialKT        = true;
 bool   BeamRemnants::doReconnect         = true;
 double BeamRemnants::primordialKTsoft    = 0.4;
 double BeamRemnants::primordialKThard    = 2.1;
@@ -58,6 +59,7 @@ const int BeamRemnants::NTRYKINMATCH     = 10;
 void BeamRemnants::initStatic() {
 
   // Width of primordial kT distribution.
+  primordialKT        = Settings::flag("Beams:primordialKT");
   primordialKTsoft    = Settings::parm("Beams:primordialKTsoft");
   primordialKThard    = Settings::parm("Beams:primordialKThard");
   primordialKTremnant = Settings::parm("Beams:primordialKTremnant");
@@ -191,17 +193,22 @@ bool BeamRemnants::setKinematics( Event& event) {
   vector<double> kTcomp;
   double kTcompSumSys = 0.;
   for (int iSys = 0; iSys < nSys; ++iSys) { 
-    double mHat       = sqrtpos( beamA[iSys].x() * beamB[iSys].x() * sCM );
-    double mHatDamp   = mHat / (mHat + halfMassForKT);
-    double scale      = (iSys == 0) ? infoPtr->QRen() : infoPtr->pTMI(iSys);
-    double kTwidthNow = ( (halfScaleForKT * primordialKTsoft
+    double kTwidthNow = 0.;
+    double mHatDamp   = 1.;
+    if (primordialKT) {    
+      double mHat     = sqrtpos( beamA[iSys].x() * beamB[iSys].x() * sCM );
+      mHatDamp        = mHat / (mHat + halfMassForKT);
+      double scale    = (iSys == 0) ? infoPtr->QRen() : infoPtr->pTMI(iSys);
+      kTwidthNow      = ( (halfScaleForKT * primordialKTsoft
       + scale * primordialKThard) / (halfScaleForKT + scale) ) * mHatDamp;
+    }
     kTwidth.push_back( kTwidthNow );
     kTcomp.push_back( mHatDamp );
     kTcompSumSys += mHatDamp;
   } 
-  for (int iRem = nSys; iRem < max( beamA.size(), beamB.size() ); ++iRem) {     
-    kTwidth.push_back( primordialKTremnant );     
+  double kTwidthNow = (primordialKT) ? primordialKTremnant : 0.;    
+  for (int iRem = nSys; iRem < max( beamA.size(), beamB.size() ); ++iRem) { 
+    kTwidth.push_back( kTwidthNow );     
     kTcomp.push_back( 1. );
   }     
 
@@ -222,7 +229,7 @@ bool BeamRemnants::setKinematics( Event& event) {
       for (int iPar = 0; iPar < nPar; ++iPar) { 
         double px = 0.;
         double py = 0.;
-        if (beam.isHadron()) {
+        if (beam.isHadron() && primordialKT) {
           px = kTwidth[iPar] * Rndm::gauss();
           py = kTwidth[iPar] * Rndm::gauss();
 	}
@@ -233,10 +240,12 @@ bool BeamRemnants::setKinematics( Event& event) {
       }  
 
       // Share recoil between all partons.
-      double kTcompSum = kTcompSumSys + (nPar - nSys);
-      for (int iPar = 0; iPar < nPar; ++iPar) {
-        beam[iPar].px( beam[iPar].px() - pxSum * kTcomp[iPar] / kTcompSum );
-        beam[iPar].py( beam[iPar].py() - pySum * kTcomp[iPar] / kTcompSum );
+      if (primordialKT) {    
+        double kTcompSum = kTcompSumSys + (nPar - nSys);
+        for (int iPar = 0; iPar < nPar; ++iPar) {
+          beam[iPar].px( beam[iPar].px() - pxSum * kTcomp[iPar] / kTcompSum );
+          beam[iPar].py( beam[iPar].py() - pySum * kTcomp[iPar] / kTcompSum );
+        }
       }
 
       // Pick unrescaled x values for remnants. Sum up (unscaled) p+ and p-.

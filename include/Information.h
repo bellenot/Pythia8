@@ -95,8 +95,8 @@ public:
   double sigmaErr()       const {return sigErr;}
 
   // Impact parameter picture.
-  double bMI()            const {return (bIsSet) ? bH : 0.;}
-  double enhanceMI()      const {return (bIsSet) ? enhanceH : 0.;}
+  double bMI()            const {return (bIsSet) ? bH : 1.;}
+  double enhanceMI()      const {return (bIsSet) ? enhanceH : 1.;}
 
   // Maximum pT scales for MI, ISR and FSR (in hard process).
   double pTmaxMI()        const {return pTmaxMIH;}
@@ -153,7 +153,7 @@ private:
     = id2H = nMIH = nISRH = nFSRinProcH = nFSRinResH = 0; isRes = isDiffA
     = isDiffB = bIsSet = false; x1H = x2H = pdf1H = pdf2H = Q2FacH 
     = alphaEMH = alphaSH = Q2RenH = sH = tH = uH = pTH = m3H = m4H 
-    = thetaH = phiH = bH = enhanceH = 0.; codeMISave.resize(0);
+    = thetaH = phiH = 0.; bH = enhanceH = 1.; codeMISave.resize(0);
     pTMISave.resize(0);}
 
   // Set info on the (sub)process: from ProcessLevel, ProcessContainer or 

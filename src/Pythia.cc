@@ -16,7 +16,6 @@ namespace Pythia8 {
 
 // Pythia class.
 // This class contains the top-level routines to generate an event.
-
 //*********
  
 // Definitions of static variables.
@@ -93,7 +92,7 @@ Pythia::Pythia(string xmlDir) {
   banner();
 
   // Default for some flags.
-  hasLHA        = false;
+  doLHA         = false;
   isInit        = false;
  
 } 
@@ -250,7 +249,7 @@ bool Pythia::init( LHAinit* lhaInitPtrIn, LHAevnt* lhaEvntPtrIn) {
   // Save and set flag for subsequent usage of LHAevnt object.
   lhaInitPtr = lhaInitPtrIn;
   lhaEvntPtr = lhaEvntPtrIn;
-  hasLHA     = true;
+  doLHA      = true;
 
   // Set LHAinit information (in some external program).
   bool status = lhaInitPtr->set();
@@ -284,7 +283,7 @@ bool Pythia::init( string LesHouchesEventFile) {
   const char* cstring = LesHouchesEventFile.c_str();
   lhaInitPtr = new LHAinitLHEF(cstring);
   lhaEvntPtr = new LHAevntLHEF(cstring);
-  hasLHA = true;
+  doLHA      = true;
 
   // Set LHAinit information (in some external program).
   bool status = lhaInitPtr->set();
@@ -322,12 +321,23 @@ bool Pythia::init() {
   nErrEvent = 0;
 
   // Strategy for event generation, Les Houches or not.
-  strategyLHA = (hasLHA) ? lhaInitPtr->strategy() : 0;  
+  strategyLHA = (doLHA) ? lhaInitPtr->strategy() : 0;  
 
   // Check that beams and beam combination can be handled.
+  // Only allow neutrinos as beams when leptons unresolved.
   bool canHandleBeams = false;
-  if (abs(idA) == 2212 && abs(idB) == 2212) canHandleBeams = true;
-  if (abs(idA) == 11 && idA + idB == 0) canHandleBeams = true;
+  int idAabs = abs(idA);
+  int idBabs = abs(idB);
+  if (idAabs == 2212 && idBabs == 2212) canHandleBeams = true;
+  else if(settings.flag("Pythia:lPDF")) {
+    if ( idA + idB == 0 && (idAabs == 11 || idAabs == 13
+      || idAabs == 15) ) canHandleBeams = true;
+  } else if (idAabs > 10 && idAabs < 17 && idA * idB < 0) {
+    if (idA + idB == 0) canHandleBeams = true;
+    int idMax  = max(idAabs, idBabs);
+    int idMin  = min(idAabs, idBabs);
+    if (idMax - idMin == 1 && idMax%2 == 0) canHandleBeams = true; 
+  }
   if (!canHandleBeams && strategyLHA < 10) {
     ErrorMsg::message("Error in Pythia::init: "
       "cannot handle this beam combination");
@@ -356,7 +366,7 @@ bool Pythia::init() {
   // Initialize for simple showers in decays. 
   timesDecPtr->init( 0, 0);
 
-  // Initialize all accessible static data members.
+  // Initialize all accessible static data members (except resonances).
   initStatic();
 
   // Initialize SUSY Les Houches Accord data
@@ -439,7 +449,7 @@ bool Pythia::init() {
   // Set info in and send pointers to the respective program elements.
   ProcessContainer::setInfoPtr( &info);
   if (!processLevel.init( &info, &beamA, &beamB, 
-    hasLHA, lhaInitPtr, lhaEvntPtr, userHooksPtr)) return false;
+    doLHA, lhaInitPtr, lhaEvntPtr, userHooksPtr)) return false;
   if (!partonLevel.init( &info, &beamA, &beamB, timesDecPtr, timesPtr,
     spacePtr, strategyLHA, userHooksPtr)) return false;
   if (!hadronLevel.init( &info, timesDecPtr)) return false;
@@ -451,7 +461,8 @@ bool Pythia::init() {
 
 //*********
 
-// Initialization routine for all accessible static data members.
+// Initialization routine for all accessible static data members,
+// except for individual resonances, which are in ProcesLevel::init(). 
 
 void Pythia::initStatic() {
 
@@ -494,8 +505,7 @@ void Pythia::initStatic() {
   MiniStringFragmentation::initStatic();
   ParticleDecays::initStatic(); 
   ResonanceProperties::initStatic();
-  ResonanceGmZ::initStatic();
-  ResonanceW::initStatic();
+
 }
 
 //*********
@@ -754,8 +764,8 @@ void Pythia::banner(ostream& os) {
      << ", JHEP05 (2006) 026 [hep-ph/0603175]. |  | \n"
      << " |  |   In addition, for PYTHIA 8.0, also quo"
      << "te the 'Brief Introduction',          |  | \n"
-     << " |  |   T. Sjostrand, CERN-LCGAPP-2005-05 and"
-     << " LU TP 05-43 (2005).                  |  | \n" 
+     << " |  |   T. Sjostrand, CERN-LCGAPP-2007-03.   "
+     << "                                      |  | \n" 
      << " |  |                                        "
      << "                                      |  | \n"
      << " |  |   An archive of program versions and do" 
@@ -904,7 +914,7 @@ PDF* Pythia::getPDFPtr(int idIn, int sequence) {
       else tempPDFPtr = new CTEQ5L(idIn);
     }
     
-    // Use sets from PDFLIB.
+    // Use sets from LHAPDF.
     else {
       string LHAPDFset    = settings.word("Pythia:LHAPDFset");
       int    LHAPDFmember = settings.mode("Pythia:LHAPDFmember");
@@ -932,7 +942,7 @@ PDF* Pythia::getPDFPtr(int idIn, int sequence) {
       else tempPDFPtr = new CTEQ5L(idIn);
     }
     
-    // Use sets from PDFLIB.
+    // Use sets from LHAPDF.
     else {
       string LHAPDFset    = settings.word("Pythia:hardLHAPDFset");
       int    LHAPDFmember = settings.mode("Pythia:hardLHAPDFmember");
@@ -951,7 +961,8 @@ PDF* Pythia::getPDFPtr(int idIn, int sequence) {
 
   // Lepton beam; resolved or not.
   else {
-    if (settings.flag("Pythia:lPDF")) tempPDFPtr = new Lepton(idIn);
+    if (settings.flag("Pythia:lPDF") && abs(idIn)%2 == 1) 
+      tempPDFPtr = new Lepton(idIn);
     else tempPDFPtr = new LeptonPoint(idIn);
   }
   

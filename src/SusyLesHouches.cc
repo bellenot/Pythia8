@@ -166,34 +166,34 @@ int SusyLesHouches::readFile(string slhafile) {
 int SusyLesHouches::checkSpectrum() {
   int ifail=0;
   //1) Check MODSEL. Assign default values where applicable.
-  if (not modsel.exists(1)) {
+  if (!modsel.exists(1)) {
     message(1,"checkSpectrum","MODSEL(1) undefined. Assuming =0.",0);
     modsel.set(1,0);
   }
-  if (not modsel.exists(3)) modsel.set(3,0);
-  if (not modsel.exists(4)) modsel.set(4,0);
-  if (not modsel.exists(5)) modsel.set(5,0);
-  if (not modsel.exists(6)) modsel.set(6,0);
-  if (not modsel.exists(11)) modsel.set(11,1);
+  if (!modsel.exists(3)) modsel.set(3,0);
+  if (!modsel.exists(4)) modsel.set(4,0);
+  if (!modsel.exists(5)) modsel.set(5,0);
+  if (!modsel.exists(6)) modsel.set(6,0);
+  if (!modsel.exists(11)) modsel.set(11,1);
   
   //2) Check for existence / duplication of mixing matrices
-  if (not stopmix.exists() and not usqmix.exists()) {
+  if (!stopmix.exists() && !usqmix.exists()) {
     message(1,"checkSpectrum","No mixing matrix for sup sector.",0); 
     //Ensure sensible defaults if no mixing specified.
     stopmix.set(1,1, 0.0) ; stopmix.set(1,2, 1.0);
     stopmix.set(2,1,-1.0) ; stopmix.set(2,2, 0.0);
   };
-  if (stopmix.exists() and usqmix.exists()) {
+  if (stopmix.exists() && usqmix.exists()) {
     message(1,"checkSpectrum","STOPMIX and USQMIX given. Using USQMIX.",0); 
     stopmix.clear();
   };
-  if (not sbotmix.exists() and not dsqmix.exists()) {
+  if (!sbotmix.exists() && !dsqmix.exists()) {
     message(1,"checkSpectrum","No mixing matrix for sdown sector.",0); 
     //Ensure sensible defaults if no mixing.
     sbotmix.set(1,1, 0.0) ; sbotmix.set(1,2, 1.0);
     sbotmix.set(2,1,-1.0) ; sbotmix.set(2,2, 0.0);
   };
-  if (sbotmix.exists() and dsqmix.exists()) {
+  if (sbotmix.exists() && dsqmix.exists()) {
     message(1,"checkSpectrum","SBOTMIX and DSQMIX given. Using DSQMIX.",0);
     sbotmix.clear();
   };  
@@ -201,7 +201,7 @@ int SusyLesHouches::checkSpectrum() {
   //3) SLHA1 --> SLHA2 interoperability
   //Note: the mass basis is NOT mass-ordered in SLHA1, so be careful!
   //Here, the mass basis is hence by PDG code, not by mass-ordered value.
-  if (stopmix.exists() and modsel(6) == 0) {
+  if (stopmix.exists() && modsel(6) == 0) {
     //1000002 = ~uL, 1000004 = ~cL, 2000002 = ~uR, 1000004 = ~cR 
     usqmix.set(1,1, 1.0);
     usqmix.set(2,2, 1.0); 
@@ -213,7 +213,7 @@ int SusyLesHouches::checkSpectrum() {
     usqmix.set(6,3, stopmix(2,1));
     usqmix.set(6,6, stopmix(2,2));
   };
-  if (sbotmix.exists() and modsel(6) == 0) {
+  if (sbotmix.exists() && modsel(6) == 0) {
     //1000001 = ~dR, 1000003 = ~sR, 2000001 = ~dL, 1000003 = ~sL 
     dsqmix.set(1,1, 1.0);
     dsqmix.set(2,2, 1.0); 

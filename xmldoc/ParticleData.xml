@@ -10,7 +10,7 @@ current page provides the actual default values.
 <h3>Main settings</h3>
 
 Apart from the data itself, the particle data table only contains 
-one aspect that is available to change:
+a few aspects that are available to change:
 
 <modepick name="ParticleData:modeBreitWigner" default="4" min="0" max="4">
 Selection of particle masses when the <code>mass(id)</code> is called
@@ -57,6 +57,37 @@ above the one obtained with options 1 or 3, respectively. This also
 opens up for a simpler technical handling of mass selection in options
 2 and 4, by using standard hit-and-miss Monte Carlo.
 </parm>
+
+<p/>
+Since running masses are only calculated for the five light quark flavours,
+e.g. to obtain couplings to the Higgs boson(s), there is not an entry
+in the normal tables for each particles, but only the five MSbar mass 
+values below, used as starting point for the running. In addition you
+can pick an <ei>alpha_s(M_Z)</ei>, which is converted into a first-order
+five-flavour Lambda that is used to determine the rate of the running. 
+(Without any match to four flavours below <ei>m_b</ei>; if desired, this
+can be fixed by slightly shifted default mass values, since the routines 
+never should be called below the <ei>m_b</ei> scale anyway.)
+
+<parm name="ParticleData:mdRun" default="0.006" min="0.003" max="0.008">
+the d quark MSbar mass at 2 GeV scale.
+
+<parm name="ParticleData:muRun" default="0.003" min="0.001" max="0.006">
+the u quark MSbar mass at 2 GeV scale.
+
+<parm name="ParticleData:msRun" default="0.095" min="0.060" max="0.150">
+the s quark MSbar mass at 2 GeV scale.
+
+<parm name="ParticleData:mcRun" default="1.25" min="1.00" max="1.50">
+the c quark MSbar mass at the mass scale itself.
+
+<parm name="ParticleData:mbRun" default="4.20" min="4.00" max="4.50">
+the b quark MSbar mass at the mass scale itself.
+
+<parm name="ParticleData:alphaSvalueMRun" default="0.125" min="0.10" max="0.20">
+the <ei>alpha_s(M_Z)</ei> value used to define tha rate at which MSbar
+masses run.
+
 
 <h3>Comments on the data</h3>
 

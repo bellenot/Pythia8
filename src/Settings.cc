@@ -26,10 +26,10 @@ bool Settings::isInit = false;
 
 // Read in database from specific file.
 
-bool Settings::init(string startFile, ostream& os) {
+bool Settings::init(string startFile, bool append, ostream& os) {
 
-  // Don't initialize if it has already been done.
-  if (isInit) return true;
+  // Don't initialize if it has already been done and not in append mode.
+  if (isInit && !append) return true;
   int nError = 0;
 
   // List of files to be checked. Start with input file. 

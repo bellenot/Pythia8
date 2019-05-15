@@ -108,7 +108,7 @@ public:
  
   // Read in database from specific file.
   static bool init(string startFile = "../xmldoc/Index.xml", 
-    ostream& os = cout) ;
+    bool append = false, ostream& os = cout) ;
 
   // Overwrite existing database by reading from specific file.
   static bool reInit(string startFile = "../xmldoc/Index.xml") ;

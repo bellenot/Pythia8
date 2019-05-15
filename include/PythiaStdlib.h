@@ -24,19 +24,21 @@
 #define M_PI 3.1415926535897932385
 #endif
 
-namespace Pythia8 {
+// By this declaration you do not need to use std:: qualifier everywhere.
+using namespace std;
 
+// Alternatively you can specify exactly which std:: methods will be used.
+/*
+namespace Pythia8 {
 // Generic utilities and mathematical functions.
 using std::swap;
 using std::max;
 using std::min; 
 using std::abs; 
-
 // Strings and containers.
 using std::string; 
 using std::vector; 
 using std::map; 
-
 // Input/output streams.
 using std::cin; 
 using std::cout; 
@@ -47,7 +49,6 @@ using std::ifstream;
 using std::ofstream; 
 using std::istringstream; 
 using std::ostringstream; 
-
 // Input/output formatting.
 using std::endl; 
 using std::fixed; 
@@ -56,6 +57,10 @@ using std::left;
 using std::right; 
 using std::setw; 
 using std::setprecision; 
+} // end namespace Pythia8
+*/
+
+namespace Pythia8 {
 
 // Powers of small integers - for balance speed/code clarity.
 inline double pow2(const double& x) {return x*x;}

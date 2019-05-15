@@ -381,8 +381,11 @@ This gives access to properties of the particle species as such. It is
 there mainly for convenience, and should be thrown if an event is 
 written to disk, to avoid any problems of object persistency. Should 
 an event later be read back in, the pointer will be recreated from the 
-<code>id</code> code. This pointer is used by the following member 
-functions:
+<code>id</code> code if the normal input methods are used. (Use the
+<?php $filepath = $_GET["filepath"];
+echo "<a href='EventRecord.php?filepath=".$filepath."' target='page'>";?><code>Event::restorePtrs()</code></a> method 
+if your persistency scheme bypasses the normal methods.) This pointer is 
+used by the following member functions:
 
 <p/><code>method&nbsp; </code><strong> name() &nbsp;</strong> <br/>
 the name of the particle, as a string.

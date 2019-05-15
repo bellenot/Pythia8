@@ -418,6 +418,9 @@ public:
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
+  // Evaluate weight for W decay angles in top decay (else inactive).
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+
   // Info on the subprocess.
   virtual string name() const {return nameSave;}
   virtual int code() const {return codeSave;}
@@ -455,6 +458,9 @@ public:
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
+
+  // Evaluate weight for W decay angles in top decay (else inactive).
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
 
   // Info on the subprocess.
   virtual string name() const {return nameSave;}

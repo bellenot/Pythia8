@@ -99,6 +99,16 @@
 
 ----------------------------------------------------------------------
 
+   FOR WINDOWS USERS
+
+The Makefile.msc file is intended for use on Win32/NMAKE systems with 
+the  Microsoft Visual C/C++ compiler. This alternative installation
+is not the development platform, however, and therefore not as well 
+tested. Not all parts of the above installation procedure are the same,
+so some experimentation may be required.    
+
+----------------------------------------------------------------------
+
    LEARN MORE
 
 To learn more about the current program:

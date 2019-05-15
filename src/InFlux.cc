@@ -608,9 +608,18 @@ void InFluxffbarSame::initChannels() {
 //*********
 
 // Fill arrays for a f fbar' incoming state at initialization.
-// Still needs to do for lepton beams??
 
 void InFluxffbarChg::initChannels() {
+
+  // If beams are leptons then also colliding partons.
+  if ( beamAPtr->isLepton() && beamBPtr->isLepton() 
+    && abs ( ParticleDataTable::chargeType(beamAPtr->id()) 
+           + ParticleDataTable::chargeType(beamBPtr->id()) ) == 3 ) {
+    addBeamA( beamAPtr->id() );
+    addBeamB( beamBPtr->id() );
+    addPair( beamAPtr->id(), beamBPtr->id() );
+    return;
+  }
 
   // The beams individually.
   for (int id = -nQuark; id <= nQuark; ++id) 
@@ -625,6 +634,67 @@ void InFluxffbarChg::initChannels() {
   for (int id2 = -nQuark; id2 <= nQuark; ++id2) 
   if (id2 != 0 && id1 * id2 < 0 && (abs(id1) + abs(id2))%2 == 1) 
     addPair(id1, id2);
+
+}
+
+//**************************************************************************
+
+// InFluxfgm class.
+// Derived class for a f gamma incoming state.
+
+//*********
+
+// Fill arrays for a gamma gamma incoming state at initialization.
+
+void InFluxfgm::initChannels() {
+
+  // Fermion from incoming side A.
+  if ( beamAPtr->isLepton() ) {
+    addBeamA( beamAPtr->id() );
+    addPair( beamAPtr->id(), 22);
+  } else {  
+    for (int id = -nQuark; id <= nQuark; ++id) 
+    if (id != 0) {
+      addBeamA(id);
+      addPair(id, 22);
+    }
+  }
+
+  // Fermion from incoming side B.
+  if ( beamBPtr->isLepton() ) {
+    addBeamB( beamBPtr->id() );
+    addPair( 22, beamBPtr->id());
+  } else {  
+    for (int id = -nQuark; id <= nQuark; ++id) 
+    if (id != 0) {
+      addBeamB(id);
+      addPair(22, id);
+    }
+  }
+
+  // Photons in the beams.
+  addBeamA(22);
+  addBeamB(22);
+
+}
+
+//**************************************************************************
+
+// InFluxgmgm class.
+// Derived class for a gamma gamma incoming state.
+
+//*********
+
+// Fill arrays for a gamma gamma incoming state at initialization.
+
+void InFluxgmgm::initChannels() {
+
+  // The beams individually.
+  addBeamA(22);
+  addBeamB(22);
+ 
+  // The combined channels.
+  addPair(22, 22);
 
 }
 

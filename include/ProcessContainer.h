@@ -14,6 +14,7 @@
 #include "PartonDistributions.h"
 #include "PhaseSpace.h"
 #include "PythiaStdlib.h"
+#include "ResonanceDecays.h"
 #include "Settings.h"
 #include "SigmaProcess.h"
 #include "SigmaTotal.h"
@@ -36,8 +37,10 @@ public:
   // Destructor.
   ~ProcessContainer() {delete phaseSpacePtr; delete sigmaProcessPtr;}
   
-  // Store pointer to Info.
+  // Store pointer to Info and to ResonanceDecays.
   static void setInfoPtr(Info* infoPtrIn) {infoPtr = infoPtrIn;}
+  static void setResonanceDecaysPtr(ResonanceDecays* resonanceDecaysPtrIn)
+    {resonanceDecaysPtr = resonanceDecaysPtrIn;}
 
   // Initialize phase space and counters.
   bool init(); 
@@ -45,8 +48,11 @@ public:
   // Generate a trial event; accepted or not.
   bool trialProcess(); 
   
-  // Give the hard subprocess.
-  bool constructProcess( Event& process); 
+  // Give the hard subprocess (with option for a second hard subprocess).
+  bool constructProcess( Event& process, bool isHardest = true); 
+
+  // Do resonance decays.
+  bool decayResonances( Event& process); 
 
   // Accumulate statistics after user veto.
   void accumulate() {++nAcc;}
@@ -61,13 +67,28 @@ public:
   long   nTried()    const {return nTry;}
   long   nSelected() const {return nSel;}
   long   nAccepted() const {return nAcc;}
+  double sigmaSelMC()  {if (nTry > nTryStat) sigmaDelta(); return sigmaAvg;}
   double sigmaMC()  {if (nTry > nTryStat) sigmaDelta(); return sigmaFin;}
   double deltaMC()  {if (nTry > nTryStat) sigmaDelta(); return deltaFin;} 
+
+  // Some kinematics quantities.
+  int    id1()       const {return sigmaProcessPtr->id(1);}
+  int    id2()       const {return sigmaProcessPtr->id(2);}
+  double x1()        const {return phaseSpacePtr->x1();}
+  double x2()        const {return phaseSpacePtr->x2();}
+  double Q2Fac()     const {return sigmaProcessPtr->Q2Fac();}
+
+  // When two hard processes set or get info whether process is matched.
+  void   isSame( bool isSameIn) { isSameSave = isSameIn;}
+  bool   isSame()    const {return isSameSave;}
 
 private:
 
   // Static pointer to various information on the generation.
   static Info* infoPtr;
+
+  // Static pointer to ResonanceDecays object for sequential resonance decays.
+  static ResonanceDecays* resonanceDecaysPtr;
 
   // Constants: could only be changed in the code itself.
   static const int NSAMPLE;
@@ -79,11 +100,11 @@ private:
   PhaseSpace* phaseSpacePtr;
 
   // Info on process.
-  bool   isMinBias, isResolved, isDiffA, isDiffB, hasOctetOnium;
+  bool   isMinBias, isResolved, isDiffA, isDiffB, hasOctetOnium, isSameSave;
 
   // Statistics on generation process. (Long integers just in case.)
   long   nTry, nSel, nAcc, nTryStat;  
-  double sigmaMx, sigmaSum, sigma2Sum, sigmaNeg, sigmaFin, deltaFin;
+  double sigmaMx, sigmaSum, sigma2Sum, sigmaNeg, sigmaAvg, sigmaFin, deltaFin;
 
   // Estimate integrated cross section and its uncertainty. 
   void sigmaDelta();
@@ -104,6 +125,9 @@ public:
  
   // Initialization assuming all necessary data already read.
   bool init(vector<ProcessContainer*>& containerPtrs);
+ 
+  // Initialization of a second hard process.
+  bool init2(vector<ProcessContainer*>& container2Ptrs);
 
 };
 

@@ -589,15 +589,15 @@ bool HadronLevel::splitJunctionPair(Event& event) {
   } 
 
   // Update list of interjunction legs after splittings above.  
-  int iMatch = 0;
-  while (iMatch < nMatch) {
-    if (nGluLeg[iMatch] > 0) {
-      for (int i = iMatch; i < nMatch - 1; ++i) {
+  int iMatchUp = 0;
+  while (iMatchUp < nMatch) {
+    if (nGluLeg[iMatchUp] > 0) {
+      for (int i = iMatchUp; i < nMatch - 1; ++i) {
         legJun[i] = legJun[i + 1];
         legAnti[i] = legAnti[i + 1];
         nGluLeg[i] = nGluLeg[i + 1];
       } --nMatch;
-    } else ++iMatch;
+    } else ++iMatchUp;
   } 
 
   // Should not ever have three empty interjunction legs.

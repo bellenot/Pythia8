@@ -29,15 +29,6 @@ public:
     pSave(Vec4(0.,0.,0.,0.)), mSave(0.), scaleSave(0.), 
     hasVertexSave(false), vProdSave(Vec4(0.,0.,0.,0.)), tauSave(0.), 
     particlePtr(0) { }  
-  Particle(int idIn, int statusIn = 0, int mother1In = 0, int mother2In = 0, 
-    int daughter1In = 0, int daughter2In = 0, int colIn = 0, int acolIn = 0, 
-    Vec4 pIn = Vec4(0.,0.,0.,0.), double mIn = 0., double scaleIn = 0.) 
-    : idSave(idIn), statusSave(statusIn), mother1Save(mother1In), 
-    mother2Save(mother2In), daughter1Save(daughter1In), 
-    daughter2Save(daughter2In), colSave(colIn), acolSave(acolIn), 
-    pSave(pIn), mSave(mIn), scaleSave(scaleIn), hasVertexSave(false), 
-    vProdSave(Vec4(0.,0.,0.,0.)), tauSave(0.),
-    particlePtr(ParticleDataTable::particleDataPtr(idIn)) { }  
   Particle(int idIn, int statusIn = 0, int mother1In = 0, 
     int mother2In = 0, int daughter1In = 0, int daughter2In = 0,
     int colIn = 0, int acolIn = 0, double pxIn = 0., double pyIn = 0., 
@@ -47,6 +38,15 @@ public:
     daughter2Save(daughter2In), colSave(colIn), acolSave(acolIn), 
     pSave(Vec4(pxIn, pyIn, pzIn, eIn)), mSave(mIn), scaleSave(scaleIn), 
     hasVertexSave(false), vProdSave(Vec4(0.,0.,0.,0.)), tauSave(0.), 
+    particlePtr(ParticleDataTable::particleDataPtr(idIn)) { }  
+  Particle(int idIn, int statusIn, int mother1In, int mother2In, 
+    int daughter1In, int daughter2In, int colIn, int acolIn, 
+    Vec4 pIn, double mIn = 0., double scaleIn = 0.) 
+    : idSave(idIn), statusSave(statusIn), mother1Save(mother1In), 
+    mother2Save(mother2In), daughter1Save(daughter1In), 
+    daughter2Save(daughter2In), colSave(colIn), acolSave(acolIn), 
+    pSave(pIn), mSave(mIn), scaleSave(scaleIn), hasVertexSave(false), 
+    vProdSave(Vec4(0.,0.,0.,0.)), tauSave(0.),
     particlePtr(ParticleDataTable::particleDataPtr(idIn)) { }  
   Particle(const Particle& pt) : idSave(pt.idSave), statusSave(pt.statusSave), 
     mother1Save(pt.mother1Save), mother2Save(pt.mother2Save), 
@@ -103,83 +103,83 @@ public:
   void tau(double tauIn) {tauSave = tauIn;} 
 
   // Member functions for output.
-  int id() const {return idSave;}
-  int status() const {return statusSave;}
-  int mother1() const {return mother1Save;}
-  int mother2() const {return mother2Save;}
-  int daughter1() const {return daughter1Save;}
-  int daughter2() const {return daughter2Save;}
-  int col() const {return colSave;}
-  int acol() const {return acolSave;}
-  Vec4 p() const {return pSave;}
-  double px() const {return pSave.px();}
-  double py() const {return pSave.py();}
-  double pz() const {return pSave.pz();}
-  double e() const {return pSave.e();}
-  double m() const {return mSave;}
-  double scale() const {return scaleSave;}
-  bool hasVertex() const {return hasVertexSave;}
-  Vec4 vProd() const {return vProdSave;}
-  double xProd() const {return vProdSave.px();}
-  double yProd() const {return vProdSave.py();}
-  double zProd() const {return vProdSave.pz();}
-  double tProd() const {return vProdSave.e();}
-  double tau() const {return tauSave;}
+  int    id()        const {return idSave;}
+  int    status()    const {return statusSave;}
+  int    mother1()   const {return mother1Save;}
+  int    mother2()   const {return mother2Save;}
+  int    daughter1() const {return daughter1Save;}
+  int    daughter2() const {return daughter2Save;}
+  int    col()       const {return colSave;}
+  int    acol()      const {return acolSave;}
+  Vec4   p()         const {return pSave;}
+  double px()        const {return pSave.px();}
+  double py()        const {return pSave.py();}
+  double pz()        const {return pSave.pz();}
+  double e()         const {return pSave.e();}
+  double m()         const {return mSave;}
+  double scale()     const {return scaleSave;}
+  bool   hasVertex() const {return hasVertexSave;}
+  Vec4   vProd()     const {return vProdSave;}
+  double xProd()     const {return vProdSave.px();}
+  double yProd()     const {return vProdSave.py();}
+  double zProd()     const {return vProdSave.pz();}
+  double tProd()     const {return vProdSave.e();}
+  double tau()       const {return tauSave;}
 
   // Member functions for output; derived int and bool quantities.
-  int idAbs() const {return abs(idSave);}
-  int statusAbs() const {return abs(statusSave);}
-  bool isFinal() const {return (statusSave > 0);}
+  int    idAbs()     const {return abs(idSave);}
+  int    statusAbs() const {return abs(statusSave);}
+  bool   isFinal()   const {return (statusSave > 0);}
 
   // Member functions for output; derived double quantities.
-  double m2() const {return mSave*mSave;}
-  double mCalc() const {return pSave.mCalc();}
-  double m2Calc() const {return pSave.m2Calc();}
-  double eCalc() const {return sqrt(mSave*mSave + pSave.pAbs2());}
-  double pT() const {return pSave.pT();}
-  double pT2() const {return pSave.pT2();}
-  double mT() const {return sqrt(mSave*mSave + pSave.pT2());}
-  double mT2() const {return mSave*mSave + pSave.pT2();}
-  double pAbs() const {return pSave.pAbs();}
-  double pAbs2() const {return pSave.pAbs2();}
-  double theta() const {return pSave.theta();}
-  double phi() const {return pSave.phi();}
-  double thetaXZ() const {return pSave.thetaXZ();}
-  double pPlus() const {return pSave.pPlus();}
-  double pMinus() const {return pSave.pMinus();}
-  double y() const;
-  double eta() const; 
-  Vec4 vDec() const {return vProdSave + tauSave * pSave / mSave;}
+  double m2()        const {return mSave*mSave;}
+  double mCalc()     const {return pSave.mCalc();}
+  double m2Calc()    const {return pSave.m2Calc();}
+  double eCalc()     const {return sqrt(mSave*mSave + pSave.pAbs2());}
+  double pT()        const {return pSave.pT();}
+  double pT2()       const {return pSave.pT2();}
+  double mT()        const {return sqrt(mSave*mSave + pSave.pT2());}
+  double mT2()       const {return mSave*mSave + pSave.pT2();}
+  double pAbs()      const {return pSave.pAbs();}
+  double pAbs2()     const {return pSave.pAbs2();}
+  double theta()     const {return pSave.theta();}
+  double phi()       const {return pSave.phi();}
+  double thetaXZ()   const {return pSave.thetaXZ();}
+  double pPlus()     const {return pSave.pPlus();}
+  double pMinus()    const {return pSave.pMinus();}
+  double y()         const;
+  double eta()       const; 
+  Vec4  vDec()       const {return vProdSave + tauSave * pSave / mSave;}
   double xDec() const {return vProdSave.px() + tauSave * pSave.px() / mSave;}
   double yDec() const {return vProdSave.py() + tauSave * pSave.py() / mSave;}
   double zDec() const {return vProdSave.pz() + tauSave * pSave.pz() / mSave;}
   double tDec() const {return vProdSave.e() + tauSave * pSave.e() / mSave;}
 
   // Further output, based on a pointer to a ParticleDataEntry object.
-  string name() const {return particlePtr->name(idSave);}
+  string name()      const {return particlePtr->name(idSave);}
   string nameWithStatus(int maxLen = 20) const;
-  int spinType() const {return particlePtr->spinType();}
-  int chargeType() const {return particlePtr->chargeType(idSave);}
-  double charge() const {return  particlePtr->charge(idSave);}
-  bool isCharged() const {return (particlePtr->chargeType(idSave) != 0);}
-  bool isNeutral() const {return (particlePtr->chargeType(idSave) == 0);}
-  int colType() const {return particlePtr->colType(idSave);}
-  double m0() const {return particlePtr->m0();}
-  double mWidth() const {return particlePtr->mWidth();}
-  double mMin() const {return particlePtr->mMin();}
-  double mMax() const {return particlePtr->mMax();}
-  double mass() const {return particlePtr->mass();}
+  int    spinType()  const {return particlePtr->spinType();}
+  int    chargeType() const {return particlePtr->chargeType(idSave);}
+  double charge()    const {return  particlePtr->charge(idSave);}
+  bool   isCharged() const {return (particlePtr->chargeType(idSave) != 0);}
+  bool   isNeutral() const {return (particlePtr->chargeType(idSave) == 0);}
+  int    colType()   const {return particlePtr->colType(idSave);}
+  double m0()        const {return particlePtr->m0();}
+  double mWidth()    const {return particlePtr->mWidth();}
+  double mMin()      const {return particlePtr->mMin();}
+  double mMax()      const {return particlePtr->mMax();}
+  double mass()      const {return particlePtr->mass();}
   double constituentMass() const {return particlePtr->constituentMass();}
-  double tau0() const {return particlePtr->tau0();}
-  bool mayDecay() const {return particlePtr->mayDecay();}
-  bool canDecay() const {return particlePtr->canDecay();}
-  bool externalDecay() const {return particlePtr->externalDecay();}
-  bool isResonance() const {return particlePtr->isResonance();}
-  bool isVisible() const {return particlePtr->isVisible();}
-  bool isLepton() const {return particlePtr->isLepton();}
-  bool isQuark() const {return particlePtr->isQuark();}
-  bool isGluon() const {return particlePtr->isGluon();}
-  bool isHadron() const {return particlePtr->isHadron();}
+  double tau0()      const {return particlePtr->tau0();}
+  bool   mayDecay()  const {return particlePtr->mayDecay();}
+  bool   canDecay()  const {return particlePtr->canDecay();}
+  bool   externalDecay() const {return particlePtr->externalDecay();}
+  bool   isResonance() const {return particlePtr->isResonance();}
+  bool   isVisible() const {return particlePtr->isVisible();}
+  bool   isLepton()  const {return particlePtr->isLepton();}
+  bool   isQuark()   const {return particlePtr->isQuark();}
+  bool   isGluon()   const {return particlePtr->isGluon();}
+  bool   isHadron()  const {return particlePtr->isHadron();}
   ParticleDataEntry& particleData() const {return *particlePtr;}
 
   // Member functions that perform operations.
@@ -200,6 +200,9 @@ public:
     if (hasVertexSave) vProdSave.bstback(vec);}
   void rotbst(const RotBstMatrix& M) {pSave.rotbst(M);
     if (hasVertexSave) vProdSave.rotbst(M);} 
+  void offsetHistory( int minMother, int addMother, int minDaughter, 
+    int addDaughter);
+  void offsetCol( int addCol); 
 
 private:
 
@@ -216,7 +219,10 @@ private:
   double tauSave;
 
   // Pointer to properties of the particle species.
-  ParticleDataEntry* particlePtr;
+  // Should no be saved in a persistent copy of the event record.
+  // The //! below is ROOT notation that this member should not be saved.
+  // Event::restorePtrs() can be called to restore the missing information. 
+  ParticleDataEntry* particlePtr;  //!
 
 };
 
@@ -261,11 +267,11 @@ public:
   void status(int j, int statusIn) {statusSave[j] = statusIn;}
 
   // Read out value.
-  bool remains() const {return remainsSave;}
-  int kind() const {return kindSave;}
-  int col(int j) const {return colSave[j];}
-  int endCol(int j) const {return endColSave[j];}
-  int status(int j) const {return statusSave[j];}
+  bool   remains()     const {return remainsSave;}
+  int    kind()        const {return kindSave;}
+  int    col(int j)    const {return colSave[j];}
+  int    endCol(int j) const {return endColSave[j];}
+  int    status(int j) const {return statusSave[j];}
  
 private:
 
@@ -336,6 +342,11 @@ public:
     else {int newSize = max( 0, size() - nRemove); 
     entry.resize(newSize);} } 
 
+  // Restore all ParticleDataEntry* pointers in the Particle vector.
+  // Useful when a persistent copy of the event record is read back in.
+  void restorePtrs() { 
+    for (int i = 0; i < size(); ++i) entry[i].id( entry[i].id() ); } 
+
   // Save or restore the size of the event record (throwing at the end).
   void saveSize() {savedSize = entry.size();}
   void restoreSize() {entry.resize(savedSize);}   
@@ -348,6 +359,10 @@ public:
   // Access scale for which event as a whole is defined.
   void scale( double scaleIn) {scaleSave = scaleIn;}
   double scale() const {return scaleSave;}
+
+  // Need a second scale if two hard interactions in event.
+  void scaleSecond( double scaleSecondIn) {scaleSecondSave = scaleSecondIn;}
+  double scaleSecond() const {return scaleSecondSave;}
 
   // Find complete list of daughters and mothers.
   vector<int> motherList(int i) const;
@@ -453,7 +468,7 @@ private:
   int savedSize, savedJunctionSize;
 
   // The scale of the event; linear quantity in GeV.
-  double scaleSave;
+  double scaleSave, scaleSecondSave;
 
   // Header specification in event listing (at most 40 characters wide).
   string headerList;

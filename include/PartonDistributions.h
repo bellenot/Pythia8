@@ -156,7 +156,7 @@ private:
 
 //*********
 
-// Gives electron (or muon, or tau) parton distribution when unresolved.
+// Gives electron (or other lepton) parton distribution when unresolved.
  
 class LeptonPoint : public PDF {
 

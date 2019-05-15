@@ -59,7 +59,10 @@ echo "<a href='SaveSettings.php?returning=1&filename=".$filename."' target='page
 &nbsp;&nbsp;&nbsp;&nbsp; 
 <a href='TopProcesses.php?filepath=".$filepath."' target='page'>Top Processes</a><br/>
 &nbsp;&nbsp;&nbsp;&nbsp; 
+<a href='HiggsProcesses.php?filepath=".$filepath."' target='page'>Higgs Processes</a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp; 
 <a href='SUSYProcesses.php?filepath=".$filepath."' target='page'>SUSY Processes</a><br/>
+<a href='ASecondHardProcess.php?filepath=".$filepath."' target='page'>A Second Hard Process</a><br/>
 <a href='ProcessProperties.php?filepath=".$filepath."' target='page'>Process Properties</a><br/>
 <a href='PhaseSpaceCuts.php?filepath=".$filepath."' target='page'>Phase Space Cuts</a><br/>
 <a href='StandardModelParameters.php?filepath=".$filepath."' target='page'>Standard-Model Parameters</a><br/>

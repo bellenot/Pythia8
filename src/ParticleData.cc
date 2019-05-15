@@ -3,6 +3,7 @@
 // Copyright C 2007 Torbjorn Sjostrand
 
 #include "ParticleData.h"
+#include "StandardModel.h"
 
 // Allow string and character manipulation.
 #include <cctype>
@@ -149,15 +150,15 @@ DecayChannel& DecayTable::dynamicPick(int idIn) {
 
   // Find channel in table, assuming normalization to unity.
   double rand = Rndm::flat() * sumBR;
-  int i = 0;
+  int iPick = 0;
   do {
-    onModeNow = channel[i].onMode();
-    if (onModeNow == 1) rand -= channel[i].dynamicBR(); 
-    if (onModeNow == 2 && idIn > 0) rand -= channel[i].dynamicBR(); 
-    if (onModeNow == 3 && idIn < 0) rand -= channel[i].dynamicBR(); 
-    ++i;
+    onModeNow = channel[iPick].onMode();
+    if (onModeNow == 1) rand -= channel[iPick].dynamicBR(); 
+    if (onModeNow == 2 && idIn > 0) rand -= channel[iPick].dynamicBR(); 
+    if (onModeNow == 3 && idIn < 0) rand -= channel[iPick].dynamicBR(); 
+    ++iPick;
   } while (rand > 0.);
-  return channel[i - 1];
+  return channel[iPick - 1];
 
 }
 
@@ -173,6 +174,8 @@ DecayChannel& DecayTable::dynamicPick(int idIn) {
 
 int    ParticleDataEntry::modeBreitWigner = 1;
 double ParticleDataEntry::maxEnhanceBW    = 2.5;
+double ParticleDataEntry::mQRun[6]   = {0., 0.006, 0.003, 0.095, 1.25, 4.20};
+double ParticleDataEntry::Lambda5Run      = 0.2;
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -197,6 +200,19 @@ void ParticleDataEntry::initStatic() {
 
   // Maximum tail enhancement when adding threshold factor to Breit-Wigner.
   maxEnhanceBW    = Settings::parm("ParticleData:maxEnhanceBW");
+ 
+  // Find initial MSbar masses for five light flavours.
+  mQRun[1]   = Settings::parm("ParticleData:mdRun");  
+  mQRun[2]   = Settings::parm("ParticleData:muRun");  
+  mQRun[3]   = Settings::parm("ParticleData:msRun");  
+  mQRun[4]   = Settings::parm("ParticleData:mcRun");  
+  mQRun[5]   = Settings::parm("ParticleData:mbRun");
+
+  // Find Lambda5 value to use in running of MSbar masses.
+  double alphaSvalue = Settings::parm("ParticleData:alphaSvalueMRun");
+  AlphaStrong alphaS;
+  alphaS.init( alphaSvalue, 1); 
+  Lambda5Run = alphaS.Lambda5();  
 
 }
 
@@ -369,6 +385,25 @@ double ParticleDataEntry::mass() {
 
   // Done.
   return mNow;
+}
+
+//*********
+
+// Function to calculate running mass at given mass scale.
+
+double ParticleDataEntry::mRun(double mH) {
+
+  // Except for five lighter quarks return nominal mass.
+  if (idSave > 5) return m0Save;
+
+  // For d, u, s quarks start running at 2 GeV (RPP 2006 p. 505).
+  if (idSave < 4) return mQRun[idSave] * pow ( log(2. / Lambda5Run) 
+    / log(max(2., mH) / Lambda5Run), 12./23.);
+
+  // For c and b quarks start running at respective mass.
+  return mQRun[idSave] * pow ( log(mQRun[idSave] / Lambda5Run) 
+    / log(max(mQRun[idSave], mH) / Lambda5Run), 12./23.);
+
 }
 
 //*********

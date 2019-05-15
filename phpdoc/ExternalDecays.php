@@ -28,7 +28,10 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 <h2>External Decays</h2>
 
 <code>DecayHandler</code> is a base class for the external handling of 
-decays. The user-written derived class is called if a pointer to it has
+decays. It is intended for normal particle decays, primarily 
+<i>B</i> mesons and <i>tau</i>, and cannot be used to redirect
+decays of heavy resonances like <i>t</i> or <i>Z^0</i>.  
+The user-written derived class is called if a pointer to it has
 been given with the <?php $filepath = $_GET["filepath"];
 echo "<a href='ProgramFlow.php?filepath=".$filepath."' target='page'>";?>
 <code>pythia.decayPtr()</code></a> 
@@ -41,7 +44,8 @@ method.
 <p/>
 There is only one pure virtual method in <code>DecayHandler</code>, 
 to do the decay: 
-<p/><code>method&nbsp; </code><strong> virtual bool decay(vector&lt;int&gt;&amp; idProd, vector&lt;double&gt;&amp; mProd, vector&lt;Vec4&gt;&amp; pProd, int iDec, const Event&amp; event) &nbsp;</strong> <br/>
+<p/><code>method&nbsp; </code><strong> virtual bool decay(vector&lt;int&gt;&amp; idProd, vector&lt;double&gt;&amp; mProd, vector&lt;Vec4&gt;&amp; pProd,  &nbsp;</strong> <br/>
+int iDec, const Event&amp; event)">
 where 
 <br/><code>argument</code><strong> idProd </strong>  :  is a list of particle PDG identity codes,
   
@@ -81,7 +85,7 @@ production.
 
 <p/>
 A sample test program is available in <code>main17.cc</code>, providing 
-a simple example of how to use thing facility.
+a simple example of how to use this facility.
 
 </body>
 </html>

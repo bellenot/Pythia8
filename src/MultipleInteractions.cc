@@ -661,7 +661,8 @@ bool MultipleInteractions::limitPTmax( Event& event) {
    
   // Look if only quarks (u, d, s, c, b), gluons and photons in final state. 
   bool onlyQGP = true;
-  for (int i = 5; i < event.size(); ++i) {
+  for (int i = 5; i < event.size(); ++i) 
+  if (event[i].status() != -21) {
     int idAbs = event[i].idAbs();
     if (idAbs > 5 && idAbs != 21 && idAbs != 22) onlyQGP = false;
   }

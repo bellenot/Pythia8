@@ -52,8 +52,8 @@ private:
 
   // Initialization data, normally only set once.
   bool doMI, doISR, doFSRduringProcess, doFSRafterProcess, 
-       doFSRinResonances, doRemnants, hasLeptonBeams, 
-    hasPointLeptons, canVetoPT, canVetoStep;
+       doFSRinResonances, doRemnants, doSecondHard, 
+       hasLeptonBeams, hasPointLeptons, canVetoPT, canVetoStep;
 
   // Constants: could only be changed in the code itself.
   static const int NTRY;

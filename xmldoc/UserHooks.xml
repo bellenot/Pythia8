@@ -236,6 +236,42 @@ from comparisons.
 Note that the cross section is only modifiable for normal hard processes.
 It does not affect the cross section in further multiple interactions,
 nor in elastic/diffractive/minimum-bias events.
+
+<p/>
+One derived class is supplied as an example how this facility can be used
+to reweight cross sections in the same spirit as is done with QCD cross
+sections for the minimum-bias/underlying-event description:
+<class name="SuppressSmallPT( pT0timesMI, numberAlphaS, alphaSasMI)">
+suppress small-<ei>pT</ei> production for <ei>2 -> 2</ei> processes
+only, while leaving other processes unaffected. The basic suppression
+factor is <ei>pT^4 / ((k*pT0)^2 + pT^2)^2</ei>, where <ei>pT</ei>
+refers to the current hard subprocess and <ei>pT0</ei> is the same
+energy-dependent dampening scale as used for 
+<aloc href="MultipleInteractions">multiple interactions</aloc>. 
+The optional arguments provide further variability. 
+<argument name="pT0timesMI"> 
+corresponds to the additional factor <ei>k</ei> in the above formula. 
+It is by default equal to 1 but can be used to explore deviations from 
+the expected value.
+</argument>
+<argument name="numberAlphaS">  
+if this number <ei>n</ei> is bigger than the default 0, the 
+corresponding number of <ei>alpha_strong</ei> factors is also 
+reweighted from the normal renormalization scale to a modified one,
+i.e. a further suppression factor
+<ei>( alpha_s((k*pT0)^2 + Q^2_ren) / alpha_s(Q^2_ren) )^n</ei>
+is introduced.
+</argument>
+<argument name="alphaSasMI"> 
+regulates which kind of new <ei>alpha_strong</ei> value is evaluated
+for the numerator in the above expression. It is by default the same 
+as set for multiple interactions (i.e. same starting value at 
+<ei>M_Z</ei> and same order of running), but if <code>false</code> 
+instead the one for hard subprocesses. The denominator 
+<ei>alpha_s(Q^2_ren)</ei> is always the value used for the "original", 
+unweighted cross section. 
+</argument>
+</class>
  
 <h3>Final comments</h3>
 

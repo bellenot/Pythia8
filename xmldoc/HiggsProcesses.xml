@@ -1,0 +1,90 @@
+<chapter name="Higgs Processes">
+
+<h2>Higgs Processes</h2>
+
+This page contains Higgs production within and beyond the Standard Model.
+It is at a very early stage.
+
+<h3>Standard-Model Higgs</h3>
+
+<flag name="SMHiggs:all" default="off">
+Common switch for the group of Higgs production within the Standard Model.
+</flag>
+
+<flag name="SMHiggs:ffbar2H" default="off">
+Scattering <ei>f fbar -> H^0</ei>, where <ei>f</ei> sums over available
+flavours except top.
+Code 801.
+</flag>
+
+<flag name="SMHiggs:gg2H" default="off">
+Scattering <ei>g g -> H^0</ei>.
+Code 802.
+</flag>
+
+<flag name="SMHiggs:gmgm2H" default="off">
+Scattering <ei>gamma gamma -> H^0</ei>.
+Code 803.
+</flag>
+
+<flag name="SMHiggs:ffbar2HZ" default="off">
+Scattering <ei>f fbar -> H^0 Z^0</ei>.
+Code 804.
+</flag>
+
+<flag name="SMHiggs:ffbar2HW" default="off">
+Scattering <ei>f fbar -> H^0 W^+-</ei>.
+Code 805.
+</flag>
+
+<flag name="SMHiggs:qg2Hq" default="off">
+Scattering <ei>q g -> H^0 q</ei>. This process gives first-order 
+corrections to the <ei>f fbar -> H^0</ei> one above (for 
+<ei>f = q </ei>), so both cannot be used simultaneously without 
+unphysical doublecounting. The current one should only be used to study 
+the high-pT tail, while <ei>f g -> H^0 f</ei> should be used for 
+inclusive production. Therefore this process is not switched on by 
+the <code>SMHiggs:all</code> flag.
+Code 806.
+</flag>
+
+<h3>Parameters for Higgs production and decay</h3>
+
+<flag name="ResonanceH::linearWidthWWZZ" default="on">
+The partial width of a Higgs particle to a pair of gauge bosons,
+<ei>W^+ W^-</ei> or <ei>Z^0 Z^0</ei>, depends cubically on the
+Higgs mass. When selecting the Higgs according to a Breit-Wigner,
+so that the actual mass <ei>mHat</ei> does not agree with the
+nominal <ei>m_Higgs</ei> one, an ambiguity arises which of the 
+two to use <ref>Sey95</ref>. The default is to use a linear 
+dependence on <ei>mHat</ei>, i.e. a width proportional to 
+<ei>m_Higgs^2 * mHat</ei>, while <code>off</code> gives a 
+<ei>mHat^3</ei> dependence. This does not affect the width to 
+fermions, which only depends on <ei>mHat</ei>.
+</flag>
+
+<modepick name="SMHiggs:parity" default="1" min="0" max="3">
+possibility to modify angular decay correlations in Higgs decay to
+<ei>Z^0 Z^0</ei> or <ei>W^+ W^-</ei> to four fermions. Currently it 
+does not affect the partial width of the channels.
+<option value="0">isotropic decays.</option>
+<option value="1">assuming the Higgs is a pure scalar (CP-even), 
+as in the Standard Model.</option>
+<option value="2">assuming the Higgs is a pure pseudoscalar
+(CP-odd).</option>
+<option value="3">assuming the Higgs is a mixture of the two, 
+including the CP-violating interference term. The parameter
+<ei>eta</ei>, see below, sets the strength of the CP-odd admixture,
+with the interference term being proportional to <ei>eta</ei>
+and the CP-odd one to <ei>eta^2</ei>.</option>
+</modepick>
+
+<parm name="SMHiggs:etaParity" default="0.">
+The <ei>eta</ei> value of CP-violation in the 
+<code>SMHiggs:parity = 2</code> option. 
+</parm>
+
+</chapter>
+
+<!-- Copyright C 2007 Torbjorn Sjostrand -->
+

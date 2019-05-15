@@ -90,26 +90,29 @@
 * main10.cc : implement UserHooks to interact with the generation process
 
 2) main11 - main14 involve linkage to PYTHIA 6.4 as well 
-* main11.cc: runtime Les Houches link to PYTHIA 6.4 for simple tests
-* main12.cc & main12.ccmnd & main12.fcmnd: ditto with external input 
+* main11.cc : runtime Les Houches link to PYTHIA 6.4 for simple tests
+* main12.cc & main12.ccmnd & main12.fcmnd : ditto with external input 
 * main13.f (Fortran!) : have PYTHIA 6.4 generate a Les Houches Event File 
 * main14.cc & ttbar.lhe : generate events from a Les Houches Event File 
 
 3) main14 - main18 are examples how some external programs could be linked
 * main15.cc : Les Houches tricked to study fixed parton configurations
-* main16.cc & main16.cmnd: & main16.spc supersymmetry production using SLHA
-* main17.cc: how to link an external decay handler
-* main18.cc: how to link an external random number generator
+* main16.cc & main16.cmnd : & main16.spc supersymmetry production using SLHA
+* main17.cc : how to link an external decay handler
+* main18.cc : how to link an external random number generator
 
 4) main21 - main22 require linkage to the HepMC event record library
-* main21.cc & main21.cmnd: simple example output to HepMC 
-* main22.cc & main22.cmnd: input from PYTHIA 6.4 and output to HepMC
-* main23.cc & main23.cmnd: streamlined production for HepMC only
+* main21.cc & main21.cmnd : simple example output to HepMC 
+* main22.cc & main22.cmnd : input from PYTHIA 6.4 and output to HepMC
+* main23.cc & main23.cmnd : streamlined production for HepMC only
 Note: these three runs save HepMC-formatted events on hepmcoutNN.dat;
 these files become so big that they have not been included in distribution. 
 
-5) main31 - main32 require linkage to PDFLIB to work.
-* main31.cc: test shape of PDF's
-* main32.cc: compare average multiplicity and pT for different PDF's
+5) main31 - main32 require linkage to LHAPDF to work.
+* main31.cc : test shape of PDF's
+* main32.cc : compare average multiplicity and pT for different PDF's
+
+6) main41 - further examples only for PYTHIA 8
+* main41.cc : set two hard interactions in the same event
 
 ----------------------------------------------------------------------

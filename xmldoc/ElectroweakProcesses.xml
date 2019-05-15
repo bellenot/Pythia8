@@ -4,8 +4,7 @@
 
 This page contains processes involving Prompt-photon, <ei>gamma^*/Z^0</ei> 
 and <ei>W^+-</ei> production, plus a few with <ei>t</ei>-channel boson 
-exchange. Many of the processes are not yet completed, e.g. there are not
-yet the correct angular decay distributions in many cases.
+exchange. 
 
 <h3>Prompt photon processes</h3>
 
@@ -13,6 +12,8 @@ This group collects the processes where one or two photons are
 produced by the hard process. Additional sources of photons 
 include parton showers and hadron decays. A <ei>pT</ei> cut
 is required to stay away from the unphysical low-<ei>pT</ei> region.
+An eikonalized description, intended to be valid at all <ei>pT</ei>,
+is included as part of the multiple-interactions framework.
 
 <flag name="PromptPhoton:all" default="off">
 Common switch for the group of all prompt photon processes, 
@@ -66,6 +67,9 @@ between two fermions form a separate group.
 
 <h4>Boson exchange</h4>
 
+The two processes in this subgroup is included as part of the 
+multiple-interactions framework.
+
 <flag name="WeakBosonExchange:all" default="off">
 Common switch for the group of <ei>gamma^*/Z^0</ei>
 or <ei>W^+-</ei> exchange between two fermions.
@@ -110,22 +114,26 @@ interactions. As a consequence the scale for pdf's is <ei>pT</ei>
 rather than <ei>m</ei>, so results will not be identical even 
 for the same phase space cuts. Hardcoded for the final state 
 being either of the five quark flavours or three lepton ones. 
-Not included in the <code>WeakSingleBoson:all</code> set. 
+Not included in the <code>WeakSingleBoson:all</code> set, but
+included in the multiple-interactions framework. 
 Code 223.
 </flag>
 
 <h4>Boson pair</h4>
-
-The processes in this subset are not yet fully handled.
 
 <flag name="WeakDoubleBoson:all" default="off">
 Common switch for the group of pair production of <ei>gamma^*/Z^0</ei>
 and <ei>W^+-</ei>.
 </flag>
  
+<flag name="WeakDoubleBoson:ffbar2gmZgmZ" default="off">
+Scattering <ei>f fbar' -> gamma^*/Z^0 gamma^*/Z^0</ei>. 
+Code 231.
+</flag>
+
 <flag name="WeakDoubleBoson:ffbar2ZW" default="off">
 Scattering <ei>f fbar' -> Z^0 W^+-</ei>. Note that here the 
-<ei>gamma^*</ei> is not included.
+<ei>gamma^*</ei> contribution is not (currently) included.
 Code 232.
 </flag>
  
@@ -136,33 +144,57 @@ Code 233.
 
 <h4>Boson and parton</h4>
 
-The processes in this subset are not yet fully handled.
-
 <flag name="WeakBosonAndParton:all" default="off">
 Common switch for the group of production of a single electroweak 
 gauge boson, i.e. a <ei>gamma^*/Z^0</ei> or a <ei>W^+-</ei>, in 
 association with a parton, i.e. a quark, gluon, photon or lepton.
 These processes give first-order corrections to the ones in the
-<code>WeakSingleBoson</code> class, and boths sets cannot be used
+<code>WeakSingleBoson</code> class, and both sets cannot be used
 simultaneously without unphysical doublecounting. The current class
 should only be used to study the high-<ei>pT</ei> tail of the 
-gauge-boson production processes, while the ones in 
-<code>WeakSingleBoson</code> should be used for inclusive production.
+gauge-boson production processes (for LHC applicatiosn at least
+<ei>pT</ei> > 20 GeV), while the ones in <code>WeakSingleBoson</code> 
+should be used for inclusive production.
+</flag>
+ 
+<flag name="WeakBosonAndParton:qqbar2gmZg" default="off">
+Scattering <ei>q qbar -> gamma^*/Z^0 g</ei>.
+Code 241.
+</flag>
+ 
+<flag name="WeakBosonAndParton:qg2gmZq" default="off">
+Scattering <ei>q g -> gamma^*/Z^0 q </ei>.
+Code 242.
+</flag>
+ 
+<flag name="WeakBosonAndParton:ffbar2gmZgm" default="off">
+Scattering <ei>f fbar -> gamma^*/Z^0 gamma</ei>.
+Code 243.
+</flag>
+ 
+<flag name="WeakBosonAndParton:fgm2gmZf" default="off">
+Scattering <ei>f gamma ->  gamma^*/Z^0 f</ei>.
+Code 244.
 </flag>
  
 <flag name="WeakBosonAndParton:qqbar2Wg" default="off">
-Scattering <ei>f fbar -> W^+- g</ei>.
-Code 246.
+Scattering <ei>q qbar -> W^+- g</ei>.
+Code 251.
 </flag>
  
 <flag name="WeakBosonAndParton:qg2Wq" default="off">
-Scattering <ei>f g -> f W^+-</ei>.
-Code 247.
+Scattering <ei>q g -> W^+- q</ei>.
+Code 252.
 </flag>
  
 <flag name="WeakBosonAndParton:ffbar2Wgm" default="off">
 Scattering <ei>f fbar -> W^+- gamma</ei>.
-Code 248.
+Code 253.
+</flag>
+ 
+<flag name="WeakBosonAndParton:fgm2Wf" default="off">
+Scattering <ei>f gamma -> W^+- f</ei>.
+Code 254.
 </flag>
 
 </chapter>

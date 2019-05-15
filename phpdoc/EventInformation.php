@@ -165,7 +165,7 @@ processes).
 
 <p/><code>method&nbsp; </code><strong> enhanceMI() &nbsp;</strong> <br/>
 The choice of impact parameter implies an enhancement or depletion of
- the rate of subsequent interactiosn, as given by this number. Again
+the rate of subsequent interactions, as given by this number. Again
 the average is normalized be unity for minimum-bias events (meaning 
 more than that for events with hard processes).  
   

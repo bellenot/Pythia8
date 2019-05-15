@@ -36,7 +36,7 @@ current page provides the actual default values.
 <h3>Main settings</h3>
 
 Apart from the data itself, the particle data table only contains 
-one aspect that is available to change:
+a few aspects that are available to change:
 
 <br/><br/><table><tr><td><strong>ParticleData:modeBreitWigner  </td><td>  &nbsp;&nbsp;(<code>default = <strong>4</strong></code>; <code>minimum = 0</code>; <code>maximum = 4</code>)</td></tr></table>
 <modepick name="ParticleData:modeBreitWigner" default="4" min="0" max="4">
@@ -60,6 +60,37 @@ above the one obtained with options 1 or 3, respectively. This also
 opens up for a simpler technical handling of mass selection in options
 2 and 4, by using standard hit-and-miss Monte Carlo.
   
+
+<p/>
+Since running masses are only calculated for the five light quark flavours,
+e.g. to obtain couplings to the Higgs boson(s), there is not an entry
+in the normal tables for each particles, but only the five MSbar mass 
+values below, used as starting point for the running. In addition you
+can pick an <i>alpha_s(M_Z)</i>, which is converted into a first-order
+five-flavour Lambda that is used to determine the rate of the running. 
+(Without any match to four flavours below <i>m_b</i>; if desired, this
+can be fixed by slightly shifted default mass values, since the routines 
+never should be called below the <i>m_b</i> scale anyway.)
+
+<br/><br/><table><tr><td><strong>ParticleData:mdRun </td><td></td><td> <input type="text" name="3" value="0.006" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.006</strong></code>; <code>minimum = 0.003</code>; <code>maximum = 0.008</code>)</td></tr></table>
+the d quark MSbar mass at 2 GeV scale.
+
+<br/><br/><table><tr><td><strong>ParticleData:muRun </td><td></td><td> <input type="text" name="4" value="0.003" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.003</strong></code>; <code>minimum = 0.001</code>; <code>maximum = 0.006</code>)</td></tr></table>
+the u quark MSbar mass at 2 GeV scale.
+
+<br/><br/><table><tr><td><strong>ParticleData:msRun </td><td></td><td> <input type="text" name="5" value="0.095" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.095</strong></code>; <code>minimum = 0.060</code>; <code>maximum = 0.150</code>)</td></tr></table>
+the s quark MSbar mass at 2 GeV scale.
+
+<br/><br/><table><tr><td><strong>ParticleData:mcRun </td><td></td><td> <input type="text" name="6" value="1.25" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.25</strong></code>; <code>minimum = 1.00</code>; <code>maximum = 1.50</code>)</td></tr></table>
+the c quark MSbar mass at the mass scale itself.
+
+<br/><br/><table><tr><td><strong>ParticleData:mbRun </td><td></td><td> <input type="text" name="7" value="4.20" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>4.20</strong></code>; <code>minimum = 4.00</code>; <code>maximum = 4.50</code>)</td></tr></table>
+the b quark MSbar mass at the mass scale itself.
+
+<br/><br/><table><tr><td><strong>ParticleData:alphaSvalueMRun </td><td></td><td> <input type="text" name="8" value="0.125" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.125</strong></code>; <code>minimum = 0.10</code>; <code>maximum = 0.20</code>)</td></tr></table>
+the <i>alpha_s(M_Z)</i> value used to define tha rate at which MSbar
+masses run.
+
 
 <h3>Comments on the data</h3>
 
@@ -7516,6 +7547,36 @@ fwrite($handle,$data);
 if($_POST["2"] != "2.5")
 {
 $data = "ParticleData:maxEnhanceBW = ".$_POST["2"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["3"] != "0.006")
+{
+$data = "ParticleData:mdRun = ".$_POST["3"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["4"] != "0.003")
+{
+$data = "ParticleData:muRun = ".$_POST["4"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["5"] != "0.095")
+{
+$data = "ParticleData:msRun = ".$_POST["5"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["6"] != "1.25")
+{
+$data = "ParticleData:mcRun = ".$_POST["6"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["7"] != "4.20")
+{
+$data = "ParticleData:mbRun = ".$_POST["7"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["8"] != "0.125")
+{
+$data = "ParticleData:alphaSvalueMRun = ".$_POST["8"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);

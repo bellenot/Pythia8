@@ -27,7 +27,7 @@ bool   PhaseSpace::useBreitWigners      = true;
 double PhaseSpace::minWidthBreitWigners = 0.01;
 bool   PhaseSpace::showSearch           = false;
 bool   PhaseSpace::showViolation        = false;
-int    PhaseSpace::gmZmode              = 0;
+int    PhaseSpace::gmZmodeGlob          = 0;
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -116,7 +116,7 @@ void PhaseSpace::initStatic() {
   showViolation        = Settings::flag("PhaseSpace:showViolation");
 
   // Know whether a Z0 is pure Z0 or admixed with gamma*.
-  gmZmode              = Settings::mode("SigmaProcess:gmZmode");  
+  gmZmodeGlob          = Settings::mode("SigmaProcess:gmZmode");  
 
 }
 
@@ -159,28 +159,104 @@ void PhaseSpace::initInfo(SigmaProcess* sigmaProcessPtrIn, double eCMIn) {
 
   // Store input pointers for future use. CM energy.
   sigmaProcessPtr = sigmaProcessPtrIn;
-  eCM = eCMIn;
-  s = eCM * eCM;
+  eCM      = eCMIn;
+  s        = eCM * eCM;
 
   // Default event-specific kinematics properties.
-  x1H = 1.;
-  x2H = 1.;
-  m3 = 0.;
-  m4 = 0.;
-  s3 = m3 * m3;
-  s4 = m4 * m4;
-  mHat = eCM;
-  sH = s;
-  tH = 0.;
-  uH = 0.;
-  pTH = 0.;
-  theta = 0.;
-  phi = 0.;
+  x1H      = 1.;
+  x2H      = 1.;
+  m3       = 0.;
+  m4       = 0.;
+  s3       = m3 * m3;
+  s4       = m4 * m4;
+  mHat     = eCM;
+  sH       = s;
+  tH       = 0.;
+  uH       = 0.;
+  pTH      = 0.;
+  theta    = 0.;
+  phi      = 0.;
+  runBW3H  = 1.;
+  runBW4H  = 1.;
 
   // Default cross section information.
-  sigmaNw = 0.;
-  sigmaMx = 0.;
+  sigmaNw  = 0.;
+  sigmaMx  = 0.;
   sigmaNeg = 0.;
+
+}
+
+//*********
+
+// Allow for nonisotropic decays when ME's available.
+
+void PhaseSpace::decayKinematics( Event& process) {
+
+  // Identify sets of sister partons. 
+  int iResEnd = 5;
+  for (int iResBeg = 5; iResBeg < process.size(); ++iResBeg) {
+    if (iResBeg < iResEnd) continue;
+    iResEnd = iResBeg + 1;
+    while ( iResEnd < process.size() 
+      && process[iResEnd].mother1() == process[iResBeg].mother1()
+      && process[iResEnd].mother2() == process[iResBeg].mother2() )
+      ++iResEnd;
+
+    // Check that at least one of them is a resonance.
+    bool hasRes = false;
+    for (int iRes = iResBeg; iRes < iResEnd; ++iRes)
+      if ( !process[iRes].isFinal() ) hasRes = true;
+    if ( !hasRes ) continue; 
+
+    // Evaluate matrix element and decide whether to keep kinematics.
+    while ( sigmaProcessPtr->weightDecay( process, iResBeg, iResEnd) 
+      < Rndm::flat() ) {
+
+      // Find resonances for which to redo decay angles.
+      for (int iRes = iResBeg; iRes < process.size(); ++iRes) {
+        if ( process[iRes].isFinal() ) continue;
+        int iResMother = iRes;
+        while (iResMother >= iResEnd) 
+          iResMother = process[iResMother].mother1();
+        if (iResMother < iResBeg) continue;
+
+        // Identify daughters. Find mother and daughter masses.
+        int    i1 = process[iRes].daughter1();
+        int    i2 = process[iRes].daughter2();
+        double m0 = process[iRes].m();
+        double m1 = process[i1].m();
+        double m2 = process[i2].m();
+
+        // Energies and absolute momentum in the rest frame.
+        double e1   = 0.5 * (m0*m0 + m1*m1 - m2*m2) / m0;
+        double e2   = 0.5 * (m0*m0 + m2*m2 - m1*m1) / m0;
+        double pAbs = 0.5 * sqrtpos( (m0 - m1 - m2) * (m0 + m1 + m2)
+          * (m0 + m1 - m2) * (m0 - m1 + m2) ) / m0;  
+
+        // Pick isotropic angles to give three-momentum. 
+        double cosTheta = 2. * Rndm::flat() - 1.;
+        double sinTheta = sqrt(1. - cosTheta*cosTheta);
+        double phi      = 2. * M_PI * Rndm::flat();
+        double pX       = pAbs * sinTheta * cos(phi);  
+        double pY       = pAbs * sinTheta * sin(phi);  
+        double pZ       = pAbs * cosTheta;  
+
+        // Fill four-momenta in mother rest frame and boost them. 
+        Vec4 p1(  pX,  pY,  pZ, e1);
+        Vec4 p2( -pX, -pY, -pZ, e2);
+        p1.bst( process[iRes].p() );
+        p2.bst( process[iRes].p() );
+        process[i1].p( p1 );
+        process[i2].p( p2 );
+
+      // End loop over resonance decay chains.
+      }
+
+    // Ready to allow new test of matrix element.
+    }
+
+  // End loop over sets of sister resonances/partons. 
+  }
 
 }
 
@@ -189,6 +265,11 @@ void PhaseSpace::initInfo(SigmaProcess* sigmaProcessPtrIn, double eCMIn) {
 // Determine how phase space should be sampled.
 
 bool PhaseSpace::setupSampling1or2(bool is2, ostream& os) {
+
+  // Should Z0 be treated as such or as gamma*/Z0?
+  gmZmode         = gmZmodeGlob;
+  int gmZmodeProc = sigmaProcessPtr->gmZmode();
+  if (gmZmodeProc >= 0) gmZmode = gmZmodeProc;
 
   // Optional printout.
   if (showSearch) os <<  "\n Optimization printout for "  
@@ -296,7 +377,8 @@ bool PhaseSpace::setupSampling1or2(bool is2, ostream& os) {
 
         // Calculate cross section. Weight by phase-space volume
         // and Breit-Wigners for masses in 2 -> 2.
-        if (is2) sigmaProcessPtr->set2Kin( x1H, x2H, sH, tH, m3, m4);
+        if (is2) sigmaProcessPtr->set2Kin( x1H, x2H, sH, tH, m3, m4, 
+                                           runBW3H, runBW4H);
         else     sigmaProcessPtr->set1Kin( x1H, x2H, sH);
         double sigmaNow = sigmaProcessPtr->sigmaPDF();
         sigmaNow *= wtTau * wtY * wtZ * wtBW; 
@@ -421,7 +503,8 @@ bool PhaseSpace::setupSampling1or2(bool is2, ostream& os) {
 
         // Calculate cross section. Weight by phase-space volume
         // and Breit-Wigners for masses in 2 -> 2.
-        if (is2) sigmaProcessPtr->set2Kin( x1H, x2H, sH, tH, m3, m4);
+        if (is2) sigmaProcessPtr->set2Kin( x1H, x2H, sH, tH, m3, m4,
+                                           runBW3H, runBW4H);
         else     sigmaProcessPtr->set1Kin( x1H, x2H, sH);
         double sigmaNow = sigmaProcessPtr->sigmaPDF();
         sigmaNow *= wtTau * wtY * wtZ * wtBW;
@@ -502,14 +585,14 @@ bool PhaseSpace::setupSampling1or2(bool is2, ostream& os) {
             iGrid = 0;
             varNew = varVal - deltaVar;
           } else if (sigGrid[2] >= max( sigGrid[0], sigGrid[1]) 
-            & varVal + 2. * deltaVar < 1. - marginVar) {
+            && varVal + 2. * deltaVar < 1. - marginVar) {
             varVal += deltaVar;
             sigGrid[0] = sigGrid[1];
             sigGrid[1] = sigGrid[2];
             iGrid = 2;
             varNew = varVal + deltaVar;
           } else if (sigGrid[0] >= max( sigGrid[1], sigGrid[2]) 
-            & varVal - 2. * deltaVar > marginVar) {
+            && varVal - 2. * deltaVar > marginVar) {
             varVal -= deltaVar;
             sigGrid[2] = sigGrid[1];
             sigGrid[1] = sigGrid[0];
@@ -554,7 +637,8 @@ bool PhaseSpace::setupSampling1or2(bool is2, ostream& os) {
 
             // Calculate cross section. Weight by phase-space volume
             // and Breit-Wigners for masses in 2 -> 2.
-            if (is2) sigmaProcessPtr->set2Kin( x1H, x2H, sH, tH, m3, m4);
+            if (is2) sigmaProcessPtr->set2Kin( x1H, x2H, sH, tH, m3, m4,
+                                               runBW3H, runBW4H);
             else     sigmaProcessPtr->set1Kin( x1H, x2H, sH);
             sigmaNow = sigmaProcessPtr->sigmaPDF();
             sigmaNow *= wtTau * wtY * wtZ * wtBW;
@@ -596,8 +680,10 @@ bool PhaseSpace::trialKin1or2(bool is2, bool inEvent, ostream& os) {
 
   // Choose tau according to h1(tau)/tau, where
   // h1(tau) = c0/I0 + (c1/I1) * 1/tau 
-  // + (c2/I2) / (tau + tauResA) + (c3/I3) * tau / ((tau - tauResA)^2 + widResA^2)
-  // + (c4/I4) / (tau + tauResB) + (c5/I5) * tau / ((tau - tauResB)^2 + widResB^2)
+  // + (c2/I2) / (tau + tauResA) 
+  // + (c3/I3) * tau / ((tau - tauResA)^2 + widResA^2)
+  // + (c4/I4) / (tau + tauResB) 
+  // + (c5/I5) * tau / ((tau - tauResB)^2 + widResB^2)
   // + (c6/I6) * tau / (1 - tau).
   if (!limitTau(is2)) return false;
   int iTau = 0;
@@ -608,8 +694,9 @@ bool PhaseSpace::trialKin1or2(bool is2, bool inEvent, ostream& os) {
   selectTau( iTau, Rndm::flat(), is2);
 
   // Choose y according to h2(y), where
-  // h2(y) = (c0/I0) * (y-ymin) + (c1/I1) * (ymax-y) + (c2/I2) * 1/cosh(y)
-  // + (c3/I3) * 1 / (1 - exp(y-ymax)) + (c4/I4) * 1 / (1 - exp(ymin-y)).
+  // h2(y) = (c0/I0) * (y-ymin) + (c1/I1) * (ymax-y) 
+  // + (c2/I2) * 1/cosh(y) + (c3/I3) * 1 / (1 - exp(y-ymax)) 
+  // + (c4/I4) * 1 / (1 - exp(ymin-y)).
   if (!limitY()) return false;
   int iY = 0;
   if (!hasPointLeptons) {
@@ -632,7 +719,8 @@ bool PhaseSpace::trialKin1or2(bool is2, bool inEvent, ostream& os) {
    
   // Calculate cross section. Weight by phase-space volume
   // and Breit-Wigners for masses in 2 -> 2.
-  if (is2) sigmaProcessPtr->set2Kin( x1H, x2H, sH, tH, m3, m4);
+  if (is2) sigmaProcessPtr->set2Kin( x1H, x2H, sH, tH, m3, m4, 
+                                     runBW3H, runBW4H);
   else     sigmaProcessPtr->set1Kin( x1H, x2H, sH);
   sigmaNw = sigmaProcessPtr->sigmaPDF();
   sigmaNw *= wtTau * wtY * wtZ * wtBW;
@@ -648,10 +736,13 @@ bool PhaseSpace::trialKin1or2(bool is2, bool inEvent, ostream& os) {
     double violFact = SAFETYMARGIN * sigmaNw / sigmaMx;
     sigmaMx = SAFETYMARGIN * sigmaNw; 
     // Optional printout of (all) violations.
-    if (showViolation) os << " Maximum for " 
-      << sigmaProcessPtr->name() << " increased by factor " 
-      << ((violFact < 9.99) ? fixed : scientific) << setprecision(3)
-      << violFact << " to " << scientific << sigmaMx << endl;
+    if (showViolation) { 
+      if (violFact < 9.99) cout << fixed;
+      else                 cout << scientific;
+      os << " Maximum for " << sigmaProcessPtr->name() 
+         << " increased by factor " << setprecision(3) << violFact 
+         << " to " << scientific << sigmaMx << endl;
+    }
   }
 
   // Check if negative cross section.
@@ -1561,22 +1652,22 @@ void PhaseSpace2to2tauyz::weightMasses() {
 
   wtBW = 1.;
   if (useBW3) { 
-    double genBW = (1. - frac3Flat - frac3Inv - frac3Inv2) 
+    double genBW  = (1. - frac3Flat - frac3Inv - frac3Inv2) 
       * mw3 / ( (pow2(s3 - s3Peak) + pow2(mw3)) * int3BW)
       + frac3Flat / int3Flat + frac3Inv / (s3 * int3Inv)
       + frac3Inv2 / (s3*s3 * int3Inv2);
     double mw3Run = s3 * wm3Rat;
-    double runBW = mw3Run / (pow2(s3 - s3Peak) + pow2(mw3Run)) / M_PI;
-    wtBW *= runBW / genBW ;
+    runBW3H       = mw3Run / (pow2(s3 - s3Peak) + pow2(mw3Run)) / M_PI;
+    wtBW         *= runBW3H / genBW ;
   }  
   if (useBW4) { 
-    double genBW = (1. - frac4Flat - frac4Inv - frac4Inv2) 
+    double genBW  = (1. - frac4Flat - frac4Inv - frac4Inv2) 
       * mw4 / ( (pow2(s4 - s4Peak) + pow2(mw4)) * int4BW)
       + frac4Flat / int4Flat + frac4Inv / (s4 * int4Inv)
-      + frac4Inv2 / (s4*s4 * int3Inv2);
+      + frac4Inv2 / (s4*s4 * int4Inv2);
     double mw4Run = s4 * wm4Rat;
-    double runBW = mw4Run / (pow2(s4 - s4Peak) + pow2(mw4Run)) / M_PI;
-    wtBW *= runBW / genBW;
+    runBW4H       = mw4Run / (pow2(s4 - s4Peak) + pow2(mw4Run)) / M_PI;
+    wtBW         *= runBW4H / genBW;
   } 
 
 }

@@ -92,28 +92,35 @@ protected:
 
 // SuppressSmallPT is a derived class for user access to program execution.
 // It is a simple example, illustrating how to suppress the cross section
-// of 2 -> 2 processes by a factor pT^4 / (pT0^2 + pT^2)^2, with pT0 input.
+// of 2 -> 2 processes by a factor pT^4 / (pT0^2 + pT^2)^2, with pT0 input,
+// and also modify alpha_strong scale similarly.
 
 class SuppressSmallPT : public UserHooks {
  
 public:
 
   // Constructor.
-  SuppressSmallPT( double pT0In) : pT0(pT0In) {pT02 = pow2(pT0);}
+  SuppressSmallPT( double pT0timesMIIn = 1., int numberAlphaSIn = 0, 
+    bool alphaSasMIIn = true) {isInit = false; pT0timesMI = pT0timesMIIn; 
+    numberAlphaS = numberAlphaSIn; alphaSasMI = alphaSasMIIn;}
 
   // Possibility to modify cross section of process.
   virtual bool canModifySigma() {return true;}
 
   // Multiplicative factor modifying the cross section of a hard process.
+  // Usage: inEvent is true for event generation, false for initialization.
   virtual double multiplySigmaBy(const SigmaProcess* sigmaProcessPtr,
-    const PhaseSpace* phaseSpacePtr, bool inEvent);
+    const PhaseSpace* phaseSpacePtr, bool );
 
 private:
 
-  // Saved value from constructor.
-  double pT0, pT02;  
-  // Dummy to avoid compiler warnings.
-  bool inEventNow;
+  // Save input properties and the squared pT0 scale.
+  bool   isInit, alphaSasMI;
+  int    numberAlphaS;
+  double pT0timesMI, pT20;
+
+  // Alpha_strong calculation.
+  AlphaStrong alphaS;
 
 };
 

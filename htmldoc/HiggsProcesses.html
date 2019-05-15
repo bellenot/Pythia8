@@ -1,0 +1,105 @@
+<html>
+<head>
+<title>Higgs Processes</title>
+</head>
+<body>
+
+<h2>Higgs Processes</h2>
+
+This page contains Higgs production within and beyond the Standard Model.
+It is at a very early stage.
+
+<h3>Standard-Model Higgs</h3>
+
+<p/><code>flag&nbsp; </code><strong> SMHiggs:all &nbsp;</strong> 
+ (<code>default = <strong>off</strong></code>)<br/>
+Common switch for the group of Higgs production within the Standard Model.
+  
+
+<p/><code>flag&nbsp; </code><strong> SMHiggs:ffbar2H &nbsp;</strong> 
+ (<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>f fbar -> H^0</i>, where <i>f</i> sums over available
+flavours except top.
+Code 801.
+  
+
+<p/><code>flag&nbsp; </code><strong> SMHiggs:gg2H &nbsp;</strong> 
+ (<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>g g -> H^0</i>.
+Code 802.
+  
+
+<p/><code>flag&nbsp; </code><strong> SMHiggs:gmgm2H &nbsp;</strong> 
+ (<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>gamma gamma -> H^0</i>.
+Code 803.
+  
+
+<p/><code>flag&nbsp; </code><strong> SMHiggs:ffbar2HZ &nbsp;</strong> 
+ (<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>f fbar -> H^0 Z^0</i>.
+Code 804.
+  
+
+<p/><code>flag&nbsp; </code><strong> SMHiggs:ffbar2HW &nbsp;</strong> 
+ (<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>f fbar -> H^0 W^+-</i>.
+Code 805.
+  
+
+<p/><code>flag&nbsp; </code><strong> SMHiggs:qg2Hq &nbsp;</strong> 
+ (<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>q g -> H^0 q</i>. This process gives first-order 
+corrections to the <i>f fbar -> H^0</i> one above (for 
+<i>f = q </i>), so both cannot be used simultaneously without 
+unphysical doublecounting. The current one should only be used to study 
+the high-pT tail, while <i>f g -> H^0 f</i> should be used for 
+inclusive production. Therefore this process is not switched on by 
+the <code>SMHiggs:all</code> flag.
+Code 806.
+  
+
+<h3>Parameters for Higgs production and decay</h3>
+
+<p/><code>flag&nbsp; </code><strong> ResonanceH::linearWidthWWZZ &nbsp;</strong> 
+ (<code>default = <strong>on</strong></code>)<br/>
+The partial width of a Higgs particle to a pair of gauge bosons,
+<i>W^+ W^-</i> or <i>Z^0 Z^0</i>, depends cubically on the
+Higgs mass. When selecting the Higgs according to a Breit-Wigner,
+so that the actual mass <i>mHat</i> does not agree with the
+nominal <i>m_Higgs</i> one, an ambiguity arises which of the 
+two to use [<a href="Bibliography.html" target="page">Sey95</a>]. The default is to use a linear 
+dependence on <i>mHat</i>, i.e. a width proportional to 
+<i>m_Higgs^2 * mHat</i>, while <code>off</code> gives a 
+<i>mHat^3</i> dependence. This does not affect the width to 
+fermions, which only depends on <i>mHat</i>.
+  
+
+<p/><code>mode&nbsp; </code><strong> SMHiggs:parity &nbsp;</strong> 
+ (<code>default = <strong>1</strong></code>; <code>minimum = 0</code>; <code>maximum = 3</code>)<br/>
+possibility to modify angular decay correlations in Higgs decay to
+<i>Z^0 Z^0</i> or <i>W^+ W^-</i> to four fermions. Currently it 
+does not affect the partial width of the channels.
+<br/><code>option </code><strong> 0</strong> : isotropic decays.  
+<br/><code>option </code><strong> 1</strong> : assuming the Higgs is a pure scalar (CP-even), 
+as in the Standard Model.  
+<br/><code>option </code><strong> 2</strong> : assuming the Higgs is a pure pseudoscalar
+(CP-odd).  
+<br/><code>option </code><strong> 3</strong> : assuming the Higgs is a mixture of the two, 
+including the CP-violating interference term. The parameter
+<i>eta</i>, see below, sets the strength of the CP-odd admixture,
+with the interference term being proportional to <i>eta</i>
+and the CP-odd one to <i>eta^2</i>.  
+</modepick>
+
+<p/><code>parm&nbsp; </code><strong> SMHiggs:etaParity &nbsp;</strong> 
+ (<code>default = <strong>0.</strong></code>)<br/>
+The <i>eta</i> value of CP-violation in the 
+<code>SMHiggs:parity = 2</code> option. 
+  
+
+</body>
+</html>
+
+<!-- Copyright C 2007 Torbjorn Sjostrand -->
+

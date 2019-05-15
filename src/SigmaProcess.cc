@@ -16,10 +16,16 @@ namespace Pythia8 {
 // Definitions of static variables and functions.
 // (Values will be overwritten in initStatic call, so are purely dummy.)
 
-int         SigmaProcess::alphaSorder  = 1;
-int         SigmaProcess::alphaEMorder = 1;
-int         SigmaProcess::nQuark       = 3;
-double      SigmaProcess::alphaSvalue  = 0.1265;
+int         SigmaProcess::alphaSorder   = 1;
+int         SigmaProcess::alphaEMorder  = 1;
+int         SigmaProcess::nQuark        = 3;
+int         SigmaProcess::renormScale   = 0;
+int         SigmaProcess::factorScale   = 0;
+int         SigmaProcess::SMHiggsParity = 1;
+double      SigmaProcess::alphaSvalue   = 0.1265;
+double      SigmaProcess::renormMult    = 1.;
+double      SigmaProcess::factorMult    = 1.;
+double      SigmaProcess::SMHiggsEta    = 0.;
 AlphaStrong SigmaProcess::alphaS;
 AlphaEM     SigmaProcess::alphaEM;
 
@@ -27,15 +33,15 @@ AlphaEM     SigmaProcess::alphaEM;
 // These are of technical nature, as described for each.
 
 // Conversion of GeV^{-2} to mb for cross section.
-const double SigmaProcess::CONVERT2MB  = 0.389380; 
+const double SigmaProcess::CONVERT2MB   = 0.389380; 
 
 // The sum of outgoing masses must not be too close to the cm energy.
-const double SigmaProcess::MASSMARGIN  = 0.1;
+const double SigmaProcess::MASSMARGIN   = 0.1;
 
 // Information on incoming beams.
 int    SigmaProcess::idA, SigmaProcess::idB;
 double SigmaProcess::mA,  SigmaProcess::mB; 
-bool   SigmaProcess::hasLeptonBeams    = false;
+bool   SigmaProcess::hasLeptonBeams     = false;
   
 // Pointer to the total/elastic/diffractive cross section object.
 SigmaTotal* SigmaProcess::sigmaTotPtr;
@@ -50,20 +56,206 @@ SusyLesHouches* SigmaProcess::slha;
 void SigmaProcess::initStatic() {
 
   // Parameters of alphaStrong generation .
-  alphaSvalue  = Settings::parm("SigmaProcess:alphaSvalue");
-  alphaSorder  = Settings::mode("SigmaProcess:alphaSorder");
+  alphaSvalue   = Settings::parm("SigmaProcess:alphaSvalue");
+  alphaSorder   = Settings::mode("SigmaProcess:alphaSorder");
 
   // Initialize alphaStrong generation.
   alphaS.init( alphaSvalue, alphaSorder); 
 
   // Parameters of alphaEM generation.
-  alphaEMorder = Settings::mode("SigmaProcess:alphaEMorder");
+  alphaEMorder  = Settings::mode("SigmaProcess:alphaEMorder");
 
   // Initialize alphaEM generation.
   alphaEM.init( alphaEMorder); 
 
   // Maximum new quark flavour.
-  nQuark = Settings::mode("SigmaProcess:nQuark");
+  nQuark        = Settings::mode("SigmaProcess:nQuark");
+
+  // Renormalization scale choice.
+  renormScale   = Settings::mode("SigmaProcess:renormScale"); 
+  renormMult    = Settings::parm("SigmaProcess:renormMult"); 
+
+  // Factorization scale choice.
+  factorScale   = Settings::mode("SigmaProcess:factorScale"); 
+  factorMult    = Settings::parm("SigmaProcess:factorMult"); 
+
+  // Higgs parity assumption.
+  SMHiggsParity = Settings::mode("SMHiggs:parity");
+  SMHiggsEta    = Settings::parm("SMHiggs:etaParity");
+
+}
+
+//*********
+
+// Evaluate weight for W decay distribution in t -> W b -> f fbar b.
+
+double SigmaProcess::weightTopDecay( Event& process, int iResBeg, 
+  int iResEnd) {
+
+  // If not pair W d/s/b and mother t then return unit weight.
+  if (iResEnd - iResBeg != 2) return 1.;
+  int iW = iResBeg;
+  int iB = iResBeg + 1;
+  int idW = process[iW].idAbs();
+  int idB = process[iB].idAbs();
+  if (idW != 24) {
+    swap(iW, iB); 
+    swap(idW, idB);
+  } 
+  if (idW != 24 || (idB != 1 && idB != 3 && idB != 5)) return 1.;
+  int iT = process[iW].mother1(); 
+  if (iT <= 0 || process[iT].idAbs() != 6) return 1.;
+
+  // Find sign-matched order of W decay products. 
+  int iF    = process[iW].daughter1(); 
+  int iFbar = process[iW].daughter2();
+  if (iFbar - iF != 1) return 1.; 
+  if (process[iT].id() * process[iF].id() < 0) swap(iF, iFbar);
+
+  // Weight and maximum weight.
+  double wt    = (process[iT].p() * process[iFbar].p()) 
+               * (process[iF].p() * process[iB].p());
+  double wtMax = ( pow4(process[iT].m()) - pow4(process[iW].m()) ) / 8.;  
+
+  // Done.
+  return wt / wtMax;
+
+}
+
+//*********
+
+// Evaluate weight for Z0/W+- decay distributions in 
+// H -> Z0 Z0 or W+ W- -> f fbar f' fbar'.
+
+double SigmaProcess::weightHiggsDecay( Event& process, int iResBeg, 
+  int iResEnd) {
+
+  // If not pair Z0 Z0 or W+ W- or not mother Higgs then return unit weight.
+  if (iResEnd - iResBeg != 2) return 1.;
+  int iZW1  = iResBeg;
+  int iZW2  = iResBeg + 1;
+  int idZW1 = process[iZW1].id();
+  int idZW2 = process[iZW2].id();
+  if (idZW1 < 0) {
+    swap(iZW1, iZW2); 
+    swap(idZW1, idZW2);
+  } 
+  if ( (idZW1 != 23 || idZW2 != 23) && (idZW1 != 24 || idZW2 != -24) )
+    return 1.;
+  int iH = process[iZW1].mother1(); 
+  if (iH <= 0 || process[iH].id() != 25) return 1.;
+
+  // Option with isotropic decays.
+  if (SMHiggsParity == 0) return 1.;
+
+  // Maximum and initial weight. 
+  double wtMax = pow4(process[iH].m());
+  double wt    = wtMax; 
+
+  // Find sign-matched order of Z0/W+- decay products. 
+  int i3 = process[iZW1].daughter1();
+  int i4 = process[iZW1].daughter2();
+  if (process[i3].id() < 0) swap( i3, i4); 
+  int i5 = process[iZW2].daughter1();
+  int i6 = process[iZW2].daughter2();
+  if (process[i5].id() < 0) swap( i5, i6); 
+
+  // Evaluate four-vector products and find masses..
+  double p35  = 2. * process[i3].p() * process[i5].p(); 
+  double p36  = 2. * process[i3].p() * process[i6].p(); 
+  double p45  = 2. * process[i4].p() * process[i5].p(); 
+  double p46  = 2. * process[i4].p() * process[i6].p(); 
+  double p34  = 2. * process[i3].p() * process[i4].p(); 
+  double p56  = 2. * process[i5].p() * process[i6].p(); 
+  double mZW1 = process[iZW1].m();
+  double mZW2 = process[iZW2].m();
+
+  // For mixed CP states need epsilon product and gauge boson masses.
+  double epsilonProd = 0.;
+  if (SMHiggsParity == 3) {
+    double p[4][4];
+    for (int i = 0; i < 4; ++i) {
+      int         ii = i3;
+      if (i == 1) ii = i4;
+      if (i == 2) ii = i5;
+      if (i == 3) ii = i6;
+      p[i][0] = process[ii].e();
+      p[i][1] = process[ii].px();
+      p[i][2] = process[ii].py();
+      p[i][3] = process[ii].pz();
+    }     
+    epsilonProd 
+      = p[0][0]*p[1][1]*p[2][2]*p[3][3] - p[0][0]*p[1][1]*p[2][3]*p[3][2] 
+      - p[0][0]*p[1][2]*p[2][1]*p[3][3] + p[0][0]*p[1][2]*p[2][3]*p[3][1]
+      + p[0][0]*p[1][3]*p[2][1]*p[3][2] - p[0][0]*p[1][3]*p[2][2]*p[3][1]
+      - p[0][1]*p[1][0]*p[2][2]*p[3][3] + p[0][1]*p[1][0]*p[2][3]*p[3][2]
+      + p[0][1]*p[1][2]*p[2][0]*p[3][3] - p[0][1]*p[1][2]*p[2][3]*p[3][0]
+      - p[0][1]*p[1][3]*p[2][0]*p[3][2] + p[0][1]*p[1][3]*p[2][2]*p[3][0]
+      + p[0][2]*p[1][0]*p[2][1]*p[3][3] - p[0][2]*p[1][0]*p[2][3]*p[3][1]
+      - p[0][2]*p[1][1]*p[2][0]*p[3][3] + p[0][2]*p[1][1]*p[2][3]*p[3][0] 
+      + p[0][2]*p[1][3]*p[2][0]*p[3][1] - p[0][2]*p[1][3]*p[2][1]*p[3][0]
+      - p[0][3]*p[1][0]*p[2][1]*p[3][2] + p[0][3]*p[1][0]*p[2][2]*p[3][1] 
+      + p[0][3]*p[1][1]*p[2][0]*p[3][2] - p[0][3]*p[1][1]*p[2][2]*p[3][0] 
+      - p[0][3]*p[1][2]*p[2][0]*p[3][1] + p[0][3]*p[1][2]*p[2][1]*p[3][0];
+  }
+
+  // Z0 Z0 decay: vector and axial couplings of two fermion pairs.
+  if (idZW1 == 23) {
+    double vf1 = CoupEW::vf(process[i3].idAbs());
+    double af1 = CoupEW::af(process[i3].idAbs());
+    double vf2 = CoupEW::vf(process[i5].idAbs());
+    double af2 = CoupEW::af(process[i5].idAbs());
+    double va12asym = 4. * vf1 * af1 * vf2 * af2 
+      / ( (vf1*vf1 + af1*af1) * (vf2*vf2 + af2*af2) );
+    double etaMod = SMHiggsEta / pow2( ParticleDataTable::m0(23) );
+    
+    // Normal CP-even decay.
+    if (SMHiggsParity == 1) wt = 8. * (1. + va12asym) * p35 * p46 
+      + 8. * (1. - va12asym) * p36 * p45;
+
+    // CP-odd decay.
+    else if (SMHiggsParity == 2) wt = ( pow2(p35 + p46) 
+      + pow2(p36 + p45) - 2. * p34 * p56
+      - 2. * pow2(p35 * p46 - p36 * p45) / (p34 * p56) 
+      + va12asym * (p35 + p36 - p45 - p46) * (p35 + p45 - p36 - p46) )
+      / (1. +  va12asym);
+
+    // Mixed CP states. 
+    else wt = 32. * ( 0.25 * ( (1. + va12asym) * p35 * p46 
+      + (1. - va12asym) * p36 * p45 ) - 0.5 * etaMod * epsilonProd
+      * ( (1. + va12asym) * (p35 + p46) - (1. - va12asym) * (p36 + p45) )
+      + 0.0625 * etaMod * etaMod * (-2. * pow2(p34 * p56) 
+      - 2. * pow2(p35 * p46 - p36 * p45) 
+      + p34 * p56 * (pow2(p35 + p46) + pow2(p36 + p45)) 
+      + va12asym * p34 * p56 * (p35 + p36 - p45 - p46) 
+      * (p35 + p45 - p36 - p46) ) ) / ( 1. * 2. * etaMod * mZW1 * mZW2 
+      + 2. * pow2(etaMod * mZW1 * mZW2) * (1. + va12asym) );
+
+  // W+ W- decay.
+  } else if (idZW1 == 24) {
+    double etaMod = SMHiggsEta / pow2( ParticleDataTable::m0(24) );
+    
+    // Normal CP-even decay.
+    if (SMHiggsParity == 1) wt = 16. * p35 * p46; 
+
+    // CP-odd decay.
+    else if (SMHiggsParity == 2) wt = 0.5 * ( pow2(p35 + p46) 
+      + pow2(p36 + p45) - 2. * p34 * p56  
+      - 2. * pow2(p35 * p46 - p36 * p45) / (p34 * p56) 
+      + (p35 + p36 - p45 - p46) * (p35 + p45 - p36 - p46) );
+
+    // Mixed CP states. 
+    else wt = 32. * ( 0.25 * 2. * p35 * p46 
+      - 0.5 * etaMod * epsilonProd * 2. * (p35 + p46)
+      + 0.0625 * etaMod * etaMod * (-2. * pow2(p34 * p56) 
+      - 2. * pow2(p35 * p46 - p36 * p45) 
+      + p34 * p56 * (pow2(p35 + p46) + pow2(p36 + p45)) 
+      + p34 * p56 * (p35 + p36 - p45 - p46) * (p35 + p45 - p36 - p46) ) ) 
+      / ( 1. * 2. * etaMod * mZW1 * mZW2 + 2. * pow2(etaMod * mZW1 * mZW2) );
+  }
+
+  // Done.
+  return wt / wtMax;
 
 }
 
@@ -88,12 +280,12 @@ bool Sigma1Process::set1Kin( double x1in, double x2in, double sHin) {
   sH2 = sH * sH;
 
   // Use sHat as renormalization scale. Evaluate alpha_strong and alpha_EM.
-  Q2RenH = sH;
+  Q2RenH = renormMult * sH;
   alpS   = alphaS.alphaS(Q2RenH);  
   alpEM  = alphaEM.alphaEM(Q2RenH);  
 
   // Use sHat as factorization scale.
-  Q2FacH = sH;
+  Q2FacH = factorMult * sH;
 
   // Done.
   return true;
@@ -110,7 +302,7 @@ bool Sigma1Process::set1Kin( double x1in, double x2in, double sHin) {
 // Input and complement kinematics for resolved 2 -> 2 process. 
 
 bool Sigma2Process::set2Kin( double x1in, double x2in, double sHin, 
-  double tHin, double m3in, double m4in) {
+  double tHin, double m3in, double m4in, double runBW3in, double runBW4in) {
 
   // Incoming flavours not known.
   id12IsSet = false;
@@ -119,49 +311,61 @@ bool Sigma2Process::set2Kin( double x1in, double x2in, double sHin,
   swapTU = false;
 
   // Incoming parton momentum fractions.
-  x1 = x1in;
-  x2 = x2in;
+  x1     = x1in;
+  x2     = x2in;
 
   // Incoming masses and their squares.
   bool masslessKin = (id3Mass() == 0) && (id4Mass() == 0);
   if (masslessKin) {
-    m3 = 0.;
-    m4 = 0.;
+    m3   = 0.;
+    m4   = 0.;
   } else {
-    m3 = m3in;
-    m4 = m4in;
+    m3   = m3in;
+    m4   = m4in;
   }
-  mH[3] = m3;
-  mH[4] = m4;
-  s3    = m3 * m3;
-  s4    = m4 * m4;
+  mH[3]  = m3;
+  mH[4]  = m4;
+  s3     = m3 * m3;
+  s4     = m4 * m4;
 
   // Standard Mandelstam variables and their squares.
-  sH  = sHin;
-  tH  = tHin;
-  uH  = (masslessKin) ? -(sH + tH) : s3 + s4 - (sH + tH); 
-  sH2 = sH * sH;
-  tH2 = tH * tH;
-  uH2 = uH * uH;
+  sH     = sHin;
+  tH     = tHin;
+  uH     = (masslessKin) ? -(sH + tH) : s3 + s4 - (sH + tH); 
+  sH2    = sH * sH;
+  tH2    = tH * tH;
+  uH2    = uH * uH;
+
+  // The nominal Breit-Wigner factors with running width.
+  runBW3 = runBW3in;
+  runBW4 = runBW4in; 
 
   // Calculate squared transverse momentum.
   pT2 = (masslessKin) ?  tH * uH / sH : (tH * uH - s3 * s4) / sH;
 
   // Use pT^2 as renormalization scale, generalized to m_T3 * m_T4
-  // for massive case. Evaluate alpha_strong and alpha_EM.
-  // Is this correct for processes with t-channel W/Z exchange??
-  Q2RenH = (masslessKin) ? pT2 : sqrt((pT2 + s3) * (pT2 + s4));
-  // For comparisons with Pythia 6.4 use scale similar to there.
-  // Q2RenH = (masslessKin) ? pT2 : 0.5 * (s3 + s4) + pT2;
+  // for massive case, alternatively PYTHIA6 scale.
+  // Is this correct for processes with s/t-channel W/Z exchange??
+  if (renormScale == 1) Q2RenH = (masslessKin) ? pT2 : 0.5 * (s3 + s4) + pT2;
+  else Q2RenH = (masslessKin) ? pT2 : sqrt((pT2 + s3) * (pT2 + s4));
+  Q2RenH *= renormMult;
+
+  // Debug??
+  Q2RenH = sH;
+
+  // Evaluate alpha_strong and alpha_EM.
   alpS = alphaS.alphaS(Q2RenH);  
   alpEM = alphaEM.alphaEM(Q2RenH);  
 
   // Use pT^2 as factorization scale, generalized to min( m_T3^2, m_T4^2)
-  // for massive case. 
-  // Is this correct for processes with t-channel W/Z exchange??
-  Q2FacH = (masslessKin) ? pT2 : min (s3, s4) + pT2;
-  // For comparisons with Pythia 6.4 use scale similar to there.
-  // Q2FacH = (masslessKin) ? pT2 : 0.5 * (s3 + s4) + pT2;
+  // for massive case, alternatively PYTHIA6 scale. 
+  // Is this correct for processes with s/t-channel W/Z exchange??
+  if (factorScale == 1) Q2FacH = (masslessKin) ? pT2 : 0.5 * (s3 + s4) + pT2;
+  else Q2FacH = (masslessKin) ? pT2 : min (s3, s4) + pT2;
+  Q2FacH *= factorMult;
+
+  // Debug??
+  Q2FacH = sH;
 
   // Done.
   return true;

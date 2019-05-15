@@ -61,11 +61,15 @@ public:
   void   dynamicBR(double dynamicBRIn) {dynamicBRSave = dynamicBRIn;}
   double dynamicBR() const {return dynamicBRSave;}
 
+  // Input/output for nominal partial
+  void   onShellWidth(double onShellWidthIn) {onShellWidthSave = onShellWidthIn;} 
+  double onShellWidth() const {return onShellWidthSave;} 
+
 private:
 
   // Decay channel info.
   int    onModeSave;
-  double bRatioSave, dynamicBRSave;
+  double bRatioSave, dynamicBRSave, onShellWidthSave;
   int    meModeSave, nProd, prod[8];
   bool   hasChangedSave;
 
@@ -159,6 +163,9 @@ public:
   // Prepare for and pick mass according to Breit-Wigner.
   void initBWmass(); 
   double mass(); 
+
+  // Calculate running mass - for quarks only! (Else normal mass.)
+  double mRun(double mH);
 
   // Change current values one at a time (or set if not set before).
   // (Must use set here since else name+signature clash with get methods.)
@@ -261,7 +268,7 @@ private:
 
   // Static initialization data, normally only set once.
   static int    modeBreitWigner;
-  static double maxEnhanceBW;
+  static double maxEnhanceBW, mQRun[6], Lambda5Run;
 
   // Constants: could only be changed in the code itself.
   static const double MAXTAU0FORDECAY,MINMASSRESONANCE, NARROWMASS;
@@ -311,6 +318,10 @@ public:
   // Calculate a mass, picked according to Breit-Wigner.
   static double mass(int idIn) {
     return isParticle(idIn) ? pdt[abs(idIn)].mass() : 0. ; } 
+
+  // Calculate running mass - for quarks only! (Else normal mass.)
+  static double mRun(int idIn, double mH) {
+    return isParticle(idIn) ? pdt[abs(idIn)].mRun(mH) : 0. ; } 
 
   // Read or list whole (or part of) database from/to an XML file.
   static bool readXML(string inFile, bool reset = true) ; 

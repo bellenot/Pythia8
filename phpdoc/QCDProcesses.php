@@ -98,10 +98,11 @@ Code 105.
 <h3>Hard QCD processes</h3>
 
 This group contains the processes for QCD jet production above
-some minimum <i>pT</i> threshold, as opposed to the minimum-bias
-process above, where all <i>pT</i> scales can be probed. 
-The <i>pT_min</i> cut cannot be put too low, or else unreasonably
-large jet cross sections will be obtained.
+some minimum <i>pT</i> threshold. The <i>pT_min</i> cut cannot be put 
+too low, or else unreasonably large jet cross sections will be obtained.
+An eikonalized description, intended to be valid at all <i>pT</i>,
+is included as part of the multiple-interactions framework, e.g. in 
+<code>SoftQCD:minBias</code> above.
   
 <br/><br/><strong>HardQCD:all</strong>  <input type="radio" name="6" value="on"><strong>On</strong>
 <input type="radio" name="6" value="off" checked="checked"><strong>Off</strong>
@@ -161,7 +162,9 @@ These processes form a natural part of the above class, but can
 also be generated separately. Formally the heavy-quark mass makes
 these matrix elements finite in the <i>pT -> 0</i> limit, but at
 high energies one may still question the validity of the expressions
-at low <i>pT</i> values, like for the other hard-QCD processes.  
+at low <i>pT</i> values, like for the other hard-QCD processes.
+Also as above, an eikonalized description, intended to be valid at all 
+<i>pT</i>, is included as part of the multiple-interactions framework.   
 
 <br/><br/><strong>HardQCD:gg2ccbar</strong>  <input type="radio" name="13" value="on"><strong>On</strong>
 <input type="radio" name="13" value="off" checked="checked"><strong>Off</strong>

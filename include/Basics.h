@@ -344,14 +344,8 @@ public:
   friend Hist operator/(const Hist& h1, double f);
   friend Hist operator/(const Hist& h1, const Hist& h2);
 
-  // Print a histogram or a vector of histograms
+  // Print a histogram with overloaded << operator.
   friend ostream& operator<<(ostream& os, const Hist& h) ;
-  friend ostream& operator<<(ostream& os, const vector<Hist>& h) ;
-
-  // Print a single or a vector of histogram contents as a table 
-  // (e.g. for Gnuplot).
-  friend void table(const Hist& h, ostream& os = cout) ;
-  friend void table(const vector<Hist>& h, ostream& os = cout) ;
 
 private:
 

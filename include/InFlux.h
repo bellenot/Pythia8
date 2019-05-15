@@ -337,6 +337,42 @@ private:
   virtual void initChannels();  
 
 };
+ 
+//**************************************************************************
+
+// A derived class for f gamma incoming state.
+
+class InFluxfgm : public InFlux {
+
+public:
+
+  // Constructor.
+  InFluxfgm() {initChannels();}
+
+private:
+
+  // Initialize values.
+  virtual void initChannels();  
+
+};
+ 
+//**************************************************************************
+
+// A derived class for gamma gamma incoming state.
+
+class InFluxgmgm : public InFlux {
+
+public:
+
+  // Constructor.
+  InFluxgmgm() {initChannels();}
+
+private:
+
+  // Initialize values.
+  virtual void initChannels();  
+
+};
   
 //**************************************************************************
 

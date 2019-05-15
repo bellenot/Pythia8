@@ -34,8 +34,15 @@ have beeen set up, process by process, along with initial weight
 <code>SigmaProcess</code> is base class for all hard processes 
 implemented in PYTHIA 8. For <ei>2 -> 1</ei> processes it 
 should give <ei>sigmaHat(sHat)</ei>, for <ei>2 -> 2</ei> ones 
-<ei>d(sigmaHat(sHat, tHat))/d(tHat)</ei>.
+<ei>d(sigmaHat(sHat, tHat))/d(tHat)</ei>. The matrix-element
+coding is also used by the multiple-interactions machinery,
+but with a separate choice of <ei>alpha_strong(M_Z^2)</ei> value
+and running, and separate scale choices. Also, in <ei>2 -> 2</ei> 
+processes where resonances are produced, their couplings and thereby 
+their Breit-Wigner shapes are always evaluated with the resonance mass 
+as scale, irrespective of the choices below.
 
+<p/>
 The size of QCD cross sections is mainly determined by 
 <parm name="SigmaProcess:alphaSvalue" default="0.1265" 
 min="0.06" max="0.25">
@@ -43,9 +50,8 @@ The <ei>alpha_strong</ei> value at scale <ei>M_Z^2</ei>.
 </parm>
 
 <p/>
-The actual value is then regulated by the running to the scale 
-<ei>Q^2</ei>, at which <ei>alpha_strong</ei> is evaluated
-
+The actual value is then regulated by the running to the <ei>Q^2</ei> 
+renormalization scale, at which <ei>alpha_strong</ei> is evaluated
 <modepick name="SigmaProcess:alphaSorder" default="1" min="0" max="2">
 Order at which <ei>alpha_strong</ei> runs,
 <option value="0">zeroth order, i.e. <ei>alpha_strong</ei> is kept 
@@ -58,8 +64,7 @@ but there is also nothing wrong with it.</option>
 
 <p/>
 QED interactions are regulated by the <ei>alpha_electromagnetic</ei>
-value at the <ei>pT^2</ei> scale of an interaction.
- 
+value at the <ei>Q^2</ei> renormalization scale of an interaction. 
 <modepick name="SigmaProcess:alphaEMorder" default="1" min="-1" max="1">
 The running of <ei>alpha_em</ei> used in hard processes.
 <option value="1">first-order running, constrained to agree with
@@ -72,6 +77,52 @@ fixed, but at <code>StandardModel:alphaEMmZ</code>, i.e. its value
 at the <ei>Z^0</ei> mass.
 </option> 
 </modepick>
+
+<p/>
+The <ei>Q^2</ei> renormalization scale is <ei>sHat</ei> for 
+<ei>2 -> 1</ei> processes while there is a choice for <ei>2 -> 2</ei>
+ones:  
+<modepick name="SigmaProcess:renormScale" default="0" min="0" max="1">
+The <ei>Q^2</ei> renormalization scale for <ei>2 -> 2</ei> processes.
+<option value="0">the product of the transverse masses of the two
+outgoing particles, i.e. <ei>sqrt((pT^2 + m3^2) * (pT2 + m4^2))</ei>.
+</option>
+<option value="1">the average of the squared transverse masses, 
+i.e. <ei>pT^2 + 0.5 * (m3^2 + m4^2)</ei>. Useful for comparisons 
+with PYTHIA 6.
+</option>
+</modepick>
+
+<p/>
+It is also possible to shift the choice by a global factor.
+<parm name="SigmaProcess:renormMult" default="1." min="0.1" max="10.">
+The <ei>Q^2</ei> renormalization scale for <ei>2 -> 1</ei> and
+<ei>2 -> 2</ei> processes is multiplied by this factor relative to the
+scale described above. Should be use sparingly for <ei>2 -> 1</ei>
+processes. 
+
+<p/>
+Corresponding options exist for the <ei>Q^2</ei> factorization scale
+used as argument in PDF's. Again <ei>sHat</ei> is scale for <ei>2 -> 1</ei> 
+processes while there is a choice for <ei>2 -> 2</ei> ones:
+<modepick name="SigmaProcess:factorScale" default="0" min="0" max="1">
+The <ei>Q^2</ei> factorization scale for <ei>2 -> 2</ei> processes.
+<option value="0">the smaller of the squared transverse masses of the two
+outgoing particles, i.e. <ei>pT^2 + min(m3^2 + m4^2)</ei>.
+</option>
+<option value="1">the average of the squared transverse masses, 
+i.e. <ei>pT^2 + 0.5 * (m3^2 + m4^2)</ei>. Useful for comparisons 
+with PYTHIA 6.
+</option>
+</modepick>
+
+<p/>
+It is also possible to shift the choice by a global factor.
+<parm name="SigmaProcess:factorMult" default="1." min="0.1" max="10.">
+The <ei>Q^2</ei> factorization scale for <ei>2 -> 1</ei> and
+<ei>2 -> 2</ei> processes is multiplied by this factor relative to the
+scale described above. Should be use sparingly for <ei>2 -> 1</ei>
+processes.  
 
 <h3>Special cross sections</h3>
 

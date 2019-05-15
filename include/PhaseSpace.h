@@ -60,6 +60,9 @@ public:
   // is to be constructed in the derived class
   virtual bool finalKin() = 0; 
 
+  // Allow for nonisotropic decays when ME's available.
+  void decayKinematics( Event& process);
+
   // Give back current or maximum cross section, or set latter.
   double sigmaNow() const {return sigmaNw;}
   double sigmaMax() const {return sigmaMx;}
@@ -70,6 +73,7 @@ public:
   double m(int i)   const {return mH[i];}
 
   // Give back other event properties.
+  double ecm()      const {return eCM;}
   double x1()       const {return x1H;}
   double x2()       const {return x2H;}
   double sHat()     const {return sH;}
@@ -78,6 +82,8 @@ public:
   double pTHat()    const {return pTH;}
   double thetaHat() const {return theta;}
   double phiHat()   const {return phi;}
+  double runBW3()   const {return runBW3H;}
+  double runBW4()   const {return runBW4H;}
 
   // Are beam particles resolved in partons or scatter directly?
   virtual bool isResolved() const {return true;}
@@ -92,7 +98,7 @@ protected:
                 pTHatMinDiverge, minWidthBreitWigners, pT2HatMin, 
                 pT2HatMax;
   static bool   useBreitWigners, showSearch, showViolation;
-  static int    gmZmode;
+  static int    gmZmodeGlob;
 
   // Constants: could only be changed in the code itself.
   static const double SAFETYMARGIN, TINY, EVENFRAC, SAMESIGMA, WIDTHMARGIN, 
@@ -119,6 +125,7 @@ protected:
   double eCM, s; 
 
   // Cross section information.
+  int    gmZmode;
   double wtBW, sigmaNw, sigmaMx, sigmaNeg;
 
   // Pointer to cross section. 
@@ -129,7 +136,8 @@ protected:
 
   // Event-specific kinematics properties, almost always available.
   double x1H, x2H, m3, m4, s3, s4, mHat, sH, tH, uH, pAbs, p2Abs, 
-         pTH, theta, phi, betaZ, pTHatMinNow, pT2HatMinNow;
+         pTH, theta, phi, betaZ, pTHatMinNow, pT2HatMinNow,
+         runBW3H, runBW4H;
   Vec4   pH[6];
   double mH[6];
 

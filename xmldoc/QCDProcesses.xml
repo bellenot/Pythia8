@@ -62,10 +62,11 @@ Code 105.
 <h3>Hard QCD processes</h3>
 
 This group contains the processes for QCD jet production above
-some minimum <ei>pT</ei> threshold, as opposed to the minimum-bias
-process above, where all <ei>pT</ei> scales can be probed. 
-The <ei>pT_min</ei> cut cannot be put too low, or else unreasonably
-large jet cross sections will be obtained.
+some minimum <ei>pT</ei> threshold. The <ei>pT_min</ei> cut cannot be put 
+too low, or else unreasonably large jet cross sections will be obtained.
+An eikonalized description, intended to be valid at all <ei>pT</ei>,
+is included as part of the multiple-interactions framework, e.g. in 
+<code>SoftQCD:minBias</code> above.
   
 <flag name="HardQCD:all" default="off">
 Common switch for the group of all hard QCD processes, 
@@ -111,7 +112,9 @@ These processes form a natural part of the above class, but can
 also be generated separately. Formally the heavy-quark mass makes
 these matrix elements finite in the <ei>pT -> 0</ei> limit, but at
 high energies one may still question the validity of the expressions
-at low <ei>pT</ei> values, like for the other hard-QCD processes.  
+at low <ei>pT</ei> values, like for the other hard-QCD processes.
+Also as above, an eikonalized description, intended to be valid at all 
+<ei>pT</ei>, is included as part of the multiple-interactions framework.   
 
 <flag name="HardQCD:gg2ccbar" default="off">
 Scatterings <ei>g g -> c cbar</ei>. 

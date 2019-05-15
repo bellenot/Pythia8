@@ -27,11 +27,7 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 
 <h2>Top Processes</h2>
 
-Different ways to produce top quarks, singly or (more frequently)
-in pairs.
-
-<p/>
-The processes in this set are not yet fully handled.
+Different ways to produce top quarks, singly or in pairs.
 
 <br/><br/><strong>Top:all</strong>  <input type="radio" name="1" value="on"><strong>On</strong>
 <input type="radio" name="1" value="off" checked="checked"><strong>Off</strong>
@@ -56,8 +52,25 @@ Code 602.
 <br/><br/><strong>Top:qq2tq(t:W)</strong>  <input type="radio" name="4" value="on"><strong>On</strong>
 <input type="radio" name="4" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-Scatterings <i>q q' -> t q''</i> by t-channel exchange of W boson. 
+Scatterings <i>q q' -> t q''</i> by <i>t</i>-channel exchange 
+of a <i>W^+-</i> boson. 
 Code 603.
+  
+
+<br/><br/><strong>Top:ffbar2ttbar(s:gmZ)</strong>  <input type="radio" name="5" value="on"><strong>On</strong>
+<input type="radio" name="5" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scatterings <i>f fbar -> t tbar</i> by <i>s</i>-channel exchange 
+of a <i>gamma^*/Z^0</i> boson. 
+Code 604.
+  
+
+<br/><br/><strong>Top:ffbar2tqbar(s:W)</strong>  <input type="radio" name="6" value="on"><strong>On</strong>
+<input type="radio" name="6" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scatterings <i>f fbar' -> t q''</i> by <i>s</i>-channel exchange 
+of a <i>W^+-</i> boson. 
+Code 605.
   
 
 
@@ -94,6 +107,16 @@ fwrite($handle,$data);
 if($_POST["4"] != "off")
 {
 $data = "Top:qq2tq(t:W) = ".$_POST["4"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["5"] != "off")
+{
+$data = "Top:ffbar2ttbar(s:gmZ) = ".$_POST["5"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["6"] != "off")
+{
+$data = "Top:ffbar2tqbar(s:W) = ".$_POST["6"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);

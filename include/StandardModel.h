@@ -107,17 +107,19 @@ public:
    static double lf(int idAbs) {return lfSave[idAbs];}
    static double rf(int idAbs) {return rfSave[idAbs];}
   
-   // Return some squared couplings.
+   // Return some squared couplings and other combinations.
    static double ef2(int idAbs) {return ef2Save[idAbs];}
    static double vf2(int idAbs) {return vf2Save[idAbs];}
    static double af2(int idAbs) {return af2Save[idAbs];}
+   static double efvf(int idAbs) {return efvfSave[idAbs];}
+   static double vf2af2(int idAbs) {return vf2af2Save[idAbs];}
 
 private:
 
    // Store couplings.
    static double s2tW, c2tW, s2tWbar, efSave[20], vfSave[20], afSave[20],
                  lfSave[20], rfSave[20], ef2Save[20], vf2Save[20], 
-                 af2Save[20];
+                 af2Save[20], efvfSave[20], vf2af2Save[20];
 
 };
 

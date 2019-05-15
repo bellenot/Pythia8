@@ -249,7 +249,6 @@ different from the standard hard-process machinery, however,
 since incoming flavours, the <i>alpha_strong</i> value and most
 of the kinematics are aready fixed when the process is called.
 
-
 <h3>Technical notes</h3>
 
 Relative to the articles mentioned above, not much has happened.

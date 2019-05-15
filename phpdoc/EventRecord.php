@@ -133,6 +133,17 @@ The event record can be emptied for the next event by a
 <code>popBack(n)</code>, where <code>n = 1</code> by default. 
 
 <p/>
+Each particle in the event record has a pointer to the corresponding
+particle species in the particle database, used to find some particle
+properties. This pointer is automatically set whenever the particle
+identity is set by one of the normal methods. Of course its value is 
+specific to the memory location of the current run, and so it has no
+sense to save it if events are written to file. Should you use some
+persistency scheme that bypasses the normal methods when the event is 
+read back in, you can use <code>restorePtrs()</code> afterwards to set 
+these pointers appropriately.
+
+<p/>
 The user would normally be concerned with the <code>Event</code> object 
 that is a public member <code>event</code> of the <code>Pythia</code> class. 
 Thus, having declared a <code>Pythia</code> object <code>pythia</code>, 

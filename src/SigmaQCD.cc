@@ -463,6 +463,20 @@ void Sigma2gg2QQbar::setIdColAcol() {
 
 }
 
+//*********
+
+// Evaluate weight for decay angles of W in top decay.
+
+double Sigma2gg2QQbar::weightDecay( Event& process, int iResBeg, 
+  int iResEnd) {
+
+  // For top decay hand over to standard routine, else done.
+  if (idNew == 6 && process[process[iResBeg].mother1()].idAbs() == 6) 
+       return weightTopDecay( process, iResBeg, iResEnd);
+  else return 1.; 
+
+}
+
 //**************************************************************************
 
 // Sigma2qqbar2QQbar class.
@@ -521,6 +535,20 @@ void Sigma2qqbar2QQbar::setIdColAcol() {
   // Colour flow topologies. Swap when antiquarks.
   setColAcol( 1, 0, 0, 2, 1, 0, 0, 2);
   if (id1 < 0) swapColAcol();
+
+}
+
+//*********
+
+// Evaluate weight for decay angles of W in top decay.
+
+double Sigma2qqbar2QQbar::weightDecay( Event& process, int iResBeg, 
+  int iResEnd) {
+
+  // For top decay hand over to standard routine, else done.
+  if (idNew == 6 && process[process[iResBeg].mother1()].idAbs() == 6) 
+       return weightTopDecay( process, iResBeg, iResEnd);
+  else return 1.; 
 
 }
 

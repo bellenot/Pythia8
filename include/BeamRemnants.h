@@ -42,7 +42,7 @@ public:
 private: 
 
   // Static initialization data, normally only set once.
-  static bool   doReconnect;
+  static bool   primordialKT, doReconnect;
   static double primordialKTsoft, primordialKThard, primordialKTremnant,
                 halfScaleForKT, halfMassForKT, reconnectRange, 
                 pT0Ref, ecmRef, ecmPow;

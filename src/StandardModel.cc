@@ -274,6 +274,8 @@ double CoupEW::rfSave[20] = { };
 double CoupEW::ef2Save[20] = { }; 
 double CoupEW::vf2Save[20] = { }; 
 double CoupEW::af2Save[20] = { }; 
+double CoupEW::efvfSave[20] = { }; 
+double CoupEW::vf2af2Save[20] = { }; 
 
 //*********
 
@@ -294,6 +296,9 @@ void CoupEW::initStatic() {
     ef2Save[i] = pow2(efSave[i]);
     vf2Save[i] = pow2(vfSave[i]);
     af2Save[i] = pow2(afSave[i]);
+    efvfSave[i] = efSave[i] * vfSave[i];
+    vf2af2Save[i] = vf2Save[i] + af2Save[i];
+
   }
 
 }
@@ -326,12 +331,13 @@ void VCKM::initStatic() {
   Vsave[3][2] = Settings::parm("StandardModel:Vts");
   Vsave[3][3] = Settings::parm("StandardModel:Vtb");
 
-  // Sum VCKM^2_out sum for given incoming flavour, excluding top.
+  // Sum VCKM^2_out sum for given incoming flavour, excluding top as partner.
   V2out[1] = pow2(Vsave[1][1]) + pow2(Vsave[2][1]);
   V2out[2] = pow2(Vsave[1][1]) + pow2(Vsave[1][2]) + pow2(Vsave[1][3]);
   V2out[3] = pow2(Vsave[1][2]) + pow2(Vsave[2][2]);
   V2out[4] = pow2(Vsave[2][1]) + pow2(Vsave[2][2]) + pow2(Vsave[2][3]);
   V2out[5] = pow2(Vsave[1][3]) + pow2(Vsave[2][3]);
+  V2out[6] = pow2(Vsave[3][1]) + pow2(Vsave[3][2]) + pow2(Vsave[3][3]);
   for (int i = 11; i <= 16; ++i) V2out[i] = 1.;
  
 }
@@ -369,7 +375,7 @@ int VCKM::V2pick(int id) {
   int idOut = 0;
   
   // Quarks: need to make random choice.
-  if (idIn >= 1 && idIn <= 5) {
+  if (idIn >= 1 && idIn <= 6) {
     double V2rndm = Rndm::flat() * V2out[idIn]; 
     if (idIn == 1) idOut = (V2rndm < pow2(Vsave[1][1])) ? 2 : 4;
     else if (idIn == 2) idOut = (V2rndm < pow2(Vsave[1][1])) ? 1 
@@ -378,6 +384,8 @@ int VCKM::V2pick(int id) {
     else if (idIn == 4) idOut = (V2rndm < pow2(Vsave[2][1])) ? 1 
       : ( (V2rndm < pow2(Vsave[2][1]) + pow2(Vsave[2][2])) ? 3 : 5 );
     else if (idIn == 5) idOut = (V2rndm < pow2(Vsave[1][3])) ? 2 : 4;
+    else if (idIn == 6) idOut = (V2rndm < pow2(Vsave[3][1])) ? 1 
+      : ( (V2rndm < pow2(Vsave[3][1]) + pow2(Vsave[3][2])) ? 3 : 5 );
   
   // Leptons: unambiguous. 
   } else if (idIn >= 11 && idIn <= 16) {

@@ -34,7 +34,7 @@ public:
  
   // Initialization assuming all necessary data already read.
   bool init( Info* infoPtrIn, BeamParticle* beamAPtrIn, 
-    BeamParticle* beamBPtrIn, bool hasLHAin = false, 
+    BeamParticle* beamBPtrIn, bool doLHAin = false, 
     LHAinit* lhaInitPtrIn = 0, LHAevnt* lhaEvntPtrIn = 0, 
     UserHooks* userHooksPtrIn = 0);
  
@@ -49,13 +49,21 @@ public:
 
 private: 
 
-  // Which machinery is used to generate events?
-  bool hasInternal, hasLHA;
+  // Generic info for process generation.
+  bool   doInternal, doLHA, doSecondHard, allHardSame, noneHardSame, 
+         someHardSame;
+  int    nImpact, startColTag2;
+  double sigmaND, sumImpactFac, sum2ImpactFac;
 
   // Vector of containers of internally-generated processes.
   vector<ProcessContainer*> containerPtrs;
-  int    iNow;
+  int    iContainer;
   double sigmaMaxSum;
+
+  // Ditto for optional choice of a second hard process.
+  vector<ProcessContainer*> container2Ptrs;
+  int    i2Container;
+  double sigma2MaxSum;
 
   // Pointer to various information on the generation.
   Info* infoPtr;
@@ -78,11 +86,20 @@ private:
   // ResonanceDecay object does sequential resonance decays.
   ResonanceDecays resonanceDecays;
 
+  // Initialize information on resonances.
+  bool initResonances();
+
   // Initialize the internal event generation machinery.
   bool initInternal( ostream& os = cout);
 
-  // Generate the next internal event.
+  // Generate the next internal event with one interaction.
   bool nextInternal( Event& process);
+
+  // Generate the next internal event with two hard interactions.
+  bool next2Internal( Event& process);
+
+  // Append the second to the first process list.
+  void combineProcessRecords( Event& process,  Event& process2);
 
   // Read in the hard process from the Les Houches Accord.
   bool nextLHA( Event& process);
@@ -95,6 +112,9 @@ private:
 
   // Check that colours match up.
   bool checkColours( Event& process);
+
+  // Print statistics when two hard processes allowed.
+  void statistics2(ostream& os = cout);
 
 };
 

@@ -159,7 +159,7 @@ private:
   BeamParticle beamB;
 
   // LHAinit and LHAevnt objects for generating external events.
-  bool hasLHA;
+  bool doLHA;
   LHAinit* lhaInitPtr;
   LHAevnt* lhaEvntPtr;
   int strategyLHA;

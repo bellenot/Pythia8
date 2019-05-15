@@ -46,6 +46,7 @@ bool PartonLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn,
   doFSRafterProcess  = FSR && FSRinProcess && !interleaveFSR;
   doFSRinResonances  = FSR && Settings::flag("PartonLevel:FSRinResonances");
   doRemnants         = true;
+  doSecondHard       = Settings::flag("SecondHard:generate");
 
   // Need MI initialization for minbias processes, even if only first MI.
   // But no need to initialize MI if never going to use it.
@@ -111,7 +112,7 @@ bool PartonLevel::next( Event& process, Event& event) {
 
     // Reset flag, counters and max scales.
     physical   = true;
-    nMI        = 1;
+    nMI        = (doSecondHard) ? 2 : 1;
     nISR       = 0;
     nFSRinProc = 0;
     nFSRinRes  = 0;
@@ -130,6 +131,7 @@ bool PartonLevel::next( Event& process, Event& event) {
 
     // Set hard scale, maximum for showers and multiple interactions,
     double pTscale  = process.scale();
+    if (doSecondHard) pTscale = max( pTscale, process.scaleSecond() );  
     double pTmaxMI  = (limitPTmaxMI)  ? pTscale : infoPtr->eCM();
     double pTmaxISR = (limitPTmaxISR) ? spacePtr->enhancePTmax() * pTscale 
                                       : infoPtr->eCM();
@@ -140,9 +142,11 @@ bool PartonLevel::next( Event& process, Event& event) {
     pTsaveFSR       = pTmaxFSR;
 
     // Prepare the classes to begin the generation.
-    if (doMI)               multi.prepare( pTmaxMI);
-    if (doISR)              spacePtr->prepare( 0, event, limitPTmaxISR);
+    if (doMI)  multi.prepare( pTmaxMI);
+    if (doISR) spacePtr->prepare( 0, event, limitPTmaxISR);
     if (doFSRduringProcess) timesPtr->prepare( 0, event);
+    if (doSecondHard && doISR) spacePtr->prepare( 1, event, limitPTmaxISR);
+    if (doSecondHard && doFSRduringProcess) timesPtr->prepare( 1, event);
 
     // Set up initial veto scale.
     doVeto        = false;
@@ -320,14 +324,20 @@ bool PartonLevel::next( Event& process, Event& event) {
 
 //*********
 
-// Set up the hard process, excluding subsequent resonance decays.
+// Set up the hard process(es), excluding subsequent resonance decays.
 
 void PartonLevel::setupHardSys( Event& process, Event& event) {
 
-  // Incoming partons to hard process are stored in slots 3 and 4. Scale.
+  // Incoming partons to hard process are stored in slots 3 and 4.
   int inP = 3;
   int inM = 4;
-  double scale = process.scale();
+
+  // If two hard interactions then find where second begins.
+  int iBeginSecond = process.size();
+  if (doSecondHard) {
+    iBeginSecond = 5;
+    while (process[iBeginSecond].status() != -21) ++iBeginSecond;
+  }
 
   // If incoming partons are massive then recalculate to put them massless.
   if (process[inP].m() != 0. || process[inM].m() != 0.) { 
@@ -335,20 +345,20 @@ void PartonLevel::setupHardSys( Event& process, Event& event) {
     double pMinus = process[inP].pMinus() + process[inM].pMinus(); 
     process[inP].pz( 0.5 * pPlus);
     process[inP].e(  0.5 * pPlus);
-    process[inP].m( 0.);
+    process[inP].m(  0.);
     process[inM].pz(-0.5 * pMinus);
     process[inM].e(  0.5 * pMinus);
-    process[inM].m( 0.);
+    process[inM].m(  0.);
   }
 
   // Add incoming hard-scattering partons to list in beam remnants.
-  // Not valid if not in rest frame??
   double x1 = process[inP].pPlus() / process[0].e();
   beamAPtr->append( inP, process[inP].id(), x1);
   double x2 = process[inM].pMinus() / process[0].e();
   beamBPtr->append( inM, process[inM].id(), x2);
 
-  // Find whether incoming partons are valence or sea.
+  // Scale. Find whether incoming partons are valence or sea.
+  double scale = process.scale();
   beamAPtr->xfISR( 0, process[inP].id(), x1, scale*scale);
   beamAPtr->pickValSeaComp(); 
   beamBPtr->xfISR( 0, process[inM].id(), x2, scale*scale);
@@ -359,7 +369,7 @@ void PartonLevel::setupHardSys( Event& process, Event& event) {
   iPosBefShow.resize( process.size() );
 
   // Add the beam and hard subprocess partons to the event record.
-  for (int i = 0; i < process.size(); ++ i) { 
+  for (int i = 0; i < iBeginSecond; ++ i) { 
     if (process[i].mother1() > inM) break;
     event.append(process[i]);
     iPosBefShow[i] = i;
@@ -374,6 +384,54 @@ void PartonLevel::setupHardSys( Event& process, Event& event) {
     ++nHardDone;
   }
 
+  // Store participating partons as first set in list of all systems.
+  event.newSystem();
+  for (int i = inP; i < nHardDone; ++i) event.addToSystem(0, i);   
+
+  // Identify second hard process where applicable.
+  // Since internally generated incoming partons are guaranteed massless. 
+  if (doSecondHard) {
+    int inP2 = iBeginSecond; 
+    int inM2 = iBeginSecond + 1;
+
+    // Add incoming hard-scattering partons to list in beam remnants.
+    // Not valid if not in rest frame??
+    x1 = process[inP2].pPlus() / process[0].e();
+    beamAPtr->append( inP2, process[inP2].id(), x1);
+    x2 = process[inM2].pMinus() / process[0].e();
+    beamBPtr->append( inM2, process[inM2].id(), x2);
+
+    // Find whether incoming partons are valence or sea.
+    scale = process.scaleSecond();
+    beamAPtr->xfISR( 1, process[inP2].id(), x1, scale*scale);
+    beamAPtr->pickValSeaComp(); 
+    beamBPtr->xfISR( 1, process[inM2].id(), x2, scale*scale);
+    beamBPtr->pickValSeaComp(); 
+
+    // Add the beam and hard subprocess partons to the event record.
+    for (int i = inP2; i < process.size(); ++ i) { 
+      int mother = process[i].mother1();
+      if ( (mother > 2 && mother < inP2) || mother > inM2 ) break;
+      event.append(process[i]);
+      iPosBefShow[i] = i;
+
+      // Currently outgoing ones should not count as decayed.
+      if (event[i].status() == -22) { 
+        event[i].statusPos(); 
+        event[i].daughters(0, 0);
+      }
+
+      // Complete task of copying hard subsystem into event record.
+      ++nHardDone;
+    }
+
+    // Store participating partons as second set in list of all systems.
+    event.newSystem();
+    for (int i = inP2; i < nHardDone; ++i) event.addToSystem(1, i);   
+
+  // End code for second hard process.
+  }
+
   // Update event colour tag to maximum in whole process.
   int maxColTag = 0;
   for (int i = 0; i < process.size(); ++ i) { 
@@ -385,10 +443,6 @@ void PartonLevel::setupHardSys( Event& process, Event& event) {
   // Copy junctions from process to event.
   for (int i = 0; i < process.sizeJunction(); ++i) 
     event.appendJunction( process.getJunction(i));
-
-  // Store participating partons as first set in list of all systems.
-  event.newSystem();
-  for (int i = inP; i < nHardDone; ++i) event.addToSystem(0, i);   
   
   // Done. 
 }

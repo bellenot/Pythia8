@@ -40,8 +40,15 @@ have beeen set up, process by process, along with initial weight
 <code>SigmaProcess</code> is base class for all hard processes 
 implemented in PYTHIA 8. For <i>2 -> 1</i> processes it 
 should give <i>sigmaHat(sHat)</i>, for <i>2 -> 2</i> ones 
-<i>d(sigmaHat(sHat, tHat))/d(tHat)</i>.
+<i>d(sigmaHat(sHat, tHat))/d(tHat)</i>. The matrix-element
+coding is also used by the multiple-interactions machinery,
+but with a separate choice of <i>alpha_strong(M_Z^2)</i> value
+and running, and separate scale choices. Also, in <i>2 -> 2</i> 
+processes where resonances are produced, their couplings and thereby 
+their Breit-Wigner shapes are always evaluated with the resonance mass 
+as scale, irrespective of the choices below.
 
+<p/>
 The size of QCD cross sections is mainly determined by 
 <p/><code>parm&nbsp; </code><strong> SigmaProcess:alphaSvalue &nbsp;</strong> 
  (<code>default = <strong>0.1265</strong></code>; <code>minimum = 0.06</code>; <code>maximum = 0.25</code>)<br/>
@@ -49,9 +56,8 @@ The <i>alpha_strong</i> value at scale <i>M_Z^2</i>.
   
 
 <p/>
-The actual value is then regulated by the running to the scale 
-<i>Q^2</i>, at which <i>alpha_strong</i> is evaluated
-
+The actual value is then regulated by the running to the <i>Q^2</i> 
+renormalization scale, at which <i>alpha_strong</i> is evaluated
 <p/><code>mode&nbsp; </code><strong> SigmaProcess:alphaSorder &nbsp;</strong> 
  (<code>default = <strong>1</strong></code>; <code>minimum = 0</code>; <code>maximum = 2</code>)<br/>
 Order at which <i>alpha_strong</i> runs,
@@ -65,8 +71,7 @@ but there is also nothing wrong with it.
 
 <p/>
 QED interactions are regulated by the <i>alpha_electromagnetic</i>
-value at the <i>pT^2</i> scale of an interaction.
- 
+value at the <i>Q^2</i> renormalization scale of an interaction. 
 <p/><code>mode&nbsp; </code><strong> SigmaProcess:alphaEMorder &nbsp;</strong> 
  (<code>default = <strong>1</strong></code>; <code>minimum = -1</code>; <code>maximum = 1</code>)<br/>
 The running of <i>alpha_em</i> used in hard processes.
@@ -80,6 +85,56 @@ fixed, but at <code>StandardModel:alphaEMmZ</code>, i.e. its value
 at the <i>Z^0</i> mass.
    
 </modepick>
+
+<p/>
+The <i>Q^2</i> renormalization scale is <i>sHat</i> for 
+<i>2 -> 1</i> processes while there is a choice for <i>2 -> 2</i>
+ones:  
+<p/><code>mode&nbsp; </code><strong> SigmaProcess:renormScale &nbsp;</strong> 
+ (<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 1</code>)<br/>
+The <i>Q^2</i> renormalization scale for <i>2 -> 2</i> processes.
+<br/><code>option </code><strong> 0</strong> : the product of the transverse masses of the two
+outgoing particles, i.e. <i>sqrt((pT^2 + m3^2) * (pT2 + m4^2))</i>.
+  
+<br/><code>option </code><strong> 1</strong> : the average of the squared transverse masses, 
+i.e. <i>pT^2 + 0.5 * (m3^2 + m4^2)</i>. Useful for comparisons 
+with PYTHIA 6.
+  
+</modepick>
+
+<p/>
+It is also possible to shift the choice by a global factor.
+<p/><code>parm&nbsp; </code><strong> SigmaProcess:renormMult &nbsp;</strong> 
+ (<code>default = <strong>1.</strong></code>; <code>minimum = 0.1</code>; <code>maximum = 10.</code>)<br/>
+The <i>Q^2</i> renormalization scale for <i>2 -> 1</i> and
+<i>2 -> 2</i> processes is multiplied by this factor relative to the
+scale described above. Should be use sparingly for <i>2 -> 1</i>
+processes. 
+
+<p/>
+Corresponding options exist for the <i>Q^2</i> factorization scale
+used as argument in PDF's. Again <i>sHat</i> is scale for <i>2 -> 1</i> 
+processes while there is a choice for <i>2 -> 2</i> ones:
+<p/><code>mode&nbsp; </code><strong> SigmaProcess:factorScale &nbsp;</strong> 
+ (<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 1</code>)<br/>
+The <i>Q^2</i> factorization scale for <i>2 -> 2</i> processes.
+<br/><code>option </code><strong> 0</strong> : the smaller of the squared transverse masses of the two
+outgoing particles, i.e. <i>pT^2 + min(m3^2 + m4^2)</i>.
+  
+<br/><code>option </code><strong> 1</strong> : the average of the squared transverse masses, 
+i.e. <i>pT^2 + 0.5 * (m3^2 + m4^2)</i>. Useful for comparisons 
+with PYTHIA 6.
+  
+</modepick>
+
+<p/>
+It is also possible to shift the choice by a global factor.
+<p/><code>parm&nbsp; </code><strong> SigmaProcess:factorMult &nbsp;</strong> 
+ (<code>default = <strong>1.</strong></code>; <code>minimum = 0.1</code>; <code>maximum = 10.</code>)<br/>
+The <i>Q^2</i> factorization scale for <i>2 -> 1</i> and
+<i>2 -> 2</i> processes is multiplied by this factor relative to the
+scale described above. Should be use sparingly for <i>2 -> 1</i>
+processes.  
 
 <h3>Special cross sections</h3>
 

@@ -265,6 +265,43 @@ from comparisons.
 Note that the cross section is only modifiable for normal hard processes.
 It does not affect the cross section in further multiple interactions,
 nor in elastic/diffractive/minimum-bias events.
+
+<p/>
+One derived class is supplied as an example how this facility can be used
+to reweight cross sections in the same spirit as is done with QCD cross
+sections for the minimum-bias/underlying-event description:
+<p/><code>class&nbsp; </code><strong> SuppressSmallPT( pT0timesMI, numberAlphaS, alphaSasMI) &nbsp;</strong> <br/>
+suppress small-<i>pT</i> production for <i>2 -> 2</i> processes
+only, while leaving other processes unaffected. The basic suppression
+factor is <i>pT^4 / ((k*pT0)^2 + pT^2)^2</i>, where <i>pT</i>
+refers to the current hard subprocess and <i>pT0</i> is the same
+energy-dependent dampening scale as used for 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='MultipleInteractions.php?filepath=".$filepath."' target='page'>";?>multiple interactions</a>. 
+The optional arguments provide further variability. 
+<br/><code>argument</code><strong> pT0timesMI </strong>  :  
+corresponds to the additional factor <i>k</i> in the above formula. 
+It is by default equal to 1 but can be used to explore deviations from 
+the expected value.
+  
+<br/><code>argument</code><strong> numberAlphaS </strong>  :   
+if this number <i>n</i> is bigger than the default 0, the 
+corresponding number of <i>alpha_strong</i> factors is also 
+reweighted from the normal renormalization scale to a modified one,
+i.e. a further suppression factor
+<i>( alpha_s((k*pT0)^2 + Q^2_ren) / alpha_s(Q^2_ren) )^n</i>
+is introduced.
+  
+<br/><code>argument</code><strong> alphaSasMI </strong>  :  
+regulates which kind of new <i>alpha_strong</i> value is evaluated
+for the numerator in the above expression. It is by default the same 
+as set for multiple interactions (i.e. same starting value at 
+<i>M_Z</i> and same order of running), but if <code>false</code> 
+instead the one for hard subprocesses. The denominator 
+<i>alpha_s(Q^2_ren)</i> is always the value used for the "original", 
+unweighted cross section. 
+  
+  
  
 <h3>Final comments</h3>
 

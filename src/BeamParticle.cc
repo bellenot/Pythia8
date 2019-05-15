@@ -100,7 +100,7 @@ void BeamParticle::initBeamKind() {
   nValKinds    = 0;
 
   // Check for leptons. 
-  if (idBeamAbs == 11 || idBeamAbs == 13 || idBeamAbs == 15) {
+  if (idBeamAbs > 10 && idBeamAbs < 17) {
     nValKinds = 1; 
     nVal[0]   = 1;
     idVal[0]  = idBeam;

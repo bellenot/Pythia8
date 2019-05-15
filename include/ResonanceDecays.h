@@ -9,8 +9,8 @@
 #include "Event.h"
 #include "Information.h"
 #include "ParticleData.h"
-#include "ProcessContainer.h"
 #include "PythiaStdlib.h"
+#include "ResonanceProperties.h"
 #include "Settings.h"
 
 namespace Pythia8 {
@@ -35,11 +35,21 @@ public:
 
 private: 
 
-  // Pick decay channel of resonance.
-  // bool pickChannel();
+  // Constants: could only be changed in the code itself.
+  static const int    NTRYDECAY;
+  static const double MSAFETY;
+
+  // Select colours in decay.
+  bool pickColours(Particle& decayer, Event& process);
 
   // Select trial kinemantics in resonance rest frame.
-  // bool pickKinematics();
+  void pickKinematics();
+
+  // Flavour, colour and momentum information.
+  int    id0, id0Abs, id1, id2, col0, acol0, col1, acol1, col2, acol2, 
+    colType1, colType2;
+  double m0, m1, m2;
+  Vec4   p1, p2;
 
 };
 
