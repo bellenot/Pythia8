@@ -57,14 +57,12 @@ at output.) The <code>xfUpdate</code> method should also take care of
 updating this information.
 
 <p/>
-Since the current LHAPDF library does not check <i>x</i> and <i>Q2</i>
-limits (except in its LHAGLUE interface) the routine 
-<code>setLimits( xMin, xMax, Q2Min, Q2Max)</code> allows you 
-to set lower and upper limits beyond which the distributions are frozen
-or, for <i>x_max</i> set to vanish. This method has only and effect on
-the LHAPDF class below. If you implement a new PDF you are free to use this 
-method, but it would be smarter to hardcode the desired limiting behaviour 
-As LHAPDF evolves this method may become superfluous.
+A method <code>setExtrapolate(bool)</code> allows you to switch between
+freezing parametrizations  at the <i>x</i> and <i>Q^2</i> boundaries 
+(<code>false</code>) or extrapolating them outside the boundaries
+(<code>true</code>). This method is only implemented for the LHAPDF class 
+below. If you implement a new PDF you are free to use this method, but it 
+would be smarter to hardcode the desired limiting behaviour. 
 
 <h3>Derived classes</h3>
 

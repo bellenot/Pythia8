@@ -39,11 +39,15 @@ public:
   // Destructor to delete processes in containers.
   ~ProcessLevel();
  
-  // Initialization assuming all necessary data already read.
+  // Initialization.
   bool init( Info* infoPtrIn, BeamParticle* beamAPtrIn, 
     BeamParticle* beamBPtrIn, bool doLHAin, LHAinit* lhaInitPtrIn, 
     LHAevnt* lhaEvntPtrIn, UserHooks* userHooksPtrIn, 
     vector<SigmaProcess*>& sigmaPtrs);
+
+  // Simplified initialization: only replace LHA pointers.
+  void setLHAPtrs( LHAinit* lhaInitPtrIn, LHAevnt* lhaEvntPtrIn)
+    { lhaInitPtr = lhaInitPtrIn; lhaEvntPtr = lhaEvntPtrIn;}
  
   // Generate the next "hard" process.
   bool next( Event& process); 
@@ -58,7 +62,7 @@ private:
 
   // Generic info for process generation.
   bool   doInternal, doLHA, doSecondHard, allHardSame, noneHardSame, 
-         someHardSame;
+         someHardSame, doResDecays;
   int    nImpact, startColTag2;
   double sigmaND, sumImpactFac, sum2ImpactFac;
 
@@ -82,7 +86,6 @@ private:
   // Pointers to LHAinit and LHAevnt for generating external events.
   LHAinit* lhaInitPtr;
   LHAevnt* lhaEvntPtr;
-  int strategyLHA;
 
   // Pointer to userHooks object for user interaction with program.
   UserHooks* userHooksPtr;
@@ -92,9 +95,6 @@ private:
 
   // ResonanceDecay object does sequential resonance decays.
   ResonanceDecays resonanceDecays;
-
-  // Initialize information on resonances.
-  bool initResonances();
 
   // Initialize the internal event generation machinery.
   bool initInternal( vector<SigmaProcess*>& sigmaPtrs, ostream& os = cout);
@@ -110,9 +110,6 @@ private:
 
   // Read in the hard process from the Les Houches Accord.
   bool nextLHA( Event& process);
-
-  // Read in the hard process, special case if all partons already given.
-  bool nextSimpleLHA( Event& process);
 
   // Add any junctions to the process event record list.
   void findJunctions( Event& process);

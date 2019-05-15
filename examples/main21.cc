@@ -4,82 +4,48 @@
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 // This is a simple test program. 
-// It illustrates how Les Houches Accord input can be used 
-// to feed in toy parton-level configurations.
+// It illustrates how to feed in toy parton-level configurations.
 
 #include "Pythia.h"
 using namespace Pythia8; 
 
 //**************************************************************************
 
-// Derived classes for external feed-in of parton configurations
-// to be hadronized, without any parton-level evolution.
+// Simple method to do the filling of partons into the event record.
 
-//*********
+void fillPartons(int type, double ee, Event& event) {
 
-class LHAinitToy : public LHAinit {
-
-public:
-
-  // Constructor.
-  LHAinitToy() {}
-
-  // Routine for doing the job of setting initialization info.  
-  // The strategy = 10 is special option that does not require 
-  // beams to have been specified, and does not add showers.
-  bool set() {strategy(10); return true;} 
-
-};
-
-//*********
-
-class LHAevntToy: public LHAevnt {
-
-public:
-
-  // Constructor.
-  LHAevntToy(int typeIn = 0, double energy = 10.) : type(typeIn),
-    ee(energy) {}
-
-  // Routine for doing the job of setting info on next event.  
-  bool set(); 
-
-  // Store which kind of toy events to generate.
-  int type;
-  double ee;
-
-};
-
-//*********
-
-bool LHAevntToy::set() {
-
-  // Information on process: needs to be called but OK to use defaults.
-  process();
+  // Reset event record to allow for new event.
+  event.reset();
 
   // Information on a q qbar or g g system, to be hadronized.
   if (type == 1 || type == 2) {
     int id1 = (type == 1) ?  2 : 21;
     int id2 = (type == 1) ? -2 : 21;
-    particle( id1, 1, 0, 0, 101, 0, 0., 0.,  ee, ee); 
-    particle( id2, 1, 0, 0, 0, 101, 0., 0., -ee, ee);
+    event.append( id1, 1, 101,   0, 0., 0.,  ee, ee); 
+    event.append( id2, 1,   0, 101, 0., 0., -ee, ee);
 
   // Information on a g g g system, to be hadronized.
   } else if (type == 3) {  
-    particle( 21, 1, 0, 0, 101, 102, 0., 0., ee, ee); 
-    particle( 21, 1, 0, 0, 102, 103,  0.8 * ee, 0., -0.6 * ee, 
-      ee); 
-    particle( 21, 1, 0, 0, 103, 101, -0.8 * ee, 0., -0.6 * ee, 
-      ee); 
+    event.append( 21, 1, 101, 102,        0., 0.,        ee, ee); 
+    event.append( 21, 1, 102, 103,  0.8 * ee, 0., -0.6 * ee, ee); 
+    event.append( 21, 1, 103, 101, -0.8 * ee, 0., -0.6 * ee, ee); 
 
   // Information on a q q q junction system, to be hadronized.
   } else if (type == 4 || type == 5) { 
 
+    // Need a colour singlet mother parton to define junction origin.
+    event.append( 1000022, -1, 0, 0, 2, 4, 0, 0, 
+                  0., 0., 1.01 * ee, 1.01 * ee); 
+
     // The three endpoint q q q; the minimal system. 
     double rt75 = sqrt(0.75);  
-    particle( 2, 1, 0, 0, 101, 0, 0., 0., 1.01 * ee, 1.01 * ee); 
-    particle( 2, 1, 0, 0, 102, 0,  rt75 * ee, 0., -0.5 * ee, ee ); 
-    particle( 1, 1, 0, 0, 103, 0, -rt75 * ee, 0., -0.5 * ee, ee );
+    event.append( 2, 1, 1, 0, 0, 0, 101, 0,
+                          0., 0., 1.01 * ee, 1.01 * ee); 
+    event.append( 2, 1, 1, 0, 0, 0, 102, 0, 
+                   rt75 * ee, 0., -0.5 * ee,        ee ); 
+    event.append( 1, 1, 1, 0, 0, 0, 103, 0,
+                  -rt75 * ee, 0., -0.5 * ee,        ee );
 
     // Define the qqq configuration as starting point for adding gluons.
     if (type == 5) {
@@ -107,17 +73,21 @@ bool LHAevntToy::set() {
             / e;
         } while (prod < cosThetaMin); 
         int colNew = 104 + nglu;
-        particle( 21, 1, 0, 0, colNew, colNow[iq], px, py, pz, e, 0.);
+        event.append( 21, 1, 1, 0, 0, 0, colNew, colNow[iq], 
+          px, py, pz, e, 0.);
         colNow[iq] = colNew;   
       }
+      // Update daughter range of mother.
+      event[1].daughters(1, event.size() - 1);  
+ 
     }
 
   // Information on a q q qbar qbar dijunction system, to be hadronized.
   } else if (type >= 6) {
 
-    // The two fictitious beam remnant particles; needed for documentation.
-    particle( 2212, 2, 0, 0, 0, 0, 0., 0., ee, ee, 0.);
-    particle(-2212, 2, 0, 0, 0, 0, 0., 0., ee, ee, 0.);
+    // The two fictitious beam remnant particles; needed for junctions.
+    event.append( 2212, -12, 0, 0, 3, 5, 0, 0, 0., 0., ee, ee, 0.);
+    event.append(-2212, -12, 0, 0, 6, 8, 0, 0, 0., 0., ee, ee, 0.);
 
     // Opening angle between "diquark" legs.
     double theta = 0.2;
@@ -129,33 +99,38 @@ bool LHAevntToy::set() {
 
     // The four endpoint q q qbar qbar; the minimal system. 
     // Two additional fictitious partons to make up original beams.
-    particle(  2, 1, 1, 0, 101, 0,  ee * sThe, 0.,  ee * cThe, ee, 0.); 
-    particle(  1, 1, 1, 0, 102, 0, -ee * sThe, 0.,  ee * cThe, ee, 0.); 
-    particle(  2, 2, 1, 0, 103, 0,         0., 0.,  ee       , ee, 0.); 
-    particle( -2, 1, 2, 0, 0, 104,  ee * sThe, 0., -ee * cThe, ee, 0.); 
-    particle( -1, 1, 2, 0, 0, 105, -ee * sThe, 0., -ee * cThe, ee, 0.); 
-    particle( -2, 2, 2, 0, 0, acol,        0., 0., -ee       , ee, 0.); 
+    event.append(  2,   1, 1, 0, 0, 0, 101, 0,
+                  ee * sThe, 0.,  ee * cThe, ee, 0.); 
+    event.append(  1,   1, 1, 0, 0, 0, 102, 0, 
+                 -ee * sThe, 0.,  ee * cThe, ee, 0.); 
+    event.append(  2, -21, 1, 0, 0, 0, 103, 0,     
+                         0., 0.,  ee       , ee, 0.); 
+    event.append( -2,   1, 2, 0, 0, 0, 0, 104, 
+                  ee * sThe, 0., -ee * cThe, ee, 0.); 
+    event.append( -1,   1, 2, 0, 0, 0, 0, 105, 
+                 -ee * sThe, 0., -ee * cThe, ee, 0.); 
+    event.append( -2, -21, 2, 0, 0, 0, 0, acol,    
+                         0., 0., -ee       , ee, 0.); 
 
     // Add extra gluons on string between junctions.
     if (type == 7) {
-      particle( 21, 1, 5, 8, 103, 106, 0., ee, 0., ee, 0.); 
+      event.append( 21, 1, 5, 8, 0, 0, 103, 106, 0., ee, 0., ee, 0.); 
     } else if (type == 8) {
-      particle( 21, 1, 5, 8, 103, 108, 0., ee, 0., ee, 0.); 
-      particle( 21, 1, 5, 8, 108, 106, 0.,-ee, 0., ee, 0.); 
+      event.append( 21, 1, 5, 8, 0, 0, 103, 108, 0., ee, 0., ee, 0.); 
+      event.append( 21, 1, 5, 8, 0, 0, 108, 106, 0.,-ee, 0., ee, 0.); 
     } else if (type == 9) {
-      particle( 21, 1, 5, 8, 103, 107, 0., ee, 0., ee, 0.); 
-      particle( 21, 1, 5, 8, 107, 108, ee, 0., 0., ee, 0.); 
-      particle( 21, 1, 5, 8, 108, 106, 0.,-ee, 0., ee, 0.); 
+      event.append( 21, 1, 5, 8, 0, 0, 103, 107, 0., ee, 0., ee, 0.); 
+      event.append( 21, 1, 5, 8, 0, 0, 107, 108, ee, 0., 0., ee, 0.); 
+      event.append( 21, 1, 5, 8, 0, 0, 108, 106, 0.,-ee, 0., ee, 0.); 
     } else if (type == 10) {
-      particle( 21, 1, 5, 8, 103, 107, 0., ee, 0., ee, 0.); 
-      particle( 21, 1, 5, 8, 107, 108, ee, 0., 0., ee, 0.); 
-      particle( 21, 1, 5, 8, 108, 109, 0.,-ee, 0., ee, 0.); 
-      particle( 21, 1, 5, 8, 109, 106,-ee, 0., 0., ee, 0.); 
+      event.append( 21, 1, 5, 8, 0, 0, 103, 107, 0., ee, 0., ee, 0.); 
+      event.append( 21, 1, 5, 8, 0, 0, 107, 108, ee, 0., 0., ee, 0.); 
+      event.append( 21, 1, 5, 8, 0, 0, 108, 109, 0.,-ee, 0., ee, 0.); 
+      event.append( 21, 1, 5, 8, 0, 0, 109, 106,-ee, 0., 0., ee, 0.); 
     }
 
   // No more cases: done.
   } 
-  return true; 
 }
 
 //**************************************************************************
@@ -170,38 +145,36 @@ int main() {
   // 5 = q q q junction topology with gluons on the strings.
   // 6 = q q qbar qbar dijunction topology, no gluons.
   // 7 - 10 : ditto, but with 1 - 4 gluons on string between junctions.
-  int eventType = 1;
+  int type = 1;
 
   // Set typical energy per parton.
-  double energy = 20.0;
+  double ee = 20.0;
 
   // Set number of events to generate and to list.
   int nEvent = 10000;
-  int nList = 1;
+  int nList = 3;
 
   // Generator; shorthand for event.                           
   Pythia pythia;  
   Event& event = pythia.event;
 
-  // Standard checks not meaningful (assume incoming beams in lines 1 and 2).
-  pythia.readString("Check:event = off");
+  // Key requirement: switch off ProcessLevel, and thereby also PartonLevel.
+  pythia.readString("ProcessLevel:all = off");
 
   // Optionally switch off decays.
   pythia.readString("HadronLevel:Decay = off");
-                             
-  // Initialize generation with LHA input.                           
-  LHAinitToy lhaInit;       
-  LHAevntToy lhaEvnt(eventType, energy);      
-  pythia.init(&lhaInit, &lhaEvnt);    
 
   // Provide printout of initial information.        
   pythia.settings.listChanged();
+ 
+  // Initialize.
+  pythia.init();
 
   // Book histograms.                          
   Hist epCons("deviation from energy-momentum conservation",100,0.,1e-4);
   Hist chgCons("deviation from charge conservation",57,-9.5,9.5);
   Hist nFinal("final particle multiplicity",100,-0.5,99.5);   
-  Hist dnparticledp("dn/dp for particles",100,0.,energy);
+  Hist dnparticledp("dn/dp for particles",100,0.,ee);
   Hist status85("multiplicity status code 85",50,-0.5,49.5);
   Hist status86("multiplicity status code 86",50,-0.5,49.5);
   Hist status83("multiplicity status code 83",50,-0.5,49.5);
@@ -218,25 +191,26 @@ int main() {
     if (iEvent%(max(1,nEvent/20)) == 0) cout << " Now begin event " 
       << iEvent << endl;
 
+    // Set up parton-level configuration.
+    fillPartons( type, ee, event); 
+
     // Generate events. Quit if failure.
     if (!pythia.next()) {
       cout << " Event generation aborted prematurely, owing to error!\n"; 
       break;
     }
  
-    // List first few events, both hard process and complete events.
+    // List first few events.
     if (iEvent < nList) { 
-      pythia.LHAevntList();
-      pythia.process.list();
-      pythia.event.list();
+      event.list();
       // Also list junctions.
-      pythia.event.listJunctions();
+      event.listJunctions();
     }
 
     // Initialize statistics. 
     Vec4 pSum = - event[0].p();
     double chargeSum = 0.;
-    if (eventType == 4 || eventType == 5) chargeSum = -1;
+    if (type == 4 || type == 5) chargeSum = -1;
     int nFin = 0;  
     int n85 = 0;
     int n86 = 0;
@@ -281,7 +255,7 @@ int main() {
         // Rapidity distribution of primary hadrons.
         double y = event[i].y();
         dndySum.fill(y);
-        if (eventType >= 6) {
+        if (type >= 6) {
           int motherId = event[event[i].mother1()].id();
           if (motherId > 0 ) dndyJun.fill(event[i].y()); 
           else dndyAnti.fill(event[i].y());
@@ -313,12 +287,13 @@ int main() {
   // End of event loop.
   }                                           
 
-  // Print histogram and done.
+  // Print statistics, histograms and done.
+  pythia.statistics();
   cout << epCons << chgCons << nFinal << dnparticledp
        << dndtheta << dedtheta << dpartondtheta << dndySum;
-  if (eventType >= 4) cout << status85 << status86 << status83 
+  if (type >= 4) cout << status85 << status86 << status83 
        << status84; 
-  if (eventType >= 6) cout << dndyJun << dndyAnti;
+  if (type >= 6) cout << dndyJun << dndyAnti;
 
   // Done.
   return 0;

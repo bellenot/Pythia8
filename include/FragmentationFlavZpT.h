@@ -92,7 +92,7 @@ public:
 
 private: 
 
-  // Static initialization data, normally only set once.
+  // Static initialization data, to be read from Settings.
   static double probQQtoQ, probStoUD, probSQtoQQ, probQQ1toQQ0, 
                 probQandQQ, probQandS, probQandSinQQ, probQQ1corr, 
                 probQQ1corrInv, probQQ1norm, mesonRate[4][6], 
@@ -126,7 +126,7 @@ public:
 
 private: 
 
-  // Static initialization data, normally only set once.
+  // Static initialization data, to be read from Settings.
   static bool   usePetersonC, usePetersonB, usePetersonH;
   static double mc2, mb2, aLund, bLund, aExtraDiquark, rFactC, rFactB, 
                 rFactH, epsilonC, epsilonB, epsilonH;
@@ -161,7 +161,7 @@ public:
 
 private: 
 
-  // Static initialization data, normally only set once.
+  // Static initialization data, to be read from Settings.
   static double sigmaQ, enhancedFraction, enhancedWidth;
 
   // pT fragmentation spectrum.

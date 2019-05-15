@@ -61,16 +61,18 @@ scale of the hard process itself.
 <br/>
 <input type="radio" name="1" value="0" checked="checked"><strong>0 </strong>: <i>(i)</i> if the final state of the hard process (not counting subsequent resonance decays) contains at least one quark (<ei>u, d, s, c ,b</ei>), gluon or photon then <ei>pT_max</ei> is chosen to be the factorization scale for internal processes and the <code>scale</code> value for Les Houches input; <i>(ii)</i> if not, emissions are allowed to go all the way up to the kinematical limit. The reasoning is that in the former set of processes the ISRemission of yet another quark, gluon or photon could lead todoublecounting, while no such danger exists in the latter case.<br/>
 <input type="radio" name="1" value="1"><strong>1 </strong>: always use the factorization scale for an internalprocess and the <code>scale</code> value for Les Houches input, i.e. the lower value. This should avoid doublecounting, butmay leave out some emissions that ought to have been simulated.<br/>
-<input type="radio" name="1" value="2"><strong>2 </strong>: always allow emissions up to the kinematical limit.This will simulate all possible event topologies, but may lead todoublecounting.<br/>
+<input type="radio" name="1" value="2"><strong>2 </strong>: always allow emissions up to the kinematical limit.This will simulate all possible event topologies, but may lead todoublecounting. <note>Note 1:</note> These options only apply to the hard interaction.Emissions off subsequent multiple interactions are always constraintedto be below the factorization scale of the process itself.  <note>Note 2:</note> Some processes contain matrix-element matchingto the first emission; this is the case notably for single <ei>gamma^*/Z^0, W^+-</ei> and <ei>H^0</ei> production. Then defaultand option 2 give the correct result, while option 1 should neverbe used. </modepick><parm name="SpaceShower:pTmaxFudge" default="1.0" min="0.5" max="2.0">In cases where the above <code>pTmaxMatch</code> rules would implythat <ei>pT_max = pT_factorization</ei>, <code>pTmaxFudge</code> introduced a multiplicative factor <ei>f</ei> such that instead<ei>pT_max = f * pT_factorization</ei>. Only applies to the hardestinteraction in an event. It is strongly suggested that <ei>f = 1</ei>, but variations around this default can be useful to test this assumption. </parm><modepick name="SpaceShower:pTdampMatch" default="0" min="0" max="2">These options only take effect when a process is allowed to radiate up to the kinematical limit by the above <code>pTmaxMatch</code> choice, and no matrix-element corrections are available. Then, in many processes,the fall-off in <ei>pT</ei> will be too slow by one factor of <ei>pT^2</ei>. That is, while showers have an approximate <ei>dpT^2/pT^2</ei> shape, often it should become more like <ei>dpT^2/pT^4</ei> at <ei>pT</ei> values abovethe scale of the hard process. Whether this actually is the case depends on the particular process studied, e.g. if <ei>t</ei>-channel gluon exchange is likely to dominate. If so, the options below couldprovide a reasonable high-<ei>pT</ei> behaviour without requiring higher-order calculations. <option value="0">emissions go up to the kinematical limit, with no special dampening.<br/>
+<input type="radio" name="1" value="1"><strong>1 </strong>: emissions go up to the kinematical limit,  but dampened by a factor <ei>k^2 Q^2_fac/(pT^2 + k^2 Q^2_fac)</ei>, where <ei>Q_fac</ei> is the factorization scale and <ei>k</ei> is a multiplicative fudge factor stored in <code>pTdampFudge</code> below.<br/>
+<input type="radio" name="1" value="2"><strong>2 </strong>: emissions go up to the kinematical limit, but dampened by a factor <ei>k^2 Q^2_ren/(pT^2 + k^2 Q^2_ren)</ei>, where <ei>Q_ren</ei> is the renormalization scale and <ei>k</ei> is a multiplicative fudge factor stored in <code>pTdampFudge</code> below. <br/>
 </modepick>
 
-<br/><br/><table><tr><td><strong>SpaceShower:pTmaxFudge </td><td></td><td> <input type="text" name="2" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.5</code>; <code>maximum = 2.0</code>)</td></tr></table>
-In cases where the above <code>pTmaxMatch</code> rules would imply
-that <i>pT_max = pT_factorization</i>, <code>pTmaxFudge</code> 
-introduced a multiplicative factor <i>f</i> such that instead
-<i>pT_max = f * pT_factorization</i>. Only applies to the hardest
-interaction in an event. It is strongly suggested that <i>f = 1</i>, 
-but variations around this default can be useful to test this assumption. 
+<br/><br/><table><tr><td><strong>SpaceShower:pTdampFudge </td><td></td><td> <input type="text" name="2" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.25</code>; <code>maximum = 4.0</code>)</td></tr></table>
+In cases 1 and 2 above, where a dampening is imposed at around the
+factorization or renormalization scale, respectively, this allows the
+<i>pT</i> scale of dampening of radiation by a half to be shifted 
+by this factor relative to the default <i>Q_fac</i> or <i>Q_ren</i>. 
+This number ought to be in the neighbourhood of unity, but variations 
+away from this value could do better in some processes.
   
 
 <p/>
@@ -289,7 +291,7 @@ fwrite($handle,$data);
 }
 if($_POST["2"] != "1.0")
 {
-$data = "SpaceShower:pTmaxFudge = ".$_POST["2"]."\n";
+$data = "SpaceShower:pTdampFudge = ".$_POST["2"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["3"] != "0.127")

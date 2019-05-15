@@ -6,6 +6,13 @@
 // Comparison with Pythia6.408 cross sections process by process.
 // Note: processes g g / q qbar -> H0 t tbar and g g / q qbar -> H0 b bbar 
 // are so slow that they have been left out to keep reasonable execution time.
+// Subruns  0 -  5 : QCD jets
+//          6 - 10 : prompt photons.
+//         11 - 12 : t-channel gamma/Z/W exchange.
+//         13 - 23 : gamma*/Z^0/W^+-, singly, in pairs or with parton
+//         24 - 25 : onia.
+//         26 - 30 : top.
+//         31 - 40 : Standard Model Higgs.
 
 #include "Pythia.h"
 
@@ -20,10 +27,15 @@ int main() {
   // Statistics. Pythia6 run was with 10000, so no point to use more.
   int nEvent = 10000; 
 
-  // List of process positions and names. 
-  int iBeg[42] = {0, 1, 4, 5, 6, 7, 10, 11, 12, 13, 14, 15, 16, 17, 18,
-    19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35,
-    36, 37, 38, 39, 40, 41, 42, 43, 44, 45 };
+  // Normally one subprocess word per subrun, but exceptions exist. 
+  int nSub[41];
+  for (int i = 0; i < 41; ++i) nSub[i] = 1; 
+  nSub[1] = 3;  
+  nSub[5] = 3;  
+  // Starting positions in subprocess words list, recursively defined.
+  int iBeg[42] = { 0 };
+  for (int i = 0; i < 41; ++i) iBeg[i + 1] = iBeg[i] + nSub[i]; 
+  // List of subprocess words. 
   string processes[45] = { "HardQCD:gg2gg", "HardQCD:gg2qqbar",
     "HardQCD:gg2ccbar",  "HardQCD:gg2bbbar","HardQCD:qg2qg" , 
     "HardQCD:qq2qq", "HardQCD:qqbar2gg", "HardQCD:qqbar2qqbarNew", 
@@ -39,10 +51,10 @@ int main() {
     "WeakBosonAndParton:ffbar2Wgm", "Charmonium:all", "Bottomonium:all",
     "Top:gg2ttbar",  "Top:qqbar2ttbar",  "Top:qq2tq(t:W)",    
     "Top:ffbar2ttbar(s:gmZ)", "Top:ffbar2tqbar(s:W)",
-    "SMHiggs:ffbar2H", "SMHiggs:gg2H", "SMHiggs:ffbar2HZ", 
-    "SMHiggs:ffbar2HW", "SMHiggs:ff2Hff(t:ZZ)", "SMHiggs:ff2Hff(t:WW)",
-    "SMHiggs:qg2Hq", "SMHiggs:gg2Hg(l:t)", "SMHiggs:qg2Hq(l:t)", 
-    "SMHiggs:qqbar2Hg(l:t)" }; 
+    "HiggsSM:ffbar2H", "HiggsSM:gg2H", "HiggsSM:ffbar2HZ", 
+    "HiggsSM:ffbar2HW", "HiggsSM:ff2Hff(t:ZZ)", "HiggsSM:ff2Hff(t:WW)",
+    "HiggsSM:qg2Hq", "HiggsSM:gg2Hg(l:t)", "HiggsSM:qg2Hq(l:t)", 
+    "HiggsSM:qqbar2Hg(l:t)" }; 
 
   // List of cross sections from Pythia6.
   double sigma6[41] = {   4.960e-01, 1.627e-02, 2.790e-01, 2.800e-02, 
@@ -84,6 +96,7 @@ int main() {
 
   // Loop over processes.
   for (int iProc = iFirst; iProc <= iLast; ++iProc) {
+    cout << "\n Begin subrun number " << iProc << endl;
 
     // Switch off previous process(es) and switch on new one(s).
     if (iProc > iFirst) for (int i = iBeg[iProc - 1]; i < iBeg[iProc]; ++i)
@@ -102,8 +115,8 @@ int main() {
     double sigma = pythia.info.sigmaGen();
     cout << " Cross section is " << scientific << setprecision(3)  
          << sigma << " and in Pythia6 was " << sigma6[iProc] 
-         << ",\n i.e. now is factor " << fixed << sigma / sigma6[iProc] 
-         << " different." <<endl;
+         << ",\n i.e. now is factor >>> " << fixed 
+         << sigma / sigma6[iProc] << " <<< different" <<endl;
 
   // End of loop over processes.
   }

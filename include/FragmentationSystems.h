@@ -87,7 +87,7 @@ public:
 
 private:
 
-  // Static initialization data, normally only set once.
+  // Static initialization data, to be read from Settings.
   static double mJoin, mJoinJunction, mStringMin;
  
   // List of all separate colour singlets.
@@ -120,7 +120,7 @@ public:
   // Initialize static data members.
   static void initStatic();
 
-  // Initialization data, normally only set once.
+  // Static initialization data, to be read from Settings.
   static double mJoin, m2Join;
 
   // Constants: could only be changed in the code itself.

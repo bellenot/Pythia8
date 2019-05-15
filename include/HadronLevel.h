@@ -10,6 +10,7 @@
 #define Pythia8_HadronLevel_H
 
 #include "Basics.h"
+#include "BoseEinstein.h"
 #include "Event.h"
 #include "FragmentationSystems.h"
 #include "Information.h"
@@ -35,44 +36,49 @@ public:
   // Constructor. 
   HadronLevel() {}
 
-  // Possibility to pass in pointer for external handling of some decays.
-  bool decayPtr( DecayHandler* decayHandlePtrIn, 
-    vector<int> handledParticles) 
-    { return decays.decayPtr( decayHandlePtrIn, handledParticles);}  
-
-  // Initialize static data members.
-  static void initStatic();
-
-  // Save pointer. Initialize alphaStrong in ParticleDecays.
-  bool init(Info* infoPtrIn, TimeShower* timesDecPtrIn) {
-    infoPtr = infoPtrIn; decays.init(timesDecPtrIn); return true;}
+  // Initialize HadronLevel classes as required.
+  bool init(Info* infoPtrIn, TimeShower* timesDecPtr,
+    DecayHandler* decayHandlePtr, vector<int> handledParticles);
  
   // Generate the next event.
   bool next(Event& event); 
 
 private: 
 
-  // Static initialization data, normally only set once.
-  static bool   Hadronize, Decay;
-  static double mStringMin, eNormJunction, mThad;
-
   // Constants: could only be changed in the code itself.
   static const int    NTRYJNREST;
   static const double JJSTRINGM2MAX, JJSTRINGM2FRAC, CONVJNREST, MTHAD;
 
+  // Initialization data, read from Settings.
+  bool   doHadronize, doDecay, doBoseEinstein;
+  double mStringMin, eNormJunction, widthSepBE;
+
   // Pointer to various information on the generation.
   Info* infoPtr;
 
-  // The main generator classes for hadronization and decay.
-  StringFragmentation stringFrag;
-  MiniStringFragmentation ministringFrag;
-  ParticleDecays decays;
-
-  // Special case: colour-octet onium decays, to be done initially.
-  void  decayOctetOnia(Event& event);
-
   // Configuration of colour-singlet systems.
   ColConfig colConfig;   
+
+  // Colour information.
+  vector<int>    iColEnd, iAcolEnd, iColAndAcol, iParton, iPartonJun, 
+                 iPartonAntiJun, iJunLegA, iJunLegB, iJunLegC,  
+                 iAntiLegA, iAntiLegB, iAntiLegC, iGluLeg;
+  vector<double> m2Pair; 
+
+  // The generator class for normal string fragmentation.
+  StringFragmentation stringFrag;
+
+  // The generator class for special low-mass string fragmentation.
+  MiniStringFragmentation ministringFrag;
+
+  // The generator class for normal decays.
+  ParticleDecays decays;
+
+  // The generator class for Bose-Einstein effects. 
+  BoseEinstein boseEinstein;
+
+  // Special case: colour-octet onium decays, to be done initially.
+  bool decayOctetOnia(Event& event);
  
   // Trace colour flow in the event to form colour singlet subsystems.
   bool findSinglets(Event& event);
@@ -84,12 +90,6 @@ private:
 
   // Split junction-antijunction system into two, or simplify other way.
   bool splitJunctionPair(Event& event);
-
-  // Colour information.
-  vector<int>    iColEnd, iAcolEnd, iColAndAcol, iParton, iPartonJun, 
-                 iPartonAntiJun, iJunLegA, iJunLegB, iJunLegC,  
-                 iAntiLegA, iAntiLegB, iAntiLegC, iGluLeg;
-  vector<double> m2Pair; 
   
 };
  

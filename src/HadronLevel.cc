@@ -14,14 +14,6 @@ namespace Pythia8 {
 // The HadronLevel class.
 
 //*********
- 
-// Definitions of static variables.
-// (Values will be overwritten in initStatic call, so are purely dummy.)
-
-bool   HadronLevel::Hadronize            = true;
-bool   HadronLevel::Decay                = true;
-double HadronLevel::mStringMin           = 1.;
-double HadronLevel::eNormJunction        = 2.0;
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -39,19 +31,47 @@ const double HadronLevel::MTHAD          = 0.9;
 
 //*********
 
-// Initialize static data members.
+// Find settings. Initialize HadronLevel classes as required.
 
-void HadronLevel::initStatic() {
+bool HadronLevel::init(Info* infoPtrIn, TimeShower* timesDecPtr,
+  DecayHandler* decayHandlePtr, vector<int> handledParticles) {
+
+  // Save pointer.
+  infoPtr        = infoPtrIn;
 
   // Main flags.
-  Hadronize     = Settings::flag("HadronLevel:Hadronize");
-  Decay         = Settings::flag("HadronLevel:Decay");
+  doHadronize    = Settings::flag("HadronLevel:Hadronize");
+  doDecay        = Settings::flag("HadronLevel:Decay");
+  doBoseEinstein = Settings::flag("HadronLevel:BoseEinstein");
 
   // Boundary mass between string and ministring handling.
-  mStringMin    = Settings::parm("HadronLevel:mStringMin");
+  mStringMin     = Settings::parm("HadronLevel:mStringMin");
 
   // For junction processing.
-  eNormJunction = Settings::parm("StringFragmentation:eNormJunction");
+  eNormJunction  = Settings::parm("StringFragmentation:eNormJunction");
+
+  // Particles that should decay or not before Bose-Einstein stage.
+  widthSepBE     = Settings::parm("BoseEinstein:widthSep");
+
+  // Initialize string and ministring fragmentation.
+  stringFrag.init();
+  ministringFrag.init();
+ 
+  // Initalize particle decays.  
+  decays.init(timesDecPtr, decayHandlePtr, handledParticles); 
+
+  // Initialize BoseEinstein. 
+  boseEinstein.init(); 
+
+  // Initialize static data members in other HadronLevel classes.
+  // Exception: StringFlav used in other places as well so in Pythia.
+  StringZ::initStatic();
+  StringPT::initStatic();
+  ColConfig::initStatic();
+  StringRegion::initStatic();
+
+  // Done.
+  return true;
 
 }
 
@@ -62,15 +82,16 @@ void HadronLevel::initStatic() {
 bool HadronLevel::next( Event& event) {
 
   // Colour-octet onia states must be decayed to singlet + gluon.
-  decayOctetOnia(event);
+  if (!decayOctetOnia(event)) return false;
 
-  // Possibility of hadronization inside decay (e.g. Upsilon).
+  // Possibility of hadronization inside decay, but then no BE second time.
   bool moreToDo;
+  bool doBoseEinsteinNow = doBoseEinstein;
   do {
     moreToDo = false;
 
     // First part: string fragmentation.   
-    if (Hadronize) {
+    if (doHadronize) {
 
       // Find the complete colour singlet configuration of the event.
       if (!findSinglets( event)) return false;
@@ -95,22 +116,43 @@ bool HadronLevel::next( Event& event) {
       }
     }
 
-
-    // Second part: sequential decays.
-    if (Decay) {
+    // Second part: sequential decays of short-lived particles (incl. K0).
+    if (doDecay) {
     
-      // Loop through all remaining entries to find those that can decay.
+      // Loop through all entries to find those that should decay.
       int iDec = 0;
       do {
-        if (event[iDec].isFinal() && event[iDec].canDecay() 
-          && event[iDec].mayDecay()) {
+        if ( event[iDec].isFinal() && event[iDec].canDecay() 
+          && event[iDec].mayDecay() && (event[iDec].idAbs() == 311
+          || event[iDec].mWidth() > widthSepBE) ) {
           decays.decay( iDec, event); 
           if (decays.moreToDo()) moreToDo = true;
 	}
       } while (++iDec < event.size());
     }
 
-  // Normally done first time around, but sometimes not.
+    // Third part: include Bose-Einstein effects among current particles.
+    if (doBoseEinsteinNow) {
+      if (!boseEinstein.shiftEvent(event)) return false;
+      doBoseEinsteinNow = false;
+    }
+    
+    // Fourth part: sequential decays also of long-lived particles.
+    if (doDecay) {
+    
+      // Loop through all entries to find those that should decay.
+      int iDec = 0;
+      do {
+        if ( event[iDec].isFinal() && event[iDec].canDecay() 
+          && event[iDec].mayDecay() ) {
+          decays.decay( iDec, event); 
+          if (decays.moreToDo()) moreToDo = true;
+        }
+      } while (++iDec < event.size());
+    }
+
+
+  // Normally done first time around, but sometimes not (e.g. Upsilon).
   } while (moreToDo);
 
   // Done.
@@ -122,7 +164,7 @@ bool HadronLevel::next( Event& event) {
 
 // Decay colour-octet onium states.
 
-void HadronLevel::decayOctetOnia(Event& event) {
+bool HadronLevel::decayOctetOnia(Event& event) {
 
   // Onium states to be decayed.
   int idOnium[6] = { 9900443, 9900441, 9910441, 
@@ -137,13 +179,16 @@ void HadronLevel::decayOctetOnia(Event& event) {
     
     // Decay any onia encountered.
     if (isOnium) { 
-      decays.decay( iDec, event);
+      if (!decays.decay( iDec, event)) return false;
 
       // Set colour flow by hand: gluon inherits octet-onium state.
       int iGlu = event.size() - 1;
       event[iGlu].cols( event[iDec].col(), event[iDec].acol() );
     }
   }
+
+  // Done.
+  return true;
 
 }
 

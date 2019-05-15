@@ -183,6 +183,9 @@ public:
   int nValence(int id) const {for (int i = 0; i < nValKinds; ++i) 
     if (id == idVal[i]) return nVal[i]; return 0;}
 
+  // Test whether a lepton is to be considered as unresolved.
+  bool isUnresolvedLepton();
+
   // Add extra remnant flavours to make valence and sea come out right. 
   bool remnantFlavours(Event& event); 
 
@@ -220,6 +223,9 @@ private:
   static bool   allowJunction;
   static double pickQuarkNorm, pickQuarkPower, diffPrimKTwidth,
          diffLargeMassSuppress;
+
+  // Constants: could only be changed in the code itself.
+  static const double XMINUNRESOLVED;
 
   // Basic properties of a beam particle.
   int    idBeam, idBeamAbs;  

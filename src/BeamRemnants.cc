@@ -33,52 +33,13 @@ public:
 // The BeamRemnants class.
 
 //*********
- 
-// Definitions of static variables.
-// (Values will be overwritten in initStatic call, so are purely dummy.)
-
-bool   BeamRemnants::primordialKT        = true;
-bool   BeamRemnants::doReconnect         = true;
-double BeamRemnants::primordialKTsoft    = 0.4;
-double BeamRemnants::primordialKThard    = 2.1;
-double BeamRemnants::primordialKTremnant = 0.4;
-double BeamRemnants::halfScaleForKT      = 7.;
-double BeamRemnants::halfMassForKT       = 2.;
-double BeamRemnants::reconnectRange      = 2.;
-double BeamRemnants::pT0Ref              = 2.2; 
-double BeamRemnants::ecmRef              = 1800.; 
-double BeamRemnants::ecmPow              = 0.16; 
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
 
 // Maximum number of tries to match colours and kinematics in the event.
-const int BeamRemnants::NTRYCOLMATCH     = 10; 
-const int BeamRemnants::NTRYKINMATCH     = 10;  
-
-//*********
-
-// Initialize static data members.
-
-void BeamRemnants::initStatic() {
-
-  // Width of primordial kT distribution.
-  primordialKT        = Settings::flag("Beams:primordialKT");
-  primordialKTsoft    = Settings::parm("Beams:primordialKTsoft");
-  primordialKThard    = Settings::parm("Beams:primordialKThard");
-  primordialKTremnant = Settings::parm("Beams:primordialKTremnant");
-  halfScaleForKT      = Settings::parm("Beams:halfScaleForKT");
-  halfMassForKT       = Settings::parm("Beams:halfMassForKT");
-
-  // Parameters for colour reconnection scenario, partly borrowed from
-  // multiple interactions not to introduce too many new ones.
-  doReconnect       = Settings::flag("Beams:reconnectColours");
-  reconnectRange    = Settings::parm("Beams:reconnectRange");
-  pT0Ref            = Settings::parm("MultipleInteractions:pT0Ref");
-  ecmRef            = Settings::parm("MultipleInteractions:ecmRef");
-  ecmPow            = Settings::parm("MultipleInteractions:ecmPow");
-
-}
+const int    BeamRemnants::NTRYCOLMATCH   = 10; 
+const int    BeamRemnants::NTRYKINMATCH   = 10;  
 
 //*********
 
@@ -88,17 +49,33 @@ bool BeamRemnants::init( Info* infoPtrIn, BeamParticle* beamAPtrIn,
   BeamParticle* beamBPtrIn) {
 
   // Save pointers.
-  infoPtr  = infoPtrIn;
-  beamAPtr = beamAPtrIn;
-  beamBPtr = beamBPtrIn;
+  infoPtr             = infoPtrIn;
+  beamAPtr            = beamAPtrIn;
+  beamBPtr            = beamBPtrIn;
+
+  // Width of primordial kT distribution.
+  doPrimordialKT      = Settings::flag("Beams:primordialKT");
+  primordialKTsoft    = Settings::parm("Beams:primordialKTsoft");
+  primordialKThard    = Settings::parm("Beams:primordialKThard");
+  primordialKTremnant = Settings::parm("Beams:primordialKTremnant");
+  halfScaleForKT      = Settings::parm("Beams:halfScaleForKT");
+  halfMassForKT       = Settings::parm("Beams:halfMassForKT");
+
+  // Parameters for colour reconnection scenario, partly borrowed from
+  // multiple interactions not to introduce too many new ones.
+  doReconnect         = Settings::flag("Beams:reconnectColours");
+  reconnectRange      = Settings::parm("Beams:reconnectRange");
+  pT0Ref              = Settings::parm("MultipleInteractions:pT0Ref");
+  ecmRef              = Settings::parm("MultipleInteractions:ecmRef");
+  ecmPow              = Settings::parm("MultipleInteractions:ecmPow");
 
   // Total and squared CM energy.
-  sCM      = m2( beamAPtr->p(), beamBPtr->p());
-  eCM      = sqrt(sCM);
+  sCM                 = m2( beamAPtr->p(), beamBPtr->p());
+  eCM                 = sqrt(sCM);
 
   // The MI pT0 smoothening scale and its reconnection-strength combination.
-  pT0      = pT0Ref * pow(eCM / ecmRef, ecmPow);
-  pT20Rec  = pow2(reconnectRange * pT0); 
+  pT0                 = pT0Ref * pow(eCM / ecmRef, ecmPow);
+  pT20Rec             = pow2(reconnectRange * pT0); 
   
   // Done.
   return true;
@@ -191,6 +168,10 @@ bool BeamRemnants::setKinematics( Event& event) {
   BeamParticle& beamA = *beamAPtr;  
   BeamParticle& beamB = *beamBPtr;  
 
+  // Nothing to do for lepton-lepton scattering with all energy already used.
+  if ( beamA.isUnresolvedLepton() && beamB.isUnresolvedLepton() ) 
+    return true;  
+
   // Allow primordial kT reduction for small-mass and small-pT systems
   // (for hardest interaction pT -> renormalization scale so also 2 -> 1).
   vector<double> kTwidth;
@@ -199,7 +180,7 @@ bool BeamRemnants::setKinematics( Event& event) {
   for (int iSys = 0; iSys < nSys; ++iSys) { 
     double kTwidthNow = 0.;
     double mHatDamp   = 1.;
-    if (primordialKT) {    
+    if (doPrimordialKT) {    
       double mHat     = sqrtpos( beamA[iSys].x() * beamB[iSys].x() * sCM );
       mHatDamp        = mHat / (mHat + halfMassForKT);
       double scale    = (iSys == 0) ? infoPtr->QRen() : infoPtr->pTMI(iSys);
@@ -210,7 +191,7 @@ bool BeamRemnants::setKinematics( Event& event) {
     kTcomp.push_back( mHatDamp );
     kTcompSumSys += mHatDamp;
   } 
-  double kTwidthNow = (primordialKT) ? primordialKTremnant : 0.;    
+  double kTwidthNow = (doPrimordialKT) ? primordialKTremnant : 0.;    
   for (int iRem = nSys; iRem < max( beamA.size(), beamB.size() ); ++iRem) { 
     kTwidth.push_back( kTwidthNow );     
     kTcomp.push_back( 1. );
@@ -233,7 +214,7 @@ bool BeamRemnants::setKinematics( Event& event) {
       for (int iPar = 0; iPar < nPar; ++iPar) { 
         double px = 0.;
         double py = 0.;
-        if (beam.isHadron() && primordialKT) {
+        if (beam.isHadron() && doPrimordialKT) {
           px = kTwidth[iPar] * Rndm::gauss();
           py = kTwidth[iPar] * Rndm::gauss();
 	}
@@ -244,7 +225,7 @@ bool BeamRemnants::setKinematics( Event& event) {
       }  
 
       // Share recoil between all partons.
-      if (primordialKT) {    
+      if (doPrimordialKT) {    
         double kTcompSum = kTcompSumSys + (nPar - nSys);
         for (int iPar = 0; iPar < nPar; ++iPar) {
           beam[iPar].px( beam[iPar].px() - pxSum * kTcomp[iPar] / kTcompSum );

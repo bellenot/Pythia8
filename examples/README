@@ -6,10 +6,10 @@
    the README file of the mother directory. For the moment we assume
    that you will NOT use the HepMC, LHAPDF or PYTHIA 6.4 libraries.
 
-2) You are now ready to test run the first ten of the mainNN examples 
-   listed below. Type "gmake mainNN" to build an executable "mainNN.exe".
-   Type "./mainNN.exe > outputfile" to run this executable. 
-   Then study the outputfile. The existing files outNN are examples of 
+2) You are now ready to test run the first thirteen of the mainNN 
+   examples listed below. Type "gmake mainNN" to build an executable 
+   "mainNN.exe". Type "./mainNN.exe > output" to run this executable. 
+   Then study the output file. The existing files outNN are examples of 
    possible outputs from several runs, so that you can compare.
 
 3) If you want to run your own programs from this directory you can edit
@@ -25,7 +25,7 @@
    ADVANCED INSTRUCTIONS FOR RUNNING TEST PROGRAMS
 
 1) If you want to be able to run examples linked to HepMC you should 
-   already have set that up with the "configure" command in the mother 
+   already have set that up with the "./configure" command in the mother 
    directory. If not, you can go back and do it now. This will create 
    files "config.csh" and "config.sh" in the current directory.
 
@@ -35,13 +35,13 @@
    mother directory, two distinct ways exist.
 
 2.1) If you have access to the CERN AFS external area you can run
-     "configure" with command-line arguments to set up the desired 
+     "./configure" with command-line arguments to set up the desired 
      library links. The possible options are:
      --help : prints a brief summary of the options described here.
      --enable-debug : turns on debugging flags and turns off optimization
      --enable-shared : use shared library (not yet implem.) (default no)
      --with-lhapdfversion : LHAPDF version (to be taken from CERN AFS 
-       MCGenerators, must be in version 5 series, e.g. =5.2.3)
+       MCGenerators, must be version 5.3 or later, e.g. =5.3.0)
      --with-pythia6version : PYTHIA 6 version (to be taken from CERN AFS 
        MCGenerators, should be in 4xx series, e.g. =410)
  
@@ -85,7 +85,7 @@
 * main05.cc : cone-jet analysis of LHC events
 * main06.cc & main06.cmnd : study elastic/diffractive events
 * main07.cc & main07.cmnd : study minimum-bias events
-* main08.cc : combine results of subruns in separate pT bins
+* main08.cc & main08.cmnd  : combine results of subruns in separate pT bins
 * main09.cc : LEP events with sphericity/thrust/jetfinder analysis
 * main10.cc : implement UserHooks to interact with the generation process
 * main11.cc : set two hard interactions in the same event
@@ -93,7 +93,7 @@
 * main13.cc : compare several cross sections with their Pythia 6.4 values. 
 
 2) main21 - main25 are examples how some external programs could be linked
-* main21.cc : Les Houches tricked to study fixed parton configurations
+* main21.cc : external input of parton configurations for hadronization only
 * main22.cc & main22.cmnd : & main22.spc supersymmetry production using SLHA
 * main23.cc : how to link an external decay handler
 * main24.cc : how to link an external random number generator

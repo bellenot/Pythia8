@@ -33,6 +33,10 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 <dd>Beam Remnants; not much used since it may be confused with 
 Branching Ratio</dd>
 
+<dt>BSM</dt>
+<dd>Beyond-the-Standard-Model physics, as a generic term for anything
+not contained within the SM</dd>
+
 <dt>FSR</dt>
 <dd>Final-State Radiation, implemented in terms of timelike showers</dd>
 
@@ -44,9 +48,17 @@ Branching Ratio</dd>
 parton-parton subcollisions as part of a hadron-hadron event (sometimes
 also called MPI, with P for parton or parton-parton)</dd>
 
+<dt>MSSM</dt>
+<dd>Minimal Supersymmetric extension of the Standard Model</dd>
+
 <dt>PDF</dt>
 <dd>Parton Distribution Function (alternatively Parton Density 
 Function)</dd>
+
+<dt>PDG code</dt>
+<dd>a scheme for assigning unique integers, particle identity codes,
+to known and hypothetical particles; code rules and tables are published 
+in the RPP (see below).</dd>
 
 <dt>pileup</dt>
 <dd>several hadron-hadron collisions in a bunch crossing</dd>
@@ -63,6 +75,12 @@ integer <code>mode</code>, double-precision <code>parm</code>
 and string <code>word</code> variables that can be set by the user 
 to steer the behaviour of a run; normally particle data are considered
 separately but clearly are closely related</dd>
+
+<dt>SM</dt>
+<dd>the Standard Model of particle physics</dd>
+
+<dt>SUSY</dt>
+<dd>SUperSYmmetry</dd>
 
 </dl>
 

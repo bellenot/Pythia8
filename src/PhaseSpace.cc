@@ -1738,7 +1738,11 @@ bool PhaseSpace2to2tauyz::finalKin() {
   }
 
   // Check that phase space still open after new mass assignment.
-  if (m3 + m4 + MASSMARGIN > mHat) return false; 
+  if (m3 + m4 + MASSMARGIN > mHat) {
+    ErrorMsg::message("Warning in PhaseSpace2to2tauyz::finalKin: "
+      "failed after mass assignment");
+    return false; 
+  }
   p2Abs = 0.25 * (pow2(sH - s3 - s4) - 4. * s3 * s4) / sH; 
   pAbs = sqrtpos( p2Abs );
 
@@ -2005,8 +2009,8 @@ bool PhaseSpace2to2eldiff::setupSampling() {
   sigmaMx = sigmaNw;
 
   // Masses of particles and minimal masses of diffractive states.
-  m3ElDiff = (diffA) ? sigmaTotPtr->mMinXB()  : mA; 
-  m4ElDiff = (diffB) ? sigmaTotPtr->mMinAX()  : mB; 
+  m3ElDiff = (isDiffA) ? sigmaTotPtr->mMinXB()  : mA; 
+  m4ElDiff = (isDiffB) ? sigmaTotPtr->mMinAX()  : mB; 
   s1 = mA * mA;
   s2 = mB * mB;
   s3 = pow2( m3ElDiff);
@@ -2019,9 +2023,9 @@ bool PhaseSpace2to2eldiff::setupSampling() {
   sProton = sigmaTotPtr->sProton();  
 
   // Elastic slope and lower limit diffractive slope.
-  if (!diffA && !diffB) bMin = sigmaTotPtr->bSlopeEl();
-  else if (!diffB) bMin = sigmaTotPtr->bMinSlopeXB();
-  else if (!diffA) bMin = sigmaTotPtr->bMinSlopeAX();
+  if (!isDiffA && !isDiffB) bMin = sigmaTotPtr->bSlopeEl();
+  else if (!isDiffB) bMin = sigmaTotPtr->bMinSlopeXB();
+  else if (!isDiffA) bMin = sigmaTotPtr->bMinSlopeAX();
   else bMin = sigmaTotPtr->bMinSlopeXX(); 
  
   // Determine maximum possible t range and coefficient of generation.
@@ -2055,24 +2059,24 @@ bool PhaseSpace2to2eldiff::trialKin( bool ) {
     }
   
     // Select diffractive mass/masses according to dm^2/m^2.
-    m3 = (diffA) ? m3ElDiff * pow( max(mA, eCM - m4ElDiff) / m3ElDiff,
+    m3 = (isDiffA) ? m3ElDiff * pow( max(mA, eCM - m4ElDiff) / m3ElDiff,
       Rndm::flat()) : m3ElDiff;  
-    m4 = (diffB) ? m4ElDiff * pow( max(mB, eCM - m3ElDiff) / m4ElDiff,
+    m4 = (isDiffB) ? m4ElDiff * pow( max(mB, eCM - m3ElDiff) / m4ElDiff,
       Rndm::flat()) : m4ElDiff;
     s3 = m3 * m3;
     s4 = m4 * m4; 
  
     // Additional mass factors, including resonance enhancement.
     if (m3 + m4 >= eCM) continue;  
-    if (diffA && !diffB) {
+    if (isDiffA && !isDiffB) {
       double facXB = (1. - s3 / s)  
         * (1. + cRes * sResXB / (sResXB + s3));
       if (facXB < Rndm::flat() * (1. + cRes)) continue; 
-    } else if (diffB && !diffA) {
+    } else if (isDiffB && !isDiffA) {
       double facAX = (1. - s4 / s)  
         * (1. + cRes * sResAX / (sResAX + s4));
       if (facAX < Rndm::flat() * (1. + cRes)) continue; 
-    } else if (diffA && diffB) {
+    } else if (isDiffA && isDiffB) {
       double facXX = (1. - pow2(m3 + m4) / s)  
         * (s * sProton / (s * sProton + s3 * s4))
         * (1. + cRes * sResXB / (sResXB + s3))
@@ -2082,10 +2086,10 @@ bool PhaseSpace2to2eldiff::trialKin( bool ) {
 
     // Select t according to exp(bMin*t) and correct to right slope.
     tH = tUpp + log(1. + tAux * Rndm::flat()) / bMin;
-    if (diffA || diffB) {
+    if (isDiffA || isDiffB) {
       double bDiff = 0.;
-      if (diffA && !diffB) bDiff = sigmaTotPtr->bSlopeXB(s3) - bMin;
-      else if (!diffA) bDiff = sigmaTotPtr->bSlopeAX(s4) - bMin;
+      if (isDiffA && !isDiffB) bDiff = sigmaTotPtr->bSlopeXB(s3) - bMin;
+      else if (!isDiffA) bDiff = sigmaTotPtr->bSlopeAX(s4) - bMin;
       else bDiff = sigmaTotPtr->bSlopeXX(s3, s4) - bMin;
       bDiff = max(0., bDiff);
       if (exp( max(-50., bDiff * (tH - tUpp)) ) < Rndm::flat()) continue; 
@@ -2308,7 +2312,11 @@ bool PhaseSpace2to3tauycyl::finalKin() {
   if (idMass[5] == 0) { m5 = ParticleDataTable::m0(id5); s5 = m5*m5; }
 
   // Check that phase space still open after new mass assignment.
-  if (m3 + m4 + m5 + MASSMARGIN > mHat) return false; 
+  if (m3 + m4 + m5 + MASSMARGIN > mHat) { 
+    ErrorMsg::message("Warning in PhaseSpace2to3tauycyl::finalKin: "
+      "failed after mass assignment");
+    return false; 
+  }
 
   // Particle masses; incoming always on mass shell.
   mH[1] = 0.;

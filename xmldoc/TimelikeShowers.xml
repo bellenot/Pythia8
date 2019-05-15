@@ -260,6 +260,13 @@ Allow colour-octet charmonium and bottomonium states to radiate gluons.
 to interpolate between these two extremes. 
 </parm>
 
+<parm name="TimeShower:octetOniumColFac" default="2." min="0." max="4." >
+The colour factor used used in the splitting kernel for those octet onium 
+states that are allowed to radiate, normalized to the <ei>q -> q g</ei>
+splitting kernel. Thus the default corresponds to twice the radiation
+off a quark. The physically preferred range would be between 1 and 9/4.
+</parm>
+
 <h3>Further variables</h3>
 
 There are several possibilities you can use to switch on or off selected

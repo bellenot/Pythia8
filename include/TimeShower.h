@@ -31,22 +31,24 @@ public:
   // Constructors.
   TimeDipoleEnd() : iRadiator(-1), iRecoiler(-1), pTmax(0.), colType(0), 
     chgType(0), gamType(0), isrType(0), system(0), MEtype(0), 
-    iMEpartner(-1), MEmix(0.), MEorder(true), MEsplit(true), 
-    MEgluinoDau(false) { }  
+    iMEpartner(-1), isOctetOnium(false), MEmix(0.), MEorder(true), 
+    MEsplit(true), MEgluinoDau(false) { }  
   TimeDipoleEnd(int iRadiatorIn, int iRecoilerIn, double pTmaxIn = 0., 
     int colIn = 0, int chgIn = 0, int gamIn = 0, int isrIn = 0, 
     int systemIn = 0, int MEtypeIn = 0, int iMEpartnerIn = -1, 
-    double MEmixIn = 0., bool MEorderIn = true, bool MEsplitIn = true, 
-    bool MEgluinoDauIn = false) : iRadiator(iRadiatorIn), 
-    iRecoiler(iRecoilerIn), pTmax(pTmaxIn), colType(colIn), chgType(chgIn), 
-    gamType(gamIn), isrType(isrIn), system(systemIn), MEtype(MEtypeIn), 
-    iMEpartner(iMEpartnerIn), MEmix(MEmixIn), MEorder (MEorderIn), 
+    bool isOctetOniumIn = false, double MEmixIn = 0., bool MEorderIn = true, 
+    bool MEsplitIn = true, bool MEgluinoDauIn = false) : 
+    iRadiator(iRadiatorIn), iRecoiler(iRecoilerIn), pTmax(pTmaxIn), 
+    colType(colIn), chgType(chgIn), gamType(gamIn), isrType(isrIn), 
+    system(systemIn), MEtype(MEtypeIn), iMEpartner(iMEpartnerIn), 
+    isOctetOnium(isOctetOniumIn), MEmix(MEmixIn), MEorder (MEorderIn), 
     MEsplit(MEsplitIn), MEgluinoDau(MEgluinoDauIn) { }
 
   // Basic properties related to dipole and matrix element corrections.
   int    iRadiator, iRecoiler;
   double pTmax;
   int    colType, chgType, gamType, isrType, system, MEtype, iMEpartner;
+  bool   isOctetOnium;
   double MEmix;
   bool   MEorder, MEsplit, MEgluinoDau;
 
@@ -112,8 +114,8 @@ protected:
                 nGammaToLepton;
   static double pTmaxFudge, mc, mb, m2c, m2b, alphaSvalue, alphaS2pi, 
                 pTcolCutMin, pTchgQCut, pT2chgQCut, pTchgLCut, pT2chgLCut, 
-                mMaxGamma, m2MaxGamma, octetOniumFraction, mZ, gammaZ, 
-                thetaWRat;
+                mMaxGamma, m2MaxGamma, octetOniumFraction, octetOniumColFac, 
+                mZ, gammaZ, thetaWRat;
 
   // Constants: could only be changed in the code itself.
   static const double SIMPLIFYROOT, XMARGIN, TINYPDF, LARGEM2;
@@ -140,7 +142,8 @@ private:
   TimeDipoleEnd* dipSel;
 
   // Setup a dipole end, either QCD or QED/photon one.
-  void setupQCDdip( int iSys, int i, int colTag, int colSign, Event& event);
+  void setupQCDdip( int iSys, int i, int colTag,  int colSign, Event& event,
+    bool isOctetOnium = false);
   void setupQEDdip( int iSys, int i, int chgType, int gamType, Event& event); 
 
   // Evolve a QCD dipole end. 

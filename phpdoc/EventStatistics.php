@@ -90,7 +90,11 @@ provides a table with all the different messages issued, in
 alphabetical order, with the total number of times each was generated.
 
 <p/>
-There is only one mode affecting its operation:
+Should you use several <code>pythia.init(...)</code> calls in your code,
+the error counters will be reset for each new one. 
+
+<p/>
+There is only one mode affecting the <code>ErrorMsg</code> operation:
 <br/><br/><table><tr><td><strong>ErrorMsg:timesToPrint  </td><td></td><td> <input type="text" name="1" value="1" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1</strong></code>; <code>minimum = 0</code>)</td></tr></table>
 The number of times each distinct message is printed. That is, by
 default, each new kind of error/warning is only printed once.
@@ -110,6 +114,10 @@ former case only, the standard statistics listing only lists
 minimum bias as one single process, i.e. does not further specify 
 the character of the hardest subprocess, so there is not any overlap 
 between the two.)
+
+<p/>
+Should you use several <code>pythia.init(...)</code> calls in your code,
+the multiple-interactions statistics will be reset for each new one. 
 
 <input type="hidden" name="saved" value="1"/>
 

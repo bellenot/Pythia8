@@ -32,8 +32,8 @@ public:
   // Constructor. 
   MiniStringFragmentation() {}
 
-  // Initialize static data members.
-  static void initStatic();
+  // Initialize.
+  void init();
 
   // Do the fragmentation: driver routine.
   bool fragment( int iSub, ColConfig& colConfig, Event& event, 
@@ -41,13 +41,20 @@ public:
 
 private: 
 
-  // Initialization data, normally only set once.
-  static int    nTryMass;
-  static double sigma, sigma2Had, bLund;
-
   // Constants: could only be changed in the code itself.
   static const int    NTRYDIFFRACTIVE, NTRYLASTRESORT, NTRYFLAV;
   static const double SIGMAMIN;
+
+  // Initialization data, read from Settings.
+  int    nTryMass;
+  double sigma, sigma2Had, bLund;
+
+  // Data members.
+  bool   isClosed;
+  double mSum, m2Sum;
+  Vec4   pSum;
+  vector<int> iParton;
+  FlavContainer flav1, flav2;
 
   // Attempt to produce two particles from a cluster.
   bool ministring2two( int nTry, Event& event);
@@ -57,13 +64,6 @@ private:
 
   // Class for flavour generation.
   StringFlav flavSel;
-
-  // Data members.
-  vector<int>   iParton;
-  FlavContainer flav1, flav2;
-  Vec4   pSum;
-  double mSum, m2Sum;
-  bool   isClosed;
 
 };
 

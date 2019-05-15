@@ -78,7 +78,8 @@ public:
   virtual void init( BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn);
 
   // Find whether to limit maximum scale of emissions.
-  virtual bool limitPTmax( Event& event);
+  virtual bool limitPTmax( Event& event, double Q2Fac = 0., 
+    double Q2Ren = 0.);
 
   // Potential enhancement factor of pTmax scale for hardest emission.
   virtual double enhancePTmax() {return pTmaxFudge;}
@@ -91,7 +92,8 @@ public:
   virtual void update( int , Event& ) {}
 
   // Select next pT in downwards evolution.
-  virtual double pTnext( Event& event, double pTbegAll, double pTendAll);
+  virtual double pTnext( Event& event, double pTbegAll, double pTendAll,
+    int nRadIn = -1);
 
   // ME corrections and kinematics that may give failure,
   virtual bool branch( Event& event); 
@@ -105,11 +107,12 @@ public:
 protected:
 
   // Static initialization data, normally only set once.
-  static bool   doQCDshower, doQEDshowerByQ, doQEDshowerByL, samePTasMI,
+  static bool   doQCDshower, doQEDshowerByQ, doQEDshowerByL, useSamePTasMI,
                 doMEcorrections, doPhiPolAsym;
-  static int    pTmaxMatch, alphaSorder, alphaEMorder, nQuarkIn;
-  static double pTmaxFudge, mc, mb, m2c, m2b, alphaSvalue, alphaS2pi, 
-                pT0Ref, ecmRef, ecmPow, pTmin, pTminChgQ, pTminChgL;
+  static int    pTmaxMatch, pTdampMatch, alphaSorder, alphaEMorder, nQuarkIn;
+  static double pTmaxFudge, pTdampFudge, mc, mb, m2c, m2b, alphaSvalue, 
+                alphaS2pi, pT0Ref, ecmRef, ecmPow, pTmin, pTminChgQ, 
+                pTminChgL;
 
   // Constants: could only be changed in the code itself.
   static const double CTHRESHOLD, BTHRESHOLD, EVALPDFSTEP, TINYPDF, 
@@ -129,10 +132,11 @@ private:
   // Other non-static initialization data.
   double Lambda3flav, Lambda4flav, Lambda5flav, Lambda3flav2, 
          Lambda4flav2, Lambda5flav2, sCM, eCM, pT0, pT20, pT2min, 
-         pT2minChgQ, pT2minChgL; 
+         pT2minChgQ, pT2minChgL, pT2damp; 
 
   // Some current values.
-  int    iNow, iRec, idDaughter;
+  bool   dopTdamp;
+  int    iNow, iRec, idDaughter, nRad;
   double xDaughter, x1Now, x2Now, m2Dip;
 
   // alphaStrong and alphaEM calculations.

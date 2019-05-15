@@ -15,4 +15,6 @@ extern "C" {
 
   void evolvepdfm_(int& nSet, double&, double&, double*) {nSet = -1;}
 
+  void setlhaparm_(const char*, int) {}
+
 }

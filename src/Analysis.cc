@@ -441,9 +441,9 @@ bool ClusterJet::analyze(const Event& event, double yScaleIn,
   double dist2BigMin = 2. * max( dist2Join, p2Sum);
 
   // Do preclustering if desired and possible. 
-  if (precluster && nParticles > nJetMin + 2) {
-    doPrecluster();
-    if (reassign) doReassign();
+  if (doPrecluster && nParticles > nJetMin + 2) {
+    precluster();
+    if (doReassign) reassign();
   }
 
   // If no preclustering: each particle is a starting jet.
@@ -483,7 +483,7 @@ bool ClusterJet::analyze(const Event& event, double yScaleIn,
     if (particles[i].daughter == kMin) particles[i].daughter = jMin;
 
     // Do reassignments of particles to nearest jet if desired.
-    if (reassign) doReassign();
+    if (doReassign) reassign();
     
     // Stop if reached minimum allowed number of jets. Else continue.
     if (int(jets.size()) <= nJetMin) break; 
@@ -508,7 +508,7 @@ bool ClusterJet::analyze(const Event& event, double yScaleIn,
 
 // Precluster nearby particles to save computer time.
   
-void ClusterJet::doPrecluster() {
+void ClusterJet::precluster() {
 
   // Begin iteration over preclustering scale.
   distPre = PRECLUSTERFRAC * sqrt(dist2Join) / PRECLUSTERSTEP;
@@ -577,7 +577,7 @@ void ClusterJet::doPrecluster() {
 
 // Reassign particles to nearest jet to correct misclustering.
   
-void ClusterJet::doReassign() {
+void ClusterJet::reassign() {
  
   // Reset clustered momenta.
   for (int j = 0; j < int(jets.size()); ++j) {

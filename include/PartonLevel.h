@@ -36,11 +36,11 @@ public:
   // Constructor. 
   PartonLevel() : userHooksPtr(0) {} 
  
-  // Initialization assuming all necessary data already read.
+  // Initialization of all classes at the parton level.
   bool init( Info* infoPtrIn, BeamParticle* beamAPtrIn, 
     BeamParticle* beamBPtrIn,  TimeShower* timesDecPtrIn,
     TimeShower* timesPtrIn, SpaceShower* spacePtrIn, 
-    int strategyIn = 0, UserHooks* userHooksPtrIn = 0);
+    UserHooks* userHooksPtrIn);
  
   // Generate the next parton-level process.
   bool next( Event& process, Event& event); 
@@ -50,23 +50,22 @@ public:
 
   // Accumulate and print statistics.
   void accumulate() {multi.accumulate( infoPtr);}
-  void statistics();
+  void statistics() {if (doMI) multi.statistics();}
 
 private: 
-
-  // Initialization data, normally only set once.
-  bool doMI, doISR, doFSRduringProcess, doFSRafterProcess, 
-       doFSRinResonances, doRemnants, doSecondHard, 
-       hasLeptonBeams, hasPointLeptons, canVetoPT, canVetoStep;
 
   // Constants: could only be changed in the code itself.
   static const int NTRY;
 
+  // Initialization data, mainly read from Settings.
+  bool   doMI, doISR, doFSRduringProcess, doFSRafterProcess, 
+         doFSRinResonances, doRemnants, doSecondHard, 
+         hasLeptonBeams, hasPointLeptons, canVetoPT, canVetoStep;
+
   // Event generation strategy. Number of steps. Maximum pT scales.
   bool   doVeto;
-  int    strategyLHA, nMI, nISR, nFSRinProc, nFSRinRes, 
-         nISRhard, nFSRhard, typeLatest, nVetoStep, typeVetoStep, 
-         iSysNow;
+  int    nMI, nISR, nFSRinProc, nFSRinRes, nISRhard, nFSRhard, 
+         typeLatest, nVetoStep, typeVetoStep, iSysNow;
   double pTsaveMI, pTsaveISR, pTsaveFSR, pTvetoPT;
 
   // Pointer to various information on the generation.
@@ -96,9 +95,6 @@ private:
   void setupHardSys( Event& process, Event& event);
   // Keep track of how much of hard process has been handled.
   int nHardDone;
-
-  // Set up the hard process, special case if all partons already given.
-  bool setupSimpleSys( Event& process, Event& event);
 
   // Set up an unresolved process, i.e. elastic or diffractive.
   bool setupUnresolvedSys( Event& process, Event& event);

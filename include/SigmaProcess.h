@@ -26,7 +26,7 @@
 #include "ParticleData.h"
 #include "PartonDistributions.h"
 #include "PythiaStdlib.h"
-#include "ResonanceProperties.h"
+#include "ResonanceWidths.h"
 #include "Settings.h"
 #include "SigmaTotal.h"
 #include "StandardModel.h"
@@ -131,7 +131,7 @@ public:
     id1 = id1in; id2 = id2in; 
     return ( convert2mb() ? CONVERT2MB * sigmaHat() : sigmaHat() ); }
 
-  // Convolute above with parton flux and sum over open channels.. 
+  // Convolute above with parton flux and K factor. Sum over open channels. 
   double sigmaPDF();
 
   // Select incoming parton channel and extract parton densities (resolved).
@@ -226,8 +226,8 @@ protected:
   static int    alphaSorder, alphaEMorder, nQuarkIn, nQuarkNew, nQuarkLoop, 
                 renormScale1, renormScale2, renormScale3, renormScale3VV, 
                 factorScale1, factorScale2, factorScale3, factorScale3VV;
-  static double alphaSvalue, renormMultFac, renormFixScale, factorMultFac, 
-                factorFixScale;
+  static double alphaSvalue, Kfactor, renormMultFac, renormFixScale, 
+                factorMultFac, factorFixScale;
 
   // Static alphaStrong and alphaElectromagnetic calculation.
   static AlphaStrong alphaS;
@@ -298,6 +298,14 @@ protected:
     swap(acolSave[1], acolSave[2]);}
   void swapCol34() { swap(colSave[3], colSave[4]); 
     swap(acolSave[3], acolSave[4]);}
+
+  // Common code for top and Higgs secondary decay angular weights.
+  double weightTopDecay( Event& process, int iResBeg, int iResEnd);
+  double weightHiggsDecay( Event& process, int iResBeg, int iResEnd);
+
+  // CP violation parameters for Higgs sector.
+  static int    higgsH1parity, higgsH2parity, higgsA3parity;
+  static double higgsH1eta, higgsH2eta, higgsA3eta;  
 
 };
  

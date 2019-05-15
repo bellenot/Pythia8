@@ -141,13 +141,14 @@ public:
   // Initialize, normally from Pythia::init().
   static void initStatic();
 
-  // Return value or square: first index 1/2/3 = u/c/t, second 1/2/3 = d/s/b.
+  // Return value or square: first index 1/2/3/4 = u/c/t/t', 
+  // second 1/2/3/4 = d/s/b/b'.
   static double Vgen(int genU, int genD) {return Vsave[genU][genD];}
-  static double V2gen(int genU, int genD) {return pow2(Vsave[genU][genD]);}
+  static double V2gen(int genU, int genD) {return V2save[genU][genD];}
 
   // Return value or square for incoming flavours (sign irrelevant).
   static double Vid(int id1, int id2);
-  static double V2id(int id1, int id2) {return pow2(Vid(id1, id2));}
+  static double V2id(int id1, int id2);
 
   // Return sum of squares for given inflavour, or random outflavour.
   static double V2sum(int id) {return V2out[abs(id)];}
@@ -156,7 +157,7 @@ public:
 private:
 
   // Store VCKM matrix (index 0 not used) and sum of squares.
-  static double Vsave[4][4], V2out[20];
+  static double Vsave[5][5], V2save[5][5], V2out[20];
 
 };
 

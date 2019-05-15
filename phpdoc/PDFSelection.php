@@ -37,28 +37,31 @@ The third gives the possibility to switch off the lepton
 
 <h3>Parton densities for protons</h3>
 
-There is one main physics choice to be made with the <code>Pythia</code> 
-class, namely which parton densities to use, a choice that then is 
-propagated through the program. 
+The selection of parton densities is made once and then is propagated 
+through the program. It is essential to make an informed choice, 
+for several reasons: 
 <br/><b>Warning 1:</b> the choice of PDF set affects a number of
 properties of events. A change of PDF therefore requires a complete 
 retuning e.g.  of the multiple-interactions model for minimum-bias and 
 underlying events.
 <br/><b>Warning 2:</b> People often underestimate the differences 
-between different sets on the market. The sets are constructed to behave 
-more or less similarly at large <i>x</i> and <i>Q2</i>, while the 
-multiple interactions are dominated by the behaviour in the region of 
-small <i>x</i> and <i>Q2</i>. A good PDF parametrization ought to be
-sensible down to <i>x = 10^{-6}</i> (<i>x = 10^{-7}</i>) and
-<i>Q2 = 1</i> GeV2 for Tevatron (LHC) applications. Unfortunately there
-are distributions on the market that completely derail in that region.
-The <code>main41.cc</code> and <code>main42.cc</code> programs in the 
-<code>examples</code> subdirectory provide some examples of absolutely
-minimal sanity checks before a new PDF set is put in production.
-<br/><b>Warning 3:</b> Do not blindly assume that an NLO tune has to be 
-better than an LO one when combined with the LO matrix elements in PYTHIA.
-There are explicit examples where such thinking can lead you down the 
-wrong alley.
+between different sets on the market. The sets for the same order are 
+constructed to behave more or less similarly at large <i>x</i> and 
+<i>Q^2</i>, while the multiple interactions are dominated by the 
+behaviour in the region of small <i>x</i> and <i>Q^2</i>. A good 
+PDF parametrization ought to be sensible down to <i>x = 10^-6</i> 
+(<i>x = 10^-7</i>) and <i>Q^2 = 1</i> GeV^2 for Tevatron (LHC) 
+applications. Unfortunately there are distributions on the market that 
+completely derail in that region. The <code>main41.cc</code> and 
+<code>main42.cc</code> programs in the <code>examples</code> 
+subdirectory provide some examples of absolutely minimal sanity checks 
+before a new PDF set is put in production.
+<br/><b>Warning 3:</b> NLO and LO sets tend to have quite different
+behaviours, e.g. NLO ones have less gluons at small x, which then is 
+compensated by positive corrections in the NLO matrix elements.
+Therefore do not blindly assume that an NLO tune has to be better than 
+an LO one when combined with the LO matrix elements in PYTHIA. There are 
+explicit examples where such thinking can lead you down the wrong alley.
 
 <p/>
 The simplest option is to pick one 
@@ -77,6 +80,9 @@ antiproton ones):
 Obviously this choice is mainly intended to get going, and if you link to
 the <a href="http://projects.hepforge.org/lhapdf/" target="page">LHAPDF 
 library</a> [<a href="Bibliography.php" target="page">Wha05</a>] you get access to a much wider selection.
+<br/><b>Note:</b> owing to previous problems with the behaviour of PDF's
+beyond the <i>x</i> and <i>Q^2</i> boundaries of a set, you should
+only use LHAPDF version 5.3.0 or later.
 
 <br/><br/><strong>PDF:useLHAPDF</strong>  <input type="radio" name="2" value="on"><strong>On</strong>
 <input type="radio" name="2" value="off" checked="checked"><strong>Off</strong>
@@ -119,37 +125,24 @@ echo "<a href='EventInformation.php?filepath=".$filepath."' target='page'>";?>pd
 and do an offline reweighting of events.
 </modeopen>   
 
-<p/> 
-The current LHAPDF code does not provide a way to find the <i>x</i>
-and <i>Q2</i> limits of a set, nor does it guarantee a sensible 
-behaviour outside of those limits. (The LHAGLUE interface fixes this
-problem, but is not used here. The limits are reported in the
-<a href="http://projects.hepforge.org/lhapdf/manual#tth_sEcA" target="page">
-PDF set list</a>, however.) Error messages may abound, or execution 
-may stop unexpectedly. In a near future it will become possible to 
-interrogate the limits. Meanwhile you can yourself require that 
-PDF's should only be invoked in a specified range, to avoid problems.
-
-<br/><br/><strong>PDF:limitLHAPDF</strong>  <input type="radio" name="5" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="5" value="off"><strong>Off</strong>
- &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
-If on then you can set <i>x</i> and <i>Q2</i> limits below.
-  
-
-<br/><br/><table><tr><td><strong>PDF:xMinLHAPDF </td><td></td><td> <input type="text" name="6" value="1e-6" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1e-6</strong></code>)</td></tr></table>
-Freeze <i>x f_i(x, Q2)</i> below this <i>x</i> value.
-  
-
-<br/><br/><table><tr><td><strong>PDF:xMaxLHAPDF </td><td></td><td> <input type="text" name="7" value="0.9999" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.9999</strong></code>)</td></tr></table>
-Set <i>x f_i(x, Q2) = 0</i> above this <i>x</i> value.
-  
-
-<br/><br/><table><tr><td><strong>PDF:Q2MinLHAPDF </td><td></td><td> <input type="text" name="8" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>)</td></tr></table>
-Freeze <i>x f_i(x, Q2)</i> below this <i>Q2</i> value.
-  
-
-<br/><br/><table><tr><td><strong>PDF:Q2MaxLHAPDF </td><td></td><td> <input type="text" name="9" value="1e8" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1e8</strong></code>)</td></tr></table>
-Freeze <i>x f_i(x, Q2)</i> above this <i>Q2</i> value.
+<br/><br/><strong>PDF:extrapolateLHAPDF</strong>  <input type="radio" name="5" value="on"><strong>On</strong>
+<input type="radio" name="5" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Parton densities have a guaranteed range of validity in <i>x</i>
+and <i>Q^2</i>, and what should be done beyond that range usually is 
+not explained by the authors of PDF sets. Nevertheless these boundaries
+very often are exceeded, e.g. minimum-bias studies at LHC may sample
+<i>x</i> values down to <i>10^-8</i>, while many PDF sets stop
+already at <i>10^-5</i>. The default behaviour is then that the 
+PDF's are frozen at the boundary, i.e. <i>xf(x,Q^2)</i> is fixed at
+its value at <i>x_min</i> for all values <i>x &lt; x_min</i>,
+and so on. This is a conservative approach. Alternatively, if you
+switch on extrapolation, then parametrizations will be extended beyond
+the boundaries, by some prescription. In some cases this will provide a
+more realistic answer, in others complete rubbish. Another problem is 
+that some of the PDF-set codes will write a warning message anytime the
+limits are exceeded, thus swamping your output file. Therefore you should 
+study a set seriously before you run it with this switch on.
   
 
 <p/> 
@@ -169,7 +162,7 @@ different PDF options for the hard process, but would not want to touch
 the rest. If several different sets are to be compared, a simple
 reweighting based on the <?php $filepath = $_GET["filepath"];
 echo "<a href='EventInformation.php?filepath=".$filepath."' target='page'>";?>originally 
-used</a> flavour, <i>x</i>, <i>Q2</i> and PDF values may offer the 
+used</a> flavour, <i>x</i>, <i>Q^2</i> and PDF values may offer the 
 best route. The options in this section allow a choice of the PDF set
 for the hard process alone, while the choice made in the previous section
 would still be used for everything else. The hardest interaction
@@ -178,7 +171,7 @@ framework and so does not count as a hard process here.
 
 <p/>
 Of course it is inconsistent to use different PDF's in different parts 
-of an event, but if the <i>x</i> and <i>Q2</i> ranges mainly accessed 
+of an event, but if the <i>x</i> and <i>Q^2</i> ranges mainly accessed 
 by the components are rather different then the contradiction would not be
 too glaring. Furthermore, since standard PDF's are one-particle-inclusive
 we anyway have to 'invent' our own PDF modifications to handle configurations
@@ -188,8 +181,8 @@ where more than one parton is kicked out of the proton [<a href="Bibliography.ph
 The PDF choices that can be made are the same as above, so we do not 
 repeat the detailed discussion.
 
-<br/><br/><strong>PDF:useHard</strong>  <input type="radio" name="10" value="on"><strong>On</strong>
-<input type="radio" name="10" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>PDF:useHard</strong>  <input type="radio" name="6" value="on"><strong>On</strong>
+<input type="radio" name="6" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 If on then select a separate PDF set for the hard process, using the 
 variables below. If off then use the same PDF set for everything,
@@ -201,47 +194,31 @@ as already chosen above.
 Parton densities to be used for proton beams (and, by implication,
 antiproton ones):
 <br/>
-<input type="radio" name="11" value="1"><strong>1 </strong>: GRV 94 L;<br/>
-<input type="radio" name="11" value="2" checked="checked"><strong>2 </strong>: CTEQ 5 L.<br/>
+<input type="radio" name="7" value="1"><strong>1 </strong>: GRV 94 L;<br/>
+<input type="radio" name="7" value="2" checked="checked"><strong>2 </strong>: CTEQ 5 L.<br/>
 </modepick> 
 
-<br/><br/><strong>PDF:useHardLHAPDF</strong>  <input type="radio" name="12" value="on"><strong>On</strong>
-<input type="radio" name="12" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>PDF:useHardLHAPDF</strong>  <input type="radio" name="8" value="on"><strong>On</strong>
+<input type="radio" name="8" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 If off then the choice of proton PDF is based on <code>hardpPDFset</code>
 above. If on then it is instead based on the choice of 
 <code>hardLHAPDFset</code> and <code>hardLHAPDFmember</code> below.
   
 
-<br/><br/><table><tr><td><strong>PDF:hardLHAPDFset  </td><td></td><td> <input type="text" name="13" value="MRST2004FF4lo.LHgrid" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>MRST2004FF4lo.LHgrid</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>PDF:hardLHAPDFset  </td><td></td><td> <input type="text" name="9" value="MRST2004FF4lo.LHgrid" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>MRST2004FF4lo.LHgrid</strong></code>)</td></tr></table>
 Name of proton PDF set from LHAPDF to be used. 
    
 
-<br/><br/><table><tr><td><strong>PDF:hardLHAPDFmember  </td><td></td><td> <input type="text" name="14" value="0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = 0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>PDF:hardLHAPDFmember  </td><td></td><td> <input type="text" name="10" value="0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = 0</code>)</td></tr></table>
 Further choice of a specific member from the set picked above. 
 </modeopen>   
 
-<br/><br/><strong>PDF:limitHardLHAPDF</strong>  <input type="radio" name="15" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="15" value="off"><strong>Off</strong>
- &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
-If on then you can set <i>x</i> and <i>Q2</i> limits below.
-  
-
-<br/><br/><table><tr><td><strong>PDF:xMinHardLHAPDF </td><td></td><td> <input type="text" name="16" value="1e-6" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1e-6</strong></code>)</td></tr></table>
-Freeze <i>x f_i(x, Q2)</i> below this <i>x</i> value.
-  
-
-<br/><br/><table><tr><td><strong>PDF:xMaxHardLHAPDF </td><td></td><td> <input type="text" name="17" value="0.9999" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.9999</strong></code>)</td></tr></table>
-Set <i>x f_i(x, Q2) = 0</i> above this <i>x</i> value.
-  
-
-<br/><br/><table><tr><td><strong>PDF:Q2MinHardLHAPDF </td><td></td><td> <input type="text" name="18" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>)</td></tr></table>
-Freeze <i>x f_i(x, Q2)</i> below this <i>Q2</i> value.
-  
-
-<br/><br/><table><tr><td><strong>PDF:Q2MaxHardLHAPDF </td><td></td><td> <input type="text" name="19" value="1e8" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1e8</strong></code>)</td></tr></table>
-Freeze <i>x f_i(x, Q2)</i> above this <i>Q2</i> value.
-  
+<p/>
+Note that there is no separate equivalent of the 
+<code>PDF:extrapolateLHAPDF</code> flag specifically for the hard
+PDF. Since LHAPDF only has one global flag for extrapolation or not,
+the choice for the normal PDF's also applies to the hard ones.
 
 <h3>Parton densities for leptons</h3>
 
@@ -252,8 +229,8 @@ However, insofar as e.g. <i>e^+ e^-</i> data often are corrected
 back to a world without any initial-state photon radiation, it is 
 useful to have a corresponding option available here.
 
-<br/><br/><strong>PDF:lepton</strong>  <input type="radio" name="20" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="20" value="off"><strong>Off</strong>
+<br/><br/><strong>PDF:lepton</strong>  <input type="radio" name="11" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="11" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Use parton densities for lepton beams or not. If off the colliding
 leptons carry the full beam energy, if on part of the energy is 
@@ -300,84 +277,39 @@ if($_POST["4"] != "0")
 $data = "PDF:LHAPDFmember = ".$_POST["4"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["5"] != "on")
+if($_POST["5"] != "off")
 {
-$data = "PDF:limitLHAPDF = ".$_POST["5"]."\n";
+$data = "PDF:extrapolateLHAPDF = ".$_POST["5"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["6"] != "1e-6")
+if($_POST["6"] != "off")
 {
-$data = "PDF:xMinLHAPDF = ".$_POST["6"]."\n";
+$data = "PDF:useHard = ".$_POST["6"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["7"] != "0.9999")
+if($_POST["7"] != "2")
 {
-$data = "PDF:xMaxLHAPDF = ".$_POST["7"]."\n";
+$data = "PDF:pHardSet = ".$_POST["7"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["8"] != "1.")
+if($_POST["8"] != "off")
 {
-$data = "PDF:Q2MinLHAPDF = ".$_POST["8"]."\n";
+$data = "PDF:useHardLHAPDF = ".$_POST["8"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["9"] != "1e8")
+if($_POST["9"] != "MRST2004FF4lo.LHgrid")
 {
-$data = "PDF:Q2MaxLHAPDF = ".$_POST["9"]."\n";
+$data = "PDF:hardLHAPDFset = ".$_POST["9"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["10"] != "off")
+if($_POST["10"] != "0")
 {
-$data = "PDF:useHard = ".$_POST["10"]."\n";
+$data = "PDF:hardLHAPDFmember = ".$_POST["10"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["11"] != "2")
+if($_POST["11"] != "on")
 {
-$data = "PDF:pHardSet = ".$_POST["11"]."\n";
-fwrite($handle,$data);
-}
-if($_POST["12"] != "off")
-{
-$data = "PDF:useHardLHAPDF = ".$_POST["12"]."\n";
-fwrite($handle,$data);
-}
-if($_POST["13"] != "MRST2004FF4lo.LHgrid")
-{
-$data = "PDF:hardLHAPDFset = ".$_POST["13"]."\n";
-fwrite($handle,$data);
-}
-if($_POST["14"] != "0")
-{
-$data = "PDF:hardLHAPDFmember = ".$_POST["14"]."\n";
-fwrite($handle,$data);
-}
-if($_POST["15"] != "on")
-{
-$data = "PDF:limitHardLHAPDF = ".$_POST["15"]."\n";
-fwrite($handle,$data);
-}
-if($_POST["16"] != "1e-6")
-{
-$data = "PDF:xMinHardLHAPDF = ".$_POST["16"]."\n";
-fwrite($handle,$data);
-}
-if($_POST["17"] != "0.9999")
-{
-$data = "PDF:xMaxHardLHAPDF = ".$_POST["17"]."\n";
-fwrite($handle,$data);
-}
-if($_POST["18"] != "1.")
-{
-$data = "PDF:Q2MinHardLHAPDF = ".$_POST["18"]."\n";
-fwrite($handle,$data);
-}
-if($_POST["19"] != "1e8")
-{
-$data = "PDF:Q2MaxHardLHAPDF = ".$_POST["19"]."\n";
-fwrite($handle,$data);
-}
-if($_POST["20"] != "on")
-{
-$data = "PDF:lepton = ".$_POST["20"]."\n";
+$data = "PDF:lepton = ".$_POST["11"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);

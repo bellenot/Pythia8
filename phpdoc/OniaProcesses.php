@@ -361,43 +361,43 @@ matrix elements for the various wavefunctions involved. Default values
 for these are encoded in the following ten variables. They
 are taken from [<a href="Bibliography.php" target="page">Nas00</a>]; see also [<a href="Bibliography.php" target="page">Bar06</a>]. 
 
-<br/><br/><table><tr><td><strong>SigmaQCD:OJpsi3S11 </td><td></td><td> <input type="text" name="41" value="1.16" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.16</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Charmonium:OJpsi3S11 </td><td></td><td> <input type="text" name="41" value="1.16" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.16</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
 <i>&lt;O(J/psi)[3S1(1)]&gt;</i>.
   
 
-<br/><br/><table><tr><td><strong>SigmaQCD:OJpsi3S18 </td><td></td><td> <input type="text" name="42" value="0.0119" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.0119</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Charmonium:OJpsi3S18 </td><td></td><td> <input type="text" name="42" value="0.0119" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.0119</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
 <i>&lt;O(J/psi)[3S1(8)]&gt;</i>.
   
 
-<br/><br/><table><tr><td><strong>SigmaQCD:OJpsi1S08 </td><td></td><td> <input type="text" name="43" value="0.01" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.01</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Charmonium:OJpsi1S08 </td><td></td><td> <input type="text" name="43" value="0.01" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.01</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
 <i>&lt;O(J/psi)[1S0(8)]&gt;</i>.
   
 
-<br/><br/><table><tr><td><strong>SigmaQCD:OJpsi3P08 </td><td></td><td> <input type="text" name="44" value="0.01" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.01</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Charmonium:OJpsi3P08 </td><td></td><td> <input type="text" name="44" value="0.01" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.01</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
 <i>&lt;O(J/psi)[3P0(8)]&gt;/m_c^2</i>.
   
 
-<br/><br/><table><tr><td><strong>SigmaQCD:Ochic03P01 </td><td></td><td> <input type="text" name="45" value="0.05" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.05</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Charmonium:Ochic03P01 </td><td></td><td> <input type="text" name="45" value="0.05" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.05</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
 <i>&lt;O(chi_c0)[3P0(8)]&gt;/m_c^2</i>.
   
 
-<br/><br/><table><tr><td><strong>SigmaQCD:OUpsilon3S11 </td><td></td><td> <input type="text" name="46" value="9.28" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>9.28</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Bottomonium:OUpsilon3S11 </td><td></td><td> <input type="text" name="46" value="9.28" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>9.28</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
 <i>&lt;O(Upsilon)[3S1(1)]&gt;</i>.
   
 
-<br/><br/><table><tr><td><strong>SigmaQCD:OUpsilon3S18 </td><td></td><td> <input type="text" name="47" value="0.15" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.15</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Bottomonium:OUpsilon3S18 </td><td></td><td> <input type="text" name="47" value="0.15" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.15</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
 <i>&lt;O(Upsilon)[3S1(8)]&gt;</i>.
   
 
-<br/><br/><table><tr><td><strong>SigmaQCD:OUpsilon1S08 </td><td></td><td> <input type="text" name="48" value="0.02" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.02</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Bottomonium:OUpsilon1S08 </td><td></td><td> <input type="text" name="48" value="0.02" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.02</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
 <i>&lt;O(Upsilon)[1S0(8)]&gt;</i>.
   
 
-<br/><br/><table><tr><td><strong>SigmaQCD:OUpsilon3P08 </td><td></td><td> <input type="text" name="49" value="0.48" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.48</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Bottomonium:OUpsilon3P08 </td><td></td><td> <input type="text" name="49" value="0.48" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.48</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
 <i>&lt;O(Upsilon)[3P0(8)]&gt;/m_b^2</i>.
   
 
-<br/><br/><table><tr><td><strong>SigmaQCD:Ochib03P01 </td><td></td><td> <input type="text" name="50" value="0.09" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.09</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Bottomonium:Ochib03P01 </td><td></td><td> <input type="text" name="50" value="0.09" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.09</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
 <i>&lt;O(chi_b0)[3P0(8)]&gt;/m_b^2</i>.
   
 
@@ -619,52 +619,52 @@ fwrite($handle,$data);
 }
 if($_POST["41"] != "1.16")
 {
-$data = "SigmaQCD:OJpsi3S11 = ".$_POST["41"]."\n";
+$data = "Charmonium:OJpsi3S11 = ".$_POST["41"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["42"] != "0.0119")
 {
-$data = "SigmaQCD:OJpsi3S18 = ".$_POST["42"]."\n";
+$data = "Charmonium:OJpsi3S18 = ".$_POST["42"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["43"] != "0.01")
 {
-$data = "SigmaQCD:OJpsi1S08 = ".$_POST["43"]."\n";
+$data = "Charmonium:OJpsi1S08 = ".$_POST["43"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["44"] != "0.01")
 {
-$data = "SigmaQCD:OJpsi3P08 = ".$_POST["44"]."\n";
+$data = "Charmonium:OJpsi3P08 = ".$_POST["44"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["45"] != "0.05")
 {
-$data = "SigmaQCD:Ochic03P01 = ".$_POST["45"]."\n";
+$data = "Charmonium:Ochic03P01 = ".$_POST["45"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["46"] != "9.28")
 {
-$data = "SigmaQCD:OUpsilon3S11 = ".$_POST["46"]."\n";
+$data = "Bottomonium:OUpsilon3S11 = ".$_POST["46"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["47"] != "0.15")
 {
-$data = "SigmaQCD:OUpsilon3S18 = ".$_POST["47"]."\n";
+$data = "Bottomonium:OUpsilon3S18 = ".$_POST["47"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["48"] != "0.02")
 {
-$data = "SigmaQCD:OUpsilon1S08 = ".$_POST["48"]."\n";
+$data = "Bottomonium:OUpsilon1S08 = ".$_POST["48"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["49"] != "0.48")
 {
-$data = "SigmaQCD:OUpsilon3P08 = ".$_POST["49"]."\n";
+$data = "Bottomonium:OUpsilon3P08 = ".$_POST["49"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["50"] != "0.09")
 {
-$data = "SigmaQCD:Ochib03P01 = ".$_POST["50"]."\n";
+$data = "Bottomonium:Ochib03P01 = ".$_POST["50"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);

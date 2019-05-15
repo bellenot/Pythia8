@@ -33,7 +33,7 @@ double Particle::y() const {
 }
 
 double Particle::eta() const {
-  double temp = log( ( pSave.e() + abs(pSave.pz()) ) / max( TINY, pT() ) ); 
+  double temp = log( ( pSave.pAbs() + abs(pSave.pz()) ) / max( TINY, pT() ) ); 
   return (pSave.pz() > 0) ? temp : -temp;
 }
 
@@ -77,6 +77,16 @@ void Particle::offsetCol( int addCol) {
   if (addCol < 0) return;
   if ( colSave > 0)  colSave += addCol;
   if (acolSave > 0) acolSave += addCol;
+
+}
+
+//*********
+
+// Set the ParticleDataEntry pointer, using the stored idSave value.
+
+void Particle::setParticlePtr() { 
+
+  particlePtr = ParticleDataTable::particleDataPtr(idSave);
 
 }
 
@@ -164,15 +174,15 @@ int Event::copy(int iCopy, int newStatus) {
 
 // Print an event.
 
-void Event::list(bool scaleAndVertex, bool mothersAndDaughters, ostream& os) 
-  const {
+void Event::list(bool showScaleAndVertex, bool showMothersAndDaughters, 
+  ostream& os) {
 
   // Header.
   os << "\n --------  PYTHIA Event Listing  " << headerList << "----------"
      << "------------------------------------------------- \n \n    no    "
      << "    id   name            status     mothers   daughters     colou"
      << "rs      p_x        p_y        p_z         e          m \n";
-  if (scaleAndVertex) 
+  if (showScaleAndVertex) 
     os << "                                    scale                      "
        << "                   xProd      yProd      zProd      tProd      "
        << " tau\n";  
@@ -194,7 +204,7 @@ void Event::list(bool scaleAndVertex, bool mothersAndDaughters, ostream& os)
        << setw(11) << pt.m() << "\n";
 
     // Optional extra line for scale value and production vertex.
-    if (scaleAndVertex) 
+    if (showScaleAndVertex) 
       os << "                              " << setw(11) << pt.scale() 
          << "                                    " << scientific 
          << setprecision(3) << setw(11) << pt.xProd() << setw(11) 
@@ -202,7 +212,7 @@ void Event::list(bool scaleAndVertex, bool mothersAndDaughters, ostream& os)
          << pt.tProd() << setw(11) << pt.tau() << "\n";
 
     // Optional extra line, giving a complete list of mothers and daughters.
-    if (mothersAndDaughters) {
+    if (showMothersAndDaughters) {
       int linefill = 2;
       os << "                mothers:";
       vector<int> allMothers = motherList(i);
@@ -299,14 +309,21 @@ vector<int> Event::daughterList(int i) const {
       daughters.push_back(iRange); 
 
   // Two separated daughters.
-  else {daughters.push_back(daughter2); daughters.push_back(daughter1);}
+  else {
+    daughters.push_back(daughter2); 
+    daughters.push_back(daughter1);
+  }
 
   // Special case for two incoming beams: attach further 
   // initiators and remnants that have beam as mother.
   if (entry[i].statusAbs() == 12 || entry[i].statusAbs() == 13)
-    for (int iDau = 3; iDau < size(); ++iDau)
-      if (iDau != daughters[0] && entry[iDau].mother1() == i) 
-        daughters.push_back(iDau); 
+  for (int iDau = 3; iDau < size(); ++iDau) 
+  if (entry[iDau].mother1() == i) {
+    bool isIn = false;
+    for (int iIn = 0; iIn < int(daughters.size()); ++iIn) 
+      if (iDau == daughters[iIn]) isIn = true;   
+    if (!isIn) daughters.push_back(iDau); 
+  }
     
   // Done.
   return daughters;

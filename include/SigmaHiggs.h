@@ -48,7 +48,7 @@ public:
 private:
 
   // A H0 resonance object provides coupling and propagator expressions.
-  ResonanceSMH HRes;
+  ParticleDataEntry* HResPtr;
   double mRes, GammaRes, m2Res, GamMRat, sigBW, widthOut;
 
 };
@@ -88,7 +88,7 @@ public:
 private:
 
   // A H0 resonance object provides coupling and propagator expressions.
-  ResonanceSMH HRes;
+  ParticleDataEntry* HResPtr;
   double mRes, GammaRes, m2Res, GamMRat, sigma;
 
 };
@@ -128,7 +128,7 @@ public:
 private:
 
   // A H0 resonance object provides coupling and propagator expressions.
-  ResonanceSMH HRes;
+  ParticleDataEntry* HResPtr;
   double mRes, GammaRes, m2Res, GamMRat, sigma;
 
 };
@@ -172,7 +172,7 @@ public:
 private:
 
   // Store Z0 mass and width.
-  double mZ, widZ, mZS, mwZS, thetaWRat, sigma0;
+  double mZ, widZ, mZS, mwZS, thetaWRat, sigma0, openFracPair;
 
 };
  
@@ -214,7 +214,8 @@ public:
 private:
 
   // Store W+- mass and width, and couplings.
-  double mW, widW, mWS, mwWS, thetaWRat, sigma0;
+  double mW, widW, mWS, mwWS, thetaWRat, sigma0, openFracPairPos, 
+         openFracPairNeg;
 
 };
  
@@ -260,7 +261,7 @@ public:
 private:
 
   // Store standard factors.
-  double mZS, prefac, sigma1, sigma2;
+  double mZS, prefac, sigma1, sigma2, openFrac;
 
 };
  
@@ -306,7 +307,7 @@ public:
 private:
 
   // Store standard prefactor.
-  double mWS, prefac, sigma0;
+  double mWS, prefac, sigma0, openFrac;
 
 };
  
@@ -357,7 +358,7 @@ private:
   // Store flavour-specific process information and standard prefactor.
   int    idNew, codeSave;
   string nameSave;
-  double prefac, sigma;
+  double prefac, sigma, openFracTriplet;
 
 };
  
@@ -408,7 +409,7 @@ private:
   // Store flavour-specific process information and standard prefactor.
   int    idNew, codeSave;
   string nameSave;
-  double prefac, sigma;
+  double prefac, sigma, openFracTriplet;
 
 };
  
@@ -451,7 +452,7 @@ private:
   // Store flavour-specific process information and standard prefactor.
   int    idNew, codeSave;
   string nameSave;
-  double m2Fix, m2W, thetaWRat, sigma;
+  double m2W, thetaWRat, sigma, openFrac;
 
 };
  
@@ -490,7 +491,7 @@ public:
 private:
 
   // Store standard prefactor.
-  double widHgg, sigma;
+  double widHgg, sigma, openFrac;
 
 };
  
@@ -529,7 +530,7 @@ public:
 private:
 
   // Store standard prefactor.
-  double widHgg, sigma;
+  double widHgg, sigma, openFrac;
 
 };
  
@@ -568,7 +569,216 @@ public:
 private:
 
   // Store standard prefactor.
-  double widHgg, sigma;
+  double widHgg, sigma, openFrac;
+
+};
+ 
+//**************************************************************************
+
+// A derived class for f fbar' -> H+-.
+
+class Sigma1ffbar2Hchg : public Sigma1Process {
+
+public:
+
+  // Constructor.
+  Sigma1ffbar2Hchg() {}
+
+  // Initialize process. 
+  virtual void initProc(); 
+
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
+
+  // Evaluate sigmaHat(sHat). 
+  virtual double sigmaHat();
+
+  // Select flavour, colour and anticolour.
+  virtual void setIdColAcol();
+
+  // Evaluate weight for decay angles.
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+
+  // Info on the subprocess.
+  virtual string name()       const {return "f fbar' -> H+-";}
+  virtual int    code()       const {return 961;}
+  virtual string inFlux()     const {return "ffbarChg";}
+  virtual int    resonanceA() const {return 37;}
+
+private:
+
+  // A H0 resonance object provides coupling and propagator expressions.
+  ParticleDataEntry* HResPtr;
+  double mRes, GammaRes, m2Res, GamMRat, m2W, thetaWRat, tan2Beta, sigBW, 
+         widthOutPos, widthOutNeg;
+
+};
+ 
+//**************************************************************************
+
+// A derived class for q g -> H+- q'.
+
+class Sigma2qg2Hchgq : public Sigma2Process {
+
+public:
+
+  // Constructor.
+  Sigma2qg2Hchgq(int idIn, int codeIn, string nameIn) : idNew(idIn), 
+    codeSave(codeIn), nameSave(nameIn) {}
+
+  // Initialize process. 
+  virtual void initProc(); 
+
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
+
+  // Evaluate sigmaHat(sHat). 
+  virtual double sigmaHat();
+
+  // Select flavour, colour and anticolour.
+  virtual void setIdColAcol();
+
+  // Evaluate weight for decay angles.
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+
+  // Info on the subprocess.
+  virtual string name()    const {return nameSave;}
+  virtual int    code()    const {return codeSave;}
+  virtual string inFlux()  const {return "qg";}
+  virtual int    id3Mass() const {return 37;}
+  virtual int    id4Mass() const {return idNew;}
+
+private:
+
+  // Store flavour-specific process information and standard prefactor.
+  int    idNew, codeSave, idOld, idUp, idDn;
+  string nameSave;
+  double m2W, thetaWRat, tan2Beta, sigma, openFracPos, openFracNeg;
+
+};
+ 
+//**************************************************************************
+
+// A derived class for f fbar -> A0(H_3) h0(H_1) or A0(H_3) H0(H_2).
+
+class Sigma2ffbar2A3H12 : public Sigma2Process {
+
+public:
+
+  // Constructor.
+  Sigma2ffbar2A3H12(int higgsTypeIn) : higgsType(higgsTypeIn) {}
+
+  // Initialize process. 
+  virtual void initProc(); 
+
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
+
+  // Evaluate sigmaHat(sHat). 
+  virtual double sigmaHat();
+
+  // Select flavour, colour and anticolour.
+  virtual void setIdColAcol();
+
+  // Evaluate weight for decay angles.
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+
+  // Info on the subprocess.
+  virtual string name()    const {return nameSave;}
+  virtual int    code()    const {return codeSave;}
+  virtual string inFlux()  const {return "ffbarSame";}
+  virtual int    id3Mass() const {return 36;}
+  virtual int    id4Mass() const {return higgs12;}
+
+private:
+
+  // Store flavour-specific process information and standard prefactor.
+  int    higgsType, higgs12, codeSave;
+  string nameSave;
+  double coupZA3H12, m2Z, mGammaZ, thetaWRat, openFrac, sigma0;
+
+};
+ 
+//**************************************************************************
+
+// A derived class for f fbar -> H+- h0(H_1) or H+- H0(H_2).
+
+class Sigma2ffbar2HchgH12 : public Sigma2Process {
+
+public:
+
+  // Constructor.
+  Sigma2ffbar2HchgH12(int higgsTypeIn) : higgsType(higgsTypeIn) {}
+
+  // Initialize process. 
+  virtual void initProc(); 
+
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
+
+  // Evaluate sigmaHat(sHat). 
+  virtual double sigmaHat();
+
+  // Select flavour, colour and anticolour.
+  virtual void setIdColAcol();
+
+  // Evaluate weight for decay angles.
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+
+  // Info on the subprocess.
+  virtual string name()    const {return nameSave;}
+  virtual int    code()    const {return codeSave;}
+  virtual string inFlux()  const {return "ffbarChg";}
+  virtual int    id3Mass() const {return 37;}
+  virtual int    id4Mass() const {return higgs12;}
+
+private:
+
+  // Store flavour-specific process information and standard prefactor.
+  int    higgsType, higgs12, codeSave;
+  string nameSave;
+  double coupWHchgH12, m2W, mGammaW, thetaWRat, openFracPos, openFracNeg,
+         sigma0;
+
+};
+ 
+//**************************************************************************
+
+// A derived class for f fbar -> H+ H-.
+
+class Sigma2ffbar2HposHneg : public Sigma2Process {
+
+public:
+
+  // Constructor.
+  Sigma2ffbar2HposHneg() {}
+
+  // Initialize process. 
+  virtual void initProc(); 
+
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
+
+  // Evaluate sigmaHat(sHat). 
+  virtual double sigmaHat();
+
+  // Select flavour, colour and anticolour.
+  virtual void setIdColAcol();
+
+  // Evaluate weight for decay angles.
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+
+  // Info on the subprocess.
+  virtual string name()    const {return "f fbar -> H+ H-";}
+  virtual int    code()    const {return 1085;}
+  virtual string inFlux()  const {return "ffbarSame";}
+  virtual int    id3Mass() const {return 37;}
+  virtual int    id4Mass() const {return 37;}
+
+private:
+
+  // Store flavour-specific process information and standard prefactor.
+  double m2Z, mGammaZ, thetaWRat, eH, lH, openFrac, gamSig, intSig, resSig;
 
 };
   

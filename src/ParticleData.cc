@@ -87,85 +87,6 @@ void DecayTable::rescaleBR(double newSumBR) {
 
 }
 
-//*********
-
-// Prepare to pick a decay channel.
-
-bool DecayTable::preparePick(int idIn) {
-
-  // Find sum of allowed branching ratios, in case it is not unity.
-  idSave = idIn;
-  sumBR = 0.;
-  int onModeNow = 0;
-  for ( int i = 0; i < size(); ++ i) {
-    onModeNow = channel[i].onMode();
-    if (onModeNow == 1) sumBR += channel[i].bRatio(); 
-    if (onModeNow == 2 && idSave > 0) sumBR += channel[i].bRatio(); 
-    if (onModeNow == 3 && idSave < 0) sumBR += channel[i].bRatio(); 
-  }
-
-  // Failure if no channels found with positive branching ratios.
-  return (sumBR > 0.);
-
-}
-
-//*********
-
-// Pick a decay channel according to branching ratios.
-
-DecayChannel& DecayTable::pickChannel() {
-
-  // Find channel in table.
-  double randBR = sumBR * Rndm::flat();
-  int onModeNow = 0;
-  int i = 0;
-  do {
-    onModeNow = channel[i].onMode();
-    if (onModeNow == 1) randBR -= channel[i].bRatio(); 
-    if (onModeNow == 2 && idSave > 0) randBR -= channel[i].bRatio(); 
-    if (onModeNow == 3 && idSave < 0) randBR -= channel[i].bRatio(); 
-    ++i;
-  } while (randBR > 0.);
-  return channel[i - 1];
-
-}
-
-//*********
-
-// Pick a decay channel according to dynamically calculated branching ratios.
-
-DecayChannel& DecayTable::dynamicPick(int idIn) {
-
-  // Find sum of branching ratios, in case it is not unity.
-  int onModeNow = 0;
-  double sumBR = 0.;
-  for ( int i = 0; i < size(); ++i) {
-    onModeNow = channel[i].onMode();
-    if (onModeNow == 1) sumBR += channel[i].dynamicBR(); 
-    if (onModeNow == 2 && idIn > 0) sumBR += channel[i].dynamicBR(); 
-    if (onModeNow == 3 && idIn < 0) sumBR += channel[i].dynamicBR(); 
-  }
-
-  // If vanishing then default back to normal branching ratios. (??)
-  if (sumBR <= 0.) {
-    preparePick(idIn);
-    return pickChannel();
-  }
-
-  // Find channel in table, assuming normalization to unity.
-  double rand = Rndm::flat() * sumBR;
-  int iPick = 0;
-  do {
-    onModeNow = channel[iPick].onMode();
-    if (onModeNow == 1) rand -= channel[iPick].dynamicBR(); 
-    if (onModeNow == 2 && idIn > 0) rand -= channel[iPick].dynamicBR(); 
-    if (onModeNow == 3 && idIn < 0) rand -= channel[iPick].dynamicBR(); 
-    ++iPick;
-  } while (rand > 0.);
-  return channel[iPick - 1];
-
-}
-
 //**************************************************************************
 
 // ParticleDataEntry class.
@@ -185,6 +106,15 @@ double ParticleDataEntry::Lambda5Run      = 0.2;
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
 
+// A particle is invisible if it has neither strong nor electric charge,
+// and is not made up of constituents that have it. Only relevant for
+// long-lived particles. This list may need to be extended.
+const int ParticleDataEntry::INVISIBLENUMBER = 29;
+const int ParticleDataEntry::INVISIBLETABLE[29] = { 12, 14, 16, 18, 23, 25, 
+  32, 33, 35, 36, 39, 41, 1000012, 1000014, 1000016, 1000018, 1000022, 
+  1000023, 1000025, 1000035, 1000039, 2000012, 2000014, 2000016, 2000018,
+  9900012, 9900014, 9900016, 9900023};     
+
 // Particles with a read-in tau0 (in mm/c) below this mayDecay by default.
 const double ParticleDataEntry::MAXTAU0FORDECAY = 1000.;
 
@@ -193,6 +123,18 @@ const double ParticleDataEntry::MINMASSRESONANCE = 20.;
 
 // Narrow states are assigned nominal mass.
 const double ParticleDataEntry::NARROWMASS       = 1e-6;
+
+// Constituent quark masses (d, u, s, c, b).
+const double ParticleDataEntry::CONSTITUENTMASSTABLE[6] 
+  = {0., 0.325, 0.325, 0.50, 1.60, 5.00};
+
+//*********
+
+// Destructor: delete any ResonanceWidths object.
+
+ParticleDataEntry::~ParticleDataEntry() {
+  if (resonancePtr != 0) delete resonancePtr;
+}
 
 //*********
 
@@ -229,58 +171,27 @@ void ParticleDataEntry::initStatic() {
 void ParticleDataEntry::setDefaults() {
 
   // A particle is a resonance if it is heavy enough.
-  isResonanceSave   = (m0Save > MINMASSRESONANCE);
+  isResonanceSave     = (m0Save > MINMASSRESONANCE);
 
   // A particle may decay if it is shortlived enough.
-  mayDecaySave      = (tau0Save < MAXTAU0FORDECAY); 
+  mayDecaySave        = (tau0Save < MAXTAU0FORDECAY); 
 
   // A particle by default has no external decays.
-  externalDecaySave = false;
+  doExternalDecaySave = false;
 
-  // A particle is invisible if it has neither strong nor electric charge,
-  // and is not made up of constituents that have it. Only relevant for
-  // long-lived particles. This list may need to be extended.
+  // A particle is invisible if in current table of such.
   isVisibleSave = true;
-  const int invisibleTable[29] = { 12, 14, 16, 18, 23, 25, 32, 33, 35, 
-    36, 39, 41, 1000012, 1000014, 1000016, 1000018, 1000022, 1000023, 
-    1000025, 1000035, 1000039, 2000012, 2000014, 2000016, 2000018,
-    9900012, 9900014, 9900016, 9900023};     
-  for (int i = 0; i < 29; ++i) 
-    if (idSave == invisibleTable[i]) isVisibleSave = false;   
+  for (int i = 0; i < INVISIBLENUMBER; ++i) 
+    if (idSave == INVISIBLETABLE[i]) isVisibleSave = false;  
+
+  // Normally a resonance should not have width forced to fixed value.
+  doForceWidthSave  = false; 
 
   // Set up constituent masses.
-  constituentMassCalc();
+  setConstituentMass();
 
   // No Breit-Wigner mass selection before initialized.
   modeBWnow = 0;
-
-}
-
-//*********
-
-// Constituent masses for (d, u, s, c, b) quarks and diquarks.
-// Hardcoded here so that they are not overwritten by mistake,
-// and separated from the "normal" masses. 
-  
-void ParticleDataEntry::constituentMassCalc() {
-
-  // Equate with the normal masses as default guess.
-  constituentMassSave = m0Save;
-
-  // The constituent masses.
-  const double constituentMassTable[6] 
-    = {0., 0.325, 0.325, 0.50, 1.60, 5.00};
-
-  // Quark masses trivial.
-  if (idSave < 6) constituentMassSave = constituentMassTable[idSave];
- 
-  // Diquarks as simple sum of constituent quarks.  
-  if (idSave > 1000 && idSave < 10000 && (idSave/10)%10 == 0) {
-    int id1 = idSave/1000;
-    int id2 = (idSave/100)%10;
-    if (id1 <6 && id2 < 6) constituentMassSave = constituentMassTable[id1] 
-      + constituentMassTable[id2];
-  }
 
 }
 
@@ -412,6 +323,62 @@ double ParticleDataEntry::mRun(double mHat) {
 
 }
 
+
+//*********
+
+// Prepare to pick a decay channel.
+
+bool ParticleDataEntry::preparePick(int idSgn, double mHat, int idInFlav) {
+
+  // Reset sum of allowed widths/branching ratios. 
+  currentBRSum = 0.;
+
+  // For resonances the widths are calculated dynamically.
+  if (resonancePtr != 0) {
+    resonancePtr->width(idSgn, mHat, idInFlav, true, true);
+    for (int i = 0; i < decay.size(); ++i) 
+      currentBRSum += decay[i].currentBR();
+    
+  // Else use normal fixed branching ratios.
+  } else {
+    int onMode;
+    double currentBRNow;
+    for (int i = 0; i < decay.size(); ++i) {
+      onMode = decay[i].onMode();
+      currentBRNow = 0.;
+      if ( idSgn > 0 && (onMode == 1 || onMode == 2) ) 
+        currentBRNow = decay[i].bRatio();
+      else if ( idSgn < 0 && (onMode == 1 || onMode == 3) ) 
+        currentBRNow = decay[i].bRatio();
+      decay[i].currentBR(currentBRNow);
+      currentBRSum += currentBRNow;
+    }
+  }
+
+  // Failure if no channels found with positive branching ratios.
+  return (currentBRSum > 0.);
+
+}
+
+//*********
+
+// Pick a decay channel according to branching ratios from preparePick.
+
+DecayChannel& ParticleDataEntry::pickChannel() {
+
+  // Find channel in table.
+  int size = decay.size();
+  double rndmBR = currentBRSum * Rndm::flat();
+  int i = -1;
+  do rndmBR -= decay[++i].currentBR();
+  while (rndmBR > 0. && i < size);
+
+  // Emergency if no channel found. Done.
+  if (i == size) i = 0;
+  return decay[i];
+
+}
+
 //*********
 
 // Find out if a particle is a hadron.
@@ -505,6 +472,67 @@ int ParticleDataEntry::baryonNumberType(int idIn) const {
 
 //*********
 
+// Access methods stored in ResonanceWidths. Could have been 
+// inline in .h, except for problems with forward declarations.
+
+void ParticleDataEntry::setResonancePtr(
+  ResonanceWidths* resonancePtrIn) {
+  if (resonancePtr == resonancePtrIn) return;
+  if (resonancePtr != 0) delete resonancePtr; 
+  resonancePtr = resonancePtrIn;
+}
+
+void ParticleDataEntry::resInit() {
+  if (resonancePtr != 0) resonancePtr->init();
+}  
+
+double ParticleDataEntry::resWidth(int idSgn, double mHat, int idIn, 
+  bool openOnly, bool setBR) {
+  return (resonancePtr != 0) ? resonancePtr->width( idSgn, mHat, 
+    idIn, openOnly, setBR) : 0.;
+}
+
+double ParticleDataEntry::resWidthChan(double mHat, int idAbs1, 
+  int idAbs2) {    
+  return (resonancePtr != 0) ? resonancePtr->widthChan( mHat, idAbs1, 
+    idAbs2) : 0.;
+}
+
+double ParticleDataEntry::resOpenFrac(int idSgn) {
+  return (resonancePtr != 0) ? resonancePtr->openFrac(idSgn) : 1.;
+}  
+
+double ParticleDataEntry::resWidthRescaleFactor() {
+  return (resonancePtr != 0) ? resonancePtr->widthRescaleFactor() : 1.;
+}  
+
+//*********
+
+// Constituent masses for (d, u, s, c, b) quarks and diquarks.
+// Hardcoded in CONSTITUENTMASSTABLE so that they are not overwritten
+// by mistake, and separated from the "normal" masses. 
+// Called both by setDefaults and setM0 so kept as separate method.
+  
+void ParticleDataEntry::setConstituentMass() {
+
+  // Equate with the normal masses as default guess.
+  constituentMassSave = m0Save;
+
+  // Quark masses trivial.
+  if (idSave < 6) constituentMassSave = CONSTITUENTMASSTABLE[idSave];
+ 
+  // Diquarks as simple sum of constituent quarks.  
+  if (idSave > 1000 && idSave < 10000 && (idSave/10)%10 == 0) {
+    int id1 = idSave/1000;
+    int id2 = (idSave/100)%10;
+    if (id1 <6 && id2 < 6) constituentMassSave 
+      = CONSTITUENTMASSTABLE[id1] + CONSTITUENTMASSTABLE[id2];
+  }
+
+}
+
+//*********
+
 // Convert string to lowercase for case-insensitive comparisons.
 
 string ParticleDataEntry::toLower(const string& name) { 
@@ -529,6 +557,106 @@ string ParticleDataEntry::toLower(const string& name) {
 map<int, ParticleDataEntry> ParticleDataTable::pdt;
 bool ParticleDataTable::isInit = false;
 ParticleDataEntry* ParticleDataTable::particlePtr = 0;
+
+//*********
+
+// Initialize the special handling of resonances in ResonanceWidths.
+// Note:order of initialization is essential to get secondary widths right.
+
+void ParticleDataTable::initResonances(bool reInit) {
+
+  // Initialize static resonance properties.
+  ResonanceWidths::initStatic();
+
+  // Set up new resonance objects. Not necessary if already done.
+  if (!reInit) {
+
+    // Z0, W+- and top are always needed.
+    particlePtr = particleDataPtr(23);
+    particlePtr->setResonancePtr( new ResonanceGmZ(particlePtr) );
+    particlePtr = particleDataPtr(24);
+    particlePtr->setResonancePtr( new ResonanceW(particlePtr) );
+    particlePtr = particleDataPtr(6);
+    particlePtr->setResonancePtr( new ResonanceTop(particlePtr) );
+
+    // Higgs in SM.
+    if (!Settings::flag("Higgs:useBSM")) { 
+      particlePtr = particleDataPtr(25);
+      particlePtr->setResonancePtr( new ResonanceH(0, particlePtr) );
+
+    // Higgses in BSM.
+    } else {
+      particlePtr = particleDataPtr(25);
+      particlePtr->setResonancePtr( new ResonanceH(1, particlePtr) );
+      particlePtr = particleDataPtr(35);
+      particlePtr->setResonancePtr( new ResonanceH(2, particlePtr) );
+      particlePtr = particleDataPtr(36);
+      particlePtr->setResonancePtr( new ResonanceH(3, particlePtr) );
+      particlePtr = particleDataPtr(37);
+      particlePtr->setResonancePtr( new ResonanceHchg(particlePtr) );
+    }
+
+    // A fourth generation: b', t', tau', nu'_tau.
+    particlePtr = particleDataPtr(7);
+    particlePtr->setResonancePtr( new ResonanceFour(particlePtr) );
+    particlePtr = particleDataPtr(8);
+    particlePtr->setResonancePtr( new ResonanceFour(particlePtr) );
+    particlePtr = particleDataPtr(17);
+    particlePtr->setResonancePtr( new ResonanceFour(particlePtr) );
+    particlePtr = particleDataPtr(18);
+    particlePtr->setResonancePtr( new ResonanceFour(particlePtr) );
+
+    // An excited graviton in extra-dimensional scenarios.
+    particlePtr = particleDataPtr(5000039);
+    particlePtr->setResonancePtr( new ResonanceGraviton(particlePtr) );
+
+    // A leptoquark.
+    particlePtr = particleDataPtr(42);
+    particlePtr->setResonancePtr( new ResonanceLeptoquark(particlePtr) );
+
+  }
+
+  // Set up lists to order resonances in ascending mass.
+  vector<int>    idOrdered;
+  vector<double> m0Ordered;
+
+  // Put Z0 and W+- first, since known to be SM and often off-shell.
+  idOrdered.push_back(23);
+  m0Ordered.push_back(m0(23));
+  idOrdered.push_back(24);
+  m0Ordered.push_back(m0(24));
+  
+  // Loop through particle table to find resonances.
+  for (map<int, ParticleDataEntry>::iterator pdtEntry = pdt.begin(); 
+    pdtEntry != pdt.end(); ++pdtEntry) {
+    ParticleDataEntry& pdtNow = pdtEntry->second;
+    int idNow = pdtNow.id();
+
+    // Set up a simple default object for uninitialized resonances.
+    if (pdtNow.isResonance() && pdtNow.getResonancePtr() == 0) {
+      if (!pdtNow.hasAnti()) 
+           pdtNow.setResonancePtr( new ResonanceNeutral(&pdtNow) );
+      else pdtNow.setResonancePtr( new ResonanceCharged(&pdtNow) ); 
+    }
+
+    // Insert resonances in ascending mass, to respect decay hierarchies.
+    if (pdtNow.getResonancePtr() != 0 && idNow != 23 && idNow != 24) {
+      double m0Now = pdtNow.m0();
+      idOrdered.push_back(idNow);
+      m0Ordered.push_back(m0Now);
+      for (int i = int(idOrdered.size()) - 2; i > 1; --i) {
+        if (m0Ordered[i] < m0Now) break;
+        swap( idOrdered[i], idOrdered[i + 1]);
+        swap( m0Ordered[i], m0Ordered[i + 1]);
+      }
+    }
+  }
+
+  // Initialize the resonances in order.
+  for (int i = 0; i < int(idOrdered.size()); ++i) 
+    resInit( idOrdered[i] );
+
+}
 
 //*********
 
@@ -998,11 +1126,11 @@ bool ParticleDataTable::readString(string lineIn, bool warn,
     pdt[id].setMayDecay(mayDecay);
     return true; 
   }  
-  if (property == "externaldecay") {
+  if (property == "doexternaldecay") {
     string extdec;
     getWord >> extdec;
-    bool externalDecay = boolString(extdec);
-    pdt[id].setExternalDecay(externalDecay);
+    bool doExternalDecay = boolString(extdec);
+    pdt[id].setDoExternalDecay(doExternalDecay);
     return true; 
   }
   if (property == "isvisible") {
@@ -1010,6 +1138,13 @@ bool ParticleDataTable::readString(string lineIn, bool warn,
     getWord >> isvis;
     bool isVisible = boolString(isvis);
     pdt[id].setIsVisible(isVisible);
+    return true; 
+  }       
+  if (property == "doforcewidth") {
+    string doforce;
+    getWord >> doforce;
+    bool doForceWidth = boolString(doforce);
+    pdt[id].setDoForceWidth(doForceWidth);
     return true; 
   }       
    
@@ -1225,16 +1360,16 @@ void ParticleDataTable::list(bool changedOnly, bool changedRes, ostream& os) {
   if (!changedOnly) {
     os << "\n --------  PYTHIA Particle Data Table (complete)  --------"
        << "------------------------------------------------------------"
-       << "----------\n \n";
+       << "--------------\n \n";
 
   } else { 
     os << "\n --------  PYTHIA Particle Data Table (changed only)  ----"
        << "------------------------------------------------------------" 
-       << "----------\n \n";
+       << "--------------\n \n";
   }
   os << "      id   name            antiName         spn chg col      m0"
      << "        mWidth      mMin       mMax       tau0    res dec ext "
-     << "vis\n             no onMode   bRatio   meMode     products \n";
+     << "vis wid\n             no onMode   bRatio   meMode     products \n";
 
   // Iterate through the particle data table. Option to skip unchanged.
   int nList = 0;
@@ -1242,7 +1377,7 @@ void ParticleDataTable::list(bool changedOnly, bool changedRes, ostream& os) {
     = pdt.begin(); pdtEntry != pdt.end(); ++pdtEntry) {
     const ParticleDataEntry* particlePtr = &pdtEntry->second;
     if ( !changedOnly || particlePtr->hasChanged() ||
-      ( changedRes && particlePtr->isInitResonance() ) ) {
+      ( changedRes && particlePtr->getResonancePtr() != 0 ) ) {
 
       // Pick format for mass and width based on mass value.
       double m0Now = particlePtr->m0();
@@ -1268,8 +1403,9 @@ void ParticleDataTable::list(bool changedOnly, bool changedRes, ostream& os) {
          << setw(12) << particlePtr->tau0() << "  " << setw(2)
          << particlePtr->isResonance() << "  " << setw(2) 
          << (particlePtr->mayDecay() && particlePtr->canDecay()) 
-         << "  " << setw(2) << particlePtr->externalDecay() << "  "
-         << setw(2) << particlePtr->isVisible() << "\n";
+         << "  " << setw(2) << particlePtr->doExternalDecay() << "  "
+         << setw(2) << particlePtr->isVisible()<< "  "
+         << setw(2) << particlePtr->doForceWidth() << "\n";
 
       // Loop through the decay channel table for each particle.
       if (particlePtr->decay.size() > 0) {
@@ -1294,7 +1430,7 @@ void ParticleDataTable::list(bool changedOnly, bool changedRes, ostream& os) {
     << "changed from its default value \n";
   os << "\n --------  End PYTHIA Particle Data Table  -----------------"
      << "--------------------------------------------------------------"
-     << "------\n" << endl;
+     << "----------\n" << endl;
 
 }
 
@@ -1307,10 +1443,10 @@ void ParticleDataTable::list(vector<int> idList, ostream& os) {
   // Table header; output for bool as off/on.
   os << "\n --------  PYTHIA Particle Data Table (partial)  ---------"
      << "------------------------------------------------------------"
-     << "----------\n \n";
+     << "--------------\n \n";
   os << "      id   name            antiName         spn chg col      m0"
      << "        mWidth      mMin       mMax       tau0    res dec ext "
-     << "vis\n             no onMode   bRatio   meMode     products \n";
+     << "vis wid\n             no onMode   bRatio   meMode     products \n";
 
   // Iterate through the given list of input particles.
   for (int i = 0; i < int(idList.size()); ++i) {
@@ -1339,8 +1475,9 @@ void ParticleDataTable::list(vector<int> idList, ostream& os) {
        << setw(12) << particlePtr->tau0() << "  " << setw(2)
        << particlePtr->isResonance() << "  " << setw(2) 
        << (particlePtr->mayDecay() && particlePtr->canDecay()) 
-       << "  " << setw(2) << particlePtr->externalDecay() << "  "
-       << setw(2) << particlePtr->isVisible() << "\n";
+       << "  " << setw(2) << particlePtr->doExternalDecay() << "  "
+       << setw(2) << particlePtr->isVisible() << "  "
+       << setw(2) << particlePtr->doForceWidth() << "\n";
 
     // Loop through the decay channel table for each particle.
     if (particlePtr->decay.size() > 0) {
@@ -1362,7 +1499,7 @@ void ParticleDataTable::list(vector<int> idList, ostream& os) {
   // End of loop over database contents.
   os << "\n --------  End PYTHIA Particle Data Table  -----------------"
      << "--------------------------------------------------------------"
-     << "------\n" << endl;
+     << "----------\n" << endl;
 
 }
 
@@ -1376,7 +1513,6 @@ void ParticleDataTable::list(vector<int> idList, ostream& os) {
 //                (except for resonances). 
 //           = 2:  also print branching-ratio-averaged threshold mass.
 //      = 11, 12: as 1, 2, but include resonances in detailed checks.
-
 
 void ParticleDataTable::checkTable(int verbosity, ostream& os) {
 
@@ -1506,7 +1642,7 @@ void ParticleDataTable::checkTable(int verbosity, ostream& os) {
         int mult = particlePtr->decay[i].multiplicity();
         int prod[8];
         for (int j = 0; j < 8; ++j) 
-          prod[j] = particlePtr->decay[i].productForce(j);
+          prod[j] = particlePtr->decay[i].product(j);
 
         // Sum branching ratios. Include off-channels.
         if (onMode == 0 || onMode == 1) bRatioSum += bRatio;
@@ -1700,9 +1836,9 @@ void ParticleDataTable::checkTable(int verbosity, ostream& os) {
       // Optional printout of threshold.
       if (verbosity%10 > 1 && particlePtr->useBreitWigner()) {
         threshMass /= bRatioSum;
-        cout << " Info: particle " << id << fixed << setprecision(5)  
-             << " has average mass threshold " << threshMass 
-             << " while mMin is " << mMinNow << "\n"; 
+        os << " Info: particle " << id << fixed << setprecision(5)  
+           << " has average mass threshold " << threshMass 
+           << " while mMin is " << mMinNow << "\n"; 
         hasPrinted = true;
       }
  
@@ -1758,6 +1894,29 @@ int ParticleDataTable::nextId(int idIn) {
   map<int, ParticleDataEntry>::const_iterator pdtIn = pdt.find(idIn);
   if (pdtIn == pdt.end()) return 0;
   return (++pdtIn)->first;
+
+}
+
+//*********
+
+// Fractional width associated with open channels of one or two resonances.
+   
+double ParticleDataTable::resOpenFrac(int id1In, int id2In, int id3In) {
+
+  // Default value.
+  double answer = 1.; 
+ 
+  // First resonance.
+  if (isParticle(id1In)) answer  = pdt[abs(id1In)].resOpenFrac(id1In);
+ 
+  // Possibly second resonance.
+  if (isParticle(id2In)) answer *= pdt[abs(id2In)].resOpenFrac(id2In);
+ 
+  // Possibly third resonance.
+  if (isParticle(id3In)) answer *= pdt[abs(id2In)].resOpenFrac(id3In);
+
+  // Done.
+  return answer;
 
 }
 

@@ -33,6 +33,14 @@ void Info::list(ostream& os) {
      << pzBSave << ", e = " << setw(10) << eBSave << ", m = " << setw(10) 
      << mBSave << ".\n\n";
 
+  // Done if no subprocess has been defined.
+  if (codeSave == 0 && nFinalSave == 0) {
+    os << " No process has been set; something must have gone wrong! \n"
+       << "\n --------  End PYTHIA Info Listing  --------------------"
+       << "----------------" << endl; 
+    return;
+  }
+
   // Colliding parton info.
   if (isRes) 
     os << " In 1: id = " << setw(4) << id1Save << ", x = " << setw(10)
@@ -137,7 +145,7 @@ void ErrorMsg::message(string messageIn, string extraIn,
 
 //*********
 
-// Provide total number of errors experienced to date.
+// Provide total number of errors/aborts/warnings experienced to date.
 
 int ErrorMsg::totalNumber() {
 
@@ -151,30 +159,30 @@ int ErrorMsg::totalNumber() {
 
 //*********
 
-// Print statistics on errors/warnings.
+// Print statistics on errors/aborts/warnings.
 
 void ErrorMsg::statistics(ostream& os) {
 
   // Header.
   os << "\n *-------  PYTHIA Error and Warning Messages Statistics  "
-     << "-----------------------------------------------------* \n"
+     << "----------------------------------------------------------* \n"
      << " |                                                       "
-     << "                                                     | \n"
+     << "                                                          | \n"
      << " |  times   message                                      "
-     << "                                                     | \n" 
+     << "                                                          | \n" 
      << " |                                                       "
-     << "                                                     | \n";
+     << "                                                          | \n";
 
   // Loop over all messages
   map<string, int>::iterator messageEntry = messages.begin();
   if (messageEntry == messages.end()) 
     os << " |      0   no errors or warnings to report              "
-       << "                                                     | \n";
+       << "                                                          | \n";
   while (messageEntry != messages.end()) {
     // Debug printout.
     string temp = messageEntry->first;
     int len = temp.length();
-    temp.insert( len, max(0, 97 - len), ' ');
+    temp.insert( len, max(0, 102 - len), ' ');
     os << " | " << setw(6) << messageEntry->second << "   " 
        << temp << " | \n";
     ++messageEntry;
@@ -182,9 +190,9 @@ void ErrorMsg::statistics(ostream& os) {
 
   // Done. 
   os << " |                                                       "
-     << "                                                     | \n"
+     << "                                                          | \n"
      << " *-------  End PYTHIA Error and Warning Messages Statistics"
-     << "  -------------------------------------------------* " 
+     << "  ------------------------------------------------------* " 
      << endl;
 
 }

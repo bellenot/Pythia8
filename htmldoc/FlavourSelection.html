@@ -15,22 +15,27 @@ concepts are in agreement with [<a href="Bibliography.html" target="page">And83<
 implementation is based on the <code>MSTJ(12)=3</code> option of 
 PYTHIA 6, i.e. new SU(6) weights scheme with at most one popcorn meson.
 
+<p/>
+The relative production rates of different particle species is 
+influenced by the parameters below. Some have only an impact on 
+one specific quantity, but most directly or indirectly have 
+consequences for many observables. Therefore the values to use have 
+to be viewed in the context of a complete <a href="Tunes.html" target="page">tune</a>.
+
 <h3>New flavours</h3>
 
-The main parameters of the selection of a new flavour are
-
-<p/><code>parm&nbsp; </code><strong> StringFlav:probQQtoQ &nbsp;</strong> 
- (<code>default = <strong>0.10</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 1.0</code>)<br/>
-the suppression of diquark production relative to quark production,
-i.e. of baryon relative to meson production. The actual production ratio
-is indirectly influenced also by several of the other parameters below, 
-so the value to use has to be viewed in the context of a complete tune.
-  
+The main parameters of the selection of a new flavour are 
 
 <p/><code>parm&nbsp; </code><strong> StringFlav:probStoUD &nbsp;</strong> 
  (<code>default = <strong>0.30</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 1.0</code>)<br/>
 the suppression of <i>s</i> quark production relative to ordinary 
 <i>u</i> or <i>d</i> one.
+  
+
+<p/><code>parm&nbsp; </code><strong> StringFlav:probQQtoQ &nbsp;</strong> 
+ (<code>default = <strong>0.10</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 1.0</code>)<br/>
+the suppression of diquark production relative to quark production,
+i.e. of baryon relative to meson production. 
   
 
 <p/><code>parm&nbsp; </code><strong> StringFlav:probSQtoQQ &nbsp;</strong> 

@@ -45,12 +45,42 @@ this is done either using some of the internal processes, or with
 Les Houches Accord input.
 
 <p/>
-Since there cannot be any event at all without an initial process,
-there is no possibility to switch off this part of the story.
-It is possible, however, to stop the generation immediately after 
-the basic process has been selected, see <code>PartonLevel:all</code>
-below.
- 
+There could not be a complete event without an initial process, so
+it would not be a normal action to switch off this step. Furthermore,
+without a process set, it is also not possible to carry out the tasks
+on the parton level. It is still possible, however, to hadronize 
+a parton-level configuration provided by some external program.
+
+<br/><br/><strong>ProcessLevel:all</strong>  <input type="radio" name="1" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="1" value="off"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
+If off, do not attempt to carry out any generation at all on the 
+process or parton level. Do allow parton configurations stored in 
+the event record to hadronize and hadrons to decay, however, as set 
+by the <code>HadronLevel</code> switches. Further details are found
+<?php $filepath = $_GET["filepath"];
+echo "<a href='HadronLevelStandalone.php?filepath=".$filepath."' target='page'>";?>here</a>.
+   
+
+<p/>
+For <code>ProcessLevel:all = on</code> one part of the event generation 
+on this level may be switched off individually: 
+
+<br/><br/><strong>ProcessLevel:resonanceDecays</strong>  <input type="radio" name="2" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="2" value="off"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
+Master switch to allow resonance decays; on/off = true/false.
+Normal hadrons and leptons do not count as resonances, so this is 
+aimed specifically towards <i>Z^0, W^+-, t, h^0</i> and similar
+objects beyond the Standard Model. Do not use this option if you
+may produce coloured resonances and intend to allow hadronization,
+since currently the program would not know how to handle this.
+  
+
+<p/>
+It is possible to stop the generation immediately after the basic 
+process has been selected, see <code>PartonLevel:all</code> below.
+
 <h3>PartonLevel</h3>
 
 The <code>PartonLevel</code> class administrates the middle step of the 
@@ -60,8 +90,8 @@ parton-level configuration to be handed on to <code>HadronLevel</code>.
 This step involves the application of initial- and final-state radiation, 
 multiple interactions and the structure of beam remnants.
 
-<br/><br/><strong>PartonLevel:all</strong>  <input type="radio" name="1" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="1" value="off"><strong>Off</strong>
+<br/><br/><strong>PartonLevel:all</strong>  <input type="radio" name="3" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="3" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 If off then stop the generation after the hard process has been 
 generated, but before the parton-level and hadron-level steps. 
@@ -73,24 +103,24 @@ one is then not.
 For <code>PartonLevel:all = on</code> some parts of the event generation 
 on this level may be switched off individually: 
 
-<br/><br/><strong>PartonLevel:MI</strong>  <input type="radio" name="2" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="2" value="off"><strong>Off</strong>
+<br/><br/><strong>PartonLevel:MI</strong>  <input type="radio" name="4" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="4" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Master switch for multiple interactions; on/off = true/false.
 Further options are found <?php $filepath = $_GET["filepath"];
 echo "<a href='MultipleInteractions.php?filepath=".$filepath."' target='page'>";?>here</a>.
   
 
-<br/><br/><strong>PartonLevel:ISR</strong>  <input type="radio" name="3" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="3" value="off"><strong>Off</strong>
+<br/><br/><strong>PartonLevel:ISR</strong>  <input type="radio" name="5" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="5" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Master switch for initial-state radiation; on/off = true/false.
 Further options are found <?php $filepath = $_GET["filepath"];
 echo "<a href='SpacelikeShowers.php?filepath=".$filepath."' target='page'>";?>here</a>.
   
 
-<br/><br/><strong>PartonLevel:FSR</strong>  <input type="radio" name="4" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="4" value="off"><strong>Off</strong>
+<br/><br/><strong>PartonLevel:FSR</strong>  <input type="radio" name="6" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="6" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Master switch for initial-state radiation; on/off = true/false.
 Further options are found <?php $filepath = $_GET["filepath"];
@@ -99,16 +129,16 @@ If you leave this switch on, the following two switches allow
 more detailed control to switch off only parts of the showers. 
   
 
-<br/><br/><strong>PartonLevel:FSRinProcess</strong>  <input type="radio" name="5" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="5" value="off"><strong>Off</strong>
+<br/><br/><strong>PartonLevel:FSRinProcess</strong>  <input type="radio" name="7" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="7" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Switch for final-state radiation in association with the hard process 
 itself; on/off = true/false. In addition <code>PartonLevel:FSR</code>
 must be on for these emissions to occur. 
   
 
-<br/><br/><strong>PartonLevel:FSRinResonances</strong>  <input type="radio" name="6" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="6" value="off"><strong>Off</strong>
+<br/><br/><strong>PartonLevel:FSRinResonances</strong>  <input type="radio" name="8" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="8" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Master switch for final-state radiation in any resonance decays 
 subsequent to the hard process itself; on/off = true/false. In addition 
@@ -146,8 +176,8 @@ the string between the two, so that the topology can be reduced back
 to two separate one-junction systems, while still preserving the
 expected particle flow in the junction-junction string region(s).
 
-<br/><br/><strong>HadronLevel:all</strong>  <input type="radio" name="7" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="7" value="off"><strong>Off</strong>
+<br/><br/><strong>HadronLevel:all</strong>  <input type="radio" name="9" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="9" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 If off then stop the generation after the hard process and 
 parton-level activity has been generated, but before the 
@@ -158,21 +188,32 @@ hadron-level steps.
 For <code>HadronLevel:all = on</code> some parts of the event generation 
 on this level may be switched off individually: 
 
-<br/><br/><strong>HadronLevel:Hadronize</strong>  <input type="radio" name="8" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="8" value="off"><strong>Off</strong>
+<br/><br/><strong>HadronLevel:Hadronize</strong>  <input type="radio" name="10" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="10" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Master switch for hadronization; on/off = true/false.
 Further options are found <?php $filepath = $_GET["filepath"];
 echo "<a href='Fragmentation.php?filepath=".$filepath."' target='page'>";?>here</a>.
   
 
-<br/><br/><strong>HadronLevel:Decay</strong>  <input type="radio" name="9" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="9" value="off"><strong>Off</strong>
+<br/><br/><strong>HadronLevel:Decay</strong>  <input type="radio" name="11" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="11" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Master switch for decays; on/off = true/false.
 Further options are found <?php $filepath = $_GET["filepath"];
 echo "<a href='ParticleDecays.php?filepath=".$filepath."' target='page'>";?>here</a>.
   
+
+<br/><br/><strong>HadronLevel:BoseEinstein</strong>  <input type="radio" name="12" value="on"><strong>On</strong>
+<input type="radio" name="12" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Master switch for the simulation of Bose-Einstein effects; 
+on/off = true/false. Further options are found 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='BoseEinsteinEffects.php?filepath=".$filepath."' target='page'>";?>here</a>.
+  
+
+
 
 <input type="hidden" name="saved" value="1"/>
 
@@ -191,47 +232,62 @@ $handle = fopen($filepath, 'a');
 
 if($_POST["1"] != "on")
 {
-$data = "PartonLevel:all = ".$_POST["1"]."\n";
+$data = "ProcessLevel:all = ".$_POST["1"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["2"] != "on")
 {
-$data = "PartonLevel:MI = ".$_POST["2"]."\n";
+$data = "ProcessLevel:resonanceDecays = ".$_POST["2"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["3"] != "on")
 {
-$data = "PartonLevel:ISR = ".$_POST["3"]."\n";
+$data = "PartonLevel:all = ".$_POST["3"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["4"] != "on")
 {
-$data = "PartonLevel:FSR = ".$_POST["4"]."\n";
+$data = "PartonLevel:MI = ".$_POST["4"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["5"] != "on")
 {
-$data = "PartonLevel:FSRinProcess = ".$_POST["5"]."\n";
+$data = "PartonLevel:ISR = ".$_POST["5"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["6"] != "on")
 {
-$data = "PartonLevel:FSRinResonances = ".$_POST["6"]."\n";
+$data = "PartonLevel:FSR = ".$_POST["6"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["7"] != "on")
 {
-$data = "HadronLevel:all = ".$_POST["7"]."\n";
+$data = "PartonLevel:FSRinProcess = ".$_POST["7"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["8"] != "on")
 {
-$data = "HadronLevel:Hadronize = ".$_POST["8"]."\n";
+$data = "PartonLevel:FSRinResonances = ".$_POST["8"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["9"] != "on")
 {
-$data = "HadronLevel:Decay = ".$_POST["9"]."\n";
+$data = "HadronLevel:all = ".$_POST["9"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["10"] != "on")
+{
+$data = "HadronLevel:Hadronize = ".$_POST["10"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["11"] != "on")
+{
+$data = "HadronLevel:Decay = ".$_POST["11"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["12"] != "off")
+{
+$data = "HadronLevel:BoseEinstein = ".$_POST["12"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);

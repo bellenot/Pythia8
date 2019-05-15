@@ -38,7 +38,7 @@ echo "<a href='ProgramFlow.php?filepath=".$filepath."' target='page'>";?>
 method, where it also is specified which particles it will be called for. 
 This particle information is accessible with the
 <?php $filepath = $_GET["filepath"];
-echo "<a href='ParticleDataScheme.php?filepath=".$filepath."' target='page'>";?><code>externalDecay()</code></a>
+echo "<a href='ParticleDataScheme.php?filepath=".$filepath."' target='page'>";?><code>doExternalDecay()</code></a>
 method. 
 
 <p/>

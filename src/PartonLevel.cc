@@ -28,7 +28,7 @@ const int PartonLevel::NTRY = 10;
 bool PartonLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn, 
   BeamParticle* beamBPtrIn, TimeShower* timesDecPtrIn,
   TimeShower* timesPtrIn, SpaceShower* spacePtrIn,  
-  int strategyIn, UserHooks* userHooksPtrIn) {
+  UserHooks* userHooksPtrIn) {
 
   // Store input pointers and modes for future use. 
   infoPtr            = infoPtrIn;
@@ -37,7 +37,6 @@ bool PartonLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn,
   timesDecPtr        = timesDecPtrIn;
   timesPtr           = timesPtrIn;
   spacePtr           = spacePtrIn;  
-  strategyLHA        = strategyIn;
   userHooksPtr       = userHooksPtrIn;
 
   // Main flags.
@@ -78,13 +77,11 @@ bool PartonLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn,
   canVetoStep = (userHooksPtr > 0) ? userHooksPtr->canVetoStep() : false;
   nVetoStep   = (canVetoStep)   ? userHooksPtr->numberVetoStep() : -1;
 
-  // Set info in the respective program elements; initialize MI.
-  if (strategyLHA < 10) {
-    timesPtr->init( beamAPtr, beamBPtr);
-    if (doISR) spacePtr->init( beamAPtr, beamBPtr);
-    if (doMIinit && !multi.init( beamAPtr, beamBPtr)) doMI = false;
-    remnants.init( infoPtr, beamAPtr, beamBPtr);  
-  }
+  // Set info and initialize the respective program elements.
+  timesPtr->init( beamAPtr, beamBPtr);
+  if (doISR) spacePtr->init( beamAPtr, beamBPtr);
+  if (doMIinit && !multi.init( beamAPtr, beamBPtr)) doMI = false;
+  remnants.init( infoPtr, beamAPtr, beamBPtr);  
 
   // Succeeded. (Check return values from other classes??)
   return true;
@@ -95,9 +92,6 @@ bool PartonLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn,
 // Main routine to do the parton-level evolution.
 
 bool PartonLevel::next( Event& process, Event& event) {
-
-  // Special case if all partons already given.
-  if (strategyLHA >= 10) return setupSimpleSys( process, event);
 
   // Special case if unresolved = elastic/diffractive event.
   if (!infoPtr->isResolved()) return setupUnresolvedSys( process, event);
@@ -112,6 +106,7 @@ bool PartonLevel::next( Event& process, Event& event) {
   // Allow up to ten tries; failure possible for beam remnants.
   // Main cause: inconsistent colour flow at the end of the day.
   bool physical = true;
+  int  nRad     = 0;
   for (int iTry = 0; iTry < NTRY; ++ iTry) {
 
     // Reset flag, counters and max scales.
@@ -130,8 +125,11 @@ bool PartonLevel::next( Event& process, Event& event) {
     setupHardSys( process, event);
 
     // Check matching of process scale to maximum ISR/MI scales. 
-    bool limitPTmaxISR = spacePtr->limitPTmax( event);
-    bool limitPTmaxMI  = multi.limitPTmax( event);
+    double Q2Fac       = infoPtr->Q2Fac(); 
+    double Q2Ren       = infoPtr->Q2Ren(); 
+    bool limitPTmaxISR = (doISR) 
+      ? spacePtr->limitPTmax( event, Q2Fac, Q2Ren) : false;
+    bool limitPTmaxMI  = (doMI)  ? multi.limitPTmax( event) : false;
 
     // Set hard scale, maximum for showers and multiple interactions,
     double pTscale  = process.scale();
@@ -160,6 +158,7 @@ bool PartonLevel::next( Event& process, Event& event) {
     // Begin evolution down in pT from hard pT scale.  
     do {
       typeVetoStep = 0;
+      nRad         =  nISR + nFSRinProc;
 
       // Find next pT value for FSR, MI and ISR.
       // Order calls to minimize time expenditure.
@@ -171,7 +170,7 @@ bool PartonLevel::next( Event& process, Event& event) {
         ? multi.pTnext( pTmaxMI, pTgen) : -1.;
       pTgen = max( pTgen, pTmulti);
       double pTspace = (doISR) 
-        ? spacePtr->pTnext( event, pTmaxISR, pTgen) : -1.;
+        ? spacePtr->pTnext( event, pTmaxISR, pTgen, nRad) : -1.;
 
       // Allow a user veto. Only do it once, so remember to change pTveto.
       if (pTveto > 0. && pTveto > pTmulti && pTveto > pTspace 
@@ -453,23 +452,6 @@ void PartonLevel::setupHardSys( Event& process, Event& event) {
 
 //*********
 
-// Set up the hard process, special case if all partons already given.
-
-bool PartonLevel::setupSimpleSys( Event& process, Event& event) {
-
-  // Copy particles from process to event.
-  for (int i = 0; i < process.size(); ++ i) event.append( process[i]);
-
-  // Copy junctions from process to event.
-  for (int i = 0; i < process.sizeJunction(); ++i) 
-    event.appendJunction( process.getJunction(i));
-
-  // Done.
-  return true;
-}
-
-//*********
-
 // Set up an unresolved process, i.e. elastic or diffractive.
 
 bool PartonLevel::setupUnresolvedSys( Event& process, Event& event) {
@@ -713,17 +695,6 @@ int PartonLevel::resonanceShowers( Event& process, Event& event) {
   // No more systems to be processed. Return total number of emissions.
   }
   return nFSRinRes;
-
-}
-
-//*********
-
-// Print statistics, if any.
-
-void PartonLevel::statistics() {
-
-  // Preliminary list, to expand.
-  if (doMI) multi.statistics();
 
 }
  

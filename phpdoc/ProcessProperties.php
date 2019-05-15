@@ -86,6 +86,22 @@ The running of <ei>alpha_em</ei> used in hard processes.
 </modepick>
 
 <p/>
+In addition there is the possibility of a global rescaling of 
+cross sections (which could not easily be accommodated by a 
+changed <i>alpha_strong</i>, since <i>alpha_strong</i> runs)
+<br/><br/><table><tr><td><strong>SigmaProcess:Kfactor </td><td></td><td> <input type="text" name="5" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.5</code>; <code>maximum = 4.0</code>)</td></tr></table>
+Multiply almost all cross sections by this common fix factor. Excluded 
+are only unresolved processes, where cross sections are better 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='TotalCrossSections.php?filepath=".$filepath."' target='page'>";?>set directly</a>, and 
+multiple interactions, which have a separate <i>K</i> factor 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='MultipleInteractions.php?filepath=".$filepath."' target='page'>";?>of their own</a>.  
+This degree of freedom is primarily intended for hadron colliders, and
+should not normally be used for <i>e^+e^-</i> annihilation processes.
+  
+
+<p/>
 The <i>Q^2</i> renormalization scale can be chosen among a few different
 alternatives, separately for <i>2 -> 1</i>, <i>2 -> 2</i> and two 
 different kinds of <i>2 -> 3</i> processes. In addition a common
@@ -99,19 +115,19 @@ processes that have been specially marked as proceeding only through
 an <ei>s</ei>-channel resonance, by the <code>isSChannel()</code> virtual 
 method of <code>SigmaProcess</code>.
 <br/>
-<input type="radio" name="5" value="1" checked="checked"><strong>1 </strong>: the squared invariant mass, i.e. <ei>sHat</ei>.<br/>
-<input type="radio" name="5" value="2"><strong>2 </strong>: fix scale set in <code>SigmaProcess:renormFixScale</code> below.<br/>
+<input type="radio" name="6" value="1" checked="checked"><strong>1 </strong>: the squared invariant mass, i.e. <ei>sHat</ei>.<br/>
+<input type="radio" name="6" value="2"><strong>2 </strong>: fix scale set in <code>SigmaProcess:renormFixScale</code> below.<br/>
 </modepick>
   
 <br/><br/><table><tr><td><strong>SigmaProcess:renormScale2  </td><td>  &nbsp;&nbsp;(<code>default = <strong>2</strong></code>; <code>minimum = 1</code>; <code>maximum = 5</code>)</td></tr></table>
 <modepick name="SigmaProcess:renormScale2" default="2" min="1" max="5">
 The <ei>Q^2</ei> renormalization scale for <ei>2 -> 2</ei> processes.
 <br/>
-<input type="radio" name="6" value="1"><strong>1 </strong>: the smaller of the squared transverse masses of the twooutgoing particles, i.e. <ei>min(mT_3^2, mT_4^2) = pT^2 + min(m_3^2, m_4^2)</ei>.<br/>
-<input type="radio" name="6" value="2" checked="checked"><strong>2 </strong>: the geometric mean of the squared transverse masses of the two outgoing particles, i.e. <ei>mT_3 * mT_4 = sqrt((pT^2 + m_3^2) * (pT^2 + m_4^2))</ei>.<br/>
-<input type="radio" name="6" value="3"><strong>3 </strong>: the arithmetic mean of the squared transverse masses of the two outgoing particles, i.e. <ei>(mT_3^2 + mT_4^2) / 2 = pT^2 + 0.5 * (m_3^2 + m_4^2)</ei>. Useful for comparisons with PYTHIA 6, where this is the default.<br/>
-<input type="radio" name="6" value="4"><strong>4 </strong>: squared invariant mass of the system, i.e. <ei>sHat</ei>. Useful for processes dominated by <ei>s</ei>-channel exchange. <br/>
-<input type="radio" name="6" value="5"><strong>5 </strong>: fix scale set in <code>SigmaProcess:renormFixScale</code> below.<br/>
+<input type="radio" name="7" value="1"><strong>1 </strong>: the smaller of the squared transverse masses of the twooutgoing particles, i.e. <ei>min(mT_3^2, mT_4^2) = pT^2 + min(m_3^2, m_4^2)</ei>.<br/>
+<input type="radio" name="7" value="2" checked="checked"><strong>2 </strong>: the geometric mean of the squared transverse masses of the two outgoing particles, i.e. <ei>mT_3 * mT_4 = sqrt((pT^2 + m_3^2) * (pT^2 + m_4^2))</ei>.<br/>
+<input type="radio" name="7" value="3"><strong>3 </strong>: the arithmetic mean of the squared transverse masses of the two outgoing particles, i.e. <ei>(mT_3^2 + mT_4^2) / 2 = pT^2 + 0.5 * (m_3^2 + m_4^2)</ei>. Useful for comparisons with PYTHIA 6, where this is the default.<br/>
+<input type="radio" name="7" value="4"><strong>4 </strong>: squared invariant mass of the system, i.e. <ei>sHat</ei>. Useful for processes dominated by <ei>s</ei>-channel exchange. <br/>
+<input type="radio" name="7" value="5"><strong>5 </strong>: fix scale set in <code>SigmaProcess:renormFixScale</code> below.<br/>
 </modepick>
   
 <br/><br/><table><tr><td><strong>SigmaProcess:renormScale3  </td><td>  &nbsp;&nbsp;(<code>default = <strong>3</strong></code>; <code>minimum = 1</code>; <code>maximum = 6</code>)</td></tr></table>
@@ -123,12 +139,12 @@ or are heavier than that of any <ei>t</ei>-channel propagator particle.
 (Currently only <ei>g g / q qbar -> H^0 Q Qbar</ei> processes are 
 implemented, where the "match" criterion holds.) 
 <br/>
-<input type="radio" name="7" value="1"><strong>1 </strong>: the smaller of the squared transverse masses of the threeoutgoing particles, i.e. min(mT_3^2, mT_4^2, mT_5^2).<br/>
-<input type="radio" name="7" value="2"><strong>2 </strong>: the geometric mean of the two smallest squared transverse masses of the three outgoing particles, i.e. <ei>sqrt( mT_3^2 * mT_4^2 * mT_5^2 / max(mT_3^2, mT_4^2, mT_5^2) )</ei>.<br/>
-<input type="radio" name="7" value="3" checked="checked"><strong>3 </strong>: the geometric mean of the squared transverse masses of the three outgoing particles, i.e. <ei>(mT_3^2 * mT_4^2 * mT_5^2)^(1/3)</ei>.<br/>
-<input type="radio" name="7" value="4"><strong>4 </strong>: the arithmetic mean of the squared transverse masses of the three outgoing particles, i.e. <ei>(mT_3^2 + mT_4^2 + mT_5^2)/3</ei>.<br/>
-<input type="radio" name="7" value="5"><strong>5 </strong>: squared invariant mass of the system, i.e. <ei>sHat</ei>.<br/>
-<input type="radio" name="7" value="6"><strong>6 </strong>: fix scale set in <code>SigmaProcess:renormFixScale</code> below.<br/>
+<input type="radio" name="8" value="1"><strong>1 </strong>: the smaller of the squared transverse masses of the threeoutgoing particles, i.e. min(mT_3^2, mT_4^2, mT_5^2).<br/>
+<input type="radio" name="8" value="2"><strong>2 </strong>: the geometric mean of the two smallest squared transverse masses of the three outgoing particles, i.e. <ei>sqrt( mT_3^2 * mT_4^2 * mT_5^2 / max(mT_3^2, mT_4^2, mT_5^2) )</ei>.<br/>
+<input type="radio" name="8" value="3" checked="checked"><strong>3 </strong>: the geometric mean of the squared transverse masses of the three outgoing particles, i.e. <ei>(mT_3^2 * mT_4^2 * mT_5^2)^(1/3)</ei>.<br/>
+<input type="radio" name="8" value="4"><strong>4 </strong>: the arithmetic mean of the squared transverse masses of the three outgoing particles, i.e. <ei>(mT_3^2 + mT_4^2 + mT_5^2)/3</ei>.<br/>
+<input type="radio" name="8" value="5"><strong>5 </strong>: squared invariant mass of the system, i.e. <ei>sHat</ei>.<br/>
+<input type="radio" name="8" value="6"><strong>6 </strong>: fix scale set in <code>SigmaProcess:renormFixScale</code> below.<br/>
 </modepick> 
  
 <br/><br/><table><tr><td><strong>SigmaProcess:renormScale3VV  </td><td>  &nbsp;&nbsp;(<code>default = <strong>3</strong></code>; <code>minimum = 1</code>; <code>maximum = 6</code>)</td></tr></table>
@@ -142,22 +158,22 @@ by replacing the final-state fermion masses by the vector-boson ones
 in the definition of transverse masses. We denote these combinations 
 <ei>mT_Vi^2 = m_V^2 + pT_i^2</ei>. 
 <br/>
-<input type="radio" name="8" value="1"><strong>1 </strong>: the squared mass <ei>m_V^2</ei> of the exchangedvector boson.<br/>
-<input type="radio" name="8" value="2"><strong>2 </strong>: the geometric mean of the two propagator virtualityestimates, i.e. <ei>sqrt(mT_V3^2 * mT_V4^2)</ei>.<br/>
-<input type="radio" name="8" value="3" checked="checked"><strong>3 </strong>: the geometric mean of the three relevant squared transverse masses, i.e. <ei>(mT_V3^2 * mT_V4^2 * mT_H^2)^(1/3)</ei>.<br/>
-<input type="radio" name="8" value="4"><strong>4 </strong>: the arithmetic mean of the three relevant squared transverse masses, i.e. <ei>(mT_V3^2 + mT_V4^2 + mT_H^2)/3</ei>.<br/>
-<input type="radio" name="8" value="5"><strong>5 </strong>: squared invariant mass of the system, i.e. <ei>sHat</ei>.<br/>
-<input type="radio" name="8" value="6"><strong>6 </strong>: fix scale set in <code>SigmaProcess:renormFixScale</code> below.<br/>
+<input type="radio" name="9" value="1"><strong>1 </strong>: the squared mass <ei>m_V^2</ei> of the exchangedvector boson.<br/>
+<input type="radio" name="9" value="2"><strong>2 </strong>: the geometric mean of the two propagator virtualityestimates, i.e. <ei>sqrt(mT_V3^2 * mT_V4^2)</ei>.<br/>
+<input type="radio" name="9" value="3" checked="checked"><strong>3 </strong>: the geometric mean of the three relevant squared transverse masses, i.e. <ei>(mT_V3^2 * mT_V4^2 * mT_H^2)^(1/3)</ei>.<br/>
+<input type="radio" name="9" value="4"><strong>4 </strong>: the arithmetic mean of the three relevant squared transverse masses, i.e. <ei>(mT_V3^2 + mT_V4^2 + mT_H^2)/3</ei>.<br/>
+<input type="radio" name="9" value="5"><strong>5 </strong>: squared invariant mass of the system, i.e. <ei>sHat</ei>.<br/>
+<input type="radio" name="9" value="6"><strong>6 </strong>: fix scale set in <code>SigmaProcess:renormFixScale</code> below.<br/>
 </modepick>
 
-<br/><br/><table><tr><td><strong>SigmaProcess:renormMultFac </td><td></td><td> <input type="text" name="9" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>; <code>minimum = 0.1</code>; <code>maximum = 10.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>SigmaProcess:renormMultFac </td><td></td><td> <input type="text" name="10" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>; <code>minimum = 0.1</code>; <code>maximum = 10.</code>)</td></tr></table>
 The <i>Q^2</i> renormalization scale for <i>2 -> 1</i>,
 <i>2 -> 2</i> and <i>2 -> 3</i> processes is multiplied by 
 this factor relative to the scale described above (except for the options 
 with a fix scale). Should be use sparingly for <i>2 -> 1</i> processes. 
   
 
-<br/><br/><table><tr><td><strong>SigmaProcess:renormFixScale </td><td></td><td> <input type="text" name="10" value="10000." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>10000.</strong></code>; <code>minimum = 1.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>SigmaProcess:renormFixScale </td><td></td><td> <input type="text" name="11" value="10000." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>10000.</strong></code>; <code>minimum = 1.</code>)</td></tr></table>
 A fix <i>Q^2</i> value used as renormalization scale for <i>2 -> 1</i>,
 <i>2 -> 2</i> and <i>2 -> 3</i> processes in some of the options above.
   
@@ -178,19 +194,19 @@ The same options also apply for those <ei>2 -> 2</ei> and <ei>2 -> 3</ei>
 processes that have been specially marked as proceeding only through 
 an <ei>s</ei>-channel resonance.
 <br/>
-<input type="radio" name="11" value="1" checked="checked"><strong>1 </strong>: the squared invariant mass, i.e. <ei>sHat</ei>.<br/>
-<input type="radio" name="11" value="2"><strong>2 </strong>: fix scale set in <code>SigmaProcess:factorFixScale</code> below.<br/>
+<input type="radio" name="12" value="1" checked="checked"><strong>1 </strong>: the squared invariant mass, i.e. <ei>sHat</ei>.<br/>
+<input type="radio" name="12" value="2"><strong>2 </strong>: fix scale set in <code>SigmaProcess:factorFixScale</code> below.<br/>
 </modepick>
 
 <br/><br/><table><tr><td><strong>SigmaProcess:factorScale2  </td><td>  &nbsp;&nbsp;(<code>default = <strong>1</strong></code>; <code>minimum = 1</code>; <code>maximum = 5</code>)</td></tr></table>
 <modepick name="SigmaProcess:factorScale2" default="1" min="1" max="5">
 The <ei>Q^2</ei> factorization scale for <ei>2 -> 2</ei> processes.
 <br/>
-<input type="radio" name="12" value="1" checked="checked"><strong>1 </strong>: the smaller of the squared transverse masses of the twooutgoing particles.<br/>
-<input type="radio" name="12" value="2"><strong>2 </strong>: the geometric mean of the squared transverse masses of the two outgoing particles.<br/>
-<input type="radio" name="12" value="3"><strong>3 </strong>: the arithmetic mean of the squared transverse masses of the two outgoing particles. Useful for comparisons with PYTHIA 6, where this is the default.<br/>
-<input type="radio" name="12" value="4"><strong>4 </strong>: squared invariant mass of the system, i.e. <ei>sHat</ei>. Useful for processes dominated by <ei>s</ei>-channel exchange. <br/>
-<input type="radio" name="12" value="5"><strong>5 </strong>: fix scale set in <code>SigmaProcess:factorFixScale</code> below.<br/>
+<input type="radio" name="13" value="1" checked="checked"><strong>1 </strong>: the smaller of the squared transverse masses of the twooutgoing particles.<br/>
+<input type="radio" name="13" value="2"><strong>2 </strong>: the geometric mean of the squared transverse masses of the two outgoing particles.<br/>
+<input type="radio" name="13" value="3"><strong>3 </strong>: the arithmetic mean of the squared transverse masses of the two outgoing particles. Useful for comparisons with PYTHIA 6, where this is the default.<br/>
+<input type="radio" name="13" value="4"><strong>4 </strong>: squared invariant mass of the system, i.e. <ei>sHat</ei>. Useful for processes dominated by <ei>s</ei>-channel exchange. <br/>
+<input type="radio" name="13" value="5"><strong>5 </strong>: fix scale set in <code>SigmaProcess:factorFixScale</code> below.<br/>
 </modepick>
   
 <br/><br/><table><tr><td><strong>SigmaProcess:factorScale3  </td><td>  &nbsp;&nbsp;(<code>default = <strong>2</strong></code>; <code>minimum = 1</code>; <code>maximum = 6</code>)</td></tr></table>
@@ -198,12 +214,12 @@ The <ei>Q^2</ei> factorization scale for <ei>2 -> 2</ei> processes.
 The <ei>Q^2</ei> factorization scale for "normal" <ei>2 -> 3</ei> 
 processes, i.e excepting the vector-boson-fusion processes below.
 <br/>
-<input type="radio" name="13" value="1"><strong>1 </strong>: the smaller of the squared transverse masses of the threeoutgoing particles).<br/>
-<input type="radio" name="13" value="2" checked="checked"><strong>2 </strong>: the geometric mean of the two smallest squared transverse masses of the three outgoing particles.<br/>
-<input type="radio" name="13" value="3"><strong>3 </strong>: the geometric mean of the squared transverse masses of the three outgoing particles.<br/>
-<input type="radio" name="13" value="4"><strong>4 </strong>: the arithmetic mean of the squared transverse masses of the three outgoing particles.<br/>
-<input type="radio" name="13" value="5"><strong>5 </strong>: squared invariant mass of the system, i.e. <ei>sHat</ei>.<br/>
-<input type="radio" name="13" value="6"><strong>6 </strong>: fix scale set in <code>SigmaProcess:factorFixScale</code> below.<br/>
+<input type="radio" name="14" value="1"><strong>1 </strong>: the smaller of the squared transverse masses of the threeoutgoing particles.<br/>
+<input type="radio" name="14" value="2" checked="checked"><strong>2 </strong>: the geometric mean of the two smallest squared transverse masses of the three outgoing particles.<br/>
+<input type="radio" name="14" value="3"><strong>3 </strong>: the geometric mean of the squared transverse masses of the three outgoing particles.<br/>
+<input type="radio" name="14" value="4"><strong>4 </strong>: the arithmetic mean of the squared transverse masses of the three outgoing particles.<br/>
+<input type="radio" name="14" value="5"><strong>5 </strong>: squared invariant mass of the system, i.e. <ei>sHat</ei>.<br/>
+<input type="radio" name="14" value="6"><strong>6 </strong>: fix scale set in <code>SigmaProcess:factorFixScale</code> below.<br/>
 </modepick> 
  
 <br/><br/><table><tr><td><strong>SigmaProcess:factorScale3VV  </td><td>  &nbsp;&nbsp;(<code>default = <strong>2</strong></code>; <code>minimum = 1</code>; <code>maximum = 6</code>)</td></tr></table>
@@ -215,22 +231,22 @@ Here we again introduce the combinations <ei>mT_Vi^2 = m_V^2 + pT_i^2</ei>
 as replacements for the normal squared transverse masses of the two 
 outgoing quarks.
 <br/>
-<input type="radio" name="14" value="1"><strong>1 </strong>: the squared mass <ei>m_V^2</ei> of the exchangedvector boson.<br/>
-<input type="radio" name="14" value="2" checked="checked"><strong>2 </strong>: the geometric mean of the two propagator virtualityestimates.<br/>
-<input type="radio" name="14" value="3"><strong>3 </strong>: the geometric mean of the three relevant squared transverse masses.<br/>
-<input type="radio" name="14" value="4"><strong>4 </strong>: the arithmetic mean of the three relevant squared transverse masses.<br/>
-<input type="radio" name="14" value="5"><strong>5 </strong>: squared invariant mass of the system, i.e. <ei>sHat</ei>.<br/>
-<input type="radio" name="14" value="6"><strong>6 </strong>: fix scale set in <code>SigmaProcess:factorFixScale</code> below.<br/>
+<input type="radio" name="15" value="1"><strong>1 </strong>: the squared mass <ei>m_V^2</ei> of the exchangedvector boson.<br/>
+<input type="radio" name="15" value="2" checked="checked"><strong>2 </strong>: the geometric mean of the two propagator virtualityestimates.<br/>
+<input type="radio" name="15" value="3"><strong>3 </strong>: the geometric mean of the three relevant squared transverse masses.<br/>
+<input type="radio" name="15" value="4"><strong>4 </strong>: the arithmetic mean of the three relevant squared transverse masses.<br/>
+<input type="radio" name="15" value="5"><strong>5 </strong>: squared invariant mass of the system, i.e. <ei>sHat</ei>.<br/>
+<input type="radio" name="15" value="6"><strong>6 </strong>: fix scale set in <code>SigmaProcess:factorFixScale</code> below.<br/>
 </modepick>
 
-<br/><br/><table><tr><td><strong>SigmaProcess:factorMultFac </td><td></td><td> <input type="text" name="15" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>; <code>minimum = 0.1</code>; <code>maximum = 10.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>SigmaProcess:factorMultFac </td><td></td><td> <input type="text" name="16" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>; <code>minimum = 0.1</code>; <code>maximum = 10.</code>)</td></tr></table>
 The <i>Q^2</i> factorization scale for <i>2 -> 1</i>,
 <i>2 -> 2</i> and <i>2 -> 3</i> processes is multiplied by 
 this factor relative to the scale described above (except for the options 
 with a fix scale). Should be use sparingly for <i>2 -> 1</i> processes. 
   
 
-<br/><br/><table><tr><td><strong>SigmaProcess:factorFixScale </td><td></td><td> <input type="text" name="16" value="10000." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>10000.</strong></code>; <code>minimum = 1.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>SigmaProcess:factorFixScale </td><td></td><td> <input type="text" name="17" value="10000." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>10000.</strong></code>; <code>minimum = 1.</code>)</td></tr></table>
 A fix <i>Q^2</i> value used as factorization scale for <i>2 -> 1</i>,
 <i>2 -> 2</i> and <i>2 -> 3</i> processes in some of the options above.
   
@@ -240,7 +256,7 @@ A fix <i>Q^2</i> value used as factorization scale for <i>2 -> 1</i>,
 
 Here settings that affect some special group of processes, but not all.
 
-<br/><br/><table><tr><td><strong>SigmaProcess:nQuarkNew  </td><td></td><td> <input type="text" name="17" value="3" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>3</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>SigmaProcess:nQuarkNew  </td><td></td><td> <input type="text" name="18" value="3" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>3</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
 Number of allowed outgoing new quark flavours in 
 <i>q qbar -> q' qbar'</i> and <i>g g-> q qbar</i> processes, 
 where quarks are treated as massless in the matrix-element expressions 
@@ -250,7 +266,7 @@ A change to 4 would also include <i>c cbar</i> in the massless
 approximation, etc. 
 </modeopen>
 
-<br/><br/><table><tr><td><strong>SigmaProcess:nQuarkLoop  </td><td></td><td> <input type="text" name="18" value="5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 3</code>; <code>maximum = 6</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>SigmaProcess:nQuarkLoop  </td><td></td><td> <input type="text" name="19" value="5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 3</code>; <code>maximum = 6</code>)</td></tr></table>
 Number of quark flavours included in the box graphs resposible for 
 <i>g g -> g gamma</i> and <i>g g-> gamma gamma</i> processes.
 Owing to the complexity if the massive expressions, quarks are treated 
@@ -263,9 +279,9 @@ transverse momenta above the <i>b</i> mass but below the <i>t</i> one.
 Choice of full <ei>gamma^*/Z^0</ei> structure or not in relevant 
 processes.
 <br/>
-<input type="radio" name="19" value="0" checked="checked"><strong>0 </strong>: full <ei>gamma^*/Z^0</ei> structure,with interference included.<br/>
-<input type="radio" name="19" value="1"><strong>1 </strong>: only pure <ei>gamma^*</ei> contribution.<br/>
-<input type="radio" name="19" value="2"><strong>2 </strong>: only pure <ei>Z^0</ei> contribution.<br/>
+<input type="radio" name="20" value="0" checked="checked"><strong>0 </strong>: full <ei>gamma^*/Z^0</ei> structure,with interference included.<br/>
+<input type="radio" name="20" value="1"><strong>1 </strong>: only pure <ei>gamma^*</ei> contribution.<br/>
+<input type="radio" name="20" value="2"><strong>2 </strong>: only pure <ei>Z^0</ei> contribution.<br/>
 </modepick>
 
 <input type="hidden" name="saved" value="1"/>
@@ -303,79 +319,84 @@ if($_POST["4"] != "1")
 $data = "SigmaProcess:alphaEMorder = ".$_POST["4"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["5"] != "1")
+if($_POST["5"] != "1.0")
 {
-$data = "SigmaProcess:renormScale1 = ".$_POST["5"]."\n";
+$data = "SigmaProcess:Kfactor = ".$_POST["5"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["6"] != "2")
+if($_POST["6"] != "1")
 {
-$data = "SigmaProcess:renormScale2 = ".$_POST["6"]."\n";
+$data = "SigmaProcess:renormScale1 = ".$_POST["6"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["7"] != "3")
+if($_POST["7"] != "2")
 {
-$data = "SigmaProcess:renormScale3 = ".$_POST["7"]."\n";
+$data = "SigmaProcess:renormScale2 = ".$_POST["7"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["8"] != "3")
 {
-$data = "SigmaProcess:renormScale3VV = ".$_POST["8"]."\n";
+$data = "SigmaProcess:renormScale3 = ".$_POST["8"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["9"] != "1.")
+if($_POST["9"] != "3")
 {
-$data = "SigmaProcess:renormMultFac = ".$_POST["9"]."\n";
+$data = "SigmaProcess:renormScale3VV = ".$_POST["9"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["10"] != "10000.")
+if($_POST["10"] != "1.")
 {
-$data = "SigmaProcess:renormFixScale = ".$_POST["10"]."\n";
+$data = "SigmaProcess:renormMultFac = ".$_POST["10"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["11"] != "1")
+if($_POST["11"] != "10000.")
 {
-$data = "SigmaProcess:factorScale1 = ".$_POST["11"]."\n";
+$data = "SigmaProcess:renormFixScale = ".$_POST["11"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["12"] != "1")
 {
-$data = "SigmaProcess:factorScale2 = ".$_POST["12"]."\n";
+$data = "SigmaProcess:factorScale1 = ".$_POST["12"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["13"] != "2")
+if($_POST["13"] != "1")
 {
-$data = "SigmaProcess:factorScale3 = ".$_POST["13"]."\n";
+$data = "SigmaProcess:factorScale2 = ".$_POST["13"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["14"] != "2")
 {
-$data = "SigmaProcess:factorScale3VV = ".$_POST["14"]."\n";
+$data = "SigmaProcess:factorScale3 = ".$_POST["14"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["15"] != "1.")
+if($_POST["15"] != "2")
 {
-$data = "SigmaProcess:factorMultFac = ".$_POST["15"]."\n";
+$data = "SigmaProcess:factorScale3VV = ".$_POST["15"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["16"] != "10000.")
+if($_POST["16"] != "1.")
 {
-$data = "SigmaProcess:factorFixScale = ".$_POST["16"]."\n";
+$data = "SigmaProcess:factorMultFac = ".$_POST["16"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["17"] != "3")
+if($_POST["17"] != "10000.")
 {
-$data = "SigmaProcess:nQuarkNew = ".$_POST["17"]."\n";
+$data = "SigmaProcess:factorFixScale = ".$_POST["17"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["18"] != "5")
+if($_POST["18"] != "3")
 {
-$data = "SigmaProcess:nQuarkLoop = ".$_POST["18"]."\n";
+$data = "SigmaProcess:nQuarkNew = ".$_POST["18"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["19"] != "0")
+if($_POST["19"] != "5")
 {
-$data = "SigmaProcess:gmZmode = ".$_POST["19"]."\n";
+$data = "SigmaProcess:nQuarkLoop = ".$_POST["19"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["20"] != "0")
+{
+$data = "SigmaProcess:gmZmode = ".$_POST["20"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);

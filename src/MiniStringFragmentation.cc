@@ -15,14 +15,6 @@ namespace Pythia8 {
 // The MiniStringFragmentation class.
 
 //*********
- 
-// Definitions of static variables.
-// (Values will be overwritten in initStatic call, so are purely dummy.)
-
-int    MiniStringFragmentation::nTryMass           = 2;
-double MiniStringFragmentation::sigma              = 0.35;
-double MiniStringFragmentation::sigma2Had          = 0.245;
-double MiniStringFragmentation::bLund              = 0.58;
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -41,9 +33,9 @@ const int MiniStringFragmentation::NTRYFLAV        = 10;
 
 //*********
 
-// Initialize parameters of ministring fragmentation.
+// Find settings.
 
-void MiniStringFragmentation::initStatic() {
+void MiniStringFragmentation::init() {
 
   // Initialize the MiniStringFragmentation class proper.
   nTryMass  = Settings::mode("MiniStringFragmentation:nTry");

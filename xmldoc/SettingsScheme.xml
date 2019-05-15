@@ -123,9 +123,9 @@ notation may be used interchangeably:
 <code>false</code>, <code>off</code>, <code>no</code> and 0).<br/> 
 
 <p/> 
-b) The <code>Pythia</code> <code>readString</code> method actually does
-not do changes itself, but sends on the string either to the
-<code>Settings</code> class or to <code>ParticleData</code>. 
+b) The <code>Pythia</code> <code>readString(string)</code> method 
+actually does not do changes itself, but sends on the string either 
+to the <code>Settings</code> class or to <code>ParticleData</code>. 
 If desired, it is possible to communicate
 directly with the corresponding <code>Settings</code> method:
 <pre>
@@ -135,8 +135,8 @@ In this case, changes intended for <code>ParticleData</code>
 would not be understood.
 
 <p/> 
-c) Underlying the <code>settings.readString</code> method are the 
-settings-type-sensitive commands in the <code>Settings</code>, that 
+c) Underlying the <code>settings.readString(string)</code> method are 
+the settings-type-sensitive commands in the <code>Settings</code>, that 
 are split by names containing <code>flag</code>, <code>mode</code>, 
 <code>parm</code> or <code>word</code>. Thus, the example now reads
 <pre>
@@ -195,12 +195,12 @@ introduced.
 
 The file can be read by the 
 <pre>
-    pythia.readFile("filename"); 
+    pythia.readFile(fileName); 
 </pre>
 method. The file can freely mix commands to the <code>Settings</code>
 and <code>ParticleData</code> classes, and so is preferable. Lines with 
 settings are handled by calls to the 
-<code>pythia.settings.readString(...)</code> method. Again, an optional 
+<code>pythia.settings.readString(string)</code> method. Again, an optional 
 second argument <code>false</code> allows you to switch off warning 
 messages for unknown variables.
 </li>
@@ -214,7 +214,7 @@ further changes in mid-run: at best nothing changes, at worst you may
 set up inconsistencies. 
 
 <p/>
-A routine <code>reInit("filename")</code> is provided, and can be used to 
+A routine <code>reInit(fileName)</code> is provided, and can be used to 
 zero all the maps and reinitialize  from scratch. Such a call might be 
 required if several <code>Pythia</code> objects are created in the same run, 
 and requested to have different values - by default the <code>init()</code> 
@@ -251,10 +251,10 @@ The above listings are in a tabular form that cannot be read
 back in. Assuming you want to save all changed settings (maybe because
 you read in changes from several files), you can do that by calling
 <pre>
-    pythia.settings.writeFile("filename");
+    pythia.settings.writeFile(fileName);
 </pre>
 This file could then directly be read in by 
-<code>readFile("filename")</code> in a subsequent (identical) run.
+<code>readFile(fileName)</code> in a subsequent (identical) run.
 A second argument <code>true</code> would print all settings, not
 only the changed ones. Further, the first argument can be replaced by
 (a reference to) an <code>ostream</code>, by default <code>cout</code>.   

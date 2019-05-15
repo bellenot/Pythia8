@@ -348,7 +348,6 @@ void CoupEW::initStatic() {
     af2Save[i] = pow2(afSave[i]);
     efvfSave[i] = efSave[i] * vfSave[i];
     vf2af2Save[i] = vf2Save[i] + af2Save[i];
-
   }
 
 }
@@ -361,8 +360,9 @@ void CoupEW::initStatic() {
 
 // Definitions of static variables. Initialize to all elements zero.
 
-double VCKM::Vsave[4][4] = { };
-double VCKM::V2out[20]   = { };
+double VCKM::Vsave[5][5]  = { };
+double VCKM::V2save[5][5] = { };
+double VCKM::V2out[20]    = { };
 
 //*********
 
@@ -381,14 +381,29 @@ void VCKM::initStatic() {
   Vsave[3][2] = Settings::parm("StandardModel:Vts");
   Vsave[3][3] = Settings::parm("StandardModel:Vtb");
 
+  // Also allow for the potential existence of a fourth generation.
+  Vsave[1][4] = Settings::parm("FourthGeneration:VubPrime");
+  Vsave[2][4] = Settings::parm("FourthGeneration:VcbPrime");
+  Vsave[3][4] = Settings::parm("FourthGeneration:VtbPrime");
+  Vsave[4][1] = Settings::parm("FourthGeneration:VtPrimed");
+  Vsave[4][2] = Settings::parm("FourthGeneration:VtPrimes");
+  Vsave[4][3] = Settings::parm("FourthGeneration:VtPrimeb");
+  Vsave[4][4] = Settings::parm("FourthGeneration:VtPrimebPrime");
+
+  // Calculate squares of matrix elements.
+  for(int i = 1; i < 5; ++i) for(int j = 1; j < 5; ++j) 
+    V2save[i][j] = pow2(Vsave[i][j]); 
+  
   // Sum VCKM^2_out sum for given incoming flavour, excluding top as partner.
-  V2out[1] = pow2(Vsave[1][1]) + pow2(Vsave[2][1]);
-  V2out[2] = pow2(Vsave[1][1]) + pow2(Vsave[1][2]) + pow2(Vsave[1][3]);
-  V2out[3] = pow2(Vsave[1][2]) + pow2(Vsave[2][2]);
-  V2out[4] = pow2(Vsave[2][1]) + pow2(Vsave[2][2]) + pow2(Vsave[2][3]);
-  V2out[5] = pow2(Vsave[1][3]) + pow2(Vsave[2][3]);
-  V2out[6] = pow2(Vsave[3][1]) + pow2(Vsave[3][2]) + pow2(Vsave[3][3]);
-  for (int i = 11; i <= 16; ++i) V2out[i] = 1.;
+  V2out[1] = V2save[1][1] + V2save[2][1];
+  V2out[2] = V2save[1][1] + V2save[1][2] + V2save[1][3];
+  V2out[3] = V2save[1][2] + V2save[2][2];
+  V2out[4] = V2save[2][1] + V2save[2][2] + V2save[2][3];
+  V2out[5] = V2save[1][3] + V2save[2][3];
+  V2out[6] = V2save[3][1] + V2save[3][2] + V2save[3][3];
+  V2out[7] = V2save[1][4] + V2save[2][4];
+  V2out[8] = V2save[4][1] + V2save[4][2] + V2save[4][3];
+  for (int i = 11; i <= 18; ++i) V2out[i] = 1.;
  
 }
 
@@ -405,8 +420,30 @@ double VCKM::Vid(int id1, int id2) {
 
   // Ensure proper order before reading out from Vsave or lepton match.
   if (id1Abs%2 == 1) swap(id1Abs, id2Abs);
-  if (id1Abs <= 6 && id2Abs <= 6) return Vsave[id1Abs/2][(id2Abs + 1)/2];
-  if ( (id1Abs == 12 || id1Abs == 14 || id1Abs == 16) 
+  if (id1Abs <= 8 && id2Abs <= 8) return Vsave[id1Abs/2][(id2Abs + 1)/2];
+  if ( (id1Abs == 12 || id1Abs == 14 || id1Abs == 16 || id1Abs == 18) 
+    && id2Abs == id1Abs - 1 ) return 1.;
+  
+  // No more valid cases.
+  return 0.;
+
+}
+
+//*********
+
+// Return squared CKM value for incoming flavours (sign irrelevant).
+
+double VCKM::V2id(int id1, int id2) {
+
+  // Use absolute sign (want to cover both f -> f' W and f fbar' -> W).
+  int id1Abs = abs(id1);
+  int id2Abs = abs(id2);
+  if (id1Abs == 0 || id2Abs == 0 || (id1Abs + id2Abs)%2 != 1) return 0.;
+
+  // Ensure proper order before reading out from V2save or lepton match.
+  if (id1Abs%2 == 1) swap(id1Abs, id2Abs);
+  if (id1Abs <= 8 && id2Abs <= 8) return V2save[id1Abs/2][(id2Abs + 1)/2];
+  if ( (id1Abs == 12 || id1Abs == 14 || id1Abs == 16 || id1Abs == 18) 
     && id2Abs == id1Abs - 1 ) return 1.;
   
   // No more valid cases.
@@ -425,20 +462,23 @@ int VCKM::V2pick(int id) {
   int idOut = 0;
   
   // Quarks: need to make random choice.
-  if (idIn >= 1 && idIn <= 6) {
+  if (idIn >= 1 && idIn <= 8) {
     double V2rndm = Rndm::flat() * V2out[idIn]; 
-    if (idIn == 1) idOut = (V2rndm < pow2(Vsave[1][1])) ? 2 : 4;
-    else if (idIn == 2) idOut = (V2rndm < pow2(Vsave[1][1])) ? 1 
-      : ( (V2rndm < pow2(Vsave[1][1]) + pow2(Vsave[1][2])) ? 3 : 5 );
-    else if (idIn == 3) idOut = (V2rndm < pow2(Vsave[1][2])) ? 2 : 4;
-    else if (idIn == 4) idOut = (V2rndm < pow2(Vsave[2][1])) ? 1 
-      : ( (V2rndm < pow2(Vsave[2][1]) + pow2(Vsave[2][2])) ? 3 : 5 );
-    else if (idIn == 5) idOut = (V2rndm < pow2(Vsave[1][3])) ? 2 : 4;
-    else if (idIn == 6) idOut = (V2rndm < pow2(Vsave[3][1])) ? 1 
-      : ( (V2rndm < pow2(Vsave[3][1]) + pow2(Vsave[3][2])) ? 3 : 5 );
+    if (idIn == 1) idOut = (V2rndm < V2save[1][1]) ? 2 : 4;
+    else if (idIn == 2) idOut = (V2rndm < V2save[1][1]) ? 1 
+      : ( (V2rndm < V2save[1][1] + V2save[1][2]) ? 3 : 5 );
+    else if (idIn == 3) idOut = (V2rndm < V2save[1][2]) ? 2 : 4;
+    else if (idIn == 4) idOut = (V2rndm < V2save[2][1]) ? 1 
+      : ( (V2rndm < V2save[2][1] + V2save[2][2]) ? 3 : 5 );
+    else if (idIn == 5) idOut = (V2rndm < V2save[1][3]) ? 2 : 4;
+    else if (idIn == 6) idOut = (V2rndm < V2save[3][1]) ? 1 
+      : ( (V2rndm < V2save[3][1] + V2save[3][2]) ? 3 : 5 );
+    else if (idIn == 7) idOut = (V2rndm < V2save[1][4]) ? 2 : 4;
+    else if (idIn == 8) idOut = (V2rndm < V2save[4][1]) ? 1 
+      : ( (V2rndm < V2save[4][1] + V2save[4][2]) ? 3 : 5 );
   
   // Leptons: unambiguous. 
-  } else if (idIn >= 11 && idIn <= 16) {
+  } else if (idIn >= 11 && idIn <= 18) {
     if (idIn%2 == 1) idOut = idIn + 1;
     else idOut             = idIn - 1;
   } 

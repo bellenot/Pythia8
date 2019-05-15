@@ -24,12 +24,39 @@ this is done either using some of the internal processes, or with
 Les Houches Accord input.
 
 <p/>
-Since there cannot be any event at all without an initial process,
-there is no possibility to switch off this part of the story.
-It is possible, however, to stop the generation immediately after 
-the basic process has been selected, see <code>PartonLevel:all</code>
-below.
- 
+There could not be a complete event without an initial process, so
+it would not be a normal action to switch off this step. Furthermore,
+without a process set, it is also not possible to carry out the tasks
+on the parton level. It is still possible, however, to hadronize 
+a parton-level configuration provided by some external program.
+
+<p/><code>flag&nbsp; </code><strong> ProcessLevel:all &nbsp;</strong> 
+ (<code>default = <strong>on</strong></code>)<br/>
+If off, do not attempt to carry out any generation at all on the 
+process or parton level. Do allow parton configurations stored in 
+the event record to hadronize and hadrons to decay, however, as set 
+by the <code>HadronLevel</code> switches. Further details are found
+<a href="HadronLevelStandalone.html" target="page">here</a>.
+   
+
+<p/>
+For <code>ProcessLevel:all = on</code> one part of the event generation 
+on this level may be switched off individually: 
+
+<p/><code>flag&nbsp; </code><strong> ProcessLevel:resonanceDecays &nbsp;</strong> 
+ (<code>default = <strong>on</strong></code>)<br/>
+Master switch to allow resonance decays; on/off = true/false.
+Normal hadrons and leptons do not count as resonances, so this is 
+aimed specifically towards <i>Z^0, W^+-, t, h^0</i> and similar
+objects beyond the Standard Model. Do not use this option if you
+may produce coloured resonances and intend to allow hadronization,
+since currently the program would not know how to handle this.
+  
+
+<p/>
+It is possible to stop the generation immediately after the basic 
+process has been selected, see <code>PartonLevel:all</code> below.
+
 <h3>PartonLevel</h3>
 
 The <code>PartonLevel</code> class administrates the middle step of the 
@@ -138,6 +165,15 @@ Further options are found <a href="Fragmentation.html" target="page">here</a>.
 Master switch for decays; on/off = true/false.
 Further options are found <a href="ParticleDecays.html" target="page">here</a>.
   
+
+<p/><code>flag&nbsp; </code><strong> HadronLevel:BoseEinstein &nbsp;</strong> 
+ (<code>default = <strong>off</strong></code>)<br/>
+Master switch for the simulation of Bose-Einstein effects; 
+on/off = true/false. Further options are found 
+<a href="BoseEinsteinEffects.html" target="page">here</a>.
+  
+
+
 
 </body>
 </html>

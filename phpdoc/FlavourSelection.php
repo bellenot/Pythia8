@@ -36,20 +36,26 @@ concepts are in agreement with [<a href="Bibliography.php" target="page">And83</
 implementation is based on the <code>MSTJ(12)=3</code> option of 
 PYTHIA 6, i.e. new SU(6) weights scheme with at most one popcorn meson.
 
+<p/>
+The relative production rates of different particle species is 
+influenced by the parameters below. Some have only an impact on 
+one specific quantity, but most directly or indirectly have 
+consequences for many observables. Therefore the values to use have 
+to be viewed in the context of a complete <?php $filepath = $_GET["filepath"];
+echo "<a href='Tunes.php?filepath=".$filepath."' target='page'>";?>tune</a>.
+
 <h3>New flavours</h3>
 
-The main parameters of the selection of a new flavour are
+The main parameters of the selection of a new flavour are 
 
-<br/><br/><table><tr><td><strong>StringFlav:probQQtoQ </td><td></td><td> <input type="text" name="1" value="0.10" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.10</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 1.0</code>)</td></tr></table>
-the suppression of diquark production relative to quark production,
-i.e. of baryon relative to meson production. The actual production ratio
-is indirectly influenced also by several of the other parameters below, 
-so the value to use has to be viewed in the context of a complete tune.
-  
-
-<br/><br/><table><tr><td><strong>StringFlav:probStoUD </td><td></td><td> <input type="text" name="2" value="0.30" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.30</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 1.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StringFlav:probStoUD </td><td></td><td> <input type="text" name="1" value="0.30" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.30</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 1.0</code>)</td></tr></table>
 the suppression of <i>s</i> quark production relative to ordinary 
 <i>u</i> or <i>d</i> one.
+  
+
+<br/><br/><table><tr><td><strong>StringFlav:probQQtoQ </td><td></td><td> <input type="text" name="2" value="0.10" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.10</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 1.0</code>)</td></tr></table>
+the suppression of diquark production relative to quark production,
+i.e. of baryon relative to meson production. 
   
 
 <br/><br/><table><tr><td><strong>StringFlav:probSQtoQQ </td><td></td><td> <input type="text" name="3" value="0.4" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.4</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 1.0</code>)</td></tr></table>
@@ -388,14 +394,14 @@ if($_POST["saved"] == 1)
 $filepath = $_POST["filepath"];
 $handle = fopen($filepath, 'a');
 
-if($_POST["1"] != "0.10")
+if($_POST["1"] != "0.30")
 {
-$data = "StringFlav:probQQtoQ = ".$_POST["1"]."\n";
+$data = "StringFlav:probStoUD = ".$_POST["1"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["2"] != "0.30")
+if($_POST["2"] != "0.10")
 {
-$data = "StringFlav:probStoUD = ".$_POST["2"]."\n";
+$data = "StringFlav:probQQtoQ = ".$_POST["2"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["3"] != "0.4")

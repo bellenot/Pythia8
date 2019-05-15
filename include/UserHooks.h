@@ -105,8 +105,9 @@ public:
 
   // Constructor.
   SuppressSmallPT( double pT0timesMIIn = 1., int numberAlphaSIn = 0, 
-    bool alphaSasMIIn = true) {isInit = false; pT0timesMI = pT0timesMIIn; 
-    numberAlphaS = numberAlphaSIn; alphaSasMI = alphaSasMIIn;}
+    bool useSameAlphaSasMIIn = true) {isInit = false; 
+    pT0timesMI = pT0timesMIIn; numberAlphaS = numberAlphaSIn; 
+    useSameAlphaSasMI = useSameAlphaSasMIIn;}
 
   // Possibility to modify cross section of process.
   virtual bool canModifySigma() {return true;}
@@ -119,7 +120,7 @@ public:
 private:
 
   // Save input properties and the squared pT0 scale.
-  bool   isInit, alphaSasMI;
+  bool   isInit, useSameAlphaSasMI;
   int    numberAlphaS;
   double pT0timesMI, pT20;
 

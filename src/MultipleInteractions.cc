@@ -36,7 +36,7 @@ const double SigmaMultiple::OTHERFRAC  = 0.2;
 
 bool SigmaMultiple::init(int inState, int processLevel) {
 
-  // Reset vector sizes (just in case).
+  // Reset vector sizes (necessary in case of re-initialization).
   if (sigmaT.size() > 0) {
     for (int i = 0; i < int(sigmaT.size()); ++i) delete sigmaT[i];
     sigmaT.resize(0);
@@ -313,26 +313,6 @@ SigmaProcess* SigmaMultiple::sigmaSel() {
 // The MultipleInteractions class.
 
 //*********
- 
-// Definitions of static variables.
-// (Values will be overwritten in initStatic call, so are purely dummy.)
-
-int    MultipleInteractions::pTmaxMatch   = 0;
-double MultipleInteractions::alphaSvalue  = 0.127;
-int    MultipleInteractions::alphaSorder  = 1; 
-int    MultipleInteractions::alphaEMorder = 1; 
-double MultipleInteractions::Kfactor      = 1.0; 
-double MultipleInteractions::pT0Ref       = 2.2; 
-double MultipleInteractions::ecmRef       = 1800.; 
-double MultipleInteractions::ecmPow       = 0.16; 
-double MultipleInteractions::pTmin        = 0.2; 
-int    MultipleInteractions::bProfile     = 2; 
-double MultipleInteractions::coreRadius   = 0.4; 
-double MultipleInteractions::coreFraction = 0.5; 
-double MultipleInteractions::expPow       = 1.; 
-int    MultipleInteractions::processLevel = 1; 
-int    MultipleInteractions::nQuarkIn     = 5; 
-int    MultipleInteractions::nSample      = 1000; 
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -377,9 +357,14 @@ const double MultipleInteractions::CONVERT2MB    = 0.389380;
 
 //*********
 
-// Initialize static data members.
+// Initialize the generation process for given beams.
 
-void MultipleInteractions::initStatic() {
+bool MultipleInteractions::init( BeamParticle* beamAPtrIn, 
+  BeamParticle* beamBPtrIn, ostream& os) {
+
+  // Store input pointers for future use. 
+  beamAPtr     = beamAPtrIn;
+  beamBPtr     = beamBPtrIn;
 
   // Matching in pT of hard interaction to further interactions.
   pTmaxMatch   = Settings::mode("MultipleInteractions:pTmaxMatch"); 
@@ -414,34 +399,18 @@ void MultipleInteractions::initStatic() {
   nQuarkIn     = Settings::mode("MultipleInteractions:nQuarkIn");
   nSample      = Settings::mode("MultipleInteractions:nSample");
 
-}
-
-//*********
-
-// Initialize the generation process for given beams.
-
-bool MultipleInteractions::init( BeamParticle* beamAPtrIn, 
-  BeamParticle* beamBPtrIn, bool reInit, ostream& os) {
-
-  // Do not initialize if already done, and reinitialization not asked for.
-  if (isInit && !reInit) return true;
-
-  // Store input pointers for future use. 
-  beamAPtr    = beamAPtrIn;
-  beamBPtr    = beamBPtrIn;
-
   // Some common combinations for double Gaussian, as shorthand.
   if (bProfile == 2) {
-    fracA     = pow2(1. - coreFraction);
-    fracB     = 2. * coreFraction * (1. - coreFraction);
-    fracC     = pow2(coreFraction); 
-    radius2B  = 0.5 * (1. + pow2(coreRadius));
-    radius2C  = pow2(coreRadius);
+    fracA      = pow2(1. - coreFraction);
+    fracB      = 2. * coreFraction * (1. - coreFraction);
+    fracC      = pow2(coreFraction); 
+    radius2B   = 0.5 * (1. + pow2(coreRadius));
+    radius2C   = pow2(coreRadius);
 
   // Some common combinations for exp(b^pow), as shorthand.
   } else if (bProfile == 3) {
-    lowPow    = (expPow < 2.);
-    expRev    = 2. / expPow - 1.;
+    hasLowPow  = (expPow < 2.);
+    expRev     = 2. / expPow - 1.;
   } 
 
   // Initialize alpha_strong generation.
@@ -451,12 +420,10 @@ bool MultipleInteractions::init( BeamParticle* beamAPtrIn,
   alphaEM.init( alphaEMorder); 
 
   // Attach matrix-element calculation objects.
-  if (!reInit) {
-    sigma2gg.init( 0, processLevel);
-    sigma2qg.init( 1, processLevel);
-    sigma2qqbarSame.init( 2, processLevel);
-    sigma2qq.init( 3, processLevel);
-  }
+  sigma2gg.init( 0, processLevel);
+  sigma2qg.init( 1, processLevel);
+  sigma2qqbarSame.init( 2, processLevel);
+  sigma2qq.init( 3, processLevel);
 
   // Calculate invariant mass of system. Set current pT0 scale.
   sCM  = m2( beamAPtr->p(), beamBPtr->p());
@@ -536,7 +503,6 @@ bool MultipleInteractions::init( BeamParticle* beamAPtrIn,
   }
 
   // Done.
-  isInit = true;
   return true;
 }
 
@@ -553,7 +519,7 @@ void MultipleInteractions::pTfirst() {
   double WTacc;
 
   // At low b values evolve downwards with Sudakov. 
-  if (atLowB) {
+  if (isAtLowB) {
     pT2 = pT2max;
     do {
 
@@ -1151,7 +1117,7 @@ void MultipleInteractions::overlapFirst() {
     bNow     = bAvg;
     enhanceB = zeroIntCorr;
     bIsSet   = true;
-    atLowB   = true;
+    isAtLowB = true;
     return;
   }
 
@@ -1162,7 +1128,7 @@ void MultipleInteractions::overlapFirst() {
 
     // Treatment in low-b region: pick b flat in area.
     if (Rndm::flat() < probLowB) {
-      atLowB = true;
+      isAtLowB = true;
       bNow = bDiv * sqrt(Rndm::flat());
       if (bProfile == 1) overlapNow = normPi * exp( -bNow*bNow);
       else if (bProfile == 2) overlapNow = normPi * 
@@ -1191,9 +1157,9 @@ void MultipleInteractions::overlapFirst() {
 
       // For exp( - b^expPow) transform to variable c = b^expPow so that
       // f(b) = b * exp( - b^expPow) -> f(c) = c^r * exp(-c) with r = expRev. 
-      // case lowPow: expPow < 2 <=> r > 0: preselect according to
+      // case hasLowPow: expPow < 2 <=> r > 0: preselect according to
       // f(c) < N exp(-c/2) and then accept with N' * c^r * exp(-c/2). 
-      } else if (lowPow) {
+      } else if (hasLowPow) {
         double cNow, acceptC;
         do {      
           cNow = cDiv - 2. * log(Rndm::flat());
@@ -1202,7 +1168,7 @@ void MultipleInteractions::overlapFirst() {
         bNow = pow( cNow, 1. / expPow);
         overlapNow = normPi * exp( -cNow);
 
-      // case !lowPow: expPow >= 2 <=> - 1 < r < 0: preselect according to
+      // case !hasLowPow: expPow >= 2 <=> - 1 < r < 0: preselect according to
       // f(c) < N exp(-c) and then accept with N' * c^r. 
       } else {
         double cNow, acceptC;
@@ -1261,9 +1227,9 @@ void MultipleInteractions::overlapNext(double pTscale) {
 
     // For exp( - b^expPow) transform to variable c = b^expPow so that
     // f(b) = b * exp( - b^expPow) -> f(c) = c^r * exp(-c) with r = expRev. 
-    // case lowPow: expPow < 2 <=> r > 0: 
+    // case hasLowPow: expPow < 2 <=> r > 0: 
     // f(c) < r^r exp(-r) for c < 2r, < (2r)^r exp(-r-c/2) for c > 2r.
-    } else if (lowPow) {
+    } else if (hasLowPow) {
       double cNow, acceptC;
       double probLowC = expRev / (expRev + pow(2., expRev) * exp( - expRev));
       do {
@@ -1278,7 +1244,7 @@ void MultipleInteractions::overlapNext(double pTscale) {
       enhanceB = normOverlap *exp(-cNow);  
       bNow = pow( cNow, 1. / expPow);
 
-    // case !lowPow: expPow >= 2 <=> - 1 < r < 0: 
+    // case !hasLowPow: expPow >= 2 <=> - 1 < r < 0: 
     // f(c) < c^r for c < 1,  f(c) < exp(-c) for c > 1.  
     } else {
       double cNow, acceptC;

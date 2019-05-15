@@ -5,7 +5,7 @@
 
 //--------------------------------------------------------------------------
 #ifndef Pythia8_HepMCInterface_H
-#define Pythia8_HepMCInterface_
+#define Pythia8_HepMCInterface_H
 
 //////////////////////////////////////////////////////////////////////////
 // Mikhail.Kirsanov@Cern.CH

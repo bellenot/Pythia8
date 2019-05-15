@@ -282,6 +282,13 @@ Allow colour-octet charmonium and bottomonium states to radiate gluons.
 to interpolate between these two extremes. 
   
 
+<br/><br/><table><tr><td><strong>TimeShower:octetOniumColFac </td><td></td><td> <input type="text" name="12" value="2." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.</strong></code>; <code>minimum = 0.</code>; <code>maximum = 4.</code>)</td></tr></table>
+The colour factor used used in the splitting kernel for those octet onium 
+states that are allowed to radiate, normalized to the <i>q -> q g</i>
+splitting kernel. Thus the default corresponds to twice the radiation
+off a quark. The physically preferred range would be between 1 and 9/4.
+  
+
 <h3>Further variables</h3>
 
 There are several possibilities you can use to switch on or off selected
@@ -289,62 +296,62 @@ branching types in the shower, or in other respects simplify the shower.
 These should normally not be touched. Their main function is for 
 cross-checks.
 
-<br/><br/><strong>TimeShower:QCDshower</strong>  <input type="radio" name="12" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="12" value="off"><strong>Off</strong>
+<br/><br/><strong>TimeShower:QCDshower</strong>  <input type="radio" name="13" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="13" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Allow a QCD shower, i.e. branchings <i>q -> q g</i>, <i>g -> g g</i> 
 and <i>g -> q qbar</i>; on/off = true/false.
   
 
-<br/><br/><table><tr><td><strong>TimeShower:nGluonToQuark  </td><td></td><td> <input type="text" name="13" value="5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>TimeShower:nGluonToQuark  </td><td></td><td> <input type="text" name="14" value="5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
 Number of allowed quark flavours in <i>g -> q qbar</i> branchings
 (phase space permitting). A change to 4 would exclude 
 <i>g -> b bbar</i>, etc. 
 </modeopen>
 
-<br/><br/><strong>TimeShower:QEDshowerByQ</strong>  <input type="radio" name="14" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="14" value="off"><strong>Off</strong>
+<br/><br/><strong>TimeShower:QEDshowerByQ</strong>  <input type="radio" name="15" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="15" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Allow quarks to radiate photons, i.e. branchings <i>q -> q gamma</i>; 
 on/off = true/false.
   
 
-<br/><br/><strong>TimeShower:QEDshowerByL</strong>  <input type="radio" name="15" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="15" value="off"><strong>Off</strong>
+<br/><br/><strong>TimeShower:QEDshowerByL</strong>  <input type="radio" name="16" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="16" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Allow leptons to radiate photons, i.e. branchings <i>l -> l gamma</i>;  
 on/off = true/false.
   
 
-<br/><br/><strong>TimeShower:QEDshowerByGamma</strong>  <input type="radio" name="16" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="16" value="off"><strong>Off</strong>
+<br/><br/><strong>TimeShower:QEDshowerByGamma</strong>  <input type="radio" name="17" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="17" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Allow photons to branch into lepton or quark pairs, i.e. branchings 
 <i>gamma -> l+ l-</i> and <i>gamma -> q qbar</i>;
 on/off = true/false.
   
 
-<br/><br/><table><tr><td><strong>TimeShower:nGammaToQuark  </td><td></td><td> <input type="text" name="17" value="5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>TimeShower:nGammaToQuark  </td><td></td><td> <input type="text" name="18" value="5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
 Number of allowed quark flavours in <i>gamma -> q qbar</i> branchings
 (phase space permitting). A change to 4 would exclude 
 <i>g -> b bbar</i>, etc. 
 </modeopen>
 
-<br/><br/><table><tr><td><strong>TimeShower:nGammaToLepton  </td><td></td><td> <input type="text" name="18" value="3" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>3</strong></code>; <code>minimum = 0</code>; <code>maximum = 3</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>TimeShower:nGammaToLepton  </td><td></td><td> <input type="text" name="19" value="3" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>3</strong></code>; <code>minimum = 0</code>; <code>maximum = 3</code>)</td></tr></table>
 Number of allowed lepton flavours in <i>gamma -> l+ l-</i> branchings
 (phase space permitting). A change to 2 would exclude 
 <i>gamma -> tau+ tau-</i>, and a change to 1 also 
 <i>gamma -> mu+ mu-</i>. 
 </modeopen>
 
-<br/><br/><strong>TimeShower:MEcorrections</strong>  <input type="radio" name="19" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="19" value="off"><strong>Off</strong>
+<br/><br/><strong>TimeShower:MEcorrections</strong>  <input type="radio" name="20" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="20" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Use of matrix element corrections where available; on/off = true/false.
   
 
-<br/><br/><strong>TimeShower:phiPolAsym</strong>  <input type="radio" name="20" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="20" value="off"><strong>Off</strong>
+<br/><br/><strong>TimeShower:phiPolAsym</strong>  <input type="radio" name="21" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="21" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Azimuthal asymmetry induced by gluon polarization; on/off = true/false.
   
@@ -419,49 +426,54 @@ if($_POST["11"] != "1.")
 $data = "TimeShower:octetOniumFraction = ".$_POST["11"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["12"] != "on")
+if($_POST["12"] != "2.")
 {
-$data = "TimeShower:QCDshower = ".$_POST["12"]."\n";
+$data = "TimeShower:octetOniumColFac = ".$_POST["12"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["13"] != "5")
+if($_POST["13"] != "on")
 {
-$data = "TimeShower:nGluonToQuark = ".$_POST["13"]."\n";
+$data = "TimeShower:QCDshower = ".$_POST["13"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["14"] != "on")
+if($_POST["14"] != "5")
 {
-$data = "TimeShower:QEDshowerByQ = ".$_POST["14"]."\n";
+$data = "TimeShower:nGluonToQuark = ".$_POST["14"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["15"] != "on")
 {
-$data = "TimeShower:QEDshowerByL = ".$_POST["15"]."\n";
+$data = "TimeShower:QEDshowerByQ = ".$_POST["15"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["16"] != "on")
 {
-$data = "TimeShower:QEDshowerByGamma = ".$_POST["16"]."\n";
+$data = "TimeShower:QEDshowerByL = ".$_POST["16"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["17"] != "5")
+if($_POST["17"] != "on")
 {
-$data = "TimeShower:nGammaToQuark = ".$_POST["17"]."\n";
+$data = "TimeShower:QEDshowerByGamma = ".$_POST["17"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["18"] != "3")
+if($_POST["18"] != "5")
 {
-$data = "TimeShower:nGammaToLepton = ".$_POST["18"]."\n";
+$data = "TimeShower:nGammaToQuark = ".$_POST["18"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["19"] != "on")
+if($_POST["19"] != "3")
 {
-$data = "TimeShower:MEcorrections = ".$_POST["19"]."\n";
+$data = "TimeShower:nGammaToLepton = ".$_POST["19"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["20"] != "on")
 {
-$data = "TimeShower:phiPolAsym = ".$_POST["20"]."\n";
+$data = "TimeShower:MEcorrections = ".$_POST["20"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["21"] != "on")
+{
+$data = "TimeShower:phiPolAsym = ".$_POST["21"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);

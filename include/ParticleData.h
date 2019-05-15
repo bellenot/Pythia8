@@ -15,10 +15,16 @@
 #include "Basics.h"
 #include "Information.h"
 #include "PythiaStdlib.h"
+#include "ResonanceWidths.h"
 #include "Settings.h"
 
 namespace Pythia8 {
 
+//**************************************************************************
+
+// Forward reference to the ResonanceWidths class.
+class ResonanceWidths;
+  
 //**************************************************************************
 
 // This class holds info on a single decay channel.
@@ -30,7 +36,7 @@ public:
   DecayChannel(int onModeIn = 0, double bRatioIn = 0., int meModeIn = 0, 
     int prod0 = 0, int prod1 = 0, int prod2 = 0, int prod3 = 0, 
     int prod4 = 0, int prod5 = 0, int prod6 = 0, int prod7 = 0) 
-    : onModeSave(onModeIn), bRatioSave(bRatioIn), dynamicBRSave(0.), 
+    : onModeSave(onModeIn), bRatioSave(bRatioIn), currentBRSave(0.), 
     meModeSave(meModeIn), nProd(0), hasChangedSave(true) {
     prod[0] = prod0; prod[1] = prod1; prod[2] = prod2; prod[3] = prod3; 
     prod[4] = prod4; prod[5] = prod5; prod[6] = prod6; prod[7] = prod7; 
@@ -49,32 +55,33 @@ public:
   void setHasChanged(bool hasChangedIn) {hasChangedSave = hasChangedIn;}
 
   // Member functions for output.
-  int    onMode() const {return onModeSave;}
-  double bRatio() const {return bRatioSave;}
-  int    meMode() const {return meModeSave;}
+  int    onMode()       const {return onModeSave;}
+  double bRatio()       const {return bRatioSave;}
+  int    meMode()       const {return meModeSave;}
   int    multiplicity() const {return nProd;} 
   int    product(int i) const {return (i >= 0 && i < nProd) ? prod[i] : 0;} 
-  int    productForce(int i) const {return (i >= 0 && i <8) ? prod[i] : 0;} 
-  bool   hasChanged() const { return hasChangedSave;}
+  bool   hasChanged()   const { return hasChangedSave;}
 
   // Check for presence of particles anywhere in decay list.
   bool   contains(int id1) const;
   bool   contains(int id1, int id2) const;
   bool   contains(int id1, int id2, int id3) const;
 
-  // Input/output for dynamic selection of resonance decay mode.
-  void   dynamicBR(double dynamicBRIn) {dynamicBRSave = dynamicBRIn;}
-  double dynamicBR() const {return dynamicBRSave;}
+  // Input/output for current selection of decay modes.
+  // Takes into account on/off switches and dynamic width for resonances.
+  void   currentBR(double currentBRIn) {currentBRSave = currentBRIn;}
+  double currentBR() const {return currentBRSave;}
 
-  // Input/output for nominal partial
+  // Input/output for nominal partial width; used by resonances. 
   void   onShellWidth(double onShellWidthIn) {onShellWidthSave = onShellWidthIn;} 
   double onShellWidth() const {return onShellWidthSave;} 
+  void   onShellWidthFactor(double factor) {onShellWidthSave *= factor;} 
 
 private:
 
   // Decay channel info.
   int    onModeSave;
-  double bRatioSave, dynamicBRSave, onShellWidthSave;
+  double bRatioSave, currentBRSave, onShellWidthSave;
   int    meModeSave, nProd, prod[8];
   bool   hasChangedSave;
 
@@ -111,23 +118,10 @@ public:
   // Rescale sum of branching ratios to unity.
   void rescaleBR(double newSumBR = 1.);
 
-  // Random choice of decay channel according to branching ratios.
-  bool preparePick(int idIn);
-  DecayChannel& pickChannel();
-
-  // Ditto according to dynamically calculated branching ratios.
-  void resetDynamicBR() {
-    for (int i = 0; i < size(); ++i) channel[i].dynamicBR(0.);}
-  DecayChannel& dynamicPick(int idIn);
-
 private:
 
   // A vector containing all the decay channels of the particle.
   vector<DecayChannel> channel;
-
-  // Summed branching ratio of open channels.
-  int    idSave;
-  double sumBR;
 
 };
 
@@ -143,30 +137,31 @@ public:
   ParticleDataEntry(int idIn = 0, string nameIn = " ", 
     int spinTypeIn = 0, int chargeTypeIn = 0, int colTypeIn = 0, 
     double m0In = 0., double mWidthIn = 0., double mMinIn = 0., 
-    double mMaxIn = 0., double tau0In = 0.) 
-    : idSave(abs(idIn)), nameSave(nameIn), antiNameSave("void"),  
-    spinTypeSave(spinTypeIn), chargeTypeSave(chargeTypeIn), 
-    colTypeSave(colTypeIn), m0Save(m0In), mWidthSave (mWidthIn), 
-    mMinSave(mMinIn), mMaxSave(mMaxIn), tau0Save(tau0In), 
-    hasAntiSave(false), hasChangedSave(true), isInitResonanceSave(false)
-    {setDefaults();} 
+    double mMaxIn = 0., double tau0In = 0.) : idSave(abs(idIn)), 
+    nameSave(nameIn), antiNameSave("void"),  spinTypeSave(spinTypeIn), 
+    chargeTypeSave(chargeTypeIn), colTypeSave(colTypeIn), m0Save(m0In), 
+    mWidthSave (mWidthIn), mMinSave(mMinIn), mMaxSave(mMaxIn), 
+    tau0Save(tau0In), hasAntiSave(false), hasChangedSave(true), 
+    resonancePtr(0) {setDefaults();} 
   ParticleDataEntry(int idIn, string nameIn, string antiNameIn, 
     int spinTypeIn = 0, int chargeTypeIn = 0, int colTypeIn = 0, 
     double m0In = 0., double mWidthIn = 0., double mMinIn = 0., 
-    double mMaxIn = 0., double tau0In = 0.) 
-    : idSave(abs(idIn)), nameSave(nameIn), antiNameSave(antiNameIn), 
-    spinTypeSave(spinTypeIn), chargeTypeSave(chargeTypeIn), 
-    colTypeSave(colTypeIn), m0Save(m0In), mWidthSave (mWidthIn), 
-    mMinSave(mMinIn), mMaxSave(mMaxIn), tau0Save(tau0In), 
-    hasAntiSave(true), hasChangedSave(true), isInitResonanceSave(false)
-    {setDefaults(); if (toLower(antiNameIn) == "void") hasAntiSave = false;} 
+    double mMaxIn = 0., double tau0In = 0.) : idSave(abs(idIn)), 
+    nameSave(nameIn), antiNameSave(antiNameIn), spinTypeSave(spinTypeIn), 
+    chargeTypeSave(chargeTypeIn), colTypeSave(colTypeIn), m0Save(m0In), 
+    mWidthSave (mWidthIn), mMinSave(mMinIn), mMaxSave(mMaxIn), 
+    tau0Save(tau0In), hasAntiSave(true), hasChangedSave(true),
+    resonancePtr(0) {setDefaults(); 
+    if (toLower(antiNameIn) == "void") hasAntiSave = false;} 
+
+  // Destructor: delete any ResonanceWidths object.
+  ~ParticleDataEntry();
 
   // Initialize static data members.
   static void initStatic();
 
-  // Initialization of some particle flags, and of constituent masses.
+  // Initialization of some particle flags.
   void setDefaults();
-  void constituentMassCalc();
 
   // Prepare for and pick mass according to Breit-Wigner.
   void initBWmass(); 
@@ -174,6 +169,10 @@ public:
 
   // Calculate running mass - for quarks only! (Else normal mass.)
   double mRun(double mH);
+
+  // Random choice of decay channel according to branching ratios.
+  bool preparePick(int idSgn, double mHat = 0., int idInFlav = 0);
+  DecayChannel& pickChannel();
 
   // Change current values one at a time (or set if not set before).
   // (Must use set here since else name+signature clash with get methods.)
@@ -186,7 +185,7 @@ public:
     hasChangedSave = true;}
   void setColType(int colTypeIn) {colTypeSave = colTypeIn; 
     hasChangedSave = true;}
-  void setM0(double m0In) {m0Save = m0In; constituentMassCalc(); 
+  void setM0(double m0In) {m0Save = m0In; setConstituentMass(); 
     hasChangedSave = true;}
   void setMWidth(double mWidthIn, bool countAsChanged = true) {
     mWidthSave = mWidthIn; if (countAsChanged) hasChangedSave = true;}
@@ -195,11 +194,13 @@ public:
   void setTau0(double tau0In) {tau0Save = tau0In; hasChangedSave = true;}
   void setIsResonance(bool isResonanceIn) {isResonanceSave = isResonanceIn; 
     hasChangedSave = true;}
-  void setMayDecay(bool mayDecayIn) {mayDecaySave = mayDecayIn; 
-    hasChangedSave = true;}
-  void setExternalDecay(bool externalDecayIn) 
-    {externalDecaySave = externalDecayIn; hasChangedSave = true;}
+  void setMayDecay(bool mayDecayIn, bool countAsChanged = true) {
+    mayDecaySave = mayDecayIn; if (countAsChanged) hasChangedSave = true;}
+  void setDoExternalDecay(bool doExternalDecayIn) 
+    {doExternalDecaySave = doExternalDecayIn; hasChangedSave = true;}
   void setIsVisible(bool isVisibleIn) {isVisibleSave = isVisibleIn; 
+    hasChangedSave = true;}
+  void setDoForceWidth(bool doForceWidthIn) {doForceWidthSave = doForceWidthIn; 
     hasChangedSave = true;}
 
   // Change several values at the same time (or set if not set before).
@@ -219,60 +220,71 @@ public:
   void setHasChanged(bool hasChangedIn) {hasChangedSave = hasChangedIn;
     for (int i = 0; i < decay.size(); ++i) 
       decay[i].setHasChanged(hasChangedIn);}
-  void setIsInitResonance(bool isInit = true) {isInitResonanceSave = isInit;}
   void rescaleBR(double newSumBR = 1.) {decay.rescaleBR(newSumBR);}
 
   // Give back current values. 
-  int    id() const { return idSave; }
-  bool   hasAnti() const { return hasAntiSave; } 
-  string name(int idIn = 1) const { 
+  int    id()                     const { return idSave; }
+  bool   hasAnti()                const { return hasAntiSave; } 
+  string name(int idIn = 1)       const { 
          return (idIn > 0) ? nameSave : antiNameSave; } 
   int    spinType() const {return spinTypeSave; }
   int    chargeType(int idIn = 1) const { 
          return (idIn > 0) ? chargeTypeSave : -chargeTypeSave; } 
-  double charge(int idIn = 1) const { 
+  double charge(int idIn = 1)     const { 
          return (idIn > 0) ? chargeTypeSave / 3. : -chargeTypeSave / 3.; } 
-  int    colType(int idIn = 1) const { 
+  int    colType(int idIn = 1)    const { 
          if (colTypeSave == 2) return colTypeSave;
          return (idIn > 0) ? colTypeSave : -colTypeSave; } 
-  double m0() const { return m0Save; } 
-  double constituentMass() const { return constituentMassSave; } 
-  double mWidth() const { return mWidthSave; } 
-  double mMin() const { return mMinSave; } 
-  double m0Min() const { return (modeBWnow == 0) ? m0Save : mMinSave; } 
-  double mMax() const { return mMaxSave; } 
-  double m0Max() const { return (modeBWnow == 0) ? m0Save : mMaxSave; } 
-  double tau0() const { return tau0Save; } 
-  bool   isResonance() const { return isResonanceSave; } 
-  bool   mayDecay() const { return mayDecaySave; } 
-  bool   externalDecay() const { return externalDecaySave; } 
-  bool   isVisible() const { return isVisibleSave; }
+  double m0()                     const { return m0Save; } 
+  double constituentMass()        const { return constituentMassSave; } 
+  double mWidth()                 const { return mWidthSave; } 
+  double mMin()                   const { return mMinSave; } 
+  double mMax()                   const { return mMaxSave; } 
+  double m0Min()                  const { 
+         return (modeBWnow == 0) ? m0Save : mMinSave; } 
+  double m0Max()                  const { 
+         return (modeBWnow == 0) ? m0Save : mMaxSave; } 
+  double tau0()                   const { return tau0Save; } 
+  bool   isResonance()            const { return isResonanceSave; } 
+  bool   mayDecay()               const { return mayDecaySave; } 
+  bool   doExternalDecay()        const { return doExternalDecaySave; } 
+  bool   isVisible()              const { return isVisibleSave; }
+  bool   doForceWidth()           const { return doForceWidthSave; }
 
   // Give back other quantities.
-  bool   hasChanged() const { if (hasChangedSave) return true;
+  bool   hasChanged()     const { if (hasChangedSave) return true;
          for (int i = 0; i < decay.size(); ++i) 
          if (decay[i].hasChanged()) return true; return false;}
-  bool   isInitResonance() const {return isInitResonanceSave;}
   bool   useBreitWigner() const { return (modeBWnow > 0); }
-  bool   canDecay() const { return (decay.size() > 0);} 
-  bool   isLepton() const {return (idSave > 10 && idSave < 19);}
-  bool   isQuark() const {return (idSave != 0 && idSave < 9);}
-  bool   isGluon() const {return (idSave == 21);}
-  bool   isDiquark() const {return (idSave > 1000 && idSave < 10000 
+  bool   canDecay()       const { return (decay.size() > 0);} 
+  bool   isLepton()       const { return (idSave > 10 && idSave < 19);}
+  bool   isQuark()        const { return (idSave != 0 && idSave < 9);}
+  bool   isGluon()        const { return (idSave == 21);}
+  bool   isDiquark()      const { return (idSave > 1000 && idSave < 10000 
          && (idSave/10)%10 == 0);}
-  bool   isHadron() const; 
-  bool   isMeson() const; 
-  bool   isBaryon() const;
+  bool   isHadron()       const; 
+  bool   isMeson()        const; 
+  bool   isBaryon()       const;
 
   // Intermediate octet ccbar or bbar states in colour-octet model. 
-  bool   isOctetHadron() const {return (idSave == 9900441
+  bool   isOctetHadron()  const {return (idSave == 9900441
          || idSave == 9900443 || idSave == 9900551 || idSave == 9900553 
          || idSave == 9910441 || idSave == 9910551); }
-  int    heaviestQuark(int idIn = 1) const; 
+  int    heaviestQuark(int idIn = 1)    const; 
   int    baryonNumberType(int idIn = 1) const;
 
   // The decay table.
   DecayTable decay;
+
+  // Access methods stored in ResonanceWidths.
+  void   setResonancePtr(ResonanceWidths* resonancePtrIn); 
+  ResonanceWidths* getResonancePtr() const {return resonancePtr;}
+  void   resInit();
+  double resWidth(int idSgn, double mHat, int idIn = 0, 
+    bool openOnly = false, bool setBR = false);
+  double resWidthChan(double mHat, int idAbs1 = 0, int idAbs2 = 0);
+  double resOpenFrac(int idSgn);
+  double resWidthRescaleFactor();
 
 private:
 
@@ -281,7 +293,9 @@ private:
   static double maxEnhanceBW, mQRun[7], Lambda5Run;
 
   // Constants: could only be changed in the code itself.
-  static const double MAXTAU0FORDECAY,MINMASSRESONANCE, NARROWMASS;
+  static const int    INVISIBLENUMBER, INVISIBLETABLE[29];
+  static const double MAXTAU0FORDECAY,MINMASSRESONANCE, NARROWMASS,
+                      CONSTITUENTMASSTABLE[6];
 
   // Particle data.
   int    idSave;
@@ -289,12 +303,21 @@ private:
   int    spinTypeSave, chargeTypeSave, colTypeSave;
   double m0Save, mWidthSave, mMinSave, mMaxSave, tau0Save, 
          constituentMassSave;
-  bool   hasAntiSave, isResonanceSave, mayDecaySave, externalDecaySave, 
-         isVisibleSave, hasChangedSave, isInitResonanceSave;
+  bool   hasAntiSave, isResonanceSave, mayDecaySave, doExternalDecaySave, 
+         isVisibleSave, doForceWidthSave, hasChangedSave;
 
   // Extra data for mass selection according to a Breit-Wigner.
   int    modeBWnow;
-  double atanLow, atanDif, mThr;     
+  double atanLow, atanDif, mThr;   
+
+  // Summed branching ratio of currently open channels.
+  double currentBRSum;
+
+  // Pointer to ResonanceWidths object; only used for some particles.
+  ResonanceWidths* resonancePtr;  
+
+  // Set constituent mass. 
+  void setConstituentMass();
 
   // Useful functions for string handling.
   static string toLower(const string& name);
@@ -325,6 +348,9 @@ public:
     for (map<int, ParticleDataEntry>::iterator pdtEntry = pdt.begin(); 
       pdtEntry != pdt.end(); ++pdtEntry) pdtEntry->second.initBWmass(); }
 
+  // Initialize the special handling of resonances in ResonanceWidths.
+  static void initResonances(bool reInit = false);
+
   // Calculate a mass, picked according to Breit-Wigner.
   static double mass(int idIn) {
     return isParticle(idIn) ? pdt[abs(idIn)].mass() : 0. ; } 
@@ -347,7 +373,8 @@ public:
 
   // Print out table of whole database, or of only part of it.
   static void listAll(ostream& os = cout) {list(false, true, os);} 
-  static void listChanged(bool changedRes = false, ostream& os = cout) 
+  static void listChanged(ostream& os = cout) {list(true, false, os);} 
+  static void listChanged(bool changedRes, ostream& os = cout) 
     {list(true, changedRes, os);} 
   static void list(bool changedOnly = false, bool changedRes = true, 
     ostream& os = cout) ; 
@@ -357,7 +384,8 @@ public:
   static void list(vector<int> idList, ostream& os = cout) ; 
 
   // Check that table makes sense, especially for decays.
-  static void checkTable(int verbosity = 1, ostream& os = cout) ;
+  static void checkTable(ostream& os = cout) {checkTable(1, os);};
+  static void checkTable(int verbosity, ostream& os = cout) ;
  
   // Add new entry.
   static void addParticle(int idIn, string nameIn = " ", 
@@ -412,11 +440,13 @@ public:
     if (isParticle(idIn)) pdt[abs(idIn)].setIsResonance(isResonanceIn); }
   static void mayDecay(int idIn, bool mayDecayIn) {
     if (isParticle(idIn)) pdt[abs(idIn)].setMayDecay(mayDecayIn); }
-  static void externalDecay(int idIn, bool externalDecayIn) {
+  static void doExternalDecay(int idIn, bool doExternalDecayIn) {
     if (isParticle(idIn)) 
-    pdt[abs(idIn)].setExternalDecay(externalDecayIn); }
+    pdt[abs(idIn)].setDoExternalDecay(doExternalDecayIn); }
   static void isVisible(int idIn, bool isVisibleIn) {
     if (isParticle(idIn)) pdt[abs(idIn)].setIsVisible(isVisibleIn); }
+  static void doForceWidth(int idIn, bool doForceWidthIn) {
+    if (isParticle(idIn)) pdt[abs(idIn)].setDoForceWidth(doForceWidthIn); }
 
   // Change several values at the same time (or set if not set before).
   static void names(int idIn, string nameIn, string antiNameIn) {
@@ -466,10 +496,12 @@ public:
     return isParticle(idIn) ? pdt[abs(idIn)].isResonance() : false ; } 
   static bool mayDecay(int idIn) {
     return isParticle(idIn) ? pdt[abs(idIn)].mayDecay() : false ; } 
-  static bool externalDecay(int idIn) {
-    return isParticle(idIn) ? pdt[abs(idIn)].externalDecay() : false ; }
+  static bool doExternalDecay(int idIn) {
+    return isParticle(idIn) ? pdt[abs(idIn)].doExternalDecay() : false ; }
   static bool isVisible(int idIn) {
     return isParticle(idIn) ? pdt[abs(idIn)].isVisible() : false ; } 
+  static bool doForceWidth(int idIn) {
+    return isParticle(idIn) ? pdt[abs(idIn)].doForceWidth() : false ; } 
  
   // Give back other quantities.
   static bool hasChanged(int idIn) {
@@ -498,6 +530,20 @@ public:
     return isParticle(idIn) ? pdt[abs(idIn)].heaviestQuark(idIn) : 0 ; }  
   static int baryonNumberType(int idIn) {
     return isParticle(idIn) ? pdt[abs(idIn)].baryonNumberType(idIn) : 0 ; }  
+
+  // Access methods stored in ResonanceWidths.
+  static void resInit(int idIn) {
+    if (isParticle(idIn)) pdt[abs(idIn)].resInit();}
+  static double resWidth(int idIn, double mHat, int idInFlav = 0, 
+    bool openOnly = false, bool setBR = false) {
+    return isParticle(idIn) ? pdt[abs(idIn)].resWidth(idIn, mHat,
+    idInFlav, openOnly, setBR) : 0.;}
+  static double resWidthChan(int idIn, double mHat, int idAbs1 = 0, 
+    int idAbs2 = 0) { return isParticle(idIn) 
+    ? pdt[abs(idIn)].resWidthChan( mHat, idAbs1, idAbs2) : 0.;}
+  static double resOpenFrac(int id1In, int id2In = 0, int id3In = 0);
+  static double resWidthRescaleFactor(int idIn) { return isParticle(idIn) 
+    ? pdt[abs(idIn)].resWidthRescaleFactor() : 0.;}
 
 private:
 

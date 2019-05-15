@@ -30,7 +30,7 @@ public:
 
   // Constructor.
   PDF(int idBeamIn = 2212) {idBeam = idBeamIn; idSav = 9; xSav = -1.; 
-    Q2Sav = -1.; isSet = true; isInit = false; hasLimits = false;}
+    Q2Sav = -1.; isSet = true; isInit = false;}
 
   // Destructor.
   virtual ~PDF() {}
@@ -38,10 +38,8 @@ public:
   // Confirm that PDF has been set up (important for LHAPDF).
   bool isSetup() {return isSet;}
 
-  // Set limits in x and Q2. This is optional.
-  void setLimits(double xMinIn, double xMaxIn, double Q2MinIn, 
-    double Q2MaxIn) {xMin = xMinIn; xMax = xMaxIn; Q2Min = Q2MinIn;
-    Q2Max = Q2MaxIn; hasLimits = true;}
+  // Allow extrapolation beyond boundaries. This is optional.
+  virtual void setExtrapolate(bool) {}
 
   // Read out parton density
   double xf(int id, double x, double Q2);
@@ -54,7 +52,7 @@ protected:
 
   // Store relevant quantities.
   int    idBeam, idSav;
-  double xSav, Q2Sav, xMin, xMax, Q2Min, Q2Max;
+  double xSav, Q2Sav;
   double xu, xd, xubar, xdbar, xs, xc, xb, xg, xlepton, xgamma,
          xuVal, xuSea, xdVal, xdSea;
   bool   isSet, isInit, hasLimits; 
@@ -63,8 +61,8 @@ protected:
   virtual void xfUpdate(int id, double x, double Q2) = 0; 
 
 };
-
-//*********
+ 
+//**************************************************************************
 
 // Gives the GRV 94 L (leading order) parton distribution function set
 // in parametrized form. Authors: M. Glueck, E. Reya and A. Vogt.
@@ -90,8 +88,8 @@ private:
     double ak, double ag, double b, double d, double e, double es);
 
 };
-
-//*********
+ 
+//**************************************************************************
 
 // Gives the GRV 94 L (leading order) parton distribution function set
 // in parametrized form. Authors: M. Glueck, E. Reya and A. Vogt.
@@ -109,8 +107,8 @@ private:
   void xfUpdate(int id, double x, double Q2);
 
 };
-
-//*********
+ 
+//**************************************************************************
 
 // Provide interface to the LHAPDF library of parton densities.
 
@@ -121,6 +119,9 @@ public:
   // Constructor.
   LHAPDF(int idBeamIn, string setName, int member = 0,  int nSetIn = 1) 
     : PDF(idBeamIn), nSet(nSetIn) {init( setName, member);} 
+
+  // Allow extrapolation beyond boundaries. This is optional.
+  void setExtrapolate(bool extrapol); 
 
 private:
 
@@ -139,8 +140,8 @@ private:
   static int    latestMember, latestNSet;   
 
 };
-
-//*********
+ 
+//**************************************************************************
 
 // Gives electron (or muon, or tau) parton distribution.
  
@@ -157,8 +158,8 @@ private:
   void xfUpdate(int id, double x, double Q2);
 
 };
-
-//*********
+ 
+//**************************************************************************
 
 // Gives electron (or other lepton) parton distribution when unresolved.
  

@@ -152,10 +152,10 @@ class ClusterJet {
 public: 
 
   // Constructor.
-  ClusterJet(string measureIn = "Lund", int selectIn = 2, 
-    int massSetIn = 2, bool preclusterIn = false, bool reassignIn = false) 
-    : measure(1), select(selectIn), massSet(massSetIn), 
-    precluster(preclusterIn), reassign(reassignIn) {
+  ClusterJet(string measureIn = "Lund", int selectIn = 2, int massSetIn = 2, 
+    bool preclusterIn = false, bool reassignIn = false) : measure(1), 
+    select(selectIn), massSet(massSetIn), doPrecluster(preclusterIn), 
+    doReassign(reassignIn) {
     char firstChar = toupper(measureIn[0]);
     if (firstChar == 'J') measure = 2;
     if (firstChar == 'D') measure = 3; 
@@ -186,7 +186,7 @@ private:
 
   // Properties of analysis.
   int    measure, select, massSet; 
-  bool   precluster, reassign;
+  bool   doPrecluster, doReassign;
   double yScale, pTscale;
   int    nJetMin, nJetMax; 
 
@@ -196,8 +196,8 @@ private:
   int    nParticles;
 
   // Member functions for some operations (for clarity).
-  void doPrecluster();
-  void doReassign();
+  void precluster();
+  void reassign();
 
   // Outcome of analysis: ET-ordered list of jets. 
   vector<SingleClusterJet> jets;

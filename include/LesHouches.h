@@ -26,30 +26,33 @@ class LHAinit {
 
 public:
 
+  // Destructor.
+  virtual ~LHAinit() {}
+
   // A pure virtual method set, wherein all initialization information 
   // is supposed to be set in the derived class. Can do this by reading a 
   // file or some other way, as desired. Returns false if it did not work. 
   virtual bool set() = 0; 
 
   // Give back info on beams.
-  int    idBeamA() const {return idBeamAsave;}
-  int    idBeamB() const {return idBeamBsave;}
-  double eBeamA() const {return eBeamAsave;}
-  double eBeamB() const {return eBeamBsave;}
-  int    pdfGroupBeamA() const {return pdfGroupBeamAsave;}
-  int    pdfGroupBeamB() const {return pdfGroupBeamBsave;}
-  int    pdfSetBeamA() const {return pdfSetBeamAsave;}
-  int    pdfSetBeamB() const {return pdfSetBeamBsave;}
+  int    idBeamA() const {return idBeamASave;}
+  int    idBeamB() const {return idBeamBSave;}
+  double eBeamA() const {return eBeamASave;}
+  double eBeamB() const {return eBeamBSave;}
+  int    pdfGroupBeamA() const {return pdfGroupBeamASave;}
+  int    pdfGroupBeamB() const {return pdfGroupBeamBSave;}
+  int    pdfSetBeamA() const {return pdfSetBeamASave;}
+  int    pdfSetBeamB() const {return pdfSetBeamBSave;}
     
   // Give back weight strategy.
   int    strategy() const {return strategySave;}
 
   // Give back info on processes.
   int    size() const {return processes.size();} 
-  int    idProcess(int proc) const {return processes[proc].idPr;} 
-  double xSec(int proc) const {return processes[proc].xSecPr;}    
-  double xErr(int proc) const {return processes[proc].xErrPr;}    
-  double xMax(int proc) const {return processes[proc].xMaxPr;} 
+  int    idProcess(int proc) const {return processes[proc].idProc;} 
+  double xSec(int proc) const {return processes[proc].xSecProc;}    
+  double xErr(int proc) const {return processes[proc].xErrProc;}    
+  double xMax(int proc) const {return processes[proc].xMaxProc;} 
    
   // Print the info; useful to check that setting it worked.
   void   list(ostream& os = cout);  
@@ -60,24 +63,21 @@ protected:
   LHAinit(int strategyIn = 3) : strategySave(strategyIn) 
     { processes.reserve(10);} 
 
-  // Destructor.
-  virtual ~LHAinit() {}
-
   // Input beam info.
   void beamA(int idIn, double eIn, int pdfGroupIn = 0, int pdfSetIn = 0) 
-    { idBeamAsave = idIn; eBeamAsave = eIn; pdfGroupBeamAsave = pdfGroupIn;  
-    pdfSetBeamAsave = pdfSetIn;} 
+    { idBeamASave = idIn; eBeamASave = eIn; pdfGroupBeamASave = pdfGroupIn;  
+    pdfSetBeamASave = pdfSetIn;} 
   void beamB(int idIn, double eIn, int pdfGroupIn = 0, int pdfSetIn = 0) 
-    { idBeamBsave = idIn; eBeamBsave = eIn; pdfGroupBeamBsave = pdfGroupIn;  
-    pdfSetBeamBsave = pdfSetIn;} 
+    { idBeamBSave = idIn; eBeamBSave = eIn; pdfGroupBeamBSave = pdfGroupIn;  
+    pdfSetBeamBSave = pdfSetIn;} 
 
   // Input process weight strategy.
   void strategy(int strategyIn) {strategySave = strategyIn;} 
 
   // Input process info.
-  void process(int idIn, double xSecIn = 1., double xErrIn = 0., 
-    double xMaxIn = 1.) 
-    { processes.push_back( Process( idIn, xSecIn, xErrIn, xMaxIn)); }
+  void process(int idProcessIn, double xSecIn = 1., double xErrIn = 0., 
+    double xMaxIn = 1.) { processes.push_back( Process( idProcessIn, 
+    xSecIn, xErrIn, xMaxIn)); }
 
 private:
 
@@ -85,18 +85,19 @@ private:
   int strategySave;
 
   // Beam particle properties.
-  int idBeamAsave, idBeamBsave;
-  double eBeamAsave, eBeamBsave;
-  int pdfGroupBeamAsave, pdfGroupBeamBsave, pdfSetBeamAsave, pdfSetBeamBsave;
+  int idBeamASave, idBeamBSave;
+  double eBeamASave, eBeamBSave;
+  int pdfGroupBeamASave, pdfGroupBeamBSave, pdfSetBeamASave, pdfSetBeamBSave;
 
   // A nested class for processes...
   class Process {
   public:
-    Process() : idPr(0), xSecPr(0.), xErrPr(0.), xMaxPr(0.) { }
-    Process(int idIn, double xSecIn, double xErrIn, double xMaxIn) :
-      idPr(idIn), xSecPr(xSecIn), xErrPr(xErrIn), xMaxPr(xMaxIn) { }
-    int idPr;
-    double xSecPr, xErrPr, xMaxPr;
+    Process() : idProc(0), xSecProc(0.), xErrProc(0.), xMaxProc(0.) { }
+    Process(int idProcIn, double xSecIn, double xErrIn, double xMaxIn) :
+      idProc(idProcIn), xSecProc(xSecIn), xErrProc(xErrIn), 
+      xMaxProc(xMaxIn) { }
+    int idProc;
+    double xSecProc, xErrProc, xMaxProc;
   } ;
 
   // ...so that the process list can be kept as a vector.
@@ -112,43 +113,46 @@ class LHAevnt {
 
 public:
 
+  // Destructor.
+  virtual ~LHAevnt() {}
+
   // A pure virtual method set, wherein all information on the next event
   // is supposed to be set in the derived class. Can do this by reading a 
   // file or some other way, as desired. Returns false if it did not work. 
   virtual bool set() = 0; 
 
   // Give back process number, weight, scale, alpha_em, alpha_s.
-  int    idProc() const {return idPr;} 
-  double weight() const {return weightPr;} 
-  double scale() const {return scalePr;} 
-  double alphaQED() const {return alphaQEDPr;} 
-  double alphaQCD() const {return alphaQCDPr;} 
+  int    idProcess() const {return idProc;} 
+  double weight() const {return weightProc;} 
+  double scale() const {return scaleProc;} 
+  double alphaQED() const {return alphaQEDProc;} 
+  double alphaQCD() const {return alphaQCDProc;} 
 
   // Give back info on separate particle.
   int    size() const {return particles.size();}
-  int    id(int part) const {return particles[part].idPa;}
-  int    status(int part) const {return particles[part].statusPa;}
-  int    mother1(int part) const {return particles[part].mother1Pa;}
-  int    mother2(int part) const {return particles[part].mother2Pa;}
-  int    col1(int part) const {return particles[part].col1Pa;}
-  int    col2(int part) const {return particles[part].col2Pa;}
-  double px(int part) const {return particles[part].pxPa;}
-  double py(int part) const {return particles[part].pyPa;}
-  double pz(int part) const {return particles[part].pzPa;}
-  double e(int part) const {return particles[part].ePa;}
-  double m(int part) const {return particles[part].mPa;}
-  double tau(int part) const {return particles[part].tauPa;}
-  double spin(int part) const {return particles[part].spinPa;}
+  int    id(int part) const {return particles[part].idPart;}
+  int    status(int part) const {return particles[part].statusPart;}
+  int    mother1(int part) const {return particles[part].mother1Part;}
+  int    mother2(int part) const {return particles[part].mother2Part;}
+  int    col1(int part) const {return particles[part].col1Part;}
+  int    col2(int part) const {return particles[part].col2Part;}
+  double px(int part) const {return particles[part].pxPart;}
+  double py(int part) const {return particles[part].pyPart;}
+  double pz(int part) const {return particles[part].pzPart;}
+  double e(int part) const {return particles[part].ePart;}
+  double m(int part) const {return particles[part].mPart;}
+  double tau(int part) const {return particles[part].tauPart;}
+  double spin(int part) const {return particles[part].spinPart;}
 
   // Optional: give back info on parton density values of event.
-  bool   pdfIsSet() const {return pdfIsSetSv;}
-  int    id1() const {return id1Sv;}
-  int    id2() const {return id2Sv;}
-  double x1() const {return x1Sv;}
-  double x2() const {return x2Sv;}
-  double scalePDF() const {return scalePDFSv;}
-  double xpdf1() const {return xpdf1Sv;}
-  double xpdf2() const {return xpdf2Sv;}
+  bool   pdfIsSet() const {return pdfIsSetSave;}
+  int    id1() const {return id1Save;}
+  int    id2() const {return id2Save;}
+  double x1() const {return x1Save;}
+  double x2() const {return x2Save;}
+  double scalePDF() const {return scalePDFSave;}
+  double xpdf1() const {return xpdf1Save;}
+  double xpdf2() const {return xpdf2Save;}
 
   // Print the info; useful to check that reading an event worked.
   void   list(ostream& os = cout);  
@@ -157,17 +161,14 @@ protected:
 
   // Constructor.
   LHAevnt() { particles.reserve(20); }
-
-  // Destructor.
-  virtual ~LHAevnt() {}
  
   // Input info on the selected process.
   void process(int idProcIn = 0, double weightIn = 1., double scaleIn = 0.,
     double alphaQEDIn = 0.0073, double alphaQCDIn = 0.12) 
-    { idPr = idProcIn; weightPr = weightIn; scalePr = scaleIn; 
-    alphaQEDPr = alphaQEDIn; alphaQCDPr = alphaQCDIn; 
+    { idProc = idProcIn; weightProc = weightIn; scaleProc = scaleIn; 
+    alphaQEDProc = alphaQEDIn; alphaQCDProc = alphaQCDIn; 
     // Clear particle list. Add empty zeroth particle for correct indices.
-    particles.clear(); particle(0); pdfIsSetSv = false;}
+    particles.clear(); particle(0); pdfIsSetSave = false;}
 
   // Input particle info, one particle at the time.
   void particle(int idIn, int statusIn = 0, int mother1In = 0, 
@@ -180,40 +181,40 @@ protected:
   // Optionally input info on parton density values of event.
   void pdf(int id1In, int id2In, double x1In, double x2In, 
     double scalePDFIn, double xpdf1In, double xpdf2In) 
-    { id1Sv = id1In; id2Sv = id2In; x1Sv = x1In; x2Sv = x2In;
-    scalePDFSv = scalePDFIn; xpdf1Sv = xpdf1In; xpdf2Sv = xpdf2In;
-    pdfIsSetSv = true;}
+    { id1Save = id1In; id2Save = id2In; x1Save = x1In; x2Save = x2In;
+    scalePDFSave = scalePDFIn; xpdf1Save = xpdf1In; xpdf2Save = xpdf2In;
+    pdfIsSetSave = true;}
 
 private:
 
   // Store info on the selected process. 
-  int idPr;
-  double weightPr, scalePr, alphaQEDPr, alphaQCDPr;
+  int idProc;
+  double weightProc, scaleProc, alphaQEDProc, alphaQCDProc;
 
   // A nested class for particles...
   class Particle {
   public:
-    Particle() : idPa(0), statusPa(0), mother1Pa(0), mother2Pa(0),
-      col1Pa(0), col2Pa(0), pxPa(0.), pyPa(0.), pzPa(0.), ePa(0.),
-      mPa(0.), tauPa(0.), spinPa(9.) { }
+    Particle() : idPart(0), statusPart(0), mother1Part(0), mother2Part(0),
+      col1Part(0), col2Part(0), pxPart(0.), pyPart(0.), pzPart(0.), 
+      ePart(0.), mPart(0.), tauPart(0.), spinPart(9.) { }
     Particle(int idIn, int statusIn, int mother1In, int mother2In,
       int col1In, int col2In, double pxIn, double pyIn, double pzIn, 
       double eIn, double mIn, double tauIn, double spinIn) :
-      idPa(idIn), statusPa(statusIn), mother1Pa(mother1In), 
-      mother2Pa(mother2In), col1Pa(col1In), col2Pa(col2In), pxPa(pxIn), 
-      pyPa(pyIn), pzPa(pzIn), ePa(eIn), mPa(mIn), tauPa(tauIn), 
-      spinPa(spinIn) { }
-    int idPa, statusPa, mother1Pa, mother2Pa, col1Pa, col2Pa ;
-    double pxPa, pyPa, pzPa, ePa, mPa, tauPa, spinPa ;
+      idPart(idIn), statusPart(statusIn), mother1Part(mother1In), 
+      mother2Part(mother2In), col1Part(col1In), col2Part(col2In), 
+      pxPart(pxIn), pyPart(pyIn), pzPart(pzIn), ePart(eIn), mPart(mIn), 
+      tauPart(tauIn), spinPart(spinIn) { }
+    int idPart, statusPart, mother1Part, mother2Part, col1Part, col2Part;
+    double pxPart, pyPart, pzPart, ePart, mPart, tauPart, spinPart;
   } ;
 
   // ...so that the particle list can be kept as a vector.
   vector<Particle> particles;
 
   // Optional info on parton density values of event.
-  bool   pdfIsSetSv;
-  int    id1Sv, id2Sv;
-  double x1Sv, x2Sv, scalePDFSv, xpdf1Sv, xpdf2Sv;
+  bool   pdfIsSetSave;
+  int    id1Save, id2Save;
+  double x1Save, x2Save, scalePDFSave, xpdf1Save, xpdf2Save;
 
 };
 
@@ -227,6 +228,9 @@ public:
 
   // Constructor.
   LHAinitLHEF(const char* fileIn) : is(fileIn) {}
+
+  // Destructor.
+  ~LHAinitLHEF() {}
 
   // Routine for doing the job of reading and setting initialization info.  
   bool set(); 
@@ -248,6 +252,9 @@ public:
 
   // Constructor.
   LHAevntLHEF(const char* fileIn) : is(fileIn) {}
+
+  // Destructor.
+  ~LHAevntLHEF() {}
 
   // Routine for doing the job of reading and setting info on next event.  
   bool set(); 

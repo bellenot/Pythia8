@@ -29,7 +29,7 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 
 <h2>PYTHIA 8 Index</h2>
 
-<h3><a href="pythia8090.pdf" target="page">Brief Introduction</a> (pdf)</h3>
+<h3><a href="pythia8095.pdf" target="page">Brief Introduction</a> (pdf)</h3>
 
 <h3>Program Overview</h3>
 
@@ -59,14 +59,21 @@ echo "<a href='SaveSettings.php?returning=1&filename=".$filename."' target='page
 &nbsp;&nbsp;&nbsp;&nbsp; 
 <a href='TopProcesses.php?filepath=".$filepath."' target='page'>Top Processes</a><br/>
 &nbsp;&nbsp;&nbsp;&nbsp; 
+<a href='FourthGenerationProcesses.php?filepath=".$filepath."' target='page'>Fourth-Generation Processes</a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp; 
 <a href='HiggsProcesses.php?filepath=".$filepath."' target='page'>Higgs Processes</a><br/>
 &nbsp;&nbsp;&nbsp;&nbsp; 
 <a href='SUSYProcesses.php?filepath=".$filepath."' target='page'>SUSY Processes</a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp; 
+<a href='LeptoquarkProcesses.php?filepath=".$filepath."' target='page'>Leptoquark Processes</a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp; 
+<a href='ExtraDimensionalProcesses.php?filepath=".$filepath."' target='page'>Extra-Dimensional Processes</a><br/>
 <a href='ASecondHardProcess.php?filepath=".$filepath."' target='page'>A Second Hard Process</a><br/>
 <a href='ProcessProperties.php?filepath=".$filepath."' target='page'>Process Properties</a><br/>
 <a href='PhaseSpaceCuts.php?filepath=".$filepath."' target='page'>Phase Space Cuts</a><br/>
 <a href='StandardModelParameters.php?filepath=".$filepath."' target='page'>Standard-Model Parameters</a><br/>
 <a href='TotalCrossSections.php?filepath=".$filepath."' target='page'>Total Cross Sections</a><br/>
+<a href='ResonanceDecays.php?filepath=".$filepath."' target='page'>Resonance Decays</a><br/>
 <a href='TimelikeShowers.php?filepath=".$filepath."' target='page'>Timelike Showers</a><br/>
 <a href='SpacelikeShowers.php?filepath=".$filepath."' target='page'>Spacelike Showers</a><br/>
 <a href='MultipleInteractions.php?filepath=".$filepath."' target='page'>Multiple Interactions</a><br/>
@@ -74,8 +81,10 @@ echo "<a href='SaveSettings.php?returning=1&filename=".$filename."' target='page
 <a href='Fragmentation.php?filepath=".$filepath."' target='page'>Fragmentation</a><br/>
 <a href='FlavourSelection.php?filepath=".$filepath."' target='page'>Flavour Selection</a><br/>
 <a href='ParticleDecays.php?filepath=".$filepath."' target='page'>Particle Decays</a><br/>
+<a href='BoseEinsteinEffects.php?filepath=".$filepath."' target='page'>Bose-Einstein Effects</a><br/>
 <a href='ParticleData.php?filepath=".$filepath."' target='page'>Particle Data</a><br/>
 <a href='ErrorChecks.php?filepath=".$filepath."' target='page'>Error Checks</a><br/>
+<a href='Tunes.php?filepath=".$filepath."' target='page'>Tunes</a><br/>
 
 ";?>
 
@@ -103,6 +112,7 @@ $filename = $_GET["filename"];
 echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>Les Houches Accord</a><br/>
 <a href='AccessPYTHIA6Processes.php?filepath=".$filepath."' target='page'>Access PYTHIA 6 Processes</a><br/>
 <a href='SemiInternalProcesses.php?filepath=".$filepath."' target='page'>Semi-Internal Processes</a><br/>
+<a href='HadronLevelStandalone.php?filepath=".$filepath."' target='page'>Hadron-Level Standalone</a><br/>
 <a href='SUSYLesHouchesAccord.php?filepath=".$filepath."' target='page'>SUSY Les Houches Accord</a><br/>
 <a href='PartonDistributions.php?filepath=".$filepath."' target='page'>Parton Distributions</a><br/>
 <a href='ExternalDecays.php?filepath=".$filepath."' target='page'>External Decays</a><br/>

@@ -11,20 +11,25 @@ concepts are in agreement with <ref>And83</ref>. The baryon-sector
 implementation is based on the <code>MSTJ(12)=3</code> option of 
 PYTHIA 6, i.e. new SU(6) weights scheme with at most one popcorn meson.
 
+<p/>
+The relative production rates of different particle species is 
+influenced by the parameters below. Some have only an impact on 
+one specific quantity, but most directly or indirectly have 
+consequences for many observables. Therefore the values to use have 
+to be viewed in the context of a complete <aloc href="Tunes">tune</aloc>.
+
 <h3>New flavours</h3>
 
-The main parameters of the selection of a new flavour are
-
-<parm name="StringFlav:probQQtoQ" default="0.10" min="0.0" max="1.0">
-the suppression of diquark production relative to quark production,
-i.e. of baryon relative to meson production. The actual production ratio
-is indirectly influenced also by several of the other parameters below, 
-so the value to use has to be viewed in the context of a complete tune.
-</parm> 
+The main parameters of the selection of a new flavour are 
 
 <parm name="StringFlav:probStoUD" default="0.30" min="0.0" max="1.0">
 the suppression of <ei>s</ei> quark production relative to ordinary 
 <ei>u</ei> or <ei>d</ei> one.
+</parm> 
+
+<parm name="StringFlav:probQQtoQ" default="0.10" min="0.0" max="1.0">
+the suppression of diquark production relative to quark production,
+i.e. of baryon relative to meson production. 
 </parm> 
 
 <parm name="StringFlav:probSQtoQQ" default="0.4" min="0.0" max="1.0">

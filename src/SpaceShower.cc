@@ -22,14 +22,16 @@ namespace Pythia8 {
 bool   SpaceShower::doQCDshower     = true;
 bool   SpaceShower::doQEDshowerByQ  = true;
 bool   SpaceShower::doQEDshowerByL  = true;
-bool   SpaceShower::samePTasMI      = true;
+bool   SpaceShower::useSamePTasMI   = true;
 bool   SpaceShower::doMEcorrections = true;
 bool   SpaceShower::doPhiPolAsym    = true;
 int    SpaceShower::pTmaxMatch      = 0;
+int    SpaceShower::pTdampMatch     = 0;
 int    SpaceShower::alphaSorder     = 1;
 int    SpaceShower::alphaEMorder    = 1;
 int    SpaceShower::nQuarkIn        = 5;
 double SpaceShower::pTmaxFudge      = 1.0;
+double SpaceShower::pTdampFudge     = 1.0;
 double SpaceShower::mc              = 1.5;
 double SpaceShower::mb              = 4.8;
 double SpaceShower::m2c             = 2.25;
@@ -102,7 +104,9 @@ void SpaceShower::initStatic() {
 
   // Matching in pT of hard interaction to shower evolution.
   pTmaxMatch      = Settings::mode("SpaceShower:pTmaxMatch"); 
+  pTdampMatch     = Settings::mode("SpaceShower:pTdampMatch"); 
   pTmaxFudge      = Settings::parm("SpaceShower:pTmaxFudge"); 
+  pTdampFudge     = Settings::parm("SpaceShower:pTdampFudge"); 
 
   // Charm, bottom and lepton mass thresholds.
   mc              = ParticleDataTable::m0(4); 
@@ -117,8 +121,8 @@ void SpaceShower::initStatic() {
  
   // Regularization of QCD evolution for pT -> 0. Can be taken 
   // same as for multiple interactions, or be set separately.
-  samePTasMI      = Settings::flag("SpaceShower:samePTasMI"); 
-  if (samePTasMI) {
+  useSamePTasMI   = Settings::flag("SpaceShower:samePTasMI"); 
+  if (useSamePTasMI) {
     pT0Ref        = Settings::parm("MultipleInteractions:pT0Ref");
     ecmRef        = Settings::parm("MultipleInteractions:ecmRef");
     ecmPow        = Settings::parm("MultipleInteractions:ecmPow");
@@ -186,20 +190,32 @@ void SpaceShower::init( BeamParticle* beamAPtrIn,
 
 // Find whether to limit maximum scale of emissions.
 
-bool SpaceShower::limitPTmax( Event& event) {
+bool SpaceShower::limitPTmax( Event& event, double Q2Fac, double Q2Ren) {
 
-  // User-set cases.
-  if (pTmaxMatch == 1) return true;
-  if (pTmaxMatch == 2) return false;
+  // Find whether to limit pT. Begin by user-set cases.
+  bool dopTlimit = false;
+  if      (pTmaxMatch == 1) dopTlimit = true;
+  else if (pTmaxMatch == 2) dopTlimit = false;
    
   // Look if any quark (u, d, s, c, b), gluon or photon in final state. 
-  bool hasQGP = false;
-  for (int i = 5; i < event.size(); ++i) 
-  if (event[i].status() != -21) {
-    int idAbs = event[i].idAbs();
-    if (idAbs <= 5 || idAbs == 21 || idAbs == 22) hasQGP = true;
+  else {
+    for (int i = 5; i < event.size(); ++i) 
+    if (event[i].status() != -21) {
+      int idAbs = event[i].idAbs();
+      if (idAbs <= 5 || idAbs == 21 || idAbs == 22) dopTlimit = true;
+    }
   }
-  return (hasQGP);
+
+  // Dampening at factorization or renormalization scale.
+  dopTdamp   = false;
+  pT2damp    = 0.;
+  if ( !dopTlimit && (pTdampMatch == 1 || pTdampMatch == 2) ) {
+    dopTdamp = true;
+    pT2damp  = pow2(pTdampFudge) * ((pTdampMatch == 1) ? Q2Fac : Q2Ren);
+  }
+
+  // Done.
+  return dopTlimit;
  
 }
 
@@ -258,9 +274,11 @@ void SpaceShower::prepare( int iSys, Event& event, bool limitPTmax) {
  
 // Select next pT in downwards evolution of the existing dipoles.
 
-double SpaceShower::pTnext( Event& , double pTbegAll, double pTendAll) {
+double SpaceShower::pTnext( Event& , double pTbegAll, double pTendAll, 
+  int nRadIn) {
 
   // Starting values: no radiating dipole found.
+  nRad          = nRadIn;
   double pT2sel = pow2(pTendAll);
   iDipSel       = 0;
   iSysSel       = 0;
@@ -612,6 +630,10 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
     if (doMEcorrections) wt *= calcMEcorr(MEtype, idMother, m2Dip, z, Q2) 
       / calcMEmax(MEtype, idMother); 
 
+    // Optional dampening of large pT values in first radiation.
+    if (dopTdamp && iSysNow == 0 && MEtype == 0 && nRad == 0) 
+      wt *= pT2damp / (pT2 + pT2damp);
+
     // Evaluation of new daughter and mother PDF's.
     double xPDFdaughterNew = max ( TINYPDF, 
       beam.xfISR(iSysNow, idDaughter, xDaughter, pT2) );
@@ -812,6 +834,10 @@ void SpaceShower::pT2nextQED( double pT2begDip, double pT2endDip) {
     // Evaluation of ME correction.
     if (doMEcorrections) wt *= calcMEcorr(MEtype, idMother, m2Dip, z, Q2) 
       / calcMEmax(MEtype, idMother);
+
+    // Optional dampening of large pT values in first radiation.
+    if (dopTdamp && iSysNow == 0 && MEtype == 0 && nRad == 0) 
+      wt *= pT2damp / (pT2 + pT2damp);
 
     // Correct to current value of alpha_EM.
     double alphaEMnow = alphaEM.alphaEM(pT2);

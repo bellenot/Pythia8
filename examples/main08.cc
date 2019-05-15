@@ -12,6 +12,11 @@ using namespace Pythia8;
 
 int main() {
 
+  // Two different modes are illustrated for setting the pT ranges.
+  // 1 : Hardcoded in the main program.
+  // 2 : Using the Main:subrun keyword in a separate command file.
+  int mode = 2;
+
   // Number of events to generate per bin, and to list.
   int nEvent = 10000;
   int nList = 1;
@@ -36,11 +41,27 @@ int main() {
   pythia.readString("HardQCD:all = on");  
   pythia.readString("PartonLevel:all = off");  
 
-  // Set up five pT bins - last one open-ended.
+  // Number of bins to use. In mode 2 read from main08.cmnd file.
+  int nBin = 5;
+  if (mode == 2) {
+    pythia.readFile("main08.cmnd"); 
+    nBin = pythia.mode("Main:numberOfSubruns");
+  } 
+
+  // Mode 1: set up five pT bins - last one open-ended.
   double pTlimit[6] = {100., 150., 250., 400., 600., 0.};
-  for (int iBin = 0; iBin < 5; ++iBin) {
-     settings.parm("PhaseSpace:pTHatMin", pTlimit[iBin]);  
-     settings.parm("PhaseSpace:pTHatMax", pTlimit[iBin + 1]);  
+
+  // Loop over number of bins, i.e. number of subruns.
+  for (int iBin = 0; iBin < nBin; ++iBin) {
+
+     // Mode 1: hardcoded here. Using settings.parm allows non-string input.  
+     if (mode <= 1) { 
+       settings.parm("PhaseSpace:pTHatMin", pTlimit[iBin]);  
+       settings.parm("PhaseSpace:pTHatMax", pTlimit[iBin + 1]);
+     }
+
+     // Mode 2: subruns stored in the main08.cmnd file.
+     else pythia.readFile("main08.cmnd", iBin);  
 
      // Initialize for LHC.
      pythia.init( 2212, 2212, 14000.);

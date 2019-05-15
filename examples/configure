@@ -30,7 +30,7 @@ for arg in $* ; do
     "--enable-debug    : turns on debugging flags and turns off optimization\n"\
     "--enable-shared   : use shared library (not yet implem.) (default no)\n"\
     "--with-pythia6version : pythia6 version (to be taken from CERN afs MCGenerators, e.g. =410)\n"\
-    "--with-lhapdfversion : lhapdf version (to be taken from CERN afs MCGenerators, e.g. =5.2.3)\n"
+    "--with-lhapdfversion : lhapdf version (to be taken from CERN afs MCGenerators, e.g. =5.3.0)\n"
     exit
   elif [ "x${arg}" != "x${arg/=/}" ] ; then
     option=${arg/=*/}

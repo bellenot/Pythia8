@@ -40,7 +40,7 @@ int main() {
   bool   showAPD   = settings.flag("Main:showAllParticleData");
   bool   showAStat = settings.flag("Main:showAllStatistics");
  
-  // Initialization for Pythia6 event input.
+  // Initialization.
   if (inCMframe) pythia.init( idBeamA, idBeamB, eCM);
   else pythia.init( idBeamA, idBeamB, eBeamA, eBeamB);
 

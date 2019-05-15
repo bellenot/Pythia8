@@ -50,17 +50,11 @@ class ParticleDecays {
 public:
 
   // Constructor. 
-  ParticleDecays() {decayHandlePtr = 0;}
+  ParticleDecays() {}
 
-  // Possibility to pass in pointer for external handling of some decays.
-  bool decayPtr( DecayHandler* decayHandlePtrIn, 
-    vector<int> handledParticles);  
-
-  // Initialize static data members.
-  static void initStatic();
-
-  // Initialize alphaStrong (needed to shower decays to partons).
-  void init(TimeShower* timesDecPtrIn) {timesDecPtr = timesDecPtrIn;}
+  // Initialize: store pointers and find settings
+  void init(TimeShower* timesDecPtrIn, DecayHandler* decayHandlePtrIn, 
+    vector<int> handledParticles); 
  
   // Perform a decay of a single particle.
   bool decay(int iDec, Event& event); 
@@ -70,16 +64,36 @@ public:
 
 private: 
 
-  // Static initialization data, normally only set once.
-  static bool limitTau0, limitTau, limitRadius, limitCylinder, limitDecay, 
-               mixB, FSRinDecays;
-  static double mSafety, tau0Max, tauMax, rMax, xyMax, zMax, xBdMix, 
-                xBsMix, sigmaSoft, multIncrease, multRefMass, multGoffset, 
-                colRearrange, stopMass, sRhoDal, wRhoDal;
-
   // Constants: could only be changed in the code itself.
-  static const int    NTRYDECAY;
+  static const int    NTRYDECAY, NTRYPICK;
   static const double MSAFEDALITZ, WTCORRECTION[11];
+
+  // Initialization data, read from Settings..
+  bool   limitTau0, limitTau, limitRadius, limitCylinder, limitDecay, 
+         mixB, doFSRinDecays;
+  double mSafety, tau0Max, tauMax, rMax, xyMax, zMax, xBdMix, xBsMix, 
+         sigmaSoft, multIncrease, multRefMass, multGoffset, colRearrange, 
+         stopMass, sRhoDal, wRhoDal;
+
+  // Multiplicity. Decay products positions and masses.
+  bool   hasPartons, keepPartons;    
+  int    idDec, meMode, mult;
+  vector<int>    iProd, idProd, cols, acols, idPartons;
+  vector<double> mProd, mInv, rndmOrd;
+  vector<Vec4>   pInv, pProd;
+  vector<FlavContainer> flavEnds;
+
+  // Pointer to particle data for currently decaying particle
+  ParticleDataEntry* decDataPtr;
+
+  // Pointers to timelike showers, for decays to partons (e.g. Upsilon).
+  TimeShower* timesDecPtr;
+
+  // Pointer to a handler of external decays.
+  DecayHandler* decayHandlePtr;
+
+  // Flavour generator; needed when required to pick hadrons.
+  StringFlav flavSel;
 
   // Check whether a decay is allowed, given the upcoming decay vertex.
   bool checkVertex(Particle& decayer);
@@ -110,26 +124,6 @@ private:
 
   // Set colour flow and scale in a decay explicitly to partons.
   bool setColours(Event& event);
-
-  // Pointer to a handler of external decays.
-  DecayHandler* decayHandlePtr;
-
-  // Pointer to particle data for currently decaying particle
-  ParticleDataEntry* decDataPtr;
-
-  // Multiplicity. Decay products positions and masses.
-  int            idDec, meMode, mult;
-  vector<int>    iProd, idProd, cols, acols, idPartons;
-  vector<FlavContainer> flavEnds;
-  vector<double> mProd, mInv, rndmOrd;
-  vector<Vec4>   pInv, pProd;
-  bool           hasPartons, keepPartons;    
-
-  // Flavour generator; needed when required to pick hadrons.
-  StringFlav flavSel;
-
-  // Pointers to timelike showers, for decays to partons (e.g. Upsilon).
-  TimeShower* timesDecPtr;
   
 };
  

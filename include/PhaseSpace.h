@@ -286,8 +286,8 @@ class PhaseSpace2to2eldiff : public PhaseSpace {
 public:
 
   // Constructor.
-  PhaseSpace2to2eldiff(bool diffAin = false, bool diffBin = false)
-    : diffA(diffAin), diffB(diffBin) {}
+  PhaseSpace2to2eldiff(bool isDiffAin = false, bool isDiffBin = false)
+    : isDiffA(isDiffAin), isDiffB(isDiffBin) {}
 
   // Construct the trial or final event kinematics.
   virtual bool setupSampling(); 
@@ -304,7 +304,7 @@ private:
   static const double EXPMAX, DIFFMASSMAX;
 
   // Kinematics properties specific to 2 -> 2.
-  bool   diffA, diffB;
+  bool   isDiffA, isDiffB;
   double m3ElDiff, m4ElDiff, cRes, sResXB, sResAX, sProton,
          s1, s2, bMin, lambda12, lambda34, tLow, tUpp, tAux;
 

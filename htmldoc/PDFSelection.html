@@ -16,28 +16,31 @@ The third gives the possibility to switch off the lepton
 
 <h3>Parton densities for protons</h3>
 
-There is one main physics choice to be made with the <code>Pythia</code> 
-class, namely which parton densities to use, a choice that then is 
-propagated through the program. 
+The selection of parton densities is made once and then is propagated 
+through the program. It is essential to make an informed choice, 
+for several reasons: 
 <br/><b>Warning 1:</b> the choice of PDF set affects a number of
 properties of events. A change of PDF therefore requires a complete 
 retuning e.g.  of the multiple-interactions model for minimum-bias and 
 underlying events.
 <br/><b>Warning 2:</b> People often underestimate the differences 
-between different sets on the market. The sets are constructed to behave 
-more or less similarly at large <i>x</i> and <i>Q2</i>, while the 
-multiple interactions are dominated by the behaviour in the region of 
-small <i>x</i> and <i>Q2</i>. A good PDF parametrization ought to be
-sensible down to <i>x = 10^{-6}</i> (<i>x = 10^{-7}</i>) and
-<i>Q2 = 1</i> GeV2 for Tevatron (LHC) applications. Unfortunately there
-are distributions on the market that completely derail in that region.
-The <code>main41.cc</code> and <code>main42.cc</code> programs in the 
-<code>examples</code> subdirectory provide some examples of absolutely
-minimal sanity checks before a new PDF set is put in production.
-<br/><b>Warning 3:</b> Do not blindly assume that an NLO tune has to be 
-better than an LO one when combined with the LO matrix elements in PYTHIA.
-There are explicit examples where such thinking can lead you down the 
-wrong alley.
+between different sets on the market. The sets for the same order are 
+constructed to behave more or less similarly at large <i>x</i> and 
+<i>Q^2</i>, while the multiple interactions are dominated by the 
+behaviour in the region of small <i>x</i> and <i>Q^2</i>. A good 
+PDF parametrization ought to be sensible down to <i>x = 10^-6</i> 
+(<i>x = 10^-7</i>) and <i>Q^2 = 1</i> GeV^2 for Tevatron (LHC) 
+applications. Unfortunately there are distributions on the market that 
+completely derail in that region. The <code>main41.cc</code> and 
+<code>main42.cc</code> programs in the <code>examples</code> 
+subdirectory provide some examples of absolutely minimal sanity checks 
+before a new PDF set is put in production.
+<br/><b>Warning 3:</b> NLO and LO sets tend to have quite different
+behaviours, e.g. NLO ones have less gluons at small x, which then is 
+compensated by positive corrections in the NLO matrix elements.
+Therefore do not blindly assume that an NLO tune has to be better than 
+an LO one when combined with the LO matrix elements in PYTHIA. There are 
+explicit examples where such thinking can lead you down the wrong alley.
 
 <p/>
 The simplest option is to pick one 
@@ -55,6 +58,9 @@ antiproton ones):
 Obviously this choice is mainly intended to get going, and if you link to
 the <a href="http://projects.hepforge.org/lhapdf/" target="page">LHAPDF 
 library</a> [<a href="Bibliography.html" target="page">Wha05</a>] you get access to a much wider selection.
+<br/><b>Note:</b> owing to previous problems with the behaviour of PDF's
+beyond the <i>x</i> and <i>Q^2</i> boundaries of a set, you should
+only use LHAPDF version 5.3.0 or later.
 
 <p/><code>flag&nbsp; </code><strong> PDF:useLHAPDF &nbsp;</strong> 
  (<code>default = <strong>off</strong></code>)<br/>
@@ -97,40 +103,23 @@ runs or, as a simplification, save the
 and do an offline reweighting of events.
 </modeopen>   
 
-<p/> 
-The current LHAPDF code does not provide a way to find the <i>x</i>
-and <i>Q2</i> limits of a set, nor does it guarantee a sensible 
-behaviour outside of those limits. (The LHAGLUE interface fixes this
-problem, but is not used here. The limits are reported in the
-<a href="http://projects.hepforge.org/lhapdf/manual#tth_sEcA" target="page">
-PDF set list</a>, however.) Error messages may abound, or execution 
-may stop unexpectedly. In a near future it will become possible to 
-interrogate the limits. Meanwhile you can yourself require that 
-PDF's should only be invoked in a specified range, to avoid problems.
-
-<p/><code>flag&nbsp; </code><strong> PDF:limitLHAPDF &nbsp;</strong> 
- (<code>default = <strong>on</strong></code>)<br/>
-If on then you can set <i>x</i> and <i>Q2</i> limits below.
-  
-
-<p/><code>parm&nbsp; </code><strong> PDF:xMinLHAPDF &nbsp;</strong> 
- (<code>default = <strong>1e-6</strong></code>)<br/>
-Freeze <i>x f_i(x, Q2)</i> below this <i>x</i> value.
-  
-
-<p/><code>parm&nbsp; </code><strong> PDF:xMaxLHAPDF &nbsp;</strong> 
- (<code>default = <strong>0.9999</strong></code>)<br/>
-Set <i>x f_i(x, Q2) = 0</i> above this <i>x</i> value.
-  
-
-<p/><code>parm&nbsp; </code><strong> PDF:Q2MinLHAPDF &nbsp;</strong> 
- (<code>default = <strong>1.</strong></code>)<br/>
-Freeze <i>x f_i(x, Q2)</i> below this <i>Q2</i> value.
-  
-
-<p/><code>parm&nbsp; </code><strong> PDF:Q2MaxLHAPDF &nbsp;</strong> 
- (<code>default = <strong>1e8</strong></code>)<br/>
-Freeze <i>x f_i(x, Q2)</i> above this <i>Q2</i> value.
+<p/><code>flag&nbsp; </code><strong> PDF:extrapolateLHAPDF &nbsp;</strong> 
+ (<code>default = <strong>off</strong></code>)<br/>
+Parton densities have a guaranteed range of validity in <i>x</i>
+and <i>Q^2</i>, and what should be done beyond that range usually is 
+not explained by the authors of PDF sets. Nevertheless these boundaries
+very often are exceeded, e.g. minimum-bias studies at LHC may sample
+<i>x</i> values down to <i>10^-8</i>, while many PDF sets stop
+already at <i>10^-5</i>. The default behaviour is then that the 
+PDF's are frozen at the boundary, i.e. <i>xf(x,Q^2)</i> is fixed at
+its value at <i>x_min</i> for all values <i>x &lt; x_min</i>,
+and so on. This is a conservative approach. Alternatively, if you
+switch on extrapolation, then parametrizations will be extended beyond
+the boundaries, by some prescription. In some cases this will provide a
+more realistic answer, in others complete rubbish. Another problem is 
+that some of the PDF-set codes will write a warning message anytime the
+limits are exceeded, thus swamping your output file. Therefore you should 
+study a set seriously before you run it with this switch on.
   
 
 <p/> 
@@ -148,7 +137,7 @@ and maybe more. There are cases where one may want to explore
 different PDF options for the hard process, but would not want to touch 
 the rest. If several different sets are to be compared, a simple
 reweighting based on the <a href="EventInformation.html" target="page">originally 
-used</a> flavour, <i>x</i>, <i>Q2</i> and PDF values may offer the 
+used</a> flavour, <i>x</i>, <i>Q^2</i> and PDF values may offer the 
 best route. The options in this section allow a choice of the PDF set
 for the hard process alone, while the choice made in the previous section
 would still be used for everything else. The hardest interaction
@@ -157,7 +146,7 @@ framework and so does not count as a hard process here.
 
 <p/>
 Of course it is inconsistent to use different PDF's in different parts 
-of an event, but if the <i>x</i> and <i>Q2</i> ranges mainly accessed 
+of an event, but if the <i>x</i> and <i>Q^2</i> ranges mainly accessed 
 by the components are rather different then the contradiction would not be
 too glaring. Furthermore, since standard PDF's are one-particle-inclusive
 we anyway have to 'invent' our own PDF modifications to handle configurations
@@ -199,30 +188,11 @@ Name of proton PDF set from LHAPDF to be used.
 Further choice of a specific member from the set picked above. 
 </modeopen>   
 
-<p/><code>flag&nbsp; </code><strong> PDF:limitHardLHAPDF &nbsp;</strong> 
- (<code>default = <strong>on</strong></code>)<br/>
-If on then you can set <i>x</i> and <i>Q2</i> limits below.
-  
-
-<p/><code>parm&nbsp; </code><strong> PDF:xMinHardLHAPDF &nbsp;</strong> 
- (<code>default = <strong>1e-6</strong></code>)<br/>
-Freeze <i>x f_i(x, Q2)</i> below this <i>x</i> value.
-  
-
-<p/><code>parm&nbsp; </code><strong> PDF:xMaxHardLHAPDF &nbsp;</strong> 
- (<code>default = <strong>0.9999</strong></code>)<br/>
-Set <i>x f_i(x, Q2) = 0</i> above this <i>x</i> value.
-  
-
-<p/><code>parm&nbsp; </code><strong> PDF:Q2MinHardLHAPDF &nbsp;</strong> 
- (<code>default = <strong>1.</strong></code>)<br/>
-Freeze <i>x f_i(x, Q2)</i> below this <i>Q2</i> value.
-  
-
-<p/><code>parm&nbsp; </code><strong> PDF:Q2MaxHardLHAPDF &nbsp;</strong> 
- (<code>default = <strong>1e8</strong></code>)<br/>
-Freeze <i>x f_i(x, Q2)</i> above this <i>Q2</i> value.
-  
+<p/>
+Note that there is no separate equivalent of the 
+<code>PDF:extrapolateLHAPDF</code> flag specifically for the hard
+PDF. Since LHAPDF only has one global flag for extrapolation or not,
+the choice for the normal PDF's also applies to the hard ones.
 
 <h3>Parton densities for leptons</h3>
 

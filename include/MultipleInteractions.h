@@ -86,14 +86,11 @@ class MultipleInteractions {
 public:
 
   // Constructor.
-  MultipleInteractions() {isInit = false; sudExpPT.resize(NBINS+1);}
+  MultipleInteractions() {sudExpPT.resize(NBINS+1);}
 
-  // Initialize static data members.
-  static void initStatic();
-
-  // Initialize generation. Possibility to force re-initialization by hand.
+  // Initialize the generation process for given beams.
   bool init( BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, 
-    bool reInit = false, ostream& os = cout);
+    ostream& os = cout);
 
   // Reset impact parameter choice.
   void clear() {bIsSet = false; bSetInFirst = false;}
@@ -136,12 +133,6 @@ public:
   
 private: 
 
-  // Static initialization data, normally only set once.
-  static int    pTmaxMatch, alphaSorder, alphaEMorder, bProfile, 
-                processLevel, nQuarkIn, nSample;
-  static double alphaSvalue, Kfactor, pT0Ref, ecmRef, ecmPow, 
-                pTmin, coreRadius, coreFraction, expPow;
-
   // Constants: could only be changed in the code itself.
   static const bool   SHIFTFACSCALE;
   static const int    NBINS;
@@ -149,7 +140,14 @@ private:
                       PROBATLOWB, BSTEP, BMAX, EXPMAX, KCONVERGE, 
                       CONVERT2MB;
 
-  // Other non-static initialization data.
+  // Initialization data, read from Settings.
+  int    pTmaxMatch, alphaSorder, alphaEMorder, bProfile, 
+         processLevel, nQuarkIn, nSample;
+  double alphaSvalue, Kfactor, pT0Ref, ecmRef, ecmPow, 
+         pTmin, coreRadius, coreFraction, expPow;
+
+  // Other initialization data.
+  bool   hasLowPow;
   double eCM, sCM, pT0, pT20, pT2min, pTmax, pT2max, pT20R, pT20minR, 
          pT20maxR, pT20min0maxR, pT2maxmin, sigmaND, pT4dSigmaMax, 
          pT4dProbMax, dSigmaApprox, sigmaInt, zeroIntCorr, normOverlap, 
@@ -157,13 +155,12 @@ private:
          fracA, fracB, fracC, fracAhigh, fracBhigh, fracChigh, fracABChigh, 
          expRev, cDiv, cMax;
   vector<double> sudExpPT;
-  bool   isInit, lowPow;
 
   // Properties specific to current system.
   int    id1, id2;
   double bNow, enhanceB, pT2, pT2shift, pT2Ren, pT2Fac, x1, x2, xT, xT2, 
          tau, y, sHat, tHat, uHat, alpS, alpEM, xPDF1now, xPDF2now;
-  bool   bIsSet, bSetInFirst, atLowB;
+  bool   bIsSet, bSetInFirst, isAtLowB;
 
   // Pointers to the two incoming beams.
   BeamParticle* beamAPtr;

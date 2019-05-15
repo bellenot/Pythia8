@@ -475,6 +475,10 @@ void LHAPDF::init(string setName, int member) {
   // Initialize member.
   LHAPDFInterface::initPDFM(nSet, member);
 
+  // Do not collect statistics on under/overflow to save time and space.
+   LHAPDFInterface::setPDFparm( "NOSTAT" );
+   LHAPDFInterface::setPDFparm( "LOWKEY" );
+
   // Save values to avoid unnecessary reinitializations.
   latestSetName = setName;
   latestMember  = member;
@@ -484,26 +488,22 @@ void LHAPDF::init(string setName, int member) {
 
 //*********
 
+// Allow optional extrapolation beyond boundaries.
+
+void LHAPDF::setExtrapolate(bool extrapol) {
+
+   LHAPDFInterface::setPDFparm( (extrapol) ? "EXTRAPOLATE" : "18" );
+
+}
+
+//*********
+
 // Give the parton distribution function set from LHAPDF.
 
 void LHAPDF::xfUpdate(int , double x, double Q2) {
 
-  // Let pdf's vanish above xMax.
-  if (hasLimits && x > xMax) {
-    xg = xu = xd = xubar = xdbar = xs = xc = xb = 0.;
-    xuVal = xuSea = xdVal = xdSea = 0.;
-    idSav = 9;
-  }
-
-  // Freeze pdf's below xMin.
-  if (hasLimits && x < xMin) x = xMin;
-
-  // Freeze pdf's below Q2Min and above Q2Max.
-  if (hasLimits && Q2 < Q2Min) Q2 = Q2Min;
-  if (hasLimits && Q2 > Q2Max) Q2 = Q2Max;
-  double Q = sqrt( max( 0., Q2));
-
   // Let LHAPDF do the evaluation of parton densities.
+  double Q = sqrt( max( 0., Q2));
   LHAPDFInterface::evolvePDFM( nSet, x, Q, xfArray);
 
   // Update values.

@@ -20,6 +20,12 @@ namespace Pythia8 {
 
 //**************************************************************************
 
+// Forward references to ParticleData and ResonanceWidths classes.
+class ParticleDataEntry;
+class ResonanceWidths;
+
+//**************************************************************************
+
 // Particle class.
 // This class holds info on a particle in general.
 
@@ -41,8 +47,8 @@ public:
     mother2Save(mother2In), daughter1Save(daughter1In), 
     daughter2Save(daughter2In), colSave(colIn), acolSave(acolIn), 
     pSave(Vec4(pxIn, pyIn, pzIn, eIn)), mSave(mIn), scaleSave(scaleIn), 
-    hasVertexSave(false), vProdSave(Vec4(0.,0.,0.,0.)), tauSave(0.), 
-    particlePtr(ParticleDataTable::particleDataPtr(idIn)) { }  
+    hasVertexSave(false), vProdSave(Vec4(0.,0.,0.,0.)), tauSave(0.) 
+    {setParticlePtr();}  
   Particle(int idIn, int statusIn, int mother1In, int mother2In, 
     int daughter1In, int daughter2In, int colIn, int acolIn, 
     Vec4 pIn, double mIn = 0., double scaleIn = 0.) 
@@ -50,15 +56,15 @@ public:
     mother2Save(mother2In), daughter1Save(daughter1In), 
     daughter2Save(daughter2In), colSave(colIn), acolSave(acolIn), 
     pSave(pIn), mSave(mIn), scaleSave(scaleIn), hasVertexSave(false), 
-    vProdSave(Vec4(0.,0.,0.,0.)), tauSave(0.),
-    particlePtr(ParticleDataTable::particleDataPtr(idIn)) { }  
-  Particle(const Particle& pt) : idSave(pt.idSave), statusSave(pt.statusSave), 
-    mother1Save(pt.mother1Save), mother2Save(pt.mother2Save), 
-    daughter1Save(pt.daughter1Save), daughter2Save(pt.daughter2Save), 
-    colSave(pt.colSave), acolSave(pt.acolSave), pSave(pt.pSave), 
-    mSave(pt.mSave), scaleSave(pt.scaleSave), hasVertexSave(pt.hasVertexSave), 
-    vProdSave(pt.vProdSave), tauSave(pt.tauSave), particlePtr(pt.particlePtr) 
-    { } 
+    vProdSave(Vec4(0.,0.,0.,0.)), tauSave(0.) {setParticlePtr();}  
+  Particle(const Particle& pt) : idSave(pt.idSave), 
+    statusSave(pt.statusSave), mother1Save(pt.mother1Save), 
+    mother2Save(pt.mother2Save), daughter1Save(pt.daughter1Save), 
+    daughter2Save(pt.daughter2Save), colSave(pt.colSave), 
+    acolSave(pt.acolSave), pSave(pt.pSave), mSave(pt.mSave), 
+    scaleSave(pt.scaleSave), hasVertexSave(pt.hasVertexSave), 
+    vProdSave(pt.vProdSave), tauSave(pt.tauSave), 
+    particlePtr(pt.particlePtr) { } 
   Particle& operator=(const Particle& pt) {if (this != &pt) {
     idSave = pt.idSave; statusSave = pt.statusSave; 
     mother1Save = pt.mother1Save; mother2Save = pt.mother2Save; 
@@ -69,8 +75,7 @@ public:
     tauSave = pt.tauSave; particlePtr = pt.particlePtr; } return *this; } 
       
   // Member functions for input.
-  void id(int idIn) {idSave = idIn; 
-    particlePtr = ParticleDataTable::particleDataPtr(idIn);}
+  void id(int idIn) {idSave = idIn; setParticlePtr();}
   void status(int statusIn) {statusSave = statusIn;}
   void statusPos() {statusSave = abs(statusSave);}
   void statusNeg() {statusSave = -abs(statusSave);}
@@ -177,7 +182,7 @@ public:
   double tau0()      const {return particlePtr->tau0();}
   bool   mayDecay()  const {return particlePtr->mayDecay();}
   bool   canDecay()  const {return particlePtr->canDecay();}
-  bool   externalDecay() const {return particlePtr->externalDecay();}
+  bool   doExternalDecay() const {return particlePtr->doExternalDecay();}
   bool   isResonance() const {return particlePtr->isResonance();}
   bool   isVisible() const {return particlePtr->isVisible();}
   bool   isLepton()  const {return particlePtr->isLepton();}
@@ -207,6 +212,9 @@ public:
   void offsetHistory( int minMother, int addMother, int minDaughter, 
     int addDaughter);
   void offsetCol( int addCol); 
+
+  // Member function to set the ParticleDataEntry pointer, using idSave.
+  void setParticlePtr();
 
 private:
 
@@ -304,6 +312,9 @@ public:
   void clear() {entry.resize(0); maxColTag = startColTag; 
     junction.resize(0); clearSystems();}
 
+  // Clear event record, and set first particle empty.
+  void reset() {clear(); append(90, -11, 0, 0, 0., 0., 0., 0., 0.);}
+
   // Overload index operator to access element of event record.
   Particle& operator[](int i) {return entry[i];}
   const Particle& operator[](int i) const {return entry[i];}
@@ -318,11 +329,34 @@ public:
     if (entryIn.acol() > maxColTag) maxColTag = entryIn.acol();
     return entry.size() - 1;
   }
-  int append(int id, int status = 0, int mother1 = 0, int mother2 = 0, 
-    int daughter1 = 0, int daughter2 = 0, int col = 0, int acol = 0, 
-    Vec4 p = Vec4(0.,0.,0.,0.), double m = 0., double scale = 0.) {    
-    entry.push_back( Particle(id, status, mother1, mother2, daughter1,
-    daughter2, col, acol, p, m, scale) ); 
+  int append(int id, int status, int mother1, int mother2, int daughter1, 
+    int daughter2, int col, int acol, double px, double py, double pz, 
+    double e, double m = 0., double scale = 0.) {entry.push_back( 
+    Particle(id, status, mother1, mother2, daughter1, daughter2, col, acol, 
+    px, py, pz, e, m, scale) ); 
+    if (col > maxColTag) maxColTag = col;   
+    if (acol > maxColTag) maxColTag = acol;
+    return entry.size() - 1;
+  }
+  int append(int id, int status, int mother1, int mother2, int daughter1, 
+    int daughter2, int col, int acol, Vec4 p, double m = 0., 
+    double scale = 0.) {entry.push_back( Particle(id, status, mother1, 
+    mother2, daughter1, daughter2, col, acol, p, m, scale) ); 
+    if (col > maxColTag) maxColTag = col;   
+    if (acol > maxColTag) maxColTag = acol;
+    return entry.size() - 1;
+  }
+
+  // Brief versions of append: no mothers and no daughters.
+  int append(int id, int status, int col, int acol, double px, double py, 
+    double pz, double e, double m = 0.) {entry.push_back( Particle(id, 
+    status, 0, 0, 0, 0, col, acol, px, py, pz, e, m, 0.) ); 
+    if (col > maxColTag) maxColTag = col;   
+    if (acol > maxColTag) maxColTag = acol;
+    return entry.size() - 1;
+  }
+  int append(int id, int status, int col, int acol, Vec4 p, double m = 0.) 
+    {entry.push_back( Particle(id, status, 0, 0, 0, 0, col, acol, p, m, 0.) ); 
     if (col > maxColTag) maxColTag = col;   
     if (acol > maxColTag) maxColTag = acol;
     return entry.size() - 1;
@@ -335,8 +369,9 @@ public:
   Particle& back() {return entry.back();}
 
   // List the particles in an event.
-  void list(bool scaleAndVertex = false, bool mothersAndDaughters = false, 
-    ostream& os = cout) const;  
+  void list(ostream& os = cout) {list(false, false, os);}  
+  void list(bool showScaleAndVertex, bool showMothersAndDaughters = false, 
+    ostream& os = cout);  
 
   // Set header specification for event listing.
   void header( string headerIn) {
@@ -350,7 +385,7 @@ public:
   // Restore all ParticleDataEntry* pointers in the Particle vector.
   // Useful when a persistent copy of the event record is read back in.
   void restorePtrs() { 
-    for (int i = 0; i < size(); ++i) entry[i].id( entry[i].id() ); } 
+    for (int i = 0; i < size(); ++i) entry[i].setParticlePtr(); } 
 
   // Save or restore the size of the event record (throwing at the end).
   void saveSize() {savedSize = entry.size();}

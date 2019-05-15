@@ -33,9 +33,6 @@ public:
   // Constructor.
   BeamRemnants() { }  
 
-  // Initialize static data members.
-  static void initStatic();
-
   // Initialization.
   bool init( Info* infoPtrIn, BeamParticle* beamAPtrIn, 
     BeamParticle* beamBPtrIn);
@@ -45,18 +42,21 @@ public:
 
 private: 
 
-  // Static initialization data, normally only set once.
-  static bool   primordialKT, doReconnect;
-  static double primordialKTsoft, primordialKThard, primordialKTremnant,
-                halfScaleForKT, halfMassForKT, reconnectRange, 
-                pT0Ref, ecmRef, ecmPow;
-
   // Constants: could only be changed in the code itself.
-  static const int NTRYCOLMATCH, NTRYKINMATCH;
+  static const int    NTRYCOLMATCH, NTRYKINMATCH;
+
+  // Initialization data, read from Settings.
+  bool   doPrimordialKT, doReconnect;
+  double primordialKTsoft, primordialKThard, primordialKTremnant,
+         halfScaleForKT, halfMassForKT, reconnectRange, 
+         pT0Ref, ecmRef, ecmPow;
 
   // Information set for events.
   int    nSys, oldSize;
   double eCM, sCM, pT0, pT20Rec;
+
+  // Colour collapses (when one colour is mapped onto another).
+  vector<int> colFrom, colTo;
 
   // Pointer to various information on the generation.
   Info* infoPtr;
@@ -67,9 +67,6 @@ private:
 
   // Do the kinematics of the collision subsystems and two beam remnants. 
   bool setKinematics( Event& event);
-
-  // Colour collapses (when one colour is mapped onto another).
-  vector<int> colFrom, colTo;
 
   // Allow colour reconnections.
   bool reconnectColours( Event&  event);

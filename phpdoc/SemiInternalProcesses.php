@@ -158,6 +158,26 @@ Also other standard variables may be used, like
 <code>CoupEW::sin2thetaW()</code>, and related flavour-dependent
 vector and axial couplings in <code>CoupEW</code> and CKM combinations
 in <code>VCKM</code>. 
+<br/>In case some of the final-state particles are resonances, their 
+squared masses have already been selected according to a Breit-Wigner
+with a linearly running width <i>Gamma(m) = Gamma(m_0) * m / m_0</i>.
+More precisely, the mass spectrum is weighted according to
+<i>w_BW(m^2) d(m^2)</i>, where
+<br/><i>
+w_BW(m^2) = (1/pi) * (m * Gamma(m)) / ( (m^2 - m_0^2)^2 + (m * Gamma(m))^2 ) . 
+</i><br/> 
+If you would like to have another expression, the above weights are stored 
+in <code>runBW3</code>, <code>runBW4</code> and <code>runBW5</code>, 
+respectively. If you divide out one of these factor, you just remain with 
+a phase space selection <i>d(m^2)</i> for this particle,
+and can multiply on your desired shape factor instead. Unfortunately, the 
+Monte Carlo efficiency will drop if your new mass distribution differs 
+dramatically from the input one. Therefore it does make sense to adjust the 
+database value of the width to be slightly (but not too much) broader 
+than the distribution you have in mind. Also note that, already by default, 
+the wings of the Breit-Wigner are oversampled (with a compensating lower 
+internal weight) by partly sampling like <i>(a + b/m^2 + c/m^4) d(m^2)</i>,
+where the last term is only used for <i>gamma^*/Z^0</i>.
 
 <p/><code>method&nbsp; </code><strong> void setIdColAcol() &nbsp;</strong> <br/>
 is called only once an initial state and a kinematical configuration has 

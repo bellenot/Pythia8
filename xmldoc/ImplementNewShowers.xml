@@ -20,10 +20,9 @@ unchanged, and make use of the existing beam-remnants (BR) machinery.
 If you want to replace both MI, ISR, FSR and BR then you had better 
 replace the whole <code>PartonLevel</code> module of the code. 
 If, in addition, you want to produce your own hard processes, 
-then only the hadronization/decay part of the story remains, and
-this can be accessed e.g. with the 
-<aloc href="LesHouchesAccord">Les Houches Accord</aloc>
-interface, using <code>strategy = 10</code>.  
+then you only need the
+<aloc href="HadronLevelStandalone">hadron-level standalone</aloc>
+part of the machinery. 
 
 <p/>
 In order to write replacement codes for ISR and/or FSR it is useful
@@ -429,7 +428,8 @@ since they have to be used during the generation, as explained above.
 This is also the place to do some further initialization.
 </method>
 
-<method name="bool limitPTmax( Event& event)">
+<method name="bool limitPTmax( Event& event, double Q2Fac = 0., 
+double Q2Ren = 0.)">
 The question is whether the ISR should be allowed to occur at larger
 scales than the hard process it surrounds. This is process-dependent.
 For instance, if the hard process is <ei>Z^0</ei> production we know
@@ -440,7 +440,11 @@ The <code>SpaceShower:pTmaxMatch</code> switch allows you to force the
 behaviour, or else to program your own logic. The current implementation
 limits <ei>pT</ei> whenever the final state contains a quark (except top),
 gluon or photon, since then the danger of doublecounting is there.
-You may replace by your own logic, or leave as is.  
+You may replace by your own logic, or leave as is. 
+<br/>The internal PYTHIA implementation also allows intermediate options, 
+where emissions can go up to the kinematical limit but be dampened above 
+the factorization or renormalization scale. Therefore the (square of the) 
+latter two are provided as optional input parameters.  
 </method>
 
 <method name="double enhancePTmax()">
@@ -478,7 +482,7 @@ in another implementation.
 </method>
 
 <method name="double pTnext(( Event& event, double pTbegAll, 
-double pTendAll)">
+double pTendAll, int nRadIn = -1)">
 This is the main driver routine for the downwards evolution. A new 
 <ei>pT</ei> is to be selected based on the current information set up 
 by the routines above, and along with that a branching parton or dipole.
@@ -499,6 +503,9 @@ for each pick its possible branching scale and then pick the one
 with largest scale as possible winner. At this stage no branching should
 actually be carried out, since MI, ISR and FSR still have to be compared
 to assign the winner.
+<br/>The final input <code>nRadIn</code> provides the total number of 
+ISR and FSR emissions already generated in the event, and so allows a 
+special treatment for the very first emission, if desired.
 </method>
 
 <method name="bool branch( Event& event)">

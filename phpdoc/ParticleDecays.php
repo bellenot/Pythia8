@@ -265,8 +265,9 @@ and avoid already explicitly listed non-partonic channels</li>
 and hadronize</li>
 <li> 92 : decay onium to <i>g g g</i> or <i>g g gamma</i> 
 (with matrix element), which should shower and hadronize</li>
-<li>101 - : reserved for resonance decays and should not be used for
-normal particles.</li>
+<li> 101 - : reserved for the description of partial widths of 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='ResonanceDecays.php?filepath=".$filepath."' target='page'>";?>resonances</a></li>
 </ul>
 
 Three special decay product identity codes are defined.

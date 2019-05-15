@@ -4,7 +4,7 @@
 
 <h2>PYTHIA 8 Index</h2>
 
-<h3><a href="pythia8090.pdf" target="page">Brief Introduction</a> (pdf)</h3>
+<h3><a href="pythia8095.pdf" target="page">Brief Introduction</a> (pdf)</h3>
 
 <h3>Program Overview</h3>
 
@@ -32,14 +32,21 @@
 &nbsp;&nbsp;&nbsp;&nbsp; 
 <aidx href="TopProcesses">Top Processes</aidx><br/>
 &nbsp;&nbsp;&nbsp;&nbsp; 
+<aidx href="FourthGenerationProcesses">Fourth-Generation Processes</aidx><br/>
+&nbsp;&nbsp;&nbsp;&nbsp; 
 <aidx href="HiggsProcesses">Higgs Processes</aidx><br/>
 &nbsp;&nbsp;&nbsp;&nbsp; 
 <aidx href="SUSYProcesses">SUSY Processes</aidx><br/>
+&nbsp;&nbsp;&nbsp;&nbsp; 
+<aidx href="LeptoquarkProcesses">Leptoquark Processes</aidx><br/>
+&nbsp;&nbsp;&nbsp;&nbsp; 
+<aidx href="ExtraDimensionalProcesses">Extra-Dimensional Processes</aidx><br/>
 <aidx href="ASecondHardProcess">A Second Hard Process</aidx><br/>
 <aidx href="ProcessProperties">Process Properties</aidx><br/>
 <aidx href="PhaseSpaceCuts">Phase Space Cuts</aidx><br/>
 <aidx href="StandardModelParameters">Standard-Model Parameters</aidx><br/>
 <aidx href="TotalCrossSections">Total Cross Sections</aidx><br/>
+<aidx href="ResonanceDecays">Resonance Decays</aidx><br/>
 <aidx href="TimelikeShowers">Timelike Showers</aidx><br/>
 <aidx href="SpacelikeShowers">Spacelike Showers</aidx><br/>
 <aidx href="MultipleInteractions">Multiple Interactions</aidx><br/>
@@ -47,8 +54,10 @@
 <aidx href="Fragmentation">Fragmentation</aidx><br/>
 <aidx href="FlavourSelection">Flavour Selection</aidx><br/>
 <aidx href="ParticleDecays">Particle Decays</aidx><br/>
+<aidx href="BoseEinsteinEffects">Bose-Einstein Effects</aidx><br/>
 <aidx href="ParticleData">Particle Data</aidx><br/>
 <aidx href="ErrorChecks">Error Checks</aidx><br/>
+<aidx href="Tunes">Tunes</aidx><br/>
 </INDEXPHP>
 
 <h3>Study Output</h3>
@@ -70,6 +79,7 @@
 <aidx href="LesHouchesAccord">Les Houches Accord</aidx><br/>
 <aidx href="AccessPYTHIA6Processes">Access PYTHIA 6 Processes</aidx><br/>
 <aidx href="SemiInternalProcesses">Semi-Internal Processes</aidx><br/>
+<aidx href="HadronLevelStandalone">Hadron-Level Standalone</aidx><br/>
 <aidx href="SUSYLesHouchesAccord">SUSY Les Houches Accord</aidx><br/>
 <aidx href="PartonDistributions">Parton Distributions</aidx><br/>
 <aidx href="ExternalDecays">External Decays</aidx><br/>

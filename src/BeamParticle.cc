@@ -19,17 +19,23 @@ namespace Pythia8 {
 // Definitions of static variables.
 // (Values will be overwritten in initStatic call, so are purely dummy.)
 
-int    BeamParticle::maxValQuark = 3;
-double BeamParticle::valencePowerMeson = 0.8;
-double BeamParticle::valencePowerUinP = 3.5;
-double BeamParticle::valencePowerDinP = 2.0;
-double BeamParticle::valenceDiqEnhance = 2.0;
-int    BeamParticle::companionPower = 4;
-bool   BeamParticle::allowJunction = true;
-double BeamParticle::pickQuarkNorm = 5.;
-double BeamParticle::pickQuarkPower = 1.;
-double BeamParticle::diffPrimKTwidth = 0.5;
-double BeamParticle::diffLargeMassSuppress = 2.;
+int          BeamParticle::maxValQuark           = 3;
+double       BeamParticle::valencePowerMeson     = 0.8;
+double       BeamParticle::valencePowerUinP      = 3.5;
+double       BeamParticle::valencePowerDinP      = 2.0;
+double       BeamParticle::valenceDiqEnhance     = 2.0;
+int          BeamParticle::companionPower        = 4;
+bool         BeamParticle::allowJunction         = true;
+double       BeamParticle::pickQuarkNorm         = 5.;
+double       BeamParticle::pickQuarkPower        = 1.;
+double       BeamParticle::diffPrimKTwidth       = 0.5;
+double       BeamParticle::diffLargeMassSuppress = 2.;
+
+// Constants: could be changed here if desired, but normally should not.
+// These are of technical nature, as described for each.
+
+// A lepton that takes (almost) the full beam energy does not leave a remnant.
+const double BeamParticle::XMINUNRESOLVED        = 1. - 1e-10;
 
 //*********
 
@@ -292,6 +298,9 @@ double BeamParticle::xfModified(int iSkip, int id, double x, double Q2) {
 
   // For gluons or photons no sense of valence or sea.
   if (idSave == 21 || idSave == 22) vsc = -1;  
+
+  // For lepton beam assume same-kind lepton inside is valence.
+  else if (isLeptonBeam && idSave == idBeam) vsc = -3; 
 
   // Decide if valence or sea quark.
   else {
@@ -765,6 +774,19 @@ void BeamParticle::list(ostream& os) {
      << "\n\n --------  End PYTHIA Partons resolved in beam  ------" 
      << "----------------------------------------------------------"
      << endl; 
+}
+   
+//*********
+
+// Test whether a lepton is to be considered as unresolved.
+
+bool BeamParticle::isUnresolvedLepton() {
+ 
+  // Require record to consist of lepton with full energy plus a photon. 
+  if (!isLeptonBeam || resolved.size() > 2 || resolved[1].id() != 22
+    && resolved[0].x() < XMINUNRESOLVED) return false; 
+  return true;
+  
 }
    
 //*********

@@ -122,18 +122,20 @@ In detail, the list of foreseen status codes is:
            the first two string legs in to the junction, 
            in order of treatment</li>
   </ul>
-<li>91 - 99 : particles produced in decay process</li>
+<li>91 - 99 : particles produced in decay process, or by Bose-Einstein 
+  effects</li>
   <ul>
   <li>91 : normal decay products</li>
   <li>92 : decay products after oscillation <i>B0 &lt;-> B0bar</i> or 
            <i>B_s0 &lt;-> B_s0bar</i></li>
   <li>93, 94 : decay handled by external program, normally
            or with oscillation</li>
+  <li>99 : particles with momenta shifted by Bose-Einstein effects
+           (not a proper decay, but bookkept as an <i>1 -> 1</i> such,
+           happening after decays of short-lived resonances but before
+           decays of longer-lived particles)</li>
   </ul>
 <li>101 - 199 : reserved for future expansion</li>
-  <ul>
-  <li>101 : particles with momenta shifted by Bose-Einstein effects (?)</li>
-  </ul>
 <li>201 - : free to be used by anybody</li>   
 </ul>
   
@@ -425,13 +427,19 @@ flag whether decay modes have been declared for a particle,
 so that it could be decayed, should that be requested.
   
 
-<p/><code>method&nbsp; </code><strong> externalDecay() &nbsp;</strong> <br/>
+<p/><code>method&nbsp; </code><strong> doExternalDecay() &nbsp;</strong> <br/>
 particles that are decayed by an external program.
   
 
 <p/><code>method&nbsp; </code><strong> isVisible() &nbsp;</strong> <br/>
 particles with strong or electric charge, or composed of ones having it,  
 which thereby should be considered visible in a normal detector.
+  
+
+<p/><code>method&nbsp; </code><strong> doForceWidth() &nbsp;</strong> <br/>
+resonances that have code to recalculate the width in <code>mWidth</i>
+from the nominal mass value <code>m0</code>, but where nevertheless the 
+stored <code>mWidth</i> value is used.
   
 
 <p/><code>method&nbsp; </code><strong> isLepton() &nbsp;</strong> <br/>

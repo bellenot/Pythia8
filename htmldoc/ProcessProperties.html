@@ -74,6 +74,21 @@ at the <i>Z^0</i> mass.
 </modepick>
 
 <p/>
+In addition there is the possibility of a global rescaling of 
+cross sections (which could not easily be accommodated by a 
+changed <i>alpha_strong</i>, since <i>alpha_strong</i> runs)
+<p/><code>parm&nbsp; </code><strong> SigmaProcess:Kfactor &nbsp;</strong> 
+ (<code>default = <strong>1.0</strong></code>; <code>minimum = 0.5</code>; <code>maximum = 4.0</code>)<br/>
+Multiply almost all cross sections by this common fix factor. Excluded 
+are only unresolved processes, where cross sections are better 
+<a href="TotalCrossSections.html" target="page">set directly</a>, and 
+multiple interactions, which have a separate <i>K</i> factor 
+<a href="MultipleInteractions.html" target="page">of their own</a>.  
+This degree of freedom is primarily intended for hadron colliders, and
+should not normally be used for <i>e^+e^-</i> annihilation processes.
+  
+
+<p/>
 The <i>Q^2</i> renormalization scale can be chosen among a few different
 alternatives, separately for <i>2 -> 1</i>, <i>2 -> 2</i> and two 
 different kinds of <i>2 -> 3</i> processes. In addition a common
@@ -240,7 +255,7 @@ below.
 The <i>Q^2</i> factorization scale for "normal" <i>2 -> 3</i> 
 processes, i.e excepting the vector-boson-fusion processes below.
 <br/><code>option </code><strong> 1</strong> : the smaller of the squared transverse masses of the three
-outgoing particles).
+outgoing particles.
   
 <br/><code>option </code><strong> 2</strong> : the geometric mean of the two smallest squared transverse 
 masses of the three outgoing particles.

@@ -251,18 +251,6 @@ void StringEnd::update() {
 // The StringFragmentation class.
 
 //*********
- 
-// Definitions of static variables.
-// (Values will be overwritten in initStatic call, so are purely dummy.)
-
-double StringFragmentation::stopMass           = 1.0;
-double StringFragmentation::stopNewFlav        = 2.0;
-double StringFragmentation::stopSmear          = 0.2;
-double StringFragmentation::eNormJunction      = 2.0;
-double StringFragmentation::eBothLeftJunction  = 1.0;
-double StringFragmentation::eMaxLeftJunction   = 10.0;
-double StringFragmentation::eMinLeftJunction   = 0.2;
-double StringFragmentation::bLund              = 0.58;
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -304,9 +292,9 @@ const int    StringFragmentation::NTRYJRFEQ    = 40;
 
 //*********
 
-// Initialize static data members.
+// Find settings.
 
-void StringFragmentation::initStatic() {
+void StringFragmentation::init() {
 
   // Initialize the StringFragmentation class.
   stopMass      = Settings::parm("StringFragmentation:stopMass");

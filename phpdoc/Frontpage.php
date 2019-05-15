@@ -38,7 +38,7 @@ replace the existing PYTHIA 6 as the official version by the end of 2007.
 <p/>
 Use the left-hand index to navigate in the existing documentation.
 Also note that there is a separate
-<a href="pythia8090.pdf" target="page"><b>Brief Introduction</b></a>
+<a href="pythia8095.pdf" target="page"><b>Brief Introduction</b></a>
 (as a pdf file), 
 that offers the best way to get to understand the basic structure of 
 PYTHIA 8. The current pages offer the more detailed picture, 

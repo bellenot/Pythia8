@@ -216,9 +216,8 @@ public:
   // Constructor.
   ErrorMsg() {}
 
-  // Normal init not needed for now. reInit resets to empty map.
-  static void init() {}
-  static void reInit() {messages.clear();}
+  // Reset to empty map if second time (or more) that is called.
+  static void init(int nInitCalls) {if (nInitCalls > 1) messages.clear();}
 
   // Initialize static data members.
   static void initStatic();
@@ -227,10 +226,10 @@ public:
   static void message(string messageIn, string extraIn = " ",
     ostream& os = cout);
 
-  // Provide total number of errors experienced to date.
+  // Provide total number of errors/aborts/warnings experienced to date.
   static int totalNumber();
 
-  // Print statistics on errors/warnings.
+  // Print statistics on errors/aborts/warnings.
   static void statistics(ostream& os = cout);
 
 private:

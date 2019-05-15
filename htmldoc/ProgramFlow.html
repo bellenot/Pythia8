@@ -97,7 +97,7 @@ Some examples would be
     pythia.readString("111:mayDecay = false");
     pythia.readString("TimeShower:pTmin = 1.0");
 </pre>
-The <code>readString(...)</code> method is intended primarily for 
+The <code>readString(string)</code> method is intended primarily for 
 a few changes. It can also be useful if you want to construct a
 parser of input files that contain commands to several different 
 libraries.<br/>
@@ -109,13 +109,13 @@ you want to see changed, with a
     pythia.readFile(fileName);
 </pre>
 Each line in this file with be processes by the 
-<code>readString(...)</code> method introduced above. You can thus 
+<code>readString(string)</code> method introduced above. You can thus 
 freely mix comment lines and lines handed on to <code>Settings</code> 
 or to <code>ParticleDataTable</code>.   
 Again, an optional second argument <code>false</code> allows 
 you to switch off warning messages for unknown variables.<br/>
 This approach is better suited for more extensive changes than a direct
-usage of <code>readString(...)</code>, and can also avoid having to
+usage of <code>readString(string)</code>, and can also avoid having to
 recompile and relink your main program between runs.
 </li>
 
@@ -133,16 +133,24 @@ beam particles, with A (B) assumed moving in the <i>+z (-z)</i>
 direction.<br/>
 
 <p/>
-c) <code>pythia.init( idA, idB, eCM);</code><br/>
+b) <code>pythia.init( idA, idB, eCM);</code><br/>
 is similar, but you specify the CM energy, and you are assumed 
 in the rest frame.<br/>
+
+<p/>
+c) <code>pythia.init(fileName);</code> <br/> 
+assumes a file in the Les Houches Event File format [<a href="Bibliography.html" target="page">Alw06</a>] is 
+provided (<a href="LesHouchesAccord.html" target="page">further instructions</a>).
+</li>
 
 <p/>
 d) <code>pythia.init();</code><br/>
 with no arguments will read the beam parameters from the 
 <a href="MainProgramSettings.html" target="page"><code>Main</code></a> 
-group of variables. If you don't change any of those you will default 
-to proton-proton collisions at 14 TeV, i.e. the nominal LHC values.
+group of variables, which provides you with the same possibilities as
+the above options a, b and c. If you don't change any of those you will 
+default to proton-proton collisions at 14 TeV, i.e. the nominal LHC 
+values.
 <br/>
 
 <p/>
@@ -154,10 +162,9 @@ and that pointers to these objects are handed in
 (<a href="LesHouchesAccord.html" target="page">further instructions</a>).<br/>
 
 <p/>
-d) <code>pythia.init( "filename");</code> <br/> 
-assumes a file in the Les Houches Event File format [<a href="Bibliography.html" target="page">Alw06</a>] is 
-provided (<a href="LesHouchesAccord.html" target="page">further instructions</a>).
-</li>
+Currently there is no method to set arbitrary kinematics for the 
+incoming beams. However, you could always rotate and boost the 
+final <a href="EventRecord.html" target="page">event</a> to whatever frame you wish. 
 
 <p/>
 <li>
@@ -170,6 +177,63 @@ either only what has been changed or everything, you can use
     pythia.particleData.listAll(); 
 </pre>
 </li>
+
+</ol>
+
+<h3>The event loop</h3>
+
+<ol>
+
+<li>
+Inside the event generation loop you generate the 
+next event using the <code>next()</code> method,
+<pre>
+    pythia.next();
+</pre>
+This method takes no arguments; everything has already been specified. 
+It does return a bool value, however, <code>false</code> when the
+generation failed. This can be a "programmed death" when the
+supply of input parton-level configurations on file is exhausted,
+but also caused by a failure of <code>Pythia</code> to generate an event,
+or that an event was generated but something strange was detected
+in it. It makes sense to allow a few <code>false</code> 
+values before a run is aborted, so long as the related faulty
+events are skipped.
+</li>  
+ 
+<p/>
+<li>
+The generated event is now stored in the <code>event</code> 
+object, of type <code>Event</code>, which is a public member of 
+<code>pythia</code>. You therefore have access to all the tools described
+on the pages under the "Study Output" header in the index. For instance, 
+an event can be listed with 
+<code>pythia.event.list()</code>, the identity of the <i>i</i>'th 
+particle is given by <code>pythia.event[i].id()</code>, and so on.<br/> 
+The hard process - roughly the information normally stored in the 
+Les Houches Accord event record - is available as a second object, 
+<code>process</code>, also of type <code>Event</code>.<br/> 
+A third public object is <code>info</code>, which offers a set of
+one-of-a kind pieces of information about the most recent event
+(<a href="EventInformation.html" target="page">further information</a>).
+</li> 
+
+</ol>
+
+<h3>Finishing</h3>
+
+<ol>
+
+<li>At the end of the generation process, you can call
+<pre>
+    pythia.statistics(); 
+</pre>
+to get some run statistics, on cross sections and the number of errors 
+and warnings encountered. With optional argument <code>true</code>
+also further statistics is printed. Currently this means the number of
+different subprocesses generated in the multiple-interactions
+framework. 
+</li> 
 
 </ol>
 
@@ -189,11 +253,11 @@ You can set the environment variable <code>PYTHIA8DATA</code> to
 contain the location of the <code>xmldoc</code> directory. In the
 <code>csh</code> and <code>tcsh</code> shells this could e.g. be 
 <pre>
-     setenv PYTHIA8DATA /home/myname/pythia8090/xmldoc
+     setenv PYTHIA8DATA /home/myname/pythia8095/xmldoc
 </pre>
 while in other shells it could be
 <pre>
-     export PYTHIA8DATA=/home/myname/pythia8090/xmldoc
+     export PYTHIA8DATA=/home/myname/pythia8095/xmldoc
 </pre>
 Recall that environment variables set locally are only defined in the 
 current instance of the shell. The above lines should go into your 
@@ -206,7 +270,7 @@ if you want a more permanant assignment.
 You can provide the path as argument to the <code>Pythia</code>
 constructor, e.g.
 <pre>
-     Pythia pythia("/home/myname/pythia8090/xmldoc");
+     Pythia pythia("/home/myname/pythia8095/xmldoc");
 </pre>
 </li>
 </ol>
@@ -318,63 +382,77 @@ derive from the <code>TimeShower</code> base class, and
 
 </ol>
 
-<h3>The event loop</h3>
-
+<p/>
+C) Some comments on collecting several tasks in the same run.
 <ol>
 
 <li>
-Inside the event generation loop you generate the 
-next event using the <code>next()</code> method,
-<pre>
-    pythia.next();
-</pre>
-This method takes no arguments; everything has already been specified. 
-It does return a bool value, however, <code>false</code> when the
-generation failed. This can be a "programmed death" when the
-supply of input parton-level configurations on file is exhausted,
-but also caused by a failure of <code>Pythia</code> to generate an event,
-or that an event was generated but something strange was detected
-in it. It makes sense to allow a few <code>false</code> 
-values before a run is aborted, so long as the related faulty
-events are skipped.
-</li>  
- 
+ PYTHIA has not been written for threadsafe execution. You should 
+never have more than one <code>Pythia</code> object in an executable
+at any time. For multicore processors, if you want to use all cores, 
+the most efficient way presumably is to start correspondingly many jobs, 
+with different random number seeds, and add the statistics at the end.
+
+<p/>
+As a consequence, it is not possible to generate signal and pileup
+events simultaneously, by using one <code>Pythia</code> object for each.
+Instead you may need to store events on disk, in two separate files, 
+and mix afterwards.
+</li>
+
 <p/>
 <li>
-The generated event is now stored in the <code>event</code> 
-object, of type <code>Event</code>, which is a public member of 
-<code>pythia</code>. You therefore have access to all the tools described
-on the pages under the "Study Output" header in the index. For instance, 
-an event can be listed with 
-<code>pythia.event.list()</code>, the identity of the <i>i</i>'th 
-particle is given by <code>pythia.event[i].id()</code>, and so on.<br/> 
-The hard process - roughly the information normally stored in the 
-Les Houches Accord event record - is available as a second object, 
-<code>process</code>, also of type <code>Event</code>.<br/> 
-A third public object is <code>info</code>, which offers a set of
-one-of-a kind pieces of information about the most recent event
-(<a href="EventInformation.html" target="page">further information</a>).
-</li> 
-
-</ol>
-
-<h3>Finishing</h3>
-
-<ol>
-
-<li>At the end of the generation process, you can call
+When time is not the issue, it may be that you want to perform several 
+separate subruns sequentially inside a run, e.g. to combine results for
+several kinematical regions or to compare results for some different 
+tunes of the underlying event. One way to go is to create and destroy a 
+<code>pythia</code> object once for each subrun, in which case they are 
+completely separate. You can also use the same <code>pythia</code> object, 
+only doing a new <code>init(...)</code> call for each subrun. In that 
+case, the settings and particle databases remain as they were in the  
+previous subrun, only affected by the specific changes you introduced in 
+the meantime. You can put those changes in the main program, with
+<code>pythia.readString(string)</code>, using your own logic to decide
+which ones to execute in which subrun. A corresponding possibility 
+exists with <code>pythia.readFile(fileName, subrun)</code>, which 
+as second argument can take a non-negative subrun number. (Or, 
+alternatively use the longer form 
+<code>pythia.readFile(fileName, warn, subrun)</code>.) Then only those 
+sections of the file before any <code>Main:subrun = ...</code> line
+or with matching <code>subrun</code> number will be read. That is, the
+file could have a structure like
 <pre>
-    pythia.statistics(); 
+    ( lines always read, i.e. "default values" always (re)set )
+    Main:subrun = 1
+    ( lines only read with readFile(fileName, 1) )
+    Main:subrun = 2
+    ( lines only read with readFile(fileName, 2) )
 </pre>
-to get some run statistics, on cross sections and the number of errors 
-and warnings encountered. With optional argument <code>true</code>
-also further statistics is printed. Currently this means the number of
-different subprocesses generated in the multiple-interactions
-framework. 
-</li> 
+Both of these possibilities are illustrated in <code>main08.cc</code>.
+</li>
+
+<p/>
+<li>
+When working with Les Houches Event Files, it may well be that your 
+intended input event sample is spread over several files, that you all 
+want to turn into complete events in one and the same run. There is no
+problem with looping over several subruns, where each new subrun 
+is initialized with a new file. However, in that case you will do
+a complete re-initialization each time around. If you want to avoid
+this, note that there is an optional second argument for LHEF
+initialization: <code>pythia.init(fileName, skipInit)</code>.
+Alternatively, the tag <code>Main:LHEFskipInit</code> can be put 
+in a file of commands to obtain the same effect.
+Here <code>skipInit</code> defaults to <code>false</code>,
+but if set <code>true</code> then the new file will be simulated 
+with the same initialization data as already set in a previous
+<code>pythia.init(...)</code> call. The burden rests on you to ensure 
+that this is indeed correct, e.g. that the two event samples have not 
+been generated for different beam energies.
+</li>
 
 </ol>
-
+   
 </body>
 </html>
 

@@ -117,7 +117,7 @@ double SuppressSmallPT::multiplySigmaBy( const SigmaProcess* sigmaProcessPtr,
     // alternatively as for hard processes.
     double alphaSvalue;
     int    alphaSorder;    
-    if (alphaSasMI) {
+    if (useSameAlphaSasMI) {
       alphaSvalue = Settings::parm("MultipleInteractions:alphaSvalue");
       alphaSorder = Settings::mode("MultipleInteractions:alphaSorder");
     } else {

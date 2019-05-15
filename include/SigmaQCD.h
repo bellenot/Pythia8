@@ -381,7 +381,7 @@ public:
   // Values stored for process type and colour flow selection.
   int    idNew, codeSave;
   string nameSave;
-  double sigTS, sigUS, sigSum, sigma;
+  double sigTS, sigUS, sigSum, sigma, openFracPair;
 
 };
  
@@ -423,7 +423,7 @@ public:
   // Values stored for process type.
   int    idNew, codeSave;
   string nameSave;
-  double sigma;
+  double sigma, openFracPair;
 
 };
 

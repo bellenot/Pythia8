@@ -150,7 +150,7 @@ VTIMUP, SPINUP</code>) .
 
 <p/>
 Information is handed back by the following methods:
-<p/><code>method&nbsp; </code><strong> idProc(), weight(), scale(), alphaQED(), alphaQCD() &nbsp;</strong> <br/>
+<p/><code>method&nbsp; </code><strong> idProcess(), weight(), scale(), alphaQED(), alphaQCD() &nbsp;</strong> <br/>
   
 <p/><code>method&nbsp; </code><strong> size() &nbsp;</strong> <br/>
 for the size of the particle array, which is one larger than the number 
@@ -195,8 +195,7 @@ a format where a single file packs initialization and event information.
 This is likely to become the most frequently used procedure to process
 external parton-level events in Pythia. Therefore a special 
 <?php $filepath = $_GET["filepath"];
-echo "<a href='ProgramFlow.php?filepath=".$filepath."' target='page'>";?>
-<code>pythia.init("filename")</code></a>
+echo "<a href='ProgramFlow.php?filepath=".$filepath."' target='page'>";?><code>pythia.init(fileName)</code></a>
 initialization option exists, where the LHEF name is provided as single
 input. Internally this name is then used to create instances of two derived 
 classes, <code>LHAinitLHEF</code> and <code>LHAevntLHEF</code>. Both of
@@ -264,24 +263,6 @@ See further
 <?php $filepath = $_GET["filepath"];
 echo "<a href='AccessPYTHIA6Processes.php?filepath=".$filepath."' target='page'>";?>here</a> for 
 information how PYTHIA 6.4 can be linked to make use of this facility. 
-
-<h3>Other examples</h3>
-
-A special <code>strategy = 10</code> (not present in the <code>IDWTUP</code> 
-specification) has been added. It takes a given partonic input, 
-no questions asked, and hadronizes it, i.e. does string fragmentation 
-and decay. Thereby the normal process-level and parton-level machineries 
-are bypassed, to the largest extent possible. (Some parts are used, 
-e.g. first to translate the Les Houches event to the process record 
-and later to the event record.) Such an option can therefore be used 
-to feed in ready-made parton-level configurations, without needing to 
-specify where these come from, i.e. there need be no beams or any such 
-explicit information, but of course the user must have taken care of it
-beforehand. 
-
-<p/>
-An example how this can be used for toy studies is found in 
-<code>main21.cc</code>.
 
 </body>
 </html>

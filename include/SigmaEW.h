@@ -4,7 +4,7 @@
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 // Header file for electroweak process differential cross sections.
-// Contains classes derived from SigmaProcess via Sigma2Process.
+// Contains classes derived from SigmaProcess via Sigma(1/2)Process.
 
 #ifndef Pythia8_SigmaEW_H
 #define Pythia8_SigmaEW_H
@@ -255,15 +255,14 @@ private:
 //**************************************************************************
 
 // A derived class for q q' -> Q q" via t-channel W+- exchange.
-// Related to Sigma2ff2ffViaW class, but with massive matrix elements.
+// Related to Sigma2ff2fftW class, but with massive matrix elements.
 
 class Sigma2qq2QqtW : public Sigma2Process {
 
 public:
 
   // Constructor.
-  Sigma2qq2QqtW(int idIn, int codeIn, string nameIn) 
-    : idNew(idIn), codeSave(codeIn), nameSave(nameIn) {}
+  Sigma2qq2QqtW(int idIn, int codeIn) : idNew(idIn), codeSave(codeIn) {}
 
   // Initialize process. 
   virtual void initProc(); 
@@ -291,7 +290,7 @@ private:
   // Values stored for process type. W parameters for propagator.
   int    idNew, codeSave;
   string nameSave;
-  double mW, mWS, thetaWRat, sigma0;
+  double mW, mWS, thetaWRat, sigma0, openFracPos, openFracNeg;
 
 };
  
@@ -427,8 +426,8 @@ class Sigma2ffbar2FFbarsgmZ : public Sigma2Process {
 public:
 
   // Constructor.
-  Sigma2ffbar2FFbarsgmZ(int idIn, int codeIn, string nameIn) 
-    : idNew(idIn), codeSave(codeIn), nameSave(nameIn) {}
+  Sigma2ffbar2FFbarsgmZ(int idIn, int codeIn) : idNew(idIn), 
+    codeSave(codeIn) {}
 
   // Initialize process. 
   virtual void initProc(); 
@@ -459,15 +458,15 @@ private:
   // Values stored for process type. Z parameters for propagator.
   int    idNew, codeSave, gmZmode;
   string nameSave;
-  bool physical;
+  bool   isPhysical;
   double ef, vf, af, mRes, GammaRes, m2Res, GamMRat, thetaWRat,
-     mr, betaf, cosThe, gamProp, intProp, resProp; 
+         mr, betaf, cosThe, gamProp, intProp, resProp, openFracPair; 
 
 };
 
 //**************************************************************************
 
-// A derived class for f fbar' -> W+- -> F fbar", for one heavy F.
+// A derived class for f fbar' -> W+- -> F fbar", for one or two heavy F.
 // Allows pT cuts as for other 2 -> 2 processes.
 
 class Sigma2ffbar2FfbarsW : public Sigma2Process {
@@ -475,8 +474,8 @@ class Sigma2ffbar2FfbarsW : public Sigma2Process {
 public:
 
   // Constructor.
-  Sigma2ffbar2FfbarsW(int idIn, int codeIn, string nameIn) 
-    : idNew(idIn), codeSave(codeIn), nameSave(nameIn) {}
+  Sigma2ffbar2FfbarsW(int idIn, int idIn2, int codeIn) : idNew(idIn), 
+    idNew2(idIn2), codeSave(codeIn) {}
 
   // Initialize process. 
   virtual void initProc(); 
@@ -505,10 +504,11 @@ public:
 private:
 
   // Values stored for process type. W parameters for propagator.
-  int    idNew, codeSave, idPartner;
+  int    idNew, idNew2, codeSave, idPartner;
   string nameSave;
-  bool physical;
-  double V2New, mRes, GammaRes, m2Res, GamMRat, thetaWRat, sigma0; 
+  bool   isPhysical;
+  double V2New, mRes, GammaRes, m2Res, GamMRat, thetaWRat, sigma0,
+         openFracPos, openFracNeg; 
 
 };
  
@@ -635,7 +635,7 @@ private:
 
   // Store W+- mass and width, and couplings.
   double mW, widW, mWS, mwWS, sin2thetaW, cos2thetaW, thetaWRat, 
-         thetaWpt, thetaWmm, lun, lde, sigma0;
+         thetaWpt, thetaWmm, lun, lde, sigma0, openFracPos, openFracNeg;
 
 };
  
@@ -677,7 +677,7 @@ private:
 
   // Store Z0 mass and width.
   double mZ, widZ, mZS, mwZS, thetaWRat, sigma0, cgg, cgZ, cZZ, cfg, 
-    cfZ, cff, gSS, gTT, gST, gUU, gSU;
+    cfZ, cff, gSS, gTT, gST, gUU, gSU, openFracPair;
 
 };
  
@@ -879,6 +879,9 @@ public:
   // Constructor.
   Sigma2qqbar2Wg() {}
 
+  // Initialize process. 
+  virtual void initProc(); 
+
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
@@ -897,7 +900,7 @@ public:
 private:
 
   // Values stored for later use.
-  double sigma0;
+  double sigma0, openFracPos, openFracNeg;
 
 };
  
@@ -911,6 +914,9 @@ public:
 
   // Constructor.
   Sigma2qg2Wq() {}
+
+  // Initialize process. 
+  virtual void initProc(); 
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
@@ -930,7 +936,7 @@ public:
 private:
 
   // Values stored for later use.
-  double sigma0;
+  double sigma0, openFracPos, openFracNeg;
 
 };
  
@@ -944,6 +950,9 @@ public:
 
   // Constructor.
   Sigma2ffbar2Wgm() {}
+
+  // Initialize process. 
+  virtual void initProc(); 
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
@@ -963,7 +972,7 @@ public:
 private:
 
   // Values stored for later use.
-  double sigma0;
+  double sigma0, openFracPos, openFracNeg;
 
 };
  
@@ -977,6 +986,9 @@ public:
 
   // Constructor.
   Sigma2fgm2Wf() {}
+
+  // Initialize process. 
+  virtual void initProc(); 
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
@@ -996,7 +1008,7 @@ public:
 private:
 
   // Values stored for later use.
-  double sigma0;
+  double sigma0, openFracPos, openFracNeg;
 
 };
  

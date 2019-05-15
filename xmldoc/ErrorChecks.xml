@@ -6,6 +6,32 @@ There is a few settings related to error checking during program
 execution. Many other checks are perfomed as well, but do not 
 have any specific setting related to themselves.
 
+<flag name="Check:particleData" default="off">
+Check the particle data tables for potential problems during 
+initialization. This includes inconsistent use of charge in particle 
+names, inconsistent setup of mass, mass range, width and lifetime, 
+sum of branching ratios not unity (allowed but discouraged) or charge 
+not conserved in a decay channel. Warnings should be viewed as reasons 
+to check further, but need not indicate a true problem, and also not all 
+problems may be caught. 
+The <code>pythia.particleData.checkTable(level)</code> method,
+used for these checks, may also be called directly. 
+</flag>
+
+<modepick name="Check:levelParticleData" default="1">
+The level of verbosity and checks of particle data, if switched on.
+<option value="0">mimimal amount of checks, e.g. that no channels open
+</option>
+<option value="1">further warning if individual channels closed,
+except for resonances.</option>
+<option value="2">also print branching-ratio-averaged threshold mass
+except for resonances.</option>
+<option value="11">as 1, but include resonances in detailed checks.
+</option>
+<option value="12">as 2, but include resonances in detailed checks.
+</option>
+</modepick>
+
 <flag name="Check:event" default="on">
 When an event has been successfully generated, check that the 
 final event record in <code>event</code> does not contain any 

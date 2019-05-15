@@ -41,10 +41,9 @@ public:
   // Destructor.
   ~ProcessContainer() {delete phaseSpacePtr; delete sigmaProcessPtr;}
   
-  // Store pointer to Info and to ResonanceDecays.
-  static void setInfoPtr(Info* infoPtrIn) {infoPtr = infoPtrIn;}
-  static void setResonanceDecaysPtr(ResonanceDecays* resonanceDecaysPtrIn)
-    {resonanceDecaysPtr = resonanceDecaysPtrIn;}
+  // Store pointers to Info and ResonanceDecays.
+  static void initStatic(Info* infoPtrIn, ResonanceDecays* resDecaysPtrIn) 
+    {infoPtr = infoPtrIn; resonanceDecaysPtr = resDecaysPtrIn;}
 
   // Initialize phase space and counters.
   bool init(); 

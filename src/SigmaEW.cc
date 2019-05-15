@@ -37,7 +37,7 @@ double Sigma2qg2qgamma::sigmaHat() {
 
   // Incoming flavour gives charge factor.
   int idNow    = (id2 == 21) ? id1 : id2;    
-  double eNow  = CoupEW::ef(idNow);    
+  double eNow  = CoupEW::ef( abs(idNow) );    
   return sigma0 * pow2(eNow);
 
 }
@@ -484,10 +484,22 @@ void Sigma2ff2fftW::setIdColAcol() {
   
 void Sigma2qq2QqtW::initProc() {
 
+  // Process name.
+  nameSave                 = "q q -> Q q (t-channel W+-)";
+  if (idNew == 4) nameSave = "q q -> c q (t-channel W+-)";
+  if (idNew == 5) nameSave = "q q -> b q (t-channel W+-)";
+  if (idNew == 6) nameSave = "q q -> t q (t-channel W+-)";
+  if (idNew == 7) nameSave = "q q -> b' q (t-channel W+-)";
+  if (idNew == 8) nameSave = "q q -> t' q (t-channel W+-)";
+
   // Store W+- mass for propagator. Common coupling factor.
   mW        = ParticleDataTable::m0(24);
   mWS       = mW*mW;
   thetaWRat = 1. / (4. * CoupEW::sin2thetaW());  
+
+  // Secondary open width fractions, relevant for top (or heavier).
+  openFracPos = ParticleDataTable::resOpenFrac(idNew);
+  openFracNeg = ParticleDataTable::resOpenFrac(-idNew);
 
 } 
 
@@ -520,19 +532,19 @@ double Sigma2qq2QqtW::sigmaHat() {
   sigma *= (id1 * id2 > 0) ? sH * (sH - s3) : uH * (uH - s3);
 
   // Secondary width if t or tbar produced on either side.
-  double widSec1 = (idNew ==6) ? ResonanceTop::openFrac(id1) : 1.;
-  double widSec2 = (idNew ==6) ? ResonanceTop::openFrac(id2) : 1.;
+  double openFrac1 = (id1 > 0) ? openFracPos : openFracNeg;
+  double openFrac2 = (id2 > 0) ? openFracPos : openFracNeg;
 
   // CKM factors for final states; further impossible case.
   bool diff1N = (id1Abs%2 != idNew%2);
   bool diff2N = (id2Abs%2 != idNew%2);
   if (diff1N && diff2N) 
-    sigma *= ( VCKM::V2id(id1Abs, idNew) * widSec1 * VCKM::V2sum(id2Abs)
-             + VCKM::V2sum(id1Abs) * VCKM::V2id(id2Abs, idNew) * widSec2 );
+    sigma *= ( VCKM::V2id(id1Abs, idNew) * openFrac1 * VCKM::V2sum(id2Abs)
+             + VCKM::V2sum(id1Abs) * VCKM::V2id(id2Abs, idNew) * openFrac2 );
   else if (diff1N) 
-    sigma *= VCKM::V2id(id1Abs, idNew) * widSec1 * VCKM::V2sum(id2Abs);
+    sigma *= VCKM::V2id(id1Abs, idNew) * openFrac1 * VCKM::V2sum(id2Abs);
   else if (diff2N) 
-    sigma *= VCKM::V2sum(id1Abs) * VCKM::V2id(id2Abs, idNew) * widSec2;
+    sigma *= VCKM::V2sum(id1Abs) * VCKM::V2id(id2Abs, idNew) * openFrac2;
   else sigma = 0.;
 
   // Spin-state extra factor 2 per incoming neutrino.
@@ -556,9 +568,9 @@ void Sigma2qq2QqtW::setIdColAcol() {
   int side   = 1;
   if ( (id1Abs + idNew)%2 == 1 && (id2Abs + idNew)%2 == 1 ) {
     double prob1 = VCKM::V2id(id1Abs, idNew) * VCKM::V2sum(id2Abs);
-    if (idNew == 6) prob1 *= ResonanceTop::openFrac(id1);
+    prob1       *= (id1 > 0) ? openFracPos : openFracNeg;
     double prob2 = VCKM::V2id(id2Abs, idNew) * VCKM::V2sum(id1Abs);
-    if (idNew == 6) prob2 *= ResonanceTop::openFrac(id2);
+    prob2       *= (id2 > 0) ? openFracPos : openFracNeg;
     if (prob2 > Rndm::flat() * (prob1 + prob2)) side = 2;
   } 
   else if ((id2Abs + idNew)%2 == 1) side = 2;
@@ -596,7 +608,7 @@ double Sigma2qq2QqtW::weightDecay( Event& process, int iResBeg,
 
   // For top decay hand over to standard routine, else done.
   if (idNew == 6 && process[process[iResBeg].mother1()].idAbs() == 6) 
-       return ResonanceTop::weightDecayAngles( process, iResBeg, iResEnd);
+       return weightTopDecay( process, iResBeg, iResEnd);
   else return 1.; 
 
 }
@@ -760,8 +772,8 @@ double Sigma1ffbar2gmZ::weightDecay( Event& process, int iResBeg, int iResEnd) {
   if (process[3].id() * process[6].id() < 0) coefAsym = -coefAsym;
 
   // Reconstruct decay angle and weight for it.
-  double cosThe = 2. * process[3].p() * (process[7].p() - process[6].p())
-    / (sH * betaf);
+  double cosThe = (process[3].p() - process[4].p()) 
+    * (process[7].p() - process[6].p()) / (sH * betaf);
   double wtMax = 2. * (coefTran + abs(coefAsym));
   double wt    = coefTran * (1. + pow2(cosThe)) 
      + coefLong * (1. - pow2(cosThe)) + 2. * coefAsym * cosThe;
@@ -771,7 +783,7 @@ double Sigma1ffbar2gmZ::weightDecay( Event& process, int iResBeg, int iResEnd) {
 
 }
 
-//************************************
+//**************************************************************************
 
 // Sigma1ffbar2W class.
 // Cross section for f fbar' -> W+- (f is quark or lepton). 
@@ -902,8 +914,8 @@ double Sigma1ffbar2W::weightDecay( Event& process, int iResBeg, int iResEnd) {
   double eps    = (process[3].id() * process[6].id() > 0) ? 1. : -1.;
 
   // Reconstruct decay angle and weight for it.
-  double cosThe = 2. * process[3].p() * (process[7].p() - process[6].p())
-    / (sH * betaf);
+  double cosThe = (process[3].p() - process[4].p()) 
+    * (process[7].p() - process[6].p()) / (sH * betaf);
   double wtMax  = 4.;
   double wt     = pow2(1. + betaf * eps * cosThe) - pow2(mr1 - mr2); 
  
@@ -1005,20 +1017,35 @@ void Sigma2ffbar2ffbarsgm::setIdColAcol() {
   
 void Sigma2ffbar2FFbarsgmZ::initProc() {
 
+  // Process name.
+  nameSave                 = "f fbar -> F Fbar (s-channel gamma*/Z0)";
+  if (idNew == 4) nameSave = "f fbar -> c cbar (s-channel gamma*/Z0)";
+  if (idNew == 5) nameSave = "f fbar -> b bbar (s-channel gamma*/Z0)";
+  if (idNew == 6) nameSave = "f fbar -> t tbar (s-channel gamma*/Z0)";
+  if (idNew == 7) nameSave = "f fbar -> b' b'bar (s-channel gamma*/Z0)";
+  if (idNew == 8) nameSave = "f fbar -> t' t'bar (s-channel gamma*/Z0)";
+  if (idNew == 15) nameSave = "f fbar -> tau+ tau- (s-channel gamma*/Z0)";
+  if (idNew == 17) nameSave = "f fbar -> tau'+ tau'- (s-channel gamma*/Z0)";
+  if (idNew == 18) 
+    nameSave   = "f fbar -> nu'_tau nu'bar_tau (s-channel gamma*/Z0)";
+
   // Allow to pick only gamma* or Z0 part of full gamma*/Z0 expression.
-  gmZmode     = Settings::mode("SigmaProcess:gmZmode");
+  gmZmode      = Settings::mode("SigmaProcess:gmZmode");
 
   // Store Z0 mass and width for propagator. 
-  mRes        = ParticleDataTable::m0(23);
-  GammaRes    = ParticleDataTable::mWidth(23);
-  m2Res       = mRes*mRes;
-  GamMRat     = GammaRes / mRes;
-  thetaWRat   = 1. / (16. * CoupEW::sin2thetaW() * CoupEW::cos2thetaW());
+  mRes         = ParticleDataTable::m0(23);
+  GammaRes     = ParticleDataTable::mWidth(23);
+  m2Res        = mRes*mRes;
+  GamMRat      = GammaRes / mRes;
+  thetaWRat    = 1. / (16. * CoupEW::sin2thetaW() * CoupEW::cos2thetaW());
 
   // Store couplings of F.
-  ef          = CoupEW::ef(idNew);
-  vf          = CoupEW::vf(idNew);
-  af          = CoupEW::af(idNew);
+  ef           = CoupEW::ef(idNew);
+  vf           = CoupEW::vf(idNew);
+  af           = CoupEW::af(idNew);
+
+  // Secondary open width fraction, relevant for top (or heavier).
+  openFracPair = ParticleDataTable::resOpenFrac(idNew, -idNew);
 
 } 
 
@@ -1029,9 +1056,9 @@ void Sigma2ffbar2FFbarsgmZ::initProc() {
 void Sigma2ffbar2FFbarsgmZ::sigmaKin() { 
 
   // Check that above threshold.
-  physical       = true;
+  isPhysical     = true;
   if (mH < m3 + m4 + MASSMARGIN) {
-    physical     = false;
+    isPhysical   = false;
     return;
   }
 
@@ -1066,7 +1093,7 @@ void Sigma2ffbar2FFbarsgmZ::sigmaKin() {
 double Sigma2ffbar2FFbarsgmZ::sigmaHat() { 
 
   // Fail if below threshold.
-  if (!physical) return 0.;
+  if (!isPhysical) return 0.;
 
   // Couplings for in-flavours.
   int idAbs       = abs(id1);
@@ -1087,7 +1114,7 @@ double Sigma2ffbar2FFbarsgmZ::sigmaHat() {
    + coefLong * (1. - pow2(cosThe)) + 2. * coefAsym * cosThe; 
 
   // Top: corrections for closed decay channels.
-  if (idNew == 6) sigma *= ResonanceTop::openFrac(6, -6);
+  sigma *= openFracPair;
 
   // Initial-state colour factor. Answer.
   if (idAbs < 9) sigma /= 3.;
@@ -1123,7 +1150,7 @@ double Sigma2ffbar2FFbarsgmZ::weightDecay( Event& process, int iResBeg,
 
   // For top decay hand over to standard routine, else done.
   if (idNew == 6 && process[process[iResBeg].mother1()].idAbs() == 6) 
-       return ResonanceTop::weightDecayAngles( process, iResBeg, iResEnd);
+       return weightTopDecay( process, iResBeg, iResEnd);
   else return 1.; 
 
 }
@@ -1139,6 +1166,22 @@ double Sigma2ffbar2FFbarsgmZ::weightDecay( Event& process, int iResBeg,
   
 void Sigma2ffbar2FfbarsW::initProc() {
 
+  // Process name.
+  nameSave                 = "f fbar -> F fbar (s-channel W+-)";
+  if (idNew == 4) nameSave = "f fbar -> c qbar (s-channel W+-)";
+  if (idNew == 5) nameSave = "f fbar -> b qbar (s-channel W+-)";
+  if (idNew == 6) nameSave = "f fbar -> t qbar (s-channel W+-)";
+  if (idNew == 7) nameSave = "f fbar -> b' qbar (s-channel W+-)";
+  if (idNew == 8) nameSave = "f fbar -> t' qbar (s-channel W+-)";
+  if (idNew == 7 && idNew2 == 6)
+    nameSave = "f fbar -> b' tbar (s-channel W+-)";
+  if (idNew == 8 && idNew2 == 7) 
+    nameSave = "f fbar -> t' b'bar (s-channel W+-)";
+  if (idNew == 15 || idNew == 16) 
+    nameSave = "f fbar -> tau nu_taubar (s-channel W+-)";
+  if (idNew == 17 || idNew == 18) 
+    nameSave = "f fbar -> tau'  nu'_taubar (s-channel W+-)";
+
   // Store W+- mass and width for propagator. 
   mRes      = ParticleDataTable::m0(24);
   GammaRes  = ParticleDataTable::mWidth(24);
@@ -1146,12 +1189,18 @@ void Sigma2ffbar2FfbarsW::initProc() {
   GamMRat   = GammaRes / mRes;
   thetaWRat = 1. / (12. * CoupEW::sin2thetaW());
 
-  // Normally assume partner massless, but for t want to use b mass.
-  idPartner = 0;
-  if (idNew == 6) idPartner = 5;
+  // For t/t' want to use at least b mass.
+  idPartner = idNew2;
+  if ( (idNew == 6 || idNew == 8) && idNew2 == 0 ) idPartner = 5;
 
   // Sum of CKM weights for quarks.
   V2New     = (idNew < 9) ? VCKM::V2sum(idNew) : 1.;
+  if (idNew2 != 0) V2New = VCKM::V2id(idNew, idNew2);
+
+  // Secondary open width fractions, relevant for top or heavier.
+  openFracPos = ParticleDataTable::resOpenFrac( idNew, -idNew2);
+  openFracNeg = ParticleDataTable::resOpenFrac(-idNew,  idNew2);
+
 } 
 
 //*********
@@ -1161,9 +1210,9 @@ void Sigma2ffbar2FfbarsW::initProc() {
 void Sigma2ffbar2FfbarsW::sigmaKin() { 
 
   // Check that above threshold.
-  physical      = true;
+  isPhysical    = true;
   if (mH < m3 + m4 + MASSMARGIN) {
-    physical    = false;
+    isPhysical  = false;
     return;
   }
 
@@ -1197,18 +1246,15 @@ void Sigma2ffbar2FfbarsW::sigmaKin() {
 double Sigma2ffbar2FfbarsW::sigmaHat() { 
 
   // Fail if below threshold.
-  if (!physical) return 0.;
+  if (!isPhysical) return 0.;
 
   // CKM and colour factors.
   double sigma = sigma0;
   if (abs(id1) < 9) sigma *= VCKM::V2id(abs(id1), abs(id2)) / 3.;
 
-  // Correction for secondary width in top decay.
-  if (idNew == 6) {
-    int idUp = (abs(id1)%2 == 0) ? id1 : id2;
-    sigma *= ResonanceTop::openFrac(idUp);
-  }
-
+  // Correction for secondary width in top (or heavier) decay.
+  int idSame = ((abs(id1) + idNew)%2 == 0) ? id1 : id2;
+  sigma *= (idSame > 0) ? openFracPos : openFracNeg;
 
   // Answer.
   return sigma;    
@@ -1223,7 +1269,7 @@ void Sigma2ffbar2FfbarsW::setIdColAcol() {
 
   // Set outgoing flavours.
   id3 = idNew;
-  id4 = VCKM::V2pick(idNew);
+  id4 = (idNew2 != 0) ? idNew2 : VCKM::V2pick(idNew);
   if (idNew%2 == 0) {
     int idInUp = (abs(id1)%2 == 0) ? id1 : id2;
     if (idInUp > 0) id4 = -id4;
@@ -1257,7 +1303,7 @@ double Sigma2ffbar2FfbarsW::weightDecay( Event& process, int iResBeg,
 
   // For top decay hand over to standard routine, else done.
   if (idNew == 6 && process[process[iResBeg].mother1()].idAbs() == 6) 
-       return ResonanceTop::weightDecayAngles( process, iResBeg, iResEnd);
+       return weightTopDecay( process, iResBeg, iResEnd);
   else return 1.; 
 
 }
@@ -1682,6 +1728,10 @@ void Sigma2ffbar2ZW::initProc() {
   thetaWpt   = (9. - 8. * sin2thetaW) / 4.;
   thetaWmm   = (8. * sin2thetaW - 6.) / 4.;
 
+  // Secondary open width fractions.
+  openFracPos = ParticleDataTable::resOpenFrac(23,  24);
+  openFracNeg = ParticleDataTable::resOpenFrac(23, -24);
+
 } 
 
 //*********
@@ -1716,7 +1766,7 @@ double Sigma2ffbar2ZW::sigmaHat() {
 
   // Corrections for secondary widths in Z0 and W+- decays.
   int idUp = (abs(id1)%2 == 0) ? id1 : id2;
-  sigma *= ResonanceGmZ::openFrac(23) * ResonanceW::openFrac(idUp);
+  sigma *= (idUp > 0) ? openFracPos : openFracNeg;
 
   // Answer.
   return sigma;    
@@ -1817,11 +1867,14 @@ double Sigma2ffbar2ZW::weightDecay( Event& process, int iResBeg, int iResEnd) {
 void Sigma2ffbar2WW::initProc() {
 
   // Store Z0 mass and width for propagator. Common coupling factor.
-  mZ        = ParticleDataTable::m0(23);
-  widZ      = ParticleDataTable::mWidth(23);
-  mZS       = mZ*mZ;
-  mwZS      = pow2(mZ * widZ);
-  thetaWRat = 1. / (4. * CoupEW::sin2thetaW());  
+  mZ           = ParticleDataTable::m0(23);
+  widZ         = ParticleDataTable::mWidth(23);
+  mZS          = mZ*mZ;
+  mwZS         = pow2(mZ * widZ);
+  thetaWRat    = 1. / (4. * CoupEW::sin2thetaW());  
+
+  // Secondary open width fraction.
+  openFracPair = ParticleDataTable::resOpenFrac(24, -24);
 
 } 
 
@@ -1881,7 +1934,7 @@ double Sigma2ffbar2WW::sigmaHat() {
 
   // Initial-state colour factor. Correction for secondary widths. Answer.
   if (idAbs < 9) sigma /= 3.;
-  sigma *= ResonanceW::openFrac(24, -24); 
+  sigma *= openFracPair; 
   return sigma;    
 
 }
@@ -2434,6 +2487,18 @@ double Sigma2ffbarWggm::weightDecay( Event& process, int iResBeg, int iResEnd) {
 
 //*********
 
+// Initialize process. 
+  
+void Sigma2qqbar2Wg::initProc() {
+
+  // Secondary open width fractions, relevant for top (or heavier).
+  openFracPos = ParticleDataTable::resOpenFrac(24);
+  openFracNeg = ParticleDataTable::resOpenFrac(-24);
+
+} 
+
+//*********
+
 // Evaluate d(sigmaHat)/d(tHat), part independent of incoming flavour. 
 
 void Sigma2qqbar2Wg::sigmaKin() {
@@ -2453,7 +2518,7 @@ double Sigma2qqbar2Wg::sigmaHat() {
   // CKM factor. Secondary width for W+ or W-.
   double sigma = sigma0 * VCKM::V2id(abs(id1), abs(id2));
   int idUp     = (abs(id1)%2 == 0) ? id1 : id2;
-  sigma       *= ResonanceW::openFrac(idUp);
+  sigma       *= (idUp > 0) ? openFracPos : openFracNeg;
 
   // Answer.
   return sigma;    
@@ -2484,6 +2549,18 @@ void Sigma2qqbar2Wg::setIdColAcol() {
 
 //*********
 
+// Initialize process. 
+  
+void Sigma2qg2Wq::initProc() {
+
+  // Secondary open width fractions, relevant for top (or heavier).
+  openFracPos = ParticleDataTable::resOpenFrac(24);
+  openFracNeg = ParticleDataTable::resOpenFrac(-24);
+
+} 
+
+//*********
+
 // Evaluate d(sigmaHat)/d(tHat), part independent of incoming flavour. 
 
 void Sigma2qg2Wq::sigmaKin() {
@@ -2505,7 +2582,7 @@ double Sigma2qg2Wq::sigmaHat() {
   double sigma = sigma0 * VCKM::V2sum(idAbs);
   int idUp     = (id2 == 21) ? id1 : id2;
   if (idAbs%2 == 1) idUp = -idUp;
-  sigma       *= ResonanceW::openFrac(idUp);
+  sigma       *= (idUp > 0) ? openFracPos : openFracNeg;
 
   // Answer.
   return sigma;    
@@ -2544,6 +2621,18 @@ void Sigma2qg2Wq::setIdColAcol() {
 
 //*********
 
+// Initialize process. 
+  
+void Sigma2ffbar2Wgm::initProc() {
+
+  // Secondary open width fractions, relevant for top (or heavier).
+  openFracPos = ParticleDataTable::resOpenFrac(24);
+  openFracNeg = ParticleDataTable::resOpenFrac(-24);
+
+} 
+
+//*********
+
 // Evaluate d(sigmaHat)/d(tHat), part independent of incoming flavour. 
 
 void Sigma2ffbar2Wgm::sigmaKin() {
@@ -2568,7 +2657,7 @@ double Sigma2ffbar2Wgm::sigmaHat() {
   // CKM and colour factors. Secondary width for W+ or W-.
   if (id1Abs < 9) sigma *= VCKM::V2id(id1Abs, id2Abs) / 3.;
   int idUp     = (abs(id1)%2 == 0) ? id1 : id2;
-  sigma       *= ResonanceW::openFrac(idUp);
+  sigma       *= (idUp > 0) ? openFracPos : openFracNeg;
 
   // Answer.
   return sigma;    
@@ -2603,6 +2692,18 @@ void Sigma2ffbar2Wgm::setIdColAcol() {
 
 //*********
 
+// Initialize process. 
+  
+void Sigma2fgm2Wf::initProc() {
+
+  // Secondary open width fractions, relevant for top (or heavier).
+  openFracPos = ParticleDataTable::resOpenFrac(24);
+  openFracNeg = ParticleDataTable::resOpenFrac(-24);
+
+} 
+
+//*********
+
 // Evaluate d(sigmaHat)/d(tHat), part independent of incoming flavour. 
 
 void Sigma2fgm2Wf::sigmaKin() {
@@ -2628,7 +2729,7 @@ double Sigma2fgm2Wf::sigmaHat() {
   sigma        *= VCKM::V2sum(idAbs);
   int idUp      = (id2 == 22) ? id1 : id2;
   if (idAbs%2 == 1) idUp = -idUp;
-  sigma        *= ResonanceW::openFrac(idUp);
+  sigma        *= (idUp > 0) ? openFracPos : openFracNeg;
 
   // Answer.
   return sigma;    

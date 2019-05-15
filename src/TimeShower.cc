@@ -45,6 +45,7 @@ double TimeShower::pT2chgLCut         = 0.25e-6;
 double TimeShower::mMaxGamma          = 10.;
 double TimeShower::m2MaxGamma         = 100.;
 double TimeShower::octetOniumFraction = 1.0;
+double TimeShower::octetOniumColFac   = 2.0;
 double TimeShower::mZ                 = 91.188;
 double TimeShower::gammaZ             = 2.478;
 double TimeShower::thetaWRat          = 0.35;
@@ -113,8 +114,9 @@ void TimeShower::initStatic() {
   // Consisteny check for gamma -> f fbar variables.
   if (nGammaToQuark <= 0 && nGammaToLepton <= 0) doQEDshowerByGamma = false;  
 
-  // Fraction of gluon emission off onium octat state.
+  // Fraction and coloru factor of gluon emission off onium octat state.
   octetOniumFraction = Settings::parm("TimeShower:octetOniumFraction");
+  octetOniumColFac   = Settings::parm("TimeShower:octetOniumColFac");
 
   // Z0 properties needed for gamma/Z0 mixing.
   mZ                 = ParticleDataTable::m0(23);
@@ -217,11 +219,13 @@ void TimeShower::prepare( int iSys, Event& event) {
 
       // Find dipole end formed by colour index.
       int colTag = event[iRad].col();    
-      if (doQCD && colTag > 0) setupQCDdip( iSys, i, colTag, 1, event); 
+      if (doQCD && colTag > 0) 
+        setupQCDdip( iSys, i,  colTag,  1, event, isOctetOnium); 
 
       // Find dipole end formed by anticolour index.
       int acolTag = event[iRad].acol();     
-      if (doQCD && acolTag > 0) setupQCDdip( iSys, i, acolTag, -1, event); 
+      if (doQCD && acolTag > 0) 
+        setupQCDdip( iSys, i, acolTag, -1, event, isOctetOnium); 
 
       // Find "charge-dipole" and "photon-dipole" ends. 
       int  chgType  = event[iRad].chargeType();  
@@ -356,7 +360,7 @@ void TimeShower::update( int iSys, Event& event) {
 // Setup a dipole end for a QCD colour charge.
 
 void TimeShower::setupQCDdip( int iSys, int i, int colTag, int colSign, 
-  Event& event) {
+  Event& event, bool isOctetOnium) {
  
   // Initial values. Find if allowed to hook up beams.
   int iRad = event.getInSystem( iSys, i);
@@ -409,7 +413,7 @@ void TimeShower::setupQCDdip( int iSys, int i, int colTag, int colSign,
     int colType  = (event[iRad].id() == 21) ? 2 * colSign : colSign;
     int isrType  = (event[iRec].isFinal()) ? 0 : event[iRec].mother1();
     dipEnd.push_back( TimeDipoleEnd( iRad, iRec, pTmax, 
-      colType, 0, 0, isrType, iSys, -1) );
+      colType, 0, 0, isrType, iSys, -1, -1, isOctetOnium) );
   }
 
 }
@@ -530,6 +534,7 @@ void TimeShower::pT2nextQCD(double pT2begDip, double pT2sel,
   int    colTypeAbs = abs(dip.colType);
   double wtPSglue   = 2.;
   double colFac     = (colTypeAbs == 1) ? 4./3. : 3./2.;
+  if (dip.isOctetOnium) colFac *= 0.5 * octetOniumColFac;
   double wtPSqqbar  = (colTypeAbs == 2) ? 0.25 * nGluonToQuark : 0.;
   
   // Variables used inside evolution loop. (Mainly dummy start values.)
@@ -1271,10 +1276,6 @@ int TimeShower::findMEparticle( int id) {
   else if (colType == 0 && spinType == 2) type = 5;
   else if (colType == 2 && spinType == 2) type = 6;
 
-  // Classify colour octet onium state as quark (actually as Q + Qbar).
-  //if ( id == 9900441 || id == 9900443 || id == 9910441 
-  //  || id == 9900551 || id == 9900553 || id == 9910551 ) type = 1; 
-
   // Done.
   return type;
 
@@ -1289,8 +1290,8 @@ double TimeShower::gammaZmix( Event& event, int iRes, int iDau1, int iDau2) {
   // Try to identify initial flavours; use e+e- as default.
   int idIn1 = -11;
   int idIn2 = 11;
-  int iIn1 = (iRes >= 0) ? event[iRes].mother1() : -1;
-  int iIn2 = (iRes >= 0) ? event[iRes].mother2() : -1;
+  int iIn1  = (iRes >= 0) ? event[iRes].mother1() : -1;
+  int iIn2  = (iRes >= 0) ? event[iRes].mother2() : -1;
   if (iIn1 >=0) idIn1 = event[iIn1].id();
   if (iIn2 >=0) idIn2 = event[iIn1].id();
          
@@ -1300,19 +1301,19 @@ double TimeShower::gammaZmix( Event& event, int iRes, int iDau1, int iDau2) {
  
   // Initial flavours and couplings; return if don't make sense.
   if (idIn1 + idIn2 != 0 ) return 0.5;
-  int idIn = abs(idIn1);
-  if (idIn == 0 || idIn > 18 ) return 0.5; 
-  double ei = CoupEW::ef(idIn);
-  double vi = CoupEW::vf(idIn);
-  double ai = CoupEW::af(idIn);
+  int idInAbs = abs(idIn1);
+  if (idInAbs == 0 || idInAbs > 18 ) return 0.5; 
+  double ei = CoupEW::ef(idInAbs);
+  double vi = CoupEW::vf(idInAbs);
+  double ai = CoupEW::af(idInAbs);
 
   // Final flavours and couplings; return if don't make sense.
   if (event[iDau1].id() + event[iDau2].id() != 0) return 0.5;
-  int idOut = abs(event[iDau1].id());
-  if (idOut == 0 || idOut >18 ) return 0.5; 
-  double ef = CoupEW::ef(idOut);
-  double vf = CoupEW::vf(idOut);
-  double af = CoupEW::af(idOut);
+  int idOutAbs = abs(event[iDau1].id());
+  if (idOutAbs == 0 || idOutAbs >18 ) return 0.5; 
+  double ef = CoupEW::ef(idOutAbs);
+  double vf = CoupEW::vf(idOutAbs);
+  double af = CoupEW::af(idOutAbs);
 
   // Calculate prefactors for interference and resonance part.
   Vec4 psum = event[iDau1].p() + event[iDau2].p();
@@ -2159,25 +2160,26 @@ void TimeShower::list(ostream& os) {
 
   // Header.
   os << "\n --------  PYTHIA TimeShower Dipole Listing  ----------------"
-     << "------------------------------ \n \n    i    rad    rec       "
-     << "pTmax  col  chg  gam  isr  sys type  MErec     mix  ord  spl  "
-     << "glu \n" << fixed << setprecision(3);
+     << "----------------------------------- \n \n    i    rad    rec   "
+     << "    pTmax  col  chg  gam  oni  isr  sys type  MErec     mix  or"
+     << "d  spl  glu \n" << fixed << setprecision(3);
   
   // Loop over dipole list and print it.
   for (int i = 0; i < int(dipEnd.size()); ++i) 
   os << setw(5) << i << setw(7) << dipEnd[i].iRadiator 
      << setw(7) << dipEnd[i].iRecoiler << setw(12) << dipEnd[i].pTmax 
      << setw(5) << dipEnd[i].colType << setw(5) << dipEnd[i].chgType
-     << setw(5) << dipEnd[i].gamType << setw(5) << dipEnd[i].isrType 
-     << setw(5) << dipEnd[i].system  << setw(5) << dipEnd[i].MEtype 
-     << setw(7) << dipEnd[i].iMEpartner << setw(8) << dipEnd[i].MEmix 
-     << setw(5) << dipEnd[i].MEorder << setw(5) << dipEnd[i].MEsplit 
-     << setw(5) << dipEnd[i].MEgluinoDau << "\n";
+     << setw(5) << dipEnd[i].gamType << setw(5) << dipEnd[i].isOctetOnium 
+     << setw(5) << dipEnd[i].isrType << setw(5) << dipEnd[i].system  
+     << setw(5) << dipEnd[i].MEtype << setw(7) << dipEnd[i].iMEpartner 
+     << setw(8) << dipEnd[i].MEmix << setw(5) << dipEnd[i].MEorder 
+     << setw(5) << dipEnd[i].MEsplit << setw(5) << dipEnd[i].MEgluinoDau 
+     << "\n";
  
 
   // Done.
   os << "\n --------  End PYTHIA TimeShower Dipole Listing  ------------"
-     << "------------------------------" << endl;
+     << "-----------------------------------" << endl;
   
 }
 

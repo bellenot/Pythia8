@@ -8,6 +8,10 @@
 #include "ProcessLevel.h"
 
 namespace Pythia8 {
+ 
+//**************************************************************************
+
+// The ProcessLevel class.
 
 //*********
   
@@ -24,8 +28,8 @@ ProcessLevel::~ProcessLevel() {
     delete container2Ptrs[i];
 
 } 
- 
-//**************************************************************************
+
+//*********
 
 // Main routine to initialize generation process.
 
@@ -44,13 +48,17 @@ bool ProcessLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn,
   doLHA         = doLHAin;
   lhaInitPtr    = lhaInitPtrIn;
   lhaEvntPtr    = lhaEvntPtrIn;
-  strategyLHA   = (doLHA) ? lhaInitPtr->strategy() : 0;  
 
-  // Initialize information on resonances and their decay treatment.
-  if (!initResonances()) return false;
+  // Initialize static data members in other HadronLevel classes.
+  SigmaProcess::initStatic(); 
+  PhaseSpace::initStatic();
 
-  // Option to allow second hard interaction.
+  // Send static pointers to ProcessContainer.
+  ProcessContainer::initStatic( infoPtr, &resonanceDecays);
+
+  // Options to allow second hard interaction and resonance decays.
   doSecondHard  = Settings::flag("SecondHard:generate");
+  doResDecays   = Settings::flag("ProcessLevel:resonanceDecays");
 
   // If not Les Houches then internal machinery.
   doInternal    = !doLHA;
@@ -73,13 +81,6 @@ bool ProcessLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn,
   // Generate the next internal event with two or one hard interactions. 
   if (doInternal) physical = (doSecondHard) 
     ? next2Internal( process) : nextInternal( process);
-
-  // Read in a simple event in the LHAevnt format. Default info.
-  else if (strategyLHA >= 10) {
-    infoPtr->setType( "Simple LHA process", 0, 0, false, true, false, false);
-    infoPtr->setTypeMI( 0, 0.);
-    physical = nextSimpleLHA( process);
-  }
 
   // Read in an event in the LHAevnt format.
   else if (doLHA) physical = nextLHA( process);
@@ -179,19 +180,19 @@ void ProcessLevel::statistics(ostream& os) {
     
   // Header.
   os << "\n *-------  PYTHIA Event and Cross Section Statistics  ------"
-     << "--------------------------------------------------*\n"
+     << "-------------------------------------------------------*\n"
      << " |                                                            "
-     << "                                                |\n" 
-     << " | Subprocess                               Code |            "
-     << "Number of events       |      sigma +- delta    |\n" 
-     << " |                                               |       Tried"
-     << "   Selected   Accepted |     (estimated) (mb)   |\n"
-     << " |                                               |            "
-     << "                       |                        |\n"
+     << "                                                     |\n" 
+     << " | Subprocess                                    Code |       "
+     << "     Number of events       |      sigma +- delta    |\n" 
+     << " |                                                    |       "
+     << "Tried   Selected   Accepted |     (estimated) (mb)   |\n"
+     << " |                                                    |       "
+     << "                            |                        |\n"
      << " |------------------------------------------------------------"
-     << "------------------------------------------------|\n"
-     << " |                                               |            "
-     << "                       |                        |\n";
+     << "-----------------------------------------------------|\n"
+     << " |                                                    |       "
+     << "                            |                        |\n";
 
   // Reset sum counters.
   long   nTrySum   = 0; 
@@ -217,7 +218,7 @@ void ProcessLevel::statistics(ostream& os) {
     delta2Sum     += pow2(delta);    
 
     // Print individual process info.
-    os << " | " << left << setw(40) << containerPtrs[i]->name() 
+    os << " | " << left << setw(45) << containerPtrs[i]->name() 
        << right << setw(5) << containerPtrs[i]->code() << " | " 
        << setw(11) << nTry << " " << setw(10) << nSel << " " 
        << setw(10) << nAcc << " | " << scientific << setprecision(3) 
@@ -225,44 +226,18 @@ void ProcessLevel::statistics(ostream& os) {
   }
 
   // Print summed process info.
-  os << " |                                               |            "
-     << "                       |                        |\n"
-     << " | " << left << setw(45) << "sum" << right << " | " << setw(11) 
+  os << " |                                                    |       "
+     << "                            |                        |\n"
+     << " | " << left << setw(50) << "sum" << right << " | " << setw(11) 
      << nTrySum << " " << setw(10) << nSelSum << " " << setw(10) 
      << nAccSum << " | " << scientific << setprecision(3) << setw(11) 
      << sigmaSum << setw(11) << sqrtpos(delta2Sum) << " |\n";
 
   // Listing finished.
   os << " |                                                            "
-     << "                                                |\n"
+     << "                                                     |\n"
      << " *-------  End PYTHIA Event and Cross Section Statistics -----"
-     << "------------------------------------------------*" << endl;
-
-}
-
-//*********
-
-// Initialize information on resonances.
-
-bool ProcessLevel::initResonances() {
-
-  // Initialize static data members for each resonance.
-  ResonanceGmZ::initStatic();
-  ResonanceW::initStatic();
-  ResonanceTop::initStatic();
-  ResonanceSMH::initStatic();
-
-  // Recalculate widths for current masses.
-  ResonanceGmZ::widthInit();
-  ResonanceW::widthInit();
-  ResonanceTop::widthInit();
-  ResonanceSMH::widthInit();
-
-  // Send ResonanceDecays pointer to ProcessContainer.
-  ProcessContainer::setResonanceDecaysPtr( &resonanceDecays);
-
-  // Done.
-  return true;
+     << "-----------------------------------------------------*" << endl;
 
 }
 
@@ -330,46 +305,60 @@ bool ProcessLevel::initInternal( vector<SigmaProcess*>& sigmaPtrs,
   // Construct string with incoming beams and for cm energy.
   string collision = "We collide " + ParticleDataTable::name(idA)
     + " with " + ParticleDataTable::name(idB) + " at a CM energy of "; 
-  string pad( 46 - collision.length(), ' ');
+  string pad( 51 - collision.length(), ' ');
 
   // Print initialization information: header.
-  os << "\n *-------  PYTHIA Process Initialization  ---------------------*\n"
-     << " |                                                             |\n" 
+  os << "\n *-------  PYTHIA Process Initialization  ---------"
+     << "-----------------*\n"
+     << " |                                                   "
+     << "               |\n" 
      << " | " << collision << scientific << setprecision(3)<< setw(9) << eCM 
      << " GeV" << pad << " |\n"
-     << " |                                                             |\n"
-     << " |-------------------------------------------------------------|\n"
-     << " |                                               |             |\n"
-     << " | Subprocess                               Code |   Estimated |\n" 
-     << " |                                               |    max (mb) |\n"
-     << " |                                               |             |\n"
-     << " |-------------------------------------------------------------|\n"
-     << " |                                               |             |\n";
+     << " |                                                   "
+     << "               |\n"
+     << " |---------------------------------------------------"
+     << "---------------|\n"
+     << " |                                                   "
+     << " |             |\n"
+     << " | Subprocess                                    Code"
+     << " |   Estimated |\n" 
+     << " |                                                   "
+     << " |    max (mb) |\n"
+     << " |                                                   "
+     << " |             |\n"
+     << " |---------------------------------------------------"
+     << "---------------|\n"
+     << " |                                                   "
+     << " |             |\n";
 
 
   // Loop over existing processes: print individual process info.
   for (int i = 0; i < int(containerPtrs.size()); ++i) 
-  os << " | " << left << setw(40) << containerPtrs[i]->name() 
+  os << " | " << left << setw(45) << containerPtrs[i]->name() 
      << right << setw(5) << containerPtrs[i]->code() << " | " 
      << scientific << setprecision(3) << setw(11)  
      << containerPtrs[i]->sigmaMax() << " |\n";
 
   // Loop over second hard processes, if any, and repeat as above.
   if (doSecondHard) {
-    os << " |                                               |             |\n"
-       << " |-------------------------------------------------------------|\n"
-       << " |                                               |             |\n";
+    os << " |                                                   "
+       << " |             |\n"
+       << " |---------------------------------------------------"
+       <<"---------------|\n"
+       << " |                                                   "
+       <<" |             |\n";
     for (int i2 = 0; i2 < int(container2Ptrs.size()); ++i2) 
-    os << " | " << left << setw(40) << container2Ptrs[i2]->name() 
+    os << " | " << left << setw(45) << container2Ptrs[i2]->name() 
        << right << setw(5) << container2Ptrs[i2]->code() << " | " 
        << scientific << setprecision(3) << setw(11)  
        << container2Ptrs[i2]->sigmaMax() << " |\n";
   }
 
   // Listing finished.
-  os << " |                                                             |\n" 
-     << " *-------  End PYTHIA Process Initialization ------------------*" 
-     << endl;
+  os << " |                                                     "
+     << "             |\n" 
+     << " *-------  End PYTHIA Process Initialization ----------"
+     <<"-------------*" << endl;
 
   // If sum of maxima vanishes then refuse to do anything.
   if ( numberOn == 0  || sigmaMaxSum <= 0.) {
@@ -451,10 +440,12 @@ bool ProcessLevel::nextInternal( Event& process) {
   }
 
   // Construct kinematics of acceptable process.
-  containerPtrs[iContainer]->constructProcess( process);
+  // Should one try again if failure??
+  if ( !containerPtrs[iContainer]->constructProcess( process) ) return false;
 
   // Do all resonance decays.
-  if ( !containerPtrs[iContainer]->decayResonances( process) ) return false;
+  if ( doResDecays && !containerPtrs[iContainer]->decayResonances( 
+    process) ) return false;
 
   // Add any junctions to the process event record list.
   findJunctions( process);
@@ -565,10 +556,10 @@ bool ProcessLevel::next2Internal( Event& process) {
   container2Ptrs[i2Container]->constructProcess( process2, false);
 
   // Do all resonance decays.
-  if ( !containerPtrs[iContainer]->decayResonances( process) ) 
-    return false;
-  if ( !container2Ptrs[i2Container]->decayResonances( process2) ) 
-    return false;
+  if ( doResDecays &&  !containerPtrs[iContainer]->decayResonances( 
+    process) ) return false;
+  if ( doResDecays &&  !container2Ptrs[i2Container]->decayResonances( 
+    process2) ) return false;
 
   // Append second hard interaction to normal process object.
   combineProcessRecords( process, process2);
@@ -713,6 +704,13 @@ bool ProcessLevel::nextLHA( Event& process) {
     } 
     if (i <= 2) mother1 = i;
 
+    // Ensure that second mother = 0 except for bona fide carbon copies.
+    if (mother1 > 0 && mother2 == mother1) { 
+      int sister1 = process[mother1].daughter1();
+      int sister2 = process[mother1].daughter2();
+      if (sister2 != sister1 && sister2 != 0) mother2 = 0;
+    } 
+
     // Find daughters and where they have been moved by reordering. 
     // (Values shifted two steps to account for inserted beams.)
     int daughter1 = 0;
@@ -751,7 +749,7 @@ bool ProcessLevel::nextLHA( Event& process) {
 
   // Extract information that is guaranteed available.
   string name = "External LHA process"; 
-  int code = lhaEvntPtr->idProc();
+  int code = lhaEvntPtr->idProcess();
   int nFinal = 0;
   for (int i = 5; i < process.size(); ++i) 
     if (process[i].mother1() == 3) ++nFinal;
@@ -817,79 +815,6 @@ bool ProcessLevel::nextLHA( Event& process) {
 
 //*********
 
-// Read in the hard process, special case if all partons already given.
-
-bool ProcessLevel::nextSimpleLHA( Event& process) {
-
-  // Generate the next Les Houches event.
-  if (!lhaEvntPtr->set()) return false;
-
-  // Calculate the total four-momentum of the event.
-  // Isolate original system, i.e. those with mother = 0.
-  int nTot = lhaEvntPtr->size();
-  int nDaughter = 0;
-  Vec4 pSum;
-  for (int i = 1; i < nTot; ++i) {
-    if (lhaEvntPtr->status(i) == 1) pSum += Vec4( lhaEvntPtr->px(i),
-      lhaEvntPtr->py(i), lhaEvntPtr->pz(i), lhaEvntPtr->e(i));
-    if (lhaEvntPtr->mother1(i) == 0) nDaughter = i;
-  }
-  double eCM = pSum.mCalc();
-    
-  // Let hard process record begin with the event as a whole.
-  process.append( 90, -11, 0, 0, 1, nDaughter, 0, 0, pSum, eCM, 0. ); 
-
-  // Copy over info from LHA event to process, keeping the given order.
-  for (int i = 1; i < nTot; ++i) {
-
-    // Translate from LHA status codes.
-    int lhaStatus =  lhaEvntPtr->status(i);
-    int status = -21;
-    if (lhaStatus == 2 || lhaStatus == 3) status = -22;
-    if (lhaStatus == 1) status = 23;
-
-    // Read id and mother information.
-    int id = lhaEvntPtr->id(i);
-    int mother1 = lhaEvntPtr->mother1(i);   
-    int mother2 = lhaEvntPtr->mother2(i);   
-
-    // Find daughters. 
-    int daughter1 = 0;
-    int daughter2 = 0;
-    for (int im = 1; im < nTot; ++im)  
-    if (lhaEvntPtr->mother1(im) == i || lhaEvntPtr->mother2(im) == i) {
-      if (daughter1 == 0 || im < daughter1) daughter1 = im;
-      if (daughter2 == 0 || im > daughter2) daughter2 = im;
-    }
-    // For 2 -> 1 hard scatterings reset second daughter to 0.
-    if (daughter2 == daughter1) daughter2 = 0;
-
-    // Colour trivial, except reset irrelevant colour indices.
-    int colType = ParticleDataTable::colType(id);
-    int col1 = (colType == 1 || colType == 2) ? lhaEvntPtr->col1(i) : 0;   
-    int col2 = (colType == -1 || colType == 2) ?  lhaEvntPtr->col2(i) : 0; 
-
-    // Momentum trivial.
-    double px = lhaEvntPtr->px(i);  
-    double py = lhaEvntPtr->py(i);  
-    double pz = lhaEvntPtr->pz(i);  
-    double e  = lhaEvntPtr->e(i);  
-    double m  = lhaEvntPtr->m(i);
-
-    // Store the information, particle by particle.
-    process.append( id, status, mother1, mother2, daughter1, daughter2, 
-      col1, col2, Vec4(px, py, pz, e), m, 0.);
-  }  
-
-  // Add any junctions to the process event record list.
-  findJunctions( process);
-
-  // Done.
-  return true;
-}
-
-//*********
-
 // Add any junctions to the process event record list.
 // First try, so still incomplete. ??
 
@@ -916,9 +841,12 @@ void ProcessLevel::findJunctions( Event& process) {
       for (int j = 0; j < int(cols.size()); ++j) {
         for (int k = 0; k < int(acols.size()); ++k) {
 	  if (acols[k] == cols[j]) { 
-            cols[j]  = cols.back();  cols.pop_back();     
-            acols[k] = acols.back(); acols.pop_back();     
-            foundPair = true; break;
+            cols[j]  = cols.back();  
+            cols.pop_back();     
+            acols[k] = acols.back(); 
+            acols.pop_back();     
+            foundPair = true; 
+            break;
 	  }
 	} if (foundPair) break;
       }

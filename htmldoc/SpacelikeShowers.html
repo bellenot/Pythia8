@@ -55,11 +55,15 @@ may leave out some emissions that ought to have been simulated.
   
 <br/><code>option </code><strong> 2</strong> : always allow emissions up to the kinematical limit.
 This will simulate all possible event topologies, but may lead to
-doublecounting.
-  
-<br/><b>Note:</b>These options only apply to the hard interaction.
+doublecounting. 
+<br/><b>Note 1:</b> These options only apply to the hard interaction.
 Emissions off subsequent multiple interactions are always constrainted
 to be below the factorization scale of the process itself.  
+<br/><b>Note 2:</b> Some processes contain matrix-element matching
+to the first emission; this is the case notably for single 
+<i>gamma^*/Z^0, W^+-</i> and <i>H^0</i> production. Then default
+and option 2 give the correct result, while option 1 should never
+be used. 
 </modepick>
 
 <p/><code>parm&nbsp; </code><strong> SpaceShower:pTmaxFudge &nbsp;</strong> 
@@ -70,6 +74,47 @@ introduced a multiplicative factor <i>f</i> such that instead
 <i>pT_max = f * pT_factorization</i>. Only applies to the hardest
 interaction in an event. It is strongly suggested that <i>f = 1</i>, 
 but variations around this default can be useful to test this assumption. 
+  
+
+<p/><code>mode&nbsp; </code><strong> SpaceShower:pTdampMatch &nbsp;</strong> 
+ (<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 2</code>)<br/>
+These options only take effect when a process is allowed to radiate up 
+to the kinematical limit by the above <code>pTmaxMatch</code> choice, 
+and no matrix-element corrections are available. Then, in many processes,
+the fall-off in <i>pT</i> will be too slow by one factor of <i>pT^2</i>. 
+That is, while showers have an approximate <i>dpT^2/pT^2</i> shape, often 
+it should become more like <i>dpT^2/pT^4</i> at <i>pT</i> values above
+the scale of the hard process. Whether this actually is the case 
+depends on the particular process studied, e.g. if <i>t</i>-channel 
+gluon exchange is likely to dominate. If so, the options below could
+provide a reasonable high-<i>pT</i> behaviour without requiring 
+higher-order calculations. 
+<br/><code>option </code><strong> 0</strong> : emissions go up to the kinematical limit, 
+with no special dampening.
+  
+<br/><code>option </code><strong> 1</strong> : emissions go up to the kinematical limit,  
+but dampened by a factor <i>k^2 Q^2_fac/(pT^2 + k^2 Q^2_fac)</i>, 
+where <i>Q_fac</i> is the factorization scale and <i>k</i> is a 
+multiplicative fudge factor stored in <code>pTdampFudge</code> below.
+  
+<br/><code>option </code><strong> 2</strong> : emissions go up to the kinematical limit, 
+but dampened by a factor <i>k^2 Q^2_ren/(pT^2 + k^2 Q^2_ren)</i>, 
+where <i>Q_ren</i> is the renormalization scale and <i>k</i> is a 
+multiplicative fudge factor stored in <code>pTdampFudge</code> below. 
+  
+<br/><b>Note:</b> These options only apply to the hard interaction.
+Emissions off subsequent multiple interactions are always constrainted
+to be below the factorization scale of the process itself.  
+</modepick>
+
+<p/><code>parm&nbsp; </code><strong> SpaceShower:pTdampFudge &nbsp;</strong> 
+ (<code>default = <strong>1.0</strong></code>; <code>minimum = 0.25</code>; <code>maximum = 4.0</code>)<br/>
+In cases 1 and 2 above, where a dampening is imposed at around the
+factorization or renormalization scale, respectively, this allows the
+<i>pT</i> scale of dampening of radiation by a half to be shifted 
+by this factor relative to the default <i>Q_fac</i> or <i>Q_ren</i>. 
+This number ought to be in the neighbourhood of unity, but variations 
+away from this value could do better in some processes.
   
 
 <p/>

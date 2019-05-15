@@ -21,8 +21,9 @@ int main() {
   //PDF* newPDF = new LHAPDF(2212, "MRST2004nlo.LHgrid", 0);
   //PDF* newPDF = new LHAPDF(2212, "Alekhin_100.LHpdf", 0);
 
-  // Set x and Q2 limits. May be required to get sensible small-x shape.
-  //newPDF->setLimits( 1e-5, 1., 1., 1e10);
+  // Allow extrapolation of PDF's beyond x and Q2 boundaries, at own risk.
+  // Default behaviour is to freeze PDF's at boundaries.
+  //newPDF->setExtrapolate(true);
 
   // Histogram.
   Hist oldF4("F( x, Q2 = 4) old", 80 , -8., 0.);

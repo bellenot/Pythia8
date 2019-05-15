@@ -14,7 +14,7 @@
 #include "Information.h"
 #include "ParticleData.h"
 #include "PythiaStdlib.h"
-#include "ResonanceProperties.h"
+#include "ResonanceWidths.h"
 #include "Settings.h"
 
 namespace Pythia8 {
@@ -31,29 +31,30 @@ public:
   // Constructor. 
   ResonanceDecays() {} 
  
-  // Initialize static data members.
-  // static void initStatic();
- 
   // Generate the next decay sequence.
   bool next( Event& process); 
 
 private: 
 
   // Constants: could only be changed in the code itself.
-  static const int    NTRYDECAY;
-  static const double MSAFETY;
+  static const int    NTRYCHANNEL, NTRYMASSES;
+  static const double MSAFETY, WIDTHCUT, TINY, WTCORRECTION[11];
 
-  // Select colours in decay.
-  bool pickColours(Particle& decayer, Event& process);
+  // Select masses of decay products.
+  bool pickMasses(); 
 
-  // Select trial kinemantics in resonance rest frame.
-  void pickKinematics();
+  // Select colours of decay products.
+  bool pickColours(int iDec, Event& process);
+
+  // Select kinematics isotropic in phase space.
+  bool pickKinematics();
 
   // Flavour, colour and momentum information.
-  int    id0, id0Abs, id1, id2, col0, acol0, col1, acol1, col2, acol2, 
-    colType1, colType2;
-  double m0, m1, m2;
-  Vec4   p1, p2;
+  int            id0, mult;
+  double         m0;
+  vector<int>    idProd, cols, acols;
+  vector<double> mProd;
+  vector<Vec4>   pProd;
 
 };
 

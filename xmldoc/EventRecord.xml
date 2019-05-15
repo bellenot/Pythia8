@@ -58,14 +58,14 @@ A listing of the whole event is obtained with <code>list()</code>.
 The basic id, status, mother, daughter, colour, four-momentum
 and mass data are always given, but the method can also be called with 
 a few optional arguments for further information:
-<method name="list(scaleAndVertex, mothersAndDaughters, os)">
+<method name="list(showScaleAndVertex, showMothersAndDaughters, os)">
 where
-<argument name="scaleAndVertex" default="off"> optionally give a 
+<argument name="showScaleAndVertex" default="off"> optionally give a 
 second line for each particle, with the production scale (in GeV), the
 production vertex (in mm or mm/c) and the invariant lifetime
 (also in mm/c).
 </argument>
-<argument name="mothersAndDaughters" default="off">
+<argument name="showMothersAndDaughters" default="off">
 gives a list of all daughters and mothers of a particle, as defined by 
 the <code>motherList(i)</code> and <code>daughterList(i)</code> methods 
 described below. It is mainly intended for debug purposes. 
@@ -122,6 +122,27 @@ suggests this number to be 500, but 100 works equally well.
 The <code>scale()</code> methods can be used to set or get the scale 
 (in GeV) of the event as a whole. Further methods for event properties 
 may be added in the future.
+
+<p/>
+A few methods exist to rotate and boost events. These derive from the
+<aloc href="FourVectors">Vec4</aloc> methods, and affect both the 
+momentum and the vertex (position) components of all particles. 
+
+<method name="rot(theta, phi)"> 
+rotate by this polar and azimuthal angle (expressed in radians). 
+</method>
+
+<method name="bst(betaX, betaY, betaZ)"> 
+boost by this vector. Optionally you may provide the <ei>gamma</ei> 
+value as a fourth argument, if you deem this may help avoid roundoff 
+errors for big boosts. You may alternatively supply a <code>Vec4</code> 
+four-vector, in which case the boost vector <ei>beta = p/E</ei>.
+</method>
+
+<method name="rotbst(M)"> 
+rotate and boost by the combined action encoded in the 
+<aloc href="FourVectors"><code>RotBstMatrix</code></aloc> <code>M</code>.
+</method>
 
 <p/>
 There are also a few methods with an individual particle index 

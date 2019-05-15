@@ -83,14 +83,14 @@ A listing of the whole event is obtained with <code>list()</code>.
 The basic id, status, mother, daughter, colour, four-momentum
 and mass data are always given, but the method can also be called with 
 a few optional arguments for further information:
-<p/><code>method&nbsp; </code><strong> list(scaleAndVertex, mothersAndDaughters, os) &nbsp;</strong> <br/>
+<p/><code>method&nbsp; </code><strong> list(showScaleAndVertex, showMothersAndDaughters, os) &nbsp;</strong> <br/>
 where
-<br/><code>argument</code><strong> scaleAndVertex </strong> (<code>default = <strong>off</strong></code>) :  optionally give a 
+<br/><code>argument</code><strong> showScaleAndVertex </strong> (<code>default = <strong>off</strong></code>) :  optionally give a 
 second line for each particle, with the production scale (in GeV), the
 production vertex (in mm or mm/c) and the invariant lifetime
 (also in mm/c).
   
-<br/><code>argument</code><strong> mothersAndDaughters </strong> (<code>default = <strong>off</strong></code>) : 
+<br/><code>argument</code><strong> showMothersAndDaughters </strong> (<code>default = <strong>off</strong></code>) : 
 gives a list of all daughters and mothers of a particle, as defined by 
 the <code>motherList(i)</code> and <code>daughterList(i)</code> methods 
 described below. It is mainly intended for debug purposes. 
@@ -147,6 +147,29 @@ suggests this number to be 500, but 100 works equally well.
 The <code>scale()</code> methods can be used to set or get the scale 
 (in GeV) of the event as a whole. Further methods for event properties 
 may be added in the future.
+
+<p/>
+A few methods exist to rotate and boost events. These derive from the
+<?php $filepath = $_GET["filepath"];
+echo "<a href='FourVectors.php?filepath=".$filepath."' target='page'>";?>Vec4</a> methods, and affect both the 
+momentum and the vertex (position) components of all particles. 
+
+<p/><code>method&nbsp; </code><strong> rot(theta, phi) &nbsp;</strong> <br/>
+rotate by this polar and azimuthal angle (expressed in radians). 
+  
+
+<p/><code>method&nbsp; </code><strong> bst(betaX, betaY, betaZ) &nbsp;</strong> <br/>
+boost by this vector. Optionally you may provide the <i>gamma</i> 
+value as a fourth argument, if you deem this may help avoid roundoff 
+errors for big boosts. You may alternatively supply a <code>Vec4</code> 
+four-vector, in which case the boost vector <i>beta = p/E</i>.
+  
+
+<p/><code>method&nbsp; </code><strong> rotbst(M) &nbsp;</strong> <br/>
+rotate and boost by the combined action encoded in the 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='FourVectors.php?filepath=".$filepath."' target='page'>";?><code>RotBstMatrix</code></a> <code>M</code>.
+  
 
 <p/>
 There are also a few methods with an individual particle index 

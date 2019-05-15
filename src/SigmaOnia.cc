@@ -25,8 +25,8 @@ void Sigma2gg2QQbar3S11g::initProc() {
   idHad = (idNew == 4) ? 443 : 553;
   nameSave = (idNew == 4) ? "g g -> ccbar[3S1(1)] g" 
     : "g g -> bbbar[3S1(1)] g";
-  oniumME = (idNew == 4) ? Settings::parm("SigmaQCD:OJpsi3S11")
-    : Settings::parm("SigmaQCD:OUpsilon3S11");
+  oniumME = (idNew == 4) ? Settings::parm("Charmonium:OJpsi3S11")
+    : Settings::parm("Bottomonium:OUpsilon3S11");
 
 } 
 
@@ -90,8 +90,8 @@ void Sigma2gg2QQbar3PJ1g::initProc() {
     nameSave = (idNew == 4) ? "g g -> ccbar[3P2(1)] g" 
       : "g g -> bbbar[3P2(1)] g";
   } 
-  oniumME = (idNew == 4) ? Settings::parm("SigmaQCD:Ochic03P01")
-    : Settings::parm("SigmaQCD:Ochib03P01");
+  oniumME = (idNew == 4) ? Settings::parm("Charmonium:Ochic03P01")
+    : Settings::parm("Bottomonium:Ochib03P01");
 
 } 
 
@@ -185,8 +185,8 @@ void Sigma2qg2QQbar3PJ1q::initProc() {
     nameSave = (idNew == 4) ? "q g -> ccbar[3P2(1)] q" 
       : "q g -> bbbar[3P2(1)] q";
   } 
-  oniumME = (idNew == 4) ? Settings::parm("SigmaQCD:Ochic03P01")
-    : Settings::parm("SigmaQCD:Ochib03P01");
+  oniumME = (idNew == 4) ? Settings::parm("Charmonium:Ochic03P01")
+    : Settings::parm("Bottomonium:Ochib03P01");
 
 } 
 
@@ -262,8 +262,8 @@ void Sigma2qqbar2QQbar3PJ1g::initProc() {
     nameSave = (idNew == 4) ? "q qbar -> ccbar[3P2(1)] g" 
       : "q qbar -> bbbar[3P2(1)] g";
   } 
-  oniumME = (idNew == 4) ? Settings::parm("SigmaQCD:Ochic03P01")
-    : Settings::parm("SigmaQCD:Ochib03P01");
+  oniumME = (idNew == 4) ? Settings::parm("Charmonium:Ochic03P01")
+    : Settings::parm("Bottomonium:Ochib03P01");
 
 } 
 
@@ -325,20 +325,20 @@ void Sigma2gg2QQbarX8g::initProc() {
     idHad = (idNew == 4) ? 9900443 : 9900553;
     nameSave = (idNew == 4) ? "g g -> ccbar[3S1(8)] g" 
       : "g g -> bbbar[3S1(8)] g";
-    oniumME = (idNew == 4) ? Settings::parm("SigmaQCD:OJpsi3S18")
-      : Settings::parm("SigmaQCD:OUpsilon3S18");
+    oniumME = (idNew == 4) ? Settings::parm("Charmonium:OJpsi3S18")
+      : Settings::parm("Bottomonium:OUpsilon3S18");
   } else if (stateSave == 1) {
     idHad = (idNew == 4) ? 9900441 : 9900551;
     nameSave = (idNew == 4) ? "g g -> ccbar[1S0(8)] g" 
       : "g g -> bbbar[1S0(8)] g";
-    oniumME = (idNew == 4) ? Settings::parm("SigmaQCD:OJpsi1S08")
-      : Settings::parm("SigmaQCD:OUpsilon1S08");
+    oniumME = (idNew == 4) ? Settings::parm("Charmonium:OJpsi1S08")
+      : Settings::parm("Bottomonium:OUpsilon1S08");
   } else if (stateSave == 2) {
     idHad = (idNew == 4) ? 9910441 : 9910551;
     nameSave = (idNew == 4) ? "g g -> ccbar[3PJ(8)] g" 
       : "g g -> bbbar[3PJ(8)] g";
-    oniumME = (idNew == 4) ? Settings::parm("SigmaQCD:OJpsi3P08")
-      : Settings::parm("SigmaQCD:OUpsilon3P08");
+    oniumME = (idNew == 4) ? Settings::parm("Charmonium:OJpsi3P08")
+      : Settings::parm("Bottomonium:OUpsilon3P08");
   } 
 
 } 
@@ -451,20 +451,20 @@ void Sigma2qg2QQbarX8q::initProc() {
     idHad = (idNew == 4) ? 9900443 : 9900553;
     nameSave = (idNew == 4) ? "q g -> ccbar[3S1(8)] q" 
       : "q g -> bbbar[3S1(8)] q";
-    oniumME = (idNew == 4) ? Settings::parm("SigmaQCD:OJpsi3S18")
-      : Settings::parm("SigmaQCD:OUpsilon3S18");
+    oniumME = (idNew == 4) ? Settings::parm("Charmonium:OJpsi3S18")
+      : Settings::parm("Bottomonium:OUpsilon3S18");
   } else if (stateSave == 1) {
     idHad = (idNew == 4) ? 9900441 : 9900551;
     nameSave = (idNew == 4) ? "q g -> ccbar[1S0(8)] q" 
       : "q g -> bbbar[1S0(8)] q";
-    oniumME = (idNew == 4) ? Settings::parm("SigmaQCD:OJpsi1S08")
-      : Settings::parm("SigmaQCD:OUpsilon1S08");
+    oniumME = (idNew == 4) ? Settings::parm("Charmonium:OJpsi1S08")
+      : Settings::parm("Bottomonium:OUpsilon1S08");
   } else if (stateSave == 2) {
     idHad = (idNew == 4) ? 9910441 : 9910551;
     nameSave = (idNew == 4) ? "q g -> ccbar[3PJ(8)] q" 
       : "q g -> bbbar[3PJ(8)] q";
-    oniumME = (idNew == 4) ? Settings::parm("SigmaQCD:OJpsi3P08")
-      : Settings::parm("SigmaQCD:OUpsilon3P08");
+    oniumME = (idNew == 4) ? Settings::parm("Charmonium:OJpsi3P08")
+      : Settings::parm("Bottomonium:OUpsilon3P08");
   } 
 
 } 
@@ -547,20 +547,20 @@ void Sigma2qqbar2QQbarX8g::initProc() {
     idHad = (idNew == 4) ? 9900443 : 9900553;
     nameSave = (idNew == 4) ? "q qbar -> ccbar[3S1(8)] g" 
       : "q qbar -> bbbar[3S1(8)] g";
-    oniumME = (idNew == 4) ? Settings::parm("SigmaQCD:OJpsi3S18")
-      : Settings::parm("SigmaQCD:OUpsilon3S18");
+    oniumME = (idNew == 4) ? Settings::parm("Charmonium:OJpsi3S18")
+      : Settings::parm("Bottomonium:OUpsilon3S18");
   } else if (stateSave == 1) {
     idHad = (idNew == 4) ? 9900441 : 9900551;
     nameSave = (idNew == 4) ? "q qbar -> ccbar[1S0(8)] g" 
       : "q qbar -> bbbar[1S0(8)] g";
-    oniumME = (idNew == 4) ? Settings::parm("SigmaQCD:OJpsi1S08")
-      : Settings::parm("SigmaQCD:OUpsilon1S08");
+    oniumME = (idNew == 4) ? Settings::parm("Charmonium:OJpsi1S08")
+      : Settings::parm("Bottomonium:OUpsilon1S08");
   } else if (stateSave == 2) {
     idHad = (idNew == 4) ? 9910441 : 9910551;
     nameSave = (idNew == 4) ? "q qbar -> ccbar[3PJ(8)] g" 
       : "q qbar -> bbbar[3PJ(8)] g";
-    oniumME = (idNew == 4) ? Settings::parm("SigmaQCD:OJpsi3P08")
-      : Settings::parm("SigmaQCD:OUpsilon3P08");
+    oniumME = (idNew == 4) ? Settings::parm("Charmonium:OJpsi3P08")
+      : Settings::parm("Bottomonium:OUpsilon3P08");
   } 
 
 } 

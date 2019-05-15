@@ -11,6 +11,7 @@
 
 #include "Analysis.h"
 #include "Basics.h"
+#include "BeamParticle.h"
 #include "Event.h"
 #include "HadronLevel.h"
 #include "Information.h"
@@ -46,16 +47,20 @@ public:
   bool readString(string, bool warn = true); 
  
   // Read in updates for settings or particle data from user-defined file.
-  bool readFile(string, bool warn = true);
+  bool readFile(string, bool warn = true, int subrun = SUBRUNDEFAULT);
+  bool readFile(string fileName, int subrun) {
+    return readFile(fileName, true, subrun);}
 
-  // Possibility to pass in pointers to PDF's. Usage optional. 
+  // Possibility to pass in pointers to PDF's.
   bool setPDFPtr( PDF* pdfAPtrIn, PDF* pdfBPtrIn, PDF* pdfHardAPtrIn = 0, 
     PDF* pdfHardBPtrIn = 0);
 
   // Possibility to pass in pointer for external handling of some decays.
   bool setDecayPtr( DecayHandler* decayHandlePtrIn, 
-    vector<int> handledParticles) 
-    { return hadronLevel.decayPtr( decayHandlePtrIn, handledParticles);}  
+    vector<int> handledParticlesIn) {decayHandlePtr = decayHandlePtrIn; 
+    handledParticles.resize(0); 
+    for(int i = 0; i < int(handledParticlesIn.size()); ++i)
+    handledParticles.push_back( handledParticlesIn[i] ); return true;}  
 
   // Possibility to pass in pointer for external random number generation.
   bool setRndmEnginePtr( RndmEngine* rndmEnginePtrIn) 
@@ -69,7 +74,7 @@ public:
   bool setSigmaPtr( SigmaProcess* sigmaPtrIn) 
     { sigmaPtrs.push_back( sigmaPtrIn); return true;} 
 
-  // Possibility to pass in pointer for external showers. Usage optional. 
+  // Possibility to pass in pointer for external showers.
   bool setShowerPtr( TimeShower* timesDecPtrIn, 
     TimeShower* timesPtrIn = 0, SpaceShower* spacePtrIn = 0) 
     { timesDecPtr = timesDecPtrIn; timesPtr = timesPtrIn;
@@ -88,10 +93,7 @@ public:
   bool init( LHAinit* lhaInitPtrIn, LHAevnt* lhaEvntPtrIn);
 
   // Initialization by a Les Houches Event File.
-  bool init( string LesHouchesEventFile);
-
-  // Initialization of data only - not enough to generate events.
-  bool initData() {initStatic(); particleData.initBWmass(); return true;}
+  bool init( string LesHouchesEventFile, bool skipInit = false);
  
   // Generate the next event.
   bool next(); 
@@ -128,31 +130,22 @@ public:
 
 private: 
 
-  // Static initialization data, normally only set once.
-  static bool   doPartonLevel, doHadronLevel, checkEvent;
-  static int    nErrList;
-  static double epTolErr, epTolWarn;
-
   // Constants: could only be changed in the code itself.
-  static const int NTRY;
+  static const int NTRY, SUBRUNDEFAULT;
 
-  // Write the Pythia banner, with symbol and version information.
-  void banner(ostream& os = cout);
+  // Initialization data, extracted from database.
+  bool   doProcessLevel, doPartonLevel, doHadronLevel, checkEvent;
+  int    nErrList;
+  double epTolErr, epTolWarn;
 
-  // Initialization routine to set up kinematic and more.
-  bool initInternal();
+  // Initialization data, extracted from init(...) call.
+  bool   isConstructed, isInit, inCMframe;
+  int    idA, idB;  
+  double mA, mB, eA, eB, pzA, pzB, eCM, betaZ, gammaZ;
 
-  // Initialization routine for all accessible static data members.
-  void initStatic();
-
-  // Initialization routine for SUSY spectra.
-  bool initSLHA();
-
-  // Check that the final event makes sense.
-  bool check(ostream& os = cout);
-
-  // Keep track when "new" has been used and needs a "delete" for PDF's.  
-  bool pdfAnew, pdfBnew, pdfHardNew;
+  // information for error checkout.
+  int    nInitCalls, nErrEvent;
+  vector<int> iErrId, iErrNan;
 
   // Pointers to the parton distributions of the two incoming beams.
   PDF* pdfAPtr;  
@@ -162,18 +155,21 @@ private:
   PDF* pdfHardAPtr;  
   PDF* pdfHardBPtr; 
 
-  // Auxiliary to set parton densities among list of possibilities.
-  PDF* getPDFPtr(int idIn, int sequence = 1);
+  // Keep track when "new" has been used and needs a "delete" for PDF's.  
+  bool useNewPdfA, useNewPdfB, useNewPdfHard;
 
   // The two incoming beams.
   BeamParticle beamA;
   BeamParticle beamB;
 
   // LHAinit and LHAevnt objects for generating external events.
-  bool doLHA;
+  bool doLHA, useNewLHA;
   LHAinit* lhaInitPtr;
   LHAevnt* lhaEvntPtr;
-  int strategyLHA;
+
+  // Pointer to external decay handler and list of particles it handles.
+  DecayHandler* decayHandlePtr;
+  vector<int> handledParticles;
 
   // Pointer to userHooks object for user interaction with program.
   UserHooks* userHooksPtr;
@@ -182,13 +178,13 @@ private:
   // Pointers to external processes derived from the Pythia base classes.
   vector<SigmaProcess*> sigmaPtrs;  
 
-  // Keep track when "new" has been used and needs a "delete" for showers.  
-  bool timesNew, spaceNew;
-
   // Pointers to timelike and spacelike showers.
   TimeShower*  timesDecPtr;
   TimeShower*  timesPtr;
   SpaceShower* spacePtr;
+
+  // Keep track when "new" has been used and needs a "delete" for showers.  
+  bool useNewTimes, useNewSpace;
 
   // The main generator class to define the core process of the event.
   ProcessLevel processLevel;
@@ -202,14 +198,29 @@ private:
   // ErrorMsg is a static class, so not needed here, except as reminder.
   ErrorMsg errorMsg; 
 
-  // Properties found at the initialization of the event generator.
-  bool   isConstructed, isInit, inCMframe;
-  int    idA, idB;  
-  double mA, mB, eA, eB, pzA, pzB, eCM, betaZ, gammaZ;
+  // Write the Pythia banner, with symbol and version information.
+  void banner(ostream& os = cout);
 
-  // information for error checkout.
-  int    nErrEvent;
-  vector<int> iErrId, iErrNan;
+  // Check for lines in file that mark the beginning of new subrun.
+  int readSubrun(string line, bool warn = true, ostream& os = cout);
+
+  // Initialization routine to set up kinematic and more.
+  bool initInternal();
+
+  // Initialize tunes to e+e- and pp/ppbar data.
+  void initTunes();
+
+  // Initialization routine for SUSY spectra.
+  bool initSLHA();
+
+  // Add any junctions to the event record list when no ProcessLevel.
+  void findJunctions();
+
+  // Check that the final event makes sense.
+  bool check(ostream& os = cout);
+
+  // Auxiliary to set parton densities among list of possibilities.
+  PDF* getPDFPtr(int idIn, int sequence = 1);
 
 };
  

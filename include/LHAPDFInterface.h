@@ -24,6 +24,8 @@ extern "C" {
   extern void initpdfm_(int&, int&);
 
   extern void evolvepdfm_(int&, double&, double&, double*);
+
+  extern void setlhaparm_(const char*, int);
     
 }
 
@@ -56,6 +58,13 @@ public:
   static void evolvePDFM( int nSet, double x, double Q, double* xfArray) {
     evolvepdfm_( nSet, x, Q, xfArray);
   }
+
+  // Extrapolate PDF set beyond boundaries, or freeze them there.
+  static void setPDFparm(string name) {  
+    const char* cName = name.c_str(); int lenName = name.length();
+    setlhaparm_( cName, lenName);
+  }
+  
 
 };
  

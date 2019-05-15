@@ -79,21 +79,17 @@ public:
   // Constructor. 
   StringFragmentation() {}
 
-  // Initialize static data members.
-  static void initStatic();
+  // Initialize.
+  void init();
 
   // Do the fragmentation: driver routine.
   bool fragment( int iSub, ColConfig& colConfig, Event& event);
 
   // Find the boost matrix to the rest frame of a junction.
+  // Also used from HadronLevel so therefore made static.
   static RotBstMatrix junctionRestFrame(Vec4& p0, Vec4& p1, Vec4& p2);
 
 private: 
-
-  // Static initialization data, normally only set once.
-  static double stopMass, stopNewFlav, stopSmear, eNormJunction,
-                eBothLeftJunction, eMaxLeftJunction, eMinLeftJunction, 
-                bLund;
 
   // Constants: could only be changed in the code itself.
   static const int    NTRYFLAV, NTRYJOIN, NSTOPMASS, NTRYJNREST, 
@@ -101,6 +97,33 @@ private:
   static const double FACSTOPMASS, CLOSEDM2MAX, CLOSEDM2FRAC, EXPMAX,
                       MATCHPOSNEG, EJNWEIGHTMAX, CONVJNREST, M2MAXJRF, 
                       CONVJRFEQ;
+
+  // Initialization data, read from Settings.
+  double stopMass, stopNewFlav, stopSmear, eNormJunction,
+         eBothLeftJunction, eMaxLeftJunction, eMinLeftJunction, bLund;
+
+  // Data members.
+  bool   hasJunction, isClosed;
+  int    iPos, iNeg;
+  double w2Rem, stopMassNow;
+  Vec4   pSum, pRem, pJunctionHadrons;
+
+  // List of partons in string system.
+  vector<int> iParton;
+
+  // Temporary event record for the produced particles.
+  Event hadrons;
+
+  // Information on the system of string regions.
+  StringSystem system, systemMin, systemMid;
+
+  // Information on the two current endpoints of the fragmenting system.
+  StringEnd posEnd, negEnd; 
+
+  // Classes for flavour, pT and z generation.
+  StringFlav flavSel;
+  StringPT   pTsel;
+  StringZ    zSel;
 
   // Find region where to put first string break for closed gluon loop.
   vector<int> findFirstRegion(vector<int>& iPartonIn, Event& event);
@@ -122,29 +145,6 @@ private:
 
   // Fragment off two of the string legs in to a junction. 
   bool fragmentToJunction(Event& event);
-
-  // Temporary event record for the produced particles.
-  Event hadrons;
-
-  // Information on the system of string regions.
-  StringSystem system, systemMin, systemMid;
-
-  // Information on the two current endpoints of the fragmenting system.
-  StringEnd posEnd, negEnd; 
-
-  // Classes for flavour, pT and z generation.
-  StringFlav flavSel;
-  StringPT   pTsel;
-  StringZ    zSel;
-
-  // Data members.
-  bool   hasJunction, isClosed;
-  int    iPos, iNeg;
-  double w2Rem, stopMassNow;
-  Vec4   pSum, pRem, pJunctionHadrons;
-
-  // List of partons in string system.
-  vector<int> iParton;
 
 };  
  

@@ -270,7 +270,7 @@ nor in elastic/diffractive/minimum-bias events.
 One derived class is supplied as an example how this facility can be used
 to reweight cross sections in the same spirit as is done with QCD cross
 sections for the minimum-bias/underlying-event description:
-<p/><code>class&nbsp; </code><strong> SuppressSmallPT( pT0timesMI, numberAlphaS, alphaSasMI) &nbsp;</strong> <br/>
+<p/><code>class&nbsp; </code><strong> SuppressSmallPT( pT0timesMI, numberAlphaS, useSameAlphaSasMI) &nbsp;</strong> <br/>
 suppress small-<i>pT</i> production for <i>2 -> 2</i> processes
 only, while leaving other processes unaffected. The basic suppression
 factor is <i>pT^4 / ((k*pT0)^2 + pT^2)^2</i>, where <i>pT</i>
@@ -292,7 +292,7 @@ i.e. a further suppression factor
 <i>( alpha_s((k*pT0)^2 + Q^2_ren) / alpha_s(Q^2_ren) )^n</i>
 is introduced.
   
-<br/><code>argument</code><strong> alphaSasMI </strong>  :  
+<br/><code>argument</code><strong> useSameAlphaSasMI </strong>  :  
 regulates which kind of new <i>alpha_strong</i> value is evaluated
 for the numerator in the above expression. It is by default the same 
 as set for multiple interactions (i.e. same starting value at 

@@ -227,8 +227,8 @@ and avoid already explicitly listed non-partonic channels</li>
 and hadronize</li>
 <li> 92 : decay onium to <ei>g g g</ei> or <ei>g g gamma</ei> 
 (with matrix element), which should shower and hadronize</li>
-<li>101 - : reserved for resonance decays and should not be used for
-normal particles.</li>
+<li> 101 - : reserved for the description of partial widths of 
+<aloc href="ResonanceDecays">resonances</aloc></li>
 </ul>
 
 Three special decay product identity codes are defined.

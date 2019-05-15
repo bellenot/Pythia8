@@ -59,6 +59,11 @@ the overall energy-momentum picture. Also ties together all the
 colour lines into consistent singlets. 
 </file>
 
+<file name="BoseEinstein"> 
+provides a simple method to impose Bose-Einstein correlations on 
+pairs of identical mesons.
+</file>
+
 <file name="Event"> 
 contains the event record, which basically is a vector of particles.
 This file also contains the <code>Particle</code> class, used by 
@@ -202,7 +207,7 @@ decays resonances as part of the hard-process stage, eventually including
 angular correlations between decay products.
 </file>
 
-<file name="ResonanceProperties"> 
+<file name="ResonanceWidths"> 
 encodes some properties of resonances, such as the dynamic calculation 
 of widths.
 </file>
@@ -216,11 +221,20 @@ be changed by the user.
 
 <file name="SigmaEW">
 contains the cross sections and matrix elements for electroweak
-processes involving photons, <ei>Z^0</ei>'s and <ei>W^+-</ei>'s .
+processes involving photons, <ei>Z^0</ei>'s and <ei>W^+-</ei>'s.
+</file>
+
+<file name="SigmaExtraDim">
+contains the cross sections and matrix elements for processes in
+scenarios involving extra dimensions.
 </file>
 
 <file name="SigmaHiggs">
 contains the cross sections and matrix elements for Higgs production.
+</file>
+
+<file name="SigmaLeptoquark">
+contains the cross sections and matrix elements for leptoquark production.
 </file>
 
 <file name="SigmaOnia">

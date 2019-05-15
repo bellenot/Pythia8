@@ -48,7 +48,7 @@ public:
 private:
 
   // Store flavour-specific process information and standard prefactor.
-  double m2b, m2W, thetaWRat, open, sigma;
+  double m2b, m2W, thetaWRat, openFrac, sigma;
 
 };
 
@@ -64,7 +64,7 @@ void Sigma2bg2Hb::initProc() {
   thetaWRat = 1. / (24. * CoupEW::sin2thetaW()); 
 
   // Suppression from secondary widths.
-  open      = ResonanceSMH::openFrac(25); 
+  openFrac = ParticleDataTable::resOpenFrac(25);
   
 } 
 
@@ -83,7 +83,7 @@ void Sigma2bg2Hb::sigmaKin() {
     * ( sH / (m2b - uH) + 2. * m2b * (s3 - uH) / pow2(m2b - uH) 
     + (m2b - uH) / sH - 2. * m2b / (m2b - uH) 
     + 2. * (s3 - uH)  * (s3 - m2b - sH) / ((m2b - uH) * sH) );
-  sigma *= open;
+  sigma *= openFrac;
 
 }
 
@@ -130,7 +130,7 @@ double Sigma2bg2Hb::weightDecay( Event& process, int iResBeg,
 
   // For Higgs decay hand over to standard routine, else done.
   if (process[process[iResBeg].mother1()].idAbs() == 25) 
-       return ResonanceSMH::weightDecayAngles( process, iResBeg, iResEnd);
+       return weightHiggsDecay( process, iResBeg, iResEnd);
   else return 1.; 
 
 }
@@ -156,7 +156,7 @@ int main() {
   pythia.setSigmaPtr( sigma2bg2Hb);
 
   // Optionally compare with (almost) same process implemented internally.
-  pythia.readString("SMHiggs:qg2Hq = on");
+  pythia.readString("HiggsSM:qg2Hq = on");
 
   // Phase space cut on pThat.
   pythia.readString("PhaseSpace:pTHatMin = 20.");

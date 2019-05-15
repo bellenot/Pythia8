@@ -367,19 +367,19 @@ void Settings::list(bool listAll,  bool listString, string match,
   // Table header; output for bool as off/on.
   if (listAll) 
     os << "\n *-------  PYTHIA Flag + Mode + Parm + Word Settings (all) "
-       << " --------------------------------------------------* \n";
+       << " -------------------------------------------------------* \n";
   else if (!listString) 
     os << "\n *-------  PYTHIA Flag + Mode + Parm + Word Settings (chang" 
-       << "es only)  -----------------------------------------* \n" ;
+       << "es only)  ----------------------------------------------* \n" ;
   else
     os << "\n *-------  PYTHIA Flag + Mode + Parm + Word Settings (with " 
-       << "requested string)  --------------------------------* \n" ;
+       << "requested string)  -------------------------------------* \n" ;
   os << " |                                                           "
-     << "                                                 | \n"
-     << " | Name                                     |                "
-     << "      Now |      Default         Min         Max | \n"
-     << " |                                          |                "
-     << "          |                                      | \n";
+     << "                                                      | \n"
+     << " | Name                                          |           "
+     << "           Now |      Default         Min         Max | \n"
+     << " |                                               |           "
+     << "               |                                      | \n";
  
   // Convert input string to lowercase for match.
   match = toLower(match);
@@ -405,7 +405,7 @@ void Settings::list(bool listAll,  bool listString, string match,
       bool valDefault = flagEntry->second.valDefault;
       if ( listAll || (!listString && valNow != valDefault)
         || (listString && flagEntry->first.find(match) != string::npos) )
-        os << " | " << setw(40) << left 
+        os << " | " << setw(45) << left 
            << flagEntry->second.name << " | " << setw(24) << right
            << state[valNow] << " | " << setw(12) << state[valDefault] 
            << "                         | \n";
@@ -420,7 +420,7 @@ void Settings::list(bool listAll,  bool listString, string match,
       int valDefault = modeEntry->second.valDefault;
       if ( listAll || (!listString && valNow != valDefault)
         || (listString && modeEntry->first.find(match) != string::npos) ) {
-        os << " | " << setw(40) << left 
+        os << " | " << setw(45) << left 
            << modeEntry->second.name << " | " << setw(24) << right 
            << valNow << " | " << setw(12) << valDefault; 
         if (modeEntry->second.hasMin) 
@@ -442,7 +442,7 @@ void Settings::list(bool listAll,  bool listString, string match,
       double valDefault = parmEntry->second.valDefault;      
       if ( listAll || (!listString && valNow != valDefault ) 
         || (listString && parmEntry->first.find(match) != string::npos) ) {
-        os << " | " << setw(40) << left 
+        os << " | " << setw(45) << left 
            << parmEntry->second.name << right << " |             ";
 	for (int i = 0; i < 4; ++i) { 
           if (i == 1) valNow = valDefault;  
@@ -478,7 +478,7 @@ void Settings::list(bool listAll,  bool listString, string match,
       string blankPad( blankLeft, ' '); 
       if ( listAll || (!listString && valNow != valDefault)
         || (listString && wordEntry->first.find(match) != string::npos) )
-        os << " | " << setw(40) << left 
+        os << " | " << setw(45) << left 
            << wordEntry->second.name << " | " << setw(24) << right
            << valNow << " | " << setw(12) << valDefault << blankPad 
            << " | \n";
@@ -488,9 +488,9 @@ void Settings::list(bool listAll,  bool listString, string match,
 
   // End of loop over database contents.
   os << " |                                                           "
-     << "                                                 | \n"
+     << "                                                      | \n"
      << " *-------  End PYTHIA Flag + Mode + Parm + Word Settings  ---"
-     << "-------------------------------------------------* " << endl;
+     << "------------------------------------------------------* " << endl;
 
 }
 

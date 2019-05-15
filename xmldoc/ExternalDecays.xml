@@ -11,7 +11,7 @@ been given with the <aloc href="ProgramFlow">
 <code>pythia.decayPtr()</code></aloc> 
 method, where it also is specified which particles it will be called for. 
 This particle information is accessible with the
-<aloc href="ParticleDataScheme"><code>externalDecay()</code></aloc>
+<aloc href="ParticleDataScheme"><code>doExternalDecay()</code></aloc>
 method. 
 
 <p/>

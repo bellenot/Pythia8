@@ -369,6 +369,11 @@ void Sigma2gg2QQbar::initProc() {
   if (idNew == 4) nameSave = "g g -> c cbar";
   if (idNew == 5) nameSave = "g g -> b bbar";
   if (idNew == 6) nameSave = "g g -> t tbar";
+  if (idNew == 7) nameSave = "g g -> b' b'bar";
+  if (idNew == 8) nameSave = "g g -> t' t'bar";
+
+  // Secondary open width fraction.
+  openFracPair = ParticleDataTable::resOpenFrac(idNew, -idNew);
 
 } 
 
@@ -396,10 +401,7 @@ void Sigma2gg2QQbar::sigmaKin() {
   sigSum = sigTS + sigUS;
 
   // Answer.
-  sigma = (M_PI / sH2) * pow2(alpS) * sigSum;  
-
-  // Top: corrections for closed decay channels.
-  if (idNew == 6) sigma *= ResonanceTop::openFrac(6, -6);
+  sigma = (M_PI / sH2) * pow2(alpS) * sigSum * openFracPair;  
 
 }
 
@@ -428,7 +430,7 @@ double Sigma2gg2QQbar::weightDecay( Event& process, int iResBeg,
 
   // For top decay hand over to standard routine, else done.
   if (idNew == 6 && process[process[iResBeg].mother1()].idAbs() == 6) 
-       return ResonanceTop::weightDecayAngles( process, iResBeg, iResEnd);
+       return weightTopDecay( process, iResBeg, iResEnd);
   else return 1.; 
 
 }
@@ -454,6 +456,11 @@ void Sigma2qqbar2QQbar::initProc() {
   if (idNew == 4) nameSave = "q qbar -> c cbar";
   if (idNew == 5) nameSave = "q qbar -> b bbar";
   if (idNew == 6) nameSave = "q qbar -> t tbar";
+  if (idNew == 7) nameSave = "q qbar -> b' b'bar";
+  if (idNew == 8) nameSave = "q qbar -> t' t'bar";
+
+  // Secondary open width fraction.
+  openFracPair = ParticleDataTable::resOpenFrac(idNew, -idNew);
 
 } 
 
@@ -474,10 +481,7 @@ void Sigma2qqbar2QQbar::sigmaKin() {
   double sigS = (4./9.) * ((tHQ2 + uHQ2) / sH2 + 2. * s34Avg / sH); 
 
   // Answer.
-  sigma = (M_PI / sH2) * pow2(alpS) * sigS;  
-
-  // Top: corrections for closed decay channels.
-  if (idNew == 6) sigma *= ResonanceTop::openFrac(6, -6);
+  sigma = (M_PI / sH2) * pow2(alpS) * sigS * openFracPair;  
 
 }
 
@@ -506,7 +510,7 @@ double Sigma2qqbar2QQbar::weightDecay( Event& process, int iResBeg,
 
   // For top decay hand over to standard routine, else done.
   if (idNew == 6 && process[process[iResBeg].mother1()].idAbs() == 6) 
-       return ResonanceTop::weightDecayAngles( process, iResBeg, iResEnd);
+       return weightTopDecay( process, iResBeg, iResEnd);
   else return 1.; 
 
 }
