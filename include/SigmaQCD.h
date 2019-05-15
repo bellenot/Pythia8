@@ -149,6 +149,34 @@ private:
 
 //==========================================================================
 
+// A derived class for central diffractive scattering A B -> A X B.
+
+class Sigma0AB2AXB : public Sigma0Process {
+
+public:
+
+  // Constructor.
+  Sigma0AB2AXB() {}
+  
+  // Evaluate sigma. 
+  virtual double sigmaHat() {return sigmaTotPtr->sigmaAXB();} 
+  
+  // Select flavour, colour and anticolour.
+  virtual void setIdColAcol();
+
+  // Info on the subprocess.
+  virtual string name()       const {return "A B -> A X B central diffractive";}
+  virtual int    code()       const {return 106;}
+  virtual int    nFinal()     const {return 3;}
+  virtual bool   isResolved() const {return false;}
+  virtual bool   isDiffC()    const {return true;};
+
+private:
+
+};
+
+//==========================================================================
+
 // A derived class for g g -> g g.
 
 class Sigma2gg2gg : public Sigma2Process {

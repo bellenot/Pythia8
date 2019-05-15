@@ -156,6 +156,8 @@ especially <b>Paul Newman</b>.
 <br/>Part of the SUSY code by <b>Nishita Desai</b>.
 <br/>Tau decays with decay models and helicity information by 
 <b>Philip Ilten</b>.
+<br/>The MBR diffractive model and central diffraction by 
+<b>Robert Ciesielski</b>.
 <br/><b>Note</b>: in several cases modifications have been made to
 the original code, in order to integrate it with PYTHIA. In these cases
 the blame for any mistakes has to rest with the regular authors.

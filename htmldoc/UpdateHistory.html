@@ -1777,6 +1777,61 @@ caused by numerical errors. Thanks to Erwin Visser.</li>
 
 </ul>
 </li>
+
+<li>8.165: 8 May 2012
+<ul>
+
+<li>The MBR (Minimum Bias Rockefeller) model for single, double and 
+central diffraction [<a href="Bibliography.html" target="page">Cie12</a>] is included as new option 
+<a href="Diffraction.html" target="page"><code>Diffraction:PomFlux = 5</code></a>. 
+It is specifically intended for <i>p p</i> and <i>pbar p</i>
+interactions, and is currently the only option that also supports 
+central diffraction. Thus the basic machinery for Central Diffraction 
+(a.k.a. Double Pomeron Exchange) has now been implemented. 
+See <code>examples/main04.cc</code> for an example.
+Thanks to Robert Ciesielski for contributing the new code.
+</li>
+
+<li>For a <i>tau</i> lepton in an external process, by default the 
+SPINUP number in the Les Houches Accord now is interpreted as giving 
+the <i>tau</i> helicity, and is used for its decay.</li> 
+
+<li>A <i>tau</i> coming from a <i>W</i> now defaults to being purely
+lefthanded when neither of the existing matrix elements apply.</li>
+
+<li>Decay mode <i>t -> H+ b</i> included as an option.</li>
+
+<li>Four ATLAS tunes have been implemented as options for 
+<code>Tune:pp</code>: A2-minbias-mstw2008lo, AU2-cteq6l1, AU2-mstw2008lo,
+and AU2-ct10. The new flag <code>Tune:preferLHAPDF</code> can be used
+to switch between the LHAPDF and the internal implementation of a 
+PDF set, in cases where both are available.</li>
+
+<li>Reorder libraries in <code>examples/Makefile</code>, specifically
+move <code>LIBGZIP</code> so that it is properly linked when used.
+Thanks to Erik Schnetter.</li>
+
+<li>Minor modification so that LHAPDF can be used for PDFs in the hard 
+process, with one of the built-in PDFs for the rest, even if LHAPDF is 
+compiled so as to handle only one concurrent PDF set.</Li>
+
+<li>Bug fix, that <code>ParticleDecays:mixB = off</code> did not 
+switch off <i>B0 - B0bar</i> and <i>Bs0 - Bs0bar</i> mixing.
+Thanks to James Catmore.</li>
+
+<li>Bug fix for the handling of gluon polarization of initial-state
+radiation, where an anisotropic azimuthal distribution was inadvertently
+generated in some <i>2 -> 1</i> processes. The update also includes
+always setting the second daughter zero for the two partons coming in to 
+a hard <i>2 -> 1</i> process. Thanks to Antonio Policicchio.</li>
+
+<li>Bug fix, that the setting of the number of user hooks MPI steps did 
+not use <code>UserHooks::canVetoMPIStep()</code> properly.</li>
+
+<li>Some other small changes, mainly documentation and aesthetics.</li>
+
+</ul>
+</li>
 </ul>
 
 </body>

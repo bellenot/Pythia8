@@ -103,6 +103,16 @@ const double SigmaTotal::CDD[10][9] = {
   { 3.18, -8.95, -3.37, 0.057, -0.76, 3.32, -1.12,  55.6, 1472., } ,  
   { 4.18, -29.2,  56.2, 0.074, -1.36, 6.67, -1.14, 116.2, 6532.  } };
 const double SigmaTotal::SPROTON = 0.880;
+  
+// MBR parameters. Integration of MBR cross section.
+const int    SigmaTotal::NINTEG = 1000;
+const int    SigmaTotal::NINTEG2 = 40;
+const double SigmaTotal::HBARC2 = 0.38938;
+// MBR: form factor appoximation with two exponents, [FFB1,FFB2] = GeV^-2.
+const double SigmaTotal::FFA1 = 0.9;
+const double SigmaTotal::FFA2 = 0.1;
+const double SigmaTotal::FFB1 = 4.6;
+const double SigmaTotal::FFB2 = 0.6;
 
 //--------------------------------------------------------------------------
 
@@ -122,6 +132,7 @@ void SigmaTotal::init(Info* infoPtrIn, Settings& settings,
   sigXBOwn   = settings.parm("SigmaTotal:sigmaXB");
   sigAXOwn   = settings.parm("SigmaTotal:sigmaAX");
   sigXXOwn   = settings.parm("SigmaTotal:sigmaXX");
+  sigAXBOwn  = settings.parm("SigmaTotal:sigmaAXB");
 
   // User-set values to dampen diffractive cross sections.
   doDampen   = settings.flag("SigmaDiffractive:dampen");
@@ -141,6 +152,23 @@ void SigmaTotal::init(Info* infoPtrIn, Settings& settings,
   sigmaPomP  = settings.parm("Diffraction:sigmaRefPomP");
   mPomP      = settings.parm("Diffraction:mRefPomP");
   pPomP      = settings.parm("Diffraction:mPowPomP");
+  
+  // Parameters for MBR model.
+ PomFlux      = settings.mode("Diffraction:PomFlux"); 
+  MBReps      = settings.parm("Diffraction:MBRepsilon");
+  MBRalpha    = settings.parm("Diffraction:MBRalpha");
+  MBRbeta0    = settings.parm("Diffraction:MBRbeta0");
+  MBRsigma0   = settings.parm("Diffraction:MBRsigma0");
+  m2min       = settings.parm("Diffraction:MBRm2Min");
+  dyminSDflux = settings.parm("Diffraction:MBRdyminSDflux");
+  dyminDDflux = settings.parm("Diffraction:MBRdyminDDflux");  
+  dyminCDflux = settings.parm("Diffraction:MBRdyminCDflux");
+  dyminSD     = settings.parm("Diffraction:MBRdyminSD");
+  dyminDD     = settings.parm("Diffraction:MBRdyminDD");
+  dyminCD     = settings.parm("Diffraction:MBRdyminCD");
+  dyminSigSD  = settings.parm("Diffraction:MBRdyminSigSD");
+  dyminSigDD  = settings.parm("Diffraction:MBRdyminSigDD");
+  dyminSigCD  = settings.parm("Diffraction:MBRdyminSigCD");
 
 }
 
@@ -156,7 +184,8 @@ bool SigmaTotal::calc( int idA, int idB, double eCM) {
 
   // Reset everything to zero to begin with.
   isCalc = false;
-  sigTot = sigEl = sigXB = sigAX = sigXX = sigND = bEl = s = bA = bB = 0.;
+  sigTot = sigEl = sigXB = sigAX = sigXX = sigAXB = sigND = bEl = s 
+    = bA = bB = 0.;
 
   // Order flavour of incoming hadrons: idAbsA < idAbsB (restore later).
   int idAbsA = abs(idA);
@@ -291,10 +320,14 @@ bool SigmaTotal::calc( int idA, int idB, double eCM) {
     sigAX = sigAX * maxAXOwn / (sigAX + maxAXOwn);
     sigXX = sigXX * maxXXOwn / (sigXX + maxXXOwn);
   }
- 
+  
+  // Calculate cross sections in MBR model.
+  if (PomFlux == 5) calcMBRxsecs(idA, idB, eCM);
+
   // Option with user-set values for total and partial cross sections.
   // (Is not done earlier since want diffractive slopes anyway.)
-  double sigNDOwn = sigTotOwn - sigElOwn - sigXBOwn - sigAXOwn - sigXXOwn; 
+  double sigNDOwn = sigTotOwn - sigElOwn - sigXBOwn - sigAXOwn - sigXXOwn
+                  - sigAXBOwn; 
   double sigElMax = sigEl;
   if (setTotal && sigNDOwn > 0.) {
     sigTot   = sigTotOwn;
@@ -302,6 +335,7 @@ bool SigmaTotal::calc( int idA, int idB, double eCM) {
     sigXB    = sigXBOwn;
     sigAX    = sigAXOwn;
     sigXX    = sigXXOwn;
+    sigAXB   = sigAXBOwn;
     sigElMax = sigEl;
 
     // Sub-option to set elastic parameters, including Coulomb contribution.
@@ -312,9 +346,9 @@ bool SigmaTotal::calc( int idA, int idB, double eCM) {
                + alphaEM0 * alphaEM0 / (4. * CONVERTEL * tAbsMin) );
     }
   }
-
+  
   // Inelastic nondiffractive by unitarity.
-  sigND = sigTot - sigEl - sigXB - sigAX - sigXX; 
+  sigND = sigTot - sigEl - sigXB - sigAX - sigXX - sigAXB; 
   if (sigND < 0.) infoPtr->errorMsg("Error in SigmaTotal::init: "
     "sigND < 0"); 
   else if (sigND < 0.4 * sigTot) infoPtr->errorMsg("Warning in "
@@ -327,6 +361,195 @@ bool SigmaTotal::calc( int idA, int idB, double eCM) {
   isCalc = true;
   return true;
 
+}
+
+//==========================================================================
+
+// Calculate parameters in the MBR model.
+
+bool SigmaTotal::calcMBRxsecs( int idA, int idB, double eCM) {
+
+  // Local variables.
+  double sigtot, sigel, sigsd, sigdd, sigdpe;
+  
+  // MBR parameters locally.
+  double eps       = MBReps;
+  double alph      = MBRalpha;  
+  double beta0gev  = MBRbeta0;
+  double beta0mb   = beta0gev * sqrt(HBARC2);
+  double sigma0mb  = MBRsigma0;  
+  double sigma0gev = sigma0mb/HBARC2;  
+  double a1        = FFA1;
+  double a2        = FFA2;
+  double b1        = FFB1;
+  double b2        = FFB2;
+  
+  // Calculate total and elastic cross sections.
+  double ratio;
+  if (eCM <= 1800.0) {
+    double sign = (idA * idB > 0);
+    sigtot = 16.79 * pow(s, 0.104) + 60.81 * pow(s, -0.32) 
+           - sign * 31.68 * pow(s, -0.54);
+    ratio  = 0.100 * pow(s, 0.06) + 0.421 * pow(s, -0.52) 
+           + sign * 0.160 * pow(s, -0.6);    
+  } else {    
+    double sigCDF = 80.03;
+    double sCDF   = pow2(1800.);  
+    double sF     = pow2(22.);
+    sigtot = sigCDF + ( pow2( log(s / sF)) - pow2( log(sCDF / sF)) )
+            * M_PI / (3.7 / HBARC2);
+    ratio  = 0.066 + 0.0119 * log(s);
+  }   
+  sigel=sigtot*ratio;
+  
+  // Integrate SD, DD and DPE(CD) cross sections. 
+  // Each cross section is obtained from the ratio of two integrals: 
+  // the Regge cross section and the renormalized flux.  
+  double cflux, csig, c1, step, f;
+  double dymin0 = 0.;
+  
+  // Calculate SD cross section.
+  double dymaxSD = log(s / m2min);
+  cflux          = pow2(beta0gev) / (16. * M_PI);
+  csig           = cflux * sigma0mb;  
+
+  // SD flux.
+  c1             = cflux;
+  double fluxsd  = 0.;
+  step           = (dymaxSD - dyminSDflux) / NINTEG;
+  for (int i = 0; i < NINTEG; ++i) {
+    double dy    = dyminSDflux + (i + 0.5) * step;
+    f            = exp(2. * eps * dy) * ( (a1 / (b1 + 2. * alph * dy))
+                 + (a2 / (b2 + 2. * alph * dy)) );    
+    f           *= 0.5 * (1. + erf( (dy - dyminSD) / dyminSigSD));
+    fluxsd       = fluxsd + step * c1 * f;
+  }  
+  if (fluxsd < 1.) fluxsd = 1.;
+
+  // Regge cross section.
+  c1             = csig * pow(s, eps);
+  sigsd          = 0.;
+  sdpmax         = 0.;
+  step           = (dymaxSD - dymin0) / NINTEG;  
+  for (int i = 0; i < NINTEG; ++i) {
+    double dy    = dymin0 + (i + 0.5) * step;
+    f            = exp(eps * dy) * ( (a1 / (b1 + 2. * alph * dy)) 
+                 + (a2 / (b2 + 2. * alph * dy)) );
+    f           *= 0.5 * (1. + erf( (dy - dyminSD) / dyminSigSD));
+    if (f > sdpmax) sdpmax = f;
+    sigsd        = sigsd + step * c1 * f;
+  }  
+  sdpmax        *= 1.01;
+  sigsd         /= fluxsd;
+
+  // Calculate DD cross section.
+  // Note: dymaxDD = ln(s * s0 /mMin^4) with s0 = 1 GeV^2. 
+  double dymaxDD = log(s / pow2(m2min));  
+  cflux          = sigma0gev / (16. * M_PI);
+  csig           = cflux * sigma0mb;
+
+  // DD flux.
+  c1             = cflux / (2. * alph);
+  double fluxdd  = 0.;
+  step           = (dymaxDD - dyminDDflux) / NINTEG;
+  for (int i = 0; i < NINTEG; ++i) {    
+    double dy    = dyminDDflux + (i + 0.5) * step;
+    f            = (dymaxDD - dy) * exp(2. * eps * dy) 
+                 * ( exp(-2. * alph * dy * exp(-dy))
+		 - exp(-2. * alph * dy * exp(dy)) ) / dy;
+    f           *= 0.5 * (1. + erf( (dy - dyminDD) / dyminSigDD));
+    fluxdd       = fluxdd + step * c1 * f;
+  }
+  if (fluxdd < 1.) fluxdd = 1.;
+  
+  // Regge cross section.
+  c1             = csig * pow(s, eps) / (2. * alph);  
+  ddpmax         = 0.;
+  sigdd          = 0.;
+  step           = (dymaxDD - dymin0) / NINTEG;
+  for (int i = 0; i < NINTEG; ++i) {
+    double dy    = dymin0 + (i + 0.5) * step;
+    f            = (dymaxDD - dy) * exp(eps * dy) 
+                 * ( exp(-2. * alph * dy * exp(-dy))
+		 - exp(-2. * alph * dy * exp(dy)) ) / dy;
+    f           *= 0.5 * (1. + erf( (dy - dyminDD) / dyminSigDD));
+    if (f > ddpmax) ddpmax = f;
+    sigdd        = sigdd + step * c1 * f;
+  }
+  ddpmax        *= 1.01;
+  sigdd         /= fluxdd;
+  
+  // Calculate DPE (CD) cross section.
+  double dymaxCD = log(s / m2min);
+  cflux          = pow4(beta0gev) / pow2(16. * M_PI);
+  csig           = cflux * pow2(sigma0mb / beta0mb);
+  double dy1, dy2, f1, f2, step2;
+    
+  // DPE flux.
+  c1             = cflux;
+  double fluxdpe = 0.;
+  step           = (dymaxCD - dyminCDflux) / NINTEG;
+  for (int i = 0; i < NINTEG; ++i) {
+    double dy    = dyminCDflux + (i + 0.5) * step;
+    f            = 0.;
+    step2        = (dy - dyminCDflux) / NINTEG2;
+    for (int j = 0; j < NINTEG2; ++j) {
+      double yc  = -0.5 * (dy - dyminCDflux) + (j + 0.5) * step2;
+      dy1        = 0.5 * dy - yc;
+      dy2        = 0.5 * dy + yc;
+      f1         = exp(2. * eps * dy1) * ( (a1 / (b1 + 2. * alph * dy1))
+                 + (a2 / (b2 + 2. * alph * dy1)) );
+      f2         = exp(2. * eps * dy2) * ( (a1 / (b1 + 2. * alph * dy2))
+                 + (a2 / (b2 + 2. * alph * dy2)) );
+      f1        *= 0.5 * (1. + erf( (dy1 - 0.5 * dyminCD)
+                 / (dyminSigCD / sqrt(2))) );
+      f2        *= 0.5 * (1. + erf( (dy2 - 0.5 *dyminCD)
+                 / (dyminSigCD / sqrt(2))) );
+      f         += f1 * f2 * step2;      
+    }
+    fluxdpe     += step * c1 * f;    
+  }
+  if (fluxdpe < 1.) fluxdpe = 1.;
+  
+  // Regge cross section.  
+  c1             = csig * pow(s, eps);
+  sigdpe         = 0.;
+  dpepmax        = 0;
+  step           = (dymaxCD - dymin0) / NINTEG;
+  for (int i = 0; i < NINTEG; ++i) {
+    double dy    = dymin0 + (i + 0.5) * step;    
+    f            = 0.;
+    step2        = (dy - dymin0) / NINTEG2;
+    for (int j = 0; j < NINTEG2; ++j) {
+      double yc  = -0.5 * (dy - dymin0) + (j + 0.5) * step2;      
+      dy1        = 0.5 * dy - yc;
+      dy2        = 0.5 * dy + yc;
+      f1         = exp(eps * dy1) * ( (a1 / (b1 + 2. * alph * dy1))
+                 + (a2 / (b2 + 2. * alph * dy1)) );
+      f2         = exp(eps * dy2) * ( (a1 / (b1 + 2. * alph * dy2))
+                 + (a2 / (b2 + 2. * alph * dy2)) );
+      f1        *= 0.5 * (1. + erf( (dy1 - 0.5 * dyminCD) 
+                 / (dyminSigCD / sqrt(2))) );
+      f2        *= 0.5 * (1. + erf( (dy2 - 0.5 * dyminCD)
+                 /(dyminSigCD / sqrt(2))) );
+      f         += f1 * f2 * step2;      
+    }
+    sigdpe      += step * c1 * f;
+    if ( f > dpepmax) dpepmax = f;
+  }
+  dpepmax       *= 1.01;
+  sigdpe        /= fluxdpe;
+  
+  // Diffraction done. Now calculate total inelastic cross section.
+  sigND  = sigtot - (2. * sigsd + sigdd + sigel + sigdpe);
+  sigTot = sigtot;
+  sigEl  = sigel;
+  sigAX  = sigsd;
+  sigXB  = sigsd;
+  sigXX  = sigdd;
+  sigAXB = sigdpe;
+
+  return true;
 }
 
 //==========================================================================

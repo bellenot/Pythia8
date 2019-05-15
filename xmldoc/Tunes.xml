@@ -67,15 +67,15 @@ tune 4Cx, where the Gaussian matter profile has an <ei>x</ei>-dependent
 width <ref>Cor11</ref>.
 
 <p/>
-The ATLAS Tune A2 is the first "external tune". It does away with
-rapidity ordering of spacelike emissions, a possibility that was 
-introduced in previous tuning efforts without any strong theoretical
-motivation, but otherwise is in the same spirit as 4Cx.
+Several ATLAS tunes have now been included, obtained with different PDFs
+and with different emphasis on minimum-bias and underlying-event data.
+These typically require LHAPDF to be linked, but this can be avoided 
+in cases where the same PDF set is implemented internally. 
 
 <p/>
 Note that comparisons with data also require that other aspects agree,
-suas as that decay chains are stopped at an agreed-on level. For instance,
-in the ATLAS Tune A2 all particles with a lifetime above 10 mm 
+such as that decay chains are stopped at an agreed-on level. For instance,
+in the ATLAS tunes all particles with a lifetime above 10 mm 
 are considered stable, <code>ParticleDecays:limitTau0 = on</code>,
 <code>ParticleDecays:tau0Max = 10</code>. We have chosen not to 
 include this as part of the tune settings itself, since the tune as 
@@ -197,7 +197,16 @@ option.
 </option>
 </modepick>
 
-<modepick name="Tune:pp" default="5" min="-1" max="7">
+<flag name="Tune:preferLHAPDF" default="on">
+Tunes made by experimental collaborations typically use the LHAPDF
+package to obtain their PDF values, and so PYTHIA has to be linked 
+accordingly. For PDFs implemanted natively in PYTHIA it is possible 
+to use the respective tunes, without having to link to LHAPDF, if you 
+set <code>Tune:preferLHAPDF = off</code> <i>before</i> the 
+<code>Tune:pp</code> choice. 
+</flag>
+
+<modepick name="Tune:pp" default="5" min="-1" max="11">
 Choice of tune to <ei>pp/ppbar</ei> data, mainly for the 
 initial-state-radiation, multiparton-interactions and  beam-remnants
 aspects of PYTHIA. Note that the previous crude (non-)tunes
@@ -244,7 +253,21 @@ matter profile, <ei>MultipartonInteractions:bProfile = 4</ei> and an
 increased <ei>MultipartonInteractions:pT0Ref</ei> <ref>Cor11</ref>.
 </option>
 <option value="7">"ATLAS Tune A2", based on tune 4Cx, but without 
-rapidity-ordered spacelike emissions.
+rapidity-ordered spacelike emissions. Uses CTEQ6L1, by default from
+LHAPDF. 
+</option>
+<option value="8">"ATLAS Tune A2-minbias-mstw2008lo", a minimum-bias tune. 
+Uses MSTW 2008LO, by default from LHAPDF. 
+</option>
+<option value="9">"ATLAS Tune AU2-cteq6l1", an underlying-event tune. 
+Uses CTEQ6L1, by default from LHAPDF. 
+</option>
+<option value="10">"ATLAS Tune AU2-mstw2008lo", an underlying-event tune. 
+Uses MSTW2008LO, by default from LHAPDF. 
+</option>
+<option value="11">"ATLAS Tune AU2-ct10", an underlying-event tune. 
+Uses CT10, which is not currently implemented in PYTHIA, so you must
+link LHAPDF. 
 </option>
 </modepick>
 

@@ -340,6 +340,7 @@ bool ParticleDecays::checkVertex(Particle& decayer) {
 bool ParticleDecays::oscillateB(Particle& decayer) {
 
   // Extract relevant information and decide.
+  if (!mixB) return false;
   double xBmix   = (abs(decayer.id()) == 511) ? xBdMix : xBsMix;
   double tau     = decayer.tau();
   double tau0    = decayer.tau0();

@@ -38,7 +38,7 @@ main00  main01 main02 main03 main04 main05 main06 main07 main08 main09 main10 \
 	$(PYTHIA8LOCATION)/$(LIBDIRARCH)/libpythia8.a
 	@mkdir -p $(BINDIR)
 	$(CXX) $(CXXFLAGS) -I$(PYTHIA8LOCATION)/$(INCDIR) $@.cc -o $(BINDIR)/$@.exe \
-	-L$(PYTHIA8LOCATION)/$(LIBDIRARCH) $(LIBGZIP) -lpythia8 -llhapdfdummy
+	-L$(PYTHIA8LOCATION)/$(LIBDIRARCH) -lpythia8 -llhapdfdummy $(LIBGZIP)
 	@ln -fs $(BINDIR)/$@.exe $@.exe
 
 # Create an executable linked to HepMC (if all goes well).
@@ -49,7 +49,7 @@ ifneq (x$(HEPMCLOCATION),x)
 	@mkdir -p $(BINDIR)
 	$(CXX) $(CXXFLAGS) -Wno-shadow -I$(PYTHIA8LOCATION)/$(INCDIR) -I$(HEPMCLOCATION)/include \
 	$@.cc -o $(BINDIR)/$@.exe \
-	-L$(PYTHIA8LOCATION)/$(LIBDIRARCH) $(LIBGZIP) -lpythia8 -llhapdfdummy \
+	-L$(PYTHIA8LOCATION)/$(LIBDIRARCH) -lpythia8 -llhapdfdummy $(LIBGZIP) \
 	-lhepmcinterface \
 	-L$(HEPMCLOCATION)/lib -lHepMC
 	@ln -fs $(BINDIR)/$@.exe $@.exe
@@ -62,7 +62,7 @@ endif
 main51 main52 main53: $(PYTHIA8LOCATION)/$(LIBDIRARCH)/libpythia8.a
 	@mkdir -p $(BINDIR)
 	$(CXX) $(CXXFLAGS) -I$(PYTHIA8LOCATION)/$(INCDIR) $@.cc -o $(BINDIR)/$@.exe \
-	-L$(PYTHIA8LOCATION)/$(LIBDIRARCH) $(LIBGZIP) -lpythia8 \
+	-L$(PYTHIA8LOCATION)/$(LIBDIRARCH) -lpythia8 $(LIBGZIP) \
 	-L$(LHAPDFLOCATION) $(LHAPDFLIBNAME) \
 	$(FLIBS)
 	@ln -fs $(BINDIR)/$@.exe $@.exe
@@ -73,7 +73,7 @@ main61 main62: \
 	@mkdir -p $(BINDIR)
 	$(CXX) $(CXXFLAGS) -Wno-shadow -I$(PYTHIA8LOCATION)/$(INCDIR) -I$(HEPMCLOCATION)/include \
 	$@.cc -o $(BINDIR)/$@.exe \
-	-L$(PYTHIA8LOCATION)/$(LIBDIRARCH) $(LIBGZIP) -lpythia8 -lhepmcinterface \
+	-L$(PYTHIA8LOCATION)/$(LIBDIRARCH) -lpythia8 -lhepmcinterface $(LIBGZIP) \
 	-L$(LHAPDFLOCATION) $(LHAPDFLIBNAME) \
 	-L$(HEPMCLOCATION)/lib -lHepMC \
 	$(FLIBS)
@@ -91,7 +91,7 @@ ifneq (x$(FASTJETLOCATION),x)
 	`$(FASTJETLOCATION)/bin/fastjet-config --cxxflags --plugins` \
 	$(CXXFLAGS) -Wno-shadow \
 	-o $(BINDIR)/$@.exe \
-	-L$(PYTHIA8LOCATION)/$(LIBDIRARCH) $(LIBGZIP) -lpythia8 -llhapdfdummy \
+	-L$(PYTHIA8LOCATION)/$(LIBDIRARCH) -lpythia8 -llhapdfdummy $(LIBGZIP) \
 	-L$(FASTJETLOCATION)/lib \
 	`$(FASTJETLOCATION)/bin/fastjet-config --libs --plugins`
 	@ln -fs $(BINDIR)/$@.exe $@.exe
@@ -137,7 +137,7 @@ endif
 #main91: $(PYTHIA8LOCATION)/$(LIBDIRARCH)/libpythia8.a
 #	@mkdir -p $(BINDIR)
 #	$(CXX) $(CXXFLAGS) -I$(PYTHIA8LOCATION)/$(INCDIR) $@.cc -o $(BINDIR)/$@.exe \
-#	-L$(PYTHIA8LOCATION)/$(LIBDIRARCH) $(LIBGZIP) -lpythia8 -llhapdfdummy \
+#	-L$(PYTHIA8LOCATION)/$(LIBDIRARCH) -lpythia8 -llhapdfdummy $(LIBGZIP) \
 #	-L/directoryoflibpythia6.a -lpythia6 \
 #	$(FLIBS)
 #	@ln -fs $(BINDIR)/$@.exe $@.exe

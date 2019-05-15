@@ -84,6 +84,10 @@ are beam particles resolved, i.e. were PDF's used for the process?
 is either beam diffractively excited?
 </methodmore>
 
+<method name="bool Info::isDiffractiveC()"> 
+is there central diffraction (a.k.a. double Pomeron exchange)?
+</method>
+
 <method name="bool Info::isMinBias()"> 
 is the process a minimum-bias one?
 </method>

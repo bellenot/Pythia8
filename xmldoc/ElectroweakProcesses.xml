@@ -143,6 +143,13 @@ Code 223.
 
 <h4>Boson pair</h4>
 
+Note that, in the decay of the two vector bosons produced by an 
+<ei>f fbar -> V V</ei> process, the full four-fermion correlations 
+from the leading-order <ei>f fbar -> V V -> 4f</ei> matrix elements 
+are included <ref>Gun86</ref> (with some extensions by the authors).
+The matrix elements are provided in the double-resonant approach, i.e. 
+excludes graph like <ei>f fbar -> V -> f fbar -> f fbar V -> 4f</ei>.
+
 <flag name="WeakDoubleBoson:all" default="off">
 Common switch for the group of pair production of <ei>gamma^*/Z^0</ei>
 and <ei>W^+-</ei>.

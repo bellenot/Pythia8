@@ -91,6 +91,10 @@ Single Diffractive cross section <i>A + B -> A + X</i> in mb.
 Double Diffractive cross section <i>A + B -> X_1 + X_2</i> in mb.
   
 
+<br/><br/><table><tr><td><strong>SigmaTotal:sigmaAXB </td><td></td><td> <input type="text" name="7" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
+Central Diffractive cross section <i>A + B -> A + X + B</i> in mb.
+  
+
 <p/>
 Note that the total cross section subtracted by the elastic and various 
 diffractive ones gives the inelastic nondiffractive cross section, 
@@ -103,8 +107,8 @@ consistent set is used.
 
 <h3>Dampen diffractive cross sections</h3>
 
-<br/><br/><strong>SigmaDiffractive:dampen</strong>  <input type="radio" name="7" value="on"><strong>On</strong>
-<input type="radio" name="7" value="off"><strong>Off</strong>
+<br/><br/><strong>SigmaDiffractive:dampen</strong>  <input type="radio" name="8" value="on"><strong>On</strong>
+<input type="radio" name="8" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>no</strong></code>)<br/>
 Allow a user to dampen diffractive cross sections; on/off = true/false.
   
@@ -120,15 +124,15 @@ This reduces to <i>sigma_old(s)</i> at low energies and to
 <i>sigma_max</i> at high ones. Note that the asymptotic value 
 is approached quite slowly, however.
 
-<br/><br/><table><tr><td><strong>SigmaDiffractive:maxXB </td><td></td><td> <input type="text" name="8" value="15." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>15.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>SigmaDiffractive:maxXB </td><td></td><td> <input type="text" name="9" value="15." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>15.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
 The above <i>sigma_max</i> for <i>A + B -> X + B</i> in mb.
   
 
-<br/><br/><table><tr><td><strong>SigmaDiffractive:maxAX </td><td></td><td> <input type="text" name="9" value="15." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>15.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>SigmaDiffractive:maxAX </td><td></td><td> <input type="text" name="10" value="15." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>15.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
 The above <i>sigma_max</i> for <i>A + B -> X + B</i> in mb.
   
 
-<br/><br/><table><tr><td><strong>SigmaDiffractive:maxXX </td><td></td><td> <input type="text" name="10" value="15." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>15.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>SigmaDiffractive:maxXX </td><td></td><td> <input type="text" name="11" value="15." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>15.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
 The above <i>sigma_max</i> for <i>A + B -> X + B</i> in mb.
   
 
@@ -154,35 +158,35 @@ using the optical theorem. The machinery is only intended to be used for
 <i>p p</i> and <i>pbar p</i> collisions. The description of 
 diffractive events, and especially their slopes, remains unchanged. 
 
-<br/><br/><strong>SigmaElastic:setOwn</strong>  <input type="radio" name="11" value="on"><strong>On</strong>
-<input type="radio" name="11" value="off"><strong>Off</strong>
+<br/><br/><strong>SigmaElastic:setOwn</strong>  <input type="radio" name="12" value="on"><strong>On</strong>
+<input type="radio" name="12" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>no</strong></code>)<br/>
 Allow a user to set parameters for the normalization and shape of the
 elastic cross section the by hand; yes/no = true/false.
   
 
-<br/><br/><table><tr><td><strong>SigmaElastic:bSlope </td><td></td><td> <input type="text" name="12" value="18." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>18.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>SigmaElastic:bSlope </td><td></td><td> <input type="text" name="13" value="18." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>18.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
 the slope <i>b</i> of the strong-interaction term <i>exp(bt)</i>,
 in units of GeV^-2. 
   
 
-<br/><br/><table><tr><td><strong>SigmaElastic:rho </td><td></td><td> <input type="text" name="13" value="0.13" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.13</strong></code>; <code>minimum = -1.</code>; <code>maximum = 1.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>SigmaElastic:rho </td><td></td><td> <input type="text" name="14" value="0.13" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.13</strong></code>; <code>minimum = -1.</code>; <code>maximum = 1.</code>)</td></tr></table>
 the ratio of the real to the imaginary parts of the nuclear scattering
 amplitude.
   
 
-<br/><br/><table><tr><td><strong>SigmaElastic:lambda </td><td></td><td> <input type="text" name="14" value="0.71" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.71</strong></code>; <code>minimum = 0.1</code>; <code>maximum = 2.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>SigmaElastic:lambda </td><td></td><td> <input type="text" name="15" value="0.71" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.71</strong></code>; <code>minimum = 0.1</code>; <code>maximum = 2.</code>)</td></tr></table>
 the main parameter of the electric form factor
 <i>G(t) = lambda^2 / (lambda + |t|)^2</i>, in units of GeV^2.
   
 
-<br/><br/><table><tr><td><strong>SigmaElastic:tAbsMin </td><td></td><td> <input type="text" name="15" value="5e-5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5e-5</strong></code>; <code>minimum = 1e-10</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>SigmaElastic:tAbsMin </td><td></td><td> <input type="text" name="16" value="5e-5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5e-5</strong></code>; <code>minimum = 1e-10</code>)</td></tr></table>
 since the Coulomb contribution is infinite a lower limit on 
 <i>|t|</i> must be set to regularize the divergence, 
 in units of GeV^2.
   
 
-<br/><br/><table><tr><td><strong>SigmaElastic:phaseConst </td><td></td><td> <input type="text" name="16" value="0.577" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.577</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>SigmaElastic:phaseConst </td><td></td><td> <input type="text" name="17" value="0.577" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.577</strong></code>)</td></tr></table>
 The Coulomb term is taken to contain a phase factor 
 <i>exp(+- i alpha phi(t))</i>, with + for <i>p p</i> and - for 
 <i>pbar p</i>, where <i>phi(t) = - phaseConst - ln(-B t/2)</i>.
@@ -234,54 +238,59 @@ if($_POST["6"] != "4.")
 $data = "SigmaTotal:sigmaXX = ".$_POST["6"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["7"] != "no")
+if($_POST["7"] != "0.")
 {
-$data = "SigmaDiffractive:dampen = ".$_POST["7"]."\n";
+$data = "SigmaTotal:sigmaAXB = ".$_POST["7"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["8"] != "15.")
+if($_POST["8"] != "no")
 {
-$data = "SigmaDiffractive:maxXB = ".$_POST["8"]."\n";
+$data = "SigmaDiffractive:dampen = ".$_POST["8"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["9"] != "15.")
 {
-$data = "SigmaDiffractive:maxAX = ".$_POST["9"]."\n";
+$data = "SigmaDiffractive:maxXB = ".$_POST["9"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["10"] != "15.")
 {
-$data = "SigmaDiffractive:maxXX = ".$_POST["10"]."\n";
+$data = "SigmaDiffractive:maxAX = ".$_POST["10"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["11"] != "no")
+if($_POST["11"] != "15.")
 {
-$data = "SigmaElastic:setOwn = ".$_POST["11"]."\n";
+$data = "SigmaDiffractive:maxXX = ".$_POST["11"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["12"] != "18.")
+if($_POST["12"] != "no")
 {
-$data = "SigmaElastic:bSlope = ".$_POST["12"]."\n";
+$data = "SigmaElastic:setOwn = ".$_POST["12"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["13"] != "0.13")
+if($_POST["13"] != "18.")
 {
-$data = "SigmaElastic:rho = ".$_POST["13"]."\n";
+$data = "SigmaElastic:bSlope = ".$_POST["13"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["14"] != "0.71")
+if($_POST["14"] != "0.13")
 {
-$data = "SigmaElastic:lambda = ".$_POST["14"]."\n";
+$data = "SigmaElastic:rho = ".$_POST["14"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["15"] != "5e-5")
+if($_POST["15"] != "0.71")
 {
-$data = "SigmaElastic:tAbsMin = ".$_POST["15"]."\n";
+$data = "SigmaElastic:lambda = ".$_POST["15"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["16"] != "0.577")
+if($_POST["16"] != "5e-5")
 {
-$data = "SigmaElastic:phaseConst = ".$_POST["16"]."\n";
+$data = "SigmaElastic:tAbsMin = ".$_POST["16"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["17"] != "0.577")
+{
+$data = "SigmaElastic:phaseConst = ".$_POST["17"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);

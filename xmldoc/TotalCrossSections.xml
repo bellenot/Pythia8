@@ -62,6 +62,10 @@ Single Diffractive cross section <ei>A + B -> A + X</ei> in mb.
 Double Diffractive cross section <ei>A + B -> X_1 + X_2</ei> in mb.
 </parm>
 
+<parm name="SigmaTotal:sigmaAXB" default="0." min="0.">
+Central Diffractive cross section <ei>A + B -> A + X + B</ei> in mb.
+</parm>
+
 <p/>
 Note that the total cross section subtracted by the elastic and various 
 diffractive ones gives the inelastic nondiffractive cross section, 

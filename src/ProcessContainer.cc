@@ -56,6 +56,7 @@ bool ProcessContainer::init(bool isFirst, Info* infoPtrIn,
   isResolved  = sigmaProcessPtr->isResolved();
   isDiffA     = sigmaProcessPtr->isDiffA();
   isDiffB     = sigmaProcessPtr->isDiffB();
+  isDiffC     = sigmaProcessPtr->isDiffC();
   isQCD3body  = sigmaProcessPtr->isQCD3body();
   int nFin    = sigmaProcessPtr->nFinal();
   lhaStrat    = (isLHA) ? lhaUpPtr->strategy() : 0;
@@ -68,8 +69,10 @@ bool ProcessContainer::init(bool isFirst, Info* infoPtrIn,
   // Pick and create phase space generator. Send pointers where required.
   if      (isLHA)       phaseSpacePtr = new PhaseSpaceLHA();
   else if (isMinBias)   phaseSpacePtr = new PhaseSpace2to2minbias();
-  else if (!isResolved && !isDiffA  && !isDiffB )
+  else if (!isResolved && !isDiffA  && !isDiffB  && !isDiffC )
                         phaseSpacePtr = new PhaseSpace2to2elastic();
+  else if (!isResolved && !isDiffA  && !isDiffB && isDiffC)
+                        phaseSpacePtr = new PhaseSpace2to3diffractive();
   else if (!isResolved) phaseSpacePtr = new PhaseSpace2to2diffractive( 
                                         isDiffA, isDiffB);
   else if (nFin == 1)   phaseSpacePtr = new PhaseSpace2to1tauy();
@@ -125,8 +128,10 @@ bool ProcessContainer::init(bool isFirst, Info* infoPtrIn,
       bool test = false;
       while (!test) test = phaseSpacePtr->trialKin(false); 
       if (iSample == nSample/2) sigmaHalfWay = phaseSpacePtr->sigmaMax();
-    }   
-    sigmaMx = pow2(phaseSpacePtr->sigmaMax()) / sigmaHalfWay;
+    } 
+    double sigmaFullWay = phaseSpacePtr->sigmaMax();  
+    sigmaMx = (sigmaHalfWay > 0.) ? pow2(sigmaFullWay) / sigmaHalfWay
+                                  : sigmaFullWay;
     phaseSpacePtr->setSigmaMax(sigmaMx);
   }
 
@@ -214,7 +219,7 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
 
   // Basic info on process.
   if (isHardest) infoPtr->setType( name(), code(), nFin, isMinBias, 
-    isResolved, isDiffA, isDiffB, isLHA);
+    isResolved, isDiffA, isDiffB, isDiffC, isLHA);
 
   // Let hard process record begin with the event as a whole and
   // the two incoming beam particles.  
@@ -232,6 +237,12 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
   process[1].daughter1(3);
   process[2].daughter1(4);
   double scale = 0.;
+  
+  // For DiffC also Entry 5 comes from 1 and 2.
+  if (isDiffC) {
+    process[1].daughter2(5);
+    process[2].daughter2(5);
+  }
 
   // Insert the subprocess partons - resolved processes.
   int idRes = sigmaProcessPtr->idSChannel();
@@ -241,7 +252,7 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
     int m_M1 = 3; 
     int m_M2 = 4; 
     int m_D1 = 5; 
-    int m_D2 = 4 + nFin;
+    int m_D2 = (nFin == 1) ? 0 : 4 + nFin;
     if (idRes != 0) { 
       m_M1   = 5;
       m_M2   = 0;
@@ -327,6 +338,15 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
     int status4 = (id4 == process[2].id()) ? 14 : 15;
     process.append( id4, status4, 2, 0, 0, 0, 0, 0, 
       phaseSpacePtr->p(4), phaseSpacePtr->m(4));
+
+    // For central diffraction: two scattered protons inserted so far,
+    // add also centrally-produced hadronic system
+    if (isDiffC) {
+      int id5     = sigmaProcessPtr->id(5);
+      int status5 = 15;
+      process.append( id5, status5, 0, 0, 0, 0, 0, 0, 
+	phaseSpacePtr->p(5), phaseSpacePtr->m(5));
+    }
   }
 
   // Insert the outgoing particles - Les Houches Accord processes.
@@ -501,11 +521,11 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
     if (nFinLH > 0) pTHatL = pTLH / nFinLH;
 
     // Read info on parton densities if provided.
+    id1pdf       = lhaUpPtr->id1pdf();
+    id2pdf       = lhaUpPtr->id2pdf();
+    x1pdf        = lhaUpPtr->x1pdf();
+    x2pdf        = lhaUpPtr->x2pdf();
     if (lhaUpPtr->pdfIsSet()) {
-      id1pdf     = lhaUpPtr->id1pdf();
-      id2pdf     = lhaUpPtr->id2pdf();
-      x1pdf      = lhaUpPtr->x1pdf();
-      x2pdf      = lhaUpPtr->x2pdf();
       pdf1       = lhaUpPtr->pdf1();
       pdf2       = lhaUpPtr->pdf2();
       Q2FacNow   = pow2(lhaUpPtr->scalePDF());
@@ -679,6 +699,13 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs,
   if (softQCD || settings.flag("SoftQCD:doubleDiffractive")) {
     sigmaPtr = new Sigma0AB2XX;
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (softQCD || settings.flag("SoftQCD:centralDiffractive")) {
+    // Central diffraction currently only available for MBR model.
+    if (settings.mode("Diffraction:PomFlux") == 5) {
+      sigmaPtr = new Sigma0AB2AXB;
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }
   } 
   
   // Set up requested objects for hard QCD processes.

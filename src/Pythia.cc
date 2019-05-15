@@ -401,7 +401,8 @@ bool Pythia::init() {
   doHadronLevel    = settings.flag("HadronLevel:all");
   doDiffraction    = settings.flag("SoftQCD:all") 
                   || settings.flag("SoftQCD:singleDiffractive") 
-                  || settings.flag("SoftQCD:doubleDiffractive");
+                  || settings.flag("SoftQCD:doubleDiffractive")
+                  || settings.flag("SoftQCD:centralDiffractive");
   decayRHadrons    = settings.flag("RHadrons:allowDecay");
   doMomentumSpread = settings.flag("Beams:allowMomentumSpread");
   doVertexSpread   = settings.flag("Beams:allowVertexSpread");
@@ -727,6 +728,17 @@ bool Pythia::checkBeams() {
 
   // Lepton-lepton collisions OK (including neutrinos) if both (un)resolved.
   if (isLeptonA && isLeptonB && isUnresolvedA == isUnresolvedB) return true;
+
+  // MBR model only implemented for pp/ppbar/pbarp collisions.
+  int PomFlux    = settings.mode("Diffraction:PomFlux");
+  if (PomFlux == 5) {
+    bool ispp       = (idAabs == 2212 && idBabs == 2212);
+    bool ispbarpbar = (idA == -2212 && idB == -2212);    
+    if(ispp && !ispbarpbar) return true;
+    info.errorMsg("Error in Pythia::init: cannot handle this beam combination"
+      " with PomFlux == 5");
+    return false;
+  }
 
   // Hadron-hadron collisions OK, with Pomeron counted as hadron.
   bool isHadronA = (idAabs == 2212) || (idA == 111) || (idAabs == 211) 
@@ -1759,9 +1771,11 @@ PDF* Pythia::getPDFPtr(int idIn, int sequence) {
     else {
       string LHAPDFset    = settings.word("PDF:hardLHAPDFset");
       int    LHAPDFmember = settings.mode("PDF:hardLHAPDFmember");
-      tempPDFPtr = new LHAPDF(idIn, LHAPDFset, LHAPDFmember, 2, &info);
-
-      // Optionally allow extrapolation beyond x and Q2 limits.
+      // May need to require LHAPDF to handle two sets simultaneously.
+     int nSet = (settings.flag("PDF:useLHAPDF")) ? 2 : 1;  
+      tempPDFPtr = new LHAPDF(idIn, LHAPDFset, LHAPDFmember, nSet, &info);
+ 
+     // Optionally allow extrapolation beyond x and Q2 limits.
       tempPDFPtr->setExtrapolate( settings.flag("PDF:extrapolateLHAPDF") );
     }
   }

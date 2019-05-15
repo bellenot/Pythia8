@@ -46,6 +46,13 @@ further multiparton interactions ("cut Pomerons") will screen the rate of
 diffractive systems. In the end, our set of parameters refers to the
 effective description that emerges out of these effects, rather than 
 to the underlying "bare" parameters.  
+ 
+<p/>
+In the event record the diffractive system in the case of an excited
+proton is denoted <code>p_diffr</code>, code 9902210, whereas
+a central diffractive system is denoted <code>rho_diffr</code>, 
+code 9900110. Apart from representing the correct charge and baryon
+numbers, no deeper meaning should be attributed to the names.
 
 <h3>Pomeron flux</h3>
 
@@ -57,7 +64,7 @@ normalization of the Pomeron flux. The choice of Pomeron flux model
 still will decide on the mass spectrum of diffractive states and the 
 <ei>t</ei> spectrum of the Pomeron exchange.
 
-<modepick name="Diffraction:PomFlux" default="1" min="1" max="4">
+<modepick name="Diffraction:PomFlux" default="1" min="1" max="5">
 Parametrization of the Pomeron flux <ei>f_Pom/p( x_Pom, t)</ei>.
 <option value="1">Schuler and Sj&ouml;strand <ref>Sch94</ref>: based on a 
 critical Pomeron, giving a mass spectrum roughly like <ei>dm^2/m^2</ei>;
@@ -80,10 +87,18 @@ and with a mass-dependent (the <ei>alpha'</ei> below) exponential
 Donnachie and Landshoff <ref>Don84</ref>, again with supercritical Pomeron, 
 with the same two parameters as option 3 above, but this time with a 
 power-law <ei>t</ei> distribution.</option>
+<option value="5"> the MBR (Minimum Bias Rockefeller) simulation of 
+(anti)proton-proton interactions <ref>Cie12</ref>. The event 
+generation follows a renormalized-Regge-theory model, sucessfully tested 
+using CDF data. The simulation includes the central diffractive 
+(double-Pomeron exchange) process (106). Only <ei>p p</ei>, <ei>pbar p</ei>
+and <ei>p pbar</ei> beam combinations are allowed for this option. 
+Several parameters of this model are listed below. 
+</option>
 </modepick> 
 
 <p/>
-In the last two options above, the Pomeron Regge trajectory is
+In options 3 and 4 above, the Pomeron Regge trajectory is 
 parametrized as 
 <eq>
 alpha(t) = 1 + epsilon + alpha' t
@@ -98,6 +113,39 @@ reasons <ei>epsilon &gt; 0</ei> is necessary in the current implementation.
 <parm name="Diffraction:PomFluxAlphaPrime" default="0.25" min="0.1" max="0.4">
 The Pomeron trajectory slope <ei>alpha'</ei> above. 
 
+<p/>
+When option 5 is selected, the following parameters of the MBR model
+<ref>Cie12</ref> are used:
+
+<parm name="Diffraction:MBRepsilon" default="0.104" min="0.02" max="0.15">
+<parm name="Diffraction:MBRalpha" default="0.25" min="0.1" max="0.4">
+the parameters of the Pomeron trajectory.
+
+<parm name="Diffraction:MBRbeta0" default="6.566" min="0.0" max="10.0">
+<parm name="Diffraction:MBRsigma0" default="2.82" min="0.0" max="5.0">
+the Pomeron-proton coupling, and the total Pomeron-proton cross section.
+
+<parm name="Diffraction:MBRm2Min" default="1.5" min="0.0" max="3.0">
+the lowest value of the mass squared of the dissociated system.
+
+<parm name="Diffraction:MBRdyminSDflux" default="2.3" min="0.0" max="5.0">
+<parm name="Diffraction:MBRdyminDDflux" default="2.3" min="0.0" max="5.0">
+<parm name="Diffraction:MBRdyminCDflux" default="2.3" min="0.0" max="5.0">
+the minimum width of the rapidity gap used in the calculation of 
+<ei>Ngap(s)</ei> (flux renormalization).
+
+<parm name="Diffraction:MBRdyminSD" default="2.0" min="0.0" max="5.0">
+<parm name="Diffraction:MBRdyminDD" default="2.0" min="0.0" max="5.0">
+<parm name="Diffraction:MBRdyminCD" default="2.0" min="0.0" max="5.0">
+the minimum width of the rapidity gap used in the calculation of cross 
+sections, i.e. the parameter <ei>dy_S</ei>, which suppresses the cross 
+section at low <ei>dy</ei> (non-diffractive region).
+
+<parm name="Diffraction:MBRdyminSigSD" default="0.5" min="0.001" max="5.0">
+<parm name="Diffraction:MBRdyminSigDD" default="0.5" min="0.001" max="5.0">
+<parm name="Diffraction:MBRdyminSigCD" default="0.5" min="0.001" max="5.0">
+the parameter <ei>sigma_S</ei>, used for the cross section suppression at 
+low <ei>dy</ei> (non-diffractive region).
 
 <h3>Separation into low and high masses</h3>
 

@@ -1731,10 +1731,20 @@ double SpaceShower::calcMEcorr(int MEtype, int idMother, int idDaughterIn,
 void SpaceShower::findAsymPol( Event& event, SpaceDipoleEnd* dip) {
 
   // Default is no asymmetry. Only gluons are studied.
-  dip->iFinPol = 0;
-  dip->asymPol = 0.;
-  int iRad = dip->iRadiator;
+  dip->iFinPol   = 0;
+  dip->asymPol   = 0.;
+  int iRad       = dip->iRadiator;
   if (!doPhiPolAsym || dip->idDaughter != 21) return;
+
+  // At least two particles in final state, whereof at least one coloured.
+  int systemSizeOut = partonSystemsPtr->sizeOut( iSysSel);
+  if (systemSizeOut < 2) return;
+  bool foundColOut  = false;
+  for (int ii = 0; ii < systemSizeOut; ++ii) {
+    int i = partonSystemsPtr->getOut( iSysSel, ii); 
+    if (event[i].col() != 0 || event[i].acol() != 0) foundColOut = true;
+  }
+  if (!foundColOut) return;
 
   // Check if granddaughter in final state of hard scattering.
   // (May need to trace across carbon copies to find granddaughters.)

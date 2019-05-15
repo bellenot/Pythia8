@@ -139,7 +139,7 @@ private:
   LHAup*           lhaUpPtr;
 
   // Info on process.
-  bool   isLHA, isMinBias, isResolved, isDiffA, isDiffB, isQCD3body,
+  bool   isLHA, isMinBias, isResolved, isDiffA, isDiffB, isDiffC, isQCD3body,
          allowNegSig, hasOctetOnium, isSameSave, increaseMaximum;
   int    lhaStrat, lhaStratAbs;
 

@@ -94,15 +94,15 @@ tune 4Cx, where the Gaussian matter profile has an <i>x</i>-dependent
 width [<a href="Bibliography.php" target="page">Cor11</a>].
 
 <p/>
-The ATLAS Tune A2 is the first "external tune". It does away with
-rapidity ordering of spacelike emissions, a possibility that was 
-introduced in previous tuning efforts without any strong theoretical
-motivation, but otherwise is in the same spirit as 4Cx.
+Several ATLAS tunes have now been included, obtained with different PDFs
+and with different emphasis on minimum-bias and underlying-event data.
+These typically require LHAPDF to be linked, but this can be avoided 
+in cases where the same PDF set is implemented internally. 
 
 <p/>
 Note that comparisons with data also require that other aspects agree,
-suas as that decay chains are stopped at an agreed-on level. For instance,
-in the ATLAS Tune A2 all particles with a lifetime above 10 mm 
+such as that decay chains are stopped at an agreed-on level. For instance,
+in the ATLAS tunes all particles with a lifetime above 10 mm 
 are considered stable, <code>ParticleDecays:limitTau0 = on</code>,
 <code>ParticleDecays:tau0Max = 10</code>. We have chosen not to 
 include this as part of the tune settings itself, since the tune as 
@@ -202,7 +202,18 @@ are the settings for the respective tune.
 <input type="radio" name="1" value="2"><strong>2 </strong>: a tune by Marc Montull to the LEP 1 particle composition, as published in the RPP (August 2007). No related (re)tune  to event shapes has been performed, however.   <br/>
 <input type="radio" name="1" value="3"><strong>3 </strong>: a tune to a wide selection of LEP1 data by Hendrik  Hoeth within the Rivet + Professor framework, both to hadronization and timelike-shower parameters (June 2009). These are the default values  starting from version 8.125, so currently there is no need for this option. <br/>
 
-<br/><br/><table><tr><td><strong>Tune:pp  </td><td>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = -1</code>; <code>maximum = 7</code>)</td></tr></table>
+<br/><br/><strong>Tune:preferLHAPDF</strong>  <input type="radio" name="2" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="2" value="off"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
+Tunes made by experimental collaborations typically use the LHAPDF
+package to obtain their PDF values, and so PYTHIA has to be linked 
+accordingly. For PDFs implemanted natively in PYTHIA it is possible 
+to use the respective tunes, without having to link to LHAPDF, if you 
+set <code>Tune:preferLHAPDF = off</code> <i>before</i> the 
+<code>Tune:pp</code> choice. 
+  
+
+<br/><br/><table><tr><td><strong>Tune:pp  </td><td>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = -1</code>; <code>maximum = 11</code>)</td></tr></table>
 Choice of tune to <ei>pp/ppbar</ei> data, mainly for the 
 initial-state-radiation, multiparton-interactions and  beam-remnants
 aspects of PYTHIA. Note that the previous crude (non-)tunes
@@ -210,15 +221,19 @@ aspects of PYTHIA. Note that the previous crude (non-)tunes
 You should study the <code>Settings::initTunePP(...)</code> method 
 to find exactly which are the settings for the respective tune.
 <br/>
-<input type="radio" name="2" value="-1"><strong>-1 </strong>: reset all values that are affected by any of the  <ei>pp/ppbar</ei> tunes to the default values. This option can be used  on its own, but is also automatically used as a first step for either  of the positive tune values below, to undo the effect of previous tune settings.  <br/>
-<input type="radio" name="2" value="0"><strong>0 </strong>: no values are overwritten during the initial setup, step 2 above. Note that changing to <code>0</code> in the user code has no effect; if you want to restore the individual settings you  should instead use <code>-1</code>.  <br/>
-<input type="radio" name="2" value="1"><strong>1 </strong>: default used up to version 8.126, based on  some early and primitive comparisons with data. <br/>
-<input type="radio" name="2" value="2"><strong>2 </strong>: "Tune 1", default in 8.127 - 8.139, based on some  data comparisons by Peter Skands. Largely but not wholly overlaps with the default option 0. <br/>
-<input type="radio" name="2" value="3"><strong>3 </strong>: "Tune 2C", introduced with 8.140 <ref>Cor10a</ref>.  It uses the CTEQ 6L1 PDF, and is intended to give good agreement with  much of the published CDF data. <br/>
-<input type="radio" name="2" value="4"><strong>4 </strong>: "Tune 2M", introduced with 8.140 <ref>Cor10a</ref>. It is uses the MRST LO** PDF, which has a momentum sum somewhat above  unity, which is compensated by a smaller <ei>alpha_s</ei> than in the previous tune. Again it is intended to give good agreement with much of  the published CDF data. <br/>
-<input type="radio" name="2" value="5" checked="checked"><strong>5 </strong>: "Tune 4C", new tune, introduced with 8.145  <ref>Cor10a</ref>. Starts out from tune 2C, but with a reduced cross  section for diffraction, plus modified multiparton interactions parameters  to give a higher and more rapidly increasing charged pseudorapidity  plateau, for better agreement with some early key LHC numbers.  See also the comparative study in <ref>Buc11</ref>. <br/>
-<input type="radio" name="2" value="6"><strong>6 </strong>: "Tune 4Cx", based on tune 4C, but using the x-dependent matter profile, <ei>MultipartonInteractions:bProfile = 4</ei> and an increased <ei>MultipartonInteractions:pT0Ref</ei> <ref>Cor11</ref>. <br/>
-<input type="radio" name="2" value="7"><strong>7 </strong>: "ATLAS Tune A2", based on tune 4Cx, but without  rapidity-ordered spacelike emissions. <br/>
+<input type="radio" name="3" value="-1"><strong>-1 </strong>: reset all values that are affected by any of the  <ei>pp/ppbar</ei> tunes to the default values. This option can be used  on its own, but is also automatically used as a first step for either  of the positive tune values below, to undo the effect of previous tune settings.  <br/>
+<input type="radio" name="3" value="0"><strong>0 </strong>: no values are overwritten during the initial setup, step 2 above. Note that changing to <code>0</code> in the user code has no effect; if you want to restore the individual settings you  should instead use <code>-1</code>.  <br/>
+<input type="radio" name="3" value="1"><strong>1 </strong>: default used up to version 8.126, based on  some early and primitive comparisons with data. <br/>
+<input type="radio" name="3" value="2"><strong>2 </strong>: "Tune 1", default in 8.127 - 8.139, based on some  data comparisons by Peter Skands. Largely but not wholly overlaps with the default option 0. <br/>
+<input type="radio" name="3" value="3"><strong>3 </strong>: "Tune 2C", introduced with 8.140 <ref>Cor10a</ref>.  It uses the CTEQ 6L1 PDF, and is intended to give good agreement with  much of the published CDF data. <br/>
+<input type="radio" name="3" value="4"><strong>4 </strong>: "Tune 2M", introduced with 8.140 <ref>Cor10a</ref>. It is uses the MRST LO** PDF, which has a momentum sum somewhat above  unity, which is compensated by a smaller <ei>alpha_s</ei> than in the previous tune. Again it is intended to give good agreement with much of  the published CDF data. <br/>
+<input type="radio" name="3" value="5" checked="checked"><strong>5 </strong>: "Tune 4C", new tune, introduced with 8.145  <ref>Cor10a</ref>. Starts out from tune 2C, but with a reduced cross  section for diffraction, plus modified multiparton interactions parameters  to give a higher and more rapidly increasing charged pseudorapidity  plateau, for better agreement with some early key LHC numbers.  See also the comparative study in <ref>Buc11</ref>. <br/>
+<input type="radio" name="3" value="6"><strong>6 </strong>: "Tune 4Cx", based on tune 4C, but using the x-dependent matter profile, <ei>MultipartonInteractions:bProfile = 4</ei> and an increased <ei>MultipartonInteractions:pT0Ref</ei> <ref>Cor11</ref>. <br/>
+<input type="radio" name="3" value="7"><strong>7 </strong>: "ATLAS Tune A2", based on tune 4Cx, but without  rapidity-ordered spacelike emissions. Uses CTEQ6L1, by default from LHAPDF.  <br/>
+<input type="radio" name="3" value="8"><strong>8 </strong>: "ATLAS Tune A2-minbias-mstw2008lo", a minimum-bias tune.  Uses MSTW 2008LO, by default from LHAPDF.  <br/>
+<input type="radio" name="3" value="9"><strong>9 </strong>: "ATLAS Tune AU2-cteq6l1", an underlying-event tune.  Uses CTEQ6L1, by default from LHAPDF.  <br/>
+<input type="radio" name="3" value="10"><strong>10 </strong>: "ATLAS Tune AU2-mstw2008lo", an underlying-event tune.  Uses MSTW2008LO, by default from LHAPDF.  <br/>
+<input type="radio" name="3" value="11"><strong>11 </strong>: "ATLAS Tune AU2-ct10", an underlying-event tune.  Uses CT10, which is not currently implemented in PYTHIA, so you must link LHAPDF.  <br/>
 
 <input type="hidden" name="saved" value="1"/>
 
@@ -240,9 +255,14 @@ if($_POST["1"] != "0")
 $data = "Tune:ee = ".$_POST["1"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["2"] != "5")
+if($_POST["2"] != "on")
 {
-$data = "Tune:pp = ".$_POST["2"]."\n";
+$data = "Tune:preferLHAPDF = ".$_POST["2"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["3"] != "5")
+{
+$data = "Tune:pp = ".$_POST["3"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);

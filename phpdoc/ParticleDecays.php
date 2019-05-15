@@ -154,12 +154,25 @@ with helicity information related to the production process and with
 the form of the hadronic current fitted to data. It is largely based
 on the corresponding Herwig++ implementation [<a href="Bibliography.php" target="page">Gre07</a>], with
 some input from Tauola [<a href="Bibliography.php" target="page">Jad90</a>]. A complete writeup is 
-in preparation [<a href="Bibliography.php" target="page">Ilt11</a>].
+in preparation [<a href="Bibliography.php" target="page">Ilt11</a>]. 
 
+<p/>
+For <i>tau</i>s in external processes, interfaced with Les Houches 
+Acccord information available, e.g. via Les Houches Event Files (LHEF), 
+the new machinery interprets the SPINUP number for <i>tau</i> leptons 
+as giving their helicity, and decays them accordingly. The only exceptions 
+are when a specific polarization is forced by the user (see below), 
+which then overrides the SPINUP value, or when SPINUP has the special 
+value 9 (unpolarized). In the latter case, PYTHIA defaults back to 
+attempting to determine the helicity structure from the production 
+process, in the same way as for internal processes.
+
+<p/>
 This new machinery is on by default, but it is possible to revert to 
 the simpler old decay handling, e.g. to study differences. Furthermore
 the spin tracing framework does not yet cover all possibilities; notably 
-it cannot handle taus coming from SUSY decay chains, so it makes sense 
+it cannot handle taus coming from SUSY decay chains 
+(except via LHEF), so it makes sense 
 to switch off the new machinery in such instances, for speed reasons if 
 nothing else. In case only one tau mother species is undefined, the 
 polarization involved can be set by hand.
@@ -167,10 +180,10 @@ polarization involved can be set by hand.
 <br/><br/><table><tr><td><strong>ParticleDecays:sophisticatedTau  </td><td>  &nbsp;&nbsp;(<code>default = <strong>1</strong></code>; <code>minimum = 0</code>; <code>maximum = 3</code>)</td></tr></table>
 Choice of <ei>tau</ei> decay model.
 <br/>
-<input type="radio" name="13" value="0"><strong>0 </strong>: old decay model, with isotropic decays.<br/>
-<input type="radio" name="13" value="1" checked="checked"><strong>1 </strong>: sophisticated decays where <ei>tau</ei> polarization is  calculated from the <ei>tau</ei> production mechanism.<br/>
-<input type="radio" name="13" value="2"><strong>2 </strong>: sophisticated decays as above, but additionally <ei>tau</ei>  polarization is set to <code>ParticleDecaus:tauPolarization</code> for  <ei>tau</ei>s produced from <code>ParticleDecays:tauMother</code>.<br/>
-<input type="radio" name="13" value="3"><strong>3 </strong>: sophisticated decays where <ei>tau</ei> polarization is set  to <code>ParticleDecaus:tauPolarization</code> for all <ei>tau</ei> decays. <br/>
+<input type="radio" name="13" value="0"><strong>0 </strong>: old decay model, with isotropic decays.  When reading LHEF files, the SPINUP digit will be ignored.<br/>
+<input type="radio" name="13" value="1" checked="checked"><strong>1 </strong>: sophisticated decays where <ei>tau</ei> polarization is  calculated from the <ei>tau</ei> production mechanism.  When reading LHEF files, the SPINUP digit will be used. <br/>
+<input type="radio" name="13" value="2"><strong>2 </strong>: sophisticated decays as above, but additionally <ei>tau</ei>  polarization is set to <code>ParticleDecaus:tauPolarization</code> for  <ei>tau</ei>s produced from <code>ParticleDecays:tauMother</code>.  When reading LHEF files, this overrides the SPINUP digit.  <br/>
+<input type="radio" name="13" value="3"><strong>3 </strong>: sophisticated decays where <ei>tau</ei> polarization is set  to <code>ParticleDecaus:tauPolarization</code> for all <ei>tau</ei> decays.  When reading LHEF files, this overrides the SPINUP digit.  <br/>
 <br/><b>Note</b>: options <code>2</code> and <code>3</code>, 
 to force a specific <ei>tau</ei> polarization, only affect the decay 
 of the <ei>tau</ei>. The angular distribution of the <ei>tau</ei> itself, 

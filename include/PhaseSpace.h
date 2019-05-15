@@ -116,6 +116,9 @@ protected:
                       LEPTONXLOGMIN, LEPTONXLOGMAX, LEPTONTAUMIN,
                       SHATMINZ, PT2RATMINZ, WTCORRECTION[11];
 
+  // MBR constants: form factor appoximation with two exponents.
+  static const double FFA1, FFA2,FFB1, FFB2; 
+
   // Pointer to cross section. 
   SigmaProcess* sigmaProcessPtr; 
 
@@ -376,6 +379,47 @@ private:
   double m3ElDiff, m4ElDiff, s1, s2, lambda12, lambda34, tLow, tUpp,
          cRes, sResXB, sResAX, sProton, bMin, bSlope, bSlope1, bSlope2, 
          probSlope1, xIntPF, xtCorPF, mp24DL, coefDL, tAux, tAux1, tAux2;
+    
+  // Parameters for MBR model.
+  double sdpmax, ddpmax, dymin0, dymax, amx, am1, am2, t;
+  double eps, alph, alph2, m2min, dyminSD, dyminDD, dyminSigSD, dyminSigDD;
+  
+};
+
+//==========================================================================
+
+// A derived class with 2 -> 3 kinematics set up for central diffractive 
+// scattering.
+
+class PhaseSpace2to3diffractive : public PhaseSpace {
+
+public:
+
+  // Constructor.
+  PhaseSpace2to3diffractive() {}
+
+  // Construct the trial or final event kinematics.
+  virtual bool setupSampling(); 
+  virtual bool trialKin(bool inEvent = true, bool = false); 
+  virtual bool finalKin(); 
+
+  // Are beam particles resolved in partons or scatter directly?
+  virtual bool isResolved() const {return false;}
+
+ private:
+  
+  // Constants: could only be changed in the code itself.
+  static const int  NTRY;
+  static const int  NINTEG2;
+    
+  // Local variables to calculate DPE kinematics.
+  int    PomFlux;
+  double dpepmax, dymin0,dymax, s1, s2, lambda12S, t1, pt1, pz1, phi1,
+         t2, pt2, pz2, phi2;
+  Vec4   p1, p2, p3, p4, p5;
+
+  // Parameters for MBR model.
+  double eps, alph, m2min, dyminCD, dyminSigCD;
 
 };
  

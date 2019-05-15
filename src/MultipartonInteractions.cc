@@ -548,6 +548,9 @@ bool MultipartonInteractions::init( bool doMPIinit, int diffractiveModeIn,
     else if (diffractiveMode == 2) 
       os << " |                          diffraction AX                "
          << "          | \n";
+    else if (diffractiveMode == 3) 
+      os << " |                          diffraction AXB               "
+         << "          | \n";
     os << " |                                                        "
        << "          | \n";
   }

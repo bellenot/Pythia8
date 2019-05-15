@@ -181,6 +181,7 @@ echo "<a href='ParticleDecays.php?filepath=".$filepath."' target='page'>";?>here
  <br/>      channel: onMode="1" bRatio="0.0000300" products="24 1"
  <br/>      channel: onMode="1" bRatio="0.0017650" products="24 3"
  <br/>      channel: onMode="1" bRatio="0.9982050" products="24 5"
+ <br/>      channel: onMode="0" bRatio="0.0000000" products="37 5"
 
 <p/>particle: id="7" name="b'" antiName="b'bar" spinType="2" chargeType="-1" colType="1"
           m0="400.00000"

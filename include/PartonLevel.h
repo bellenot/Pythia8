@@ -84,7 +84,7 @@ private:
 
   // Initialization data, mainly read from Settings.
   bool   doMinBias, doDiffraction, doMPI, doMPIMB, doMPISDA, doMPISDB, 
-         doMPIinit, doISR, doFSRduringProcess, doFSRafterProcess,  
+         doMPICD, doMPIinit, doISR, doFSRduringProcess, doFSRafterProcess,  
          doFSRinResonances, doRemnants, doSecondHard, hasLeptonBeams, 
          hasPointLeptons, canVetoPT, canVetoStep, canVetoMPIStep, 
          canSetScale, allowRH;
@@ -97,8 +97,9 @@ private:
   double pTsaveMPI, pTsaveISR, pTsaveFSR, pTvetoPT;
 
   // Current event properties.
-  bool   isMinBias, isDiffA, isDiffB, isDiff, isSingleDiff, isDoubleDiff, 
-         isResolved, isResolvedA, isResolvedB;
+  bool   isMinBias, isDiffA, isDiffB, isDiffC, isDiff, isSingleDiff, 
+         isDoubleDiff, isCentralDiff, isResolved, isResolvedA, 
+         isResolvedB, isResolvedC;
   int    sizeProcess, sizeEvent, nHardDone, nHardDoneRHad;
   double eCMsave; 
   vector<bool> inRHadDecay;
@@ -143,11 +144,14 @@ private:
   MultipartonInteractions  multiMB;
   MultipartonInteractions  multiSDA;
   MultipartonInteractions  multiSDB;
+  MultipartonInteractions  multiCD;
   MultipartonInteractions* multiPtr;
 
   // The generator class to construct beam-remnant kinematics. 
   BeamRemnants remnants;
-
+  // Separate instance for central diffraction.
+  BeamRemnants remnantsCD;
+  
   // The RHadrons class is used to fragment off and decay R-hadrons.
   RHadrons*    rHadronsPtr;
 

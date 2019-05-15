@@ -78,6 +78,12 @@ const double PhaseSpace::PT2RATMINZ     = 0.0001;
 const double PhaseSpace::WTCORRECTION[11] = { 1., 1., 1., 
   2., 5., 15., 60., 250., 1250., 7000., 50000. };
 
+// MBR: form factor appoximation with two exponents, [FFB1,FFB2] = GeV-2.
+const double PhaseSpace::FFA1 = 0.9;
+const double PhaseSpace::FFA2 = 0.1;
+const double PhaseSpace::FFB1 = 4.6;
+const double PhaseSpace::FFB2 = 0.6;
+
 //--------------------------------------------------------------------------
 
 // Perform simple initialization and store pointers.
@@ -2477,6 +2483,21 @@ bool PhaseSpace2to2diffractive::setupSampling() {
     coefDL               = 0.85;
     tAux1                = 1. / pow3(1. - coefDL * tLow);
     tAux2                = 1. / pow3(1. - coefDL * tUpp);
+
+  // MBR model.
+  } else if (PomFlux == 5) {   
+    eps        = settingsPtr->parm("Diffraction:MBRepsilon");
+    alph       = settingsPtr->parm("Diffraction:MBRalpha");
+    alph2      = alph * alph;    
+    m2min      = settingsPtr->parm("Diffraction:MBRm2Min");
+    dyminSD    = settingsPtr->parm("Diffraction:MBRdyminSD");
+    dyminDD    = settingsPtr->parm("Diffraction:MBRdyminDD");
+    dyminSigSD = settingsPtr->parm("Diffraction:MBRdyminSigSD");
+    dyminSigDD = settingsPtr->parm("Diffraction:MBRdyminSigDD");
+    
+    // Max f(dy) for Von Neumann method, from SigmaTot.
+    sdpmax= sigmaTotPtr->sdpMax();
+    ddpmax= sigmaTotPtr->ddpMax();
   } 
 
   // Done.
@@ -2613,6 +2634,92 @@ bool PhaseSpace2to2diffractive::trialKin( bool, bool ) {
         continue;
       if ( isDiffB && pow( s4 / s, xtCorPF * abs(tH) ) < rndmPtr->flat() ) 
         continue;
+
+    // MBR model:
+    } else if (PomFlux == 5) { 
+      m3 = mA;  
+      m4 = mB;      
+      double xi, P, yRnd, dy;
+      
+      // Double diffractive.
+      if (isDiffA && isDiffB) {	
+	dymin0 = 0.;
+	dymax  = log(s/pow2(m2min));
+	
+	// Von Neumann method to generate dy, uses ddpmax from SigmaTot.
+	do {
+	  dy = dymin0 + (dymax - dymin0) * rndmPtr->flat();
+	  P  = (dymax - dy) * exp(eps*dy) * ( exp(-2. * alph * dy * exp(-dy))
+	     - exp(-2. * alph * dy * exp(dy)) ) / dy;	  
+	  // Suppress smaller gap, smooth transition to non-diffractive.
+	  P *= 0.5 * (1 + erf( ( dy - dyminDD) / dyminSigDD ) );
+	  if (P > ddpmax) {
+            ostringstream osWarn;
+            osWarn << "ddpmax = " << scientific << setprecision(3) 
+                   << ddpmax << " " << P << " " << dy << endl;
+            infoPtr->errorMsg("Warning in PhaseSpace2to2diffractive::"
+              "trialKin for double diffraction:", osWarn.str());
+          }
+	  yRnd = ddpmax * rndmPtr->flat();	    
+	} while (yRnd > P);
+	
+	double y0max = (dymax - dy)/2.;
+	double y0min = -y0max;
+	double y0    = y0min + (y0max - y0min) * rndmPtr->flat();
+       	am1          = sqrt( eCM * exp( -y0 - dy/2. ) );
+	am2          = sqrt( eCM * exp(  y0 - dy/2. ) );
+	
+	// Generate 4-momentum transfer, t from exp.
+	double b = 2. * alph * dy;
+	tUpp     = -exp( -dy );
+	tLow     = -exp( dy );
+	tAux     = exp( b * (tLow - tUpp) ) - 1.; 
+	t        = tUpp + log(1. + tAux * rndmPtr->flat()) / b;	
+      	m3       = am1;
+      	m4       = am2;
+	tH       = t;	
+	
+      // Single diffractive.
+      } else if (isDiffA || isDiffB) {
+	dymin0 = 0.;
+	dymax  = log(s/m2min);
+
+	// Von Neumann method to generate dy, uses sdpmax from SigmaTot.
+	do {
+	  dy = dymin0 + (dymax - dymin0) * rndmPtr->flat();
+	  P  = exp(eps * dy) * ( (FFA1 / (FFB1 + 2. * alph * dy) )
+             + (FFA2 / (FFB2 + 2. * alph * dy) ) );
+	  // Suppress smaller gap.
+	  P *= 0.5 * (1. + erf( (dy - dyminSD) / dyminSigSD) );
+	  if (P > sdpmax) {
+            ostringstream osWarn;
+            osWarn << "sdpmax = " << scientific << setprecision(3) 
+                   << sdpmax << " " << P << " " << dy << endl;
+            infoPtr->errorMsg("Warning in PhaseSpace2to2diffractive::"
+              "trialKin for single diffraction:", osWarn.str());
+          }
+	  yRnd = sdpmax * rndmPtr->flat();	  
+	} while (yRnd > P);	
+	xi  = exp( -dy );
+	amx = sqrt( xi * s );
+	
+	// Generate 4-momentum transfer, t. First exponent, then FF*exp.
+	double tmin = -s1 * xi * xi / (1 - xi);
+	do {
+	  t          = tmin + log(1. - rndmPtr->flat());
+	  double pFF = (4. * s1 - 2.8 * t) / ( (4. * s1 - t) 
+                     * pow2(1. - t / 0.71) );
+	  P          = pow2(pFF) * exp(2. * alph * dy * t);
+	  yRnd       = exp(t) * rndmPtr->flat();
+	} while (yRnd > P);	
+	if(isDiffA) m3 = amx;
+	if(isDiffB) m4 = amx;
+	tH = t;	
+      }
+    
+      // End of MBR model code.  
+      s3 = m3 * m3;
+      s4 = m4 * m4;       
     }
 
     // Check whether m^2 and t choices are consistent.
@@ -2625,7 +2732,7 @@ bool PhaseSpace2to2diffractive::trialKin( bool, bool ) {
     double tLowNow = -0.5 * (tempA + tempB); 
     double tUppNow = tempC / tLowNow; 
     if (tH < tLowNow || tH > tUppNow) continue;
-
+    
     // Careful reconstruction of scattering angle.
     double cosTheta = min(1., max(-1., (tempA + 2. * tH) / tempB));
     double sinTheta = 2. * sqrtpos( -(tempC + tempA * tH + tH * tH) ) 
@@ -2677,6 +2784,199 @@ bool PhaseSpace2to2diffractive::finalKin() {
   betaZ = 0.;
   pTH = pAbs * sin(theta);
 
+  // Done.
+  return true;
+
+}
+
+//==========================================================================
+
+// PhaseSpace2to3diffractive class.
+// 2 -> 3 kinematics set up for central diffractive scattering.
+
+//--------------------------------------------------------------------------
+
+// Constants: could be changed here if desired, but normally should not.
+// These are of technical nature, as described for each.
+
+// Number of tries to find acceptable (m^2, t1, t2) set.
+const int PhaseSpace2to3diffractive::NTRY = 500;
+const int PhaseSpace2to3diffractive::NINTEG2 = 40;
+
+//--------------------------------------------------------------------------
+
+bool PhaseSpace2to3diffractive::setupSampling() {
+  
+  PomFlux      = settingsPtr->mode("Diffraction:PomFlux");
+  
+  if (PomFlux == 5) {   
+    eps        = settingsPtr->parm("Diffraction:MBRepsilon");
+    alph       = settingsPtr->parm("Diffraction:MBRalpha");    
+    m2min      = settingsPtr->parm("Diffraction:MBRm2Min");    
+    dyminCD    = settingsPtr->parm("Diffraction:MBRdyminCD");  
+    dyminSigCD = settingsPtr->parm("Diffraction:MBRdyminSigCD");
+    
+    // Find maximum = value of cross section.
+    sigmaNw    = sigmaProcessPtr->sigmaHatWrap();
+    sigmaMx    = sigmaNw;
+
+    // Max f(dy) for Von Neumann method, dpepmax from SigmaTot.
+    dpepmax    = sigmaTotPtr->dpepMax();    
+  } 
+
+  // Squared masses of incoming particles.
+  s1           = mA * mA;
+  s2           = mB * mB;
+
+  lambda12S    = pow2(s - s1 - s2) - 4. * s1 * s2 ;
+  pAbs         = 0.5 * sqrtpos(lambda12S) / eCM;
+
+  return true;
+
+}
+
+//--------------------------------------------------------------------------
+
+bool PhaseSpace2to3diffractive::trialKin( bool, bool ) {
+
+  // So far, DPE generated in MBR only.
+  if (PomFlux != 5) return false;
+  
+  // Loop over attempts to set up mass, t1, t2 consistently.
+  for (int loop = 0; ; ++loop) { 
+    if (loop == NTRY) {
+      infoPtr->errorMsg("Error in PhaseSpace2to3diffractive::trialKin: "
+      " quit after repeated tries");
+      return false;
+    }
+
+    dymin0 = 0.;
+    dymax  = log(s/m2min);    
+    double f1, f2, step2, dy, yc, ycmin, ycmax, dy1, dy2, xi1, xi2,
+           P, P1, P2, yRnd, yRnd1, yRnd2;
+    
+    // Von Neumann method to generate dy, uses dpepmax from SigmaTot.
+    do {
+      dy    = dymin0 + (dymax - dymin0) * rndmPtr->flat();     
+      P     = 0.;
+      step2 = (dy - dymin0) / NINTEG2;      
+      for (int j = 0; j < NINTEG2 ; ++j) {
+	yc  = -(dy - dymin0) / 2. + (j + 0.5) * step2;
+	dy1 = dy / 2. - yc;
+	dy2 = dy / 2. + yc;
+	f1  = exp(eps * dy1) * ( (FFA1 / (FFB1 + 2. * alph * dy1) )
+            + (FFA2 / (FFB2 + 2. * alph * dy1) ) );
+	f2  = exp(eps * dy2) * ( (FFA1 / (FFB1 + 2. * alph * dy2) ) 
+            + (FFA2 / (FFB2 + 2. * alph * dy2) ) );
+	f1 *= 0.5 * (1. + erf( (dy1 - dyminCD / 2.) / (dyminSigCD / sqrt(2)) ));
+	f2 *= 0.5 * (1. + erf( (dy2 - dyminCD / 2.) / (dyminSigCD / sqrt(2)) ));
+	P  += f1 * f2 * step2;      
+      }
+      if (P > dpepmax) { 
+        ostringstream osWarn;
+        osWarn << "dpepmax = " << scientific << setprecision(3) 
+               << dpepmax << " " << P << " " << dy << endl;
+        infoPtr->errorMsg("Warning in PhaseSpace2to2diffractive::"
+          "trialKin for central diffraction:", osWarn.str());
+      }
+      yRnd = dpepmax * rndmPtr->flat();      
+      
+      // Generate dyc.
+      ycmax = (dy - dymin0) / 2.;
+      ycmin = -ycmax;
+      yc    = ycmin + (ycmax - ycmin) * rndmPtr->flat();
+      
+      // xi1,xi2 from dy and dy0.
+      dy1 = dy / 2. + yc;
+      dy2 = dy / 2. - yc;
+      P1  = 0.5 * (1. + erf( (dy1 - dyminCD / 2.) / (dyminSigCD / sqrt(2)) ));
+      P2  = 0.5 * (1. + erf( (dy2 - dyminCD / 2.) / (dyminSigCD / sqrt(2)) ));
+      yRnd1 = rndmPtr->flat();
+      yRnd2 = rndmPtr->flat();
+      
+    } while( !(yRnd < P && yRnd1 < P1 && yRnd2 < P2) );
+    xi1 = exp( -dy1 );
+    xi2 = exp( -dy2 );
+    
+    // Generate t1 at vertex1. First exponent, then FF*exp.
+    double tmin  = -s1 * xi1 * xi1 / (1. - xi1);
+    do {
+      t1         = tmin + log(1. - rndmPtr->flat());
+      double pFF = (4. * s1 - 2.8 * t1) / ( (4. * s1 - t1) 
+                 * pow2(1. - t1 / 0.71));
+      P          = pow2(pFF) * exp(2. * alph * dy1 * t1);
+      yRnd       = exp(t1) * rndmPtr->flat();
+    } while (yRnd > P);
+
+    // Generate t2 at vertex2. First exponent, then FF*exp.
+    tmin         = -s2 * xi2 * xi2 / (1. - xi2);
+    do {
+      t2         = tmin + log(1. - rndmPtr->flat());
+      double pFF = (4. * s2 - 2.8 * t2) / ((4. * s2 - t2) 
+                 * pow2(1. - t2 / 0.71));
+      P          = pow2(pFF) * exp(2. * alph * dy2 * t2);
+      yRnd       = exp(t2) * rndmPtr->flat();
+    } while (yRnd > P);
+    
+    // Incoming protons.
+    p1.p( 0., 0.,  pAbs, 0.5 * (s + s1 - s2) / eCM); 
+    p2.p( 0., 0., -pAbs, 0.5 * (s + s2 - s1) / eCM); 
+    
+    // Outgoing protons
+    pz1 =  pAbs*(1. - xi1);
+    pz2 = -pAbs*(1. - xi2);
+    pt1 = sqrt( (1. - xi1) * abs(t1) - s1 * pow2(xi1) );
+    pt2 = sqrt( (1. - xi2) * abs(t2) - s2 * pow2(xi2) );
+    phi1 = rndmPtr->flat() *2. * M_PI;
+    phi2 = rndmPtr->flat() * 2. * M_PI;
+    p3.p( pt1 * cos(phi1), pt1 * sin(phi1), pz1, 
+          sqrt(pz1 * pz1 + pt1 * pt1 + s1) ); 
+    p4.p( pt2 * cos(phi2), pt2 * sin(phi2), pz2, 
+          sqrt(pz2 * pz2 + pt2 * pt2 + s2) ); 
+    
+    // Central dissociated system, from Pomeron-Pomeron 4 vectors.
+    p5 = p1 - p3 + p2 - p4;
+    double mX = p5.mCalc();
+    
+    // Found acceptable kinematics, so no more looping. Done
+    if ( mX > 0 ) break;
+  }
+  return true;
+  
+}
+
+//--------------------------------------------------------------------------
+
+// Construct the four-vector kinematics from the trial values. 
+
+bool PhaseSpace2to3diffractive::finalKin() {
+  
+  // Particle masses.
+  mH[1] = mA;
+  mH[2] = mB;
+  mH[3] = mA;
+  mH[4] = mB;
+  mH[5] = p5.mCalc();
+  
+  pH[1] = p1; 
+  pH[2] = p2; 
+  pH[3] = p3; 
+  pH[4] = p4; 
+  pH[5] = p5; 
+  
+  // Set some further info for completeness.
+  // need to improve here?
+  x1H = 1.;
+  x2H = 1.;
+  sH = s;
+  uH = -999.;
+  tH = -999.;
+  mHat = eCM;
+  p2Abs = pAbs * pAbs;
+  betaZ = 0.;
+  // Store average pT of three final particles for documentation.
+  pTH = (p3.pT() + p4.pT() + p5.pT()) / 3.;
+  
   // Done.
   return true;
 

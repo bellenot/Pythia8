@@ -69,6 +69,13 @@ See page on <aloc href="Diffraction">Diffraction</aloc>
 for details. Code 105.
 </flag>
 
+<flag name="SoftQCD:centralDiffractive" default="off">
+Central diffractive scattering <ei>A B -> A X B</ei> 
+(a.k.a. double-Pomeron exchange, DPE).
+See page on <aloc href="Diffraction">Diffraction</aloc>
+for details. Code 106.
+</flag>
+
 <h3>Hard QCD processes</h3>
 
 This group contains the processes for QCD jet production above

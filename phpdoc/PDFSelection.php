@@ -258,6 +258,10 @@ antiproton ones):
 If off then the choice of proton PDF is based on <code>hardpPDFset</code>
 above. If on then it is instead based on the choice of 
 <code>hardLHAPDFset</code> and <code>hardLHAPDFmember</code> below.
+Note that if you want to use LHAPDF here, and you also use LHAPDF
+for the "normal" PDF set, then LHAPDF must have been compiled so as to 
+handle (at least) two concurrent sets, with the configure statement
+<code>--with-max-num-pdfsets=2</code>. 
   
 
 <br/><br/><table><tr><td><strong>PDF:hardLHAPDFset  </td><td></td><td> <input type="text" name="9" value="MRST2004FF4lo.LHgrid" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>MRST2004FF4lo.LHgrid</strong></code>)</td></tr></table>

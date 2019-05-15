@@ -40,25 +40,34 @@ public:
 
   // Read out total and partial cross sections.
   double sigmaTot() const {return sigTot;}
-  double sigmaEl() const {return sigEl;}
-  double sigmaXB() const {return sigXB;}
-  double sigmaAX() const {return sigAX;}
-  double sigmaXX() const {return sigXX;}
-  double sigmaND() const {return sigND;}
+  double sigmaEl()  const {return sigEl;}
+  double sigmaXB()  const {return sigXB;}
+  double sigmaAX()  const {return sigAX;}
+  double sigmaXX()  const {return sigXX;}
+  double sigmaAXB() const {return sigAXB;}
+  double sigmaND()  const {return sigND;}
+
+  // Calculate cross sections in MBR model.
+  bool calcMBRxsecs(int idA, int idB, double eCM);
+  
+  // Get maximum of xi,dy distribution in MBR model (for event generation).
+  double ddpMax()  const {return ddpmax;}
+  double sdpMax()  const {return sdpmax;}
+  double dpepMax() const {return dpepmax;}
 
   // Read out slope b in exp(b*t) dependence.
-  double bSlopeEl() const {return bEl;}
+  double bSlopeEl()          const {return bEl;}
   double bSlopeXB(double sX) const { return 2.*bB + alP2 * log(s/sX) ;}
   double bSlopeAX(double sX) const { return 2.*bA + alP2 * log(s/sX) ;} 
   double bSlopeXX(double sX1, double sX2) const { 
     return alP2 * log( exp(4.) + s * s0 / (sX1 * sX2) ) ;}   
 
   // Read out parameters of diffractive mass spectra.
-  double mMinXB() const {return mMinXBsave;}
-  double mMinAX() const {return mMinAXsave;}
-  double cRes() const {return CRES;}
-  double mResXB() const {return mResXBsave;}
-  double mResAX() const {return mResAXsave;}
+  double mMinXB()  const {return mMinXBsave;}
+  double mMinAX()  const {return mMinAXsave;}
+  double cRes()    const {return CRES;}
+  double mResXB()  const {return mResXBsave;}
+  double mResAX()  const {return mResAXsave;}
   double sProton() const {return SPROTON;}
 
   // Read out parameters of trial t spectra.
@@ -68,17 +77,29 @@ public:
 
 private:
 
+  // Decide whether default or MBR diffractive cross sections.
+  int    PomFlux;
+  
   // Constants: could only be changed in the code itself.
   static const int    IHADATABLE[], IHADBTABLE[], ISDTABLE[], IDDTABLE[];
   static const double MMIN, EPSILON, ETA, X[], Y[], BETA0[], BHAD[],
                       ALPHAPRIME, CONVERTEL, CONVERTSD, CONVERTDD, MMIN0, 
                       CRES, MRES0, CSD[10][8], CDD[10][9], SPROTON;
+  
+  // Integration of MBR cross sections and form factor approximation.
+  static const int    NINTEG, NINTEG2;
+  static const double HBARC2, FFA1, FFA2,FFB1, FFB2; 
 
   // Initialization data, normally only set once.
   bool   isCalc, setTotal, doDampen, setElastic;
-  double sigTotOwn, sigElOwn, sigXBOwn, sigAXOwn, sigXXOwn,
+  double sigTotOwn, sigElOwn, sigXBOwn, sigAXOwn, sigXXOwn, sigAXBOwn,
          maxXBOwn, maxAXOwn, maxXXOwn, bSlope, rho, lambda, tAbsMin, 
          alphaEM0, sigmaPomP, mPomP, pPomP;
+  
+  // Parameters of MBR model.
+  double MBReps, MBRalpha, MBRbeta0, MBRsigma0, m2min, dyminSDflux, 
+         dyminDDflux, dyminCDflux, dyminSD, dyminDD, dyminCD,
+         dyminSigSD, dyminSigDD, dyminSigCD, sdpmax, ddpmax, dpepmax;
 
   // Pointer to various information on the generation.
   Info*         infoPtr;
@@ -87,7 +108,7 @@ private:
   ParticleData* particleDataPtr;
 
   // Store values found by calc.
-  double sigTot, sigEl, sigXB, sigAX, sigXX, sigND, bEl, s, bA, bB,
+  double sigTot, sigEl, sigXB, sigAX, sigXX, sigAXB, sigND, bEl, s, bA, bB,
          alP2, s0, exp4, mMinXBsave, mMinAXsave, mResXBsave, mResAXsave;
 
 };

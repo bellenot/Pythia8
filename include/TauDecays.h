@@ -58,10 +58,10 @@ private:
   bool   correlated;
 
   // User selected mode and mother for tau decays.
-  int    tauMode, tauMother;
+  int    tauMode, tauMother, tauModeSave, tauMotherSave;
 
   // User selected polarization for tau decays.
-  double polarization;
+  double polarization, polSave;
 
   // Helicity matrix element pointers.
   HelicityMatrixElement* hardME;

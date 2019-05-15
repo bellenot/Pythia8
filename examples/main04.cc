@@ -33,47 +33,52 @@ int main() {
   pythia.init();
 
   // Book histograms: multiplicities and mean transverse momenta.
-  Hist nChg("number of charged particles; all", 100, -0.5, 799.5);
+  Hist yChg("rapidity of charged particles; all",      100, -10., 10.);
+  Hist nChg("number of charged particles; all",        100, -0.5, 799.5);
   Hist nChgSD("number of charged particles; single diffraction", 
-    100, -0.5, 799.5);
+                                                       100, -0.5, 799.5);
   Hist nChgDD("number of charged particles, double diffractive", 
-    100, -0.5, 799.5);
+                                                       100, -0.5, 799.5);
+  Hist nChgCD("number of charged particles, central diffractive", 
+                                                       100, -0.5, 799.5);
   Hist nChgND("number of charged particles, non-diffractive", 
-    100, -0.5, 799.5);
-  Hist pTnChg("<pt>(n_charged) all", 100, -0.5, 799.5);
-  Hist pTnChgSD("<pt>(n_charged) single diffraction", 100, -0.5, 799.5);
-  Hist pTnChgDD("<pt>(n_charged) double diffraction", 100, -0.5, 799.5);
-  Hist pTnChgND("<pt>(n_charged) non-diffractive   ", 100, -0.5, 799.5);
+                                                       100, -0.5, 799.5);
+  Hist pTnChg("<pt>(n_charged) all",                   100, -0.5, 799.5);
+  Hist pTnChgSD("<pt>(n_charged) single diffraction",  100, -0.5, 799.5);
+  Hist pTnChgDD("<pt>(n_charged) double diffraction",  100, -0.5, 799.5);
+  Hist pTnChgCD("<pt>(n_charged) central diffraction", 100, -0.5, 799.5);
+  Hist pTnChgND("<pt>(n_charged) non-diffractive   ",  100, -0.5, 799.5);
 
   // Book histograms: ditto as function of separate subsystem mass.
-  Hist mLogInel("log10(mass), by diffractive system", 100, 0., 5.);
-  Hist nChgmLog("<n_charged>(log10(mass))", 100, 0., 5.);
-  Hist pTmLog("<pT>_charged>(log10(mass))", 100, 0., 5.);
+  Hist mLogInel("log10(mass), by diffractive system",  100, 0., 5.);
+  Hist nChgmLog("<n_charged>(log10(mass))",            100, 0., 5.);
+  Hist pTmLog("<pT>_charged>(log10(mass))",            100, 0., 5.);
 
   // Book histograms: elastic/diffractive.
-  Hist tSpecEl("elastic |t| spectrum", 100, 0., 1.);
-  Hist tSpecElLog("elastic log10(|t|) spectrum", 100, -5., 0.);
-  Hist tSpecSD("single diffractive |t| spectrum", 100, 0., 2.); 
-  Hist tSpecDD("double diffractive |t| spectrum", 100, 0., 5.); 
-  Hist mSpec("diffractive mass spectrum", 100, 0., 100.); 
+  Hist tSpecEl("elastic |t| spectrum",              100, 0., 1.);
+  Hist tSpecElLog("elastic log10(|t|) spectrum",    100, -5., 0.);
+  Hist tSpecSD("single diffractive |t| spectrum",   100, 0., 2.); 
+  Hist tSpecDD("double diffractive |t| spectrum",   100, 0., 5.); 
+  Hist tSpecCD("central diffractive |t| spectrum",  100, 0., 5.); 
+  Hist mSpec("diffractive mass spectrum",           100, 0., 100.); 
   Hist mLogSpec("log10(diffractive mass spectrum)", 100, 0., 4.); 
 
   // Book histograms: inelastic nondiffractive "minbias".
   double pTmax = 20.;
-  double bMax = 4.;
-  Hist pTspec("total pT_hard spectrum", 100, 0., pTmax); 
-  Hist pTspecND("nondiffractive pT_hard spectrum", 100, 0., pTmax); 
-  Hist bSpec("b impact parameter spectrum", 100, 0., bMax);
-  Hist enhanceSpec("b enhancement spectrum", 100, 0., 10.);
-  Hist number("number of interactions", 100, -0.5, 99.5);
-  Hist pTb1("pT spectrum for b < 0.5", 100, 0., pTmax); 
-  Hist pTb2("pT spectrum for 0.5 < b < 1", 100, 0., pTmax); 
-  Hist pTb3("pT spectrum for 1 < b < 1.5", 100, 0., pTmax); 
-  Hist pTb4("pT spectrum for 1.5 < b", 100, 0., pTmax); 
-  Hist bpT1("b spectrum for pT < 2", 100, 0., bMax);
-  Hist bpT2("b spectrum for 2 < pT < 5", 100, 0., bMax);
-  Hist bpT3("b spectrum for 5 < pT < 15", 100, 0., bMax);
-  Hist bpT4("b spectrum for 15 < pT", 100, 0., bMax);
+  double bMax  = 4.;
+  Hist pTspec("total pT_hard spectrum",             100, 0., pTmax); 
+  Hist pTspecND("nondiffractive pT_hard spectrum",  100, 0., pTmax); 
+  Hist bSpec("b impact parameter spectrum",         100, 0., bMax);
+  Hist enhanceSpec("b enhancement spectrum",        100, 0., 10.);
+  Hist number("number of interactions",             100, -0.5, 99.5);
+  Hist pTb1("pT spectrum for b < 0.5",              100, 0., pTmax); 
+  Hist pTb2("pT spectrum for 0.5 < b < 1",          100, 0., pTmax); 
+  Hist pTb3("pT spectrum for 1 < b < 1.5",          100, 0., pTmax); 
+  Hist pTb4("pT spectrum for 1.5 < b",              100, 0., pTmax); 
+  Hist bpT1("b spectrum for pT < 2",                100, 0., bMax);
+  Hist bpT2("b spectrum for 2 < pT < 5",            100, 0., bMax);
+  Hist bpT3("b spectrum for 5 < pT < 15",           100, 0., bMax);
+  Hist bpT4("b spectrum for 15 < pT",               100, 0., bMax);
  
   // Begin event loop.
   int iAbort = 0; 
@@ -94,6 +99,7 @@ int main() {
     double pTsum = 0.; 
     for (int i = 1; i < event.size(); ++i)
     if (event[i].isFinal() && event[i].isCharged()) {
+      yChg.fill( event[i].y() );
       ++nch; 
       pTsum += event[i].pT();
     }
@@ -105,6 +111,9 @@ int main() {
     } else if (code == 105) {
       nChgDD.fill( nch );
       if (nch > 0) pTnChgDD.fill( nch, pTsum/nch);
+    } else if (code == 106) {
+      nChgCD.fill( nch );
+      if (nch > 0) pTnChgCD.fill( nch, pTsum/nch);
     } else if (code == 101) {
       nChgND.fill( nch );
       if (nch > 0) pTnChgND.fill( nch, pTsum/nch);
@@ -115,26 +124,32 @@ int main() {
     }
 
     // Charged multiplicity and mean pT: per diffractive system.
-    for (int iDiff = 0; iDiff < 2; ++iDiff) 
+    for (int iDiff = 0; iDiff < 3; ++iDiff) 
     if ( (iDiff == 0 && pythia.info.isDiffractiveA()) 
-      || (iDiff == 1 && pythia.info.isDiffractiveB()) ) {
+      || (iDiff == 1 && pythia.info.isDiffractiveB()) 
+      || (iDiff == 2 && pythia.info.isDiffractiveC()) ) {
       int ndiff = 0;
-      double pTdiff = 0.; 
-      for (int i = 5; i < event.size(); ++i) 
+      double pTdiff = 0.;
+      int nDoc = (iDiff < 2) ? 4 : 5;   
+      for (int i = nDoc + 1; i < event.size(); ++i) 
       if (event[i].isFinal() && event[i].isCharged()) {
         // Trace back final particle to see which system it comes from.
         int k = i;
         do k = event[k].mother1(); 
-        while (k > 4);
+        while (k > nDoc);
         if (k == iDiff + 3) {
           ++ndiff;
           pTdiff += event[i].pT();
         }
       } 
-      double mLog = log10(event[iDiff+3].m() );  
+      // Study diffractive mass spectrum.
+      double mDiff = event[iDiff+3].m();
+      double mLog  = log10( mDiff);  
       mLogInel.fill( mLog );  
       nChgmLog.fill( mLog, ndiff );  
       if (ndiff > 0) pTmLog.fill( mLog, pTdiff / ndiff );  
+      mSpec.fill( mDiff );  
+      mLogSpec.fill( mLog );
     }
 
     // Study pT spectrum of all hard collisions, no distinction.
@@ -150,15 +165,11 @@ int main() {
       }
       else if (code == 103 || code == 104) tSpecSD.fill(tAbs);
       else if (code == 105) tSpecDD.fill(tAbs);
-
-      // Study diffractive mass spectrum.
-      if (pythia.info.isDiffractiveA()) {
-        mSpec.fill( event[3].m() );  
-        mLogSpec.fill( log10(event[3].m()) );
-      }
-      if (pythia.info.isDiffractiveB()) { 
-        mSpec.fill( event[4].m() );
-        mLogSpec.fill( log10(event[4].m()) );
+      else if (code == 106) {
+        double t1Abs = abs( (event[3].p() - event[1].p()).m2Calc() );
+        double t2Abs = abs( (event[4].p() - event[2].p()).m2Calc() );
+        tSpecCD.fill(t1Abs);
+        tSpecCD.fill(t2Abs);
       }
 
     // Study nondiffractive inelastic events in (pT, b) space.
@@ -188,13 +199,15 @@ int main() {
   pTnChg   /= nChg;
   pTnChgSD /= nChgSD;
   pTnChgDD /= nChgDD;
+  pTnChgCD /= nChgCD;
   pTnChgND /= nChgND;
   nChgmLog /= mLogInel;
   pTmLog   /= mLogInel;
-  cout << nChg << nChgSD << nChgDD << nChgND
-       << pTnChg << pTnChgSD << pTnChgDD << pTnChgND
+  cout << yChg << nChg << nChgSD << nChgDD << nChgCD << nChgND
+       << pTnChg << pTnChgSD << pTnChgDD << pTnChgCD << pTnChgND
        << mLogInel << nChgmLog << pTmLog
-       << tSpecEl << tSpecElLog << tSpecSD << tSpecDD << mSpec << mLogSpec 
+       << tSpecEl << tSpecElLog << tSpecSD << tSpecDD << tSpecCD
+       << mSpec << mLogSpec 
        << pTspec << pTspecND << bSpec << enhanceSpec << number
        << pTb1 << pTb2 << pTb3 << pTb4 << bpT1 << bpT2 << bpT3 << bpT4;
 

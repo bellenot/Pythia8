@@ -40,7 +40,7 @@ of low nominal mass may still acquire a non-negligible high-end tail.
 The validity of the calculation may be questioned in these wings. 
 With this option on, the <code>Higgs:wingsFac</code> value is used to 
 cut away the wings.
-</parm>
+</flag>
 
 <parm name="Higgs:wingsFac" default="50." min="0.">
 With <code>Higgs:clipWings</code> on, all Higgs masses which deviate 

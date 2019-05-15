@@ -52,6 +52,13 @@ further multiparton interactions ("cut Pomerons") will screen the rate of
 diffractive systems. In the end, our set of parameters refers to the
 effective description that emerges out of these effects, rather than 
 to the underlying "bare" parameters.  
+ 
+<p/>
+In the event record the diffractive system in the case of an excited
+proton is denoted <code>p_diffr</code>, code 9902210, whereas
+a central diffractive system is denoted <code>rho_diffr</code>, 
+code 9900110. Apart from representing the correct charge and baryon
+numbers, no deeper meaning should be attributed to the names.
 
 <h3>Pomeron flux</h3>
 
@@ -64,7 +71,7 @@ still will decide on the mass spectrum of diffractive states and the
 <i>t</i> spectrum of the Pomeron exchange.
 
 <p/><code>mode&nbsp; </code><strong> Diffraction:PomFlux &nbsp;</strong> 
- (<code>default = <strong>1</strong></code>; <code>minimum = 1</code>; <code>maximum = 4</code>)<br/>
+ (<code>default = <strong>1</strong></code>; <code>minimum = 1</code>; <code>maximum = 5</code>)<br/>
 Parametrization of the Pomeron flux <i>f_Pom/p( x_Pom, t)</i>.
 <br/><code>option </code><strong> 1</strong> : Schuler and Sj&ouml;strand [<a href="Bibliography.html" target="page">Sch94</a>]: based on a 
 critical Pomeron, giving a mass spectrum roughly like <i>dm^2/m^2</i>;
@@ -87,10 +94,18 @@ and with a mass-dependent (the <i>alpha'</i> below) exponential
 Donnachie and Landshoff [<a href="Bibliography.html" target="page">Don84</a>], again with supercritical Pomeron, 
 with the same two parameters as option 3 above, but this time with a 
 power-law <i>t</i> distribution.  
+<br/><code>option </code><strong> 5</strong> :  the MBR (Minimum Bias Rockefeller) simulation of 
+(anti)proton-proton interactions [<a href="Bibliography.html" target="page">Cie12</a>]. The event 
+generation follows a renormalized-Regge-theory model, sucessfully tested 
+using CDF data. The simulation includes the central diffractive 
+(double-Pomeron exchange) process (106). Only <i>p p</i>, <i>pbar p</i>
+and <i>p pbar</i> beam combinations are allowed for this option. 
+Several parameters of this model are listed below. 
+  
    
 
 <p/>
-In the last two options above, the Pomeron Regge trajectory is
+In options 3 and 4 above, the Pomeron Regge trajectory is 
 parametrized as 
 <br/><i>
 alpha(t) = 1 + epsilon + alpha' t
@@ -107,6 +122,53 @@ reasons <i>epsilon &gt; 0</i> is necessary in the current implementation.
  (<code>default = <strong>0.25</strong></code>; <code>minimum = 0.1</code>; <code>maximum = 0.4</code>)<br/>
 The Pomeron trajectory slope <i>alpha'</i> above. 
 
+<p/>
+When option 5 is selected, the following parameters of the MBR model
+[<a href="Bibliography.html" target="page">Cie12</a>] are used:
+
+<p/><code>parm&nbsp; </code><strong> Diffraction:MBRepsilon &nbsp;</strong> 
+ (<code>default = <strong>0.104</strong></code>; <code>minimum = 0.02</code>; <code>maximum = 0.15</code>)<br/>
+<p/><code>parm&nbsp; </code><strong> Diffraction:MBRalpha &nbsp;</strong> 
+ (<code>default = <strong>0.25</strong></code>; <code>minimum = 0.1</code>; <code>maximum = 0.4</code>)<br/>
+the parameters of the Pomeron trajectory.
+
+<p/><code>parm&nbsp; </code><strong> Diffraction:MBRbeta0 &nbsp;</strong> 
+ (<code>default = <strong>6.566</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 10.0</code>)<br/>
+<p/><code>parm&nbsp; </code><strong> Diffraction:MBRsigma0 &nbsp;</strong> 
+ (<code>default = <strong>2.82</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 5.0</code>)<br/>
+the Pomeron-proton coupling, and the total Pomeron-proton cross section.
+
+<p/><code>parm&nbsp; </code><strong> Diffraction:MBRm2Min &nbsp;</strong> 
+ (<code>default = <strong>1.5</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 3.0</code>)<br/>
+the lowest value of the mass squared of the dissociated system.
+
+<p/><code>parm&nbsp; </code><strong> Diffraction:MBRdyminSDflux &nbsp;</strong> 
+ (<code>default = <strong>2.3</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 5.0</code>)<br/>
+<p/><code>parm&nbsp; </code><strong> Diffraction:MBRdyminDDflux &nbsp;</strong> 
+ (<code>default = <strong>2.3</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 5.0</code>)<br/>
+<p/><code>parm&nbsp; </code><strong> Diffraction:MBRdyminCDflux &nbsp;</strong> 
+ (<code>default = <strong>2.3</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 5.0</code>)<br/>
+the minimum width of the rapidity gap used in the calculation of 
+<i>Ngap(s)</i> (flux renormalization).
+
+<p/><code>parm&nbsp; </code><strong> Diffraction:MBRdyminSD &nbsp;</strong> 
+ (<code>default = <strong>2.0</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 5.0</code>)<br/>
+<p/><code>parm&nbsp; </code><strong> Diffraction:MBRdyminDD &nbsp;</strong> 
+ (<code>default = <strong>2.0</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 5.0</code>)<br/>
+<p/><code>parm&nbsp; </code><strong> Diffraction:MBRdyminCD &nbsp;</strong> 
+ (<code>default = <strong>2.0</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 5.0</code>)<br/>
+the minimum width of the rapidity gap used in the calculation of cross 
+sections, i.e. the parameter <i>dy_S</i>, which suppresses the cross 
+section at low <i>dy</i> (non-diffractive region).
+
+<p/><code>parm&nbsp; </code><strong> Diffraction:MBRdyminSigSD &nbsp;</strong> 
+ (<code>default = <strong>0.5</strong></code>; <code>minimum = 0.001</code>; <code>maximum = 5.0</code>)<br/>
+<p/><code>parm&nbsp; </code><strong> Diffraction:MBRdyminSigDD &nbsp;</strong> 
+ (<code>default = <strong>0.5</strong></code>; <code>minimum = 0.001</code>; <code>maximum = 5.0</code>)<br/>
+<p/><code>parm&nbsp; </code><strong> Diffraction:MBRdyminSigCD &nbsp;</strong> 
+ (<code>default = <strong>0.5</strong></code>; <code>minimum = 0.001</code>; <code>maximum = 5.0</code>)<br/>
+the parameter <i>sigma_S</i>, used for the cross section suppression at 
+low <i>dy</i> (non-diffractive region).
 
 <h3>Separation into low and high masses</h3>
 

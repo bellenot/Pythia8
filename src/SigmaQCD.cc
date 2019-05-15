@@ -87,6 +87,24 @@ void Sigma0AB2XX::setIdColAcol() {
 
 //==========================================================================
 
+// Sigma0AB2AXB class.
+// Cross section for central scattering A B -> A X B.
+
+//--------------------------------------------------------------------------
+
+// Select identity, colour and anticolour.
+
+void Sigma0AB2AXB::setIdColAcol() {
+  
+  // Central diffractive state represented by rho_diffr0. Colours trivial.
+  int idX = 9900110; 
+  setId( idA, idB, idA, idB,idX);
+  setColAcol( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+  
+}
+
+//==========================================================================
+
 // Sigma2gg2gg class.
 // Cross section for g g -> g g.
 

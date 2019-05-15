@@ -185,6 +185,7 @@ public:
   virtual bool   isResolved()      const {return true;}
   virtual bool   isDiffA()         const {return false;}
   virtual bool   isDiffB()         const {return false;}
+  virtual bool   isDiffC()         const {return false;}
 
   // Special treatment needed for SUSY processes.
   virtual bool   isSUSY()          const {return false;}  

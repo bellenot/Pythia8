@@ -211,7 +211,7 @@ public:
 private: 
 
   // Locally stored properties and couplings.
-  double thetaWRat, m2W;
+  double thetaWRat, m2W, tanBeta, tan2Beta, mbRun;
  
   // Initialize constants.
   virtual void initConstants(); 

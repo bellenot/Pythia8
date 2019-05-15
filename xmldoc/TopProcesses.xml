@@ -41,6 +41,13 @@ Scatterings <ei>gamma gamma -> t tbar</ei>.
 Code 606.
 </flag>
 
+<p/>
+By default top always decays to a <ei>W</ei> and a down-type quark.
+It is possible to switch on the <ei>t -> H+ b</ei> decay mode. 
+Note that its partial width is calculated using the <ei>tan(beta)</ei>  
+value stored in <code>HiggsHchg:tanBeta</code>, so that it can be used
+without having to read in a SUSY parameter file. For the <ei>H+</ei> to
+decay also <code>Higgs:useBSM = on</code> is necessary.  
 
 </chapter>
 

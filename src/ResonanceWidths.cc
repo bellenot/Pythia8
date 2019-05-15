@@ -720,6 +720,11 @@ void ResonanceTop::initConstants() {
   thetaWRat = 1. / (16. * couplingsPtr->sin2thetaW());
   m2W       = pow2(particleDataPtr->m0(24));
 
+  // Extra coupling factors for t -> H+ + b.
+  tanBeta   = settingsPtr->parm("HiggsHchg:tanBeta");
+  tan2Beta  = tanBeta * tanBeta;
+  mbRun     = particleDataPtr->mRun( 5, particleDataPtr->m0(6) ); 
+ 
 }
 
 //--------------------------------------------------------------------------
@@ -742,16 +747,24 @@ void ResonanceTop::calcPreFac(bool) {
 
 void ResonanceTop::calcWidth(bool) {
 
-  // Only contributions from W + quark.
-  if (id1Abs != 24 || id2Abs > 5) return; 
 
-  // Check that above threshold. Kinematical factor.
+  // Check that above threshold. 
   if (ps == 0.) return;
-  widNow    = preFac * ps 
+
+  // Contributions from W + quark.
+  if (id1Abs == 24 && id2Abs < 6) { 
+    widNow  = preFac * ps 
             * ( pow2(1. - mr2) + (1. + mr2) * mr1 - 2. * mr1 * mr1 );
 
-  // Combine with colour factor and CKM couplings.
-  widNow   *= colQ * couplingsPtr->V2CKMid(6, id2Abs);
+    // Combine with colour factor and CKM couplings.
+    widNow *= colQ * couplingsPtr->V2CKMid(6, id2Abs);
+
+  // Contributions from H+ + quark (so far only b).
+  } else if (id1Abs == 37 && id2Abs == 5) {     
+    widNow  = preFac * ps * ( (1. + mr2 - mr1) 
+            * (pow2(mbRun / mHat) * tan2Beta + 1. / tan2Beta) 
+            + 4. * mbRun * mf2 / pow2(mHat) ); 
+  }
 
 }
  

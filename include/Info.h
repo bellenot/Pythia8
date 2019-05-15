@@ -57,6 +57,7 @@ public:
   bool   isResolved()     const {return isRes;}
   bool   isDiffractiveA() const {return isDiffA;} 
   bool   isDiffractiveB() const {return isDiffB;} 
+  bool   isDiffractiveC() const {return isDiffC;} 
   bool   isMinBias()      const {return isMB;}
 
   // Information for Les Houches Accord and reading files.
@@ -210,8 +211,8 @@ private:
   double a0MPISave;
 
   // Store current-event quantities.
-  bool   isRes, isDiffA, isDiffB, isMB, isLH, hasSubSave, bIsSet, evolIsSet,
-         atEOF, isVal1, isVal2, hasHistorySave;  
+  bool   isRes, isDiffA, isDiffB, isDiffC, isMB, isLH, hasSubSave, bIsSet, 
+         evolIsSet, atEOF, isVal1, isVal2, hasHistorySave;  
   int    codeSave, codeSubSave, nFinalSave, nFinalSubSave, nTotal, 
          id1Save, id2Save, id1pdfSave, id2pdfSave, nMPISave, nISRSave, 
          nFSRinProcSave, nFSRinResSave;
@@ -244,7 +245,7 @@ private:
   void setECM( double eCMin) {eCMSave = eCMin; sSave = eCMSave * eCMSave;}
 
   // Reset info for current event: only from Pythia class.
-  void clear() { isRes = isDiffA = isDiffB = isMB = isLH = hasSubSave 
+  void clear() { isRes = isDiffA = isDiffB = isDiffC = isMB = isLH = hasSubSave 
     = bIsSet = evolIsSet = atEOF = isVal1 =isVal2 = hasHistorySave = false; 
     codeSave = codeSubSave = nFinalSave = nFinalSubSave = nTotal = id1Save 
     = id2Save = id1pdfSave = id2pdfSave = nMPISave = nISRSave 
@@ -264,9 +265,10 @@ private:
   void setType( string nameIn, int codeIn, int nFinalIn,  
     bool isMinBiasIn = false, bool isResolvedIn = true, 
     bool isDiffractiveAin = false, bool isDiffractiveBin = false,
-    bool isLHAin = false) {nameSave = nameIn; codeSave = codeIn; 
-    nFinalSave = nFinalIn; isMB = isMinBiasIn; isRes = isResolvedIn; 
-    isDiffA = isDiffractiveAin; isDiffB = isDiffractiveBin; isLH = isLHAin;
+    bool isDiffractiveCin = false, bool isLHAin = false) {
+    nameSave = nameIn; codeSave = codeIn; nFinalSave = nFinalIn; 
+    isMB = isMinBiasIn; isRes = isResolvedIn; isDiffA = isDiffractiveAin; 
+    isDiffB = isDiffractiveBin; isDiffC = isDiffractiveCin; isLH = isLHAin;
     nTotal = 2 + nFinalSave; bIsSet = false; hasSubSave = false; 
     nameSubSave = " "; codeSubSave = 0; nFinalSubSave = 0; evolIsSet = false;}
   void setSubType( string nameSubIn, int codeSubIn, int nFinalSubIn) {  

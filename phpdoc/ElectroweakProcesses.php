@@ -195,6 +195,13 @@ Code 223.
 
 <h4>Boson pair</h4>
 
+Note that, in the decay of the two vector bosons produced by an 
+<i>f fbar -> V V</i> process, the full four-fermion correlations 
+from the leading-order <i>f fbar -> V V -> 4f</i> matrix elements 
+are included [<a href="Bibliography.php" target="page">Gun86</a>] (with some extensions by the authors).
+The matrix elements are provided in the double-resonant approach, i.e. 
+excludes graph like <i>f fbar -> V -> f fbar -> f fbar V -> 4f</i>.
+
 <br/><br/><strong>WeakDoubleBoson:all</strong>  <input type="radio" name="16" value="on"><strong>On</strong>
 <input type="radio" name="16" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>

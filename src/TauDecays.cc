@@ -69,14 +69,15 @@ void TauDecays::init(Info* infoPtrIn, Settings* settingsPtrIn,
   hmeTau2PhaseSpace              .initPointers(particleDataPtr, couplingsPtr);
 
   // User selected tau decay mode.
-  tauMode      = settingsPtr->mode("ParticleDecays:sophisticatedTau");
+  tauModeSave   = settingsPtr->mode("ParticleDecays:sophisticatedTau");
     
   // User selected tau decay mother.
-  tauMother    = settingsPtr->mode("ParticleDecays:tauMother");
+  tauMotherSave = settingsPtr->mode("ParticleDecays:tauMother");
 
   // User selected tau polarization.
-  polarization = settingsPtr->parm("ParticleDecays:tauPolarization");
- }
+  polSave       = settingsPtr->parm("ParticleDecays:tauPolarization");
+
+}
 
 //--------------------------------------------------------------------------
 
@@ -88,9 +89,24 @@ void TauDecays::init(Info* infoPtrIn, Settings* settingsPtrIn,
 
 bool TauDecays::decay(int idxOut1, Event& event) {
 
+  // User selected tau decay mode, mother, and polarization.
+  tauMode      = tauModeSave;
+  tauMother    = tauMotherSave;
+  polarization = polSave;
+
   // Set the first outgoing particle of the hard process.
   out1 = HelicityParticle(event[idxOut1]); 
   out1.idx = idxOut1;
+
+  // Begin PS April 2012.
+  // Check if this tau already has helicity information (eg from LHEF).
+  bool   hasHelicity = false;
+  double helicityNow = 0.;
+  if (tauMode >= 1 && abs(out1.pol()) <= 1.001) {
+    hasHelicity = true;
+    helicityNow = out1.pol();
+  }
+  // End PS April 2012.
   
   // Find the mediator of the hard process.
   int idxMediator  = out1.mother1();
@@ -134,27 +150,34 @@ bool TauDecays::decay(int idxOut1, Event& event) {
   particles.push_back(out2);
   
   // Set the hard matrix element.
+  // Polarized tau (decayed one by one).
+  if (hasHelicity) {
+    correlated = false;
+
   // Produced from a W.
-  if (abs(mediator.id()) == 24 &&
-    (abs(in1.id()) <= 18 || abs(in2.id()) <= 18)) {
-    // S-channel production.
+  } else if (abs(mediator.id()) == 24) {
+    // Produced from quarks: s-channel.
     if (abs(in1.id()) <= 18 && abs(in2.id()) <= 18)
       hardME = hmeTwoFermions2W2TwoFermions.initChannel(particles);
-    // T-channel production. 
-    else {
+    // Produced from quarks: t-channel. 
+    else if (abs(in1.id()) <= 18 || abs(in2.id()) <= 18) {
       bool fermion = (abs(in1.id()) <= 18) ? 0 : 1;
       particles[!fermion] 
         = (event[particles[fermion].daughter1()].id() == mediator.id())
         ? HelicityParticle(event[particles[fermion].daughter2()]) 
-	: HelicityParticle(event[particles[fermion].daughter1()]);
+        : HelicityParticle(event[particles[fermion].daughter1()]);
       particles[!fermion].direction = 1;
       if (abs(particles[!fermion].id()) <= 18)
-	hardME = hmeTwoFermions2W2TwoFermions.initChannel(particles);
+        hardME = hmeTwoFermions2W2TwoFermions.initChannel(particles);
       else {					
-	infoPtr->errorMsg("Warning in TauDecays::decay: unknown "
-	  "tau production, assuming unpolarized and uncorrelated");
+        infoPtr->errorMsg("Warning in TauDecays::decay: unknown "
+          "tau production, assuming unpolarized and uncorrelated");
 	hardME = hmeUnpolarized.initChannel(particles);
       }
+    // Unknown W production: assume negative helicity.
+    } else if (tauMode == 1) {
+      tauMode      = 3;
+      polarization = -1;
     }
     correlated = false;
 
@@ -250,13 +273,24 @@ bool TauDecays::decay(int idxOut1, Event& event) {
   tau = &particles[idx];
 
   // Calculate the density matrix and decay the tau.
-  if ( (tauMode == 2 && abs(mediator.id()) == tauMother) || tauMode == 3) {
+  if ( (tauMode == 2 && abs(mediator.id()) == tauMother) || tauMode == 3 ) {
     tau->rho[0][0] = (tau->id() > 0) 
       ? (1 - polarization) / 2 : (1 + polarization) / 2;
     tau->rho[1][1] = (tau->id() > 0) 
       ? (1 + polarization) / 2 : (1 - polarization) / 2;
     correlated = false;
-  } else
+  }
+
+  // Begin PS April 2012.
+  // Else use tau helicity provided by event record (LHEF).
+  else if (hasHelicity) {
+    tau->rho[0][0] = (1. - helicityNow) / 2.;
+    tau->rho[1][1] = (1. + helicityNow) / 2.;
+  }
+  // End PS April 2012.
+
+  // Else compute density matrix according to matrix element.
+  else
     hardME->calculateRho(idx, particles);
   vector<HelicityParticle> children = createChildren(*tau);
   if (children.size() == 0) return false;
