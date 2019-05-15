@@ -225,15 +225,8 @@ ostream& operator<< (ostream& os, GammaMatrix g) {
 // "HELas: HELicity Amplitude Subroutines for Feynman Diagram Evaluations"
 // by H. Murayama, I. Watanabe, K. Hagiwara.
 
-//--------------------------------------------------------------------------
-
-// Constants: could be changed here if desired, but normally should not.
-
 // The spinors become ill-defined for p -> -pz and the polarization vectors
-// become ill-defined when pT -> 0. For these special cases limits are used
-// and are triggered when the difference of the approached quantity falls
-// below the variable TOLERANCE.
-const double HelicityParticle::TOLERANCE = 0.000001;
+// become ill-defined when pT -> 0. For these special cases limits are used.
 
 //--------------------------------------------------------------------------
  
@@ -250,7 +243,7 @@ Wave4 HelicityParticle::wave(int h) {
     // Calculate helicity independent normalization.
     double P     = pAbs();
     double n     = sqrtpos(2*P*(P+pz()));
-    bool aligned = (abs(P+pz()) < TOLERANCE);
+    bool aligned = P + pz() == 0;
     
     // Calculate eigenspinor basis.
     vector< vector<complex> > xi(2, vector<complex>(2));
@@ -267,7 +260,7 @@ Wave4 HelicityParticle::wave(int h) {
     omega[1] = sqrtpos(e()+P);
     vector<double> hsign(2,1);
     hsign[0] = -1;
-    
+
     // Create particle spinor.
     if (this->id() > 0) {
       w(0) = omega[!h] * xi[h][0];
@@ -291,24 +284,36 @@ Wave4 HelicityParticle::wave(int h) {
     // Create helicity +1 or -1 polarization vector.
     if (h >= 0 && h <= 1) {
       double hsign = h ? -1 : 1;
-      if (PT > TOLERANCE) {
-        w(0) = 0;
-        w(1) = complex(hsign * px() * pz() / (P * PT), -py() / PT);
-        w(2) = complex(hsign * py() * pz() / (P * PT),  px() / PT);
-        w(3) = complex(-hsign * PT / P, 0);
+      if (P == 0) {
+	w(0) = 0;
+	w(1) = hsign / sqrt(2);
+	w(2) = complex(0, 1/sqrt(2));
+	w(3) = 0;
+      } else if (PT == 0) {
+	w(0) = 0;
+	w(1) = hsign / sqrt(2);
+	w(2) = complex(0, (pz() > 0 ? 1 : -1) / sqrt(2));
+	w(3) = complex(-hsign * PT / P, 0) / sqrt(2);
       } else {
-        w(0) = 0;
-        w(1) = hsign * pz();
-        w(2) = 0;
-        w(3) = 0;
+	w(0) = 0;
+	w(1) = complex(hsign * px() * pz() / (P * PT), -py() / PT) / sqrt(2);
+	w(2) = complex(hsign * py() * pz() / (P * PT),  px() / PT) / sqrt(2);
+	w(3) = complex(-hsign * PT / P, 0) / sqrt(2);
       }
 
     // Create helicity 0 polarization vector (ensure boson massive).
-    } else if (h == 2 && m() > TOLERANCE) {
-        w(0) = P / m();
+    } else if (h == 2 && spinStates() == 3) {
+      if (P == 0) {
+	w(0) = 0;
+        w(1) = 0;
+        w(2) = 0;
+        w(3) = 1;
+      } else {
+	w(0) = P / m();
         w(1) = px() * e() / (m() * P);
         w(2) = py() * e() / (m() * P);
         w(3) = pz() * e() / (m() * P);
+      }
     }
 
   // Unknown wave function.
@@ -360,7 +365,7 @@ void HelicityParticle::normalize(vector< vector<complex> >& matrix) {
 
     int sT = spinType();
     if (sT == 0) return 1;
-    else if (sT != 2 && m() < TOLERANCE) return sT - 1;
+    else if (sT != 2 && m() == 0) return sT - 1;
     else return sT;
 
   }

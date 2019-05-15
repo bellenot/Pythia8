@@ -186,16 +186,16 @@ public:
     ? vProdSave.e()  + tauSave * pSave.e()  / mSave : vProdSave.e();}
 
   // Methods that can refer back to the event the particle belongs to.
-  int index()        const;
-  int statusHepMC()  const;
-  int iTopCopy()     const;
-  int iBotCopy()     const;
-  int iTopCopyId()   const;
-  int iBotCopyId()   const;
+  virtual int index() const;
+  int iTopCopy()      const;
+  int iBotCopy()      const;
+  int iTopCopyId()    const;
+  int iBotCopyId()    const;
   vector<int> motherList()   const;
   vector<int> daughterList() const;
   vector<int> sisterList(bool traceTopBot = false) const;
   bool isAncestor(int iAncestor) const;
+  int statusHepMC()  const;
   bool undoDecay();
 
   // Further output, based on a pointer to a ParticleDataEntry object.
@@ -278,7 +278,7 @@ public:
     int addDaughter);
   void offsetCol( int addCol);
 
-private:
+protected:
 
   // Constants: could only be changed in the code itself.
   static const double TINY;
@@ -471,9 +471,6 @@ public:
     entry.erase( entry.begin() + iFirst, entry.begin() + iLast + 1);
   }
 
-  // Undo the decay of a single particle (where daughters well-defined).
-  bool undoDecay(int i);
-
   // Restore all ParticleDataEntry* pointers in the Particle vector.
   // Useful when a persistent copy of the event record is read back in.
   void restorePtrs() { for (int i = 0; i < size(); ++i) setEvtPtr(i); }
@@ -496,27 +493,9 @@ public:
   void scaleSecond( double scaleSecondIn) {scaleSecondSave = scaleSecondIn;}
   double scaleSecond() const {return scaleSecondSave;}
 
-  // Find complete list of daughters and mothers.
-  vector<int> motherList(int i) const;
-  vector<int> daughterList(int i) const;
-
-  // Convert to HepMC status code conventions.
-  int statusHepMC(int i) const;
-
-  // Trace the first and last copy of one and the same particle.
-  int iTopCopy(int i) const;
-  int iBotCopy(int i) const;
-
-  // Trace the first and last copy of a particle, using flavour match.
-  int iTopCopyId(int i) const;
-  int iBotCopyId(int i) const;
-
-  // Find list of sisters, also tracking up and down identical copies.
-  vector<int> sisterList(int i) const;
-  vector<int> sisterListTopBot(int i, bool widenSearch = true) const;
-
-  // Check whether two particles have a direct mother-daughter relation.
-  bool isAncestor(int i, int iAncestor) const;
+  // Find complete list of daughters.
+  // Note: temporarily retained for CMS compatibility. Do not use!
+  vector<int> daughterList(int i) const {return entry[i].daughterList();}
 
   // Member functions for rotations and boosts of an event.
   void rot(double theta, double phi)

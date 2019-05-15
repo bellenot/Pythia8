@@ -89,6 +89,22 @@ int Merging::mergeProcess(Event& process){
   mergingHooksPtr->hardProcess.initOnProcess(
     settingsPtr->word("Merging:Process"), particleDataPtr);
 
+  mergingHooksPtr->doUserMergingSave     = settingsPtr->flag("Merging:doUserMerging");
+  mergingHooksPtr->doMGMergingSave       = settingsPtr->flag("Merging:doMGMerging");
+  mergingHooksPtr->doKTMergingSave       = settingsPtr->flag("Merging:doKTMerging");
+  mergingHooksPtr->doPTLundMergingSave   = settingsPtr->flag("Merging:doPTLundMerging");
+  mergingHooksPtr->doCutBasedMergingSave = settingsPtr->flag("Merging:doCutBasedMerging");
+  mergingHooksPtr->doNL3TreeSave         = settingsPtr->flag("Merging:doNL3Tree");
+  mergingHooksPtr->doNL3LoopSave         = settingsPtr->flag("Merging:doNL3Loop");
+  mergingHooksPtr->doNL3SubtSave         = settingsPtr->flag("Merging:doNL3Subt");
+  mergingHooksPtr->doUNLOPSTreeSave      = settingsPtr->flag("Merging:doUNLOPSTree");
+  mergingHooksPtr->doUNLOPSLoopSave      = settingsPtr->flag("Merging:doUNLOPSLoop");
+  mergingHooksPtr->doUNLOPSSubtSave      = settingsPtr->flag("Merging:doUNLOPSSubt");
+  mergingHooksPtr->doUNLOPSSubtNLOSave   = settingsPtr->flag("Merging:doUNLOPSSubtNLO");
+  mergingHooksPtr->doUMEPSTreeSave       = settingsPtr->flag("Merging:doUMEPSTree");
+  mergingHooksPtr->doUMEPSSubtSave       = settingsPtr->flag("Merging:doUMEPSSubt");
+  mergingHooksPtr->nReclusterSave        = settingsPtr->mode("Merging:nRecluster");
+
   // Possibility to apply merging scale to an input event.
   bool applyTMSCut = settingsPtr->flag("Merging:doXSectionEstimate");
   if ( applyTMSCut && cutOnProcess(process) ) return -1;
@@ -290,7 +306,7 @@ int Merging::mergeProcessUMEPS( Event& process) {
   // removed. In this case, reject this event, since it will be handled in
   // lower-multiplicity samples.
   int nRequested = settingsPtr->mode("Merging:nRequested");
-  if (nSteps < nRequested) {
+  if (nSteps < nRequested) { 
     mergingHooksPtr->setWeightCKKWL(0.);
     return -1;
   }
@@ -451,7 +467,7 @@ int Merging::mergeProcessNL3( Event& process) {
   // Too few steps can be possible if a chain of resonance decays has been
   // removed. In this case, reject this event, since it will be handled in
   // lower-multiplicity samples.
-  if (nSteps < nRequested) {
+  if (nSteps < nRequested) { 
     mergingHooksPtr->setWeightCKKWL(0.);
     mergingHooksPtr->setWeightFIRST(0.);
     return -1;
@@ -677,6 +693,9 @@ int Merging::mergeProcessUNLOPS( Event& process) {
   // removed. In this case, reject this event, since it will be handled in
   // lower-multiplicity samples.
   if (nSteps < nRequested) {
+    string message="Warning in Merging::mergeProcessUNLOPS: Les Houches Event";
+    message+=" after removing decay products does not contain enough partons.";
+    infoPtr->errorMsg(message);
     mergingHooksPtr->setWeightCKKWL(0.);
     mergingHooksPtr->setWeightFIRST(0.);
     return -1;
@@ -732,7 +751,7 @@ int Merging::mergeProcessUNLOPS( Event& process) {
 
   // Discard if the state could not be reclustered to any state above TMS.
   int nPerformed = 0;
-  if ( nSteps > 0
+  if ( nSteps > 0 && !allowIncompleteReal
     && ( doUNLOPSSubt || doUNLOPSSubtNLO || containsRealKin )
     && !FullHistory.getFirstClusteredEventAboveTMS( RN, nRecluster,
           newProcess, nPerformed, false ) ) {
@@ -861,6 +880,7 @@ int Merging::mergeProcessUNLOPS( Event& process) {
     // Subtract the O(\alpha_s)-term from the CKKW-L weight
     // If PDF contributions have not been included, subtract these later
     wgt = wgt - wgtFIRST;
+
   }
 
   // Set QCD 2->2 starting scale different from arbitrary scale in LHEF!
@@ -979,7 +999,7 @@ bool Merging::cutOnProcess( Event& process) {
   // Remove real emission events without underlying Born configuration from
   // the loop sample, since such states will be taken care of by tree-level
   // samples.
-  bool allowIncompleteReal =
+  bool allowIncompleteReal = 
     settingsPtr->flag("Merging:allowIncompleteHistoriesInReal");
   if ( containsRealKin && !allowIncompleteReal
     && FullHistory.select(RN)->nClusterings() == 0 )

@@ -1,258 +1,124 @@
+# Makefile is a part of the PYTHIA event generator.
+# Copyright (C) 2014 Torbjorn Sjostrand.
+# PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+# Please respect the MCnet Guidelines, see GUIDELINES for details.
+# Author: Philip Ilten, October 2014.
 #
-# Libraries Makefile. Some ideas from Geant4 Makefiles
-#
-#                  M. Kirsanov 07.04.2006
-#                     Modified 18.11.2006
-#                     26.03.2008 CLHEP dependency removed
-#                  N. Lavesson 28.04.2009 clean/distclean separated
-#                  M. Kirsanov 21.07.2009 Mac-OSX flags added
+# This is is the Makefile used to build PYTHIA on POSIX systems. Example usage 
+# is:
+#     make -j2
+# For help using the make command please consult the local system documentation,
+# i.e. "man make" or "make --help".
 
-.PHONY: all install installit installmain installdata clean distclean
+################################################################################
+# VARIABLES: Definition of the relevant variables from the configuration script
+# and the distribution structure.
+################################################################################
 
-SHELL = /bin/sh
+# Include the configuration and set the local directory structure.
+ifeq (,$(findstring clean, $(MAKECMDGOALS)))
+  -include Makefile.inc
+endif
+LOCAL_BIN=bin
+LOCAL_DOCS=AUTHORS COPYING GUIDELINES examples/Makefile.inc README
+LOCAL_INCLUDE=include
+LOCAL_LIB=lib
+LOCAL_SHARE=share/Pythia8
+LOCAL_SRC=src
+LOCAL_TMP=tmp
+LOCAL_MKDIRS:=$(shell mkdir -p $(LOCAL_TMP) $(LOCAL_LIB))
+CXX_COMMON:=-I$(LOCAL_INCLUDE) $(CXX_COMMON)
 
--include config.mk
-
-# flags:
-#
-#FFLAGSSHARED = -fPIC
-CFLAGSSHARED = -fPIC
-CXXFLAGSSHARED = -fPIC
-
-
-HEPMCERROR=
-ifneq (x$(HEPMCLOCATION),x)
- ifeq ($(wildcard $(HEPMCLOCATION)/include/HepMC/*.h),)
-  HEPMCERROR= HepMC interface: ERROR, no HepMC headers found in ${HEPMCLOCATION}/include/HepMC
- endif
+# PYTHIA.
+OBJECTS=$(patsubst $(LOCAL_SRC)/%.cc,$(LOCAL_TMP)/%.o,\
+	$(wildcard $(LOCAL_SRC)/*.cc))
+TARGETS=$(LOCAL_LIB)/libpythia8.a
+ifeq ($(ENABLE_SHARED),true)
+  TARGETS+=$(LOCAL_LIB)/libpythia8$(LIB_SUFFIX)
 endif
 
-# Location of directories.
-MYTMPDIR=tmp
-TOPDIR=$(shell \pwd)
-INCDIR=include
-SRCDIR=src
-LIBDIR=lib
-LIBDIRARCH=lib/archive
-BINDIR=bin
-
-# Location of libraries to be built.
-ifeq ($(SHAREDLIBS),yes)
-  targets=$(LIBDIRARCH)/libpythia8.a
-  targets+=$(LIBDIR)/libpythia8.$(SHAREDSUFFIX)
-  targets+=$(LIBDIRARCH)/liblhapdfdummy.a
-  targets+=$(LIBDIR)/liblhapdfdummy.$(SHAREDSUFFIX)
-else
-  targets=$(LIBDIRARCH)/libpythia8.a
-  targets+=$(LIBDIRARCH)/liblhapdfdummy.a
+# LHAPDF.
+ifeq ($(LHAPDF5_USE),true)
+  TARGETS+=$(LOCAL_LIB)/libpythia8lhapdf5.so
+endif
+ifeq ($(LHAPDF6_USE),true)
+  TARGETS+=$(LOCAL_LIB)/libpythia8lhapdf6.so
 endif
 
-ifneq (x$(HEPMCLOCATION),x)
- targets+=$(LIBDIRARCH)/libpythia8tohepmc.a
- ifeq ($(SHAREDLIBS),yes)
-  targets+=$(LIBDIR)/libpythia8tohepmc.$(SHAREDSUFFIX)
- endif
-endif
+################################################################################
+# RULES: Definition of the rules used to build PYTHIA.
+################################################################################
 
+# Rules without physical targets (secondary expansion for documentation).
+.SECONDEXPANSION:
+.PHONY: all install clean distclean
 
-all: $(targets) config.mk
+# All targets.
+all: $(TARGETS) $(addprefix $(LOCAL_SHARE)/, $(LOCAL_DOCS))
 
-# This default run of configure should only happen if configure 
-# has not already been explicitly run.
-config.mk:
+# The documentation.
+$(addprefix $(LOCAL_SHARE)/, $(LOCAL_DOCS)): $$(notdir $$@)
+	cp $^ $@
+
+# The Makefile configuration.
+Makefile.inc:
 	./configure
 
-# Main part: build Pythia8 library.
+# Auto-generated (with -MD flag) dependencies.
+-include $(LOCAL_TMP)/*.d
 
-$(MYTMPDIR)/%.o : $(SRCDIR)/%.cc
-	@mkdir -p $(MYTMPDIR)
-	$(CXX) $(CXXFLAGS) $(CXXFLAGSSHARED) -c -I$(INCDIR) $< -o $@
-
-$(MYTMPDIR)/archive/%.o : $(SRCDIR)/%.cc
-	@mkdir -p $(MYTMPDIR)/archive
-	$(CXX) $(CXXFLAGS) -c -I$(INCDIR) $< -o $@
-
-$(MYTMPDIR)/%.o : lhapdfdummy/%.cc
-	@mkdir -p $(MYTMPDIR)
-	$(CXX) $(CXXFLAGS) $(CXXFLAGSSHARED) -c -I$(INCDIR) $< -o $@
-
-$(MYTMPDIR)/archive/%.o : lhapdfdummy/%.cc
-	@mkdir -p $(MYTMPDIR)/archive
-	$(CXX) $(CXXFLAGS) -c -I$(INCDIR) $< -o $@
-
-# Creating the dependency files *.d
-# The compiler with option -M is used to build the dependency strings. They
-# are further edited with sed (stream editor). The first sed command adds the
-# dependency for the *.d files themselves, the second one is needed because
-# object files are put in the directory different from src. The last line
-# removes empty *.d files produced in case of error.
-
-ifeq ($(SHAREDLIBS),yes)
-  $(MYTMPDIR)/%.d : $(SRCDIR)/%.cc
-	@echo Making dependency for file $<; \
-	mkdir -p $(MYTMPDIR); \
-	$(CC) -M -I$(INCDIR) $< | \
-	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' | \
-	sed 's/$*\.o/$(MYTMPDIR)\/$*.o/' > $@; \
-	[ -s $@ ] || rm -f $@
-endif
-
-$(MYTMPDIR)/archive/%.d : $(SRCDIR)/%.cc
-	@echo Making dependency for file $<; \
-	mkdir -p $(MYTMPDIR)/archive; \
-	$(CC) -M -I$(INCDIR) $< | \
-	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' | \
-	sed 's/$*\.o/$(MYTMPDIR)\/archive\/$*.o/' > $@; \
-	[ -s $@ ] || rm -f $@
-
-objects := $(patsubst $(SRCDIR)/%.cc,$(MYTMPDIR)/%.o,$(wildcard $(SRCDIR)/*.cc))
-objectsarch := $(patsubst $(SRCDIR)/%.cc,$(MYTMPDIR)/archive/%.o,$(wildcard $(SRCDIR)/*.cc))
-
-$(LIBDIR)/libpythia8.$(SHAREDSUFFIX): $(objects)
-	@mkdir -p $(LIBDIR)
-	$(CXX) $(LDFLAGSSHARED) -o $@ $(objects) $(LDFLAGLIBNAME),$(notdir $@)
-
-$(LIBDIRARCH)/libpythia8.a: $(objectsarch)
-	@mkdir -p $(LIBDIRARCH)
-	ar cru $@ $(objectsarch)
-
-objdum := $(patsubst lhapdfdummy/%.cc,$(MYTMPDIR)/%.o,$(wildcard lhapdfdummy/*.cc))
-objdumarch := $(patsubst lhapdfdummy/%.cc,$(MYTMPDIR)/archive/%.o,$(wildcard lhapdfdummy/*.cc))
-
-$(LIBDIR)/liblhapdfdummy.$(SHAREDSUFFIX): $(objdum)
-	@mkdir -p $(LIBDIR)
-	$(CXX) $(LDFLAGSSHARED) -o $@ $(objdum) $(LDFLAGLIBNAME),$(notdir $@)
-
-$(LIBDIRARCH)/liblhapdfdummy.a: $(objdumarch)
-	@mkdir -p $(LIBDIRARCH)
-	ar cru $@ $(objdumarch)
-
-deps := $(patsubst $(SRCDIR)/%.cc,$(MYTMPDIR)/%.d,$(wildcard $(SRCDIR)/*.cc))
-depsarch := $(patsubst $(SRCDIR)/%.cc,$(MYTMPDIR)/archive/%.d,$(wildcard $(SRCDIR)/*.cc))
-
-
-# The "if" below is needed in order to avoid producing the dependency files
-# when you want to just clean
-
-ifeq (,$(findstring clean, $(MAKECMDGOALS)))
--include $(deps)
--include $(depsarch)
-endif
-
-# Build HepMC interface part if HepMC location is set.
-
-ifneq (x$(HEPMCLOCATION),x)
- HEPMCINCLUDE=-I$(HEPMCLOCATION)/include
-
- ifeq (x$(HEPMCERROR),x)
-
-   $(MYTMPDIR)/%.o : pythia8tohepmc/%.cc config.mk
-	@mkdir -p $(MYTMPDIR)
-	$(CXX) $(CXXFLAGS) $(CXXFLAGSSHARED) $(HEPMCVFLAG) -c -I$(INCDIR) $(HEPMCINCLUDE) $< -o $@
-
-   $(MYTMPDIR)/archive/%.o : pythia8tohepmc/%.cc config.mk
-	@mkdir -p $(MYTMPDIR)/archive
-	$(CXX) $(CXXFLAGS) $(HEPMCVFLAG) -c -I$(INCDIR) $(HEPMCINCLUDE) $< -o $@
-
-   $(MYTMPDIR)/%.d : pythia8tohepmc/%.cc
-	@echo Making dependency for file $<; \
-	mkdir -p $(MYTMPDIR); \
-	$(CC) -M -I$(INCDIR) $(HEPMCINCLUDE) $< | \
-	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' | \
-	sed 's/$*.o/$(MYTMPDIR)\/$*.o/' > $@; \
-	[ -s $@ ] || rm -f $@
-
-   $(MYTMPDIR)/archive/%.d : pythia8tohepmc/%.cc
-	@echo Making dependency for file $<; \
-	mkdir -p $(MYTMPDIR)/archive; \
-	$(CC) -M -I$(INCDIR) $(HEPMCINCLUDE) $< | \
-	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' | \
-	sed 's/$*.o/$(MYTMPDIR)\/archive\/$*.o/' > $@; \
-	[ -s $@ ] || rm -f $@
-
-   objectsI := $(patsubst pythia8tohepmc/%.cc,$(MYTMPDIR)/%.o,$(wildcard pythia8tohepmc/*.cc))
-   objectsIarch := $(patsubst pythia8tohepmc/%.cc,$(MYTMPDIR)/archive/%.o,$(wildcard pythia8tohepmc/*.cc))
-
-   $(LIBDIR)/libpythia8tohepmc.$(SHAREDSUFFIX) : $(objectsI)
-	@mkdir -p $(LIBDIR)
-	$(CXX) $(LDFLAGSSHARED) $(objectsI) -o $@ $(LDFLAGLIBNAME),$(notdir $@)
-
-   $(LIBDIRARCH)/libpythia8tohepmc.a : $(objectsIarch)
-	@mkdir -p $(LIBDIRARCH)
-	ar cru $(LIBDIRARCH)/libpythia8tohepmc.a $(objectsIarch)
-
-   depsI := $(patsubst pythia8tohepmc/%.cc,$(MYTMPDIR)/%.d,$(wildcard pythia8tohepmc/*.cc))
-   depsIarch := $(patsubst pythia8tohepmc/%.cc,$(MYTMPDIR)/archive/%.d,$(wildcard pythia8tohepmc/*.cc))
-
-   ifeq (,$(findstring clean, $(MAKECMDGOALS)))
-   -include $(depsI)
-   -include $(depsIarch)
-   endif
-
- else
-
-   $(LIBDIRARCH)/libpythia8tohepmc.a $(LIBDIR)/libpythia8tohepmc.$(SHAREDSUFFIX) :
-	@echo $(HEPMCERROR)
-
-
-
- endif
-
-endif
-
-
-# Install targets:
-
-ifneq (x$(INSTALLDIR),x.)
- install: all
-	mkdir -p $(INSTALLDIR)
-	mkdir -p $(INSTALLDIR)/bin
-	mkdir -p $(DATADIR)
-	make installit
- installit: installmain installdata
- installmain:
-	cp -r include $(INSTALLDIR)/.
-	cp -r lib $(INSTALLDIR)/.
-	cp -p config.mk $(INSTALLDIR)/.
-	cp -p bin/pythia8-config $(INSTALLDIR)/bin/
-
- ifneq ($(DATADIR),$(INSTALLDIR))
-  installdata:
-	rm -rf $(DATADIR)/xmldoc
-	rm -f $(INSTALLDIR)/xmldoc
-	cp -r *doc $(DATADIR)/.
-	ln -fs $(DATADIR)/xmldoc $(INSTALLDIR)/xmldoc
- else
-  installdata:
-	rm -rf $(INSTALLDIR)/xmldoc
-	cp -r xmldoc $(INSTALLDIR)/.
- endif
+# PYTHIA.
+$(LOCAL_TMP)/%.o: $(LOCAL_SRC)/%.cc
+ifeq ($(GZIP_USE),true)
+	$(CXX) $< -o $@ -c -MD -DGZIPSUPPORT -I$(BOOST_INCLUDE) $(CXX_COMMON)
 else
- install: all
-	@echo "everything is already installed"
+	$(CXX) $< -o $@ -c -MD $(CXX_COMMON)
 endif
+$(LOCAL_LIB)/libpythia8.a: $(OBJECTS)
+	ar cru $@ $^
+$(LOCAL_LIB)/libpythia8$(LIB_SUFFIX): $(OBJECTS)
+	$(CXX) $^ -o $@ $(CXX_COMMON) $(CXX_SHARED) $(CXX_SONAME),$(notdir $@)
 
+# LHAPDF (turn off all warnings for readability).
+$(LOCAL_TMP)/LHAPDF5.o: $(LOCAL_INCLUDE)/Pythia8Plugins/LHAPDF5.h
+	$(CXX) -x c++ $< -o $@ -c -MD -w -I$(LHAPDF5_INCLUDE) $(CXX_COMMON)
+$(LOCAL_TMP)/LHAPDF6.o: $(LOCAL_INCLUDE)/Pythia8Plugins/LHAPDF5.h
+	$(CXX) -x c++ $< -o $@ -c -MD -w -I$(LHAPDF6_INCLUDE)\
+	 -I$(BOOST_INCLUDE) $(CXX_COMMON)
+$(LOCAL_LIB)/libpythia8lhapdf5.so: $(LOCAL_TMP)/LHAPDF5.o\
+	$(LOCAL_LIB)/libpythia8.a
+	$(CXX) $^ -o $@ $(CXX_COMMON) $(CXX_SHARED) $(CXX_SONAME),$(notdir $@)\
+	 -L$(LHAPDF5_LIB) -Wl,-rpath $(LHAPDF5_LIB) -lLHAPDF -lgfortran
+$(LOCAL_LIB)/libpythia8lhapdf6.so: $(LOCAL_TMP)/LHAPDF6.o\
+	$(LOCAL_LIB)/libpythia8.a
+	$(CXX) $^ -o $@ $(CXX_COMMON) $(CXX_SHARED) $(CXX_SONAME),$(notdir $@)\
+	 -L$(LHAPDF6_LIB) -Wl,-rpath $(LHAPDF6_LIB) -lLHAPDF
 
-# Clean up: remove (almost?) everything that cannot be recreated.
+# Install (rsync is used for finer control).
+install: all
+	mkdir -p $(PREFIX_BIN) $(PREFIX_INCLUDE) $(PREFIX_LIB) $(PREFIX_SHARE)
+	rsync -a $(LOCAL_BIN)/* $(PREFIX_BIN) --exclude .svn
+	rsync -a $(LOCAL_INCLUDE)/* $(PREFIX_INCLUDE) --exclude .svn
+	rsync -a $(LOCAL_LIB)/* $(PREFIX_LIB) --exclude .svn
+	rsync -a $(LOCAL_SHARE)/* $(PREFIX_SHARE) --exclude .svn
 
+# Clean.
 clean:
-	rm -rf $(MYTMPDIR)
-	rm -rf $(LIBDIR)
-	rm -rf $(BINDIR)/*.exe
-	cd examples; rm -rf bin; rm -f *.exe; cd -
-	cd rootexamples; rm -f *.exe; cd -
+	rm -rf $(LOCAL_TMP) $(LOCAL_LIB)
+	rm -f $(LOCAL_SHARE)/examples/*Dct.*
+	rm -f $(LOCAL_SHARE)/examples/main[0-9][0-9]
+	rm -f $(LOCAL_SHARE)/examples/out[0-9][0-9]
+	rm -f $(LOCAL_SHARE)/examples/mymain[0-9][0-9]
+	rm -f $(LOCAL_SHARE)/examples/myout[0-9][0-9]
+	rm -f $(LOCAL_SHARE)/examples/weakbosons.lhe 
+	rm -f $(LOCAL_SHARE)/examples/hist.root
 
+# Clean all temporary and generated files.
 distclean: clean
-	rm -f config.mk
-	rm -f *~; rm -f \#*;
-	rm -rf $(BINDIR)
-	cd $(SRCDIR); rm -f *~; rm -f \#*; cd -
-	cd $(INCDIR)/Pythia8; rm -f *~; rm -f \#*; cd -
-	cd xmldoc; rm -f *~; rm -f \#*; cd -
-	cd htmldoc; rm -f *~; rm -f \#*; cd -
-	cd phpdoc; rm -f *~; rm -f \#*; cd -
-	cd pythia8tohepmc; rm -f *~; rm -f \#*; cd -
-	cd lhapdfdummy; rm -f *~; rm -f \#*; cd -
-	cd examples; rm -f *~; rm -f \#*; rm -f core*; rm -f config.*; cd -
-	cd rootexamples; rm -f *~; rm -f \#*; rm -f core*; rm -f config.*; cd -
-
+	find . -type f -name Makefile.inc -print0 | xargs -0 rm -f
+	find . -type f -name "*~" -print0 | xargs -0 rm -f
+	find . -type f -name "#*" -print0 | xargs -0 rm -f
+	rm -f $(LOCAL_SHARE)/AUTHORS
+	rm -f $(LOCAL_SHARE)/COPYING
+	rm -f $(LOCAL_SHARE)/GUIDELINES
+	rm -f $(LOCAL_SHARE)/README

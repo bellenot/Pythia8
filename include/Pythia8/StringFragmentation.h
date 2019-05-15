@@ -155,7 +155,7 @@ private:
   bool energyUsedUp(bool fromPos);
 
   // Produce the final two partons to complete the system.
-  bool finalTwo(bool fromPos);
+  bool finalTwo(bool fromPos, Event& event, bool usedPosJun, bool usedNegJun);
 
   // Construct a special joining region for the final two hadrons.
   StringRegion finalRegion();

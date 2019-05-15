@@ -102,6 +102,10 @@ bool PartonLevel::init( Info* infoPtrIn, Settings& settings,
   doFSRafterProcess  = FSR && FSRinProcess && !interleaveFSR;
   doFSRinResonances  = FSR && settings.flag("PartonLevel:FSRinResonances");
 
+  // Flags for colour reconnection.
+  doReconnect        = settings.flag("ColourReconnection:reconnect");
+  reconnectMode      = settings.mode("ColourReconnection:mode");
+
   // Some other flags.
   doRemnants         = settings.flag("PartonLevel:Remnants");
   doSecondHard       = settings.flag("SecondHard:generate");
@@ -172,9 +176,12 @@ bool PartonLevel::init( Info* infoPtrIn, Settings& settings,
   if (doCD || doSQ) doMPICD = multiCD.init( doMPIinit, 3, infoPtr, settings,
     particleDataPtr, rndmPtr, beamPomAPtr, beamPomBPtr, couplingsPtr,
     partonSystemsPtr, sigmaTotPtr, userHooksPtr);
-  remnants.init( infoPtr, settings, rndmPtr, beamAPtr, beamBPtr,
-    partonSystemsPtr);
+  if (!remnants.init( infoPtr, settings, rndmPtr, beamAPtr, beamBPtr,
+    partonSystemsPtr, particleDataPtr, &colourReconnection)) return false;
   resonanceDecays.init( infoPtr, particleDataPtr, rndmPtr);
+  colourReconnection.init( infoPtr, settings, rndmPtr, beamAPtr, beamBPtr, 
+    partonSystemsPtr);
+  junctionSplitting.init(infoPtr, settings, rndmPtr, particleDataPtr);
 
   // Succeeded, or not.
   multiPtr       = &multiMB;
@@ -184,6 +191,7 @@ bool PartonLevel::init( Info* infoPtrIn, Settings& settings,
   if (doMPIinit && (doCD || doSQ) && !doMPICD) return false;
   if (!doMPIMB || !doMPISDA || !doMPISDB || !doMPICD) doMPI = false;
   return true;
+
 }
 
 //--------------------------------------------------------------------------
@@ -707,9 +715,16 @@ bool PartonLevel::next( Event& process, Event& event) {
         oldSizeEvt, event)) return false;
     }
 
+    // Find the first particle in the current diffractive system.
+    int iFirst = 0;
+    if (isDiff) {
+      iFirst = (iHardLoop == 1) ? 5 + sizeEvent - sizeProcess : sizeEvent;
+      if (isDiffC)  iFirst = 6 + sizeEvent - sizeProcess;
+    }
+
     // Add beam remnants, including primordial kT kick and colour tracing.
-    if (!doTrial && physical && doRemnants && !remnants.add( event))
-      physical = false;
+    if (!doTrial && physical && doRemnants 
+      && !remnants.add( event, iFirst, isDiff)) physical = false;
 
     // If no problems then done.
     if (physical) break;
@@ -732,9 +747,28 @@ bool PartonLevel::next( Event& process, Event& event) {
   // End big outer loop to handle two systems in double diffraction.
   }
 
+  // Do colour reconnection for non-diffractive events before resonance decays.
+  if (doReconnect && !isDiff && reconnectMode != 0) {
+    Event eventSave = event;
+    bool colCorrect = false;
+    for (int i = 0; i < 10; ++i) {
+      colourReconnection.next(event, 0);
+      if (junctionSplitting.checkColours(event)) {
+	colCorrect = true;
+	break;
+      }
+      else event = eventSave;
+    }
+    if (!colCorrect) {
+      infoPtr->errorMsg("Error in PartonLevel::next: "
+	"Colour reconnection failed.");
+      return false;
+    }
+  }
+  
   // Perform showers in resonance decay chains after beams & reconnection.
+  int oldSizeEvt = event.size();
   if (!earlyResDec) {
-    int oldSizeEvt = event.size();
     if (nBranchMax <= 0 || nBranch < nBranchMax)
       doVeto = !resonanceShowers( process, event, true);
     // Abort event if vetoed.
@@ -755,6 +789,25 @@ bool PartonLevel::next( Event& process, Event& event) {
   if (isDiff) {
     multiPtr->setEmpty();
     infoPtr->setImpact( multiPtr->bMPI(), multiPtr->enhanceMPI(), false);
+  }
+
+  // Do colour reconnection for resonance decays.
+  if (doReconnect && !isDiff && reconnectMode != 0) {
+    Event eventSave = event;
+    bool colCorrect = false;
+    for (int i = 0; i < 10; ++i) {
+      colourReconnection.next(event, oldSizeEvt);
+      if (junctionSplitting.checkColours(event)) {
+	colCorrect = true;
+	break;
+      }
+      else event = eventSave;
+    }
+    if (!colCorrect) {
+      infoPtr->errorMsg("Error in PartonLevel::next: "
+	"Colour reconnection failed.");
+      return false;
+    }
   }
 
   // Done.
@@ -1255,6 +1308,7 @@ void PartonLevel::setupResolvedDiff( Event& process) {
   timesPtr->reassignBeamPtrs( beamAPtr, beamBPtr, beamOffset);
   spacePtr->reassignBeamPtrs( beamAPtr, beamBPtr, beamOffset);
   remnants.reassignBeamPtrs(  beamAPtr, beamBPtr, iDS);
+  colourReconnection.reassignBeamPtrs(  beamAPtr, beamBPtr);
 
   // Reassign multiparton interactions pointer to right object.
   if      (iDS == 1) multiPtr = &multiSDA;
@@ -1299,6 +1353,7 @@ void PartonLevel::leaveResolvedDiff( int iHardLoop, Event& process,
   timesPtr->reassignBeamPtrs( beamAPtr, beamBPtr, 0);
   spacePtr->reassignBeamPtrs( beamAPtr, beamBPtr, 0);
   remnants.reassignBeamPtrs(  beamAPtr, beamBPtr, 0);
+  colourReconnection.reassignBeamPtrs(  beamAPtr, beamBPtr);
 
   // Restore multiparton interactions pointer to default object.
   multiPtr = &multiMB;
@@ -1363,7 +1418,7 @@ bool PartonLevel::resonanceShowers( Event& process, Event& event,
     int iHardMother      = process[iBegin].mother1();
     Particle& hardMother = process[iHardMother];
     int iBefMother       = iPosBefShow[iHardMother];
-    int iAftMother       = event.iBotCopyId(iBefMother);
+    int iAftMother       = event[iBefMother].iBotCopyId();
     // Possibly trace across intermediate R-hadron state.
     if (allowRH) {
       int iTraceRHadron    = rHadronsPtr->trace( iAftMother);

@@ -1472,16 +1472,10 @@ double MultipartonInteractions::sigmaPT2scatter(bool isFirst) {
   double y4 = yMax * (2. * rndmPtr->flat() - 1.);
   y = 0.5 * (y3 + y4);
 
-  // Reject some events at large rapidities to improve efficiency.
-  // (Works for baryons, not pions or Pomerons if they have hard PDF's.)
-  double WTy = (hasBaryonBeams)
-             ? (1. - pow2(y3/yMax)) * (1. - pow2(y4/yMax)) : 1.;
-  if (WTy < rndmPtr->flat()) return 0.;
-
   // Failure if x1 or x2 exceed what is left in respective beam.
   x1 = 0.5 * xT * (exp(y3) + exp(y4));
   x2 = 0.5 * xT * (exp(-y3) + exp(-y4));
-  if (isFirst) {
+  if (isFirst && iDiffSys == 0) {
     if (x1 > 1. || x2 > 1.) return 0.;
   } else {
     if (x1 > beamAPtr->xMax() || x2 > beamBPtr->xMax()) return 0.;
@@ -1560,7 +1554,7 @@ double MultipartonInteractions::sigmaPT2scatter(bool isFirst) {
     * sigma2Tmp->sigma( id1, id2, x1, x2, sHat, tHat, uHat, alpS, alpEM);
 
   // Combine cross section, pdf's and phase space integral.
-  double volumePhSp = pow2(2. * yMax) / WTy;
+  double volumePhSp = pow2(2. * yMax);
   double dSigmaScat = dSigmaPartonCorr * xPDF1sum * xPDF2sum * volumePhSp;
 
   // Dampen cross section at small pT values; part of formalism.

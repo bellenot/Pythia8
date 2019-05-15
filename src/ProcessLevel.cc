@@ -647,6 +647,14 @@ bool ProcessLevel::nextOne( Event& process) {
       && !containerPtrs[iContainer]->decayResonances( process) )
       physical = false;
 
+    // Retry process for unphysical states.
+    for (int i =1; i < process.size(); ++i)
+      if (process[i].e() < 0.) {
+        infoPtr->errorMsg("Error in ProcessLevel::nextOne: "
+          "Constructed particle with negative energy.");
+        physical = false;
+      }
+
     // Add any junctions to the process event record list.
     if (physical) findJunctions( process);
 
@@ -908,9 +916,9 @@ void ProcessLevel::findJunctions( Event& junEvent) {
     // final state.
     if (abs(junEvent[i].status()) <= 21 || junEvent[i].colType() == 0)
       continue;
-    vector<int> motherList   = junEvent.motherList(i);
+    vector<int> motherList   = junEvent[i].motherList();
     int iMot1 = motherList[0];
-    vector<int> sisterList = junEvent.daughterList(iMot1);
+    vector<int> sisterList = junEvent[iMot1].daughterList();
     
     // Check baryon number of vertex.
     int barSum = 0;

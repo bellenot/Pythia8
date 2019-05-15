@@ -282,9 +282,12 @@ private:
   // Properties stored for (some) global recoil schemes.
   // Vectors of event indices defining the hard process.
   vector<int> hardPartons;
-  // Number of proposed splittings, number of partons in current hard event,
-  // number of partons in Born-type hard event (distinguish between S and H).
-  int nProposed, nHard, nFinalBorn, nMaxGlobalBranch;
+  // Number of partons in current hard event, number of partons in Born-type
+  // hard event (to distinguish between S and H), maximally allowed number of
+  // global recoil branchings.
+  int nHard, nFinalBorn, nMaxGlobalBranch;
+  // Number of proposed splittings in hard scattering systems.
+  map<int,int> nProposed;
   // Number of splittings with global recoil (currently only 1).
   int nGlobal, globalRecoilMode;
   // Switch to constrain recoiling system.

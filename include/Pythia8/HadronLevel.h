@@ -11,12 +11,14 @@
 
 #include "Pythia8/Basics.h"
 #include "Pythia8/BoseEinstein.h"
+#include "Pythia8/ColourTracing.h"
 #include "Pythia8/Event.h"
 #include "Pythia8/FragmentationFlavZpT.h"
 #include "Pythia8/FragmentationSystems.h"
 #include "Pythia8/HadronScatter.h"
 #include "Pythia8/HiddenValleyFragmentation.h"
 #include "Pythia8/Info.h"
+#include "Pythia8/JunctionSplitting.h"
 #include "Pythia8/MiniStringFragmentation.h"
 #include "Pythia8/ParticleData.h"
 #include "Pythia8/ParticleDecays.h"
@@ -58,10 +60,6 @@ public:
 
 private:
 
-  // Constants: could only be changed in the code itself.
-  static const int    NTRYJNREST;
-  static const double JJSTRINGM2MAX, JJSTRINGM2FRAC, CONVJNREST, MTHAD;
-
   // Initialization data, read from Settings.
   bool   doHadronize, doDecay, doBoseEinstein, allowRH;
   double mStringMin, eNormJunction, widthSepBE;
@@ -84,13 +82,9 @@ private:
   // Configuration of colour-singlet systems.
   ColConfig     colConfig;
 
-  // Colour information.
-  vector<int>    iColEnd, iAcolEnd, iColAndAcol, iParton, 
-                 iJunLegA, iJunLegB, iJunLegC,
+  // Colour and mass information.
+  vector<int>    iParton, iJunLegA, iJunLegB, iJunLegC,
                  iAntiLegA, iAntiLegB, iAntiLegC, iGluLeg;
-
-  vector< vector<int > > iPartonJun, iPartonAntiJun;
-
   vector<double> m2Pair;
 
   // The generator class for normal string fragmentation.
@@ -113,6 +107,12 @@ private:
   StringPT   pTSel;
   StringZ    zSel;
 
+  // Class for colour tracing.
+  ColourTracing colTrace;
+
+  // Junction splitting class.
+  JunctionSplitting junctionSplitting;
+
   // The RHadrons class is used to fragment off and decay R-hadrons.
   RHadrons*  rHadronsPtr;
 
@@ -125,15 +125,7 @@ private:
  
   // Trace colour flow in the event to form colour singlet subsystems.
   bool findSinglets(Event& event);
- 
-  // Trace a colour line, from a colour, from an anticolour, or in loop.
-  bool traceFromCol(int indxCol, Event& event, int iJun = -1, int iCol = -1);
-  bool traceFromAcol(int indxCol, Event& event, int iJun = -1, int iCol = -1);
-  bool traceInLoop(int indxCol, int indxAcol, Event& event);
 
-  // Split junction-antijunction system into two, or simplify other way.
-  bool splitJunctionPair(Event& event);
-  
 };
  
 //==========================================================================

@@ -147,9 +147,15 @@ void Sigma1ffbar2gmZZprime::initProc() {
   vfZp[11]    = settingsPtr->parm("Zprime:ve");
   vfZp[12]    = settingsPtr->parm("Zprime:vnue");
 
-  // Second and third generation could be carbon copy of this...
+  // Determine if the 4th generation should be included
+  bool coupZp2gen4    = settingsPtr->flag("Zprime:coup2gen4");
+
+  maxZpGen = (coupZp2gen4) ? 8 : 6;
+
+  // Second and third (and possibly 4th) generation could be carbon copy 
+  // of this...
   if (settingsPtr->flag("Zprime:universality")) {
-    for (int i = 3; i <= 6; ++i) {
+    for (int i = 3; i <= maxZpGen; ++i) {
       afZp[i]    = afZp[i-2];
       vfZp[i]    = vfZp[i-2];
       afZp[i+10] = afZp[i+8];
@@ -174,6 +180,16 @@ void Sigma1ffbar2gmZZprime::initProc() {
     vfZp[14]  = settingsPtr->parm("Zprime:vnumu");
     vfZp[15]  = settingsPtr->parm("Zprime:vtau");
     vfZp[16]  = settingsPtr->parm("Zprime:vnutau");
+    if( coupZp2gen4 ) {
+      afZp[7]   = settingsPtr->parm("Zprime:abPrime");
+      afZp[8]   = settingsPtr->parm("Zprime:atPrime");
+      vfZp[7]   = settingsPtr->parm("Zprime:vbPrime");
+      vfZp[8]   = settingsPtr->parm("Zprime:vtPrime");
+      afZp[17]  = settingsPtr->parm("Zprime:atauPrime");
+      afZp[18]  = settingsPtr->parm("Zprime:anutauPrime");
+      vfZp[17]  = settingsPtr->parm("Zprime:vtauPrime");
+      vfZp[18]  = settingsPtr->parm("Zprime:vnutauPrime");
+    }
   }
 
   // Coupling for Z' -> W+ W- and decay angular admixture.
@@ -211,8 +227,9 @@ void Sigma1ffbar2gmZZprime::sigmaKin() {
     if (onMode != 1 && onMode != 2) continue;
     idAbs = abs( particlePtr->channel(i).product(0) );
 
-    // Contributions from three fermion generations.
-    if ( (idAbs > 0 && idAbs < 7) || ( idAbs > 10 && idAbs < 17) ) {
+    // Contributions from three/four fermion generations.
+    if ( (idAbs >  0 && idAbs <= maxZpGen) 
+      || (idAbs > 10 && idAbs <= maxZpGen+10) ) {
       mf = particleDataPtr->m0(idAbs);
 
       // Check that above threshold.
@@ -239,7 +256,10 @@ void Sigma1ffbar2gmZZprime::sigmaKin() {
 
         // Colour factor. Additionally secondary width for top.
         colf      = (idAbs < 9) ? colQ : 1.;
-        if (idAbs == 6) colf *= particleDataPtr->resOpenFrac(6, -6);
+        if (idAbs > 5 && idAbs < 9) 
+          colf *= particleDataPtr->resOpenFrac(idAbs, -idAbs);
+        if (idAbs > 17 && idAbs < 19) 
+          colf *= particleDataPtr->resOpenFrac(idAbs, -idAbs);
 
         // Store sum of combinations.
         gamSum   += colf * ef2;
@@ -349,7 +369,7 @@ double Sigma1ffbar2gmZZprime::weightDecay( Event& process, int iResBeg,
 
   // Angular weight for outgoing fermion pair.
   if (iResBeg == 5 && iResEnd == 5 &&
-    (idOutAbs < 7 || ( idOutAbs > 10 && idOutAbs < 17)) ) {
+    (idOutAbs <= maxZpGen || ( idOutAbs > 10 && idOutAbs <= maxZpGen+10)) ) {
 
     // Couplings for in- and out-flavours.
     double ei  = couplingsPtr->ef(idInAbs);

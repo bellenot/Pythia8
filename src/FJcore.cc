@@ -292,7 +292,8 @@ template<class T> void SearchTree<T>::Node::reset_parents_link_to_me(typename Se
 }
 template<class T> class SearchTree<T>::circulator{
 public:
-  template<class U> friend class SearchTree<U>::const_circulator;
+  // Next line commented out, by author agreement, to avoid compiler warning.
+  //template<class U> friend class SearchTree<U>::const_circulator;
   friend class SearchTree<T>;
   circulator() : _node(NULL) {}
   circulator(Node * node) : _node(node) {}
@@ -825,7 +826,8 @@ FJCORE_END_NAMESPACE
 #include<iomanip>
 #include<algorithm>
 FJCORE_BEGIN_NAMESPACE      // defined in fastjet/internal/base.hh
-const unsigned int huge_unsigned = 4294967295U;
+// Next line commented out, by author agreement, to avoid compiler warning.
+//const unsigned int huge_unsigned = 4294967295U;
 const unsigned int twopow31      = 2147483648U;
 using namespace std;
 void ClosestPair2D::_point2shuffle(Point & point, Shuffle & shuffle,

@@ -109,10 +109,10 @@ void ParticleDecays::init(Info* infoPtrIn, Settings& settings,
   doGammaRad    = settings.flag("ParticleDecays:allowPhotonRadiation");
 
   // Use standard decays or dedicated tau decay package
-  sophisticatedTau = settings.mode("ParticleDecays:sophisticatedTau");
+  tauMode       = settings.mode("TauDecays:mode");
 
   // Initialize the dedicated tau decay handler.
-  if (sophisticatedTau) tauDecayer.init(infoPtr, &settings,
+  if (tauMode) tauDecayer.init(infoPtr, &settings,
     particleDataPtr, rndmPtr, couplingsPtr);
 
 }
@@ -178,7 +178,7 @@ bool ParticleDecays::decay( int iDec, Event& event) {
   }
     
   // Check if the particle is tau and let the special tau decayer handle it.
-  if (decayer.idAbs() == 15 && !doneExternally && sophisticatedTau) {
+  if (decayer.idAbs() == 15 && !doneExternally && tauMode) {
     doneExternally = tauDecayer.decay(iDec, event);
     if (doneExternally) return true;
   }

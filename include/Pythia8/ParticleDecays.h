@@ -94,7 +94,7 @@ private:
   // Initialization data, read from Settings.
   bool   limitTau0, limitTau, limitRadius, limitCylinder, limitDecay,
          mixB, doFSRinDecays, doGammaRad;
-  int    sophisticatedTau;
+  int    tauMode;
   double mSafety, tau0Max, tauMax, rMax, xyMax, zMax, xBdMix, xBsMix,
          sigmaSoft, multIncrease, multIncreaseWeak, multRefMass, multGoffset,
          colRearrange, stopMass, sRhoDal, wRhoDal;

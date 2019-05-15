@@ -193,11 +193,7 @@ public:
     : Particle(idIn, statusIn, mother1In, mother2In, daughter1In, daughter2In,
     colIn, acolIn, pxIn, pyIn, pzIn, eIn, mIn, scaleIn) {
     if (ptr) setPDEPtr( ptr->particleDataEntryPtr( idIn) );
-    rho = vector< vector<complex> >(spinStates(),
-      vector<complex>(spinStates(), 0));
-    D   = vector< vector<complex> >(spinStates(),
-      vector<complex>(spinStates(), 0));
-    for (int i = 0; i < spinStates(); i++) { rho[i][i] = 0.5; D[i][i] = 1.;}
+    initRhoD();
     direction = 1; }
   HelicityParticle(int idIn, int statusIn, int mother1In, int mother2In,
     int daughter1In, int daughter2In, int colIn, int acolIn, Vec4 pIn,
@@ -205,20 +201,13 @@ public:
     : Particle(idIn, statusIn, mother1In, mother2In, daughter1In, daughter2In,
     colIn, acolIn, pIn, mIn, scaleIn) {
     if (ptr) setPDEPtr( ptr->particleDataEntryPtr( idIn) );
-    rho = vector< vector<complex> >(spinStates(),
-      vector<complex>(spinStates(), 0));
-    D   = vector< vector<complex> >(spinStates(),
-      vector<complex>(spinStates(), 0));
-    for (int i = 0; i < spinStates(); i++) { rho[i][i] = 0.5; D[i][i] = 1;}
+    initRhoD();
     direction = 1; }
   HelicityParticle(const Particle& ptIn, ParticleData* ptr = 0)
     : Particle(ptIn) {
+    indexSave = ptIn.index();
     if (ptr) setPDEPtr( ptr->particleDataEntryPtr( id()) );
-    rho = vector< vector<complex> >(spinStates(),
-      vector<complex>(spinStates(), 0));
-    D   = vector< vector<complex> >(spinStates(),
-      vector<complex>(spinStates(), 0));
-    for (int i = 0; i < spinStates(); i++) { rho[i][i] = 0.5; D[i][i] = 1;}
+    initRhoD();
     direction = 1; }
  
   // Methods.
@@ -226,9 +215,14 @@ public:
   Wave4 waveBar(int h);
   void normalize(vector< vector<complex> >& m);
   int spinStates();
-  
-  // Event record position.
-  int idx;
+
+  // Return and set mass (redefine from Particle).
+  double m() {return mSave;}
+  void   m(double mIn) {mSave = mIn; initRhoD();}
+
+  // Event record position (redefine from Particle).
+  int  index() const {return indexSave;}
+  void index(int indexIn) {indexSave = indexIn;}
   
   // Flag for whether particle is incoming (-1) or outgoing (1).
   int direction;
@@ -241,8 +235,18 @@ public:
 
 private:
 
-  // Constants: could only be changed in the code itself.
-  static const double TOLERANCE;
+  // Initialize the helicity density and decay matrix.
+  void initRhoD() {
+    rho = vector< vector<complex> >(spinStates(),
+      vector<complex>(spinStates(), 0));
+    D   = vector< vector<complex> >(spinStates(),
+      vector<complex>(spinStates(), 0));
+    for (int i = 0; i < spinStates(); i++) { 
+      rho[i][i] = 1.0 / spinStates(); D[i][i] = 1;}
+  }
+
+  // Particle index in the event record.
+  int indexSave;
 
 };
 

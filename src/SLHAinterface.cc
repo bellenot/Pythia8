@@ -63,6 +63,8 @@ bool SLHAinterface::initSLHA(Settings& settings,
   string slhaFile    = settings.word("SLHA:file");
   int    verboseSLHA = settings.mode("SLHA:verbose");
   bool   slhaUseDec  = settings.flag("SLHA:useDecayTable");
+  bool   noSLHAFile  = ( slhaFile == "none" || slhaFile == "void"
+	              || slhaFile == ""     || slhaFile == " " );
 
   // Set internal data members
   meMode      = settings.mode("SLHA:meMode");
@@ -75,10 +77,18 @@ bool SLHAinterface::initSLHA(Settings& settings,
 
   // First check LHEF header (if reading from LHEF)
   if (readFrom == 1) {
+    // Check if there is a <slha> tag in the LHEF header
+    string slhaInHeader( infoPtr->header("slha") );
+    if (slhaInHeader == "" && noSLHAFile) return true;
+    // If there is an <slha> tag, read file.
     if (lhefHeader != "void")
       ifailLHE = slha.readFile(lhefHeader, verboseSLHA, slhaUseDec );
     else if (lhefFile != "void")
       ifailLHE = slha.readFile(lhefFile, verboseSLHA, slhaUseDec );
+    else if (noSLHAFile) {      
+      istringstream slhaInHeaderStream(slhaInHeader);
+      ifailLHE = slha.readFile(slhaInHeaderStream, verboseSLHA, slhaUseDec );
+    }    
   }
 
   // If LHEF read successful, everything needed should already be ready
@@ -88,10 +98,7 @@ bool SLHAinterface::initSLHA(Settings& settings,
     // If no LHEF file or no SLHA info in header, read from SLHA:file
   } else {
     lhefFile = "void";
-    if ( settings.word("SLHA:file") == "none"
-      || settings.word("SLHA:file") == "void"
-      || settings.word("SLHA:file") == ""
-      || settings.word("SLHA:file") == " ") return true;
+    if ( noSLHAFile ) return true;
     ifailSpc = slha.readFile(slhaFile,verboseSLHA, slhaUseDec);
   }
 

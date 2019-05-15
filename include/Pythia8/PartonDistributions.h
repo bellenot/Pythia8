@@ -48,23 +48,26 @@ public:
   virtual ~PDF() {}
 
   // Confirm that PDF has been set up (important for LHAPDF and H1 Pomeron).
-  bool isSetup() {return isSet;}
+  virtual bool isSetup() {return isSet;}
 
   // Dynamic choice of meson valence flavours for pi0, K0S, K0L, Pomeron.
-  void newValenceContent(int idVal1In, int idVal2In) {
+  virtual void newValenceContent(int idVal1In, int idVal2In) {
     idVal1 = idVal1In; idVal2 = idVal2In;}
 
   // Allow extrapolation beyond boundaries. This is optional.
   virtual void setExtrapolate(bool) {}
 
   // Read out parton density
-  double xf(int id, double x, double Q2);
+  virtual double xf(int id, double x, double Q2);
 
   // Read out valence and sea part of parton densities.
-  double xfVal(int id, double x, double Q2);
-  double xfSea(int id, double x, double Q2);
+  virtual double xfVal(int id, double x, double Q2);
+  virtual double xfSea(int id, double x, double Q2);
   
 protected:
+
+  // Allow the LHAPDF class to access these methods.
+  friend class LHAPDF;
 
   // Store relevant quantities.
   int    idBeam, idBeamAbs, idSav, idVal1, idVal2;
@@ -78,49 +81,6 @@ protected:
 
   // Update parton densities.
   virtual void xfUpdate(int id, double x, double Q2) = 0;
-
-};
- 
-//==========================================================================
-
-// Provide interface to the LHAPDF library of parton densities.
-
-class LHAPDF : public PDF {
-
-public:
-
-  // Constructor.
-  LHAPDF(int idBeamIn, string setName, int member,  int nSetIn = 1,
-    Info* infoPtr = 0) : PDF(idBeamIn), nSet(nSetIn)
-    {init( setName, member, infoPtr);}
-
-  // Allow extrapolation beyond boundaries. This is optional.
-  void setExtrapolate(bool extrapol);
- 
-  // Find out the nSet number corresponding to a name and member.
-  // Returns -1 if no such LHAPDF set has been initialized.
-  static int findNSet(string setName, int member);
-  
-  // Return the lowest non-occupied nSet number.
-  static int freeNSet();
-   
-private:
-
-  // Initialization of PDF set.
-  void init(string setName, int member, Info* infoPtr);
-
-  // Update all PDF values.
-  void xfUpdate(int , double x, double Q2);
-
-  // Current set and pdf values.
-  int    nSet;
-  double xfArray[13];
-  bool   hasPhoton;
-  double xPhoton;
-
-  // Keep track of what sets have been initialized in LHAPDFInterface.
-  // The key is the nSet index, the value is a pair (name, member number).
-  static map< int, pair<string, int> > initializedSets;
 
 };
  
@@ -548,6 +508,63 @@ private:
     double& y, double& dy);
   void polin2(double x1a[], double x2a[], double ya[][fN],
     double x1, double x2, double& y, double& dy);
+
+};
+ 
+//==========================================================================
+
+// LHAPDF plugin interface class.
+
+class LHAPDF : public PDF {
+
+public:
+
+  // Constructor and destructor.
+  LHAPDF(int idIn, string pSet, Info* infoPtrIn);
+  ~LHAPDF();
+ 
+  // Confirm that PDF has been set up.
+  bool isSetup() {if (pdfPtr) return pdfPtr->isSetup(); return false;}
+
+  // Dynamic choice of meson valence flavours for pi0, K0S, K0L, Pomeron.
+  void newValenceContent(int idVal1In, int idVal2In) {
+    if (pdfPtr) pdfPtr->newValenceContent(idVal1In, idVal2In);}
+
+  // Allow extrapolation beyond boundaries.
+  void setExtrapolate(bool extrapolate) {
+    if (pdfPtr) pdfPtr->setExtrapolate(extrapolate);}
+
+  // Read out parton density
+  double xf(int id, double x, double Q2) {
+    if (pdfPtr) return pdfPtr->xf(id, x, Q2); else return 0;}
+
+  // Read out valence and sea part of parton densities.
+  double xfVal(int id, double x, double Q2) {
+    if (pdfPtr) return pdfPtr->xfVal(id, x, Q2); else return 0;}
+  double xfSea(int id, double x, double Q2) {
+    if (pdfPtr) return pdfPtr->xfSea(id, x, Q2); else return 0;}
+
+private:
+
+  // Resolve valence content for assumed meson.
+  void setValenceContent() {if (pdfPtr) pdfPtr->setValenceContent();}
+
+  // Update parton densities.
+  void xfUpdate(int id, double x, double Q2) {
+    if (pdfPtr) pdfPtr->xfUpdate(id, x, Q2);}
+
+  // Typedefs of the hooks used to access the plugin.
+  typedef PDF* NewLHAPDF(int, string, int, Info*);
+  typedef void DeleteLHAPDF(PDF*);
+  typedef void (*Symbol)();
+
+  // Acccess a plugin library symbol.
+  Symbol symbol(string symName);
+  
+  // The loaded LHAPDF object, info pointer, and plugin library name.
+  PDF   *pdfPtr;
+  Info  *infoPtr;
+  string libName;
 
 };
  

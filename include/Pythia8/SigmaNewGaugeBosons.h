@@ -86,7 +86,7 @@ public:
 private:
 
   // Parameters set at initialization or for each new event.
-  int    gmZmode;
+  int    gmZmode, maxZpGen;
   double mRes, GammaRes, m2Res, GamMRat, sin2tW, cos2tW, thetaWRat,
          mZ, GammaZ, m2Z, GamMRatZ, afZp[20], vfZp[20], coupZpWW,
          anglesZpWW, gamSum, gamZSum, ZSum, gamZpSum, ZZpSum, ZpSum,

@@ -78,7 +78,7 @@ void AlphaStrong::init( double valueIn, int orderIn, int nfmaxIn,
     double b23 = 938709. / 663552.;
 
     double logScale, loglogScale, correction, valueIter;
-    // Find Lambda_5 at m_Z.
+    // Find Lambda_5 at m_Z, starting from one-loop value
     Lambda5Save = MZ * exp( -6. * M_PI / (23. * valueRef) );
     for (int iter = 0; iter < NITER; ++iter) {
       logScale    = 2. * log(MZ/Lambda5Save);
@@ -89,23 +89,23 @@ void AlphaStrong::init( double valueIn, int orderIn, int nfmaxIn,
       Lambda5Save = MZ * exp( -6. * M_PI / (23. * valueIter) );
     }
 
-    // Find Lambda_6 at m_t.
+    // Find Lambda_6 at m_t, by requiring alphaS(nF=6,m_t) = alphaS(nF=5,m_t)
     double logScaleT    = 2. * log(MT/Lambda5Save);
     double loglogScaleT = log(logScaleT);
-    double valueT       = 12. * M_PI / (21. * logScaleT)
-      * (1. - b16 * loglogScaleT / logScaleT
-        + pow2(b16 / logScaleT) * (pow2(loglogScaleT - 0.5) + b26 - 1.25) );
+    double valueT       = 12. * M_PI / (23. * logScaleT)
+      * (1. - b15 * loglogScaleT / logScaleT
+        + pow2(b15 / logScaleT) * (pow2(loglogScaleT - 0.5) + b25 - 1.25) );
     Lambda6Save         = Lambda5Save;
     for (int iter = 0; iter < NITER; ++iter) {
       logScale    = 2. * log(MT/Lambda6Save);
       loglogScale = log(logScale);
-      correction  = 1. - b15 * loglogScale / logScale
-        + pow2(b15 / logScale) * (pow2(loglogScale - 0.5) + b25 - 1.25);
+      correction  = 1. - b16 * loglogScale / logScale
+        + pow2(b16 / logScale) * (pow2(loglogScale - 0.5) + b26 - 1.25);
       valueIter   = valueT / correction;
       Lambda6Save = MT * exp( -6. * M_PI / (21. * valueIter) );
     }
 
-    // Find Lambda_4 at m_b.
+    // Find Lambda_4 at m_b, by requiring alphaS(nF=4,m_b) = alphaS(nF=5,m_b)
     double logScaleB    = 2. * log(MB/Lambda5Save);
     double loglogScaleB = log(logScaleB);
     double valueB       = 12. * M_PI / (23. * logScaleB)
@@ -120,7 +120,7 @@ void AlphaStrong::init( double valueIn, int orderIn, int nfmaxIn,
       valueIter   = valueB / correction;
       Lambda4Save = MB * exp( -6. * M_PI / (25. * valueIter) );
     }
-    // Find Lambda_3 at m_c.
+    // Find Lambda_3 at m_c, by requiring alphaS(nF=3,m_c) = alphaS(nF=4,m_c)
     double logScaleC    = 2. * log(MC/Lambda4Save);
     double loglogScaleC = log(logScaleC);
     double valueC       = 12. * M_PI / (25. * logScaleC)

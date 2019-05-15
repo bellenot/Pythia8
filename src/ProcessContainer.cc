@@ -62,6 +62,8 @@ bool ProcessContainer::init(bool isFirst, Info* infoPtrIn,
   lhaStratAbs = abs(lhaStrat);
   allowNegSig = sigmaProcessPtr->allowNegativeSigma();
 
+  useStrictLHEFscales = settings.flag("Beams:strictLHEFscale");
+
   // Flag for maximum violation handling.
   increaseMaximum = settings.flag("PhaseSpace:increaseMaximum");
 
@@ -517,7 +519,7 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
 
       // For resonance decay products use resonance mass as scale.
       double scaleNow = scalePr;
-      if (mother1 > 4) scaleNow = process[mother1].m();
+      if (mother1 > 4 && !useStrictLHEFscales) scaleNow = process[mother1].m();
       if (scaleShow >= 0.0) scaleNow = scaleShow;
 
       // Store Les Houches Accord partons.

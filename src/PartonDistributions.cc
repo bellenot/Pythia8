@@ -8,7 +8,6 @@
 // PomH1Jets, Lepton and NNPDF classes.
 
 #include "Pythia8/PartonDistributions.h"
-#include "Pythia8/LHAPDFInterface.h"
 
 namespace Pythia8 {
  
@@ -198,147 +197,7 @@ double PDF::xfSea(int id, double x, double Q2) {
   }
    
 }
- 
-//==========================================================================
-
-// Interface to the LHAPDF library.
-
-//--------------------------------------------------------------------------
- 
-// Define static member of the LHAPDF class.
   
-map< int, pair<string, int> > LHAPDF::initializedSets;
-
-//--------------------------------------------------------------------------
-
-// Static method to find the nSet number corresponding to a name and member.
-// Returns -1 if no such LHAPDF set has been initialized.
- 
-int LHAPDF::findNSet(string setName, int member) {
-  for (map<int, pair<string, int> >::const_iterator
-       i = initializedSets.begin(); i != initializedSets.end(); ++i) {
-    int    iSet    = i->first;
-    string iName   = i->second.first;
-    int    iMember = i->second.second;
-    if (iName == setName && iMember == member) return iSet;
-  }
-  return -1;
-}
-
-//--------------------------------------------------------------------------
- 
-// Static method to return the lowest non-occupied nSet number.
-
-int LHAPDF::freeNSet() {
-  for (int iSet = 1; iSet <= int(initializedSets.size()); ++iSet) {
-    if (initializedSets.find(iSet) == initializedSets.end()) return iSet;
-  }
-  return initializedSets.size() + 1;
-}
-
-//--------------------------------------------------------------------------
-
-// Initialize a parton density function from LHAPDF.
-
-void LHAPDF::init(string setName, int member, Info* infoPtr) {
-  
-  // Determine whether the pdf set contains the photon or not.
-  // So far only MRST2004QED and  NNPDF2.3QED.
-  if ( setName == "MRST2004qed.LHgrid"
-    || setName == "NNPDF23_lo_as_0130_qed.LHgrid"
-    || setName == "NNPDF23_lo_as_0130_qed_mem0.LHgrid"
-    || setName == "NNPDF23_lo_as_0119_qed_mem0.LHgrid"
-    || setName == "NNPDF23_lo_as_0130_qed_mem0.LHgrid"
-    || setName == "NNPDF23_nlo_as_0119_qed_mc.LHgrid"
-    || setName == "NNPDF23_nlo_as_0119_qed_mc_mem0.LHgrid"
-    || setName == "NNPDF23_nnlo_as_0119_qed_mc.LHgrid"
-    || setName == "NNPDF23_nnlo_as_0119_qed_mc_mem0.LHgrid" ) hasPhoton = true;
-  else hasPhoton = false;
-  
-  // If already initialized then need not do anything further.
-  pair<string, int> initializedNameMember = initializedSets[nSet];
-  string initializedSetName   = initializedNameMember.first;
-  int    initializedMember    = initializedNameMember.second;
-  if (setName == initializedSetName && member == initializedMember) return;
-
-  // Initialize set. If first character is '/' then assume that name
-  // is given with path, else not.
-  if (setName[0] == '/') LHAPDFInterface::initPDFsetM( nSet, setName);
-  else LHAPDFInterface::initPDFsetByNameM( nSet, setName);
-
-  // Check that not dummy library was linked and put nSet negative.
-  isSet = (nSet >= 0);
-  if (!isSet) {
-    if (infoPtr != 0) infoPtr->errorMsg("Error from LHAPDF::init: "
-      "you try to use LHAPDF but did not link it");
-    else cout << " Error from LHAPDF::init: you try to use LHAPDF "
-      << "but did not link it" << endl;
-  }
-
-  // Initialize member.
-  LHAPDFInterface::initPDFM(nSet, member);
-
-  // Do not collect statistics on under/overflow to save time and space.
-  LHAPDFInterface::setPDFparm( "NOSTAT" );
-  LHAPDFInterface::setPDFparm( "LOWKEY" );
-  
-  // Save values to avoid unnecessary reinitializations.
-  if (nSet > 0) initializedSets[nSet] = make_pair(setName, member);
-
-}
-
-//--------------------------------------------------------------------------
-
-// Allow optional extrapolation beyond boundaries.
-
-void LHAPDF::setExtrapolate(bool extrapol) {
-
-   LHAPDFInterface::setPDFparm( (extrapol) ? "EXTRAPOLATE" : "18" );
-
-}
-
-//--------------------------------------------------------------------------
-
-// Give the parton distribution function set from LHAPDF.
-
-void LHAPDF::xfUpdate(int , double x, double Q2) {
-
-  // Let LHAPDF do the evaluation of parton densities.
-  double Q = sqrt( max( 0., Q2));
-
-  // Use special call if photon included in proton.
-  if (hasPhoton) {
-    LHAPDFInterface::evolvePDFPHOTONM( nSet, x, Q, xfArray, xPhoton);
-  }
-  // Else use default LHAPDF call.
-  else {
-    LHAPDFInterface::evolvePDFM( nSet, x, Q, xfArray);
-    xPhoton=0.0;
-  }
-
-  // Update values.
-  xg     = xfArray[6];
-  xu     = xfArray[8];
-  xd     = xfArray[7];
-  xs     = xfArray[9];
-  xubar  = xfArray[4];
-  xdbar  = xfArray[5];
-  xsbar  = xfArray[3];
-  xc     = xfArray[10];
-  xb     = xfArray[11];
-  xgamma = xPhoton;
-
-  // Subdivision of valence and sea.
-  xuVal  = xu - xubar;
-  xuSea  = xubar;
-  xdVal  = xd - xdbar;
-  xdSea  = xdbar;
-
-  // idSav = 9 to indicate that all flavours reset.
-  idSav = 9;
-
-}
- 
 //==========================================================================
 
 // Gives the GRV 94 L (leading order) parton distribution function set
@@ -2482,6 +2341,112 @@ void NNPDF::polin2(double x1al[], double x2al[], double yal[][fN],
   }
   polint(x1al,ymtmp,fM,x1,y,dy);
   
+}
+
+//==========================================================================
+
+// LHAPDF plugin interface.
+
+//--------------------------------------------------------------------------
+
+// Constructor.
+
+LHAPDF::LHAPDF(int idIn, string pSet, Info* infoPtrIn) : 
+  pdfPtr(0), infoPtr(infoPtrIn) {
+  isSet = false;
+  if (!infoPtr) return;
+
+  // Determine the plugin library name.
+  if (pSet.size() < 8) {
+    infoPtr->errorMsg("Error from LHAPDF::LHAPDF: invalid pSet " + pSet);
+    return;
+  }
+  libName = pSet.substr(0, 7);
+  if (libName != "LHAPDF5" && libName != "LHAPDF6") {
+    infoPtr->errorMsg("Error from LHAPDF::LHAPDF: invalid pSet " + pSet);
+    return;
+  }
+  libName = "libpythia8lhapdf" + libName.substr(6) + ".so";
+
+  // Determine the PDF set and member.
+  string   set = pSet.substr(8);
+  int      mem = 0;
+  size_t   pos = set.find_last_of("/");
+  if (pos != string::npos) {
+    istringstream memStream(set.substr(pos + 1));
+    memStream >> mem;
+  }
+  set = set.substr(0, pos);
+
+  // Load the PDF.
+  NewLHAPDF* newLHAPDF = (NewLHAPDF*)symbol("newLHAPDF");
+  if (!newLHAPDF) return;
+  pdfPtr = newLHAPDF(idIn, set, mem, infoPtr);
+  isSet = true;
+  
+}
+
+//--------------------------------------------------------------------------
+
+// Destructor.
+
+LHAPDF::~LHAPDF() {
+  if (!infoPtr) return;
+  if (!isSet)   return;
+
+  // Delete the PDF.
+  DeleteLHAPDF* deleteLHAPDF = (DeleteLHAPDF*)symbol("deleteLHAPDF");
+  if (deleteLHAPDF) deleteLHAPDF(pdfPtr);
+  
+  // Close the plugin library if not needed by other instances.
+  map<string, pair<void*, int> >::iterator plugin = 
+    infoPtr->plugins.find(libName);
+  if (plugin == infoPtr->plugins.end()) return;
+  --plugin->second.second;
+  if (plugin->second.first && plugin->second.second == 0) {
+    dlclose(plugin->second.first); 
+    dlerror();
+    infoPtr->plugins.erase(plugin);
+  }
+  
+}
+
+//--------------------------------------------------------------------------
+
+// Access a plugin library symbol.
+
+LHAPDF::Symbol LHAPDF::symbol(string symName) {
+  void  *lib(0);
+  Symbol sym(0);
+  const char* error(0);
+  if (!infoPtr) return sym;
+
+  // Load the library if not loaded.
+  map<string, pair<void*, int> >::iterator plugin = 
+    infoPtr->plugins.find(libName);
+  if (plugin == infoPtr->plugins.end()) {
+    lib   = dlopen(libName.c_str(), RTLD_LAZY);
+    error = dlerror();
+  }
+  if (error) {
+    infoPtr->errorMsg("Error from LHAPDF::symbol: " + string(error));
+    return sym;
+  }
+  if (plugin == infoPtr->plugins.end()) 
+    infoPtr->plugins[libName] = pair<void*, int>(lib, 1);
+  else {
+    lib = plugin->second.first;
+    ++plugin->second.second;
+  }
+  dlerror();
+
+  // Load the symbol.
+  sym = (Symbol)dlsym(lib, symName.c_str());
+  error = dlerror();
+  if (error) infoPtr->errorMsg("Error from LHAPDF::symbol: " + string(error));
+  dlerror();
+  return sym;
+
 }
 
 //==========================================================================

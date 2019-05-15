@@ -190,11 +190,26 @@ bool MiniStringFragmentation::ministring2two( int nTry, Event& event) {
   Vec4 pHad1 = region.pHad( xe1 + xpz1, xe1 - xpz1,  px,  py);
   Vec4 pHad2 = region.pHad( xe2 - xpz1, xe2 + xpz1, -px, -py);
 
+  // Mark hadrons from junction fragmentation with different status.
+  int statusHadPos = 82, statusHadNeg = 82;
+  if (abs(idHad1) > 1000 && abs(idHad1) < 10000 &&
+      abs(idHad2) > 1000 && abs(idHad2) < 10000) {
+    if (event[ iParton.front() ].statusAbs() == 74) statusHadPos = 89;
+    if (event[ iParton.back() ].statusAbs() == 74)  statusHadNeg = 89;
+  }
+  else if (abs(idHad1) > 1000 && abs(idHad1) < 10000) {
+    if (event[ iParton.front() ].statusAbs() == 74 ||
+	event[ iParton.back() ].statusAbs() == 74) statusHadPos = 89;
+  }
+  else if (abs(idHad2) > 1000 && abs(idHad2) < 10000) {
+    if (event[ iParton.front() ].statusAbs() == 74 ||
+	event[ iParton.back() ].statusAbs() == 74) statusHadNeg = 89;
+  }
   // Add produced particles to the event record.
-  int iFirst = event.append( idHad1, 82, iParton.front(), iParton.back(),
-    0, 0, 0, 0, pHad1, mHad1);
-  int iLast = event.append( idHad2, 82, iParton.front(), iParton.back(),
-    0, 0, 0, 0, pHad2, mHad2);
+  int iFirst = event.append( idHad1, statusHadPos, iParton.front(), 
+    iParton.back(), 0, 0, 0, 0, pHad1, mHad1);
+  int iLast = event.append( idHad2, statusHadNeg, iParton.front(), 
+    iParton.back(), 0, 0, 0, 0, pHad2, mHad2);
 
   // Set decay vertex when this is displaced.
   if (event[iParton.front()].hasVertex()) {
@@ -279,8 +294,14 @@ bool MiniStringFragmentation::ministring2one( int iSub,
   Vec4 pHad      = (1. + k1) * pSum - k2 * pRec;
   Vec4 pRecNew   = (1. + k2) * pRec - k1 * pSum;
   
+  // Mark hadrons from junction split off with status 89.
+  int statusHad = 81;
+  if (abs(idHad) > 1000 && abs(idHad) < 10000 &&
+      (event[ iParton.front() ].statusAbs() == 74 ||
+       event[ iParton.back() ].statusAbs() == 74)) statusHad = 89;
+  
   // Add the produced particle to the event record.
-  int iHad = event.append( idHad, 81, iParton.front(), iParton.back(),
+  int iHad = event.append( idHad, statusHad, iParton.front(), iParton.back(),
     0, 0, 0, 0, pHad, mHad);
 
   // Set decay vertex when this is displaced.
@@ -305,7 +326,10 @@ bool MiniStringFragmentation::ministring2one( int iSub,
     int iOld = colConfig[iMax].iParton[i];
     // Do not touch negative iOld = beginning of new junction leg.
     if (iOld >= 0) {
-      int iNew = event.copy(iOld, 72);
+      int iNew;
+      // Keep track of 74 throughout the event.
+      if (event[iOld].status() == 74) iNew = event.copy(iOld, 74);
+      else iNew = event.copy(iOld, 72);
       event[iNew].rotbst(M);
       colConfig[iMax].iParton[i] = iNew;
     }

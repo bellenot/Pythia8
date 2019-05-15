@@ -47,7 +47,7 @@ public:
     sigmaTotPtr = sigmaTotPtrIn;
     workEvent.init("(work event)", particleDataPtr);}
 
-  // Initialisation after beams have been set by Pythia::init()
+  // Initialisation after beams have been set by Pythia::init().
   virtual bool initAfterBeams() { return true; }
 
   // Possibility to modify cross section of process.

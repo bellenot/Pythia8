@@ -22,7 +22,7 @@ namespace Pythia8 {
 //--------------------------------------------------------------------------
 
 // The current Pythia (sub)version number, to agree with XML version.
-const double Pythia::VERSIONNUMBERCODE = 8.186;
+const double Pythia::VERSIONNUMBERCODE = 8.200;
 
 //--------------------------------------------------------------------------
 
@@ -143,11 +143,11 @@ Pythia::Pythia(string xmlDir, bool printBanner) {
 Pythia::~Pythia() {
 
   // Delete the PDF's created with new.
-  if (useNewPdfHard && pdfHardAPtr != pdfAPtr) delete pdfHardAPtr;
-  if (useNewPdfHard && pdfHardBPtr != pdfBPtr) delete pdfHardBPtr;
-  if (useNewPdfA) delete pdfAPtr;
-  if (useNewPdfB) delete pdfBPtr;
-  if (useNewPdfPomA) delete pdfPomAPtr;
+  if (useNewPdfHard && pdfHardAPtr != pdfAPtr) delete pdfHardAPtr; 
+  if (useNewPdfHard && pdfHardBPtr != pdfBPtr) delete pdfHardBPtr; 
+  if (useNewPdfA) delete pdfAPtr; 
+  if (useNewPdfB) delete pdfBPtr; 
+  if (useNewPdfPomA) delete pdfPomAPtr; 
   if (useNewPdfPomB) delete pdfPomBPtr;
 
   // Delete the Les Houches object created with new.
@@ -367,6 +367,7 @@ bool Pythia::init() {
     string lhef        = word("Beams:LHEF");
     string lhefHeader  = word("Beams:LHEFheader");
     bool   readHeaders = flag("Beams:readLHEFheaders");
+    bool   setScales   = flag("Beams:setProductionScalesFromLHEF");
     bool   skipInit    = flag("Beams:newLHEFsameInit");
     int    nSkipAtInit = mode("Beams:nSkipLHEFatInit");
 
@@ -377,9 +378,10 @@ bool Pythia::init() {
       else {
         if (useNewLHA) delete lhaUpPtr;
         // Header is optional, so use NULL pointer to indicate no value.
-        const char* cstring2 = (lhefHeader == "void") ?
-                               NULL : lhefHeader.c_str();
-        lhaUpPtr   = new LHAupLHEF(cstring1, cstring2, readHeaders);
+        const char* cstring2 = (lhefHeader == "void") 
+          ? NULL : lhefHeader.c_str();
+        lhaUpPtr   = new LHAupLHEF(&info, cstring1, cstring2,
+          readHeaders, setScales);
         useNewLHA  = true;
       }
 
@@ -533,6 +535,8 @@ bool Pythia::init() {
   nErrList         = settings.mode("Check:nErrList");
   epTolErr         = settings.parm("Check:epTolErr");
   epTolWarn        = settings.parm("Check:epTolWarn");
+  mTolErr         = settings.parm("Check:mTolErr");
+  mTolWarn        = settings.parm("Check:mTolWarn");
 
   // Initialise merging hooks.
   if ( doMerging && (hasMergingHooks || hasOwnMergingHooks) )
@@ -729,97 +733,6 @@ bool Pythia::init() {
 
 //--------------------------------------------------------------------------
 
-// Routine to initialize with CM energy.
-
-bool Pythia::init( int idAin, int idBin, double eCMin) {
-
-  // Set arguments in Settings database.
-  settings.mode("Beams:idA",  idAin);
-  settings.mode("Beams:idB",  idBin);
-  settings.mode("Beams:frameType",  1);
-  settings.parm("Beams:eCM", eCMin);
-  
-  // Send on to common initialization.
-  return init();
-
-}
-
-//--------------------------------------------------------------------------
-
-// Routine to initialize with two collinear beams,  energies specified.
-
-bool Pythia::init( int idAin, int idBin, double eAin, double eBin) {
-
-  // Set arguments in Settings database.
-  settings.mode("Beams:idA",  idAin);
-  settings.mode("Beams:idB",  idBin);
-  settings.mode("Beams:frameType",  2);
-  settings.parm("Beams:eA",      eAin);
-  settings.parm("Beams:eB",      eBin);
-  
-  // Send on to common initialization.
-  return init();
-
-}
-
-//--------------------------------------------------------------------------
-
-// Routine to initialize with two beams specified by three-momenta.
-
-bool Pythia::init( int idAin, int idBin, double pxAin, double pyAin,
-  double pzAin, double pxBin, double pyBin, double pzBin) {
-
-  // Set arguments in Settings database.
-  settings.mode("Beams:idA",  idAin);
-  settings.mode("Beams:idB",  idBin);
-  settings.mode("Beams:frameType",  3);
-  settings.parm("Beams:pxA",    pxAin);
-  settings.parm("Beams:pyA",    pyAin);
-  settings.parm("Beams:pzA",    pzAin);
-  settings.parm("Beams:pxB",    pxBin);
-  settings.parm("Beams:pyB",    pyBin);
-  settings.parm("Beams:pzB",    pzBin);
-  
-  // Send on to common initialization.
-  return init();
-
-}
-
-//--------------------------------------------------------------------------
-
-// Routine to initialize when all info is given in a Les Houches Event File.
-
-bool Pythia::init( string LesHouchesEventFile, bool skipInit) {
-
-  // Set arguments in Settings database.
-  settings.mode("Beams:frameType",              4);
-  settings.word("Beams:LHEF", LesHouchesEventFile);
-  settings.flag("Beams:newLHEFsameInit", skipInit);
-  
-  // Send on to common initialization.
-  return init();
-
-}
-
-//--------------------------------------------------------------------------
-
-// Routine to initialize when beam info is given in an LHAup object.
-
-bool Pythia::init( LHAup* lhaUpPtrIn) {
-
-  // Store LHAup object and set arguments in Settings database.
-  setLHAupPtr( lhaUpPtrIn);
-  settings.mode("Beams:frameType", 5);
-  string lhaFileName = lhaUpPtr->getFileName();
-  if (lhaFileName != "void") settings.word("Beams:LHEF", lhaFileName);
-  
-  // Send on to common initialization.
-  return init();
-
-}
-
-//--------------------------------------------------------------------------
-
 // Check that combinations of settings are allowed; change if not.
 
 void Pythia::checkSettings() {
@@ -1005,7 +918,7 @@ bool Pythia::initPDFs() {
     useNewPdfA  = true;
   }
   if (pdfBPtr == 0) {
-    pdfBPtr     = getPDFPtr(idB);
+    pdfBPtr     = getPDFPtr(idB, 1, "B");
     if (pdfBPtr == 0 || !pdfBPtr->isSetup()) {
       info.errorMsg("Error in Pythia::init: "
         "could not set up PDF for beam B");
@@ -1019,7 +932,7 @@ bool Pythia::initPDFs() {
   if (settings.flag("PDF:useHard") && useNewPdfA && useNewPdfB) {
     pdfHardAPtr = getPDFPtr(idA, 2);
     if (!pdfHardAPtr->isSetup()) return false;
-    pdfHardBPtr = getPDFPtr(idB, 2);
+    pdfHardBPtr = getPDFPtr(idB, 2, "B");
     if (!pdfHardBPtr->isSetup()) return false;
     useNewPdfHard = true;
   }
@@ -1515,27 +1428,6 @@ void Pythia::stat() {
 
 //--------------------------------------------------------------------------
 
-// Print statistics on event generation - deprecated version.
-
-void Pythia::statistics(bool all, bool reset) {
-
-  // Statistics on cross section and number of events.
-  if (doProcessLevel) processLevel.statistics(reset);
-
-  // Statistics from other classes, e.g. multiparton interactions.
-  if (all) partonLevel.statistics(reset);
-
-  // Merging statistics.
-  if (doMerging) merging.statistics();
-
-  // Summary of which and how many warnings/errors encountered.
-  info.errorStatistics();
-  if (reset) info.errorReset();
-
-}
-
-//--------------------------------------------------------------------------
-
 // Write the Pythia banner, with symbol and version information.
 
 void Pythia::banner(ostream& os) {
@@ -1583,8 +1475,8 @@ void Pythia::banner(ostream& os) {
      << "tronomy and Theoretical Physics,      |  | \n"
      << " |  |      Lund University, Solvegatan 14A, S"
      << "E-223 62 Lund, Sweden;                |  | \n"
-     << " |  |      phone: + 46 - 46 - 222 48 16; e-ma"
-     << "il: torbjorn@thep.lu.se               |  | \n"
+     << " |  |      e-mail: torbjorn@thep.lu.se       "
+     << "                                      |  | \n"
      << " |  |   Jesper Roy Christiansen;  Department "
      << "of Astronomy and Theoretical Physics, |  | \n"
      << " |  |      Lund University, Solvegatan 14A, S"
@@ -1595,8 +1487,8 @@ void Pythia::banner(ostream& os) {
      << "ische Physik,                         |  | \n"
      << " |  |     Universitaet Heidelberg, Philosophe"
      << "nweg 16, D-69120 Heidelberg, Germany; |  | \n"
-     << " |  |      phone: +49 - 6221 54 9424; e-mail:"
-     << " Nishita.Desai@cern.ch                |  | \n"
+     << " |  |      e-mail: Nishita.Desai@cern.ch     "
+     << "                                      |  | \n"
      << " |  |   Philip Ilten;  Massachusetts Institut"
      << "e of Technology,                      |  | \n"
      << " |  |      stationed at CERN, CH-1211 Geneva "
@@ -1607,30 +1499,32 @@ void Pythia::banner(ostream& os) {
      << "Simulations Group,                    |  | \n"
      << " |  |      Fermi National Accelerator Laborat"
      << "ory, MS 234, Batavia, IL 60510, USA;  |  | \n"
-     << " |  |      phone: + 1 - 630 - 840 - 2556; e-m"
-     << "ail: mrenna@fnal.gov                  |  | \n"
-     << " |  |   Stefan Prestel;  Theory Group, DESY, "
+     << " |  |      e-mail: mrenna@fnal.gov           "
      << "                                      |  | \n"
-     << " |  |      Notkestrasse 85, D-22607 Hamburg, "
-     << "Germany;                              |  | \n"
-     << " |  |      phone: + 49 - 40 - 8998-4250; e-ma"
-     << "il: stefan.prestel@thep.lu.se         |  | \n"
-     << " |  |   Peter Skands;  Theoretical Physics, C"
-     << "ERN, CH-1211 Geneva 23, Switzerland;  |  | \n"
-     << " |  |      phone: + 41 - 22 - 767 2447; e-mai"
-     << "l: peter.skands@cern.ch               |  | \n"
-     << " |  |   Stefan Ask; former author; e-mail: as"
-     << "k.stefan@gmail.com                    |  | \n"
-     << " |  |   Richard Corke; former author; e-mail:"
-     << " r.corke@errno.net                    |  | \n"
+     << " |  |   Stefan Prestel;  Theoretical Physics "
+     << "Group,                                |  | \n"
+     << " |  |      SLAC National Accelerator Laborato"
+     << "ry, Menlo Park, CA 94025, USA;        |  | \n"
+     << " |  |      e-mail: prestel@slac.stanford.edu "
+     << "                                      |  | \n"
+     << " |  |   Christine Rasmussen;  Department of A"
+     << "stronomy and Theoretical Physics,     |  | \n"
+     << " |  |      Lund University, Solvegatan 14A, S"
+     << "E-223 62 Lund, Sweden;                |  | \n"
+     << " |  |      e-mail: christine.rasmussen@thep.l"
+     << "u.se                                  |  | \n"
+     << " |  |   Peter Skands;  School of Physics,    "
+     << "                                      |  | \n"
+     << " |  |      Monash University, PO Box 27, 3800"
+     << " Melbourne, Australia;                |  | \n"
+     << " |  |      e-mail: peter.skands@monash.edu   "
+     << "                                      |  | \n"
      << " |  |                                        "
      << "                                      |  | \n"
-     << " |  |   The main program reference is the 'Br"
-     << "ief Introduction to PYTHIA 8.1',      |  | \n"
-     << " |  |   T. Sjostrand, S. Mrenna and P. Skands"
-     << ", Comput. Phys. Comm. 178 (2008) 85   |  | \n"
-     << " |  |   [arXiv:0710.3820]                    "
-     << "                                      |  | \n"
+     << " |  |   The main program reference is 'An Int"
+     << "roduction to PYTHIA 8.2',             |  | \n"
+     << " |  |   T. Sjostrand et al, arXiv:1410.???? ["
+     << "hep-ph]                               |  | \n"
      << " |  |                                        "
      << "                                      |  | \n"
      << " |  |   The main physics reference is the 'PY"
@@ -1821,11 +1715,16 @@ bool Pythia::check(ostream& os) {
     if (abs(event[i].px()) >= 0. && abs(event[i].py()) >= 0.
       && abs(event[i].pz()) >= 0.  && abs(event[i].e()) >= 0.
       && abs(event[i].m()) >= 0.) {
-      if (abs(event[i].mCalc() - event[i].m()) > epTolErr * event[i].e()) {
+      double errMass = abs(event[i].mCalc() - event[i].m()) 
+        / max( 1.0, event[i].e()); 
+      if (errMass > mTolErr) {
         info.errorMsg("Error in Pythia::check: "
           "unmatched particle energy/momentum/mass");
         physical = false;
         iErrEpm.push_back(i);
+      } else if (errMass > mTolWarn) {
+        info.errorMsg("Warning in Pythia::check: "
+          "not quite matched particle energy/momentum/mass");
       }
     } else {
       info.errorMsg("Error in Pythia::check: "
@@ -2039,7 +1938,7 @@ bool Pythia::check(ostream& os) {
 
 // Routine to set up a PDF pointer.
 
-PDF* Pythia::getPDFPtr(int idIn, int sequence) {
+PDF* Pythia::getPDFPtr(int idIn, int sequence, string beam) {
 
   // Temporary pointer to be returned.
   PDF* tempPDFPtr = 0;
@@ -2047,82 +1946,47 @@ PDF* Pythia::getPDFPtr(int idIn, int sequence) {
   // One option is to treat a Pomeron like a pi0.
   if (idIn == 990 && settings.mode("PDF:PomSet") == 2) idIn = 111;
 
-  // Proton beam, normal choice. Also used for neutron.
-  if ((abs(idIn) == 2212 || abs(idIn) == 2112) && sequence == 1) {
-    int  pSet      = settings.mode("PDF:pSet");
-    bool useLHAPDF = settings.flag("PDF:useLHAPDF");
-
-    // Use internal sets.
-    if (!useLHAPDF) {
-      if      (pSet == 1) tempPDFPtr = new GRV94L(idIn);
-      else if (pSet == 2) tempPDFPtr = new CTEQ5L(idIn);
-      else if (pSet <= 6)
-           tempPDFPtr = new MSTWpdf(idIn, pSet - 2, xmlPath, &info);
-      else if (pSet <= 12)
-           tempPDFPtr = new CTEQ6pdf(idIn, pSet - 6, xmlPath, &info);
-      else tempPDFPtr = new NNPDF(idIn, pSet - 12, xmlPath, &info);
-    }
+  // Proton beam, normal or hard choice. Also used for neutron.
+  if (abs(idIn) == 2212 || abs(idIn) == 2112) {
+    string pSet = settings.word("PDF:p" + string(sequence == 1 ? "" : "Hard") + 
+				"Set" + beam);
+    if (pSet == "void" && sequence != 1 && beam == "B") 
+      pSet = settings.word("PDF:pHardSet");
+    if (pSet == "void") pSet = settings.word("PDF:pSet");
+    istringstream pSetStream(pSet);
+    int pSetInt(0);
+    pSetStream >> pSetInt;
     
     // Use sets from LHAPDF.
-    else {
-      string LHAPDFset    = settings.word("PDF:LHAPDFset");
-      int    LHAPDFmember = settings.mode("PDF:LHAPDFmember");
-      int nSet = LHAPDF::findNSet(LHAPDFset, LHAPDFmember);
-      if (nSet == -1) nSet = LHAPDF::freeNSet();
-      tempPDFPtr = new LHAPDF(idIn, LHAPDFset, LHAPDFmember, nSet, &info);
-
-      // Optionally allow extrapolation beyond x and Q2 limits.
-      tempPDFPtr->setExtrapolate( settings.flag("PDF:extrapolateLHAPDF") );
-    }
-  }
-
-  // Proton beam, special choice for the hard process. Also neutron.
-  else if (abs(idIn) == 2212 || abs(idIn) == 2112) {
-    int  pSet      = settings.mode("PDF:pHardSet");
-    bool useLHAPDF = settings.flag("PDF:useHardLHAPDF");
+    if (pSetInt == 0)
+      tempPDFPtr = new LHAPDF(idIn, pSet, &info);
 
     // Use internal sets.
-    if (!useLHAPDF) {
-      if      (pSet == 1) tempPDFPtr = new GRV94L(idIn);
-      else if (pSet == 2) tempPDFPtr = new CTEQ5L(idIn);
-      else if (pSet <= 6)
-           tempPDFPtr = new MSTWpdf(idIn, pSet - 2, xmlPath, &info);
-      else if (pSet <= 12)
-           tempPDFPtr = new CTEQ6pdf(idIn, pSet - 6, xmlPath, &info);
-      else tempPDFPtr = new NNPDF(idIn, pSet - 12, xmlPath, &info);
-    }
-    
-    // Use sets from LHAPDF.
-    else {
-      string LHAPDFset    = settings.word("PDF:hardLHAPDFset");
-      int    LHAPDFmember = settings.mode("PDF:hardLHAPDFmember");
-      int nSet = LHAPDF::findNSet(LHAPDFset, LHAPDFmember);
-      if (nSet == -1) nSet = LHAPDF::freeNSet();
-      tempPDFPtr = new LHAPDF(idIn, LHAPDFset, LHAPDFmember, nSet, &info);
- 
-     // Optionally allow extrapolation beyond x and Q2 limits.
-      tempPDFPtr->setExtrapolate( settings.flag("PDF:extrapolateLHAPDF") );
-    }
+    else if (pSetInt == 1) tempPDFPtr = new GRV94L(idIn);
+    else if (pSetInt == 2) tempPDFPtr = new CTEQ5L(idIn);
+    else if (pSetInt <= 6)
+      tempPDFPtr = new MSTWpdf(idIn, pSetInt - 2, xmlPath, &info);
+    else if (pSetInt <= 12)
+      tempPDFPtr = new CTEQ6pdf(idIn, pSetInt - 6, xmlPath, &info);
+    else if (pSetInt <= 16)
+      tempPDFPtr = new NNPDF(idIn, pSetInt - 12, xmlPath, &info);
+    else tempPDFPtr = 0;
   }
 
   // Pion beam (or, in one option, Pomeron beam).
   else if (abs(idIn) == 211 || idIn == 111) {
-    bool useLHAPDF = settings.flag("PDF:piUseLHAPDF");
+    string pSet = settings.word("PDF:piSet" + beam);
+    istringstream pSetStream(pSet);
+    int pSetInt(0);
+    pSetStream >> pSetInt;
 
-    // Use internal sets.
-    if (!useLHAPDF) {
-      tempPDFPtr = new GRVpiL(idIn);
-    }
-    
     // Use sets from LHAPDF.
-    else {
-      string LHAPDFset    = settings.word("PDF:piLHAPDFset");
-      int    LHAPDFmember = settings.mode("PDF:piLHAPDFmember");
-      tempPDFPtr = new LHAPDF(idIn, LHAPDFset, LHAPDFmember, 1, &info);
+    if (pSetInt == 0)
+      tempPDFPtr = new LHAPDF(idIn, pSet, &info);
 
-      // Optionally allow extrapolation beyond x and Q2 limits.
-      tempPDFPtr->setExtrapolate( settings.flag("PDF:extrapolateLHAPDF") );
-    }
+    // Use internal set.
+    else if (pSetInt == 1) tempPDFPtr = new GRVpiL(idIn);
+    else tempPDFPtr = 0;
   }
 
   // Pomeron beam, if not treated like a pi0 beam.
@@ -2158,8 +2022,9 @@ PDF* Pythia::getPDFPtr(int idIn, int sequence) {
     else tempPDFPtr = new LeptonPoint(idIn);
   }
 
-  // Failure for unrecognized particle.
-  else tempPDFPtr = 0;
+  // Optionally allow extrapolation beyond x and Q2 limits.
+  if (tempPDFPtr) 
+    tempPDFPtr->setExtrapolate( settings.flag("PDF:extrapolate") );
   
   // Done.
   return tempPDFPtr;

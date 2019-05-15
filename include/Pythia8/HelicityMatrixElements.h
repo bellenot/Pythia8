@@ -30,7 +30,7 @@ public:
   virtual ~HelicityMatrixElement() {};
 
   // Initialize the physics matrices and pointers.
-  virtual void initPointers(ParticleData*, Couplings*);
+  virtual void initPointers(ParticleData*, Couplings*, Settings* = 0);
 
   // Initialize the channel.
   virtual HelicityMatrixElement* initChannel(vector<HelicityParticle>&);
@@ -94,6 +94,9 @@ protected:
 
   // Pointer to Standard Model constants.
   Couplings*    couplingsPtr;
+
+  // Pointer to Settings.
+  Settings*     settingsPtr;
 
 private:
     
@@ -196,7 +199,7 @@ public:
 
   HelicityMatrixElement* initChannel(vector<HelicityParticle>&);
 
-  void initPointers(ParticleData*, Couplings*);
+  void initPointers(ParticleData*, Couplings*, Settings* = 0);
   
   void initWaves(vector<HelicityParticle>&);
 
@@ -211,15 +214,49 @@ private:
 
 //==========================================================================
 
+// Helicity matrix element for the hard process of X -> two fermions.
+  
+class HMEX2TwoFermions : public HelicityMatrixElement {
+    
+public:
+  
+  void initWaves(vector<HelicityParticle>&);
+  
+};
+
+//==========================================================================
+
+// Helicity matrix element for the hard process of W -> two fermions.
+  
+class HMEW2TwoFermions : public HMEX2TwoFermions {
+    
+public:
+  
+  complex calculateME(vector<int>);
+
+};
+
+//==========================================================================
+
+// Helicity matrix element for the hard process of photon -> two fermions.
+  
+class HMEGamma2TwoFermions : public HMEX2TwoFermions {
+    
+public:
+  
+  complex calculateME(vector<int>);
+
+};
+
+//==========================================================================
+
 // Helicity matrix element for the hard process of Z -> two fermions.
   
-class HMEZ2TwoFermions : public HelicityMatrixElement {
+class HMEZ2TwoFermions : public HMEX2TwoFermions {
     
 public:
   
   void initConstants();
-  
-  void initWaves(vector<HelicityParticle>&);
   
   complex calculateME(vector<int>);
 
@@ -232,14 +269,17 @@ private:
 
 //==========================================================================
 
-// Helicity matrix element for the decay of a CP even Higgs ->  two fermions.
+// Helicity matrix element for the decay of a Higgs ->  two fermions.
 
 // Because the Higgs is spin zero the Higgs production mechanism is not
-// needed for calculating helicity density matrices.
+// needed for calculating helicity density matrices. However, the CP mixing
+// is needed.
  
-class HMEHiggsEven2TwoFermions : public HelicityMatrixElement {
+class HMEHiggs2TwoFermions : public HelicityMatrixElement {
 
 public:
+
+  void initConstants();
 
   void initWaves(vector<HelicityParticle>&);
 
@@ -248,58 +288,8 @@ public:
 private:
 
   // Coupling constants of the fermions with the Higgs.
-  double p2CA, p2CV;
-
-};
-
-//==========================================================================
-
-// Helicity matrix element for the decay of a CP odd Higgs ->  two fermions.
- 
-class HMEHiggsOdd2TwoFermions : public HelicityMatrixElement {
-
-public:
-
-  void initWaves(vector<HelicityParticle>&);
-
-  complex calculateME(vector<int>);
-
-private:
-  
-  // Coupling constants of the fermions with the Higgs.
-  double p2CA, p2CV;
-
-};
-
-//==========================================================================
-
-// Helicity matrix element for the decay of a charged Higgs ->  two fermions.
-  
-class HMEHiggsCharged2TwoFermions : public HelicityMatrixElement {
-
-public:
-
-  void initWaves(vector<HelicityParticle>&);
-
-  complex calculateME(vector<int>);
-
-private:
-  
-  // Coupling constants of the fermions with the Higgs.
-  double p2CA, p2CV;
-
-};
-
-//==========================================================================
-
-// Helicity matrix element which provides an unpolarized on-diagonal helicity
-// density matrix. Used for unknown hard processes.
- 
-class HMEUnpolarized : public HelicityMatrixElement {
-
-public:
-
-  void calculateRho(unsigned int, vector<HelicityParticle>&);
+  double p2CAH1, p2CVH1, p2CAH2, p2CVH2, p2CAA3, p2CVA3, p2CAH4, p2CVH4;
+  complex p2CA, p2CV;
 
 };
 

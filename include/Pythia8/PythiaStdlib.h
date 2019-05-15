@@ -21,6 +21,15 @@
 #include <map>
 #include <deque>
 #include <set>
+#include <list>
+
+// Stdlib header file for dynamic library loading.
+#define dlsym __
+#include <dlfcn.h>
+#undef dlsym
+
+// Redefine dlsym to suppress compiler warnings.
+extern "C" void *(*dlsym(void *handle, const char *symbol))();
 
 // Stdlib header file for input and output.
 #include <iostream>

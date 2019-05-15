@@ -840,7 +840,7 @@ void Sigma2gg2QQbarX8g::initProc() {
 				 m0, mWidth, m0, m0);
     ParticleDataEntry* entry = particleDataPtr->particleDataEntryPtr(idOct);
     if (entry) entry->addChannel(1, 1.0, 0, idHad, 21);
-  } else if (mSplit > 0 && abs(particleDataPtr->m0(idOct) - m0) > 1E-15) {
+  } else if (mSplit > 0 && abs(particleDataPtr->m0(idOct) - m0) > 1E-5) {
     particleDataPtr->m0(idOct, m0);
     particleDataPtr->mWidth(idOct, mWidth);
     particleDataPtr->mMin(idOct, m0);

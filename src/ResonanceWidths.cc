@@ -1377,9 +1377,13 @@ void ResonanceZprime::initConstants() {
   vfZp[11]    = settingsPtr->parm("Zprime:ve");
   vfZp[12]    = settingsPtr->parm("Zprime:vnue");
 
+  // Determine if the 4th generation should be included
+  bool coupZp2gen4    = settingsPtr->flag("Zprime:coup2gen4");
+  maxZpGen = (coupZp2gen4) ? 8 : 6;
+
   // Second and third generation could be carbon copy of this...
   if (settingsPtr->flag("Zprime:universality")) {
-    for (int i = 3; i <= 6; ++i) {
+    for (int i = 3; i <= maxZpGen; ++i) {
       afZp[i]    = afZp[i-2];
       vfZp[i]    = vfZp[i-2];
       afZp[i+10] = afZp[i+8];
@@ -1404,6 +1408,16 @@ void ResonanceZprime::initConstants() {
     vfZp[14]  = settingsPtr->parm("Zprime:vnumu");
     vfZp[15]  = settingsPtr->parm("Zprime:vtau");
     vfZp[16]  = settingsPtr->parm("Zprime:vnutau");
+    if( coupZp2gen4 ) {
+      afZp[7]   = settingsPtr->parm("Zprime:abPrime");
+      afZp[8]   = settingsPtr->parm("Zprime:atPrime");
+      vfZp[7]   = settingsPtr->parm("Zprime:vbPrime");
+      vfZp[8]   = settingsPtr->parm("Zprime:vtPrime");
+      afZp[17]  = settingsPtr->parm("Zprime:atauPrime");
+      afZp[18]  = settingsPtr->parm("Zprime:anutauPrime");
+      vfZp[17]  = settingsPtr->parm("Zprime:vtauPrime");
+      vfZp[18]  = settingsPtr->parm("Zprime:vnutauPrime");
+    }
   }
 
   // Coupling for Z' -> W+ W-.
@@ -1434,7 +1448,8 @@ void ResonanceZprime::calcPreFac(bool calledFromInit) {
     vaivapi   = 0.,
     vapi2     = 1.;
     int idInFlavAbs = abs(idInFlav);
-    if (idInFlavAbs > 0 && idInFlavAbs < 19) {
+    if ( (idInFlavAbs >  0 && idInFlavAbs <= maxZpGen) 
+      || (idInFlavAbs > 10 && idInFlavAbs <= maxZpGen + 10) ) {
       double ei  = couplingsPtr->ef(idInFlavAbs);
       double ai  = couplingsPtr->af(idInFlavAbs);
       double vi  = couplingsPtr->vf(idInFlavAbs);
@@ -1486,13 +1501,13 @@ void ResonanceZprime::calcWidth(bool calledFromInit) {
   // At initialization only the pure Z'0 should be considered.
   if (calledFromInit) {
 
-    // Contributions from three fermion generations.
-    if ( id1Abs < 7 || (id1Abs > 10 && id1Abs < 17) ) {
+    // Contributions from three (4?) fermion generations.
+    if ( id1Abs <= maxZpGen || (id1Abs > 10 && id1Abs <= maxZpGen + 10) ) {
       double apf = afZp[id1Abs];
       double vpf = vfZp[id1Abs];
       widNow = preFac * ps * (vpf*vpf * (1. + 2. * mr1)
              + apf*apf * ps*ps);
-      if (id1Abs < 7) widNow *= colQ;
+      if (id1Abs < 9) widNow *= colQ;
 
     // Contribution from Z'0 -> W^+ W^-.
     } else if (id1Abs == 24) {
@@ -1504,8 +1519,8 @@ void ResonanceZprime::calcWidth(bool calledFromInit) {
   // When call for incoming flavour need to consider full mix.
   else {
 
-    // Contributions from three fermion generations.
-    if ( id1Abs < 7 || (id1Abs > 10 && id1Abs < 17) ) {
+    // Contributions from three (4?) fermion generations.
+    if ( id1Abs <= maxZpGen || (id1Abs > 10 && id1Abs <= maxZpGen + 10) ) {
 
       // Couplings of gamma^*/Z^0/Z'^0  to final flavour
       double ef  = couplingsPtr->ef(id1Abs);
@@ -1527,7 +1542,7 @@ void ResonanceZprime::calcWidth(bool calledFromInit) {
       // Relative outwidths: combine instate, propagator and outstate.
       widNow = gamNorm * ef2 + gamZNorm * efvf + ZNorm * vaf2
              + gamZpNorm * efvpf + ZZpNorm * vafvapf + ZpNorm * vapf2;
-      if (id1Abs < 7) widNow *= colQ;
+      if (id1Abs < 9) widNow *= colQ;
 
     // Contribution from Z'0 -> W^+ W^-.
     } else if (id1Abs == 24) {
@@ -1588,14 +1603,14 @@ void ResonanceWprime::calcWidth(bool) {
   if (ps == 0.) return;
 
   // Decay to quarks involves colour factor and CKM matrix.
-  if (id1Abs > 0 && id1Abs < 7) widNow
+  if (id1Abs > 0 && id1Abs < 9) widNow
     = preFac * ps * 0.5 * ((vqWp*vqWp + aqWp * aqWp)
     + 6. * (vqWp*vqWp - aqWp * aqWp) * sqrt(mr1 *mr2))
     * (1. - 0.5 * (mr1 + mr2) - 0.5 * pow2(mr1 - mr2))
     * colQ * couplingsPtr->V2CKMid(id1Abs, id2Abs);
 
   // Decay to leptons simpler.
-  else if (id1Abs > 10 && id1Abs < 17) widNow
+  else if (id1Abs > 10 && id1Abs < 19) widNow
     = preFac * ps * 0.5 * ((vlWp*vqWp + alWp * aqWp)
     + 6. * (vlWp*vqWp - alWp * aqWp) * sqrt(mr1 *mr2))
     * (1. - 0.5 * (mr1 + mr2) - 0.5 * pow2(mr1 - mr2));

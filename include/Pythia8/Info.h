@@ -10,6 +10,7 @@
 #define Pythia8_Info_H
 
 #include "Pythia8/PythiaStdlib.h"
+#include "Pythia8/LHEF3.h"
 
 namespace Pythia8 {
  
@@ -27,8 +28,8 @@ class Info {
 public:
 
   // Constructor.
-  Info() : eCMSave(0.), lowPTmin(false), a0MPISave(0.), weightCKKWLSave(1.),
-    weightFIRSTSave(0.) {
+  Info() : LHEFversionSave(0), eCMSave(0.), lowPTmin(false), a0MPISave(0.),
+    weightCKKWLSave(1.), weightFIRSTSave(0.) {
     for (int i = 0; i < 40; ++i) counters[i] = 0;}
 
   // Listing of most available information on current event.
@@ -213,13 +214,97 @@ public:
   }
 
   // Return a list of all header key names
-  vector < string > headerKeys() {
-    vector < string > keys;
-    for (map < string, string >::iterator it = headers.begin();
-        it != headers.end(); it++)
-      keys.push_back(it->first);
-    return keys;
-  }
+  vector < string > headerKeys();
+
+  // Return the number of processes in the LHEF.
+  int nProcessesLHEF() { return int(sigmaLHEFSave.size());}
+  // Return the cross section information read from LHEF.
+  double sigmaLHEF(int iProcess) { return sigmaLHEFSave[iProcess];}
+
+  // LHEF3 information: Public for easy access.
+  int LHEFversionSave;
+
+  // Save process information as read from init block of LHEF.
+  vector<double> sigmaLHEFSave;
+
+  // Contents of the LHAinitrwgt tag
+  LHAinitrwgt *initrwgt;
+
+  // Contents of the LHAgenerator tags.
+  vector<LHAgenerator > *generators;
+
+  // A map of the LHAweightgroup tags, indexed by name.
+  map<string,LHAweightgroup > *weightgroups;
+
+  // A map of the LHAweight tags, indexed by name.
+  map<string,LHAweight > *init_weights;
+
+  // Store current-event Les Houches event tags.
+  map<string, string > *eventAttributes;
+
+  // The weights associated with this event, as given by the LHAwgt tags
+  map<string,double > *weights_detailed;
+
+  // The weights associated with this event, as given by the LHAweights tags
+  vector<double > *weights_compressed;
+
+  // Contents of the LHAscales tag.
+  LHAscales *scales;
+
+  // Contents of the LHAweights tag (compressed format)
+  LHAweights *weights;
+
+  // Contents of the LHArwgt tag (detailed format)
+  LHArwgt *rwgt;
+
+  // Set the LHEF3 objects read from the init and header blocks.
+  void setLHEF3InitInfo();
+  void setLHEF3InitInfo( int LHEFversionIn, LHAinitrwgt *initrwgtIn,
+    vector<LHAgenerator> *generatorsIn,
+    map<string,LHAweightgroup> *weightgroupsIn,
+    map<string,LHAweight> *init_weightsIn );
+  // Set the LHEF3 objects read from the event block.
+  void setLHEF3EventInfo();
+  void setLHEF3EventInfo( map<string, string> *eventAttributesIn,
+    map<string, double > *weights_detailedIn,
+    vector<double > *weights_compressedIn,
+    LHAscales *scalesIn, LHAweights *weightsIn,
+    LHArwgt *rwgtIn );
+
+  // Retrieve events tag information.
+  string getEventAttribute(string key, bool doRemoveWhitespace = false);
+
+  // Retrieve LHEF version
+  int LHEFversion();
+
+  // Retrieve initrwgt tag information.
+  unsigned int getInitrwgtSize();
+
+  // Retrieve generator tag information.
+  unsigned int getGeneratorSize();
+  string getGeneratorValue(unsigned int n = 0);
+  string getGeneratorAttribute( unsigned int n, string key,
+    bool doRemoveWhitespace = false);
+
+  // Retrieve rwgt tag information.
+  unsigned int getWeightsDetailedSize();
+  double getWeightsDetailedValue(string n);
+  string getWeightsDetailedAttribute(string n, string key,
+    bool doRemoveWhitespace = false);
+
+  // Retrieve weights tag information.
+  unsigned int getWeightsCompressedSize();
+  double getWeightsCompressedValue(unsigned int n);
+  string getWeightsCompressedAttribute(string key,
+    bool doRemoveWhitespace = false);
+
+  // Retrieve scales tag information.
+  string getScalesValue(bool doRemoveWhitespace = false);
+  double getScalesAttribute(string key);
+
+  // Set LHEF headers
+  void setHeader(const string &key, const string &val)
+    { headers[key] = val; }
 
 private:
 
@@ -272,6 +357,9 @@ private:
   // Map for LHEF headers
   map<string, string> headers;
 
+  // Map for plugin libraries.
+  map<string, pair<void*, int> > plugins;
+
   // Friend classes allowed to set info.
   friend class Pythia;
   friend class ProcessLevel;
@@ -279,6 +367,7 @@ private:
   friend class PartonLevel;
   friend class MultipartonInteractions;
   friend class LHAup;
+  friend class LHAPDF;
 
   // Set info on the two incoming beams: only from Pythia class.
   void setBeamA( int idAin, double pzAin, double eAin, double mAin) {
@@ -397,10 +486,6 @@ private:
 
   // Save merging weight (i.e.  CKKW-L-type weight, summed O(\alpha_s) weight)
   double weightCKKWLSave, weightFIRSTSave;
-
-  // Set LHEF headers
-  void setHeader(const string &key, const string &val)
-    { headers[key] = val; }
 
 };
  

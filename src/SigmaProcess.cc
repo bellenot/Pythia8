@@ -97,15 +97,19 @@ void SigmaProcess::init(Info* infoPtrIn, Settings* settingsPtrIn,
   // CP violation parameters for the BSM Higgs sector.
   higgsH1parity   = settingsPtr->mode("HiggsH1:parity");
   higgsH1eta      = settingsPtr->parm("HiggsH1:etaParity");
+  higgsH1phi      = settingsPtr->parm("HiggsH1:phiParity");
   higgsH2parity   = settingsPtr->mode("HiggsH2:parity");
   higgsH2eta      = settingsPtr->parm("HiggsH2:etaParity");
+  higgsH2phi      = settingsPtr->parm("HiggsH2:phiParity");
   higgsA3parity   = settingsPtr->mode("HiggsA3:parity");
   higgsA3eta      = settingsPtr->parm("HiggsA3:etaParity");
+  higgsA3phi      = settingsPtr->parm("HiggsA3:phiParity");
 
   // If BSM not switched on then H1 should have SM properties.
   if (!settingsPtr->flag("Higgs:useBSM")){
     higgsH1parity = 1;
     higgsH1eta    = 0.;
+    higgsH1phi    = M_PI / 2.;
   }
 
 }
@@ -540,12 +544,15 @@ double SigmaProcess::weightHiggsDecay( Event& process, int iResBeg,
   // Parameters depend on Higgs type: H0(H_1), H^0(H_2) or A^0(H_3).
   int    higgsParity = higgsH1parity;
   double higgsEta    = higgsH1eta;
+  double higgsPhi    = higgsH1phi;
   if (idH == 35) {
     higgsParity      = higgsH2parity;
     higgsEta         = higgsH2eta;
+    higgsPhi         = higgsH2phi;
   } else if (idH == 36) {
     higgsParity      = higgsA3parity;
     higgsEta         = higgsA3eta;
+    higgsPhi         = higgsA3phi;
   }
 
   // Option with isotropic decays.
@@ -610,7 +617,12 @@ double SigmaProcess::weightHiggsDecay( Event& process, int iResBeg,
     double af2 = couplingsPtr->af(process[i5].idAbs());
     double va12asym = 4. * vf1 * af1 * vf2 * af2
       / ( (vf1*vf1 + af1*af1) * (vf2*vf2 + af2*af2) );
-    double etaMod = higgsEta / pow2( particleDataPtr->m0(23) );
+    double vh = 1;
+    double ah = higgsEta / pow2( particleDataPtr->m0(23) );
+    if (higgsParity == 4) {
+      vh = sin(higgsPhi); 
+      ah = cos(higgsPhi) / pow2( particleDataPtr->m0(23) );
+    }
     
     // Normal CP-even decay.
     if (higgsParity == 1) wt = 8. * (1. + va12asym) * p35 * p46
@@ -624,19 +636,25 @@ double SigmaProcess::weightHiggsDecay( Event& process, int iResBeg,
       / (1. +  va12asym);
 
     // Mixed CP states.
-    else wt = 32. * ( 0.25 * ( (1. + va12asym) * p35 * p46
-      + (1. - va12asym) * p36 * p45 ) - 0.5 * etaMod * epsilonProd
+    else wt = 32. * ( 0.25 * pow2(vh) * ( (1. + va12asym) * p35 * p46
+      + (1. - va12asym) * p36 * p45 ) - 0.5 * vh * ah * epsilonProd
       * ( (1. + va12asym) * (p35 + p46) - (1. - va12asym) * (p36 + p45) )
-      + 0.0625 * etaMod * etaMod * (-2. * pow2(p34 * p56)
+      + 0.0625 * pow2(ah) * (-2. * pow2(p34 * p56)
       - 2. * pow2(p35 * p46 - p36 * p45)
       + p34 * p56 * (pow2(p35 + p46) + pow2(p36 + p45))
       + va12asym * p34 * p56 * (p35 + p36 - p45 - p46)
-      * (p35 + p45 - p36 - p46) ) ) / ( 1. + 2. * etaMod * mZW1 * mZW2
-      + 2. * pow2(etaMod * mZW1 * mZW2) * (1. + va12asym) );
+      * (p35 + p45 - p36 - p46) ) ) 
+      / ( pow2(vh) + 2. * abs(vh * ah) * mZW1 * mZW2
+      + 2. * pow2(ah * mZW1 * mZW2) * (1. + va12asym) );
 
   // W+ W- decay.
   } else if (idZW1 == 24) {
-    double etaMod = higgsEta / pow2( particleDataPtr->m0(24) );
+    double vh = 1;
+    double ah = higgsEta / pow2( particleDataPtr->m0(24) );
+    if (higgsParity == 4) {
+      vh = sin(higgsPhi); 
+      ah = cos(higgsPhi) / pow2( particleDataPtr->m0(24) );
+    }
     
     // Normal CP-even decay.
     if (higgsParity == 1) wt = 16. * p35 * p46;
@@ -648,13 +666,14 @@ double SigmaProcess::weightHiggsDecay( Event& process, int iResBeg,
       + (p35 + p36 - p45 - p46) * (p35 + p45 - p36 - p46) );
 
     // Mixed CP states.
-    else wt = 32. * ( 0.25 * 2. * p35 * p46
-      - 0.5 * etaMod * epsilonProd * 2. * (p35 + p46)
-      + 0.0625 * etaMod * etaMod * (-2. * pow2(p34 * p56)
+    else wt = 32. * ( 0.25 * pow2(vh) * 2. * p35 * p46
+      - 0.5 * vh * ah * epsilonProd * 2. * (p35 + p46)
+      + 0.0625 * pow2(ah) * (-2. * pow2(p34 * p56)
       - 2. * pow2(p35 * p46 - p36 * p45)
       + p34 * p56 * (pow2(p35 + p46) + pow2(p36 + p45))
       + p34 * p56 * (p35 + p36 - p45 - p46) * (p35 + p45 - p36 - p46) ) )
-      / ( 1. * 2. * etaMod * mZW1 * mZW2 + 2. * pow2(etaMod * mZW1 * mZW2) );
+      / ( pow2(vh) + 2. * abs(vh * ah) * mZW1 * mZW2 
+      + 2. * pow2(ah * mZW1 * mZW2) );
   }
 
   // Done.

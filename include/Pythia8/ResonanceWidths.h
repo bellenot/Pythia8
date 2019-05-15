@@ -350,7 +350,7 @@ public:
 private:
 
   // Locally stored properties and couplings.
-  int    gmZmode;
+  int    gmZmode, maxZpGen;
   double sin2tW, cos2tW, thetaWRat, mZ, GammaZ, m2Z, GamMRatZ, afZp[20],
          vfZp[20], coupZpWW, ei2, eivi, vai2, eivpi, vaivapi, vapi2,
          gamNorm, gamZNorm, ZNorm, gamZpNorm, ZZpNorm, ZpNorm;

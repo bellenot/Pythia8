@@ -38,13 +38,8 @@ namespace Pythia8 {
 int SusyLesHouches::readFile(string slhaFileIn, int verboseIn,
   bool useDecayIn) {
 
-  // Copy inputs to local
-  slhaFile    = slhaFileIn;
-  verboseSav  = verboseIn;
-  useDecay    = useDecayIn;
-
+  slhaFile = slhaFileIn;
   // Check that input file is OK.
-  int iFailFile=0;
   const char* cstring = slhaFile.c_str();
 
 // Construct istream without gzip support.
@@ -79,6 +74,17 @@ int SusyLesHouches::readFile(string slhaFileIn, int verboseIn,
     filePrinted = true;
   }
 
+  return readFile( file, verboseIn, useDecayIn );
+}
+
+int SusyLesHouches::readFile(istream& is, int verboseIn,
+  bool useDecayIn) {
+
+  int iFailFile=0;
+  // Copy inputs to local
+  verboseSav  = verboseIn;
+  useDecay    = useDecayIn;
+
   // Array of particles read in.
   vector<int> idRead;
 
@@ -105,7 +111,7 @@ int SusyLesHouches::readFile(string slhaFileIn, int verboseIn,
   int iLine=0;
 
   // Read in one line at a time.
-  while ( getline(file, line) ) {
+  while ( getline(is, line) ) {
     iLine++;
 
     //Rewrite string in lowercase
@@ -680,8 +686,8 @@ void SusyLesHouches::printHeader() {
   if (! headerPrinted) {
     cout << " *-----------------------  SusyLesHouches SUSY/BSM"
          << " Interface  ------------------------*\n";
-    message(0,"","Last Change 03 Mar 2014 - P. Skands",0);
-    if (!filePrinted) {
+    message(0,"","Last Change 31 Jul 2014 - S. Mrenna",0);
+    if (!filePrinted && slhaFile != "" && slhaFile != " ") {
       message(0,"","Parsing: "+slhaFile,0);
       filePrinted=true;
     }

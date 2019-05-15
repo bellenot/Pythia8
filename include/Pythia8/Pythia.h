@@ -110,24 +110,8 @@ public:
     { timesDecPtr = timesDecPtrIn; timesPtr = timesPtrIn;
     spacePtr = spacePtrIn; return true;}
 
-  // Initialization using the Beams variables.
+  // Initialize.
   bool init();
-
-  // Deprecated: initialization in the CM frame.
-  bool init( int idAin, int idBin, double eCMin);
-
-  // Deprecated: initialization with two collinear beams, e.g. fixed target.
-  bool init( int idAin, int idBin, double eAin, double eBin);
-
-  // Deprecated: initialization with two acollinear beams.
-  bool init( int idAin, int idBin, double pxAin, double pyAin,
-    double pzAin, double pxBin, double pyBin, double pzBin);
-
-  // Deprecated: initialization by a Les Houches Event File.
-  bool init( string LesHouchesEventFile, bool skipInit = false);
-
-  // Deprecated: initialization according to the Les Houches Accord.
-  bool init( LHAup* lhaUpPtrIn);
 
   // Generate the next event.
   bool next();
@@ -157,9 +141,6 @@ public:
   // Main routine to provide final statistics on generation.
   void stat();
 
-  // Deprecated: alternative to provide final statistics on generation.
-  void statistics(bool all = false, bool reset = false);
-
   // Read in settings values: shorthand, not new functionality.
   bool   flag(string key) {return settings.flag(key);}
   int    mode(string key) {return settings.mode(key);}
@@ -167,7 +148,7 @@ public:
   string word(string key) {return settings.word(key);}
 
   // Auxiliary to set parton densities among list of possibilities.
-  PDF* getPDFPtr(int idIn, int sequence = 1);
+  PDF* getPDFPtr(int idIn, int sequence = 1, string beam = "");
 
   // The event record for the parton-level central process.
   Event          process;
@@ -220,7 +201,7 @@ private:
          doResDec, doFSRinRes, decayRHadrons, abortIfVeto, checkEvent,
          checkHistory;
   int    nErrList;
-  double epTolErr, epTolWarn;
+  double epTolErr, epTolWarn, mTolErr, mTolWarn;
 
   // Initialization data, extracted from init(...) call.
   bool   isConstructed, isInit, isUnresolvedA, isUnresolvedB, showSaV,

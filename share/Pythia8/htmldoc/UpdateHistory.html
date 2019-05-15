@@ -1,0 +1,271 @@
+<html>
+<head>
+<title>Update History</title>
+<link rel="stylesheet" type="text/css" href="pythia.css"/>
+<link rel="shortcut icon" href="pythia32.gif"/>
+</head>
+<body>
+ 
+<h2>Update History</h2> 
+ 
+These update notes describe major updates relative to the 
+PYTHIA 8.186 version, which was the last regular 8.1 release.
+(Minor bug fixes will continue to appear.) The step from 
+8.1 to 8.2 gave an occasion to break backwards compatibility,
+but this should only affect a small part of the user code.
+
+<h3>Main news by version</h3> 
+ 
+<ul> 
+ 
+<li>8.200: 11 October 2014 
+<ul> 
+
+<li>A new <code>share/Pythia8</code> directory collects all 
+documentation and example code. The <code>examples</code>,
+<code>htmldoc</code>, <code>phpdoc</code> and <code>xmldoc</code> 
+directories have been moved here. The main-directory files
+<code>AUTHORS</code>, <code>COPYING</code>, <code>GUIDELINE</code> 
+and <code>README</code> are also copied here during installation.
+</li> 
+ 
+<li>A new <code>share/Pythia8/pdfdoc</code> directory collects pdf 
+documents that are linked from the <code>htmldoc</code> and 
+<code>phpdoc</code> directories. Over time it will  provide more 
+in-depth descriptions of various physics aspects than offered in 
+the html/php-formatted documentation. In addition to the official
+main publication and the worksheet, currently notes on LO vs. NLO
+PDFs and on the <i>g &rarr; q qbar</i> branching kernel are 
+included.</li> 
+ 
+<li>A new <code>include/Pythia8Plugins</code> directory collects
+code that does not form part of the core PYTHIA functionality but
+still has a general usefulness. Code in this directory will not be
+compiled as part of the Pythia library, but can be linked where needed.
+This new directory contains
+<ul>
+<li>the jet matching classes in <code>CombineMatchingInput.h</code>,
+<code>GeneratorInput.h</code> and <code>JetMatching.h</code>, moved
+from the <code>examples</code> directory;</li> 
+<li>the <code>PowhegHooks</code> user hook, to veto shower emissions 
+above the POWHEG scale, formerly found in <code>examples/main31.cc</code>;
+</li>
+<li>the <code>Pythia8ToHepMC</code> interface for output of PYTHIA events 
+into the HepMC format, combining the code previously in 
+<code>include/Pythia8ToHepMC.h</code> and
+<code>pythia8tohepmc/Pythia8ToHepMC.cc</code> into a new 
+<code>HepMC2.h</code> file;</li>
+<li>the <code>FastJet3.h</code> interface of PYTHIA particles to the
+FastJet 3 library of jet finders, formerly found in 
+<code>include/FastJet3.h</code>; and</li> 
+<li>the <code>LHAPDF5.h</code> and <code>LHAPDF6.h</code> files for 
+interfaces to the LHAPDF library (see further below).</li>
+</ul></li>
+
+<li>The configure/make structure has been considerably rewritten. 
+Now all external libraries to be linked are specified in the 
+main-directory <code>configure</code> step, along with other options,
+so there is no longer an <code>examples/configure</code>. The 
+<code>make</code> step will, as before, compile and install libraries
+inside the current directory, such that the main programs in the
+<code>examples</code> directory can be run. One small difference is that
+also the archive libraries are installed in <code>lib</code> and not in
+<code>lib/archive</code>.
+<br/>A new optional <code>make install</code> step allows you to copy
+files to more convenient locations. The default option, with no directories
+specified in the <code>configure</code> step, requires you to have 
+superuser privileges. Then files will be copied to standard locations
+as follows:
+<table border="0">
+  <tr> <td>lib/</td> <td>&rarr;&nbsp;</td> <td>/usr/lib/</td> </tr> 
+  <tr> <td>include/</td> <td>&rarr;&nbsp;</td> <td>/usr/include/</td> </tr> 
+  <tr> <td>share/</td> <td>&rarr;&nbsp;</td> <td>/usr/share/</td> </tr> 
+  <tr> <td>pythia-config</td> <td>&rarr;&nbsp;</td> <td>/usr/bin/</td> </tr> 
+</table> 
+</li> 
+
+<li>
+The <code>pythia8-config.in</code> script has been replaced by a new
+<code>bin/pythia8-config</code> script. See the README file for details.
+The <code>make install</code> step by default will put a copy of it in
+<code>/usr/bin</code>.
+</li> 
+
+<li>The interface to LHAPDF is now dynamically loaded when requested,
+and can be either to version 5 or 6 of the library. The dummy code   
+previously in <code>lhapdfdummy/LHAPDFDummy.cc</code>, to be linked
+when LHAPDF is not, is no longer required. The two new files
+<code>LHAPDF5.h</code> and <code>LHAPDF6.h</code> in the
+<code>include/Pythia8Plugins</code> directory contain the necessary
+interface code. The selection of PDF sets, notably for the proton, 
+has been extended to simplify mixing of internal and external PDF sets,  
+and it is now possible to specify different PDFs for the two incoming
+protons at the LHC, see the <a href="PDFSelection.html" target="page">PDF Selection</a>
+description.</li> 
+
+<li>The new <code>LHEF3.h</code> file contains a generic interface for
+reading Les Houches Event Files of versions 1.0, 2.0 and 3.0. This 
+allows more information to be read and studied by the author. Currently
+PYTHIA itself makes little use of the information beyond the one in 1.0,
+but it is available among the 
+<a href="EventInformation.html" target="page">Event Information</a>.
+Examples are found in <code>main37.cc</code> and <code>main38.cc</code>. 
+</li> 
+ 
+<li>The new <code>Beams:strictLHEFscale</code> switch can be used to
+restrict parton showers in resonance decays to be below the input
+Les Houches scale, not only the hard process itself.
+The new <code>Beams:setProductionScalesFromLHEF</code> switch can be used
+to restrict the emission off each separate parton to be below its specific
+scale.</li> 
+
+<li>The <code>rootexamples</code> directory has been removed, and the
+two programs <code>examples/main91</code> and <code>examples/main92</code>
+now illustrate how ROOT can be used in conjunction with PYTHIA.</li> 
+
+<li>The executable built from <code>examples/mainxx.cc</code> is now 
+named <code>examples/mainxx</code>, while previously it was named
+<code>examples/mainxx.exe</code>.</li> 
+
+<li>The rudimentary support for compilation on Windows platforms,
+present in PYTHIA 8.1, has not yet been updated for 8.2 and so is omitted.
+Also the README.HepMC file is omitted for now.</li> 
+
+<li>The ProMC interface is broken, and has been removed for now.</li> 
+
+<li>Several methods have been removed from the <code>Event</code> class
+since the properties now instead can be accessed from the individual 
+<code>Particle</code> instance, if this particle belongs to an event.
+These include <code>iTopCopy</code>, <code>iBotCopy</code>,
+<code>iTopCopyId</code>, <code>iBotCopyId</code>,<code>motherList</code>,  
+<code>daughterList</code>, <code>sisterList</code>,
+<code>sisterListTopBot</code>, <code>isAncestor</code>,
+<code>statusHepMC</code> and <code>undoDecay</code>.</li> 
+ 
+<li>A number of deprecated <code>Pythia::init(...)</code> methods with
+varying arguments have been removed. Instead call <code>init()</code>
+without any arguments and use 
+<a href="BeamParameters.html" target="page">Beam Parameters</a> settings to
+specify beams and energies in different ways.</li> 
+ 
+<li>The deprecated <code>Pythia::statistics(...)</code> method has been
+removed; instead use <code>Pythia::stat(...)</code>.</li> 
+ 
+<li>Several settings in the <code>Main:</code> series have been removed.
+Most of these have already found replacements in the <code>Init:</code>,
+<code>Next:</code> and <code>Stat:</code> ones, and have been marked as 
+deprecated. Four further ones were deemed so peripheral that they were
+removed altogether, but of course the underlying functionality remains.
+</li> 
+ 
+<li>A few aliases for (parts of) settings names have been removed.
+Previously "Multiple" was mapped to "Multiparton", "MI" to "MPI" and
+"minBias" to "nonDiffractive" if a settings name was not found for the 
+original input string.</li> 
+ 
+<li>The default tune has been changed from 4C to Monash 2013, meaning
+<code>Tune:ee = 7</code> and <code>Tune:pp = 14</code>. The old 4C
+tune that was default in 8.1 can be recovered with 
+<code>Tune:ee = 3</code> and <code>Tune:pp = 5</code>.
+Also most other older tunes are based on <code>Tune:ee = 3</code>.
+</li> 
+ 
+<li>Two new CMS underlying-event tunes [<a href="Bibliography.html" target="page">CMS14</a>] and the ATLAS
+AZ tune [<a href="Bibliography.html" target="page">ATL14</a>] have been added as options.</li> 
+ 
+<li>The default handling of the <i>g &rarr; q qbar</i> splitting kernel
+has been changed, affecting in particular heavy-flavour production. 
+<code>TimeShower:weightGluonToQuark</code> has been changed from 1 to 4
+to do this. All old tunes are with the 1 value but, since the tunes are
+not probing the detailed <i>g &rarr; q qbar</i> behaviour, this is
+not set as part of the tune options.</li> 
+ 
+<li>Christine Rasmussen joins as new PYTHIA collaboration member.</li> 
+ 
+<li>A new model for the handling of <a href="BeamRemnants.html" target="page">beam 
+remnants</a> as an option to the old one, which remains as default
+for now.</li> 
+ 
+<li>Two new models for <a href="ColourReconnection.html" target="page">colour 
+reconnection</a>, one quite sophisticated and one simpler.
+This involves several new classes and files. It also includes some 
+changes in the hadronization framework, notably for the handling of 
+junctions. The old model remains as default for now. The 
+<code>BeamRemnants:reconnectColours</code> flag to switch on/off
+reconnection has been renamed <code>ColourReconnection:reconnect</code>,
+the main parameter <code>BeamRemnants:reconnectRange</code> of the old
+model has been renamed <code>ColourReconnection:range</code>, and several
+new settings have been introduced, notably 
+<code>ColourReconnection:mode</code> to switch among the three models.
+</li> 
+
+<li>A new <code>include/Pythia8Plugins/ColourReconnectionHooks.h</code> 
+makes available an even larger selection of toy colour reconnection 
+models, via user hooks. Some of them are only intended for top decays, 
+for top mass uncertainty studies, whereas others can be used more 
+generally. The <code>examples/main29.cc</code> program illustrates how 
+the different options should be set up.</li> 
+
+<li>Several new features and improvements in the matching/merging 
+machinery. Notably the aMC@NLO matching scheme has been implemented,
+see the <a href="aMCatNLOMatching.html" target="page">aMC@NLO Matching</a>
+description. To this end the global-recoil option of timelike showers
+has been improved, and security checks have been introduced for 
+inaccurate LHEF input. A new <code>main89.cc</code> example has been
+introduced, where different <code>.cmnd</code> files show how to set
+up either CKKW-L, FxFx, MLM, UMEPS or UNLOPS merging.</li>
+
+<li>Improved capability for the <code>LHAup</code> Les Houches interface 
+to read SLHA information embedded in the input file or stream.</li> 
+
+<li>The <code>Makefile</code>s have been updated to take into account
+the changed structure of the HepMC interface.</li> 
+
+<li>The <i>Z'</i> production process has been updated to optionally
+allow decay to a fourth generation of fermions, with universal or
+non-universal couplings.</li> 
+
+<li>Introduction of a new Higgs CP-mixing parametrization via a mixing
+angle <i>phi</i> as described in <a href="HiggsProcesses.html" target="page">Higgs
+Processes</a>. The choice of the Higgs CP-mixing parametrization
+now also affects the distributions of the <i>tau</i> decay products
+from the processes <i>H^0 &rarr; tau^+ tau^-</i>.
+
+<li>Bug fix in <i>H^0 &rarr; W^+ W^- &rarr; 4 f</i> matrix element
+for mixed CP-state case.</li>
+
+<li>Various improvements and finer grain control for the determination
+of <i>tau</i> decay correlations and <i>tau</i> polarizations. By
+default the decays of <i>tau</i> pairs from known resonance decays
+in Les Houches input are now correlated.
+The <code>ParticleDecays:sophisticatedTau</code> mode
+in <a href="ParticleDecays.html" target="page">Particle Decays</a> has been renamed
+<code>TauDecays:mode</code>, as well as all <i>tau</i>-related 
+<code>ParticleDecay</code> options, with two new options of
+using only the internal machinery to determine correlations and
+polarizations, and only using the provided SPINUP digit from Les
+Houches input. The option <code>TauDecays:externalMode</code> has been
+introduced to control the interpretation of the SPINUP digit.
+</li> 
+
+<li>For Les Houches Event input the energy of a particle is recalculated
+from its three-momentum and mass, in order to limit mismatches from
+limited numerical precision in the input values.</li>
+ 
+<li>Bug fix in the two-loop running <i>alpha_s</i>, for the matching 
+to six flavours at the top mass.</li> 
+ 
+<li>Eliminate harmless compiler warnings for <code>FJcore</code>.</li> 
+ 
+ <li>Updated Introduction (= the official 8.2 article) and Worksheet.</li> 
+ 
+</ul> 
+</li> 
+ 
+
+</ul> 
+ 
+</body>
+</html>
+ 
+<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 

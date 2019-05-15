@@ -90,7 +90,11 @@ public:
   int    col()         const {return colRes;}
   int    acol()        const {return acolRes;}
   double pTfactor()    const {return factorRes;}
- 
+  bool hasCol()        const {return (idRes == 21 || (idRes > 0 && idRes < 9) 
+    || (-idRes > 1000 && -idRes < 10000 && (-idRes/10)%10 == 0));}
+  bool hasAcol()       const {return (idRes == 21 || (-idRes > 0 && -idRes < 9) 
+    || (idRes > 1000 && idRes < 10000 && (idRes/10)%10 == 0));}
+
 private:
 
   // Properties of a resolved parton.
@@ -234,12 +238,27 @@ public:
   double zShare( double mDiff, double m1, double m2);
   double pxShare() const {return pxRel;}
   double pyShare() const {return pyRel;}
+
+  // Add extra remnant flavours to make valence and sea come out right.
+  bool remnantFlavoursNew(Event& event);
+
+  // Find the colour setup of the removed partons from the scatterings.
+  void findColSetup(Event& event);
+
+  // Set initial colours.
+  void setInitialCol(Event & event);
+  
+  // Update colours.
+  void updateCol(vector<pair<int,int> > colourChanges);
+
+  vector<pair <int,int> > getColUpdates() {return colUpdates;}
  
 private:
 
   // Constants: could only be changed in the code itself.
-  static const double XMINUNRESOLVED;
-
+  static const double XMINUNRESOLVED, POMERONMASS;
+  static const int NMAX, NRANDOMTRIES;
+  
   // Pointer to various information on the generation.
   Info*         infoPtr;
 
@@ -257,11 +276,12 @@ private:
   StringFlav*   flavSelPtr;
 
   // Initialization data, normally only set once.
-  bool   allowJunction;
+  bool   allowJunction, beamJunction;
   int    maxValQuark, companionPower;
   double valencePowerMeson, valencePowerUinP, valencePowerDinP,
          valenceDiqEnhance, pickQuarkNorm, pickQuarkPower,
-         diffPrimKTwidth, diffLargeMassSuppress;
+         diffPrimKTwidth, diffLargeMassSuppress, beamSat, gluonPower,
+         xGluonCutoff;
 
   // Basic properties of a beam particle.
   int    idBeam, idBeamAbs;
@@ -284,6 +304,14 @@ private:
   bool   hasJunctionBeam;
   int    junCol[3];
 
+  // Variables for new colour reconnection;
+  pair <int,int> colSetup;
+  vector<int> acols, cols;
+  vector<bool> usedCol,usedAcol;
+  vector< pair<int,int> > colUpdates;
+  int nJuncs, nAjuncs, nDiffJuncs;
+  bool allowBeamJunctions;
+
   // Routine to calculate pdf's given previous interactions.
   double xfModified( int iSkip, int idIn, double x, double Q2);
 
@@ -300,6 +328,13 @@ private:
   // Valence quark subdivision for diffractive systems.
   int    idVal1, idVal2, idVal3;
   double zRel, pxRel, pyRel;
+
+  // Update a single (anti-) colour of the event.
+  void updateSingleCol(int oldCol, int newCol);
+
+  // Find a single (anti-) colour in the beam, 
+  // if a beam remnant is set the new colour.
+  int findSingleCol(Event& event, bool isAcol, bool useHardScatters);
 
 };
  

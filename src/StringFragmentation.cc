@@ -414,6 +414,10 @@ bool StringFragmentation::fragment( int iSub, ColConfig& colConfig,
 
     // Begin fragmentation loop, interleaved from the two ends.
     bool fromPos;
+
+    // Variables used to tell help identifying baryons from junction splittings.
+    bool usedPosJun = false, usedNegJun = false;
+
     for ( ; ; ) {
 
       // Take a step either from the positive or the negative end.
@@ -427,6 +431,22 @@ bool StringFragmentation::fragment( int iSub, ColConfig& colConfig,
       // Construct kinematics of the new hadron and store it.
       Vec4 pHad = nowEnd.kinematicsHadron(system);
       int statusHad = (fromPos) ? 83 : 84;
+
+      // Change status code if hadron from junction.
+      if (abs(nowEnd.idHad) > 1000 && abs(nowEnd.idHad) < 10000) {
+	if (fromPos && event[iPos].statusAbs() == 74 && !usedPosJun)  {
+	  statusHad = 87;
+	  usedPosJun = true;
+	}
+	if (!fromPos && event[iNeg].statusAbs() == 74 && !usedNegJun)  {
+	  statusHad = 88;
+	  usedNegJun = true;
+	}
+	if (!fromPos && hasJunction && !usedNegJun) {
+	  statusHad = 88;
+	  usedNegJun = true;
+	}
+      }
       hadrons.append( nowEnd.idHad, statusHad, iPos, iNeg,
         0, 0, 0, 0, pHad, nowEnd.mHad);
       if (pHad.e() < 0.) break;
@@ -439,7 +459,7 @@ bool StringFragmentation::fragment( int iSub, ColConfig& colConfig,
     }
    
     // When done, join in the middle. If this works, then really done.
-    if ( finalTwo(fromPos) ) break;
+    if ( finalTwo(fromPos, event, usedPosJun, usedNegJun) ) break;
 
     // Else remove produced particles (except from first two junction legs)
     // and start all over.
@@ -447,13 +467,14 @@ bool StringFragmentation::fragment( int iSub, ColConfig& colConfig,
     hadrons.popBack(newHadrons);
   }
 
+
   // Junctions & extra joins: remove fictitious end, restore original partons.
   if (hasJunction) ++nExtraJoin;
   if (nExtraJoin > 0) {
     event.popBack(nExtraJoin);
     iParton = colConfig[iSub].iParton;
   }
-
+  
   // Store the hadrons in the normal event record, ordered from one end.
   store(event);
 
@@ -589,7 +610,8 @@ bool StringFragmentation::energyUsedUp(bool fromPos) {
 
 // Produce the final two partons to complete the system.
 
-bool StringFragmentation::finalTwo(bool fromPos) {
+bool StringFragmentation::finalTwo(bool fromPos, Event& event, bool usedPosJun,
+  bool usedNegJun) {
   
   // Check whether we went too far in p+-.
   if (pRem.e() < 0.  || w2Rem < 0. || (hadrons.size() > 0
@@ -679,10 +701,42 @@ bool StringFragmentation::finalTwo(bool fromPos) {
   Vec4 pHadNeg = region.pHad( (xeNeg - xpzPos) *  xPosRem,
     (xeNeg + xpzPos) *  xNegRem, negEnd.pxHad, negEnd.pyHad);
 
+  // Update status codes for junction baryons.
+  int statusHadPos = 83;
+  int statusHadNeg = 84;
+
+  if (fromPos) { 
+    if (abs(posEnd.idHad) > 1000 && abs(posEnd.idHad) < 10000) {
+      if (event[iPos].statusAbs() == 74 && !usedPosJun)  {
+	statusHadPos = 87;
+	usedPosJun = true;
+      }
+    }
+    if (abs(idHad) > 1000 && abs(idHad) < 10000) {
+      if ((!usedNegJun && (event[iNeg].statusAbs() == 74 || hasJunction))
+	  || (!usedPosJun && event[iPos].statusAbs() == 74)) {
+	statusHadNeg = 88;
+      }
+    }
+  } else {
+    if (abs(negEnd.idHad) > 1000 && abs(negEnd.idHad) < 10000) {
+	if (!usedNegJun && (event[iNeg].statusAbs() == 74 || hasJunction)) {
+	  statusHadNeg = 87;
+	  usedNegJun = true;
+	}
+      }
+    if (abs(idHad) > 1000 && abs(idHad) < 10000) {
+      if ((!usedNegJun && (event[iNeg].statusAbs() == 74 || hasJunction))
+	  || (!usedPosJun && event[iPos].statusAbs() == 74)) {
+	statusHadPos = 88;
+      }
+    }
+  }
+
   // Add produced particles to the event record.
-  hadrons.append( posEnd.idHad, 83, posEnd.iEnd, negEnd.iEnd,
+  hadrons.append( posEnd.idHad, statusHadPos, posEnd.iEnd, negEnd.iEnd,
     0, 0, 0, 0, pHadPos, posEnd.mHad);
-  hadrons.append( negEnd.idHad, 84, posEnd.iEnd, negEnd.iEnd,
+  hadrons.append( negEnd.idHad, statusHadNeg, posEnd.iEnd, negEnd.iEnd,
     0, 0, 0, 0, pHadNeg, negEnd.mHad);
 
   // It worked.
@@ -786,11 +840,14 @@ void StringFragmentation::store(Event& event) {
  
   // Loop downwards, copying all from the positive end.
   for (int i = 0; i < hadrons.size(); ++i)
-    if (hadrons[i].status() == 83) event.append( hadrons[i] );
+    if (hadrons[i].status() == 83 || hadrons[i].status() == 87) 
+      event.append( hadrons[i] );
 
   // Loop upwards, copying all from the negative end.
   for (int i = hadrons.size() - 1; i >= 0 ; --i)
-    if (hadrons[i].status() == 84) event.append( hadrons[i] );
+    if (hadrons[i].status() == 84 || hadrons[i].status() == 88) 
+      event.append( hadrons[i] );
+
   int iLast = event.size() - 1;
 
   // Set decay vertex when this is displaced.

@@ -322,25 +322,36 @@ class LHAupLHEF : public LHAup {
 public:
 
   // Constructor.
-  LHAupLHEF(const char* fileIn, const char* headerIn = NULL,
-            bool readHeaders = false);
+  LHAupLHEF(Pythia8::Info* infoPtrIn, const char* filenameIn, 
+    const char* headerIn = NULL, bool readHeadersIn = false,
+    bool setScalesFromLHEFIn = false ) :
+    infoPtr(infoPtrIn), filename(filenameIn), headerfile(headerIn),
+    is(openFile(filenameIn, ifs)), reader(*is), isHead(NULL),
+    readHeaders(readHeadersIn), setScalesFromLHEF(setScalesFromLHEFIn) {
+    // Optionally open header file as well. Note that both
+    // are opened here so that initialisation can be aborted if
+    // either of the files is missing, see fileFound().
+    isHead = (headerfile == NULL) ? is : openFile(headerfile, ifsHead);
+  }
 
   // Destructor.
-  ~LHAupLHEF();
+  ~LHAupLHEF() {
+     // Close files
+     closeAllFiles();
+  }
 
-  // Helper routine to correctly close files
+  // Helper routine to correctly close files.
   void closeAllFiles() {
-    // Close header file if separate, and close main file
+    // Close header file if separate, and close main file.
     if (isHead != is) closeFile(isHead, ifsHead);
     closeFile(is, ifs);
   }
 
   // Want to use new file with events, but without reinitialization.
-  void newEventFile(const char* fileIn) {
+  void newEventFile(const char* filenameIn) {
     // Close files and then open new file
     closeAllFiles();
-    is = openFile(fileIn, ifs);
-
+    is = openFile(filenameIn, ifs);
     // Set isHead to is to keep expected behaviour in
     // fileFound() and closeAllFiles()
     isHead = is;
@@ -350,27 +361,49 @@ public:
   bool fileFound() { return (isHead->good() && is->good()); }
 
   // Routine for doing the job of reading and setting initialization info.
-  bool setInit() {return setInitLHEF(*isHead, readHeaders);}
+  bool setInit() { return setInitLHEF(*isHead, readHeaders);}
+
+  // Routine for doing the job of reading and setting initialization info.
+  bool setInitLHEF( istream & isIn, bool readHead );
 
   // Routine for doing the job of reading and setting info on next event.
   bool setEvent(int = 0, double mRecalculate = -1.) {
-    if (!setNewEventLHEF(*is, mRecalculate)) return false;
+    if (!setNewEventLHEF(mRecalculate)) return false;
     return setOldEventLHEF();
   }
 
   // Skip ahead a number of events, which are not considered further.
   bool skipEvent(int nSkip) {for (int iSkip = 0; iSkip < nSkip; ++iSkip)
-    if (!setNewEventLHEF(*is)) return false; return true;}
+    if (!setNewEventLHEF()) return false; return true;}
+
+  // Routine for doing the job of reading and setting info on next event.
+  bool setNewEventLHEF(double mRecalculate = -1.);
+
+  // Update cross-section information at the end of the run.
+  bool updateSigma();
 
 private:
 
+  Pythia8::Info*  infoPtr;
+  const char* filename;
+  const char* headerfile;
+
   // File from which to read (or a stringstream).
+  ifstream  ifs;
+  istream  *is;
+
+  Reader reader;
+
   // Optionally also a file from which to read the LHEF header.
-  ifstream  ifs,  ifsHead;
-  istream  *is,  *isHead;
+  ifstream  ifsHead;
+  istream  *isHead;
 
   // Flag to read headers or not
   bool readHeaders;
+
+  // Flag to set particle production scales or not.
+  bool setScalesFromLHEF;
+
 };
 
 //==========================================================================

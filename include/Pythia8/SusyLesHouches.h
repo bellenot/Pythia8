@@ -410,6 +410,8 @@ public:
   // Read and write SLHA files
   int readFile(string slhaFileIn="slha.spc",int verboseIn=1,
     bool useDecayIn=true);
+  int readFile(istream& ,int verboseIn=1,
+    bool useDecayIn=true);
   //int writeFile(string filename): write SLHA file on filename
 
   //Output utilities
@@ -889,7 +891,8 @@ template <class T> bool SusyLesHouches::getEntry(string blockName, int indx,
   return false;
  }
 
-}
+} // end of namespace Pythia8
+
 #endif
 
 

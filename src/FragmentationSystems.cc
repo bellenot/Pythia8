@@ -147,8 +147,12 @@ bool ColConfig::insert( vector<int>& iPartonIn, Event& event) {
       }
       Vec4 pNew   = event[iJoin1].p() + event[iJoin2].p();
 
+      int statusHad = 73;
+      // Need to keep status as 74 for junctions in order to keep track of them.
+      if (event[iMoth1].statusAbs() == 74) statusHad = 74;
+      
       // Append joined parton to event record.
-      int iNew = event.append( idNew, 73, iMoth1, iMoth2, 0, 0, 
+      int iNew = event.append( idNew, statusHad, iMoth1, iMoth2, 0, 0, 
         colNew, acolNew, pNew, pNew.mCalc() );
 
       // Displaced lifetime/vertex; mothers should be same but prefer quark.
@@ -351,7 +355,9 @@ void ColConfig::collect(int iSub, Event& event, bool skipTrivial) {
   for (int i = 0; i < singlets[iSub].size(); ++i) {
     int iOld = singlets[iSub].iParton[i];
     if (iOld < 0) continue;
-    int iNew = event.copy(iOld, 71);
+    int iNew;
+    if (event[iOld].status() == 74) iNew = event.copy(iOld, 74);
+    else iNew = event.copy(iOld, 71);
     singlets[iSub].iParton[i] = iNew;
   }
 

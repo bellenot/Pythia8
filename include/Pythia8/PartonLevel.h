@@ -12,8 +12,11 @@
 #include "Pythia8/Basics.h"
 #include "Pythia8/BeamParticle.h"
 #include "Pythia8/BeamRemnants.h"
+#include "Pythia8/ColourReconnection.h"
 #include "Pythia8/Event.h"
 #include "Pythia8/Info.h"
+#include "Pythia8/JunctionSplitting.h"
+#include "Pythia8/MergingHooks.h"
 #include "Pythia8/MultipartonInteractions.h"
 #include "Pythia8/ParticleData.h"
 #include "Pythia8/PartonSystems.h"
@@ -24,9 +27,10 @@
 #include "Pythia8/SigmaTotal.h"
 #include "Pythia8/SpaceShower.h"
 #include "Pythia8/StandardModel.h"
+#include "Pythia8/StringLength.h"
 #include "Pythia8/TimeShower.h"
 #include "Pythia8/UserHooks.h"
-#include "Pythia8/MergingHooks.h"
+
 
 namespace Pythia8 {
  
@@ -93,13 +97,14 @@ private:
          doFSRinResonances, doRemnants, doSecondHard, hasLeptonBeams,
          hasPointLeptons, canVetoPT, canVetoStep, canVetoMPIStep,
          canVetoEarly, canSetScale, allowRH, earlyResDec, vetoWeakJets,
-         canReconResSys;
+         canReconResSys, doReconnect;
   double mMinDiff, mWidthDiff, pMaxDiff, vetoWeakDeltaR2;
 
   // Event generation strategy. Number of steps. Maximum pT scales.
   bool   doVeto;
   int    nMPI, nISR, nFSRinProc, nFSRinRes, nISRhard, nFSRhard,
-         typeLatest, nVetoStep, typeVetoStep, nVetoMPIStep, iSysNow;
+         typeLatest, nVetoStep, typeVetoStep, nVetoMPIStep, iSysNow,
+         reconnectMode;
   double pTsaveMPI, pTsaveISR, pTsaveFSR, pTvetoPT;
 
   // Current event properties.
@@ -155,14 +160,18 @@ private:
 
   // The generator class to construct beam-remnant kinematics.
   BeamRemnants remnants;
-  // Separate instance for central diffraction.
-  BeamRemnants remnantsCD;
   
   // The RHadrons class is used to fragment off and decay R-hadrons.
   RHadrons*    rHadronsPtr;
 
   // ResonanceDecay object does sequential resonance decays.
   ResonanceDecays resonanceDecays;
+
+  // The Colour reconnection class used to do colour reconnection.
+  ColourReconnection colourReconnection;
+  
+  // The Junction splitting class used to split junctions systems.
+  JunctionSplitting junctionSplitting;
 
   // Resolved diffraction: find how many systems should have it.
   int decideResolvedDiff( Event& process);

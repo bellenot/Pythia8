@@ -510,6 +510,8 @@ bool LHAup::setNewEventLHEF(istream& is, double mRecalculate ) {
     // Optionally recalculate mass from four-momentum.
     if (doRecalculate && pup5 > mRecalculate)
       pup5 = sqrtpos( pup4*pup4 - pup1*pup1 - pup2*pup2 - pup3*pup3);
+    // If not, recalculate energy from three-momentum and mass.
+    else pup4 = sqrt( pup1*pup1 + pup2*pup2 + pup3*pup3 + pup5*pup5);
     particlesSave.push_back( LHAParticle( idup, istup, mothup1, mothup2,
       icolup1, icolup2, pup1, pup2, pup3, pup4, pup5, vtimup, spinup, -1.) );
   }
@@ -639,33 +641,309 @@ void LHAup::closeFile(istream *&is, ifstream &ifs) {
   if (ifs.is_open()) ifs.close();
 }
 
-
 //==========================================================================
 
 // LHAupLHEF class.
 
 //--------------------------------------------------------------------------
 
-// Constructor.
+// Routine for doing the job of reading and setting initialization info.
 
-LHAupLHEF::LHAupLHEF(const char* fileIn, const char* headerIn,
-                     bool readHeadersIn)
-    : is(NULL), isHead(NULL), readHeaders(readHeadersIn) {
+bool LHAupLHEF::setInitLHEF( istream & isIn, bool readHead ) {
 
-  // Open LHEF and optionally header file as well. Note that both
-  // are opened here so that initialisation can be aborted if
-  // either of the files is missing, see fileFound().
-  is     = openFile(fileIn, ifs);
-  isHead = (headerIn == NULL) ? is : openFile(headerIn, ifsHead);
+  // Done if there was a problem with initialising the reader
+  if (!reader.isGood) return false;
+
+  // Construct header information (stored in comments strings or optional
+  // header file), so that reading of headers is possible.
+  string comments;
+  comments+="<LesHouchesEvents version =\"3.0\">\n";
+  comments+="<header>\n";
+  comments+=reader.headerComments;
+  comments+="</header>\n";
+  comments+="<init>\n";
+  comments+=reader.initComments;
+  comments+="</init>\n";
+  istringstream is1(comments);
+  istream & iss(((headerfile == NULL) ? is1 : isIn));
+
+  // Check that first line is consistent with proper LHEF file.
+  string line;
+  if (!getline(iss, line)) return false;
+
+  // What to search for if reading headers; if not reading
+  // headers then return to default behaviour
+  string headerTag = (readHead) ? "<header>" : "<init";
+
+  // Loop over lines until an <init (or optionally <header>) tag
+  // is found first on a line.
+  string tag = " ";
+  do { 
+    if (!getline(iss, line)) return false;
+    if (line.find_first_not_of(" \n\t\v\b\r\f\a") != string::npos) {
+      istringstream getfirst(line);
+      getfirst >> tag;
+      if (!getfirst) return false;
+    }
+  } while (tag != "<init>" && tag != "<init" && tag != headerTag);
+
+  // If header tag found, process if required
+  if (readHead == true && tag == headerTag) {
+    // Temporary local storage
+    map < string, string > headerMap;
+
+    // Loop over lines until an <init> tag is found.
+    bool read = true, newKey = false;
+    string key = "base";
+    vector < string > keyVec;
+    while (true) { 
+      if (!getline(iss, line)) return false;
+
+      // Check if this line is a tag; '<' as first character,
+      // '>' as last character, exclusing whitespace
+      size_t pos1 = line.find_first_not_of(" \n\t\v\b\r\f\a");
+      size_t pos2 = line.find_last_not_of(" \n\t\v\b\r\f\a");
+      if (pos1 != string::npos && line[pos1] == '<' &&
+          pos2 != string::npos && line[pos2] == '>' &&
+          pos1 < pos2) {
+
+        // Only take the first word of the tag
+        tag = line.substr(pos1 + 1, pos2 - pos1 - 1);
+        istringstream getfirst(tag);
+        getfirst >> tag;
+
+        // Tag present, so handle here
+        if (getfirst) {
+
+          // Exit condition 
+          if (tag == "init") break;
+
+          // End of header block; keep reading until <init> tag,
+          // but do not store any further information
+          else if (tag == "/header") {
+            read = false;
+            continue;
+
+          // Opening tag
+          } else if (tag[0] != '/') {
+            keyVec.push_back(tag);
+            newKey = true;
+            continue;
+
+          // Closing tag that matches current key
+          } else if (tag == "/" + keyVec.back()) {
+            keyVec.pop_back();
+            newKey = true;
+            continue;
+          }
+
+        } // if (getfirst)
+      }
+
+      // At this point we have a line that is not a tag; if no longer
+      // reading headers then keep going
+      if (!read) continue;
+      
+      // Check for key change
+      if (newKey) {
+        if (keyVec.empty()) key = "base";
+        else                key = keyVec[0];
+        for (size_t i = 1; i < keyVec.size(); i++)
+          key += "." + keyVec[i];
+        newKey = false;
+      }
+
+      // Append information to local storage
+      headerMap[key] += line + "\n";
+
+    } // while (true)
+
+    // Copy information to info using LHAup::setInfoHeader
+    for (map < string, string >::iterator it = headerMap.begin();
+        it != headerMap.end(); it++)
+      setInfoHeader(it->first, it->second);
+
+  } // if (readHead == true && tag == headerTag)
+
+  // Extract beam and strategy info, and store it. 
+  int idbmupA, idbmupB;
+  double ebmupA, ebmupB;
+  int pdfgupA, pdfgupB, pdfsupA, pdfsupB, idwtup, nprup;
+
+  idbmupA  = reader.heprup.IDBMUP.first;
+  idbmupB  = reader.heprup.IDBMUP.second;
+  ebmupA   = reader.heprup.EBMUP.first;
+  ebmupB   = reader.heprup.EBMUP.second;
+  pdfgupA  = reader.heprup.PDFGUP.first;
+  pdfgupB  = reader.heprup.PDFGUP.first;
+  pdfsupA  = reader.heprup.PDFSUP.first;
+  pdfsupB  = reader.heprup.PDFSUP.second;
+  idwtup   = reader.heprup.IDWTUP;
+  nprup    = reader.heprup.NPRUP;
+
+  setBeamA(idbmupA, ebmupA, pdfgupA, pdfsupA);
+  setBeamB(idbmupB, ebmupB, pdfgupB, pdfsupB);
+  setStrategy(idwtup);
+
+  // Read in process info, one process at a time, and store it.
+  double xsecup, xerrup, xmaxup;
+  xSecSumSave = 0.;
+  xErrSumSave = 0.;
+  int lprup; 
+  infoPtr->sigmaLHEFSave.resize(0);
+  for (int ip = 0; ip < nprup; ++ip) { 
+    xsecup = reader.heprup.XSECUP[ip];
+    xerrup = reader.heprup.XERRUP[ip];
+    xmaxup = reader.heprup.XMAXUP[ip];
+    lprup = reader.heprup.LPRUP[ip];
+    addProcess(lprup, xsecup, xerrup, xmaxup);
+    xSecSumSave += xsecup;
+    xErrSumSave += pow(xerrup,2);
+    infoPtr->sigmaLHEFSave.push_back(xsecup);
+  }
+  xErrSumSave = sqrt(xErrSumSave);
+
+  // Now extract LHEF 2.0/3.0 novelties.
+  infoPtr->setLHEF3InitInfo();
+  if (reader.version > 1) {
+    infoPtr->setLHEF3InitInfo( reader.version,
+      &reader.heprup.initrwgt, &(reader.heprup.generators),
+      &(reader.heprup.weightgroups), &(reader.heprup.weights));
+  }
+
+  // Reading worked.
+  return true;
 }
 
 //--------------------------------------------------------------------------
 
-// Destructor.
+// Routine for doing the job of reading and setting info on next event.
 
-LHAupLHEF::~LHAupLHEF() {
-  // Close files
-  closeAllFiles();
+bool LHAupLHEF::setNewEventLHEF(double mRecalculate ) {
+
+  // Done if the reader finished preemptively.
+  if(!reader.readEvent()) return false;
+
+  // Extract process info and store it.
+  nupSave     = reader.hepeup.NUP;
+  idprupSave  = reader.hepeup.IDPRUP;
+  xwgtupSave  = reader.hepeup.XWGTUP;
+  scalupSave  = reader.hepeup.SCALUP;
+  aqedupSave  = reader.hepeup.AQEDUP;
+  aqcdupSave  = reader.hepeup.AQCDUP; 
+
+  // Reset particlesSave vector, add slot-0 empty particle.
+  particlesSave.clear();
+  particlesSave.push_back( Pythia8::LHAParticle() );
+
+  // Read in particle info one by one, and store it.
+  // Note unusual C++ loop range, to better reflect LHA/Fortran standard.
+  // (Recall that process(...) above added empty particle at index 0.)
+  int idup, istup, mothup1, mothup2, icolup1, icolup2;
+  double pup1, pup2, pup3, pup4, pup5, vtimup, spinup;
+  bool doRecalculate = (mRecalculate > 0.);
+  for ( int i = 0; i < reader.hepeup.NUP; ++i ) {
+    // Extract information stored in reader.
+    idup     = reader.hepeup.IDUP[i];
+    istup    = reader.hepeup.ISTUP[i];
+    mothup1  = reader.hepeup.MOTHUP[i].first;
+    mothup2  = reader.hepeup.MOTHUP[i].second;
+    icolup1  = reader.hepeup.ICOLUP[i].first;
+    icolup2  = reader.hepeup.ICOLUP[i].second;
+    pup1     = reader.hepeup.PUP[i][0];
+    pup2     = reader.hepeup.PUP[i][1];
+    pup3     = reader.hepeup.PUP[i][2];
+    pup4     = reader.hepeup.PUP[i][3];
+    pup5     = reader.hepeup.PUP[i][4];
+    vtimup   = reader.hepeup.VTIMUP[i];
+    spinup   = reader.hepeup.SPINUP[i];
+    // Optionally recalculate mass from four-momentum.
+    if (doRecalculate && pup5 > mRecalculate)
+      pup5 = Pythia8::sqrtpos( pup4*pup4 - pup1*pup1 - pup2*pup2 - pup3*pup3);
+    // If not, recalculate energy from three-momentum and mass.
+    else pup4 = sqrt( pup1*pup1 + pup2*pup2 + pup3*pup3 + pup5*pup5);
+    particlesSave.push_back( Pythia8::LHAParticle( idup,istup,mothup1,mothup2,
+      icolup1, icolup2, pup1, pup2, pup3, pup4, pup5, vtimup, spinup, -1.) );
+  }
+
+  // Flavour and x values of hard-process initiators.
+  id1InSave = particlesSave[1].idPart;
+  id2InSave = particlesSave[2].idPart;
+  x1InSave  = (eBeamA() > 0.) ? particlesSave[1].ePart / eBeamA() : 0.;
+  x2InSave  = (eBeamB() > 0.) ? particlesSave[2].ePart / eBeamB() : 0.;
+
+  // Parse event comments and look for optional info on the way.
+  std::string line, tag;
+  std::stringstream ss(reader.eventComments);
+  getPDFSave = false;
+  getScale   = false;
+  getScale   = (setScalesFromLHEF && reader.version == 1) ? false : true;
+  while (getline(ss, line)) {
+    istringstream getinfo(line);
+    getinfo >> tag;
+    if (!getinfo) break;
+    // Extract PDF info if present.
+    if (tag == "#pdf" && !getPDFSave) {
+      getinfo >> id1pdfInSave >> id2pdfInSave >> x1pdfInSave >> x2pdfInSave
+              >> scalePDFInSave >> pdf1InSave >> pdf2InSave;
+      if (!getinfo) return false;
+      getPDFSave = true;
+    // Extract scale info if present.
+    } else if (tag == "#" && !getScale) {
+      double scaleIn = 0;
+      for (int i = 3; i < int(particlesSave.size()); ++i)
+        if (particlesSave[i].statusPart == 1) {
+          if ( !(getinfo >> scaleIn) ) return false;
+          particlesSave[i].scalePart = scaleIn;
+        }
+      if (!getinfo) return false;
+      getScale = true;
+    }
+  }
+
+  // Set production scales from <scales> tag. 
+  if ( setScalesFromLHEF && reader.version > 1 ){
+    if(&reader.hepeup.scales)
+    for ( map<string,double>::const_iterator
+      it  = reader.hepeup.scales.attributes.begin();
+      it != reader.hepeup.scales.attributes.end(); ++it ) {
+      if ( it->first.find_last_of("_") != string::npos) {
+        unsigned iFound = it->first.find_last_of("_") + 1;
+        int iPos = atoi(it->first.substr(iFound).c_str());
+        // Only set production scales of final particles.
+        if ( iPos < int(particlesSave.size())
+          && particlesSave[iPos].statusPart == 1)
+          particlesSave[iPos].scalePart = it->second;
+      }
+    }
+  }
+
+  // Need id and x values even when no PDF info. Rest empty.
+  if (!getPDFSave) {
+    id1pdfInSave   = id1InSave;
+    id2pdfInSave   = id2InSave;
+    x1pdfInSave    = x1InSave;
+    x2pdfInSave    = x2InSave;
+    scalePDFInSave = 0.;
+    pdf1InSave     = 0.;
+    pdf2InSave     = 0.;
+  }
+
+  // Now extract LHEF 2.0/3.0 novelties.
+  infoPtr->setLHEF3EventInfo();
+  // Set everything for 2.0 and 3.0
+  if (reader.version > 1) {
+    infoPtr->setLHEF3EventInfo( &reader.hepeup.attributes, 
+      &reader.hepeup.weights_detailed, &reader.hepeup.weights_compressed,
+      &reader.hepeup.scales, &reader.hepeup.weights, &reader.hepeup.rwgt);
+  // Try to at least set the event attributes for 1.0
+  } else {
+    infoPtr->setLHEF3EventInfo( &reader.hepeup.attributes, 0, 0, 0, 0, 0);
+  }
+
+  // Reading worked.
+  return true;
+
 }
 
 //==========================================================================
