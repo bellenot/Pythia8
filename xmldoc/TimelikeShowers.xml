@@ -38,11 +38,10 @@ this assumption.
 
 <p/>
 The amount of QCD radiation in the shower is determined by 
-<parm name="TimeShower:alphaSvalue" default="0.1265" 
+<parm name="TimeShower:alphaSvalue" default="0.137" 
 min="0.06" max="0.25">
 The <ei>alpha_strong</ei> value at scale <ei>M_Z^2</ei>. The default 
-value corresponds to the one tuned to LEP data (using a first-order 
-running), so should be taken rather seriously <ref>Rud04</ref>.
+value corresponds to a crude tuning to LEP data, to be improved.
 </parm>
 
 <p/>

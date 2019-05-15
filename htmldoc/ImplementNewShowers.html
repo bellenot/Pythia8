@@ -274,22 +274,15 @@ involve replacing the following methods.
 The constructor does not need to do anything.
   
 
-<p/><code>method&nbsp; </code><strong> static void initStatic() &nbsp;</strong> <br/>
-Since this member is static actually it cannot be overloaded.
-This is where a number of settings are read in and stored for
-further usage in the base class, i.e. the PYTHIA default showers. 
-If you find them convenient, feel free to make use of them in your 
-own shower. If not, everything you want to set could instead be
-taken care of in the next routine. 
-  
-
 <p/><code>method&nbsp; </code><strong> void init( BeamParticle* beamAPtrIn = 0, BeamParticle* beamBPtrIn = 0) &nbsp;</strong> <br/>
 You have to store your local copy of the pointers to these objects,
 since they have to be used during the generation, as explained above.
 The pointers could be zero; e.g. a local copy of <code>TimeShower</code>
 is created to handle showers in decays such as <i>Upsilon -> q qbar</i>
 from inside the <code>ParticleDecays class</code>. This is also the 
-place to do some further initialization.
+place to do initialization of whatever parameters you plan to use, 
+e.g. by reading in them from a user-accessible database like the
+<code>Settings</code> one.
   
 
 <p/><code>method&nbsp; </code><strong> double enhancePTmax() &nbsp;</strong> <br/>
@@ -414,19 +407,12 @@ and non-interleaved evolution. Thus there is no correspondence to the
 The constructor does not need to do anything.
   
 
-<p/><code>method&nbsp; </code><strong> static void initStatic() &nbsp;</strong> <br/>
-Since this member is static actually it cannot be overloaded.
-This is where a number of settings are read in and stored for
-further usage in the base class, i.e. the PYTHIA default showers. 
-If you find them convenient, feel free to make use of them in your 
-own shower. If not, everything you want to set could instead be
-taken care of in the next routine. 
-  
-
 <p/><code>method&nbsp; </code><strong> void init( BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn) &nbsp;</strong> <br/>
 You have to store your local copy of the pointers to these objects,
 since they have to be used during the generation, as explained above.
-This is also the place to do some further initialization.
+This is also the place to do initialization of whatever parameters 
+you plan to use, e.g. by reading in them from a user-accessible 
+database like the <code>Settings</code> one.
   
 
 <p/><code>method&nbsp; </code><strong> bool limitPTmax( Event& event, double Q2Fac = 0., double Q2Ren = 0.) &nbsp;</strong> <br/>

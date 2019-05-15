@@ -75,8 +75,7 @@ In addition there is one further parameter.
 multiplicative factor in the <ei>LQ -> q l</ei> squared Yukawa coupling, 
 and thereby in the <ei>LQ</ei> width and the <ei>q l -> LQ</ei> and 
 other cross sections. Specifically, <ei>lambda^2/(4 pi) = k alpha_em</ei>, 
-i.e. it corresponds to the $k$ factor of J.L. Hewett and S. Pakvasa, 
-Phys. Rev. D37 (1988) 3165.
+i.e. it corresponds to the $k$ factor of <ref>Hew88</ref>.
 </parm>
 
 </chapter>

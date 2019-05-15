@@ -3,7 +3,7 @@
 <h2>Error Checks</h2>
 
 There is a few settings related to error checking during program
-execution. Many other checks are perfomed as well, but do not 
+execution. Many other checks are performed as well, but do not 
 have any specific setting related to themselves.
 
 <flag name="Check:particleData" default="off">
@@ -20,7 +20,7 @@ used for these checks, may also be called directly.
 
 <modepick name="Check:levelParticleData" default="1">
 The level of verbosity and checks of particle data, if switched on.
-<option value="0">mimimal amount of checks, e.g. that no channels open
+<option value="0">mimimal amount of checks, e.g. that no channels open.
 </option>
 <option value="1">further warning if individual channels closed,
 except for resonances.</option>

@@ -109,7 +109,8 @@ the nominal proper lifetime <i>tau_0</i> (in mm/c).
 
 <p/><code>method&nbsp; </code><strong> isResonance(id) &nbsp;</strong> <br/>
 a flag telling whether a particle species are considered as a resonance 
-or not. Here "resonance" is used as shorthand for any massive particle 
+or not. Here <a href="ResonanceDecays.html" target="page">"resonance"</a> 
+is used as shorthand for any massive particle 
 where the decay process should be counted as part of the hard process
 itself, and thus be performed before showers and other event aspects 
 are added. Restrictions on allowed decay channels is also directly
@@ -155,8 +156,9 @@ calculate the width of the resonance from encoded matrix-element
 expressions, i.e. the <i>Z^0</i>, <i>W^+-</i>, <i>t</i>, 
 <i>h^0</i>, and a few more. The normal behaviour (<code>false</code>)
 is then that the width is calculated from the mass, but it is 
-possible to force the resonance to retain the nominal width. 
-Branching ratios and the running of the total width are unaffected.
+possible to <a href="ResonanceDecays.html" target="page">force</a> the resonance 
+to retain the nominal width. Branching ratios and the running of the 
+total width are unaffected.
   
 
 <p/>
@@ -518,16 +520,14 @@ in a separate file, with one line per change, e.g.
 <pre>
     111:mayDecay = off
 </pre>
-Each line is process as described for the string in 2a).<br/>
-
 The file can be read by the 
 <pre>
     pythia.readFile(fileName); 
 </pre>
 method, where <code>fileName</code> is a string, e.g.
-<code>pythia.readFile("main.cmnd")</code>. This file can freely mix 
-commands to the <code>Settings</code> and <code>ParticleData</code>
- classes.
+<code>pythia.readFile("main.cmnd")</code>. Each line is process as 
+described for the string in 2a). This file can freely mix commands to 
+the <code>Settings</code> and <code>ParticleData</code> classes.
 </li> 
 
 <li> <p/>

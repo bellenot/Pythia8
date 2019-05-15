@@ -136,6 +136,17 @@ void Sigma2gg2gg::setIdColAcol() {
 
 //*********
 
+// Initialize process. 
+  
+void Sigma2gg2qqbar::initProc() {
+
+  // Read number of quarks to be considered in massless approximation.
+  nQuarkNew       = Settings::mode("HardQCD:nQuarkNew");
+
+} 
+
+//*********
+
 // Evaluate d(sigmaHat)/d(tHat) - no incoming flavour dependence. 
 
 void Sigma2gg2qqbar::sigmaKin() { 
@@ -311,6 +322,17 @@ void Sigma2qqbar2gg::setIdColAcol() {
 
 // Sigma2qqbar2qqbarNew class.
 // Cross section q qbar -> q' qbar'.
+
+//*********
+
+// Initialize process. 
+  
+void Sigma2qqbar2qqbarNew::initProc() {
+
+  // Read number of quarks to be considered in massless approximation.
+  nQuarkNew       = Settings::mode("HardQCD:nQuarkNew");
+
+} 
 
 //*********
 

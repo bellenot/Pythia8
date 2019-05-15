@@ -147,8 +147,8 @@ load the page are the default values.</li>
 
 <p/><li>
 When you have finished making your changes to a particular page, 
-you must click on <b>Save Settings</b> at the bottom of the page. 
-This will write the changes to your temporary file. If you make 
+you <i>must</i> click on <b>Save Settings</b> at the <i>bottom</i> of 
+the page. This will write the changes to your temporary file. If you make 
 a mistake, just repeat the procedure for that category again.<br> 
 
 <p/><li>
@@ -160,7 +160,8 @@ You will then get up a link, that you are asked to <b>right-click</b>
 with your mouse (or equivalent).</li> 
 
 <p/><li>
-In the menu that appears, pick the option <b>Save Link As</b>.</li> 
+In the menu that appears, pick the option <b>Save Link As</b>
+(or equivalent).</li> 
 
 <p/><li>
 You will now get up a file browser, for you to pick and <b>Save</b>
@@ -226,7 +227,7 @@ unless the RESET button is used. The good news is that this makes
 it possible to recover a file that otherwise might be lost. The bad 
 news is that the <code>files</code> directory may need to be cleaned 
 up from time to time. (But typically the files are pretty small, so
-should not be a major problem.)</li>
+this should not be a major problem.)</li>
 
 <p/><li>
 When you click the <b>Save Settings</b> button on the bottom of a page

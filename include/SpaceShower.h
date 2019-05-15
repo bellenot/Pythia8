@@ -35,7 +35,7 @@ public:
     int iRecoilerIn = 0, double pTmaxIn = 0., int colTypeIn = 0, 
     int chgTypeIn = 0,  int MEtypeIn = 0) : system(systemIn), side(sideIn), 
     iRadiator(iRadiatorIn), iRecoiler(iRecoilerIn), pTmax(pTmaxIn), 
-    colType(colTypeIn), chgType(chgTypeIn), MEtype(MEtypeIn) { }
+    colType(colTypeIn), chgType(chgTypeIn), MEtype(MEtypeIn), nBranch(0) { }
  
   // Store values for trial emission.
   void store( int idDaughterIn, int idMotherIn, int idSisterIn,   
@@ -52,8 +52,9 @@ public:
   int    colType, chgType, MEtype;
   
   // Properties specific to current trial emission.
-  int    idDaughter, idMother, idSister;  
-  double x1, x2, m2Dip, pT2, z, Q2, mSister, m2Sister, pT2corr, phi;
+  int    idDaughter, idMother, idSister, nBranch;  
+  double x1, x2, m2Dip, pT2, z, Q2, mSister, m2Sister, pT2corr, phi,
+         pT2Old, zOld;
 
 } ;
  
@@ -70,9 +71,6 @@ public:
 
   // Destructor.
   virtual ~SpaceShower() {}
-
-  // Initialize static data members.
-  static void initStatic();
 
   // Initialize generation. Possibility to force re-initialization by hand.
   virtual void init( BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn);
@@ -106,20 +104,6 @@ public:
 
 protected:
 
-  // Static initialization data, normally only set once.
-  static bool   doQCDshower, doQEDshowerByQ, doQEDshowerByL, useSamePTasMI,
-                doMEcorrections, doPhiPolAsym;
-  static int    pTmaxMatch, pTdampMatch, alphaSorder, alphaEMorder, nQuarkIn;
-  static double pTmaxFudge, pTdampFudge, mc, mb, m2c, m2b, alphaSvalue, 
-                alphaS2pi, pT0Ref, ecmRef, ecmPow, pTmin, pTminChgQ, 
-                pTminChgL;
-
-  // Constants: could only be changed in the code itself.
-  static const double CTHRESHOLD, BTHRESHOLD, EVALPDFSTEP, TINYPDF, 
-                      TINYKERNELPDF, TINYPT2, HEAVYPT2EVOL, HEAVYXEVOL, 
-                      EXTRASPACEQ, LEPTONXMIN, LEPTONXMAX, LEPTONPT2MIN, 
-                      LEPTONFUDGE;
-
   // Pointers to the two incoming beams.
   BeamParticle* beamAPtr;
   BeamParticle* beamBPtr;
@@ -129,19 +113,28 @@ protected:
 
 private: 
 
-  // Other non-static initialization data.
-  double Lambda3flav, Lambda4flav, Lambda5flav, Lambda3flav2, 
-         Lambda4flav2, Lambda5flav2, sCM, eCM, pT0, pT20, pT2min, 
-         pT2minChgQ, pT2minChgL, pT2damp; 
+  // Constants: could only be changed in the code itself.
+  static const double CTHRESHOLD, BTHRESHOLD, EVALPDFSTEP, TINYPDF, 
+         TINYKERNELPDF, TINYPT2, HEAVYPT2EVOL, HEAVYXEVOL, EXTRASPACEQ, 
+         LEPTONXMIN, LEPTONXMAX, LEPTONPT2MIN, LEPTONFUDGE;
 
-  // Some current values.
-  bool   dopTdamp;
-  int    iNow, iRec, idDaughter, nRad;
-  double xDaughter, x1Now, x2Now, m2Dip;
+  // Initialization data, normally only set once.
+  bool   doQCDshower, doQEDshowerByQ, doQEDshowerByL, useSamePTasMI,
+         doMEcorrections, doPhiPolAsym, doRapidityOrder;
+  int    pTmaxMatch, pTdampMatch, alphaSorder, alphaEMorder, nQuarkIn;
+  double pTmaxFudge, pTdampFudge, mc, mb, m2c, m2b, alphaSvalue, alphaS2pi, 
+         Lambda3flav, Lambda4flav, Lambda5flav, Lambda3flav2, Lambda4flav2, 
+         Lambda5flav2, pT0Ref, ecmRef, ecmPow, pTmin, sCM, eCM, pT0, 
+         pTminChgQ, pTminChgL, pT20, pT2min, pT2minChgQ, pT2minChgL; 
 
   // alphaStrong and alphaEM calculations.
   AlphaStrong alphaS;
   AlphaEM alphaEM;
+
+  // Some current values.
+  bool   dopTdamp;
+  int    iNow, iRec, idDaughter, nRad;
+  double xDaughter, x1Now, x2Now, m2Dip, pT2damp;
 
   // All dipole ends
   vector<SpaceDipoleEnd> dipEnd;

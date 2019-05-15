@@ -59,6 +59,14 @@ user cuts.<br/>
 In most runs there would be no user hooks implemented, and then the 
 numbers of selected and of accepted events will agree.
 
+<p/>
+For Les Houches events the total cross section will be correctly
+displayed; however the (optional) error value will not be used, so that
+the reported error will be smaller than the correct statistical ones,
+and often vanish completely. Furthermore, while the number of events 
+is shown for each user process, the cross section is only for the sum 
+of them. 
+
 <h3>Error messages</h3>
 
 When Pythia is run, errors may occur, and give rise to warning messages.

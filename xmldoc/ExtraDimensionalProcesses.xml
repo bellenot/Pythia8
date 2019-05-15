@@ -24,8 +24,8 @@ Scatterings <ei>g g -> G^*</ei>.
 Code 5001.
 </flag>
 
-<flag name="ExtraDimensionsG*:qqbar2G*" default="off">
-Scatterings <ei>q qbar -> G^*</ei>. 
+<flag name="ExtraDimensionsG*:ffbar2G*" default="off">
+Scatterings <ei>f fbar -> G^*</ei>. 
 Code 5002.
 </flag>
 

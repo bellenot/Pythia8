@@ -118,6 +118,9 @@ void Sigma2qqbar2ggamma::setIdColAcol() {
   
 void Sigma2gg2ggamma::initProc() {
 
+  // Maximum quark flavour in loop.
+  int nQuarkLoop = Settings::mode("PromptPhoton:nQuarkLoop");
+
   // Calculate charge factor from the allowed quarks in the box. 
   chargeSum                       = - 1./3. + 2./3. - 1./3.;
   if (nQuarkLoop >= 4) chargeSum += 2./3.;
@@ -236,6 +239,9 @@ void Sigma2ffbar2gammagamma::setIdColAcol() {
   
 void Sigma2gg2gammagamma::initProc() {
 
+  // Maximum quark flavour in loop.
+  int nQuarkLoop = Settings::mode("PromptPhoton:nQuarkLoop");
+
   // Calculate charge factor from the allowed quarks in the box. 
   charge2Sum                       = 1./9. + 4./9. + 1./9.;
   if (nQuarkLoop >= 4) charge2Sum += 4./9.;
@@ -306,7 +312,7 @@ void Sigma2gg2gammagamma::setIdColAcol() {
 void Sigma2ff2fftgmZ::initProc() {
 
   // Store Z0 mass for propagator. Common coupling factor.
-  gmZmode   = Settings::mode("SigmaProcess:gmZmode");
+  gmZmode   = Settings::mode("WeakZ0:gmZmode");
   mZ        = ParticleDataTable::m0(23);
   mZS       = mZ*mZ;
   thetaWRat = 1. / (16. * CoupEW::sin2thetaW() * CoupEW::cos2thetaW());  
@@ -625,7 +631,7 @@ double Sigma2qq2QqtW::weightDecay( Event& process, int iResBeg,
 void Sigma1ffbar2gmZ::initProc() {
 
   // Allow to pick only gamma* or Z0 part of full gamma*/Z0 expression.
-  gmZmode     = Settings::mode("SigmaProcess:gmZmode");
+  gmZmode     = Settings::mode("WeakZ0:gmZmode");
 
   // Store Z0 mass and width for propagator. 
   mRes        = ParticleDataTable::m0(23);
@@ -740,10 +746,11 @@ void Sigma1ffbar2gmZ::setIdColAcol() {
 
 // Evaluate weight for gamma*/Z0 decay angle.
   
-double Sigma1ffbar2gmZ::weightDecay( Event& process, int iResBeg, int iResEnd) {
+double Sigma1ffbar2gmZ::weightDecay( Event& process, int iResBeg, 
+  int iResEnd) {
 
   // Z should sit in entry 5.
-  if (iResBeg != 5 || iResEnd != 6) return 1.;
+  if (iResBeg != 5 || iResEnd != 5) return 1.;
 
   // Couplings for in- and out-flavours.
   int idInAbs  = process[3].idAbs();
@@ -812,53 +819,11 @@ void Sigma1ffbar2W::initProc() {
 
 void Sigma1ffbar2W::sigmaKin() { 
 
-  // Common coupling factors.
-  double colQ   = 3. * (1. + alpS / M_PI);
-
-  // Reset quantities to sum. Declare variables inside loop.
-  double widOutPos = 0.; 
-  double widOutNeg = 0.; 
-  int    id1Abs, id2Abs, onMode;
-  double widNow, mf1, mf2, mr1, mr2, ps;
-
-  // Loop over all W+- decay channels. 
-  for (int i = 0; i < particlePtr->decay.size(); ++i) {
-    widNow = 0.;
-    id1Abs = abs( particlePtr->decay[i].product(0) );
-    id2Abs = abs( particlePtr->decay[i].product(1) );
-
-    // Only contributions from three fermion generations, except top.
-    if ( (id1Abs > 0 && id1Abs < 6 && id2Abs > 0 && id2Abs < 6) 
-      || (id1Abs > 10 && id1Abs < 17 && id2Abs > 10 && id2Abs < 17)) {
-      mf1 = ParticleDataTable::m0(id1Abs);
-      mf2 = ParticleDataTable::m0(id2Abs);
-
-      // Check that above threshold. Phase space.
-      if (mH > mf1 + mf2 + MASSMARGIN) {
-        mr1 = pow2(mf1 / mH);
-        mr2 = pow2(mf2 / mH);
-        ps  = (1. - 0.5 * (mr1 + mr2) - 0.5 * pow2(mr1 - mr2))
-            * sqrtpos( pow2(1. - mr1 - mr2) - 4. * mr1 * mr2 ); 
-
-        // Combine phase space with colour factor and CKM couplings.
-        widNow = ps;
-        if (id1Abs < 6) widNow *= colQ * VCKM::V2id(id1Abs, id2Abs);
-
-        // Add weight for channels on for all, W+ and W-, respectively.
-        onMode = particlePtr->decay[i].onMode();
-        if (onMode == 1 || onMode == 2) widOutPos += widNow;
-        if (onMode == 1 || onMode == 3) widOutNeg += widNow;
-
-      // End loop over fermions.
-      }
-    }
-  }
-
   // Set up Breit-Wigner. Cross section for W+ and W- separately.
-  double sigBW = 12. * M_PI * pow2(alpEM * thetaWRat) * sH
-               / ( pow2(sH - m2Res) + pow2(sH * GamMRat) ); 
-  sigma0Pos = sigBW * widOutPos;    
-  sigma0Neg = sigBW * widOutNeg;    
+  double sigBW  = 12. * M_PI / ( pow2(sH - m2Res) + pow2(sH * GamMRat) ); 
+  double preFac = alpEM * thetaWRat * mH;
+  sigma0Pos     = preFac * sigBW * particlePtr->resWidthOpen(34, mH);    
+  sigma0Neg     = preFac * sigBW * particlePtr->resWidthOpen(-34, mH);    
 
 }
 
@@ -900,10 +865,11 @@ void Sigma1ffbar2W::setIdColAcol() {
 
 // Evaluate weight for W decay angle.
   
-double Sigma1ffbar2W::weightDecay( Event& process, int iResBeg, int iResEnd) {
+double Sigma1ffbar2W::weightDecay( Event& process, int iResBeg, 
+  int iResEnd) {
 
   // W should sit in entry 5.
-  if (iResBeg != 5 || iResEnd != 6) return 1.;
+  if (iResBeg != 5 || iResEnd != 5) return 1.;
 
   // Phase space factors.
   double mr1    = pow2(process[6].m()) / sH;
@@ -1030,7 +996,7 @@ void Sigma2ffbar2FFbarsgmZ::initProc() {
     nameSave   = "f fbar -> nu'_tau nu'bar_tau (s-channel gamma*/Z0)";
 
   // Allow to pick only gamma* or Z0 part of full gamma*/Z0 expression.
-  gmZmode      = Settings::mode("SigmaProcess:gmZmode");
+  gmZmode      = Settings::mode("WeakZ0:gmZmode");
 
   // Store Z0 mass and width for propagator. 
   mRes         = ParticleDataTable::m0(23);
@@ -1410,7 +1376,7 @@ double Sigma2ffbargmZWgmZW::xjGK( double tHnow, double uHnow) {
 void Sigma2ffbar2gmZgmZ::initProc() {
 
   // Allow to pick only gamma* or Z0 part of full gamma*/Z0 expression.
-  gmZmode     = Settings::mode("SigmaProcess:gmZmode");
+  gmZmode     = Settings::mode("WeakZ0:gmZmode");
 
   // Store Z0 mass and width for propagator. 
   mRes        = ParticleDataTable::m0(23);
@@ -1658,7 +1624,7 @@ double Sigma2ffbar2gmZgmZ::weightDecay( Event& process, int iResBeg,
   int iResEnd) {
 
   // Two resonance decays, but with common weight.
-  if (iResBeg != 5 || iResEnd != 7) return 1.;
+  if (iResBeg != 5 || iResEnd != 6) return 1.;
 
   // Set up four-products and internal products.
   setupProd( process, i1, i2, i3, i4, i5, i6); 
@@ -1802,7 +1768,7 @@ void Sigma2ffbar2ZW::setIdColAcol() {
 double Sigma2ffbar2ZW::weightDecay( Event& process, int iResBeg, int iResEnd) {
 
   // Two resonance decays, but with common weight.
-  if (iResBeg != 5 || iResEnd != 7) return 1.;
+  if (iResBeg != 5 || iResEnd != 6) return 1.;
 
   // Order so that fbar(1) f(2) -> f'(3) fbar'(4) f"(5) fbar"(6)
   // with f' fbar' from W+- and f" fbar" from Z0 (note flip Z0 <-> W+-).
@@ -1965,7 +1931,7 @@ void Sigma2ffbar2WW::setIdColAcol() {
 double Sigma2ffbar2WW::weightDecay( Event& process, int iResBeg, int iResEnd) {
 
   // Two resonance decays, but with common weight.
-  if (iResBeg != 5 || iResEnd != 7) return 1.;
+  if (iResBeg != 5 || iResEnd != 6) return 1.;
 
   // Order so that fbar(1) f(2) -> f'(3) fbar'(4) f"(5) fbar"(6).
   // with f' fbar' from W- and f" fbar" from W+.
@@ -2027,7 +1993,7 @@ double Sigma2ffbar2WW::weightDecay( Event& process, int iResBeg, int iResEnd) {
 void Sigma2ffbargmZggm::initProc() {
 
   // Allow to pick only gamma* or Z0 part of full gamma*/Z0 expression.
-  gmZmode     = Settings::mode("SigmaProcess:gmZmode");
+  gmZmode     = Settings::mode("WeakZ0:gmZmode");
 
   // Store Z0 mass and width for propagator. 
   mRes        = ParticleDataTable::m0(23);
@@ -2122,7 +2088,7 @@ void Sigma2ffbargmZggm::propTerm() {
 double Sigma2ffbargmZggm::weightDecay( Event& process, int iResBeg, int iResEnd) {
 
   // Z should sit in entry 5 and one more parton in entry 6.
-  if (iResBeg != 5 || iResEnd != 7) return 1.;
+  if (iResBeg != 5 || iResEnd != 6) return 1.;
 
   // In an outgoing sense fermions are labelled f(1) fbar(2) f'(3) fbar'(4)
   // where f' fbar' come from gamma*/Z0 decay. 
@@ -2443,7 +2409,7 @@ void Sigma2fgm2gmZf::setIdColAcol() {
 double Sigma2ffbarWggm::weightDecay( Event& process, int iResBeg, int iResEnd) {
 
   // W should sit in entry 5 and one more parton in entry 6.
-  if (iResBeg != 5 || iResEnd != 7) return 1.;
+  if (iResBeg != 5 || iResEnd != 6) return 1.;
 
   // In an outgoing sense fermions are labelled f(1) fbar(2) f'(3) fbar'(4)
   // where f' fbar' come from W+- decay. 

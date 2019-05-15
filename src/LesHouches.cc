@@ -179,7 +179,7 @@ bool LHAinitLHEF::set() {
 
 // Read in a Les Houches Event File.
 
-bool LHAevntLHEF::set() {
+bool LHAevntLHEF::set( int ) {
   
   // Loop over lines until an <event tag is found first on a line.
   string line, tag;

@@ -245,10 +245,11 @@ and so on, until either <code>iAncestor</code> is found or the top of
 the record is reached. Normally one unique mother is required,
 as is the case e.g. in decay chains or in parton showers, so that
 e.g. the tracing through a hard scattering would not work. For
-hadronization, currently first-rank hadrons are identified with the
-respective string endpoint quark, which may be useful e.g. for <i>b</i>
-physics. However, currently ministrings or junction topologies give 
-<code>false</code>. (??)  
+hadronization, first-rank hadrons are identified with the respective 
+string endpoint quark, which may be useful e.g. for <i>b</i> physics, 
+while higher-rank hadrons give <code>false</code>. Currently also 
+ministrings that collapsed to one single hadron and junction topologies 
+give <code>false</code>.  
   
  
 <h3>The Junction Class</h3>
@@ -298,7 +299,7 @@ outgoing colours are.</li>
 </ul>
 The odd (even) <code>kind</code> codes corresponds to a +1 (-1) change in 
 baryon number across the junction.
-<br/><b>Warning:</b>Currently only <code>kind = 1, 2</code> are 
+<br/><b>Warning:</b> Currently only <code>kind = 1, 2</code> are 
 implemented.
 
 <p/>

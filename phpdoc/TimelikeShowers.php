@@ -63,10 +63,9 @@ this assumption.
 
 <p/>
 The amount of QCD radiation in the shower is determined by 
-<br/><br/><table><tr><td><strong>TimeShower:alphaSvalue </td><td></td><td> <input type="text" name="2" value="0.1265" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.1265</strong></code>; <code>minimum = 0.06</code>; <code>maximum = 0.25</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>TimeShower:alphaSvalue </td><td></td><td> <input type="text" name="2" value="0.137" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.137</strong></code>; <code>minimum = 0.06</code>; <code>maximum = 0.25</code>)</td></tr></table>
 The <i>alpha_strong</i> value at scale <i>M_Z^2</i>. The default 
-value corresponds to the one tuned to LEP data (using a first-order 
-running), so should be taken rather seriously [<a href="Bibliography.php" target="page">Rud04</a>].
+value corresponds to a crude tuning to LEP data, to be improved.
   
 
 <p/>
@@ -376,7 +375,7 @@ if($_POST["1"] != "1.0")
 $data = "TimeShower:pTmaxFudge = ".$_POST["1"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["2"] != "0.1265")
+if($_POST["2"] != "0.137")
 {
 $data = "TimeShower:alphaSvalue = ".$_POST["2"]."\n";
 fwrite($handle,$data);

@@ -53,10 +53,10 @@ Scatterings <i>g g -> G^*</i>.
 Code 5001.
   
 
-<br/><br/><strong>ExtraDimensionsG*:qqbar2G*</strong>  <input type="radio" name="3" value="on"><strong>On</strong>
+<br/><br/><strong>ExtraDimensionsG*:ffbar2G*</strong>  <input type="radio" name="3" value="on"><strong>On</strong>
 <input type="radio" name="3" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-Scatterings <i>q qbar -> G^*</i>. 
+Scatterings <i>f fbar -> G^*</i>. 
 Code 5002.
   
 
@@ -131,7 +131,7 @@ fwrite($handle,$data);
 }
 if($_POST["3"] != "off")
 {
-$data = "ExtraDimensionsG*:qqbar2G* = ".$_POST["3"]."\n";
+$data = "ExtraDimensionsG*:ffbar2G* = ".$_POST["3"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["4"] != "off")

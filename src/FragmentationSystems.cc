@@ -323,6 +323,10 @@ void ColConfig::list(ostream& os) {
 
 // The StringRegion class.
 
+// Currently a number of simplifications, in particular ??
+// 1) No popcorn baryon production.
+// 2) Simplified treatment of pT in stepping and joining.
+
 //*********
  
 // Definitions of static variables.

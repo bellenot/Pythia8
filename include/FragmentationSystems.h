@@ -54,7 +54,6 @@ public:
 //**************************************************************************
 
 // The ColConfig class describes the colour configuration of the whole event. 
-// (Keep track of which belongs together, e.g. from same Z0??)
 
 class ColConfig {
 
@@ -105,10 +104,6 @@ private:
 // one string section in the evolution of a multiparton system. 
 // Only to be used inside StringFragmentation and MiniStringFragmentation,
 // so no private members.
-
-// Currently a number of simplifications, in particular ??
-// 1) No popcorn baryon production.
-// 2) Simplified treatment of pT in stepping and joining.
 
 class StringRegion {
 

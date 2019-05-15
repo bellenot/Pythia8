@@ -66,8 +66,9 @@ public:
 private:
 
   // Static initialization data, normally only set once.
-  static bool   setOwn;
-  static double sigTotOwn, sigElOwn, sigXBOwn, sigAXOwn, sigXXOwn;
+  static bool   setTotal, setElastic;
+  static double sigTotOwn, sigElOwn, sigXBOwn, sigAXOwn, sigXXOwn,
+                bSlope, rho, lambda, tAbsMin, alphaEM0;
 
   // Constants: could only be changed in the code itself.
   static const int    IHADATABLE[], IHADBTABLE[], ISDTABLE[], IDDTABLE[];

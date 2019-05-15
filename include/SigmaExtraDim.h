@@ -58,14 +58,14 @@ private:
  
 //**************************************************************************
 
-// A derived class for q qbar -> G^* (excited graviton state).
+// A derived class for f fbar -> G^* (excited graviton state).
 
-class Sigma1qqbar2GravitonStar : public Sigma1Process {
+class Sigma1ffbar2GravitonStar : public Sigma1Process {
 
 public:
 
   // Constructor.
-  Sigma1qqbar2GravitonStar() {}
+  Sigma1ffbar2GravitonStar() {}
 
   // Initialize process. 
   virtual void initProc(); 
@@ -83,9 +83,9 @@ public:
   virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
 
   // Info on the subprocess.
-  virtual string name()       const {return "q qbar -> G*";}
+  virtual string name()       const {return "f fbar -> G*";}
   virtual int    code()       const {return 5002;}
-  virtual string inFlux()     const {return "qqbarSame";}
+  virtual string inFlux()     const {return "ffbarSame";}
   virtual int    resonanceA() const {return idGstar;}
 
 private:

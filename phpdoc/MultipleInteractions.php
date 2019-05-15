@@ -117,9 +117,10 @@ Multiply all cross sections by this fix factor.
 There are two complementary ways of regularizing the small-<i>pT</i> 
 divergence, a sharp cutoff and a smooth dampening. These can be 
 combined as desired, but it makes sense to coordinate with how the 
-same issue is handled in spacelike showers. Actually, by default,
-the parameters defined here are used also for the spacelike showers,
-but this can be overridden.
+same issue is handled in <?php $filepath = $_GET["filepath"];
+echo "<a href='SpacelikeShowers.php?filepath=".$filepath."' target='page'>";?>spacelike 
+showers</a>. Actually, by default, the parameters defined here are 
+used also for the spacelike showers, but this can be overridden.
 
 <p/>
 Regularization of the divergence of the QCD cross section for 
@@ -144,9 +145,10 @@ three parameters below.
 
 <br/><br/><table><tr><td><strong>MultipleInteractions:pT0Ref </td><td></td><td> <input type="text" name="6" value="2.15" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.15</strong></code>; <code>minimum = 0.5</code>; <code>maximum = 10.0</code>)</td></tr></table>
 The <i>pT0Ref</i> scale in the above formula.
-<br/><b>Note:</b> <i>pT0Ref</i> remains to be carefully tuned, but this 
-has no point before the colour flow description has reached a more 
-mature form.
+<br/><b>Note:</b> <i>pT0Ref</i> is one of the key parameters in a
+complete PYTHIA tune. Its value is intimately tied to a number of other
+choices, such as that of colour flow description, so unfortunately it is
+difficult to give an independent meaning to <i>pT0Ref</i>.
   
 
 <br/><br/><table><tr><td><strong>MultipleInteractions:ecmRef </td><td></td><td> <input type="text" name="7" value="1800.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1800.0</strong></code>; <code>minimum = 1.</code>)</td></tr></table>
@@ -356,7 +358,7 @@ probability of survival.
 Actually, to profit from the factor 1/2 mentioned above, the cross
 section for the combination with <i>y_3</i> and <i>y_4</i> 
 interchanged is also tried, which corresponds to exchanging <i>tHat</i>
-and <i>u_hat</i>, and the average formed, while the final kinematics 
+and <i>uHat</i>, and the average formed, while the final kinematics 
 is given by the relative importance of the two.
 
 <p/>

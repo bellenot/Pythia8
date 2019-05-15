@@ -35,24 +35,24 @@ public:
   virtual bool set() = 0; 
 
   // Give back info on beams.
-  int    idBeamA() const {return idBeamASave;}
-  int    idBeamB() const {return idBeamBSave;}
-  double eBeamA() const {return eBeamASave;}
-  double eBeamB() const {return eBeamBSave;}
+  int    idBeamA()       const {return idBeamASave;}
+  int    idBeamB()       const {return idBeamBSave;}
+  double eBeamA()        const {return eBeamASave;}
+  double eBeamB()        const {return eBeamBSave;}
   int    pdfGroupBeamA() const {return pdfGroupBeamASave;}
   int    pdfGroupBeamB() const {return pdfGroupBeamBSave;}
-  int    pdfSetBeamA() const {return pdfSetBeamASave;}
-  int    pdfSetBeamB() const {return pdfSetBeamBSave;}
+  int    pdfSetBeamA()   const {return pdfSetBeamASave;}
+  int    pdfSetBeamB()   const {return pdfSetBeamBSave;}
     
   // Give back weight strategy.
-  int    strategy() const {return strategySave;}
+  int    strategy()      const {return strategySave;}
 
   // Give back info on processes.
-  int    size() const {return processes.size();} 
+  int    size()          const {return processes.size();} 
   int    idProcess(int proc) const {return processes[proc].idProc;} 
-  double xSec(int proc) const {return processes[proc].xSecProc;}    
-  double xErr(int proc) const {return processes[proc].xErrProc;}    
-  double xMax(int proc) const {return processes[proc].xMaxProc;} 
+  double xSec(int proc)  const {return processes[proc].xSecProc;}    
+  double xErr(int proc)  const {return processes[proc].xErrProc;}    
+  double xMax(int proc)  const {return processes[proc].xMaxProc;} 
    
   // Print the info; useful to check that setting it worked.
   void   list(ostream& os = cout);  
@@ -116,43 +116,47 @@ public:
   // Destructor.
   virtual ~LHAevnt() {}
 
-  // A pure virtual method set, wherein all information on the next event
-  // is supposed to be set in the derived class. Can do this by reading a 
-  // file or some other way, as desired. Returns false if it did not work. 
-  virtual bool set() = 0; 
+  // A pure virtual method set, wherein information on the next event
+  // is supposed to be set in the derived class. 
+  // Strategies +-1 and +-2: idProcIn is the process type, selected by PYTHIA.
+  // Strategies +-3 and +-4: idProcIn is dummy; process choice is made locally. 
+  // The method can find the next event by a runtime interface to another
+  // program, or by reading a file, as desired. 
+  // The method should return false if it did not work.
+  virtual bool set(int idProcIn = 0) = 0; 
 
   // Give back process number, weight, scale, alpha_em, alpha_s.
-  int    idProcess() const {return idProc;} 
-  double weight() const {return weightProc;} 
-  double scale() const {return scaleProc;} 
-  double alphaQED() const {return alphaQEDProc;} 
-  double alphaQCD() const {return alphaQCDProc;} 
+  int    idProcess()       const {return idProc;} 
+  double weight()          const {return weightProc;} 
+  double scale()           const {return scaleProc;} 
+  double alphaQED()        const {return alphaQEDProc;} 
+  double alphaQCD()        const {return alphaQCDProc;} 
 
   // Give back info on separate particle.
-  int    size() const {return particles.size();}
-  int    id(int part) const {return particles[part].idPart;}
-  int    status(int part) const {return particles[part].statusPart;}
+  int    size()            const {return particles.size();}
+  int    id(int part)      const {return particles[part].idPart;}
+  int    status(int part)  const {return particles[part].statusPart;}
   int    mother1(int part) const {return particles[part].mother1Part;}
   int    mother2(int part) const {return particles[part].mother2Part;}
-  int    col1(int part) const {return particles[part].col1Part;}
-  int    col2(int part) const {return particles[part].col2Part;}
-  double px(int part) const {return particles[part].pxPart;}
-  double py(int part) const {return particles[part].pyPart;}
-  double pz(int part) const {return particles[part].pzPart;}
-  double e(int part) const {return particles[part].ePart;}
-  double m(int part) const {return particles[part].mPart;}
-  double tau(int part) const {return particles[part].tauPart;}
-  double spin(int part) const {return particles[part].spinPart;}
+  int    col1(int part)    const {return particles[part].col1Part;}
+  int    col2(int part)    const {return particles[part].col2Part;}
+  double px(int part)      const {return particles[part].pxPart;}
+  double py(int part)      const {return particles[part].pyPart;}
+  double pz(int part)      const {return particles[part].pzPart;}
+  double e(int part)       const {return particles[part].ePart;}
+  double m(int part)       const {return particles[part].mPart;}
+  double tau(int part)     const {return particles[part].tauPart;}
+  double spin(int part)    const {return particles[part].spinPart;}
 
   // Optional: give back info on parton density values of event.
-  bool   pdfIsSet() const {return pdfIsSetSave;}
-  int    id1() const {return id1Save;}
-  int    id2() const {return id2Save;}
-  double x1() const {return x1Save;}
-  double x2() const {return x2Save;}
-  double scalePDF() const {return scalePDFSave;}
-  double xpdf1() const {return xpdf1Save;}
-  double xpdf2() const {return xpdf2Save;}
+  bool   pdfIsSet()        const {return pdfIsSetSave;}
+  int    id1()             const {return id1Save;}
+  int    id2()             const {return id2Save;}
+  double x1()              const {return x1Save;}
+  double x2()              const {return x2Save;}
+  double scalePDF()        const {return scalePDFSave;}
+  double xpdf1()           const {return xpdf1Save;}
+  double xpdf2()           const {return xpdf2Save;}
 
   // Print the info; useful to check that reading an event worked.
   void   list(ostream& os = cout);  
@@ -257,7 +261,7 @@ public:
   ~LHAevntLHEF() {}
 
   // Routine for doing the job of reading and setting info on next event.  
-  bool set(); 
+  bool set(int = 0); 
 
 private:
  

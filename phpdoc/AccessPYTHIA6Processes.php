@@ -27,8 +27,11 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 
 <h2>Access PYTHIA 6 Processes</h2>
 
-In order to give access to the Fortran PYTHIA process library
-at runtime (and not only by writing/reading event files)
+Gradually all relevant processes from PYTHIA 6 are being 
+re-implemented in PYTHIA 8, but this transition is not finished.
+For a while longer it may therefore at times be convenient to 
+access the Fortran PYTHIA  6 process library. In order to give 
+this access at runtime, and not only by writing/reading event files,
 an interface is provided to C++. This interface is residing in 
 <code>Pythia6Interface.h</code>, and in addition the PYTHIA 6 library
 must be linked. The latter should normally be the most recent 
@@ -75,6 +78,14 @@ main program.
 This means that all other Fortran routines have not been interfaced
 and cannot be accessed directly from the C++ code; there is no need
 for them in the current setup.
+
+<p/>
+The current runtime interface does not take cross-section information
+from PYTHIA 6.4. This means that you have to call on 
+<code>pystat(...)</code> at the end of the run to obtain this 
+information. It also means that you cannot mix with internally
+generated events. Should the need arise these two aspects could be 
+fixed.
  
 <p/>
 An example of a <code>fillHepRup()</code> method to set up 
@@ -110,10 +121,6 @@ in PYTHIA 8 so far. Soft processes, i.e. elastic and diffractive
 scattering, as well as minimum-bias events, require a different 
 kinematics machinery, and can only be generated with the internal 
 PYTHIA 8 processes.
-
-<p/>
-Finally, note that it is currently not possible to mix processes from 
-PYTHIA 6 with those from PYTHIA 8. This will be fixed later.
 
 <p/>
 A simple example is found in <code>main51.cc</code>, another with parsed 

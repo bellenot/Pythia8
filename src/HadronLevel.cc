@@ -106,7 +106,7 @@ bool HadronLevel::next( Event& event) {
         if ( colConfig[iSub].massExcess > mStringMin ) {
           if (!stringFrag.fragment( iSub, colConfig, event)) return false; 
 
-        // Low-mass string treated separately. Tell of diffractive system.
+        // Low-mass string treated separately. Tell if diffractive system.
         } else { 
           bool isDiff = infoPtr->isDiffractiveA() 
             || infoPtr->isDiffractiveB();
@@ -154,6 +154,28 @@ bool HadronLevel::next( Event& event) {
 
   // Normally done first time around, but sometimes not (e.g. Upsilon).
   } while (moreToDo);
+
+  // Done.
+  return true;
+
+}
+
+//*********
+
+// Allow more decays if on/off switches changed.
+// Note: does not do sequential hadronization, e.g. for Upsilon.
+
+bool HadronLevel::moreDecays( Event& event) {
+
+  // Colour-octet onia states must be decayed to singlet + gluon.
+  if (!decayOctetOnia(event)) return false;
+    
+  // Loop through all entries to find those that should decay.
+  int iDec = 0;
+  do {
+    if ( event[iDec].isFinal() && event[iDec].canDecay() 
+      && event[iDec].mayDecay() ) decays.decay( iDec, event); 
+  } while (++iDec < event.size());
 
   // Done.
   return true;
@@ -539,7 +561,7 @@ bool HadronLevel::splitJunctionPair(Event& event) {
     iJunLeg.resize(1);
     iAntiLeg.resize(1);
 
-   // Pick a new quark at random; for simplicity no diquarks (??).
+   // Pick a new quark at random; for simplicity no diquarks.
     int idQ = StringFlav::pickLightQ();
     int colQ, acolQ;
 
@@ -822,7 +844,7 @@ bool HadronLevel::splitJunctionPair(Event& event) {
     event[iNew].rescale5(1. - fracA1);
     iAntiLeg1[1] = iNew;
 
-   // Pick a new quark at random; for simplicity no diquarks (??).
+   // Pick a new quark at random; for simplicity no diquarks.
     int idQ = StringFlav::pickLightQ();
 
     // Update junction colours for new quark and antiquark.

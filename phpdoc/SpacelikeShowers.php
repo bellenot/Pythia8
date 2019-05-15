@@ -178,8 +178,15 @@ particle.
 <br/><br/><table><tr><td><strong>SpaceShower:pTminChgL </td><td></td><td> <input type="text" name="12" value="0.0005" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.0005</strong></code>; <code>minimum = 0.0001</code>)</td></tr></table>
 Parton shower cut-off mass for pure QED branchings. 
 Assumed smaller than (or equal to) <i>pTminChgQ</i>.
-Actually, ISR cascades of incoming leptons have not been implemented 
-so far, so should not be used!??
+  
+
+<br/><br/><strong>SpaceShower:rapidityOrder</strong>  <input type="radio" name="13" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="13" value="off"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
+Force emissions, after the first,  to be ordered in rapidity,
+i.e. in terms of decreasing angles in a backwards-evolution sense. 
+Motivated by coherence arguments, but not uniquely constrained. 
+Only affects QCD emissions.
   
 
 <h3>Further variables</h3>
@@ -191,20 +198,20 @@ cross-checks.
 There are three flags you can use to switch on or off selected
 branchings in the shower: 
 
-<br/><br/><strong>SpaceShower:QCDshower</strong>  <input type="radio" name="13" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="13" value="off"><strong>Off</strong>
+<br/><br/><strong>SpaceShower:QCDshower</strong>  <input type="radio" name="14" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="14" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Allow a QCD shower; on/off = true/false.
   
 
-<br/><br/><strong>SpaceShower:QEDshowerByQ</strong>  <input type="radio" name="14" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="14" value="off"><strong>Off</strong>
+<br/><br/><strong>SpaceShower:QEDshowerByQ</strong>  <input type="radio" name="15" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="15" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Allow quarks to radiate photons; on/off = true/false.
   
 
-<br/><br/><strong>SpaceShower:QEDshowerByL</strong>  <input type="radio" name="15" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="15" value="off"><strong>Off</strong>
+<br/><br/><strong>SpaceShower:QEDshowerByL</strong>  <input type="radio" name="16" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="16" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Allow leptons to radiate photons; on/off = true/false.
   
@@ -212,20 +219,20 @@ Allow leptons to radiate photons; on/off = true/false.
 <p/>
 There are three further possibilities to simplify the shower:
 
-<br/><br/><strong>SpaceShower:MEcorrections</strong>  <input type="radio" name="16" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="16" value="off"><strong>Off</strong>
+<br/><br/><strong>SpaceShower:MEcorrections</strong>  <input type="radio" name="17" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="17" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Use of matrix element corrections; on/off = true/false.
   
 
-<br/><br/><strong>SpaceShower:phiPolAsym</strong>  <input type="radio" name="17" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="17" value="off"><strong>Off</strong>
+<br/><br/><strong>SpaceShower:phiPolAsym</strong>  <input type="radio" name="18" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="18" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Azimuthal asymmetry induced by gluon polarization; on/off = true/false.
 Not yet implemented. 
   
 
-<br/><br/><table><tr><td><strong>SpaceShower:nQuarkIn  </td><td></td><td> <input type="text" name="18" value="5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>SpaceShower:nQuarkIn  </td><td></td><td> <input type="text" name="19" value="5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
 Number of allowed quark flavours in <i>g -> q qbar</i> branchings,
 when kinematically allowed, and thereby also in incoming beams. 
 Changing it to 4 would forbid <i>g -> b bbar</i>, etc.
@@ -346,32 +353,37 @@ fwrite($handle,$data);
 }
 if($_POST["13"] != "on")
 {
-$data = "SpaceShower:QCDshower = ".$_POST["13"]."\n";
+$data = "SpaceShower:rapidityOrder = ".$_POST["13"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["14"] != "on")
 {
-$data = "SpaceShower:QEDshowerByQ = ".$_POST["14"]."\n";
+$data = "SpaceShower:QCDshower = ".$_POST["14"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["15"] != "on")
 {
-$data = "SpaceShower:QEDshowerByL = ".$_POST["15"]."\n";
+$data = "SpaceShower:QEDshowerByQ = ".$_POST["15"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["16"] != "on")
 {
-$data = "SpaceShower:MEcorrections = ".$_POST["16"]."\n";
+$data = "SpaceShower:QEDshowerByL = ".$_POST["16"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["17"] != "on")
 {
-$data = "SpaceShower:phiPolAsym = ".$_POST["17"]."\n";
+$data = "SpaceShower:MEcorrections = ".$_POST["17"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["18"] != "5")
+if($_POST["18"] != "on")
 {
-$data = "SpaceShower:nQuarkIn = ".$_POST["18"]."\n";
+$data = "SpaceShower:phiPolAsym = ".$_POST["18"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["19"] != "5")
+{
+$data = "SpaceShower:nQuarkIn = ".$_POST["19"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);

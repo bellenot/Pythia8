@@ -102,7 +102,7 @@ and the minor values.
 <p/>
 The calculation of thrust is more computer-time-intensive than e.g. 
 linear sphericity, introduced above, and has no specific advantages except 
-historical precedent. In the Pythia6 implementation the search was 
+historical precedent. In the PYTHIA 6 implementation the search was 
 speeded up at the price of then not being guaranteed to hit the absolute
 maximum. The current implementation studies all possibilities, but at
 the price of being slower, with time consumption for an event with
@@ -217,7 +217,7 @@ or <code>pTscale</code> must be set nonvanishing, and the larger of
 the two dictates the actual value.
   
 <br/><code>argument</code><strong> nJetMin </strong> (<code>default = <strong>1</strong></code>) :  
-the mimimum number of jets to be reconstructed. If used, it can override 
+the minimum number of jets to be reconstructed. If used, it can override 
 the <code>yScale</code> and <code>pTscale</code> values. 
   
 <br/><code>argument</code><strong> nJetMax </strong> (<code>default = <strong>0</strong></code>) :  
@@ -260,7 +260,7 @@ finder in the UA1 spirit, see the PYTHIA 6 manual. It works in an
 It will draw cones in <i>R = sqrt(Delta-eta^2 + Delta-phi^2)</i> 
 around seed cells. If the total <i>eT</i> inside the cone exceeds 
 the threshold, a jet is formed, and the cells are removed from further 
-analysis. There are no split or merge procedures, so later-found jet 
+analysis. There are no split or merge procedures, so later-found jets 
 may be missing some of the edge regions already used up by previous 
 ones.   
 

@@ -80,9 +80,9 @@ antiproton ones):
 Obviously this choice is mainly intended to get going, and if you link to
 the <a href="http://projects.hepforge.org/lhapdf/" target="page">LHAPDF 
 library</a> [<a href="Bibliography.php" target="page">Wha05</a>] you get access to a much wider selection.
-<br/><b>Note:</b> owing to previous problems with the behaviour of PDF's
+<br/><b>Warning:</b> owing to previous problems with the behaviour of PDF's
 beyond the <i>x</i> and <i>Q^2</i> boundaries of a set, you should
-only use LHAPDF version 5.3.0 or later.
+only use LHAPDF <i>version 5.3.0 or later</i>.
 
 <br/><br/><strong>PDF:useLHAPDF</strong>  <input type="radio" name="2" value="on"><strong>On</strong>
 <input type="radio" name="2" value="off" checked="checked"><strong>Off</strong>
@@ -242,6 +242,20 @@ by shower emissions. If the initial-state showers are switched off
 these collinear photons will carry the full radiated energy.  
    
 
+<h3>Incoming parton selection</h3>
+
+There is one useful degree of freedom to restrict the set of incoming 
+quark flavours for hard processes. It does not change the PDF's as such, 
+only which quarks are allowed to contribute to the hard-process cross 
+sections. Note that separate but similarly named modes are available 
+for multiple interactions and spacelike showers.
+
+<br/><br/><table><tr><td><strong>PDFinProcess:nQuarkIn  </td><td></td><td> <input type="text" name="12" value="5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
+Number of allowed incoming quark flavours in the beams; a change 
+to 4 would thus exclude <i>b</i> and <i>bbar</i> as incoming 
+partons, etc.
+</modeopen>
+
 <input type="hidden" name="saved" value="1"/>
 
 <?php
@@ -310,6 +324,11 @@ fwrite($handle,$data);
 if($_POST["11"] != "on")
 {
 $data = "PDF:lepton = ".$_POST["11"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["12"] != "5")
+{
+$data = "PDFinProcess:nQuarkIn = ".$_POST["12"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);

@@ -10,7 +10,7 @@
 
 #LCG platform. Can be needed if external libraries are specified
 if [ x$MYLCGPLATFORM = x ]; then
-  export MYLCGPLATFORM=slc3_ia32_gcc323
+  export MYLCGPLATFORM=slc4_ia32_gcc34
 fi
 
 # Defaults
@@ -29,7 +29,7 @@ for arg in $* ; do
     "--help            : prints this help\n"\
     "--enable-debug    : turns on debugging flags and turns off optimization\n"\
     "--enable-shared   : use shared library (not yet implem.) (default no)\n"\
-    "--with-pythia6version : pythia6 version (to be taken from CERN afs MCGenerators, e.g. =410)\n"\
+    "--with-pythia6version : pythia6 version (to be taken from CERN afs MCGenerators, e.g. =411)\n"\
     "--with-lhapdfversion : lhapdf version (to be taken from CERN afs MCGenerators, e.g. =5.3.0)\n"
     exit
   elif [ "x${arg}" != "x${arg/=/}" ] ; then

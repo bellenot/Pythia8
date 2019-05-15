@@ -15,7 +15,7 @@
 
 
 
-  2007-08-31 12:32       F( x, Q2 = 4) old
+  2007-10-19 15:30       F( x, Q2 = 4) old
 
         2.16*10^ 2  55555555555555555555                                                            
         2.08*10^ 2  XXXXXXXXXXXXXXXXXXXX7                                                           
@@ -60,7 +60,7 @@
    All chan =  7.3343e+03    Rms  =  1.4142e+00    Overflow  =  0.0000e+00    High edge =  0.0000e+00
 
 
-  2007-08-31 12:32       F( x, Q2 = 4) new
+  2007-10-19 15:30       F( x, Q2 = 4) new
 
         3.75*10^ 1  44444444444444444444                                                            
         3.60*10^ 1  XXXXXXXXXXXXXXXXXXXX9                                                           
@@ -103,7 +103,7 @@
    All chan =  1.5674e+03    Rms  =  1.8291e+00    Overflow  =  0.0000e+00    High edge =  0.0000e+00
 
 
-  2007-08-31 12:32       F( x, Q2 = 4) new/old
+  2007-10-19 15:30       F( x, Q2 = 4) new/old
 
         5.20*10^ 0                                                                                 6
         5.00*10^ 0                                                                                 X
@@ -147,7 +147,7 @@
    All chan =  2.1371e-01    Rms  =  2.0600e+00    Overflow  =  0.0000e+00    High edge =  0.0000e+00
 
 
-  2007-08-31 12:32       F( x, Q2 = 100) old
+  2007-10-19 15:30       F( x, Q2 = 100) old
 
         0.96*10^ 3  XXXXXXXXXXXXXXXXXXXX1                                                           
         0.92*10^ 3  XXXXXXXXXXXXXXXXXXXXX                                                           
@@ -189,7 +189,7 @@
    All chan =  3.0169e+04    Rms  =  1.2123e+00    Overflow  =  0.0000e+00    High edge =  0.0000e+00
 
 
-  2007-08-31 12:32       F( x, Q2 = 100) new
+  2007-10-19 15:30       F( x, Q2 = 100) new
 
         3.36*10^ 2  999999999999999999991                                                           
         3.24*10^ 2  XXXXXXXXXXXXXXXXXXXXX                                                           
@@ -235,7 +235,7 @@
    All chan =  1.1622e+04    Rms  =  1.3892e+00    Overflow  =  0.0000e+00    High edge =  0.0000e+00
 
 
-  2007-08-31 12:32       F( x, Q2 = 100) new/old
+  2007-10-19 15:30       F( x, Q2 = 100) new/old
 
         2.16*10^ 0                                                                                 X
         2.08*10^ 0                                                                                 X

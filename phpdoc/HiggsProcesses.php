@@ -197,7 +197,6 @@ lengthy cross-section expression and inefficient phase-space selection.
 Code 912.
   
 
-  
 <br/><br/><strong>HiggsSM:qqbar2Hbbbar</strong>  <input type="radio" name="14" value="on"><strong>On</strong>
 <input type="radio" name="14" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
@@ -286,8 +285,14 @@ production channels for a single neutral Higgs state in a two-doublet
 scenarios such as MSSM. The list of processes for neutral states closely 
 mimics the one found for the SM Higgs. Some of the processes 
 vanish for a pure pseudoscalar <i>A^0</i>, but are kept for flexiblity 
-in cases of mixing with the scalar states, or for use in the context of 
-non-MSSM models.
+in cases of mixing with the scalar <i>h^0</i> and <i>H^0</i> states, 
+or for use in the context of non-MSSM models. This should work well to 
+represent e.g. that a small admixture of the "wrong" parity would allow 
+a process such as <i>q qbar -> A^0 Z^0</i>, which otherwise is forbidden. 
+However, note that the loop integrals e.g. for <i>g g -> h^0/H^0/A^0</i>
+are hardcoded to be for scalars for the former two particles and for a
+pseudoscalar for the latter one, so absolute rates would not be 
+correctly represented in the case of large scalar/pseudoscalar mixing.  
 
 <br/><br/><strong>HiggsBSM:all</strong>  <input type="radio" name="19" value="on"><strong>On</strong>
 <input type="radio" name="19" value="off" checked="checked"><strong>Off</strong>
@@ -312,48 +317,244 @@ flavours except top.
 Code 1001.
   
 
+<br/><br/><strong>HiggsBSM:gg2H1</strong>  <input type="radio" name="22" value="on"><strong>On</strong>
+<input type="radio" name="22" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>g g -> h^0(H_1^0)</i> via loop contributions primarily from
+top.
+Code 1002.
+  
+
+<br/><br/><strong>HiggsBSM:gmgm2H1</strong>  <input type="radio" name="23" value="on"><strong>On</strong>
+<input type="radio" name="23" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>gamma gamma -> h^0(H_1^0)</i> via loop contributions primarily
+from top and <i>W</i>.
+Code 1003.
+  
+
+<br/><br/><strong>HiggsBSM:ffbar2H1Z</strong>  <input type="radio" name="24" value="on"><strong>On</strong>
+<input type="radio" name="24" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>f fbar -> h^0(H_1^0) Z^0</i> via <i>s</i>-channel <i>Z^0</i>
+exchange.
+Code 1004.
+  
+
+<br/><br/><strong>HiggsBSM:ffbar2H1W</strong>  <input type="radio" name="25" value="on"><strong>On</strong>
+<input type="radio" name="25" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>f fbar -> h^0(H_1^0) W^+-</i> via <i>s</i>-channel <i>W^+-</i>
+exchange.
+Code 1005.
+  
+
+<br/><br/><strong>HiggsBSM:ff2H1ff(t:ZZ)</strong>  <input type="radio" name="26" value="on"><strong>On</strong>
+<input type="radio" name="26" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>f f' -> h^0(H_1^0) f f'</i> via <i>Z^0 Z^0</i> fusion.
+Code 1006.
+  
+
+<br/><br/><strong>HiggsBSM:ff2H1ff(t:WW)</strong>  <input type="radio" name="27" value="on"><strong>On</strong>
+<input type="radio" name="27" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>f_1 f_2 -> h^0(H_1^0) f_3 f_4</i> via <i>W^+ W^-</i> fusion.
+Code 1007.
+  
+
+<br/><br/><strong>HiggsBSM:gg2H1ttbar</strong>  <input type="radio" name="28" value="on"><strong>On</strong>
+<input type="radio" name="28" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>g g -> h^0(H_1^0) t tbar</i> via <i>t tbar</i> fusion
+(or, alternatively put, Higgs radiation off a top line).
+Warning: unfortunately this process is rather slow, owing to a
+lengthy cross-section expression and inefficient phase-space selection.
+Code 1008.
+  
+
+<br/><br/><strong>HiggsBSM:qqbar2H1ttbar</strong>  <input type="radio" name="29" value="on"><strong>On</strong>
+<input type="radio" name="29" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>q qbar -> h^0(H_1^0) t tbar</i> via <i>t tbar</i> fusion
+(or, alternatively put, Higgs radiation off a top line).
+Warning: unfortunately this process is rather slow, owing to a
+lengthy cross-section expression and inefficient phase-space selection.
+Code 1009.
+
+
 <h4>2) <i>H^0(H_2^0)</i> processes</h4>
 
-<br/><br/><strong>HiggsBSM:allH2</strong>  <input type="radio" name="22" value="on"><strong>On</strong>
-<input type="radio" name="22" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>HiggsBSM:allH2</strong>  <input type="radio" name="30" value="on"><strong>On</strong>
+<input type="radio" name="30" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Common switch for the group of <i>H^0(H_2^0)</i> production processes.
   
 
-<br/><br/><strong>HiggsBSM:ffbar2H2</strong>  <input type="radio" name="23" value="on"><strong>On</strong>
-<input type="radio" name="23" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>HiggsBSM:ffbar2H2</strong>  <input type="radio" name="31" value="on"><strong>On</strong>
+<input type="radio" name="31" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scattering <i>f fbar -> H^0(H_2^0)</i>, where <i>f</i> sums over available
 flavours except top.
 Code 1021.
   
 
+<br/><br/><strong>HiggsBSM:gg2H2</strong>  <input type="radio" name="32" value="on"><strong>On</strong>
+<input type="radio" name="32" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>g g -> H^0(H_2^0)</i> via loop contributions primarily from
+top.
+Code 1022.
+  
+
+<br/><br/><strong>HiggsBSM:gmgm2H2</strong>  <input type="radio" name="33" value="on"><strong>On</strong>
+<input type="radio" name="33" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>gamma gamma -> H^0(H_2^0)</i> via loop contributions primarily
+from top and <i>W</i>.
+Code 1023.
+  
+
+<br/><br/><strong>HiggsBSM:ffbar2H2Z</strong>  <input type="radio" name="34" value="on"><strong>On</strong>
+<input type="radio" name="34" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>f fbar -> H^0(H_2^0) Z^0</i> via <i>s</i>-channel <i>Z^0</i>
+exchange.
+Code 1024.
+  
+
+<br/><br/><strong>HiggsBSM:ffbar2H2W</strong>  <input type="radio" name="35" value="on"><strong>On</strong>
+<input type="radio" name="35" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>f fbar -> H^0(H_2^0) W^+-</i> via <i>s</i>-channel <i>W^+-</i>
+exchange.
+Code 1025.
+  
+
+<br/><br/><strong>HiggsBSM:ff2H2ff(t:ZZ)</strong>  <input type="radio" name="36" value="on"><strong>On</strong>
+<input type="radio" name="36" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>f f' -> H^0(H_2^0) f f'</i> via <i>Z^0 Z^0</i> fusion.
+Code 1026.
+  
+
+<br/><br/><strong>HiggsBSM:ff2H2ff(t:WW)</strong>  <input type="radio" name="37" value="on"><strong>On</strong>
+<input type="radio" name="37" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>f_1 f_2 -> H^0(H_2^0) f_3 f_4</i> via <i>W^+ W^-</i> fusion.
+Code 1027.
+  
+
+<br/><br/><strong>HiggsBSM:gg2H2ttbar</strong>  <input type="radio" name="38" value="on"><strong>On</strong>
+<input type="radio" name="38" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>g g -> H^0(H_2^0) t tbar</i> via <i>t tbar</i> fusion
+(or, alternatively put, Higgs radiation off a top line).
+Warning: unfortunately this process is rather slow, owing to a
+lengthy cross-section expression and inefficient phase-space selection.
+Code 1028.
+  
+
+<br/><br/><strong>HiggsBSM:qqbar2H2ttbar</strong>  <input type="radio" name="39" value="on"><strong>On</strong>
+<input type="radio" name="39" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>q qbar -> H^0(H_2^0) t tbar</i> via <i>t tbar</i> fusion
+(or, alternatively put, Higgs radiation off a top line).
+Warning: unfortunately this process is rather slow, owing to a
+lengthy cross-section expression and inefficient phase-space selection.
+Code 1029.
+
 <h4>3) <i>A^0(H_3^0)</i> processes</h4>
 
-<br/><br/><strong>HiggsBSM:allA3</strong>  <input type="radio" name="24" value="on"><strong>On</strong>
-<input type="radio" name="24" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>HiggsBSM:allA3</strong>  <input type="radio" name="40" value="on"><strong>On</strong>
+<input type="radio" name="40" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Common switch for the group of <i>A^0(H_3^0)</i> production processes.
   
 
-<br/><br/><strong>HiggsBSM:ffbar2A3</strong>  <input type="radio" name="25" value="on"><strong>On</strong>
-<input type="radio" name="25" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>HiggsBSM:ffbar2A3</strong>  <input type="radio" name="41" value="on"><strong>On</strong>
+<input type="radio" name="41" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scattering <i>f fbar -> A^0(H_3^0)</i>, where <i>f</i> sums over available
 flavours except top.
 Code 1041.
   
 
+<br/><br/><strong>HiggsBSM:gg2A3</strong>  <input type="radio" name="42" value="on"><strong>On</strong>
+<input type="radio" name="42" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>g g -> A^0(A_3^0)</i> via loop contributions primarily from
+top.
+Code 1042.
+  
+
+<br/><br/><strong>HiggsBSM:gmgm2A3</strong>  <input type="radio" name="43" value="on"><strong>On</strong>
+<input type="radio" name="43" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>gamma gamma -> A^0(A_3^0)</i> via loop contributions primarily
+from top and <i>W</i>.
+Code 1043.
+  
+
+<br/><br/><strong>HiggsBSM:ffbar2A3Z</strong>  <input type="radio" name="44" value="on"><strong>On</strong>
+<input type="radio" name="44" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>f fbar -> A^0(A_3^0) Z^0</i> via <i>s</i>-channel <i>Z^0</i>
+exchange.
+Code 1044.
+  
+
+<br/><br/><strong>HiggsBSM:ffbar2A3W</strong>  <input type="radio" name="45" value="on"><strong>On</strong>
+<input type="radio" name="45" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>f fbar -> A^0(A_3^0) W^+-</i> via <i>s</i>-channel <i>W^+-</i>
+exchange.
+Code 1045.
+  
+
+<br/><br/><strong>HiggsBSM:ff2A3ff(t:ZZ)</strong>  <input type="radio" name="46" value="on"><strong>On</strong>
+<input type="radio" name="46" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>f f' -> A^0(A_3^0) f f'</i> via <i>Z^0 Z^0</i> fusion.
+Code 1046.
+  
+
+<br/><br/><strong>HiggsBSM:ff2A3ff(t:WW)</strong>  <input type="radio" name="47" value="on"><strong>On</strong>
+<input type="radio" name="47" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>f_1 f_2 -> A^0(A_3^0) f_3 f_4</i> via <i>W^+ W^-</i> fusion.
+Code 1047.
+  
+
+<br/><br/><strong>HiggsBSM:gg2A3ttbar</strong>  <input type="radio" name="48" value="on"><strong>On</strong>
+<input type="radio" name="48" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>g g -> A^0(A_3^0) t tbar</i> via <i>t tbar</i> fusion
+(or, alternatively put, Higgs radiation off a top line).
+Warning: unfortunately this process is rather slow, owing to a
+lengthy cross-section expression and inefficient phase-space selection.
+Code 1048.
+  
+
+<br/><br/><strong>HiggsBSM:qqbar2A3ttbar</strong>  <input type="radio" name="49" value="on"><strong>On</strong>
+<input type="radio" name="49" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>q qbar -> A^0(A_3^0) t tbar</i> via <i>t tbar</i> fusion
+(or, alternatively put, Higgs radiation off a top line).
+Warning: unfortunately this process is rather slow, owing to a
+lengthy cross-section expression and inefficient phase-space selection.
+Code 1049.
+
 <h4>4) <i>H+-</i> processes</h4>
 
-<br/><br/><strong>HiggsBSM:allH+-</strong>  <input type="radio" name="26" value="on"><strong>On</strong>
-<input type="radio" name="26" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>HiggsBSM:allH+-</strong>  <input type="radio" name="50" value="on"><strong>On</strong>
+<input type="radio" name="50" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Common switch for the group of <i>H^+-</i> production processes.
   
 
-<br/><br/><strong>HiggsBSM:ffbar2H+-</strong>  <input type="radio" name="27" value="on"><strong>On</strong>
-<input type="radio" name="27" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>HiggsBSM:ffbar2H+-</strong>  <input type="radio" name="51" value="on"><strong>On</strong>
+<input type="radio" name="51" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scattering <i>f fbar' -> H^+-</i>, where <i>f, fbar'</i> sums over 
 available incoming flavours. Since couplings are assumed 
@@ -362,8 +563,8 @@ and <i>s cbar -> H^-</i>.
 Code 1061.
   
 
-<br/><br/><strong>HiggsBSM:bg2H+-t</strong>  <input type="radio" name="28" value="on"><strong>On</strong>
-<input type="radio" name="28" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>HiggsBSM:bg2H+-t</strong>  <input type="radio" name="52" value="on"><strong>On</strong>
+<input type="radio" name="52" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scattering <i>b g -> H^+ tbar</i>. At hadron colliders this is the 
 dominant process for single-charged-Higgs production.
@@ -372,42 +573,42 @@ Code 1062.
 
 <h4>5) Higgs-pair processes</h4>
 
-<br/><br/><strong>HiggsBSM:allHpair</strong>  <input type="radio" name="29" value="on"><strong>On</strong>
-<input type="radio" name="29" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>HiggsBSM:allHpair</strong>  <input type="radio" name="53" value="on"><strong>On</strong>
+<input type="radio" name="53" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Common switch for the group of Higgs pair-production processes.
   
 
-<br/><br/><strong>HiggsBSM:ffbar2A3H1</strong>  <input type="radio" name="30" value="on"><strong>On</strong>
-<input type="radio" name="30" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>HiggsBSM:ffbar2A3H1</strong>  <input type="radio" name="54" value="on"><strong>On</strong>
+<input type="radio" name="54" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scattering <i>f fbar -> A^0(H_3) h^0(H_1)</i>.
 Code 1081.
   
 
-<br/><br/><strong>HiggsBSM:ffbar2A3H2</strong>  <input type="radio" name="31" value="on"><strong>On</strong>
-<input type="radio" name="31" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>HiggsBSM:ffbar2A3H2</strong>  <input type="radio" name="55" value="on"><strong>On</strong>
+<input type="radio" name="55" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scattering <i>f fbar -> A^0(H_3) H^0(H_2)</i>.
 Code 1082.
   
 
-<br/><br/><strong>HiggsBSM:ffbar2H+-H1</strong>  <input type="radio" name="32" value="on"><strong>On</strong>
-<input type="radio" name="32" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>HiggsBSM:ffbar2H+-H1</strong>  <input type="radio" name="56" value="on"><strong>On</strong>
+<input type="radio" name="56" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scattering <i>f fbar -> H^+- h^0(H_1)</i>.
 Code 1083.
   
 
-<br/><br/><strong>HiggsBSM:ffbar2H+-H2</strong>  <input type="radio" name="33" value="on"><strong>On</strong>
-<input type="radio" name="33" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>HiggsBSM:ffbar2H+-H2</strong>  <input type="radio" name="57" value="on"><strong>On</strong>
+<input type="radio" name="57" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scattering <i>f fbar -> H^+- H^0(H_2)</i>.
 Code 1084.
   
 
-<br/><br/><strong>HiggsBSM:ffbar2H+H-</strong>  <input type="radio" name="34" value="on"><strong>On</strong>
-<input type="radio" name="34" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>HiggsBSM:ffbar2H+H-</strong>  <input type="radio" name="58" value="on"><strong>On</strong>
+<input type="radio" name="58" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scattering <i>f fbar -> H+ H-</i>.
 Code 1085.
@@ -415,11 +616,224 @@ Code 1085.
 
 <h3>Beyond-the-Standard-Model Higgs, further processes</h3>
 
-<h4>1) <i>h^0(H_1^0)</i> processes</h4>
+This section mimics the above section on "Standard-Model Higgs, 
+further processes", i.e. it contains higher-order corrections
+to the processes already listed. The two sets therefore could not 
+be used simultaneously without unphysical doublecounting.
+They are not controlled by any group flag, but have to be switched 
+on for each separate process after due consideration. We refer to
+the standard-model description for a set of further comments on
+the processes.
+
+<h4>1) <i>h^0(H_1^0)</i> processes</h4> 
+
+<br/><br/><strong>HiggsBSM:qg2H1q</strong>  <input type="radio" name="59" value="on"><strong>On</strong>
+<input type="radio" name="59" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>q g -> h^0 q</i>. This process gives first-order 
+corrections to the <i>f fbar -> h^0</i> one above, and should only be 
+used to study  the high-<i>pT</i> tail, while <i>f fbar -> h^0</i> 
+should be used for inclusive production. Only the dominant <i>c</i> 
+and <i>b</i> contributions are included, and generated separately 
+for technical reasons. Note that another first-order process would be 
+<i>q qbar -> h^0 g</i>, which is not explicitly implemented here,
+but is obtained from showering off the lowest-order process. It does not 
+contain any <i>b</i> at large <i>pT</i>, however, so is less 
+interesting for many applications. 
+Code 1011.
+  
+
+<br/><br/><strong>HiggsBSM:gg2H1bbbar</strong>  <input type="radio" name="60" value="on"><strong>On</strong>
+<input type="radio" name="60" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>g g -> h^0 b bbar</i>. This process is yet one order
+higher of the <i>b bbar -> h^0</i> and <i>b g -> h^0 b</i> chain,
+where now two quarks should be required above some large <i>pT</i>
+threshold.
+Warning: unfortunately this process is rather slow, owing to a
+lengthy cross-section expression and inefficient phase-space selection.
+Code 1012.
+  
+
+<br/><br/><strong>HiggsBSM:qqbar2H1bbbar</strong>  <input type="radio" name="61" value="on"><strong>On</strong>
+<input type="radio" name="61" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>q qbar -> h^0 b bbar</i> via an <i>s</i>-channel
+gluon, so closely related to the previous one, but typically less
+important owing to the smaller rate of (anti)quarks relative to
+gluons.
+Warning: unfortunately this process is rather slow, owing to a
+lengthy cross-section expression and inefficient phase-space selection.
+Code 1013.
+  
+ 
+<br/><br/><strong>HiggsBSM:gg2H1g(l:t)</strong>  <input type="radio" name="62" value="on"><strong>On</strong>
+<input type="radio" name="62" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>g g -> h^0 g</i> via loop contributions primarily 
+from top.
+Code 1014.
+  
+ 
+<br/><br/><strong>HiggsBSM:qg2H1q(l:t)</strong>  <input type="radio" name="63" value="on"><strong>On</strong>
+<input type="radio" name="63" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>q g -> h^0 q</i> via loop contributions primarily 
+from top. Not to be confused with the <code>HiggsBSM:bg2H1b</code>
+process above, with its direct fermion-to-Higgs coupling.
+Code 1015.
+  
+ 
+<br/><br/><strong>HiggsBSM:qqbar2H1g(l:t)</strong>  <input type="radio" name="64" value="on"><strong>On</strong>
+<input type="radio" name="64" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>q qbar -> h^0 g</i> via an <i>s</i>-channel gluon
+and loop contributions primarily from top. Is strictly speaking a 
+"new" process, not directly derived from <i>g g -> h^0</i>, and
+could therefore be included in the standard mix without doublecounting, 
+but is numerically negligible.
+Code 1016.
+  
 
 <h4>2) <i>H^0(H_2^0)</i> processes</h4>
 
+<br/><br/><strong>HiggsBSM:qg2H2q</strong>  <input type="radio" name="65" value="on"><strong>On</strong>
+<input type="radio" name="65" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>q g -> H^0 q</i>. This process gives first-order 
+corrections to the <i>f fbar -> H^0</i> one above, and should only be 
+used to study  the high-<i>pT</i> tail, while <i>f fbar -> H^0</i> 
+should be used for inclusive production. Only the dominant <i>c</i> 
+and <i>b</i> contributions are included, and generated separately 
+for technical reasons. Note that another first-order process would be 
+<i>q qbar -> H^0 g</i>, which is not explicitly implemented here,
+but is obtained from showering off the lowest-order process. It does not 
+contain any <i>b</i> at large <i>pT</i>, however, so is less 
+interesting for many applications. 
+Code 1031.
+  
+
+<br/><br/><strong>HiggsBSM:gg2H2bbbar</strong>  <input type="radio" name="66" value="on"><strong>On</strong>
+<input type="radio" name="66" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>g g -> H^0 b bbar</i>. This process is yet one order
+higher of the <i>b bbar -> H^0</i> and <i>b g -> H^0 b</i> chain,
+where now two quarks should be required above some large <i>pT</i>
+threshold.
+Warning: unfortunately this process is rather slow, owing to a
+lengthy cross-section expression and inefficient phase-space selection.
+Code 1032.
+  
+
+<br/><br/><strong>HiggsBSM:qqbar2H2bbbar</strong>  <input type="radio" name="67" value="on"><strong>On</strong>
+<input type="radio" name="67" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>q qbar -> H^0 b bbar</i> via an <i>s</i>-channel
+gluon, so closely related to the previous one, but typically less
+important owing to the smaller rate of (anti)quarks relative to
+gluons.
+Warning: unfortunately this process is rather slow, owing to a
+lengthy cross-section expression and inefficient phase-space selection.
+Code 1033.
+  
+ 
+<br/><br/><strong>HiggsBSM:gg2H2g(l:t)</strong>  <input type="radio" name="68" value="on"><strong>On</strong>
+<input type="radio" name="68" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>g g -> H^0 g</i> via loop contributions primarily 
+from top.
+Code 1034.
+  
+ 
+<br/><br/><strong>HiggsBSM:qg2H2q(l:t)</strong>  <input type="radio" name="69" value="on"><strong>On</strong>
+<input type="radio" name="69" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>q g -> H^0 q</i> via loop contributions primarily 
+from top. Not to be confused with the <code>HiggsBSM:bg2H1b</code>
+process above, with its direct fermion-to-Higgs coupling.
+Code 1035.
+  
+ 
+<br/><br/><strong>HiggsBSM:qqbar2H2g(l:t)</strong>  <input type="radio" name="70" value="on"><strong>On</strong>
+<input type="radio" name="70" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>q qbar -> H^0 g</i> via an <i>s</i>-channel gluon
+and loop contributions primarily from top. Is strictly speaking a 
+"new" process, not directly derived from <i>g g -> H^0</i>, and
+could therefore be included in the standard mix without doublecounting, 
+but is numerically negligible.
+Code 1036.
+  
+
 <h4>3) <i>A^0(H_3^0)</i> processes</h4>
+
+<br/><br/><strong>HiggsBSM:qg2A3q</strong>  <input type="radio" name="71" value="on"><strong>On</strong>
+<input type="radio" name="71" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>q g -> A^0 q</i>. This process gives first-order 
+corrections to the <i>f fbar -> A^0</i> one above, and should only be 
+used to study  the high-<i>pT</i> tail, while <i>f fbar -> A^0</i> 
+should be used for inclusive production. Only the dominant <i>c</i> 
+and <i>b</i> contributions are included, and generated separately 
+for technical reasons. Note that another first-order process would be 
+<i>q qbar -> A^0 g</i>, which is not explicitly implemented here,
+but is obtained from showering off the lowest-order process. It does not 
+contain any <i>b</i> at large <i>pT</i>, however, so is less 
+interesting for many applications. 
+Code 1051.
+  
+
+<br/><br/><strong>HiggsBSM:gg2A3bbbar</strong>  <input type="radio" name="72" value="on"><strong>On</strong>
+<input type="radio" name="72" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>g g -> A^0 b bbar</i>. This process is yet one order
+higher of the <i>b bbar -> A^0</i> and <i>b g -> A^0 b</i> chain,
+where now two quarks should be required above some large <i>pT</i>
+threshold.
+Warning: unfortunately this process is rather slow, owing to a
+lengthy cross-section expression and inefficient phase-space selection.
+Code 1052.
+  
+
+<br/><br/><strong>HiggsBSM:qqbar2A3bbbar</strong>  <input type="radio" name="73" value="on"><strong>On</strong>
+<input type="radio" name="73" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>q qbar -> A^0 b bbar</i> via an <i>s</i>-channel
+gluon, so closely related to the previous one, but typically less
+important owing to the smaller rate of (anti)quarks relative to
+gluons.
+Warning: unfortunately this process is rather slow, owing to a
+lengthy cross-section expression and inefficient phase-space selection.
+Code 1053.
+  
+ 
+<br/><br/><strong>HiggsBSM:gg2A3g(l:t)</strong>  <input type="radio" name="74" value="on"><strong>On</strong>
+<input type="radio" name="74" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>g g -> A^0 g</i> via loop contributions primarily 
+from top.
+Code 1054.
+  
+ 
+<br/><br/><strong>HiggsBSM:qg2A3q(l:t)</strong>  <input type="radio" name="75" value="on"><strong>On</strong>
+<input type="radio" name="75" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>q g -> A^0 q</i> via loop contributions primarily 
+from top. Not to be confused with the <code>HiggsBSM:bg2H1b</code>
+process above, with its direct fermion-to-Higgs coupling.
+Code 1055.
+  
+ 
+<br/><br/><strong>HiggsBSM:qqbar2A3g(l:t)</strong>  <input type="radio" name="76" value="on"><strong>On</strong>
+<input type="radio" name="76" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>q qbar -> A^0 g</i> via an <i>s</i>-channel gluon
+and loop contributions primarily from top. Is strictly speaking a 
+"new" process, not directly derived from <i>g g -> A^0</i>, and
+could therefore be included in the standard mix without doublecounting, 
+but is numerically negligible.
+Code 1056.
+  
 
 <h3>Parameters for Beyond-the-Standard-Model Higgs production and decay</h3>
 
@@ -434,8 +848,8 @@ of the internal calculations of partial widths from the parameters provided
 do not include mixing between the scalar and pseudoscalar states. 
 
 <p/>
-Then masses would be set in the <code>ParticleDataTable</code> database,
-while couplings are set below. When possible the couplings of the Higgs 
+Masses would be set in the <code>ParticleDataTable</code> database,
+while couplings are set below. When possible, the couplings of the Higgs 
 states are normalized to the corresponding coupling within the SM. 
 When not, their values within the MSSM are indicated, from which
 it should be straightforward to understand what to use instead.
@@ -446,144 +860,144 @@ i.e. the coupling for <i>A^0 -> H^0 Z^0</i> obviously is also valid
 for <i>H^0 -> A^0 Z^0</i> and <i>Z^0 -> H^0 A^0</i>. 
 Note that couplings usually appear quadratically in matrix elements.
 
-<br/><br/><table><tr><td><strong>HiggsH1:coup2d </td><td></td><td> <input type="text" name="35" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>HiggsH1:coup2d </td><td></td><td> <input type="text" name="77" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>)</td></tr></table>
 The <i>h^0(H_1^0)</i> coupling to down-type quarks.
   
 
-<br/><br/><table><tr><td><strong>HiggsH1:coup2u </td><td></td><td> <input type="text" name="36" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>HiggsH1:coup2u </td><td></td><td> <input type="text" name="78" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>)</td></tr></table>
 The <i>h^0(H_1^0)</i> coupling to up-type quarks.
   
 
-<br/><br/><table><tr><td><strong>HiggsH1:coup2l </td><td></td><td> <input type="text" name="37" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>HiggsH1:coup2l </td><td></td><td> <input type="text" name="79" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>)</td></tr></table>
 The <i>h^0(H_1^0)</i> coupling to (charged) leptons.
   
 
-<br/><br/><table><tr><td><strong>HiggsH1:coup2Z </td><td></td><td> <input type="text" name="38" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>HiggsH1:coup2Z </td><td></td><td> <input type="text" name="80" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>)</td></tr></table>
 The <i>h^0(H_1^0)</i> coupling to <i>Z^0</i>.
   
 
-<br/><br/><table><tr><td><strong>HiggsH1:coup2W </td><td></td><td> <input type="text" name="39" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>HiggsH1:coup2W </td><td></td><td> <input type="text" name="81" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>)</td></tr></table>
 The <i>h^0(H_1^0)</i> coupling to <i>W^+-</i>.
   
 
-<br/><br/><table><tr><td><strong>HiggsH1:coup2Hchg </td><td></td><td> <input type="text" name="40" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>HiggsH1:coup2Hchg </td><td></td><td> <input type="text" name="82" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
 The <i>h^0(H_1^0)</i> coupling to <i>H^+-</i> (in loops).
 Is <i>sin(beta - alpha) + cos(2 beta) sin(beta + alpha) /
 (2 cos^2theta_W)</i> in the MSSM.
   
 
-<br/><br/><table><tr><td><strong>HiggsH2:coup2d </td><td></td><td> <input type="text" name="41" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>HiggsH2:coup2d </td><td></td><td> <input type="text" name="83" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>)</td></tr></table>
 The <i>H^0(H_2^0)</i> coupling to down-type quarks.
   
 
-<br/><br/><table><tr><td><strong>HiggsH2:coup2u </td><td></td><td> <input type="text" name="42" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>HiggsH2:coup2u </td><td></td><td> <input type="text" name="84" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>)</td></tr></table>
 The <i>H^0(H_2^0)</i> coupling to up-type quarks.
   
 
-<br/><br/><table><tr><td><strong>HiggsH2:coup2l </td><td></td><td> <input type="text" name="43" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>HiggsH2:coup2l </td><td></td><td> <input type="text" name="85" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>)</td></tr></table>
 The <i>H^0(H_2^0)</i> coupling to (charged) leptons.
   
 
-<br/><br/><table><tr><td><strong>HiggsH2:coup2Z </td><td></td><td> <input type="text" name="44" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>HiggsH2:coup2Z </td><td></td><td> <input type="text" name="86" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>)</td></tr></table>
 The <i>H^0(H_2^0)</i> coupling to <i>Z^0</i>.
   
 
-<br/><br/><table><tr><td><strong>HiggsH2:coup2W </td><td></td><td> <input type="text" name="45" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>HiggsH2:coup2W </td><td></td><td> <input type="text" name="87" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>)</td></tr></table>
 The <i>H^0(H_2^0)</i> coupling to <i>W^+-</i>.
   
 
-<br/><br/><table><tr><td><strong>HiggsH2:coup2Hchg </td><td></td><td> <input type="text" name="46" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>HiggsH2:coup2Hchg </td><td></td><td> <input type="text" name="88" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
 The <i>H^0(H_2^0)</i> coupling to <i>H^+-</i> (in loops).
 Is <i>cos(beta - alpha) + cos(2 beta) cos(beta + alpha) /
 (2 cos^2theta_W)</i> in the MSSM.
   
 
-<br/><br/><table><tr><td><strong>HiggsH2:coup2H1H1 </td><td></td><td> <input type="text" name="47" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>HiggsH2:coup2H1H1 </td><td></td><td> <input type="text" name="89" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>)</td></tr></table>
 The <i>H^0(H_2^0)</i> coupling to a <i>h^0(H_1^0)</i> pair.
 Is <i>cos(2 alpha) cos(beta + alpha) - 2 sin(2 alpha) 
 sin(beta + alpha)</i> in the MSSM.
   
 
-<br/><br/><table><tr><td><strong>HiggsH2:coup2A3A3 </td><td></td><td> <input type="text" name="48" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>HiggsH2:coup2A3A3 </td><td></td><td> <input type="text" name="90" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>)</td></tr></table>
 The <i>H^0(H_2^0)</i> coupling to an <i>A^0(H_3^0)</i> pair.
 Is <i>cos(2 beta) cos(beta + alpha)</i> in the MSSM.
   
 
-<br/><br/><table><tr><td><strong>HiggsH2:coup2H1Z </td><td></td><td> <input type="text" name="49" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>HiggsH2:coup2H1Z </td><td></td><td> <input type="text" name="91" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
 The <i>H^0(H_2^0)</i> coupling to a <i>h^0(H_1^0) Z^0</i> pair.
 Vanishes in the MSSM.
   
 
-<br/><br/><table><tr><td><strong>HiggsH2:coup2A3H1 </td><td></td><td> <input type="text" name="50" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>HiggsH2:coup2A3H1 </td><td></td><td> <input type="text" name="92" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
 The <i>H^0(H_2^0)</i> coupling to an <i>A^0(H_3^0) h^0(H_1^0)</i> pair.
 Vanishes in the MSSM.
   
 
-<br/><br/><table><tr><td><strong>HiggsH2:coup2HchgW </td><td></td><td> <input type="text" name="51" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>HiggsH2:coup2HchgW </td><td></td><td> <input type="text" name="93" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
 The <i>H^0(H_2^0)</i> coupling to a <i>H^+- W-+</i> pair.
 Vanishes in the MSSM.
   
 
-<br/><br/><table><tr><td><strong>HiggsA3:coup2d </td><td></td><td> <input type="text" name="52" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>HiggsA3:coup2d </td><td></td><td> <input type="text" name="94" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>)</td></tr></table>
 The <i>A^0(H_3^0)</i> coupling to down-type quarks.
   
 
-<br/><br/><table><tr><td><strong>HiggsA3:coup2u </td><td></td><td> <input type="text" name="53" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>HiggsA3:coup2u </td><td></td><td> <input type="text" name="95" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>)</td></tr></table>
 The <i>A^0(H_3^0)</i> coupling to up-type quarks.
   
 
-<br/><br/><table><tr><td><strong>HiggsA3:coup2l </td><td></td><td> <input type="text" name="54" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>HiggsA3:coup2l </td><td></td><td> <input type="text" name="96" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>)</td></tr></table>
 The <i>A^0(H_3^0)</i> coupling to (charged) leptons.
   
 
-<br/><br/><table><tr><td><strong>HiggsA3:coup2H1Z </td><td></td><td> <input type="text" name="55" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>HiggsA3:coup2H1Z </td><td></td><td> <input type="text" name="97" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>)</td></tr></table>
 The <i>A^0(H_3^0)</i> coupling to a <i>h^0(H_1^0) Z^0</i> pair.
 Is <i>cos(beta - alpha)</i> in the MSSM.
   
 
-<br/><br/><table><tr><td><strong>HiggsA3:coup2H2Z </td><td></td><td> <input type="text" name="56" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>HiggsA3:coup2H2Z </td><td></td><td> <input type="text" name="98" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>)</td></tr></table>
 The <i>A^0(H_3^0)</i> coupling to a <i>H^0(H_2^0) Z^0</i> pair.
 Is <i>sin(beta - alpha)</i> in the MSSM.
   
 
-<br/><br/><table><tr><td><strong>HiggsA3:coup2Z </td><td></td><td> <input type="text" name="57" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>HiggsA3:coup2Z </td><td></td><td> <input type="text" name="99" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
 The <i>A^0(H_3^0)</i> coupling to <i>Z^0</i>.
 Vanishes in the MSSM.
   
 
-<br/><br/><table><tr><td><strong>HiggsA3:coup2W </td><td></td><td> <input type="text" name="58" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>HiggsA3:coup2W </td><td></td><td> <input type="text" name="100" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
 The <i>A^0(H_3^0)</i> coupling to <i>W^+-</i>.
 Vanishes in the MSSM.
   
 
-<br/><br/><table><tr><td><strong>HiggsA3:coup2H1H1 </td><td></td><td> <input type="text" name="59" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>HiggsA3:coup2H1H1 </td><td></td><td> <input type="text" name="101" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
 The <i>A^0(H_3^0)</i> coupling to a <i>h^0(H_1^0)</i> pair.
 Vanishes in the MSSM.
   
 
-<br/><br/><table><tr><td><strong>HiggsA3:coup2Hchg </td><td></td><td> <input type="text" name="60" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>HiggsA3:coup2Hchg </td><td></td><td> <input type="text" name="102" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
 The <i>A^0(H_3^0)</i> coupling to <i>H^+-</i>.
 Vanishes in the MSSM.
   
 
-<br/><br/><table><tr><td><strong>HiggsA3:coup2HchgW </td><td></td><td> <input type="text" name="61" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>HiggsA3:coup2HchgW </td><td></td><td> <input type="text" name="103" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
 The <i>A^0(H_3^0)</i> coupling to a <i>H^+- W-+</i> pair.
 Vanishes in the MSSM.
   
 
-<br/><br/><table><tr><td><strong>HiggsHchg:tanBeta </td><td></td><td> <input type="text" name="62" value="5." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5.</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>HiggsHchg:tanBeta </td><td></td><td> <input type="text" name="104" value="5." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5.</strong></code>)</td></tr></table>
 The <i>tan(beta)</i> value, which leads to an enhancement of the 
 <i>H^+-</i> coupling to down-type fermions and suppression to
 up-type ones. The same angle also appears in many other places,
 but this particular parameter is only used for the charged-Higgs case. 
   
 
-<br/><br/><table><tr><td><strong>HiggsHchg:coup2H1W </td><td></td><td> <input type="text" name="63" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>HiggsHchg:coup2H1W </td><td></td><td> <input type="text" name="105" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>)</td></tr></table>
 The <i>H^+-</i> coupling to a <i>h^0(H_1^0) W^+-</i> pair.
 Is <i>cos(beta - alpha)</i> in the MSSM.
   
 
-<br/><br/><table><tr><td><strong>HiggsHchg:coup2H2W </td><td></td><td> <input type="text" name="64" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>HiggsHchg:coup2H2W </td><td></td><td> <input type="text" name="106" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
 The <i>H^+-</i> coupling to a <i>H^0(H_2^0) W^+-</i> pair.
 Is <i>1 - cos(beta - alpha)</i> in the MSSM.
   
@@ -599,13 +1013,13 @@ possibility to modify angular decay correlations in the decay of a
 fermions. Currently it does not affect the partial width of the 
 channels, which is only based on the above parameters.
 <br/>
-<input type="radio" name="65" value="0"><strong>0 </strong>: isotropic decays.<br/>
-<input type="radio" name="65" value="1" checked="checked"><strong>1 </strong>: assuming the <ei>h^0(H_1)</ei> is a pure scalar (CP-even), as in the MSSM.<br/>
-<input type="radio" name="65" value="2"><strong>2 </strong>: assuming the <ei>h^0(H_1)</ei> is a pure pseudoscalar(CP-odd).<br/>
-<input type="radio" name="65" value="3"><strong>3 </strong>: assuming the <ei>h^0(H_1)</ei> is a mixture of the two, including the CP-violating interference term. The parameter<ei>eta</ei>, see below, sets the strength of the CP-odd admixture,with the interference term being proportional to <ei>eta</ei>and the CP-odd one to <ei>eta^2</ei>.<br/>
+<input type="radio" name="107" value="0"><strong>0 </strong>: isotropic decays.<br/>
+<input type="radio" name="107" value="1" checked="checked"><strong>1 </strong>: assuming the <ei>h^0(H_1)</ei> is a pure scalar (CP-even), as in the MSSM.<br/>
+<input type="radio" name="107" value="2"><strong>2 </strong>: assuming the <ei>h^0(H_1)</ei> is a pure pseudoscalar(CP-odd).<br/>
+<input type="radio" name="107" value="3"><strong>3 </strong>: assuming the <ei>h^0(H_1)</ei> is a mixture of the two, including the CP-violating interference term. The parameter<ei>eta</ei>, see below, sets the strength of the CP-odd admixture,with the interference term being proportional to <ei>eta</ei>and the CP-odd one to <ei>eta^2</ei>.<br/>
 </modepick>
 
-<br/><br/><table><tr><td><strong>HiggsH1:etaParity </td><td></td><td> <input type="text" name="66" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>HiggsH1:etaParity </td><td></td><td> <input type="text" name="108" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
 The <i>eta</i> value of CP-violation in the 
 <code>HiggsSM:parity = 3</code> option. 
   
@@ -617,13 +1031,13 @@ possibility to modify angular decay correlations in the decay of a
 fermions. Currently it does not affect the partial width of the 
 channels, which is only based on the above parameters.
 <br/>
-<input type="radio" name="67" value="0"><strong>0 </strong>: isotropic decays.<br/>
-<input type="radio" name="67" value="1" checked="checked"><strong>1 </strong>: assuming the <ei>H^0(H_2)</ei> is a pure scalar (CP-even), as in the MSSM.<br/>
-<input type="radio" name="67" value="2"><strong>2 </strong>: assuming the <ei>H^0(H_2)</ei> is a pure pseudoscalar(CP-odd).<br/>
-<input type="radio" name="67" value="3"><strong>3 </strong>: assuming the <ei>H^0(H_2)</ei> is a mixture of the two, including the CP-violating interference term. The parameter<ei>eta</ei>, see below, sets the strength of the CP-odd admixture,with the interference term being proportional to <ei>eta</ei>and the CP-odd one to <ei>eta^2</ei>.<br/>
+<input type="radio" name="109" value="0"><strong>0 </strong>: isotropic decays.<br/>
+<input type="radio" name="109" value="1" checked="checked"><strong>1 </strong>: assuming the <ei>H^0(H_2)</ei> is a pure scalar (CP-even), as in the MSSM.<br/>
+<input type="radio" name="109" value="2"><strong>2 </strong>: assuming the <ei>H^0(H_2)</ei> is a pure pseudoscalar(CP-odd).<br/>
+<input type="radio" name="109" value="3"><strong>3 </strong>: assuming the <ei>H^0(H_2)</ei> is a mixture of the two, including the CP-violating interference term. The parameter<ei>eta</ei>, see below, sets the strength of the CP-odd admixture,with the interference term being proportional to <ei>eta</ei>and the CP-odd one to <ei>eta^2</ei>.<br/>
 </modepick>
 
-<br/><br/><table><tr><td><strong>HiggsH2:etaParity </td><td></td><td> <input type="text" name="68" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>HiggsH2:etaParity </td><td></td><td> <input type="text" name="110" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
 The <i>eta</i> value of CP-violation in the 
 <code>HiggsSM:parity = 3</code> option. 
   
@@ -635,13 +1049,13 @@ possibility to modify angular decay correlations in the decay of a
 fermions. Currently it does not affect the partial width of the 
 channels, which is only based on the above parameters.
 <br/>
-<input type="radio" name="69" value="0"><strong>0 </strong>: isotropic decays.<br/>
-<input type="radio" name="69" value="1"><strong>1 </strong>: assuming the <ei>A^0(H_3)</ei> is a pure scalar (CP-even).<br/>
-<input type="radio" name="69" value="2" checked="checked"><strong>2 </strong>: assuming the <ei>A^0(H_3)</ei> is a pure pseudoscalar(CP-odd), as in the MSSM.<br/>
-<input type="radio" name="69" value="3"><strong>3 </strong>: assuming the <ei>A^0(H_3)</ei> is a mixture of the two, including the CP-violating interference term. The parameter<ei>eta</ei>, see below, sets the strength of the CP-odd admixture,with the interference term being proportional to <ei>eta</ei>and the CP-odd one to <ei>eta^2</ei>.<br/>
+<input type="radio" name="111" value="0"><strong>0 </strong>: isotropic decays.<br/>
+<input type="radio" name="111" value="1"><strong>1 </strong>: assuming the <ei>A^0(H_3)</ei> is a pure scalar (CP-even).<br/>
+<input type="radio" name="111" value="2" checked="checked"><strong>2 </strong>: assuming the <ei>A^0(H_3)</ei> is a pure pseudoscalar(CP-odd), as in the MSSM.<br/>
+<input type="radio" name="111" value="3"><strong>3 </strong>: assuming the <ei>A^0(H_3)</ei> is a mixture of the two, including the CP-violating interference term. The parameter<ei>eta</ei>, see below, sets the strength of the CP-odd admixture,with the interference term being proportional to <ei>eta</ei>and the CP-odd one to <ei>eta^2</ei>.<br/>
 </modepick>
 
-<br/><br/><table><tr><td><strong>HiggsA3:etaParity </td><td></td><td> <input type="text" name="70" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>HiggsA3:etaParity </td><td></td><td> <input type="text" name="112" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
 The <i>eta</i> value of CP-violation in the 
 <code>HiggsSM:parity = 3</code> option. 
   
@@ -768,247 +1182,457 @@ fwrite($handle,$data);
 }
 if($_POST["22"] != "off")
 {
-$data = "HiggsBSM:allH2 = ".$_POST["22"]."\n";
+$data = "HiggsBSM:gg2H1 = ".$_POST["22"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["23"] != "off")
 {
-$data = "HiggsBSM:ffbar2H2 = ".$_POST["23"]."\n";
+$data = "HiggsBSM:gmgm2H1 = ".$_POST["23"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["24"] != "off")
 {
-$data = "HiggsBSM:allA3 = ".$_POST["24"]."\n";
+$data = "HiggsBSM:ffbar2H1Z = ".$_POST["24"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["25"] != "off")
 {
-$data = "HiggsBSM:ffbar2A3 = ".$_POST["25"]."\n";
+$data = "HiggsBSM:ffbar2H1W = ".$_POST["25"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["26"] != "off")
 {
-$data = "HiggsBSM:allH+- = ".$_POST["26"]."\n";
+$data = "HiggsBSM:ff2H1ff(t:ZZ) = ".$_POST["26"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["27"] != "off")
 {
-$data = "HiggsBSM:ffbar2H+- = ".$_POST["27"]."\n";
+$data = "HiggsBSM:ff2H1ff(t:WW) = ".$_POST["27"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["28"] != "off")
 {
-$data = "HiggsBSM:bg2H+-t = ".$_POST["28"]."\n";
+$data = "HiggsBSM:gg2H1ttbar = ".$_POST["28"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["29"] != "off")
 {
-$data = "HiggsBSM:allHpair = ".$_POST["29"]."\n";
+$data = "HiggsBSM:qqbar2H1ttbar = ".$_POST["29"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["30"] != "off")
 {
-$data = "HiggsBSM:ffbar2A3H1 = ".$_POST["30"]."\n";
+$data = "HiggsBSM:allH2 = ".$_POST["30"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["31"] != "off")
 {
-$data = "HiggsBSM:ffbar2A3H2 = ".$_POST["31"]."\n";
+$data = "HiggsBSM:ffbar2H2 = ".$_POST["31"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["32"] != "off")
 {
-$data = "HiggsBSM:ffbar2H+-H1 = ".$_POST["32"]."\n";
+$data = "HiggsBSM:gg2H2 = ".$_POST["32"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["33"] != "off")
 {
-$data = "HiggsBSM:ffbar2H+-H2 = ".$_POST["33"]."\n";
+$data = "HiggsBSM:gmgm2H2 = ".$_POST["33"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["34"] != "off")
 {
-$data = "HiggsBSM:ffbar2H+H- = ".$_POST["34"]."\n";
+$data = "HiggsBSM:ffbar2H2Z = ".$_POST["34"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["35"] != "1.")
+if($_POST["35"] != "off")
 {
-$data = "HiggsH1:coup2d = ".$_POST["35"]."\n";
+$data = "HiggsBSM:ffbar2H2W = ".$_POST["35"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["36"] != "1.")
+if($_POST["36"] != "off")
 {
-$data = "HiggsH1:coup2u = ".$_POST["36"]."\n";
+$data = "HiggsBSM:ff2H2ff(t:ZZ) = ".$_POST["36"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["37"] != "1.")
+if($_POST["37"] != "off")
 {
-$data = "HiggsH1:coup2l = ".$_POST["37"]."\n";
+$data = "HiggsBSM:ff2H2ff(t:WW) = ".$_POST["37"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["38"] != "1.")
+if($_POST["38"] != "off")
 {
-$data = "HiggsH1:coup2Z = ".$_POST["38"]."\n";
+$data = "HiggsBSM:gg2H2ttbar = ".$_POST["38"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["39"] != "1.")
+if($_POST["39"] != "off")
 {
-$data = "HiggsH1:coup2W = ".$_POST["39"]."\n";
+$data = "HiggsBSM:qqbar2H2ttbar = ".$_POST["39"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["40"] != "0.")
+if($_POST["40"] != "off")
 {
-$data = "HiggsH1:coup2Hchg = ".$_POST["40"]."\n";
+$data = "HiggsBSM:allA3 = ".$_POST["40"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["41"] != "1.")
+if($_POST["41"] != "off")
 {
-$data = "HiggsH2:coup2d = ".$_POST["41"]."\n";
+$data = "HiggsBSM:ffbar2A3 = ".$_POST["41"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["42"] != "1.")
+if($_POST["42"] != "off")
 {
-$data = "HiggsH2:coup2u = ".$_POST["42"]."\n";
+$data = "HiggsBSM:gg2A3 = ".$_POST["42"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["43"] != "1.")
+if($_POST["43"] != "off")
 {
-$data = "HiggsH2:coup2l = ".$_POST["43"]."\n";
+$data = "HiggsBSM:gmgm2A3 = ".$_POST["43"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["44"] != "1.")
+if($_POST["44"] != "off")
 {
-$data = "HiggsH2:coup2Z = ".$_POST["44"]."\n";
+$data = "HiggsBSM:ffbar2A3Z = ".$_POST["44"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["45"] != "1.")
+if($_POST["45"] != "off")
 {
-$data = "HiggsH2:coup2W = ".$_POST["45"]."\n";
+$data = "HiggsBSM:ffbar2A3W = ".$_POST["45"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["46"] != "0.")
+if($_POST["46"] != "off")
 {
-$data = "HiggsH2:coup2Hchg = ".$_POST["46"]."\n";
+$data = "HiggsBSM:ff2A3ff(t:ZZ) = ".$_POST["46"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["47"] != "1.")
+if($_POST["47"] != "off")
 {
-$data = "HiggsH2:coup2H1H1 = ".$_POST["47"]."\n";
+$data = "HiggsBSM:ff2A3ff(t:WW) = ".$_POST["47"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["48"] != "1.")
+if($_POST["48"] != "off")
 {
-$data = "HiggsH2:coup2A3A3 = ".$_POST["48"]."\n";
+$data = "HiggsBSM:gg2A3ttbar = ".$_POST["48"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["49"] != "0.")
+if($_POST["49"] != "off")
 {
-$data = "HiggsH2:coup2H1Z = ".$_POST["49"]."\n";
+$data = "HiggsBSM:qqbar2A3ttbar = ".$_POST["49"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["50"] != "0.")
+if($_POST["50"] != "off")
 {
-$data = "HiggsH2:coup2A3H1 = ".$_POST["50"]."\n";
+$data = "HiggsBSM:allH+- = ".$_POST["50"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["51"] != "0.")
+if($_POST["51"] != "off")
 {
-$data = "HiggsH2:coup2HchgW = ".$_POST["51"]."\n";
+$data = "HiggsBSM:ffbar2H+- = ".$_POST["51"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["52"] != "1.")
+if($_POST["52"] != "off")
 {
-$data = "HiggsA3:coup2d = ".$_POST["52"]."\n";
+$data = "HiggsBSM:bg2H+-t = ".$_POST["52"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["53"] != "1.")
+if($_POST["53"] != "off")
 {
-$data = "HiggsA3:coup2u = ".$_POST["53"]."\n";
+$data = "HiggsBSM:allHpair = ".$_POST["53"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["54"] != "1.")
+if($_POST["54"] != "off")
 {
-$data = "HiggsA3:coup2l = ".$_POST["54"]."\n";
+$data = "HiggsBSM:ffbar2A3H1 = ".$_POST["54"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["55"] != "1.")
+if($_POST["55"] != "off")
 {
-$data = "HiggsA3:coup2H1Z = ".$_POST["55"]."\n";
+$data = "HiggsBSM:ffbar2A3H2 = ".$_POST["55"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["56"] != "1.")
+if($_POST["56"] != "off")
 {
-$data = "HiggsA3:coup2H2Z = ".$_POST["56"]."\n";
+$data = "HiggsBSM:ffbar2H+-H1 = ".$_POST["56"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["57"] != "0.")
+if($_POST["57"] != "off")
 {
-$data = "HiggsA3:coup2Z = ".$_POST["57"]."\n";
+$data = "HiggsBSM:ffbar2H+-H2 = ".$_POST["57"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["58"] != "0.")
+if($_POST["58"] != "off")
 {
-$data = "HiggsA3:coup2W = ".$_POST["58"]."\n";
+$data = "HiggsBSM:ffbar2H+H- = ".$_POST["58"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["59"] != "0.")
+if($_POST["59"] != "off")
 {
-$data = "HiggsA3:coup2H1H1 = ".$_POST["59"]."\n";
+$data = "HiggsBSM:qg2H1q = ".$_POST["59"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["60"] != "0.")
+if($_POST["60"] != "off")
 {
-$data = "HiggsA3:coup2Hchg = ".$_POST["60"]."\n";
+$data = "HiggsBSM:gg2H1bbbar = ".$_POST["60"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["61"] != "0.")
+if($_POST["61"] != "off")
 {
-$data = "HiggsA3:coup2HchgW = ".$_POST["61"]."\n";
+$data = "HiggsBSM:qqbar2H1bbbar = ".$_POST["61"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["62"] != "5.")
+if($_POST["62"] != "off")
 {
-$data = "HiggsHchg:tanBeta = ".$_POST["62"]."\n";
+$data = "HiggsBSM:gg2H1g(l:t) = ".$_POST["62"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["63"] != "1.")
+if($_POST["63"] != "off")
 {
-$data = "HiggsHchg:coup2H1W = ".$_POST["63"]."\n";
+$data = "HiggsBSM:qg2H1q(l:t) = ".$_POST["63"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["64"] != "0.")
+if($_POST["64"] != "off")
 {
-$data = "HiggsHchg:coup2H2W = ".$_POST["64"]."\n";
+$data = "HiggsBSM:qqbar2H1g(l:t) = ".$_POST["64"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["65"] != "1")
+if($_POST["65"] != "off")
 {
-$data = "HiggsH1:parity = ".$_POST["65"]."\n";
+$data = "HiggsBSM:qg2H2q = ".$_POST["65"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["66"] != "0.")
+if($_POST["66"] != "off")
 {
-$data = "HiggsH1:etaParity = ".$_POST["66"]."\n";
+$data = "HiggsBSM:gg2H2bbbar = ".$_POST["66"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["67"] != "1")
+if($_POST["67"] != "off")
 {
-$data = "HiggsH2:parity = ".$_POST["67"]."\n";
+$data = "HiggsBSM:qqbar2H2bbbar = ".$_POST["67"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["68"] != "0.")
+if($_POST["68"] != "off")
 {
-$data = "HiggsH2:etaParity = ".$_POST["68"]."\n";
+$data = "HiggsBSM:gg2H2g(l:t) = ".$_POST["68"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["69"] != "2")
+if($_POST["69"] != "off")
 {
-$data = "HiggsA3:parity = ".$_POST["69"]."\n";
+$data = "HiggsBSM:qg2H2q(l:t) = ".$_POST["69"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["70"] != "0.")
+if($_POST["70"] != "off")
 {
-$data = "HiggsA3:etaParity = ".$_POST["70"]."\n";
+$data = "HiggsBSM:qqbar2H2g(l:t) = ".$_POST["70"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["71"] != "off")
+{
+$data = "HiggsBSM:qg2A3q = ".$_POST["71"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["72"] != "off")
+{
+$data = "HiggsBSM:gg2A3bbbar = ".$_POST["72"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["73"] != "off")
+{
+$data = "HiggsBSM:qqbar2A3bbbar = ".$_POST["73"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["74"] != "off")
+{
+$data = "HiggsBSM:gg2A3g(l:t) = ".$_POST["74"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["75"] != "off")
+{
+$data = "HiggsBSM:qg2A3q(l:t) = ".$_POST["75"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["76"] != "off")
+{
+$data = "HiggsBSM:qqbar2A3g(l:t) = ".$_POST["76"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["77"] != "1.")
+{
+$data = "HiggsH1:coup2d = ".$_POST["77"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["78"] != "1.")
+{
+$data = "HiggsH1:coup2u = ".$_POST["78"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["79"] != "1.")
+{
+$data = "HiggsH1:coup2l = ".$_POST["79"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["80"] != "1.")
+{
+$data = "HiggsH1:coup2Z = ".$_POST["80"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["81"] != "1.")
+{
+$data = "HiggsH1:coup2W = ".$_POST["81"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["82"] != "0.")
+{
+$data = "HiggsH1:coup2Hchg = ".$_POST["82"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["83"] != "1.")
+{
+$data = "HiggsH2:coup2d = ".$_POST["83"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["84"] != "1.")
+{
+$data = "HiggsH2:coup2u = ".$_POST["84"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["85"] != "1.")
+{
+$data = "HiggsH2:coup2l = ".$_POST["85"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["86"] != "1.")
+{
+$data = "HiggsH2:coup2Z = ".$_POST["86"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["87"] != "1.")
+{
+$data = "HiggsH2:coup2W = ".$_POST["87"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["88"] != "0.")
+{
+$data = "HiggsH2:coup2Hchg = ".$_POST["88"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["89"] != "1.")
+{
+$data = "HiggsH2:coup2H1H1 = ".$_POST["89"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["90"] != "1.")
+{
+$data = "HiggsH2:coup2A3A3 = ".$_POST["90"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["91"] != "0.")
+{
+$data = "HiggsH2:coup2H1Z = ".$_POST["91"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["92"] != "0.")
+{
+$data = "HiggsH2:coup2A3H1 = ".$_POST["92"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["93"] != "0.")
+{
+$data = "HiggsH2:coup2HchgW = ".$_POST["93"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["94"] != "1.")
+{
+$data = "HiggsA3:coup2d = ".$_POST["94"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["95"] != "1.")
+{
+$data = "HiggsA3:coup2u = ".$_POST["95"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["96"] != "1.")
+{
+$data = "HiggsA3:coup2l = ".$_POST["96"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["97"] != "1.")
+{
+$data = "HiggsA3:coup2H1Z = ".$_POST["97"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["98"] != "1.")
+{
+$data = "HiggsA3:coup2H2Z = ".$_POST["98"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["99"] != "0.")
+{
+$data = "HiggsA3:coup2Z = ".$_POST["99"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["100"] != "0.")
+{
+$data = "HiggsA3:coup2W = ".$_POST["100"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["101"] != "0.")
+{
+$data = "HiggsA3:coup2H1H1 = ".$_POST["101"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["102"] != "0.")
+{
+$data = "HiggsA3:coup2Hchg = ".$_POST["102"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["103"] != "0.")
+{
+$data = "HiggsA3:coup2HchgW = ".$_POST["103"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["104"] != "5.")
+{
+$data = "HiggsHchg:tanBeta = ".$_POST["104"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["105"] != "1.")
+{
+$data = "HiggsHchg:coup2H1W = ".$_POST["105"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["106"] != "0.")
+{
+$data = "HiggsHchg:coup2H2W = ".$_POST["106"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["107"] != "1")
+{
+$data = "HiggsH1:parity = ".$_POST["107"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["108"] != "0.")
+{
+$data = "HiggsH1:etaParity = ".$_POST["108"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["109"] != "1")
+{
+$data = "HiggsH2:parity = ".$_POST["109"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["110"] != "0.")
+{
+$data = "HiggsH2:etaParity = ".$_POST["110"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["111"] != "2")
+{
+$data = "HiggsA3:parity = ".$_POST["111"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["112"] != "0.")
+{
+$data = "HiggsA3:etaParity = ".$_POST["112"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);

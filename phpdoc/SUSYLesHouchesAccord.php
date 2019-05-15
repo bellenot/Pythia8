@@ -42,7 +42,7 @@ the information required for simulation of supersymmetric processes.
   
 
 <br/><br/><table><tr><td><strong>SUSY:SusyLesHouchesFile  </td><td></td><td> <input type="text" name="2" value="softsusy.spc" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>softsusy.spc</strong></code>)</td></tr></table>
-Name of SUSY Les Houches Accord (SLHA) spectrum file containing the
+Name of a SUSY Les Houches Accord (SLHA) spectrum file containing the
 SUSY model definition, masses, and other parameters pertaining to 
 the desired SUSY model. Note that SLHA files can still be used
 even if no supersymmetric processes are switched on, as an 

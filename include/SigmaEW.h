@@ -317,7 +317,7 @@ public:
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
-  // Evaluate weight for W decay angle.
+  // Evaluate weight for Z decay angle.
   virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
 
   // Info on the subprocess.
@@ -448,7 +448,7 @@ public:
   virtual string name()       const {return nameSave;}
   virtual int    code()       const {return codeSave;}
   virtual string inFlux()     const {return "ffbarSame";}
-  virtual bool isSChannel()   const {return true;}
+  virtual bool   isSChannel() const {return true;}
   virtual int    id3Mass()    const {return idNew;}
   virtual int    id4Mass()    const {return idNew;}
   virtual int    resonanceA() const {return 23;}

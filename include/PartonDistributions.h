@@ -154,8 +154,14 @@ public:
 
 private:
 
+  // Constants: could only be changed in the code itself.
+  static const double ALPHAEM;
+
   // Update PDF values.
   void xfUpdate(int id, double x, double Q2);
+
+  // The lepton mass, set at initialization.
+  double m2Lep;
 
 };
  

@@ -49,7 +49,7 @@ int main() {
   int nPace = max(1,nEvent/nShow); 
   int iAbort = 0;
   for (int iEvent = 0; iEvent < nEvent; ++iEvent) {
-    if (iEvent%nPace == 0) cout << " Now begin event " << iEvent << "\n";
+    if (iEvent%nPace == 0) cout << " Now begin event " << iEvent << endl;
 
     // Generate events. Quit if failure.
     if (!pythia.next()) {

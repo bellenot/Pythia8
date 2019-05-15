@@ -43,4 +43,3 @@ MultipleInteractions:expPow = 1.
 
 ! 6) Switch off checks.
 #Check:event = off
-

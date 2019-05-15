@@ -34,20 +34,14 @@ ProcessLevel::~ProcessLevel() {
 // Main routine to initialize generation process.
 
 bool ProcessLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn, 
-  BeamParticle* beamBPtrIn, bool doLHAin, LHAinit* lhaInitPtrIn, 
-  LHAevnt* lhaEvntPtrIn, UserHooks* userHooksPtrIn,
-  vector<SigmaProcess*>& sigmaPtrs) {
+  BeamParticle* beamBPtrIn, bool doLHA, UserHooks* userHooksPtrIn,
+  vector<SigmaProcess*>& sigmaPtrs, ostream& os) {
 
   // Store input pointers for future use. 
   infoPtr       = infoPtrIn;
   beamAPtr      = beamAPtrIn;
   beamBPtr      = beamBPtrIn;
   userHooksPtr  = userHooksPtrIn;
-
-  // Store pointers to Les Houches Accord input if any.
-  doLHA         = doLHAin;
-  lhaInitPtr    = lhaInitPtrIn;
-  lhaEvntPtr    = lhaEvntPtrIn;
 
   // Initialize static data members in other HadronLevel classes.
   SigmaProcess::initStatic(); 
@@ -59,194 +53,6 @@ bool ProcessLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn,
   // Options to allow second hard interaction and resonance decays.
   doSecondHard  = Settings::flag("SecondHard:generate");
   doResDecays   = Settings::flag("ProcessLevel:resonanceDecays");
-
-  // If not Les Houches then internal machinery.
-  doInternal    = !doLHA;
-  if (doInternal) return initInternal(sigmaPtrs);
-
-  // Done.
-  return true;
-}
-
-//*********
-
-// Main routine to generate the hard process.
-// Currently rather primitive.
-
-  bool ProcessLevel::next( Event& process) {
-
-  // Starting value.
-  bool physical = false;  
-
-  // Generate the next internal event with two or one hard interactions. 
-  if (doInternal) physical = (doSecondHard) 
-    ? next2Internal( process) : nextInternal( process);
-
-  // Read in an event in the LHAevnt format.
-  else if (doLHA) physical = nextLHA( process);
-
-  // Check that colour assignments make sense.
-  if (physical) physical = checkColours( process);
-
-  // Done.
-  return physical;
-}
-
-//*********
-
-// Accumulate and update statistics (after possible user veto).
-  
-void ProcessLevel::accumulate() {
-
-  // Currently does not handle LHA processes ??
-  if (doLHA) return;
-
-  // Increase number of accepted events.
-  containerPtrs[iContainer]->accumulate();
-
-  // Provide current generated cross section estimate.
-  long   nTrySum    = 0; 
-  long   nSelSum    = 0; 
-  long   nAccSum    = 0;
-  double sigmaSum   = 0.;
-  double delta2Sum  = 0.;
-  double sigSelSum  = 0.;
-  for (int i = 0; i < int(containerPtrs.size()); ++i) 
-  if (containerPtrs[i]->sigmaMax() != 0.) {
-    nTrySum        += containerPtrs[i]->nTried();
-    nSelSum        += containerPtrs[i]->nSelected();
-    nAccSum        += containerPtrs[i]->nAccepted();
-    sigmaSum       += containerPtrs[i]->sigmaMC();
-    delta2Sum      += pow2(containerPtrs[i]->deltaMC()); 
-    sigSelSum      += containerPtrs[i]->sigmaSelMC();
-  }
-
-  // Normally only one hard interaction. Then store info and done.
-  if (!doSecondHard) {
-    double deltaSum = sqrtpos(delta2Sum);
-    infoPtr->setSigma( nTrySum, nSelSum, nAccSum, sigmaSum, deltaSum); 
-    return;
-  }
-
-  // Increase counter for a second hard interaction.
-  container2Ptrs[i2Container]->accumulate();
-
-  // Update statistics on average impact factor.
-  ++nImpact;
-  sumImpactFac     += infoPtr->enhanceMI();
-  sum2ImpactFac    += pow2(infoPtr->enhanceMI());
-
-  // Cross section estimate for second hard process.
-  double sigma2Sum  = 0.;
-  double sig2SelSum = 0.;
-  for (int i2 = 0; i2 < int(container2Ptrs.size()); ++i2) 
-  if (container2Ptrs[i2]->sigmaMax() != 0.) {
-    nTrySum        += container2Ptrs[i2]->nTried();
-    sigma2Sum      += container2Ptrs[i2]->sigmaMC();
-    sig2SelSum     += container2Ptrs[i2]->sigmaSelMC();
-  }
-
-  // Average impact-parameter factor and error.
-  double invN       = 1. / max(1, nImpact);
-  double impactFac  = max( 1., sumImpactFac * invN);
-  double impactErr2 = ( sum2ImpactFac * invN / pow2(impactFac) - 1.) * invN;
-     
-  // Cross section estimate for combination of first and second process.
-  // Combine two possible ways and take average.
-  double sigmaComb  = 0.5 * (sigmaSum * sig2SelSum + sigSelSum * sigma2Sum);
-  sigmaComb        *= impactFac / sigmaND;
-  if (allHardSame) sigmaComb *= 0.5; 
-  double deltaComb  = sqrtpos(2. / nAccSum + impactErr2) * sigmaComb;
-
-  // Store info and done.
-  infoPtr->setSigma( nTrySum, nSelSum, nAccSum, sigmaComb, deltaComb); 
-  
-}
-
-//*********
-
-// Print statistics on cross sections and number of events.
-
-void ProcessLevel::statistics(ostream& os) {
-
-  // Internal statistics only.
-  if (!doInternal) return;
-
-  // Special processing if two hard interactions selected.
-  if (doSecondHard) { 
-    statistics2(os);
-    return;
-  } 
-    
-  // Header.
-  os << "\n *-------  PYTHIA Event and Cross Section Statistics  ------"
-     << "-------------------------------------------------------*\n"
-     << " |                                                            "
-     << "                                                     |\n" 
-     << " | Subprocess                                    Code |       "
-     << "     Number of events       |      sigma +- delta    |\n" 
-     << " |                                                    |       "
-     << "Tried   Selected   Accepted |     (estimated) (mb)   |\n"
-     << " |                                                    |       "
-     << "                            |                        |\n"
-     << " |------------------------------------------------------------"
-     << "-----------------------------------------------------|\n"
-     << " |                                                    |       "
-     << "                            |                        |\n";
-
-  // Reset sum counters.
-  long   nTrySum   = 0; 
-  long   nSelSum   = 0; 
-  long   nAccSum   = 0;
-  double sigmaSum  = 0.;
-  double delta2Sum = 0.;
-
-  // Loop over existing processes.
-  for (int i = 0; i < int(containerPtrs.size()); ++i) 
-  if (containerPtrs[i]->sigmaMax() != 0.) {
-
-    // Read info for process. Sum counters.
-    long   nTry    = containerPtrs[i]->nTried();
-    long   nSel    = containerPtrs[i]->nSelected();
-    long   nAcc    = containerPtrs[i]->nAccepted();
-    double sigma   = containerPtrs[i]->sigmaMC();
-    double delta   = containerPtrs[i]->deltaMC(); 
-    nTrySum       += nTry;
-    nSelSum       += nSel;
-    nAccSum       += nAcc; 
-    sigmaSum      += sigma;
-    delta2Sum     += pow2(delta);    
-
-    // Print individual process info.
-    os << " | " << left << setw(45) << containerPtrs[i]->name() 
-       << right << setw(5) << containerPtrs[i]->code() << " | " 
-       << setw(11) << nTry << " " << setw(10) << nSel << " " 
-       << setw(10) << nAcc << " | " << scientific << setprecision(3) 
-       << setw(11) << sigma << setw(11) << delta << " |\n";
-  }
-
-  // Print summed process info.
-  os << " |                                                    |       "
-     << "                            |                        |\n"
-     << " | " << left << setw(50) << "sum" << right << " | " << setw(11) 
-     << nTrySum << " " << setw(10) << nSelSum << " " << setw(10) 
-     << nAccSum << " | " << scientific << setprecision(3) << setw(11) 
-     << sigmaSum << setw(11) << sqrtpos(delta2Sum) << " |\n";
-
-  // Listing finished.
-  os << " |                                                            "
-     << "                                                     |\n"
-     << " *-------  End PYTHIA Event and Cross Section Statistics -----"
-     << "-----------------------------------------------------*" << endl;
-
-}
-
-//*********
-
-// Initialize the internal event generation machinery.
-  
-bool ProcessLevel::initInternal( vector<SigmaProcess*>& sigmaPtrs,
-  ostream& os) {
 
   // Set up SigmaTotal. Store sigma_nondiffractive for future use.
   int    idA = infoPtr->idA();
@@ -267,11 +73,17 @@ bool ProcessLevel::initInternal( vector<SigmaProcess*>& sigmaPtrs,
   if (sigmaPtrs.size() > 0) {
     for (int iSig = 0; iSig < int(sigmaPtrs.size()); ++iSig)
       containerPtrs.push_back( new ProcessContainer(sigmaPtrs[iSig]) );
-  }  
+  } 
+
+  // Append single container for Les Houches processes, if any.
+  if (doLHA) {
+    SigmaProcess* sigmaPtr = new SigmaLHAProcess();
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }     
 
   // If no processes found then refuse to do anything.
   if ( int(containerPtrs.size()) == 0) {
-    ErrorMsg::message("Error in ProcessLevel::initInternal: "
+    ErrorMsg::message("Error in ProcessLevel::init: "
       "no process switched on"); 
     return false;
   }
@@ -291,7 +103,7 @@ bool ProcessLevel::initInternal( vector<SigmaProcess*>& sigmaPtrs,
   if (doSecondHard) {
     setupContainers.init2(container2Ptrs);
     if ( int(container2Ptrs.size()) == 0) {
-      ErrorMsg::message("Error in ProcessLevel::initInternal: "
+      ErrorMsg::message("Error in ProcessLevel::init: "
         "no second hard process switched on"); 
       return false;
     }
@@ -362,12 +174,12 @@ bool ProcessLevel::initInternal( vector<SigmaProcess*>& sigmaPtrs,
 
   // If sum of maxima vanishes then refuse to do anything.
   if ( numberOn == 0  || sigmaMaxSum <= 0.) {
-    ErrorMsg::message("Error in ProcessLevel::initInternal: "
+    ErrorMsg::message("Error in ProcessLevel::init: "
       "all processes have vanishing cross sections"); 
     return false;
   }
   if ( doSecondHard && (number2On == 0  || sigma2MaxSum <= 0.) ) {
-    ErrorMsg::message("Error in ProcessLevel::initInternal: "
+    ErrorMsg::message("Error in ProcessLevel::init: "
       "all second hard processes have vanishing cross sections"); 
     return false;
   }
@@ -407,16 +219,207 @@ bool ProcessLevel::initInternal( vector<SigmaProcess*>& sigmaPtrs,
   sumImpactFac  = 0.;
   sum2ImpactFac = 0.;
 
+  // Statistics for LHA events.
+  codeLHA.resize(0);
+  nEvtLHA.resize(0);
+
   // Done.
   return true;
+}
+
+//*********
+
+// Main routine to generate the hard process.
+
+bool ProcessLevel::next( Event& process) {
+
+  // Generate the next event with two or one hard interactions. 
+  bool physical = (doSecondHard) ? nextTwo( process) : nextOne( process);
+
+  // Check that colour assignments make sense.
+  if (physical) physical = checkColours( process);
+
+  // Done.
+  return physical;
+}
+
+//*********
+
+// Accumulate and update statistics (after possible user veto).
+  
+void ProcessLevel::accumulate() {
+
+  // Increase number of accepted events.
+  containerPtrs[iContainer]->accumulate();
+
+  // Provide current generated cross section estimate.
+  long   nTrySum    = 0; 
+  long   nSelSum    = 0; 
+  long   nAccSum    = 0;
+  double sigmaSum   = 0.;
+  double delta2Sum  = 0.;
+  double sigSelSum  = 0.;
+  for (int i = 0; i < int(containerPtrs.size()); ++i) 
+  if (containerPtrs[i]->sigmaMax() != 0.) {
+    nTrySum        += containerPtrs[i]->nTried();
+    nSelSum        += containerPtrs[i]->nSelected();
+    nAccSum        += containerPtrs[i]->nAccepted();
+    sigmaSum       += containerPtrs[i]->sigmaMC();
+    delta2Sum      += pow2(containerPtrs[i]->deltaMC()); 
+    sigSelSum      += containerPtrs[i]->sigmaSelMC();
+  }
+
+  // For Les Houches events find subprocess type and update counter.
+  if (infoPtr->isLHA()) {
+    int codeLHANow = infoPtr->codeSub();
+    int iFill = -1;
+    for (int i = 0; i < int(codeLHA.size()); ++i)
+      if (codeLHANow == codeLHA[i]) iFill = i;
+    if (iFill >= 0) ++nEvtLHA[iFill];
+
+    // Add new process when new code and then arrange in order. 
+    else {
+      codeLHA.push_back(codeLHANow);
+      nEvtLHA.push_back(1);
+      for (int i = int(codeLHA.size()) - 1; i > 0; --i) {
+        if (codeLHA[i] < codeLHA[i - 1]) { 
+          swap(codeLHA[i], codeLHA[i - 1]);
+          swap(nEvtLHA[i], nEvtLHA[i - 1]);
+	} 
+        else break;
+      }
+    }
+  }
+
+  // Normally only one hard interaction. Then store info and done.
+  if (!doSecondHard) {
+    double deltaSum = sqrtpos(delta2Sum);
+    infoPtr->setSigma( nTrySum, nSelSum, nAccSum, sigmaSum, deltaSum); 
+    return;
+  }
+
+  // Increase counter for a second hard interaction.
+  container2Ptrs[i2Container]->accumulate();
+
+  // Update statistics on average impact factor.
+  ++nImpact;
+  sumImpactFac     += infoPtr->enhanceMI();
+  sum2ImpactFac    += pow2(infoPtr->enhanceMI());
+
+  // Cross section estimate for second hard process.
+  double sigma2Sum  = 0.;
+  double sig2SelSum = 0.;
+  for (int i2 = 0; i2 < int(container2Ptrs.size()); ++i2) 
+  if (container2Ptrs[i2]->sigmaMax() != 0.) {
+    nTrySum        += container2Ptrs[i2]->nTried();
+    sigma2Sum      += container2Ptrs[i2]->sigmaMC();
+    sig2SelSum     += container2Ptrs[i2]->sigmaSelMC();
+  }
+
+  // Average impact-parameter factor and error.
+  double invN       = 1. / max(1, nImpact);
+  double impactFac  = max( 1., sumImpactFac * invN);
+  double impactErr2 = ( sum2ImpactFac * invN / pow2(impactFac) - 1.) * invN;
+     
+  // Cross section estimate for combination of first and second process.
+  // Combine two possible ways and take average.
+  double sigmaComb  = 0.5 * (sigmaSum * sig2SelSum + sigSelSum * sigma2Sum);
+  sigmaComb        *= impactFac / sigmaND;
+  if (allHardSame) sigmaComb *= 0.5; 
+  double deltaComb  = sqrtpos(2. / nAccSum + impactErr2) * sigmaComb;
+
+  // Store info and done.
+  infoPtr->setSigma( nTrySum, nSelSum, nAccSum, sigmaComb, deltaComb); 
+ 
+}
+
+//*********
+
+// Print statistics on cross sections and number of events.
+
+void ProcessLevel::statistics(ostream& os) {
+
+  // Special processing if two hard interactions selected.
+  if (doSecondHard) { 
+    statistics2(os);
+    return;
+  } 
+    
+  // Header.
+  os << "\n *-------  PYTHIA Event and Cross Section Statistics  ------"
+     << "-------------------------------------------------------*\n"
+     << " |                                                            "
+     << "                                                     |\n" 
+     << " | Subprocess                                    Code |       "
+     << "     Number of events       |      sigma +- delta    |\n" 
+     << " |                                                    |       "
+     << "Tried   Selected   Accepted |     (estimated) (mb)   |\n"
+     << " |                                                    |       "
+     << "                            |                        |\n"
+     << " |------------------------------------------------------------"
+     << "-----------------------------------------------------|\n"
+     << " |                                                    |       "
+     << "                            |                        |\n";
+
+  // Reset sum counters.
+  long   nTrySum   = 0; 
+  long   nSelSum   = 0; 
+  long   nAccSum   = 0;
+  double sigmaSum  = 0.;
+  double delta2Sum = 0.;
+
+  // Loop over existing processes.
+  for (int i = 0; i < int(containerPtrs.size()); ++i) 
+  if (containerPtrs[i]->sigmaMax() != 0.) {
+
+    // Read info for process. Sum counters.
+    long   nTry    = containerPtrs[i]->nTried();
+    long   nSel    = containerPtrs[i]->nSelected();
+    long   nAcc    = containerPtrs[i]->nAccepted();
+    double sigma   = containerPtrs[i]->sigmaMC();
+    double delta   = containerPtrs[i]->deltaMC(); 
+    nTrySum       += nTry;
+    nSelSum       += nSel;
+    nAccSum       += nAcc; 
+    sigmaSum      += sigma;
+    delta2Sum     += pow2(delta);    
+
+    // Print individual process info.
+    os << " | " << left << setw(45) << containerPtrs[i]->name() 
+       << right << setw(5) << containerPtrs[i]->code() << " | " 
+       << setw(11) << nTry << " " << setw(10) << nSel << " " 
+       << setw(10) << nAcc << " | " << scientific << setprecision(3) 
+       << setw(11) << sigma << setw(11) << delta << " |\n";
+
+    // Print subdivision by user code for Les Houches process.
+    if (containerPtrs[i]->code() == 9999) 
+    for (int i = 0; i < int(codeLHA.size()); ++i)
+      os << " |    ... whereof user classification code " << setw(10) 
+         << codeLHA[i] << " |                        " << setw(10) 
+         << nEvtLHA[i] << " |                        | \n";
+  }
+
+  // Print summed process info.
+  os << " |                                                    |       "
+     << "                            |                        |\n"
+     << " | " << left << setw(50) << "sum" << right << " | " << setw(11) 
+     << nTrySum << " " << setw(10) << nSelSum << " " << setw(10) 
+     << nAccSum << " | " << scientific << setprecision(3) << setw(11) 
+     << sigmaSum << setw(11) << sqrtpos(delta2Sum) << " |\n";
+
+  // Listing finished.
+  os << " |                                                            "
+     << "                                                     |\n"
+     << " *-------  End PYTHIA Event and Cross Section Statistics -----"
+     << "-----------------------------------------------------*" << endl;
 
 }
 
 //*********
 
-// Generate the next internal event.
+// Generate the next event with one interaction.
   
-bool ProcessLevel::nextInternal( Event& process) {
+bool ProcessLevel::nextOne( Event& process) {
 
   // Loop over tries until trial event succeeds.
   for ( ; ; ) {
@@ -430,6 +433,9 @@ bool ProcessLevel::nextInternal( Event& process) {
     
     // Do a trial event of this subprocess; accept or not.
     if (containerPtrs[iContainer]->trialProcess()) break;
+
+    // Check for end-of-file condition for Les Houches events.
+    if (infoPtr->atEndOfFile()) return false;
   }
 
   // Update sum of maxima if current maximum violated.
@@ -440,7 +446,6 @@ bool ProcessLevel::nextInternal( Event& process) {
   }
 
   // Construct kinematics of acceptable process.
-  // Should one try again if failure??
   if ( !containerPtrs[iContainer]->constructProcess( process) ) return false;
 
   // Do all resonance decays.
@@ -456,9 +461,9 @@ bool ProcessLevel::nextInternal( Event& process) {
 
 //*********
 
-// Generate the next internal event with two hard interactions.
+// Generate the next event with two hard interactions.
   
-bool ProcessLevel::next2Internal( Event& process) {
+bool ProcessLevel::nextTwo( Event& process) {
 
   // Loop over both hard processes to find consistent common kinematics.
   for ( ; ; ) {
@@ -475,6 +480,9 @@ bool ProcessLevel::next2Internal( Event& process) {
     
       // Do a trial event of this subprocess; accept or not.
       if (containerPtrs[iContainer]->trialProcess()) break;
+
+      // Check for end-of-file condition for Les Houches events.
+      if (infoPtr->atEndOfFile()) return false;
     }
 
     // Update sum of maxima if current maximum violated.
@@ -552,8 +560,9 @@ bool ProcessLevel::next2Internal( Event& process) {
   Event process2;
   process2.initColTag();
   startColTag2 = process2.lastColTag();
-  containerPtrs[iContainer]->constructProcess( process);
-  container2Ptrs[i2Container]->constructProcess( process2, false);
+  if ( !containerPtrs[iContainer]->constructProcess( process) ) return false;
+  if ( !container2Ptrs[i2Container]->constructProcess( process2, false) )
+    return false;
 
   // Do all resonance decays.
   if ( doResDecays &&  !containerPtrs[iContainer]->decayResonances( 
@@ -643,173 +652,6 @@ void ProcessLevel::combineProcessRecords( Event& process, Event& process2) {
 
   // Store PDF scale for second interaction.
   process.scaleSecond( process2.scale() );   
-
-}
-
-//*********
-
-// Read in the hard process from the Les Houches Accord.
-// Many more checks to be done for valid input??
-
-bool ProcessLevel::nextLHA( Event& process) {
-
-  // Generate the next Les Houches event.
-  if (!lhaEvntPtr->set()) return false;
-     
-  // Let hard process record begin with the event as a whole and
-  // the two incoming beam particles.  
-  process.append( 90, -11, 0, 0, 1, 2, 0, 0, 
-    Vec4(0., 0., 0., infoPtr->eCM()), infoPtr->eCM(), 0. ); 
-  process.append( infoPtr->idA(), -12, 0, 0, 3, 0, 0, 0, 
-    Vec4(0., 0., infoPtr->pzA(), infoPtr->eA()), infoPtr->mA(), 0. ); 
-  process.append( infoPtr->idB(), -12, 0, 0, 4, 0, 0, 0, 
-    Vec4(0., 0., infoPtr->pzB(), infoPtr->eB()), infoPtr->mB(), 0. ); 
-
-  // Since LHA partons may be out of order, determine correct one.
-  // (Recall that zeroth particle is empty.) 
-  vector<int> newPos;
-  newPos.reserve(lhaEvntPtr->size());
-  newPos.push_back(0);
-  for (int iNew = 0; iNew < lhaEvntPtr->size(); ++iNew) {
-    // For iNew == 0 look for the two incoming partons, then for
-    // partons having them as mothers, and so on layer by layer.
-    for (int i = 1; i < lhaEvntPtr->size(); ++i)
-      if (lhaEvntPtr->mother1(i) == newPos[iNew]) newPos.push_back(i);
-    if (int(newPos.size()) <= iNew) break;
-  } 
-
-  // Find scale from which to begin evolution.
-  double scale = lhaEvntPtr->scale();
-  process.scale( scale);
-
-  // Copy over info from LHA event to process, in proper order.
-  for (int i = 1; i < lhaEvntPtr->size(); ++i) {
-    int iOld = newPos[i];
-    int id = lhaEvntPtr->id(iOld);
-
-    // Translate from LHA status codes.
-    int lhaStatus =  lhaEvntPtr->status(iOld);
-    int status = -21;
-    if (lhaStatus == 2 || lhaStatus == 3) status = -22;
-    if (lhaStatus == 1) status = 23;
-
-    // Find where mothers have been moved by reordering.
-    int mother1Old = lhaEvntPtr->mother1(iOld);   
-    int mother2Old = lhaEvntPtr->mother2(iOld);   
-    int mother1 = 0;
-    int mother2 = 0; 
-    for (int im = 1; im < i; ++im) {
-      if (mother1Old == newPos[im]) mother1 = im + 2; 
-      if (mother2Old == newPos[im]) mother2 = im + 2; 
-    } 
-    if (i <= 2) mother1 = i;
-
-    // Ensure that second mother = 0 except for bona fide carbon copies.
-    if (mother1 > 0 && mother2 == mother1) { 
-      int sister1 = process[mother1].daughter1();
-      int sister2 = process[mother1].daughter2();
-      if (sister2 != sister1 && sister2 != 0) mother2 = 0;
-    } 
-
-    // Find daughters and where they have been moved by reordering. 
-    // (Values shifted two steps to account for inserted beams.)
-    int daughter1 = 0;
-    int daughter2 = 0;
-    for (int im = i + 1; im < lhaEvntPtr->size(); ++im) { 
-      if (lhaEvntPtr->mother1(newPos[im]) == iOld
-        || lhaEvntPtr->mother2(newPos[im]) == iOld) {
-        if (daughter1 == 0 || im + 2 < daughter1) daughter1 = im + 2;
-        if (daughter2 == 0 || im + 2 > daughter2) daughter2 = im + 2;
-      }
-    }
-    // For 2 -> 1 hard scatterings reset second daughter to 0.
-    if (daughter2 == daughter1) daughter2 = 0;
-
-    // Colour trivial, except reset irrelevant colour indices.
-    int colType = ParticleDataTable::colType(id);
-    int col1 = (colType == 1 || colType == 2) ? lhaEvntPtr->col1(iOld) : 0;   
-    int col2 = (colType == -1 || colType == 2) ?  lhaEvntPtr->col2(iOld) : 0; 
-
-    // Momentum trivial.
-    double px = lhaEvntPtr->px(iOld);  
-    double py = lhaEvntPtr->py(iOld);  
-    double pz = lhaEvntPtr->pz(iOld);  
-    double e  = lhaEvntPtr->e(iOld);  
-    double m  = lhaEvntPtr->m(iOld);
-
-    // For resonance decay products use resonance mass as scale.
-    double scaleNow = scale;
-    if (mother1 > 4) scaleNow = process[mother1].m();
-    process.append( id, status, mother1, mother2, daughter1, daughter2, 
-      col1, col2, Vec4(px, py, pz, e), m, scaleNow);
-  }  
-
-  // Add any junctions to the process event record list.
-  findJunctions( process);
-
-  // Extract information that is guaranteed available.
-  string name = "External LHA process"; 
-  int code = lhaEvntPtr->idProcess();
-  int nFinal = 0;
-  for (int i = 5; i < process.size(); ++i) 
-    if (process[i].mother1() == 3) ++nFinal;
-  int    id1     =  process[3].id(); 
-  int    id2     =  process[4].id(); 
-  double Q2Fac   = pow2(lhaEvntPtr->scale());
-  double alphaEM = lhaEvntPtr->alphaQED();
-  double alphaS  = lhaEvntPtr->alphaQCD();
-  double Q2Ren   = Q2Fac;
-  double x1      = 2. * process[3].e() / infoPtr->eCM();
-  double x2      = 2. * process[4].e() / infoPtr->eCM();
-  Vec4   pSum    = process[3].p() + process[4].p();
-  double sHat    = pSum*pSum;
-
-  // Reset quantities that may or may not be known.
-  double pdf1  = 0.;
-  double pdf2  = 0.;
-  double tHat  = 0.;
-  double uHat  = 0.;
-  double pTHat = 0.;
-  double m3    = 0.;
-  double m4    = 0.;
-  double theta = 0.;
-  double phi   = 0.;
-
-  // Read info on parton densities if provided.
-  if (lhaEvntPtr->pdfIsSet()) {
-    pdf1  = lhaEvntPtr->xpdf1();
-    pdf2  = lhaEvntPtr->xpdf2();
-    Q2Fac = pow2(lhaEvntPtr->scalePDF());
-    x1    = lhaEvntPtr->x1();
-    x2    = lhaEvntPtr->x2();
-  }
-
-  // Reconstruct kinematics of 2 -> 2 processes from momenta.
-  if (nFinal == 2) {
-    Vec4 pDifT = process[3].p() - process[5].p();
-    tHat = pDifT*pDifT;    
-    Vec4 pDifU = process[3].p() - process[6].p();
-    uHat = pDifU*pDifU;
-    pTHat = process[5].pT();
-    m3 = process[5].m();    
-    m4 = process[6].m(); 
-    Vec4 p5 = process[5].p();
-    p5.bstback(pSum);
-    theta = p5.theta();   
-    phi = process[5].phi();   
-  }
-
-  // Store information in Info object.
-  infoPtr->setType( name, code, nFinal, false, true, false, false);
-  infoPtr->setPDFalpha( id1, id2, pdf1, pdf2, Q2Fac, alphaEM, alphaS, Q2Ren);
-  infoPtr->setKin( x1, x2, sHat, tHat, uHat, pTHat, m3, m4, theta, phi);  
-  infoPtr->setTypeMI( code, pTHat);
-
-  // Do all resonance decays. First draft?? Junctions in decays??
-  resonanceDecays.next( process);
-
-  // Done.
-  return true;
 
 }
 

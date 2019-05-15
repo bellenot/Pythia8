@@ -31,9 +31,10 @@ The <code>ParticleDecays</code> class performs the sequential decays of
 all unstable hadrons produced in the string fragmentation stage,
 i.e. up to and including <i>b</i> hadrons and their decay products, 
 such as the <i>tau</i> lepton. It is not to be used for the decay of 
-more massive resonances, such as top, <i>Z^0</i> or SUSY, where decays 
-must be performed already at the <code>ProcessLevel</code> of the event 
-generation.
+more massive <?php $filepath = $_GET["filepath"];
+echo "<a href='ResonanceDecays.php?filepath=".$filepath."' target='page'>";?>resonances</a>, such as top, 
+<i>Z^0</i> or SUSY, where decays must be performed already at the 
+<code>ProcessLevel</code> of the event generation.
 
 <p/>
 The decay description essentially copies the one present in 
@@ -145,7 +146,7 @@ Gamma from RPP2006.)
 
 <h3>Other variables</h3>
 
-<br/><br/><table><tr><td><strong>ParticleDecays:mSafety </td><td></td><td> <input type="text" name="13" value="0.001" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.001</strong></code>; <code>minimum = 0.</code>; <code>maximum = 0.01</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ParticleDecays:mSafety </td><td></td><td> <input type="text" name="13" value="0.0005" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.0005</strong></code>; <code>minimum = 0.</code>; <code>maximum = 0.01</code>)</td></tr></table>
 Minimum mass difference required between the decaying mother mass 
 and the sum of the daughter masses, kept as a safety margin to avoid
 numerical problems in the decay generation.
@@ -244,8 +245,7 @@ to the lepton pair</li>
 in <i>tau</i> decay</li>
 <li> 22 : weak decay; if there is a quark spectator system it collapses to 
 one hadron; for leptonic/semileptonic decays the <i>V-A</i> matrix element
-is used, for hadronic decays simple phase space (gives somewhat softer 
-<i>B -> D</i> spectrum than PYTHIA 6; to be improved!??)</li>
+is used, for hadronic decays simple phase space</li>
 <li> 23 : as 22, but require at least three particles in decay</li>
 <li> 31 : decays of type B -> gamma X, very primitive simulation where
 X is given in terms of its flavour content, the X multiplicity is picked 
@@ -265,7 +265,7 @@ and avoid already explicitly listed non-partonic channels</li>
 and hadronize</li>
 <li> 92 : decay onium to <i>g g g</i> or <i>g g gamma</i> 
 (with matrix element), which should shower and hadronize</li>
-<li> 101 - : reserved for the description of partial widths of 
+<li> 100 - : reserved for the description of partial widths of 
 <?php $filepath = $_GET["filepath"];
 echo "<a href='ResonanceDecays.php?filepath=".$filepath."' target='page'>";?>resonances</a></li>
 </ul>
@@ -364,7 +364,7 @@ if($_POST["12"] != "26.05")
 $data = "ParticleDecays:xBsMix = ".$_POST["12"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["13"] != "0.001")
+if($_POST["13"] != "0.0005")
 {
 $data = "ParticleDecays:mSafety = ".$_POST["13"]."\n";
 fwrite($handle,$data);

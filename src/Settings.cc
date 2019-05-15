@@ -383,6 +383,7 @@ void Settings::list(bool listAll,  bool listString, string match,
  
   // Convert input string to lowercase for match.
   match = toLower(match);
+  if (match == "") match = "             ";
 
   // Iterators for the flag, mode and parm tables.
   map<string, Flag>::iterator flagEntry = flags.begin();
@@ -595,10 +596,17 @@ void Settings::word(string keyIn, string nowIn) {
 //*********
 
 // Convert string to lowercase for case-insensitive comparisons.
+// Also remove initial and trailing blanks, if any.
 
 string Settings::toLower(const string& name) { 
 
-  string temp(name);
+  // Copy string without initial and trailing blanks.
+  if (name.find_first_not_of(" ") == string::npos) return "";
+  int firstChar = name.find_first_not_of(" ");
+  int lastChar  = name.find_last_not_of(" ");
+  string temp   = name.substr( firstChar, lastChar + 1 - firstChar);
+
+  // Convert to lowercase letter by letter.
   for (int i = 0; i < int(temp.length()); ++i) 
     temp[i] = std::tolower(temp[i]); 
   return temp; 

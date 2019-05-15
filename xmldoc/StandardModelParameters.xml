@@ -27,13 +27,13 @@ The <ei>alpha_strong</ei> calculation is initialized by
 <code>init( value, order)</code>, where <code>value</code> 
 is the <ei>alpha_strong</ei> value at <ei>M_Z</ei> and <code>order</code> 
 is the order of the running, 0, 1 or 2.   Thereafter the value can be 
-calculated by <code>alphaS(scale)</code>, where 
-<code>scale</code> is the <ei>Q^2</ei> scale in GeV^2. 
+calculated by <code>alphaS(scale2)</code>, where 
+<code>scale2</code> is the <ei>Q^2</ei> scale in GeV^2. 
 
 <p/>
 For applications inside shower programs, a second-order <code>alpha_s</code> 
 value can be obtained as the product of the two functions 
-<code>alphaS1Ord(scale)</code> and <code>alphaS2OrdCorr(scale)</code>, 
+<code>alphaS1Ord(scale2)</code> and <code>alphaS2OrdCorr(scale2)</code>, 
 where the first gives a simple first-order running (but with the 
 second-order <ei>Lambda</ei>) and the second the correction factor, 
 below unity, for the second-order terms. This allows a compact handling 
@@ -42,7 +42,7 @@ of evolution equations.
 <h3>The electromagnetic coupling</h3> 
 
 <p/>
-The <code>AlphaEM</code> class is used, to generate a running
+The <code>AlphaEM</code> class is used to generate a running
 <ei>alpha_em</ei>. The input <code>StandardModel:alphaEMmZ</code>
 value at the <ei>M_Z</ei> mass is matched to a low-energy behaviour
 with running starting at the electron mass threshold. The matching
@@ -76,8 +76,8 @@ The <ei>alpha_em</ei> calculation is initialized by
 <code>init(order)</code>, where <code>order</code> is the order of 
 the running, 0 or 1, with -1 a special option to use the fix value
 provided at <ei>M_Z</ei>.   Thereafter the value can be 
-calculated by <code>alphaEM(scale)</code>, where 
-<code>scale</code> is the <ei>Q^2</ei> scale in GeV^2. 
+calculated by <code>alphaEM(scale2)</code>, where 
+<code>scale2</code> is the <ei>Q^2</ei> scale in GeV^2. 
 
 <h3>The electroweak couplings</h3> 
 
@@ -86,7 +86,7 @@ electroweak mixing angle:
 
 <parm name="StandardModel:sin2thetaW" default="0.2312" 
 min="0.225" max="0.240">
-The weak mixing angle, as used in all <ei>Z^0</ei> and <ei>W^{+-}</ei>
+The weak mixing angle, as used in all <ei>Z^0</ei> and <ei>W^+-</ei>
 masses and couplings, except for the vector couplings of fermions
 to the <ei>Z^0</ei>, see below. Default is the MSbar value from
 <ref>Yao06</ref>.

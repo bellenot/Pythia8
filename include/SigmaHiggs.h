@@ -1,5 +1,6 @@
 // SigmaHiggs.h is a part of the PYTHIA event generator.
 // Copyright (C) 2007 Torbjorn Sjostrand.
+// Part of code written by Marc Montull, CERN summer student 2007.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -15,14 +16,14 @@ namespace Pythia8 {
  
 //**************************************************************************
 
-// A derived class for f fbar -> H0 (Standard Model Higgs).
+// A derived class for f fbar -> H0 (SM), H1, H2 or A3 (BSM).
 
 class Sigma1ffbar2H : public Sigma1Process {
 
 public:
 
   // Constructor.
-  Sigma1ffbar2H() {}
+  Sigma1ffbar2H(int higgsTypeIn) : higgsType(higgsTypeIn) {}
 
   // Initialize process. 
   virtual void initProc(); 
@@ -40,29 +41,31 @@ public:
   virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
 
   // Info on the subprocess.
-  virtual string name()       const {return "f fbar -> H0 (SM)";}
-  virtual int    code()       const {return 901;}
+  virtual string name()       const {return nameSave;}
+  virtual int    code()       const {return codeSave;}
   virtual string inFlux()     const {return "ffbarSame";}
-  virtual int    resonanceA() const {return 25;}
+  virtual int    resonanceA() const {return idRes;}
 
 private:
 
-  // A H0 resonance object provides coupling and propagator expressions.
+  // An H0, H1, H2 or A3 resonance object provides coupling
+  // and propagator expressions.
   ParticleDataEntry* HResPtr;
   double mRes, GammaRes, m2Res, GamMRat, sigBW, widthOut;
-
+  int    higgsType, codeSave, idRes;
+  string nameSave;
 };
  
 //**************************************************************************
 
-// A derived class for g g -> H0 (Standard Model Higgs).
+// A derived class for g g -> H0 (SM), H1, H2 or A3 (BSM).
 
 class Sigma1gg2H : public Sigma1Process {
 
 public:
 
   // Constructor.
-  Sigma1gg2H() {}
+  Sigma1gg2H(int higgsTypeIn) : higgsType(higgsTypeIn) {}
 
   // Initialize process. 
   virtual void initProc(); 
@@ -80,29 +83,31 @@ public:
   virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
 
   // Info on the subprocess.
-  virtual string name()       const {return "g g -> H0 (SM)";}
-  virtual int    code()       const {return 902;}
-  virtual string inFlux()     const {return "gg";}
-  virtual int    resonanceA() const {return 25;}
+  virtual string name()       const {return nameSave ;}
+  virtual int    code()       const {return codeSave;}
+  virtual string inFlux()     const {return "gg";} 
+  virtual int    resonanceA() const {return idRes;} 
 
 private:
 
-  // A H0 resonance object provides coupling and propagator expressions.
+  // A H0, H1, H2 or A3 resonance object provides coupling 
+  // and propagator expressions.
   ParticleDataEntry* HResPtr;
   double mRes, GammaRes, m2Res, GamMRat, sigma;
-
+  int    higgsType, codeSave, idRes;
+  string nameSave;
 };
  
 //**************************************************************************
 
-// A derived class for gamma gamma -> H0 (Standard Model Higgs).
+// A derived class for gamma gamma -> H0 (SM Higgs), H1, H2 or A3 (BSM Higgs).
 
 class Sigma1gmgm2H : public Sigma1Process {
 
 public:
 
   // Constructor.
-  Sigma1gmgm2H() {}
+  Sigma1gmgm2H(int higgsTypeIn) : higgsType(higgsTypeIn) {}
 
   // Initialize process. 
   virtual void initProc(); 
@@ -120,29 +125,31 @@ public:
   virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
 
   // Info on the subprocess.
-  virtual string name()       const {return "gamma gamma -> H0 (SM)";}
-  virtual int    code()       const {return 903;}
-  virtual string inFlux()     const {return "gmgm";}
-  virtual int    resonanceA() const {return 25;}
+  virtual string name()       const {return nameSave;} 
+  virtual int    code()       const {return codeSave;} 
+  virtual string inFlux()     const {return "gmgm";} 
+  virtual int    resonanceA() const {return idRes;}
 
 private:
 
-  // A H0 resonance object provides coupling and propagator expressions.
+  // A H0, H1, H2 or A3 resonance object provides coupling
+  // and propagator expressions.
   ParticleDataEntry* HResPtr;
   double mRes, GammaRes, m2Res, GamMRat, sigma;
-
+  int    higgsType, codeSave, idRes;
+  string nameSave;
 };
  
 //**************************************************************************
 
-// A derived class for f fbar -> H0 Z0 (Standard Model Higgs).
-
+// A derived class for f fbar -> H Z0.
+// (H can be H0 SM or H1, H2, A3 from BSM).
 class Sigma2ffbar2HZ : public Sigma2Process {
 
 public:
 
   // Constructor.
-  Sigma2ffbar2HZ() {}
+  Sigma2ffbar2HZ(int higgsTypeIn) : higgsType(higgsTypeIn) {}
 
   // Initialize process. 
   virtual void initProc(); 
@@ -160,11 +167,11 @@ public:
   virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
 
   // Info on the subprocess.
-  virtual string name()       const {return "f fbar -> H0 Z0 (SM)";}
-  virtual int    code()       const {return 904;}
+  virtual string name()       const {return nameSave;} 
+  virtual int    code()       const {return codeSave;}
   virtual string inFlux()     const {return "ffbarSame";}
   virtual bool   isSChannel() const {return true;}
-  virtual int    id3Mass()    const {return 25;}
+  virtual int    id3Mass()    const {return idRes;}
   virtual int    id4Mass()    const {return 23;}
   virtual int    resonanceA() const {return 23;}
   virtual int    gmZmode()    const {return 2;}
@@ -172,20 +179,22 @@ public:
 private:
 
   // Store Z0 mass and width.
-  double mZ, widZ, mZS, mwZS, thetaWRat, sigma0, openFracPair;
-
+  double mZ, widZ, mZS, mwZS, thetaWRat, sigma0, openFracPair, coup2Z;
+  int    higgsType, codeSave, idRes;  
+  string nameSave;
 };
  
 //**************************************************************************
 
-// A derived class for f fbar -> H0 W+- (Standard Model Higgs).
+// A derived class for f fbar -> H W+- (Standard Model Higgs).
+// (H can be H0 SM or H1, H2, A3 from BSM).
 
 class Sigma2ffbar2HW : public Sigma2Process {
 
 public:
 
   // Constructor.
-  Sigma2ffbar2HW() {}
+  Sigma2ffbar2HW(int higgsTypeIn) : higgsType(higgsTypeIn) {}
 
   // Initialize process. 
   virtual void initProc(); 
@@ -203,11 +212,11 @@ public:
   virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
 
   // Info on the subprocess.
-  virtual string name()       const {return "f fbar -> H0 W+- (SM)";}
-  virtual int    code()       const {return 905;}
+  virtual string name()       const {return nameSave;}
+  virtual int    code()       const {return codeSave;}
   virtual string inFlux()     const {return "ffbarChg";}
   virtual bool   isSChannel() const {return true;}
-  virtual int    id3Mass()    const {return 25;}
+  virtual int    id3Mass()    const {return idRes;}
   virtual int    id4Mass()    const {return 24;}
   virtual int    resonanceA() const {return 24;}
 
@@ -215,20 +224,22 @@ private:
 
   // Store W+- mass and width, and couplings.
   double mW, widW, mWS, mwWS, thetaWRat, sigma0, openFracPairPos, 
-         openFracPairNeg;
-
+         openFracPairNeg, coup2W;
+  int    higgsType, codeSave, idRes;
+  string nameSave;
 };
  
 //**************************************************************************
 
-// A derived class for f f' -> H0 f f' (Z0 Z0 fusion of SM Higgs).
+// A derived class for f f' -> H f f' (Z0 Z0 fusion of SM or BSM Higgs).
+// (H can be H0 SM or H1, H2, A3 from BSM).
 
 class Sigma3ff2HfftZZ : public Sigma3Process {
 
 public:
 
   // Constructor.
-  Sigma3ff2HfftZZ() {}
+  Sigma3ff2HfftZZ(int higgsTypeIn) : higgsType(higgsTypeIn) {}
 
   // Initialize process. 
   virtual void initProc(); 
@@ -246,10 +257,10 @@ public:
   virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
 
   // Info on the subprocess.
-  virtual string name()    const {return "f f -> H0 f f (SM; Z0 Z0 fusion)";}
-  virtual int    code()    const {return 906;}
+  virtual string name()    const {return nameSave;}
+  virtual int    code()    const {return codeSave;}
   virtual string inFlux()  const {return "ff";}
-  virtual int    id3Mass() const {return 25;}
+  virtual int    id3Mass() const {return idRes;}
 
   // Instructions for 3-body phase space with t-channel propagators.
   virtual int    idTchan1()        const {return 23;}
@@ -261,20 +272,22 @@ public:
 private:
 
   // Store standard factors.
-  double mZS, prefac, sigma1, sigma2, openFrac;
-
+  double mZS, prefac, sigma1, sigma2, openFrac, coup2Z;
+  int    higgsType, codeSave, idRes;
+  string nameSave;
 };
  
 //**************************************************************************
 
-// A derived class for f_1 f_2 -> H0 f_3 f_4 (W+ W- fusion of SM Higgs).
+// A derived class for f_1 f_2 -> H f_3 f_4 (W+ W- fusion of SM or BSM Higgs).
+// (H can be H0 SM or H1, H2, A3 from BSM).
 
 class Sigma3ff2HfftWW : public Sigma3Process {
 
 public:
 
   // Constructor.
-  Sigma3ff2HfftWW() {}
+  Sigma3ff2HfftWW(int higgsTypeIn) : higgsType(higgsTypeIn) {}
 
   // Initialize process. 
   virtual void initProc(); 
@@ -292,10 +305,10 @@ public:
   virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
 
   // Info on the subprocess.
-  virtual string name()    const {return "f f -> H0 f f (SM; W+ W- fusion)";}
-  virtual int    code()    const {return 907;}
+  virtual string name()    const {return nameSave;}
+  virtual int    code()    const {return codeSave;}
   virtual string inFlux()  const {return "ff";}
-  virtual int    id3Mass() const {return 25;}
+  virtual int    id3Mass() const {return idRes;}
 
   // Instructions for 3-body phase space with t-channel propagators.
   virtual int    idTchan1()        const {return 24;}
@@ -307,21 +320,23 @@ public:
 private:
 
   // Store standard prefactor.
-  double mWS, prefac, sigma0, openFrac;
-
+  double mWS, prefac, sigma0, openFrac, coup2W;
+  int    higgsType, codeSave, idRes;
+  string nameSave;
 };
  
 //**************************************************************************
 
-// A derived class for g g -> H0 Q Qbar (Q Qbar fusion of SM Higgs).
+// A derived class for g g -> H Q Qbar (Q Qbar fusion of SM or BSM Higgs).
+// (H can be H0 SM or H1, H2, A3 from BSM).
 
 class Sigma3gg2HQQbar : public Sigma3Process {
 
 public:
 
   // Constructor.
-  Sigma3gg2HQQbar(int idIn, int codeIn, string nameIn) : idNew(idIn), 
-    codeSave(codeIn), nameSave(nameIn) {}
+  Sigma3gg2HQQbar(int idIn, int higgsTypeIn) : idNew(idIn),
+    higgsType(higgsTypeIn) {}
 
   // Initialize process. 
   virtual void initProc(); 
@@ -342,7 +357,7 @@ public:
   virtual string name()    const {return nameSave;}
   virtual int    code()    const {return codeSave;}
   virtual string inFlux()  const {return "gg";}
-  virtual int    id3Mass() const {return 25;}
+  virtual int    id3Mass() const {return idRes;}
   virtual int    id4Mass() const {return idNew;}
   virtual int    id5Mass() const {return idNew;}
 
@@ -356,23 +371,24 @@ public:
 private:
 
   // Store flavour-specific process information and standard prefactor.
-  int    idNew, codeSave;
+  double prefac, sigma, openFracTriplet, coup2Q;
+  int    idNew, higgsType, codeSave, idRes;
   string nameSave;
-  double prefac, sigma, openFracTriplet;
 
 };
  
 //**************************************************************************
 
-// A derived class for q qbar -> H0 Q Qbar (Q Qbar fusion of SM Higgs).
+// A derived class for q qbar -> H Q Qbar (Q Qbar fusion of SM or BSM Higgs).
+// (H can be H0 SM or H1, H2, A3 from BSM).
 
 class Sigma3qqbar2HQQbar : public Sigma3Process {
 
 public:
 
   // Constructor.
-  Sigma3qqbar2HQQbar(int idIn, int codeIn, string nameIn) : idNew(idIn), 
-    codeSave(codeIn), nameSave(nameIn) {}
+  Sigma3qqbar2HQQbar(int idIn, int higgsTypeIn) : idNew(idIn), 
+    higgsType(higgsTypeIn) {}
 
   // Initialize process. 
   virtual void initProc(); 
@@ -393,7 +409,7 @@ public:
   virtual string name()    const {return nameSave;}
   virtual int    code()    const {return codeSave;}
   virtual string inFlux()  const {return "qqbarSame";}
-  virtual int    id3Mass() const {return 25;}
+  virtual int    id3Mass() const {return idRes;}
   virtual int    id4Mass() const {return idNew;}
   virtual int    id5Mass() const {return idNew;}
 
@@ -407,23 +423,24 @@ public:
 private:
 
   // Store flavour-specific process information and standard prefactor.
-  int    idNew, codeSave;
+  double prefac, sigma, openFracTriplet, coup2Q;
+  int    idNew, higgsType, codeSave, idRes;
   string nameSave;
-  double prefac, sigma, openFracTriplet;
 
 };
  
 //**************************************************************************
 
-// A derived class for q g -> H0 q (Standard Model Higgs).
+// A derived class for q g -> H q (SM or BSM Higgs).
+// (H can be H0 SM or H1, H2, A3 from BSM).
 
 class Sigma2qg2Hq : public Sigma2Process {
 
 public:
 
   // Constructor.
-  Sigma2qg2Hq(int idIn, int codeIn, string nameIn) : idNew(idIn), 
-    codeSave(codeIn), nameSave(nameIn) {}
+  Sigma2qg2Hq(int idIn, int higgsTypeIn) : idNew(idIn), 
+    higgsType(higgsTypeIn) {}
 
   // Initialize process. 
   virtual void initProc(); 
@@ -444,28 +461,29 @@ public:
   virtual string name()    const {return nameSave;}
   virtual int    code()    const {return codeSave;}
   virtual string inFlux()  const {return "qg";}
-  virtual int    id3Mass() const {return 25;}
+  virtual int    id3Mass() const {return idRes;}
   virtual int    id4Mass() const {return idNew;}
 
 private:
 
   // Store flavour-specific process information and standard prefactor.
-  int    idNew, codeSave;
-  string nameSave;
   double m2W, thetaWRat, sigma, openFrac;
+  int    idNew, higgsType, codeSave, idRes;
+  string nameSave;
 
 };
  
 //**************************************************************************
 
-// A derived class for g g -> H0 g (Standard Model Higgs via heavy top loop).
+// A derived class for g g -> H0 g (SM or BSM Higgs via heavy top loop).
+// (H can be H0 SM or H1, H2, A3 from BSM).
 
 class Sigma2gg2Hglt : public Sigma2Process {
 
 public:
 
   // Constructor.
-  Sigma2gg2Hglt() {}
+  Sigma2gg2Hglt(int higgsTypeIn) : higgsType(higgsTypeIn) {}
 
   // Initialize process. 
   virtual void initProc(); 
@@ -483,28 +501,30 @@ public:
   virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
 
   // Info on the subprocess.
-  virtual string name()    const {return "g g -> H0 g (SM; top loop)";}
-  virtual int    code()    const {return 914;}
+  virtual string name()    const {return nameSave;}
+  virtual int    code()    const {return codeSave;}
   virtual string inFlux()  const {return "gg";}
-  virtual int    id3Mass() const {return 25;}
+  virtual int    id3Mass() const {return idRes;}
 
 private:
 
   // Store standard prefactor.
   double widHgg, sigma, openFrac;
-
+  int    higgsType, codeSave, idRes;
+  string nameSave;
 };
  
 //**************************************************************************
 
-// A derived class for q g -> H0 q (Standard Model Higgs via heavy top loop).
+// A derived class for q g -> H q (SM or BSM Higgs via heavy top loop).
+// (H can be H0 SM or H1, H2, A3 from BSM).
 
 class Sigma2qg2Hqlt : public Sigma2Process {
 
 public:
 
   // Constructor.
-  Sigma2qg2Hqlt() {}
+  Sigma2qg2Hqlt(int higgsTypeIn) : higgsType(higgsTypeIn) {}
 
   // Initialize process. 
   virtual void initProc(); 
@@ -522,28 +542,30 @@ public:
   virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
 
   // Info on the subprocess.
-  virtual string name()    const {return "q g -> H0 q (SM; top loop)";}
-  virtual int    code()    const {return 915;}
+  virtual string name()    const {return nameSave;}
+  virtual int    code()    const {return codeSave;}
   virtual string inFlux()  const {return "qg";}
-  virtual int    id3Mass() const {return 25;}
+  virtual int    id3Mass() const {return idRes;}
 
 private:
 
   // Store standard prefactor.
   double widHgg, sigma, openFrac;
-
+  int    higgsType, codeSave, idRes;
+  string nameSave;
 };
  
 //**************************************************************************
 
-// A derived class for q qbar -> H0 g (Standard Model Higgs via heavy top loop).
+// A derived class for q qbar -> H g (SM or BSM Higgs via heavy top loop).
+// (H can be H0 SM or H1, H2, A3 from BSM).
 
 class Sigma2qqbar2Hglt : public Sigma2Process {
 
 public:
 
   // Constructor.
-  Sigma2qqbar2Hglt() {}
+  Sigma2qqbar2Hglt(int higgsTypeIn) : higgsType(higgsTypeIn) {}
 
   // Initialize process. 
   virtual void initProc(); 
@@ -561,16 +583,17 @@ public:
   virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
 
   // Info on the subprocess.
-  virtual string name()    const {return "q qbar -> H0 g (SM; top loop)";}
-  virtual int    code()    const {return 916;}
+  virtual string name()    const {return nameSave;}
+  virtual int    code()    const {return codeSave;}
   virtual string inFlux()  const {return "qqbarSame";}
-  virtual int    id3Mass() const {return 25;}
+  virtual int    id3Mass() const {return idRes;}
 
 private:
 
   // Store standard prefactor.
   double widHgg, sigma, openFrac;
-
+  int    higgsType, codeSave, idRes;
+  string nameSave;
 };
  
 //**************************************************************************

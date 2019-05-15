@@ -15,6 +15,19 @@ not contained within the SM</dd>
 <dt>FSR</dt>
 <dd>Final-State Radiation, implemented in terms of timelike showers</dd>
 
+<dt>LHA</dt>
+<dd>Les Houches Accord for user processes, describing which process-level 
+information should be stored to allow further showering and hadronization 
+of "skeleton" hard processes</dd>
+
+<dt>LHAPDF</dt>
+<dd>Les Houches Accord Parton Distribution Functions, originally a standard
+format for defining PDF's and later a library with such PDF's</dd>
+
+<dt>LHEF</dt>
+<dd>Les Houches Event File(s), a file format for storing LHA process and
+event information</dd>
+
 <dt>ISR</dt>
 <dd>Initial-State Radiation, implemented in terms of spacelike showers</dd>
 
@@ -36,7 +49,8 @@ to known and hypothetical particles; code rules and tables are published
 in the RPP (see below).</dd>
 
 <dt>pileup</dt>
-<dd>several hadron-hadron collisions in a bunch crossing</dd>
+<dd>several hadron-hadron collisions in a bunch crossing; not to 
+be confused with MI</dd>
 
 <dt>RPP</dt>
 <dd>Review of Particle Physics, the biannual review by the ParticleData Group
@@ -50,6 +64,10 @@ integer <code>mode</code>, double-precision <code>parm</code>
 and string <code>word</code> variables that can be set by the user 
 to steer the behaviour of a run; normally particle data are considered
 separately but clearly are closely related</dd>
+
+<dt>SLHA</dt>
+<dd>SUSY Les Houchs Accord for interchange of mass and coupling information
+in SUSY scenarios, via a well-defined file format</dd>
 
 <dt>SM</dt>
 <dd>the Standard Model of particle physics</dd>

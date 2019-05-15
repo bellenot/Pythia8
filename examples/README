@@ -77,7 +77,7 @@
 
    LIST OF TEST PROGRAMS
 
-1) main01 - main12 only use the PYTHIA 8 library
+1) main01 - main17 only use the PYTHIA 8 library
 * main01.cc : brief example with charged multiplicity distribution
 * main02.cc : brief example with Z0 pT spectrum
 * main03.cc & main03.cmnd : simple single-particle analysis in jet events
@@ -90,18 +90,23 @@
 * main10.cc : implement UserHooks to interact with the generation process
 * main11.cc : set two hard interactions in the same event
 * main12.cc & ttbar.lhe : generate events from a Les Houches Event File 
-* main13.cc : compare several cross sections with their Pythia 6.4 values. 
+* main13.cc & ttbar.lhe & ttbar2.lhe : several Les Houches Event Files & more 
+* main14.cc : compare several cross sections with their Pythia 6.4 values. 
+* main15.cc : redo B decays several times for each event
+* main16.cc : user analysis class; command-line specification of input file  
+* main17.cc : Pythia wrapper class; command-line specification of input file
 
-2) main21 - main25 are examples how some external programs could be linked
+2) main21 - main26 are examples how some external programs could be linked
 * main21.cc : external input of parton configurations for hadronization only
 * main22.cc & main22.cmnd : & main22.spc supersymmetry production using SLHA
 * main23.cc : how to link an external decay handler
 * main24.cc : how to link an external random number generator
 * main25.cc : how to link an external process to use internally
+* main26.cc : how to link an external resonance and process to use internally
 
 3) main31 - main32 require linkage to the HepMC event record library
 * main31.cc & main31.cmnd : simple example output to HepMC 
-* main32.cc & main32.cmnd : streamlined production for HepMC only
+* main32.cc & main32.cmnd : streamlined production of a HepMC event file
 
 4) main41 - main42 require linkage to LHAPDF
 * main41.cc : test shape of PDF's
@@ -113,7 +118,10 @@
 * main53.f (Fortran!) : have PYTHIA 6.4 generate a Les Houches Event File 
 * main54.cc & main54.cmnd : input from PYTHIA 6.4 and output to HepMC
 
-Note: main31, main32 and main54 save HepMC-formatted events on hepmcoutNN.dat;
-these files become so big that they have not been included in distribution. 
+Note 1: main31, main32 and main54 save HepMC-formatted events on 
+hepmcoutNN.dat; these files become so big that they have not been included 
+in the distribution. 
+Note 2: There is no main00 program, but main00 is defined in the Makefile
+to link to PYTHIA 8, so this name can be used for simple first tests. 
 
 ----------------------------------------------------------------------

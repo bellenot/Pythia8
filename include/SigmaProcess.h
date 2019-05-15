@@ -9,12 +9,16 @@
 // Sigma1Process: base class for 2 -> 1 processes, derived from above.
 // Sigma2Process: base class for 2 -> 2 processes, derived from above.
 // Sigma3Process: base class for 2 -> 3 processes, derived from above.
+// SigmaLHAProcess: wrapper class for Les Houches Accord external input.
 // Actual physics processes are found in separate files:
 // SigmaQCD for QCD processes;
 // SigmaEW for electroweak processes (including photon production);
 // SigmaOnia for charmonium and bottomonium processes;
 // SigmaHiggs for Higgs processes;
-// SigmaSUSY for supersymmetric production.
+// SigmaSUSY for supersymmetric production;
+// SigmaLeftRightSym for  processes in left-right-symmetric scenarios;
+// SigmaLeptoquark for leptoquark production.
+// SigmaExtraDim for processes in scenarios for extra dimensions.
 
 #ifndef Pythia8_SigmaProcess_H
 #define Pythia8_SigmaProcess_H
@@ -23,6 +27,7 @@
 #include "BeamParticle.h"
 #include "Event.h"
 #include "Information.h"
+#include "LesHouches.h"
 #include "ParticleData.h"
 #include "PartonDistributions.h"
 #include "PythiaStdlib.h"
@@ -87,13 +92,17 @@ public:
   static void setStaticPtrs( BeamParticle* beamAPtrIn, 
     BeamParticle* beamBPtrIn, SigmaTotal* sigmaTotPtrIn);
 
+  // Store or replace Les Houches pointers.
+  static void setLHAPtrs( LHAinit* lhaInitPtrIn, LHAevnt* lhaEvntPtrIn) 
+    { lhaInitPtr = lhaInitPtrIn; lhaEvntPtr = lhaEvntPtrIn;}  
+
   // Store pointer to SUSY Les Houches Accord.
   static void setSlhaPtr(SusyLesHouches* slhaIn) {slha = slhaIn;}
 
   // Initialize process. Only used for some processes.
   virtual void initProc() {}
 
-  // Set up allowed flux of incoming partons.
+  // Set up allowed flux of incoming partons. Default is no flux.
   virtual bool initFlux();
 
   // Input and complement kinematics for resolved 2 -> 1 process.
@@ -132,7 +141,7 @@ public:
     return ( convert2mb() ? CONVERT2MB * sigmaHat() : sigmaHat() ); }
 
   // Convolute above with parton flux and K factor. Sum over open channels. 
-  double sigmaPDF();
+  virtual double sigmaPDF();
 
   // Select incoming parton channel and extract parton densities (resolved).
   void pickInState(int id1in = 0, int id2in = 0);
@@ -163,11 +172,17 @@ public:
   // Need to know whether to convert cross section answer from GeV^-2 to mb.
   virtual bool   convert2mb()      const {return true;}
 
+  // Special treatment needed for Les Houches processes.
+  virtual bool   isLHA()           const {return false;}
+
   // Special treatment needed for elastic and diffractive processes.
   virtual bool   isMinBias()       const {return false;}
   virtual bool   isResolved()      const {return true;}
   virtual bool   isDiffA()         const {return false;}
   virtual bool   isDiffB()         const {return false;}
+
+  // Special treatment needed if negative cross sections allowed.
+  virtual bool   allowNegativeSigma() const {return false;}
 
   // Flavours in 2 -> 2/3 processes where masses needed from beginning. 
   // (For a light quark masses will be used in the final kinematics,
@@ -223,7 +238,7 @@ protected:
   SigmaProcess() {for (int i = 0; i < 6; ++i) mSave[i] = 0.;}
 
   // Static initialization data, normally only set once.
-  static int    alphaSorder, alphaEMorder, nQuarkIn, nQuarkNew, nQuarkLoop, 
+  static int    alphaSorder, alphaEMorder, nQuarkIn,
                 renormScale1, renormScale2, renormScale3, renormScale3VV, 
                 factorScale1, factorScale2, factorScale3, factorScale3VV;
   static double alphaSvalue, Kfactor, renormMultFac, renormFixScale, 
@@ -250,6 +265,10 @@ protected:
 
   // Static pointer to the SLHA object.
   static SusyLesHouches* slha;
+
+  // Static pointers to LHAinit and LHAevnt for generating external events.
+  static LHAinit* lhaInitPtr;
+  static LHAevnt* lhaEvntPtr;
 
   // Partons in beams, with PDF's.
   vector<InBeam> inBeamA;
@@ -322,16 +341,16 @@ public:
   virtual ~Sigma0Process() {}
 
   // Number of final-state particles.
-  virtual int nFinal() const {return 2;};
+  virtual int    nFinal() const {return 2;};
 
-  // No parton flux to set up for this kind of processes.
-  virtual bool initFlux() {return true;}
+  // No partonic flux to be set up.
+  virtual bool   initFlux() {return true;}
 
   // Evaluate sigma for unresolved processes. 
   virtual double sigmaHat() {return 0.;}
 
   // Since no PDF's there is no difference from above. 
-  double sigmaPDF() {return sigmaHat();}
+  virtual double sigmaPDF() {return sigmaHat();}
 
   // Answer for these processes already in mb, so do not convert.
   virtual bool convert2mb() const {return false;}
@@ -356,10 +375,10 @@ public:
   virtual ~Sigma1Process() {}
 
   // Number of final-state particles.
-  virtual int nFinal() const {return 1;};
+  virtual int    nFinal() const {return 1;};
 
   // Input and complement kinematics for resolved 2 -> 1 process.
-  virtual void set1Kin( double x1in, double x2in, double sHin) {
+  virtual void   set1Kin( double x1in, double x2in, double sHin) {
     store1Kin( x1in, x2in, sHin); sigmaKin();} 
 
   // Evaluate sigmaHat(sHat) for resolved 2 -> 1 processes. 
@@ -371,7 +390,7 @@ protected:
   Sigma1Process() {}
 
   // Store kinematics and set scales for resolved 2 -> 1 process.
-  virtual void store1Kin( double x1in, double x2in, double sHin);
+  virtual void   store1Kin( double x1in, double x2in, double sHin);
 
   // Store subprocess kinematics quantities.
   double mH, sH, sH2;
@@ -391,16 +410,16 @@ public:
   virtual ~Sigma2Process() {}
 
   // Number of final-state particles.
-  virtual int nFinal() const {return 2;};
+  virtual int    nFinal() const {return 2;};
 
   // Input and complement kinematics for resolved 2 -> 2 process.
-  virtual void set2Kin( double x1in, double x2in, double sHin, double tHin,
-    double m3in, double m4in, double runBW3in, double runBW4in) { 
-    store2Kin( x1in, x2in, sHin, tHin, m3in, m4in, runBW3in, runBW4in);
-    sigmaKin();}
+  virtual void   set2Kin( double x1in, double x2in, double sHin, 
+    double tHin, double m3in, double m4in, double runBW3in, 
+    double runBW4in) { store2Kin( x1in, x2in, sHin, tHin, m3in, m4in, 
+    runBW3in, runBW4in); sigmaKin();}
 
   // Ditto, but for Multiple Interactions applications, so different input.
-  virtual void set2KinMI( double x1in, double x2in, double sHin, 
+  virtual void   set2KinMI( double x1in, double x2in, double sHin, 
     double tHin, double uHin, double alpSin, double alpEMin, 
     bool needMasses, double m3in, double m4in) {
     store2KinMI( x1in, x2in, sHin, tHin, uHin, alpSin, alpEMin, 
@@ -410,7 +429,7 @@ public:
   virtual double sigmaHat() {return 0.;}
 
   // Perform kinematics for a Multiple Interaction, in its rest frame.
-  virtual bool final2KinMI();
+  virtual bool   final2KinMI();
 
 protected:
 
@@ -418,10 +437,10 @@ protected:
   Sigma2Process() {}
 
   // Store kinematics and set scales for resolved 2 -> 2 process.
-  virtual void store2Kin( double x1in, double x2in, double sHin, 
+  virtual void   store2Kin( double x1in, double x2in, double sHin, 
     double tHin, double m3in, double m4in, double runBW3in, 
     double runBW4in);
-  virtual void store2KinMI( double x1in, double x2in, double sHin, 
+  virtual void   store2KinMI( double x1in, double x2in, double sHin, 
     double tHin, double uHin, double alpSin, double alpEMin, 
     bool needMasses, double m3in, double m4in);
 
@@ -443,10 +462,10 @@ public:
   virtual ~Sigma3Process() {}
 
   // Number of final-state particles.
-  virtual int nFinal() const {return 3;};
+  virtual int    nFinal() const {return 3;};
 
   // Input and complement kinematics for resolved 2 -> 3 process.
-  virtual void set3Kin( double x1in, double x2in, double sHin, 
+  virtual void   set3Kin( double x1in, double x2in, double sHin, 
     Vec4 p3cmIn, Vec4 p4cmIn, Vec4 p5cmIn, double m3in, double m4in, 
     double m5in, double runBW3in, double runBW4in, double runBW5in) { 
     store3Kin( x1in, x2in, sHin, p3cmIn, p4cmIn, p5cmIn, m3in, m4in, m5in,
@@ -461,13 +480,55 @@ protected:
   Sigma3Process() {}
 
   // Store kinematics and set scales for resolved 2 -> 3 process.
-  virtual void store3Kin( double x1in, double x2in, double sHin, 
+  virtual void   store3Kin( double x1in, double x2in, double sHin, 
     Vec4 p3cmIn, Vec4 p4cmIn, Vec4 p5cmIn, double m3in, double m4in, 
     double m5in, double runBW3in, double runBW4in, double runBW5in);
 
   // Store subprocess kinematics quantities.
-  double mH, sH, m3, s3, m4, s4, m5, s5, pT2, runBW3, runBW4, runBW5;
+  double mH, sH, m3, s3, m4, s4, m5, s5, runBW3, runBW4, runBW5;
   Vec4   p3cm, p4cm, p5cm;
+
+};
+ 
+//**************************************************************************
+
+// SigmaLHAProcess is a wrapper class for Les Houches Accord external input.
+// It is derived from SigmaProcess.
+
+class SigmaLHAProcess : public SigmaProcess {
+
+public:
+
+  // Constructor.
+  SigmaLHAProcess() {}
+
+  // Destructor.
+  virtual ~SigmaLHAProcess() {}
+
+  // No partonic flux to be set up.
+  virtual bool   initFlux() {return true;}
+
+  // Dummy function: action is put in PhaseSpaceLHA.
+  virtual double sigmaPDF() {return 1.;}
+
+  // Info on the subprocess.
+  virtual string name()     const {return "Les Houches User Process(es)";}
+  virtual int    code()     const {return 9999;}
+
+  // Number of final-state particles depends on current process choice.
+  virtual int    nFinal()   const;
+ 
+  // Answer for these processes not in GeV^-2, so do not do this conversion.
+  virtual bool   convert2mb() const {return false;}
+
+  // Ensure special treatment of Les Houches processes.
+  virtual bool   isLHA()    const {return true;}
+
+  // Special treatment needed if negative cross sections allowed.
+  virtual bool   allowNegativeSigma() const {
+    return (lhaInitPtr->strategy() < 0);}
+
+private:
 
 };
  

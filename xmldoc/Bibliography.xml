@@ -4,6 +4,10 @@
 
 <dl>
 
+<dt>Alt89</dt>
+<dd>G. Altarelli, B. Mele and M. Ruiz-Altaba, 
+Z. Phys. C45 (1989) 109</dd>
+
 <dt>Alw06</dt>
 <dd>J. Alwall et al., Computer Physics Commun. 176 (2007) 300
 [hep-ph/0609017]</dd>
@@ -16,8 +20,18 @@ Phys. Rep. 97 (1983) 31</dd>
 <dd>M. Bargiotti, talk at the HERA4LHC workshop,
 http://mbargiot.web.cern.ch/mbargiot/talks/
 
+<dt>Bau90</dt>
+<dd>U. Baur, M. Spira and P. M. Zerwas, Phys. Rev. D42 (1990) 815</dd> 
+
+<dt>Ben85</dt>
+<dd>H.-U. Bengtsson, W.-S. Hou, A. Soni and D.H. Stork, 
+Phys. Rev. Lett. 55 (1985) 2762</dd>
+
 <dt>Ben87</dt>
 <dd>M. Bengtsson and T. Sj&ouml;strand, Nucl. Phys. B289 (1987) 810</dd>
+
+<dt>Ber87</dt>
+<dd>UA4 Collaboration, D. Bernard et al., Phys. Lett. B198 (1987) 583</dd>
 
 <dt>Boo01</dt>
 <dd>E. Boos et al., in the Proceedings of the Workshop on Physics 
@@ -26,6 +40,9 @@ at TeV Colliders, Les Houches, France, 21 May - 1 Jun 2001
 
 <dt>Bow81</dt>
 <dd>M.G. Bowler, Z. Phys. C11 (1981) 169</dd>
+
+<dt>Cah82</dt>
+<dd>R. Cahn, Z. Physik C15 (1982) 253</dd>
 
 <dt>Dob01</dt>
 <dd>M. Dobbs and J.B. Hansen, Computer Physics Comm. 134 (2001) 41</dd>
@@ -43,6 +60,15 @@ at TeV Colliders, Les Houches, France, 21 May - 1 Jun 2001
 <dd>G. Gustafson, Phys. Lett. B175 (1986) 453;
 <br/>G. Gustafson and U. Pettersson, Nucl. Phys. B306 (1988) 746;
 <br/>L. L&ouml;nnblad, Computer Physics Commun. 71 (1992) 15</dd>
+
+<dt>Hew88</dt>
+<dd>J.L. Hewett and S. Pakvasa, Phys. Rev. D37 (1988) 3165</dd>
+
+<dt>Hui97</dt>
+<dd>K. Huitu, J. Maalampi, A. Pietil&auml; and M. Raidal, 
+Nucl. Phys. B487 (1997) 27 and private communication;
+<br/>G. Barenboim, K. Huitu, J. Maalampi and M. Raidal, 
+Phys. Lett. B394 (1997) 132</dd>
 
 <dt>Kle89</dt>
 <dd>R. Kleiss et al., in `Z physics at LEP 1', 
@@ -78,9 +104,6 @@ eds. G. Altarelli and M.L. Mangano, CERN 2000-004, p. 231
 <dt>Pet83</dt>
 <dd>C. Peterson, D. Schlatter, I. Schmitt and P. Zerwas, 
 Phys. Rev. D27 (1983) 105</dd>
-
-<dt>Rud04</dt>
-<dd>G. Rudolph, private communication (2004)</dd>
  
 <dt>Sch97</dt>
 <dd>G.A. Schuler and T. Sj&ouml;strand, Phys. Rev. D49 (1994) 2257,

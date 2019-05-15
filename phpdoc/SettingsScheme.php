@@ -29,10 +29,10 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 
 The <code>Settings</code> class keeps track of all the flags, modes, 
 parameters and words in the program. As such, it serves the other program 
-elements 
-from one central repository. It allows the user to modify the behaviour of 
-the program. The <code>Settings</code> class is purely static, i.e. you can 
-interact with it directly by <code>Settings::command(argument)</code>. 
+elements from one central repository. Accessing it allows the user to 
+modify the behaviour of the program. The <code>Settings</code> class is 
+purely static, i.e. you can interact with it directly by 
+<code>Settings::command(argument)</code>. 
 However, a <code>settings</code> object of the <code>Settings</code> class 
 is a public member of the <code>Pythia</code> class, so an alternative 
 notation would be <code>pythia.settings.command(argument)</code>,
@@ -216,7 +216,7 @@ in a separate file, with one line per change, e.g.
 <pre>
     TimeShower:pTmin = 1.0
 </pre>
-Each line is read in as a string and processes with the methods already
+Each line is read in as a string and processed with the methods already
 introduced.
 
 The file can be read by the 

@@ -68,7 +68,7 @@ double Sigma1ql2LeptoQuark::sigmaHat() {
   if (idLQ == 0) return 0.;
 
   // Outgoing width and total sigma. Done.
-  return widthIn * sigBW * LQPtr->resWidth(idLQ, mH, 0, true);    
+  return widthIn * sigBW * LQPtr->resWidthOpen(idLQ, mH);    
 
 }
 

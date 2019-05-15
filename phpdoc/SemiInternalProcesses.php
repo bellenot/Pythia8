@@ -30,13 +30,17 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 Normally users are expected to implement new processes via the
 <?php $filepath = $_GET["filepath"];
 echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>";?>Les Houches Accord</a>. Then 
-you do all flavour, colour and phase space selection externally, 
+you do all flavour, colour and phase-space selection externally, 
 before your process-level events are input for further processing
-by <code>Pythia</code>. However, it is also possible to implement a 
-new process in exactly the same way as the internal <code>Pythia</code>
+by PYTHIA. However, it is also possible to implement a 
+new process in exactly the same way as the internal PYTHIA
 ones, thus making use of the internal phase space selection machinery
 to sample an externally provided cross-section expression. 
-This page gives a brief summary how to do that. 
+This page gives a brief summary how to do that. If you additionally 
+want to introduce a new resonance species, with its own internal 
+width calculations, you will find further instructions 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='SemiInternalResonances.php?filepath=".$filepath."' target='page'>";?>here</a>.
 
 <p/>
 Should you actually go ahead, it is strongly recommended to shop around 
@@ -47,7 +51,7 @@ cross section itself. With a reasonable such match the task should be
 of medium difficulty, without it more demanding. 
 
 <p/>
-<code>Pythia</code> is rather good at handling the phase space of 
+PYTHIA is rather good at handling the phase space of 
 <i>2 -> 1</i> and <i>2 -> 2</i> processes, is more primitive for 
 <i>2 -> 3</i> ones and does not at all address higher multiplicities. 
 This limits the set of processes that you can implement in this 
@@ -109,7 +113,7 @@ if that still exists.
 is called once during initalization, and can then be used to set up
 parameters, such as masses and couplings, and perform calculations 
 that need not be repeated for each new event, thereby saving time. 
-This method needs not be implemented, since in priciple all 
+This method needs not be implemented, since in principle all 
 calculations can be done in <code>sigmaHat</code> below.
 
 <p/><code>method&nbsp; </code><strong> void sigmaKin() &nbsp;</strong> <br/>
@@ -129,7 +133,7 @@ everything in <code>sigmaHat</code>.
 <p/><code>method&nbsp; </code><strong> double sigmaHat() &nbsp;</strong> <br/>
 is the key method for cross section calculations and returns a cross section
 value, as further described below. It is called when also a preliminary set 
-of incoming flavours have been picked, in addition to the kinematical ones 
+of incoming flavours has been picked, in addition to the kinematical ones 
 already available for <code>sigmaKin</code>. Typically <code>sigmaHat</code> 
 is called inside a loop over all allowed incoming flavour combinations,
 stored in <code>id1</code> and <code>id2</code>, with fixed kinematics, 
@@ -168,7 +172,7 @@ w_BW(m^2) = (1/pi) * (m * Gamma(m)) / ( (m^2 - m_0^2)^2 + (m * Gamma(m))^2 ) .
 </i><br/> 
 If you would like to have another expression, the above weights are stored 
 in <code>runBW3</code>, <code>runBW4</code> and <code>runBW5</code>, 
-respectively. If you divide out one of these factor, you just remain with 
+respectively. If you divide out one of these factors, you just remain with 
 a phase space selection <i>d(m^2)</i> for this particle,
 and can multiply on your desired shape factor instead. Unfortunately, the 
 Monte Carlo efficiency will drop if your new mass distribution differs 
@@ -229,7 +233,7 @@ be of interest for you.
 <p/><code>method&nbsp; </code><strong> double weightDecay( Event& process, int iResBeg, int iResEnd) &nbsp;</strong> <br/>
 is called when the basic process has one or several resonances, after each 
 set of related resonances in <code>process[i]</code>,
-<code>iResBeg</code> &lt;= <code>i </code> &lt; <code>iResEnd</code>, 
+<code>iResBeg</code> &lt;= <code>i </code> &lt;= <code>iResEnd</code>, 
 has been allowed to decay. The calculated weight, to be normalized 
 to the range between 0 and 1, is used to decide whether to accept the 
 decay(s) or try for a new decay configuration. The base-class version of
@@ -248,7 +252,7 @@ returns the name of the process, as you want it to be shown in listings.
 returns an integer identifier of the process. This has no internal function, 
 but is only intended as a service for the user to rapidly (and hopefully
 uniquely) identify which process occured in a given event. Numbers below 
-10000 are reserved for internal <code>Pythia</code> use. 
+10000 are reserved for internal PYTHIA use. 
 
 <p/><code>method&nbsp; </code><strong> string inFlux() &nbsp;</strong> <br/>
 this string specifies the combinations of incoming partons that are 
@@ -307,8 +311,8 @@ cross section. In cases such as <i>f fbar -> gamma* -> f' fbar'</i> a
 <i>2 -> 1</i> one, in the sense that it proceeds entirely through 
 an <i>s</i>-channel resonance. This can be achieved if you override the
 default <code>false</code> to return <code>true</code>. See further the
-<?php $filepath = $_GET["filepath"];
-echo "<a href='ProcessProperties.php?filepath=".$filepath."' target='page'>";?>Process Properties</a>.
+page on <?php $filepath = $_GET["filepath"];
+echo "<a href='CouplingsAndScales.php?filepath=".$filepath."' target='page'>";?>couplings and scales</a>.
 
 <p/><code>method&nbsp; </code><strong> int idTchan1(), int idTchan2() &nbsp;</strong> <br/>
 the <i>2 -> 3</i> phase space selection machinery is rather primitive,
@@ -338,7 +342,7 @@ by transverse-momentum conservation.
 
 <p/><code>method&nbsp; </code><strong> useMirrorWeight() &nbsp;</strong> <br/>
 in <i>2 -> 3</i> processes the phase space selection used here
-involves a twofold ambiguity bascially corresponding to a flipping of 
+involves a twofold ambiguity basically corresponding to a flipping of 
 the positions of last two outgoing particles. These are assumed equally 
 likely by default, <code>false</code>, but for processes proceeding entirely 
 through <i>t</i>-channel exchange the Monte Carlo efficiency can be 
@@ -348,7 +352,7 @@ weights, <code>true</code>.
 <p/><code>method&nbsp; </code><strong> int gmZmode() &nbsp;</strong> <br/>
 allows a possibility to override the global mode 
 <?php $filepath = $_GET["filepath"];
-echo "<a href='ProcessProperties.php?filepath=".$filepath."' target='page'>";?><code>SigmaProcess:gmZmode</code></a> 
+echo "<a href='ElectroweakProcesses.php?filepath=".$filepath."' target='page'>";?><code>WeakZ0:gmZmode</code></a> 
 for a specific process. The global mode normally is used to switch off 
 parts of the <i>gamma^*/Z^0</i> propagator for test purposes. The
 above local mode is useful for processes where a <i>Z^0</i> really is
@@ -380,7 +384,7 @@ description.
 <p/>
 If the code should be of good quality and general usefulness, it would
 be simple to include it as a permanently available process in the 
-standard program distribution. The final step of that operation ought to 
+standard program distribution. The final step of that integration ought to 
 be left for the PYTHIA authors, but here is a description of what is 
 required.
  
@@ -422,8 +426,8 @@ processes are lumped inside the the same initial check, i.e. are
 switched on all together. The second is that the matrix-element 
 constructor may take arguments, as specified by you (see above). 
 If so, the same basic matrix element may be recycled for a set of 
-related processes, e.g. one for a composite u and one for a composite d. 
-Obviously these variations may be combined.
+related processes, e.g. one for a composite <i>u</i> and one for 
+a composite <i>d</i>. Obviously these variations may be combined.
 
 </body>
 </html>

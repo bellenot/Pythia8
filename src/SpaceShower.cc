@@ -15,35 +15,6 @@ namespace Pythia8 {
 // The SpaceShower class.
 
 //*********
- 
-// Definitions of static variables.
-// (Values will be overwritten in initStatic call, so are purely dummy.)
-
-bool   SpaceShower::doQCDshower     = true;
-bool   SpaceShower::doQEDshowerByQ  = true;
-bool   SpaceShower::doQEDshowerByL  = true;
-bool   SpaceShower::useSamePTasMI   = true;
-bool   SpaceShower::doMEcorrections = true;
-bool   SpaceShower::doPhiPolAsym    = true;
-int    SpaceShower::pTmaxMatch      = 0;
-int    SpaceShower::pTdampMatch     = 0;
-int    SpaceShower::alphaSorder     = 1;
-int    SpaceShower::alphaEMorder    = 1;
-int    SpaceShower::nQuarkIn        = 5;
-double SpaceShower::pTmaxFudge      = 1.0;
-double SpaceShower::pTdampFudge     = 1.0;
-double SpaceShower::mc              = 1.5;
-double SpaceShower::mb              = 4.8;
-double SpaceShower::m2c             = 2.25;
-double SpaceShower::m2b             = 23.04;
-double SpaceShower::alphaSvalue     = 0.127;
-double SpaceShower::alphaS2pi       = 0.02013;
-double SpaceShower::pT0Ref          = 2.2; 
-double SpaceShower::ecmRef          = 1800.; 
-double SpaceShower::ecmPow          = 0.16; 
-double SpaceShower::pTmin           = 0.2; 
-double SpaceShower::pTminChgQ       = 0.5;
-double SpaceShower::pTminChgL       = 0.5e-3;
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -61,7 +32,7 @@ const double SpaceShower::EVALPDFSTEP   = 0.1;
 const double SpaceShower::TINYPDF       = 1e-10;
 
 // Lower limit on estimated evolution rate, below which stop.
-const double SpaceShower::TINYKERNELPDF = 1e-5;
+const double SpaceShower::TINYKERNELPDF = 1e-6;
 
 // Lower limit on pT2, below which branching is rejected. 
 const double SpaceShower::TINYPT2       = 0.25e-6;
@@ -93,9 +64,14 @@ const double SpaceShower::LEPTONFUDGE   = 10.;
 
 //*********
 
-// Initialize static data members.
+// Initialize alphaStrong, alphaEM and related pTmin parameters.
 
-void SpaceShower::initStatic() {
+void SpaceShower::init( BeamParticle* beamAPtrIn, 
+  BeamParticle* beamBPtrIn) {
+
+  // Store input pointers for future use. 
+  beamAPtr        = beamAPtrIn;
+  beamBPtr        = beamBPtrIn;
 
   // Main flags to switch on and off branchings.
   doQCDshower     = Settings::flag("SpaceShower:QCDshower");
@@ -108,6 +84,9 @@ void SpaceShower::initStatic() {
   pTmaxFudge      = Settings::parm("SpaceShower:pTmaxFudge"); 
   pTdampFudge     = Settings::parm("SpaceShower:pTdampFudge"); 
 
+  // Force emissions tobe ordered in rapidity/angle.
+  doRapidityOrder = Settings::flag("SpaceShower:rapidityOrder");
+
   // Charm, bottom and lepton mass thresholds.
   mc              = ParticleDataTable::m0(4); 
   mb              = ParticleDataTable::m0(5); 
@@ -118,6 +97,17 @@ void SpaceShower::initStatic() {
   alphaSvalue     = Settings::parm("SpaceShower:alphaSvalue");
   alphaSorder     = Settings::mode("SpaceShower:alphaSorder");
   alphaS2pi       = 0.5 * alphaSvalue / M_PI;
+  
+  // Initialize alpha_strong generation.
+  alphaS.init( alphaSvalue, alphaSorder); 
+  
+  // Lambda for 5, 4 and 3 flavours.
+  Lambda5flav     = alphaS.Lambda5(); 
+  Lambda4flav     = alphaS.Lambda4(); 
+  Lambda3flav     = alphaS.Lambda3(); 
+  Lambda5flav2    = pow2(Lambda5flav);
+  Lambda4flav2    = pow2(Lambda4flav);
+  Lambda3flav2    = pow2(Lambda3flav);
  
   // Regularization of QCD evolution for pT -> 0. Can be taken 
   // same as for multiple interactions, or be set separately.
@@ -134,55 +124,31 @@ void SpaceShower::initStatic() {
     pTmin         = Settings::parm("SpaceShower:pTmin");
   }
 
+  // Calculate invariant mass of system. Set current pT0 scale.
+  sCM             = m2( beamAPtr->p(), beamBPtr->p());
+  eCM             = sqrt(sCM);
+  pT0             = pT0Ref * pow(eCM / ecmRef, ecmPow);
+
   // Parameters of alphaEM generation.
   alphaEMorder    = Settings::mode("SpaceShower:alphaEMorder");
+
+  // Initialize alphaEM generation.
+  alphaEM.init( alphaEMorder); 
  
   // Parameters of QED evolution.
   pTminChgQ       = Settings::parm("SpaceShower:pTminchgQ"); 
   pTminChgL       = Settings::parm("SpaceShower:pTminchgL"); 
 
+  // Derived parameters of QCD evolution.
+  pT20            = pow2(pT0);
+  pT2min          = pow2(pTmin);
+  pT2minChgQ      = pow2(pTminChgQ);
+  pT2minChgL      = pow2(pTminChgL);
+
   // Various other parameters. 
   doMEcorrections = Settings::flag("SpaceShower:MEcorrections");
   doPhiPolAsym    = Settings::flag("SpaceShower:phiPolAsym");
   nQuarkIn        = Settings::mode("SpaceShower:nQuarkIn");
-
-}
-
-//*********
-
-// Initialize alphaStrong, alphaEM and related pTmin parameters.
-
-void SpaceShower::init( BeamParticle* beamAPtrIn, 
-  BeamParticle* beamBPtrIn) {
-
-  // Store input pointers for future use. 
-  beamAPtr     = beamAPtrIn;
-  beamBPtr     = beamBPtrIn;
-  
-  // Initialize alpha_strong generation.
-  alphaS.init( alphaSvalue, alphaSorder); 
-  
-  // Lambda for 5, 4 and 3 flavours.
-  Lambda5flav  = alphaS.Lambda5(); 
-  Lambda4flav  = alphaS.Lambda4(); 
-  Lambda3flav  = alphaS.Lambda3(); 
-  Lambda5flav2 = pow2(Lambda5flav);
-  Lambda4flav2 = pow2(Lambda4flav);
-  Lambda3flav2 = pow2(Lambda3flav);
-
-  // Initialize alphaEM generation.
-  alphaEM.init( alphaEMorder); 
-
-  // Calculate invariant mass of system. Set current pT0 scale.
-  sCM          = m2( beamAPtr->p(), beamBPtr->p());
-  eCM          = sqrt(sCM);
-  pT0          = pT0Ref * pow(eCM / ecmRef, ecmPow);
-
-  // Derived parameters of QCD evolution.
-  pT20         = pow2(pT0);
-  pT2min       = pow2(pTmin);
-  pT2minChgQ   = pow2(pTminChgQ);
-  pT2minChgL   = pow2(pTminChgL);
 
 } 
 
@@ -352,7 +318,7 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
   double pT2         = pT2begDip;
   double xMaxAbs     = beam.xMax(iSysNow);
   double zMinAbs     = xDaughter / xMaxAbs;
-
+  
   // Starting values for handling of massive quarks (c/b), if any.
   double idMassive   = 0;
   if ( abs(idDaughter) == 4 ) idMassive = 4;
@@ -384,7 +350,9 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
   int    idMother       = 0; 
   int    idSister       = 0;
   double z              = 0.;
-  double zMaxAbs        = 0.; 
+  double zMaxAbs        = 0.;
+  double zRootMax       = 0.;
+  double zRootMin       = 0.;
   double g2gInt         = 0.; 
   double q2gInt         = 0.; 
   double q2qInt         = 0.;
@@ -471,8 +439,11 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
         kernelPDF = g2gInt + q2gInt * xPDFmotherSum / xPDFdaughter;
 
       // For valence quark only need consider q -> q g branchings.
+      // Introduce an extra factor sqrt(z) to smooth bumps.
       } else if (isValence) {
-        q2qInt = (8./3.) * log( (1. - zMinAbs) / (1. - zMaxAbs) );
+        zRootMin = (1. + sqrt(zMinAbs)) / (1. - sqrt(zMinAbs));
+        zRootMax = (1. + sqrt(zMaxAbs)) / (1. - sqrt(zMaxAbs));
+        q2qInt = (8./3.) * log( zRootMax / zRootMin );
         if (doMEcorrections) q2qInt *= calcMEmax(MEtype, 1);
         g2qInt = 0.;
         kernelPDF = q2qInt; 
@@ -502,7 +473,7 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
       // End evaluation of splitting kernels and parton densities.
       needNewPDF = false;
     }
-    if (kernelPDF < TINYKERNELPDF) { pT2 = 0.; continue; }
+    if (kernelPDF < TINYKERNELPDF) return;
 
     // Pick pT2 (in overestimated z range), for one of three different cases.
     // Assume form alphas(pT0^2 + pT^2) * dpT^2/(pT0^2 + pT^2).
@@ -583,14 +554,20 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
       if (isValence || Rndm::flat() * kernelPDF < q2qInt) {
         idMother = idDaughter;
         idSister = 21;
-        // Valence more peaked at large z, like q -> g above ??
-        z = 1. - (1. - zMinAbs) * pow( (1. - zMaxAbs) / (1. - zMinAbs),
-          Rndm::flat() ); 
+        // Valence more peaked at large z.
+        if (isValence) {
+          double zTmp = zRootMin * pow(zRootMax / zRootMin, Rndm::flat() );
+          z = pow2( (1. - zTmp) / (1. + zTmp) );
+        } else {
+          z = 1. - (1. - zMinAbs) * pow( (1. - zMaxAbs) / (1. - zMinAbs),
+            Rndm::flat() );
+	} 
         if (!isMassive) { 
           wt = 0.5 * (1. + pow2(z));
 	} else {
           wt = 0.5 * (1. + pow2(z) - z * pow2(1.-z) * m2Massive / pT2);
 	}
+        if (isValence) wt *= sqrt(z);
       // g -> q (+ qbar). 
       } else {
         idMother = 21;
@@ -614,6 +591,11 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
     m2Sister = pow2(mSister);
     pT2corr = Q2 - z * (m2Dip + Q2) * (Q2 + m2Sister) / m2Dip;
     if(pT2corr < TINYPT2) { wt = 0.; continue; }
+
+    // Optionally veto emissions not ordered in rapidity (= angle).
+    if ( doRapidityOrder && dipEndNow->nBranch > 0
+      && pT2 > pow2( (1. - z) / (z * (1. - dipEndNow->zOld)) ) 
+      * dipEndNow->pT2Old ) { wt = 0.; continue; }
 
     // If creating heavy quark by Q -> g + Q then next need g -> Q + Qbar.
     // So minimum total mass2 is 4 * m2Sister, but use more to be safe.
@@ -1051,6 +1033,12 @@ bool SpaceShower::branch( Event& event) {
   }
   BeamParticle& beamRec = (side == 1) ? *beamBPtr : *beamAPtr;
   beamRec[iSysSel].iPos( iNewRecoiler);
+
+  // Store branching values of current dipole. (For rapidity ordering.)
+  ++dipEndSel->nBranch;
+  dipEndSel->pT2Old = pT2;
+  dipEndSel->zOld   = z;
+
 
   // Done without any errors.
   return true;

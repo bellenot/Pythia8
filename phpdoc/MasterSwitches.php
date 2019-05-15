@@ -168,7 +168,7 @@ event generation, wherein the partonic configuration from
 and secondary decays.
 
 <p/>
-Most of the code in this class deals with subdividing the partonic
+Most of the code in this class itself deals with subdividing the partonic
 content of the event into separate colour singlets, that can be
 treated individually by the string fragmentation machinery. When a
 junction and an antijunction are directly connected, it also breaks 

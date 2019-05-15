@@ -308,6 +308,11 @@ bool Pythia::init( LHAinit* lhaInitPtrIn, LHAevnt* lhaEvntPtrIn) {
   lhaEvntPtr = lhaEvntPtrIn;
   doLHA      = true;
 
+  // Store static members in other classes.
+  ProcessContainer::setLHAPtrs( lhaInitPtr, lhaEvntPtr);
+  SigmaProcess::setLHAPtrs( lhaInitPtr, lhaEvntPtr);
+  PhaseSpace::setLHAPtrs( lhaInitPtr, lhaEvntPtr); 
+
   // Set LHAinit information (in some external program).
   if (!lhaInitPtr->set()) {
     ErrorMsg::message("Abort from Pythia::init: "
@@ -348,11 +353,13 @@ bool Pythia::init( string LesHouchesEventFile, bool skipInit) {
   doLHA      = true;
   useNewLHA  = true;
 
+  // Store or replace static members in other classes.
+  ProcessContainer::setLHAPtrs( lhaInitPtr, lhaEvntPtr);
+  SigmaProcess::setLHAPtrs( lhaInitPtr, lhaEvntPtr);
+  PhaseSpace::setLHAPtrs( lhaInitPtr, lhaEvntPtr); 
+
   // If second time around, only with new file, then simplify.
-  if (skipInit) {
-    processLevel.setLHAPtrs( lhaInitPtr, lhaEvntPtr);
-    return true;
-  }
+  if (skipInit) return true;
 
   // Set LHAinit information (in some external program).
   if (!lhaInitPtr->set()) {
@@ -423,7 +430,7 @@ bool Pythia::initInternal() {
   // Initialize some aspects of particle data, including resonances.
   ParticleDataEntry::initStatic();
   particleData.initBWmass();
-  particleData.initResonances();
+  particleData.initResonances(resonancePtrs);
   
   // Initialize static data members used in several levels.
   Event::initStatic();
@@ -451,8 +458,6 @@ bool Pythia::initInternal() {
   }
 
   // Initialize showers, especially for simple showers in decays. 
-  TimeShower::initStatic();
-  SpaceShower::initStatic();
   timesDecPtr->init( 0, 0);
 
   // Check that beams and beam combination can be handled.
@@ -462,11 +467,11 @@ bool Pythia::initInternal() {
   int idBabs = abs(idB);
   if (doProcessLevel) {
     if (idAabs == 2212 && idBabs == 2212) canHandleBeams = true;
-    else if(settings.flag("PDF:lepton")) {
-      if ( idA + idB == 0 && (idAabs == 11 || idAabs == 13
-        || idAabs == 15) ) canHandleBeams = true;
-    } else if (idAabs > 10 && idAabs < 17 && idA * idB < 0) {
-      if (idA + idB == 0) canHandleBeams = true;
+    else if ( idAabs == idBabs && (idAabs == 11 || idAabs == 13
+      || idAabs == 15) ) canHandleBeams = true;
+    else if ( idAabs > 10 && idAabs < 17 && idA * idB < 0
+      && !settings.flag("PDF:lepton") ) {
+      if (idAabs == idBabs) canHandleBeams = true;
       int idMax  = max(idAabs, idBabs);
       int idMin  = min(idAabs, idBabs);
       if (idMax - idMin == 1 && idMax%2 == 0) canHandleBeams = true; 
@@ -547,7 +552,7 @@ bool Pythia::initInternal() {
 
   // Send info/pointers to process level for initialization.
   if ( doProcessLevel && !processLevel.init( &info, &beamA, &beamB, doLHA, 
-    lhaInitPtr, lhaEvntPtr, userHooksPtr, sigmaPtrs) ) return false;
+    userHooksPtr, sigmaPtrs) ) return false;
 
   // Send info/pointers to parton level for initialization.
   if ( doPartonLevel && !partonLevel.init( &info, &beamA, &beamB, 
@@ -892,22 +897,26 @@ void Pythia::banner(ostream& os) {
      << "ry, MS 234, Batavia, IL 60510, USA;   |  | \n"
      << " |  |     phone: + 1 - 630 - 840 - 2556; e-ma"
      << "il: mrenna@fnal.gov                   |  | \n"
-     << " |  |   Author: Peter Skands; Theoretical Phy"
-     << "sics Department,                      |  | \n"
+     << " |  |   Author: Peter Skands; CERN/PH, CH-121" 
+     << "1 Geneva, Switzerland,                |  | \n"
+     << " |  |     and Theoretical Physics Department,"
+     << "                                      |  | \n"
      << " |  |     Fermi National Accelerator Laborato"
      << "ry, MS 106, Batavia, IL 60510, USA;   |  | \n"
-     << " |  |     phone: + 1 - 630 - 840 - 2270; e-ma"
-     << "il: skands@fnal.gov                   |  | \n"
+     << " |  |     phone: + 41 - 22 - 767 24 59; e-mai"
+     << "l: skands@fnal.gov                    |  | \n"
      << " |  |                                        " 
+     << "                                      |  | \n"
+     << " |  |   The main program reference is the 'Br"
+     << "ief Introduction to PYTHIA 8.1',      |  | \n"
+     << " |  |   T. Sjostrand, S. Mrenna and P. Skands"
+     << ", arXiv:0710.3820                     |  | \n"
+     << " |  |                                        "
      << "                                      |  | \n"
      << " |  |   The main physics reference is the 'PY"
      << "THIA 6.4 Physics and Manual',         |  | \n"
      << " |  |   T. Sjostrand, S. Mrenna and P. Skands"
      << ", JHEP05 (2006) 026 [hep-ph/0603175]. |  | \n"
-     << " |  |   In addition, for PYTHIA 8.0, also quo"
-     << "te the 'Brief Introduction',          |  | \n"
-     << " |  |   T. Sjostrand, CERN-LCGAPP-2007-03.   "
-     << "                                      |  | \n" 
      << " |  |                                        "
      << "                                      |  | \n"
      << " |  |   An archive of program versions and do" 
@@ -926,10 +935,6 @@ void Pythia::banner(ostream& os) {
      << "t any guarantees.                     |  | \n"
      << " |  |   Beware of errors and use common sense"
      << " when interpreting results.           |  | \n"
-     << " |  |   In addition, the current 8.0 version " 
-     << "is intended for tryout and feedback   |  | \n"
-     << " |  |   only, and should not be used for any " 
-     << "physics studies or production runs.   |  | \n"
      << " |  |                                        "
      << "                                      |  | \n"
      << " |  |   Copyright (C) 2007 Torbjorn Sjostrand" 
@@ -1054,21 +1059,25 @@ void Pythia::findJunctions() {
 
 bool Pythia::check(ostream& os) {
 
-  // Reset. Incoming beams counted with negative momentum and charge.
+  // Reset. 
   bool physical = true;
   iErrId.resize(0);
   iErrNan.resize(0);
-  Vec4 pSum = - (event[1].p() + event[2].p());
-  double eLab = abs(pSum.e());
-  double chargeSum = - (event[1].charge() + event[2].charge());
+  Vec4 pSum;
+  double chargeSum = 0.;
+
+  // Incoming beams counted with negative momentum and charge.
+  if (doProcessLevel) {
+    pSum = - (event[1].p() + event[2].p());
+    chargeSum = - (event[1].charge() + event[2].charge());
 
   // If no ProcessLevel then sum momentum and charge in initial state.
-  if (!doProcessLevel) {
+  } else {
     pSum = - event[0].p();
-    chargeSum = 0.;
     for (int i = 0; i < process.size(); ++i) 
       if (process[i].isFinal()) chargeSum -= process[i].charge();
   } 
+  double eLab = abs(pSum.e());
 
   // Loop over particles in the event. 
   for (int i = 0; i < event.size(); ++i) {
@@ -1076,11 +1085,10 @@ bool Pythia::check(ostream& os) {
     // Look for any unrecognized particle codes.
     int id = event[i].id();
     if (id == 0 || !ParticleDataTable::isParticle(id)) {
-      string errCode;
-      ostringstream writeCode(errCode);
-      writeCode << ", id = " << id;
+      ostringstream errCode;
+      errCode << ", id = " << id;
       ErrorMsg::message("Error in Pythia::check: "
-        "unknown particle code", errCode); 
+        "unknown particle code", errCode.str()); 
       physical = false;
       iErrId.push_back(i);
     }

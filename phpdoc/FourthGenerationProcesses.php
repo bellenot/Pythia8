@@ -38,7 +38,7 @@ characteristics.
 <p/>
 The fourth generation are given names as in the third, but with a prime,
 i.e. <i>b'</i> with PDG code 7, <i>t'</i> with code 8, 
-<i>tau'</i> with code 17, and <i>nu'_tau</i> with PDG code 18.
+<i>tau'</i> with code 17, and <i>nu'_tau</i> with code 18.
 Most important for you is to assign a mass hierarchy, to decide which
 fermions can decay into which. The current implementation assumes that 
 mass splittings are big enough that fourth-generation fermions can
@@ -74,7 +74,7 @@ Code 801.
 <br/><br/><strong>FourthBottom:qqbar2bPrimebPrimebar</strong>  <input type="radio" name="3" value="on"><strong>On</strong>
 <input type="radio" name="3" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-Scatterings <i>q qbar -> 'b b'bar</i>. 
+Scatterings <i>q qbar -> b' b'bar</i> by gluon exchange. 
 Code 802.
   
 
@@ -107,8 +107,7 @@ Code 805.
 <input type="radio" name="7" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>f fbar' -> b' tbar</i> by <i>s</i>-channel exchange 
-of a <i>W^+-</i> boson. Here <i>q''</i> is either <i>u</i> or
-<i>c</i>.
+of a <i>W^+-</i> boson. 
 Code 806.
   
 
@@ -134,7 +133,7 @@ Code 821.
 <br/><br/><strong>FourthTop:qqbar2tPrimetPrimebar</strong>  <input type="radio" name="10" value="on"><strong>On</strong>
 <input type="radio" name="10" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-Scatterings <i>q qbar -> t' t'bar</i>. 
+Scatterings <i>q qbar -> t' t'bar</i> by gluon exchange. 
 Code 822.
   
 

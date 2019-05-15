@@ -45,7 +45,7 @@ Code 601.
 <br/><br/><strong>Top:qqbar2ttbar</strong>  <input type="radio" name="3" value="on"><strong>On</strong>
 <input type="radio" name="3" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-Scatterings <i>q qbar -> t tbar</i>. 
+Scatterings <i>q qbar -> t tbar</i> by gluon exchange. 
 Code 602.
   
 

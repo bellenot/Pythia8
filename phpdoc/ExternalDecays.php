@@ -56,7 +56,7 @@ where
 
 <p/>
 At input, these vectors each have size one, so that <code>idProd[0]</code>, 
-<code>mProd[0]</code> and <code>pProd[0]</code> contains information on the 
+<code>mProd[0]</code> and <code>pProd[0]</code> contain information on the 
 particle that is to be decayed. At output, the vectors should have 
 increased by the addition of all the decay products. Even if initially 
 defined in the rest frame of the mother, the products should have been 

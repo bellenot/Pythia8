@@ -73,15 +73,23 @@ public:
   double currentBR() const {return currentBRSave;}
 
   // Input/output for nominal partial width; used by resonances. 
-  void   onShellWidth(double onShellWidthIn) {onShellWidthSave = onShellWidthIn;} 
+  void   onShellWidth(double onShellWidthIn) {
+         onShellWidthSave = onShellWidthIn;} 
   double onShellWidth() const {return onShellWidthSave;} 
   void   onShellWidthFactor(double factor) {onShellWidthSave *= factor;} 
+
+  // Input/output for fraction of secondary open widths; used by resonances. 
+  void   openSec(int idSgn, double openSecIn) {
+    if (idSgn > 0) openSecPos = openSecIn; else openSecNeg = openSecIn;} 
+  double openSec(int idSgn) const {
+    return (idSgn > 0) ? openSecPos : openSecNeg;} 
 
 private:
 
   // Decay channel info.
   int    onModeSave;
-  double bRatioSave, currentBRSave, onShellWidthSave;
+  double bRatioSave, currentBRSave, onShellWidthSave, openSecPos, 
+         openSecNeg;
   int    meModeSave, nProd, prod[8];
   bool   hasChangedSave;
 
@@ -282,9 +290,11 @@ public:
   void   resInit();
   double resWidth(int idSgn, double mHat, int idIn = 0, 
     bool openOnly = false, bool setBR = false);
-  double resWidthChan(double mHat, int idAbs1 = 0, int idAbs2 = 0);
+  double resWidthOpen(int idSgn, double mHat, int idIn = 0);
+  double resWidthStore(int idSgn, double mHat, int idIn = 0);
   double resOpenFrac(int idSgn);
   double resWidthRescaleFactor();
+  double resWidthChan(double mHat, int idAbs1 = 0, int idAbs2 = 0);
 
 private:
 
@@ -349,7 +359,8 @@ public:
       pdtEntry != pdt.end(); ++pdtEntry) pdtEntry->second.initBWmass(); }
 
   // Initialize the special handling of resonances in ResonanceWidths.
-  static void initResonances(bool reInit = false);
+  static void initResonances(vector<ResonanceWidths*> resonancePtrs, 
+    bool reInit = false);
 
   // Calculate a mass, picked according to Breit-Wigner.
   static double mass(int idIn) {
@@ -538,12 +549,18 @@ public:
     bool openOnly = false, bool setBR = false) {
     return isParticle(idIn) ? pdt[abs(idIn)].resWidth(idIn, mHat,
     idInFlav, openOnly, setBR) : 0.;}
-  static double resWidthChan(int idIn, double mHat, int idAbs1 = 0, 
-    int idAbs2 = 0) { return isParticle(idIn) 
-    ? pdt[abs(idIn)].resWidthChan( mHat, idAbs1, idAbs2) : 0.;}
+  static double resWidthOpen(int idIn, double mHat, int idInFlav = 0) {
+    return isParticle(idIn) ? pdt[abs(idIn)].resWidthOpen(idIn, mHat, 
+    idInFlav) : 0.;}
+  static double resWidthStore(int idIn, double mHat, int idInFlav = 0) {
+    return isParticle(idIn) ? pdt[abs(idIn)].resWidthStore(idIn, mHat, 
+    idInFlav) : 0.;}
   static double resOpenFrac(int id1In, int id2In = 0, int id3In = 0);
   static double resWidthRescaleFactor(int idIn) { return isParticle(idIn) 
     ? pdt[abs(idIn)].resWidthRescaleFactor() : 0.;}
+  static double resWidthChan(int idIn, double mHat, int idAbs1 = 0, 
+    int idAbs2 = 0) { return isParticle(idIn) 
+    ? pdt[abs(idIn)].resWidthChan( mHat, idAbs1, idAbs2) : 0.;}
 
 private:
 

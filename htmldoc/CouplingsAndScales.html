@@ -1,41 +1,24 @@
 <html>
 <head>
-<title>Process Properties</title>
+<title>Couplings and Scales</title>
 </head>
 <body>
 
-<h2>Process Properties</h2>
+<h2>Couplings and Scales</h2>
 
-Here is collected some possibilities to affect the generation of 
-all internally implemented processes in one go, or some coherent
-subset thereof. Phase space cuts appear on a special page.
+Here is collected some possibilities to modify the scale choices
+of couplings and parton densities for all internally implemented 
+hard processes. This is based on them all being derived from the
+<code>SigmaProcess</code> base class. The matrix-element coding is 
+also used by the multiple-interactions machinery, but there with a 
+separate choice of <i>alpha_strong(M_Z^2)</i> value and running, 
+and separate PDF scale choices. Also, in <i>2 -> 2</i> and 
+<i>2 -> 3</i> processes where resonances are produced, their 
+couplings and thereby their Breit-Wigner shapes are always evaluated 
+with the resonance mass as scale, irrespective of the choices below.
 
-<h3>Incoming partons</h3>
+<h3>Couplings and K factor</h3>
 
-<p/>
-There is one useful degree of freedom to restrict the set of 
-incoming flavours:
-<p/><code>mode&nbsp; </code><strong> SigmaProcess:nQuarkIn &nbsp;</strong> 
- (<code>default = <strong>5</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)<br/>
-Number of allowed incoming quark flavours in the beams; a change 
-to 4 would thus exclude <i>b</i> and <i>bbar</i> as incoming 
-partons, etc.
-</modeopen>
-
-<h3>Coupling and scale choices</h3>
-
-<code>SigmaProcess</code> is base class for all hard processes 
-implemented in PYTHIA 8. For <i>2 -> 1</i> processes it 
-should give <i>sigmaHat(sHat)</i>, for <i>2 -> 2</i> ones 
-<i>d(sigmaHat(sHat, tHat))/d(tHat)</i>. The matrix-element
-coding is also used by the multiple-interactions machinery,
-but with a separate choice of <i>alpha_strong(M_Z^2)</i> value
-and running, and separate scale choices. Also, in <i>2 -> 2</i> 
-processes where resonances are produced, their couplings and thereby 
-their Breit-Wigner shapes are always evaluated with the resonance mass 
-as scale, irrespective of the choices below.
-
-<p/>
 The size of QCD cross sections is mainly determined by 
 <p/><code>parm&nbsp; </code><strong> SigmaProcess:alphaSvalue &nbsp;</strong> 
  (<code>default = <strong>0.1265</strong></code>; <code>minimum = 0.06</code>; <code>maximum = 0.25</code>)<br/>
@@ -88,7 +71,8 @@ This degree of freedom is primarily intended for hadron colliders, and
 should not normally be used for <i>e^+e^-</i> annihilation processes.
   
 
-<p/>
+<h3>Renormalization scales</h3>
+
 The <i>Q^2</i> renormalization scale can be chosen among a few different
 alternatives, separately for <i>2 -> 1</i>, <i>2 -> 2</i> and two 
 different kinds of <i>2 -> 3</i> processes. In addition a common
@@ -206,7 +190,8 @@ A fix <i>Q^2</i> value used as renormalization scale for <i>2 -> 1</i>,
 <i>2 -> 2</i> and <i>2 -> 3</i> processes in some of the options above.
   
 
-<p/>
+<h3>Factorization scales</h3>
+
 Corresponding options exist for the <i>Q^2</i> factorization scale
 used as argument in PDF's. Again there is a choice of form for  
 <i>2 -> 1</i>, <i>2 -> 2</i> and <i>2 -> 3</i> processes separately. 
@@ -315,41 +300,6 @@ with a fix scale). Should be use sparingly for <i>2 -> 1</i> processes.
 A fix <i>Q^2</i> value used as factorization scale for <i>2 -> 1</i>,
 <i>2 -> 2</i> and <i>2 -> 3</i> processes in some of the options above.
   
-
-
-<h3>Special cross sections</h3>
-
-Here settings that affect some special group of processes, but not all.
-
-<p/><code>mode&nbsp; </code><strong> SigmaProcess:nQuarkNew &nbsp;</strong> 
- (<code>default = <strong>3</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)<br/>
-Number of allowed outgoing new quark flavours in 
-<i>q qbar -> q' qbar'</i> and <i>g g-> q qbar</i> processes, 
-where quarks are treated as massless in the matrix-element expressions 
-(but correctly in the phase space). It is thus assumed that <i>c cbar</i> 
-and <i>b bbar</i> are added separately with masses taken into account. 
-A change to 4 would also include <i>c cbar</i> in the massless 
-approximation, etc. 
-</modeopen>
-
-<p/><code>mode&nbsp; </code><strong> SigmaProcess:nQuarkLoop &nbsp;</strong> 
- (<code>default = <strong>5</strong></code>; <code>minimum = 3</code>; <code>maximum = 6</code>)<br/>
-Number of quark flavours included in the box graphs resposible for 
-<i>g g -> g gamma</i> and <i>g g-> gamma gamma</i> processes.
-Owing to the complexity if the massive expressions, quarks are treated 
-as massless. The default value should be applicable in the range of 
-transverse momenta above the <i>b</i> mass but below the <i>t</i> one.
-</modeopen>
-
-<p/><code>mode&nbsp; </code><strong> SigmaProcess:gmZmode &nbsp;</strong> 
- (<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 2</code>)<br/>
-Choice of full <i>gamma^*/Z^0</i> structure or not in relevant 
-processes.
-<br/><code>option </code><strong> 0</strong> : full <i>gamma^*/Z^0</i> structure,
-with interference included.  
-<br/><code>option </code><strong> 1</strong> : only pure <i>gamma^*</i> contribution.  
-<br/><code>option </code><strong> 2</strong> : only pure <i>Z^0</i> contribution.  
-</modepick>
 
 </body>
 </html>

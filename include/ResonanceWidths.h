@@ -29,7 +29,7 @@ class AlphaEM;
   
 //**************************************************************************
 
-// The ResonanceWidths is the base class.
+// The ResonanceWidths is the base class. Also used for generic resonaces.
 
 class ResonanceWidths {
 
@@ -40,23 +40,37 @@ public:
 
   // Initialize static data members in base class.
   static void initStatic();
+
+  // Set up standard properties.
+  bool initBasic(int idResIn);
  
   // Calculate and store partial and total widths at the nominal mass. 
-  virtual void init() {} 
+  void init();
+
+  // Return identity of particle species.
+  int id() const {return idRes;}
  
   // Calculate the total/open width for given mass, charge and instate.
-  virtual double width(int , double mHat, int idIn = 0, 
-    bool openOnly = false, bool setBR = false) = 0; 
+  double width(int idSgn, double mHatIn, int idInFlavIn = 0, 
+    bool openOnly = false, bool setBR = false); 
+
+  // Special case to calculate open final-state width.
+  double widthOpen(int idSgn, double mHatIn, int idIn = 0) {
+    return width( idSgn, mHatIn, idIn, true, false);}  
+
+  // Special case to store open final-state widths for channel selection.
+  double widthStore(int idSgn, double mHatIn, int idIn = 0) {
+    return width( idSgn, mHatIn, idIn, true, true);}  
 
   // Return fraction of width open for particle and antiparticle.
   double openFrac(int idSgn) {return (idSgn > 0) ? openPos : openNeg;}
 
+  // Return forced rescaling factor of resonance width.
+  double widthRescaleFactor() {return forceFactor;} 
+
   // For Higgs only: return pretabulated width for particular channel.
   // Usage: widthChan( mHat, idAbs1, idAbs2).
   virtual double widthChan(double, int = 0, int = 0) {return 1.;} 
-
-  // Return forced rescaling factor of resonance width.
-  double widthRescaleFactor() {return forceFactor;} 
 
 protected:
 
@@ -65,7 +79,7 @@ protected:
 
   // Static initialization data, normally only set once.
   static int    alphaSorder, alphaEMorder;
-  static double alphaSvalue;
+  static double alphaSvalue, minWidth, minThreshold;
 
   // Static alphaStrong and alphaElectromagnetic calculation.
   static AlphaStrong alphaS;
@@ -73,72 +87,52 @@ protected:
 
   // Constants: could only be changed in the code itself.
   static const int    NPOINT;
-  static const double MASSMARGIN, MINWIDTH, BETAMIN;
+  static const double MASSMARGIN;
 
   // Pointer to properties of the particle species.
   ParticleDataEntry* particlePtr;
 
   // Particle properties always locally present.
-  int    idRes;
+  int    idRes, hasAntiRes;
   bool   doForceWidth;
   double mRes, GammaRes, m2Res, GamMRat, openPos, openNeg, forceFactor;
 
-  // Set up standard properties.
-  void initBasic(ParticleDataEntry* particlePtrIn = 0);
+  // Properties for currently studied decay channel(s).
+  int    iChannel, onMode, meMode, mult, id1, id2, id3, id1Abs, 
+         id2Abs, id3Abs, idInFlav;
+  double widNow, mHat, mf1, mf2, mf3, mr1, mr2, mr3, ps, kinFac,
+         alpEM, alpS, colQ, preFac; 
+ 
+  // Initialize constants.
+  virtual void initConstants() {} 
+ 
+  // Calculate various common prefactors for the current mass.
+  // Optional argument calledFromInit only used for Z0.
+  virtual void calcPreFac(bool = false) {}
+
+  // Calculate width for currently considered channel.
+  // Optional argument calledFromInit only used for Z0 and Higgses.
+  virtual void calcWidth(bool = false) {}
 
   // Simple routines for matrix-element integration over Breit-Wigners.
   double numInt1BW(double mHat, double m1, double Gamma1, double mMin1, 
-    double m2, int meMode = 1);
+    double m2, int psMode = 1);
   double numInt2BW(double mHat, double m1, double Gamma1, double mMin1, 
-    double m2, double Gamma2, double mMin2, int meMode = 1);
+    double m2, double Gamma2, double mMin2, int psMode = 1);
 
 };
   
 //**************************************************************************
 
-// The ResonanceNeutral class handles a generic resonance that is  
-// its own antiparticle, and therefore is neutral.
+// The ResonanceGeneric class handles a generic resonance.
+// Only needs a constructor; for the rest uses defaults in base class. 
 
-class ResonanceNeutral : public ResonanceWidths {
-
-public:
-
-  // Constructor. 
-  ResonanceNeutral(ParticleDataEntry* particlePtrIn) 
-    {initBasic(particlePtrIn);} 
- 
-  // Calculate and store partial and total widths at the nominal mass. 
-  virtual void init(); 
- 
-  // Calculate the total/open width for given mass, charge and instate.
-  virtual double width(int , double mHat, int = 0, 
-    bool openOnly = false, bool setBR = false); 
-
-private: 
-
-};
-  
-//**************************************************************************
-
-// The ResonanceCharged class handles a generic resonance that has a
-// nonidentical antiparticle, usually but not necessarily charged.
-
-class ResonanceCharged : public ResonanceWidths {
+class ResonanceGeneric : public ResonanceWidths {
 
 public:
 
   // Constructor. 
-  ResonanceCharged(ParticleDataEntry* particlePtrIn) 
-    {initBasic(particlePtrIn);} 
- 
-  // Calculate and store partial and total widths at the nominal mass. 
-  virtual void init(); 
- 
-  // Calculate the total/open width for given mass, charge and instate.
-  virtual double width(int , double mHat, int = 0, 
-    bool openOnly = false, bool setBR = false); 
-
-private: 
+  ResonanceGeneric(int idResIn) {initBasic(idResIn);} 
 
 };
   
@@ -151,21 +145,22 @@ class ResonanceGmZ : public ResonanceWidths {
 public:
 
   // Constructor. 
-  ResonanceGmZ(ParticleDataEntry* particlePtrIn) 
-    {initBasic(particlePtrIn);} 
- 
-  // Calculate and store partial and total widths at the nominal mass. 
-  virtual void init(); 
- 
-  // Calculate the total/open width for given mass, charge and instate.
-  virtual double width(int , double mHat, int idIn = 0, 
-    bool openOnly = false, bool setBR = false); 
+  ResonanceGmZ(int idResIn) {initBasic(idResIn);} 
 
 private: 
 
   // Locally stored properties and couplings.
   int    gmZmode;
-  double thetaWRat;
+  double thetaWRat, ei2, eivi, vi2ai2, gamNorm, intNorm, resNorm;
+ 
+  // Initialize constants.
+  virtual void initConstants(); 
+ 
+  // Calculate various common prefactors for the current mass.
+  virtual void calcPreFac(bool = false);
+
+  // Caclulate width for currently considered channel.
+  virtual void calcWidth(bool calledFromInit = false);
 
 };
   
@@ -178,20 +173,21 @@ class ResonanceW : public ResonanceWidths {
 public:
 
   // Constructor. 
-  ResonanceW(ParticleDataEntry* particlePtrIn) 
-    {initBasic(particlePtrIn);} 
- 
-  // Calculate and store partial and total widths at the nominal mass. 
-  virtual void init(); 
- 
-  // Calculate the total/open width for given mass, charge and instate.
-  virtual double width(int idSgn, double mHat, int = 0, 
-    bool openOnly = false, bool setBR = false); 
+  ResonanceW(int idResIn) {initBasic(idResIn);} 
 
 private: 
 
   // Locally stored properties and couplings.
-  double thetaWRat;
+  double thetaWRat, alpEM;
+ 
+  // Initialize constants.
+  virtual void initConstants(); 
+ 
+  // Calculate various common prefactors for the current mass.
+  virtual void calcPreFac(bool = false);
+
+  // Caclulate width for currently considered channel.
+  virtual void calcWidth(bool = false);
 
 };
   
@@ -204,20 +200,21 @@ class ResonanceTop : public ResonanceWidths {
 public:
 
   // Constructor. 
-  ResonanceTop(ParticleDataEntry* particlePtrIn) 
-    {initBasic(particlePtrIn);} 
+  ResonanceTop(int idResIn) {initBasic(idResIn);} 
  
-  // Calculate and store partial and total widths at the nominal mass. 
-  virtual void init(); 
- 
-  // Calculate the total/open width for given mass, charge and instate.
-  virtual double width(int idSgn, double mHat, int = 0, 
-    bool openOnly = false, bool setBR = false); 
-
 private: 
 
   // Locally stored properties and couplings.
   double thetaWRat, m2W;
+ 
+  // Initialize constants.
+  virtual void initConstants(); 
+ 
+  // Calculate various common prefactors for the current mass.
+  virtual void calcPreFac(bool = false);
+
+  // Caclulate width for currently considered channel.
+  virtual void calcWidth(bool = false);
 
 };
   
@@ -230,20 +227,21 @@ class ResonanceFour : public ResonanceWidths {
 public:
 
   // Constructor. 
-  ResonanceFour(ParticleDataEntry* particlePtrIn) 
-    {initBasic(particlePtrIn);} 
+  ResonanceFour(int idResIn) {initBasic(idResIn);} 
  
-  // Calculate and store partial and total widths at the nominal mass. 
-  virtual void init(); 
- 
-  // Calculate the total/open width for given mass, charge and instate.
-  virtual double width(int idSgn, double mHat, int = 0, 
-    bool openOnly = false, bool setBR = false); 
-
 private: 
 
   // Locally stored properties and couplings.
   double thetaWRat, m2W;
+ 
+  // Initialize constants.
+  virtual void initConstants(); 
+ 
+  // Calculate various common prefactors for the current mass.
+  virtual void calcPreFac(bool = false);
+
+  // Caclulate width for currently considered channel.
+  virtual void calcWidth(bool = false);
 
 };
   
@@ -257,19 +255,10 @@ class ResonanceH : public ResonanceWidths {
 public:
 
   // Constructor. 
-  ResonanceH(int higgsTypeIn ,ParticleDataEntry* particlePtrIn) 
-    : higgsType(higgsTypeIn) {initBasic(particlePtrIn);} 
- 
-  // Calculate and store partial and total widths at the nominal mass. 
-  virtual void init(); 
- 
-  // Calculate the total/open width for given mass, charge and instate.
-  virtual double width(int , double mHat, int = 0, 
-    bool openOnly = false, bool setBR = false); 
+  ResonanceH(int higgsTypeIn, int idResIn) : higgsType(higgsTypeIn)
+    {initBasic(idResIn);} 
 
-  // Return pretabulated width for particular channel.
-  // Usage: widthChan( mHat, idAbs1, idAbs2).
-  virtual double widthChan(double mHat, int id1Abs = 0, int = 0);  
+  virtual double widthChan(double mHatIn, int id1Abs = 0, int = 0); 
 
 private: 
 
@@ -285,15 +274,24 @@ private:
          coup2d, coup2u, coup2l, coup2Z, coup2W, coup2Hchg, coup2H1H1, 
          coup2A3A3, coup2H1Z, coup2A3Z, coup2A3H1, coup2HchgW,
          widTable[25];
+ 
+  // Initialize constants.
+  virtual void initConstants(); 
+ 
+  // Calculate various common prefactors for the current mass.
+  virtual void calcPreFac(bool = false);
+
+  // Caclulate width for currently considered channel.
+  virtual void calcWidth(bool calledFromInit = false);
 
   // Sum up loop contributions in Higgs -> g + g.
-  double eta2gg(double mHat);
+  double eta2gg();
 
   // Sum up loop contributions in Higgs -> gamma + gamma.
-  double eta2gaga(double mHat);
+  double eta2gaga();
 
   // Sum up loop contributions in Higgs -> gamma + Z0.
-  double eta2gaZ(double mHat);
+  double eta2gaZ();
 
 };
   
@@ -306,21 +304,133 @@ class ResonanceHchg : public ResonanceWidths {
 public:
 
   // Constructor. 
-  ResonanceHchg(ParticleDataEntry* particlePtrIn) 
-    {initBasic(particlePtrIn);} 
- 
-  // Calculate and store partial and total widths at the nominal mass. 
-  virtual void init(); 
- 
-  // Calculate the total/open width for given mass, charge and instate.
-  virtual double width(int idSgn, double mHat, int = 0, 
-    bool openOnly = false, bool setBR = false); 
+  ResonanceHchg(int idResIn) {initBasic(idResIn);} 
 
 private: 
 
   // Locally stored properties and couplings.
   bool   useCubicWidth; 
   double thetaWRat, mW, tanBeta, tan2Beta, coup2H1W;
+ 
+  // Initialize constants.
+  virtual void initConstants(); 
+ 
+  // Calculate various common prefactors for the current mass.
+  virtual void calcPreFac(bool = false);
+
+  // Caclulate width for currently considered channel.
+  virtual void calcWidth(bool = false);
+
+};
+  
+//**************************************************************************
+
+// The ResonanceZprime class handles the gamma*/Z0 /Z'^0 resonance.
+
+class ResonanceZprime : public ResonanceWidths {
+
+public:
+
+  // Constructor. 
+  ResonanceZprime(int idResIn) {initBasic(idResIn);} 
+
+private: 
+
+  // Locally stored properties and couplings.
+  int    gmZmode;
+  double sin2tW, cos2tW, thetaWRat, mZ, GammaZ, m2Z, GamMRatZ, afZp[20], 
+         vfZp[20], coupZpWW, ei2, eivi, vai2, eivpi, vaivapi, vapi2,
+         gamNorm, gamZNorm, ZNorm, gamZpNorm, ZZpNorm, ZpNorm;
+ 
+  // Initialize constants.
+  virtual void initConstants(); 
+ 
+  // Calculate various common prefactors for the current mass.
+  virtual void calcPreFac(bool = false);
+
+  // Caclulate width for currently considered channel.
+  virtual void calcWidth(bool calledFromInit = false);
+
+};
+  
+//**************************************************************************
+
+// The ResonanceWprime class handles the W'+- resonance.
+
+class ResonanceWprime : public ResonanceWidths {
+
+public:
+
+  // Constructor. 
+  ResonanceWprime(int idResIn) {initBasic(idResIn);} 
+
+private: 
+
+  // Locally stored properties and couplings.
+  double thetaWRat, cos2tW, alpEM, aqWp, vqWp, alWp, vlWp, coupWpWZ;
+ 
+  // Initialize constants.
+  virtual void initConstants(); 
+ 
+  // Calculate various common prefactors for the current mass.
+  virtual void calcPreFac(bool = false);
+
+  // Caclulate width for currently considered channel.
+  virtual void calcWidth(bool = false);
+
+};
+  
+//**************************************************************************
+
+// The ResonanceRhorizontal class handles the R^0 resonance.
+
+class ResonanceRhorizontal : public ResonanceWidths {
+
+public:
+
+  // Constructor. 
+  ResonanceRhorizontal(int idResIn) {initBasic(idResIn);} 
+
+private: 
+
+  // Locally stored properties and couplings.
+  double thetaWRat;
+ 
+  // Initialize constants.
+  virtual void initConstants(); 
+ 
+  // Calculate various common prefactors for the current mass.
+  virtual void calcPreFac(bool = false);
+
+  // Caclulate width for currently considered channel.
+  virtual void calcWidth(bool = false);
+
+};
+   
+//**************************************************************************
+
+// The ResonanceExcited class handles excited-fermion resonances.
+
+class ResonanceExcited : public ResonanceWidths {
+
+public:
+
+  // Constructor. 
+  ResonanceExcited(int idResIn) {initBasic(idResIn);} 
+
+private: 
+
+  // Locally stored properties and couplings.
+  double Lambda, coupF, coupFprime, coupFcol, sin2tW, cos2tW;
+ 
+  // Initialize constants.
+  virtual void initConstants(); 
+ 
+  // Calculate various common prefactors for the current mass.
+  virtual void calcPreFac(bool = false);
+
+  // Caclulate width for currently considered channel.
+  virtual void calcWidth(bool = false);
 
 };
   
@@ -333,20 +443,21 @@ class ResonanceGraviton : public ResonanceWidths {
 public:
 
   // Constructor. 
-  ResonanceGraviton(ParticleDataEntry* particlePtrIn) 
-    {initBasic(particlePtrIn);} 
+  ResonanceGraviton(int idResIn) {initBasic(idResIn);} 
  
-  // Calculate and store partial and total widths at the nominal mass. 
-  virtual void init(); 
- 
-  // Calculate the total/open width for given mass, charge and instate.
-  virtual double width(int , double mHat, int = 0, 
-    bool openOnly = false, bool setBR = false); 
-
 private: 
 
   // Locally stored properties and couplings.
   double kappaMG;
+ 
+  // Initialize constants.
+  virtual void initConstants(); 
+ 
+  // Calculate various common prefactors for the current mass.
+  virtual void calcPreFac(bool = false);
+
+  // Caclulate width for currently considered channel.
+  virtual void calcWidth(bool = false);
 
 };
 
@@ -359,20 +470,157 @@ class ResonanceLeptoquark : public ResonanceWidths {
 public:
 
   // Constructor. 
-  ResonanceLeptoquark(ParticleDataEntry* particlePtrIn) 
-    {initBasic(particlePtrIn);} 
- 
-  // Calculate and store partial and total widths at the nominal mass. 
-  virtual void init(); 
- 
-  // Calculate the total/open width for given mass, charge and instate.
-  virtual double width(int idSgn, double mHat, int = 0, 
-    bool openOnly = false, bool setBR = false); 
+  ResonanceLeptoquark(int idResIn) {initBasic(idResIn);} 
 
 private: 
 
   // Locally stored properties and couplings.
   double kCoup;
+ 
+  // Initialize constants.
+  virtual void initConstants(); 
+ 
+  // Calculate various common prefactors for the current mass.
+  virtual void calcPreFac(bool = false);
+
+  // Caclulate width for currently considered channel.
+  virtual void calcWidth(bool = false);
+
+};
+
+//**************************************************************************
+
+// The ResonanceNuRight class handles righthanded Majorana neutrinos.
+
+class ResonanceNuRight : public ResonanceWidths {
+
+public:
+
+  // Constructor. 
+  ResonanceNuRight(int idResIn) {initBasic(idResIn);} 
+
+private: 
+
+  // Locally stored properties and couplings.
+  double thetaWRat, mWR;
+ 
+  // Initialize constants.
+  virtual void initConstants(); 
+ 
+  // Calculate various common prefactors for the current mass.
+  virtual void calcPreFac(bool = false);
+
+  // Caclulate width for currently considered channel.
+  virtual void calcWidth(bool = false);
+
+};
+  
+//**************************************************************************
+
+// The ResonanceZRight class handles the Z_R^0 resonance.
+
+class ResonanceZRight : public ResonanceWidths {
+
+public:
+
+  // Constructor. 
+  ResonanceZRight(int idResIn) {initBasic(idResIn);} 
+
+private: 
+
+  // Locally stored properties and couplings.
+  double sin2tW, thetaWRat;
+ 
+  // Initialize constants.
+  virtual void initConstants(); 
+ 
+  // Calculate various common prefactors for the current mass.
+  virtual void calcPreFac(bool = false);
+
+  // Caclulate width for currently considered channel.
+  virtual void calcWidth(bool = false);
+
+};
+  
+//**************************************************************************
+
+// The ResonanceWRight class handles the W_R+- resonance.
+
+class ResonanceWRight : public ResonanceWidths {
+
+public:
+
+  // Constructor. 
+  ResonanceWRight(int idResIn) {initBasic(idResIn);} 
+  
+private: 
+
+  // Locally stored properties and couplings.
+  double thetaWRat;
+ 
+  // Initialize constants.
+  virtual void initConstants(); 
+ 
+  // Calculate various common prefactors for the current mass.
+  virtual void calcPreFac(bool = false);
+
+  // Caclulate width for currently considered channel.
+  virtual void calcWidth(bool = false);
+
+};
+  
+//**************************************************************************
+
+// The ResonanceHchgchgLeft class handles the H++/H-- (left) resonance.
+
+class ResonanceHchgchgLeft : public ResonanceWidths {
+
+public:
+
+  // Constructor. 
+  ResonanceHchgchgLeft(int idResIn) {initBasic(idResIn);} 
+ 
+private: 
+
+  // Locally stored properties and couplings.
+  double yukawa[4][4], gL, vL, mW;
+ 
+  // Initialize constants.
+  virtual void initConstants(); 
+ 
+  // Calculate various common prefactors for the current mass.
+  virtual void calcPreFac(bool = false);
+
+  // Caclulate width for currently considered channel.
+  virtual void calcWidth(bool = false);
+
+};
+   
+//**************************************************************************
+
+// The ResonanceHchgchgRight class handles the H++/H-- (right) resonance.
+
+class ResonanceHchgchgRight : public ResonanceWidths {
+
+public:
+
+  // Constructor. 
+  ResonanceHchgchgRight(int idResIn) {initBasic(idResIn);} 
+ 
+private: 
+
+  // Locally stored properties and couplings.
+  int    idWR;
+  double yukawa[4][4], gR;
+ 
+  // Initialize constants.
+  virtual void initConstants(); 
+ 
+  // Calculate various common prefactors for the current mass.
+  virtual void calcPreFac(bool = false);
+
+  // Caclulate width for currently considered channel.
+  virtual void calcWidth(bool = false);
 
 };
   

@@ -78,7 +78,7 @@ the shape is
 This is only implemented for diquarks relative to normal quarks:
 
 <br/><br/><table><tr><td><strong>StringZ:aExtraDiquark </td><td></td><td> <input type="text" name="3" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 2.0</code>)</td></tr></table>
-allows a larger <i>i</i> for diquarks, with total 
+allows a larger <i>a</i> for diquarks, with total 
 <i>a = aLund + aExtraDiquark</i>.
   
 
@@ -221,6 +221,7 @@ The <i>W_min</i> above is then smeared uniformly in the range
 <i>W_min_smeared = W_min * [ 1 - stopSmear, 1 + stopSmear ]</i>.
   
 
+<p/>
 This <i>W_min_smeared</i> is then compared with the current remaining
 <i>W_transverse</i> to determine if there is energy left for further
 particle production. If not, i.e. if 

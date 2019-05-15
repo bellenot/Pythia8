@@ -13,7 +13,6 @@
 #include "BeamParticle.h"
 #include "Event.h"
 #include "Information.h"
-#include "LesHouches.h"
 #include "ParticleData.h"
 #include "PartonDistributions.h"
 #include "ProcessContainer.h"
@@ -41,13 +40,8 @@ public:
  
   // Initialization.
   bool init( Info* infoPtrIn, BeamParticle* beamAPtrIn, 
-    BeamParticle* beamBPtrIn, bool doLHAin, LHAinit* lhaInitPtrIn, 
-    LHAevnt* lhaEvntPtrIn, UserHooks* userHooksPtrIn, 
-    vector<SigmaProcess*>& sigmaPtrs);
-
-  // Simplified initialization: only replace LHA pointers.
-  void setLHAPtrs( LHAinit* lhaInitPtrIn, LHAevnt* lhaEvntPtrIn)
-    { lhaInitPtr = lhaInitPtrIn; lhaEvntPtr = lhaEvntPtrIn;}
+    BeamParticle* beamBPtrIn, bool doLHAin, UserHooks* userHooksPtrIn, 
+    vector<SigmaProcess*>& sigmaPtrs, ostream& os = cout);
  
   // Generate the next "hard" process.
   bool next( Event& process); 
@@ -61,8 +55,7 @@ public:
 private: 
 
   // Generic info for process generation.
-  bool   doInternal, doLHA, doSecondHard, allHardSame, noneHardSame, 
-         someHardSame, doResDecays;
+  bool   doSecondHard, allHardSame, noneHardSame, someHardSame, doResDecays;
   int    nImpact, startColTag2;
   double sigmaND, sumImpactFac, sum2ImpactFac;
 
@@ -83,10 +76,6 @@ private:
   BeamParticle* beamAPtr;
   BeamParticle* beamBPtr;
 
-  // Pointers to LHAinit and LHAevnt for generating external events.
-  LHAinit* lhaInitPtr;
-  LHAevnt* lhaEvntPtr;
-
   // Pointer to userHooks object for user interaction with program.
   UserHooks* userHooksPtr;
 
@@ -96,20 +85,14 @@ private:
   // ResonanceDecay object does sequential resonance decays.
   ResonanceDecays resonanceDecays;
 
-  // Initialize the internal event generation machinery.
-  bool initInternal( vector<SigmaProcess*>& sigmaPtrs, ostream& os = cout);
+  // Generate the next event with one interaction.
+  bool nextOne( Event& process);
 
-  // Generate the next internal event with one interaction.
-  bool nextInternal( Event& process);
-
-  // Generate the next internal event with two hard interactions.
-  bool next2Internal( Event& process);
+  // Generate the next event with two hard interactions.
+  bool nextTwo( Event& process);
 
   // Append the second to the first process list.
   void combineProcessRecords( Event& process, Event& process2);
-
-  // Read in the hard process from the Les Houches Accord.
-  bool nextLHA( Event& process);
 
   // Add any junctions to the process event record list.
   void findJunctions( Event& process);
@@ -119,6 +102,10 @@ private:
 
   // Print statistics when two hard processes allowed.
   void statistics2(ostream& os = cout);
+
+  // Statistics for Les Houches event classification.
+  vector<int> codeLHA, nEvtLHA;
+
 
 };
 

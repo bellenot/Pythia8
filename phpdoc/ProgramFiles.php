@@ -110,7 +110,7 @@ the fragmentation routines.
 <p/><code>file&nbsp; </code><strong> HadronLevel &nbsp;</strong> <br/>
 turns the parton-level event above into a set of outgoing particles,
 by applying string fragmentation (with special treatment for low-mass
-systems) and secondary decays.
+systems) and secondary decays, and optionally Bose-Einstein corrections.
   
 
 <p/><code>file&nbsp; </code><strong> HepMCInterface &nbsp;</strong> <br/>
@@ -185,7 +185,8 @@ interactions, and beam remnants.
 
 <p/><code>file&nbsp; </code><strong> PhaseSpace &nbsp;</strong> <br/>
 selects a point in phase space for the hard-process generation,
-optimized to give improved Monte Carlo efficiency.
+optimized separately for each process to give improved Monte Carlo 
+efficiency.
   
 
 <p/><code>file&nbsp; </code><strong> ProcessContainer &nbsp;</strong> <br/>
@@ -198,9 +199,9 @@ to be studied in a run.
 <p/><code>file&nbsp; </code><strong> ProcessLevel &nbsp;</strong> <br/>
 handles the generation of the (hard) process that sets the character 
 of the event. This involves either using internally implemented 
-processes  (few so far), using a runtime interface to the Fortran 
-PYTHIA 6 process library, or using routines for reading in 
-LHA events. 
+processes or linking to Les Houches information. The latter can
+be by runtime interfaces or by reading in a file. This step also 
+includes resonance decays. 
   
 
 <p/><code>file&nbsp; </code><strong> Pythia &nbsp;</strong> <br/>
@@ -213,7 +214,7 @@ and addressed   by the user.
 
 <p/><code>file&nbsp; </code><strong> Pythia6Interface &nbsp;</strong> <br/>
 is a header file only, with interfaces to the key PYTHIA 6 routines,
-as needed for a runtime interface. 
+as needed for a runtime Les Houches interface to this program. 
   
 
 <p/><code>file&nbsp; </code><strong> PythiaComplex &nbsp;</strong> <br/>
@@ -223,25 +224,35 @@ double precision complex numbers.
 
 <p/><code>file&nbsp; </code><strong> PythiaStdlib &nbsp;</strong> <br/>
 is only a <code>.h</code> file, containing most of the <code>Stdlib</code> 
-headers used in Pythia 8, with <code>using</code> directives. Also 
-a few simple inline methods.
+headers used in PYTHIA 8, with <code>using</code> directives. It defines 
+<code>M_PI</code> if this is not already done. Also a few simple inline 
+methods: <code>pow2(x)</code>, <code>pow3(x)</code>, <code>pow4(x)</code> 
+and <code>pow5(x)</code> for small integer powers, and 
+<code>sqrtpos(x)</code> where a <code>max(0., x)</code> ensures that one 
+does not take the square root of a negative number.
   
 
 <p/><code>file&nbsp; </code><strong> ResonanceDecays &nbsp;</strong> <br/>
-decays resonances as part of the hard-process stage, eventually including
-angular correlations between decay products.
+decays resonances as part of the hard-process stage, in many cases 
+(but not all) including angular correlations between the decay products.
   
 
 <p/><code>file&nbsp; </code><strong> ResonanceWidths &nbsp;</strong> <br/>
-encodes some properties of resonances, such as the dynamic calculation 
-of widths.
+encodes some properties of resonances, in particular the dynamic 
+calculation of widths.
   
 
 <p/><code>file&nbsp; </code><strong> Settings &nbsp;</strong> <br/>
-contains a database of all flags, modes and parameters that determine 
-the performance of the generator. Initial values are set from the 
-contents of the <code>.xml</code> files, but these values can then 
-be changed by the user.
+contains a database of all flags, modes, parameters and words that 
+determine the performance of the generator. Initial values are obtained 
+from the contents of the <code>.xml</code> files, but these values can 
+then be changed by the user.
+  
+
+<p/><code>file&nbsp; </code><strong> SigmaCompositeness &nbsp;</strong> <br/>
+contains the cross sections and matrix elements for production of
+some particles in compositeness scenarios, specifically excited 
+fermions.
   
 
 <p/><code>file&nbsp; </code><strong> SigmaEW &nbsp;</strong> <br/>
@@ -258,8 +269,19 @@ scenarios involving extra dimensions.
 contains the cross sections and matrix elements for Higgs production.
   
 
+<p/><code>file&nbsp; </code><strong> SigmaLeftRightSym &nbsp;</strong> <br/>
+contains the cross sections and matrix elements for particle production
+in left-right-symmetry scenarios, specifically righthanded <i>Z</i> 
+and <i>W</i> bosons and doubly-charged Higgs bosons. 
+  
+
 <p/><code>file&nbsp; </code><strong> SigmaLeptoquark &nbsp;</strong> <br/>
 contains the cross sections and matrix elements for leptoquark production.
+  
+
+<p/><code>file&nbsp; </code><strong> SigmaNewGaugeBosons &nbsp;</strong> <br/>
+contains the cross sections and matrix elements for a <i>Z'^0</i>,
+a <i>W^+-</i> and a horizontal gauge boson <i>R^0</i>.
   
 
 <p/><code>file&nbsp; </code><strong> SigmaOnia &nbsp;</strong> <br/>
@@ -274,7 +296,10 @@ parton configurations and their cross sections, including parton
 densities. In order to keep this file from becoming too big, actual 
 cross sections are found in several separate files of derived classes:
 <code>SigmaQCD</code>, <code>SigmaEW</code>, <code>SigmaOnia</code>, 
-<code>SigmaHiggs</code> and <code>SigmaSUSY</code>. 
+<code>SigmaHiggs</code>, <code>SigmaSUSY</code>,  
+<code>SigmaNewGaugeBosons</code>, <code>SigmaLeftRightSym</code>,
+<code>SigmaLeptoquark</code>, <code>SigmaCompositeness</code> and
+<code>SigmaExtraDim</code>.
   
 
 <p/><code>file&nbsp; </code><strong> SigmaQCD &nbsp;</strong> <br/>
@@ -321,7 +346,7 @@ shower evolution.
 <p/><code>file&nbsp; </code><strong> UserHooks &nbsp;</strong> <br/>
 Provides a way for a user to study the event at a few intermediate
 stages of evolution, to reject the event as a whole or to modify
-it cross-section weight. 
+its cross-section weight. 
   
 
 </body>

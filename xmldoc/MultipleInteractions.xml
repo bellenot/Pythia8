@@ -112,9 +112,9 @@ Multiply all cross sections by this fix factor.
 There are two complementary ways of regularizing the small-<ei>pT</ei> 
 divergence, a sharp cutoff and a smooth dampening. These can be 
 combined as desired, but it makes sense to coordinate with how the 
-same issue is handled in spacelike showers. Actually, by default,
-the parameters defined here are used also for the spacelike showers,
-but this can be overridden.
+same issue is handled in <aloc href="SpacelikeShowers">spacelike 
+showers</aloc>. Actually, by default, the parameters defined here are 
+used also for the spacelike showers, but this can be overridden.
 
 <p/>
 Regularization of the divergence of the QCD cross section for 
@@ -139,9 +139,10 @@ three parameters below.
 
 <parm name="MultipleInteractions:pT0Ref" default="2.15" min="0.5" max="10.0">
 The <ei>pT0Ref</ei> scale in the above formula.
-<note>Note:</note> <ei>pT0Ref</ei> remains to be carefully tuned, but this 
-has no point before the colour flow description has reached a more 
-mature form.
+<note>Note:</note> <ei>pT0Ref</ei> is one of the key parameters in a
+complete PYTHIA tune. Its value is intimately tied to a number of other
+choices, such as that of colour flow description, so unfortunately it is
+difficult to give an independent meaning to <ei>pT0Ref</ei>.
 </parm>
 
 <parm name="MultipleInteractions:ecmRef" default="1800.0" min="1.">
@@ -363,7 +364,7 @@ probability of survival.
 Actually, to profit from the factor 1/2 mentioned above, the cross
 section for the combination with <ei>y_3</ei> and <ei>y_4</ei> 
 interchanged is also tried, which corresponds to exchanging <ei>tHat</ei>
-and <ei>u_hat</ei>, and the average formed, while the final kinematics 
+and <ei>uHat</ei>, and the average formed, while the final kinematics 
 is given by the relative importance of the two.
 
 <p/>

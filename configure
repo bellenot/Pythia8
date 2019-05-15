@@ -10,7 +10,7 @@
 
 #LCG platform. Can be needed if external libraries are specified
 if [ x$MYLCGPLATFORM = x ]; then
-  export MYLCGPLATFORM=slc3_ia32_gcc323
+  export MYLCGPLATFORM=slc4_ia32_gcc34
 fi
 
 # Defaults
@@ -28,7 +28,7 @@ for arg in $* ; do
     "--help            : prints this help\n"\
     "--enable-debug    : turns on debugging flags and turns off optimization\n"\
     "--enable-shared   : turns on shared library creation (default no)\n"\
-    "--lcgplatform=lcgplatformname : platform, default is slc3_ia32_gcc323\n"\
+    "--lcgplatform=lcgplatformname : platform, default is slc4_ia32_gcc34\n"\
     "--with-hepmcversion : HepMC version (to be taken from CERN afs lcg external, e.g. =1.27.02)\n"\
     "--with-clhepversion : CLHEP version (to be taken from CERN afs lcg external, e.g. =1.9.2.3-aa)\n"
     exit

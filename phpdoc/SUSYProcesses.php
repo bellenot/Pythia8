@@ -27,14 +27,16 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 
 <h2>SUSY Processes</h2>
 
-Here is collected all processes involving supersymmetric particle 
-production, with the exception of the (extended) Higgs sector.
-Since the number of separate but closely related processes is so big,
-there are not switches for each separate process but only for a
-reasonable set of subgroups.
+The implementation of SUSY processes is barely begun, so this page
+is more a placeholder than a repository of useful processes.
+Even the processes that have been implemented are not yet fully handled.
 
 <p/>
-The processes in this set are not yet fully handled.
+Here is collected processes involving supersymmetric particle 
+production, with the exception of the (extended) Higgs sector.
+Since the number of separate but closely related processes is so big,
+there will not be switches for each separate process but only for a
+reasonable set of subgroups.
 
 <br/><br/><b>Important note:</b> 
 In order to simulate SUSY processes it is required to read in the 

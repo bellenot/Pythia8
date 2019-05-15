@@ -52,7 +52,7 @@ the shape is
 This is only implemented for diquarks relative to normal quarks:
 
 <parm name="StringZ:aExtraDiquark" default="0.5" min="0.0" max="2.0">
-allows a larger <ei>i</ei> for diquarks, with total 
+allows a larger <ei>a</ei> for diquarks, with total 
 <ei>a = aLund + aExtraDiquark</ei>.
 </parm>
 
@@ -189,6 +189,7 @@ The <ei>W_min</ei> above is then smeared uniformly in the range
 <ei>W_min_smeared = W_min * [ 1 - stopSmear, 1 + stopSmear ]</ei>.
 </parm>
 
+<p/>
 This <ei>W_min_smeared</ei> is then compared with the current remaining
 <ei>W_transverse</ei> to determine if there is energy left for further
 particle production. If not, i.e. if 

@@ -39,6 +39,10 @@ int main() {
   bool   showAS    = settings.flag("Main:showAllSettings");
   bool   showCPD   = settings.flag("Main:showChangedParticleData");
   bool   showAPD   = settings.flag("Main:showAllParticleData");
+
+  // Debug: kill Coulomb part but keep rest of elastic description. 
+  //Settings::forceParm("StandardModel:alphaEM0", 1e-10);
+  //Settings::forceParm("StandardModel:alphaEMmZ", 1e-10);
  
   // Initialization.
   if (inCMframe) pythia.init( idBeamA, idBeamB, eCM);
@@ -54,12 +58,14 @@ int main() {
 
   // Book histograms.
   Hist pTspec("scattering pT spectrum", 100, 0., 2.5); 
-  Hist tSpecEl("elastic |t| spectrum", 100, 0., 5.);
-  Hist tSpecSD("single diffractive |t| spectrum", 100, 0., 5.); 
+  Hist tSpecEl("elastic |t| spectrum", 100, 0., 1.);
+  Hist tSpecElLog("elastic log10(|t|) spectrum", 100, -5., 0.);
+  Hist tSpecSD("single diffractive |t| spectrum", 100, 0., 2.); 
   Hist tSpecDD("double diffractive |t| spectrum", 100, 0., 5.); 
   Hist mSpec("scattering mass spectrum", 100, 0., 100.); 
   Hist mLogSpec("log10(scattering mass spectrum)", 100, 0., 4.); 
-  Hist nChg("number of charged particles", 100, -0.5, 99.5);
+  Hist nChg("number of charged particles in diffractive event", 
+    100, -0.5, 99.5);
   Hist nDiff("number of final particles in diffractive system", 
     100, -0.5, 99.5);
   Hist mSpec1("scattering mass spectrum when 1 product", 100, 0., 10.); 
@@ -96,7 +102,10 @@ int main() {
     mLogSpec.fill( log10(pythia.info.m4Hat()) );
     int code = pythia.info.code();
     double tAbs = abs(pythia.info.tHat());
-    if (code == 102) tSpecEl.fill(tAbs);
+    if (code == 102) {
+      tSpecEl.fill(tAbs);
+      tSpecElLog.fill(log10(tAbs));
+    }
     else if (code == 103 || code == 104) tSpecSD.fill(tAbs);
     else if (code == 105) tSpecDD.fill(tAbs);
 
@@ -104,7 +113,7 @@ int main() {
     int nch = 0;
     for (int i = 1; i < event.size(); ++i)
       if (event[i].isFinal() && event[i].isCharged()) ++nch; 
-    nChg.fill( nch );
+    if (code != 102) nChg.fill( nch );
 
     // Multiplicity distribution in diffractive system.
     for (int i = 0; i < 2; ++i) 
@@ -128,8 +137,8 @@ int main() {
 
   // Final statistics and histograms.
   pythia.statistics();
-  cout << pTspec << tSpecEl << tSpecSD << tSpecDD << mSpec << mLogSpec 
-       << nChg << nDiff << mSpec1;
+  cout << pTspec << tSpecEl << tSpecElLog << tSpecSD << tSpecDD << mSpec 
+       << mLogSpec << nChg << nDiff << mSpec1;
 
   // Done.
   return 0;

@@ -4,7 +4,7 @@
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 // This is a simple test program. 
-// It illustrates how to generate and analyze minimum-bias events..
+// It illustrates how to generate and analyze minimum-bias events.
 // All input is specified in the main07.cmnd file.
 
 #include "Pythia.h"
@@ -56,6 +56,8 @@ int main() {
   double pTmax = 20.;
   double bMax = 4.;
   Hist nChg("number of charged particles", 100, -0.5, 799.5);
+  Hist nChg1("number of charged particles in |eta| < 1", 100, -0.5, 99.5);
+  Hist pTnChg1("<pT>(n_charged) in |eta| < 1", 100, -0.5, 99.5);
   Hist pTspec("scattering pT spectrum", 100, 0., pTmax); 
   Hist bSpec("b impact parameter spectrum", 100, 0., bMax);
   Hist enhanceSpec("b enhancement spectrum", 100, 0., 10.);
@@ -90,11 +92,21 @@ int main() {
       event.list();
     }
 
-    // Charged multiplicity.
-    int nch = 0;
+    // Charged multiplicity. It and pT in central rapidity range.
+    int    nch     = 0;
+    int    nch1    = 0;
+    double pTsum1  = 0.;
     for (int i = 1; i < event.size(); ++i)
-      if (event[i].isFinal() && event[i].isCharged()) ++nch; 
+    if (event[i].isFinal() && event[i].isCharged()) { 
+      ++nch;
+      if ( abs(event[i].eta()) < 1.) {
+        ++nch1;
+        pTsum1 += event[i].pT();
+      }
+    }    
     nChg.fill( nch );
+    nChg1.fill( nch1 );
+    if (nch1 > 0) pTnChg1.fill( nch1, pTsum1 / nch1 );
 
     // Study event in (pT, b) space.
     double pT = pythia.info.pTHat(); 
@@ -119,7 +131,9 @@ int main() {
 
   // Final statistics.
   pythia.statistics(showAStat);
-  cout << nChg << pTspec << bSpec << enhanceSpec << number;
+  pTnChg1 /= nChg1;
+  cout << nChg << nChg1 << pTnChg1 << pTspec << bSpec 
+       << enhanceSpec << number;
   cout << pTb1 << pTb2 << pTb3 << pTb4;
   cout << bpT1 << bpT2 << bpT3 << bpT4;
 

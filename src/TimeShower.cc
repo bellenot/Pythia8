@@ -14,41 +14,6 @@ namespace Pythia8 {
 // The TimeShower class.
 
 //*********
- 
-// Definitions of static variables.
-// (Values will be overwritten in initStatic call, so are purely dummy.)
-
-bool   TimeShower::doQCDshower        = true;
-bool   TimeShower::doQEDshowerByQ     = true;
-bool   TimeShower::doQEDshowerByL     = true;
-bool   TimeShower::doQEDshowerByGamma = true;
-bool   TimeShower::doMEcorrections    = true;
-bool   TimeShower::doPhiPolAsym       = true;
-bool   TimeShower::allowBeamRecoil    = true;
-int    TimeShower::alphaSorder        = 1;
-int    TimeShower::alphaEMorder       = 1;
-int    TimeShower::nGluonToQuark      = 5;
-int    TimeShower::nGammaToQuark      = 5;
-int    TimeShower::nGammaToLepton     = 3;
-double TimeShower::pTmaxFudge         = 1.0;
-double TimeShower::mc                 = 1.5;
-double TimeShower::mb                 = 4.8;
-double TimeShower::m2c                = 2.25;
-double TimeShower::m2b                = 23.04;
-double TimeShower::alphaSvalue        = 0.1265;
-double TimeShower::alphaS2pi          = 0.02013;
-double TimeShower::pTcolCutMin        = 0.5;
-double TimeShower::pTchgQCut          = 0.5;
-double TimeShower::pT2chgQCut         = 0.25;
-double TimeShower::pTchgLCut          = 0.5e-3;
-double TimeShower::pT2chgLCut         = 0.25e-6;
-double TimeShower::mMaxGamma          = 10.;
-double TimeShower::m2MaxGamma         = 100.;
-double TimeShower::octetOniumFraction = 1.0;
-double TimeShower::octetOniumColFac   = 2.0;
-double TimeShower::mZ                 = 91.188;
-double TimeShower::gammaZ             = 2.478;
-double TimeShower::thetaWRat          = 0.35;
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -67,9 +32,14 @@ const double TimeShower::LARGEM2      = 1e20;
 
 //*********
 
-// Initialize static data members.
+// Initialize alphaStrong, alphaEM and related pTmin parameters.
 
-void TimeShower::initStatic() {
+void TimeShower::init( BeamParticle* beamAPtrIn, 
+  BeamParticle* beamBPtrIn) {
+
+  // Store input pointers for future use. 
+  beamAPtr           = beamAPtrIn;
+  beamBPtr           = beamBPtrIn;
 
   // Main flags.
   doQCDshower        = Settings::flag("TimeShower:QCDshower");
@@ -93,13 +63,29 @@ void TimeShower::initStatic() {
   alphaSvalue        = Settings::parm("TimeShower:alphaSvalue");
   alphaSorder        = Settings::mode("TimeShower:alphaSorder");
   alphaS2pi          = 0.5 * alphaSvalue / M_PI;
+
+  // Initialize alphaStrong generation.
+  alphaS.init( alphaSvalue, alphaSorder); 
+  
+  // Lambda for 5, 4 and 3 flavours.
+  Lambda3flav        = alphaS.Lambda3(); 
+  Lambda4flav        = alphaS.Lambda4(); 
+  Lambda5flav        = alphaS.Lambda5(); 
+  Lambda5flav2       = pow2(Lambda5flav);
+  Lambda4flav2       = pow2(Lambda4flav);
+  Lambda3flav2       = pow2(Lambda3flav);
  
   // Parameters of QCD evolution. 
   nGluonToQuark      = Settings::mode("TimeShower:nGluonToQuark");
   pTcolCutMin        = Settings::parm("TimeShower:pTmin"); 
+  pTcolCut           = max( pTcolCutMin, 1.1 * Lambda3flav );
+  pT2colCut          = pow2(pTcolCut);  
        
   // Parameters of alphaEM generation .
   alphaEMorder       = Settings::mode("TimeShower:alphaEMorder");
+
+  // Initialize alphaEM generation.
+  alphaEM.init( alphaEMorder); 
  
   // Parameters of QED evolution.
   nGammaToQuark      = Settings::mode("TimeShower:nGammaToQuark");
@@ -114,7 +100,7 @@ void TimeShower::initStatic() {
   // Consisteny check for gamma -> f fbar variables.
   if (nGammaToQuark <= 0 && nGammaToLepton <= 0) doQEDshowerByGamma = false;  
 
-  // Fraction and coloru factor of gluon emission off onium octat state.
+  // Fraction and colorr factor of gluon emission off onium octat state.
   octetOniumFraction = Settings::parm("TimeShower:octetOniumFraction");
   octetOniumColFac   = Settings::parm("TimeShower:octetOniumColFac");
 
@@ -122,37 +108,6 @@ void TimeShower::initStatic() {
   mZ                 = ParticleDataTable::m0(23);
   gammaZ             = ParticleDataTable::mWidth(23);
   thetaWRat          = 1. / (16. * CoupEW::sin2thetaW() * CoupEW::cos2thetaW());
-
-} 
-
-//*********
-
-// Initialize alphaStrong, alphaEM and related pTmin parameters.
-
-void TimeShower::init( BeamParticle* beamAPtrIn, 
-  BeamParticle* beamBPtrIn) {
-
-  // Store input pointers for future use. 
-  beamAPtr     = beamAPtrIn;
-  beamBPtr     = beamBPtrIn;
-
-  // Initialize alphaStrong generation.
-  alphaS.init( alphaSvalue, alphaSorder); 
-  
-  // Lambda for 5, 4 and 3 flavours.
-  Lambda3flav  = alphaS.Lambda3(); 
-  Lambda4flav  = alphaS.Lambda4(); 
-  Lambda5flav  = alphaS.Lambda5(); 
-  Lambda5flav2 = pow2(Lambda5flav);
-  Lambda4flav2 = pow2(Lambda4flav);
-  Lambda3flav2 = pow2(Lambda3flav);
-
-  // Initialize alphaEM generation.
-  alphaEM.init( alphaEMorder); 
- 
-  // Parameters of QCD evolution. 
-  pTcolCut     = max( pTcolCutMin, 1.1 * Lambda3flav );
-  pT2colCut    = pow2(pTcolCut);  
 
 }
 
@@ -1264,7 +1219,7 @@ int TimeShower::findMEparticle( int id) {
 
   // find colour and spin of particle.
   int type = 0;
-  int colType = ParticleDataTable::colType(id); 
+  int colType = abs(ParticleDataTable::colType(id)); 
   int spinType = ParticleDataTable::spinType(id);
 
   // Find particle type from colour and spin.

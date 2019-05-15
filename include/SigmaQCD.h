@@ -190,6 +190,9 @@ public:
   // Constructor.
   Sigma2gg2qqbar() {}
 
+  // Initialize process. 
+  virtual void initProc(); 
+
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
@@ -205,6 +208,9 @@ public:
   virtual string inFlux() const {return "gg";}
 
 private:
+
+  // Number of quarks to be considered in massless approximation.
+  int    nQuarkNew;
 
   // Values stored for colour flow selection.
   int    idNew;
@@ -321,6 +327,9 @@ public:
   // Constructor.
   Sigma2qqbar2qqbarNew() {}
 
+  // Initialize process. 
+  virtual void initProc(); 
+
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
@@ -336,6 +345,9 @@ public:
   virtual string inFlux() const {return "qqbarSame";}
 
  private:
+
+  // Number of quarks to be considered in massless approximation.
+  int    nQuarkNew;
 
   // Values stored for colour flow selection.
   int    idNew;

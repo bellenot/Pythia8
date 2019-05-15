@@ -28,7 +28,7 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 <h2>Error Checks</h2>
 
 There is a few settings related to error checking during program
-execution. Many other checks are perfomed as well, but do not 
+execution. Many other checks are performed as well, but do not 
 have any specific setting related to themselves.
 
 <br/><br/><strong>Check:particleData</strong>  <input type="radio" name="1" value="on"><strong>On</strong>
@@ -49,7 +49,7 @@ used for these checks, may also be called directly.
 <modepick name="Check:levelParticleData" default="1">
 The level of verbosity and checks of particle data, if switched on.
 <br/>
-<input type="radio" name="2" value="0"><strong>0 </strong>: mimimal amount of checks, e.g. that no channels open<br/>
+<input type="radio" name="2" value="0"><strong>0 </strong>: mimimal amount of checks, e.g. that no channels open.<br/>
 <input type="radio" name="2" value="1" checked="checked"><strong>1 </strong>: further warning if individual channels closed,except for resonances.<br/>
 <input type="radio" name="2" value="2"><strong>2 </strong>: also print branching-ratio-averaged threshold massexcept for resonances.<br/>
 <input type="radio" name="2" value="11"><strong>11 </strong>: as 1, but include resonances in detailed checks.<br/>

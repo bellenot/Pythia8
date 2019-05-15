@@ -43,6 +43,9 @@ public:
   // Generate the next event.
   bool next(Event& event); 
 
+  // Special routine to allow more decays if on/off switches changed.
+  bool moreDecays(Event& event);
+
 private: 
 
   // Constants: could only be changed in the code itself.

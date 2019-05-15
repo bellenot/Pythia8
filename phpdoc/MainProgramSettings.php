@@ -192,51 +192,67 @@ Print a list of the changed flag/mode/parameter/word settings.
 <input type="radio" name="16" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Print a list of all flag/mode/parameter/word settings.
+Warning: this will be a long list.
   
 
-<br/><br/><strong>Main:showChangedParticleData</strong>  <input type="radio" name="17" value="on"><strong>On</strong>
-<input type="radio" name="17" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><table><tr><td><strong>Main:showOneParticleData  </td><td></td><td> <input type="text" name="17" value="0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = 0</code>)</td></tr></table>
+Print particle and decay data for the particle with this particular 
+identity code. Default means that no particle is printed.
+  
+
+<br/><br/><strong>Main:showChangedParticleData</strong>  <input type="radio" name="18" value="on"><strong>On</strong>
+<input type="radio" name="18" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Print a list of particle and decay data for those particles 
 that were changed (one way or another).
   
 
-<br/><br/><strong>Main:showAllParticleData</strong>  <input type="radio" name="18" value="on"><strong>On</strong>
-<input type="radio" name="18" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>Main:showChangedResonanceData</strong>  <input type="radio" name="19" value="on"><strong>On</strong>
+<input type="radio" name="19" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-Print a list of all particle and decay data.
+In the previous listing also include the resonances that are 
+initialized at the beginning of a run and thus get new particle
+data, even if these may well agree with the default ones. 
+Warning: this will be a rather long list.
   
 
-<br/><br/><strong>Main:writeChangedSettings</strong>  <input type="radio" name="19" value="on"><strong>On</strong>
-<input type="radio" name="19" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>Main:showAllParticleData</strong>  <input type="radio" name="20" value="on"><strong>On</strong>
+<input type="radio" name="20" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Print a list of all particle and decay data.
+Warning: this will be a long list.
+  
+
+<br/><br/><strong>Main:writeChangedSettings</strong>  <input type="radio" name="21" value="on"><strong>On</strong>
+<input type="radio" name="21" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Write a file with the changed flag/mode/parameter/word settings, in
 a format appropriate to be read in at the beginning of a new  
 run, using the <code>pythia.readFile(fileName)</code> method. 
   
 
-<br/><br/><table><tr><td><strong>Main:changedSettingsFile  </td><td></td><td> <input type="text" name="20" value="currentSettings.cmnd" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>currentSettings.cmnd</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Main:changedSettingsFile  </td><td></td><td> <input type="text" name="22" value="currentSettings.cmnd" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>currentSettings.cmnd</strong></code>)</td></tr></table>
 The name of the file to which the changed flag/mode/parameter/word
 settings are written if <code>Main:writeChangedSettings</code>
 is on. 
   
 
-<br/><br/><strong>Main:writeAllSettings</strong>  <input type="radio" name="21" value="on"><strong>On</strong>
-<input type="radio" name="21" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>Main:writeAllSettings</strong>  <input type="radio" name="23" value="on"><strong>On</strong>
+<input type="radio" name="23" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Write a file with all flag/mode/parameter/word settings, in
 a format appropriate to be read in at the beginning of a new  
 run, using the <code>pythia.readFile(fileName)</code> method. 
   
 
-<br/><br/><table><tr><td><strong>Main:allSettingsFile  </td><td></td><td> <input type="text" name="22" value="allSettings.cmnd" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>allSettings.cmnd</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Main:allSettingsFile  </td><td></td><td> <input type="text" name="24" value="allSettings.cmnd" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>allSettings.cmnd</strong></code>)</td></tr></table>
 The name of the file to which a flag/mode/parameter/word 
 settings are written if <code>Main:writeAllSettings</code>
 is on. 
   
 
-<br/><br/><strong>Main:showAllStatistics</strong>  <input type="radio" name="23" value="on"><strong>On</strong>
-<input type="radio" name="23" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>Main:showAllStatistics</strong>  <input type="radio" name="25" value="on"><strong>On</strong>
+<input type="radio" name="25" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Print all available statistics or only the minimal set at the end 
 of the run.
@@ -293,9 +309,27 @@ Les Houches Event File <code>ttbar.lhe</code>, here generated by
 so as not to make the distributed PYTHIA package too big, and so serves 
 mainly as a demonstration of the principles involved. </li> 
 
-<li><code>main13.cc</code> : a systematic comparison of several 
+<li><code>main13.cc</code> : a more sophisticated variant of 
+<code>main12.cc</code>, where two Les Houches Event Files
+(<code>ttbar.lhe</code> and <code>ttbar2.lhe</code>) successively
+are used as input. Also illustrating some other aspects, like the
+capability to mix in internally generated events.</li> 
+
+<li><code>main14.cc</code> : a systematic comparison of several 
 cross section values with their corresponding values in PYTHIA 6.4,
-the latter available as a table in the code.
+the latter available as a table in the code.</li> 
+
+<li><code>main15.cc</code> : loop over several tries to do B decays
+in an event, while keeping rest of event unchanged, as a way to 
+increase efficiency.</li> 
+
+<li><code>main16.cc</code> : put all user analysis code into a class
+of its own, separate from the main program; provide the "cards file" 
+name as a command-line argument.</li> 
+
+<li><code>main17.cc</code> : collect the Pythia calls in a wrapper class, 
+thereby simplifying the main program; provide the "cards file" name 
+as a command-line argument.</li> 
 
 <li><code>main21.cc</code> : an example how parton-level configurations
 can be input directly for hadronization, without being tied to the
@@ -316,16 +350,21 @@ generator can be linked to replace the internal one.</li>
 implemented as a new class derived from a PYTHIA base class, and then
 handed in for generation as with a normal internal process.</li>
 
+<li><code>main26.cc</code> : shows how an external resonance can be 
+implemented as a new class derived from a PYTHIA base class, and be 
+used in an external process, both of which are then handed in for 
+generation as with a normal internal resonance and process.</li>
+
 <li><code>main31.cc</code> : similar to main01, except that the 
 event record is output in the HepMC event record format. Requires 
 that HepMC and CLHEP are properly linked.</li>
 
-<li><code>main32.cc</code> : a streamlined version, where all input on
-the event generation is taken from the <code>main32.cmnd</code> file,
-and the ony thing done is to generate events and store them in a
-file in the HepMC event record format. All physics studies will have
-to be done afterwards. Requires that HepMC and CLHEP are properly 
-linked.</li>
+<li><code>main32.cc</code> : a streamlined version for the generation
+of events that are then stored in HepMC format, without any event 
+analysis. That is, all physics studies will have to be done afterwards.
+The name of the input "cards file" (e.g. <code>main32.cmnd</code>)
+and output HepMC event file are to be provided as command-line arguments.
+Requires that HepMC and CLHEP are properly linked.</li>
 
 <li><code>main41.cc</code> : a test of the shape of parton densities,
 as a check prior to using a given PDF set in a generator.  Requires 
@@ -369,46 +408,46 @@ For currently unforeseen purposes, a few dummy settings are made
 available here. The user can set the desired value in a "cards file"
 and then use that value in the main program as desired.
 
-<br/><br/><strong>Main:spareFlag1</strong>  <input type="radio" name="24" value="on"><strong>On</strong>
-<input type="radio" name="24" value="off" checked="checked"><strong>Off</strong>
- &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-  
-
-<br/><br/><strong>Main:spareFlag2</strong>  <input type="radio" name="25" value="on"><strong>On</strong>
-<input type="radio" name="25" value="off" checked="checked"><strong>Off</strong>
- &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-  
-
-<br/><br/><strong>Main:spareFlag3</strong>  <input type="radio" name="26" value="on"><strong>On</strong>
+<br/><br/><strong>Main:spareFlag1</strong>  <input type="radio" name="26" value="on"><strong>On</strong>
 <input type="radio" name="26" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
   
 
-<br/><br/><table><tr><td><strong>Main:spareMode1  </td><td></td><td> <input type="text" name="27" value="0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>)</td></tr></table>
+<br/><br/><strong>Main:spareFlag2</strong>  <input type="radio" name="27" value="on"><strong>On</strong>
+<input type="radio" name="27" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+  
+
+<br/><br/><strong>Main:spareFlag3</strong>  <input type="radio" name="28" value="on"><strong>On</strong>
+<input type="radio" name="28" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+  
+
+<br/><br/><table><tr><td><strong>Main:spareMode1  </td><td></td><td> <input type="text" name="29" value="0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>)</td></tr></table>
 </modeopen>
 
-<br/><br/><table><tr><td><strong>Main:spareMode2  </td><td></td><td> <input type="text" name="28" value="0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Main:spareMode2  </td><td></td><td> <input type="text" name="30" value="0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>)</td></tr></table>
 </modeopen>
 
-<br/><br/><table><tr><td><strong>Main:spareMode3  </td><td></td><td> <input type="text" name="29" value="0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Main:spareMode3  </td><td></td><td> <input type="text" name="31" value="0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>)</td></tr></table>
 </modeopen>
 
-<br/><br/><table><tr><td><strong>Main:spareParm1 </td><td></td><td> <input type="text" name="30" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Main:spareParm1 </td><td></td><td> <input type="text" name="32" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
   
 
-<br/><br/><table><tr><td><strong>Main:spareParm2 </td><td></td><td> <input type="text" name="31" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Main:spareParm2 </td><td></td><td> <input type="text" name="33" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
   
 
-<br/><br/><table><tr><td><strong>Main:spareParm3 </td><td></td><td> <input type="text" name="32" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Main:spareParm3 </td><td></td><td> <input type="text" name="34" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
   
 
-<br/><br/><table><tr><td><strong>Main:spareWord1  </td><td></td><td> <input type="text" name="33" value="void" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>void</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Main:spareWord1  </td><td></td><td> <input type="text" name="35" value="void" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>void</strong></code>)</td></tr></table>
   
 
-<br/><br/><table><tr><td><strong>Main:spareWord2  </td><td></td><td> <input type="text" name="34" value="void" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>void</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Main:spareWord2  </td><td></td><td> <input type="text" name="36" value="void" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>void</strong></code>)</td></tr></table>
   
 
-<br/><br/><table><tr><td><strong>Main:spareWord3  </td><td></td><td> <input type="text" name="35" value="void" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>void</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Main:spareWord3  </td><td></td><td> <input type="text" name="37" value="void" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>void</strong></code>)</td></tr></table>
   
 
 <input type="hidden" name="saved" value="1"/>
@@ -506,99 +545,109 @@ if($_POST["16"] != "off")
 $data = "Main:showAllSettings = ".$_POST["16"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["17"] != "off")
+if($_POST["17"] != "0")
 {
-$data = "Main:showChangedParticleData = ".$_POST["17"]."\n";
+$data = "Main:showOneParticleData = ".$_POST["17"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["18"] != "off")
 {
-$data = "Main:showAllParticleData = ".$_POST["18"]."\n";
+$data = "Main:showChangedParticleData = ".$_POST["18"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["19"] != "off")
 {
-$data = "Main:writeChangedSettings = ".$_POST["19"]."\n";
+$data = "Main:showChangedResonanceData = ".$_POST["19"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["20"] != "currentSettings.cmnd")
+if($_POST["20"] != "off")
 {
-$data = "Main:changedSettingsFile = ".$_POST["20"]."\n";
+$data = "Main:showAllParticleData = ".$_POST["20"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["21"] != "off")
 {
-$data = "Main:writeAllSettings = ".$_POST["21"]."\n";
+$data = "Main:writeChangedSettings = ".$_POST["21"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["22"] != "allSettings.cmnd")
+if($_POST["22"] != "currentSettings.cmnd")
 {
-$data = "Main:allSettingsFile = ".$_POST["22"]."\n";
+$data = "Main:changedSettingsFile = ".$_POST["22"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["23"] != "off")
 {
-$data = "Main:showAllStatistics = ".$_POST["23"]."\n";
+$data = "Main:writeAllSettings = ".$_POST["23"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["24"] != "off")
+if($_POST["24"] != "allSettings.cmnd")
 {
-$data = "Main:spareFlag1 = ".$_POST["24"]."\n";
+$data = "Main:allSettingsFile = ".$_POST["24"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["25"] != "off")
 {
-$data = "Main:spareFlag2 = ".$_POST["25"]."\n";
+$data = "Main:showAllStatistics = ".$_POST["25"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["26"] != "off")
 {
-$data = "Main:spareFlag3 = ".$_POST["26"]."\n";
+$data = "Main:spareFlag1 = ".$_POST["26"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["27"] != "0")
+if($_POST["27"] != "off")
 {
-$data = "Main:spareMode1 = ".$_POST["27"]."\n";
+$data = "Main:spareFlag2 = ".$_POST["27"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["28"] != "0")
+if($_POST["28"] != "off")
 {
-$data = "Main:spareMode2 = ".$_POST["28"]."\n";
+$data = "Main:spareFlag3 = ".$_POST["28"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["29"] != "0")
 {
-$data = "Main:spareMode3 = ".$_POST["29"]."\n";
+$data = "Main:spareMode1 = ".$_POST["29"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["30"] != "0.")
+if($_POST["30"] != "0")
 {
-$data = "Main:spareParm1 = ".$_POST["30"]."\n";
+$data = "Main:spareMode2 = ".$_POST["30"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["31"] != "0.")
+if($_POST["31"] != "0")
 {
-$data = "Main:spareParm2 = ".$_POST["31"]."\n";
+$data = "Main:spareMode3 = ".$_POST["31"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["32"] != "0.")
 {
-$data = "Main:spareParm3 = ".$_POST["32"]."\n";
+$data = "Main:spareParm1 = ".$_POST["32"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["33"] != "void")
+if($_POST["33"] != "0.")
 {
-$data = "Main:spareWord1 = ".$_POST["33"]."\n";
+$data = "Main:spareParm2 = ".$_POST["33"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["34"] != "void")
+if($_POST["34"] != "0.")
 {
-$data = "Main:spareWord2 = ".$_POST["34"]."\n";
+$data = "Main:spareParm3 = ".$_POST["34"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["35"] != "void")
 {
-$data = "Main:spareWord3 = ".$_POST["35"]."\n";
+$data = "Main:spareWord1 = ".$_POST["35"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["36"] != "void")
+{
+$data = "Main:spareWord2 = ".$_POST["36"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["37"] != "void")
+{
+$data = "Main:spareWord3 = ".$_POST["37"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);

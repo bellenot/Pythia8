@@ -5,7 +5,8 @@
 
 // Header file for phase space generators in kinematics selection.
 // PhaseSpace: base class for phase space generators.
-// Base class for derived classes> 2 ->1 , 2 -> 2 (+el/diff/minbias), 2 -> 3. 
+// Base class for derived classes> 2 ->1 , 2 -> 2, 2 -> 2 elastic/diffractive,
+// 2 -> 2 minbias, 2 -> 3, Les Houches. 
 
 #ifndef Pythia8_PhaseSpace_H
 #define Pythia8_PhaseSpace_H
@@ -13,6 +14,7 @@
 #include "Basics.h"
 #include "BeamParticle.h"
 #include "Information.h"
+#include "LesHouches.h"
 #include "MultipleInteractions.h"
 #include "ParticleData.h"
 #include "PartonDistributions.h"
@@ -49,6 +51,10 @@ public:
     BeamParticle* beamBPtrIn, SigmaTotal* sigmaTotPtrIn,
     UserHooks* userHooksPtrIn = 0);
 
+  // Store or replace Les Houches pointers.
+  static void setLHAPtrs( LHAinit* lhaInitPtrIn, LHAevnt* lhaEvntPtrIn) 
+    { lhaInitPtr = lhaInitPtrIn; lhaEvntPtr = lhaEvntPtrIn;}  
+
   // Give in pointer to cross section and cm energy.
   void initInfo(SigmaProcess* sigmaProcessPtrIn, double eCMIn);
 
@@ -58,7 +64,7 @@ public:
 
   // A pure virtual method, wherein a trial event kinematics 
   // is to be selected in the derived class
-  virtual bool trialKin(bool inEvent = true) = 0; 
+  virtual bool trialKin(bool inEvent = true, bool repeatSame = false) = 0; 
 
   // A pure virtual method, wherein the accepted event kinematics 
   // is to be constructed in the derived class
@@ -73,6 +79,9 @@ public:
   bool   newSigmaMax() const {return newSigmaMx;}
   void   setSigmaMax(double sigmaMaxIn) {sigmaMx = sigmaMaxIn;}
 
+  // For Les Houches with negative event weight needs 
+  virtual double sigmaSumSigned() const {return sigmaMx;}
+  
   // Give back constructed four-vectors and known masses.
   Vec4   p(int i)   const {return pH[i];} 
   double m(int i)   const {return mH[i];}
@@ -110,7 +119,8 @@ protected:
   static const double SAFETYMARGIN, TINY, EVENFRAC, SAMESIGMA, WIDTHMARGIN, 
                       SAMEMASS, MASSMARGIN, EXTRABWWTMAX, THRESHOLDSIZE, 
                       THRESHOLDSTEP, YRANGEMARGIN, LEPTONXMIN, LEPTONXMAX, 
-                      LEPTONXLOGMIN, LEPTONXLOGMAX, LEPTONTAUMIN;
+                      LEPTONXLOGMIN, LEPTONXLOGMAX, LEPTONTAUMIN,
+                      SHATMINZ, PT2RATMINZ, WTCORRECTION[11];
 
   // Static information on incoming beams.
   static BeamParticle* beamAPtr;
@@ -125,6 +135,10 @@ protected:
   // Static pointer to userHooks object for user interaction with program.
   static UserHooks* userHooksPtr;
   static bool canModifySigma;
+
+  // Pointers to LHAinit and LHAevnt for generating external events.
+  static LHAinit* lhaInitPtr;
+  static LHAevnt* lhaEvntPtr;
 
   // Center-of-mass energy.
   double eCM, s; 
@@ -146,6 +160,9 @@ protected:
          pTH, theta, phi, betaZ;
   Vec4   pH[6];
   double mH[6];
+
+  // Reselect decay products momenta isotropically in phase space.
+  void decayKinematicsStep( Event& process, int iRes);
 
   // Much common code for normal 2 -> 1, 2 -> 2 and 2 -> 3 cases:
 
@@ -225,7 +242,7 @@ public:
     return setupSampling123(false, false);} 
 
   // Construct the trial kinematics.
-  virtual bool trialKin(bool inEvent = true) {wtBW = 1.; 
+  virtual bool trialKin(bool inEvent = true, bool = false) {wtBW = 1.; 
     return trialKin123(false, false, inEvent);}
 
   // Construct the final event kinematics.
@@ -254,7 +271,7 @@ public:
     return setupSampling123(true, false);} 
 
   // Construct the trial kinematics.
-  virtual bool trialKin(bool inEvent = true) {
+  virtual bool trialKin(bool inEvent = true, bool = false) {
     if (!trialMasses()) return false; 
     return trialKin123(true, false, inEvent);}
 
@@ -278,20 +295,53 @@ private:
  
 //**************************************************************************
 
-// A derived class with 2 -> 2 kinematics set up for elastic or 
-// diffractive scattering.
+// A derived class with 2 -> 2 kinematics set up for elastic scattering.
 
-class PhaseSpace2to2eldiff : public PhaseSpace {
+class PhaseSpace2to2elastic : public PhaseSpace {
 
 public:
 
   // Constructor.
-  PhaseSpace2to2eldiff(bool isDiffAin = false, bool isDiffBin = false)
+  PhaseSpace2to2elastic() {}
+
+  // Construct the trial or final event kinematics.
+  virtual bool setupSampling(); 
+  virtual bool trialKin(bool inEvent = true, bool = false); 
+  virtual bool finalKin(); 
+
+  // Are beam particles resolved in partons or scatter directly?
+  virtual bool isResolved() const {return false;}
+
+private:
+
+  // Constants: could only be changed in the code itself.
+  static const double EXPMAX, CONVERTEL;
+
+ // Static alphaElectromagnetic calculation.
+  static AlphaEM alphaEM;
+
+  // Kinematics properties specific to 2 -> 2 elastic.
+  bool   useCoulomb;
+  double s1, s2, bSlope, lambda12S, tLow, tUpp, tAux, sigmaTot, rho,
+         lambda, tAbsMin, phaseCst, alphaEM0, sigmaNuc, sigmaCou, signCou;
+
+};
+ 
+//**************************************************************************
+
+// A derived class with 2 -> 2 kinematics set up for diffractive scattering.
+
+class PhaseSpace2to2diffractive : public PhaseSpace {
+
+public:
+
+  // Constructor.
+  PhaseSpace2to2diffractive(bool isDiffAin = false, bool isDiffBin = false)
     : isDiffA(isDiffAin), isDiffB(isDiffBin) {}
 
   // Construct the trial or final event kinematics.
   virtual bool setupSampling(); 
-  virtual bool trialKin(bool inEvent = true); 
+  virtual bool trialKin(bool inEvent = true, bool = false); 
   virtual bool finalKin(); 
 
   // Are beam particles resolved in partons or scatter directly?
@@ -303,7 +353,7 @@ private:
   static const int    NTRY;
   static const double EXPMAX, DIFFMASSMAX;
 
-  // Kinematics properties specific to 2 -> 2.
+  // Kinematics properties specific to 2 -> 2 diffractive.
   bool   isDiffA, isDiffB;
   double m3ElDiff, m4ElDiff, cRes, sResXB, sResAX, sProton,
          s1, s2, bMin, lambda12, lambda34, tLow, tUpp, tAux;
@@ -312,7 +362,7 @@ private:
  
 //**************************************************************************
 
-// A derived class for minumum bias event. Hardly does anything, since
+// A derived class for minumum bias events. Hardly does anything, since
 // the real action is taken care of by the MultipleInteractions class.
 
 class PhaseSpace2to2minbias : public PhaseSpace {
@@ -325,7 +375,7 @@ public:
   // Construct the trial or final event kinematics.
   virtual bool setupSampling() {sigmaNw = sigmaProcessPtr->sigmaHat();
     sigmaMx = sigmaNw; return true;}
-  virtual bool trialKin( bool ) {return true;}  
+  virtual bool trialKin( bool , bool = false) {return true;}  
   virtual bool finalKin() {return true;}
 
 private:
@@ -349,7 +399,7 @@ public:
     setup3Body(); return setupSampling123(false, true);} 
 
   // Construct the trial kinematics.
-  virtual bool trialKin(bool inEvent = true) {
+  virtual bool trialKin(bool inEvent = true, bool = false) {
     if (!trialMasses()) return false; 
     return trialKin123(false, true, inEvent);}
 
@@ -366,6 +416,42 @@ private:
 
   // Select fixed or Breit-Wigner-distributed masses.
   bool trialMasses();
+
+};
+ 
+//**************************************************************************
+
+// A derived class for Les Houches events. 
+
+class PhaseSpaceLHA : public PhaseSpace {
+
+public:
+
+  // Constructor.
+  PhaseSpaceLHA() {idProcSave = 0;}
+
+  // Find maximal cross section for comparison with internal processes.
+  virtual bool setupSampling();
+
+  // Construct the next process, by interface to Les Houches class.
+  virtual bool trialKin( bool , bool repeatSame = false); 
+
+  // Dummy, since kinematics available in Les Houches object. 
+  virtual bool finalKin() {return true;}
+
+  // For Les Houches with negative event weight needs 
+  virtual double sigmaSumSigned() const {return sigmaSgn;}
+
+private:
+
+  // Constants.
+  static const double CONVERTPB2MB;
+
+  // Local properties.
+  int    strategy, stratAbs, nProc, idProcSave;
+  double xMaxAbsSum, xSecSgnSum, sigmaSgn;
+  vector<int>    idProc;
+  vector<double> xMaxAbsProc;
 
 };
 

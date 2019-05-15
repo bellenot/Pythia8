@@ -53,9 +53,12 @@ public:
     beamB(heprup_.idbmup[1], heprup_.ebmup[1], heprup_.pdfgup[1], 
       heprup_.pdfsup[1]);
     strategy(heprup_.idwtup);
-    // Store process info.
-    for (int ip = 0; ip < heprup_.nprup; ++ip) process(heprup_.lprup[ip], 
-      heprup_.xsecup[ip], heprup_.xerrup[ip], heprup_.xmaxup[ip]) ;
+    // Store process info. Protect against vanishing cross section.
+    for (int ip = 0; ip < heprup_.nprup; ++ip) {
+      double xsec = max( 1e-10, heprup_.xsecup[ip]);
+      process(heprup_.lprup[ip], xsec, heprup_.xerrup[ip], 
+        heprup_.xmaxup[ip]) ;
+    }
     // Done.
     return true;
   } 
@@ -95,7 +98,9 @@ public:
   LHAevntFortran() {}
 
   // Routine for doing the job of setting info on next event.  
-  bool set() {
+  bool set(int idProcIn = 0) {
+    // In some strategies the type of the next event has been set.
+    hepeup_.idprup = idProcIn;
     // Call the routine that does the job.
     if (!fillHepEup()) return false;
     // Store process info.

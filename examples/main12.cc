@@ -36,9 +36,13 @@ int main() {
   // Begin event loop; generate until none left in input file.     
   for (int iEvent = 0; ; ++iEvent) {
 
-    // First few failures write off as potentially error, then quit.
-    // (But probably end of file reached already first time.)
+    // Generate events, and check whether generation failed.
     if (!pythia.next()) {
+
+      // If failure because reached end of file then exit event loop.
+      if (pythia.info.atEndOfFile()) break; 
+
+      // First few failures write off as "acceptable" errors, then quit.
       if (++iAbort < nAbort) continue;
       break;
     }

@@ -47,7 +47,7 @@ void Sigma1gg2GravitonStar::sigmaKin() {
 
   // Set up Breit-Wigner. Width out only includes open channels. 
   double sigBW    = 5. * M_PI/ ( pow2(sH - m2Res) + pow2(sH * GamMRat) );    
-  double widthOut = gStarPtr->resWidth(idGstar, mH, 0, true);
+  double widthOut = gStarPtr->resWidthOpen(idGstar, mH);
 
   // Modify cross section in wings of peak. Done.
   sigma           = widthIn * sigBW * widthOut * pow2(sH / m2Res);    
@@ -83,7 +83,7 @@ double Sigma1gg2GravitonStar::weightDecay( Event& process, int iResBeg,
     return weightTopDecay( process, iResBeg, iResEnd);
 
   // G* should sit in entry 5.
-  if (iResBeg != 5 || iResEnd != 6) return 1.;
+  if (iResBeg != 5 || iResEnd != 5) return 1.;
 
   // Phase space factors. Reconstruct decay angle.
   double mr1    = pow2(process[6].m()) / sH;
@@ -109,14 +109,14 @@ double Sigma1gg2GravitonStar::weightDecay( Event& process, int iResBeg,
 
 //**************************************************************************
 
-// Sigma1qqbar2GravitonStar class.
-// Cross section for g g -> G* (excited graviton state). 
+// Sigma1ffbar2GravitonStar class.
+// Cross section for f fbar -> G* (excited graviton state). 
 
 //*********
 
 // Initialize process. 
   
-void Sigma1qqbar2GravitonStar::initProc() {
+void Sigma1ffbar2GravitonStar::initProc() {
 
   // Store G* mass and width for propagator. 
   idGstar  = 5000039;
@@ -137,14 +137,14 @@ void Sigma1qqbar2GravitonStar::initProc() {
 
 // Evaluate sigmaHat(sHat), part independent of incoming flavour. 
 
-void Sigma1qqbar2GravitonStar::sigmaKin() { 
+void Sigma1ffbar2GravitonStar::sigmaKin() { 
 
   // Incoming width for fermions, disregarding colour factor.
   double widthIn  = pow2(kappaMG) * mH / (80. * M_PI);
 
   // Set up Breit-Wigner. Width out only includes open channels. 
   double sigBW    = 5. * M_PI/ ( pow2(sH - m2Res) + pow2(sH * GamMRat) );    
-  double widthOut = gStarPtr->resWidth(idGstar, mH, 0, true);
+  double widthOut = gStarPtr->resWidthOpen(idGstar, mH);
 
   // Modify cross section in wings of peak. Done.
   sigma0          = widthIn * sigBW * widthOut * pow2(sH / m2Res);    
@@ -155,7 +155,7 @@ void Sigma1qqbar2GravitonStar::sigmaKin() {
 
 // Select identity, colour and anticolour.
 
-void Sigma1qqbar2GravitonStar::setIdColAcol() {
+void Sigma1ffbar2GravitonStar::setIdColAcol() {
 
   // Flavours trivial.
   setId( id1, id2, idGstar);
@@ -171,7 +171,7 @@ void Sigma1qqbar2GravitonStar::setIdColAcol() {
 
 // Evaluate weight for G* decay angle.
   
-double Sigma1qqbar2GravitonStar::weightDecay( Event& process, int iResBeg, 
+double Sigma1ffbar2GravitonStar::weightDecay( Event& process, int iResBeg, 
   int iResEnd) {
 
   // Identity of mother of decaying reseonance(s).
@@ -182,7 +182,7 @@ double Sigma1qqbar2GravitonStar::weightDecay( Event& process, int iResBeg,
     return weightTopDecay( process, iResBeg, iResEnd);
 
   // G* should sit in entry 5.
-  if (iResBeg != 5 || iResEnd != 6) return 1.;
+  if (iResBeg != 5 || iResEnd != 5) return 1.;
 
   // Phase space factors. Reconstruct decay angle.
   double mr1    = pow2(process[6].m()) / sH;

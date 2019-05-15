@@ -530,14 +530,15 @@ void LHAPDF::xfUpdate(int , double x, double Q2) {
 //**************************************************************************
 
 // Gives electron (or muon, or tau) parton distribution.
+
+// Constant. alphaEM(0) could be taken from settings but safer this way.
+const double Lepton::ALPHAEM = 0.00729735;
  
 void Lepton::xfUpdate(int id, double x, double Q2) {
  
-  // Common constants. alphaEM could be taken from settings but overkill??
-  double alphaEM = 0.00729735;
-  double m2 = 0.26e-6; 
+  // Squared mass of lepton species: electron, muon, tau. 
   if (!isInit) {
-    m2 = pow2(ParticleDataTable::m0(idBeam));
+    m2Lep = pow2( ParticleDataTable::m0(idBeam) );
     isInit = true;
   }
 
@@ -545,10 +546,10 @@ void Lepton::xfUpdate(int id, double x, double Q2) {
   // LEP 1, CERN 89-08, p. 34
   double xLog = log(max(1e-10,x));
   double xMinusLog = log( max(1e-10, 1. - x) );
-  double Q2Log = log( max(3., Q2/m2) );
-  double beta = (alphaEM / M_PI) * (Q2Log - 1.);
-  double delta = 1. + (alphaEM / M_PI) * (1.5 * Q2Log + 1.289868) 
-    + pow2(alphaEM / M_PI) * (-2.164868 * Q2Log*Q2Log 
+  double Q2Log = log( max(3., Q2/m2Lep) );
+  double beta = (ALPHAEM / M_PI) * (Q2Log - 1.);
+  double delta = 1. + (ALPHAEM / M_PI) * (1.5 * Q2Log + 1.289868) 
+    + pow2(ALPHAEM / M_PI) * (-2.164868 * Q2Log*Q2Log 
     + 9.840808 * Q2Log - 10.130464);
   double fPrel =  beta * pow(1. - x, beta - 1.) * sqrtpos( delta )
      - 0.5 * beta * (1. + x) + 0.125 * beta*beta * ( (1. + x) 
@@ -560,7 +561,7 @@ void Lepton::xfUpdate(int id, double x, double Q2) {
   xlepton = x * fPrel; 
 
   // Photon inside electron (one possible scheme - primitive).
-  xgamma = (0.5 * alphaEM / M_PI) * Q2Log * (1. + pow2(1. - x));
+  xgamma = (0.5 * ALPHAEM / M_PI) * Q2Log * (1. + pow2(1. - x));
 
   // idSav = 9 to indicate that all flavours reset. id change is dummy here. 
   idSav = 9;

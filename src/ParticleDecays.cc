@@ -510,7 +510,8 @@ bool ParticleDecays::threeBody(Event& event) {
     // Matrix element for weak decay (only semileptonic for c and b).
     } else if ((meMode == 22 || meMode == 23) && prod1.isLepton()) {
       wtME = m0 * prod1.e() * (prod2.p() * prod3.p());
-      wtMEmax = pow4(m0) / 16.;  
+      wtMEmax = min( pow4(m0) / 16., m0 * (m0 - m1 - m2) * (m0 - m1 - m3) 
+        * (m0 - m2 - m3) );  
 
     // Effective matrix element for weak decay to hadrons (B -> D, D -> K).
     } else if (meMode == 22 || meMode == 23) {

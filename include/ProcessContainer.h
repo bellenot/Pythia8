@@ -43,7 +43,11 @@ public:
   
   // Store pointers to Info and ResonanceDecays.
   static void initStatic(Info* infoPtrIn, ResonanceDecays* resDecaysPtrIn) 
-    {infoPtr = infoPtrIn; resonanceDecaysPtr = resDecaysPtrIn;}
+    { infoPtr = infoPtrIn; resonanceDecaysPtr = resDecaysPtrIn;}
+
+  // Store or replace Les Houches pointers.
+  static void setLHAPtrs( LHAinit* lhaInitPtrIn, LHAevnt* lhaEvntPtrIn) 
+    { lhaInitPtr = lhaInitPtrIn; lhaEvntPtr = lhaEvntPtrIn;}  
 
   // Initialize phase space and counters.
   bool init(); 
@@ -82,6 +86,9 @@ public:
   double x2()          const {return phaseSpacePtr->x2();}
   double Q2Fac()       const {return sigmaProcessPtr->Q2Fac();}
 
+  // Tell whether container is for Les Houches events.
+  bool   isLHAContainer() const {return isLHA;}
+
   // When two hard processes set or get info whether process is matched.
   void   isSame( bool isSameIn) { isSameSave = isSameIn;}
   bool   isSame()      const {return isSameSave;}
@@ -94,6 +101,10 @@ private:
   // Static pointer to ResonanceDecays object for sequential resonance decays.
   static ResonanceDecays* resonanceDecaysPtr;
 
+  // Static pointers to LHAinit and LHAevnt for generating external events.
+  static LHAinit* lhaInitPtr;
+  static LHAevnt* lhaEvntPtr;
+
   // Constants: could only be changed in the code itself.
   static const int N12SAMPLE, N3SAMPLE;
 
@@ -104,12 +115,15 @@ private:
   PhaseSpace* phaseSpacePtr;
 
   // Info on process.
-  bool   isMinBias, isResolved, isDiffA, isDiffB, hasOctetOnium, isSameSave;
+  bool   isMinBias, isResolved, isDiffA, isDiffB, isLHA, allowNegSig,
+         hasOctetOnium, isSameSave;
+  int    lhaStrat, lhaStratAbs;
 
   // Statistics on generation process. (Long integers just in case.)
   int    newSigmaMx;
   long   nTry, nSel, nAcc, nTryStat;  
-  double sigmaMx, sigmaSum, sigma2Sum, sigmaNeg, sigmaAvg, sigmaFin, deltaFin;
+  double sigmaMx, sigmaSgn, sigmaSum, sigma2Sum, sigmaNeg, sigmaAvg, 
+         sigmaFin, deltaFin;
 
   // Estimate integrated cross section and its uncertainty. 
   void sigmaDelta();

@@ -103,22 +103,22 @@ the
 method provides a covenient uniform interface to all of them.
 The information in the string is case-insensitive, but upper- and
 lowercase can be combined for clarity. The rules are that<br/>
-(i) if the first nonblank character of the string is not a 
-letter or a digit nothing will be done;<br/>
-(ii) if the string begins with a digit it is assumed to contain 
-particle data updates, and so sent on to 
+(i) if the first nonblank character of the string is a letter
+it is assumed to contain a setting, and is sent on to 
+<code>pythia.settings.readString(string)</code>;<br/> 
+(ii) if instead the string begins with a digit it is assumed to 
+contain particle data updates, and so sent on to 
 <code>pythia.particleData.readString(string)</code>;<br/>
-(iii) if none of the above, the string is assumed to contain a  
-setting, and is sent on to 
-<code>pythia.settings.readString(string)</code>.<br/> 
-In the latter two cases, a warning is issued whenever a string
+(iii) if none of the above, the string is assumed to be a comment,
+i.e. nothing will be done.<br/>
+In the former two cases, a warning is issued whenever a string
 cannot be recognized (maybe because of a spelling mistake),
 unless an optional second argument <code>false</code> is used to 
 switch off warnings.<br/>
 Some examples would be
 <pre>
-    pythia.readString("111:mayDecay = false");
     pythia.readString("TimeShower:pTmin = 1.0");
+    pythia.readString("111:mayDecay = false");
 </pre>
 The <code>readString(string)</code> method is intended primarily for 
 a few changes. It can also be useful if you want to construct a
@@ -162,10 +162,9 @@ in the rest frame.<br/>
 
 <p/>
 c) <code>pythia.init(fileName);</code> <br/> 
-assumes a file in the Les Houches Event File format [<a href="Bibliography.php" target="page">Alw06</a>] is 
-provided (<?php $filepath = $_GET["filepath"];
-echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>";?>further instructions</a>).
-</li>
+assumes a file in the <?php $filepath = $_GET["filepath"];
+echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>";?>Les Houches 
+Event File</a> format [<a href="Bibliography.php" target="page">Alw06</a>] is provided.
 
 <p/>
 d) <code>pythia.init();</code><br/>
@@ -176,22 +175,22 @@ group of variables, which provides you with the same possibilities as
 the above options a, b and c. If you don't change any of those you will 
 default to proton-proton collisions at 14 TeV, i.e. the nominal LHC 
 values.
-<br/>
 
 <p/>
 e) <code>pythia.init( LHAinit*, LHAevnt*);</code> <br/>
-assumes Les Houches Accord [<a href="Bibliography.php" target="page">Boo01</a>] initialization information 
-is available in an <code>LHAinit</code> class object, and that LHA event 
-information will be provided by the <code>LHAevnt</code> class object,
-and that pointers to these objects are handed in
-(<?php $filepath = $_GET["filepath"];
-echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>";?>further instructions</a>).<br/>
+assumes <?php $filepath = $_GET["filepath"];
+echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>";?>Les Houches Accord</a> 
+[<a href="Bibliography.php" target="page">Boo01</a>] initialization information is available in an 
+<code>LHAinit</code> class object, and that LHA event information 
+will be provided by the <code>LHAevnt</code> class object,
+and that pointers to these objects are handed in.
 
 <p/>
 Currently there is no method to set arbitrary kinematics for the 
 incoming beams. However, you could always rotate and boost the 
 final <?php $filepath = $_GET["filepath"];
 echo "<a href='EventRecord.php?filepath=".$filepath."' target='page'>";?>event</a> to whatever frame you wish. 
+</li>
 
 <p/>
 <li>
@@ -231,19 +230,23 @@ events are skipped.
 <p/>
 <li>
 The generated event is now stored in the <code>event</code> 
-object, of type <code>Event</code>, which is a public member of 
-<code>pythia</code>. You therefore have access to all the tools described
-on the pages under the "Study Output" header in the index. For instance, 
-an event can be listed with 
+object, of type <?php $filepath = $_GET["filepath"];
+echo "<a href='EventRecord.php?filepath=".$filepath."' target='page'>";?><code>Event</code></a>, 
+which is a public member of <code>pythia</code>. You therefore have 
+access to all the tools described on the pages under the "Study Output" 
+header in the index. For instance, an event can be listed with 
 <code>pythia.event.list()</code>, the identity of the <i>i</i>'th 
-particle is given by <code>pythia.event[i].id()</code>, and so on.<br/> 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='ParticleProperties.php?filepath=".$filepath."' target='page'>";?>particle</a> is given by 
+<code>pythia.event[i].id()</code>, and so on.<br/> 
 The hard process - roughly the information normally stored in the 
 Les Houches Accord event record - is available as a second object, 
 <code>process</code>, also of type <code>Event</code>.<br/> 
-A third public object is <code>info</code>, which offers a set of
-one-of-a kind pieces of information about the most recent event
-(<?php $filepath = $_GET["filepath"];
-echo "<a href='EventInformation.php?filepath=".$filepath."' target='page'>";?>further information</a>).
+A third public object is 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='EventInformation.php?filepath=".$filepath."' target='page'>";?><code>info</code></a>, which offers 
+a set of one-of-a kind pieces of information about the most recent
+event.
 </li> 
 
 </ol>
@@ -265,7 +268,7 @@ framework.
 
 </ol>
 
-<h3>Initialization - advanced usage</h3>
+<h3>Advanced usage, mainly for initialization</h3>
 
 A) Necessary data are automatically loaded when you use the 
 default PYTHIA installation directory structure and run the main 
@@ -281,11 +284,11 @@ You can set the environment variable <code>PYTHIA8DATA</code> to
 contain the location of the <code>xmldoc</code> directory. In the
 <code>csh</code> and <code>tcsh</code> shells this could e.g. be 
 <pre>
-     setenv PYTHIA8DATA /home/myname/pythia8095/xmldoc
+     setenv PYTHIA8DATA /home/myname/pythia8100/xmldoc
 </pre>
 while in other shells it could be
 <pre>
-     export PYTHIA8DATA=/home/myname/pythia8095/xmldoc
+     export PYTHIA8DATA=/home/myname/pythia8100/xmldoc
 </pre>
 Recall that environment variables set locally are only defined in the 
 current instance of the shell. The above lines should go into your 
@@ -298,7 +301,7 @@ if you want a more permanant assignment.
 You can provide the path as argument to the <code>Pythia</code>
 constructor, e.g.
 <pre>
-     Pythia pythia("/home/myname/pythia8095/xmldoc");
+     Pythia pythia("/home/myname/pythia8100/xmldoc");
 </pre>
 </li>
 </ol>
@@ -321,20 +324,19 @@ These calls must be made before the <code>pythia.init(...)</code> call.
 <li>
 If you are not satisfied with the list of parton density functions that 
 are implemented internally or available via the LHAPDF interface
-(see <?php $filepath = $_GET["filepath"];
+(see the <?php $filepath = $_GET["filepath"];
 echo "<a href='PDFSelection.php?filepath=".$filepath."' target='page'>";?>PDF Selection</a> page), you 
 can suppy your own by a call to the <code>setPDFPtr(...)</code> method
 <pre>
       pythia.setPDFptr( pdfAPtr, pdfBPtr); 
 </pre>
 where <code>pdfAPtr</code> and <code>pdfBPtr</code> are pointers to 
-two <code>Pythia</code> PDF objects 
-(<?php $filepath = $_GET["filepath"];
-echo "<a href='PartonDistributions.php?filepath=".$filepath."' target='page'>";?>further instructions</a>). 
-Note that <code>pdfAPtr</code> and <code>pdfBPtr</code> cannot point 
-to the same object; even if the PDF set is the same, two copies are 
-needed to keep track of two separate sets of <i>x </i>and density 
-values.<br/>
+two <code>Pythia</code> <?php $filepath = $_GET["filepath"];
+echo "<a href='PartonDistributions.php?filepath=".$filepath."' target='page'>";?>PDF 
+objects</a>. Note that <code>pdfAPtr</code> and <code>pdfBPtr</code> 
+cannot point to the same object; even if the PDF set is the same, 
+two copies are needed to keep track of two separate sets of <i>x</i>
+and density values.<br/>
 If you further wish to use separate PDF's for the hard process of an
 event than the ones being used for everything else, the extended form
 <pre>
@@ -353,10 +355,10 @@ method
       pythia.setDecayPtr( decayHandlePtr, particles);
 </pre>
 where the <code>decayHandlePtr</code> derives from the 
-<code>DecayHandler</code> base class and <code>particles</code> is a 
-vector of particle codes to be handled
-(<?php $filepath = $_GET["filepath"];
-echo "<a href='ExternalDecays.php?filepath=".$filepath."' target='page'>";?>further instructions</a>). 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='ExternalDecays.php?filepath=".$filepath."' target='page'>";?><code>DecayHandler</code></a> base 
+class and <code>particles</code> is a vector of particle codes to be 
+handled. 
 </li>
 
 <p/>
@@ -366,11 +368,11 @@ you can call the <code>setRndmEnginePtr(...)</code> method
 <pre>
       pythia.setRndmEnginePtr( rndmEnginePtr); 
 </pre>
-where <code>rndmEnginePtr</code> derives from the <code>RndmEngine</code> 
-base class (<?php $filepath = $_GET["filepath"];
-echo "<a href='RandomNumbers.php?filepath=".$filepath."' target='page'>";?>further instructions</a>). 
-The <code>Pythia</code> default random number generator is perfectly good, 
-so this is only intended for consistency in bigger frameworks.
+where <code>rndmEnginePtr</code> derives from the 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='RandomNumbers.php?filepath=".$filepath."' target='page'>";?><code>RndmEngine</code></a> base class. 
+The <code>Pythia</code> default random number generator is perfectly 
+good, so this is only intended for consistency in bigger frameworks.
 </li>
 
 <p/>
@@ -381,9 +383,9 @@ reweight the cross section, you can use
 <pre>
       pythia.setUserHooksPtr( userHooksPtr); 
 </pre>
-where <code>userHooksPtr</code> derives from the <code>UserHooks</code> 
-base class (<?php $filepath = $_GET["filepath"];
-echo "<a href='UserHooks.php?filepath=".$filepath."' target='page'>";?>further instructions</a>).
+where <code>userHooksPtr</code> derives from the 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='UserHooks.php?filepath=".$filepath."' target='page'>";?><code>UserHooks</code></a> base class.
 </li>
 
 <p/>
@@ -396,9 +398,29 @@ of the built-in phase space selection machinery, you can use
 where <code>sigmaPtr</code> of type <code>SigmaProcess*</code> is an
 instance of a class derived from one of the <code>Sigma1Process</code>,
 <code>Sigma2Process</code> and  <code>Sigma3Process</code> base classes
-(<?php $filepath = $_GET["filepath"];
-echo "<a href='SemiInternalProcesses.php?filepath=".$filepath."' target='page'>";?>further instructions</a>). 
+in their turn derived from 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='SemiInternalProcesses.php?filepath=".$filepath."' target='page'>";?><code>SigmaProcess</code></a>. 
 This call can be used repeatedly to hand in several different processes.
+</li>
+
+<p/>
+<li>
+If your cross section contains the production of a new resonance
+with known analytical expression for all the relevant partial widths,
+you can make this resonance available to the program with 
+<pre>
+      pythia.setResonancePtr( resonancePtr);
+</pre>
+where <code>resonancePtr</code> of type <code>ResonanceWidths*</code> 
+is an instance of a class derived from the 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='SemiInternalResonances.php?filepath=".$filepath."' target='page'>";?><code>ResonanceWidths</code></a> 
+base class. In addition you need to add the particle to the normal 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='ParticleDataScheme.php?filepath=".$filepath."' target='page'>";?>particle and decay database</a>.
+This procedure can be used repeatedly to hand in several different 
+resonances.
 </li>
 
 <p/>
@@ -437,7 +459,7 @@ and mix afterwards.
 
 <p/>
 <li>
-When time is not the issue, it may be that you want to perform several 
+When time is not an issue, it may be that you want to perform several 
 separate subruns sequentially inside a run, e.g. to combine results for
 several kinematical regions or to compare results for some different 
 tunes of the underlying event. One way to go is to create and destroy a 

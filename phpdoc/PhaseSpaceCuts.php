@@ -34,13 +34,20 @@ or specialized ones like for elastic and diffractive scattering.
 <p/>
 In it, it is possible to constrain the kinematics of most processes.
 (Exceptions are "soft physics", i.e. minimum bias, elastic and 
-diffractive processes.) These constraints apply in the rest frame
-of the hars subprocess, and topologies normally would be changed 
-e.g. by subsequent showering activity. The cross section of a process
-is adjusted to only correspond to the allowed phase space.
+diffractive processes. The Coulomb singularity for elastic scatterings,
+if simulated, is <?php $filepath = $_GET["filepath"];
+echo "<a href='TotalCrossSections.php?filepath=".$filepath."' target='page'>";?>handled separately</a>.) 
+These constraints apply in the rest frame of the hard subprocess, and 
+topologies normally would be changed e.g. by subsequent showering 
+activity. The cross section of a process is adjusted to only 
+correspond to the allowed phase space.
 
 <p/>
-The more particles in the final state, the more cuts can be applied. 
+The more particles in the final state, the more cuts could be applied.
+Here we have tried to remain with the useful minimum, however. More
+generic possibilities could be handled by the 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='UserHooks.php?filepath=".$filepath."' target='page'>";?>user hooks</a> facility. 
 
 <h3>Cuts in all processes</h3>
 

@@ -92,10 +92,13 @@ OBJS =   $(OUTDIR)/Analysis.obj \
          $(OUTDIR)/ResonanceDecays.obj \
          $(OUTDIR)/ResonanceWidths.obj \
          $(OUTDIR)/Settings.obj \
+         $(OUTDIR)/SigmaCompositeness.obj \
          $(OUTDIR)/SigmaEW.obj \
          $(OUTDIR)/SigmaExtraDim.obj \
          $(OUTDIR)/SigmaHiggs.obj \
+         $(OUTDIR)/SigmaLeftRightSym.obj \
          $(OUTDIR)/SigmaLeptoquark.obj \
+         $(OUTDIR)/SigmaNewGaugeBosons.obj \
          $(OUTDIR)/SigmaOnia.obj \
          $(OUTDIR)/SigmaProcess.obj \
          $(OUTDIR)/SigmaQCD.obj \

@@ -335,7 +335,7 @@ bool ParticleDataEntry::preparePick(int idSgn, double mHat, int idInFlav) {
 
   // For resonances the widths are calculated dynamically.
   if (resonancePtr != 0) {
-    resonancePtr->width(idSgn, mHat, idInFlav, true, true);
+    resonancePtr->widthStore(idSgn, mHat, idInFlav);
     for (int i = 0; i < decay.size(); ++i) 
       currentBRSum += decay[i].currentBR();
     
@@ -492,10 +492,14 @@ double ParticleDataEntry::resWidth(int idSgn, double mHat, int idIn,
     idIn, openOnly, setBR) : 0.;
 }
 
-double ParticleDataEntry::resWidthChan(double mHat, int idAbs1, 
-  int idAbs2) {    
-  return (resonancePtr != 0) ? resonancePtr->widthChan( mHat, idAbs1, 
-    idAbs2) : 0.;
+double ParticleDataEntry::resWidthOpen(int idSgn, double mHat, int idIn) {
+  return (resonancePtr != 0) ? resonancePtr->widthOpen( idSgn, mHat, idIn) 
+  : 0.;
+}
+
+double ParticleDataEntry::resWidthStore(int idSgn, double mHat, int idIn) {
+  return (resonancePtr != 0) ? resonancePtr->widthStore( idSgn, mHat, idIn) 
+  : 0.;
 }
 
 double ParticleDataEntry::resOpenFrac(int idSgn) {
@@ -505,6 +509,12 @@ double ParticleDataEntry::resOpenFrac(int idSgn) {
 double ParticleDataEntry::resWidthRescaleFactor() {
   return (resonancePtr != 0) ? resonancePtr->widthRescaleFactor() : 1.;
 }  
+
+double ParticleDataEntry::resWidthChan(double mHat, int idAbs1, 
+  int idAbs2) {    
+  return (resonancePtr != 0) ? resonancePtr->widthChan( mHat, idAbs1, 
+    idAbs2) : 0.;
+}
 
 //*********
 
@@ -563,7 +573,8 @@ ParticleDataEntry* ParticleDataTable::particlePtr = 0;
 // Initialize the special handling of resonances in ResonanceWidths.
 // Note:order of initialization is essential to get secondary widths right.
 
-void ParticleDataTable::initResonances(bool reInit) {
+void ParticleDataTable::initResonances(
+  vector<ResonanceWidths*> resonancePtrs, bool reInit) {
 
   // Initialize static resonance properties.
   ResonanceWidths::initStatic();
@@ -571,49 +582,57 @@ void ParticleDataTable::initResonances(bool reInit) {
   // Set up new resonance objects. Not necessary if already done.
   if (!reInit) {
 
-    // Z0, W+- and top are always needed.
-    particlePtr = particleDataPtr(23);
-    particlePtr->setResonancePtr( new ResonanceGmZ(particlePtr) );
-    particlePtr = particleDataPtr(24);
-    particlePtr->setResonancePtr( new ResonanceW(particlePtr) );
-    particlePtr = particleDataPtr(6);
-    particlePtr->setResonancePtr( new ResonanceTop(particlePtr) );
+    // Z0, W+- and top are almost always needed.
+    new ResonanceGmZ(23);
+    new ResonanceW(24);
+    new ResonanceTop(6);
 
     // Higgs in SM.
     if (!Settings::flag("Higgs:useBSM")) { 
-      particlePtr = particleDataPtr(25);
-      particlePtr->setResonancePtr( new ResonanceH(0, particlePtr) );
+      new ResonanceH(0, 25);
 
     // Higgses in BSM.
     } else {
-      particlePtr = particleDataPtr(25);
-      particlePtr->setResonancePtr( new ResonanceH(1, particlePtr) );
-      particlePtr = particleDataPtr(35);
-      particlePtr->setResonancePtr( new ResonanceH(2, particlePtr) );
-      particlePtr = particleDataPtr(36);
-      particlePtr->setResonancePtr( new ResonanceH(3, particlePtr) );
-      particlePtr = particleDataPtr(37);
-      particlePtr->setResonancePtr( new ResonanceHchg(particlePtr) );
+      new ResonanceH(1, 25);
+      new ResonanceH(2, 35);
+      new ResonanceH(3, 36);
+      new ResonanceHchg(37);
     }
 
     // A fourth generation: b', t', tau', nu'_tau.
-    particlePtr = particleDataPtr(7);
-    particlePtr->setResonancePtr( new ResonanceFour(particlePtr) );
-    particlePtr = particleDataPtr(8);
-    particlePtr->setResonancePtr( new ResonanceFour(particlePtr) );
-    particlePtr = particleDataPtr(17);
-    particlePtr->setResonancePtr( new ResonanceFour(particlePtr) );
-    particlePtr = particleDataPtr(18);
-    particlePtr->setResonancePtr( new ResonanceFour(particlePtr) );
+    new ResonanceFour(7);
+    new ResonanceFour(8);
+    new ResonanceFour(17);
+    new ResonanceFour(18);
 
-    // An excited graviton in extra-dimensional scenarios.
-    particlePtr = particleDataPtr(5000039);
-    particlePtr->setResonancePtr( new ResonanceGraviton(particlePtr) );
+    // New gauge bosons: Z', W', R.
+    new ResonanceZprime(32);
+    new ResonanceWprime(34);
+    new ResonanceRhorizontal(41);
 
     // A leptoquark.
-    particlePtr = particleDataPtr(42);
-    particlePtr->setResonancePtr( new ResonanceLeptoquark(particlePtr) );
+    new ResonanceLeptoquark(42);
 
+    // Excited quarks and leptons.
+    for (int i = 1; i < 7; ++i) new ResonanceExcited(4000000 + i);
+    for (int i = 11; i < 17; ++i) new ResonanceExcited(4000000 + i);
+
+    // An excited graviton in extra-dimensional scenarios.
+    new ResonanceGraviton(5000039);
+
+    // A left-right-symmetric scenario with new righthanded neutrinos,
+    // righthanded gauge bosons and doubly charged Higgses.
+    new ResonanceNuRight(9900012);
+    new ResonanceNuRight(9900014);
+    new ResonanceNuRight(9900016);
+    new ResonanceZRight(9900023);
+    new ResonanceWRight(9900024);
+    new ResonanceHchgchgLeft(9900041);
+    new ResonanceHchgchgRight(9900042);
+
+    // Attach user-defined external resonances and initialize them.
+    for (int i = 0; i < int(resonancePtrs.size()); ++i) 
+      resonancePtrs[i]->initBasic(resonancePtrs[i]->id());
   }
 
   // Set up lists to order resonances in ascending mass.
@@ -633,11 +652,8 @@ void ParticleDataTable::initResonances(bool reInit) {
     int idNow = pdtNow.id();
 
     // Set up a simple default object for uninitialized resonances.
-    if (pdtNow.isResonance() && pdtNow.getResonancePtr() == 0) {
-      if (!pdtNow.hasAnti()) 
-           pdtNow.setResonancePtr( new ResonanceNeutral(&pdtNow) );
-      else pdtNow.setResonancePtr( new ResonanceCharged(&pdtNow) ); 
-    }
+    if (pdtNow.isResonance() && pdtNow.getResonancePtr() == 0) 
+      new ResonanceGeneric(idNow);
 
     // Insert resonances in ascending mass, to respect decay hierarchies.
     if (pdtNow.getResonancePtr() != 0 && idNow != 23 && idNow != 24) {
@@ -702,18 +718,18 @@ bool ParticleDataTable::readXML(string inFile, bool reset) {
         } 
 
         // Read in particle properties.
-        int id = intAttributeValue( line, "id");
-        string name = attributeValue( line, "name");
+        int id          = intAttributeValue( line, "id");
+        string name     = attributeValue( line, "name");
         string antiName = attributeValue( line, "antiName");
         if (antiName == "") antiName = "void";
-        int spinType = intAttributeValue( line, "spinType");
-        int chargeType = intAttributeValue( line, "chargeType");
-        int colType = intAttributeValue( line, "colType");
-        double m0 = doubleAttributeValue( line, "m0");
-        double mWidth = doubleAttributeValue( line, "mWidth");
-        double mMin = doubleAttributeValue( line, "mMin");
-        double mMax = doubleAttributeValue( line, "mMax");
-        double tau0 = doubleAttributeValue( line, "tau0");
+        int spinType    = intAttributeValue( line, "spinType");
+        int chargeType  = intAttributeValue( line, "chargeType");
+        int colType     = intAttributeValue( line, "colType");
+        double m0       = doubleAttributeValue( line, "m0");
+        double mWidth   = doubleAttributeValue( line, "mWidth");
+        double mMin     = doubleAttributeValue( line, "mMin");
+        double mMax     = doubleAttributeValue( line, "mMax");
+        double tau0     = doubleAttributeValue( line, "tau0");
 
         // Erase if particle already exists.
         if (isParticle(id)) pdt.erase(id);

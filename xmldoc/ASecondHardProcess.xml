@@ -68,15 +68,15 @@ on the topology if interest, it may or may not be a good approximation.
 
 <p/>
 The second hard process obeys exactly the same selection rules for
-<aloc href="ProcessProperties">process properties</aloc> and 
-<aloc href="PhaseSpaceCuts">phase space cuts</aloc> as the first.
-Specifically, a <ei>pTmin</ei> cut for <ei>2 -> 2</ei> would apply to 
-the first and the second hard process alike, and ballpark half of the 
-time the second could be generated with a larger <ei>pT</ei> than the 
-first. (Exact numbers depending on the relative shape of the two cross 
-sections.) That is, first and second is only used as an administrative
-distinction between the two, not as a physics ordering one.
-
+<aloc href="PhaseSpaceCuts">phase space cuts</aloc> and
+<aloc href="CouplingsAndScales">couplings and scales</aloc> 
+as the first one does. Specifically, a <ei>pTmin</ei> cut for 
+<ei>2 -> 2</ei> processes would apply to the first and the second hard 
+process alike, and ballpark half of the time the second could be 
+generated with a larger <ei>pT</ei> than the first. (Exact numbers 
+depending on the relative shape of the two cross sections.) That is, 
+first and second is only used as an administrative distinction between 
+the two, not as a physics ordering one.
 
 <h3>Cross-section calculation</h3>
 
@@ -198,7 +198,7 @@ additional factor <ei>1/2</ei>. A compensating factor of 2
 is automatically obtained for picking two different subprocesses,
 e.g. if <code>TwoJets</code> is selected for both interactions,
 then the combination of the two subprocesses <ei>q qbar -> g g</ei> 
-and <ei>g g -> g g</ei> is can trivially be obtained two ways.
+and <ei>g g -> g g</ei> can trivially be obtained two ways.
  
 <p/>
 (3) The list of subprocesses partly but not completely overlap.

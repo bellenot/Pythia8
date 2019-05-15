@@ -6,8 +6,8 @@
 
 ! 1) Settings that could be used in a main program, if desired.
 Main:idBeamA = 2212                ! first beam, p = 2212, pbar = -2212
-Main:idBeamB = -2212               ! second beam, p = 2212, pbar = -2212
-Main:eCM = 1960.                   ! CM energy of collision, LHC
+Main:idBeamB = 2212                ! second beam, p = 2212, pbar = -2212
+Main:eCM = 14000.                  ! CM energy of collision, LHC
 Main:numberOfEvents = 20000        ! number of events to generate
 Main:numberToList = 1              ! number of events to print
 Main:timesToShow = 20              ! show how far along run is this many times
@@ -22,7 +22,14 @@ SoftQCD:elastic = on               ! elastic scattering
 SoftQCD:singleDiffractive = on     ! single diffractive scattering
 SoftQCD:doubleDiffractive = on     ! double diffractive scattering
 
-! 3) Switch off some key components of the simulation, for comparisons.
+! 3) Optionally switch on hand-set cross section and Coulomb term..
+SigmaTotal:setOwn = on             ! set your own total/elastic/diffractive sigma
+SigmaTotal:sigmaTot = 106.         ! total cross section (excluding Coulomb)
+SigmaTotal:sigmaXX = 3.            ! reduce double diffractive cross section 
+SigmaElastic:setOwn = on           ! suboption for Coulomb term in elastic
+SigmaElastic:tAbsMin = 4e-5        ! divergence requires lower cutoff
+
+! 4) Switch off some key components of the simulation, for comparisons.
 #PartonLevel:all = off              ! stop after hard process 
 
 

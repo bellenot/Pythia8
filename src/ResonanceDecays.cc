@@ -257,11 +257,11 @@ bool ResonanceDecays::pickMasses() {
   int idDau2      = abs(idProd[iBW2]);
 
   // In some cases known phase-space behaviour; else simple beta factor.
-  int meMode      = 1 ; 
+  int psMode      = 1 ; 
   if ( (idMother == 25 || idMother == 35) && idDau1 < 19 
-    && idDau2 == idDau1 ) meMode = 3; 
+    && idDau2 == idDau1 ) psMode = 3; 
   if ( (idMother == 25 || idMother == 35 || idMother == 36)  
-    && (idDau1 == 23 || idDau1 == 24) && idDau2 == idDau1 ) meMode = 5; 
+    && (idDau1 == 23 || idDau1 == 24) && idDau2 == idDau1 ) psMode = 5; 
 
   // Find allowed mass ranges
   double mRem     = mMother - mSum0 - MSAFETY;
@@ -303,10 +303,10 @@ bool ResonanceDecays::pickMasses() {
   double mr2      = m2Min2 / m2Rem;
   double psMax    = sqrtpos( pow2(1. - mr1 - mr2) - 4. * mr1 * mr2 ); 
   double wtMax   = 1.;
-  if      (meMode == 1) wtMax = psMax;
-  else if (meMode == 2) wtMax = psMax * psMax; 
-  else if (meMode == 3) wtMax = pow3(psMax); 
-  else if (meMode == 5) wtMax = psMax 
+  if      (psMode == 1) wtMax = psMax;
+  else if (psMode == 2) wtMax = psMax * psMax; 
+  else if (psMode == 3) wtMax = pow3(psMax); 
+  else if (psMode == 5) wtMax = psMax 
     * (pow2(1. - mr1 - mr2) + 8. * mr1 * mr2);
   
   // Retry mass according to Breit-Wigners, with simple threshold factor.
@@ -334,10 +334,10 @@ bool ResonanceDecays::pickMasses() {
     if (mNow1 + mNow2 + MSAFETY < mMother) {
       ps   = sqrtpos( pow2(1. - mr1 - mr2) - 4. * mr1 * mr2 ); 
       wt   = 1.;
-      if      (meMode == 1) wt = ps;
-      else if (meMode == 2) wt = ps * ps; 
-      else if (meMode == 3) wt = pow3(ps); 
-      else if (meMode == 5) wt = ps 
+      if      (psMode == 1) wt = ps;
+      else if (psMode == 2) wt = ps * ps; 
+      else if (psMode == 3) wt = pow3(ps); 
+      else if (psMode == 5) wt = ps 
         * (pow2(1. - mr1 - mr2) + 8. * mr1 * mr2);
     }
     if (wt > Rndm::flat() * wtMax) break;

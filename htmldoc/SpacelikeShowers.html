@@ -233,8 +233,14 @@ particle.
  (<code>default = <strong>0.0005</strong></code>; <code>minimum = 0.0001</code>)<br/>
 Parton shower cut-off mass for pure QED branchings. 
 Assumed smaller than (or equal to) <i>pTminChgQ</i>.
-Actually, ISR cascades of incoming leptons have not been implemented 
-so far, so should not be used!??
+  
+
+<p/><code>flag&nbsp; </code><strong> SpaceShower:rapidityOrder &nbsp;</strong> 
+ (<code>default = <strong>on</strong></code>)<br/>
+Force emissions, after the first,  to be ordered in rapidity,
+i.e. in terms of decreasing angles in a backwards-evolution sense. 
+Motivated by coherence arguments, but not uniquely constrained. 
+Only affects QCD emissions.
   
 
 <h3>Further variables</h3>

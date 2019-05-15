@@ -270,15 +270,6 @@ involve replacing the following methods.
 The constructor does not need to do anything.
 </method>
 
-<method name="static void initStatic()">
-Since this member is static actually it cannot be overloaded.
-This is where a number of settings are read in and stored for
-further usage in the base class, i.e. the PYTHIA default showers. 
-If you find them convenient, feel free to make use of them in your 
-own shower. If not, everything you want to set could instead be
-taken care of in the next routine. 
-</method>
-
 <method name="void init( BeamParticle* beamAPtrIn = 0, 
 BeamParticle* beamBPtrIn = 0)">
 You have to store your local copy of the pointers to these objects,
@@ -286,7 +277,9 @@ since they have to be used during the generation, as explained above.
 The pointers could be zero; e.g. a local copy of <code>TimeShower</code>
 is created to handle showers in decays such as <ei>Upsilon -> q qbar</ei>
 from inside the <code>ParticleDecays class</code>. This is also the 
-place to do some further initialization.
+place to do initialization of whatever parameters you plan to use, 
+e.g. by reading in them from a user-accessible database like the
+<code>Settings</code> one.
 </method>
 
 <method name="double enhancePTmax()">
@@ -412,20 +405,13 @@ and non-interleaved evolution. Thus there is no correspondence to the
 The constructor does not need to do anything.
 </method>
 
-<method name="static void initStatic()">
-Since this member is static actually it cannot be overloaded.
-This is where a number of settings are read in and stored for
-further usage in the base class, i.e. the PYTHIA default showers. 
-If you find them convenient, feel free to make use of them in your 
-own shower. If not, everything you want to set could instead be
-taken care of in the next routine. 
-</method>
-
 <method name="void init( BeamParticle* beamAPtrIn, 
 BeamParticle* beamBPtrIn)">
 You have to store your local copy of the pointers to these objects,
 since they have to be used during the generation, as explained above.
-This is also the place to do some further initialization.
+This is also the place to do initialization of whatever parameters 
+you plan to use, e.g. by reading in them from a user-accessible 
+database like the <code>Settings</code> one.
 </method>
 
 <method name="bool limitPTmax( Event& event, double Q2Fac = 0., 

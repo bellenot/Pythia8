@@ -49,6 +49,12 @@ In practice, the experimental mimimum-bias sample may then contain
 some contamination of what is in PYTHIA classified as diffractive,
 especially (high-mass) double diffractive. 
 
+<p/>
+Some options to modify these cross sections, and especially to include
+Coulomb corrections to the elastic cross section, are found on the
+<?php $filepath = $_GET["filepath"];
+echo "<a href='TotalCrossSections.php?filepath=".$filepath."' target='page'>";?>Total Cross Sections</a> page.  
+
 <br/><br/><strong>SoftQCD:all</strong>  <input type="radio" name="1" value="on"><strong>On</strong>
 <input type="radio" name="1" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
@@ -122,7 +128,7 @@ Code 111.
 <input type="radio" name="8" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>g g -> q qbar</i>, where <i>q</i> by default
-is a light quark (<i>u, d, s</i>).
+is a light quark (<i>u, d, s</i>) (see below).
 Code 112.
   
 
@@ -153,9 +159,20 @@ Code 115.
 <input type="radio" name="12" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>q qbar -> q' qbar'</i>, where <i>q'</i> 
-by default is a light quark (<i>u, d, s</i>). 
+by default is a light quark (<i>u, d, s</i>) (see below). 
 Code 116.
   
+
+<br/><br/><table><tr><td><strong>HardQCD:nQuarkNew  </td><td></td><td> <input type="text" name="13" value="3" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>3</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
+Number of allowed outgoing new quark flavours in the above 
+<i>g g -> q qbar</i> and <i>q qbar -> q' qbar'</i> processes, 
+where quarks are treated as massless in the matrix-element expressions 
+(but correctly in the phase space). It is thus assumed that <i>c cbar</i> 
+and <i>b bbar</i> are added separately with masses taken into account,
+using the processes below. A change to 4 would also include <i>c cbar</i> 
+in the massless approximation, etc. In order to avoid doublecounting
+the processes below should then not be used simultaneously.
+</modeopen>
 
 <h3>Hard QCD processes: heavy-flavour subset</h3>
 
@@ -165,31 +182,36 @@ these matrix elements finite in the <i>pT -> 0</i> limit, but at
 high energies one may still question the validity of the expressions
 at low <i>pT</i> values, like for the other hard-QCD processes.
 Also as above, an eikonalized description, intended to be valid at all 
-<i>pT</i>, is included as part of the multiple-interactions framework.   
+<i>pT</i>, is included as part of the multiple-interactions framework. 
+<br/>Note that the processes below only represent the "tip of the iceberg"
+of charm and bottom production at high energies, where flavour excitation
+and shower branchings provide major additional sources. All these sources
+come together in the descriptions offered by <code>SoftQCD:minBias</code>
+and <code>HardQCD:all</code>.
 
-<br/><br/><strong>HardQCD:gg2ccbar</strong>  <input type="radio" name="13" value="on"><strong>On</strong>
-<input type="radio" name="13" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>HardQCD:gg2ccbar</strong>  <input type="radio" name="14" value="on"><strong>On</strong>
+<input type="radio" name="14" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>g g -> c cbar</i>. 
 Code 121.
   
 
-<br/><br/><strong>HardQCD:qqbar2ccbar</strong>  <input type="radio" name="14" value="on"><strong>On</strong>
-<input type="radio" name="14" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>HardQCD:qqbar2ccbar</strong>  <input type="radio" name="15" value="on"><strong>On</strong>
+<input type="radio" name="15" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>q qbar -> c cbar</i>. 
 Code 122.
   
 
-<br/><br/><strong>HardQCD:gg2bbbar</strong>  <input type="radio" name="15" value="on"><strong>On</strong>
-<input type="radio" name="15" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>HardQCD:gg2bbbar</strong>  <input type="radio" name="16" value="on"><strong>On</strong>
+<input type="radio" name="16" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>g g -> b bbar</i>. 
 Code 123.
   
 
-<br/><br/><strong>HardQCD:qqbar2bbbar</strong>  <input type="radio" name="16" value="on"><strong>On</strong>
-<input type="radio" name="16" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>HardQCD:qqbar2bbbar</strong>  <input type="radio" name="17" value="on"><strong>On</strong>
+<input type="radio" name="17" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>q qbar -> b bbar</i>. 
 Code 124.
@@ -270,24 +292,29 @@ if($_POST["12"] != "off")
 $data = "HardQCD:qqbar2qqbarNew = ".$_POST["12"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["13"] != "off")
+if($_POST["13"] != "3")
 {
-$data = "HardQCD:gg2ccbar = ".$_POST["13"]."\n";
+$data = "HardQCD:nQuarkNew = ".$_POST["13"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["14"] != "off")
 {
-$data = "HardQCD:qqbar2ccbar = ".$_POST["14"]."\n";
+$data = "HardQCD:gg2ccbar = ".$_POST["14"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["15"] != "off")
 {
-$data = "HardQCD:gg2bbbar = ".$_POST["15"]."\n";
+$data = "HardQCD:qqbar2ccbar = ".$_POST["15"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["16"] != "off")
 {
-$data = "HardQCD:qqbar2bbbar = ".$_POST["16"]."\n";
+$data = "HardQCD:gg2bbbar = ".$_POST["16"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["17"] != "off")
+{
+$data = "HardQCD:qqbar2bbbar = ".$_POST["17"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);

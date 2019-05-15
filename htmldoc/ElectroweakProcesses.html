@@ -40,11 +40,11 @@ Code 202.
 <p/><code>flag&nbsp; </code><strong> PromptPhoton:gg2ggamma &nbsp;</strong> 
  (<code>default = <strong>off</strong></code>)<br/>
 Scattering <i>g g -> g gamma</i>.
-<br/><b>Note:</b> This is a box graph. The full quark-mass 
-dependence in the loop leads to very complicated expressions. 
-The current implementation is based on assuming five massless 
-quarks, and thus is questionable at small (<i>pT &lt; m_b</i>) 
-or large (<i>pT > m_t</i>) transverse momenta.
+<br/><b>Note:</b> This is a box graph. The full quark-mass dependence 
+in the loop leads to very complicated expressions. The current 
+implementation is based on assuming five massless quarks (see below), 
+and thus is questionable at small (<i>pT &lt; m_b</i>) or large 
+(<i>pT > m_t</i>) transverse momenta.
 Code 203.
   
 
@@ -57,13 +57,22 @@ Code 204.
 <p/><code>flag&nbsp; </code><strong> PromptPhoton:gg2gammagamma &nbsp;</strong> 
  (<code>default = <strong>off</strong></code>)<br/>
 Scattering <i>g g -> gamma gamma</i>.
-<br/><b>Note:</b> This is a box graph. The full quark-mass 
-dependence in the loop leads to very complicated expressions. 
-The current implementation is based on assuming five massless 
-quarks, and thus is questionable at small (<i>pT &lt; m_b</i>) 
-or large (<i>pT > m_t</i>) transverse momenta.
+<br/><b>Note:</b> This is a box graph. The full quark-mass dependence 
+in the loop leads to very complicated expressions. The current 
+implementation is based on assuming five massless quarks (see below), 
+and thus is questionable at small (<i>pT &lt; m_b</i>) or large 
+(<i>pT > m_t</i>) transverse momenta.
 Code 205.
   
+
+<p/><code>mode&nbsp; </code><strong> PromptPhoton:nQuarkLoop &nbsp;</strong> 
+ (<code>default = <strong>5</strong></code>; <code>minimum = 3</code>; <code>maximum = 6</code>)<br/>
+Number of quark flavours included in the box graphs resposible for 
+<i>g g -> g gamma</i> and <i>g g-> gamma gamma</i> processes.
+Owing to the complexity if the massive expressions, quarks are treated 
+as massless. The default value should be applicable in the range of 
+transverse momenta above the <i>b</i> mass but below the <i>t</i> one.
+</modeopen>
 
 <h3>Weak boson processes</h3>
 
@@ -74,6 +83,23 @@ combination with a parton. Since the three sets are partly
 conflicting, each is associated with its own group flag.
 In addition, <i>t</i>-channel exchange of such a boson 
 between two fermions form a separate group.
+
+<p/>
+There is one flag that can be used to influence the <i>gamma^*/Z^0</i>
+structure in all the processes below where it is produced, unless 
+otherwise stated. 
+<p/><code>mode&nbsp; </code><strong> WeakZ0:gmZmode &nbsp;</strong> 
+ (<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 2</code>)<br/>
+Choice of full <i>gamma^*/Z^0</i> structure or not in relevant 
+processes.
+<br/><code>option </code><strong> 0</strong> : full <i>gamma^*/Z^0</i> structure,
+with interference included.  
+<br/><code>option </code><strong> 1</strong> : only pure <i>gamma^*</i> contribution.  
+<br/><code>option </code><strong> 2</strong> : only pure <i>Z^0</i> contribution.  
+<br/><b>Note</b>: irrespective of the option used, the particle produced 
+will always be assigned code 23 for <i>Z^0</i>, and open decay channels
+is purely dictated by what is set for the <i>Z^0</i>. 
+</modepick>
 
 <h4>Boson exchange</h4>
 
@@ -172,7 +198,7 @@ These processes give first-order corrections to the ones in the
 <code>WeakSingleBoson</code> class, and both sets cannot be used
 simultaneously without unphysical doublecounting. The current class
 should only be used to study the high-<i>pT</i> tail of the 
-gauge-boson production processes (for LHC applicatiosn at least
+gauge-boson production processes (for LHC applications at least
 <i>pT</i> > 20 GeV), while the ones in <code>WeakSingleBoson</code> 
 should be used for inclusive production.
   

@@ -71,7 +71,7 @@ implicit in the status code of its daughter(s). The basic scheme is:
 <li> i >= 20    : free for add-on programs</li>
 <li> j = 1 - 9  : further specification</li>
 </ul>
-In detail, the list of foreseen status codes is: 
+In detail, the list of used or foreseen status codes is: 
 <ul>
 <li>11 - 19 : beam particles</li> 
   <ul>

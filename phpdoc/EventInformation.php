@@ -34,8 +34,9 @@ class, so if you e.g. have declared <code>Pythia pythia</code>, the
 <code>Info</code> methods can be accessed by 
 <code>pythia.info.method()</code>. Most of this is information that 
 could also be obtained e.g. from the event record, but is here more
-directly available. It is intended for processes generated internally
-in Pythia, not for ones read in e.g. via the Les Houches Accord.
+directly available. It is primarily intended for processes generated 
+internally in PYTHIA, but many of the methods would work also for
+events fed in via the Les Houches Accord.
 
 <p/>
 Here are the currently available methods related to each event:
@@ -84,19 +85,32 @@ is either beam diffractively excited?
 is the process a minimum-bias one?
   
 
+<p/><code>method&nbsp; </code><strong> isLHA() &nbsp;</strong> <br/>
+has the process been generated from external Les Houches Accord 
+information?
+  
+
+<p/><code>method&nbsp; </code><strong> atEndOfFile() &nbsp;</strong> <br/>
+true if a linked Les Houches class refuses to return any further 
+events, presumably because it has reached the end of the file from 
+which events have been read in.
+  
+
 <p/><code>method&nbsp; </code><strong> hasSub() &nbsp;</strong> <br/>
 does the process have a subprocess classification?
-Currently only true for minbias, where it allows the hardest
-collision to be identified.
+Currently only true for minbias and Les Houches events, where it allows 
+the hardest collision to be identified. 
   
 
 <p/><code>method&nbsp; </code><strong> nameSub(), codeSub(), nFinalSub() &nbsp;</strong> <br/>
 the name, code and number of final-state partons in the subprocess
-that occured when <code>hasSub()</code> is true. For instance, for 
-a minimum-bias event the <code>code</code> would always be 101,
-while <code>codeSub()</code> would vary depending on the actual
-hardest interaction, e.g. 111 for <i>g g -> g g</i>. The methods
-below would also provide information for this particular subcollision.  
+that occured when <code>hasSub()</code> is true. For a minimum-bias event 
+the <code>code</code> would always be 101, while <code>codeSub()</code> 
+would vary depending on the actual hardest interaction, e.g. 111 for 
+<i>g g -> g g</i>. For a Les Houches event the <code>code</code> would 
+always be 9999, while <code>codeSub()</code> would be the external 
+user-defined classification code. The methods below would also provide 
+information for such particular subcollisions.  
   
 
 <p/><code>method&nbsp; </code><strong> id1(), id2() &nbsp;</strong> <br/>
@@ -155,6 +169,14 @@ the polar and azimuthal scattering angles in the rest frame of
 a <i>2 -> 2</i> process.
   
 
+<p/><code>method&nbsp; </code><strong> weight() &nbsp;</strong> <br/>
+weight assigned to the current event. Is normally 1 and thus uninteresting. 
+However, for Les Houches events some strategies allow negative weights, 
+which then after unweighting lead to events with weight -1. There are also 
+strategies where no unweighting is done, and therefore a nontrivial event 
+weight must be used e.g. when filling histograms. 
+  
+
 <p/><code>method&nbsp; </code><strong> bMI() &nbsp;</strong> <br/>
 the impact parameter <i>b</i> assumed for the current collision when
 multiple interactions are simulated. Is not expressed in any physical
@@ -186,7 +208,7 @@ information already provided above.
 <p/><code>method&nbsp; </code><strong> nISR(), nFSRinProc(), nFSRinRes() &nbsp;</strong> <br/>
 the number of emissions in the initial-state showering, in the final-state
 showering excluding resonance decys, and in the final-state showering
-inside resonance decays, respectively. Not yet fully implemented.  
+inside resonance decays, respectively.
   
 
 <p/>
@@ -199,15 +221,19 @@ when the full statistics is available.
 the total number of tried phase-space points, selected hard processes
 and finally accepted events, summed over all allowed subprocesses.
 The first number is only intended for a study of the phase-space selection
-efficiency. The last two numbers only disagree if the user introduces some
-veto during the event-generation process; then the former is the number of
-acceptable events found by Pythia and the latter the number that also
-were approved by the user.
+efficiency. The last two numbers usually only disagree if the user introduces 
+some veto during the event-generation process; then the former is the number 
+of acceptable events found by PYTHIA and the latter the number that also
+were approved by the user. If you set <?php $filepath = $_GET["filepath"];
+echo "<a href='ASecondHardProcess.php?filepath=".$filepath."' target='page'>";?>a 
+second hard process</a> there may also be a mismatch. 
+  
 
 <p/><code>method&nbsp; </code><strong> sigmaGen(), sigmaErr() &nbsp;</strong> <br/>
 the estimated cross section and its estimated error,
 summed over all allowed subprocesses, in units of mb. The numbers refer to
 the accepted event sample above, i.e. after any user veto. 
+  
 
 </body>
 </html>

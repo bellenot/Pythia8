@@ -21,6 +21,7 @@
 #include "PartonDistributions.h"
 #include "ProcessLevel.h"
 #include "PythiaStdlib.h"
+#include "ResonanceWidths.h"
 #include "Settings.h"
 #include "SpaceShower.h"
 #include "SusyLesHouches.h"
@@ -74,6 +75,10 @@ public:
   bool setSigmaPtr( SigmaProcess* sigmaPtrIn) 
     { sigmaPtrs.push_back( sigmaPtrIn); return true;} 
 
+  // Possibility to pass in pointer(s) for external resonance.
+  bool setResonancePtr( ResonanceWidths* resonancePtrIn) 
+    { resonancePtrs.push_back( resonancePtrIn); return true;} 
+
   // Possibility to pass in pointer for external showers.
   bool setShowerPtr( TimeShower* timesDecPtrIn, 
     TimeShower* timesPtrIn = 0, SpaceShower* spacePtrIn = 0) 
@@ -97,6 +102,9 @@ public:
  
   // Generate the next event.
   bool next(); 
+
+  // Special routine to allow more decays if on/off switches changed.
+  bool moreDecays() {return hadronLevel.moreDecays(event);}
 
   // List the current Les Houches event.
   void LHAevntList(ostream& os = cout) {lhaEvntPtr->list(os);}
@@ -177,6 +185,9 @@ private:
 
   // Pointers to external processes derived from the Pythia base classes.
   vector<SigmaProcess*> sigmaPtrs;  
+
+  // Pointers to external calculation of resonance widths.
+  vector<ResonanceWidths*> resonancePtrs;
 
   // Pointers to timelike and spacelike showers.
   TimeShower*  timesDecPtr;

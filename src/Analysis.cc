@@ -477,10 +477,15 @@ bool ClusterJet::analyze(const Event& event, double yScaleIn,
     jets[jMin].pJet         += jets[kMin].pJet;
     jets[jMin].pAbs          = jets[jMin].pJet.pAbs();
     jets[jMin].multiplicity += jets[kMin].multiplicity;
-    jets[kMin]               = jets.back();
-    jets.pop_back();
     for (int i = 0; i < nParticles; ++i) 
     if (particles[i].daughter == kMin) particles[i].daughter = jMin;
+
+    // Move up last jet to empty slot to shrink list.
+    jets[kMin]               = jets.back();
+    jets.pop_back();
+    int iEnd                 = jets.size();
+    for (int i = 0; i < nParticles; ++i) 
+    if (particles[i].daughter == iEnd) particles[i].daughter = kMin;
 
     // Do reassignments of particles to nearest jet if desired.
     if (doReassign) reassign();

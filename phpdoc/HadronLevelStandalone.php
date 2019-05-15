@@ -108,7 +108,7 @@ new particles are added with normal PYTHIA status codes.
 
 <p/>
 For normal hadronization/decays in <code>pythia.next()</code> the
-history encoded in the mother and daughter indices are not used. 
+history encoded in the mother and daughter indices is not used. 
 Therefore the first two <code>append</code> methods, which set all these 
 indices vanishing, should suffice. The subsequent hadronization/decays 
 will still be properly documented.

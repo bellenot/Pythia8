@@ -6,9 +6,9 @@ The <code>ParticleDecays</code> class performs the sequential decays of
 all unstable hadrons produced in the string fragmentation stage,
 i.e. up to and including <ei>b</ei> hadrons and their decay products, 
 such as the <ei>tau</ei> lepton. It is not to be used for the decay of 
-more massive resonances, such as top, <ei>Z^0</ei> or SUSY, where decays 
-must be performed already at the <code>ProcessLevel</code> of the event 
-generation.
+more massive <aloc href="ResonanceDecays">resonances</aloc>, such as top, 
+<ei>Z^0</ei> or SUSY, where decays must be performed already at the 
+<code>ProcessLevel</code> of the event generation.
 
 <p/>
 The decay description essentially copies the one present in 
@@ -110,7 +110,7 @@ Gamma from RPP2006.)
 
 <h3>Other variables</h3>
 
-<parm name="ParticleDecays:mSafety" default="0.001" min="0." max="0.01">
+<parm name="ParticleDecays:mSafety" default="0.0005" min="0." max="0.01">
 Minimum mass difference required between the decaying mother mass 
 and the sum of the daughter masses, kept as a safety margin to avoid
 numerical problems in the decay generation.
@@ -206,8 +206,7 @@ to the lepton pair</li>
 in <ei>tau</ei> decay</li>
 <li> 22 : weak decay; if there is a quark spectator system it collapses to 
 one hadron; for leptonic/semileptonic decays the <ei>V-A</ei> matrix element
-is used, for hadronic decays simple phase space (gives somewhat softer 
-<ei>B -> D</ei> spectrum than PYTHIA 6; to be improved!??)</li>
+is used, for hadronic decays simple phase space</li>
 <li> 23 : as 22, but require at least three particles in decay</li>
 <li> 31 : decays of type B -> gamma X, very primitive simulation where
 X is given in terms of its flavour content, the X multiplicity is picked 
@@ -227,7 +226,7 @@ and avoid already explicitly listed non-partonic channels</li>
 and hadronize</li>
 <li> 92 : decay onium to <ei>g g g</ei> or <ei>g g gamma</ei> 
 (with matrix element), which should shower and hadronize</li>
-<li> 101 - : reserved for the description of partial widths of 
+<li> 100 - : reserved for the description of partial widths of 
 <aloc href="ResonanceDecays">resonances</aloc></li>
 </ul>
 

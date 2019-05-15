@@ -5,10 +5,10 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.095      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 31 Aug 2007  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.100      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 19 Oct 2007  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 31 Aug 2007 at 09:54:28    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 19 Oct 2007 at 13:53:54    |  | 
  |  |                                                                              |  | 
  |  |   Main author: Torbjorn Sjostrand; CERN/PH, CH-1211 Geneva, Switzerland,     |  | 
  |  |     and Department of Theoretical Physics, Lund University, Lund, Sweden;    |  | 
@@ -16,14 +16,16 @@
  |  |   Author: Stephen Mrenna; Computing Division, Simulations Group,             |  | 
  |  |     Fermi National Accelerator Laboratory, MS 234, Batavia, IL 60510, USA;   |  | 
  |  |     phone: + 1 - 630 - 840 - 2556; e-mail: mrenna@fnal.gov                   |  | 
- |  |   Author: Peter Skands; Theoretical Physics Department,                      |  | 
+ |  |   Author: Peter Skands; CERN/PH, CH-1211 Geneva, Switzerland,                |  | 
+ |  |     and Theoretical Physics Department,                                      |  | 
  |  |     Fermi National Accelerator Laboratory, MS 106, Batavia, IL 60510, USA;   |  | 
- |  |     phone: + 1 - 630 - 840 - 2270; e-mail: skands@fnal.gov                   |  | 
+ |  |     phone: + 41 - 22 - 767 24 59; e-mail: skands@fnal.gov                    |  | 
+ |  |                                                                              |  | 
+ |  |   The main program reference is the 'Brief Introduction to PYTHIA 8.1',      |  | 
+ |  |   T. Sjostrand, S. Mrenna and P. Skands, arXiv/0710.????                     |  | 
  |  |                                                                              |  | 
  |  |   The main physics reference is the 'PYTHIA 6.4 Physics and Manual',         |  | 
  |  |   T. Sjostrand, S. Mrenna and P. Skands, JHEP05 (2006) 026 [hep-ph/0603175]. |  | 
- |  |   In addition, for PYTHIA 8.0, also quote the 'Brief Introduction',          |  | 
- |  |   T. Sjostrand, CERN-LCGAPP-2007-03.                                         |  | 
  |  |                                                                              |  | 
  |  |   An archive of program versions and documentation is found on the web:      |  | 
  |  |   http://www.thep.lu.se/~torbjorn/Pythia.html                                |  | 
@@ -33,8 +35,6 @@
  |  |                                                                              |  | 
  |  |   Disclaimer: this program comes without any guarantees.                     |  | 
  |  |   Beware of errors and use common sense when interpreting results.           |  | 
- |  |   In addition, the current 8.0 version is intended for tryout and feedback   |  | 
- |  |   only, and should not be used for any physics studies or production runs.   |  | 
  |  |                                                                              |  | 
  |  |   Copyright (C) 2007 Torbjorn Sjostrand                                      |  | 
  |  |                                                                              |  | 
@@ -159,7 +159,7 @@
  *-------  End PYTHIA Error and Warning Messages Statistics  ------------------------------------------------------* 
 
 
-  2007-08-31 09:54       deviation from energy-momentum conservation
+  2007-10-19 13:53       deviation from energy-momentum conservation
 
         1.00*10^ 4  X                                                                                                   
         0.96*10^ 4  X                                                                                                   
@@ -202,7 +202,7 @@
    All chan =  1.0000e+04    Rms  =  0.0000e+00    Overflow  =  0.0000e+00    High edge =  1.0000e-04
 
 
-  2007-08-31 09:54       deviation from charge conservation
+  2007-10-19 13:53       deviation from charge conservation
 
         1.00*10^ 4                              X                            
         0.96*10^ 4                              X                            
@@ -245,7 +245,7 @@
    All chan =  1.0000e+04    Rms  =  0.0000e+00    Overflow  =  0.0000e+00    High edge =  9.5000e+00
 
 
-  2007-08-31 09:54       final particle multiplicity
+  2007-10-19 13:53       final particle multiplicity
 
         2.16*10^ 3          2                                                                                           
         2.08*10^ 3          X                                                                                           
@@ -290,7 +290,7 @@
    All chan =  1.0000e+04    Rms  =  1.8870e+00    Overflow  =  0.0000e+00    High edge =  9.9500e+01
 
 
-  2007-08-31 09:54       dn/dp for particles
+  2007-10-19 13:53       dn/dp for particles
 
         5.60*10^ 3    2X                                                                                                
         5.40*10^ 3    XX                                                                                                
@@ -336,7 +336,7 @@
    All chan =  8.5813e+04    Rms  =  4.5147e+00    Overflow  =  0.0000e+00    High edge =  2.0000e+01
 
 
-  2007-08-31 09:54       particle flow in event plane
+  2007-10-19 13:53       particle flow in event plane
 
         0.96*10^ 4  7                                                95                                                9
         0.92*10^ 4  X                                                XX                                                X
@@ -378,7 +378,7 @@
    All chan =  8.5813e+04    Rms  =  2.0899e+00    Overflow  =  0.0000e+00    High edge =  3.1416e+00
 
 
-  2007-08-31 09:54       energy flow in event plane
+  2007-10-19 13:53       energy flow in event plane
 
         7.50*10^ 4  5                                                62                                                5
         7.25*10^ 4  X                                                XX                                                X
@@ -426,7 +426,7 @@
    All chan =  4.0000e+05    Rms  =  2.1676e+00    Overflow  =  0.0000e+00    High edge =  3.1416e+00
 
 
-  2007-08-31 09:54       dn/dy all primaries
+  2007-10-19 13:53       dn/dy all primaries
 
         2.60*10^ 3                                                                 4                                    
         2.50*10^ 3                                     395X7                     79X                                    

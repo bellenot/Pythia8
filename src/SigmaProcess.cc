@@ -23,8 +23,6 @@ namespace Pythia8 {
 int         SigmaProcess::alphaSorder    = 1;
 int         SigmaProcess::alphaEMorder   = 1;
 int         SigmaProcess::nQuarkIn       = 5;
-int         SigmaProcess::nQuarkNew      = 3;
-int         SigmaProcess::nQuarkLoop     = 5;
 int         SigmaProcess::renormScale1   = 1;
 int         SigmaProcess::renormScale2   = 2;
 int         SigmaProcess::renormScale3   = 3;
@@ -73,6 +71,10 @@ bool   SigmaProcess::hasLeptonBeams     = false;
 // Pointer to the SLHA object.
 SusyLesHouches* SigmaProcess::slha;
 
+// Pointers to LHAinit and LHAevnt for generating external events.
+LHAinit* SigmaProcess::lhaInitPtr;
+LHAevnt* SigmaProcess::lhaEvntPtr;
+
 //*********
 
 // Initialize static data members.
@@ -96,13 +98,7 @@ void SigmaProcess::initStatic() {
   Kfactor         = Settings::parm("SigmaProcess:Kfactor");
 
   // Maximum incoming quark flavour.
-  nQuarkIn        = Settings::mode("SigmaProcess:nQuarkIn");
-
-  // Maximum new quark flavour.
-  nQuarkNew       = Settings::mode("SigmaProcess:nQuarkNew");
-
-  // Maximum quark flavour in loop, e.g. g g -> gamma gamma.
-  nQuarkLoop      = Settings::mode("SigmaProcess:nQuarkLoop");
+  nQuarkIn        = Settings::mode("PDFinProcess:nQuarkIn");
 
   // Renormalization scale choice.
   renormScale1    = Settings::mode("SigmaProcess:renormScale1"); 
@@ -298,6 +294,28 @@ bool SigmaProcess::initFlux() {
     }
   }
 
+  // Case with f fbar' generic incoming state.
+  else if (fluxType == "ffbar") {
+    // If beams are leptons then also colliding partons.
+    if (isLeptonA && isLeptonB && idA * idB < 0) {
+      addBeamA(idA);
+      addBeamB(idB);
+      addPair(idA, idB);
+    // Hadron beams gives quarks.
+    } else {
+      for (int id = -nQuarkIn; id <= nQuarkIn; ++id) 
+      if (id != 0) {
+        addBeamA(id);
+        addBeamB(id);
+      }
+      for (int id1 = -nQuarkIn; id1 <= nQuarkIn; ++id1) 
+      if (id1 != 0) 
+      for (int id2 = -nQuarkIn; id2 <= nQuarkIn; ++id2) 
+      if (id2 != 0 && id1 * id2 < 0) 
+        addPair(id1, id2);
+    }
+  }
+
   // Case with f gamma incoming state.
   else if (fluxType == "fgm") {
     // Fermion from incoming side A.
@@ -422,7 +440,7 @@ double SigmaProcess::weightTopDecay( Event& process, int iResBeg,
   int iResEnd) {
 
   // If not pair W d/s/b and mother t then return unit weight.
-  if (iResEnd - iResBeg != 2) return 1.;
+  if (iResEnd - iResBeg != 1) return 1.;
   int iW = iResBeg;
   int iB = iResBeg + 1;
   int idW = process[iW].idAbs();
@@ -460,7 +478,7 @@ double SigmaProcess::weightHiggsDecay( Event& process, int iResBeg,
   int iResEnd) {
 
   // If not pair Z0 Z0 or W+ W- then return unit weight.
-  if (iResEnd - iResBeg != 2) return 1.;
+  if (iResEnd - iResBeg != 1) return 1.;
   int iZW1  = iResBeg;
   int iZW2  = iResBeg + 1;
   int idZW1 = process[iZW1].id();
@@ -880,9 +898,6 @@ void Sigma3Process::store3Kin( double x1in, double x2in, double sHin,
   runBW4   = runBW4in; 
   runBW5   = runBW5in; 
 
-  // Calculate squared transverse momentum. ??
-  pT2 =(p3cm.pT2() + p4cm.pT2() + p5cm.pT2()) / 3.; 
-
   // Special case: pick scale as if 2 -> 1 process in disguise.
   if (isSChannel()) {
 
@@ -955,6 +970,29 @@ void Sigma3Process::store3Kin( double x1in, double x2in, double sHin,
   // Evaluate alpha_strong and alpha_EM.
   alpS = alphaS.alphaS(Q2RenSave);  
   alpEM = alphaEM.alphaEM(Q2RenSave);  
+
+}
+
+//**************************************************************************
+
+// The SigmaLHAProcess class.
+// Wrapper for Les Houches Accord external input; derived from SigmaProcess.
+// Note: arbitrary subdivision into PhaseSpaceLHA and SigmaLHAProcess tasks.
+
+//*********
+
+// Obtain number of final-state partons from LHA object.
+
+int SigmaLHAProcess::nFinal() const {
+
+  // At initialization size unknown, so return 0.
+  if (lhaEvntPtr->size() <= 0) return 0;
+
+  // Sum up all particles that has first mother = 1.
+  int nFin = 0; 
+  for (int i = 3; i < lhaEvntPtr->size(); ++i) 
+    if (lhaEvntPtr->mother1(i) == 1) ++nFin;
+  return nFin;
 
 }
 

@@ -9,12 +9,15 @@
 #include "ProcessContainer.h"
 
 // Internal headers for special processes.
-#include "SigmaQCD.h"
+#include "SigmaCompositeness.h"
 #include "SigmaEW.h"
 #include "SigmaExtraDim.h"
-#include "SigmaLeptoquark.h"
-#include "SigmaOnia.h"
 #include "SigmaHiggs.h"
+#include "SigmaLeftRightSym.h"
+#include "SigmaLeptoquark.h"
+#include "SigmaNewGaugeBosons.h"
+#include "SigmaOnia.h"
+#include "SigmaQCD.h"
 #include "SigmaSUSY.h"
 
 namespace Pythia8 {
@@ -34,6 +37,10 @@ Info* ProcessContainer::infoPtr;
 // Pointer to the resonance decay object.
 ResonanceDecays* ProcessContainer::resonanceDecaysPtr;
 
+// Pointers to LHAinit and LHAevnt for generating external events.
+LHAinit* ProcessContainer::lhaInitPtr;
+LHAevnt* ProcessContainer::lhaEvntPtr;
+
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
 
@@ -50,16 +57,23 @@ const int ProcessContainer::N3SAMPLE  = 1000;
 bool ProcessContainer::init() {
 
   // Extract info about current process from SigmaProcess object.
-  isMinBias  = sigmaProcessPtr->isMinBias();
-  isResolved = sigmaProcessPtr->isResolved();
-  isDiffA    = sigmaProcessPtr->isDiffA();
-  isDiffB    = sigmaProcessPtr->isDiffB();
-  int nFinal = sigmaProcessPtr->nFinal();
+  isLHA       = sigmaProcessPtr->isLHA();
+  isMinBias   = sigmaProcessPtr->isMinBias();
+  isResolved  = sigmaProcessPtr->isResolved();
+  isDiffA     = sigmaProcessPtr->isDiffA();
+  isDiffB     = sigmaProcessPtr->isDiffB();
+  int nFinal  = sigmaProcessPtr->nFinal();
+  lhaStrat    = (isLHA) ? lhaInitPtr->strategy() : 0;
+  lhaStratAbs = abs(lhaStrat);
+  allowNegSig = sigmaProcessPtr->allowNegativeSigma();
 
   // Pick and create phase space generator. Send pointers where required.
-  if (isMinBias) phaseSpacePtr = new PhaseSpace2to2minbias();
-  else if (!isResolved) phaseSpacePtr = new PhaseSpace2to2eldiff( isDiffA, 
-    isDiffB);
+  if      (isLHA)       phaseSpacePtr = new PhaseSpaceLHA();
+  else if (isMinBias)   phaseSpacePtr = new PhaseSpace2to2minbias();
+  else if (!isResolved && !isDiffA  && !isDiffB )
+                        phaseSpacePtr = new PhaseSpace2to2elastic();
+  else if (!isResolved) phaseSpacePtr = new PhaseSpace2to2diffractive( 
+                                        isDiffA, isDiffB);
   else if (nFinal == 1) phaseSpacePtr = new PhaseSpace2to1tauy();
   else if (nFinal == 2) phaseSpacePtr = new PhaseSpace2to2tauyz();
   else                  phaseSpacePtr = new PhaseSpace2to3tauycyl();
@@ -90,8 +104,11 @@ bool ProcessContainer::init() {
   sigmaMx             = phaseSpacePtr->sigmaMax();
   double sigmaHalfWay = sigmaMx;
 
+  // Separate signed maximum needed for LHA with negative weight.
+  sigmaSgn            = phaseSpacePtr->sigmaSumSigned();
+
   // Check maximum by a few events, and extrapolate a further increase.
-  if (physical) {
+  if (physical & !isLHA) {
     int nSample = (nFinal < 3) ? N12SAMPLE : N3SAMPLE;
     for (int iSample = 0; iSample < nSample; ++iSample) 
     while (!phaseSpacePtr->trialKin(false)) { 
@@ -111,33 +128,53 @@ bool ProcessContainer::init() {
  
 bool ProcessContainer::trialProcess() { 
 
-  // Update number of tries.
-  if (sigmaMx == 0.) return false;
-  ++nTry;
+  // Loop over tries only occurs for Les Houches strategy = +-2.
+  for (int iTry = 0;  ; ++iTry) {
 
-  // Generate a trial phase space point, with cross section.
-  if (!phaseSpacePtr->trialKin(true)) return false;
-  double sigmaNow = phaseSpacePtr->sigmaNow(); 
+    // Generate a trial phase space point, if meaningful.
+    if (sigmaMx == 0.) return false;
+    infoPtr->setEndOfFile(false);
+    bool repeatSame = (iTry > 0);
+    bool physical = phaseSpacePtr->trialKin(true, repeatSame);
 
-  // Check that not negative cross section.
-  if (sigmaNow < sigmaNeg) {
-    ErrorMsg::message("Warning in ProcessContainer::trialProcess:"
-      " negative cross section set 0", "for " +  sigmaProcessPtr->name() );
-    sigmaNeg = sigmaNow;
+    // Possibly fail, e.g. if at end of Les Houches file, else cross section.
+    if (isLHA && !physical) infoPtr->setEndOfFile(true);
+    else ++nTry;
+    if (!physical) return false;
+    double sigmaNow = phaseSpacePtr->sigmaNow(); 
+
+    // Tell if this event comes with negative weight, or weight at all.
+    double weight = 1.;
+    if ( lhaStrat < 0 && sigmaNow < 0.) weight = -1.;
+    if ( lhaStratAbs == 4) weight = sigmaNow;
+    infoPtr->setWeight( weight);
+
+    // Check that not negative cross section when not allowed.
+    if (!allowNegSig) {
+      if (sigmaNow < sigmaNeg) {
+        ErrorMsg::message("Warning in ProcessContainer::trialProcess: neg"
+          "ative cross section set 0", "for " +  sigmaProcessPtr->name() );
+        sigmaNeg = sigmaNow;
+      }
+      if (sigmaNow < 0.) sigmaNow = 0.;
+    }
+
+    // Update statistics. Check if maximum violated.
+    double sigmaAdd = sigmaNow;
+    if (lhaStratAbs == 2 || lhaStratAbs == 3) sigmaAdd = sigmaSgn;    
+    sigmaSum  += sigmaAdd;
+    sigma2Sum += pow2(sigmaAdd);
+    newSigmaMx = phaseSpacePtr->newSigmaMax();
+    if (newSigmaMx) sigmaMx = phaseSpacePtr->sigmaMax();
+
+    // Select or reject trial point.
+    bool select = true;
+    if (lhaStratAbs < 3) select 
+      = (newSigmaMx || Rndm::flat() * abs(sigmaMx) < abs(sigmaNow)); 
+    if (select) ++nSel;
+    if (select || lhaStratAbs !=2) return select;
   }
-  if (sigmaNow < 0.) sigmaNow = 0.;
-
-  // Update statistics. Check if maximum violated.
-  sigmaSum  += sigmaNow;
-  sigma2Sum += pow2(sigmaNow);
-  newSigmaMx = phaseSpacePtr->newSigmaMax();
-  if (newSigmaMx) sigmaMx = phaseSpacePtr->sigmaMax();
-
-  // Select or reject trial point.
-  bool select = (newSigmaMx || sigmaNow > Rndm::flat() * sigmaMx);  
-  if (select) ++nSel;
-  return select;
-
+ 
 }
 
 //*********
@@ -152,10 +189,11 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
 
   // Construct kinematics from selected phase space point.
   if (!phaseSpacePtr->finalKin()) return false;
+  int nFin = sigmaProcessPtr->nFinal();
 
   // Basic info on process.
-  if (isHardest) infoPtr->setType( name(), code(), nFinal(), isMinBias, 
-    isResolved, isDiffA, isDiffB);
+  if (isHardest) infoPtr->setType( name(), code(), nFin, isMinBias, 
+    isResolved, isDiffA, isDiffB, isLHA);
 
   // Let hard process record begin with the event as a whole and
   // the two incoming beam particles.  
@@ -168,62 +206,237 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
 
   // For minbias process no interaction selected so far, so done.
   if (isMinBias) return true;
+  double scale = 0.;
 
-  // Further info on process.
-  int id1        = sigmaProcessPtr->id(1);
-  int id2        = sigmaProcessPtr->id(2);
-  double pdf1    = sigmaProcessPtr->pdf1();
-  double pdf2    = sigmaProcessPtr->pdf2();
-  double Q2Fac   = sigmaProcessPtr->Q2Fac();
-  double alphaEM = sigmaProcessPtr->alphaEMRen();
-  double alphaS  = sigmaProcessPtr->alphaSRen();
-  double Q2Ren   = sigmaProcessPtr->Q2Ren();
-  double x1      = phaseSpacePtr->x1();
-  double x2      = phaseSpacePtr->x2();
-  double sHat    = phaseSpacePtr->sHat();
-  double tHat    = phaseSpacePtr->tHat();
-  double uHat    = phaseSpacePtr->uHat();
-  double pTHat   = phaseSpacePtr->pTHat();
-  double m3      = phaseSpacePtr->m(3);
-  double m4      = phaseSpacePtr->m(4);
-  double theta   = phaseSpacePtr->thetaHat();
-  double phi     = phaseSpacePtr->phiHat();
+  // Insert the subprocess partons - resolved processes.
+  if (isResolved && !isLHA) {
+
+    // Find scale from which to begin MI/ISR/FSR evolution. 
+    scale = sqrt(Q2Fac());
+    process.scale( scale );
+
+    // Loop over incoming and outgoing partons.
+    int colOffset = process.lastColTag();
+    for (int i = 1; i <= 2 + nFin; ++i) { 
+
+      // Read out particle info from SigmaProcess object.
+      int id = sigmaProcessPtr->id(i);
+      int status = (i <= 2) ? -21 : 23;
+      int mother1 = (i <= 2) ? i : 3;
+      int mother2 = (i <= 2) ? 0 : 4;
+      int daughter1 = (i <= 2) ? 5 : 0;
+      int daughter2 = (i <= 2) ? 4 + nFin : 0;
+      int col = sigmaProcessPtr->col(i);
+      if (col > 0) col += colOffset;
+      int acol = sigmaProcessPtr->acol(i);
+      if (acol > 0) acol += colOffset;
+
+      // Append to process record.
+      int iNow = process.append( id, status, mother1, mother2, 
+        daughter1, daughter2, col, acol, phaseSpacePtr->p(i), 
+        phaseSpacePtr->m(i), scale);
+      
+      // Pick lifetime where relevant, else not.
+      if (process[iNow].tau0() > 0.) process[iNow].tau(
+        process[iNow].tau0() * Rndm::exp() );
+    }
+  }
+
+  // Insert the outgoing particles - unresolved processes.
+  else if (!isLHA) { 
+    process.append( sigmaProcessPtr->id(3), 23, 1, 0, 0, 0, 0, 0, 
+      phaseSpacePtr->p(3), phaseSpacePtr->m(3));
+    process.append( sigmaProcessPtr->id(4), 23, 2, 0, 0, 0, 0, 0, 
+      phaseSpacePtr->p(4), phaseSpacePtr->m(4));
+  }
+
+  // Insert the outgoing particles - Les Houches Accord processes.
+  else {
+
+    // Since LHA partons may be out of order, determine correct one.
+    // (Recall that zeroth particle is empty.) 
+    vector<int> newPos;
+    newPos.reserve(lhaEvntPtr->size());
+    newPos.push_back(0);
+    for (int iNew = 0; iNew < lhaEvntPtr->size(); ++iNew) {
+      // For iNew == 0 look for the two incoming partons, then for
+      // partons having them as mothers, and so on layer by layer.
+      for (int i = 1; i < lhaEvntPtr->size(); ++i)
+        if (lhaEvntPtr->mother1(i) == newPos[iNew]) newPos.push_back(i);
+      if (int(newPos.size()) <= iNew) break;
+    } 
+
+    // Find scale from which to begin MI/ISR/FSR evolution.
+    scale = lhaEvntPtr->scale();
+    process.scale( scale);
+
+    // Copy over info from LHA event to process, in proper order.
+    for (int i = 1; i < lhaEvntPtr->size(); ++i) {
+      int iOld = newPos[i];
+      int id = lhaEvntPtr->id(iOld);
+
+      // Translate from LHA status codes.
+      int lhaStatus =  lhaEvntPtr->status(iOld);
+      int status = -21;
+      if (lhaStatus == 2 || lhaStatus == 3) status = -22;
+      if (lhaStatus == 1) status = 23;
+
+      // Find where mothers have been moved by reordering.
+      int mother1Old = lhaEvntPtr->mother1(iOld);   
+      int mother2Old = lhaEvntPtr->mother2(iOld);   
+      int mother1 = 0;
+      int mother2 = 0; 
+      for (int im = 1; im < i; ++im) {
+        if (mother1Old == newPos[im]) mother1 = im + 2; 
+        if (mother2Old == newPos[im]) mother2 = im + 2; 
+      } 
+      if (i <= 2) mother1 = i;
+
+      // Ensure that second mother = 0 except for bona fide carbon copies.
+      if (mother1 > 0 && mother2 == mother1) { 
+        int sister1 = process[mother1].daughter1();
+        int sister2 = process[mother1].daughter2();
+        if (sister2 != sister1 && sister2 != 0) mother2 = 0;
+      } 
+
+      // Find daughters and where they have been moved by reordering. 
+      // (Values shifted two steps to account for inserted beams.)
+      int daughter1 = 0;
+      int daughter2 = 0;
+      for (int im = i + 1; im < lhaEvntPtr->size(); ++im) { 
+        if (lhaEvntPtr->mother1(newPos[im]) == iOld
+          || lhaEvntPtr->mother2(newPos[im]) == iOld) {
+          if (daughter1 == 0 || im + 2 < daughter1) daughter1 = im + 2;
+          if (daughter2 == 0 || im + 2 > daughter2) daughter2 = im + 2;
+        }
+      }
+      // For 2 -> 1 hard scatterings reset second daughter to 0.
+      if (daughter2 == daughter1) daughter2 = 0;
+
+      // Colour trivial, except reset irrelevant colour indices.
+      int colType = ParticleDataTable::colType(id);
+      int col1   = (colType == 1 || colType == 2) 
+                 ? lhaEvntPtr->col1(iOld) : 0;   
+      int col2   = (colType == -1 || colType == 2) 
+                 ?  lhaEvntPtr->col2(iOld) : 0; 
+
+      // Momentum trivial.
+      double px  = lhaEvntPtr->px(iOld);  
+      double py  = lhaEvntPtr->py(iOld);  
+      double pz  = lhaEvntPtr->pz(iOld);  
+      double e   = lhaEvntPtr->e(iOld);  
+      double m   = lhaEvntPtr->m(iOld);
+
+      // For resonance decay products use resonance mass as scale.
+      double scaleNow = scale;
+      if (mother1 > 4) scaleNow = process[mother1].m();
+
+      // Store Les Houches Accord partons.
+      int iNow = process.append( id, status, mother1, mother2, daughter1, 
+        daughter2, col1, col2, Vec4(px, py, pz, e), m, scaleNow);
+
+      // Check if need to store lifetime.
+      double tau = lhaEvntPtr->tau(iOld);
+      if (tau > 0.) process[iNow].tau(tau);
+    }  
+  }
+
+  // Loop through decay chains and set secondary vertices when needed.
+  for (int i = 3; i < process.size(); ++i) {
+    int iMother  = process[i].mother1();
+    
+    // If sister to already assigned vertex then assign same.
+    if ( process[i - 1].mother1() == iMother && process[i - 1].hasVertex() ) 
+      process[i].vProd( process[i - 1].vProd() ); 
+
+    // Else if mother already has vertex and/or lifetime then assign.
+    else if ( process[iMother].hasVertex() || process[iMother].tau() > 0.)
+      process[i].vProd( process[iMother].vDec() ); 
+  }
+
+  // Further info on process. Reset quantities that may or may not be known.
+  int    id1     =  process[3].id(); 
+  int    id2     =  process[4].id(); 
+  double pdf1    = 0.;
+  double pdf2    = 0.;
+  double tHat    = 0.;
+  double uHat    = 0.;
+  double pTHat   = 0.;
+  double m3      = 0.;
+  double m4      = 0.;
+  double theta   = 0.;
+  double phi     = 0.;
+  double Q2Fac, alphaEM, alphaS, Q2Ren, x1, x2, sHat;
+
+  // Internally generated and stored information.
+  if (!isLHA) {
+    pdf1         = sigmaProcessPtr->pdf1();
+    pdf2         = sigmaProcessPtr->pdf2();
+    Q2Fac        = sigmaProcessPtr->Q2Fac();
+    alphaEM      = sigmaProcessPtr->alphaEMRen();
+    alphaS       = sigmaProcessPtr->alphaSRen();
+    Q2Ren        = sigmaProcessPtr->Q2Ren();
+    x1           = phaseSpacePtr->x1();
+    x2           = phaseSpacePtr->x2();
+    sHat         = phaseSpacePtr->sHat();
+    tHat         = phaseSpacePtr->tHat();
+    uHat         = phaseSpacePtr->uHat();
+    pTHat        = phaseSpacePtr->pTHat();
+    m3           = phaseSpacePtr->m(3);
+    m4           = phaseSpacePtr->m(4);
+    theta        = phaseSpacePtr->thetaHat();
+    phi          = phaseSpacePtr->phiHat();
+  }    
+
+  // Les Houches Accord process partly available, partly to be constructed.
+  else {
+    Q2Fac        = pow2(scale);
+    alphaEM      = lhaEvntPtr->alphaQED();
+    alphaS       = lhaEvntPtr->alphaQCD();
+    Q2Ren        = Q2Fac;
+    x1           = 2. * process[3].e() / infoPtr->eCM();
+    x2           = 2. * process[4].e() / infoPtr->eCM();
+    Vec4 pSum    = process[3].p() + process[4].p();
+    sHat         = pSum * pSum;
+
+    // Read info on parton densities if provided.
+    if (lhaEvntPtr->pdfIsSet()) {
+      pdf1       = lhaEvntPtr->xpdf1();
+      pdf2       = lhaEvntPtr->xpdf2();
+      Q2Fac      = pow2(lhaEvntPtr->scalePDF());
+      x1         = lhaEvntPtr->x1();
+      x2         = lhaEvntPtr->x2();
+    }
+
+    // Reconstruct kinematics of 2 -> 2 processes from momenta.
+    if (nFin == 2) {
+      Vec4 pDifT = process[3].p() - process[5].p();
+      tHat       = pDifT * pDifT;    
+      Vec4 pDifU = process[3].p() - process[6].p();
+      uHat       = pDifU * pDifU;
+      pTHat      = process[5].pT();
+      m3         = process[5].m();    
+      m4         = process[6].m(); 
+      Vec4 p5    = process[5].p();
+      p5.bstback(pSum);
+      theta      = p5.theta();   
+      phi        = process[5].phi();   
+    }
+  }
+
+  // Store information.
   if (isHardest) {
     infoPtr->setPDFalpha( id1, id2, pdf1, pdf2, Q2Fac, alphaEM, alphaS, Q2Ren);
     infoPtr->setKin( x1, x2, sHat, tHat, uHat, pTHat, m3, m4, theta, phi);
   }
   infoPtr->setTypeMI( code(), pTHat);
 
-  // Insert the subprocess partons - resolved processes.
-  if (isResolved) {
-
-    // Set subprocess scale for ISR and MI.
-    double scale = sqrt(Q2Fac);
-    process.scale( scale );
-
-    // Loop over incoming and outgoing partons.
-    int colOffset = process.lastColTag();
-    for (int i = 1; i <= 2 + sigmaProcessPtr->nFinal(); ++i) { 
-      int id = sigmaProcessPtr->id(i);
-      int status = (i <= 2) ? -21 : 23;
-      int mother1 = (i <= 2) ? i : 3;
-      int mother2 = (i <= 2) ? 0 : 4;
-      int daughter1 = (i <= 2) ? 5 : 0;
-      int daughter2 = (i <= 2) ? 4 + sigmaProcessPtr->nFinal() : 0;
-      int col = sigmaProcessPtr->col(i);
-      if (col > 0) col += colOffset;
-      int acol = sigmaProcessPtr->acol(i);
-      if (acol > 0) acol += colOffset;
-      process.append( id, status, mother1, mother2, daughter1, daughter2, 
-        col, acol, phaseSpacePtr->p(i), phaseSpacePtr->m(i), scale);
-    }
-
-  // Insert the outgoing particles - unresolved processes.
-  } else { 
-    process.append( sigmaProcessPtr->id(3), 23, 1, 0, 0, 0, 0, 0, 
-      phaseSpacePtr->p(3), phaseSpacePtr->m(3));
-    process.append( sigmaProcessPtr->id(4), 23, 2, 0, 0, 0, 0, 0, 
-      phaseSpacePtr->p(4), phaseSpacePtr->m(4));
+  // For Les Houches event store subprocess classification.
+  if (isLHA) {
+    int codeSub  = lhaEvntPtr->idProcess();
+    ostringstream nameSub;
+    nameSub << "user process " << codeSub; 
+    infoPtr->setSubType( nameSub.str(), codeSub, nFin);
   }
 
   // Done.
@@ -751,106 +964,317 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs) {
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   } 
 
-  // Set up requested objects for Standard-Model Higgs production
-  bool HiggsesSM = Settings::flag("HiggsSM:all");
-  if (HiggsesSM || Settings::flag("HiggsSM:ffbar2H")) {
-    sigmaPtr = new Sigma1ffbar2H;
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  } 
-  if (HiggsesSM || Settings::flag("HiggsSM:gg2H")) {
-    sigmaPtr = new Sigma1gg2H;
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  } 
-  if (HiggsesSM || Settings::flag("HiggsSM:gmgm2H")) {
-    sigmaPtr = new Sigma1gmgm2H;
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  } 
-  if (HiggsesSM || Settings::flag("HiggsSM:ffbar2HZ")) {
-    sigmaPtr = new Sigma2ffbar2HZ;
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  } 
-  if (HiggsesSM || Settings::flag("HiggsSM:ffbar2HW")) {
-    sigmaPtr = new Sigma2ffbar2HW;
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  } 
-  if (HiggsesSM || Settings::flag("HiggsSM:ff2Hff(t:ZZ)")) {
-    sigmaPtr = new Sigma3ff2HfftZZ;
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  } 
-  if (HiggsesSM || Settings::flag("HiggsSM:ff2Hff(t:WW)")) {
-    sigmaPtr = new Sigma3ff2HfftWW;
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  } 
-  if (HiggsesSM || Settings::flag("HiggsSM:gg2Httbar")) {
-    sigmaPtr = new Sigma3gg2HQQbar(6, 908, "g g -> H0 t tbar (SM)");
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  } 
-  if (HiggsesSM || Settings::flag("HiggsSM:qqbar2Httbar")) {
-    sigmaPtr = new Sigma3qqbar2HQQbar(6, 909, "q qbar -> H0 t tbar (SM)");
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  } 
+  // Flag for global choice between SM and BSM Higgses.
+  bool useBSMHiggses = Settings::flag("Higgs:useBSM");
+  
+  // Set up requested objects for Standard-Model Higgs production.
+  if (!useBSMHiggses) {
+    bool HiggsesSM = Settings::flag("HiggsSM:all");
+    if (HiggsesSM || Settings::flag("HiggsSM:ffbar2H")) {
+      sigmaPtr = new Sigma1ffbar2H(0);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    } 
+    if (HiggsesSM || Settings::flag("HiggsSM:gg2H")) {
+     sigmaPtr = new Sigma1gg2H(0);
+     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    } 
+    if (HiggsesSM || Settings::flag("HiggsSM:gmgm2H")) {
+      sigmaPtr = new Sigma1gmgm2H(0);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    } 
+    if (HiggsesSM || Settings::flag("HiggsSM:ffbar2HZ")) {
+      sigmaPtr = new Sigma2ffbar2HZ(0);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    } 
+    if (HiggsesSM || Settings::flag("HiggsSM:ffbar2HW")) {
+      sigmaPtr = new Sigma2ffbar2HW(0);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    } 
+    if (HiggsesSM || Settings::flag("HiggsSM:ff2Hff(t:ZZ)")) {
+      sigmaPtr = new Sigma3ff2HfftZZ(0);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    } 
+    if (HiggsesSM || Settings::flag("HiggsSM:ff2Hff(t:WW)")) {
+      sigmaPtr = new Sigma3ff2HfftWW(0);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    } 
+    if (HiggsesSM || Settings::flag("HiggsSM:gg2Httbar")) {
+      sigmaPtr = new Sigma3gg2HQQbar(6,0);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    } 
+    if (HiggsesSM || Settings::flag("HiggsSM:qqbar2Httbar")) {
+      sigmaPtr = new Sigma3qqbar2HQQbar(6,0);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    } 
 
-  // Further Standard-Model Higgs processes, not included in "all".
-  if (Settings::flag("HiggsSM:qg2Hq")) {
-    sigmaPtr = new Sigma2qg2Hq(4, 911, "c g -> H0 c (SM)");
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qg2Hq(5, 911, "b g -> H0 b (SM)");
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  } 
-  if (Settings::flag("HiggsSM:gg2Hbbbar")) {
-    sigmaPtr = new Sigma3gg2HQQbar(5, 912, "g g -> H0 b bbar (SM)");
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  } 
-  if (Settings::flag("HiggsSM:qqbar2Hbbbar")) {
-    sigmaPtr = new Sigma3qqbar2HQQbar(5, 913, "q qbar -> H0 b bbar (SM)");
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  } 
-  if (Settings::flag("HiggsSM:gg2Hg(l:t)")) {
-    sigmaPtr = new Sigma2gg2Hglt;
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  } 
-  if (Settings::flag("HiggsSM:qg2Hq(l:t)")) {
-    sigmaPtr = new Sigma2qg2Hqlt;
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  } 
-  if (Settings::flag("HiggsSM:qqbar2Hg(l:t)")) {
-    sigmaPtr = new Sigma2qqbar2Hglt;
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  } 
-  
-  // Set up requested objects for Charged Higgs production
-  bool HiggsesChg = Settings::flag("HiggsBSM:allH+-");
-  if (HiggsesChg || Settings::flag("HiggsBSM:ffbar2H+-")) {
-    sigmaPtr = new Sigma1ffbar2Hchg;
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  } 
-  if (HiggsesChg || Settings::flag("HiggsBSM:bg2H+-t")) {
-    sigmaPtr = new Sigma2qg2Hchgq(6, 1062, "b g -> H+- t");
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  } 
-  
-  // Set up requested objects for Higgs pair-production
-  bool HiggsesPairs = Settings::flag("HiggsBSM:allHpair");
-  if (HiggsesPairs || Settings::flag("HiggsBSM:ffbar2A3H1")) {
-    sigmaPtr = new Sigma2ffbar2A3H12(1);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  } 
-  if (HiggsesPairs || Settings::flag("HiggsBSM:ffbar2A3H2")) {
-    sigmaPtr = new Sigma2ffbar2A3H12(2);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  } 
-  if (HiggsesPairs || Settings::flag("HiggsBSM:ffbar2H+-H1")) {
-    sigmaPtr = new Sigma2ffbar2HchgH12(1);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  } 
-  if (HiggsesPairs || Settings::flag("HiggsBSM:ffbar2H+-H2")) {
-    sigmaPtr = new Sigma2ffbar2HchgH12(2);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  } 
-  if (HiggsesPairs || Settings::flag("HiggsBSM:ffbar2H+H-")) {
-    sigmaPtr = new Sigma2ffbar2HposHneg();
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  } 
+    // Further Standard-Model Higgs processes, not included in "all".
+    if (Settings::flag("HiggsSM:qg2Hq")) {
+      sigmaPtr = new Sigma2qg2Hq(4,0);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+      sigmaPtr = new Sigma2qg2Hq(5,0);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    } 
+    if (Settings::flag("HiggsSM:gg2Hbbbar")) {
+      sigmaPtr = new Sigma3gg2HQQbar(5,0);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    } 
+    if (Settings::flag("HiggsSM:qqbar2Hbbbar")) {
+      sigmaPtr = new Sigma3qqbar2HQQbar(5,0);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    } 
+    if (Settings::flag("HiggsSM:gg2Hg(l:t)")) {
+      sigmaPtr = new Sigma2gg2Hglt(0);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    } 
+    if (Settings::flag("HiggsSM:qg2Hq(l:t)")) {
+      sigmaPtr = new Sigma2qg2Hqlt(0);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    } 
+    if (Settings::flag("HiggsSM:qqbar2Hg(l:t)")) {
+      sigmaPtr = new Sigma2qqbar2Hglt(0);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    } 
+  }
+
+  // Common switch for the group of Higgs production BSM.
+  if (useBSMHiggses) {
+    bool HiggsesBSM = Settings::flag("HiggsBSM:all");    
+
+    // Set up requested objects for BSM H1 production.
+    bool HiggsesH1 = Settings::flag("HiggsBSM:allH1"); 
+    if (HiggsesBSM || HiggsesH1 || Settings::flag("HiggsBSM:ffbar2H1")) {
+      sigmaPtr = new Sigma1ffbar2H(1);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );  
+    }
+    if (HiggsesBSM || HiggsesH1 || Settings::flag("HiggsBSM:gg2H1")) {
+      sigmaPtr = new Sigma1gg2H(1);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }
+    if (HiggsesBSM || HiggsesH1 || Settings::flag("HiggsBSM:gmgm2H1")) {
+      sigmaPtr = new Sigma1gmgm2H(1);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }
+    if (HiggsesBSM || HiggsesH1 || Settings::flag("HiggsBSM:ffbar2H1Z")) {
+      sigmaPtr = new Sigma2ffbar2HZ(1);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }
+    if (HiggsesBSM || HiggsesH1 || Settings::flag("HiggsBSM:ffbar2H1W")) {
+      sigmaPtr = new Sigma2ffbar2HW(1);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }
+    if (HiggsesBSM || HiggsesH1 || Settings::flag("HiggsBSM:ff2H1ff(t:ZZ)")) {
+      sigmaPtr = new Sigma3ff2HfftZZ(1);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }
+    if (HiggsesBSM || HiggsesH1 || Settings::flag("HiggsBSM:ff2H1ff(t:WW)")) {
+      sigmaPtr = new Sigma3ff2HfftWW(1);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }
+    if (HiggsesBSM || HiggsesH1 || Settings::flag("HiggsBSM:gg2H1ttbar")) {
+      sigmaPtr = new Sigma3gg2HQQbar(6,1);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }
+    if (HiggsesBSM || HiggsesH1 || Settings::flag("HiggsBSM:qqbar2H1ttbar")) {
+      sigmaPtr = new Sigma3qqbar2HQQbar(6,1);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }
+
+    // Further BSM H1 processes, not included in "all".
+    if (Settings::flag("HiggsBSM:qg2H1q")) {
+      sigmaPtr = new Sigma2qg2Hq(4,1);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+      sigmaPtr = new Sigma2qg2Hq(5,1);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }
+    if (Settings::flag("HiggsBSM:gg2H1bbbar")) {
+      sigmaPtr = new Sigma3gg2HQQbar(5,1);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }
+    if (Settings::flag("HiggsBSM:qqbar2H1bbbar")) {
+      sigmaPtr = new Sigma3qqbar2HQQbar(5,1);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }
+    if (Settings::flag("HiggsBSM:gg2H1g(l:t)")) {
+      sigmaPtr = new Sigma2gg2Hglt(1);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }
+    if (Settings::flag("HiggsBSM:qg2H1q(l:t)")) {
+      sigmaPtr = new Sigma2qg2Hqlt(1);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }
+    if (Settings::flag("HiggsBSM:qqbar2H1g(l:t)")) {
+      sigmaPtr = new Sigma2qqbar2Hglt(1);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }   
+
+    // Set up requested objects for BSM H2 production.
+    bool HiggsesH2 = Settings::flag("HiggsBSM:allH2");
+    if (HiggsesBSM || HiggsesH2 || Settings::flag("HiggsBSM:ffbar2H2")) {
+      sigmaPtr = new Sigma1ffbar2H(2);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    } 
+    if (HiggsesBSM || HiggsesH2 || Settings::flag("HiggsBSM:gg2H2")) {
+      sigmaPtr = new Sigma1gg2H(2);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }
+    if (HiggsesBSM || HiggsesH2 || Settings::flag("HiggsBSM:gmgm2H2")) {
+      sigmaPtr = new Sigma1gmgm2H(2);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }
+    if (HiggsesBSM || HiggsesH2 || Settings::flag("HiggsBSM:ffbar2H2Z")) {
+      sigmaPtr = new Sigma2ffbar2HZ(2);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }
+    if (HiggsesBSM || HiggsesH2 || Settings::flag("HiggsBSM:ffbar2H2W")) {
+      sigmaPtr = new Sigma2ffbar2HW(2);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }
+    if (HiggsesBSM || HiggsesH2 || Settings::flag("HiggsBSM:ff2H2ff(t:ZZ)")) {
+      sigmaPtr = new Sigma3ff2HfftZZ(2);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }
+    if (HiggsesBSM || HiggsesH2 || Settings::flag("HiggsBSM:ff2H2ff(t:WW)")) {
+      sigmaPtr = new Sigma3ff2HfftWW(2);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }
+    if (HiggsesBSM || HiggsesH2 || Settings::flag("HiggsBSM:gg2H2ttbar")) {
+      sigmaPtr = new Sigma3gg2HQQbar(6,2);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }
+    if (HiggsesBSM || HiggsesH2 || Settings::flag("HiggsBSM:qqbar2H2ttbar")) {
+      sigmaPtr = new Sigma3qqbar2HQQbar(6,2);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }
+
+    // Further BSM H2 processes, not included in "all".
+   if (Settings::flag("HiggsBSM:qg2H2q")) {
+      sigmaPtr = new Sigma2qg2Hq(4,2);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+      sigmaPtr = new Sigma2qg2Hq(5,2);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }
+    if (Settings::flag("HiggsBSM:gg2H2bbbar")) {
+      sigmaPtr = new Sigma3gg2HQQbar(5,2);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }
+    if (Settings::flag("HiggsBSM:qqbar2H2bbbar")) {
+      sigmaPtr = new Sigma3qqbar2HQQbar(5,2);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }
+    if (Settings::flag("HiggsBSM:gg2H2g(l:t)")) {
+      sigmaPtr = new Sigma2gg2Hglt(2);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }
+    if (Settings::flag("HiggsBSM:qg2H2q(l:t)")) {
+      sigmaPtr = new Sigma2qg2Hqlt(2);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }
+    if (Settings::flag("HiggsBSM:qqbar2H2g(l:t)")) {
+      sigmaPtr = new Sigma2qqbar2Hglt(2);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }
+
+    // Set up requested objects for BSM A3 production.
+    bool HiggsesA3 = Settings::flag("HiggsBSM:allA3");
+    if (HiggsesBSM || HiggsesA3 || Settings::flag("HiggsBSM:ffbar2A3")) {
+      sigmaPtr = new Sigma1ffbar2H(3);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }
+    if (HiggsesBSM || HiggsesA3 || Settings::flag("HiggsBSM:gg2A3")) {
+      sigmaPtr = new Sigma1gg2H(3);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }
+    if (HiggsesBSM || HiggsesA3 || Settings::flag("HiggsBSM:gmgm2A3")) {
+      sigmaPtr = new Sigma1gmgm2H(3);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }
+    if (HiggsesBSM || HiggsesA3 || Settings::flag("HiggsBSM:ffbar2A3Z")) {
+      sigmaPtr = new Sigma2ffbar2HZ(3);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }
+    if (HiggsesBSM || HiggsesA3 || Settings::flag("HiggsBSM:ffbar2A3W")) {
+      sigmaPtr = new Sigma2ffbar2HW(3);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }
+    if (HiggsesBSM || HiggsesA3 || Settings::flag("HiggsBSM:ff2A3ff(t:ZZ)")) {
+      sigmaPtr = new Sigma3ff2HfftZZ(3);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }
+    if (HiggsesBSM || HiggsesA3 || Settings::flag("HiggsBSM:ff2A3ff(t:WW)")) {
+      sigmaPtr = new Sigma3ff2HfftWW(3);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }
+    if (HiggsesBSM || HiggsesA3 || Settings::flag("HiggsBSM:gg2A3ttbar")) {
+      sigmaPtr = new Sigma3gg2HQQbar(6,3);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }
+    if (HiggsesBSM || HiggsesA3 || Settings::flag("HiggsBSM:qqbar2A3ttbar")) {
+      sigmaPtr = new Sigma3qqbar2HQQbar(6,3);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }
+
+    // Further BSM A3 processes, not included in "all".
+    if (Settings::flag("HiggsBSM:qg2A3q")) {
+      sigmaPtr = new Sigma2qg2Hq(4,3);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+      sigmaPtr = new Sigma2qg2Hq(5,3);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }
+    if (Settings::flag("HiggsBSM:gg2A3bbbar")) {
+      sigmaPtr = new Sigma3gg2HQQbar(5,3);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }
+    if (Settings::flag("HiggsBSM:qqbar2A3bbbar")) {
+      sigmaPtr = new Sigma3qqbar2HQQbar(5,3);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }
+    if (Settings::flag("HiggsBSM:gg2A3g(l:t)")) {
+      sigmaPtr = new Sigma2gg2Hglt(3);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }
+    if (Settings::flag("HiggsBSM:qg2A3q(l:t)")) {
+      sigmaPtr = new Sigma2qg2Hqlt(3);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }
+    if (Settings::flag("HiggsBSM:qqbar2A3g(l:t)")) {
+      sigmaPtr = new Sigma2qqbar2Hglt(3);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }
+
+    // Set up requested objects for Charged Higgs production
+    bool HiggsesChg = Settings::flag("HiggsBSM:allH+-");
+    if (HiggsesBSM || HiggsesChg || Settings::flag("HiggsBSM:ffbar2H+-")) {
+      sigmaPtr = new Sigma1ffbar2Hchg;
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    } 
+    if (HiggsesBSM || HiggsesChg || Settings::flag("HiggsBSM:bg2H+-t")) {
+      sigmaPtr = new Sigma2qg2Hchgq(6, 1062, "b g -> H+- t");
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    } 
+
+    // Set up requested objects for Higgs pair-production
+    bool HiggsesPairs = Settings::flag("HiggsBSM:allHpair");
+    if (HiggsesBSM || HiggsesPairs || Settings::flag("HiggsBSM:ffbar2A3H1")) {
+      sigmaPtr = new Sigma2ffbar2A3H12(1);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    } 
+    if (HiggsesBSM || HiggsesPairs || Settings::flag("HiggsBSM:ffbar2A3H2")) {
+      sigmaPtr = new Sigma2ffbar2A3H12(2);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    } 
+    if (HiggsesBSM || HiggsesPairs || Settings::flag("HiggsBSM:ffbar2H+-H1")) {
+      sigmaPtr = new Sigma2ffbar2HchgH12(1);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    } 
+    if (HiggsesBSM || HiggsesPairs || Settings::flag("HiggsBSM:ffbar2H+-H2")) {
+      sigmaPtr = new Sigma2ffbar2HchgH12(2);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    } 
+    if (HiggsesBSM || HiggsesPairs || Settings::flag("HiggsBSM:ffbar2H+H-")) {
+      sigmaPtr = new Sigma2ffbar2HposHneg();
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    } 
+  }
 
   // Set up requested objects for neutralino pair processes.
   bool SUSYs = Settings::flag("SUSY:all");
@@ -877,26 +1301,76 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs) {
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   } 
   
-  // Set up requested objects for extra-dimensional G* processes.
-  bool extraDimGstars = Settings::flag("ExtraDimensionsG*:all");
-  if (extraDimGstars || Settings::flag("ExtraDimensionsG*:gg2G*")) {
-    sigmaPtr = new Sigma1gg2GravitonStar;
+  // Set up requested objects for New-Gauge-Boson processes.
+  if (Settings::flag("NewGaugeBoson:ffbar2gmZZprime")) {
+    sigmaPtr = new Sigma1ffbar2gmZZprime();
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   } 
-  if (extraDimGstars || Settings::flag("ExtraDimensionsG*:qqbar2G*")) {
-    sigmaPtr = new Sigma1qqbar2GravitonStar;
+  if (Settings::flag("NewGaugeBoson:ffbar2Wprime")) {
+    sigmaPtr = new Sigma1ffbar2Wprime();
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   } 
-  if (Settings::flag("ExtraDimensionsG*:gg2G*g")) {
-    sigmaPtr = new Sigma2gg2GravitonStarg;
+  if (Settings::flag("NewGaugeBoson:ffbar2R0")) {
+    sigmaPtr = new Sigma1ffbar2Rhorizontal();
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   } 
-  if (Settings::flag("ExtraDimensionsG*:qg2G*q")) {
-    sigmaPtr = new Sigma2qg2GravitonStarq;
+   
+  // Set up requested objects for Left-Right-Symmetry processes.
+  bool leftrights = Settings::flag("LeftRightSymmmetry:all");
+  if (leftrights || Settings::flag("LeftRightSymmmetry:ffbar2ZR")) {
+    sigmaPtr = new Sigma1ffbar2ZRight();
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   } 
-  if (Settings::flag("ExtraDimensionsG*:qqbar2G*g")) {
-    sigmaPtr = new Sigma2qqbar2GravitonStarg;
+  if (leftrights || Settings::flag("LeftRightSymmmetry:ffbar2WR")) {
+    sigmaPtr = new Sigma1ffbar2WRight();
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (leftrights || Settings::flag("LeftRightSymmmetry:ll2HL")) {
+    sigmaPtr = new Sigma1ll2Hchgchg(1);
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (leftrights || Settings::flag("LeftRightSymmmetry:lgm2HLe")) {
+    sigmaPtr = new Sigma2lgm2Hchgchgl(1, 11);
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (leftrights || Settings::flag("LeftRightSymmmetry:lgm2HLmu")) {
+    sigmaPtr = new Sigma2lgm2Hchgchgl(1, 13);
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (leftrights || Settings::flag("LeftRightSymmmetry:lgm2HLtau")) {
+    sigmaPtr = new Sigma2lgm2Hchgchgl(1, 15);
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (leftrights || Settings::flag("LeftRightSymmmetry:ff2HLff")) {
+    sigmaPtr = new Sigma3ff2HchgchgfftWW(1);
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (leftrights || Settings::flag("LeftRightSymmmetry:ffbar2HLHL")) {
+    sigmaPtr = new Sigma2ffbar2HchgchgHchgchg(1);
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (leftrights || Settings::flag("LeftRightSymmmetry:ll2HR")) {
+    sigmaPtr = new Sigma1ll2Hchgchg(2);
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (leftrights || Settings::flag("LeftRightSymmmetry:lgm2HRe")) {
+    sigmaPtr = new Sigma2lgm2Hchgchgl(2, 11);
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (leftrights || Settings::flag("LeftRightSymmmetry:lgm2HRmu")) {
+    sigmaPtr = new Sigma2lgm2Hchgchgl(2, 13);
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (leftrights || Settings::flag("LeftRightSymmmetry:lgm2HRtau")) {
+    sigmaPtr = new Sigma2lgm2Hchgchgl(2, 15);
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (leftrights || Settings::flag("LeftRightSymmmetry:ff2HRff")) {
+    sigmaPtr = new Sigma3ff2HchgchgfftWW(2);
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (leftrights || Settings::flag("LeftRightSymmmetry:ffbar2HRHR")) {
+    sigmaPtr = new Sigma2ffbar2HchgchgHchgchg(2);
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   } 
   
@@ -916,6 +1390,108 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs) {
   } 
   if (leptoquarks || Settings::flag("LeptoQuark:qqbar2LQLQbar")) {
     sigmaPtr = new Sigma2qqbar2LQLQbar;
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  
+  // Set up requested objects for excited-fermion processes.
+  bool excitedfermions = Settings::flag("ExcitedFermion:all");
+  if (excitedfermions || Settings::flag("ExcitedFermion:dg2dStar")) {
+    sigmaPtr = new Sigma1qg2qStar(1);
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (excitedfermions || Settings::flag("ExcitedFermion:ug2uStar")) {
+    sigmaPtr = new Sigma1qg2qStar(2);
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (excitedfermions || Settings::flag("ExcitedFermion:sg2sStar")) {
+    sigmaPtr = new Sigma1qg2qStar(3);
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (excitedfermions || Settings::flag("ExcitedFermion:cg2cStar")) {
+    sigmaPtr = new Sigma1qg2qStar(4);
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (excitedfermions || Settings::flag("ExcitedFermion:bg2bStar")) {
+    sigmaPtr = new Sigma1qg2qStar(5);
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (excitedfermions || Settings::flag("ExcitedFermion:egm2eStar")) {
+    sigmaPtr = new Sigma1lgm2lStar(11);
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (excitedfermions || Settings::flag("ExcitedFermion:mugm2muStar")) {
+    sigmaPtr = new Sigma1lgm2lStar(13);
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (excitedfermions || Settings::flag("ExcitedFermion:taugm2tauStar")) {
+    sigmaPtr = new Sigma1lgm2lStar(15);
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (excitedfermions || Settings::flag("ExcitedFermion:qq2dStarq")) {
+    sigmaPtr = new Sigma2qq2qStarq(1);
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (excitedfermions || Settings::flag("ExcitedFermion:qq2uStarq")) {
+    sigmaPtr = new Sigma2qq2qStarq(2);
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (excitedfermions || Settings::flag("ExcitedFermion:qq2sStarq")) {
+    sigmaPtr = new Sigma2qq2qStarq(3);
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (excitedfermions || Settings::flag("ExcitedFermion:qq2cStarq")) {
+    sigmaPtr = new Sigma2qq2qStarq(4);
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (excitedfermions || Settings::flag("ExcitedFermion:qq2bStarq")) {
+    sigmaPtr = new Sigma2qq2qStarq(5);
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (excitedfermions || Settings::flag("ExcitedFermion:qqbar2eStare")) {
+    sigmaPtr = new Sigma2qqbar2lStarlbar(11);
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (excitedfermions || Settings::flag("ExcitedFermion:qqbar2nueStarnue")) {
+    sigmaPtr = new Sigma2qqbar2lStarlbar(12);
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (excitedfermions || Settings::flag("ExcitedFermion:qqbar2muStarmu")) {
+    sigmaPtr = new Sigma2qqbar2lStarlbar(13);
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (excitedfermions || Settings::flag("ExcitedFermion:qqbar2numuStarnumu")) {
+    sigmaPtr = new Sigma2qqbar2lStarlbar(14);
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (excitedfermions || Settings::flag("ExcitedFermion:qqbar2tauStartau")) {
+    sigmaPtr = new Sigma2qqbar2lStarlbar(15);
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (excitedfermions || Settings::flag("ExcitedFermion:qqbar2nutauStarnutau")) {
+    sigmaPtr = new Sigma2qqbar2lStarlbar(16);
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  
+  // Set up requested objects for extra-dimensional G* processes.
+  bool extraDimGstars = Settings::flag("ExtraDimensionsG*:all");
+  if (extraDimGstars || Settings::flag("ExtraDimensionsG*:gg2G*")) {
+    sigmaPtr = new Sigma1gg2GravitonStar;
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (extraDimGstars || Settings::flag("ExtraDimensionsG*:ffbar2G*")) {
+    sigmaPtr = new Sigma1ffbar2GravitonStar;
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (Settings::flag("ExtraDimensionsG*:gg2G*g")) {
+    sigmaPtr = new Sigma2gg2GravitonStarg;
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (Settings::flag("ExtraDimensionsG*:qg2G*q")) {
+    sigmaPtr = new Sigma2qg2GravitonStarq;
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (Settings::flag("ExtraDimensionsG*:qqbar2G*g")) {
+    sigmaPtr = new Sigma2qqbar2GravitonStarg;
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   } 
 

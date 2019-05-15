@@ -187,6 +187,9 @@ void Event::list(bool showScaleAndVertex, bool showMothersAndDaughters,
        << "                   xProd      yProd      zProd      tProd      "
        << " tau\n";  
 
+  // At high energy switch to scientific format for momenta.
+  bool useFixed = (entry[0].e() < 1e5);
+
   // Listing of complete event.
   Vec4 pSum;
   double chargeSum = 0.;
@@ -198,10 +201,10 @@ void Event::list(bool showScaleAndVertex, bool showMothersAndDaughters,
        << setw(18) << pt.nameWithStatus(18) << right << setw(4) 
        << pt.status() << setw(6) << pt.mother1() << setw(6) 
        << pt.mother2() << setw(6) << pt.daughter1() << setw(6) 
-       << pt.daughter2() << setw(6) << pt.col() << setw(6) << pt.acol() 
-       << fixed << setprecision(3) << setw(11) << pt.px() << setw(11) 
-       << pt.py() << setw(11) << pt.pz() << setw(11) << pt.e() 
-       << setw(11) << pt.m() << "\n";
+       << pt.daughter2() << setw(6) << pt.col() << setw(6) << pt.acol()
+       << ( (useFixed) ? fixed : scientific ) << setprecision(3) 
+       << setw(11) << pt.px() << setw(11) << pt.py() << setw(11) 
+       << pt.pz() << setw(11) << pt.e() << setw(11) << pt.m() << "\n";
 
     // Optional extra line for scale value and production vertex.
     if (showScaleAndVertex) 
@@ -239,6 +242,7 @@ void Event::list(bool showScaleAndVertex, bool showMothersAndDaughters,
   // Line with sum charge, momentum, energy and invariant mass.
   os << fixed << setprecision(3) << "                                   "
      << "Charge sum:" << setw(7) << chargeSum << "           Momentum sum:" 
+     << ( (useFixed) ? fixed : scientific ) << setprecision(3) 
      << setw(11) << pSum.px() << setw(11) << pSum.py() << setw(11) 
      << pSum.pz() << setw(11) << pSum.e() << setw(11) << pSum.mCalc() 
      << "\n";
@@ -497,7 +501,6 @@ vector<int> Event::sisterListTopBot(int i, bool widenSearch) const {
 // Check whether a given particle is an arbitrarily-steps-removed
 // mother to another. For the parton -> hadron transition, only 
 // first-rank hadrons are associated with the respective end quark.
-// Still to be completed and tested! ?? Missing: junctions, 81, 82
 
 bool Event::isAncestor(int i, int iAncestor) const {
 
@@ -521,6 +524,10 @@ bool Event::isAncestor(int i, int iAncestor) const {
     if (status < 81 || status > 86) return false;
 
     // For hadronization step, fail if not first rank, else move up.
+    if (status == 82) {
+      iUp = (iUp + 1 < size() && entry[iUp + 1].mother1() == mother1) 
+          ? mother1 : mother2; continue;
+    } 
     if (status == 83) {
       if (entry[iUp - 1].mother1() == mother1) return false;
       iUp = mother1; continue;
@@ -530,6 +537,9 @@ bool Event::isAncestor(int i, int iAncestor) const {
         return false;
       iUp = mother1; continue;
     }
+
+    // Fail for ministring -> one hadron and for junctions. 
+    return false;
 
   }
   // End of loop. Should never reach beyond here.

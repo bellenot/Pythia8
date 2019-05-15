@@ -55,7 +55,11 @@ public:
   bool   isDiffractiveB() const {return isDiffB;} 
   bool   isMinBias()      const {return isMB;}
 
-  // For minbias identify hardest subprocess.
+  // Information for Les Houches Accord and reading files.
+  bool   isLHA()          const {return isLH;}
+  bool   atEndOfFile()    const {return atEOF;}
+
+  // For minbias and Les Houches Accord identify hardest subprocess.
   bool   hasSub()         const {return hasSubSave;}
   string nameSub()        const {return nameSubSave;}
   int    codeSub()        const {return codeSubSave;}    
@@ -90,6 +94,9 @@ public:
   double m4Hat()          const {return m4H;} 
   double thetaHat()       const {return thetaH;}   
   double phiHat()         const {return phiH;}   
+
+  // Weight of current event; normally 1, but used for Les Houches events.
+  double weight()         const {return weightSave;}   
 
   // Cross section estimate.
   long   nTried()         const {return nTry;}
@@ -128,12 +135,14 @@ private:
   double sigGen, sigErr;
 
   // Store current-event quantities.
-  bool   isRes, isDiffA, isDiffB, isMB, hasSubSave, bIsSet, evolIsSet;  
+  bool   isRes, isDiffA, isDiffB, isMB, isLH, hasSubSave, bIsSet, evolIsSet,
+         atEOF;  
   int    codeSave, codeSubSave, nFinalSave, nFinalSubSave, nTotal, 
          id1Save, id2Save, nMISave, nISRSave, nFSRinProcSave, nFSRinResSave;
   double x1Save, x2Save, pdf1Save, pdf2Save, Q2FacSave, alphaEMSave, 
          alphaSSave, Q2RenSave, sH, tH, uH, pTH, m3H, m4H, thetaH, phiH, 
-         bMISave, enhanceMISave, pTmaxMISave, pTmaxISRSave, pTmaxFSRSave;
+         weightSave, bMISave, enhanceMISave, pTmaxMISave, pTmaxISRSave, 
+         pTmaxFSRSave;
   string nameSave, nameSubSave;
   vector<int>    codeMISave;
   vector<double> pTMISave;
@@ -153,23 +162,24 @@ private:
   void setECM( double eCMin) {eCMSave = eCMin; sSave = eCMSave * eCMSave;}
 
   // Reset info for current event: only from Pythia class.
-  void clear() { isRes = isDiffA = isDiffB = isMB = bIsSet = false;
-    codeSave = nFinalSave = nTotal = id1Save = id2Save = nMISave = nISRSave 
-    = nFSRinProcSave = nFSRinResSave = 0; x1Save = x2Save = pdf1Save 
-    = pdf2Save = Q2FacSave = alphaEMSave = alphaSSave = Q2RenSave 
+  void clear() { isRes = isDiffA = isDiffB = isMB = isLH = atEOF = bIsSet 
+    = false; codeSave = nFinalSave = nTotal = id1Save = id2Save = nMISave 
+    = nISRSave = nFSRinProcSave = nFSRinResSave = 0; x1Save = x2Save 
+    = pdf1Save = pdf2Save = Q2FacSave = alphaEMSave = alphaSSave = Q2RenSave 
     = sH = tH = uH = pTH = m3H = m4H = thetaH = phiH = 0.; nameSave = " "; 
-    bMISave = enhanceMISave = 1.; codeMISave.resize(0); pTMISave.resize(0);}
+    weightSave = bMISave = enhanceMISave = 1.; codeMISave.resize(0); 
+    pTMISave.resize(0);}
 
   // Set info on the (sub)process: from ProcessLevel, ProcessContainer or 
   // MultipleInteractions classes.
   void setType( string nameIn, int codeIn, int nFinalIn,  
     bool isMinBiasIn = false, bool isResolvedIn = true, 
-    bool isDiffractiveAin = false, bool isDiffractiveBin = false) {
-    nameSave = nameIn; codeSave = codeIn; nFinalSave = nFinalIn; 
-    isMB = isMinBiasIn; isRes = isResolvedIn; isDiffA = isDiffractiveAin; 
-    isDiffB = isDiffractiveBin; nTotal = 2 + nFinalSave; bIsSet = false; 
-    hasSubSave = false; nameSubSave = " "; codeSubSave = 0; 
-    nFinalSubSave = 0; evolIsSet = false;}
+    bool isDiffractiveAin = false, bool isDiffractiveBin = false,
+    bool isLHAin = false) {nameSave = nameIn; codeSave = codeIn; 
+    nFinalSave = nFinalIn; isMB = isMinBiasIn; isRes = isResolvedIn; 
+    isDiffA = isDiffractiveAin; isDiffB = isDiffractiveBin; isLH = isLHAin;
+    nTotal = 2 + nFinalSave; bIsSet = false; hasSubSave = false; 
+    nameSubSave = " "; codeSubSave = 0; nFinalSubSave = 0; evolIsSet = false;}
   void setSubType( string nameSubIn, int codeSubIn, int nFinalSubIn) {  
     hasSubSave = true; nameSubSave = nameSubIn; codeSubSave = codeSubIn; 
     nFinalSubSave = nFinalSubIn;}
@@ -202,6 +212,12 @@ private:
     pTmaxFSRSave = pTmaxFSRIn; nMISave = nMIIn; nISRSave = nISRIn; 
     nFSRinProcSave = nFSRinProcIn; nFSRinResSave = nFSRinResIn; 
     evolIsSet = true;}
+
+  // Set info whether reading of Les Houches Accord file at end.
+  void setEndOfFile( bool atEOFin) {atEOF = atEOFin;}
+
+  // Set event weight; currently only for Les Houches description.
+  void setWeight( double weightIn) {weightSave = weightIn;}
 
 };
 

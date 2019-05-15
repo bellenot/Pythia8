@@ -73,9 +73,6 @@ public:
   // Destructor.
   virtual ~TimeShower() {}
 
-  // Initialize static data members.
-  static void initStatic();
-
   // Initialize alphaStrong and related pTmin parameters.
   virtual void init( BeamParticle* beamAPtrIn = 0, 
     BeamParticle* beamBPtrIn = 0);
@@ -106,20 +103,6 @@ public:
 
 protected:
 
-  // Static initialization data, normally only set once.
-  static bool   doQCDshower, doQEDshowerByQ, doQEDshowerByL, 
-                doQEDshowerByGamma, doMEcorrections, doPhiPolAsym,
-                allowBeamRecoil;
-  static int    alphaSorder, alphaEMorder, nGluonToQuark, nGammaToQuark, 
-                nGammaToLepton;
-  static double pTmaxFudge, mc, mb, m2c, m2b, alphaSvalue, alphaS2pi, 
-                pTcolCutMin, pTchgQCut, pT2chgQCut, pTchgLCut, pT2chgLCut, 
-                mMaxGamma, m2MaxGamma, octetOniumFraction, octetOniumColFac, 
-                mZ, gammaZ, thetaWRat;
-
-  // Constants: could only be changed in the code itself.
-  static const double SIMPLIFYROOT, XMARGIN, TINYPDF, LARGEM2;
-
   // Pointers to the two incoming beams.
   BeamParticle* beamAPtr;
   BeamParticle* beamBPtr;
@@ -129,9 +112,19 @@ protected:
 
 private:
 
-  // Other non-static initialization data.
-  double Lambda3flav, Lambda4flav, Lambda5flav, Lambda3flav2, Lambda4flav2, 
-         Lambda5flav2, pTcolCut, pT2colCut;
+  // Constants: could only be changed in the code itself.
+  static const double SIMPLIFYROOT, XMARGIN, TINYPDF, LARGEM2;
+
+  // Initialization data, normally only set once.
+  bool   doQCDshower, doQEDshowerByQ, doQEDshowerByL, doQEDshowerByGamma, 
+         doMEcorrections, doPhiPolAsym, allowBeamRecoil;
+  int    alphaSorder, nGluonToQuark, alphaEMorder, nGammaToQuark, 
+         nGammaToLepton;
+  double pTmaxFudge, mc, mb, m2c, m2b, alphaSvalue, alphaS2pi, 
+         Lambda3flav, Lambda4flav, Lambda5flav, Lambda3flav2, Lambda4flav2, 
+         Lambda5flav2, pTcolCutMin, pTcolCut, pT2colCut, pTchgQCut, 
+         pT2chgQCut, pTchgLCut, pT2chgLCut, mMaxGamma, m2MaxGamma, 
+         octetOniumFraction, octetOniumColFac, mZ, gammaZ, thetaWRat;
 
   // alphaStrong and alphaEM calculations.
   AlphaStrong alphaS;
