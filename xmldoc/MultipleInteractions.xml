@@ -242,10 +242,15 @@ for the latter provided that <code>SpaceShower:samePTasMI</code> is on
 <h4>Impact-parameter dependence</h4>
  
 The choice of impact-parameter dependence is regulated by several
-parameters.
+parameters. The ones listed here refer to nondiffractive topologies
+only, while their equivalents for diffractive events are put in the 
+<aloc href="Diffraction">Diffraction</aloc> description. Note that
+there is currently no <code>bProfile = 4</code> option for diffraction.
+Other parameters are assumed to agree between diffractive and 
+nondiffractive topologies.
 
 <modepick name="MultipleInteractions:bProfile" default="1" 
-min="0" max="3">
+min="0" max="4">
 Choice of impact parameter profile for the incoming hadron beams.
 <option value="0">no impact parameter dependence at all.</option>
 <option value="1">a simple Gaussian matter distribution; 
@@ -257,6 +262,12 @@ with the two free parameters <ei>coreRadius</ei> and
 the matter distributions of the two incoming hadrons, of the form
 <ei>exp(- b^expPow)</ei>, where <ei>expPow</ei> is a free 
 parameter.</option> 
+<option value="4">a Gaussian matter distribution with a width
+that varies according to the selected <ei>x</ei> value of an interaction,
+<ei>1. + a1 log (1 / x)</ei>, where <ei>a1</ei> is a free parameter.
+Note that once <ei>b</ei> has been selected for the hard process,
+it remains fixed for the remainder of the evolution.
+</option>
 </modepick>
 
 <parm name="MultipleInteractions:coreRadius" default="0.4" min="0.1" max="1.">
@@ -282,6 +293,12 @@ at all, <ei>bProfile = 0</ei>. For small <ei>expPow</ei> the program
 becomes slow and unstable, so the min limit must be respected.
 </parm> 
 
+<parm name="MultipleInteractions:a1" default="1." min="0." max="2.">
+When <ei>bProfile = 4</ei>, this gives the <ei>a1</ei> constant in the
+Gaussian width. When <ei>a1 = 0.</ei>, this reduces back to the single
+Gaussian case.
+</parm>
+
 <h4>Rescattering</h4>
  
 It is possible that a parton may rescatter, i.e. undergo a further
@@ -295,6 +312,9 @@ notably with the <aloc href="BeamRemnants">beam remnants</aloc>.
 
 <flag name="MultipleInteractions:allowRescatter" default="off">
 Switch to allow rescattering of partons; on/off = true/false.<br/>
+<b>Note:</b> the rescattering framework has not yet been implemented
+for the <code>MultipleInteractions:bProfile = 4</code> option,
+and can therefore not be switched on in that case.  
 <b>Warning:</b> use with caution since machinery is still not 
 so well tested.
 </flag>
@@ -505,4 +525,4 @@ interactions.
 
 </chapter>
 
-<!-- Copyright (C) 2010 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2011 Torbjorn Sjostrand -->

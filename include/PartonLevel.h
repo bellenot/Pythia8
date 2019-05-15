@@ -1,5 +1,5 @@
 // PartonLevel.h is a part of the PYTHIA event generator.
-// Copyright (C) 2010 Torbjorn Sjostrand.
+// Copyright (C) 2011 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -18,6 +18,7 @@
 #include "ParticleData.h"
 #include "PartonSystems.h"
 #include "PythiaStdlib.h"
+#include "RHadrons.h"
 #include "Settings.h"
 #include "SigmaTotal.h"
 #include "SpaceShower.h"
@@ -47,10 +48,13 @@ public:
     Couplings* couplingsPtrIn, PartonSystems* partonSystemsPtrIn, 
     SigmaTotal* sigmaTotPtr, TimeShower* timesDecPtrIn, 
     TimeShower* timesPtrIn, SpaceShower* spacePtrIn, 
-    UserHooks* userHooksPtrIn);
+    RHadrons* rHadronsPtrIn, UserHooks* userHooksPtrIn);
  
   // Generate the next parton-level process.
   bool next( Event& process, Event& event); 
+
+  // Perform showers in resonance decay chains. (For special cases.)
+  bool resonanceShowers( Event& process, Event& event, bool skipForR); 
 
   // Tell whether failure was due to vetoing.
   bool hasVetoed() const {return doVeto;}
@@ -72,7 +76,7 @@ private:
   bool   doMinBias, doDiffraction, doMI, doMIMB, doMISDA, doMISDB, doMIinit, 
          doISR, doFSRduringProcess, doFSRafterProcess,  doFSRinResonances, 
          doRemnants, doSecondHard, hasLeptonBeams, hasPointLeptons, 
-         canVetoPT, canVetoStep, canVetoMIStep, canSetScale;
+         canVetoPT, canVetoStep, canVetoMIStep, canSetScale, allowRH;
   double mMinDiff, mWidthDiff;
 
   // Event generation strategy. Number of steps. Maximum pT scales.
@@ -84,8 +88,10 @@ private:
   // Current event properties.
   bool   isMinBias, isDiffA, isDiffB, isDiff, isSingleDiff, isDoubleDiff, 
          isResolved, isResolvedA, isResolvedB;
-  int    sizeProcess, sizeEvent;
+  int    sizeProcess, sizeEvent, nHardDone, nHardDoneRHad;
   double eCMsave; 
+  vector<bool> inRHadDecay;
+  vector<int>  iPosBefShow;
 
   // Pointer to various information on the generation.
   Info*          infoPtr;
@@ -131,6 +137,9 @@ private:
   // The generator class to construct beam-remnant kinematics. 
   BeamRemnants remnants;
 
+  // The RHadrons class is used to fragment off and decay R-hadrons.
+  RHadrons*    rHadronsPtr;
+
   // Resolved diffraction: find how many systems should have it.
   int decideResolvedDiff( Event& process);
 
@@ -139,20 +148,12 @@ private:
 
   // Set up the hard process, excluding subsequent resonance decays.
   void setupHardSys( int iHardLoop, Event& process, Event& event);
-  // Keep track of how much of hard process has been handled.
-  int nHardDone;
 
   // Resolved diffraction: pick whether to have it and set up for it.
   void setupResolvedDiff( int iHardLoop, Event& process);
 
   // Resolved diffraction: restore normal behaviour.
   void leaveResolvedDiff( int iHardLoop, Event& event);
-
-  // Perform showers in resonance decay chains.
-  bool resonanceShowers( Event& process, Event& event); 
-
-  // Position in main event record of hard partons before showers.
-  vector<int> iPosBefShow;
   
 };
 

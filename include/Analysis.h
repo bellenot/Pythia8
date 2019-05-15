@@ -1,5 +1,5 @@
 // Analysis.h is a part of the PYTHIA event generator.
-// Copyright (C) 2010 Torbjorn Sjostrand.
+// Copyright (C) 2011 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -156,6 +156,14 @@ private:
 
 } ;
 
+//--------------------------------------------------------------------------
+
+// Namespace function declarations; friend of SingleClusterJet.
+
+// Distance measures (Lund, JADE, Durham) with friend.
+double dist2Fun(int measure, const SingleClusterJet& j1, 
+  const SingleClusterJet& j2);  
+
 //==========================================================================
 
 // ClusterJet class.
@@ -181,8 +189,9 @@ public:
     int nJetMinIn = 1, int nJetMaxIn = 0, ostream& os = cout);
 
   // Return info on jets produced.
-  int    size() const {return jets.size();}
-  Vec4 p(int i) const {return jets[i].pJet;}
+  int  size()      const {return jets.size();}
+  Vec4 p(int i)    const {return jets[i].pJet;}
+  int  mult(int i) const {return jets[i].multiplicity;}
 
   // Return belonging of particle to one of the jets (-1 if none).
   int jetAssignment(int i) const {

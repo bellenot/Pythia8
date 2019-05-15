@@ -1,5 +1,5 @@
 // FragmentationSystems.h is a part of the PYTHIA event generator.
-// Copyright (C) 2010 Torbjorn Sjostrand.
+// Copyright (C) 2011 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -79,8 +79,14 @@ public:
   // Calculate its properties. Join nearby partons.
   bool insert( vector<int>& iPartonIn, Event& event); 
 
+  // Erase a colour singlet system. (Rare operation.)
+  void erase(int iSub) {singlets.erase(singlets.begin() + iSub);}  
+
   // Collect all partons of singlet to be consecutively ordered.
-  void collect(int iSub, Event& event); 
+  void collect(int iSub, Event& event, bool skipTrivial = true); 
+
+  // Find to which singlet system a particle belongs.
+  int findSinglet(int i);
 
   // List all currently identified singlets.
   void list(ostream& os = cout) const;
@@ -91,7 +97,7 @@ private:
   static const double CONSTITUENTMASS;
 
   // Pointer to various information on the generation.
-  Info* infoPtr;
+  Info*       infoPtr;
 
   // Pointer to class for flavour generation.
   StringFlav* flavSelPtr;

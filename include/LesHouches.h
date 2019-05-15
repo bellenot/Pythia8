@@ -1,5 +1,5 @@
 // LesHouches.h is a part of the PYTHIA event generator.
-// Copyright (C) 2010 Torbjorn Sjostrand.
+// Copyright (C) 2011 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -228,8 +228,8 @@ protected:
     pdfIsSetSave = pdfIsSetIn;}
 
   // Three routines for LHEF files, but put here for flexibility.
-  bool setInitLHEF(ifstream& is);
-  bool setNewEventLHEF(ifstream& is);
+  bool setInitLHEF(istream& is);
+  bool setNewEventLHEF(istream& is);
   bool setOldEventLHEF();
 
   // Event properties from LHEF files, for repeated use.
@@ -303,7 +303,7 @@ public:
 
 private:
  
-  // File from which to read.
+  // File from which to read (or a stringstream).
   ifstream is;
 
 };

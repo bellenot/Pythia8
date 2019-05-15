@@ -1,5 +1,5 @@
 // PartonLevel.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2010 Torbjorn Sjostrand.
+// Copyright (C) 2011 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -31,7 +31,8 @@ bool PartonLevel::init( Info* infoPtrIn, Settings& settings,
   BeamParticle* beamPomAPtrIn, BeamParticle* beamPomBPtrIn, 
   Couplings* couplingsPtrIn, PartonSystems* partonSystemsPtrIn, 
   SigmaTotal* sigmaTotPtr, TimeShower* timesDecPtrIn, TimeShower* timesPtrIn, 
-  SpaceShower* spacePtrIn, UserHooks* userHooksPtrIn) {
+  SpaceShower* spacePtrIn, RHadrons* rHadronsPtrIn, 
+  UserHooks* userHooksPtrIn) {
 
   // Store input pointers and modes for future use. 
   infoPtr            = infoPtrIn;
@@ -47,7 +48,8 @@ bool PartonLevel::init( Info* infoPtrIn, Settings& settings,
   partonSystemsPtr   = partonSystemsPtrIn;
   timesDecPtr        = timesDecPtrIn;
   timesPtr           = timesPtrIn;
-  spacePtr           = spacePtrIn;  
+  spacePtr           = spacePtrIn; 
+  rHadronsPtr        = rHadronsPtrIn; 
   userHooksPtr       = userHooksPtrIn;
 
   // Min bias and single diffraction processes need special treatment.
@@ -85,6 +87,9 @@ bool PartonLevel::init( Info* infoPtrIn, Settings& settings,
   doRemnants         = settings.flag("PartonLevel:Remnants");
   doSecondHard       = settings.flag("SecondHard:generate");
 
+  // Allow R-hadron formation.
+  allowRH            = settings.flag("RHadrons:allow");
+
   // Flag if lepton beams, and if non-resolved ones. May change main flags.
   hasLeptonBeams  = ( beamAPtr->isLepton() || beamBPtr->isLepton() );
   hasPointLeptons = ( hasLeptonBeams 
@@ -101,12 +106,12 @@ bool PartonLevel::init( Info* infoPtrIn, Settings& settings,
   }
 
   // Possibility to allow user veto during evolution.
-  canVetoPT   = (userHooksPtr > 0) ? userHooksPtr->canVetoPT()   : false;
-  pTvetoPT    = (canVetoPT)        ? userHooksPtr->scaleVetoPT() : -1.;
-  canVetoStep = (userHooksPtr > 0) ? userHooksPtr->canVetoStep() : false;
-  nVetoStep   = (canVetoStep)   ? userHooksPtr->numberVetoStep() : -1;
+  canVetoPT     = (userHooksPtr > 0) ? userHooksPtr->canVetoPT()   : false;
+  pTvetoPT      = (canVetoPT)        ? userHooksPtr->scaleVetoPT() : -1.;
+  canVetoStep   = (userHooksPtr > 0) ? userHooksPtr->canVetoStep() : false;
+  nVetoStep     = (canVetoStep)   ? userHooksPtr->numberVetoStep() : -1;
   canVetoMIStep = (userHooksPtr > 0) ? userHooksPtr->canVetoMIStep() : false;
-  nVetoMIStep = (canVetoStep)   ? userHooksPtr->numberVetoMIStep() : -1;
+  nVetoMIStep   = (canVetoStep)   ? userHooksPtr->numberVetoMIStep() : -1;
 
   // Possibility to set maximal shower scale in resonance decays.
   canSetScale = (userHooksPtr > 0) ? userHooksPtr->canSetResonanceScale() 
@@ -483,7 +488,7 @@ bool PartonLevel::next( Event& process, Event& event) {
   }
   
   // Perform showers in resonance decay chains.
-  doVeto = !resonanceShowers( process, event); 
+  doVeto = !resonanceShowers( process, event, true); 
   // Abort event if vetoed.
   if (doVeto) return false;
 
@@ -927,7 +932,18 @@ void PartonLevel::leaveResolvedDiff( int iHardLoop, Event& event) {
 
 // Handle showers in successive resonance decays.
 
-bool PartonLevel::resonanceShowers( Event& process, Event& event) {
+bool PartonLevel::resonanceShowers( Event& process, Event& event, 
+  bool skipForR) {
+
+  // Prepare to start over from beginning for R-hadron decays.
+  if (allowRH) {
+    if (skipForR) {
+      nHardDoneRHad = nHardDone;
+      inRHadDecay.resize(0);
+      for (int i = 0; i < process.size(); ++i) 
+        inRHadDecay.push_back( false);
+    } else nHardDone = nHardDoneRHad;
+  }
 
   // Isolate next system to be processed, if anything remains.
   int nRes    = 0;
@@ -936,13 +952,43 @@ bool PartonLevel::resonanceShowers( Event& process, Event& event) {
     ++nRes;
     int iBegin = nHardDone;
 
+    // In first call (skipForR = true) skip over resonances 
+    // that should form R-hadrons, and their daughters.
+    if (allowRH) {
+      if (skipForR) {
+        bool comesFromR = false;
+        int iTraceUp = iBegin;
+        do {
+          if ( rHadronsPtr->givesRHadron(process[iTraceUp].id()) )
+            comesFromR = true;
+          iTraceUp = process[iTraceUp].mother1();
+        } while (iTraceUp > 0 && !comesFromR);
+        if (comesFromR) {
+          inRHadDecay[iBegin] = true;
+          ++nHardDone;
+          continue;
+        }
+
+      // In optional second call (skipForR = false) process decay chains
+      // inside R-hdrons.  
+      } else if (!inRHadDecay[iBegin]) {
+        ++nHardDone;
+        continue;
+      }
+    }
+
     // Mother in hard process and in complete event (after shower).
     int iHardMother      = process[iBegin].mother1();
     Particle& hardMother = process[iHardMother];
     int iBefMother       = iPosBefShow[iHardMother];
     int iAftMother       = event.iBotCopyId(iBefMother);
+    // Possibly trace across intermediate R-hadron state.
+    if (allowRH) {
+      int iTraceRHadron    = rHadronsPtr->trace( iAftMother);
+      if (iTraceRHadron > 0) iAftMother = iTraceRHadron;
+    }
     Particle& aftMother  = event[iAftMother];
-
+   
     // From now on mother counts as decayed.
     aftMother.statusNeg();
 
@@ -982,7 +1028,7 @@ bool PartonLevel::resonanceShowers( Event& process, Event& event) {
       ++nHardDone;
     }
     int iEnd = nHardDone - 1;
-
+    
     // Do parton showers inside subsystem: maximum scale by mother mass.
     if (doFSRinResonances) {
       double pTmax = 0.5 * hardMother.m();
@@ -1045,7 +1091,7 @@ bool PartonLevel::resonanceShowers( Event& process, Event& event) {
 
   // No more systems to be processed. Set total number of emissions.
   }
-  nFSRinRes = nFSRres;
+  if (skipForR) nFSRinRes = nFSRres;
   return true;
 
 }

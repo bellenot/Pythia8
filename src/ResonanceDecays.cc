@@ -1,5 +1,5 @@
 // ResonanceDecays.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2010 Torbjorn Sjostrand.
+// Copyright (C) 2011 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -111,7 +111,7 @@ bool ResonanceDecays::next( Event& process) {
         for (int i = 1; i <= mult; ++i) {
           int j = process.append( idProd[i], 23, iDec, 0, 0, 0, 
           cols[i], acols[i], pProd[i], mProd[i], m0);
-          process[j].tau( process[j].tau0() * rndmPtr->exp() );
+          process[j].tau( process[j].tau0() * rndmPtr->exp() );	  
 	}
       int iLast = process.size() - 1;
 
@@ -371,11 +371,12 @@ bool ResonanceDecays::pickColours(int iDec, Event& process) {
   vector<int> iTriplet, iAtriplet, iOctet, iDipCol, iDipAcol;
 
   // Mother colours already known.
-  int col0  = process[iDec].col();
-  int acol0 = process[iDec].acol();
+  int col0     = process[iDec].col();
+  int acol0    = process[iDec].acol();
+  int colType0 = process[iDec].colType();
   cols.push_back(  col0);
   acols.push_back(acol0);
- 
+
   // Loop through all daughters.
   int colTypeNow;   
   for (int i = 1; i <= mult; ++i) {
@@ -388,6 +389,9 @@ bool ResonanceDecays::pickColours(int iDec, Event& process) {
     else if (colTypeNow ==  1) iTriplet.push_back(i);
     else if (colTypeNow == -1) iAtriplet.push_back(i);
     else if (colTypeNow ==  2) iOctet.push_back(i);
+    // Add two entries for sextets;
+    else if (colTypeNow ==  3) {iTriplet.push_back(i); iTriplet.push_back(i);}
+    else if (colTypeNow == -3) {iAtriplet.push_back(i); iAtriplet.push_back(i);}
     else {
       infoPtr->errorMsg("Error in ResonanceDecays::pickColours:"
         " unknown colour type encountered");
@@ -397,9 +401,11 @@ bool ResonanceDecays::pickColours(int iDec, Event& process) {
 
   // Check excess of colours and anticolours in final over initial state.
   int nCol = iTriplet.size();
-  if (col0 != 0) --nCol;
+  if (colType0 == 1 || colType0 == 2) nCol -= 1;
+  else if (colType0 == 3) nCol -= 2;
   int nAcol = iAtriplet.size();
-  if (acol0 != 0) --nAcol;
+  if (colType0 == -1 || colType0 == 2) nAcol -= 1;
+  else if (colType0 == -3) nAcol -= 2;
 
   // If net creation of three colours then find junction kind:
   // mother is 1 = singlet, 3 = antitriplet, 5 = octet.
@@ -479,10 +485,10 @@ bool ResonanceDecays::pickColours(int iDec, Event& process) {
   }
 
   // Pick final-state triplet (if any) to carry initial colour.
-  if (col0 != 0 && iTriplet.size() > 0) {
+  if (col0 > 0 && iTriplet.size() > 0) {
     int pickT    = (iTriplet.size() == 1) ? 0
       : int( TINY + rndmPtr->flat() * (iTriplet.size() - TINY) );
-    int iPickT   = iTriplet[pickT];
+    int iPickT = iTriplet[pickT];
     cols[iPickT] = col0;
 
     // Remove matched triplet and store new colour dipole ends. 
@@ -494,7 +500,7 @@ bool ResonanceDecays::pickColours(int iDec, Event& process) {
   }
 
   // Pick final-state antitriplet (if any) to carry initial anticolour.
-  if (acol0 != 0 && iAtriplet.size() > 0) {
+  if (acol0 > 0 && iAtriplet.size() > 0) {
     int pickA = (iAtriplet.size() == 1) ? 0
       : int( TINY + rndmPtr->flat() * (iAtriplet.size() - TINY) );
     int iPickA = iAtriplet[pickA];
@@ -502,6 +508,36 @@ bool ResonanceDecays::pickColours(int iDec, Event& process) {
 
     // Remove matched antitriplet and store new colour dipole ends. 
     acol0 = 0;    
+    iAtriplet[pickA] = iAtriplet.back();
+    iAtriplet.pop_back();
+    iDipCol.push_back(0);
+    iDipAcol.push_back(iPickA);
+  }
+
+  // Sextets: second final-state triplet (if any) 
+  if (acol0 < 0 && iTriplet.size() > 0) {
+    int pickT = (iTriplet.size() == 1) ? 0
+      : int( TINY + rndmPtr->flat() * (iTriplet.size() - TINY) );
+    int iPickT = iTriplet[pickT];
+    cols[iPickT] = -acol0;
+
+    // Remove matched antitriplet and store new colour dipole ends. 
+    acol0 = 0;    
+    iTriplet[pickT] = iTriplet.back();
+    iTriplet.pop_back();
+    iDipCol.push_back(iPickT);
+    iDipAcol.push_back(0);
+  }
+
+  // Sextets: second final-state antitriplet (if any) 
+  if (col0 < 0 && iAtriplet.size() > 0) {
+    int pickA    = (iAtriplet.size() == 1) ? 0
+      : int( TINY + rndmPtr->flat() * (iAtriplet.size() - TINY) );
+    int iPickA = iAtriplet[pickA];
+    acols[iPickA] = -col0;
+
+    // Remove matched triplet and store new colour dipole ends. 
+    col0 = 0;    
     iAtriplet[pickA] = iAtriplet.back();
     iAtriplet.pop_back();
     iDipCol.push_back(0);

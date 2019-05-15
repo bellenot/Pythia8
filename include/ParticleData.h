@@ -1,5 +1,5 @@
 // ParticleData.h is a part of the PYTHIA event generator.
-// Copyright (C) 2010 Torbjorn Sjostrand.
+// Copyright (C) 2011 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -231,6 +231,9 @@ public:
   bool   isGluon()        const { return (idSave == 21);}
   bool   isDiquark()      const { return (idSave > 1000 && idSave < 10000 
          && (idSave/10)%10 == 0);}
+  bool   isParton()       const { return ( idSave == 21 
+    || (idSave != 0 && idSave < 6) 
+    || (idSave > 1000 && idSave < 5510 && (idSave/10)%10 == 0) );}
   bool   isHadron()       const; 
   bool   isMeson()        const; 
   bool   isBaryon()       const;
@@ -282,9 +285,9 @@ public:
 private:
 
   // Constants: could only be changed in the code itself.
-  static const int    INVISIBLENUMBER, INVISIBLETABLE[38];
+  static const int    INVISIBLENUMBER, INVISIBLETABLE[50];
   static const double MAXTAU0FORDECAY,MINMASSRESONANCE, NARROWMASS,
-                      CONSTITUENTMASSTABLE[6];
+                      CONSTITUENTMASSTABLE[10];
 
   // Particle data.
   int    idSave;
@@ -332,8 +335,9 @@ public:
 
   // Initialize pointers.
   void initPtr(Info* infoPtrIn, Settings* settingsPtrIn, Rndm* rndmPtrIn, 
-    Couplings* couplingsPtrIn) {infoPtr = infoPtrIn; settingsPtr = settingsPtrIn;
-    rndmPtr = rndmPtrIn; couplingsPtr = couplingsPtrIn;}
+    Couplings* couplingsPtrIn) {infoPtr = infoPtrIn; 
+    settingsPtr = settingsPtrIn; rndmPtr = rndmPtrIn; 
+    couplingsPtr = couplingsPtrIn;}
  
   // Read in database from specific file.
   bool init(string startFile = "../xmldoc/ParticleData.xml") {
@@ -388,7 +392,7 @@ public:
     = ParticleDataEntry(idIn, nameIn, antiNameIn, spinTypeIn, 
     chargeTypeIn, colTypeIn, m0In, mWidthIn, mMinIn, mMaxIn, tau0In); }  
 
-  // Reset all the properties of an entry in one go..
+  // Reset all the properties of an entry in one go.
   void setAll(int idIn, string nameIn, string antiNameIn, 
     int spinTypeIn = 0, int chargeTypeIn = 0, int colTypeIn = 0, 
     double m0In = 0., double mWidthIn = 0., double mMinIn = 0., 
@@ -503,6 +507,8 @@ public:
     return isParticle(idIn) ? pdt[abs(idIn)].isGluon() : false ; } 
   bool isDiquark(int idIn) {
     return isParticle(idIn) ? pdt[abs(idIn)].isDiquark() : false ; } 
+  bool isParton(int idIn) {
+    return isParticle(idIn) ? pdt[abs(idIn)].isParton() : false ; } 
   bool isHadron(int idIn) {
     return isParticle(idIn) ? pdt[abs(idIn)].isHadron() : false ; } 
   bool isMeson(int idIn) {

@@ -65,6 +65,7 @@
 <aidx href="Fragmentation">Fragmentation</aidx><br/>
 <aidx href="FlavourSelection">Flavour Selection</aidx><br/>
 <aidx href="ParticleDecays">Particle Decays</aidx><br/>
+<aidx href="RHadrons">R-hadrons</aidx><br/>
 <aidx href="BoseEinsteinEffects">Bose-Einstein Effects</aidx><br/>
 <aidx href="ParticleData">Particle Data</aidx><br/>
 <aidx href="ErrorChecks">Error Checks</aidx><br/>
@@ -118,4 +119,4 @@
 
 </chapter>
 
-<!-- Copyright (C) 2010 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2011 Torbjorn Sjostrand -->

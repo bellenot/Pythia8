@@ -1,5 +1,5 @@
 // FragmentationSystems.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2010 Torbjorn Sjostrand.
+// Copyright (C) 2011 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -77,7 +77,8 @@ bool ColConfig::insert( vector<int>& iPartonIn, Event& event) {
   }   
 
   // Identify closed gluon loop. Assign "endpoint" masses as light quarks.
-  bool isClosedIn = (iPartonIn[0] >= 0 && event[ iPartonIn[0] ].isGluon());
+  bool isClosedIn = (iPartonIn[0] >= 0 && event[ iPartonIn[0] ].col() != 0 
+    && event[ iPartonIn[0] ].acol() != 0 );
   if (isClosedIn) massExcessIn -= 2. * CONSTITUENTMASS;  
 
   // For junction topology: join two nearby legs into a diquark.
@@ -99,6 +100,8 @@ bool ColConfig::insert( vector<int>& iPartonIn, Event& event) {
       if (iPartonIn[i] < 0 || iPartonIn[(i + 1)%nSize] < 0) continue; 
       Particle& parton1 = event[ iPartonIn[i] ];
       Particle& parton2 = event[ iPartonIn[(i + 1)%nSize] ];
+      // Avoid joining non-partons, e.g. gluino/squark for R-hadron.
+      if (!parton1.isParton() || !parton2.isParton()) continue; 
       Vec4 pSumNow;
       pSumNow += (parton1.isGluon()) ? 0.5 * parton1.p() : parton1.p();  
       pSumNow += (parton2.isGluon()) ? 0.5 * parton2.p() : parton2.p();  
@@ -291,7 +294,7 @@ bool ColConfig::joinJunction( vector<int>& iPartonIn, Event& event,
 
 // Collect all partons of singlet to be consecutively ordered.
 
-void ColConfig::collect(int iSub, Event& event) {
+void ColConfig::collect(int iSub, Event& event, bool skipTrivial) {
 
   // Partons may already have been collected, e.g. at ministring collapse.
   if (singlets[iSub].isCollected) return;
@@ -306,7 +309,9 @@ void ColConfig::collect(int iSub, Event& event) {
     if (iSecond < 0) iSecond = singlets[iSub].iParton[i + 2];
     if (iSecond != iFirst + 1) { inOrder = false; break;}
   }
-  if (inOrder) return;
+
+  // Normally done if in order, but sometimes may need to copy anyway.
+  if (inOrder && skipTrivial) return;
  
   // Copy down system. Update current partons.
   for (int i = 0; i < singlets[iSub].size(); ++i) {
@@ -317,6 +322,21 @@ void ColConfig::collect(int iSub, Event& event) {
   }
 
   // Done.
+}
+
+//--------------------------------------------------------------------------
+
+// Find to which singlet system a particle belongs.
+
+int ColConfig::findSinglet(int i) {
+
+  // Loop through all systems and all members in them.  
+  for (int iSub = 0; iSub < int(singlets.size()); ++iSub) 
+  for (int iMem = 0; iMem < singlets[iSub].size(); ++iMem) 
+    if (singlets[iSub].iParton[iMem] == i) return iSub; 
+
+  // Done without having found particle; return -1 = error code.
+  return -1;
 }
 
 //--------------------------------------------------------------------------

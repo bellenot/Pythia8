@@ -1,5 +1,5 @@
 // Basics.h is a part of the PYTHIA event generator.
-// Copyright (C) 2010 Torbjorn Sjostrand.
+// Copyright (C) 2011 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -102,10 +102,10 @@ private:
 
 //==========================================================================
 
-// Forward reference to RotBstMatrix class.
+// Forward reference to RotBstMatrix class; needed in Vec4 class.
 class RotBstMatrix;
 
-//==========================================================================
+//--------------------------------------------------------------------------
 
 // Vec4 class.
 // This class implements four-vectors, in energy-momentum space.
@@ -225,6 +225,10 @@ private:
 
 };
 
+//--------------------------------------------------------------------------
+
+// Namespace function declarations; friends of Vec4 class.
+
 // Implementation of operator overloading with friends.
 
 inline Vec4 operator+(const Vec4& v1, const Vec4& v2) 
@@ -244,6 +248,29 @@ inline Vec4 operator/(const Vec4& v1, double f)
 
 inline double operator*(const Vec4& v1, const Vec4& v2)
   {return v1.tt*v2.tt - v1.xx*v2.xx - v1.yy*v2.yy - v1.zz*v2.zz;}  
+
+// Invariant mass of a pair and its square.
+double m(const Vec4& v1, const Vec4& v2);
+double m2(const Vec4& v1, const Vec4& v2);
+
+// Scalar and cross product of 3-vector parts.
+double dot3(const Vec4& v1, const Vec4& v2);
+Vec4 cross3(const Vec4& v1, const Vec4& v2);
+
+// theta is polar angle between v1 and v2.
+double theta(const Vec4& v1, const Vec4& v2);
+double costheta(const Vec4& v1, const Vec4& v2);
+
+// phi is azimuthal angle between v1 and v2 around z axis.
+double phi(const Vec4& v1, const Vec4& v2);  
+double cosphi(const Vec4& v1, const Vec4& v2);
+
+// phi is azimuthal angle between v1 and v2 around n axis.
+double phi(const Vec4& v1, const Vec4& v2, const Vec4& n);
+double cosphi(const Vec4& v1, const Vec4& v2, const Vec4& n);
+
+// Print a four-vector.
+ostream& operator<<(ostream&, const Vec4& v) ;
 
 //==========================================================================
 
@@ -297,6 +324,13 @@ private:
 
 };
 
+//--------------------------------------------------------------------------
+
+// Namespace function declaration; friend of RotBstMatrix class.
+
+// Print a transformation matrix.
+ostream& operator<<(ostream&, const RotBstMatrix&) ;
+
 //==========================================================================
 
 // Hist class.
@@ -346,7 +380,7 @@ public:
     ofstream streamName(fileName.c_str()); table(streamName); }
 
   // Print a table out of two histograms with same x axis.
-  friend void table(const Hist& h1, const Hist& h2, ostream& os = cout) ; 
+  friend void table(const Hist& h1, const Hist& h2, ostream& os) ; 
   friend void table(const Hist& h1, const Hist& h2, string fileName) ;
 
   // Return content of specific bin: -1 gives underflow and nBin overflow.
@@ -402,6 +436,31 @@ private:
   vector<double> res;
 
 };
+
+//--------------------------------------------------------------------------
+
+// Namespace function declarations; friends of Hist class.
+
+// Print a histogram with overloaded << operator.
+ostream& operator<<(ostream& os, const Hist& h) ;
+
+// Print a table out of two histograms with same x axis.
+void table(const Hist& h1, const Hist& h2, ostream& os = cout) ; 
+void table(const Hist& h1, const Hist& h2, string fileName) ;
+
+// Operator overloading with friends
+Hist operator+(double f, const Hist& h1);
+Hist operator+(const Hist& h1, double f);
+Hist operator+(const Hist& h1, const Hist& h2);
+Hist operator-(double f, const Hist& h1);
+Hist operator-(const Hist& h1, double f);
+Hist operator-(const Hist& h1, const Hist& h2);
+Hist operator*(double f, const Hist& h1);
+Hist operator*(const Hist& h1, double f);
+Hist operator*(const Hist& h1, const Hist& h2);
+Hist operator/(double f, const Hist& h1);
+Hist operator/(const Hist& h1, double f);
+Hist operator/(const Hist& h1, const Hist& h2);
 
 //==========================================================================
 

@@ -1,5 +1,5 @@
 // MultipleInteractions.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2010 Torbjorn Sjostrand.
+// Copyright (C) 2011 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -375,6 +375,19 @@ const double MultipleInteractions::ROOTMIN       = 0.01;
 // No need to reinitialize parameters if energy close to previous.
 const double MultipleInteractions::ECMDEV        = 0.01; 
 
+// Settings for x-dependent matter profile --rjc
+// Initial value of a0
+const double MultipleInteractions::XDEP_A0       = 1.0;
+// Width of form ( XDEP_A1 + a1 * log(1 / x) )
+const double MultipleInteractions::XDEP_A1       = 1.0;
+// Initial step size in b
+const double MultipleInteractions::XDEP_BSTEP    = 0.01;
+// Accept when overlap-weighted cross section falls beneath cutoff value
+const double MultipleInteractions::XDEP_CUTOFF   = 2e-4;
+// Warn if overlap weight greater that XDEP_WARN
+// Get warnings for a1 = 0., so + 1e-10 ??
+const double MultipleInteractions::XDEP_WARN     = 1. + 1e-10;
+
 //--------------------------------------------------------------------------
 
 // Initialize the generation process for given beams.
@@ -418,12 +431,24 @@ bool MultipleInteractions::init( bool doMIinit, int diffractiveModeIn,
   ecmPow         = settings.parm("MultipleInteractions:ecmPow");
   pTmin          = settings.parm("MultipleInteractions:pTmin");
 
-  // Impact parameter profile.
-  bProfile       = settings.mode("MultipleInteractions:bProfile");
-  coreRadius     = settings.parm("MultipleInteractions:coreRadius");
-  coreFraction   = settings.parm("MultipleInteractions:coreFraction");
-  expPow         = settings.parm("MultipleInteractions:expPow");
-  expPow         = max(EXPPOWMIN, expPow);
+  // Impact parameter profile: nondiffractive topologies.
+  if (diffractiveMode == 0) {
+    bProfile     = settings.mode("MultipleInteractions:bProfile");
+    coreRadius   = settings.parm("MultipleInteractions:coreRadius");
+    coreFraction = settings.parm("MultipleInteractions:coreFraction");
+    expPow       = settings.parm("MultipleInteractions:expPow");
+    expPow       = max(EXPPOWMIN, expPow);
+    // x-dependent impact parameter profile --rjc
+    a1           = settings.parm("MultipleInteractions:a1");
+
+  // Impact parameter profile: diffractive topologies.
+  } else {
+    bProfile     = settings.mode("Diffraction:bProfile");
+    coreRadius   = settings.parm("Diffraction:coreRadius");
+    coreFraction = settings.parm("Diffraction:coreFraction");
+    expPow       = settings.parm("Diffraction:expPow");
+    expPow       = max(EXPPOWMIN, expPow);
+  }
 
   // Process sets to include in machinery.
   processLevel   = settings.mode("MultipleInteractions:processLevel");
@@ -434,6 +459,9 @@ bool MultipleInteractions::init( bool doMIinit, int diffractiveModeIn,
   rescatterMode  = settings.mode("MultipleInteractions:rescatterMode");
   ySepResc       = settings.parm("MultipleInteractions:ySepRescatter");
   deltaYResc     = settings.parm("MultipleInteractions:deltaYRescatter");
+
+  // Rescattering not yet implemented for x-dependent impact profile.
+  if (bProfile == 4) allowRescatter = false;
 
   // Various other parameters. 
   nQuarkIn       = settings.mode("MultipleInteractions:nQuarkIn");
@@ -543,9 +571,21 @@ bool MultipleInteractions::init( bool doMIinit, int diffractiveModeIn,
       // Provide upper estimate of interaction rate d(Prob)/d(pT2).
       upperEnvelope();
 
+      // First try for binning in b --rjc
+      if (bProfile == 4) bstepNow = XDEP_BSTEP;
+
       // Integrate the parton-parton interaction cross section.
       pT4dSigmaMaxBeg = pT4dSigmaMax;
       jetCrossSection();
+
+      // Reintegrate interaction cross section if overlap-weighted
+      // cross section has not fallen below cutoff --rjc
+      while (bProfile == 4 && sigmaIntWgt[XDEP_BBIN - 1] > XDEP_CUTOFF) {
+        bstepNow += XDEP_BSTEP;
+        infoPtr->errorMsg("Warning in MultipleInteractions::init:"
+          " overlap-weighted cross section did not converge");
+        jetCrossSection();
+      }
 
       // Sufficiently big SigmaInt or reduce pT0; maybe also pTmin. 
       if (sigmaInt > SIGMASTEP * sigmaND) break; 
@@ -710,6 +750,12 @@ void MultipleInteractions::reset( ) {
 
 void MultipleInteractions::pTfirst() {  
 
+  // XXX: Not yet implemented --rjc
+  if (bProfile == 4) {
+    cout << "Error: not yet implemented" << endl;
+    exit(1);
+  }
+
   // Pick impact parameter and thereby interaction rate enhancement.
   overlapFirst();
   bSetInFirst = true;
@@ -807,7 +853,8 @@ void MultipleInteractions::setupFirstSys( Event& process) {
   int nFinalSub  = dSigmaDtSel->nFinal();
   double pTMI    = dSigmaDtSel->pTMIFin();
   infoPtr->setSubType( nameSub, codeSub, nFinalSub);
-  infoPtr->setTypeMI( codeSub, pTMI);
+  // Store enhancement factors for all MI --rjc
+  infoPtr->setTypeMI( codeSub, pTMI, 0, 0, enhanceBnow / zeroIntCorr);
 
   // Further standard info on process.
   infoPtr->setPDFalpha( id1, id2, xPDF1now, xPDF2now, pT2Fac, alpEM, alpS, 
@@ -889,6 +936,21 @@ double MultipleInteractions::pTnext( double pTbegAll, double pTendAll,
         WTacc          *= WTscreen;
       } 
  
+      // Overlap weighting --rjc
+      // Special handling needed for rescattering??
+      if (bProfile == 4) {
+        double w1   = XDEP_A1 + a1 * log(1. / x1);
+        double w2   = XDEP_A1 + a1 * log(1. / x2);
+        double fac  = a02now * (w1 * w1 + w2 * w2);
+        // Correct enhancement factor and weight
+        enhanceBnow = sigmaND / M_PI / fac * exp( - b2now / fac);
+        double oWgt = enhanceBnow / enhanceBmax;
+        if (oWgt > XDEP_WARN)
+          infoPtr->errorMsg("Warning in MultipleInteractions::"
+                            "pTnext: overlap weight above unity");
+        WTacc *= oWgt;
+      }
+
       // Decide whether to keep the event based on weight.
     } while (WTacc < rndmPtr->flat());
 
@@ -916,9 +978,9 @@ double MultipleInteractions::pTnext( double pTbegAll, double pTendAll,
     // Rescattering: need to provide incoming four-vectors and masses. 
     if (pickRescatter) {
       Vec4 p1Res = (i1Sel == 0) ? 0.5 * eCM * x1Sel * Vec4( 0., 0.,  1., 1.)
-                         	: event[i1Sel].p();
+                                 : event[i1Sel].p();
       Vec4 p2Res = (i2Sel == 0) ? 0.5 * eCM * x2Sel * Vec4( 0., 0., -1., 1.)
-                           	: event[i2Sel].p();
+                                   : event[i2Sel].p();
       double m1Res = (i1Sel == 0) ? 0. :  event[i1Sel].m();
       double m2Res = (i2Sel == 0) ? 0. :  event[i2Sel].m();
       acceptKin = dSigmaDtSel->final2KinMI( i1Sel, i2Sel, p1Res, p2Res,
@@ -1069,7 +1131,9 @@ void MultipleInteractions::scatter( Event& event) {
   // Store info on subprocess code and rescattered partons.
   int    codeMI = dSigmaDtSel->code();
   double pTMI   = dSigmaDtSel->pTMIFin();
-  infoPtr->setTypeMI( codeMI, pTMI, i1Sel, i2Sel);
+  // Store enhancement factors for all MI --rjc
+  // Valid for rescattering??
+  infoPtr->setTypeMI( codeMI, pTMI, i1Sel, i2Sel, enhanceBnow / zeroIntCorr);
 
   // Done.
 } 
@@ -1134,12 +1198,24 @@ void MultipleInteractions::jetCrossSection() {
   // Common factor from bin size in dpT2 / (pT2 + r * pT20)^2 and statistics.   
   double sigmaFactor = (1. / pT20minR - 1. / pT20maxR) / (100. * nSample);
   
+  // Reset overlap-weighted cross section --rjc
+  if (bProfile == 4) {
+    for (int bBin = 0; bBin < XDEP_BBIN; bBin++) {
+      sigmaIntWgt[bBin] = 0.;
+      sudExpWgtPT[bBin][100] = 0.;
+    }
+  }
+
   // Loop through allowed pT range evenly in dpT2 / (pT2 + r * pT20)^2.
   sigmaInt         = 0.; 
   double dSigmaMax = 0.;
   sudExpPT[100]  = 0.;
+
   for (int iPT = 99; iPT >= 0; --iPT) {
     double sigmaSum = 0.;
+
+    // pT binned overlap-weighted integration --rjc
+    double sigmaSumWgt[XDEP_BBIN] = { 0. };
 
     // In each pT bin sample a number of random pT values.
     for (int iSample = 0; iSample < nSample; ++iSample) {
@@ -1149,16 +1225,40 @@ void MultipleInteractions::jetCrossSection() {
       // Evaluate cross section dSigma/dpT2 in phase space point.
       double dSigma = sigmaPT2scatter(true);
 
-     // Multiply by (pT2 + r * pT20)^2 to compensate for pT sampling. Sum.
+      // Multiply by (pT2 + r * pT20)^2 to compensate for pT sampling. Sum.
       dSigma   *= pow2(pT2 + pT20R);
       sigmaSum += dSigma; 
-      if (dSigma > dSigmaMax) dSigmaMax = dSigma;      
+      if (dSigma > dSigmaMax) dSigmaMax = dSigma;
+
+      // Calculate overlap-weighted cross section --rjc
+      // Note that dSigma can be 0. when points are rejected.
+      if (bProfile == 4 && dSigma > 0.) {
+        double w1  = XDEP_A1 + a1 * log(1. / x1);
+        double w2  = XDEP_A1 + a1 * log(1. / x2);
+        double fac = XDEP_A0 * XDEP_A0 * (w1 * w1 + w2 * w2);
+        double b   = 0.5 * bstepNow;
+        for (int bBin = 0; bBin < XDEP_BBIN; bBin++) {
+          double wgt = exp( - b * b / fac ) / fac / M_PI;
+          sigmaSumWgt[bBin] += dSigma * wgt;
+          b += bstepNow;
+        }
+      }
     }
 
     // Store total cross section and exponent of Sudakov.
     sigmaSum *= sigmaFactor;
     sigmaInt += sigmaSum;
-    sudExpPT[iPT] =  sudExpPT[iPT + 1] + sigmaSum / sigmaND;
+    sudExpPT[iPT] = sudExpPT[iPT + 1] + sigmaSum / sigmaND;
+
+    // Sum overlap-weighted cross section --rjc
+    if (bProfile == 4) {
+      for (int bBin = 0; bBin < XDEP_BBIN; bBin++) {
+        sigmaSumWgt[bBin] *= sigmaFactor;
+        sigmaIntWgt[bBin] += sigmaSumWgt[bBin];
+        sudExpWgtPT[bBin][iPT] = sudExpWgtPT[bBin][iPT + 1] +
+                                 sigmaSumWgt[bBin];
+      }
+    }
 
   // End of loop over pT values.
   } 
@@ -1200,7 +1300,8 @@ double MultipleInteractions::fastPT2( double pT2beg) {
 
   // Use d(Prob)/d(pT2) < pT4dProbMax / (pT2 + r * pT20)^2. 
   double pT20begR       = pT2beg + pT20R;
-  double pT4dProbMaxNow = pT4dProbMax * enhanceB; 
+  // Use overestimation of enhancement factor --rjc
+  double pT4dProbMaxNow = pT4dProbMax * enhanceBmax;
   double pT2try         = pT4dProbMaxNow * pT20begR 
     / (pT4dProbMaxNow - pT20begR * log(rndmPtr->flat())) - pT20R;
 
@@ -1702,7 +1803,7 @@ double MultipleInteractions::sigmaPT2rescatter( Event& event) {
           uHatSel      = uHatTmp;
           sigma2Sel    = sigma2Tmp;
           pickOtherSel = sigma2Tmp->pickedOther(); 
-	}
+        }
       }
     }
   }
@@ -1746,6 +1847,18 @@ void MultipleInteractions::overlapInit() {
   bool pastBDiv = false;  
   double overlapHighB = 0.;
 
+  // For bProfile == 4, use existing framework for finding k, but
+  // replace with new framework:
+  //   a0 tuned according to: Int( Pint(b), d^2b ) = sigmaND -> nAvg
+  //   a0now   -> kNow, a0low      -> kLow, a0high      -> kHigh
+  //   probInt -> nNow, probIntLow -> nLow, probIntHigh -> nHigh
+  // --rjc
+  double rescale2 = 1.;
+  if (bProfile == 4) {
+    nAvg = sigmaND;
+    kNow = XDEP_A0 / 2.0;
+  }
+
   // First close k into an interval by binary steps,
   // then find k by successive interpolation.  
   do {
@@ -1754,13 +1867,16 @@ void MultipleInteractions::overlapInit() {
     else kNow = kLow + (nAvg - nLow) * (kHigh - kLow) / (nHigh - nLow);
 
     // Overlap trivial if no impact parameter dependence.
-    if (bProfile <= 0 || bProfile > 3) {
+    if (bProfile <= 0 || bProfile > 4) {
       probInt        = 0.5 * M_PI * (1. - exp(-kNow));
       probOverlapInt = probInt / M_PI;
       bProbInt       = probInt;
 
+      // Ratio of b-integrated k * overlap / (1 - exp( - k * overlap)).
+      nNow = M_PI * kNow * overlapInt / probInt;
+
     // Else integrate overlap over impact parameter.
-    } else { 
+    } else if (bProfile < 4) {
 
       // Reset integrals.
       overlapInt     = (bProfile == 3) ? 0. : 0.5;
@@ -1780,14 +1896,14 @@ void MultipleInteractions::overlapInit() {
         // Evaluate overlap at current b value.
         if (bProfile == 1) { 
           overlapNow = normPi * exp( -b*b);
-	} else if (bProfile == 2) {          
+        } else if (bProfile == 2) {          
           overlapNow = normPi * ( fracA * exp( -min(EXPMAX, b*b))
             + fracB * exp( -min(EXPMAX, b*b / radius2B)) / radius2B
             + fracC * exp( -min(EXPMAX, b*b / radius2C)) / radius2C );
-	} else {
+        } else {
           overlapNow  = normPi * exp( -pow( b, expPow));  
           overlapInt += bArea * overlapNow;
-	}
+        }
         if (pastBDiv) overlapHighB += bArea * overlapNow;
 
         // Calculate interaction probability and integrate.
@@ -1804,10 +1920,24 @@ void MultipleInteractions::overlapInit() {
 
       // Continue out in b until overlap too small.
       } while (b < 1. || b * probNow > BMAX); 
-    }      
- 
-    // Ratio of b-integrated k * overlap / (1 - exp( - k * overlap)).
-    nNow = M_PI * kNow * overlapInt / probInt;
+
+      // Ratio of b-integrated k * overlap / (1 - exp( - k * overlap)).
+      nNow = M_PI * kNow * overlapInt / probInt;
+
+    // Log Gaussian matter profile --rjc
+    } else {
+      rescale2  = kNow / XDEP_A0;
+      rescale2 *= rescale2;
+      probInt   = 0.; 
+      double b  = 0.5 * bstepNow;
+      for (int bBin = 0; bBin < XDEP_BBIN; bBin++) {
+        double bArea   = 2. * M_PI * b * bstepNow;
+        double pIntNow = 1 - exp( -min(EXPMAX, sigmaIntWgt[bBin] / rescale2) );
+        probInt += bArea * rescale2 * pIntNow;
+        b += bstepNow;
+      }
+      nNow = probInt;
+    }
 
     // Replace lower or upper limit of k.
     if (nNow < nAvg) {
@@ -1824,10 +1954,42 @@ void MultipleInteractions::overlapInit() {
   } while (abs(nNow - nAvg) > KCONVERGE * nAvg);
 
   // Save relevant final numbers for overlap values.
-  double avgOverlap  = probOverlapInt / probInt; 
-  zeroIntCorr = probOverlapInt / overlapInt; 
-  normOverlap = normPi * zeroIntCorr / avgOverlap;
-  bAvg = bProbInt / probInt;
+  if (bProfile >= 0 && bProfile < 4) {
+    double avgOverlap  = probOverlapInt / probInt; 
+    zeroIntCorr = probOverlapInt / overlapInt; 
+    normOverlap = normPi * zeroIntCorr / avgOverlap;
+    bAvg = bProbInt / probInt;
+
+  // Values of bAvg and zeroIntCorr for log Gaussian overlap --rjc
+  } else {
+    // bAvg        = Int(b * Pint(b), d2b)      / sigmaND
+    // zeroIntCorr = Int(<n(b)> * Pint(b), d2b) / sigmaInt
+    bAvg        = 0.;
+    zeroIntCorr = 0.;
+    double b    = 0.5 * bstepNow;
+    for (int bBin = 0; bBin < XDEP_BBIN; bBin++) {
+      double bArea   = 2. * M_PI * b * bstepNow;
+      double pIntNow = 1. - exp( -min(EXPMAX, sigmaIntWgt[bBin] / rescale2) );
+      bAvg          += sqrt(rescale2) * b * bArea * rescale2 * pIntNow;
+      zeroIntCorr   += bArea * sigmaIntWgt[bBin] * pIntNow;
+      b             += bstepNow;
+    }
+    bAvg        /= nNow;
+    zeroIntCorr /= sigmaInt;
+
+    // Other required values
+    a0now  = kNow;
+    a02now = a0now * a0now;
+    double xMin = 2. * pTmin / infoPtr->eCM();
+    a2max  = a0now * (XDEP_A1 + a1 * log(1. / xMin));
+    a2max *= a2max;
+
+    // DEBUG
+    cout.precision(5);
+    cout << "a0 = " << a0now << " gives sigmaND = " << nNow
+         << ", bAvg = " << bAvg << ", zeroIntCorr = "
+         << zeroIntCorr << endl;
+  }
 
   // Relative rates for preselection of low-b and high-b region.
   // Other useful combinations for subsequent selection.
@@ -1858,7 +2020,7 @@ void MultipleInteractions::overlapInit() {
 void MultipleInteractions::overlapFirst() {
 
   // Trivial values if no impact parameter dependence.
-  if (bProfile <= 0 || bProfile > 3) {
+  if (bProfile <= 0 || bProfile > 4) {
     bNow     = bAvg;
     enhanceB = zeroIntCorr;
     bIsSet   = true;
@@ -1933,7 +2095,9 @@ void MultipleInteractions::overlapFirst() {
 
   // Confirm choice of b value. Derive enhancement factor.
   } while (probAccept < rndmPtr->flat());
-  enhanceB = (normOverlap / normPi) * overlapNow ; 
+
+  // Same enhancement for hardest process and all subsequent MPI --rjc
+  enhanceB = enhanceBmax = enhanceBnow = (normOverlap / normPi) * overlapNow;
 
   // Done. 
   bIsSet = true;
@@ -1949,8 +2113,11 @@ void MultipleInteractions::overlapNext(double pTscale) {
 
   // Default, valid for bProfile = 0. Also initial Sudakov.
   enhanceB = zeroIntCorr;
-  if (bProfile <= 0 || bProfile > 3) return; 
+  if (bProfile <= 0 || bProfile > 4) return; 
   double pT2scale = pTscale*pTscale;
+
+  // Different sudakov for log Gaussian --rjc
+  double sudakovNow = 1.;
 
   // Begin loop over pT-dependent rejection of b value.
   do {
@@ -1958,8 +2125,11 @@ void MultipleInteractions::overlapNext(double pTscale) {
     // Flat enhancement distribution for simple Gaussian.
     if (bProfile == 1) {
       double expb2 = rndmPtr->flat();
-      enhanceB = normOverlap * expb2;  
+      // Same enhancement for hardest process and all subsequent MPI --rjc
+      enhanceB = enhanceBmax = enhanceBnow = normOverlap * expb2;  
       bNow = sqrt( -log(expb2));
+      // Sudakov factor --rjc
+      sudakovNow = sudakov(pT2scale, enhanceB);
 
     // For double Gaussian go the way via b, according to each Gaussian.
     } else if (bProfile == 2) {
@@ -1968,16 +2138,20 @@ void MultipleInteractions::overlapNext(double pTscale) {
       if (bType < fracA) ;
       else if (bType < fracA + fracB) b2 *= radius2B;
       else b2 *= radius2C; 
-      enhanceB = normOverlap * ( fracA * exp( -min(EXPMAX, b2))
+      // Same enhancement for hardest process and all subsequent MPI --rjc
+      enhanceB = enhanceBmax = enhanceBnow = normOverlap *
+        ( fracA * exp( -min(EXPMAX, b2))
         + fracB * exp( -min(EXPMAX, b2 / radius2B)) / radius2B
         + fracC * exp( -min(EXPMAX, b2 / radius2C)) / radius2C ); 
       bNow = sqrt(b2);
+      // Sudakov factor --rjc
+      sudakovNow = sudakov(pT2scale, enhanceB);
 
     // For exp( - b^expPow) transform to variable c = b^expPow so that
     // f(b) = b * exp( - b^expPow) -> f(c) = c^r * exp(-c) with r = expRev. 
     // case hasLowPow: expPow < 2 <=> r > 0: 
     // f(c) < r^r exp(-r) for c < 2r, < (2r)^r exp(-r-c/2) for c > 2r.
-    } else if (hasLowPow) {
+    } else if (bProfile == 3 && hasLowPow) {
       double cNow, acceptC;
       double probLowC = expRev / (expRev + pow(2., expRev) * exp( - expRev));
       do {
@@ -1989,12 +2163,15 @@ void MultipleInteractions::overlapNext(double pTscale) {
           acceptC = pow(0.5 * cNow / expRev, expRev) * exp(expRev - 0.5 * cNow);
         }
       } while (acceptC < rndmPtr->flat()); 
-      enhanceB = normOverlap *exp(-cNow);  
+      // Same enhancement for hardest process and all subsequent MPI --rjc
+      enhanceB = enhanceBmax = enhanceBnow = normOverlap *exp(-cNow);  
       bNow = pow( cNow, 1. / expPow);
+      // Sudakov factor --rjc
+      sudakovNow = sudakov(pT2scale, enhanceB);
 
     // case !hasLowPow: expPow >= 2 <=> - 1 < r < 0: 
     // f(c) < c^r for c < 1,  f(c) < exp(-c) for c > 1.  
-    } else {
+    } else if (bProfile == 3 && !hasLowPow) {
       double cNow, acceptC;
       double probLowC = expPow / (2. * exp(-1.) + expPow);
       do { 
@@ -2006,12 +2183,69 @@ void MultipleInteractions::overlapNext(double pTscale) {
           acceptC = pow( cNow, expRev);    
         } 
       } while (acceptC < rndmPtr->flat());
-      enhanceB = normOverlap * exp(-cNow);  
+      // Same enhancement for hardest process and all subsequent MPI --rjc
+      enhanceB = enhanceBmax = enhanceBnow = normOverlap * exp(-cNow);  
       bNow = pow( cNow, 1. / expPow);
+      // Sudakov factor --rjc
+      sudakovNow = sudakov(pT2scale, enhanceB);
+
+    // Log Gaussian --rjc
+    } else {
+      // Pick b according to wanted O(b, x1, x2)
+      double expb2 = rndmPtr->flat();
+      double w1 = XDEP_A1 + a1 * log(1. / infoPtr->x1());
+      double w2 = XDEP_A1 + a1 * log(1. / infoPtr->x2());
+      double fac = a02now * (w1 * w1 + w2 * w2);
+      b2now  = - fac * log(expb2);
+      bNow   = sqrt(b2now);
+      bIsSet = true;
+
+      // Enhancement factor for the hard process and overestimate for fastPT2
+      // Note that existing framework has a (1. / sigmaND) present
+      enhanceB    = sigmaND / M_PI / fac * expb2;
+      enhanceBmax = sigmaND / 2. / M_PI / a02now *
+                    exp( -b2now / 2. / a2max );
+
+      /*
+       * First try for Sudakov factor according to sudExpWgtPT
+       * Interpolate both in b and pT2 to give overall weight (simple to do,
+       * but accuracy?)
+       */
+      // Find bin the pT2 scale falls in.
+      double xBin = (pT2scale - pT2min) * pT20maxR 
+        / (pT2maxmin * (pT2scale + pT20R)); 
+      xBin = max(1e-6, min(100. - 1e-6, 100. * xBin) );
+      int iBin = int(xBin);
+      // Rescaled b value and bin in b
+      double r    = a0now / XDEP_A0;
+      double br   = bNow / r;
+      int    bBin = int(br / bstepNow);
+      if (bBin > XDEP_BBIN - 1) bBin = XDEP_BBIN - 1;
+      // Interpolate between two nearest points in b
+      double bCentre = (bBin + 0.5) * bstepNow;
+      int    bBinInt = bBin;
+      if      (bBin == 0)             bBinInt++;
+      else if (bBin == XDEP_BBIN - 1) bBinInt--;
+      else                            bBinInt += (br > bCentre) ? 1 : -1;
+      w1 = sudExpWgtPT[bBin][iBin] + (br - bCentre) *
+           (sudExpWgtPT[bBinInt][iBin] - sudExpWgtPT[bBin][iBin]) /
+           ((bBinInt - bBin) * bstepNow);
+      w2 = sudExpWgtPT[bBin][iBin + 1] + (br - bCentre) *
+           (sudExpWgtPT[bBinInt][iBin + 1] - sudExpWgtPT[bBin][iBin + 1]) /
+           ((bBinInt - bBin) * bstepNow);
+      // Interpolate in pT2 and rescale
+      double sudExpWgt = w1 + (xBin - iBin) * (w2 - w1);
+      sudExpWgt /= (r * r);
+      sudakovNow = exp(-sudExpWgt);
+      // DEBUG - should match for single Gaussian
+      //cout.precision(5);
+      //cout << "a = " << sudakov(pT2scale, enhanceB)
+      //     << ", b = " << sudakovNow << endl;
+
     }
 
-    // Evaluate "Sudakov form factor" for not having a harder interaction.
-  } while (sudakov(pT2scale, enhanceB) < rndmPtr->flat());
+  // Evaluate "Sudakov form factor" for not having a harder interaction.
+  } while (sudakovNow < rndmPtr->flat());
 
   // Done.
   bIsSet = true;

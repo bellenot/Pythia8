@@ -68,7 +68,7 @@ diquark production, over and above the one already given by
  
 <br/><br/><table><tr><td><strong>StringFlav:probQQ1toQQ0 </td><td></td><td> <input type="text" name="4" value="0.027" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.027</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 1.0</code>)</td></tr></table>
 the suppression of spin 1 diquark production relative to spin 0 one,
-apart from the factor of 3 enhancement of spin 0 from counting the
+apart from the factor of 3 enhancement of spin 1 from counting the
 number of states.
    
 
@@ -598,4 +598,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2010 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2011 Torbjorn Sjostrand -->

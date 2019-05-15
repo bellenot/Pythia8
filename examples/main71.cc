@@ -1,5 +1,5 @@
 // main71.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2010 Richard Corke, Torbjorn Sjostrand.
+// Copyright (C) 2011 Richard Corke, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 

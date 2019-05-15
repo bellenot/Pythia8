@@ -98,4 +98,4 @@ a simple example of how to use this facility.
 </body>
 </html>
 
-<!-- Copyright (C) 2010 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2011 Torbjorn Sjostrand -->

@@ -112,6 +112,9 @@ at TeV Colliders, Les Houches, France, 21 May - 1 Jun 2001
 <dt>Buc10</dt>
 <dd>A. Buckley et al., arXiv:1003.0694 [hep-ph]</dd>
 
+<dt>Buc11</dt>
+<dd>A. Buckley et al., MCnet/11/01, arXiv:1101.2599 [hep-ph]</dd>
+
 <dt>Cac06</dt>
 <dd>M. Cacciari and G.P. Salam, Phys. Lett. B641 (2006) 57
 [hep-ph/0512210]</dd>
@@ -125,8 +128,12 @@ at TeV Colliders, Les Houches, France, 21 May - 1 Jun 2001
 
 <dt>Car10</dt>
 <dd>L. Carloni and T. Sj&ouml;strand, JHEP 1009 (2010) 105 
-[arXiv:1006.2911 [hep-ph]] 
-</dd>
+[arXiv:1006.2911 [hep-ph]] </dd>
+
+<dt>Car11</dt>
+<dd>L. Carloni, J. Rathsman and T. Sj&ouml;strand, in preparation,
+LU TP 11-09, MCnet/11/06, arXiv:1102.3795 [hep-ph],
+accepted for publication in JHEP </dd>
 
 <dt>Che07</dt> 
 <dd>K. Cheung, W.-Y. Keung and T.-C. Yuan, 
@@ -144,8 +151,15 @@ Phys. Rev. D76 (2007) 055003</dd>
 <dd>R. Corke and T. Sj&ouml;strand, LU TP 10-26, MCnet/10/20, 
 arXiv:1011.1759 [hep-ph]</dd>
 
+<dt>Cor11</dt>
+<dd>R. Corke and T. Sj&ouml;strand, LU TP 11-06, MCnet/11/03, 
+arXiv:1101.5953 [hep-ph] </dd>
+
 <dt>Dav01</dt> 
 <dd>H. Davoudiasl, J.L. Hewett, T.G. Rizzo, Phys. Rev. D63 (2001) 075004</dd>
+
+<dt>Des11</dt> 
+<dd>N. Desai and P. Skands, in preparation.</dd>
 
 <dt>Dob01</dt>
 <dd>M. Dobbs and J.B. Hansen, Comput. Phys. Commun. 134 (2001) 41</dd>
@@ -173,6 +187,9 @@ p. 806</dd>
 <dt>Giu04</dt>
 <dd>G.F. Giudice, T. Plehn and A. Strumia, Nucl. Phys. B706 (2005) 455</dd>
 
+<dt>Gre07</dt>
+<dd>D. Grellscheid and P. Richardson, arXiv:0810.1951 [hep-ph]</dd>
+
 <dt>Gus86</dt>
 <dd>G. Gustafson, Phys. Lett. B175 (1986) 453;
 <br/>G. Gustafson and U. Pettersson, Nucl. Phys. B306 (1988) 746;
@@ -198,9 +215,11 @@ Nucl. Phys. B487 (1997) 27 and private communication;
 <br/>G. Barenboim, K. Huitu, J. Maalampi and M. Raidal, 
 Phys. Lett. B394 (1997) 132</dd>
 
+<dt>Ilt11</dt>
+<dd>P. Ilten, in preparation</dd>
+
 <dt>Ing85</dt>
-<dd>G.Ingelman and P. Schlein, Phys. Lett. B152 (1985) 256
-</dd>
+<dd>G.Ingelman and P. Schlein, Phys. Lett. B152 (1985) 256</dd>
 
 <dt>Ing97</dt>
 <dd>P.Bruni, A. Edin and G.Ingelman, 
@@ -208,11 +227,16 @@ see PomPyt homepage <a href="http://www.isv.uu.se/thep/MC/pompyt/"
 target="page">http://www.isv.uu.se/thep/MC/pompyt/</a>
 </dd>
 
+<dt>Jad90</dt>
+<dd>S. Jadach, J.H. Kuhn and Z. Was, Comput. Phys. Commun. 64 (1990) 275;
+S. Jadach, Z. Was, R. Decker and J.H. Kuhn, Comput. Phys. Commun. 
+76 (1993) 361</dd>
+
 <dt>Jun95</dt>
 <dd>H. Jung, Comput. Phys.Commun. 86 (1995) 147</dd>
 
 <dt>Kas10</dt>
-<dd>T. Kasemets, LU TP 10-03, arXiv:1002.4376 [hep-ph]
+<dd>T. Kasemets, LU TP 10-03, arXiv:1002.4376 [hep-ph];
 <br>T. Kasemets and T. Sj&ouml;strand, Eur. Phys. J. C69 (2010) 19 
 [arXiv:1007.0897v1 [hep-ph]]</dd>
 
@@ -220,6 +244,9 @@ target="page">http://www.isv.uu.se/thep/MC/pompyt/</a>
 <dd>R. Kleiss et al., in `Z physics at LEP 1', 
 eds. G. Altarelli, R. Kleiss and C. Verzegnassi, 
 CERN 89-08 (Geneva, 1989), Vol. 3, p. 143</dd>
+
+<dt>Kra04</dt>
+<dd>A. Kraan, Eur. Phys. J. C37 (2004) 91</dd>
 
 <dt>Kra08</dt>
 <dd>A. Kraan, arXiv:0807.3123 [hep-ex]</dd>
@@ -235,6 +262,9 @@ Eur. Phys. J. C12 (2000) 375</dd>
 <dt>Lon95</dt>
 <dd>L. L&ouml;nnblad and T. Sj&ouml;strand, Phys. Lett. B351 (1995) 293, 
 Eur. Phys. J. C2 (1998) 165</dd>
+
+<dt>Mac07</dt>
+<dd>R. Mackeprang and A. Rizzi, Eur. Phys. J. C50 (2007) 353</dd>
 
 <dt>Mar90</dt>
 <dd>G. Marsaglia, A. Zaman and W.-W. Tsang, 
@@ -318,4 +348,4 @@ J. Phys. G33 (2006) 1</dd>
 </body>
 </html>
 
-<!-- Copyright (C) 2010 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2011 Torbjorn Sjostrand -->

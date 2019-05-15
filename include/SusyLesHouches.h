@@ -1,10 +1,11 @@
 // SusyLesHouches.h is a part of the PYTHIA event generator.
-// Copyright (C) 2010 Peter Skands, Torbjorn Sjostrand.
+// Copyright (C) 2011 Torbjorn Sjostrand.
+// Main authors of this file: N. Desai, P. Skands
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 // Header file for SUSY Les Houches Accord Interface
-// Is independent of the rest of the Pythia implementation and thus could
+// Is independent of the rest of the PYTHIA implementation and thus could
 // be re-used stand-alone or merged into other applications, subject to 
 // the MCnet Guidelines mentioned above.
 
@@ -37,10 +38,10 @@ public:
 
   //Constructor, with and without filename.
   SusyLesHouches(int verboseIn=1) : verbose(verboseIn), 
-    headerPrinted(false), footerPrinted(false),
+    headerPrinted(false), footerPrinted(false), filePrinted(false),
     slhaRead(false), lhefRead(false), lhefSlha(false), useDecay(true) {};
   SusyLesHouches(string filename, int verboseIn=1) : verbose(verboseIn), 
-    headerPrinted(false), footerPrinted(false),
+    headerPrinted(false), footerPrinted(false), filePrinted(false),
     slhaRead(true), lhefRead(false), lhefSlha(false), useDecay(true) 
     {readFile(filename);};
 
@@ -52,7 +53,7 @@ public:
   //Output utilities
   void printHeader();   // print Header
   void printFooter();   // print Footer
-  void printSpectrum(); // print Spectrum
+  void printSpectrum(int ifail=0); // print Spectrum
   
   // Check spectrum and decays
   int checkSpectrum();
@@ -497,6 +498,11 @@ public:
   vector<decayTable> decays;
   map<int,int> decayIndices;
 
+  //********************* THE BSM-SLHA QNUMBERS BLOCKS *********************//
+  vector< Block<int> > qnumbers;     // Zero'th entry is PDG code
+  vector< string > qnumbersName;
+  vector< string > qnumbersAntiName;
+
   //*************************** THE SLHA2 BLOCKS ***************************//
   //Additions to SLHA1
   Block<double> qextpar;  
@@ -617,17 +623,154 @@ public:
   template <class T> bool getEntry(string, T&);
   template <class T> bool getEntry(string, int, T&);
   template <class T> bool getEntry(string, int, int, T&);
+  template <class T> bool getEntry(string, int, int, int, T&);
   template <class T> bool getEntry(string, vector<int>, T&);
+
+  // Output of messages from SLHA interface
+  void message(int, string,string ,int line=0);
 
   //***************************** SLHA PRIVATE *****************************//
 private:
   //SLHA I/O
-  void message(int, string,string ,int line=0);
   int verbose;
-  bool headerPrinted, footerPrinted;
+  bool headerPrinted, footerPrinted, filePrinted;
   bool slhaRead, lhefRead, lhefSlha, useDecay;
 
 };
+
+//--------------------------------------------------------------------------
+
+// utilities to read generic blocks
+
+template <class T> bool SusyLesHouches::getEntry(string blockName, T& val) {
+
+  // Safety checks
+  if (genericBlocks.find(blockName) == genericBlocks.end()) {
+    message(1,"getEntry","attempting to extract entry from non-existent block "
+	    +blockName);
+    return false;
+  }
+  if (genericBlocks[blockName].size() == 0) {
+    message(1,"getEntry","attempting to extract entry from zero-size block "
+	    +blockName);
+    return false;
+  }
+  if (genericBlocks[blockName].size() >= 2) {
+    message(1,"getEntry","attempting to extract un-indexed entry from multi-entry block "+blockName);
+    return false;
+  }
+  // Attempt to extract value as class T 
+  GenericBlock block = genericBlocks[blockName];
+  istringstream linestream(block(0));
+  linestream >> val; 
+  if ( !linestream ) {
+    message(1,"getEntry","problem extracting un-indexed entry from block "+blockName);
+    return false;
+  } 
+  // If made it all the way here, value was successfully extracted. Return true.
+  return true;
+}
+
+template <class T> bool SusyLesHouches::getEntry(string blockName, int indx, 
+						 T& val) {
+  // Safety checks
+  if (genericBlocks.find(blockName) == genericBlocks.end()) {
+    message(1,"getEntry","attempting to extract entry from non-existent block "
+	    +blockName);
+    return false;
+  }
+  if (genericBlocks[blockName].size() == 0) {
+    message(1,"getEntry","attempting to extract entry from zero-size block "
+	    +blockName);
+    return false;
+  }
+  // Attempt to extract indexed value as class T 
+  GenericBlock block = genericBlocks[blockName];
+  // Loop over block contents, search for indexed entry with index i
+  for (int jEntry = 0; jEntry < block.size(); jEntry++) {
+    istringstream linestream(block(jEntry));
+    // Buffer line according to format selected by T
+    int indxNow;
+    T valNow;
+    linestream >> indxNow >> valNow;
+    // If index found and value was readable, return true
+    if (linestream && indxNow == indx) {
+      val = valNow;
+      return true;
+    }
+  }
+  // If index not found or unreadable, return false
+  message(1,"getEntry","problem extracting indexed entry from block "+blockName);
+  return false;
+}
+
+template <class T> bool SusyLesHouches::getEntry(string blockName, int indx, 
+						 int jndx, T& val) {
+  // Safety checks
+  if (genericBlocks.find(blockName) == genericBlocks.end()) {
+    message(1,"getEntry","attempting to extract entry from non-existent block "
+	    +blockName);
+    return false;
+  }
+  if (genericBlocks[blockName].size() == 0) {
+    message(1,"getEntry","attempting to extract entry from zero-size block "
+	    +blockName);
+    return false;
+  }
+  // Attempt to extract matrix-indexed value as class T 
+  GenericBlock block = genericBlocks[blockName];
+  // Loop over block contents, search for indexed entry with indices i, j
+  for (int jEntry = 0; jEntry < block.size(); jEntry++) {
+    istringstream linestream(block(jEntry));
+    // Buffer line according to format selected by T
+    int indxNow, jndxNow;
+    T valNow;
+    linestream >> indxNow >> jndxNow >> valNow;
+    // If index found and value was readable, return true
+    if (linestream && indxNow == indx && jndxNow == jndx) {
+      val = valNow;
+      return true;
+    }
+  }
+  // If index not found or unreadable, return false
+  message(1,"getEntry","problem extracting matrix-indexed entry from block "
+	  +blockName);
+  return false;
+}
+
+template <class T> bool SusyLesHouches::getEntry(string blockName, int indx, 
+						 int jndx, int kndx, T& val) {
+  // Safety checks
+  if (genericBlocks.find(blockName) == genericBlocks.end()) {
+    message(1,"getEntry","attempting to extract entry from non-existent block "
+	    +blockName);
+    return false;
+  }
+  if (genericBlocks[blockName].size() == 0) {
+    message(1,"getEntry","attempting to extract entry from zero-size block "
+	    +blockName);
+    return false;
+  }
+  // Attempt to extract tensor-indexed value as class T 
+  GenericBlock block = genericBlocks[blockName];
+  // Loop over block contents, search for indexed entry with indices i, j, k
+  for (int jEntry = 0; jEntry < block.size(); jEntry++) {
+    istringstream linestream(block(jEntry));
+    // Buffer line according to format selected by T
+    int indxNow, jndxNow, kndxNow;
+    T valNow;
+    linestream >> indxNow >> jndxNow >> kndxNow >> valNow;
+    // If index found and value was readable, return true
+    if (linestream && indxNow == indx && jndxNow == jndx && kndxNow == kndx) {
+      val = valNow;
+      return true;
+    }
+  }
+  // If index not found or unreadable, return false
+  message(1,"getEntry","problem extracting tensor-indexed entry from block "
+	  +blockName);
+  return false;
+}
 
 #endif
 

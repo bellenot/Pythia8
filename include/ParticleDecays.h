@@ -1,5 +1,5 @@
 // ParticleDecays.h is a part of the PYTHIA event generator.
-// Copyright (C) 2010 Torbjorn Sjostrand.
+// Copyright (C) 2011 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -18,6 +18,7 @@
 #include "PythiaStdlib.h"
 #include "Settings.h"
 #include "TimeShower.h"
+#include "TauDecays.h"
 
 namespace Pythia8 {
  
@@ -94,7 +95,7 @@ private:
 
   // Initialization data, read from Settings.
   bool   limitTau0, limitTau, limitRadius, limitCylinder, limitDecay, 
-         mixB, doFSRinDecays;
+         mixB, doFSRinDecays, sophisticatedTau;
   double mSafety, tau0Max, tauMax, rMax, xyMax, zMax, xBdMix, xBsMix, 
          sigmaSoft, multIncrease, multRefMass, multGoffset, colRearrange, 
          stopMass, sRhoDal, wRhoDal;
@@ -110,6 +111,9 @@ private:
 
   // Pointer to particle data for currently decaying particle
   ParticleDataEntry* decDataPtr;
+
+  // Tau particle decayer.
+  TauDecays tauDecayer;
 
   // Check whether a decay is allowed, given the upcoming decay vertex.
   bool checkVertex(Particle& decayer);

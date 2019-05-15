@@ -1,5 +1,6 @@
 // SusyCouplings.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2010 Peter Skands, Torbjorn Sjostrand.
+// Copyright (C) 2011 Torbjorn Sjostrand.
+// Main authors of this file: N. Desai, P. Skands
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -20,8 +21,7 @@ namespace Pythia8 {
 // These are of technical nature, as described for each.
 
 // Allow verbose printout for debug purposes.
-  const bool CoupSUSY::DEBUG = false;
-  
+  const bool CoupSUSY::DEBUG = false;  
 
 //--------------------------------------------------------------------------
 
@@ -35,6 +35,9 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
   settingsPtr     = settingsPtrIn;
   particleDataPtr = particleDataPtrIn;
   
+  // Only initialize SUSY parts if SUSY is actually switched on
+  if (!slhaPtr->modsel.exists()) return;
+
   // Is NMSSM switched on?
   isNMSSM = (slhaPtr->modsel(3) != 1 ? false : true);
   settingsPtr->flag("SLHA:NMSSM",isNMSSM);
@@ -71,7 +74,8 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
       if (DEBUG) cout << " tan2W = " << tan2W << endl;
       sin2W   = pow2(gp)/(pow2(g)+pow2(gp));  
     } else {
-      cout<<" GAUGE block not found in SLHA; using sin(thetaW) at mZ"<<endl;
+      slhaPtr->message(1,"initSUSY",
+		       "Block GAUGE not found; using sin(thetaW) at mZ");
     }
   }
 
@@ -83,11 +87,18 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
 
   // Tan(beta)
   // By default, use the running one in HMIX (if not found, use MINPAR)
-  tanb = slhaPtr->hmix.exists(2) ? slhaPtr->hmix(2) : slhaPtr->minpar(3);
+
+  if(slhaPtr->hmix.exists(2)) 
+    tanb = slhaPtr->hmix(2);
+  else{ 
+    slhaPtr->minpar(3);
+    slhaPtr->message(1,"initSUSY",
+		     "Block HMIX not found or incomplete; using MINPAR tan(beta)");
+  }
   cosb = sqrt( 1.0 / (1.0 + tanb*tanb) );
   sinb = sqrt(max(0.0,1.0-cosb*cosb));
   
-  // tmp : verbose output
+  // Verbose output
   if (DEBUG) {
     cout << " sin2W(Q) = " << sin2W << "  mW(Q) = " << mW 
          << "  mZ(Q) = " << mZ << endl;
@@ -101,6 +112,25 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
     }
   }  
   
+  //Higgs sector
+  if(slhaPtr->alpha.exists(1))
+    alphaHiggs = slhaPtr->alpha(1);
+  else{
+    slhaPtr->message(1,"initSUSY","Block ALPHA not found; using default.");
+    // SM limit 
+    alphaHiggs = atan(tanb);
+  }
+
+  if(slhaPtr->hmix.exists(1) && slhaPtr->hmix.exists(4)){
+    muHiggs = slhaPtr->hmix(1);
+    mAHiggs = sqrt(slhaPtr->hmix(4));
+  } else{
+    slhaPtr->message(1,"initSUSY",
+		     "Block HMIX not found or incomplete; setting mu = mA = 0.");
+    muHiggs = 0.0;
+    mAHiggs = 0.0;
+  }
+
   // Shorthand for squark mixing matrices 
   SusyLesHouches::MatrixBlock<6> Ru(slhaPtr->usqmix);
   SusyLesHouches::MatrixBlock<6> Rd(slhaPtr->dsqmix);
@@ -108,8 +138,8 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
   SusyLesHouches::MatrixBlock<6> imRd(slhaPtr->imdsqmix);  
   
   // Construct ~g couplings
-  for (int i=1 ; i<=6 ; i++) {
-    for (int j=1 ; j<=3 ; j++) {
+  for (int i=1; i<=6; i++) {
+    for (int j=1; j<=3; j++) {
       LsddG[i][j] = complex( Rd(i,j)  ,  imRd(i,j));
       RsddG[i][j] = complex(-Rd(i,j+3), -imRd(i,j+3));
       LsuuG[i][j] = complex( Ru(i,j)  ,  imRu(i,j));
@@ -189,13 +219,67 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
                << scientific << setw(10) << RsusuZ[i][j] << endl;
 	}
       }
-	
     }
-    
   }
   
-  // Construct udW couplings
+  //Construct llZ couplings; 
+  for (int i=11 ; i<=16 ; i++) {
+    
+    LllZ[i-10] = af(i) - 2.0*ef(i)*sin2W ;
+    RllZ[i-10] =       - 2.0*ef(i)*sin2W ;
+
+    // tmp: verbose output
+    if (DEBUG) {
+      cout << " LllZ  [" << i << "][" << i << "] = " 
+           << scientific << setw(10) << LllZ[i] 
+           << " RllZ  [" << i << "][" << i  << "] = " 
+           << scientific << setw(10) << RllZ[i] << endl;
+    }
+  }
   
+  //Construct ~l~lZ couplings
+  //Initialize
+  for(int i=1;i<=6;i++){
+    for(int j=1;j<=6;j++){
+      LslslZ[i][j] = 0;
+      RslslZ[i][j] = 0;
+      LsvsvZ[i][j] = 0;
+      RsvsvZ[i][j] = 0;
+    }
+  }
+
+  for(int i=1;i<=3;i++){
+    // Charged leptons
+    LslslZ[i][i] = LllZ[1];
+    RslslZ[i][i] = RllZ[1];
+    LslslZ[i+3][i+3] = LllZ[1];
+    RslslZ[i+3][i+3] = RllZ[1];
+
+    // Neutrinos; no right handed sneutrinos
+    LsvsvZ[i+3][i+3] = LllZ[2];
+    RsvsvZ[i+3][i+3] = RllZ[2];
+  }
+
+  for(int i=1;i<=6;i++){
+    for(int j=1;j<=6;j++){
+      if (DEBUG) {
+	if (max(abs(LsvsvZ[i][j]),abs(RsvsvZ[i][j])) > 1e-6) {
+	  cout << " LsvsvZ[" << i << "][" << j << "] = " 
+	       << scientific << setw(10) << LsvsvZ[i][j]
+	       << " RsvsvZ[" << i << "][" << j << "] = " 
+	       << scientific << setw(10) << RsvsvZ[i][j] << endl;
+	}
+	if (max(abs(LslslZ[i][j]),abs(RslslZ[i][j]))> 1e-6) {
+	  cout << " LslslZ[" << i << "][" << j << "] = " 
+	       << scientific << setw(10) << LslslZ[i][j]
+	       << " RslslZ[" << i << "][" << j << "] = " 
+	       << scientific << setw(10) << RslslZ[i][j] << endl;
+	}
+      }
+    }
+  }
+
+  // Construct udW couplings
   // Loop over up [i] and down [j] quark generation
   for (int i=1;i<=3;i++) {
     for (int j=1;j<=3;j++) {
@@ -222,8 +306,41 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
     }
   }
 
-  // Construct ~u~dW couplings
 
+  // Construct lvW couplings
+  for (int i=1;i<=3;i++){
+    LlvW[i] = sqrt(2.0) * cosW;
+    RlvW[i] = 0.0;
+
+      // tmp: verbose output
+      if (DEBUG) {
+	cout << " LlvW  [" << i << "] = " 
+             << scientific << setw(10) << LlvW[i]
+	     << " RlvW  [" << i << "] = " 
+             << scientific << setw(10) << RlvW[i] << endl;
+      }
+  }
+
+  // Construct ~l~vW couplings
+  for (int k=1;k<=6;k++) {
+    for (int l=1;l<=6;l++) {
+      LslsvW[k][l]=0.0; 
+      RslsvW[k][l]=0.0;
+
+      if(k==l && k>3) LslsvW[k][l] = LlvW[k-3];
+
+      // tmp: verbose output
+      if (DEBUG) {
+	cout << " LslsvW  [" << k << "][" << l << "] = " 
+             << scientific << setw(10) << LudW[k][l]
+	     << " RslsvW  [" << k << "][" << l << "] = " 
+             << scientific << setw(10) << RudW[k][l] << endl;
+      }
+    }
+  }
+
+
+  // Construct ~u~dW couplings
   // Loop over ~u[k] and ~d[l] flavours
   for (int k=1;k<=6;k++) {
     for (int l=1;l<=6;l++) {
@@ -350,8 +467,10 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
              << scientific << setw(10) << OR[i][j] << endl;
       }
     }
-    
-    // Charges
+
+
+    // ~qqX couplings
+    // Quark Charges
     double ed  = -1.0/3.0;
     double T3d = -0.5;
     double eu  =  2.0/3.0;
@@ -431,12 +550,64 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
 	  }
 	}
       }
-      
     }
-    
+
+    // Start slepton couplings
+    // Lepton Charges
+    double el  = -1.0;
+    double T3l = -0.5;
+    double ev  =  0.0;
+    double T3v =  0.5;
+
+    // Need to define lepton mass
+    for (int k=1;k<=3;k++) {
+      // Set lepton masses
+      double ml(0.0);
+      if(k==3) ml = particleDataPtr->m0(15);
+
+      for(int j=1;j<=6;j++){
+	LsllX[j][k][i] = 0;
+	RsllX[j][k][i] = 0;
+	LsvvX[j][k][i] = 0;
+	RsvvX[j][k][i] = 0;
+
+	if(j==k || j==k+3){// No lepton mixing
+
+	  // ~l[j] l[k] ~chi0[i]
+	  // Changed according to new notation
+	  LsllX[j][k][i] = (el-T3l)*sinW*ni1 + T3l*cosW*ni2 + ml*cosW*ni3/2.0/mW/cosb; 
+	  RsllX[j][k][i] = -el*sinW*conj(ni1) + ml*cosW*conj(ni3)/2.0/mW/cosb;
+	
+	  // ~v[j] v[k] ~chi0[i]
+	  LsvvX[j][k][i] = ((ev-T3v)*sinW*ni1 + T3v*cosW*ni2);
+	}
+
+
+	if (DEBUG) {
+	  if (abs(LsllX[j][k][i]) > 1e-6) {
+	    // tmp: verbose output
+	    cout << " LsllX[" << j << "][" << k << "][" << i << "] = "
+		 << scientific << setw(10) << LsllX[j][k][i] << endl;
+	  }
+	  if (abs(RsllX[j][k][i]) > 1e-6) {
+	    // tmp: verbose output
+	    cout << " RsllX[" << j << "][" << k << "][" << i << "] = "
+		 << scientific << setw(10) << RsllX[j][k][i] << endl;
+	  }
+	  if (abs(LsvvX[j][k][i]) > 1e-6) {
+	    // tmp: verbose output
+	    cout << " LsvvX[" << j << "][" << k << "][" << i << "] = "
+		 << scientific << setw(10) << LsvvX[j][k][i] << endl;
+	  }
+	}
+      }
+    }
   }
   
   // Construct ~chi+ couplings 
+  // sqrt(2)
+  double rt2 = sqrt(2.0);
+
   for (int i=1;i<=nChar;i++) {
     
     // Ui1, Ui2, Vi1, Vi2
@@ -533,8 +704,6 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
 	  complex Rujk  = complex(Ru(j,k),  imRu(j,k)  );
 	  complex Rujk3 = complex(Ru(j,k+3),imRu(j,k+3));
 
-	  // sqrt(2)
-	  double rt2 = sqrt(2.0);
 	  
 	  // ~d[j] u[l] ~chi+[i]
 	  LsduX[j][l][i] += (ui1*conj(Rdjk) 
@@ -564,12 +733,53 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
 		 << scientific << setw(10) << RsudX[j][l][i] << endl;
 	  }
 	}
-	
       }
-      
-      
+    }  
+
+    // Loop over squark [j] flavour
+    for (int j=1;j<=6;j++) {
+      for (int k=1;k<=3;k++) {
+	
+	LslvX[j][k][i] = 0.0;
+	RslvX[j][k][i] = 0.0;
+	LsvlX[j][k][i] = 0.0;
+	RsvlX[j][k][i] = 0.0;
+
+	// Set lepton [k] masses 
+	double ml(0.0); 
+	if (k == 3) ml = particleDataPtr->m0(15);
+	
+	if(j==k || j==k+3){ // No lepton mixing
+	  
+	  // ~l[j] v[l] ~chi+[i]
+	  LslvX[j][k][i] = ui1- ml*ui2/rt2/mW/cosb;
+	  RslvX[j][k][i] = ml*conj(vi2)/rt2/mW/sinb; 
+	  
+	  // ~v[j] l[l] ~chi+[i]
+	  if(j<=3){ // No right handed sneutrinos
+	    LsvlX[j][k][i] = conj(vi1) - ml*conj(vi2)/rt2/mW/sinb;
+	    RsvlX[j][k][i] = 0.0;
+	  } 
+	}
+
+	if (DEBUG) {
+	  if (max(abs(LslvX[j][k][i]),abs(RslvX[j][k][i])) > 1e-6) {
+	    // tmp: verbose output
+	    cout << " LslvX[" << j << "][" << k << "][" << i << "] = "
+		 << scientific << setw(10) << LslvX[j][k][i];
+	    cout << " RslvX[" << j << "][" << k << "][" << i << "] = "
+		 << scientific << setw(10) << RslvX[j][k][i] << endl;
+	  }
+	  if (max(abs(LsvlX[j][k][i]),abs(RsvlX[j][k][i])) > 1e-6) {
+	    // tmp: verbose output
+	    cout << " LsvlX[" << j << "][" << k << "][" << i << "] = "
+		 << scientific << setw(10) << LsvlX[j][k][i];
+	    cout << " RsvlX[" << j << "][" << k << "][" << i << "] = "
+		 << scientific << setw(10) << RsvlX[j][k][i] << endl;
+	  }
+	}
+      }
     }
-    
   }
 
   // SLHA2 compatibility
@@ -879,6 +1089,35 @@ string CoupSUSY::getName(int pdgCode) {
   return name;
 
 }
+
+//--------------------------------------------------------------------------
+
+//Return neutralino code; zero if not a neutralino
+
+int CoupSUSY::typeNeut(int idPDG) {
+  int type = 0;
+  int idAbs = abs(idPDG);
+  if(idAbs == 1000022) type = 1;
+  else if(idAbs == 1000023) type = 2;
+  else if(idAbs == 1000025) type = 3;
+  else if(idAbs == 1000035) type = 4;
+  else if(isNMSSM && idAbs == 1000045) type = 5;
+  return type;
+
+}  
+
+
+//--------------------------------------------------------------------------
+
+//Check whether particle is a Chargino
+
+int CoupSUSY::typeChar(int idPDG) {
+  int type = 0;
+  if(abs(idPDG) == 1000024) type = 1;
+  else if (abs(idPDG) == 1000037)type = 2;
+  return type;
+}  
+
   
 
 //==========================================================================

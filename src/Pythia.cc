@@ -1,5 +1,5 @@
 // Pythia.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2010 Torbjorn Sjostrand.
+// Copyright (C) 2011 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -507,6 +507,7 @@ bool Pythia::initInternal() {
   doDiffraction    = settings.flag("SoftQCD:all") 
                   || settings.flag("SoftQCD:singleDiffractive") 
                   || settings.flag("SoftQCD:doubleDiffractive");
+  decayRHadrons    = settings.flag("RHadrons:allowDecay");
   doMomentumSpread = settings.flag("Beams:allowMomentumSpread");
   doVertexSpread   = settings.flag("Beams:allowVertexSpread");
   checkEvent       = settings.flag("Check:event");
@@ -528,16 +529,16 @@ bool Pythia::initInternal() {
 		   "Could not read SLHA file");
 
   if (couplingsPtr->isSUSY){
-    //Initialize the SM and SUSY
+    // Initialize the SM and SUSY.
     coupSUSY.init( settings, &rndm); 
     coupSUSY.initSUSY(&slha, &settings, &particleData);
     couplingsPtr = (Couplings *) &coupSUSY;
   } else {
-    // Initialize the SM couplings
+    // Initialize the SM couplings.
     couplingsPtr->init( settings, &rndm);
   }
 
-  //Reset couplingsPtr to the correct place
+  // Reset couplingsPtr to the correct place.
   particleData.initPtr( &info, &settings, &rndm, couplingsPtr);
 
   // Set headers to distinguish the two event listing kinds. 
@@ -547,6 +548,9 @@ bool Pythia::initInternal() {
 
   // Final setup stage of particle data, notably resonance widths.
   particleData.initWidths( resonancePtrs);
+
+  // Set up R-hadrons particle data, where relevant.
+  rHadrons.init( &info, settings, &particleData, &rndm);
 
   // Set up values related to user hooks.
   hasUserHooks  = (userHooksPtr > 0);
@@ -600,22 +604,22 @@ bool Pythia::initInternal() {
     if (!initPDFs()) return false;
   
     // Set up the two beams and the common remnant system.
-    StringFlav* flavSel = hadronLevel.getStringFlavPtr();
+    StringFlav* flavSelPtr = hadronLevel.getStringFlavPtr();
     bool isUnresolvedA = ( particleData.isLepton(idA) 
       && !settings.flag("PDF:lepton") );
     bool isUnresolvedB = ( particleData.isLepton(idB) 
       && !settings.flag("PDF:lepton") );
     beamA.init( idA, pzAcm, eA, mA, &info, settings, &particleData, &rndm, 
-      pdfAPtr, pdfHardAPtr, isUnresolvedA, flavSel);
+      pdfAPtr, pdfHardAPtr, isUnresolvedA, flavSelPtr);
     beamB.init( idB, pzBcm, eB, mB, &info, settings, &particleData, &rndm,
-      pdfBPtr, pdfHardBPtr, isUnresolvedB, flavSel);
+      pdfBPtr, pdfHardBPtr, isUnresolvedB, flavSelPtr);
 
     // Optionally set up new alternative beams for these Pomerons.
     if ( doDiffraction) { 
       beamPomA.init( 990,  0.5 * eCM, 0.5 * eCM, 0., &info, settings,
-        &particleData, &rndm, pdfPomAPtr, pdfPomAPtr, false, flavSel); 
+        &particleData, &rndm, pdfPomAPtr, pdfPomAPtr, false, flavSelPtr); 
       beamPomB.init( 990, -0.5 * eCM, 0.5 * eCM, 0., &info, settings,
-	 &particleData, &rndm, pdfPomBPtr, pdfPomBPtr, false, flavSel); 
+	&particleData, &rndm, pdfPomBPtr, pdfPomBPtr, false, flavSelPtr); 
     }
   }
 
@@ -627,12 +631,13 @@ bool Pythia::initInternal() {
   // Send info/pointers to parton level for initialization.
   if ( doPartonLevel && !partonLevel.init( &info, settings, &particleData, 
     &rndm, &beamA, &beamB, &beamPomA, &beamPomB, couplingsPtr, &partonSystems, 
-    &sigmaTot, timesDecPtr, timesPtr, spacePtr, userHooksPtr) ) return false;
+    &sigmaTot, timesDecPtr, timesPtr, spacePtr, &rHadrons, userHooksPtr) ) 
+    return false;
 
   // Send info/pointers to hadron level for initialization.
   // Note: forceHadronLevel() can come, so we must always initialize. 
-  if ( !hadronLevel.init( &info, settings, particleData, &rndm,  
-    couplingsPtr, timesDecPtr, decayHandlePtr, handledParticles) ) 
+  if ( !hadronLevel.init( &info, settings, &particleData, &rndm,  
+    couplingsPtr, timesDecPtr, &rHadrons, decayHandlePtr, handledParticles) ) 
     return false;
 
   // Optionally check particle data table for inconsistencies.
@@ -908,7 +913,6 @@ bool Pythia::next() {
     return false;
   }
 
-
   // Pick beam momentum spread and beam vertex. 
   if (doMomentumSpread || doVertexSpread) beamShapePtr->pick(); 
 
@@ -1012,6 +1016,14 @@ bool Pythia::next() {
       if ( !hadronLevel.next( event) ) {
         info.errorMsg("Error in Pythia::next: "
           "hadronLevel failed; try again"); 
+        physical = false; 
+        continue;
+      }
+
+      // If R-hadrons have been formed, then (optionally) let them decay.
+      if (decayRHadrons && rHadrons.exist() && !doRHadronDecays()) {
+        info.errorMsg("Error in Pythia::next: "
+          "decayRHadrons failed; try again"); 
         physical = false; 
         continue;
       }
@@ -1186,6 +1198,26 @@ void Pythia::boostAndVertex( bool toLab, bool setVertex) {
 
 //--------------------------------------------------------------------------
 
+// Perform R-hadron decays, either as part of normal evolution or forced.
+
+bool Pythia::doRHadronDecays( ) {
+
+  // Do the R-hadron decay itself.
+  if ( !rHadrons.decay( event) ) return false;
+
+  // Perform showers in resonance decay chains.
+  if ( !partonLevel.resonanceShowers( process, event, false) ) return false; 
+
+  // Subsequent hadronization and decays.
+  if ( !hadronLevel.next( event) ) return false;
+
+  // Done.
+  return true;
+
+}
+
+//--------------------------------------------------------------------------
+
 // Print statistics on event generation.
 
 void Pythia::statistics(bool all, bool reset) {
@@ -1247,22 +1279,22 @@ void Pythia::banner(ostream& os) {
      << "    Now is " << dateNow << " at " << timeNow << "    |  | \n"
      << " |  |                                        " 
      << "                                      |  | \n"
-     << " |  |   Torbjorn Sjostrand;  Department of Th" 
-     << "eoretical Physics, Lund University,   |  | \n"
-     << " |  |      Solvegatan 14A, SE-223 62 Lund, Sw"
-     << "eden;                                 |  | \n"
+     << " |  |   Torbjorn Sjostrand;  Department of As" 
+     << "tronomy and Theoretical Physics,      |  | \n"
+     << " |  |      Lund University, Solvegatan 14A, S"
+     << "E-223 62 Lund, Sweden;                |  | \n"
      << " |  |      phone: + 46 - 46 - 222 48 16; e-ma"
      << "il: torbjorn@thep.lu.se               |  | \n"
-     << " |  |   Stefan Ask;  School of Physics and As"
-     << "tronomy, University of Manchester,    |  | \n"
-     << " |  |      Oxford Road, Manchester M13 9PL, U"
-     << "nited Kingdom;                        |  | \n"
-     << " |  |      phone: + 41 - 22 - 767 5670; e-mai"
+     << " |  |   Stefan Ask;  Department of Physics, U"
+     << "niversity of Cambridge,               |  | \n"
+     << " |  |      Cavendish Laboratory, JJ Thomson A"
+     << "ve., Cambridge CB3 0HE, UK;           |  | \n"
+     << " |  |      phone: + 41 - 22 - 767 6707; e-mai"
      << "l: Stefan.Ask@cern.ch                 |  | \n"
-     << " |  |   Richard Corke;  Department of Theoret" 
-     << "ical Physics, Lund University,        |  | \n"
-     << " |  |      Solvegatan 14A, SE-223 62 Lund, Sw"
-     << "eden;                                 |  | \n"
+     << " |  |   Richard Corke;  Department of Astrono" 
+     << "my and Theoretical Physics,           |  | \n"
+     << " |  |      Lund University, Solvegatan 14A, S"
+     << "E-223 62 Lund, Sweden;                |  | \n"
      << " |  |      phone: + 46 - 46 - 222 31 92; e-ma"
      << "il: richard.corke@thep.lu.se          |  | \n"
      << " |  |   Stephen Mrenna;  Computing Division, "
@@ -1309,7 +1341,7 @@ void Pythia::banner(ostream& os) {
      << " when interpreting results.           |  | \n"
      << " |  |                                        "
      << "                                      |  | \n"
-     << " |  |   Copyright (C) 2010 Torbjorn Sjostrand" 
+     << " |  |   Copyright (C) 2011 Torbjorn Sjostrand" 
      << "                                      |  | \n"
      << " |  |                                        "
      << "                                      |  | \n"
@@ -1726,7 +1758,7 @@ bool Pythia::initSLHA() {
     info.errorMsg("Error in ProcessLevel::initSLHA: "
       "problem reading SLHA file", slhaFile);
     return false;
-  }else{
+  } else {
     couplingsPtr->isSUSY = true;
   }
 
@@ -1741,30 +1773,80 @@ bool Pythia::initSLHA() {
   
   // Check spectrum for consistency. Switch off SUSY if necessary.
   ifailSpc = slha.checkSpectrum();
-  // ifail > 1 : no MODSEL found -> don't switch on SUSY
+
+  // ifail >= 1 : no MODSEL found -> don't switch on SUSY
   if (ifailSpc == 1) {
     // no SUSY, but MASS ok
+    couplingsPtr->isSUSY = false;
   } else if (ifailSpc >= 2) {
     // no SUSY, but problems    
     info.errorMsg("Warning in ProcessLevel::initSLHA: "
 		      "Problem with SLHA MASS or QNUMBERS.");    
+    couplingsPtr->isSUSY = false;
   }
   // ifail = 0 : MODSEL found, spectrum OK
   else if (ifailSpc == 0) {
     // Print spectrum. Done. 
-    slha.printSpectrum();
+    slha.printSpectrum(0);
   }
   else if (ifailSpc < 0) {
     info.errorMsg("Warning in ProcessLevel::initSLHA: "
 		      "Problem with SLHA spectrum.", 
 		      "\n Only using masses and switching off SUSY.");
     settings.flag("SUSY:all", false);
-    slha.printSpectrum();
+    couplingsPtr->isSUSY = false;
+    slha.printSpectrum(ifailSpc);
   } 
 
+  // Import qnumbers
+  if ( (ifailSpc == 1 || ifailSpc == 0) && slha.qnumbers.size() > 0) {
+    for (int iQnum=0; iQnum < int(slha.qnumbers.size()); iQnum++) {
+      // Always use positive id codes
+      int id = abs(slha.qnumbers[iQnum](0));
+      ostringstream idCode;
+      idCode << id;      
+      if (particleData.isParticle(id)) {
+	info.errorMsg("Warning in Pythia::initSLHA: "
+		      "ignoring QNUMBERS", "for id = "+idCode.str()
+		      +" (already exists)", true);
+      } else {
+	int qEM3    = slha.qnumbers[iQnum](1);
+	int nSpins  = slha.qnumbers[iQnum](2);
+	int colRep  = slha.qnumbers[iQnum](3);
+	int hasAnti = slha.qnumbers[iQnum](4);
+	// Translate colRep to PYTHIA colType
+	int colType = 0;
+	if (colRep == 3) colType = 1;
+	else if (colRep == -3) colType = -1;
+	else if (colRep == 8) colType = 2;
+	else if (colRep == 6) colType = 3;
+	else if (colRep == -6) colType = -3;
+	// Default name: PDG code
+	string name, antiName;
+	ostringstream idStream;
+	idStream<<id;
+	name     = idStream.str();
+	antiName = "-"+name;	
+	if (iQnum < int(slha.qnumbersName.size())) {
+	  name = slha.qnumbersName[iQnum];
+	  if (iQnum < int(slha.qnumbersAntiName.size())) 
+	    antiName = slha.qnumbersAntiName[iQnum];
+	  if (antiName == "") antiName = name+"bar";
+	}
+	if ( hasAnti == 0) {
+	  antiName = "";
+	  particleData.addParticle(id, name, nSpins, qEM3, colType); 
+	} else {
+	  particleData.addParticle(id, name, antiName, nSpins, qEM3, colType); 
+	}
+      }
+    }
+  }
+
   // Import mass spectrum.
-  bool   keepSM    = settings.flag("SLHA:keepSM");
-  double minMassSM = settings.parm("SLHA:minMassSM");
+  bool   keepSM     = settings.flag("SLHA:keepSM");
+  double minMassSM  = settings.parm("SLHA:minMassSM");
+  double massMargin = settings.parm("SLHA:minDecayDeltaM");
   if (ifailSpc == 1 || ifailSpc == 0) {
 
     // Loop through to update particle data.
@@ -1778,7 +1860,7 @@ bool Pythia::initSLHA() {
       else if (id < 1000000 && particleData.m0(id) < minMassSM) {
 	ostringstream idCode;
 	idCode << id;      
-	info.errorMsg("Warning in ProcessLevel::initSLHA: "
+	info.errorMsg("Warning in Pythia::initSLHA: "
 	  "ignoring MASS entry", "for id = "+idCode.str()
 	  +" (m0 < SLHA:minMassSM)", true);
       } 
@@ -1815,17 +1897,15 @@ bool Pythia::initSLHA() {
     double widRes = abs(slhaTable->getWidth());
     particlePtr->setMWidth(widRes);
 
-    // Reset decay table of the particle. Allow decays.
+    // Reset decay table of the particle. Allow decays, treat as resonance.
     if (slhaTable->size() > 0) {
       particlePtr->clearChannels();
       particleData.mayDecay(idRes,true);
+      particleData.isResonance(idRes,true);
     }        
     
     // Reset to stable if width <= 0.0
     if (slhaTable->getWidth() <= 0.0) particleData.mayDecay(idRes,false);
-    
-    // Mass margin between lowest mass allowed and "average" decay channel.
-    double massMargin = 1.;
     
     // Set initial minimum mass.
     double brWTsum   = 0.;
@@ -1860,7 +1940,7 @@ bool Pythia::initSLHA() {
 	  errCode << idRes <<" ->";
 	  for (int jDa=0; jDa<int(idDa.size()); ++jDa) errCode<<" "<<idDa[jDa];
 	  info.errorMsg("Warning in ProcessLevel::initSLHA: "
-	    "switching off decay",  errCode.str() + " (mRes - mDa < massMargin)"
+	    "switching off decay",  errCode.str() + " (mRes - mDa < minDecayDeltaM)"
             "\n       (Note: cross sections will be scaled by remaining"
 	    " open branching fractions!)" , true);
 	  onMode=0;

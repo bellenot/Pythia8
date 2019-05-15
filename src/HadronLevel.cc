@@ -1,5 +1,5 @@
 // HadronLevel.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2010 Torbjorn Sjostrand.
+// Copyright (C) 2011 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -34,48 +34,62 @@ const double HadronLevel::MTHAD          = 0.9;
 // Find settings. Initialize HadronLevel classes as required.
 
 bool HadronLevel::init(Info* infoPtrIn, Settings& settings, 
-  ParticleData& particleData, Rndm* rndmPtrIn, Couplings* couplingsPtrIn,
-  TimeShower* timesDecPtr, DecayHandler* decayHandlePtr, 
+  ParticleData* particleDataPtrIn, Rndm* rndmPtrIn, 
+  Couplings* couplingsPtrIn, TimeShower* timesDecPtr, 
+  RHadrons* rHadronsPtrIn, DecayHandler* decayHandlePtr, 
   vector<int> handledParticles) {
 
   // Save pointers.
-  infoPtr        = infoPtrIn;
-  rndmPtr        = rndmPtrIn;
-  couplingsPtr   = couplingsPtrIn;
+  infoPtr         = infoPtrIn;
+  particleDataPtr = particleDataPtrIn;
+  rndmPtr         = rndmPtrIn;
+  couplingsPtr    = couplingsPtrIn;
+  rHadronsPtr     = rHadronsPtrIn; 
 
   // Main flags.
-  doHadronize    = settings.flag("HadronLevel:Hadronize");
-  doDecay        = settings.flag("HadronLevel:Decay");
-  doBoseEinstein = settings.flag("HadronLevel:BoseEinstein");
+  doHadronize     = settings.flag("HadronLevel:Hadronize");
+  doDecay         = settings.flag("HadronLevel:Decay");
+  doBoseEinstein  = settings.flag("HadronLevel:BoseEinstein");
 
   // Boundary mass between string and ministring handling.
-  mStringMin     = settings.parm("HadronLevel:mStringMin");
+  mStringMin      = settings.parm("HadronLevel:mStringMin");
 
   // For junction processing.
-  eNormJunction  = settings.parm("StringFragmentation:eNormJunction");
+  eNormJunction   = settings.parm("StringFragmentation:eNormJunction");
+
+  // Allow R-hadron formation.
+  allowRH         = settings.flag("RHadrons:allow");
 
   // Particles that should decay or not before Bose-Einstein stage.
-  widthSepBE     = settings.parm("BoseEinstein:widthSep");
-
-  // Initialize string and ministring fragmentation.
-  stringFrag.init(infoPtr, settings, &particleData, rndmPtr, &flavSel, &pTSel, 
-    &zSel);
-  ministringFrag.init(infoPtr, settings, &particleData, rndmPtr, &flavSel);
- 
-  // Initialize particle decays.  
-  decays.init(infoPtr, settings, &particleData, rndmPtr, couplingsPtr, 
-    timesDecPtr, &flavSel, decayHandlePtr, handledParticles); 
-
-  // Initialize BoseEinstein. 
-  boseEinstein.init(infoPtr, settings, particleData); 
-
-  // Initialize auxiliary administrative classes.
-  colConfig.init(infoPtr, settings, &flavSel);
+  widthSepBE      = settings.parm("BoseEinstein:widthSep");
 
   // Initialize auxiliary fragmentation classes.
   flavSel.init(settings, rndmPtr);
-  pTSel.init(settings, rndmPtr);
-  zSel.init(settings, particleData, rndmPtr);
+  pTSel.init(settings, *particleDataPtr, rndmPtr);
+  zSel.init(settings, *particleDataPtr, rndmPtr);
+
+  // Initialize auxiliary administrative class.
+  colConfig.init(infoPtr, settings, &flavSel);
+
+  // Initialize string and ministring fragmentation.
+  stringFrag.init(infoPtr, settings, particleDataPtr, rndmPtr, 
+    &flavSel, &pTSel, &zSel);
+  ministringFrag.init(infoPtr, settings, particleDataPtr, rndmPtr, 
+    &flavSel, &pTSel, &zSel);
+ 
+  // Initialize particle decays.  
+  decays.init(infoPtr, settings, particleDataPtr, rndmPtr, couplingsPtr, 
+    timesDecPtr, &flavSel, decayHandlePtr, handledParticles); 
+
+  // Initialize BoseEinstein. 
+  boseEinstein.init(infoPtr, settings, *particleDataPtr); 
+
+  // Initialize Hidden-Valley fragmentation, if necessary.
+  useHiddenValley = hiddenvalleyFrag.init(infoPtr, settings, 
+    particleDataPtr, rndmPtr);
+
+  // Send flavour and z selection pointers to R-hadron machinery.
+  rHadronsPtr->fragPtrs( &flavSel, &zSel);
 
   // Done.
   return true;
@@ -87,6 +101,9 @@ bool HadronLevel::init(Info* infoPtrIn, Settings& settings,
 // Hadronize and decay the next parton-level.
 
 bool HadronLevel::next( Event& event) {
+
+  // Do Hidden-Valley fragmentation, if necessary.
+  if (useHiddenValley) hiddenvalleyFrag.fragment(event);
 
   // Colour-octet onia states must be decayed to singlet + gluon.
   if (!decayOctetOnia(event)) return false;
@@ -102,6 +119,10 @@ bool HadronLevel::next( Event& event) {
 
       // Find the complete colour singlet configuration of the event.
       if (!findSinglets( event)) return false;
+
+      // Fragment off R-hadrons, if necessary. 
+      if (allowRH && !rHadronsPtr->produce( colConfig, event)) 
+        return false;
 
       // Process all colour singlet (sub)system
       for (int iSub = 0; iSub < colConfig.size(); ++iSub) {

@@ -222,15 +222,22 @@ effective <ei>pT0</ei> for consecutive interactions.
 <h4>Impact-parameter dependence</h4>
  
 The choice of impact-parameter dependence is regulated by several
-parameters.
+parameters. The ones listed here refer to nondiffractive topologies
+only, while their equivalents for diffractive events are put in the 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='Diffraction.php?filepath=".$filepath."' target='page'>";?>Diffraction</a> description. Note that
+there is currently no <code>bProfile = 4</code> option for diffraction.
+Other parameters are assumed to agree between diffractive and 
+nondiffractive topologies.
 
-<br/><br/><table><tr><td><strong>MultipleInteractions:bProfile  </td><td>  &nbsp;&nbsp;(<code>default = <strong>1</strong></code>; <code>minimum = 0</code>; <code>maximum = 3</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>MultipleInteractions:bProfile  </td><td>  &nbsp;&nbsp;(<code>default = <strong>1</strong></code>; <code>minimum = 0</code>; <code>maximum = 4</code>)</td></tr></table>
 Choice of impact parameter profile for the incoming hadron beams.
 <br/>
 <input type="radio" name="12" value="0"><strong>0 </strong>: no impact parameter dependence at all.<br/>
 <input type="radio" name="12" value="1" checked="checked"><strong>1 </strong>: a simple Gaussian matter distribution;  no free parameters.<br/>
 <input type="radio" name="12" value="2"><strong>2 </strong>: a double Gaussian matter distribution,  with the two free parameters <ei>coreRadius</ei> and  <ei>coreFraction</ei>.<br/>
 <input type="radio" name="12" value="3"><strong>3 </strong>: an overlap function, i.e. the convolution of  the matter distributions of the two incoming hadrons, of the form <ei>exp(- b^expPow)</ei>, where <ei>expPow</ei> is a free  parameter.<br/>
+<input type="radio" name="12" value="4"><strong>4 </strong>: a Gaussian matter distribution with a width that varies according to the selected <ei>x</ei> value of an interaction, <ei>1. + a1 log (1 / x)</ei>, where <ei>a1</ei> is a free parameter. Note that once <ei>b</ei> has been selected for the hard process, it remains fixed for the remainder of the evolution. <br/>
 
 <br/><br/><table><tr><td><strong>MultipleInteractions:coreRadius </td><td></td><td> <input type="text" name="13" value="0.4" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.4</strong></code>; <code>minimum = 0.1</code>; <code>maximum = 1.</code>)</td></tr></table>
 When assuming a double Gaussian matter profile, <i>bProfile = 2</i>,
@@ -255,6 +262,12 @@ at all, <i>bProfile = 0</i>. For small <i>expPow</i> the program
 becomes slow and unstable, so the min limit must be respected.
    
 
+<br/><br/><table><tr><td><strong>MultipleInteractions:a1 </td><td></td><td> <input type="text" name="16" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>; <code>minimum = 0.</code>; <code>maximum = 2.</code>)</td></tr></table>
+When <i>bProfile = 4</i>, this gives the <i>a1</i> constant in the
+Gaussian width. When <i>a1 = 0.</i>, this reduces back to the single
+Gaussian case.
+  
+
 <h4>Rescattering</h4>
  
 It is possible that a parton may rescatter, i.e. undergo a further
@@ -267,16 +280,19 @@ The rescatting framework has ties with other parts of the program,
 notably with the <?php $filepath = $_GET["filepath"];
 echo "<a href='BeamRemnants.php?filepath=".$filepath."' target='page'>";?>beam remnants</a>.
 
-<br/><br/><strong>MultipleInteractions:allowRescatter</strong>  <input type="radio" name="16" value="on"><strong>On</strong>
-<input type="radio" name="16" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>MultipleInteractions:allowRescatter</strong>  <input type="radio" name="17" value="on"><strong>On</strong>
+<input type="radio" name="17" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Switch to allow rescattering of partons; on/off = true/false.<br/>
+<b>Note:</b> the rescattering framework has not yet been implemented
+for the <code>MultipleInteractions:bProfile = 4</code> option,
+and can therefore not be switched on in that case.  
 <b>Warning:</b> use with caution since machinery is still not 
 so well tested.
   
 
-<br/><br/><strong>MultipleInteractions:allowDoubleRescatter</strong>  <input type="radio" name="17" value="on"><strong>On</strong>
-<input type="radio" name="17" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>MultipleInteractions:allowDoubleRescatter</strong>  <input type="radio" name="18" value="on"><strong>On</strong>
+<input type="radio" name="18" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Switch to allow rescattering of partons, where both incoming partons 
 have already rescattered; on/off = true/false. Is only used if 
@@ -298,13 +314,13 @@ shorthand for <code>MultipleInteractions:ySepRescatter</code> and
 defined below. The description is symmetric between the two beams,
 so only one case is described below. 
 <br/>
-<input type="radio" name="18" value="0" checked="checked"><strong>0 </strong>: only scattered partons with <ei>y > 0</ei>  can collide with unscattered partons from beam B.<br/>
-<input type="radio" name="18" value="1"><strong>1 </strong>: only scattered partons with <ei>y > ySep</ei>  can collide with unscattered partons from beam B.<br/>
-<input type="radio" name="18" value="2"><strong>2 </strong>: the probability for a scattered parton to be considered  as a potential rescatterer against unscattered partons in beam B increases  linearly from zero at <ei>y = ySep - deltaY</ei> to unity at  <ei>y = ySep + deltaY</ei>.<br/>
-<input type="radio" name="18" value="3"><strong>3 </strong>: the probability for a scattered parton to be considered  as a potential rescatterer against unscattered partons in beam B increases  with <ei>y</ei> according to  <ei>(1/2) * (1 + tanh( (y - ySep) / deltaY))</ei>.<br/>
-<input type="radio" name="18" value="4"><strong>4 </strong>: all partons are potential rescatterers against both  beams.<br/>
+<input type="radio" name="19" value="0" checked="checked"><strong>0 </strong>: only scattered partons with <ei>y > 0</ei>  can collide with unscattered partons from beam B.<br/>
+<input type="radio" name="19" value="1"><strong>1 </strong>: only scattered partons with <ei>y > ySep</ei>  can collide with unscattered partons from beam B.<br/>
+<input type="radio" name="19" value="2"><strong>2 </strong>: the probability for a scattered parton to be considered  as a potential rescatterer against unscattered partons in beam B increases  linearly from zero at <ei>y = ySep - deltaY</ei> to unity at  <ei>y = ySep + deltaY</ei>.<br/>
+<input type="radio" name="19" value="3"><strong>3 </strong>: the probability for a scattered parton to be considered  as a potential rescatterer against unscattered partons in beam B increases  with <ei>y</ei> according to  <ei>(1/2) * (1 + tanh( (y - ySep) / deltaY))</ei>.<br/>
+<input type="radio" name="19" value="4"><strong>4 </strong>: all partons are potential rescatterers against both  beams.<br/>
 
-<br/><br/><table><tr><td><strong>MultipleInteractions:ySepRescatter </td><td></td><td> <input type="text" name="19" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>MultipleInteractions:ySepRescatter </td><td></td><td> <input type="text" name="20" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
 used for some of the <code>MultipleInteractions:rescatterMode</code>
 options above, as the rapidity for which a scattered parton has a 50%
 probability to be considered as a potential rescatterer. 
@@ -313,7 +329,7 @@ rescatter at all, while a <i>ySep < 0</i>  instead allows central
 partons to scatter against either beam.
    
 
-<br/><br/><table><tr><td><strong>MultipleInteractions:deltaYRescatter </td><td></td><td> <input type="text" name="20" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>; <code>minimum = 0.1</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>MultipleInteractions:deltaYRescatter </td><td></td><td> <input type="text" name="21" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>; <code>minimum = 0.1</code>)</td></tr></table>
 used for some of the <code>MultipleInteractions:rescatterMode</code>
 options above, as the width of the rapidity transition region, where the 
 probability rises from zero to unity that a scattered parton is considered 
@@ -326,13 +342,13 @@ as a potential rescatterer.
 These should normally not be touched. Their only function is for
 cross-checks.
 
-<br/><br/><table><tr><td><strong>MultipleInteractions:nQuarkIn  </td><td></td><td> <input type="text" name="21" value="5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>MultipleInteractions:nQuarkIn  </td><td></td><td> <input type="text" name="22" value="5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
 Number of allowed incoming quark flavours in the beams; a change 
 to 4 would thus exclude <i>b</i> and <i>bbar</i> as incoming 
 partons, etc.
   
 
-<br/><br/><table><tr><td><strong>MultipleInteractions:nSample  </td><td></td><td> <input type="text" name="22" value="1000" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1000</strong></code>; <code>minimum = 100</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>MultipleInteractions:nSample  </td><td></td><td> <input type="text" name="23" value="1000" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1000</strong></code>; <code>minimum = 100</code>)</td></tr></table>
 The allowed <i>pT</i> range is split (unevenly) into 100 bins, 
 and in each of these the interaction cross section is evaluated in 
 <i>nSample</i> random phase space points. The full integral is used 
@@ -561,39 +577,44 @@ if($_POST["15"] != "1.")
 $data = "MultipleInteractions:expPow = ".$_POST["15"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["16"] != "off")
+if($_POST["16"] != "1.")
 {
-$data = "MultipleInteractions:allowRescatter = ".$_POST["16"]."\n";
+$data = "MultipleInteractions:a1 = ".$_POST["16"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["17"] != "off")
 {
-$data = "MultipleInteractions:allowDoubleRescatter = ".$_POST["17"]."\n";
+$data = "MultipleInteractions:allowRescatter = ".$_POST["17"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["18"] != "0")
+if($_POST["18"] != "off")
 {
-$data = "MultipleInteractions:rescatterMode = ".$_POST["18"]."\n";
+$data = "MultipleInteractions:allowDoubleRescatter = ".$_POST["18"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["19"] != "0.")
+if($_POST["19"] != "0")
 {
-$data = "MultipleInteractions:ySepRescatter = ".$_POST["19"]."\n";
+$data = "MultipleInteractions:rescatterMode = ".$_POST["19"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["20"] != "1.")
+if($_POST["20"] != "0.")
 {
-$data = "MultipleInteractions:deltaYRescatter = ".$_POST["20"]."\n";
+$data = "MultipleInteractions:ySepRescatter = ".$_POST["20"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["21"] != "5")
+if($_POST["21"] != "1.")
 {
-$data = "MultipleInteractions:nQuarkIn = ".$_POST["21"]."\n";
+$data = "MultipleInteractions:deltaYRescatter = ".$_POST["21"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["22"] != "1000")
+if($_POST["22"] != "5")
 {
-$data = "MultipleInteractions:nSample = ".$_POST["22"]."\n";
+$data = "MultipleInteractions:nQuarkIn = ".$_POST["22"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["23"] != "1000")
+{
+$data = "MultipleInteractions:nSample = ".$_POST["23"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);
@@ -603,4 +624,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2010 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2011 Torbjorn Sjostrand -->

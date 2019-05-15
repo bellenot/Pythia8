@@ -27,15 +27,7 @@ all:
 main00  main01 main02 main03 main04 main05 main06 main07 main08 main09 main10 \
 	main11 main12 main13 main14 main15 main16 main17 main18 main19 main20 \
 	main21 main22 main23 main24 main25 main26 main27 main28 main29 main30 \
-	main44 main71 main72 \
-	test234 test235 test236 test237 test238 test239 test240 test241 \
-	test242 test243 test244 test245 test246 test247 test248 test249 \
-	test250 test251 test252 test253 test254 test254a test255 test256 \
-	test257 test258 test259 test260 test261 test262 test263 test264 \
-	test265 test266 test267 test268 test269 test270 test271 test272 \
-	test273 test274 test275 test276 test277 test278 test279 test280 \
-	test281 test282 test283 test284 test285 test286 test287 test288 \
-	test289 test290 test291 test292 test293 test294 test295 test296: \
+	main44 main71 main72: \
 	../$(LIBDIRARCH)/libpythia8.a
 	@mkdir -p ../$(BINDIR)
 	$(CXX) $(CXXFLAGS) -I../$(INCDIR) $@.cc -o ../$(BINDIR)/$@.exe \

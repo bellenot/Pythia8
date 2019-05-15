@@ -411,7 +411,7 @@ returns the index of this position, as above but with vanishing
 <a name="method28"></a>
 <p/><strong>int Event::setPDTPtr(int iSet = -1) &nbsp;</strong> <br/>
 send in a pointer to the <code>ParticleData</code> database for 
-particle <code>iSet</iset>, by default the most recently appended 
+particle <code>iSet</code>, by default the most recently appended 
 particle. Also generates a pointer to the 
 <code>ParticleDataEntry</code> object of the identity code
 of the particle.
@@ -515,23 +515,21 @@ outgoing colours (e.g. baryon beam remnant or
 <i>neutralino -> q q q</i>);</li>
 <li><code>kind = 2</code> : incoming colourless particle to three 
 outgoing anticolours;</li>
-<li><code>kind = 3</code> : one incoming anticolor (stored first) 
-and two outgoing  colours (e.g. antisquark decaying to quark);</li>
-<li><code>kind = 4</code> : one incoming color (stored first) and two 
-outgoing anticolours;</li>
-<li><code>kind = 5</code> : incoming colour octet to three colours, 
-where the incoming colour passes through unchanged and so need not 
-be bokkept here, while the incoming anticolor (stored first) and the 
-two outgoing colours are (e.g. gluino decay to three quarks);</li>
-<li><code>kind = 6</code> : incoming colour octet to three anticolours, 
-where the incoming anticolour passes through unchanged and so need not 
-be bookkept here, while the incoming color (stored first) and the two 
-outgoing colours are.</li>
+<li><code>kind = 3</code> : one incoming anticolour (stored first) 
+and two outgoing  colours (e.g. antisquark decaying to two quarks, or
+  gluino decay to three quarks);</li>
+<li><code>kind = 4</code> : one incoming colour (stored first) and two 
+outgoing anticolours (e.g. squark decaying to two antiquarks, or
+  gluino decaying to three antiquarks);</li>
+<li><code>kind = 5</code> : two incoming anticolours (stored first) 
+and one outgoing colour (e.g. resonant squark production through RPV);</li>
+<li><code>kind = 6</code> : two incoming colours (stored first) 
+and one outgoing anticolour (e.g. resonant antisquark production
+  through RPV);
+</li>
 </ul>
 The odd (even) <code>kind</code> codes corresponds to a +1 (-1) change in 
 baryon number across the junction.
-<br/><b>Warning:</b> Currently only <code>kind = 1, 2</code> are 
-implemented.
 
 <p/>
 The kind and colour information in the list of junctions can be set 
@@ -582,4 +580,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2010 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2011 Torbjorn Sjostrand -->

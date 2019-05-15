@@ -1,5 +1,6 @@
 // SusyLesHouches.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2010 Peter Skands, Torbjorn Sjostrand.
+// Copyright (C) 2011 Torbjorn Sjostrand.
+// Main authors of this file: N. Desai, P. Skands
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -26,7 +27,10 @@ int SusyLesHouches::readFile(string slhaFileIn, int verboseIn, bool useDecayIn) 
     slhaRead=false;
   }  
 
-  if (verbose >= 3) message(0,"readFile","parsing "+slhaFile,0);
+  if (verbose >= 3) {
+    message(0,"readFile","parsing "+slhaFile,0);
+    filePrinted = true;
+  }
 
   // Array of particles read in.
   vector<int> idRead;
@@ -96,6 +100,10 @@ int SusyLesHouches::readFile(string slhaFileIn, int verboseIn, bool useDecayIn) 
     //Ignore comment lines with # as first character
     if (line.find("#") == 0) continue;
 
+    //Ignore empty lines
+    if (line.size() == 0) continue;
+    if (line.size() == 1 && line.substr(0,1) == " ") continue;
+
     //Move comment to separate string
     if (line.find("#") != string::npos) {
       comment=line.substr(line.find("#")+1,line.length()-line.find("#")-1);
@@ -112,11 +120,11 @@ int SusyLesHouches::readFile(string slhaFileIn, int verboseIn, bool useDecayIn) 
       //Print header if not already done
       if (! headerPrinted) printHeader();
 
-      blockIn=line ; 
+      blockIn=line ;       
       decay="";
       int nameBegin=6 ;
       int nameEnd=blockIn.find(" ",7);
-      blockName=line.substr(nameBegin,nameEnd-nameBegin);
+      blockName=blockIn.substr(nameBegin,nameEnd-nameBegin);
       
       // Copy input file as generic blocks (containing strings)
       // (more will be done with SLHA1 & 2 specific blocks below, this is 
@@ -124,6 +132,60 @@ int SusyLesHouches::readFile(string slhaFileIn, int verboseIn, bool useDecayIn) 
       //  including also any unknown/user/generic blocks)
       GenericBlock gBlock;
       genericBlocks[blockName]=gBlock;
+
+      // QNUMBERS blocks (cf. arXiv:0712.3311 [hep-ph])
+      if (blockIn.find("qnumbers") != string::npos) {
+	// Extract ID code for new particle
+	int pdgBegin=blockIn.find(" ",7)+1;
+	int pdgEnd=blockIn.find(" ",pdgBegin);
+	string pdgString = blockIn.substr(pdgBegin,pdgEnd-pdgBegin);
+	istringstream linestream(pdgString);
+	// Create and add new block with this code as zero'th entry
+	Block<int> newQnumbers;
+	newQnumbers.set(0,linestream);
+	qnumbers.push_back(newQnumbers);	
+	// Default name: PDG code
+	string defName, defAntiName, newName, newAntiName;	
+	ostringstream idStream;
+	idStream<<newQnumbers(0);
+	defName     = idStream.str();
+	defAntiName = "-"+defName;
+	newName     = defName;
+	newAntiName = defAntiName;
+	// Attempt to extract names from comment string
+	if (comment.length() >= 1) {
+	  int firstCommentBeg(0), firstCommentEnd(0);
+	  if ( comment.find(" ") == 0) firstCommentBeg = 1;	  
+	  if ( comment.find(" ",firstCommentBeg+1) == string::npos)
+	    firstCommentEnd = comment.length();
+	  else 
+	    firstCommentEnd = comment.find(" ",firstCommentBeg+1);
+	  if (firstCommentEnd > firstCommentBeg) 
+	    newName = comment.substr(firstCommentBeg,
+				     firstCommentEnd-firstCommentBeg);
+	  // Now see if there is a separate name for antiparticle
+	  int secondCommentBeg(firstCommentEnd+1), secondCommentEnd(0);
+	  if (secondCommentBeg < int(comment.length())) { 
+	    if ( comment.find(" ",secondCommentBeg+1) == string::npos)
+	      secondCommentEnd = comment.length();
+	    else 
+	      secondCommentEnd = comment.find(" ",secondCommentBeg+1);
+	  if (secondCommentEnd > secondCommentBeg) 
+	    newAntiName = comment.substr(secondCommentBeg,
+					 secondCommentEnd-secondCommentBeg);
+	  }	  
+	} 
+	// If name given without specific antiname, set antiname to ""
+	if (newName != defName && newAntiName == defAntiName) newAntiName = "";
+	qnumbersName.push_back(newName);
+	qnumbersAntiName.push_back(newAntiName);
+	if (pdgString != newName) {
+	  message(0,"readFile","storing QNUMBERS for id = "+pdgString+" "
+		  +newName+" "+newAntiName,iLine);
+	} else {
+	  message(0,"readFile","storing QNUMBERS for id = "+pdgString,iLine);
+	}
+      }
 
       //Find Q=... for DRbar running blocks
       if (blockIn.find("q=") != string::npos) {
@@ -288,11 +350,15 @@ int SusyLesHouches::readFile(string slhaFileIn, int verboseIn, bool useDecayIn) 
       int ifail=-2;
       istringstream linestream(line);
 
-      // Add line to generic block (carbon copy of input structure)
-      genericBlocks[blockName].set(line);
+      // Read line in QNUMBERS block, add to end of qnumbers vector
+      if (blockName == "qnumbers") {
+	int iEnd = qnumbers.size()-1;
+	if (iEnd >= 0) ifail = qnumbers[iEnd].set(linestream);
+	else ifail = -1;
+      }
 
-      //MODEL
-      if (blockName == "modsel") {
+      // MODEL
+      else if (blockName == "modsel") {
         int i;
         linestream >> i; 
         if (linestream) {
@@ -466,18 +532,23 @@ int SusyLesHouches::readFile(string slhaFileIn, int verboseIn, bool useDecayIn) 
 
       //Diagnostics
       if (ifail != 0) { 
-        if (ifail == -2) {
-          message(1,"readFile","Ignoring unknown block: "+blockName,iLine);
-          blockIn="";
+        if (ifail == -2 && !genericBlocks[blockName].exists() ) {
+          message(0,"readFile","storing non-SLHA(2) block: "+blockName,iLine);
         };
         if (ifail == -1) {
-          message(2,"readFile","Error on line.",iLine);        
+          message(1,"readFile","read error or empty line",iLine);        
         };
         if (ifail == 1) {
-          message(0,"readFile",blockName+" existing entry overwritten.",iLine);
+          message(0,"readFile",blockName+" existing entry overwritten",iLine);
         };
-      };
-      
+      }
+
+      // Add line to generic block (carbon copy of input structure)
+      // NB: do not save empty lines, defined as having length <= 1
+      if (line.size() >= 2) {
+	genericBlocks[blockName].set(line);
+      }
+	
     } 
 
     // Decay table read-in
@@ -510,7 +581,7 @@ int SusyLesHouches::readFile(string slhaFileIn, int verboseIn, bool useDecayIn) 
 
       // Stop reading decay channels if not consistent.
       if (!ok || nDa < 2) {
-        message(0,"readFile","decay channel read failed",iLine);
+        message(1,"readFile","read error or empty line",iLine);
          
       // Append decay channel.
       } else {
@@ -538,8 +609,12 @@ void SusyLesHouches::printHeader() {
   if (verbose == 0) return;
   setprecision(3);
   if (! headerPrinted) {
-    cout <<" *--------------------  SusyLesHouches v0.06 SUSY/BSM Interface  ---------------------*\n";
-    message(0,"","Last Change 20 Oct 2010 - P. Z. Skands",0);
+    cout <<" *--------------------  SusyLesHouches v1.01 SUSY/BSM Interface  ---------------------*\n";
+    message(0,"","Last Change 13 Apr 2011 - N. Desai, P. Skands",0);
+    if (!filePrinted) {
+      message(0,"","Parsing: "+slhaFile,0);
+      filePrinted=true;
+    }
     headerPrinted=true;
   }
 }
@@ -563,7 +638,7 @@ void SusyLesHouches::printFooter() {
 // Print the current spectrum on stdout.
 // Not yet fully implemented.
 
-void SusyLesHouches::printSpectrum() {
+void SusyLesHouches::printSpectrum(int ifail) {
 
   // Exit if output switched off
   if (verbose <= 0) return;
@@ -577,6 +652,11 @@ void SusyLesHouches::printSpectrum() {
     message(0,"","  Spectrum Calculator was:   "+spinfo(1)+"   version: "+spinfo(2));
     if (lhefRead) message(0,"","  Read <slha> spectrum from: "+slhaFile);
     else message(0,"","  Read SLHA spectrum from: "+slhaFile);
+  }
+
+  // Failed?
+  if (ifail < 0) {
+    message(0,"","  Check revealed problems. Only using masses.");
   }
 
   // gluino
@@ -784,62 +864,49 @@ int SusyLesHouches::checkSpectrum() {
   //Global
   if (!minpar.exists()) {
       message(1,"checkSpectrum","MINPAR not found",0);
-      ifail=-1;    
   }
   if (!sminputs.exists()) {
       message(1,"checkSpectrum","SMINPUTS not found",0);
-      ifail=-1;    
   }
   if (!mass.exists()) {
       message(1,"checkSpectrum","MASS not found",0);
-      ifail=-1;  
   }
   if (!gauge.exists()) {
       message(1,"checkSpectrum","GAUGE not found",0);
-      ifail=-1;    
   }
 
   //SLHA1
   if (modsel(3) == 0 && modsel(4) == 0 && modsel(5) == 0 && modsel(6) == 0) {
     // Check for required SLHA1 blocks
-    if (!staumix.exists()) {
+    if (!staumix.exists() && !selmix.exists()) {
       message(1,"checkSpectrum","STAUMIX not found",0);
-      ifail=-1;
     };  
-    if (!sbotmix.exists()) {
+    if (!sbotmix.exists() && !dsqmix.exists()) {
       message(1,"checkSpectrum","SBOTMIX not found",0);
-      ifail=-1;
     };  
-    if (!stopmix.exists()) {
+    if (!stopmix.exists() && !usqmix.exists()) {
       message(1,"checkSpectrum","STOPMIX not found",0);
-      ifail=-1;
     };  
     if (!nmix.exists()) {
       message(1,"checkSpectrum","NMIX not found",0);
-      ifail=-1;
     };  
     if (!umix.exists()) {
       message(1,"checkSpectrum","UMIX not found",0);
-      ifail=-1;
     };  
     if (!vmix.exists()) {
       message(1,"checkSpectrum","VMIX not found",0);
-      ifail=-1;
     };  
     if (!alpha.exists()) {
       message(1,"checkSpectrum","ALPHA not found",0);
-      ifail=-1;    
     }
     if (!hmix.exists()) {
       message(1,"checkSpectrum","HMIX not found",0);
-      ifail=-1;    
     }
     if (!msoft.exists()) {
       message(1,"checkSpectrum","MSOFT not found",0);
-      ifail=-1;    
     }
   } 
-
+  
   //RPV (+ FLV)
   else if (modsel(4) != 0) {
     // Check for required SLHA2 blocks
@@ -873,40 +940,40 @@ int SusyLesHouches::checkSpectrum() {
     }
     if (!dsqmix.exists()) {
       message(1,"checkSpectrum","MODSEL 4 != 0 but DSQMIX not found",0);
-      ifail=-1;
+	ifail=-1;
     }
   }
-
+  
   // FLV but not RPV (see above for FLV+RPV, below for FLV regardless of RPV)
   else if (modsel(6) != 0) {
     // Quark FLV
     if (modsel(6) != 2) {
       if (!usqmix.exists()) {
-        message(1,"checkSpectrum","quark FLV on but USQMIX not found",0);
-        ifail=-1;
+	message(1,"checkSpectrum","quark FLV on but USQMIX not found",0);
+	ifail=-1;
       }
       if (!dsqmix.exists()) {
-        message(1,"checkSpectrum","quark FLV on but DSQMIX not found",0);
-        ifail=-1;
+	message(1,"checkSpectrum","quark FLV on but DSQMIX not found",0);
+	ifail=-1;
       }
     }
     // Lepton FLV
     if (modsel(6) != 1) {
       if (!upmns.exists()) {
-        message(1,"checkSpectrum","lepton FLV on but UPMNSIN not found",0);
-        ifail=-1;
+	message(1,"checkSpectrum","lepton FLV on but UPMNSIN not found",0);
+	ifail=-1;
       }
       if (!selmix.exists()) {
-        message(1,"checkSpectrum","lepton FLV on but SELMIX not found",0);
-        ifail=-1;
+	message(1,"checkSpectrum","lepton FLV on but SELMIX not found",0);
+	ifail=-1;
       }
       if (!snumix.exists() && !snsmix.exists()) {
-        message(1,"checkSpectrum","lepton FLV on but SNUMIX not found",0);
-        ifail=-1;
+	message(1,"checkSpectrum","lepton FLV on but SNUMIX not found",0);
+	ifail=-1;
       }
     }
   }
-
+  
   // CPV
   if (modsel(5) != 0) {
     if (!cvhmix.exists()) {
@@ -914,49 +981,49 @@ int SusyLesHouches::checkSpectrum() {
       ifail=-1;
     }
   }
-
+  
   // FLV (regardless of whether RPV or not)
   if (modsel(6) != 0) {
     // Quark FLV
     if (modsel(6) != 2) {
       if (!vckmin.exists()) {
-        message(1,"checkSpectrum","quark FLV on but VCKMIN not found",0);
-        ifail=-1;
+	message(1,"checkSpectrum","quark FLV on but VCKMIN not found",0);
+	ifail=-1;
       }
       if (!msq2in.exists()) {
-        message(0,"checkSpectrum","note: quark FLV on but MSQ2IN not found",0);
-        ifail=min(ifail,0);
+	message(0,"checkSpectrum","note: quark FLV on but MSQ2IN not found",0);
+	ifail=min(ifail,0);
       }
       if (!msu2in.exists()) {
-        message(0,"checkSpectrum","note: quark FLV on but MSU2IN not found",0);
-        ifail=min(ifail,0);
+	message(0,"checkSpectrum","note: quark FLV on but MSU2IN not found",0);
+	ifail=min(ifail,0);
       }
       if (!msd2in.exists()) {
-        message(0,"checkSpectrum","note: quark FLV on but MSD2IN not found",0);
-        ifail=min(ifail,0);
+	message(0,"checkSpectrum","note: quark FLV on but MSD2IN not found",0);
+	ifail=min(ifail,0);
       }
       if (!tuin.exists()) {
-        message(0,"checkSpectrum","note: quark FLV on but TUIN not found",0);
-        ifail=min(ifail,0);
+	message(0,"checkSpectrum","note: quark FLV on but TUIN not found",0);
+	ifail=min(ifail,0);
       }
       if (!tdin.exists()) {
-        message(0,"checkSpectrum","note: quark FLV on but TDIN not found",0);
-        ifail=min(ifail,0);
+	message(0,"checkSpectrum","note: quark FLV on but TDIN not found",0);
+	ifail=min(ifail,0);
       }
     }
     // Lepton FLV
     if (modsel(6) != 1) {
       if (!msl2in.exists()) {
-        message(0,"checkSpectrum","note: lepton FLV on but MSL2IN not found",0);
-        ifail=min(ifail,0);
+	message(0,"checkSpectrum","note: lepton FLV on but MSL2IN not found",0);
+	ifail=min(ifail,0);
       }
       if (!mse2in.exists()) {
-        message(0,"checkSpectrum","note: lepton FLV on but MSE2IN not found",0);
-        ifail=min(ifail,0);
+	message(0,"checkSpectrum","note: lepton FLV on but MSE2IN not found",0);
+	ifail=min(ifail,0);
       }
       if (!tein.exists()) {
-        message(0,"checkSpectrum","note: lepton FLV on but TEIN not found",0);
-        ifail=min(ifail,0);
+	message(0,"checkSpectrum","note: lepton FLV on but TEIN not found",0);
+	ifail=min(ifail,0);
       }
     }
   }
@@ -1021,13 +1088,16 @@ int SusyLesHouches::checkSpectrum() {
       }
       if (abs(1.0-cn1) > 1e-3 || abs(1.0-cn2) > 1e-3) { 
         ifail=2; 
-        message(2,"checkSpectrum","inconsistent normalization of NMIX",0);
+        message(2,"checkSpectrum","NMIX is not unitary (wrong format?)",0);
+	break;
       }
     }
   }
 
   //VMIX, UMIX
   if (vmix.exists() && umix.exists()) {
+    // First check for non-standard "madgraph" convention
+    // (2,2) entry not given explicitly
     for (int i=1;i<=2;i++) {
       double cu1=0.0;
       double cu2=0.0;
@@ -1040,12 +1110,30 @@ int SusyLesHouches::checkSpectrum() {
         cv2 += pow(vmix(j,i),2);
       }
       if (abs(1.0-cu1) > 1e-3 || abs(1.0-cu2) > 1e-3) { 
-        ifail=2; 
-        message(2,"checkSpectrum","inconsistent normalization of UMIX",0);
+	cu1 += pow(umix(1,1),2);
+	cu2 += pow(umix(1,1),2);
+	if (abs(1.0-cu1) > 1e-3 || abs(1.0-cu2) > 1e-3) { 
+	  ifail=max(1,ifail); 
+	  message(2,"checkSpectrum","UMIX is not unitary (wrong format?)",0);
+	  break;
+	} else {
+	  // Fix madgraph non-standard convention problem
+	  message(1,"checkSpectrum","UMIX is not unitary (repaired)",0);
+	  umix.set(2,2,umix(1,1));
+	}
       }
       if (abs(1.0-cv1) > 1e-3 || abs(1.0-cv2) > 1e-3) { 
-        ifail=2; 
-        message(2,"checkSpectrum","inconsistent normalization of VMIX",0);
+	cv1 += pow(vmix(1,1),2);
+	cv2 += pow(vmix(1,1),2);
+	if (abs(1.0-cv1) > 1e-3 || abs(1.0-cv2) > 1e-3) { 
+	  ifail=max(1,ifail); 
+	  message(2,"checkSpectrum","VMIX is not unitary (wrong format?)",0);
+	  break;
+	} else {
+	  // Fix madgraph non-standard convention problem
+	  message(1,"checkSpectrum","VMIX is not unitary (repaired)",0);
+	  vmix.set(2,2,vmix(1,1));
+	}
       }
     }
     
@@ -1065,12 +1153,14 @@ int SusyLesHouches::checkSpectrum() {
         cb2 += pow(sbotmix(j,i),2);
       }
       if (abs(1.0-ct1) > 1e-3 || abs(1.0-ct2) > 1e-3) { 
-        ifail=2; 
-        message(2,"checkSpectrum","inconsistent normalization of STOPMIX",0);
+        ifail=-1; 
+        message(2,"checkSpectrum","STOPMIX is not unitary (wrong format?)",0);
+	break;
       }
       if (abs(1.0-cb1) > 1e-3 || abs(1.0-cb2) > 1e-3) { 
-        ifail=2; 
-        message(2,"checkSpectrum","inconsistent normalization of SBOTMIX",0);
+        ifail=-1; 
+        message(2,"checkSpectrum","SBOTMIX is not unitary (wrong format?)",0);
+	break;
       }
     }    
   }
@@ -1085,13 +1175,63 @@ int SusyLesHouches::checkSpectrum() {
         ct2 += pow(staumix(j,i),2);
       }
       if (abs(1.0-ct1) > 1e-3 || abs(1.0-ct2) > 1e-3) { 
-        ifail=2; 
-        message(2,"checkSpectrum","inconsistent normalization of STAUMIX",0);
+        ifail=-1; 
+        message(2,"checkSpectrum","STAUMIX is not unitary (wrong format?)",0);
+	break;
       }
     }    
   }
 
-  //NMSSM:
+  //DSQMIX
+  if (dsqmix.exists()) {
+    for (int i=1;i<=6;i++) {
+      double sr=0.0;
+      double sc=0.0;
+      for (int j=1;j<=6;j++) {
+        sr += pow(dsqmix(i,j),2);
+        sc += pow(dsqmix(j,i),2);
+      }
+      if (abs(1.0-sr) > 1e-3 || abs(1.0-sc) > 1e-3) { 
+        ifail=-1; 
+        message(2,"checkSpectrum","DSQMIX is not unitary (wrong format?)",0);
+	break;
+      }
+    }
+  }
+
+  //USQMIX
+  if (usqmix.exists()) {
+    for (int i=1;i<=6;i++) {
+      double sr=0.0;
+      double sc=0.0;
+      for (int j=1;j<=6;j++) {
+        sr += pow(usqmix(i,j),2);
+        sc += pow(usqmix(j,i),2);
+      }
+      if (abs(1.0-sr) > 1e-3 || abs(1.0-sc) > 1e-3) { 
+        ifail=-1; 
+        message(2,"checkSpectrum","USQMIX is not unitary (wrong format?)",0);
+	break;
+      }
+    }
+  }
+
+  //SELMIX
+  if (selmix.exists()) {
+    for (int i=1;i<=6;i++) {
+      double sr=0.0;
+      double sc=0.0;
+      for (int j=1;j<=6;j++) {
+        sr += pow(selmix(i,j),2);
+        sc += pow(selmix(j,i),2);
+      }
+      if (abs(1.0-sr) > 1e-3 || abs(1.0-sc) > 1e-3) { 
+        ifail=-1; 
+        message(2,"checkSpectrum","SELMIX is not unitary (wrong format?)",0);
+	break;
+      }
+    }
+  }  //NMSSM:
   if (modsel(3) == 1) {
     //NMNMIX
     if ( nmnmix.exists() ) {
@@ -1103,8 +1243,9 @@ int SusyLesHouches::checkSpectrum() {
           cn2 += pow(nmnmix(j,i),2);
         }
         if (abs(1.0-cn1) > 1e-3 || abs(1.0-cn2) > 1e-3) { 
-          ifail=max(ifail,2); 
-          message(2,"checkSpectrum","inconsistent normalization of NMNMIX",0);
+          ifail=-1;
+          message(2,"checkSpectrum","NMNMIX is not unitary (wrong format?)",0);
+	  break;
         }
       }
     }
@@ -1120,8 +1261,8 @@ int SusyLesHouches::checkSpectrum() {
           cn1 += pow(nmamix(i,j),2);
         }
         if (abs(1.0-cn1) > 1e-3) { 
-          ifail=max(ifail,2); 
-          message(2,"checkSpectrum","inconsistent normalization of NMAMIX",0);
+          ifail=-1;
+          message(2,"checkSpectrum","NMAMIX is not unitary (wrong format?)",0);
         }
       }
     }
@@ -1139,8 +1280,8 @@ int SusyLesHouches::checkSpectrum() {
           cn2 += pow(nmhmix(j,i),2);
         }
         if (abs(1.0-cn1) > 1e-3 || abs(1.0-cn2) > 1e-3) { 
-          ifail=max(ifail,2); 
-          message(2,"checkSpectrum","inconsistent normalization of NMHMIX",0);
+          ifail=-1; 
+          message(2,"checkSpectrum","NMHMIX is not unitary (wrong format?)",0);
         }
       }
     }
@@ -1244,72 +1385,6 @@ int SusyLesHouches::checkDecays() {
   return iFailDecays;
 
 }
-
-//--------------------------------------------------------------------------
-
-// utilities to read generic blocks
-
-template <class T> bool SusyLesHouches::getEntry(string blockName, T& val) {
-  // Safety checks
-  if (genericBlocks.find(blockName) == genericBlocks.end()) {
-    message(1,"getEntry","attempting to extract entry from non-existent block "
-	    +blockName);
-    return false;
-  }
-  if (genericBlocks[blockName].size() == 0) {
-    message(1,"getEntry","attempting to extract entry from zero-size block "
-	    +blockName);
-    return false;
-  }
-  if (genericBlocks[blockName].size() >= 2) {
-    message(1,"getEntry","attempting to extract un-indexed entry from multi-entry block "+blockName);
-    return false;
-  }
-  // Attempt to extract value as class T 
-  GenericBlock block = genericBlocks[blockName];
-  istringstream linestream(block(0));
-  linestream >> val; 
-  if ( !linestream ) {
-    message(1,"getEntry","problem extracting un-indexed entry from block "+blockName);
-    return false;
-  } 
-  // If made it all the way here, value was successfully extracted. Return true.
-  return true;
-}
-
-template <class T> bool SusyLesHouches::getEntry(string blockName, int indx, 
-						 T& val) {
-  // Safety checks
-  if (genericBlocks.find(blockName) == genericBlocks.end()) {
-    message(1,"getEntry","attempting to extract entry from non-existent block "
-	    +blockName);
-    return false;
-  }
-  if (genericBlocks[blockName].size() == 0) {
-    message(1,"getEntry","attempting to extract entry from zero-size block "
-	    +blockName);
-    return false;
-  }
-  // Attempt to extract indexed value as class T 
-  GenericBlock block = genericBlocks[blockName];
-  // Loop over block contents, search for indexed entry with index i
-  for (int jEntry = 0; jEntry < block.size(); jEntry++) {
-    istringstream linestream(block(jEntry));
-    // Buffer line according to format selected by T
-    int indxNow;
-    T valNow;
-    linestream >> indxNow >> valNow;
-    // If index found and value was readable, return true
-    if (linestream && indxNow == indx) {
-      val = valNow;
-      return true;
-    }
-  }
-  // If index not found or unreadable, return false
-  message(1,"getEntry","problem extracting indexed entry from block "+blockName);
-  return false;
-}
-
 
 //--------------------------------------------------------------------------
 

@@ -1,5 +1,5 @@
 // main43.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2008 Peter Skands, Torbjorn Sjostrand.
+// Copyright (C) 2011 Peter Skands, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 

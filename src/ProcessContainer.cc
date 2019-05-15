@@ -1,5 +1,5 @@
 // ProcessContainer.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2010 Torbjorn Sjostrand.
+// Copyright (C) 2011 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -261,8 +261,10 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
       int daughter2 = (i <= 2) ? m_D2 : 0;
       int col       = sigmaProcessPtr->col(i);
       if (col > 0) col += colOffset;
+      else if (col < 0) col -= colOffset;
       int acol      = sigmaProcessPtr->acol(i);
       if (acol > 0) acol += colOffset;
+      else if (acol < 0) acol -= colOffset;
 
       // Append to process record.
       int iNow = process.append( id, status, mother1, mother2, 
@@ -294,7 +296,9 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
           acol       = m_acol2; 
         }
         if (col > 0)  col  += colOffset;
+	else if (col < 0) col -= colOffset;
         if (acol > 0) acol += colOffset;
+	else if (acol < 0) acol -= colOffset;
 
         // Insert the intermediate state into the event record.
         Vec4 pIntMed = phaseSpacePtr->p(1) + phaseSpacePtr->p(2);
@@ -2007,6 +2011,10 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs,
   if (hiddenvalleys || settings.flag("HiddenValley:ffbar2nuTAUvnuTAUvbar")) {
     sigmaPtr = new Sigma2ffbar2fGfGbar( 4900016, 4936, spinFv, 
       "f fbar -> nuTAUv nuTAUvbar");
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (hiddenvalleys || settings.flag("HiddenValley:ffbar2Zv")) {
+    sigmaPtr = new Sigma1ffbar2Zv();
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   } 
   

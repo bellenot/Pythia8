@@ -1,5 +1,5 @@
 // HadronLevel.h is a part of the PYTHIA event generator.
-// Copyright (C) 2010 Torbjorn Sjostrand.
+// Copyright (C) 2011 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -14,11 +14,13 @@
 #include "Event.h"
 #include "FragmentationFlavZpT.h"
 #include "FragmentationSystems.h"
+#include "HiddenValleyFragmentation.h"
 #include "Info.h"
 #include "MiniStringFragmentation.h"
 #include "ParticleData.h"
 #include "ParticleDecays.h"
 #include "PythiaStdlib.h"
+#include "RHadrons.h"
 #include "Settings.h"
 #include "StringFragmentation.h"
 #include "TimeShower.h"
@@ -38,9 +40,11 @@ public:
   HadronLevel() {}
 
   // Initialize HadronLevel classes as required.
-  bool init(Info* infoPtrIn, Settings& settings, ParticleData& particleData,
-    Rndm* rndmPtrIn, Couplings* couplingsPtrIn, TimeShower* timesDecPtr, 
-    DecayHandler* decayHandlePtr, vector<int> handledParticles);
+  bool init(Info* infoPtrIn, Settings& settings, 
+    ParticleData* particleDataPtrIn, Rndm* rndmPtrIn, 
+    Couplings* couplingsPtrIn, TimeShower* timesDecPtr, 
+    RHadrons* rHadronsPtrIn, DecayHandler* decayHandlePtr, 
+    vector<int> handledParticles);
 
   // Get pointer to StringFlav instance (needed by BeamParticle).
   StringFlav* getStringFlavPtr() {return &flavSel;}
@@ -58,20 +62,23 @@ private:
   static const double JJSTRINGM2MAX, JJSTRINGM2FRAC, CONVJNREST, MTHAD;
 
   // Initialization data, read from Settings.
-  bool   doHadronize, doDecay, doBoseEinstein;
+  bool   doHadronize, doDecay, doBoseEinstein, allowRH;
   double mStringMin, eNormJunction, widthSepBE;
 
   // Pointer to various information on the generation.
-  Info*      infoPtr;
+  Info*         infoPtr;
+
+  // Pointer to the particle data table.
+  ParticleData* particleDataPtr;
 
   // Pointer to the random number generator.
-  Rndm*      rndmPtr;
+  Rndm*         rndmPtr;
 
   // Pointers to Standard Model couplings.
-  Couplings* couplingsPtr;
+  Couplings*    couplingsPtr;
 
   // Configuration of colour-singlet systems.
-  ColConfig  colConfig;   
+  ColConfig     colConfig;   
 
   // Colour information.
   vector<int>    iColEnd, iAcolEnd, iColAndAcol, iParton, iPartonJun, 
@@ -95,6 +102,13 @@ private:
   StringFlav flavSel;
   StringPT   pTSel;
   StringZ    zSel;
+
+  // The RHadrons class is used to fragment off and decay R-hadrons.
+  RHadrons*  rHadronsPtr;
+
+  // Special class for Hidden-Valley hadronization. Not always used.
+  HiddenValleyFragmentation hiddenvalleyFrag;
+  bool useHiddenValley;
 
   // Special case: colour-octet onium decays, to be done initially.
   bool decayOctetOnia(Event& event);

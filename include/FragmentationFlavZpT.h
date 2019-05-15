@@ -1,5 +1,5 @@
 // FragmentationFlavZpT.h is a part of the PYTHIA event generator.
-// Copyright (C) 2010 Torbjorn Sjostrand.
+// Copyright (C) 2011 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -17,7 +17,6 @@
 #include "Settings.h"
 
 namespace Pythia8 {
-
 
 //==========================================================================
 
@@ -54,6 +53,10 @@ public:
     id = -flav.id; rank = flav.rank; nPop = flav.nPop; idPop = flav.idPop;
     idVtx = flav.idVtx; } return *this; }
 
+  // Check whether is diquark.
+  bool isDiquark() {int idAbs = abs(id); 
+    return (idAbs > 1000 && idAbs < 10000 && (idAbs/10)%10 == 0);}
+
   // Stored properties.
   int id, rank, nPop, idPop, idVtx;
   
@@ -70,24 +73,32 @@ public:
   // Constructor. 
   StringFlav() {}
 
+  // Destructor. 
+  virtual ~StringFlav() {}
+
   // Initialize data members.
-  void init(Settings& settings, Rndm* rndmPtrIn);
+  virtual void init(Settings& settings, Rndm* rndmPtrIn);
 
   // Pick a light d, u or s quark according to fixed ratios.
   int pickLightQ() { double rndmFlav = probQandS * rndmPtr->flat();
     if (rndmFlav < 1.) return 1; if (rndmFlav < 2.) return 2; return 3; }
 
   // Pick a new flavour (including diquarks) given an incoming one.
-  FlavContainer pick(FlavContainer& flavOld);
+  virtual FlavContainer pick(FlavContainer& flavOld);
 
   // Combine two flavours (including diquarks) to produce a hadron.
-  int combine(FlavContainer& flav1, FlavContainer& flav2);
+  virtual int combine(FlavContainer& flav1, FlavContainer& flav2);
 
   // Assign popcorn quark inside an original (= rank 0) diquark.
   void assignPopQ(FlavContainer& flav);
 
   // Combine two quarks to produce a diquark.
   int makeDiquark(int id1, int id2, int idHad = 0);
+
+protected:
+
+  // Pointer to the random number generator.
+  Rndm*  rndmPtr;
 
 private: 
 
@@ -104,9 +115,6 @@ private:
          popcornRate, popcornSpair, popcornSmeson, scbBM[3], popFrac, 
          popS[3], dWT[3][7], lightLeadingBSup, heavyLeadingBSup;
 
-  // Pointer to the random number generator.
-  Rndm*  rndmPtr;
-
 };
  
 //==========================================================================
@@ -120,13 +128,25 @@ public:
   // Constructor. 
   StringZ() {}
 
+  // Destructor. 
+  virtual ~StringZ() {}
+
   // Initialize data members.
-  void init(Settings& settings, ParticleData& particleData, Rndm* rndmPtrIn);
+  virtual void init(Settings& settings, ParticleData& particleData, 
+    Rndm* rndmPtrIn);
   
   // Fragmentation function: top-level to determine parameters.
-  double zFrag( int idOld, int idNew = 0, double mT2 = 1.);
+  virtual double zFrag( int idOld, int idNew = 0, double mT2 = 1.);
 
-private: 
+  // Parameters for stopping in the middle; overloaded for Hidden Valley.
+  virtual double stopMass() {return stopM;} 
+  virtual double stopNewFlav() {return stopNF;} 
+  virtual double stopSmear() {return stopS;} 
+
+  // b fragmentation parameter needed to weight final two solutions.
+  virtual double bAreaLund() {return bLund;}
+
+protected: 
 
   // Constants: could only be changed in the code itself.
   static const double CFROMUNITY, AFROMZERO, AFROMC, EXPMAX;
@@ -134,7 +154,7 @@ private:
   // Initialization data, to be read from Settings.
   bool   usePetersonC, usePetersonB, usePetersonH;
   double mc2, mb2, aLund, bLund, aExtraDiquark, rFactC, rFactB, rFactH, 
-         epsilonC, epsilonB, epsilonH;
+         epsilonC, epsilonB, epsilonH, stopM, stopNF, stopS;
 
   // Fragmentation function: select z according to provided parameters.
   double zLund( double a, double b, double c = 1.);
@@ -156,16 +176,26 @@ public:
   // Constructor. 
   StringPT() {}
 
+  // Destructor. 
+  virtual ~StringPT() {}
+
   // Initialize data members.
-  void init(Settings& settings, Rndm* rndmPtrIn);
+  virtual void init(Settings& settings, ParticleData& particleData, 
+    Rndm* rndmPtrIn);
 
   // Return px and py as a pair in the same call.
   pair<double, double>  pxy();
 
-private: 
+  // Gaussian suppression of given pT2; used in MiniStringFragmentation.
+  double suppressPT2(double pT2) { return exp( -pT2 / sigma2Had); }  
+
+protected: 
+
+  // Constants: could only be changed in the code itself.
+  static const double SIGMAMIN;
 
   // Initialization data, to be read from Settings.
-  double sigmaQ, enhancedFraction, enhancedWidth;
+  double sigmaQ, enhancedFraction, enhancedWidth, sigma2Had;
 
   // Pointer to the random number generator.
   Rndm*  rndmPtr;

@@ -1,5 +1,5 @@
 // SigmaGeneric.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2010 Johan Bijnens, Torbjorn Sjostrand.
+// Copyright (C) 2011 Johan Bijnens, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -217,7 +217,6 @@ void Sigma2qqbar2qGqGbar::setIdColAcol() {
 
 }
 
-
 //==========================================================================
 
 // Sigma2ffbar2fGfGbar class.
@@ -231,7 +230,10 @@ void Sigma2qqbar2qGqGbar::setIdColAcol() {
 void Sigma2ffbar2fGfGbar::initProc() {
 
   // Charge and number of colours. Coupling kappa used for vector state.
-  eQHV2        = pow2( particleDataPtr->charge(idNew) ); 
+  if (settingsPtr->flag("HiddenValley:doKinMix"))
+    eQHV2      = pow2(settingsPtr->parm("HiddenValley:kinMix"));
+  else
+    eQHV2      = pow2( particleDataPtr->charge(idNew) ); 
   nCHV         = settingsPtr->mode("HiddenValley:Ngauge");
   kappa        = settingsPtr->parm("HiddenValley:kappa");
 
@@ -327,6 +329,104 @@ void Sigma2ffbar2fGfGbar::setIdColAcol() {
 
 }
 
+//==========================================================================
+
+// Sigma1ffbar2Zv class.
+// Cross section for f fbar -> Zv, where Zv couples both to the SM and 
+// to a hidden sector. Primitive coupling structure.
+
+//--------------------------------------------------------------------------
+
+// Initialize process. 
+  
+void Sigma1ffbar2Zv::initProc() {
+
+  // Store Zv mass and width for propagator. 
+  idZv     = 4900023;
+  mRes     = particleDataPtr->m0(idZv);
+  GammaRes = particleDataPtr->mWidth(idZv);
+  m2Res    = mRes*mRes;
+  GamMRat  = GammaRes / mRes;
+
+  // Set pointer to particle properties and decay table.
+  particlePtr = particleDataPtr->particleDataEntryPtr(idZv);
+  
+} 
+
+//--------------------------------------------------------------------------
+
+// Evaluate sigmaHat(sHat); first step when inflavours unknown. 
+
+void Sigma1ffbar2Zv::sigmaKin() { 
+
+  // Breit-Wigner, including some (guessed) spin factors.
+  double sigBW    = 12. * M_PI / ( pow2(sH - m2Res) + pow2(sH * GamMRat) ); 
+
+  // Outgoing width: only includes channels left open.
+  double widthOut = particlePtr->resWidthOpen(663, mH);    
+
+  // Temporary answer.
+  sigOut = sigBW * widthOut;
+
+}
+
+//--------------------------------------------------------------------------
+
+// Evaluate sigmaHat(sHat); second step when inflavours known. 
+
+double Sigma1ffbar2Zv::sigmaHat() { 
+
+  // Incoming quark or lepton; for former need two 1/3 colour factors.
+  int id1Abs     = abs(id1);
+  double widthIn = particlePtr->resWidthChan( mH, id1Abs, -id1Abs);
+  if (id1Abs < 6) widthIn /= 9.;
+  return widthIn * sigOut;
+
+}
+
+//--------------------------------------------------------------------------
+
+// Select identity, colour and anticolour.
+
+void Sigma1ffbar2Zv::setIdColAcol() {
+
+  // Flavours trivial.
+  setId( id1, id2, idZv);
+
+  // Colour flow topologies. Swap when antiquarks.
+  if (abs(id1) < 6) setColAcol( 1, 0, 0, 1, 0, 0);
+  else              setColAcol( 0, 0, 0, 0, 0, 0);
+  if (id1 < 0) swapColAcol();
+
+}
+
+//--------------------------------------------------------------------------
+
+// Evaluate weight for decay angles.
+
+double Sigma1ffbar2Zv::weightDecay( Event& process, int iResBeg,
+  int iResEnd) {
+
+  // Identity of mother of decaying resonance(s).
+  int idMother = process[process[iResBeg].mother1()].idAbs();
+
+  // For Z' itself angular distribution as if gamma*.
+  if (iResBeg == 5 && iResEnd == 5) {
+    double mr     = 4. * pow2(process[6].m()) / sH;
+    double cosThe = (process[3].p() - process[4].p()) 
+      * (process[7].p() - process[6].p()) / (sH * sqrtpos(1. - mr));
+    double wt     = 1. + pow2(cosThe) + mr * (1. - pow2(cosThe));
+    return 0.5 * wt;
+  } 
+
+  // For top decay hand over to standard routine.
+  if (idMother == 6) 
+    return weightTopDecay( process, iResBeg, iResEnd);
+
+  // Else done.
+  return 1.; 
+
+}
 
 //==========================================================================
 

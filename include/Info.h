@@ -1,5 +1,5 @@
 // Info.h is a part of the PYTHIA event generator.
-// Copyright (C) 2010 Torbjorn Sjostrand.
+// Copyright (C) 2011 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -116,7 +116,7 @@ public:
   // Current evolution scale (for UserHooks).
   double pTnow()          const {return pTnowSave;}
 
-  // Impact parameter picture.
+  // Impact parameter picture, as set by hardest interaction.
   double bMI()            const {return (bIsSet) ? bMISave : 1.;}
   double enhanceMI()      const {return (bIsSet) ? enhanceMISave : 1.;}
 
@@ -126,6 +126,8 @@ public:
   double pTMI(int i)      const {return pTMISave[i];} 
   int    iAMI(int i)      const {return iAMISave[i];} 
   int    iBMI(int i)      const {return iBMISave[i];} 
+  // Get enhancement values for interactions other than the hardest --rjc
+  double eMI(int i)       const {return (bIsSet) ? eMISave[i] : 1.;}
 
   // Cross section estimate.
   long   nTried()         const {return nTry;}
@@ -184,7 +186,8 @@ private:
          pTmaxFSRSave, pTnowSave;
   string nameSave, nameSubSave;
   vector<int>    codeMISave, iAMISave, iBMISave;
-  vector<double> pTMISave;
+  // Store enhancement values for all interactions --rjc
+  vector<double> pTMISave, eMISave;
 
   // Vector of various loop counters.
   int    counters[50];
@@ -207,6 +210,7 @@ private:
   void setECM( double eCMin) {eCMSave = eCMin; sSave = eCMSave * eCMSave;}
 
   // Reset info for current event: only from Pythia class.
+  // Add in enhancement factors for all MI --rjc
   void clear() { isRes = isDiffA = isDiffB = isMB = isLH = atEOF = bIsSet 
     = isVal1 =isVal2 = false; codeSave = nFinalSave = nTotal = id1Save 
     = id2Save = nMISave = nISRSave = nFSRinProcSave = nFSRinResSave = 0; 
@@ -214,7 +218,7 @@ private:
     = alphaSSave = Q2RenSave = sH = tH = uH = pTH = m3H = m4H = thetaH 
     = phiH = 0.; nameSave = " "; weightSave = bMISave = enhanceMISave = 1.; 
     codeMISave.resize(0); pTMISave.resize(0); iAMISave.resize(0);
-    iBMISave.resize(0); }
+    iBMISave.resize(0); eMISave.resize(0); }
 
   // Set info on the (sub)process: from ProcessLevel, ProcessContainer or 
   // MultipleInteractions classes.
@@ -239,9 +243,11 @@ private:
     double thetaHatIn, double phiHatIn) {x1Save = x1In; x2Save = x2In; 
     sH = sHatIn; tH = tHatIn; uH = uHatIn; pTH = pTHatIn; m3H = m3HatIn; 
     m4H = m4HatIn; thetaH = thetaHatIn; phiH = phiHatIn;}
-  void setTypeMI( int codeMIIn, double pTMIIn, int iAMIIn = 0, int iBMIIn = 0) {
-    codeMISave.push_back(codeMIIn); pTMISave.push_back(pTMIIn);
-    iAMISave.push_back(iAMIIn); iBMISave.push_back(iBMIIn);}
+  // Add in enhancement factors for all MI --rjc
+  void setTypeMI( int codeMIIn, double pTMIIn, int iAMIIn = 0, 
+    int iBMIIn = 0, double eMIIn = 1.) {codeMISave.push_back(codeMIIn); 
+    pTMISave.push_back(pTMIIn); iAMISave.push_back(iAMIIn); 
+    iBMISave.push_back(iBMIIn); eMISave.push_back(eMIIn); }
 
   // Set info on cross section: from ProcessLevel.
   void setSigma( long nTryIn, long nSelIn, long nAccIn, double sigGenIn, 
@@ -253,8 +259,9 @@ private:
     isVal2 = isVal2In;}
 
   // Set info on impact parameter: from PartonLevel.
+  // Add in enhancement factors for all MI --rjc
   void setImpact( double bMIIn, double enhanceMIIn) {bMISave = bMIIn;
-    enhanceMISave = enhanceMIIn, bIsSet = true;} 
+    enhanceMISave = eMISave[0] = enhanceMIIn, bIsSet = true;} 
 
   // Set info on pTmax scales and number of evolution steps: from PartonLevel.
   void setPartEvolved( int nMIIn, int nISRIn) {

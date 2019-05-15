@@ -224,6 +224,16 @@ distances can either be given in terms of a scaled quadratic quantity
 like <i>y = pT^2/E^2</i> or an unscaled linear one like <i>pT</i>. 
 
 <p/>  
+Note that we have deliberately chosen not to include the <i>e^+e^-</i> 
+equivalents of the Cambridge/Aachen and anti-<i>kRT</i> algorithms. 
+These tend to be good at clustering the densely populated (in angle) 
+cores of jets, but less successful for the sparsely populated transverse
+regions, where many jets may come to consist of a single low-momentum
+particle. In hadron collisions such jets could easily be disregarded,
+while in <i>e^+e^-</i> annihilation all particles derive back from the
+hard process.
+
+<p/>  
 To do jet finding analyses you have to set up a <code>ClusterJet</code>
 instance, and then feed in events to it, one at a time. The results 
 for the latest event are available as output from a few methods.
@@ -315,34 +325,39 @@ class methods are available to return the result of the analysis:
 <a name="method17"></a>
 <p/><strong>int ClusterJet::size() &nbsp;</strong> <br/>
 gives the number of jets found, with jets numbered 0 through 
-<code>size() - 1</code>,
+<code>size() - 1</code>.
   
 
 <a name="method18"></a>
 <p/><strong>Vec4 ClusterJet::p(int i) &nbsp;</strong> <br/>
 gives a <code>Vec4</code> corresponding to the four-momentum defined by 
-the sum of all the contributing particles to the <i>i</i>'th jet,
+the sum of all the contributing particles to the <i>i</i>'th jet.
   
 
 <a name="method19"></a>
+<p/><strong>int ClusterJet::mult(int i) &nbsp;</strong> <br/>
+the number of particles that have been clustered into the <i>i</i>'th jet.
+  
+
+<a name="method20"></a>
 <p/><strong>int ClusterJet::jetAssignment(int i) &nbsp;</strong> <br/>
 gives the index of the jet that the particle <i>i</i> of the event
 record belongs to,
   
 
-<a name="method20"></a>
+<a name="method21"></a>
 <p/><strong>void ClusterJet::list(ostream& os = cout) &nbsp;</strong> <br/>
 provides a listing of the reconstructed jets.
   
 
-<a name="method21"></a>
+<a name="method22"></a>
 <p/><strong>int ClusterJet::distanceSize() &nbsp;</strong> <br/>
 the number of most recent clustering scales that have been stored
 for readout with the next method. Normally this would be five, 
 but less if fewer clustering steps occured.
   
 
-<a name="method22"></a>
+<a name="method23"></a>
 <p/><strong>double ClusterJet::distance(int i) &nbsp;</strong> <br/>
 clustering scales, with <code>distance(0)</code> being the most 
 recent one, i.e. normally the highest, up to <code>distance(4)</code> 
@@ -358,7 +373,7 @@ as provided by the respective distance measure (Lund, JADE, Durham).
 There is also one method that returns information accumulated for all
 the events analyzed so far.
 
-<a name="method23"></a>
+<a name="method24"></a>
 <p/><strong>int ClusterJet::nError() &nbsp;</strong> <br/>
 tells the number of times <code>analyze(...)</code> failed to analyze 
 events, i.e. returned <code>false</code>.
@@ -390,7 +405,7 @@ random number generator, preferably the one residing in the
 <code>Pythia</code> class. The results for the latest event are 
 available as output from a few methods.
 
-<a name="method24"></a>
+<a name="method25"></a>
 <p/><strong>CellJet::CellJet(double etaMax = 5., int nEta = 50, int nPhi = 32, int select = 2, int smear = 0, double resolution = 0.5, double upperCut = 2., double threshold = 0., Rndm* rndmPtr = 0) &nbsp;</strong> <br/>
 create a <code>CellJet</code> instance, where 
 <br/><code>argument</code><strong> etaMax </strong> (<code>default = <strong>5.</strong></code>) :  
@@ -441,7 +456,7 @@ then <code>&pythia.rndm</code> would be the logical choice.
   
   
 
-<a name="method25"></a>
+<a name="method26"></a>
 <p/><strong>bool CellJet::analyze( const Event& event, double eTjetMin = 20., double coneRadius = 0.7, double eTseed = 1.5, ostream& os = cout) &nbsp;</strong> <br/>
 performs a jet finding analysis, where 
 <br/><code>argument</code><strong> event </strong>  : is an object of the <code>Event</code> class, 
@@ -471,19 +486,19 @@ but currently this is not foreseen ever to happen.
 After the analysis has been performed, a few <code>CellJet</code> 
 class methods are available to return the result of the analysis:
 
-<a name="method26"></a>
+<a name="method27"></a>
 <p/><strong>int CellJet::size() &nbsp;</strong> <br/>
 gives the number of jets found, with jets numbered 0 through 
 <code>size() - 1</code>,
   
 
-<a name="method27"></a>
+<a name="method28"></a>
 <p/><strong>double CellJet::eT(i) &nbsp;</strong> <br/>
 gives the <i>eT</i> of the <i>i</i>'th jet, where jets have been
 ordered with decreasing <i>eT</i> values,
   
 
-<a name="method28"></a>
+<a name="method29"></a>
 <p/><strong>double CellJet::etaCenter(int i) &nbsp;</strong> <br/>
   
 <strong>double CellJet::phiCenter(int i) &nbsp;</strong> <br/>
@@ -491,7 +506,7 @@ gives the <i>eta</i> and <i>phi</i> coordinates of the geometrical
 center of the <i>i</i>'th jet,
   
 
-<a name="method29"></a>
+<a name="method30"></a>
 <p/><strong>double CellJet::etaWeighted(int i) &nbsp;</strong> <br/>
   
 <strong>double CellJet::phiWeighted(int i) &nbsp;</strong> <br/>
@@ -499,18 +514,18 @@ gives the <i>eta</i> and <i>phi</i> coordinates of the
 <i>eT</i>-weighted center of the <i>i</i>'th jet,
   
 
-<a name="method30"></a>
+<a name="method31"></a>
 <p/><strong>int CellJet::multiplicity(int i) &nbsp;</strong> <br/>
 gives the number of particles clustered into the <i>i</i>'th jet,
   
 
-<a name="method31"></a>
+<a name="method32"></a>
 <p/><strong>Vec4 CellJet::pMassless(int i) &nbsp;</strong> <br/>
 gives a <code>Vec4</code> corresponding to the four-momentum defined 
 by the <i>eT</i> and the weighted center of the <i>i</i>'th jet,
   
 
-<a name="method32"></a>
+<a name="method33"></a>
 <p/><strong>Vec4 CellJet::pMassive(int i) &nbsp;</strong> <br/>
 gives a <code>Vec4</code> corresponding to the four-momentum defined by 
 the sum of all the contributing cells to the <i>i</i>'th jet, where 
@@ -518,13 +533,13 @@ each cell contributes a four-momentum as if all the <i>eT</i> is
 deposited in the center of the cell,
   
 
-<a name="method33"></a>
+<a name="method34"></a>
 <p/><strong>double CellJet::m(int i) &nbsp;</strong> <br/>
 gives the invariant mass of the <i>i</i>'th jet, defined by the 
 <code>pMassive</code> above,
   
 
-<a name="method34"></a>
+<a name="method35"></a>
 <p/><strong>void CellJet::list() &nbsp;</strong> <br/>
 provides a listing of the above information (except <code>pMassless</code>, 
 for reasons of space).
@@ -533,7 +548,7 @@ for reasons of space).
 <p/>
 There is also one method that returns information accumulated for all
 the events analyzed so far.
-<a name="method35"></a>
+<a name="method36"></a>
 <p/><strong>int CellJet::nError() &nbsp;</strong> <br/>
 tells the number of times <code>analyze(...)</code> failed to analyze 
 events, i.e. returned <code>false</code>.
@@ -542,4 +557,4 @@ events, i.e. returned <code>false</code>.
 </body>
 </html>
 
-<!-- Copyright (C) 2010 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2011 Torbjorn Sjostrand -->

@@ -16,6 +16,10 @@ This is what is provided in the <code>examples</code> subdirectory,
 along with instructions how they should be run: 
 <ul>
 
+<li><code>main00.cc</code> : does not exist, but it has been defined
+in the <code>Makefile</code>, so this name could be used for a simple
+first test run.
+
 <li><code>main01.cc</code> : a simple study of the charged multiplicity
 for jet events at the LHC. (Brief example fitting on one slide.)</li>
 
@@ -140,16 +144,20 @@ in another program.
 <li><code>main30.cc</code> : production of Kaluza-Klein <i>gamma/Z</i> 
 states in TeV-sized extra dimensions.
 
-<li><code>main31.cc</code> : similar to main01, except that the 
-event record is output in the HepMC event record format. Requires 
-that HepMC is properly linked.</li>
+<li><code>main31.cc</code> : similar to main01, except that the event 
+record is output in the HepMC event record format. Requires that HepMC 
+is properly linked. Note that the <code>hepmcout31.dat</code> output
+file can become quite big; so no example is included in this 
+distribution.</li>
 
 <li><code>main32.cc</code> : a streamlined version for the generation
 of events that are then stored in HepMC format, without any event 
 analysis. That is, all physics studies will have to be done afterwards.
 The name of the input "cards file" (e.g. <code>main32.cmnd</code>)
-and output HepMC event file are to be provided as command-line arguments.
-Requires that HepMC is properly linked.</li>
+and output HepMC event file (e.g. <code>hepmcout32.dat</code>) are to 
+be provided as command-line arguments. Requires that HepMC is properly 
+linked. Note that the HepMC output file can become quite big; so no 
+example is included in this distribution.</li>
 
 <li><code>main41.cc</code> : a test of the shape of parton densities,
 as a check prior to using a given PDF set in a generator.  Requires 
@@ -193,7 +201,24 @@ is stored in the <code>powheg-hvq.lhe</code> file.
 
 </ul>
 
+In addition two main program illustrating the use of ROOT are available
+in the <code>rootexamples</code> subdirectory:
+ 
+<ul>
+
+<li><code>hist.cc</code> : shows how ROOT can be used for histogramming
+in a program that for the rest is structured like a normal PYTHIA run.
+</li>
+
+<li><code>hist.cc</code> : shows how PYTHIA events can be stored as
+ROOT trees.</li>
+ </ul>
+
+This subdirectory also contains a special Makefile and related
+documentation.
+
+
 </body>
 </html>
 
-<!-- Copyright (C) 2010 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2011 Torbjorn Sjostrand -->

@@ -2,21 +2,49 @@
 
 <h2>ROOT usage</h2>
 
-Many PYTHIA users wish to use ROOT to produce histograms, or even to
-run PYTHIA as a plugin to ROOT. This is possible. It is not a task
-supported by the PYTHIA team, however. All issues involving ROOT usage
-should be directed to the ROOT team, or to the local support team of
-your collaboration. Below some helpful hints have been collected. 
-The text is based on a contribution by Andreas Morsch, 
-and the second example is provided by Rene Brun. Another example may 
-be found in the <a href="http://home.fnal.gov/~skands/vincia/">VINCIA</a> 
+Many PYTHIA users wish to use <a href="http://root.cern.ch/">ROOT</a> 
+to produce histograms, or even to run PYTHIA as a plugin to ROOT. 
+This is possible. It is not a task supported by the PYTHIA team, 
+however. All issues involving ROOT usage should be directed to the 
+ROOT team, or to the local support team of your collaboration. 
+Below some helpful hints have been collected. The text is based on 
+contributions by Rene Brun, Andreas Morsch and Axel Naumann. 
+Another example may be found in the 
+<a href="http://home.fnal.gov/~skands/vincia/">VINCIA</a> 
 add-on program for parton showers, but this should also work for 
 a PYTHIA standalone run.
 
+<h3>Histogramming with ROOT</h3>
+
+It is not necessary to run PYTHIA as a ROOT plug-in. One can also perform 
+the generation and analysis of events in a completely standalone fashion,
+and only use ROOT for the histogramming step, or for storing generated
+events as ROOT trees. This is illustrated in the <code>rootexamples</code> 
+subdirectory. 
+
+<p/>
+The files there are 
+<ul>
+<li><code>README</code> explains how to link PYTHIA and ROOT, and run the
+example main programs.</li>
+<li><code>Makefile</code> is used to build the two examples below,
+and to build a dictionary.</li>
+<li><code>hist.cc</code> is an example main program how ROOT can be used 
+for histogramming without any direct link between PYTHIA and ROOT.</li>
+<li><code>tree.cc</code> is an example main program how PYTHIA events
+can be stored as ROOT trees.</li>
+<li><code>pythiaLinkdef.h</code> is used by Makefile to generate the 
+dictionary for all PYTHIA classes involved in the IO, as needed for the
+tree example above.</li>
+<li><code>pythiaROOT.h</code> is a small include declaring the
+<code>Pythia8</code> namespace as default.</li>
+</ul>
+
 <h3>Interfaces</h3>
 
-<a href="http://root.cern.ch/">ROOT</a> provides two simple interfaces 
-(wrappers) for PYTHIA 8. Both are located in the
+In more ROOT-centric applications, PYTHIA can be run as a ROOT plug-in.
+Here the interface structure becomes very relevant. ROOT provides two 
+simple interfaces (wrappers) for PYTHIA 8. Both are located in the
 <pre>
     yourROOTinstallationPath/montecarlo/pythia8
 </pre>
@@ -121,7 +149,7 @@ final-state particles is provided in
 Note that before executing this script
 <ul>
 <li>the environment variable <code>PYTHIA8</code> must point to the 
-<code>pythia8100</code> (or newer) installation directory, and</li>
+<code>pythia8150</code> (or newer) installation directory, and</li>
 <li>the environment variable <code>PYTHIA8DATA</code> must be defined 
 and it must point to <code>$PYTHIA8/xmldoc</code>.</li>
 </ul>
@@ -135,28 +163,6 @@ load three libraries before running the actual code:
     gSystem->Load("libEGPythia8"); // The TPythia8 implementation
 </pre>
 
-<h3>A second example</h3>
-
-It is not necessary to run PYTHIA as a ROOT plug-in. One can also perform 
-the generation and analysis of events in a completely standalone fashion,
-and only use ROOT for the histogramming step. One example, with a   
-lightly modified version of <code>main01.cc</code>, is available in 
-the <code>rootexample</code> subdirectory. 
-
-<p/>
-Here 
-<ul>
-<li><code>ex1.C</code> is the small main program writing the Tree.</li>
-<li><code>goex1</code> is a small script that
-<br/>a) generates the dictionary for all PYTHIA classes involved in the IO
-(first line; note that you only need to execute it once); and
-<br/>b) links the <code>ex1</code> executable with the relevant libs.</li>
-<li><code>pythiaLinkdef.h</code> is the input file indicating to rootcint 
-which PYTHIA classes to process.</li>
-<li><code>pythiaROOT.h</code> is a small include declaring <code>Pythia8</code> 
-namespace as default.</li>
-</ul>
-
 </chapter>
 
-<!-- Copyright (C) 2010 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2011 Torbjorn Sjostrand -->

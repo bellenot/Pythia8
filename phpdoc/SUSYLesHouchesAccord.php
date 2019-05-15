@@ -33,8 +33,10 @@ The PYTHIA 8 program does not contain an internal spectrum calculator
 (a.k.a. RGE package) to provide supersymmetric couplings, mixing angles,
 masses and branching ratios. Thus the SUSY Les Houches Accord (SLHA)
 [<a href="Bibliography.php" target="page">Ska04</a>][<a href="Bibliography.php" target="page">All08</a>] is the only way of
-inputting SUSY models, and SUSY processes cannot be run unless such an
-input has taken place. 
+inputting SUSY models, and SUSY processes (see
+the <?php $filepath = $_GET["filepath"];
+echo "<a href='SUSYProcesses.php?filepath=".$filepath."' target='page'>";?>SUSYProcesses</a> page) 
+cannot be run unless such an input has taken place. 
 
 <p/>
 The SLHA input format can also be extended for use with more general BSM
@@ -44,7 +46,8 @@ under <a href="#generic">Using SLHA for generic BSM Models</a>.
 
 <p/>
 Most of the SUSY implementation in PYTHIA 8 is compatible with both the 
-SLHA1 and SLHA2 conventions (with some limitations for the NMSSM 
+SLHA1 [<a href="Bibliography.php" target="page">Ska04</a>] and SLHA2 [<a href="Bibliography.php" target="page">All08</a>] 
+conventions (with some limitations for the NMSSM 
 in the latter case). Internally, PYTHIA 8 uses the 
 SLHA2 conventions and translates SLHA1 input to these when necessary. 
 See the section on SUSY Processes for more information.
@@ -109,8 +112,20 @@ as is other codes in the range 25 - 80 and 1,000,000 - . If you
 switch off this flag then also SM particles are modified by SLHA input.
   
 
-<br/><br/><strong>SLHA:useDecayTable</strong>  <input type="radio" name="3" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="3" value="off"><strong>Off</strong>
+<br/><br/><table><tr><td><strong>SLHA:minMassSM </td><td></td><td> <input type="text" name="3" value="100.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>100.0</strong></code>)</td></tr></table>
+This parameter provides an alternative possibility to ignore SLHA input 
+for all particles with identity codes below 1,000,000 (which mainly
+means SM particle, but also includes e.g. the Higgses in 
+two-Higgs-doublet scenarios) whose default masses in PYTHIA lie below 
+some threshold value, given by this parameter. The default value of 
+100.0 allows SLHA input to modify the top quark, but not, e.g., the 
+<i>Z^0</i> and <i>W^+-</i> bosons. 
+  
+
+<h3>SLHA DECAY Tables</h3>
+
+<br/><br/><strong>SLHA:useDecayTable</strong>  <input type="radio" name="4" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="4" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Switch to choose whether to read in SLHA <code>DECAY</code> tables or not. 
 If this switch is set to off, PYTHIA will ignore any decay tables found 
@@ -125,15 +140,16 @@ particle, or you may include an SLHA <code>DECAY</code> table for it,
 with the width set explicitly to zero.)
   
 
-<br/><br/><table><tr><td><strong>SLHA:minMassSM </td><td></td><td> <input type="text" name="4" value="100.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>100.0</strong></code>)</td></tr></table>
-This parameter provides an alternative possibility to ignore SLHA input 
-for all particles with identity codes below 1,000,000 (which mainly
-means SM particle, but also includes e.g. the Higgses in 
-two-Higgs-doublet scenarios) whose default masses in PYTHIA lie below 
-some threshold value, given by this parameter. The default value of 
-100.0 allows SLHA input to modify the top quark, but not, e.g., the 
-<i>Z^0</i> and <i>W^+-</i> bosons. 
+<br/><br/><table><tr><td><strong>SLHA:minDecayDeltaM </td><td></td><td> <input type="text" name="5" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>)</td></tr></table>
+This parameter sets the smallest allowed mass difference (in GeV,
+between the mass of the mother and the sum of the daughter masses) 
+for a decay mode in a DECAY table to be switched on inside PYTHIA. The
+default is to require at least 1 GeV of open phase space, but this can
+be reduced (at the user's risk) for instance to be able to treat
+decays in  models with very small mass splittings.
   
+
+<h3>Internal SLHA Variables</h3>
 
 <p/><code>mode&nbsp; </code><strong> SLHA:verbose &nbsp;</strong> 
  (<code>default = <strong>1</strong></code>; <code>minimum = 0</code>; <code>maximum = 3</code>)<br/>
@@ -141,18 +157,17 @@ Controls amount of text output written by the SLHA interface, with a
 value of 0 corresponding to the most quiet mode.
   
 
-<h3>Internal SLHA Variables</h3>
-
 The following variables are used internally by PYTHIA as local copies
 of SLHA information. User changes will generally have no effect, since
 these variables will be reset by the SLHA reader during initialization.
 
-<br/><br/><strong>SLHA:NMSSM</strong>  <input type="radio" name="5" value="on"><strong>On</strong>
-<input type="radio" name="5" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>SLHA:NMSSM</strong>  <input type="radio" name="6" value="on"><strong>On</strong>
+<input type="radio" name="6" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Corresponds to SLHA block MODSEL entry 3.
   
 
+<a name="generic"></a>
 <h2>Using SLHA for generic BSM Models</h2>
 
 </p>
@@ -173,18 +188,35 @@ does not throw it away either, but instead stores the contents of user
 blocks as strings, which can be read back later, with the user
 having full control over the format used to read the individual entries. 
 </p>
+<p>
 The contents of both standard and user-defined SLHA blocks can be accessed 
 in any class inheriting from PYTHIA 8's <code>SigmaProcess</code>
 class (i.e., in particular, from any semi-internal process written by
 a user), through its SLHA pointer, <code>slhaPtr</code>, by using the following
-method: 
-<pre>
+methods: 
+<a name="method1"></a>
+<p/><strong> &nbsp;</strong> <br/>
+  bool slhaPtr->getEntry(string blockName, double& val); 
+  
+<strong> &nbsp;</strong> <br/>
   bool slhaPtr->getEntry(string blockName, int indx, double& val); 
-</pre>
-This particular example assumes that the user wants to read the entry
-with index <code>indx</code> in the user-defined
-block <code>blockName</code>, and that it should be interpreted as
-a <code>double</code>. If anything went wrong (i.e., the block doesn't
+  
+<strong> &nbsp;</strong> <br/>
+  bool slhaPtr->getEntry(string blockName, int indx, int jndx, double& val); 
+  
+<strong> &nbsp;</strong> <br/>
+  bool slhaPtr->getEntry(string blockName, int indx, int jndx, int
+  kndx, double& val); 
+  
+</p>
+<p>
+This particular example assumes that the user wants to read the
+entries (without index, indexed, matrix-indexed, or 3-tensor-indexed, respectively)
+in the user-defined block <code>blockName</code>, and that it should be interpreted as
+a <code>double</code>. The last argument is templated, and hence if
+anything other than a <code>double</code> is desired to be read, the
+user has only to give the last argument a different type. 
+If anything went wrong (i.e., the block doesn't
 exist, or it doesn't have an entry with that index, or that entry
 can't be read as a double), the method returns false; true
 otherwise. This effectively allows to input completely arbitrary
@@ -194,22 +226,6 @@ responsibility to ensure complete consistency between the names and
 conventions used in the SLHA input, and those assumed in any
 user-written semi-internal process code. 
 </p>
-The method above is in fact only one specific example (the
-most frequent?) of how to read user block entries. For special
-applications for which the above method is insufficient, we therefore
-encourage users to look among the following templated methods instead,
-which should enable read-in of of <i>any</i> kind of information: 
-<pre>
-  template &lt;class T&gt; bool getEntry(string blockName, int indx, T& val);
-  template &lt;class T&gt bool getEntry(string blockName, T& val);
-</pre>
-Two further options, to access matrix-indexed and tensor-indexed
-    blocks, have not been implemented yet, but could easily be added,
-    if there are explicit use cases:
-<pre>
-  template &lt;class T&gt; bool getEntry(string blockName, int, int, T&);
-  template &lt;class T&gt; bool getEntry(string blockName, vector&lt;int&gt;, T&);
-</pre>
 <input type="hidden" name="saved" value="1"/>
 
 <?php
@@ -235,19 +251,24 @@ if($_POST["2"] != "on")
 $data = "SLHA:keepSM = ".$_POST["2"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["3"] != "on")
+if($_POST["3"] != "100.0")
 {
-$data = "SLHA:useDecayTable = ".$_POST["3"]."\n";
+$data = "SLHA:minMassSM = ".$_POST["3"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["4"] != "100.0")
+if($_POST["4"] != "on")
 {
-$data = "SLHA:minMassSM = ".$_POST["4"]."\n";
+$data = "SLHA:useDecayTable = ".$_POST["4"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["5"] != "off")
+if($_POST["5"] != "1.0")
 {
-$data = "SLHA:NMSSM = ".$_POST["5"]."\n";
+$data = "SLHA:minDecayDeltaM = ".$_POST["5"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["6"] != "off")
+{
+$data = "SLHA:NMSSM = ".$_POST["6"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);
@@ -257,6 +278,6 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2010 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
 
 

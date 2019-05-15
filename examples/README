@@ -6,18 +6,28 @@
    the README file of the mother directory. For the moment we assume
    that you will NOT use the HepMC, LHAPDF, or FastJet libraries.
 
-2) You are now ready to test run the first twentynine of the mainNN 
-   examples listed below. Type "gmake mainNN" to build an executable 
-   "mainNN.exe". Type "./mainNN.exe > output" to run this executable. 
+2) You are now ready to test run the first thirty of the mainNN examples,
+   see the manual page "Sample main program" for details.
+   Type "gmake mainNN" to build an executable "mainNN.exe". 
+   Type "./mainNN.exe > output" to run this executable. 
    Then study the output file. The existing files outNN are examples of 
    possible outputs from several runs, so that you can compare.
 
 3) If you want to run your own programs from this directory you can edit
    the "Makefile", adding the name of your main program to the already
    existing ones. Note that different cases exist, depending on which 
-   external libraries are to be linked.
+   external libraries are to be linked. There is no main00, but this 
+   name is defined in the Makefile, so it can be used for simple first 
+   tests.
 
-4) Type "gmake clean" to clean up the examples directory (but not the
+4) With ./runmains all the 30 first mainXX program will be run,
+   plus main71 and main72, to get a thorough test of the installation. 
+   The runmains file can easily be edited to run the others as well,
+   but then you should first link to the appropriate external libraries.
+   The outref subdirectory contains the output of such a run, if you
+   want to compare with what you obtain.
+
+5) Type "gmake clean" to clean up the examples directory (but not the
    output files).
 
 ----------------------------------------------------------------------
@@ -73,73 +83,5 @@
    version can still be loaded at runtime, which can cause relocation 
    errors. A simple solution is to repeat the "configure" and "source" 
    steps in a new window, i.e. in a new clean copy of the shell.
-
-----------------------------------------------------------------------
-
-   LIST OF TEST PROGRAMS
-
-1) main01 - main20, main28 - main30, main71 only use the PYTHIA 8 library
-* main01.cc : brief example with charged multiplicity distribution
-* main02.cc : brief example with Z0 pT spectrum
-* main03.cc & main03.cmnd : simple single-particle analysis in jet events
-* main04.cc & main04.cmnd : simple tests of event properties
-* main05.cc : cone-jet analysis of LHC events
-* main06.cc & main06.cmnd : study elastic/diffractive events
-* main07.cc & main07.cmnd : study minimum-bias events
-* main08.cc & main08.cmnd  : combine results of subruns in separate pT bins
-* main09.cc : LEP events with sphericity/thrust/jetfinder analysis
-* main10.cc : implement UserHooks to interact with the generation process
-* main11.cc : set two hard interactions in the same event
-* main12.cc & ttbar.lhe : generate events from a Les Houches Event File 
-* main13.cc & ttbar.lhe & ttbar2.lhe : several Les Houches Event Files & more 
-* main14.cc : compare several cross sections with their PYTHIA 6.4 values. 
-* main15.cc : redo B decays or hadronization several times for each event
-* main16.cc : user analysis class; command-line specification of input file  
-* main17.cc : Pythia wrapper class; command-line specification of input file
-* main18.cc : event filter class to retain a subset of the particles 
-* main19.cc : use two Pythia instances to combine signal and pileup events
-* main20.cc : write a Les Houches Event File with PYTHIA 8-generated events 
-* main22.cc & main22.cmnd & sps1a.spc : SUSY using SLHA, internal cross sections
-* main28.cc : test program for large extra dimensions or unparticles
-* main29.cc : generic "energy blob" decay for cosmic-ray physics  
-* main30.cc : Kaluza-Klein gamma/Z states in TeV-sized extra dimensions
-* main71.cc & powheg-hvq.lhe : interface to POWHEG events
-* main72.cc & main72.lhe : RPV-SUSY from LHEF with color junctions
-
-2) main21 - main27 are examples how some external programs could be linked
-* main21.cc : external input of parton configurations for hadronization only
-* main23.cc : how to link an external decay handler
-* main24.cc : how to link an external random number generator
-* main25.cc : how to link an external process to use internally
-* main26.cc : how to link an external resonance and process to use internally
-* main27.cc : how to link an external momentum spread and vertex generator 
-
-3) main31 - main32 require linkage to the HepMC event record library
-* main31.cc & main31.cmnd : simple example output to HepMC 
-* main32.cc & main32.cmnd : streamlined production of a HepMC event file
-
-4) main41 - main43 require linkage to LHAPDF
-* main41.cc : test shape of PDF's
-* main42.cc : compare average multiplicity and pT for different PDF's
-* main43.cc : example of evolution with photon-in-proton: the MRST2004qed set
-* main44.cc : how to create your own PDF and link it in for usage
-
-5) main51.cc requires linkage to Pythia 6.4, and is deprecated  
-
-6) main61 requires linkage to FastJet
-* main61.cc : rate of W + jets events using kT-clustering for jets 
- 
-Note 1: main31 and main32 save HepMC-formatted events on hepmcoutNN.dat;     
-    these files become so big that they have not been included in the 
-    distribution. 
-Note 2: There is no main00 program, but main00 is defined in the 
-    Makefile to link to PYTHIA 8, so this name can be used for 
-    simple first tests.
-Note 3: With ./runmains all the 30 first mainXX program will be run,
-    plus main71, to get a thorough test of the installation. 
-    The runmains file can easily be edited to run the others as well,
-    but then you should first link to the appropriate external libraries.
-    The outref subdirectory contains the output of such a run, if you
-    want to compare with what you obtain.
 
 ----------------------------------------------------------------------

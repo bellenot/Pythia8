@@ -1,5 +1,5 @@
 // TimeShower.h is a part of the PYTHIA event generator.
-// Copyright (C) 2010 Torbjorn Sjostrand.
+// Copyright (C) 2011 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -35,19 +35,22 @@ public:
   TimeDipoleEnd() : iRadiator(-1), iRecoiler(-1), pTmax(0.), colType(0), 
     chgType(0), gamType(0), isrType(0), system(0), systemRec(0), MEtype(0), 
     iMEpartner(-1), isOctetOnium(false), isHiddenValley(false), colvType(0),
-    MEmix(0.), MEorder(true), MEsplit(true), MEgluinoRec(false) { }  
+    MEmix(0.), MEorder(true), MEsplit(true), MEgluinoRec(false),
+    isFlexible(false) { }  
   TimeDipoleEnd(int iRadiatorIn, int iRecoilerIn, double pTmaxIn = 0., 
     int colIn = 0, int chgIn = 0, int gamIn = 0, int isrIn = 0, 
     int systemIn = 0, int MEtypeIn = 0, int iMEpartnerIn = -1, 
     bool isOctetOniumIn = false, bool isHiddenValleyIn = false,
     int colvTypeIn = 0, double MEmixIn = 0., bool MEorderIn = true, 
-    bool MEsplitIn = true, bool MEgluinoRecIn = false) : 
+    bool MEsplitIn = true, bool MEgluinoRecIn = false, 
+    bool isFlexibleIn = false) : 
     iRadiator(iRadiatorIn), iRecoiler(iRecoilerIn), pTmax(pTmaxIn), 
     colType(colIn), chgType(chgIn), gamType(gamIn), isrType(isrIn), 
     system(systemIn), systemRec(systemIn) , MEtype(MEtypeIn), 
     iMEpartner(iMEpartnerIn), isOctetOnium(isOctetOniumIn), 
     isHiddenValley(isHiddenValleyIn), colvType(colvTypeIn), MEmix(MEmixIn), 
-    MEorder (MEorderIn), MEsplit(MEsplitIn), MEgluinoRec(MEgluinoRecIn) { }
+    MEorder (MEorderIn), MEsplit(MEsplitIn), MEgluinoRec(MEgluinoRecIn),
+    isFlexible(isFlexibleIn)  { }
 
   // Basic properties related to dipole and matrix element corrections.
   int    iRadiator, iRecoiler;
@@ -58,11 +61,12 @@ public:
   int    colvType;
   double MEmix;
   bool   MEorder, MEsplit, MEgluinoRec;
+  bool   isFlexible;
 
   // Properties specific to current trial emission.
   int    flavour, iAunt;
   double mRad, m2Rad, mRec, m2Rec, mDip, m2Dip, m2DipCorr, 
-         pT2, m2, z, mFlavour, asymPol;   
+         pT2, m2, z, mFlavour, asymPol, flexFactor;   
   
 } ;
 
@@ -251,3 +255,4 @@ private:
 } // end namespace Pythia8
 
 #endif // Pythia8_TimeShower_H
+

@@ -1,12 +1,12 @@
-// main12.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2010 Torbjorn Sjostrand.
+// main72.cc is a part of the PYTHIA event generator.
+// Copyright (C) 2011 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 // This is a simple test program. 
 // It illustrates how Les Houches Event File input can be used in Pythia8.
-// It uses the ttsample.lhe input file, the latter only with 100 events.
-// Other samples could be generated as illustrated by main53.f.
+// Here the very few events are generated with MadGraph, and illustrate
+// more complicated colour topologies.
 
 #include "Pythia.h"
 using namespace Pythia8; 

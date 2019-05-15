@@ -202,9 +202,9 @@ These, if taken at face value, would give way too much activity
 per event. There are ways to tame this, e.g. by a larger <i>pT0</i>
 than in the normal pp framework. Actually, there are many reasons
 to use a completely different set of parameters for MI in 
-diffraction than in pp collisions, e.g. with respect to the 
-impact-parameter picture. A lower number in some frameworks could 
-alternatively be regarded as a consequence of screening, with 
+diffraction than in pp collisions, especially with respect to the 
+impact-parameter picture, see below. A lower number in some frameworks 
+could alternatively be regarded as a consequence of screening, with 
 a larger "bare" number.   
 
 <p/>
@@ -243,6 +243,49 @@ Furthermore, <i>A B -&gt;X B</i> and <i>A B -&gt;A X</i> are
 initialized separately, to allow for different beams or PDF's on the 
 two sides. These two aspects mean that initialization of MI is 
 appreciably slower when perturbative high-mass diffraction is allowed. 
+
+<p/> 
+Diffraction tends to be peripheral, i.e. occur at intermediate impact
+parameter for the two protons. That aspect is implicit in the selection 
+of diffractive cross section. For the simulation of the Pomeron-proton 
+subcollision it is the impact-parameter distribution of that particular 
+subsystem that should rather be modelled. That is, it also involves
+the transverse coordinate space of a Pomeron wavefunction. The outcome
+of the convolution therefore could be a different shape than for 
+nondiffractive events. For simplicity we allow the same kind of 
+options as for nondiffractive events, except that the 
+<code>bProfile = 4</code> option for now is not implemented.
+
+<br/><br/><table><tr><td><strong>Diffraction:bProfile  </td><td>  &nbsp;&nbsp;(<code>default = <strong>1</strong></code>; <code>minimum = 0</code>; <code>maximum = 3</code>)</td></tr></table>
+Choice of impact parameter profile for the incoming hadron beams.
+<br/>
+<input type="radio" name="11" value="0"><strong>0 </strong>: no impact parameter dependence at all.<br/>
+<input type="radio" name="11" value="1" checked="checked"><strong>1 </strong>: a simple Gaussian matter distribution;  no free parameters.<br/>
+<input type="radio" name="11" value="2"><strong>2 </strong>: a double Gaussian matter distribution,  with the two free parameters <ei>coreRadius</ei> and  <ei>coreFraction</ei>.<br/>
+<input type="radio" name="11" value="3"><strong>3 </strong>: an overlap function, i.e. the convolution of  the matter distributions of the two incoming hadrons, of the form <ei>exp(- b^expPow)</ei>, where <ei>expPow</ei> is a free  parameter.<br/>
+
+<br/><br/><table><tr><td><strong>Diffraction:coreRadius </td><td></td><td> <input type="text" name="12" value="0.4" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.4</strong></code>; <code>minimum = 0.1</code>; <code>maximum = 1.</code>)</td></tr></table>
+When assuming a double Gaussian matter profile, <i>bProfile = 2</i>,
+the inner core is assumed to have a radius that is a factor
+<i>coreRadius</i> smaller than the rest.
+   
+
+<br/><br/><table><tr><td><strong>Diffraction:coreFraction </td><td></td><td> <input type="text" name="13" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.</code>; <code>maximum = 1.</code>)</td></tr></table>
+When assuming a double Gaussian matter profile, <i>bProfile = 2</i>,
+the inner core is assumed to have a fraction <i>coreFraction</i> 
+of the matter content of the hadron.
+   
+
+<br/><br/><table><tr><td><strong>Diffraction:expPow </td><td></td><td> <input type="text" name="14" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>; <code>minimum = 0.4</code>; <code>maximum = 10.</code>)</td></tr></table>
+When <i>bProfile = 3</i> it gives the power of the assumed overlap 
+shape <i>exp(- b^expPow)</i>. Default corresponds to a simple 
+exponential drop, which is not too dissimilar from the overlap 
+obtained with the standard double Gaussian parameters. For 
+<i>expPow = 2</i> we reduce to the simple Gaussian, <i>bProfile = 1</i>, 
+and for <i>expPow -> infinity</i> to no impact parameter dependence 
+at all, <i>bProfile = 0</i>. For small <i>expPow</i> the program 
+becomes slow and unstable, so the min limit must be respected.
+   
 
 <input type="hidden" name="saved" value="1"/>
 
@@ -309,6 +352,26 @@ if($_POST["10"] != "10.")
 $data = "Diffraction:sigmaPomP = ".$_POST["10"]."\n";
 fwrite($handle,$data);
 }
+if($_POST["11"] != "1")
+{
+$data = "Diffraction:bProfile = ".$_POST["11"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["12"] != "0.4")
+{
+$data = "Diffraction:coreRadius = ".$_POST["12"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["13"] != "0.5")
+{
+$data = "Diffraction:coreFraction = ".$_POST["13"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["14"] != "1.")
+{
+$data = "Diffraction:expPow = ".$_POST["14"]."\n";
+fwrite($handle,$data);
+}
 fclose($handle);
 }
 
@@ -316,4 +379,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2010 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2011 Torbjorn Sjostrand -->

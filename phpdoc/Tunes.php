@@ -91,7 +91,10 @@ Some comparisons between these tunes and data are published in
 [<a href="Bibliography.php" target="page">Cor10a</a>], and further comparisons have been posted on
 <a href="http://home.thep.lu.se/~richard/pythia81/">   
 http://home.thep.lu.se/~richard/pythia81/</a>.
-Most of the plots have been produced with the Rivet package [<a href="Bibliography.php" target="page">Buc10</a>].
+Most of the plots have been produced with the Rivet package 
+[<a href="Bibliography.php" target="page">Buc10</a>]. Following the comparative studies in [<a href="Bibliography.php" target="page">Buc11</a>],
+which independently confirmed a reasonable agreement with LHC data,
+tune 4C has been made the default.
 
 <p/>
 In the future we hope to see further PYTHIA 8 tunes appear. Like with 
@@ -150,18 +153,18 @@ and timelike-showering aspects of PYTHIA.
 <input type="radio" name="1" value="2"><strong>2 </strong>: a tune by Marc Montull to the LEP 1 particle composition, as published in the RPP (August 2007). No related (re)tune  to event shapes has been performed, however.   <br/>
 <input type="radio" name="1" value="3"><strong>3 </strong>: a tune to a wide selection of LEP1 data by Hendrik  Hoeth within the Rivet + Professor framework, both to hadronization and timelike-shower parameters (June 2009). These are the default values  starting from version 8.125, so currently there is no need for this option. <br/>
 
-<br/><br/><table><tr><td><strong>Tune:pp  </td><td>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Tune:pp  </td><td>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
 Choice of tune to <ei>pp / ppbar</ei> data, mainly for the 
 initial-state-radiation, multiple-interactions and  beam-remnants
 aspects of PYTHIA. Note that the previous crude (non-)tunes
 3C and 3M are removed as of 8.145, superseded by the 4C tune.
 <br/>
-<input type="radio" name="2" value="0" checked="checked"><strong>0 </strong>: no values are overwritten at initialization,  so you can set the individual parameters as you wish. Most default values are based on "Tune 1", option 2 below, but some new options  introduced in 8.140 means that the two no longer agree.  <br/>
+<input type="radio" name="2" value="0"><strong>0 </strong>: no values are overwritten at initialization,  so you can set the individual parameters as you wish. Most default values are based on "Tune 1", option 2 below, but some new options  introduced in 8.140 means that the two no longer agree.  <br/>
 <input type="radio" name="2" value="1"><strong>1 </strong>: default used up to version 8.126, based on  some early and primitive comparisons with data. <br/>
 <input type="radio" name="2" value="2"><strong>2 </strong>: "Tune 1", default in 8.127 - 8.139, based on some  data comparisons by Peter Skands. Largely but not wholly overlaps with the default option 0. <br/>
 <input type="radio" name="2" value="3"><strong>3 </strong>: "Tune 2C", introduced with 8.140 <ref>Cor10a</ref>.  It uses the CTEQ 6L1 PDF, and is intended to give good agreement with  much of the published CDF data. <br/>
 <input type="radio" name="2" value="4"><strong>4 </strong>: "Tune 2M", introduced with 8.140 <ref>Cor10a</ref>. It is uses the MRST LO** PDF, which has a momentum sum somewhat above  unity, which is compensated by a smaller <ei>alpha_s</ei> than in the previous tune. Again it is intended to give good agreement with much of  the published CDF data. <br/>
-<input type="radio" name="2" value="5"><strong>5 </strong>: "Tune 4C", new tune, introduced with 8.145 <ref>Cor10a</ref>.  Starts out from tune 2C, but with a reduced cross section for  diffraction, plus modified multiple interactions parameters to give a higher and more rapidly increasing charged pseudorapidity plateau, for better agreement with some early key LHC numbers.  <br/>
+<input type="radio" name="2" value="5" checked="checked"><strong>5 </strong>: "Tune 4C", new tune, introduced with 8.145  <ref>Cor10a</ref>. Starts out from tune 2C, but with a reduced cross  section for diffraction, plus modified multiple interactions parameters  to give a higher and more rapidly increasing charged pseudorapidity  plateau, for better agreement with some early key LHC numbers.  See also the comparative study in <ref>Buc11</ref>. <br/>
 
 
 
@@ -185,7 +188,7 @@ if($_POST["1"] != "0")
 $data = "Tune:ee = ".$_POST["1"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["2"] != "0")
+if($_POST["2"] != "5")
 {
 $data = "Tune:pp = ".$_POST["2"]."\n";
 fwrite($handle,$data);
@@ -197,4 +200,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2010 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2011 Torbjorn Sjostrand -->

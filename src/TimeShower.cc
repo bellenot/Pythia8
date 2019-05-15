@@ -1,5 +1,5 @@
 // TimeShower.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2010 Torbjorn Sjostrand.
+// Copyright (C) 2011 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -706,6 +706,11 @@ void TimeShower::setupQCDdip( int iSys, int i, int colTag, int colSign,
   int iOffset  = i + sizeAllA - sizeOut;
   bool otherSystemRec = false;
   bool allowInitial   = (partonSystemsPtr->hasInAB(iSys)) ? true : false;
+  // PS dec 2010: possibility to allow for several recoilers and each with
+  // flexible normalization
+  bool   isFlexible   = false;
+  double flexFactor   = 1.0;
+  vector<int> iRecVec(0);
 
   // Colour: other end by same index in beam or opposite in final state.
   // Exclude rescattered incoming and not final outgoing.
@@ -735,34 +740,32 @@ void TimeShower::setupQCDdip( int iSys, int i, int colTag, int colSign,
     }
   }
 
-  // Resonance decays (= no instate), without a junction colour:
+  // Resonance decays (= no instate): 
   // other end to nearest recoiler in same system final state,
-  // by (p_i + p_j)^2 - (m_i + m_j)^2 = 2 (p_i p_j - m_i m_j).
+  // by (p_i + p_j)^2 - (m_i + m_j)^2 = 2 (p_i p_j - m_i m_j).  
+  // (junction colours more involved, so keep track if junction colour)
+  bool hasJunction = false;
   if (iRec == 0 && !allowInitial) {
-    bool hasJunction = false;
     for (int iJun = 0; iJun < event.sizeJunction(); ++ iJun) {
       // For types 1&2, all legs in final state
       // For types 3&4, two legs in final state
       // For types 5&6, one leg in final state
       int iBeg = (event.kindJunction(iJun)-1)/2;
-      for (int iLeg = iBeg; iLeg < 3; ++iLeg) {
-	if (event.endColJunction( iJun, iLeg) == colTag) hasJunction = true;
-      }
+      for (int iLeg = iBeg; iLeg < 3; ++iLeg) 
+	if (event.endColJunction( iJun, iLeg) == colTag) hasJunction  = true; 
     }
-    if (!hasJunction) { 
-      double ppMin = LARGEM2; 
-      for (int j = 0; j < sizeOut; ++j) if (j != i) { 
+    double ppMin = LARGEM2; 
+    for (int j = 0; j < sizeOut; ++j) if (j != i) { 
         int iRecNow  = partonSystemsPtr->getOut(iSys, j);
         if (!event[iRecNow].isFinal()) continue;
         double ppNow = event[iRecNow].p() * event[iRad].p() 
-                     - event[iRecNow].m() * event[iRad].m();
+	  - event[iRecNow].m() * event[iRad].m();
         if (ppNow < ppMin) {
           iRec  = iRecNow;
           ppMin = ppNow;
         } 
       }
-    }     
-  }  
+  }
 
   // If no success then look for matching (anti)colour anywhere in final state.
   if ( iRec == 0 || (!doInterleave && !event[iRec].isFinal()) ) {
@@ -797,29 +800,79 @@ void TimeShower::setupQCDdip( int iSys, int i, int colTag, int colSign,
         }
       }
     }
-
-    // For junction pick any of other leg as recoiler. Note colour sign.
-    if (iRec == 0) {
-      for (int iJun = 0; iJun < event.sizeJunction(); ++ iJun)
-      for (int iLeg = 0; iLeg < 3; ++iLeg) 
-      if (event.endColJunction( iJun, iLeg) == colTag) {
-        int iLegRec = iLeg + 1 + int(2. * rndmPtr->flat());
-        if (iLegRec >= 3) iLegRec -= 3;
-        int colTagRec = event.endColJunction( iJun, iLegRec);
-        for (int j = 0; j < event.size(); ++j) if (event[j].isFinal()) 
-        if ( (colSign > 0 && event[j].col()  == colTagRec)
-          || (colSign < 0 && event[j].acol() == colTagRec) ) {
-          iRec = j;
-          otherSystemRec = true;
-          break;
-        }
-      }    
-    }
   }
 
+  // Junctions (PS&ND dec 2010)
+  // For types 1&2: all legs in final state
+  //                half-strength dipoles between all legs
+  // For types 3&4, two legs in final state
+  //                full-strength dipole between final-state legs 
+  // For types 5&6, one leg in final state	
+  //                no final-state dipole end
+  
+  if (hasJunction) {
+    for (int iJun = 0; iJun < event.sizeJunction(); ++ iJun) {
+      int kindJun = event.kindJunction(iJun);
+      int iBeg = (kindJun-1)/2;
+      for (int iLeg = iBeg; iLeg < 3; ++iLeg) {	
+	if (event.endColJunction( iJun, iLeg) == colTag) {
+	  // For types 5&6, no other leg to recoil against. Switch off 
+	  // if no other particles at all, since radiation then handled by ISR. 
+	  // Example: qq -> ~t* : no radiation off ~t*
+	  // Allow radiation + recoil if unconnected partners available
+	  // Example: qq -> ~t* -> tbar ~chi0 : allow radiation off tbar, 
+	  //                                    with ~chi0 as recoiler
+	  if (kindJun >= 5) { 
+	    if (sizeOut == 1) return;
+	    else break;
+	  }
+	  // For junction types 3 & 4, span one full-strength dipole
+	  // (only look inside same decay system)
+	  else if (kindJun >= 3) {
+	    int iLegRec = 3-iLeg;
+	    int colTagRec = event.endColJunction( iJun, iLegRec);
+	    for (int j = 0; j < sizeOut; ++j) if (j != i) { 
+		int iRecNow  = partonSystemsPtr->getOut(iSys, j);
+		if (!event[iRecNow].isFinal()) continue;
+		if ( (colSign > 0 && event[iRecNow].col()  == colTagRec)
+		     || (colSign < 0 && event[iRecNow].acol() == colTagRec) ) {
+		  // Only accept if staying inside same system
+		  iRec = iRecNow;		  
+		  break;
+		}
+	      }
+	  }
+	  // For junction types 1 & 2, span two half-strength dipoles
+	  // (only look inside same decay system)
+	  else {
+	    // Loop over two half-strength dipole connections
+	    for (int jLeg = 1; jLeg <= 2; jLeg++) {
+	      int iLegRec = (iLeg + jLeg) % 3;
+	      int colTagRec = event.endColJunction( iJun, iLegRec);
+	      for (int j = 0; j < sizeOut; ++j) if (j != i) { 
+		  int iRecNow  = partonSystemsPtr->getOut(iSys, j);
+		  if (!event[iRecNow].isFinal()) continue;
+		  if ( (colSign > 0 && event[iRecNow].col()  == colTagRec)
+		       || (colSign < 0 && event[iRecNow].acol() == colTagRec) ) {
+		    // Store recoilers in temporary array
+		    iRecVec.push_back(iRecNow);
+		    // Set iRec != 0 for checks below
+		    iRec = iRecNow;
+		  }
+		}
+	    }
+	    
+	  }     // End if-then-else of junction kinds
+	  
+	}       // End if leg has right color tag 
+      }         // End of loop over junction legs
+    }           // End loop over junctions
+    
+  }             // End main junction if
+  
   // If fail, then other end to nearest recoiler in same system final state,
   // by (p_i + p_j)^2 - (m_i + m_j)^2 = 2 (p_i p_j - m_i m_j).
-  if (iRec == 0) {
+  if (iRec == 0) {    
     double ppMin = LARGEM2; 
     for (int j = 0; j < sizeOut; ++j) if (j != i) { 
       int iRecNow  = partonSystemsPtr->getOut(iSys, j);
@@ -849,8 +902,29 @@ void TimeShower::setupQCDdip( int iSys, int i, int colTag, int colSign,
     }     
   }  
 
-  // Store dipole colour end.
-  if (iRec > 0) { 
+  // PS dec 2010: make sure iRec is stored in iRecVec 
+  if (iRecVec.size() == 0 && iRec != 0) iRecVec.push_back(iRec);
+    
+  // Remove any zero recoilers from normalization
+  int nRec = iRecVec.size();
+  for (unsigned int mRec = 0; mRec <= iRecVec.size() - 1; ++ mRec) 
+    if (iRecVec[mRec] <= 0) nRec--;
+  if (nRec >= 2) {
+    isFlexible = true;
+    flexFactor = 1.0/nRec;
+  }
+  
+  // Check for failure to locate any recoiler
+  if ( nRec <= 0 ) { 
+    infoPtr->errorMsg("Error in TimeShower::setupQCDdip: "
+		      "failed to locate any recoiling partner");
+    return;
+  }
+  
+  // Store dipole colour end(s).
+  for (unsigned int mRec = 0; mRec <= iRecVec.size() - 1; ++ mRec) {
+    iRec = iRecVec[mRec];
+    if (iRec <= 0) continue;
     // Max scale either by parton scale or by half dipole mass.
     double pTmax = event[iRad].scale();
     if (limitPTmaxIn) {
@@ -871,10 +945,14 @@ void TimeShower::setupQCDdip( int iSys, int i, int colTag, int colSign,
       if (systemRec >= 0) dipEnd.back().systemRec = systemRec;
       dipEnd.back().MEtype = 0;
     } 
-  } else {
-    infoPtr->errorMsg("Error in TimeShower::setupQCDdip: "
-      "failed to locate any recoiling partner");
-  }
+
+    // PS dec 2010
+    // If non-unity (flexible) normalization, set normalization factor
+    if (isFlexible) {
+      dipEnd.back().isFlexible = true;
+      dipEnd.back().flexFactor = flexFactor;
+    }
+  }  
 
 }
 
@@ -1149,6 +1227,9 @@ void TimeShower::pT2nextQCD(double pT2begDip, double pT2sel,
   double colFac     = (colTypeAbs == 1) ? 4./3. : 3./2.;
   if (dip.MEgluinoRec)  colFac  = 3.;  
   if (dip.isOctetOnium) colFac *= 0.5 * octetOniumColFac;
+  // PS dec 2010. Include possibility for flexible normalization,
+  // e.g., for dipoles stretched to junctions or to switch off radiation.
+  if (dip.isFlexible)   colFac *= dip.flexFactor;
   double wtPSqqbar  = (colTypeAbs == 2) ? 0.25 * nGluonToQuark : 0.;
   
   // Variables used inside evolution loop. (Mainly dummy start values.)
@@ -1688,7 +1769,10 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
   // Kinematics when recoiler is initial-state parton.
   int isrTypeNow = dipSel->isrType;
   if (isrTypeNow != 0) pRec = 2. * recBef.p() - pRec;
- 
+
+  // PS dec 2010: check if radiator has flexible normalization 
+  bool isFlexible = dipSel->isFlexible;
+
   // Define new particles from dipole branching.
   double pTsel = sqrt(dipSel->pT2);
   Particle rad = Particle(idRad, 51, iRadBef, 0, 0, 0, 
@@ -1791,34 +1875,46 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
  
   // Gluon emission: update both dipole ends and add two new ones.
   } else if (dipSel->flavour == 21) { 
-    dipSel->iRadiator = iRad;
-    dipSel->iRecoiler = iEmt;
-    dipSel->systemRec = iSysSel;
-    dipSel->isrType   = 0;
-    dipSel->pTmax     = pTsel;
+    dipSel->iRadiator  = iRad;
+    dipSel->iRecoiler  = iEmt;
+    dipSel->systemRec  = iSysSel;
+    dipSel->isrType    = 0;
+    dipSel->pTmax      = pTsel;
+    // PS dec 2010: check normalization of radiating dipole 
+    // Dipole corresponding to the newly created color tag has normal strength
+    double flexFactor  = (isFlexible) ? dipSel->flexFactor : 1.0;
+    dipSel->isFlexible = false;
     for (int i = 0; i < int(dipEnd.size()); ++i) {
       if (dipEnd[i].iRadiator == iRecBef && dipEnd[i].iRecoiler == iRadBef 
         && dipEnd[i].colType != 0) {
         dipEnd[i].iRadiator = iRec;
         dipEnd[i].iRecoiler = iEmt;
         // Strive to match colour to anticolour inside closed system.
-        if (dipEnd[i].colType * dipSel->colType > 0) 
+        if ( !isFlexible && dipEnd[i].colType * dipSel->colType > 0) 
           dipEnd[i].iRecoiler = iRad;
-        dipEnd[i].pTmax = pTsel;
+        dipEnd[i].pTmax = pTsel;	
+	// PS dec 2010: if the (iRadBef,iRecBef) dipole was flexible, the
+	// same should be true for this (opposite) end. If so, this end keeps 
+	// the modified normalization, so we shouldn't need to do anything. 
       }
     }
     int colType = (dipSel->colType > 0) ? 2 : -2 ;
     dipEnd.push_back( TimeDipoleEnd(iEmt, iRec, pTsel,  
        colType, 0, 0, isrTypeNow, iSysSel, 0));
     dipEnd.back().systemRec = iSysSelRec;
+    // PS dec 2010: the (iEmt,iRec) dipole "inherits" flexible normalization
+    if (isFlexible) {
+      dipEnd.back().isFlexible = true;
+      dipEnd.back().flexFactor = flexFactor;
+    }
     dipEnd.push_back( TimeDipoleEnd(iEmt, iRad, pTsel, 
       -colType, 0, 0, 0, iSysSel, 0));
-
+    
   // Gluon branching to q qbar: update current dipole and other of gluon.
   } else if (dipSel->colType != 0) {
     for (int i = 0; i < int(dipEnd.size()); ++i) {
       // Strive to match colour to anticolour inside closed system.
-      if ( dipEnd[i].iRecoiler == iRadBef 
+      if ( !isFlexible && dipEnd[i].iRecoiler == iRadBef 
         && dipEnd[i].colType * dipSel->colType < 0 ) 
         dipEnd[i].iRecoiler = iEmt;
 
@@ -1833,11 +1929,11 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
         if (&dipEnd[i] == dipSel) dipEnd[i].iMEpartner = iRad;
         else                      dipEnd[i].iMEpartner = iEmt;
       }
-   }
+    }
     dipSel->iRadiator = iEmt;
     dipSel->iRecoiler = iRec;
     dipSel->pTmax     = pTsel;
-
+    
     // Gluon branching to q qbar: also add two charge dipole ends.
     // Note: gluino -> quark + squark gives a deeper radiation dip than
     // the more obvious alternative photon decay, so is more realistic.
@@ -1908,6 +2004,16 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
 
   // Now update other dipoles that also involved the radiator or recoiler.
   for (int i = 0; i < int(dipEnd.size()); ++i) {
+    // PS dec 2010: if radiator was flexible and now is normal, there may
+    // be other flexible dipoles that need updating.
+    if (isFlexible && !dipSel->isFlexible && dipEnd[i].isFlexible) {
+      if (dipEnd[i].iRecoiler  == iRadBef) dipEnd[i].iRecoiler = iEmt;
+      if (dipEnd[i].iRadiator  == iRadBef) {
+	dipEnd[i].iRadiator = iEmt;
+	if (dipEnd[i].colType == 1 && dipSel->flavour == 21) dipEnd[i].colType = 2;
+	if (dipEnd[i].colType ==-1 && dipSel->flavour == 21) dipEnd[i].colType =-2;
+      }
+    }
     if (dipEnd[i].iRadiator  == iRadBef) dipEnd[i].iRadiator  = iRad;
     if (dipEnd[i].iRadiator  == iRecBef) dipEnd[i].iRadiator  = iRec;
     if (dipEnd[i].iRecoiler  == iRadBef) dipEnd[i].iRecoiler  = iRad;
@@ -1916,7 +2022,7 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
     if (dipEnd[i].iMEpartner == iRecBef) dipEnd[i].iMEpartner = iRec;
   }
 
-  // PS Sept 2010
+  // PS Apr 2011
   // Update any junctions downstream of this branching (if necessary)
   // (This happens, e.g., via LHEF, when adding showers to intermediate 
   //  coloured resonances whose decays involved junctions)
@@ -1930,13 +2036,13 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
            ? event[iRadBef].col() : event[iRadBef].acol();
     // Loop over incoming junction ends
     for (int iCol = 0; iCol < nIncoming; iCol++) {      
-      int colJun = event.endColJunction( iJun, iCol);      
+      int colJun = event.colJunction( iJun, iCol);      
       // If match, update junction end with new upstream (anti)colour 
       if (colJun == colChk) {
 	int colNew = 0;
 	if ( event.kindJunction(iJun) % 2 == 0 ) colNew = colRad;
 	else colNew = acolRad;
-	event.endColJunction( iJun, iCol, colNew );
+	event.colJunction( iJun, iCol, colNew );
       }
     }
   }
@@ -1945,6 +2051,17 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
   partonSystemsPtr->replace(iSysSel, iRadBef, iRad);  
   partonSystemsPtr->addOut(iSysSel, iEmt);
   partonSystemsPtr->replace(iSysSelRec, iRecBef, iRec);
+
+  /*
+  // DEBUG OUTPUT  
+  event.list();
+  cout<<" After branch() iRadBef = "<<iRadBef<<" iEmt = "<<iEmt<<endl;
+  for (int jJun = 0; jJun < event.sizeJunction(); jJun++) { 
+    cout<<" jJun "<<jJun<<" kind = "<<event.kindJunction(jJun)<<" cols = ";
+    for (int jLeg=0; jLeg < 3; jLeg++) cout<<event.colJunction(jJun, jLeg)<<"->"<<event.endColJunction(jJun, jLeg)<<" ";
+    cout<<endl;
+  }
+  */
 
   // Done. 
   return true;
@@ -2723,7 +2840,7 @@ double TimeShower::calcMEcorr( int kind, int combiIn, double mixIn,
   double r3s    = r3 * r3;
   double prop3  = r3s - x3;
   double prop3s = prop3 * prop3;
-  if (kind == 30) prop23 = prop2 * prop3;
+  if (kind == 30) prop13 = prop1 * prop3;
 
   // Check input values. Return zero outside allowed phase space.
   if (x1 - 2.*r1 < XMARGIN || prop1 < XMARGIN) return 0.;
@@ -3507,3 +3624,4 @@ void TimeShower::list(ostream& os) const {
 //==========================================================================
 
 } // end namespace Pythia8
+

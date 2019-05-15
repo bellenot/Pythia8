@@ -13,8 +13,9 @@ more massive <aloc href="ResonanceDecays">resonances</aloc>, such as top,
 <p/>
 The decay description essentially copies the one present in 
 PYTHIA since many years, but with some improvements, e.g. in the decay
-tables and the number of decay models available. Some issues may need 
-further polishing.
+tables and the number of decay models available. Recently a more
+sophisticated handling of <ei>tau</ei> decays has also been introduced.
+Some issues may need further polishing.
 
 <h3>Variables determining whether a particle decays</h3>
 
@@ -107,6 +108,22 @@ The mixing parameter <ei>x_s = Delta(m_B_s^0)/Gamma_B_s^0</ei> in the
 <ei>B_s^0 - B_s^0bar</ei> system. (Delta-m from CDF hep-ex-0609040,
 Gamma from RPP2006.)
 </parm> 
+
+<h3>tau decays</h3>
+
+A new machinery has been introduced to handle <ei>tau</ei> lepton decays, 
+with helicity information related to the production process and with
+the form of the hadronic current fitted to data. It is largely based
+on the corresponding Herwig++ implementation <ref>Gre07</ref>, with
+some input from Tauola <ref>Jad90</ref>. A complete writeup is 
+in preparation <ref>Ilt11</ref>.
+
+This new machinery is on by default, but it is possible to revert to 
+the simpler old decay handling, e.g. to study differences.
+
+<flag name="ParticleDecays:sophisticatedTau" default="on">
+Use the new <ei>tau</ei> decay description or not.
+</flag>
 
 <h3>Other variables</h3>
 
@@ -251,5 +268,5 @@ multiplicity than the simple string assumed for 82, see the
 
 </chapter>
 
-<!-- Copyright (C) 2010 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
 

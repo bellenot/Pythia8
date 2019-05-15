@@ -31,21 +31,10 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 
 These update notes describe major updates relative to the baseline 
 PYTHIA 8.100 version. However, they are less extensive than the 
-corresponding update notes for PYTHIA 6. There are three main 
-reasons for this:
+corresponding update notes for PYTHIA 6. On the other hand,
+whereas the PYTHIA 6 manual is a static document, the PYTHIA 8
+html/php pages are kept up to date for each subversion. 
 
-<ul>
-
-<li>The manual contained on these html/php pages is kept up to date.
-(However, the "Brief Introduction" may not always be.)</li>
-
-<li>8.1 is a quite new code, so there are many minor changes that, 
-if all were to be documented, would hide the key ones.</li>
-
-<li>8.1 is not yet used for "mission critical" applications, 
-so there is less need to trace changed behaviour.</li>
-
-</ul>
 
 <h3>Main news by version</h3>
 
@@ -1025,7 +1014,7 @@ of generic user blocks in the SLHA format, along with methods to
 extract parameters from them with typecasting controlled by the user. 
 Intended for use with user-written semi-internal processes.</li>
 
-<li>Added <code>Sigma1qq2antisquark</code> cross section.
+<li>Added <code>Sigma1qq2antisquark</code> cross section.</li>
 
 <li>Some new flags and modes in the <code>SUSY</code> and 
 <code>SLHA</code> series offer further functionality.</li>
@@ -1035,7 +1024,7 @@ machinery.</li>
 
 <li>Bug/typo fixes in rotation matrices for SUSY couplings and for the
 processes <code>qqbar2squarkantisquark</code>,
-<code>qq2squarksquark</code> and more.
+<code>qq2squarksquark</code> and more.</li>
 
 <li>Improved handling of colour junctions. Added new example program 
 <code>main72.cc</code>, to illustrate read-in of color junction 
@@ -1043,7 +1032,7 @@ structures via LHEF (<code>main72.lhe</code>). The example used is SUSY
 with RPV.</li>
 
 <li>New Tune 4C introduced as <code>Tune:pp = 5</code>. The more crude
-(non-)tunes 3C and 3M are removed.
+(non-)tunes 3C and 3M are removed.</li>
 
 <li>New methods <code>Settings::getFlagMap(...)</code>,
 <code>Settings::getModeMap(...)</code>, 
@@ -1055,7 +1044,7 @@ in its name.
 
 <li>Improved description of excited <i>g^*/KK-gluon^*</i> production
 in the <code>Sigma1qqbar2KKgluonStar</code> and
-<code>ResonanceKKgluon</code> classes.
+<code>ResonanceKKgluon</code> classes.</li>
 
 <li>Possibility added to let Hidden-Valley <i>gamma_v</i> have 
 a nonero mass and decay by mixing with the ordinary photon. 
@@ -1074,9 +1063,10 @@ with Madgraph gives much better agreement with it than with the
 expression of Brown, Sahdev and Mikaelian.</li>
 
 <li>The <code>HepMCInterface</code> now also stores colour flow 
-information for coloured particles.
+information for coloured particles.</li>
 
-<li>Pointer to <code>Couplings</code> made available for particle decays.
+<li>Pointer to <code>Couplings</code> made available for particle 
+decays.</li>
 
 <li>Minor update in <code>main61.cc</code> for more elegant usage 
 of FastJet, as suggested by Gregory Soyez.</li>
@@ -1084,9 +1074,180 @@ of FastJet, as suggested by Gregory Soyez.</li>
 </ul>
 </li>
 
+<li>8.150: 20 April 2011
+<ul>
+
+<li>Tune 4C is made default. It is based on first comparisons with
+LHC data [<a href="Bibliography.php" target="page">Cor10a</a>], and has also been checked independently
+[<a href="Bibliography.php" target="page">Buc11</a>] to give reasonable agreement with many distributions.
+</li>
+
+<li>The description of <i>tau</i> lepton decays has been significantly 
+enhanced, to include helicity information related to the production 
+process and hadronic currents fitted to data. A complete writeup is 
+in preparation [<a href="Bibliography.php" target="page">Ilt11</a>]. A new flag is introduced to revert
+to the old behaviour, for cross-checks, see 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='ParticleDecays.php?filepath=".$filepath."' target='page'>";?>Particle Decays</a>.
+The new tau decay machinery is on by default.
+</li>
+
+<li>A new option <code>MultipleInteractions:bProfile = 4</code> has 
+been introduced for the impact-parameter profile of protons in the 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='MultipleInteractions.php?filepath=".$filepath."' target='page'>";?>Multiple Interactions</a> framework, 
+wherein low-<i>x</i> partons are spread over a larger area than 
+high-<i>x</i> ones, see [<a href="Bibliography.php" target="page">Cor11</a>]. A new method 
+<code>Info::eMI(i)</code> gives back the enhancement factor related to 
+the <code>i</code>'th interaction. The impact-parameter profile can now 
+be selected separately for <?php $filepath = $_GET["filepath"];
+echo "<a href='Diffraction.php?filepath=".$filepath."' target='page'>";?>diffraction</a>, 
+but without a <code>bProfile = 4</code> option.
+</li>
+
+<li>The possibility of "hadronization" in the 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='HiddenValleyProcesses.php?filepath=".$filepath."' target='page'>";?>Hidden Valley</a> sector
+has been added as a new option <code>HiddenValley:fragment = on</code>.
+This is based on a copy of the standard string fragmentation framework, 
+but with the option of a completely separate "flavour" sector, and 
+separately tunable longitudinal fragmentation functions and transverse 
+momenta. For now only a simple flavour scenario is provided, where
+flavour-diagonal mesons can decay back into the normal visible sector
+while off-diagonal ones remain hidden. A writeup of the model is in 
+preparation [<a href="Bibliography.php" target="page">Car11</a>]. Also some further Hidden Valley options
+have been added.</li> 
+
+<li>Included possibility in <code>TimeShower</code> for QCD dipoles to
+have an adjustible normalization factor, via the new
+<code>bool isFlexible</code> and <code>double flexFactor</code>
+properties of <code>class TimeDipoleEnd</code>. This flexibility is used
+to treat radiation off colour topologies with epsilon tensors, in
+particular colour junctions which have all their partons in the
+final state. (An example is the BNV-SUSY decay ~chi0&rarr;uds.) For
+such topologies, the new treatment in PYTHIA 8 is that a
+half-strength dipole is spanned between all combinations of
+final-state quarks. For junctions with an incoming (anti)colour line (such
+as in the BNV-SUSY decay ~t*&rarr;cb), a full-strength dipole is
+instead spanned between the two daughters, with no radiation from the
+decaying object (in its CM). As will be described in a fortcoming
+paper with N. Desai, this should give the
+closest possible correspondence to the radiation patterns exhibited
+by higher-order matrix elements for this type of process.</li>
+
+<li>Corrected harmless bugs in <code>ProcessLevel::findJunctions</code>
+which caused junctions of types 3 and 4 (i.e., junctions with 1
+incoming color tag) to sometimes be incorrectly classified as types
+1 and 2 (with all color tags outgoing), respectively.
+Since the parity (even/odd) of the junction kind was still correct,
+however, this did not cause any problems at the hadronization
+stage.</li>
+
+<li>The junction-finder in <code>ProcessLevel::findJunctions</code>
+has been made more stable, and the following ordering of the color
+tags returned by <code>Event::endColJunction(iJun, iLeg)</code>  is
+now enforced: for junction kinds 3 and 4 (one tag
+incoming), <code>iLeg = 0</code> will return the
+incoming tag, while for kinds 5 and 6 (two tags incoming),
+<code>iLeg = 0</code> and <code>iLeg = 1</code> will return the
+incoming tags. Apart from this ordering, the color tags are
+ordered in ascending color tag number.</li>
+
+<li>Declarations of friend functions moved to sit outside the class
+it befriends. Thanks to Axel Naumann for pointing out the incorrect
+previous construction.</li>
+
+<li>The <code>rootexample</code> subdirectory becomes 
+<code>rootexamples</code> as the old example is split into two,
+with improved documentation to clarify usage. Thanks to Axel Naumann
+and Bernhard Meirose for the new code.</li>
+
+<li>In the Les Houches Event File machinery, input type has been 
+changed from <code>ifstream</code> to <code>istream</code> for more 
+flexibility.</li>
+
+<li>R-hadron  handling is largely implemented, see the
+<?php $filepath = $_GET["filepath"];
+echo "<a href='RHadrons.php?filepath=".$filepath."' target='page'>";?>R-hadrons</a> page, although some aspects
+still need polishing. A new class <code>RHadrons</code> takes 
+care of the hadronization and decay. Particle data have been added
+for R-hadrons containing a gluino, stop or sbottom, but could 
+alternatively be used for other long-lived coloured particles. 
+Thanks to Bernhard Meirose for support.
+</li>
+
+<li>Calculations of SUSY decay widths included by
+  N. Desai, contained in the new source 
+files <code>SusyResonanceWidth.cc</code>
+  and </code>.h</code>. Validation and addition of more modes is still in
+  progress, so this implementation should be considered preliminary
+  for now. For a list of available modes, see
+  the <?php $filepath = $_GET["filepath"];
+echo "<a href='SUSYProcesses.php?filepath=".$filepath."' target='page'>";?>SUSY Processes</a> page. 
+</li>
+
+<li>A first implementation of the SLHA-based QNUMBERS interface for
+  defining new exotic particles has been
+  included. See [<a href="Bibliography.php" target="page">Alw07</a>] and
+  the <?php $filepath = $_GET["filepath"];
+echo "<a href='SUSYLesHouchesAccord.php?filepath=".$filepath."' target='page'>";?>SUSY Les Houches Accord</a>
+  page. </li>
+
+<li>Read-in of LHEF events containing Baryon Number Violating vertices
+  has been included, using colour junctions, see
+  the <?php $filepath = $_GET["filepath"];
+echo "<a href='EventRecord.php?filepath=".$filepath."' target='page'>";?>Event Record</a> page. The advanced
+  shower model taking into account the full colour structure of such
+  events, developed by N. Desai and described above, 
+  is turned on by default in such events. 
+  Several test cases were used to
+  validate this implementation, but it is possible that problems could
+  still exist for some cases. Feedback is welcome. Thanks to 
+  the MadGraph authors for providing several test cases.</li>
+
+<li>Some first steps taken to allow events containing colour sextets,
+  e.g., from semi-internal processes or LHEF interfaces, and/or from
+  SLHA <code>DECAY</code> tables. New
+  <code>colType</code> codes 3 and -3 are introduced to describe
+  sextets and antisextets, respectively. The state of the current
+  implementation is that hard processes containing such states can be 
+  read in and decays generated (via <code>DECAY</code> tables). Parton
+  showers can be added, but the sextets themselves do not, as yet,
+  shower, and any undecayed sextets remaining at the hadronization
+  stage would lead to unpredictable problems if hadronization is
+  switched on. Thanks to J. Alwall for help with testing 
+  this implementation. 
+</li>
+
+<li>The functionality of the SLHA SUSY/BSM interface (see
+  the <?php $filepath = $_GET["filepath"];
+echo "<a href='SUSYLesHouches.php?filepath=".$filepath."' target='page'>";?>SUSY Les Houches</a> page) has been
+  extended so that copies of all <code>BLOCK</code>s are now stored 
+  internally as
+  strings, regardless of whether they correspond to "official" SLHA
+  blocks or not. Their contents can subsequently be queried by a set
+  of new templated member functions of the
+  class <code>SusyLesHouches</code>. Available query functions so far
+  include 
+  <br/><code>template &lt;class T&gt; bool getEntry(string, T&);</code>, 
+  <br/><code>template &lt;class T&gt; bool getEntry(string, int, T&);</code>, 
+  <br/><code>template &lt;class T&gt; bool getEntry(string, int, int, T&);
+  </code>, and 
+  <br/><code>template &lt;class T&gt; bool getEntry(string, int, 
+  int, int, T&);</code>, 
+  <br/>where the type of
+  the argument used in the call determines how to read the block
+  entries. Thus, if an LHEF, SLHA, or other card file is read in by
+  PYTHIA, the contents of any <code>BLOCK</code> in that file can
+  subsequently be queried run-time using these functions. This is
+  used, e.g., in the new interface between MADGRAPH 5 and PYTHIA
+  8. Thanks to the MADGRAPH team, and to J. Alwall in particular, for
+  help and debug on this new implementation.
+</li>
+
 </ul>
 
 </body>
 </html>
 
-<!-- Copyright (C) 2010 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2011 Torbjorn Sjostrand -->

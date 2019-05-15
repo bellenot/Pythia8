@@ -127,7 +127,7 @@ export CXXFLAGS_DBG="-g -ansi -pedantic -W -Wall -Wshadow -fbounds-check ${ENABL
 #
 export ARCH0="`uname`"
 export ARCH=${ARCH0}
-export theGcc=`g++ --version | head -n 1 | awk '{print$3}' | awk -F . '{print $1}'`
+export theGcc=`gcc -dumpversion | awk -F . '{print $1}'`
 if [ ${theGcc} = 4 ]; then
   export ARCH=${ARCH}-gcc4
 fi
@@ -150,7 +150,7 @@ if [ ${COMPMODE} = DBG ]; then
   export CFLAGS="${CFLAGS_DBG}"
   export CXXFLAGS="${CXXFLAGS_DBG}"
 fi
-LDFLAGSSHARED="${CXXFLAGS} -pthread -fPIC -shared"
+LDFLAGSSHARED="${CXXFLAGS} -fPIC -shared"
 LDFLAGLIBNAME="-Wl,-soname"
 SHAREDSUFFIX=so
 if [ $ARCH = Linux ]; then
@@ -169,7 +169,7 @@ if [ $ARCH = Linux ]; then
     export CFLAGS="${CFLAGS_DBG}"
     export CXXFLAGS="${CXXFLAGS_DBG}"
   fi
-  LDFLAGSSHARED="${CXXFLAGS} -pthread -fPIC -shared"
+  LDFLAGSSHARED="${CXXFLAGS} -fPIC -shared"
   LDFLAGLIBNAME="-Wl,-soname"
   SHAREDSUFFIX=so
 fi
@@ -190,7 +190,7 @@ if [ $ARCH = Linux-gcc4 ]; then
     export CFLAGS="${CFLAGS_DBG}"
     export CXXFLAGS="${CXXFLAGS_DBG}"
   fi
-  LDFLAGSSHARED="${CXXFLAGS} -pthread -fPIC -shared"
+  LDFLAGSSHARED="${CXXFLAGS} -fPIC -shared"
   LDFLAGLIBNAME="-Wl,-soname"
   SHAREDSUFFIX=so
 fi

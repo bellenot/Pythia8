@@ -54,7 +54,7 @@ For a <ei>2 -> 1</ei> process, the returned value should be
 <ei>sigmaHat(sHat)</ei>, where <code>mH</code> (= <ei>mHat</ei>), 
 <code>sH</code> (= <ei>sHat</ei>) and <code>sH2</code> (= <ei>sHat^2</ei>) 
 are available to be used. Incoming partons are massless. Overload the 
-<code>convertME()</code> method below if you instead plan to return 
+<code>convertM2()</code> method below if you instead plan to return 
 <ei>|M|^2</ei>.
 
 <p/>
@@ -62,7 +62,7 @@ For a <ei>2 -> 2</ei> process, instead <ei>d(sigmaHat)/d(tHat)</ei>
 should be returned, based on provided 
 <code>mH, sH, sH2, tH, tH2, uH, uH2, m3, s3, m4, s4</code> and 
 <code>pT2</code> values (<code>s3 = m3*m3</code> etc.). Incoming 
-partons are massless. Overload the <code>convertME()</code> method 
+partons are massless. Overload the <code>convertM2()</code> method 
 below if you instead plan to return <ei>|M|^2</ei>.
 
 <p/>
@@ -379,11 +379,11 @@ is already encoded as mb then <code>convert2mb()</code> should be
 overloaded to instead return <code>false</code>.
 </method>
 
-<method name="bool SigmaProcess::convertME()">
+<method name="bool SigmaProcess::convertM2()">
 it is assumed that <ei>2 -> 1</ei> cross sections are encoded as  
 <ei>sigmaHat(sHat)</ei>, and <ei>2 -> 2</ei> ones as 
 <ei>d(sigmaHat)/d(tHat)</ei> in the <code>SigmaProcess::sigmaHat()</code>
-methods. If <code>convertME()</code> is overloaded to instead return 
+methods. If <code>convertM2()</code> is overloaded to instead return 
 <code>true</code> then the return value is instead assumed to be the
 squared matrix element <ei>|M|^2</ei>, and 
 <code>SigmaProcess::sigmaHatWrap(...)</code> converts to 
@@ -576,4 +576,4 @@ a composite <ei>d</ei>. Obviously these variations may be combined.
 
 </chapter>
 
-<!-- Copyright (C) 2010 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2011 Torbjorn Sjostrand -->

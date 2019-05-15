@@ -93,11 +93,25 @@ by applying string fragmentation (with special treatment for low-mass
 systems) and secondary decays, and optionally Bose-Einstein corrections.
 </file>
 
+<file name="HelicityBasics">
+basic classes for the handling of helicities in tau lepton decays.
+</file>
+
+<file name="HelicityMatrixElements">
+helicity-dependent decay matrix elements for the tau lepton.
+</file>
+
 <file name="HepMCInterface">
 contains an interface to convert the PYTHIA 8 event record into the 
 HepMC format. The <code>HepMCInterface.cc</code> file is located in
 the subdirectory <code>hepmcinterface</code> and is used to build a 
 separate <code>libhepmcinterface</code> library. 
+</file>
+
+<file name="HiddenValleyFragmentation">
+hadronization in models with a hidden sector that contains an unbroken
+<ei>SU(N)</ei>, which gives confinement. The model and code is largely
+derived from the normal fragmentation classes.
 </file>
 
 <file name="Info">
@@ -225,6 +239,11 @@ encodes some properties of resonances, in particular the dynamic
 calculation of widths.
 </file>
 
+<file name="RHadrons"> 
+handles the production and decay of hadrons formed by long-lived
+gluinos, stops or sbottoms.
+</file>
+
 <file name="Settings"> 
 contains a database of all flags, modes, parameters and words that 
 determine the performance of the generator. Initial values are obtained 
@@ -332,6 +351,11 @@ contains information on SUSY parameters and particle data as specified
 by the SUSY Les Houches Accord.
 </file>
 
+<file name="TauDecays"> 
+the main routines for handling tau lepton decays with helicity
+information.
+</file>
+
 <file name="TimeShower"> 
 performs timelike final-state transverse-momentum-ordered 
 shower evolution.
@@ -345,4 +369,4 @@ its cross-section weight.
 
 </chapter>
 
-<!-- Copyright (C) 2010 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2011 Torbjorn Sjostrand -->

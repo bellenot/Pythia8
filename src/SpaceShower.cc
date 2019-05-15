@@ -1,5 +1,5 @@
 // SpaceShower.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2010 Torbjorn Sjostrand.
+// Copyright (C) 2011 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -647,7 +647,9 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
         if (!isMassive) { 
           wt = 0.5 * (1. + pow2(z));
         } else {
-          wt = 0.5 * (1. + pow2(z) - z * pow2(1.-z) * m2Massive / pT2);
+        //?? Bug?? should be 2 more for massive part??
+        //  wt = 0.5 * (1. + pow2(z) - z * pow2(1.-z) * m2Massive / pT2);
+          wt = 0.5 * (1. + pow2(z)) - z * pow2(1.-z) * m2Massive / pT2;
         }
         if (isValence) wt *= sqrt(z);
       // g -> q (+ qbar). 

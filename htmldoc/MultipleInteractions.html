@@ -257,10 +257,15 @@ for the latter provided that <code>SpaceShower:samePTasMI</code> is on
 <h4>Impact-parameter dependence</h4>
  
 The choice of impact-parameter dependence is regulated by several
-parameters.
+parameters. The ones listed here refer to nondiffractive topologies
+only, while their equivalents for diffractive events are put in the 
+<a href="Diffraction.html" target="page">Diffraction</a> description. Note that
+there is currently no <code>bProfile = 4</code> option for diffraction.
+Other parameters are assumed to agree between diffractive and 
+nondiffractive topologies.
 
 <p/><code>mode&nbsp; </code><strong> MultipleInteractions:bProfile &nbsp;</strong> 
- (<code>default = <strong>1</strong></code>; <code>minimum = 0</code>; <code>maximum = 3</code>)<br/>
+ (<code>default = <strong>1</strong></code>; <code>minimum = 0</code>; <code>maximum = 4</code>)<br/>
 Choice of impact parameter profile for the incoming hadron beams.
 <br/><code>option </code><strong> 0</strong> : no impact parameter dependence at all.  
 <br/><code>option </code><strong> 1</strong> : a simple Gaussian matter distribution; 
@@ -272,6 +277,12 @@ with the two free parameters <i>coreRadius</i> and
 the matter distributions of the two incoming hadrons, of the form
 <i>exp(- b^expPow)</i>, where <i>expPow</i> is a free 
 parameter.   
+<br/><code>option </code><strong> 4</strong> : a Gaussian matter distribution with a width
+that varies according to the selected <i>x</i> value of an interaction,
+<i>1. + a1 log (1 / x)</i>, where <i>a1</i> is a free parameter.
+Note that once <i>b</i> has been selected for the hard process,
+it remains fixed for the remainder of the evolution.
+  
   
 
 <p/><code>parm&nbsp; </code><strong> MultipleInteractions:coreRadius &nbsp;</strong> 
@@ -300,6 +311,13 @@ at all, <i>bProfile = 0</i>. For small <i>expPow</i> the program
 becomes slow and unstable, so the min limit must be respected.
    
 
+<p/><code>parm&nbsp; </code><strong> MultipleInteractions:a1 &nbsp;</strong> 
+ (<code>default = <strong>1.</strong></code>; <code>minimum = 0.</code>; <code>maximum = 2.</code>)<br/>
+When <i>bProfile = 4</i>, this gives the <i>a1</i> constant in the
+Gaussian width. When <i>a1 = 0.</i>, this reduces back to the single
+Gaussian case.
+  
+
 <h4>Rescattering</h4>
  
 It is possible that a parton may rescatter, i.e. undergo a further
@@ -314,6 +332,9 @@ notably with the <a href="BeamRemnants.html" target="page">beam remnants</a>.
 <p/><code>flag&nbsp; </code><strong> MultipleInteractions:allowRescatter &nbsp;</strong> 
  (<code>default = <strong>off</strong></code>)<br/>
 Switch to allow rescattering of partons; on/off = true/false.<br/>
+<b>Note:</b> the rescattering framework has not yet been implemented
+for the <code>MultipleInteractions:bProfile = 4</code> option,
+and can therefore not be switched on in that case.  
 <b>Warning:</b> use with caution since machinery is still not 
 so well tested.
   
@@ -530,4 +551,4 @@ interactions.
 </body>
 </html>
 
-<!-- Copyright (C) 2010 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2011 Torbjorn Sjostrand -->

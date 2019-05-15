@@ -364,6 +364,15 @@ event record of the outgoing-state parton that rescatters.
 the first or second beam, respectively.
   
 
+<a name="method39"></a>
+<p/><strong>double Info::eMI(i) &nbsp;</strong> <br/>
+The enhancement or depletion of the rate of the <code>i</code>'th 
+subprocess. Is primarily of interest for the 
+<code>MultipleInteractions:bProfile = 4</code> option, where the 
+size of the proton depends on the <i>x</i> values of the colliding
+partons. Note that <code>eMI(0) = enhanceMI()</code>.
+  
+
 <h3>Cross sections</h3>
 
 Here are the currently available methods related to the event sample 
@@ -371,7 +380,7 @@ as a whole. While continuously updated during the run, it is recommended
 only to study these properties at the end of the event generation, 
 when the full statistics is available.
 
-<a name="method39"></a>
+<a name="method40"></a>
 <p/><strong>long Info::nTried() &nbsp;</strong> <br/>
   
 <strong>long Info::nSelected() &nbsp;</strong> <br/>
@@ -388,7 +397,7 @@ echo "<a href='ASecondHardProcess.php?filepath=".$filepath."' target='page'>";?>
 second hard process</a> there may also be a mismatch. 
   
 
-<a name="method40"></a>
+<a name="method41"></a>
 <p/><strong>double Info::sigmaGen() &nbsp;</strong> <br/>
   
 <strong>double Info::sigmaErr() &nbsp;</strong> <br/>
@@ -406,7 +415,7 @@ This may be especially useful in the context of the
 <code><?php $filepath = $_GET["filepath"];
 echo "<a href='UserHooks.php?filepath=".$filepath."' target='page'>";?>User Hooks</a></code> facility.
 
-<a name="method41"></a>
+<a name="method42"></a>
 <p/><strong>int Info::getCounter(int i) &nbsp;</strong> <br/>
 the method that gives you access to the value of the various loop 
 counters.
@@ -510,7 +519,7 @@ that therefore are free to use, with the help of the two methods below.
   
   
 
-<a name="method42"></a>
+<a name="method43"></a>
 <p/><strong>void Info::setCounter(int i, int value = 0) &nbsp;</strong> <br/>
 set the above counters to a given value. Only to be used by you 
 for the unassigned counters 40 - 49.
@@ -520,7 +529,7 @@ for the unassigned counters 40 - 49.
 normally the default value is what you want.
   
 
-<a name="method43"></a>
+<a name="method44"></a>
 <p/><strong>void Info::addCounter(int i, int value = 0) &nbsp;</strong> <br/>
 increase the above counters by a given amount. Only to be used by you 
 for the unassigned counters 40 - 49.
@@ -537,4 +546,4 @@ normally the default value is what you want.
 </body>
 </html>
 
-<!-- Copyright (C) 2010 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2011 Torbjorn Sjostrand -->

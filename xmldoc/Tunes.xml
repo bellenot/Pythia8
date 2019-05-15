@@ -64,7 +64,10 @@ Some comparisons between these tunes and data are published in
 <ref>Cor10a</ref>, and further comparisons have been posted on
 <a href="http://home.thep.lu.se/~richard/pythia81/">   
 http://home.thep.lu.se/~richard/pythia81/</a>.
-Most of the plots have been produced with the Rivet package <ref>Buc10</ref>.
+Most of the plots have been produced with the Rivet package 
+<ref>Buc10</ref>. Following the comparative studies in <ref>Buc11</ref>,
+which independently confirmed a reasonable agreement with LHC data,
+tune 4C has been made the default.
 
 <p/>
 In the future we hope to see further PYTHIA 8 tunes appear. Like with 
@@ -138,7 +141,7 @@ option.
 </option>
 </modepick>
 
-<modepick name="Tune:pp" default="0" min="0" max="5">
+<modepick name="Tune:pp" default="5" min="0" max="5">
 Choice of tune to <ei>pp / ppbar</ei> data, mainly for the 
 initial-state-radiation, multiple-interactions and  beam-remnants
 aspects of PYTHIA. Note that the previous crude (non-)tunes
@@ -165,11 +168,12 @@ unity, which is compensated by a smaller <ei>alpha_s</ei> than in the
 previous tune. Again it is intended to give good agreement with much of 
 the published CDF data.
 </option>
-<option value="5">"Tune 4C", new tune, introduced with 8.145 <ref>Cor10a</ref>. 
-Starts out from tune 2C, but with a reduced cross section for 
-diffraction, plus modified multiple interactions parameters to give
-a higher and more rapidly increasing charged pseudorapidity plateau,
-for better agreement with some early key LHC numbers. 
+<option value="5">"Tune 4C", new tune, introduced with 8.145 
+<ref>Cor10a</ref>. Starts out from tune 2C, but with a reduced cross 
+section for diffraction, plus modified multiple interactions parameters 
+to give a higher and more rapidly increasing charged pseudorapidity 
+plateau, for better agreement with some early key LHC numbers. 
+See also the comparative study in <ref>Buc11</ref>.
 </option>
 
 
@@ -177,4 +181,4 @@ for better agreement with some early key LHC numbers.
 
 </chapter>
 
-<!-- Copyright (C) 2010 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2011 Torbjorn Sjostrand -->

@@ -1,5 +1,5 @@
 // Pythia.h is a part of the PYTHIA event generator.
-// Copyright (C) 2010 Torbjorn Sjostrand.
+// Copyright (C) 2011 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -25,6 +25,7 @@
 #include "ProcessLevel.h"
 #include "PythiaStdlib.h"
 #include "ResonanceWidths.h"
+#include "RHadrons.h"
 #include "Settings.h"
 #include "SigmaTotal.h"
 #include "SpaceShower.h"
@@ -130,6 +131,9 @@ public:
   // Special routine to allow more decays if on/off switches changed.
   bool moreDecays() {return hadronLevel.moreDecays(event);}
 
+  // Special routine to force R-hadron decay when not done before.
+  bool forceRHadronDecays() {return doRHadronDecays();}
+
   // List the current Les Houches event.
   void LHAeventList(ostream& os = cout) {
     if (lhaUpPtr > 0) lhaUpPtr->listEvent(os);}
@@ -166,8 +170,9 @@ public:
   Rndm           rndm;
 
   // Standard Model couplings, including alphaS and alphaEM.
-  Couplings     couplings, *couplingsPtr;
+  Couplings     couplings;
   CoupSUSY      coupSUSY;
+  Couplings*    couplingsPtr;
 
   // SusyLesHouches - SLHA object for interface to SUSY spectra.
   SusyLesHouches slha;
@@ -183,7 +188,7 @@ private:
   // Initialization data, extracted from database.
   string xmlPath;
   bool   doProcessLevel, doPartonLevel, doHadronLevel, checkEvent, 
-         doDiffraction;
+         doDiffraction, decayRHadrons;
   int    nErrList;
   double epTolErr, epTolWarn;
 
@@ -262,6 +267,9 @@ private:
   // The total cross section class is used both on process and parton level.
   SigmaTotal sigmaTot; 
 
+  // The RHadrons class is used both at PartonLevel and HadronLevel.
+  RHadrons   rHadrons;
+
   // Write the Pythia banner, with symbol and version information.
   void banner(ostream& os = cout);
 
@@ -288,6 +296,9 @@ private:
 
   // Boost from CM frame to lab frame, or inverse. Set production vertex.
   void boostAndVertex(bool toLab, bool setVertex);
+
+  // Perform R-hadron decays.
+  bool doRHadronDecays();
 
   // Check that the final event makes sense.
   bool check(ostream& os = cout);

@@ -205,6 +205,7 @@ clean:
 	rm -rf $(LIBDIR)
 	rm -rf $(BINDIR)
 	cd examples; rm -f *.exe; cd -
+	cd rootexamples; rm -f *.exe; cd -
 
 distclean: clean
 	rm -f config.mk
@@ -217,4 +218,5 @@ distclean: clean
 	cd hepmcinterface; rm -f *~; rm -f \#*; cd -
 	cd lhapdfdummy; rm -f *~; rm -f \#*; cd -
 	cd examples; rm -f *~; rm -f \#*; rm -f core*; rm -f config.*; cd -
+	cd rootexamples; rm -f *~; rm -f \#*; rm -f core*; rm -f config.*; cd -
 

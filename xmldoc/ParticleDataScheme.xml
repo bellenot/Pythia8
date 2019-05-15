@@ -74,7 +74,9 @@ with special code 0 for entries of unknown or indeterminate spin.</li>
 integer).</li> 
 
 <li><code>colType</code>: the colour type, with 0 uncoloured, 1 triplet, 
--1 antitriplet and 2 octet.</li> 
+-1 antitriplet and 2 octet. (A preliminary implementation of colour
+  sextets, available since version 8.150, further uses 3 for a sextet
+  and -3 for an antisextet.) </li>  
 
 <li><code>m0</code>: the nominal mass <ei>m_0</ei> (in GeV).</li> 
 
@@ -903,6 +905,11 @@ true for a gluon.
 true for a diquark or antidiquark.
 </method>
 
+<method name="bool ParticleData::isParton()">
+true for a gluon, a quark or antiquark up to the b (but excluding top),
+and a diquark or antidiquark consisting of quarks up to the b.
+</method>
+
 <method name="bool ParticleData::isHadron(int id)">
 true for a hadron (made up out of normal quarks and gluons, 
 i.e. not for R-hadrons and other exotic states).
@@ -1265,6 +1272,11 @@ true for a gluon.
 true for a diquark or antidiquark.
 </method>
 
+<method name="bool ParticleDataEntry::isParton()">
+true for a gluon, a quark or antiquark up to the b (but excluding top),
+and a diquark or antidiquark consisting of quarks up to the b.
+</method>
+
 <method name="bool ParticleDataEntry::isHadron()">
 true for a hadron (made up out of normal quarks and gluons, 
 i.e. not for R-hadrons and other exotic states).
@@ -1495,4 +1507,4 @@ positive and negative particles. For internal use.
 
 </chapter>
 
-<!-- Copyright (C) 2010 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2011 Torbjorn Sjostrand -->

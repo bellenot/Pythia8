@@ -5,19 +5,19 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.145      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 10 Nov 2010  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.150      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 20 Apr 2011  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 11 Nov 2010 at 20:06:12    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 20 Apr 2011 at 12:35:23    |  | 
  |  |                                                                              |  | 
- |  |   Torbjorn Sjostrand;  Department of Theoretical Physics, Lund University,   |  | 
- |  |      Solvegatan 14A, SE-223 62 Lund, Sweden;                                 |  | 
+ |  |   Torbjorn Sjostrand;  Department of Astronomy and Theoretical Physics,      |  | 
+ |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
  |  |      phone: + 46 - 46 - 222 48 16; e-mail: torbjorn@thep.lu.se               |  | 
- |  |   Stefan Ask;  School of Physics and Astronomy, University of Manchester,    |  | 
- |  |      Oxford Road, Manchester M13 9PL, United Kingdom;                        |  | 
- |  |      phone: + 41 - 22 - 767 5670; e-mail: Stefan.Ask@cern.ch                 |  | 
- |  |   Richard Corke;  Department of Theoretical Physics, Lund University,        |  | 
- |  |      Solvegatan 14A, SE-223 62 Lund, Sweden;                                 |  | 
+ |  |   Stefan Ask;  Department of Physics, University of Cambridge,               |  | 
+ |  |      Cavendish Laboratory, JJ Thomson Ave., Cambridge CB3 0HE, UK;           |  | 
+ |  |      phone: + 41 - 22 - 767 6707; e-mail: Stefan.Ask@cern.ch                 |  | 
+ |  |   Richard Corke;  Department of Astronomy and Theoretical Physics,           |  | 
+ |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
  |  |      phone: + 46 - 46 - 222 31 92; e-mail: richard.corke@thep.lu.se          |  | 
  |  |   Stephen Mrenna;  Computing Division, Simulations Group,                    |  | 
  |  |      Fermi National Accelerator Laboratory, MS 234, Batavia, IL 60510, USA;  |  | 
@@ -41,7 +41,7 @@
  |  |   Disclaimer: this program comes without any guarantees.                     |  | 
  |  |   Beware of errors and use common sense when interpreting results.           |  | 
  |  |                                                                              |  | 
- |  |   Copyright (C) 2010 Torbjorn Sjostrand                                      |  | 
+ |  |   Copyright (C) 2011 Torbjorn Sjostrand                                      |  | 
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  *------------------------------------------------------------------------------*  | 
@@ -65,11 +65,11 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | g g -> g g                                     111 |   4.206e+00 |
+ | g g -> g g                                     111 |   4.816e+00 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 4.851e-01 and in Pythia6 was 4.960e-01,
- i.e. now is factor >>> 0.978 <<< different
+ Cross section is 5.911e-01 and in Pythia6 was 4.960e-01,
+ i.e. now is factor >>> 1.192 <<< different
 
  Begin subrun number 1
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -87,13 +87,13 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | g g -> q qbar (uds)                            112 |   4.407e-02 |
- | g g -> c cbar                                  121 |   1.453e-02 |
- | g g -> b bbar                                  123 |   1.351e-02 |
+ | g g -> q qbar (uds)                            112 |   5.395e-02 |
+ | g g -> c cbar                                  121 |   1.779e-02 |
+ | g g -> b bbar                                  123 |   1.652e-02 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 1.572e-02 and in Pythia6 was 1.627e-02,
- i.e. now is factor >>> 0.966 <<< different
+ Cross section is 1.889e-02 and in Pythia6 was 1.627e-02,
+ i.e. now is factor >>> 1.161 <<< different
 
  Begin subrun number 2
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -111,11 +111,11 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | q g -> q g                                     113 |   2.294e+00 |
+ | q g -> q g                                     113 |   2.661e+00 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 2.730e-01 and in Pythia6 was 2.790e-01,
- i.e. now is factor >>> 0.979 <<< different
+ Cross section is 3.200e-01 and in Pythia6 was 2.790e-01,
+ i.e. now is factor >>> 1.147 <<< different
 
  Begin subrun number 3
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -133,11 +133,11 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | q q(bar)' -> q q(bar)'                         114 |   2.149e-01 |
+ | q q(bar)' -> q q(bar)'                         114 |   2.483e-01 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 2.728e-02 and in Pythia6 was 2.800e-02,
- i.e. now is factor >>> 0.974 <<< different
+ Cross section is 3.172e-02 and in Pythia6 was 2.800e-02,
+ i.e. now is factor >>> 1.133 <<< different
 
  Begin subrun number 4
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -155,11 +155,11 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | q qbar -> g g                                  115 |   1.454e-03 |
+ | q qbar -> g g                                  115 |   1.704e-03 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 3.285e-04 and in Pythia6 was 3.310e-04,
- i.e. now is factor >>> 0.992 <<< different
+ Cross section is 3.866e-04 and in Pythia6 was 3.310e-04,
+ i.e. now is factor >>> 1.168 <<< different
 
  Begin subrun number 5
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -177,13 +177,13 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | q qbar -> q' qbar' (uds)                       116 |   6.426e-04 |
- | q qbar -> c cbar                               122 |   2.129e-04 |
- | q qbar -> b bbar                               124 |   2.046e-04 |
+ | q qbar -> q' qbar' (uds)                       116 |   7.451e-04 |
+ | q qbar -> c cbar                               122 |   2.469e-04 |
+ | q qbar -> b bbar                               124 |   2.372e-04 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 3.523e-04 and in Pythia6 was 3.653e-04,
- i.e. now is factor >>> 0.965 <<< different
+ Cross section is 4.114e-04 and in Pythia6 was 3.653e-04,
+ i.e. now is factor >>> 1.126 <<< different
 
  Begin subrun number 6
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -201,11 +201,11 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | q g -> q gamma (udscb)                         201 |   7.203e-04 |
+ | q g -> q gamma (udscb)                         201 |   7.677e-04 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 1.700e-04 and in Pythia6 was 1.697e-04,
- i.e. now is factor >>> 1.002 <<< different
+ Cross section is 1.804e-04 and in Pythia6 was 1.697e-04,
+ i.e. now is factor >>> 1.063 <<< different
 
  Begin subrun number 7
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -223,11 +223,11 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | q qbar -> g gamma                              202 |   3.941e-05 |
+ | q qbar -> g gamma                              202 |   4.253e-05 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 1.153e-05 and in Pythia6 was 1.163e-05,
- i.e. now is factor >>> 0.991 <<< different
+ Cross section is 1.256e-05 and in Pythia6 was 1.163e-05,
+ i.e. now is factor >>> 1.080 <<< different
 
  Begin subrun number 8
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -245,11 +245,11 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | g g -> g gamma                                 203 |   3.443e-07 |
+ | g g -> g gamma                                 203 |   4.534e-07 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 1.047e-07 and in Pythia6 was 1.065e-07,
- i.e. now is factor >>> 0.983 <<< different
+ Cross section is 1.356e-07 and in Pythia6 was 1.065e-07,
+ i.e. now is factor >>> 1.273 <<< different
 
  Begin subrun number 9
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -267,11 +267,11 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | f fbar -> gamma gamma                          204 |   2.920e-07 |
+ | f fbar -> gamma gamma                          204 |   2.910e-07 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 8.335e-08 and in Pythia6 was 8.259e-08,
- i.e. now is factor >>> 1.009 <<< different
+ Cross section is 8.367e-08 and in Pythia6 was 8.259e-08,
+ i.e. now is factor >>> 1.013 <<< different
 
  Begin subrun number 10
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -289,11 +289,11 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | g g -> gamma gamma                             205 |   2.683e-07 |
+ | g g -> gamma gamma                             205 |   3.255e-07 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 8.138e-08 and in Pythia6 was 8.237e-08,
- i.e. now is factor >>> 0.988 <<< different
+ Cross section is 9.759e-08 and in Pythia6 was 8.237e-08,
+ i.e. now is factor >>> 1.185 <<< different
 
  Begin subrun number 11
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -311,11 +311,11 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | f f' -> f f' (t-channel gamma*/Z0)             211 |   1.645e-04 |
+ | f f' -> f f' (t-channel gamma*/Z0)             211 |   1.610e-04 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 2.605e-05 and in Pythia6 was 2.544e-05,
- i.e. now is factor >>> 1.024 <<< different
+ Cross section is 2.602e-05 and in Pythia6 was 2.544e-05,
+ i.e. now is factor >>> 1.023 <<< different
 
  Begin subrun number 12
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -333,11 +333,11 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | f_1 f_2 -> f_3 f_4 (t-channel W+-)             212 |   8.253e-05 |
+ | f_1 f_2 -> f_3 f_4 (t-channel W+-)             212 |   8.285e-05 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 5.416e-06 and in Pythia6 was 5.321e-06,
- i.e. now is factor >>> 1.018 <<< different
+ Cross section is 5.385e-06 and in Pythia6 was 5.321e-06,
+ i.e. now is factor >>> 1.012 <<< different
 
  Begin subrun number 13
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -355,11 +355,11 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | f fbar -> gamma*/Z0                            221 |   1.439e-04 |
+ | f fbar -> gamma*/Z0                            221 |   1.444e-04 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 5.638e-05 and in Pythia6 was 5.571e-05,
- i.e. now is factor >>> 1.012 <<< different
+ Cross section is 5.690e-05 and in Pythia6 was 5.571e-05,
+ i.e. now is factor >>> 1.021 <<< different
 
  Begin subrun number 14
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -377,11 +377,11 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | f fbar' -> W+-                                 222 |   4.493e-04 |
+ | f fbar' -> W+-                                 222 |   4.483e-04 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 1.624e-04 and in Pythia6 was 1.621e-04,
- i.e. now is factor >>> 1.002 <<< different
+ Cross section is 1.631e-04 and in Pythia6 was 1.621e-04,
+ i.e. now is factor >>> 1.006 <<< different
 
  Begin subrun number 15
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -399,11 +399,11 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | f fbar -> gamma*/Z0 gamma*/Z0                  231 |   3.491e-07 |
+ | f fbar -> gamma*/Z0 gamma*/Z0                  231 |   3.496e-07 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 9.226e-09 and in Pythia6 was 9.039e-09,
- i.e. now is factor >>> 1.021 <<< different
+ Cross section is 9.309e-09 and in Pythia6 was 9.039e-09,
+ i.e. now is factor >>> 1.030 <<< different
 
  Begin subrun number 16
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -421,11 +421,11 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | f fbar' -> Z0 W+- (no gamma*!)                 232 |   5.256e-07 |
+ | f fbar' -> Z0 W+- (no gamma*!)                 232 |   5.287e-07 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 2.252e-08 and in Pythia6 was 2.247e-08,
- i.e. now is factor >>> 1.002 <<< different
+ Cross section is 2.270e-08 and in Pythia6 was 2.247e-08,
+ i.e. now is factor >>> 1.010 <<< different
 
  Begin subrun number 17
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -443,11 +443,11 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | f fbar -> W+ W-                                233 |   5.089e-07 |
+ | f fbar -> W+ W-                                233 |   5.072e-07 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 6.045e-08 and in Pythia6 was 5.893e-08,
- i.e. now is factor >>> 1.026 <<< different
+ Cross section is 6.128e-08 and in Pythia6 was 5.893e-08,
+ i.e. now is factor >>> 1.040 <<< different
 
  Begin subrun number 18
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -465,11 +465,11 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | q qbar -> gamma*/Z0 g                          241 |   4.024e-05 |
+ | q qbar -> gamma*/Z0 g                          241 |   4.332e-05 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 3.803e-06 and in Pythia6 was 3.781e-06,
- i.e. now is factor >>> 1.006 <<< different
+ Cross section is 4.098e-06 and in Pythia6 was 3.781e-06,
+ i.e. now is factor >>> 1.084 <<< different
 
  Begin subrun number 19
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -487,11 +487,11 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | q g-> gamma*/Z0 q                              242 |   1.486e-04 |
+ | q g-> gamma*/Z0 q                              242 |   1.625e-04 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 1.094e-05 and in Pythia6 was 1.078e-05,
- i.e. now is factor >>> 1.015 <<< different
+ Cross section is 1.190e-05 and in Pythia6 was 1.078e-05,
+ i.e. now is factor >>> 1.104 <<< different
 
  Begin subrun number 20
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -509,11 +509,11 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | f fbar -> gamma*/Z0 gamma                      243 |   4.808e-07 |
+ | f fbar -> gamma*/Z0 gamma                      243 |   4.835e-07 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 4.649e-08 and in Pythia6 was 4.551e-08,
- i.e. now is factor >>> 1.021 <<< different
+ Cross section is 4.740e-08 and in Pythia6 was 4.551e-08,
+ i.e. now is factor >>> 1.041 <<< different
 
  Begin subrun number 21
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -531,11 +531,11 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | q qbar' -> W+- g                               251 |   5.475e-05 |
+ | q qbar' -> W+- g                               251 |   5.867e-05 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 1.034e-05 and in Pythia6 was 1.025e-05,
- i.e. now is factor >>> 1.009 <<< different
+ Cross section is 1.114e-05 and in Pythia6 was 1.025e-05,
+ i.e. now is factor >>> 1.087 <<< different
 
  Begin subrun number 22
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -553,11 +553,11 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | q g-> W+- q'                                   252 |   2.316e-04 |
+ | q g-> W+- q'                                   252 |   2.517e-04 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 3.174e-05 and in Pythia6 was 3.208e-05,
- i.e. now is factor >>> 0.989 <<< different
+ Cross section is 3.421e-05 and in Pythia6 was 3.208e-05,
+ i.e. now is factor >>> 1.066 <<< different
 
  Begin subrun number 23
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -575,11 +575,11 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | f fbar' -> W+- gamma                           253 |   4.392e-07 |
+ | f fbar' -> W+- gamma                           253 |   4.406e-07 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 5.500e-08 and in Pythia6 was 5.435e-08,
- i.e. now is factor >>> 1.012 <<< different
+ Cross section is 5.560e-08 and in Pythia6 was 5.435e-08,
+ i.e. now is factor >>> 1.023 <<< different
 
  Begin subrun number 24
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -597,29 +597,29 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | g g -> ccbar[3S1(1)] g                         401 |   4.630e-08 |
- | g g -> ccbar[3P0(1)] g                         402 |   5.164e-05 |
- | g g -> ccbar[3P1(1)] g                         403 |   1.819e-04 |
- | g g -> ccbar[3P2(1)] g                         404 |   6.675e-05 |
- | q g -> ccbar[3P0(1)] q                         405 |   1.200e-05 |
- | q g -> ccbar[3P1(1)] q                         406 |   4.237e-05 |
- | q g -> ccbar[3P2(1)] q                         407 |   1.552e-05 |
- | q qbar -> ccbar[3P0(1)] g                      408 |   9.417e-10 |
- | q qbar -> ccbar[3P1(1)] g                      409 |   3.853e-09 |
- | q qbar -> ccbar[3P2(1)] g                      410 |   1.295e-09 |
- | g g -> ccbar[3S1(8)] g                         411 |   6.237e-04 |
- | g g -> ccbar[1S0(8)] g                         412 |   9.824e-06 |
- | g g -> ccbar[3PJ(8)] g                         413 |   1.263e-05 |
- | q g -> ccbar[3S1(8)] q                         414 |   1.496e-04 |
- | q g -> ccbar[1S0(8)] q                         415 |   2.287e-06 |
- | q g -> ccbar[3PJ(8)] q                         416 |   2.938e-06 |
- | q qbar -> ccbar[3S1(8)] g                      417 |   1.907e-07 |
- | q qbar -> ccbar[1S0(8)] g                      418 |   2.019e-10 |
- | q qbar -> ccbar[3PJ(8)] g                      419 |   2.563e-10 |
+ | g g -> ccbar[3S1(1)] g                         401 |   6.068e-08 |
+ | g g -> ccbar[3P0(1)] g                         402 |   6.988e-05 |
+ | g g -> ccbar[3P1(1)] g                         403 |   2.463e-04 |
+ | g g -> ccbar[3P2(1)] g                         404 |   8.384e-05 |
+ | q g -> ccbar[3P0(1)] q                         405 |   1.523e-05 |
+ | q g -> ccbar[3P1(1)] q                         406 |   5.378e-05 |
+ | q g -> ccbar[3P2(1)] q                         407 |   1.970e-05 |
+ | q qbar -> ccbar[3P0(1)] g                      408 |   1.182e-09 |
+ | q qbar -> ccbar[3P1(1)] g                      409 |   4.834e-09 |
+ | q qbar -> ccbar[3P2(1)] g                      410 |   1.625e-09 |
+ | g g -> ccbar[3S1(8)] g                         411 |   7.315e-04 |
+ | g g -> ccbar[1S0(8)] g                         412 |   1.330e-05 |
+ | g g -> ccbar[3PJ(8)] g                         413 |   1.709e-05 |
+ | q g -> ccbar[3S1(8)] q                         414 |   1.890e-04 |
+ | q g -> ccbar[1S0(8)] q                         415 |   2.903e-06 |
+ | q g -> ccbar[3PJ(8)] q                         416 |   3.730e-06 |
+ | q qbar -> ccbar[3S1(8)] g                      417 |   2.430e-07 |
+ | q qbar -> ccbar[1S0(8)] g                      418 |   2.534e-10 |
+ | q qbar -> ccbar[3PJ(8)] g                      419 |   3.216e-10 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 1.020e-04 and in Pythia6 was 1.038e-04,
- i.e. now is factor >>> 0.983 <<< different
+ Cross section is 1.333e-04 and in Pythia6 was 1.038e-04,
+ i.e. now is factor >>> 1.284 <<< different
 
  Begin subrun number 25
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -637,29 +637,29 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | g g -> bbbar[3S1(1)] g                         501 |   6.599e-07 |
- | g g -> bbbar[3P0(1)] g                         502 |   2.316e-05 |
- | g g -> bbbar[3P1(1)] g                         503 |   7.010e-05 |
- | g g -> bbbar[3P2(1)] g                         504 |   3.233e-05 |
- | q g -> bbbar[3P0(1)] q                         505 |   5.383e-06 |
- | q g -> bbbar[3P1(1)] q                         506 |   1.663e-05 |
- | q g -> bbbar[3P2(1)] q                         507 |   1.009e-05 |
- | q qbar -> bbbar[3P0(1)] g                      508 |   2.678e-10 |
- | q qbar -> bbbar[3P1(1)] g                      509 |   2.205e-09 |
- | q qbar -> bbbar[3P2(1)] g                      510 |   8.507e-10 |
- | g g -> bbbar[3S1(8)] g                         511 |   1.771e-04 |
- | g g -> bbbar[1S0(8)] g                         512 |   4.135e-06 |
- | g g -> bbbar[3PJ(8)] g                         513 |   1.364e-05 |
- | q g -> bbbar[3S1(8)] q                         514 |   4.328e-05 |
- | q g -> bbbar[1S0(8)] q                         515 |   9.710e-07 |
- | q g -> bbbar[3PJ(8)] q                         516 |   3.798e-06 |
- | q qbar -> bbbar[3S1(8)] g                      517 |   7.604e-08 |
- | q qbar -> bbbar[1S0(8)] g                      518 |   1.044e-10 |
- | q qbar -> bbbar[3PJ(8)] g                      519 |   3.864e-10 |
+ | g g -> bbbar[3S1(1)] g                         501 |   8.653e-07 |
+ | g g -> bbbar[3P0(1)] g                         502 |   2.845e-05 |
+ | g g -> bbbar[3P1(1)] g                         503 |   8.224e-05 |
+ | g g -> bbbar[3P2(1)] g                         504 |   4.310e-05 |
+ | q g -> bbbar[3P0(1)] q                         505 |   6.836e-06 |
+ | q g -> bbbar[3P1(1)] q                         506 |   2.110e-05 |
+ | q g -> bbbar[3P2(1)] q                         507 |   1.281e-05 |
+ | q qbar -> bbbar[3P0(1)] g                      508 |   3.358e-10 |
+ | q qbar -> bbbar[3P1(1)] g                      509 |   2.766e-09 |
+ | q qbar -> bbbar[3P2(1)] g                      510 |   1.067e-09 |
+ | g g -> bbbar[3S1(8)] g                         511 |   2.390e-04 |
+ | g g -> bbbar[1S0(8)] g                         512 |   5.581e-06 |
+ | g g -> bbbar[3PJ(8)] g                         513 |   1.745e-05 |
+ | q g -> bbbar[3S1(8)] q                         514 |   5.467e-05 |
+ | q g -> bbbar[1S0(8)] q                         515 |   1.232e-06 |
+ | q g -> bbbar[3PJ(8)] q                         516 |   4.825e-06 |
+ | q qbar -> bbbar[3S1(8)] g                      517 |   9.669e-08 |
+ | q qbar -> bbbar[1S0(8)] g                      518 |   1.310e-10 |
+ | q qbar -> bbbar[3PJ(8)] g                      519 |   4.847e-10 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 3.806e-05 and in Pythia6 was 3.929e-05,
- i.e. now is factor >>> 0.969 <<< different
+ Cross section is 4.970e-05 and in Pythia6 was 3.929e-05,
+ i.e. now is factor >>> 1.265 <<< different
 
  Begin subrun number 26
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -677,11 +677,11 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | g g -> t tbar                                  601 |   4.994e-06 |
+ | g g -> t tbar                                  601 |   5.644e-06 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 4.027e-07 and in Pythia6 was 4.155e-07,
- i.e. now is factor >>> 0.969 <<< different
+ Cross section is 4.684e-07 and in Pythia6 was 4.155e-07,
+ i.e. now is factor >>> 1.127 <<< different
 
  Begin subrun number 27
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -699,11 +699,11 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | q qbar -> t tbar                               602 |   7.207e-07 |
+ | q qbar -> t tbar                               602 |   8.101e-07 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 6.612e-08 and in Pythia6 was 6.685e-08,
- i.e. now is factor >>> 0.989 <<< different
+ Cross section is 7.438e-08 and in Pythia6 was 6.685e-08,
+ i.e. now is factor >>> 1.113 <<< different
 
  Begin subrun number 28
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -721,11 +721,11 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | q q -> t q (t-channel W+-)                     603 |   4.953e-06 |
+ | q q -> t q (t-channel W+-)                     603 |   5.215e-06 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 1.914e-07 and in Pythia6 was 1.898e-07,
- i.e. now is factor >>> 1.008 <<< different
+ Cross section is 2.020e-07 and in Pythia6 was 1.898e-07,
+ i.e. now is factor >>> 1.064 <<< different
 
  Begin subrun number 29
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -743,11 +743,11 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | f fbar -> t tbar (s-channel gamma*/Z0)         604 |   6.207e-09 |
+ | f fbar -> t tbar (s-channel gamma*/Z0)         604 |   6.200e-09 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 4.187e-10 and in Pythia6 was 4.240e-10,
- i.e. now is factor >>> 0.988 <<< different
+ Cross section is 4.219e-10 and in Pythia6 was 4.240e-10,
+ i.e. now is factor >>> 0.995 <<< different
 
  Begin subrun number 30
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -765,13 +765,13 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | f fbar -> t qbar (s-channel W+-)               605 |   1.227e-07 |
+ | f fbar -> t qbar (s-channel W+-)               605 |   1.240e-07 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
  PYTHIA Warning in PhaseSpace2to2tauyz::trialKin: maximum for cross section violated  
  PYTHIA Error in ResonanceDecays::next: failed to find workable decay channel  
- Cross section is 7.212e-09 and in Pythia6 was 7.142e-09,
- i.e. now is factor >>> 1.010 <<< different
+ Cross section is 7.263e-09 and in Pythia6 was 7.142e-09,
+ i.e. now is factor >>> 1.017 <<< different
 
  Begin subrun number 31
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -789,11 +789,11 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | f fbar -> H (SM)                               901 |   5.363e-10 |
+ | f fbar -> H (SM)                               901 |   6.081e-10 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 1.699e-10 and in Pythia6 was 1.547e-10,
- i.e. now is factor >>> 1.098 <<< different
+ Cross section is 1.919e-10 and in Pythia6 was 1.547e-10,
+ i.e. now is factor >>> 1.241 <<< different
 
  Begin subrun number 32
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -811,11 +811,11 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | g g -> H (SM)                                  902 |   2.388e-08 |
+ | g g -> H (SM)                                  902 |   2.851e-08 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 7.819e-09 and in Pythia6 was 7.064e-09,
- i.e. now is factor >>> 1.107 <<< different
+ Cross section is 9.291e-09 and in Pythia6 was 7.064e-09,
+ i.e. now is factor >>> 1.315 <<< different
 
  Begin subrun number 33
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -833,11 +833,11 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | f fbar -> H0 Z0 (SM)                           904 |   1.748e-09 |
+ | f fbar -> H0 Z0 (SM)                           904 |   1.755e-09 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 1.387e-10 and in Pythia6 was 1.316e-10,
- i.e. now is factor >>> 1.054 <<< different
+ Cross section is 1.388e-10 and in Pythia6 was 1.316e-10,
+ i.e. now is factor >>> 1.055 <<< different
 
  Begin subrun number 34
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -855,10 +855,10 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | f fbar -> H0 W+- (SM)                          905 |   3.232e-09 |
+ | f fbar -> H0 W+- (SM)                          905 |   3.248e-09 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 2.492e-10 and in Pythia6 was 2.332e-10,
+ Cross section is 2.493e-10 and in Pythia6 was 2.332e-10,
  i.e. now is factor >>> 1.069 <<< different
 
  Begin subrun number 35
@@ -877,11 +877,11 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | f f' -> H0 f f'(Z0 Z0 fusion) (SM)             906 |   1.556e-08 |
+ | f f' -> H0 f f'(Z0 Z0 fusion) (SM)             906 |   1.444e-08 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 5.310e-10 and in Pythia6 was 5.105e-10,
- i.e. now is factor >>> 1.040 <<< different
+ Cross section is 5.228e-10 and in Pythia6 was 5.105e-10,
+ i.e. now is factor >>> 1.024 <<< different
 
  Begin subrun number 36
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -899,11 +899,11 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | f_1 f_2 -> H0 f_3 f_4 (W+ W- fusion) (SM)      907 |   3.601e-08 |
+ | f_1 f_2 -> H0 f_3 f_4 (W+ W- fusion) (SM)      907 |   3.437e-08 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 1.351e-09 and in Pythia6 was 1.316e-09,
- i.e. now is factor >>> 1.027 <<< different
+ Cross section is 1.311e-09 and in Pythia6 was 1.316e-09,
+ i.e. now is factor >>> 0.996 <<< different
 
  Begin subrun number 37
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -921,12 +921,12 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | c g -> H c (SM)                                911 |   3.466e-11 |
- | b g -> H b (SM)                                911 |   3.995e-10 |
+ | c g -> H c (SM)                                911 |   4.016e-11 |
+ | b g -> H b (SM)                                911 |   4.551e-10 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 5.017e-11 and in Pythia6 was 4.462e-11,
- i.e. now is factor >>> 1.124 <<< different
+ Cross section is 5.823e-11 and in Pythia6 was 4.462e-11,
+ i.e. now is factor >>> 1.305 <<< different
 
  Begin subrun number 38
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -944,11 +944,11 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | g g -> H g (SM; top loop)                      914 |   4.223e-08 |
+ | g g -> H g (SM; top loop)                      914 |   5.122e-08 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 5.918e-09 and in Pythia6 was 5.557e-09,
- i.e. now is factor >>> 1.065 <<< different
+ Cross section is 7.383e-09 and in Pythia6 was 5.557e-09,
+ i.e. now is factor >>> 1.329 <<< different
 
  Begin subrun number 39
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -966,11 +966,11 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | q g -> H q (SM; top loop)                      915 |   3.282e-08 |
+ | q g -> H q (SM; top loop)                      915 |   3.992e-08 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 2.111e-09 and in Pythia6 was 1.966e-09,
- i.e. now is factor >>> 1.074 <<< different
+ Cross section is 2.582e-09 and in Pythia6 was 1.966e-09,
+ i.e. now is factor >>> 1.313 <<< different
 
  Begin subrun number 40
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -988,11 +988,11 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | q qbar -> H g (SM; top loop)                   916 |   1.392e-10 |
+ | q qbar -> H g (SM; top loop)                   916 |   1.636e-10 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 9.352e-12 and in Pythia6 was 8.725e-12,
- i.e. now is factor >>> 1.072 <<< different
+ Cross section is 1.105e-11 and in Pythia6 was 8.725e-12,
+ i.e. now is factor >>> 1.266 <<< different
 
  Begin subrun number 41
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 25
@@ -1011,20 +1011,19 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | f fbar -> h0(H1)                              1001 |   4.017e-09 |
- | g g -> h0(H1)                                 1002 |   6.254e-08 |
+ | f fbar -> h0(H1)                              1001 |   4.527e-09 |
+ | g g -> h0(H1)                                 1002 |   7.548e-08 |
  | gamma gamma -> h0(H1)                         1003 |   0.000e+00 |
- | f fbar -> h0(H1) Z0                           1004 |   6.337e-09 |
- | f fbar -> h0(H1) W+-                          1005 |   1.182e-08 |
- | f f' -> h0(H1) f f' (Z0 Z0 fusion)            1006 |   1.943e-08 |
- | f_1 f_2 -> h0(H1) f_3 f_4 (W+ W- fusion)      1007 |   5.016e-08 |
- | g g -> h0(H1) t tbar                          1008 |   4.415e-08 |
- | q qbar -> h0(H1) t tbar                       1009 |   4.146e-08 |
+ | f fbar -> h0(H1) Z0                           1004 |   6.413e-09 |
+ | f fbar -> h0(H1) W+-                          1005 |   1.198e-08 |
+ | f f' -> h0(H1) f f' (Z0 Z0 fusion)            1006 |   2.226e-08 |
+ | f_1 f_2 -> h0(H1) f_3 f_4 (W+ W- fusion)      1007 |   4.889e-08 |
+ | g g -> h0(H1) t tbar                          1008 |   1.698e-07 |
+ | q qbar -> h0(H1) t tbar                       1009 |   4.197e-08 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- PYTHIA Warning in PhaseSpace2to2tauyz::trialKin: maximum for cross section violated  
- Cross section is 2.811e-08 and in Pythia6 was 2.450e-08,
- i.e. now is factor >>> 1.148 <<< different
+ Cross section is 3.231e-08 and in Pythia6 was 2.450e-08,
+ i.e. now is factor >>> 1.319 <<< different
 
  Begin subrun number 42
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -1043,19 +1042,19 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | f fbar -> H0(H2)                              1021 |   1.106e-10 |
- | g g -> H0(H2)                                 1022 |   1.947e-08 |
+ | f fbar -> H0(H2)                              1021 |   1.244e-10 |
+ | g g -> H0(H2)                                 1022 |   2.661e-08 |
  | gamma gamma -> H0(H2)                         1023 |   0.000e+00 |
- | f fbar -> H0(H2) Z0                           1024 |   4.418e-10 |
- | f fbar -> H0(H2) W+-                          1025 |   8.230e-10 |
- | f f' -> H0(H2) f f' (Z0 Z0 fusion)            1026 |   7.876e-09 |
- | f_1 f_2 -> H0(H2) f_3 f_4 (W+ W- fusion)      1027 |   1.970e-08 |
- | g g -> H0(H2) t tbar                          1028 |   2.025e-09 |
- | q qbar -> H0(H2) t tbar                       1029 |   4.367e-09 |
+ | f fbar -> H0(H2) Z0                           1024 |   4.385e-10 |
+ | f fbar -> H0(H2) W+-                          1025 |   8.179e-10 |
+ | f f' -> H0(H2) f f' (Z0 Z0 fusion)            1026 |   8.572e-09 |
+ | f_1 f_2 -> H0(H2) f_3 f_4 (W+ W- fusion)      1027 |   2.317e-08 |
+ | g g -> H0(H2) t tbar                          1028 |   4.003e-09 |
+ | q qbar -> H0(H2) t tbar                       1029 |   2.437e-09 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 5.973e-09 and in Pythia6 was 5.839e-09,
- i.e. now is factor >>> 1.023 <<< different
+ Cross section is 6.741e-09 and in Pythia6 was 5.839e-09,
+ i.e. now is factor >>> 1.154 <<< different
 
  Begin subrun number 43
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -1074,19 +1073,19 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | f fbar -> A0(A3)                              1041 |   1.086e-10 |
- | g g -> A0(A3)                                 1042 |   1.060e-07 |
+ | f fbar -> A0(A3)                              1041 |   1.222e-10 |
+ | g g -> A0(A3)                                 1042 |   2.776e-07 |
  | gamma gamma -> A0(A3)                         1043 |   0.000e+00 |
  | f fbar -> A0(A3) ZO                           1044 |   0.000e+00 |
  | f fbar -> A0(A3) W+-                          1045 |   0.000e+00 |
  | f f' -> A0(A3) f f' (Z0 Z0 fusion)            1046 |   0.000e+00 |
  | f_1 f_2 -> A0(A3) f_3 f_4 (W+ W- fusion)      1047 |   0.000e+00 |
- | g g -> A0(A3) t tbar                          1048 |   4.799e-08 |
- | q qbar -> A0(A3) t tbar                       1049 |   2.888e-09 |
+ | g g -> A0(A3) t tbar                          1048 |   3.694e-09 |
+ | q qbar -> A0(A3) t tbar                       1049 |   3.721e-09 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 1.815e-08 and in Pythia6 was 1.687e-08,
- i.e. now is factor >>> 1.076 <<< different
+ Cross section is 2.093e-08 and in Pythia6 was 1.687e-08,
+ i.e. now is factor >>> 1.240 <<< different
 
  Begin subrun number 44
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -1104,12 +1103,12 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | f fbar' -> H+-                                 961 |   5.458e-12 |
- | b g -> H+- t                                  1062 |   1.493e-09 |
+ | f fbar' -> H+-                                 961 |   5.858e-12 |
+ | b g -> H+- t                                  1062 |   1.696e-09 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 8.025e-11 and in Pythia6 was 8.950e-11,
- i.e. now is factor >>> 0.897 <<< different
+ Cross section is 8.897e-11 and in Pythia6 was 8.950e-11,
+ i.e. now is factor >>> 0.994 <<< different
 
  Begin subrun number 45
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -1127,15 +1126,15 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | f fbar -> A0(H3) h0(H1)                       1081 |   1.875e-10 |
- | f fbar -> A0(H3) H0(H2)                       1082 |   7.994e-11 |
- | f fbar' -> H+- h0(H1)                         1083 |   2.801e-10 |
+ | f fbar -> A0(H3) h0(H1)                       1081 |   1.850e-10 |
+ | f fbar -> A0(H3) H0(H2)                       1082 |   7.804e-11 |
+ | f fbar' -> H+- h0(H1)                         1083 |   2.764e-10 |
  | f fbar' -> H+- H0(H2)                         1084 |   0.000e+00 |
- | f fbar -> H+ H-                               1085 |   5.418e-11 |
+ | f fbar -> H+ H-                               1085 |   5.319e-11 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 4.266e-11 and in Pythia6 was 4.188e-11,
- i.e. now is factor >>> 1.019 <<< different
+ Cross section is 4.217e-11 and in Pythia6 was 4.188e-11,
+ i.e. now is factor >>> 1.007 <<< different
 
  Begin subrun number 46
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -1153,11 +1152,11 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | f fbar -> gamma*/Z0/Zprime0                   3001 |   6.254e-07 |
+ | f fbar -> gamma*/Z0/Zprime0                   3001 |   6.242e-07 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 1.995e-07 and in Pythia6 was 1.980e-07,
- i.e. now is factor >>> 1.007 <<< different
+ Cross section is 1.997e-07 and in Pythia6 was 1.980e-07,
+ i.e. now is factor >>> 1.009 <<< different
 
  Begin subrun number 47
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -1175,11 +1174,11 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | f fbar' -> W'+-                               3021 |   1.349e-06 |
+ | f fbar' -> W'+-                               3021 |   1.353e-06 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 4.621e-07 and in Pythia6 was 4.551e-07,
- i.e. now is factor >>> 1.015 <<< different
+ Cross section is 4.608e-07 and in Pythia6 was 4.551e-07,
+ i.e. now is factor >>> 1.012 <<< different
 
  Begin subrun number 48
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -1197,11 +1196,11 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | f fbar -> Z_R^0                               3101 |   2.075e-08 |
+ | f fbar -> Z_R^0                               3101 |   2.012e-08 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 6.073e-09 and in Pythia6 was 6.005e-09,
- i.e. now is factor >>> 1.011 <<< different
+ Cross section is 5.842e-09 and in Pythia6 was 6.005e-09,
+ i.e. now is factor >>> 0.973 <<< different
 
  Begin subrun number 49
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -1219,11 +1218,11 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | f fbar' -> W_R^+-                             3102 |   3.489e-07 |
+ | f fbar' -> W_R^+-                             3102 |   3.456e-07 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 1.107e-07 and in Pythia6 was 1.102e-07,
- i.e. now is factor >>> 1.005 <<< different
+ Cross section is 1.091e-07 and in Pythia6 was 1.102e-07,
+ i.e. now is factor >>> 0.990 <<< different
 
  Begin subrun number 50
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -1241,11 +1240,11 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | f fbar -> H_L^++ H_L^--                       3126 |   1.451e-09 |
+ | f fbar -> H_L^++ H_L^--                       3126 |   1.436e-09 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 7.836e-11 and in Pythia6 was 7.784e-11,
- i.e. now is factor >>> 1.007 <<< different
+ Cross section is 7.769e-11 and in Pythia6 was 7.784e-11,
+ i.e. now is factor >>> 0.998 <<< different
 
  Begin subrun number 51
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -1263,11 +1262,11 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | f fbar -> H_R^++ H_R^--                       3146 |   6.502e-10 |
+ | f fbar -> H_R^++ H_R^--                       3146 |   6.431e-10 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 3.526e-11 and in Pythia6 was 3.488e-11,
- i.e. now is factor >>> 1.011 <<< different
+ Cross section is 3.524e-11 and in Pythia6 was 3.488e-11,
+ i.e. now is factor >>> 1.010 <<< different
 
  Begin subrun number 52
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -1286,13 +1285,13 @@
  |------------------------------------------------------------------|
  |                                                    |             |
  | q l -> LQ (leptoquark)                        3201 |   0.000e+00 |
- | q g -> LQ l (leptoquark)                      3202 |   2.719e-07 |
- | g g -> LQ LQbar (leptoquark)                  3203 |   4.512e-07 |
- | q qbar -> LQ LQbar (leptoquark)               3204 |   6.846e-08 |
+ | q g -> LQ l (leptoquark)                      3202 |   2.879e-07 |
+ | g g -> LQ LQbar (leptoquark)                  3203 |   5.223e-07 |
+ | q qbar -> LQ LQbar (leptoquark)               3204 |   7.513e-08 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 5.879e-08 and in Pythia6 was 6.006e-08,
- i.e. now is factor >>> 0.979 <<< different
+ Cross section is 6.622e-08 and in Pythia6 was 6.006e-08,
+ i.e. now is factor >>> 1.103 <<< different
 
  Begin subrun number 53
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -1310,11 +1309,11 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | d g -> d^*                                    4001 |   9.072e-06 |
+ | d g -> d^*                                    4001 |   9.661e-06 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 3.301e-06 and in Pythia6 was 3.235e-06,
- i.e. now is factor >>> 1.020 <<< different
+ Cross section is 3.476e-06 and in Pythia6 was 3.235e-06,
+ i.e. now is factor >>> 1.075 <<< different
 
  Begin subrun number 54
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -1332,11 +1331,11 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | q q -> d^* q                                  4021 |   3.850e-04 |
+ | q q -> d^* q                                  4021 |   3.694e-04 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 1.926e-05 and in Pythia6 was 1.689e-05,
- i.e. now is factor >>> 1.140 <<< different
+ Cross section is 1.855e-05 and in Pythia6 was 1.689e-05,
+ i.e. now is factor >>> 1.098 <<< different
 
  Begin subrun number 55
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -1354,11 +1353,11 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | q qbar -> e^*+- e^-+                          4031 |   2.379e-05 |
+ | q qbar -> e^*+- e^-+                          4031 |   2.264e-05 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 5.907e-07 and in Pythia6 was 5.986e-07,
- i.e. now is factor >>> 0.987 <<< different
+ Cross section is 5.661e-07 and in Pythia6 was 5.986e-07,
+ i.e. now is factor >>> 0.946 <<< different
 
  Begin subrun number 56
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
@@ -1376,9 +1375,9 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | g g -> G*                                     5001 |   9.024e-10 |
- | f fbar -> G*                                  5002 |   1.699e-10 |
+ | g g -> G*                                     5001 |   8.725e-10 |
+ | f fbar -> G*                                  5002 |   1.660e-10 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 3.258e-10 and in Pythia6 was 3.241e-10,
- i.e. now is factor >>> 1.005 <<< different
+ Cross section is 3.110e-10 and in Pythia6 was 3.241e-10,
+ i.e. now is factor >>> 0.959 <<< different

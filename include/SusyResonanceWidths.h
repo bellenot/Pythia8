@@ -1,5 +1,6 @@
-// ResonanceWidths.h is a part of the PYTHIA event generator.
-// Copyright (C) 2010 
+// SusyResonanceWidths.h is a part of the PYTHIA event generator.
+// Copyright (C) 2011 Torbjorn Sjostrand
+// Main author of this file: N. Desai
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -19,7 +20,88 @@ class ParticleData;
 
 //==========================================================================
 
+
+//--------------------------------------------------------------------------
+
+class WidthFunction {
+
+public:
+
+  //Constructor
+  WidthFunction(){};
+
+  void init( ParticleData* particleDataPtrIn, CoupSUSY* coupSUSYPtrIn);
+
+  virtual void setInternal(int idResIn, int id1In, int id2In, int id3In, int idIntIn){ 
+    setInternal2(idResIn, id1In, id2In, id3In, idIntIn);}
+
+  virtual double function(double m12);
+  virtual double function(double m12, double m23);
+  
+protected:
+
+  void setInternal2(int idResIn, int id1In, int id2In, int id3In, int idIntIn);
+
+  ParticleData* particleDataPtr;
+  CoupSUSY* coupSUSYPtr;
+  int id1,id2,id3;
+
+  //Variables for 3-body decays
+  double mRes, mInt, gammaInt, m1,m2,m3;
+  int idRes, idInt,iSq,iQ,iX;
+  bool isSqDown;
+
+};
+
+//--------------------------------------------------------------------------
+
+class Psi: public WidthFunction {
+
+public:
+  virtual void setInternal(int idResIn, int id1In, int id2In, int id3In, int idIntIn);
+  virtual double function(double m12);
+
+};
+
+
+//--------------------------------------------------------------------------
+
+class Upsilon: public WidthFunction {
+
+public:
+  virtual void setInternal(int idResIn, int id1In, int id2In, int id3In, int idIntIn, int idInt2);
+  virtual double function(double m12);
+
+protected:
+  int iSq2, idInt2;
+  double mInt2, gammaInt2;
+
+};
+
+
+//--------------------------------------------------------------------------
+class Phi: public WidthFunction {
+
+public:
+  virtual void setInternal(int idResIn, int id1In, int id2In, int id3In, int idIntIn, int idInt2);
+  virtual double function(double m12sqIn);
+
+protected:
+  int iSq2, idInt2;
+  double mInt2, gammaInt2, m12sq;
+
+
+private:
+  double function2(double m23sq);
+  double integrateGauss(double m23min, double m23max, double tol);
+
+};
+
+//==========================================================================
+
 class SUSYResonanceWidths : public ResonanceWidths{
+
+//--------------------------------------------------------------------------
 
 public:
   SUSYResonanceWidths(){}
@@ -34,11 +116,14 @@ protected:
 
   virtual bool init(Info* infoPtrIn, Settings* settingsPtrIn,
 	    ParticleData* particleDataPtrIn, Couplings* couplingsPtrIn);
+
+  // Gaussian integrator
+  double integrateGauss( WidthFunction* widthFn, double, double, double);
   
   //SUSY couplings
   CoupSUSY* coupSUSYPtr;
+  
   static const bool DEBUG;
-
 
 };
 
@@ -135,6 +220,11 @@ private:
 
   double s2W;
 
+  //Functions for 3-body decays
+  Psi psi;
+  Phi phi;
+  Upsilon upsil;
+
 };
   
 //==========================================================================
@@ -168,8 +258,14 @@ private:
 
   double s2W;
 
+  //Functions for 3-body decays
+  Psi psi;
+  Phi phi;
+  Upsilon upsil;
+
 };
   
+
 //==========================================================================
 
 } // end namespace Pythia8

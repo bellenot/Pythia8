@@ -206,6 +206,16 @@ distances can either be given in terms of a scaled quadratic quantity
 like <ei>y = pT^2/E^2</ei> or an unscaled linear one like <ei>pT</ei>. 
 
 <p/>  
+Note that we have deliberately chosen not to include the <ei>e^+e^-</ei> 
+equivalents of the Cambridge/Aachen and anti-<ei>kRT</ei> algorithms. 
+These tend to be good at clustering the densely populated (in angle) 
+cores of jets, but less successful for the sparsely populated transverse
+regions, where many jets may come to consist of a single low-momentum
+particle. In hadron collisions such jets could easily be disregarded,
+while in <ei>e^+e^-</ei> annihilation all particles derive back from the
+hard process.
+
+<p/>  
 To do jet finding analyses you have to set up a <code>ClusterJet</code>
 instance, and then feed in events to it, one at a time. The results 
 for the latest event are available as output from a few methods.
@@ -297,12 +307,16 @@ class methods are available to return the result of the analysis:
 
 <method name="int ClusterJet::size()">
 gives the number of jets found, with jets numbered 0 through 
-<code>size() - 1</code>,
+<code>size() - 1</code>.
 </method>
 
 <method name="Vec4 ClusterJet::p(int i)">
 gives a <code>Vec4</code> corresponding to the four-momentum defined by 
-the sum of all the contributing particles to the <ei>i</ei>'th jet,
+the sum of all the contributing particles to the <ei>i</ei>'th jet.
+</method>
+
+<method name="int ClusterJet::mult(int i)">
+the number of particles that have been clustered into the <ei>i</ei>'th jet.
 </method>
 
 <method name="int ClusterJet::jetAssignment(int i)">
@@ -509,4 +523,4 @@ events, i.e. returned <code>false</code>.
 
 </chapter>
 
-<!-- Copyright (C) 2010 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2011 Torbjorn Sjostrand -->

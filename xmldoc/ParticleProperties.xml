@@ -143,7 +143,27 @@ In detail, the list of used or foreseen status codes is:
            happening after decays of short-lived resonances but before
            decays of longer-lived particles)</li>
   </ul>
-<li>101 - 199 : reserved for future expansion</li>
+<li>101 - 109 : particles in the handling of R-hadron production and 
+  decay, i.e. long-lived (or stable) particles containing a very heavy
+  flavour</li>
+  <ul>
+  <li>101 : when a string system contains two such long-lived particles,
+            the system is split up by the production of a new q-qbar
+            pair (bookkept as decay chains that seemingly need not conserve
+            flavour etc., but do when considered together)</li>
+  <li>102 : partons rearranged from the long-lived particle end to prepare
+            for fragmentation from this end</li>
+  <li>103 : intermediate "half-R-hadron" formed when a colour octet particle
+            (like the gluino) has been fragmented on one side, but not yet on
+            the other</li>
+  <li>104 : an R-hadron</li>
+  <li>105 : partons or particles formed together with the R-hadron during
+            the fragmentation treatment</li>
+  <li>106 : subdivision of an R-hadron into its flavour content, with
+           momentum split accordingly, in preparation of the decay of 
+           the heavy new particle, if it is unstable</li>
+  </ul>
+<li>111 - 199 : reserved for future expansion</li>
 <li>201 - : free to be used by anybody</li>   
 </ul>
 </method>
@@ -224,6 +244,10 @@ with the beam as mother, with no further information).
 <methodmore name="int Particle::acol()"> 
 the colour and anticolour tags, Les Houches Accord <ref>Boo01</ref> 
 style (starting from tag 101 by default, see below).
+<note>Note:</note> in the preliminary implementation of colour sextets
+(exotic BSM particles) that exists since PYTHIA 8.150, a negative
+anticolour tag is interpreted as an additional positive colour tag,
+and vice versa.  
 </methodmore>
 
 <method name="double Particle::px()">
@@ -474,7 +498,8 @@ charge different from or equal to 0.
 
 <method name="int Particle::colType()">
 0 for colour singlets, 1 for triplets, 
--1 for antitriplets and 2 for octets.
+-1 for antitriplets and 2 for octets. (A preliminary implementation of
+colour sextets also exists, using 3 for sextets and -3 for antisextets.)
 </method>
 
 <method name="double Particle::m0()">
@@ -541,6 +566,15 @@ true for a quark or an antiquark.
 
 <method name="bool Particle::isGluon()">
 true for a gluon.
+</method>
+
+<method name="bool Particle::isDiquark()">
+true for a diquark or an antidiquark.
+</method>
+
+<method name="bool Particle::isParton()">
+true for a gluon, a quark or antiquark up to the b (but excluding top),
+and a diquark or antidiquark consisting of quarks up to the b.
 </method>
 
 <method name="bool Particle::isHadron()">
@@ -684,5 +718,5 @@ Currently there is no information on polarization states.
 
 </chapter>
 
-<!-- Copyright (C) 2010 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
 

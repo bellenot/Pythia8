@@ -1,5 +1,5 @@
 // MultipleInteractions.h is a part of the PYTHIA event generator.
-// Copyright (C) 2010 Torbjorn Sjostrand.
+// Copyright (C) 2011 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -159,6 +159,35 @@ private:
   double alphaSvalue, Kfactor, pT0Ref, ecmRef, ecmPow, pTmin, coreRadius, 
          coreFraction, expPow, ySepResc, deltaYResc, sigmaPomP, 
          mMaxPertDiff, mMinPertDiff;
+
+  // x-dependent matter profile --rjc
+  // XDEP_BBIN:   number of bins in b to use for integration
+  // XDEP_A0:     starting value of a0
+  // XDEP_A1:     form of width = a0 * ( XDEP_A1 + a1 * log(1 / x) )
+  // XDEP_BSTEP:  size of step to take in b for integration
+  // XDEP_CUTOFF: accept Int( dSigma/dX * O(b, X), dX ) when after
+  //              XDEP_BBIN bins, it has fallen below XDEP_CUTOFF,
+  //              otherwise increase bstepNow by XDEP_BSTEP and try
+  //              again
+  // XDEP_WARN:   warn if overlap correction weight is greater than
+  //              XDEP_WARN
+#define XDEP_BBIN 500
+  static const double XDEP_A0, XDEP_A1, XDEP_BSTEP, XDEP_CUTOFF, XDEP_WARN;
+  // a0now (a02now): tuned value of a0 (squared value)
+  // a1:             value of a1 constant, taken from settings database
+  // a2max:          given an xMin, a maximal (squared) value of the
+  //                 width, to be used in overestimate Omax(b)
+  // enhanceBmax,    
+  // enhanceBnow:    retain enhanceB as enhancement factor for the hardest
+  //                 interaction. Use enhanceBmax as overestimate for fastPT2,
+  //                 and enhanceBnow to store the correct value for the current
+  //                 interaction
+  double a0now, a02now, a1, bstepNow, a2max, b2now, enhanceBmax, enhanceBnow;
+  // sigmaIntWgt:    table of Int( dSigma/dX * O(b, X), dX ) in bins
+  //                 of b, for fast integration
+  // sudExpWgtPT:    table of Int( dSigma/dX * O(b, X), {dX, pT2, pT2max} )
+  //                 in bins of b and pT2
+  double sigmaIntWgt[XDEP_BBIN], sudExpWgtPT[XDEP_BBIN][101];
 
   // Other initialization data.
   bool   hasBaryonBeams, hasLowPow;

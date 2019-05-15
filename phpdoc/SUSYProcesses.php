@@ -27,18 +27,8 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 
 <form method='post' action='SUSYProcesses.php'>
 
-<h2>SUSY Processes</h2>
-
-The implementation of SUSY processes was only recently completed, and
-hence case-by-case validations against other codes are still
-recommended. In all cases, a set of default validations have already been
-carried out by the authors. These validations compared to the PYTHIA 6
-SUSY implementation, using an sps1a spectrum. Most of the
-SLHA2-specific extensions have  not been explicitly validated,
-however, with the exception of the R-parity violating single-sparticle
-production cross sections.
-
-<p/>
+<h2>SUSY</h2>
+<p>
 Here is collected processes involving supersymmetric particle 
 production, with the exception of the (extended) Higgs sector.
 Since the number of separate but closely related processes is so big,
@@ -48,8 +38,29 @@ switches <code>SUSY:idA</code> and <code>SUSY:idB</code> may be used in
 conjunction with any of these groups to provide some additional
 flexibility to concentrate on processes involving only specific (s)particle
 final states, see below. 
+</p>
 
-<br/><br/><b>Important note:</b> 
+<p>
+Most of the SUSY implementation in PYTHIA 8 has been written by
+N. Desai, in combination with an MCnet studentship at CERN in
+2010, with further work having been carried out during 2011. 
+The implementation is documented in [<a href="Bibliography.php" target="page">Des11</a>]. Please give due
+credit to external contributions to PYTHIA 8, such as this one, by
+including the original work in your list of references when using this
+implementation. 
+</p>
+
+<p>Since the implementation of SUSY processes was only recently
+completed [<a href="Bibliography.php" target="page">Des11</a>], case-by-case validations against other codes are still
+recommended. In all cases, a set of default validations have already been
+carried out by the authors. These validations compared to the PYTHIA 6
+SUSY implementation, using an sps1a spectrum. Most of the
+SLHA2-specific extensions have  not been explicitly validated,
+however, with the exception of the R-parity violating single-sparticle
+production cross sections.
+</p>
+
+<br/><b>Important Note on SLHA:</b> 
 In order to simulate SUSY processes it is required to read in the 
 couplings and masses relevant for the scenario to be studied. This 
 is done with the help of the SUSY Les Houches Accord (SLHA), including
@@ -58,18 +69,29 @@ conventions are used. SLHA1 spectra are automatically translated into
 SLHA2 notation during initialization.) The 
 reading of a relevant SLHA file <b>must</b> be set up, as described 
 on <?php $filepath = $_GET["filepath"];
-echo "<a href='SUSYLesHouchesAccord.php?filepath=".$filepath."' target='page'>";?>the SLHA page</a>.
+echo "<a href='SUSYLesHouchesAccord.php?filepath=".$filepath."' target='page'>";?>the SLHA page</a>. 
+Attempting to generate SUSY processes without a properly initialized
+SLHA spectrum is strongly discouraged and may lead to unexpected
+results. Always check for warnings and errors reported by the SLHA
+reader during the initialization stage. 
 
-<p/>
-Note also that lepton- and photon-initial states are not yet available. 
+<h3>SUSY Processes</h3>
+<br/><b>Note 1:</b> Decays of SUSY particles are described
+separately <a href="#decays">below</a>. 
+
+<br/><b>Note 2:</b> One special possibility is that the gluino or some squark(s) are
+sufficiently long-lived to hadronize. See 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='RHadrons.php?filepath=".$filepath."' target='page'>";?>the R-hadrons page</a> for further details.
+
+<br/><b>Note 3:</b> lepton- and photon-initial states are not yet available. 
 Only quark/gluon-initiated <i>2 -> 2</i> and <i>2 -> 1</i> (RPV) 
 processes have been implemented. Likewise, direct slepton production 
 has not yet been implemented (i.e., <i>2 -> 2</i> processes
 involving sleptons in the final state). Sleptons will of course still be
 produced through cascade decays of heavier (s)particles. 
 
-<p/>
-Finally, note that these cross sections will be correctly folded with open
+<br/><b>Note 4:</b> cross sections will be correctly folded with open
 branching fractions of cascade decays, but at present any difference between
 particle and antiparticle decay tables is not taken into account. This
 possibility will be included in a future update. 
@@ -110,7 +132,7 @@ The value of <ei>sin2(thetaW)</ei> should be taken from
 <input type="radio" name="4" value="2" checked="checked"><strong>2 </strong>: SUSY value, defined at <ei>M_SUSY</ei>, derived from the running gauge couplings in <code>BLOCK GAUGE</code> in the SLHA file. Note: if no such block is present in the input file, this option will default back to option 1 above, i.e., the SM value.<br/>
 <input type="radio" name="4" value="3"><strong>3 </strong>: Pole value, defined by <ei>1 - M_W^2/M_Z^2</ei>,  using the pole masses stored in the SLHA <code>BLOCK MASS</code>, or,  alternatively, PYTHIA's internal pole masses if no such block is  present.<br/>
 
-<h3>Gluino Pair Production</h3>
+<h4>Gluino Pair Production</h4>
 
 <br/><br/><strong>SUSY:gg2gluinogluino</strong>  <input type="radio" name="5" value="on"><strong>On</strong>
 <input type="radio" name="5" value="off" checked="checked"><strong>Off</strong>
@@ -128,7 +150,7 @@ real, so effects of non-minimal flavour violation and/or CP violation
 are not yet included.
   
 
-<h3>Associated Squark-Gluino Production</h3>
+<h4>Associated Squark-Gluino Production</h4>
 
 <br/><br/><strong>SUSY:qg2squarkgluino</strong>  <input type="radio" name="7" value="on"><strong>On</strong>
 <input type="radio" name="7" value="off" checked="checked"><strong>Off</strong>
@@ -140,7 +162,7 @@ real, so effects of non-minimal flavour violation and/or CP violation
 are not yet included.
   
 
-<h3>Squark Pair Production</h3>
+<h4>Squark Pair Production</h4>
 
 <br/><br/><strong>SUSY:gg2squarkantisquark</strong>  <input type="radio" name="8" value="on"><strong>On</strong>
 <input type="radio" name="8" value="off" checked="checked"><strong>Off</strong>
@@ -210,7 +232,7 @@ Intended for reference only. For the most accurate physics simulation,
 leave this flag in the <code>off</code> position.  
   
 
-<h3>Neutralino and Chargino Pair Production</h3>
+<h4>Neutralino and Chargino Pair Production</h4>
 
 <br/><br/><strong>SUSY:qqbar2chi0chi0</strong>  <input type="radio" name="13" value="on"><strong>On</strong>
 <input type="radio" name="13" value="off" checked="checked"><strong>Off</strong>
@@ -242,7 +264,7 @@ processes separate, this gives four separate processes, codes
 Validation of the FLV and CPV cases has not yet been completed.
   
 
-<h3>Associated Neutralino/Chargino + Squark/Gluino Production</h3>
+<h4>Associated Neutralino/Chargino + Squark/Gluino Production</h4>
 
 <br/><br/><strong>SUSY:qg2chi0squark</strong>  <input type="radio" name="16" value="on"><strong>On</strong>
 <input type="radio" name="16" value="off" checked="checked"><strong>Off</strong>
@@ -275,19 +297,52 @@ Associated chargino-gluino production by quark-antiquark
 annihilation. Status: not implemented yet.
   
 
-<h3>Slepton Production</h3>
+<h4>Slepton Production</h4>
 
 No 2->2 slepton pair production or associated slepton production 
 cross sections have been implemented yet. 
 
-<h3>R-parity violating squark production</h3>
+<h4>R-parity violating squark production</h4>
 
 <br/><br/><strong>SUSY:qq2antisquark</strong>  <input type="radio" name="20" value="on"><strong>On</strong>
 <input type="radio" name="20" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-Redonant squark production via R-parity violating UDD couplings. The
+Resonant squark production via R-parity violating UDD couplings. The
 couplings must be input using the SLHA2 structure. 
   
+
+<a name="decays"></a>
+<h3>Decays of SUSY Particles</h3>
+
+Based on the parameters read in from the SLHA, PYTHIA 8 will normally 
+compute the decay modes of SUSY particles automatically, using the 
+<code>SusyResonanceDecays</code> class(es) included since
+version 8.150. Essentially all tree-level 2-body decays in the MSSM 
+have been implemented this way, excepting so far only those involving
+Higgs bosons (either in the in- or out-state), gravitinos, and decays
+of sleptons. Available channels so far include:
+<ul>
+<li>~q &rarr; q + ~chi</li>
+<li>~q &rarr; ~q + W/Z</li>
+<li>~q &rarr; q + q (RPV UDD)</li>
+<li>~q &rarr; l + q (RPV LQD)</li>
+<li>~g &rarr; ~q + q</li>
+<li>~chi0 &rarr; ~chi0 + Z</li>
+<li>~chi0 &rarr; ~chi+ + W</li>
+<li>~chi0 &rarr; ~q + q</li>
+<li>~chi0 &rarr; ~l + l</li>
+<li>~chi+ &rarr; ~chi+ + Z</li>
+<li>~chi+ &rarr; ~chi0 + W</li>
+<li>~chi+ &rarr; ~q + q</li>
+<li>~chi0 &rarr; q + q + q (RPV UDD)</li>
+</ul>
+All channels are still undergoing validation, so this
+implementation should be considered preliminary.
+Still missing but to be included in a forthcoming update
+are: 3-body decays of charginos (via RPV), 2-body decays of squarks and
+gauginos with Higgs as one of the decay products, the 2-body decay
+chargino &rarr; slepton neutrino / lepton sneutrino, and 2-body decays
+of sleptons. 
 
 <input type="hidden" name="saved" value="1"/>
 
@@ -411,5 +466,5 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2010 Peter Skands, Torbjorn Sjostrand -->
+<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
 

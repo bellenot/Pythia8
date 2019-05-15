@@ -1,5 +1,5 @@
 // Event.h is a part of the PYTHIA event generator.
-// Copyright (C) 2010 Torbjorn Sjostrand.
+// Copyright (C) 2011 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -227,6 +227,10 @@ public:
     return  (pdePtr > 0) ? pdePtr->isQuark() : false;}
   bool   isGluon()   const {
     return (pdePtr > 0) ? pdePtr->isGluon() : false;}
+  bool   isDiquark()   const {
+    return  (pdePtr > 0) ? pdePtr->isDiquark() : false;}
+  bool   isParton()   const {
+    return (pdePtr > 0) ? pdePtr->isParton() : false;}
   bool   isHadron()  const {
     return (pdePtr > 0) ? pdePtr->isHadron() : false;}
   ParticleDataEntry& particleDataEntry() const {return *pdePtr;}
@@ -537,10 +541,12 @@ private:
   int startColTag;
 
   // The event: a vector containing all particles (entries).
-  vector<Particle> entry;
+  // The explicit use of Pythia8:: qualifier patches a limitation in ROOT.
+  vector<Pythia8::Particle> entry;
 
   // The list of junctions.
-  vector<Junction> junction;
+  // The explicit use of Pythia8:: qualifier patches a limitation in ROOT.
+  vector<Pythia8::Junction> junction;
 
   // The maximum colour tag of the event so far.
   int maxColTag;
@@ -555,7 +561,8 @@ private:
   string headerList;
 
   // Pointer to the particle data table.
-  ParticleData* particleDataPtr;
+  // The //! below is ROOT notation that this member should not be saved.
+  ParticleData* particleDataPtr;  //!
   
 };
 

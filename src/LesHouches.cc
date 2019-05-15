@@ -1,5 +1,5 @@
 // LesHouches.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2010 Torbjorn Sjostrand.
+// Copyright (C) 2011 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -269,7 +269,7 @@ bool LHAup::closeLHEF(bool updateInit) {
 
 // Read in initialization information from a Les Houches Event File.
 
-bool LHAup::setInitLHEF(ifstream& is) {
+bool LHAup::setInitLHEF(istream& is) {
 
   // Check that first line is consistent with proper LHEF file.
   string line;
@@ -322,7 +322,7 @@ bool LHAup::setInitLHEF(ifstream& is) {
 // Read in event information from a Les Houches Event File,
 // into a staging area where it can be reused by setOldEventLHEF.
 
-bool LHAup::setNewEventLHEF(ifstream& is) {
+bool LHAup::setNewEventLHEF(istream& is) {
   
   // Loop over lines until an <event tag is found first on a line.
   string line, tag;

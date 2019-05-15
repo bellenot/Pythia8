@@ -1,5 +1,5 @@
 // BeamRemnants.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2010 Torbjorn Sjostrand.
+// Copyright (C) 2011 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -989,6 +989,7 @@ bool BeamRemnants::checkColours( Event& event) {
     int id   = event[i].id();
     int col  = event[i].col();
     int acol = event[i].acol(); 
+    int colType = event[i].colType();
 
     // Quarks must have colour set, antiquarks anticolour, gluons both.
     if ( (id > 0 && id < 9 && (col <= 0 || acol != 0) )
@@ -999,10 +1000,20 @@ bool BeamRemnants::checkColours( Event& event) {
       return false;
     }
 
+    // Sextets must have one positive and one negative tag
+    if ( (colType == 3 && (col <= 0 || acol >= 0))
+	 || (colType == -3 && (col >= 0 || acol <= 0)) ) {
+      infoPtr->errorMsg("Error in BeamRemnants::checkColours: "
+			"sextet has wrong colours");
+    }
+
     // Save colours/anticolours, and position of colour singlet gluons.
     if ( col > 0)  colList.push_back(  col );
     if (acol > 0) acolList.push_back( acol );
     if (col > 0 && acol == col) iSingletGluon.push_back(i);
+    // Colour sextets
+    if ( col < 0) acolList.push_back( -col );
+    if (acol < 0) colList.push_back( -acol );
   }
 
   // Run though list of singlet gluons and put them on final-state dipole
@@ -1129,9 +1140,10 @@ bool BeamRemnants::checkColours( Event& event) {
 
 
   // Repair step - sometimes needed when rescattering allowed.
-  if (colList.size() > 0 || acolList.size() > 0)    
+  if (colList.size() > 0 || acolList.size() > 0) {
     infoPtr->errorMsg("Warning in BeamRemnants::checkColours:"
-    " need to repair unmatched colours"); 
+		      " need to repair unmatched colours"); 
+  }
   while (colList.size() > 0 && acolList.size() > 0) {
 
     // Replace one colour and one anticolour index by a new common one.

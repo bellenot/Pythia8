@@ -1,5 +1,5 @@
 // Event.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2010 Torbjorn Sjostrand.
+// Copyright (C) 2011 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -206,7 +206,7 @@ void Event::list(bool showScaleAndVertex, bool showMothersAndDaughters,
 
   // Header.
   os << "\n --------  PYTHIA Event Listing  " << headerList << "----------"
-     << "------------------------------------------------- \n \n    no    "
+     << "-------------------------------------------------\n \n    no    "
      << "    id   name            status     mothers   daughters     colou"
      << "rs      p_x        p_y        p_z         e          m \n";
   if (showScaleAndVertex) 

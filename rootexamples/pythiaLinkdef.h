@@ -5,15 +5,20 @@
 #pragma link off all functions;
  
 #pragma link C++ namespace Pythia8;
-#pragma link C++ class Pythia8::ParticleData+;
-#pragma link C++ class Pythia8::ParticleDataEntry+;
 #pragma link C++ class Pythia8::Event+;
 #pragma link C++ class Pythia8::Particle+;
 #pragma link C++ class Pythia8::Junction+;
 #pragma link C++ class Pythia8::Vec4+;
+
+#ifdef PYTHIA8_COMPLETE_ROOT_DICTIONARY
+// For tree.cc, none of the following (generator-internal)
+// classes is needed. Thus excluded from the default Linkdef.h.
+#pragma link C++ class Pythia8::ParticleData+;
+#pragma link C++ class Pythia8::ParticleDataEntry+;
 #pragma link C++ class Pythia8::DecayChannel+;
 #pragma link C++ class Pythia8::Pythia+;
 #pragma link C++ class Pythia8::CoupSM+;
+#pragma link C++ class Pythia8::Couplings+;
 #pragma link C++ class Pythia8::InBeam+;
 #pragma link C++ class Pythia8::InPair+;
 #pragma link C++ class Pythia8::AlphaStrong+;
@@ -44,4 +49,5 @@
 #pragma link C++ class Pythia8::SigmaProcess+;
 #pragma link C++ class std::vector<ResonanceWidths>+;
 #pragma link C++ class std::pair<int,ParticleDataEntry>+;
+#endif
 #endif

@@ -1,5 +1,5 @@
 // StringFragmentation.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2010 Torbjorn Sjostrand.
+// Copyright (C) 2011 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -81,7 +81,7 @@ Vec4 StringEnd::kinematicsHadron( StringSystem& system) {
   // Pick fragmentation step z and calculate new Gamma.
   zHad = zSelPtr->zFrag( flavOld.id, flavNew.id, mT2Had);
   GammaNew = (1. - zHad) * (GammaOld + mT2Had / zHad); 
-
+  
   // Set up references that are direction-neutral;
   // ...Dir for direction of iteration and ...Inv for its inverse.
   int&    iDirOld = (fromPos) ? iPosOld : iNegOld;
@@ -323,9 +323,9 @@ void StringFragmentation::init(Info* infoPtrIn, Settings& settings,
   zSelPtr         = zSelPtrIn;
 
   // Initialize the StringFragmentation class.
-  stopMass        = settings.parm("StringFragmentation:stopMass");
-  stopNewFlav     = settings.parm("StringFragmentation:stopNewFlav");
-  stopSmear       = settings.parm("StringFragmentation:stopSmear");
+  stopMass        = zSelPtr->stopMass();
+  stopNewFlav     = zSelPtr->stopNewFlav();
+  stopSmear       = zSelPtr->stopSmear();
   eNormJunction   = settings.parm("StringFragmentation:eNormJunction");
   eBothLeftJunction 
      = settings.parm("StringFragmentation:eBothLeftJunction");
@@ -335,7 +335,7 @@ void StringFragmentation::init(Info* infoPtrIn, Settings& settings,
     = settings.parm("StringFragmentation:eMinLeftJunction");
 
   // Initialize the b parameter of the z spectrum, used when joining jets.
-  bLund           = settings.parm("StringZ:bLund");
+  bLund           = zSelPtr->bAreaLund();
 
   // Initialize the hadrons instance of an event record.
   hadrons.init( "(string fragmentation)", particleDataPtr);
@@ -593,7 +593,7 @@ bool StringFragmentation::finalTwo(bool fromPos) {
   // Impossible to join two diquarks. Also break if stuck for other reason.
   FlavContainer flav1 = (fromPos) ? posEnd.flavNew.anti() : posEnd.flavOld;
   FlavContainer flav2 = (fromPos) ? negEnd.flavOld : negEnd.flavNew.anti();
-  if (abs(flav1.id) > 8 && abs(flav2.id) > 8) return false;  
+  if (flav1.isDiquark() && flav2.isDiquark()) return false;
   int idHad;
   for (int iTry = 0; iTry < NTRYFLAV; ++iTry) {
     idHad = flavSelPtr->combine( flav1, flav2);
@@ -654,7 +654,7 @@ bool StringFragmentation::finalTwo(bool fromPos) {
 
   // Construct kinematics, as viewed in the transverse rest frame. 
   double lambda = sqrt(lambda2);
-    double probReverse = 1. / (1. + exp( min( EXPMAX, bLund * lambda) ) ); 
+  double probReverse = 1. / (1. + exp( min( EXPMAX, bLund * lambda) ) ); 
   double xpzPos = 0.5 * lambda/ wT2Rem;
   if (probReverse > rndmPtr->flat()) xpzPos = -xpzPos; 
   double xmDiff = (posEnd.mT2Had - negEnd.mT2Had) / wT2Rem;

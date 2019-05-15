@@ -40,7 +40,7 @@ diquark production, over and above the one already given by
  
 <parm name="StringFlav:probQQ1toQQ0" default="0.027" min="0.0" max="1.0">
 the suppression of spin 1 diquark production relative to spin 0 one,
-apart from the factor of 3 enhancement of spin 0 from counting the
+apart from the factor of 3 enhancement of spin 1 from counting the
 number of states.
 </parm> 
 
@@ -353,4 +353,4 @@ production at all, while 1 means full rate.
   
 </chapter>
 
-<!-- Copyright (C) 2010 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2011 Torbjorn Sjostrand -->

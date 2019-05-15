@@ -1,5 +1,6 @@
 // SigmaSUSY.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2010 Peter Skands, Torbjorn Sjostrand.
+// Copyright (C) 2011 Torbjorn Sjostrand.
+// Main authors of this file: N. Desai, P. Skands
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -82,10 +83,14 @@ double Sigma2qqbar2chi0chi0::sigmaHat() {
 
   // s-channel Z couplings
   if (idAbs1 == idAbs2) {
-    QuLL = coupSUSYPtr->LqqZ[idAbs1] * coupSUSYPtr->OLpp[id3chi][id4chi] * propZ / 2.0;
-    QtLL = coupSUSYPtr->LqqZ[idAbs1] * coupSUSYPtr->ORpp[id3chi][id4chi] * propZ / 2.0;
-    QuRR = coupSUSYPtr->RqqZ[idAbs1] * coupSUSYPtr->ORpp[id3chi][id4chi] * propZ / 2.0;
-    QtRR = coupSUSYPtr->RqqZ[idAbs1] * coupSUSYPtr->OLpp[id3chi][id4chi] * propZ / 2.0;
+    QuLL = coupSUSYPtr->LqqZ[idAbs1] * coupSUSYPtr->OLpp[id3chi][id4chi] 
+         * propZ / 2.0;
+    QtLL = coupSUSYPtr->LqqZ[idAbs1] * coupSUSYPtr->ORpp[id3chi][id4chi] 
+         * propZ / 2.0;
+    QuRR = coupSUSYPtr->RqqZ[idAbs1] * coupSUSYPtr->ORpp[id3chi][id4chi] 
+         * propZ / 2.0;
+    QtRR = coupSUSYPtr->RqqZ[idAbs1] * coupSUSYPtr->OLpp[id3chi][id4chi] 
+         * propZ / 2.0;
   }
 
   // Flavour indices
@@ -138,7 +143,7 @@ double Sigma2qqbar2chi0chi0::sigmaHat() {
 
   // Overall factor multiplying each coupling; multiplied at the end as fac^2
   double fac = (1.0-coupSUSYPtr->sin2W);
-  if(abs(id3)==abs(id4)) fac *= sqrt(2); // for identical final state particles
+  if(abs(id3)==abs(id4)) fac *= sqrt(2.); // for identical final particles
 
   // Compute matrix element weight
   double weight = 0;

@@ -1,5 +1,5 @@
 // MiniStringFragmentation.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2010 Torbjorn Sjostrand.
+// Copyright (C) 2011 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -25,9 +25,6 @@ const int MiniStringFragmentation::NTRYDIFFRACTIVE = 200;
 // After one-body fragmentation failed, try two-body once more. 
 const int MiniStringFragmentation::NTRYLASTRESORT  = 100;
 
-// To avoid division by zero one must have sigma > 0.
-const double MiniStringFragmentation::SIGMAMIN     = 0.01;
-
 // Loop try to combine available endquarks to valid hadron. 
 const int MiniStringFragmentation::NTRYFLAV        = 10;
 
@@ -37,21 +34,21 @@ const int MiniStringFragmentation::NTRYFLAV        = 10;
 
 void MiniStringFragmentation::init(Info* infoPtrIn, Settings& settings,
    ParticleData* particleDataPtrIn, Rndm* rndmPtrIn, 
-   StringFlav* flavSelPtrIn) {
+   StringFlav* flavSelPtrIn, StringPT* pTSelPtrIn, StringZ* zSelPtrIn) {
 
   // Save pointers.
   infoPtr         = infoPtrIn;
   particleDataPtr = particleDataPtrIn;
   rndmPtr         = rndmPtrIn;
   flavSelPtr      = flavSelPtrIn;
+  pTSelPtr        = pTSelPtrIn;
+  zSelPtr         = zSelPtrIn;
 
   // Initialize the MiniStringFragmentation class proper.
-  nTryMass   = settings.mode("MiniStringFragmentation:nTry");
-  sigma      = settings.parm("StringPT:sigma");
-  sigma2Had  = 2. * pow2( max( SIGMAMIN, sigma) );
+  nTryMass        = settings.mode("MiniStringFragmentation:nTry");
 
   // Initialize the b parameter of the z spectrum, used when joining jets.
-  bLund      = settings.parm("StringZ:bLund");
+  bLund           = zSelPtr->bAreaLund();
 
 }
 
@@ -119,7 +116,7 @@ bool MiniStringFragmentation::ministring2two( int nTry, Event& event) {
     // Start from a diquark, if any.
     do {
       FlavContainer flav3 =
-        (abs(flav1.id) > 8 || (abs(flav2.id) < 9 && rndmPtr->flat() < 0.5) )
+        (flav1.isDiquark() || (!flav2.isDiquark() && rndmPtr->flat() < 0.5) )  
         ? flavSelPtr->pick( flav1) : flavSelPtr->pick( flav2).anti();
       idHad1 = flavSelPtr->combine( flav1, flav3);
       idHad2 = flavSelPtr->combine( flav2, flav3.anti()); 
@@ -160,9 +157,8 @@ bool MiniStringFragmentation::ministring2two( int nTry, Event& event) {
   double pT2 = 0.;
   do {
     double cosTheta = rndmPtr->flat();
-    if (sigma < SIGMAMIN) cosTheta = 1.;
     pT2 = (1. - pow2(cosTheta)) * pAbs2;
-  } while ( exp( -pT2 / sigma2Had) < rndmPtr->flat() ); 
+  } while (pTSelPtr->suppressPT2(pT2) < rndmPtr->flat() ); 
 
   // Construct the forward-backward asymmetry of the two particles.
   double mT21 = mHad1*mHad1 + pT2;

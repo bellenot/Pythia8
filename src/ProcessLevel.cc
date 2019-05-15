@@ -1,5 +1,5 @@
 // ProcessLevel.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2010 Torbjorn Sjostrand.
+// Copyright (C) 2011 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -509,12 +509,18 @@ bool ProcessLevel::nextOne( Event& process) {
       do sigmaMaxNow -= containerPtrs[++iContainer]->sigmaMax();
       while (sigmaMaxNow > 0. && iContainer < iMax);
     
+      // TMP 
+      //      cout<<"returned from sigmaMax"<<endl;
+
       // Do a trial event of this subprocess; accept or not.
       if (containerPtrs[iContainer]->trialProcess()) break;
 
       // Check for end-of-file condition for Les Houches events.
       if (infoPtr->atEndOfFile()) return false;
     }
+
+    // TMP 
+    // cout<<"returned from trial loop"<<endl;
 
     // Update sum of maxima if current maximum violated.
     if (containerPtrs[iContainer]->newSigmaMax()) {
@@ -527,10 +533,17 @@ bool ProcessLevel::nextOne( Event& process) {
     if ( !containerPtrs[iContainer]->constructProcess( process) )
       physical = false;
 
+    // TMP 
+    //    process.list();
+    //    cout<<"do resonance decays"<<endl;
+
     // Do all resonance decays.
     if ( physical && doResDecays 
       && !containerPtrs[iContainer]->decayResonances( process) ) 
       physical = false;
+
+    // TMP 
+    // cout<<"find junctions"<<endl;
 
     // Add any junctions to the process event record list.
     if (physical) findJunctions( process);
@@ -782,13 +795,19 @@ void ProcessLevel::combineProcessRecords( Event& process, Event& process2) {
 
 void ProcessLevel::findJunctions( Event& junEvent) {
 
+  // DEBUG OUTPUT
+  // junEvent.list();
+
   // Find the total number of unmatched colours & anticolours in the event
   map<int,int> colMap, acolMap;
+  colMap.clear();
+  acolMap.clear();
   for (int i = 0; i < junEvent.size(); ++i) {
     // Consider all external lines (including initial incoming ones)
     int col  = junEvent[i].col();
     int acol = junEvent[i].acol();
-    if (junEvent[i].isFinal() || abs(junEvent[i].status()) == 21) {
+    if (junEvent[i].isFinal() || junEvent[i].status() == -21) {
+      //cout<<" at "<<i<<" col = "<<col<<" acol = "<<acol<<endl;
       // Cross initial-state colors
       if (junEvent[i].status() == -21) {
 	col  = junEvent[i].acol();
@@ -804,44 +823,94 @@ void ProcessLevel::findJunctions( Event& junEvent) {
 	if (colMap.find(acol) == colMap.end()) acolMap[acol] = i;
 	else colMap.erase(acol);
       }
-    }
-    // For internal particles, check for internal junction lines
-    // by counting total number of triplets at each vertex
-    else if (abs(junEvent[i].status()) == 22) {
-      int cSum = 0;
-      int idRes = junEvent[i].id();
-      // Only consider triplets for the time being, since these are the ones
-      // most likely to cause trouble.
-      // (E.g., internal stop in resonant stop production)
-      if (junEvent[i].colType() != 1) continue;
-      // Decaying particle crossed => triplet <-> antitriplet
-      if (idRes < 0) cSum += (junEvent[i].colType() % 2) ; 
-      else cSum -= (junEvent[i].colType() % 2) ; 
-      int iDau1 = junEvent[i].daughter1();
-      int iDau2 = max(iDau1,junEvent[i].daughter2());
-      for (int iDau=iDau1; iDau<=iDau2; iDau++) {
-	if (junEvent[iDau].id() > 0) cSum += (junEvent[iDau].colType() % 2) ; 
-	else cSum -= (junEvent[iDau].colType() % 2) ; 
+      // Colour sextets: negative colour = anticolour and vice versa
+      if (acol < 0) {
+	// If unmatched (so far), add end. Else erase matching parton. 
+	if (acolMap.find(-acol) == acolMap.end() ) colMap[-acol] = i;
+	else acolMap.erase(-acol);
       }
-      // Add dangling internal tag if not already present
-      if (cSum != 0) {
-	if (idRes > 0 && acolMap.find(col) == acolMap.end()) acolMap[col]=i;
-	if (idRes < 0 && colMap.find(acol) == colMap.end()) colMap[acol]=i;
+      if (col < 0) {
+	// If unmatched (so far), add end. Else erase matching parton. 
+	if (colMap.find(-col) == colMap.end()) acolMap[-col] = i;
+	else colMap.erase(-col);
       }
+ 
     }
-  }  
+  }
 
-  // Number of expected junctions and antijunctions
-  // (Add 2 to account for max 2 junction-antijunction connections)
-  int nJunc     = (colMap.size()+2)/3;
-  int nAntiJunc = (acolMap.size()+2)/3;
+  // If number of dangling tags not divisible by 3, internal JJ lines must exist. 
+  if ( colMap.size() % 3 != 0 || acolMap.size() % 3 != 0) {
 
-  //cout<<" nJunc = "<<nJunc<<" nAntiJunc = "<<nAntiJunc<<endl;
+    // Check each internal vertex 
+    for (int i = 0; i<junEvent.size(); i++) {
 
-  // If no junctions expected, return without doing anything more
-  if (max(nJunc,nAntiJunc) == 0) return;
+      // Ignore stages before hard scattering final-state
+      if (abs(junEvent[i].status()) <= 21) continue;
+      vector<int> motherList   = junEvent.motherList(i);
+      int iMot1 = motherList[0];
+      vector<int> daughterList = junEvent.daughterList(iMot1);        
+      // cout << "    at : "<<iMot1<<" colType = "<<junEvent[iMot1].colType()<<endl;      
+      // Check baryon number of vertex
+      int barSum = 0;      
+      map<int,int> colVertex, acolVertex;
+      // Incoming partons enter with a minus sign in barSum
+      for (unsigned int indx = 0; indx < motherList.size(); indx++) {
+	int iMot = motherList[indx];
+	if ( abs(junEvent[iMot].colType()) == 1 ) 
+	  barSum -= junEvent[iMot].colType();
+	// Cross colors and anticolors
+	int col  = junEvent[iMot].acol();
+	int acol  = junEvent[iMot].col();
+	if (col > 0) {
+	  // If unmatched (so far), add end. Else erase matching parton. 
+	  if (acolVertex.find(col) == acolVertex.end() ) colVertex[col] = iMot;
+	  else acolVertex.erase(col);
+	}
+	if (acol > 0) {
+	  // If unmatched (so far), add end. Else erase matching parton. 
+	  if (colVertex.find(acol) == colVertex.end()) acolVertex[acol] = iMot;
+	  else colVertex.erase(acol);
+	}
+      }
+      // Outgoing partons enter with a plus sign in barSum
+      for (unsigned int indx = 0; indx < daughterList.size(); indx++) {
+	int iDau = daughterList[indx];
+	if ( abs(junEvent[iDau].colType()) == 1 ) 
+	  barSum += junEvent[iDau].colType();
+	// Do not cross colors and anticolors
+	int col  = junEvent[iDau].col();
+	int acol  = junEvent[iDau].acol();
+	if (col > 0) {
+	  // If unmatched (so far), add end. Else erase matching parton. 
+	  if (acolVertex.find(col) == acolVertex.end() ) colVertex[col] = iDau;
+	  else acolVertex.erase(col);
+	}
+	if (acol > 0) {
+	  // If unmatched (so far), add end. Else erase matching parton. 
+	  if (colVertex.find(acol) == colVertex.end()) acolVertex[acol] = iDau;
+	  else colVertex.erase(acol);
+	}
+      }      
+      // If BNV vertex found, check if all colours accounted for
+      if (barSum != 0) {	
+	// cout<<" (anti)junction found with mother : "<<iMot1<<endl;	
+	for (map<int,int>::iterator it = colVertex.begin(); 
+	     it != colVertex.end(); it++) {
+	  int col  = it->first;
+	  int iCol = it->second;
+	  if ( colMap.find(col) == colMap.end() ) colMap[col]=iCol;
+	}
+	for (map<int,int>::iterator it = acolVertex.begin(); 
+	     it != acolVertex.end(); it++) {
+	  int acol = it->first;
+	  int iCol = it->second;
+	  if ( acolMap.find(acol) == acolMap.end() ) acolMap[acol]=iCol;
+	}
+      }	    
+    }
+  }
 
-  // Junctions expected. Check (and skip) any that have already been added
+  // Check (and skip) any that have already been added
   for (int iJun = 0; iJun < junEvent.sizeJunction(); ++iJun) {
     // Remove the tags corresponding to each of the 3 existing junction legs
     for (int j = 0; j < 3; ++j) { 
@@ -851,168 +920,82 @@ void ProcessLevel::findJunctions( Event& junEvent) {
     }
   }
 
-  // Update Number of expected junctions and antijunctions
-  nJunc     = (colMap.size()+2)/3;
-  nAntiJunc = (acolMap.size()+2)/3;
+  // If no more junctions expected, return without doing anything more
+  if (colMap.size() == 0 && acolMap.size() == 0) return;
 
-  // cout<<" AR nJunc = "<<nJunc<<" nAntiJunc = "<<nAntiJunc<<endl;
+  // Size of each array must be divisible by 3 at this point
+  if (colMap.size() %3 != 0 || acolMap.size() %3 != 0) {
+    infoPtr->errorMsg("Error in ProcessLevel::findJunctions: "
+		      "N(unmatched (anti)colour tags) != 3");
+    return;
+  } 
 
-  // If no (more) junctions expected, return without doing anything more
-  if (max(nJunc,nAntiJunc) == 0) return;
-  
-  // Loop: first check colors, then anticolors
+  // Loop: first colours, then anticolours
   for (int mAcol = 0; mAcol <= 1; mAcol++) { 
     map<int,int>& cMap = colMap;
     if (mAcol == 1) cMap = acolMap;
+    int nJun = cMap.size() / 3;
 
-    // Trace colours to find junction vertices and missing lines from 
-    // internal junction-antijunction connections (such connections *must*
-    // be represented by internal lines connecting the junction vertices)
-    for (map<int,int>::iterator it = cMap.begin(); it != cMap.end(); it++) {
-      int col1 = it->first;
-      int i1   = it->second;
-      int i2   = i1;
-      bool goForward = false;
-      // Reverse direction for particles in initial state
-      if ( !junEvent[i1].isFinal() ) goForward = true;
-      // Skip colour tags that have already been associated with a junction
-      bool skipCol = false;
-      for (int iJun = 0; iJun < junEvent.sizeJunction(); ++iJun) {
-	// Only look at other (anti)junctions
-	if (junEvent.kindJunction(iJun) % 2 == mAcol) continue;
-	for (int j = 0; j < 3; ++j) { 
-	  int colNow = junEvent.colJunction(iJun, j); 
-	  if (colNow == col1) skipCol = true;
+    // While unmatched colour tags still exist ...
+    for (int mJun = 0; mJun < nJun ; ++ mJun) {
+
+      // Connect to junctions ordered in color line number
+      vector<int> colJu, iJu;
+      colJu.resize(0);
+      // Order in decreasing color tag number
+      for (int jCol=0; jCol<=2; jCol++) {
+	colJu.push_back(0);
+	iJu.push_back(0);
+	for (map<int,int>::iterator it = cMap.begin(); it != cMap.end(); it++) {
+	  int colTag = it->first;
+	  int i      = it->second;
+	  if (i != 0 && colTag >= colJu[jCol]) {
+	    colJu[jCol] = colTag;
+	    iJu[jCol]   = i;
+	  }
 	}
+	// Mark these colour tags deleted
+	cMap[colJu[jCol]]=0;
       }
-      if (skipCol) {
-	//cout << "Skipping (a)col : "<<col1<<" at "<<i1<<endl;
-	continue;
-      }     
-      //cout << "Tracing (a)col : "<<col1<<" from "<<i1<<endl;
-      bool search = true;
-      while ( search ) {
-	// Step to mother (or daughter, if doing forward search)
-	if (goForward) {
-	  i1     = i2;
-	  // For now, assume daughter1 always is the one that leads to the 
-	  // hard interaction. Otherwise, may need to search among daughters.
-	  i2     = junEvent[i1].daughter1();
-	} else {
-	  i2     = junEvent[i1].mother2();
-	  i1     = junEvent[i1].mother1();
-	}
-	int iDau1  = junEvent[i1].daughter1(); 
-	int iDau2  = max(iDau1,junEvent[i1].daughter2()); 
-	int barSum = 0;      
-	// If we went all the way back to the beam without finding a violation,
-	// skip and try next
-	if (i1 <= 0 || abs(junEvent[i1].status()) <= 20) search = false;
-	// Check baryon number of vertex, counting incoming
-	// partons with a minus sign
+      // Kind is determined by how many legs have "crossed" color tags
+      int kindJun = 1 + mAcol;      
+      vector<int> colJuOrd(0);
+      for (int jLeg=0; jLeg<3; jLeg++) {
+	bool foundCrossed = false;
+	for (int i=0; i<junEvent.size(); i++) 
+	  // Note if the tag for this leg exists as crossed 
+	  if ( (mAcol == 0 && junEvent[i].acol() == colJu[jLeg]) ||
+	       (mAcol == 1 && junEvent[i].col() == colJu[jLeg]) ) foundCrossed = true;  
+	// If no crossed version exists, this is a final-state leg: add to back
+	if (!foundCrossed) colJuOrd.push_back(colJu[jLeg]);
+	// Else this is an initial-state leg: add to front and increase kindJun
 	else {
-	  //cout << "    at : "<<i1<<" colType = "<<junEvent[i1].colType()<<endl;
-	  if (abs(junEvent[i1].colType()) == 1) barSum -= junEvent[i1].colType();
-	  if (i2 != 0 && abs(junEvent[i2].colType()) == 1 ) 
-	    barSum -= junEvent[i2].colType();
-	  for (int iDau = iDau1; iDau <= iDau2; iDau++)
-	    if ( abs(junEvent[iDau].colType()) == 1 ) 
-	      barSum += junEvent[iDau].colType();
-	}
-	// If still searching, and if B is violated at this vertex => junction
-	// Still needs additional refinement for complicated cases ???
-	if (search && barSum != 0) {	
-	  //cout<<" (anti)junction found at : "<<i1<<endl;
-	  // Find the 3 (anti)colour tags for this junction
-	  // If going forward, now change i2 from daughter to other mother
-	  if (goForward && i2 == iDau1) {
-	    if (junEvent[i2].mother1() == i1) i2 = junEvent[i2].mother2();
-	    else i2 = junEvent[i2].mother1();
-	  }
-	  //cout <<" Checking vertex: i1 = "<<i1<<" i2 = "<<i2<<endl;
-	  // Determine which (anti)color tags go to junction
-	  vector<int> colJu;	
-	  int c1(0), c2(0), cMot1(0), cMot2(0);
-	  // First determine number of incoming lines
-	  if (mAcol == 0) {
-	    // For junctions: look at incoming anticolors
-	    c1 = junEvent[i1].acol();
-	    c2 = 0;
-	    // Also store incoming colors, to check for flow-through later
-	    cMot1  = junEvent[i1].col(); 
-	    if ( i2 != 0 ) {
-	      c2     = junEvent[i2].acol();
-	      cMot2  = junEvent[i1].col(); 
-	      // Remove annihilation-type flows
-	      if (c1 != 0 && junEvent[i2].col() == c1) c1 = 0;
-	      if (c2 != 0 && junEvent[i1].col() == c2) c2 = 0;
-	      // Remove anticolors flowing through diagram
-	      for (int iDau = iDau1; iDau <= iDau2; iDau++) {
-		int acolDau = junEvent[iDau].acol();	
-		if (c1 != 0 && acolDau == c1) c1 = 0;
-		if (c2 != 0 && acolDau == c2) c2 = 0;
-	      }
-	    }
-	  } else {
-	    // For antijunctions: look at incoming colors
-	    c1 = junEvent[i1].col();
-	    c2 = 0;
-	    // Also store incoming anticolors, to check for flow-through later
-	    cMot1  = junEvent[i1].acol();
-	    if ( i2 != 0 ) {
-	      c2    = junEvent[i2].col();
-	      cMot2 = junEvent[i2].acol();
-	      // Remove annihilation-type flows
-	      if (c1 != 0 && junEvent[i2].acol() == c1) c1 = 0;
-	      if (c2 != 0 && junEvent[i1].acol() == c2) c2 = 0;
-	      // Remove colors flowing through diagram
-	      for (int iDau = iDau1; iDau <= iDau2; iDau++) {
-		int colDau = junEvent[iDau].col();	
-		if (c1 != 0 && colDau == c1) c1 = 0;
-		if (c2 != 0 && colDau == c2) c2 = 0;
-	      }
-	    }
-	  }
-	  // Add non-annihilated colors
-	  if (c1 != 0) colJu.push_back(c1);
-	  if (c2 != 0) colJu.push_back(c2);
-	  // Determine junction kind from number of incoming lines
-	  int kindJun = 1 + mAcol + 2*colJu.size();
-	  //cout<<" Junction type : "<<kindJun<<endl;
-	  // Now add daughter color tags to junction
-	  for (int iDau = iDau1; iDau <= iDau2; iDau++) {
-	    c1 = 0;
-	    // For junctions: look at final-state colors, and vice-versa
-	    if (mAcol == 0) c1 = junEvent[iDau].col();
-	    else c1 = junEvent[iDau].acol();
-	    // Remove non-existent and (anti)colors flowing through diagram
-	    if (c1 == 0 || c1 == cMot1 || c1 == cMot2) continue;	      
-	    // Remove final-state matching color-anticolor pairs
-	    bool matchedPair = false;
-	    for (int jDau = iDau1; jDau <= iDau2; jDau++) 
-	      if (mAcol==0 && c1 == junEvent[jDau].acol()) matchedPair = true;
-	      else if (mAcol==1 && c1 == junEvent[jDau].col()) matchedPair = true;
-	    if (matchedPair) continue;
-	    // Else add anticolor to junction ends
-	    else colJu.push_back(c1);
-	  }
-	  if (colJu.size() != 3) {
-	    cout<< " (ProcessLevel::findJunctions:) problem identifying junction "<<endl;
-	    search = false;
-	  } else {
-	    //cout<< " adding junction type "
-	    //     <<kindJun<<" "<<colJu[0]<<" "<<colJu[1]<<" "<<colJu[2]<<endl;
-	    junEvent.appendJunction( kindJun, colJu[0], colJu[1], colJu[2]);   
-	    search = false;
-	  }
+	  //
+	  colJuOrd.insert(colJuOrd.begin(),colJu[jLeg]);
+	  kindJun += 2;
 	}
       }
-    }
-  }
- 
-  // Done.
-}
 
+      // Last error check
+      if (colJuOrd.size() != 3) {
+	infoPtr->errorMsg("Error in ProcessLevel::findJunctions: "
+			  "unable to order junction legs"); 
+	return;
+      }
+
+      /*
+      // DEBUG OUTPUT
+      cout<<" Adding junction type "<<kindJun
+	  <<" c = "<<colJuOrd[0]<<" "<<colJuOrd[1]<<" "<<colJuOrd[2]<<endl;
+      */
+
+      // Add junction with these tags
+      junEvent.appendJunction( kindJun, colJuOrd[0], colJuOrd[1], colJuOrd[2]);         
+    }
+    
+  }
+
+}
 //--------------------------------------------------------------------------
 
 // Check that colours match up.
@@ -1034,7 +1017,12 @@ bool ProcessLevel::checkColours( Event& process) {
     else if (colType ==  1 && (col <= 0 || acol != 0)) physical = false;
     else if (colType == -1 && (col != 0 || acol <= 0)) physical = false;
     else if (colType ==  2 && (col <= 0 || acol <= 0)) physical = false;
-    else if (colType < -1 || colType > 2)              physical = false; 
+    // Preparations for colour-sextet assignments 
+    // (colour,colour) = (colour,negative anticolour)
+    else if (colType ==  3 && (col <= 0 || acol >= 0)) physical = false;
+    else if (colType == -3 && (col >= 0 || acol <= 0)) physical = false;
+    // All other cases
+    else if (colType < -1 || colType > 3)              physical = false; 
 
     // Add to the list of colour tags.
     if (col > 0) {
@@ -1047,6 +1035,18 @@ bool ProcessLevel::checkColours( Event& process) {
       for (int ic = 0; ic < int(colTags.size()) ; ++ic)
         if (acol == colTags[ic]) match = true;
       if (!match) colTags.push_back(acol);
+    } 
+    // Colour sextets : map negative colour -> anticolour and vice versa
+    else if (col < 0) {
+      match = false;
+      for (int ic = 0; ic < int(colTags.size()) ; ++ic)
+        if (-col == colTags[ic]) match = true;
+      if (!match) colTags.push_back(-col);
+    } else if (acol < 0) {
+      match = false;
+      for (int ic = 0; ic < int(colTags.size()) ; ++ic)
+        if (-acol == colTags[ic]) match = true;
+      if (!match) colTags.push_back(-acol);
     }
   }
 
@@ -1074,15 +1074,17 @@ bool ProcessLevel::checkColours( Event& process) {
 	} 
     }
   }
-  
+
   // Loop through all colour tags and find their positions (by sign). 
   for (int ic = 0; ic < int(colTags.size()); ++ic) {
     col = colTags[ic];
     colPos.resize(0);
     acolPos.resize(0);
     for (int i = 0; i < process.size(); ++i) {
-      if (process[i].col() == col) colPos.push_back(i); 
-      if (process[i].acol() == col) acolPos.push_back(i); 
+      if (process[i].col() == col || process[i].acol() == -col) 
+	colPos.push_back(i); 
+      if (process[i].acol() == col || process[i].col() == -col) 
+	acolPos.push_back(i); 
     }
 
     // Trace colours back through decays; remove daughters.
@@ -1318,3 +1320,4 @@ void ProcessLevel::statistics2(bool reset, ostream& os) {
 //==========================================================================
 
 } // end namespace Pythia8
+

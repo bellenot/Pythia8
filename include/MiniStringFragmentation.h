@@ -1,5 +1,5 @@
 // MiniStringFragmentation.h is a part of the PYTHIA event generator.
-// Copyright (C) 2010 Torbjorn Sjostrand.
+// Copyright (C) 2011 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -36,7 +36,7 @@ public:
   // Initialize and save pointers.
   void init(Info* infoPtrIn, Settings& settings,  
     ParticleData* particleDataPtrIn, Rndm* rndmPtrIn, 
-    StringFlav* flavSelPtrIn);
+    StringFlav* flavSelPtrIn, StringPT* pTSelPtrIn, StringZ* zSelPtrIn);
 
   // Do the fragmentation: driver routine.
   bool fragment( int iSub, ColConfig& colConfig, Event& event, 
@@ -46,7 +46,6 @@ private:
 
   // Constants: could only be changed in the code itself.
   static const int    NTRYDIFFRACTIVE, NTRYLASTRESORT, NTRYFLAV;
-  static const double SIGMAMIN;
 
   // Pointer to various information on the generation.
   Info*         infoPtr;
@@ -57,12 +56,14 @@ private:
   // Pointer to the random number generator.
   Rndm*         rndmPtr;
 
-  // Pointer to class for flavour generation.
+  // Pointers to classes for flavour, pT and z generation.
   StringFlav*   flavSelPtr;
+  StringPT*     pTSelPtr;
+  StringZ*      zSelPtr;
 
   // Initialization data, read from Settings.
   int    nTryMass;
-  double sigma, sigma2Had, bLund;
+  double bLund;
 
   // Data members.
   bool   isClosed;

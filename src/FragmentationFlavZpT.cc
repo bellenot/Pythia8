@@ -1,5 +1,5 @@
 // FragmentationFlavZpT.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2010 Torbjorn Sjostrand.
+// Copyright (C) 2011 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -521,27 +521,32 @@ void StringZ::init(Settings& settings, ParticleData& particleData,
   Rndm* rndmPtrIn) {
 
   // Save pointer.
-  rndmPtr        = rndmPtrIn;
+  rndmPtr       = rndmPtrIn;
 
   // c and b quark masses.
-  mc2 = pow2( particleData.m0(4)); 
-  mb2 = pow2( particleData.m0(5)); 
+  mc2           = pow2( particleData.m0(4)); 
+  mb2           = pow2( particleData.m0(5)); 
 
   // Paramaters of Lund/Bowler symmetric fragmentation function.
-  aLund = settings.parm("StringZ:aLund");
-  bLund = settings.parm("StringZ:bLund");
+  aLund         = settings.parm("StringZ:aLund");
+  bLund         = settings.parm("StringZ:bLund");
   aExtraDiquark = settings.parm("StringZ:aExtraDiquark");
-  rFactC = settings.parm("StringZ:rFactC");
-  rFactB = settings.parm("StringZ:rFactB");
-  rFactH = settings.parm("StringZ:rFactH");
+  rFactC        = settings.parm("StringZ:rFactC");
+  rFactB        = settings.parm("StringZ:rFactB");
+  rFactH        = settings.parm("StringZ:rFactH");
 
   // Flags and parameters of Peterson/SLAC fragmentation function.
-  usePetersonC = settings.flag("StringZ:usePetersonC");
-  usePetersonB = settings.flag("StringZ:usePetersonB");
-  usePetersonH = settings.flag("StringZ:usePetersonH");
-  epsilonC = settings.parm("StringZ:epsilonC");
-  epsilonB = settings.parm("StringZ:epsilonB");
-  epsilonH = settings.parm("StringZ:epsilonH");
+  usePetersonC  = settings.flag("StringZ:usePetersonC");
+  usePetersonB  = settings.flag("StringZ:usePetersonB");
+  usePetersonH  = settings.flag("StringZ:usePetersonH");
+  epsilonC      = settings.parm("StringZ:epsilonC");
+  epsilonB      = settings.parm("StringZ:epsilonB");
+  epsilonH      = settings.parm("StringZ:epsilonH");
+
+  // Parameters for joining procedure.
+  stopM         = settings.parm("StringFragmentation:stopMass");
+  stopNF        = settings.parm("StringFragmentation:stopNewFlav");
+  stopS         = settings.parm("StringFragmentation:stopSmear");
 
 }
 
@@ -726,18 +731,30 @@ double StringZ::zPeterson( double epsilon) {
 
 //--------------------------------------------------------------------------
 
+// Constants: could be changed here if desired, but normally should not.
+// These are of technical nature, as described for each.
+
+// To avoid division by zero one must have sigma > 0.
+const double StringPT::SIGMAMIN     = 0.2;
+
+//--------------------------------------------------------------------------
+
 // Initialize data members of the string pT selection.
 
-void StringPT::init(Settings& settings, Rndm* rndmPtrIn) {
+void StringPT::init(Settings& settings,  ParticleData& , Rndm* rndmPtrIn) {
 
   // Save pointer.
   rndmPtr        = rndmPtrIn;
 
   // Parameters of the pT width and enhancement.
-  sigmaQ           = settings.parm("StringPT:sigma") / sqrt(2.);
+  double sigma     = settings.parm("StringPT:sigma");
+  sigmaQ           = sigma / sqrt(2.);
   enhancedFraction = settings.parm("StringPT:enhancedFraction");
   enhancedWidth    = settings.parm("StringPT:enhancedWidth");
 
+  // Parameter for pT suppression in MiniStringFragmentation.
+  sigma2Had        = 2. * pow2( max( SIGMAMIN, sigma) );
+  
 }
 
 //--------------------------------------------------------------------------

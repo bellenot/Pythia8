@@ -1,5 +1,5 @@
 // ParticleDecays.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2010 Torbjorn Sjostrand.
+// Copyright (C) 2011 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -104,7 +104,14 @@ void ParticleDecays::init(Info* infoPtrIn, Settings& settings,
   wRhoDal       = pow2(particleDataPtr->mWidth(113));  
 
   // Allow showers in decays to qqbar/gg/ggg/gammagg.
-  doFSRinDecays = settings.flag("ParticleDecays:FSRinDecays"); 
+  doFSRinDecays = settings.flag("ParticleDecays:FSRinDecays");
+
+  // Use standard decays or dedicated tau decay package
+  sophisticatedTau = settings.flag("ParticleDecays:sophisticatedTau");
+
+  // Initialize the dedicated tau decay handler.
+  if (sophisticatedTau) tauDecayer.init(infoPtr, &settings, 
+    particleDataPtr, rndmPtr, couplingsPtr);
 
 }
 
@@ -161,6 +168,10 @@ bool ParticleDecays::decay( int iDec, Event& event) {
     }
   }
     
+  // Check if the particle is tau and let the special tau decayer handle it.
+  if (decayer.idAbs() == 15 && !doneExternally && sophisticatedTau)
+    doneExternally = tauDecayer.decay(iDec, event);
+
   // Now begin normal internal decay treatment.
   if (!doneExternally) {
 
@@ -286,6 +297,14 @@ bool ParticleDecays::decay( int iDec, Event& event) {
   // and always flag that partonic system should be fragmented. 
   if (hasPartons && keepPartons && doFSRinDecays) 
     timesDecPtr->shower( iProd[1], iProd.back(), event, mProd[0]);
+
+  // For Hidden Valley particles also allow leptons to shower.
+  else if (event[iDec].idAbs() > 4900000 && event[iDec].idAbs() < 5000000 
+  && doFSRinDecays && mult == 2 && event[iProd[1]].isLepton()) {
+    event[iProd[1]].scale(mProd[0]);  
+    event[iProd[2]].scale(mProd[0]);  
+    timesDecPtr->shower( iProd[1], iProd.back(), event, mProd[0]);
+  }
 
   // Done.
   return true;

@@ -94,6 +94,7 @@ echo "<a href='SaveSettings.php?returning=1&filename=".$filename."' target='page
 <a href='Fragmentation.php?filepath=".$filepath."' target='page'>Fragmentation</a><br/>
 <a href='FlavourSelection.php?filepath=".$filepath."' target='page'>Flavour Selection</a><br/>
 <a href='ParticleDecays.php?filepath=".$filepath."' target='page'>Particle Decays</a><br/>
+<a href='RHadrons.php?filepath=".$filepath."' target='page'>R-hadrons</a><br/>
 <a href='BoseEinsteinEffects.php?filepath=".$filepath."' target='page'>Bose-Einstein Effects</a><br/>
 <a href='ParticleData.php?filepath=".$filepath."' target='page'>Particle Data</a><br/>
 <a href='ErrorChecks.php?filepath=".$filepath."' target='page'>Error Checks</a><br/>
@@ -155,4 +156,4 @@ echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>Les Ho
 </body>
 </html>
 
-<!-- Copyright (C) 2010 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2011 Torbjorn Sjostrand -->

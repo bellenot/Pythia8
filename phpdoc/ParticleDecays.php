@@ -41,8 +41,9 @@ echo "<a href='ResonanceDecays.php?filepath=".$filepath."' target='page'>";?>res
 <p/>
 The decay description essentially copies the one present in 
 PYTHIA since many years, but with some improvements, e.g. in the decay
-tables and the number of decay models available. Some issues may need 
-further polishing.
+tables and the number of decay models available. Recently a more
+sophisticated handling of <i>tau</i> decays has also been introduced.
+Some issues may need further polishing.
 
 <h3>Variables determining whether a particle decays</h3>
 
@@ -146,15 +147,33 @@ The mixing parameter <i>x_s = Delta(m_B_s^0)/Gamma_B_s^0</i> in the
 Gamma from RPP2006.)
    
 
+<h3>tau decays</h3>
+
+A new machinery has been introduced to handle <i>tau</i> lepton decays, 
+with helicity information related to the production process and with
+the form of the hadronic current fitted to data. It is largely based
+on the corresponding Herwig++ implementation [<a href="Bibliography.php" target="page">Gre07</a>], with
+some input from Tauola [<a href="Bibliography.php" target="page">Jad90</a>]. A complete writeup is 
+in preparation [<a href="Bibliography.php" target="page">Ilt11</a>].
+
+This new machinery is on by default, but it is possible to revert to 
+the simpler old decay handling, e.g. to study differences.
+
+<br/><br/><strong>ParticleDecays:sophisticatedTau</strong>  <input type="radio" name="13" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="13" value="off"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
+Use the new <i>tau</i> decay description or not.
+  
+
 <h3>Other variables</h3>
 
-<br/><br/><table><tr><td><strong>ParticleDecays:mSafety </td><td></td><td> <input type="text" name="13" value="0.0005" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.0005</strong></code>; <code>minimum = 0.</code>; <code>maximum = 0.01</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ParticleDecays:mSafety </td><td></td><td> <input type="text" name="14" value="0.0005" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.0005</strong></code>; <code>minimum = 0.</code>; <code>maximum = 0.01</code>)</td></tr></table>
 Minimum mass difference required between the decaying mother mass 
 and the sum of the daughter masses, kept as a safety margin to avoid
 numerical problems in the decay generation.
    
 
-<br/><br/><table><tr><td><strong>ParticleDecays:sigmaSoft </td><td></td><td> <input type="text" name="14" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.2</code>; <code>maximum = 2.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ParticleDecays:sigmaSoft </td><td></td><td> <input type="text" name="15" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.2</code>; <code>maximum = 2.</code>)</td></tr></table>
 In semileptonic decays to more than one hadron, such as 
 <i>B -> nu l D pi</i>, decay products after the first three are 
 dampened in momentum by an explicit weight factor 
@@ -183,19 +202,19 @@ new try is made, including a new multiplicity. These constraints
 imply that the actual average multiplicity does not quite agree with
 the formula above.
 
-<br/><br/><table><tr><td><strong>ParticleDecays:multIncrease </td><td></td><td> <input type="text" name="15" value="4.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>4.5</strong></code>; <code>minimum = 3.</code>; <code>maximum = 6.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ParticleDecays:multIncrease </td><td></td><td> <input type="text" name="16" value="4.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>4.5</strong></code>; <code>minimum = 3.</code>; <code>maximum = 6.</code>)</td></tr></table>
 The above <i>multIncrease</i> parameter.
    
 
-<br/><br/><table><tr><td><strong>ParticleDecays:multRefMass </td><td></td><td> <input type="text" name="16" value="0.7" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.7</strong></code>; <code>minimum = 0.2</code>; <code>maximum = 2.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ParticleDecays:multRefMass </td><td></td><td> <input type="text" name="17" value="0.7" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.7</strong></code>; <code>minimum = 0.2</code>; <code>maximum = 2.0</code>)</td></tr></table>
 The above <i>multRefMass</i> parameter.
    
 
-<br/><br/><table><tr><td><strong>ParticleDecays:multGoffset </td><td></td><td> <input type="text" name="17" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 2.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ParticleDecays:multGoffset </td><td></td><td> <input type="text" name="18" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 2.0</code>)</td></tr></table>
 The above <i>multGoffset</i> parameter.
    
 
-<br/><br/><table><tr><td><strong>ParticleDecays:colRearrange </td><td></td><td> <input type="text" name="18" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.</code>; <code>maximum = 1.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ParticleDecays:colRearrange </td><td></td><td> <input type="text" name="19" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.</code>; <code>maximum = 1.0</code>)</td></tr></table>
 When a decay is given as a list of four partons to be turned into
 hadrons (primarily for modes 41 - 80)  it is assumed that they are 
 listed in pairs, as a first and a second colour singlet, which could 
@@ -204,8 +223,8 @@ the probability that this original assignment is not respected, and
 default corresponds to no memory of this original colour topology.
    
 
-<br/><br/><strong>ParticleDecays:FSRinDecays</strong>  <input type="radio" name="19" value="on"><strong>On</strong>
-<input type="radio" name="19" value="off"><strong>Off</strong>
+<br/><br/><strong>ParticleDecays:FSRinDecays</strong>  <input type="radio" name="20" value="on"><strong>On</strong>
+<input type="radio" name="20" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>true</strong></code>)<br/>
 When a particle decays to <i>q qbar</i>, <i>g g</i>, <i>g g g</i> 
 or <i>gamma g g</i>, with <code>meMode > 90</code>, allow or not a 
@@ -366,39 +385,44 @@ if($_POST["12"] != "26.05")
 $data = "ParticleDecays:xBsMix = ".$_POST["12"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["13"] != "0.0005")
+if($_POST["13"] != "on")
 {
-$data = "ParticleDecays:mSafety = ".$_POST["13"]."\n";
+$data = "ParticleDecays:sophisticatedTau = ".$_POST["13"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["14"] != "0.5")
+if($_POST["14"] != "0.0005")
 {
-$data = "ParticleDecays:sigmaSoft = ".$_POST["14"]."\n";
+$data = "ParticleDecays:mSafety = ".$_POST["14"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["15"] != "4.5")
+if($_POST["15"] != "0.5")
 {
-$data = "ParticleDecays:multIncrease = ".$_POST["15"]."\n";
+$data = "ParticleDecays:sigmaSoft = ".$_POST["15"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["16"] != "0.7")
+if($_POST["16"] != "4.5")
 {
-$data = "ParticleDecays:multRefMass = ".$_POST["16"]."\n";
+$data = "ParticleDecays:multIncrease = ".$_POST["16"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["17"] != "0.5")
+if($_POST["17"] != "0.7")
 {
-$data = "ParticleDecays:multGoffset = ".$_POST["17"]."\n";
+$data = "ParticleDecays:multRefMass = ".$_POST["17"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["18"] != "0.5")
 {
-$data = "ParticleDecays:colRearrange = ".$_POST["18"]."\n";
+$data = "ParticleDecays:multGoffset = ".$_POST["18"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["19"] != "true")
+if($_POST["19"] != "0.5")
 {
-$data = "ParticleDecays:FSRinDecays = ".$_POST["19"]."\n";
+$data = "ParticleDecays:colRearrange = ".$_POST["19"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["20"] != "true")
+{
+$data = "ParticleDecays:FSRinDecays = ".$_POST["20"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);
@@ -408,5 +432,5 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2010 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
 

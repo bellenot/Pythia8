@@ -1,5 +1,6 @@
 // SusyCouplings.h is a part of the PYTHIA event generator.
-// Copyright (C) 2010 Peter Skands, Torbjorn Sjostrand.
+// Copyright (C) 2011 Torbjorn Sjostrand.
+// Main authors of this file: N. Desai, P. Skands
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -45,6 +46,9 @@ public:
 
   // Tanbeta
   double tanb, cosb, sinb;
+
+  //Higgs-sector parameters
+  double muHiggs, alphaHiggs, mAHiggs;
 
   // ~qq~g couplings
   complex LsddG[7][4], RsddG[7][4];
@@ -98,12 +102,35 @@ public:
     ? LsuuX[iSq][abs(idQ)/2][iNeut] : LsddX[iSq][(abs(idQ)+1)/2][iNeut] ;}
   complex getRsqqX(int iSq, int idQ, int iNeut) {return (abs(idQ)%2 == 0) 
     ? RsuuX[iSq][abs(idQ)/2][iNeut] : RsddX[iSq][(abs(idQ)+1)/2][iNeut] ;}
- 
+
   // ~du~chi+ couplings
   complex LsduX[7][4][3], RsduX[7][4][3];
 
   // ~ud~chi+ couplings
   complex LsudX[7][4][3], RsudX[7][4][3];
+
+  //llZ couplings
+  double LllZ[7], RllZ[7]; 
+
+  //lvW couplings
+  complex LlvW[4], RlvW[4];
+
+  // ~l~lZ couplings
+  double LslslZ[7][7],RslslZ[7][7];
+  double LsvsvZ[7][7],RsvsvZ[7][7];
+
+  // ~l~vW couplings
+  complex LslsvW[7][7], RslsvW[7][7];
+ 
+  // ~ll~chi0 couplings
+  complex LsvvX[7][4][6], RsvvX[7][4][6];
+  complex LsllX[7][4][6], RsllX[7][4][6];
+
+  // ~vl~chi+ couplings
+  complex LsvlX[7][4][3], RsvlX[7][4][3];
+
+  // ~lv~chi+ couplings
+  complex LslvX[7][4][3], RslvX[7][4][3];
 
   // RPV couplings
   double rvLLE[4][4][4], rvLQD[4][4][4], rvUDD[4][4][4];
@@ -119,6 +146,10 @@ public:
   int idSup(int iSup);
   int idSdown(int iSdown);
   int idSlep(int iSlep); 
+
+  //Reverse lookup for neutralinos and charginos
+  int typeNeut(int idPDG);
+  int typeChar(int idPDG);
 
   // Return a particle name, given the PDG code.
   string getName(int pdgCode);    

@@ -80,6 +80,9 @@ OBJS =   $(OUTDIR)/Analysis.obj \
          $(OUTDIR)/FragmentationFlavZpT.obj \
          $(OUTDIR)/FragmentationSystems.obj \
          $(OUTDIR)/HadronLevel.obj \
+         $(OUTDIR)/HelicityBasics.obj \
+         $(OUTDIR)/HelicityMatrixElements.obj \
+         $(OUTDIR)/HiddenValleyFragmentation.obj \
          $(OUTDIR)/Info.obj \
          $(OUTDIR)/LesHouches.obj \
          $(OUTDIR)/MiniStringFragmentation.obj \
@@ -96,6 +99,7 @@ OBJS =   $(OUTDIR)/Analysis.obj \
          $(OUTDIR)/PythiaStdlib.obj \
          $(OUTDIR)/ResonanceDecays.obj \
          $(OUTDIR)/ResonanceWidths.obj \
+         $(OUTDIR)/RHadrons.obj \
          $(OUTDIR)/Settings.obj \
          $(OUTDIR)/SigmaCompositeness.obj \
          $(OUTDIR)/SigmaEW.obj \
@@ -115,11 +119,14 @@ OBJS =   $(OUTDIR)/Analysis.obj \
          $(OUTDIR)/StringFragmentation.obj \
          $(OUTDIR)/SusyCouplings.obj \
          $(OUTDIR)/SusyLesHouches.obj \
+         $(OUTDIR)/SusyResonanceWidths.obj \
+         $(OUTDIR)/TauDecays.obj \
          $(OUTDIR)/TimeShower.obj \
          $(OUTDIR)/UserHooks.obj \
-         $(OUTDIR)/LHAPDFDummy.obj
-# If you link to LHAPDF you don't want the last line
 # If you link to HepMC you also need HepMCInterface
+#         $(OUTDIR)/HepMCInterface.obj \
+# If you link to LHAPDF you don't want the last line
+         $(OUTDIR)/LHAPDFDummy.obj
 
 LIBS : $(OUTDIR) $(LIBDIR) $(BINDIR) $(LIBLIB)
 

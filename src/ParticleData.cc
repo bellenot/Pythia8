@@ -1,5 +1,5 @@
 // ParticleData.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2010 Torbjorn Sjostrand.
+// Copyright (C) 2011 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -81,12 +81,14 @@ bool DecayChannel::contains(int id1, int id2, int id3) const {
 // A particle is invisible if it has neither strong nor electric charge,
 // and is not made up of constituents that have it. Only relevant for
 // long-lived particles. This list may need to be extended.
-const int ParticleDataEntry::INVISIBLENUMBER = 38;
-const int ParticleDataEntry::INVISIBLETABLE[38] = { 12, 14, 16, 18, 23, 25, 
-  32, 33, 35, 36, 39, 41, 1000012, 1000014, 1000016, 1000018, 1000022, 
+const int ParticleDataEntry::INVISIBLENUMBER = 50;
+const int ParticleDataEntry::INVISIBLETABLE[50] = { 12, 14, 16, 18, 23, 25,
+  32, 33, 35, 36, 39, 41,    1000012, 1000014, 1000016, 1000018, 1000022, 
   1000023, 1000025, 1000035, 1000045, 1000039, 2000012, 2000014, 2000016, 
-  2000018, 4900012, 4900014, 4900016, 4900021, 4900022, 4900101, 5000039, 
-  5100039, 9900012, 9900014, 9900016, 9900023};     
+  2000018, 4900012, 4900014, 4900016, 4900021, 4900022, 4900101, 4900102,
+  4900103, 4900104, 4900105, 4900106, 4900107, 4900108, 4900111, 4900113, 
+  4900211, 4900213, 4900991, 5000039, 5100039, 9900012, 9900014, 9900016, 
+  9900023 };     
 
 // Particles with a read-in tau0 (in mm/c) below this mayDecay by default.
 const double ParticleDataEntry::MAXTAU0FORDECAY = 1000.;
@@ -97,9 +99,9 @@ const double ParticleDataEntry::MINMASSRESONANCE = 20.;
 // Narrow states are assigned nominal mass.
 const double ParticleDataEntry::NARROWMASS       = 1e-6;
 
-// Constituent quark masses (d, u, s, c, b).
-const double ParticleDataEntry::CONSTITUENTMASSTABLE[6] 
-  = {0., 0.325, 0.325, 0.50, 1.60, 5.00};
+// Constituent quark masses (d, u, s, c, b, -, -, -, g).
+const double ParticleDataEntry::CONSTITUENTMASSTABLE[10] 
+  = {0., 0.325, 0.325, 0.50, 1.60, 5.00, 0., 0., 0., 0.7};
 
 //--------------------------------------------------------------------------
 
@@ -495,8 +497,9 @@ void ParticleDataEntry::setConstituentMass() {
   // Equate with the normal masses as default guess.
   constituentMassSave = m0Save;
 
-  // Quark masses trivial.
+  // Quark masses trivial. Also gluon mass.
   if (idSave < 6) constituentMassSave = CONSTITUENTMASSTABLE[idSave];
+  if (idSave == 21) constituentMassSave = CONSTITUENTMASSTABLE[9];
  
   // Diquarks as simple sum of constituent quarks.  
   if (idSave > 1000 && idSave < 10000 && (idSave/10)%10 == 0) {

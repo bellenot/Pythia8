@@ -297,6 +297,14 @@ event record of the outgoing-state parton that rescatters.
 the first or second beam, respectively.
 </methodmore>
 
+<method name="double Info::eMI(i)"> 
+The enhancement or depletion of the rate of the <code>i</code>'th 
+subprocess. Is primarily of interest for the 
+<code>MultipleInteractions:bProfile = 4</code> option, where the 
+size of the proton depends on the <ei>x</ei> values of the colliding
+partons. Note that <code>eMI(0) = enhanceMI()</code>.
+</method>
+
 <h3>Cross sections</h3>
 
 Here are the currently available methods related to the event sample 
@@ -462,4 +470,4 @@ normally the default value is what you want.
 
 </chapter>
 
-<!-- Copyright (C) 2010 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
