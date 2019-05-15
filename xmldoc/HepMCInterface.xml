@@ -64,7 +64,9 @@ possibility exists and, if it does the current values from
 multiplied by <ei>10^9</ei> to convert from mb to pb. Note that
 PYTHIA improves it accuracy by Monte Carlo integration in the course
 of the run, so the values associated with the last generated event
-should be the most accurate ones. 
+should be the most accurate ones. (If events also come with a dimensional 
+weight, like in some Les Houches strategies, conversion from mb to fb 
+for that weight must be set by hand, see the last method below.)
 
 <h2>The public methods</h2>
 
@@ -137,38 +139,63 @@ have gluons represented by a 0.
 </argument>
 </method>
 
+<p/>
+The following methods can be used to set, and in some cases interrogate,
+the status of some switches that can be used to modify the behaviour
+of the conversion routine. The <code>set</code> methods have the 
+same default input values as the internal initialization ones, so
+that a call without an argument (re)stores the default.
+
 <method name="void I_Pythia8::set_trust_mothers_before_daughters( 
-bool b = 1 )">
+bool b = true )">
 </method>
 <methodmore name="bool I_Pythia8::trust_mothers_before_daughters()">
 if there is a conflict in the history information, then trust the 
 information on mothers above that on daughters. Currently this is
-the only option implemented.
+the only option implemented. 
 </methodmore>
 
 <method name="void I_Pythia8::set_trust_both_mothers_and_daughters( 
-bool b = 0 )">
+bool b = false )">
 </method>
 <methodmore name="bool I_Pythia8::trust_both_mothers_and_daughters()">
 currently dummy methods intended to resolve conflicts in the event
 history.
 </methodmore>
 
-<method name="void I_Pythia8::set_print_inconsistency_errors( bool b = 1 )">
+<method name="void I_Pythia8::set_print_inconsistency_errors( 
+bool b = true )">
 </method>
 <methodmore name="bool I_Pythia8::print_inconsistency_errors()">
 print a warning line, on <code>cerr</code>, when inconsistent mother 
 and daughter information is encountered.
 </methodmore>
 
-<method name="void I_Pythia8::set_crash_on_problem( bool b = 1 )">
+<method name="void I_Pythia8::set_crash_on_problem( bool b = false )">
 if problems are encountered then the run is interrupted by an
 <code>exit(1)</code> command. Default is not to crash.
 </method>
 
-<method name="void I_Pythia8::set_convert_to_mev( bool b = 1 )">
-connvert the normal GeV energies, momenta and masses to MeV.
-Currently not implemented, so everything always is stored as GeV.
+<method name="void I_Pythia8::set_freepartonwarnings( bool b = true )">
+interrupt the run by an <code>exit(1)</code> command if unhadronized 
+gluons or quarks are encountered in the event record, unless 
+hadronization is switched off. Default is to crash.
+</method>
+
+<method name="void I_Pythia8::set_convert_to_mev( bool b = false )">
+convert the normal GeV energies, momenta and masses to MeV.
+</method>
+
+<method name="void I_Pythia8::set_weight_in_fb( bool b = false )">
+when event weights are given in dimensional units, do a conversion
+from mb to fb. Normally event weights are unity, or at least
+dimensionless, and then no conversion should be done. However, 
+if events are fed in with the 
+<aloc href="LesHouchesAccord">Les Houches</aloc> strategy 4 or -4, 
+they carry the dimensions of fb at input, that is converted to mb 
+for internal PYTHIA consistency. This method then needs to be used
+to ensure that the event weight is converted back to fb. One could
+foresee also other cases where such a conversion would be needed.
 </method>
 
 </chapter>

@@ -67,6 +67,7 @@ void TimeShower::init( BeamParticle* beamAPtrIn,
   doQEDshowerByL     = settingsPtr->flag("TimeShower:QEDshowerByL");
   doQEDshowerByGamma = settingsPtr->flag("TimeShower:QEDshowerByGamma");
   doMEcorrections    = settingsPtr->flag("TimeShower:MEcorrections");
+  doMEafterFirst     = settingsPtr->flag("TimeShower:MEafterFirst");
   doPhiPolAsym       = settingsPtr->flag("TimeShower:phiPolAsym"); 
   doInterleave       = settingsPtr->flag("TimeShower:interleave"); 
   allowBeamRecoil    = settingsPtr->flag("TimeShower:allowBeamRecoil"); 
@@ -348,7 +349,7 @@ void TimeShower::rescatterUpdate( int iSys, Event& event) {
       if (dipNow.iRecoiler == iOut) {
         int iRad = dipNow.iRadiator;
 
-        // Colour dipole: recoil in final state, initial state or new
+        // Colour dipole: recoil in final state, initial state or new.
         if (dipNow.colType > 0) {
           int colTag = event[iRad].col(); 
           bool done  = false;
@@ -378,7 +379,7 @@ void TimeShower::rescatterUpdate( int iSys, Event& event) {
               done             = true;
             }
           }
-          // If above options failed, then create new dipole
+          // If above options failed, then create new dipole.
           if (!done) {
             int iRadNow = partonSystemsPtr->getIndexOfOut(dipNow.system, iRad);
             if (iRadNow != -1)
@@ -396,7 +397,7 @@ void TimeShower::rescatterUpdate( int iSys, Event& event) {
             "failed to locate new recoiling colour partner");
           }
 
-        // Anticolour dipole: recoil in final state, initial state or new
+        // Anticolour dipole: recoil in final state, initial state or new.
         } else if (dipNow.colType < 0) {
           int  acolTag = event[iRad].acol(); 
           bool done    = false;  
@@ -426,7 +427,7 @@ void TimeShower::rescatterUpdate( int iSys, Event& event) {
               done             = true;
             }
           } 
-          // If above options failed, then create new dipole
+          // If above options failed, then create new dipole.
           if (!done) {
             int iRadNow = partonSystemsPtr->getIndexOfOut(dipNow.system, iRad);
             if (iRadNow != -1)
@@ -1682,6 +1683,7 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
 
   // Construct kinematics in dipole rest frame: 
   // begin simple (like g -> g g).
+  double pTorig       = sqrt( dipSel->pT2);
   double eRadPlusEmt  = 0.5 * (dipSel->m2Dip + dipSel->m2 - dipSel->m2Rec) 
     / dipSel->mDip;
   double e2RadPlusEmt = pow2(eRadPlusEmt);
@@ -1708,6 +1710,7 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
                       / dipSel->m2;
     kEmt              = 0.5 * (dipSel->m2 - lambda + dipSel->m2Rad - m2Emt)
                       / dipSel->m2; 
+    pTorig           *= 1. - kRad - kEmt;
     pTcorr           *= 1. - kRad - kEmt;
     double pzMove     = kRad * pzRad - kEmt * pzEmt;
     pzRad            -= pzMove;
@@ -1716,6 +1719,7 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
   // Kinematics reduction for q -> q g/gamma/g_HV when m_q > 0. 
   } else if (abs(dipSel->colType) == 1 || dipSel->chgType != 0 
     || abs(dipSel->colvType) == 1) { 
+    pTorig           *= 1. - dipSel->m2Rad / dipSel->m2; 
     pTcorr           *= 1. - dipSel->m2Rad / dipSel->m2; 
     pzRad            += pzEmt * dipSel->m2Rad / dipSel->m2;
     pzEmt            *= 1. - dipSel->m2Rad / dipSel->m2; 
@@ -1725,10 +1729,14 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
     mEmt              = dipSel->mFlavour;
     mRad              = mEmt;
     double beta       = sqrtpos( 1. - 4. * pow2(mEmt) / dipSel->m2 );   
+    pTorig           *= beta;
     pTcorr           *= beta;
     pzRad             = 0.5 * ( (1. + beta) * pzRad + (1. - beta) * pzEmt );
     pzEmt             = pzRadPlusEmt - pzRad;
   } 
+
+  // Reject g emission where mass effects have reduced pT below cutoff.
+  if (idEmt == 21 && pTorig < pTcolCut) return false;
 
   // Find rest frame and angles of original dipole.
   RotBstMatrix M;
@@ -1880,6 +1888,8 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
     dipSel->systemRec  = iSysSel;
     dipSel->isrType    = 0;
     dipSel->pTmax      = pTsel;
+    // Optionally also kill ME corrections after first emission.
+    if (!doMEafterFirst) dipSel->MEtype = 0;
     // PS dec 2010: check normalization of radiating dipole 
     // Dipole corresponding to the newly created color tag has normal strength
     double flexFactor  = (isFlexible) ? dipSel->flexFactor : 1.0;
@@ -1889,6 +1899,8 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
         && dipEnd[i].colType != 0) {
         dipEnd[i].iRadiator = iRec;
         dipEnd[i].iRecoiler = iEmt;
+        // Optionally also kill ME corrections after first emission.
+        if (!doMEafterFirst) dipEnd[i].MEtype = 0;
         // Strive to match colour to anticolour inside closed system.
         if ( !isFlexible && dipEnd[i].colType * dipSel->colType > 0) 
           dipEnd[i].iRecoiler = iRad;
@@ -2051,17 +2063,6 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
   partonSystemsPtr->replace(iSysSel, iRadBef, iRad);  
   partonSystemsPtr->addOut(iSysSel, iEmt);
   partonSystemsPtr->replace(iSysSelRec, iRecBef, iRec);
-
-  /*
-  // DEBUG OUTPUT  
-  event.list();
-  cout<<" After branch() iRadBef = "<<iRadBef<<" iEmt = "<<iEmt<<endl;
-  for (int jJun = 0; jJun < event.sizeJunction(); jJun++) { 
-    cout<<" jJun "<<jJun<<" kind = "<<event.kindJunction(jJun)<<" cols = ";
-    for (int jLeg=0; jLeg < 3; jLeg++) cout<<event.colJunction(jJun, jLeg)<<"->"<<event.endColJunction(jJun, jLeg)<<" ";
-    cout<<endl;
-  }
-  */
 
   // Done. 
   return true;

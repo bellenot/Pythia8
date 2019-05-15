@@ -38,19 +38,25 @@ by PYTHIA. However, it is also possible to implement a
 new process in exactly the same way as the internal PYTHIA
 ones, thus making use of the internal phase space selection machinery
 to sample an externally provided cross-section expression. 
-This page gives a brief summary how to do that. If you additionally 
+The MadGraph 5 program [<a href="Bibliography.php" target="page">Alw11</a>] allows you to do exactly that, 
+i.e. it can be used to generate C++ code that can be linked into
+the existing PYTHIA framework, see 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='MadGraph5Processes.php?filepath=".$filepath."' target='page'>";?>here</a>.
+
+<p/>
+Should you decide to go ahead on your own,
+this page gives a brief summary how to do that. If you additionally 
 want to introduce a new resonance species, with its own internal 
 width calculations, you will find further instructions 
 <?php $filepath = $_GET["filepath"];
-echo "<a href='SemiInternalResonances.php?filepath=".$filepath."' target='page'>";?>here</a>.
-
-<p/>
-Should you actually go ahead, it is strongly recommended to shop around 
-for a similar process that has already been implemented, and to use that 
-existing code as a template. Look for processes with the same combinations
-of incoming flavours and colour flows, rather than the shape of the 
-cross section itself. With a reasonable such match the task should be 
-of medium difficulty, without it more demanding. 
+echo "<a href='SemiInternalResonances.php?filepath=".$filepath."' target='page'>";?>here</a>. It is strongly 
+recommended to shop around for a similar process that has already 
+been implemented, and to use that existing code as a template. 
+Look for processes with the same combinations of incoming flavours 
+and colour flows, rather than the shape of the cross section itself. 
+With a reasonable such match the task should be of medium difficulty, 
+without it more demanding. 
 
 <p/>
 PYTHIA is rather good at handling the phase space of 
@@ -63,12 +69,15 @@ decays, and to include further matrix-element weighting in those decays.
 
 <p/>
 There are three steps involved in implementing a process:
-<br/>1) making use of the PYTHIA-provided kinematics information to 
-calculate the relevant cross section,
-<br/>2) writing a new class,  where the matrix elements are implemented, 
-including information on incoming and outgoing flavours and colours, and 
-<br/>3) making the process available.
-<br/>We consider these aspects in turn. An example where it all comes
+<ol>
+<li>making use of the PYTHIA-provided kinematics information to 
+calculate the relevant cross section,</li>
+<li>writing a new class,  where the matrix elements are implemented, 
+including information on incoming and outgoing flavours and colours, 
+and</li> 
+<li>making the process available.</li>
+</ol>
+We consider these aspects in turn. An example where it all comes
 together is found in <code>main25.cc</code>.
 
 <h3>The Cross Section Calculation</h3> 

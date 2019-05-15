@@ -37,8 +37,8 @@ const int    SigmaProcess::NCOMPSTEP  = 10;
 
 void SigmaProcess::init(Info* infoPtrIn, Settings* settingsPtrIn,
   ParticleData* particleDataPtrIn, Rndm* rndmPtrIn, BeamParticle* beamAPtrIn, 
-  BeamParticle* beamBPtrIn, Couplings* couplingsPtrIn, SigmaTotal* sigmaTotPtrIn,
-  SusyLesHouches* slhaPtrIn) {
+  BeamParticle* beamBPtrIn, Couplings* couplingsPtrIn, 
+  SigmaTotal* sigmaTotPtrIn, SusyLesHouches* slhaPtrIn) {
 
   // Store pointers.
   infoPtr         = infoPtrIn;

@@ -417,8 +417,17 @@ Number of allowed lepton flavours in <i>gamma -> l+ l-</i> branchings
 Use of matrix element corrections where available; on/off = true/false.
   
 
-<br/><br/><strong>TimeShower:phiPolAsym</strong>  <input type="radio" name="26" value="on" checked="checked"><strong>On</strong>
+<br/><br/><strong>TimeShower:MEafterFirst</strong>  <input type="radio" name="26" value="on" checked="checked"><strong>On</strong>
 <input type="radio" name="26" value="off"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
+Use of matrix element corrections also after the first emission,
+for dipole ends of the same system that did not yet radiate.
+Only has a meaning if <code>MEcorrections</code> above is 
+switched on. 
+  
+
+<br/><br/><strong>TimeShower:phiPolAsym</strong>  <input type="radio" name="27" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="27" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Azimuthal asymmetry induced by gluon polarization; on/off = true/false.
   
@@ -565,7 +574,12 @@ fwrite($handle,$data);
 }
 if($_POST["26"] != "on")
 {
-$data = "TimeShower:phiPolAsym = ".$_POST["26"]."\n";
+$data = "TimeShower:MEafterFirst = ".$_POST["26"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["27"] != "on")
+{
+$data = "TimeShower:phiPolAsym = ".$_POST["27"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);

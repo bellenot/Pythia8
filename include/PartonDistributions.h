@@ -447,9 +447,28 @@ private:
   void xfUpdate(int , double , double ) {xlepton = 1; xgamma = 0.;}
 
 };
-
-} // end namespace Pythia8
  
 //==========================================================================
+
+// Gives neutrino parton distribution when unresolved (only choice for now).
+// Note factor of 2 since only lefthanded implies no spin averaging.
+ 
+class NeutrinoPoint : public PDF {
+
+public:
+
+  // Constructor.
+  NeutrinoPoint(int idBeamIn = 12) : PDF(idBeamIn) {}
+
+private:
+
+  // Update PDF values, with spin factor of 2. 
+  void xfUpdate(int , double , double ) {xlepton = 2; xgamma = 0.;}
+
+};
+ 
+//==========================================================================
+
+} // end namespace Pythia8
 
 #endif // Pythia8_PartonDistributions_H

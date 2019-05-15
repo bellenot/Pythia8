@@ -215,17 +215,32 @@ a <ei>2 -> 2</ei> process.
 <h3>Event weight and activity</h3>
 
 <method name="double Info::weight()"> 
-weight assigned to the current event. Is normally 1 and thus uninteresting.
-However, in case of the <code><aloc href="PhaseSpaceCuts">
+weight assigned to the current event. Is normally 1 and thus 
+uninteresting. However, there are several cases where one may have
+nontrivial event weights. These weights must the be used e.g. when 
+filling histograms. 
+<br/>(i) In the <code><aloc href="PhaseSpaceCuts">
 PhaseSpace:increaseMaximum = off</aloc></code> default strategy,
 an event with a differential cross-section above the assumed one 
 (in a given phase-space point) is assigned a weight correspondingly
 above unity. This should happen only very rarely, if at all, and so
-could normally be disregarded. For Les Houches events some strategies 
-allow negative weights, which then after unweighting lead to events 
-with weight -1. There are also Les Houches strategies where no unweighting 
-is done, and therefore a nontrivial event weight must be used e.g. 
-when filling histograms. 
+could normally be disregarded. 
+<br/>(ii) The <aloc href="UserHooks">User Hooks</aloc> class offers 
+the possibility to bias the selection of phase space points, which 
+means that events come with a compensating weight, stored here. 
+<br/>(iii) For Les Houches events some strategies allow negative weights, 
+which then after unweighting lead to events with weight -1. There are 
+also Les Houches strategies where no unweighting is done, so events 
+come with a weight. 
+</method>
+
+<method name="double Info::weightSum()"> 
+Sum of weights accumulated during the run. For unweighted events this
+agrees with the number of generated events. In order to obtain 
+histograms normalized "per event", at the end of a run, histogram
+contents should be divided by this weight. (And additionally 
+divided by the bin width.) Normalization to cross section also
+required multiplication by <code>sigmaGen()</code> below.
 </method>
 
 <method name="int Info::nISR()"> 
@@ -256,8 +271,13 @@ but not once the event has been evolved.
 
 <h3>Multiple interactions</h3>
 
+<method name="double Info::a0MI()">
+The value of a0 when an x-dependent matter profile is used,
+<code>MultipleInteractions:bProfile = 4</code>.
+</method>
+
 <method name="double Info::bMI()"> 
-the impact parameter <ei>b</ei> assumed for the current collision when
+The impact parameter <ei>b</ei> assumed for the current collision when
 multiple interactions are simulated. Is not expressed in any physical
 size (like fm), but only rescaled so that the average should be unity 
 for minimum-bias events (meaning less than that for events with hard
@@ -272,7 +292,7 @@ more than that for events with hard processes).
 </method>
 
 <method name="int Info::nMI()"> 
-the number of hard interactions in the current event. Is 0 for elastic
+The number of hard interactions in the current event. Is 0 for elastic
 and diffractive events, and else at least 1, with more possible from
 multiple interactions.
 </method>
@@ -454,6 +474,7 @@ for the unassigned counters 40 - 49.
 <argument name="value" default="0"> set the counter to this number;
 normally the default value is what you want.
 </argument>
+</method>
 
 <method name="void Info::addCounter(int i, int value = 0)">
 increase the above counters by a given amount. Only to be used by you 
@@ -463,10 +484,31 @@ for the unassigned counters 40 - 49.
 <argument name="value" default="1"> increase the counter by this amount;
 normally the default value is what you want.
 </argument>
-
 </method>
 
+<h3>Parton shower history</h3>
 
+The following methods are mainly intended for internal use,
+e.g. for matrix-element matching.
+
+<method name="void Info::hasHistory(bool hasHistoryIn)">
+</method>
+<methodmore name="bool Info::hasHistory()">
+set/get knowledge whether the likely shower history of an event 
+has been traced.
+</methodmore>
+
+<method name="void Info::zNowISR(bool zNowIn)">
+</method>
+<methodmore name="double Info::zNowISR()">
+set/get value of <ei>z</ei> in latest ISR branching.
+</methodmore>
+
+<method name="void Info::pT2NowISR(bool pT2NowIn)">
+</method>
+<methodmore name="double Info::pT2NowISR()">
+set/get value of <ei>pT^2</ei> in latest ISR branching.
+</methodmore>
 
 </chapter>
 

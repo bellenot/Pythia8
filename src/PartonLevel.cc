@@ -259,7 +259,7 @@ bool PartonLevel::next( Event& process, Event& event) {
     pTsaveFSR       = pTmaxFSR;
 
     // Prepare the classes to begin the generation.
-    if (doMI)  multiPtr->prepare( pTmaxMI);
+    if (doMI)  multiPtr->prepare( event, pTmaxMI);
     if (doISR) spacePtr->prepare( 0, event, limitPTmaxISR);
     if (doFSRduringProcess) timesPtr->prepare( 0, event, limitPTmaxFSR);
     if (doSecondHard && doISR) spacePtr->prepare( 1, event, limitPTmaxISR);
@@ -492,7 +492,8 @@ bool PartonLevel::next( Event& process, Event& event) {
   // Abort event if vetoed.
   if (doVeto) return false;
 
-  // Store event properties.
+  // Store event properties. Some not available for diffractive systems.
+  if (isDiff) multiPtr->setEmpty(); 
   infoPtr->setImpact( multiPtr->bMI(), multiPtr->enhanceMI());
   infoPtr->setEvolution( pTsaveMI, pTsaveISR, pTsaveFSR, 
     nMI, nISR, nFSRinProc, nFSRinRes);
@@ -714,13 +715,21 @@ bool PartonLevel::setupUnresolvedSys( Event& process, Event& event) {
   beamBPtr->append( inM + nOffset, process[inM].id(), x2);
 
   // Scale. Find whether incoming partons are valence or sea. Store.
+  // When an x-dependent matter profile is used with minBias,
+  // trial interactions mean that the valence/sea choice has already
+  // been made and should be restored here. 
   double scale = process.scale();
+  int vsc1, vsc2;
   beamAPtr->xfISR( 0, process[inP].id(), x1, scale*scale);
-  int vsc1 = beamAPtr->pickValSeaComp(); 
+  if (isMinBias && (vsc1 = multiPtr->getVSC1()) != 0)
+    (*beamAPtr)[0].companion(vsc1);
+  else vsc1 = beamAPtr->pickValSeaComp();
   beamBPtr->xfISR( 0, process[inM].id(), x2, scale*scale);
-  int vsc2 = beamBPtr->pickValSeaComp();
-  bool isVal1 = (vsc1 == -3); 
-  bool isVal2 = (vsc2 == -3); 
+  if (isMinBias && (vsc2 = multiPtr->getVSC2()) != 0)
+    (*beamBPtr)[0].companion(vsc2);
+  else vsc2 = beamBPtr->pickValSeaComp();
+  bool isVal1 = (vsc1 == -3);
+  bool isVal2 = (vsc2 == -3);
   infoPtr->setValence( isVal1, isVal2);
 
   // Initialize info needed for subsequent sequential decays + showers.

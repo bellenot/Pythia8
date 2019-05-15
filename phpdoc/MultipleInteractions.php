@@ -262,7 +262,7 @@ at all, <i>bProfile = 0</i>. For small <i>expPow</i> the program
 becomes slow and unstable, so the min limit must be respected.
    
 
-<br/><br/><table><tr><td><strong>MultipleInteractions:a1 </td><td></td><td> <input type="text" name="16" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>; <code>minimum = 0.</code>; <code>maximum = 2.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>MultipleInteractions:a1 </td><td></td><td> <input type="text" name="16" value="0.15" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.15</strong></code>; <code>minimum = 0.</code>; <code>maximum = 2.</code>)</td></tr></table>
 When <i>bProfile = 4</i>, this gives the <i>a1</i> constant in the
 Gaussian width. When <i>a1 = 0.</i>, this reduces back to the single
 Gaussian case.
@@ -577,7 +577,7 @@ if($_POST["15"] != "1.")
 $data = "MultipleInteractions:expPow = ".$_POST["15"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["16"] != "1.")
+if($_POST["16"] != "0.15")
 {
 $data = "MultipleInteractions:a1 = ".$_POST["16"]."\n";
 fwrite($handle,$data);

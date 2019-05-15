@@ -40,6 +40,9 @@ const int RHadrons::NTRYMAX = 10;
 // Safety margin (in GeV) when constructing kinematics of system.
 const double RHadrons::MSAFETY = 0.1;
 
+// Maximal energy to borrow for gluon to insert on leg in to junction.
+const double RHadrons::EGBORROWMAX = 4.;
+
 //--------------------------------------------------------------------------
 
 // Main routine to initialize R-hadron handling.
@@ -200,24 +203,53 @@ bool RHadrons::produce( ColConfig& colConfig, Event& event) {
   }
   if (nRHad > 1 && rndmPtr->flat() > 0.5) swap( iBefRHad[0], iBefRHad[1]);
 
-  // Split up a colour colour singlet system that should give two R-hadrons.
-  // For now don't handle systems involving junctions or loops.
+  // Split a system with both a sparticle and a junction.
+  iBef = iBefRHad[0];  
+  iSys = colConfig.findSinglet( iBef);
+  systemPtr = &colConfig[iSys];
+  if (systemPtr->hasJunction && !splitOffJunction( colConfig, event)) {
+    infoPtr->errorMsg("Error in RHadrons::produce: "
+      "cannot handle system with junction");
+    return false;
+  }
+  if (nRHad == 2) {
+    iBef = iBefRHad[1];  
+    iSys = colConfig.findSinglet( iBefRHad[1]);
+    systemPtr = &colConfig[iSys];
+    if (systemPtr->hasJunction && !splitOffJunction( colConfig, event)) {
+      infoPtr->errorMsg("Error in RHadrons::produce: "
+        "cannot handle system with junction");
+      return false;
+    }
+  }
+
+  // Open up a closed gluon/gluino loop.
+  iBef = iBefRHad[0];  
+  iSys = colConfig.findSinglet( iBef);
+  systemPtr = &colConfig[iSys];
+  if (systemPtr->isClosed && !openClosedLoop( colConfig, event)) {
+    infoPtr->errorMsg("Error in RHadrons::produce: "
+      "cannot open up closed gluon/gluino loop");
+    return false;
+  }
+  if (nRHad == 2) {
+    iBef = iBefRHad[1];  
+    iSys = colConfig.findSinglet( iBefRHad[1]);
+    systemPtr = &colConfig[iSys];
+    if (systemPtr->isClosed && !openClosedLoop( colConfig, event)) {
+      infoPtr->errorMsg("Error in RHadrons::produce: "
+        "cannot open up closed gluon/gluino loop");
+      return false;
+    }
+  }
+
+  // Split up a colour singlet system that should give two R-hadrons.
   if (nRHad == 2) {
     int iSys1 = colConfig.findSinglet( iBefRHad[0]);
     int iSys2 = colConfig.findSinglet( iBefRHad[1]);
     if (iSys2 == iSys1) { 
       iSys = iSys1;
       systemPtr = &colConfig[iSys];
-      if (systemPtr->hasJunction) {
-        infoPtr->errorMsg("Error in RHadrons::produce: "
-          "cannot handle system with junction");
-        return false;
-      }
-      if (systemPtr->isClosed) {
-        infoPtr->errorMsg("Error in RHadrons::produce: "
-          "cannot handle closed colour loop");
-        return false;
-      }
       if ( !splitSystem( colConfig, event) ) { 
         infoPtr->errorMsg("Error in RHadrons::produce: "
           "failed to handle two sparticles in same system");
@@ -284,20 +316,17 @@ bool RHadrons::decay( Event& event) {
     int id1 = idPair.first;
     int id2 = idPair.second;
 
-    // Sharing of momentum: ideally the squark/gluino should be restored
-    // to original mass, but not at expense of negative-mass spectators.
+    // Sharing of momentum: the squark/gluino should be restored
+    // to original mass, but error if negative-mass spectators.
     double fracR = mRBef / mRHad;
+    if (fracR >= 1.) {
+      infoPtr->errorMsg("Error in RHadrons::decay: "
+          "too low R-hadron mass for decay");
+      return false;
+    }
 
-    // Check and, if necessary, fix up mass sharing for squark.
+    // Squark: new colour needed in the breakup.
     if (isTriplet[iRHad]) {
-      double m2Min = 0.5 * particleDataPtr->constituentMass(id2); 
-      if (mRBef + m2Min > mRHad) {
-        infoPtr->errorMsg("Warning in RHadrons::decay: "
-          "unexpectedly low R-hadron mass (squark case)");
-        fracR = mRBef / (mRBef + m2Min); 
-      }
-
-      // New colour needed in breakup.
       int colNew = event.nextColTag();
       int col    = (event[iRBef].col() != 0) ? colNew : 0;
       int acol   = (col == 0) ? colNew : 0; 
@@ -308,23 +337,14 @@ bool RHadrons::decay( Event& event) {
       iR2 = event.append( id2, 106, iRNow, 0, 0, 0, acol, col, 
         (1. - fracR) * event[iRNow].p(), (1. - fracR) * mRHad, 0.);
 
-    // Check and, if necessary, fix up mass sharing for gluino.
+    // Gluino: set mass sharing between two spectators.
     } else {
-      double m1Min = 0.5 * particleDataPtr->constituentMass(id1);
-      double m2Min = 0.5 * particleDataPtr->constituentMass(id2);
-      if (mRBef + m1Min + m2Min > mRHad) {
-        infoPtr->errorMsg("Warning in RHadrons::decay: "
-          "unexpectedly low R-hadron mass (gluino case)");
-        fracR = mRBef / (mRBef + m1Min + m2Min); 
-      }
-  
-      // Set mass sharing between two spectators.
-      double m1Eff  = 2. * m1Min + mOffsetCloudRH;  
-      double m2Eff  = 2. * m2Min + mOffsetCloudRH;   
+      double m1Eff  = particleDataPtr->constituentMass(id1) + mOffsetCloudRH;  
+      double m2Eff  = particleDataPtr->constituentMass(id2) + mOffsetCloudRH;   
       double frac1 = (1. - fracR) * m1Eff / ( m1Eff + m2Eff); 
       double frac2 = (1. - fracR) * m2Eff / ( m1Eff + m2Eff); 
    
-      // Two new colours in the breakups.
+      // Two new colours needed in the breakups.
       int col1 = event.nextColTag();
       int col2 = event.nextColTag();
 
@@ -352,7 +372,207 @@ bool RHadrons::decay( Event& event) {
 
 //--------------------------------------------------------------------------
 
-// Split up a colour colour singlet system that should give two R-hadrons.
+// Split a system that contains both a sparticle and a junction. 
+
+bool RHadrons::splitOffJunction( ColConfig& colConfig, Event& event) {
+
+  // Classify system into three legs, and find sparticle location.
+  vector<int> leg1, leg2, leg3;
+  int iLegSP = 0;
+  int iPosSP = 0;
+  int iLeg = 0;
+  int iPos = 0;
+  for (int i = 0; i < systemPtr->size(); ++i) {
+    ++iPos;
+    int iP = systemPtr->iParton[i];
+    if (iP < 0) {
+      ++iLeg;
+      iPos = -1;
+    } else if (iLeg == 1) leg1.push_back( iP);
+    else if   (iLeg == 2) leg2.push_back( iP);
+    else if   (iLeg == 3) leg3.push_back( iP);
+    if (iP == iBef) {
+      iLegSP = iLeg;
+      iPosSP = iPos;
+    }
+  }
+  if (iLegSP == 0) return false;
+  
+  // Swap so leg 1 contains sparticle. If not innermost sparticle then
+  // skip for now, and wait for this other (gluino!) to be split off. 
+  if      (iLegSP == 2) swap(leg2, leg1);
+  else if (iLegSP == 3) swap(leg3, leg1); 
+  for (int i = 0; i < iPosSP; ++i)
+    if (event[leg1[i]].id() != 21) return true;
+ 
+  // No gluon between sparticle and junction: find kinetic energy of system.
+  if (iPosSP == 0) {
+    Vec4 pSP  = event[iBef].p();
+    Vec4 pRec = 0.;
+    for (int i = 0; i < int(leg2.size()); ++i) pRec += event[leg2[i]].p();
+    for (int i = 0; i < int(leg3.size()); ++i) pRec += event[leg3[i]].p();
+    double mSys  = (pSP + pRec).mCalc();
+    double mSP   = pSP.mCalc();
+    double mRec  = pRec.mCalc();
+    double eKin  = mSys - mSP - mRec;
+
+    // Insert new gluon that borrows part of kinetic energy.
+    double mNewG  = EGBORROWMAX * eKin / (EGBORROWMAX + eKin) ;
+    Vec4   pNewG  = (mNewG / mSys) * (pSP + pRec);
+    int    newCol = event.nextColTag();
+    bool   isCol  = (event[leg1.back()].col() > 0);
+    int    colNG  = (isCol)? newCol :  event[iBef].acol();
+    int    acolNG = (isCol) ? event[iBef].col() : newCol;
+    int    iNewG  = event.append( 21, 101, iBef, 0, 0, 0, colNG, acolNG, 
+      pNewG, mNewG, 0.);
+    leg1.insert( leg1.begin(), iNewG);
+    ++iPosSP;
+
+    // Boosts for remainder systems that gave up energy.
+    double mNewSys = mSys - mNewG;
+    double pAbsOld = 0.5 * sqrtpos( pow2(mSys*mSys - mSP*mSP - mRec*mRec)
+                   - pow2(2. * mSP * mRec) ) / mSys;
+    double pAbsNew = 0.5 * sqrtpos( pow2(mNewSys*mNewSys - mSP*mSP - mRec*mRec)
+                   - pow2(2. * mSP * mRec) ) / mNewSys;
+    RotBstMatrix MtoCM, MfromCM, MSP, MRec;
+    MtoCM.toCMframe( pSP, pRec);
+    MfromCM = MtoCM;
+    MfromCM.invert(); 
+    MSP = MtoCM;
+    MSP.bst( 0., 0., -pAbsOld / sqrt(mSP * mSP + pAbsOld * pAbsOld));
+    MSP.bst( 0., 0.,  pAbsNew / sqrt(mSP * mSP + pAbsNew * pAbsNew)); 
+    MSP.rotbst( MfromCM);
+    MRec = MtoCM;
+    MRec.bst( 0., 0.,  pAbsOld / sqrt(mRec * mRec + pAbsOld * pAbsOld));
+    MRec.bst( 0., 0., -pAbsNew / sqrt(mRec * mRec + pAbsNew * pAbsNew)); 
+    MRec.rotbst( MfromCM);
+
+    // Copy down recoling partons and boost their momenta.
+    int iNewSP  = event.copy( iBef, 101);
+    event[iNewSP].rotbst( MSP);
+    leg1[iPosSP]   = iNewSP;
+    if (iBefRHad[0] == iBef) iBefRHad[0] = iNewSP;
+    else if (nRHad > 1 && iBefRHad[1] == iBef) iBefRHad[1] = iNewSP;
+    iBef = iNewSP;
+    for (int i = 0; i < int(leg2.size()); ++i) {
+      int iCopy = event.copy( leg2[i], 101);  
+      event[iCopy].rotbst( MRec);
+      if (iBefRHad[0] == leg2[i]) iBefRHad[0] = iCopy;
+      else if (nRHad > 1 && iBefRHad[1] == leg2[i]) iBefRHad[1] = iCopy;
+      leg2[i] = iCopy;
+    }   
+    for (int i = 0; i < int(leg3.size()); ++i) {
+      int iCopy = event.copy( leg3[i], 101);  
+      event[iCopy].rotbst( MRec);
+      if (iBefRHad[0] == leg3[i]) iBefRHad[0] = iCopy;
+      else if (nRHad > 1 && iBefRHad[1] == leg3[i]) iBefRHad[1] = iCopy;
+      leg3[i]   = iCopy;
+    }
+ 
+  // Now always at least one gluon between sparticle and junction.  
+  }
+
+  // Find gluon with largest energy in sparticle rest frame.
+  int    iGspl = 0;
+  double eGspl = event[leg1[0]].p() * event[iBef].p();
+  for (int i = 1; i < iPosSP; ++i) {
+    double eGnow = event[leg1[i]].p() * event[iBef].p();
+    if (eGnow > eGspl) {
+      iGspl = i;
+      eGspl = eGnow;
+    }
+  }
+  int iG = leg1[iGspl];
+   
+  // Split this gluon into a collinear quark.antiquark pair.
+  int idNewQ = flavSelPtr->pickLightQ(); 
+  int iNewQ  = event.append(  idNewQ, 101, iG, 0, 0, 0, event[iG].col(), 0, 
+    0.5 * event[iG].p(), 0.5 * event[iG].m(), 0.);
+  int iNewQb = event.append( -idNewQ, 101, iG, 0, 0, 0, 0, event[iG].acol(), 
+    0.5 * event[iG].p(), 0.5 * event[iG].m(), 0.);
+  event[iG].statusNeg();
+  event[iG].daughters( iNewQ, iNewQb); 
+  if (event[leg1.back()].col() == 0) swap( iNewQ, iNewQb);
+
+  // Collect two new systems after split.
+  vector<int> iNewSys1, iNewSys2;
+  iNewSys1.push_back( iNewQb);
+  for (int i = iGspl + 1; i < int(leg1.size()); ++i)
+    iNewSys1.push_back( leg1[i]);
+  iNewSys2.push_back( -10);
+  for (int i = 0; i < iGspl; ++i) iNewSys2.push_back( leg1[i]);
+  iNewSys2.push_back( iNewQ);
+  iNewSys2.push_back( -11);
+  for (int i = 0; i < int(leg2.size()); ++i) iNewSys2.push_back( leg2[i]);
+  iNewSys2.push_back( -12);
+  for (int i = 0; i < int(leg3.size()); ++i) iNewSys2.push_back( leg3[i]);
+
+  // Remove old system and insert two new ones.
+  colConfig.erase(iSys);
+  colConfig.insert( iNewSys1, event);
+  colConfig.insert( iNewSys2, event);   
+
+  // Done. 
+  return true;
+
+}
+
+//--------------------------------------------------------------------------
+
+// Open up a closed gluon/gluino loop.
+  
+bool RHadrons::openClosedLoop( ColConfig& colConfig, Event& event) {
+
+  // Find gluon with largest energy in gluino rest frame.
+  int    iGspl = -1;
+  double eGspl = 0.;
+  for (int i = 0; i < systemPtr->size(); ++i) {
+    int  iGNow = systemPtr->iParton[i];
+    if (event[iGNow].id() == 21) {
+      double eGnow = event[iGNow].p() * event[iBef].p();
+      if (eGnow > eGspl) {
+        iGspl = i;
+        eGspl = eGnow;
+      }
+    }
+  }
+  if (iGspl == -1) return false;
+   
+  // Split this gluon into a collinear quark.antiquark pair.
+  int iG     = systemPtr->iParton[iGspl];
+  int idNewQ = flavSelPtr->pickLightQ(); 
+  int iNewQ  = event.append(  idNewQ, 101, iG, 0, 0, 0, event[iG].col(), 0, 
+    0.5 * event[iG].p(), 0.5 * event[iG].m(), 0.);
+  int iNewQb = event.append( -idNewQ, 101, iG, 0, 0, 0, 0, event[iG].acol(), 
+    0.5 * event[iG].p(), 0.5 * event[iG].m(), 0.);
+  event[iG].statusNeg();
+  event[iG].daughters( iNewQ, iNewQb); 
+   
+  // Order partons in new system. Note order of colour flow.
+  int iNext = iGspl + 1;
+  if (iNext == systemPtr->size()) iNext = 0; 
+  if (event[ systemPtr->iParton[iNext]].acol() != event[iNewQ].col())
+    swap( iNewQ, iNewQb);        
+  vector<int> iNewSys;
+  iNewSys.push_back( iNewQ);
+  for (int i = iGspl + 1; i < systemPtr->size(); ++i)
+    iNewSys.push_back( systemPtr->iParton[i]);
+  for (int i = 0; i < iGspl; ++i)
+    iNewSys.push_back( systemPtr->iParton[i]);
+  iNewSys.push_back( iNewQb);  
+
+  // Erase the old system and insert the new one instead.
+  colConfig.erase(iSys);
+  colConfig.insert( iNewSys, event);
+
+  // Done. 
+  return true;
+
+}
+
+//--------------------------------------------------------------------------
+
+// Split a single colour singlet that contains two sparticles.
 // To fix : if nLeg >= 3 && mMin large handle as in nLeg == 1??
 
 bool RHadrons::splitSystem( ColConfig& colConfig, Event& event) {
@@ -558,10 +778,15 @@ bool RHadrons::produceSquark( ColConfig& colConfig, Event& event) {
   int    idOldH = event[iBeg].id(); 
   int    idOldL = event[iEnd].id();
 
-  // Pick new flavour to form R-hadron. For now exclude baryons.
-  int    idNewQ = flavSelPtr->pickLightQ();
-  if (idOldH > 0) idNewQ = -idNewQ;  
+  // Pick new flavour to form R-hadron. 
+  FlavContainer flavOld( idOldH%10);
+  int    idNewQ = flavSelPtr->pick(flavOld).id;
   int    idRHad = toIdWithSquark( idOldH, idNewQ);
+  if (idRHad == 0) {
+     infoPtr->errorMsg("Error in RHadrons::produceSquark: "
+       "cannot form R-hadron code");
+     return false;
+  }
 
   // Target mass of R-hadron and z value of fragmentation function.
   double mRHad  = particleDataPtr->m0(idRHad) + event[iBeg].m() 
@@ -697,12 +922,19 @@ bool RHadrons::produceSquark( ColConfig& colConfig, Event& event) {
 // Produce a R-hadron from a gluino and two string ends (or a gluon).
 
 bool RHadrons::produceGluino( ColConfig& colConfig, Event& event) {
-         
-  // Extract one string system on either side of the gluino.
-  int    iGlui  = 0; 
-  int    idSave = 0; 
+
+  // Initial values.
+  int    iGlui   = 0; 
+  int    idSave  = 0; 
+  int    idQLeap = 0;
+  bool   isDiq1  = false;
   vector<int> iSide1, iSide2, iSideTmp, iNewSys1, iNewSys2;
   Vec4   pGlui, pSide1, pSide2;
+
+  // Decide whether to produce a gluinoball or not.
+  bool isGBall = (rndmPtr->flat() < probGluinoballRH);
+         
+  // Extract one string system on either side of the gluino.
   for (int i = 0; i < systemPtr->size(); ++i) {
     int  iTmp   = systemPtr->iParton[i];
     if (iGlui == 0 && event[ iTmp ].id() == idRGo) {
@@ -716,12 +948,12 @@ bool RHadrons::produceGluino( ColConfig& colConfig, Event& event) {
       pSide2   += event[ iTmp ].p();
     }
   }
- 
+      
   // Order sides from gluino outwards and with lowest relative mass first.
   for (int i = int(iSideTmp.size()) - 1; i >= 0; --i) 
     iSide1.push_back( iSideTmp[i]);
-  double m1H    = (pGlui + pSide1).mCalc() - event[ iSide1[0] ].m();
-  double m2H    = (pGlui + pSide2).mCalc() - event[ iSide2[0] ].m();
+  double m1H    = (pGlui + pSide1).mCalc() - event[ iSide1.back() ].m();
+  double m2H    = (pGlui + pSide2).mCalc() - event[ iSide2.back() ].m();
   if (m2H < m1H) {
     swap( iSide1, iSide2);
     swap( pSide1, pSide2);
@@ -753,24 +985,37 @@ bool RHadrons::produceGluino( ColConfig& colConfig, Event& event) {
     }
     int    iEnd   = event.size() - 1; 
 
-    // Pick new flavour to help form R-hadron. For now exclude baryons.
+    // Pick new flavour to help form R-hadron. Initial colour values.
     int    idOldL = event[iEnd].id();
-    int    idNewQ = flavSelPtr->pickLightQ();
-    if (event[iEnd].col() == 0) idNewQ = -idNewQ;  
+    int    idNewQ = 21;
+    if (!isGBall) {
+      do {
+        FlavContainer flavOld( idOldL);
+        idNewQ = -flavSelPtr->pick(flavOld).id;
+      } while (iSide == 2 && isDiq1 && abs(idNewQ) > 10);
+      if (iSide == 1) isDiq1 = (abs(idNewQ) > 10);
+    }
+    bool   hasCol = (event[iEnd].col() > 0);
     int    colR   = 0;
     int    acolR  = 0;
 
     // Target intermediary mass or R-hadron mass.
     if (iSide == 1) {
       idSave      = idNewQ;
-      idRHad      = (idNewQ > 0) ? 1009002 : -1009002;
-      if (idRHad > 0) colR  = event[iBeg].col();
-      if (idRHad < 0) acolR = event[iBeg].acol();
+      idRHad      = (hasCol) ? 1009002 : -1009002;
+      if (hasCol) colR  = event[iBeg].col();
+      else        acolR = event[iBeg].acol();
       statusRHad  = 103;
-      mRHad       = event[iBeg].m() + mOffsetCloudRH
-                  + particleDataPtr->constituentMass( idNewQ);
+      double mNewQ = particleDataPtr->constituentMass( idNewQ);
+      if (isGBall) mNewQ *= 0.5;
+      mRHad       = event[iBeg].m() + mOffsetCloudRH + mNewQ;
     } else {
       idRHad      = toIdWithGluino( idSave, idNewQ);
+      if (idRHad == 0) {
+         infoPtr->errorMsg("Error in RHadrons::produceGluino: "
+           "cannot form R-hadron code");
+         return false;
+      }
       statusRHad  = 104;
       mRHad       = particleDataPtr->m0(idRHad) + event[iBeg].m() - m0Go;
     }
@@ -813,12 +1058,11 @@ bool RHadrons::produceGluino( ColConfig& colConfig, Event& event) {
         0, 0, colR, acolR, z * pNewH, mRHad, 0.);
  
       // Reduced system with new string endpoint and modified recoiler. 
-      idNewQ      = -idNewQ;
-      bool hasCol = (idNewQ > 0 && idNewQ < 10) || idNewQ < -10;
-      int  col    = (hasCol) ? event[iOldL].acol() : 0;
-      int  acol   = (hasCol) ? 0 : event[iOldL].col(); 
+      if (!isGBall) idNewQ = -idNewQ;
+      int  colN   = (hasCol) ? 0 : event[iOldL].acol();
+      int  acolN  = (hasCol) ? event[iOldL].col() : 0; 
       iNewQ       = event.append( idNewQ, 105, iBeg, iOldL, 0, 0, 
-        col, acol, (1. - z) * pNewH, (1. - z) * mNewH, 0.);
+        colN, acolN, (1. - z) * pNewH, (1. - z) * mNewH, 0.);
       iNewL       = event.copy( iOldL, 105);
       event[iNewL].mothers( iBeg, iOldL);
       event[iNewL].p( pNewL);
@@ -838,8 +1082,21 @@ bool RHadrons::produceGluino( ColConfig& colConfig, Event& event) {
       nBody = 3;
     }
 
+    // For side-1 low-mass glueball system reabsorb full momentum. 
+    if (nBody == 0 && isGBall && iSide == 1) { 
+      idQLeap    = event[iOldL].id();
+      Vec4 pNewH = event[iBeg].p() + pOldL;
+
+      // Insert intermediary R-hadron with new momentum, less colour.
+      iRNow      = event.append( idRHad, statusRHad, iBeg, iEnd, 
+        0, 0, colR, acolR, pNewH, pNewH.mCalc(), 0.);
+      nBody = 1;
+    }
+      
     // Two-body final state: form light hadron from endpoint and new flavour.
-    if (nBody == 0) {
+    // Also for side 2 if gluinoball formation gives quark from side 1.
+    if (nBody == 0 && (!isGBall || (iSide == 2 && idQLeap != 0) )) {
+      if (isGBall) idNewQ = -idQLeap;
       FlavContainer flav1( idOldL);
       FlavContainer flav2( -idNewQ);
       int iTry   = 0;
@@ -869,12 +1126,15 @@ bool RHadrons::produceGluino( ColConfig& colConfig, Event& event) {
           pNewL, mNewL, 0.);
    
         // Done for two-body case.
-        nBody = 2;
+        nBody   = 2;
+        // For this case gluinoball should be handled as normal flavour.
+        isGBall = false;
       }
     }
 
     // Final case: for very low mass collapse to one single R-hadron.  
-    if (nBody == 0) { 
+    if (nBody == 0 && (!isGBall || (iSide == 2 && idQLeap != 0) )) { 
+      if (isGBall) idSave = idQLeap;
       if (iSide == 1) idSave = idOldL;
       else            idRHad = toIdWithGluino( idSave, idOldL);
       if (idRHad == 0) {
@@ -888,7 +1148,9 @@ bool RHadrons::produceGluino( ColConfig& colConfig, Event& event) {
         colR, acolR, pOldH + pOldL, (pOldH + pOldL).mCalc(), 0.);
 
       // Done with one-body case.
-      nBody = 1;
+      nBody   = 1;
+      // Even if hoped-for, it was not possible to create a gluinoball.
+      isGBall = false;
     }
       
     // History bookkeeping: the processed partons. 
@@ -902,11 +1164,61 @@ bool RHadrons::produceGluino( ColConfig& colConfig, Event& event) {
     iGlui   = iRNow;
   }
 
-  // History bookkeeping: insert R-hadron and replace old string system. 
+  // History bookkeeping: insert R-hadron; delete old string system. 
+  if (iGlui == 0) {
+     infoPtr->errorMsg("Error in RHadrons::produceGluino: "
+           "could not handle gluinoball kinematics");
+     return false;
+  }
   iRHadron[iRHad] = iGlui;
   colConfig.erase(iSys);
-  if (iNewSys1.size() > 0) colConfig.insert( iNewSys1, event);
-  if (iNewSys2.size() > 0) colConfig.insert( iNewSys2, event);
+
+  // Non-gluinoball: insert (up to) two new string systems.
+  if (!isGBall) {
+    if (iNewSys1.size() > 0) colConfig.insert( iNewSys1, event);
+    if (iNewSys2.size() > 0) colConfig.insert( iNewSys2, event);
+
+  // Gluinoball with enough energy in first string: 
+  // join two temporary gluons into one. 
+  } else if (idQLeap == 0) {
+    int iG1   = iNewSys1[0];
+    int iG2   = iNewSys2[0];
+    int colG  = event[iG1].col()  + event[iG2].col();  
+    int acolG = event[iG1].acol() + event[iG2].acol();  
+    Vec4 pG   = event[iG1].p()    + event[iG2].p(); 
+    int iG12  = event.append( 21, 105, iG1, iG2, 0, 0, colG, acolG, 
+      pG, pG.mCalc(), 0.);
+
+    // Temporary gluons no longer needed, but new colour to avoid warnings.
+    event[iG1].id( 21);
+    event[iG2].id( 21);
+    event[iG1].statusNeg();
+    event[iG2].statusNeg();
+    int colBridge = event.nextColTag();
+    if (event[iG1].col() == 0) {
+      event[iG1].col(  colBridge);
+      event[iG2].acol( colBridge);
+    } else {
+      event[iG1].acol( colBridge);
+      event[iG2].col(  colBridge);
+    } 
+
+    // Form the remnant system from which the R-hadron has been split off. 
+    vector<int> iNewSys12;
+    for (int i = int(iNewSys1.size()) - 1; i > 0; --i) 
+      iNewSys12.push_back( iNewSys1[i]);
+    iNewSys12.push_back( iG12);
+    for (int i = 1; i < int(iNewSys2.size()); ++i) 
+      iNewSys12.push_back( iNewSys2[i]);
+    colConfig.insert( iNewSys12, event); 
+
+  // Gluinoball where side 1 was fully eaten, and its flavour content
+  // should leap over to the other side, to a gluon there.
+  } else {
+    int iG2   = iNewSys2[0];
+    event[iG2].id( idQLeap);
+    colConfig.insert( iNewSys2, event);
+  }
  
   // Done with production of a R-hadron from a gluino.  
   return true;
@@ -923,8 +1235,10 @@ int RHadrons::toIdWithSquark( int id1, int id2) {
   // Check that physical combination; return 0 if not.
   int id1Abs = abs(id1);
   int id2Abs = abs(id2);
-  if (id2Abs < 10 && id1 * id2 > 0) return 0;
-  if (id2Abs > 10 && id1 * id2 < 0) return 0;
+  if (id2Abs < 10 && id1 > 0 && id2 > 0) return 0;
+  if (id2Abs < 10 && id1 < 0 && id2 < 0) return 0;
+  if (id2Abs > 10 && id1 > 0 && id2 < 0) return 0;
+  if (id2Abs > 10 && id1 < 0 && id2 > 0) return 0;
 
   // Form R-hadron code. Flip sign for antisquark. 
   bool isSt = (id1Abs == idRSt);
@@ -953,7 +1267,7 @@ pair<int,int> RHadrons::fromIdWithSquark( int idRHad) {
 
   // Find light (di)quark flavour content. 
   int id2     =  (idLight < 100) ? idLight%10 : idLight%100;
-  if (id2 > 10) id2 = 10 * id2 + abs(idRHad)%10;
+  if (id2 > 10) id2 = 100 * id2 + abs(idRHad)%10;
   if ((id2 < 10 && idRHad > 0) || (id2 > 10 && idRHad < 0)) id2 = -id2;
 
   // Done.
@@ -967,26 +1281,41 @@ pair<int,int> RHadrons::fromIdWithSquark( int idRHad) {
 
 int RHadrons::toIdWithGluino( int id1, int id2) {
 
-  // Check that physical combination; return 0 if not.
+  // Check that physical combination; return 0 if not. Handle gluinoball.
   int id1Abs = abs(id1);
   int id2Abs = abs(id2);
+  if (id1Abs == 21 && id2Abs == 21) return 1000993;
   int idMax  = max( id1Abs, id2Abs);
   int idMin  = min( id1Abs, id2Abs);
   if (idMin > 10) return 0;
-  if (idMax > 10 && id1 * id2 < 0) return 0;
-  if (idMax < 10 && id1 * id2 > 0) return 0;
+  if (idMax > 10 && id1 > 0 && id2 < 0) return 0;
+  if (idMax > 10 && id1 < 0 && id2 > 0) return 0;
+  if (idMax < 10 && id1 > 0 && id2 > 0) return 0;
+  if (idMax < 10 && id1 < 0 && id2 < 0) return 0;
 
-  // Form R-hadron code. Flip sign for antiparticle.
-  int idRHad = (idMax > 10) ? 1090004 + 100 * (idMax/100) + 10 * idMin
-                            : 1009003 + 100 * idMax + 10 * idMin;
-  if (idMax > 10 && id1 < 0) idRHad = -idRHad;
-  if (idMax < 10 && idMin != idMax && idMax%2 == 1) {
-    if (id1Abs == idMax && id1 > 0) idRHad = -idRHad;
-    if (id2Abs == idMax && id2 > 0) idRHad = -idRHad;
-  }
-  if (idMax < 10 && idMin != idMax && idMax%2 == 0) {
-    if (id1Abs == idMax && id1 < 0) idRHad = -idRHad;
-    if (id2Abs == idMax && id2 < 0) idRHad = -idRHad;
+  // Form R-meson code. Flip sign for antiparticle.
+  int idRHad = 0;
+  if (idMax < 10) {
+    idRHad = 1009003 + 100 * idMax + 10 * idMin;
+    if (idMin != idMax && idMax%2 == 1) {
+      if (id1Abs == idMax && id1 > 0) idRHad = -idRHad;
+      if (id2Abs == idMax && id2 > 0) idRHad = -idRHad;
+    }
+    if (idMin != idMax && idMax%2 == 0) {
+      if (id1Abs == idMax && id1 < 0) idRHad = -idRHad;
+      if (id2Abs == idMax && id2 < 0) idRHad = -idRHad;
+    }
+
+  // Form R-baryon code. Flip sign for antiparticle.
+  } else {
+    int idA = idMax/1000;
+    int idB = (idMax/100)%10;
+    int idC = idMin;
+    if (idC > idB) swap( idB, idC);
+    if (idB > idA) swap( idA, idB);    
+    if (idC > idB) swap( idB, idC);
+    idRHad  = 1090004 + 1000 * idA + 100 * idB + 10 * idC;
+    if (id1 < 0) idRHad = -idRHad;
   }
 
   // Done.
@@ -1007,7 +1336,7 @@ pair<int,int> RHadrons::fromIdWithGluino( int idRHad) {
 
   // Gluinoballs: split g into d dbar or u ubar.
   if (idLight < 100) {
-    id1 = 1.5 + rndmPtr->flat();
+    id1 = (rndmPtr->flat() < 0.5) ? 1 : 2;
     id2 = -id1;
 
   // Gluino-meson: split into q + qbar.

@@ -9,16 +9,22 @@
 // HepMC events are output to the hepmcout31.dat file.
 // Written by Mikhail Kirsanov based on main01.cc.
 
+// WARNING: typically one needs 25 MB/100 events at the LHC.
+// Therefore large event samples may be impractical.
+
 #include "Pythia.h"
 #include "HepMCInterface.h"
 
 #include "HepMC/GenEvent.h"
+
 #include "HepMC/IO_GenEvent.h"
-// Following line to be used with HepMC 2.04 onwards.
-//#include "HepMC/Units.h"
-// Following two lines are deprecated alternative.
+// Following line is a deprecated alternative, removed in recent versions
 //#include "HepMC/IO_Ascii.h"
+
 //#include "HepMC/IO_AsciiParticles.h"
+
+// Following line to be used with HepMC 2.04 onwards.
+//#include "HepMC/Units.h" 
 
 using namespace Pythia8; 
 
@@ -30,8 +36,9 @@ int main() {
 
   // Specify file where HepMC events will be stored.
   HepMC::IO_GenEvent ascii_io("hepmcout31.dat", std::ios::out);
-  // Following two lines are deprecated alternative.
+  // Following line is a deprecated alternative, removed in recent versions
   // HepMC::IO_Ascii ascii_io("hepmcout31.dat", std::ios::out);
+  // Line below is an eye-readable one-way output, uncomment the include above
   // HepMC::IO_AsciiParticles ascii_io("hepmcout31.dat", std::ios::out);
 
   // Generator. Process selection. LHC initialization. Histogram.

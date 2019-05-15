@@ -126,7 +126,7 @@ public:
   bool next(); 
 
   // Generate only the hadronization/decay stage.
-  bool forceHadronLevel();
+  bool forceHadronLevel(bool findJunctions = true);
 
   // Special routine to allow more decays if on/off switches changed.
   bool moreDecays() {return hadronLevel.moreDecays(event);}
@@ -193,7 +193,7 @@ private:
   double epTolErr, epTolWarn;
 
   // Initialization data, extracted from init(...) call.
-  bool   isConstructed, isInit;
+  bool   isConstructed, isInit, isUnresolvedA, isUnresolvedB;
   int    idA, idB, frameType;  
   double mA, mB, pxA, pxB, pyA, pyB, pzA, pzB, eA, eB, 
          pzAcm, pzBcm, eCM, betaZ, gammaZ;

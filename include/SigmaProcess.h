@@ -247,6 +247,20 @@ public:
   double pT2MI()            const {return pT2Mass;}
   double pTMIFin()          const {return pTFin;}
 
+  // Save and load kinematics for trial interactions
+  void saveKin() {
+    for (int i = 0; i < 6; i++) { partonT[i] = parton[i]; mSaveT[i] = mSave[i]; }
+    pTFinT = pTFin; phiT = phi; cosThetaT = cosTheta; sinThetaT = sinTheta; }
+  void loadKin() {
+    for (int i = 0; i < 6; i++) { parton[i] = partonT[i]; mSave[i] = mSaveT[i]; }
+    pTFin = pTFinT; cosTheta = cosThetaT; sinTheta = sinThetaT; phi = phiT;
+  }
+  void swapKin() {
+    for (int i = 0; i < 6; i++) { swap(parton[i], partonT[i]);
+                                  swap(mSave[i], mSaveT[i]); }
+    swap(pTFin, pTFinT); swap(cosTheta, cosThetaT);
+    swap(sinTheta, sinThetaT); swap(phi, phiT); }
+
 protected:
 
   // Constructor.
@@ -273,7 +287,7 @@ protected:
   BeamParticle*   beamBPtr;
 
   // Pointer to Standard Model couplings, including alphaS and alphaEM.
-  Couplings*         couplingsPtr;
+  Couplings*      couplingsPtr;
   
   // Pointer to the total/elastic/diffractive cross section object.
   SigmaTotal*     sigmaTotPtr;
@@ -325,6 +339,11 @@ protected:
   int      idSave[6], colSave[6], acolSave[6];
   double   mSave[6], cosTheta, sinTheta, phi, sHMass, sHBeta, pT2Mass, pTFin;
   Particle parton[6];
+
+  // Minimal set of saved kinematics for trial interactions when
+  // using the x-dependent matter profile of multiple interactions.
+  Particle partonT[6];
+  double   mSaveT[6], pTFinT, cosThetaT, sinThetaT, phiT;
 
   // Calculate and store all modified masses and four-vectors 
   // intended for matrix elements. Return false if failed.

@@ -1222,13 +1222,19 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="HepMCInterface.php#method9" target="page">I_Pythia8::set_convert_to_mev(...)</a></td>
+<td><a href="HepMCInterface.php#method10" target="page">I_Pythia8::set_convert_to_mev(...)</a></td>
 <td>HepMC Interface</td>
 </tr>
 
 <tr>
 <td>void</td>
 <td><a href="HepMCInterface.php#method8" target="page">I_Pythia8::set_crash_on_problem(...)</a></td>
+<td>HepMC Interface</td>
+</tr>
+
+<tr>
+<td>void</td>
+<td><a href="HepMCInterface.php#method9" target="page">I_Pythia8::set_freepartonwarnings(...)</a></td>
 <td>HepMC Interface</td>
 </tr>
 
@@ -1251,6 +1257,12 @@ Many of them are only intended for experts, while undocumented ones are only for
 </tr>
 
 <tr>
+<td>void</td>
+<td><a href="HepMCInterface.php#method11" target="page">I_Pythia8::set_weight_in_fb(...)</a></td>
+<td>HepMC Interface</td>
+</tr>
+
+<tr>
 <td>bool</td>
 <td><a href="HepMCInterface.php#method6" target="page">I_Pythia8::trust_both_mothers_and_daughters()</a></td>
 <td>HepMC Interface</td>
@@ -1269,8 +1281,14 @@ Many of them are only intended for experts, while undocumented ones are only for
 </tr>
 
 <tr>
+<td>double</td>
+<td><a href="EventInformation.php#method35" target="page">Info::a0MI()</a></td>
+<td>Event Information</td>
+</tr>
+
+<tr>
 <td>void</td>
-<td><a href="EventInformation.php#method44" target="page">Info::addCounter(...)</a></td>
+<td><a href="EventInformation.php#method46" target="page">Info::addCounter(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1294,7 +1312,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method34" target="page">Info::bMI()</a></td>
+<td><a href="EventInformation.php#method36" target="page">Info::bMI()</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1306,7 +1324,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>int</td>
-<td><a href="EventInformation.php#method37" target="page">Info::codeMI(...)</a></td>
+<td><a href="EventInformation.php#method39" target="page">Info::codeMI(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1336,19 +1354,31 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method39" target="page">Info::eMI(...)</a></td>
+<td><a href="EventInformation.php#method41" target="page">Info::eMI(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method35" target="page">Info::enhanceMI()</a></td>
+<td><a href="EventInformation.php#method37" target="page">Info::enhanceMI()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="EventInformation.php#method42" target="page">Info::getCounter(...)</a></td>
+<td><a href="EventInformation.php#method44" target="page">Info::getCounter(...)</a></td>
+<td>Event Information</td>
+</tr>
+
+<tr>
+<td>bool</td>
+<td><a href="EventInformation.php#method47" target="page">Info::hasHistory()</a></td>
+<td>Event Information</td>
+</tr>
+
+<tr>
+<td>void</td>
+<td><a href="EventInformation.php#method47" target="page">Info::hasHistory(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1360,13 +1390,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>int</td>
-<td><a href="EventInformation.php#method38" target="page">Info::iAMI(...)</a></td>
+<td><a href="EventInformation.php#method40" target="page">Info::iAMI(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="EventInformation.php#method38" target="page">Info::iBMI(...)</a></td>
+<td><a href="EventInformation.php#method40" target="page">Info::iBMI(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1474,7 +1504,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>long</td>
-<td><a href="EventInformation.php#method40" target="page">Info::nAccepted()</a></td>
+<td><a href="EventInformation.php#method42" target="page">Info::nAccepted()</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1504,37 +1534,37 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>int</td>
-<td><a href="EventInformation.php#method31" target="page">Info::nFSRinProc()</a></td>
+<td><a href="EventInformation.php#method32" target="page">Info::nFSRinProc()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="EventInformation.php#method31" target="page">Info::nFSRinRes()</a></td>
+<td><a href="EventInformation.php#method32" target="page">Info::nFSRinRes()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="EventInformation.php#method31" target="page">Info::nISR()</a></td>
+<td><a href="EventInformation.php#method32" target="page">Info::nISR()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="EventInformation.php#method36" target="page">Info::nMI()</a></td>
+<td><a href="EventInformation.php#method38" target="page">Info::nMI()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>long</td>
-<td><a href="EventInformation.php#method40" target="page">Info::nSelected()</a></td>
+<td><a href="EventInformation.php#method42" target="page">Info::nSelected()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>long</td>
-<td><a href="EventInformation.php#method40" target="page">Info::nTried()</a></td>
+<td><a href="EventInformation.php#method42" target="page">Info::nTried()</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1564,37 +1594,49 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
+<td><a href="EventInformation.php#method49" target="page">Info::pT2NowISR()</a></td>
+<td>Event Information</td>
+</tr>
+
+<tr>
+<td>void</td>
+<td><a href="EventInformation.php#method49" target="page">Info::pT2NowISR(...)</a></td>
+<td>Event Information</td>
+</tr>
+
+<tr>
+<td>double</td>
 <td><a href="EventInformation.php#method27" target="page">Info::pTHat()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method32" target="page">Info::pTmaxFSR()</a></td>
+<td><a href="EventInformation.php#method33" target="page">Info::pTmaxFSR()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method32" target="page">Info::pTmaxISR()</a></td>
+<td><a href="EventInformation.php#method33" target="page">Info::pTmaxISR()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method32" target="page">Info::pTmaxMI()</a></td>
+<td><a href="EventInformation.php#method33" target="page">Info::pTmaxMI()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method37" target="page">Info::pTMI(...)</a></td>
+<td><a href="EventInformation.php#method39" target="page">Info::pTMI(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method33" target="page">Info::pTnow()</a></td>
+<td><a href="EventInformation.php#method34" target="page">Info::pTnow()</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1642,7 +1684,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="EventInformation.php#method43" target="page">Info::setCounter(...)</a></td>
+<td><a href="EventInformation.php#method45" target="page">Info::setCounter(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1654,13 +1696,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method41" target="page">Info::sigmaErr()</a></td>
+<td><a href="EventInformation.php#method43" target="page">Info::sigmaErr()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method41" target="page">Info::sigmaGen()</a></td>
+<td><a href="EventInformation.php#method43" target="page">Info::sigmaGen()</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1702,6 +1744,12 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
+<td><a href="EventInformation.php#method31" target="page">Info::weightSum()</a></td>
+<td>Event Information</td>
+</tr>
+
+<tr>
+<td>double</td>
 <td><a href="EventInformation.php#method18" target="page">Info::x1()</a></td>
 <td>Event Information</td>
 </tr>
@@ -1715,6 +1763,18 @@ Many of them are only intended for experts, while undocumented ones are only for
 <tr>
 <td>double</td>
 <td><a href="EventInformation.php#method19" target="page">Info::y()</a></td>
+<td>Event Information</td>
+</tr>
+
+<tr>
+<td>double</td>
+<td><a href="EventInformation.php#method48" target="page">Info::zNowISR()</a></td>
+<td>Event Information</td>
+</tr>
+
+<tr>
+<td>void</td>
+<td><a href="EventInformation.php#method48" target="page">Info::zNowISR(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -3724,7 +3784,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>bool</td>
-<td><a href="ProgramFlow.php#method20" target="page">Pythia::forceHadronLevel()</a></td>
+<td><a href="ProgramFlow.php#method20" target="page">Pythia::forceHadronLevel(...)</a></td>
 <td>Program Flow</td>
 </tr>
 
@@ -4803,6 +4863,24 @@ Many of them are only intended for experts, while undocumented ones are only for
 </tr>
 
 <tr>
+<td>virtual double</td>
+<td><a href="UserHooks.php#method28" target="page">UserHooks::biasedSelectionWeight()</a></td>
+<td>User Hooks</td>
+</tr>
+
+<tr>
+<td>virtual double</td>
+<td><a href="UserHooks.php#method27" target="page">UserHooks::biasSelectionBy(...)</a></td>
+<td>User Hooks</td>
+</tr>
+
+<tr>
+<td>virtual bool</td>
+<td><a href="UserHooks.php#method26" target="page">UserHooks::canBiasSelection()</a></td>
+<td>User Hooks</td>
+</tr>
+
+<tr>
 <td>virtual bool</td>
 <td><a href="UserHooks.php#method23" target="page">UserHooks::canModifySigma()</a></td>
 <td>User Hooks</td>
@@ -4810,7 +4888,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>virtual bool</td>
-<td><a href="UserHooks.php#method26" target="page">UserHooks::canSetResonanceScale()</a></td>
+<td><a href="UserHooks.php#method29" target="page">UserHooks::canSetResonanceScale()</a></td>
 <td>User Hooks</td>
 </tr>
 
@@ -4930,7 +5008,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>virtual double</td>
-<td><a href="UserHooks.php#method27" target="page">UserHooks::scaleResonance(...)</a></td>
+<td><a href="UserHooks.php#method30" target="page">UserHooks::scaleResonance(...)</a></td>
 <td>User Hooks</td>
 </tr>
 
@@ -5248,4 +5326,4 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 </table>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2009 Torbjorn Sjostrand -->

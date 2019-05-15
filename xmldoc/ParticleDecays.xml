@@ -109,7 +109,7 @@ The mixing parameter <ei>x_s = Delta(m_B_s^0)/Gamma_B_s^0</ei> in the
 Gamma from RPP2006.)
 </parm> 
 
-<h3>tau decays</h3>
+<h3>Tau decays</h3>
 
 A new machinery has been introduced to handle <ei>tau</ei> lepton decays, 
 with helicity information related to the production process and with
@@ -119,11 +119,45 @@ some input from Tauola <ref>Jad90</ref>. A complete writeup is
 in preparation <ref>Ilt11</ref>.
 
 This new machinery is on by default, but it is possible to revert to 
-the simpler old decay handling, e.g. to study differences.
+the simpler old decay handling, e.g. to study differences. Furthermore
+the spin tracing framework does not yet cover all possibilities; notably 
+it cannot handle taus coming from SUSY decay chains, so it makes sense 
+to switch off the new machinery in such instances, for speed reasons if 
+nothing else. In case only one tau mother species is undefined, the 
+polarization involved can be set by hand.
 
-<flag name="ParticleDecays:sophisticatedTau" default="on">
-Use the new <ei>tau</ei> decay description or not.
-</flag>
+<modepick name="ParticleDecays:sophisticatedTau" default="1" min="0" max="3">
+Choice of <ei>tau</ei> decay model.
+<option value="0">old decay model, with isotropic decays.</option>
+<option value="1">sophisticated decays where <ei>tau</ei> polarization is 
+calculated from the <ei>tau</ei> production mechanism.</option>
+<option value="2">sophisticated decays as above, but additionally <ei>tau</ei> 
+polarization is set to <code>ParticleDecaus:tauPolarization</code> for 
+<ei>tau</ei>s produced from <code>ParticleDecays:tauMother</code>.</option>
+<option value="3">sophisticated decays where <ei>tau</ei> polarization is set 
+to <code>ParticleDecaus:tauPolarization</code> for all <ei>tau</ei> decays.
+</option>
+<note>Note</note>: options <code>2</code> and <code>3</code>, 
+to force a specific <ei>tau</ei> polarization, only affect the decay 
+of the <ei>tau</ei>. The angular distribution of the <ei>tau</ei> itself, 
+given by its production, is not modified by these options. If you want, e.g., 
+a righthanded <ei>W</ei>, or a SUSY decay chain, the kinematics should 
+be handled by the corresponding cross section class(es), supplemented by 
+the resonance decay one(s). The options here could then still be used 
+to ensure the correct polarization at the <ei>tau</ei> decay stage.
+</modepick>
+
+<parm name="ParticleDecays:tauPolarization" default="0" min="-1." max="1.">
+Polarization of the <ei>tau</ei> when mode <ei>2</ei> or <ei>3</ei> of 
+<code>ParticleDecays:sophisticatedTau</code> is selected.
+</parm>
+
+<modeopen name="ParticleDecays:tauMother" default="0" min="0">
+Mother of the <ei>tau</ei> for forced polarization when mode <ei>2</ei> of 
+<code>ParticleDecays:sophisticatedTau</code> is selected. You should give the
+positive identity code; to the extent an antiparticle exists it will
+automatically obtain the inverse polarization.
+</modeopen>
 
 <h3>Other variables</h3>
 
@@ -162,8 +196,16 @@ new try is made, including a new multiplicity. These constraints
 imply that the actual average multiplicity does not quite agree with
 the formula above.
 
-<parm name="ParticleDecays:multIncrease" default="4.5" min="3." max="6.">
-The above <ei>multIncrease</ei> parameter.
+<parm name="ParticleDecays:multIncrease" default="4." min="2." max="6.">
+The above <ei>multIncrease</ei> parameter, except for 
+<code>meMode = 23</code>.
+</parm> 
+
+<parm name="ParticleDecays:multIncreaseWeak" default="2.5" min="1." max="4.">
+The above <ei>multIncrease</ei> parameter, specifically for 
+<code>meMode = 23</code>. Here the weak decay implies that only the 
+virtual W mass should contribute to the production of new particles, 
+rather than the full meson mass.
 </parm> 
 
 <parm name="ParticleDecays:multRefMass" default="0.7"min="0.2" max="2.0">

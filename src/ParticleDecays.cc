@@ -91,10 +91,11 @@ void ParticleDecays::init(Info* infoPtrIn, Settings& settings,
   sigmaSoft     = settings.parm("ParticleDecays:sigmaSoft");
 
   // Selection of multiplicity and colours in "phase space" model.
-  multIncrease  = settings.parm("ParticleDecays:multIncrease");
-  multRefMass   = settings.parm("ParticleDecays:multRefMass");
-  multGoffset   = settings.parm("ParticleDecays:multGoffset");
-  colRearrange  = settings.parm("ParticleDecays:colRearrange");
+  multIncrease     = settings.parm("ParticleDecays:multIncrease");
+  multIncreaseWeak = settings.parm("ParticleDecays:multIncreaseWeak");
+  multRefMass      = settings.parm("ParticleDecays:multRefMass");
+  multGoffset      = settings.parm("ParticleDecays:multGoffset");
+  colRearrange     = settings.parm("ParticleDecays:colRearrange");
 
   // Minimum energy in system (+ m_q) from StringFragmentation.
   stopMass      = settings.parm("StringFragmentation:stopMass");
@@ -107,7 +108,7 @@ void ParticleDecays::init(Info* infoPtrIn, Settings& settings,
   doFSRinDecays = settings.flag("ParticleDecays:FSRinDecays");
 
   // Use standard decays or dedicated tau decay package
-  sophisticatedTau = settings.flag("ParticleDecays:sophisticatedTau");
+  sophisticatedTau = settings.mode("ParticleDecays:sophisticatedTau");
 
   // Initialize the dedicated tau decay handler.
   if (sophisticatedTau) tauDecayer.init(infoPtr, &settings, 
@@ -169,8 +170,10 @@ bool ParticleDecays::decay( int iDec, Event& event) {
   }
     
   // Check if the particle is tau and let the special tau decayer handle it.
-  if (decayer.idAbs() == 15 && !doneExternally && sophisticatedTau)
+  if (decayer.idAbs() == 15 && !doneExternally && sophisticatedTau) {
     doneExternally = tauDecayer.decay(iDec, event);
+    if (doneExternally) return true;
+  }
 
   // Now begin normal internal decay treatment.
   if (!doneExternally) {
@@ -633,8 +636,8 @@ bool ParticleDecays::mGenerator(Event& event) {
     mMax        += mProd[i];
     mMin        += mProd[i+1];
     double mNow  = mProd[i];
-    wtPSmax *= 0.5 * sqrtpos( (mMax - mMin - mNow) * (mMax + mMin + mNow)
-    * (mMax + mMin - mNow) * (mMax - mMin + mNow) ) / mMax;  
+    wtPSmax     *= 0.5 * sqrtpos( (mMax - mMin - mNow) * (mMax + mMin + mNow)
+                 * (mMax + mMin - mNow) * (mMax - mMin + mNow) ) / mMax;  
   }
 
   // Begin loop over matrix-element corrections.
@@ -1028,11 +1031,13 @@ bool ParticleDecays::pickHadrons() {
 
       // Calculate mass excess and from there average multiplicity.
       } else if (nFix == 0) {
+        double multIncreaseNow = (meMode == 23) 
+          ? multIncreaseWeak : multIncrease;
         double mDiffPS = mDiff;
         for (int i = 0; i < nLeft; ++i) 
           mDiffPS -= particleDataPtr->constituentMass( idPartons[i] );
         double average = 0.5 * (nKnown + nSpec) + 0.25 * nPartons
-          + multIncrease * log( max( 1.1, mDiffPS / multRefMass ) );
+          + multIncreaseNow * log( max( 1.1, mDiffPS / multRefMass ) );
         if (closedGLoop) average += multGoffset;
 
         // Pick multiplicity according to Poissonian.

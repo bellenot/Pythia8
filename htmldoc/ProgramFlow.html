@@ -884,7 +884,7 @@ method.
   
 
 <a name="method20"></a>
-<p/><strong>bool Pythia::forceHadronLevel() &nbsp;</strong> <br/>
+<p/><strong>bool Pythia::forceHadronLevel(bool findJunctions = true) &nbsp;</strong> <br/>
 hadronize the existing event record, i.e. perform string fragmentation
 and particle decays. There are two main applications. Firstly,
 you can use the same parton-level content as a basis for repeated
@@ -894,6 +894,15 @@ partonic level of the event - hard process, parton showers, multiple
 interactions, beam remnants, colour flow, and so on - but not 
 hadronization. Further details are found 
 <a href="HadronLevelStandalone.html" target="page">here</a>.  
+<br/><code>argument</code><strong> findJunctions </strong> (<code>default = <strong>true</strong></code>) :   
+normally this routine will search through the event record and try to
+figure out if any colour junctions are present. If so, the colour
+topology of such junctions must be sorted out. In tricky cases this 
+might fail, and then hadronization will not work. A user who is 
+aware of this and knows the intended colour flow can set up the 
+junction information in the event record, and then call
+<code>forceHadronLevel(false)</code> so as not to have this information
+overwritten.   
 <br/><b>Note:</b> The method returns false if the hadronization
 fails. The event record is then not consistent and should not be
 studied.

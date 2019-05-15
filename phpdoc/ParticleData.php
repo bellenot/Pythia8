@@ -47,7 +47,7 @@ to provide a new mass:
 <input type="radio" name="1" value="0"><strong>0 </strong>:  mass is fixed at the nominal <ei>m_0</ei> value. <br/>
 <input type="radio" name="1" value="1"><strong>1 </strong>:  particles registered as having a mass width are given a mass  in the range <ei>m_min &lt; m &lt; m_max</ei>, according to a truncated nonrelativistic Breit-Wigner, i.e. linear in <ei>m</ei>. <br/>
 <input type="radio" name="1" value="2"><strong>2 </strong>:  as above, except that the width is made mass-dependent: <ei>Gamma = Gamma_0 * sqrt( (m^2 - m_thr^2) / (m_0^2 - m_thr^2) )</ei> where <ei>m</ei> is the current mass, <ei>m_0</ei> the nominal one and <ei>m_thr</ei> is the mass threshold, given by the sum of the nominal masses of the decay products. In order to decouple production and decay the threshold is defined as the branching-ratio-weighted average over all allowed decay channels.  <br/>
-<input type="radio" name="1" value="3"><strong>3 </strong>:   particles registered as having a mass width are given a mass  in the range <ei>m_min &lt; m &lt; m_max</ei>, according to a truncated nonrelativistic Breit-Wigner, i.e. quadratic in <ei>m</ei>. <br/>
+<input type="radio" name="1" value="3"><strong>3 </strong>:   particles registered as having a mass width are given a mass  in the range <ei>m_min &lt; m &lt; m_max</ei>, according to a truncated relativistic Breit-Wigner, i.e. quadratic in <ei>m</ei>. <br/>
 <input type="radio" name="1" value="4" checked="checked"><strong>4 </strong>:   as 3, but the width is modified as for 2, and the current mass is used  for its phase-space prefactor, i.e. <ei>m_0 Gamma_0 -> m Gamma(m)</ei>. <br/>
 <br/><b>Note:</b> this mode only applies to normal hadronic 
 resonances like the <ei>rho</ei>. The more massive states of the 
@@ -6808,16 +6808,16 @@ echo "<a href='ParticleDecays.php?filepath=".$filepath."' target='page'>";?>here
 <p/>particle: id="1006223" name="R++(~t uu1)" antiName="Rbar--(~t uu1)" spinType="3" chargeType="6" colType="0"
           m0="500.00000" tau0="1e-05"
 
-<p/>particle: id="1006311" name="R-(~t sd0)" antiName="Rbar+(~t sd0)" spinType="1" chargeType="-3" colType="0"
+<p/>particle: id="1006311" name="R-(~t sd0)" antiName="Rbar+(~t sd0)" spinType="1" chargeType="0" colType="0"
           m0="500.00000" tau0="1e-05"
 
-<p/>particle: id="1006313" name="R-(~t sd1)" antiName="Rbar+(~t sd1)" spinType="3" chargeType="-3" colType="0"
+<p/>particle: id="1006313" name="R-(~t sd1)" antiName="Rbar+(~t sd1)" spinType="3" chargeType="0" colType="0"
           m0="500.00000" tau0="1e-05"
 
-<p/>particle: id="1006321" name="R0(~t su0)" antiName="Rbar0(~t su0)" spinType="1" chargeType="0" colType="0"
+<p/>particle: id="1006321" name="R0(~t su0)" antiName="Rbar0(~t su0)" spinType="1" chargeType="3" colType="0"
           m0="500.00000" tau0="1e-05"
 
-<p/>particle: id="1006323" name="R0(~t su1)" antiName="Rbar0(~t su1)" spinType="3" chargeType="0" colType="0"
+<p/>particle: id="1006323" name="R0(~t su1)" antiName="Rbar0(~t su1)" spinType="3" chargeType="3" colType="0"
           m0="500.00000" tau0="1e-05"
 
 <p/>particle: id="1006333" name="R0(~t ss1)" antiName="Rbar0(~t ss1)" spinType="3" chargeType="0" colType="0"

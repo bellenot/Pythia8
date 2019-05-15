@@ -19,6 +19,10 @@ Z. Phys. C45 (1989) 109</dd>
 <dt>Alw07</dt>
 <dd>J. Alwall et al., arXiv:0712.3311 [hep-ph]</dd> 
 
+<dt>Alw11</dt>
+<dd>J. Alwall, M. Herquet, F. Maltoni, O. Mattelaer, T. Stelzer, 
+JHEP 1106 (2011) 128 [arXiv:1106.0522 [hep-ph]]</dd> 
+
 <dt>And83</dt>
 <dd>B. Andersson, G. Gustafson, G. Ingelman and T. Sj&ouml;strand,
 Phys. Rep. 97 (1983) 31</dd>
@@ -39,7 +43,8 @@ Phys. Rep. 97 (1983) 31</dd>
 http://mbargiot.web.cern.ch/mbargiot/talks/
 
 <dt>Bau90</dt>
-<dd>U. Baur, M. Spira and P. M. Zerwas, Phys. Rev. D42 (1990) 815</dd> 
+<dd>U. Baur, M. Spira and P. M. Zerwas, Phys. Rev. D42 (1990) 815;
+<br/>C. Berger et al., CERN Yellow Reports 90-10, Vol. II, p.1014</dd> 
 
 <dt>Bel10</dt>
 <dd>G. Bella et al., arXiv:1004.1649 [hep-ex],
@@ -86,7 +91,8 @@ at TeV Colliders, Les Houches, France, 21 May - 1 Jun 2001
 <dd>A. Buckley et al., arXiv:1003.0694 [hep-ph]</dd>
 
 <dt>Buc11</dt>
-<dd>A. Buckley et al., MCnet/11/01, arXiv:1101.2599 [hep-ph]</dd>
+<dd>A. Buckley et al., Phys. Rep. 504 (2011) 145 
+[arXiv:1101.2599 [hep-ph]]</dd>
 
 <dt>Cac06</dt>
 <dd>M. Cacciari and G.P. Salam, Phys. Lett. B641 (2006) 57
@@ -104,16 +110,15 @@ at TeV Colliders, Les Houches, France, 21 May - 1 Jun 2001
 [arXiv:1006.2911 [hep-ph]] </dd>
 
 <dt>Car11</dt>
-<dd>L. Carloni, J. Rathsman and T. Sj&ouml;strand, in preparation,
-LU TP 11-09, MCnet/11/06, arXiv:1102.3795 [hep-ph],
-accepted for publication in JHEP </dd>
+<dd>L. Carloni, J. Rathsman and T. Sj&ouml;strand,
+JHEP 1104 (2011) 091 [arXiv:1102.3795 [hep-ph]]</dd>
 
 <dt>Che07</dt> 
 <dd>K. Cheung, W.-Y. Keung and T.-C. Yuan, 
 Phys. Rev. D76 (2007) 055003</dd>
 
 <dt>Cor09</dt>
-<dd>R. Corke and T. Sj&ouml;strand, JHEP 01 (2010) 035 
+<dd>R. Corke and T. Sj&ouml;strand, JHEP 1001 (2010) 035 
 [arXiv:0911.1909 [hep-ph]]</dd>
 
 <dt>Cor10</dt>
@@ -121,12 +126,12 @@ Phys. Rev. D76 (2007) 055003</dd>
 [arXiv:1003.2384 [hep-ph]]</dd>
 
 <dt>Cor10a</dt>
-<dd>R. Corke and T. Sj&ouml;strand, LU TP 10-26, MCnet/10/20, 
-arXiv:1011.1759 [hep-ph]</dd>
+<dd>R. Corke and T. Sj&ouml;strand, JHEP 1103 (2011) 032 
+[arXiv:1011.1759 [hep-ph]]</dd>
 
 <dt>Cor11</dt>
-<dd>R. Corke and T. Sj&ouml;strand, LU TP 11-06, MCnet/11/03, 
-arXiv:1101.5953 [hep-ph] </dd>
+<dd>R. Corke and T. Sj&ouml;strand, JHEP 1105 (2011) 009 
+[arXiv:1101.5953 [hep-ph]] </dd>
 
 <dt>Dav01</dt> 
 <dd>H. Davoudiasl, J.L. Hewett, T.G. Rizzo, Phys. Rev. D63 (2001) 075004</dd>

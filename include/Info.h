@@ -27,7 +27,8 @@ class Info {
 public:
 
   // Constructor. 
-  Info() {lowPTmin = false; for (int i = 0; i < 40; ++i) counters[i] = 0;} 
+  Info() : lowPTmin(false), a0MISave(0.) {
+    for (int i = 0; i < 40; ++i) counters[i] = 0;} 
 
   // Listing of most available information on current event.
   void   list(ostream& os = cout) const;
@@ -100,8 +101,10 @@ public:
   double thetaHat()       const {return thetaH;}   
   double phiHat()         const {return phiH;}   
 
-  // Weight of current event; normally 1, but used for Les Houches events.
+  // Weight of current event; normally 1, but used for Les Houches events
+  // or when reweighting phase space selection. Also cumulative sum.
   double weight()         const {return weightSave;}   
+  double weightSum()      const {return wtAccSum;}
 
   // Number of times other steps have been carried out.
   int    nISR()           const {return nISRSave;}
@@ -116,9 +119,13 @@ public:
   // Current evolution scale (for UserHooks).
   double pTnow()          const {return pTnowSave;}
 
+  // Impact parameter picture, global information
+  double a0MI()           const {return a0MISave;}
+
   // Impact parameter picture, as set by hardest interaction.
   double bMI()            const {return (bIsSet) ? bMISave : 1.;}
   double enhanceMI()      const {return (bIsSet) ? enhanceMISave : 1.;}
+  double eMI(int i)       const {return (bIsSet) ? eMISave[i] : 1.;}
 
   // Number of multiple interactions, with code and pT for them.
   int    nMI()            const {return nMISave;}
@@ -126,8 +133,6 @@ public:
   double pTMI(int i)      const {return pTMISave[i];} 
   int    iAMI(int i)      const {return iAMISave[i];} 
   int    iBMI(int i)      const {return iBMISave[i];} 
-  // Get enhancement values for interactions other than the hardest --rjc
-  double eMI(int i)       const {return (bIsSet) ? eMISave[i] : 1.;}
 
   // Cross section estimate.
   long   nTried()         const {return nTry;}
@@ -159,6 +164,19 @@ public:
   // Set initialization warning flag when too low pTmin in ISR/FSR/MI.
   void   setTooLowPTmin(bool lowPTminIn) {lowPTmin = lowPTminIn;} 
 
+  // Set info on valence character of hard collision partons.
+  void setValence( bool isVal1In, bool isVal2In) {isVal1 = isVal1In; 
+    isVal2 = isVal2In;}
+
+  // Set and get some MI/ISR/FSR properties needed for matching,
+  // i.e. mainly of internal relevance.
+  void   hasHistory( bool hasHistoryIn) {hasHistorySave = hasHistoryIn;}
+  bool   hasHistory() {return hasHistorySave;}
+  void   zNowISR( double zNowIn) {zNowISRSave = zNowIn;}
+  double zNowISR() {return zNowISRSave;}
+  void   pT2NowISR( double pT2NowIn) {pT2NowISRSave = pT2NowIn;}
+  double pT2NowISR() {return pT2NowISRSave;}
+
 private:
 
   // Number of times the same error message is repeated, unless overridden.
@@ -173,20 +191,22 @@ private:
 
   // Store common integrated cross section quantities.
   long   nTry, nSel, nAcc;
-  double sigGen, sigErr;
+  double sigGen, sigErr, wtAccSum;
+
+  // Store common MPI information
+  double a0MISave;
 
   // Store current-event quantities.
   bool   isRes, isDiffA, isDiffB, isMB, isLH, hasSubSave, bIsSet, evolIsSet,
-         atEOF, isVal1, isVal2;  
+         atEOF, isVal1, isVal2, hasHistorySave;  
   int    codeSave, codeSubSave, nFinalSave, nFinalSubSave, nTotal, 
          id1Save, id2Save, nMISave, nISRSave, nFSRinProcSave, nFSRinResSave;
   double x1Save, x2Save, pdf1Save, pdf2Save, Q2FacSave, alphaEMSave, 
          alphaSSave, Q2RenSave, sH, tH, uH, pTH, m3H, m4H, thetaH, phiH, 
          weightSave, bMISave, enhanceMISave, pTmaxMISave, pTmaxISRSave, 
-         pTmaxFSRSave, pTnowSave;
+         pTmaxFSRSave, pTnowSave, zNowISRSave, pT2NowISRSave;
   string nameSave, nameSubSave;
   vector<int>    codeMISave, iAMISave, iBMISave;
-  // Store enhancement values for all interactions --rjc
   vector<double> pTMISave, eMISave;
 
   // Vector of various loop counters.
@@ -210,15 +230,17 @@ private:
   void setECM( double eCMin) {eCMSave = eCMin; sSave = eCMSave * eCMSave;}
 
   // Reset info for current event: only from Pythia class.
-  // Add in enhancement factors for all MI --rjc
-  void clear() { isRes = isDiffA = isDiffB = isMB = isLH = atEOF = bIsSet 
-    = isVal1 =isVal2 = false; codeSave = nFinalSave = nTotal = id1Save 
+  void clear() { isRes = isDiffA = isDiffB = isMB = isLH = hasSubSave 
+    = bIsSet = evolIsSet = atEOF = isVal1 =isVal2 = hasHistorySave = false; 
+    codeSave = codeSubSave = nFinalSave = nFinalSubSave = nTotal = id1Save 
     = id2Save = nMISave = nISRSave = nFSRinProcSave = nFSRinResSave = 0; 
     x1Save = x2Save = pdf1Save = pdf2Save = Q2FacSave = alphaEMSave 
     = alphaSSave = Q2RenSave = sH = tH = uH = pTH = m3H = m4H = thetaH 
-    = phiH = 0.; nameSave = " "; weightSave = bMISave = enhanceMISave = 1.; 
-    codeMISave.resize(0); pTMISave.resize(0); iAMISave.resize(0);
-    iBMISave.resize(0); eMISave.resize(0); }
+    = phiH = 0.; weightSave = bMISave = enhanceMISave = 1.; 
+    pTmaxMISave = pTmaxISRSave = pTmaxFSRSave = pTnowSave = zNowISRSave 
+    = pT2NowISRSave = 0.; nameSave = nameSubSave = " "; 
+    codeMISave.resize(0); iAMISave.resize(0); iBMISave.resize(0);  
+    pTMISave.resize(0); eMISave.resize(0); }
 
   // Set info on the (sub)process: from ProcessLevel, ProcessContainer or 
   // MultipleInteractions classes.
@@ -243,7 +265,6 @@ private:
     double thetaHatIn, double phiHatIn) {x1Save = x1In; x2Save = x2In; 
     sH = sHatIn; tH = tHatIn; uH = uHatIn; pTH = pTHatIn; m3H = m3HatIn; 
     m4H = m4HatIn; thetaH = thetaHatIn; phiH = phiHatIn;}
-  // Add in enhancement factors for all MI --rjc
   void setTypeMI( int codeMIIn, double pTMIIn, int iAMIIn = 0, 
     int iBMIIn = 0, double eMIIn = 1.) {codeMISave.push_back(codeMIIn); 
     pTMISave.push_back(pTMIIn); iAMISave.push_back(iAMIIn); 
@@ -251,15 +272,11 @@ private:
 
   // Set info on cross section: from ProcessLevel.
   void setSigma( long nTryIn, long nSelIn, long nAccIn, double sigGenIn, 
-    double sigErrIn) { nTry = nTryIn; nSel = nSelIn; nAcc = nAccIn; 
-    sigGen = sigGenIn; sigErr = sigErrIn;} 
-
-  // Set info on valence character of hard collision partons: from PartonLevel.
-  void setValence( bool isVal1In, bool isVal2In) {isVal1 = isVal1In; 
-    isVal2 = isVal2In;}
+    double sigErrIn, double wtAccSumIn) { nTry = nTryIn; nSel = nSelIn; 
+    nAcc = nAccIn; sigGen = sigGenIn; sigErr = sigErrIn; 
+    wtAccSum = wtAccSumIn;} 
 
   // Set info on impact parameter: from PartonLevel.
-  // Add in enhancement factors for all MI --rjc
   void setImpact( double bMIIn, double enhanceMIIn) {bMISave = bMIIn;
     enhanceMISave = eMISave[0] = enhanceMIIn, bIsSet = true;} 
 
@@ -275,6 +292,9 @@ private:
 
   // Set current pT evolution scale for MI/ISR/FSR; from PartonLevel.
   void setPTnow( double pTnowIn) {pTnowSave = pTnowIn;}
+
+  // Set a0 from MultipleInteractions.
+  void a0MI(double a0MIin) {a0MISave = a0MIin;}
 
   // Set info whether reading of Les Houches Accord file at end.
   void setEndOfFile( bool atEOFin) {atEOF = atEOFin;}

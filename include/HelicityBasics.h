@@ -22,59 +22,64 @@ namespace Pythia8 {
 // for the writing of helicity matrix elements.
   
 class Wave4 {
+
+public:
+
+  // Constructors and destructor.
+  Wave4() {};
+  Wave4(complex v0, complex v1, complex v2, complex v3) {val[0] = v0;
+    val[1] = v1; val[2] = v2; val[3] = v3;}
+  Wave4(Vec4 v) {val[0] = v.e(); val[1] = v.px(); val[2] = v.py();
+    val[3] = v.pz();}
+  ~Wave4() {};
+
+  // Access an element of the wave vector.
+  complex& operator() (int i) {return val[i];}
+
+  // Wave4 + Wave4.
+  Wave4 operator+(Wave4 w) {return Wave4( val[0] + w.val[0],
+    val[1] + w.val[1], val[2] + w.val[2], val[3] + w.val[3]);}
+
+  // Wave4 - Wave4.
+  Wave4 operator-(Wave4 w) {return Wave4( val[0] - w.val[0],
+    val[1] - w.val[1], val[2] - w.val[2], val[3] - w.val[3]);}
+
+  // - Wave4.
+  Wave4 operator-() {return Wave4(-val[0], -val[1], -val[2], -val[3]);}
+
+  // Wave4 * Wave4.
+  complex operator*(Wave4 w) {return val[0] * w.val[0]
+    + val[1] * w.val[1] + val[2] * w.val[2] + val[3] * w.val[3];}
+
+  // Wave4 * complex.
+  Wave4 operator*(complex s) {return Wave4(val[0] * s, val[1] * s,
+    val[2] * s, val[3] * s);}
+
+  // complex * Wave4.
+  friend Wave4 operator*(complex s, const Wave4& w);
+ 
+  // Wave4 / complex.
+  Wave4 operator/(complex s) {return Wave4(val[0] / s, val[1] / s,
+    val[2] / s, val[3] / s);}
+
+  // Wave4 / double.
+  Wave4 operator/(double s) {return Wave4(val[0] / s, val[1] / s,
+    val[2]/s, val[3]/s);}
+
+  // Complex conjugate.
+  friend Wave4 conj(Wave4 w) ;
+
+  // Invariant squared mass for REAL Wave4 (to save time).
+  friend double m2(Wave4 w1, Wave4 w2);
   
-  protected:
+  // Wave4 * GammaMatrix multiplication is defined in the GammaMatrix class.
 
-    complex values[4];
+  // Print a Wave4 vector.
+  friend ostream& operator<<(ostream& output, Wave4 w);
 
-  public:
+protected:
 
-    // Constructors and destructors.
-    Wave4() {};
-    Wave4(complex v0, complex v1, complex v2, complex v3) {values[0] = v0;
-      values[1] = v1; values[2] = v2; values[3] = v3;}
-    Wave4(Vec4 v) {values[0] = v.e(); values[1] = v.px(); values[2] = v.py();
-      values[3] = v.pz();}
-    ~Wave4() {};
-
-    // Access an element of the wave vector.
-    complex& operator() (int i) {return values[i];}
-    // Wave4 + Wave4
-    Wave4 operator+(Wave4 w) {return Wave4(values[0] + w.values[0],
-					   values[1] + w.values[1],
-					   values[2] + w.values[2],
-					   values[3] + w.values[3]);}
-    // Wave4 - Wave4
-    Wave4 operator-(Wave4 w) {return Wave4(values[0] - w.values[0],
-					   values[1] - w.values[1],
-					   values[2] - w.values[2],
-					   values[3] - w.values[3]);}
-    // - Wave4
-    Wave4 operator-() {return Wave4(-values[0], -values[1], -values[2], 
-				    -values[3]);}
-    // Wave4 * Wave4
-    complex operator*(Wave4 w) {return values[0]*w.values[0]
-	+ values[1]*w.values[1] + values[2]*w.values[2]
-	+ values[3]*w.values[3];}
-    // Wave4 * complex
-    Wave4 operator*(complex s) {return Wave4(values[0]*s, values[1]*s,
-					     values[2]*s, values[3]*s);}
-    // complex * Wave4
-    friend Wave4 operator*(complex s, const Wave4& w); 
-    // Wave4 / complex
-    Wave4 operator/(complex s) {return Wave4(values[0]/s, values[1]/s,
-					     values[2]/s, values[3]/s);}
-    // Wave4 / double
-    Wave4 operator/(double s) {return Wave4(values[0]/s, values[1]/s,
-					    values[2]/s, values[3]/s);}
-    // Complex conjugate.
-    friend Wave4 conj(Wave4 w) ;
-    // Invariant squared mass for REAL Wave4 (to save time).
-    friend double m2(Wave4 w1, Wave4 w2);
-    
-    // Wave4 * GammaMatrix multiplication is defined in the GammaMatrix class.
-    // Print a Wave4 vector.
-    friend ostream& operator<<(ostream& output, Wave4 w);
+  complex val[4];
 
 };
 
@@ -84,7 +89,7 @@ class Wave4 {
 Wave4 operator*(complex s, const Wave4& w);
 Wave4 conj(Wave4 w);
 double m2(Wave4 w1, Wave4 w2);
-ostream& operator<< (ostream& output, Wave4 w);
+ostream& operator<< (ostream& os, Wave4 w);
 
 //==========================================================================
 
@@ -97,55 +102,52 @@ ostream& operator<< (ostream& output, Wave4 w);
 // with the (1 - gamma^5) structure of matrix elements in mind.
  
 class GammaMatrix {
+
+public:
+
+  // Constructors and destructor.
+  GammaMatrix() {};
+  GammaMatrix(int mu);
+  ~GammaMatrix() {};
+
+  // Access an element of the matrix.
+  complex& operator() (int I, int J) {if (index[J] == I) return val[J];
+    else return COMPLEXZERO; }
+
+  // Wave4 * GammaMatrix.
+  friend Wave4 operator*(Wave4 w, GammaMatrix g);
+
+  // GammaMatrix * Scalar.
+  GammaMatrix operator*(complex s) {val[0] = s*val[0]; val[1] = s*val[1]; 
+    val[2] = s*val[2]; val[3] = s*val[3]; return *this;}
+
+  // Scalar * GammaMatrix.
+  friend GammaMatrix operator*(complex s, GammaMatrix g); 
   
-  protected:
+  // Gamma5 - I * Scalar.
+  GammaMatrix operator-(complex s) {val[0] = val[0] - s; val[1] = val[1] - s; 
+    val[2] = val[2] - s; val[3] = val[3] - s; return *this;}
 
-    complex values[4];
-    int     index[4];
-    complex zero;
+  // I * Scalar - Gamma5.
+  friend GammaMatrix operator-(complex s, GammaMatrix g);
 
-  public:
+  // Gamma5 + I * Scalar
+  GammaMatrix operator+(complex s) {val[0] = val[0] + s; val[1] = val[1] + s; 
+    val[2] = val[2] + s; val[3] = val[3] + s; return *this;}
 
-    // Constructors and destructors.
-    GammaMatrix() {};
-    GammaMatrix(int mu);
-    ~GammaMatrix() {};
+  // I * Scalar + Gamma5
+  friend GammaMatrix operator+(complex s, GammaMatrix g);
 
-    // Access an element of the matrix.
-    complex& operator() (int I, int J) {
-      if (index[J] == I) return values[J];
-      else return zero;
-    }
+  // << GammaMatrix.
+  friend ostream& operator<< (ostream& os, GammaMatrix g);
 
-    // Wave4 * GammaMatrix
-    friend Wave4 operator*(Wave4 w, GammaMatrix g);
+protected:
 
-    // GammaMatrix * Scalar
-    GammaMatrix operator*(complex s) {values[0] = s*values[0];
-      values[1] = s*values[1]; values[2] = s*values[2];
-      values[3] = s*values[3]; return *this;}
+  complex val[4];
+  int     index[4];
 
-    // Scalar * GammaMatrix
-    friend GammaMatrix operator*(complex s, GammaMatrix g); 
-    
-    // Gamma5 - I*Scalar
-    GammaMatrix operator-(complex s) {values[0] = values[0]-s;
-      values[1] = values[1]-s; values[2] = values[2]-s;
-      values[3] = values[3]-s; return *this;}
-
-    // I*Scalar - Gamma5
-    friend GammaMatrix operator-(complex s, GammaMatrix g);
-
-    // Gamma5 + I*Scalar
-    GammaMatrix operator+(complex s) {values[0] = values[0]+s;
-      values[1] = values[1]+s; values[2] = values[2]+s;
-      values[3] = values[3]+s; return *this;}
-
-    // I*Scalar + Gamma5
-    friend GammaMatrix operator+(complex s, GammaMatrix g);
-
-    // << GammaMatrix
-    friend ostream& operator<< (ostream& output, GammaMatrix g);
+  // Need to define complex 0 as a variable for operator() to work.
+  complex COMPLEXZERO;
 
 };
 
@@ -156,7 +158,7 @@ Wave4 operator*(Wave4 w, GammaMatrix g);
 GammaMatrix operator*(complex s, GammaMatrix g); 
 GammaMatrix operator-(complex s, GammaMatrix g); 
 GammaMatrix operator+(complex s, GammaMatrix g); 
-ostream& operator<< (ostream& output, GammaMatrix g);
+ostream& operator<< (ostream& os, GammaMatrix g);
 
 //==========================================================================
 
@@ -164,87 +166,62 @@ ostream& operator<< (ostream& output, GammaMatrix g);
 // particle base class.
  
 class HelicityParticle : public Particle {
-    
-  public:
-    
-    // Event record position.
-    int idx;
-    
-    // Flag for whether particle is incoming (-1) or outgoing (1).
-    int direction;
-    
-    // Helicity density matrix.
-    vector< vector<complex> > rho;
-    
-    // Decay matrix.
-    vector< vector<complex> > D;
-    
-    // Constructors.
-  HelicityParticle() : Particle() {
-      direction = 1;
-    };
-    
+  
+public:
+  
+  // Constructors.
+  HelicityParticle() : Particle() { direction = 1;}
   HelicityParticle(int idIn, int statusIn = 0, int mother1In = 0,
-		   int mother2In = 0, int daughter1In = 0, int daughter2In = 0,
-		   int colIn = 0, int acolIn = 0, double pxIn = 0.,
-		   double pyIn = 0., double pzIn = 0., double eIn = 0.,
-		   double mIn = 0., double scaleIn = 0., ParticleData* ptr = 0)
+    int mother2In = 0, int daughter1In = 0, int daughter2In = 0,
+    int colIn = 0, int acolIn = 0, double pxIn = 0.,
+    double pyIn = 0., double pzIn = 0., double eIn = 0.,
+    double mIn = 0., double scaleIn = 0., ParticleData* ptr = 0)
     : Particle(idIn, statusIn, mother1In, mother2In, daughter1In, daughter2In,
-	       colIn, acolIn, pxIn, pyIn, pzIn, eIn, mIn, scaleIn) {
-      if (ptr) {
-	setPDTPtr(ptr);
-	setPDEPtr();
-      }
-      rho = vector< vector<complex> >(spinType(),
-				      vector<complex>(spinType(), 0));
-      D   = vector< vector<complex> >(spinType(),
-				      vector<complex>(spinType(), 0));
-      for (int i = 0; i < spinType(); i++) {
-	rho[i][i] = 0.5; D[i][i] = 1;
-      }
-      direction = 1;
-    };
-    
+    colIn, acolIn, pxIn, pyIn, pzIn, eIn, mIn, scaleIn) {
+    if (ptr) { setPDTPtr(ptr); setPDEPtr(); }
+    rho = vector< vector<complex> >(spinType(), vector<complex>(spinType(), 0));
+    D   = vector< vector<complex> >(spinType(), vector<complex>(spinType(), 0));
+    for (int i = 0; i < spinType(); i++) { rho[i][i] = 0.5; D[i][i] = 1.;}
+    direction = 1; }
   HelicityParticle(int idIn, int statusIn, int mother1In, int mother2In,
-		   int daughter1In, int daughter2In, int colIn, int acolIn,
-		   Vec4 pIn, double mIn = 0., double scaleIn = 0.,
-		   ParticleData* ptr = 0)
+    int daughter1In, int daughter2In, int colIn, int acolIn, Vec4 pIn, 
+    double mIn = 0., double scaleIn = 0., ParticleData* ptr = 0)
     : Particle(idIn, statusIn, mother1In, mother2In, daughter1In, daughter2In,
-	       colIn, acolIn, pIn, mIn, scaleIn) {
-      if (ptr) {
-	setPDTPtr(ptr);
-	setPDEPtr();
-      }
-      rho = vector< vector<complex> >(spinType(),
-				      vector<complex>(spinType(), 0));
-      D   = vector< vector<complex> >(spinType(),
-				      vector<complex>(spinType(), 0));
-      for (int i = 0; i < spinType(); i++) {
-	rho[i][i] = 0.5; D[i][i] = 1;
-      }
-      direction = 1;
-    };
-    
-  HelicityParticle(const Particle& ptIn,
-		   ParticleData* ptr = 0) : Particle(ptIn) {
-      if (ptr) {
-	setPDTPtr(ptr);
-	setPDEPtr();
-      }
-      rho = vector< vector<complex> >(spinType(),
-				      vector<complex>(spinType(), 0));
-      D   = vector< vector<complex> >(spinType(),
-				      vector<complex>(spinType(), 0));
-      for (int i = 0; i < spinType(); i++) {
-	rho[i][i] = 0.5; D[i][i] = 1;
-      }
-      direction = 1;
-    };
-    
-    // Methods.
-    Wave4 wave(int h);
-    Wave4 waveBar(int h);
-    void normalize(vector< vector<complex> >& m);
+    colIn, acolIn, pIn, mIn, scaleIn) {
+    if (ptr) { setPDTPtr(ptr); setPDEPtr();}
+    rho = vector< vector<complex> >(spinType(), vector<complex>(spinType(), 0));
+    D   = vector< vector<complex> >(spinType(), vector<complex>(spinType(), 0));
+    for (int i = 0; i < spinType(); i++) { rho[i][i] = 0.5; D[i][i] = 1;}
+    direction = 1; }
+  HelicityParticle(const Particle& ptIn, ParticleData* ptr = 0) 
+    : Particle(ptIn) {
+    if (ptr) { setPDTPtr(ptr); setPDEPtr();}
+    rho = vector< vector<complex> >(spinType(), vector<complex>(spinType(), 0));
+    D   = vector< vector<complex> >(spinType(), vector<complex>(spinType(), 0));
+    for (int i = 0; i < spinType(); i++) { rho[i][i] = 0.5; D[i][i] = 1;}
+    direction = 1; }
+ 
+  // Methods.
+  Wave4 wave(int h);
+  Wave4 waveBar(int h);
+  void normalize(vector< vector<complex> >& m);
+  
+  // Event record position.
+  int idx;
+  
+  // Flag for whether particle is incoming (-1) or outgoing (1).
+  int direction;
+  
+  // Helicity density matrix.
+  vector< vector<complex> > rho;
+  
+  // Decay matrix.
+  vector< vector<complex> > D;
+
+private: 
+
+  // Constants: could only be changed in the code itself.
+  static const double TOLERANCE;
 
 };
 

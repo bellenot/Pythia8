@@ -117,7 +117,7 @@ class BeamParticle {
 public:
 
   // Constructor.
-  BeamParticle() : nInit(0) {Q2ValFracSav = -1.;}  
+  BeamParticle() : nInit(0) {resolved.resize(0); Q2ValFracSav = -1.;}  
 
   // Initialize data on a beam particle and save pointers.
   void init( int idIn, double pzIn, double eIn, double mIn, 
@@ -263,7 +263,7 @@ private:
   Vec4   pBeam;
   double mBeam;
   // Beam kind. Valence flavour content for hadrons.
-  bool   isLeptonBeam, isUnresolvedBeam, isHadronBeam, isMesonBeam, 
+  bool   isUnresolvedBeam, isLeptonBeam, isHadronBeam, isMesonBeam, 
          isBaryonBeam;
   int    nValKinds, idVal[3], nVal[3];
 

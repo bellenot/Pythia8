@@ -1394,6 +1394,10 @@ void CTEQ6pdf::init(int iFitIn, string xmlPath, Info* infoPtr) {
   xMaxEps = 1. - EPSILON;
   qMinEps = qIni * (1. + EPSILON);
   qMaxEps = qMax * (1. - EPSILON);
+
+  // Initialize (x, Q) values of previous call.
+  xLast = 0.;
+  qLast = 0.;
  
 }
 

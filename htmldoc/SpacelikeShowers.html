@@ -283,11 +283,19 @@ Allow leptons to radiate photons; on/off = true/false.
   
 
 <p/>
-There are three further possibilities to simplify the shower:
+There are some further possibilities to modify the shower:
 
 <p/><code>flag&nbsp; </code><strong> SpaceShower:MEcorrections &nbsp;</strong> 
  (<code>default = <strong>on</strong></code>)<br/>
 Use of matrix element corrections; on/off = true/false.
+  
+
+<p/><code>flag&nbsp; </code><strong> SpaceShower:MEafterFirst &nbsp;</strong> 
+ (<code>default = <strong>on</strong></code>)<br/>
+Use of matrix element corrections also after the first emission,
+for dipole ends of the same system that did not yet radiate.
+Only has a meaning if <code>MEcorrections</code> above is 
+switched on. 
   
 
 <p/><code>flag&nbsp; </code><strong> SpaceShower:phiPolAsym &nbsp;</strong> 

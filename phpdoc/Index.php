@@ -127,8 +127,10 @@ echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>Les Ho
 <a href='SUSYLesHouchesAccord.php?filepath=".$filepath."' target='page'>SUSY Les Houches Accord</a><br/>
 <a href='HepMCInterface.php?filepath=".$filepath."' target='page'>HepMC Interface</a><br/>
 <a href='ROOTusage.php?filepath=".$filepath."' target='page'>ROOT usage</a><br/>
+<a href='RIVETusage.php?filepath=".$filepath."' target='page'>RIVET usage</a><br/>
 <a href='SemiInternalProcesses.php?filepath=".$filepath."' target='page'>Semi-Internal Processes</a><br/>
 <a href='SemiInternalResonances.php?filepath=".$filepath."' target='page'>Semi-Internal Resonances</a><br/>
+<a href='MadGraph5Processes.php?filepath=".$filepath."' target='page'>MadGraph 5 Processes</a><br/>
 <a href='HadronLevelStandalone.php?filepath=".$filepath."' target='page'>Hadron-Level Standalone</a><br/>
 <a href='ExternalDecays.php?filepath=".$filepath."' target='page'>External Decays</a><br/>
 <a href='BeamShape.php?filepath=".$filepath."' target='page'>Beam Shape</a><br/>

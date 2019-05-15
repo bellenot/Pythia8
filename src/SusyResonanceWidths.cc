@@ -11,8 +11,6 @@
 #include "SusyCouplings.h"
 #include "PythiaComplex.h"
 
-#define PI 3.141592654
-
 namespace Pythia8 {
 
 //==========================================================================
@@ -430,8 +428,9 @@ bool SUSYResonanceWidths::init(Info* infoPtrIn, Settings* settingsPtrIn,
   particleDataPtr = particleDataPtrIn;
   coupSUSYPtr     = (couplingsPtrIn->isSUSY ? (CoupSUSY *) couplingsPtrIn: 0 );
 
-  // No initialization necessary for SM-only
-  if(!couplingsPtrIn->isSUSY) return true;
+  // No width calculation necessary for SM-only
+  bool calcWidthAllow = true;
+  if(!couplingsPtrIn->isSUSY) calcWidthAllow = false;
 
   // Minimal decaying-resonance width. Minimal phase space for meMode = 103.
   minWidth     = settingsPtr->parm("ResonanceWidths:minWidth");
@@ -476,9 +475,10 @@ bool SUSYResonanceWidths::init(Info* infoPtrIn, Settings* settingsPtrIn,
   mHat          = mRes;
 
   // Initialize constants used for a resonance.
-
-  initConstants();
-  calcPreFac(true);
+  if(calcWidthAllow) {
+    initConstants();
+    calcPreFac(true);
+  }
 
   // Reset quantities to sum. Declare variables inside loop.
   double widTot = 0.; 
@@ -503,11 +503,13 @@ bool SUSYResonanceWidths::init(Info* infoPtrIn, Settings* settingsPtrIn,
 
     // Check if decay table was read in via SLHA
     bool hasDecayTable = false;
-    for(unsigned int iDec = 1; iDec < (coupSUSYPtr->slhaPtr)->decays.size(); iDec++)
-      hasDecayTable = ((coupSUSYPtr->slhaPtr)->decays[iDec].getId() == abs(idRes));
+    if(calcWidthAllow) {
+      for(unsigned int iDec = 1; iDec < (coupSUSYPtr->slhaPtr)->decays.size(); iDec++)
+	hasDecayTable = ((coupSUSYPtr->slhaPtr)->decays[iDec].getId() == abs(idRes));
+    }
 
     // Calculation of SUSY particle widths
-    if (meMode == 103 && GammaRes > 0. &&
+    if (meMode == 103 && GammaRes > 0. && calcWidthAllow &&
 	(!settingsPtr->flag("SLHA:useDecayTable") || !hasDecayTable)) {
       // Read out information on channel: primarily use first two. 
       id1       = particlePtr->channel(i).product(0);
@@ -547,7 +549,7 @@ bool SUSYResonanceWidths::init(Info* infoPtrIn, Settings* settingsPtrIn,
       calcWidth(true);
     }
 
-    // Channels with meMode >= 100 are calculated based on stored values.
+    // Width calculated based on stored values.
     else widNow = GammaRes * particlePtr->channel(i).bRatio();
    
     // Find secondary open fractions of partial width.
@@ -680,7 +682,7 @@ void ResonanceSquark::calcWidth(bool) {
       
       // ~q -> q_i + q_j
       
-      fac = 2.0 * kinFac * sqrt(lambda) / (16.0 * PI * pow(mHat,3)); 
+      fac = 2.0 * kinFac * sqrt(lambda) / (16.0 * M_PI * pow(mHat,3)); 
       wid = 0.0;
       if(idown) {
 	if ((id1Abs+id2Abs)%2 == 1){
@@ -710,7 +712,7 @@ void ResonanceSquark::calcWidth(bool) {
       int ilep = (id1Abs - 9)/2;
       int iq = (id2Abs + 1)/2;
     
-      fac = kinFac * sqrt(lambda) / (16.0 * PI * pow(mHat,3)); 
+      fac = kinFac * sqrt(lambda) / (16.0 * M_PI * pow(mHat,3)); 
       wid = 0.0;
       if(idown){
 	if(iq%2 == 0){
@@ -1187,7 +1189,7 @@ void  ResonanceNeut::calcWidth(bool){
     }
     // Normalisation.  Extra factor of 2 to account for the fact that
     // d_i, d_j will always be ordered in ascending order. N_c! = 6
-    widNow *= 12.0 /(pow3(2.0 * PI * mHat) * 32.0); 
+    widNow *= 12.0 /(pow3(2.0 * M_PI * mHat) * 32.0); 
   }
 
   return;

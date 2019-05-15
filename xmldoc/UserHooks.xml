@@ -31,8 +31,8 @@ or allowed to continue the evolution.
 final-state emission and veto that emission, without vetoing the
 event as a whole.
 <br/>(v) Ones that give you access to the properties of the trial 
-hard process, so that you can modify the internal Pythia cross section
-by your own correction factors.
+hard process, so that you can modify the internal Pythia cross section,
+alternatively the phase space sampling, by your own correction factors.
 <br/>(vi) Ones that let you set the scale of shower evolution, 
 specifically for matching in resonance decays.
 <br/>They are described further in the following numbered subsections. 
@@ -523,7 +523,22 @@ partons will be restored to a state as if the emission had never occured.
 </argument>
 </method>
 
-<h3>(v) Modify cross-sections</h3>
+<h3>(v) Modify cross-sections or phase space samling</h3>
+
+This section addresses two related but different topics. In both
+cases the sampling of events in phase space is modified, so that
+some regions are more populated while others are depleted. 
+In the first case, this is assumed to be because the physical
+cross section should be modified relative to the built-in Pythia
+form. Therefore not only the relative population of phase space
+is changed, but also the integrated cross section of the process.
+In the second case the repopulation is only to be viewed as a 
+technical trick to sample some phase-space regions better, so as 
+to reduce the statistical error. There each event instead obtains
+a compensating weight, the inverse of the differential cross section
+reweighting factor, in such a way thet the integrated cross section
+is unchanged. Below these two cases are considered separately,  
+but note that they share many points.
 
 <method name="virtual bool UserHooks::canModifySigma()">
 In the base class this method returns false. If you redefine it
@@ -536,7 +551,7 @@ event.
 const SigmaProcess* sigmaProcessPtr, const PhaseSpace* phaseSpacePtr, 
 bool inEvent)">
 when called this method should provide the factor by which you want to 
-see the cross section weight of the current event modified by. If you 
+see the cross section weight of the current event modified. If you 
 return unity then the normal cross section is obtained. Note that, unlike 
 the methods above, these modifications do not lead to a difference between
 the number of "selected" events and the number of "accepted" ones, 
@@ -571,6 +586,7 @@ from comparisons.
 One derived class is supplied as an example how this facility can be used
 to reweight cross sections in the same spirit as is done with QCD cross
 sections for the minimum-bias/underlying-event description:
+
 <class name="SuppressSmallPT : public UserHooks">
 suppress small-<ei>pT</ei> production for <ei>2 -> 2</ei> processes
 only, while leaving other processes unaffected. The basic suppression
@@ -607,6 +623,60 @@ instead the one for hard subprocesses. The denominator
 unweighted cross section. 
 </argument>
 </class>
+
+<p/>
+The second main case of the current section involves three methods,
+as follows.
+
+<method name="virtual bool UserHooks::canBiasSelection()">
+In the base class this method returns false. If you redefine it
+to return true then the method <code>biasSelectionBy(...)</code> will 
+allow you to modify the phase space sampling, with a compensating
+event weight, such that the cross section is unchanged. You cannot 
+combine this kind of reweighting with the selection of 
+<aloc href="ASecondHardProcess">a second hard process</aloc>.
+</method>
+
+<method name="virtual double UserHooks::biasSelectionBy(
+const SigmaProcess* sigmaProcessPtr, const PhaseSpace* phaseSpacePtr, 
+bool inEvent)">
+when called this method should provide the factor by which you want to 
+see the phase space sampling of the current event modified. Events are
+assigned a weight being the inverse of this, such that the integrated 
+cross section of a process is unchanged. Note that the selection
+is only modifiable for normal hard processes. It does not affect the 
+selection in further multiple interactions, nor in 
+elastic/diffractive/minimum-bias events.
+<argument name="sigmaProcessPtr, phaseSpacePtr">:
+what makes this routine somewhat tricky to write is that the 
+hard-process event has not yet been constructed, so one is restricted 
+to use the information available in the phase-space and cross-section 
+objects currently being accessed. Which of their  methods are applicable 
+depends on the process, in particular the number of final-state particles. 
+The <code>biasSelectionBy</code> code in <code>UserHooks.cc</code> 
+contains explicit instructions about which methods provide meaningful 
+information, and so offers a convenient starting point. 
+</argument>
+<argument name="inEvent">: this flag is true when the method is 
+called from within the event-generation machinery and false
+when it is called at the initialization stage of the run, when the 
+cross section is explored to find a maximum for later Monte Carlo usage. 
+Cross-section modifications should be independent of this flag,
+for consistency, but if <code>biasSelectionBy(...)</code> is used to
+collect statistics on the original kinematics distributions before cuts,
+then it is important to be able to exclude the initialization stage
+from comparisons.
+</argument>
+</method>
+
+<method name="virtual double UserHooks::biasedSelectionWeight()">
+Returns the weight you should assign to the event, to use e.g. when
+you histogram results. It is the exact inverse of the weight you 
+used to modify the phase-space sampling, a weight that must be stored
+in the <code>selBias</code> member variable, such that this routine
+can return <code>1/selBias</code>. The weight is also returned by the
+<code>Info::weight()</code> method, which may be more convenient to use.
+</method>
  
 <h3>(vi) Modify scale in shower evolution</h3>
 

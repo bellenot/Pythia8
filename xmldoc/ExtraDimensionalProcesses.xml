@@ -157,20 +157,74 @@ interference included.</option>
 
 This section contains a processes involving the production
 of electroweak KK gauge bosons, i.e. <ei>gamma_{KK}/Z_{KK}</ei>,
-in one TeV^-1 sized extra dimension. This scenario is described 
-in <ref>Bel10</ref>.
+in one TeV^-1 sized extra dimension. The process is described 
+in <ref>Bel10</ref> and allows for individual final states to be 
+specified.
 
-<flag name="ExtraDimensionsTEV:ffbar2ffbar" default="off">
-Scatterings <ei>f fbar -> (gamma_{KK}/Z_{KK}) -> f fbar </ei>,
-Code 5011.
+<flag name="ExtraDimensionsTEV:ffbar2ddbar" default="off">
+Scatterings <ei>f fbar -> (gamma_{KK}/Z_{KK}) -> d dbar </ei>,
+Code 5061.
+</flag>
+
+<flag name="ExtraDimensionsTEV:ffbar2uubar" default="off">
+Scatterings <ei>f fbar -> (gamma_{KK}/Z_{KK}) -> u ubar </ei>,
+Code 5062.
+</flag>
+
+<flag name="ExtraDimensionsTEV:ffbar2ssbar" default="off">
+Scatterings <ei>f fbar -> (gamma_{KK}/Z_{KK}) -> s sbar </ei>,
+Code 5063.
+</flag>
+
+<flag name="ExtraDimensionsTEV:ffbar2ccbar" default="off">
+Scatterings <ei>f fbar -> (gamma_{KK}/Z_{KK}) -> c cbar </ei>,
+Code 5064.
+</flag>
+
+<flag name="ExtraDimensionsTEV:ffbar2bbbar" default="off">
+Scatterings <ei>f fbar -> (gamma_{KK}/Z_{KK}) -> b bbar </ei>,
+Code 5065.
+</flag>
+
+<flag name="ExtraDimensionsTEV:ffbar2ttbar" default="off">
+Scatterings <ei>f fbar -> (gamma_{KK}/Z_{KK}) -> t tbar </ei>,
+Code 5066.
+</flag>
+
+<flag name="ExtraDimensionsTEV:ffbar2e+e-" default="off">
+Scatterings <ei>f fbar -> (gamma_{KK}/Z_{KK}) -> e+ e- </ei>,
+Code 5071.
+</flag>
+
+<flag name="ExtraDimensionsTEV:ffbar2nuenuebar" default="off">
+Scatterings <ei>f fbar -> (gamma_{KK}/Z_{KK}) -> nue nuebar </ei>,
+Code 5072.
+</flag>
+
+<flag name="ExtraDimensionsTEV:ffbar2mu+mu-" default="off">
+Scatterings <ei>f fbar -> (gamma_{KK}/Z_{KK}) -> mu+ mu- </ei>,
+Code 5073.
+</flag>
+
+<flag name="ExtraDimensionsTEV:ffbar2numunumubar" default="off">
+Scatterings <ei>f fbar -> (gamma_{KK}/Z_{KK}) -> numu numubar </ei>,
+Code 5074.
+</flag>
+
+<flag name="ExtraDimensionsTEV:ffbar2tau+tau-" default="off">
+Scatterings <ei>f fbar -> (gamma_{KK}/Z_{KK}) -> tau+ tau- </ei>,
+Code 5075.
+</flag>
+
+<flag name="ExtraDimensionsTEV:ffbar2nutaunutaubar" default="off">
+Scatterings <ei>f fbar -> (gamma_{KK}/Z_{KK}) -> nutau nutaubar </ei>,
+Code 5076.
 </flag>
 
 <h3>TeV^-1 Sized Extra Dimension, parameters</h3>
 
 Irrespective of the parameter options used, the particle produced, 
-<ei>gamma_{KK}/Z_{KK}</ei>, will always be assigned code 5000023 
-and open decay channels is purely dictated by what is set for the 
-<ei>Z^0</ei>.
+<ei>gamma_{KK}/Z_{KK}</ei>, will always be assigned code 5000023.
 
 <modepick name="ExtraDimensionsTEV:gmZmode" default="3" min="0" max="5">
 Choice of full <ei>gamma_{KK}/Z_{KK}</ei> structure or not in relevant 

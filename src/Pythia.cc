@@ -55,7 +55,7 @@ Pythia::Pythia(string xmlDir) {
   lhaUpPtr        = 0;
 
   //Initial value for couplings pointer
-  couplingsPtr = &couplings;
+  couplingsPtr    = &couplings;
 
   // Initial value for pointer to external decay handler.
   decayHandlePtr  = 0;
@@ -498,7 +498,7 @@ bool Pythia::initInternal() {
   nErrEvent = 0;
   info.errorReset();
   info.setTooLowPTmin(false);
-  info.setSigma( 0, 0, 0, 0., 0.);
+  info.setSigma( 0, 0, 0, 0., 0., 0.);
 
   // Initialize data members extracted from database.
   doProcessLevel   = settings.flag("ProcessLevel:all");
@@ -524,11 +524,9 @@ bool Pythia::initInternal() {
 
   // Initialize couplings (needed to initialize resonances).
   // Check if SUSY couplings need to be read in
-  if( !initSLHA()) 
-    info.errorMsg("Error in Pythia::initInternal: "
-		   "Could not read SLHA file");
-
-  if (couplingsPtr->isSUSY){
+  if( !initSLHA()) info.errorMsg("Error in Pythia::initInternal: "
+    "Could not read SLHA file");
+  if (couplingsPtr->isSUSY) {
     // Initialize the SM and SUSY.
     coupSUSY.init( settings, &rndm); 
     coupSUSY.initSUSY(&slha, &settings, &particleData);
@@ -605,10 +603,6 @@ bool Pythia::initInternal() {
   
     // Set up the two beams and the common remnant system.
     StringFlav* flavSelPtr = hadronLevel.getStringFlavPtr();
-    bool isUnresolvedA = ( particleData.isLepton(idA) 
-      && !settings.flag("PDF:lepton") );
-    bool isUnresolvedB = ( particleData.isLepton(idB) 
-      && !settings.flag("PDF:lepton") );
     beamA.init( idA, pzAcm, eA, mA, &info, settings, &particleData, &rndm, 
       pdfAPtr, pdfHardAPtr, isUnresolvedA, flavSelPtr);
     beamB.init( idB, pzBcm, eB, mB, &info, settings, &particleData, &rndm,
@@ -669,7 +663,7 @@ void Pythia::checkSettings() {
 
 //--------------------------------------------------------------------------
 
-// Check that beams and beam combination can be handled.
+// Check that beams and beam combination can be handled. Set up unresolved.
 
 bool Pythia::checkBeams() {
 
@@ -678,27 +672,22 @@ bool Pythia::checkBeams() {
   int idBabs = abs(idB);
   if (!doProcessLevel) return true;
 
-  // Hadron-hadron collisions OK.
+  // Neutrino beams always unresolved, charged lepton ones conditionally.
+  bool isLeptonA  = (idAabs > 10 && idAabs < 17);
+  bool isLeptonB  = (idBabs > 10 && idBabs < 17);
+  bool isUnresLep = !settings.flag("PDF:lepton");
+  isUnresolvedA   = isLeptonA && (idAabs%2 == 0 || isUnresLep);
+  isUnresolvedB   = isLeptonB && (idBabs%2 == 0 || isUnresLep);
+
+  // Lepton-lepton collisions OK (including neutrinos) if both (un)resolved.
+  if (isLeptonA && isLeptonB && isUnresolvedA == isUnresolvedB) return true;
+
+  // Hadron-hadron collisions OK, with Pomeron counted as hadron.
   bool isHadronA = (idAabs == 2212) || (idA == 111) || (idAabs == 211) 
                 || (idA == 990);
   bool isHadronB = (idBabs == 2212) || (idA == 111)|| (idBabs == 211) 
                 || (idB == 990);
   if (isHadronA && isHadronB) return true;
-
-  // Lepton-lepton collisions OK. 
-  if ( idAabs == idBabs && (idAabs == 11 || idAabs == 13 || idAabs == 15) ) 
-    return true;
-
-  // Only allow neutrinos as beams when leptons unresolved.
-  if ( idAabs > 10 && idAabs < 17 && idA * idB < 0
-    && !settings.flag("PDF:lepton") ) {
-    if (idAabs == idBabs) return true;
-
-    // Lepton-neutrino only if in same generation.
-    int idMax  = max(idAabs, idBabs);
-    int idMin  = min(idAabs, idBabs);
-    if (idMax - idMin == 1 && idMax%2 == 0) return true;
-  }
 
   // If no case above then failed.
   info.errorMsg("Error in Pythia::init: cannot handle this beam combination");
@@ -1073,7 +1062,7 @@ bool Pythia::next() {
 // Generate only the hadronization/decay stage, using internal machinery.
 // The "event" instance should already contain a parton-level configuration. 
 
-bool Pythia::forceHadronLevel() {
+bool Pythia::forceHadronLevel(bool findJunctions) {
 
   // Can only generate event if initialization worked.
   if (!isInit) {
@@ -1083,8 +1072,10 @@ bool Pythia::forceHadronLevel() {
   }
 
   // Check whether any junctions in system. (Normally done in ProcessLevel.)
-  event.clearJunctions();
-  processLevel.findJunctions( event);
+  if (findJunctions) {
+    event.clearJunctions();
+    processLevel.findJunctions( event);
+  }
 
   // Save spare copy of event in case of failure.
   Event spareEvent = event;
@@ -1696,10 +1687,10 @@ PDF* Pythia::getPDFPtr(int idIn, int sequence) {
       tempPDFPtr = new PomH1FitAB( 990, 3, rescale, xmlPath, &info); 
   }
 
-  // Lepton beam; resolved or not.
+  // Lepton beam: neutrino, resolved charged lepton or unresolved ditto.
   else if (abs(idIn) > 10 && abs(idIn) < 17) {
-    if (settings.flag("PDF:lepton") && abs(idIn)%2 == 1) 
-         tempPDFPtr = new Lepton(idIn);
+    if (abs(idIn)%2 == 0) tempPDFPtr = new NeutrinoPoint(idIn);
+    else if (settings.flag("PDF:lepton")) tempPDFPtr = new Lepton(idIn);
     else tempPDFPtr = new LeptonPoint(idIn);
   }
 
@@ -1755,7 +1746,7 @@ bool Pythia::initSLHA() {
 
   // In case of problems, print error and fail init.
   if (ifailSpc != 0) {
-    info.errorMsg("Error in ProcessLevel::initSLHA: "
+    info.errorMsg("Error in Pythia::initSLHA: "
       "problem reading SLHA file", slhaFile);
     return false;
   } else {
@@ -1766,7 +1757,7 @@ bool Pythia::initSLHA() {
   // Check decays for consistency (replaced by internal Pythia check below)
   ifailDec = checkDecays();
   if (ifailDec != 0) {
-    infoPtr->errorMsg("Warning in ProcessLevel::initSLHA: "
+    infoPtr->errorMsg("Warning in Pythia::initSLHA: "
 		      "Problem with SLHA decay tables.");     
   }
   */
@@ -1778,9 +1769,11 @@ bool Pythia::initSLHA() {
   if (ifailSpc == 1) {
     // no SUSY, but MASS ok
     couplingsPtr->isSUSY = false;
+    info.errorMsg("Warning in Pythia::initSLHA: "
+		  "No MODSEL found, keeping internal SUSY switched off");    
   } else if (ifailSpc >= 2) {
     // no SUSY, but problems    
-    info.errorMsg("Warning in ProcessLevel::initSLHA: "
+    info.errorMsg("Warning in Pythia::initSLHA: "
 		      "Problem with SLHA MASS or QNUMBERS.");    
     couplingsPtr->isSUSY = false;
   }
@@ -1790,7 +1783,7 @@ bool Pythia::initSLHA() {
     slha.printSpectrum(0);
   }
   else if (ifailSpc < 0) {
-    info.errorMsg("Warning in ProcessLevel::initSLHA: "
+    info.errorMsg("Warning in Pythia::initSLHA: "
 		      "Problem with SLHA spectrum.", 
 		      "\n Only using masses and switching off SUSY.");
     settings.flag("SUSY:all", false);
@@ -1887,7 +1880,7 @@ bool Pythia::initSLHA() {
     else if (idRes < 1000000 && particleData.m0(idRes) < minMassSM) {
       ostringstream idCode;
       idCode << idRes;      
-      info.errorMsg("Warning in ProcessLevel::initSLHA: "
+      info.errorMsg("Warning in Pythia::initSLHA: "
         "ignoring DECAY table", "for id = " + idCode.str()
 	+ " (m0 < SLHA:minMassSM)", true);
       continue;
@@ -1920,10 +1913,10 @@ bool Pythia::initSLHA() {
       double brat      = slhaChannel.getBrat();
       vector<int> idDa = slhaChannel.getIdDa();
       if (idDa.size() >= 9) {
-	info.errorMsg("Error in ProcessLevel::initSLHA: "
+	info.errorMsg("Error in Pythia::initSLHA: "
 			  "max number of decay products is 8.");
       } else if (idDa.size() <= 1) {
-	info.errorMsg("Error in ProcessLevel::initSLHA: "
+	info.errorMsg("Error in Pythia::initSLHA: "
 			  "min number of decay products is 2.");	  
       }
       else {
@@ -1939,7 +1932,7 @@ bool Pythia::initSLHA() {
 	  ostringstream errCode;
 	  errCode << idRes <<" ->";
 	  for (int jDa=0; jDa<int(idDa.size()); ++jDa) errCode<<" "<<idDa[jDa];
-	  info.errorMsg("Warning in ProcessLevel::initSLHA: "
+	  info.errorMsg("Warning in Pythia::initSLHA: "
 	    "switching off decay",  errCode.str() + " (mRes - mDa < minDecayDeltaM)"
             "\n       (Note: cross sections will be scaled by remaining"
 	    " open branching fractions!)" , true);

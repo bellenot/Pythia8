@@ -135,11 +135,11 @@ bool Settings::init(string startFile, bool append, ostream& os) {
     };
   };
 
-  // Set up default e+e- and pp tunes, if nonvanishing.
+  // Set up default e+e- and pp tunes, if positive.
   int eeTune = mode("Tune:ee");
-  if (eeTune != 0) initTuneEE( eeTune);
+  if (eeTune > 0) initTuneEE( eeTune);
   int ppTune = mode("Tune:pp");
-  if (ppTune != 0) initTunePP( ppTune);
+  if (ppTune > 0) initTunePP( ppTune);
 
   // Done.
   if (nError > 0) return false;
@@ -750,6 +750,30 @@ void Settings::resetWord(string keyIn) {
 
 void Settings::initTuneEE( int eeTune) {
 
+  // Restore all e+e- settings to their original values.
+  // Is first step for setting up a specific tune.
+  if (eeTune != 0) { 
+    resetParm("StringFlav:probStoUD");
+    resetParm("StringFlav:probQQtoQ");
+    resetParm("StringFlav:probSQtoQQ");
+    resetParm("StringFlav:probQQ1toQQ0");
+    resetParm("StringFlav:mesonUDvector");
+    resetParm("StringFlav:mesonSvector");
+    resetParm("StringFlav:mesonCvector");
+    resetParm("StringFlav:mesonBvector");
+    resetParm("StringFlav:etaSup");
+    resetParm("StringFlav:etaPrimeSup");
+    resetParm("StringFlav:popcornSpair");  
+    resetParm("StringFlav:popcornSmeson");  
+    resetParm("StringZ:aLund");
+    resetParm("StringZ:bLund");  
+    resetParm("StringZ:rFactB");  
+    resetParm("StringPT:sigma");  
+    resetParm("TimeShower:alphaSvalue");  
+    resetParm("TimeShower:pTmin");  
+    resetParm("TimeShower:pTminChgQ");  
+  }
+
   // Old flavour and FSR defaults carried over from very old JETSET tune,
   // only with alphaS roughly tuned for "new" pT-ordered shower.
   if (eeTune == 1) { 
@@ -829,6 +853,39 @@ void Settings::initTuneEE( int eeTune) {
 // i.e. mainly for initial-state radiation and multiple interactions.
 
 void Settings::initTunePP( int ppTune) {
+
+  // Restore all pp/ppbar settings to their original values.
+  // Is first step for setting up a specific tune.
+  if (ppTune != 0) { 
+    resetMode("PDF:pSet");  
+    resetParm("SigmaProcess:alphaSvalue");  
+    resetFlag("SigmaDiffractive:dampen");  
+    resetParm("SigmaDiffractive:maxXB");
+    resetParm("SigmaDiffractive:maxAX");
+    resetParm("SigmaDiffractive:maxXX");  
+    resetFlag("TimeShower:dampenBeamRecoil");  
+    resetFlag("TimeShower:phiPolAsym");  
+    resetParm("SpaceShower:alphaSvalue");  
+    resetFlag("SpaceShower:samePTasMI");  
+    resetParm("SpaceShower:pT0Ref");  
+    resetParm("SpaceShower:ecmRef");  
+    resetParm("SpaceShower:ecmPow");  
+    resetFlag("SpaceShower:rapidityOrder");  
+    resetFlag("SpaceShower:phiPolAsym");  
+    resetFlag("SpaceShower:phiIntAsym");  
+    resetParm("MultipleInteractions:alphaSvalue");   
+    resetParm("MultipleInteractions:pT0Ref");  
+    resetParm("MultipleInteractions:ecmRef");  
+    resetParm("MultipleInteractions:ecmPow");  
+    resetMode("MultipleInteractions:bProfile");  
+    resetParm("MultipleInteractions:expPow");  
+    resetParm("MultipleInteractions:a1");
+    resetParm("BeamRemnants:primordialKTsoft");  
+    resetParm("BeamRemnants:primordialKThard");  
+    resetParm("BeamRemnants:halfScaleForKT");  
+    resetParm("BeamRemnants:halfMassForKT");  
+    resetParm("BeamRemnants:reconnectRange");
+  } 
 
   // Old ISR and MI defaults from early and primitive comparisons with data.
   if (ppTune == 1) {
@@ -964,6 +1021,37 @@ void Settings::initTunePP( int ppTune) {
     parm("MultipleInteractions:ecmPow",      0.19  );  
     mode("MultipleInteractions:bProfile",    3     );  
     parm("MultipleInteractions:expPow",      2.0   );  
+    parm("BeamRemnants:primordialKTsoft",    0.5   );  
+    parm("BeamRemnants:primordialKThard",    2.0   );  
+    parm("BeamRemnants:halfScaleForKT",      1.0   );  
+    parm("BeamRemnants:halfMassForKT",       1.0   );  
+    parm("BeamRemnants:reconnectRange",      1.5   );  
+  }
+
+  // Tune 4Cx, January 2011.
+  else if (ppTune == 6) {
+    mode("PDF:pSet",                         8     );  
+    parm("SigmaProcess:alphaSvalue",         0.135 );  
+    flag("SigmaDiffractive:dampen",          true  );
+    parm("SigmaDiffractive:maxXB",           65.0  );
+    parm("SigmaDiffractive:maxAX",           65.0  );
+    parm("SigmaDiffractive:maxXX",           65.0  );  
+    flag("TimeShower:dampenBeamRecoil",      true  );  
+    flag("TimeShower:phiPolAsym",            true  );  
+    parm("SpaceShower:alphaSvalue",          0.137 );  
+    flag("SpaceShower:samePTasMI",           false );  
+    parm("SpaceShower:pT0Ref",               2.0   );  
+    parm("SpaceShower:ecmRef",               1800.0);  
+    parm("SpaceShower:ecmPow",               0.0   );  
+    flag("SpaceShower:rapidityOrder",        true  );  
+    flag("SpaceShower:phiPolAsym",           true  );  
+    flag("SpaceShower:phiIntAsym",           true  );  
+    parm("MultipleInteractions:alphaSvalue", 0.135 );   
+    parm("MultipleInteractions:pT0Ref",      2.15  );  
+    parm("MultipleInteractions:ecmRef",      1800. );  
+    parm("MultipleInteractions:ecmPow",      0.19  );  
+    mode("MultipleInteractions:bProfile",    4     );
+    parm("MultipleInteractions:a1",          0.15  );
     parm("BeamRemnants:primordialKTsoft",    0.5   );  
     parm("BeamRemnants:primordialKThard",    2.0   );  
     parm("BeamRemnants:halfScaleForKT",      1.0   );  

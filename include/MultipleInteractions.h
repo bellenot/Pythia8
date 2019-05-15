@@ -96,14 +96,14 @@ class MultipleInteractions {
 public:
 
   // Constructor.
-  MultipleInteractions() {}
+  MultipleInteractions() : bIsSet(false) {}
 
   // Initialize the generation process for given beams.
   bool init( bool doMIinit, int diffractiveModeIn, Info* infoPtrIn, 
     Settings& settings, ParticleData* particleDataPtr, Rndm* rndmPtrIn, 
-    BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, Couplings* couplingsPtrIn, 
-    PartonSystems* partonSystemsPtrIn, SigmaTotal* sigmaTotPtrIn, 
-    ostream& os = cout);
+    BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, 
+    Couplings* couplingsPtrIn, PartonSystems* partonSystemsPtrIn, 
+    SigmaTotal* sigmaTotPtrIn, ostream& os = cout);
 
   // Reset impact parameter choice and update the CM energy.
   void reset();
@@ -118,14 +118,18 @@ public:
   bool limitPTmax( Event& event);
 
   // Prepare system for evolution.
-  void prepare(double pTscale = 1000.) {
-    if (!bSetInFirst) overlapNext(pTscale);}
+  void prepare(Event& event, double pTscale = 1000.) {
+    if (!bSetInFirst) overlapNext(event, pTscale); }
 
   // Select next pT in downwards evolution.
   double pTnext( double pTbegAll, double pTendAll, Event& event);
 
   // Set up kinematics of acceptable interaction.
   void scatter( Event& event); 
+
+  // Set "empty" values to avoid query of undefined quantities.
+  void setEmpty() {pT2Ren = alpS = alpEM = x1 = x2 = pT2Fac 
+    = xPDF1now = xPDF2now = 0.; bIsSet = false;}
 
   // Get some information on current interaction.
   double Q2Ren()     const {return pT2Ren;}
@@ -138,6 +142,11 @@ public:
   double pdf2()      const {return xPDF2now;}
   double bMI()       const {return (bIsSet) ? bNow / bAvg : 0.;}
   double enhanceMI() const {return (bIsSet) ? enhanceB / zeroIntCorr : 1.;}
+
+  // For x-dependent matter profile, return incoming valence/sea
+  // decision from trial interactions.
+  int    getVSC1()   const {return vsc1;}
+  int    getVSC2()   const {return vsc2;}
 
   // Update and print statistics on number of processes.
   void accumulate() { int iBeg = (infoPtr->isMinBias()) ? 0 : 1; 
@@ -160,34 +169,37 @@ private:
          coreFraction, expPow, ySepResc, deltaYResc, sigmaPomP, 
          mMaxPertDiff, mMinPertDiff;
 
-  // x-dependent matter profile --rjc
-  // XDEP_BBIN:   number of bins in b to use for integration
-  // XDEP_A0:     starting value of a0
-  // XDEP_A1:     form of width = a0 * ( XDEP_A1 + a1 * log(1 / x) )
-  // XDEP_BSTEP:  size of step to take in b for integration
-  // XDEP_CUTOFF: accept Int( dSigma/dX * O(b, X), dX ) when after
-  //              XDEP_BBIN bins, it has fallen below XDEP_CUTOFF,
-  //              otherwise increase bstepNow by XDEP_BSTEP and try
-  //              again
-  // XDEP_WARN:   warn if overlap correction weight is greater than
-  //              XDEP_WARN
-#define XDEP_BBIN 500
-  static const double XDEP_A0, XDEP_A1, XDEP_BSTEP, XDEP_CUTOFF, XDEP_WARN;
-  // a0now (a02now): tuned value of a0 (squared value)
-  // a1:             value of a1 constant, taken from settings database
+  // x-dependent matter profile:
+  // Constants.
+  static const int    XDEP_BBIN;
+  static const double XDEP_A0, XDEP_A1, XDEP_BSTEP, XDEP_BSTEPINC,
+                      XDEP_CUTOFF, XDEP_WARN, XDEP_SMB2FM;
+
+  // Table of Int( dSigma/dX * O(b, X), dX ) in bins of b for fast
+  // integration. Only needed during initialisation.
+  vector <double> sigmaIntWgt, sigmaSumWgt;
+
+  // a1:             value of a1 constant, taken from settings database.
+  // a0now (a02now): tuned value of a0 (squared value).
+  // bstepNow:       current size of bins in b.
   // a2max:          given an xMin, a maximal (squared) value of the
-  //                 width, to be used in overestimate Omax(b)
-  // enhanceBmax,    
-  // enhanceBnow:    retain enhanceB as enhancement factor for the hardest
-  //                 interaction. Use enhanceBmax as overestimate for fastPT2,
-  //                 and enhanceBnow to store the correct value for the current
-  //                 interaction
-  double a0now, a02now, a1, bstepNow, a2max, b2now, enhanceBmax, enhanceBnow;
-  // sigmaIntWgt:    table of Int( dSigma/dX * O(b, X), dX ) in bins
-  //                 of b, for fast integration
-  // sudExpWgtPT:    table of Int( dSigma/dX * O(b, X), {dX, pT2, pT2max} )
-  //                 in bins of b and pT2
-  double sigmaIntWgt[XDEP_BBIN], sudExpWgtPT[XDEP_BBIN][101];
+  //                 width, to be used in overestimate Omax(b).
+  // enhanceBmax,    retain enhanceB as enhancement factor for the hardest
+  // enhanceBnow:    interaction. Use enhanceBmax as overestimate for fastPT2,
+  //                 and enhanceBnow to store the value for the current
+  //                 interaction.
+  double a1, a0now, a02now, bstepNow, a2max, b2now, enhanceBmax, enhanceBnow;
+
+  // Storage for trial interactions.
+  int    id1Save, id2Save;
+  double pT2Save, x1Save, x2Save, sHatSave, tHatSave, uHatSave,
+         alpSsave, alpEMsave, pT2FacSave, pT2RenSave, xPDF1nowSave,
+         xPDF2nowSave;
+  SigmaProcess *dSigmaDtSelSave;
+
+  // vsc1, vsc2:     for minimum-bias events with trial interaction, store
+  //                 decision on whether hard interaction was valence or sea.
+  int    vsc1, vsc2;
 
   // Other initialization data.
   bool   hasBaryonBeams, hasLowPow;
@@ -226,7 +238,7 @@ private:
   BeamParticle*  beamBPtr;
 
   // Pointers to Standard Model couplings.
-  Couplings*        couplingsPtr;
+  Couplings*     couplingsPtr;
 
   // Pointer to information on subcollision parton locations.
   PartonSystems* partonSystemsPtr;
@@ -277,7 +289,7 @@ private:
   // Pick impact parameter and interaction rate enhancement,
   // either before the first interaction (for minbias) or after it.
   void overlapFirst();
-  void overlapNext(double pTscale);
+  void overlapNext(Event& event, double pTscale);
 
 };
  

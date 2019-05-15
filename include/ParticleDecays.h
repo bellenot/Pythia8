@@ -95,10 +95,11 @@ private:
 
   // Initialization data, read from Settings.
   bool   limitTau0, limitTau, limitRadius, limitCylinder, limitDecay, 
-         mixB, doFSRinDecays, sophisticatedTau;
+         mixB, doFSRinDecays;
+  int    sophisticatedTau;
   double mSafety, tau0Max, tauMax, rMax, xyMax, zMax, xBdMix, xBsMix, 
-         sigmaSoft, multIncrease, multRefMass, multGoffset, colRearrange, 
-         stopMass, sRhoDal, wRhoDal;
+         sigmaSoft, multIncrease, multIncreaseWeak, multRefMass, multGoffset, 
+         colRearrange, stopMass, sRhoDal, wRhoDal;
 
   // Multiplicity. Decay products positions and masses.
   bool   hasPartons, keepPartons;    

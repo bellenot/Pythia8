@@ -49,12 +49,12 @@ public:
 private:
  
   // Parameters set at initialization or for current kinematics.
-  bool   m_smbulk;
+  bool   eDsmbulk;
   int    idGstar;
   double mRes, GammaRes, m2Res, GamMRat, kappaMG, sigma;
  
   // Couplings between graviton and SM (indexed by particle id).
-  double m_coupling[26];
+  double eDcoupling[26];
  
   // Pointer to properties of the particle species, to access decay channels.
   ParticleDataEntry* gStarPtr;
@@ -96,12 +96,12 @@ public:
 private:
  
   // Parameters set at initialization or for current kinematics.
-  bool   m_smbulk;
+  bool   eDsmbulk;
   int    idGstar;
   double mRes, GammaRes, m2Res, GamMRat, kappaMG, sigma0;
  
   // Couplings between graviton and SM (indexed by particle id).
-  double m_coupling[26];
+  double eDcoupling[26];
  
   // Pointer to properties of the particle species, to access decay channels.
   ParticleDataEntry* gStarPtr;
@@ -150,7 +150,7 @@ private:
   // Couplings between kk gluon and SM (indexed by particle id).
   // Helicity dependent couplings. Use vector/axial-vector
   // couplings internally, gv/ga = 0.5 * (gL +/- gR).
-  double m_gv[10], m_ga[10];
+  double eDgv[10], eDga[10];
 
   // Interference parameter.
   int interfMode;
@@ -291,8 +291,8 @@ class Sigma2ffbar2TEVffbar : public Sigma2Process {
  
 public:
  
-    // Constructor.
-  Sigma2ffbar2TEVffbar(int idIn) : idNew(idIn) {}
+  // Constructor.
+  Sigma2ffbar2TEVffbar(int idIn, int codeIn) : idNew(idIn), codeSave(codeIn) {} 
  
   // Initialize process.
   virtual void initProc();
@@ -311,7 +311,7 @@ public:
  
   // Info on the subprocess.
   virtual string name()       const {return nameSave;}
-  virtual int    code()       const {return 5011;}
+  virtual int    code()       const {return codeSave;}
   virtual string inFlux()     const {return "ffbarSame";}
   virtual bool   isSChannel() const {return true;}
   virtual int    idSChannel() const {return 5000023;}
@@ -327,20 +327,20 @@ private:
  
   // Values stored for process type.
   string  nameSave;
-  int     idNew, gmZmode, n_excitation_max;
+  int     idNew, gmZmode, codeSave, nexcitationmax;
   bool    isPhysical;
   double  gPlusf, gMinusf, gPlusF, gMinusF, gPlusTop, gMinusTop,
           gPlus, gMinus, gf, gF;
   double  mRes, m2Res, mStar, mTop, m2Top, mZKKn, m2ZKKn, m2gmKKn, mgmKKn,
-          alphaem_fixed;
+          alphaemfixed;
   double  helicityME2, coefTot, coefAngular;
   double  mr, betaf, cosThe, openFracPair;
   double  wgmKKFactor, wgmKKn, wZKKn,
-          wZ0, ttbar_wZKKn, ttbar_wgmKKn,
-          ttbar_wFactorA, ttbar_wFactorB;
-  double  phaseSpace_mHatMin, phaseSpace_mHatMax;
+          wZ0, ttbarwZKKn, ttbarwgmKKn,
+          ttbarwFactorA, ttbarwFactorB;
+  double  phaseSpacemHatMin, phaseSpacemHatMax;
   complex gammaProp, resProp, gmPropKK, ZPropKK, totalProp;
-  complex M_I;
+  complex mI;
 };
  
 //==========================================================================
@@ -353,7 +353,7 @@ class Sigma2gg2LEDUnparticleg : public Sigma2Process {
 public:
  
   // Constructor: bool Graviton  = true, to use LED graviton settings.
-  Sigma2gg2LEDUnparticleg( bool Graviton ) : m_graviton(Graviton) {}
+  Sigma2gg2LEDUnparticleg( bool Graviton ) : eDgraviton(Graviton) {}
  
   // Initialize process.
   virtual void initProc();
@@ -370,18 +370,18 @@ public:
  
   // Info on the subprocess.
   virtual string name()       const {return
-    (m_graviton ? "g g -> G g" : "g g -> U g") ;}
-  virtual int    code()       const {return (m_graviton ? 5021 : 5045);}
+    (eDgraviton ? "g g -> G g" : "g g -> U g") ;}
+  virtual int    code()       const {return (eDgraviton ? 5021 : 5045);}
   virtual string inFlux()     const {return "gg";}
   virtual int    id3Mass()    const {return 5000039;}
   virtual int    id4Mass()    const {return 21;}
  
 private:
  
-  bool   m_graviton;
-  int    m_spin, m_nGrav, m_idG, m_cutoff;
-  double mG, mGS, m_sigma0, m_dU, m_LambdaU, m_lambda, m_constantTerm,
-         m_tff, m_cf;
+  bool   eDgraviton;
+  int    eDspin, eDnGrav, eDidG, eDcutoff;
+  double mG, mGS, eDsigma0, eDdU, eDLambdaU, eDlambda, eDconstantTerm,
+         eDtff, eDcf;
  
 };
  
@@ -395,7 +395,7 @@ class Sigma2qg2LEDUnparticleq : public Sigma2Process {
 public:
  
   // Constructor: bool Graviton  = true, to use LED graviton settings.
-  Sigma2qg2LEDUnparticleq( bool Graviton) : m_graviton(Graviton) {}
+  Sigma2qg2LEDUnparticleq( bool Graviton) : eDgraviton(Graviton) {}
  
   // Initialize process.
   virtual void initProc();
@@ -412,17 +412,17 @@ public:
  
   // Info on the subprocess.
   virtual string name()       const {return
-    (m_graviton ? "q g -> G q" : "q g -> U q") ;}
-  virtual int    code()       const {return (m_graviton ? 5022 : 5046);}
+    (eDgraviton ? "q g -> G q" : "q g -> U q") ;}
+  virtual int    code()       const {return (eDgraviton ? 5022 : 5046);}
   virtual string inFlux()     const {return "qg";}
   virtual int    id3Mass()    const {return 5000039;}
  
 private:
  
-  bool   m_graviton;
-  int    m_spin, m_nGrav, m_idG, m_cutoff;
-  double mG, mGS, m_sigma0, m_dU, m_LambdaU, m_lambda, m_constantTerm,
-         m_tff, m_gf, m_cf;
+  bool   eDgraviton;
+  int    eDspin, eDnGrav, eDidG, eDcutoff;
+  double mG, mGS, eDsigma0, eDdU, eDLambdaU, eDlambda, eDconstantTerm,
+         eDtff, eDgf, eDcf;
  
 };
  
@@ -436,7 +436,7 @@ class Sigma2qqbar2LEDUnparticleg : public Sigma2Process {
 public:
  
   // Constructor: bool Graviton  = true, to use LED graviton settings.
-  Sigma2qqbar2LEDUnparticleg( bool Graviton) : m_graviton(Graviton) {}
+  Sigma2qqbar2LEDUnparticleg( bool Graviton) : eDgraviton(Graviton) {}
  
   // Initialize process.
   virtual void initProc();
@@ -453,18 +453,18 @@ public:
  
   // Info on the subprocess.
   virtual string name()       const {return
-    (m_graviton ? "q qbar -> G g" : "q qbar -> U g") ;}
-  virtual int    code()       const {return (m_graviton ? 5023 : 5047);}
+    (eDgraviton ? "q qbar -> G g" : "q qbar -> U g") ;}
+  virtual int    code()       const {return (eDgraviton ? 5023 : 5047);}
   virtual string inFlux()     const {return "qqbarSame";}
   virtual int    id3Mass()    const {return 5000039;}
   virtual int    id4Mass()    const {return 21;}
  
 private:
  
-  bool   m_graviton;
-  int    m_spin, m_nGrav, m_idG, m_cutoff;
-  double mG, mGS, m_sigma0, m_dU, m_LambdaU, m_lambda, m_constantTerm,
-         m_tff, m_gf, m_cf;
+  bool   eDgraviton;
+  int    eDspin, eDnGrav, eDidG, eDcutoff;
+  double mG, mGS, eDsigma0, eDdU, eDLambdaU, eDlambda, eDconstantTerm,
+         eDtff, eDgf, eDcf;
  
 };
  
@@ -478,7 +478,7 @@ class Sigma2ffbar2LEDUnparticleZ : public Sigma2Process {
 public:
  
   // Constructor: bool Graviton  = true, to use LED graviton settings.
-  Sigma2ffbar2LEDUnparticleZ( bool Graviton) : m_graviton(Graviton) {}
+  Sigma2ffbar2LEDUnparticleZ( bool Graviton) : eDgraviton(Graviton) {}
  
   // Initialize process.
   virtual void initProc();
@@ -495,8 +495,8 @@ public:
  
   // Info on the subprocess.
   virtual string name()       const {return
-    (m_graviton ? "f fbar -> G Z" : "f fbar -> U Z") ;}
-  virtual int    code()       const {return (m_graviton ? 5024 : 5041);}
+    (eDgraviton ? "f fbar -> G Z" : "f fbar -> U Z") ;}
+  virtual int    code()       const {return (eDgraviton ? 5024 : 5041);}
   virtual string inFlux()     const {return "ffbarSame";}
   virtual int    id3Mass()    const {return 5000039;}
   virtual int    id4Mass()    const {return 23;}
@@ -508,12 +508,12 @@ private:
   // Constants: could only be changed in the code itself.
   static const double FIXRATIO;
  
-  int    m_spin, m_nGrav, m_cutoff, m_idG;
-  bool   m_graviton;
-  double m_dU, m_LambdaU, m_lambda, m_ratio, m_lambdaPrime,
-         m_tff, m_constantTerm;
+  int    eDspin, eDnGrav, eDcutoff, eDidG;
+  bool   eDgraviton;
+  double eDdU, eDLambdaU, eDlambda, eDratio, eDlambdaPrime,
+         eDtff, eDconstantTerm;
   double sHS, tHS, uHS, tHC, uHC, tHQ, uHQ, tHuH, mU, mUS, mZ, widZ,
-         mZS, mwZS, thetaWRat, m_sigma0;
+         mZS, mwZS, thetaWRat, eDsigma0;
  
 };
  
@@ -527,7 +527,7 @@ class Sigma2ffbar2LEDUnparticlegamma : public Sigma2Process {
 public:
  
   // Constructor: bool Graviton  = true, to use LED graviton settings.
-  Sigma2ffbar2LEDUnparticlegamma( bool Graviton) : m_graviton(Graviton) {}
+  Sigma2ffbar2LEDUnparticlegamma( bool Graviton) : eDgraviton(Graviton) {}
  
   // Initialize process.
   virtual void initProc();
@@ -544,8 +544,8 @@ public:
  
   // Info on the subprocess.
   virtual string name()       const {return
-    (m_graviton ? "f fbar -> G gamma" : "f fbar -> U gamma") ;}
-  virtual int    code()       const {return (m_graviton ? 5025 : 5042);}
+    (eDgraviton ? "f fbar -> G gamma" : "f fbar -> U gamma") ;}
+  virtual int    code()       const {return (eDgraviton ? 5025 : 5042);}
   virtual string inFlux()     const {return "ffbarSame";}
   virtual int    id3Mass()    const {return 5000039;}
   virtual int    id4Mass()    const {return 22;}
@@ -555,12 +555,12 @@ private:
   // Constants: could only be changed in the code itself.
   static const double FIXRATIO;
  
-  int    m_spin, m_nGrav, m_cutoff, m_idG;
-  bool   m_graviton;
-  double m_dU, m_LambdaU, m_lambda, m_ratio, m_lambdaPrime,
-         m_tff, m_constantTerm;
+  int    eDspin, eDnGrav, eDcutoff, eDidG;
+  bool   eDgraviton;
+  double eDdU, eDLambdaU, eDlambda, eDratio, eDlambdaPrime,
+         eDtff, eDconstantTerm;
   double sHS, tHS, uHS, tHC, uHC, tHQ, uHQ, tHuH, mU, mUS, mZ, widZ,
-         mZS, mwZS, thetaWRat, m_sigma0;
+         mZS, mwZS, thetaWRat, eDsigma0;
  
 };
  
@@ -574,7 +574,7 @@ class Sigma2ffbar2LEDgammagamma : public Sigma2Process {
 public:
  
   // Constructor: bool Graviton  = true, to use LED graviton settings.
-  Sigma2ffbar2LEDgammagamma( bool Graviton) : m_graviton(Graviton) {}
+  Sigma2ffbar2LEDgammagamma( bool Graviton) : eDgraviton(Graviton) {}
  
   // Initialize process.
   virtual void initProc();
@@ -591,17 +591,17 @@ public:
  
   // Info on the subprocess.
   virtual string name()       const {return
-    (m_graviton ? "f fbar -> (LED G*) -> gamma gamma"
+    (eDgraviton ? "f fbar -> (LED G*) -> gamma gamma"
     : "f fbar -> (U*) -> gamma gamma") ;}
-  virtual int    code()       const {return (m_graviton ? 5026 : 5043);}
+  virtual int    code()       const {return (eDgraviton ? 5026 : 5043);}
   virtual string inFlux()     const {return "ffbarSame";}
  
 private:
  
-  int    m_spin, m_cutoff, m_nGrav;
-  bool   m_graviton;
-  double m_dU, m_LambdaU, m_lambda, m_lambda2chi,
-         m_term1, m_term2, m_term3, m_tff;
+  int    eDspin, eDcutoff, eDnGrav;
+  bool   eDgraviton;
+  double eDdU, eDLambdaU, eDlambda, eDlambda2chi,
+         eDterm1, eDterm2, eDterm3, eDtff;
  
 };
  
@@ -615,7 +615,7 @@ class Sigma2gg2LEDgammagamma : public Sigma2Process {
 public:
  
   // Constructor: bool Graviton  = true, to use LED graviton settings.
-  Sigma2gg2LEDgammagamma( bool Graviton) : m_graviton(Graviton) {}
+  Sigma2gg2LEDgammagamma( bool Graviton) : eDgraviton(Graviton) {}
  
   // Initialize process.
   virtual void initProc();
@@ -631,16 +631,16 @@ public:
   virtual void setIdColAcol();
  
   // Info on the subprocess.
-  virtual string name()       const {return (m_graviton
+  virtual string name()       const {return (eDgraviton
     ? "g g -> (LED G*) -> gamma gamma" : "g g -> (U*) -> gamma gamma") ;}
-  virtual int    code()       const {return (m_graviton ? 5027 : 5044);}
+  virtual int    code()       const {return (eDgraviton ? 5027 : 5044);}
   virtual string inFlux()     const {return "gg";}
  
 private:
  
-  int    m_spin, m_cutoff, m_nGrav;
-  bool   m_graviton;
-  double m_dU, m_LambdaU, m_lambda, m_lambda2chi, m_sigma0, m_tff;
+  int    eDspin, eDcutoff, eDnGrav;
+  bool   eDgraviton;
+  double eDdU, eDLambdaU, eDlambda, eDlambda2chi, eDsigma0, eDtff;
  
 };
  
@@ -655,7 +655,7 @@ class Sigma2ffbar2LEDllbar : public Sigma2Process {
 public:
  
   // Constructor: bool Graviton  = true, to use LED graviton settings.
-  Sigma2ffbar2LEDllbar( bool Graviton) : m_graviton(Graviton) {}
+  Sigma2ffbar2LEDllbar( bool Graviton) : eDgraviton(Graviton) {}
  
   // Initialize process.
   virtual void initProc();
@@ -672,19 +672,19 @@ public:
  
   // Info on the subprocess.
   virtual string name()       const {return
-    (m_graviton ? "f fbar -> (LED G*) -> l l" : "f fbar -> (U*) -> l l") ;}
-  virtual int    code()       const {return (m_graviton ? 5028 : 5048);}
+    (eDgraviton ? "f fbar -> (LED G*) -> l l" : "f fbar -> (U*) -> l l") ;}
+  virtual int    code()       const {return (eDgraviton ? 5028 : 5048);}
   virtual string inFlux()     const {return "ffbarSame";}
   virtual bool   isSChannel() const {return true;}
  
 private:
  
-  int    m_spin, m_cutoff, m_nGrav,m_nxx, m_nxy;
-  bool   m_graviton;
-  double m_dU, m_LambdaU, m_lambda, m_lambda2chi, m_tff,
-         m_mZ, m_mZS, m_GZ, m_GZS, m_absMeU, m_denomPropZ, m_rePropGamma,
-         m_rePropZ, m_imPropZ, m_absAS, m_reA, m_reABW, m_poly1, m_poly2,
-         m_poly3;
+  int    eDspin, eDcutoff, eDnGrav,eDnxx, eDnxy;
+  bool   eDgraviton;
+  double eDdU, eDLambdaU, eDlambda, eDlambda2chi, eDtff,
+         eDmZ, eDmZS, eDGZ, eDGZS, eDabsMeU, eDdenomPropZ, eDrePropGamma,
+         eDrePropZ, eDimPropZ, eDabsAS, eDreA, eDreABW, eDpoly1, eDpoly2,
+         eDpoly3;
  
 };
  
@@ -698,7 +698,7 @@ class Sigma2gg2LEDllbar : public Sigma2Process {
 public:
  
   // Constructor: bool Graviton  = true, to use LED graviton settings.
-  Sigma2gg2LEDllbar( bool Graviton) : m_graviton(Graviton) {}
+  Sigma2gg2LEDllbar( bool Graviton) : eDgraviton(Graviton) {}
  
  
   // Initialize process.
@@ -709,22 +709,22 @@ public:
   virtual void sigmaKin();
  
   // Evaluate sigmaHat(sHat); second step for given inflavours.
-  virtual double sigmaHat() {return m_sigma0;}
+  virtual double sigmaHat() {return eDsigma0;}
  
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
  
   // Info on the subprocess.
   virtual string name()       const {return
-    (m_graviton ? "g g -> (LED G*) -> l l" : "g g -> (U*) -> l l") ;}
-  virtual int    code()       const {return (m_graviton ? 5029 : 5049);}
+    (eDgraviton ? "g g -> (LED G*) -> l l" : "g g -> (U*) -> l l") ;}
+  virtual int    code()       const {return (eDgraviton ? 5029 : 5049);}
   virtual string inFlux()     const {return "gg";}
  
 private:
  
-  int    m_spin, m_cutoff, m_nGrav;
-  bool   m_graviton;
-  double m_dU, m_LambdaU, m_lambda, m_lambda2chi, m_sigma0, m_tff;
+  int    eDspin, eDcutoff, eDnGrav;
+  bool   eDgraviton;
+  double eDdU, eDLambdaU, eDlambda, eDlambda2chi, eDsigma0, eDtff;
  
 };
  

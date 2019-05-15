@@ -257,7 +257,7 @@ Allow leptons to radiate photons; on/off = true/false.
   
 
 <p/>
-There are three further possibilities to simplify the shower:
+There are some further possibilities to modify the shower:
 
 <br/><br/><strong>SpaceShower:MEcorrections</strong>  <input type="radio" name="20" value="on" checked="checked"><strong>On</strong>
 <input type="radio" name="20" value="off"><strong>Off</strong>
@@ -265,24 +265,33 @@ There are three further possibilities to simplify the shower:
 Use of matrix element corrections; on/off = true/false.
   
 
-<br/><br/><strong>SpaceShower:phiPolAsym</strong>  <input type="radio" name="21" value="on" checked="checked"><strong>On</strong>
+<br/><br/><strong>SpaceShower:MEafterFirst</strong>  <input type="radio" name="21" value="on" checked="checked"><strong>On</strong>
 <input type="radio" name="21" value="off"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
+Use of matrix element corrections also after the first emission,
+for dipole ends of the same system that did not yet radiate.
+Only has a meaning if <code>MEcorrections</code> above is 
+switched on. 
+  
+
+<br/><br/><strong>SpaceShower:phiPolAsym</strong>  <input type="radio" name="22" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="22" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Azimuthal asymmetry induced by gluon polarization; on/off = true/false.
   
 
-<br/><br/><strong>SpaceShower:phiIntAsym</strong>  <input type="radio" name="22" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="22" value="off"><strong>Off</strong>
+<br/><br/><strong>SpaceShower:phiIntAsym</strong>  <input type="radio" name="23" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="23" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Azimuthal asymmetry induced by interference; on/off = true/false.
   
 
-<br/><br/><table><tr><td><strong>SpaceShower:strengthIntAsym </td><td></td><td> <input type="text" name="23" value="0.7" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.7</strong></code>; <code>minimum = 0.</code>; <code>maximum = 0.9</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>SpaceShower:strengthIntAsym </td><td></td><td> <input type="text" name="24" value="0.7" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.7</strong></code>; <code>minimum = 0.</code>; <code>maximum = 0.9</code>)</td></tr></table>
 Size of asymmetry induced by interference. Natural value of order 0.5; 
 expression would blow up for a value of 1.
   
 
-<br/><br/><table><tr><td><strong>SpaceShower:nQuarkIn  </td><td></td><td> <input type="text" name="24" value="5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>SpaceShower:nQuarkIn  </td><td></td><td> <input type="text" name="25" value="5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
 Number of allowed quark flavours in <i>g -> q qbar</i> branchings,
 when kinematically allowed, and thereby also in incoming beams. 
 Changing it to 4 would forbid <i>g -> b bbar</i>, etc.
@@ -455,22 +464,27 @@ fwrite($handle,$data);
 }
 if($_POST["21"] != "on")
 {
-$data = "SpaceShower:phiPolAsym = ".$_POST["21"]."\n";
+$data = "SpaceShower:MEafterFirst = ".$_POST["21"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["22"] != "on")
 {
-$data = "SpaceShower:phiIntAsym = ".$_POST["22"]."\n";
+$data = "SpaceShower:phiPolAsym = ".$_POST["22"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["23"] != "0.7")
+if($_POST["23"] != "on")
 {
-$data = "SpaceShower:strengthIntAsym = ".$_POST["23"]."\n";
+$data = "SpaceShower:phiIntAsym = ".$_POST["23"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["24"] != "5")
+if($_POST["24"] != "0.7")
 {
-$data = "SpaceShower:nQuarkIn = ".$_POST["24"]."\n";
+$data = "SpaceShower:strengthIntAsym = ".$_POST["24"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["25"] != "5")
+{
+$data = "SpaceShower:nQuarkIn = ".$_POST["25"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);

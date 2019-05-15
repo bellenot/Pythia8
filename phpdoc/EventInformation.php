@@ -272,21 +272,38 @@ a <i>2 -> 2</i> process.
 
 <a name="method30"></a>
 <p/><strong>double Info::weight() &nbsp;</strong> <br/>
-weight assigned to the current event. Is normally 1 and thus uninteresting.
-However, in case of the <code><?php $filepath = $_GET["filepath"];
+weight assigned to the current event. Is normally 1 and thus 
+uninteresting. However, there are several cases where one may have
+nontrivial event weights. These weights must the be used e.g. when 
+filling histograms. 
+<br/>(i) In the <code><?php $filepath = $_GET["filepath"];
 echo "<a href='PhaseSpaceCuts.php?filepath=".$filepath."' target='page'>";?>
 PhaseSpace:increaseMaximum = off</a></code> default strategy,
 an event with a differential cross-section above the assumed one 
 (in a given phase-space point) is assigned a weight correspondingly
 above unity. This should happen only very rarely, if at all, and so
-could normally be disregarded. For Les Houches events some strategies 
-allow negative weights, which then after unweighting lead to events 
-with weight -1. There are also Les Houches strategies where no unweighting 
-is done, and therefore a nontrivial event weight must be used e.g. 
-when filling histograms. 
+could normally be disregarded. 
+<br/>(ii) The <?php $filepath = $_GET["filepath"];
+echo "<a href='UserHooks.php?filepath=".$filepath."' target='page'>";?>User Hooks</a> class offers 
+the possibility to bias the selection of phase space points, which 
+means that events come with a compensating weight, stored here. 
+<br/>(iii) For Les Houches events some strategies allow negative weights, 
+which then after unweighting lead to events with weight -1. There are 
+also Les Houches strategies where no unweighting is done, so events 
+come with a weight. 
   
 
 <a name="method31"></a>
+<p/><strong>double Info::weightSum() &nbsp;</strong> <br/>
+Sum of weights accumulated during the run. For unweighted events this
+agrees with the number of generated events. In order to obtain 
+histograms normalized "per event", at the end of a run, histogram
+contents should be divided by this weight. (And additionally 
+divided by the bin width.) Normalization to cross section also
+required multiplication by <code>sigmaGen()</code> below.
+  
+
+<a name="method32"></a>
 <p/><strong>int Info::nISR() &nbsp;</strong> <br/>
   
 <strong>int Info::nFSRinProc() &nbsp;</strong> <br/>
@@ -297,7 +314,7 @@ showering excluding resonance decys, and in the final-state showering
 inside resonance decays, respectively.
   
 
-<a name="method32"></a>
+<a name="method33"></a>
 <p/><strong>double Info::pTmaxMI() &nbsp;</strong> <br/>
   
 <strong>double Info::pTmaxISR() &nbsp;</strong> <br/>
@@ -308,7 +325,7 @@ process type and scale choice for the hard interactions. The actual
 evolution will run down from these scales.
   
 
-<a name="method33"></a>
+<a name="method34"></a>
 <p/><strong>double Info::pTnow() &nbsp;</strong> <br/>
 The current <i>pT</i> scale in the combined MI, ISR and FSR evolution.
 Useful for classification in <?php $filepath = $_GET["filepath"];
@@ -318,16 +335,22 @@ but not once the event has been evolved.
 
 <h3>Multiple interactions</h3>
 
-<a name="method34"></a>
+<a name="method35"></a>
+<p/><strong>double Info::a0MI() &nbsp;</strong> <br/>
+The value of a0 when an x-dependent matter profile is used,
+<code>MultipleInteractions:bProfile = 4</code>.
+  
+
+<a name="method36"></a>
 <p/><strong>double Info::bMI() &nbsp;</strong> <br/>
-the impact parameter <i>b</i> assumed for the current collision when
+The impact parameter <i>b</i> assumed for the current collision when
 multiple interactions are simulated. Is not expressed in any physical
 size (like fm), but only rescaled so that the average should be unity 
 for minimum-bias events (meaning less than that for events with hard
 processes). 
   
 
-<a name="method35"></a>
+<a name="method37"></a>
 <p/><strong>double Info::enhanceMI() &nbsp;</strong> <br/>
 The choice of impact parameter implies an enhancement or depletion of
 the rate of subsequent interactions, as given by this number. Again
@@ -335,14 +358,14 @@ the average is normalized be unity for minimum-bias events (meaning
 more than that for events with hard processes).  
   
 
-<a name="method36"></a>
+<a name="method38"></a>
 <p/><strong>int Info::nMI() &nbsp;</strong> <br/>
-the number of hard interactions in the current event. Is 0 for elastic
+The number of hard interactions in the current event. Is 0 for elastic
 and diffractive events, and else at least 1, with more possible from
 multiple interactions.
   
 
-<a name="method37"></a>
+<a name="method39"></a>
 <p/><strong>int Info::codeMI(int i) &nbsp;</strong> <br/>
   
 <strong>double Info::pTMI(int i) &nbsp;</strong> <br/>
@@ -352,7 +375,7 @@ subprocess, with <code>i</code> in the range from 0 to
 information already provided above.  
   
 
-<a name="method38"></a>
+<a name="method40"></a>
 <p/><strong>int Info::iAMI(i) &nbsp;</strong> <br/>
   
 <strong>int Info::iBMI(i) &nbsp;</strong> <br/>
@@ -364,7 +387,7 @@ event record of the outgoing-state parton that rescatters.
 the first or second beam, respectively.
   
 
-<a name="method39"></a>
+<a name="method41"></a>
 <p/><strong>double Info::eMI(i) &nbsp;</strong> <br/>
 The enhancement or depletion of the rate of the <code>i</code>'th 
 subprocess. Is primarily of interest for the 
@@ -380,7 +403,7 @@ as a whole. While continuously updated during the run, it is recommended
 only to study these properties at the end of the event generation, 
 when the full statistics is available.
 
-<a name="method40"></a>
+<a name="method42"></a>
 <p/><strong>long Info::nTried() &nbsp;</strong> <br/>
   
 <strong>long Info::nSelected() &nbsp;</strong> <br/>
@@ -397,7 +420,7 @@ echo "<a href='ASecondHardProcess.php?filepath=".$filepath."' target='page'>";?>
 second hard process</a> there may also be a mismatch. 
   
 
-<a name="method41"></a>
+<a name="method43"></a>
 <p/><strong>double Info::sigmaGen() &nbsp;</strong> <br/>
   
 <strong>double Info::sigmaErr() &nbsp;</strong> <br/>
@@ -415,7 +438,7 @@ This may be especially useful in the context of the
 <code><?php $filepath = $_GET["filepath"];
 echo "<a href='UserHooks.php?filepath=".$filepath."' target='page'>";?>User Hooks</a></code> facility.
 
-<a name="method42"></a>
+<a name="method44"></a>
 <p/><strong>int Info::getCounter(int i) &nbsp;</strong> <br/>
 the method that gives you access to the value of the various loop 
 counters.
@@ -519,7 +542,7 @@ that therefore are free to use, with the help of the two methods below.
   
   
 
-<a name="method43"></a>
+<a name="method45"></a>
 <p/><strong>void Info::setCounter(int i, int value = 0) &nbsp;</strong> <br/>
 set the above counters to a given value. Only to be used by you 
 for the unassigned counters 40 - 49.
@@ -528,8 +551,9 @@ for the unassigned counters 40 - 49.
 <br/><code>argument</code><strong> value </strong> (<code>default = <strong>0</strong></code>) :  set the counter to this number;
 normally the default value is what you want.
   
+  
 
-<a name="method44"></a>
+<a name="method46"></a>
 <p/><strong>void Info::addCounter(int i, int value = 0) &nbsp;</strong> <br/>
 increase the above counters by a given amount. Only to be used by you 
 for the unassigned counters 40 - 49.
@@ -538,10 +562,34 @@ for the unassigned counters 40 - 49.
 <br/><code>argument</code><strong> value </strong> (<code>default = <strong>1</strong></code>) :  increase the counter by this amount;
 normally the default value is what you want.
   
-
   
 
+<h3>Parton shower history</h3>
 
+The following methods are mainly intended for internal use,
+e.g. for matrix-element matching.
+
+<a name="method47"></a>
+<p/><strong>void Info::hasHistory(bool hasHistoryIn) &nbsp;</strong> <br/>
+  
+<strong>bool Info::hasHistory() &nbsp;</strong> <br/>
+set/get knowledge whether the likely shower history of an event 
+has been traced.
+  
+
+<a name="method48"></a>
+<p/><strong>void Info::zNowISR(bool zNowIn) &nbsp;</strong> <br/>
+  
+<strong>double Info::zNowISR() &nbsp;</strong> <br/>
+set/get value of <i>z</i> in latest ISR branching.
+  
+
+<a name="method49"></a>
+<p/><strong>void Info::pT2NowISR(bool pT2NowIn) &nbsp;</strong> <br/>
+  
+<strong>double Info::pT2NowISR() &nbsp;</strong> <br/>
+set/get value of <i>pT^2</i> in latest ISR branching.
+  
 
 </body>
 </html>

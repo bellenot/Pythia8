@@ -38,7 +38,7 @@ public:
     system(systemIn), side(sideIn), iRadiator(iRadiatorIn), 
     iRecoiler(iRecoilerIn), pTmax(pTmaxIn), colType(colTypeIn), 
     chgType(chgTypeIn), MEtype(MEtypeIn), normalRecoil(normalRecoilIn), 
-    nBranch(0) { }
+    nBranch(0), pT2Old(0.), zOld(0.5) { }
  
   // Store values for trial emission.
   void store( int idDaughterIn, int idMotherIn, int idSisterIn,   
@@ -162,8 +162,8 @@ private:
 
   // Initialization data, normally only set once.
   bool   doQCDshower, doQEDshowerByQ, doQEDshowerByL, useSamePTasMI,
-         doMEcorrections, doPhiPolAsym, doPhiIntAsym, doRapidityOrder, 
-         canVetoEmission;
+         doMEcorrections, doMEafterFirst, doPhiPolAsym, doPhiIntAsym, 
+         doRapidityOrder, canVetoEmission;
   int    pTmaxMatch, pTdampMatch, alphaSorder, alphaEMorder, nQuarkIn, 
          enhanceScreening;
   double pTdampFudge, mc, mb, m2c, m2b, alphaSvalue, alphaS2pi, 

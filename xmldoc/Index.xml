@@ -92,8 +92,10 @@
 <aidx href="SUSYLesHouchesAccord">SUSY Les Houches Accord</aidx><br/>
 <aidx href="HepMCInterface">HepMC Interface</aidx><br/>
 <aidx href="ROOTusage">ROOT usage</aidx><br/>
+<aidx href="RIVETusage">RIVET usage</aidx><br/>
 <aidx href="SemiInternalProcesses">Semi-Internal Processes</aidx><br/>
 <aidx href="SemiInternalResonances">Semi-Internal Resonances</aidx><br/>
+<aidx href="MadGraph5Processes">MadGraph 5 Processes</aidx><br/>
 <aidx href="HadronLevelStandalone">Hadron-Level Standalone</aidx><br/>
 <aidx href="ExternalDecays">External Decays</aidx><br/>
 <aidx href="BeamShape">Beam Shape</aidx><br/>

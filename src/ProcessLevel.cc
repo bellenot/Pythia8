@@ -75,6 +75,14 @@ bool ProcessLevel::init( Info* infoPtrIn, Settings& settings,
   doResDecays   = settings.flag("ProcessLevel:resonanceDecays");
   startColTag   = settings.mode("Event:startColTag");
 
+  // Second interaction not to be combined with biased phase space.
+  if (doSecondHard && userHooksPtr != 0
+  && userHooksPtr->canBiasSelection()) {
+    infoPtr->errorMsg("Error in ProcessLevel::init: "
+      "cannot combine second interaction with biased phase space"); 
+    return false;
+  }
+
   // Mass and pT cuts for two hard processes.
   mHatMin1      = settings.parm("PhaseSpace:mHatMin");
   mHatMax1      = settings.parm("PhaseSpace:mHatMax");
@@ -322,6 +330,7 @@ void ProcessLevel::accumulate() {
   double sigmaSum   = 0.;
   double delta2Sum  = 0.;
   double sigSelSum  = 0.;
+  double weightSum  = 0.;
   for (int i = 0; i < int(containerPtrs.size()); ++i) 
   if (containerPtrs[i]->sigmaMax() != 0.) {
     nTrySum        += containerPtrs[i]->nTried();
@@ -330,6 +339,7 @@ void ProcessLevel::accumulate() {
     sigmaSum       += containerPtrs[i]->sigmaMC();
     delta2Sum      += pow2(containerPtrs[i]->deltaMC()); 
     sigSelSum      += containerPtrs[i]->sigmaSelMC();
+    weightSum      += containerPtrs[i]->weightSum();
   }
 
   // For Les Houches events find subprocess type and update counter.
@@ -357,7 +367,8 @@ void ProcessLevel::accumulate() {
   // Normally only one hard interaction. Then store info and done.
   if (!doSecondHard) {
     double deltaSum = sqrtpos(delta2Sum);
-    infoPtr->setSigma( nTrySum, nSelSum, nAccSum, sigmaSum, deltaSum); 
+    infoPtr->setSigma( nTrySum, nSelSum, nAccSum, sigmaSum, deltaSum, 
+      weightSum); 
     return;
   }
 
@@ -392,7 +403,8 @@ void ProcessLevel::accumulate() {
   double deltaComb  = sqrtpos(2. / nAccSum + impactErr2) * sigmaComb;
 
   // Store info and done.
-  infoPtr->setSigma( nTrySum, nSelSum, nAccSum, sigmaComb, deltaComb); 
+  infoPtr->setSigma( nTrySum, nSelSum, nAccSum, sigmaComb, deltaComb, 
+    weightSum); 
  
 }
 
@@ -508,9 +520,6 @@ bool ProcessLevel::nextOne( Event& process) {
       iContainer = -1;
       do sigmaMaxNow -= containerPtrs[++iContainer]->sigmaMax();
       while (sigmaMaxNow > 0. && iContainer < iMax);
-    
-      // TMP 
-      //      cout<<"returned from sigmaMax"<<endl;
 
       // Do a trial event of this subprocess; accept or not.
       if (containerPtrs[iContainer]->trialProcess()) break;
@@ -518,9 +527,6 @@ bool ProcessLevel::nextOne( Event& process) {
       // Check for end-of-file condition for Les Houches events.
       if (infoPtr->atEndOfFile()) return false;
     }
-
-    // TMP 
-    // cout<<"returned from trial loop"<<endl;
 
     // Update sum of maxima if current maximum violated.
     if (containerPtrs[iContainer]->newSigmaMax()) {
@@ -533,17 +539,10 @@ bool ProcessLevel::nextOne( Event& process) {
     if ( !containerPtrs[iContainer]->constructProcess( process) )
       physical = false;
 
-    // TMP 
-    //    process.list();
-    //    cout<<"do resonance decays"<<endl;
-
     // Do all resonance decays.
     if ( physical && doResDecays 
       && !containerPtrs[iContainer]->decayResonances( process) ) 
       physical = false;
-
-    // TMP 
-    // cout<<"find junctions"<<endl;
 
     // Add any junctions to the process event record list.
     if (physical) findJunctions( process);
@@ -807,8 +806,6 @@ void ProcessLevel::findJunctions( Event& junEvent) {
     int col  = junEvent[i].col();
     int acol = junEvent[i].acol();
     if (junEvent[i].isFinal() || junEvent[i].status() == -21) {
-      //cout<<" at "<<i<<" col = "<<col<<" acol = "<<acol<<endl;
-      // Cross initial-state colors
       if (junEvent[i].status() == -21) {
 	col  = junEvent[i].acol();
 	acol = junEvent[i].col();
@@ -849,7 +846,6 @@ void ProcessLevel::findJunctions( Event& junEvent) {
       vector<int> motherList   = junEvent.motherList(i);
       int iMot1 = motherList[0];
       vector<int> daughterList = junEvent.daughterList(iMot1);        
-      // cout << "    at : "<<iMot1<<" colType = "<<junEvent[iMot1].colType()<<endl;      
       // Check baryon number of vertex
       int barSum = 0;      
       map<int,int> colVertex, acolVertex;
@@ -893,7 +889,6 @@ void ProcessLevel::findJunctions( Event& junEvent) {
       }      
       // If BNV vertex found, check if all colours accounted for
       if (barSum != 0) {	
-	// cout<<" (anti)junction found with mother : "<<iMot1<<endl;	
 	for (map<int,int>::iterator it = colVertex.begin(); 
 	     it != colVertex.end(); it++) {
 	  int col  = it->first;
@@ -983,12 +978,6 @@ void ProcessLevel::findJunctions( Event& junEvent) {
 	return;
       }
 
-      /*
-      // DEBUG OUTPUT
-      cout<<" Adding junction type "<<kindJun
-	  <<" c = "<<colJuOrd[0]<<" "<<colJuOrd[1]<<" "<<colJuOrd[2]<<endl;
-      */
-
       // Add junction with these tags
       junEvent.appendJunction( kindJun, colJuOrd[0], colJuOrd[1], colJuOrd[2]);         
     }
@@ -1058,11 +1047,6 @@ bool ProcessLevel::checkColours( Event& process) {
   }
 
   // Remove (anti)colours coming from an (anti)junction.
-
-  //cout<<" Removing junction tags in:"<<endl;
-  //process.list();
-  //cout<<"   Size of junctions "<<process.sizeJunction()<<endl;
-
   for (int iJun = 0; iJun < process.sizeJunction(); ++iJun) {    
     for (int j = 0; j < 3; ++j) { 
       int colJun = process.colJunction(iJun, j);
@@ -1124,10 +1108,8 @@ bool ProcessLevel::checkColours( Event& process) {
       iNowA = acolPos[0];
       if ( process[iNow].status() == -21 &&  process[iNowA].status() == -21 );
       else if ( (process[iNow].mother1() != process[iNowA].mother1()) 
-		|| (process[iNow].mother2() != process[iNowA].mother2()) ) {
-	cout<<" Argh!"<<endl;
+	     || (process[iNow].mother2() != process[iNowA].mother2()) ) 
 	physical = false;
-      }
     }
 
   }

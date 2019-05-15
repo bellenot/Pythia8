@@ -532,7 +532,10 @@ string ParticleDataEntry::toLower(const string& nameConv) {
 
 //--------------------------------------------------------------------------
 
-// Get data to be distributed among particles during setp.
+// Get data to be distributed among particles during setup.
+// Note: this routine is called twice. Firstly from init(...), but
+// the data should not be used at that point, so is likely overkill.
+// Secondly, from initWidths, after user has had time to change.
 
 void ParticleData::initCommon() {
 
@@ -565,6 +568,9 @@ void ParticleData::initCommon() {
 // the order of initialization is essential to get secondary widths right.
 
 void ParticleData::initWidths( vector<ResonanceWidths*> resonancePtrs) {
+
+  // Initialize some common data.
+  initCommon();
 
   // Pointer to database and Breit-Wigner mass initialization for each 
   // particle.

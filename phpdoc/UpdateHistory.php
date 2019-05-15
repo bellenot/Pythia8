@@ -1246,6 +1246,118 @@ echo "<a href='SUSYLesHouches.php?filepath=".$filepath."' target='page'>";?>SUSY
 </li>
 
 </ul>
+</li>
+
+<li>8.153: 10 August 2011
+<ul>
+
+<li>The setup of tunes has been modified, see the 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='Tunes.php?filepath=".$filepath."' target='page'>";?>Tunes</a> page for details. Specifically
+the <code>Tune:ee</code> and <code>Tune:pp</code> modes have
+acquired a new option <code>-1</code> for a forced restore to the
+default values of all settings used in the respective kind of 
+tunes.</li>
+
+<li>The code for handling multiple interactions in the scenario with
+an <i>x</i>-dependent width of the Gaussian matter profile 
+[<a href="Bibliography.php" target="page">Cor11</a>], has been improved and updated. Tune 4Cx, which 
+is based on this option, has been added as a further tune option.
+
+<li>A possibility to bias the phase-space selection has been added,
+whereby some phase space regions can be oversampled, which is
+compensated by assigning a weight to each event.
+A new set of methods have been added to the <code>UserHooks</code>
+class to allow users to program how to bias the selection.</li>
+
+<li>New options added so that matrix-element corrections can be 
+switched off after the first branching in ISR or FSR.</li>
+
+<li>Some new <code>Info</code> methods have been added to store
+information on latest ISR branching.  The <code>SpaceShower</code>
+class has also been corrected so that the latest <i>z = 1/2</i>
+when not defined by history. This avoids undefined values for
+azimuthal asymmetries. Thanks to Stefan Prestel for finding and
+sorting out this problem.</li>
+
+<li>The <code>Pythia::forceHadronLevel()</code> method now takes 
+an argument that optionally means that existing junction information
+is not overwritten. Thanks to Leif L&ouml;nnblad for pointing out
+the usefulness of this.</li>
+
+<li>For particle decays to a varying number of hadrons the multiplicity
+increase with mass has been somewhat reduced, and especially for 
+<code>meMode = 23</code> a separate even slower increase has been 
+introduced.</li>
+
+<li>New possibility to force the tau polarization.</li>
+
+<li>Bug fix for the special case in which events containing SUSY 
+particles are generated without proper initialization of SUSY decays. 
+This can happen, e.g., if events containing SUSY particles are read 
+in via external LHEF files, if those files do not contain readable 
+SLHA spectra in their headers. In this case, a failed attempt to 
+generate sparticle decays with ill-defined couplings previously 
+led to crashes. The program now reverts to the old behaviour, 
+based on static decay tables, in such cases, with the default 
+being to decay all sparticles to gravitino + particle. An error 
+message stating that the full SUSY treatment has been switched 
+off and why is also issued. Thanks to N. Desai for this fix.</li>
+
+<li>The R-hadron machinery has been completed.</li>
+
+<li>Minor change in timelike showers: gluons which fall below the 
+<i>pTmin</i> cutoff by the correction for mass effects are now
+eliminated, while previously they were kept. This reduces the
+number of gluons somewhat, but has no significant effects on the
+hadronic final state. (Prompted by R-hadron studies, where big mass
+effects else give bothersome low-energy gluons.)</li>
+
+<li>Corrected typos in two of the Upsilon wave function matrix 
+elements, <code>Bottomonium:OUpsilon3P08</code> and 
+<code>Bottomonium:Ochib03P01</code>. Thanks to Beate Heinemann for
+pointing it out.</li>
+
+<li>Implemented <i>f*</i> decay angle in <i>f f -> f f*</i> processes,
+and fixed some bugs for the same process. Thanks to Piyali Banerjee
+for tests.</li>
+
+<li>Introduce possibility to separate production channels for 
+TeV-sized extra dimensions, and a small code correction. Thanks to 
+Noam Hod for code contribution.</li>
+
+<li>Bug fix for neutrino beams: since neutrinos are always lefthanded
+there should be a factor 2 in the cross section, relative to charged
+leptons, from the non-need to average over incoming spin states. This 
+is now fixed by introducing a new PDF class <code>NeutrinoPoint</code> 
+for (unresolved) neutrinos, with normalization 2 rather than 1 for 
+charged leptons. Thanks to Ryosuke Sato.</li>
+
+<li>Bug fix for some (rarely used) particle settings, which could not 
+be changed by users because they were read too early. Thanks to
+Andrew Altheimer and Gustaaf Brooijmans.</li>
+
+<li>Bug fix in handling of <code>tau</code> decays, where setting of
+decay vertices could write outside memory. Thanks to Steven Schramm.</li>
+
+<li>Minor expansion of the <code>BeamParticle</code> constructor.</li>
+
+<li>Minor bug fix in CTEQ 6L for uninitialized variables.</li>
+
+<li>Minor bug fix in fragmentation flavour combination to hadron.</li>
+
+<li>Some updates of the documentation, including new pages on 
+MadGraph 5 as a generator for semi-internal processes (thanks to 
+Johan Alwall) and on RIVET interfacing.</li> 
+ 
+<li>Minor improvements of ROOT- and HepMC-related code and documentation.
+
+<li>Some cleanup of code.</li>
+
+</ul>
+</li>
+
+</ul>
 
 </body>
 </html>

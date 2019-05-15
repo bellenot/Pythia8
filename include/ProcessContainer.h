@@ -72,7 +72,7 @@ public:
   bool decayResonances( Event& process); 
 
   // Accumulate statistics after user veto.
-  void accumulate() {++nAcc;}
+  void accumulate() {++nAcc; wtAccSum += weightNow;}
 
   // Reset statistics on events generated so far.
   void reset();
@@ -89,6 +89,7 @@ public:
   long   nTried()      const {return nTry;}
   long   nSelected()   const {return nSel;}
   long   nAccepted()   const {return nAcc;}
+  double weightSum()   const {return wtAccSum;}
   double sigmaSelMC()  {if (nTry > nTryStat) sigmaDelta(); return sigmaAvg;}
   double sigmaMC()     {if (nTry > nTryStat) sigmaDelta(); return sigmaFin;}
   double deltaMC()     {if (nTry > nTryStat) sigmaDelta(); return deltaFin;} 
@@ -145,7 +146,7 @@ private:
   bool   newSigmaMx;
   long   nTry, nSel, nAcc, nTryStat;  
   double sigmaMx, sigmaSgn, sigmaSum, sigma2Sum, sigmaNeg, sigmaAvg, 
-         sigmaFin, deltaFin;
+         sigmaFin, deltaFin, weightNow, wtAccSum;
 
   // Estimate integrated cross section and its uncertainty. 
   void sigmaDelta();

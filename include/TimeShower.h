@@ -181,9 +181,9 @@ private:
 
   // Initialization data, normally only set once.
   bool   doQCDshower, doQEDshowerByQ, doQEDshowerByL, doQEDshowerByGamma, 
-         doMEcorrections, doPhiPolAsym, doInterleave, allowBeamRecoil,
-         dampenBeamRecoil, allowRescatter, canVetoEmission, doHVshower,
-         brokenHVsym;
+         doMEcorrections, doMEafterFirst, doPhiPolAsym, doInterleave, 
+         allowBeamRecoil, dampenBeamRecoil, allowRescatter, canVetoEmission, 
+         doHVshower, brokenHVsym;
   int    pTmaxMatch, pTdampMatch, alphaSorder, nGluonToQuark, 
          alphaEMorder, nGammaToQuark, nGammaToLepton, nCHV, idHV;
   double pTdampFudge, mc, mb, m2c, m2b, alphaSvalue, alphaS2pi, 

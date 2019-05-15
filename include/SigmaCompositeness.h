@@ -59,7 +59,7 @@ private:
  
 //==========================================================================
 
-// A derived class for l gamma -> q^* (excited lepton state).
+// A derived class for l gamma -> l^* (excited lepton state).
 
 class Sigma1lgm2lStar : public Sigma1Process {
 
@@ -124,6 +124,9 @@ public:
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
+  // Evaluate weight for q* decay angles (else inactive).
+  virtual double weightDecay(Event& process, int iResBeg, int iResEnd); 
+
   // Info on the subprocess.
   virtual string name()       const {return nameSave;}
   virtual int    code()       const {return codeSave;}
@@ -161,6 +164,9 @@ public:
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
+
+  // Evaluate weight for l* decay angles (else inactive).
+  virtual double weightDecay(Event& process, int iResBeg, int iResEnd); 
 
   // Info on the subprocess.
   virtual string name()       const {return nameSave;}
@@ -212,8 +218,8 @@ public:
   double sigT, sigU, sigTU, sigST, sigSum, sigQCSTU, sigQCUTS;
 
   // Compositeness parameters.
-  double m_Lambda2;
-  int    m_etaLL, m_etaRR, m_etaLR;
+  double qCLambda2;
+  int    qCetaLL, qCetaRR, qCetaLR;
 
 };
 
@@ -251,15 +257,15 @@ public:
 
   // Number of outgoing quark flavours to be considered, given that
   // matrix elements are calculated in the massless approximation.
-  int    m_nQuarkNew;
+  int    qCnQuarkNew;
 
   // Values stored for colour flow selection.
   int    idNew;
   double mNew, m2New, sigS, sigma;
 
   // Compositeness parameters.
-  double m_Lambda2;
-  int    m_etaLL, m_etaRR, m_etaLR;
+  double qCLambda2;
+  int    qCetaLL, qCetaRR, qCetaLR;
 
 };
 

@@ -285,11 +285,11 @@ are taken from <ref>Nas00</ref>; see also <ref>Bar06</ref>.
 <ei>&lt;O(Upsilon)[1S0(8)]&gt;</ei>.
 </parm>
 
-<parm name="Bottomonium:OUpsilon3P08" default="0.48" min="0.0">
+<parm name="Bottomonium:OUpsilon3P08" default="0.02" min="0.0">
 <ei>&lt;O(Upsilon)[3P0(8)]&gt;/m_b^2</ei>.
 </parm>
 
-<parm name="Bottomonium:Ochib03P01" default="0.09" min="0.0">
+<parm name="Bottomonium:Ochib03P01" default="0.085" min="0.0">
 <ei>&lt;O(chi_b0)[3P0(8)]&gt;/m_b^2</ei>.
 </parm>
 

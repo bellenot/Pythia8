@@ -147,7 +147,7 @@ The mixing parameter <i>x_s = Delta(m_B_s^0)/Gamma_B_s^0</i> in the
 Gamma from RPP2006.)
    
 
-<h3>tau decays</h3>
+<h3>Tau decays</h3>
 
 A new machinery has been introduced to handle <i>tau</i> lepton decays, 
 with helicity information related to the production process and with
@@ -157,23 +157,50 @@ some input from Tauola [<a href="Bibliography.php" target="page">Jad90</a>]. A c
 in preparation [<a href="Bibliography.php" target="page">Ilt11</a>].
 
 This new machinery is on by default, but it is possible to revert to 
-the simpler old decay handling, e.g. to study differences.
+the simpler old decay handling, e.g. to study differences. Furthermore
+the spin tracing framework does not yet cover all possibilities; notably 
+it cannot handle taus coming from SUSY decay chains, so it makes sense 
+to switch off the new machinery in such instances, for speed reasons if 
+nothing else. In case only one tau mother species is undefined, the 
+polarization involved can be set by hand.
 
-<br/><br/><strong>ParticleDecays:sophisticatedTau</strong>  <input type="radio" name="13" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="13" value="off"><strong>Off</strong>
- &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
-Use the new <i>tau</i> decay description or not.
+<br/><br/><table><tr><td><strong>ParticleDecays:sophisticatedTau  </td><td>  &nbsp;&nbsp;(<code>default = <strong>1</strong></code>; <code>minimum = 0</code>; <code>maximum = 3</code>)</td></tr></table>
+Choice of <ei>tau</ei> decay model.
+<br/>
+<input type="radio" name="13" value="0"><strong>0 </strong>: old decay model, with isotropic decays.<br/>
+<input type="radio" name="13" value="1" checked="checked"><strong>1 </strong>: sophisticated decays where <ei>tau</ei> polarization is  calculated from the <ei>tau</ei> production mechanism.<br/>
+<input type="radio" name="13" value="2"><strong>2 </strong>: sophisticated decays as above, but additionally <ei>tau</ei>  polarization is set to <code>ParticleDecaus:tauPolarization</code> for  <ei>tau</ei>s produced from <code>ParticleDecays:tauMother</code>.<br/>
+<input type="radio" name="13" value="3"><strong>3 </strong>: sophisticated decays where <ei>tau</ei> polarization is set  to <code>ParticleDecaus:tauPolarization</code> for all <ei>tau</ei> decays. <br/>
+<br/><b>Note</b>: options <code>2</code> and <code>3</code>, 
+to force a specific <ei>tau</ei> polarization, only affect the decay 
+of the <ei>tau</ei>. The angular distribution of the <ei>tau</ei> itself, 
+given by its production, is not modified by these options. If you want, e.g., 
+a righthanded <ei>W</ei>, or a SUSY decay chain, the kinematics should 
+be handled by the corresponding cross section class(es), supplemented by 
+the resonance decay one(s). The options here could then still be used 
+to ensure the correct polarization at the <ei>tau</ei> decay stage.
+
+<br/><br/><table><tr><td><strong>ParticleDecays:tauPolarization </td><td></td><td> <input type="text" name="14" value="0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = -1.</code>; <code>maximum = 1.</code>)</td></tr></table>
+Polarization of the <i>tau</i> when mode <i>2</i> or <i>3</i> of 
+<code>ParticleDecays:sophisticatedTau</code> is selected.
+  
+
+<br/><br/><table><tr><td><strong>ParticleDecays:tauMother  </td><td></td><td> <input type="text" name="15" value="0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = 0</code>)</td></tr></table>
+Mother of the <i>tau</i> for forced polarization when mode <i>2</i> of 
+<code>ParticleDecays:sophisticatedTau</code> is selected. You should give the
+positive identity code; to the extent an antiparticle exists it will
+automatically obtain the inverse polarization.
   
 
 <h3>Other variables</h3>
 
-<br/><br/><table><tr><td><strong>ParticleDecays:mSafety </td><td></td><td> <input type="text" name="14" value="0.0005" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.0005</strong></code>; <code>minimum = 0.</code>; <code>maximum = 0.01</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ParticleDecays:mSafety </td><td></td><td> <input type="text" name="16" value="0.0005" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.0005</strong></code>; <code>minimum = 0.</code>; <code>maximum = 0.01</code>)</td></tr></table>
 Minimum mass difference required between the decaying mother mass 
 and the sum of the daughter masses, kept as a safety margin to avoid
 numerical problems in the decay generation.
    
 
-<br/><br/><table><tr><td><strong>ParticleDecays:sigmaSoft </td><td></td><td> <input type="text" name="15" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.2</code>; <code>maximum = 2.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ParticleDecays:sigmaSoft </td><td></td><td> <input type="text" name="17" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.2</code>; <code>maximum = 2.</code>)</td></tr></table>
 In semileptonic decays to more than one hadron, such as 
 <i>B -> nu l D pi</i>, decay products after the first three are 
 dampened in momentum by an explicit weight factor 
@@ -202,19 +229,27 @@ new try is made, including a new multiplicity. These constraints
 imply that the actual average multiplicity does not quite agree with
 the formula above.
 
-<br/><br/><table><tr><td><strong>ParticleDecays:multIncrease </td><td></td><td> <input type="text" name="16" value="4.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>4.5</strong></code>; <code>minimum = 3.</code>; <code>maximum = 6.</code>)</td></tr></table>
-The above <i>multIncrease</i> parameter.
+<br/><br/><table><tr><td><strong>ParticleDecays:multIncrease </td><td></td><td> <input type="text" name="18" value="4." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>4.</strong></code>; <code>minimum = 2.</code>; <code>maximum = 6.</code>)</td></tr></table>
+The above <i>multIncrease</i> parameter, except for 
+<code>meMode = 23</code>.
    
 
-<br/><br/><table><tr><td><strong>ParticleDecays:multRefMass </td><td></td><td> <input type="text" name="17" value="0.7" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.7</strong></code>; <code>minimum = 0.2</code>; <code>maximum = 2.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ParticleDecays:multIncreaseWeak </td><td></td><td> <input type="text" name="19" value="2.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.5</strong></code>; <code>minimum = 1.</code>; <code>maximum = 4.</code>)</td></tr></table>
+The above <i>multIncrease</i> parameter, specifically for 
+<code>meMode = 23</code>. Here the weak decay implies that only the 
+virtual W mass should contribute to the production of new particles, 
+rather than the full meson mass.
+   
+
+<br/><br/><table><tr><td><strong>ParticleDecays:multRefMass </td><td></td><td> <input type="text" name="20" value="0.7" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.7</strong></code>; <code>minimum = 0.2</code>; <code>maximum = 2.0</code>)</td></tr></table>
 The above <i>multRefMass</i> parameter.
    
 
-<br/><br/><table><tr><td><strong>ParticleDecays:multGoffset </td><td></td><td> <input type="text" name="18" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 2.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ParticleDecays:multGoffset </td><td></td><td> <input type="text" name="21" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 2.0</code>)</td></tr></table>
 The above <i>multGoffset</i> parameter.
    
 
-<br/><br/><table><tr><td><strong>ParticleDecays:colRearrange </td><td></td><td> <input type="text" name="19" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.</code>; <code>maximum = 1.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ParticleDecays:colRearrange </td><td></td><td> <input type="text" name="22" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.</code>; <code>maximum = 1.0</code>)</td></tr></table>
 When a decay is given as a list of four partons to be turned into
 hadrons (primarily for modes 41 - 80)  it is assumed that they are 
 listed in pairs, as a first and a second colour singlet, which could 
@@ -223,8 +258,8 @@ the probability that this original assignment is not respected, and
 default corresponds to no memory of this original colour topology.
    
 
-<br/><br/><strong>ParticleDecays:FSRinDecays</strong>  <input type="radio" name="20" value="on"><strong>On</strong>
-<input type="radio" name="20" value="off"><strong>Off</strong>
+<br/><br/><strong>ParticleDecays:FSRinDecays</strong>  <input type="radio" name="23" value="on"><strong>On</strong>
+<input type="radio" name="23" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>true</strong></code>)<br/>
 When a particle decays to <i>q qbar</i>, <i>g g</i>, <i>g g g</i> 
 or <i>gamma g g</i>, with <code>meMode > 90</code>, allow or not a 
@@ -385,44 +420,59 @@ if($_POST["12"] != "26.05")
 $data = "ParticleDecays:xBsMix = ".$_POST["12"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["13"] != "on")
+if($_POST["13"] != "1")
 {
 $data = "ParticleDecays:sophisticatedTau = ".$_POST["13"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["14"] != "0.0005")
+if($_POST["14"] != "0")
 {
-$data = "ParticleDecays:mSafety = ".$_POST["14"]."\n";
+$data = "ParticleDecays:tauPolarization = ".$_POST["14"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["15"] != "0.5")
+if($_POST["15"] != "0")
 {
-$data = "ParticleDecays:sigmaSoft = ".$_POST["15"]."\n";
+$data = "ParticleDecays:tauMother = ".$_POST["15"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["16"] != "4.5")
+if($_POST["16"] != "0.0005")
 {
-$data = "ParticleDecays:multIncrease = ".$_POST["16"]."\n";
+$data = "ParticleDecays:mSafety = ".$_POST["16"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["17"] != "0.7")
+if($_POST["17"] != "0.5")
 {
-$data = "ParticleDecays:multRefMass = ".$_POST["17"]."\n";
+$data = "ParticleDecays:sigmaSoft = ".$_POST["17"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["18"] != "0.5")
+if($_POST["18"] != "4.")
 {
-$data = "ParticleDecays:multGoffset = ".$_POST["18"]."\n";
+$data = "ParticleDecays:multIncrease = ".$_POST["18"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["19"] != "0.5")
+if($_POST["19"] != "2.5")
 {
-$data = "ParticleDecays:colRearrange = ".$_POST["19"]."\n";
+$data = "ParticleDecays:multIncreaseWeak = ".$_POST["19"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["20"] != "true")
+if($_POST["20"] != "0.7")
 {
-$data = "ParticleDecays:FSRinDecays = ".$_POST["20"]."\n";
+$data = "ParticleDecays:multRefMass = ".$_POST["20"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["21"] != "0.5")
+{
+$data = "ParticleDecays:multGoffset = ".$_POST["21"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["22"] != "0.5")
+{
+$data = "ParticleDecays:colRearrange = ".$_POST["22"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["23"] != "true")
+{
+$data = "ParticleDecays:FSRinDecays = ".$_POST["23"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);

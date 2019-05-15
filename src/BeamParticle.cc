@@ -317,7 +317,7 @@ double BeamParticle::xfModified(int iSkip, int idIn, double x, double Q2) {
 // companion kind; in the latter case also pick its companion.
 // Assumes xfModified has already been called.
 
-  int BeamParticle::pickValSeaComp() {
+int BeamParticle::pickValSeaComp() {
 
   // If parton already has a companion than reset code for this.
   int oldCompanion = resolved[iSkipSave].companion();

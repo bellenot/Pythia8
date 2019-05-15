@@ -16,7 +16,8 @@ only, while the first choice would still apply to everything else.
 The third and fourth give access to pion and Pomeron PDF's, respectively,
 the latter being used to describe diffractive systems.
 The fifth gives the possibility to switch off the lepton 
-"parton density". 
+"parton density". More information on PDF classes is found 
+<a href="PartonDistributions.html" target="page">here</a>.
 
 <h3>Parton densities for protons</h3>
 
@@ -396,7 +397,7 @@ be retuned when this parameter is changed.
 
 <h3>Parton densities for leptons</h3>
 
-For electrons/leptons there is no need to choose between different 
+For electrons/muons/taus there is no need to choose between different 
 parametrizations, since only one implementation is available, and 
 should be rather uncontroversial (apart from some technical details).
 However, insofar as e.g. <i>e^+ e^-</i> data often are corrected 
@@ -414,6 +415,12 @@ photon per beam carries any leftover amount of energy not described
 by shower emissions. If the initial-state showers are switched off 
 these collinear photons will carry the full radiated energy.  
    
+
+<p/>
+Neutrinos are always taken pointlike. Do note that the phase space 
+selection machinery currently does not allow one resolved and one 
+unresolved beam. For lepton-neutrino collisions to work you must 
+therefore set <code>PDF:lepton = off</code>.
 
 <h3>Incoming parton selection</h3>
 

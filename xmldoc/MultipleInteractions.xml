@@ -293,7 +293,7 @@ at all, <ei>bProfile = 0</ei>. For small <ei>expPow</ei> the program
 becomes slow and unstable, so the min limit must be respected.
 </parm> 
 
-<parm name="MultipleInteractions:a1" default="1." min="0." max="2.">
+<parm name="MultipleInteractions:a1" default="0.15" min="0." max="2.">
 When <ei>bProfile = 4</ei>, this gives the <ei>a1</ei> constant in the
 Gaussian width. When <ei>a1 = 0.</ei>, this reduces back to the single
 Gaussian case.

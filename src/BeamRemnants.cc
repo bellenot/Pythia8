@@ -968,9 +968,7 @@ bool BeamRemnants::checkColours( Event& event) {
   for (int iJun = 0; iJun < event.sizeJunction(); ++iJun)
   for (int leg = 0; leg < 3; ++leg) {
     int col = event.colJunction(iJun, leg); 
-    //cout<< " BeamRemnants iJun = "<<iJun<<" leg = "<<leg<<" col = "<<col<<endl;
     for (int iCol = 0; iCol < int(colFrom.size()); ++iCol) {
-      //cout << " iCol = "<<iCol<<" colFrom = "<<colFrom[iCol]<<endl;
       if (col == colFrom[iCol]) {
 	col = colTo[iCol]; 
 	event.colJunction(iJun, leg, col);

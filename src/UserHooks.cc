@@ -65,6 +65,66 @@ double UserHooks::multiplySigmaBy( const SigmaProcess* sigmaProcessPtr,
 
 //--------------------------------------------------------------------------
 
+// biasSelectionBy allows the user to introduce a multiplicative factor 
+// that modifies the cross section of a hard process. The event is assigned
+// a wegith that is the inverse of the selection bias, such that the
+// cross section is unchanged. Since it is called from before the 
+// event record is generated in full, the normal analysis does not work. 
+// The code here provides a rather extensive summary of which methods 
+// actually do work. It is a convenient starting point for writing 
+// your own derived routine.
+
+double UserHooks::biasSelectionBy( const SigmaProcess* sigmaProcessPtr, 
+  const PhaseSpace* phaseSpacePtr, bool inEvent) {
+
+  // Process code, necessary when some to be treated differently.
+  //int code       = sigmaProcessPtr->code();
+
+  // Final multiplicity, i.e. whether 2 -> 1 or 2 -> 2.
+  //int nFinal     = sigmaProcessPtr->nFinal();
+
+  // Incoming x1 and x2 to the hard collision, and factorization scale.
+  //double x1      = phaseSpacePtr->x1();
+  //double x2      = phaseSpacePtr->x2();
+  //double Q2Fac   = sigmaProcessPtr->Q2Fac();
+
+  // Renormalization scale and assumed alpha_strong and alpha_EM.
+  //double Q2Ren   = sigmaProcessPtr->Q2Ren();
+  //double alphaS  = sigmaProcessPtr->alphaSRen();
+  //double alphaEM = sigmaProcessPtr->alphaEMRen();
+  
+  // Subprocess mass-square.
+  //double sHat = phaseSpacePtr->sHat();
+
+  // Now methods only relevant for 2 -> 2.
+  //if (nFinal == 2) {
+    
+    // Mandelstam variables and hard-process pT.
+    //double tHat  = phaseSpacePtr->tHat();
+    //double uHat  = phaseSpacePtr->uHat();
+    //double pTHat = phaseSpacePtr->pTHat();
+  
+    // Masses of the final-state particles. (Here 0 for light quarks.)
+    //double m3    = sigmaProcessPtr->m(3);
+    //double m4    = sigmaProcessPtr->m(4);
+  //}
+
+  // Insert here your calculation of the selection bias. 
+  // Here illustrated by a weighting up of events at high pT.
+  //selBias = pow4(phaseSpacePtr->pTHat()); 
+
+  // Return the selBias weight. 
+  // Warning: if you use another variable than selBias
+  // the compensating weight will not be set correctly.
+  //return selBias;
+
+  // Dummy statement to avoid compiler warnings.
+  return ((inEvent && sigmaProcessPtr->code() == 0 
+    && phaseSpacePtr->sHat() < 0.) ? 0. : 1.);
+}
+
+//--------------------------------------------------------------------------
+
 // omitResonanceDecays omits resonance decay chains from process record.
 
 void UserHooks::omitResonanceDecays(const Event& process) {

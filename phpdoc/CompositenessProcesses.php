@@ -32,21 +32,19 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 Compositeness scenarios may give rise to sharp resonances of excited 
 quarks and leptons. An excited copy of the first generation is 
 implemented, consisting of spin 1/2 particles. The possibility of 
-contact interactions between quarks is also implemented in the context 
-of <i>2 -> 2</i> quark scattering. 
+contact interactions between SM quarks is also implemented in the 
+context of <i>2 -> 2</i> quark scattering. 
 
 <p/>  
 Related to excited fermions, the current implementation contains gauge 
 interaction production by quark-gluon fusion or lepton-photon fusion 
 and contact interaction production by quark-quark or quark-antiquark 
-scattering. In additions to the compositness scale and couplings listed 
-below, you are expected to change the excited-fermion masses in accordance 
-with what is desired. See [<a href="Bibliography.php" target="page">Bau90</a>] for conventions.
-
-<p/>
-A non-trivial angular dependence is included in the decay for the
-<i>2 -> 1</i> processes, but has not been included for the 
-<i>2 -> 2</i> ones.
+scattering. For both the <i>2 -> 1</i> and <i>2 -> 2</i> processes 
+a non-trivial angular dependence is included in the decay, however, 
+only decays into gauge bosons are supported, i.e. not decays through 
+contact interactions. In additions to the compositness scale and couplings 
+listed below, you are expected to change the excited-fermion masses in 
+accordance with what is desired. See [<a href="Bibliography.php" target="page">Bau90</a>] for conventions.
 
 <p/>
 The quark contact interactions are implemented according to 

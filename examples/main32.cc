@@ -10,16 +10,22 @@
 // The main program contains no analysis; this is intended to happen later.
 // It therefore "never" has to be recompiled to handle different tasks.
 
+// WARNING: typically one needs 25 MB/100 events at the LHC.
+// Therefore large event samples may be impractical.
+
 #include "Pythia.h"
 #include "HepMCInterface.h"
 
-#include "HepMC/GenEvent.h"
+#include "HepMC/GenEvent.h"   
+
 #include "HepMC/IO_GenEvent.h"
+// Following line is a deprecated alternative, removed in recent versions
+//#include "HepMC/IO_Ascii.h"
+
+//#include "HepMC/IO_AsciiParticles.h"
+
 // Following line to be used with HepMC 2.04 onwards.
 //#include "HepMC/Units.h"
-// Following two lines are deprecated alternative.
-//#include "HepMC/IO_Ascii.h"
-//#include "HepMC/IO_AsciiParticles.h"
 
 using namespace Pythia8; 
 
@@ -51,9 +57,10 @@ int main(int argc, char* argv[]) {
 
   // Specify file where HepMC events will be stored.
   HepMC::IO_GenEvent ascii_io(argv[2], std::ios::out);
-  // Following two lines are deprecated alternative.
-  // HepMC::IO_Ascii ascii_io(argv[2], std::ios::out);
-  // HepMC::IO_AsciiParticles ascii_io(argv[2], std::ios::out);
+  // Following line is a deprecated alternative, removed in recent versions
+  // HepMC::IO_Ascii ascii_io("hepmcout32.dat", std::ios::out);
+  // Line below is an eye-readable one-way output, uncomment the include above
+  // HepMC::IO_AsciiParticles ascii_io("hepmcout32.dat", std::ios::out);
  
   // Generator. 
   Pythia pythia;

@@ -35,7 +35,7 @@ all allowed decay channels.
 <option value="3"> 
 particles registered as having a mass width are given a mass 
 in the range <ei>m_min &lt; m &lt; m_max</ei>, according
-to a truncated nonrelativistic Breit-Wigner, i.e. quadratic in <ei>m</ei>.
+to a truncated relativistic Breit-Wigner, i.e. quadratic in <ei>m</ei>.
 </option>
 <option value="4"> 
 as 3, but the width is modified as for 2, and the current mass is used 
@@ -7088,19 +7088,19 @@ The meaning of the various properties and the format used are explained
           m0="500.00000" tau0="1e-05">
 </particle>
 
-<particle id="1006311" name="R-(~t sd0)" antiName="Rbar+(~t sd0)" spinType="1" chargeType="-3" colType="0"
+<particle id="1006311" name="R-(~t sd0)" antiName="Rbar+(~t sd0)" spinType="1" chargeType="0" colType="0"
           m0="500.00000" tau0="1e-05">
 </particle>
 
-<particle id="1006313" name="R-(~t sd1)" antiName="Rbar+(~t sd1)" spinType="3" chargeType="-3" colType="0"
+<particle id="1006313" name="R-(~t sd1)" antiName="Rbar+(~t sd1)" spinType="3" chargeType="0" colType="0"
           m0="500.00000" tau0="1e-05">
 </particle>
 
-<particle id="1006321" name="R0(~t su0)" antiName="Rbar0(~t su0)" spinType="1" chargeType="0" colType="0"
+<particle id="1006321" name="R0(~t su0)" antiName="Rbar0(~t su0)" spinType="1" chargeType="3" colType="0"
           m0="500.00000" tau0="1e-05">
 </particle>
 
-<particle id="1006323" name="R0(~t su1)" antiName="Rbar0(~t su1)" spinType="3" chargeType="0" colType="0"
+<particle id="1006323" name="R0(~t su1)" antiName="Rbar0(~t su1)" spinType="3" chargeType="3" colType="0"
           m0="500.00000" tau0="1e-05">
 </particle>
 

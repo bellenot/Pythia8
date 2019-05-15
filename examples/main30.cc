@@ -23,7 +23,22 @@ int main() {
   pythia.readString("Random:seed = 0");
  
   // Process selection.
-  pythia.readString("ExtraDimensionsTEV:ffbar2ffbar = on");
+  // ANY COMBINATION OF THE PROCESSES FLAGS BELOW IS ALLOWED
+  // HERE WE SWITCH ON ONLY THE MU+MU- FINAL STATE.
+  // TO SWITCH ALL POSSIBLE FINAL STATES ON, UNCOMMENT ALL
+  // THE RELEVANT LINES BELOW:
+  //pythia.readString("ExtraDimensionsTEV:ffbar2e+e- = on");
+  pythia.readString("ExtraDimensionsTEV:ffbar2mu+mu- = on");
+  //pythia.readString("ExtraDimensionsTEV:ffbar2tau+tau- = on");
+  //pythia.readString("ExtraDimensionsTEV:ffbar2uubar = on");
+  //pythia.readString("ExtraDimensionsTEV:ffbar2ddbar = on");
+  //pythia.readString("ExtraDimensionsTEV:ffbar2ccbar = on");
+  //pythia.readString("ExtraDimensionsTEV:ffbar2ssbar = on");
+  //pythia.readString("ExtraDimensionsTEV:ffbar2bbbar = on");
+  //pythia.readString("ExtraDimensionsTEV:ffbar2ttbar = on");
+  //pythia.readString("ExtraDimensionsTEV:ffbar2nuenuebar = on");
+  //pythia.readString("ExtraDimensionsTEV:ffbar2numunumubar = on");
+  //pythia.readString("ExtraDimensionsTEV:ffbar2nutaunutaubar = on");
 
   // Pick KK mass.  
   double newMass = 4000.; // GeV
@@ -53,7 +68,9 @@ int main() {
   pythia.readString("5000023:mWidth = " + sNewWidth);
   pythia.readString("5000023:mMin = " + sNewLowBound);
   pythia.readString("5000023:mMax = " + sNewHighBound);
-  pythia.readString("5000023:isResonance = false");
+  //////////////////////////////////////////////////////////////////////////////
+  pythia.readString("5000023:isResonance = false"); // THIS IS MANDATORY !!! ///
+  //////////////////////////////////////////////////////////////////////////////
   pythia.readString("ExtraDimensionsTEV:gmZmode = 3"); // 0=(gm+Z), 1=(gm), 2=(Z), 3=(gm+Z+gmKK+ZKK), 4=(m+Z+gmKK), 5=(m+Z+ZKK)
   pythia.readString("ExtraDimensionsTEV:nMax = 100"); // min=0, max=100, default=10
   pythia.readString("ExtraDimensionsTEV:mStar = " + sNewMass);

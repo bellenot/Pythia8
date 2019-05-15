@@ -169,6 +169,7 @@ void SpaceShower::init( BeamParticle* beamAPtrIn,
 
   // Various other parameters. 
   doMEcorrections = settingsPtr->flag("SpaceShower:MEcorrections");
+  doMEafterFirst  = settingsPtr->flag("SpaceShower:MEafterFirst");
   doPhiPolAsym    = settingsPtr->flag("SpaceShower:phiPolAsym");
   doPhiIntAsym    = settingsPtr->flag("SpaceShower:phiIntAsym");
   strengthIntAsym = settingsPtr->parm("SpaceShower:strengthIntAsym");
@@ -280,7 +281,18 @@ void SpaceShower::prepare( int iSys, Event& event, bool limitPTmaxIn) {
     if (event[in2].id() == 22 && doQEDshowerByQ) chgType2 = 22 ;
     if (canRadiate2) dipEnd.push_back( SpaceDipoleEnd( iSys, -2, 
       in2, in1, pTmax2, 0, chgType2, MEtype, canRadiate1) );
+  }
 
+  // Store the z and pT2 values of the last previous splitting
+  // when an event history has already been constructed.
+  if (iSys == 0 && infoPtr->hasHistory()) {
+    double zNow   = infoPtr->zNowISR();
+    double pT2Now = infoPtr->pT2NowISR();
+    for (int iDipEnd = 0; iDipEnd < int(dipEnd.size()); ++iDipEnd) {
+      dipEnd[iDipEnd].zOld = zNow;
+      dipEnd[iDipEnd].pT2Old = pT2Now;
+      ++dipEnd[iDipEnd].nBranch;
+    }
   }
 
 }
@@ -1471,6 +1483,8 @@ bool SpaceShower::branch( Event& event) {
     } else {
       dipEnd[iDip].iRadiator = iNewRecoiler;
       dipEnd[iDip].iRecoiler = iMother;
+      // Optionally also kill recoiler ME corrections after first emission.
+      if (!doMEafterFirst) dipEnd[iDip].MEtype = 0;
     }  
   }
 

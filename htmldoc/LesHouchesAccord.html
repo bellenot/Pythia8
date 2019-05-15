@@ -621,6 +621,18 @@ as a common process 9999. Secondly, you should generate your events
 in the CM frame of the collision, since this is the assumed frame of
 stored Les Houches events, and no boosts have been implemented 
 for the case that <code>Pythia::process</code> is not in this frame. 
+
+<p/>
+The LHEF standard is the agreed format to store the particles of a 
+hard process, as input to generators, whereas output of final states
+is normally handled using the <a href="HepMCInterface.html" target="page">HepMC</a> 
+standard. It is possible to use LHEF also here, however. It requires
+that the above initialization is replaced by 
+<br/><code>LHAupFromPYTHIA8 myLHA(&pythia.event, &pythia.info);</code>
+<br/> i.e. that <code>process</code> is replaced by <code>event</code>.
+In addition, the <code>PartonLevel:all = off</code> command found in
+<code>main20.cc</code> obviously must be removed if one wants to
+obtain complete events.
  
 </body>
 </html>

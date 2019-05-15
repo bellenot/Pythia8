@@ -32,7 +32,7 @@ class UserHooks {
 public:
 
   // Destructor.
-  virtual ~UserHooks() {}
+  virtual ~UserHooks() {selBias = 1.;}
 
   // Initialize pointers and workEvent. Note: not virtual.
   void initPtr( Info* infoPtrIn, Settings* settingsPtrIn, 
@@ -54,6 +54,16 @@ public:
   // Multiplicative factor modifying the cross section of a hard process.
   virtual double multiplySigmaBy(const SigmaProcess* sigmaProcessPtr,
     const PhaseSpace* phaseSpacePtr, bool inEvent);
+
+  // Possibility to bias selection of events, compensated by a weight.
+  virtual bool canBiasSelection() {return false;}
+
+  // Multiplicative factor in the phase space selection of a hard process.
+  virtual double biasSelectionBy(const SigmaProcess* sigmaProcessPtr,
+    const PhaseSpace* phaseSpacePtr, bool inEvent);
+
+  // Event weight to compensate for selection weight above.
+  virtual double biasedSelectionWeight() {return 1./selBias;}  
 
   // Possibility to veto event after process-level selection.
   virtual bool canVetoProcessLevel() {return false;}
@@ -169,6 +179,9 @@ protected:
 
   // Have one event object around as work area.
   Event workEvent;
+
+  // User-imposed selection bias.
+  double selBias;
 
 };
 

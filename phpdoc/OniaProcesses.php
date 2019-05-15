@@ -394,11 +394,11 @@ are taken from [<a href="Bibliography.php" target="page">Nas00</a>]; see also [<
 <i>&lt;O(Upsilon)[1S0(8)]&gt;</i>.
   
 
-<br/><br/><table><tr><td><strong>Bottomonium:OUpsilon3P08 </td><td></td><td> <input type="text" name="49" value="0.48" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.48</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Bottomonium:OUpsilon3P08 </td><td></td><td> <input type="text" name="49" value="0.02" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.02</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
 <i>&lt;O(Upsilon)[3P0(8)]&gt;/m_b^2</i>.
   
 
-<br/><br/><table><tr><td><strong>Bottomonium:Ochib03P01 </td><td></td><td> <input type="text" name="50" value="0.09" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.09</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Bottomonium:Ochib03P01 </td><td></td><td> <input type="text" name="50" value="0.085" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.085</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
 <i>&lt;O(chi_b0)[3P0(8)]&gt;/m_b^2</i>.
   
 
@@ -658,12 +658,12 @@ if($_POST["48"] != "0.02")
 $data = "Bottomonium:OUpsilon1S08 = ".$_POST["48"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["49"] != "0.48")
+if($_POST["49"] != "0.02")
 {
 $data = "Bottomonium:OUpsilon3P08 = ".$_POST["49"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["50"] != "0.09")
+if($_POST["50"] != "0.085")
 {
 $data = "Bottomonium:Ochib03P01 = ".$_POST["50"]."\n";
 fwrite($handle,$data);

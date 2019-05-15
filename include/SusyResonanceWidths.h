@@ -20,15 +20,15 @@ class ParticleData;
 
 //==========================================================================
 
-
-//--------------------------------------------------------------------------
-
 class WidthFunction {
 
 public:
 
-  //Constructor
-  WidthFunction(){};
+  // Constructor.
+  WidthFunction() {}
+
+  // Destructor.
+  virtual ~WidthFunction() {}
 
   void init( ParticleData* particleDataPtrIn, CoupSUSY* coupSUSYPtrIn);
 

@@ -102,7 +102,7 @@ int main() {
     pythia.readString("ExtraDimensionsUnpart:gXY = 0");
     pythia.readString("PhaseSpace:mHatMin = 300.");
   } else if (nTest == 7){
-    pythia.readString("ExtraDimensionsTEV:ffbar2ffbar = on");
+    pythia.readString("ExtraDimensionsTEV:ffbar2mu+mu- = on");
     pythia.readString("ExtraDimensionsTEV:gmZmode = 3"); 
     pythia.readString("ExtraDimensionsTEV:nMax = 100"); 
     pythia.readString("ExtraDimensionsTEV:mStar = 4000");
@@ -122,6 +122,9 @@ int main() {
     pythia.readString("ExtraDimensionsG*:KKgtL = 1.0");
     pythia.readString("5100021:m0 = 2000");
   }
+
+  //+++ Switch off sophisticated tau treatment: not yet matched to SUSY.
+  pythia.readString("ParticleDecays:sophisticatedTau = 0");
 
   //+++ Initialization for LHC.
   pythia.init( 2212, 2212, 14000.);

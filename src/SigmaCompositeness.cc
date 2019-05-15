@@ -14,7 +14,6 @@ namespace Pythia8 {
 
 // Sigma1qg2qStar class.
 // Cross section for q g -> q^* (excited quark state). 
-// Note: for simplicity decay is assumed isotropic.
 
 //--------------------------------------------------------------------------
 
@@ -140,7 +139,6 @@ double Sigma1qg2qStar::weightDecay( Event& process, int iResBeg,
 
 // Sigma1lgm2lStar class.
 // Cross section for l gamma -> l^* (excited lepton state). 
-// Note: for simplicity decay is assumed isotropic.
 
 //--------------------------------------------------------------------------
 
@@ -264,7 +262,6 @@ double Sigma1lgm2lStar::weightDecay( Event& process, int iResBeg,
 
 // Sigma2qq2qStarq class.
 // Cross section for q q' -> q^* q' (excited quark state). 
-// Note: for simplicity decay is assumed isotropic.
 
 //--------------------------------------------------------------------------
 
@@ -336,10 +333,12 @@ double Sigma2qq2qStarq::sigmaHat() {
 void Sigma2qq2qStarq::setIdColAcol() {
 
   // Flavours: either side may have been excited.
+  int idAbs1 = abs(id1);
+  int idAbs2 = abs(id2);
   double open1 = 0.;
   double open2 = 0.; 
-  if (abs(id1) == idq) open1 = (id1 > 0) ? openFracPos : openFracNeg;
-  if (abs(id2) == idq) open2 = (id2 > 0) ? openFracPos : openFracNeg;
+  if (idAbs1 == idq) open1 = (id1 > 0) ? openFracPos : openFracNeg;
+  if (idAbs2 == idq) open2 = (id2 > 0) ? openFracPos : openFracNeg;
   if (open1 == 0. && open2 == 0.) {
     open1  = (id1 > 0) ? openFracPos : openFracNeg;
     open2  = (id2 > 0) ? openFracPos : openFracNeg;
@@ -350,14 +349,22 @@ void Sigma2qq2qStarq::setIdColAcol() {
 
   // Always excited quark in slot 3 so colour flow flipped or not.
   if (excite1) {  
-    id3    = (id1 > 0) ? idq : -idq;
+    id3    = (id1 > 0) ? idRes : -idRes;
     id4    = id2;
+    // Special case for s-channel like production.
+    if ((idAbs1 == idAbs2) && (id1 * id2 < 0)) {
+      id4 = (id3 > 0) ? -idq : idq;
+    }
     if (id1 * id2 > 0) setColAcol( 1, 0, 2, 0, 1, 0, 2, 0);
     else               setColAcol( 1, 0, 0, 2, 1, 0, 0, 2);
     if (id1 < 0) swapColAcol();
   } else {     
-    id3    = (id2 > 0) ? idq : -idq;
+    id3    = (id2 > 0) ? idRes : -idRes;
     id4    = id1;
+    // Special case for s-channel like production.
+    if ((idAbs1 == idAbs2) && (id1 * id2 < 0)) {
+      id4 = (id3 > 0) ? -idq : idq;
+    }
     swapTU = true;
     if (id1 * id2 > 0) setColAcol( 1, 0, 2, 0, 2, 0, 1, 0);
     else               setColAcol( 1, 0, 0, 2, 0, 2, 1, 0);
@@ -367,11 +374,50 @@ void Sigma2qq2qStarq::setIdColAcol() {
 
 }
 
+//--------------------------------------------------------------------------
+
+// Evaluate weight for q* decay angle. 
+// SA: Angles dist. for decay q* -> q V, based on Eq. 1.7 
+// in CERN Yellow Reports 90-10 vol.2, p. 1014 to 1021.
+  
+double Sigma2qq2qStarq::weightDecay( Event& process, int iResBeg, 
+  int iResEnd) {
+
+  // q* should sit in entry 5. Sequential Z/W decay assumed isotropic.
+  if (iResBeg != 5 && iResEnd != 5) return 1.; 
+
+  // Phase space factors.
+  double mr1    = pow2(process[7].m() / process[5].m());
+  double mr2    = pow2(process[8].m() / process[5].m()); 
+  double betaf  = sqrtpos( pow2(1. - mr1 - mr2) - 4. * mr1 * mr2);
+
+  // Reconstruct decay angle in q* CoM frame. 
+  Vec4 p1StarCom = process[7].p();
+  Vec4 p2StarCom = process[8].p();
+  p1StarCom.bstback(process[5].p());
+  p2StarCom.bstback(process[5].p());
+  double cosThe = (process[3].p() - process[4].p()) 
+    * (p2StarCom - p1StarCom) / (sH * betaf);
+  double wt     = 1.; 
+
+  // Decay q* -> q (g/gamma) or q (Z^0/W^+-).
+  int idBoson   = (process[8].idAbs() < 20) ? process[7].idAbs() : process[8].idAbs();
+  if (idBoson == 21 || idBoson == 22) {
+    wt          = 0.5 * (1. + cosThe);
+  } else if (idBoson == 23 || idBoson == 24) {
+    double mrB  = (process[8].idAbs() < 20) ? mr1 : mr2;
+    double kTrm = 0.5 * (mrB * (1. - cosThe));
+    wt          = (1. + cosThe + kTrm) / (2 + mrB);
+  } 
+
+  // Done.
+  return wt;
+}
+
 //==========================================================================
 
 // Sigma2qqbar2lStarlbar class.
 // Cross section for q qbar -> l^* lbar (excited lepton state). 
-// Note: for simplicity decay is assumed isotropic.
 
 //--------------------------------------------------------------------------
 
@@ -431,6 +477,46 @@ void Sigma2qqbar2lStarlbar::setIdColAcol() {
 
 }
 
+//--------------------------------------------------------------------------
+
+// Evaluate weight for l* decay angle. 
+// SA: Angles dist. for decay l* -> l V, based on Eq. 1.7 
+// in CERN Yellow Reports 90-10 vol.2, p. 1014 to 1021.
+  
+double Sigma2qqbar2lStarlbar::weightDecay( Event& process, int iResBeg, 
+  int iResEnd) {
+
+  // l* should sit in entry 5. Sequential Z/W decay assumed isotropic.
+  if (iResBeg != 5 && iResEnd != 5) return 1.; 
+
+  // Phase space factors.
+  double mr1    = pow2(process[7].m() / process[5].m());
+  double mr2    = pow2(process[8].m() / process[5].m()); 
+  double betaf  = sqrtpos( pow2(1. - mr1 - mr2) - 4. * mr1 * mr2);
+
+  // Reconstruct decay angle in l* CoM frame.
+  Vec4 p1StarCom = process[7].p();
+  Vec4 p2StarCom = process[8].p();
+  p1StarCom.bstback(process[5].p());
+  p2StarCom.bstback(process[5].p());
+  double cosThe = (process[3].p() - process[4].p()) 
+    * (p2StarCom - p1StarCom) / (sH * betaf);
+  double wt     = 1.; 
+
+  // Decay, l* -> l + gamma/Z^0/W^+-).
+  int idBoson   = (process[8].idAbs() < 20) ? process[7].idAbs() : process[8].idAbs();
+  if (idBoson == 22) {
+    wt          = 0.5 * (1. + cosThe);
+  } else if (idBoson == 23 || idBoson == 24) {
+    double mrB  = (process[8].idAbs() < 20) ? mr1 : mr2;
+    double kTrm = 0.5 * (mrB * (1. - cosThe));
+    wt          = (1. + cosThe + kTrm) / (2 + mrB);
+  } 
+
+  // Done.
+  return wt;
+}
+
 //==========================================================================
 
 // Sigma2QCqq2qq class.
@@ -442,11 +528,11 @@ void Sigma2qqbar2lStarlbar::setIdColAcol() {
   
 void Sigma2QCqq2qq::initProc() {
 
-  m_Lambda2  = settingsPtr->parm("ContactInteractions:Lambda");
-  m_etaLL    = settingsPtr->mode("ContactInteractions:etaLL");;
-  m_etaRR    = settingsPtr->mode("ContactInteractions:etaRR");;
-  m_etaLR    = settingsPtr->mode("ContactInteractions:etaLR");;
-  m_Lambda2 *= m_Lambda2; 
+  qCLambda2  = settingsPtr->parm("ContactInteractions:Lambda");
+  qCetaLL    = settingsPtr->mode("ContactInteractions:etaLL");
+  qCetaRR    = settingsPtr->mode("ContactInteractions:etaRR");
+  qCetaLR    = settingsPtr->mode("ContactInteractions:etaLR");
+  qCLambda2 *= qCLambda2; 
 
 }
 
@@ -482,14 +568,15 @@ double Sigma2QCqq2qq::sigmaHat() {
   // q q -> q q
   if (id2 ==  id1) {         
 
-    sigSum = 0.5 * (sigT + sigU + sigTU); // SM terms.
+    // SM terms.
+    sigSum = 0.5 * (sigT + sigU + sigTU); 
     
     // Contact terms.
-    sigQCLL = (8./9.) * alpS * (m_etaLL/m_Lambda2) * sigQCSTU 
-            + (8./3.) * pow2(m_etaLL/m_Lambda2) * sH2;
-    sigQCRR = (8./9.) * alpS * (m_etaRR/m_Lambda2) * sigQCSTU 
-            + (8./3.) * pow2(m_etaRR/m_Lambda2) * sH2;
-    sigQCLR = 2. * (uH2 + tH2) * pow2(m_etaLR/m_Lambda2);
+    sigQCLL = (8./9.) * alpS * (qCetaLL/qCLambda2) * sigQCSTU 
+            + (8./3.) * pow2(qCetaLL/qCLambda2) * sH2;
+    sigQCRR = (8./9.) * alpS * (qCetaRR/qCLambda2) * sigQCSTU 
+            + (8./3.) * pow2(qCetaRR/qCLambda2) * sH2;
+    sigQCLR = 2. * (uH2 + tH2) * pow2(qCetaLR/qCLambda2);
 
     sigQCLL /= 2;
     sigQCRR /= 2;
@@ -498,29 +585,31 @@ double Sigma2QCqq2qq::sigmaHat() {
   // q qbar -> q qbar, without pure s-channel term.
   } else if (id2 == -id1) {  
 
-    sigSum = sigT + sigST; // SM terms.
+    // SM terms.
+    sigSum = sigT + sigST; 
 
     // Contact terms, minus the terms included in qqbar2qqbar.
-    sigQCLL = (8./9.) * alpS * (m_etaLL/m_Lambda2) * sigQCUTS 
-            + (5./3.) * pow2(m_etaLL/m_Lambda2) * uH2;
-    sigQCRR = (8./9.) * alpS * (m_etaRR/m_Lambda2) * sigQCUTS 
-            + (5./3.) * pow2(m_etaRR/m_Lambda2) * uH2;
-    sigQCLR = 2. * sH2 * pow2(m_etaLR/m_Lambda2);
+    sigQCLL = (8./9.) * alpS * (qCetaLL/qCLambda2) * sigQCUTS 
+            + (5./3.) * pow2(qCetaLL/qCLambda2) * uH2;
+    sigQCRR = (8./9.) * alpS * (qCetaRR/qCLambda2) * sigQCUTS 
+            + (5./3.) * pow2(qCetaRR/qCLambda2) * uH2;
+    sigQCLR = 2. * sH2 * pow2(qCetaLR/qCLambda2);
 
   // q q' -> q q' or q qbar' -> q qbar'
   } else {                   
 
-    sigSum = sigT; // SM terms.
+    // SM terms.
+    sigSum = sigT; 
 
     // Contact terms.
     if (id1 * id2 > 0) {
-      sigQCLL = pow2(m_etaLL/m_Lambda2) * sH2;
-      sigQCRR = pow2(m_etaRR/m_Lambda2) * sH2;
-      sigQCLR = 2 * pow2(m_etaLR/m_Lambda2) * uH2;
+      sigQCLL = pow2(qCetaLL/qCLambda2) * sH2;
+      sigQCRR = pow2(qCetaRR/qCLambda2) * sH2;
+      sigQCLR = 2 * pow2(qCetaLR/qCLambda2) * uH2;
     } else {
-      sigQCLL = pow2(m_etaLL/m_Lambda2) * uH2;
-      sigQCRR = pow2(m_etaRR/m_Lambda2) * uH2;
-      sigQCLR = 2 * pow2(m_etaLR/m_Lambda2) * sH2;
+      sigQCLL = pow2(qCetaLL/qCLambda2) * uH2;
+      sigQCRR = pow2(qCetaRR/qCLambda2) * uH2;
+      sigQCLR = 2 * pow2(qCetaLR/qCLambda2) * sH2;
     }
   }
 
@@ -560,12 +649,12 @@ void Sigma2QCqq2qq::setIdColAcol() {
   
 void Sigma2QCqqbar2qqbar::initProc() {
 
-  m_nQuarkNew = settingsPtr->mode("ContactInteractions:nQuarkNew");
-  m_Lambda2   = settingsPtr->parm("ContactInteractions:Lambda");
-  m_etaLL     = settingsPtr->mode("ContactInteractions:etaLL");
-  m_etaRR     = settingsPtr->mode("ContactInteractions:etaRR");
-  m_etaLR     = settingsPtr->mode("ContactInteractions:etaLR");
-  m_Lambda2  *= m_Lambda2; 
+  qCnQuarkNew = settingsPtr->mode("ContactInteractions:nQuarkNew");
+  qCLambda2   = settingsPtr->parm("ContactInteractions:Lambda");
+  qCetaLL     = settingsPtr->mode("ContactInteractions:etaLL");
+  qCetaRR     = settingsPtr->mode("ContactInteractions:etaRR");
+  qCetaLR     = settingsPtr->mode("ContactInteractions:etaLR");
+  qCLambda2  *= qCLambda2; 
 
 }
 
@@ -576,7 +665,7 @@ void Sigma2QCqqbar2qqbar::initProc() {
 void Sigma2QCqqbar2qqbar::sigmaKin() { 
 
   // Pick new flavour.
-  idNew = 1 + int( m_nQuarkNew * rndmPtr->flat() ); 
+  idNew = 1 + int( qCnQuarkNew * rndmPtr->flat() ); 
   mNew  = particleDataPtr->m0(idNew);
   m2New = mNew*mNew;
 
@@ -585,13 +674,13 @@ void Sigma2QCqqbar2qqbar::sigmaKin() {
   sigS                      = 0.;
   if (sH > 4. * m2New) {
     sigS = (4./9.) * (tH2 + uH2) / sH2; 
-    sigQC = pow2(m_etaLL/m_Lambda2) * uH2
-          + pow2(m_etaRR/m_Lambda2) * uH2
-          + 2 * pow2(m_etaLR/m_Lambda2) * tH2;
+    sigQC = pow2(qCetaLL/qCLambda2) * uH2
+          + pow2(qCetaRR/qCLambda2) * uH2
+          + 2 * pow2(qCetaLR/qCLambda2) * tH2;
   }
 
   // Answer is proportional to number of outgoing flavours.
-  sigma = (M_PI / sH2) * m_nQuarkNew * ( pow2(alpS) * sigS + sigQC);  
+  sigma = (M_PI / sH2) * qCnQuarkNew * ( pow2(alpS) * sigS + sigQC);  
 
 }
 

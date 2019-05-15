@@ -77,7 +77,6 @@ bool ProcessContainer::init(bool isFirst, Info* infoPtrIn,
   else if (isQCD3body)  phaseSpacePtr = new PhaseSpace2to3yyycyl();
   else                  phaseSpacePtr = new PhaseSpace2to3tauycyl();
 
-
   // Store pointers and perform simple initialization.
   infoPtr         = infoPtrIn;
   particleDataPtr = particleDataPtrIn;
@@ -105,6 +104,7 @@ bool ProcessContainer::init(bool isFirst, Info* infoPtrIn,
   sigmaAvg  = 0.;
   sigmaFin  = 0.;
   deltaFin  = 0.;
+  wtAccSum  = 0.;
 
   // Initialize process and allowed incoming partons.
   sigmaProcessPtr->initProc();
@@ -143,7 +143,6 @@ bool ProcessContainer::trialProcess() {
   for (int iTry = 0;  ; ++iTry) {
 
     // Generate a trial phase space point, if meaningful.
-
     if (sigmaMx == 0.) return false;
     infoPtr->setEndOfFile(false);
     bool repeatSame = (iTry > 0);
@@ -155,13 +154,17 @@ bool ProcessContainer::trialProcess() {
     if (!physical) return false;
     double sigmaNow = phaseSpacePtr->sigmaNow(); 
 
-    // Tell if this event comes with negative weight, or weight at all.
-    double weight = 1.;
+    // Tell if this event comes with weight from cross section.
+    double sigmaWeight = 1.;
     if (!isLHA && !increaseMaximum && sigmaNow > sigmaMx) 
-      weight = sigmaNow / sigmaMx;
-    if ( lhaStrat < 0 && sigmaNow < 0.) weight = -1.;
-    if ( lhaStratAbs == 4) weight = sigmaNow;
-    infoPtr->setWeight( weight);
+      sigmaWeight = sigmaNow / sigmaMx;
+    if ( lhaStrat < 0 && sigmaNow < 0.) sigmaWeight = -1.;
+    if ( lhaStratAbs == 4) sigmaWeight = sigmaNow;
+
+    // Also compensating weight from biased phase-space selection. 
+    double biasWeight = phaseSpacePtr->biasSelectionWeight();
+    weightNow = sigmaWeight * biasWeight;
+    infoPtr->setWeight( weightNow);
 
     // Check that not negative cross section when not allowed.
     if (!allowNegSig) {
@@ -173,11 +176,13 @@ bool ProcessContainer::trialProcess() {
       if (sigmaNow < 0.) sigmaNow = 0.;
     }
 
-    // Update statistics. Check if maximum violated.
-    double sigmaAdd = sigmaNow;
-    if (lhaStratAbs == 2 || lhaStratAbs == 3) sigmaAdd = sigmaSgn;    
+    // Cross section of process may come with a weight. Update sum.
+    double sigmaAdd = sigmaNow * biasWeight;
+    if (lhaStratAbs == 2 || lhaStratAbs == 3) sigmaAdd = sigmaSgn;
     sigmaSum  += sigmaAdd;
     sigma2Sum += pow2(sigmaAdd);
+ 
+    // Check if maximum violated.
     newSigmaMx = phaseSpacePtr->newSigmaMax();
     if (newSigmaMx) sigmaMx = phaseSpacePtr->sigmaMax();
 
@@ -185,7 +190,6 @@ bool ProcessContainer::trialProcess() {
     bool select = true;
     if (lhaStratAbs < 3) select 
       = (newSigmaMx || rndmPtr->flat() * abs(sigmaMx) < abs(sigmaNow)); 
-
     if (select) ++nSel;
     if (select || lhaStratAbs != 2) return select;
   }
@@ -260,10 +264,10 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
       int daughter1 = (i <= 2) ? m_D1 : 0;
       int daughter2 = (i <= 2) ? m_D2 : 0;
       int col       = sigmaProcessPtr->col(i);
-      if (col > 0) col += colOffset;
+      if      (col > 0) col += colOffset;
       else if (col < 0) col -= colOffset;
       int acol      = sigmaProcessPtr->acol(i);
-      if (acol > 0) acol += colOffset;
+      if      (acol > 0) acol += colOffset;
       else if (acol < 0) acol -= colOffset;
 
       // Append to process record.
@@ -295,9 +299,9 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
           col        = m_col1; 
           acol       = m_acol2; 
         }
-        if (col > 0)  col  += colOffset;
-	else if (col < 0) col -= colOffset;
-        if (acol > 0) acol += colOffset;
+        if      ( col > 0)  col += colOffset;
+	else if ( col < 0)  col -= colOffset;
+        if      (acol > 0) acol += colOffset;
 	else if (acol < 0) acol -= colOffset;
 
         // Insert the intermediate state into the event record.
@@ -577,6 +581,7 @@ void ProcessContainer::reset() {
   sigmaAvg  = 0.;
   sigmaFin  = 0.;
   deltaFin  = 0.;
+  wtAccSum  = 0.;
 
 }
 
@@ -593,19 +598,19 @@ void ProcessContainer::sigmaDelta() {
   deltaFin = 0.;
   if (nAcc == 0) return;
 
-  // Average value.
+  // Average value. No error analysis unless at least two events.
   double nTryInv  = 1. / nTry;
   double nSelInv  = 1. / nSel;
   double nAccInv  = 1. / nAcc;
-  sigmaAvg = sigmaSum * nTryInv ;
+  sigmaAvg        = sigmaSum * nTryInv;
   double fracAcc  = nAcc * nSelInv;
   sigmaFin        = sigmaAvg * fracAcc;
+  deltaFin        = sigmaFin;
+  if (nAcc == 1) return;
 
   // Estimated error. Quadratic sum of cross section term and
   // binomial from accept/reject step.
-  deltaFin = sigmaFin;
-  if (nAcc == 1) return;
-  double delta2Sig   = (sigma2Sum *nTryInv - pow2(sigmaAvg)) * nTryInv
+  double delta2Sig   = (sigma2Sum * nTryInv - pow2(sigmaAvg)) * nTryInv
     / pow2(sigmaAvg);
   double delta2Veto  = (nSel - nAcc) * nAccInv * nSelInv;
   double delta2Sum   = delta2Sig + delta2Veto;
@@ -2048,8 +2053,52 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs,
   }
 
   // NOAM: Set up requested objects for TEV extra-dimensional processes.
-  if (settings.flag("ExtraDimensionsTEV:ffbar2ffbar")) {
-    sigmaPtr = new Sigma2ffbar2TEVffbar(13); 
+  if (settings.flag("ExtraDimensionsTEV:ffbar2ddbar")) {
+    sigmaPtr = new Sigma2ffbar2TEVffbar(1, 5061); 
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }  
+  if (settings.flag("ExtraDimensionsTEV:ffbar2uubar")) {
+    sigmaPtr = new Sigma2ffbar2TEVffbar(2, 5062); 
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }  
+  if (settings.flag("ExtraDimensionsTEV:ffbar2ssbar")) {
+    sigmaPtr = new Sigma2ffbar2TEVffbar(3, 5063); 
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }  
+  if (settings.flag("ExtraDimensionsTEV:ffbar2ccbar")) {
+    sigmaPtr = new Sigma2ffbar2TEVffbar(4, 5064); 
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }  
+  if (settings.flag("ExtraDimensionsTEV:ffbar2bbbar")) {
+    sigmaPtr = new Sigma2ffbar2TEVffbar(5, 5065); 
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }  
+  if (settings.flag("ExtraDimensionsTEV:ffbar2ttbar")) {
+    sigmaPtr = new Sigma2ffbar2TEVffbar(6, 5066); 
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }  
+  if (settings.flag("ExtraDimensionsTEV:ffbar2e+e-")) {
+    sigmaPtr = new Sigma2ffbar2TEVffbar(11, 5071); 
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }
+  if (settings.flag("ExtraDimensionsTEV:ffbar2nuenuebar")) {
+    sigmaPtr = new Sigma2ffbar2TEVffbar(12, 5072); 
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }
+  if (settings.flag("ExtraDimensionsTEV:ffbar2mu+mu-")) {
+    sigmaPtr = new Sigma2ffbar2TEVffbar(13, 5073); 
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }
+  if (settings.flag("ExtraDimensionsTEV:ffbar2numunumubar")) {
+    sigmaPtr = new Sigma2ffbar2TEVffbar(14, 5074); 
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }
+  if (settings.flag("ExtraDimensionsTEV:ffbar2tau+tau-")) {
+    sigmaPtr = new Sigma2ffbar2TEVffbar(15, 5075); 
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }
+  if (settings.flag("ExtraDimensionsTEV:ffbar2nutaunutaubar")) {
+    sigmaPtr = new Sigma2ffbar2TEVffbar(16, 5076); 
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   }
 

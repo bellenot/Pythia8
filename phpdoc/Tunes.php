@@ -64,37 +64,41 @@ with version 8.125 it defines the default values for hadronization
 parameters and timelike showers. 
 
 <p/>
-The situation is worse for multiple interactions, where PYTHIA 8 is more 
-different from PYTHIA 6. Nevertheless, a first simple tune is now 
-available, appropriately called "Tune 1", and became default starting with 
-version 8.127. 
+The situation is more complicated for hadronic interactions in general
+and multiple interactions in particular, where PYTHIA 8 is more 
+different from PYTHIA 6, and therefore more work is needed. Specifically,
+it is <i>not</i> possible to "port" a PYTHIA 6 tune to PYTHIA 8. 
 
 <p/>
-It was noted, in particular by Hendrik Hoeth, that the
-program had a tension between parameters needed to describe minimum-bias
-and underlying-event activity.  Therefore some further physics features 
-have been introduced in the code itself [<a href="Bibliography.php" target="page">Cor10a</a>], which are made 
-default as of 8.140. This version also includes two new tunes, 2C and 2M, 
-based on the CTEQ 6L1 and the MRST LO** PDF sets, respectively. These have 
-been made by hand, as a prequel to complete Professor-style tunings. 
+A first simple tune, appropriately called "Tune 1", became default 
+starting with version 8.127. It was noted, in particular by Hendrik 
+Hoeth, that this tune had a tension between parameters needed to 
+describe minimum-bias and underlying-event activity. Therefore some 
+further physics features were introduced in the code itself 
+[<a href="Bibliography.php" target="page">Cor10a</a>], which were made default as of 8.140. This version 
+also included two new tunes, 2C and 2M, based on the CTEQ 6L1 and the 
+MRST LO** PDF sets, respectively. These have been made by hand, as a 
+prequel to complete Professor-style tunings. 
 
 <p/>
-The very first data to come out of the LHC shows a higher rapidity plateau
-than predicted for current PYTHIA 6 tunes, also for the lower energies.
-This may suggest some tension in the data. Two alternatives, 3C and 3M, 
-were produced by a few brute-force changes of 2C and 2M. These were introduced
-in 8.140, but discontinued in 8.145 in favour of the new 4C tune, that 
-is based on a more serious study of some early LHC data. 
+The very first data to come out of the LHC showed a higher rapidity 
+plateau than predicted for current PYTHIA 6 tunes, also for the lower 
+energies. This may suggest some tension in the data. Two alternatives, 
+3C and 3M, were produced by a few brute-force changes of 2C and 2M. 
+These were introduced in 8.140, but discontinued in 8.145 in favour of 
+the new 4C tune, that is based on a more serious study of some early 
+LHC data, see [<a href="Bibliography.php" target="page">Cor10a</a>]. Following the comparative studies in 
+[<a href="Bibliography.php" target="page">Buc11</a>], which independently confirmed a reasonable agreement 
+with LHC data, tune 4C was made the default as of 8.150. A variant is 
+tune 4Cx, where the Gaussian matter profile has an <i>x</i>-dependent
+width [<a href="Bibliography.php" target="page">Cor11</a>].
 
 <p/>
-Some comparisons between these tunes and data are published in 
-[<a href="Bibliography.php" target="page">Cor10a</a>], and further comparisons have been posted on
-<a href="http://home.thep.lu.se/~richard/pythia81/">   
-http://home.thep.lu.se/~richard/pythia81/</a>.
-Most of the plots have been produced with the Rivet package 
-[<a href="Bibliography.php" target="page">Buc10</a>]. Following the comparative studies in [<a href="Bibliography.php" target="page">Buc11</a>],
-which independently confirmed a reasonable agreement with LHC data,
-tune 4C has been made the default.
+Further comparisons have been posted on the
+<a href="http://mcplots.cern.ch/">MCPLOTS</a> pages.
+They have been produced with help of the 
+<a href="http://projects.hepforge.org/rivet/">Rivet</a> package 
+[<a href="Bibliography.php" target="page">Buc10</a>]. 
 
 <p/>
 In the future we hope to see further PYTHIA 8 tunes appear. Like with 
@@ -116,57 +120,88 @@ diffraction, since previous tunes were not based on data strongly
 influenced by diffraction.)  
 
 <p/>
-The constructor of a <code>Pythia</code> instance will check if 
-<code>Tune:ee</code> or <code>Tune:pp</code> (see further below) are 
-nonvanishing by default, and if so set the corresponding tune variables 
-accordingly, before any user changes are possible. For now both tune 
-switches are vanishing by default, however, so that the default values 
-of other variables remain intact during the setup. 
-
-<p/>
-Thereafter, if you set <code>Tune:ee</code> and/or <code>Tune:pp</code> 
-non-zero, then all variables used in the respective tune will be set 
-accordingly. This is done as soon as either command is encountered, 
-in the <code>Pythia::readFile(...)</code>configuration file 
-in the list of <code>Pythia::readString(...)</code> commands, 
-or in the lower-level <code>Settings::readString(...)</code>,
-<code>Settings::mode(...)</code>, 
-<code>Settings::forceMode(...)</code> or
-<code>Settings::resetMode(...)</code>methods.
-That is, any changes you made to variables of the tune <i>before</i> 
-the respective <code>Tune:ee</code> or <code>Tune:pp</code> command
-will be overwritten at that point, while variables you set <i>after</i>
-will overwrite the tune values. Needless to say, this can lead to 
-unwanted setups if you do not exercise some discipline. It is therefore 
-recommended that you always check the listing obtained with 
+The setup of the tunes is special, in that the choice of a tune forces
+the change of several different flags, modes and parameters. Furthermore
+a design principle has been that it should be possible to start out
+from a tune and then change a few of its settings. This gives power 
+and flexibility at the expense of requiring a more careful ordering
+of commands. We therefore here sketch the order in which operations
+are carried out.
+<ol>
+<li>The constructor of a <code>Pythia</code> instance will read in
+all settings, and initialize them with their default values.
+</li>
+<li>At the end of this operation, the <code>Tune:ee</code> and 
+<code>Tune:pp</code> modes (see further below) are checked. If either
+of them are positive the methods <code>Settings::initTuneEE(...)</code>
+and <code>Settings::initTunePP(...)</code>, respectively, are called
+to overwrite the whole collection of settings in the relevant tune. 
+Zero (or negative) means that nothing will be done.
+</li> 
+<li>After the <code>Pythia</code> constructor all the relevant values
+for the default tune(s) have thus been set up.
+</li>
+<li>You as a user can now start to overwrite the values at will,
+using <code>Pythia::readFile(...)</code> to read a configuration file, 
+or a list of <code>Pythia::readString(...)</code> commands, 
+or the lower-level <code>Settings</code> methods. All changes
+are made in the order in which the commands are encountered during
+the execution. A given variable can be changed multiple times,
+but it is the latest change that sets the current value.
+</li>
+<li>The two <code>Tune:ee</code> and <code>Tune:pp</code> modes can also
+be changed in exactly the same way as described for all other settings
+above. Unique for them, however, is that when one of them is encountered 
+it also initiates a call to the <code>initTuneEE(...)</code> or
+<code>initTunePP(...)</code> method, respectively. In such cases all
+settings affected by the <i>e^+e^-</i> or <i>pp/ppbar</i> tune 
+are first reset to the default values (the <code>-1</code> options) 
+and thereafter the relevant tune is set up.
+</li>
+<li>It is possible to mix commands of type 4 and 5 in any order; it
+is always the last change that counts. That is, any changes you have 
+made to variables of a tune <i>before</i> a <code>Tune:ee</code> or 
+<code>Tune:pp</code> command are overwritten by it, while variables 
+you set <i>after</i> will overwrite the tune values. As a rule,
+therefore, you want to begin with the tune choice, and thereafter
+modify only a small part of its settings.
+</li>
+<li>Needless to say, the flexibility can lead to unwanted setups if 
+you do not exercise some discipline. It is therefore recommended that 
+you always check the listing obtained with 
 <code>Pythia::settings.listChanged()</code> to confirm that the 
-final set of changes is the intended one. Also note that variables not
-set by the tune options are assumed to remain at their default values,
-to the extent that they would affect the tunes if not. 
+final set of changes is the intended one. 
+</li>
+</ol>
 
-<br/><br/><table><tr><td><strong>Tune:ee  </td><td>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 3</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Tune:ee  </td><td>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = -1</code>; <code>maximum = 3</code>)</td></tr></table>
 Choice of tune to <ei>e^+e^-</ei> data, mainly for the hadronization
-and timelike-showering aspects of PYTHIA. 
+and timelike-showering aspects of PYTHIA. You should study the 
+<code>Settings::initTuneEE(...)</code> method to find exactly which 
+are the settings for the respective tune.
 <br/>
-<input type="radio" name="1" value="0" checked="checked"><strong>0 </strong>: no values are overwritten at initialization,  so you can set the individual parameters as you wish. <br/>
+<input type="radio" name="1" value="-1"><strong>-1 </strong>: reset all values that are affected by any of the  <ei>e^+e^-</ei> tunes to the default values. This option can be used  on its own, but is also automatically used as a first step for either  of the positive tune values below, to undo the effect of previous tune settings.  <br/>
+<input type="radio" name="1" value="0" checked="checked"><strong>0 </strong>: no values are overwritten during the initial setup, step 2 above. Note that changing to <code>0</code> in the user code has no effect; if you want to restore the individual settings you  should instead use <code>-1</code>.  <br/>
 <input type="radio" name="1" value="1"><strong>1 </strong>: the original PYTHIA 8 parameter set, based on some very old flavour studies (with JETSET around 1990) and a simple tune  <ei>of alpha_strong</ei> to three-jet shapes to the new  <ei>pT</ei>-ordered shower. These were the default values before version 8.125.  <br/>
 <input type="radio" name="1" value="2"><strong>2 </strong>: a tune by Marc Montull to the LEP 1 particle composition, as published in the RPP (August 2007). No related (re)tune  to event shapes has been performed, however.   <br/>
 <input type="radio" name="1" value="3"><strong>3 </strong>: a tune to a wide selection of LEP1 data by Hendrik  Hoeth within the Rivet + Professor framework, both to hadronization and timelike-shower parameters (June 2009). These are the default values  starting from version 8.125, so currently there is no need for this option. <br/>
 
-<br/><br/><table><tr><td><strong>Tune:pp  </td><td>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
-Choice of tune to <ei>pp / ppbar</ei> data, mainly for the 
+<br/><br/><table><tr><td><strong>Tune:pp  </td><td>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = -1</code>; <code>maximum = 6</code>)</td></tr></table>
+Choice of tune to <ei>pp/ppbar</ei> data, mainly for the 
 initial-state-radiation, multiple-interactions and  beam-remnants
 aspects of PYTHIA. Note that the previous crude (non-)tunes
-3C and 3M are removed as of 8.145, superseded by the 4C tune.
+3C and 3M are removed as of 8.145, superseded by the 4C tune. 
+You should study the <code>Settings::initTunePP(...)</code> method 
+to find exactly which are the settings for the respective tune.
 <br/>
-<input type="radio" name="2" value="0"><strong>0 </strong>: no values are overwritten at initialization,  so you can set the individual parameters as you wish. Most default values are based on "Tune 1", option 2 below, but some new options  introduced in 8.140 means that the two no longer agree.  <br/>
+<input type="radio" name="2" value="-1"><strong>-1 </strong>: reset all values that are affected by any of the  <ei>pp/ppbar</ei> tunes to the default values. This option can be used  on its own, but is also automatically used as a first step for either  of the positive tune values below, to undo the effect of previous tune settings.  <br/>
+<input type="radio" name="2" value="0"><strong>0 </strong>: no values are overwritten during the initial setup, step 2 above. Note that changing to <code>0</code> in the user code has no effect; if you want to restore the individual settings you  should instead use <code>-1</code>.  <br/>
 <input type="radio" name="2" value="1"><strong>1 </strong>: default used up to version 8.126, based on  some early and primitive comparisons with data. <br/>
 <input type="radio" name="2" value="2"><strong>2 </strong>: "Tune 1", default in 8.127 - 8.139, based on some  data comparisons by Peter Skands. Largely but not wholly overlaps with the default option 0. <br/>
 <input type="radio" name="2" value="3"><strong>3 </strong>: "Tune 2C", introduced with 8.140 <ref>Cor10a</ref>.  It uses the CTEQ 6L1 PDF, and is intended to give good agreement with  much of the published CDF data. <br/>
 <input type="radio" name="2" value="4"><strong>4 </strong>: "Tune 2M", introduced with 8.140 <ref>Cor10a</ref>. It is uses the MRST LO** PDF, which has a momentum sum somewhat above  unity, which is compensated by a smaller <ei>alpha_s</ei> than in the previous tune. Again it is intended to give good agreement with much of  the published CDF data. <br/>
 <input type="radio" name="2" value="5" checked="checked"><strong>5 </strong>: "Tune 4C", new tune, introduced with 8.145  <ref>Cor10a</ref>. Starts out from tune 2C, but with a reduced cross  section for diffraction, plus modified multiple interactions parameters  to give a higher and more rapidly increasing charged pseudorapidity  plateau, for better agreement with some early key LHC numbers.  See also the comparative study in <ref>Buc11</ref>. <br/>
-
-
+<input type="radio" name="2" value="6"><strong>6 </strong>: "Tune 4Cx", based on tune 4C, but using the x-dependent matter profile, <ei>MultipleInteractions:bProfile = 4</ei> and an increased <ei>MultipleInteractions:pT0Ref</ei> <ref>Cor11</ref>. <br/>
 
 <input type="hidden" name="saved" value="1"/>
 

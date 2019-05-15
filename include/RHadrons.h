@@ -61,7 +61,7 @@ private:
 
   // Constants: could only be changed in the code itself.
   static const int    IDRHADSB[14], IDRHADST[14], IDRHADGO[38], NTRYMAX;
-  static const double MSAFETY;
+  static const double MSAFETY, EGBORROWMAX;
 
   // Initialization data, mainly read from Settings.
   bool   allowRH, allowRSb, allowRSt, allowRGo, allowSomeR, setMassesRH;
@@ -73,7 +73,7 @@ private:
   vector<int>  iBefRHad, iCreRHad, iRHadron, iAftRHad;
   vector<bool> isTriplet;
   int          nRHad, iRHad, iBef, iSys;
-  ColSinglet* systemPtr;
+  ColSinglet*  systemPtr;
 
   // Pointer to various information on the generation.
   Info*          infoPtr;
@@ -88,7 +88,13 @@ private:
   StringFlav*    flavSelPtr;
   StringZ*       zSelPtr;
 
-  // Split single colour singlet that should contain two R-hadrons.
+  // Split a system that contains both a sparticle and a junction.
+  bool splitOffJunction( ColConfig& colConfig, Event& event); 
+
+  // Open up a closed gluon/gluino loop.
+  bool openClosedLoop( ColConfig& colConfig, Event& event); 
+
+  // Split a single colour singlet that contains two sparticles.
   bool splitSystem( ColConfig& colConfig, Event& event); 
 
   // Produce a R-hadron from a squark.

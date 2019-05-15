@@ -27,15 +27,14 @@ class TauDecays {
 
 public:
 
-  // Constructor. 
+  // Constructor and destructor.
   TauDecays() {};
-
-  // Destructor.
   ~TauDecays() {}
   
   // Initializer.
-  void init(Info* INFO, Settings* SET, ParticleData* DATA, Rndm* RNDM,
-	    Couplings* SM);
+  void init(Info* infoPtrIn, Settings* settingsPtrIn, 
+    ParticleData* particleDataPtrIn, Rndm* rndmPtrIn,
+    Couplings* couplingsPtrIn);
 
   // Decay a tau or correlated tau pair.
   bool decay(int iDec, Event& event);
@@ -51,8 +50,18 @@ public:
 
 private: 
 
+  // Constants: could only be changed in the code itself.
+  static const int    NTRYCHANNEL, NTRYDECAY;
+  static const double WTCORRECTION[11];
+
   // Flag whether a correlated tau decay should be performed.
-  bool correlated;
+  bool   correlated;
+
+  // User selected mode and mother for tau decays.
+  int    mode, mother;
+
+  // User selected polarization for tau decays.
+  double polarization;
 
   // Helicity matrix element pointers.
   HelicityMatrixElement* hardME;
@@ -78,30 +87,23 @@ private:
   HMETau2PhaseSpace               hmeTau2PhaseSpace;
 
   // Particles of the hard process.
-  HelicityParticle in1;
-  HelicityParticle in2;
-  HelicityParticle mediator;
-  HelicityParticle out1;
-  HelicityParticle out2;
+  HelicityParticle in1, in2, mediator, out1, out2;
   vector<HelicityParticle> particles;
 
   // The info pointer for the Pythia class.
-  Info* info;
-
-  // Pointer to SM coupling data.
-  Couplings* smData;
-
-  // Pointer to the particle data table.
-  ParticleData* particleData;
-
-  // Pointer to the random number generator.
-  Rndm* rndm;
+  Info*         infoPtr;
 
   // Pointer to settings database.
-  Settings* settings;
+  Settings*     settingsPtr;
 
-  // Hardcoded constants.
-  static const int NTRYCHANNEL, NTRYDECAY;
+  // Pointer to the particle data table.
+  ParticleData* particleDataPtr;
+
+  // Pointer to the random number generator.
+  Rndm*         rndmPtr;
+
+  // Pointer to SM coupling data.
+  Couplings*    couplingsPtr;
 
 };
 

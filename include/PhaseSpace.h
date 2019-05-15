@@ -48,7 +48,8 @@ public:
   void init(bool isFirst, SigmaProcess* sigmaProcessPtrIn, 
     Info* infoPtrIn, Settings* settingsPtrIn, ParticleData* particleDataPtrIn,  
     Rndm* rndmPtrIn, BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, 
-    Couplings* couplingsPtrIn, SigmaTotal* sigmaTotPtrIn, UserHooks* userHooksPtrIn);
+    Couplings* couplingsPtrIn, SigmaTotal* sigmaTotPtrIn, 
+    UserHooks* userHooksPtrIn);
 
   // Update the CM energy of the event.
   void newECM(double eCMin) {eCM = eCMin; s = eCM * eCM;}
@@ -74,6 +75,7 @@ public:
   // Give back current or maximum cross section, or set latter.
   double sigmaNow() const {return sigmaNw;}
   double sigmaMax() const {return sigmaMx;}
+  double biasSelectionWeight()  const {return biasWt;}
   bool   newSigmaMax() const {return newSigmaMx;}
   void   setSigmaMax(double sigmaMaxIn) {sigmaMx = sigmaMaxIn;}
 
@@ -158,9 +160,9 @@ protected:
   bool   hasLeptonBeams, hasPointLeptons;
 
  // Cross section information.
-  bool   newSigmaMx, canModifySigma;
+  bool   newSigmaMx, canModifySigma, canBiasSelection;
   int    gmZmode;
-  double wtBW, sigmaNw, sigmaMx, sigmaPos, sigmaNeg;
+  double wtBW, sigmaNw, sigmaMx, sigmaPos, sigmaNeg, biasWt;
 
   // Process-specific kinematics properties, almost always available.
   double mHatMin, mHatMax, sHatMin, sHatMax, pTHatMin, pTHatMax, 

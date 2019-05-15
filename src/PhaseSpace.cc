@@ -171,10 +171,13 @@ void PhaseSpace::init(bool isFirst, SigmaProcess* sigmaProcessPtrIn,
   sigmaPos        = 0.;
   sigmaNeg        = 0.;
   newSigmaMx      = false;
+  biasWt          = 1.;
 
-  // Flag if user should be allow to reweight cross section.
-  canModifySigma  = (userHooksPtr > 0) 
-                  ? userHooksPtr->canModifySigma() : false; 
+  // Flags if user should be allowed to reweight cross section.
+  canModifySigma   = (userHooksPtr > 0) 
+                   ? userHooksPtr->canModifySigma() : false; 
+  canBiasSelection = (userHooksPtr > 0) 
+                   ? userHooksPtr->canBiasSelection() : false; 
 
 }
 
@@ -618,6 +621,8 @@ bool PhaseSpace::setupSampling123(bool is2, bool is3, ostream& os) {
         // Allow possibility for user to modify cross section. (3body??)
         if (canModifySigma) sigmaTmp 
            *= userHooksPtr->multiplySigmaBy( sigmaProcessPtr, this, false);
+        if (canBiasSelection) sigmaTmp 
+           *= userHooksPtr->biasSelectionBy( sigmaProcessPtr, this, false);
 
         // Check if current maximum exceeded.
         if (sigmaTmp > sigmaMx) sigmaMx = sigmaTmp; 
@@ -767,7 +772,9 @@ bool PhaseSpace::setupSampling123(bool is2, bool is3, ostream& os) {
 
         // Allow possibility for user to modify cross section. (3body??)
         if (canModifySigma) sigmaTmp 
-          *= userHooksPtr->multiplySigmaBy( sigmaProcessPtr, this, false);
+           *= userHooksPtr->multiplySigmaBy( sigmaProcessPtr, this, false);
+        if (canBiasSelection) sigmaTmp 
+           *= userHooksPtr->biasSelectionBy( sigmaProcessPtr, this, false);
 
         // Optional printout. Protect against negative cross section.
         if (showSearch) os << " tau =" << setw(11) << tau << "  y =" 
@@ -923,6 +930,8 @@ bool PhaseSpace::setupSampling123(bool is2, bool is3, ostream& os) {
             // Allow possibility for user to modify cross section.
             if (canModifySigma) sigmaTmp 
               *= userHooksPtr->multiplySigmaBy( sigmaProcessPtr, this, false);
+            if (canBiasSelection) sigmaTmp 
+              *= userHooksPtr->biasSelectionBy( sigmaProcessPtr, this, false);
 
             // Optional printout. Protect against negative cross section.
             if (showSearch) os << " tau =" << setw(11) << tau << "  y =" 
@@ -1040,6 +1049,8 @@ bool PhaseSpace::trialKin123(bool is2, bool is3, bool inEvent, ostream& os) {
   // Allow possibility for user to modify cross section.
   if (canModifySigma) sigmaNw 
     *= userHooksPtr->multiplySigmaBy( sigmaProcessPtr, this, inEvent);
+  if (canBiasSelection) sigmaNw 
+    *= userHooksPtr->biasSelectionBy( sigmaProcessPtr, this, false);
 
   // Check if maximum violated.
   newSigmaMx = false;
@@ -1083,6 +1094,9 @@ bool PhaseSpace::trialKin123(bool is2, bool is3, bool inEvent, ostream& os) {
       << setprecision(3) << sigmaNeg << endl;
   }
   if (sigmaNw < 0.) sigmaNw = 0.;
+
+  // Set event weight, where relevant.
+  biasWt = (canBiasSelection) ? userHooksPtr->biasedSelectionWeight() : 1.;  
 
   // Done.
   return true;
@@ -3096,6 +3110,8 @@ bool PhaseSpace2to3yyycyl::trialKin(bool inEvent, bool) {
   // Allow possibility for user to modify cross section.
   if (canModifySigma) sigmaNw 
     *= userHooksPtr->multiplySigmaBy( sigmaProcessPtr, this, inEvent);
+  if (canBiasSelection) sigmaNw 
+    *= userHooksPtr->biasSelectionBy( sigmaProcessPtr, this, false);
 
   // Check if maximum violated.
   newSigmaMx = false;

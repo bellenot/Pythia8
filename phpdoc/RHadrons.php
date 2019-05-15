@@ -29,15 +29,6 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 
 <h2>R-hadrons</h2>
 
-<br/><b>Warning:</b> the R-hadrons machinery is still under 
-development. The bulk of the machinery is operational, but 
-some issues are not yet addressed: R-baryon and gluinoball 
-production, and the fragmentation of junction and closed-loop 
-topologies. Some parts of the code are also not fully tested.
-What is already there should be enough to get going with 
-realistic studies, however.
-
-<p/>
 When a coloured SUSY particle is longer-lived than typical 
 hadronization scales, i.e. around c*tau > 1 fm, or equivalently
 width Gamma < 0.2 GeV, it will have time to hadronize into a colour 
@@ -160,7 +151,6 @@ positive contribution to the R-hadron mass.
 <br/><br/><table><tr><td><strong>RHadrons:probGluinoball </td><td></td><td> <input type="text" name="5" value="0.1" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.1</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 1.0</code>)</td></tr></table>
 The fraction of produced gluino R-hadrons that are contain a "valence"
 gluon, with the rest containing a meson or baryon quark flavour content. 
-Not yet implemented. 
   
 
 <br/><br/><table><tr><td><strong>RHadrons:mOffsetCloud </td><td></td><td> <input type="text" name="6" value="0.2" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.2</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>

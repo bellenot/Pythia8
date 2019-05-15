@@ -362,12 +362,13 @@ int StringFlav::combine(FlavContainer& flav1, FlavContainer& flav2) {
   // Construct a meson.
   if (idMax < 9 || idMin > 1000) {
 
-    // Popcorn meson: use only vertex quarks.
+    // Popcorn meson: use only vertex quarks. Fail if none.
     if (idMin > 1000) {
       id1Abs = flav1.idVtx;
       id2Abs = flav2.idVtx;
       idMax = max(id1Abs, id2Abs);
       idMin = min(id1Abs, id2Abs);
+      if (idMin == 0) return 0;
     }
 
     // Pick spin state and preliminary code.
