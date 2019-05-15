@@ -2,7 +2,7 @@
 // This is a simple test program. 
 // It illustrates how Les Houches Accord input can be used 
 // to feed in toy parton-level configurations.
-// Copyright © 2005 Torbjörn Sjöstrand
+// Copyright C 2006 Torbjorn Sjostrand
 
 #include "Pythia.h"
 using namespace Pythia8; 
@@ -217,7 +217,7 @@ int main() {
   // Begin of event loop.
   for (int iEvent = 0; iEvent < nEvent; ++iEvent) {
     if (iEvent%(max(1,nEvent/20)) == 0) cout << " Now begin event " 
-      << iEvent << std::endl;
+      << iEvent << endl;
 
     // Generate events. Quit if failure.
     if (!pythia.next()) {

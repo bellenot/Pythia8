@@ -1,6 +1,6 @@
 // Function definitions (not found in the header) for the Settings 
 // and ErrorMessages classes.
-// Copyright © 2005 Torbjörn Sjöstrand
+// Copyright C 2006 Torbjorn Sjostrand
 
 #include "Settings.h"
 
@@ -293,8 +293,8 @@ void Settings::list(bool listAll, ostream& os) {
       bool valNow = flagEntry->second.valNow;
       bool valDefault = flagEntry->second.valDefault;
       if ( listAll || valNow != valDefault )
-        os << "   bool  " << setw(40) << std::left 
-           << flagEntry->second.name << setw(10) << std::right
+        os << "   bool  " << setw(40) << left 
+           << flagEntry->second.name << setw(10) << right
            << state[valNow] << setw(10) << state[valDefault] << "\n";
       ++flagEntry;
      
@@ -304,8 +304,8 @@ void Settings::list(bool listAll, ostream& os) {
       int valNow = modeEntry->second.valNow;
       int valDefault = modeEntry->second.valDefault;
       if ( listAll || valNow != valDefault ) {
-        os << "    int  " << setw(40) << std::left 
-           << modeEntry->second.name << setw(10) << std::right 
+        os << "    int  " << setw(40) << left 
+           << modeEntry->second.name << setw(10) << right 
            << valNow << setw(10) << valDefault; 
         if (modeEntry->second.hasMin) 
           os << setw(10) << modeEntry->second.valMin; 
@@ -321,8 +321,8 @@ void Settings::list(bool listAll, ostream& os) {
       double valNow = paramEntry->second.valNow;
       double valDefault = paramEntry->second.valDefault;      
       if ( listAll || valNow != valDefault ) {
-        os << " double  " << setw(40) << std::left 
-           << paramEntry->second.name << std::right;
+        os << " double  " << setw(40) << left 
+           << paramEntry->second.name << right;
 	for (int i = 0; i < 4; ++i) { 
           if (i == 1) valNow = valDefault;  
           if (i == 2) valNow = paramEntry->second.valMin;  

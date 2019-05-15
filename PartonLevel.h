@@ -1,6 +1,6 @@
 // This file contains the main class for parton-level event generation
 // PartonLevel: administrates showers, multiple interactions and remnants.
-// Copyright © 2005 Torbjörn Sjöstrand
+// Copyright C 2006 Torbjorn Sjostrand
 
 #ifndef Pythia8_PartonLevel_H
 #define Pythia8_PartonLevel_H

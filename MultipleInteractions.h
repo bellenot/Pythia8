@@ -1,6 +1,6 @@
 // This file contains the main class for multiple interactions physics.
 // MultipleInteractions: generates multiple parton-parton interactions.
-// Copyright © 2005 Torbjörn Sjöstrand
+// Copyright C 2006 Torbjorn Sjostrand
 
 #ifndef Pythia8_MultipleInteractions_H
 #define Pythia8_MultipleInteractions_H
@@ -33,7 +33,7 @@ public:
   static void initStatic();
 
   // Initialize generation. Possibility to force re-initialization by hand.
-  void init( BeamParticle& beamA, BeamParticle& beamB);
+  bool init( BeamParticle& beamA, BeamParticle& beamB);
 
   // Prepare system for evolution.
   void prepare(double pTscale = 1000.);

@@ -66,12 +66,15 @@ here presented by the name used to access this property:
     not be modified otherwise. 
 Similar methods can also be used to set these properties.
 
-There are three further methods for output:
+There are five further methods for output:
 - particleDataPtr(id) returns a pointer to the ParticleDataEntry 
     object;
 - mass(id) : returns a mass distributed according to a truncated
     Breit-Wigner, with parameters as above (see also the
     ParticleData:modeBreitWigner switch below);
+* isVisible(), isInvisible() : particles with/without strong or
+    electromagnetic interactions, which thereby are or are not visible
+    in a normal detector.
 - spin(id) : 2 * s + 1 where known, else 0.
 
 The following properties are stored for each decay channel:
@@ -1646,4 +1649,4 @@ References
 
 ---------------------------------------------------------------------- 
 
-Copyright © 2005 Torbjörn Sjöstrand
+Copyright C 2006 Torbjorn Sjostrand

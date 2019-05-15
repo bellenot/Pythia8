@@ -38,4 +38,4 @@ Further options are found in the TimeShower class.
 
 ---------------------------------------------------------------------- 
 
-Copyright © 2005 Torbjörn Sjöstrand
+Copyright C 2006 Torbjorn Sjostrand

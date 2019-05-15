@@ -17,4 +17,4 @@ Les Houches or Pythia 6.3 input.
 
 ---------------------------------------------------------------------- 
 
-Copyright © 2005 Torbjörn Sjöstrand
+Copyright C 2006 Torbjorn Sjostrand

@@ -2,7 +2,7 @@
 // This is a simple test program. 
 // It illustrates how Pythia6 processes can be used in Pythia8.
 // All input is specified in the main01.cmnd file.
-// Copyright © 2005 Torbjörn Sjöstrand
+// Copyright C 2006 Torbjorn Sjostrand
 
 #include "Pythia.h"
 

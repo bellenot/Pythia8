@@ -3,7 +3,7 @@
 // It illustrates how Les Houches Accord input can be used in Pythia8.
 // It uses the ttsample.init and ttsample.evnt input files, 
 // the latter only with 100 events.
-// Copyright © 2005 Torbjörn Sjöstrand
+// Copyright C 2006 Torbjorn Sjostrand
 
 #include "Pythia.h"
 using namespace Pythia8; 

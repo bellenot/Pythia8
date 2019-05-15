@@ -39,8 +39,8 @@ by HadronLevel:mStringMin.
 
 References
    
-[1] T. Sjöstrand, Nucl. Phys. B248 (1984) 469
+[1] T. Sjostrand, Nucl. Phys. B248 (1984) 469
 
 ---------------------------------------------------------------------- 
 
-Copyright © 2005 Torbjörn Sjöstrand
+Copyright C 2006 Torbjorn Sjostrand

@@ -1,5 +1,5 @@
 // Function definitions (not found in the header) for the Pythia class.
-// Copyright © 2005 Torbjörn Sjöstrand
+// Copyright C 2006 Torbjorn Sjostrand
 
 #include "Pythia.h"
 
@@ -451,7 +451,7 @@ void Pythia::banner() {
        << " |  |        !!                       !!     " 
        << "                                      |  | \n"
        << " |  |        !!                              " 
-       << "  Copyright T. Sjostrand (2005)       |  | \n"
+       << "  Copyright T. Sjostrand (2006)       |  | \n"
        << " |  |                                        "
        << "                                      |  | \n"
        << " |  |   An archive of program versions and do" 

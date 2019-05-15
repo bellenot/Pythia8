@@ -98,9 +98,9 @@ junction-free topology is found.
 
 References
 
-[1] T. Sjöstrand and P.Z. Skands, JHEP 03 (2004) 053
+[1] T. Sjostrand and P.Z. Skands, JHEP 03 (2004) 053
 
 ---------------------------------------------------------------------- 
 
-Copyright © 2005 Torbjörn Sjöstrand
+Copyright C 2006 Torbjorn Sjostrand
 

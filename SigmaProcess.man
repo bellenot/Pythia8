@@ -106,4 +106,4 @@ processes. A change to 4 would exclude b bbar, etc.
 
 ---------------------------------------------------------------------- 
 
-Copyright © 2005 Torbjörn Sjöstrand
+Copyright C 2006 Torbjorn Sjostrand

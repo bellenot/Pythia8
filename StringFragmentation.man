@@ -77,13 +77,13 @@ rest frame).
 
 References
  
-[1] B. Andersson, G. Gustafson, G. Ingelman and T. Sjöstrand,
+[1] B. Andersson, G. Gustafson, G. Ingelman and T. Sjostrand,
     Phys. Rep. 97 (1983) 31
    
-[2] T. Sjöstrand, Nucl. Phys. B248 (1984) 469
+[2] T. Sjostrand, Nucl. Phys. B248 (1984) 469
 
-[3] T. Sjöstrand and P.Z. Skands, Nucl. Phys. B659 (2003) 243 
+[3] T. Sjostrand and P.Z. Skands, Nucl. Phys. B659 (2003) 243 
 
 ---------------------------------------------------------------------- 
 
-Copyright © 2005 Torbjörn Sjöstrand
+Copyright C 2006 Torbjorn Sjostrand

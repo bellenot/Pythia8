@@ -1,6 +1,6 @@
 // Function definitions (not found in the header) for the PDF,
 // GRV94L, CTEQ5L and Lepton classes.
-// Copyright © 2005 Torbjörn Sjöstrand
+// Copyright C 2006 Torbjorn Sjostrand
 
 #include "PartonDistributions.h"
 

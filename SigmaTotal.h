@@ -1,6 +1,6 @@
 // This file contains the class for cross section parametrizations.
 // SigmaTotal: total and partial cross section in hadron-hadron collisions.
-// Copyright © 2005 Torbjörn Sjöstrand
+// Copyright C 2006 Torbjorn Sjostrand
 
 #ifndef Pythia8_SigmaTotal_H
 #define Pythia8_SigmaTotal_H
@@ -28,7 +28,7 @@ public:
   static void initStatic();
 
   // Calculate, or recalculate for new beams or new energy.
-  void init(int, int, double); 
+  bool init(int, int, double); 
 
   // Read out total and partial cross sections.
   double sigmaTot() const {return sigTot;}

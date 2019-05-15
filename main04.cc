@@ -1,7 +1,7 @@
 // File: main01.cc
 // This is a simple test program. 
 // It illustrates how decays could be handled externally.
-// Copyright © 2005 Torbjörn Sjöstrand
+// Copyright C 2006 Torbjorn Sjostrand
 
 #include "Pythia.h"
 

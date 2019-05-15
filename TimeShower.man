@@ -96,18 +96,18 @@ A change to 4 would exclude g -> b bbar, etc.
 
 References
 
-[1] T. Sjöstrand and P.Z. Skands, Eur. Phys. J. C39 (2005) 129 
+[1] T. Sjostrand and P.Z. Skands, Eur. Phys. J. C39 (2005) 129 
 
-[2] M. Bengtsson and T. Sjöstrand, Nucl. Phys. B289 (1987) 810
+[2] M. Bengtsson and T. Sjostrand, Nucl. Phys. B289 (1987) 810
 
 [3] G. Gustafson, Phys. Lett. B175 (1986) 453;
     G. Gustafson and U. Pettersson, Nucl. Phys. B306 (1988) 746;
-    L. Lönnblad, Computer Physics Commun. 71 (1992) 15
+    L. Lonnblad, Computer Physics Commun. 71 (1992) 15
 
-[4] E. Norrbin and T. Sjöstrand, Nucl. Phys. B603 (2001) 297
+[4] E. Norrbin and T. Sjostrand, Nucl. Phys. B603 (2001) 297
 
 [5] G. Rudolph, private communication
 
 ---------------------------------------------------------------------- 
 
-Copyright © 2005 Torbjörn Sjöstrand
+Copyright C 2006 Torbjorn Sjostrand

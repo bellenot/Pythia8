@@ -1,6 +1,6 @@
 // Function definitions (not found in the header) for the Rndm, Vec4, 
 // RotBstMatrix and Hist classes, and some related global functions.
-// Copyright © 2005 Torbjörn Sjöstrand
+// Copyright C 2006 Torbjorn Sjostrand
 
 #include "Basics.h"
 

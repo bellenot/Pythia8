@@ -1,7 +1,7 @@
 // Function definitions (not found in the header) for the LHAinit,
 // LHAevnt, LHAinitFortran, LHAevntFortran, LHAinitPythia6 and 
 // LHAevntPythia6 classes.
-// Copyright © 2005 Torbjörn Sjöstrand
+// Copyright C 2006 Torbjorn Sjostrand
 
 #include "LesHouches.h"
 

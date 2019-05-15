@@ -2,7 +2,7 @@
 // ResolvedParton: an initiator or remnant in beam.
 // BeamParticle: contains partons, parton densities, etc.
 // BeamRemnants: matches the remnants between the two beams.
-// Copyright © 2005 Torbjörn Sjöstrand
+// Copyright C 2006 Torbjorn Sjostrand
 
 #ifndef Pythia8_Beams_H
 #define Pythia8_Beams_H

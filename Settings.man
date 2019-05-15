@@ -205,4 +205,4 @@ default, each new kind of error/warning is only printed once.
 
 ---------------------------------------------------------------------- 
 
-Copyright © 2005 Torbjörn Sjöstrand
+Copyright C 2006 Torbjorn Sjostrand

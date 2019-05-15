@@ -1,6 +1,6 @@
 // Function definitions (not found in the header) for the 
 // BeamParticle and BeamRemnants classes.
-// Copyright © 2005 Torbjörn Sjöstrand
+// Copyright C 2006 Torbjorn Sjostrand
 
 #include "Beams.h"
 
@@ -683,6 +683,12 @@ void BeamRemnants::initStatic() {
 
 bool BeamRemnants::add( BeamParticle& beamA, BeamParticle& beamB,
   Event& event) {
+
+  // Temporary solution: do not treat remnants in e+e- annihilation
+  // (and similar). Assumes no ISR so no photon remnants ??
+  int idAabs = abs(beamA.id());
+  int idBabs = abs(beamB.id());
+  if (idAabs < 20 || idBabs < 20) return true;
 
   // Total and squared CM energy.
   double eCM = event[0].m();

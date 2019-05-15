@@ -1,7 +1,7 @@
 // Header file for the timelike final-state showers.
 // TimeDipoleEnd: data on a radiating dipole end.
 // TimeShower: handles the showering description.
-// Copyright © 2005 Torbjörn Sjöstrand
+// Copyright C 2006 Torbjorn Sjostrand
 
 #ifndef Pythia8_TimeShower_H
 #define Pythia8_TimeShower_H

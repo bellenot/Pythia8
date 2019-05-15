@@ -5,7 +5,7 @@
 // LHAevntFortran: derived class with the HEPEUP Fortran event info.
 // LHAinitPythia6: derived class reading initilization file from Pythia 6.
 // LHAevntPythia6: derived class reading event file from Pythia 6.
-// Copyright © 2005 Torbjörn Sjöstrand
+// Copyright C 2006 Torbjorn Sjostrand
 
 #ifndef LesHouches_H
 #define LesHouches_H

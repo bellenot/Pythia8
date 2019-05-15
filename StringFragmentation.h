@@ -1,7 +1,7 @@
 // This file contains the classes for string fragmentation.
 // StringEnd: keeps track of the fragmentation step.
 // StringFragmentation: is the top-level class.
-// Copyright © 2005 Torbjörn Sjöstrand
+// Copyright C 2006 Torbjorn Sjostrand
 
 #ifndef Pythia8_StringFragmentation_H
 #define Pythia8_StringFragmentation_H

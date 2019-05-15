@@ -1,7 +1,7 @@
 // File: main05.cc
 // This is a simple test program. 
 // It illustrated how random numbers could be generated externally.
-// Copyright © 2005 Torbjörn Sjöstrand
+// Copyright C 2006 Torbjorn Sjostrand
 
 #include "Pythia.h"
 

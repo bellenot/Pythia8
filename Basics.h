@@ -4,7 +4,7 @@
 // Vec4: simple four-vectors.
 // RotBstMatrix: matrices encoding rotations and boosts of Vec4 objects.
 // Hist: simple one-dimensional histograms.
-// Copyright © 2005 Torbjörn Sjöstrand
+// Copyright C 2006 Torbjorn Sjostrand
 
 #ifndef Pythia8_Basics_H
 #define Pythia8_Basics_H

@@ -3,7 +3,7 @@
 // DecayTable contains all decay channels of a particle.
 // ParticleDataEntry contains info on a single particle species.
 // ParticleDataTable  collects info on all particles as a map.
-// Copyright © 2005 Torbjörn Sjöstrand
+// Copyright C 2006 Torbjorn Sjostrand
 
 #ifndef Pythia8_ParticleData_H
 #define Pythia8_ParticleData_H
@@ -156,6 +156,8 @@ public:
   double width() const { return widthSave; } 
   double range() const { return rangeSave; } 
   double tau0() const { return tau0Save; } 
+  bool isVisible() const;
+  bool isInvisible() const { return !isVisible();}
   int spinType() const;
   bool mayDecay() const { return mayDecaySave; } 
   bool externalDecay() const { return externalDecaySave; } 

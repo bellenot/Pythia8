@@ -1,6 +1,6 @@
 // Header file for functionality pulled in from stdlib,
 // plus powers of small integers and strings to lowercase. 
-// Copyright © 2005 Torbjörn Sjöstrand
+// Copyright C 2006 Torbjorn Sjostrand
 
 #ifndef Pythia8_Stdlib_H
 #define Pythia8_Stdlib_H
@@ -36,15 +36,10 @@ using std::string;
 using std::vector; 
 using std::map; 
 
-// Input/output.
+// Input/output streams.
 using std::cin; 
 using std::cout; 
 using std::cerr; 
-using std::endl; 
-using std::fixed; 
-using std::scientific; 
-using std::setw; 
-using std::setprecision; 
 using std::ios; 
 using std::istream; 
 using std::ostream; 
@@ -52,6 +47,15 @@ using std::ifstream;
 using std::ofstream; 
 using std::istringstream; 
 using std::ostringstream; 
+
+// Input/output formatting.
+using std::endl; 
+using std::fixed; 
+using std::scientific; 
+using std::left; 
+using std::right; 
+using std::setw; 
+using std::setprecision; 
 
 // Powers of small integers - for balance speed/code clarity.
 inline double pow2(const double& x) {return x*x;}

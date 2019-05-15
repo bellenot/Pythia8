@@ -1,5 +1,5 @@
 // Function definitions (not found in the header) for the SigmaTotal class.
-// Copyright © 2005 Torbjörn Sjöstrand
+// Copyright C 2006 Torbjorn Sjostrand
 
 #include "SigmaTotal.h"
 
@@ -127,7 +127,7 @@ void SigmaTotal::initStatic() {
 
 // Function that calculates the relevant properties.
 
-void SigmaTotal::init( int idA, int idB, double eCM) {
+bool SigmaTotal::init( int idA, int idB, double eCM) {
 
   // Derived quantities.
   alP2 = 2. * ALPHAPRIME;
@@ -163,7 +163,7 @@ void SigmaTotal::init( int idA, int idB, double eCM) {
     if (idAbsA > 300 && idAbsB > 400) iProc = 11;
     if (idAbsA > 400) iProc = 12;
   }
-  if (iProc == -1) return;
+  if (iProc == -1) return false;
 
   // Find hadron masses and check that energy is enough.
   // For mesons use the corresponding vector meson masses.
@@ -171,7 +171,7 @@ void SigmaTotal::init( int idA, int idB, double eCM) {
   int idModB = (idAbsB > 1000) ? idAbsB : 10 * (idAbsB/10) + 3; 
   double mA = ParticleDataTable::m0(idModA);
   double mB = ParticleDataTable::m0(idModB);
-  if (eCM < mA + mB + MMIN) return; 
+  if (eCM < mA + mB + MMIN) return false; 
   
   // Evaluate the total cross section.
   s = eCM*eCM;
@@ -259,6 +259,9 @@ void SigmaTotal::init( int idA, int idB, double eCM) {
   sigND = sigTot - sigEl - sigXB - sigAX - sigXX; 
   if (sigND < 0.) ErrorMessages::message("Error in SigmaTotal::init: "
     "sigND < 0"); 
+
+  // Done.
+  return true;
 
 }
 

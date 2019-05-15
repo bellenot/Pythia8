@@ -1,6 +1,6 @@
 // This file contains the class for "cluster" fragmentation.
 // MiniStringFragmentation: handle the fragmentation of low-mass systems.
-// Copyright © 2005 Torbjörn Sjöstrand
+// Copyright C 2006 Torbjorn Sjostrand
 
 #ifndef Pythia8_MiniStringFragmentation_H
 #define Pythia8_MiniStringFragmentation_H

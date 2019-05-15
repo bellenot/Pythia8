@@ -179,7 +179,7 @@ for a small fraction enhancedFraction of the breakups, where
 
 References
  
-[1] B. Andersson, G. Gustafson, G. Ingelman and T. Sjöstrand,
+[1] B. Andersson, G. Gustafson, G. Ingelman and T. Sjostrand,
     Phys. Rep. 97 (1983) 31
 
 [2] Particle Data Group, S. Eidelman et al., 
@@ -192,4 +192,4 @@ References
 
 ---------------------------------------------------------------------- 
 
-Copyright © 2005 Torbjörn Sjöstrand
+Copyright C 2006 Torbjorn Sjostrand

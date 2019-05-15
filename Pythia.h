@@ -1,6 +1,6 @@
 // This file contains the main class for event generation.
 // Pythia: provide the main user interface to everything else.
-// Copyright © 2005 Torbjörn Sjöstrand
+// Copyright C 2006 Torbjorn Sjostrand
 
 #ifndef Pythia8_Pythia_H
 #define Pythia8_Pythia_H
@@ -17,6 +17,7 @@
 #include "LesHouches.h"
 #include "Pythia6.h"
 #include "ParticleDecays.h"
+#include "Analysis.h"
 
 namespace Pythia8 {
  

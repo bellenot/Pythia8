@@ -3,7 +3,7 @@
 // GRV94L: derived class for the GRV 94L parton densities.
 // CTEQ5L: derived class for the CTEQ 5L parton densities.
 // Lepton: derived class for parton densities inside a lepton.
-// Copyright © 2005 Torbjörn Sjöstrand
+// Copyright C 2006 Torbjorn Sjostrand
 
 #ifndef Pythia8_PartonDistributions_H
 #define Pythia8_PartonDistributions_H

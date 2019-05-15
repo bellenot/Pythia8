@@ -1,6 +1,6 @@
 # Makefile for Pythia8 classes, and a main program.
 # Still primitive; should be improved to build a proper library.
-# Copyright © 2005 Torbjörn Sjöstrand
+# Copyright C 2006 Torbjorn Sjostrand
 
 # Main program
 MAIN = main01.cc
@@ -21,7 +21,7 @@ SRCS = Basics.cc Settings.cc ParticleData.cc StandardModel.cc\
 	SpaceShower.cc MultipleInteractions.cc SigmaProcess.cc\
 	SigmaTotal.cc Beams.cc FragmentationSystems.cc\
 	FragmentationFlavZpT.cc StringFragmentation.cc\
-	MiniStringFragmentation.cc ParticleDecays.cc
+	MiniStringFragmentation.cc ParticleDecays.cc Analysis.cc
 
 # Legacy Pythia 6.3 library.
 FSRC = Pythia6.f
@@ -134,6 +134,9 @@ ParticleDecays.o : ParticleDecays.cc ParticleDecays.h Stdlib.h Basics.h\
 	Settings.h ParticleData.h Event.h TimeShower.h\
 	FragmentationFlavZpT.h
 	$(CC) $(CFLAGS) -c ParticleDecays.cc 
+
+Analysis.o : Analysis.cc Analysis.h Stdlib.h Basics.h Settings.h Event.h
+	$(CC) $(CFLAGS) -c Analysis.cc 
 
 # Compile Pythia 6.3 legacy f77 library.
 $(FOBJ) : $(FSRC)

@@ -1,6 +1,6 @@
 // Header file for differential process cross sections.
 // SigmaProcess: d(sigma-hat)/d(t-hat) for some 2 -> 2 processes.
-// Copyright © 2005 Torbjörn Sjöstrand
+// Copyright C 2006 Torbjorn Sjostrand
 
 #ifndef Pythia8_SigmaProcess_H
 #define Pythia8_SigmaProcess_H

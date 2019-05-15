@@ -1,6 +1,6 @@
 // Function definitions (not found in the header) for the
 // MultipleInteractions class.
-// Copyright © 2005 Torbjörn Sjöstrand
+// Copyright C 2006 Torbjorn Sjostrand
   
 #include "MultipleInteractions.h"
 
@@ -97,7 +97,7 @@ void MultipleInteractions::initStatic() {
 
 // Initialize the generation process for given beams.
 
-void MultipleInteractions::init( BeamParticle& beamA, BeamParticle& beamB) {
+bool MultipleInteractions::init( BeamParticle& beamA, BeamParticle& beamB) {
 
   // Initialize alpha_strong generation.
   alphaS.init( alphaSvalue, alphaSorder); 
@@ -112,7 +112,8 @@ void MultipleInteractions::init( BeamParticle& beamA, BeamParticle& beamB) {
   pT0 = pT0Ref * pow(eCM / ecmRef, ecmPow);
 
   // Get the total inelastic and nondiffractive cross section. Output.
-  sigmaTot.init( beamA.id(), beamB.id(), eCM);
+  bool canDoMI = sigmaTot.init( beamA.id(), beamB.id(), eCM);
+  if (!canDoMI) return false;
   sigmaND = sigmaTot.sigmaND();
   cout << "\n --------  Initialization of multiple interactions:  -----\n"  
        << "                sigmaNonDiffractive = " << fixed 
@@ -153,6 +154,7 @@ void MultipleInteractions::init( BeamParticle& beamA, BeamParticle& beamB) {
   overlapFactor();
 
   // Done.
+  return true;
 }
 
 //*********

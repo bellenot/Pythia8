@@ -1,6 +1,6 @@
 // This file gives access to some Standard Model parameters.
 // AlphaStrong: fix or first- or second-order running alpha_strong.
-// Copyright © 2005 Torbjörn Sjöstrand
+// Copyright C 2006 Torbjorn Sjostrand
 
 #ifndef Pythia8_StandardModel_H
 #define Pythia8_StandardModel_H

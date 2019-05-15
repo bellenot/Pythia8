@@ -2,7 +2,7 @@
 // StringFlav is used to select quark and hadron flavours.
 // StringPT is used to select transverse momenta.
 // StringZ is used to sample the fragmentation function f(z).
-// Copyright © 2005 Torbjörn Sjöstrand
+// Copyright C 2006 Torbjorn Sjostrand
 
 #ifndef Pythia8_FragmentationFlavZpT_H
 #define Pythia8_FragmentationFlavZpT_H

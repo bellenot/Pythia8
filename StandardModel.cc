@@ -1,5 +1,5 @@
 // Function definitions (not found in the header) for the AlphaStrong class.
-// Copyright © 2005 Torbjörn Sjöstrand
+// Copyright C 2006 Torbjorn Sjostrand
 
 #include "StandardModel.h"
 
@@ -91,7 +91,7 @@ void AlphaStrong::init( double valueIn, int orderIn) {
   scale2Now = mZ*mZ;
   isInit = true;
 
-};
+}
 
 //*********
 
@@ -132,7 +132,7 @@ double AlphaStrong::alphaS( double scale2) {
 
   // Done.
   return valueNow;
-} ;
+} 
 
 //*********
 
@@ -162,7 +162,7 @@ double  AlphaStrong::alphaS1Ord( double scale2) {
 
   // Done.
   return valueNow;
-} ;
+} 
 
 //*********
 
@@ -182,7 +182,7 @@ double AlphaStrong::alphaS2OrdCorr( double scale2) {
     return 1. - (462./625.) * log(logScale) / logScale; }
   double logScale = log(scale2/Lambda3Save2); 
     return 1. - (64./81.) * log(logScale) / logScale; 
-} ;
+} 
 
 //**************************************************************************
 

@@ -1,6 +1,6 @@
 // Function definitions (not found in the header) for the 
 // StringFlav, StringZ and StringPT classes.
-// Copyright © 2005 Torbjörn Sjöstrand
+// Copyright C 2006 Torbjorn Sjostrand
 
 #include "FragmentationFlavZpT.h"
 

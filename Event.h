@@ -2,7 +2,7 @@
 // Particle: information on an instance of a particle.
 // Junction: information on a junction between three colours.
 // Event: list of particles in the current event.
-// Copyright © 2005 Torbjörn Sjöstrand
+// Copyright C 2006 Torbjorn Sjostrand
 
 #ifndef Pythia8_Event_H
 #define Pythia8_Event_H
@@ -180,6 +180,8 @@ public:
     ? false : true;}
   bool isNeutral() const {return (particlePtr->charge3(idSave) == 0) 
     ? true : false;}
+  bool isVisible() const {return particlePtr->isVisible();}
+  bool isInvisible() const {return particlePtr->isInvisible();}
   int spinType() const {return particlePtr->spinType();}
   bool canDecay() const {return particlePtr->canDecay();}
   bool mayDecay() const {return particlePtr->mayDecay();}

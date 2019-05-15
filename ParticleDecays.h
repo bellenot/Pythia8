@@ -1,8 +1,7 @@
 // This file contains the classes to perform a particle decay.
 // DecayHandler: base class for external handling of decays.
 // ParticleDecays: decay a particle.
-// 
-// Copyright © 2005 Torbjörn Sjöstrand
+// Copyright C 2006 Torbjorn Sjostrand
 
 #ifndef Pythia8_ParticleDecays_H
 #define Pythia8_ParticleDecays_H

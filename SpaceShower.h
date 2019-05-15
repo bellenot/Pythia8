@@ -2,7 +2,7 @@
 // SpaceDipoleEnd: radiating dipole end in ISR.
 // SpaceSystem: info on one interaction (among multiple ones).
 // SpaceShower: handles the showering description.
-// Copyright © 2005 Torbjörn Sjöstrand
+// Copyright C 2006 Torbjorn Sjostrand
 
 #ifndef Pythia8_SpaceShower_H
 #define Pythia8_SpaceShower_H

@@ -227,12 +227,12 @@ A larger number implies increased accuracy of the calculations.
 
 References
    
-[1] T. Sjöstrand and M. van Zijl, Phys. Rev. D36 (1987) 2019
+[1] T. Sjostrand and M. van Zijl, Phys. Rev. D36 (1987) 2019
  
-[2] T. Sjöstrand and P.Z. Skands, JHEP 03 (2004) 053
+[2] T. Sjostrand and P.Z. Skands, JHEP 03 (2004) 053
 
-[3] T. Sjöstrand and P.Z. Skands, Eur. Phys. J. C39 (2005) 129 
+[3] T. Sjostrand and P.Z. Skands, Eur. Phys. J. C39 (2005) 129 
 
 ---------------------------------------------------------------------- 
 
-Copyright © 2005 Torbjörn Sjöstrand
+Copyright C 2006 Torbjorn Sjostrand

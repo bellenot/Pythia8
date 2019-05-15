@@ -35,8 +35,8 @@ giving up.
 
 References
    
-[1] E. Norrbin and T. Sjöstrand, Eur. Phys. J. C17 (2000) 137 
+[1] E. Norrbin and T. Sjostrand, Eur. Phys. J. C17 (2000) 137 
 
 ---------------------------------------------------------------------- 
 
-Copyright © 2005 Torbjörn Sjöstrand
+Copyright C 2006 Torbjorn Sjostrand

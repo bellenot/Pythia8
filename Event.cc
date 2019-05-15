@@ -1,6 +1,6 @@
 // Function definitions (not found in the header) for the 
 // Particle and Event classes, and some related global functions.
-// Copyright © 2005 Torbjörn Sjöstrand
+// Copyright C 2006 Torbjorn Sjostrand
 
 #include "Event.h"
 
@@ -39,8 +39,8 @@ double Particle::eta() const {
 
 ostream& operator<<(ostream& os, const Particle& pt) {
   os << fixed << setprecision(3) << setw(8) << pt.idSave << "   " 
-     << std::left << setw(12) << pt.nameWithStatus() << std::right 
-     << setw(5) << pt.statusSave << setw(6) << pt.mother1Save << setw(6) 
+     << left << setw(12) << pt.nameWithStatus() << right << setw(5) 
+     << pt.statusSave << setw(6) << pt.mother1Save << setw(6) 
      << pt.mother2Save << setw(6) << pt.daughter1Save << setw(6) 
      << pt.daughter2Save << setw(6) << pt.colSave << setw(6) 
      << pt.acolSave << setw(12) << pt.px() << setw(12) << pt.py() 
@@ -165,8 +165,8 @@ void Event::list(ostream& os) {
     Particle& pt = entry[i];
 
     // Basic line for a particle, always printed.
-    os << setw(6) << i << setw(10) << pt.id() << "   " << std::left 
-       << setw(12) << pt.nameWithStatus() << std::right << setw(5) 
+    os << setw(6) << i << setw(10) << pt.id() << "   " << left 
+       << setw(12) << pt.nameWithStatus() << right << setw(5) 
        << pt.status() << setw(6) << pt.mother1() << setw(6) 
        << pt.mother2() << setw(6) << pt.daughter1() << setw(6) 
        << pt.daughter2() << setw(6) << pt.col() << setw(6) << pt.acol() 

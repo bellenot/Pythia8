@@ -1,5 +1,5 @@
 // Function definitions (not found in the header) for the PartonLevel class.
-// Copyright © 2005 Torbjörn Sjöstrand
+// Copyright C 2006 Torbjorn Sjostrand
 
 #include "PartonLevel.h"
 
@@ -37,7 +37,7 @@ bool PartonLevel::init( BeamParticle& beamA, BeamParticle& beamB,
   if (strategyLHA < 10) {
     times.init();
     if (ISR) space.init( beamA, beamB);
-    if (MI) multi.init( beamA, beamB);
+    if (MI) MI = multi.init( beamA, beamB);
   }
 
   // Succeeded. (Check return values from other classes??)

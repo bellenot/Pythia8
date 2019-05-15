@@ -241,12 +241,12 @@ The version number and version date are defined here, so that they
 could easily be read out by different programs. Obviously they are 
 not intended to be changed.
 
-<parameter> Pythia:versionNumber = 8.040
+<parameter> Pythia:versionNumber = 8.041
 Version and subversion number, with three significant decimals.
 
-<mode> Pythia:versionDate = 20050724
+<mode> Pythia:versionDate = 20060101
 Last date of change of current (sub)version, in format yyyymmdd.
 
 ---------------------------------------------------------------------- 
 
-Copyright © 2005 Torbjörn Sjöstrand
+Copyright C 2006 Torbjorn Sjostrand

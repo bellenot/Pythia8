@@ -1,6 +1,6 @@
 // Function definitions (not found in the header) for the 
 // ParticleDecays class.
-// Copyright © 2005 Torbjörn Sjöstrand
+// Copyright C 2006 Torbjorn Sjostrand
 
 #include "ParticleDecays.h"
 

@@ -156,15 +156,15 @@ Changing it to 4 would forbid g -> b bbar, etc.
 
 References
  
-[1] T. Sjöstrand and P.Z. Skands, Eur. Phys. J. C39 (2005) 129 
+[1] T. Sjostrand and P.Z. Skands, Eur. Phys. J. C39 (2005) 129 
 
-[2] T. Sjöstrand, Phys. Lett. 157B (1985) 321;
-    M. Bengtsson, T. Sjöstrand and M. van Zijl, Z. Phys. C32 (1986) 67
+[2] T. Sjostrand, Phys. Lett. 157B (1985) 321;
+    M. Bengtsson, T. Sjostrand and M. van Zijl, Z. Phys. C32 (1986) 67
 
-[3] G. Miu and T. Sjöstrand, Phys. Lett. B449 (1999) 313 
+[3] G. Miu and T. Sjostrand, Phys. Lett. B449 (1999) 313 
 
 ---------------------------------------------------------------------- 
 
-Copyright © 2005 Torbjörn Sjöstrand
+Copyright C 2006 Torbjorn Sjostrand
 
 

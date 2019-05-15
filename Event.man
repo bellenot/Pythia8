@@ -258,6 +258,9 @@ the following member functions:
     and 2 for octets.
 * charge(), icharge() : charge, and three times it to make an integer.
 * isCharged(), isNeutral() : charge different from or equal to 0.
+* isVisible(), isInvisible() : particles with/without strong or
+    electromagnetic interactions, which thereby are or are not visible
+    in a normal detector.
 * spinType() : 2 * spin + 1; still incomplete implementation.
 * canDecay() : flag whether decay modes have been declared for a 
     particle, so that it could be decayed, should that be requested.
@@ -494,6 +497,6 @@ References
 
 ---------------------------------------------------------------------- 
 
-Copyright © 2005 Torbjörn Sjöstrand
+Copyright C 2006 Torbjorn Sjostrand
 
 

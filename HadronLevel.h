@@ -1,6 +1,6 @@
 // This file contains the main class for hadron-level generation.
 // HadronLevel: handles administration of fragmentation and decay.
-// Copyright © 2005 Torbjörn Sjöstrand
+// Copyright C 2006 Torbjorn Sjostrand
 
 #ifndef Pythia8_HadronLevel_H
 #define Pythia8_HadronLevel_H

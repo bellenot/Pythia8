@@ -4,7 +4,7 @@
 // Parameter: helper class with double parameters.
 // Settings: maps of flags, modes and parameters with input/output.
 // ErrorMessages: table with all warnings and errors encountered.
-// Copyright © 2005 Torbjörn Sjöstrand
+// Copyright C 2006 Torbjorn Sjostrand
 
 #ifndef Pythia8_Settings_H
 #define Pythia8_Settings_H

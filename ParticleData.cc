@@ -1,6 +1,6 @@
 // Function definitions (not found in the header) for the
 // DecayChannel, ParticleDataEntry and ParticleDataTable classes.
-// Copyright © 2005 Torbjörn Sjöstrand
+// Copyright C 2006 Torbjorn Sjostrand
 
 #include "ParticleData.h"
 
@@ -123,6 +123,22 @@ void ParticleDataEntry::constituentMassCalc() {
     if (id1 <6 && id2 < 6) constituentMassSave = constituentMassTable[id1] 
       + constituentMassTable[id2];
   }
+
+}
+
+//*********
+
+// Function to tell which particles are vsible in a detector.
+// May not cover all particles ??.
+
+bool ParticleDataEntry::isVisible() const {
+
+  const int SUSY = 1000000;
+  if (idAbs == 12 || idAbs == 14 || idAbs == 16 || idAbs == 18) 
+    return false;
+  if (idAbs == 39 || idAbs == SUSY + 22 || idAbs == SUSY + 39)
+    return false;
+  return true;
 
 }
 
@@ -525,8 +541,8 @@ void ParticleDataTable::list(ostream& os) {
     string antiName = (particlePtr->name(-1) == "void") ?
       "                " : particlePtr->name(-1) ;
     os << "\n" << setw(8) << particlePtr->id() << "   " << setw(16) 
-       << std::left << particlePtr->name() << setw(16) << antiName 
-       << std::right << setw(4) << particlePtr->charge3() << setw(4) 
+       << left << particlePtr->name() << setw(16) << antiName 
+       << right << setw(4) << particlePtr->charge3() << setw(4) 
        << particlePtr->colType() << fixed << setprecision(4) << setw(12) 
        << particlePtr->m0() << setw(12) << particlePtr->width() 
        << setw(12) << particlePtr->range() << scientific << setw(12) 
@@ -586,8 +602,8 @@ void ParticleDataTable::list(vector<int> idList, ostream& os) {
     string antiName = (particlePtr->name(-1) == "void") ?
       "                " : particlePtr->name(-1) ;
     os << "\n" << setw(8) << particlePtr->id() << "   " << setw(16) 
-       << std::left << particlePtr->name() << setw(16) << antiName 
-       << std::right << setw(4) << particlePtr->charge3() << setw(4) 
+       << left << particlePtr->name() << setw(16) << antiName 
+       << right << setw(4) << particlePtr->charge3() << setw(4) 
        << particlePtr->colType() << fixed << setprecision(4) << setw(12) 
        << particlePtr->m0() << setw(12) << particlePtr->width() 
        << setw(12) << particlePtr->range() << scientific << setw(12) 

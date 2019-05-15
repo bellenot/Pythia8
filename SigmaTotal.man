@@ -59,7 +59,7 @@ consistent set is used.
 
 References
  
-[1] G.A. Schuler and T. Sjöstrand, Phys. Rev. D49 (1994) 2257,
+[1] G.A. Schuler and T. Sjostrand, Phys. Rev. D49 (1994) 2257,
     Z. Phys. C73 (1997) 677 
 
 [2] A. Donnachie and P.V. Landshoff, Phys. Lett. B296 (1992) 227
@@ -67,4 +67,4 @@ References
 
 ---------------------------------------------------------------------- 
 
-Copyright © 2005 Torbjörn Sjöstrand
+Copyright C 2006 Torbjorn Sjostrand
