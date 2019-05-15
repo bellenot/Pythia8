@@ -7,7 +7,7 @@ Main:numberOfEvents		   = 100  // number of events generated
 
 // specify shower options
 HadronLevel:all          = off
-PartonLevel:MI           = off
+PartonLevel:MPI          = off
 SpaceShower:MEafterFirst = off
 TimeShower:MEafterFirst  = off
 

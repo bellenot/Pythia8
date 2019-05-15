@@ -1,5 +1,5 @@
 // PartonDistributions.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -281,7 +281,7 @@ void LHAPDF::xfUpdate(int , double x, double Q2) {
 // in parametrized form. Authors: M. Glueck, E. Reya and A. Vogt.
 // Ref: M. Glueck, E. Reya and A. Vogt, Z.Phys. C67 (1995) 433.
 
-void GRV94L::xfUpdate(int id, double x, double Q2) {
+void GRV94L::xfUpdate(int , double x, double Q2) {
  
   // Common expressions. Constrain Q2 for which parametrization is valid.
   double mu2  = 0.23;
@@ -402,9 +402,8 @@ void GRV94L::xfUpdate(int id, double x, double Q2) {
   xdVal = dv;
   xdSea = xdbar;
 
-  // idSav = 9 to indicate that all flavours reset. id change dummy. 
+  // idSav = 9 to indicate that all flavours reset. 
   idSav = 9;
-  id   = 0;
 
 } 
 
@@ -456,7 +455,7 @@ double GRV94L::grvs (double x, double s, double sth, double al, double be,
 // evolved parton distributions is 1E-6 < x < 1, 1.1 GeV < Q < 10 TeV. 
 // In the current implementation, densities are frozen at borders.
 
-void CTEQ5L::xfUpdate(int id, double x, double Q2) {
+void CTEQ5L::xfUpdate(int , double x, double Q2) {
 
   // Constrain x and Q2 to range for which parametrization is valid.
   double Q = sqrt( max( 1., min( 1e8, Q2) ) );
@@ -599,9 +598,8 @@ void CTEQ5L::xfUpdate(int id, double x, double Q2) {
   xdVal = xd - xdbar;
   xdSea = xdbar;
 
-  // idSav = 9 to indicate that all flavours reset. id change is dummy here. 
+  // idSav = 9 to indicate that all flavours reset.
   idSav = 9;
-  id    = 0;
 
 }
  
@@ -947,7 +945,7 @@ void MSTWpdf::init(int iFitIn, string xmlPath, Info* infoPtr) {
 
 // Update PDF values.
 
-void MSTWpdf::xfUpdate(int id, double x, double Q2) {
+void MSTWpdf::xfUpdate(int , double x, double Q2) {
 
   // Update using MSTW routine.
   double q    = sqrtpos(Q2); 
@@ -992,9 +990,8 @@ void MSTWpdf::xfUpdate(int id, double x, double Q2) {
   xdVal  = dnv;
   xdSea  = xdbar;
 
-  // idSav = 9 to indicate that all flavours reset. id change dummy. 
+  // idSav = 9 to indicate that all flavours reset.
   idSav  = 9;
-  id     = 0;
 
 } 
 
@@ -1405,7 +1402,7 @@ void CTEQ6pdf::init(int iFitIn, string xmlPath, Info* infoPtr) {
 
 // Update PDF values.
 
-void CTEQ6pdf::xfUpdate(int id, double x, double Q2) {
+void CTEQ6pdf::xfUpdate(int , double x, double Q2) {
 
   // Update using CTEQ6 routine, within allowed (x, q) range.
   double xEps = max( xMinEps, x);
@@ -1441,9 +1438,8 @@ void CTEQ6pdf::xfUpdate(int id, double x, double Q2) {
   xdVal  = dnv;
   xdSea  = dsea;
 
-  // idSav = 9 to indicate that all flavours reset. id change dummy. 
+  // idSav = 9 to indicate that all flavours reset.  
   idSav  = 9;
-  id     = 0;
 
 } 
 
@@ -1668,7 +1664,7 @@ const double ProtonPoint::C       = 0.028;
 
 // Gives a generic Q2-independent equivalent photon spectrum.
 
-void ProtonPoint::xfUpdate(int id, double x, double /*Q2*/ ) {
+void ProtonPoint::xfUpdate(int , double x, double /*Q2*/ ) {
 
   // Photon spectrum
   double tmpQ2Min = 0.88 * pow2(x);
@@ -1677,7 +1673,8 @@ void ProtonPoint::xfUpdate(int id, double x, double /*Q2*/ ) {
 
   double fgm = 0;
   if (phiMax < phiMin && m_infoPtr != 0) {
-    m_infoPtr->errorMsg("Error from ProtonPoint::xfUpdate: phiMax - phiMin < 0!");
+    m_infoPtr->errorMsg("Error from ProtonPoint::xfUpdate: "
+      "phiMax - phiMin < 0!");
   } else {
     // Corresponds to: x*f(x)
     fgm = (ALPHAEM / M_PI) * (1 - x) * (phiMax - phiMin);
@@ -1701,9 +1698,8 @@ void ProtonPoint::xfUpdate(int id, double x, double /*Q2*/ ) {
   xdVal = 0.;
   xdSea = 0;
 
-  // idSav = 9 to indicate that all flavours reset. id change dummy. 
+  // idSav = 9 to indicate that all flavours reset.
   idSav = 9;
-  id    = 0;
 
 }
 
@@ -1737,7 +1733,7 @@ double ProtonPoint::phiFunc(double x, double Q) {
 // Ref: M. Glueck, E. Reya and A. Vogt, Z. Phys. C53 (1992) 651.
 // Allowed variable range: 0.25 GeV^2 < Q^2 < 10^8 GeV^2 and 10^-5 < x < 1.
 
-void GRVpiL::xfUpdate(int id, double x, double Q2) {
+void GRVpiL::xfUpdate(int , double x, double Q2) {
  
   // Common expressions. Constrain Q2 for which parametrization is valid.
   double mu2  = 0.25;
@@ -1791,9 +1787,8 @@ void GRVpiL::xfUpdate(int id, double x, double Q2) {
   xdVal = uv;
   xdSea = ub;
 
-  // idSav = 9 to indicate that all flavours reset. id change dummy. 
+  // idSav = 9 to indicate that all flavours reset. 
   idSav = 9;
-  id   = 0;
 
 } 
  
@@ -1818,7 +1813,7 @@ void PomFix::init() {
 
 // Gives a generic Q2-independent Pomeron PDF.
 
-void PomFix::xfUpdate(int id, double x, double) {
+void PomFix::xfUpdate(int , double x, double) {
 
   // Gluon and quark distributions.
   double gl = normGluon * pow(x, PomGluonA) * pow( (1. - x), PomGluonB); 
@@ -1841,9 +1836,8 @@ void PomFix::xfUpdate(int id, double x, double) {
   xdVal = 0.;
   xdSea = xd;
 
-  // idSav = 9 to indicate that all flavours reset. id change dummy. 
+  // idSav = 9 to indicate that all flavours reset.
   idSav = 9;
-  id    = 0;
 
 }
  
@@ -1907,7 +1901,7 @@ void PomH1FitAB::init( int iFit, string xmlPath, Info* infoPtr) {
 
 //--------------------------------------------------------------------------
 
-void PomH1FitAB::xfUpdate(int id, double x, double Q2) {
+void PomH1FitAB::xfUpdate(int , double x, double Q2) {
 
   // Retrict input to validity range.
   double xt  = min( xupp, max( xlow, x) );
@@ -1950,9 +1944,8 @@ void PomH1FitAB::xfUpdate(int id, double x, double Q2) {
   xdVal = 0.;
   xdSea = xu;
 
-  // idSav = 9 to indicate that all flavours reset. id change dummy. 
+  // idSav = 9 to indicate that all flavours reset. 
   idSav = 9;
-  id    = 0;
 
 } 
  
@@ -2032,7 +2025,7 @@ void PomH1Jets::init( string xmlPath, Info* infoPtr) {
 
 //--------------------------------------------------------------------------
 
-void PomH1Jets::xfUpdate(int id, double x, double Q2) {
+void PomH1Jets::xfUpdate(int , double x, double Q2) {
 
   // Find position in x array.
   double xLog = log(x);
@@ -2097,9 +2090,8 @@ void PomH1Jets::xfUpdate(int id, double x, double Q2) {
   xdVal = 0.;
   xdSea = xd;
 
-  // idSav = 9 to indicate that all flavours reset. id change dummy. 
+  // idSav = 9 to indicate that all flavours reset. 
   idSav = 9;
-  id    = 0;
 
 } 
  
@@ -2112,7 +2104,6 @@ const double Lepton::ALPHAEM = 0.00729735;
 const double Lepton::ME      = 0.0005109989;
 const double Lepton::MMU     = 0.10566;
 const double Lepton::MTAU    = 1.77699;
-
  
 void Lepton::xfUpdate(int id, double x, double Q2) {
  
@@ -2146,9 +2137,8 @@ void Lepton::xfUpdate(int id, double x, double Q2) {
   // Photon inside electron (one possible scheme - primitive).
   xgamma = (0.5 * ALPHAEM / M_PI) * Q2Log * (1. + pow2(1. - x));
 
-  // idSav = 9 to indicate that all flavours reset. id change is dummy here. 
+  // idSav = 9 to indicate that all flavours reset. 
   idSav = 9;
-  id    = 0;
 
 }
  

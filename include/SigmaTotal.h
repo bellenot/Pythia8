@@ -1,5 +1,5 @@
 // SigmaTotal.h is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -78,7 +78,7 @@ private:
   bool   isCalc, setTotal, doDampen, setElastic;
   double sigTotOwn, sigElOwn, sigXBOwn, sigAXOwn, sigXXOwn,
          maxXBOwn, maxAXOwn, maxXXOwn, bSlope, rho, lambda, tAbsMin, 
-         alphaEM0, sigmaPomP;
+         alphaEM0, sigmaPomP, mPomP, pPomP;
 
   // Pointer to various information on the generation.
   Info*         infoPtr;

@@ -1,5 +1,5 @@
 // SpaceShower.h is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -161,7 +161,7 @@ private:
          LAMBDA3MARGIN, LEPTONXMIN, LEPTONXMAX, LEPTONPT2MIN, LEPTONFUDGE;
 
   // Initialization data, normally only set once.
-  bool   doQCDshower, doQEDshowerByQ, doQEDshowerByL, useSamePTasMI,
+  bool   doQCDshower, doQEDshowerByQ, doQEDshowerByL, useSamePTasMPI,
          doMEcorrections, doMEafterFirst, doPhiPolAsym, doPhiIntAsym, 
          doRapidityOrder, canVetoEmission;
   int    pTmaxMatch, pTdampMatch, alphaSorder, alphaEMorder, nQuarkIn, 
@@ -170,7 +170,7 @@ private:
          Lambda3flav, Lambda4flav, Lambda5flav, Lambda3flav2, Lambda4flav2, 
          Lambda5flav2, pT0Ref, ecmRef, ecmPow, pTmin, sCM, eCM, pT0, 
          pTminChgQ, pTminChgL, pT20, pT2min, pT2minChgQ, pT2minChgL, 
-         pTmaxFudgeMI, strengthIntAsym; 
+         pTmaxFudgeMPI, strengthIntAsym; 
 
   // alphaStrong and alphaEM calculations.
   AlphaStrong alphaS;

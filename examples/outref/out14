@@ -5,10 +5,10 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.150      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 20 Apr 2011  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.160      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 23 Jan 2012  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 20 Apr 2011 at 12:35:23    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 23 Jan 2012 at 11:19:50    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Astronomy and Theoretical Physics,      |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
@@ -18,10 +18,13 @@
  |  |      phone: + 41 - 22 - 767 6707; e-mail: Stefan.Ask@cern.ch                 |  | 
  |  |   Richard Corke;  Department of Astronomy and Theoretical Physics,           |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
- |  |      phone: + 46 - 46 - 222 31 92; e-mail: richard.corke@thep.lu.se          |  | 
+ |  |      e-mail: richard.corke@thep.lu.se                                        |  | 
  |  |   Stephen Mrenna;  Computing Division, Simulations Group,                    |  | 
  |  |      Fermi National Accelerator Laboratory, MS 234, Batavia, IL 60510, USA;  |  | 
  |  |      phone: + 1 - 630 - 840 - 2556; e-mail: mrenna@fnal.gov                  |  | 
+ |  |   Stefan Prestel;  Department of Astronomy and Theoretical Physics,          |  | 
+ |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
+ |  |      phone: + 46 - 46 - 222 06 64; e-mail: stefan.prestel@thep.lu.se         |  | 
  |  |   Peter Skands;  Theoretical Physics, CERN, CH-1211 Geneva 23, Switzerland;  |  | 
  |  |      phone: + 41 - 22 - 767 2447; e-mail: peter.skands@cern.ch               |  | 
  |  |                                                                              |  | 
@@ -41,7 +44,7 @@
  |  |   Disclaimer: this program comes without any guarantees.                     |  | 
  |  |   Beware of errors and use common sense when interpreting results.           |  | 
  |  |                                                                              |  | 
- |  |   Copyright (C) 2011 Torbjorn Sjostrand                                      |  | 
+ |  |   Copyright (C) 2012 Torbjorn Sjostrand                                      |  | 
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  *------------------------------------------------------------------------------*  | 
@@ -49,1335 +52,408 @@
  *------------------------------------------------------------------------------------* 
 
 
- Begin subrun number 0
+ Begin subrun number 0 : HardQCD:gg2gg
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
-
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | g g -> g g                                     111 |   4.816e+00 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
  Cross section is 5.911e-01 and in Pythia6 was 4.960e-01,
  i.e. now is factor >>> 1.192 <<< different
 
- Begin subrun number 1
+ Begin subrun number 1 : HardQCD:gg2qqbar + HardQCD:gg2ccbar + HardQCD:gg2bbbar
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
-
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | g g -> q qbar (uds)                            112 |   5.395e-02 |
- | g g -> c cbar                                  121 |   1.779e-02 |
- | g g -> b bbar                                  123 |   1.652e-02 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
  Cross section is 1.889e-02 and in Pythia6 was 1.627e-02,
  i.e. now is factor >>> 1.161 <<< different
 
- Begin subrun number 2
+ Begin subrun number 2 : HardQCD:qg2qg
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
-
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | q g -> q g                                     113 |   2.661e+00 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
  Cross section is 3.200e-01 and in Pythia6 was 2.790e-01,
  i.e. now is factor >>> 1.147 <<< different
 
- Begin subrun number 3
+ Begin subrun number 3 : HardQCD:qq2qq
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
-
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | q q(bar)' -> q q(bar)'                         114 |   2.483e-01 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
  Cross section is 3.172e-02 and in Pythia6 was 2.800e-02,
  i.e. now is factor >>> 1.133 <<< different
 
- Begin subrun number 4
+ Begin subrun number 4 : HardQCD:qqbar2gg
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
-
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | q qbar -> g g                                  115 |   1.704e-03 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
  Cross section is 3.866e-04 and in Pythia6 was 3.310e-04,
  i.e. now is factor >>> 1.168 <<< different
 
- Begin subrun number 5
+ Begin subrun number 5 : HardQCD:qqbar2qqbarNew + HardQCD:qqbar2ccbar + HardQCD:qqbar2bbbar
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
-
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | q qbar -> q' qbar' (uds)                       116 |   7.451e-04 |
- | q qbar -> c cbar                               122 |   2.469e-04 |
- | q qbar -> b bbar                               124 |   2.372e-04 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
  Cross section is 4.114e-04 and in Pythia6 was 3.653e-04,
  i.e. now is factor >>> 1.126 <<< different
 
- Begin subrun number 6
+ Begin subrun number 6 : PromptPhoton:qg2qgamma
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
-
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | q g -> q gamma (udscb)                         201 |   7.677e-04 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
  Cross section is 1.804e-04 and in Pythia6 was 1.697e-04,
  i.e. now is factor >>> 1.063 <<< different
 
- Begin subrun number 7
+ Begin subrun number 7 : PromptPhoton:qqbar2ggamma
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
-
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | q qbar -> g gamma                              202 |   4.253e-05 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
  Cross section is 1.256e-05 and in Pythia6 was 1.163e-05,
  i.e. now is factor >>> 1.080 <<< different
 
- Begin subrun number 8
+ Begin subrun number 8 : PromptPhoton:gg2ggamma
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
-
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | g g -> g gamma                                 203 |   4.534e-07 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
  Cross section is 1.356e-07 and in Pythia6 was 1.065e-07,
  i.e. now is factor >>> 1.273 <<< different
 
- Begin subrun number 9
+ Begin subrun number 9 : PromptPhoton:ffbar2gammagamma
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
-
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | f fbar -> gamma gamma                          204 |   2.910e-07 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
  Cross section is 8.367e-08 and in Pythia6 was 8.259e-08,
  i.e. now is factor >>> 1.013 <<< different
 
- Begin subrun number 10
+ Begin subrun number 10 : PromptPhoton:gg2gammagamma
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
-
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | g g -> gamma gamma                             205 |   3.255e-07 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
  Cross section is 9.759e-08 and in Pythia6 was 8.237e-08,
  i.e. now is factor >>> 1.185 <<< different
 
- Begin subrun number 11
+ Begin subrun number 11 : WeakBosonExchange:ff2ff(t:gmZ)
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
-
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | f f' -> f f' (t-channel gamma*/Z0)             211 |   1.610e-04 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
  Cross section is 2.602e-05 and in Pythia6 was 2.544e-05,
  i.e. now is factor >>> 1.023 <<< different
 
- Begin subrun number 12
+ Begin subrun number 12 : WeakBosonExchange:ff2ff(t:W)
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
-
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | f_1 f_2 -> f_3 f_4 (t-channel W+-)             212 |   8.285e-05 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
  Cross section is 5.385e-06 and in Pythia6 was 5.321e-06,
  i.e. now is factor >>> 1.012 <<< different
 
- Begin subrun number 13
+ Begin subrun number 13 : WeakSingleBoson:ffbar2gmZ
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
-
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | f fbar -> gamma*/Z0                            221 |   1.444e-04 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
  Cross section is 5.690e-05 and in Pythia6 was 5.571e-05,
  i.e. now is factor >>> 1.021 <<< different
 
- Begin subrun number 14
+ Begin subrun number 14 : WeakSingleBoson:ffbar2W
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
-
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | f fbar' -> W+-                                 222 |   4.483e-04 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
  Cross section is 1.631e-04 and in Pythia6 was 1.621e-04,
  i.e. now is factor >>> 1.006 <<< different
 
- Begin subrun number 15
+ Begin subrun number 15 : WeakDoubleBoson:ffbar2gmZgmZ
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
-
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | f fbar -> gamma*/Z0 gamma*/Z0                  231 |   3.496e-07 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
  Cross section is 9.309e-09 and in Pythia6 was 9.039e-09,
  i.e. now is factor >>> 1.030 <<< different
 
- Begin subrun number 16
+ Begin subrun number 16 : WeakDoubleBoson:ffbar2ZW
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
-
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | f fbar' -> Z0 W+- (no gamma*!)                 232 |   5.287e-07 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
  Cross section is 2.270e-08 and in Pythia6 was 2.247e-08,
  i.e. now is factor >>> 1.010 <<< different
 
- Begin subrun number 17
+ Begin subrun number 17 : WeakDoubleBoson:ffbar2WW
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
-
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | f fbar -> W+ W-                                233 |   5.072e-07 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
  Cross section is 6.128e-08 and in Pythia6 was 5.893e-08,
  i.e. now is factor >>> 1.040 <<< different
 
- Begin subrun number 18
+ Begin subrun number 18 : WeakBosonAndParton:qqbar2gmZg
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
-
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | q qbar -> gamma*/Z0 g                          241 |   4.332e-05 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
  Cross section is 4.098e-06 and in Pythia6 was 3.781e-06,
  i.e. now is factor >>> 1.084 <<< different
 
- Begin subrun number 19
+ Begin subrun number 19 : WeakBosonAndParton:qg2gmZq
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
-
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | q g-> gamma*/Z0 q                              242 |   1.625e-04 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
  Cross section is 1.190e-05 and in Pythia6 was 1.078e-05,
  i.e. now is factor >>> 1.104 <<< different
 
- Begin subrun number 20
+ Begin subrun number 20 : WeakBosonAndParton:ffbar2gmZgm
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
-
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | f fbar -> gamma*/Z0 gamma                      243 |   4.835e-07 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
  Cross section is 4.740e-08 and in Pythia6 was 4.551e-08,
  i.e. now is factor >>> 1.041 <<< different
 
- Begin subrun number 21
+ Begin subrun number 21 : WeakBosonAndParton:qqbar2Wg
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
-
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | q qbar' -> W+- g                               251 |   5.867e-05 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
  Cross section is 1.114e-05 and in Pythia6 was 1.025e-05,
  i.e. now is factor >>> 1.087 <<< different
 
- Begin subrun number 22
+ Begin subrun number 22 : WeakBosonAndParton:qg2Wq
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
-
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | q g-> W+- q'                                   252 |   2.517e-04 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
  Cross section is 3.421e-05 and in Pythia6 was 3.208e-05,
  i.e. now is factor >>> 1.066 <<< different
 
- Begin subrun number 23
+ Begin subrun number 23 : WeakBosonAndParton:ffbar2Wgm
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
-
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | f fbar' -> W+- gamma                           253 |   4.406e-07 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
  Cross section is 5.560e-08 and in Pythia6 was 5.435e-08,
  i.e. now is factor >>> 1.023 <<< different
 
- Begin subrun number 24
+ Begin subrun number 24 : Charmonium:all
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
-
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | g g -> ccbar[3S1(1)] g                         401 |   6.068e-08 |
- | g g -> ccbar[3P0(1)] g                         402 |   6.988e-05 |
- | g g -> ccbar[3P1(1)] g                         403 |   2.463e-04 |
- | g g -> ccbar[3P2(1)] g                         404 |   8.384e-05 |
- | q g -> ccbar[3P0(1)] q                         405 |   1.523e-05 |
- | q g -> ccbar[3P1(1)] q                         406 |   5.378e-05 |
- | q g -> ccbar[3P2(1)] q                         407 |   1.970e-05 |
- | q qbar -> ccbar[3P0(1)] g                      408 |   1.182e-09 |
- | q qbar -> ccbar[3P1(1)] g                      409 |   4.834e-09 |
- | q qbar -> ccbar[3P2(1)] g                      410 |   1.625e-09 |
- | g g -> ccbar[3S1(8)] g                         411 |   7.315e-04 |
- | g g -> ccbar[1S0(8)] g                         412 |   1.330e-05 |
- | g g -> ccbar[3PJ(8)] g                         413 |   1.709e-05 |
- | q g -> ccbar[3S1(8)] q                         414 |   1.890e-04 |
- | q g -> ccbar[1S0(8)] q                         415 |   2.903e-06 |
- | q g -> ccbar[3PJ(8)] q                         416 |   3.730e-06 |
- | q qbar -> ccbar[3S1(8)] g                      417 |   2.430e-07 |
- | q qbar -> ccbar[1S0(8)] g                      418 |   2.534e-10 |
- | q qbar -> ccbar[3PJ(8)] g                      419 |   3.216e-10 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
  Cross section is 1.333e-04 and in Pythia6 was 1.038e-04,
  i.e. now is factor >>> 1.284 <<< different
 
- Begin subrun number 25
+ Begin subrun number 25 : Bottomonium:all
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
+ Cross section is 4.746e-05 and in Pythia6 was 3.929e-05,
+ i.e. now is factor >>> 1.208 <<< different
 
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | g g -> bbbar[3S1(1)] g                         501 |   8.653e-07 |
- | g g -> bbbar[3P0(1)] g                         502 |   2.845e-05 |
- | g g -> bbbar[3P1(1)] g                         503 |   8.224e-05 |
- | g g -> bbbar[3P2(1)] g                         504 |   4.310e-05 |
- | q g -> bbbar[3P0(1)] q                         505 |   6.836e-06 |
- | q g -> bbbar[3P1(1)] q                         506 |   2.110e-05 |
- | q g -> bbbar[3P2(1)] q                         507 |   1.281e-05 |
- | q qbar -> bbbar[3P0(1)] g                      508 |   3.358e-10 |
- | q qbar -> bbbar[3P1(1)] g                      509 |   2.766e-09 |
- | q qbar -> bbbar[3P2(1)] g                      510 |   1.067e-09 |
- | g g -> bbbar[3S1(8)] g                         511 |   2.390e-04 |
- | g g -> bbbar[1S0(8)] g                         512 |   5.581e-06 |
- | g g -> bbbar[3PJ(8)] g                         513 |   1.745e-05 |
- | q g -> bbbar[3S1(8)] q                         514 |   5.467e-05 |
- | q g -> bbbar[1S0(8)] q                         515 |   1.232e-06 |
- | q g -> bbbar[3PJ(8)] q                         516 |   4.825e-06 |
- | q qbar -> bbbar[3S1(8)] g                      517 |   9.669e-08 |
- | q qbar -> bbbar[1S0(8)] g                      518 |   1.310e-10 |
- | q qbar -> bbbar[3PJ(8)] g                      519 |   4.847e-10 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 4.970e-05 and in Pythia6 was 3.929e-05,
- i.e. now is factor >>> 1.265 <<< different
-
- Begin subrun number 26
+ Begin subrun number 26 : Top:gg2ttbar
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
-
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | g g -> t tbar                                  601 |   5.644e-06 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 4.684e-07 and in Pythia6 was 4.155e-07,
+ Cross section is 4.682e-07 and in Pythia6 was 4.155e-07,
  i.e. now is factor >>> 1.127 <<< different
 
- Begin subrun number 27
+ Begin subrun number 27 : Top:qqbar2ttbar
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
-
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | q qbar -> t tbar                               602 |   8.101e-07 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 7.438e-08 and in Pythia6 was 6.685e-08,
+ Cross section is 7.442e-08 and in Pythia6 was 6.685e-08,
  i.e. now is factor >>> 1.113 <<< different
 
- Begin subrun number 28
+ Begin subrun number 28 : Top:qq2tq(t:W)
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
+ Cross section is 2.021e-07 and in Pythia6 was 1.898e-07,
+ i.e. now is factor >>> 1.065 <<< different
 
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | q q -> t q (t-channel W+-)                     603 |   5.215e-06 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 2.020e-07 and in Pythia6 was 1.898e-07,
- i.e. now is factor >>> 1.064 <<< different
-
- Begin subrun number 29
+ Begin subrun number 29 : Top:ffbar2ttbar(s:gmZ)
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
+ Cross section is 4.222e-10 and in Pythia6 was 4.240e-10,
+ i.e. now is factor >>> 0.996 <<< different
 
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | f fbar -> t tbar (s-channel gamma*/Z0)         604 |   6.200e-09 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 4.219e-10 and in Pythia6 was 4.240e-10,
- i.e. now is factor >>> 0.995 <<< different
-
- Begin subrun number 30
+ Begin subrun number 30 : Top:ffbar2tqbar(s:W)
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
-
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | f fbar -> t qbar (s-channel W+-)               605 |   1.240e-07 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
  PYTHIA Warning in PhaseSpace2to2tauyz::trialKin: maximum for cross section violated  
  PYTHIA Error in ResonanceDecays::next: failed to find workable decay channel  
- Cross section is 7.263e-09 and in Pythia6 was 7.142e-09,
+ Cross section is 7.262e-09 and in Pythia6 was 7.142e-09,
  i.e. now is factor >>> 1.017 <<< different
 
- Begin subrun number 31
+ Begin subrun number 31 : HiggsSM:ffbar2H
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
-
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | f fbar -> H (SM)                               901 |   6.081e-10 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 1.919e-10 and in Pythia6 was 1.547e-10,
+ Cross section is 1.920e-10 and in Pythia6 was 1.547e-10,
  i.e. now is factor >>> 1.241 <<< different
 
- Begin subrun number 32
+ Begin subrun number 32 : HiggsSM:gg2H
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
-
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | g g -> H (SM)                                  902 |   2.851e-08 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 9.291e-09 and in Pythia6 was 7.064e-09,
+ Cross section is 9.287e-09 and in Pythia6 was 7.064e-09,
  i.e. now is factor >>> 1.315 <<< different
 
- Begin subrun number 33
+ Begin subrun number 33 : HiggsSM:ffbar2HZ
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
-
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | f fbar -> H0 Z0 (SM)                           904 |   1.755e-09 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
  Cross section is 1.388e-10 and in Pythia6 was 1.316e-10,
  i.e. now is factor >>> 1.055 <<< different
 
- Begin subrun number 34
+ Begin subrun number 34 : HiggsSM:ffbar2HW
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
+ Cross section is 2.495e-10 and in Pythia6 was 2.332e-10,
+ i.e. now is factor >>> 1.070 <<< different
 
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | f fbar -> H0 W+- (SM)                          905 |   3.248e-09 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 2.493e-10 and in Pythia6 was 2.332e-10,
- i.e. now is factor >>> 1.069 <<< different
-
- Begin subrun number 35
+ Begin subrun number 35 : HiggsSM:ff2Hff(t:ZZ)
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
-
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | f f' -> H0 f f'(Z0 Z0 fusion) (SM)             906 |   1.444e-08 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
+ PYTHIA Warning in PhaseSpace2to2tauyz::trialKin: maximum for cross section violated  
  Cross section is 5.228e-10 and in Pythia6 was 5.105e-10,
  i.e. now is factor >>> 1.024 <<< different
 
- Begin subrun number 36
+ Begin subrun number 36 : HiggsSM:ff2Hff(t:WW)
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
+ Cross section is 1.323e-09 and in Pythia6 was 1.316e-09,
+ i.e. now is factor >>> 1.005 <<< different
 
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | f_1 f_2 -> H0 f_3 f_4 (W+ W- fusion) (SM)      907 |   3.437e-08 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 1.311e-09 and in Pythia6 was 1.316e-09,
- i.e. now is factor >>> 0.996 <<< different
-
- Begin subrun number 37
+ Begin subrun number 37 : HiggsSM:qg2Hq
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
+ Cross section is 5.843e-11 and in Pythia6 was 4.462e-11,
+ i.e. now is factor >>> 1.310 <<< different
 
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | c g -> H c (SM)                                911 |   4.016e-11 |
- | b g -> H b (SM)                                911 |   4.551e-10 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 5.823e-11 and in Pythia6 was 4.462e-11,
- i.e. now is factor >>> 1.305 <<< different
-
- Begin subrun number 38
+ Begin subrun number 38 : HiggsSM:gg2Hg(l:t)
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
+ Cross section is 7.424e-09 and in Pythia6 was 5.557e-09,
+ i.e. now is factor >>> 1.336 <<< different
 
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | g g -> H g (SM; top loop)                      914 |   5.122e-08 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 7.383e-09 and in Pythia6 was 5.557e-09,
- i.e. now is factor >>> 1.329 <<< different
-
- Begin subrun number 39
+ Begin subrun number 39 : HiggsSM:qg2Hq(l:t)
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
+ Cross section is 2.560e-09 and in Pythia6 was 1.966e-09,
+ i.e. now is factor >>> 1.302 <<< different
 
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | q g -> H q (SM; top loop)                      915 |   3.992e-08 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 2.582e-09 and in Pythia6 was 1.966e-09,
- i.e. now is factor >>> 1.313 <<< different
-
- Begin subrun number 40
+ Begin subrun number 40 : HiggsSM:qqbar2Hg(l:t)
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
-
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | q qbar -> H g (SM; top loop)                   916 |   1.636e-10 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
  Cross section is 1.105e-11 and in Pythia6 was 8.725e-12,
- i.e. now is factor >>> 1.266 <<< different
+ i.e. now is factor >>> 1.267 <<< different
 
- Begin subrun number 41
+ Begin subrun number 41 : HiggsBSM:allH1
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 25
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
+ PYTHIA Warning in PhaseSpace2to2tauyz::trialKin: maximum for cross section violated  
+ Cross section is 3.233e-08 and in Pythia6 was 2.450e-08,
+ i.e. now is factor >>> 1.320 <<< different
 
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | f fbar -> h0(H1)                              1001 |   4.527e-09 |
- | g g -> h0(H1)                                 1002 |   7.548e-08 |
- | gamma gamma -> h0(H1)                         1003 |   0.000e+00 |
- | f fbar -> h0(H1) Z0                           1004 |   6.413e-09 |
- | f fbar -> h0(H1) W+-                          1005 |   1.198e-08 |
- | f f' -> h0(H1) f f' (Z0 Z0 fusion)            1006 |   2.226e-08 |
- | f_1 f_2 -> h0(H1) f_3 f_4 (W+ W- fusion)      1007 |   4.889e-08 |
- | g g -> h0(H1) t tbar                          1008 |   1.698e-07 |
- | q qbar -> h0(H1) t tbar                       1009 |   4.197e-08 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 3.231e-08 and in Pythia6 was 2.450e-08,
- i.e. now is factor >>> 1.319 <<< different
-
- Begin subrun number 42
+ Begin subrun number 42 : HiggsBSM:allH2
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
  PYTHIA Warning in PhaseSpace2to2tauyz::trialKin: maximum for cross section violated  
+ Cross section is 6.755e-09 and in Pythia6 was 5.839e-09,
+ i.e. now is factor >>> 1.157 <<< different
 
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | f fbar -> H0(H2)                              1021 |   1.244e-10 |
- | g g -> H0(H2)                                 1022 |   2.661e-08 |
- | gamma gamma -> H0(H2)                         1023 |   0.000e+00 |
- | f fbar -> H0(H2) Z0                           1024 |   4.385e-10 |
- | f fbar -> H0(H2) W+-                          1025 |   8.179e-10 |
- | f f' -> H0(H2) f f' (Z0 Z0 fusion)            1026 |   8.572e-09 |
- | f_1 f_2 -> H0(H2) f_3 f_4 (W+ W- fusion)      1027 |   2.317e-08 |
- | g g -> H0(H2) t tbar                          1028 |   4.003e-09 |
- | q qbar -> H0(H2) t tbar                       1029 |   2.437e-09 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 6.741e-09 and in Pythia6 was 5.839e-09,
- i.e. now is factor >>> 1.154 <<< different
-
- Begin subrun number 43
+ Begin subrun number 43 : HiggsBSM:allA3
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
  PYTHIA Warning in PhaseSpace2to2tauyz::trialKin: maximum for cross section violated  
+ Cross section is 2.089e-08 and in Pythia6 was 1.687e-08,
+ i.e. now is factor >>> 1.238 <<< different
 
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | f fbar -> A0(A3)                              1041 |   1.222e-10 |
- | g g -> A0(A3)                                 1042 |   2.776e-07 |
- | gamma gamma -> A0(A3)                         1043 |   0.000e+00 |
- | f fbar -> A0(A3) ZO                           1044 |   0.000e+00 |
- | f fbar -> A0(A3) W+-                          1045 |   0.000e+00 |
- | f f' -> A0(A3) f f' (Z0 Z0 fusion)            1046 |   0.000e+00 |
- | f_1 f_2 -> A0(A3) f_3 f_4 (W+ W- fusion)      1047 |   0.000e+00 |
- | g g -> A0(A3) t tbar                          1048 |   3.694e-09 |
- | q qbar -> A0(A3) t tbar                       1049 |   3.721e-09 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 2.093e-08 and in Pythia6 was 1.687e-08,
- i.e. now is factor >>> 1.240 <<< different
-
- Begin subrun number 44
+ Begin subrun number 44 : HiggsBSM:allH+-
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
-
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | f fbar' -> H+-                                 961 |   5.858e-12 |
- | b g -> H+- t                                  1062 |   1.696e-09 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 8.897e-11 and in Pythia6 was 8.950e-11,
+ Cross section is 8.892e-11 and in Pythia6 was 8.950e-11,
  i.e. now is factor >>> 0.994 <<< different
 
- Begin subrun number 45
+ Begin subrun number 45 : HiggsBSM:allHpair
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
-
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | f fbar -> A0(H3) h0(H1)                       1081 |   1.850e-10 |
- | f fbar -> A0(H3) H0(H2)                       1082 |   7.804e-11 |
- | f fbar' -> H+- h0(H1)                         1083 |   2.764e-10 |
- | f fbar' -> H+- H0(H2)                         1084 |   0.000e+00 |
- | f fbar -> H+ H-                               1085 |   5.319e-11 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 4.217e-11 and in Pythia6 was 4.188e-11,
- i.e. now is factor >>> 1.007 <<< different
-
- Begin subrun number 46
- PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
- PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
- PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
-
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | f fbar -> gamma*/Z0/Zprime0                   3001 |   6.242e-07 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 1.997e-07 and in Pythia6 was 1.980e-07,
+ Cross section is 4.226e-11 and in Pythia6 was 4.188e-11,
  i.e. now is factor >>> 1.009 <<< different
 
- Begin subrun number 47
+ Begin subrun number 46 : NewGaugeBoson:ffbar2gmZZprime
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
+ Cross section is 1.996e-07 and in Pythia6 was 1.980e-07,
+ i.e. now is factor >>> 1.008 <<< different
 
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | f fbar' -> W'+-                               3021 |   1.353e-06 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 4.608e-07 and in Pythia6 was 4.551e-07,
- i.e. now is factor >>> 1.012 <<< different
-
- Begin subrun number 48
+ Begin subrun number 47 : NewGaugeBoson:ffbar2Wprime
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
+ Cross section is 4.585e-07 and in Pythia6 was 4.551e-07,
+ i.e. now is factor >>> 1.007 <<< different
 
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | f fbar -> Z_R^0                               3101 |   2.012e-08 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 5.842e-09 and in Pythia6 was 6.005e-09,
- i.e. now is factor >>> 0.973 <<< different
-
- Begin subrun number 49
+ Begin subrun number 48 : LeftRightSymmmetry:ffbar2ZR
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
+ Cross section is 5.896e-09 and in Pythia6 was 6.005e-09,
+ i.e. now is factor >>> 0.982 <<< different
 
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | f fbar' -> W_R^+-                             3102 |   3.456e-07 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 1.091e-07 and in Pythia6 was 1.102e-07,
- i.e. now is factor >>> 0.990 <<< different
-
- Begin subrun number 50
+ Begin subrun number 49 : LeftRightSymmmetry:ffbar2WR
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
+ Cross section is 1.089e-07 and in Pythia6 was 1.102e-07,
+ i.e. now is factor >>> 0.988 <<< different
 
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | f fbar -> H_L^++ H_L^--                       3126 |   1.436e-09 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 7.769e-11 and in Pythia6 was 7.784e-11,
- i.e. now is factor >>> 0.998 <<< different
-
- Begin subrun number 51
+ Begin subrun number 50 : LeftRightSymmmetry:ffbar2HLHL
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
+ Cross section is 7.789e-11 and in Pythia6 was 7.784e-11,
+ i.e. now is factor >>> 1.001 <<< different
 
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | f fbar -> H_R^++ H_R^--                       3146 |   6.431e-10 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 3.524e-11 and in Pythia6 was 3.488e-11,
- i.e. now is factor >>> 1.010 <<< different
-
- Begin subrun number 52
+ Begin subrun number 51 : LeftRightSymmmetry:ffbar2HRHR
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
+ Cross section is 3.520e-11 and in Pythia6 was 3.488e-11,
+ i.e. now is factor >>> 1.009 <<< different
 
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | q l -> LQ (leptoquark)                        3201 |   0.000e+00 |
- | q g -> LQ l (leptoquark)                      3202 |   2.879e-07 |
- | g g -> LQ LQbar (leptoquark)                  3203 |   5.223e-07 |
- | q qbar -> LQ LQbar (leptoquark)               3204 |   7.513e-08 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 6.622e-08 and in Pythia6 was 6.006e-08,
- i.e. now is factor >>> 1.103 <<< different
-
- Begin subrun number 53
+ Begin subrun number 52 : LeptoQuark:all
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
+ Cross section is 6.648e-08 and in Pythia6 was 6.006e-08,
+ i.e. now is factor >>> 1.107 <<< different
 
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | d g -> d^*                                    4001 |   9.661e-06 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 3.476e-06 and in Pythia6 was 3.235e-06,
- i.e. now is factor >>> 1.075 <<< different
-
- Begin subrun number 54
+ Begin subrun number 53 : ExcitedFermion:dg2dStar
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
+ Cross section is 3.505e-06 and in Pythia6 was 3.235e-06,
+ i.e. now is factor >>> 1.084 <<< different
 
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | q q -> d^* q                                  4021 |   3.694e-04 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 1.855e-05 and in Pythia6 was 1.689e-05,
- i.e. now is factor >>> 1.098 <<< different
-
- Begin subrun number 55
+ Begin subrun number 54 : ExcitedFermion:qq2dStarq
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
+ Cross section is 1.857e-05 and in Pythia6 was 1.689e-05,
+ i.e. now is factor >>> 1.099 <<< different
 
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | q qbar -> e^*+- e^-+                          4031 |   2.264e-05 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 5.661e-07 and in Pythia6 was 5.986e-07,
- i.e. now is factor >>> 0.946 <<< different
-
- Begin subrun number 56
+ Begin subrun number 55 : ExcitedFermion:qqbar2eStare
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
+ Cross section is 5.730e-07 and in Pythia6 was 5.986e-07,
+ i.e. now is factor >>> 0.957 <<< different
 
- *-------  PYTHIA Process Initialization  --------------------------*
- |                                                                  |
- | We collide p+ with p+ at a CM energy of 1.400e+04 GeV            |
- |                                                                  |
- |------------------------------------------------------------------|
- |                                                    |             |
- | Subprocess                                    Code |   Estimated |
- |                                                    |    max (mb) |
- |                                                    |             |
- |------------------------------------------------------------------|
- |                                                    |             |
- | g g -> G*                                     5001 |   8.725e-10 |
- | f fbar -> G*                                  5002 |   1.660e-10 |
- |                                                                  |
- *-------  End PYTHIA Process Initialization -----------------------*
- Cross section is 3.110e-10 and in Pythia6 was 3.241e-10,
+ Begin subrun number 56 : ExtraDimensionsG*:all
+ PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
+ PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
+ PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
+ Cross section is 3.108e-10 and in Pythia6 was 3.241e-10,
  i.e. now is factor >>> 0.959 <<< different

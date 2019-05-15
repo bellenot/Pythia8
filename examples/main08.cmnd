@@ -26,4 +26,4 @@ PhaseSpace:pTHatMax = 600.
 
 Main:subrun = 4 
 PhaseSpace:pTHatMin = 600.
-PhaseSpace:pTHatMax = 0.              ! 0, means open-ended
+PhaseSpace:pTHatMax = 0.              ! 0. means open-ended

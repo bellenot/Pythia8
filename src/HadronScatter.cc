@@ -1,5 +1,5 @@
 // HadronScatter.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -373,12 +373,12 @@ void SigmaPartialWave::setupSubprocesses() {
     // Incoming to subprocess
     for (int i = 0; i < subprocessMax; i++) in2sp[sp2in[i]] = i;
     // Isospin coefficients
-    isoCoeff[0][0] = 0.;      isoCoeff[0][2] = 0.;      isoCoeff[0][4] = 1.;
-    isoCoeff[1][0] = 1. / 3.; isoCoeff[1][2] = 1. / 2.; isoCoeff[1][4] = 1. / 6.;
-    isoCoeff[2][0] = 0.;      isoCoeff[2][2] = 1. / 2.; isoCoeff[2][4] = 1. / 2.;
-    isoCoeff[3][0] = 1. / 3.; isoCoeff[3][2] = 0.;      isoCoeff[3][4] = 2. / 3.;
-    isoCoeff[4][0] = 0.;      isoCoeff[4][2] = 1. / 2.; isoCoeff[4][4] = 1. / 2.;
-    isoCoeff[5][0] = 0.;      isoCoeff[5][2] = 0.;      isoCoeff[5][4] = 1.;
+    isoCoeff[0][0] = 0.;    isoCoeff[0][2] = 0.;    isoCoeff[0][4] = 1.;
+    isoCoeff[1][0] = 1./3.; isoCoeff[1][2] = 1./2.; isoCoeff[1][4] = 1./6.;
+    isoCoeff[2][0] = 0.;    isoCoeff[2][2] = 1./2.; isoCoeff[2][4] = 1./2.;
+    isoCoeff[3][0] = 1./3.; isoCoeff[3][2] = 0.;    isoCoeff[3][4] = 2./3.;
+    isoCoeff[4][0] = 0.;    isoCoeff[4][2] = 1./2.; isoCoeff[4][4] = 1./2.;
+    isoCoeff[5][0] = 0.;    isoCoeff[5][2] = 0.;    isoCoeff[5][4] = 1.;
 
     break;
 
@@ -435,7 +435,7 @@ void SigmaPartialWave::setupGrid() {
     setSubprocess(sp);
 
     // Bins in Wcm
-    int nBin1 = (binMax - mA - mB) / WCMBIN;
+    int nBin1 = int( (binMax - mA - mB) / WCMBIN );
     gridMax[subprocess].resize(nBin1);
     gridNorm[subprocess].resize(nBin1);
     for (int n1 = 0; n1 < nBin1; n1++) {
@@ -444,7 +444,7 @@ void SigmaPartialWave::setupGrid() {
       double bu1 = bl1 + WCMBIN;
 
       // Bins in cos(theta)
-      int    nBin2 = 2. / CTBIN;
+      int    nBin2 = int( 2. / CTBIN );
       gridMax[subprocess][n1].resize(nBin2);
       for (int n2 = 0; n2 < nBin2; n2++) {
         // Bin lower and upper
@@ -727,11 +727,11 @@ bool HadronScatter::init(Info* infoPtrIn, Settings& settings,
   // String fragmentation and MPI settings
   pTsigma         = 2.0 * settings.parm("StringPT:sigma");
   pTsigma2        = pTsigma * pTsigma;
-  double pT0ref   = settings.parm("MultipleInteractions:pT0ref");
-  double eCMref   = settings.parm("MultipleInteractions:eCMref");
-  double eCMpow   = settings.parm("MultipleInteractions:eCMpow");
+  double pT0ref   = settings.parm("MultipartonInteractions:pT0ref");
+  double eCMref   = settings.parm("MultipartonInteractions:eCMref");
+  double eCMpow   = settings.parm("MultipartonInteractions:eCMpow");
   double eCMnow   = infoPtr->eCM();
-  pT0MI           = pT0ref * pow(eCMnow / eCMref, eCMpow);
+  pT0MPI          = pT0ref * pow(eCMnow / eCMref, eCMpow);
 
   // Tiling
   double mp2 = particleDataPtr->m0(111) * particleDataPtr->m0(111);
@@ -818,7 +818,7 @@ void HadronScatter::debugOutput() {
        << "  rMax          = " << rMax << endl
        << endl
        << " pTsigma        = " << pTsigma2 << endl
-       << " pT0MI          = " << pT0MI << endl
+       << " pT0MPI         = " << pT0MPI << endl
        << endl
        << " sigElMax       = " << sigElMax << endl << endl;
 
@@ -921,8 +921,8 @@ bool HadronScatter::canScatter(Event& event, int i) {
   switch (hadronSelect) {
   case 0:
     double t1 = exp( - event[i].pT2() / 2. / pTsigma2);
-    double t2 = pow(pT0MI, pPar) /
-                pow(pT0MI * pT0MI + event[i].pT2(), pPar / 2.);
+    double t2 = pow(pT0MPI, pPar) /
+                pow(pT0MPI * pT0MPI + event[i].pT2(), pPar / 2.);
     p = Npar * t1 / ( (1 - kPar) * t1 + kPar * t2 );
     break;
   }
@@ -936,7 +936,8 @@ bool HadronScatter::canScatter(Event& event, int i) {
 //--------------------------------------------------------------------------
 
 // Probability for scattering
-bool HadronScatter::doesScatter(Event& event, const HSIndex &i1, const HSIndex &i2) {
+bool HadronScatter::doesScatter(Event& event, const HSIndex &i1, 
+  const HSIndex &i2) {
   Particle &p1 = event[i1.second];
   Particle &p2 = event[i2.second];
 
@@ -947,8 +948,8 @@ bool HadronScatter::doesScatter(Event& event, const HSIndex &i1, const HSIndex &
 
   // Check that the two hadrons have not already scattered
   if (scatterRepeat &&
-      scattered.find(HSIndex(min(i1.first, i2.first), max(i1.first, i2.first))) !=
-      scattered.end()) return false;
+      scattered.find(HSIndex(min(i1.first, i2.first), max(i1.first, i2.first)))
+      != scattered.end()) return false;
 
   // K-K, p-p and K-p not allowed
   int id1 = min(p1.idAbs(), p2.idAbs());

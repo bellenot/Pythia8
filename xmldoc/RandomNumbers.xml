@@ -66,7 +66,7 @@ externally to the <code>Pythia</code> code.
 
 <p/>
 An example illustrating how to run with an external random number
-generator is provided in <code>main24.cc</code>.
+generator is provided in <code>main23.cc</code>.
 
 <h3>The methods</h3>
 
@@ -137,4 +137,4 @@ to give a random number between 0 and 1.
 
 </chapter>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->

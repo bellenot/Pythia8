@@ -1,5 +1,5 @@
 // SigmaEW.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -315,7 +315,8 @@ void Sigma2ff2fftgmZ::initProc() {
   gmZmode   = settingsPtr->mode("WeakZ0:gmZmode");
   mZ        = particleDataPtr->m0(23);
   mZS       = mZ*mZ;
-  thetaWRat = 1. / (16. * couplingsPtr->sin2thetaW() * couplingsPtr->cos2thetaW());  
+  thetaWRat = 1. / (16. * couplingsPtr->sin2thetaW() 
+            * couplingsPtr->cos2thetaW());  
 
 } 
 
@@ -642,7 +643,8 @@ void Sigma1ffbar2gmZ::initProc() {
   GammaRes    = particleDataPtr->mWidth(23);
   m2Res       = mRes*mRes;
   GamMRat     = GammaRes / mRes;
-  thetaWRat   = 1. / (16. * couplingsPtr->sin2thetaW() * couplingsPtr->cos2thetaW());
+  thetaWRat   = 1. / (16. * couplingsPtr->sin2thetaW() 
+              * couplingsPtr->cos2thetaW());
 
   // Set pointer to particle properties and decay table.
   particlePtr = particleDataPtr->particleDataEntryPtr(23);
@@ -898,7 +900,7 @@ double Sigma1ffbar2W::weightDecay( Event& process, int iResBeg,
 //==========================================================================
 
 // Sigma2ffbar2ffbarsgm class.
-// Cross section f fbar -> gamma* -> f' fbar', for multiple interactions.
+// Cross section f fbar -> gamma* -> f' fbar', for multiparton interactions.
 
 
 //--------------------------------------------------------------------------
@@ -929,7 +931,7 @@ void Sigma2ffbar2ffbarsgm::sigmaKin() {
   // Calculate kinematics dependence. Give correct mass factors for 
   // tHat, uHat defined as if massless kinematics, d(sigma)/d(Omega)
   // = beta (1 + cos^2(theta) + (1 - beta^2) sin^2(theta)).
-  // Special case related to phase space form in multiple interactions.
+  // Special case related to phase space form in multiparton interactions.
   double sigS = 0.;
   if (sH > 4. * m2New) {
     double beta = sqrt(1. - 4. * m2New / sH);
@@ -1618,7 +1620,7 @@ double Sigma2ffbar2gmZgmZ::weightDecayFlav( Event& process) {
 
   // Flavour weight and maximum.
   flavWt = (c3LL + c3LR) * (c4LL + c4LR) + (c3RL + c3RR) * (c4RL + c4RR);
-  double flavWtMax = (c3LL + c3LR + c3RL + c3RR) * (c4LL + c4LR + c4RL + c4RR); 
+  double flavWtMax = (c3LL + c3LR + c3RL + c3RR) * (c4LL + c4LR + c4RL + c4RR);
 
   // Done.
   return flavWt / flavWtMax;

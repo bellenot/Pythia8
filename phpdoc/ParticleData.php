@@ -7716,6 +7716,7 @@ echo "<a href='ParticleDecays.php?filepath=".$filepath."' target='page'>";?>here
  <br/>      channel: onMode="1" bRatio="0.0409900" products="22 22"
  <br/>      channel: onMode="1" bRatio="0.0452360" products="23 23"
  <br/>      channel: onMode="1" bRatio="0.0901120" products="24 -24"
+ <br/>      channel: onMode="1" bRatio="0.0"       products="25 25"
 
 <p/>particle: id="9000111" name="a_0(980)0" spinType="1" chargeType="0" colType="0"
           m0="0.98350" mWidth="0.06000" mMin="0.70000" mMax="1.50000"
@@ -7977,4 +7978,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->

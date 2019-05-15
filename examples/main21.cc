@@ -1,5 +1,5 @@
 // main21.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -200,7 +200,7 @@ int main() {
   int nEvent = 10000;
   int nList = 3;
 
-  // Generator; shorthand for event and particleData.                           
+  // Generator; shorthand for event and particleData.
   Pythia pythia;  
   Event& event      = pythia.event;
   ParticleData& pdt = pythia.particleData;
@@ -211,8 +211,10 @@ int main() {
   // Optionally switch off decays.
   //pythia.readString("HadronLevel:Decay = off");
 
-  // Provide printout of initial information.        
-  pythia.settings.listChanged();
+  // Switch off automatic event listing in favour of manual.
+  pythia.readString("Next:numberShowInfo = 0");
+  pythia.readString("Next:numberShowProcess = 0");
+  pythia.readString("Next:numberShowEvent = 0"); 
  
   // Initialize.
   pythia.init();
@@ -235,11 +237,10 @@ int main() {
   
   // Begin of event loop.
   for (int iEvent = 0; iEvent < nEvent; ++iEvent) {
-    if (iEvent%(max(1,nEvent/20)) == 0) cout << " Now begin event " 
-      << iEvent << endl;
 
     // Set up single particle, with random direction in solid angle.
-    if (type == 0) fillParticle( idGun, eeGun, -1., 0., event, pdt, pythia.rndm);
+    if (type == 0) fillParticle( idGun, eeGun, -1., 0., event, pdt, 
+      pythia.rndm);
 
     // Set up parton-level configuration.
     else fillPartons( type, ee, event, pdt, pythia.rndm); 
@@ -339,7 +340,7 @@ int main() {
   }                                           
 
   // Print statistics, histograms and done.
-  pythia.statistics();
+  pythia.stat();
   cout << epCons << chgCons << nFinal << dnparticledp
        << dndtheta << dedtheta << dpartondtheta << dndySum;
   if (type >= 4) cout << status85 << status86 << status83 

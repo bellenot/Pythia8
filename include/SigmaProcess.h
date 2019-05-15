@@ -1,5 +1,5 @@
 // SigmaProcess.h is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -111,10 +111,10 @@ public:
   virtual void set2Kin( double , double , double , double , double , 
     double, double, double ) {} 
 
-  // Ditto, but for Multiple Interactions applications, so different input.
-  // Usage: set2KinMI( x1in, x2in, sHin, tHin, uHin, 
+  // Ditto, but for Multiparton Interactions applications, so different input.
+  // Usage: set2KinMPI( x1in, x2in, sHin, tHin, uHin, 
   //                   alpSin, alpEMin, needMasses, m3in, m4in)
-  virtual void set2KinMI( double , double , double , double , 
+  virtual void set2KinMPI( double , double , double , double , 
     double , double , double , bool , double , double ) {}
 
   // Input and complement kinematics for resolved 2 -> 3 process.
@@ -147,8 +147,8 @@ public:
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol() {}
 
-  // Perform kinematics for a Multiple Interaction, in its rest frame.
-  virtual bool final2KinMI( int = 0, int = 0, Vec4 = 0., Vec4 = 0.,
+  // Perform kinematics for a Multiparton Interaction, in its rest frame.
+  virtual bool final2KinMPI( int = 0, int = 0, Vec4 = 0., Vec4 = 0.,
     double = 0., double = 0.) {return true;}
 
   // Evaluate weight for simultaneous flavours (only gamma*/Z0 gamma*/Z0).
@@ -241,18 +241,20 @@ public:
   double pdf2()             const {return pdf2Save;}
 
   // Give back angles; relevant only for multipe-interactions processes.
-  double thetaMI()          const {return atan2( sinTheta, cosTheta);}
-  double phiMI()            const {return phi;}
-  double sHBetaMI()         const {return sHBeta;}
-  double pT2MI()            const {return pT2Mass;}
-  double pTMIFin()          const {return pTFin;}
+  double thetaMPI()         const {return atan2( sinTheta, cosTheta);}
+  double phiMPI()           const {return phi;}
+  double sHBetaMPI()        const {return sHBeta;}
+  double pT2MPI()           const {return pT2Mass;}
+  double pTMPIFin()         const {return pTFin;}
 
   // Save and load kinematics for trial interactions
   void saveKin() {
-    for (int i = 0; i < 6; i++) { partonT[i] = parton[i]; mSaveT[i] = mSave[i]; }
+    for (int i = 0; i < 6; i++) { partonT[i] = parton[i]; 
+      mSaveT[i] = mSave[i]; }
     pTFinT = pTFin; phiT = phi; cosThetaT = cosTheta; sinThetaT = sinTheta; }
   void loadKin() {
-    for (int i = 0; i < 6; i++) { parton[i] = partonT[i]; mSave[i] = mSaveT[i]; }
+    for (int i = 0; i < 6; i++) { parton[i] = partonT[i]; 
+    mSave[i] = mSaveT[i]; }
     pTFin = pTFinT; cosTheta = cosThetaT; sinTheta = sinThetaT; phi = phiT;
   }
   void swapKin() {
@@ -341,7 +343,7 @@ protected:
   Particle parton[6];
 
   // Minimal set of saved kinematics for trial interactions when
-  // using the x-dependent matter profile of multiple interactions.
+  // using the x-dependent matter profile of multiparton interactions.
   Particle partonT[6];
   double   mSaveT[6], pTFinT, cosThetaT, sinThetaT, phiT;
 
@@ -478,11 +480,11 @@ public:
     double runBW4in) { store2Kin( x1in, x2in, sHin, tHin, m3in, m4in, 
     runBW3in, runBW4in); sigmaKin();}
 
-  // Ditto, but for Multiple Interactions applications, so different input.
-  virtual void   set2KinMI( double x1in, double x2in, double sHin, 
+  // Ditto, but for Multiparton Interactions applications, so different input.
+  virtual void   set2KinMPI( double x1in, double x2in, double sHin, 
     double tHin, double uHin, double alpSin, double alpEMin, 
     bool needMasses, double m3in, double m4in) {
-    store2KinMI( x1in, x2in, sHin, tHin, uHin, alpSin, alpEMin, 
+    store2KinMPI( x1in, x2in, sHin, tHin, uHin, alpSin, alpEMin, 
     needMasses, m3in, m4in); sigmaKin();}
 
   // Evaluate d(sigmaHat)/d(tHat) for resolved 2 -> 2 processes. 
@@ -496,8 +498,8 @@ public:
     if (convertM2())  sigmaTmp /= 16. * M_PI * sH2; 
     if (convert2mb()) sigmaTmp *= CONVERT2MB; return sigmaTmp;}
 
-  // Perform kinematics for a Multiple Interaction, in its rest frame.
-  virtual bool   final2KinMI( int i1Res = 0, int i2Res = 0, Vec4 p1Res = 0., 
+  // Perform kinematics for a Multiparton Interaction, in its rest frame.
+  virtual bool   final2KinMPI( int i1Res = 0, int i2Res = 0, Vec4 p1Res = 0., 
     Vec4 p2Res = 0., double m1Res = 0., double m2Res = 0.);
 
 protected:
@@ -509,7 +511,7 @@ protected:
   virtual void   store2Kin( double x1in, double x2in, double sHin, 
     double tHin, double m3in, double m4in, double runBW3in, 
     double runBW4in);
-  virtual void   store2KinMI( double x1in, double x2in, double sHin, 
+  virtual void   store2KinMPI( double x1in, double x2in, double sHin, 
     double tHin, double uHin, double alpSin, double alpEMin, 
     bool needMasses, double m3in, double m4in);
 

@@ -1,10 +1,10 @@
 // PartonLevel.h is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 // This file contains the main class for parton-level event generation
-// PartonLevel: administrates showers, multiple interactions and remnants.
+// PartonLevel: administrates showers, multiparton interactions and remnants.
 
 #ifndef Pythia8_PartonLevel_H
 #define Pythia8_PartonLevel_H
@@ -15,7 +15,7 @@
 #include "Event.h"
 #include "Info.h"
 #include "MergingHooks.h"
-#include "MultipleInteractions.h"
+#include "MultipartonInteractions.h"
 #include "ParticleData.h"
 #include "PartonSystems.h"
 #include "PythiaStdlib.h"
@@ -61,14 +61,16 @@ public:
   // Tell whether failure was due to vetoing.
   bool hasVetoed() const {return doVeto;}
 
-  // Accumulate and print statistics.
+  // Accumulate, print and reset statistics.
   void accumulate() {multiPtr->accumulate();}
   void statistics(bool reset = false) {
-    if (doMI) multiMB.statistics(reset);}
+    if (doMPI) multiMB.statistics(reset);}
     // For now no separate statistics for diffraction??
-    //if (doMISDA && doDiffraction) multiSDA.statistics(reset); 
-    //if (doMISDB && doDiffraction) multiSDB.statistics(reset);}
+    //if (doMPISDA && doDiffraction) multiSDA.statistics(reset); 
+    //if (doMPISDB && doDiffraction) multiSDB.statistics(reset);}
+  void resetStatistics() { if (doMPI) multiMB.resetStatistics(); }
 
+  // Reset PartonLevel object for trial shower usage.
   void resetTrial();
   // Provide the pT scale of the last branching in the shower.
   double pTLastInShower(){ return pTLastBranch; }
@@ -81,17 +83,18 @@ private:
   static const int NTRY;
 
   // Initialization data, mainly read from Settings.
-  bool   doMinBias, doDiffraction, doMI, doMIMB, doMISDA, doMISDB, doMIinit, 
-         doISR, doFSRduringProcess, doFSRafterProcess,  doFSRinResonances, 
-         doRemnants, doSecondHard, hasLeptonBeams, hasPointLeptons, 
-         canVetoPT, canVetoStep, canVetoMIStep, canSetScale, allowRH;
+  bool   doMinBias, doDiffraction, doMPI, doMPIMB, doMPISDA, doMPISDB, 
+         doMPIinit, doISR, doFSRduringProcess, doFSRafterProcess,  
+         doFSRinResonances, doRemnants, doSecondHard, hasLeptonBeams, 
+         hasPointLeptons, canVetoPT, canVetoStep, canVetoMPIStep, 
+         canSetScale, allowRH;
   double mMinDiff, mWidthDiff, pMaxDiff;
 
   // Event generation strategy. Number of steps. Maximum pT scales.
   bool   doVeto;
-  int    nMI, nISR, nFSRinProc, nFSRinRes, nISRhard, nFSRhard, 
-         typeLatest, nVetoStep, typeVetoStep, nVetoMIStep, iSysNow;
-  double pTsaveMI, pTsaveISR, pTsaveFSR, pTvetoPT;
+  int    nMPI, nISR, nFSRinProc, nFSRinRes, nISRhard, nFSRhard, 
+         typeLatest, nVetoStep, typeVetoStep, nVetoMPIStep, iSysNow;
+  double pTsaveMPI, pTsaveISR, pTsaveFSR, pTvetoPT;
 
   // Current event properties.
   bool   isMinBias, isDiffA, isDiffB, isDiff, isSingleDiff, isDoubleDiff, 
@@ -136,11 +139,11 @@ private:
   // Pointer to spacelike showers.
   SpaceShower*   spacePtr;
 
-  // The generator classes for multiple interactions.
-  MultipleInteractions  multiMB;
-  MultipleInteractions  multiSDA;
-  MultipleInteractions  multiSDB;
-  MultipleInteractions* multiPtr;
+  // The generator classes for multiparton interactions.
+  MultipartonInteractions  multiMB;
+  MultipartonInteractions  multiSDA;
+  MultipartonInteractions  multiSDB;
+  MultipartonInteractions* multiPtr;
 
   // The generator class to construct beam-remnant kinematics. 
   BeamRemnants remnants;

@@ -1,5 +1,5 @@
 // ProcessLevel.h is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -62,6 +62,9 @@ public:
 
   // Print statistics on cross sections and number of events.
   void statistics(bool reset = false, ostream& os = cout);
+
+  // Reset statistics.
+  void resetStatistics();
 
   // Add any junctions to the process event record list. 
   void findJunctions( Event& junEvent);

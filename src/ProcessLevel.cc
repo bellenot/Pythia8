@@ -1,5 +1,5 @@
 // ProcessLevel.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -43,9 +43,10 @@ ProcessLevel::~ProcessLevel() {
 
 bool ProcessLevel::init( Info* infoPtrIn, Settings& settings, 
   ParticleData* particleDataPtrIn, Rndm* rndmPtrIn, 
-  BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, Couplings* couplingsPtrIn,
-  SigmaTotal* sigmaTotPtrIn, bool doLHA, SusyLesHouches* slhaPtrIn, 
-  UserHooks* userHooksPtrIn, vector<SigmaProcess*>& sigmaPtrs, ostream& os) {
+  BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, 
+  Couplings* couplingsPtrIn, SigmaTotal* sigmaTotPtrIn, bool doLHA, 
+  SusyLesHouches* slhaPtrIn, UserHooks* userHooksPtrIn, 
+  vector<SigmaProcess*>& sigmaPtrs, ostream& os) {
 
   // Store input pointers for future use. 
   infoPtr         = infoPtrIn;
@@ -183,63 +184,67 @@ bool ProcessLevel::init( Info* infoPtrIn, Settings& settings,
       sigma2MaxSum += container2Ptrs[i2]->sigmaMax();
   }
 
-  // Construct string with incoming beams and for cm energy.
-  string collision = "We collide " + particleDataPtr->name(idA)
-    + " with " + particleDataPtr->name(idB) + " at a CM energy of "; 
-  string pad( 51 - collision.length(), ' ');
+  // Printout during initialization is optional. 
+  if (settings.flag("Init:showProcesses")) {
 
-  // Print initialization information: header.
-  os << "\n *-------  PYTHIA Process Initialization  ---------"
-     << "-----------------*\n"
-     << " |                                                   "
-     << "               |\n" 
-     << " | " << collision << scientific << setprecision(3)<< setw(9) << eCM 
-     << " GeV" << pad << " |\n"
-     << " |                                                   "
-     << "               |\n"
-     << " |---------------------------------------------------"
-     << "---------------|\n"
-     << " |                                                   "
-     << " |             |\n"
-     << " | Subprocess                                    Code"
-     << " |   Estimated |\n" 
-     << " |                                                   "
-     << " |    max (mb) |\n"
-     << " |                                                   "
-     << " |             |\n"
-     << " |---------------------------------------------------"
-     << "---------------|\n"
-     << " |                                                   "
-     << " |             |\n";
+    // Construct string with incoming beams and for cm energy.
+    string collision = "We collide " + particleDataPtr->name(idA)
+      + " with " + particleDataPtr->name(idB) + " at a CM energy of "; 
+    string pad( 51 - collision.length(), ' ');
 
-
-  // Loop over existing processes: print individual process info.
-  for (int i = 0; i < int(containerPtrs.size()); ++i) 
-  os << " | " << left << setw(45) << containerPtrs[i]->name() 
-     << right << setw(5) << containerPtrs[i]->code() << " | " 
-     << scientific << setprecision(3) << setw(11)  
-     << containerPtrs[i]->sigmaMax() << " |\n";
-
-  // Loop over second hard processes, if any, and repeat as above.
-  if (doSecondHard) {
-    os << " |                                                   "
+    // Print initialization information: header.
+    os << "\n *-------  PYTHIA Process Initialization  ---------"
+       << "-----------------*\n"
+       << " |                                                   "
+       << "               |\n" 
+       << " | " << collision << scientific << setprecision(3) 
+       << setw(9) << eCM << " GeV" << pad << " |\n"
+       << " |                                                   "
+       << "               |\n"
+       << " |---------------------------------------------------"
+       << "---------------|\n"
+       << " |                                                   "
+       << " |             |\n"
+       << " | Subprocess                                    Code"
+       << " |   Estimated |\n" 
+       << " |                                                   "
+       << " |    max (mb) |\n"
+       << " |                                                   "
        << " |             |\n"
        << " |---------------------------------------------------"
-       <<"---------------|\n"
+       << "---------------|\n"
        << " |                                                   "
-       <<" |             |\n";
-    for (int i2 = 0; i2 < int(container2Ptrs.size()); ++i2) 
-    os << " | " << left << setw(45) << container2Ptrs[i2]->name() 
-       << right << setw(5) << container2Ptrs[i2]->code() << " | " 
-       << scientific << setprecision(3) << setw(11)  
-       << container2Ptrs[i2]->sigmaMax() << " |\n";
-  }
+       << " |             |\n";
 
-  // Listing finished.
-  os << " |                                                     "
-     << "             |\n" 
-     << " *-------  End PYTHIA Process Initialization ----------"
-     <<"-------------*" << endl;
+
+    // Loop over existing processes: print individual process info.
+    for (int i = 0; i < int(containerPtrs.size()); ++i) 
+    os << " | " << left << setw(45) << containerPtrs[i]->name() 
+       << right << setw(5) << containerPtrs[i]->code() << " | " 
+       << scientific << setprecision(3) << setw(11)  
+       << containerPtrs[i]->sigmaMax() << " |\n";
+
+    // Loop over second hard processes, if any, and repeat as above.
+    if (doSecondHard) {
+      os << " |                                                   "
+         << " |             |\n"
+         << " |---------------------------------------------------"
+         <<"---------------|\n"
+         << " |                                                   "
+         <<" |             |\n";
+      for (int i2 = 0; i2 < int(container2Ptrs.size()); ++i2) 
+      os << " | " << left << setw(45) << container2Ptrs[i2]->name() 
+         << right << setw(5) << container2Ptrs[i2]->code() << " | " 
+         << scientific << setprecision(3) << setw(11)  
+         << container2Ptrs[i2]->sigmaMax() << " |\n";
+    }
+
+    // Listing finished.
+    os << " |                                                     "
+       << "             |\n" 
+       << " *-------  End PYTHIA Process Initialization ----------"
+       <<"-------------*" << endl;
+  }
 
   // If sum of maxima vanishes then refuse to do anything.
   if ( numberOn == 0  || sigmaMaxSum <= 0.) {
@@ -380,8 +385,8 @@ void ProcessLevel::accumulate() {
 
   // Update statistics on average impact factor.
   ++nImpact;
-  sumImpactFac     += infoPtr->enhanceMI();
-  sum2ImpactFac    += pow2(infoPtr->enhanceMI());
+  sumImpactFac     += infoPtr->enhanceMPI();
+  sum2ImpactFac    += pow2(infoPtr->enhanceMPI());
 
   // Cross section estimate for second hard process.
   double sigma2Sum  = 0.;
@@ -492,8 +497,21 @@ void ProcessLevel::statistics(bool reset, ostream& os) {
      << "-----------------------------------------------------*" << endl;
 
   // Optionally reset statistics contants.
-  if (reset) for (int i = 0; i < int(containerPtrs.size()); ++i) 
+  if (reset) resetStatistics();
+
+}
+
+//--------------------------------------------------------------------------
+
+// Reset statistics on cross sections and number of events.
+
+void ProcessLevel::resetStatistics() {
+
+  for (int i = 0; i < int(containerPtrs.size()); ++i) 
     containerPtrs[i]->reset();
+  if (doSecondHard)  
+  for (int i2 = 0; i2 < int(container2Ptrs.size()); ++i2)
+      container2Ptrs[i2]->reset();
 
 }
 
@@ -528,12 +546,19 @@ void ProcessLevel::initSLHA() {
 
   // Initialize block MASS.
   blockName = "mass";
-  int id = 1;
-  while (id >= 1) {
+  int id = 1; 
+  int count = 0;
+  while (particleDataPtr->nextId(id) > id) {
     slhaPtr->set(blockName,id,particleDataPtr->m0(id));
-    id = particleDataPtr->nextId(id);    
+    id = particleDataPtr->nextId(id);
+    ++count;
+    if (count > 10000) {
+      infoPtr->errorMsg("Error in ProcessLevel::initSLHA: "
+		      "encountered infinite loop when saving mass block");
+      break;
+    }
   }
-
+  
 }
 
 //--------------------------------------------------------------------------
@@ -693,8 +718,8 @@ bool ProcessLevel::nextTwo( Event& process) {
       beamBPtr->pickValSeaComp(); 
 
       // Reevaluate pdf's for second interaction and weight by reduction.
-      double pdfA2Mod = beamAPtr->xfMI( idA2, xA2,Q2Fac2);
-      double pdfB2Mod = beamBPtr->xfMI( idB2, xB2,Q2Fac2);
+      double pdfA2Mod = beamAPtr->xfMPI( idA2, xA2,Q2Fac2);
+      double pdfB2Mod = beamBPtr->xfMPI( idB2, xB2,Q2Fac2);
       double wtPdfMod = (pdfA2Mod * pdfB2Mod) / (pdfA2Raw * pdfB2Raw); 
       if (wtPdfMod < rndmPtr->flat()) continue;
 
@@ -836,196 +861,124 @@ void ProcessLevel::combineProcessRecords( Event& process, Event& process2) {
 
 void ProcessLevel::findJunctions( Event& junEvent) {
 
-  // DEBUG OUTPUT
-  // junEvent.list();
-
-  // Find the total number of unmatched colours & anticolours in the event
-  map<int,int> colMap, acolMap;
-  colMap.clear();
-  acolMap.clear();
-  for (int i = 0; i < junEvent.size(); ++i) {
-    // Consider all external lines (including initial incoming ones)
-    int col  = junEvent[i].col();
-    int acol = junEvent[i].acol();
-    if (junEvent[i].isFinal() || junEvent[i].status() == -21) {
-      if (junEvent[i].status() == -21) {
-	col  = junEvent[i].acol();
-	acol = junEvent[i].col();
-      }
+  // Check all hard vertices for BNV
+  for (int i = 1; i<junEvent.size(); i++) {
+    
+    // Ignore colorless particles and stages before hard-scattering 
+    // final state. 
+    if (abs(junEvent[i].status()) <= 21 || junEvent[i].colType() == 0) continue;
+    vector<int> motherList   = junEvent.motherList(i);
+    int iMot1 = motherList[0];
+    vector<int> sisterList = junEvent.daughterList(iMot1);        
+    
+    // Check baryon number of vertex. 
+    int barSum = 0;      
+    map<int,int> colVertex, acolVertex;
+    
+    // Loop over mothers (enter with crossed colors and negative sign).
+    for (unsigned int indx = 0; indx < motherList.size(); indx++) {
+      int iMot = motherList[indx];
+      if ( abs(junEvent[iMot].colType()) == 1 ) 
+	barSum -= junEvent[iMot].colType();
+      else if ( abs(junEvent[iMot].colType()) == 3)
+	barSum -= 2*junEvent[iMot].colType()/3;
+      int col  = junEvent[iMot].acol();
+      int acol  = junEvent[iMot].col();
+      
+      // If unmatched (so far), add end. Else erase matching parton. 
       if (col > 0) {
-	// If unmatched (so far), add end. Else erase matching parton. 
-	if (acolMap.find(col) == acolMap.end() ) colMap[col] = i;
-	else acolMap.erase(col);
+	if (acolVertex.find(col) == acolVertex.end() ) colVertex[col] = iMot;
+	else acolVertex.erase(col);
+      } else if (col < 0) {
+	if (colVertex.find(-col) == colVertex.end() ) acolVertex[-col] = iMot;
+	else colVertex.erase(-col);
       }
       if (acol > 0) {
-	// If unmatched (so far), add end. Else erase matching parton. 
-	if (colMap.find(acol) == colMap.end()) acolMap[acol] = i;
-	else colMap.erase(acol);
+	if (colVertex.find(acol) == colVertex.end()) acolVertex[acol] = iMot;
+	else colVertex.erase(acol);
+      } else if (acol < 0) {
+	if (acolVertex.find(-acol) == acolVertex.end()) colVertex[-acol] = iMot;
+	else acolVertex.erase(-acol);
       }
-      // Colour sextets: negative colour = anticolour and vice versa
-      if (acol < 0) {
-	// If unmatched (so far), add end. Else erase matching parton. 
-	if (acolMap.find(-acol) == acolMap.end() ) colMap[-acol] = i;
-	else acolMap.erase(-acol);
-      }
-      if (col < 0) {
-	// If unmatched (so far), add end. Else erase matching parton. 
-	if (colMap.find(-col) == colMap.end()) acolMap[-col] = i;
-	else colMap.erase(-col);
-      }
- 
     }
-  }
 
-  // If number of dangling tags not divisible by 3, internal JJ lines must exist. 
-  if ( colMap.size() % 3 != 0 || acolMap.size() % 3 != 0) {
-
-    // Check each internal vertex 
-    for (int i = 0; i<junEvent.size(); i++) {
-
-      // Ignore stages before hard scattering final-state
-      if (abs(junEvent[i].status()) <= 21) continue;
-      vector<int> motherList   = junEvent.motherList(i);
-      int iMot1 = motherList[0];
-      vector<int> daughterList = junEvent.daughterList(iMot1);        
-      // Check baryon number of vertex
-      int barSum = 0;      
-      map<int,int> colVertex, acolVertex;
-      // Incoming partons enter with a minus sign in barSum
-      for (unsigned int indx = 0; indx < motherList.size(); indx++) {
-	int iMot = motherList[indx];
-	if ( abs(junEvent[iMot].colType()) == 1 ) 
-	  barSum -= junEvent[iMot].colType();
-	// Cross colors and anticolors
-	int col  = junEvent[iMot].acol();
-	int acol  = junEvent[iMot].col();
-	if (col > 0) {
-	  // If unmatched (so far), add end. Else erase matching parton. 
-	  if (acolVertex.find(col) == acolVertex.end() ) colVertex[col] = iMot;
-	  else acolVertex.erase(col);
-	}
-	if (acol > 0) {
-	  // If unmatched (so far), add end. Else erase matching parton. 
-	  if (colVertex.find(acol) == colVertex.end()) acolVertex[acol] = iMot;
-	  else colVertex.erase(acol);
-	}
+    // Loop over sisters. 
+    for (unsigned int indx = 0; indx < sisterList.size(); indx++) {
+      int iDau = sisterList[indx];
+      if ( abs(junEvent[iDau].colType()) == 1 ) 
+	barSum += junEvent[iDau].colType(); 
+      else if ( abs(junEvent[iDau].colType()) == 3)
+	barSum += 2*junEvent[iDau].colType()/3;
+      int col  = junEvent[iDau].col();
+      int acol  = junEvent[iDau].acol();
+      
+      // If unmatched (so far), add end. Else erase matching parton. 
+      if (col > 0) {
+	if (acolVertex.find(col) == acolVertex.end() ) colVertex[col] = iDau;
+	else acolVertex.erase(col);
+      } else if (col < 0) {
+	if (colVertex.find(-col) == colVertex.end() ) acolVertex[-col] = iDau;
+	else colVertex.erase(-col);
       }
-      // Outgoing partons enter with a plus sign in barSum
-      for (unsigned int indx = 0; indx < daughterList.size(); indx++) {
-	int iDau = daughterList[indx];
-	if ( abs(junEvent[iDau].colType()) == 1 ) 
-	  barSum += junEvent[iDau].colType();
-	// Do not cross colors and anticolors
-	int col  = junEvent[iDau].col();
-	int acol  = junEvent[iDau].acol();
-	if (col > 0) {
-	  // If unmatched (so far), add end. Else erase matching parton. 
-	  if (acolVertex.find(col) == acolVertex.end() ) colVertex[col] = iDau;
-	  else acolVertex.erase(col);
-	}
-	if (acol > 0) {
-	  // If unmatched (so far), add end. Else erase matching parton. 
-	  if (colVertex.find(acol) == colVertex.end()) acolVertex[acol] = iDau;
-	  else colVertex.erase(acol);
-	}
-      }      
-      // If BNV vertex found, check if all colours accounted for
-      if (barSum != 0) {	
-	for (map<int,int>::iterator it = colVertex.begin(); 
-	     it != colVertex.end(); it++) {
-	  int col  = it->first;
-	  int iCol = it->second;
-	  if ( colMap.find(col) == colMap.end() ) colMap[col]=iCol;
-	}
-	for (map<int,int>::iterator it = acolVertex.begin(); 
-	     it != acolVertex.end(); it++) {
-	  int acol = it->first;
-	  int iCol = it->second;
-	  if ( acolMap.find(acol) == acolMap.end() ) acolMap[acol]=iCol;
-	}
-      }	    
-    }
-  }
-
-  // Check (and skip) any that have already been added
-  for (int iJun = 0; iJun < junEvent.sizeJunction(); ++iJun) {
-    // Remove the tags corresponding to each of the 3 existing junction legs
-    for (int j = 0; j < 3; ++j) { 
-      int colNow = junEvent.colJunction(iJun, j); 
-      if (junEvent.kindJunction(iJun) % 2 == 1) colMap.erase(colNow);
-      else acolMap.erase(colNow);
-    }
-  }
-
-  // If no more junctions expected, return without doing anything more
-  if (colMap.size() == 0 && acolMap.size() == 0) return;
-
-  // Size of each array must be divisible by 3 at this point
-  if (colMap.size() %3 != 0 || acolMap.size() %3 != 0) {
-    infoPtr->errorMsg("Error in ProcessLevel::findJunctions: "
-		      "N(unmatched (anti)colour tags) != 3");
-    return;
-  } 
-
-  // Loop: first colours, then anticolours
-  for (int mAcol = 0; mAcol <= 1; mAcol++) { 
-    map<int,int>& cMap = colMap;
-    if (mAcol == 1) cMap = acolMap;
-    int nJun = cMap.size() / 3;
-
-    // While unmatched colour tags still exist ...
-    for (int mJun = 0; mJun < nJun ; ++ mJun) {
-
-      // Connect to junctions ordered in color line number
-      vector<int> colJu, iJu;
-      colJu.resize(0);
-      // Order in decreasing color tag number
-      for (int jCol=0; jCol<=2; jCol++) {
-	colJu.push_back(0);
-	iJu.push_back(0);
-	for (map<int,int>::iterator it = cMap.begin(); it != cMap.end(); it++) {
-	  int colTag = it->first;
-	  int i      = it->second;
-	  if (i != 0 && colTag >= colJu[jCol]) {
-	    colJu[jCol] = colTag;
-	    iJu[jCol]   = i;
-	  }
-	}
-	// Mark these colour tags deleted
-	cMap[colJu[jCol]]=0;
+      if (acol > 0) {
+	if (colVertex.find(acol) == colVertex.end()) acolVertex[acol] = iDau;
+	else colVertex.erase(acol);
+      } else if (acol < 0) {
+	if (acolVertex.find(-acol) == acolVertex.end()) colVertex[-acol] = iDau;
+	else acolVertex.erase(-acol);
       }
-      // Kind is determined by how many legs have "crossed" color tags
-      int kindJun = 1 + mAcol;      
-      vector<int> colJuOrd(0);
-      for (int jLeg=0; jLeg<3; jLeg++) {
-	bool foundCrossed = false;
-	for (int i=0; i<junEvent.size(); i++) 
-	  // Note if the tag for this leg exists as crossed 
-	  if ( (mAcol == 0 && junEvent[i].acol() == colJu[jLeg]) ||
-	       (mAcol == 1 && junEvent[i].col() == colJu[jLeg]) ) foundCrossed = true;  
-	// If no crossed version exists, this is a final-state leg: add to back
-	if (!foundCrossed) colJuOrd.push_back(colJu[jLeg]);
-	// Else this is an initial-state leg: add to front and increase kindJun
-	else {
-	  //
-	  colJuOrd.insert(colJuOrd.begin(),colJu[jLeg]);
-	  kindJun += 2;
-	}
-      }
-
-      // Last error check
-      if (colJuOrd.size() != 3) {
-	infoPtr->errorMsg("Error in ProcessLevel::findJunctions: "
-			  "unable to order junction legs"); 
-	return;
-      }
-
-      // Add junction with these tags
-      junEvent.appendJunction( kindJun, colJuOrd[0], colJuOrd[1], colJuOrd[2]);         
-    }
     
-  }
+    }
 
+    // Skip if baryon number conserved in this vertex.
+    if (barSum == 0) continue;
+
+    // Check and skip any junctions that have already been added. 
+    for (int iJun = 0; iJun < junEvent.sizeJunction(); ++iJun) {
+      // Remove the tags corresponding to each of the 3 existing junction legs.
+      for (int j = 0; j < 3; ++j) { 
+	int colNow = junEvent.colJunction(iJun, j); 
+	if (junEvent.kindJunction(iJun) % 2 == 1) colVertex.erase(colNow);
+	else acolVertex.erase(colNow);
+      }
+    }
+
+    // Skip if no junction colors remain.
+    if (colVertex.size() == 0 && acolVertex.size() == 0) continue;
+
+    // If baryon number violated, is B = +1 or -1 (larger values not handled). 
+    int kindJun = 0;
+    if (colVertex.size() == 3 && acolVertex.size() == 0) kindJun = 1;
+    else if (colVertex.size() == 0 && acolVertex.size() == 3) kindJun = 2;
+    else {
+      infoPtr->errorMsg("Error in ProcessLevel::findJunctions: "
+			"N(unmatched (anti)colour tags) != 3");
+      return;
+    }
+
+    // From now on, use colJun as shorthand for colVertex or acolVertex.
+    map<int,int> colJun = (kindJun == 1) ? colVertex : acolVertex;
+
+    // Order so incoming tags appear first in colVec, outgoing tags last.
+    vector<int> colVec;
+    for (map<int,int>::iterator it = colJun.begin(); 
+	 it != colJun.end(); it++) {
+      int col  = it->first;
+      int iCol = it->second;
+      for (unsigned int indx = 0; indx < motherList.size(); indx++) {
+	if (iCol == motherList[indx]) {
+	  kindJun += 2;
+	  colVec.insert(colVec.begin(),col);
+	}
+      }
+      if (colVec.size() == 0 || colVec[0] != col) colVec.push_back(col);
+    }
+
+    // Add junction with these tags.
+    junEvent.appendJunction( kindJun, colVec[0], colVec[1], colVec[2]);
+
+  }
+  
 }
 //--------------------------------------------------------------------------
 
@@ -1158,9 +1111,9 @@ bool ProcessLevel::checkColours( Event& process) {
 
   // Error message if problem found. Done.
   if (!physical) infoPtr->errorMsg("Error in ProcessLevel::checkColours: "
-    "unphysical colour flow"); 
+                   "unphysical colour flow"); 
   return physical;
-
+  
 }
 
 //--------------------------------------------------------------------------
@@ -1332,12 +1285,7 @@ void ProcessLevel::statistics2(bool reset, ostream& os) {
      << "------------------------------------------------*" << endl;
 
   // Optionally reset statistics contants.
-  if (reset) {
-    for (int i = 0; i < int(containerPtrs.size()); ++i) 
-      containerPtrs[i]->reset();
-    for (int i2 = 0; i2 < int(container2Ptrs.size()); ++i2)
-      container2Ptrs[i2]->reset();
-  }
+  if (reset) resetStatistics();
      
 }
 

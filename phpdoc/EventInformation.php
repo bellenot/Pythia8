@@ -89,10 +89,11 @@ the CM energy and its square for the two beams.
 <a name="method7"></a>
 <p/><strong>bool Info::tooLowPTmin() &nbsp;</strong> <br/>
 normally false, but true if the proposed <i>pTmin</i> scale was too low 
-in timelike or spacelike showers, or in multiple interactions. In the former
-case the <i>pTmin</i> is raised to some minimal value, in the latter the 
-initialization fails (it is impossible to obtain a minijet cross section
-bigger than the nondiffractive one by reducing <i>pTmin</i>).
+in timelike or spacelike showers, or in multiparton interactions. In the 
+former case the <i>pTmin</i> is raised to some minimal value, in the 
+latter the initialization fails (it is impossible to obtain a minijet 
+cross section bigger than the nondiffractive one by reducing 
+<i>pTmin</i>).
   
 
 <h3>The event type</h3>
@@ -325,19 +326,19 @@ inside resonance decays, respectively.
   
 
 <a name="method34"></a>
-<p/><strong>double Info::pTmaxMI() &nbsp;</strong> <br/>
+<p/><strong>double Info::pTmaxMPI() &nbsp;</strong> <br/>
   
 <strong>double Info::pTmaxISR() &nbsp;</strong> <br/>
   
 <strong>double Info::pTmaxFSR() &nbsp;</strong> <br/>
-Maximum <i>pT</i> scales set for MI, ISR and FSR, given the 
+Maximum <i>pT</i> scales set for MPI, ISR and FSR, given the 
 process type and scale choice for the hard interactions. The actual
 evolution will run down from these scales.
   
 
 <a name="method35"></a>
 <p/><strong>double Info::pTnow() &nbsp;</strong> <br/>
-The current <i>pT</i> scale in the combined MI, ISR and FSR evolution.
+The current <i>pT</i> scale in the combined MPI, ISR and FSR evolution.
 Useful for classification in <?php $filepath = $_GET["filepath"];
 echo "<a href='UserHooks.php?filepath=".$filepath."' target='page'>";?>user hooks</a>,
 but not once the event has been evolved.  
@@ -351,25 +352,25 @@ performed, all histograms should be filled with this weight, as discussed in
 Merging</a>.
   
 
-<h3>Multiple interactions</h3>
+<h3>Multiparton interactions</h3>
 
 <a name="method37"></a>
-<p/><strong>double Info::a0MI() &nbsp;</strong> <br/>
+<p/><strong>double Info::a0MPI() &nbsp;</strong> <br/>
 The value of a0 when an x-dependent matter profile is used,
-<code>MultipleInteractions:bProfile = 4</code>.
+<code>MultipartonInteractions:bProfile = 4</code>.
   
 
 <a name="method38"></a>
-<p/><strong>double Info::bMI() &nbsp;</strong> <br/>
+<p/><strong>double Info::bMPI() &nbsp;</strong> <br/>
 The impact parameter <i>b</i> assumed for the current collision when
-multiple interactions are simulated. Is not expressed in any physical
+multiparton interactions are simulated. Is not expressed in any physical
 size (like fm), but only rescaled so that the average should be unity 
 for minimum-bias events (meaning less than that for events with hard
 processes). 
   
 
 <a name="method39"></a>
-<p/><strong>double Info::enhanceMI() &nbsp;</strong> <br/>
+<p/><strong>double Info::enhanceMPI() &nbsp;</strong> <br/>
 The choice of impact parameter implies an enhancement or depletion of
 the rate of subsequent interactions, as given by this number. Again
 the average is normalized be unity for minimum-bias events (meaning 
@@ -377,41 +378,41 @@ more than that for events with hard processes).
   
 
 <a name="method40"></a>
-<p/><strong>int Info::nMI() &nbsp;</strong> <br/>
+<p/><strong>int Info::nMPI() &nbsp;</strong> <br/>
 The number of hard interactions in the current event. Is 0 for elastic
 and diffractive events, and else at least 1, with more possible from
-multiple interactions.
+multiparton interactions.
   
 
 <a name="method41"></a>
-<p/><strong>int Info::codeMI(int i) &nbsp;</strong> <br/>
+<p/><strong>int Info::codeMPI(int i) &nbsp;</strong> <br/>
   
-<strong>double Info::pTMI(int i) &nbsp;</strong> <br/>
+<strong>double Info::pTMPI(int i) &nbsp;</strong> <br/>
 the process code and transverse momentum of the <code>i</code>'th 
 subprocess, with <code>i</code> in the range from 0 to
-<code>nMI() - 1</code>. The values for subprocess 0 is redundant with
+<code>nMPI() - 1</code>. The values for subprocess 0 is redundant with
 information already provided above.  
   
 
 <a name="method42"></a>
-<p/><strong>int Info::iAMI(i) &nbsp;</strong> <br/>
+<p/><strong>int Info::iAMPI(i) &nbsp;</strong> <br/>
   
-<strong>int Info::iBMI(i) &nbsp;</strong> <br/>
+<strong>int Info::iBMPI(i) &nbsp;</strong> <br/>
 are normally zero. However, if the <code>i</code>'th subprocess is
 a rescattering, i.e. either or both incoming partons come from the 
 outgoing state of previous scatterings, they give the position in the
 event record of the outgoing-state parton that rescatters. 
-<code>iAMI</code> and <code>iBMI</code> then denote partons coming from 
+<code>iAMPI</code> and <code>iBMPI</code> then denote partons coming from 
 the first or second beam, respectively.
   
 
 <a name="method43"></a>
-<p/><strong>double Info::eMI(i) &nbsp;</strong> <br/>
+<p/><strong>double Info::eMPI(i) &nbsp;</strong> <br/>
 The enhancement or depletion of the rate of the <code>i</code>'th 
 subprocess. Is primarily of interest for the 
-<code>MultipleInteractions:bProfile = 4</code> option, where the 
+<code>MultipartonInteractions:bProfile = 4</code> option, where the 
 size of the proton depends on the <i>x</i> values of the colliding
-partons. Note that <code>eMI(0) = enhanceMI()</code>.
+partons. Note that <code>eMPI(0) = enhanceMPI()</code>.
   
 
 <h3>Cross sections</h3>
@@ -523,35 +524,35 @@ diffraction the two diffractive systems are 1 and 2, respectively.
 current system (see above) has begun.
   
 <br/><code>argumentoption </code><strong> 22</strong> :  the number of times a step has begun in the 
-combined MI/ISR/FSR evolution downwards in <i>pT</i> 
+combined MPI/ISR/FSR evolution downwards in <i>pT</i> 
 for the current system.
   
-<br/><code>argumentoption </code><strong> 23</strong> :  the number of time MI has been selected for the 
+<br/><code>argumentoption </code><strong> 23</strong> :  the number of times MPI has been selected for the 
 downwards step above.
   
-<br/><code>argumentoption </code><strong> 24</strong> :  the number of time ISR has been selected for the 
+<br/><code>argumentoption </code><strong> 24</strong> :  the number of times ISR has been selected for the 
 downwards step above.
   
-<br/><code>argumentoption </code><strong> 25</strong> :  the number of time FSR has been selected for the 
+<br/><code>argumentoption </code><strong> 25</strong> :  the number of times FSR has been selected for the 
 downwards step above.
   
-<br/><code>argumentoption </code><strong> 26</strong> :   the number of time MI has been accepted as the 
+<br/><code>argumentoption </code><strong> 26</strong> :   the number of times MPI has been accepted as the 
 downwards step above, after the vetoes.
   
-<br/><code>argumentoption </code><strong> 27</strong> :   the number of time ISR has been accepted as the 
+<br/><code>argumentoption </code><strong> 27</strong> :   the number of times ISR has been accepted as the 
 downwards step above, after the vetoes.
   
-<br/><code>argumentoption </code><strong> 28</strong> :   the number of time FSR has been accepted as the 
+<br/><code>argumentoption </code><strong> 28</strong> :   the number of times FSR has been accepted as the 
 downwards step above, after the vetoes.
   
 <br/><code>argumentoption </code><strong> 29</strong> :  the number of times a step has begun in the 
 separate (optional) FSR evolution downwards in <i>pT</i> 
 for the current system.
   
-<br/><code>argumentoption </code><strong> 30</strong> :  the number of time FSR has been selected for the 
+<br/><code>argumentoption </code><strong> 30</strong> :  the number of times FSR has been selected for the 
 downwards step above.
   
-<br/><code>argumentoption </code><strong> 31</strong> :   the number of time FSR has been accepted as the 
+<br/><code>argumentoption </code><strong> 31</strong> :   the number of times FSR has been accepted as the 
 downwards step above, after the vetoes.
   
 <br/><code>argumentoption </code><strong> 40 - 49</strong> :  counters that are unused (currently), and
@@ -612,4 +613,4 @@ set/get value of <i>pT^2</i> in latest ISR branching.
 </body>
 </html>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->

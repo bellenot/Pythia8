@@ -157,6 +157,13 @@ collider topologies</td>
 </tr>
 
 <tr> 
+<td><code>SlowJet</code></td> 
+<td><aloc href="EventAnalysis">Event Analysis</aloc></td> 
+<td>simple jet clustering using the <ei>kT</ei>, anti-<ei>kT</ei> or
+Cambridge/Aachen algorithms.</td> 
+</tr>
+
+<tr> 
 <td><code>SpaceShower</code></td> 
 <td><aloc href="ImplementNewShowers">Implement New Showers</aloc></td> 
 <td>spacelike, i..e. initial-state showers</td> 
@@ -217,4 +224,4 @@ You can also access an extensive list of the public
 <aloc href="ProgramMethods">methods</aloc> in these classes, 
 which compensates for the brevity of the current page. 
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->

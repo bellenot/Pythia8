@@ -28,9 +28,11 @@ a parton-level configuration provided by some external program.
 
 <flag name="ProcessLevel:all" default="on">
 If off, do not attempt to carry out any generation at all on the 
-process or parton level. Do allow parton configurations stored in 
-the event record to hadronize and hadrons to decay, however, as set 
-by the <code>HadronLevel</code> switches. Further details are found
+process level. For the parton level only final-state radiation
+is possible, using the <code>Pythia::forceTimeShower(...)</code> method.
+Do allow parton configurations stored in the event record to hadronize 
+and hadrons to decay, however, as set by the <code>HadronLevel</code> 
+switches. Further details are found 
 <aloc href="HadronLevelStandalone">here</aloc>.
 </flag> 
 
@@ -58,7 +60,7 @@ event generation, i.e. the evolution from an input (hard) process from
 <code>ProcessLevel</code>, containing a few partons only, to a complete 
 parton-level configuration to be handed on to <code>HadronLevel</code>. 
 This step involves the application of initial- and final-state radiation, 
-multiple interactions and the structure of beam remnants.
+multiparton interactions and the structure of beam remnants.
 
 <flag name="PartonLevel:all" default="on">
 If off then stop the generation after the hard process has been 
@@ -71,9 +73,9 @@ one is then not.
 For <code>PartonLevel:all = on</code> some parts of the event generation 
 on this level may be switched off individually: 
 
-<flag name="PartonLevel:MI" default="on">
-Master switch for multiple interactions; on/off = true/false.
-Further options are found <aloc href="MultipleInteractions">here</aloc>.
+<flag name="PartonLevel:MPI" default="on">
+Master switch for multiparton interactions; on/off = true/false.
+Further options are found <aloc href="MultipartonInteractions">here</aloc>.
 </flag>
 
 <flag name="PartonLevel:ISR" default="on">
@@ -101,7 +103,7 @@ subsequent to the hard process itself; on/off = true/false. In addition
 </flag>
 
 <p/>
-Switching off all the above MI/ISR/FSR switches is <b>not</b> equivalent 
+Switching off all the above MPI/ISR/FSR switches is <b>not</b> equivalent 
 to setting <code>PartonLevel:all = off</code>. In the former case a 
 minimal skeleton of parton-level operations are carried out, such as 
 tying together the scattered partons with the beam remnants into colour 
@@ -169,4 +171,4 @@ on/off = true/false. Further options are found
 
 </chapter>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->

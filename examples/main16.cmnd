@@ -4,35 +4,37 @@
 ! Names are case-insensitive  -  but spellings-sensitive!
 ! The changes here are illustrative, not always physics-motivated.
 
-! 1) Beam settings.
+! 1) Settings that are used in the main program.
+Main:numberOfEvents = 1000         ! number of events to generate
+Main:timesAllowErrors = 10         ! abort run after this many flawed events
+
+! 2) Settings related to output in init(), next() and stat().
+Init:showChangedSettings = on      ! list changed settings
+Init:showChangedParticleData = on  ! list changed particle data
+#Init:showChangedResonanceData = on ! also print changed resonance data
+Init:showOneParticleData = 25      ! print data for this particular particle
+Next:numberCount = 100             ! print message every n events
+Next:numberShowInfo = 1            ! print event information n times
+Next:numberShowProcess = 1         ! print process record n times
+Next:numberShowEvent = 0           ! print event record n times
+Stat:showPartonLevel = on          ! more statistics on MPI  
+
+! 3) Beam settings.
 Beams:idA = 2212                   ! first beam, p = 2212, pbar = -2212
 Beams:idB = 2212                   ! second beam, p = 2212, pbar = -2212
 Beams:eCM = 14000.                 ! CM energy of collision, LHC
 
-! 2) Settings that are used in the main program.
-Main:numberOfEvents = 1000         ! number of events to generate
-Main:numberToList = 1              ! number of events to print
-Main:timesToShow = 20              ! show how far along run is this many times
-Main:timesAllowErrors = 10         ! abort run after this many flawed events
-Main:showChangedSettings = on      ! print changed flags/modes/parameters
-#Main:showAllSettings = on          ! print all flags/modes/parameters
-Main:showOneParticleData = 25      ! print data for this particular particle
-Main:showChangedParticleData = on  ! print changed particle and decay data
-#Main:showChangedResonanceData = on ! also print changed resonance data
-#Main:showAllParticleData = on      ! print all particle and decay data
-Main:showAllStatistics = on        ! more statistics on multiple interactions
-
-! 3) Settings for hard-process generation internal to Pythia8.
+! 4) Settings for hard-process generation internal to Pythia8.
 HiggsSM:gg2H = on                  ! Higgs production by gluon-gluon fusion
 25:m0 = 123.5                      ! Higgs mass
 
-! 4) Switch off some key components of the simulation, for comparisons.
+! 5) Switch off some key components of the simulation, for comparisons.
 #PartonLevel:all = off              ! stop after hard process 
-#PartonLevel:MI = off               ! no multiple interactions
+#PartonLevel:MPI = off              ! no multiparton interactions
 #PartonLevel:ISR = off              ! no initial-state radiation 
 #PartonLevel:FSR = off              ! no final-state radiation
 #HadronLevel:all = off              ! stop after parton level 
 #HadronLevel:Hadronize = off        ! no hadronization
 #HadronLevel:Decay = off            ! no decays
 
-! 5) Any other changes you desire.
+! 6) Any other changes you desire.

@@ -1,5 +1,5 @@
 // ParticleData.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -1824,7 +1824,8 @@ void ParticleData::checkTable(int verbosity, ostream& os) {
 
         // Check matrix element mode 1: rho/omega -> pi+ pi- pi0.
         bool useME1 = ( mult == 3 && spinTypeNow == 3 && idNow > 100 
-          && idNow < 1000 && particlePtr->channel(i).contains(211, -211, 111) );
+          && idNow < 1000 
+          && particlePtr->channel(i).contains(211, -211, 111) );
         if ( meMode == 1 && !useME1 ) correctME = false;
         if ( meMode != 1 &&  useME1 ) correctME = false;
 

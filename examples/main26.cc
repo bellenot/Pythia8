@@ -1,294 +1,202 @@
 // main26.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Simple illustration how to provide your own resonance-width class and
-// your own cross-section class, with instances handed in to Pythia.
-// The hypothetical scenario is that top would have been so long-lived
-// that a toponium resonance Theta could form. Then production could
-// proceed via q qbar -> gamma*/Z* -> Theta, with decay either to 
-// a fermion pair or (dominantly) to three gluons.
-// The implementation is not physically correct in any number of ways,
-// but should exemplify the strategy needed for realistic cases.
+// This is a test program for the extra dimensions processes.
+// Author: Stefan Ask (Stefan DOT Ask AT cern DOT ch)
+// Documentation: S. Ask et al., arXiv:0809.4750 and arXiv:0912.4233
 
 #include "Pythia.h"
 
 using namespace Pythia8; 
-  
-//==========================================================================
 
-// The ResonanceTheta class handles a toponium resonance.
-
-class ResonanceTheta : public ResonanceWidths {
-
-public:
-
-  // Constructor. 
-  ResonanceTheta(int idResIn) {initBasic(idResIn);} 
-
-private: 
-
-  // Locally stored properties and couplings.
-  double normTheta2qqbar, normTheta2llbar, normTheta2ggg;
- 
-  // Initialize constants.
-  virtual void initConstants(); 
- 
-  // Calculate various common prefactors for the current mass.
-  // Superfluous here, so skipped.
-  //virtual void calcPreFac(bool = false);
-
-  // Calculate width for currently considered channel.
-  virtual void calcWidth(bool = false);
-
-};
-
-//--------------------------------------------------------------------------
-
-// Initialize constants.
-
-void ResonanceTheta::initConstants() {
-
-  // Dummy normalization of couplings to the allowed decay channels.
-  normTheta2qqbar = 0.0001;
-  normTheta2llbar = 0.0001;
-  normTheta2ggg   = 0.001; 
-}
-
-//--------------------------------------------------------------------------
-
-// Calculate width for currently considered channel.
-
-void ResonanceTheta::calcWidth(bool) {
-
-  // Expression for Theta -> q qbar (q up to b). Colour factor.
-  if (id1Abs < 6) widNow = 3. * normTheta2qqbar * mHat; 
-
-  // Expression for Theta -> l lbar (l = e, mu, tau).
-  else if (id1Abs == 11  || id1Abs == 13 || id1Abs == 15) 
-    widNow = normTheta2llbar * mHat; 
-
-  // Expression for Theta -> g g g. Colour factor.
-  else if (id1Abs == 21) widNow = 8. * normTheta2ggg * mHat; 
-
-}
- 
-//==========================================================================
-
-// A derived class for q qbar -> Theta (toponium bound state).
-
-class Sigma1qqbar2Theta : public Sigma1Process {
-
-public:
-
-  // Constructor.
-  Sigma1qqbar2Theta() {}
-
-  // Initialize process. 
-  virtual void initProc(); 
-
-  // Calculate flavour-independent parts of cross section.
-  virtual void sigmaKin();
-
-  // Evaluate sigmaHat(sHat). Assumed flavour-independent so simple. 
-  virtual double sigmaHat() {return sigma;}
-
-  // Select flavour, colour and anticolour.
-  virtual void setIdColAcol();
-
-  // Evaluate weight for decay angles.
-  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
-
-  // Info on the subprocess.
-  virtual string name()       const {return "q qbar -> Theta";}
-  virtual int    code()       const {return 621;}
-  virtual string inFlux()     const {return "qqbarSame";}
-  virtual int    resonanceA() const {return 663;}
-
-private:
-
-  // Store flavour-specific process information and standard prefactor.
-  int    idTheta;
-  double mRes, GammaRes, m2Res, GamMRat, normTheta2qqbar, sigma;
-
-  // Pointer to properties of Theta, to access decay width.
-  ParticleDataEntry* particlePtr;
-
-};
-
-//--------------------------------------------------------------------------
-
-// Initialize process. 
-  
-void Sigma1qqbar2Theta::initProc() {
-
-  // Store Theta mass and width for propagator. 
-  idTheta  = 663;
-  mRes     = particleDataPtr->m0(idTheta);
-  GammaRes = particleDataPtr->mWidth(idTheta);
-  m2Res    = mRes*mRes;
-  GamMRat  = GammaRes / mRes;
-
-  // Same normlization as in ResonanceTheta for coupling strength.
-  normTheta2qqbar = 0.0001;
-
-  // Set pointer to particle properties and decay table.
-  particlePtr = particleDataPtr->particleDataEntryPtr(idTheta);
-  
-} 
-
-//--------------------------------------------------------------------------
-
-// Evaluate sigmaHat(sHat); first step when inflavours unknown. 
-
-void Sigma1qqbar2Theta::sigmaKin() { 
-
-  // Incoming width with colour factor.
-  double widthIn  = normTheta2qqbar * mH / 3.; 
-
-  // Breit-Wigner, including some (guessed) spin factors.
-  double sigBW    = 12. * M_PI / ( pow2(sH - m2Res) + pow2(sH * GamMRat) ); 
-
-  // Outgoing width: only includes channels left open.
-  double widthOut = particlePtr->resWidthOpen(663, mH);    
-
-  // Total answer.
-  sigma = widthIn * sigBW * widthOut;
-
-}
-
-//--------------------------------------------------------------------------
-
-// Select identity, colour and anticolour.
-
-void Sigma1qqbar2Theta::setIdColAcol() {
-
-  // Flavours trivial.
-  setId( id1, id2, idTheta);
-
-  // Colour flow topologies. Swap when antiquarks.
-  setColAcol( 1, 0, 0, 1, 0, 0);
-  if (id1 < 0) swapColAcol();
-
-}
-
-//--------------------------------------------------------------------------
-
-// Evaluate weight for Theta -> g g g.
-
-double Sigma1qqbar2Theta::weightDecay( Event& process, int iResBeg,
-  int iResEnd) {
-
-  // Should be Theta decay. (This is only option here, so overkill.)
-  if (iResEnd != iResBeg || process[iResBeg].idAbs() != idTheta) 
-    return 1.;
-
-  // Should be decay to three gluons.
-  int i1 = process[iResBeg].daughter1();
-  int i2 = i1 + 1;
-  int i3 = i2 + 1;
-  if (i3 != process[iResBeg].daughter2() || process[i1].id() != 21)
-    return 1.;
-
-  // Energy fractions x_i = 2 E_i/m_Theta of gluons in Theta rest frame.
-  double x1 = 2. * process[i1].p() * process[iResBeg].p()
-            / process[iResBeg].m2();
-  double x2 = 2. * process[i2].p() * process[iResBeg].p()
-            / process[iResBeg].m2();
-  double x3 = 2. * process[i3].p() * process[iResBeg].p()
-            / process[iResBeg].m2();
-
-  // Matrix-element expression for Theta -> g g g.
-  double wtME = pow2( (1. - x1) / (x2 * x3) ) 
-    + pow2( (1. - x2) / (x1 * x3) ) + pow2( (1. - x3) / (x1 * x2) );
-  double wtMEmax = 2.;
-  return wtME / wtMEmax;
- 
-}
-
-//==========================================================================
-
+// The main program.
 int main() {
 
-  // Number of events to generate and to list. Max number of errors.
-  // Warning: generation of complete events is much slower than if you use
-  // PartonLevel:all = off to only get cross sections, so adjust nEvent.
-  int nEvent = 1000;
-  int nList = 1;
-  int nAbort = 5;
+  // Test cases
+  // 1  = Jet + G       (real G emission) 
+  // 2  = Jet + U       (real U emission) 
+  // 3  = Z + G         (real G emission) 
+  // 4  = Z + U         (real U emission)
+  // 5  = gamma gamma   (LED G* exchange)
+  // 6  = l lbar        (LED U* exchange). 
+  //      Note: charged leptons only!
+  // 7  = Z_KK/gamma_KK (TEV ED resonance) 
+  // 8  = G*            (RS resonance, SM on the TeV brane)
+  // 9  = kk-gluon*     (RS resonance)
+  int nTest = 1;  
+
+  // Number of events to generate. Max number of errors.
+  int nEvent     = 1000;      
+  int nAbort     = 50;         
 
   // Pythia generator.
   Pythia pythia;
 
-  // Create the toponium resonance and a few production/decay channels.
-  // Warning: many more exist, e.g. weak ones of one top quark.
-  // Note: to obtain the correct width for the Breit-Wigner you must
-  // include all channels, but you only need leave those on that you
-  // want to study.
-  pythia.readString("663:new = Theta void 3 0 0 342.0 0.2 300. 400. 0.");
-  pythia.readString("663:addChannel = 1 0. 0 1 -1");
-  pythia.readString("663:addChannel = 1 0. 0 2 -2");
-  pythia.readString("663:addChannel = 1 0. 0 3 -3");
-  pythia.readString("663:addChannel = 1 0. 0 4 -4");
-  pythia.readString("663:addChannel = 1 0. 0 5 -5");
-  pythia.readString("663:addChannel = 1 0. 0 11 -11");
-  pythia.readString("663:addChannel = 1 0. 0 13 -13");
-  pythia.readString("663:addChannel = 1 0. 0 15 -15");
-  pythia.readString("663:addChannel = 1 0. 0 21 21 21");  
+  // PYTHIA paramters:
+  pythia.readString("PhaseSpace:showViolation = off");
 
-  // Create instance of a class to calculate the width of Theta to the 
-  // above channels. Hand in pointer to Pythia. 
-  ResonanceWidths* resonanceTheta = new ResonanceTheta(663);
-  pythia.setResonancePtr(resonanceTheta);
+  // Test case parameters
+  if (nTest == 1) { 
+    pythia.readString("ExtraDimensionsLED:monojet = on");
+    pythia.readString("ExtraDimensionsLED:n = 4");
+    pythia.readString("ExtraDimensionsLED:MD = 4000.");
+    pythia.readString("ExtraDimensionsLED:CutOffmode = 3");
+    pythia.readString("ExtraDimensionsLED:t = 2");
+    pythia.readString("5000039:m0 = 2500.");
+    pythia.readString("5000039:mWidth = 1500.");
+    pythia.readString("5000039:mMin = 1.");
+    pythia.readString("5000039:mMax = 13990.");
+    pythia.readString("PhaseSpace:pTHatMin = 700.");
+  } else if (nTest == 2){ 
+    pythia.readString("ExtraDimensionsUnpart:gg2Ug = off");
+    pythia.readString("ExtraDimensionsUnpart:qg2Uq = on");
+    pythia.readString("ExtraDimensionsUnpart:qqbar2Ug = on");
+    pythia.readString("ExtraDimensionsUnpart:spinU = 1");
+    pythia.readString("ExtraDimensionsUnpart:dU = 1.2");
+    pythia.readString("ExtraDimensionsUnpart:LambdaU = 1000");
+    pythia.readString("ExtraDimensionsUnpart:lambda = 1.0");
+    pythia.readString("ExtraDimensionsUnpart:CutOffmode = 0");
+    pythia.readString("5000039:m0 = 300.");
+    pythia.readString("5000039:mWidth = 500.");
+    pythia.readString("5000039:mMin = 1.");
+    pythia.readString("5000039:mMax = 13990.");
+    pythia.readString("PhaseSpace:pTHatMin = 700.");
+  } else if (nTest == 3){
+    pythia.readString("ExtraDimensionsLED:ffbar2GZ = on");
+    pythia.readString("ExtraDimensionsLED:n = 6");
+    pythia.readString("ExtraDimensionsLED:MD = 2000.");
+    pythia.readString("ExtraDimensionsLED:CutOffmode = 1");
+    pythia.readString("5000039:m0 = 3000.");
+    pythia.readString("5000039:mWidth = 1500.");
+    pythia.readString("5000039:mMin = 1.");
+    pythia.readString("5000039:mMax = 13990.");
+    pythia.readString("PhaseSpace:pTHatMin = 50.");
+  } else if (nTest == 4){ 
+    pythia.readString("ExtraDimensionsUnpart:ffbar2UZ = on");
+    pythia.readString("ExtraDimensionsUnpart:spinU = 1");
+    pythia.readString("ExtraDimensionsUnpart:dU = 2.0");
+    pythia.readString("ExtraDimensionsUnpart:LambdaU = 1000");
+    pythia.readString("ExtraDimensionsUnpart:lambda = 1.000");
+    pythia.readString("ExtraDimensionsUnpart:CutOffmode = 0");
+    pythia.readString("5000039:m0 = 500.");
+    pythia.readString("5000039:mWidth = 1000.");
+    pythia.readString("5000039:mMin = 1.");
+    pythia.readString("5000039:mMax = 13990.");
+    pythia.readString("PhaseSpace:pTHatMin = 50.");
+  } else if (nTest == 5){ 
+    pythia.readString("ExtraDimensionsLED:ffbar2gammagamma = on");
+    pythia.readString("ExtraDimensionsLED:gg2gammagamma = on");
+    pythia.readString("ExtraDimensionsLED:LambdaT = 3300.");
+    pythia.readString("PhaseSpace:mHatMin = 800.");
+  } else if (nTest == 6){ 
+    pythia.readString("ExtraDimensionsUnpart:ffbar2llbar = on");
+    pythia.readString("ExtraDimensionsUnpart:gg2llbar = off");
+    pythia.readString("ExtraDimensionsUnpart:spinU = 1");
+    pythia.readString("ExtraDimensionsUnpart:dU = 1.3");
+    pythia.readString("ExtraDimensionsUnpart:LambdaU = 1000");
+    pythia.readString("ExtraDimensionsUnpart:lambda = 1.0");
+    pythia.readString("ExtraDimensionsUnpart:gXX = 0");
+    pythia.readString("ExtraDimensionsUnpart:gXY = 0");
+    pythia.readString("PhaseSpace:mHatMin = 300.");
+  } else if (nTest == 7){
+    pythia.readString("ExtraDimensionsTEV:ffbar2mu+mu- = on");
+    pythia.readString("ExtraDimensionsTEV:gmZmode = 3"); 
+    pythia.readString("ExtraDimensionsTEV:nMax = 100"); 
+    pythia.readString("ExtraDimensionsTEV:mStar = 4000");
+    pythia.readString("PhaseSpace:mHatMin = 1000");
+    pythia.readString("PhaseSpace:mHatMax = 6000");
+    pythia.readString("5000023:isResonance = false");
+  } else if (nTest == 8){
+    pythia.readString("ExtraDimensionsG*:all = on");
+  } else if (nTest == 9){
+    pythia.readString("ExtraDimensionsG*:qqbar2KKgluon* = on");
+    pythia.readString("ExtraDimensionsG*:KKintMode = 2");
+    pythia.readString("ExtraDimensionsG*:KKgqR = -0.2");
+    pythia.readString("ExtraDimensionsG*:KKgqL = -0.2");
+    pythia.readString("ExtraDimensionsG*:KKgbR = -0.2");
+    pythia.readString("ExtraDimensionsG*:KKgbL = 1.0");
+    pythia.readString("ExtraDimensionsG*:KKgtR = 5.0");
+    pythia.readString("ExtraDimensionsG*:KKgtL = 1.0");
+    pythia.readString("5100021:m0 = 2000");
+  }
 
-  // Create instance of a class to generate the q qbar -> Theta process 
-  // from an external matrix element. Hand in pointer to Pythia.  
-  SigmaProcess* sigma1Theta = new Sigma1qqbar2Theta();
-  pythia.setSigmaPtr(sigma1Theta);
-
-  // Optionally only compare cross sections.
-  //pythia.readString("PartonLevel:all = off");
-  pythia.readString("Check:nErrList = 2");
+  // Switch off sophisticated tau treatment: not yet matched to SUSY.
+  pythia.readString("ParticleDecays:sophisticatedTau = 0");
 
   // Initialization for LHC.
-  pythia.init( 2212, 2212, 14000.);
+  pythia.readString("Beams:eCM = 14000.");      
+  pythia.init();
 
-  // List changed settings and Theta particle data.
-  pythia.settings.listChanged();
-  pythia.particleData.list(663);
-
-  // Book histogram.
-  Hist mTheta("Theta mass", 100, 300., 400.);
+  // Validation histograms
+  Hist hEtjet("dN/dETjet: monojet check", 100, 0., 7000.);
+  Hist hMass("dN/m: graviton mass spectrum", 100, 0., 7000.);
 
   // Begin event loop.
   int iAbort = 0;
   for (int iEvent = 0; iEvent < nEvent; ++iEvent) {
-    if (iEvent%(max(1,nEvent/20)) == 0) cout << " Now begin event " 
-      << iEvent << endl;
-
+    
     // Generate events. Quit if many failures.
     if (!pythia.next()) {
       if (++iAbort < nAbort) continue;
-      cout << " Event generation aborted prematurely, owing to error!\n"; 
+      std::cout << " Event generation aborted prematurely, owing to error!\n"; 
       break;
     }
- 
-    // List first few events.
-    if (iEvent < nList) { 
-      pythia.info.list();
-      pythia.process.list();
-      pythia.event.list();
+
+    // Checked particle index
+    int tmp_monojet = -1;
+
+    // Particle loop
+    for (int iPart = 0; iPart < pythia.event.size(); ++iPart) {
+
+      // From hard process (inital = 21, interm.=22, final=23 state)
+      if (pythia.event[iPart].statusAbs()  == 22) {
+
+	// Find Z_KK/gamma_KK or kk-gluon
+	if( pythia.event[iPart].idAbs() == 5000023 
+	 || pythia.event[iPart].idAbs() == 5100021
+	 || pythia.event[iPart].idAbs() == 5100039){
+	  hMass.fill( pythia.event[iPart].m() );
+	}
+	
+      }	else if ( pythia.event[iPart].statusAbs()  == 23 ) {
+	
+	// Find graviton/unparticle
+	if( pythia.event[iPart].idAbs() == 5000039){
+	  hMass.fill( pythia.event[iPart].m() );
+	}
+
+	// Find mono-jets
+	if (nTest == 1 || nTest == 2) {
+	  if ( pythia.event[iPart].idAbs() <= 6 
+            || pythia.event[iPart].idAbs() == 21 ){
+	    if (tmp_monojet >= 0) {
+	      std::cout << "More than one (hard process) mono-jet ! \n";
+	    } else {
+	      tmp_monojet  = iPart;
+	    }
+	  }
+	}
+
+      }
     }
 
-    // Fill Theta mass. End of event loop.
-    mTheta.fill( pythia.process[5].m() );
-  }
+    // Validation mono-jet wrt G.Giudice et al. paper [hep-ph/9811291v2]
+    if (tmp_monojet >= 0) {
+      double tmp_eta = pythia.event[tmp_monojet].eta();
+      double tmp_et = pythia.event[tmp_monojet].eT();
+      double tmp_et_cut = 1000;
+      if ( tmp_et >=  tmp_et_cut && abs(tmp_eta) < 3 ) {
+	hEtjet.fill( fabs(tmp_et) );
+      }    
+    }
+    
+  }  
+ 
+  // Final statistics.
+  pythia.stat(); 
+  cout << hMass << hEtjet;
 
-  // Final statistics. Print histogram.
-  pythia.statistics();
-  cout << mTheta;
-
-  // Done.
   return 0;
 }

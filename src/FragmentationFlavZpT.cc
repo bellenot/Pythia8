@@ -1,5 +1,5 @@
 // FragmentationFlavZpT.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -663,7 +663,8 @@ double StringZ::zLund( double a, double b, double c) {
       else if (cIsUnity) {z = pow( zDiv, z); fPrel = zDiv / z;}
       else { z = pow( zDivC + (1. - zDivC) * z, 1. / (1. - c) );
              fPrel = pow( zDiv / z, c); }
-    // When z_max large use exp( b * (z -z_div) ) below z_div and flat above it.
+    // When z_max large use exp( b * (z -z_div) ) below z_div 
+    // and flat above it.
     } else if (peakedNearUnity) {
       if (fInt * rndmPtr->flat() < fIntLow) { 
         z = zDiv + log(z) / b;

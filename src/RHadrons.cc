@@ -1,5 +1,5 @@
 // RHadrons.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -300,7 +300,7 @@ bool RHadrons::produce( ColConfig& colConfig, Event& event) {
 
 bool RHadrons::decay( Event& event) {
 
-  // Loop over R-hadrons to decay.
+  // Loop over R-hadrons to decay. 
   for (iRHad = 0; iRHad < nRHad; ++iRHad) {
     int    iRNow  = iRHadron[iRHad]; 
     int    iRBef  = iBefRHad[iRHad];
@@ -339,8 +339,8 @@ bool RHadrons::decay( Event& event) {
 
     // Gluino: set mass sharing between two spectators.
     } else {
-      double m1Eff  = particleDataPtr->constituentMass(id1) + mOffsetCloudRH;  
-      double m2Eff  = particleDataPtr->constituentMass(id2) + mOffsetCloudRH;   
+      double m1Eff  = particleDataPtr->constituentMass(id1) + mOffsetCloudRH;
+      double m2Eff  = particleDataPtr->constituentMass(id2) + mOffsetCloudRH;
       double frac1 = (1. - fracR) * m1Eff / ( m1Eff + m2Eff); 
       double frac2 = (1. - fracR) * m2Eff / ( m1Eff + m2Eff); 
    
@@ -362,7 +362,13 @@ bool RHadrons::decay( Event& event) {
     event[iRNow].daughters( iR0, iR2);
     iAftRHad[iRHad] = iR0;
 
-  // End loop over R-hadron decays.
+    // Set secondary vertex for decay products, but no lifetime.
+    Vec4 vDec = event[iRNow].vProd() + event[iRNow].tau()
+              * event[iR0].p() / event[iR0].m();
+    for (int iRd = iR0; iRd <= iR2; ++iRd) event[iRd].vProd( vDec);
+
+  // End loop over R-hadron decays, based on velocity of squark.
+  
   }
 
   // Done.
@@ -911,6 +917,10 @@ bool RHadrons::produceSquark( ColConfig& colConfig, Event& event) {
     for ( int i = iOldL + 1; i <= iEnd; ++i) iNewSys.push_back( i);
     colConfig.insert( iNewSys, event);
   }     
+
+  // Copy lifetime and vertex from sparticle to R-hadron.
+  event[iRNow].tau( event[iBef].tau() );
+  if (event[iBef].hasVertex()) event[iRNow].vProd( event[iBef].vProd() );
  
   // Done with production of a R-hadron from a squark.  
   return true;
@@ -1148,7 +1158,6 @@ bool RHadrons::produceGluino( ColConfig& colConfig, Event& event) {
         colR, acolR, pOldH + pOldL, (pOldH + pOldL).mCalc(), 0.);
 
       // Done with one-body case.
-      nBody   = 1;
       // Even if hoped-for, it was not possible to create a gluinoball.
       isGBall = false;
     }
@@ -1219,6 +1228,10 @@ bool RHadrons::produceGluino( ColConfig& colConfig, Event& event) {
     event[iG2].id( idQLeap);
     colConfig.insert( iNewSys2, event);
   }
+
+  // Copy lifetime and vertex from sparticle to R-hadron.
+  event[iGlui].tau( event[iBef].tau() );
+  if (event[iBef].hasVertex()) event[iGlui].vProd( event[iBef].vProd() );
  
   // Done with production of a R-hadron from a gluino.  
   return true;

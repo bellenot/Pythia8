@@ -3,7 +3,7 @@
 <h2>A Second Hard Process</h2>
 
 When you have selected a set of hard processes for hadron beams, the 
-<aloc href="MultipleInteractions">multiple interactions</aloc> 
+<aloc href="MultipartonInteractions">multiparton interactions</aloc> 
 framework can add further interactions to build up a realistic
 underlying event. These further interactions can come from a wide
 variety of processes, and will occasionally be quite hard. They
@@ -195,7 +195,7 @@ chance for further interactions. (In PYTHIA this is the origin
 of the "pedestal effect", i.e. that events with a hard interaction
 have more underlying activity than the level found in minimum-bias 
 events.) When you specify a matter overlap profile in the
-multiple-interactions scenario, such an enhancement/depletion factor 
+multiparton-interactions scenario, such an enhancement/depletion factor 
 <ei>f_impact</ei> is chosen event-by-event and can be averaged
 during the course of the run. As an example, the double Gaussian
 form used in Tune A gives approximately
@@ -207,7 +207,7 @@ Experimentalists often instead use the notation
 <ei>sigma_2ab = sigma_1a sigma_1b / sigma_eff</ei>,
 from which we see that PYTHIA "predicts"
 <ei>sigma_eff = sigma_ND / &lt;f_impact&gt;</ei>.
-When the generation of multiple interactions is switched off it is 
+When the generation of multiparton interactions is switched off it is 
 not possible to calculate <ei>&lt;f_impact&gt;</ei> and therefore
 it is set to unity.
 
@@ -379,8 +379,8 @@ Most of the properties accessible by the
 <code><aloc href="EventInformation">pythia.info</aloc></code>
 methods refer to the first process, whether that happens to be the
 hardest or not. The code and <ei>pT</ei> scale of the second process
-are accessible by the <code>info.codeMI(1)</code> and 
-<code>info.pTMI(1)</code>, however. 
+are accessible by the <code>info.codeMPI(1)</code> and 
+<code>info.pTMPI(1)</code>, however. 
 
 <p/>
 The <code>sigmaGen()</code> and <code>sigmaErr()</code> methods provide 
@@ -395,4 +395,4 @@ anyway less relevant, since systematical errors are likely to dominate.
 
 </chapter>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->

@@ -1,5 +1,5 @@
 // main10.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -31,11 +31,11 @@ class MyUserHooks : public UserHooks {
 
 public:
 
-  // Constructor creates cone-jet finder with (etaMax, nEta, nPhi).
-  MyUserHooks() { coneJet = new CellJet(5., 100, 64); }
+  // Constructor creates anti-kT jet finder with (-1, R, pTmin, etaMax).
+  MyUserHooks() { slowJet = new SlowJet(-1, 0.7, 10., 5.); }
 
-  // Destructor deletes cone-jet finder.
-  ~MyUserHooks() {delete coneJet;}
+  // Destructor deletes anti-kT jet finder.
+  ~MyUserHooks() {delete slowJet;}
 
   // Allow process cross section to be modified...
   virtual bool canModifySigma() {return true;}
@@ -78,9 +78,9 @@ public:
     subEvent(event);
     nPartonsB.fill( workEvent.size() );
 
-    // Find number of jets with eTjet > 10 for R = 0.7.
-    coneJet->analyze(event, 10., 0.7);
-    int nJet = coneJet->size();      
+    // Find number of jets with given conditions.
+    slowJet->analyze(event);
+    int nJet = slowJet->sizeJet();      
     nJets.fill( nJet );
 
     // Veto events which do not have exactly three jets.
@@ -110,8 +110,8 @@ public:
 
 private:
 
-  // The cone-jet finder.
-  CellJet* coneJet;
+  // The anti-kT (or kT, C/A) jet finder.
+  SlowJet* slowJet;
 
   // Save the pThat scale.
   double pTHat;
@@ -135,7 +135,9 @@ int main() {
   pythia.setUserHooksPtr( myUserHooks);
  
   // Tevatron initialization. 
-  pythia.init( 2212, -2212, 1960.);
+  pythia.readString("Beams:idB = -2212"); 
+  pythia.readString("Beams:eCM = 1960.");
+  pythia.init();
    
   // Begin event loop.
   for (int iEvent = 0; iEvent < 1000; ++iEvent) {
@@ -147,7 +149,7 @@ int main() {
   }
 
   // Statistics. Histograms.
-  pythia.statistics();
+  pythia.stat();
   cout << pTtrial << pTselect << pTaccept 
        << nPartonsB << nJets << nPartonsA 
        << nFSRatISR;

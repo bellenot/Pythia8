@@ -57,7 +57,7 @@ doublecounting.
 (Also known as power showers.)
 </option>
 <note>Note 1:</note> These options only apply to the hard interaction.
-Emissions off subsequent multiple interactions are always constrainted
+Emissions off subsequent multiparton interactions are always constrainted
 to be below the factorization scale of the process itself.  
 <note>Note 2:</note> Some processes contain matrix-element matching
 to the first emission; this is the case notably for single 
@@ -76,10 +76,10 @@ interaction in an event, cf. below. It is strongly suggested that
 test this assumption. 
 </parm>
 
-<parm name="SpaceShower:pTmaxFudgeMI" default="1.0" min="0.25" max="2.0">
+<parm name="SpaceShower:pTmaxFudgeMPI" default="1.0" min="0.25" max="2.0">
 A multiplicative factor <ei>f</ei> such that 
 <ei>pT_max = f * pT_factorization</ei>, as above, but here for the
-non-hardest interactions (when multiple interactions are allowed).
+non-hardest interactions (when multiparton interactions are allowed).
 </parm>
 
 <modepick name="SpaceShower:pTdampMatch" default="0" min="0" max="2">
@@ -108,7 +108,7 @@ where <ei>Q_ren</ei> is the renormalization scale and <ei>k</ei> is a
 multiplicative fudge factor stored in <code>pTdampFudge</code> below. 
 </option>
 <note>Note:</note> These options only apply to the hard interaction.
-Emissions off subsequent multiple interactions are always constrainted
+Emissions off subsequent multiparton interactions are always constrainted
 to be below the factorization scale of the process itself.  
 </modepick>
 
@@ -162,20 +162,20 @@ at the <ei>Z^0</ei> mass.
 There are two complementary ways of regularizing the small-<ei>pT</ei> 
 divergence, a sharp cutoff and a smooth dampening. These can be 
 combined as desired but it makes sense to coordinate with how the 
-same issue is handled in multiple interactions.
+same issue is handled in multiparton interactions.
 
-<flag name="SpaceShower:samePTasMI" default="off">
+<flag name="SpaceShower:samePTasMPI" default="off">
 Regularize the <ei>pT -> 0</ei> divergence using the same sharp cutoff 
-and smooth dampening parameters as used to describe multiple interactions.
-That is, the <code>MultipleInteractions:pT0Ref</code>, 
-<code>MultipleInteractions:ecmRef</code>, 
-<code>MultipleInteractions:ecmPow</code> and 
-<code>MultipleInteractions:pTmin</code> parameters are used to regularize 
+and smooth dampening parameters as used to describe multiparton interactions.
+That is, the <code>MultipartonInteractions:pT0Ref</code>, 
+<code>MultipartonInteractions:ecmRef</code>, 
+<code>MultipartonInteractions:ecmPow</code> and 
+<code>MultipartonInteractions:pTmin</code> parameters are used to regularize 
 all ISR QCD radiation, rather than the corresponding parameters below. 
 This is a sensible physics ansatz, based on the assumption that colour 
-screening effects influence both MI and ISR in the same way. Photon 
+screening effects influence both MPI and ISR in the same way. Photon 
 radiation is regularized separately in either case.
-<note>Warning:</note> if a large <code>pT0</code> is picked for multiple 
+<note>Warning:</note> if a large <code>pT0</code> is picked for multiparton 
 interactions, such that the integrated interaction cross section is 
 below the nondiffractive inelastic one, this <code>pT0</code> will 
 automatically be scaled down to cope. Information on such a rescaling 
@@ -345,5 +345,5 @@ been included, nor has photon backwards-evolution in lepton beams.
 
 </chapter>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
 

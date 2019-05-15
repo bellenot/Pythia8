@@ -1,5 +1,5 @@
 // SigmaGeneric.h is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Johan Bijnens,Torbjorn Sjostrand.
+// Copyright (C) 2012 Johan Bijnens,Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -100,7 +100,7 @@ private:
  
 //==========================================================================
 
-// A derived class for f fbar -> fG fGbar (generic particle of spin 0, 1/2 or 1)
+// A derived class for f fbar -> fG fGbar (generic spin 0, 1/2 or 1 particle)
 // via gamma^*/Z^* s-channel exchange. Still under development!! ?? 
 
 class Sigma2ffbar2fGfGbar : public Sigma2Process {

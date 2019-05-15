@@ -1,5 +1,5 @@
 // Event.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -197,7 +197,7 @@ void Event::list(ostream& os) const {
 }
 
 void Event::list(bool showScaleAndVertex, bool showMothersAndDaughters)
-const {
+  const {
   list(showScaleAndVertex, showMothersAndDaughters, cout);
 }
 
@@ -212,9 +212,9 @@ void Event::list(bool showScaleAndVertex, bool showMothersAndDaughters,
   os << "\n --------  PYTHIA Event Listing  " << headerList << "----------"
      << "-------------------------------------------------\n \n    no    "
      << "    id   name            status     mothers   daughters     colou"
-     << "rs      p_x        p_y        p_z         e          m \n";
+     << "rs      p_x        p_y        p_z         e          m \n"; 
   if (showScaleAndVertex) 
-    os << "                                    scale                      "
+    os << "                                    scale         pol          "
        << "                   xProd      yProd      zProd      tProd      "
        << " tau\n";  
 
@@ -237,13 +237,14 @@ void Event::list(bool showScaleAndVertex, bool showMothersAndDaughters,
        << setw(11) << pt.px() << setw(11) << pt.py() << setw(11) 
        << pt.pz() << setw(11) << pt.e() << setw(11) << pt.m() << "\n";
 
-    // Optional extra line for scale value and production vertex.
+    // Optional extra line for scale value, polarization and production vertex.
     if (showScaleAndVertex) 
       os << "                              " << setw(11) << pt.scale() 
-         << "                                    " << scientific 
-         << setprecision(3) << setw(11) << pt.xProd() << setw(11) 
-         << pt.yProd() << setw(11) << pt.zProd() << setw(11) 
-         << pt.tProd() << setw(11) << pt.tau() << "\n";
+         << " " << fixed << setprecision(3) << setw(11) << pt.pol()   
+         << "                        " << scientific << setprecision(3) 
+         << setw(11) << pt.xProd() << setw(11) << pt.yProd() 
+         << setw(11) << pt.zProd() << setw(11) << pt.tProd() 
+         << setw(11) << pt.tau() << "\n";
 
     // Optional extra line, giving a complete list of mothers and daughters.
     if (showMothersAndDaughters) {
@@ -262,6 +263,9 @@ void Event::list(bool showScaleAndVertex, bool showMothersAndDaughters,
       }
       if (linefill !=0) os << "\n";
     }
+
+    // Extra blank separation line when each particle spans more than one line.
+    if (showScaleAndVertex || showMothersAndDaughters) os << "\n";   
 
     // Statistics on momentum and charge.
     if (entry[i].status() > 0) {

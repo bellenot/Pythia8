@@ -37,17 +37,17 @@ as listed separately in the following.
 </flag>
 
 <flag name="SoftQCD:minBias" default="off">
-Minimum-bias events, based on an <aloc href="MultipleInteractions">
+Minimum-bias events, based on an <aloc href="MultipartonInteractions">
 eikonalized description</aloc> of all the hard QCD processes, so 
 includes them in combinationation with low-<ei>pT</ei> events. 
 Code 101.<br/>
-Since the current description is handled by the multiple-interactions 
+Since the current description is handled by the multiparton-interactions 
 machinery as part of the parton-level processing, no hard process at 
 all is defined at the process-level part of the event generation.
 Fortunately, in this case a special
 <code><aloc href="EventInformation">codeSub()</aloc></code> 
 method provides information on the first, i.e. hardest, subprocess 
-selected by the multiple-interactions machinery.
+selected by the multiparton-interactions machinery.
 
 </flag>
 
@@ -77,7 +77,7 @@ too low, or else unreasonably large jet cross sections will be obtained.
 This is because the divergent perturbative QCD cross section is used
 in this process group, without any regularization modifications. 
 An eikonalized description, intended to be valid at all <ei>pT</ei>,
-is instead included as part of the multiple-interactions framework, 
+is instead included as part of the multiparton-interactions framework, 
 specifically in <code>SoftQCD:minBias</code> above.
 <note>Warning 1</note>: you <b>must</b> remember to set the 
 <code>PhaseSpace:pTHatMin</code> value if you use any of these 
@@ -144,7 +144,7 @@ these matrix elements finite in the <ei>pT -> 0</ei> limit, but at
 high energies one may still question the validity of the expressions
 at low <ei>pT</ei> values, like for the other hard-QCD processes.
 Also as above, an eikonalized description, intended to be valid at all 
-<ei>pT</ei>, is included as part of the multiple-interactions framework. 
+<ei>pT</ei>, is included as part of the multiparton-interactions framework. 
 <br/>Note that the processes below only represent the "tip of the iceberg"
 of charm and bottom production at high energies, where flavour excitation
 and shower branchings provide major additional sources. All these sources
@@ -257,5 +257,5 @@ Code 140.
 
 </chapter>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
 

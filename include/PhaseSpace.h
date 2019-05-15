@@ -1,5 +1,5 @@
 // PhaseSpace.h is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -15,7 +15,7 @@
 #include "BeamParticle.h"
 #include "Info.h"
 #include "LesHouches.h"
-#include "MultipleInteractions.h"
+#include "MultipartonInteractions.h"
 #include "ParticleData.h"
 #include "PartonDistributions.h"
 #include "PythiaStdlib.h"
@@ -46,7 +46,7 @@ public:
 
   // Perform simple initialization and store pointers.
   void init(bool isFirst, SigmaProcess* sigmaProcessPtrIn, 
-    Info* infoPtrIn, Settings* settingsPtrIn, ParticleData* particleDataPtrIn,  
+    Info* infoPtrIn, Settings* settingsPtrIn, ParticleData* particleDataPtrIn,
     Rndm* rndmPtrIn, BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, 
     Couplings* couplingsPtrIn, SigmaTotal* sigmaTotPtrIn, 
     UserHooks* userHooksPtrIn);
@@ -184,7 +184,8 @@ protected:
   bool setupSampling123(bool is2, bool is3, ostream& os = cout); 
 
   // Select a trial kinematics phase space point.
-  bool trialKin123(bool is2, bool is3, bool inEvent = true, ostream& os = cout); 
+  bool trialKin123(bool is2, bool is3, bool inEvent = true, 
+    ostream& os = cout); 
 
   // Presence and properties of any s-channel resonances.
   int    idResA, idResB;
@@ -381,7 +382,7 @@ private:
 //==========================================================================
 
 // A derived class for minumum bias events. Hardly does anything, since
-// the real action is taken care of by the MultipleInteractions class.
+// the real action is taken care of by the MultipartonInteractions class.
 
 class PhaseSpace2to2minbias : public PhaseSpace {
 

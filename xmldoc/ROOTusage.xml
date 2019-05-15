@@ -26,7 +26,8 @@ and GNU Make is assumed. In particular, for Mac OS X, the
 One can perform the generation and analysis of events in a completely
 standalone fashion, and only use ROOT to process the completed events.
 Some example programs are provided in the <code>rootexamples</code>
-directory with details provided below.
+directory, with details provided below and in the <code>README</code>
+file.
 
 The examples assume that you have already compiled the PYTHIA library,
 ROOT is installed, and that all paths have been setup correctly (e.g.
@@ -207,13 +208,15 @@ Note that before executing this script
   <code>PYTHIA8DATA</code> must be setup correctly e.g.
   <pre>
     export PYTHIA8=/path_to_PYTHIA_installation
-    export PYTHIA8DATA=$PYTHIA8/xmldoc<pre></li>
+    export PYTHIA8DATA=$PYTHIA8/xmldoc
+  <pre></li>
   <li>your LD_LIBRARY_PATH must contain the location of the
   PYTHIA 8 shared library, e.g.
-  <pre>    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:path_to_PYTHIA8_installation/lib</pre>
+  <pre>
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:path_to_PYTHIA8_installation/lib
+  </pre>
   </li>
 </ul>
-<br/>
 The script can then be run with ROOT
 <pre>
     root pythia8.C
@@ -241,4 +244,4 @@ functionality, e.g. in an interactive session
   
 </chapter>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->

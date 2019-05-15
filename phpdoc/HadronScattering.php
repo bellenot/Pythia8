@@ -79,7 +79,7 @@ Probability that a hadron is soft enough to scatter.
 and thus produced away from the high-particle-density region
 at small transverse dimensions.)
 <br/>
-<input type="radio" name="5" value="0" checked="checked"><strong>0 </strong>:  <ei>P = N exp(-pT^2 / 2 / sigma^2) /   ( (1 - k) exp(-pT^2 / 2 / sigma^2) + k pT0^p / (pT0^2 + pT^2)^(p/2), </ei> with <ei>sigma = 2 StringPT:sigma</ei> and <ei>pT0</ei> the same as that used in <ei>MultipleInteractions</ei>. <br/>
+<input type="radio" name="5" value="0" checked="checked"><strong>0 </strong>:  <ei>P = N exp(-pT^2 / 2 / sigma^2) /   ( (1 - k) exp(-pT^2 / 2 / sigma^2) + k pT0^p / (pT0^2 + pT^2)^(p/2), </ei> with <ei>sigma = 2 StringPT:sigma</ei> and <ei>pT0</ei> the same as that used in <ei>MultipartonInteractions</ei>. <br/>
 
 <br/><br/><table><tr><td><strong>HadronScatter:N </td><td></td><td> <input type="text" name="6" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.01</code>; <code>maximum = 1.0</code>)</td></tr></table>
 <i>N</i> parameter as above.
@@ -195,5 +195,5 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
 

@@ -45,7 +45,7 @@ For second-order matching an approximate iterative method is used.
  
 <p/>
 Since we allow <i>alpha_strong</i> to vary separately for 
-hard processes, timelike showers, spacelike showers and  multiple 
+hard processes, timelike showers, spacelike showers and  multiparton 
 interactions, the relevant values can be set in each of these classes. 
 The default behaviour is everywhere first-order running.
  
@@ -78,7 +78,7 @@ procedure is approximate, but good enough for our purposes.
 
 <p/>
 Since we allow <i>alpha_em</i> to vary separately for 
-hard processes, timelike showers, spacelike showers and  multiple 
+hard processes, timelike showers, spacelike showers and  multiparton 
 interactions, the choice between using a fixed or a running 
 <i>alpha_em</i> can be made in each of these classes. 
 The default behaviour is everywhere first-order running.
@@ -185,7 +185,7 @@ and the quark mixing matrix mentioned above. This class is used especially
 in the calculation of cross sections and resonance widths, but could also
 be used elsewhere. Specifically, as already mentioned, there are separate 
 <code>AlphaStrong</code> and <code>AlphaEM</code> instances for timelike 
-and spacelike showers and for multiple interactions, while weak couplings 
+and spacelike showers and for multiparton interactions, while weak couplings 
 and the quark mixing matrix are only stored here. With the exception of the 
 first two methods below, which are for internal use, the subsequent ones
 could also be used externally.
@@ -428,4 +428,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->

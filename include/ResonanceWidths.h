@@ -1,5 +1,5 @@
 // ResonanceWidths.h is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -452,11 +452,11 @@ public:
 private: 
 
   // Locally stored properties and couplings.
-  bool   m_smbulk;
+  bool   eDsmbulk, eDvlvl;
   double kappaMG;
  
   // Couplings between graviton and SM (map from particle id to coupling).
-  double m_coupling[26];
+  double eDcoupling[27];
 
   // Initialize constants.
   virtual void initConstants(); 
@@ -488,7 +488,7 @@ private:
   // Couplings between kk gluon and SM (indexed by particle id).
   // Helicity dependent couplings. Use vector/axial-vector
   // couplings internally, gv/ga = 0.5 * (gL +/- gR).
-  double m_gv[10], m_ga[10];
+  double eDgv[10], eDga[10];
 
   // Interference parameter.
   int interfMode;
@@ -503,7 +503,6 @@ private:
   virtual void calcWidth(bool calledFromInit = false);
 
 };
-
 
 //==========================================================================
 

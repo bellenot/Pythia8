@@ -1,6 +1,6 @@
 // SigmaExtraDim.h is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
-// Copyright (C) 2011 Stefan Ask for the *LED* routines.
+// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2012 Stefan Ask for the *LED* routines.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
  
@@ -49,12 +49,12 @@ public:
 private:
  
   // Parameters set at initialization or for current kinematics.
-  bool   eDsmbulk;
+  bool   eDsmbulk, eDvlvl;
   int    idGstar;
   double mRes, GammaRes, m2Res, GamMRat, kappaMG, sigma;
  
   // Couplings between graviton and SM (indexed by particle id).
-  double eDcoupling[26];
+  double eDcoupling[27];
  
   // Pointer to properties of the particle species, to access decay channels.
   ParticleDataEntry* gStarPtr;
@@ -96,12 +96,12 @@ public:
 private:
  
   // Parameters set at initialization or for current kinematics.
-  bool   eDsmbulk;
+  bool   eDsmbulk, eDvlvl;
   int    idGstar;
   double mRes, GammaRes, m2Res, GamMRat, kappaMG, sigma0;
  
   // Couplings between graviton and SM (indexed by particle id).
-  double eDcoupling[26];
+  double eDcoupling[27];
  
   // Pointer to properties of the particle species, to access decay channels.
   ParticleDataEntry* gStarPtr;
@@ -292,7 +292,7 @@ class Sigma2ffbar2TEVffbar : public Sigma2Process {
 public:
  
   // Constructor.
-  Sigma2ffbar2TEVffbar(int idIn, int codeIn) : idNew(idIn), codeSave(codeIn) {} 
+  Sigma2ffbar2TEVffbar(int idIn, int codeIn) : idNew(idIn), codeSave(codeIn) {}
  
   // Initialize process.
   virtual void initProc();

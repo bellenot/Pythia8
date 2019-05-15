@@ -207,6 +207,14 @@ echo "<a href='SemiInternalProcesses.php?filepath=".$filepath."' target='page'>"
 </tr>
 
 <tr> 
+<td><code>SlowJet</code></td> 
+<td><?php $filepath = $_GET["filepath"];
+echo "<a href='EventAnalysis.php?filepath=".$filepath."' target='page'>";?>Event Analysis</a></td> 
+<td>simple jet clustering using the <i>kT</i>, anti-<i>kT</i> or
+Cambridge/Aachen algorithms.</td> 
+</tr>
+
+<tr> 
 <td><code>SpaceShower</code></td> 
 <td><?php $filepath = $_GET["filepath"];
 echo "<a href='ImplementNewShowers.php?filepath=".$filepath."' target='page'>";?>Implement New Showers</a></td> 
@@ -277,4 +285,4 @@ You can also access an extensive list of the public
 echo "<a href='ProgramMethods.php?filepath=".$filepath."' target='page'>";?>methods</a> in these classes, 
 which compensates for the brevity of the current page. 
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->

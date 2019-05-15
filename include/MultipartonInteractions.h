@@ -1,14 +1,14 @@
-// MultipleInteractions.h is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// MultipartonInteractions.h is a part of the PYTHIA event generator.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// This file contains the main classes for multiple interactions physics.
-// SigmaMultiple stores allowed processes by in-flavour combination.
-// MultipleInteractions: generates multiple parton-parton interactions.
+// This file contains the main classes for multiparton interactions physics.
+// SigmaMultiparton stores allowed processes by in-flavour combination.
+// MultipartonInteractions: generates multiparton parton-parton interactions.
 
-#ifndef Pythia8_MultipleInteractions_H
-#define Pythia8_MultipleInteractions_H
+#ifndef Pythia8_MultipartonInteractions_H
+#define Pythia8_MultipartonInteractions_H
 
 #include "Basics.h"
 #include "BeamParticle.h"
@@ -26,19 +26,19 @@ namespace Pythia8 {
  
 //==========================================================================
 
-// SigmaMultiple is a helper class to MultipleInteractions.
+// SigmaMultiparton is a helper class to MultipartonInteractions.
 // It packs pointers to the allowed processes for different 
 // flavour combinations and levels of ambition.
 
-class SigmaMultiple {
+class SigmaMultiparton {
 
 public:
 
   // Constructor.
-  SigmaMultiple() {}
+  SigmaMultiparton() {}
   
   // Destructor.
-  ~SigmaMultiple() {
+  ~SigmaMultiparton() {
     for (int i = 0; i < int(sigmaT.size()); ++i) delete sigmaT[i];
     for (int i = 0; i < int(sigmaU.size()); ++i) delete sigmaU[i];}   
 
@@ -89,18 +89,18 @@ private:
  
 //==========================================================================
 
-// The MultipleInteractions class contains the main methods for the 
-// generation of multiple parton-parton interactions in hadronic collisions.
+// The MultipartonInteractions class contains the main methods for the 
+// generation of multiparton parton-parton interactions in hadronic collisions.
 
-class MultipleInteractions {
+class MultipartonInteractions {
 
 public:
 
   // Constructor.
-  MultipleInteractions() : bIsSet(false) {}
+  MultipartonInteractions() : bIsSet(false) {}
 
   // Initialize the generation process for given beams.
-  bool init( bool doMIinit, int diffractiveModeIn, Info* infoPtrIn, 
+  bool init( bool doMPIinit, int diffractiveModeIn, Info* infoPtrIn, 
     Settings& settings, ParticleData* particleDataPtr, Rndm* rndmPtrIn, 
     BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, 
     Couplings* couplingsPtrIn, PartonSystems* partonSystemsPtrIn, 
@@ -134,16 +134,16 @@ public:
     = xPDF1now = xPDF2now = 0.; bIsSet = false;}
 
   // Get some information on current interaction.
-  double Q2Ren()     const {return pT2Ren;}
-  double alphaSH()   const {return alpS;}
-  double alphaEMH()  const {return alpEM;}
-  double x1H()       const {return x1;} 
-  double x2H()       const {return x2;} 
-  double Q2Fac()     const {return pT2Fac;}
-  double pdf1()      const {return xPDF1now;}
-  double pdf2()      const {return xPDF2now;}
-  double bMI()       const {return (bIsSet) ? bNow / bAvg : 0.;}
-  double enhanceMI() const {return (bIsSet) ? enhanceB / zeroIntCorr : 1.;}
+  double Q2Ren()      const {return pT2Ren;}
+  double alphaSH()    const {return alpS;}
+  double alphaEMH()   const {return alpEM;}
+  double x1H()        const {return x1;} 
+  double x2H()        const {return x2;} 
+  double Q2Fac()      const {return pT2Fac;}
+  double pdf1()       const {return xPDF1now;}
+  double pdf2()       const {return xPDF2now;}
+  double bMPI()       const {return (bIsSet) ? bNow / bAvg : 0.;}
+  double enhanceMPI() const {return (bIsSet) ? enhanceB / zeroIntCorr : 1.;}
 
   // For x-dependent matter profile, return incoming valence/sea
   // decision from trial interactions.
@@ -152,8 +152,11 @@ public:
 
   // Update and print statistics on number of processes.
   void accumulate() { int iBeg = (infoPtr->isMinBias()) ? 0 : 1; 
-    for (int i = iBeg; i < infoPtr->nMI(); ++i) ++nGen[ infoPtr->codeMI(i) ];}
+    for (int i = iBeg; i < infoPtr->nMPI(); ++i) 
+    ++nGen[ infoPtr->codeMPI(i) ];}
   void statistics(bool resetStat = false, ostream& os = cout);
+  void resetStatistics() { for ( map<int, int>::iterator iter = nGen.begin(); 
+    iter != nGen.end(); ++iter) iter->second = 0; } 
   
 private: 
 
@@ -164,11 +167,11 @@ private:
                       KCONVERGE, CONVERT2MB, ROOTMIN, ECMDEV;
 
   // Initialization data, read from Settings.
-  bool   allowRescatter, allowDoubleRes, canVetoMI;
+  bool   allowRescatter, allowDoubleRes, canVetoMPI;
   int    pTmaxMatch, alphaSorder, alphaEMorder, bProfile, processLevel, 
          rescatterMode, nQuarkIn, nSample, enhanceScreening;
   double alphaSvalue, Kfactor, pT0Ref, ecmRef, ecmPow, pTmin, coreRadius, 
-         coreFraction, expPow, ySepResc, deltaYResc, sigmaPomP, 
+         coreFraction, expPow, ySepResc, deltaYResc, sigmaPomP, mPomP, pPomP, 
          mMaxPertDiff, mMinPertDiff;
 
   // x-dependent matter profile:
@@ -252,8 +255,8 @@ private:
   UserHooks*     userHooksPtr;
 
   // Collections of parton-level 2 -> 2 cross sections. Selected one.
-  SigmaMultiple  sigma2gg, sigma2qg, sigma2qqbarSame, sigma2qq;
-  SigmaMultiple* sigma2Sel;
+  SigmaMultiparton  sigma2gg, sigma2qg, sigma2qqbarSame, sigma2qq;
+  SigmaMultiparton* sigma2Sel;
   SigmaProcess*  dSigmaDtSel;
 
   // Statistics on generated 2 -> 2 processes.
@@ -302,4 +305,4 @@ private:
 
 } // end namespace Pythia8
 
-#endif // Pythia8_MultipleInteractions_H
+#endif // Pythia8_MultipartonInteractions_H

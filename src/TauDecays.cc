@@ -1,5 +1,5 @@
 // TauDecays.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Philip Ilten, Torbjorn Sjostrand.
+// Copyright (C) 2012 Philip Ilten, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -48,14 +48,16 @@ void TauDecays::init(Info* infoPtrIn, Settings* settingsPtrIn,
   couplingsPtr    = couplingsPtrIn;
 
   // Initialize the hard matrix elements.
-  hmeTwoFermions2W2TwoFermions     .initPointers(particleDataPtr, couplingsPtr);
-  hmeTwoFermions2Z2TwoFermions     .initPointers(particleDataPtr, couplingsPtr);
-  hmeTwoFermions2Gamma2TwoFermions .initPointers(particleDataPtr, couplingsPtr);
-  hmeTwoFermions2GammaZ2TwoFermions.initPointers(particleDataPtr, couplingsPtr);
-  hmeHiggsEven2TwoFermions         .initPointers(particleDataPtr, couplingsPtr);
-  hmeHiggsOdd2TwoFermions          .initPointers(particleDataPtr, couplingsPtr);
-  hmeHiggsCharged2TwoFermions      .initPointers(particleDataPtr, couplingsPtr);
-  hmeUnpolarized                   .initPointers(particleDataPtr, couplingsPtr);
+  hmeTwoFermions2W2TwoFermions   .initPointers(particleDataPtr, couplingsPtr);
+  hmeTwoFermions2Z2TwoFermions   .initPointers(particleDataPtr, couplingsPtr);
+  hmeTwoFermions2Gamma2TwoFermions .initPointers(particleDataPtr, 
+                                                 couplingsPtr);
+  hmeTwoFermions2GammaZ2TwoFermions.initPointers(particleDataPtr, 
+                                                 couplingsPtr);
+  hmeHiggsEven2TwoFermions       .initPointers(particleDataPtr, couplingsPtr);
+  hmeHiggsOdd2TwoFermions        .initPointers(particleDataPtr, couplingsPtr);
+  hmeHiggsCharged2TwoFermions    .initPointers(particleDataPtr, couplingsPtr);
+  hmeUnpolarized                 .initPointers(particleDataPtr, couplingsPtr);
 
   // Initialize the tau decay matrix elements.
   hmeTau2Meson                   .initPointers(particleDataPtr, couplingsPtr);
@@ -67,10 +69,10 @@ void TauDecays::init(Info* infoPtrIn, Settings* settingsPtrIn,
   hmeTau2PhaseSpace              .initPointers(particleDataPtr, couplingsPtr);
 
   // User selected tau decay mode.
-  mode         = settingsPtr->mode("ParticleDecays:sophisticatedTau");
+  tauMode      = settingsPtr->mode("ParticleDecays:sophisticatedTau");
     
   // User selected tau decay mother.
-  mother       = settingsPtr->mode("ParticleDecays:tauMother");
+  tauMother    = settingsPtr->mode("ParticleDecays:tauMother");
 
   // User selected tau polarization.
   polarization = settingsPtr->parm("ParticleDecays:tauPolarization");
@@ -233,6 +235,7 @@ bool TauDecays::decay(int idxOut1, Event& event) {
 
   // Produced from an unknown process, assume unpolarized and uncorrelated.
   } else {
+    if (tauMode <= 1)
     infoPtr->errorMsg("Warning in TauDecays::decay: unknown "
       "tau production, assuming unpolarized and uncorrelated");
     hardME = hmeUnpolarized.initChannel(particles);
@@ -247,7 +250,7 @@ bool TauDecays::decay(int idxOut1, Event& event) {
   tau = &particles[idx];
 
   // Calculate the density matrix and decay the tau.
-  if ( (mode == 2 && abs(mediator.id()) == mother) || mode == 3) {
+  if ( (tauMode == 2 && abs(mediator.id()) == tauMother) || tauMode == 3) {
     tau->rho[0][0] = (tau->id() > 0) 
       ? (1 - polarization) / 2 : (1 + polarization) / 2;
     tau->rho[1][1] = (tau->id() > 0) 

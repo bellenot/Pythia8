@@ -1,156 +1,381 @@
 // main23.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// This is a simple test program. 
-// It illustrates how decays could be handled externally.
+// Example how to write a derived class for beam momentum and vertex spread,
+// with an instance handed to Pythia for internal generation.
+// Also how to write a derived class for external random numbers,
+// and how to write a derived class for external parton distributions.
+// Warning: the parameters are not realistic. 
 
 #include "Pythia.h"
 
 using namespace Pythia8; 
-
+ 
 //==========================================================================
 
-// A derived class to do J/psi decays.
+// A derived class to set beam momentum and interaction vertex spread.
 
-class JpsiDecay : public DecayHandler {
+class MyBeamShape : public BeamShape {
 
 public:
 
   // Constructor.
-  JpsiDecay(ParticleData* pdtPtrIn, Rndm* rndmPtrIn) {times = 0; 
-    pdtPtr = pdtPtrIn; rndmPtr = rndmPtrIn;}
+  MyBeamShape() {}
 
-  // Routine for doing the decay.
-  bool decay(vector<int>& idProd, vector<double>& mProd, 
-    vector<Vec4>& pProd, int iDec, const Event& event);
+  // Initialize beam parameters.
+  // In this particular example we will reuse the existing settings names
+  // but with modified meaning, so init() in the base class can be kept. 
+  //virtual void init( Settings& settings, Rndm* rndmPtrIn);
 
-private:
-
-  // Count number of times JpsiDecay is called.
-  int times;
-
-  // Pointer to the particle data table.
-  ParticleData* pdtPtr;
-
-  // Pointer to the random number generator.
-  Rndm* rndmPtr;
+  // Set the two beam momentum deviations and the beam vertex.
+  virtual void pick();
 
 };
 
 //--------------------------------------------------------------------------
 
-// The actual J/psi decay routine.
-// Not intended for realism, just to illustrate the principles.
+// Set the two beam momentum deviations and the beam vertex.
+// Note that momenta are in units of GeV and vertices in mm,
+// always with c = 1, so that e.g. time is in mm/c. 
 
-bool JpsiDecay::decay(vector<int>& idProd, vector<double>& mProd, 
-  vector<Vec4>& pProd, int iDec, const Event& event) {
+void MyBeamShape::pick() {
 
-  // Always do decay J/psi -> mu+ mu-; store the muons.
-  idProd.push_back(-13);
-  idProd.push_back(13);
-  
-  // Muon mass(es), here from Pythia tables, also stored.
-  double mMuon = pdtPtr->m0(13); 
-  mProd.push_back(mMuon);
-  mProd.push_back(mMuon);
+  // Reset all values.
+  deltaPxA = deltaPyA = deltaPzA = deltaPxB = deltaPyB = deltaPzB
+    = vertexX = vertexY = vertexZ = vertexT = 0.;
 
-  // Calculate muon energy and momentum in J/psi rest frame.
-  double eMuon = 0.5 * mProd[0];
-  double pAbsMuon = sqrt(eMuon * eMuon - mMuon * mMuon);
+  // Set beam A transverse momentum deviation by a two-dimensional Gaussian.
+  if (allowMomentumSpread) {
+    double totalDev, gauss;
+    do {
+      totalDev = 0.;
+      if (sigmaPxA > 0.) {
+        gauss     = rndmPtr->gauss();
+        deltaPxA  = sigmaPxA * gauss;
+        totalDev += gauss * gauss; 
+      }
+      if (sigmaPyA > 0.) {
+        gauss     = rndmPtr->gauss();
+        deltaPyA  = sigmaPyA * gauss;
+        totalDev += gauss * gauss; 
+      }
+    } while (totalDev > maxDevA * maxDevA); 
 
-  // Assume decay angles isotropic in rest frame.
-  double cosTheta = 2. * rndmPtr->flat() - 1.;
-  double sinTheta = sqrt(max(0., 1. - cosTheta * cosTheta));
-  double phi = 2. * M_PI * rndmPtr->flat();
-  double pxMuon = pAbsMuon * sinTheta * cos(phi); 
-  double pyMuon = pAbsMuon * sinTheta * sin(phi); 
-  double pzMuon = pAbsMuon * cosTheta; 
+    // Set beam A longitudinal momentum as a triangular shape.
+    // Reuse sigmaPzA to represent maximum deviation in this case.
+    if (sigmaPzA > 0.) {
+      deltaPzA    = sigmaPzA * ( 1. - sqrt(rndmPtr->flat()) );
+      if (rndmPtr->flat() < 0.5) deltaPzA = -deltaPzA; 
+    }
 
-  // Define mu+ and mu- four-vectors in the J/psi rest frame.
-  Vec4 pMuPlus(   pxMuon,  pyMuon,  pzMuon, eMuon);  
-  Vec4 pMuMinus( -pxMuon, -pyMuon, -pzMuon, eMuon);  
+    // Set beam B transverse momentum deviation by a two-dimensional Gaussian.
+    do {
+      totalDev = 0.;
+      if (sigmaPxB > 0.) {
+        gauss     = rndmPtr->gauss();
+        deltaPxB  = sigmaPxB * gauss;
+        totalDev += gauss * gauss; 
+      }
+      if (sigmaPyB > 0.) {
+        gauss     = rndmPtr->gauss();
+        deltaPyB  = sigmaPyB * gauss;
+        totalDev += gauss * gauss; 
+      }
+    } while (totalDev > maxDevB * maxDevB); 
 
-  // Boost them by velocity vector of the J/psi mother and store.
-  pMuPlus.bst(pProd[0]);
-  pMuMinus.bst(pProd[0]);
-  pProd.push_back(pMuPlus);
-  pProd.push_back(pMuMinus);
-
-  // Print message the first few times, to show that it works.
-  if (times++ < 10) {
-    int iMother = event[iDec].mother1();
-    int idMother = event[iMother].id();
-    cout << " J/psi decay performed, J/psi in line " << iDec 
-         << ", mother id = " << idMother << "\n";
+    // Set beam B longitudinal momentum as a triangular shape.
+    // Reuse sigmaPzB to represent maximum deviation in this case.
+    if (sigmaPzB > 0.) {
+      deltaPzB = sigmaPzB * ( 1. - sqrt(rndmPtr->flat()) );
+      if (rndmPtr->flat() < 0.5) deltaPzB = -deltaPzB; 
+    }
   }
 
-  // Done
-  return true;
+  // Set beam vertex location by a two-dimensional Gaussian.
+  if (allowVertexSpread) {
+    double totalDev, gauss;
+    do {
+      totalDev = 0.;
+      if (sigmaVertexX > 0.) {
+        gauss     = rndmPtr->gauss();
+        vertexX   = sigmaVertexX * gauss;
+        totalDev += gauss * gauss; 
+      }
+      if (sigmaVertexY > 0.) {
+        gauss     = rndmPtr->gauss();
+        vertexY   = sigmaVertexY * gauss;
+        totalDev += gauss * gauss; 
+      }
+    } while (totalDev > maxDevVertex * maxDevVertex);
+
+    // Set beam B longitudinal momentum as a triangular shape.
+    // This corresponds to two step-function beams colliding.
+    // Reuse sigmaVertexZ to represent maximum deviation in this case.
+    if (sigmaVertexZ > 0.) {
+      vertexZ     = sigmaVertexZ * ( 1. - sqrt(rndmPtr->flat()) );
+      if (rndmPtr->flat() < 0.5) vertexZ = -vertexZ; 
+
+      // Set beam collision time flat between +-(sigmaVertexZ - |vertexZ|). 
+      // This corresponds to two step-function beams colliding (with v = c).
+      vertexT = (2. * rndmPtr->flat() - 1.) * (sigmaVertexZ - abs(vertexZ));  
+    }
+
+    // Add offset to beam vertex.
+    vertexX      += offsetX;
+    vertexY      += offsetY;
+    vertexZ      += offsetZ;
+    vertexT      += offsetT;
+  }  
 
 }
 
 //==========================================================================
 
+// A derived class to generate random numbers.
+// A guranteed VERY STUPID generator, just to show principles.
+
+class stupidRndm : public RndmEngine {
+
+public:
+
+  // Constructor.
+  stupidRndm() { init();}
+
+  // Routine for generating a random number.
+  double flat();
+
+private:
+
+  // Initialization.
+  void init();
+
+  // State of the generator.
+  double value, exp10;
+
+};
+
+//--------------------------------------------------------------------------
+
+// Initialization method for the random numbers.
+
+void stupidRndm::init() {
+    
+  // Initial values.
+  value = 0.5;
+  exp10 = exp(10.); 
+
+} 
+
+//--------------------------------------------------------------------------
+
+// Generation method for the random numbers.
+
+double stupidRndm::flat() {
+
+  // Update counter. Add to current value.
+  do {
+    value *= exp10;
+    value += M_PI;
+    value -= double(int(value));
+    if (value < 0.) value += 1.; 
+  } while (value <= 0. || value >= 1.);  
+
+  // Return new value.
+  return value;
+
+}
+ 
+//==========================================================================
+
+// A simple scaling PDF. Not realistic; only to check that it works.
+
+class Scaling : public PDF {
+
+public:
+
+  // Constructor.
+  Scaling(int idBeamIn = 2212) : PDF(idBeamIn) {}
+
+private:
+
+  // Update PDF values.
+  void xfUpdate(int id, double x, double Q2);
+
+};
+
+//--------------------------------------------------------------------------
+
+// No dependence on Q2, so leave out name for last argument.
+
+void Scaling::xfUpdate(int id, double x, double ) {
+
+  // Valence quarks, carrying 60% of the momentum.
+  double dv  = 4. * x * pow3(1. - x);
+  double uv  = 2. * dv;
+
+  // Gluons and sea quarks carrying the rest.
+  double gl  = 2.  * pow5(1. - x);
+  double sea = 0.4 * pow5(1. - x); 
+ 
+  // Update values
+  xg    = gl;
+  xu    = uv + 0.18 * sea;
+  xd    = dv + 0.18 * sea; 
+  xubar = 0.18 * sea; 
+  xdbar = 0.18 * sea;
+  xs    = 0.08 * sea;
+  xc    = 0.04 * sea;
+  xb    = 0.02 * sea;
+
+  // Subdivision of valence and sea.
+  xuVal = uv;
+  xuSea = xubar;
+  xdVal = dv;
+  xdSea = xdbar;
+
+  // idSav = 9 to indicate that all flavours reset. id change dummy. 
+  idSav = 9;
+  id   = 0;
+
+} 
+ 
+//==========================================================================
+
 int main() {
 
-  // Number of events to generate and to list. Max number of errors.
-  int nEvent = 100;
-  int nList = 2;
+  // Number of events to generate. Max number of errors.
+  int nEvent = 10000;
   int nAbort = 5;
 
   // Pythia generator.
   Pythia pythia;
 
-  // A class to do J/psi decays externally. 
-  DecayHandler* handleDecays = new JpsiDecay(&pythia.particleData, 
-    &pythia.rndm);
+  // Process selection.
+  pythia.readString("HardQCD:all = on");    
+  pythia.readString("PhaseSpace:pTHatMin = 20."); 
 
-  // The list of particles the class can handle.
-  vector<int> handledParticles;
-  handledParticles.push_back(443);
+  // LHC with acollinear beams in the x plane.
+  // Use that default is pp with pz = +-7000 GeV, so this need not be set.  
+  pythia.readString("Beams:frameType = 3");    
+  pythia.readString("Beams:pxA = 1.");    
+  pythia.readString("Beams:pxB = 1.");  
 
-  // Hand pointer and list to Pythia.
-  pythia.setDecayPtr( handleDecays, handledParticles);
+  // A class to generate beam parameters according to own parametrization.
+  BeamShape* myBeamShape = new MyBeamShape();
 
-  // Initialization for charmonium (singlet+octet) production at the LHC.
-  pythia.readString("Charmonium:all = on");
-  pythia.readString("PhaseSpace:pTHatMin = 20.");
-  pythia.init( 2212, 2212, 14000.);
+  // Hand pointer to Pythia. 
+  // If you comment this out you get internal Gaussian-style implementation.
+  pythia.setBeamShapePtr( myBeamShape);
 
-  // Begin event loop.
-  int iList = 0;
+  // Set up beam spread parameters - reused by MyBeamShape.  
+  pythia.readString("Beams:allowMomentumSpread = on");  
+  pythia.readString("Beams:sigmapxA = 0.1");  
+  pythia.readString("Beams:sigmapyA = 0.1");  
+  pythia.readString("Beams:sigmapzA = 5.");  
+  pythia.readString("Beams:sigmapxB = 0.1");  
+  pythia.readString("Beams:sigmapyB = 0.1");  
+  pythia.readString("Beams:sigmapzB = 5."); 
+
+  // Set up beam vertex parameters - reused by MyBeamShape.
+  pythia.readString("Beams:allowVertexSpread = on");  
+  pythia.readString("Beams:sigmaVertexX = 0.3");  
+  pythia.readString("Beams:sigmaVertexY = 0.3");  
+  pythia.readString("Beams:sigmaVertexZ = 50.");  
+  // In MyBeamShape the time width is not an independent parameter.
+  //pythia.readString("Beams:sigmaTime = 50.");  
+
+  // Optionally simplify generation.
+  pythia.readString("PartonLevel:all = off");  
+
+  // A class to do random numbers externally. Hand pointer to Pythia.
+  RndmEngine* badRndm = new stupidRndm();
+  pythia.setRndmEnginePtr( badRndm);
+
+  // Two classes to do the two PDFs externally. Hand pointers to Pythia.
+  PDF* pdfAPtr = new Scaling(2212);
+  PDF* pdfBPtr = new Scaling(2212);
+  pythia.setPDFPtr( pdfAPtr, pdfBPtr);
+
+  // Initialization.  
+  pythia.init();
+
+  // Read out nominal energy.
+  double eCMnom = pythia.info.eCM(); 
+
+  // Histograms.
+  Hist eCM("center-of-mass energy deviation", 100, -20., 20.);
+  Hist pXsum("net pX offset", 100, -1.0, 1.0);
+  Hist pYsum("net pY offset", 100, -1.0, 1.0);
+  Hist pZsum("net pZ offset", 100, -10., 10.);
+  Hist pZind("individual abs(pZ) offset", 100, -10., 10.);
+  Hist vtxX("vertex x position", 100, -1.0, 1.0);
+  Hist vtxY("vertex y position", 100, -1.0, 1.0);
+  Hist vtxZ("vertex z position", 100, -100., 100.);
+  Hist vtxT("vertex time", 100, -100., 100.);
+  Hist vtxZT("vertex |x| + |t|", 100, 0., 100.);
+
+  // Begin event loop. Generate event. 
   int iAbort = 0;
   for (int iEvent = 0; iEvent < nEvent; ++iEvent) {
-    if (iEvent%(max(1,nEvent/20)) == 0) cout << " Now begin event " 
-      << iEvent << "\n";
-
-    // Generate events. Quit if many failures.
     if (!pythia.next()) {
+
+      // List faulty events and quit if many failures.
+      pythia.info.list(); 
+      pythia.process.list();
+      //pythia.event.list();
       if (++iAbort < nAbort) continue;
       cout << " Event generation aborted prematurely, owing to error!\n"; 
-      break;
+      break;      
     }
 
-    // Look for event with externally handled decays.
-    bool externalDecay = false;
-    for (int i = 0; i < pythia.event.size(); ++i) {
-      int status = pythia.event[i].statusAbs();
-      if (status == 93 || status == 94) {externalDecay = true; break;}
-    }  
- 
-    // List first few events with external decay.
-    if (externalDecay && ++iList <= nList) { 
-      pythia.process.list();
-      pythia.event.list();
-    }
+    // Fill histograms.
+    double eCMnow = pythia.info.eCM();
+    eCM.fill( eCMnow - eCMnom);
+    pXsum.fill(  pythia.process[0].px() - 2. );
+    pYsum.fill(  pythia.process[0].py() );
+    pZsum.fill(  pythia.process[0].pz() );
+    pZind.fill(  pythia.process[1].pz() - 7000. );
+    pZind.fill( -pythia.process[2].pz() - 7000. );
+    vtxX.fill(  pythia.process[0].xProd() );
+    vtxY.fill(  pythia.process[0].yProd() );
+    vtxZ.fill(  pythia.process[0].zProd() );
+    vtxT.fill(  pythia.process[0].tProd() );
+    double absSum = abs(pythia.process[0].zProd()) 
+                  + abs(pythia.process[0].tProd());
+    vtxZT.fill( absSum );
 
-  // End of event loop.
+  // End of event loop. Statistics. Histograms. 
   }
+  pythia.stat();
+  cout << eCM << pXsum << pYsum << pZsum << pZind
+       << vtxX << vtxY << vtxZ << vtxT << vtxZT; 
 
-  // Final statistics.
-  pythia.statistics();
+  // Study standard Pythia random number generator.
+  Hist rndmDist("standard random number distribution", 100, 0., 1.);
+  Hist rndmCorr("standard random number correlation", 100, 0., 1.);
+  double rndmNow;
+  double rndmOld = pythia.rndm.flat();
+  for (int i = 0; i < 100000; ++i) {
+    rndmNow = pythia.rndm.flat();
+    rndmDist.fill(rndmNow);
+    rndmCorr.fill( abs(rndmNow - rndmOld) );
+    rndmOld = rndmNow;
+  }    
+  cout << rndmDist << rndmCorr;
+
+  // Study bad "new" random number generator.
+  Hist rndmDist2("stupid random number distribution", 100, 0., 1.);
+  Hist rndmCorr2("stupid random number correlation", 100, 0., 1.);
+  rndmOld = pythia.rndm.flat();
+  for (int i = 0; i < 100000; ++i) {
+    rndmNow = pythia.rndm.flat();
+    rndmDist2.fill(rndmNow);
+    rndmCorr2.fill( abs(rndmNow - rndmOld) );
+    rndmOld = rndmNow;
+  }    
+  cout << rndmDist2 << rndmCorr2;
 
   // Done.
   return 0;

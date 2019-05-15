@@ -20,8 +20,13 @@ for various tests of the hadronization model on its own.
 <p/>
 The key trick is to set the flag <code>ProcessLevel:all = off</code>.
 When <code>pythia.next()</code> is called it then does not try to
-generate a hard process, and therefore also cannot do anything on the
-parton level. Instead only the <code>HadronLevel</code> methods are
+generate a hard process. Since there are no beams, it is also not 
+possible to perform the normal <code>PartonLevel</code> step.
+(It is still possible to generate final-state radiation, but this
+is not automatic. It would have to be done by hand, using the 
+<code>pythia.forceTimeShower(...)</code> method, before 
+<code>pythia.next()</code> is called.) 
+Thus only the <code>HadronLevel</code> methods are 
 called, to take the current content of the event record stored in
 <code>pythia.event</code> as a starting point for any hadronization 
 and decays that are allowed by the normal parameters of this step. 
@@ -123,6 +128,21 @@ externally generated events it is equivalent to a
 <code>ProcessLevel:all = off</code>. 
 
 <p/>
+The similarity of names indicates that 
+<code>pythia.forceTimeShower( int iBeg, int iEnd, double pTmax, 
+int nBranchMax = 0)</code> is intended to belong to the same set of 
+work-by-hand methods. Here <code>iBeg</code> and <code>iEnd</code>
+give the range of partons that should be allowed to shower, 
+<code>pTmax</code> the maximum <i>pT</i> scale of emissions,
+and a nonzero <code>nBranchMax</code> a maximum number of allowed
+branchings. Additionally, a <code>scale</code> has to be set for each
+parton that should shower, which requires an additional final argument 
+to the <code>append</code> methods above. This scale limits the maximum 
+<i>pT</i> allowed for each parton, in addition to the global 
+<code>pTmax</code>. When not set the scale defaults to 0, meaning no 
+radiation for that parton.
+
+<p/>
 The real application instead is for repeated hadronization of the same
 PYTHIA process- and parton-level event. This may for some studies
 help to save time, given that these two first step are more 
@@ -169,4 +189,4 @@ events.
 </body>
 </html>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->

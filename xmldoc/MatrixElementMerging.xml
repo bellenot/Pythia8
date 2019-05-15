@@ -577,6 +577,17 @@ incomplete histories.
 </option>
 </modepick>
 
+<flag name="Merging:allowColourShuffling" default="off">
+If on, this will allow the algorithm to swap one colour index in the state,
+when trying to find all possible clusterings, if no clustering has been
+found, but more clusterings had been requested. In this way, some incomplete
+histories can be avoided. Generally, we advise the non-expert user to not
+touch this switch, because a slight change in the colour structure can change
+the radiation pattern. To however study the sensitivity of the predictions on
+these effects, allowing for colour reshuffling can be useful.
+</flag>
+
+
 </chapter>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->

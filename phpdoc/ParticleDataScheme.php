@@ -736,7 +736,7 @@ antiparticle name has been set (and is different from
   
 <strong>void ParticleData::names(int id, string name, string antiName) &nbsp;</strong> <br/>
   
-<<strong>string ParticleData::name(int id) &nbsp;</strong> <br/>
+<strong>string ParticleData::name(int id) &nbsp;</strong> <br/>
 particle and antiparticle names are stored separately, the sign of 
 <code>id</code> determines which of the two is returned, with 
 <code>void</code> used to indicate the absence of an antiparticle. 
@@ -1628,4 +1628,4 @@ positive and negative particles. For internal use.
 </body>
 </html>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->

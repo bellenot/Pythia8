@@ -1,5 +1,5 @@
 // SusyResonanceWidths.h is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand
+// Copyright (C) 2012 Torbjorn Sjostrand
 // Main author of this file: N. Desai
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
@@ -23,8 +23,9 @@ class WidthFunction {
 
 public:
 
-  // Constructor
-  WidthFunction(){};
+  // Constructor and destructor.
+  WidthFunction() { };
+  virtual ~WidthFunction() { };
 
   void init( ParticleData* particleDataPtrIn, CoupSUSY* coupSUSYPtrIn);
 
@@ -55,6 +56,9 @@ class Psi: public WidthFunction {
 
 public:
 
+  // Destructor.
+  virtual ~Psi() { };
+
   virtual void setInternal(int idResIn, int id1In, int id2In, int id3In, 
     int idIntIn);
   virtual double function(double m12);
@@ -66,6 +70,9 @@ public:
 class Upsilon: public WidthFunction {
 
 public:
+
+  // Destructor.
+  virtual ~Upsilon() { };
 
   virtual void setInternal(int idResIn, int id1In, int id2In, int id3In, 
     int idIntIn, int idInt2);
@@ -83,6 +90,9 @@ protected:
 class Phi: public WidthFunction {
 
 public:
+
+  // Destructor.
+  virtual ~Phi() { };
 
   virtual void setInternal(int idResIn, int id1In, int id2In, int id3In, 
     int idIntIn, int idInt2);

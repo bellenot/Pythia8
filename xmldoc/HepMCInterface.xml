@@ -4,14 +4,15 @@
 
 An interface to the HepMC <ref>Dob01</ref> standard event record 
 format has been provided by M. Kirsanov. To use it, the relevant 
-libraires need to be linked, as explained in the <code>README</code> 
+libraries need to be linked, as explained in the <code>README</code> 
 file. Only version 2 of HepMC is supported. (Version 1 requires 
 a different interface structure, which was only supported up until 
 Pythia 8.107.) 
 
 <p/>
 The (simple) procedure to translate PYTHIA 8 events into HepMC ones 
-is illustrated in the <code>main31.cc</code> and <code>main32.cc</code>   
+is illustrated in the <code>main41.cc</code>, <code>main42.cc</code>
+<code>main61.cc</code> and <code>main62.cc</code>   
 main programs. At the core is a call to the
 <pre>
 HepMC::I_Pythia8::fill_next_event( pythia, hepmcevt, ievnum = -1, convertGluonTo0 = false ) 
@@ -191,4 +192,4 @@ convert the normal GeV energies, momenta and masses to MeV.
 
 </chapter>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->

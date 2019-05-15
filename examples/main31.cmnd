@@ -1,11 +1,22 @@
+! main31.cmnd.
+! This file contains commands to be read in for a Pythia8 run. 
+! Lines not beginning with a letter or digit are comments.
+! Names are case-insensitive  -  but spellings-sensitive!
+! The settings here are illustrative, not always physics-motivated.
+
 ! Number of events - use 0 for all LHEF events in the input file.
 Main:numberOfEvents = 0
 
-! Number of events to list, how often to show status updates
-! and number of errors to allow.
-Main:numberToList     = 1
-Main:timesToShow      = 10
-Main:timesAllowErrors = 10	
+! Number of events to list and number of errors to allow.
+Next:numberShowLHA = 1
+Next:numberShowInfo = 1 
+Next:numberShowProcess = 1
+Next:numberShowEvent = 1   
+Main:timesAllowErrors = 10
+
+! List changed settings or particle data.	
+Init:showChangedSettings = on
+Init:showChangedParticleData = off 
 
 ! Input file.
 Beams:frameType = 4
@@ -59,12 +70,12 @@ POWHEG:emitted = 0
 !  2 - Pythia definitions
 POWHEG:pTdef = 1
 
-! MI vetoing
-!  0 - No MI vetoing is done
-!  1 - When there is no radiation, MIs with a scale above pT_1 are vetoed,
-!      else MIs with a scale above (pT_1 + pT_2 + pT_3) / 2 are vetoed
-POWHEG:MIveto = 0
+! MPI vetoing
+!  0 - No MPI vetoing is done
+!  1 - When there is no radiation, MPIs with a scale above pT_1 are vetoed,
+!      else MPIs with a scale above (pT_1 + pT_2 + pT_3) / 2 are vetoed
+POWHEG:MPIveto = 0
 
-! Further options
-PartonLevel:MI = off
+! Further options (optional, for tryout)
+PartonLevel:MPI = off
 HadronLevel:All = off

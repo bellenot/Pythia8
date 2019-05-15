@@ -1,5 +1,5 @@
 // History.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -27,6 +27,7 @@ void Clustering::list() const {
   cout << " emt " << emitted
        << " rad " << emittor
        << " rec " << recoiler
+       << " partner " << partner
        << " pTscale " << pTscale << endl;
 }
 
@@ -108,6 +109,7 @@ History::History( int depth,
   // clusterings.
   vector<Clustering> clusterings;
   if ( depth > 0 ) clusterings = getAllClusterings();
+
   // If no clusterings were found, the recursion is done and we
   // register this node.
   if ( clusterings.empty() ) {
@@ -195,10 +197,8 @@ double History::weightTREE(PartonLevel* trial, AlphaStrong * asFSR,
 
 //  // Reject incomplete histories
 //  if(!foundCompletePath) return 0.;
-
 //  // Reject unordered histories
 //  if(!foundOrderedPath) return 0.;
-
 //  // Reject histories without strong ordering
 //  if(mergingHooksPtr->enforceStrongOrdering()
 //    && !foundStronglyOrderedPath) return 0.;
@@ -230,18 +230,18 @@ void History::getStartingConditions( const double RN, double& hardScale,
       if(outState[i].isFinal()) nFinal++;
     if(nFinal <=2)
       outState.scale(infoPtr->QFac());
-/*
-    // If the hard process has a resonance decay which is not
-    // corrected (e.g. for pp -> (V->jj) + jets merging), set
-    // factorization scale as starting scale
-    if(mergingHooksPtr->hardProcess.hasResInProc())
-      outState.scale(infoPtr->QFac());
-    // If the hard process has a resonance decay which is
-    // corrected (e.g. for e+e- -> 2 + n jets merging), set
-    // half the intermediate mass as starting scale
-    else
-      outState.scale(0.5*outState[5].m());
-*/
+
+//    // If the hard process has a resonance decay which is not
+//    // corrected (e.g. for pp -> (V->jj) + jets merging), set
+//    // factorization scale as starting scale
+//    if(mergingHooksPtr->hardProcess.hasResInProc())
+//      outState.scale(infoPtr->QFac());
+//    // If the hard process has a resonance decay which is
+//    // corrected (e.g. for e+e- -> 2 + n jets merging), set
+//    // half the intermediate mass as starting scale
+//    else
+//      outState.scale(0.5*outState[5].m());
+
   }
 
   hardScale = selected->scale;
@@ -289,7 +289,7 @@ double History::getPDFratio( int side, bool forSudakov,
   double pdfNum = 0.0;
   double pdfDen = 0.0;
 
-  // Use rescaled PDFs in the presence of multiple interactions
+  // Use rescaled PDFs in the presence of multiparton interactions
   if(side == 1) {
       if(forSudakov)
         pdfNum = mother->beamA.xfISR(0, flavNum, xNum, muNum*muNum);
@@ -428,6 +428,7 @@ void History::setScales( vector<int> index, bool forward) {
       for(int i=3; i < int(state.size());++i)
         if(state[i].colType() != 0)
           state[i].scale(scaleNew);
+
     } else {
       // 2->2 with non-parton particles showered from eCM
       state.scale( state[0].e() );
@@ -892,8 +893,8 @@ double History::doTrialShower(PartonLevel* trial, double maxscale) {
 
   if(pTtrial > pTreclus) return 0.0;
 
-  // For 2 -> 2 pure QCD state, do not allow multiple interactions above the
-  // kinematical pT of the 2 -> 2 state
+  // For 2 -> 2 pure QCD state, do not allow multiparton interactions
+  // above the kinematical pT of the 2 -> 2 state
   int typeTrial = trial->typeLastInShower();
   if(typeTrial == 1){
     // Count number of final state particles and remember partons
@@ -906,7 +907,7 @@ double History::doTrialShower(PartonLevel* trial, double maxscale) {
           finalPartons.push_back(i);
       }
     }
-    // Veto if MI was above 2 -> 2 pT
+    // Veto if MPI was above 2 -> 2 pT
     if(  nFinal == 2 && int(finalPartons.size()) == 2
       && pTtrial > event[finalPartons[0]].pT() ) {
       return 0.0;
@@ -1060,10 +1061,15 @@ vector<Clustering> History::getAllClusterings() {
   // clusterings of diagrams that interfere with the current one
   // (i.e. change the colours of the current event slightly and run
   //  search again)
-  else {
+  else if( ret.empty()
+        && mergingHooksPtr->allowColourShuffling() ) {
     Event NewState = Event(state);
     // Start with changing final state quark colour
     for(int i = 0; i < int(PosFinalQuark.size()); ++i){
+      // Never change the hard process candidates
+      if( mergingHooksPtr->hardProcess.matchesAnyOutgoing(PosFinalQuark[i],
+        NewState) )
+        continue;
       int col = NewState[PosFinalQuark[i]].col();
       for(int j = 0; j < int(PosInitAntiq.size()); ++j){
         // Now swap colours
@@ -1083,6 +1089,10 @@ vector<Clustering> History::getAllClusterings() {
     }
     // Now change final state antiquark anticolour
     for(int i = 0; i < int(PosFinalAntiq.size()); ++i){
+      // Never change the hard process candidates
+      if( mergingHooksPtr->hardProcess.matchesAnyOutgoing(PosFinalAntiq[i],
+        NewState) )
+        continue;
       int acl = NewState[PosFinalAntiq[i]].acol();
       for(int j = 0; j < int(PosInitQuark.size()); ++j){
         // Now swap colours
@@ -1100,6 +1110,18 @@ vector<Clustering> History::getAllClusterings() {
         }
       }
     }
+
+    if(!ret.empty())
+      info->errorMsg("Warning in History::getAllClusterings: Changed",
+      "colour structure to allow at least one clustering");
+    else
+      info->errorMsg("Warning in History::getAllClusterings: No clusterings",
+        "found. History incomplete");
+
+  // If no colour rearrangements should be done, print warning and return
+  } else {
+    info->errorMsg("Warning in History::getAllClusterings: No clusterings",
+      "found. History incomplete");
   }
   // Done
   return ret;
@@ -1236,6 +1258,10 @@ vector<Clustering> History::findTriple (int EmtTagIn, int colTopIn,
     int i    = (a < FinalSize)? a : (a - FinalSize) ;
     int iRad = (a < FinalSize)? PosFinalPartn[i] : PosInitPartn[i];
 
+    if(  event[iRad].col() == event[EmtTag].col()
+      && event[iRad].acol() == event[EmtTag].acol() )
+      continue;
+
     if (iRad != EmtTag ) {
       int pTdef = event[iRad].isFinal() ? 1 : -1;
       int sign = (a < FinalSize)? 1 : -1 ;
@@ -1247,7 +1273,6 @@ vector<Clustering> History::findTriple (int EmtTagIn, int colTopIn,
         if ( event[iRad].id() == -sign*event[EmtTag].id() ) {
           int col = -1;
           int acl = -1;
-
           if(event[iRad].id() < 0) {
             col = event[EmtTag].acol();
             acl = event[iRad].acol();
@@ -1255,46 +1280,109 @@ vector<Clustering> History::findTriple (int EmtTagIn, int colTopIn,
              col = event[EmtTag].col();
              acl = event[iRad].col();
           }
+          // Recoiler
+          int iRec     = 0;
+          // Colour partner
+          int iPartner = 0;
 
-          int iRec = 0;
           if(col > 0) {
+            // Find recoiler by colour
             iRec = FindCol(col,iRad,EmtTag,event,1,true);
-            if( (sign < 0) && (event[iRec].isFinal()) ) iRec = 0;
-            if(iRec != 0 && allowedClustering( iRad, EmtTag, iRec, event) ){
-              clus.push_back( Clustering(EmtTag,iRad,iRec,
+            // In initial state splitting has final state colour partner,
+            // Save both partner and recoiler
+            if( (sign < 0) && (event[iRec].isFinal()) ){
+              // Save colour recoiler
+              iPartner = iRec;
+              // Reset kinematic recoiler to initial state parton
+              for(int l = 0; l < int(PosInitPartn.size()); ++l)
+                if(PosInitPartn[l] != iRad) iRec = PosInitPartn[l];
+            // For final state splittings, colour partner and recoiler are
+            // identical
+            } else {
+              iPartner = iRec;
+            }
+            if( iRec != 0 && iPartner != 0
+             && allowedClustering( iRad, EmtTag, iRec, iPartner, event) ){
+              clus.push_back( Clustering(EmtTag, iRad, iRec, iPartner,
                    pTLund(event[iRad], event[EmtTag], event[iRec], pTdef) ));
               continue;
             }
 
-            iRec = 0;
+            // Reset partner
+            iPartner = 0;
+            // Find recoiler by colour
             iRec = FindCol(col,iRad,EmtTag,event,2,true);
-            if( (sign < 0) && (event[iRec].isFinal()) ) iRec = 0;
-            if(iRec != 0 && allowedClustering( iRad, EmtTag, iRec, event) ) {
-              clus.push_back( Clustering(EmtTag,iRad,iRec,
+            // In initial state splitting has final state colour partner,
+            // Save both partner and recoiler
+            if( (sign < 0) && (event[iRec].isFinal()) ){
+              // Save colour recoiler
+              iPartner = iRec;
+              // Reset kinematic recoiler to initial state parton
+              for(int l = 0; l < int(PosInitPartn.size()); ++l)
+                if(PosInitPartn[l] != iRad) iRec = PosInitPartn[l];
+            // For final state splittings, colour partner and recoiler are
+            // identical
+            } else {
+              iPartner = iRec;
+            }
+            if( iRec != 0 && iPartner != 0
+             && allowedClustering( iRad, EmtTag, iRec, iPartner, event) ){
+              clus.push_back( Clustering(EmtTag, iRad, iRec, iPartner,
                    pTLund(event[iRad], event[EmtTag], event[iRec], pTdef) ));
               continue;
             }
           }
 
           if(acl > 0) {
+
+            // Reset partner
+            iPartner = 0;
+            // Find recoiler by colour
             iRec = FindCol(acl,iRad,EmtTag,event,1,true);
-            if( (sign < 0) && (event[iRec].isFinal()) ) iRec = 0;
-            if(iRec != 0 && allowedClustering( iRad, EmtTag, iRec, event) ) {
-              clus.push_back( Clustering(EmtTag,iRad,iRec,
+            // In initial state splitting has final state colour partner,
+            // Save both partner and recoiler
+            if( (sign < 0) && (event[iRec].isFinal()) ){
+              // Save colour recoiler
+              iPartner = iRec;
+              // Reset kinematic recoiler to initial state parton
+              for(int l = 0; l < int(PosInitPartn.size()); ++l)
+                if(PosInitPartn[l] != iRad) iRec = PosInitPartn[l];
+            // For final state splittings, colour partner and recoiler are
+            // identical
+            } else {
+              iPartner = iRec;
+            }
+            if( iRec != 0 && iPartner != 0
+             && allowedClustering( iRad, EmtTag, iRec, iPartner, event) ){
+              clus.push_back( Clustering(EmtTag, iRad, iRec, iPartner,
                    pTLund(event[iRad], event[EmtTag], event[iRec], pTdef) ));
               continue;
             }
 
-            iRec = 0;
+            // Reset partner
+            iPartner = 0;
+            // Find recoiler by colour
             iRec = FindCol(acl,iRad,EmtTag,event,2,true);
-            if( (sign < 0) && (event[iRec].isFinal()) ) iRec = 0;
-            if(iRec != 0 && allowedClustering( iRad, EmtTag, iRec, event) ) {
-              clus.push_back( Clustering(EmtTag,iRad,iRec,
+            // In initial state splitting has final state colour partner,
+            // Save both partner and recoiler
+            if( (sign < 0) && (event[iRec].isFinal()) ){
+              // Save colour recoiler
+              iPartner = iRec;
+              // Reset kinematic recoiler to initial state parton
+              for(int l = 0; l < int(PosInitPartn.size()); ++l)
+                if(PosInitPartn[l] != iRad) iRec = PosInitPartn[l];
+            // For final state splittings, colour partner and recoiler are
+            // identical
+            } else {
+              iPartner = iRec;
+            }
+            if( iRec != 0 && iPartner != 0
+             && allowedClustering( iRad, EmtTag, iRec, iPartner, event) ){
+              clus.push_back( Clustering(EmtTag, iRad, iRec, iPartner,
                    pTLund(event[iRad], event[EmtTag], event[iRec], pTdef) ));
               continue;
             }
           }
-
         // Initial gluon splitting
         } else if( event[iRad].id() == 21
                   &&(  event[iRad].col() == event[EmtTag].col()
@@ -1303,12 +1391,36 @@ vector<Clustering> History::findTriple (int EmtTagIn, int colTopIn,
           // to the other initial state parton (recoil is taken
           // by full remaining system, so this is just a
           // labelling for such a process) 
-          int RecInit = 0;
+          int RecInit  = 0;
           for(int l = 0; l < int(PosInitPartn.size()); ++l)
             if(PosInitPartn[l] != iRad) RecInit = PosInitPartn[l];
 
-          if( allowedClustering( iRad, EmtTag, RecInit, event ) ) {
-            clus.push_back( Clustering(EmtTag,iRad,RecInit,
+          // Still, find colour-connected partner
+          int iPartner = 0;
+          // Find colout tag
+          int col = -1;
+          int acl = -1;
+          if( event[iRad].col() == event[EmtTag].col() )
+            acl = event[iRad].acol();
+          else if( event[iRad].acol() == event[EmtTag].acol() )
+            col = event[iRad].col();        
+
+          int iColPartner = -1;
+          int iAclPartner = -1;
+          if( col>0 ) {
+            // First try to find anticolour
+            iAclPartner = FindCol(col,iRad,EmtTag,event,1,true);
+            // Then try to find colour
+            iColPartner = FindCol(col,iRad,EmtTag,event,2,true);
+          } else if( acl > 0 ) {
+            // First try to find colour
+            iColPartner = FindCol(acl,iRad,EmtTag,event,1,true);
+            // Then try to find anticolour
+            iAclPartner = FindCol(acl,iRad,EmtTag,event,2,true);
+          }
+
+          if( allowedClustering( iRad, EmtTag, RecInit, RecInit, event ) ) {
+            clus.push_back( Clustering(EmtTag, iRad, RecInit, iPartner,
                  pTLund(event[iRad],event[EmtTag],event[RecInit], pTdef) ));
               continue;
           }
@@ -1341,17 +1453,18 @@ vector<Clustering> History::findTriple (int EmtTagIn, int colTopIn,
             if(col > 0) {
               iRec = FindCol(col,iRad,EmtTag,event,1,true);
               if( (sign < 0) && (event[iRec].isFinal()) ) iRec = 0;
-              if(iRec != 0 && allowedClustering( iRad, EmtTag, iRec,event) ){
-                clus.push_back( Clustering(EmtTag,iRad,iRec,
+              if(iRec != 0 
+               && allowedClustering( iRad, EmtTag, iRec, iRec, event) ){
+                clus.push_back( Clustering(EmtTag, iRad, iRec, iRec,
                      pTLund(event[iRad],event[EmtTag],event[iRec], pTdef) ));
                 continue;
               }
 
-              iRec = 0;
               iRec = FindCol(col,iRad,EmtTag,event,2,true);
               if( (sign < 0) && (event[iRec].isFinal()) ) iRec = 0;
-              if(iRec != 0 && allowedClustering( iRad, EmtTag, iRec,event) ){
-                clus.push_back( Clustering(EmtTag,iRad,iRec,
+              if(iRec != 0
+               && allowedClustering( iRad, EmtTag, iRec, iRec, event) ){
+                clus.push_back( Clustering(EmtTag, iRad, iRec, iRec,
                      pTLund(event[iRad],event[EmtTag],event[iRec], pTdef) ));
                 continue;
               }
@@ -1360,17 +1473,18 @@ vector<Clustering> History::findTriple (int EmtTagIn, int colTopIn,
             if(acl > 0) {
               iRec = FindCol(acl,iRad,EmtTag,event,1,true);
               if( (sign < 0) && (event[iRec].isFinal()) ) iRec = 0;
-              if(iRec != 0 && allowedClustering( iRad, EmtTag, iRec,event) ){
-                clus.push_back( Clustering(EmtTag,iRad,iRec,
+              if(iRec != 0
+               && allowedClustering( iRad, EmtTag, iRec, iRec, event) ){
+                clus.push_back( Clustering(EmtTag, iRad, iRec, iRec,
                      pTLund(event[iRad],event[EmtTag],event[iRec], pTdef) ));
                 continue;
               }
 
-              iRec = 0;
               iRec = FindCol(acl,iRad,EmtTag,event,2,true);
               if( (sign < 0) && (event[iRec].isFinal()) ) iRec = 0;
-              if(iRec != 0 && allowedClustering( iRad, EmtTag, iRec,event) ){
-                clus.push_back( Clustering(EmtTag,iRad,iRec,
+              if(iRec != 0
+               && allowedClustering( iRad, EmtTag, iRec, iRec, event) ){
+                clus.push_back( Clustering(EmtTag, iRad, iRec, iRec,
                      pTLund(event[iRad],event[EmtTag],event[iRec], pTdef) ));
                 continue;
               }
@@ -1383,11 +1497,33 @@ vector<Clustering> History::findTriple (int EmtTagIn, int colTopIn,
             // by full remaining system, so this is just a
             // labelling for such a process) 
             int RecInit = 0;
+            int iPartner = 0;
             for(int l = 0; l < int(PosInitPartn.size()); ++l)
               if(PosInitPartn[l] != iRad) RecInit = PosInitPartn[l];
 
-            if( allowedClustering( iRad, EmtTag, RecInit,event) ){
-              clus.push_back( Clustering(EmtTag,iRad,RecInit,
+            // Find the colour connceted partner
+            // Find colour index of radiator before splitting
+            col = getRadBeforeCol(iRad, EmtTag, event);
+            acl = getRadBeforeAcol(iRad, EmtTag, event);
+
+            // Find the correct partner: If a colour line has split,
+            // the partner is connected to the radiator before the splitting
+            // by a colour line (same reasoning for anticolour). The colour
+            // that split is the colour appearing twice in the
+            // radiator + emitted pair.
+            // Thus, if we remove a colour index with the clustering,
+            // we should look for a colour partner, else look for
+            // an anticolour partner
+            int colRemove = (event[iRad].col() == event[EmtTag].col())
+                    ? event[iRad].col() : 0;
+            iPartner = (colRemove > 0)
+                     ?   FindCol(col,iRad,EmtTag,event,1,true)
+                       + FindCol(col,iRad,EmtTag,event,2,true)
+                     :   FindCol(acl,iRad,EmtTag,event,1,true)
+                       + FindCol(acl,iRad,EmtTag,event,2,true);
+
+            if( allowedClustering( iRad, EmtTag, RecInit, iPartner, event) ){
+              clus.push_back( Clustering(EmtTag, iRad, RecInit, iPartner,
                    pTLund(event[iRad],event[EmtTag],event[RecInit], pTdef)));
 
               continue;
@@ -2200,13 +2336,14 @@ Event History::cluster(const Clustering & inSystem) {
   bool radAppended = false;
   bool recAppended = false;
   int size = int(outState.size());
-
+  // Save position of radiator in new event record
+  int radPos = 0;
   // Append first incoming particle
   if( RecBefore.mother1() == 1){
     outState.append( RecBefore );
     recAppended = true;
   } else if( RadBefore.mother1() == 1 ){
-    outState.append( RadBefore );
+    radPos = outState.append( RadBefore );
     radAppended = true;
   } else {
     // Find second incoming in input event
@@ -2221,13 +2358,14 @@ Event History::cluster(const Clustering & inSystem) {
     outState.append( RecBefore );
     recAppended = true;
   } else if( RadBefore.mother1() == 2 ){
-    outState.append( RadBefore );
+    radPos = outState.append( RadBefore );
     radAppended = true;
   } else {
     // Find second incoming in input event
     int in2 = 0;
     for(int i=0; i < int(state.size()); ++i)
       if(state[i].mother1() == 2) in2 =i;
+
     outState.append( state[in2] );
     size++;
   }
@@ -2240,7 +2378,7 @@ Event History::cluster(const Clustering & inSystem) {
   // Append new radiator if not done already
   if(!radAppended && !RadBefore.isFinal()){
     radAppended = true;
-    outState.append( RadBefore);
+    radPos = outState.append( RadBefore);
   }
 
   // Append intermediate particle
@@ -2249,7 +2387,7 @@ Event History::cluster(const Clustering & inSystem) {
     if(NewEvent[i].status() == -22) outState.append( NewEvent[i] );
 
   if(!recAppended) outState.append(RecBefore);
-  if(!radAppended) outState.append(RadBefore);
+  if(!radAppended) radPos = outState.append(RadBefore);
 
   // Append final state particles, partons first (not reclustered recoiler)
   for(int i = 0; i < int(NewEvent.size()-1); ++i)
@@ -2290,6 +2428,7 @@ Event History::cluster(const Clustering & inSystem) {
         PosDaughter2.push_back( daughter2);
       }
     }
+
   // Set daughters and mothers
   for(int i=0; i < int(PosIntermediate.size()); ++i){
     outState[PosIntermediate[i]].daughters(PosDaughter1[i],PosDaughter2[i]);
@@ -2313,6 +2452,77 @@ Event History::cluster(const Clustering & inSystem) {
   // Update event properties
   outState.saveSize();
   outState.saveJunctionSize();
+
+  // Almost there...
+  // If an intermediate coloured parton exists which was directly
+  // colour connected to the radiator before the splitting, and the
+  // radiator before and after the splitting had only one colour, problems
+  // will arise since the colour of the radiator will be changed, whereas
+  // the intermediate parton still has the old colour. In effect, this
+  // means that when setting up a event for trial showering, one colour will
+  // be free.
+  // Hence, check for an intermediate coloured triplet resonance has been
+  // colour-connected to the "old" radiator.
+  // Find resonance
+  int iColRes = 0;
+  if( radType == -1 && state[Rad].colType() == 1){
+      // Find resonance connected to initial colour
+      for(int i=0; i < int(state.size()); ++i)
+        if(   i != Rad && i != Emt && i != Rec
+          && state[i].status() == -22
+          && state[i].col() == state[Rad].col() )
+          iColRes = i;
+  } else if( radType == -1 && state[Rad].colType() == -1){
+      // Find resonance connected to initial anticolour
+      for(int i=0; i < int(state.size()); ++i)
+        if(   i != Rad && i != Emt && i != Rec
+          && state[i].status() == -22
+          && state[i].acol() == state[Rad].acol() )
+          iColRes = i;
+  } else if( radType == 1 && state[Rad].colType() == 1){
+      // Find resonance connected to final state colour
+      for(int i=0; i < int(state.size()); ++i)
+        if(   i != Rad && i != Emt && i != Rec
+          && state[i].status() == -22
+          && state[i].acol() == state[Rad].col() )
+          iColRes = i;
+  } else if( radType == 1 && state[Rad].colType() == -1){
+      // Find resonance connected to final state anticolour
+      for(int i=0; i < int(state.size()); ++i)
+        if(   i != Rad && i != Emt && i != Rec
+          && state[i].status() == -22
+          && state[i].col() == state[Rad].acol() )
+          iColRes = i;
+  }
+
+  if(iColRes > 0) {
+    // Now find this resonance in the reclustered state
+    int iColResNow = FindParticle( state[iColRes], outState);
+    // Find reclustered radiator colours
+    int radCol = outState[radPos].col();
+    int radAcl = outState[radPos].acol();
+    // Find resonance radiator colours
+    int resCol = outState[iColResNow].col();
+    int resAcl = outState[iColResNow].acol();
+    // Check if any of the reclustered radiators colours match the resonance
+    bool matchesRes =  (radCol > 0
+                          && ( radCol == resCol || radCol == resAcl))
+                    || (radAcl > 0
+                          && ( radAcl == resCol || radAcl == resAcl));
+
+    // If a resonance has been found, but no colours match, change
+    // the colour of the resonance
+    if(!matchesRes && iColResNow > 0) {
+      if( radType == -1 && outState[radPos].colType() == 1)
+        outState[iColResNow].col(radCol);
+      else if( radType ==-1 && outState[radPos].colType() ==-1)
+        outState[iColResNow].acol(radAcl);
+      else if( radType == 1 && outState[radPos].colType() == 1)
+        outState[iColResNow].acol(radCol);
+      else if( radType == 1 && outState[radPos].colType() ==-1)
+        outState[iColResNow].col(radAcl);
+    }
+  }
 
   // If event is not constructed properly, return false
   if ( !validEvent(outState) ){
@@ -2598,7 +2808,8 @@ int History::FindParticle(const Particle& particle, const Event& event){
   int index = -1;
 
   for( int i=0; i < int(event.size()); ++i)
-    if( event[i].id() == particle.id() 
+    if( event[i].status()     == particle.status()
+     && event[i].id()         == particle.id() 
      && event[i].colType()    == particle.colType() 
      && event[i].chargeType() == particle.chargeType() 
      && event[i].col()        == particle.col() 
@@ -2613,30 +2824,566 @@ int History::FindParticle(const Particle& particle, const Event& event){
 
 //--------------------------------------------------------------------------
 
+// Function to get the colour of the radiator before the splitting
+// for clustering
+// IN  int   : Position of the radiator after the splitting, in the event
+//     int   : Position of the emitted after the splitting, in the event
+//     Event : Reference event   
+// OUT int   : Colour of the radiator before the splitting
+
+int History::getRadBeforeCol(const int rad, const int emt,
+      const Event& event){
+
+  // Save type of splitting
+  int type = (event[rad].isFinal()) ? 1 :-1;
+  // Get flavour of radiator after potential clustering
+  int radBeforeFlav = getRadBeforeFlav(rad,emt,event);
+  // Get colours of the radiator before the potential clustering
+  int radBeforeCol = -1;
+  // Get reconstructed gluon colours
+  if(radBeforeFlav == 21) {
+
+    // Start with quark emissions in FSR
+    if (type == 1 && event[emt].id() != 21) {
+      radBeforeCol = (event[rad].col()  > 0)
+                   ? event[rad].col() : event[emt].col();
+    // Quark emissions in ISR
+    } else if (type == -1 && event[emt].id() != 21) {
+      radBeforeCol = (event[rad].col()  > 0)
+                   ? event[rad].col() : event[emt].acol();
+    //Gluon emissions in FSR
+    } else if (type == 1 && event[emt].id() == 21) {
+      // If emitted is a gluon, remove the repeated index, and take
+      // the remaining indices as colour and anticolour 
+      int colRemove = (event[rad].col() == event[emt].acol())
+                    ? event[rad].acol() : event[rad].col();
+      radBeforeCol  = (event[rad].col()  == colRemove)
+                    ? event[emt].col() : event[rad].col();
+    //Gluon emissions in ISR
+    } else if (type == -1 && event[emt].id() == 21) {
+      // If emitted is a gluon, remove the repeated index, and take
+      // the remaining indices as colour and anticolour 
+      int colRemove = (event[rad].col() == event[emt].col())
+                    ? event[rad].col() : event[rad].acol();
+      radBeforeCol  = (event[rad].col()  == colRemove)
+                    ? event[emt].acol() : event[rad].col();
+    }
+
+  // Get reconstructed quark colours
+  } else if ( radBeforeFlav != 21 && radBeforeFlav > 0){
+
+    // Quark emission in FSR
+    if (type == 1 && event[emt].id() != 21) {
+      // If radiating is a gluon, remove the repeated index, and take
+      // the remaining indices as colour and anticolour 
+      int colRemove = (event[rad].col() == event[emt].acol())
+                    ? event[rad].acol() : 0;
+      radBeforeCol  = (event[rad].col()  == colRemove)
+                    ? event[emt].col() : event[rad].col();
+    //Gluon emissions in FSR
+    } else if (type == 1 && event[emt].id() == 21) {
+      // If emitted is a gluon, remove the repeated index, and take
+      // the remaining indices as colour and anticolour 
+      int colRemove = (event[rad].col() == event[emt].acol())
+                    ? event[rad].col() : 0;
+      radBeforeCol  = (event[rad].col()  == colRemove)
+                    ? event[emt].col() : event[rad].col();
+    //Gluon emissions in ISR
+    } else if (type == -1 && event[emt].id() == 21) {
+      // If emitted is a gluon, remove the repeated index, and take
+      // the remaining indices as colour and anticolour 
+      int colRemove = (event[rad].col() == event[emt].col())
+                    ? event[rad].col() : 0;
+      radBeforeCol  = (event[rad].col()  == colRemove)
+                    ? event[emt].acol() : event[rad].col();
+    }
+  // Other particles are assumed uncoloured
+  } else {
+    radBeforeCol = 0;
+  }
+
+  return radBeforeCol;
+
+}
+
+//--------------------------------------------------------------------------
+
+// Function to get the anticolour of the radiator before the splitting
+// for clustering
+// IN  int   : Position of the radiator after the splitting, in the event
+//     int   : Position of the emitted after the splitting, in the event
+//     Event : Reference event   
+// OUT int   : Anticolour of the radiator before the splitting
+
+int History::getRadBeforeAcol(const int rad, const int emt,
+      const Event& event){
+
+  // Save type of splitting
+  int type = (event[rad].isFinal()) ? 1 :-1;
+  // Get flavour of radiator after potential clustering
+  int radBeforeFlav = getRadBeforeFlav(rad,emt,event);
+  // Get colours of the radiator before the potential clustering
+  int radBeforeAcl = -1;
+  // Get reconstructed gluon colours
+  if(radBeforeFlav == 21) {
+
+    // Start with quark emissions in FSR
+    if (type == 1 && event[emt].id() != 21) {
+      radBeforeAcl = (event[rad].acol() > 0)
+                   ? event[rad].acol() : event[emt].acol();
+    // Quark emissions in ISR
+    } else if (type == -1 && event[emt].id() != 21) {
+      radBeforeAcl = (event[rad].acol() > 0)
+                   ? event[rad].acol() : event[emt].col();
+    //Gluon emissions in FSR
+    } else if (type == 1 && event[emt].id() == 21) {
+      // If emitted is a gluon, remove the repeated index, and take
+      // the remaining indices as colour and anticolour 
+      int colRemove = (event[rad].col() == event[emt].acol())
+                    ? event[rad].acol() : event[rad].col();
+      radBeforeAcl  = (event[rad].acol() == colRemove)
+                    ? event[emt].acol() : event[rad].acol();
+    //Gluon emissions in ISR
+    } else if (type == -1 && event[emt].id() == 21) {
+      // If emitted is a gluon, remove the repeated index, and take
+      // the remaining indices as colour and anticolour 
+      int colRemove = (event[rad].col() == event[emt].col())
+                    ? event[rad].col() : event[rad].acol();
+      radBeforeAcl  = (event[rad].acol() == colRemove)
+                    ? event[emt].col() : event[rad].acol();
+    }
+
+  // Get reconstructed anti-quark colours
+  } else if ( radBeforeFlav != 21 && radBeforeFlav < 0){
+    // Antiquark emission in FSR
+    if (type == 1 && event[emt].id() != 21) {
+      // If radiating is a gluon, remove the repeated index, and take
+      // the remaining indices as colour and anticolour 
+      int colRemove = (event[rad].col() == event[emt].acol())
+                    ? event[rad].acol() : 0;
+      radBeforeAcl  = (event[rad].acol()  == colRemove)
+                    ? event[emt].acol() : event[rad].acol();
+    //Gluon emissions in FSR
+    } else if (type == 1 && event[emt].id() == 21) {
+      // If emitted is a gluon, remove the repeated index, and take
+      // the remaining indices as colour and anticolour 
+      int colRemove = (event[rad].acol() == event[emt].col())
+                    ? event[rad].acol() : 0;
+      radBeforeAcl  = (event[rad].acol()  == colRemove)
+                    ? event[emt].acol() : event[rad].acol();
+    //Gluon emissions in ISR
+    } else if (type == -1 && event[emt].id() == 21) {
+      // If emitted is a gluon, remove the repeated index, and take
+      // the remaining indices as colour and anticolour 
+      int colRemove = (event[rad].acol() == event[emt].acol())
+                    ? event[rad].acol() : 0;
+      radBeforeAcl  = (event[rad].acol()  == colRemove)
+                    ? event[emt].col() : event[rad].acol();
+    }
+  // Other particles are considered uncoloured
+  } else {
+    radBeforeAcl = 0;
+  }
+
+  return radBeforeAcl;
+
+}
+
+//--------------------------------------------------------------------------
+
+  // Function to get the parton connected to in by a colour line
+  // IN  int   : Position of parton for which partner should be found
+  //     Event : Reference event   
+  // OUT int   : If a colour line connects the "in" parton with another
+  //             parton, return the Position of the partner, else return 0
+
+int History::getColPartner(const int in, const Event& event){
+
+  if(event[in].col() == 0) return 0;
+
+  int partner = 0;
+  // Try to find anticolour index first
+  partner = FindCol(event[in].col(),in,0,event,1,true);
+  // If no anticolour index has been found, try colour
+  if(partner == 0)
+   partner = FindCol(event[in].col(),in,0,event,2,true);
+
+  return partner;
+
+}
+
+//--------------------------------------------------------------------------
+
+  // Function to get the parton connected to in by an anticolour line
+  // IN  int   : Position of parton for which partner should be found
+  //     Event : Reference event   
+  // OUT int   : If an anticolour line connects the "in" parton with another
+  //             parton, return the Position of the partner, else return 0
+
+int History::getAcolPartner(const int in, const Event& event){
+
+  if(event[in].acol() == 0) return 0;
+
+  int partner = 0;
+  // Try to find colour index first
+  partner = FindCol(event[in].acol(),in,0,event,2,true);
+  // If no colour index has been found, try anticolour
+  if(partner == 0)
+   partner = FindCol(event[in].acol(),in,0,event,1,true);
+
+  return partner;
+
+}
+
+//--------------------------------------------------------------------------
+
+// Function to get the list of partons connected to the particle
+// formed by reclusterinf emt and rad by colour and anticolour lines
+// IN  int          : Position of radiator in the clustering
+// IN  int          : Position of emitted in the clustering
+//     Event        : Reference event   
+// OUT vector<int>  : List of positions of all partons that are connected
+//                    to the parton that will be formed
+//                    by clustering emt and rad.
+
+vector<int> History::getReclusteredPartners(const int rad, const int emt,
+  const Event& event){
+
+  // Save type
+  int type = event[rad].isFinal() ? 1 : -1;
+  // Get reclustered colours
+  int radBeforeCol = getRadBeforeCol(rad, emt, event);
+  int radBeforeAcl = getRadBeforeAcol(rad, emt, event);
+  // Declare output
+  vector<int> partners;
+
+  // Start with FSR clusterings
+  if(type == 1){
+
+    for(int i=0; i < int(event.size()); ++i){
+      // Check all initial state partons
+      if(  i != emt && i != rad
+        && event[i].status() == -21
+        && event[i].col() > 0
+        && event[i].col() == radBeforeCol)
+          partners.push_back(i);
+      // Check all final state partons
+      if(  i != emt && i != rad
+        && event[i].isFinal()
+        && event[i].acol() > 0
+        && event[i].acol() == radBeforeCol)
+          partners.push_back(i);
+      // Check all initial state partons
+      if(  i != emt && i != rad
+        && event[i].status() == -21
+        && event[i].acol() > 0
+        && event[i].acol() == radBeforeAcl)
+          partners.push_back(i);
+      // Check all final state partons
+      if(  i != emt && i != rad
+        && event[i].isFinal()
+        && event[i].col() > 0
+        && event[i].col() == radBeforeAcl)
+          partners.push_back(i);
+    }
+  // Start with ISR clusterings
+  } else {
+
+    for(int i=0; i < int(event.size()); ++i){
+      // Check all initial state partons
+      if(  i != emt && i != rad
+        && event[i].status() == -21
+        && event[i].acol() > 0
+        && event[i].acol() == radBeforeCol)
+          partners.push_back(i);
+      // Check all final state partons
+      if(  i != emt && i != rad
+        && event[i].isFinal()
+        && event[i].col() > 0
+        && event[i].col() == radBeforeCol)
+          partners.push_back(i);
+      // Check all initial state partons
+      if(  i != emt && i != rad
+        && event[i].status() == -21
+        && event[i].col() > 0
+        && event[i].col() == radBeforeAcl)
+          partners.push_back(i);
+      // Check all final state partons
+      if(  i != emt && i != rad
+        && event[i].isFinal()
+        && event[i].acol() > 0
+        && event[i].acol() == radBeforeAcl)
+          partners.push_back(i);
+    }
+
+  }
+  // Done
+  return partners;
+}
+
+//--------------------------------------------------------------------------
+
+// Function to extract a chain of colour-connected partons in
+// the event 
+// IN     int          : Type of parton from which to start extracting a
+//                       parton chain. If the starting point is a quark
+//                       i.e. flavType = 1, a chain of partons that are
+//                       consecutively connected by colour-lines will be
+//                       extracted. If the starting point is an antiquark
+//                       i.e. flavType =-1, a chain of partons that are
+//                       consecutively connected by anticolour-lines
+//                       will be extracted.
+// IN      int         : Position of the parton from which a
+//                       colour-connected chain should be derived
+// IN      Event       : Refernence event
+// IN/OUT  vector<int> : Partons that should be excluded from the search.
+// OUT     vector<int> : Positions of partons along the chain
+// OUT     bool        : Found singlet / did not find singlet
+
+bool History::getColSinglet( const int flavType, const int iParton,
+  const Event& event, vector<int>& exclude, vector<int>& colSinglet){
+  
+  // If no possible flavour to start from has been found
+  if(iParton < 0) return false;
+
+  // If no further partner has been found in a previous iteration,
+  // and the whole final state has been excluded, we're done
+  if(iParton == 0){
+
+    // Count number of final state partons
+    int nFinal = 0;
+    for(int i=0; i < int(event.size()); ++i)
+      if( event[i].isFinal() && event[i].colType() != 0)
+        nFinal++;
+
+    // Get number of initial state partons in the list of
+    // excluded partons
+    int nExclude = int(exclude.size());
+    int nInitExclude = 0;
+    if(!event[exclude[2]].isFinal())
+      nInitExclude++;
+    if(!event[exclude[3]].isFinal())
+      nInitExclude++;
+
+    // If the whole final state has been considered, return
+    if(nFinal == nExclude - nInitExclude)
+      return true;
+    else
+      return false;
+
+  }
+
+  // Declare colour partner
+  int colP = 0;
+  // Save the colour partner
+  colSinglet.push_back(iParton);
+  // Remove the partner from the list
+  exclude.push_back(iParton);
+  // When starting out from a quark line, follow the colour lines 
+  if (flavType == 1)
+    colP = getColPartner(iParton,event);
+  // When starting out from an antiquark line, follow the anticolour lines 
+  else
+    colP = getAcolPartner(iParton,event);
+
+  // Do not count excluded partons twice
+  for(int i = 0; i < int(exclude.size()); ++i)
+    if(colP == exclude[i])
+      return true;
+
+  // Recurse
+  return getColSinglet(flavType,colP,event,exclude,colSinglet);
+
+}
+
+//--------------------------------------------------------------------------
+
+// Function to check that a set of partons forms a colour singlet
+// IN  Event       : Reference event
+// IN  vector<int> : Positions of the partons in the set
+// OUT bool        : Is a colour singlet / is not 
+
+bool History::isColSinglet( const Event& event,
+  vector<int> system ){
+
+  // Check if system forms a colour singlet
+  for(int i=0; i < int(system.size()); ++i ){
+    // Match quark and gluon colours
+    if(  system[i] > 0
+      && (event[system[i]].colType() == 1
+       || event[system[i]].colType() == 2) ) {
+      for(int j=0; j < int(system.size()); ++j)
+        // If flavour matches, remove both partons and continue
+        if(  system[i] > 0 
+          && system[j] > 0
+          && event[system[i]].col() == event[system[j]].acol()){
+          // Remove index and break
+          system[i] = 0;
+          system[j] = 0;
+          break;
+        }
+    }
+    // Match antiquark and gluon anticolours
+    if(  system[i] > 0
+      && (event[system[i]].colType() == -1
+       || event[system[i]].colType() == 2) ) {
+      for(int j=0; j < int(system.size()); ++j)
+        // If flavour matches, remove both partons and continue
+        if(  system[i] > 0 
+          && system[j] > 0
+          && event[system[i]].acol() == event[system[j]].col()){
+          // Remove index and break
+          system[i] = 0;
+          system[j] = 0;
+          break;
+        }
+    }
+
+  }
+
+  // The system is a colour singlet if for all colours,
+  // an anticolour was found
+  bool isColSing = true;
+  for(int i=0; i < int(system.size()); ++i)
+    if( system[i] != 0 )
+      isColSing = false;
+
+  // Return
+  return isColSing;
+
+}
+
+//--------------------------------------------------------------------------
+
+// Function to check that a set of partons forms a flavour singlet
+// IN  Event       : Reference event
+// IN  vector<int> : Positions of the partons in the set
+// IN  int         : Flavour of all the quarks in the set, if
+//                   all quarks in a set should have a fixed flavour
+// OUT bool        : Is a flavour singlet / is not 
+
+bool History::isFlavSinglet( const Event& event,
+  vector<int> system, int flav){
+
+  // If a decoupled colour singlet has been found, check if this is also
+  // a flavour singlet
+  // Check that each quark matches an antiquark
+  for(int i=0; i < int(system.size()); ++i)
+    if(  system[i] > 0 ) {
+      for(int j=0; j < int(system.size()); ++j){
+        // If flavour of outgoing partons matches,
+        // remove both partons and continue.
+        // Skip all bosons
+        if(  event[i].idAbs() != 21
+          && event[i].idAbs() != 22
+          && event[i].idAbs() != 23
+          && event[i].idAbs() != 24
+          && system[i] > 0 
+          && system[j] > 0
+          && event[system[i]].isFinal()
+          && event[system[j]].isFinal()
+          && event[system[i]].id() == -1*event[system[j]].id()) {
+          // If we want to check if only one flavour of quarks
+          // exists
+          if(abs(flav) > 0 && event[system[i]].idAbs() != flav)
+            return false;
+          // Remove index and break
+          system[i] = 0;
+          system[j] = 0;
+          break;
+        }
+        // If flavour of outgoing and incoming partons match,
+        // remove both partons and continue.
+        // Skip all bosons
+        if(  event[i].idAbs() != 21
+          && event[i].idAbs() != 22
+          && event[i].idAbs() != 23
+          && event[i].idAbs() != 24
+          && system[i] > 0
+          && system[j] > 0
+          && ( ( !event[system[i]].isFinal() && event[system[j]].isFinal())
+             ||( !event[system[j]].isFinal() && event[system[i]].isFinal()) )
+          && event[system[i]].id() == event[system[j]].id()) {
+          // If we want to check if only one flavour of quarks
+          // exists
+          if(abs(flav) > 0 && event[system[i]].idAbs() != flav)
+            return false;
+          // Remove index and break
+          system[i] = 0;
+          system[j] = 0;
+          break;
+        }
+
+      }
+    }
+
+  // The colour singlet is a flavour singlet if for all quarks,
+  // an antiquark was found
+  bool isFlavSing = true;
+  for(int i=0; i < int(system.size()); ++i)
+    if( system[i] != 0 )
+      isFlavSing = false;
+
+  // Return
+  return isFlavSing;
+
+}
+
+//--------------------------------------------------------------------------
+
 // Function to check if rad,emt,rec triple is allowed for clustering
 // IN int rad,emt,rec : Positions (in event record) of the three
 //                      particles considered for clustering
 //    Event event     : Reference event 
                  
-bool History::allowedClustering( int rad, int emt, int rec,
+bool History::allowedClustering( int rad, int emt, int rec, int partner,
                 const Event& event ){
 
+  // Declare output
   bool allowed = true;
+
+  // CONSTRUCT SOME PROPERTIES FOR LATER INVESTIGATION
+
   // Check if the triple forms a colour singlett
-  bool isSing = isSinglett(rad,emt,rec,event);
+  bool isSing = isSinglett(rad,emt,partner,event);
   int type = (event[rad].isFinal()) ? 1 :-1;
   // Get flavour of radiator after potential clustering
   int radBeforeFlav = getRadBeforeFlav(rad,emt,event);
+  // Get colours of the radiator before the potential clustering
+  int radBeforeCol = getRadBeforeCol(rad,emt,event);
+  int radBeforeAcl = getRadBeforeAcol(rad,emt,event);
+  // Get colour partner of reclustered parton
+  vector<int> radBeforeColP = getReclusteredPartners(rad, emt, event);
 
-  // If triple forms colour singlett, check that resulting state
-  // matches hard core process
-  if(isSing)
-    allowed = false;
-  if(isSing && (abs(radBeforeFlav)<10 && event[rec].isQuark()) )
-    allowed = true;
+  // Count coloured partons in hard process
+  int nPartonInHard = 0;
+  for(int i=0; i < int(event.size()); ++i)
+    // Check all final state partons
+    if(  event[i].isFinal()
+      && event[i].colType() != 0 
+      && mergingHooksPtr->hardProcess.matchesAnyOutgoing(i, event))
+      nPartonInHard++;
+
+  // Count coloured final state partons in event, excluding
+  // rad, rec, emt and hard process
+  int nPartons = 0;
+  for(int i=0; i < int(event.size()); ++i)
+    // Check all final state partons
+    if(  i!=emt && i!=rad && i!=rec
+      &&  event[i].isFinal()
+      &&  event[i].colType() != 0 
+      && !mergingHooksPtr->hardProcess.matchesAnyOutgoing(i, event))
+      nPartons++;
+
+  // Count number of initial state partons
+  int nInitialPartons = 0;
+  for(int i=0; i < int(event.size()); ++i)
+    if(  event[i].status() == -21
+      && event[i].colType() != 0 )
+      nInitialPartons++;
 
   // Get number of non-charged final state particles
-  int nFinalEW = 0.;
+  int nFinalEW = 0;
   for(int i=0; i < int(event.size()); ++i)
     if(  event[i].isFinal()
       &&(  event[i].id() == 22
@@ -2646,22 +3393,24 @@ bool History::allowedClustering( int rad, int emt, int rec,
         ||(event[i].idAbs() > 10 && event[i].idAbs() < 20)))
       nFinalEW++;
 
-  // Never recluster any outgoing partons of the core V -> qqbar' splitting!
-  if( mergingHooksPtr->hardProcess.matchesAnyOutgoing(emt,event)
-   || mergingHooksPtr->hardProcess.matchesAnyOutgoing(rad,event)
-   ||  mergingHooksPtr->hardProcess.matchesAnyOutgoing(rec,event) )
-    allowed = false; 
-
   // Check if event after potential clustering contains an even
   // number of quarks and/or antiquarks 
   // (otherwise no electroweak vertex could be formed!)
   // Get number of final quarks
   int nFinalQuark = 0;
-  for(int i=0; i < int(event.size()); ++i)
-    if(i !=rad && i != emt && i != rec)
-      if(event[i].isFinal() && event[i].isQuark()
-         && !mergingHooksPtr->hardProcess.matchesAnyOutgoing(i,event) )
-        nFinalQuark++;
+  // Get number of excluded final state quarks as well
+  int nFinalQuarkExc = 0;
+  for(int i=0; i < int(event.size()); ++i) {
+    if(i !=rad && i != emt && i != rec) {
+      if(event[i].isFinal() && event[i].isQuark() ){
+        if ( !mergingHooksPtr->hardProcess.matchesAnyOutgoing(i,event) )
+          nFinalQuark++;
+        else
+          nFinalQuarkExc++;
+      }
+    }
+  }
+
   // Add recoiler to number of final quarks
   if(event[rec].isFinal() && event[rec].isQuark()) nFinalQuark++;
   // Add radiator after clustering to number of final quarks
@@ -2685,17 +3434,512 @@ bool History::allowedClustering( int rad, int emt, int rec,
     if(abs(radBeforeFlav) < 10) nInitialQuark++;  
   }
 
+  // If only odd number of quarks in state,
+  // reject (no electroweak vertex can be formed).
+  // This is only true of no primary partonic resonance could have produced
+  // electroweak bosons.
+  // Check for tops
+  int nTop = 0;
+  for(int i=0; i < int(event.size()); ++i)
+    if(event[i].idAbs() == 6)
+      nTop++;
+
+  // BEGIN CHECKING THE CLUSTERING
+
+  // Check if colour is conserved
+  vector<int> unmatchedCol;
+  vector<int> unmatchedAcl;
+  // Check all unmatched colours
+  for ( int i = 0; i < event.size(); ++i)
+    if( i != emt && i != rad
+      && (event[i].isFinal() || event[i].status() == -21)
+      && event[i].colType() != 0 ) {
+
+      int colP = getColPartner(i,event);
+      int aclP = getAcolPartner(i,event);
+
+      if(event[i].col() > 0
+        && (colP == emt || colP == rad || colP == 0) )
+        unmatchedCol.push_back(i);
+      if(event[i].acol() > 0
+        && (aclP == emt || aclP == rad || aclP == 0) )
+        unmatchedAcl.push_back(i);
+
+    }
+
+  // If more than one colour or more than one anticolour are unmatched,
+  // there is no way to make this clustering work
+  if(int(unmatchedCol.size()) + int(unmatchedAcl.size()) > 2)
+    return false;
+
+  // If triple forms colour singlett, check that resulting state
+  // matches hard core process
+  if(isSing)
+    allowed = false;
+  if(isSing && (abs(radBeforeFlav)<10 && event[rec].isQuark()) )
+    allowed = true;
+
+  // Never recluster any outgoing partons of the core V -> qqbar' splitting!
+  if( mergingHooksPtr->hardProcess.matchesAnyOutgoing(emt,event)
+   || mergingHooksPtr->hardProcess.matchesAnyOutgoing(rad,event) )
+    allowed = false; 
+
   // If only gluons in initial state and no quarks in final state,
   // reject (no electroweak vertex can be formed)
-  if(nFinalEW != 0 && nInitialQuark == 0 && nFinalQuark == 0)
-    allowed = false;
-  // If only odd number of quarks in state,
-  // reject (no electroweak vertex can be formed)
-  if( (nInitialQuark + nFinalQuark)%2 != 0 )
+  if(nFinalEW != 0 && nInitialQuark == 0
+    && nFinalQuark == 0 && nFinalQuarkExc == 0)
     allowed = false;
 
+  if( nTop == 0 && (nInitialQuark + nFinalQuark)%2 != 0 )
+    allowed = false;
+  if( nTop > 0  && (nInitialQuark + nFinalQuark + nFinalQuarkExc)%2 != 0 )
+    allowed = false;
+
+  // Do not allow final state splitting that produces only
+  // allowed final state gluons, and has a colour-connected initial state
+  // This means forbidding clusterings that do not allow for a
+  // t-channel gluon, which is needed to have a quark-antiquark initial state.
+  // Here, partons excluded from clustering are not counted as possible
+  // partners to form a t-cnannel gluon
+  if(event[3].col() == event[4].acol()
+    && event[3].acol() == event[4].col()
+    && nFinalQuark == 0)
+    allowed = false;
+
+  // No problems with gluon radiation
+  if(event[emt].id() == 21)
+    return allowed;
+
+  // Start more involved checks. g -> q_1 qbar_1 splittings are
+  // particularly problematic if more than one quark of the emitted
+  // flavour is present.
+  // Count number of initial quarks of radiator or emitted flavour
+  vector<int> iInQuarkFlav;
+  for(int i=0; i < int(event.size()); ++i)
+    // Check all initial state partons
+    if(  i != emt && i != rad
+      && event[i].status() == -21
+      && event[i].idAbs() == event[emt].idAbs() )
+      iInQuarkFlav.push_back(i);
+
+  // Count number of final quarks of radiator or emitted flavour
+  vector<int> iOutQuarkFlav;
+  for(int i=0; i < int(event.size()); ++i)
+    // Check all final state partons
+    if(  i != emt && i != rad
+      &&  event[i].isFinal()
+      &&  event[i].idAbs() == event[emt].idAbs()
+      && !mergingHooksPtr->hardProcess.matchesAnyOutgoing(i, event))
+      iOutQuarkFlav.push_back(i);
+
+  // Save number of potentially dangerous quarks
+  int nInQuarkFlav  = int(iInQuarkFlav.size());
+  int nOutQuarkFlav = int(iOutQuarkFlav.size());
+
+  // Easiest problem 0:
+  // Radiator before splitting exactly matches the partner
+  // after the splitting
+  if(  event[partner].isFinal()
+    && event[partner].id()   == 21
+    && radBeforeFlav         == 21
+    && event[partner].col()  == radBeforeCol
+    && event[partner].acol() == radBeforeAcl)
+    return false;
+
+  // If there are no ambiguities in qqbar pairs, return
+  if(nInQuarkFlav + nOutQuarkFlav == 0)
+    return allowed;
+
+  // Save all quarks and gluons that will not change colour
+  vector<int> gluon;
+  vector<int> quark;
+  vector<int> antiq;
+  vector<int> partons;
+  for(int i=0; i < int(event.size()); ++i)
+    // Check initial and final state partons
+    if(  i!=emt && i!=rad
+      && event[i].colType() != 0
+      && (event[i].isFinal() || event[i].status() == -21) ){
+      // Save index
+      partons.push_back(i);
+      // Split into components
+      if(event[i].colType() == 2)
+        gluon.push_back(i);
+      else if (event[i].colType() ==  1)
+        quark.push_back(i);
+      else if (event[i].colType() == -1)
+        antiq.push_back(i);
+    }
+
+  // We split up the test of the g->qq splitting into final state
+  // and initial state problems
+  bool isFSRg2qq = ((type == 1) && (event[rad].id() == -1*event[emt].id()) );
+  bool isISRg2qq = ((type ==-1) && (event[rad].id() ==    event[emt].id()) );
+
+  // First check general things about colour connections
+  // Check that clustering does not produce a gluon that is exactly
+  // matched in the final state, or does not have any colour connections
+  if( (isFSRg2qq || isISRg2qq)
+    && int(quark.size()) + int(antiq.size())
+     + int(gluon.size()) > nPartonInHard ) {
+
+      vector<int> colours;
+      vector<int> anticolours;
+      // Add the colour and anticolour of the gluon before the emission
+      // to the list, bookkeep initial colour as final anticolour, and
+      // initial anticolour as final colour
+      if(type == 1) {
+        colours.push_back(radBeforeCol);
+        anticolours.push_back(radBeforeAcl);
+      } else {
+        colours.push_back(radBeforeAcl);
+        anticolours.push_back(radBeforeCol);
+      }
+      // Now store gluon colours and anticolours.
+      for(int i=0; i < int(gluon.size()); ++i)
+        if(event[gluon[i]].isFinal()){
+          colours.push_back(event[gluon[i]].col());
+          anticolours.push_back(event[gluon[i]].acol());
+        } else {
+          colours.push_back(event[gluon[i]].acol());
+          anticolours.push_back(event[gluon[i]].col());
+        }
+
+      // Loop through colours and check if any match with
+      // anticolours. If colour matches, remove from list
+      for(int i=0; i < int(colours.size()); ++i)
+        for(int j=0; j < int(anticolours.size()); ++j)
+          if(colours[i] > 0 && anticolours[j] > 0
+            && colours[i] == anticolours[j]){
+            colours[i] = 0;
+            anticolours[j] = 0;
+          }
+
+      // If all gluon anticolours and all colours matched, disallow
+      // the clustering
+      bool allMatched = true;
+      for(int i=0; i < int(colours.size()); ++i)
+        if(colours[i] != 0)
+          allMatched = false;
+      for(int i=0; i < int(anticolours.size()); ++i)
+        if(anticolours[i] != 0)
+          allMatched = false;
+
+      if(allMatched) 
+        return false;
+
+      // Now add the colours of the hard process, and check if all
+      // colours match.
+      for(int i=0; i < int(quark.size()); ++i)
+        if( event[quark[i]].isFinal()
+        && mergingHooksPtr->hardProcess.matchesAnyOutgoing(quark[i], event))
+          colours.push_back(event[quark[i]].col());
+
+      for(int i=0; i < int(antiq.size()); ++i)
+        if( event[antiq[i]].isFinal()
+        && mergingHooksPtr->hardProcess.matchesAnyOutgoing(antiq[i], event))
+          anticolours.push_back(event[antiq[i]].acol());
+
+      // Loop through colours again and check if any match with
+      // anticolours. If colour matches, remove from list
+      for(int i=0; i < int(colours.size()); ++i)
+        for(int j=0; j < int(anticolours.size()); ++j)
+          if(colours[i] > 0 && anticolours[j] > 0
+            && colours[i] == anticolours[j]){
+            colours[i] = 0;
+            anticolours[j] = 0;
+          }
+
+      // If all colours are matched now, and since we have more quarks than
+      // present in the hard process, disallow the clustering
+      allMatched = true;
+      for(int i=0; i < int(colours.size()); ++i)
+        if(colours[i] != 0)
+          allMatched = false;
+      for(int i=0; i < int(anticolours.size()); ++i)
+        if(anticolours[i] != 0)
+          allMatched = false;
+
+      if(allMatched)
+        return false;
+  
+  }
+
+  // FSR PROBLEMS
+
+  if(isFSRg2qq && nInQuarkFlav + nOutQuarkFlav > 0){
+
+     // Easiest problem 1:
+     // RECLUSTERED FINAL STATE GLUON MATCHES INITIAL STATE GLUON
+     for(int i=0; i < int(gluon.size()); ++i){
+       if(!event[gluon[i]].isFinal()
+         && event[gluon[i]].col()  == radBeforeCol
+         && event[gluon[i]].acol() == radBeforeAcl)
+         return false;
+     }
+
+     // Easiest problem 2:
+     // RECLUSTERED FINAL STATE GLUON MATCHES FINAL STATE GLUON
+     for(int i=0; i < int(gluon.size()); ++i){
+       if(event[gluon[i]].isFinal()
+         && event[gluon[i]].col()  == radBeforeAcl
+         && event[gluon[i]].acol() == radBeforeCol)
+         return false;
+     }
+
+     // Easiest problem 3:
+     // RECLUSTERED FINAL STATE GLUON MATCHES FINAL STATE Q-QBAR PAIR
+     if( int(radBeforeColP.size()) == 2
+       && event[radBeforeColP[0]].isFinal()
+       && event[radBeforeColP[1]].isFinal()
+       && event[radBeforeColP[0]].id() == -1*event[radBeforeColP[1]].id() ){
+
+      // This clustering is allowed if there is no colour in the
+      // initial state
+      if(nInitialPartons > 0)
+        return false;
+    }
+
+    // Next-to-easiest problem 1:
+    // RECLUSTERED FINAL STATE GLUON MATCHES ONE FINAL STARE Q_1
+    // AND ONE INITIAL STATE Q_1
+    if( int(radBeforeColP.size()) == 2
+      && ((  event[radBeforeColP[0]].status() == -21
+          && event[radBeforeColP[1]].isFinal())
+        ||(  event[radBeforeColP[0]].isFinal() 
+          && event[radBeforeColP[1]].status() == -21)) 
+      && event[radBeforeColP[0]].id() == event[radBeforeColP[1]].id() ){
+
+      // In principle, clustering this splitting can disconnect
+      // the colour lines of a graph. However, the colours can be connected
+      // again if a final or initial partons of the correct flavour exists.
+
+      // Check which of the partners are final / initial
+      int incoming = (event[radBeforeColP[0]].isFinal())
+                   ? radBeforeColP[1] : radBeforeColP[0];
+      int outgoing = (event[radBeforeColP[0]].isFinal())
+                   ? radBeforeColP[0] : radBeforeColP[1];
+
+      // Loop through event to find "recovery partons"
+      bool clusPossible = false;
+      for(int i=0; i < int(event.size()); ++i)
+        if(   i != emt && i != rad
+          &&  i != incoming && i != outgoing
+          && !mergingHooksPtr->hardProcess.matchesAnyOutgoing(i,event) ){
+          // Check if an incoming parton matches
+          if( event[i].status() == -21
+            && (event[i].id() ==    event[outgoing].id()
+              ||event[i].id() == -1*event[incoming].id()) )
+          clusPossible = true;
+          // Check if a final parton matches
+          if( event[i].isFinal()
+            && (event[i].id() == -1*event[outgoing].id()
+              ||event[i].id() ==    event[incoming].id()) )
+          clusPossible = true;
+        }
+
+      // There can be a further complication: If e.g. in
+      // t-channel photon exchange topologies, both incoming
+      // partons are quarks, and form colour singlets with any
+      // number of final state partons, at least try to
+      // recluster as much as possible.
+      // For this, check if the incoming parton
+      // connected to the radiator is connected to a
+      // colour and flavour singlet
+      vector<int> excludeIn1;
+      for(int i=0; i < 4; ++i)
+        excludeIn1.push_back(0);
+      vector<int> colSingletIn1;
+      int flavIn1Type = (event[incoming].id() > 0) ? 1 : -1;
+      // Try finding colour singlets
+      bool isColSingIn1  = getColSinglet(flavIn1Type,incoming,event,
+                             excludeIn1,colSingletIn1);
+      // Check if colour singlet also is a flavour singlet
+      bool isFlavSingIn1 = isFlavSinglet(event,colSingletIn1);
+
+      // Check if the incoming parton not
+      // connected to the radiator is connected to a
+      // colour and flavour singlet
+      int incoming2 = (incoming == 3) ? 4 : 3;
+      vector<int> excludeIn2;
+      for(int i=0; i < 4; ++i)
+        excludeIn2.push_back(0);
+      vector<int> colSingletIn2;
+      int flavIn2Type = (event[incoming2].id() > 0) ? 1 : -1;
+      // Try finding colour singlets
+      bool isColSingIn2  = getColSinglet(flavIn2Type,incoming2,event,
+                             excludeIn2,colSingletIn2);
+      // Check if colour singlet also is a flavour singlet
+      bool isFlavSingIn2 = isFlavSinglet(event,colSingletIn2);
+
+      // If no "recovery clustering" is possible, reject clustering
+      if(!clusPossible
+        && (!isColSingIn1 || !isFlavSingIn1
+         || !isColSingIn2 || !isFlavSingIn2))
+        return false;
+
+    }
+
+    // Next-to-easiest problem 2:
+    // FINAL STATE Q-QBAR CLUSTERING DISCONNECTS SINGLETT SUBSYSTEM WITH
+    // FINAL STATE Q-QBAR PAIR FROM GRAPH
+
+    // Prepare to check for colour singlet combinations of final state quarks
+    // Start by building a list of partons to exclude when checking for
+    // colour singlet combinations
+    int flav = event[emt].id();
+    vector<int> exclude;
+    exclude.push_back(emt);
+    exclude.push_back(rad);
+    exclude.push_back(radBeforeColP[0]);
+    exclude.push_back(radBeforeColP[1]);
+    vector<int> colSinglet;
+    // Now find parton from which to start checking colour singlets
+    int iOther = -1;
+    // Loop through event to find a parton of correct flavour
+    for(int i=0; i < int(event.size()); ++i)
+      // Check final state for parton equalling emitted flavour.
+      // Exclude the colour system coupled to the clustering
+      if(  i != emt
+        && i != rad
+        && i != radBeforeColP[0]
+        && i != radBeforeColP[1]
+        && event[i].isFinal() ) {
+        // Stop if one parton of the correct flavour is found
+        if(event[i].id() == flav){
+          iOther = i;
+          break;
+        }
+      }
+    // Save the type of flavour
+    int flavType = (event[iOther].id() > 0) ? 1 : -1;
+    // Try finding colour singlets
+    bool isColSing = getColSinglet(flavType,iOther,event,exclude,colSinglet);
+    // Check if colour singlet also is a flavour singlet
+    bool isFlavSing = isFlavSinglet(event,colSinglet);
+
+    // Nearly there...
+    if(isColSing && isFlavSing){
+
+      // In a final check, ensure that the final state does not only
+      // consist of colour singlets that are also flavour singlets
+      // of the identical (!) flavours 
+      // Loop through event and save all final state partons
+      vector<int> allFinal;
+      for(int i=0; i < int(event.size()); ++i)
+        if( event[i].isFinal() )
+          allFinal.push_back(i);
+
+      // Check if all final partons form a colour singlet
+      bool isFullColSing  = isColSinglet(event,allFinal);
+      // Check if all final partons form a flavour singlet
+      bool isFullFlavSing = isFlavSinglet(event,allFinal,flav);
+
+      // If all final quarks are of identical flavour,
+      // no possible clustering should be discriminated.
+      // Otherwise, disallow
+      if(!isFullColSing || !isFullFlavSing)
+        return false;
+    }
+  }
+
+  // ISR PROBLEMS
+
+  if(isISRg2qq && nInQuarkFlav + nOutQuarkFlav > 0){
+
+    // Easiest problem 1:
+    // RECLUSTERED INITIAL STATE GLUON MATCHES FINAL STATE GLUON
+    for(int i=0; i < int(gluon.size()); ++i){
+      if(event[gluon[i]].isFinal()
+        && event[gluon[i]].col()  == radBeforeCol
+        && event[gluon[i]].acol() == radBeforeAcl)
+        return false;
+    }
+
+    // Easiest problem 2:
+    // RECLUSTERED INITIAL STATE GLUON MATCHES INITIAL STATE GLUON
+    for(int i=0; i < int(gluon.size()); ++i){
+      if(event[gluon[i]].status() == -21
+        && event[gluon[i]].acol()  == radBeforeCol
+        && event[gluon[i]].col() == radBeforeAcl)
+        return false;
+    }
+
+    // Next-to-easiest problem 1:
+    // RECLUSTERED INITIAL STATE GLUON MATCHES FINAL STATE Q-QBAR PAIR
+    if( int(radBeforeColP.size()) == 2
+      && event[radBeforeColP[0]].isFinal()
+      && event[radBeforeColP[1]].isFinal()
+      && event[radBeforeColP[0]].id() == -1*event[radBeforeColP[1]].id() ) {
+
+      // In principle, clustering this splitting can disconnect
+      // the colour lines of a graph. However, the colours can be connected
+      // again if final state partons of the correct (anti)flavour, or
+      // initial state partons of the correct flavour exist
+      // Loop through event to check
+      bool clusPossible = false;
+      for(int i=0; i < int(event.size()); ++i)
+        if(  i != emt && i != rad
+          && i != radBeforeColP[0]
+          && i != radBeforeColP[1]
+          && !mergingHooksPtr->hardProcess.matchesAnyOutgoing(i,event) ){
+          if(event[i].status() == -21
+            && ( event[radBeforeColP[0]].id() == event[i].id()
+              || event[radBeforeColP[1]].id() == event[i].id() ))
+            clusPossible = true;
+          if(event[i].isFinal()
+            && ( event[radBeforeColP[0]].id() == -1*event[i].id()
+              || event[radBeforeColP[1]].id() == -1*event[i].id() ))
+            clusPossible = true;
+        }
+
+      // There can be a further complication: If e.g. in
+      // t-channel photon exchange topologies, both incoming
+      // partons are quarks, and form colour singlets with any
+      // number of final state partons, at least try to
+      // recluster as much as possible.
+      // For this, check if the incoming parton
+      // connected to the radiator is connected to a
+      // colour and flavour singlet
+      int incoming1 = 3;
+      vector<int> excludeIn1;
+      for(int i=0; i < 4; ++i)
+        excludeIn1.push_back(0);
+      vector<int> colSingletIn1;
+      int flavIn1Type = (event[incoming1].id() > 0) ? 1 : -1;
+      // Try finding colour singlets
+      bool isColSingIn1  = getColSinglet(flavIn1Type,incoming1,event,
+                             excludeIn1,colSingletIn1);
+      // Check if colour singlet also is a flavour singlet
+      bool isFlavSingIn1 = isFlavSinglet(event,colSingletIn1);
+
+      // Check if the incoming parton not
+      // connected to the radiator is connected to a
+      // colour and flavour singlet
+      int incoming2 = 4;
+      vector<int> excludeIn2;
+      for(int i=0; i < 4; ++i)
+        excludeIn2.push_back(0);
+      vector<int> colSingletIn2;
+      int flavIn2Type = (event[incoming2].id() > 0) ? 1 : -1;
+      // Try finding colour singlets
+      bool isColSingIn2  = getColSinglet(flavIn2Type,incoming2,event,
+                             excludeIn2,colSingletIn2);
+      // Check if colour singlet also is a flavour singlet
+      bool isFlavSingIn2 = isFlavSinglet(event,colSingletIn2);
+
+      // If no "recovery clustering" is possible, reject clustering
+      if(!clusPossible
+        && (!isColSingIn1 || !isFlavSingIn1
+         || !isColSingIn2 || !isFlavSingIn2))
+        return false;
+
+    }
+
+  }
+
+  // Done
   return allowed;
-
 }
 
 //--------------------------------------------------------------------------
@@ -2737,13 +3981,13 @@ bool History::isSinglett( int rad, int emt, int rec, const Event& event ){
 // OUT TRUE  : event is properly construced
 //     FALSE : event not valid
 
-bool History::validEvent( const Event& event){
+bool History::validEvent( const Event& event ){
 
   // Check if event is coloured
   bool validColour = true;
-  for ( int i = 0; i < event.size(); ++i) {
+  for ( int i = 0; i < event.size(); ++i)
    // Check colour of quarks
-   if(   event[i].colType() == 1
+   if(   event[i].isFinal() && event[i].colType() == 1
           // No corresponding anticolour in final state
        && (  FindCol(event[i].col(),i,0,event,1,true) == 0
           // No corresponding colour in initial state
@@ -2751,7 +3995,7 @@ bool History::validEvent( const Event& event){
      validColour = false;
      break;
    // Check anticolour of antiquarks
-   } else if (  event[i].colType() == -1
+   } else if (  event[i].isFinal() && event[i].colType() == -1
           // No corresponding colour in final state
        && (  FindCol(event[i].acol(),i,0,event,2,true) == 0
           // No corresponding anticolour in initial state
@@ -2759,7 +4003,7 @@ bool History::validEvent( const Event& event){
      validColour = false;
      break;
    // No uncontracted colour (anticolour) charge of gluons
-   } else if (  event[i].colType() == 2
+   } else if (  event[i].isFinal() && event[i].colType() == 2
           // No corresponding anticolour in final state
        && (  FindCol(event[i].col(),i,0,event,1,true) == 0
           // No corresponding colour in initial state
@@ -2771,7 +4015,6 @@ bool History::validEvent( const Event& event){
      validColour = false;
      break;
    }
-  }
 
   // Check charge sum in initial and final state
   bool validCharge = true;
@@ -2794,6 +4037,7 @@ bool History::equalClustering( Clustering clus1 , Clustering clus2 ) {
   return (  (clus1.emittor  == clus2.emittor)
          && (clus1.emitted  == clus2.emitted)
          && (clus1.recoiler == clus2.recoiler)
+         && (clus1.partner  == clus2.partner)
          && (clus1.pT()    == clus2.pT()) );
 }
 
@@ -2931,4 +4175,3 @@ double History::pTLund(const Particle& RadAfterBranch,
 //==========================================================================
 
 } // end namespace Pythia8
-

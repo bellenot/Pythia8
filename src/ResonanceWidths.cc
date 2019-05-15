@@ -1,5 +1,5 @@
 // ResonanceWidths.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -1662,17 +1662,22 @@ void ResonanceGraviton::initConstants() {
 
   // SMinBulk = off/on, use universal coupling (kappaMG) 
   // or individual (Gxx) between graviton and SM particles.
-  m_smbulk   = settingsPtr->flag("ExtraDimensionsG*:SMinBulk");
+  eDsmbulk   = settingsPtr->flag("ExtraDimensionsG*:SMinBulk");
+  eDvlvl = false;
+  if (eDsmbulk) eDvlvl = settingsPtr->flag("ExtraDimensionsG*:VLVL");
   kappaMG    = settingsPtr->parm("ExtraDimensionsG*:kappaMG");
-  for (int i = 0; i < 26; ++i) m_coupling[i] = 0.;
+  for (int i = 0; i < 27; ++i) eDcoupling[i] = 0.;
   double tmp_coup = settingsPtr->parm("ExtraDimensionsG*:Gqq");
-  for (int i = 1; i <= 4; ++i)  m_coupling[i] = tmp_coup;
-  m_coupling[5] = settingsPtr->parm("ExtraDimensionsG*:Gbb"); 
-  m_coupling[6] = settingsPtr->parm("ExtraDimensionsG*:Gtt");
+  for (int i = 1; i <= 4; ++i)  eDcoupling[i] = tmp_coup;
+  eDcoupling[5] = settingsPtr->parm("ExtraDimensionsG*:Gbb"); 
+  eDcoupling[6] = settingsPtr->parm("ExtraDimensionsG*:Gtt");
   tmp_coup = settingsPtr->parm("ExtraDimensionsG*:Gll");
-  for (int i = 11; i <= 16; ++i) m_coupling[i] = tmp_coup;
-  tmp_coup = settingsPtr->parm("ExtraDimensionsG*:GVV");
-  for (int i = 21; i <= 24; ++i) m_coupling[i] = tmp_coup; 
+  for (int i = 11; i <= 16; ++i) eDcoupling[i] = tmp_coup;
+  eDcoupling[21] = settingsPtr->parm("ExtraDimensionsG*:Ggg");
+  eDcoupling[22] = settingsPtr->parm("ExtraDimensionsG*:Ggmgm");
+  eDcoupling[23] = settingsPtr->parm("ExtraDimensionsG*:GZZ");
+  eDcoupling[24] = settingsPtr->parm("ExtraDimensionsG*:GWW");
+  eDcoupling[25] = settingsPtr->parm("ExtraDimensionsG*:Ghh");
 
 }
 
@@ -1702,21 +1707,32 @@ void ResonanceGraviton::calcWidth(bool) {
   if (id1Abs < 19) {
      widNow  = preFac * pow3(ps) * (1. + 8. * mr1 / 3.) / 320.;        
      if (id1Abs < 9) widNow *= colQ;
-  }
       
   // Widths to gluon and photon pair.
-  else if (id1Abs == 21) widNow = preFac / 20.;
-  else if (id1Abs == 22) widNow = preFac / 160.;
+  } else if (id1Abs == 21) {
+    widNow = preFac / 20.;
+  } else if (id1Abs == 22) {
+    widNow = preFac / 160.;
      
   // Widths to Z0 Z0 and W+ W- pair.
-  else if (id1Abs == 23 || id1Abs == 24) {
-    widNow  = preFac * ps * (13. / 12. + 14. * mr1 / 3. + 4. * mr1 * mr1) 
-            / 80.;
+  } else if (id1Abs == 23 || id1Abs == 24) {
+    // Longitudinal W/Z only.
+    if (eDvlvl) {
+      widNow = preFac * pow(ps,5) / 480.;
+    // Transverse W/Z contributions as well.
+    } else {
+      widNow  = preFac * ps * (13. / 12. + 14. * mr1 / 3. + 4. * mr1 * mr1) 
+              / 80.;
+    }
     if (id1Abs == 23) widNow *= 0.5;
+
+  // Widths to h h pair.
+  } else if (id1Abs == 25) {
+    widNow = preFac * pow(ps,5) / 960.;
   }
 
   // RS graviton coupling
-  if (m_smbulk) widNow *= 2. * pow2(m_coupling[min( id1Abs, 25)] * mHat);  
+  if (eDsmbulk) widNow *= 2. * pow2(eDcoupling[min( id1Abs, 26)] * mHat);  
   else          widNow *= pow2(kappaMG);
 
 }
@@ -1733,19 +1749,19 @@ void ResonanceGraviton::calcWidth(bool) {
 void ResonanceKKgluon::initConstants() {
 
   // KK-gluon gv/ga couplings and interference.
-  for (int i = 0; i < 10; ++i) { m_gv[i] = 0.; m_ga[i] = 0.; }
+  for (int i = 0; i < 10; ++i) { eDgv[i] = 0.; eDga[i] = 0.; }
   double tmp_gL = settingsPtr->parm("ExtraDimensionsG*:KKgqL");
   double tmp_gR = settingsPtr->parm("ExtraDimensionsG*:KKgqR");
   for (int i = 1; i <= 4; ++i) { 
-    m_gv[i] = 0.5 * (tmp_gL + tmp_gR);
-    m_ga[i] = 0.5 * (tmp_gL - tmp_gR); 
+    eDgv[i] = 0.5 * (tmp_gL + tmp_gR);
+    eDga[i] = 0.5 * (tmp_gL - tmp_gR); 
   }
   tmp_gL = settingsPtr->parm("ExtraDimensionsG*:KKgbL"); 
   tmp_gR = settingsPtr->parm("ExtraDimensionsG*:KKgbR"); 
-  m_gv[5] = 0.5 * (tmp_gL + tmp_gR); m_ga[5] = 0.5 * (tmp_gL - tmp_gR); 
+  eDgv[5] = 0.5 * (tmp_gL + tmp_gR); eDga[5] = 0.5 * (tmp_gL - tmp_gR); 
   tmp_gL = settingsPtr->parm("ExtraDimensionsG*:KKgtL"); 
   tmp_gR = settingsPtr->parm("ExtraDimensionsG*:KKgtR"); 
-  m_gv[6] = 0.5 * (tmp_gL + tmp_gR); m_ga[6] = 0.5 * (tmp_gL - tmp_gR); 
+  eDgv[6] = 0.5 * (tmp_gL + tmp_gR); eDga[6] = 0.5 * (tmp_gL - tmp_gR); 
   interfMode    = settingsPtr->mode("ExtraDimensionsG*:KKintMode");
 
 }
@@ -1766,10 +1782,10 @@ void ResonanceKKgluon::calcPreFac(bool calledFromInit) {
     int idInFlavAbs = abs(idInFlav);
     double sH = mHat * mHat;
     normSM   = 1;
-    normInt  = 2. * m_gv[min(idInFlavAbs, 9)] * sH * (sH - m2Res)
+    normInt  = 2. * eDgv[min(idInFlavAbs, 9)] * sH * (sH - m2Res)
               / ( pow2(sH - m2Res) + pow2(sH * GamMRat) );
-    normKK   = ( pow2(m_gv[min(idInFlavAbs, 9)]) 
-	       + pow2(m_ga[min(idInFlavAbs, 9)]) ) * sH * sH 
+    normKK   = ( pow2(eDgv[min(idInFlavAbs, 9)]) 
+	       + pow2(eDga[min(idInFlavAbs, 9)]) ) * sH * sH 
               / ( pow2(sH - m2Res) + pow2(sH * GamMRat) );
 
     // Optionally only keep g* or gKK term.
@@ -1792,19 +1808,19 @@ void ResonanceKKgluon::calcWidth(bool calledFromInit) {
   if (id1Abs > 9) return;
 
   if (calledFromInit) {
-    widNow = preFac * ps * (pow2(m_gv[min(id1Abs, 9)]) * (1. + 2.*mr1) 
-			 +  pow2(m_ga[min(id1Abs, 9)]) * (1. - 4.*mr1) );
+    widNow = preFac * ps * (pow2(eDgv[min(id1Abs, 9)]) * (1. + 2.*mr1) 
+			 +  pow2(eDga[min(id1Abs, 9)]) * (1. - 4.*mr1) );
   } else {
     // Relative outwidths: combine instate, propagator and outstate.
     widNow = normSM  * ps * (1. + 2. * mr1) 
-           + normInt * ps * m_gv[min(id1Abs, 9)] * (1. + 2. * mr1)
-           + normKK  * ps * (pow2(m_gv[min(id1Abs, 9)]) * (1. + 2.*mr1) 
-			  +  pow2(m_ga[min(id1Abs, 9)]) * (1. - 4.*mr1) );
+           + normInt * ps * eDgv[min(id1Abs, 9)] * (1. + 2. * mr1)
+           + normKK  * ps * (pow2(eDgv[min(id1Abs, 9)]) * (1. + 2.*mr1) 
+			  +  pow2(eDga[min(id1Abs, 9)]) * (1. - 4.*mr1) );
     widNow *= preFac;
   }
 
 } 
- 
+
 //==========================================================================
 
 // The ResonanceLeptoquark class.

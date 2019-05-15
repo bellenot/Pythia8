@@ -21,11 +21,11 @@ the process-level and parton-level steps, or in between the
 parton-level and hadron-level ones. You can study the event record
 and decide whether to veto this event.
 <br/>(ii) Ones that allow you to set a scale at which the combined
-parton-level MI+ISR+FSR downwards evolution in <ei>pT</ei> is
+parton-level MPI+ISR+FSR downwards evolution in <ei>pT</ei> is
 temporarily interrupted, so the event can be studied and either 
 vetoed or allowed to continue the evolution.
 <br/>(iii) Ones that allow you to to study the event after the first
-few ISR/FSR emissions, or first few MI, so the event can be vetoed 
+few ISR/FSR emissions, or first few MPI, so the event can be vetoed 
 or allowed to continue the evolution.
 <br/>(iv) Ones that allow you to study the latest initial- or
 final-state emission and veto that emission, without vetoing the
@@ -133,7 +133,7 @@ considered final-state ones, with positive status and no daughters,
 just as it is before resonances are allowed to decay.
 <br/>(In the <code>PartonLevel</code> routines, these decay chains will 
 initially not be copied from <code>process</code> to <code>event</code>. 
-Instead the combined MI, ISR and FSR evolution is done with the top 
+Instead the combined MPI, ISR and FSR evolution is done with the top 
 above as final particle. Only afterwards will the resonance decay chains 
 be copied over, with kinematics changes reflecting those of the top, and 
 showers in the decays carried out.)
@@ -228,7 +228,7 @@ In the base class this method returns false. If you redefine it
 to return true then the method <code>doVetoPartonLevel(...)</code>
 will be called immediately after the parton level has been generated 
 and stored in the <code><aloc href="EventRecord">event</aloc></code> 
-event record. Thus showers, multiple interactions and beam remnants 
+event record. Thus showers, multiparton interactions and beam remnants 
 have been set up, but hadronization and decays have not yet been 
 performed. This is already a fairly complete event, possibly with quite
 a complex parton-level history. Therefore it is usually only meaningful
@@ -263,7 +263,7 @@ do survive the veto are allowed to develop into complete final states
 <h3>(ii) Interrupt during the parton-level evolution, at a 
 <ei>pT</ei> scale</h3>
 
-During the parton-level evolution, multiple interactions (MI), 
+During the parton-level evolution, multiparton interactions (MPI), 
 initial-state radiation (ISR) and final-state radiation (FSR)
 are normally evolved downwards in
 one interleaved evolution sequence of decreasing <ei>pT</ei> values.
@@ -278,14 +278,14 @@ complete event. Also as above, if no, then the event will not be
 considered in the final cross section. 
 
 <p/>
-Recall that the new or modified partons resulting from a MI, ISR or FSR 
+Recall that the new or modified partons resulting from a MPI, ISR or FSR 
 step are always appended to the end of the then-current event record.
 Previously existing partons are not touched, except for the 
 <aloc href="ParticleProperties">status, mother and daughter</aloc> 
 values, which are updated to reflect the modified history. It is 
 therefore straightforward to find the partons associated with the most 
 recent occurence.
-<br/>An MI results in four new partons being appended, two incoming
+<br/>An MPI results in four new partons being appended, two incoming
 and two outgoing ones.
 <br/>An ISR results in the whole affected system being copied down,
 with one of the two incoming partons being replaced by a new one, and
@@ -293,7 +293,7 @@ one more outgoing parton.
 <br/>An FSR results in three new partons, two that come from the
 branching and one that takes the recoil.
 <br/>The story becomes more messy when rescattering is allowed as part
-of the MI machinery. Then there will not only be a new system, as 
+of the MPI machinery. Then there will not only be a new system, as 
 outlined above, but additionally some existing systems will undergo
 cascade effects, and be copied down with changed kinematics. 
 
@@ -323,15 +323,15 @@ completely new event, so the vetoed event will not appear in the
 output of <code>Pythia::next()</code>.
 <argument name="iPos"> is the position/status when the routine is
 called, information that can help you decide your course of action: 
-<argoption value="0"> when no MI, ISR or FSR occured above the veto scale;
+<argoption value="0"> when no MPI, ISR or FSR occured above the veto scale;
 </argoption>
-<argoption value="1"> when inside the interleaved MI + ISR + FSR evolution, 
-after an MI process;  
+<argoption value="1"> when inside the interleaved MPI + ISR + FSR evolution, 
+after an MPI process;  
 </argoption>
-<argoption value="2"> when inside the interleaved MI + ISR + FSR evolution, 
+<argoption value="2"> when inside the interleaved MPI + ISR + FSR evolution, 
 after an ISR emission;
 </argoption>
-<argoption value="3"> when inside the interleaved MI + ISR + FSR evolution, 
+<argoption value="3"> when inside the interleaved MPI + ISR + FSR evolution, 
 after an FSR emission;
 </argoption>
 <argoption value="4"> for the optional case where FSR is deferred from the 
@@ -344,7 +344,7 @@ for each decaying resonance in a chain such as <ei>t -> b W, W -> u dbar</ei>.
 </argument>
 <argument name="event"> the event record contains a list of all partons 
 generated so far, also including intermediate ones not part of the 
-"current final state", and also those from further multiple interactions. 
+"current final state", and also those from further multiparton interactions. 
 This may not be desirable for comparisons with matrix-element calculations.
 You may want to make use of the <code>subEvent(...)</code> method below to 
 obtain a simplified event record <code>workEvent</code>. 
@@ -361,8 +361,8 @@ What is different is that the methods in this section give access to the
 event as it looks like after each of the first few steps in the downwards
 evolution, irrespectively of the <ei>pT</ei> scales of these branchings.
 Furthermore, it is here assumed that the focus normally is on the hardest
-subprocess, so that ISR/FSR emissions associated with additional MI's
-are not considered. For MI studies, however, a separate simpler 
+subprocess, so that ISR/FSR emissions associated with additional MPI's
+are not considered. For MPI studies, however, a separate simpler 
 alternative is offered to consider the event after a given number
 of interactions.  
 
@@ -408,38 +408,38 @@ number of emissions in the currently studied system.
 </argument>
 <argument name="event"> the event record contains a list of all partons 
 generated so far, also including intermediate ones not part of the 
-"current final state", and also those from further multiple interactions. 
+"current final state", and also those from further multiparton interactions. 
 This may not be desirable for comparisons with matrix-element calculations.
 You may want to make use of the <code>subEvent(...)</code> method above to 
 obtain a simplified event record.
 </argument>
 </method>
 
-<method name="virtual bool UserHooks::canVetoMIStep()">
+<method name="virtual bool UserHooks::canVetoMPIStep()">
 In the base class this method returns false. If you redefine it
-to return true then the method <code>doVetoMIStep(...)</code> will 
-interrupt the downward MI evolution the first
-<code>numberVetoMIStep()</code> times. 
+to return true then the method <code>doVetoMPIStep(...)</code> will 
+interrupt the downward MPI evolution the first
+<code>numberVetoMPIStep()</code> times. 
 
-<method name="virtual int UserHooks::numberVetoMIStep()">
-Returns the number of steps in the MI evolution that you want to be 
+<method name="virtual int UserHooks::numberVetoMPIStep()">
+Returns the number of steps in the MPI evolution that you want to be 
 able to study, right after each new step has been taken and the 
 subcollision has been added to the event record. The number of steps 
 defaults to the first one only, but you are free to pick another value.
 Note that the hardest interaction of an events counts as the first
-multiple interaction. For most hard processes it thus at the first
+multiparton interaction. For most hard processes it thus at the first
 step offers nothing not available with the <code>VetoProcessLevel</code>
 functionality above. For the minimum-bias and diffractive systems the
 hardest interaction is not selected at the process level, however, so
-there a check after the first multiple interaction offers new 
+there a check after the first multiparton interaction offers new 
 functionality. Note that double diffraction is handled as two separate
 Pomeron-proton collisions, and thus has two sequences of interactions.
 Also, if you have set up a second hard process then a check is made
-after these first two, and the first interaction coming from the MI
+after these first two, and the first interaction coming from the MPI
 machinery would have sequence number 3.
 </method>
 
-<method name="virtual bool UserHooks::doVetoMIStep(int nMI,
+<method name="virtual bool UserHooks::doVetoMPIStep(int nMPI,
 const Event& event)">
 can optionally be called, as described above. You can study, but not
 modify, the <code>event</code> event record of the partonic process. 
@@ -449,7 +449,7 @@ counted among the accepted ones, and does not contribute to the estimated
 cross section. The <code>Pytha::next()</code> method will begin a 
 completely new event, so the vetoed event will not appear in the 
 output of <code>Pythia::next()</code>.
-<argument name="nMI"> is the number of MI subprocesses has occured
+<argument name="nMPI"> is the number of MPI subprocesses has occured
 so far.
 </argument>
 <argument name="event"> the event record contains a list of all partons 
@@ -463,11 +463,11 @@ had time to radiate, of course.
 <h3>(iv) Veto emissions</h3>
 
 The methods in this group are intended to allow the veto of an emission
-in ISR, FSR or MI, without affecting the evolution in any other way.
+in ISR, FSR or MPI, without affecting the evolution in any other way.
 If an emission is vetoed, the event record is "rolled back" to the 
 way it was before the emission occured, and the evolution in <ei>pT</ei> 
 is continued downwards from the rejected value. The decision can be 
-based on full knowledge of the kinematics of the shower branching or MI.
+based on full knowledge of the kinematics of the shower branching or MPI.
 
 <p/>
 To identify where shower emissions originated, the ISR/FSR veto
@@ -475,7 +475,7 @@ routines are passed the system from which the radiation occured, according
 to the Parton Systems class (see <aloc href="AdvancedUsage">Advanced
 Usage</aloc>). Note, however, that inside the veto routines only the event
 record has been updated; all other information, including the Parton
-Systems, reflects the event before the shower branching or MI has
+Systems, reflects the event before the shower branching or MPI has
 taken place.
 
 <method name="virtual bool UserHooks::canVetoISREmission()">
@@ -541,28 +541,28 @@ place in a resonance decay, subsequent to the hard process.
 </argument>
 </method>
 
-<method name="virtual bool UserHooks::canVetoMIEmission()">
+<method name="virtual bool UserHooks::canVetoMPIEmission()">
 In the base class this method returns false. If you redefine it
-to return true then the method <code>doVetoMIEmission(...)</code> 
-will interrupt the MI machinery immediately after each multiple
+to return true then the method <code>doVetoMPIEmission(...)</code> 
+will interrupt the MPI machinery immediately after each multiparton
 interaction and allow it to be vetoed.
 
-<method name="virtual bool UserHooks::doVetoMIEmission( 
+<method name="virtual bool UserHooks::doVetoMPIEmission( 
 int sizeOld, const Event& event)">
 can optionally be called, as described above. You can study, but not
 modify, the <code>event</code> event record of the partonic process. 
-Based on that you can decide whether to veto the MI, true, or 
-not, false. If you veto, then the latest MI is removed from
+Based on that you can decide whether to veto the MPI, true, or 
+not, false. If you veto, then the latest MPI is removed from
 the event record. In either case the interleaved evolution will
 continue from the point where it was left off.
 <argument name="sizeOld"> is the size of the event record before the
-latest MI was added to it. It will also become the new size if 
-the MI is vetoed.
+latest MPI was added to it. It will also become the new size if 
+the MPI is vetoed.
 </argument>
 <argument name="event"> the event record contains a list of all partons 
 generated so far. Of special interest are the ones associated with the 
-most recent MI, which are stored in entries from <code>sizeOld</code> 
-through <code>event.size() - 1</code> inclusive. If you veto the MI
+most recent MPI, which are stored in entries from <code>sizeOld</code> 
+through <code>event.size() - 1</code> inclusive. If you veto the MPI
 these entries will be removed.
 </argument>
 </method>
@@ -602,7 +602,7 @@ the number of "selected" events and the number of "accepted" ones,
 since the modifications occur already before the "selected" level.
 The integrated cross section of a process is modified, of course.
 Note that the cross section is only modifiable for normal hard processes.
-It does not affect the cross section in further multiple interactions,
+It does not affect the cross section in further multiparton interactions,
 nor in elastic/diffractive/minimum-bias events.
 <argument name="sigmaProcessPtr, phaseSpacePtr">:
 what makes this routine somewhat tricky to write is that the 
@@ -637,14 +637,14 @@ only, while leaving other processes unaffected. The basic suppression
 factor is <ei>pT^4 / ((k*pT0)^2 + pT^2)^2</ei>, where <ei>pT</ei>
 refers to the current hard subprocess and <ei>pT0</ei> is the same
 energy-dependent dampening scale as used for 
-<aloc href="MultipleInteractions">multiple interactions</aloc>.
+<aloc href="MultipartonInteractions">multiparton interactions</aloc>.
 This class contains <code>canModifySigma()</code> and
 <code>multiplySigmaBy()</code> methods that overload the base class ones.
 
-<method name="SuppressSmallPT::SuppressSmallPT( double pT0timesMI = 1., 
-int numberAlphaS = 0, bool useSameAlphaSasMI = true)">
+<method name="SuppressSmallPT::SuppressSmallPT( double pT0timesMPI = 1., 
+int numberAlphaS = 0, bool useSameAlphaSasMPI = true)">
  The optional arguments of the constructor provides further variability. 
-<argument name="pT0timesMI"> 
+<argument name="pT0timesMPI"> 
 corresponds to the additional factor <ei>k</ei> in the above formula. 
 It is by default equal to 1 but can be used to explore deviations from 
 the expected value.
@@ -657,10 +657,10 @@ i.e. a further suppression factor
 <ei>( alpha_s((k*pT0)^2 + Q^2_ren) / alpha_s(Q^2_ren) )^n</ei>
 is introduced.
 </argument>
-<argument name="useSameAlphaSasMI"> 
+<argument name="useSameAlphaSasMPI"> 
 regulates which kind of new <ei>alpha_strong</ei> value is evaluated
 for the numerator in the above expression. It is by default the same 
-as set for multiple interactions (i.e. same starting value at 
+as set for multiparton interactions (i.e. same starting value at 
 <ei>M_Z</ei> and same order of running), but if <code>false</code> 
 instead the one for hard subprocesses. The denominator 
 <ei>alpha_s(Q^2_ren)</ei> is always the value used for the "original", 
@@ -689,7 +689,7 @@ see the phase space sampling of the current event modified. Events are
 assigned a weight being the inverse of this, such that the integrated 
 cross section of a process is unchanged. Note that the selection
 is only modifiable for normal hard processes. It does not affect the 
-selection in further multiple interactions, nor in 
+selection in further multiparton interactions, nor in 
 elastic/diffractive/minimum-bias events.
 <argument name="sigmaProcessPtr, phaseSpacePtr">:
 what makes this routine somewhat tricky to write is that the 
@@ -756,4 +756,4 @@ decay products.
 
 </chapter>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->

@@ -1,5 +1,5 @@
 // StandardModel.h is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -162,10 +162,10 @@ protected:
   // Pointer to the random number generator.
   Rndm*       rndmPtr;
 
-  // An AlphaStrong instance for general use (but not MI, ISR, FSR).
+  // An AlphaStrong instance for general use (but not MPI, ISR, FSR).
   AlphaStrong alphaSlocal;
 
-  // An AlphaEM instance for general use (but not MI, ISR, FSR).
+  // An AlphaEM instance for general use (but not MPI, ISR, FSR).
   AlphaEM     alphaEMlocal;
 
 };

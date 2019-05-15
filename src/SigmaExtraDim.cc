@@ -1,6 +1,6 @@
 // SigmaExtraDim.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
-// Copyright (C) 2011 Stefan Ask for the *LED* routines.
+// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2012 Stefan Ask for the *LED* routines.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -32,16 +32,21 @@ void Sigma1gg2GravitonStar::initProc() {
   // SMinBulk = off/on, use universal coupling (kappaMG) 
   // or individual (Gxx) between graviton and SM particles.
   eDsmbulk   = settingsPtr->flag("ExtraDimensionsG*:SMinBulk");
+  eDvlvl = false;
+  if (eDsmbulk) eDvlvl = settingsPtr->flag("ExtraDimensionsG*:VLVL");
   kappaMG    = settingsPtr->parm("ExtraDimensionsG*:kappaMG");
-  for (int i = 0; i < 26; ++i) eDcoupling[i] = 0.;
+  for (int i = 0; i < 27; ++i) eDcoupling[i] = 0.;
   double tmPcoup = settingsPtr->parm("ExtraDimensionsG*:Gqq");
   for (int i = 1; i <= 4; ++i)  eDcoupling[i] = tmPcoup;
   eDcoupling[5] = settingsPtr->parm("ExtraDimensionsG*:Gbb"); 
   eDcoupling[6] = settingsPtr->parm("ExtraDimensionsG*:Gtt");
   tmPcoup = settingsPtr->parm("ExtraDimensionsG*:Gll");
   for (int i = 11; i <= 16; ++i) eDcoupling[i] = tmPcoup;
-  tmPcoup = settingsPtr->parm("ExtraDimensionsG*:GVV");
-  for (int i = 21; i <= 24; ++i) eDcoupling[i] = tmPcoup; 
+  eDcoupling[21] = settingsPtr->parm("ExtraDimensionsG*:Ggg");
+  eDcoupling[22] = settingsPtr->parm("ExtraDimensionsG*:Ggmgm");
+  eDcoupling[23] = settingsPtr->parm("ExtraDimensionsG*:GZZ");
+  eDcoupling[24] = settingsPtr->parm("ExtraDimensionsG*:GWW");
+  eDcoupling[25] = settingsPtr->parm("ExtraDimensionsG*:Ghh");
 
   // Set pointer to particle properties and decay table.
   gStarPtr = particleDataPtr->particleDataEntryPtr(idGstar);
@@ -87,6 +92,8 @@ void Sigma1gg2GravitonStar::setIdColAcol() {
 //--------------------------------------------------------------------------
 
 // Evaluate weight for G* decay angle.
+// SA: Angle dist. for decay G* -> W/Z/h, based on 
+// Phys.Rev. D65 (2002) 075008, [arXiv:hep-ph/0103308v3]
   
 double Sigma1gg2GravitonStar::weightDecay( Event& process, int iResBeg, 
   int iResEnd) {
@@ -112,12 +119,42 @@ double Sigma1gg2GravitonStar::weightDecay( Event& process, int iResBeg,
   double wt     = 1.;
 
   // Angular weight for g + g -> G* -> f + fbar.
-  if (process[6].idAbs() < 19) wt = 1. - pow4(cosThe);
+  if (process[6].idAbs() < 19) { 
+    wt = 1. - pow4(cosThe);
 
   // Angular weight for g + g -> G* -> g + g or gamma + gamma.
-  else if (process[6].id() == 21 || process[6].id() == 22)
+  } else if (process[6].id() == 21 || process[6].id() == 22) {
     wt = (1. + 6. * pow2(cosThe) + pow4(cosThe)) / 8.;
- 
+
+  // Angular weight for g + g -> G* -> Z + Z or W + W.
+  } else if (process[6].id() == 23 || process[6].id() == 24) {
+    double beta2 = pow2(betaf);
+    double cost2 = pow2(cosThe);
+    double cost4 = pow2(cost2);
+    wt = pow2(beta2 - 2.)*(1. - 2.*cost2 + cost4);
+    // Longitudinal W/Z only.
+    if(eDvlvl) {
+      wt /= 4.;
+    // Transverse W/Z contributions as well.
+    } else {
+      double beta4 = pow2(beta2);
+      double beta8 = pow2(beta4);
+      wt += 2.*pow2(beta4 - 1.)*beta4*cost4;
+      wt += 2.*pow2(beta2 - 1.)*(1. - 2.*beta4*cost2 + beta8*cost4);
+      wt += 2.*(1. + 6.*beta4*cost2 + beta8*cost4);
+      wt += 8.*(1. - beta2)*(1. - cost4);
+      wt /= 18.;
+    }
+
+  // Angular weight for g + g -> G* -> h + h
+  } else if (process[6].id() == 25) {
+    double beta2 = pow2(betaf);
+    double cost2 = pow2(cosThe);
+    double cost4 = pow2(cost2);
+    wt = pow2(beta2 - 2.)*(1. - 2.*cost2 + cost4); 
+    wt /= 4.;
+  }
+  
   // Done.
   return wt;
 
@@ -144,21 +181,26 @@ void Sigma1ffbar2GravitonStar::initProc() {
   // SMinBulk = off/on, use universal coupling (kappaMG) 
   // or individual (Gxx) between graviton and SM particles.
   eDsmbulk   = settingsPtr->flag("ExtraDimensionsG*:SMinBulk");
+  eDvlvl = false;
+  if (eDsmbulk) eDvlvl = settingsPtr->flag("ExtraDimensionsG*:VLVL");
   kappaMG    = settingsPtr->parm("ExtraDimensionsG*:kappaMG");
-  for (int i = 0; i < 26; ++i) eDcoupling[i] = 0.;
+  for (int i = 0; i < 27; ++i) eDcoupling[i] = 0.;
   double tmPcoup = settingsPtr->parm("ExtraDimensionsG*:Gqq");
   for (int i = 1; i <= 4; ++i)  eDcoupling[i] = tmPcoup;
   eDcoupling[5] = settingsPtr->parm("ExtraDimensionsG*:Gbb"); 
   eDcoupling[6] = settingsPtr->parm("ExtraDimensionsG*:Gtt");
   tmPcoup = settingsPtr->parm("ExtraDimensionsG*:Gll");
   for (int i = 11; i <= 16; ++i) eDcoupling[i] = tmPcoup;
-  tmPcoup = settingsPtr->parm("ExtraDimensionsG*:GVV");
-  for (int i = 21; i <= 24; ++i) eDcoupling[i] = tmPcoup; 
+  eDcoupling[21] = settingsPtr->parm("ExtraDimensionsG*:Ggg");
+  eDcoupling[22] = settingsPtr->parm("ExtraDimensionsG*:Ggmgm");
+  eDcoupling[23] = settingsPtr->parm("ExtraDimensionsG*:GZZ");
+  eDcoupling[24] = settingsPtr->parm("ExtraDimensionsG*:GWW");
+  eDcoupling[25] = settingsPtr->parm("ExtraDimensionsG*:Ghh");
 
   // Set pointer to particle properties and decay table.
   gStarPtr = particleDataPtr->particleDataEntryPtr(idGstar);
 
-} 
+}
 
 //--------------------------------------------------------------------------
 
@@ -187,7 +229,7 @@ double Sigma1ffbar2GravitonStar::sigmaHat() {
   double sigma = sigma0;
 
   // RS graviton coupling
-  if (eDsmbulk) sigma *= 2. * pow2(eDcoupling[min( abs(id1), 25)] * mH);  
+  if (eDsmbulk) sigma *= 2. * pow2(eDcoupling[min( abs(id1), 26)] * mH);  
   else          sigma *= pow2(kappaMG);
 
   // If initial quarks, 1/N_C
@@ -215,7 +257,9 @@ void Sigma1ffbar2GravitonStar::setIdColAcol() {
 //--------------------------------------------------------------------------
 
 // Evaluate weight for G* decay angle.
-  
+// SA: Angle dist. for decay G* -> W/Z/h, based on 
+// Phys.Rev. D65 (2002) 075008, [arXiv:hep-ph/0103308v3]
+
 double Sigma1ffbar2GravitonStar::weightDecay( Event& process, int iResBeg, 
   int iResEnd) {
 
@@ -240,12 +284,37 @@ double Sigma1ffbar2GravitonStar::weightDecay( Event& process, int iResBeg,
   double wt     = 1.;
 
   // Angular weight for f + fbar -> G* -> f + fbar.
-  if (process[6].idAbs() < 19)
+  if (process[6].idAbs() < 19) {
     wt = (1. - 3. * pow2(cosThe) + 4. * pow4(cosThe)) / 2.;
 
   // Angular weight for f + fbar -> G* -> g + g or gamma + gamma.
-  else if (process[6].id() == 21 || process[6].id() == 22)
+  } else if (process[6].id() == 21 || process[6].id() == 22) {
     wt = 1. - pow4(cosThe);
+
+  // Angular weight for f + fbar -> G* -> Z + Z or W + W.
+  }  else if (process[6].id() == 23 || process[6].id() == 24) {
+    double beta2 = pow2(betaf);
+    double cost2 = pow2(cosThe);
+    double cost4 = pow2(cost2);
+    wt = pow2(beta2 - 2.)*cost2*(1. - cost2);
+    // Longitudinal W/Z only.
+    if (eDvlvl) {
+      wt /= 4.;
+    // Transverse W/Z contributions as well. 
+    } else {
+      wt += pow2(beta2 - 1.)*cost2*(1. - cost2);
+      wt += 2.*(1. - cost4);
+      wt += (1. - beta2)*(1. - 3.*cost2 + 4.*cost4);
+      wt /= 8.;      
+    }
+
+  // Angular weight for f + fbar -> G* -> h + h
+  } else if (process[6].id() == 25) {
+    double beta2 = pow2(betaf);
+    double cost2 = pow2(cosThe);
+    wt = pow2(beta2 - 2.)*cost2*(1. - cost2);
+    wt /= 4.;
+  }
  
   // Done.
   return wt;
@@ -676,9 +745,11 @@ void Sigma2ffbar2TEVffbar::initProc() {
   if (idNew == 11) nameSave = "f fbar -> e+ e- (s-channel gamma_KK/Z_KK)";
   if (idNew == 12) nameSave = "f fbar -> nue nuebar (s-channel gamma_KK/Z_KK)";
   if (idNew == 13) nameSave = "f fbar -> mu+ mu- (s-channel gamma_KK/Z_KK)";
-  if (idNew == 14) nameSave = "f fbar -> numu numubar (s-channel gamma_KK/Z_KK)";
+  if (idNew == 14) nameSave 
+    = "f fbar -> numu numubar (s-channel gamma_KK/Z_KK)";
   if (idNew == 15) nameSave = "f fbar -> tau+ tau- (s-channel gamma_KK/Z_KK)";
-  if (idNew == 16) nameSave = "f fbar -> nutau nutaubar (s-channel gamma_KK/Z_KK)";
+  if (idNew == 16) nameSave 
+    = "f fbar -> nutau nutaubar (s-channel gamma_KK/Z_KK)";
 
   // Allow to pick only gamma* or Z0 part of full gamma*/Z0 expression.
   gmZmode = settingsPtr->mode("ExtraDimensionsTEV:gmZmode");
@@ -880,8 +951,8 @@ double Sigma2ffbar2TEVffbar::sigmaHat() {
             // calculate the width of the n'th excitation of the 
             // KK photon
             ttbarwgmKKn = 2.*(alphaemfixed*3./6.)*mgmKKn
-                         * sqrt(1.-4.*m2Top/m2gmKKn)
-                         * 2.*pow2(couplingsPtr->ef(6))*(1.+2.*(m2Top/m2gmKKn));
+                        * sqrt(1.-4.*m2Top/m2gmKKn)
+                        * 2.*pow2(couplingsPtr->ef(6))*(1.+2.*(m2Top/m2gmKKn));
             wgmKKn       = wgmKKFactor*mgmKKn+ttbarwgmKKn;
             // the propogators
             gmPropKK += (2.*couplingsPtr->ef(idAbs)*couplingsPtr->ef(idNew)) 
@@ -900,8 +971,9 @@ double Sigma2ffbar2TEVffbar::sigmaHat() {
             m2gmKKn = (mStar*nexcitation)*(mStar*nexcitation);
 
             ttbarwgmKKn = 2.*(alphaemfixed*3./6.)*mgmKKn
-                           * sqrt(1.-4.*m2Top/m2gmKKn)
-                           * 2.*pow2(couplingsPtr->ef(6))*(1.+2.*(m2Top/m2gmKKn));
+                        * sqrt(1.-4.*m2Top/m2gmKKn)
+                        * 2.*pow2(couplingsPtr->ef(6))
+                        * (1.+2.*(m2Top/m2gmKKn));
             wgmKKn         = wgmKKFactor*mgmKKn+ttbarwgmKKn;
             gmPropKK += (2.*couplingsPtr->ef(idAbs)*couplingsPtr->ef(idNew)) 
 	              / (sH-m2gmKKn+mI*sH*wgmKKn/mgmKKn);
@@ -1269,8 +1341,8 @@ void Sigma2qg2LEDUnparticleq::sigmaKin() {
   } else if (eDspin == 0) {
     
     double A0  = 1/pow2(sH);    
-
-    eDsigma0 = A0 * (pow2(tH) + pow2(mGS)) / (sH*uH);  // Sign correction by Tom
+    // Sign correction by Tom
+    eDsigma0 = A0 * (pow2(tH) + pow2(mGS)) / (sH*uH);  
 
   }
 
@@ -2374,7 +2446,7 @@ double Sigma2ffbar2LEDllbar::sigmaHat() {
   double tmPgLl = tmPgvl  + tmPgal;
   double tmPgRl = tmPgvl  - tmPgal;
   double tmPe2s2c2 = 4 * M_PI * alpEM 
-                    / (couplingsPtr->sin2thetaW() * couplingsPtr->cos2thetaW());
+    / (couplingsPtr->sin2thetaW() * couplingsPtr->cos2thetaW());
      
   // LL, RR, LR, RL  couplings.
   vector<double> tmPcoupZ; 

@@ -1,5 +1,5 @@
 // SusyResonanceWidths.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand
+// Copyright (C) 2012 Torbjorn Sjostrand
 // Authors: N. Desai, P. Skands
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
@@ -1049,51 +1049,60 @@ void  ResonanceNeut::calcWidth(bool){
 		itemp3 = id1Abs;
 		itemp1 = id2Abs;
 		itemp2 = id3Abs;
-		rvfac = pow2(coupSUSYPtr->rvUDD[iSq][(id2Abs+1)/2][(id3Abs+1)/2]);
+		rvfac = pow2(
+                  coupSUSYPtr->rvUDD[iSq][(id2Abs+1)/2][(id3Abs+1)/2]);
 	      }else if (itype ==2){
 		itemp3 = id2Abs;
 		itemp1 = id1Abs;
 		itemp2 = id3Abs;
-		rvfac = pow2(coupSUSYPtr->rvUDD[(id1Abs+1)/2][iSq][(id3Abs+1)/2]);
+		rvfac = pow2(
+                  coupSUSYPtr->rvUDD[(id1Abs+1)/2][iSq][(id3Abs+1)/2]);
 	      } else{
 		itemp3 = id3Abs;
 		itemp1 = id1Abs;
 		itemp2 = id2Abs;
-		rvfac = pow2(coupSUSYPtr->rvUDD[(id1Abs+1)/2][(id2Abs+1)/2][iSq]);
+		rvfac = pow2(
+                  coupSUSYPtr->rvUDD[(id1Abs+1)/2][(id2Abs+1)/2][iSq]);
 	      }
 	    }else if(id2Abs%2 == 0){
 	      if(itype==1){
 		itemp3 = id2Abs;
 		itemp1 = id1Abs;
 		itemp2 = id3Abs;
-		rvfac = pow2(coupSUSYPtr->rvUDD[iSq][(id1Abs+1)/2][(id3Abs+1)/2]);
+		rvfac = pow2(
+                  coupSUSYPtr->rvUDD[iSq][(id1Abs+1)/2][(id3Abs+1)/2]);
 	      }else if (itype ==2){
 		itemp3 = id1Abs;
 		itemp1 = id2Abs;
 		itemp2 = id3Abs;
-		rvfac = pow2(coupSUSYPtr->rvUDD[(id2Abs+1)/2][iSq][(id3Abs+1)/2]);
+		rvfac = pow2(
+                  coupSUSYPtr->rvUDD[(id2Abs+1)/2][iSq][(id3Abs+1)/2]);
 	      } else{
 		itemp3 = id3Abs;
 		itemp1 = id2Abs;
 		itemp2 = id1Abs;
-		rvfac = pow2(coupSUSYPtr->rvUDD[(id2Abs+1)/2][(id2Abs+1)/2][iSq]);
+		rvfac = pow2(
+                  coupSUSYPtr->rvUDD[(id2Abs+1)/2][(id2Abs+1)/2][iSq]);
 	      }
 	    }else{
 	      if(itype==1){
 		itemp3 = id3Abs;
 		itemp1 = id1Abs;
 		itemp2 = id2Abs;
-		rvfac = pow2(coupSUSYPtr->rvUDD[iSq][(id1Abs+1)/2][(id2Abs+1)/2]);
+		rvfac = pow2(
+                  coupSUSYPtr->rvUDD[iSq][(id1Abs+1)/2][(id2Abs+1)/2]);
 	      }else if (itype ==2){
 		itemp3 = id2Abs;
 		itemp1 = id1Abs;
 		itemp2 = id3Abs;
-		rvfac = pow2(coupSUSYPtr->rvUDD[(id3Abs+1)/2][iSq][(id2Abs+1)/2]);
+		rvfac = pow2(
+                  coupSUSYPtr->rvUDD[(id3Abs+1)/2][iSq][(id2Abs+1)/2]);
 	      } else{
 		itemp3 = id3Abs;
 		itemp1 = id1Abs;
 		itemp2 = id2Abs;
-		rvfac = pow2(coupSUSYPtr->rvUDD[(id3Abs+1)/2][(id1Abs+1)/2][iSq]);
+		rvfac = pow2(
+                  coupSUSYPtr->rvUDD[(id3Abs+1)/2][(id1Abs+1)/2][iSq]);
 	      }
 	      
 	    }
@@ -1106,7 +1115,7 @@ void  ResonanceNeut::calcWidth(bool){
 	    m12max = pow2(mHat-m3);
 
 	    // Ignore mode when 2-body decay is possible
-	    if(mRes > particleDataPtr->m0(idInt) + particleDataPtr->m0(itemp3)) 
+	    if(mRes > particleDataPtr->m0(idInt) + particleDataPtr->m0(itemp3))
 	      continue;
 	    
 	    // Single diagram squared terms
@@ -1176,9 +1185,9 @@ void  ResonanceNeut::calcWidth(bool){
 
 		if(abs(rvfac * mixfac3) > 0.0) {
 		  phi.setInternal(idRes,itemp1, itemp2,itemp3,idInt,idInt2);
-		  integral = 0;
+		  //integral = 0;
 		  //if(idIntRes == 2 && iSq2 ==4)
-		    integral =  integrateGauss(&phi,m12min,m12max,1.0e-4);
+		  integral =  integrateGauss(&phi,m12min,m12max,1.0e-4);
 		  widNow -= rvfac * mixfac2 * integral;
 		}
 	      }

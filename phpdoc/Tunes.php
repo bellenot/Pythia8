@@ -32,7 +32,7 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 Since some physics aspects cannot be derived from first principles,
 this program contains many parameters that represent a true 
 uncertainty in our understanding of nature. Particularly afflicted
-are the areas of hadronization and multiple interactions, which both
+are the areas of hadronization and multiparton interactions, which both
 involve nonperturbative QCD physics. 
 
 <p/>
@@ -50,7 +50,7 @@ divide the task into subtasks. Firstly, if we assume jet universality,
 hadronization and final-state parton showers should be tuned to 
 <i>e^+e^-</i> annihilation data, notably from LEP1, since this 
 offers the cleanest environment. Secondly, with such parameters fixed, 
-hadron collider data should be studied to pin down multiple interactions
+hadron collider data should be studied to pin down multiparton interactions
 and other further aspects, such as initial-state radiation. Ideally this
 would be done separately for diffractive and non-diffractive events, 
 although it is not possible to have a clean separation. (Thirdly 
@@ -65,7 +65,7 @@ parameters and timelike showers.
 
 <p/>
 The situation is more complicated for hadronic interactions in general
-and multiple interactions in particular, where PYTHIA 8 is more 
+and multiparton interactions in particular, where PYTHIA 8 is more 
 different from PYTHIA 6, and therefore more work is needed. Specifically,
 it is <i>not</i> possible to "port" a PYTHIA 6 tune to PYTHIA 8. 
 
@@ -92,6 +92,22 @@ LHC data, see [<a href="Bibliography.php" target="page">Cor10a</a>]. Following t
 with LHC data, tune 4C was made the default as of 8.150. A variant is 
 tune 4Cx, where the Gaussian matter profile has an <i>x</i>-dependent
 width [<a href="Bibliography.php" target="page">Cor11</a>].
+
+<p/>
+The ATLAS Tune A2 is the first "external tune". It does away with
+rapidity ordering of spacelike emissions, a possibility that was 
+introduced in previous tuning efforts without any strong theoretical
+motivation, but otherwise is in the same spirit as 4Cx.
+
+<p/>
+Note that comparisons with data also require that other aspects agree,
+suas as that decay chains are stopped at an agreed-on level. For instance,
+in the ATLAS Tune A2 all particles with a lifetime above 10 mm 
+are considered stable, <code>ParticleDecays:limitTau0 = on</code>,
+<code>ParticleDecays:tau0Max = 10</code>. We have chosen not to 
+include this as part of the tune settings itself, since the tune as 
+such could still be used with any other choice of stable and 
+unstable particles.
 
 <p/>
 Further comparisons have been posted on the
@@ -146,7 +162,7 @@ using <code>Pythia::readFile(...)</code> to read a configuration file,
 or a list of <code>Pythia::readString(...)</code> commands, 
 or the lower-level <code>Settings</code> methods. All changes
 are made in the order in which the commands are encountered during
-the execution. A given variable can be changed multiple times,
+the execution. A given variable can be changed multiparton times,
 but it is the latest change that sets the current value.
 </li>
 <li>The two <code>Tune:ee</code> and <code>Tune:pp</code> modes can also
@@ -186,9 +202,9 @@ are the settings for the respective tune.
 <input type="radio" name="1" value="2"><strong>2 </strong>: a tune by Marc Montull to the LEP 1 particle composition, as published in the RPP (August 2007). No related (re)tune  to event shapes has been performed, however.   <br/>
 <input type="radio" name="1" value="3"><strong>3 </strong>: a tune to a wide selection of LEP1 data by Hendrik  Hoeth within the Rivet + Professor framework, both to hadronization and timelike-shower parameters (June 2009). These are the default values  starting from version 8.125, so currently there is no need for this option. <br/>
 
-<br/><br/><table><tr><td><strong>Tune:pp  </td><td>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = -1</code>; <code>maximum = 6</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Tune:pp  </td><td>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = -1</code>; <code>maximum = 7</code>)</td></tr></table>
 Choice of tune to <ei>pp/ppbar</ei> data, mainly for the 
-initial-state-radiation, multiple-interactions and  beam-remnants
+initial-state-radiation, multiparton-interactions and  beam-remnants
 aspects of PYTHIA. Note that the previous crude (non-)tunes
 3C and 3M are removed as of 8.145, superseded by the 4C tune. 
 You should study the <code>Settings::initTunePP(...)</code> method 
@@ -200,8 +216,9 @@ to find exactly which are the settings for the respective tune.
 <input type="radio" name="2" value="2"><strong>2 </strong>: "Tune 1", default in 8.127 - 8.139, based on some  data comparisons by Peter Skands. Largely but not wholly overlaps with the default option 0. <br/>
 <input type="radio" name="2" value="3"><strong>3 </strong>: "Tune 2C", introduced with 8.140 <ref>Cor10a</ref>.  It uses the CTEQ 6L1 PDF, and is intended to give good agreement with  much of the published CDF data. <br/>
 <input type="radio" name="2" value="4"><strong>4 </strong>: "Tune 2M", introduced with 8.140 <ref>Cor10a</ref>. It is uses the MRST LO** PDF, which has a momentum sum somewhat above  unity, which is compensated by a smaller <ei>alpha_s</ei> than in the previous tune. Again it is intended to give good agreement with much of  the published CDF data. <br/>
-<input type="radio" name="2" value="5" checked="checked"><strong>5 </strong>: "Tune 4C", new tune, introduced with 8.145  <ref>Cor10a</ref>. Starts out from tune 2C, but with a reduced cross  section for diffraction, plus modified multiple interactions parameters  to give a higher and more rapidly increasing charged pseudorapidity  plateau, for better agreement with some early key LHC numbers.  See also the comparative study in <ref>Buc11</ref>. <br/>
-<input type="radio" name="2" value="6"><strong>6 </strong>: "Tune 4Cx", based on tune 4C, but using the x-dependent matter profile, <ei>MultipleInteractions:bProfile = 4</ei> and an increased <ei>MultipleInteractions:pT0Ref</ei> <ref>Cor11</ref>. <br/>
+<input type="radio" name="2" value="5" checked="checked"><strong>5 </strong>: "Tune 4C", new tune, introduced with 8.145  <ref>Cor10a</ref>. Starts out from tune 2C, but with a reduced cross  section for diffraction, plus modified multiparton interactions parameters  to give a higher and more rapidly increasing charged pseudorapidity  plateau, for better agreement with some early key LHC numbers.  See also the comparative study in <ref>Buc11</ref>. <br/>
+<input type="radio" name="2" value="6"><strong>6 </strong>: "Tune 4Cx", based on tune 4C, but using the x-dependent matter profile, <ei>MultipartonInteractions:bProfile = 4</ei> and an increased <ei>MultipartonInteractions:pT0Ref</ei> <ref>Cor11</ref>. <br/>
+<input type="radio" name="2" value="7"><strong>7 </strong>: "ATLAS Tune A2", based on tune 4Cx, but without  rapidity-ordered spacelike emissions. <br/>
 
 <input type="hidden" name="saved" value="1"/>
 
@@ -235,4 +252,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->

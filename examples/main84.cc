@@ -1,5 +1,5 @@
 // main84.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -173,7 +173,7 @@ int main( int argc, char* argv[] ){
         countEvents++;
 
         nTrial += 1.;
-        if(iEvent == 0) pythia.statistics();
+        if(iEvent == 0) pythia.stat();
 
         // Generate next event
         if(pythia.next()) nAccept += 1.;
@@ -283,7 +283,7 @@ int main( int argc, char* argv[] ){
       for( int iEvent=0; iEvent<nEvent; ++iEvent ){
 
         nTriedEvents++;
-        if(iEvent == 0) pythia.statistics();
+        if(iEvent == 0) pythia.stat();
 
         // Generate next event
         if( pythia.next()) {
@@ -352,7 +352,7 @@ int main( int argc, char* argv[] ){
       } // end loop over events to generate
 
       // print cross section, errors
-      pythia.statistics();
+      pythia.stat();
 
     } // end outer loop to rerun pythia with the same lhe file
 

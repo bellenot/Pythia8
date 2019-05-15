@@ -31,13 +31,13 @@ all: $(EX)
 
 # Rule to build hist example. Needs static PYTHIA 8 library
 hist: $(STATICLIB) hist.cc
-	$(CXX) $(ROOTCXXFLAGS) $(LDFLAGS1) $@.cc -o $@.exe
+	$(CXX) $(ROOTCXXFLAGS) $@.cc -o $@.exe $(LDFLAGS1)
 
 # Rule to build tree example. Needs dictionary to be built and
 # static PYTHIA 8 library
 tree: $(STATICLIB) tree.cc
 	rootcint -f treeDict.cc -c $(DICTCXXFLAGS) pythiaROOT.h pythiaLinkdef.h
-	$(CXX) $(ROOTCXXFLAGS) $(LDFLAGS1) treeDict.cc $@.cc -o $@.exe
+	$(CXX) $(ROOTCXXFLAGS) treeDict.cc $@.cc -o $@.exe $(LDFLAGS1)
 
 # Rule to build full dictionary
 dict: $(SHAREDLIB)

@@ -89,7 +89,7 @@ OBJS =   $(OUTDIR)/Analysis.obj \
          $(OUTDIR)/LesHouches.obj \
          $(OUTDIR)/MergingHooks.obj \
          $(OUTDIR)/MiniStringFragmentation.obj \
-         $(OUTDIR)/MultipleInteractions.obj \
+         $(OUTDIR)/MultipartonInteractions.obj \
          $(OUTDIR)/ParticleData.obj \
          $(OUTDIR)/ParticleDecays.obj \
          $(OUTDIR)/PartonDistributions.obj \

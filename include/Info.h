@@ -1,5 +1,5 @@
 // Info.h is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -27,7 +27,7 @@ class Info {
 public:
 
   // Constructor. 
-  Info() : lowPTmin(false), a0MISave(0.), mergingWeightSave(1.) {
+  Info() : lowPTmin(false), a0MPISave(0.), mergingWeightSave(1.) {
     for (int i = 0; i < 40; ++i) counters[i] = 0;} 
 
   // Listing of most available information on current event.
@@ -113,8 +113,8 @@ public:
   int    nFSRinProc()     const {return nFSRinProcSave;}
   int    nFSRinRes()      const {return nFSRinResSave;}
 
-  // Maximum pT scales for MI, ISR and FSR (in hard process).
-  double pTmaxMI()        const {return pTmaxMISave;}
+  // Maximum pT scales for MPI, ISR and FSR (in hard process).
+  double pTmaxMPI()       const {return pTmaxMPISave;}
   double pTmaxISR()       const {return pTmaxISRSave;}
   double pTmaxFSR()       const {return pTmaxFSRSave;}
 
@@ -122,19 +122,19 @@ public:
   double pTnow()          const {return pTnowSave;}
 
   // Impact parameter picture, global information
-  double a0MI()           const {return a0MISave;}
+  double a0MPI()          const {return a0MPISave;}
 
   // Impact parameter picture, as set by hardest interaction.
-  double bMI()            const {return (bIsSet) ? bMISave : 1.;}
-  double enhanceMI()      const {return (bIsSet) ? enhanceMISave : 1.;}
-  double eMI(int i)       const {return (bIsSet) ? eMISave[i] : 1.;}
+  double bMPI()           const {return (bIsSet) ? bMPISave : 1.;}
+  double enhanceMPI()     const {return (bIsSet) ? enhanceMPISave : 1.;}
+  double eMPI(int i)      const {return (bIsSet) ? eMPISave[i] : 1.;}
 
-  // Number of multiple interactions, with code and pT for them.
-  int    nMI()            const {return nMISave;}
-  int    codeMI(int i)    const {return codeMISave[i];} 
-  double pTMI(int i)      const {return pTMISave[i];} 
-  int    iAMI(int i)      const {return iAMISave[i];} 
-  int    iBMI(int i)      const {return iBMISave[i];} 
+  // Number of multiparton interactions, with code and pT for them.
+  int    nMPI()           const {return nMPISave;}
+  int    codeMPI(int i)   const {return codeMPISave[i];} 
+  double pTMPI(int i)     const {return pTMPISave[i];} 
+  int    iAMPI(int i)     const {return iAMPISave[i];} 
+  int    iBMPI(int i)     const {return iBMPISave[i];} 
 
   // Cross section estimate.
   long   nTried()         const {return nTry;}
@@ -163,14 +163,14 @@ public:
   // Print statistics on errors/aborts/warnings.
   void   errorStatistics(ostream& os = cout);
 
-  // Set initialization warning flag when too low pTmin in ISR/FSR/MI.
+  // Set initialization warning flag when too low pTmin in ISR/FSR/MPI.
   void   setTooLowPTmin(bool lowPTminIn) {lowPTmin = lowPTminIn;} 
 
   // Set info on valence character of hard collision partons.
   void setValence( bool isVal1In, bool isVal2In) {isVal1 = isVal1In; 
     isVal2 = isVal2In;}
 
-  // Set and get some MI/ISR/FSR properties needed for matching,
+  // Set and get some MPI/ISR/FSR properties needed for matching,
   // i.e. mainly of internal relevance.
   void   hasHistory( bool hasHistoryIn) {hasHistorySave = hasHistoryIn;}
   bool   hasHistory() {return hasHistorySave;}
@@ -203,20 +203,20 @@ private:
   int    lhaStrategySave;
 
   // Store common MPI information
-  double a0MISave;
+  double a0MPISave;
 
   // Store current-event quantities.
   bool   isRes, isDiffA, isDiffB, isMB, isLH, hasSubSave, bIsSet, evolIsSet,
          atEOF, isVal1, isVal2, hasHistorySave;  
   int    codeSave, codeSubSave, nFinalSave, nFinalSubSave, nTotal, 
-         id1Save, id2Save, nMISave, nISRSave, nFSRinProcSave, nFSRinResSave;
+         id1Save, id2Save, nMPISave, nISRSave, nFSRinProcSave, nFSRinResSave;
   double x1Save, x2Save, pdf1Save, pdf2Save, Q2FacSave, alphaEMSave, 
          alphaSSave, Q2RenSave, sH, tH, uH, pTH, m3H, m4H, thetaH, phiH, 
-         weightSave, bMISave, enhanceMISave, pTmaxMISave, pTmaxISRSave, 
+         weightSave, bMPISave, enhanceMPISave, pTmaxMPISave, pTmaxISRSave, 
          pTmaxFSRSave, pTnowSave, zNowISRSave, pT2NowISRSave;
   string nameSave, nameSubSave;
-  vector<int>    codeMISave, iAMISave, iBMISave;
-  vector<double> pTMISave, eMISave;
+  vector<int>    codeMPISave, iAMPISave, iBMPISave;
+  vector<double> pTMPISave, eMPISave;
 
   // Vector of various loop counters.
   int    counters[50];
@@ -229,7 +229,7 @@ private:
   friend class ProcessLevel;
   friend class ProcessContainer;
   friend class PartonLevel;
-  friend class MultipleInteractions;
+  friend class MultipartonInteractions;
 
   // Set info on the two incoming beams: only from Pythia class.
   void setBeamA( int idAin, double pzAin, double eAin, double mAin) {
@@ -242,17 +242,17 @@ private:
   void clear() { isRes = isDiffA = isDiffB = isMB = isLH = hasSubSave 
     = bIsSet = evolIsSet = atEOF = isVal1 =isVal2 = hasHistorySave = false; 
     codeSave = codeSubSave = nFinalSave = nFinalSubSave = nTotal = id1Save 
-    = id2Save = nMISave = nISRSave = nFSRinProcSave = nFSRinResSave = 0; 
+    = id2Save = nMPISave = nISRSave = nFSRinProcSave = nFSRinResSave = 0; 
     x1Save = x2Save = pdf1Save = pdf2Save = Q2FacSave = alphaEMSave 
     = alphaSSave = Q2RenSave = sH = tH = uH = pTH = m3H = m4H = thetaH 
-    = phiH = 0.; weightSave = bMISave = enhanceMISave = mergingWeightSave = 1.; 
-    pTmaxMISave = pTmaxISRSave = pTmaxFSRSave = pTnowSave = zNowISRSave 
-    = pT2NowISRSave = 0.; nameSave = nameSubSave = " "; 
-    codeMISave.resize(0); iAMISave.resize(0); iBMISave.resize(0);  
-    pTMISave.resize(0); eMISave.resize(0); }
+    = phiH = 0.; weightSave = bMPISave = enhanceMPISave = mergingWeightSave 
+    = 1.; pTmaxMPISave = pTmaxISRSave = pTmaxFSRSave = pTnowSave 
+    = zNowISRSave = pT2NowISRSave = 0.; nameSave = nameSubSave = " "; 
+    codeMPISave.resize(0); iAMPISave.resize(0); iBMPISave.resize(0);  
+    pTMPISave.resize(0); eMPISave.resize(0); }
 
   // Set info on the (sub)process: from ProcessLevel, ProcessContainer or 
-  // MultipleInteractions classes.
+  // MultipartonInteractions classes.
   void setType( string nameIn, int codeIn, int nFinalIn,  
     bool isMinBiasIn = false, bool isResolvedIn = true, 
     bool isDiffractiveAin = false, bool isDiffractiveBin = false,
@@ -274,10 +274,10 @@ private:
     double thetaHatIn, double phiHatIn) {x1Save = x1In; x2Save = x2In; 
     sH = sHatIn; tH = tHatIn; uH = uHatIn; pTH = pTHatIn; m3H = m3HatIn; 
     m4H = m4HatIn; thetaH = thetaHatIn; phiH = phiHatIn;}
-  void setTypeMI( int codeMIIn, double pTMIIn, int iAMIIn = 0, 
-    int iBMIIn = 0, double eMIIn = 1.) {codeMISave.push_back(codeMIIn); 
-    pTMISave.push_back(pTMIIn); iAMISave.push_back(iAMIIn); 
-    iBMISave.push_back(iBMIIn); eMISave.push_back(eMIIn); }
+  void setTypeMPI( int codeMPIIn, double pTMPIIn, int iAMPIIn = 0, 
+    int iBMPIIn = 0, double eMPIIn = 1.) {codeMPISave.push_back(codeMPIIn); 
+    pTMPISave.push_back(pTMPIIn); iAMPISave.push_back(iAMPIIn); 
+    iBMPISave.push_back(iBMPIIn); eMPISave.push_back(eMPIIn); }
 
   // Set info on cross section: from ProcessLevel.
   void setSigma( long nTryIn, long nSelIn, long nAccIn, double sigGenIn, 
@@ -286,24 +286,24 @@ private:
     wtAccSum = wtAccSumIn; } 
 
   // Set info on impact parameter: from PartonLevel.
-  void setImpact( double bMIIn, double enhanceMIIn) {bMISave = bMIIn;
-    enhanceMISave = eMISave[0] = enhanceMIIn, bIsSet = true;} 
+  void setImpact( double bMPIIn, double enhanceMPIIn) {bMPISave = bMPIIn;
+    enhanceMPISave = eMPISave[0] = enhanceMPIIn, bIsSet = true;} 
 
   // Set info on pTmax scales and number of evolution steps: from PartonLevel.
-  void setPartEvolved( int nMIIn, int nISRIn) {
-    nMISave = nMIIn; nISRSave = nISRIn;} 
-  void setEvolution( double pTmaxMIIn, double pTmaxISRIn, double pTmaxFSRIn, 
-    int nMIIn, int nISRIn, int nFSRinProcIn, int nFSRinResIn) { 
-    pTmaxMISave = pTmaxMIIn; pTmaxISRSave = pTmaxISRIn; 
-    pTmaxFSRSave = pTmaxFSRIn; nMISave = nMIIn; nISRSave = nISRIn; 
+  void setPartEvolved( int nMPIIn, int nISRIn) {
+    nMPISave = nMPIIn; nISRSave = nISRIn;} 
+  void setEvolution( double pTmaxMPIIn, double pTmaxISRIn, double pTmaxFSRIn, 
+    int nMPIIn, int nISRIn, int nFSRinProcIn, int nFSRinResIn) { 
+    pTmaxMPISave = pTmaxMPIIn; pTmaxISRSave = pTmaxISRIn; 
+    pTmaxFSRSave = pTmaxFSRIn; nMPISave = nMPIIn; nISRSave = nISRIn; 
     nFSRinProcSave = nFSRinProcIn; nFSRinResSave = nFSRinResIn; 
     evolIsSet = true;}
 
-  // Set current pT evolution scale for MI/ISR/FSR; from PartonLevel.
+  // Set current pT evolution scale for MPI/ISR/FSR; from PartonLevel.
   void setPTnow( double pTnowIn) {pTnowSave = pTnowIn;}
 
-  // Set a0 from MultipleInteractions.
-  void a0MI(double a0MIin) {a0MISave = a0MIin;}
+  // Set a0 from MultipartonInteractions.
+  void a0MPI(double a0MPIin) {a0MPISave = a0MPIin;}
 
   // Set info whether reading of Les Houches Accord file at end.
   void setEndOfFile( bool atEOFin) {atEOF = atEOFin;}

@@ -1,5 +1,5 @@
 // main81.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -143,7 +143,7 @@ int main( int argc, char* argv[] ){
   } // end loop over events to generate
 
   // print cross section, errors
-  pythia.statistics();
+  pythia.stat();
 
   // Normalise histograms
   double norm = 1.

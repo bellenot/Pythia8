@@ -66,7 +66,7 @@ scale of the hard process itself.
 <input type="radio" name="1" value="1"><strong>1 </strong>: always use the factorization scale for an internal process and the <code>scale</code> value for Les Houches input,  i.e. the lower value. This should avoid doublecounting, but may leave out some emissions that ought to have been simulated. (Also known as wimpy showers.) <br/>
 <input type="radio" name="1" value="2"><strong>2 </strong>: always allow emissions up to the kinematical limit. This will simulate all possible event topologies, but may lead to doublecounting.  (Also known as power showers.) <br/>
 <br/><b>Note 1:</b> These options only apply to the hard interaction.
-Emissions off subsequent multiple interactions are always constrainted
+Emissions off subsequent multiparton interactions are always constrainted
 to be below the factorization scale of the process itself.  
 <br/><b>Note 2:</b> Some processes contain matrix-element matching
 to the first emission; this is the case notably for single 
@@ -84,10 +84,10 @@ interaction in an event, cf. below. It is strongly suggested that
 test this assumption. 
   
 
-<br/><br/><table><tr><td><strong>SpaceShower:pTmaxFudgeMI </td><td></td><td> <input type="text" name="3" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.25</code>; <code>maximum = 2.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>SpaceShower:pTmaxFudgeMPI </td><td></td><td> <input type="text" name="3" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.25</code>; <code>maximum = 2.0</code>)</td></tr></table>
 A multiplicative factor <i>f</i> such that 
 <i>pT_max = f * pT_factorization</i>, as above, but here for the
-non-hardest interactions (when multiple interactions are allowed).
+non-hardest interactions (when multiparton interactions are allowed).
   
 
 <br/><br/><table><tr><td><strong>SpaceShower:pTdampMatch  </td><td>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 2</code>)</td></tr></table>
@@ -107,7 +107,7 @@ higher-order calculations.
 <input type="radio" name="4" value="1"><strong>1 </strong>: emissions go up to the kinematical limit,   but dampened by a factor <ei>k^2 Q^2_fac/(pT^2 + k^2 Q^2_fac)</ei>,  where <ei>Q_fac</ei> is the factorization scale and <ei>k</ei> is a  multiplicative fudge factor stored in <code>pTdampFudge</code> below. <br/>
 <input type="radio" name="4" value="2"><strong>2 </strong>: emissions go up to the kinematical limit,  but dampened by a factor <ei>k^2 Q^2_ren/(pT^2 + k^2 Q^2_ren)</ei>,  where <ei>Q_ren</ei> is the renormalization scale and <ei>k</ei> is a  multiplicative fudge factor stored in <code>pTdampFudge</code> below.  <br/>
 <br/><b>Note:</b> These options only apply to the hard interaction.
-Emissions off subsequent multiple interactions are always constrainted
+Emissions off subsequent multiparton interactions are always constrainted
 to be below the factorization scale of the process itself.  
 
 <br/><br/><table><tr><td><strong>SpaceShower:pTdampFudge </td><td></td><td> <input type="text" name="5" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.25</code>; <code>maximum = 4.0</code>)</td></tr></table>
@@ -151,22 +151,22 @@ The running of <ei>alpha_em</ei>.
 There are two complementary ways of regularizing the small-<i>pT</i> 
 divergence, a sharp cutoff and a smooth dampening. These can be 
 combined as desired but it makes sense to coordinate with how the 
-same issue is handled in multiple interactions.
+same issue is handled in multiparton interactions.
 
-<br/><br/><strong>SpaceShower:samePTasMI</strong>  <input type="radio" name="9" value="on"><strong>On</strong>
+<br/><br/><strong>SpaceShower:samePTasMPI</strong>  <input type="radio" name="9" value="on"><strong>On</strong>
 <input type="radio" name="9" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Regularize the <i>pT -> 0</i> divergence using the same sharp cutoff 
-and smooth dampening parameters as used to describe multiple interactions.
-That is, the <code>MultipleInteractions:pT0Ref</code>, 
-<code>MultipleInteractions:ecmRef</code>, 
-<code>MultipleInteractions:ecmPow</code> and 
-<code>MultipleInteractions:pTmin</code> parameters are used to regularize 
+and smooth dampening parameters as used to describe multiparton interactions.
+That is, the <code>MultipartonInteractions:pT0Ref</code>, 
+<code>MultipartonInteractions:ecmRef</code>, 
+<code>MultipartonInteractions:ecmPow</code> and 
+<code>MultipartonInteractions:pTmin</code> parameters are used to regularize 
 all ISR QCD radiation, rather than the corresponding parameters below. 
 This is a sensible physics ansatz, based on the assumption that colour 
-screening effects influence both MI and ISR in the same way. Photon 
+screening effects influence both MPI and ISR in the same way. Photon 
 radiation is regularized separately in either case.
-<br/><b>Warning:</b> if a large <code>pT0</code> is picked for multiple 
+<br/><b>Warning:</b> if a large <code>pT0</code> is picked for multiparton 
 interactions, such that the integrated interaction cross section is 
 below the nondiffractive inelastic one, this <code>pT0</code> will 
 automatically be scaled down to cope. Information on such a rescaling 
@@ -374,7 +374,7 @@ fwrite($handle,$data);
 }
 if($_POST["3"] != "1.0")
 {
-$data = "SpaceShower:pTmaxFudgeMI = ".$_POST["3"]."\n";
+$data = "SpaceShower:pTmaxFudgeMPI = ".$_POST["3"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["4"] != "0")
@@ -404,7 +404,7 @@ fwrite($handle,$data);
 }
 if($_POST["9"] != "off")
 {
-$data = "SpaceShower:samePTasMI = ".$_POST["9"]."\n";
+$data = "SpaceShower:samePTasMPI = ".$_POST["9"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["10"] != "2.0")
@@ -494,5 +494,5 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
 

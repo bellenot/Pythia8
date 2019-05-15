@@ -1,5 +1,5 @@
 // LesHouches.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -522,9 +522,8 @@ bool LHAupFromPYTHIA8::setEvent( int ) {
 
   // Read process information from Info class, and store it.
   // Note: renormalization scale here, factorization further down.
-  int    idprup = infoPtr->code(); 
-  // For now always convert to process 9999.
-  idprup        = 9999;
+  // For now always convert to process 9999, instead of infoPtr->code(). 
+  int    idprup = 9999;
   double xwgtup = infoPtr->weight();
   double scalup = infoPtr->QRen();
   double aqedup = infoPtr->alphaEM();
@@ -554,7 +553,7 @@ bool LHAupFromPYTHIA8::setEvent( int ) {
     pup4     = particle.e();
     pup5     = particle.m();
     vtimup   = particle.tau(); 
-    spinup   = 9.;
+    spinup   = particle.pol();
     addParticle(idup, istup, mothup1, mothup2, icolup1, icolup2,
       pup1, pup2, pup3, pup4, pup5, vtimup, spinup) ;
   }

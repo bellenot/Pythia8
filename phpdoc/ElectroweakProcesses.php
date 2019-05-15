@@ -40,7 +40,7 @@ produced by the hard process. Additional sources of photons
 include parton showers and hadron decays. A <i>pT</i> cut
 is required to stay away from the unphysical low-<i>pT</i> region.
 An eikonalized description, intended to be valid at all <i>pT</i>,
-is included as part of the multiple-interactions framework.
+is included as part of the multiparton-interactions framework.
 
 <br/><br/><strong>PromptPhoton:all</strong>  <input type="radio" name="1" value="on"><strong>On</strong>
 <input type="radio" name="1" value="off" checked="checked"><strong>Off</strong>
@@ -130,7 +130,7 @@ is purely dictated by what is set for the <ei>Z^0</ei>.
 <h4>Boson exchange</h4>
 
 The two processes in this subgroup is included as part of the 
-multiple-interactions framework.
+multiparton-interactions framework.
 
 <br/><br/><strong>WeakBosonExchange:all</strong>  <input type="radio" name="9" value="on"><strong>On</strong>
 <input type="radio" name="9" value="off" checked="checked"><strong>Off</strong>
@@ -185,11 +185,11 @@ Code 222.
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scattering <i>f fbar -> gamma^* -> f' fbar'</i>. Subset of 
 process 221, but written as a <i>2 -> 2</i> process, so that 
-<i>pT</i> can be used as ordering variable, e.g. in multiple 
+<i>pT</i> can be used as ordering variable, e.g. in multiparton 
 interactions. Hardcoded for the final state being either of the 
 five quark flavours or three lepton ones. Not included in the 
 <code>WeakSingleBoson:all</code> set, but included in the 
-multiple-interactions framework. 
+multiparton-interactions framework. 
 Code 223.
   
 
@@ -550,5 +550,5 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
 

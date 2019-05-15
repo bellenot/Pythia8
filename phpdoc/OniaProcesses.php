@@ -65,7 +65,7 @@ reweighting that cancels the low-<i>pT</i> divergence.
 
 <p/>
 An eikonalized description of these processes is included in the 
-multiple-interactions framework. Here the low-<i>pT</i> dampening
+multiparton-interactions framework. Here the low-<i>pT</i> dampening
 is automatic, and additionally the framework is more consistent
 (e.g. with respect to energy-momentum constraints and the 
 impact-parameter description) for events where the onium production 
@@ -675,5 +675,5 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
 

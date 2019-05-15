@@ -1,5 +1,5 @@
 // main05.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -15,40 +15,35 @@ using namespace Pythia8;
 int main() {
 
   // Number of events, generated and listed ones.
-  int nEvent    = 200;
-  int nList     = 0;
+  int nEvent    = 500;
   int nListJets = 5;
 
-  // Generator. Process selection. LHC initialization.
+  // Generator. LHC process and output selection. Initialization.
   Pythia pythia;
+  pythia.readString("Beams:eCM = 14000.");    
   pythia.readString("HardQCD:all = on");    
   pythia.readString("PhaseSpace:pTHatMin = 200.");    
-  pythia.init( 2212, 2212, 14000.);
+  pythia.readString("Next:numberShowInfo = 0");
+  pythia.readString("Next:numberShowProcess = 0");
+  pythia.readString("Next:numberShowEvent = 0"); 
+  pythia.init();
 
   // Common parameters for the two jet finders.
-  double etaMax     = 4.;
-  double radius     = 0.7;
-  double pTjetMin   = 10.;
-  // Exclude neutrinos (and other invisible) from study
-  int    nSel       = 2;
+  double etaMax   = 4.;
+  double radius   = 0.7;
+  double pTjetMin = 10.;
+  // Exclude neutrinos (and other invisible) from study.
+  int    nSel     = 2;
+  // Range and granularity of CellJet jet finder.
+  int    nEta     = 80;
+  int    nPhi     = 64;
 
-  // Set up SlowJet jet finder, with anti-kT clustering.
+  // Set up SlowJet jet finder, with anti-kT clustering
+  // and pion mass assumed for non-photons..
   SlowJet slowJet( -1, radius, pTjetMin, etaMax, nSel, 1);
 
-  // Range and granularity of CellJet jet finder.
-  int    nEta       = 80;
-  int    nPhi       = 64;
-
-  // Character and amount of CellJet energy smearing, cell by cell.
-  int    smear      = 2;       // put = 0 for no smearing.
-  double resolution = 0.3;
-  double upperCut   = 2.;
-  double threshold  = 0.1;
-  Rndm*  rndmPtr    = &pythia.rndm;
-
   // Set up CellJet jet finder. 
-  CellJet cellJet( etaMax, nEta, nPhi, nSel, smear, resolution,
-    upperCut, threshold, rndmPtr);
+  CellJet cellJet( etaMax, nEta, nPhi, nSel);
 
   // Histograms. Note similarity in names, even when the two jet finders
   // do not calculate identically the same property (pT vs. ET, y vs. eta).
@@ -66,16 +61,9 @@ int main() {
   Hist eTdiffS("pT difference, SlowJet", 100, -100., 400.);
   Hist eTdiffC("eT difference, CellJet", 100, -100., 400.);
 
-  // Begin event loop. Generate event. Skip if error. list first few. 
+  // Begin event loop. Generate event. Skip if error. 
   for (int iEvent = 0; iEvent < nEvent; ++iEvent) {
     if (!pythia.next()) continue;
-
-    // List first few events.
-    if (iEvent < nList) {
-      pythia.info.list(); 
-      pythia.process.list();
-      pythia.event.list();
-    }
 
     // Analyze Slowet jet properties. List first few. 
     slowJet. analyze( pythia.event );
@@ -136,7 +124,7 @@ int main() {
 
   // End of event loop. Statistics. Histograms. 
   }
-  pythia.statistics();
+  pythia.stat();
   cout << nJetsS << nJetsC << nJetsD << eTjetsS << eTjetsC 
        << etaJetsS << etaJetsC << phiJetsS << phiJetsC 
        << distJetsS << distJetsC << eTdiffS << eTdiffC;

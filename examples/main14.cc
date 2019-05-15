@@ -1,5 +1,5 @@
 // main14.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -111,19 +111,32 @@ int main() {
   // Switch off unnecessary parts.
   pythia.readString("PartonLevel:all = off");
 
+  // No printing of settings, particle data or events.
+  pythia.readString("Init:showProcesses = off"); 
+  pythia.readString("Init:showChangedSettings = off"); 
+  pythia.readString("Init:showChangedParticleData = off"); 
+  pythia.readString("Next:numberCount = 0"); 
+  pythia.readString("Next:numberShowInfo = 0"); 
+  pythia.readString("Next:numberShowProcess = 0"); 
+  pythia.readString("Next:numberShowEvent = 0"); 
+
   // Debug: show information on cross section maximum and violation.
   //pythia.readString("PhaseSpace:showSearch = on");
   //pythia.readString("PhaseSpace:showViolation = on");
 
   // Loop over processes.
   for (int iProc = iFirst; iProc <= iLast; ++iProc) {
-    cout << "\n Begin subrun number " << iProc << endl;
+    cout << "\n Begin subrun number " << iProc << " : ";
 
     // Switch off previous process(es) and switch on new one(s).
     if (iProc > iFirst) for (int i = iBeg[iProc - 1]; i < iBeg[iProc]; ++i) 
       pythia.readString( processes[i] + " = off" );
-    for (int i = iBeg[iProc]; i < iBeg[iProc + 1]; ++i)
+    for (int i = iBeg[iProc]; i < iBeg[iProc + 1]; ++i) {
       pythia.readString( processes[i] + " = on" );
+      if (i > iBeg[iProc]) cout << " + ";
+      cout << processes[i];
+    }
+    cout << endl;
 
     // Switch between SM and MSSM Higgs scenario.
     if (iProc <= 40) {
@@ -138,7 +151,8 @@ int main() {
     }  
 
     // Initialize for LHC.
-    pythia.init( 2212, 2212, 14000.);
+    pythia.readString("Beams:eCM = 14000."); 
+    pythia.init();
 
     // Debug: show initialized resonance data first time around.
     //if (iProc == iFirst) pythia.particleData.listChanged(true);
@@ -147,7 +161,7 @@ int main() {
     for (int iEvent = 0; iEvent < nEvent; ++iEvent) pythia.next();
  
     // Show statistics.
-    //pythia.statistics();
+    //pythia.stat();
     double sigma = pythia.info.sigmaGen();
     cout << " Cross section is " << scientific << setprecision(3)  
          << sigma << " and in Pythia6 was " << sigma6[iProc] 

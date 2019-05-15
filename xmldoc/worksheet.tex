@@ -178,7 +178,7 @@ structure.
 \section{Installation}
 
 Denoting a generic \textsc{Pythia}~8 version \texttt{pythia81xx}
-(at the time of writing \texttt{xx} = 40), here is how to install 
+(at the time of writing \texttt{xx} = 60), here is how to install 
 \textsc{Pythia}~8 on a Linux/Unix/MacOSX system as a standalone package. 
 
 \begin{Enumerate}
@@ -194,14 +194,15 @@ was downloaded, and type\\
 This will create a new (sub)directory \texttt{pythia81xx} where all
 the \textsc{Pythia} source files are now ready and unpacked.
 \item Move to this directory (\texttt{cd pythia81xx}) and do a
-\texttt{make}. This will take 2--3 minutes
+\texttt{make}. This will take $\sim$3 minutes
 (computer-dependent). The \textsc{Pythia}~8 libraries are now
 compiled and ready for physics. 
 \item For test runs, \texttt{cd} to the \texttt{examples/} subdirectory. 
 An \texttt{ls} reveals a list of programs, \texttt{mainNN}, with
-\texttt{NN} from \texttt{01} through \texttt{30}. These example 
-programs each illustrate an aspect of \textsc{Pythia}~8. For a list
-of what they do, see the \texttt{README} file in the same directory.\\ 
+\texttt{NN} from \texttt{01} through \texttt{28} (and beyond). These 
+example programs each illustrate an aspect of \textsc{Pythia}~8. 
+For a list of what they do, see the ``Sample Main Programs'' page 
+in the online manual (point 6 below).\\ 
 Initially only use one or two of them to check that the installation
  works. Once you have worked your way though the introductory exercises 
 in the next sections you can return and study the programs and their 
@@ -215,7 +216,7 @@ To save the output to a file instead, do
 test output at leisure by opening \texttt{mainNN.out}. See Appendix A 
 for an explanation of the event record that is listed in several of 
 the runs.
-\item If you open the file\\
+\item If you use a web browser to open the file\\
 \hspace*{10mm}\texttt{pythia81xx/htmldoc/Welcome.html}\\
 you will gain access to the online manual, where all available methods 
 and parameters are described. Use the left-column index to navigate among 
@@ -240,15 +241,11 @@ Then type the following lines (here with explanatory comments added):
        // Set up generation.
        Pythia pythia;         // Declare Pythia object
        pythia.readString("Top:gg2ttbar = on"); // Switch on process.
-       pythia.init( 2212, 2212, 7000.); // Initialise pp (PDG 2212) at LHC.
-
-       // Show settings
-       pythia.settings.listChanged();      // Show changed settings
-       pythia.particleData.listChanged();  // Show changed particle data
+       pythia.readString("Beams:eCM = 7000."); // 7 TeV CM energy.      
+       pythia.init(); // Initialize; incoming pp beams is default.
 
        // Generate event(s).
        pythia.next();         // Generate an(other) event. Fill event record.
-       pythia.event.list();   // Print contents of event record.
 
        return 0;
      }                        // End main program with error-free return.
@@ -264,14 +261,16 @@ main10}~\verb+\+ \\
 and the three next enumerate the main programs that do not need any 
 external libraries. Edit the last of these lines to include also 
 \texttt{mymain}:\\
-\hspace*{10mm}\texttt{        main44 main71 mymain:}~\verb+\+
+\hspace*{10mm}\texttt{        main31 ... main40 mymain:}~\verb+\+
 
 Now it should work as before with the other examples:\\
 \hspace*{10mm}\texttt{make mymain}\\
 \hspace*{10mm}\texttt{./mymain.exe > mymain.out}\\
 whereafter you can study \texttt{mymain.out}, especially the 
-example of an event record. At this point you need to turn to Appendix A
-for a brief overview of the information stored in the event record. 
+example of a complete event record (preceded by initialization information,
+and by kinematical-variable and hard-process listing for the same event). 
+At this point you need to turn to Appendix A for a brief overview of the 
+information stored in the event record. 
 
 An important part of the event record is that many copies of the same
 particle may exist, but only those with a positive status code are still
@@ -299,19 +298,24 @@ just include a second \texttt{pythia.readString} call\\
 \hspace*{10mm} pythia.readString("Top:qqbar2ttbar = on");
 }
 \item Now we wish to generate more than one event. To do this, introduce a
-loop around \texttt{pythia.next()} and \texttt{pythia.event.list()}, so the
+loop around \texttt{pythia.next()}, so the
 code now reads\\
 \texttt{
 \hspace*{10mm} for (int iEvent = 0; iEvent < 5; ++iEvent) \{ \\
 \hspace*{15mm}   pythia.next(); \\
-\hspace*{15mm}   pythia.event.list(); \\
 \hspace*{10mm} \} } \\
 Hereafter, we will call this the \textbf{event loop}. The program will
-now generate and print 5 events; each call to \texttt{pythia.next()} 
-resets the event record and fills it with a new event. 
+now generate 5 events; each call to \texttt{pythia.next()} 
+resets the event record and fills it with a new event. To list
+more of the events, you also need to add\\
+\texttt{
+\hspace*{10mm} pythia.readString("Next:numberShowEvent = 5");
+}\\
+along with the other \texttt{pythia.readString} commands. 
+
 \item To obtain statistics on the number of events generated of the 
 different kinds, and the estimated cross sections, add a \\
-\hspace*{10mm}\texttt{pythia.statistics();}\\
+\hspace*{10mm}\texttt{pythia.stat();}\\
 just before the end of the program.
 \item During the run you may receive problem messages. These come in
 three kinds:
@@ -325,10 +329,10 @@ automatically fixed by the program, by backing up and trying again;
 is \texttt{false} and the event should be skipped.  
 \end{Itemize}
 Thus the user need only be on the lookout for aborts. During event
-generation, a problem message is printed only the first time it occurs. The
-above-mentioned \texttt{pythia.statistics()} will then tell you how many
+generation, a problem message is printed only the first time it occurs. 
+The above-mentioned \texttt{pythia.stat()} will then tell you how many
 times each problem was encountered over the entire run.
-\item Looking at the \texttt{pythia.event.list()} listing for a few events
+\item Looking at the event listing for a few events
 at the beginning of each run is useful to make sure you are generating the
 right kind of events, at the right energies, etc. For real analyses,
 however, you need automated access to the event record. The Pythia event
@@ -427,15 +431,8 @@ flexibility, it can also be provided as a command-line argument. To do
 this, replace the \texttt{int main() \{} line by \\
 \hspace*{10mm} \texttt{int main(int argc, char* argv[]) \{}\\
 and replace all \texttt{pythia.readString(...)} commands with the single
-command
+command\\
 \hspace*{10mm}\texttt{pythia.readFile(argv[1]);} 
-
-We now have the beam parameters specified both in the \texttt{mymain.cmnd}
-file and in the main program itself by the line \\
-\hspace*{10mm}\texttt{ pythia.init( 2212, 2212, 7000.); } \\
-The arguments to \texttt{pythia.init()} will always take precedence over
-the settings in the input file, so this line should be changed to \\
-\hspace*{10mm}\texttt{ pythia.init(); } 
 
 The executable \texttt{mymain.exe} is then run with a command line like\\
 \hspace*{10mm}\texttt{./mymain.exe mymain.cmnd > mymain.out}\\
@@ -460,10 +457,10 @@ change the top mass, which by default is 171 GeV.
 switch off final-state radiation.
 \item \texttt{PartonLevel:ISR = off}\\  
 switch off initial-state radiation.
-\item \texttt{PartonLevel:MI = off}\\
-switch off multiple interactions.  
-\item \texttt{Tune:pp = 3} (or other values between 1 and 6) \\
-different combined tunes, in particular to radiation and multiple 
+\item \texttt{PartonLevel:MPI = off}\\
+switch off multiparton interactions.  
+\item \texttt{Tune:pp = 3} (or other values between 1 and 7) \\
+different combined tunes, in particular to radiation and multiparton 
 interactions parameters. In part this reflects that no generator 
 is perfect, and also not all data is perfect, so different emphasis 
 will result in different optima. In addition, detailed tuning of 
@@ -474,12 +471,12 @@ all runs by default use the same random-number sequence, for reproducibility,
 but you can pick any number between 1 and 900,000,000 to obtain a unique
 sequence.
 \end{Itemize}
-For instance, check the importance of FSR, ISR and MI on the charged 
+For instance, check the importance of FSR, ISR and MPI on the charged 
 multiplicity of events by switching off one component at a time.
 
 The usage of further \texttt{Main:} variables is illustrated e.g.\ in
 \texttt{main03.cc}, and the possibility to use command-line input
-files in \texttt{main17.cc} and \texttt{main32.cc}. 
+files in \texttt{main16.cc} and \texttt{main42.cc}. 
 
 The online manual also exists in an interactive variant, where you
 semi-automatically can construct a file with all the command lines you
@@ -499,7 +496,7 @@ in subsequent training sessions, with a ready-made installation. However,
 for the ambitious, here is described how to set up the \textsc{Pythia} 
 interface, assuming you already know where \textsc{HepMC} is installed.
 Note: the interface to \textsc{HepMC} version 1 is no longer supported; 
-you must use version 2.
+you must use version 2. Preferably 2.04 or later.
 
 To begin with, you need to go back to the installation procedure 
 of section 2 and insert/redo some steps.
@@ -514,7 +511,7 @@ where the directory-tree \texttt{path} would depend on your local
 installation. 
 \item Should \texttt{configure} not recognise the version number 
 you can supply that with an optional argument, like\\
-\hspace*{10mm}\texttt{./configure --with-hepmc=path --with-hepmcversion=2.04.01}
+\hspace*{10mm}\texttt{./configure --with-hepmc=path --with-hepmcversion=2.06.07}
 \item Recompile the program, now including the \textsc{HepMC} interface, 
 with \texttt{make} as before, and move back to the \texttt{examples} 
 subdirectory. 
@@ -523,12 +520,12 @@ subdirectory.
 \hspace*{10mm}\texttt{source config.sh}\\
 the former when you use the csh or tcsh shells, otherwise the latter.
 (Use \texttt{echo \$SHELL} if uncertain.)  
-\item You can now also use the \texttt{main31.cc} and \texttt{main32.cc}
+\item You can now also use the \texttt{main41.cc} and \texttt{main42.cc}
 examples to produce \textsc{HepMC} event files. The latter may be most useful;
 it presents a slight generalisation of the command-line-driven main program
 you constructed in Section 5. After you have built the executable you can 
 run it with\\ 
-\hspace*{10mm}\texttt{./main32.exe infile hepmcfile > main32.out}\\
+\hspace*{10mm}\texttt{./main42.exe infile hepmcfile > main42.out}\\
 where \texttt{infile} is an input ``card'' file (e.g. \texttt{mymain.cmnd})
 and \texttt{hepmcfile} is your chosen name for the output file with 
 \textsc{HepMC} events.
@@ -583,10 +580,10 @@ quark is in the \texttt{mother1()} position, in the latter in
 \texttt{mother2()} (study a few event listings to see how it works).
 Plot the ratio of $\B$ to $\b$ energy to see what it looks like.       
 
-\item One of the characteristics of multiple-interactions (MI) models
+\item One of the characteristics of multiparton-interactions (MPI) models
 is that they lead to strong long-range correlations, as observed in
 data. That is, if many hadrons are produced in one rapidity range
-of an event, then most likely this is an event where many MI's
+of an event, then most likely this is an event where many MPI's
 occurred (and the impact parameter between the two colliding protons
 was small), and then one may expect a larger activity also at other
 rapidities.\\
@@ -609,8 +606,8 @@ coefficient
 where the last equality holds for symmetric distributions such as
 in $\p\p$ and $\pbar\p$.\\
 Compare how $\rho_{FB}(\Delta y)$ changes for increasing
-$\Delta y = 0, 1, 2, 3, \ldots$, with and without MI switched on
-(\texttt{PartonLevel:MI = on/off}) for minimum-bias events
+$\Delta y = 0, 1, 2, 3, \ldots$, with and without MPI switched on
+(\texttt{PartonLevel:MPI = on/off}) for minimum-bias events
 (\texttt{SoftQCD:minBias = on}).
 
 \item Higgs production can proceed through several different 
@@ -629,7 +626,7 @@ via $\W^+\W^-$ fusion; \\
 Study the $\pT$ and $\eta$ spectrum of the Higgs in these processes,
 and compare. 
 \item You can also vary the Higgs mass with a \texttt{25:m0 = ...}
-and switch off FSR/ISR/MI as above for top.
+and switch off FSR/ISR/MPI as above for top.
 \item $\Z^0$ production to lowest order only involves one process,
 accessible with \texttt{WeakSingleBoson:ffbar2gmZ = on}. The problem
 here is that the process is $\f \fbar \to \gamma^*/\Z^0$ with full
@@ -642,9 +639,11 @@ mass range with \texttt{PhaseSpace:mHatMin = 75.} and
 \item Using your favourite jet cluster algorithm, study the number 
 of jets found in association with the $\Z^0$ above. You can switch 
 off Z0 decay with \texttt{23:mayDecay = no}. If you do not have a jet 
-finder around, to begin with you can use the simple \texttt{CellJet} 
+finder around, to begin with you can use the simple \texttt{SlowJet} 
 one that comes with \textsc{Pythia}, see the ``Event Analysis'' page 
-in the online manual. Again check the importance of FSR/ISR/MI. 
+in the online manual, which offers a choice of the $k_{\perp}$, 
+Cambridge/Aachen and anti-$k_{\perp}$ algorithms. Again check the 
+importance of FSR/ISR/MPI. 
 \end{Itemize}
 
 \appendix
@@ -731,7 +730,7 @@ code range & explanation \\
 \hline
 11 -- 19 & beam particles\\
 21 -- 29 & particles of the hardest subprocess\\
-31 -- 39 & particles of subsequent subprocesses in multiple interactions\\
+31 -- 39 & particles of subsequent subprocesses in multiparton interactions\\
 41 -- 49 & particles produced by initial-state-showers\\
 51 -- 59 & particles produced by final-state-showers\\
 61 -- 69 & particles produced by beam-remnant treatment\\

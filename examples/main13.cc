@@ -1,105 +1,68 @@
 // main13.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 // This is a simple test program. 
-// It illustrates how Les Houches Event File input can be used in PYTHIA.
-// It uses two LHE files, ttbar.lhe and ttbar2.lhe, which are combined in
-// the event generation by a pythia.init( fileName, true) call.
-// Then the second file is viewed as a simple continuation of the first,
-// just split for practical reasons, rather than as a separate new run 
-// with a new set of processes, as it would have been without "true".
-// In the first file top decays have been performed, in the second not,
-// and are instead handled by the internal PYTHIA resonance-decay machinery. 
-// Furthermore the internal top production processes are switched on and
-// mixed in, giving an unrealistic "double up" total top cross section.
-// Much of this of course is not intended to be realistic, 
-// but rather illustrates several tricks that can be useful.
+// It illustrates how two Les Houches Event Files can be combined in PYTHIA,
+// just like in main12.cc, but here with the difference that information is
+// stored in main13.cmnd and read out using the subruns possibility.
 
 #include "Pythia.h"
 using namespace Pythia8; 
 int main() {
 
-  // Number of events to print: LHA and others.
-  int nPrintLHA  = 1;             
-  int nPrintRest = 1;             
-
-  // Allow for possibility of a few faulty events.
-  int nAbort     = 10;
-
-  // Generator           
-  Pythia pythia;                            
-
-  // Switch on internal ttbar production.
-  pythia.readString("Top:gg2ttbar = on");  
-  pythia.readString("Top:qqbar2ttbar = on"); 
-
-  // Use same top mass as in Pythia 6.4 to simplify comparison.
-  pythia.readString("6:m0 = 175.");    
-
-  // Initialize Les Houches Event File run. List initialization information.
-  pythia.init("ttbar.lhe");   
-
-  // List changed settings and particle data.
-  pythia.settings.listChanged();   
-  pythia.particleData.listChanged();   
-
   // Book histogram.
   Hist nCharged("charged particle multiplicity",100,-0.5,399.5); 
 
-  // Set counters.
-  int iPrintLHA  = 0;             
-  int iPrintRest = 0;             
-  int iAbort     = 0;
-  int iFile      = 1;
+  // Generator.           
+  Pythia pythia;  
 
-  // Begin event loop   
-  for (int iEvent = 0; ; ++iEvent) {
+  // Read in subrun-independent data from main13.cmnd.
+  pythia.readFile( "main13.cmnd", 0); 
+                          
+  // Extract data to be used in main program. Set counters.
+  int nSubrun = pythia.mode("Main:numberOfSubruns"); 
+  int nAbort  = pythia.mode("Main:timesAllowErrors");
+  int iAbort  = 0;
 
-    // Generate until none left in input file.  
-    if (!pythia.next()) {
-      if (pythia.info.atEndOfFile()) {
+  // Begin loop over subruns.
+  for (int iSubrun = 1; iSubrun <= nSubrun; ++iSubrun) {
 
-        // First time open next file, second time stop event loop.
-        if (iFile == 1) {
-          pythia.init("ttbar2.lhe", true);   
-          ++iFile;
-          continue;
-	} else break;          
+    // Read in subrun-specific data from main13.cmnd.
+    pythia.readFile( "main13.cmnd", iSubrun); 
+
+    // Initialize generator.
+    pythia.init();   
+
+    // Begin infinite event loop - to be exited at end of file.
+    for (int iEvent = 0; ; ++iEvent) {
+
+      // Generate next event.  
+      if (!pythia.next()) {
+
+        // Leave event loop if at end of file.
+        if (pythia.info.atEndOfFile()) break;
+
+        // First few failures write off as "acceptable" errors, then quit.
+        if (++iAbort < nAbort) continue;
+        break;
       }
 
-      // First few failures write off as "acceptable" errors, then quit.
-      if (++iAbort < nAbort) continue;
-      break;
-    }
-  
-    // List first few Les Houches and other events.
-    if (pythia.info.isLHA() && iPrintLHA < nPrintLHA) {     
-      pythia.LHAeventList();               
-      pythia.info.list();          
-      pythia.process.list();          
-      pythia.event.list();  
-      ++iPrintLHA;         
-    } else if (!pythia.info.isLHA() && iPrintRest < nPrintRest) {     
-      pythia.info.list();          
-      pythia.process.list();          
-      pythia.event.list();           
-      ++iPrintRest;         
-    }                 
+      // Sum up final charged multiplicity and fill in histogram.
+      int nChg = 0;                 
+      for (int i = 0; i < pythia.event.size(); ++i) 
+      if (pythia.event[i].isFinal() && pythia.event[i].isCharged()) ++nChg;
+      nCharged.fill(nChg);               
 
-    // Sum up final charged multiplicity and fill in histogram.
-    int nChg = 0;                 
-    for (int i = 0; i < pythia.event.size(); ++i) 
-    if (pythia.event[i].isFinal() && pythia.event[i].isCharged()) 
-      ++nChg;
-    nCharged.fill(nChg);               
+    // End of event loop.        
+    } 
 
-  // End of event loop.        
-  }                                           
+  // End of subrun loop.
+  }                                          
 
   // Give statistics. Print histogram.
-  pythia.statistics();
+  pythia.stat();
   cout << nCharged;  
 
   // Done.                           

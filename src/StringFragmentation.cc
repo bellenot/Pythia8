@@ -1,5 +1,5 @@
 // StringFragmentation.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -809,7 +809,8 @@ bool StringFragmentation::fragmentToJunction(Event& event) {
   // Identify range of partons on the three legs.
   // (Each leg begins with an iParton[i] = -(10 + 10*junctionNumber + leg),
   // and partons then appear ordered from the junction outwards.)
-  int legBeg[3], legEnd[3];
+  int legBeg[3] = { 0, 0, 0};
+  int legEnd[3] = { 0, 0, 0};
   int leg = -1;
   // PS (4/10/2011) Protect against invalid systems 
   if (iParton[0] > 0) {
@@ -1027,7 +1028,8 @@ bool StringFragmentation::fragmentToJunction(Event& event) {
         }
       }
 
-      // End of both-leg fragmentation. Middle loopback if too much energy left.
+      // End of both-leg fragmentation. 
+      // Middle loopback if too much energy left.
       double eTrial = eBothLeftJunction + rndmPtr->flat() * eMaxLeftJunction;
       if (iTryMiddle > NTRYJNMATCH 
         || ( min( eLeftMin, eLeftMid) < eBothLeftJunction
@@ -1196,7 +1198,10 @@ RotBstMatrix StringFragmentation::junctionRestFrame(Vec4& p0, Vec4& p1,
   }
 
   // Now we know the energies in the junction rest frame.
-  double eNew[3];  eNew[i] = ei;  eNew[j] = ej;  eNew[k] = ek;
+  double eNew[3] = { 0., 0., 0.};  
+  eNew[i] = ei;  
+  eNew[j] = ej;  
+  eNew[k] = ek;
   
   // Boost (copy of) partons to their rest frame.
   RotBstMatrix Mmove;  

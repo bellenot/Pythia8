@@ -1,5 +1,5 @@
 // SigmaProcess.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -60,7 +60,7 @@ void SigmaProcess::init(Info* infoPtrIn, Settings* settingsPtrIn,
   isLeptonB       = (beamBPtr > 0) ? beamBPtr->isLepton() : false;
   hasLeptonBeams  = isLeptonA || isLeptonB;
 
-  // K factor, multiplying resolved processes. (But not here for MI.)
+  // K factor, multiplying resolved processes. (But not here for MPI.)
   Kfactor         = settingsPtr->parm("SigmaProcess:Kfactor");
 
   // Maximum incoming quark flavour.
@@ -379,7 +379,7 @@ double SigmaProcess::sigmaPDF() {
 
 void SigmaProcess::pickInState(int id1in, int id2in) {
 
-  // Multiple interactions: partons already selected.
+  // Multiparton interactions: partons already selected.
   if (id1in != 0 && id2in != 0) {
     id1 = id1in;
     id2 = id2in;
@@ -803,9 +803,9 @@ void Sigma2Process::store2Kin( double x1in, double x2in, double sHin,
 
 //--------------------------------------------------------------------------
 
-// As above, special kinematics for multiple interactions. 
+// As above, special kinematics for multiparton interactions. 
 
-void Sigma2Process::store2KinMI( double x1in, double x2in,
+void Sigma2Process::store2KinMPI( double x1in, double x2in,
   double sHin, double tHin, double uHin, double alpSin, double alpEMin,
   bool needMasses, double m3in, double m4in) {
 
@@ -861,9 +861,9 @@ void Sigma2Process::store2KinMI( double x1in, double x2in,
 
 //--------------------------------------------------------------------------
 
-// Perform kinematics for a Multiple Interaction, including a rescattering.
+// Perform kinematics for a multiparton interaction, including a rescattering.
 
-bool Sigma2Process::final2KinMI( int i1Res, int i2Res, Vec4 p1Res, Vec4 p2Res,
+bool Sigma2Process::final2KinMPI( int i1Res, int i2Res, Vec4 p1Res, Vec4 p2Res,
   double m1Res, double m2Res) {
 
   // Have to set flavours and colours.
@@ -913,7 +913,7 @@ bool Sigma2Process::final2KinMI( int i1Res, int i2Res, Vec4 p1Res, Vec4 p2Res,
     colSave[4], acolSave[4], -pX, -pY,   -pZ,   e4,    m4, scale);
 
   // Boost particles from subprocess rest frame to event rest frame.
-  // Normal multiple interaction: only longitudinal boost.
+  // Normal multiparton interaction: only longitudinal boost.
   if (i1Res == 0 && i2Res == 0) {
     double betaZ = (x1Save - x2Save) / (x1Save + x2Save);
     for (int i = 1; i <= 4; ++i) parton[i].bst(0., 0., betaZ);

@@ -8101,6 +8101,7 @@ The meaning of the various properties and the format used are explained
  <channel onMode="1" bRatio="0.0409900" products="22 22"/>
  <channel onMode="1" bRatio="0.0452360" products="23 23"/>
  <channel onMode="1" bRatio="0.0901120" products="24 -24"/>
+ <channel onMode="1" bRatio="0.0"       products="25 25"/>
 </particle>
 
 <particle id="9000111" name="a_0(980)0" spinType="1" chargeType="0" colType="0"
@@ -8321,4 +8322,4 @@ The meaning of the various properties and the format used are explained
 
 </chapter>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->

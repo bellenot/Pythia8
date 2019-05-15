@@ -1,5 +1,5 @@
 // SigmaHiggs.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // Part of code written by Marc Montull, CERN summer student 2007.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
@@ -2248,7 +2248,8 @@ void Sigma2ffbar2A3H12::initProc() {
   double GammaZ = particleDataPtr->mWidth(23);
   m2Z        = mZ * mZ;
   mGammaZ    = mZ * GammaZ;
-  thetaWRat  = 1. / (4. * couplingsPtr->sin2thetaW() * couplingsPtr->cos2thetaW()); 
+  thetaWRat  = 1. / (4. * couplingsPtr->sin2thetaW() 
+             * couplingsPtr->cos2thetaW()); 
 
   // Secondary open width fraction.
   openFrac   = particleDataPtr->resOpenFrac(36, higgs12);
@@ -2439,7 +2440,8 @@ void Sigma2ffbar2HposHneg::initProc() {
   double GammaZ = particleDataPtr->mWidth(23);
   m2Z       = mZ * mZ;
   mGammaZ   = mZ * GammaZ;
-  thetaWRat = 1. / (4. * couplingsPtr->sin2thetaW() * couplingsPtr->cos2thetaW()); 
+  thetaWRat = 1. / (4. * couplingsPtr->sin2thetaW() 
+            * couplingsPtr->cos2thetaW()); 
 
   // Charged Higgs coupling to gamma and Z0.
   eH        = -1.;

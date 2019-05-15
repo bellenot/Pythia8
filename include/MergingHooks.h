@@ -1,5 +1,5 @@
 // MergingHooks.h is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -7,8 +7,8 @@
 // Header file to allow user access to program at different stages.
 // HardProcess: Container class for the hard process to be merged. Holds the
 //              bookkeeping of particles not be be reclustered
-// MergingHooks: Steering class for matrix element merging. Some functions
-//               can redefined in a derived class to have access to the merging 
+// MergingHooks: Steering class for matrix element merging. Some functions can
+//               be redefined in a derived class to have access to the merging
 
 #ifndef Pythia8_MergingHooks_H
 #define Pythia8_MergingHooks_H
@@ -27,7 +27,8 @@ namespace Pythia8 {
 //==========================================================================
 
 // Declaration of hard process class
-// This class holds information on the desired hard 2->2 process for the merging
+// This class holds information on the desired hard 2->2 process 
+// for the merging.
 // This class is a container class for History class use.
 
 class HardProcess {
@@ -100,6 +101,9 @@ public:
   // Function to translate the process string (in MG/ME notation)
   void translateProcessString( string process);
 
+  // Function to clear hard process information
+  void clear();
+
   // Function to identify the hard subprocess in the current event
   void storeCandidates( const Event& event);
   // Function to check if the particle event[iPos] matches any of
@@ -127,8 +131,11 @@ public:
   int nResInCurrent();
   // Function to report if a resonace decay was found in the 2->2 hard process
   bool hasResInProc();
-  // print for debug
+  // Function to print the hard process (for debug)
   void list() const;
+  // Function to print the hard process candidates in the
+  // Matrix element state (for debug)
+  void listCandidates() const;
 
 };
 
@@ -148,10 +155,8 @@ public:
   virtual double tmsDefinition( const Event& event){ return event[0].e();}
 
   // Function returning the value of the merging scale.
-  // Will be overwritten by user.
   double tms() { return tmsValueSave;}
   // Function returning the value of the maximal number of merged jets.
-  // Will be overwritten by user.
   int nMaxJets() { return nJetMaxSave;}
 
   // Function to return the number of outgoing partons in the core process
@@ -236,12 +241,13 @@ protected:
   // Saved path to LHE file for more automated merging
   string lheInputFile;
 
-  bool  doUserMergingSave, doMGMergingSave, doKTMergingSave, includeMassiveSave,
-         enforceStrongOrderingSave, orderInRapiditySave, pickByFullPSave,
-         pickByPoPT2Save, includeRedundantSave, pickBySumPTSave;
+  bool   doUserMergingSave, doMGMergingSave, doKTMergingSave, 
+         includeMassiveSave, enforceStrongOrderingSave, orderInRapiditySave, 
+         pickByFullPSave, pickByPoPT2Save, includeRedundantSave, 
+         pickBySumPTSave, allowColourShufflingSave;
   int    unorderedScalePrescipSave, unorderedASscalePrescipSave,
-         incompleteScalePrescipSave;
-  double ktTypeSave, scaleSeparationFactorSave, nonJoinedNormSave,
+         incompleteScalePrescipSave, ktTypeSave;
+  double scaleSeparationFactorSave, nonJoinedNormSave,
          fsrInRecNormSave, herwigAcollFSRSave, herwigAcollISRSave,
          pT0ISRSave, pTcutSave;
 
@@ -274,6 +280,9 @@ protected:
   // 1: use sHat
   // 2: use s
   int incompleteScalePrescip() { return incompleteScalePrescipSave;}
+
+  // Allow swapping one colour index while reclustering
+  bool allowColourShuffling() { return allowColourShufflingSave;}
 
   // Factor by which two scales should differ to be classified strongly ordered
   double scaleSeparationFactor() { return scaleSeparationFactorSave;}

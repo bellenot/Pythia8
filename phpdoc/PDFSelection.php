@@ -48,18 +48,18 @@ through the program. It is essential to make an informed choice,
 for several reasons [<a href="Bibliography.php" target="page">Kas10</a>]: 
 <br/><b>Warning 1:</b> the choice of PDF set affects a number of
 properties of events. A change of PDF therefore requires a complete 
-retuning e.g.  of the multiple-interactions model for minimum-bias and 
+retuning e.g.  of the multiparton-interactions model for minimum-bias and 
 underlying events.
 <br/><b>Warning 2:</b> People often underestimate the differences 
 between different sets on the market. The sets for the same order are 
 constructed to behave more or less similarly at large <i>x</i> and 
-<i>Q^2</i>, while the multiple interactions are dominated by the 
+<i>Q^2</i>, while the multiparton interactions are dominated by the 
 behaviour in the region of small <i>x</i> and <i>Q^2</i>. A good 
 PDF parametrization ought to be sensible down to <i>x = 10^-6</i> 
 (<i>x = 10^-7</i>) and <i>Q^2 = 1</i> GeV^2 for Tevatron (LHC) 
 applications. Unfortunately there are distributions on the market that 
-completely derail in that region. The <code>main41.cc</code> and 
-<code>main42.cc</code> programs in the <code>examples</code> 
+completely derail in that region. The <code>main51.cc</code> and 
+<code>main52.cc</code> programs in the <code>examples</code> 
 subdirectory provide some examples of absolutely minimal sanity checks 
 before a new PDF set is put in production.
 <br/><b>Warning 3:</b> NLO and LO sets tend to have quite different
@@ -99,7 +99,7 @@ set <i>alpha_s(M_Z)</i> value and running separately for
 echo "<a href='CouplingsAndScales.php?filepath=".$filepath."' target='page'>";?>hard processes</a> 
 (including resonance decays),
 <?php $filepath = $_GET["filepath"];
-echo "<a href='MultipleInteractions.php?filepath=".$filepath."' target='page'>";?>multiple interactions</a>,
+echo "<a href='MultipartonInteractions.php?filepath=".$filepath."' target='page'>";?>multiparton interactions</a>,
 <?php $filepath = $_GET["filepath"];
 echo "<a href='SpacelikeShowers.php?filepath=".$filepath."' target='page'>";?>initial-state radiation</a>, and
 <?php $filepath = $_GET["filepath"];
@@ -200,9 +200,9 @@ echo "<a href='PartonDistributions.php?filepath=".$filepath."' target='page'>";?
 <h3>Parton densities for protons in the hard process</h3>
 
 The above options provides a PDF set that will be used everywhere:
-for the hard process, the parton showers and the multiple interactions
+for the hard process, the parton showers and the multiparton interactions
 alike. As already mentioned, therefore a change of PDF should be
-accompanied by a <b>complete</b> retuning of the whole MI framework,
+accompanied by a <b>complete</b> retuning of the whole MPI framework,
 and maybe more. There are cases where one may want to explore 
 different PDF options for the hard process, but would not want to touch 
 the rest. If several different sets are to be compared, a simple
@@ -212,7 +212,7 @@ used</a> flavour, <i>x</i>, <i>Q^2</i> and PDF values may offer the
 best route. The options in this section allow a choice of the PDF set
 for the hard process alone, while the choice made in the previous section
 would still be used for everything else. The hardest interaction
-of the minimum-bias process is part of the multiple-interactions
+of the minimum-bias process is part of the multiparton-interactions
 framework and so does not count as a hard process here. 
 
 <p/>
@@ -368,7 +368,7 @@ the suppression of the <i>s</i> quark density relative to that of the
 Rescale the four H1 fits above by this uniform factor, e.g. to bring 
 up their momentum sum to around unity. By default all three have
 a momentum sum of order 0.5, suggesting that a factor around 2.0
-should be used. You can use <code>examples/main41.cc</code> to get
+should be used. You can use <code>examples/main51.cc</code> to get
 a more precise value. Note that also other parameters in the 
 <?php $filepath = $_GET["filepath"];
 echo "<a href='Diffraction.php?filepath=".$filepath."' target='page'>";?>diffraction</a> framework may need to
@@ -409,7 +409,7 @@ There is one useful degree of freedom to restrict the set of incoming
 quark flavours for hard processes. It does not change the PDF's as such, 
 only which quarks are allowed to contribute to the hard-process cross 
 sections. Note that separate but similarly named modes are available 
-for multiple interactions and spacelike showers.
+for multiparton interactions and spacelike showers.
 
 <br/><br/><table><tr><td><strong>PDFinProcess:nQuarkIn  </td><td></td><td> <input type="text" name="24" value="5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
 Number of allowed incoming quark flavours in the beams; a change 
@@ -559,4 +559,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->

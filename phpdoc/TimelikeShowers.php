@@ -66,7 +66,7 @@ scale of the hard process itself.
 <input type="radio" name="1" value="1" checked="checked"><strong>1 </strong>: always use the factorization scale for an internal process and the <code>scale</code> value for Les Houches input,  i.e. the lower value. This should avoid doublecounting, but may leave out some emissions that ought to have been simulated. (Also known as wimpy showers.) <br/>
 <input type="radio" name="1" value="2"><strong>2 </strong>: always allow emissions up to the kinematical limit  (i.e. to half the dipole mass). This will simulate all possible event  topologies, but may lead to doublecounting.  (Also known as power showers.) <br/>
 <br/><b>Note:</b> These options only apply to the hard interaction.
-Emissions off subsequent multiple interactions are always constrainted
+Emissions off subsequent multiparton interactions are always constrainted
 to be below the factorization scale of the process itself. They also
 assume you use interleaved evolution, so that FSR is in direct 
 competition with ISR for the hardest emission. If you already 
@@ -87,10 +87,10 @@ be set separately by <?php $filepath = $_GET["filepath"];
 echo "<a href='UserHooks.php?filepath=".$filepath."' target='page'>";?>user hooks</a>.
   
 
-<br/><br/><table><tr><td><strong>TimeShower:pTmaxFudgeMI </td><td></td><td> <input type="text" name="3" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.25</code>; <code>maximum = 2.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>TimeShower:pTmaxFudgeMPI </td><td></td><td> <input type="text" name="3" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.25</code>; <code>maximum = 2.0</code>)</td></tr></table>
 A multiplicative factor <i>f</i> such that 
 <i>pT_max = f * pT_factorization</i>, as above, but here for the
-non-hardest interactions (when multiple interactions are allowed).
+non-hardest interactions (when multiparton interactions are allowed).
   
 
 <br/><br/><table><tr><td><strong>TimeShower:pTdampMatch  </td><td>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 2</code>)</td></tr></table>
@@ -107,7 +107,7 @@ but is taken over unchanged for FSR to have a symmetric description.
 <input type="radio" name="4" value="1"><strong>1 </strong>: emissions go up to the kinematical limit,   but dampened by a factor <ei>k^2 Q^2_fac/(pT^2 + k^2 Q^2_fac)</ei>,  where <ei>Q_fac</ei> is the factorization scale and <ei>k</ei> is a  multiplicative fudge factor stored in <code>pTdampFudge</code> below. <br/>
 <input type="radio" name="4" value="2"><strong>2 </strong>: emissions go up to the kinematical limit,  but dampened by a factor <ei>k^2 Q^2_ren/(pT^2 + k^2 Q^2_ren)</ei>,  where <ei>Q_ren</ei> is the renormalization scale and <ei>k</ei> is a  multiplicative fudge factor stored in <code>pTdampFudge</code> below.  <br/>
 <br/><b>Note:</b> These options only apply to the hard interaction.
-Emissions off subsequent multiple interactions are always constrainted
+Emissions off subsequent multiparton interactions are always constrainted
 to be below the factorization scale of the process itself.  
 
 <br/><br/><table><tr><td><strong>TimeShower:pTdampFudge </td><td></td><td> <input type="text" name="5" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.25</code>; <code>maximum = 4.0</code>)</td></tr></table>
@@ -186,11 +186,11 @@ Maximum invariant mass allowed for the created fermion pair in a
 
 <h3>Interleaved evolution</h3>
 
-Multiple interactions (MI) and initial-state showers (ISR) are 
+Multiparton interactions (MPI) and initial-state showers (ISR) are 
 always interleaved, as follows. Starting from the hard interaction, 
 the complete event is constructed by a set of steps. In each step 
 the <i>pT</i> scale of the previous step is used as starting scale 
-for a downwards evolution. The MI and ISR components each make
+for a downwards evolution. The MPI and ISR components each make
 their respective Monte Carlo choices for the next lower <i>pT</i> 
 value. The one with larger <i>pT</i> is allowed to carry out its 
 proposed action, thereby modifying the conditions for the next steps. 
@@ -207,13 +207,13 @@ to be interleaved. Such an FSR emission does not compete directly for
 beam energy (but see below), and also can be viewed as occuring after 
 the other two components in some kind of time sense. Interleaving is 
 allowed, however, since it can be argued that a high-<i>pT</i> FSR 
-occurs on shorter time scales than a low-<i>pT</i> MI, say. 
+occurs on shorter time scales than a low-<i>pT</i> MPI, say. 
 Backwards evolution of ISR is also an example that physical time 
 is not the only possible ordering principle, but that one can work 
 with conditional probabilities: given the partonic picture at a  
 specific <i>pT</i> resolution scale, what possibilities are open 
 for a modified picture at a slightly lower <i>pT</i> scale, either 
-by MI, ISR or FSR? Complete interleaving of the three components also 
+by MPI, ISR or FSR? Complete interleaving of the three components also 
 offers advantages if one aims at matching to higher-order matrix 
 elements above some given scale.
 
@@ -221,9 +221,9 @@ elements above some given scale.
 <input type="radio" name="13" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 If on, final-state emissions are interleaved in the same 
-decreasing-<i>pT</i> chain as multiple interactions and initial-state
+decreasing-<i>pT</i> chain as multiparton interactions and initial-state
 emissions. If off, final-state emissions are only addressed after the
-multiple interactions and initial-state radiation have been considered.
+multiparton interactions and initial-state radiation have been considered.
   
 
 <p/>
@@ -432,6 +432,26 @@ switched on.
 Azimuthal asymmetry induced by gluon polarization; on/off = true/false.
   
 
+<br/><br/><strong>TimeShower:recoilToColoured</strong>  <input type="radio" name="28" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="28" value="off"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
+In the decays of coloured resonances, say <i>t -> b W</i>, it is not 
+possible to set up dipoles with matched colours. Originally the 
+<i>b</i> radiator therefore has <i>W</i> as recoiler, and that 
+choice is unique. Once a gluon has been radiated, however, it is 
+possible either to have the unmatched colour (inherited by the gluon) 
+still recoiling against the <i>W</i> (<code>off</code>), or else 
+let it recoil against the <i>b</i> also for this dipole 
+(<code>on</code>). Before version 8.160 the former was the only 
+possibility, which could give unphysical radiation patterns. It is 
+kept as an option to check backwards compatibility. The same issue 
+exists for QED radiation, but obviously is less significant. Consider 
+the example <i>W -> e nu</i>, where originally the <i>nu</i> 
+takes the recoil. In the old (<code>off</code>) scheme the <i>nu</i> 
+would remain recoiler, while in the new (<code>on</code>) instead 
+each newly emitted photon becomes the new recoiler. 
+  
+
 <input type="hidden" name="saved" value="1"/>
 
 <?php
@@ -459,7 +479,7 @@ fwrite($handle,$data);
 }
 if($_POST["3"] != "1.0")
 {
-$data = "TimeShower:pTmaxFudgeMI = ".$_POST["3"]."\n";
+$data = "TimeShower:pTmaxFudgeMPI = ".$_POST["3"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["4"] != "0")
@@ -582,6 +602,11 @@ if($_POST["27"] != "on")
 $data = "TimeShower:phiPolAsym = ".$_POST["27"]."\n";
 fwrite($handle,$data);
 }
+if($_POST["28"] != "on")
+{
+$data = "TimeShower:recoilToColoured = ".$_POST["28"]."\n";
+fwrite($handle,$data);
+}
 fclose($handle);
 }
 
@@ -589,4 +614,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->

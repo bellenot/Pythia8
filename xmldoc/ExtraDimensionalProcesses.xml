@@ -17,15 +17,9 @@ section.
 The graviton (G*) and gluon (KKgluon*) resonance states are assigned 
 PDG code 5100039 and 5100021 respectively. The G* processes are 
 described in <ref>Bij01</ref> and the KKgluon* process in <ref>Ask11</ref>. 
-Decays into fermion, gluon and photon pairs are handled with the 
-correct angular distributions, while other decay channels currently 
-are handled isotropically.
-
-<p/>
-<ei>Warning:</ei> The possible decays of a graviton into scalars 
-(i.e. Higgs and longitudinal Z/W) is currently not implemented and 
-in some scenarios, where for example the SM is allowed to propagate 
-in the ED bulk, these decay modes can be significant.
+Decays into fermion and boson pairs are handled with the correct 
+angular distributions, while subsequent decays are handled 
+isotropically.
 
 <p/>
 There are two lowest-order processes that together normally 
@@ -71,7 +65,7 @@ Code 5005.
 </flag>
 
 <p/>
-Currently there is one process for the production of a gluon resonance.
+There is also one process for the production of a gluon resonance.
 
 <flag name="ExtraDimensionsG*:qqbar2KKgluon*" default="off">
 Scatterings <ei>q qbar -> g^*/KKgluon^*</ei>. 
@@ -90,8 +84,19 @@ where as the flavour dependent couplings follow the conventions used in
 Parameter to choose between the two scenarios: 
 <ei>off</ei>, SM on the TeV brane (common <ei>kappaMG</ei> coupling); 
 <ei>on</ei>, SM in the ED bulk (flavour dependent couplings). 
-At the moment this parameter is only relevant for the lowest-order 
-graviton (<ei>G*</ei>) resonance.
+This parameter is only relevant for the lowest-order graviton 
+(<ei>G*</ei>) processes, where as the first-order processes 
+corresponds to the <ei>off</ei> scenario.
+</flag>
+
+<flag name="ExtraDimensionsG*:VLVL" default="on">
+Parameter to specify Z/W coupling scenario: 
+<ei>off</ei>, usual Z/W boson couplings; 
+<ei>on</ei>, coupling only to longitudinal Z/W bosons. 
+In both cases the <ei>GZZ</ei> and <ei>GWW</ei> values are used 
+and this parameter is only relevant when <ei>SMinBulk = on</ei>. 
+The formulas for longitudinal bosons should be appropriate up to 
+<ei>O(m_V/E_V)</ei> corrections.
 </flag>
 
 <parm name="ExtraDimensionsG*:kappaMG" default="0.054" min="0.0">
@@ -110,7 +115,7 @@ Coupling between graviton and leptons.
 Coupling between graviton and light quarks.
 </parm>
 
-<parm name="ExtraDimensionsG*:Gbb" default="0.0001" min="0.0">
+<parm name="ExtraDimensionsG*:Gbb" default="0.0" min="0.0">
 Coupling between graviton and bottom quark.
 </parm>
 
@@ -118,8 +123,24 @@ Coupling between graviton and bottom quark.
 Coupling between graviton and top quark.
 </parm>
 
-<parm name="ExtraDimensionsG*:GVV" default="0.000013" min="0.0">
-Coupling between graviton and vector bosons.
+<parm name="ExtraDimensionsG*:Ggg" default="0.000013" min="0.0">
+Coupling between graviton and gluon.
+</parm>
+
+<parm name="ExtraDimensionsG*:Ggmgm" default="0.000013" min="0.0">
+Coupling between graviton and gamma.
+</parm>
+
+<parm name="ExtraDimensionsG*:GZZ" default="0.001" min="0.0">
+Coupling between graviton and Z boson.
+</parm>
+
+<parm name="ExtraDimensionsG*:GWW" default="0.001" min="0.0">
+Coupling between graviton and W boson.
+</parm>
+
+<parm name="ExtraDimensionsG*:Ghh" default="0.001" min="0.0">
+Coupling between graviton and Higgs bosons.
 </parm>
 
 <parm name="ExtraDimensionsG*:KKgqR" default="-0.2">
@@ -518,5 +539,5 @@ for lepton production from spin-1 unparticle exchange.
 
 </chapter>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
 

@@ -1,5 +1,5 @@
 // BeamParticle.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -81,7 +81,7 @@ void BeamParticle::init( int idIn, double pzIn, double eIn, double mIn,
 //--------------------------------------------------------------------------
 
 // Initialize kind and valence flavour content of incoming beam.
-// For recognized hadrons one can generate multiple interactions.
+// For recognized hadrons one can generate multiparton interactions.
 // Dynamic choice of meson valence flavours in newValenceContent below. 
 
 void BeamParticle::initBeamKind() {
@@ -219,7 +219,7 @@ double BeamParticle::xMax(int iSkip) {
 //--------------------------------------------------------------------------
 
 // Parton distributions, reshaped to take into account previous 
-// multiple interactions. By picking a non-negative iSkip value,
+// multiparton interactions. By picking a non-negative iSkip value,
 // one particular interaction is skipped, as needed for ISR  
 
 double BeamParticle::xfModified(int iSkip, int idIn, double x, double Q2) {
@@ -770,7 +770,8 @@ double BeamParticle::xRemnant( int i) {
     // Now use ansatz q(x; x_c) < N/(x +x_c) to pick x.
     do x = pow( xCompanion, rndmPtr->flat()) - xCompanion; 
     while ( pow( (1. - x - xCompanion) / (1. - xCompanion), companionPower) 
-      * (pow2(x) + pow2(xCompanion)) / pow2(x + xCompanion) < rndmPtr->flat() );
+      * (pow2(x) + pow2(xCompanion)) / pow2(x + xCompanion) 
+      < rndmPtr->flat() );
 
   // Else, rarely, a single gluon remnant, so value does not matter. 
   } else x = 1.;

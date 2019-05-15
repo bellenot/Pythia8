@@ -31,7 +31,7 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 
 When you have selected a set of hard processes for hadron beams, the 
 <?php $filepath = $_GET["filepath"];
-echo "<a href='MultipleInteractions.php?filepath=".$filepath."' target='page'>";?>multiple interactions</a> 
+echo "<a href='MultipartonInteractions.php?filepath=".$filepath."' target='page'>";?>multiparton interactions</a> 
 framework can add further interactions to build up a realistic
 underlying event. These further interactions can come from a wide
 variety of processes, and will occasionally be quite hard. They
@@ -254,7 +254,7 @@ chance for further interactions. (In PYTHIA this is the origin
 of the "pedestal effect", i.e. that events with a hard interaction
 have more underlying activity than the level found in minimum-bias 
 events.) When you specify a matter overlap profile in the
-multiple-interactions scenario, such an enhancement/depletion factor 
+multiparton-interactions scenario, such an enhancement/depletion factor 
 <i>f_impact</i> is chosen event-by-event and can be averaged
 during the course of the run. As an example, the double Gaussian
 form used in Tune A gives approximately
@@ -266,7 +266,7 @@ Experimentalists often instead use the notation
 <i>sigma_2ab = sigma_1a sigma_1b / sigma_eff</i>,
 from which we see that PYTHIA "predicts"
 <i>sigma_eff = sigma_ND / &lt;f_impact&gt;</i>.
-When the generation of multiple interactions is switched off it is 
+When the generation of multiparton interactions is switched off it is 
 not possible to calculate <i>&lt;f_impact&gt;</i> and therefore
 it is set to unity.
 
@@ -440,8 +440,8 @@ Most of the properties accessible by the
 echo "<a href='EventInformation.php?filepath=".$filepath."' target='page'>";?>pythia.info</a></code>
 methods refer to the first process, whether that happens to be the
 hardest or not. The code and <i>pT</i> scale of the second process
-are accessible by the <code>info.codeMI(1)</code> and 
-<code>info.pTMI(1)</code>, however. 
+are accessible by the <code>info.codeMPI(1)</code> and 
+<code>info.pTMPI(1)</code>, however. 
 
 <p/>
 The <code>sigmaGen()</code> and <code>sigmaErr()</code> methods provide 
@@ -541,4 +541,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->

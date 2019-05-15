@@ -44,15 +44,9 @@ section.
 The graviton (G*) and gluon (KKgluon*) resonance states are assigned 
 PDG code 5100039 and 5100021 respectively. The G* processes are 
 described in [<a href="Bibliography.php" target="page">Bij01</a>] and the KKgluon* process in [<a href="Bibliography.php" target="page">Ask11</a>]. 
-Decays into fermion, gluon and photon pairs are handled with the 
-correct angular distributions, while other decay channels currently 
-are handled isotropically.
-
-<p/>
-<i>Warning:</i> The possible decays of a graviton into scalars 
-(i.e. Higgs and longitudinal Z/W) is currently not implemented and 
-in some scenarios, where for example the SM is allowed to propagate 
-in the ED bulk, these decay modes can be significant.
+Decays into fermion and boson pairs are handled with the correct 
+angular distributions, while subsequent decays are handled 
+isotropically.
 
 <p/>
 There are two lowest-order processes that together normally 
@@ -110,7 +104,7 @@ Code 5005.
   
 
 <p/>
-Currently there is one process for the production of a gluon resonance.
+There is also one process for the production of a gluon resonance.
 
 <br/><br/><strong>ExtraDimensionsG*:qqbar2KKgluon*</strong>  <input type="radio" name="7" value="on"><strong>On</strong>
 <input type="radio" name="7" value="off" checked="checked"><strong>Off</strong>
@@ -133,11 +127,24 @@ where as the flavour dependent couplings follow the conventions used in
 Parameter to choose between the two scenarios: 
 <i>off</i>, SM on the TeV brane (common <i>kappaMG</i> coupling); 
 <i>on</i>, SM in the ED bulk (flavour dependent couplings). 
-At the moment this parameter is only relevant for the lowest-order 
-graviton (<i>G*</i>) resonance.
+This parameter is only relevant for the lowest-order graviton 
+(<i>G*</i>) processes, where as the first-order processes 
+corresponds to the <i>off</i> scenario.
   
 
-<br/><br/><table><tr><td><strong>ExtraDimensionsG*:kappaMG </td><td></td><td> <input type="text" name="9" value="0.054" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.054</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
+<br/><br/><strong>ExtraDimensionsG*:VLVL</strong>  <input type="radio" name="9" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="9" value="off"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
+Parameter to specify Z/W coupling scenario: 
+<i>off</i>, usual Z/W boson couplings; 
+<i>on</i>, coupling only to longitudinal Z/W bosons. 
+In both cases the <i>GZZ</i> and <i>GWW</i> values are used 
+and this parameter is only relevant when <i>SMinBulk = on</i>. 
+The formulas for longitudinal bosons should be appropriate up to 
+<i>O(m_V/E_V)</i> corrections.
+  
+
+<br/><br/><table><tr><td><strong>ExtraDimensionsG*:kappaMG </td><td></td><td> <input type="text" name="10" value="0.054" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.054</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
 dimensionless coupling, which enters quadratically in all partial
 widths of the <i>G^*</i>. Is 
 <i>kappa m_G* = sqrt(2) x_1 k / Mbar_Pl</i>,
@@ -145,47 +152,63 @@ where <i>x_1 = 3.83</i> is the first zero of the <i>J_1</i> Bessel
 function and <i>Mbar_Pl</i> is the modified Planck mass.
   
 
-<br/><br/><table><tr><td><strong>ExtraDimensionsG*:Gll </td><td></td><td> <input type="text" name="10" value="0.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.0</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ExtraDimensionsG*:Gll </td><td></td><td> <input type="text" name="11" value="0.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.0</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
 Coupling between graviton and leptons.
   
 
-<br/><br/><table><tr><td><strong>ExtraDimensionsG*:Gqq </td><td></td><td> <input type="text" name="11" value="0.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.0</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ExtraDimensionsG*:Gqq </td><td></td><td> <input type="text" name="12" value="0.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.0</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
 Coupling between graviton and light quarks.
   
 
-<br/><br/><table><tr><td><strong>ExtraDimensionsG*:Gbb </td><td></td><td> <input type="text" name="12" value="0.0001" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.0001</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ExtraDimensionsG*:Gbb </td><td></td><td> <input type="text" name="13" value="0.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.0</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
 Coupling between graviton and bottom quark.
   
 
-<br/><br/><table><tr><td><strong>ExtraDimensionsG*:Gtt </td><td></td><td> <input type="text" name="13" value="0.001" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.001</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ExtraDimensionsG*:Gtt </td><td></td><td> <input type="text" name="14" value="0.001" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.001</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
 Coupling between graviton and top quark.
   
 
-<br/><br/><table><tr><td><strong>ExtraDimensionsG*:GVV </td><td></td><td> <input type="text" name="14" value="0.000013" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.000013</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
-Coupling between graviton and vector bosons.
+<br/><br/><table><tr><td><strong>ExtraDimensionsG*:Ggg </td><td></td><td> <input type="text" name="15" value="0.000013" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.000013</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
+Coupling between graviton and gluon.
   
 
-<br/><br/><table><tr><td><strong>ExtraDimensionsG*:KKgqR </td><td></td><td> <input type="text" name="15" value="-0.2" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>-0.2</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ExtraDimensionsG*:Ggmgm </td><td></td><td> <input type="text" name="16" value="0.000013" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.000013</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
+Coupling between graviton and gamma.
+  
+
+<br/><br/><table><tr><td><strong>ExtraDimensionsG*:GZZ </td><td></td><td> <input type="text" name="17" value="0.001" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.001</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
+Coupling between graviton and Z boson.
+  
+
+<br/><br/><table><tr><td><strong>ExtraDimensionsG*:GWW </td><td></td><td> <input type="text" name="18" value="0.001" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.001</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
+Coupling between graviton and W boson.
+  
+
+<br/><br/><table><tr><td><strong>ExtraDimensionsG*:Ghh </td><td></td><td> <input type="text" name="19" value="0.001" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.001</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
+Coupling between graviton and Higgs bosons.
+  
+
+<br/><br/><table><tr><td><strong>ExtraDimensionsG*:KKgqR </td><td></td><td> <input type="text" name="20" value="-0.2" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>-0.2</strong></code>)</td></tr></table>
 Coupling between KK-gluon and a right-handed light quark.
   
 
-<br/><br/><table><tr><td><strong>ExtraDimensionsG*:KKgqL </td><td></td><td> <input type="text" name="16" value="-0.2" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>-0.2</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ExtraDimensionsG*:KKgqL </td><td></td><td> <input type="text" name="21" value="-0.2" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>-0.2</strong></code>)</td></tr></table>
 Coupling between KK-gluon and a left-handed light quark.
   
 
-<br/><br/><table><tr><td><strong>ExtraDimensionsG*:KKgbR </td><td></td><td> <input type="text" name="17" value="-0.2" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>-0.2</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ExtraDimensionsG*:KKgbR </td><td></td><td> <input type="text" name="22" value="-0.2" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>-0.2</strong></code>)</td></tr></table>
 Coupling between KK-gluon and a right-handed bottom quark.
   
 
-<br/><br/><table><tr><td><strong>ExtraDimensionsG*:KKgbL </td><td></td><td> <input type="text" name="18" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ExtraDimensionsG*:KKgbL </td><td></td><td> <input type="text" name="23" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>)</td></tr></table>
 Coupling between KK-gluon and a left-handed bottom quark.
   
 
-<br/><br/><table><tr><td><strong>ExtraDimensionsG*:KKgtR </td><td></td><td> <input type="text" name="19" value="4.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>4.0</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ExtraDimensionsG*:KKgtR </td><td></td><td> <input type="text" name="24" value="4.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>4.0</strong></code>)</td></tr></table>
 Coupling between KK-gluon and a right-handed top quark.
   
 
-<br/><br/><table><tr><td><strong>ExtraDimensionsG*:KKgtL </td><td></td><td> <input type="text" name="20" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ExtraDimensionsG*:KKgtL </td><td></td><td> <input type="text" name="25" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>)</td></tr></table>
 Coupling between KK-gluon and a left-handed top quark.
   
 
@@ -193,9 +216,9 @@ Coupling between KK-gluon and a left-handed top quark.
 Choice of full <ei>g^*/KK-gluon^*</ei> structure or not in relevant 
 processes.
 <br/>
-<input type="radio" name="21" value="0" checked="checked"><strong>0 </strong>: full <ei>g^*/KK-gluon^*</ei> structure, with  interference included.<br/>
-<input type="radio" name="21" value="1"><strong>1 </strong>: only pure <ei>gluon_{SM}</ei> contribution.<br/>
-<input type="radio" name="21" value="2"><strong>2 </strong>: only pure <ei>gluon_{KK}</ei> contribution.<br/>
+<input type="radio" name="26" value="0" checked="checked"><strong>0 </strong>: full <ei>g^*/KK-gluon^*</ei> structure, with  interference included.<br/>
+<input type="radio" name="26" value="1"><strong>1 </strong>: only pure <ei>gluon_{SM}</ei> contribution.<br/>
+<input type="radio" name="26" value="2"><strong>2 </strong>: only pure <ei>gluon_{KK}</ei> contribution.<br/>
 
 <h3>TeV^-1 Sized Extra Dimension, production processes</h3>
 
@@ -205,85 +228,85 @@ in one TeV^-1 sized extra dimension. The process is described
 in [<a href="Bibliography.php" target="page">Bel10</a>] and allows for individual final states to be 
 specified.
 
-<br/><br/><strong>ExtraDimensionsTEV:ffbar2ddbar</strong>  <input type="radio" name="22" value="on"><strong>On</strong>
-<input type="radio" name="22" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>ExtraDimensionsTEV:ffbar2ddbar</strong>  <input type="radio" name="27" value="on"><strong>On</strong>
+<input type="radio" name="27" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>f fbar -> (gamma_{KK}/Z_{KK}) -> d dbar </i>,
 Code 5061.
   
 
-<br/><br/><strong>ExtraDimensionsTEV:ffbar2uubar</strong>  <input type="radio" name="23" value="on"><strong>On</strong>
-<input type="radio" name="23" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>ExtraDimensionsTEV:ffbar2uubar</strong>  <input type="radio" name="28" value="on"><strong>On</strong>
+<input type="radio" name="28" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>f fbar -> (gamma_{KK}/Z_{KK}) -> u ubar </i>,
 Code 5062.
   
 
-<br/><br/><strong>ExtraDimensionsTEV:ffbar2ssbar</strong>  <input type="radio" name="24" value="on"><strong>On</strong>
-<input type="radio" name="24" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>ExtraDimensionsTEV:ffbar2ssbar</strong>  <input type="radio" name="29" value="on"><strong>On</strong>
+<input type="radio" name="29" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>f fbar -> (gamma_{KK}/Z_{KK}) -> s sbar </i>,
 Code 5063.
   
 
-<br/><br/><strong>ExtraDimensionsTEV:ffbar2ccbar</strong>  <input type="radio" name="25" value="on"><strong>On</strong>
-<input type="radio" name="25" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>ExtraDimensionsTEV:ffbar2ccbar</strong>  <input type="radio" name="30" value="on"><strong>On</strong>
+<input type="radio" name="30" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>f fbar -> (gamma_{KK}/Z_{KK}) -> c cbar </i>,
 Code 5064.
   
 
-<br/><br/><strong>ExtraDimensionsTEV:ffbar2bbbar</strong>  <input type="radio" name="26" value="on"><strong>On</strong>
-<input type="radio" name="26" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>ExtraDimensionsTEV:ffbar2bbbar</strong>  <input type="radio" name="31" value="on"><strong>On</strong>
+<input type="radio" name="31" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>f fbar -> (gamma_{KK}/Z_{KK}) -> b bbar </i>,
 Code 5065.
   
 
-<br/><br/><strong>ExtraDimensionsTEV:ffbar2ttbar</strong>  <input type="radio" name="27" value="on"><strong>On</strong>
-<input type="radio" name="27" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>ExtraDimensionsTEV:ffbar2ttbar</strong>  <input type="radio" name="32" value="on"><strong>On</strong>
+<input type="radio" name="32" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>f fbar -> (gamma_{KK}/Z_{KK}) -> t tbar </i>,
 Code 5066.
   
 
-<br/><br/><strong>ExtraDimensionsTEV:ffbar2e+e-</strong>  <input type="radio" name="28" value="on"><strong>On</strong>
-<input type="radio" name="28" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>ExtraDimensionsTEV:ffbar2e+e-</strong>  <input type="radio" name="33" value="on"><strong>On</strong>
+<input type="radio" name="33" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>f fbar -> (gamma_{KK}/Z_{KK}) -> e+ e- </i>,
 Code 5071.
   
 
-<br/><br/><strong>ExtraDimensionsTEV:ffbar2nuenuebar</strong>  <input type="radio" name="29" value="on"><strong>On</strong>
-<input type="radio" name="29" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>ExtraDimensionsTEV:ffbar2nuenuebar</strong>  <input type="radio" name="34" value="on"><strong>On</strong>
+<input type="radio" name="34" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>f fbar -> (gamma_{KK}/Z_{KK}) -> nue nuebar </i>,
 Code 5072.
   
 
-<br/><br/><strong>ExtraDimensionsTEV:ffbar2mu+mu-</strong>  <input type="radio" name="30" value="on"><strong>On</strong>
-<input type="radio" name="30" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>ExtraDimensionsTEV:ffbar2mu+mu-</strong>  <input type="radio" name="35" value="on"><strong>On</strong>
+<input type="radio" name="35" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>f fbar -> (gamma_{KK}/Z_{KK}) -> mu+ mu- </i>,
 Code 5073.
   
 
-<br/><br/><strong>ExtraDimensionsTEV:ffbar2numunumubar</strong>  <input type="radio" name="31" value="on"><strong>On</strong>
-<input type="radio" name="31" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>ExtraDimensionsTEV:ffbar2numunumubar</strong>  <input type="radio" name="36" value="on"><strong>On</strong>
+<input type="radio" name="36" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>f fbar -> (gamma_{KK}/Z_{KK}) -> numu numubar </i>,
 Code 5074.
   
 
-<br/><br/><strong>ExtraDimensionsTEV:ffbar2tau+tau-</strong>  <input type="radio" name="32" value="on"><strong>On</strong>
-<input type="radio" name="32" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>ExtraDimensionsTEV:ffbar2tau+tau-</strong>  <input type="radio" name="37" value="on"><strong>On</strong>
+<input type="radio" name="37" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>f fbar -> (gamma_{KK}/Z_{KK}) -> tau+ tau- </i>,
 Code 5075.
   
 
-<br/><br/><strong>ExtraDimensionsTEV:ffbar2nutaunutaubar</strong>  <input type="radio" name="33" value="on"><strong>On</strong>
-<input type="radio" name="33" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>ExtraDimensionsTEV:ffbar2nutaunutaubar</strong>  <input type="radio" name="38" value="on"><strong>On</strong>
+<input type="radio" name="38" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>f fbar -> (gamma_{KK}/Z_{KK}) -> nutau nutaubar </i>,
 Code 5076.
@@ -298,18 +321,18 @@ Irrespective of the parameter options used, the particle produced,
 Choice of full <ei>gamma_{KK}/Z_{KK}</ei> structure or not in relevant 
 processes.
 <br/>
-<input type="radio" name="34" value="0"><strong>0 </strong>: full <ei>gamma_{SM}/Z_{SM}</ei> structure, with  interference included.<br/>
-<input type="radio" name="34" value="1"><strong>1 </strong>: only pure <ei>gamma_{SM}</ei> contribution.<br/>
-<input type="radio" name="34" value="2"><strong>2 </strong>: only pure <ei>Z_{SM}</ei> contribution.<br/>
-<input type="radio" name="34" value="3" checked="checked"><strong>3 </strong>: full <ei>gamma_{KK}/Z_{KK}</ei> structure, with  interference included.<br/>
-<input type="radio" name="34" value="4"><strong>4 </strong>: only pure <ei>gamma_{KK}</ei> contribution, with  SM interference included.<br/>
-<input type="radio" name="34" value="5"><strong>5 </strong>: only pure <ei>Z_{KK}</ei> contribution, with SM  interference included.<br/>
+<input type="radio" name="39" value="0"><strong>0 </strong>: full <ei>gamma_{SM}/Z_{SM}</ei> structure, with  interference included.<br/>
+<input type="radio" name="39" value="1"><strong>1 </strong>: only pure <ei>gamma_{SM}</ei> contribution.<br/>
+<input type="radio" name="39" value="2"><strong>2 </strong>: only pure <ei>Z_{SM}</ei> contribution.<br/>
+<input type="radio" name="39" value="3" checked="checked"><strong>3 </strong>: full <ei>gamma_{KK}/Z_{KK}</ei> structure, with  interference included.<br/>
+<input type="radio" name="39" value="4"><strong>4 </strong>: only pure <ei>gamma_{KK}</ei> contribution, with  SM interference included.<br/>
+<input type="radio" name="39" value="5"><strong>5 </strong>: only pure <ei>Z_{KK}</ei> contribution, with SM  interference included.<br/>
 
-<br/><br/><table><tr><td><strong>ExtraDimensionsTEV:nMax </td><td></td><td> <input type="text" name="35" value="10" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>10</strong></code>; <code>minimum = 1</code>; <code>maximum = 100</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ExtraDimensionsTEV:nMax </td><td></td><td> <input type="text" name="40" value="10" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>10</strong></code>; <code>minimum = 1</code>; <code>maximum = 100</code>)</td></tr></table>
 The number of included KK excitations.
   
 
-<br/><br/><table><tr><td><strong>ExtraDimensionsTEV:mStar </td><td></td><td> <input type="text" name="36" value="4000.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>4000.0</strong></code>; <code>minimum = 1000.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ExtraDimensionsTEV:mStar </td><td></td><td> <input type="text" name="41" value="4000.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>4000.0</strong></code>; <code>minimum = 1000.0</code>)</td></tr></table>
 The KK mass <i>m^*</i>, given by the inverse of the single extra 
 dimension radius.
   
@@ -333,43 +356,43 @@ to achieve an optimal MC efficiency.
 <p/>
 The following lowest order graviton emission processes are available.
 
-<br/><br/><strong>ExtraDimensionsLED:monojet</strong>  <input type="radio" name="37" value="on"><strong>On</strong>
-<input type="radio" name="37" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>ExtraDimensionsLED:monojet</strong>  <input type="radio" name="42" value="on"><strong>On</strong>
+<input type="radio" name="42" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Common switch for the group of lowest-order <i>G jet</i> emission
 processes, i.e. the three ones below.
   
 
-<br/><br/><strong>ExtraDimensionsLED:gg2Gg</strong>  <input type="radio" name="38" value="on"><strong>On</strong>
-<input type="radio" name="38" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>ExtraDimensionsLED:gg2Gg</strong>  <input type="radio" name="43" value="on"><strong>On</strong>
+<input type="radio" name="43" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>g g -> G g</i>. 
 Code 5021.
   
 
-<br/><br/><strong>ExtraDimensionsLED:qg2Gq</strong>  <input type="radio" name="39" value="on"><strong>On</strong>
-<input type="radio" name="39" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>ExtraDimensionsLED:qg2Gq</strong>  <input type="radio" name="44" value="on"><strong>On</strong>
+<input type="radio" name="44" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>q g -> G q</i>. 
 Code 5022.
   
 
-<br/><br/><strong>ExtraDimensionsLED:qqbar2Gg</strong>  <input type="radio" name="40" value="on"><strong>On</strong>
-<input type="radio" name="40" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>ExtraDimensionsLED:qqbar2Gg</strong>  <input type="radio" name="45" value="on"><strong>On</strong>
+<input type="radio" name="45" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>q qbar -> G g</i>. 
 Code 5023.
   
 
-<br/><br/><strong>ExtraDimensionsLED:ffbar2GZ</strong>  <input type="radio" name="41" value="on"><strong>On</strong>
-<input type="radio" name="41" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>ExtraDimensionsLED:ffbar2GZ</strong>  <input type="radio" name="46" value="on"><strong>On</strong>
+<input type="radio" name="46" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>f fbar -> G Z</i>. 
 Code 5024.
   
 
-<br/><br/><strong>ExtraDimensionsLED:ffbar2Ggamma</strong>  <input type="radio" name="42" value="on"><strong>On</strong>
-<input type="radio" name="42" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>ExtraDimensionsLED:ffbar2Ggamma</strong>  <input type="radio" name="47" value="on"><strong>On</strong>
+<input type="radio" name="47" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>f fbar -> G gamma</i>. This process corresponds 
 to the photon limit of the <i>G Z</i> process, as described in 
@@ -381,8 +404,8 @@ Code 5025.
 The following LED processes with virtual graviton exchange are 
 available.
 
-<br/><br/><strong>ExtraDimensionsLED:ffbar2gammagamma</strong>  <input type="radio" name="43" value="on"><strong>On</strong>
-<input type="radio" name="43" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>ExtraDimensionsLED:ffbar2gammagamma</strong>  <input type="radio" name="48" value="on"><strong>On</strong>
+<input type="radio" name="48" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>f fbar -> (LED G*) -> gamma gamma</i>. If the 
 graviton contribution is zero, the results corresponds to the 
@@ -391,15 +414,15 @@ SM contribution, i.e. equivalent to
 Code 5026.
   
 
-<br/><br/><strong>ExtraDimensionsLED:gg2gammagamma</strong>  <input type="radio" name="44" value="on"><strong>On</strong>
-<input type="radio" name="44" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>ExtraDimensionsLED:gg2gammagamma</strong>  <input type="radio" name="49" value="on"><strong>On</strong>
+<input type="radio" name="49" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>g g -> (LED G*) -> gamma gamma</i>. 
 Code 5027.
   
 
-<br/><br/><strong>ExtraDimensionsLED:ffbar2llbar</strong>  <input type="radio" name="45" value="on"><strong>On</strong>
-<input type="radio" name="45" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>ExtraDimensionsLED:ffbar2llbar</strong>  <input type="radio" name="50" value="on"><strong>On</strong>
+<input type="radio" name="50" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>f fbar -> (LED G*) -> l l </i>, where 
 <i>l</i> is a charged lepton. If the graviton contribution 
@@ -410,8 +433,8 @@ and no K-factor is used.
 Code 5028.
   
 
-<br/><br/><strong>ExtraDimensionsLED:gg2llbar</strong>  <input type="radio" name="46" value="on"><strong>On</strong>
-<input type="radio" name="46" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>ExtraDimensionsLED:gg2llbar</strong>  <input type="radio" name="51" value="on"><strong>On</strong>
+<input type="radio" name="51" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>g g -> (LED G*) -> l l</i>. 
 Code 5029.
@@ -419,8 +442,8 @@ Code 5029.
 
 <h3>Large Extra Dimensions, parameters</h3>
 
-<br/><br/><strong>ExtraDimensionsLED:GravScalar</strong>  <input type="radio" name="47" value="on"><strong>On</strong>
-<input type="radio" name="47" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>ExtraDimensionsLED:GravScalar</strong>  <input type="radio" name="52" value="on"><strong>On</strong>
+<input type="radio" name="52" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Allow the monojet processes to produce scalar graviton emission
 instead of the default tensor one. The scalar option is according 
@@ -428,15 +451,15 @@ to the processes described in [<a href="Bibliography.php" target="page">Azu05</a
 coupling constants below.
   
 
-<br/><br/><table><tr><td><strong>ExtraDimensionsLED:n  </td><td></td><td> <input type="text" name="48" value="2" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2</strong></code>; <code>minimum = 1</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ExtraDimensionsLED:n  </td><td></td><td> <input type="text" name="53" value="2" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2</strong></code>; <code>minimum = 1</code>)</td></tr></table>
 Number of extra dimensions.
   
 
-<br/><br/><table><tr><td><strong>ExtraDimensionsLED:MD </td><td></td><td> <input type="text" name="49" value="2000." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2000.</strong></code>; <code>minimum = 100.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ExtraDimensionsLED:MD </td><td></td><td> <input type="text" name="54" value="2000." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2000.</strong></code>; <code>minimum = 100.0</code>)</td></tr></table>
 Fundamental scale of gravity in <i>D = 4 + n</i> dimensions.
   
 
-<br/><br/><table><tr><td><strong>ExtraDimensionsLED:LambdaT </td><td></td><td> <input type="text" name="50" value="2000." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2000.</strong></code>; <code>minimum = 100.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ExtraDimensionsLED:LambdaT </td><td></td><td> <input type="text" name="55" value="2000." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2000.</strong></code>; <code>minimum = 100.0</code>)</td></tr></table>
 Ultraviolet cutoff parameter for the virtual graviton exchange processes.
   
 
@@ -447,20 +470,20 @@ theory (e.g. <ei>M_D</ei>). <ei>Note:</ei> Option 1 only concerns the
 graviton emission processes and the form factor is currently not available 
 for the scalar graviton processes.
 <br/>
-<input type="radio" name="51" value="0" checked="checked"><strong>0 </strong>: Do nothing, i.e. all values of <ei>sHat</ei> contribute. <br/>
-<input type="radio" name="51" value="1"><strong>1 </strong>: Truncate contributing <ei>sHat</ei> region  (<ref>Ask09</ref>).<br/>
-<input type="radio" name="51" value="2"><strong>2 </strong>: Form factor, using <ei>mu = renormScale2</ei> .<br/>
-<input type="radio" name="51" value="3"><strong>3 </strong>: Form factor, using <ei>mu = E_jet</ei>.<br/>
+<input type="radio" name="56" value="0" checked="checked"><strong>0 </strong>: Do nothing, i.e. all values of <ei>sHat</ei> contribute. <br/>
+<input type="radio" name="56" value="1"><strong>1 </strong>: Truncate contributing <ei>sHat</ei> region  (<ref>Ask09</ref>).<br/>
+<input type="radio" name="56" value="2"><strong>2 </strong>: Form factor, using <ei>mu = renormScale2</ei> .<br/>
+<input type="radio" name="56" value="3"><strong>3 </strong>: Form factor, using <ei>mu = E_jet</ei>.<br/>
 
-<br/><br/><table><tr><td><strong>ExtraDimensionsLED:t </td><td></td><td> <input type="text" name="52" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>; <code>minimum = 0.001</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ExtraDimensionsLED:t </td><td></td><td> <input type="text" name="57" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>; <code>minimum = 0.001</code>)</td></tr></table>
 Form factor parameter.
   
 
-<br/><br/><table><tr><td><strong>ExtraDimensionsLED:g </td><td></td><td> <input type="text" name="53" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ExtraDimensionsLED:g </td><td></td><td> <input type="text" name="58" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
 Coupling related to scalar graviton emission.
   
 
-<br/><br/><table><tr><td><strong>ExtraDimensionsLED:c </td><td></td><td> <input type="text" name="54" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ExtraDimensionsLED:c </td><td></td><td> <input type="text" name="59" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
 Coupling related to scalar graviton emission.
   
 
@@ -483,43 +506,43 @@ to achieve an optimal MC efficiency.
 <p/>
 The following unparticle emission processes are available.
 
-<br/><br/><strong>ExtraDimensionsUnpart:monojet</strong>  <input type="radio" name="55" value="on"><strong>On</strong>
-<input type="radio" name="55" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>ExtraDimensionsUnpart:monojet</strong>  <input type="radio" name="60" value="on"><strong>On</strong>
+<input type="radio" name="60" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Common switch for the group of lowest-order <i>U jet</i> emission
 processes, i.e. the three ones below.
   
 
-<br/><br/><strong>ExtraDimensionsUnpart:gg2Ug</strong>  <input type="radio" name="56" value="on"><strong>On</strong>
-<input type="radio" name="56" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>ExtraDimensionsUnpart:gg2Ug</strong>  <input type="radio" name="61" value="on"><strong>On</strong>
+<input type="radio" name="61" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>g g -> U g</i>. 
 Code 5045.
   
 
-<br/><br/><strong>ExtraDimensionsUnpart:qg2Uq</strong>  <input type="radio" name="57" value="on"><strong>On</strong>
-<input type="radio" name="57" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>ExtraDimensionsUnpart:qg2Uq</strong>  <input type="radio" name="62" value="on"><strong>On</strong>
+<input type="radio" name="62" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>q g -> U q</i>. 
 Code 5046.
   
 
-<br/><br/><strong>ExtraDimensionsUnpart:qqbar2Ug</strong>  <input type="radio" name="58" value="on"><strong>On</strong>
-<input type="radio" name="58" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>ExtraDimensionsUnpart:qqbar2Ug</strong>  <input type="radio" name="63" value="on"><strong>On</strong>
+<input type="radio" name="63" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>q qbar -> U g</i>. 
 Code 5047.
   
 
-<br/><br/><strong>ExtraDimensionsUnpart:ffbar2UZ</strong>  <input type="radio" name="59" value="on"><strong>On</strong>
-<input type="radio" name="59" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>ExtraDimensionsUnpart:ffbar2UZ</strong>  <input type="radio" name="64" value="on"><strong>On</strong>
+<input type="radio" name="64" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>f fbar -> U Z</i>.  
 Code 5041.
   
 
-<br/><br/><strong>ExtraDimensionsUnpart:ffbar2Ugamma</strong>  <input type="radio" name="60" value="on"><strong>On</strong>
-<input type="radio" name="60" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>ExtraDimensionsUnpart:ffbar2Ugamma</strong>  <input type="radio" name="65" value="on"><strong>On</strong>
+<input type="radio" name="65" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>f fbar -> U gamma</i>. This process corresponds 
 to the photon limit of the <i>U Z</i> process, as described in 
@@ -530,8 +553,8 @@ Code 5042.
 <p/>
 The following processes with virtual unparticle exchange are available.
 
-<br/><br/><strong>ExtraDimensionsUnpart:ffbar2gammagamma</strong>  <input type="radio" name="61" value="on"><strong>On</strong>
-<input type="radio" name="61" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>ExtraDimensionsUnpart:ffbar2gammagamma</strong>  <input type="radio" name="66" value="on"><strong>On</strong>
+<input type="radio" name="66" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>f fbar -> (U*) -> gamma gamma</i>. If the unparticle  
 contribution is zero in the spin-2 case, the results corresponds to 
@@ -540,15 +563,15 @@ the SM contribution, i.e. equivalent to
 Code 5043.
   
 
-<br/><br/><strong>ExtraDimensionsUnpart:gg2gammagamma</strong>  <input type="radio" name="62" value="on"><strong>On</strong>
-<input type="radio" name="62" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>ExtraDimensionsUnpart:gg2gammagamma</strong>  <input type="radio" name="67" value="on"><strong>On</strong>
+<input type="radio" name="67" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>g g -> (U*) -> gamma gamma</i>. 
 Code 5044.
   
 
-<br/><br/><strong>ExtraDimensionsUnpart:ffbar2llbar</strong>  <input type="radio" name="63" value="on"><strong>On</strong>
-<input type="radio" name="63" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>ExtraDimensionsUnpart:ffbar2llbar</strong>  <input type="radio" name="68" value="on"><strong>On</strong>
+<input type="radio" name="68" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>f fbar -> (U*) -> l lbar </i>, where 
 <i>l</i> is a charged lepton. If the unparticle contribution 
@@ -559,8 +582,8 @@ and no K-factor is used.
 Code 5048.
   
 
-<br/><br/><strong>ExtraDimensionsUnpart:gg2llbar</strong>  <input type="radio" name="64" value="on"><strong>On</strong>
-<input type="radio" name="64" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>ExtraDimensionsUnpart:gg2llbar</strong>  <input type="radio" name="69" value="on"><strong>On</strong>
+<input type="radio" name="69" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>g g -> (U*) -> l lbar</i>. 
 Code 5049.
@@ -568,23 +591,23 @@ Code 5049.
 
 <h3>Unparticles, parameters</h3>
 
-<br/><br/><table><tr><td><strong>ExtraDimensionsUnpart:spinU  </td><td></td><td> <input type="text" name="65" value="2" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2</strong></code>; <code>minimum = 0</code>; <code>maximum = 2</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ExtraDimensionsUnpart:spinU  </td><td></td><td> <input type="text" name="70" value="2" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2</strong></code>; <code>minimum = 0</code>; <code>maximum = 2</code>)</td></tr></table>
 Unparticle spin.
   
 
-<br/><br/><table><tr><td><strong>ExtraDimensionsUnpart:dU </td><td></td><td> <input type="text" name="66" value="1.4" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.4</strong></code>; <code>minimum = 1.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ExtraDimensionsUnpart:dU </td><td></td><td> <input type="text" name="71" value="1.4" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.4</strong></code>; <code>minimum = 1.0</code>)</td></tr></table>
 Scale dimension parameter.
   
 
-<br/><br/><table><tr><td><strong>ExtraDimensionsUnpart:LambdaU </td><td></td><td> <input type="text" name="67" value="2000." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2000.</strong></code>; <code>minimum = 100.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ExtraDimensionsUnpart:LambdaU </td><td></td><td> <input type="text" name="72" value="2000." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2000.</strong></code>; <code>minimum = 100.0</code>)</td></tr></table>
 Unparticle renormalization scale.
   
 
-<br/><br/><table><tr><td><strong>ExtraDimensionsUnpart:lambda </td><td></td><td> <input type="text" name="68" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ExtraDimensionsUnpart:lambda </td><td></td><td> <input type="text" name="73" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
 Unparticle coupling to the SM fields.
   
 
-<br/><br/><table><tr><td><strong>ExtraDimensionsUnpart:ratio </td><td></td><td> <input type="text" name="69" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 1.0</code>; <code>maximum = 1.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ExtraDimensionsUnpart:ratio </td><td></td><td> <input type="text" name="74" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 1.0</code>; <code>maximum = 1.0</code>)</td></tr></table>
 Ratio, <i>lambda'/lambda</i>, between the two possible coupling constants 
 of the spin-2 ME. <b>Warning:</b> A <i>ratio</i> value different from one 
 give rise to an IR divergence which makes the event generation very slow, so 
@@ -597,24 +620,24 @@ approaches or exceed the scale of validity of the low energy effective
 theory (<ei>Lambda_U</ei>). This mode only concerns the unparticle 
 emission processes. 
 <br/>
-<input type="radio" name="70" value="0" checked="checked"><strong>0 </strong>: Do nothing, i.e. all values of <ei>sHat</ei>  contribute.<br/>
-<input type="radio" name="70" value="1"><strong>1 </strong>: Truncate contributing <ei>sHat</ei> region  (<ref>Ask09</ref>).<br/>
+<input type="radio" name="75" value="0" checked="checked"><strong>0 </strong>: Do nothing, i.e. all values of <ei>sHat</ei>  contribute.<br/>
+<input type="radio" name="75" value="1"><strong>1 </strong>: Truncate contributing <ei>sHat</ei> region  (<ref>Ask09</ref>).<br/>
 
 <br/><br/><table><tr><td><strong>ExtraDimensionsUnpart:gXX  </td><td>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 2</code>)</td></tr></table>
 Chiral unparticle couplings, <ei>gXX = gLL = gRR</ei>. Only relevant 
 for lepton production from spin-1 unparticle exchange. 
 <br/>
-<input type="radio" name="71" value="0" checked="checked"><strong>0 </strong>: 1<br/>
-<input type="radio" name="71" value="1"><strong>1 </strong>: -1<br/>
-<input type="radio" name="71" value="2"><strong>2 </strong>: 0<br/>
+<input type="radio" name="76" value="0" checked="checked"><strong>0 </strong>: 1<br/>
+<input type="radio" name="76" value="1"><strong>1 </strong>: -1<br/>
+<input type="radio" name="76" value="2"><strong>2 </strong>: 0<br/>
 
 <br/><br/><table><tr><td><strong>ExtraDimensionsUnpart:gXY  </td><td>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 2</code>)</td></tr></table>
 Chiral unparticle couplings, <ei>gXY = gLR = gRL</ei>. Only relevant 
 for lepton production from spin-1 unparticle exchange. 
 <br/>
-<input type="radio" name="72" value="0" checked="checked"><strong>0 </strong>: 1<br/>
-<input type="radio" name="72" value="1"><strong>1 </strong>: -1<br/>
-<input type="radio" name="72" value="2"><strong>2 </strong>: 0<br/>
+<input type="radio" name="77" value="0" checked="checked"><strong>0 </strong>: 1<br/>
+<input type="radio" name="77" value="1"><strong>1 </strong>: -1<br/>
+<input type="radio" name="77" value="2"><strong>2 </strong>: 0<br/>
 
 <input type="hidden" name="saved" value="1"/>
 
@@ -671,324 +694,349 @@ if($_POST["8"] != "off")
 $data = "ExtraDimensionsG*:SMinBulk = ".$_POST["8"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["9"] != "0.054")
+if($_POST["9"] != "on")
 {
-$data = "ExtraDimensionsG*:kappaMG = ".$_POST["9"]."\n";
+$data = "ExtraDimensionsG*:VLVL = ".$_POST["9"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["10"] != "0.0")
+if($_POST["10"] != "0.054")
 {
-$data = "ExtraDimensionsG*:Gll = ".$_POST["10"]."\n";
+$data = "ExtraDimensionsG*:kappaMG = ".$_POST["10"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["11"] != "0.0")
 {
-$data = "ExtraDimensionsG*:Gqq = ".$_POST["11"]."\n";
+$data = "ExtraDimensionsG*:Gll = ".$_POST["11"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["12"] != "0.0001")
+if($_POST["12"] != "0.0")
 {
-$data = "ExtraDimensionsG*:Gbb = ".$_POST["12"]."\n";
+$data = "ExtraDimensionsG*:Gqq = ".$_POST["12"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["13"] != "0.001")
+if($_POST["13"] != "0.0")
 {
-$data = "ExtraDimensionsG*:Gtt = ".$_POST["13"]."\n";
+$data = "ExtraDimensionsG*:Gbb = ".$_POST["13"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["14"] != "0.000013")
+if($_POST["14"] != "0.001")
 {
-$data = "ExtraDimensionsG*:GVV = ".$_POST["14"]."\n";
+$data = "ExtraDimensionsG*:Gtt = ".$_POST["14"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["15"] != "-0.2")
+if($_POST["15"] != "0.000013")
 {
-$data = "ExtraDimensionsG*:KKgqR = ".$_POST["15"]."\n";
+$data = "ExtraDimensionsG*:Ggg = ".$_POST["15"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["16"] != "-0.2")
+if($_POST["16"] != "0.000013")
 {
-$data = "ExtraDimensionsG*:KKgqL = ".$_POST["16"]."\n";
+$data = "ExtraDimensionsG*:Ggmgm = ".$_POST["16"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["17"] != "-0.2")
+if($_POST["17"] != "0.001")
 {
-$data = "ExtraDimensionsG*:KKgbR = ".$_POST["17"]."\n";
+$data = "ExtraDimensionsG*:GZZ = ".$_POST["17"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["18"] != "1.0")
+if($_POST["18"] != "0.001")
 {
-$data = "ExtraDimensionsG*:KKgbL = ".$_POST["18"]."\n";
+$data = "ExtraDimensionsG*:GWW = ".$_POST["18"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["19"] != "4.0")
+if($_POST["19"] != "0.001")
 {
-$data = "ExtraDimensionsG*:KKgtR = ".$_POST["19"]."\n";
+$data = "ExtraDimensionsG*:Ghh = ".$_POST["19"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["20"] != "1.0")
+if($_POST["20"] != "-0.2")
 {
-$data = "ExtraDimensionsG*:KKgtL = ".$_POST["20"]."\n";
+$data = "ExtraDimensionsG*:KKgqR = ".$_POST["20"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["21"] != "0")
+if($_POST["21"] != "-0.2")
 {
-$data = "ExtraDimensionsG*:KKintMode = ".$_POST["21"]."\n";
+$data = "ExtraDimensionsG*:KKgqL = ".$_POST["21"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["22"] != "off")
+if($_POST["22"] != "-0.2")
 {
-$data = "ExtraDimensionsTEV:ffbar2ddbar = ".$_POST["22"]."\n";
+$data = "ExtraDimensionsG*:KKgbR = ".$_POST["22"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["23"] != "off")
+if($_POST["23"] != "1.0")
 {
-$data = "ExtraDimensionsTEV:ffbar2uubar = ".$_POST["23"]."\n";
+$data = "ExtraDimensionsG*:KKgbL = ".$_POST["23"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["24"] != "off")
+if($_POST["24"] != "4.0")
 {
-$data = "ExtraDimensionsTEV:ffbar2ssbar = ".$_POST["24"]."\n";
+$data = "ExtraDimensionsG*:KKgtR = ".$_POST["24"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["25"] != "off")
+if($_POST["25"] != "1.0")
 {
-$data = "ExtraDimensionsTEV:ffbar2ccbar = ".$_POST["25"]."\n";
+$data = "ExtraDimensionsG*:KKgtL = ".$_POST["25"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["26"] != "off")
+if($_POST["26"] != "0")
 {
-$data = "ExtraDimensionsTEV:ffbar2bbbar = ".$_POST["26"]."\n";
+$data = "ExtraDimensionsG*:KKintMode = ".$_POST["26"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["27"] != "off")
 {
-$data = "ExtraDimensionsTEV:ffbar2ttbar = ".$_POST["27"]."\n";
+$data = "ExtraDimensionsTEV:ffbar2ddbar = ".$_POST["27"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["28"] != "off")
 {
-$data = "ExtraDimensionsTEV:ffbar2e+e- = ".$_POST["28"]."\n";
+$data = "ExtraDimensionsTEV:ffbar2uubar = ".$_POST["28"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["29"] != "off")
 {
-$data = "ExtraDimensionsTEV:ffbar2nuenuebar = ".$_POST["29"]."\n";
+$data = "ExtraDimensionsTEV:ffbar2ssbar = ".$_POST["29"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["30"] != "off")
 {
-$data = "ExtraDimensionsTEV:ffbar2mu+mu- = ".$_POST["30"]."\n";
+$data = "ExtraDimensionsTEV:ffbar2ccbar = ".$_POST["30"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["31"] != "off")
 {
-$data = "ExtraDimensionsTEV:ffbar2numunumubar = ".$_POST["31"]."\n";
+$data = "ExtraDimensionsTEV:ffbar2bbbar = ".$_POST["31"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["32"] != "off")
 {
-$data = "ExtraDimensionsTEV:ffbar2tau+tau- = ".$_POST["32"]."\n";
+$data = "ExtraDimensionsTEV:ffbar2ttbar = ".$_POST["32"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["33"] != "off")
 {
-$data = "ExtraDimensionsTEV:ffbar2nutaunutaubar = ".$_POST["33"]."\n";
+$data = "ExtraDimensionsTEV:ffbar2e+e- = ".$_POST["33"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["34"] != "3")
+if($_POST["34"] != "off")
 {
-$data = "ExtraDimensionsTEV:gmZmode = ".$_POST["34"]."\n";
+$data = "ExtraDimensionsTEV:ffbar2nuenuebar = ".$_POST["34"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["35"] != "10")
+if($_POST["35"] != "off")
 {
-$data = "ExtraDimensionsTEV:nMax = ".$_POST["35"]."\n";
+$data = "ExtraDimensionsTEV:ffbar2mu+mu- = ".$_POST["35"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["36"] != "4000.0")
+if($_POST["36"] != "off")
 {
-$data = "ExtraDimensionsTEV:mStar = ".$_POST["36"]."\n";
+$data = "ExtraDimensionsTEV:ffbar2numunumubar = ".$_POST["36"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["37"] != "off")
 {
-$data = "ExtraDimensionsLED:monojet = ".$_POST["37"]."\n";
+$data = "ExtraDimensionsTEV:ffbar2tau+tau- = ".$_POST["37"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["38"] != "off")
 {
-$data = "ExtraDimensionsLED:gg2Gg = ".$_POST["38"]."\n";
+$data = "ExtraDimensionsTEV:ffbar2nutaunutaubar = ".$_POST["38"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["39"] != "off")
+if($_POST["39"] != "3")
 {
-$data = "ExtraDimensionsLED:qg2Gq = ".$_POST["39"]."\n";
+$data = "ExtraDimensionsTEV:gmZmode = ".$_POST["39"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["40"] != "off")
+if($_POST["40"] != "10")
 {
-$data = "ExtraDimensionsLED:qqbar2Gg = ".$_POST["40"]."\n";
+$data = "ExtraDimensionsTEV:nMax = ".$_POST["40"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["41"] != "off")
+if($_POST["41"] != "4000.0")
 {
-$data = "ExtraDimensionsLED:ffbar2GZ = ".$_POST["41"]."\n";
+$data = "ExtraDimensionsTEV:mStar = ".$_POST["41"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["42"] != "off")
 {
-$data = "ExtraDimensionsLED:ffbar2Ggamma = ".$_POST["42"]."\n";
+$data = "ExtraDimensionsLED:monojet = ".$_POST["42"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["43"] != "off")
 {
-$data = "ExtraDimensionsLED:ffbar2gammagamma = ".$_POST["43"]."\n";
+$data = "ExtraDimensionsLED:gg2Gg = ".$_POST["43"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["44"] != "off")
 {
-$data = "ExtraDimensionsLED:gg2gammagamma = ".$_POST["44"]."\n";
+$data = "ExtraDimensionsLED:qg2Gq = ".$_POST["44"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["45"] != "off")
 {
-$data = "ExtraDimensionsLED:ffbar2llbar = ".$_POST["45"]."\n";
+$data = "ExtraDimensionsLED:qqbar2Gg = ".$_POST["45"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["46"] != "off")
 {
-$data = "ExtraDimensionsLED:gg2llbar = ".$_POST["46"]."\n";
+$data = "ExtraDimensionsLED:ffbar2GZ = ".$_POST["46"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["47"] != "off")
 {
-$data = "ExtraDimensionsLED:GravScalar = ".$_POST["47"]."\n";
+$data = "ExtraDimensionsLED:ffbar2Ggamma = ".$_POST["47"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["48"] != "2")
+if($_POST["48"] != "off")
 {
-$data = "ExtraDimensionsLED:n = ".$_POST["48"]."\n";
+$data = "ExtraDimensionsLED:ffbar2gammagamma = ".$_POST["48"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["49"] != "2000.")
+if($_POST["49"] != "off")
 {
-$data = "ExtraDimensionsLED:MD = ".$_POST["49"]."\n";
+$data = "ExtraDimensionsLED:gg2gammagamma = ".$_POST["49"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["50"] != "2000.")
+if($_POST["50"] != "off")
 {
-$data = "ExtraDimensionsLED:LambdaT = ".$_POST["50"]."\n";
+$data = "ExtraDimensionsLED:ffbar2llbar = ".$_POST["50"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["51"] != "0")
+if($_POST["51"] != "off")
 {
-$data = "ExtraDimensionsLED:CutOffMode = ".$_POST["51"]."\n";
+$data = "ExtraDimensionsLED:gg2llbar = ".$_POST["51"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["52"] != "1.")
+if($_POST["52"] != "off")
 {
-$data = "ExtraDimensionsLED:t = ".$_POST["52"]."\n";
+$data = "ExtraDimensionsLED:GravScalar = ".$_POST["52"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["53"] != "1.0")
+if($_POST["53"] != "2")
 {
-$data = "ExtraDimensionsLED:g = ".$_POST["53"]."\n";
+$data = "ExtraDimensionsLED:n = ".$_POST["53"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["54"] != "1.0")
+if($_POST["54"] != "2000.")
 {
-$data = "ExtraDimensionsLED:c = ".$_POST["54"]."\n";
+$data = "ExtraDimensionsLED:MD = ".$_POST["54"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["55"] != "off")
+if($_POST["55"] != "2000.")
 {
-$data = "ExtraDimensionsUnpart:monojet = ".$_POST["55"]."\n";
+$data = "ExtraDimensionsLED:LambdaT = ".$_POST["55"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["56"] != "off")
+if($_POST["56"] != "0")
 {
-$data = "ExtraDimensionsUnpart:gg2Ug = ".$_POST["56"]."\n";
+$data = "ExtraDimensionsLED:CutOffMode = ".$_POST["56"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["57"] != "off")
+if($_POST["57"] != "1.")
 {
-$data = "ExtraDimensionsUnpart:qg2Uq = ".$_POST["57"]."\n";
+$data = "ExtraDimensionsLED:t = ".$_POST["57"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["58"] != "off")
+if($_POST["58"] != "1.0")
 {
-$data = "ExtraDimensionsUnpart:qqbar2Ug = ".$_POST["58"]."\n";
+$data = "ExtraDimensionsLED:g = ".$_POST["58"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["59"] != "off")
+if($_POST["59"] != "1.0")
 {
-$data = "ExtraDimensionsUnpart:ffbar2UZ = ".$_POST["59"]."\n";
+$data = "ExtraDimensionsLED:c = ".$_POST["59"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["60"] != "off")
 {
-$data = "ExtraDimensionsUnpart:ffbar2Ugamma = ".$_POST["60"]."\n";
+$data = "ExtraDimensionsUnpart:monojet = ".$_POST["60"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["61"] != "off")
 {
-$data = "ExtraDimensionsUnpart:ffbar2gammagamma = ".$_POST["61"]."\n";
+$data = "ExtraDimensionsUnpart:gg2Ug = ".$_POST["61"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["62"] != "off")
 {
-$data = "ExtraDimensionsUnpart:gg2gammagamma = ".$_POST["62"]."\n";
+$data = "ExtraDimensionsUnpart:qg2Uq = ".$_POST["62"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["63"] != "off")
 {
-$data = "ExtraDimensionsUnpart:ffbar2llbar = ".$_POST["63"]."\n";
+$data = "ExtraDimensionsUnpart:qqbar2Ug = ".$_POST["63"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["64"] != "off")
 {
-$data = "ExtraDimensionsUnpart:gg2llbar = ".$_POST["64"]."\n";
+$data = "ExtraDimensionsUnpart:ffbar2UZ = ".$_POST["64"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["65"] != "2")
+if($_POST["65"] != "off")
 {
-$data = "ExtraDimensionsUnpart:spinU = ".$_POST["65"]."\n";
+$data = "ExtraDimensionsUnpart:ffbar2Ugamma = ".$_POST["65"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["66"] != "1.4")
+if($_POST["66"] != "off")
 {
-$data = "ExtraDimensionsUnpart:dU = ".$_POST["66"]."\n";
+$data = "ExtraDimensionsUnpart:ffbar2gammagamma = ".$_POST["66"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["67"] != "2000.")
+if($_POST["67"] != "off")
 {
-$data = "ExtraDimensionsUnpart:LambdaU = ".$_POST["67"]."\n";
+$data = "ExtraDimensionsUnpart:gg2gammagamma = ".$_POST["67"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["68"] != "1.0")
+if($_POST["68"] != "off")
 {
-$data = "ExtraDimensionsUnpart:lambda = ".$_POST["68"]."\n";
+$data = "ExtraDimensionsUnpart:ffbar2llbar = ".$_POST["68"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["69"] != "1.0")
+if($_POST["69"] != "off")
 {
-$data = "ExtraDimensionsUnpart:ratio = ".$_POST["69"]."\n";
+$data = "ExtraDimensionsUnpart:gg2llbar = ".$_POST["69"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["70"] != "0")
+if($_POST["70"] != "2")
 {
-$data = "ExtraDimensionsUnpart:CutOffMode = ".$_POST["70"]."\n";
+$data = "ExtraDimensionsUnpart:spinU = ".$_POST["70"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["71"] != "0")
+if($_POST["71"] != "1.4")
 {
-$data = "ExtraDimensionsUnpart:gXX = ".$_POST["71"]."\n";
+$data = "ExtraDimensionsUnpart:dU = ".$_POST["71"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["72"] != "0")
+if($_POST["72"] != "2000.")
 {
-$data = "ExtraDimensionsUnpart:gXY = ".$_POST["72"]."\n";
+$data = "ExtraDimensionsUnpart:LambdaU = ".$_POST["72"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["73"] != "1.0")
+{
+$data = "ExtraDimensionsUnpart:lambda = ".$_POST["73"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["74"] != "1.0")
+{
+$data = "ExtraDimensionsUnpart:ratio = ".$_POST["74"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["75"] != "0")
+{
+$data = "ExtraDimensionsUnpart:CutOffMode = ".$_POST["75"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["76"] != "0")
+{
+$data = "ExtraDimensionsUnpart:gXX = ".$_POST["76"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["77"] != "0")
+{
+$data = "ExtraDimensionsUnpart:gXY = ".$_POST["77"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);
@@ -998,5 +1046,5 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
 

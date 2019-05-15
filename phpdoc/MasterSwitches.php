@@ -57,9 +57,11 @@ a parton-level configuration provided by some external program.
 <input type="radio" name="1" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 If off, do not attempt to carry out any generation at all on the 
-process or parton level. Do allow parton configurations stored in 
-the event record to hadronize and hadrons to decay, however, as set 
-by the <code>HadronLevel</code> switches. Further details are found
+process level. For the parton level only final-state radiation
+is possible, using the <code>Pythia::forceTimeShower(...)</code> method.
+Do allow parton configurations stored in the event record to hadronize 
+and hadrons to decay, however, as set by the <code>HadronLevel</code> 
+switches. Further details are found 
 <?php $filepath = $_GET["filepath"];
 echo "<a href='HadronLevelStandalone.php?filepath=".$filepath."' target='page'>";?>here</a>.
    
@@ -90,7 +92,7 @@ event generation, i.e. the evolution from an input (hard) process from
 <code>ProcessLevel</code>, containing a few partons only, to a complete 
 parton-level configuration to be handed on to <code>HadronLevel</code>. 
 This step involves the application of initial- and final-state radiation, 
-multiple interactions and the structure of beam remnants.
+multiparton interactions and the structure of beam remnants.
 
 <br/><br/><strong>PartonLevel:all</strong>  <input type="radio" name="3" value="on" checked="checked"><strong>On</strong>
 <input type="radio" name="3" value="off"><strong>Off</strong>
@@ -105,12 +107,12 @@ one is then not.
 For <code>PartonLevel:all = on</code> some parts of the event generation 
 on this level may be switched off individually: 
 
-<br/><br/><strong>PartonLevel:MI</strong>  <input type="radio" name="4" value="on" checked="checked"><strong>On</strong>
+<br/><br/><strong>PartonLevel:MPI</strong>  <input type="radio" name="4" value="on" checked="checked"><strong>On</strong>
 <input type="radio" name="4" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
-Master switch for multiple interactions; on/off = true/false.
+Master switch for multiparton interactions; on/off = true/false.
 Further options are found <?php $filepath = $_GET["filepath"];
-echo "<a href='MultipleInteractions.php?filepath=".$filepath."' target='page'>";?>here</a>.
+echo "<a href='MultipartonInteractions.php?filepath=".$filepath."' target='page'>";?>here</a>.
   
 
 <br/><br/><strong>PartonLevel:ISR</strong>  <input type="radio" name="5" value="on" checked="checked"><strong>On</strong>
@@ -148,7 +150,7 @@ subsequent to the hard process itself; on/off = true/false. In addition
   
 
 <p/>
-Switching off all the above MI/ISR/FSR switches is <b>not</b> equivalent 
+Switching off all the above MPI/ISR/FSR switches is <b>not</b> equivalent 
 to setting <code>PartonLevel:all = off</code>. In the former case a 
 minimal skeleton of parton-level operations are carried out, such as 
 tying together the scattered partons with the beam remnants into colour 
@@ -259,7 +261,7 @@ fwrite($handle,$data);
 }
 if($_POST["4"] != "on")
 {
-$data = "PartonLevel:MI = ".$_POST["4"]."\n";
+$data = "PartonLevel:MPI = ".$_POST["4"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["5"] != "on")
@@ -314,4 +316,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->

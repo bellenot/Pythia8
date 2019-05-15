@@ -88,7 +88,7 @@ echo "<a href='SaveSettings.php?returning=1&filename=".$filename."' target='page
 <a href='ResonanceDecays.php?filepath=".$filepath."' target='page'>Resonance Decays</a><br/>
 <a href='TimelikeShowers.php?filepath=".$filepath."' target='page'>Timelike Showers</a><br/>
 <a href='SpacelikeShowers.php?filepath=".$filepath."' target='page'>Spacelike Showers</a><br/>
-<a href='MultipleInteractions.php?filepath=".$filepath."' target='page'>Multiple Interactions</a><br/>
+<a href='MultipartonInteractions.php?filepath=".$filepath."' target='page'>Multiparton Interactions</a><br/>
 <a href='BeamRemnants.php?filepath=".$filepath."' target='page'>Beam Remnants</a><br/>
 <a href='Diffraction.php?filepath=".$filepath."' target='page'>Diffraction</a><br/>
 <a href='Fragmentation.php?filepath=".$filepath."' target='page'>Fragmentation</a><br/>
@@ -146,7 +146,6 @@ echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>Les Ho
 
 <h4>Reference Materiel</h4>
 
-<a href='PYTHIA6TranslationTable.php?filepath=".$filepath."' target='page'>PYTHIA 6 Translation Table</a><br/>
 <a href='UpdateHistory.php?filepath=".$filepath."' target='page'>Update History</a><br/>
 <a href='Bibliography.php?filepath=".$filepath."' target='page'>Bibliography</a><br/>
 <a href='Glossary.php?filepath=".$filepath."' target='page'>Glossary</a><br/>
@@ -160,4 +159,4 @@ echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>Les Ho
 </body>
 </html>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->

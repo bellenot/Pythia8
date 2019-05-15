@@ -187,12 +187,12 @@ moment we stay with the current recipe, to boost the above <i>pT</i>
 by a factor <i>enhancedWidth</i> for a small fraction 
 <i>enhancedFraction</i> of the breakups, where
 
-<br/><br/><table><tr><td><strong>StringPT:enhancedFraction </td><td></td><td> <input type="text" name="14" value="0.01" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.01</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 0.1</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StringPT:enhancedFraction </td><td></td><td> <input type="text" name="14" value="0.01" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.01</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 1.</code>)</td></tr></table>
 <i>enhancedFraction</i>,the fraction of string breaks with enhanced 
 width.
   
 
-<br/><br/><table><tr><td><strong>StringPT:enhancedWidth </td><td></td><td> <input type="text" name="15" value="2.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.0</strong></code>; <code>minimum = 1.0</code>; <code>maximum = 5.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StringPT:enhancedWidth </td><td></td><td> <input type="text" name="15" value="2.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.0</strong></code>; <code>minimum = 1.0</code>; <code>maximum = 10.0</code>)</td></tr></table>
 <i>enhancedWidth</i>,the enhancement of the width in this fraction.
   
 
@@ -490,5 +490,5 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
 

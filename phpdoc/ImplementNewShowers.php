@@ -31,7 +31,7 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 
 In case you want to replace the PYTHIA initial- and final-state 
 showers by your own, it is possible but not trivial. The point is 
-that multiple interactions (MI), initial-state radiation (ISR) and
+that multiparton interactions (MPI), initial-state radiation (ISR) and
 final-state radiation (FSR) in general appear in one single 
 interleaved sequence of decreasing <i>pT</i> values. Therefore
 shower replacements would have to be able to play the game by such
@@ -44,9 +44,9 @@ context is <a href="http://home.fnal.gov/~skands/vincia/">VINCIA</a>,
 which however so far only handles FSR. 
 
 <p/>
-For the moment we assume you want to keep the MI part of the story
+For the moment we assume you want to keep the MPI part of the story
 unchanged, and make use of the existing beam-remnants (BR) machinery. 
-If you want to replace both MI, ISR, FSR and BR then you had better 
+If you want to replace both MPI, ISR, FSR and BR then you had better 
 replace the whole <code>PartonLevel</code> module of the code. 
 If, in addition, you want to produce your own hard processes, 
 then you only need the
@@ -64,9 +64,9 @@ serve as a useful introduction.
 
 <p/>
 It should be noted that we here primarily address the problem in 
-its full generality, with interleaved MI, ISR and FSR. There exists
+its full generality, with interleaved MPI, ISR and FSR. There exists
 an option <code>TimeShower:interleave = off</code> where only
-MI and ISR would be interleaved and FSR be considered after these
+MPI and ISR would be interleaved and FSR be considered after these
 two, but still before BR. Most of the aspects described here would 
 apply also for that case. By contrast, resonance decays are only
 considered after all the four above components, and timelike 
@@ -81,7 +81,7 @@ method allows two separate pointers to be set to instances of
 derived <code>TimeShower</code> classes. The first is only required 
 to handle decays, say of <i>Z^0</i> or <i>Upsilon</i>, with no
 dependence on beam remnants or ISR. The second, as well as 
-<code>spacePtr</code>, has to handle the interleaved evolution of MI, 
+<code>spacePtr</code>, has to handle the interleaved evolution of MPI, 
 ISR and FSR. Therefore you are free to implement only the first, and 
 let the PYTHIA default showers take care of the latter two. But, if 
 you wanted to, you could also set <code>timesDecPtr = 0</code> and 
@@ -262,7 +262,7 @@ rest are not required to be in any particular order.
 <a name="method10"></a>
 <p/><strong>virtual void TimeShower::rescatterUpdate( int iSys, Event& event) &nbsp;</strong> <br/>
 This method is called immediately after rescattering in the description
-of multiple interactions. Thus the information on one or several 
+of multiparton interactions. Thus the information on one or several 
 systems is out-of-date, while that of the others is unchanged. 
 We do not provide the details here, since we presume few implementors
 of new showers will want to touch the technicalities involved
@@ -290,23 +290,23 @@ scale of each individual parton). If no emission is found above
 <code>pTendAll</code> (and above the respective shower cutoff scales) 
 then <code>0.</code> should be returned and no emissions will be allowed.
 Both scales can vary from one event to the next: if a scale has
-already been selected for MI or ISR it makes no sense to look for
+already been selected for MPI or ISR it makes no sense to look for
 a scale smaller than that from FSR, since it would not be able to 
 compete, so <code>pTendAll</code> is set correspondingly. As it happens, 
-FSR is tried before ISR and MI in the interleaved evolution,
+FSR is tried before ISR and MPI in the interleaved evolution,
 but this is an implementational detail that could well change.  
 <br/>Typically the implementation of this routine would be to set
 up a loop over all possible radiating objects (dipoles, dipole ends, ...),
 for each pick its possible branching scale and then pick the one 
 with largest scale as possible winner. At this stage no branching should
-actually be carried out, since MI, ISR and FSR still have to be compared
+actually be carried out, since MPI, ISR and FSR still have to be compared
 to assign the winner.
   
 
 <a name="method13"></a>
 <p/><strong>virtual bool TimeShower::branch( Event& event, bool isInterleaved = false) &nbsp;</strong> <br/>
 This method will be called once FSR has won the competition with 
-MI and ISR to do the next branching. The candidate branching found 
+MPI and ISR to do the next branching. The candidate branching found 
 in the previous step should here be carried out in full. The 
 pre-branching partons should get a negative status code and new
 replacement ones added to the end of the event record. Also the  
@@ -318,7 +318,7 @@ allowed to return <code>false</code> to indicate that no branching
 could be carried out.   
 <br/>Normally the optional <code>isInterleaved</code> argument would 
 not be of interest. It can be used to separate resonance decays, false,
-from the interleaved evolution together with MI and ISR, true. 
+from the interleaved evolution together with MPI and ISR, true. 
 More precisely, it separates calls to the <code>timesDecPtr</code>
 and the <code>timesPtr</code> instances.
   
@@ -326,7 +326,7 @@ and the <code>timesPtr</code> instances.
 <a name="method14"></a>
 <p/><strong>virtual bool TimeShower::rescatterPropogateRecoil( Event& event, Vec4& pNew) &nbsp;</strong> <br/>
 This method is only called if rescattering is switched on in the 
-description of multiple interactions. It then propagates a recoil
+description of multiparton interactions. It then propagates a recoil
 from a timelike branching to internal lines that connect systems.
 As for <code>rescatterUpdate</code> above, this is not likely to be
 of interest to most implementors of new showers.
@@ -428,7 +428,7 @@ incoming partons (and the outgoing ones) of the system, and from there
 the scales at which they were produced.
 <br/> The <code>limitPTmax</code> input agrees with the output of the
 previous method for the hardest process, and is always true for
-subsequent MI, since there an unlimited <i>pT</i> for sure
+subsequent MPI, since there an unlimited <i>pT</i> for sure
 would lead to doublecounting.
   
 
@@ -452,16 +452,16 @@ scale of each individual parton). If no emission is found above
 <code>pTendAll</code> (and above the respective shower cutoff scales) 
 then <code>0.</code> should be returned and no emissions will be allowed.
 Both scales can vary from one event to the next: if a scale has
-already been selected for MI or ISR it makes no sense to look for
+already been selected for MPI or ISR it makes no sense to look for
 a scale smaller than that from FSR, since it would not be able to 
 compete, so <code>pTendAll</code> is set correspondingly. As it happens, 
-FSR is tried before ISR and MI in the interleaved evolution,
+FSR is tried before ISR and MPI in the interleaved evolution,
 but this is an implementational detail that could well change.  
 <br/>Typically the implementation of this routine would be to set
 up a loop over all possible radiating objects (dipoles, dipole ends, ...),
 for each pick its possible branching scale and then pick the one 
 with largest scale as possible winner. At this stage no branching should
-actually be carried out, since MI, ISR and FSR still have to be compared
+actually be carried out, since MPI, ISR and FSR still have to be compared
 to assign the winner.
 <br/>The final input <code>nRadIn</code> provides the total number of 
 ISR and FSR emissions already generated in the event, and so allows a 
@@ -471,7 +471,7 @@ special treatment for the very first emission, if desired.
 <a name="method26"></a>
 <p/><strong>virtual bool SpaceShower::branch( Event& event) &nbsp;</strong> <br/>
 This method will be called once FSR has won the competition with 
-MI and ISR to do the next branching. The candidate branching found 
+MPI and ISR to do the next branching. The candidate branching found 
 in the previous step should here be carried out in full. The 
 pre-branching partons should get a negative status code and new
 replacement ones added to the end of the event record. Also the  
@@ -516,4 +516,4 @@ development/debug phase.
 </body>
 </html>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->

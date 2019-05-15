@@ -1,5 +1,5 @@
 // BeamRemnants.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -73,22 +73,22 @@ bool BeamRemnants::init( Info* infoPtrIn, Settings& settings, Rndm* rndmPtrIn,
   halfMassForKT       = settings.parm("BeamRemnants:halfMassForKT");
 
   // Handling of rescattering kinematics uncertainties from primodial kT.
-  allowRescatter      = settings.flag("MultipleInteractions:allowRescatter");
+  allowRescatter    = settings.flag("MultipartonInteractions:allowRescatter");
   doRescatterRestoreY = settings.flag("BeamRemnants:rescatterRestoreY");
 
   // Parameters for colour reconnection scenario, partly borrowed from
-  // multiple interactions not to introduce too many new ones.
+  // multiparton interactions not to introduce too many new ones.
   doReconnect         = settings.flag("BeamRemnants:reconnectColours");
   reconnectRange      = settings.parm("BeamRemnants:reconnectRange");
-  pT0Ref              = settings.parm("MultipleInteractions:pT0Ref");
-  ecmRef              = settings.parm("MultipleInteractions:ecmRef");
-  ecmPow              = settings.parm("MultipleInteractions:ecmPow");
+  pT0Ref              = settings.parm("MultipartonInteractions:pT0Ref");
+  ecmRef              = settings.parm("MultipartonInteractions:ecmRef");
+  ecmPow              = settings.parm("MultipartonInteractions:ecmPow");
 
   // Total and squared CM energy at nominal energy.
   eCM                 = infoPtr->eCM();
   sCM                 = eCM * eCM;
 
-  // The MI pT0 smoothening scale and its reconnection-strength combination.
+  // The MPI pT0 smoothening scale and its reconnection-strength combination.
   pT0                 = pT0Ref * pow(eCM / ecmRef, ecmPow);
   pT20Rec             = pow2(reconnectRange * pT0); 
   
@@ -247,7 +247,7 @@ bool BeamRemnants::setKinematics( Event& event) {
     if (doPrimordialKT) {
       double mHat     = sqrt(sHatNow);
       mHatDamp        = mHat / (mHat + halfMassForKT);
-      double scale    = (iSys == 0) ? infoPtr->QRen() : infoPtr->pTMI(iSys);
+      double scale    = (iSys == 0) ? infoPtr->QRen() : infoPtr->pTMPI(iSys);
       kTwidthNow      = ( (halfScaleForKT * primordialKTsoft
       + scale * primordialKThard) / (halfScaleForKT + scale) ) * mHatDamp;
     }
@@ -695,7 +695,7 @@ bool BeamRemnants::reconnectColours( Event&  event) {
   for (int iRec = nSys - 1; iRec > 0; --iRec) {
 
     // Determine reconnection strength from pT scale of system.
-    double pT2Rec  = pow2( infoPtr->pTMI(iRec) );
+    double pT2Rec  = pow2( infoPtr->pTMPI(iRec) );
     double probRec = pT20Rec / (pT20Rec + pT2Rec); 
 
     // Loop over other systems iSys at higher pT scale and 
@@ -847,6 +847,19 @@ bool BeamRemnants::reconnectColours( Event&  event) {
               if (event[i].col()  == colGlu) event[i].col( acolGlu );  
           }       
         }
+
+	// Update any junction legs that match reconnected dipole.
+	for (int iJun = 0; iJun < event.sizeJunction(); ++iJun) {
+
+	  // Only junctions need to be updated, not antijunctions.
+	  if (event.kindJunction(iJun) % 2 == 0) continue;
+	  for (int leg = 0; leg < 3; ++leg) {
+	    int col = event.colJunction(iJun, leg); 
+	    if (col == colDip) 
+	      event.colJunction(iJun, leg, colGlu);
+	  }	
+	}
+	
       }
 
       // See if any matching quark-antiquark pairs among the rest.
@@ -901,15 +914,28 @@ bool BeamRemnants::reconnectColours( Event&  event) {
               freeAnyRec[iQRec]    = false;
               freeAnyRec[iQbarRec] = false;
               for (int i = oldSize; i < event.size(); ++i)
-              if (i != iQRec && i != iQbarRec && i != iColDip && i != iAcolDip) { 
-                 if (event[i].isFinal()) {     
+              if (i != iQRec && i != iQbarRec && i != iColDip 
+                && i != iAcolDip) { 
+                if (event[i].isFinal()) {     
                   if (event[i].acol() == colGlu) event[i].acol( acolGlu ); 
                 } else {      
                     if (event[i].col()  == colGlu) event[i].col( acolGlu );  
                 }       
               }
-              
-            // Done with processing of q-qbar pairs.
+               
+	      // Update any junction legs that match reconnected dipole.
+	      for (int iJun = 0; iJun < event.sizeJunction(); ++iJun) {
+		
+		// Only junctions need to be updated, not antijunctions.
+		if (event.kindJunction(iJun) % 2 == 0) continue;
+		for (int leg = 0; leg < 3; ++leg) {
+		  int col = event.colJunction(iJun, leg); 
+		  if (col == colDip) 
+		    event.colJunction(iJun, leg, colGlu);
+		}	
+	      }
+	      
+	      // Done with processing of q-qbar pairs.
             }
           }
         }
@@ -917,8 +943,8 @@ bool BeamRemnants::reconnectColours( Event&  event) {
 
       // If only two beam gluons left of system, set their colour = anticolour.
       // Used by BeamParticle::remnantColours to skip irrelevant gluons.
-      if ( event[iInARec].isGluon() && !event[iInARec].isRescatteredIncoming() 
-	&& event[iInBRec].isGluon() && !event[iInBRec].isRescatteredIncoming() 
+      if ( event[iInARec].isGluon() && !event[iInARec].isRescatteredIncoming()
+        && event[iInBRec].isGluon() && !event[iInBRec].isRescatteredIncoming()
         && event[iInARec].col() == event[iInBRec].acol() 
         && event[iInARec].acol() == event[iInBRec].col() ) { 
           event[iInARec].acol( event[iInARec].col() );
@@ -965,17 +991,17 @@ bool BeamRemnants::checkColours( Event& event) {
   }
 
   // Transform junction colours from beam remnant colour collapses.
-  for (int iJun = 0; iJun < event.sizeJunction(); ++iJun)
-  for (int leg = 0; leg < 3; ++leg) {
-    int col = event.colJunction(iJun, leg); 
-    for (int iCol = 0; iCol < int(colFrom.size()); ++iCol) {
-      if (col == colFrom[iCol]) {
-	col = colTo[iCol]; 
-	event.colJunction(iJun, leg, col);
-      } 
+  for (int iJun = 0; iJun < event.sizeJunction(); ++iJun) 
+    for (int leg = 0; leg < 3; ++leg) {      
+      int col = event.colJunction(iJun, leg); 
+      for (int iCol = 0; iCol < int(colFrom.size()); ++iCol) {	
+	if (col == colFrom[iCol]) {
+	  col = colTo[iCol]; 
+	  event.colJunction(iJun, leg, col);
+	} 
+      }
     }
-  }
-
+  
   // Arrays for current colours and anticolours, and for singlet gluons.
   vector<int> colList;
   vector<int> acolList;
@@ -1041,6 +1067,19 @@ bool BeamRemnants::checkColours( Event& event) {
     if (iAcolDip == -1)  return false;
     event[iGlu].acol( event[iAcolDip].acol() );
     event[iAcolDip].acol( event[iGlu].col() );
+
+    // Update any junction legs that match reconnected dipole.
+    for (int iJun = 0; iJun < event.sizeJunction(); ++iJun) {
+      
+      // Only junctions need to be updated, not antijunctions.
+      if (event.kindJunction(iJun) % 2 == 0) continue;
+      for (int leg = 0; leg < 3; ++leg) {
+	int col = event.colJunction(iJun, leg); 
+	if (col == event[iGlu].acol()) 
+	  event.colJunction(iJun, leg, event[iGlu].col());
+      }	
+    }
+    
   }
 
   // Check that not the same colour or anticolour appears twice.
@@ -1072,9 +1111,11 @@ bool BeamRemnants::checkColours( Event& event) {
         if (acolList[iAcol] == colList[iCol]) { 
           colList[iCol] = colList.back(); colList.pop_back();     
           acolList[iAcol] = acolList.back(); acolList.pop_back();     
-          foundPair = true; break;
+          foundPair = true; 
+          break;
         }
-      } if (foundPair) break;
+      } 
+      if (foundPair) break;
     }
   } 
 
@@ -1086,48 +1127,44 @@ bool BeamRemnants::checkColours( Event& event) {
 
       // Junction connected to three colours.
       if (kindJun == 1) {
-        bool foundCol = false;
         for (int iCol = 0; iCol < int(colList.size()); ++iCol) 
         if (colList[iCol] == colEnd) { 
+          // Found colour match: remove and exit.
           colList[iCol] = colList.back(); 
           colList.pop_back();     
-          foundCol = true; 
           break;
         }  
       } 
 
       // Junction connected to three anticolours.
       else if (kindJun == 2) {
-        bool foundCol = false;
         for (int iAcol = 0; iAcol < int(acolList.size()); ++iAcol) 
         if (acolList[iAcol] == colEnd) { 
+          // Found colour match: remove and exit.
           acolList[iAcol] = acolList.back(); 
           acolList.pop_back();     
-          foundCol = true; 
-          break;
+          break; 
         }
       }
 
       // Other junction types
       else if ( kindJun == 3 || kindJun == 5) {
-	bool foundCol = false;
         for (int iCol = 0; iCol < int(colList.size()); ++iCol) 
         if (colList[iCol] == colEnd) { 
+          // Found colour match: remove and exit.
           colList[iCol] = colList.back(); 
           colList.pop_back();     
-          foundCol = true; 
           break;
         }  
       } 
 
       // Other antijunction types
       else if ( kindJun == 4 || kindJun == 6) {
-        bool foundCol = false;
         for (int iAcol = 0; iAcol < int(acolList.size()); ++iAcol) 
         if (acolList[iAcol] == colEnd) { 
+          // Found colour match: remove and exit.
           acolList[iAcol] = acolList.back(); 
           acolList.pop_back();     
-          foundCol = true; 
           break;
         }
       }

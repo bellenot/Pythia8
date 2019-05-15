@@ -1,5 +1,5 @@
 # runmains is a part of the PYTHIA event generator.
-# Copyright (C) 2011 Torbjorn Sjostrand.
+# Copyright (C) 2012 Torbjorn Sjostrand.
 # PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 # Please respect the MCnet Guidelines, see GUIDELINES for details. 
  
@@ -92,7 +92,7 @@ time ./main16.exe main16.cmnd > out16
 echo
 echo Now begin main17
 make main17
-time ./main17.exe main17.cmnd > out17
+time ./main17.exe > out17
 
 echo
 echo Now begin main18
@@ -149,28 +149,8 @@ echo Now begin main28
 make main28
 time ./main28.exe > out28
 
-echo
-echo Now begin main29
-make main29
-time ./main29.exe > out29
-
-echo
-echo Now begin main30
-make main30
-time ./main30.exe > out30
-
-echo
-echo Now begin main71
-make main71
-time ./main71.exe > out71
-
-echo
-echo Now begin main72
-make main72
-time ./main72.exe > out72
-
 # This code section stops the testing before the mainXX programs
-# that need access to various external libraries.  
+# that need access to various external libraries (+ main31).  
 # If you have ensured such linkage, feel free to comment out
 # the exit command below, to have the program continue to the end.
 echo 
@@ -185,11 +165,6 @@ make main31
 time ./main31.exe > out31
 
 echo
-echo Now begin main32
-make main32
-time ./main32.exe main32.cmnd hepmcout32.dat > out32
-
-echo
 echo Now begin main41
 make main41
 time ./main41.exe > out41
@@ -197,20 +172,41 @@ time ./main41.exe > out41
 echo
 echo Now begin main42
 make main42
-time ./main42.exe > out42
+time ./main42.exe main42.cmnd hepmcout42.dat > out42
 
 echo
-echo Now begin main43
-make main43
-time ./main43.exe > out43
+echo Now begin main51
+make main51
+time ./main51.exe > out51
 
 echo
-echo Now begin main44
-make main44
-time ./main44.exe > out44
+echo Now begin main52
+make main52
+time ./main52.exe > out52
+
+echo
+echo Now begin main53
+make main53
+time ./main53.exe > out53
 
 echo
 echo Now begin main61
 make main61
-time ./main61.exe > out61
+time ./main61.exe main61.cmnd hepmcout61.dat > out61
+
+echo
+echo Now begin main62
+make main62
+time ./main62.exe main62.cmnd hepmcout62.dat > out62
+
+echo
+echo Now begin main71
+make main71
+time ./main71.exe > out71
+
+echo
+echo Now begin main72
+make main72
+time ./main72.exe > out72
+
 

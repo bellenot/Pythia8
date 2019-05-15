@@ -1,616 +1,255 @@
 // main71.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Richard Corke, Torbjorn Sjostrand.
+// Copyright (C) 2012 Richard Corke.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
+/*
+ * Simple example of fastjet analysis. Roughly follows analysis of:
+ * T. Aaltonen et al. [CDF Collaboration],
+ * Measurement of the cross section for W-boson production in association
+ * with jets in ppbar collisions at sqrt(s)=1.96$ TeV
+ * Phys. Rev. D 77 (2008) 011108
+ * arXiv:0711.4044 [hep-ex]
+ *
+ * Cuts:
+ *   ET(elec)     > 20GeV
+ *   |eta(elec)|  < 1.1
+ *   ET(missing)  > 30GeV
+ *   ET(jet)      > 20GeV
+ *   |eta(jet)|   < 2.0
+ *   deltaR(elec, jet) > 0.52
+ * Not used:
+ *   mT(W)        > 20GeV
+ */
+
 #include "Pythia.h"
-using namespace Pythia8; 
 
-//==========================================================================
+// This is the minimal interface needed to access FastJet. 
+// A more sophisticated interface is demonstrated in main72.cc.
+#include "fastjet/PseudoJet.hh"
+#include "fastjet/ClusterSequence.hh"
 
-// Use userhooks to veto PYTHIA emissions above the POWHEG scale.
+using namespace Pythia8;
 
-class PowhegHooks : public UserHooks {
+// Experimental cross section
+// sigma(W -> ev + >= n-jet; ET(n'th-jet) > 25GeV), n = 0, 1, 2, 3, 4
+const double expCrossSec[] = { 798.0, 53.5, 6.8, 0.84, 0.074 };
 
-public:  
-
-  // Constructor and destructor.
-   PowhegHooks(int nFinalIn, int vetoModeIn, int vetoCountIn,
-               int pThardModeIn, int pTemtModeIn, int emittedModeIn,
-               int pTdefModeIn, int MIvetoModeIn) : nFinal(nFinalIn),
-               vetoMode(vetoModeIn), vetoCount(vetoCountIn),
-               pThardMode(pThardModeIn), pTemtMode(pTemtModeIn),
-               emittedMode(emittedModeIn), pTdefMode(pTdefModeIn),
-               MIvetoMode(MIvetoModeIn) {};
-  ~PowhegHooks() {}
-
-
-  // =======================================================================
-
-  // Routines to calculate the pT (according to pTdefMode) in a splitting:
-  //   ISR: i (radiator after)  -> j (emitted after) k (radiator before)
-  //   FSR: i (radiator before) -> j (emitted after) k (radiator after)
-  // For the Pythia pT definition, a recoiler (after) must be specified.
-
-  // Compute the Pythia pT separation. Based on pTLund function in History.cc
-  double pTpythia(const Event &e, int RadAfterBranch, int EmtAfterBranch,
-                  int RecAfterBranch, bool FSR) {
-
-    // Convenient shorthands for later
-    Vec4 radVec = e[RadAfterBranch].p();
-    Vec4 emtVec = e[EmtAfterBranch].p();
-    Vec4 recVec = e[RecAfterBranch].p();
-    int  radID  = e[RadAfterBranch].id();
-
-    // Calculate virtuality of splitting
-    double sign = (FSR) ? 1. : -1.;
-    Vec4 Q(radVec + sign * emtVec); 
-    double Qsq = sign * Q.m2Calc();
-
-    // Mass term of radiator
-    double m2Rad = (abs(radID) >= 4 && abs(radID) < 7) ?
-                   pow2(particleDataPtr->m0(radID)) : 0.;
-
-    // z values for FSR and ISR
-    double z, pTnow;
-    if (FSR) {
-      // Construct 2 -> 3 variables
-      Vec4 sum = radVec + recVec + emtVec;
-      double m2Dip = sum.m2Calc();
-      double x1 = 2. * (sum * radVec) / m2Dip;
-      double x3 = 2. * (sum * emtVec) / m2Dip;
-      z     = x1 / (x1 + x3);
-      pTnow = z * (1. - z);
-
-    } else {
-      // Construct dipoles before/after splitting
-      Vec4 qBR(radVec - emtVec + recVec);
-      Vec4 qAR(radVec + recVec);
-      z     = qBR.m2Calc() / qAR.m2Calc();
-      pTnow = (1. - z);
-    }
-
-    // Virtuality with correct sign
-    pTnow *= (Qsq - sign * m2Rad);
-
-    // Can get negative pT for massive splittings
-    if (pTnow < 0.) {
-      cout << "Warning: pTpythia was negative" << endl;
-      return -1.;
-    }
-
-#ifdef DBGOUTPUT
-    cout << "pTpythia: rad = " << RadAfterBranch << ", emt = "
-         << EmtAfterBranch << ", rec = " << RecAfterBranch
-         << ", pTnow = " << sqrt(pTnow) << endl;
-#endif
-
-    // Return pT
-    return sqrt(pTnow);
-  }
-
-  // Compute the POWHEG pT separation between i and j
-  double pTpowheg(const Event &e, int i, int j, bool FSR) {
-
-    // pT value for FSR and ISR
-    double pTnow = 0.;
-    if (FSR) {
-      // POWHEG d_ij (in CM frame). Note that the incoming beams have not
-      // been updated in the parton systems pointer yet (i.e. prior to any
-      // potential recoil).
-      int iInA = partonSystemsPtr->getInA(0);
-      int iInB = partonSystemsPtr->getInB(0);
-      double betaZ = - ( e[iInA].pz() + e[iInB].pz() ) /
-                       ( e[iInA].e()  + e[iInB].e()  );
-      Vec4 iVecBst(e[i].p()), jVecBst(e[j].p());
-      iVecBst.bst(0., 0., betaZ);
-      jVecBst.bst(0., 0., betaZ);
-      pTnow = sqrt( (iVecBst + jVecBst).m2Calc() *
-                    iVecBst.e() * jVecBst.e() /
-                    pow2(iVecBst.e() + jVecBst.e()) );
-
-    } else {
-      // POWHEG pT_ISR is just kinematic pT
-      pTnow = e[j].pT();
-    }
-
-    // Check result
-    if (pTnow < 0.) {
-      cout << "Warning: pTpowheg was negative" << endl;
-      return -1.;
-    }
-
-#ifdef DBGOUTPUT
-    cout << "pTpowheg: i = " << i << ", j = " << j
-         << ", pTnow = " << pTnow << endl;
-#endif
-
-    return pTnow;
-  }
-
-  // Calculate pT for a splitting based on pTdefMode.
-  // If j is -1, all final-state partons are tried.
-  // If i, k, r and xSR are -1, then all incoming and outgoing partons are tried.
-  // xSR set to 0 means ISR, while xSR set to 1 means FSR
-  double pTcalc(const Event &e, int i, int j, int k, int r, int xSRin) {
-
-    // Loop over ISR and FSR if necessary
-    double pTemt = -1., pTnow;
-    int xSR1 = (xSRin == -1) ? 0 : xSRin;
-    int xSR2 = (xSRin == -1) ? 2 : xSRin + 1;
-    for (int xSR = xSR1; xSR < xSR2; xSR++) {
-      // FSR flag
-      bool FSR = (xSR == 0) ? false : true;
-
-      // If all necessary arguments have been given, then directly calculate.
-      // POWHEG ISR and FSR, need i and j.
-      if ((pTdefMode == 0 || pTdefMode == 1) && i > 0 && j > 0) {
-        pTemt = pTpowheg(e, i, j, (pTdefMode == 0) ? false : FSR);
-
-      // Pythia ISR, need i, j and r.
-      } else if (!FSR && pTdefMode == 2 && i > 0 && j > 0 && r > 0) {
-        pTemt = pTpythia(e, i, j, r, FSR);
-
-      // Pythia FSR, need k, j and r.
-      } else if (FSR && pTdefMode == 2 && j > 0 && k > 0 && r > 0) {
-        pTemt = pTpythia(e, k, j, r, FSR);
-
-      // Otherwise need to try all possible combintations.
-      } else {
-        // Start by finding incoming legs to the hard system after
-        // branching (radiator after branching, i for ISR).
-        // Use partonSystemsPtr to find incoming just prior to the
-        // branching and track mothers.
-        int iInA = partonSystemsPtr->getInA(0);
-        int iInB = partonSystemsPtr->getInB(0);
-        while (e[iInA].mother1() != 1) { iInA = e[iInA].mother1(); }
-        while (e[iInB].mother1() != 2) { iInB = e[iInB].mother1(); }
-
-        // If we do not have j, then try all final-state partons
-        int jNow = (j > 0) ? j : 0;
-        int jMax = (j > 0) ? j + 1 : e.size();
-        for (; jNow < jMax; jNow++) {
-
-          // Final-state and coloured jNow only
-          if (!e[jNow].isFinal() || e[jNow].colType() == 0) continue;
-
-          // POWHEG
-          if (pTdefMode == 0 || pTdefMode == 1) {
-
-            // ISR - only done once as just kinematical pT
-            if (!FSR) {
-              pTnow = pTpowheg(e, iInA, jNow, (pTdefMode == 0) ? false : FSR);
-              if (pTnow > 0.) pTemt = (pTemt < 0) ? pTnow : min(pTemt, pTnow);
-  
-              // FSR - try all outgoing partons from system before branching as i.
-              //       Note that for the hard system, there is no "before branching"
-              //       information.
-              } else {
+int main() {
+  // Settings
+  int  nEvent = 10000;
+  bool doMPI  = true;
     
-                int outSize = partonSystemsPtr->sizeOut(0);
-                for (int iMem = 0; iMem < outSize; iMem++) {
-                  int iNow = partonSystemsPtr->getOut(0, iMem);
-
-                  // Coloured only, i != jNow and no carbon copies
-                  if (iNow == jNow || e[iNow].colType() == 0) continue;
-                  if (jNow == e[iNow].daughter1() && jNow == e[iNow].daughter2())
-                    continue;
-
-                  pTnow = pTpowheg(e, iNow, jNow, (pTdefMode == 0) ? false : FSR);
-                  if (pTnow > 0.) pTemt = (pTemt < 0) ? pTnow : min(pTemt, pTnow);
-                } // for (iMem)
-  
-              } // if (!FSR)
-  
-          // Pythia
-          } else if (pTdefMode == 2) {
-  
-            // ISR - other incoming as recoiler
-            if (!FSR) {
-              pTnow = pTpythia(e, iInA, jNow, iInB, FSR);
-              if (pTnow > 0.) pTemt = (pTemt < 0) ? pTnow : min(pTemt, pTnow);
-              pTnow = pTpythia(e, iInB, jNow, iInA, FSR);
-              if (pTnow > 0.) pTemt = (pTemt < 0) ? pTnow : min(pTemt, pTnow);
-  
-            // FSR - try all final-state coloured partons as radiator
-            //       after emission (k).
-            } else {
-              for (int kNow = 0; kNow < e.size(); kNow++) {
-                if (kNow == jNow || !e[kNow].isFinal() ||
-                    e[kNow].colType() == 0) continue;
-  
-                // For this kNow, need to have a recoiler.
-                // Try two incoming.
-                pTnow = pTpythia(e, kNow, jNow, iInA, FSR);
-                if (pTnow > 0.) pTemt = (pTemt < 0) ? pTnow : min(pTemt, pTnow);
-                pTnow = pTpythia(e, kNow, jNow, iInB, FSR);
-                if (pTnow > 0.) pTemt = (pTemt < 0) ? pTnow : min(pTemt, pTnow);
-
-                // Try all other outgoing.
-                for (int rNow = 0; rNow < e.size(); rNow++) {
-                  if (rNow == kNow || rNow == jNow ||
-                      !e[rNow].isFinal() || e[rNow].colType() == 0) continue;
-                  pTnow = pTpythia(e, kNow, jNow, rNow, FSR);
-                  if (pTnow > 0.) pTemt = (pTemt < 0) ? pTnow : min(pTemt, pTnow);
-                } // for (rNow)
-  
-              } // for (kNow)
-            } // if (!FSR)
-          } // if (pTdefMode)
-        } // for (j)
-      }
-    } // for (xSR)
-
-#ifdef DBGOUTPUT
-    cout << "pTcalc: i = " << i << ", j = " << j << ", k = " << k
-         << ", r = " << r << ", xSR = " << xSRin
-         << ", pTemt = " << pTemt << endl;
-#endif
-
-    return pTemt;
-  }
-
-  // =======================================================================
-
-  // Extraction of pThard based on the incoming event.
-  // Assume that all the final-state particles are in a continuous block
-  // at the end of the event and the final entry is the POWHEG emission.
-  // If there is no POWHEG emission, then pThard is set to Qfac.
-
-  bool canVetoMIStep()    { return true; }
-  int  numberVetoMIStep() { return 1; }
-  bool doVetoMIStep(int nMI, const Event &e) {
-    // Extra check on nMI
-    if (nMI > 1) return false;
-
-    // Find if there is a POWHEG emission. Go backwards through the
-    // event record until there is a non-final particle. Also sum pT and
-    // find pT_1 for possible MI vetoing
-    int    count = 0;
-    double pT1 = 0., pTsum = 0.;
-    for (int i = e.size() - 1; i > 0; i--) {
-      if (e[i].isFinal()) {
-        count++;
-        pT1    = e[i].pT();
-        pTsum += e[i].pT();
-      } else break;
-    }
-    // Extra check that we have the correct final state
-    if (count != nFinal && count != nFinal + 1) {
-      cout << "Error: wrong number of final state particles in event" << endl;
-      exit(1);
-    }
-    // Flag if POWHEG radiation present and index
-    bool isEmt = (count == nFinal) ? false : true;
-    int  iEmt  = (isEmt) ? e.size() - 1 : -1;
-
-    // If there is no radiation or if pThardMode is 0 then set pThard to Qfac.
-    if (!isEmt || pThardMode == 0) {
-      pThard = infoPtr->QFac();
-      
-    // If pThardMode is 1 then the pT of the POWHEG emission is checked against
-    // all other incoming and outgoing partons, with the minimal value taken
-    } else if (pThardMode == 1) {
-      pThard = pTcalc(e, -1, iEmt, -1, -1, -1);
-
-    // If pThardMode is 2, then the pT of all final-state partons is checked
-    // against all other incoming and outgoing partons, with the minimal value
-    // taken
-    } else if (pThardMode == 2) {
-      pThard = pTcalc(e, -1, -1, -1, -1, -1);
-
-    }
-
-    // Find MI veto pT if necessary
-    if (MIvetoMode == 1) {
-      pTMI = (isEmt) ? pTsum / 2. : pT1;
-    }
-
-#ifdef DBGOUTPUT
-    cout << "doVetoMIStep: Qfac = " << infoPtr->QFac()
-         << ", pThard = " << pThard << endl << endl;
-#endif
-
-    // Initialise other variables
-    accepted   = false;
-    nAcceptSeq = nISRveto = nFSRveto = 0;
-
-    // Do not veto the event
-    return false;
-  }
-
-
-  // =======================================================================
-
-  // ISR veto
-
-  bool canVetoISREmission() { return (vetoMode == 0) ? false : true; }
-  bool doVetoISREmission(int, const Event &e, int iSys) {
-    // Must be radiation from the hard system
-    if (iSys != 0) return false;
-
-    // If we already have accepted 'vetoCount' emissions in a row, do nothing
-    if (vetoMode == 1 && nAcceptSeq >= vetoCount) return false;
-
-    // Pythia radiator after, emitted and recoiler after.
-    int iRadAft = -1, iEmt = -1, iRecAft = -1;
-    for (int i = e.size() - 1; i > 0; i--) {
-      if      (iRadAft == -1 && e[i].status() == -41) iRadAft = i;
-      else if (iEmt    == -1 && e[i].status() ==  43) iEmt    = i;
-      else if (iRecAft == -1 && e[i].status() == -42) iRecAft = i;
-      if (iRadAft != -1 && iEmt != -1 && iRecAft != -1) break;
-    }
-    if (iRadAft == -1 || iEmt == -1 || iRecAft == -1) {
-      e.list();
-      cout << "Error: couldn't find Pythia ISR emission" << endl;
-      exit(1);
-    }
-
-    // pTemtMode == 0: pT of emitted w.r.t. radiator
-    // pTemtMode == 1: min(pT of emitted w.r.t. all incoming/outgoing)
-    // pTemtMode == 2: min(pT of all outgoing w.r.t. all incoming/outgoing)
-    int xSR      = (pTemtMode == 0) ? 0       : -1;
-    int i        = (pTemtMode == 0) ? iRadAft : -1;
-    int j        = (pTemtMode != 2) ? iEmt    : -1;
-    int k        = -1;
-    int r        = (pTemtMode == 0) ? iRecAft : -1;
-    double pTemt = pTcalc(e, i, j, k, r, xSR);
-
-#ifdef DBGOUTPUT
-    cout << "doVetoISREmission: pTemt = " << pTemt << endl << endl;
-#endif
-
-    // Veto if pTemt > pThard
-    if (pTemt > pThard) {
-      nAcceptSeq = 0;
-      nISRveto++;
-      return true;
-    }
-
-    // Else mark that an emission has been accepted and continue
-    nAcceptSeq++;
-    accepted = true;
-    return false;
-  }
-
-
-  // =======================================================================
-
-  // FSR veto
-
-  bool canVetoFSREmission() { return (vetoMode == 0) ? false : true; }
-  bool doVetoFSREmission(int, const Event &e, int iSys, bool) {
-    // Must be radiation from the hard system
-    if (iSys != 0) return false;
-
-    // If we already have accepted 'vetoCount' emissions in a row, do nothing
-    if (vetoMode == 1 && nAcceptSeq >= vetoCount) return false;
-
-    // Pythia radiator (before and after), emitted and recoiler (after)
-    int iRecAft = e.size() - 1;
-    int iEmt    = e.size() - 2;
-    int iRadAft = e.size() - 3;
-    int iRadBef = e[iEmt].mother1();
-    if ( (e[iRecAft].status() != 52 && e[iRecAft].status() != -53) ||
-         e[iEmt].status() != 51 || e[iRadAft].status() != 51) {
-      e.list();
-      cout << "Error: couldn't find Pythia FSR emission" << endl;
-      exit(1);
-    }
-
-    // Behaviour based on pTemtMode:
-    //  0 - pT of emitted w.r.t. radiator before
-    //  1 - min(pT of emitted w.r.t. all incoming/outgoing)
-    //  2 - min(pT of all outgoing w.r.t. all incoming/outgoing)
-    int xSR = (pTemtMode == 0) ? 1       : -1;
-    int i   = (pTemtMode == 0) ? iRadBef : -1;
-    int k   = (pTemtMode == 0) ? iRadAft : -1;
-    int r   = (pTemtMode == 0) ? iRecAft : -1;
-
-    // When pTemtMode is 0 or 1, iEmt has been selected
-    double pTemt;
-    if (pTemtMode == 0 || pTemtMode == 1) {
-      // Which parton is emitted, based on emittedMode:
-      //  0 - Pythia definition of emitted
-      //  1 - Pythia definition of radiated after emission
-      //  2 - Random selection of emitted or radiated after emission
-      //  3 - Try both emitted and radiated after emission
-      int j = iRadAft;
-      if (emittedMode == 0 || (emittedMode == 2 && rndmPtr->flat() < 0.5)) j++;
-
-      for (int jLoop = 0; jLoop < 2; jLoop++) {
-        if      (jLoop == 0) pTemt = pTcalc(e, i, j, k, r, xSR);
-        else if (jLoop == 1) pTemt = min(pTemt, pTcalc(e, i, j, k, r, xSR));
-  
-        // For emittedMode == 3, have tried iRadAft, now try iEmt
-        if (emittedMode != 3) break;
-        if (k != -1) swap(j, k); else j = iEmt;
-      }
-
-    // If pTemtMode is 2, then try all final-state partons as emitted
-    } else if (pTemtMode == 2) {
-      pTemt = pTcalc(e, i, -1, k, r, xSR);
-
-    }
-
-#ifdef DBGOUTPUT
-    cout << "doVetoFSREmission: pTemt = " << pTemt << endl << endl;
-#endif
-
-    // Veto if pTemt > pThard
-    if (pTemt > pThard) {
-      nAcceptSeq = 0;
-      nFSRveto++;
-      return true;
-    }
-
-    // Else mark that an emission has been accepted and continue
-    nAcceptSeq++;
-    accepted = true;
-    return false;
-  }
-
-
-  // =======================================================================
-
-  // MI veto
-
-  bool canVetoMIEmission() { return (MIvetoMode == 0) ? false : true; }
-  bool doVetoMIEmission(int, const Event &e) {
-    if (MIvetoMode == 1) {
-      if (e[e.size() - 1].pT() > pTMI) {
-#ifdef DBGOUTPUT
-        cout << "doVetoMIEmission: pTnow = " << e[e.size() - 1].pT()
-             << ", pTMI = " << pTMI << endl << endl;
-#endif
-        return true;
-      }
-    }
-    return false;
-  }
-
-
-  // =======================================================================
-
-  // Functions to return information
-
-  int    getNISRveto() { return nISRveto; }
-  int    getNFSRveto() { return nFSRveto; }
-
-private:
-  int    nFinal, vetoMode, vetoCount, pThardMode, pTemtMode,
-         emittedMode, pTdefMode, MIvetoMode;
-  double pThard, pTMI;
-  bool   accepted;
-  // The number of accepted emissions (in a row)
-  int nAcceptSeq;
-  // Statistics on vetos
-  unsigned long int nISRveto, nFSRveto;
-
-};
-
-//==========================================================================
-
-int main(int, char **) {
-
   // Generator
   Pythia pythia;
 
-  // Add further settings that can be set in the configuration file
-  pythia.settings.addMode("POWHEG:nFinal",    2, true, false, 1, 0);
-  pythia.settings.addMode("POWHEG:veto",      0, true, true,  0, 2);
-  pythia.settings.addMode("POWHEG:vetoCount", 3, true, false, 0, 0);
-  pythia.settings.addMode("POWHEG:pThard",    0, true, true,  0, 2);
-  pythia.settings.addMode("POWHEG:pTemt",     0, true, true,  0, 2);
-  pythia.settings.addMode("POWHEG:emitted",   0, true, true,  0, 3);
-  pythia.settings.addMode("POWHEG:pTdef",     0, true, true,  0, 2);
-  pythia.settings.addMode("POWHEG:MIveto",    0, true, true,  0, 1);
+  // Single W production
+  pythia.readString("WeakSingleBoson:ffbar2W = on");
+  // Force decay W->ev
+  pythia.readString("24:onMode = off");
+  pythia.readString("24:onIfAny = 11 12");
+  // Multiparton Interactions
+  if (doMPI == false) pythia.readString("PartonLevel:MPI = off");
 
-  // Load configuration file
-  pythia.readFile("main71.cmnd");
-
-  // Read in main settings
-  int nEvent      = pythia.settings.mode("Main:numberOfEvents");
-  int nList       = pythia.settings.mode("Main:numberToList");
-  int nShow       = pythia.settings.mode("Main:timesToShow");
-  int nError      = pythia.settings.mode("Main:timesAllowErrors");
-  // Read in POWHEG settings
-  int nFinal      = pythia.settings.mode("POWHEG:nFinal");
-  int vetoMode    = pythia.settings.mode("POWHEG:veto");
-  int vetoCount   = pythia.settings.mode("POWHEG:vetoCount");
-  int pThardMode  = pythia.settings.mode("POWHEG:pThard");
-  int pTemtMode   = pythia.settings.mode("POWHEG:pTemt");
-  int emittedMode = pythia.settings.mode("POWHEG:emitted");
-  int pTdefMode   = pythia.settings.mode("POWHEG:pTdef");
-  int MIvetoMode  = pythia.settings.mode("POWHEG:MIveto");
-  bool loadHooks  = (vetoMode > 0 || MIvetoMode > 0);
-
-  // Add in user hooks for shower vetoing
-  PowhegHooks *powhegHooks = NULL;
-  if (loadHooks) {
-
-    // Set ISR and FSR to start at the kinematical limit
-    if (vetoMode > 0) {
-      pythia.readString("SpaceShower:pTmaxMatch = 2");
-      pythia.readString("TimeShower:pTmaxMatch = 2");
-    }
-
-    // Set MI to start at the kinematical limit
-    if (MIvetoMode > 0) {
-      pythia.readString("MultipleInteractions:pTmaxMatch = 2");
-    }
-
-    powhegHooks = new PowhegHooks(nFinal, vetoMode, vetoCount,
-        pThardMode, pTemtMode, emittedMode, pTdefMode, MIvetoMode);
-    pythia.setUserHooksPtr((UserHooks *) powhegHooks);
-  }
-
-  // Initialise and list settings
+  // Initialisation, p pbar @ 1.96 TeV
+  pythia.readString("Beams:idB = -2212");
+  pythia.readString("Beams:eCM = 1960.");
   pythia.init();
-  pythia.settings.listChanged();
 
-  // Counters for number of ISR/FSR emissions vetoed
-  unsigned long int nISRveto = 0, nFSRveto = 0;
+  // Histograms
+  Hist dSigma1("1-jet cross-section (E_jet1 > 20 GeV)", 70, 0.0, 350.0);
+  Hist dSigma2("2-jet cross-section (E_jet2 > 20 GeV)", 38, 0.0, 190.0);
+  Hist dSigma3("3-jet cross-section (E_jet3 > 20 GeV)", 16, 0.0, 80.0);
+  Hist dSigma4("4-jet cross-section (E_jet4 > 20 GeV)",  7, 0.0, 35.0);
+  Hist *dSigmaHist[5] = { NULL, &dSigma1, &dSigma2, &dSigma3, &dSigma4 };
+  double dSigmaBin[5] = { 0.0, 350.0 / 70.0, 190.0 / 38.0,
+                          80.0 / 16.0, 35.0 / 7.0 };
 
-  // Begin event loop; generate until nEvent events are processed
-  // or end of LHEF file
-  int iEvent = 0, iError = 0;
-  while (true) {
+  // Fastjet analysis - select algorithm and parameters
+  double Rparam = 0.4;
+  fastjet::Strategy               strategy = fastjet::Best;
+  fastjet::RecombinationScheme    recombScheme = fastjet::E_scheme;
+  fastjet::JetDefinition         *jetDef = NULL;
+  jetDef = new fastjet::JetDefinition(fastjet::kt_algorithm, Rparam,
+                                      recombScheme, strategy);
 
-    // Print update as necessary
-    if (iEvent % nShow == 0)
-      cout << "Beginning event " << iEvent << endl;
+  // Fastjet input
+  std::vector <fastjet::PseudoJet> fjInputs;
 
-    // Generate the next event
-    if (!pythia.next()) {
+  // Statistics for later
+  int nEventAccept25[5] = { 0, 0, 0, 0, 0 };
+  int vetoCount[4] = { 0, 0, 0, 0 };
+  const char *vetoStr[] = { "ET(elec)", "|eta(elec)|",
+                            "ET(missing)", "deltaR(elec, jet)" };
+  bool firstEvent = true;
 
-      // If failure because reached end of file then exit event loop
-      if (pythia.info.atEndOfFile()) {
-        cout << "Info: end of Les Houches file reached" << endl;
-        break; 
-      }
+  // Begin event loop. Generate event. Skip if error.
+  for (int iEvent = 0; iEvent < nEvent; ++iEvent) {
+    if (!pythia.next()) continue;
 
-      // Otherwise count event failure and continue/exit as necessary
-      cout << "Warning: event " << iEvent << " failed" << endl;
-      if (++iError == nError) {
-        cout << "Error: too many event failures.. exiting" << endl;
+    // Need to find the electron from the W decay - cheat a bit here
+    // and find it from the W in the event record
+    int idxW = -1;
+    for (int i = pythia.event.size() - 1; i > 0; i--) {
+      if (pythia.event[i].idAbs() == 24) {
+        idxW = i;
         break;
       }
-
+    }
+    if (idxW == -1) {
+      cout << "Error: Could not find W" << endl;
       continue;
     }
-  
-    // Event listing for first nList events
-    if (iEvent < nList) {
-      pythia.LHAeventList();
-      pythia.info.list();
-      pythia.process.list();
-      pythia.event.list();
+
+    // Find the electron from the W decay
+    int idxElec = idxW;
+    while(true) {
+      int daughter = pythia.event[idxElec].daughter1();
+      if   (daughter == 0) break;
+      else                 idxElec = daughter;
+    }
+    if (pythia.event[idxElec].idAbs() != 11 ||
+       !pythia.event[idxElec].isFinal()) {
+      cout << "Error: Found incorrect decay product of the W" << endl;
+      continue;
     }
 
-    /*
-     * Process dependent checks and analysis may be inserted here
-     */
+    // Electron cuts
+    if (pythia.event[idxElec].pT() < 20.0) {
+      vetoCount[0]++;
+      continue;
+    }
+    if (abs(pythia.event[idxElec].eta()) > 1.1) {
+      vetoCount[1]++;
+      continue;
+    }
+ 
+    // Reset Fastjet input
+    fjInputs.resize(0);
 
-    // Update ISR/FSR veto counters
-    if (loadHooks) {
-      nISRveto += powhegHooks->getNISRveto();
-      nFSRveto += powhegHooks->getNFSRveto();
+    // Keep track of missing ET
+    Vec4 missingETvec;
+
+    // Loop over event record to decide what to pass to FastJet
+    for (int i = 0; i < pythia.event.size(); ++i) {
+      // Final state only
+      if (!pythia.event[i].isFinal())        continue;
+
+      // No neutrinos
+      if (pythia.event[i].idAbs() == 12 || pythia.event[i].idAbs() == 14 ||
+          pythia.event[i].idAbs() == 16)     continue;
+
+      // Only |eta| < 3.6
+      if (fabs(pythia.event[i].eta()) > 3.6) continue;
+
+      // Missing ET
+      missingETvec += pythia.event[i].p();
+
+      // Do not include the electron from the W decay
+      if (i == idxElec)                      continue;
+
+      // Store as input to Fastjet
+      fjInputs.push_back( fastjet::PseudoJet( pythia.event[i].px(),
+        pythia.event[i].py(), pythia.event[i].pz(), pythia.event[i].e() ) );
     }
 
-    // If nEvent is set, check and exit loop if necessary
-    ++iEvent;
-    if (nEvent != 0 && iEvent == nEvent) break;
+    if (fjInputs.size() == 0) {
+      cout << "Error: event with no final state particles" << endl;
+      continue;
+    }
 
-  } // End of event loop.        
+    // Run Fastjet algorithm
+    vector <fastjet::PseudoJet> inclusiveJets, sortedJets;
+    fastjet::ClusterSequence clustSeq(fjInputs, *jetDef);
 
-  // Statistics, histograms and veto information
-  pythia.statistics();
-  cout << "Number of ISR emissions vetoed: " << nISRveto << endl;
-  cout << "Number of FSR emissions vetoed: " << nFSRveto << endl;
-  cout << endl;
+    // For the first event, print the FastJet details
+    if (firstEvent) {
+      cout << "Ran " << jetDef->description() << endl;
+      cout << "Strategy adopted by FastJet was "
+           << clustSeq.strategy_string() << endl << endl;
+      firstEvent = false;
+    }
 
-  // Done.                           
+    // Extract inclusive jets sorted by pT (note minimum pT of 20.0 GeV)
+    inclusiveJets = clustSeq.inclusive_jets(20.0);
+    sortedJets    = sorted_by_pt(inclusiveJets);  
+
+    // Missing ET cut
+    double missingET = missingETvec.pT();
+    if (missingET < 30.0) {
+      vetoCount[2]++;
+      continue;
+    }
+
+    // Keep track of jets with pT > 20/25 GeV
+    int  jetCount20 = 0, jetCount25 = 0;
+    // For the deltaR calculation below
+    bool vetoEvent = false;
+    fastjet::PseudoJet fjElec(pythia.event[idxElec].px(),
+                              pythia.event[idxElec].py(),
+                              pythia.event[idxElec].pz(),
+                              pythia.event[idxElec].e());
+ 
+    for (unsigned int i = 0; i < sortedJets.size(); i++) {
+      // Only count jets that have |eta| < 2.0
+      if (fabs(sortedJets[i].rap()) > 2.0) continue;
+      // Check distance between W decay electron and jets
+      if (fjElec.squared_distance(sortedJets[i]) < 0.52 * 0.52)
+        { vetoEvent = true; break; }
+
+      // Fill dSigma histograms and count jets with ET > 25.0
+      if (sortedJets[i].perp() > 25.0)
+        jetCount25++;
+
+      if (jetCount20 <= 3)
+        dSigmaHist[++jetCount20]->fill(sortedJets[i].perp());
+    }
+    if (vetoEvent) { vetoCount[3]++; continue; }
+
+    if (jetCount25 > 4) jetCount25 = 4;
+    for (int i = jetCount25; i >= 0; i--)
+      nEventAccept25[i]++;
+
+  // End of event loop.
+  }
+
+  // Statistics
+  pythia.stat();
+
+  // Output histograms
+  double sigmapb = pythia.info.sigmaGen() * 1.0E9;
+
+  for (int i = 1; i <= 4; i++)
+    (*dSigmaHist[i]) = ((*dSigmaHist[i]) * sigmapb) / nEvent / dSigmaBin[i];
+  cout << dSigma1 << dSigma2 << dSigma3 << dSigma4 << endl;
+
+  // Output cross-sections
+  cout << "Jet algorithm is kT" << endl;
+  cout << "Multiparton interactions are switched "
+       << ( (doMPI) ? "on" : "off" ) << endl;
+  cout << endl << nEvent << " events generated. " << nEventAccept25[0]
+       << " events passed cuts." << endl;
+  cout << "Vetos:" << endl;
+  for (int i = 0; i < 4; i++)
+    cout << "  " << vetoStr[i] << " = " << vetoCount[i] << endl;
+
+  cout << endl << "Inclusive cross-sections (pb):" << endl;
+  for (int i = 0; i < 5; i++) {
+    cout << scientific << setprecision(3)
+         << "  " << i << "-jet - Pythia = "
+         << ((double) nEventAccept25[i] / (double) nEvent) * sigmapb;
+    cout << ", Experimental = " << expCrossSec[i];
+    if (i != 0) {
+      cout << scientific << setprecision(3)
+           << ", Pythia ratio to " << i - 1 << "-jet = "
+           << ((double) nEventAccept25[i] / (double) nEventAccept25[i - 1]);
+      cout << scientific << setprecision(3)
+           << ", Experimental ratio to " << i - 1 << "-jet = "
+           << expCrossSec[i] / expCrossSec[i - 1];
+    }
+    cout << endl;
+  }
+
   return 0;
 }
 

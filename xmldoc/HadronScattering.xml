@@ -48,7 +48,7 @@ at small transverse dimensions.)
 <ei>P = N exp(-pT^2 / 2 / sigma^2) /
   ( (1 - k) exp(-pT^2 / 2 / sigma^2) + k pT0^p / (pT0^2 + pT^2)^(p/2), </ei>
 with <ei>sigma = 2 StringPT:sigma</ei> and <ei>pT0</ei> the same as that
-used in <ei>MultipleInteractions</ei>.
+used in <ei>MultipartonInteractions</ei>.
 </option>
 </modepick>
 
@@ -94,5 +94,5 @@ Use tiling in <ei>(eta, phi)</ei> to reduce number of pairwise tests.
 
 </chapter>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
 

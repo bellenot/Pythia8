@@ -1,5 +1,5 @@
 // SpaceShower.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -92,7 +92,7 @@ void SpaceShower::init( BeamParticle* beamAPtrIn,
   pTmaxMatch      = settingsPtr->mode("SpaceShower:pTmaxMatch"); 
   pTdampMatch     = settingsPtr->mode("SpaceShower:pTdampMatch"); 
   pTmaxFudge      = settingsPtr->parm("SpaceShower:pTmaxFudge"); 
-  pTmaxFudgeMI    = settingsPtr->parm("SpaceShower:pTmaxFudgeMI"); 
+  pTmaxFudgeMPI   = settingsPtr->parm("SpaceShower:pTmaxFudgeMPI"); 
   pTdampFudge     = settingsPtr->parm("SpaceShower:pTdampFudge"); 
 
   // Optionally force emissions to be ordered in rapidity/angle.
@@ -121,13 +121,13 @@ void SpaceShower::init( BeamParticle* beamAPtrIn,
   Lambda3flav2    = pow2(Lambda3flav);
  
   // Regularization of QCD evolution for pT -> 0. Can be taken 
-  // same as for multiple interactions, or be set separately.
-  useSamePTasMI   = settingsPtr->flag("SpaceShower:samePTasMI"); 
-  if (useSamePTasMI) {
-    pT0Ref        = settingsPtr->parm("MultipleInteractions:pT0Ref");
-    ecmRef        = settingsPtr->parm("MultipleInteractions:ecmRef");
-    ecmPow        = settingsPtr->parm("MultipleInteractions:ecmPow");
-    pTmin         = settingsPtr->parm("MultipleInteractions:pTmin");
+  // same as for multiparton interactions, or be set separately.
+  useSamePTasMPI  = settingsPtr->flag("SpaceShower:samePTasMPI"); 
+  if (useSamePTasMPI) {
+    pT0Ref        = settingsPtr->parm("MultipartonInteractions:pT0Ref");
+    ecmRef        = settingsPtr->parm("MultipartonInteractions:ecmRef");
+    ecmPow        = settingsPtr->parm("MultipartonInteractions:ecmPow");
+    pTmin         = settingsPtr->parm("MultipartonInteractions:pTmin");
   } else {
     pT0Ref        = settingsPtr->parm("SpaceShower:pT0Ref");
     ecmRef        = settingsPtr->parm("SpaceShower:ecmRef");
@@ -176,8 +176,9 @@ void SpaceShower::init( BeamParticle* beamAPtrIn,
   nQuarkIn        = settingsPtr->mode("SpaceShower:nQuarkIn");
 
   // Optional dampening at small pT's when large multiplicities.
-  enhanceScreening = settingsPtr->mode("MultipleInteractions:enhanceScreening");
-  if (!useSamePTasMI) enhanceScreening = 0;
+  enhanceScreening 
+    = settingsPtr->mode("MultipartonInteractions:enhanceScreening");
+  if (!useSamePTasMPI) enhanceScreening = 0;
 
   // Possibility to allow user veto of emission step.
   canVetoEmission = (userHooksPtr > 0) ? userHooksPtr->canVetoISREmission() 
@@ -222,7 +223,7 @@ bool SpaceShower::limitPTmax( Event& event, double Q2Fac, double Q2Ren) {
 //--------------------------------------------------------------------------
 
 // Prepare system for evolution; identify ME.
-// Routine may be called after multiple interactions, for a new subystem.
+// Routine may be called after multiparton interactions, for a new subystem.
 
 void SpaceShower::prepare( int iSys, Event& event, bool limitPTmaxIn) {
 
@@ -249,8 +250,8 @@ void SpaceShower::prepare( int iSys, Event& event, bool limitPTmaxIn) {
     pTmax1 *= pTmaxFudge;
     pTmax2 *= pTmaxFudge;
   } else if (iSys > 0 && limitPTmaxIn) {
-    pTmax1 *= pTmaxFudgeMI;
-    pTmax2 *= pTmaxFudgeMI;
+    pTmax1 *= pTmaxFudgeMPI;
+    pTmax2 *= pTmaxFudgeMPI;
   }
 
   // Find dipole ends for QCD radiation.
@@ -532,7 +533,6 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
         zRootMax = (1. + sqrt(zMaxAbs)) / (1. - sqrt(zMaxAbs));
         q2qInt = (8./3.) * log( zRootMax / zRootMin );
         if (doMEcorrections) q2qInt *= calcMEmax(MEtype, 1, 1);
-        g2qInt = 0.;
         kernelPDF = q2qInt; 
 
       // Integrals of splitting kernels for quarks: q -> q, g -> q.
@@ -718,7 +718,7 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
     // Idea suggested by Gosta Gustafson: increased screening in events
     // with large activity can be simulated by pT0_eff = sqrt(n) * pT0. 
     if (enhanceScreening == 2) {
-      int nSysNow     = infoPtr->nMI() + infoPtr->nISR() + 1;
+      int nSysNow     = infoPtr->nMPI() + infoPtr->nISR() + 1;
       double WTscreen = pow2( (pT2 + pT20) / (pT2 + nSysNow * pT20) );
       wt             *= WTscreen;
     } 
@@ -890,7 +890,6 @@ void SpaceShower::pT2nextQED( double pT2begDip, double pT2endDip) {
     
     // Begin evolution loop towards smaller pT values.
     do { 
-      wt = 0.;
       
       // Pick pT2 (in overestimated z range).
       // For l -> l gamma include extrafactor 1 / ln(pT2 / m2l) in evolution.
@@ -1112,7 +1111,7 @@ void SpaceShower::pT2nextQED( double pT2begDip, double pT2endDip) {
       pT2corr  = Q2 - z * (m2Dip + Q2) * (Q2 + m2Sister) / m2Dip;
       if(pT2corr < TINYPT2) { wt = 0.; continue; }
       
-      // If creating heavy quark by Q -> gamma + Q then next need g -> Q + Qbar.
+      // If creating heavy quark by Q -> gamma + Q then next g -> Q + Qbar.
       // So minimum total mass2 is 4 * m2Sister, but use more to be safe.
       if ( abs(idMother) == 4 || abs(idMother) == 5 ) {
         double m2QQsister =  EXTRASPACEQ * 4. * m2Sister;

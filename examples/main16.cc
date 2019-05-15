@@ -1,5 +1,5 @@
 // main16.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -129,55 +129,27 @@ int main(int argc, char* argv[]) {
   // Declare generator. Read in commands from external file.
   Pythia pythia;
   pythia.readFile(argv[1]);
-
-  // Extract settings to be used in the main program.
-  int    nEvent    = pythia.mode("Main:numberOfEvents");
-  int    nList     = pythia.mode("Main:numberToList");
-  int    nShow     = pythia.mode("Main:timesToShow");
-  int    nAbort    = pythia.mode("Main:timesAllowErrors");
-  bool   showCS    = pythia.flag("Main:showChangedSettings");
-  bool   showAS    = pythia.flag("Main:showAllSettings");
-  int    showOne   = pythia.mode("Main:showOneParticleData");
-  bool   showCPD   = pythia.flag("Main:showChangedParticleData");
-  bool   showCRD   = pythia.flag("Main:showChangedResonanceData");
-  bool   showAPD   = pythia.flag("Main:showAllParticleData");
-  bool   showAStat = pythia.flag("Main:showAllStatistics");
  
-  // Initialization with no arguments means that the Beams settings are used.
+  // Initialization.
   pythia.init();
-
-  // List changed data.
-  if (showCS) pythia.settings.listChanged();
-  if (showAS) pythia.settings.listAll();
-
-  // List particle data.  
-  if (showOne > 0) pythia.particleData.list(showOne);
-  if (showCPD) pythia.particleData.listChanged(showCRD);
-  if (showAPD) pythia.particleData.listAll();
 
   // Declare user analysis class. Do initialization part of it.
   MyAnalysis myAnalysis;
   myAnalysis.init(); 
 
-  // Begin event loop. Show how far the run has progressed.
-  int nPace = max(1, nEvent / max(1, nShow) ); 
+  // Read in number of event and maximal number of aborts.
+  int nEvent = pythia.mode("Main:numberOfEvents");
+  int nAbort = pythia.mode("Main:timesAllowErrors");
+
+  // Begin event loop.
   int iAbort = 0; 
   for (int iEvent = 0; iEvent < nEvent; ++iEvent) {
-    if (nShow > 0 && iEvent%nPace == 0) 
-      cout << " Now begin event " << iEvent << endl;
 
     // Generate events. Quit if too many failures.
     if (!pythia.next()) {
       if (++iAbort < nAbort) continue;
       cout << " Event generation aborted prematurely, owing to error!\n"; 
       break;
-    }
- 
-    // List first few events, both hard process and complete events.
-    if (iEvent < nList) { 
-      pythia.info.list();
-      pythia.process.list();
-      pythia.event.list();
     }
 
     // User Analysis of current event.
@@ -187,7 +159,7 @@ int main(int argc, char* argv[]) {
   }
 
   // Final statistics.
-  pythia.statistics(showAStat);
+  pythia.stat();
 
   // User finishing.
   myAnalysis.finish();

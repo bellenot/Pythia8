@@ -59,7 +59,7 @@
 <aidx href="ResonanceDecays">Resonance Decays</aidx><br/>
 <aidx href="TimelikeShowers">Timelike Showers</aidx><br/>
 <aidx href="SpacelikeShowers">Spacelike Showers</aidx><br/>
-<aidx href="MultipleInteractions">Multiple Interactions</aidx><br/>
+<aidx href="MultipartonInteractions">Multiparton Interactions</aidx><br/>
 <aidx href="BeamRemnants">Beam Remnants</aidx><br/>
 <aidx href="Diffraction">Diffraction</aidx><br/>
 <aidx href="Fragmentation">Fragmentation</aidx><br/>
@@ -110,7 +110,6 @@
 
 <h4>Reference Materiel</h4>
 
-<aidx href="PYTHIA6TranslationTable">PYTHIA 6 Translation Table</aidx><br/>
 <aidx href="UpdateHistory">Update History</aidx><br/>
 <aidx href="Bibliography">Bibliography</aidx><br/>
 <aidx href="Glossary">Glossary</aidx><br/>
@@ -123,4 +122,4 @@
 
 </chapter>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->

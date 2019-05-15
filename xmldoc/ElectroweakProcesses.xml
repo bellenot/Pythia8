@@ -13,7 +13,7 @@ produced by the hard process. Additional sources of photons
 include parton showers and hadron decays. A <ei>pT</ei> cut
 is required to stay away from the unphysical low-<ei>pT</ei> region.
 An eikonalized description, intended to be valid at all <ei>pT</ei>,
-is included as part of the multiple-interactions framework.
+is included as part of the multiparton-interactions framework.
 
 <flag name="PromptPhoton:all" default="off">
 Common switch for the group of all prompt photon processes, 
@@ -92,7 +92,7 @@ is purely dictated by what is set for the <ei>Z^0</ei>.
 <h4>Boson exchange</h4>
 
 The two processes in this subgroup is included as part of the 
-multiple-interactions framework.
+multiparton-interactions framework.
 
 <flag name="WeakBosonExchange:all" default="off">
 Common switch for the group of <ei>gamma^*/Z^0</ei>
@@ -133,11 +133,11 @@ Code 222.
 <flag name="WeakSingleBoson:ffbar2ffbar(s:gm)" default="off">
 Scattering <ei>f fbar -> gamma^* -> f' fbar'</ei>. Subset of 
 process 221, but written as a <ei>2 -> 2</ei> process, so that 
-<ei>pT</ei> can be used as ordering variable, e.g. in multiple 
+<ei>pT</ei> can be used as ordering variable, e.g. in multiparton 
 interactions. Hardcoded for the final state being either of the 
 five quark flavours or three lepton ones. Not included in the 
 <code>WeakSingleBoson:all</code> set, but included in the 
-multiple-interactions framework. 
+multiparton-interactions framework. 
 Code 223.
 </flag>
 
@@ -263,5 +263,5 @@ Code 266.
 
 </chapter>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
 

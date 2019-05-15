@@ -1,5 +1,5 @@
 // SigmaTotal.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -137,8 +137,10 @@ void SigmaTotal::init(Info* infoPtrIn, Settings& settings,
   tAbsMin    = settings.parm("SigmaElastic:tAbsMin");  
   alphaEM0   = settings.parm("StandardModel:alphaEM0");
 
-  // Parameter for diffractive systems.
-  sigmaPomP  = settings.parm("Diffraction:sigmaPomP");
+  // Parameters for diffractive systems.
+  sigmaPomP  = settings.parm("Diffraction:sigmaRefPomP");
+  mPomP      = settings.parm("Diffraction:mRefPomP");
+  pPomP      = settings.parm("Diffraction:mPowPomP");
 
 }
 
@@ -189,7 +191,7 @@ bool SigmaTotal::calc( int idA, int idB, double eCM) {
   // Primitive implementation of Pomeron + p.
   if (iProc == 13) {
     s      = eCM*eCM;
-    sigTot = sigmaPomP;
+    sigTot = sigmaPomP * pow( eCM / mPomP, pPomP);
     sigND  = sigTot;
     isCalc = true;
     return true;

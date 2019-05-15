@@ -594,6 +594,19 @@ provided.
 <input type="radio" name="22" value="1"><strong>1 </strong>:  Use <ei>sHat</ei> as shower starting scale for   incomplete histories. <br/>
 <input type="radio" name="22" value="2"><strong>2 </strong>:  Use <ei>s</ei> as shower starting scale for   incomplete histories. <br/>
 
+<br/><br/><strong>Merging:allowColourShuffling</strong>  <input type="radio" name="23" value="on"><strong>On</strong>
+<input type="radio" name="23" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+If on, this will allow the algorithm to swap one colour index in the state,
+when trying to find all possible clusterings, if no clustering has been
+found, but more clusterings had been requested. In this way, some incomplete
+histories can be avoided. Generally, we advise the non-expert user to not
+touch this switch, because a slight change in the colour structure can change
+the radiation pattern. To however study the sensitivity of the predictions on
+these effects, allowing for colour reshuffling can be useful.
+  
+
+
 <input type="hidden" name="saved" value="1"/>
 
 <?php
@@ -719,6 +732,11 @@ if($_POST["22"] != "0")
 $data = "Merging:incompleteScalePrescrip = ".$_POST["22"]."\n";
 fwrite($handle,$data);
 }
+if($_POST["23"] != "off")
+{
+$data = "Merging:allowColourShuffling = ".$_POST["23"]."\n";
+fwrite($handle,$data);
+}
 fclose($handle);
 }
 
@@ -726,4 +744,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->

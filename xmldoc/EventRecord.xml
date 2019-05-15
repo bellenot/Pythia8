@@ -78,9 +78,9 @@ code, status, mother, daughter, colour, four-momentum and mass data
 are always given, but the methods can also be called with a few 
 optional arguments for further information:
 <argument name="showScaleAndVertex" default="false"> optionally give a 
-second line for each particle, with the production scale (in GeV), the
-production vertex (in mm or mm/c) and the invariant lifetime
-(also in mm/c).
+second line for each particle, with the production scale (in GeV), 
+the particle polarization (dimensionless), the production vertex 
+(in mm or mm/c) and the invariant lifetime (also in mm/c).
 </argument>
 <argument name="showMothersAndDaughters" default="false">
 gives a list of all daughters and mothers of a particle, as defined by 
@@ -335,7 +335,7 @@ returns the index of this position.
 <method name="int Event::append(int id, int status, int mother1, 
 int mother2, int daughter1, int daughter2, int col, int acol, 
 double px, double py, double pz,  double e, double m = 0., 
-double scale = 0.)">
+double scale = 0., double pol = 9.)">
 appends a particle to the bottom of the event record and 
 returns the index of this position; 
 <aloc href="ParticleProperties">see here</aloc> for the meaning
@@ -344,17 +344,18 @@ of the various particle properties.
 
 <method name="int Event::append(int id, int status, int mother1, 
 int mother2, int daughter1, int daughter2, int col, int acol, 
-Vec4 p, double m = 0., double scale = 0.)">
+Vec4 p, double m = 0., double scale = 0., double pol = 9.)">
 appends a particle to the bottom of the event record and 
 returns the index of this position, as above but with four-momentum
 as a <code>Vec4</code>.
 </method>
 
 <method name="int Event::append(int id, int status, int col, int acol, 
-double px, double py, double pz, double e, double m = 0.)">
+double px, double py, double pz, double e, double m = 0., 
+double scale = 0., double pol = 9.)">
 </method>
 <methodmore name="int Event::append(int id, int status, int col, 
-int acol, Vec4 p, double m = 0.)">
+int acol, Vec4 p, double m = 0., double scale = 0., double pol = 9.)">
 appends a particle to the bottom of the event record and 
 returns the index of this position, as above but with vanishing
 (i.e. zero) mother and daughter indices.
@@ -491,11 +492,11 @@ Separate from the event record as such, but closely tied to it is the
 <code><aloc href="AdvancedUsage">PartonSystems</aloc></code> class, 
 which mainly stores the parton indices of incoming and outgoing partons, 
 classified by collision subsystem. Such information is needed to 
-interleave multiple interactions, initial-state showers and final-state 
+interleave multiparton interactions, initial-state showers and final-state 
 showers, and append beam remnants. It could also be used in other places. 
 It is intended to be accessed only by experts, such as implementors of 
 <aloc href="ImplementNewShowers">new showering models</aloc>.
 
 </chapter>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->

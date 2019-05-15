@@ -2,7 +2,7 @@
 // This is a simple test program.
 // Modified by Rene Brun and Axcel Naumann to put the Pythia::event 
 // into a TTree.
-// Copyright C 2011 Torbjorn Sjostrand
+// Copyright (C) 2012 Torbjorn Sjostrand
 
 // Header file to access Pythia 8 program elements.
 #include "Pythia.h"
@@ -20,7 +20,8 @@ int main() {
   Pythia pythia;
   pythia.readString("HardQCD:all = on");
   pythia.readString("PhaseSpace:pTHatMin = 20.");
-  pythia.init( 2212, 2212, 14000.);
+  pythia.readString("Beams:eCM = 14000.");
+  pythia.init();
 
   // Set up the ROOT TFile and TTree.
   TFile *file = TFile::Open("pytree.root","recreate");
@@ -31,9 +32,6 @@ int main() {
  // Begin event loop. Generate event; skip if generation aborted.
   for (int iEvent = 0; iEvent < 100; ++iEvent) {
     if (!pythia.next()) continue;
-
-    // Optionally list first event.
-    //if (iEvent < 1) {pythia.info.list(); pythia.event.list();}
 
     // Fill the pythia event into the TTree.  
     // Warning: the files will rapidly become large if all events 
@@ -46,7 +44,7 @@ int main() {
   }
 
   // Statistics on event generation.
-  pythia.statistics();
+  pythia.stat();
 
   //  Write tree.
   T->Print();

@@ -1,5 +1,5 @@
 // TimeShower.h is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -120,7 +120,7 @@ public:
   // Prepare system for evolution after each new interaction; identify ME.
   virtual void prepare( int iSys, Event& event, bool limitPTmaxIn = true);
 
-  // Update dipole list after a multiple interactions rescattering.
+  // Update dipole list after a multiparton interactions rescattering.
   virtual void rescatterUpdate( int iSys, Event& event);
 
   // Update dipole list after each ISR emission.  
@@ -182,8 +182,8 @@ private:
   // Initialization data, normally only set once.
   bool   doQCDshower, doQEDshowerByQ, doQEDshowerByL, doQEDshowerByGamma, 
          doMEcorrections, doMEafterFirst, doPhiPolAsym, doInterleave, 
-         allowBeamRecoil, dampenBeamRecoil, allowRescatter, canVetoEmission, 
-         doHVshower, brokenHVsym;
+         allowBeamRecoil, dampenBeamRecoil, recoilToColoured, 
+         allowRescatter, canVetoEmission, doHVshower, brokenHVsym;
   int    pTmaxMatch, pTdampMatch, alphaSorder, nGluonToQuark, 
          alphaEMorder, nGammaToQuark, nGammaToLepton, nCHV, idHV;
   double pTdampFudge, mc, mb, m2c, m2b, alphaSvalue, alphaS2pi, 
@@ -191,7 +191,7 @@ private:
          Lambda5flav2, pTcolCutMin, pTcolCut, pT2colCut, pTchgQCut, 
          pT2chgQCut, pTchgLCut, pT2chgLCut, mMaxGamma, m2MaxGamma, 
          octetOniumFraction, octetOniumColFac, mZ, gammaZ, thetaWRat,
-         CFHV, alphaHVfix, pThvCut, pT2hvCut, mHV, pTmaxFudgeMI;
+         CFHV, alphaHVfix, pThvCut, pT2hvCut, mHV, pTmaxFudgeMPI;
 
   // alphaStrong and alphaEM calculations.
   AlphaStrong alphaS;

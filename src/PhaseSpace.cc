@@ -1,5 +1,5 @@
 // PhaseSpace.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -85,7 +85,8 @@ const double PhaseSpace::WTCORRECTION[11] = { 1., 1., 1.,
 void PhaseSpace::init(bool isFirst, SigmaProcess* sigmaProcessPtrIn, 
   Info* infoPtrIn, Settings* settingsPtrIn, ParticleData* particleDataPtrIn, 
   Rndm* rndmPtrIn, BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, 
-  Couplings* couplingsPtrIn, SigmaTotal* sigmaTotPtrIn, UserHooks* userHooksPtrIn) {
+  Couplings* couplingsPtrIn, SigmaTotal* sigmaTotPtrIn, 
+  UserHooks* userHooksPtrIn) {
 
   // Store input pointers for future use.
   sigmaProcessPtr = sigmaProcessPtrIn;
@@ -2534,7 +2535,7 @@ bool PhaseSpace2to2diffractive::trialKin( bool, bool ) {
       else if (!isDiffA) bDiff = sigmaTotPtr->bSlopeAX(s4) - bMin;
       else bDiff = sigmaTotPtr->bSlopeXX(s3, s4) - bMin;
       bDiff = max(0., bDiff);
-      if (exp( max(-EXPMAX, bDiff * (tH - tUpp)) ) < rndmPtr->flat()) continue; 
+      if (exp( max(-EXPMAX, bDiff * (tH - tUpp)) ) < rndmPtr->flat()) continue;
   
     // Bruni and Ingelman:
     } else if (PomFlux == 2) {

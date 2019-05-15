@@ -28,12 +28,14 @@ script e.g.
 The PYTHIA library itself does not need to be recompiled.
 
 <br/><br/>
-The <code>examples/main32.cc</code> sample program can then be used to
-generate events in HepMC format. When in the <code>examples</code>
-directory, the main program can be built and used as follows
+The <code>examples/main42.cc</code> sample program can then be used to
+generate events in HepMC format (which <code>examples/main61.cc</code> 
+and <code>examples/main62.cc</code> extends by allowing LHAPDF usage 
+and subruns). When in the <code>examples</code> directory, the main program 
+can be built and used as follows
 <pre>
-  make main32
-  ./main32 main32.cmnd main32.hepmc
+  make main42
+  ./main42 main42.cmnd main42.hepmc
 </pre>
 The first argument is the input file which provides the options for event
 generation, while the second is the output file where the HepMC events
@@ -42,7 +44,7 @@ should be written.
 <br/><br/>
 This HepMC file may now be read and processed by RIVET
 <pre>
-  rivet --analysis=ANALYSIS_NAME main32.hepmc
+  rivet --analysis=ANALYSIS_NAME main42.hepmc
 </pre>
 where <code>ANALYSIS_NAME</code> is a 
 <a href="http://projects.hepforge.org/rivet/analyses">built-in RIVET
@@ -59,11 +61,11 @@ events directly to RIVET as they are produced by using a <code>FIFO</code>
 pipe. This is done with the <code>mkfifo</code> command
 <pre>
   mkfifo my_fifo
-  ./main32.exe main32.cmnd my_fifo &
+  ./main42.exe main42.cmnd my_fifo &
   rivet --analysis=ANALYSIS_NAME my_fifo
 </pre>
-Note that <code>main32</code> is run in the background.
+Note that <code>main42</code> is run in the background.
 
 </chapter>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->

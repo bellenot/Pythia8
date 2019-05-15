@@ -1,5 +1,5 @@
 // SusyLesHouches.h is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // Main authors of this file: N. Desai, P. Skands
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
@@ -47,14 +47,15 @@ public:
 
   //***************************** SLHA FILE I/O *****************************//
   // Read and write SLHA files 
-  int readFile(string slhaFileIn="slha.spc",int verboseIn=1, bool useDecayIn=true); 
+  int readFile(string slhaFileIn="slha.spc",int verboseIn=1, 
+    bool useDecayIn=true); 
   //int writeFile(string filename): write SLHA file on filename
 
   //Output utilities
   void printHeader();   // print Header
   void printFooter();   // print Footer
   void printSpectrum(int ifail=0); // print Spectrum
-  
+
   // Check spectrum and decays
   int checkSpectrum();
   int checkDecays();
@@ -134,8 +135,10 @@ public:
       return alreadyexisting;
     };
     // Read index and value from SLHA data line
-    int set(istringstream& linestream) {
-      linestream >> i >> val;
+    int set(istringstream& linestream, bool indexed=true) {
+      i = 0;
+      if (indexed) linestream >> i >> val;
+      else linestream >> val;
       return linestream ? set(i,val) : -1;
     };
     // With i already given, read value from remaining SLHA data line
@@ -374,7 +377,8 @@ public:
     }
 
     // Functions to set decay channel information
-    void setChannel(double bratIn, int nDaIn, vector<int> idDaIn, string cIn="") {
+    void setChannel(double bratIn, int nDaIn, vector<int> idDaIn, 
+      string cIn="") {
       brat    = bratIn;
       for (int i=0; i<=nDaIn; i++) {
 	if (i < int(idDaIn.size())) idDa.push_back(idDaIn[i]);
@@ -417,7 +421,8 @@ public:
     
     // Function to add another decay channel
     void addChannel(decayChannel channelIn) {table.push_back(channelIn);}
-    void addChannel(double bratIn, int nDaIn, vector<int> idDaIn, string cIn="") {
+    void addChannel(double bratIn, int nDaIn, vector<int> idDaIn, 
+      string cIn="") {
       decayChannel newChannel(bratIn, nDaIn, idDaIn, cIn);
       table.push_back(newChannel);
     }
@@ -563,7 +568,7 @@ public:
   MatrixBlock<5> rvvmix;      // The RPV chargino R mixing matrix
   MatrixBlock<5> rvhmix;      // The RPV neutral scalar mixing matrix
   MatrixBlock<5> rvamix;      // The RPV neutral pseudoscalar mixing matrix
-  MatrixBlock<7> rvlmix;      // The RPV charged fermion mixing matrix
+  MatrixBlock<8> rvlmix;      // The RPV charged fermion mixing matrix
 
   //CPV Input
   Block<double> imminpar;
@@ -740,7 +745,8 @@ template <class T> bool SusyLesHouches::getEntry(string blockName, T& val) {
     return false;
   }
   if (genericBlocks[blockName].size() >= 2) {
-    message(1,"getEntry","attempting to extract un-indexed entry from multi-entry block "+blockName);
+    message(1,"getEntry","attempting to extract un-indexed entry "
+      "from multi-entry block "+blockName);
     return false;
   }
   // Attempt to extract value as class T 
@@ -748,10 +754,12 @@ template <class T> bool SusyLesHouches::getEntry(string blockName, T& val) {
   istringstream linestream(block(0));
   linestream >> val; 
   if ( !linestream ) {
-    message(1,"getEntry","problem extracting un-indexed entry from block "+blockName);
+    message(1,"getEntry","problem extracting un-indexed entry "
+      "from block "+blockName);
     return false;
   } 
-  // If made it all the way here, value was successfully extracted. Return true.
+  // If made it all the way here, value was successfully extracted. 
+  // Return true.
   return true;
 }
 
@@ -789,7 +797,8 @@ template <class T> bool SusyLesHouches::getEntry(string blockName, int indx,
     }
   }
   // If index not found or unreadable, return false
-  message(1,"getEntry","problem extracting indexed entry from block "+blockName);
+  message(1,"getEntry","problem extracting indexed entry from block "
+          +blockName);
   return false;
 }
 

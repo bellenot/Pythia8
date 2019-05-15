@@ -159,9 +159,29 @@ the same ordering rules.
 <p/>
 <li>
 Next comes the initialization stage, where all 
-remaining details of the generation are to be specified. The 
-<code>init(...)</code> method allows a few different input formats, 
-so you can pick the one convenient for you:
+remaining details of the generation are to be specified.
+There is one standard method to use for this
+
+<p/>
+<code>pythia.init();</code><br/>
+with no arguments will read all relevant information from the 
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='SettingsScheme.php?filepath=".$filepath."' target='page'>";?>Settings</a></code>
+and <code><?php $filepath = $_GET["filepath"];
+echo "<a href='ParticleDataScheme.php?filepath=".$filepath."' target='page'>";?>ParticleData</a></code> 
+databases. Specifically the setup of incoming beams and energies 
+is governed by the the beam parameters from the 
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='BeamParameters.php?filepath=".$filepath."' target='page'>";?>Beams</a></code> 
+group of variables. If you don't change any of those you will 
+default to proton-proton collisions at 14 TeV, i.e. the nominal LHC 
+values.
+
+<p/> 
+A few alternative forms are available, where the arguments of the
+<code>init(...)</code> call can be used to set the beam parameters.
+These alternatives are now deprecated, and will bew removed for 
+PYTHIA 8.2.  
 
 <p/>
 a) <code>pythia.init( idA, idB, eCM);</code><br/>
@@ -188,17 +208,7 @@ echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>";?>Le
 Event File</a> format is provided.
 
 <p/>
-e) <code>pythia.init();</code><br/>
-with no arguments will read the beam parameters from the 
-<code><?php $filepath = $_GET["filepath"];
-echo "<a href='MainProgramSettings.php?filepath=".$filepath."' target='page'>";?>Main</a></code> 
-group of variables, which provides you with the same possibilities as
-the above options a, b, c and d. If you don't change any of those you will 
-default to proton-proton collisions at 14 TeV, i.e. the nominal LHC 
-values.
-
-<p/>
-f) <code>pythia.init( LHAup*);</code> <br/>
+e) <code>pythia.init( LHAup*);</code> <br/>
 assumes <?php $filepath = $_GET["filepath"];
 echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>";?>Les Houches Accord</a> 
 initialization and event information is available in an <code>LHAup</code> 
@@ -269,10 +279,11 @@ event.
 
 <li>At the end of the generation process, you can call
 <pre>
-    pythia.statistics(); 
+    pythia.stat(); 
 </pre>
 to get some run statistics, on cross sections and the number of errors 
-and warnings encountered. 
+and warnings encountered. The alternative 
+<code>pythia.statistics(...);</code> is equivalent but deprecated.
 </li> 
 
 </ol>
@@ -354,7 +365,20 @@ event than the ones being used for everything else, the extended form
       pythia.setPDFptr( pdfAPtr, pdfBPtr, pdfHardAPtr, pdfHardBPtr); 
 </pre>
 allows you to specify those separately, and then the first two sets 
-would only be used for the showers and for multiple interactions.
+would only be used for the showers and for multiparton interactions.
+</li>
+
+<p/>
+<li>
+If you want to link to an external generator that feeds in events 
+in the LHA format, you can call the <code>setLHAupPtr(...)</code>
+method
+<pre>
+      pythia.setLHAupPtr( lhaUpPtr);
+</pre>
+where the  <code>lhaUpPtr</code> derives from the 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>";?>LHAup</a> base class. 
 </li>
 
 <p/>
@@ -483,6 +507,9 @@ PYTHIA has not been written for threadsafe execution on multicore
 processors. If you want to use all cores, 
 the most efficient way presumably is to start correspondingly many jobs, 
 with different random number seeds, and add the statistics at the end.
+However, note that several instances  can be set up in the same main 
+program, since instances are completely independent of each other,
+so each instance could be run inside a separate thread.
 </li>
 
 <p/>
@@ -531,18 +558,17 @@ When working with Les Houches Event Files, it may well be that your
 intended input event sample is spread over several files, that you all 
 want to turn into complete events in one and the same run. There is no
 problem with looping over several subruns, where each new subrun 
-is initialized with a new file. However, in that case you will do
-a complete re-initialization each time around. If you want to avoid
-this, note that there is an optional second argument for LHEF
-initialization: <code>pythia.init(fileName, skipInit)</code>.
-Alternatively, the tag <code>Main:LHEFskipInit</code> can be put 
-in a file of commands to obtain the same effect.
-Here <code>skipInit</code> defaults to <code>false</code>,
-but if set <code>true</code> then the new file will be simulated 
-with the same initialization data as already set in a previous
-<code>pythia.init(...)</code> call. The burden rests on you to ensure 
+is initialized with a new file, with name set in <code>Beams:LHEF</code>. 
+However, in that case you will do a complete re-initialization each time 
+around. If you want to avoid this, note that the flag
+<code>Beams:newLHEFsameInit = true</code> can be set for the second and 
+subsequent subruns. Then the new file will be simulated with the same 
+initialization data as already set in a previous 
+<code>pythia.init()</code> call. The burden rests on you to ensure 
 that this is indeed correct, e.g. that the two event samples have not 
-been generated for different beam energies.
+been generated for different beam energies. Also note that cross
+sections for processes will be based on the information in the 
+first-read file, when the full initialization is performed.
 </li>
 
 </ol>
@@ -659,7 +685,7 @@ be used, and then the same PDF sets would be invoked everywhere. If you
 provide these two further pointers then two different sets of PDF's are 
 used. This second set is then exclusively for the generation of the hard 
 process from the process matrix elements library. The first set above 
-is for everything else, notably parton showers and multiple interactions.
+is for everything else, notably parton showers and multiparton interactions.
   
 <br/><b>Note 1:</b> The method returns false if the input is obviously 
 incorrect, e.g. if two (nonzero) pointers agree.
@@ -671,6 +697,22 @@ to the normal internal PDF selection you must call
   
 
 <a name="method6"></a>
+<p/><strong>bool Pythia::setLHAupPtr( LHAup* lhaUpPtrIn) &nbsp;</strong> <br/>
+offers linkage to an external generator that feeds in events 
+in the LHA format, see 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>";?>Les Houches Accord</a>, 
+assuming that 
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='BeamParameters.php?filepath=".$filepath."' target='page'>";?>Beams:frameType = 5</a></code>
+has been set.
+<br/><code>argument</code><strong> lhaUpPtrIn </strong>  :   
+pointer to a <code>LHAup</code>-derived object.
+  
+<br/><b>Note:</b> The method currently always returns true.
+  
+
+<a name="method7"></a>
 <p/><strong>bool Pythia::setDecayPtr( DecayHandler* decayHandlePtr, vector&lt;int&gt; handledParticles) &nbsp;</strong> <br/>
 offers the possibility to link to an external program that can do some 
 of the particle decays, instad of using the internal decay machinery.
@@ -694,7 +736,7 @@ antiparticle is always included as well.
 <br/><b>Note:</b> The method currently always returns true.
   
 
-<a name="method7"></a>
+<a name="method8"></a>
 <p/><strong>bool Pythia::setRndmEnginePtr( RndmEngine* rndmEnginePtr) &nbsp;</strong> <br/>
 offers the possibility to link to an external random number generator.
 The rules for constructing your own class from the 
@@ -709,7 +751,7 @@ must be instantiated by you in your program.
 from 0.
   
 
-<a name="method8"></a>
+<a name="method9"></a>
 <p/><strong>bool Pythia::setUserHooksPtr( UserHooks* userHooksPtr) &nbsp;</strong> <br/>
 offers the possibility to interact with the generation process at
 a few different specified points, e.g. to reject undesirable events
@@ -726,7 +768,7 @@ must be instantiated by you in your program.
 <br/><b>Note:</b> The method currently always returns true.
   
 
-<a name="method9"></a>
+<a name="method10"></a>
 <p/><strong>bool Pythia::setBeamShapePtr( BeamShape* beamShapePtr) &nbsp;</strong> <br/>
 offers the possibility to provide your own shape of the momentum and
 space-time spread of the incoming beams. The rules for constructing 
@@ -740,7 +782,7 @@ must be instantiated by you in your program.
 <br/><b>Note:</b> The method currently always returns true.
   
 
-<a name="method10"></a>
+<a name="method11"></a>
 <p/><strong>bool Pythia::setSigmaPtr( SigmaProcess* sigmaPtr) &nbsp;</strong> <br/>
 offers the possibility to link your own implementation of a process
 and its cross section, to make it a part of the normal process 
@@ -757,7 +799,7 @@ must be instantiated by you in your program.
 <br/><b>Note:</b> The method currently always returns true.
   
 
-<a name="method11"></a>
+<a name="method12"></a>
 <p/><strong>bool Pythia::setResonancePtr( ResonanceWidths* resonancePtr) &nbsp;</strong> <br/>
 offers the possibility to link your own implementation of the 
 calculation of partial resonance widths, to make it a part of the 
@@ -777,7 +819,7 @@ must be instantiated by you in your program.
 <br/><b>Note:</b> The method currently always returns true.
   
 
-<a name="method12"></a>
+<a name="method13"></a>
 <p/><strong>bool Pythia::setShowerPtr( TimeShower* timesDecPtr, TimeShower* timesPtr = 0, SpaceShower* spacePtr = 0) &nbsp;</strong> <br/>
 offers the possibility to link your own parton shower routines as 
 replacements for the default ones. This is much more complicated 
@@ -800,7 +842,7 @@ routine will be used.
 <br/><code>argument</code><strong> timesPtr </strong> (<code>default = <strong>0</strong></code>) :   
 pointer to a <code>TimeShower</code>-derived object for doing
 all other timelike shower evolution, which is normally interleaved
-with multiple interactions and spacelike showers, introducing
+with multiparton interactions and spacelike showers, introducing
 both further physics and further technical issues. If you retain
 the default value 0 then the internal shower routine will be used.
 You are allowed to use the same pointer as above for the 
@@ -809,7 +851,7 @@ You are allowed to use the same pointer as above for the
 <br/><code>argument</code><strong> spacePtr </strong> (<code>default = <strong>0</strong></code>) :   
 pointer to a <code>SpaceShower</code>-derived object for doing
 all spacelike shower evolution, which is normally interleaved
-with multiple interactions and timelike showers. If you retain
+with multiparton interactions and timelike showers. If you retain
 the default value 0 then the internal shower routine will be used.
   
 <br/><b>Note:</b> The method currently always returns true.
@@ -819,10 +861,25 @@ the default value 0 then the internal shower routine will be used.
 
 At the initialization stage all the information provided above is 
 processed, and the stage is set up for the subsequent generation
-of events. Several alterative forms of the <code>init</code> method
-are available for this stage; pick the one most convenient. 
+of events. Currently several alterative forms of the <code>init</code> 
+method are available for this stage, but only the first one is 
+recommended. 
 
-<a name="method13"></a>
+<a name="method14"></a>
+<p/><strong>bool Pythia::init() &nbsp;</strong> <br/>
+initialize for collisions, in any of the five separate possibilities 
+below. In this option the beams are not specified by input arguments,
+but instead by the settings in the 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='BeamParameters.php?filepath=".$filepath."' target='page'>";?>Beam Parameters</a> section.
+This allows the beams to be specified in the same file as other
+run instructions. The default settings give pp collisions at 14 TeV.
+<br/><b>Note:</b> The method returns false if the 
+initialization fails. It is then not possible to generate any
+events.
+  
+
+<a name="method15"></a>
 <p/><strong>bool Pythia::init( int idA, int idB, double eCM) &nbsp;</strong> <br/>
 initialize for collisions in the center-of-mass frame, with the
 beams moving in the <i>+-z</i> directions.
@@ -832,12 +889,12 @@ particle identity code for the two incoming beams.
 <br/><code>argument</code><strong> eCM </strong>  :   
 the CM energy of the collisions.
   
-<br/><b>Note:</b> The method returns false if the 
+<br/><b>Notes:</b> Deprecated. The method returns false if the 
 initialization fails. It is then not possible to generate any
 events.
   
 
-<a name="method14"></a>
+<a name="method16"></a>
 <p/><strong>bool Pythia::init( int idA, int idB, double eA, double eB) &nbsp;</strong> <br/>
 initialize for collisions with back-to-back beams,
 moving in the <i>+-z</i> directions, but with different energies.
@@ -850,12 +907,12 @@ the mass of the respective beam particle that particle is taken to
 be at rest. This offers a simple possibility to simulate 
 fixed-target collisions.
   
-<br/><b>Note:</b> The method returns false if the 
+<br/><b>Notes:</b> Deprecated. The method returns false if the 
 initialization fails. It is then not possible to generate any
 events.
   
 
-<a name="method15"></a>
+<a name="method17"></a>
 <p/><strong>bool Pythia::init( int idA, int idB, double pxA, double pyA, double pzA, double pxB, double pyB, double pzB) &nbsp;</strong> <br/>
 initialize for collisions with arbitrary beam directions.
 <br/><code>argument</code><strong> idA, idB </strong>  :   
@@ -869,12 +926,12 @@ incoming beam.
 the three-momntum vector <i>(p_x, p_y, p_z)</i> of the second
 incoming beam.
   
-<br/><b>Note:</b> The method returns false if the 
+<br/><b>Notes:</b> Deprecated. The method returns false if the 
 initialization fails. It is then not possible to generate any
 events.
   
 
-<a name="method16"></a>
+<a name="method18"></a>
 <p/><strong>bool Pythia::init( string LesHouchesEventFile, bool skipInit = false) &nbsp;</strong> <br/>
 initialize for hard-process collisions fed in from an external file 
 with events, written according to the 
@@ -897,26 +954,12 @@ initialization with the default, and all subsequent ones with
 true. Note that things may go wrong if the files are not created 
 under the same conditions.
   
-<br/><b>Note:</b> The method returns false if the 
+<br/><b>Notes:</b> Deprecated. The method returns false if the 
 initialization fails. It is then not possible to generate any
 events.
   
 
-<a name="method17"></a>
-<p/><strong>bool Pythia::init() &nbsp;</strong> <br/>
-initialize for collisions, in any of the four above possibilities.
-In this option the beams are not specified by input arguments,
-but instead by the settings in the 
-<?php $filepath = $_GET["filepath"];
-echo "<a href='BeamParameters.php?filepath=".$filepath."' target='page'>";?>Beam Parameters</a> section.
-This allows the beams to be specified in the same file as other
-run instructions. The default settings give pp collisions at 14 TeV.
-<br/><b>Note:</b> The method returns false if the 
-initialization fails. It is then not possible to generate any
-events.
-  
-
-<a name="method18"></a>
+<a name="method19"></a>
 <p/><strong>bool Pythia::init( LHAup* lhaUpPtr) &nbsp;</strong> <br/>
 initialize for hard-process collisions fed in from an external
 source of events, consistent with the Les Houches Accord standard.
@@ -928,7 +971,7 @@ This class is also required to provide the beam parameters.
 pointer to a <code>LHAup</code>-derived object. This object 
 must be instantiated by you in your program.
   
-<br/><b>Note:</b> The method returns false if the 
+<br/><b>Notes:</b> Deprecated. The method returns false if the 
 initialization fails. It is then not possible to generate any
 events.
   
@@ -939,7 +982,7 @@ The <code>next()</code> method is the main one to generate events.
 In this section we also put a few other specialized methods that 
 may be useful in some circumstances.
 
-<a name="method19"></a>
+<a name="method20"></a>
 <p/><strong>bool Pythia::next() &nbsp;</strong> <br/>
 generate the next event. No input parameters are required; all
 instructions have already been set up in the initialization stage.
@@ -953,14 +996,47 @@ echo "<a href='EventInformation.php?filepath=".$filepath."' target='page'>";?>In
 method.
   
 
-<a name="method20"></a>
+<a name="method21"></a>
+<p/><strong>int Pythia::forceTimeShower( int iBeg, int iEnd, double pTmax, int nBranchMax = 0) &nbsp;</strong> <br/>
+perform a final-state shower evolution on partons in the 
+<code>event</code> event record. This could be used for externally 
+provided simple events, or even parts of events, for which
+a complete generation is not foreseen. Since the mother source of 
+the parton system is not known, one cannot expect as good accuracy
+as in a normal generation. When two different timelike shower 
+instances are set up, it is the one used for showering in resonance
+decays that is used here. The <code>forceTimeShower</code> method 
+can be used in conjunction with the <code>forceHadronLevel</code> 
+one below. Further comments are found 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='HadronLevelStandalone.php?filepath=".$filepath."' target='page'>";?>here</a>.  
+<br/><code>argument</code><strong> iBeg, iEnd </strong>  :  the first and last entry of the event
+record to be affected by the call. 
+  
+<br/><code>argument</code><strong> pTmax </strong>  :  the maximum <i>pT</i> scale of emissions.
+Additionally, as always, the <code>scale</code> variable of each parton
+sets the maximum <i>pT</i> scale of branchings of this parton.
+Recall that this scale defaults to 0 if not set, so that no radiation
+can occur. 
+  
+<br/><code>argument</code><strong> nBranchMax </strong> (<code>default = <strong>0</strong></code>) :  when positive, it sets the
+maximum number of branchings that are allowed to occur in the shower,
+i.e. the shower may stop evolving before reaching the lower cutoff. 
+The argument has no effect when zero or negative, i.e. then the shower
+will continue to the lower cutoff. 
+  
+<br/><b>Note:</b> The method returns the number of branchings that
+has been generated.
+  
+
+<a name="method22"></a>
 <p/><strong>bool Pythia::forceHadronLevel(bool findJunctions = true) &nbsp;</strong> <br/>
 hadronize the existing event record, i.e. perform string fragmentation
 and particle decays. There are two main applications. Firstly,
 you can use the same parton-level content as a basis for repeated
 hadronization attempts, in schemes intended to save computer time. 
 Secondly, you may have an external program that can simulate the full 
-partonic level of the event - hard process, parton showers, multiple 
+partonic level of the event - hard process, parton showers, multiparton 
 interactions, beam remnants, colour flow, and so on - but not 
 hadronization. Further details are found 
 <?php $filepath = $_GET["filepath"];
@@ -979,7 +1055,7 @@ fails. The event record is then not consistent and should not be
 studied.
   
 
-<a name="method21"></a>
+<a name="method23"></a>
 <p/><strong>bool Pythia::moreDecays() &nbsp;</strong> <br/>
 perform decays of all particles in the event record that have not been 
 decayed but should have been done so. This can be used e.g. for
@@ -990,7 +1066,19 @@ echo "<a href='HadronLevelStandalone.php?filepath=".$filepath."' target='page'>"
 event record is then not consistent and should not be studied.
   
 
-<a name="method22"></a>
+<a name="method24"></a>
+<p/><strong>bool Pythia::forceRHadronDecays() &nbsp;</strong> <br/>
+perform decays of R-hadrons that were previously considered stable.
+This could be if an R-hadron is sufficiently long-lived that 
+it may interact in the detector between production and decay, so that
+its four-momentum is changed. Further details are found
+<?php $filepath = $_GET["filepath"];
+echo "<a href='RHadrons.php?filepath=".$filepath."' target='page'>";?>here</a>.  
+<br/><b>Note:</b> The method returns false if the decays fail. The 
+event record is then not consistent and should not be studied.
+  
+
+<a name="method25"></a>
 <p/><strong>void Pythia::LHAeventList(ostream& os = cout) &nbsp;</strong> <br/>
 list the Les Houches Accord information on the current event, see
 <code><?php $filepath = $_GET["filepath"];
@@ -1002,7 +1090,7 @@ output stream where the listing occurs.
   
   
 
-<a name="method23"></a>
+<a name="method26"></a>
 <p/><strong>bool Pythia::LHAeventSkip(int nSkip) &nbsp;</strong> <br/>
 skip ahead a number of events in the Les Houches generation
 sequence, without doing anything further with them, see
@@ -1022,16 +1110,27 @@ specifically if the end of a LHEF has been reached, cf.
 
 There is no required finalization step; you can stop generating events
 when and how you want. It is still recommended that you make it a 
-routine to call the following method at the end.
+routine to call the following method at the end. A second method provides
+a deprecated alternative.
 
-<a name="method24"></a>
+<a name="method27"></a>
+<p/><strong>void Pythia::stat() &nbsp;</strong> <br/>
+list statistics on the event generation, specifically total and partial
+cross sections and the number of different errors. For more details see
+<?php $filepath = $_GET["filepath"];
+echo "<a href='EventStatistics.php?filepath=".$filepath."' target='page'>";?>here</a> and for available options 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='MainProgramSettings.php?filepath=".$filepath."' target='page'>";?>here</a>. 
+  
+
+<a name="method28"></a>
 <p/><strong>void Pythia::statistics(bool all = false, bool reset = false) &nbsp;</strong> <br/>
 list statistics on the event generation, specifically total and partial
 cross sections and the number of different errors. For more details see
 <?php $filepath = $_GET["filepath"];
 echo "<a href='EventStatistics.php?filepath=".$filepath."' target='page'>";?>here</a>. 
 <br/><code>argument</code><strong> all </strong> (<code>default = <strong>false</strong></code>) :  
-if true also statistics on multiple interactions is shown, by default not.
+if true also statistics on multiparton interactions is shown, by default not.
   
 <br/><code>argument</code><strong> reset </strong> (<code>default = <strong>false</strong></code>) :  if true then all counters, 
 e.g on events generated and errors experienced, are reset to zero
@@ -1042,6 +1141,7 @@ call, however, so the only time the <code>reset</code> option makes a
 difference is if <code>statistics(...)</code> is called several times 
 in a (sub)run. 
   
+<br/><b>Note:</b> Deprecated.
   
 
 <h3>Interrogate settings</h3>
@@ -1060,7 +1160,7 @@ be the number of events to generate. For such applications the
 following shortcuts to some <code>Settings</code> methods may be 
 convenient.
 
-<a name="method25"></a>
+<a name="method29"></a>
 <p/><strong>bool Pythia::flag(string key) &nbsp;</strong> <br/>
 read in a boolean variable from the <code>Settings</code> database.
 <br/><code>argument</code><strong> key </strong>  :   
@@ -1068,7 +1168,7 @@ the name of the variable to be read.
   
   
  
-<a name="method26"></a>
+<a name="method30"></a>
 <p/><strong>int Pythia::mode(string key) &nbsp;</strong> <br/>
 read in an integer variable from the <code>Settings</code> database.
 <br/><code>argument</code><strong> key </strong>  :   
@@ -1076,7 +1176,7 @@ the name of the variable to be read.
   
   
  
-<a name="method27"></a>
+<a name="method31"></a>
 <p/><strong>double Pythia::parm(string key) &nbsp;</strong> <br/>
 read in a double-precision variable from the <code>Settings</code> 
 database.
@@ -1085,7 +1185,7 @@ the name of the variable to be read.
   
   
  
-<a name="method28"></a>
+<a name="method32"></a>
 <p/><strong>string Pythia::word(string key) &nbsp;</strong> <br/>
 read in a string variable from the <code>Settings</code> database.
 <br/><code>argument</code><strong> key </strong>  :   
@@ -1099,42 +1199,42 @@ The <code>Pythia</code> class contains a few public data members,
 several of which play a central role. We list them here, with 
 links to the places where they are further described. 
  
-<a name="method29"></a>
+<a name="method33"></a>
 <p/><strong>Event Pythia::process &nbsp;</strong> <br/>
 the hard-process event record, see <?php $filepath = $_GET["filepath"];
 echo "<a href='EventRecord.php?filepath=".$filepath."' target='page'>";?>here</a>
 for further details.
   
  
-<a name="method30"></a>
+<a name="method34"></a>
 <p/><strong>Event Pythia::event &nbsp;</strong> <br/>
 the complete event record, see <?php $filepath = $_GET["filepath"];
 echo "<a href='EventRecord.php?filepath=".$filepath."' target='page'>";?>here</a>
 for further details.
   
  
-<a name="method31"></a>
+<a name="method35"></a>
 <p/><strong>Info Pythia::info &nbsp;</strong> <br/>
 further information on the event-generation process, see 
 <?php $filepath = $_GET["filepath"];
 echo "<a href='EventInformation.php?filepath=".$filepath."' target='page'>";?>here</a> for further details.
   
  
-<a name="method32"></a>
+<a name="method36"></a>
 <p/><strong>Settings Pythia::settings &nbsp;</strong> <br/>
 the settings database, see <?php $filepath = $_GET["filepath"];
 echo "<a href='SettingsScheme.php?filepath=".$filepath."' target='page'>";?>here</a>
 for further details. 
   
  
-<a name="method33"></a>
+<a name="method37"></a>
 <p/><strong>ParticleData Pythia::particleData &nbsp;</strong> <br/>
 the particle properties and decay tables database, see 
 <?php $filepath = $_GET["filepath"];
 echo "<a href='ParticleDataScheme.php?filepath=".$filepath."' target='page'>";?>here</a> for further details. 
   
  
-<a name="method34"></a>
+<a name="method38"></a>
 <p/><strong>Rndm Pythia::rndm &nbsp;</strong> <br/>
 the random number generator, see <?php $filepath = $_GET["filepath"];
 echo "<a href='RandomNumberSeed.php?filepath=".$filepath."' target='page'>";?>here</a>
@@ -1142,21 +1242,21 @@ and <?php $filepath = $_GET["filepath"];
 echo "<a href='RandomNumbers.php?filepath=".$filepath."' target='page'>";?>here</a> for further details. 
   
  
-<a name="method35"></a>
+<a name="method39"></a>
 <p/><strong>CoupSM Pythia::coupSM &nbsp;</strong> <br/>
 Standard Model couplings and mixing matrices, see 
 <?php $filepath = $_GET["filepath"];
 echo "<a href='StandardModelParameters.php?filepath=".$filepath."' target='page'>";?>here</a> for further details. 
   
  
-<a name="method36"></a>
+<a name="method40"></a>
 <p/><strong>SusyLesHouches Pythia::slha &nbsp;</strong> <br/>
 parameters and particle data in the context of supersymmetric models, 
 see <?php $filepath = $_GET["filepath"];
 echo "<a href='SUSYLesHouchesAccord.php?filepath=".$filepath."' target='page'>";?>here</a> for further details.
   
  
-<a name="method37"></a>
+<a name="method41"></a>
 <p/><strong>PartonSystems Pythia::partonSystems &nbsp;</strong> <br/>
 a grouping of the partons in the event record by subsystem, 
 see <?php $filepath = $_GET["filepath"];
@@ -1166,4 +1266,4 @@ echo "<a href='AdvancedUsage.php?filepath=".$filepath."' target='page'>";?>here<
 </body>
 </html>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->

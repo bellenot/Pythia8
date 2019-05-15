@@ -1,5 +1,5 @@
 // main19.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -77,29 +77,51 @@ int main() {
 
   // One object where all individual events are to be collected.
   Event sumEvent;
-  
+ 
+  // Switch off automatic event listing.
+  pythiaSignal.readString("Next:numberShowInfo = 0"); 
+  pythiaSignal.readString("Next:numberShowProcess = 0"); 
+  pythiaSignal.readString("Next:numberShowEvent = 0"); 
+  pythiaPileup.readString("Next:numberShowInfo = 0"); 
+  pythiaPileup.readString("Next:numberShowProcess = 0"); 
+  pythiaPileup.readString("Next:numberShowEvent = 0"); 
+  pythiaBeamAGas.readString("Next:numberShowInfo = 0"); 
+  pythiaBeamAGas.readString("Next:numberShowProcess = 0"); 
+  pythiaBeamAGas.readString("Next:numberShowEvent = 0"); 
+  pythiaBeamBGas.readString("Next:numberShowInfo = 0"); 
+  pythiaBeamBGas.readString("Next:numberShowProcess = 0"); 
+  pythiaBeamBGas.readString("Next:numberShowEvent = 0"); 
+ 
   // Initialize generator for signal processes. 
   pythiaSignal.readString("HardQCD:all = on");    
   pythiaSignal.readString("PhaseSpace:pTHatMin = 50.");
-  pythiaSignal.init( 2212, 2212, 2. * eBeam);
+  pythiaSignal.settings.parm("Beams:eCM", 2. * eBeam);    
+  pythiaSignal.init();
 
   // Initialize generator for pileup (background) processes.
   pythiaPileup.readString("Random:setSeed = on");    
   pythiaPileup.readString("Random:seed = 10000002");     
   pythiaPileup.readString("SoftQCD:all = on");    
-  pythiaPileup.init( 2212, 2212, 2. * eBeam);
+  pythiaPileup.settings.parm("Beams:eCM", 2. * eBeam);    
+  pythiaPileup.init();
 
   // Initialize generators for beam A - gas (background) processes. 
   pythiaBeamAGas.readString("Random:setSeed = on");    
   pythiaBeamAGas.readString("Random:seed = 10000003");     
   pythiaBeamAGas.readString("SoftQCD:all = on");    
-  pythiaBeamAGas.init( 2212, 2212, eBeam, 0.);
+  pythiaBeamAGas.readString("Beams:frameType = 2");    
+  pythiaBeamAGas.settings.parm("Beams:eA", eBeam);    
+  pythiaBeamAGas.settings.parm("Beams:eB", 0.);    
+  pythiaBeamAGas.init();
 
   // Initialize generators for beam B - gas (background) processes. 
   pythiaBeamBGas.readString("Random:setSeed = on");    
   pythiaBeamBGas.readString("Random:seed = 10000004");     
   pythiaBeamBGas.readString("SoftQCD:all = on");    
-  pythiaBeamBGas.init( 2212, 2212, 0., eBeam);
+  pythiaBeamBGas.readString("Beams:frameType = 2");    
+  pythiaBeamBGas.settings.parm("Beams:eA", 0.);    
+  pythiaBeamBGas.settings.parm("Beams:eB", eBeam);    
+  pythiaBeamBGas.init();
 
   // Histograms: number of pileups, total charged multiplicity.
   Hist nPileH("number of pileup events per signal event", 100, -0.5, 99.5);
@@ -165,10 +187,10 @@ int main() {
   }
 
   // Statistics. Histograms.
-  pythiaSignal.statistics();
-  pythiaPileup.statistics();
-  pythiaBeamAGas.statistics();
-  pythiaBeamBGas.statistics();
+  pythiaSignal.stat();
+  pythiaPileup.stat();
+  pythiaBeamAGas.stat();
+  pythiaBeamBGas.stat();
   cout << nPileH << nAGH << nBGH << nChgH << sumPZH;
 
   return 0;

@@ -1,12 +1,12 @@
-// MultipleInteractions.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// MultipartonInteractions.cc is a part of the PYTHIA event generator.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 // Function definitions (not found in the header) for the
-// SigmaMultiple and MultipleInteractions classes.
+// SigmaMultiparton and MultipartonInteractions classes.
   
-#include "MultipleInteractions.h"
+#include "MultipartonInteractions.h"
 
 // Internal headers for special processes.
 #include "SigmaQCD.h"
@@ -17,7 +17,7 @@ namespace Pythia8 {
 
 //==========================================================================
 
-// The SigmaMultiple class.
+// The SigmaMultiparton class.
 
 //--------------------------------------------------------------------------
 
@@ -25,16 +25,16 @@ namespace Pythia8 {
 // These are of technical nature, as described for each.
 
 // The sum of outgoing masses must not be too close to the cm energy.
-const double SigmaMultiple::MASSMARGIN = 0.1;
+const double SigmaMultiparton::MASSMARGIN = 0.1;
 
 // Fraction of time not the dominant "gluon t-channel" process is picked.
-const double SigmaMultiple::OTHERFRAC  = 0.2;
+const double SigmaMultiparton::OTHERFRAC  = 0.2;
 
 //--------------------------------------------------------------------------
 
 // Initialize the generation process for given beams.
 
-bool SigmaMultiple::init(int inState, int processLevel, Info* infoPtr, 
+bool SigmaMultiparton::init(int inState, int processLevel, Info* infoPtr, 
     Settings* settingsPtr, ParticleData* particleDataPtr, Rndm* rndmPtrIn,  
     BeamParticle* beamAPtr, BeamParticle* beamBPtr, Couplings* couplingsPtr) {
 
@@ -241,7 +241,7 @@ bool SigmaMultiple::init(int inState, int processLevel, Info* infoPtr,
 
 // Calculate cross section summed over possibilities.
 
-double SigmaMultiple::sigma( int id1, int id2, double x1, double x2, 
+double SigmaMultiparton::sigma( int id1, int id2, double x1, double x2, 
   double sHat, double tHat, double uHat, double alpS, double alpEM,
   bool restore, bool pickOtherIn) {
 
@@ -262,23 +262,23 @@ double SigmaMultiple::sigma( int id1, int id2, double x1, double x2,
 
     // t-channel-sampling contribution. 
     if (sHat > sHatMin[i]) { 
-      sigmaT[i]->set2KinMI( x1, x2, sHat, tHat, uHat, 
+      sigmaT[i]->set2KinMPI( x1, x2, sHat, tHat, uHat, 
         alpS, alpEM, needMasses[i], m3Fix[i], m4Fix[i]);
       sigmaTval[i] = sigmaT[i]->sigmaHatWrap(id1, id2);
       sigmaT[i]->pickInState(id1, id2);
       // Correction factor for tHat rescaling in massive kinematics.
-      if (needMasses[i]) sigmaTval[i] *= sigmaT[i]->sHBetaMI() / sHat;
+      if (needMasses[i]) sigmaTval[i] *= sigmaT[i]->sHBetaMPI() / sHat;
       sigmaTsum += sigmaTval[i];
     } 
    
     // u-channel-sampling contribution.
     if (sHat > sHatMin[i]) { 
-      sigmaU[i]->set2KinMI( x1, x2, sHat, uHat, tHat, 
+      sigmaU[i]->set2KinMPI( x1, x2, sHat, uHat, tHat, 
         alpS, alpEM, needMasses[i], m3Fix[i], m4Fix[i]);
       sigmaUval[i] = sigmaU[i]->sigmaHatWrap( id1, id2);
       sigmaU[i]->pickInState(id1, id2);
       // Correction factor for tHat rescaling in massive kinematics.
-      if (needMasses[i]) sigmaUval[i] *= sigmaU[i]->sHBetaMI() / sHat;
+      if (needMasses[i]) sigmaUval[i] *= sigmaU[i]->sHBetaMPI() / sHat;
       sigmaUsum += sigmaUval[i];
     } 
 
@@ -295,7 +295,7 @@ double SigmaMultiple::sigma( int id1, int id2, double x1, double x2,
 
 // Return one subprocess, picked according to relative cross sections.
 
-SigmaProcess* SigmaMultiple::sigmaSel() { 
+SigmaProcess* SigmaMultiparton::sigmaSel() { 
 
   // Decide between t- and u-channel-sampled kinematics.
   pickedU = (rndmPtr->flat() * (sigmaTsum + sigmaUsum) < sigmaUsum);
@@ -321,7 +321,7 @@ SigmaProcess* SigmaMultiple::sigmaSel() {
 
 //==========================================================================
 
-// The MultipleInteractions class.
+// The MultipartonInteractions class.
 
 //--------------------------------------------------------------------------
 
@@ -330,73 +330,73 @@ SigmaProcess* SigmaMultiple::sigmaSel() {
 
 // Factorization scale pT2 by default, but could be shifted to pT2 + pT02.
 // (A priori possible, but problems for flavour threshold interpretation.)
-const bool   MultipleInteractions::SHIFTFACSCALE = false;
+const bool   MultipartonInteractions::SHIFTFACSCALE = false;
 
 // Pick one parton to represent rescattering cross section to speed up.
-const bool   MultipleInteractions::PREPICKRESCATTER = true;
+const bool   MultipartonInteractions::PREPICKRESCATTER = true;
 
 // Naive upper estimate of cross section too pessimistic, so reduce by this.
-const double MultipleInteractions::SIGMAFUDGE    = 0.7; 
+const double MultipartonInteractions::SIGMAFUDGE    = 0.7; 
 
 // The r value above, picked to allow a flatter correct/trial cross section.
-const double MultipleInteractions::RPT20         = 0.25;
+const double MultipartonInteractions::RPT20         = 0.25;
 
 // Reduce pT0 by factor pT0STEP if sigmaInt < SIGMASTEP * sigmaND.
-const double MultipleInteractions::PT0STEP       = 0.9;
-const double MultipleInteractions::SIGMASTEP     = 1.1;
+const double MultipartonInteractions::PT0STEP       = 0.9;
+const double MultipartonInteractions::SIGMASTEP     = 1.1;
 
 // Stop if pT0 or pTmin fall below this, or alpha_s blows up.
-const double MultipleInteractions::PT0MIN        = 0.2;
+const double MultipartonInteractions::PT0MIN        = 0.2;
 
 // Refuse too low expPow in impact parameter profile.
-const double MultipleInteractions::EXPPOWMIN     = 0.4; 
+const double MultipartonInteractions::EXPPOWMIN     = 0.4; 
 
 // Define low-b region by interaction rate above given number.
-const double MultipleInteractions::PROBATLOWB    = 0.6;
+const double MultipartonInteractions::PROBATLOWB    = 0.6;
 
 // Basic step size for b integration; sometimes modified.
-const double MultipleInteractions::BSTEP         = 0.01;
+const double MultipartonInteractions::BSTEP         = 0.01;
 
 // Stop b integration when integrand dropped enough.
-const double MultipleInteractions::BMAX          = 1e-8;
+const double MultipartonInteractions::BMAX          = 1e-8;
 
 // Do not allow too large argument to exp function.
-const double MultipleInteractions::EXPMAX        = 50.;
+const double MultipartonInteractions::EXPMAX        = 50.;
 
 // Convergence criterion for k iteration.
-const double MultipleInteractions::KCONVERGE     = 1e-7;
+const double MultipartonInteractions::KCONVERGE     = 1e-7;
 
 // Conversion of GeV^{-2} to mb for cross section.
-const double MultipleInteractions::CONVERT2MB    = 0.389380; 
+const double MultipartonInteractions::CONVERT2MB    = 0.389380; 
 
 // Stay away from division by zero in Jacobian for tHat -> pT2.
-const double MultipleInteractions::ROOTMIN       = 0.01; 
+const double MultipartonInteractions::ROOTMIN       = 0.01; 
 
 // No need to reinitialize parameters if energy close to previous.
-const double MultipleInteractions::ECMDEV        = 0.01; 
+const double MultipartonInteractions::ECMDEV        = 0.01; 
 
 // Settings for x-dependent matter profile:
 // Number of bins in b (with these settings, no bStep increase and
 // reintegration needed with a1 ~ 0.20 up to ECM ~ 40TeV).
-const int    MultipleInteractions::XDEP_BBIN     = 500;
+const int    MultipartonInteractions::XDEP_BBIN     = 500;
 // Initial value of a0.
-const double MultipleInteractions::XDEP_A0       = 1.0;
+const double MultipartonInteractions::XDEP_A0       = 1.0;
 // Width of form ( XDEP_A1 + a1 * log(1 / x) ).
-const double MultipleInteractions::XDEP_A1       = 1.0;
+const double MultipartonInteractions::XDEP_A1       = 1.0;
 // Initial step size in b and increment.
-const double MultipleInteractions::XDEP_BSTEP    = 0.02;
-const double MultipleInteractions::XDEP_BSTEPINC = 0.01;
+const double MultipartonInteractions::XDEP_BSTEP    = 0.02;
+const double MultipartonInteractions::XDEP_BSTEPINC = 0.01;
 // Overlap-weighted cross section in last bin of b must be beneath
 // XDEP_CUTOFF * sigmaInt.
-const double MultipleInteractions::XDEP_CUTOFF   = 1e-4;
+const double MultipartonInteractions::XDEP_CUTOFF   = 1e-4;
 // a0 is calculated in units of sqrt(mb), so convert to fermi.
-const double MultipleInteractions::XDEP_SMB2FM   = sqrt(0.1);
+const double MultipartonInteractions::XDEP_SMB2FM   = sqrt(0.1);
 
 //--------------------------------------------------------------------------
 
 // Initialize the generation process for given beams.
 
-bool MultipleInteractions::init( bool doMIinit, int diffractiveModeIn,
+bool MultipartonInteractions::init( bool doMPIinit, int diffractiveModeIn,
   Info* infoPtrIn, Settings& settings, ParticleData* particleDataPtr,  
   Rndm* rndmPtrIn, BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, 
   Couplings* couplingsPtrIn, PartonSystems* partonSystemsPtrIn,  
@@ -412,39 +412,39 @@ bool MultipleInteractions::init( bool doMIinit, int diffractiveModeIn,
   partonSystemsPtr = partonSystemsPtrIn;
   sigmaTotPtr      = sigmaTotPtrIn;
   userHooksPtr     = userHooksPtrIn;
-  if (!doMIinit) return false;
+  if (!doMPIinit) return false;
 
   // If both beams are baryons then softer PDF's than for mesons/Pomerons.
   hasBaryonBeams = ( beamAPtr->isBaryon() && beamBPtr->isBaryon() );
 
   // Matching in pT of hard interaction to further interactions.
-  pTmaxMatch     = settings.mode("MultipleInteractions:pTmaxMatch"); 
+  pTmaxMatch     = settings.mode("MultipartonInteractions:pTmaxMatch"); 
 
   //  Parameters of alphaStrong generation.
-  alphaSvalue    = settings.parm("MultipleInteractions:alphaSvalue");
-  alphaSorder    = settings.mode("MultipleInteractions:alphaSorder");
+  alphaSvalue    = settings.parm("MultipartonInteractions:alphaSvalue");
+  alphaSorder    = settings.mode("MultipartonInteractions:alphaSorder");
 
   // Parameters of alphaEM generation.
-  alphaEMorder   = settings.mode("MultipleInteractions:alphaEMorder");
+  alphaEMorder   = settings.mode("MultipartonInteractions:alphaEMorder");
 
   //  Parameters of cross section generation.
-  Kfactor        = settings.parm("MultipleInteractions:Kfactor");
+  Kfactor        = settings.parm("MultipartonInteractions:Kfactor");
 
   // Regularization of QCD evolution for pT -> 0. 
-  pT0Ref         = settings.parm("MultipleInteractions:pT0Ref");
-  ecmRef         = settings.parm("MultipleInteractions:ecmRef");
-  ecmPow         = settings.parm("MultipleInteractions:ecmPow");
-  pTmin          = settings.parm("MultipleInteractions:pTmin");
+  pT0Ref         = settings.parm("MultipartonInteractions:pT0Ref");
+  ecmRef         = settings.parm("MultipartonInteractions:ecmRef");
+  ecmPow         = settings.parm("MultipartonInteractions:ecmPow");
+  pTmin          = settings.parm("MultipartonInteractions:pTmin");
 
   // Impact parameter profile: nondiffractive topologies.
   if (diffractiveMode == 0) {
-    bProfile     = settings.mode("MultipleInteractions:bProfile");
-    coreRadius   = settings.parm("MultipleInteractions:coreRadius");
-    coreFraction = settings.parm("MultipleInteractions:coreFraction");
-    expPow       = settings.parm("MultipleInteractions:expPow");
+    bProfile     = settings.mode("MultipartonInteractions:bProfile");
+    coreRadius   = settings.parm("MultipartonInteractions:coreRadius");
+    coreFraction = settings.parm("MultipartonInteractions:coreFraction");
+    expPow       = settings.parm("MultipartonInteractions:expPow");
     expPow       = max(EXPPOWMIN, expPow);
     // x-dependent impact parameter profile.
-    a1           = settings.parm("MultipleInteractions:a1");
+    a1           = settings.parm("MultipartonInteractions:a1");
 
   // Impact parameter profile: diffractive topologies.
   } else {
@@ -456,31 +456,34 @@ bool MultipleInteractions::init( bool doMIinit, int diffractiveModeIn,
   }
 
   // Process sets to include in machinery.
-  processLevel   = settings.mode("MultipleInteractions:processLevel");
+  processLevel   = settings.mode("MultipartonInteractions:processLevel");
 
   // Parameters of rescattering description.
-  allowRescatter = settings.flag("MultipleInteractions:allowRescatter");
-  allowDoubleRes = settings.flag("MultipleInteractions:allowDoubleRescatter");
-  rescatterMode  = settings.mode("MultipleInteractions:rescatterMode");
-  ySepResc       = settings.parm("MultipleInteractions:ySepRescatter");
-  deltaYResc     = settings.parm("MultipleInteractions:deltaYRescatter");
+  allowRescatter = settings.flag("MultipartonInteractions:allowRescatter");
+  allowDoubleRes 
+    = settings.flag("MultipartonInteractions:allowDoubleRescatter");
+  rescatterMode  = settings.mode("MultipartonInteractions:rescatterMode");
+  ySepResc       = settings.parm("MultipartonInteractions:ySepRescatter");
+  deltaYResc     = settings.parm("MultipartonInteractions:deltaYRescatter");
 
   // Rescattering not yet implemented for x-dependent impact profile.
   if (bProfile == 4) allowRescatter = false;
 
   // Various other parameters. 
-  nQuarkIn       = settings.mode("MultipleInteractions:nQuarkIn");
-  nSample        = settings.mode("MultipleInteractions:nSample");
+  nQuarkIn       = settings.mode("MultipartonInteractions:nQuarkIn");
+  nSample        = settings.mode("MultipartonInteractions:nSample");
 
   // Optional dampening at small pT's when large multiplicities.
-  enhanceScreening = settings.mode("MultipleInteractions:enhanceScreening");
+  enhanceScreening = settings.mode("MultipartonInteractions:enhanceScreening");
 
   // Parameters for diffractive systems.
-  sigmaPomP      = settings.parm("Diffraction:sigmaPomP");
+  sigmaPomP      = settings.parm("Diffraction:sigmaRefPomP");
+  mPomP          = settings.parm("Diffraction:mRefPomP");
+  pPomP          = settings.parm("Diffraction:mPowPomP");
   mMinPertDiff   = settings.parm("Diffraction:mMinPert");
 
-  // Possibility to allow user veto of MI
-  canVetoMI = (userHooksPtr > 0) ? userHooksPtr->canVetoMIEmission() : false;
+  // Possibility to allow user veto of MPI
+  canVetoMPI = (userHooksPtr > 0) ? userHooksPtr->canVetoMPIEmission() : false;
 
   // Some common combinations for double Gaussian, as shorthand.
   if (bProfile == 2) {
@@ -522,25 +525,28 @@ bool MultipleInteractions::init( bool doMIinit, int diffractiveModeIn,
   // Get the total inelastic and nondiffractive cross section.
   if (!sigmaTotPtr->hasSigmaTot()) return false;
   bool isNonDiff = (diffractiveMode == 0);
-  sigmaND = (isNonDiff) ? sigmaTotPtr->sigmaND() : sigmaPomP;
+  sigmaND = sigmaTotPtr->sigmaND(); 
   double sigmaMaxViol = 0.;
 
   // Output initialization info - first part.
-  os << "\n *-------  PYTHIA Multiple Interactions Initialization  --"
-     << "----------* \n"
-     << " |                                                        "
-     << "          | \n";
-  if (isNonDiff)
-    os << " |                   sigmaNonDiffractive = " << fixed 
-       << setprecision(2) << setw(7) << sigmaND << " mb               | \n";
-  else if (diffractiveMode == 1) 
-    os << " |         diffraction XB with sigmaNorm = " << fixed 
-       << setprecision(2) << setw(7) << sigmaND << " mb               | \n";
-  else if (diffractiveMode == 2) 
-    os << " |         diffraction AX with sigmaNorm = " << fixed 
-       << setprecision(2) << setw(7) << sigmaND << " mb               | \n"; 
-  os << " |                                                        "
-     << "          | \n";
+  bool showMPI = settings.flag("Init:showMultipartonInteractions");
+  if (showMPI) {
+    os << "\n *-------  PYTHIA Multiparton Interactions Initialization  "
+       << "---------* \n"
+       << " |                                                        "
+       << "          | \n";
+    if (isNonDiff)
+      os << " |            minbias,   sigmaNonDiffractive = " << fixed 
+         << setprecision(2) << setw(7) << sigmaND << " mb           | \n";
+    else if (diffractiveMode == 1) 
+      os << " |                          diffraction XB                "
+         << "          | \n";
+    else if (diffractiveMode == 2) 
+      os << " |                          diffraction AX                "
+         << "          | \n";
+    os << " |                                                        "
+       << "          | \n";
+  }
 
   // For diffraction need to cover range of diffractive masses.
   nStep = (diffractiveMode == 0) ? 1 : 5;
@@ -548,14 +554,16 @@ bool MultipleInteractions::init( bool doMIinit, int diffractiveModeIn,
             : log(mMaxPertDiff / mMinPertDiff) / (nStep - 1.);
   for (int iStep = 0; iStep < nStep; ++iStep) {
 
-    // Update and output current diffractive mass
+    // Update and output current diffractive mass and 
+    // fictitious Pomeron-proton cross section for normalization.
     if (nStep > 1) {
       eCM = mMinPertDiff * pow( mMaxPertDiff / mMinPertDiff, 
             iStep / (nStep - 1.) );
       sCM = eCM * eCM;
-      os << " |                 diffractive mass = " << scientific 
-         << setprecision(3) << setw(9) << eCM 
-         << " GeV                 | \n";
+      sigmaND = sigmaPomP * pow( eCM / mPomP, pPomP);
+      if (showMPI) os << " |    diffractive mass = " << scientific 
+        << setprecision(3) << setw(9) << eCM << " GeV and sigmaNorm = " 
+        << fixed << setw(6) << sigmaND << " mb    | \n";
     }  
 
     // Set current pT0 scale.
@@ -600,15 +608,15 @@ bool MultipleInteractions::init( bool doMIinit, int diffractiveModeIn,
 
       // Sufficiently big SigmaInt or reduce pT0; maybe also pTmin. 
       if (sigmaInt > SIGMASTEP * sigmaND) break; 
-      os << fixed << setprecision(2) << " |    pT0 = " << setw(5) << pT0  
-         << " gives sigmaInteraction = " << setw(7) << sigmaInt 
-         << " mb: rejected     | \n";
+      if (showMPI) os << fixed << setprecision(2) << " |    pT0 = " 
+        << setw(5) << pT0 << " gives sigmaInteraction = " << setw(7) 
+        << sigmaInt << " mb: rejected     | \n";
       if (pTmin > pT0) pTmin *= PT0STEP; 
       pT0 *= PT0STEP; 
 
       // Give up if pT0 and pTmin fall too low. 
       if ( max(pT0, pTmin) < max(PT0MIN, Lambda3) ) {
-        infoPtr->errorMsg("Error in MultipleInteractions::init:"
+        infoPtr->errorMsg("Error in MultipartonInteractions::init:"
           " failed to find acceptable pT0 and pTmin");
         infoPtr->setTooLowPTmin(true);
         return false;
@@ -616,9 +624,9 @@ bool MultipleInteractions::init( bool doMIinit, int diffractiveModeIn,
     }
 
     // Output for accepted pT0.
-    os << fixed << setprecision(2) << " |    pT0 = " << setw(5) << pT0 
-       << " gives sigmaInteraction = "<< setw(7) << sigmaInt 
-       << " mb: accepted     | \n";
+    if (showMPI) os << fixed << setprecision(2) << " |    pT0 = " 
+      << setw(5) << pT0 << " gives sigmaInteraction = "<< setw(7) 
+      << sigmaInt << " mb: accepted     | \n";
 
     // Calculate factor relating matter overlap and interaction rate.
     overlapInit();
@@ -651,30 +659,30 @@ bool MultipleInteractions::init( bool doMIinit, int diffractiveModeIn,
   }
 
   // Output details for x-dependent matter profile.
-  if (bProfile == 4) 
-    os << " |                                                        "
-       << "          | \n"
+  if (bProfile == 4 && showMPI) 
+    os << " |                                              "
+       << "                    | \n"
        << fixed << setprecision(2)
        << " |  x-dependent matter profile: a1 = " << a1 << ", "
        << "a0 = " << a0now * XDEP_SMB2FM << ", bStep = "
        << bstepNow << "  | \n";
 
   // End initialization printout.
-  os << " |                                                        "
-     << "          | \n"
-     << " *-------  End PYTHIA Multiple Interactions Initialization"
-     << "  --------* " << endl;
+  if (showMPI) os << " |                                              "
+     << "                    | \n"
+     << " *-------  End PYTHIA Multiparton Interactions Initialization"
+     << "  -----* " << endl;
 
   // Amount of violation from upperEnvelope to jetCrossSection.
   if (sigmaMaxViol > 1.) {  
     ostringstream osWarn;
     osWarn << "by factor " << fixed << setprecision(3) << sigmaMaxViol; 
-    infoPtr->errorMsg("Warning in MultipleInteractions::init:"
+    infoPtr->errorMsg("Warning in MultipartonInteractions::init:"
       " maximum increased", osWarn.str());
   }
 
   // Reset statistics.
-  SigmaMultiple* dSigma;
+  SigmaMultiparton* dSigma;
   for (int i = 0; i < 4; ++i) {
     if      (i == 0) dSigma = &sigma2gg; 
     else if (i == 1) dSigma = &sigma2qg;
@@ -703,7 +711,7 @@ bool MultipleInteractions::init( bool doMIinit, int diffractiveModeIn,
 // Reset impact parameter choice and update the CM energy.
 // For diffraction also interpolate parameters to current CM energy.
 
-void MultipleInteractions::reset( ) {  
+void MultipartonInteractions::reset( ) {  
 
   // Reset impact parameter choice.
   bIsSet      = false; 
@@ -713,6 +721,9 @@ void MultipleInteractions::reset( ) {
   eCM = infoPtr->eCM();
   sCM = eCM * eCM;
   if (nStep == 1 || abs( eCM / eCMsave - 1.) < ECMDEV) return;
+
+  // Set fictitious Pomeron-proton cross section for diffractive system.
+  sigmaND = sigmaPomP * pow( eCM / mPomP, pPomP);
 
   // Current interpolation point.
   eCMsave   = eCM;
@@ -779,7 +790,7 @@ void MultipleInteractions::reset( ) {
 // Select first = hardest pT in minbias process.
 // Requires separate treatment at low and high b values.
 
-void MultipleInteractions::pTfirst() {
+void MultipartonInteractions::pTfirst() {
   // Pick impact parameter and thereby interaction rate enhancement.
   // This is not used for the x-dependent matter profile, which
   // instead uses trial interactions.
@@ -805,11 +816,11 @@ void MultipleInteractions::pTfirst() {
       } else {
         WTacc = sigmaPT2scatter(true) / dSigmaApprox;
         if (WTacc > 1.) infoPtr->errorMsg("Warning in "
-            "MultipleInteractions::pTfirst: weight above unity");
+            "MultipartonInteractions::pTfirst: weight above unity");
       }
     
     // Loop until acceptable pT and acceptable kinematics.
-    } while (WTacc < rndmPtr->flat() || !dSigmaDtSel->final2KinMI()); 
+    } while (WTacc < rndmPtr->flat() || !dSigmaDtSel->final2KinMPI()); 
 
   // At high b values make preliminary pT choice without Sudakov factor.
   } else {
@@ -829,10 +840,10 @@ void MultipleInteractions::pTfirst() {
       
         // Warn for weight above unity
         if (WTacc > 1.) infoPtr->errorMsg("Warning in "
-            "MultipleInteractions::pTfirst: weight above unity");
+            "MultipartonInteractions::pTfirst: weight above unity");
 
       // Loop until acceptable pT and acceptable kinematics.
-      } while (WTacc < rndmPtr->flat() || !dSigmaDtSel->final2KinMI()); 
+      } while (WTacc < rndmPtr->flat() || !dSigmaDtSel->final2KinMPI()); 
 
       // For x-dependent matter profile, use trial interactions to
       // generate Sudakov, otherwise done.
@@ -926,7 +937,7 @@ void MultipleInteractions::pTfirst() {
 
 // Set up kinematics for first = hardest pT in minbias process.
 
-void MultipleInteractions::setupFirstSys( Event& process) { 
+void MultipartonInteractions::setupFirstSys( Event& process) { 
 
   // Last beam-status particles. Offset relative to normal beam locations.
   int sizeProc = process.size();
@@ -973,17 +984,17 @@ void MultipleInteractions::setupFirstSys( Event& process) {
   string nameSub = dSigmaDtSel->name();
   int codeSub    = dSigmaDtSel->code();
   int nFinalSub  = dSigmaDtSel->nFinal();
-  double pTMI    = dSigmaDtSel->pTMIFin();
+  double pTMPI   = dSigmaDtSel->pTMPIFin();
   infoPtr->setSubType( nameSub, codeSub, nFinalSub);
-  infoPtr->setTypeMI( codeSub, pTMI, 0, 0, enhanceB / zeroIntCorr);
+  infoPtr->setTypeMPI( codeSub, pTMPI, 0, 0, enhanceB / zeroIntCorr);
 
   // Further standard info on process.
   infoPtr->setPDFalpha( id1, id2, xPDF1now, xPDF2now, pT2Fac, alpEM, alpS, 
     pT2Ren);
   double m3    = dSigmaDtSel->m(3);
   double m4    = dSigmaDtSel->m(4); 
-  double theta = dSigmaDtSel->thetaMI(); 
-  double phi   = dSigmaDtSel->phiMI(); 
+  double theta = dSigmaDtSel->thetaMPI(); 
+  double phi   = dSigmaDtSel->phiMPI(); 
   infoPtr->setKin( x1, x2, sHat, tHat, uHat, sqrt(pT2), m3, m4, theta, phi);
 
 }
@@ -992,7 +1003,7 @@ void MultipleInteractions::setupFirstSys( Event& process) {
 
 // Find whether to limit maximum scale of emissions.
 
-bool MultipleInteractions::limitPTmax( Event& event) {
+bool MultipartonInteractions::limitPTmax( Event& event) {
 
   // User-set cases.
   if (pTmaxMatch == 1) return true;
@@ -1013,7 +1024,7 @@ bool MultipleInteractions::limitPTmax( Event& event) {
 
 // Select next pT in downwards evolution.
 
-double MultipleInteractions::pTnext( double pTbegAll, double pTendAll,
+double MultipartonInteractions::pTnext( double pTbegAll, double pTendAll,
   Event& event) {
 
   // Initial values.
@@ -1082,13 +1093,13 @@ double MultipleInteractions::pTnext( double pTbegAll, double pTendAll,
 
       // Normalize to dSigmaApprox, which was set in fastPT2 above.
       WTacc = (dSigmaScatter + dSigmaRescatter) / dSigmaApprox;
-      if (WTacc > 1.) infoPtr->errorMsg("Warning in MultipleInteractions::"
+      if (WTacc > 1.) infoPtr->errorMsg("Warning in MultipartonInteractions::"
         "pTnext: weight above unity");
 
       // Idea suggested by Gosta Gustafson: increased screening in events
       // with large activity can be simulated by pT0_eff = sqrt(n) * pT0. 
       if (enhanceScreening > 0) {
-        int nSysNow     = infoPtr->nMI() + 1;
+        int nSysNow     = infoPtr->nMPI() + 1;
         if (enhanceScreening == 2) nSysNow += infoPtr->nISR();
         double WTscreen = pow2( (pT2 + pT20) / (pT2 + nSysNow * pT20) );
         WTacc          *= WTscreen;
@@ -1102,7 +1113,7 @@ double MultipleInteractions::pTnext( double pTbegAll, double pTendAll,
         // Correct enhancement factor and weight
         enhanceBnow = sigmaND / M_PI / fac * exp( - b2now / fac);
         double oWgt = enhanceBnow / enhanceBmax;
-        if (oWgt > 1.) infoPtr->errorMsg("Warning in MultipleInteractions::"
+        if (oWgt > 1.) infoPtr->errorMsg("Warning in MultipartonInteractions::"
                          "pTnext: overlap weight above unity");
         WTacc *= oWgt;
       }
@@ -1139,10 +1150,10 @@ double MultipleInteractions::pTnext( double pTbegAll, double pTendAll,
                                    : event[i2Sel].p();
       double m1Res = (i1Sel == 0) ? 0. :  event[i1Sel].m();
       double m2Res = (i2Sel == 0) ? 0. :  event[i2Sel].m();
-      acceptKin = dSigmaDtSel->final2KinMI( i1Sel, i2Sel, p1Res, p2Res,
+      acceptKin = dSigmaDtSel->final2KinMPI( i1Sel, i2Sel, p1Res, p2Res,
         m1Res, m2Res);
     // New interaction: already stored values enough.
-    } else acceptKin = dSigmaDtSel->final2KinMI();
+    } else acceptKin = dSigmaDtSel->final2KinMPI();
   } while (!acceptKin); 
 
   // Done.
@@ -1155,7 +1166,7 @@ double MultipleInteractions::pTnext( double pTbegAll, double pTendAll,
 // Set up the kinematics of the 2 -> 2 scattering process,
 // and store the scattering in the event record.
 
-bool MultipleInteractions::scatter( Event& event) {
+bool MultipartonInteractions::scatter( Event& event) {
 
   // Last beam-status particles. Offset relative to normal beam locations.
   int sizeProc = event.size();
@@ -1182,8 +1193,8 @@ bool MultipleInteractions::scatter( Event& event) {
     event.append(parton);
   }
 
-  // Allow veto of MI. If so restore event record to before scatter.
-  if (canVetoMI && userHooksPtr->doVetoMIEmission(sizeProc, event)) {
+  // Allow veto of MPI. If so restore event record to before scatter.
+  if (canVetoMPI && userHooksPtr->doVetoMPIEmission(sizeProc, event)) {
     event.popBack(event.size() - sizeProc);
     return false;
   }
@@ -1291,9 +1302,10 @@ bool MultipleInteractions::scatter( Event& event) {
   }
 
   // Store info on subprocess code and rescattered partons.
-  int    codeMI = dSigmaDtSel->code();
-  double pTMI   = dSigmaDtSel->pTMIFin();
-  infoPtr->setTypeMI( codeMI, pTMI, i1Sel, i2Sel, enhanceBnow / zeroIntCorr);
+  int    codeMPI = dSigmaDtSel->code();
+  double pTMPI   = dSigmaDtSel->pTMPIFin();
+  infoPtr->setTypeMPI( codeMPI, pTMPI, i1Sel, i2Sel, 
+    enhanceBnow / zeroIntCorr);
 
   // Done.
   return true;
@@ -1303,7 +1315,7 @@ bool MultipleInteractions::scatter( Event& event) {
 
 // Determine constant in d(Prob)/d(pT2) < const / (pT2 + r * pT20)^2.  
 
-void MultipleInteractions::upperEnvelope() {  
+void MultipartonInteractions::upperEnvelope() {  
 
   // Initially determine constant in jet cross section upper estimate 
   // d(sigma_approx)/d(pT2) < const / (pT2 + r * pT20)^2. 
@@ -1354,9 +1366,9 @@ void MultipleInteractions::upperEnvelope() {
 // using stratified Monte Carlo sampling.
 // Store result in pT bins for use as Sudakov form factors.
 
-void MultipleInteractions::jetCrossSection() {
+void MultipartonInteractions::jetCrossSection() {
 
-  // Common factor from bin size in dpT2 / (pT2 + r * pT20)^2 and statistics.   
+  // Common factor from bin size in dpT2 / (pT2 + r * pT20)^2 and statistics.
   double sigmaFactor = (1. / pT20minR - 1. / pT20maxR) / (100. * nSample);
  
   // Reset overlap-weighted cross section for x-dependent matter profile.
@@ -1430,7 +1442,7 @@ void MultipleInteractions::jetCrossSection() {
 // Evaluate "Sudakov form factor" for not having a harder interaction
 // at the selected b value, given the pT scale of the event.
 
-double MultipleInteractions::sudakov(double pT2sud, double enhance) {
+double MultipartonInteractions::sudakov(double pT2sud, double enhance) {
 
   // Find bin the pT2 scale falls in.
   double xBin = (pT2sud - pT2min) * pT20maxR 
@@ -1450,7 +1462,7 @@ double MultipleInteractions::sudakov(double pT2sud, double enhance) {
 // Pick a trial next pT, based on a simple upper estimate of the
 // d(sigma)/d(pT2) spectrum.
 
-double MultipleInteractions::fastPT2( double pT2beg) {
+double MultipartonInteractions::fastPT2( double pT2beg) {
 
   // Use d(Prob)/d(pT2) < pT4dProbMax / (pT2 + r * pT20)^2. 
   double pT20begR       = pT2beg + pT20R;
@@ -1470,7 +1482,7 @@ double MultipleInteractions::fastPT2( double pT2beg) {
 // Select flavours and kinematics for interaction at given pT.
 // Slightly different treatment for first interaction and subsequent ones.
 
-double MultipleInteractions::sigmaPT2scatter(bool isFirst) {
+double MultipartonInteractions::sigmaPT2scatter(bool isFirst) {
  
   // Derive recormalization and factorization scales, amd alpha_strong/em.
   pT2shift = pT2 + pT20;
@@ -1528,13 +1540,13 @@ double MultipleInteractions::sigmaPT2scatter(bool isFirst) {
   // For subsequent interactions use rescaled densities.
   } else {
     for (int id = -nQuarkIn; id <= nQuarkIn; ++id) {
-      if (id == 0) xPDF1[10] = (9./4.) * beamAPtr->xfMI(21, x1, pT2Fac);
-      else xPDF1[id+10] = beamAPtr->xfMI(id, x1, pT2Fac);
+      if (id == 0) xPDF1[10] = (9./4.) * beamAPtr->xfMPI(21, x1, pT2Fac);
+      else xPDF1[id+10] = beamAPtr->xfMPI(id, x1, pT2Fac);
       xPDF1sum += xPDF1[id+10];
     }
     for (int id = -nQuarkIn; id <= nQuarkIn; ++id) {
-      if (id == 0) xPDF2[10] = (9./4.) * beamBPtr->xfMI(21, x2, pT2Fac);
-      else xPDF2[id+10] = beamBPtr->xfMI(id, x2, pT2Fac);
+      if (id == 0) xPDF2[10] = (9./4.) * beamBPtr->xfMPI(21, x2, pT2Fac);
+      else xPDF2[id+10] = beamBPtr->xfMPI(id, x2, pT2Fac);
       xPDF2sum += xPDF2[id+10];
     }
   }
@@ -1554,7 +1566,7 @@ double MultipleInteractions::sigmaPT2scatter(bool isFirst) {
   // Assign pointers to processes relevant for incoming flavour choice:
   // g + g, q + g, q + qbar (same flavour), q + q(bar) (the rest).  
   // Factor 4./9. per incoming gluon to compensate for preweighting.  
-  SigmaMultiple* sigma2Tmp;
+  SigmaMultiparton* sigma2Tmp;
   double gluFac = 1.;
   if (id1 == 21 && id2 == 21) { 
     sigma2Tmp = &sigma2gg; 
@@ -1583,7 +1595,7 @@ double MultipleInteractions::sigmaPT2scatter(bool isFirst) {
 
   // Dampen cross section at small pT values; part of formalism.
   // Use pT2 corrected for massive kinematics at this step.??
-  // double pT2massive = dSigmaDtSel->pT2MI();
+  // double pT2massive = dSigmaDtSel->pT2MPI();
   double pT2massive = pT2;
   dSigmaScat *= pow2( pT2massive / (pT2massive + pT20) );
 
@@ -1617,7 +1629,7 @@ double MultipleInteractions::sigmaPT2scatter(bool isFirst) {
 
 // Find the partons that are allowed to rescatter.
 
-void MultipleInteractions::findScatteredPartons( Event& event) {
+void MultipartonInteractions::findScatteredPartons( Event& event) {
 
   // Reset arrays.
   scatteredA.resize(0);
@@ -1680,7 +1692,7 @@ void MultipleInteractions::findScatteredPartons( Event& event) {
 // Calculate the actual cross section to decide whether fast choice is OK.
 // Select flavours and kinematics for interaction at given pT.
 
-double MultipleInteractions::sigmaPT2rescatter( Event& event) {
+double MultipartonInteractions::sigmaPT2rescatter( Event& event) {
  
   // Derive xT scale from chosen pT2.
   xT       = 2. * sqrt(pT2) / eCM;
@@ -1688,7 +1700,7 @@ double MultipleInteractions::sigmaPT2rescatter( Event& event) {
   xT2      = xT*xT;   
 
   //  Pointer to cross section and total rescatter contribution.
-  SigmaMultiple* sigma2Tmp;
+  SigmaMultiparton* sigma2Tmp;
   double dSigmaResc = 0.;
 
   // Normally save time by picking one random scattered parton from side A.
@@ -1729,8 +1741,8 @@ double MultipleInteractions::sigmaPT2rescatter( Event& event) {
   
     // Use rescaled densities, with preweighting 9/4 for gluons.
     for (int id = -nQuarkIn; id <= nQuarkIn; ++id) {
-      if (id == 0) xPDF2[10] = (9./4.) * beamBPtr->xfMI(21, x2Tmp, pT2Fac);
-      else xPDF2[id+10] = beamBPtr->xfMI(id, x2Tmp, pT2Fac);
+      if (id == 0) xPDF2[10] = (9./4.) * beamBPtr->xfMPI(21, x2Tmp, pT2Fac);
+      else xPDF2[id+10] = beamBPtr->xfMPI(id, x2Tmp, pT2Fac);
       xPDF2sum += xPDF2[id+10];
     }
 
@@ -1763,7 +1775,7 @@ double MultipleInteractions::sigmaPT2rescatter( Event& event) {
 
     // Dampen cross section at small pT values; part of formalism.
     // Use pT2 corrected for massive kinematics at this step.
-    //?? double pT2massive = dSigmaDtSel->pT2MI();
+    //?? double pT2massive = dSigmaDtSel->pT2MPI();
     double pT2massive = pT2;
     dSigmaCorr *= pow2( pT2massive / (pT2massive + pT20) );
 
@@ -1828,8 +1840,8 @@ double MultipleInteractions::sigmaPT2rescatter( Event& event) {
   
     // Use rescaled densities, with preweighting 9/4 for gluons.
     for (int id = -nQuarkIn; id <= nQuarkIn; ++id) {
-      if (id == 0) xPDF1[10] = (9./4.) * beamAPtr->xfMI(21, x1Tmp, pT2Fac);
-      else xPDF1[id+10] = beamAPtr->xfMI(id, x1Tmp, pT2Fac);
+      if (id == 0) xPDF1[10] = (9./4.) * beamAPtr->xfMPI(21, x1Tmp, pT2Fac);
+      else xPDF1[id+10] = beamAPtr->xfMPI(id, x1Tmp, pT2Fac);
       xPDF1sum += xPDF1[id+10];
     }
 
@@ -1862,7 +1874,7 @@ double MultipleInteractions::sigmaPT2rescatter( Event& event) {
 
     // Dampen cross section at small pT values; part of formalism.
     // Use pT2 corrected for massive kinematics at this step.
-    //?? double pT2massive = dSigmaDtSel->pT2MI();
+    //?? double pT2massive = dSigmaDtSel->pT2MPI();
     double pT2massive = pT2;
     dSigmaCorr *= pow2( pT2massive / (pT2massive + pT20) );
 
@@ -1927,12 +1939,13 @@ double MultipleInteractions::sigmaPT2rescatter( Event& event) {
           * sigma2Tmp->sigma( id1Tmp, id2Tmp, x1Tmp, x2Tmp, sHatTmp, tHatTmp, 
             uHatTmp, alpS, alpEM);
 
-        // Combine cross section and Jacobian tHat -> pT2 (with safety minvalue).
+        // Combine cross section and Jacobian tHat -> pT2 
+        // (with safety minvalue).
         double dSigmaCorr = dSigmaPartonCorr / max(ROOTMIN, root);
   
         // Dampen cross section at small pT values; part of formalism.
         // Use pT2 corrected for massive kinematics at this step.
-        //?? double pT2massive = dSigmaDtSel->pT2MI();
+        //?? double pT2massive = dSigmaDtSel->pT2MPI();
         double pT2massive = pT2;
         dSigmaCorr *= pow2( pT2massive / (pT2massive + pT20) );
 
@@ -1972,7 +1985,7 @@ double MultipleInteractions::sigmaPT2rescatter( Event& event) {
 // i.e. k in <n_interaction(b)> = k * overlap(b) (neglecting
 // n_int = 0 corrections and energy-momentum conservation effects).
 
-void MultipleInteractions::overlapInit() {
+void MultipartonInteractions::overlapInit() {
 
   // Initial values for iteration. Step size of b integration.
   nAvg = sigmaInt / sigmaND;
@@ -2130,7 +2143,7 @@ void MultipleInteractions::overlapInit() {
 
     // Other required values.
     a0now  = kNow;
-    infoPtr->a0MI(a0now * XDEP_SMB2FM);
+    infoPtr->a0MPI(a0now * XDEP_SMB2FM);
     a02now = a0now * a0now;
     double xMin = 2. * pTmin / infoPtr->eCM();
     a2max  = a0now * (XDEP_A1 + a1 * log(1. / xMin));
@@ -2163,7 +2176,7 @@ void MultipleInteractions::overlapInit() {
 // Pick impact parameter and interaction rate enhancement beforehand,
 // i.e. before even the hardest interaction for minimum-bias events. 
 
-void MultipleInteractions::overlapFirst() {
+void MultipartonInteractions::overlapFirst() {
 
   // Trivial values if no impact parameter dependence.
   if (bProfile <= 0 || bProfile > 4) {
@@ -2203,7 +2216,8 @@ void MultipleInteractions::overlapFirst() {
         overlapNow = normPi * exp( -min(EXPMAX, bNow*bNow));
       } else if (bProfile == 2) {
         double pickFrac = rndmPtr->flat() * fracABChigh; 
-        if (pickFrac < fracAhigh) bNow = sqrt(bDiv*bDiv - log(rndmPtr->flat()));
+        if (pickFrac < fracAhigh) 
+          bNow = sqrt(bDiv*bDiv - log(rndmPtr->flat()));
         else if (pickFrac < fracAhigh + fracBhigh) 
           bNow = sqrt(bDiv*bDiv - radius2B * log(rndmPtr->flat()));
         else bNow = sqrt(bDiv*bDiv - radius2C * log(rndmPtr->flat()));
@@ -2253,9 +2267,9 @@ void MultipleInteractions::overlapFirst() {
 //--------------------------------------------------------------------------
 
 // Pick impact parameter and interaction rate enhancement afterwards,
-// i.e. after a hard interaction is known but before rest of MI treatment.
+// i.e. after a hard interaction is known but before rest of MPI treatment.
 
-void MultipleInteractions::overlapNext(Event& event, double pTscale) {
+void MultipartonInteractions::overlapNext(Event& event, double pTscale) {
 
   // Default, valid for bProfile = 0. Also initial Sudakov.
   enhanceB = zeroIntCorr;
@@ -2325,7 +2339,8 @@ void MultipleInteractions::overlapNext(Event& event, double pTscale) {
           acceptC = pow( cNow / expRev, expRev) * exp(expRev - cNow);
         } else {
           cNow = 2. * (expRev - log( rndmPtr->flat() )); 
-          acceptC = pow(0.5 * cNow / expRev, expRev) * exp(expRev - 0.5 * cNow);
+          acceptC = pow(0.5 * cNow / expRev, expRev) 
+                  * exp(expRev - 0.5 * cNow);
         }
       } while (acceptC < rndmPtr->flat()); 
       // Same enhancement for hardest process and all subsequent MPI.
@@ -2360,12 +2375,12 @@ void MultipleInteractions::overlapNext(Event& event, double pTscale) {
 
 //--------------------------------------------------------------------------
 
-// Printe statistics on number of multiple-interactions processes.
+// Printe statistics on number of multiparton-interactions processes.
 
-void MultipleInteractions::statistics(bool resetStat, ostream& os) {
+void MultipartonInteractions::statistics(bool resetStat, ostream& os) {
     
   // Header.
-  os << "\n *-------  PYTHIA Multiple Interactions Statistics  --------"
+  os << "\n *-------  PYTHIA Multiparton Interactions Statistics  -----"
      << "---*\n"
      << " |                                                            "
      << " |\n" 
@@ -2393,7 +2408,7 @@ void MultipleInteractions::statistics(bool resetStat, ostream& os) {
     // Find process name that matches code.
     string name = " ";
     bool foundName = false;
-    SigmaMultiple* dSigma;
+    SigmaMultiparton* dSigma;
     for (int i = 0; i < 4; ++i) {
       if      (i == 0) dSigma = &sigma2gg; 
       else if (i == 1) dSigma = &sigma2qg;
@@ -2422,12 +2437,11 @@ void MultipleInteractions::statistics(bool resetStat, ostream& os) {
     // Listing finished.
   os << " |                                               |            "
      << " |\n" 
-     << " *-------  End PYTHIA Multiple Interactions Statistics -------"
+     << " *-------  End PYTHIA Multiparton Interactions Statistics ----"
      << "-*" << endl;
 
-  // Optionally reset statistics contants.
-  if (resetStat) for ( map<int, int>::iterator iter = nGen.begin(); 
-    iter != nGen.end(); ++iter) iter->second = 0;  
+  // Optionally reset statistics contents.
+  if (resetStat) resetStatistics();
 
 }
 

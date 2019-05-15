@@ -128,9 +128,26 @@ the same ordering rules.
 <p/>
 <li>
 Next comes the initialization stage, where all 
-remaining details of the generation are to be specified. The 
-<code>init(...)</code> method allows a few different input formats, 
-so you can pick the one convenient for you:
+remaining details of the generation are to be specified.
+There is one standard method to use for this
+
+<p/>
+<code>pythia.init();</code><br/>
+with no arguments will read all relevant information from the 
+<code><aloc href="SettingsScheme">Settings</aloc></code>
+and <code><aloc href="ParticleDataScheme">ParticleData</aloc></code> 
+databases. Specifically the setup of incoming beams and energies 
+is governed by the the beam parameters from the 
+<code><aloc href="BeamParameters">Beams</aloc></code> 
+group of variables. If you don't change any of those you will 
+default to proton-proton collisions at 14 TeV, i.e. the nominal LHC 
+values.
+
+<p/> 
+A few alternative forms are available, where the arguments of the
+<code>init(...)</code> call can be used to set the beam parameters.
+These alternatives are now deprecated, and will bew removed for 
+PYTHIA 8.2.  
 
 <p/>
 a) <code>pythia.init( idA, idB, eCM);</code><br/>
@@ -156,16 +173,7 @@ assumes a file in the <aloc href="LesHouchesAccord">Les Houches
 Event File</aloc> format is provided.
 
 <p/>
-e) <code>pythia.init();</code><br/>
-with no arguments will read the beam parameters from the 
-<code><aloc href="MainProgramSettings">Main</aloc></code> 
-group of variables, which provides you with the same possibilities as
-the above options a, b, c and d. If you don't change any of those you will 
-default to proton-proton collisions at 14 TeV, i.e. the nominal LHC 
-values.
-
-<p/>
-f) <code>pythia.init( LHAup*);</code> <br/>
+e) <code>pythia.init( LHAup*);</code> <br/>
 assumes <aloc href="LesHouchesAccord">Les Houches Accord</aloc> 
 initialization and event information is available in an <code>LHAup</code> 
 class object, and that a pointer to this object is handed in.
@@ -232,10 +240,11 @@ event.
 
 <li>At the end of the generation process, you can call
 <pre>
-    pythia.statistics(); 
+    pythia.stat(); 
 </pre>
 to get some run statistics, on cross sections and the number of errors 
-and warnings encountered. 
+and warnings encountered. The alternative 
+<code>pythia.statistics(...);</code> is equivalent but deprecated.
 </li> 
 
 </ol>
@@ -315,7 +324,19 @@ event than the ones being used for everything else, the extended form
       pythia.setPDFptr( pdfAPtr, pdfBPtr, pdfHardAPtr, pdfHardBPtr); 
 </pre>
 allows you to specify those separately, and then the first two sets 
-would only be used for the showers and for multiple interactions.
+would only be used for the showers and for multiparton interactions.
+</li>
+
+<p/>
+<li>
+If you want to link to an external generator that feeds in events 
+in the LHA format, you can call the <code>setLHAupPtr(...)</code>
+method
+<pre>
+      pythia.setLHAupPtr( lhaUpPtr);
+</pre>
+where the  <code>lhaUpPtr</code> derives from the 
+<aloc href="LesHouchesAccord">LHAup</aloc> base class. 
 </li>
 
 <p/>
@@ -435,6 +456,9 @@ PYTHIA has not been written for threadsafe execution on multicore
 processors. If you want to use all cores, 
 the most efficient way presumably is to start correspondingly many jobs, 
 with different random number seeds, and add the statistics at the end.
+However, note that several instances  can be set up in the same main 
+program, since instances are completely independent of each other,
+so each instance could be run inside a separate thread.
 </li>
 
 <p/>
@@ -483,18 +507,17 @@ When working with Les Houches Event Files, it may well be that your
 intended input event sample is spread over several files, that you all 
 want to turn into complete events in one and the same run. There is no
 problem with looping over several subruns, where each new subrun 
-is initialized with a new file. However, in that case you will do
-a complete re-initialization each time around. If you want to avoid
-this, note that there is an optional second argument for LHEF
-initialization: <code>pythia.init(fileName, skipInit)</code>.
-Alternatively, the tag <code>Main:LHEFskipInit</code> can be put 
-in a file of commands to obtain the same effect.
-Here <code>skipInit</code> defaults to <code>false</code>,
-but if set <code>true</code> then the new file will be simulated 
-with the same initialization data as already set in a previous
-<code>pythia.init(...)</code> call. The burden rests on you to ensure 
+is initialized with a new file, with name set in <code>Beams:LHEF</code>. 
+However, in that case you will do a complete re-initialization each time 
+around. If you want to avoid this, note that the flag
+<code>Beams:newLHEFsameInit = true</code> can be set for the second and 
+subsequent subruns. Then the new file will be simulated with the same 
+initialization data as already set in a previous 
+<code>pythia.init()</code> call. The burden rests on you to ensure 
 that this is indeed correct, e.g. that the two event samples have not 
-been generated for different beam energies.
+been generated for different beam energies. Also note that cross
+sections for processes will be based on the information in the 
+first-read file, when the full initialization is performed.
 </li>
 
 </ol>
@@ -605,7 +628,7 @@ be used, and then the same PDF sets would be invoked everywhere. If you
 provide these two further pointers then two different sets of PDF's are 
 used. This second set is then exclusively for the generation of the hard 
 process from the process matrix elements library. The first set above 
-is for everything else, notably parton showers and multiple interactions.
+is for everything else, notably parton showers and multiparton interactions.
 </argument>
 <note>Note 1:</note> The method returns false if the input is obviously 
 incorrect, e.g. if two (nonzero) pointers agree.
@@ -614,6 +637,19 @@ call <code>setPDFPtr</code> with new arguments before each
 <code>Pythia::init(...)</code> call. To revert from external PDF's
 to the normal internal PDF selection you must call 
 <code>setPDFPtr(0, 0)</code> before <code>Pythia::init(...)</code>. 
+</method>
+
+<method name="bool Pythia::setLHAupPtr( LHAup* lhaUpPtrIn)">
+offers linkage to an external generator that feeds in events 
+in the LHA format, see 
+<aloc href="LesHouchesAccord">Les Houches Accord</aloc>, 
+assuming that 
+<code><aloc href="BeamParameters">Beams:frameType = 5</aloc></code>
+has been set.
+<argument name="lhaUpPtrIn">  
+pointer to a <code>LHAup</code>-derived object.
+</argument>
+<note>Note:</note> The method currently always returns true.
 </method>
 
 <method name="bool Pythia::setDecayPtr( DecayHandler* decayHandlePtr, 
@@ -734,7 +770,7 @@ routine will be used.
 <argument name="timesPtr" default="0">  
 pointer to a <code>TimeShower</code>-derived object for doing
 all other timelike shower evolution, which is normally interleaved
-with multiple interactions and spacelike showers, introducing
+with multiparton interactions and spacelike showers, introducing
 both further physics and further technical issues. If you retain
 the default value 0 then the internal shower routine will be used.
 You are allowed to use the same pointer as above for the 
@@ -743,7 +779,7 @@ You are allowed to use the same pointer as above for the
 <argument name="spacePtr" default="0">  
 pointer to a <code>SpaceShower</code>-derived object for doing
 all spacelike shower evolution, which is normally interleaved
-with multiple interactions and timelike showers. If you retain
+with multiparton interactions and timelike showers. If you retain
 the default value 0 then the internal shower routine will be used.
 </argument>
 <note>Note:</note> The method currently always returns true.
@@ -753,8 +789,21 @@ the default value 0 then the internal shower routine will be used.
 
 At the initialization stage all the information provided above is 
 processed, and the stage is set up for the subsequent generation
-of events. Several alterative forms of the <code>init</code> method
-are available for this stage; pick the one most convenient. 
+of events. Currently several alterative forms of the <code>init</code> 
+method are available for this stage, but only the first one is 
+recommended. 
+
+<method name="bool Pythia::init()">
+initialize for collisions, in any of the five separate possibilities 
+below. In this option the beams are not specified by input arguments,
+but instead by the settings in the 
+<aloc href="BeamParameters">Beam Parameters</aloc> section.
+This allows the beams to be specified in the same file as other
+run instructions. The default settings give pp collisions at 14 TeV.
+<note>Note:</note> The method returns false if the 
+initialization fails. It is then not possible to generate any
+events.
+</method>
 
 <method name="bool Pythia::init( int idA, int idB, double eCM)">
 initialize for collisions in the center-of-mass frame, with the
@@ -765,7 +814,7 @@ particle identity code for the two incoming beams.
 <argument name="eCM">  
 the CM energy of the collisions.
 </argument>
-<note>Note:</note> The method returns false if the 
+<note>Notes:</note> Deprecated. The method returns false if the 
 initialization fails. It is then not possible to generate any
 events.
 </method>
@@ -782,7 +831,7 @@ the mass of the respective beam particle that particle is taken to
 be at rest. This offers a simple possibility to simulate 
 fixed-target collisions.
 </argument>
-<note>Note:</note> The method returns false if the 
+<note>Notes:</note> Deprecated. The method returns false if the 
 initialization fails. It is then not possible to generate any
 events.
 </method>
@@ -801,7 +850,7 @@ incoming beam.
 the three-momntum vector <ei>(p_x, p_y, p_z)</ei> of the second
 incoming beam.
 </argument>
-<note>Note:</note> The method returns false if the 
+<note>Notes:</note> Deprecated. The method returns false if the 
 initialization fails. It is then not possible to generate any
 events.
 </method>
@@ -828,19 +877,7 @@ initialization with the default, and all subsequent ones with
 true. Note that things may go wrong if the files are not created 
 under the same conditions.
 </argument>
-<note>Note:</note> The method returns false if the 
-initialization fails. It is then not possible to generate any
-events.
-</method>
-
-<method name="bool Pythia::init()">
-initialize for collisions, in any of the four above possibilities.
-In this option the beams are not specified by input arguments,
-but instead by the settings in the 
-<aloc href="BeamParameters">Beam Parameters</aloc> section.
-This allows the beams to be specified in the same file as other
-run instructions. The default settings give pp collisions at 14 TeV.
-<note>Note:</note> The method returns false if the 
+<note>Notes:</note> Deprecated. The method returns false if the 
 initialization fails. It is then not possible to generate any
 events.
 </method>
@@ -855,7 +892,7 @@ This class is also required to provide the beam parameters.
 pointer to a <code>LHAup</code>-derived object. This object 
 must be instantiated by you in your program.
 </argument>
-<note>Note:</note> The method returns false if the 
+<note>Notes:</note> Deprecated. The method returns false if the 
 initialization fails. It is then not possible to generate any
 events.
 </method>
@@ -878,13 +915,45 @@ can be checked with the
 method.
 </method>
 
+<method name="int Pythia::forceTimeShower( int iBeg, int iEnd, 
+double pTmax, int nBranchMax = 0)">
+perform a final-state shower evolution on partons in the 
+<code>event</code> event record. This could be used for externally 
+provided simple events, or even parts of events, for which
+a complete generation is not foreseen. Since the mother source of 
+the parton system is not known, one cannot expect as good accuracy
+as in a normal generation. When two different timelike shower 
+instances are set up, it is the one used for showering in resonance
+decays that is used here. The <code>forceTimeShower</code> method 
+can be used in conjunction with the <code>forceHadronLevel</code> 
+one below. Further comments are found 
+<aloc href="HadronLevelStandalone">here</aloc>.  
+<argument name="iBeg, iEnd"> the first and last entry of the event
+record to be affected by the call. 
+</argument>
+<argument name="pTmax"> the maximum <ei>pT</ei> scale of emissions.
+Additionally, as always, the <code>scale</code> variable of each parton
+sets the maximum <ei>pT</ei> scale of branchings of this parton.
+Recall that this scale defaults to 0 if not set, so that no radiation
+can occur. 
+</argument>
+<argument name="nBranchMax" default = "0"> when positive, it sets the
+maximum number of branchings that are allowed to occur in the shower,
+i.e. the shower may stop evolving before reaching the lower cutoff. 
+The argument has no effect when zero or negative, i.e. then the shower
+will continue to the lower cutoff. 
+</argument>
+<note>Note:</note> The method returns the number of branchings that
+has been generated.
+</method>
+
 <method name="bool Pythia::forceHadronLevel(bool findJunctions = true)">
 hadronize the existing event record, i.e. perform string fragmentation
 and particle decays. There are two main applications. Firstly,
 you can use the same parton-level content as a basis for repeated
 hadronization attempts, in schemes intended to save computer time. 
 Secondly, you may have an external program that can simulate the full 
-partonic level of the event - hard process, parton showers, multiple 
+partonic level of the event - hard process, parton showers, multiparton 
 interactions, beam remnants, colour flow, and so on - but not 
 hadronization. Further details are found 
 <aloc href="HadronLevelStandalone">here</aloc>.  
@@ -907,6 +976,16 @@ perform decays of all particles in the event record that have not been
 decayed but should have been done so. This can be used e.g. for
 repeated decay attempts, in schemes intended to save computer time. 
 Further details are found <aloc href="HadronLevelStandalone">here</aloc>.  
+<note>Note:</note> The method returns false if the decays fail. The 
+event record is then not consistent and should not be studied.
+</method>
+
+<method name="bool Pythia::forceRHadronDecays()">
+perform decays of R-hadrons that were previously considered stable.
+This could be if an R-hadron is sufficiently long-lived that 
+it may interact in the detector between production and decay, so that
+its four-momentum is changed. Further details are found
+<aloc href="RHadrons">here</aloc>.  
 <note>Note:</note> The method returns false if the decays fail. The 
 event record is then not consistent and should not be studied.
 </method>
@@ -939,14 +1018,22 @@ specifically if the end of a LHEF has been reached, cf.
 
 There is no required finalization step; you can stop generating events
 when and how you want. It is still recommended that you make it a 
-routine to call the following method at the end.
+routine to call the following method at the end. A second method provides
+a deprecated alternative.
+
+<method name="void Pythia::stat()">
+list statistics on the event generation, specifically total and partial
+cross sections and the number of different errors. For more details see
+<aloc href="EventStatistics">here</aloc> and for available options 
+<aloc href="MainProgramSettings">here</aloc>. 
+</method>
 
 <method name="void Pythia::statistics(bool all = false, bool reset = false)">
 list statistics on the event generation, specifically total and partial
 cross sections and the number of different errors. For more details see
 <aloc href="EventStatistics">here</aloc>. 
 <argument name="all" default="false"> 
-if true also statistics on multiple interactions is shown, by default not.
+if true also statistics on multiparton interactions is shown, by default not.
 </argument>
 <argument name="reset" default="false"> if true then all counters, 
 e.g on events generated and errors experienced, are reset to zero
@@ -957,6 +1044,7 @@ call, however, so the only time the <code>reset</code> option makes a
 difference is if <code>statistics(...)</code> is called several times 
 in a (sub)run. 
 </argument>
+<note>Note:</note> Deprecated.
 </method>
 
 <h3>Interrogate settings</h3>
@@ -1056,4 +1144,4 @@ see <aloc href="AdvancedUsage">here</aloc> for further details.
    
 </chapter>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->

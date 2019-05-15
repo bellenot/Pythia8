@@ -1,5 +1,5 @@
 // SusyCouplings.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // Main authors of this file: N. Desai, P. Skands
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
@@ -70,8 +70,8 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
       double v =slhaPtr->hmix(3);
       mW      = g * v / 2.0;
       mZ      = sqrt(pow(gp,2)+pow(g,2)) * v / 2.0;
-      double tan2W   = pow2(gp)/pow2(g);
-      if (DEBUG) cout << " tan2W = " << tan2W << endl;
+      //double tan2W   = pow2(gp)/pow2(g);
+      //if (DEBUG) cout << " tan2W = " << tan2W << endl;
       sin2W   = pow2(gp)/(pow2(g)+pow2(gp));  
     } else {
       slhaPtr->message(1,"initSUSY",
@@ -112,12 +112,17 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
     }
   }  
   
-  // Higgs sector
-  if(slhaPtr->alpha.exists(1))
-    alphaHiggs = slhaPtr->alpha(1);
-  else{
-    slhaPtr->message(1,"initSUSY","Block ALPHA not found; using default.");
-    // SM limit 
+  // Higgs sector 
+  if(slhaPtr->alpha.exists()) {
+    alphaHiggs = slhaPtr->alpha();
+  }  
+  // If RPV, assume alpha = asin(RVHMIX(1,2)) (ignore Higgs-Sneutrino mixing)
+  else if (slhaPtr->modsel(4) == 1) {
+    alphaHiggs = asin(slhaPtr->rvhmix(1,2));
+    slhaPtr->message(0,"initSUSY","Extracting angle alpha from RVHMIX");    
+  } else {
+    slhaPtr->message(1,"initSUSY","Block ALPHA not found; using alpha = beta.");
+    // Define approximate alpha by simple SM limit 
     alphaHiggs = atan(tanb);
   }
 
@@ -225,6 +230,46 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
   SusyLesHouches::MatrixBlock<6> Rsl(slhaPtr->selmix);
   SusyLesHouches::MatrixBlock<3> Rsv(slhaPtr->snumix);
   
+  // In RPV, the slepton mixing matrices include Higgs bosons
+  // Here we just extract the entries corresponding to the slepton PDG codes
+  // I.e., slepton-Higgs mixing is not supported.
+
+  // Charged sleptons
+  if (slhaPtr->modsel(4) >= 1 && slhaPtr->rvlmix.exists()) {
+    for (int i=1; i<=6; ++i) 
+      for (int j=1; j<=6; ++j) 
+	Rsl.set(i,j,slhaPtr->rvlmix(i+1,j+2));
+    // Check for Higgs-slepton mixing in RVLMIX
+    bool hasCrossTerms = false;
+    for (int i=2; i<=7; ++i) 
+      for (int j=1; j<=2; ++j) 
+	if (abs(slhaPtr->rvlmix(i,j)) > 1e-5) {
+	  hasCrossTerms = true;    
+	  break;
+	}
+    if (hasCrossTerms) 
+      slhaPtr->message(0,"initSUSY",
+        "Note: slepton-Higgs mixing not supported in PYTHIA");
+  }
+
+  // Neutral sleptons
+  if (slhaPtr->modsel(4) >= 1 && slhaPtr->rvhmix.exists()) {
+    for (int i=1; i<=3; ++i) 
+      for (int j=1; j<=3; ++j) 
+	Rsv.set(i,j,slhaPtr->rvhmix(i+2,j+2));
+    // Check for Higgs-sneutrino mixing in RVHMIX
+    bool hasCrossTerms = false;
+    for (int i=3; i<=7; ++i) 
+      for (int j=1; j<=2; ++j) 
+	if (abs(slhaPtr->rvhmix(i,j)) > 1e-5) {
+	  hasCrossTerms = true;    
+	  break;
+	}
+    if (hasCrossTerms) 
+      slhaPtr->message(0,"initSUSY",
+        "Note: sneutrino-Higgs mixing not supported in PYTHIA");
+  }
+
   // Construct llZ couplings; 
   for (int i=11 ; i<=16 ; i++) {
     
@@ -386,16 +431,37 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
     }
   }
 
-
-  
   // Now we come to the ones with really many indices
+  
+  // RPV: check for lepton-neutralino mixing (not supported)
+  if (slhaPtr->modsel(4) >= 1 && slhaPtr->rvnmix.exists()) {
+    bool hasCrossTerms = false;
+    for (int i=1; i<=3; ++i) 
+      for (int j=4; j<=7; ++j) 
+	if (abs(slhaPtr->rvnmix(i,j)) > 1e-5) {
+	  hasCrossTerms = true;
+	  break;
+	}
+    if (hasCrossTerms) 
+      slhaPtr->message(1,"initSUSY",
+		       "Neutrino-Neutralino mixing not supported!");
+  }
   
   // Construct ~chi0 couplings (allow for 5 neutralinos in NMSSM)
   for (int i=1;i<=nNeut;i++) {
     
     // Ni1, Ni2, Ni3, Ni4, Ni5
     complex ni1,ni2,ni3,ni4,ni5;
-    if (not isNMSSM) {	
+    
+    // In RPV, ignore neutralino-neutralino mixing 
+    if (slhaPtr->modsel(4) >= 1 && slhaPtr->rvnmix.exists()) {
+      ni1=complex( slhaPtr->rvnmix(i+3,4), 0.0 );
+      ni2=complex( slhaPtr->rvnmix(i+3,5), 0.0 );
+      ni3=complex( slhaPtr->rvnmix(i+3,6), 0.0 );
+      ni4=complex( slhaPtr->rvnmix(i+3,7), 0.0 );
+      ni5=complex( 0.0, 0.0);
+    }
+   else if (not isNMSSM) {	
       ni1=complex( slhaPtr->nmix(i,1), slhaPtr->imnmix(i,1) );
       ni2=complex( slhaPtr->nmix(i,2), slhaPtr->imnmix(i,2) );
       ni3=complex( slhaPtr->nmix(i,3), slhaPtr->imnmix(i,3) );
@@ -424,7 +490,11 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
       
       // neutralino [j] higgsino components
       complex nj3, nj4;
-      if (not isNMSSM) {
+      if (slhaPtr->modsel(4) >= 1 && slhaPtr->rvnmix.exists()) {
+	nj3=complex( slhaPtr->rvnmix(i+3,6), 0.0 );
+	nj4=complex( slhaPtr->rvnmix(i+3,7), 0.0 );
+      }
+      else if (not isNMSSM) {
 	nj3=complex( slhaPtr->nmix(j,3), slhaPtr->imnmix(j,3) );
 	nj4=complex( slhaPtr->nmix(j,4), slhaPtr->imnmix(j,4) );
       } else {
@@ -456,11 +526,20 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
       
       // Chargino mixing
       complex uj1, uj2, vj1, vj2;      
-      uj1=complex( slhaPtr->umix(j,1), slhaPtr->imumix(j,1) );
-      uj2=complex( slhaPtr->umix(j,2), slhaPtr->imumix(j,2) );
-      vj1=complex( slhaPtr->vmix(j,1), slhaPtr->imvmix(j,1) );
-      vj2=complex( slhaPtr->vmix(j,2), slhaPtr->imvmix(j,2) );
-      
+      if (slhaPtr->modsel(4)<1 || not slhaPtr->rvumix.exists()) {
+	uj1=complex( slhaPtr->umix(j,1), slhaPtr->imumix(j,1) );
+	uj2=complex( slhaPtr->umix(j,2), slhaPtr->imumix(j,2) );
+	vj1=complex( slhaPtr->vmix(j,1), slhaPtr->imvmix(j,1) );
+	vj2=complex( slhaPtr->vmix(j,2), slhaPtr->imvmix(j,2) );
+      }
+      // RPV: ignore lepton-chargino mixing
+      else {
+	uj1=complex( slhaPtr->rvumix(j+3,4), 0.0 );
+	uj2=complex( slhaPtr->rvumix(j+3,5), 0.0 );
+	vj1=complex( slhaPtr->rvvmix(j+3,4), 0.0 );
+	vj2=complex( slhaPtr->rvvmix(j+3,5), 0.0 );
+      }
+
       // ~chi0 [i] ~chi+ [j] W : couplings
       OL[i][j] = -1.0/sqrt(2.0)*ni4*conj(vj2)+ni2*conj(vj1);
       OR[i][j] = 1.0/sqrt(2.0)*conj(ni3)*uj2+conj(ni2)*uj1;
@@ -611,6 +690,21 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
     }
   }
   
+  // RPV: check for lepton-chargino mixing (not supported)
+  if (slhaPtr->modsel(4) >= 1 && slhaPtr->rvumix.exists()) {
+    bool hasCrossTerms = false;
+    for (int i=1; i<=3; ++i) 
+      for (int j=4; j<=5; ++j) 
+	if (abs(slhaPtr->rvumix(i,j)) > 1e-5 
+	    || abs(slhaPtr->rvvmix(i,j)) > 1e-5) {
+	  hasCrossTerms = true;
+	  break;
+	}
+    if (hasCrossTerms) 
+      slhaPtr->message(1,"initSUSY",
+		       "Lepton-Chargino mixing not supported!");
+  }
+
   // Construct ~chi+ couplings 
   // sqrt(2)
   double rt2 = sqrt(2.0);
@@ -889,7 +983,8 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
 	  if(rvlqd.exists())
 	    cout<<"LambdaLQD["<<i<<"]["<<j<<"]["<<k<<"]="<<rvLQD[i][j][k]<<" ";
 	  if(rvudd.exists())
-	    cout<<"LambdaUDD["<<i<<"]["<<j<<"]["<<k<<"]="<<rvUDD[i][j][k]<<"\n";
+	    cout<<"LambdaUDD["<<i<<"]["<<j<<"]["<<k<<"]="<<rvUDD[i][j][k]
+                <<"\n";
 	}
       }
     }
@@ -1032,7 +1127,7 @@ string CoupSUSY::getName(int pdgCode) {
     if (codeA == 12) name = (slha1) ? "nu_e" : "nu_1";
     if (codeA == 14) name = (slha1) ? "nu_mu" : "nu_2";
     if (codeA == 16) name = (slha1) ? "nu_tau" : "nu_3";
-  }
+  }  
 
   // Squarks
   else if ( idSM <= 6) {

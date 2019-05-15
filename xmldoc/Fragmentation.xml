@@ -153,12 +153,12 @@ moment we stay with the current recipe, to boost the above <ei>pT</ei>
 by a factor <ei>enhancedWidth</ei> for a small fraction 
 <ei>enhancedFraction</ei> of the breakups, where
 
-<parm name="StringPT:enhancedFraction" default="0.01" min="0.0" max="0.1">
+<parm name="StringPT:enhancedFraction" default="0.01" min="0.0" max="1.">
 <ei>enhancedFraction</ei>,the fraction of string breaks with enhanced 
 width.
 </parm>
 
-<parm name="StringPT:enhancedWidth" default="2.0" min="1.0" max="5.0">
+<parm name="StringPT:enhancedWidth" default="2.0" min="1.0" max="10.0">
 <ei>enhancedWidth</ei>,the enhancement of the width in this fraction.
 </parm>
 
@@ -220,7 +220,8 @@ to the string region under consideration. (Note that, for technical
 reasons, the 0.2 GeV lower limit is de facto hardcoded.)
 </parm>
 
-<parm name="FragmentationSystems:mJoinJunction" default="1.0"min="0.5" max="2.">
+<parm name="FragmentationSystems:mJoinJunction" default="1.0"min="0.5" 
+max="2.">
 When the invariant mass of two of the quarks in a three-quark junction 
 string system becomes too small, the system is simplified to a 
 quark-diquark simple string. The requirement for this simplification 
@@ -269,7 +270,8 @@ the junction, where the baryon number topologically is located.
 The junction fragmentation scheme is described in <ref>Sjo03</ref>. 
 The parameters in this section should not be touched except by experts.
 
-<parm name="StringFragmentation:eNormJunction" default="2.0" min="0.5" max="10">
+<parm name="StringFragmentation:eNormJunction" default="2.0" min="0.5" 
+max="10">
 Used to find the effective rest frame of the junction, which is
 complicated when the three string legs may contain additional
 gluons between the junction and the endpoint. To this end,
@@ -306,5 +308,5 @@ junction rest frame).
 
 </chapter>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
 

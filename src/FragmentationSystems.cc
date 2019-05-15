@@ -1,5 +1,5 @@
 // FragmentationSystems.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -146,6 +146,11 @@ bool ColConfig::insert( vector<int>& iPartonIn, Event& event) {
       int iNew = event.append( idNew, 73, min(iJoin1, iJoin2), 
         max(iJoin1, iJoin2), 0, 0, colNew, acolNew, pNew, pNew.mCalc() );
 
+      // Displaced lifetime/vertex; mothers should be same but prefer quark.
+      int iVtx = (event[iJoin1].isGluon()) ? iJoin2 : iJoin1;
+      event[iNew].tau( event[iVtx].tau() );
+      if (event[iVtx].hasVertex()) event[iNew].vProd( event[iVtx].vProd() );
+
       // Mark joined partons and reduce remaining system.
       event[iJoin1].statusNeg();
       event[iJoin2].statusNeg();
@@ -194,7 +199,7 @@ bool ColConfig::joinJunction( vector<int>& iPartonIn, Event& event,
 
   // Find four-momentum and endpoint quarks and masses on the three legs.
   Vec4   pLeg[3];
-  double mLeg[3];
+  double mLeg[3] = { 0., 0., 0.};
   int    idAbsLeg[3];
   int leg = -1;
   for (int i = 0; i < int(iPartonIn.size()); ++ i) {

@@ -14,7 +14,7 @@ Diffraction is not well understood, and several alternative approaches
 have been proposed. Here we follow a fairly conventional Pomeron-based
 one, in the Ingelman-Schlein spirit [<a href="Bibliography.html" target="page">Ing85</a>],
 but integrated to make full use of the standard PYTHIA machinery
-for multiple interactions, parton showers and hadronization
+for multiparton interactions, parton showers and hadronization
 [<a href="Bibliography.html" target="page">Nav10,Cor10a</a>]. This is the approach pioneered in the PomPyt 
 program by Ingelman and collaborators [<a href="Bibliography.html" target="page">Ing97</a>].
 
@@ -33,12 +33,12 @@ see below;
 <br/>(iii) a diffractive system of a given mass is classified either
 as low-mass unresolved, which gives a simple low-<i>pT</i> string
 topology, or as high-mass resolved, for which the full machinery of 
-multiple interactions and parton showers are applied, making use of
+multiparton interactions and parton showers are applied, making use of
 <a href="PDFSelection.html" target="page">Pomeron PDFs</a>.
-<br/>The parameters related to multiple interactions, parton showers
+<br/>The parameters related to multiparton interactions, parton showers
 and hadronization are kept the same as for normal nondiffractive events,
 with only one exception. This may be questioned, especially for the 
-multiple interactions, but we do not believe that there are currently 
+multiparton interactions, but we do not believe that there are currently 
 enough good diffractive data that would allow detailed separate tunes. 
  
 <p/>
@@ -48,7 +48,7 @@ convolution of a Pomeron flux with a Pomeron-proton total cross section.
 Since neither of the two is known from first principles there will be 
 a significant amount of ambiguity in the flux factor. The picture is 
 further complicated by the fact that the possibility of simultaneous 
-further multiple interactions ("cut Pomerons") will screen the rate of 
+further multiparton interactions ("cut Pomerons") will screen the rate of 
 diffractive systems. In the end, our set of parameters refers to the
 effective description that emerges out of these effects, rather than 
 to the underlying "bare" parameters.  
@@ -111,7 +111,7 @@ The Pomeron trajectory slope <i>alpha'</i> above.
 <h3>Separation into low and high masses</h3>
 
 Preferably one would want to have a perturbative picture of the 
-dynamics of Pomeron-proton collisions, like multiple interactions
+dynamics of Pomeron-proton collisions, like multiparton interactions
 provide for proton-proton ones. However, while PYTHIA by default
 will only allow collisions with a CM energy above 10 GeV, the 
 mass spectrum of diffractive systems will stretch to down to 
@@ -169,7 +169,7 @@ rate in diffractive systems.
   
 
 <p/><code>parm&nbsp; </code><strong> Diffraction:pickQuarkPower &nbsp;</strong> 
- (<code>default = <strong>1.0</strong></code>; <code>minimum = 0.</code>)<br/>
+ (<code>default = <strong>1.0</strong></code>)<br/>
 The abovementioned mass-dependence power <i>p</i> for the relative 
 quark rate in diffractive systems.
   
@@ -202,7 +202,7 @@ for a baryon beam) that knows no bounds. A suppression like
 The perturbative description need to use parton densities of the 
 Pomeron. The options are described in the page on
 <a href="PDFSelection.html" target="page">PDF Selection</a>. The standard
-perturbative multiple interactions framework then provides 
+perturbative multiparton interactions framework then provides 
 cross sections for parton-parton interactions. In order to
 turn these cross section into probabilities one also needs an
 ansatz for the Pomeron-proton total cross section. In the literature
@@ -210,7 +210,7 @@ one often finds low numbers for this, of the order of 2 mb.
 These, if taken at face value, would give way too much activity
 per event. There are ways to tame this, e.g. by a larger <i>pT0</i>
 than in the normal pp framework. Actually, there are many reasons
-to use a completely different set of parameters for MI in 
+to use a completely different set of parameters for MPI in 
 diffraction than in pp collisions, especially with respect to the 
 impact-parameter picture, see below. A lower number in some frameworks 
 could alternatively be regarded as a consequence of screening, with 
@@ -226,32 +226,52 @@ It is to be fitted to diffractive event-shape data such as the average
 charged multiplicity. It would be very closely tied to the choice of 
 Pomeron PDF; we remind that some of these add up to less than unit
 momentum sum in the Pomeron, a choice that also affect the value
-one ends up with.
+one ends up with. Furthermore, like with hadronic cross sections,
+it is quite plausible that the Pomeron-proton cross section increases
+with energy, so we have allowed for a powerlike dependence on the
+diffractive mass.
 
-<p/><code>parm&nbsp; </code><strong> Diffraction:sigmaPomP &nbsp;</strong> 
+<p/><code>parm&nbsp; </code><strong> Diffraction:sigmaRefPomP &nbsp;</strong> 
  (<code>default = <strong>10.</strong></code>; <code>minimum = 2.</code>; <code>maximum = 40.</code>)<br/>
 The assumed Pomeron-proton effective cross section, as used for
-multiple interactions in diffractive systems. A larger value gives
-less MI activity per event. 
-  
-
+multiparton interactions in diffractive systems. If this cross section
+is made to depend on the mass of the diffractive system then the above
+value refers to the cross section at the reference scale, and
+<br/><i>
+sigma_PomP(m) = sigma_PomP(m_ref) * (m / m_ref)^p  
+</i><br/>
+where <i>m</i> is the mass of the diffractive system, <i>m_ref</i> 
+is the reference mass scale <code>Diffraction:mRefPomP</code> below and 
+<i>p</i> is the mass-dependence power <code>Diffraction:mPowPomP</code>. 
+Note that a larger cross section value gives less MPI activity per event. 
 There is no point in making the cross section too big, however, since 
 then <i>pT0</i> will be adjusted downwards to ensure that the 
-integrated perturbative cross section stays above this assumed 
-total cross section. (The requirement of at least one perturbative 
-interaction per event.)
+integrated perturbative cross section stays above this assumed total 
+cross section. (The requirement of at least one perturbative interaction 
+per event.)
+  
+
+<p/><code>parm&nbsp; </code><strong> Diffraction:mRefPomP &nbsp;</strong> 
+ (<code>default = <strong>100.0</strong></code>; <code>minimum = 1.</code>)<br/>
+The <i>mRef</i> reference mass scale introduced above.
+  
+
+<p/><code>parm&nbsp; </code><strong> Diffraction:mPowPomP &nbsp;</strong> 
+ (<code>default = <strong>0.0</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 0.5</code>)<br/>
+The <i>p</i> mass rescaling pace introduced above.
+  
 
 <p/> 
 Also note that, even for a fixed CM energy of events, the diffractive
 subsystem will range from the abovementioned threshold mass 
 <i>m_min</i> to the full CM energy, with a variation of parameters
-such as <i>pT0</i> along this mass range. Therefore multiple 
+such as <i>pT0</i> along this mass range. Therefore multiparton 
 interactions are initialized for a few different diffractive masses,
 currently five, and all relevant parameters are interpolated between
 them to obtain the behaviour at a specific diffractive mass. 
 Furthermore, <i>A B -&gt;X B</i> and <i>A B -&gt;A X</i> are
 initialized separately, to allow for different beams or PDF's on the 
-two sides. These two aspects mean that initialization of MI is 
+two sides. These two aspects mean that initialization of MPI is 
 appreciably slower when perturbative high-mass diffraction is allowed. 
 
 <p/> 
@@ -310,4 +330,4 @@ becomes slow and unstable, so the min limit must be respected.
 </body>
 </html>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->

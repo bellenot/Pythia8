@@ -17,6 +17,7 @@ What is stored for each particle is
 <li>a colour and an anticolour index,</li> 
 <li>the four-momentum and mass,</li>
 <li>the scale at which the particle was produced (optional),</li> 
+<li>the polarization/spin/helicity of the particle (optional),</li>
 <li>the production vertex and proper lifetime (optional),</li>
 <li>a pointer to the particle kind in the particle data table, and</li>
 <li>a pointer to the whole particle data table.</li>
@@ -227,7 +228,7 @@ in backwards evolution of initial-state showers).</li>
 daughters may well appear below the mother in the event record. 
 <note>Note 2:</note> the mother-daughter relation normally is reciprocal,
 but not always. An example is hadron beams (indices 1 and 2), where each 
-beam remnant and the initiator of each multiple interaction has the 
+beam remnant and the initiator of each multiparton interaction has the 
 respective beam as mother, but the beam itself only has the initiator 
 of the hardest interaction as daughter.
 <note>Note 3:</note> the <code>daughterList(i)</code> method of the 
@@ -274,6 +275,18 @@ the scale at which a parton was produced, which can be used to restrict
 its radiation to lower scales in subsequent steps of the shower evolution. 
 Note that scale is linear in momenta, not quadratic (i.e. <ei>Q</ei>, 
 not <ei>Q^2</ei>). 
+</method>
+
+<method name="double Particle::pol()">  
+the polarization/spin/helicity of a particle. Currently Pythia does not
+use this variable for any internal operations, so its meaning is not 
+uniquely defined. The LHA standard sets <code>SPINUP</code> to be the 
+cosine of the angle between the spin vector and the 3-momentum of the
+decaying particle in the lab frame, i.e. restricted to be between +1 
+and -1. A more convenient choice could be the same quantity in the rest 
+frame of the particle production, either the hard subprocess or the 
+mother particle of a decay. Unknown or unpolarized particles should
+be assigned the value 9.
 </method>
 
 <method name="double Particle::xProd()">
@@ -451,6 +464,8 @@ rapidity and pseudorapidity.
 <methodmore name="double Particle::zDec()"> 
 </methodmore>
 <methodmore name="double Particle::tDec()"> 
+</methodmore>
+<methodmore name="Vec4 Particle::vDec()"> 
 the decay vertex coordinates, in mm or mm/c. This decay vertex is 
 calculated from the production vertex, the proper lifetime and the 
 four-momentum assuming no magnetic field or other detector interference. 
@@ -637,9 +652,9 @@ boost four-momentum and production vertex by
 as above, but also use <ei>gamma> = e/m</ei> to reduce roundoff errors.
 </method>
 
-<method name="void Particle::bstBack(const Vec4& pBst)">
+<method name="void Particle::bstback(const Vec4& pBst)">
 </method>
-<methodmore name="void Particle::bstBack(const Vec4& pBst, double mBst)">
+<methodmore name="void Particle::bstback(const Vec4& pBst, double mBst)">
 as above, but with sign of boost flipped.
 </method>
 
@@ -674,16 +689,16 @@ or equivalent.
 <method name="Particle::Particle(int id, int status = 0, int mother1 = 0, 
 int mother2 = 0, int daughter1 = 0, int daughter2 = 0, int col = 0, 
 int acol = 0, double px = 0., double py = 0., double pz = 0., double e = 0., 
-double m = 0., double scale = 0.)">
+double m = 0., double scale = 0., double pol = 9.)">
 constructs a particle with the input properties provided, and non-provided
-ones set 0.
+ones set 0 (9 for <code>pol</code>).
 </method>
 
 <method name="Particle::Particle(int id, int status, int mother1, int mother2, 
 int daughter1, int daughter2, int col, int acol, Vec4 p, double m = 0., 
-double scale = 0.)">
+double scale = 0., double pol = 9.)">
 constructs a particle with the input properties provided, and non-provided
-ones set 0.
+ones set 0 (9 for <code>pol</code>).
 </method>
 
 <method name="Particle::Particle(const Particle& pt)">
@@ -718,5 +733,5 @@ Currently there is no information on polarization states.
 
 </chapter>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
 

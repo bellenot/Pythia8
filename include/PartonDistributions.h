@@ -1,5 +1,5 @@
 // PartonDistributions.h is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -130,7 +130,7 @@ public:
 private:
 
   // Update PDF values.
-  void xfUpdate(int id, double x, double Q2);
+  void xfUpdate(int , double x, double Q2);
 
   // Auxiliary routines used during the updating.
   double grvv (double x, double n, double ak, double bk, double a, 
@@ -157,7 +157,7 @@ public:
 private:
 
   // Update PDF values.
-  void xfUpdate(int id, double x, double Q2);
+  void xfUpdate(int , double x, double Q2);
 
 };
  
@@ -196,7 +196,7 @@ private:
   void init( int iFitIn, string xmlPath, Info* infoPtr);
 
   // Update PDF values.
-  void xfUpdate(int id, double x, double Q2);
+  void xfUpdate(int , double x, double Q2);
 
   // Evaluate PDF of one flavour species.
   double parton(int flavour,double x,double q);
@@ -279,7 +279,7 @@ private:
   static const double ALPHAEM, Q2MAX, Q20, A, B, C;
 
   // Update PDF values.
-  void xfUpdate(int id, double x, double Q2);
+  void xfUpdate(int , double x, double Q2);
 
   // phi function from Q2 integration.
   double phiFunc(double x, double Q);
@@ -304,7 +304,7 @@ public:
 private:
 
   // Update PDF values.
-  void xfUpdate(int id, double x, double Q2);
+  void xfUpdate(int , double x, double Q2);
 
 };
 
@@ -336,7 +336,7 @@ private:
   void init();
 
   // Update PDF values.
-  void xfUpdate(int id, double x, double);
+  void xfUpdate(int , double x, double);
 
 };
  
@@ -368,7 +368,7 @@ private:
   void init( int iFit, string xmlPath, Info* infoPtr);
 
   // Update PDF values.
-  void xfUpdate(int id, double x, double );
+  void xfUpdate(int , double x, double );
 
 };
  

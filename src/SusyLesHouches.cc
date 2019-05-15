@@ -1,5 +1,5 @@
 // SusyLesHouches.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // Main authors of this file: N. Desai, P. Skands
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
@@ -482,7 +482,7 @@ int SusyLesHouches::readFile(string slhaFileIn, int verboseIn,
       if (blockName == "mass") ifail=mass.set(linestream);
 
       //Mixing
-      if (blockName == "alpha") ifail=alpha.set(linestream);
+      if (blockName == "alpha") ifail=alpha.set(linestream,false);
       if (blockName == "stopmix") ifail=stopmix.set(linestream);
       if (blockName == "sbotmix") ifail=sbotmix.set(linestream);
       if (blockName == "staumix") ifail=staumix.set(linestream);
@@ -650,8 +650,9 @@ void SusyLesHouches::printHeader() {
   if (verbose == 0) return;
   setprecision(3);
   if (! headerPrinted) {
-    cout <<" *--------------------  SusyLesHouches v1.01 SUSY/BSM Interface  ---------------------*\n";
-    message(0,"","Last Change 13 Apr 2011 - N. Desai, P. Skands",0);
+    cout << " *--------------------  SusyLesHouches v1.1 SUSY/BSM"
+         << " Interface  ---------------------*\n";
+    message(0,"","Last Change 12 Jan 2012 - P. Skands",0);
     if (!filePrinted) {
       message(0,"","Parsing: "+slhaFile,0);
       filePrinted=true;
@@ -668,7 +669,8 @@ void SusyLesHouches::printFooter() {
   if (verbose == 0) return;
   if (! footerPrinted) {
     //    cout << " *"<<endl;
-    cout <<" *------------------------------------------------------------------------------------*\n";
+    cout << " *-----------------------------------------------------"
+         << "-------------------------------*\n";
     footerPrinted=true;
     //    headerPrinted=false; 
   }
@@ -690,7 +692,8 @@ void SusyLesHouches::printSpectrum(int ifail) {
 
   // Print Calculator and File name
   if (slhaRead) {
-    message(0,"","  Spectrum Calculator was:   "+spinfo(1)+"   version: "+spinfo(2));
+    message(0,"","  Spectrum Calculator was:   "+spinfo(1)+"   version: "
+      +spinfo(2));
     if (lhefRead) message(0,"","  Read <slha> spectrum from: "+slhaFile);
     else message(0,"","  Read SLHA spectrum from: "+slhaFile);
   }
@@ -708,7 +711,8 @@ void SusyLesHouches::printSpectrum(int ifail) {
 
   // d squarks
   message(0,"","");
-  cout<<" |  ~d                  m     ~dL     ~sL     ~bL     ~dR     ~sR     ~bR"<<endl;
+  cout << " |  ~d                  m     ~dL     ~sL     ~bL"
+       << "     ~dR     ~sR     ~bR" << endl;
 
   cout<<setprecision(3) <<" |     1000001 "<<setw(10)<<
     ( (mass(1000001) > 1e7) ? scientific : fixed)<<mass(1000001)<<fixed<<"  ";
@@ -738,7 +742,8 @@ void SusyLesHouches::printSpectrum(int ifail) {
   
   // u squarks
   message(0,"","");
-  cout<<" |  ~u                  m     ~uL     ~cL     ~tL     ~uR     ~cR     ~tR"<<endl; 
+  cout << " |  ~u                  m     ~uL     ~cL     ~tL"
+       << "     ~uR     ~cR     ~tR" << endl; 
 
   cout<<setprecision(3)<<" |     1000002 "<<setw(10)<<
     ( (mass(1000002) > 1e7) ? scientific : fixed)<<mass(1000002)<<fixed<<"  ";
@@ -766,107 +771,314 @@ void SusyLesHouches::printSpectrum(int ifail) {
 
   cout<<endl;
 
-  // sleptons  
-  // (NB: should be an if/then/else for RPV case here)
+  // Charged scalars (sleptons)
   message(0,"","");
-  cout<<" |  ~e                  m     ~eL    ~muL   ~tauL     ~eR    ~muR   ~tauR"<<endl; 
 
-  cout<<setprecision(3)<<" |     1000011 "<<setw(10)<<
-    ( (mass(1000011) > 1e7) ? scientific : fixed)<<mass(1000011)<<fixed<<"  ";
-  for (int icur=1;icur<=6;icur++) cout<<setw(6)<<selmix(1,icur)<<"  ";
+  // R-conserving:
+  if (modsel(4) < 1) {
+    cout << " |  ~e                  m     ~eL    ~muL   ~tauL"
+	 << "     ~eR    ~muR   ~tauR" << endl; 
 
-  cout<<endl<<" |     1000013 "<<setw(10)<<
-    ( (mass(1000013) > 1e7) ? scientific : fixed)<<mass(1000013)<<fixed<<"  ";
-  for (int icur=1;icur<=6;icur++) cout<<setw(6)<<selmix(2,icur)<<"  ";
+    cout<<setprecision(3)<<" |     1000011 "<<setw(10)<<
+      ( (mass(1000011) > 1e7) ? scientific : fixed)<<mass(1000011)<<fixed<<"  ";
+    for (int icur=1;icur<=6;icur++) cout<<setw(6)<<selmix(1,icur)<<"  ";
+    
+    cout<<endl<<" |     1000013 "<<setw(10)<<
+      ( (mass(1000013) > 1e7) ? scientific : fixed)<<mass(1000013)<<fixed<<"  ";
+    for (int icur=1;icur<=6;icur++) cout<<setw(6)<<selmix(2,icur)<<"  ";
+    
+    cout<<endl<<" |     1000015 "<<setw(10)<<
+      ( (mass(1000015) > 1e7) ? scientific : fixed)<<mass(1000015)<<fixed<<"  "; 
+    for (int icur=1;icur<=6;icur++) cout<<setw(6)<<selmix(3,icur)<<"  ";
+    
+    cout<<endl<<" |     2000011 "<<setw(10)<<
+      ( (mass(2000011) > 1e7) ? scientific : fixed)<<mass(2000011)<<fixed<<"  "; 
+    for (int icur=1;icur<=6;icur++) cout<<setw(6)<<selmix(4,icur)<<"  ";
+    
+    cout<<endl<<" |     2000013 "<<setw(10)<<
+      ( (mass(2000013) > 1e7) ? scientific : fixed)<<mass(2000013)<<fixed<<"  " ;
+    for (int icur=1;icur<=6;icur++) cout<<setw(6)<<selmix(5,icur)<<"  ";
+    
+    cout<<endl<<" |     2000015 "<<setw(10)<<
+      ( (mass(2000015) > 1e7) ? scientific : fixed)<<mass(2000015)<<fixed<<"  ";
+    for (int icur=1;icur<=6;icur++) cout<<setw(6)<<selmix(6,icur)<<"  ";
+  }
 
-  cout<<endl<<" |     1000015 "<<setw(10)<<
-    ( (mass(1000015) > 1e7) ? scientific : fixed)<<mass(1000015)<<fixed<<"  "; 
-  for (int icur=1;icur<=6;icur++) cout<<setw(6)<<selmix(3,icur)<<"  ";
+  // R-violating
+  else {
+    cout << " |  H-/~e               m     H1-     H2-     ~eL    ~muL   ~tauL"
+	 << "     ~eR    ~muR   ~tauR" << endl; 
 
-  cout<<endl<<" |     2000011 "<<setw(10)<<
-    ( (mass(2000011) > 1e7) ? scientific : fixed)<<mass(2000011)<<fixed<<"  "; 
-  for (int icur=1;icur<=6;icur++) cout<<setw(6)<<selmix(4,icur)<<"  ";
-
-  cout<<endl<<" |     2000013 "<<setw(10)<<
-    ( (mass(2000013) > 1e7) ? scientific : fixed)<<mass(2000013)<<fixed<<"  " ;
-  for (int icur=1;icur<=6;icur++) cout<<setw(6)<<selmix(5,icur)<<"  ";
-
-  cout<<endl<<" |     2000015 "<<setw(10)<<
-    ( (mass(2000015) > 1e7) ? scientific : fixed)<<mass(2000015)<<fixed<<"  ";
-  for (int icur=1;icur<=6;icur++) cout<<setw(6)<<selmix(6,icur)<<"  ";
-
+    cout<<setprecision(3)<<" |         -37 "<<setw(10)<<
+      ( (mass(37) > 1e7) ? scientific : fixed)<<mass(37)<<fixed<<"  ";
+    for (int icur=1;icur<=8;icur++) cout<<setw(6)<<rvlmix(1,icur)<<"  ";
+    
+    cout<<endl<<" |     1000011 "<<setw(10)<<
+      ( (mass(1000011) > 1e7) ? scientific : fixed)<<mass(1000011)<<fixed<<"  ";
+    for (int icur=1;icur<=8;icur++) cout<<setw(6)<<rvlmix(2,icur)<<"  ";
+    
+    cout<<endl<<" |     1000013 "<<setw(10)<<
+      ( (mass(1000013) > 1e7) ? scientific : fixed)<<mass(1000013)<<fixed<<"  ";
+    for (int icur=1;icur<=8;icur++) cout<<setw(6)<<rvlmix(3,icur)<<"  ";
+    
+    cout<<endl<<" |     1000015 "<<setw(10)<<
+      ( (mass(1000015) > 1e7) ? scientific : fixed)<<mass(1000015)<<fixed<<"  "; 
+    for (int icur=1;icur<=8;icur++) cout<<setw(6)<<rvlmix(4,icur)<<"  ";
+    
+    cout<<endl<<" |     2000011 "<<setw(10)<<
+      ( (mass(2000011) > 1e7) ? scientific : fixed)<<mass(2000011)<<fixed<<"  "; 
+    for (int icur=1;icur<=8;icur++) cout<<setw(6)<<rvlmix(5,icur)<<"  ";
+    
+    cout<<endl<<" |     2000013 "<<setw(10)<<
+      ( (mass(2000013) > 1e7) ? scientific : fixed)<<mass(2000013)<<fixed<<"  " ;
+    for (int icur=1;icur<=8;icur++) cout<<setw(6)<<rvlmix(6,icur)<<"  ";
+    
+    cout<<endl<<" |     2000015 "<<setw(10)<<
+      ( (mass(2000015) > 1e7) ? scientific : fixed)<<mass(2000015)<<fixed<<"  ";
+    for (int icur=1;icur<=8;icur++) cout<<setw(6)<<rvlmix(7,icur)<<"  ";
+  }
   cout<<endl;
 
-  // sneutrinos
-  // (NB: should be an if/then/else for RPV case here)
+  // Neutral scalars (sneutrinos)
   message(0,"","");
-  cout<<" |  ~nu                 m";
-  if (snumix.exists()) cout<<"   ~nu_e  ~nu_mu ~nu_tau";
-  cout<<endl; 
 
-  cout<<setprecision(3)<<" |     1000012 "<<setw(10)<<
-    ( (mass(1000012) > 1e7) ? scientific : fixed)<<mass(1000012)<<fixed<<"  ";
-  if (snumix.exists()) for (int icur=1;icur<=3;icur++) 
-    cout<<setw(6)<<snumix(1,icur)<<"  ";
+  // R-conserving:
+  if (modsel(4) < 1) {
+    cout<<" |  ~nu                 m";
+    if (snumix.exists()) cout<<"   ~nu_e  ~nu_mu ~nu_tau";
+    cout<<endl; 
+    
+    cout<<setprecision(3)<<" |     1000012 "<<setw(10)<<
+      ( (mass(1000012) > 1e7) ? scientific : fixed)<<mass(1000012)<<fixed<<"  ";
+    if (snumix.exists()) for (int icur=1;icur<=3;icur++) 
+			   cout<<setw(6)<<snumix(1,icur)<<"  ";
+    
+    cout<<endl<<" |     1000014 "<<setw(10)<<
+      ( (mass(1000014) > 1e7) ? scientific : fixed)<<mass(1000014)<<fixed<<"  ";
+    if (snumix.exists()) for (int icur=1;icur<=3;icur++) 
+			   cout<<setw(6)<<snumix(2,icur)<<"  ";
+    
+    cout<<endl<<" |     1000016 "<<setw(10)<<
+      ( (mass(1000016) > 1e7) ? scientific : fixed)<<mass(1000016)<<fixed<<"  "; 
+    if (snumix.exists()) for (int icur=1;icur<=3;icur++) 
+			   cout<<setw(6)<<snumix(3,icur)<<"  ";
+  }
 
-  cout<<endl<<" |     1000014 "<<setw(10)<<
-    ( (mass(1000014) > 1e7) ? scientific : fixed)<<mass(1000014)<<fixed<<"  ";
-  if (snumix.exists()) for (int icur=1;icur<=3;icur++) 
-    cout<<setw(6)<<snumix(2,icur)<<"  ";
-
-  cout<<endl<<" |     1000016 "<<setw(10)<<
-    ( (mass(1000016) > 1e7) ? scientific : fixed)<<mass(1000016)<<fixed<<"  "; 
-  if (snumix.exists()) for (int icur=1;icur<=3;icur++) 
-    cout<<setw(6)<<snumix(3,icur)<<"  ";
-
+  // R-violating
+  else {
+    cout<<" |  H0/~nu              m";
+    if (snumix.exists()) cout<<"    H0_1    H0_2   ~nu_e  ~nu_mu ~nu_tau";
+    cout<<endl; 
+    
+    cout<<setprecision(3)<<" |          25 "<<setw(10)<<
+      ( (mass(25) > 1e7) ? scientific : fixed)<<mass(25)<<fixed<<"  ";
+    if (rvhmix.exists()) for (int icur=1;icur<=5;icur++) 
+			   cout<<setw(6)<<rvhmix(1,icur)<<"  ";
+    
+    cout<<endl<<" |          35 "<<setw(10)<<
+      ( (mass(35) > 1e7) ? scientific : fixed)<<mass(35)<<fixed<<"  ";
+    if (rvhmix.exists()) for (int icur=1;icur<=5;icur++) 
+			   cout<<setw(6)<<rvhmix(2,icur)<<"  ";
+    
+    cout<<endl<<" |     1000012 "<<setw(10)<<
+      ( (mass(1000012) > 1e7) ? scientific : fixed)<<mass(1000012)<<fixed<<"  ";
+    if (rvhmix.exists()) for (int icur=1;icur<=5;icur++) 
+			   cout<<setw(6)<<rvhmix(3,icur)<<"  ";
+    
+    cout<<endl<<" |     1000014 "<<setw(10)<<
+      ( (mass(1000014) > 1e7) ? scientific : fixed)<<mass(1000014)<<fixed<<"  ";
+    if (rvhmix.exists()) for (int icur=1;icur<=5;icur++) 
+			   cout<<setw(6)<<rvhmix(4,icur)<<"  ";
+    
+    cout<<endl<<" |     1000016 "<<setw(10)<<
+      ( (mass(1000016) > 1e7) ? scientific : fixed)<<mass(1000016)<<fixed<<"  "; 
+    if (rvhmix.exists()) for (int icur=1;icur<=5;icur++) 
+			   cout<<setw(6)<<rvhmix(5,icur)<<"  ";
+  }
   cout<<endl;
 
-  // neutralinos
-  // (NB: should be an if/then/else for RPV case here)
+  // Neutral pseudoscalars (RPV only)
+  if (modsel(4) >= 1 && rvamix.exists()) {
+    message(0,"","");
+    cout<<" |  A0/~nu              m    A0_1    A0_2   ~nu_e  ~nu_mu ~nu_tau"<<endl; 
+
+    cout<<setprecision(3)<<" |          36 "<<setw(10)<<
+      ( (mass(36) > 1e7) ? scientific : fixed)<<mass(36)<<fixed<<"  ";
+    for (int icur=1;icur<=5;icur++) cout<<setw(6)<<rvamix(1,icur)<<"  ";
+    
+    cout<<endl<<" |     1000017 "<<setw(10)<<
+      ( (mass(1000017) > 1e7) ? scientific : fixed)<<mass(1000017)<<fixed<<"  ";
+    for (int icur=1;icur<=5;icur++) cout<<setw(6)<<rvamix(2,icur)<<"  ";
+    
+    cout<<endl<<" |     1000018 "<<setw(10)<<
+      ( (mass(1000018) > 1e7) ? scientific : fixed)<<mass(1000018)<<fixed<<"  ";
+    for (int icur=1;icur<=5;icur++) cout<<setw(6)<<rvamix(3,icur)<<"  ";
+    
+    cout<<endl<<" |     1000019 "<<setw(10)<<
+      ( (mass(1000019) > 1e7) ? scientific : fixed)<<mass(1000019)<<fixed<<"  ";
+    for (int icur=1;icur<=5;icur++) cout<<setw(6)<<rvamix(4,icur)<<"  ";    
+    cout<<endl;
+
+  }
+
+  // Neutral fermions (neutralinos)
   message(0,"","");
-  cout<<" |  ~chi0               m      ~B    ~W_3    ~H_1    ~H_2"<<endl; 
 
-  cout<<setprecision(3)<<" |     1000022 "<<setw(10)<<
-    ( (mass(1000022) > 1e7) ? scientific : fixed)<<mass(1000022)<<fixed<<"  ";
-  for (int icur=1;icur<=4;icur++) cout<<setw(6)<<nmix(1,icur)<<"  ";
+  // R-conserving:
+  if (modsel(4) < 1) {
+    cout<<" |  ~chi0               m      ~B    ~W_3    ~H_1    ~H_2"<<endl; 
+    
+    cout<<setprecision(3)<<" |     1000022 "<<setw(10)<<
+      ( (mass(1000022) > 1e7) ? scientific : fixed)<<mass(1000022)<<fixed<<"  ";
+    for (int icur=1;icur<=4;icur++) cout<<setw(6)<<nmix(1,icur)<<"  ";
+    
+    cout<<endl<<" |     1000023 "<<setw(10)<<
+      ( (mass(1000023) > 1e7) ? scientific : fixed)<<mass(1000023)<<fixed<<"  ";
+    for (int icur=1;icur<=4;icur++) cout<<setw(6)<<nmix(2,icur)<<"  ";
+    
+    cout<<endl<<" |     1000025 "<<setw(10)<<
+      ( (mass(1000025) > 1e7) ? scientific : fixed)<<mass(1000025)<<fixed<<"  "; 
+    for (int icur=1;icur<=4;icur++) cout<<setw(6)<<nmix(3,icur)<<"  ";
+    
+    cout<<endl<<" |     1000035 "<<setw(10)<<
+      ( (mass(1000035) > 1e7) ? scientific : fixed)<<mass(1000035)<<fixed<<"  "; 
+    for (int icur=1;icur<=4;icur++) cout<<setw(6)<<nmix(4,icur)<<"  ";
+  }
 
-  cout<<endl<<" |     1000023 "<<setw(10)<<
-    ( (mass(1000023) > 1e7) ? scientific : fixed)<<mass(1000023)<<fixed<<"  ";
-  for (int icur=1;icur<=4;icur++) cout<<setw(6)<<nmix(2,icur)<<"  ";
+  // R-violating
+  else {
+    cout<<" |  nu/~chi0            m    nu_e   nu_mu  nu_tau      ~B    ~W_3    ~H_1    ~H_2"<<endl; 
+    
+    cout<<setprecision(3)<<" |          12 "<<setw(10)<<
+      ( (mass(12) > 1e7) ? scientific : fixed)<<mass(12)<<fixed<<"  ";
+    for (int icur=1;icur<=7;icur++) cout<<setw(6)<<rvnmix(1,icur)<<"  ";
+    
+    cout<<endl<<" |          14 "<<setw(10)<<
+      ( (mass(14) > 1e7) ? scientific : fixed)<<mass(14)<<fixed<<"  ";
+    for (int icur=1;icur<=7;icur++) cout<<setw(6)<<rvnmix(2,icur)<<"  ";
 
-  cout<<endl<<" |     1000025 "<<setw(10)<<
-    ( (mass(1000025) > 1e7) ? scientific : fixed)<<mass(1000025)<<fixed<<"  "; 
-  for (int icur=1;icur<=4;icur++) cout<<setw(6)<<nmix(3,icur)<<"  ";
+    cout<<endl<<" |          16 "<<setw(10)<<
+      ( (mass(16) > 1e7) ? scientific : fixed)<<mass(16)<<fixed<<"  ";
+    for (int icur=1;icur<=7;icur++) cout<<setw(6)<<rvnmix(3,icur)<<"  ";
 
-  cout<<endl<<" |     1000035 "<<setw(10)<<
-    ( (mass(1000035) > 1e7) ? scientific : fixed)<<mass(1000035)<<fixed<<"  "; 
-  for (int icur=1;icur<=4;icur++) cout<<setw(6)<<nmix(4,icur)<<"  ";
+    cout<<endl<<" |     1000022 "<<setw(10)<<
+      ( (mass(1000022) > 1e7) ? scientific : fixed)<<mass(1000022)<<fixed<<"  ";
+    for (int icur=1;icur<=7;icur++) cout<<setw(6)<<rvnmix(4,icur)<<"  ";
 
+    cout<<endl<<" |     1000023 "<<setw(10)<<
+      ( (mass(1000023) > 1e7) ? scientific : fixed)<<mass(1000023)<<fixed<<"  ";
+    for (int icur=1;icur<=7;icur++) cout<<setw(6)<<rvnmix(5,icur)<<"  ";
+    
+    cout<<endl<<" |     1000025 "<<setw(10)<<
+      ( (mass(1000025) > 1e7) ? scientific : fixed)<<mass(1000025)<<fixed<<"  "; 
+    for (int icur=1;icur<=7;icur++) cout<<setw(6)<<rvnmix(6,icur)<<"  ";
+    
+    cout<<endl<<" |     1000035 "<<setw(10)<<
+      ( (mass(1000035) > 1e7) ? scientific : fixed)<<mass(1000035)<<fixed<<"  "; 
+    for (int icur=1;icur<=7;icur++) cout<<setw(6)<<rvnmix(7,icur)<<"  ";
+  }
   cout<<endl;
 
-  // charginos
-  // (NB: should be an if/then/else for RPV case here)
+  // Charged fermions (charginos)
   message(0,"","");
-  cout<<" |  ~chi+               m   U:   ~W      ~H  |  V:   ~W      ~H"
-      <<endl; 
 
-  cout<<setprecision(3)<<" |     1000024 "<<setw(10)<<
-    ((mass(1000024) > 1e7) ? scientific : fixed)<<mass(1000024)<<fixed<<"    ";
-  for (int icur=1;icur<=2;icur++) cout<<setw(6)<<umix(1,icur)<<"  ";
-  cout<<"|   ";
-  for (int icur=1;icur<=2;icur++) cout<<setw(6)<<vmix(1,icur)<<"  ";
+  // R-conserving:
+  if (modsel(4) < 1) {
+    cout<<" |  ~chi+               m   U:   ~W      ~H  |  V:   ~W      ~H"
+	<<endl; 
+    
+    cout<<setprecision(3)<<" |     1000024 "<<setw(10)<<
+      ((mass(1000024) > 1e7) ? scientific : fixed)<<mass(1000024)<<fixed<<"    ";
+    for (int icur=1;icur<=2;icur++) cout<<setw(6)<<umix(1,icur)<<"  ";
+    cout<<"|   ";
+    for (int icur=1;icur<=2;icur++) cout<<setw(6)<<vmix(1,icur)<<"  ";
+    
+    cout<<endl<<" |     1000037 "<<setw(10)<<
+      ((mass(1000037) > 1e7) ? scientific : fixed)<<mass(1000037)<<fixed<<"    ";
+    for (int icur=1;icur<=2;icur++) cout<<setw(6)<<umix(2,icur)<<"  ";
+    cout<<"|   " ;
+    for (int icur=1;icur<=2;icur++) cout<<setw(6)<<vmix(2,icur)<<"  ";
+  }
 
-  cout<<endl<<" |     1000037 "<<setw(10)<<
-    ((mass(1000037) > 1e7) ? scientific : fixed)<<mass(1000037)<<fixed<<"    ";
-  for (int icur=1;icur<=2;icur++) cout<<setw(6)<<umix(2,icur)<<"  ";
-  cout<<"|   " ;
-  for (int icur=1;icur<=2;icur++) cout<<setw(6)<<vmix(2,icur)<<"  ";
+  // R-violating
+  else {
+    cout<<" |  e+/~chi+            m   U:  eL+    muL+   tauL+     ~W+    ~H1+  |  V:  eR+    muR+   tauR+     ~W+    ~H2+"
+	<<endl; 
+    
+    cout<<setprecision(3)<<" |         -11 "<<setw(10)<<
+      ((mass(11) > 1e7) ? scientific : fixed)<<mass(11)<<fixed<<"    ";
+    for (int icur=1;icur<=5;icur++) cout<<setw(6)<<rvumix(1,icur)<<"  ";
+    cout<<"|   ";
+    for (int icur=1;icur<=5;icur++) cout<<setw(6)<<rvvmix(1,icur)<<"  ";
+    
+    cout<<endl<<" |         -13 "<<setw(10)<<
+      ((mass(13) > 1e7) ? scientific : fixed)<<mass(13)<<fixed<<"    ";
+    for (int icur=1;icur<=5;icur++) cout<<setw(6)<<rvumix(2,icur)<<"  ";
+    cout<<"|   " ;
+    for (int icur=1;icur<=5;icur++) cout<<setw(6)<<rvvmix(2,icur)<<"  ";
 
+    cout<<endl<<" |         -15 "<<setw(10)<<
+      ((mass(15) > 1e7) ? scientific : fixed)<<mass(15)<<fixed<<"    ";
+    for (int icur=1;icur<=5;icur++) cout<<setw(6)<<rvumix(3,icur)<<"  ";
+    cout<<"|   " ;
+    for (int icur=1;icur<=5;icur++) cout<<setw(6)<<rvvmix(3,icur)<<"  ";
+
+    cout<<endl<<" |     1000024 "<<setw(10)<<
+      ((mass(1000024) > 1e7) ? scientific : fixed)<<mass(1000024)<<fixed<<"    ";
+    for (int icur=1;icur<=5;icur++) cout<<setw(6)<<rvumix(4,icur)<<"  ";
+    cout<<"|   " ;
+    for (int icur=1;icur<=5;icur++) cout<<setw(6)<<rvvmix(4,icur)<<"  ";
+
+    cout<<endl<<" |     1000037 "<<setw(10)<<
+      ((mass(1000037) > 1e7) ? scientific : fixed)<<mass(1000037)<<fixed<<"    ";
+    for (int icur=1;icur<=5;icur++) cout<<setw(6)<<rvumix(5,icur)<<"  ";
+    cout<<"|   " ;
+    for (int icur=1;icur<=5;icur++) cout<<setw(6)<<rvvmix(5,icur)<<"  ";
+  }
   cout<<endl;
 
   // Higgs bosons 
-  // (NB: should be an if/then/else for RPV case here)
-  // ...
+  message(0,"","");
+
+  // R-conserving (R-violating case handled above, with sneutrinos)
+  cout<<" |  Higgs      "<<endl;
+  if (modsel(4) < 1) {
+    cout<<setprecision(3);
+    cout<<" |     alpha     ";
+    if (alpha.exists()) cout<<setw(8)<<alpha()<<endl;
+  }
+  if (hmix.exists()) {
+    cout<<" |     mu        ";
+    if (hmix.exists(1)) cout<<setw(8)<<hmix(1)<<" (DRbar running value at Q = "<<hmix.q()<<" GeV)";
+    else cout<<"  absent";
+    cout<<"\n |     tan(beta) ";
+    if (hmix.exists(2)) cout<<setw(8)<<hmix(2)<<" (DRbar running value at Q = "<<hmix.q()<<" GeV)";
+    else cout<<"  absent";
+    cout<<"\n |     v         ";
+    if (hmix.exists(3)) cout<<setw(8)<<hmix(3)<<" (DRbar running value at Q = "<<hmix.q()<<" GeV)";
+    else cout<<"  absent";
+    cout<<"\n |     mA       ";
+    if (hmix.exists(4)) cout<<setw(9)<<((abs(hmix(4)) > 1e5) ? scientific : fixed)<<hmix(4)
+			    <<" (DRbar running value at Q = "<<fixed<<hmix.q()<<" GeV)";
+    else cout<<"  absent";
+    cout<<"\n";
+  }
+
+  // Gauge
+  message(0,"","");
+  if (gauge.exists()) {
+    cout<<" |  Gauge      "<<endl;
+    cout<<" |     g'        ";
+    if (gauge.exists(1)) cout<<setw(8)<<gauge(1)<<" (DRbar running value at Q = "<<hmix.q()<<" GeV)";
+    else cout<<"  absent";
+    cout<<"\n |     g         ";
+    if (gauge.exists(2)) cout<<setw(8)<<gauge(2)<<" (DRbar running value at Q = "<<hmix.q()<<" GeV)";
+    else cout<<"  absent";
+    cout<<"\n |     g3        ";
+    if (gauge.exists(3)) cout<<setw(8)<<gauge(3)<<" (DRbar running value at Q = "<<hmix.q()<<" GeV)";
+    else cout<<"  absent";
+    cout<<"\n";
+  }
 
   // Print footer  
   footerPrinted=false;
@@ -950,38 +1162,125 @@ int SusyLesHouches::checkSpectrum() {
   
   //RPV (+ FLV)
   else if (modsel(4) != 0) {
-    // Check for required SLHA2 blocks
+    // Check for required SLHA2 blocks (or see if can be extracted from SLHA1)
     if (!rvnmix.exists()) {
-      message(1,"checkSpectrum","MODSEL 4 != 0 but RVNMIX not found",0);
-      ifail=-1;
+      if (nmix.exists()) {
+	message(1,"checkSpectrum",
+		"MODSEL 4 != 0 but NMIX given instead of RVNMIX",0);
+	for (int i=1; i<=4; i++) {
+	  if (i<=3) rvnmix.set(i,i,1.0);
+	  for (int j=1; j<=4; j++)
+	    rvnmix.set(i+3,j+3,nmix(i,j));	  
+	} 
+      } else {
+	message(1,"checkSpectrum","MODSEL 4 != 0 but RVNMIX not found",0);
+	ifail=-1;
+      }
     }
     if (!rvumix.exists()) {
-      message(1,"checkSpectrum","MODSEL 4 != 0 but RVUMIX not found",0);
-      ifail=-1;
+      if (umix.exists()) {
+	message(1,"checkSpectrum",
+		"MODSEL 4 != 0 but UMIX given instead of RVUMIX",0);
+	for (int i=1; i<=3; i++) rvumix.set(i,i,1.0);	  
+	for (int i=1; i<=2; i++) {
+	  for (int j=1; j<=2; j++)
+	    rvumix.set(i+3,j+3,umix(i,j));	  
+	} 
+      } else {
+	message(1,"checkSpectrum","MODSEL 4 != 0 but RVUMIX not found",0);
+	ifail=-1;
+      }
     }
     if (!rvvmix.exists()) {
-      message(1,"checkSpectrum","MODSEL 4 != 0 but RVVMIX not found",0);
-      ifail=-1;
+      if (vmix.exists()) {
+	message(1,"checkSpectrum",
+		"MODSEL 4 != 0 but VMIX given instead of RVVMIX",0);
+	for (int i=1; i<=3; i++) rvvmix.set(i,i,1.0);	  
+	for (int i=1; i<=2; i++) {
+	  for (int j=1; j<=2; j++)
+	    rvvmix.set(i+3,j+3,vmix(i,j));	  
+	} 
+      } else {
+	message(1,"checkSpectrum","MODSEL 4 != 0 but RVVMIX not found",0);
+	ifail=-1;
+      }
     }
     if (!rvhmix.exists()) {
-      message(1,"checkSpectrum","MODSEL 4 != 0 but RVHMIX not found",0);
-      ifail=-1;
+      if (alpha.exists()) {
+	message(1,"checkSpectrum",
+		"MODSEL 4 != 0 but ALPHA given instead of RVHMIX",0);
+	rvhmix.set(1,1,cos(alpha()));
+	rvhmix.set(1,2,sin(alpha()));
+	rvhmix.set(2,1,-sin(alpha()));
+	rvhmix.set(2,2,cos(alpha()));
+	rvhmix.set(3,3,1.0);
+	rvhmix.set(4,4,1.0);
+	rvhmix.set(5,5,1.0);
+      } else {
+	message(1,"checkSpectrum","MODSEL 4 != 0 but RVHMIX not found",0);
+	ifail=-1;
+      }
     }
     if (!rvamix.exists()) {
       message(1,"checkSpectrum","MODSEL 4 != 0 but RVAMIX not found",0);
-      ifail=-1;
     }
     if (!rvlmix.exists()) {
-      message(1,"checkSpectrum","MODSEL 4 != 0 but RVLMIX not found",0);
-      ifail=-1;
+      if (selmix.exists()) {
+	message(1,"checkSpectrum",
+		"MODSEL 4 != 0 but SELMIX given instead of RVLMIX",0);
+	for (int i=1; i<=6; i++) {
+	  for (int j=6; j<=6; j++)
+	    rvlmix.set(i+1,j+2,selmix(i,j));	  
+	} 	
+      } if (staumix.exists()) {
+	message(1,"checkSpectrum",
+		"MODSEL 4 != 0 but STAUMIX given instead of RVLMIX",0);
+	rvlmix.set(2,3,1.0);
+	rvlmix.set(3,4,1.0);
+	rvlmix.set(4,5,staumix(1,1));
+	rvlmix.set(4,8,staumix(1,2));
+	rvlmix.set(5,6,1.0);
+	rvlmix.set(6,7,1.0);
+	rvlmix.set(7,5,staumix(2,1));
+	rvlmix.set(7,8,staumix(2,2));
+      } else {
+	message(1,"checkSpectrum","MODSEL 4 != 0 but RVLMIX not found",0);
+	ifail=-1;
+      }
     }
     if (!usqmix.exists()) {
-      message(1,"checkSpectrum","MODSEL 4 != 0 but USQMIX not found",0);
-      ifail=-1;
+      if (stopmix.exists()) {
+	message(1,"checkSpectrum",
+		"MODSEL 4 != 0 but STOPMIX given instead of USQMIX",0);
+	usqmix.set(1,1, 1.0);
+	usqmix.set(2,2, 1.0); 
+	usqmix.set(4,4, 1.0);
+	usqmix.set(5,5, 1.0);
+	usqmix.set(3,3, stopmix(1,1));
+	usqmix.set(3,6, stopmix(1,2));
+	usqmix.set(6,3, stopmix(2,1));
+	usqmix.set(6,6, stopmix(2,2));    
+      } else {
+	message(1,"checkSpectrum","MODSEL 4 != 0 but USQMIX not found",0);
+	ifail=-1;
+      }
     }
     if (!dsqmix.exists()) {
-      message(1,"checkSpectrum","MODSEL 4 != 0 but DSQMIX not found",0);
+      if (sbotmix.exists()) {
+	message(1,"checkSpectrum",
+		"MODSEL 4 != 0 but SBOTMIX given instead of DSQMIX",0);
+	dsqmix.set(1,1, 1.0);
+	dsqmix.set(2,2, 1.0); 
+	dsqmix.set(4,4, 1.0);
+	dsqmix.set(5,5, 1.0);
+	dsqmix.set(3,3, sbotmix(1,1));
+	dsqmix.set(3,6, sbotmix(1,2));
+	dsqmix.set(6,3, sbotmix(2,1));
+	dsqmix.set(6,6, sbotmix(2,2));
+      } else {
+	message(1,"checkSpectrum","MODSEL 4 != 0 but DSQMIX not found",0);
 	ifail=-1;
+      }
     }
   }
   
@@ -1055,15 +1354,18 @@ int SusyLesHouches::checkSpectrum() {
     // Lepton FLV
     if (modsel(6) != 1) {
       if (!msl2in.exists()) {
-	message(0,"checkSpectrum","note: lepton FLV on but MSL2IN not found",0);
+	message(0,"checkSpectrum", 
+                  "note: lepton FLV on but MSL2IN not found",0);
 	ifail=min(ifail,0);
       }
       if (!mse2in.exists()) {
-	message(0,"checkSpectrum","note: lepton FLV on but MSE2IN not found",0);
+	message(0,"checkSpectrum",
+                  "note: lepton FLV on but MSE2IN not found",0);
 	ifail=min(ifail,0);
       }
       if (!tein.exists()) {
-	message(0,"checkSpectrum","note: lepton FLV on but TEIN not found",0);
+	message(0,"checkSpectrum",
+                  "note: lepton FLV on but TEIN not found",0);
 	ifail=min(ifail,0);
       }
     }
@@ -1416,7 +1718,7 @@ int SusyLesHouches::checkDecays() {
 
     if (abs(1.0-absSum) > 1e-6) {
       message(1,"checkDecays","sum(BR) != 1");
-      cout << " | offending particle: "<<idRes<<" sum(BR) = "<<absSum<<endl;      
+      cout << " | offending particle: "<<idRes<<" sum(BR) = "<<absSum<<endl;
       iFailDecays = 2;
     }
     
@@ -1431,7 +1733,8 @@ int SusyLesHouches::checkDecays() {
 
 // Simple utility to print messages, warnings, and errors
 
-void SusyLesHouches::message(int level, string place,string themessage,int line) {
+void SusyLesHouches::message(int level, string place,string themessage,
+  int line) {
   if (verbose == 0) return;
   //Send normal messages and warnings to stdout, errors to stderr.
   ostream* outstream = &cerr;
@@ -1439,7 +1742,7 @@ void SusyLesHouches::message(int level, string place,string themessage,int line)
   // if (level == 2) { *outstream<<endl; }
   if (place != "") *outstream << " | (SLHA::"+place+") ";
   else *outstream << " | ";
-  if (level == 1) *outstream<< "warning: "; 
+  if (level == 1) *outstream<< "Warning: "; 
   if (level == 2) { *outstream <<"ERROR: "; } 
   if (line != 0) *outstream<< "line "<<line<<" - ";
   *outstream << themessage << endl;

@@ -1,5 +1,5 @@
 // main15.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -16,14 +16,14 @@ using namespace Pythia8;
  
 int main() {
 
-  // Main switchs: redo B decays only or redo all hadronization, but not both.  
+  // Main switches: redo B decays only or redo all hadronization, but not both.
   bool redoBDecays = false;
   bool redoHadrons = true;
   if (redoHadrons) redoBDecays = false; 
 
-  // Number of events, generated and listed ones.
+  // Number of events. Number to list redone events.
   int nEvent = 100;
-  int nList = 1;
+  int nListRedo = 1;
 
   // Number of times decays/hadronization should be redone for each event.
   int nRepeat = 10; 
@@ -57,12 +57,8 @@ int main() {
   // Repeated hadronization: switch off normal HadronLevel call.
   if (redoHadrons) pythia.readString("HadronLevel:all = off");  
 
-  // Initialize for LHC energies.    
-  pythia.init( 2212, 2212, 14000.);
-
-  // Show changed settings and particleData.
-  pythia.settings.listChanged();
-  pythia.particleData.listChanged();
+  // Initialize for LHC energies; default 14 TeV    
+  pythia.init();
 
   // Histogram invariant mass of muon pairs.
   Hist nBperEvent("number of b quarks in an event", 10, -0.5, 9.5); 
@@ -80,13 +76,6 @@ int main() {
 
     // Generate event. Skip it if error.
     if (!pythia.next()) continue;
-
-    // List first few events.
-    if (iEvent < nList) {
-      pythia.info.list(); 
-      pythia.process.list();
-      event.list();
-    }
 
     // Find and histogram number of b quarks.
     int nBquark = 0;
@@ -151,11 +140,12 @@ int main() {
         if (iRepeat > 0) event = savedEvent;
   
         // Repeated hadronization: do HadronLevel (repeatedly).
-        if (!pythia.forceHadronLevel()) continue; 
+        // Note: argument false needed owing to bug in junction search??
+        if (!pythia.forceHadronLevel(false)) continue; 
       }
   
       // List last repetition of first few events.
-      if ( (redoBDecays || redoHadrons) && iEvent < nList 
+      if ( (redoBDecays || redoHadrons) && iEvent < nListRedo 
         && iRepeat == nRepeat - 1) event.list();
 
       // Look for muons among decay products (also from charm/tau/...).
@@ -199,7 +189,7 @@ int main() {
   }
 
   // Statistics. Histograms. 
-  pythia.statistics();
+  pythia.stat();
   cout << nBperEvent << nSameEvent << oppSignMass << sameSignMass << endl;
 
   // Done. 

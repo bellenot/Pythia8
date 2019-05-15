@@ -78,7 +78,7 @@ and</li>
 <li>making the process available.</li>
 </ol>
 We consider these aspects in turn. An example where it all comes
-together is found in <code>main25.cc</code>.
+together is found in <code>main22.cc</code>.
 
 <h3>The Cross Section Calculation</h3> 
 
@@ -686,4 +686,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->

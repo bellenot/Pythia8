@@ -29,13 +29,17 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 
 <h2>Jet Finders</h2>
 
-<code>Pythia</code> comes with two <?php $filepath = $_GET["filepath"];
+<code>Pythia</code> comes with three <?php $filepath = $_GET["filepath"];
 echo "<a href='EventAnalysis.php?filepath=".$filepath."' target='page'>";?>built-in 
 jet finders</a>, <code>ClusterJet</code> for <i>e^+e^-</i> events 
-and <code>CellJet</code> for hadron collider ones. Especially the 
-latter is not so well matched to the standards of its field, however.
-(But it is closely related to the anti-<i>kT</i> algorithm,
+and <code>SlowJet</code> and <code>CellJet</code>for hadron collider ones. 
+Especially the latter is not so well matched to the standards of its field, 
+however. (But it is closely related to the anti-<i>kT</i> algorithm,
 so is also not completely disconnected [<a href="Bibliography.php" target="page">Cac08</a>].)  
+<code>SlowJet</code> can do jet finding according to the current-day 
+<i>kT</i>, Cambridge/Aachen and anti-<i>kT</i> algorithms but,
+as the name indicates, is is rather slow, especially when compared with 
+the <code>FastJet</code> alternative.
 
 <h3>FastJet</h3>
 
@@ -47,10 +51,18 @@ Cambridge/Aachen, anti-<i>kT</i> and SISCone.
 <p/>
 Linking to <code>FastJet</code> is foreseen in the configure 
 file in the <code>examples</code> subdirectory, and the 
-<code>main61.cc</code> program contains an example how it can
-be used with <code>Pythia</code> events.
+<code>main71.cc</code> and <code>main72.cc</code> programs contain
+examples how it can be used with <code>Pythia</code> events.
+
+<p/>
+The latter program makes use of the <code>include/FastJet3.h</code>
+header file, contributed by Gavin Salam. This allows simple input 
+of a <code>Pythia</code> particle into a <code>FastJet</code> one, 
+either retaining only the four-momentum or the full particle information. 
+Thereby more sophisticated selectors become possible at the 
+<code>FastJet</code> level. 
 
 </body>
 </html>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->

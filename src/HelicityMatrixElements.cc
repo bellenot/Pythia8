@@ -1,5 +1,5 @@
 // HelicityMatrixElements.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Philip Ilten, Torbjorn Sjostrand.
+// Copyright (C) 2012 Philip Ilten, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -325,10 +325,9 @@ complex HMETwoFermions2W2TwoFermions::calculateME(vector<int> h) {
 
   complex answer(0,0);
   for (int mu = 0; mu <= 3; mu++) {
-    answer +=
-  	(u[1][h[pMap[1]]] * gamma[mu] * (1 - gamma[5]) * u[0][h[pMap[0]]]) * 
-	gamma[4](mu,mu) *
-	(u[3][h[pMap[3]]] * gamma[mu] * (1 - gamma[5]) * u[2][h[pMap[2]]]);
+    answer += (u[1][h[pMap[1]]] * gamma[mu] * (1 - gamma[5]) 
+      * u[0][h[pMap[0]]]) * gamma[4](mu,mu) * (u[3][h[pMap[3]]] 
+      * gamma[mu] * (1 - gamma[5]) * u[2][h[pMap[2]]]);
   }
   return answer;
 
@@ -369,9 +368,8 @@ complex HMETwoFermions2Gamma2TwoFermions::calculateME(vector<int> h) {
 
   complex answer(0,0);
   for (int mu = 0; mu <= 3; mu++) {
-    answer +=
-  	(u[1][h[pMap[1]]] * gamma[mu] * u[0][h[pMap[0]]]) * gamma[4](mu,mu) *
-	(u[3][h[pMap[3]]] * gamma[mu] * u[2][h[pMap[2]]]);
+    answer += (u[1][h[pMap[1]]] * gamma[mu] * u[0][h[pMap[0]]]) 
+      * gamma[4](mu,mu) * (u[3][h[pMap[3]]] * gamma[mu] * u[2][h[pMap[2]]]);
   }
   return p0Q*p2Q * answer / s;
 
@@ -791,10 +789,9 @@ complex HMETau2TwoLeptons::calculateME(vector<int> h) {
 
   complex answer(0,0);
   for (int mu = 0; mu <= 3; mu++) {
-    answer +=
-  	(u[1][h[pMap[1]]] * gamma[mu] * (1 - gamma[5]) * u[0][h[pMap[0]]]) * 
-	gamma[4](mu,mu) *
-	(u[3][h[pMap[3]]] * gamma[mu] * (1 - gamma[5]) * u[2][h[pMap[2]]]);
+    answer += (u[1][h[pMap[1]]] * gamma[mu] * (1 - gamma[5]) 
+      * u[0][h[pMap[0]]]) * gamma[4](mu,mu) * (u[3][h[pMap[3]]] 
+      * gamma[mu] * (1 - gamma[5]) * u[2][h[pMap[2]]]);
   }
   return answer;
 
@@ -1054,30 +1051,30 @@ complex HMETau2ThreePions::F1() {
   // Three charged pion decay.
   if (abs(pID[2] + pID[3] + pID[4]) == 211) {
     for (unsigned int i = 0; i < rhoM.size(); i++) {
-	answer += - rhoWp[i] * pBreitWigner(pM[3], pM[4], s2, rhoM[i], rhoG[i])
-	  - rhoWd[i] / 3.0 * pBreitWigner(pM[2], pM[4], s3, rhoM[i], rhoG[i]) * 
-	  (s2 - s4);
+      answer += - rhoWp[i] * pBreitWigner(pM[3], pM[4], s2, rhoM[i], rhoG[i])
+        - rhoWd[i] / 3.0 * pBreitWigner(pM[2], pM[4], s3, rhoM[i], rhoG[i]) 
+        * (s2 - s4);
     }
     answer += -2.0 / 3.0 * (sigW * sBreitWigner(pM[2], pM[4], s3, sigM, sigG) 
-			      + f0W * sBreitWigner(pM[2], pM[4], s3, f0M, f0G));
-    answer += f2W * (0.5 * (s4 - s3) *
-		       dBreitWigner(pM[3], pM[4], s2, f2M, f2G) - 
-		       1.0 / (18 * s3) * (4 * pow2(pM[2]) - s3) *
-		       (s1 + s3 - pow2(pM[2])) * 
-		       dBreitWigner(pM[2], pM[4], s3, f2M, f2G));
+            + f0W * sBreitWigner(pM[2], pM[4], s3, f0M, f0G));
+    answer += f2W * (0.5 * (s4 - s3) 
+            * dBreitWigner(pM[3], pM[4], s2, f2M, f2G) 
+            - 1.0 / (18 * s3) * (4 * pow2(pM[2]) - s3) 
+            * (s1 + s3 - pow2(pM[2])) 
+            * dBreitWigner(pM[2], pM[4], s3, f2M, f2G));
   }
 
   // Two neutral and one charged pion decay.
   else {
     for (unsigned int i = 0; i < rhoM.size(); i++) {
-	answer += rhoWp[i] * pBreitWigner(pM[3], pM[4], s2, rhoM[i], rhoG[i]) - 
-	  rhoWd[i] / 3.0 * pBreitWigner(pM[2], pM[4], s3, rhoM[i], rhoG[i]) * 
-	  (s4 - s2 - pow2(pM[4]) + pow2(pM[2]));
+      answer += rhoWp[i] * pBreitWigner(pM[3], pM[4], s2, rhoM[i], rhoG[i]) 
+        - rhoWd[i] / 3.0 * pBreitWigner(pM[2], pM[4], s3, rhoM[i], rhoG[i]) 
+        * (s4 - s2 - pow2(pM[4]) + pow2(pM[2]));
     }
-    answer += 2.0 / 3.0 * (sigW * sBreitWigner(pM[2], pM[3], s4, sigM, sigG) +
-			     f0W * sBreitWigner(pM[2], pM[3], s4, f0M, f0G));
-    answer += f2W / (18 * s4) * (s1 - pow2(pM[4]) + s4) * 
-	(4 * pow2(pM[2]) - s4) * dBreitWigner(pM[2], pM[3], s4, f2M, f2G);
+    answer += 2.0 / 3.0 * (sigW * sBreitWigner(pM[2], pM[3], s4, sigM, sigG) 
+      + f0W * sBreitWigner(pM[2], pM[3], s4, f0M, f0G));
+    answer += f2W / (18 * s4) * (s1 - pow2(pM[4]) + s4) 
+      * (4 * pow2(pM[2]) - s4) * dBreitWigner(pM[2], pM[3], s4, f2M, f2G);
   }
   return answer;
 
@@ -1094,17 +1091,16 @@ complex HMETau2ThreePions::F2() {
   // Three charged pion decay.
   if (abs(pID[2] + pID[3] + pID[4]) == 211) {
     for (unsigned int i = 0; i  < rhoM.size(); i++) {
-	answer += -rhoWp[i] * pBreitWigner(pM[2], pM[4], s3, rhoM[i], rhoG[i]) 
-	  - rhoWd[i] / 3.0 * pBreitWigner(pM[3], pM[4], s2, rhoM[i], rhoG[i])
-	  * (s3 - s4);
+      answer += -rhoWp[i] * pBreitWigner(pM[2], pM[4], s3, rhoM[i], rhoG[i]) 
+	- rhoWd[i] / 3.0 * pBreitWigner(pM[3], pM[4], s2, rhoM[i], rhoG[i])
+        * (s3 - s4);
     }
     answer += -2.0 / 3.0 * (sigW * sBreitWigner(pM[3], pM[4], s2, sigM, sigG)
-			      + f0W * sBreitWigner(pM[3], pM[4], s2, f0M, f0G));
-    answer += f2W * (0.5 * (s4 - s2) *
-		       dBreitWigner(pM[2], pM[4], s3, f2M, f2G) - 
-		       1.0 / (18 * s2) *
-		       (4 * pow2(pM[2]) - s2) * (s1 + s2 - pow2(pM[2])) * 
-		       dBreitWigner(pM[3], pM[4], s2, f2M, f2G));
+      + f0W * sBreitWigner(pM[3], pM[4], s2, f0M, f0G));
+    answer += f2W * (0.5 * (s4 - s2) 
+      * dBreitWigner(pM[2], pM[4], s3, f2M, f2G) 
+      - 1.0 / (18 * s2) * (4 * pow2(pM[2]) - s2) * (s1 + s2 - pow2(pM[2])) 
+      * dBreitWigner(pM[3], pM[4], s2, f2M, f2G));
   }
 
   // Two neutral and one charged pion decay.

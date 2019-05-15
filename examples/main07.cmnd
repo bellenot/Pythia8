@@ -1,48 +1,40 @@
-! File: main07.cmnd
+! main07.cmnd.
 ! This file contains commands to be read in for a Pythia8 run. 
 ! Lines not beginning with a letter or digit are comments.
-! Names are case-insensitive  -  but spellings-sensitive!
-! The changes here are illustrative, not always physics-motivated.
 
-! 1) Settings that could be used in a main program, if desired.
-Main:numberOfEvents = 1000        ! number of events to generate
-Main:numberToList = 1              ! number of events to print
-Main:timesToShow = 20              ! show how far along run is this many times
-Main:timesAllowErrors = 10         ! abort run after this many flawed events
-Main:showChangedSettings = on      ! print changed flags/modes/parameters
-#Main:showAllSettings = on          ! print all flags/modes/parameters
-#Main:showChangedParticleData = on  ! print changed particle and decay data
-#Main:showAllParticleData = on      ! print all particle and decay data
-Main:showAllStatistics = on        ! more statistics on multiple interactions
+! 1) Settings used in the main program.
+Main:numberOfEvents = 1000         ! number of events to generate
+Main:timesAllowErrors = 5          ! allow a few failures before quitting
 
-! 2) Beam parameter settings. Values below agree with default ones.
-Beams:idA = 2212                   ! first beam, p = 2212, pbar = -2212
-Beams:idB = 2212                   ! second beam, p = 2212, pbar = -2212
-Beams:eCM = 14000.                 ! CM energy of collision
+! 2) Settings related to output in init(), next() and stat().
+Init:showChangedSettings = on      ! list changed settings
+Init:showChangedParticleData = on  ! list changed particle data
+Next:numberCount = 100             ! print message every n events
+Next:numberShowInfo = 1            ! print event information n times
+Next:numberShowProcess = 1         ! print process record n times
+Next:numberShowEvent = 1           ! print event record n times
 
-! 3) Settings for hard-process generation internal to Pythia8.
-SoftQCD:minbias = on               ! minimum bias QCD processes
-#HardQCD:all = on                    ! QCD jet production
-#PhaseSpace:pTHatMin = 20.           ! minimum pT in hard process
+! 3) Beam parameter settings. Incoming beams do not radiate.
+Beams:idA = -11                    ! ficititious incoming e+ 
+Beams:idB = 11                     ! ficititious incoming e-
+PDF:lepton = off                   ! no radiation off ficititious e+e-
+Beams:eCM = 500.                   ! CM energy of collision
 
-! 4) Switch off some key components of the simulation, for comparisons.
-#PartonLevel:all = off              ! stop after hard process 
-#PartonLevel:MI = off               ! no multiple interactions
-#PartonLevel:ISR = off              ! no initial-state radiation 
-#PartonLevel:FSR = off              ! no final-state radiation
-#HadronLevel:Hadronize = off        ! no hadronization
-#HadronLevel:Decay = off            ! no decays
+! 4) Set up properties of the GeneralResonance and its decay channels.
+! id:all = name antiName spinType chargeType colType m0 mWidth mMin mMax tau0
+999999:all = GeneralResonance void 1 0 0 500. 1. 0. 0. 0.
+! id:addChannel = onMode bRatio meMode product1 product2 ...
+! Note: sum of branching ratios automatically rescaled to 1.
+! Current channels illustrative only; insert your own decay list.
+999999:addChannel = 1 0.2 101 1 -1   !  -> d dbar 
+999999:addChannel = 1 0.2 101 6 -6   !  -> t tbar
+999999:addChannel = 1 0.2 101 15 -15 !  -> tau- tau+
+999999:addChannel = 1 0.2 101 24 -24 !  -> W+ W-
+999999:addChannel = 1 0.2 101 25 25  !  -> h0 h0
 
-! 5) Multiple interactions and impact parameter picture.
-! Note: these values are illustrative only, not to be taken seriously.
-MultipleInteractions:pT0Ref = 2.
-MultipleInteractions:ecmRef = 1960.
-MultipleInteractions:ecmPow = 0.16
-MultipleInteractions:pTmin = 0.2
-MultipleInteractions:bProfile = 2   
-#MultipleInteractions:coreRadius = 0.4
-#MultipleInteractions:coreFraction = 0.5
-MultipleInteractions:expPow = 1.
-
-! 6) Switch off checks.
-#Check:event = off
+! 5) Tell that also long-lived should decay.
+13:mayDecay   = true                 ! mu+-
+211:mayDecay  = true                 ! pi+-
+321:mayDecay  = true                 ! K+-
+130:mayDecay  = true                 ! K0_L
+2112:mayDecay = true                 ! n 

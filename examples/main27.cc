@@ -1,242 +1,147 @@
 // main27.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Example how to write a derived class for beam momentum and vertex spread,
-// with an instance handed to Pythia for internal generation.
-// Warning: the parameters are not realistic. 
+// Kaluza-Klein gamma*/Z resonances in TeV-sized extra dimensions.
+
+#include <assert.h>
+#include <time.h>
+#include <sstream>
 
 #include "Pythia.h"
-
 using namespace Pythia8; 
- 
-//==========================================================================
-
-// A derived class to set beam momentum and interaction vertex spread.
-
-class MyBeamShape : public BeamShape {
-
-public:
-
-  // Constructor.
-  MyBeamShape() {}
-
-  // Initialize beam parameters.
-  // In this particular example we will reuse the existing settings names
-  // but with modified meaning, so init() in the base class can be kept. 
-  //virtual void init( Settings& settings, Rndm* rndmPtrIn);
-
-  // Set the two beam momentum deviations and the beam vertex.
-  virtual void pick();
-
-};
-
-//--------------------------------------------------------------------------
-
-// Set the two beam momentum deviations and the beam vertex.
-// Note that momenta are in units of GeV and vertices in mm,
-// always with c = 1, so that e.g. time is in mm/c. 
-
-void MyBeamShape::pick() {
-
-  // Reset all values.
-  deltaPxA = deltaPyA = deltaPzA = deltaPxB = deltaPyB = deltaPzB
-    = vertexX = vertexY = vertexZ = vertexT = 0.;
-
-  // Set beam A transverse momentum deviation by a two-dimensional Gaussian.
-  if (allowMomentumSpread) {
-    double totalDev, gauss;
-    do {
-      totalDev = 0.;
-      if (sigmaPxA > 0.) {
-        gauss     = rndmPtr->gauss();
-        deltaPxA  = sigmaPxA * gauss;
-        totalDev += gauss * gauss; 
-      }
-      if (sigmaPyA > 0.) {
-        gauss     = rndmPtr->gauss();
-        deltaPyA  = sigmaPyA * gauss;
-        totalDev += gauss * gauss; 
-      }
-    } while (totalDev > maxDevA * maxDevA); 
-
-    // Set beam A longitudinal momentum as a triangular shape.
-    // Reuse sigmaPzA to represent maximum deviation in this case.
-    if (sigmaPzA > 0.) {
-      deltaPzA    = sigmaPzA * ( 1. - sqrt(rndmPtr->flat()) );
-      if (rndmPtr->flat() < 0.5) deltaPzA = -deltaPzA; 
-    }
-
-    // Set beam B transverse momentum deviation by a two-dimensional Gaussian.
-    do {
-      totalDev = 0.;
-      if (sigmaPxB > 0.) {
-        gauss     = rndmPtr->gauss();
-        deltaPxB  = sigmaPxB * gauss;
-        totalDev += gauss * gauss; 
-      }
-      if (sigmaPyB > 0.) {
-        gauss     = rndmPtr->gauss();
-        deltaPyB  = sigmaPyB * gauss;
-        totalDev += gauss * gauss; 
-      }
-    } while (totalDev > maxDevB * maxDevB); 
-
-    // Set beam B longitudinal momentum as a triangular shape.
-    // Reuse sigmaPzB to represent maximum deviation in this case.
-    if (sigmaPzB > 0.) {
-      deltaPzB = sigmaPzB * ( 1. - sqrt(rndmPtr->flat()) );
-      if (rndmPtr->flat() < 0.5) deltaPzB = -deltaPzB; 
-    }
-  }
-
-  // Set beam vertex location by a two-dimensional Gaussian.
-  if (allowVertexSpread) {
-    double totalDev, gauss;
-    do {
-      totalDev = 0.;
-      if (sigmaVertexX > 0.) {
-        gauss     = rndmPtr->gauss();
-        vertexX   = sigmaVertexX * gauss;
-        totalDev += gauss * gauss; 
-      }
-      if (sigmaVertexY > 0.) {
-        gauss     = rndmPtr->gauss();
-        vertexY   = sigmaVertexY * gauss;
-        totalDev += gauss * gauss; 
-      }
-    } while (totalDev > maxDevVertex * maxDevVertex);
-
-    // Set beam B longitudinal momentum as a triangular shape.
-    // This corresponds to two step-function beams colliding.
-    // Reuse sigmaVertexZ to represent maximum deviation in this case.
-    if (sigmaVertexZ > 0.) {
-      vertexZ     = sigmaVertexZ * ( 1. - sqrt(rndmPtr->flat()) );
-      if (rndmPtr->flat() < 0.5) vertexZ = -vertexZ; 
-
-      // Set beam collision time flat between +-(sigmaVertexZ - |vertexZ|). 
-      // This corresponds to two step-function beams colliding (with v = c).
-      vertexT = (2. * rndmPtr->flat() - 1.) * (sigmaVertexZ - abs(vertexZ));  
-    }
-
-    // Add offset to beam vertex.
-    vertexX      += offsetX;
-    vertexY      += offsetY;
-    vertexZ      += offsetZ;
-    vertexT      += offsetT;
-  }  
-
-}
- 
-//==========================================================================
 
 int main() {
 
-  // Number of events to generate and to list. Max number of errors.
-  int nEvent = 10000;
-  int nList  = 1;
-  int nAbort = 5;
-
-  // Pythia generator.
+  // Generator.
   Pythia pythia;
+  ParticleData& pdt = pythia.particleData;
 
+  // Pick new random number seed for each run, based on clock.
+  pythia.readString("Random:setSeed = on");
+  pythia.readString("Random:seed = 0");
+ 
   // Process selection.
-  pythia.readString("HardQCD:all = on");    
-  pythia.readString("PhaseSpace:pTHatMin = 20."); 
+  // ANY COMBINATION OF THE PROCESSES FLAGS BELOW IS ALLOWED
+  // HERE WE SWITCH ON ONLY THE MU+MU- FINAL STATE.
+  // TO SWITCH ALL POSSIBLE FINAL STATES ON, UNCOMMENT ALL
+  // THE RELEVANT LINES BELOW:
+  //pythia.readString("ExtraDimensionsTEV:ffbar2e+e- = on");
+  pythia.readString("ExtraDimensionsTEV:ffbar2mu+mu- = on");
+  //pythia.readString("ExtraDimensionsTEV:ffbar2tau+tau- = on");
+  //pythia.readString("ExtraDimensionsTEV:ffbar2uubar = on");
+  //pythia.readString("ExtraDimensionsTEV:ffbar2ddbar = on");
+  //pythia.readString("ExtraDimensionsTEV:ffbar2ccbar = on");
+  //pythia.readString("ExtraDimensionsTEV:ffbar2ssbar = on");
+  //pythia.readString("ExtraDimensionsTEV:ffbar2bbbar = on");
+  //pythia.readString("ExtraDimensionsTEV:ffbar2ttbar = on");
+  //pythia.readString("ExtraDimensionsTEV:ffbar2nuenuebar = on");
+  //pythia.readString("ExtraDimensionsTEV:ffbar2numunumubar = on");
+  //pythia.readString("ExtraDimensionsTEV:ffbar2nutaunutaubar = on");
 
-  // LHC with acollinear beams in the x plane.
-  // Use that default is pp with pz = +-7000 GeV, so this need not be set.  
-  pythia.readString("Beams:frameType = 3");    
-  pythia.readString("Beams:pxA = 1.");    
-  pythia.readString("Beams:pxB = 1.");  
+  // Pick KK mass.  
+  double newMass = 4000.; // GeV
+  cout << "|-------------------------" << endl;
+  cout << "| KK mass is: " << newMass << endl;
+  cout << "|-------------------------" << endl;
+  stringstream strm;
+  string sNewMass, sNewWidth, sNewLowBound, sNewHighBound;
 
-  // A class to generate beam parameters according to own parametrization.
-  BeamShape* myBeamShape = new MyBeamShape();
+  // Manually set the mass and therefore the width 
+  // and the phase space for the sampling
+  strm.clear();
+  strm << newMass;
+  strm >> sNewMass;
+  strm.clear();
+  strm << newMass / pdt.m0(5000023) * pdt.mWidth(5000023);
+  strm >> sNewWidth;
+  strm.clear();
+  strm << newMass/4.;
+  strm >> sNewLowBound;
+  strm.clear();
+  strm << newMass*2.;
+  strm >> sNewHighBound;
 
-  // Hand pointer to Pythia. 
-  // If you comment this out you get internal Gaussian-style implementation.
-  pythia.setBeamShapePtr( myBeamShape);
+  // Feed in KK state information and other generation specifics.  
+  pythia.readString("5000023:m0 = " + sNewMass);
+  pythia.readString("5000023:mWidth = " + sNewWidth);
+  pythia.readString("5000023:mMin = " + sNewLowBound);
+  pythia.readString("5000023:mMax = " + sNewHighBound);
+  //////////////////////////////////////////////////////////////////////////
+  pythia.readString("5000023:isResonance = false"); // THIS IS MANDATORY  //
+  //////////////////////////////////////////////////////////////////////////
+  // 0=(gm+Z), 1=(gm), 2=(Z), 3=(gm+Z+gmKK+ZKK), 4=(m+Z+gmKK), 5=(m+Z+ZKK)
+  pythia.readString("ExtraDimensionsTEV:gmZmode = 3"); 
+  // min=0, max=100, default=10
+  pythia.readString("ExtraDimensionsTEV:nMax = 100"); 
+  pythia.readString("ExtraDimensionsTEV:mStar = " + sNewMass);
+  pythia.readString("PhaseSpace:mHatMin = " + sNewLowBound);
+  pythia.readString("PhaseSpace:mHatMax = " + sNewHighBound);
 
-  // Set up beam spread parameters - reused by MyBeamShape.  
-  pythia.readString("Beams:allowMomentumSpread = on");  
-  pythia.readString("Beams:sigmapxA = 0.1");  
-  pythia.readString("Beams:sigmapyA = 0.1");  
-  pythia.readString("Beams:sigmapzA = 5.");  
-  pythia.readString("Beams:sigmapxB = 0.1");  
-  pythia.readString("Beams:sigmapyB = 0.1");  
-  pythia.readString("Beams:sigmapzB = 5."); 
-
-  // Set up beam vertex parameters - reused by MyBeamShape.
-  pythia.readString("Beams:allowVertexSpread = on");  
-  pythia.readString("Beams:sigmaVertexX = 0.3");  
-  pythia.readString("Beams:sigmaVertexY = 0.3");  
-  pythia.readString("Beams:sigmaVertexZ = 50.");  
-  // In MyBeamShape the time width is not an independent parameter.
-  //pythia.readString("Beams:sigmaTime = 50.");  
-
-  // Optionally simplify generation.
-  pythia.readString("PartonLevel:all = off");  
-
-  // Initialization.  
+  // Initialize for LHC.
+  pythia.readString("Beams:eCM = 14000.");    
   pythia.init();
 
-  // Read out nominal energy.
-  double eCMnom = pythia.info.eCM(); 
-
   // Histograms.
-  Hist eCM("center-of-mass energy deviation", 100, -20., 20.);
-  Hist pXsum("net pX offset", 100, -1.0, 1.0);
-  Hist pYsum("net pY offset", 100, -1.0, 1.0);
-  Hist pZsum("net pZ offset", 100, -10., 10.);
-  Hist pZind("individual abs(pZ) offset", 100, -10., 10.);
-  Hist vtxX("vertex x position", 100, -1.0, 1.0);
-  Hist vtxY("vertex y position", 100, -1.0, 1.0);
-  Hist vtxZ("vertex z position", 100, -100., 100.);
-  Hist vtxT("vertex time", 100, -100., 100.);
-  Hist vtxZT("vertex |x| + |t|", 100, 0., 100.);
+  Hist mHatHisto("dN/dmHat", 50, newMass/4., newMass*2.);
+  Hist pTmuHisto("(dN/dpT)_mu^-", 50, 1., 2501.);
 
-  // Begin event loop. Generate event. 
-  int iAbort = 0;
-  for (int iEvent = 0; iEvent < nEvent; ++iEvent) {
-    if (!pythia.next()) {
+  vector<int> moms;
+  
+  // Measure the cpu runtime.
+  clock_t start, stop;
+  double t = 0.0;
+  // Depending on operating system, either of lines below gives warning.
+  assert((start = clock()) != -1); // Start timer; clock_t signed.
+  //assert((start = clock()) != -1u); // Start timer; clock_t unsigned.
+  
+  // Begin event loop. Generate event. Skip if error. List first one.
+  for (int iEvent = 0 ; iEvent < 500 ; ++iEvent) {
+    if (!pythia.next()) continue;
 
-      // List faulty events and quit if many failures.
-      pythia.info.list(); 
-      pythia.process.list();
-      //pythia.event.list();
-      if (++iAbort < nAbort) continue;
-      cout << " Event generation aborted prematurely, owing to error!\n"; 
-      break;      
+    // Begin event analysis.
+    bool isZ = false;
+    bool ismu = false;
+    int iZ = 0;
+    int imu = 0;
+    for (int i = 0 ; i < pythia.event.size() ; ++i) {
+      // find the most recent Z
+      if (pythia.event[i].id() == 5000023) {
+        iZ = i;
+        isZ = true;
+      }
+      // find the final muon who's first mother is the Z
+      if (pythia.event[i].id() == 13 && pythia.event[i].isFinal()) {
+        moms.clear();
+        moms = pythia.event.motherList(i);
+        for (int m = 0 ; m < int(moms.size()) ; m++) {
+          if( pythia.event[ moms[m] ].id() == 5000023 ) {
+            imu = i;
+            ismu = true;
+            break;
+          } // end if 5000023
+        } // end for moms.size()
+      } // end if final muon
+    } // end for event.size()
+    if(isZ && ismu) {
+      mHatHisto.fill( pythia.event[iZ].m() );
+      pTmuHisto.fill( pythia.event[imu].pT() );
     }
- 
-    // List first few events.
-    if (iEvent < nList) { 
-      pythia.info.list(); 
-      pythia.process.list(); 
-      //pythia.event.list();
-    } 
+    if(iEvent%10 == 0) cout << "Event: " << iEvent << endl << flush;
+  } // end for iEvent<500
 
-    // Fill histograms.
-    double eCMnow = pythia.info.eCM();
-    eCM.fill( eCMnow - eCMnom);
-    pXsum.fill(  pythia.process[0].px() - 2. );
-    pYsum.fill(  pythia.process[0].py() );
-    pZsum.fill(  pythia.process[0].pz() );
-    pZind.fill(  pythia.process[1].pz() - 7000. );
-    pZind.fill( -pythia.process[2].pz() - 7000. );
-    vtxX.fill(  pythia.process[0].xProd() );
-    vtxY.fill(  pythia.process[0].yProd() );
-    vtxZ.fill(  pythia.process[0].zProd() );
-    vtxT.fill(  pythia.process[0].tProd() );
-    double absSum = abs(pythia.process[0].zProd()) 
-                  + abs(pythia.process[0].tProd());
-    vtxZT.fill( absSum );
+  // Done. Print results.
+  stop = clock(); // Stop timer
+  t = (double) (stop-start)/CLOCKS_PER_SEC;
 
-  // End of event loop. Statistics. Histograms. Done.
-  }
-  pythia.statistics();
-  cout << eCM << pXsum << pYsum << pZsum << pZind
-       << vtxX << vtxY << vtxZ << vtxT << vtxZT; 
+  pythia.stat();
+  cout << mHatHisto;
+  cout << pTmuHisto;
+
+  cout << "\n" << "|----------------------------------------|" << endl;
+  cout << "| CPU Runtime = " << t << " sec" << endl;
+  cout << "|----------------------------------------|" << "\n" << endl;
+  
   return 0;
 }

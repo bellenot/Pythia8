@@ -1,5 +1,5 @@
 // HelicityBasics.h is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Philip Ilten, Torbjorn Sjostrand.
+// Copyright (C) 2012 Philip Ilten, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -179,8 +179,10 @@ public:
     : Particle(idIn, statusIn, mother1In, mother2In, daughter1In, daughter2In,
     colIn, acolIn, pxIn, pyIn, pzIn, eIn, mIn, scaleIn) {
     if (ptr) { setPDTPtr(ptr); setPDEPtr(); }
-    rho = vector< vector<complex> >(spinType(), vector<complex>(spinType(), 0));
-    D   = vector< vector<complex> >(spinType(), vector<complex>(spinType(), 0));
+    rho = vector< vector<complex> >(spinType(), 
+      vector<complex>(spinType(), 0));
+    D   = vector< vector<complex> >(spinType(), 
+      vector<complex>(spinType(), 0));
     for (int i = 0; i < spinType(); i++) { rho[i][i] = 0.5; D[i][i] = 1.;}
     direction = 1; }
   HelicityParticle(int idIn, int statusIn, int mother1In, int mother2In,
@@ -189,15 +191,19 @@ public:
     : Particle(idIn, statusIn, mother1In, mother2In, daughter1In, daughter2In,
     colIn, acolIn, pIn, mIn, scaleIn) {
     if (ptr) { setPDTPtr(ptr); setPDEPtr();}
-    rho = vector< vector<complex> >(spinType(), vector<complex>(spinType(), 0));
-    D   = vector< vector<complex> >(spinType(), vector<complex>(spinType(), 0));
+    rho = vector< vector<complex> >(spinType(), 
+      vector<complex>(spinType(), 0));
+    D   = vector< vector<complex> >(spinType(), 
+      vector<complex>(spinType(), 0));
     for (int i = 0; i < spinType(); i++) { rho[i][i] = 0.5; D[i][i] = 1;}
     direction = 1; }
   HelicityParticle(const Particle& ptIn, ParticleData* ptr = 0) 
     : Particle(ptIn) {
     if (ptr) { setPDTPtr(ptr); setPDEPtr();}
-    rho = vector< vector<complex> >(spinType(), vector<complex>(spinType(), 0));
-    D   = vector< vector<complex> >(spinType(), vector<complex>(spinType(), 0));
+    rho = vector< vector<complex> >(spinType(), 
+      vector<complex>(spinType(), 0));
+    D   = vector< vector<complex> >(spinType(), 
+      vector<complex>(spinType(), 0));
     for (int i = 0; i < spinType(); i++) { rho[i][i] = 0.5; D[i][i] = 1;}
     direction = 1; }
  

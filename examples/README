@@ -20,8 +20,8 @@
    name is defined in the Makefile, so it can be used for simple first 
    tests.
 
-4) With ./runmains all the 30 first mainXX program will be run,
-   plus main71 and main72, to get a thorough test of the installation. 
+4) With ./runmains all the 27 first mainXX program will be run,
+   plus main31, to get a thorough test of the installation. 
    The runmains file can easily be edited to run the others as well,
    but then you should first link to the appropriate external libraries.
    The outref subdirectory contains the output of such a run, if you
@@ -39,7 +39,9 @@
    directory. If not, you can go back and do it now. This will create 
    files "config.csh" and "config.sh" in the current directory.
 
-2) If you are going to run examples linked with LHAPDF and/or FastJet,  
+2) If you are going to run examples linked with LHAPDF and/or FastJet, 
+   or if you want to move (all or parts of) the current examples 
+   subdirectory to a location separate from the rest of the library, 
    you should as a first step run the script "configure" in the current 
    directory. You can use command-line arguments to set up the desired 
    library links. 
@@ -47,7 +49,12 @@
    The possible options are:
      --help : prints a brief summary of the options described here.
      --enable-debug : turns on debugging flags and turns off optimization
-     --enable-shared : use shared library (not yet implemented) (default no)
+     --enable-shared : use shared library (not yet implemented; default no)
+     --lcgplatform=name : LCG platform name (can be part of path to 
+         external librtaries; default is x86_64-slc5-gcc43-opt)
+     --with-pythia8=p8path : path to the pythia81xx installation directory, 
+         where the programs in this examples directory can find libraries,
+         includes and parameters (default is ..)
      --with-lhapdf=lhapdfpath : the path to your local copy of the LHAPDF
          library (must be version 5.3 or higher)
      --with-lhapdfversion=v : a simpler alternative to the above, valid 

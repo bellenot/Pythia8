@@ -342,24 +342,24 @@ Code 1002.
 <br/><br/><strong>HiggsBSM:gmgm2H1</strong>  <input type="radio" name="24" value="on"><strong>On</strong>
 <input type="radio" name="24" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-Scattering <i>gamma gamma -> h^0(H_1^0)</i> via loop contributions primarily
-from top and <i>W</i>.
+Scattering <i>gamma gamma -> h^0(H_1^0)</i> via loop contributions 
+primarily from top and <i>W</i>.
 Code 1003.
   
 
 <br/><br/><strong>HiggsBSM:ffbar2H1Z</strong>  <input type="radio" name="25" value="on"><strong>On</strong>
 <input type="radio" name="25" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-Scattering <i>f fbar -> h^0(H_1^0) Z^0</i> via <i>s</i>-channel <i>Z^0</i>
-exchange.
+Scattering <i>f fbar -> h^0(H_1^0) Z^0</i> via <i>s</i>-channel 
+<i>Z^0</i> exchange.
 Code 1004.
   
 
 <br/><br/><strong>HiggsBSM:ffbar2H1W</strong>  <input type="radio" name="26" value="on"><strong>On</strong>
 <input type="radio" name="26" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-Scattering <i>f fbar -> h^0(H_1^0) W^+-</i> via <i>s</i>-channel <i>W^+-</i>
-exchange.
+Scattering <i>f fbar -> h^0(H_1^0) W^+-</i> via <i>s</i>-channel 
+<i>W^+-</i> exchange.
 Code 1005.
   
 
@@ -373,7 +373,8 @@ Code 1006.
 <br/><br/><strong>HiggsBSM:ff2H1ff(t:WW)</strong>  <input type="radio" name="28" value="on"><strong>On</strong>
 <input type="radio" name="28" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-Scattering <i>f_1 f_2 -> h^0(H_1^0) f_3 f_4</i> via <i>W^+ W^-</i> fusion.
+Scattering <i>f_1 f_2 -> h^0(H_1^0) f_3 f_4</i> via <i>W^+ W^-</i> 
+fusion.
 Code 1007.
   
 
@@ -432,16 +433,16 @@ Code 1023.
 <br/><br/><strong>HiggsBSM:ffbar2H2Z</strong>  <input type="radio" name="35" value="on"><strong>On</strong>
 <input type="radio" name="35" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-Scattering <i>f fbar -> H^0(H_2^0) Z^0</i> via <i>s</i>-channel <i>Z^0</i>
-exchange.
+Scattering <i>f fbar -> H^0(H_2^0) Z^0</i> via <i>s</i>-channel 
+<i>Z^0</i> exchange.
 Code 1024.
   
 
 <br/><br/><strong>HiggsBSM:ffbar2H2W</strong>  <input type="radio" name="36" value="on"><strong>On</strong>
 <input type="radio" name="36" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-Scattering <i>f fbar -> H^0(H_2^0) W^+-</i> via <i>s</i>-channel <i>W^+-</i>
-exchange.
+Scattering <i>f fbar -> H^0(H_2^0) W^+-</i> via <i>s</i>-channel 
+<i>W^+-</i> exchange.
 Code 1025.
   
 
@@ -513,16 +514,16 @@ Code 1043.
 <br/><br/><strong>HiggsBSM:ffbar2A3Z</strong>  <input type="radio" name="45" value="on"><strong>On</strong>
 <input type="radio" name="45" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-Scattering <i>f fbar -> A^0(A_3^0) Z^0</i> via <i>s</i>-channel <i>Z^0</i>
-exchange.
+Scattering <i>f fbar -> A^0(A_3^0) Z^0</i> via <i>s</i>-channel 
+<i>Z^0</i> exchange.
 Code 1044.
   
 
 <br/><br/><strong>HiggsBSM:ffbar2A3W</strong>  <input type="radio" name="46" value="on"><strong>On</strong>
 <input type="radio" name="46" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-Scattering <i>f fbar -> A^0(A_3^0) W^+-</i> via <i>s</i>-channel <i>W^+-</i>
-exchange.
+Scattering <i>f fbar -> A^0(A_3^0) W^+-</i> via <i>s</i>-channel 
+<i>W^+-</i> exchange.
 Code 1045.
   
 
@@ -1655,5 +1656,5 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
 

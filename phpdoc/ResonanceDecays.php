@@ -150,6 +150,26 @@ the program would not necessarily know how to hadronize them, and
 therefore fail at that stage.
   
 
+<p/>
+In spite of this technical parameter choice, it is possible to set 
+a lifetime for a resonance, and thereby to obtain displaced vertices.
+If a resonance is allowed to decay it will do so, irrespective of
+the location of the decay vertex. This is unlike 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='ParticleDecays.php?filepath=".$filepath."' target='page'>";?>normal particle decays</a>,
+where it is possible to define some region around the primary
+vertex within which all decays should happen, with particles
+leaving that region considered stable. The logic is that resonances 
+as a rule are too short-lived for secondary vertices,
+so if you pick a scenario with a long-lived but unstable resonance
+it is because you <i>want</i> to study secondary vertices. 
+How to interface those decays to a detector simulation program then
+is another story, to be solved separately. Do note that a special
+treatment is needed for coloured long-lived resonances, that form
+<?php $filepath = $_GET["filepath"];
+echo "<a href='Rhadrons.php?filepath=".$filepath."' target='page'>";?>R-hadrons</a>, and where charge and flavour
+may change between the production and decay vertices.   
+
 <h3>Special properties and methods for resonances</h3>
 
 The method <code>ParticleData::isResonance(id)</code> allows you to 
@@ -378,5 +398,5 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
 

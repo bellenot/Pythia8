@@ -1,5 +1,5 @@
 // SigmaEW.h is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -383,7 +383,7 @@ private:
 //==========================================================================
 
 // A derived class for f fbar -> gamma* -> f' fbar', summed over light f'.
-// Allows pT-ordered evolution for multiple interactions.
+// Allows pT-ordered evolution for multiparton interactions.
 
 class Sigma2ffbar2ffbarsgm : public Sigma2Process {
 

@@ -1,5 +1,5 @@
 // Pythia.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -64,6 +64,9 @@ Pythia::Pythia(string xmlDir) {
   userHooksPtr    = 0;
 
   // Initial value for pointer to merging hooks.
+  doMerging          = false;
+  hasMergingHooks    = false;
+  hasOwnMergingHooks = false;
   mergingHooksPtr    = 0;
 
   // Initial value for pointer to beam shape.
@@ -110,7 +113,7 @@ Pythia::Pythia(string xmlDir) {
   // Write the Pythia banner to output. 
   banner();
 
-  // Not initialized until at the end of initInternal.
+  // Not initialized until at the end of the init() call.
   isInit = false;
   info.addCounter(0);
  
@@ -132,6 +135,9 @@ Pythia::~Pythia() {
 
   // Delete the Les Houches object created with new.
   if (useNewLHA) delete lhaUpPtr;
+
+  // Delete the MergingHooks object created with new.
+  if (hasOwnMergingHooks) delete mergingHooksPtr;
 
   // Delete the BeamShape object created with new.
   if (useNewBeamShape) delete beamShapePtr;
@@ -226,7 +232,7 @@ bool Pythia::readFile(istream& is, bool warn, int subrun) {
 bool Pythia::setPDFPtr( PDF* pdfAPtrIn, PDF* pdfBPtrIn, PDF* pdfHardAPtrIn, 
   PDF* pdfHardBPtrIn, PDF* pdfPomAPtrIn, PDF* pdfPomBPtrIn) {
 
-  // Delete any PDF's created in a previous initInternal call.
+  // Delete any PDF's created in a previous init call.
   if (useNewPdfHard && pdfHardAPtr != pdfAPtr) delete pdfHardAPtr;
   if (useNewPdfHard && pdfHardBPtr != pdfBPtr) delete pdfHardBPtr;
   if (useNewPdfA) delete pdfAPtr;
@@ -281,238 +287,109 @@ bool Pythia::setPDFPtr( PDF* pdfAPtrIn, PDF* pdfBPtrIn, PDF* pdfHardAPtrIn,
 
 //--------------------------------------------------------------------------
 
-// Routine to initialize with CM energy.
-
-bool Pythia::init( int idAin, int idBin, double eCMin) {
-
-  // Read in and set values.
-  info.addCounter(1);
-  idA       = idAin;
-  idB       = idBin;
-  frameType = 1;
-  eCM       = eCMin;
-  doLHA     = false;
-
-  // Send on to common initialization.
-  bool status = initInternal();
-  if (status) info.addCounter(2);
-  else info.errorMsg("Abort from Pythia::init: initialization failed");
-  return status;
-
-}
-
-//--------------------------------------------------------------------------
-
-// Routine to initialize with two collinear beams,  energies specified.
-
-bool Pythia::init( int idAin, int idBin, double eAin, double eBin) {
-
-  // Read in and set values.
-  info.addCounter(1);
-  idA       = idAin;
-  idB       = idBin;
-  frameType = 2;
-  eA        = eAin;
-  eB        = eBin;
-  doLHA     = false;
-
-  // Send on to common initialization. 
-  bool status = initInternal();
-  if (status) info.addCounter(2);
-  else info.errorMsg("Abort from Pythia::init: initialization failed");
-  return status;
-
-}
-
-//--------------------------------------------------------------------------
-
-// Routine to initialize with two beams specified by three-momenta.
-
-bool Pythia::init( int idAin, int idBin, double pxAin, double pyAin, 
-  double pzAin, double pxBin, double pyBin, double pzBin) {
-
-  // Read in and set values.
-  info.addCounter(1);
-  idA       = idAin;
-  idB       = idBin;
-  frameType = 3;
-  pxA       = pxAin;
-  pyA       = pyAin;
-  pzA       = pzAin;
-  pxB       = pxBin;
-  pyB       = pyBin;
-  pzB       = pzBin;
-  doLHA     = false;
-
-  // Send on to common initialization. 
-  bool status = initInternal();
-  if (status) info.addCounter(2);
-  else info.errorMsg("Abort from Pythia::init: initialization failed");
-  return status;
-
-}
-
-//--------------------------------------------------------------------------
-
-// Routine to initialize when all info is given in a Les Houches Event File.
-
-bool Pythia::init( string LesHouchesEventFile, bool skipInit) {
-
-  // Destroy any previous LHAup object.
-  info.addCounter(1);
-  if (useNewLHA) delete lhaUpPtr;
-
-  // Create LHAup object. Send in pointer to info.
-  const char* cstring = LesHouchesEventFile.c_str();
-  lhaUpPtr   = new LHAupLHEF(cstring);
-  lhaUpPtr->setPtr( &info);
-  doLHA      = true;
-  useNewLHA  = true;
-
-  // Check that file was properly opened.
-  if (!lhaUpPtr->fileFound()) {
-    info.errorMsg("Abort from Pythia::init: Les Houches Event File not found");
-    return false;
-  }
-
-  // Store LHEF name in Beams if not already set (for SLHA reader)
-  // (also makes sure information is consistent, overwriting any other
-  //  name given in Beams:LHEF by the name of the LHEF file actually used)
-  if (word("Beams:LHEF") != LesHouchesEventFile) {
-    settings.word("Beams:LHEF", LesHouchesEventFile);
-  }
-
-  // Store or replace LHA pointer in other classes.
-  processLevel.setLHAPtr( lhaUpPtr);
-
-  // If second time around, only with new file, then simplify.
-  if (skipInit) return true;
-
-  // Set up values related to user hooks.
-  doUserMerging = settings.flag("Merging:doUserMerging");
-  doMGMerging   = settings.flag("Merging:doMGMerging");
-  doKTMerging   = settings.flag("Merging:doKTMerging");
-  doMerging     = doUserMerging
-                 || doMGMerging
-                 || doKTMerging;
-  if(!doUserMerging){
-    if(mergingHooksPtr) delete mergingHooksPtr;
-    mergingHooksPtr = new MergingHooks();
-  }
-  hasMergingHooks  = (mergingHooksPtr > 0);
-  if(hasMergingHooks)
-    mergingHooksPtr->setLHEInputFile( LesHouchesEventFile);
-
-  // Set LHAinit information (in some external program).
-  if (!lhaUpPtr->setInit()) {
-    info.errorMsg("Abort from Pythia::init: "
-      "Les Houches initialization failed");
-    return false;
-  }
-
-  // Extract beams from values set in an LHAinit object. 
-  idA = lhaUpPtr->idBeamA();
-  idB = lhaUpPtr->idBeamB();
-  eA  = lhaUpPtr->eBeamA();
-  eB  = lhaUpPtr->eBeamB();
-  frameType = 2;
-
-  // Now do normal initialization. List info if there.
-  bool status = initInternal();
-  lhaUpPtr->listInit(); 
-  if (status) info.addCounter(2);
-  else info.errorMsg("Abort from Pythia::init: initialization failed");
-  return status;
-
-}
-
-//--------------------------------------------------------------------------
-
 // Routine to initialize with the variable values of the Beams kind.
 
 bool Pythia::init() {
 
-  // Check if to read from Les Houches Event File set, and is so send on.
-  info.addCounter(1);
-  if (mode("Beams:frameType") == 4) {
-    string lhef   = word("Beams:LHEF");
-    bool skipInit = flag("Main:LHEFskipInit");
-    return init( lhef, skipInit);
-  }  
-
-  // Read in and set values.
-  idA       = mode("Beams:idA");
-  idB       = mode("Beams:idB");
-  frameType = mode("Beams:frameType");
-  eCM       = parm("Beams:eCM");
-  eA        = parm("Beams:eA");
-  eB        = parm("Beams:eB");
-  pxA       = parm("Beams:pxA");
-  pyA       = parm("Beams:pyA");
-  pzA       = parm("Beams:pzA");
-  pxB       = parm("Beams:pxB");
-  pyB       = parm("Beams:pyB");
-  pzB       = parm("Beams:pzB");
-  doLHA     = false;
-
-  // Send on to common initialization.
-  bool status = initInternal();
-  if (status) info.addCounter(2);
-  else info.errorMsg("Abort from Pythia::init: initialization failed");
-  return status;
-
-}
-
-//--------------------------------------------------------------------------
-
-// Routine to initialize when beam info is given in an LHAup object.
-
-bool Pythia::init( LHAup* lhaUpPtrIn) {
-
-  // Save and set flag for subsequent usage of LHAup object.
-  info.addCounter(1);
-  lhaUpPtr   = lhaUpPtrIn;
-  doLHA      = true;
-
-  // Send in pointer to info. Store LHA pointer in other classes.
-  lhaUpPtr->setPtr( &info);
-  processLevel.setLHAPtr( lhaUpPtr);
-
-  // Set LHAinit information (in some external program).
-  if (!lhaUpPtr->setInit()) {
-    info.errorMsg("Abort from Pythia::init: "
-      "Les Houches initialization failed");
+  // Check that constructor worked.
+  isInit = false;
+  if (!isConstructed) { 
+    info.errorMsg("Abort from Pythia::init: constructur "
+      "initialization failed");
     return false;
   }
 
-  // Extract beams from values set in an LHAinit object. 
-  idA       = lhaUpPtr->idBeamA();
-  idB       = lhaUpPtr->idBeamB();
-  eA        = lhaUpPtr->eBeamA();
-  eB        = lhaUpPtr->eBeamB();
-  frameType = 2;
+  // Begin initialization. Find which frame type to use.
+  info.addCounter(1);
+  frameType = mode("Beams:frameType");
 
-  // Now do normal initialization. List info if there.
-  bool status = initInternal();
-  lhaUpPtr->listInit();
-  if (status) info.addCounter(2);
-  else info.errorMsg("Abort from Pythia::init: initialization failed");
-  return status;
+  // Initialization with internal processes: read in and set values.
+  if (frameType < 4 ) {
+    doLHA     = false;
+    boostType = frameType;
+    idA       = mode("Beams:idA");
+    idB       = mode("Beams:idB");
+    eCM       = parm("Beams:eCM");
+    eA        = parm("Beams:eA");
+    eB        = parm("Beams:eB");
+    pxA       = parm("Beams:pxA");
+    pyA       = parm("Beams:pyA");
+    pzA       = parm("Beams:pzA");
+    pxB       = parm("Beams:pxB");
+    pyB       = parm("Beams:pyB");
+    pzB       = parm("Beams:pzB");
+  
+   // Initialization with a Les Houches Event File or an LHAup object.
+  } else {
+    doLHA     = true;
+    boostType = 2;
+    string lhef   = word("Beams:LHEF");
+    bool skipInit = flag("Beams:newLHEFsameInit");
 
-}
+    // For file input: delete any old LHAup object and create new one.
+    if (frameType == 4) {
+      if (useNewLHA) delete lhaUpPtr;
+      const char* cstring = lhef.c_str();
+      lhaUpPtr   = new LHAupLHEF(cstring);
+      useNewLHA  = true;
 
-//--------------------------------------------------------------------------
+      // Check that file was properly opened.
+      if (!lhaUpPtr->fileFound()) {
+        info.errorMsg("Abort from Pythia::init: "
+          "Les Houches Event File not found");
+        return false;
+      }
 
-// Main routine to initialize the generation process.
-// (The alternative init forms end up in this one.)
+    // For object input: at least check that not null pointer.
+    } else {
+       if (lhaUpPtr == 0) {
+        info.errorMsg("Abort from Pythia::init: "
+          "LHAup object not found");
+        return false;
+      }
+    } 
 
-bool Pythia::initInternal() {
+    // Send in pointer to info. Store or replace LHA pointer in other classes.
+    lhaUpPtr->setPtr( &info);
+    processLevel.setLHAPtr( lhaUpPtr);
 
-  // Check that constructor worked.
-  isInit = false;
-  if (!isConstructed) return false;
+    // If second time around, only with new file, then simplify.
+    if (skipInit) {
+      isInit = true;
+      info.addCounter(2);
+      return true;
+    }
 
-  // Reset error counters. 
+    // Set up values related to user hooks.
+    if (frameType == 4) {
+      doUserMerging = settings.flag("Merging:doUserMerging");
+      doMGMerging   = settings.flag("Merging:doMGMerging");
+      doKTMerging   = settings.flag("Merging:doKTMerging");
+      doMerging     = doUserMerging || doMGMerging || doKTMerging;
+      if (!doUserMerging){
+        if (mergingHooksPtr) delete mergingHooksPtr;
+        mergingHooksPtr = new MergingHooks();
+        hasOwnMergingHooks = true;
+      }
+      hasMergingHooks  = (mergingHooksPtr > 0);
+      if (hasMergingHooks) mergingHooksPtr->setLHEInputFile( lhef);
+    }
+
+    // Set LHAinit information (in some external program).
+    if (!lhaUpPtr->setInit()) {
+      info.errorMsg("Abort from Pythia::init: "
+        "Les Houches initialization failed");
+      return false;
+    }
+
+    // Extract beams from values set in an LHAinit object.
+    idA = lhaUpPtr->idBeamA();
+    idB = lhaUpPtr->idBeamB();
+    eA  = lhaUpPtr->eBeamA();
+    eB  = lhaUpPtr->eBeamB();
+  }
+
+  // Back to common initialization. Reset error counters. 
   nErrEvent = 0;
   info.errorReset();
   info.setTooLowPTmin(false);
@@ -520,7 +397,7 @@ bool Pythia::initInternal() {
 
   // Initialize data members extracted from database.
   doProcessLevel   = settings.flag("ProcessLevel:all");
-  doPartonLevel    = settings.flag("PartonLevel:all") && doProcessLevel;
+  doPartonLevel    = settings.flag("PartonLevel:all");
   doHadronLevel    = settings.flag("HadronLevel:all");
   doDiffraction    = settings.flag("SoftQCD:all") 
                   || settings.flag("SoftQCD:singleDiffractive") 
@@ -547,7 +424,7 @@ bool Pythia::initInternal() {
 
   // Initialize couplings (needed to initialize resonances).
   // Check if SUSY couplings need to be read in
-  if( !initSLHA()) info.errorMsg("Error in Pythia::initInternal: "
+  if( !initSLHA()) info.errorMsg("Error in Pythia::init: "
     "Could not read SLHA file");
   if (couplingsPtr->isSUSY) {
     // Initialize the SM and SUSY.
@@ -612,17 +489,28 @@ bool Pythia::initInternal() {
   beamShapePtr->init( settings, &rndm);
 
   // Check that beams and beam combination can be handled.
-  if (!checkBeams()) return false;
+  if (!checkBeams()) {
+    info.errorMsg("Abort from Pythia::init: "
+      "checkBeams initialization failed");
+    return false;
+  }
 
   // Do not set up beam kinematics when no process level.
-  if (!doProcessLevel) frameType = 1;
+  if (!doProcessLevel) boostType = 1;
   else {
     
     // Set up beam kinematics.
-    if (!initKinematics()) return false;
+    if (!initKinematics()) {
+      info.errorMsg("Abort from Pythia::init: "
+        "kinematics initialization failed");
+      return false;
+    }
 
     // Set up pointers to PDFs.
-    if (!initPDFs()) return false;
+    if (!initPDFs()) {
+      info.errorMsg("Abort from Pythia::init: PDF initialization failed");
+      return false;
+    }
   
     // Set up the two beams and the common remnant system.
     StringFlav* flavSelPtr = hadronLevel.getStringFlavPtr();
@@ -642,39 +530,166 @@ bool Pythia::initInternal() {
 
   // Send info/pointers to process level for initialization.
   if ( doProcessLevel && !processLevel.init( &info, settings, &particleData, 
-    &rndm, &beamA, &beamB, couplingsPtr, &sigmaTot, doLHA, &slha, userHooksPtr, 
-    sigmaPtrs) ) return false;
+    &rndm, &beamA, &beamB, couplingsPtr, &sigmaTot, doLHA, &slha, userHooksPtr,
+    sigmaPtrs) ) {
+    info.errorMsg("Abort from Pythia::init: "
+      "processLevel initialization failed");
+    return false;
+  }
 
   // Send info/pointers to parton level for initialization.
-  if ( doPartonLevel && !partonLevel.init( &info, settings, &particleData, 
-    &rndm, &beamA, &beamB, &beamPomA, &beamPomB, couplingsPtr, &partonSystems, 
-    &sigmaTot, timesDecPtr, timesPtr, spacePtr, &rHadrons, userHooksPtr,
-    mergingHooksPtr, false) ) 
+  if ( doPartonLevel && doProcessLevel && !partonLevel.init( &info, settings, 
+    &particleData, &rndm, &beamA, &beamB, &beamPomA, &beamPomB, couplingsPtr, 
+    &partonSystems, &sigmaTot, timesDecPtr, timesPtr, spacePtr, &rHadrons, 
+    userHooksPtr, mergingHooksPtr, false) ) {
+    info.errorMsg("Abort from Pythia::init: "
+      "partonLevel initialization failed" );
     return false;
+  }
 
   // Send info/pointers to parton level for trial shower initialization.
   if ( doMerging && !trialPartonLevel.init( &info, settings, &particleData, 
     &rndm, &beamA, &beamB, &beamPomA, &beamPomB, couplingsPtr, &partonSystems, 
     &sigmaTot, timesDecPtr, timesPtr, spacePtr, &rHadrons, NULL,
-    mergingHooksPtr, true) ) 
+    mergingHooksPtr, true) ) {
+    info.errorMsg("Abort from Pythia::init: "
+      "trialPartonLevel initialization failed");
     return false;
-
+  }
+ 
   // Send info/pointers to hadron level for initialization.
   // Note: forceHadronLevel() can come, so we must always initialize. 
   if ( !hadronLevel.init( &info, settings, &particleData, &rndm,  
-    couplingsPtr, timesDecPtr, &rHadrons, decayHandlePtr, handledParticles) ) 
+    couplingsPtr, timesDecPtr, &rHadrons, decayHandlePtr, 
+    handledParticles) ) {
+    info.errorMsg("Abort from Pythia::init: "
+      "hadronLevel initialization failed");
     return false;
-
+  }
+   
   // Optionally check particle data table for inconsistencies.
   if ( settings.flag("Check:particleData") ) 
     particleData.checkTable( settings.mode("Check:levelParticleData") );
 
+  // Optionally show settings and particle data, changed or all.
+  bool showCS  = settings.flag("Init:showChangedSettings");
+  bool showAS  = settings.flag("Init:showAllSettings");
+  bool showCPD = settings.flag("Init:showChangedParticleData");
+  bool showCRD = settings.flag("Init:showChangedResonanceData");
+  bool showAPD = settings.flag("Init:showAllParticleData");
+  int  show1PD = settings.mode("Init:showOneParticleData");
+  bool showPro = settings.flag("Init:showProcesses");
+  if (showCS)      settings.listChanged();
+  if (showAS)      settings.listAll();
+  if (show1PD > 0) particleData.list(show1PD);
+  if (showCPD)     particleData.listChanged(showCRD);
+  if (showAPD)     particleData.listAll();
+
+  // Listing options for the next() routine.
+  nCount       = settings.mode("Next:numberCount");
+  nShowLHA     = settings.mode("Next:numberShowLHA");
+  nShowInfo    = settings.mode("Next:numberShowInfo");
+  nShowProc    = settings.mode("Next:numberShowProcess");
+  nShowEvt     = settings.mode("Next:numberShowEvent");
+  showSaV      = settings.flag("Next:showScaleAndVertex");
+  showMaD      = settings.flag("Next:showMothersAndDaughters");
+
   // Succeeded.
   isInit = true; 
+  info.addCounter(2);
+  if (useNewLHA && showPro) lhaUpPtr->listInit(); 
   return true;
 
 }
 
+//--------------------------------------------------------------------------
+
+// Routine to initialize with CM energy.
+
+bool Pythia::init( int idAin, int idBin, double eCMin) {
+
+  // Set arguments in Settings database.
+  settings.mode("Beams:idA",  idAin);
+  settings.mode("Beams:idB",  idBin);
+  settings.mode("Beams:frameType",  1);
+  settings.parm("Beams:eCM", eCMin);
+  
+  // Send on to common initialization.
+  return init();
+
+}
+
+//--------------------------------------------------------------------------
+
+// Routine to initialize with two collinear beams,  energies specified.
+
+bool Pythia::init( int idAin, int idBin, double eAin, double eBin) {
+
+  // Set arguments in Settings database.
+  settings.mode("Beams:idA",  idAin);
+  settings.mode("Beams:idB",  idBin);
+  settings.mode("Beams:frameType",  2);
+  settings.parm("Beams:eA",      eAin);
+  settings.parm("Beams:eB",      eBin);
+  
+  // Send on to common initialization.
+  return init();
+
+}
+
+//--------------------------------------------------------------------------
+
+// Routine to initialize with two beams specified by three-momenta.
+
+bool Pythia::init( int idAin, int idBin, double pxAin, double pyAin, 
+  double pzAin, double pxBin, double pyBin, double pzBin) {
+
+  // Set arguments in Settings database.
+  settings.mode("Beams:idA",  idAin);
+  settings.mode("Beams:idB",  idBin);
+  settings.mode("Beams:frameType",  3);
+  settings.parm("Beams:pxA",    pxAin);
+  settings.parm("Beams:pyA",    pyAin);
+  settings.parm("Beams:pzA",    pzAin);
+  settings.parm("Beams:pxB",    pxBin);
+  settings.parm("Beams:pyB",    pyBin);
+  settings.parm("Beams:pzB",    pzBin);
+  
+  // Send on to common initialization.
+  return init();
+
+}
+
+//--------------------------------------------------------------------------
+
+// Routine to initialize when all info is given in a Les Houches Event File.
+
+bool Pythia::init( string LesHouchesEventFile, bool skipInit) {
+
+  // Set arguments in Settings database.
+  settings.mode("Beams:frameType",              4);
+  settings.word("Beams:LHEF", LesHouchesEventFile);
+  settings.flag("Beams:newLHEFsameInit", skipInit);
+  
+  // Send on to common initialization.
+  return init();
+
+}
+
+//--------------------------------------------------------------------------
+
+// Routine to initialize when beam info is given in an LHAup object.
+
+bool Pythia::init( LHAup* lhaUpPtrIn) {
+
+  // Store LHAup object and set arguments in Settings database.
+  setLHAupPtr( lhaUpPtrIn);
+  settings.mode("Beams:frameType", 5);
+  
+  // Send on to common initialization.
+  return init();
+
+}
 
 //--------------------------------------------------------------------------
 
@@ -684,10 +699,10 @@ void Pythia::checkSettings() {
 
   // Double rescattering not allowed if ISR or FSR.
   if ((settings.flag("PartonLevel:ISR") || settings.flag("PartonLevel:FSR"))
-    && settings.flag("MultipleInteractions:allowDoubleRescatter")) {
+    && settings.flag("MultipartonInteractions:allowDoubleRescatter")) {
     info.errorMsg("Warning in Pythia::checkSettings: "
         "double rescattering switched off since showering is on");
-    settings.flag("MultipleInteractions:allowDoubleRescatter", false);
+    settings.flag("MultipartonInteractions:allowDoubleRescatter", false);
   }
 
 }
@@ -739,7 +754,7 @@ bool Pythia::initKinematics() {
   gammaZ   = 1.;
 
   // Collinear beams not in CM frame: find CM energy.
-  if (frameType == 2) {
+  if (boostType == 2) {
     eA     = max(eA, mA);
     eB     = max(eB, mB);
     pzA    = sqrt(eA*eA - mA*mA);
@@ -751,11 +766,11 @@ bool Pythia::initKinematics() {
     // Find boost to rest frame.
     betaZ  = (pzA + pzB) / (eA + eB);
     gammaZ = (eA + eB) / eCM;
-    if (abs(betaZ) < 1e-10) frameType = 1;
+    if (abs(betaZ) < 1e-10) boostType = 1;
   }
 
   // Completely general beam directions: find CM energy.
-  else if (frameType == 3) {
+  else if (boostType == 3) {
     eA     = sqrt( pxA*pxA + pyA*pyA + pzA*pzA + mA*mA);
     eB     = sqrt( pxB*pxB + pyB*pyB + pzB*pzB + mB*mB);
     pAinit = Vec4( pxA, pyA, pzA, eA);
@@ -783,7 +798,7 @@ bool Pythia::initKinematics() {
   eB       = sqrt(mB*mB + pzBcm*pzBcm);
 
   // If in CM frame then store beam four-vectors (else already done above).
-  if (frameType != 2 && frameType != 3) {
+  if (boostType != 2 && boostType != 3) {
     pAinit = Vec4( 0., 0., pzAcm, eA);
     pBinit = Vec4( 0., 0., pzBcm, eB);
   }
@@ -794,7 +809,7 @@ bool Pythia::initKinematics() {
   info.setECM( eCM);
 
   // Must allow for generic boost+rotation when beam momentum spread.
-  if (doMomentumSpread) frameType = 3;
+  if (doMomentumSpread) boostType = 3;
 
   // Done.
   return true;
@@ -807,7 +822,7 @@ bool Pythia::initKinematics() {
 
 bool Pythia::initPDFs() {
 
-  // Delete any PDF's created in a previous initInternal call.
+  // Delete any PDF's created in a previous init call.
   if (useNewPdfHard) {
     if (pdfHardAPtr != pdfAPtr) {
       delete pdfHardAPtr;
@@ -894,6 +909,12 @@ bool Pythia::initPDFs() {
 
 bool Pythia::next() {
 
+  // Regularly print how many events have been generated.
+  int nPrevious = info.getCounter(3);
+  if (nCount > 0 && nPrevious > 0 && nPrevious%nCount == 0)
+    cout << "\n Pythia::next(): " << nPrevious 
+         << " events have been generated " << endl;
+
   // Set/reset info counters specific to each event.
   info.addCounter(3);
   for (int i = 10; i < 13; ++i) info.setCounter(i);
@@ -911,6 +932,7 @@ bool Pythia::next() {
     // Generate hadronization and decays.
     bool status = forceHadronLevel();
     if (status) info.addCounter(4);
+    if (status && nPrevious < nShowEvt)  event.list(showSaV, showMaD);
     return status;
   }
 
@@ -979,6 +1001,9 @@ bool Pythia::next() {
       boostAndVertex( true, true);
       processLevel.accumulate();
       info.addCounter(4);
+      if (doLHA && nPrevious < nShowLHA) lhaUpPtr->listEvent(); 
+      if (nPrevious < nShowInfo) info.list();
+      if (nPrevious < nShowProc) process.list(showSaV, showMaD);
       return true;
     }
 
@@ -1004,7 +1029,7 @@ bool Pythia::next() {
       beamPomB.clear();
       partonSystems.clear();
    
-      // Parton-level evolution: ISR, FSR, MI.
+      // Parton-level evolution: ISR, FSR, MPI.
       if ( !partonLevel.next( process, event) ) {
         // Skip to next hard process for failure owing to deliberate veto.
         hasVetoed = partonLevel.hasVetoed(); 
@@ -1044,6 +1069,10 @@ bool Pythia::next() {
           return false;
         }
         info.addCounter(4);
+        if (doLHA && nPrevious < nShowLHA) lhaUpPtr->listEvent(); 
+        if (nPrevious < nShowInfo) info.list();
+        if (nPrevious < nShowProc) process.list(showSaV, showMaD);
+        if (nPrevious < nShowEvt)  event.list(showSaV, showMaD);
         return true;
       }
 
@@ -1100,6 +1129,12 @@ bool Pythia::next() {
     info.addCounter(13);
     break;
   }
+
+  // List events.
+  if (doLHA && nPrevious < nShowLHA) lhaUpPtr->listEvent(); 
+  if (nPrevious < nShowInfo) info.list();
+  if (nPrevious < nShowProc) process.list(showSaV,showMaD);
+  if (nPrevious < nShowEvt)  event.list(showSaV, showMaD);
 
   // Done.
   info.addCounter(4);
@@ -1207,28 +1242,28 @@ void Pythia::boostAndVertex( bool toLab, bool setVertex) {
 
   // Boost process from CM frame to lab frame.
   if (toLab) {
-    if      (frameType == 2) process.bst(0., 0., betaZ, gammaZ);
-    else if (frameType == 3) process.rotbst(MfromCM);
+    if      (boostType == 2) process.bst(0., 0., betaZ, gammaZ);
+    else if (boostType == 3) process.rotbst(MfromCM);
 
     // Boost nonempty event from CM frame to lab frame.
     if (event.size() > 0) {       
-      if      (frameType == 2) event.bst(0., 0., betaZ, gammaZ);
-      else if (frameType == 3) event.rotbst(MfromCM);
+      if      (boostType == 2) event.bst(0., 0., betaZ, gammaZ);
+      else if (boostType == 3) event.rotbst(MfromCM);
     }
 
   // Boost process from lab frame to CM frame.
   } else {
-    if      (frameType == 2) process.bst(0., 0., -betaZ, gammaZ);
-    else if (frameType == 3) process.rotbst(MtoCM);
+    if      (boostType == 2) process.bst(0., 0., -betaZ, gammaZ);
+    else if (boostType == 3) process.rotbst(MtoCM);
 
     // Boost nonempty event from lab frame to CM frame.
     if (event.size() > 0) {       
-      if      (frameType == 2) event.bst(0., 0., -betaZ, gammaZ);
-      else if (frameType == 3) event.rotbst(MtoCM);
+      if      (boostType == 2) event.bst(0., 0., -betaZ, gammaZ);
+      else if (boostType == 3) event.rotbst(MtoCM);
     }
   }
 
-  // Set production vertex; assumes particles are in lab frame and at origin
+  // Set production vertex; assumes particles are in lab frame and at origin.
   if (setVertex && doVertexSpread) {
     Vec4 vertex = beamShapePtr->vertex();
     for (int i = 0; i < process.size(); ++i) process[i].vProd( vertex);
@@ -1242,6 +1277,9 @@ void Pythia::boostAndVertex( bool toLab, bool setVertex) {
 // Perform R-hadron decays, either as part of normal evolution or forced.
 
 bool Pythia::doRHadronDecays( ) {
+
+  // Check if R-hadrons exist to be processed.
+  if ( !rHadrons.exist() ) return true;
 
   // Do the R-hadron decay itself.
   if ( !rHadrons.decay( event) ) return false;
@@ -1261,12 +1299,40 @@ bool Pythia::doRHadronDecays( ) {
 
 // Print statistics on event generation.
 
+void Pythia::stat() {
+
+  // Read out settings for what to include.
+  bool showPrL = settings.flag("Stat:showProcessLevel");
+  bool showPaL = settings.flag("Stat:showPartonLevel");
+  bool showErr = settings.flag("Stat:showErrors");
+  bool reset   = settings.flag("Stat:reset");
+
+  // Statistics on cross section and number of events.
+  if (doProcessLevel) { 
+    if (showPrL) processLevel.statistics(false);
+    if (reset)   processLevel.resetStatistics(); 
+  }  
+
+  // Statistics from other classes, currently multiparton interactions.
+  if (showPaL) partonLevel.statistics(false);  
+  if (reset)   partonLevel.resetStatistics();   
+
+  // Summary of which and how many warnings/errors encountered.
+  if (showErr) info.errorStatistics();
+  if (reset)   info.errorReset();
+
+}
+
+//--------------------------------------------------------------------------
+
+// Print statistics on event generation - deprecated version.
+
 void Pythia::statistics(bool all, bool reset) {
 
   // Statistics on cross section and number of events. 
   if (doProcessLevel) processLevel.statistics(reset);  
 
-  // Statistics from other classes, e.g. multiple interactions.
+  // Statistics from other classes, e.g. multiparton interactions.
   if (all) partonLevel.statistics(reset);  
 
   // Summary of which and how many warnings/errors encountered.
@@ -1336,14 +1402,20 @@ void Pythia::banner(ostream& os) {
      << "my and Theoretical Physics,           |  | \n"
      << " |  |      Lund University, Solvegatan 14A, S"
      << "E-223 62 Lund, Sweden;                |  | \n"
-     << " |  |      phone: + 46 - 46 - 222 31 92; e-ma"
-     << "il: richard.corke@thep.lu.se          |  | \n"
+     << " |  |      e-mail: richard.corke@thep.lu.se  "
+     << "                                      |  | \n"
      << " |  |   Stephen Mrenna;  Computing Division, "
      << "Simulations Group,                    |  | \n"
      << " |  |      Fermi National Accelerator Laborat"
      << "ory, MS 234, Batavia, IL 60510, USA;  |  | \n"
      << " |  |      phone: + 1 - 630 - 840 - 2556; e-m"
      << "ail: mrenna@fnal.gov                  |  | \n"
+     << " |  |   Stefan Prestel;  Department of Astron" 
+     << "omy and Theoretical Physics,          |  | \n"
+     << " |  |      Lund University, Solvegatan 14A, S"
+     << "E-223 62 Lund, Sweden;                |  | \n"
+     << " |  |      phone: + 46 - 46 - 222 06 64; e-ma"
+     << "il: stefan.prestel@thep.lu.se         |  | \n"
      << " |  |   Peter Skands;  Theoretical Physics, C"
      << "ERN, CH-1211 Geneva 23, Switzerland;  |  | \n"
      << " |  |      phone: + 41 - 22 - 767 2447; e-mai"
@@ -1382,7 +1454,7 @@ void Pythia::banner(ostream& os) {
      << " when interpreting results.           |  | \n"
      << " |  |                                        "
      << "                                      |  | \n"
-     << " |  |   Copyright (C) 2011 Torbjorn Sjostrand" 
+     << " |  |   Copyright (C) 2012 Torbjorn Sjostrand" 
      << "                                      |  | \n"
      << " |  |                                        "
      << "                                      |  | \n"
@@ -1760,7 +1832,6 @@ bool Pythia::initSLHA() {
   // Initial and settings values.
   int    ifailLHE    = 1;
   int    ifailSpc    = 1;
-  int    ifailDec    = 1;
   int    readFrom    = settings.mode("SLHA:readFrom");
   string lhefFile    = settings.word("Beams:LHEF");
   string slhaFile    = settings.word("SLHA:file");
@@ -1781,7 +1852,6 @@ bool Pythia::initSLHA() {
   // If LHEF read successful, everything needed should already be ready
   if (ifailLHE == 0) {
     ifailSpc = 0;
-    ifailDec = 0;
     couplingsPtr->isSUSY = true;
   // If no LHEF file or no SLHA info in header, read from SLHA:file
   } else {
@@ -1801,15 +1871,6 @@ bool Pythia::initSLHA() {
   } else {
     couplingsPtr->isSUSY = true;
   }
-
-  /*
-  // Check decays for consistency (replaced by internal Pythia check below)
-  ifailDec = checkDecays();
-  if (ifailDec != 0) {
-    infoPtr->errorMsg("Warning in Pythia::initSLHA: "
-		      "Problem with SLHA decay tables.");     
-  }
-  */
   
   // Check spectrum for consistency. Switch off SUSY if necessary.
   ifailSpc = slha.checkSpectrum();
@@ -1873,7 +1934,17 @@ bool Pythia::initSLHA() {
 	  name = slha.qnumbersName[iQnum];
 	  if (iQnum < int(slha.qnumbersAntiName.size())) 
 	    antiName = slha.qnumbersAntiName[iQnum];
-	  if (antiName == "") antiName = name+"bar";
+	  if (antiName == "") {
+	    if (name.find("+") != string::npos) {
+	      antiName = name;
+	      antiName.replace(antiName.find("+"),1,"-");
+	    } else if (name.find("-") != string::npos) {
+	      antiName = name;
+	      antiName.replace(antiName.find("+"),1,"-");
+	    } else {
+	      antiName = name+"bar";
+	    }
+	  }
 	}
 	if ( hasAnti == 0) {
 	  antiName = "";
@@ -2021,7 +2092,8 @@ bool Pythia::initSLHA() {
 
 //--------------------------------------------------------------------------
 
-// Function to perform CKKWL merging on the input event
+// Function to perform CKKWL merging on the input event.
+
 bool Pythia::mergeProcess() {
 
   // Reset weight of the event

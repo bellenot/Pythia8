@@ -38,7 +38,7 @@ echo "<a href='ImplementNewShowers.php?filepath=".$filepath."' target='page'>";?
 <h3>The subsystems</h3>
 
 One aspect that complicates administration is that an event
-can contain several subsystems, each consisting of one MI and its
+can contain several subsystems, each consisting of one MPI and its
 associated ISR and FSR. To first approximation these systems are 
 assumed to evolve independently, but to second they are connected by 
 the interleaved evolution, and potentially by rescattering effects. 
@@ -54,7 +54,7 @@ currently defined two incoming partons, or none for a resonance decay,
 and the current set of outgoing partons, but with all ISR and FSR
 intermediate-state partons omitted. That is, it stores all partons 
 that could be subject to some action in the next step of the 
-combined MI/ISR/FSR/BR description. As a special case, an outgoing
+combined MPI/ISR/FSR/BR description. As a special case, an outgoing
 parton is stored even if it undergoes a rescattering, and thus no 
 longer belongs to the final state proper.
 
@@ -121,7 +121,7 @@ except for the <code>sHat</code> values.</li>
 </ul>
 
 <p/>
-New systems are created from the hard process and by the MI, not from 
+New systems are created from the hard process and by the MPI, not from 
 any of the other components. Both FSR and ISR modify the position 
 of partons, however. Since an FSR or ISR branching typically implies 
 a new state with one more parton than before, an outgoing parton must 
@@ -132,12 +132,12 @@ you let overwrite the existing slot and which is added to the end of
 the system.
 
 <p/>
-The system information must be kept up-to-date. Both the MI ISR, FSR and 
+The system information must be kept up-to-date. Both the MPI, ISR, FSR and 
 BR descriptions make extensive use of the existing information. As an 
 example, the introduction of primordial <i>kT</i> in the beam remnants 
 will fail if the information on which final-state partons belong to which 
 system is out-of-date. The introduction of rescattering as part of the 
-MI framework adds further complications, where an outgoing parton of one 
+MPI framework adds further complications, where an outgoing parton of one 
 subsystem may be the incoming one of another system. This part of the code
 is still under development.
 
@@ -235,4 +235,4 @@ therefore had better be redone.)
 </body>
 </html>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->

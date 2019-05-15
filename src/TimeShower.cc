@@ -1,5 +1,5 @@
 // TimeShower.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -72,12 +72,13 @@ void TimeShower::init( BeamParticle* beamAPtrIn,
   doInterleave       = settingsPtr->flag("TimeShower:interleave"); 
   allowBeamRecoil    = settingsPtr->flag("TimeShower:allowBeamRecoil"); 
   dampenBeamRecoil   = settingsPtr->flag("TimeShower:dampenBeamRecoil"); 
+  recoilToColoured   = settingsPtr->flag("TimeShower:recoilToColoured"); 
 
-  // Matching in pT of hard interaction or MI to shower evolution.
+  // Matching in pT of hard interaction or MPI to shower evolution.
   pTmaxMatch         = settingsPtr->mode("TimeShower:pTmaxMatch"); 
   pTdampMatch        = settingsPtr->mode("TimeShower:pTdampMatch"); 
   pTmaxFudge         = settingsPtr->parm("TimeShower:pTmaxFudge"); 
-  pTmaxFudgeMI       = settingsPtr->parm("TimeShower:pTmaxFudgeMI"); 
+  pTmaxFudgeMPI      = settingsPtr->parm("TimeShower:pTmaxFudgeMPI"); 
   pTdampFudge        = settingsPtr->parm("TimeShower:pTdampFudge"); 
 
   // Charm and bottom mass thresholds.
@@ -147,8 +148,8 @@ void TimeShower::init( BeamParticle* beamAPtrIn,
                        * coupSMPtr->cos2thetaW());
 
   // May have to fix up recoils related to rescattering. 
-  allowRescatter     = settingsPtr->flag("PartonLevel:MI") 
-                    && settingsPtr->flag("MultipleInteractions:allowRescatter");
+  allowRescatter     = settingsPtr->flag("PartonLevel:MPI") 
+    && settingsPtr->flag("MultipartonInteractions:allowRescatter");
 
   // Hidden Valley scenario with further shower activity.
   doHVshower         = settingsPtr->flag("HiddenValley:FSR");
@@ -307,7 +308,7 @@ void TimeShower::prepare( int iSys, Event& event, bool limitPTmaxIn) {
   for (int iDip = dipEndSizeBeg; iDip < int(dipEnd.size()); ++iDip) 
     findMEtype( event, dipEnd[iDip]); 
 
-  // Update dipole list after a multiple interactions rescattering.
+  // Update dipole list after a multiparton interactions rescattering.
   if (iSys > 0 && ( (iInA > 0 && event[iInA].status() == -34) 
     || (iInB > 0 && event[iInB].status() == -34) ) ) 
     rescatterUpdate( iSys, event); 
@@ -316,11 +317,11 @@ void TimeShower::prepare( int iSys, Event& event, bool limitPTmaxIn) {
 
 //--------------------------------------------------------------------------
 
-// Update dipole list after a multiple interactions rescattering. 
+// Update dipole list after a multiparton interactions rescattering. 
 void TimeShower::rescatterUpdate( int iSys, Event& event) {
  
   // Loop over two incoming partons in system; find their rescattering mother.
-  // (iOut is outgoing from old system, = incoming iIn of rescattering system.) 
+  // (iOut is outgoing from old system = incoming iIn of rescattering system.) 
   for (int iResc = 0; iResc < 2; ++iResc) { 
     int iIn = (iResc == 0) ? partonSystemsPtr->getInA(iSys)
                            : partonSystemsPtr->getInB(iSys); 
@@ -817,8 +818,8 @@ void TimeShower::setupQCDdip( int iSys, int i, int colTag, int colSign,
       int iBeg = (kindJun-1)/2;
       for (int iLeg = iBeg; iLeg < 3; ++iLeg) {	
 	if (event.endColJunction( iJun, iLeg) == colTag) {
-	  // For types 5&6, no other leg to recoil against. Switch off 
-	  // if no other particles at all, since radiation then handled by ISR. 
+	  // For types 5&6, no other leg to recoil against. Switch off if
+	  // no other particles at all, since radiation then handled by ISR. 
 	  // Example: qq -> ~t* : no radiation off ~t*
 	  // Allow radiation + recoil if unconnected partners available
 	  // Example: qq -> ~t* -> tbar ~chi0 : allow radiation off tbar, 
@@ -836,7 +837,7 @@ void TimeShower::setupQCDdip( int iSys, int i, int colTag, int colSign,
 		int iRecNow  = partonSystemsPtr->getOut(iSys, j);
 		if (!event[iRecNow].isFinal()) continue;
 		if ( (colSign > 0 && event[iRecNow].col()  == colTagRec)
-		     || (colSign < 0 && event[iRecNow].acol() == colTagRec) ) {
+		  || (colSign < 0 && event[iRecNow].acol() == colTagRec) ) {
 		  // Only accept if staying inside same system
 		  iRec = iRecNow;		  
 		  break;
@@ -854,7 +855,7 @@ void TimeShower::setupQCDdip( int iSys, int i, int colTag, int colSign,
 		  int iRecNow  = partonSystemsPtr->getOut(iSys, j);
 		  if (!event[iRecNow].isFinal()) continue;
 		  if ( (colSign > 0 && event[iRecNow].col()  == colTagRec)
-		       || (colSign < 0 && event[iRecNow].acol() == colTagRec) ) {
+		    || (colSign < 0 && event[iRecNow].acol() == colTagRec) ) {
 		    // Store recoilers in temporary array
 		    iRecVec.push_back(iRecNow);
 		    // Set iRec != 0 for checks below
@@ -908,7 +909,7 @@ void TimeShower::setupQCDdip( int iSys, int i, int colTag, int colSign,
     
   // Remove any zero recoilers from normalization
   int nRec = iRecVec.size();
-  for (unsigned int mRec = 0; mRec <= iRecVec.size() - 1; ++ mRec) 
+  for (unsigned int mRec = 0; mRec < iRecVec.size(); ++mRec) 
     if (iRecVec[mRec] <= 0) nRec--;
   if (nRec >= 2) {
     isFlexible = true;
@@ -923,14 +924,14 @@ void TimeShower::setupQCDdip( int iSys, int i, int colTag, int colSign,
   }
   
   // Store dipole colour end(s).
-  for (unsigned int mRec = 0; mRec <= iRecVec.size() - 1; ++ mRec) {
+  for (unsigned int mRec = 0; mRec < iRecVec.size(); ++mRec) {
     iRec = iRecVec[mRec];
     if (iRec <= 0) continue;
     // Max scale either by parton scale or by half dipole mass.
     double pTmax = event[iRad].scale();
     if (limitPTmaxIn) {
       if (iSys == 0) pTmax *= pTmaxFudge;
-      if (iSys > 0 && sizeIn > 0) pTmax *= pTmaxFudgeMI;
+      if (iSys > 0 && sizeIn > 0) pTmax *= pTmaxFudgeMPI;
     } else pTmax = 0.5 * m( event[iRad], event[iRec]);
     int colType  = (event[iRad].id() == 21) ? 2 * colSign : colSign;
     int isrType  = (event[iRec].isFinal()) ? 0 : event[iRec].mother1();
@@ -1083,7 +1084,7 @@ void TimeShower::setupQEDdip( int iSys, int i, int chgType, int gamType,
     double pTmax = event[iRad].scale();
     if (limitPTmaxIn) {
       if (iSys == 0) pTmax *= pTmaxFudge;
-      if (iSys > 0 && sizeIn > 0) pTmax *= pTmaxFudgeMI;
+      if (iSys > 0 && sizeIn > 0) pTmax *= pTmaxFudgeMPI;
     } else pTmax = 0.5 * m( event[iRad], event[iRec]);
     int isrType = (event[iRec].isFinal()) ? 0 : event[iRec].mother1();
     // This line in case mother is a rescattered parton.
@@ -1350,7 +1351,8 @@ void TimeShower::pT2nextQCD(double pT2begDip, double pT2sel,
             wt = 0.; 
 
         // z weight for X -> X g.
-        } else if (dip.flavour == 21 && (colTypeAbs == 1 || colTypeAbs == 3) ) {
+        } else if (dip.flavour == 21 
+          && (colTypeAbs == 1 || colTypeAbs == 3) ) {
           wt = (1. + pow2(dip.z)) / wtPSglue;
         } else if (dip.flavour == 21) {     
           wt = (1. + pow3(dip.z)) / wtPSglue;
@@ -1827,6 +1829,13 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
   int ev1Dau1V     = event[beamOff1].daughter1();
   int ev2Dau1V     = event[beamOff2].daughter1();
 
+  // Shower may occur at a displaced vertex.
+  if (radBef.hasVertex()) {
+    rad.vProd( radBef.vProd() );
+    emt.vProd( radBef.vProd() );
+  }
+  if (recBef.hasVertex()) rec.vProd( recBef.vProd() );
+
   // Put new particles into the event record.
   int iRad = event.append(rad);
   int iEmt = event.append(emt);
@@ -1878,6 +1887,10 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
   if (dipSel->flavour == 22) { 
     dipSel->iRadiator = iRad;
     dipSel->iRecoiler = iRec;
+    // When recoiler was uncharged particle, in resonance decays,
+    // assign recoil to emitted photons. 
+    if (recoilToColoured && inResonance && event[iRec].chargeType() == 0) 
+      dipSel->iRecoiler = iEmt;
     dipSel->pTmax = pTsel;
     if (doQEDshowerByGamma) dipEnd.push_back( TimeDipoleEnd(iEmt, iRad, 
       pTsel, 0, 0, 1, 0, iSysSel, 0));
@@ -1912,7 +1925,12 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
       }
     }
     int colType = (dipSel->colType > 0) ? 2 : -2 ;
-    dipEnd.push_back( TimeDipoleEnd(iEmt, iRec, pTsel,  
+    // When recoiler was uncoloured particle, in resonance decays, 
+    // assign recoil to coloured particle.
+    int iRecMod = iRec;
+    if (recoilToColoured && inResonance && event[iRec].col() == 0 
+      && event[iRec].acol() == 0) iRecMod = iRad;
+    dipEnd.push_back( TimeDipoleEnd(iEmt, iRecMod, pTsel,  
        colType, 0, 0, isrTypeNow, iSysSel, 0));
     dipEnd.back().systemRec = iSysSelRec;
     // PS dec 2010: the (iEmt,iRec) dipole "inherits" flexible normalization
@@ -2023,8 +2041,10 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
       if (dipEnd[i].iRecoiler  == iRadBef) dipEnd[i].iRecoiler = iEmt;
       if (dipEnd[i].iRadiator  == iRadBef) {
 	dipEnd[i].iRadiator = iEmt;
-	if (dipEnd[i].colType == 1 && dipSel->flavour == 21) dipEnd[i].colType = 2;
-	if (dipEnd[i].colType ==-1 && dipSel->flavour == 21) dipEnd[i].colType =-2;
+	if (dipEnd[i].colType == 1 && dipSel->flavour == 21) 
+          dipEnd[i].colType = 2;
+	if (dipEnd[i].colType ==-1 && dipSel->flavour == 21) 
+          dipEnd[i].colType =-2;
       }
     }
     if (dipEnd[i].iRadiator  == iRadBef) dipEnd[i].iRadiator  = iRad;

@@ -69,7 +69,7 @@ which therefore is not set separately. If this cross section evaluates
 to be negative the internal parametrizations are used instead of the 
 ones here. However, since the nondiffractive inelastic cross section 
 is what makes up the minimum-bias event class, and plays a major role 
-in the description of multiple interactions, it is important that a 
+in the description of multiparton interactions, it is important that a 
 consistent set is used. 
 
 <h3>Dampen diffractive cross sections</h3>
@@ -158,4 +158,4 @@ This constant is model dependent <ref>Cah82</ref>.
 
 </chapter>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->

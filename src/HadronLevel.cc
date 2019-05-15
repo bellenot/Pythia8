@@ -1,5 +1,5 @@
 // HadronLevel.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -263,7 +263,7 @@ bool HadronLevel::decayOctetOnia(Event& event) {
 // Trace colour flow in the event to form colour singlet subsystems.
 
 bool HadronLevel::findSinglets(Event& event) {
-
+  
   // Find a list of final partons and of all colour ends and gluons.
   iColEnd.resize(0);
   iAcolEnd.resize(0);
@@ -280,22 +280,31 @@ bool HadronLevel::findSinglets(Event& event) {
   iPartonAntiJun.resize(0);
 
   // Junctions: loop over them, and identify kind.
-  for (int iJun = 0; iJun < event.sizeJunction(); ++iJun) 
+  for (int iJun = 0; iJun < event.sizeJunction(); ++iJun)     
   if (event.remainsJunction(iJun)) {
     event.remainsJunction(iJun, false);
     int kindJun = event.kindJunction(iJun);
     iParton.resize(0);
 
-    // Loop over junction legs
+    // Loop over junction legs.
     for (int iCol = 0; iCol < 3; ++iCol) {
       int indxCol = event.colJunction(iJun, iCol);    
       iParton.push_back( -(10 + 10 * iJun + iCol) );
-      // Junctions: find color ends
+      // Junctions: find color ends.
       if (kindJun % 2 == 1 && !traceFromAcol(indxCol, event, iJun, iCol)) 
 	return false;       
-      // Antijunctions: find anticolor ends
+      // Antijunctions: find anticolor ends.
       if (kindJun % 2 == 0 && !traceFromCol(indxCol, event, iJun, iCol)) 
-	return false;
+	return false;      
+    }
+
+    // Reject triple- and higher-junction systems (physics not implemented).
+    int nJun = 0;
+    for (unsigned int i=0; i<iParton.size(); ++i) if (iParton[i]<0) ++nJun;
+    if (nJun >= 5) {
+      infoPtr->errorMsg("Error in HadronLevel::findSinglets: "
+        "too many junction-junction connections"); 
+      return false;
     }
 
     // Keep in memory a junction hooked up with an antijunction,
@@ -405,7 +414,8 @@ bool HadronLevel::traceFromCol(int indxCol, Event& event, int iJun,
       break;
     }
 
-    // In a pinch, check list of end colours on other (anti)junction.
+    // In a pinch, check list of opposite-sign junction end colours.
+    // Store in iParton list as -(10 + 10 * iAntiJun + iAntiLeg).
     if (!hasFound && kindJun % 2 == 0 && event.sizeJunction() > 1)  
       for (int iAntiJun = 0; iAntiJun < event.sizeJunction(); ++iAntiJun) 
 	if (iAntiJun != iJun && event.kindJunction(iAntiJun) %2 == 1)
@@ -475,7 +485,8 @@ bool HadronLevel::traceFromAcol(int indxCol, Event& event, int iJun,
       break;
     }
 
-    // In a pinch, check list of colours on other (anti)junction.
+    // In a pinch, check list of opposite-sign junction end colours.
+    // Store in iParton list as -(10 + 10 * iAntiJun + iLeg).
     if (!hasFound && kindJun % 2 == 1 && event.sizeJunction() > 1) 
     for (int iAntiJun = 0; iAntiJun < event.sizeJunction(); ++iAntiJun) 
       if (iAntiJun != iJun && event.kindJunction(iAntiJun) % 2 == 0) 

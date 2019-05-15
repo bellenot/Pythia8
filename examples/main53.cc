@@ -1,5 +1,5 @@
-// main43.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Peter Skands, Torbjorn Sjostrand.
+// main53.cc is a part of the PYTHIA event generator.
+// Copyright (C) 2012 Peter Skands, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -7,7 +7,7 @@
 // It illustrates how to interface an external process with an incoming photon
 // in a hadron beam, using the MRST2004QED PDF set.
 // All input apart from the name of the external LHEF file is specified in the 
-// main43.cmnd file.
+// main53.cmnd file.
 
 #include "Pythia.h"
 
@@ -20,50 +20,27 @@ int main() {
   Event& event = pythia.event;
 
   // Read in commands from external file.
-  pythia.readFile("main43.cmnd");    
+  pythia.readFile("main53.cmnd");    
 
   // Extract settings to be used in the main program.
-  int  nEvent  = pythia.mode("Main:numberOfEvents");
-  int  nList   = pythia.mode("Main:numberToList");
-  int  nShow   = pythia.mode("Main:timesToShow");
-  bool showCS  = pythia.flag("Main:showChangedSettings");
-  bool showAS  = pythia.flag("Main:showAllSettings");
-  bool showCPD = pythia.flag("Main:showChangedParticleData");
-  bool showAPD = pythia.flag("Main:showAllParticleData");
+  int nEvent = pythia.mode("Main:numberOfEvents");
 
-  // Initialize. Either of two opions, to be picked in main43.cmnd.
+  // Initialize. Either of two opions, to be picked in main53.cmnd.
   // 1) Read in external event with incoming photon in the ME,
   // from pre-generated .lhe file (thanks to SANC and R. Sadykov).
   // 2) Use internal fermion gamma -> W+- fermion' process.
   pythia.init();
-
-  // List changed data.
-  if (showCS) pythia.settings.listChanged();
-  if (showAS) pythia.settings.listAll();
-
-  // List particle data.  
-  if (showCPD) pythia.particleData.listChanged();
-  if (showAPD) pythia.particleData.listAll();
 
   // Histograms for pT distribution in gluon production vertex.
   Hist pTprim( "pT of photon production, no ISR", 100, 0., 100.);
   Hist pTwith( "pT of photon production, with ISR", 100, 0., 100.);
 
   // Begin event loop.
-  int nPace = max(1, nEvent / max(1, nShow) ); 
   for (int iEvent = 0; iEvent < nEvent; ++iEvent) {
-    if (nShow > 0 && iEvent%nPace == 0) 
-      cout << " Now begin event " << iEvent << endl;
 
     // Generate events. Quit if failure.
     if (!pythia.next()) {
       break;
-    }
- 
-    // List first few events, both hard process and complete events.
-    if (iEvent < nList) { 
-      pythia.process.list();
-      event.list();
     }
 
     // Analyze event to find branching where photon is produced.
@@ -89,7 +66,7 @@ int main() {
   }
 
   // Final statistics and histogram output.
-  pythia.statistics();
+  pythia.stat();
   cout << pTprim << pTwith;
 
   return 0;

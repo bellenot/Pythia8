@@ -1,5 +1,5 @@
 // SigmaLeftRightSym.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -199,7 +199,6 @@ void Sigma1ffbar2WRight::sigmaKin() {
 
   // Loop over all W_R^+- decay channels. 
   for (int i = 0; i < particlePtr->sizeChannels(); ++i) {
-    widNow = 0.;
     id1Now      = particlePtr->channel(i).product(0);
     id2Now      = particlePtr->channel(i).product(1);
     id1Abs      = abs(id1Now);
@@ -615,7 +614,8 @@ double Sigma3ff2HchgchgfftWW::sigmaHat() {
 
   // Basic cross section. CKM factors for final states.
   double sigma = (id2 == id1 && id1Abs > 10) ? sigma0TU : sigma0T;
-  sigma       *= couplingsPtr->V2CKMsum(id1Abs) * couplingsPtr->V2CKMsum(id2Abs);
+  sigma       *= couplingsPtr->V2CKMsum(id1Abs) 
+               * couplingsPtr->V2CKMsum(id2Abs);
 
   // Secondary width for H0.
   sigma       *= (chg1 + chg2 == 2) ? openFracPos : openFracNeg;

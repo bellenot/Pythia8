@@ -1,5 +1,5 @@
 // StandardModel.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -225,20 +225,17 @@ double AlphaStrong::alphaS2OrdCorr( double scale2) {
   if (order < 2) return 1.; 
   
   // Second order correction term: differs by mass region.  
-  double Lambda2, b0, b1, b2;
+  double Lambda2, b1, b2;
   if (scale2 > mb2) {
     Lambda2 = Lambda5Save2;
-    b0      = 23.;
     b1      = 348. / 529.;       
     b2      = 224687. / 242208.;      
   } else if (scale2 > mc2) {     
     Lambda2 = Lambda4Save2;
-    b0      = 25.;
     b1      = 462. / 625.;
     b2      = 548575. / 426888.;
   } else {       
     Lambda2 = Lambda3Save2;
-    b0      = 27.;
     b1      = 64. / 81.;
     b2      = 938709. / 663552.;
   }

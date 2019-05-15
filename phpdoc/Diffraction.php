@@ -35,7 +35,7 @@ Diffraction is not well understood, and several alternative approaches
 have been proposed. Here we follow a fairly conventional Pomeron-based
 one, in the Ingelman-Schlein spirit [<a href="Bibliography.php" target="page">Ing85</a>],
 but integrated to make full use of the standard PYTHIA machinery
-for multiple interactions, parton showers and hadronization
+for multiparton interactions, parton showers and hadronization
 [<a href="Bibliography.php" target="page">Nav10,Cor10a</a>]. This is the approach pioneered in the PomPyt 
 program by Ingelman and collaborators [<a href="Bibliography.php" target="page">Ing97</a>].
 
@@ -55,13 +55,13 @@ see below;
 <br/>(iii) a diffractive system of a given mass is classified either
 as low-mass unresolved, which gives a simple low-<i>pT</i> string
 topology, or as high-mass resolved, for which the full machinery of 
-multiple interactions and parton showers are applied, making use of
+multiparton interactions and parton showers are applied, making use of
 <?php $filepath = $_GET["filepath"];
 echo "<a href='PDFSelection.php?filepath=".$filepath."' target='page'>";?>Pomeron PDFs</a>.
-<br/>The parameters related to multiple interactions, parton showers
+<br/>The parameters related to multiparton interactions, parton showers
 and hadronization are kept the same as for normal nondiffractive events,
 with only one exception. This may be questioned, especially for the 
-multiple interactions, but we do not believe that there are currently 
+multiparton interactions, but we do not believe that there are currently 
 enough good diffractive data that would allow detailed separate tunes. 
  
 <p/>
@@ -71,7 +71,7 @@ convolution of a Pomeron flux with a Pomeron-proton total cross section.
 Since neither of the two is known from first principles there will be 
 a significant amount of ambiguity in the flux factor. The picture is 
 further complicated by the fact that the possibility of simultaneous 
-further multiple interactions ("cut Pomerons") will screen the rate of 
+further multiparton interactions ("cut Pomerons") will screen the rate of 
 diffractive systems. In the end, our set of parameters refers to the
 effective description that emerges out of these effects, rather than 
 to the underlying "bare" parameters.  
@@ -115,7 +115,7 @@ The Pomeron trajectory slope <i>alpha'</i> above.
 <h3>Separation into low and high masses</h3>
 
 Preferably one would want to have a perturbative picture of the 
-dynamics of Pomeron-proton collisions, like multiple interactions
+dynamics of Pomeron-proton collisions, like multiparton interactions
 provide for proton-proton ones. However, while PYTHIA by default
 will only allow collisions with a CM energy above 10 GeV, the 
 mass spectrum of diffractive systems will stretch to down to 
@@ -168,7 +168,7 @@ The abovementioned normalization <i>N</i> for the relative quark
 rate in diffractive systems.
   
 
-<br/><br/><table><tr><td><strong>Diffraction:pickQuarkPower </td><td></td><td> <input type="text" name="8" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Diffraction:pickQuarkPower </td><td></td><td> <input type="text" name="8" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>)</td></tr></table>
 The abovementioned mass-dependence power <i>p</i> for the relative 
 quark rate in diffractive systems.
   
@@ -200,7 +200,7 @@ The perturbative description need to use parton densities of the
 Pomeron. The options are described in the page on
 <?php $filepath = $_GET["filepath"];
 echo "<a href='PDFSelection.php?filepath=".$filepath."' target='page'>";?>PDF Selection</a>. The standard
-perturbative multiple interactions framework then provides 
+perturbative multiparton interactions framework then provides 
 cross sections for parton-parton interactions. In order to
 turn these cross section into probabilities one also needs an
 ansatz for the Pomeron-proton total cross section. In the literature
@@ -208,7 +208,7 @@ one often finds low numbers for this, of the order of 2 mb.
 These, if taken at face value, would give way too much activity
 per event. There are ways to tame this, e.g. by a larger <i>pT0</i>
 than in the normal pp framework. Actually, there are many reasons
-to use a completely different set of parameters for MI in 
+to use a completely different set of parameters for MPI in 
 diffraction than in pp collisions, especially with respect to the 
 impact-parameter picture, see below. A lower number in some frameworks 
 could alternatively be regarded as a consequence of screening, with 
@@ -224,31 +224,49 @@ It is to be fitted to diffractive event-shape data such as the average
 charged multiplicity. It would be very closely tied to the choice of 
 Pomeron PDF; we remind that some of these add up to less than unit
 momentum sum in the Pomeron, a choice that also affect the value
-one ends up with.
+one ends up with. Furthermore, like with hadronic cross sections,
+it is quite plausible that the Pomeron-proton cross section increases
+with energy, so we have allowed for a powerlike dependence on the
+diffractive mass.
 
-<br/><br/><table><tr><td><strong>Diffraction:sigmaPomP </td><td></td><td> <input type="text" name="11" value="10." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>10.</strong></code>; <code>minimum = 2.</code>; <code>maximum = 40.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Diffraction:sigmaRefPomP </td><td></td><td> <input type="text" name="11" value="10." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>10.</strong></code>; <code>minimum = 2.</code>; <code>maximum = 40.</code>)</td></tr></table>
 The assumed Pomeron-proton effective cross section, as used for
-multiple interactions in diffractive systems. A larger value gives
-less MI activity per event. 
-  
-
+multiparton interactions in diffractive systems. If this cross section
+is made to depend on the mass of the diffractive system then the above
+value refers to the cross section at the reference scale, and
+<br/><i>
+sigma_PomP(m) = sigma_PomP(m_ref) * (m / m_ref)^p  
+</i><br/>
+where <i>m</i> is the mass of the diffractive system, <i>m_ref</i> 
+is the reference mass scale <code>Diffraction:mRefPomP</code> below and 
+<i>p</i> is the mass-dependence power <code>Diffraction:mPowPomP</code>. 
+Note that a larger cross section value gives less MPI activity per event. 
 There is no point in making the cross section too big, however, since 
 then <i>pT0</i> will be adjusted downwards to ensure that the 
-integrated perturbative cross section stays above this assumed 
-total cross section. (The requirement of at least one perturbative 
-interaction per event.)
+integrated perturbative cross section stays above this assumed total 
+cross section. (The requirement of at least one perturbative interaction 
+per event.)
+  
+
+<br/><br/><table><tr><td><strong>Diffraction:mRefPomP </td><td></td><td> <input type="text" name="12" value="100.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>100.0</strong></code>; <code>minimum = 1.</code>)</td></tr></table>
+The <i>mRef</i> reference mass scale introduced above.
+  
+
+<br/><br/><table><tr><td><strong>Diffraction:mPowPomP </td><td></td><td> <input type="text" name="13" value="0.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.0</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 0.5</code>)</td></tr></table>
+The <i>p</i> mass rescaling pace introduced above.
+  
 
 <p/> 
 Also note that, even for a fixed CM energy of events, the diffractive
 subsystem will range from the abovementioned threshold mass 
 <i>m_min</i> to the full CM energy, with a variation of parameters
-such as <i>pT0</i> along this mass range. Therefore multiple 
+such as <i>pT0</i> along this mass range. Therefore multiparton 
 interactions are initialized for a few different diffractive masses,
 currently five, and all relevant parameters are interpolated between
 them to obtain the behaviour at a specific diffractive mass. 
 Furthermore, <i>A B -&gt;X B</i> and <i>A B -&gt;A X</i> are
 initialized separately, to allow for different beams or PDF's on the 
-two sides. These two aspects mean that initialization of MI is 
+two sides. These two aspects mean that initialization of MPI is 
 appreciably slower when perturbative high-mass diffraction is allowed. 
 
 <p/> 
@@ -266,24 +284,24 @@ options as for nondiffractive events, except that the
 <br/><br/><table><tr><td><strong>Diffraction:bProfile  </td><td>  &nbsp;&nbsp;(<code>default = <strong>1</strong></code>; <code>minimum = 0</code>; <code>maximum = 3</code>)</td></tr></table>
 Choice of impact parameter profile for the incoming hadron beams.
 <br/>
-<input type="radio" name="12" value="0"><strong>0 </strong>: no impact parameter dependence at all.<br/>
-<input type="radio" name="12" value="1" checked="checked"><strong>1 </strong>: a simple Gaussian matter distribution;  no free parameters.<br/>
-<input type="radio" name="12" value="2"><strong>2 </strong>: a double Gaussian matter distribution,  with the two free parameters <ei>coreRadius</ei> and  <ei>coreFraction</ei>.<br/>
-<input type="radio" name="12" value="3"><strong>3 </strong>: an overlap function, i.e. the convolution of  the matter distributions of the two incoming hadrons, of the form <ei>exp(- b^expPow)</ei>, where <ei>expPow</ei> is a free  parameter.<br/>
+<input type="radio" name="14" value="0"><strong>0 </strong>: no impact parameter dependence at all.<br/>
+<input type="radio" name="14" value="1" checked="checked"><strong>1 </strong>: a simple Gaussian matter distribution;  no free parameters.<br/>
+<input type="radio" name="14" value="2"><strong>2 </strong>: a double Gaussian matter distribution,  with the two free parameters <ei>coreRadius</ei> and  <ei>coreFraction</ei>.<br/>
+<input type="radio" name="14" value="3"><strong>3 </strong>: an overlap function, i.e. the convolution of  the matter distributions of the two incoming hadrons, of the form <ei>exp(- b^expPow)</ei>, where <ei>expPow</ei> is a free  parameter.<br/>
 
-<br/><br/><table><tr><td><strong>Diffraction:coreRadius </td><td></td><td> <input type="text" name="13" value="0.4" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.4</strong></code>; <code>minimum = 0.1</code>; <code>maximum = 1.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Diffraction:coreRadius </td><td></td><td> <input type="text" name="15" value="0.4" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.4</strong></code>; <code>minimum = 0.1</code>; <code>maximum = 1.</code>)</td></tr></table>
 When assuming a double Gaussian matter profile, <i>bProfile = 2</i>,
 the inner core is assumed to have a radius that is a factor
 <i>coreRadius</i> smaller than the rest.
    
 
-<br/><br/><table><tr><td><strong>Diffraction:coreFraction </td><td></td><td> <input type="text" name="14" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.</code>; <code>maximum = 1.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Diffraction:coreFraction </td><td></td><td> <input type="text" name="16" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.</code>; <code>maximum = 1.</code>)</td></tr></table>
 When assuming a double Gaussian matter profile, <i>bProfile = 2</i>,
 the inner core is assumed to have a fraction <i>coreFraction</i> 
 of the matter content of the hadron.
    
 
-<br/><br/><table><tr><td><strong>Diffraction:expPow </td><td></td><td> <input type="text" name="15" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>; <code>minimum = 0.4</code>; <code>maximum = 10.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Diffraction:expPow </td><td></td><td> <input type="text" name="17" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>; <code>minimum = 0.4</code>; <code>maximum = 10.</code>)</td></tr></table>
 When <i>bProfile = 3</i> it gives the power of the assumed overlap 
 shape <i>exp(- b^expPow)</i>. Default corresponds to a simple 
 exponential drop, which is not too dissimilar from the overlap 
@@ -361,27 +379,37 @@ fwrite($handle,$data);
 }
 if($_POST["11"] != "10.")
 {
-$data = "Diffraction:sigmaPomP = ".$_POST["11"]."\n";
+$data = "Diffraction:sigmaRefPomP = ".$_POST["11"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["12"] != "1")
+if($_POST["12"] != "100.0")
 {
-$data = "Diffraction:bProfile = ".$_POST["12"]."\n";
+$data = "Diffraction:mRefPomP = ".$_POST["12"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["13"] != "0.4")
+if($_POST["13"] != "0.0")
 {
-$data = "Diffraction:coreRadius = ".$_POST["13"]."\n";
+$data = "Diffraction:mPowPomP = ".$_POST["13"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["14"] != "0.5")
+if($_POST["14"] != "1")
 {
-$data = "Diffraction:coreFraction = ".$_POST["14"]."\n";
+$data = "Diffraction:bProfile = ".$_POST["14"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["15"] != "1.")
+if($_POST["15"] != "0.4")
 {
-$data = "Diffraction:expPow = ".$_POST["15"]."\n";
+$data = "Diffraction:coreRadius = ".$_POST["15"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["16"] != "0.5")
+{
+$data = "Diffraction:coreFraction = ".$_POST["16"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["17"] != "1.")
+{
+$data = "Diffraction:expPow = ".$_POST["17"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);
@@ -391,4 +419,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->

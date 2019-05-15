@@ -1,5 +1,5 @@
 // main83.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -163,9 +163,9 @@ double MyMergingHooks::tmsDefinition( const Event& event){
     if(nFinalNow != nFinalColoured) return 0.;
   }
 
-  // Check that one parton has been produced. If not (e.g. in MI), do not veto
-  int nMI = infoPtr->nMI();
-  if(nMI > 1) return 0.;
+  // Check that one parton has been produced. If not (e.g. in MPI), do not veto
+  int nMPI = infoPtr->nMPI();
+  if(nMPI > 1) return 0.;
 
   // Declare kT algorithm parameters
   double Dparam = 0.4;
@@ -327,7 +327,7 @@ int main( int argc, char* argv[] ){
   } // end loop over events to generate
 
   // print cross section, errors
-  pythia.statistics();
+  pythia.stat();
 
   // Normalise histograms
   double norm = 1.

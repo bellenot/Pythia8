@@ -1,5 +1,5 @@
 // ParticleData.h is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -180,7 +180,7 @@ public:
     {doExternalDecaySave = doExternalDecayIn; hasChangedSave = true;}
   void setIsVisible(bool isVisibleIn) {isVisibleSave = isVisibleIn; 
     hasChangedSave = true;}
-  void setDoForceWidth(bool doForceWidthIn) {doForceWidthSave = doForceWidthIn; 
+  void setDoForceWidth(bool doForceWidthIn) {doForceWidthSave = doForceWidthIn;
     hasChangedSave = true;}
   void setHasChanged(bool hasChangedIn) {hasChangedSave = hasChangedIn;
     for (int i = 0; i < int(channels.size()); ++i) 

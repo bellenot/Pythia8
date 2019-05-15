@@ -1,5 +1,5 @@
 // ResonanceDecays.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -109,11 +109,20 @@ bool ResonanceDecays::next( Event& process) {
       // Append decay products to the process event record. Set lifetimes.
       int iFirst = process.size();
         for (int i = 1; i <= mult; ++i) {
-          int j = process.append( idProd[i], 23, iDec, 0, 0, 0, 
-          cols[i], acols[i], pProd[i], mProd[i], m0);
-          process[j].tau( process[j].tau0() * rndmPtr->exp() );	  
+          process.append( idProd[i], 23, iDec, 0, 0, 0, cols[i], acols[i], 
+            pProd[i], mProd[i], m0);
 	}
       int iLast = process.size() - 1;
+
+      // Set decay vertex when this is displaced.
+      if (process[iDec].hasVertex() || process[iDec].tau() > 0.) {
+        Vec4 vDec = process[iDec].vDec();
+        for (int i = iFirst; i <= iLast; ++i) process[i].vProd( vDec );
+      }
+
+      // Set lifetime of daughters.
+      for (int i = iFirst; i <= iLast; ++i) 
+        process[i].tau( process[i].tau0() * rndmPtr->exp() );
 
       // Modify mother status and daughters.
       decayer.status(-22);
@@ -390,9 +399,13 @@ bool ResonanceDecays::pickColours(int iDec, Event& process) {
     else if (colTypeNow == -1) iAtriplet.push_back(i);
     else if (colTypeNow ==  2) iOctet.push_back(i);
     // Add two entries for sextets;
-    else if (colTypeNow ==  3) {iTriplet.push_back(i); iTriplet.push_back(i);}
-    else if (colTypeNow == -3) {iAtriplet.push_back(i); iAtriplet.push_back(i);}
-    else {
+    else if (colTypeNow ==  3) {
+      iTriplet.push_back(i); 
+      iTriplet.push_back(i);
+    } else if (colTypeNow == -3) {
+      iAtriplet.push_back(i); 
+      iAtriplet.push_back(i);
+    } else {
       infoPtr->errorMsg("Error in ResonanceDecays::pickColours:"
         " unknown colour type encountered");
       return false;

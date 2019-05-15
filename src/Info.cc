@@ -1,5 +1,5 @@
 // Info.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -95,14 +95,14 @@ void Info::list(ostream& os) const {
     << setw(10) << Q2RenSave << ".\n"; 
 
   // Impact parameter.
-  if (bIsSet) os << "\n Impact parameter b =" << setw(10) << bMISave 
-    << " gives enhancement factor = " << setw(10) << enhanceMISave 
+  if (bIsSet) os << "\n Impact parameter b = " << setw(10) << bMPISave 
+    << " gives enhancement factor = " << setw(10) << enhanceMPISave 
     << ".\n";
 
-  // Multiple interactions and shower evolution.
-  if (evolIsSet) os << " Max pT scale for MI = " << setw(10) << pTmaxMISave
+  // Multiparton interactions and shower evolution.
+  if (evolIsSet) os << " Max pT scale for MPI = " << setw(10) << pTmaxMPISave
     << ", ISR = " << setw(10) << pTmaxISRSave << ", FSR = " << setw(10) 
-    << pTmaxISRSave << ".\n Number of MI = " << setw(5) << nMISave 
+    << pTmaxISRSave << ".\n Number of MPI = " << setw(5) << nMPISave 
     << ", ISR = " << setw(5) << nISRSave << ", FSRproc = " << setw(5) 
     << nFSRinProcSave << ", FSRreson = " << setw(5) << nFSRinResSave 
     << ".\n"; 

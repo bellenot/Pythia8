@@ -1,5 +1,5 @@
 // UserHooks.h is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -71,7 +71,7 @@ public:
   // Usage: doVetoProcessLevel( process).
   virtual bool doVetoProcessLevel(Event& ) {return false;}
 
-  // Possibility to veto MI + ISR + FSR evolution and kill event, 
+  // Possibility to veto MPI + ISR + FSR evolution and kill event, 
   // making decision at a fixed pT scale. Useful for MLM-style matching.
   virtual bool canVetoPT() {return false;}  
 
@@ -80,11 +80,11 @@ public:
 
   // Decide whether to veto current event or not, based on event record.
   // Usage: doVetoPT( iPos, event), where iPos = 0: no emissions so far;
-  // iPos = 1/2/3 joint evolution, latest step was MI/ISR/FSR;
+  // iPos = 1/2/3 joint evolution, latest step was MPI/ISR/FSR;
   // iPos = 4: FSR only afterwards; iPos = 5: FSR in resonance decay. 
   virtual bool doVetoPT( int , const Event& ) {return false;} 
 
-  // Possibility to veto MI + ISR + FSR evolution and kill event, 
+  // Possibility to veto MPI + ISR + FSR evolution and kill event, 
   // making decision after fixed number of ISR or FSR steps.
   virtual bool canVetoStep() {return false;}
 
@@ -96,16 +96,16 @@ public:
   // nISR and nFSR number of emissions so far for hard interaction only.
   virtual bool doVetoStep( int , int , int , const Event& ) {return false;} 
 
-  // Possibility to veto MI + ISR + FSR evolution and kill event, 
-  // making decision after fixed number of MI steps.
-  virtual bool canVetoMIStep() {return false;}
+  // Possibility to veto MPI + ISR + FSR evolution and kill event, 
+  // making decision after fixed number of MPI steps.
+  virtual bool canVetoMPIStep() {return false;}
 
-  // Up to how many MI steps should be checked.
-  virtual int numberVetoMIStep() {return 1;}
+  // Up to how many MPI steps should be checked.
+  virtual int numberVetoMPIStep() {return 1;}
 
   // Decide whether to veto current event or not, based on event record.
-  // Usage: doVetoMIStep( nMI, event), where nMI is number of MI's so far.
-  virtual bool doVetoMIStep( int , const Event& ) {return false;} 
+  // Usage: doVetoMPIStep( nMPI, event), where nMPI is number of MPI's so far.
+  virtual bool doVetoMPIStep( int , const Event& ) {return false;} 
    
   // Possibility to veto event after parton-level selection.
   virtual bool canVetoPartonLevel() {return false;}
@@ -143,13 +143,13 @@ public:
   virtual bool doVetoFSREmission( int, const Event&, int, bool = false )
       {return false;} 
 
-  // Possibility to veto an MI.
-  virtual bool canVetoMIEmission() { return false; }
+  // Possibility to veto an MPI.
+  virtual bool canVetoMPIEmission() { return false; }
 
-  // Decide whether to veto an MI based on event record.
-  // Usage: doVetoMIEmission( sizeOld, event) where sizeOld
-  // is size of event record before the current MI.
-  virtual bool doVetoMIEmission(int, const Event &) { return false; }
+  // Decide whether to veto an MPI based on event record.
+  // Usage: doVetoMPIEmission( sizeOld, event) where sizeOld
+  // is size of event record before the current MPI.
+  virtual bool doVetoMPIEmission(int, const Event &) { return false; }
 
 protected:
 
@@ -209,10 +209,10 @@ class SuppressSmallPT : public UserHooks {
 public:
 
   // Constructor.
-  SuppressSmallPT( double pT0timesMIIn = 1., int numberAlphaSIn = 0, 
-    bool useSameAlphaSasMIIn = true) {isInit = false; 
-    pT0timesMI = pT0timesMIIn; numberAlphaS = numberAlphaSIn; 
-    useSameAlphaSasMI = useSameAlphaSasMIIn;}
+  SuppressSmallPT( double pT0timesMPIIn = 1., int numberAlphaSIn = 0, 
+    bool useSameAlphaSasMPIIn = true) {isInit = false; 
+    pT0timesMPI = pT0timesMPIIn; numberAlphaS = numberAlphaSIn; 
+    useSameAlphaSasMPI = useSameAlphaSasMPIIn;}
 
   // Possibility to modify cross section of process.
   virtual bool canModifySigma() {return true;}
@@ -225,9 +225,9 @@ public:
 private:
 
   // Save input properties and the squared pT0 scale.
-  bool   isInit, useSameAlphaSasMI;
+  bool   isInit, useSameAlphaSasMPI;
   int    numberAlphaS;
-  double pT0timesMI, pT20;
+  double pT0timesMPI, pT20;
 
   // Alpha_strong calculation.
   AlphaStrong alphaS;

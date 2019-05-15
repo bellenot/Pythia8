@@ -1,5 +1,5 @@
 // Pythia.h is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -69,6 +69,9 @@ public:
   bool setPDFPtr( PDF* pdfAPtrIn, PDF* pdfBPtrIn, PDF* pdfHardAPtrIn = 0, 
     PDF* pdfHardBPtrIn = 0, PDF* pdfPomAPtrIn = 0, PDF* pdfPomBPtrIn = 0);
 
+  // Possibility to pass in pointer to external LHA-interfaced generator.
+  bool setLHAupPtr( LHAup* lhaUpPtrIn) {lhaUpPtr = lhaUpPtrIn; return true;}
+
   // Possibility to pass in pointer for external handling of some decays.
   bool setDecayPtr( DecayHandler* decayHandlePtrIn, 
     vector<int> handledParticlesIn) {decayHandlePtr = decayHandlePtrIn; 
@@ -106,30 +109,31 @@ public:
     { timesDecPtr = timesDecPtrIn; timesPtr = timesPtrIn;
     spacePtr = spacePtrIn; return true;} 
 
-  // Initialization in the CM frame.
+  // Initialization using the Beams variables.
+  bool init();
+
+  // Deprecated: initialization in the CM frame.
   bool init( int idAin, int idBin, double eCMin);
 
-  // Initialization with two collinear beams, including fixed target.
+  // Deprecated: initialization with two collinear beams, e.g. fixed target.
   bool init( int idAin, int idBin, double eAin, double eBin);
 
-  // Initialization with two acollinear beams.
+  // Deprecated: initialization with two acollinear beams.
   bool init( int idAin, int idBin, double pxAin, double pyAin, 
     double pzAin, double pxBin, double pyBin, double pzBin);
 
-  // Initialization by a Les Houches Event File.
+  // Deprecated: initialization by a Les Houches Event File.
   bool init( string LesHouchesEventFile, bool skipInit = false);
 
-  // Initialization using the Main beam variables.
-  bool init();
-
-  // Initialization according to the Les Houches Accord.
+  // Deprecated: initialization according to the Les Houches Accord.
   bool init( LHAup* lhaUpPtrIn);
-
-  // Initialization of SLHA data
-  bool initSLHA ();
  
   // Generate the next event.
   bool next(); 
+
+  // Generate only a single timelike shower as in a decay.
+  int forceTimeShower( int iBeg, int iEnd, double pTmax, int nBranchMax = 0)
+    { return timesDecPtr->shower( iBeg, iEnd, event, pTmax, nBranchMax); }
 
   // Generate only the hadronization/decay stage.
   bool forceHadronLevel(bool findJunctions = true);
@@ -149,6 +153,9 @@ public:
     if (lhaUpPtr > 0) return lhaUpPtr->skipEvent(nSkip); return false;}
 
   // Main routine to provide final statistics on generation.
+  void stat();
+
+  // Deprecated: alternative to provide final statistics on generation.
   void statistics(bool all = false, bool reset = false);
 
   // Read in settings values: shorthand, not new functionality.
@@ -199,8 +206,10 @@ private:
   double epTolErr, epTolWarn;
 
   // Initialization data, extracted from init(...) call.
-  bool   isConstructed, isInit, isUnresolvedA, isUnresolvedB;
-  int    idA, idB, frameType;  
+  bool   isConstructed, isInit, isUnresolvedA, isUnresolvedB, showSaV, 
+         showMaD;
+  int    idA, idB, frameType, boostType, nCount, nShowLHA, nShowInfo,
+         nShowProc, nShowEvt;  
   double mA, mB, pxA, pxB, pyA, pyB, pzA, pzB, eA, eB, 
          pzAcm, pzBcm, eCM, betaZ, gammaZ;
   Vec4   pAinit, pBinit, pAnow, pBnow;
@@ -272,11 +281,8 @@ private:
 
   // Pointer to MergingHooks object for user interaction with the merging.
   MergingHooks* mergingHooksPtr;
-  bool       hasMergingHooks, doUserMerging, doMGMerging, doKTMerging,
-             doMerging;
-
-  // Function to perform the merging of the history
-  bool mergeProcess();
+  bool       hasMergingHooks, hasOwnMergingHooks, doUserMerging, 
+             doMGMerging, doKTMerging, doMerging;
 
   // The main generator class to produce the hadron level of the event.
   HadronLevel hadronLevel;
@@ -292,9 +298,6 @@ private:
 
   // Check for lines in file that mark the beginning of new subrun.
   int readSubrun(string line, bool warn = true, ostream& os = cout);
-
-  // Initialization routine to set up the whole generation machinery.
-  bool initInternal();
 
   // Check that combinations of settings are allowed; change if not.
   void checkSettings();
@@ -322,6 +325,12 @@ private:
 
   // Auxiliary to set parton densities among list of possibilities.
   PDF* getPDFPtr(int idIn, int sequence = 1);
+
+  // Initialization of SLHA data.
+  bool initSLHA ();
+
+  // Function to perform the merging of the history.
+  bool mergeProcess();
 
 };
  

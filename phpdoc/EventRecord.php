@@ -108,9 +108,9 @@ code, status, mother, daughter, colour, four-momentum and mass data
 are always given, but the methods can also be called with a few 
 optional arguments for further information:
 <br/><code>argument</code><strong> showScaleAndVertex </strong> (<code>default = <strong>false</strong></code>) :  optionally give a 
-second line for each particle, with the production scale (in GeV), the
-production vertex (in mm or mm/c) and the invariant lifetime
-(also in mm/c).
+second line for each particle, with the production scale (in GeV), 
+the particle polarization (dimensionless), the production vertex 
+(in mm or mm/c) and the invariant lifetime (also in mm/c).
   
 <br/><code>argument</code><strong> showMothersAndDaughters </strong> (<code>default = <strong>false</strong></code>) : 
 gives a list of all daughters and mothers of a particle, as defined by 
@@ -386,7 +386,7 @@ returns the index of this position.
   
 
 <a name="method25"></a>
-<p/><strong>int Event::append(int id, int status, int mother1, int mother2, int daughter1, int daughter2, int col, int acol, double px, double py, double pz,  double e, double m = 0., double scale = 0.) &nbsp;</strong> <br/>
+<p/><strong>int Event::append(int id, int status, int mother1, int mother2, int daughter1, int daughter2, int col, int acol, double px, double py, double pz,  double e, double m = 0., double scale = 0., double pol = 9.) &nbsp;</strong> <br/>
 appends a particle to the bottom of the event record and 
 returns the index of this position; 
 <?php $filepath = $_GET["filepath"];
@@ -395,16 +395,16 @@ of the various particle properties.
   
 
 <a name="method26"></a>
-<p/><strong>int Event::append(int id, int status, int mother1, int mother2, int daughter1, int daughter2, int col, int acol, Vec4 p, double m = 0., double scale = 0.) &nbsp;</strong> <br/>
+<p/><strong>int Event::append(int id, int status, int mother1, int mother2, int daughter1, int daughter2, int col, int acol, Vec4 p, double m = 0., double scale = 0., double pol = 9.) &nbsp;</strong> <br/>
 appends a particle to the bottom of the event record and 
 returns the index of this position, as above but with four-momentum
 as a <code>Vec4</code>.
   
 
 <a name="method27"></a>
-<p/><strong>int Event::append(int id, int status, int col, int acol, double px, double py, double pz, double e, double m = 0.) &nbsp;</strong> <br/>
+<p/><strong>int Event::append(int id, int status, int col, int acol, double px, double py, double pz, double e, double m = 0., double scale = 0., double pol = 9.) &nbsp;</strong> <br/>
   
-<strong>int Event::append(int id, int status, int col, int acol, Vec4 p, double m = 0.) &nbsp;</strong> <br/>
+<strong>int Event::append(int id, int status, int col, int acol, Vec4 p, double m = 0., double scale = 0., double pol = 9.) &nbsp;</strong> <br/>
 appends a particle to the bottom of the event record and 
 returns the index of this position, as above but with vanishing
 (i.e. zero) mother and daughter indices.
@@ -550,7 +550,7 @@ Separate from the event record as such, but closely tied to it is the
 echo "<a href='AdvancedUsage.php?filepath=".$filepath."' target='page'>";?>PartonSystems</a></code> class, 
 which mainly stores the parton indices of incoming and outgoing partons, 
 classified by collision subsystem. Such information is needed to 
-interleave multiple interactions, initial-state showers and final-state 
+interleave multiparton interactions, initial-state showers and final-state 
 showers, and append beam remnants. It could also be used in other places. 
 It is intended to be accessed only by experts, such as implementors of 
 <?php $filepath = $_GET["filepath"];
@@ -583,4 +583,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->

@@ -1,5 +1,5 @@
 // UserHooks.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -208,22 +208,22 @@ double SuppressSmallPT::multiplySigmaBy( const SigmaProcess* sigmaProcessPtr,
   // Need to initialize first time this method is called.
   if (!isInit) {
     
-    // Calculate pT0 as for multiple interactions.
-    // Fudge factor allows offset relative to MI framework.
+    // Calculate pT0 as for multiparton interactions.
+    // Fudge factor allows offset relative to MPI framework.
     double eCM    = phaseSpacePtr->ecm();
-    double pT0Ref = settingsPtr->parm("MultipleInteractions:pT0Ref");
-    double ecmRef = settingsPtr->parm("MultipleInteractions:ecmRef");
-    double ecmPow = settingsPtr->parm("MultipleInteractions:ecmPow");
-    double pT0    = pT0timesMI * pT0Ref * pow(eCM / ecmRef, ecmPow);
+    double pT0Ref = settingsPtr->parm("MultipartonInteractions:pT0Ref");
+    double ecmRef = settingsPtr->parm("MultipartonInteractions:ecmRef");
+    double ecmPow = settingsPtr->parm("MultipartonInteractions:ecmPow");
+    double pT0    = pT0timesMPI * pT0Ref * pow(eCM / ecmRef, ecmPow);
     pT20          = pT0 * pT0;
   
-    // Initialize alpha_strong object as for multiple interactions,
+    // Initialize alpha_strong object as for multiparton interactions,
     // alternatively as for hard processes.
     double alphaSvalue;
     int    alphaSorder;    
-    if (useSameAlphaSasMI) {
-      alphaSvalue = settingsPtr->parm("MultipleInteractions:alphaSvalue");
-      alphaSorder = settingsPtr->mode("MultipleInteractions:alphaSorder");
+    if (useSameAlphaSasMPI) {
+      alphaSvalue = settingsPtr->parm("MultipartonInteractions:alphaSvalue");
+      alphaSorder = settingsPtr->mode("MultipartonInteractions:alphaSorder");
     } else {
       alphaSvalue = settingsPtr->parm("SigmaProcess:alphaSvalue");
       alphaSorder = settingsPtr->mode("SigmaProcess:alphaSorder");

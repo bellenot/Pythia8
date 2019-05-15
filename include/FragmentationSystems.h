@@ -1,5 +1,5 @@
 // FragmentationSystems.h is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -177,8 +177,10 @@ public:
   StringRegion& region(int iPos, int iNeg) {return system[iReg(iPos, iNeg)];} 
 
   // Reference to low string region specified either by iPos or iNeg.
-  StringRegion& regionLowPos(int iPos) {return system[iReg(iPos, iMax - iPos)];} 
-  StringRegion& regionLowNeg(int iNeg) {return system[iReg(iMax - iNeg, iNeg)];} 
+  StringRegion& regionLowPos(int iPos) {
+    return system[iReg(iPos, iMax - iPos)]; } 
+  StringRegion& regionLowNeg(int iNeg) {
+    return system[iReg(iMax - iNeg, iNeg)]; } 
 
   // Main content: a vector with all the string regions of the system. 
   vector<StringRegion> system;

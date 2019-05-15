@@ -422,7 +422,7 @@ on how to do this.
 
 <p/>
 An example how to generate events from an LHEF is found in 
-<code>main12.cc</code>. Note the use of 
+<code>main11.cc</code>. Note the use of 
 <code>Info::atEndOfFile()</code> to find out when the whole
 LHEF has been processed. 
 
@@ -437,7 +437,8 @@ It is assumed (but never checked) that the initialization information is
 identical, and that the new file simply contains further events of 
 exactly the same kind as the previous one. An example of this possibility, 
 and the option to mix with internal processes, is found in 
-<code>main13.cc</code>.
+<code>main12.cc</code>. A variant, based on input in a command file,
+is given in <code>main13.cc</code>.
 
 <p/>
 The workhorses of the <code>LHAupLHEF</code> class are three methods
@@ -510,11 +511,11 @@ did not yet contain hard-process generation, and the LHEF standard
 did not yet exist. Nowadays it is more of a bother, since a full
 cross-platform support leads to many possible combinations. Therefore
 the support has been reduced in the current version. Only the 
-<code>main51.cc</code> example remains as an illustration, where the
+<code>main91.cc</code> example remains as an illustration, where the
 previously separate interface code 
 (<code>include/Pythia6Interface.h</code>) has been inserted in the 
 beginning. You also need to modify the <code>examples/Makefile</code> 
-to link <code>main51.cc</code> properly also to a PYTHIA 6.4 library
+to link <code>main91.cc</code> properly also to a PYTHIA 6.4 library
 version, see commented-out section for ideas how to to this.
 
 <h3>Methods for LHEF output</h3>
@@ -610,4 +611,4 @@ obtain complete events.
  
 </chapter>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->

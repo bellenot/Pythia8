@@ -35,6 +35,14 @@ corresponding update notes for PYTHIA 6. On the other hand,
 whereas the PYTHIA 6 manual is a static document, the PYTHIA 8
 html/php pages are kept up to date for each subversion. 
 
+<br/><br/>
+<b>Important note:</b>version 8.160 does introduce some elements of 
+backwards incompatibility. Specifically, "multiple interactions", 
+abbreviated MI, haa been renamed "multiparton interactions", MPI. 
+This affects many parts of the code and documentation. Also some 
+features are deprecated, although remaining until the end of the 
+8.1xx version series.
+
 
 <h3>Main news by version</h3>
 
@@ -166,7 +174,7 @@ code is rewritten at all places where this option gave warnings.</li>
 <ul>
 
 <li>New rescattering description operational (but still experimental) 
-for the case that FSR is not interleaved, but saved until after MI, 
+for the case that FSR is not interleaved, but saved until after MPI, 
 ISR and beam remnants have been handled. This involves much new code
 in several classes.</li>
 
@@ -177,8 +185,8 @@ It takes over functionality previously found as part of the
 <code>Event</code> class, but leaves room for future growth.</li>
 
 <li>Add optional model, wherein an increased <i>pT0</i> turnoff scale 
-for MI and ISR is used for above-average active events, i.e. events that 
-already have several MI's or ISR emissions.</li>
+for MPI and ISR is used for above-average active events, i.e. events that 
+already have several MPI's or ISR emissions.</li>
 
 <li>Freeze GRV 94L distribution at small <i>Q^2</i> to avoid blowup.</li>
 
@@ -319,7 +327,7 @@ for matching studies.
 <li>New optional argument <code>isInterleaved</code> added to 
 <code>TimeShower::branch(...)</code>. Is false by default, but
 true when called from the parton level for interleaved evolution
-of several parton systems, optionally also with ISR and MI.</li>
+of several parton systems, optionally also with ISR and MPI.</li>
 
 <li>New methods <code>UserHooks::canSetResonanceScale()</code>
 and <code>UserHooks:scaleResonance(...)</code> allows an optional 
@@ -331,7 +339,7 @@ added, to help distinguish cases when a
 restart of the evolution from ones where only the intended
 current branching has been vetoed.
 
-<li>When multiple interactions are initialized, it is now 
+<li>When multiparton interactions are initialized, it is now 
 possible to reduce both <i>pT0</i> and <i>pTmin</i>
 if necessary to find a valid solution where 
 <i>sigma_jet &gt; sigma_nondiffractive</i>. Previously
@@ -351,7 +359,7 @@ is introduced to trace the recoils from the combination of rescattering
 with showers and primordial <i>kT</i>. Can assign space- or timelike 
 virtualities to intermediate particles to have energy and momentum 
 conserved locally. This affects the <code>PartonLevel</code>, 
-<code>MultipleInteractions</code>, <code>TimeShower</code>, 
+<code>MultipartonInteractions</code>, <code>TimeShower</code>, 
 <code>SpaceShowe</code>r and <code>BeamRemnants</code> classes. 
 Further details to appear in the upcoming article on rescattering. 
 (Another change is a reversal to pre-8.114 order for non-interleaved FSR,
@@ -371,7 +379,7 @@ system from the radiator.
 </li>
 
 <li>New method <code>Info::tooLowPTmin()</code> can tell whether the 
-<i>pTmin</i> scales for showers or multiple interactions are too low. 
+<i>pTmin</i> scales for showers or multiparton interactions are too low. 
 </li>
 
 <li>Pion beams allowed, both <i>pi^+</i>, <i>pi^-</i> and 
@@ -382,7 +390,7 @@ implemented, with others from LHAPDF.</li>
 
 <li>Treatment of Pomeron-proton collisions begun.</li>
 
-<li>Phase-space handling of hard processes and multiple interactions
+<li>Phase-space handling of hard processes and multiparton interactions
 slightly expanded to better allow for harder PDF's than proton ones,
 e.g. for Pomerons.</li>
 
@@ -464,10 +472,10 @@ was not propagated from parton showers inside resonance decays.
 <li>Minor bug fix in <code>TimeShower</code> for kinematics with 
 unequal beam-particle masses.</li>
 
-<li>Bug fix so that <code>PartonLevel:MI = off</code> also works for 
+<li>Bug fix so that <code>PartonLevel:MPI = off</code> also works for 
 minimum-bias events.</li>
 
-<li>Minor bug fix in the impact-parameter selection of multiple 
+<li>Minor bug fix in the impact-parameter selection of multiparton 
 interactions. Thanks to Sami Kama for pointing it out.</li>
 
 <li>String fragmentation for junction topology protected against 
@@ -516,14 +524,14 @@ class is set also for unresolved lepton beams.</li>
 <li>8.130: 15 September 2009
 <ul>
 
-<li>New machinery that allows multiple interactions inside diffractive 
+<li>New machinery that allows multiparton interactions inside diffractive 
 systems. Also new optional Pomeron flux factors and Pomeron PDFs.
 New page on <?php $filepath = $_GET["filepath"];
 echo "<a href='Diffraction.php?filepath=".$filepath."' target='page'>";?>diffraction</a> added, where
 further details are collected. Still not tuned, so to be used with 
 caution.</li>
 
-<li>Make Peter Skands' "Tune 1" parameters for ISR and MI default.
+<li>Make Peter Skands' "Tune 1" parameters for ISR and MPI default.
 The older simpler tune is still available as an option, see
 <code><?php $filepath = $_GET["filepath"];
 echo "<a href='Tunes.php?filepath=".$filepath."' target='page'>";?>Tune:pp</a></code>. 
@@ -537,7 +545,7 @@ fermion or vector. Largely written by Johan Bijnens, partly recycling
 existing code.</li>
 
 <li>Add user hooks possibility to veto event after a given number
-of multiple interactions.</li>
+of multiparton interactions.</li>
 
 <li>Add instructions how PYTHIA 8 can be used from inside ROOT.
 Thanks to Andreas Morsch for providing the text and Rene Brun 
@@ -666,9 +674,9 @@ files have been renamed for consistency. Thanks to Tomas Kasemets
 for help with this [<a href="Bibliography.php" target="page">Kas10</a>].
 </li>
 
-<li>New parameters <code>TimeShower:pTmaxFudgeMI</code> and 
-<code>SpaceShower:pTmaxFudgeMI</code> introduced, to give the same
-functionality for multiple interactions that 
+<li>New parameters <code>TimeShower:pTmaxFudgeMPI</code> and 
+<code>SpaceShower:pTmaxFudgeMPI</code> introduced, to give the same
+functionality for multiparton interactions that 
 <code>TimeShower:pTmaxFudge</code> and <code>SpaceShower:pTmaxFudge</code>  
 do for the hardest.</li>
 
@@ -872,7 +880,7 @@ are sent in, thereby increasing the scope of possible user-written code.
 Also, the <code>UserHooks::doVetoProcessLevel(Event& process)</code>
 now allows the <code>process</code> event record to be modified, 
 even if it is not recommended. The new <code>Info::pTnow()</code>
-method returns the current <i>pT</i> scale of the combined MI, ISR 
+method returns the current <i>pT</i> scale of the combined MPI, ISR 
 and FSR evolution, which can be useful for some user hooks decisions.
 </li>
 
@@ -905,7 +913,7 @@ kinematics needs to force at least one resonance to be off-shell.</li>
 <li>Minor updates of <code>main06.cc</code>, <code>main10.cc</code>
 and <code>main23.cc</code>.</li>
 
-<li>Bug fix in mother pointer of multiple interactions in 
+<li>Bug fix in mother pointer of multiparton interactions in 
 diffractive systems.</li>
 
 </ul>
@@ -937,7 +945,7 @@ user changes are possible. Currently this is not relevant.
 <code>= 6</code> options, which meant that diffractive cross 
 sections were not reduced as advertised.</li>
 
-<li>The default value of <code>MultipleInteractions:pT0Ref</code>
+<li>The default value of <code>MultipartonInteractions:pT0Ref</code>
 has been slightly reduced so as to give a somewhat improved
 default description. It is not intended as a replacement for the 
 specific tunes, however.</li>
@@ -1092,13 +1100,13 @@ echo "<a href='ParticleDecays.php?filepath=".$filepath."' target='page'>";?>Part
 The new tau decay machinery is on by default.
 </li>
 
-<li>A new option <code>MultipleInteractions:bProfile = 4</code> has 
+<li>A new option <code>MultipartonInteractions:bProfile = 4</code> has 
 been introduced for the impact-parameter profile of protons in the 
 <?php $filepath = $_GET["filepath"];
-echo "<a href='MultipleInteractions.php?filepath=".$filepath."' target='page'>";?>Multiple Interactions</a> framework, 
-wherein low-<i>x</i> partons are spread over a larger area than 
-high-<i>x</i> ones, see [<a href="Bibliography.php" target="page">Cor11</a>]. A new method 
-<code>Info::eMI(i)</code> gives back the enhancement factor related to 
+echo "<a href='MultipartonInteractions.php?filepath=".$filepath."' target='page'>";?>Multiparton Interactions</a> 
+framework, wherein low-<i>x</i> partons are spread over a larger area 
+than high-<i>x</i> ones, see [<a href="Bibliography.php" target="page">Cor11</a>]. A new method 
+<code>Info::eMPI(i)</code> gives back the enhancement factor related to 
 the <code>i</code>'th interaction. The impact-parameter profile can now 
 be selected separately for <?php $filepath = $_GET["filepath"];
 echo "<a href='Diffraction.php?filepath=".$filepath."' target='page'>";?>diffraction</a>, 
@@ -1259,7 +1267,7 @@ acquired a new option <code>-1</code> for a forced restore to the
 default values of all settings used in the respective kind of 
 tunes.</li>
 
-<li>The code for handling multiple interactions in the scenario with
+<li>The code for handling multiparton interactions in the scenario with
 an <i>x</i>-dependent width of the Gaussian matter profile 
 [<a href="Bibliography.php" target="page">Cor11</a>], has been improved and updated. Tune 4Cx, which 
 is based on this option, has been added as a further tune option.</li>
@@ -1390,8 +1398,8 @@ a new argument <code>iSys</code> labels the system within which the
 radiation occurs. For <code>doVetoFSREmission</code> a further argument
 <code>inResonance</code> distinguishes FSR in resonance 
 decays from that in the hard process itself. New methods 
-<code>canVetoMIEmission</code> and <code>doVetoMIEmission</code>
-have been added to veto multiple interactions in the same way as
+<code>canVetoMPIEmission</code> and <code>doVetoMPIEmission</code>
+have been added to veto multiparton interactions in the same way as
 FSR and ISR. In <code>biasSelectionBy</code> at times incorrect values
 for <code>inEvent</code> has been corrected. Also some systematization 
 of the use of <code>const</code>.</li>  
@@ -1399,7 +1407,7 @@ of the use of <code>const</code>.</li>
 <li>A new model for hadron scattering is introduced, still at an early
 stage and therefore more intended for internal development than for the
 normal user. The basic idea is that a high-energy <i>pp</i> collision
-involves the fragmentation of multiple strings that overlap in space
+involves the fragmentation of multiparton strings that overlap in space
 (and time). Also the produced hadrons therefore initially overlap, and 
 there is a strong likelihood that hadrons can scatter against each other 
 until the system has expanded sufficiently. This can e.g. increase the 
@@ -1516,9 +1524,210 @@ deleted.</li>
 </ul>
 </li>
 
+<li>8.160: 23 January 2012
+<ul>
+
+<li>The older term "multiple interactions" has been replaced by the
+new standard "multiparton interactions" one, and correspondingly the
+abbreviation MI by MPI. This affects everything: settings, class and
+method names, documentation, etc. It therefore becomes necessary to
+rewrite user code. However, so as to keep the immediate effort at a 
+reasonable level, the old settings names are kept as aliases. Thus
+<code>PartonLevel:MI</code> and <code>PartonLevel:MPI</code> are 
+equivalent, and similarly <code>MultipleInteractions:pT0Ref</code> 
+and <code>MultipartonInteractions:pT0Ref</code>. Should you be using 
+methods such as <code>double Info::pTMI(int i)</code> you need to 
+edit the code, however. All the <code>example/main*</code> files
+have been uopdated accordingly.</li>
+
+<li>A new option <code>Beams:frameType = 5</code> has been added 
+for the case where an external generator should provide LHA process
+information. The new <code>Pythia::setLHAupPtr(...)</code> method
+should then be used to link in this generator. The new switch 
+<code>Beams:newLHEFsameInit</code> can be used to tell that a new
+LHEF should be used, but without the need for a new initialization.
+With these two changes, all the different ways of initializing 
+can be covered by the <code>Pythia::init()</code> call with no 
+arguments. The various <code>init(...)</code>options with arguments 
+are deprecated and will be removed for PYTHIA 8.2.</li>
+
+<li> The <code>Pythia::stat()</code> method, with no arguments, 
+replaces <code>Pythia::statistics(...)</code>, although the latter 
+remains as a deprecated alternative.</li>
+
+<li>New settings <code>Init:...</code>, <code>Next:...</code>,
+and <code>Stat:...</code> can be used to steer some details of 
+the operation of the <code>Pythia::init()</code>,  
+<code>Pythia::next()</code> and  <code>Pythia::stat()</code>,
+respectively. In particular it affects the amount of printout 
+at the various stages of operation. See 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='MainProgramSettings.php?filepath=".$filepath."' target='page'>";?>here</a> for further details.
+This change involves several code changes, but in documentation 
+rather than physics. Most of the <code>Main:...</code> settings 
+are deprecated as a consequence.</li>
+
+<li>The sample main programs in the <code>examples</code> subdirectory 
+have been updated. This includes a change to the new favoured 
+methods and settings outlined above, plus some update of the 
+physics contents. Some of the examples have been combined,
+some others have been added (e.g. for R-hadroms), and as a consequence
+some renumbering has been made. See the modified list of
+<?php $filepath = $_GET["filepath"];
+echo "<a href='SampleMainPrograms.php?filepath=".$filepath."' target='page'>";?>sample main programs</a> for 
+the new status. In particular note that (the new) <code>main61.cc</code>
+allows streamlined input and output in HepMC, like <code>main42.cc</code>
+(previously <code>main32.cc</code>), but additionally links to LHAPDF. </li>
+
+<li>The <code>examples/configure</code> script has new optional argument
+<code>--with-pythia8</code>. It can be used to set the new
+<code>PYTHIA8LOCATION</code> environment variable, which then is used 
+in <code>examples/Makefile</code> to give the path to the PYTHIA 
+library. Thereby it becomes possible to relocate (parts of) the 
+<code>examples</code> directory and still obtain the correct path.
+Thanks to Mikhail Kirsanov.</li>
+
+<li>Polarization information has been included as a new 
+<code>Particle</code> property, that can be set by 
+<code>void pol(double polIn)</code> and obtained by 
+<code>double pol()</code>. Default value is <code>9.</code>,
+in agreement with the Les Houches standard. Event listings have
+been expanded to optionally display this information. Currently 
+polarization is not used internally.</li>
+
+<li>The matrix element merging machinery has been modified as follows.
+<br/>- Improved handling of the hard process, so that MadGraph5-produced 
+LHE files do not produce problems (sometimes, the choices of MG4 on what 
+to put into a LHEF have changed in MG5).
+<br/>- Improved handling of colour for easier handling of states with 
+many quarks (the code has been tested for states with up to 5 
+<i>q qbar</i> pairs and some gluons).
+<br/>- Improved checking which clusterings are allowed. Now, clusterings 
+should immediately be rejected if they lead to unphysical states, 
+without the need to explicitly construct these states. This was needed 
+to get <i>t tbar</i> production, VBF and some simple SUSY processes 
+running with reasonable generality.
+<br/>- Improved handling of incomplete histories. Now there is an 
+additional switch allowing code to try to swap some colours when fewer 
+clusterings than requested have been found.
+</li>
+
+<li>Updates in the handling of graviton resonances in scenarios with
+extra dimensions.
+<br/>- Now all G decays have correct angular distribution, which was not 
+the case before for W/Z decays.
+<br/>- Added the possibility for G to only couple to longitudinal 
+W/Z bosons, which affects both the width and angular distributions.
+<br/>- Added decays to Higgs pairs, <i>G -> hh</i>.
+</li>
+
+<li>Bug fix in the <code>findJunctions()</code> function in
+<code>ProcessLevel.cc</code>. Changes introduced in version
+8.145 (to allow for junctions in baryon-number-violating
+processes) did not correctly handle the remapping of color
+tags that can be applied when adding beam remnants to events with 
+multiparton interactions. A simpler and more stable algorithm is 
+now applied for the simplest cases, with the more complex one only 
+invoked for cases such as BNV, which are normally considered before 
+remnants are added, hence avoiding this particular problem. Also some
+other changes in the handling of junction, including a safeguard to
+reject systems with three or more interconnected junctions.</li>
+
+<li>Bug fix and updates to the SLHA interface. Possibility of infinite 
+loop during <code>ProcessLevel::initSLHA</code> corrected. Modifications
+to <code>SusyLesHouches</code> to allow interpretation of SLHA1 spectra 
+with R-parity violation. Rather than reject spectra that do not conform 
+fully to the SLHA2 standard for RPV, the interface will now first look 
+for SLHA1 mixing matrices and attempt to translate those into SLHA2 ones
+if possible. In this case, warnings that the expected SLHA2 blocks were 
+not found will be printed. It is up to the user to check that the 
+derived SLHA2 information is correct. Corresponding additions to 
+<code>SusyCouplings.cc</code> to extract mixing-matrix information 
+from the relevant SLHA2 RPV blocks when RPV is switched on.</li>
+
+<li>Updated SLHA example <code>main24.cmnd</code> to use new example
+spectrum, <code>cmssm.spc</code>, corresponding to CMSSM point
+10.1.1, obtained with SOFTSUSY 3.3.0. Thanks to B. Allanach for
+providing the new spectrum file.</li>
+
+<li>A new <code>include/FastJet3.h</code> header file simplifies 
+interfacing of FastJet to Pythia. For details see documentation in
+the file itself. Thanks to Gavin Salam for this contribution.</li>
+
+<li>The handling of diffraction has been made more flexible. 
+Specifically the "total" Pomeron-proton cross section can now be made
+to depend on the mass of the diffractive system. This does not affect 
+the diffractive cross section in pp collisions, which is set separately,
+but is used in the MPI machinery to affect the average number of
+interactions per Pomeron-proton collision. Furthermore, the allowed
+range for some parameters has been expanded. Thanks to Robert 
+Ciesielski.</li> 
+
+<li>New method <code>Pythia::forceTimeShower(...)</code> can be used to
+generate a single final-state cascade from a set of partons, without
+any knowledge of prior history. This is mainly intended for toy studies.
+The meaning of the <code>ProcessLevel:all</code> switch has been modified
+so that this parton-level function is available, but not any others
+at this level.
+</li>
+
+<li>ATLAS tune A2 now included. Thanks to Deepak Kar for 
+providing it.</li>
+
+<li>Change in the handling of recoils of timelike showers in resonance
+decays, in cases of coloured resonances such as <i>t -> b W</i>. In 
+the first step the <i>W</i> always acts as recoiler to the <i>b</i>, 
+but in subsequent step previously the <i>W</i> remained as recoiler to 
+one dipole, while now all QCD-radiating partons recoil against another 
+coloured parton. The old behaviour could give a (small) unphysical spike 
+of radition collinear with the colourless recoiler in the subsequent 
+emissions (while the pattern of the first was and remains correct). 
+The old behaviour can be recovered for checks, see
+<code>TimeShower:recoilToColoured</code>.
+Thanks to Yevgeny Kats for pointing out this issue (previously noted 
+for Pythia 6 by several persons). 
+</li>
+
+<li>Bug fixes for <code>rootexamples/Makefile</code> and restoration
+of some deleted information in <code>rootexamples/README</code>.
+Thanks to Axel Naumann and Bernhard Meirose.</li>
+
+<li>Bug fix, so that displaced vertices are possible in resonance
+decay chains. Thanks to Daniel Blackburn and Andy Buckley for
+pointing this out.</li>
+
+<li>Bug fix for <code>Info</code> counter 2.</li>
+
+<li>Bug fix so that sextet quarks now are read in correctly from
+Les Houches Event files; previously the (anti)colours were set 
+to 0.</li>
+
+<li>Year updated to 2012 in copyright statements etc.</li>
+
+<li>Reformatting to reduce the number of code lines with more 
+than 79 characters.</li>
+
+<li><code>Pythia::initSLHA()</code> moved from <code>public</code>
+to <code>private</code>. 
+</li>
+
+<li>Remove warning message when tau polarization is set by hand.</li>
+
+<li>Several minor changes to reduce the number of warnings issued
+by the clang compiler. The origin of some warnings remains unclear
+so those remain to track down (could also be compiler bugs; note that
+we discuss warnings, not errors). Thanks to Randy MacLeod for bringing
+this up.</li>
+
+<li>The worksheet has been updated to be in step with Pythia 8.160.</li>
+
+<li>Several other minor corrections in the code and documentation.</li>
+
+</ul>
+</li>
 </ul>
 
 </body>
 </html>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->

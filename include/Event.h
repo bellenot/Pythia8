@@ -1,5 +1,5 @@
 // Event.h is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -35,41 +35,43 @@ public:
   // Constructors.
   Particle() : idSave(0), statusSave(0), mother1Save(0), mother2Save(0), 
     daughter1Save(0), daughter2Save(0), colSave(0), acolSave(0), 
-    pSave(Vec4(0.,0.,0.,0.)), mSave(0.), scaleSave(0.), 
+    pSave(Vec4(0.,0.,0.,0.)), mSave(0.), scaleSave(0.), polSave(9.), 
     hasVertexSave(false), vProdSave(Vec4(0.,0.,0.,0.)), tauSave(0.), 
     pdePtr(0), pdtPtr(0) { }  
   Particle(int idIn, int statusIn = 0, int mother1In = 0, 
     int mother2In = 0, int daughter1In = 0, int daughter2In = 0,
     int colIn = 0, int acolIn = 0, double pxIn = 0., double pyIn = 0., 
-    double pzIn = 0., double eIn = 0., double mIn = 0., double scaleIn = 0.) 
+    double pzIn = 0., double eIn = 0., double mIn = 0., 
+    double scaleIn = 0., double polIn = 9.) 
     : idSave(idIn), statusSave(statusIn), mother1Save(mother1In), 
     mother2Save(mother2In), daughter1Save(daughter1In), 
     daughter2Save(daughter2In), colSave(colIn), acolSave(acolIn), 
     pSave(Vec4(pxIn, pyIn, pzIn, eIn)), mSave(mIn), scaleSave(scaleIn), 
-    hasVertexSave(false), vProdSave(Vec4(0.,0.,0.,0.)), tauSave(0.), 
-    pdePtr(0), pdtPtr(0) { }  
+    polSave(polIn), hasVertexSave(false), vProdSave(Vec4(0.,0.,0.,0.)), 
+    tauSave(0.), pdePtr(0), pdtPtr(0) { }  
   Particle(int idIn, int statusIn, int mother1In, int mother2In, 
     int daughter1In, int daughter2In, int colIn, int acolIn, 
-    Vec4 pIn, double mIn = 0., double scaleIn = 0.) 
+    Vec4 pIn, double mIn = 0., double scaleIn = 0., double polIn = 9.) 
     : idSave(idIn), statusSave(statusIn), mother1Save(mother1In), 
     mother2Save(mother2In), daughter1Save(daughter1In), 
     daughter2Save(daughter2In), colSave(colIn), acolSave(acolIn), 
-    pSave(pIn), mSave(mIn), scaleSave(scaleIn), hasVertexSave(false), 
-    vProdSave(Vec4(0.,0.,0.,0.)), tauSave(0.), pdePtr(0), pdtPtr(0) { }  
+    pSave(pIn), mSave(mIn), scaleSave(scaleIn), polSave(polIn), 
+    hasVertexSave(false), vProdSave(Vec4(0.,0.,0.,0.)), tauSave(0.), 
+    pdePtr(0), pdtPtr(0) { }  
   Particle(const Particle& pt) : idSave(pt.idSave), 
     statusSave(pt.statusSave), mother1Save(pt.mother1Save), 
     mother2Save(pt.mother2Save), daughter1Save(pt.daughter1Save), 
     daughter2Save(pt.daughter2Save), colSave(pt.colSave), 
     acolSave(pt.acolSave), pSave(pt.pSave), mSave(pt.mSave), 
-    scaleSave(pt.scaleSave), hasVertexSave(pt.hasVertexSave), 
-    vProdSave(pt.vProdSave), tauSave(pt.tauSave), 
-    pdePtr(pt.pdePtr), pdtPtr(pt.pdtPtr) { } 
+    scaleSave(pt.scaleSave), polSave(pt.polSave), 
+    hasVertexSave(pt.hasVertexSave), vProdSave(pt.vProdSave), 
+    tauSave(pt.tauSave), pdePtr(pt.pdePtr), pdtPtr(pt.pdtPtr) { } 
   Particle& operator=(const Particle& pt) {if (this != &pt) {
     idSave = pt.idSave; statusSave = pt.statusSave; 
     mother1Save = pt.mother1Save; mother2Save = pt.mother2Save; 
     daughter1Save = pt.daughter1Save; daughter2Save = pt.daughter2Save; 
     colSave = pt.colSave; acolSave = pt.acolSave; pSave = pt.pSave; 
-    mSave = pt.mSave; scaleSave = pt.scaleSave; 
+    mSave = pt.mSave; scaleSave = pt.scaleSave; polSave = pt.polSave;
     hasVertexSave = pt.hasVertexSave; vProdSave = pt.vProdSave; 
     tauSave = pt.tauSave; pdePtr = pt.pdePtr; pdtPtr = pt.pdtPtr; } 
     return *this; } 
@@ -107,6 +109,7 @@ public:
   void e(double eIn) {pSave.e(eIn);}
   void m(double mIn) {mSave = mIn;}
   void scale(double scaleIn) {scaleSave = scaleIn;}
+  void pol(double polIn) {polSave = polIn;}
   void vProd(Vec4 vProdIn) {vProdSave = vProdIn; hasVertexSave = true;}
   void vProd(double xProdIn, double yProdIn, double zProdIn, double tProdIn)
     {vProdSave.p(xProdIn, yProdIn, zProdIn, tProdIn); hasVertexSave = true;}
@@ -132,6 +135,7 @@ public:
   double e()         const {return pSave.e();}
   double m()         const {return mSave;}
   double scale()     const {return scaleSave;}
+  double pol()       const {return polSave;}
   bool   hasVertex() const {return hasVertexSave;}
   Vec4   vProd()     const {return vProdSave;}
   double xProd()     const {return vProdSave.px();}
@@ -270,7 +274,7 @@ private:
   int    idSave, statusSave, mother1Save, mother2Save, daughter1Save, 
          daughter2Save, colSave, acolSave;
   Vec4   pSave;
-  double mSave, scaleSave;
+  double mSave, scaleSave, polSave;
   bool   hasVertexSave;
   Vec4   vProdSave;
   double tauSave;
@@ -281,8 +285,8 @@ private:
   // Event::restorePtrs() can be called to restore the missing information. 
   ParticleDataEntry* pdePtr;  //!
 
-  // Pointer to the whole particle data table. Used to update the above pointer 
-  // when id(...) changes identity. As above it should not be saved.
+  // Pointer to the whole particle data table. Used to update the above 
+  // pointer when id(...) changes identity. As above it should not be saved.
   ParticleData*      pdtPtr;  //!  
 
 };
@@ -390,17 +394,18 @@ public:
   }
   int append(int id, int status, int mother1, int mother2, int daughter1, 
     int daughter2, int col, int acol, double px, double py, double pz, 
-    double e, double m = 0., double scaleIn = 0.) {entry.push_back( 
-    Particle(id, status, mother1, mother2, daughter1, daughter2, col, acol, 
-    px, py, pz, e, m, scaleIn) ); setPDTPtr();
+    double e, double m = 0., double scaleIn = 0., double polIn = 9.) {
+    entry.push_back( Particle(id, status, mother1, mother2, daughter1, 
+    daughter2, col, acol, px, py, pz, e, m, scaleIn, polIn) ); setPDTPtr();
     if (col > maxColTag) maxColTag = col;   
     if (acol > maxColTag) maxColTag = acol;
     return entry.size() - 1;
   }
   int append(int id, int status, int mother1, int mother2, int daughter1, 
     int daughter2, int col, int acol, Vec4 p, double m = 0., 
-    double scaleIn = 0.) {entry.push_back( Particle(id, status, mother1, 
-    mother2, daughter1, daughter2, col, acol, p, m, scaleIn) ); setPDTPtr();
+    double scaleIn = 0., double polIn = 9.) {
+    entry.push_back( Particle(id, status, mother1, mother2, daughter1, 
+    daughter2, col, acol, p, m, scaleIn, polIn) ); setPDTPtr();
     if (col > maxColTag) maxColTag = col;   
     if (acol > maxColTag) maxColTag = acol;
     return entry.size() - 1;
@@ -408,15 +413,16 @@ public:
 
   // Brief versions of append: no mothers and no daughters.
   int append(int id, int status, int col, int acol, double px, double py, 
-    double pz, double e, double m = 0.) {entry.push_back( Particle(id, 
-    status, 0, 0, 0, 0, col, acol, px, py, pz, e, m, 0.) ); setPDTPtr();
+    double pz, double e, double m = 0., double scaleIn = 0., 
+    double polIn = 9.) { entry.push_back( Particle(id, status, 0, 0, 0, 0, 
+    col, acol, px, py, pz, e, m, scaleIn, polIn) ); setPDTPtr(); 
     if (col > maxColTag) maxColTag = col;   
     if (acol > maxColTag) maxColTag = acol;
     return entry.size() - 1;
   }
-  int append(int id, int status, int col, int acol, Vec4 p, double m = 0.) 
-    {entry.push_back( Particle(id, status, 0, 0, 0, 0, col, acol, p, m, 0.) );
-    setPDTPtr(); 
+  int append(int id, int status, int col, int acol, Vec4 p, double m = 0., 
+    double scaleIn = 0., double polIn = 9.) {entry.push_back( Particle(id, 
+    status, 0, 0, 0, 0, col, acol, p, m, scaleIn, polIn) ); setPDTPtr(); 
     if (col > maxColTag) maxColTag = col;   
     if (acol > maxColTag) maxColTag = acol;
     return entry.size() - 1;

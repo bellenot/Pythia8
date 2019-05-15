@@ -1,5 +1,5 @@
 // History.h is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -37,6 +37,8 @@ public:
   int emittor;
   // The recoiler parton.
   int recoiler;
+  // The colour connected recoiler (Can be different for ISR)
+  int partner;
   // The scale associated with this clustering.
   double pTscale;
 
@@ -45,6 +47,7 @@ public:
     emitted   = 0;
     emittor   = 0;
     recoiler  = 0;
+    partner   = 0;
     pTscale   = 0.0;
   }
 
@@ -53,18 +56,21 @@ public:
 
   // Copy constructor
   Clustering( const Clustering& inSystem ){
-    emitted = inSystem.emitted;
-    emittor = inSystem.emittor;
+    emitted  = inSystem.emitted;
+    emittor  = inSystem.emittor;
     recoiler = inSystem.recoiler;
-    pTscale = inSystem.pTscale;
+    partner  = inSystem.partner;
+    pTscale  = inSystem.pTscale;
   }
 
   // Constructor with input
-  Clustering( int emtIn, int radIn, int recIn, double pTscaleIn ){
-    emitted = emtIn;
-    emittor = radIn;
+  Clustering( int emtIn, int radIn, int recIn, int partnerIn,
+    double pTscaleIn ){
+    emitted  = emtIn;
+    emittor  = radIn;
     recoiler = recIn;
-    pTscale = pTscaleIn;
+    partner  = partnerIn;
+    pTscale  = pTscaleIn;
   }
 
   // Function to return pythia pT scale of clustering
@@ -251,10 +257,10 @@ private:
   //                  trial shower
   //     double     : alpha_s value used in ME calculation
   //     double     : Maximal mass scale of the problem (e.g. E_CM)
-  //     AlphaStrong: Initialised shower alpha_s object for FSR
-  //                  alpha_s ratio calculation
-  //     AlphaStrong: Initialised shower alpha_s object for ISR
-  //                  alpha_s ratio calculation (can be different from previous)
+  //     AlphaStrong: Initialised shower alpha_s object for FSR alpha_s 
+  //                  ratio calculation
+  //     AlphaStrong: Initialised shower alpha_s object for ISR alpha_s 
+  //                  ratio calculation (can be different from previous)
   double weightTree(PartonLevel* trial, double as0, double maxscale,
     AlphaStrong * asFSR, AlphaStrong * asISR, double& asWeight,
     double& pdfWeight);
@@ -350,9 +356,85 @@ private:
   int getRadBeforeFlav(const int RadAfter, const int EmtAfter,
         const Event& event);
 
+  // Function to get the colour of the radiator before the splitting
+  // for clustering
+  // IN  int   : Position of the radiator after the splitting, in the event
+  //     int   : Position of the emitted after the splitting, in the event
+  //     Event : Reference event   
+  // OUT int   : Colour of the radiator before the splitting
+  int getRadBeforeCol(const int RadAfter, const int EmtAfter,
+        const Event& event);
+
+  // Function to get the anticolour of the radiator before the splitting
+  // for clustering
+  // IN  int   : Position of the radiator after the splitting, in the event
+  //     int   : Position of the emitted after the splitting, in the event
+  //     Event : Reference event   
+  // OUT int   : Anticolour of the radiator before the splitting
+  int getRadBeforeAcol(const int RadAfter, const int EmtAfter,
+        const Event& event);
+
+  // Function to get the parton connected to in by a colour line
+  // IN  int   : Position of parton for which partner should be found
+  //     Event : Reference event   
+  // OUT int   : If a colour line connects the "in" parton with another
+  //             parton, return the Position of the partner, else return 0
+  int getColPartner(const int in, const Event& event);
+
+  // Function to get the parton connected to in by an anticolour line
+  // IN  int   : Position of parton for which partner should be found
+  //     Event : Reference event   
+  // OUT int   : If an anticolour line connects the "in" parton with another
+  //             parton, return the Position of the partner, else return 0
+  int getAcolPartner(const int in, const Event& event);
+
+  // Function to get the list of partons connected to the particle
+  // formed by reclusterinf emt and rad by colour and anticolour lines
+  // IN  int          : Position of radiator in the clustering
+  // IN  int          : Position of emitted in the clustering
+  //     Event        : Reference event   
+  // OUT vector<int>  : List of positions of all partons that are connected
+  //                    to the parton that will be formed
+  //                    by clustering emt and rad.
+  vector<int> getReclusteredPartners(const int rad, const int emt,
+    const Event& event);
+
+  // Function to extract a chain of colour-connected partons in
+  // the event 
+  // IN     int          : Type of parton from which to start extracting a
+  //                       parton chain. If the starting point is a quark
+  //                       i.e. flavType = 1, a chain of partons that are
+  //                       consecutively connected by colour-lines will be
+  //                       extracted. If the starting point is an antiquark
+  //                       i.e. flavType =-1, a chain of partons that are
+  //                       consecutively connected by anticolour-lines
+  //                       will be extracted.
+  // IN      int         : Position of the parton from which a
+  //                       colour-connected chain should be derived
+  // IN      Event       : Refernence event
+  // IN/OUT  vector<int> : Partons that should be excluded from the search.
+  // OUT     vector<int> : Positions of partons along the chain
+  // OUT     bool        : Found singlet / did not find singlet
+  bool getColSinglet(const int flavType, const int iParton,
+    const Event& event, vector<int>& exclude,
+    vector<int>& colSinglet);
+
+  // Function to check that a set of partons forms a colour singlet
+  // IN  Event       : Reference event
+  // IN  vector<int> : Positions of the partons in the set
+  // OUT bool        : Is a colour singlet / is not 
+  bool isColSinglet( const Event& event, vector<int> system);
+  // Function to check that a set of partons forms a flavour singlet
+  // IN  Event       : Reference event
+  // IN  vector<int> : Positions of the partons in the set
+  // IN  int         : Flavour of all the quarks in the set, if
+  //                   all quarks in a set should have a fixed flavour
+  // OUT bool        : Is a flavour singlet / is not 
+  bool isFlavSinglet( const Event& event,
+    vector<int> system, int flav=0);
+
   // Function to properly colour-connect the radiator to the rest of
   // the event, as needed during clustering
-
   // IN  Particle& : Particle to be connected
   //     Particle  : Recoiler forming a dipole with Radiator
   //     Event     : event to which Radiator shall be appended
@@ -364,14 +446,14 @@ private:
                         const Particle& Recoiler, const int RecType, 
                         const Event& event );
 
-   // Function to find a colour (anticolour) index in the input event
-   // IN  int col       : Colour tag to be investigated
+  // Function to find a colour (anticolour) index in the input event
+  // IN  int col       : Colour tag to be investigated
   //     int iExclude1 : Identifier of first particle to be excluded
   //                     from search
   //     int iExclude2 : Identifier of second particle to be excluded
   //                     from  search
   //     Event event   : event to be searched for colour tag
-   //     int type      : Tag to define if col should be counted as
+  //     int type      : Tag to define if col should be counted as
   //                      colour (type = 1) [->find anti-colour index
   //                                         contracted with col]
   //                      anticolour (type = 2) [->find colour index
@@ -381,19 +463,21 @@ private:
   int FindCol(int col, int iExclude1, int iExclude2,
               const Event& event, int type, bool isHardIn);
 
-   // Function to in the input event find a particle with quantum
+  // Function to in the input event find a particle with quantum
   // numbers matching those of the input particle
-   // IN  Particle : Particle to be searched for
+  // IN  Particle : Particle to be searched for
   //     Event    : Event to be searched in
   // OUT int      : > 0 : Position of matching particle in event
   //                < 0 : No match in event
   int FindParticle(const Particle& particle, const Event& event);
 
   // Function to check if rad,emt,rec triple is allowed for clustering
-  // IN int rad,emt,rec : Positions (in event record) of the three
-  //                      particles considered for clustering
+  // IN int rad,emt,rec,partner : Positions (in event record) of the three
+  //                      particles considered for clustering, and the
+  //                      correct colour-connected recoiler (=partner)
   //    Event event     : Reference event                  
-  bool allowedClustering( int rad, int emt, int rec, const Event& event );
+  bool allowedClustering( int rad, int emt, int rec, int partner,
+    const Event& event );
 
   // Function to check if rad,emt,rec triple is results in
   // colour singlet radBefore+recBefore
@@ -408,7 +492,7 @@ private:
   // IN  event : event to be checked
   // OUT TRUE  : event is properly construced
   //     FALSE : event not valid
-  bool validEvent( const Event& event);
+  bool validEvent( const Event& event );
 
   // Function to check whether two clusterings are identical, used
   // for finding the history path in the mother -> children direction

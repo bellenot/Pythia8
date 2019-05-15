@@ -1,5 +1,5 @@
 // main08.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -19,7 +19,6 @@ int main() {
 
   // Number of events to generate per bin, and to list.
   int nEvent = 10000;
-  int nList = 1;
 
   // Book histograms.
   Hist pTraw("pTHat distribution, unweighted", 100, 0., 1000.);
@@ -37,7 +36,7 @@ int main() {
   Settings& settings = pythia.settings;
   Info& info = pythia.info;
 
-  // Set up to generate QCD jets.
+  // Set up to generate QCD jets, but only the hard process itself.
   pythia.readString("HardQCD:all = on");  
   pythia.readString("PartonLevel:all = off");  
 
@@ -63,8 +62,9 @@ int main() {
      // Mode 2: subruns stored in the main08.cmnd file.
      else pythia.readFile("main08.cmnd", iBin);  
 
-     // Initialize for LHC.
-     pythia.init( 2212, 2212, 14000.);
+     // Initialize for LHC at 14 TeV.
+     pythia.readString("Beams:eCM = 14000.");  
+     pythia.init();
 
     // List changed data.
     settings.listChanged();
@@ -79,9 +79,6 @@ int main() {
 
       // Generate events. Quit if failure.
       if (!pythia.next()) break;
- 
-      // List first few events, only hard process.
-      if (iEvent < nList) pythia.process.list();
 
       // Fill hard scale of event.
       double pTHat = info. pTHat();
@@ -90,10 +87,9 @@ int main() {
       pTpow3Part.fill( pTHat, pow3(pTHat) );
       pTpow5Part.fill( pTHat, pow5(pTHat) );
 
-
     // End of event loop. Statistics.
     }
-    pythia.statistics();
+    pythia.stat();
 
     // Normalize each case to cross section/(bin * event), and add to sum.
     double sigmaNorm = info.sigmaGen() / (10. * nEvent);

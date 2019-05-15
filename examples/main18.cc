@@ -1,5 +1,5 @@
 // main18.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -39,7 +39,7 @@ class EventFilter {
 
 public:
 
-  // Constructor sets properties of filter..
+  // Constructor sets properties of filter.
   EventFilter( int selectIn, double etaMaxIn = 50., 
     double pTminChargedIn = 0., double pTminNeutralIn = 0.) 
     : select(selectIn), etaMax(etaMaxIn), pTminCharged(pTminChargedIn),
@@ -115,7 +115,7 @@ void EventFilter::list(ostream& os) {
   // Header.
   os << "\n --------  PYTHIA Event Listing  (filtered)  ------------------"
      << "-----------------------------------------------------------------"
-     << "---- \n \n    no        id   name            status     mothers  "
+     << "----\n \n    no        id   name            status     mothers  "
      << " daughters     colours      p_x        p_y        p_z         e  "
      << "        m \n";
 
@@ -164,13 +164,14 @@ int main() {
   // Hard QCD events with pThat > 100.
   pythia.readString("HardQCD:all = on");
   pythia.readString("PhaseSpace:pTHatMin = 100.");
+
+  // No automatic event listings - do it manually below.
+  pythia.readString("Next:numberShowInfo = 0"); 
+  pythia.readString("Next:numberShowProcess = 0"); 
+  pythia.readString("Next:numberShowEvent = 0"); 
    
   // Initialization for LHC.
-  pythia.init(2212, 2212, 14000.);
-
-  // List changed settings and particle data.
-  pythia.settings.listChanged();
-  pythia.particleData.listChanged();
+  pythia.init();
 
   // Values for filter. 
   int    select   = 3; 
@@ -219,7 +220,7 @@ int main() {
   }
 
   // Final statistics.
-  pythia.statistics();
+  pythia.stat();
 
   // Histograms.
   cout << nCharged << etaCharged << pTCharged;

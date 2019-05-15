@@ -10,11 +10,12 @@
 
 #LCG platform. Can be needed if external libraries are specified
 if [ x$MYLCGPLATFORM = x ]; then
-  export MYLCGPLATFORM=slc4_ia32_gcc34
+  export MYLCGPLATFORM=x86_64-slc5-gcc43-opt
 fi
 
 # Defaults
 export COMPMODE=OPT
+export PYTHIA8LOCATION=..
 
 # check arguments
 
@@ -29,7 +30,8 @@ for arg in $* ; do
     echo "--enable-debug           : turns on debugging flags and turns off optimization"
     echo "--enable-shared          : use shared library (not yet implemented) (default no)"
     echo "--lcgplatform=name       : LCG platform name, default is slc4_ia32_gcc34"
-    echo "--with-lhapdf=lhapdfpath : path to LHAPDF libraries (must be version 5.3 or higher)"
+    echo "--with-pythia8=p8path    : path to pythia8 installation dir to find libs, includes and pars (default is ..)"
+    echo "--with-lhapdf=lhapdfpath : path to LHAPDF libraries dir (LHAPDF must be version 5.3 or higher)"
     echo "--with-lhapdfversion=v   : LHAPDF version (simplified alternative when using CERN AFS MCGenerators, e.g. =5.5.1.a)"
     echo "--with-lhapdflibname=n   : lhapdf library name line (default is -lLHAPDF)"
     echo "--with-lhapdfsets=path   : path to LHAPDF data (default is lhapdfpath/../PDFsets, CERN AFS default is lhapdfpath/../../../share/PDFsets)"
@@ -41,6 +43,8 @@ for arg in $* ; do
     value=`echo ${arg} | awk -F = '{print $2}'`
     if [ "x${option}" = "x--lcgplatform" ] ; then
       MYLCGPLATFORM=${value}
+    elif [ "x${option}" = "x--with-pythia8" ] ; then
+      PYTHIA8LOCATION=${value}
     elif [ "x${option}" = "x--with-lhapdfversion" ] ; then
       LHAPDFVERSION=${value}
     elif [ "x${option}" = "x--with-lhapdf" ] ; then
@@ -71,6 +75,12 @@ echo compilation mode is $COMPMODE
 if [ x${LHAPDFLOCATION} != x ]; then
   if [ x${LHAPDFSETSLOCATION} = x ]; then
     export LHAPDFSETSLOCATION=${LHAPDFLOCATION}/../PDFsets
+    if [ ! -d ${LHAPDFSETSLOCATION} ]; then
+      export LHAPDFSETSLOCATION=${LHAPDFLOCATION}/../../share/lhapdf/PDFsets
+    fi
+    if [ ! -d ${LHAPDFSETSLOCATION} ]; then
+      export LHAPDFSETSLOCATION=${LHAPDFLOCATION}/../share/lhapdf/PDFsets
+    fi
   fi
 fi
 if [ x${LHAPDFVERSION} = x ]; then
@@ -221,6 +231,12 @@ fi
 #
 # Checks
 #
+
+if [ ! -d ${PYTHIA8LOCATION}/lib ]; then
+  echo ERROR: pythia8 libraries not found at ${PYTHIA8LOCATION}/lib
+  exit
+fi
+
 if [ $?LHAPDFLOCATION ]; then
   if [ x${LHAPDFLOCATION} != x ]; then
     if [ ! -d ${LHAPDFLOCATION} ]; then
@@ -256,6 +272,7 @@ echo SHELL = /bin/sh > config.mk
 #echo CXXFLAGS = ${CXXFLAGS} >> config.mk
 #echo FLIBS = ${FLIBS} >> config.mk
 #
+echo PYTHIA8LOCATION = ${PYTHIA8LOCATION} >> config.mk
 if [ x${LHAPDFVERSION} != x ]; then
   echo LHAPDFVERSION = ${LHAPDFVERSION} >> config.mk
 fi
@@ -273,6 +290,17 @@ fi
 
 
 #
+if [ ${PYTHIA8LOCATION} != .. ]; then
+  if [ ! -e config.csh ]; then
+    echo "#!/bin/csh" > config.csh
+    echo "setenv PYTHIA8DATA ${PYTHIA8LOCATION}/xmldoc" >> config.csh
+    echo "#!/bin/sh" > config.sh
+    echo "export PYTHIA8DATA=${PYTHIA8LOCATION}/xmldoc" >> config.sh
+  else
+    echo "setenv PYTHIA8DATA ${PYTHIA8LOCATION}/xmldoc" >> config.csh
+    echo "export PYTHIA8DATA=${PYTHIA8LOCATION}/xmldoc" >> config.sh
+  fi
+fi
 #
 # For the moment we take archive libraries of lhapdf, so actions with
 # LD_LIBRARY_PATH are not needed, this is for the future.

@@ -6,7 +6,7 @@ Here is collected some possibilities to modify the scale choices
 of couplings and parton densities for all internally implemented 
 hard processes. This is based on them all being derived from the
 <code>SigmaProcess</code> base class. The matrix-element coding is 
-also used by the multiple-interactions machinery, but there with a 
+also used by the multiparton-interactions machinery, but there with a 
 separate choice of <ei>alpha_strong(M_Z^2)</ei> value and running, 
 and separate PDF scale choices. Also, in <ei>2 -> 2</ei> and 
 <ei>2 -> 3</ei> processes where resonances are produced, their 
@@ -58,8 +58,8 @@ changed <ei>alpha_strong</ei>, since <ei>alpha_strong</ei> runs)
 Multiply almost all cross sections by this common fix factor. Excluded 
 are only unresolved processes, where cross sections are better 
 <aloc href="TotalCrossSections">set directly</aloc>, and 
-multiple interactions, which have a separate <ei>K</ei> factor 
-<aloc href="MultipleInteractions">of their own</aloc>.  
+multiparton interactions, which have a separate <ei>K</ei> factor 
+<aloc href="MultipartonInteractions">of their own</aloc>.  
 This degree of freedom is primarily intended for hadron colliders, and
 should not normally be used for <ei>e^+e^-</ei> annihilation processes.
 </parm>
@@ -284,4 +284,4 @@ A fix <ei>Q^2</ei> value used as factorization scale for <ei>2 -> 1</ei>,
 
 </chapter>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->

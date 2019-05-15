@@ -3,7 +3,7 @@
 // It studies the charged multiplicity distribution at the LHC.
 // Modified by Rene Brun, Axel Naumann and Bernhard Meirose 
 // to use ROOT for histogramming.
-// Copyright C 2011 Torbjorn Sjostrand
+// Copyright (C) 2012 Torbjorn Sjostrand
 
 // Stdlib header file for input and output.
 #include <iostream>
@@ -33,7 +33,8 @@ int main(int argc, char* argv[]) {
   Pythia pythia;
   pythia.readString("HardQCD:all = on");
   pythia.readString("PhaseSpace:pTHatMin = 20.");
-  pythia.init( 2212, 2212, 14000.);
+  pythia.readString("Beams:eCM = 14000.");
+  pythia.init();
 
   // Create file on which histogram(s) can be saved.
   TFile* outFile = new TFile("hist.root", "RECREATE");
@@ -44,9 +45,6 @@ int main(int argc, char* argv[]) {
   // Begin event loop. Generate event; skip if generation aborted.
   for (int iEvent = 0; iEvent < 100; ++iEvent) {
     if (!pythia.next()) continue;
-
-    // Optionally list first event.
-    // if (iEvent < 1) {pythia.info.list(); pythia.event.list();}
 
     // Find number of all final charged particles.
     int nCharged = 0;
@@ -59,7 +57,7 @@ int main(int argc, char* argv[]) {
   }
 
   // Statistics on event generation.
-  pythia.statistics();
+  pythia.stat();
 
   // Show histogram. Possibility to close it.
   mult->Draw();

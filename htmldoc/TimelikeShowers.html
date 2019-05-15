@@ -67,7 +67,7 @@ topologies, but may lead to doublecounting.
 (Also known as power showers.)
   
 <br/><b>Note:</b> These options only apply to the hard interaction.
-Emissions off subsequent multiple interactions are always constrainted
+Emissions off subsequent multiparton interactions are always constrainted
 to be below the factorization scale of the process itself. They also
 assume you use interleaved evolution, so that FSR is in direct 
 competition with ISR for the hardest emission. If you already 
@@ -89,11 +89,11 @@ test this assumption.
 be set separately by <a href="UserHooks.html" target="page">user hooks</a>.
   
 
-<p/><code>parm&nbsp; </code><strong> TimeShower:pTmaxFudgeMI &nbsp;</strong> 
+<p/><code>parm&nbsp; </code><strong> TimeShower:pTmaxFudgeMPI &nbsp;</strong> 
  (<code>default = <strong>1.0</strong></code>; <code>minimum = 0.25</code>; <code>maximum = 2.0</code>)<br/>
 A multiplicative factor <i>f</i> such that 
 <i>pT_max = f * pT_factorization</i>, as above, but here for the
-non-hardest interactions (when multiple interactions are allowed).
+non-hardest interactions (when multiparton interactions are allowed).
   
 
 <p/><code>mode&nbsp; </code><strong> TimeShower:pTdampMatch &nbsp;</strong> 
@@ -120,7 +120,7 @@ where <i>Q_ren</i> is the renormalization scale and <i>k</i> is a
 multiplicative fudge factor stored in <code>pTdampFudge</code> below. 
   
 <br/><b>Note:</b> These options only apply to the hard interaction.
-Emissions off subsequent multiple interactions are always constrainted
+Emissions off subsequent multiparton interactions are always constrainted
 to be below the factorization scale of the process itself.  
   
 
@@ -217,11 +217,11 @@ Maximum invariant mass allowed for the created fermion pair in a
 
 <h3>Interleaved evolution</h3>
 
-Multiple interactions (MI) and initial-state showers (ISR) are 
+Multiparton interactions (MPI) and initial-state showers (ISR) are 
 always interleaved, as follows. Starting from the hard interaction, 
 the complete event is constructed by a set of steps. In each step 
 the <i>pT</i> scale of the previous step is used as starting scale 
-for a downwards evolution. The MI and ISR components each make
+for a downwards evolution. The MPI and ISR components each make
 their respective Monte Carlo choices for the next lower <i>pT</i> 
 value. The one with larger <i>pT</i> is allowed to carry out its 
 proposed action, thereby modifying the conditions for the next steps. 
@@ -238,22 +238,22 @@ to be interleaved. Such an FSR emission does not compete directly for
 beam energy (but see below), and also can be viewed as occuring after 
 the other two components in some kind of time sense. Interleaving is 
 allowed, however, since it can be argued that a high-<i>pT</i> FSR 
-occurs on shorter time scales than a low-<i>pT</i> MI, say. 
+occurs on shorter time scales than a low-<i>pT</i> MPI, say. 
 Backwards evolution of ISR is also an example that physical time 
 is not the only possible ordering principle, but that one can work 
 with conditional probabilities: given the partonic picture at a  
 specific <i>pT</i> resolution scale, what possibilities are open 
 for a modified picture at a slightly lower <i>pT</i> scale, either 
-by MI, ISR or FSR? Complete interleaving of the three components also 
+by MPI, ISR or FSR? Complete interleaving of the three components also 
 offers advantages if one aims at matching to higher-order matrix 
 elements above some given scale.
 
 <p/><code>flag&nbsp; </code><strong> TimeShower:interleave &nbsp;</strong> 
  (<code>default = <strong>on</strong></code>)<br/>
 If on, final-state emissions are interleaved in the same 
-decreasing-<i>pT</i> chain as multiple interactions and initial-state
+decreasing-<i>pT</i> chain as multiparton interactions and initial-state
 emissions. If off, final-state emissions are only addressed after the
-multiple interactions and initial-state radiation have been considered.
+multiparton interactions and initial-state radiation have been considered.
   
 
 <p/>
@@ -458,7 +458,26 @@ switched on.
 Azimuthal asymmetry induced by gluon polarization; on/off = true/false.
   
 
+<p/><code>flag&nbsp; </code><strong> TimeShower:recoilToColoured &nbsp;</strong> 
+ (<code>default = <strong>on</strong></code>)<br/>
+In the decays of coloured resonances, say <i>t -> b W</i>, it is not 
+possible to set up dipoles with matched colours. Originally the 
+<i>b</i> radiator therefore has <i>W</i> as recoiler, and that 
+choice is unique. Once a gluon has been radiated, however, it is 
+possible either to have the unmatched colour (inherited by the gluon) 
+still recoiling against the <i>W</i> (<code>off</code>), or else 
+let it recoil against the <i>b</i> also for this dipole 
+(<code>on</code>). Before version 8.160 the former was the only 
+possibility, which could give unphysical radiation patterns. It is 
+kept as an option to check backwards compatibility. The same issue 
+exists for QED radiation, but obviously is less significant. Consider 
+the example <i>W -> e nu</i>, where originally the <i>nu</i> 
+takes the recoil. In the old (<code>off</code>) scheme the <i>nu</i> 
+would remain recoiler, while in the new (<code>on</code>) instead 
+each newly emitted photon becomes the new recoiler. 
+  
+
 </body>
 </html>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->

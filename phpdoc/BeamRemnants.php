@@ -32,11 +32,11 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 <h3>Introduction</h3>
 
 The <code>BeamParticle</code> class contains information on all partons 
-extracted from a beam (so far). As each consecutive multiple interaction 
+extracted from a beam (so far). As each consecutive multiparton interaction 
 defines its respective incoming parton to the hard scattering a 
 new slot is added to the list. This information is modified when 
 the backwards evolution of the spacelike shower defines a new 
-initiator parton. It is used, both for the multiple interactions
+initiator parton. It is used, both for the multiparton interactions
 and the spacelike showers, to define rescaled parton densities based
 on the <i>x</i> and flavours already extracted, and to distinguish 
 between valence, sea and companion quarks. Once the perturbative 
@@ -46,8 +46,8 @@ described in [<a href="Bibliography.php" target="page">Sjo04</a>].
 
 <p/>
 The introduction of <?php $filepath = $_GET["filepath"];
-echo "<a href='MultipleInteractions.php?filepath=".$filepath."' target='page'>";?>rescattering</a> 
-in the multiple interactions framework further complicates the 
+echo "<a href='MultipartonInteractions.php?filepath=".$filepath."' target='page'>";?>rescattering</a> 
+in the multiparton interactions framework further complicates the 
 processing of events. Specifically, when combined with showers,
 the momentum of an individual parton is no longer uniquely associated
 with one single subcollision. Nevertheless the parton is classified
@@ -98,7 +98,7 @@ sigma = (sigma_soft * Q_half + sigma_hard * Q) / (Q_half + Q)
   * m / (m_half + m)  
 </i><br/>
 Here <i>Q</i> is the hard-process renormalization scale for the 
-hardest process and the <i>pT</i> scale for subsequent multiple
+hardest process and the <i>pT</i> scale for subsequent multiparton
 interactions, <i>m</i> the mass of the system, and 
 <i>sigma_soft</i>, <i>sigma_hard</i>, <i>Q_half</i> and
 <i>m_half</i> parameters defined below. Furthermore each separately
@@ -161,8 +161,8 @@ primordial <i>kT</i> values by the overall compensation mechanism.
 <input type="radio" name="7" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Is only relevant when <?php $filepath = $_GET["filepath"];
-echo "<a href='MultipleInteractions.php?filepath=".$filepath."' target='page'>";?>rescattering</a> 
-is switched on in the multiple interactions scenario. For a normal 
+echo "<a href='MultipartonInteractions.php?filepath=".$filepath."' target='page'>";?>rescattering</a> 
+is switched on in the multiparton interactions scenario. For a normal 
 interaction the rapidity and mass of a system is preserved when
 primordial <i>kT</i> is introduced, by appropriate modification of the
 incoming parton momenta. Kinematics construction is more complicated for 
@@ -186,7 +186,7 @@ first approach, so the second is always used.
 <h3>Colour flow</h3>
 
 The colour flows in the separate subprocesses defined in the 
-multiple-interactions scenario are tied together via the assignment
+multiparton-interactions scenario are tied together via the assignment
 of colour flow in the beam remnant. This is not an unambiguous 
 procedure, but currently no parameters are directly associated with it.
 However, a simple "minimal" procedure of colour flow only via the beam 
@@ -210,7 +210,7 @@ harder scale with a probability that is
 <i>pT0_Rec^2 / (pT0_Rec^2 + pT^2)</i>, where
 <i>pT0_Rec</i> is <code>reconnectRange</code> times <i>pT0</i>, 
 the latter being the same energy-dependent dampening parameter as 
-used for multiple interactions. 
+used for multiparton interactions. 
 Thus it is easy to merge a low-<i>pT</i> system with any other,
 but difficult to merge two high-<i>pT</i> ones with each other. 
   
@@ -268,7 +268,7 @@ extensions at a later stage, as is the rest of this procedure.
 
 <br/><br/><table><tr><td><strong>BeamRemnants:maxValQuark  </td><td></td><td> <input type="text" name="10" value="3" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>3</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
 The maximum valence quark kind allowed in acceptable incoming beams,
-for which multiple interactions are simulated. Default is that hadrons
+for which multiparton interactions are simulated. Default is that hadrons
 may contain <i>u</i>, <i>d</i> and <i>s</i> quarks, 
 but not <i>c</i> and <i>b</i> ones, since sensible
 kinematics has not really been worked out for the latter.
@@ -286,7 +286,7 @@ the parameter above. Allowed values correspond to the cases programmed.
 Since the whole framework is approximate anyway, this should be good 
 enough. Note that companions typically are found at small <i>Q^2</i>, 
 if at all, so the form is supposed to represent <i>g(x)</i> at small 
-<i>Q^2</i> scales, close to the lower cutoff for multiple interactions. 
+<i>Q^2</i> scales, close to the lower cutoff for multiparton interactions. 
   
 
 <p/>
@@ -325,13 +325,13 @@ simple sum of the two constituent quarks.
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 The <code>off</code> option is intended for debug purposes only, as 
 follows. When more than one valence quark is kicked out of a baryon 
-beam, as part of the multiple interactions scenario, the subsequent
+beam, as part of the multiparton interactions scenario, the subsequent
 hadronization is described in terms of a junction string topology.
 This description involves a number of technical complications that
 may make the program more unstable. As an alternative, by switching
 this option off, junction configurations are rejected (which gives 
 an error message that the remnant flavour setup failed), and the
-multiple interactions and showers are redone until a 
+multiparton interactions and showers are redone until a 
 junction-free topology is found. 
    
 
@@ -437,4 +437,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->

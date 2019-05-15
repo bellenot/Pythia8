@@ -51,10 +51,10 @@ implementation.
 </p>
 
 <p>Since the implementation of SUSY processes was only recently
-completed [<a href="Bibliography.php" target="page">Des11</a>], case-by-case validations against other codes are still
-recommended. In all cases, a set of default validations have already been
-carried out by the authors. These validations compared to the PYTHIA 6
-SUSY implementation, using an sps1a spectrum. Most of the
+completed [<a href="Bibliography.php" target="page">Des11</a>], case-by-case validations against other codes 
+are still recommended. In all cases, a set of default validations have 
+already been carried out by the authors. These validations compared to 
+the PYTHIA 6 SUSY implementation, using an sps1a spectrum. Most of the
 SLHA2-specific extensions have  not been explicitly validated,
 however, with the exception of the R-parity violating single-sparticle
 production cross sections.
@@ -76,11 +76,12 @@ results. Always check for warnings and errors reported by the SLHA
 reader during the initialization stage. 
 
 <h3>SUSY Processes</h3>
+
 <br/><b>Note 1:</b> Decays of SUSY particles are described
 separately <a href="#decays">below</a>. 
 
-<br/><b>Note 2:</b> One special possibility is that the gluino or some squark(s) are
-sufficiently long-lived to hadronize. See 
+<br/><b>Note 2:</b> One special possibility is that the gluino or 
+some squark(s) are sufficiently long-lived to hadronize. See 
 <?php $filepath = $_GET["filepath"];
 echo "<a href='RHadrons.php?filepath=".$filepath."' target='page'>";?>the R-hadrons page</a> for further details.
 
@@ -462,5 +463,5 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
 

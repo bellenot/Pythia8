@@ -45,17 +45,17 @@ as listed separately in the following.
 
 <p/><code>flag&nbsp; </code><strong> SoftQCD:minBias &nbsp;</strong> 
  (<code>default = <strong>off</strong></code>)<br/>
-Minimum-bias events, based on an <a href="MultipleInteractions.html" target="page">
+Minimum-bias events, based on an <a href="MultipartonInteractions.html" target="page">
 eikonalized description</a> of all the hard QCD processes, so 
 includes them in combinationation with low-<i>pT</i> events. 
 Code 101.<br/>
-Since the current description is handled by the multiple-interactions 
+Since the current description is handled by the multiparton-interactions 
 machinery as part of the parton-level processing, no hard process at 
 all is defined at the process-level part of the event generation.
 Fortunately, in this case a special
 <code><a href="EventInformation.html" target="page">codeSub()</a></code> 
 method provides information on the first, i.e. hardest, subprocess 
-selected by the multiple-interactions machinery.
+selected by the multiparton-interactions machinery.
 
   
 
@@ -88,7 +88,7 @@ too low, or else unreasonably large jet cross sections will be obtained.
 This is because the divergent perturbative QCD cross section is used
 in this process group, without any regularization modifications. 
 An eikonalized description, intended to be valid at all <i>pT</i>,
-is instead included as part of the multiple-interactions framework, 
+is instead included as part of the multiparton-interactions framework, 
 specifically in <code>SoftQCD:minBias</code> above.
 <br/><b>Warning 1</b>: you <b>must</b> remember to set the 
 <code>PhaseSpace:pTHatMin</code> value if you use any of these 
@@ -163,7 +163,7 @@ these matrix elements finite in the <i>pT -> 0</i> limit, but at
 high energies one may still question the validity of the expressions
 at low <i>pT</i> values, like for the other hard-QCD processes.
 Also as above, an eikonalized description, intended to be valid at all 
-<i>pT</i>, is included as part of the multiple-interactions framework. 
+<i>pT</i>, is included as part of the multiparton-interactions framework. 
 <br/>Note that the processes below only represent the "tip of the iceberg"
 of charm and bottom production at high energies, where flavour excitation
 and shower branchings provide major additional sources. All these sources
@@ -292,5 +292,5 @@ Code 140.
 </body>
 </html>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
 

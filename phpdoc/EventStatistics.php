@@ -31,17 +31,21 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 
 At the end of the run you will want to write out the final statistics
 on number of events generated, the corresponding cross sections and 
-the number of errors encountered. This is done with the 
-<code>pythia.statistics()</code> method, assuming <code>pythia</code> is 
-an instance of the <code>Pythia</code> class: 
-
+the number of errors encountered. This is done either with the  
+<code>pythia.stat()</code> method or the <code>pythia.statistics()</code> 
+one, assuming <code>pythia</code> is an instance of the 
+<code>Pythia</code> class.The former method is steered entirely by 
+settings values, see <?php $filepath = $_GET["filepath"];
+echo "<a href='MainProgramSettings.php?filepath=".$filepath."' target='page'>";?>here</a>.  
+The latter, deprecated one instead takes two arguments:
+ 
 <a name="method1"></a>
 <p/><strong>void Pythia::statistics(bool all = false, bool reset = false) &nbsp;</strong> <br/>
 write out statistics on cross sections and errors. This is based on
 calls to the methods below, for the two kinds of information. 
 <br/><code>argument</code><strong> all </strong>  :  
 if <code>true</code> it allows a more extensive listing than the default 
-one, see multiple-interactions statistics below.
+one, see multiparton-interactions statistics below.
   
 <br/><code>argument</code><strong> reset </strong>  :  if <code>true</code> it implies that all counters, 
 e.g on events generated and errors experienced, are reset to zero whenever 
@@ -49,15 +53,16 @@ the routine is called. The default instead is that all stored
 statistics information is unaffected by the call. 
 Counters are automatically reset in each new <code>Pythia::init()</code> 
 call, however, so the only time the <code>reset</code> option makes a 
-difference is if <code>statistics</code> is called several times in a 
-(sub)run. 
+difference is if <code>statistics(...)</code> is called several times 
+in a (sub)run. 
   
   
 
 <h3>Cross-section statistics</h3>
 
 The <code>ProcessLevel::statistics()</code> method cannot be accessed 
-directly, but only via the <code>Pythia::statistics()</code> call above.
+directly, but only via the <code>Pythia::stat()</code> and 
+<code>Pythia::statistics(...)</code> calls above.
 When called it will loop over the list of existing processes, and for 
 each write out name, code, the number of tried, selected and accepted 
 events, the cross section and the estimated error on the latter. 
@@ -98,7 +103,7 @@ These may be of varying severity, as follows:
 initialization or event generation failed. In the former case it is 
 not possible to generate events at all, in the latter the current
 event is flawed and should be skipped. In either case the respective
-method, <code>Pythia::init(...)</code> or <code>Pythia::next()</code>,
+method, <code>Pythia::init()</code> or <code>Pythia::next()</code>,
 then also returns the value <code>false</code>. There are occasions
 where an abort may be deliberate, such as when a file of Les Houches
 Events is read and the end of the file is reached.</li>
@@ -127,10 +132,10 @@ The summary table printed by <code>Pythia::statistics()</code>
 provides a table with all the different messages issued, in 
 alphabetical order, with the total number of times each was generated.
 
-<h3>Multiple-interactions statistics</h3>
+<h3>Multiparton-interactions statistics</h3>
 
 If you call <code>Pythia::statistics(true)</code>, i.e. with the first
-optional argument <code>true</code>, also statistics on multiple 
+optional argument <code>true</code>, also statistics on multiparton 
 interactions is printed, comprising a list of all allowed subprocesses 
 with how many times each of them has been generated. For the minimum-bias
 process this also includes the hardest interaction, while else the 
@@ -145,4 +150,4 @@ between the two.)
 </body>
 </html>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->

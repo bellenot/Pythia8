@@ -1,5 +1,5 @@
 // Settings.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2011 Torbjorn Sjostrand.
+// Copyright (C) 2012 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -198,12 +198,36 @@ bool Settings::readString(string line, bool warn, ostream& os) {
     name.replace(firstColonColon, 2, ":");   
   }
      
-  // Check whether this is in the database. Done if not.
+  // Check whether this is in the database. 
   int inDataBase = 0;
   if      (isFlag(name)) inDataBase = 1;   
   else if (isMode(name)) inDataBase = 2;   
   else if (isParm(name)) inDataBase = 3; 
   else if (isWord(name)) inDataBase = 4; 
+
+  // For backwards compatibility: multiple -> multiparton, MI -> MPI.
+  if (inDataBase == 0) {
+    bool retry = false;
+    string nameLower = toLower(name);
+    if (nameLower.find("multiple") != string::npos) {
+      int firstMI = nameLower.find_first_of("multiple");
+      name.replace(firstMI, 8, "Multiparton");  
+      retry = true; 
+    }
+    if (!retry && nameLower.find("mi") != string::npos) {
+      int firstMI = nameLower.find_first_of("mi");
+      name.replace(firstMI, 2, "MPI");   
+      retry = true; 
+    }
+    if (retry) {
+      if      (isFlag(name)) inDataBase = 1;   
+      else if (isMode(name)) inDataBase = 2;   
+      else if (isParm(name)) inDataBase = 3; 
+      else if (isWord(name)) inDataBase = 4; 
+    }
+  }
+
+  // Warn and done if not in database.
   if (inDataBase == 0) {
     if (warn) os << "\n PYTHIA Warning: input string not found in settings"
       << " databases; skip:\n   " << line << endl;
@@ -712,18 +736,18 @@ void Settings::resetMode(string keyIn) {
     resetFlag("TimeShower:dampenBeamRecoil");  
     resetFlag("TimeShower:phiPolAsym");  
     resetParm("SpaceShower:alphaSvalue");  
-    resetFlag("SpaceShower:samePTasMI");  
+    resetFlag("SpaceShower:samePTasMPI");  
     resetParm("SpaceShower:pT0Ref");  
     resetParm("SpaceShower:ecmRef");  
     resetParm("SpaceShower:ecmPow");  
     resetFlag("SpaceShower:rapidityOrder");  
     resetFlag("SpaceShower:phiPolAsym");  
     resetFlag("SpaceShower:phiIntAsym");  
-    resetParm("MultipleInteractions:alphaSvalue");   
-    resetParm("MultipleInteractions:pT0Ref");  
-    resetParm("MultipleInteractions:ecmRef");  
-    resetParm("MultipleInteractions:ecmPow");  
-    resetMode("MultipleInteractions:bProfile");  
+    resetParm("MultipartonInteractions:alphaSvalue");   
+    resetParm("MultipartonInteractions:pT0Ref");  
+    resetParm("MultipartonInteractions:ecmRef");  
+    resetParm("MultipartonInteractions:ecmPow");  
+    resetMode("MultipartonInteractions:bProfile");  
     resetParm("BeamRemnants:primordialKTsoft");  
     resetParm("BeamRemnants:primordialKThard");  
     resetParm("BeamRemnants:halfScaleForKT");  
@@ -850,7 +874,7 @@ void Settings::initTuneEE( int eeTune) {
 //--------------------------------------------------------------------------
 
 // Set the values related to a tune of pp/ppbar data, 
-// i.e. mainly for initial-state radiation and multiple interactions.
+// i.e. mainly for initial-state radiation and multiparton interactions.
 
 void Settings::initTunePP( int ppTune) {
 
@@ -866,20 +890,20 @@ void Settings::initTunePP( int ppTune) {
     resetFlag("TimeShower:dampenBeamRecoil");  
     resetFlag("TimeShower:phiPolAsym");  
     resetParm("SpaceShower:alphaSvalue");  
-    resetFlag("SpaceShower:samePTasMI");  
+    resetFlag("SpaceShower:samePTasMPI");  
     resetParm("SpaceShower:pT0Ref");  
     resetParm("SpaceShower:ecmRef");  
     resetParm("SpaceShower:ecmPow");  
     resetFlag("SpaceShower:rapidityOrder");  
     resetFlag("SpaceShower:phiPolAsym");  
     resetFlag("SpaceShower:phiIntAsym");  
-    resetParm("MultipleInteractions:alphaSvalue");   
-    resetParm("MultipleInteractions:pT0Ref");  
-    resetParm("MultipleInteractions:ecmRef");  
-    resetParm("MultipleInteractions:ecmPow");  
-    resetMode("MultipleInteractions:bProfile");  
-    resetParm("MultipleInteractions:expPow");  
-    resetParm("MultipleInteractions:a1");
+    resetParm("MultipartonInteractions:alphaSvalue");   
+    resetParm("MultipartonInteractions:pT0Ref");  
+    resetParm("MultipartonInteractions:ecmRef");  
+    resetParm("MultipartonInteractions:ecmPow");  
+    resetMode("MultipartonInteractions:bProfile");  
+    resetParm("MultipartonInteractions:expPow");  
+    resetParm("MultipartonInteractions:a1");
     resetParm("BeamRemnants:primordialKTsoft");  
     resetParm("BeamRemnants:primordialKThard");  
     resetParm("BeamRemnants:halfScaleForKT");  
@@ -887,176 +911,207 @@ void Settings::initTunePP( int ppTune) {
     resetParm("BeamRemnants:reconnectRange");
   } 
 
-  // Old ISR and MI defaults from early and primitive comparisons with data.
+  // Old ISR and MPI defaults from early and primitive comparisons with data.
   if (ppTune == 1) {
-    mode("PDF:pSet",                         2     );  
-    parm("SigmaProcess:alphaSvalue",         0.1265);  
-    flag("SigmaDiffractive:dampen",          false );  
-    flag("TimeShower:dampenBeamRecoil",      false );  
-    flag("TimeShower:phiPolAsym",            false );  
-    parm("SpaceShower:alphaSvalue",          0.127 );  
-    flag("SpaceShower:samePTasMI",           true  );  
-    parm("SpaceShower:pT0Ref",               2.2   );  
-    parm("SpaceShower:ecmRef",               1800.0);  
-    parm("SpaceShower:ecmPow",               0.16  );  
-    flag("SpaceShower:rapidityOrder",        false );  
-    flag("SpaceShower:phiPolAsym",           false );  
-    flag("SpaceShower:phiIntAsym",           false );  
-    parm("MultipleInteractions:alphaSvalue", 0.127 );   
-    parm("MultipleInteractions:pT0Ref",      2.15  );  
-    parm("MultipleInteractions:ecmRef",      1800. );  
-    parm("MultipleInteractions:ecmPow",      0.16  );  
-    mode("MultipleInteractions:bProfile",    2     );  
-    parm("BeamRemnants:primordialKTsoft",    0.4   );  
-    parm("BeamRemnants:primordialKThard",    2.1   );  
-    parm("BeamRemnants:halfScaleForKT",      7.0   );  
-    parm("BeamRemnants:halfMassForKT",       2.0   );  
-    parm("BeamRemnants:reconnectRange",      2.5   ); 
+    mode("PDF:pSet",                            2     );  
+    parm("SigmaProcess:alphaSvalue",            0.1265);  
+    flag("SigmaDiffractive:dampen",             false );  
+    flag("TimeShower:dampenBeamRecoil",         false );  
+    flag("TimeShower:phiPolAsym",               false );  
+    parm("SpaceShower:alphaSvalue",             0.127 );  
+    flag("SpaceShower:samePTasMPI",             true  );  
+    parm("SpaceShower:pT0Ref",                  2.2   );  
+    parm("SpaceShower:ecmRef",                  1800.0);  
+    parm("SpaceShower:ecmPow",                  0.16  );  
+    flag("SpaceShower:rapidityOrder",           false );  
+    flag("SpaceShower:phiPolAsym",              false );  
+    flag("SpaceShower:phiIntAsym",              false );  
+    parm("MultipartonInteractions:alphaSvalue", 0.127 );   
+    parm("MultipartonInteractions:pT0Ref",      2.15  );  
+    parm("MultipartonInteractions:ecmRef",      1800. );  
+    parm("MultipartonInteractions:ecmPow",      0.16  );  
+    mode("MultipartonInteractions:bProfile",    2     );  
+    parm("BeamRemnants:primordialKTsoft",       0.4   );  
+    parm("BeamRemnants:primordialKThard",       2.1   );  
+    parm("BeamRemnants:halfScaleForKT",         7.0   );  
+    parm("BeamRemnants:halfMassForKT",          2.0   );  
+    parm("BeamRemnants:reconnectRange",         2.5   ); 
   }
   
-  // "Tune 1" simple first tune by Peter Skands to ISR and MI, July 2009.
+  // "Tune 1" simple first tune by Peter Skands to ISR and MPI, July 2009.
   else if (ppTune == 2) {
-    mode("PDF:pSet",                         2     );  
-    parm("SigmaProcess:alphaSvalue",         0.1265);   
-    flag("SigmaDiffractive:dampen",          false );  
-    flag("TimeShower:dampenBeamRecoil",      false );  
-    flag("TimeShower:phiPolAsym",            false );  
-    parm("SpaceShower:alphaSvalue",          0.137 );  
-    flag("SpaceShower:samePTasMI",           false );  
-    parm("SpaceShower:pT0Ref",               2.0   );  
-    parm("SpaceShower:ecmRef",               1800.0);  
-    parm("SpaceShower:ecmPow",               0.0   );  
-    flag("SpaceShower:rapidityOrder",        false );  
-    flag("SpaceShower:phiPolAsym",           false );  
-    flag("SpaceShower:phiIntAsym",           false );  
-    parm("MultipleInteractions:alphaSvalue", 0.127 );   
-    parm("MultipleInteractions:pT0Ref",      2.25  );  
-    parm("MultipleInteractions:ecmRef",      1800. );  
-    parm("MultipleInteractions:ecmPow",      0.24  );  
-    mode("MultipleInteractions:bProfile",    1     );  
-    parm("BeamRemnants:primordialKTsoft",    0.5   );  
-    parm("BeamRemnants:primordialKThard",    2.0   );  
-    parm("BeamRemnants:halfScaleForKT",      1.0   );  
-    parm("BeamRemnants:halfMassForKT",       1.0   );  
-    parm("BeamRemnants:reconnectRange",      10.0  );  
+    mode("PDF:pSet",                            2     );  
+    parm("SigmaProcess:alphaSvalue",            0.1265);   
+    flag("SigmaDiffractive:dampen",             false );  
+    flag("TimeShower:dampenBeamRecoil",         false );  
+    flag("TimeShower:phiPolAsym",               false );  
+    parm("SpaceShower:alphaSvalue",             0.137 );  
+    flag("SpaceShower:samePTasMPI",             false );  
+    parm("SpaceShower:pT0Ref",                  2.0   );  
+    parm("SpaceShower:ecmRef",                  1800.0);  
+    parm("SpaceShower:ecmPow",                  0.0   );  
+    flag("SpaceShower:rapidityOrder",           false );  
+    flag("SpaceShower:phiPolAsym",              false );  
+    flag("SpaceShower:phiIntAsym",              false );  
+    parm("MultipartonInteractions:alphaSvalue", 0.127 );   
+    parm("MultipartonInteractions:pT0Ref",      2.25  );  
+    parm("MultipartonInteractions:ecmRef",      1800. );  
+    parm("MultipartonInteractions:ecmPow",      0.24  );  
+    mode("MultipartonInteractions:bProfile",    1     );  
+    parm("BeamRemnants:primordialKTsoft",       0.5   );  
+    parm("BeamRemnants:primordialKThard",       2.0   );  
+    parm("BeamRemnants:halfScaleForKT",         1.0   );  
+    parm("BeamRemnants:halfMassForKT",          1.0   );  
+    parm("BeamRemnants:reconnectRange",         10.0  );  
   }
   
   // Tune 2C, July 2010.
   else if (ppTune == 3) {
-    mode("PDF:pSet",                         8     );  
-    parm("SigmaProcess:alphaSvalue",         0.135 );  
-    flag("SigmaDiffractive:dampen",          false );  
-    flag("TimeShower:dampenBeamRecoil",      true  );  
-    flag("TimeShower:phiPolAsym",            true  );  
-    parm("SpaceShower:alphaSvalue",          0.137 );  
-    flag("SpaceShower:samePTasMI",           false );  
-    parm("SpaceShower:pT0Ref",               2.0   );  
-    parm("SpaceShower:ecmRef",               1800.0);  
-    parm("SpaceShower:ecmPow",               0.0   );  
-    flag("SpaceShower:rapidityOrder",        true  );  
-    flag("SpaceShower:phiPolAsym",           true  );  
-    flag("SpaceShower:phiIntAsym",           true  );  
-    parm("MultipleInteractions:alphaSvalue", 0.135 );   
-    parm("MultipleInteractions:pT0Ref",      2.32  );  
-    parm("MultipleInteractions:ecmRef",      1800. );  
-    parm("MultipleInteractions:ecmPow",      0.21  );  
-    mode("MultipleInteractions:bProfile",    3     );  
-    parm("MultipleInteractions:expPow",      1.6   );  
-    parm("BeamRemnants:primordialKTsoft",    0.5   );  
-    parm("BeamRemnants:primordialKThard",    2.0   );  
-    parm("BeamRemnants:halfScaleForKT",      1.0   );  
-    parm("BeamRemnants:halfMassForKT",       1.0   );  
-    parm("BeamRemnants:reconnectRange",      3.0   );  
+    mode("PDF:pSet",                            8     );  
+    parm("SigmaProcess:alphaSvalue",            0.135 );  
+    flag("SigmaDiffractive:dampen",             false );  
+    flag("TimeShower:dampenBeamRecoil",         true  );  
+    flag("TimeShower:phiPolAsym",               true  );  
+    parm("SpaceShower:alphaSvalue",             0.137 );  
+    flag("SpaceShower:samePTasMPI",             false );  
+    parm("SpaceShower:pT0Ref",                  2.0   );  
+    parm("SpaceShower:ecmRef",                  1800.0);  
+    parm("SpaceShower:ecmPow",                  0.0   );  
+    flag("SpaceShower:rapidityOrder",           true  );  
+    flag("SpaceShower:phiPolAsym",              true  );  
+    flag("SpaceShower:phiIntAsym",              true  );  
+    parm("MultipartonInteractions:alphaSvalue", 0.135 );   
+    parm("MultipartonInteractions:pT0Ref",      2.32  );  
+    parm("MultipartonInteractions:ecmRef",      1800. );  
+    parm("MultipartonInteractions:ecmPow",      0.21  );  
+    mode("MultipartonInteractions:bProfile",    3     );  
+    parm("MultipartonInteractions:expPow",      1.6   );  
+    parm("BeamRemnants:primordialKTsoft",       0.5   );  
+    parm("BeamRemnants:primordialKThard",       2.0   );  
+    parm("BeamRemnants:halfScaleForKT",         1.0   );  
+    parm("BeamRemnants:halfMassForKT",          1.0   );  
+    parm("BeamRemnants:reconnectRange",         3.0   );  
   }
   
   // Tune 2M, July 2010.
   else if (ppTune == 4) {
-    mode("PDF:pSet",                         4     );  
-    parm("SigmaProcess:alphaSvalue",         0.1265);  
-    flag("SigmaDiffractive:dampen",          false );  
-    flag("TimeShower:dampenBeamRecoil",      true  );  
-    flag("TimeShower:phiPolAsym",            true  );  
-    parm("SpaceShower:alphaSvalue",          0.130 );  
-    flag("SpaceShower:samePTasMI",           false );  
-    parm("SpaceShower:pT0Ref",               2.0   );  
-    parm("SpaceShower:ecmRef",               1800.0);  
-    parm("SpaceShower:ecmPow",               0.0   );  
-    flag("SpaceShower:rapidityOrder",        true  );  
-    flag("SpaceShower:phiPolAsym",           true  );  
-    flag("SpaceShower:phiIntAsym",           true  );  
-    parm("MultipleInteractions:alphaSvalue", 0.127 );   
-    parm("MultipleInteractions:pT0Ref",      2.455 );  
-    parm("MultipleInteractions:ecmRef",      1800. );  
-    parm("MultipleInteractions:ecmPow",      0.26  );  
-    mode("MultipleInteractions:bProfile",    3     );  
-    parm("MultipleInteractions:expPow",      1.15  );  
-    parm("BeamRemnants:primordialKTsoft",    0.5   );  
-    parm("BeamRemnants:primordialKThard",    2.0   );  
-    parm("BeamRemnants:halfScaleForKT",      1.0   );  
-    parm("BeamRemnants:halfMassForKT",       1.0   );  
-    parm("BeamRemnants:reconnectRange",      3.0   );  
+    mode("PDF:pSet",                            4     );  
+    parm("SigmaProcess:alphaSvalue",            0.1265);  
+    flag("SigmaDiffractive:dampen",             false );  
+    flag("TimeShower:dampenBeamRecoil",         true  );  
+    flag("TimeShower:phiPolAsym",               true  );  
+    parm("SpaceShower:alphaSvalue",             0.130 );  
+    flag("SpaceShower:samePTasMPI",             false );  
+    parm("SpaceShower:pT0Ref",                  2.0   );  
+    parm("SpaceShower:ecmRef",                  1800.0);  
+    parm("SpaceShower:ecmPow",                  0.0   );  
+    flag("SpaceShower:rapidityOrder",           true  );  
+    flag("SpaceShower:phiPolAsym",              true  );  
+    flag("SpaceShower:phiIntAsym",              true  );  
+    parm("MultipartonInteractions:alphaSvalue", 0.127 );   
+    parm("MultipartonInteractions:pT0Ref",      2.455 );  
+    parm("MultipartonInteractions:ecmRef",      1800. );  
+    parm("MultipartonInteractions:ecmPow",      0.26  );  
+    mode("MultipartonInteractions:bProfile",    3     );  
+    parm("MultipartonInteractions:expPow",      1.15  );  
+    parm("BeamRemnants:primordialKTsoft",       0.5   );  
+    parm("BeamRemnants:primordialKThard",       2.0   );  
+    parm("BeamRemnants:halfScaleForKT",         1.0   );  
+    parm("BeamRemnants:halfMassForKT",          1.0   );  
+    parm("BeamRemnants:reconnectRange",         3.0   );  
   }
  
   // Tune 4C, October 2010.
   else if (ppTune == 5) {
-    mode("PDF:pSet",                         8     );  
-    parm("SigmaProcess:alphaSvalue",         0.135 );  
-    flag("SigmaDiffractive:dampen",          true  );
-    parm("SigmaDiffractive:maxXB",           65.0  );
-    parm("SigmaDiffractive:maxAX",           65.0  );
-    parm("SigmaDiffractive:maxXX",           65.0  );  
-    flag("TimeShower:dampenBeamRecoil",      true  );  
-    flag("TimeShower:phiPolAsym",            true  );  
-    parm("SpaceShower:alphaSvalue",          0.137 );  
-    flag("SpaceShower:samePTasMI",           false );  
-    parm("SpaceShower:pT0Ref",               2.0   );  
-    parm("SpaceShower:ecmRef",               1800.0);  
-    parm("SpaceShower:ecmPow",               0.0   );  
-    flag("SpaceShower:rapidityOrder",        true  );  
-    flag("SpaceShower:phiPolAsym",           true  );  
-    flag("SpaceShower:phiIntAsym",           true  );  
-    parm("MultipleInteractions:alphaSvalue", 0.135 );   
-    parm("MultipleInteractions:pT0Ref",      2.085 );  
-    parm("MultipleInteractions:ecmRef",      1800. );  
-    parm("MultipleInteractions:ecmPow",      0.19  );  
-    mode("MultipleInteractions:bProfile",    3     );  
-    parm("MultipleInteractions:expPow",      2.0   );  
-    parm("BeamRemnants:primordialKTsoft",    0.5   );  
-    parm("BeamRemnants:primordialKThard",    2.0   );  
-    parm("BeamRemnants:halfScaleForKT",      1.0   );  
-    parm("BeamRemnants:halfMassForKT",       1.0   );  
-    parm("BeamRemnants:reconnectRange",      1.5   );  
+    mode("PDF:pSet",                            8     );  
+    parm("SigmaProcess:alphaSvalue",            0.135 );  
+    flag("SigmaDiffractive:dampen",             true  );
+    parm("SigmaDiffractive:maxXB",              65.0  );
+    parm("SigmaDiffractive:maxAX",              65.0  );
+    parm("SigmaDiffractive:maxXX",              65.0  );  
+    flag("TimeShower:dampenBeamRecoil",         true  );  
+    flag("TimeShower:phiPolAsym",               true  );  
+    parm("SpaceShower:alphaSvalue",             0.137 );  
+    flag("SpaceShower:samePTasMPI",             false );  
+    parm("SpaceShower:pT0Ref",                  2.0   );  
+    parm("SpaceShower:ecmRef",                  1800.0);  
+    parm("SpaceShower:ecmPow",                  0.0   );  
+    flag("SpaceShower:rapidityOrder",           true  );  
+    flag("SpaceShower:phiPolAsym",              true  );  
+    flag("SpaceShower:phiIntAsym",              true  );  
+    parm("MultipartonInteractions:alphaSvalue", 0.135 );   
+    parm("MultipartonInteractions:pT0Ref",      2.085 );  
+    parm("MultipartonInteractions:ecmRef",      1800. );  
+    parm("MultipartonInteractions:ecmPow",      0.19  );  
+    mode("MultipartonInteractions:bProfile",    3     );  
+    parm("MultipartonInteractions:expPow",      2.0   );  
+    parm("BeamRemnants:primordialKTsoft",       0.5   );  
+    parm("BeamRemnants:primordialKThard",       2.0   );  
+    parm("BeamRemnants:halfScaleForKT",         1.0   );  
+    parm("BeamRemnants:halfMassForKT",          1.0   );  
+    parm("BeamRemnants:reconnectRange",         1.5   );  
   }
 
   // Tune 4Cx, January 2011.
   else if (ppTune == 6) {
-    mode("PDF:pSet",                         8     );  
-    parm("SigmaProcess:alphaSvalue",         0.135 );  
-    flag("SigmaDiffractive:dampen",          true  );
-    parm("SigmaDiffractive:maxXB",           65.0  );
-    parm("SigmaDiffractive:maxAX",           65.0  );
-    parm("SigmaDiffractive:maxXX",           65.0  );  
-    flag("TimeShower:dampenBeamRecoil",      true  );  
-    flag("TimeShower:phiPolAsym",            true  );  
-    parm("SpaceShower:alphaSvalue",          0.137 );  
-    flag("SpaceShower:samePTasMI",           false );  
-    parm("SpaceShower:pT0Ref",               2.0   );  
-    parm("SpaceShower:ecmRef",               1800.0);  
-    parm("SpaceShower:ecmPow",               0.0   );  
-    flag("SpaceShower:rapidityOrder",        true  );  
-    flag("SpaceShower:phiPolAsym",           true  );  
-    flag("SpaceShower:phiIntAsym",           true  );  
-    parm("MultipleInteractions:alphaSvalue", 0.135 );   
-    parm("MultipleInteractions:pT0Ref",      2.15  );  
-    parm("MultipleInteractions:ecmRef",      1800. );  
-    parm("MultipleInteractions:ecmPow",      0.19  );  
-    mode("MultipleInteractions:bProfile",    4     );
-    parm("MultipleInteractions:a1",          0.15  );
-    parm("BeamRemnants:primordialKTsoft",    0.5   );  
-    parm("BeamRemnants:primordialKThard",    2.0   );  
-    parm("BeamRemnants:halfScaleForKT",      1.0   );  
-    parm("BeamRemnants:halfMassForKT",       1.0   );  
-    parm("BeamRemnants:reconnectRange",      1.5   );  
+    mode("PDF:pSet",                            8     );  
+    parm("SigmaProcess:alphaSvalue",            0.135 );  
+    flag("SigmaDiffractive:dampen",             true  );
+    parm("SigmaDiffractive:maxXB",              65.0  );
+    parm("SigmaDiffractive:maxAX",              65.0  );
+    parm("SigmaDiffractive:maxXX",              65.0  );  
+    flag("TimeShower:dampenBeamRecoil",         true  );  
+    flag("TimeShower:phiPolAsym",               true  );  
+    parm("SpaceShower:alphaSvalue",             0.137 );  
+    flag("SpaceShower:samePTasMPI",             false );  
+    parm("SpaceShower:pT0Ref",                  2.0   );  
+    parm("SpaceShower:ecmRef",                  1800.0);  
+    parm("SpaceShower:ecmPow",                  0.0   );  
+    flag("SpaceShower:rapidityOrder",           true  );  
+    flag("SpaceShower:phiPolAsym",              true  );  
+    flag("SpaceShower:phiIntAsym",              true  );  
+    parm("MultipartonInteractions:alphaSvalue", 0.135 );   
+    parm("MultipartonInteractions:pT0Ref",      2.15  );  
+    parm("MultipartonInteractions:ecmRef",      1800. );  
+    parm("MultipartonInteractions:ecmPow",      0.19  );  
+    mode("MultipartonInteractions:bProfile",    4     );
+    parm("MultipartonInteractions:a1",          0.15  );
+    parm("BeamRemnants:primordialKTsoft",       0.5   );  
+    parm("BeamRemnants:primordialKThard",       2.0   );  
+    parm("BeamRemnants:halfScaleForKT",         1.0   );  
+    parm("BeamRemnants:halfMassForKT",          1.0   );  
+    parm("BeamRemnants:reconnectRange",         1.5   );  
+  }
+
+  // Tune A2, November 2011 (ATLAS; Deepak Kar).
+  else if (ppTune == 7) {
+    mode("PDF:pSet",                            8     );  
+    parm("SigmaProcess:alphaSvalue",            0.135 );  
+    flag("SigmaDiffractive:dampen",             true  );
+    parm("SigmaDiffractive:maxXB",              65.0  );
+    parm("SigmaDiffractive:maxAX",              65.0  );
+    parm("SigmaDiffractive:maxXX",              65.0  );  
+    flag("TimeShower:dampenBeamRecoil",         true  );  
+    flag("TimeShower:phiPolAsym",               true  );  
+    parm("SpaceShower:alphaSvalue",             0.137 );  
+    flag("SpaceShower:samePTasMPI",             false );  
+    parm("SpaceShower:pT0Ref",                  2.0   );  
+    parm("SpaceShower:ecmRef",                  1800.0);  
+    parm("SpaceShower:ecmPow",                  0.0   );  
+    flag("SpaceShower:rapidityOrder",           false ); 
+    flag("SpaceShower:phiPolAsym",              true  );  
+    flag("SpaceShower:phiIntAsym",              true  );  
+    parm("MultipartonInteractions:alphaSvalue", 0.135 );   
+    parm("MultipartonInteractions:pT0Ref",      2.18  );  
+    parm("MultipartonInteractions:ecmRef",      1800. );  
+    parm("MultipartonInteractions:ecmPow",      0.22  );   
+    mode("MultipartonInteractions:bProfile",    4     );
+    parm("MultipartonInteractions:a1",          0.06  ); 
+    parm("BeamRemnants:primordialKTsoft",       0.5   );  
+    parm("BeamRemnants:primordialKThard",       2.0   );  
+    parm("BeamRemnants:halfScaleForKT",         1.0   );  
+    parm("BeamRemnants:halfMassForKT",          1.0   );  
+    parm("BeamRemnants:reconnectRange",         1.55  );  
   }
 
 }

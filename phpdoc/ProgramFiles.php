@@ -76,7 +76,7 @@ histogram class <code>Hist</code>.
 <p/><code>file&nbsp; </code><strong> BeamParticle &nbsp;</strong> <br/>
 contains information on all partons extracted from one of the two
 beams. Defines modified parton distributions accordingly during the
-showering and multiple interactions processing, thereby extending on 
+showering and multiparton interactions processing, thereby extending on 
 the one-particle-inclusive distributions defined by the previous class.
 Finds the internal structure for a beam remnant.
   
@@ -190,8 +190,8 @@ subsystem mass is so small that one or at most two primary hadrons
 should be produced from it.
   
 
-<p/><code>file&nbsp; </code><strong> MultipleInteractions &nbsp;</strong> <br/>
-performs multiple parton-parton interactions.
+<p/><code>file&nbsp; </code><strong> MultipartonInteractions &nbsp;</strong> <br/>
+performs multiparton interactions.
   
 
 <p/><code>file&nbsp; </code><strong> ParticleData &nbsp;</strong> <br/>
@@ -214,13 +214,13 @@ external sets.
 
 <p/><code>file&nbsp; </code><strong> PartonLevel &nbsp;</strong> <br/>
 turns the (hard) process above into a complete set of partons, by 
-adding initial- and final-state radiation, multiple parton--parton
+adding initial- and final-state radiation, multiparton
 interactions, and beam remnants.
   
 
 <p/><code>file&nbsp; </code><strong> PartonSystems &nbsp;</strong> <br/>
 keeps track of which partons belong to which partonic subsystem,
-i.e. one of the multiple (semi)hard interactiosn with associated
+i.e. one of the multiparton (semi)hard interactions with associated
 showers.
   
 
@@ -411,4 +411,4 @@ its cross-section weight.
 </body>
 </html>
 
-<!-- Copyright (C) 2011 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
