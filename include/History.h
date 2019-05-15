@@ -1,5 +1,5 @@
 // History.h is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -121,9 +121,9 @@ public:
            ParticleData* particleDataPtrIn,
            Info* infoPtrIn,
            bool isOrdered,
-           bool isUnordered,
            bool isStronglyOrdered,
            bool isAllowed,
+           bool isNextInInput,
            double probin,
            History * mothin);
 
@@ -135,6 +135,7 @@ public:
   // Function to project paths onto desired paths.
   bool projectOntoDesiredHistories();
 
+  // For CKKW-L, NL3 and UMEPS:
   // In the initial history node, select one of the paths according to
   // the probabilities. This function should be called for the initial
   // history node.
@@ -147,25 +148,49 @@ public:
   double weightTREE(PartonLevel* trial, AlphaStrong * asFSR,
                     AlphaStrong * asISR, double RN);
 
+  // For default NL3:
+  // Return weight of virtual correction and subtractive for NL3 merging
+  double weightLOOP(PartonLevel* trial, double RN);
+  // Return O(\alpha_s)-term of CKKWL-weight for NL3 merging
+  double weightFIRST(PartonLevel* trial, AlphaStrong* asFSR,
+                  AlphaStrong* asISR, double RN, Rndm* rndmPtr );
+
+  // For UMEPS:
+  double weight_UMEPS_TREE(PartonLevel* trial, AlphaStrong * asFSR,
+                    AlphaStrong * asISR, double RN);
+  double weight_UMEPS_SUBT(PartonLevel* trial, AlphaStrong * asFSR,
+                    AlphaStrong * asISR, double RN);
+
+  // For unitary NL3:
+  double weight_UNLOPS_TREE(PartonLevel* trial, AlphaStrong * asFSR,
+                    AlphaStrong * asISR, double RN);
+  double weight_UNLOPS_SUBT(PartonLevel* trial, AlphaStrong * asFSR,
+                    AlphaStrong * asISR, double RN);
+  double weight_UNLOPS_LOOP(PartonLevel* trial, double RN);
+  double weight_UNLOPS_SUBTNLO(PartonLevel* trial, double RN);
+  double weight_UNLOPS_CORRECTION( int order, PartonLevel* trial,
+                  AlphaStrong* asFSR, AlphaStrong* asISR, 
+                  double RN, Rndm* rndmPtr );
+
   // Function to check if any allowed histories were found
   bool foundAllowedHistories() {
     return (children.size() > 0 && foundAllowedPath); }
   // Function to check if any ordered histories were found
   bool foundOrderedHistories() {
     return (children.size() > 0 && foundOrderedPath); }
-  // Function to check if any unordered histories were found
-  bool foundUnorderedHistories() {
-    return (children.size() > 0 && foundUnorderedPath); }
   // Function to check if any ordered histories were found
   bool foundCompleteHistories() {
     return (children.size() > 0 && foundCompletePath); }
 
   // Function to set the state with complete scales for evolution 
   void getStartingConditions( const double RN, Event& outState );
-
-  // Function to set the state with complete scales for evolution 
-  bool getClusteredEvent( const double RN, Event& outState, int nSteps);
-
+  // Function to get the state with complete scales for evolution 
+  bool getClusteredEvent( const double RN, int nSteps, Event& outState);
+  // Function to get the first reclustered state above the merging scale. 
+  bool getFirstClusteredEventAboveTMS( const double RN, int nDesired,
+    Event& process, int & nPerformed, bool updateProcess = true );
+  // Function to return the depth of the history (i.e. the number of
+  // reclustered splittings)
   int nClusterings();
 
   // Function to get the lowest multiplicity reclustered event
@@ -175,14 +200,20 @@ public:
   }
 
   // Calculate and return pdf ratio
-  double getPDFratio( int side, bool forSudakov,
+  double getPDFratio( int side, bool forSudakov, bool useHardPDF,
                       int flavNum, double xNum, double muNum,
                       int flavDen, double xDen, double muDen);
 
   // Make Pythia class friend
   friend class Pythia;
+  // Make Merging class friend
+  friend class Merging;
 
 private:
+
+  // Number of trial emission to use for calculating the average number of 
+  // emissions
+  static const int NTRIAL;
 
   // Function to set all scales in the sequence of states. This is a
   // wrapper routine for setScales and setEventScales methods
@@ -249,16 +280,14 @@ private:
   bool keepHistory();
   // Function to check if a path is ordered in evolution pT.
   bool isOrderedPath( double maxscale );
+
+  bool followsInputPath();
+
   // Function to check if all reconstucted states in a path pass the merging
   // scale cut.
-  bool allIntermediateAboveRhoMS( double rhoms );
-  // Function to check if reconstucted states in a path are ordered in the
-  // merging scale variable.
-  bool intermediateRhoMSOrdered( double maxscale );
+  bool allIntermediateAboveRhoMS( double rhoms, bool good = true );
   // Function to check if any ordered paths were found (and kept).
   bool foundAnyOrderedPaths();
-  // Function to check if any unordered paths were found (and kept).
-  bool foundAnyUnorderedPaths();
 
   // Functions to return the z value of the last ISR splitting
   // NO INPUT
@@ -308,10 +337,36 @@ private:
     double pdfScale, AlphaStrong * asFSR, AlphaStrong * asISR,
     double& asWeight, double& pdfWeight);
 
+  // Function to return the \alpha_s-ratio part of the CKKWL weight.
+  double weightTreeALPHAS( double as0, AlphaStrong * asFSR, 
+    AlphaStrong * asISR );
+  // Function to return the PDF-ratio part of the CKKWL weight.
+  double weightTreePDFs( double maxscale, double pdfScale );
+  // Function to return the no-emission probability part of the CKKWL weight.
+  double weightTreeEmissions( PartonLevel* trial, int type, int njetMax, 
+    double maxscale );
+
+  // Function to generate the O(\alpha_s)-term of the CKKWL-weight
+  double weightFirst(PartonLevel* trial, double as0, double muR,
+    double maxscale, AlphaStrong * asFSR, AlphaStrong * asISR, Rndm* rndmPtr );
+
+  // Function to generate the O(\alpha_s)-term of the \alpha_s-ratios
+  // appearing in the CKKWL-weight.
+  double weightFirstALPHAS( double as0, double muR, AlphaStrong * asFSR,
+    AlphaStrong * asISR);
+  // Function to generate the O(\alpha_s)-term of the PDF-ratios
+  // appearing in the CKKWL-weight.
+  double weightFirstPDFs( double as0, double maxscale, double pdfScale,
+    Rndm* rndmPtr );
+  // Function to generate the O(\alpha_s)-term of the no-emission
+  // probabilities appearing in the CKKWL-weight.
+  double weightFirstEmissions(PartonLevel* trial, double as0, double maxscale,
+    AlphaStrong * asFSR, AlphaStrong * asISR, bool fixpdf, bool fixas );
+
   // Function to return the default factorisation scale of the hard process.
-  double hardFacScale();
+  double hardFacScale(const Event& event);
   // Function to return the default renormalisation scale of the hard process.
-  double hardRenScale();
+  double hardRenScale(const Event& event);
 
   // Perform a trial shower using the \a pythia object between
   // maxscale down to this scale and return the corresponding Sudakov
@@ -321,17 +376,26 @@ private:
   // OUT  0.0       : trial shower emission outside allowed pT range
   //      1.0       : trial shower successful (any emission was below
   //                  the minimal scale )
-  double doTrialShower(PartonLevel* trial, double maxscale, 
+  double doTrialShower(PartonLevel* trial, int type, double maxscale, 
     double minscale = 0.);
+
+  // Function to bookkeep the indices of weights generated in countEmissions
+  bool updateind(vector<int> & ind, int i, int N);
+
+  // Function to count number of emissions between two scales for NLO merging
+  vector<double> countEmissions(PartonLevel* trial, double maxscale,
+    double minscale, int showerType, double as0, AlphaStrong * asFSR,
+    AlphaStrong * asISR, int N, bool fixpdf, bool fixas);
+
+  // Function to integrate PDF ratios between two scales over x and t,
+  // where the PDFs are always evaluated at the lower t-integration limit
+  double monteCarloPDFratios(int flav, double x, double maxScale,
+           double minScale, double pdfScale, double asME, Rndm* rndmPtr);
 
   // Default: Check if a ordered (and complete) path has been found in
   // the initial node, in which case we will no longer be interested in
   // any unordered paths.
   bool onlyOrderedPaths();
-  // Alternative: Check if a unordered (and complete) path has been found in
-  // the initial node, in which case we will no longer be interested in
-  // any ordered paths.
-  bool onlyUnorderedPaths();
 
   // Check if a strongly ordered (and complete) path has been found in the
   // initial node, in which case we will no longer be interested in
@@ -350,7 +414,7 @@ private:
   //     bool    : Specifying if path is complete down to 2->2 process
   // OUT true if History object forms a plausible path (eg prob>0 ...)
   bool registerPath(History & l, bool isOrdered, bool isStronglyOrdered,
-         bool isUnordered, bool isAllowed, bool isComplete);
+         bool isAllowed, bool isComplete);
 
   // For the history-defining state (and if necessary interfering
   // states), find all possible clusterings.
@@ -381,6 +445,12 @@ private:
   vector<Clustering> findEWTriple( int EmtTagIn, const Event& event,
                        vector<int> PosFinalPartn );
 
+  vector<Clustering> getAllSQCDClusterings();
+  vector<Clustering> getSQCDClusterings( const Event& event);
+  vector<Clustering> findSQCDTriple (int EmtTagIn, int colTopIn, 
+                       const Event& event, vector<int> PosFinalPartn,
+                       vector <int> PosInitPartn );
+
   // Calculate and return the probability of a clustering.
   // IN  Clustering : rad,rec,emt - System for which the splitting
   //                  probability should be calcuated
@@ -399,8 +469,12 @@ private:
   void setupBeams();
 
   // Calculate the PDF ratio used in the argument of the no-emission
-  // probability
+  // probability.
   double pdfForSudakov();
+
+  // Calculate the hard process matrix element to include in the selection
+  // probability.
+  double hardProcessME( const Event& event);
 
   // Perform the clustering of the current state and return the
   // clustered state.
@@ -583,7 +657,21 @@ private:
   // a single (!) splitting.
   int posChangedIncoming(const Event& event, bool before);
 
-private:
+  // Function to give back the ratio of PDFs and PDF * splitting kernels
+  // needed to convert a splitting at scale pdfScale, chosen with running
+  // PDFs, to a splitting chosen with PDFs at a fixed scale mu. As needed to
+  // properly count emissions.
+  double pdfFactor( const Event& event, const int type, double pdfScale,
+    double mu );
+
+  // Function giving the product of splitting kernels and PDFs so that the
+  // resulting flavour is given by flav. This is used as a helper routine 
+  // to dgauss
+  double integrand(int flav, double x, double scaleInt, double z);
+
+  //----------------------------------------------------------------------//
+  // Class members.
+  //----------------------------------------------------------------------//
 
   // The state of the event correponding to this step in the
   // reconstruction.
@@ -618,7 +706,6 @@ private:
   // This is set true if an ordered (and complete) path has been found
   // and inserted in paths.
   bool foundOrderedPath;
-  bool foundUnorderedPath;
 
   // This is set true if a strongly ordered (and complete) path has been found
   // and inserted in paths.
@@ -636,6 +723,11 @@ private:
   // constructed the corresponding state (or the merging scale in case
   // mother == 0).
   double scale;
+
+  // Flag indicating if a clustering in the construction of all histories is
+  // the next clustering demanded by inout clusterings in LesHouches 2.0
+  // accord.
+  bool nextInInput;
 
   // The probability associated with this step and the previous steps.
   double prob;
@@ -680,4 +772,4 @@ private:
 
 } // end namespace Pythia8
 
-#endif // end Pythia8_History_H
+#endif // end Pythia8_History_H 

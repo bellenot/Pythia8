@@ -1,5 +1,5 @@
 // main22.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -238,6 +238,8 @@ int main() {
 
   // Create instance of a class to calculate the width of Theta to the 
   // above channels. Hand in pointer to Pythia. 
+  // Note: Pythia will automatically delete this pointer, 
+  // along with all other resonances.
   ResonanceWidths* resonanceTheta = new ResonanceTheta(663);
   pythia.setResonancePtr(resonanceTheta);
 
@@ -276,5 +278,6 @@ int main() {
   cout << mTheta;
   
   // Done.
+  delete sigma1Theta;
   return 0;
 }

@@ -58,6 +58,7 @@ appropriate hard process.
 The PDG <code>id</code> code for the first incoming particle.
 Allowed codes include 
 <br/><i>2212 = p</i>, <i>-2212 = pbar</i>, 
+<br/><i>2112 = n</i>, <i>-2112 = nbar</i>, 
 <br/><i>211 = pi^+</i>, <i>-211 = pi^-</i>, <i>111 = pi^0</i>,  
 <br/><i>990 = Pomeron</i> (used in diffractive machinery;
 here mainly for debug purposes),
@@ -527,4 +528,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->

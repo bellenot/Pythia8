@@ -25,7 +25,7 @@ the page contains information of more general interest.
 <tr> 
 <td><code>BeamShape</code></td> 
 <td><aloc href="BeamShape">Beam Shape</aloc></td> 
-<td>vertex amd beam momentum spread</td> 
+<td>vertex and beam momentum spread</td> 
 </tr>
 
 <tr> 
@@ -224,4 +224,4 @@ You can also access an extensive list of the public
 <aloc href="ProgramMethods">methods</aloc> in these classes, 
 which compensates for the brevity of the current page. 
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->

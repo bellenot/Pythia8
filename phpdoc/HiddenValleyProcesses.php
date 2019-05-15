@@ -140,7 +140,7 @@ however, the <i>qv</i> can be duplicated in up to eight copies
 with the same properties except for the flavour charge. These are
 assigned codes 4900101 - 4900108. This gives a total of 64 possible
 lowest-lying mesons. We also include a duplication of that, into two
-multiplets, corrsesponding to the pseudoscalar and vector mesons of
+multiplets, corresponding to the pseudoscalar and vector mesons of
 QCD. For now, again, these are assumed to have the same mass and 
 other properties. Only the flavour-diagonal ones can decay back into
 the Standard-Model sector, however, while the rest remains in the 
@@ -187,7 +187,7 @@ the <ei>qv</ei> spin is fixed at 1/2.)
 
 <br/><br/><table><tr><td><strong>HiddenValley:kappa </td><td></td><td> <input type="text" name="4" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>)</td></tr></table>
 If the <i>Fv</i> have spin 1 then their production 
-cross section depends on the presence of ananomalous magnetic dipole 
+cross section depends on the presence of anomalous magnetic dipole 
 moment, i.e. of a <i>kappa</i> different from unity. For other spins
 this parameter is not used.  
   
@@ -195,7 +195,7 @@ this parameter is not used.
 <br/><br/><strong>HiddenValley:doKinMix</strong>  <input type="radio" name="5" value="on"><strong>On</strong>
 <input type="radio" name="5" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-allow kinemtic mixing or not.
+allow kinematic mixing or not.
   
 
 <br/><br/><table><tr><td><strong>HiddenValley:kinMix </td><td></td><td> <input type="text" name="6" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>)</td></tr></table>
@@ -411,7 +411,7 @@ Code 4936.
 <input type="radio" name="32" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Production <i>f fbar -> Zv</i> where <i>Zv</i> is a generic 
-resonace that couples both SM fermion pairs and a <i>qv qvbar</i>
+resonance that couples both SM fermion pairs and a <i>qv qvbar</i>
 pair. Not part of the framework of the above processes, but as an
 alternative. Code 4941.
   
@@ -543,7 +543,7 @@ HV-energy leaks back, while the rest remains in the hidden sector.
 This scenario contains more parameters than the first one, for the
 <b>U(1)</b> group. They can be subdivided into two sets. One is 
 related to particle properties, both for <i>qv</i> and for the
-two different kinds of HV-mesons, here labelled 4900111 and 4900113
+two different kinds of HV-mesons, here labeled 4900111 and 4900113
 for the diagonal ones, and +-4900211 and +-4900213 for the 
 off-diagonal ones. It makes sense to set the HV-meson masses to be 
 twice the <i>qv</i> one, as in a simple constituent mass context. 
@@ -558,7 +558,7 @@ the ones used in normal string fragmentation. Some of them are not
 encoded in the same way as normally, however, but rather scale as 
 the <i>qv</i> mass is changed, so as to keep a sensible default
 behaviour. This does not mean that deviations from this set should 
-not be explored, or that other scaling rules could be prefered
+not be explored, or that other scaling rules could be preferred
 within alternative scenarios. These parameters are as follows.
 
 <br/><br/><strong>HiddenValley:fragment</strong>  <input type="radio" name="36" value="on"><strong>On</strong>
@@ -842,5 +842,5 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->
 

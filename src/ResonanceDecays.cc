@@ -1,5 +1,5 @@
 // ResonanceDecays.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -446,7 +446,7 @@ bool ResonanceDecays::pickColours(int iDec, Event& process) {
 
   // If net creation of three colours then find junction kind:
   // mother is 1 = singlet, triplet, or sextet (no incoming RPV tags)
-  //           3 = antitriplet, octet, or anti-sextet (acol0 = incoming RPV tag)
+  //           3 = antitriplet, octet, or antisextet (acol0 = incoming RPV tag)
   //           5 = not applicable to decays (needs two incoming RPV tags)
   if (nCol - nAcol == 3) {
     int kindJun = (colType0 == 0 || colType0 == 1 || colType0 == 3) ? 1 : 3;

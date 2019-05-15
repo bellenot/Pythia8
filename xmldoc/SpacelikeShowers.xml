@@ -24,7 +24,7 @@ would be of interest for a tuning exercise, however.
 
 The maximum <ei>pT</ei> to be allowed in the shower evolution is
 related to the nature of the hard process itself. It involves a
-delicate balance between not doublecounting and not leaving any
+delicate balance between not double-counting and not leaving any
 gaps in the coverage. The best procedure may depend on information 
 only the user has: how the events were generated and mixed (e.g. with 
 Les Houches Accord external input), and how they are intended to be 
@@ -43,27 +43,48 @@ and the <code>scale</code> value for Les Houches input;
 the kinematical limit. 
 The reasoning is that in the former set of processes the ISR
 emission of yet another quark, gluon or photon could lead to
-doublecounting, while no such danger exists in the latter case.
+double-counting, while no such danger exists in the latter case.
 </option>
 <option value="1">always use the factorization scale for an internal
 process and the <code>scale</code> value for Les Houches input, 
-i.e. the lower value. This should avoid doublecounting, but
+i.e. the lower value. This should avoid double-counting, but
 may leave out some emissions that ought to have been simulated.
 (Also known as wimpy showers.)
 </option>
 <option value="2">always allow emissions up to the kinematical limit.
 This will simulate all possible event topologies, but may lead to
-doublecounting. 
+double-counting. 
 (Also known as power showers.)
 </option>
-<note>Note 1:</note> These options only apply to the hard interaction.
-Emissions off subsequent multiparton interactions are always constrainted
-to be below the factorization scale of the process itself.  
-<note>Note 2:</note> Some processes contain matrix-element matching
+<note>Note 1:</note> Some processes contain matrix-element matching
 to the first emission; this is the case notably for single 
 <ei>gamma^*/Z^0, W^+-</ei> and <ei>H^0</ei> production. Then default
 and option 2 give the correct result, while option 1 should never
 be used. 
+<note>Note 2:</note> as enumerated in the text, these options take effect 
+both for internal and external processes. Whether a particular option
+makes sense depends on the context. For instance, if events for the same
+basic process to different orders are to be matched, then option 1 would
+be a reasonable first guess. But in more sophisticated descriptions 
+option 2 could be combined with <code>UserHooks</code> vetoes on emissions 
+that would lead to double-counting, using more flexible phase space 
+boundaries. Option 0, finally, may be most realistic when only Born-level 
+processes are involved, possibly in combination with a nonzero  
+<code>SpaceShower:pTdampMatch</code>. The rules used for avoiding 
+double-counting are not foolproof, however. As an example, for the 
+<ei>t</ei>-channel process <ei>gamma gamma -> e^+ e^-</ei> its <ei>pT</ei> 
+scale is the plausible upper shower limit, with only dampened emissions 
+above it. But the initial state is not checked and, had only incoming 
+quarks and gluons been taken into account, only the <ei>s</ei>-channel 
+process <ei>q qbar -> gamma^*/Z^0 -> e^+ e^-</ei> would have been possible,
+where indeed the whole phase space should be populated. So this is 
+erroneously used, giving too much emissions. 
+<note>Note 3:</note> These options only apply to the hard interaction.
+If a "second hard" process is present, the two are analyzed and 
+set separately for the default 0 option, while both are affected
+the same way for non-default options 1 and 2. 
+Emissions off subsequent multiparton interactions are always constrained
+to be below the factorization scale of each process itself.  
 </modepick>
 
 <parm name="SpaceShower:pTmaxFudge" default="1.0" min="0.25" max="2.0">
@@ -71,9 +92,9 @@ In cases where the above <code>pTmaxMatch</code> rules would imply
 that <ei>pT_max = pT_factorization</ei>, <code>pTmaxFudge</code> 
 introduces a multiplicative factor <ei>f</ei> such that instead
 <ei>pT_max = f * pT_factorization</ei>. Only applies to the hardest
-interaction in an event, cf. below. It is strongly suggested that 
-<ei>f = 1</ei>, but variations around this default can be useful to 
-test this assumption. 
+interaction in an event, and a "second hard" if there is such a one, 
+cf. below. It is strongly suggested that <ei>f = 1</ei>, but variations 
+around this default can be useful to test this assumption. 
 </parm>
 
 <parm name="SpaceShower:pTmaxFudgeMPI" default="1.0" min="0.25" max="2.0">
@@ -108,7 +129,8 @@ where <ei>Q_ren</ei> is the renormalization scale and <ei>k</ei> is a
 multiplicative fudge factor stored in <code>pTdampFudge</code> below. 
 </option>
 <note>Note:</note> These options only apply to the hard interaction.
-Emissions off subsequent multiparton interactions are always constrainted
+Specifically, a "second hard" interaction would not be affected.
+Emissions off subsequent multiparton interactions are always constrained
 to be below the factorization scale of the process itself.  
 </modepick>
 
@@ -337,7 +359,7 @@ If so, then
 so use this to select the <ei>pT2</ei> of the <ei>g -> Q Qbar</ei> 
 branching. In the old formalism the same kind of behaviour should 
 be obtained, but by a cancellation of a <ei>1/f_Q</ei> that diverges 
-at the theshold and a Sudakov that vanishes.
+at the threshold and a Sudakov that vanishes.
 <br/>
 The strategy therefore is that, once <ei>pT2 &lt; f * mQ2</ei>, with 
 <ei>f</ei> a parameter of the order of 2, a <ei>pT2</ei> is chosen 
@@ -365,5 +387,5 @@ been included, nor has photon backwards-evolution in lepton beams.
 
 </chapter>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->
 

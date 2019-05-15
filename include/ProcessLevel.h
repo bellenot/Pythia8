@@ -1,5 +1,5 @@
 // ProcessLevel.h is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -51,8 +51,8 @@ public:
     vector<SigmaProcess*>& sigmaPtrs, ostream& os = cout);
 
   // Store or replace Les Houches pointer.
-  void setLHAPtr( LHAup* lhaUpPtrIn) {lhaUpPtr = lhaUpPtrIn;
-  if (iLHACont >= 0) containerPtrs[iLHACont]->setLHAPtr(lhaUpPtr);}
+  void setLHAPtr( LHAup* lhaUpPtrIn) {lhaUpPtr = lhaUpPtrIn;     
+    if (iLHACont >= 0) containerPtrs[iLHACont]->setLHAPtr(lhaUpPtr);}
  
   // Generate the next "hard" process.
   bool next( Event& process); 
@@ -152,9 +152,6 @@ private:
 
   // Print statistics when two hard processes allowed.
   void statistics2(bool reset, ostream& os = cout);
-
-  // Statistics for Les Houches event classification.
-  vector<int> codeLHA, nEvtLHA;
 
 };
 

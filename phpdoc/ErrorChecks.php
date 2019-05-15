@@ -64,7 +64,7 @@ used for these checks, may also be called directly.
 <br/><br/><table><tr><td><strong>Check:levelParticleData  </td><td>  &nbsp;&nbsp;(<code>default = <strong>1</strong></code>)</td></tr></table>
 The level of verbosity and checks of particle data, if switched on.
 <br/>
-<input type="radio" name="3" value="0"><strong>0 </strong>: mimimal amount of checks, e.g. that no channels open. <br/>
+<input type="radio" name="3" value="0"><strong>0 </strong>: minimal amount of checks, e.g. that no channels open. <br/>
 <input type="radio" name="3" value="1" checked="checked"><strong>1 </strong>: further warning if individual channels closed, except for resonances.<br/>
 <input type="radio" name="3" value="2"><strong>2 </strong>: also print branching-ratio-averaged threshold mass except for resonances.<br/>
 <input type="radio" name="3" value="11"><strong>11 </strong>: as 1, but include resonances in detailed checks. <br/>
@@ -108,7 +108,7 @@ Maximum allowed summed deviation of <i>E</i>, <i>p_x</i>,
 <i>p_y</i> and <i>p_z</i> between the incoming beams and the 
 final state, as a fraction of the initial energy, above which the 
 event is counted as aborted.
-(Unfortunetely roundoff errors do not scale linearly with the energy, 
+(Unfortunately roundoff errors do not scale linearly with the energy, 
 and also have a very long tail. So while most events at lower energies 
 may be correct to better than 1e-10, at LHC it does not have to signal 
 any fundamental bug if also the default tolerance above is violated 
@@ -183,4 +183,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->

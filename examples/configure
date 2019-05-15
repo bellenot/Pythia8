@@ -81,6 +81,9 @@ if [ x${LHAPDFLOCATION} != x ]; then
     if [ ! -d ${LHAPDFSETSLOCATION} ]; then
       export LHAPDFSETSLOCATION=${LHAPDFLOCATION}/../share/lhapdf/PDFsets
     fi
+    if [ ! -d ${LHAPDFSETSLOCATION} ]; then
+      export LHAPDFSETSLOCATION=${LHAPDFLOCATION}/../../../share/lhapdf/PDFsets
+    fi
   fi
 fi
 if [ x${LHAPDFVERSION} = x ]; then
@@ -135,8 +138,12 @@ fi
 echo Platform is $ARCH
 
 #default platform settings:
-export FC=g77
-export CC=gcc
+if [ x$FC = x ]; then
+  export FC=g77
+fi
+if [ x$CC = x ]; then
+  export CC=gcc
+fi
 export FFLAGS="${FFLAGS_OPT}"
 export CFLAGS="${CFLAGS_OPT}"
 export CXXFLAGS="${CXXFLAGS_OPT}"
@@ -152,7 +159,9 @@ if [ ${COMPMODE} = DBG ]; then
   export CXXFLAGS="${CXXFLAGS_DBG}"
 fi
 if [ $ARCH = Linux ]; then
-  export FC=g77
+  if [ x$FC = x ]; then
+    export FC=g77
+  fi
   export FFLAGS="${FFLAGS_OPT} -Wno-globals"
   export CFLAGS="${CFLAGS_OPT}"
   export CXXFLAGS="${CXXFLAGS_OPT}"
@@ -170,7 +179,9 @@ if [ $ARCH = Linux ]; then
 fi
 # Linux platform with gcc4: new Fortran90 compiler.
 if [ $ARCH = Linux-gcc4 ]; then
-  export FC=gfortran
+  if [ x$FC = x ]; then
+    export FC=gfortran
+  fi
   export FFLAGS="${FFLAGS_OPT}"
   export CFLAGS="${CFLAGS_OPT}"
   export CXXFLAGS="${CXXFLAGS_OPT}"
@@ -188,7 +199,9 @@ if [ $ARCH = Linux-gcc4 ]; then
 fi
 # Mac-OSX with gcc4
 if [ $ARCH = Darwin-gcc4 ]; then
-  export FC=gfortran
+  if [ x$FC = x ]; then
+    export FC=gfortran
+  fi
   export FFLAGS="${FFLAGS_OPT}"
   export CFLAGS="${CFLAGS_OPT}"
   export CXXFLAGS="${CXXFLAGS_OPT}"
@@ -206,7 +219,9 @@ if [ $ARCH = Darwin-gcc4 ]; then
 fi
 # Mac-OSX with gcc3; is not tested
 if [ $ARCH = Darwin ]; then
-  export FC=g77
+  if [ x$FC = x ]; then
+    export FC=g77
+  fi
   export FFLAGS="${FFLAGS_OPT}"
   export CFLAGS="${CFLAGS_OPT}"
   export CXXFLAGS="${CXXFLAGS_OPT}"
@@ -242,6 +257,13 @@ if [ $?LHAPDFLOCATION ]; then
     if [ ! -d ${LHAPDFLOCATION} ]; then
       echo WARNING in LHAPDFLOCATION: directory ${LHAPDFLOCATION} does not exist
       echo ...so you cannot run main programs that use LHAPDF 
+    fi
+    if [ ! -e ${LHAPDFLOCATION}/libLHAPDF.so ] && \
+       [ ! -e ${LHAPDFLOCATION}/libLHAPDF.dylib ] && \
+       [ ! -e ${LHAPDFLOCATION}/libLHAPDF.a ]; then
+      echo WARNING in LHAPDFLOCATION: LHAPDF libraries are not found in ${LHAPDFLOCATION}
+      echo "please specify path to the LHAPDF libraries directory (add /lib to the path?)"
+      echo ...otherwise you cannot run main programs that use LHAPDF
     fi
     if [ ! -d ${LHAPDFSETSLOCATION} ]; then
       echo WARNING in LHAPDFSETSLOCATION: directory ${LHAPDFSETSLOCATION} does not exist

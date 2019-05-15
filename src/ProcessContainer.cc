@@ -1,5 +1,5 @@
 // ProcessContainer.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -157,9 +157,37 @@ bool ProcessContainer::trialProcess() {
     bool repeatSame = (iTry > 0);
     bool physical = phaseSpacePtr->trialKin(true, repeatSame);
 
-    // Possibly fail, e.g. if at end of Les Houches file, else cross section.
+    // Note if at end of Les Houches file, else do statistics.
     if (isLHA && !physical) infoPtr->setEndOfFile(true);
-    else ++nTry;
+    else {
+      ++nTry;
+      // Statistics for separate Les Houches process codes. Insert new codes.
+      if (isLHA) {
+        int codeLHANow = lhaUpPtr->idProcess();
+        int iFill = -1;
+        for (int i = 0; i < int(codeLHA.size()); ++i)
+          if (codeLHANow == codeLHA[i]) iFill = i;
+        if (iFill >= 0) {
+          ++nTryLHA[iFill];
+        } else {
+          codeLHA.push_back(codeLHANow);
+          nTryLHA.push_back(1);
+          nSelLHA.push_back(0);
+          nAccLHA.push_back(0);
+          for (int i = int(codeLHA.size()) - 1; i > 0; --i) {
+            if (codeLHA[i] < codeLHA[i - 1]) { 
+              swap(codeLHA[i], codeLHA[i - 1]);
+              swap(nTryLHA[i], nTryLHA[i - 1]);
+              swap(nSelLHA[i], nSelLHA[i - 1]);
+              swap(nAccLHA[i], nAccLHA[i - 1]);
+            } 
+            else break;
+          }
+        }
+      }
+    }
+
+    // Possibly fail, else cross section.
     if (!physical) return false;
     double sigmaNow = phaseSpacePtr->sigmaNow(); 
 
@@ -195,14 +223,42 @@ bool ProcessContainer::trialProcess() {
     newSigmaMx = phaseSpacePtr->newSigmaMax();
     if (newSigmaMx) sigmaMx = phaseSpacePtr->sigmaMax();
 
-    // Select or reject trial point.
+    // Select or reject trial point. Statistics.
     bool select = true;
     if (lhaStratAbs < 3) select 
       = (newSigmaMx || rndmPtr->flat() * abs(sigmaMx) < abs(sigmaNow)); 
-    if (select) ++nSel;
+    if (select) {
+      ++nSel;
+      if (isLHA) {
+        int codeLHANow = lhaUpPtr->idProcess();
+        int iFill = -1;
+        for (int i = 0; i < int(codeLHA.size()); ++i)
+          if (codeLHANow == codeLHA[i]) iFill = i;
+        if (iFill >= 0) ++nSelLHA[iFill];
+      }
+    }
     if (select || lhaStratAbs != 2) return select;
+
   }
  
+}
+
+//--------------------------------------------------------------------------
+
+// Accumulate statistics after user veto, including LHA code. 
+
+void ProcessContainer::accumulate() {
+
+  ++nAcc; 
+  wtAccSum += weightNow;
+  if (isLHA) {
+    int codeLHANow = lhaUpPtr->idProcess();
+    int iFill = -1;
+    for (int i = 0; i < int(codeLHA.size()); ++i)
+      if (codeLHANow == codeLHA[i]) iFill = i;
+    if (iFill >= 0) ++nAccLHA[iFill];
+  }
+
 }
 
 //--------------------------------------------------------------------------
@@ -442,12 +498,16 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
       double e   = lhaUpPtr->e(iOld);  
       double m   = lhaUpPtr->m(iOld);
 
-      // Polarization
+      // Polarization.
       double pol = lhaUpPtr->spin(iOld);
+
+      // Allow scale setting for generic partons.
+      double scaleShow = lhaUpPtr->scale(iOld);
 
       // For resonance decay products use resonance mass as scale.
       double scaleNow = scalePr;
       if (mother1 > 4) scaleNow = process[mother1].m();
+      if (scaleShow >= 0.0) scaleNow = scaleShow;
 
       // Store Les Houches Accord partons.
       int iNow = process.append( id, status, mother1, mother2, daughter1, 
@@ -843,7 +903,8 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs,
 
   // Set up requested objects for soft QCD processes.
   bool softQCD = settings.flag("SoftQCD:all");
-  if (softQCD || settings.flag("SoftQCD:minBias")) {
+  bool inelastic = settings.flag("SoftQCD:inelastic");
+  if (softQCD || inelastic || settings.flag("SoftQCD:minBias")) {
     sigmaPtr = new Sigma0minBias;
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   } 
@@ -851,17 +912,17 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs,
     sigmaPtr = new Sigma0AB2AB;
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   } 
-  if (softQCD || settings.flag("SoftQCD:singleDiffractive")) {
+  if (softQCD || inelastic || settings.flag("SoftQCD:singleDiffractive")) {
     sigmaPtr = new Sigma0AB2XB;
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
     sigmaPtr = new Sigma0AB2AX;
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   } 
-  if (softQCD || settings.flag("SoftQCD:doubleDiffractive")) {
+  if (softQCD || inelastic || settings.flag("SoftQCD:doubleDiffractive")) {
     sigmaPtr = new Sigma0AB2XX;
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   } 
-  if (softQCD || settings.flag("SoftQCD:centralDiffractive")) {
+  if (softQCD || inelastic || settings.flag("SoftQCD:centralDiffractive")) {
     sigmaPtr = new Sigma0AB2AXB;
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   } 
@@ -894,19 +955,21 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs,
   } 
   
   // Set up requested objects for c cbar and b bbar, also hard QCD.
-  if (hardQCD || settings.flag("HardQCD:gg2ccbar")) {
+  bool hardccbar = settings.flag("HardQCD:hardccbar");
+  if (hardQCD || hardccbar || settings.flag("HardQCD:gg2ccbar")) {
     sigmaPtr = new Sigma2gg2QQbar(4, 121);
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   } 
-  if (hardQCD || settings.flag("HardQCD:qqbar2ccbar")) {
+  if (hardQCD || hardccbar || settings.flag("HardQCD:qqbar2ccbar")) {
     sigmaPtr = new Sigma2qqbar2QQbar(4, 122);
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   } 
-  if (hardQCD || settings.flag("HardQCD:gg2bbbar")) {
+  bool hardbbbar = settings.flag("HardQCD:hardbbbar");
+  if (hardQCD || hardbbbar || settings.flag("HardQCD:gg2bbbar")) {
     sigmaPtr = new Sigma2gg2QQbar(5, 123);
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   } 
-  if (hardQCD || settings.flag("HardQCD:qqbar2bbbar")) {
+  if (hardQCD || hardbbbar || settings.flag("HardQCD:qqbar2bbbar")) {
     sigmaPtr = new Sigma2qqbar2QQbar(5, 124);
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   } 

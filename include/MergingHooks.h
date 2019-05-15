@@ -1,5 +1,5 @@
 // MergingHooks.h is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -55,8 +55,6 @@ public:
 
   // Information on merging scale read from LHE file
   double tms;
-  // Type of ME generator
-  int meGenType;
 
   // Default constructor
   HardProcess(){}
@@ -66,7 +64,7 @@ public:
   // Copy constructor
   HardProcess( const HardProcess& hardProcessIn )
     : state(hardProcessIn.state),
-      tms(hardProcessIn.tms), meGenType(hardProcessIn.meGenType) {
+      tms(hardProcessIn.tms) {
     hardIncoming1 = hardProcessIn.hardIncoming1;
     hardIncoming2 = hardProcessIn.hardIncoming2;
     for(int i =0; i < int(hardProcessIn.hardOutgoing1.size());++i)
@@ -115,8 +113,6 @@ public:
   // the stored outgoing particles of the hard subprocess
   bool matchesAnyOutgoing(int iPos, const Event& event);
 
-  // Function to return the type of the ME generator
-  int MEgenType();
   // Function to get the number of coloured final state partons in the
   // hard process
   int nQuarksOut();
@@ -164,17 +160,92 @@ public:
     doKTMergingSave(false),
     doPTLundMergingSave(false),
     doCutBasedMergingSave(false),
-    forceOrderedSave(false),
-    forceUnorderedSave(false),
+    doNL3TreeSave(false),
+    doNL3LoopSave(false),
+    doNL3SubtSave(false),
+    doUNLOPSTreeSave(false),
+    doUNLOPSLoopSave(false),
+    doUNLOPSSubtSave(false),
+    doUNLOPSSubtNLOSave(false),
+    doUMEPSTreeSave(false),
+    doUMEPSSubtSave(false),
+    doEstimateXSection(false),
+    doRemoveDecayProducts(false),
     doOrderHistoriesSave(true),
-    doForceUnorderedHistoriesSave(false),
     doCutOnRecStateSave(false),
-    doWClusteringSave(false) {}
+    doWClusteringSave(false),
+    doSQCDClusteringSave(false),
+    doIgnoreEmissionsSave(true),
+    doIgnoreStepSave(true) {
+      inputEvent = Event(); resonances.resize(0); infoPtr = 0;
+      particleDataPtr = 0; partonSystemsPtr = 0;}
+
+  // Make History class friend to allow access to advanced switches
+  friend class History;
+  // Make Pythia class friend
+  friend class Pythia;
+  // Make PartonLevel class friend
+  friend class PartonLevel;
+  // Make SpaceShower class friend
+  friend class SpaceShower;
+  // Make TimeShower class friend
+  friend class TimeShower;
+  // Make Merging class friend
+  friend class Merging;
+
+  //----------------------------------------------------------------------//
+  // Functions that allow user interference
+  //----------------------------------------------------------------------//
 
   // Destructor.
-  virtual ~MergingHooks() {}
+  virtual ~MergingHooks(){}
   // Function encoding the functional definition of the merging scale
   virtual double tmsDefinition( const Event& event){ return event[0].e();}
+  // Function to dampen weights calculated from histories with lowest 
+  // multiplicity reclustered events that do not pass the ME cuts
+  virtual double dampenIfFailCuts( const Event& inEvent ) {
+    // Dummy statement to avoid compiler warnings
+    if(false) cout << inEvent[0].e();
+    return 1.;
+  }
+  // Hooks to disallow states in the construction of all histories, e.g.
+  // because jets are below the merging scale or fail the matrix element cuts
+  // Function to allow interference in the construction of histories 
+  virtual bool canCutOnRecState() { return doCutOnRecStateSave; }
+  // Function to check reclustered state while generating all possible
+  // histories
+  // Function implementing check of reclustered events while constructing
+  // all possible histories
+  virtual bool doCutOnRecState( const Event& event ) {
+    // Dummy statement to avoid compiler warnings.
+    if(false) cout << event[0].e();
+    // Count number of final state partons.
+    int nPartons = 0;
+    for( int i=0; i < int(event.size()); ++i)
+      if(  event[i].isFinal()
+        && (event[i].isGluon() || event[i].isQuark()) )
+        nPartons++;
+    // For gg -> h, allow only histories with gluons in initial state
+    if( hasEffectiveG2EW() && nPartons < 2){
+      if(event[3].id() != 21 && event[4].id() != 21)
+        return true;
+    }
+    return false;
+  }
+  // Function to allow not counting a trial emission.
+  virtual bool canVetoTrialEmission() { return false;}
+  // Function to check if trial emission should be rejected.
+  virtual bool doVetoTrialEmission( const Event&, const Event& ) {
+    return false; }
+
+  // Function to calculate the hard process matrix element.
+  virtual double hardProcessME( const Event& inEvent ) {
+    // Dummy statement to avoid compiler warnings.
+    if ( false ) cout << inEvent[0].e(); return 1.; }
+
+  //----------------------------------------------------------------------//
+  // Simple output functions
+  //----------------------------------------------------------------------//
 
   // Function returning the value of the merging scale.
   double tms() {
@@ -198,10 +269,11 @@ public:
   }
   // Function returning the value of the maximal number of merged jets.
   int nMaxJets() { return nJetMaxSave;}
-
+  // Function returning the value of the maximal number of merged jets,
+  // for which NLO corrections are available.
+  int nMaxJetsNLO() { return nJetMaxNLOSave;}
   // Function to return hard process string.
   string getProcessString() { return processSave;}
-
   // Function to return the number of outgoing partons in the core process
   int nHardOutPartons(){ return hardProcess.nQuarksOut();}
   // Function to return the number of outgoing leptons in the core process
@@ -209,7 +281,6 @@ public:
   // Function to return the number of outgoing electroweak bosons in the core
   // process.
   int nHardOutBosons(){ return hardProcess.nBosonsOut();}
-
   // Function to return the number of incoming partons (hadrons) in the core
   // process.
   int nHardInPartons(){ return hardProcess.nQuarksIn();}
@@ -218,17 +289,6 @@ public:
   // Function to report the number of resonace decays in the 2->2 sub-process 
   // of the  current state.
   int nResInCurrent(){ return hardProcess.nResInCurrent();}
-  // Function to check if event contains an emission not present in the hard
-  // process.
-  bool isFirstEmission(const Event& event);
-  // Function to allow effective gg -> EW boson couplings.
-  bool hasEffectiveG2EW() {
-    if ( getProcessString().compare("pp>h") == 0 ) return true;
-    return false; }
-
-  // Function to return the number of clustering steps for the current event
-  int getNumberOfClusteringSteps(const Event& event);
-
   // Function to determine if user defined merging should be applied.
   bool doUserMerging(){ return doUserMergingSave;}
   // Function to determine if automated MG/ME merging should be applied.
@@ -239,65 +299,64 @@ public:
   bool doPTLundMerging() { return doPTLundMergingSave;}
   // Function to determine if cut based merging should be applied.
   bool doCutBasedMerging() { return doCutBasedMergingSave;}
+  bool doCKKWLMerging() { return (doUserMergingSave || doMGMergingSave
+    || doKTMergingSave || doPTLundMergingSave || doCutBasedMergingSave); }
+  // Functions to determine if and which part of  UMEPS merging
+  // should be applied
+  bool doUMEPSTree() { return doUMEPSTreeSave;}
+  bool doUMEPSSubt() { return doUMEPSSubtSave;}
+  bool doUMEPSMerging() { return (doUMEPSTreeSave || doUMEPSSubtSave);}
+  // Functions to determine if and which part of  NL3 merging
+  // should be applied
+  bool doNL3Tree() { return doNL3TreeSave;}
+  bool doNL3Loop() { return doNL3LoopSave;}
+  bool doNL3Subt() { return doNL3SubtSave;}
+  bool doNL3Merging() { return (doNL3TreeSave || doNL3LoopSave 
+                             || doNL3SubtSave); }
+  // Functions to determine if and which part of UNLOPS merging
+  // should be applied
+  bool doUNLOPSTree() { return doUNLOPSTreeSave;}
+  bool doUNLOPSLoop() { return doUNLOPSLoopSave;}
+  bool doUNLOPSSubt() { return doUNLOPSSubtSave;}
+  bool doUNLOPSSubtNLO() { return doUNLOPSSubtNLOSave;}
+  bool doUNLOPSMerging() { return (doUNLOPSTreeSave || doUNLOPSLoopSave
+                             || doUNLOPSSubtSave || doUNLOPSSubtNLOSave); }
+  // Return the number clustering steps that have actually been done.
+  int nRecluster() { return nReclusterSave;}
 
-  // Function to dampen weights calculated from histories with lowest 
-  // multiplicity reclustered events that do not pass the ME cuts
-  virtual double dampenIfFailCuts( const Event& inEvent ) {
-    // Dummy statement to avoid compiler warnings
-    if(false) cout << inEvent[0].e();
-    return 1.;
-  }
+  //----------------------------------------------------------------------//
+  // Output functions to analyse/prepare event for merging 
+  //----------------------------------------------------------------------//
 
-  // Hooks to disallow states in the construction of all histories, e.g.
-  // because jets are below the merging scale or fail the matrix element cuts
-  // Function to allow interference in the construction of histories 
-  virtual bool canCutOnRecState() { return doCutOnRecStateSave; }
-  // Function to check reclustered state while generating all possible
-  // histories
-  // Function implementing check of reclustered events while constructing
-  // all possible histories
-  virtual bool doCutOnRecState( const Event& event ) {
-    // Dummy statement to avoid compiler warnings.
-    if(false) cout << event[0].e();
-    // Count number of final state partons.
-    int nPartons = 0;
-    for( int i=0; i < int(event.size()); ++i)
-      if(  event[i].isFinal()
-        && (event[i].isGluon() || event[i].isQuark()) )
-        nPartons++;
-    // For gg -> h, allow only histories with gluons in initial state
-    if( hasEffectiveG2EW() && nPartons < 2){
-      if(event[3].id() != 21 || event[4].id() != 21)
-        return true;
-    }
-    return false;
-  }
+  // Function to check if event contains an emission not present in the hard
+  // process.
+  bool isFirstEmission(const Event& event);
 
-  // Function to allow not counting a trial emission.
-  virtual bool canVetoTrialEmission() { return false;}
-  // Function to check if trial emission should be rejected.
-  virtual bool doVetoTrialEmission( const Event&, const Event& ) {
+  // Function to allow effective gg -> EW boson couplings.
+  bool hasEffectiveG2EW() {
+    if ( getProcessString().compare("pp>h") == 0 ) return true;
     return false; }
 
-  // Make History class friend to allow access to advanced switches
-  friend class History;
-  // Make Pythia class friend
-  friend class Pythia;
-  // Make PartonLevel class friend
-  friend class PartonLevel;
-  // Make SpaceShower class friend
-  friend class SpaceShower;
-  // Make TimeShower class friend
-  friend class TimeShower;
+  // Return event stripped from decay products.
+  Event bareEvent( const Event& inputEventIn, bool storeInputEvent );
+  // Write event with decay products attached to argument.
+  bool reattachResonanceDecays( Event& process );
+
+  // Check if particle at position iPos is part of the hard sub-system
+  bool isInHard( int iPos, const Event& event);
+
+  // Function to return the number of clustering steps for the current event
+  int getNumberOfClusteringSteps(const Event& event);
+
+  //----------------------------------------------------------------------//
+  // Functions to steer contruction of histories
+  //----------------------------------------------------------------------//
 
   // Function to force preferred picking of ordered histories. By default,
   // unordered histories will only be considered if no ordered histories
   // were found. 
   void orderHistories( bool doOrderHistoriesIn) {
     doOrderHistoriesSave = doOrderHistoriesIn; }
-  // Function to force preferred picking of unordered histories.
-  void forceUnorderedHistories( bool doForceUnorderedHistoriesIn) {
-    doForceUnorderedHistoriesSave = doForceUnorderedHistoriesIn; }
   // Function to force cut on reconstructed states internally, as needed
   // for gg -> Higgs to ensure that e.g. uu~ -> Higgs is not constructed.
   void allowCutOnRecState( bool doCutOnRecStateIn) {
@@ -307,12 +366,134 @@ public:
   void doWClustering( bool doWClusteringIn ) {
     doWClusteringSave = doWClusteringIn; }
 
+  //----------------------------------------------------------------------//
+  // Functions used as default merging scales
+  //----------------------------------------------------------------------//
+
+  // Function to return the value of the merging scale function in the 
+  // current event.
+  double tmsNow( const Event& event );
+  // Find the minimal Lund pT between coloured partons in the event
+  double rhoms( const Event& event, bool withColour);
+  // Function to calculate the minimal kT in the event
+  double kTms(const Event & event);
+  // Find the if the event passes the Delta R_{ij}, pT_{i} and Q_{ij} cuts on
+  // the matrix element, as needed for cut-based merging scale definition
+  double cutbasedms( const Event& event );
+
 protected:
+
+  //----------------------------------------------------------------------//
+  // The members, switches etc.
+  //----------------------------------------------------------------------//
+
+  // Helper class doing all the core process book-keeping
+  HardProcess hardProcess;
+
+  // Pointer to various information on the generation.
+  Info*          infoPtr;
+
+  // Pointer to the particle data table.
+  ParticleData*  particleDataPtr;
+
+  // Pointer to the particle systems.
+  PartonSystems* partonSystemsPtr;
+
+  // AlphaS objects for alphaS reweighting use
+  AlphaStrong AlphaS_FSRSave;
+  AlphaStrong AlphaS_ISRSave;
+  AlphaEM AlphaEM_FSRSave;
+
+  // Saved path to LHE file for more automated merging
+  string lheInputFile;
+
+  // Flags for merging procedure definition.
+  bool   doUserMergingSave, doMGMergingSave, doKTMergingSave,
+         doPTLundMergingSave, doCutBasedMergingSave,
+         includeMassiveSave, enforceStrongOrderingSave, orderInRapiditySave,
+         pickByFullPSave, pickByPoPT2Save, includeRedundantSave,
+         pickBySumPTSave, allowColourShufflingSave, resetHardQRenSave,
+         resetHardQFacSave;
+  int    unorderedScalePrescipSave, unorderedASscalePrescipSave,
+         unorderedPDFscalePrescipSave, incompleteScalePrescipSave,
+         ktTypeSave, nReclusterSave;
+  double scaleSeparationFactorSave, nonJoinedNormSave,
+         fsrInRecNormSave, herwigAcollFSRSave, herwigAcollISRSave,
+         pT0ISRSave, pTcutSave;
+  bool   doNL3TreeSave, doNL3LoopSave, doNL3SubtSave;
+  bool   doUNLOPSTreeSave, doUNLOPSLoopSave, doUNLOPSSubtSave,
+         doUNLOPSSubtNLOSave;
+  bool   doUMEPSTreeSave, doUMEPSSubtSave;
+
+  // Flag to only do phase space cut, rejecting events below the tms cut.
+  bool   doEstimateXSection;
+
+  // Save input event in case decay products need to be detached.
+  Event inputEvent;
+  vector< pair<int,int> > resonances;
+  bool doRemoveDecayProducts;
+
+  // Starting scale for attaching MPI.
+  double muMISave;
+
+  // Precalculated K-factors.
+  double kFactor0jSave;
+  double kFactor1jSave;
+  double kFactor2jSave;
+
+  // Saved members.
+  double tmsValueSave;
+  int nJetMaxSave;
+  int nJetMaxNLOSave;
+  string processSave;
+
+  // List of cut values to used to define a merging scale. Ordering:
+  // 0: DeltaR_{jet_i,jet_j,min}
+  // 1: p_{T,jet_i,min}
+  // 2: Q_{jet_i,jet_j,min}
+  vector<double> tmsListSave;
+
+  // INTERNAL Hooks to allow construction of all histories,
+  // including un-ordered ones
+  bool doOrderHistoriesSave;
+
+  // INTERNAL Hooks to disallow states in the construction of all histories,
+  // e.g. because jets are below the merging scale, of to avoid the
+  // construction of uu~ -> Higgs histories.
+  bool doCutOnRecStateSave;
+
+  // INTERNAL Hooks to allow clustering W bosons.
+  bool doWClusteringSave, doSQCDClusteringSave;
+
+  // Store / get first scale in PDF's that Pythia should have used
+  double muFSave;
+  double muRSave;
+
+  // Store / get factorisation scale used in matrix element calculation.
+  double muFinMESave;
+  double muRinMESave;
+
+  // Flag to indicate trial shower usage.
+  bool doIgnoreEmissionsSave;
+  // Flag to indicate if events should be vetoed.
+  bool doIgnoreStepSave;
+  // Stored weights in case veot needs to be revoked
+  double pTsave;
+  double weightCKKWL1Save, weightCKKWL2Save;
+  int nMinMPISave;
+  // Save CKKW-L weight / O(\alpha_s) weight.
+  double weightCKKWLSave, weightFIRSTSave;
+
+  //----------------------------------------------------------------------//
+  // Generic setup functions
+  //----------------------------------------------------------------------//
 
   // Functions for internal use inside Pythia source code
   // Initialize.
-  void init(  Settings& settings, Info* infoPtrIn, 
-    ParticleData* particleDataPtrIn, ostream& os = cout);
+  void init( Settings settings, Info* infoPtrIn, 
+    ParticleData* particleDataPtrIn, PartonSystems* partonSystemsPtrIn,
+    ostream& os = cout);
+
   // Function storing candidates for the hard process in the current event
   // Needed in order not to cluster members of the core process
   void storeHardProcessCandidates(const Event& event){
@@ -327,78 +508,14 @@ protected:
   void setLHEInputFile( string lheFile) {
     lheInputFile = lheFile.substr(0,lheFile.size()-6); }
 
-  // Function to save the current CKKW-L weight
-  void setWeight(double wgt){ weightSave = wgt;}
-
-  // Save CKKW-L weight / O(\alpha_s) weight.
-  double weightCKKWLSave;
-  // Return CKKW-L weight.
-  double getWeightCKKWL() { return weightCKKWLSave; }
-  // Set CKKW-L weight.
-  void setWeightCKKWL( double weightIn) { weightCKKWLSave = weightIn; }
-
-  // Function to calculate the minimal kT in the event
-  double kTms(const Event & event);
-
-  // Find the minimal Lund pT between coloured partons in the event
-  double rhoms( const Event& event, bool withColour);
-
-  // Function to check if the properties of the input particle should be
-  // checked against the cut-based merging scale defintion.
-  bool checkAgainstCut( const Particle& particle);
-
-  // Find the if the event passes the Delta R_{ij}, pT_{i} and Q_{ij} cuts on
-  // the matrix element, as needed for cut-based merging scale definition
-  double cutbasedms( const Event& event );
-
-  // Function to compute Delta R separation from 4-vector input
-  double deltaRij(Vec4 jet1, Vec4 jet2);
-
-  // Function to decide if (too) many events are significantly above the
-  // merging scale.
-  bool stats() { double ALLOWEDFRACTION = 0.75;
-    double fraction = double(infoPtr->getCounter(41))
-                    / max(1., double(infoPtr->nAccepted()));
-    return ( fraction > ALLOWEDFRACTION ); } 
-
-  // Function to get the CKKW-L weight for the current event
-  double getWeight() { return weightSave;}
-
-  // Helper class doing all the core process book-keeping
-  HardProcess hardProcess;
-
-  // Pointer to various information on the generation.
-  Info*          infoPtr;
-
-  // Pointer to the particle data table.
-  ParticleData*  particleDataPtr;
-
-  // AlphaS objects for alphaS reweighting use
-  AlphaStrong AlphaS_FSRSave;
-  AlphaStrong AlphaS_ISRSave;
-  AlphaEM AlphaEM_FSRSave;
+  //----------------------------------------------------------------------//
+  // Functions for output of class members.
+  //----------------------------------------------------------------------//
 
   // Return AlphaStrong objects
   AlphaStrong* AlphaS_FSR() { return &AlphaS_FSRSave;}
   AlphaStrong* AlphaS_ISR() { return &AlphaS_ISRSave;}
   AlphaEM* AlphaEM_FSR() { return &AlphaEM_FSRSave;}
-
-  // Saved path to LHE file for more automated merging
-  string lheInputFile;
-
-  bool   doUserMergingSave, doMGMergingSave, doKTMergingSave,
-         doPTLundMergingSave, doCutBasedMergingSave,
-         includeMassiveSave, enforceStrongOrderingSave, orderInRapiditySave,
-         pickByFullPSave, pickByPoPT2Save, includeRedundantSave,
-         pickBySumPTSave, allowColourShufflingSave, resetHardQRenSave,
-         resetHardQFacSave;
-  int    unorderedScalePrescipSave, unorderedASscalePrescipSave,
-         unorderedPDFscalePrescipSave, incompleteScalePrescipSave,
-         ktTypeSave;
-  double scaleSeparationFactorSave, nonJoinedNormSave,
-         fsrInRecNormSave, herwigAcollFSRSave, herwigAcollISRSave,
-         pT0ISRSave, pTcutSave;
-  bool   forceOrderedSave, forceUnorderedSave;
 
   // Functions to return advanced merging switches
   // Include masses in definition of evolution pT and splitting kernels
@@ -415,9 +532,6 @@ protected:
   bool includeRedundant(){ return includeRedundantSave;}
   // Pick by winner-takes-it-all, with minimum sum of scalar evolution pT
   bool pickBySumPT(){ return pickBySumPTSave;}
-
-  bool forceOrdered() { return forceOrderedSave;}
-  bool forceUnordered() { return forceUnorderedSave;}
 
   // Prescription for combined scale of unordered emissions
   // 0 : use larger scale
@@ -466,6 +580,82 @@ protected:
   // Shower cut-off scale
   double pTcut() { return pTcutSave;}
 
+  // MI starting scale.
+  void muMI( double mu) { muMISave = mu; }
+  double muMI() { return muMISave;}
+
+  // Full k-Factor for current event
+  double kFactor(int njet = 0) {
+    return (njet == 0) ? kFactor0jSave
+          :(njet == 1) ? kFactor1jSave
+          : kFactor2jSave;
+  }
+  // O(\alhpa_s)-term of the k-Factor for current event
+  double k1Factor( int njet = 0) {
+    return (kFactor(njet) - 1)/infoPtr->alphaS();
+  }
+
+  // Function to return if construction of histories is biased towards ordered
+  // histories.
+  bool orderHistories() { return doOrderHistoriesSave;}
+
+  // INTERNAL Hooks to disallow states in the construction of all histories,
+  // e.g. because jets are below the merging scale, of to avoid the
+  // construction of uu~ -> Higgs histories.
+  bool allowCutOnRecState() { return doCutOnRecStateSave;}
+
+  // INTERNAL Hooks to allow clustering W bosons.
+  bool doWClustering() { return doWClusteringSave;}
+  // INTERNAL Hooks to allow clustering clustering of gluons to squarks.
+  bool doSQCDClustering() { return doSQCDClusteringSave;}
+
+  // Store / get first scale in PDF's that Pythia should have used
+  double muF() { return (muFSave > 0.) ? muFSave : infoPtr->QFac();}
+  double muR() { return (muRSave > 0.) ? muRSave : infoPtr->QRen();}
+  // Store / get factorisation scale used in matrix element calculation.
+  double muFinME() { return (muFinMESave > 0.) ? muFinMESave
+                       : infoPtr->QFac();}
+  double muRinME() { return (muRinMESave > 0.) ? muRinMESave
+                       : infoPtr->QRen();}
+
+  //----------------------------------------------------------------------//
+  // Functions to steer shower evolution
+  //----------------------------------------------------------------------//
+
+  // Flag to indicate trial shower usage.
+  void doIgnoreEmissions( bool doIgnoreIn ) { 
+    doIgnoreEmissionsSave = doIgnoreIn;
+  }
+  // Function to allow not counting a trial emission.
+  bool canVetoEmission() { return !doIgnoreEmissionsSave; }
+  // Function to check if emission should be rejected.
+  bool doVetoEmission( const Event& );
+
+  // Flag to indicate if events should be vetoed.
+  void doIgnoreStep( bool doIgnoreIn ) { doIgnoreStepSave = doIgnoreIn; }
+  // Function to allow event veto.
+  bool canVetoStep() { return !doIgnoreStepSave; }
+  // Function to check event veto.
+  bool doVetoStep( const Event& process, const Event& event,
+    bool doResonance = false );
+
+  // Stored weights in case veot needs to be revoked
+  void storeWeights( double weight ){ weightCKKWL1Save = weightCKKWL2Save
+     = weight; }
+
+  // Set starting scales
+  bool setShowerStartingScales( bool isTrial, bool doMergeFirstEmm, 
+    double& pTscaleIn, const Event& event,
+    double& pTmaxFSRIn, bool& limitPTmaxFSRin,
+    double& pTmaxISRIn, bool& limitPTmaxISRin,
+    double& pTmaxMPIIn, bool& limitPTmaxMPIin );
+  void nMinMPI( int nMinMPIIn ) { nMinMPISave = nMinMPIIn; }
+  int nMinMPI() { return nMinMPISave;}
+
+  //----------------------------------------------------------------------//
+  // Functions for internal merging scale definions
+  //----------------------------------------------------------------------//
+
   // Function to calculate the kT separation between two particles
   double kTdurham(const Particle& RadAfterBranch,
     const Particle& EmtAfterBranch, int Type, double D );
@@ -477,36 +667,30 @@ protected:
   // used to find colour-connected recoilers
   int findColour(int col, int iExclude1, int iExclude2,
     const Event& event, int type, bool isHardIn);
+  // Function to check if the properties of the input particle should be
+  // checked against the cut-based merging scale defintion.
+  bool checkAgainstCut( const Particle& particle);
+  // Function to compute Delta R separation from 4-vector input
+  double deltaRij(Vec4 jet1, Vec4 jet2);
 
-  // Saved members.
-  double tmsValueSave;
-  int nJetMaxSave;
-  string processSave;
-  double weightSave;
+  //----------------------------------------------------------------------//
+  // Functions for weight management
+  //----------------------------------------------------------------------//
 
-  // List of cut values to used to define a merging scale. Ordering:
-  // 0: DeltaR_{jet_i,jet_j,min}
-  // 1: p_{T,jet_i,min}
-  // 2: Q_{jet_i,jet_j,min}
-  vector<double> tmsListSave;
-
-  // INTERNAL Hooks to allow construction of all histories,
-  // including un-ordered ones
-  bool doOrderHistoriesSave, doForceUnorderedHistoriesSave;
-  bool orderHistories() { return doOrderHistoriesSave;}
-
-  // INTERNAL Hooks to force construction of only unordered histories,
-  bool forceUnorderedHistories() { return doForceUnorderedHistoriesSave;}
-
-  // INTERNAL Hooks to disallow states in the construction of all histories,
-  // e.g. because jets are below the merging scale, of to avoid the
-  // construction of uu~ -> Higgs histories.
-  bool doCutOnRecStateSave;
-  bool allowCutOnRecState() { return doCutOnRecStateSave;}
-
-  // INTERNAL Hooks to allow clustering W bosons.
-  bool doWClusteringSave;
-  bool doWClustering() { return doWClusteringSave;}
+  // Function to get the CKKW-L weight for the current event
+  double getWeightNLO() { return (weightCKKWLSave - weightFIRSTSave);}
+  // Return CKKW-L weight.
+  double getWeightCKKWL() { return weightCKKWLSave; }
+  // Return O(\alpha_s) weight.
+  double getWeightFIRST() { return weightFIRSTSave; }
+  // Set CKKW-L weight.
+  void setWeightCKKWL( double weightIn){ 
+    weightCKKWLSave = weightIn;
+    infoPtr->setWeightCKKWL(weightIn); }
+  // Set O(\alpha_s) weight.
+  void setWeightFIRST( double weightIn){
+    weightFIRSTSave = weightIn;
+    infoPtr->setWeightFIRST(weightIn); }
 
 };
 

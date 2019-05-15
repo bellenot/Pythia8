@@ -24,7 +24,9 @@ conventions (with some limitations for the NMSSM
 in the latter case). Internally, PYTHIA 8 uses the 
 SLHA2 conventions and translates SLHA1 input to these when necessary. 
 See the section on SUSY Processes and <ref>Des11</ref> for more
-information. 
+information. Note that PYTHIA assumes that a spectrum is either fully SHLA1 
+or fully SLHA2 compliant. Mixing of the two standards is discouraged, as 
+this can lead to ambiguities and inconsistencies.  
 
 <p/>
 When reading LHEF files, Pythia automatically looks for SLHA information
@@ -51,7 +53,11 @@ standard PYTHIA 8-specific methods for inputting such information (for the
 latter, see the section on <aloc href="ParticleData">Particle Data</aloc>
 and the <aloc href="ParticleDataScheme">scheme</aloc> to modify it). This 
 may at times not be desirable, so a few options can be used to curb the right 
-of SLHA to overwrite particle data.
+of SLHA to overwrite particle data. 
+Conversely, it is sometimes useful to allow the user to modify 
+eg a mass parameter relative to its value in the SLHA spectrum. 
+This is normally not permitted (the SLHA spectrum is normally self-consistent 
+and should not be modified), but an option for allowing it is provided.  
 
 <p/>
 The reading-in of information from SLHA or LHEF files is handled by the
@@ -92,12 +98,21 @@ switch off this flag then also SM particles are modified by SLHA input.
 <parm name="SLHA:minMassSM" default="100.0"> 
 This parameter provides an alternative possibility to ignore SLHA input 
 for all particles with identity codes below 1,000,000 (which mainly
-means SM particle, but also includes e.g. the Higgses in 
+means SM particle, but also includes e.g. the Higgs bosons in 
 two-Higgs-doublet scenarios) whose default masses in PYTHIA lie below 
 some threshold value, given by this parameter. The default value of 
 100.0 allows SLHA input to modify the top quark, but not, e.g., the 
 <ei>Z^0</ei> and <ei>W^+-</ei> bosons. 
 </parm>
+
+<flag name="SLHA:allowUserOverride" default="off">
+Flag to set whether the user is allowed to modify the parameters read 
+from an SLHA spectrum. Is normally kept <code>off</code> to preserve the 
+internal self-consistency of SLHA spectra. If this flag is switched 
+<code>on</code>, the mass values read from the SLHA block MASS are 
+allowed to be modified by the user, using PYTHIA's standard 
+<code>readString</code> and related methods. 
+</flag>
 
 <h3>SLHA DECAY Tables</h3>
 
@@ -221,6 +236,6 @@ recompute the EW parameters as best suited for the application at hand.
 
 </chapter>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->
 
 

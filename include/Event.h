@@ -1,5 +1,5 @@
 // Event.h is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -451,6 +451,9 @@ public:
   void popBack(int nRemove = 1) { if (nRemove ==1) entry.pop_back();
     else {int newSize = max( 0, size() - nRemove); 
     entry.resize(newSize);} } 
+
+  // Undo the decay of a single particle (where daughters well-defined).
+  bool undoDecay(int i);
 
   // Restore all ParticleDataEntry* pointers in the Particle vector.
   // Useful when a persistent copy of the event record is read back in.

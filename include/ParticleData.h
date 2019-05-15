@@ -1,5 +1,5 @@
 // ParticleData.h is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -14,7 +14,6 @@
 #include "Basics.h"
 #include "Info.h"
 #include "PythiaStdlib.h"
-#include "ResonanceWidths.h"
 #include "Settings.h"
 #include "StandardModel.h"
 
@@ -321,7 +320,9 @@ private:
   void setConstituentMass();
 
   // Useful functions for string handling.
-  string toLower(const string& nameConv);
+  string toLower(const string& nameConv) { string temp(nameConv);
+    for (int i = 0; i < int(temp.length()); ++i) temp[i] = tolower(temp[i]); 
+    return temp; }
 
 };
 
@@ -335,7 +336,7 @@ public:
 
   // Constructor.
   ParticleData() : infoPtr(0), settingsPtr(0), rndmPtr(0), couplingsPtr(0), 
-    particlePtr(0), isInit(false) {}
+    particlePtr(0), isInit(false), readingFailedSave(false) {}
 
   // Initialize pointers.
   void initPtr(Info* infoPtrIn, Settings* settingsPtrIn, Rndm* rndmPtrIn, 
@@ -364,6 +365,9 @@ public:
 
   // Read in one update from a single line.
   bool readString(string lineIn, bool warn = true, ostream& os = cout) ; 
+
+  // Keep track whether any readings have failed, invalidating run setup.
+  bool readingFailed() {return readingFailedSave;} 
 
   // Print out table of whole database, or of only part of it.
   void listAll(ostream& os = cout) {list(false, true, os);} 
@@ -583,15 +587,21 @@ private:
   // Pointer to current particle (e.g. when reading decay channels).
   ParticleDataEntry* particlePtr;
 
-  // Flag that initialization has been performed.
-  bool   isInit;
+  // Flag that initialization has been performed; whether any failures.
+  bool   isInit, readingFailedSave;
 
   // Method for common setting of particle-specific info.
   void   initCommon();
 
   // Useful functions for string handling.
-  string toLower(const string& name);
-  bool   boolString(string tag);
+  string toLower(const string& nameConv) { string temp(nameConv);
+    for (int i = 0; i < int(temp.length()); ++i) temp[i] = tolower(temp[i]); 
+    return temp; }
+  bool   boolString(string tag) { string tagLow = toLower(tag);
+    return ( tagLow == "true" || tagLow == "1" || tagLow == "on" 
+    || tagLow == "yes" || tagLow == "ok" ); }  
+
+  // Extract XML value following XML attribute.
   string attributeValue(string line, string attribute);
   bool   boolAttributeValue(string line, string attribute);
   int    intAttributeValue(string line, string attribute);

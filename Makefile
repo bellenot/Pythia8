@@ -200,7 +200,11 @@ endif
 # Install targets:
 
 ifneq (x$(INSTALLDIR),x.)
- install: installmain installdata
+ install: all
+	mkdir -p $(INSTALLDIR)
+	mkdir -p $(DATADIR)
+	make installit
+ installit: installmain installdata
  installmain:
 	cp -r include $(INSTALLDIR)/.
 	cp -r lib $(INSTALLDIR)/.
@@ -208,14 +212,17 @@ ifneq (x$(INSTALLDIR),x.)
 
  ifneq ($(DATADIR),$(INSTALLDIR))
   installdata:
-	cp -r xmldoc $(DATADIR)/.
+	rm -rf $(DATADIR)/xmldoc
+	rm -f $(INSTALLDIR)/xmldoc
+	cp -r *doc $(DATADIR)/.
 	ln -fs $(DATADIR)/xmldoc $(INSTALLDIR)/xmldoc
  else
   installdata:
+	rm -rf $(INSTALLDIR)/xmldoc
 	cp -r xmldoc $(INSTALLDIR)/.
  endif
 else
- install:
+ install: all
 	@echo "everything is already installed"
 endif
 

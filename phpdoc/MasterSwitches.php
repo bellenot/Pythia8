@@ -227,6 +227,31 @@ on/off = true/false. Further options are found
 echo "<a href='BoseEinsteinEffects.php?filepath=".$filepath."' target='page'>";?>here</a>.
   
 
+<h3>Printing</h3>
+
+<br/><br/><strong>Print:quiet</strong>  <input type="radio" name="14" value="on"><strong>On</strong>
+<input type="radio" name="14" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Can be set on to avoid the printing during program execution, to the 
+largest extent possible. This flag acts by setting the relevant values 
+for <code>Init:showProcesses</code>, 
+<code>Init:showMultipartonInteractions</code>,  
+<code>Init:showChangedSettings</code>,  
+<code>Init:showAllSettings</code>,  
+<code>Init:showChangedParticleData</code>,  
+<code>Init:showChangedResonanceData</code>,  
+<code>Init:showAllParticleData</code>,  
+<code>Init:showOneParticleData</code>,  
+<code>Next:numberCount</code>,  
+<code>Next:numberShowLHA</code>,  
+<code>Next:numberShowInfo</code>,  
+<code>Next:numberShowProcess</code>, and  
+<code>Next:numberShowEvent</code>. 
+The change is to off or 0 for <code>Print:quiet = off</code>,
+and restores to the respective default value for <code>= on</code>. 
+Those changes take effect immediately, so individual settings can be 
+changed afterwards.   
+  
 
 
 <input type="hidden" name="saved" value="1"/>
@@ -309,6 +334,11 @@ if($_POST["13"] != "off")
 $data = "HadronLevel:BoseEinstein = ".$_POST["13"]."\n";
 fwrite($handle,$data);
 }
+if($_POST["14"] != "off")
+{
+$data = "Print:quiet = ".$_POST["14"]."\n";
+fwrite($handle,$data);
+}
 fclose($handle);
 }
 
@@ -316,4 +346,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->

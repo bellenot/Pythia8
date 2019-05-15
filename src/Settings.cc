@@ -1,5 +1,5 @@
 // Settings.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -60,7 +60,8 @@ bool Settings::init(string startFile, bool append, ostream& os) {
       // Skip ahead if not interesting. Only look for new files in startfile.
       if (tag != "<flag" && tag != "<flagfix" && tag != "<mode" 
          && tag != "<modeopen" && tag != "<modepick" && tag != "<modefix" 
-         && tag != "<parm" && tag != "<parmfix" && tag != "<word" 
+         && tag != "<parm" && tag != "<parmfix" && tag != "<vect"
+	 && tag != "<vectfix" && tag != "<word" 
          && tag != "<wordfix" && tag != "<aidx") continue;
 
       // Read and append continuation line(s) if line does not contain >.
@@ -124,7 +125,14 @@ bool Settings::init(string startFile, bool append, ostream& os) {
         double minVal = doubleAttributeValue( line, "min=");
         double maxVal = doubleAttributeValue( line, "max=");
         addParm( name, value, hasMin, hasMax, minVal, maxVal);
-    
+	
+      // Check for occurence of a vector and add to vect map.
+      } else if (tag == "<vect" || tag == "<vectfix") {
+        vector<double> value = vectorAttributeValue( line, "default="); 
+        double minVal = doubleAttributeValue( line, "min=");
+        double maxVal = doubleAttributeValue( line, "max=");
+        addVect( name, value, hasMin, hasMax, minVal, maxVal);
+
       // Check for occurence of a string and add to word map.
       } else if (tag == "<word" || tag == "<wordfix") {
         string value = attributeValue( line, "default="); 
@@ -158,6 +166,7 @@ bool Settings::reInit(string startFile, ostream& os) {
   flags.clear();
   modes.clear();
   parms.clear();
+  vects.clear();
   words.clear();
 
   // Then let normal init do the rest.
@@ -203,7 +212,8 @@ bool Settings::readString(string line, bool warn, ostream& os) {
   if      (isFlag(name)) inDataBase = 1;   
   else if (isMode(name)) inDataBase = 2;   
   else if (isParm(name)) inDataBase = 3; 
-  else if (isWord(name)) inDataBase = 4; 
+  else if (isVect(name)) inDataBase = 4; 
+  else if (isWord(name)) inDataBase = 5; 
 
   // For backwards compatibility: multiple -> multiparton, MI -> MPI.
   if (inDataBase == 0) {
@@ -223,14 +233,16 @@ bool Settings::readString(string line, bool warn, ostream& os) {
       if      (isFlag(name)) inDataBase = 1;   
       else if (isMode(name)) inDataBase = 2;   
       else if (isParm(name)) inDataBase = 3; 
-      else if (isWord(name)) inDataBase = 4; 
+      else if (isVect(name)) inDataBase = 4; 
+      else if (isWord(name)) inDataBase = 5; 
     }
   }
 
   // Warn and done if not in database.
   if (inDataBase == 0) {
-    if (warn) os << "\n PYTHIA Warning: input string not found in settings"
-      << " databases; skip:\n   " << line << endl;
+    if (warn) os << "\n PYTHIA Error: input string not found in settings"
+      << " databases::\n   " << line << endl;
+    readingFailedSave = true;
     return false;  
   }  
 
@@ -238,8 +250,9 @@ bool Settings::readString(string line, bool warn, ostream& os) {
   string valueString;
   splitLine >> valueString;
   if (!splitLine) {
-    if (warn) os << "\n PYTHIA Warning: variable recognized, but its value"
-      << " not meaningful; skip:\n   " << line << endl;
+    if (warn) os << "\n PYTHIA Error: variable recognized, but its value"
+      << " not meaningful:\n   " << line << endl;
+    readingFailedSave = true;
     return false;  
   }  
 
@@ -254,8 +267,9 @@ bool Settings::readString(string line, bool warn, ostream& os) {
     int value;
     modeData >> value;
     if (!modeData) {
-      if (warn) os << "\n PYTHIA Warning: variable recognized, but its value"
-        << " not meaningful; skip:\n   " << line << endl;
+      if (warn) os << "\n PYTHIA Error: variable recognized, but its value"
+        << " not meaningful:\n   " << line << endl;
+      readingFailedSave = true;
       return false;  
     }  
     mode(name, value);
@@ -266,11 +280,25 @@ bool Settings::readString(string line, bool warn, ostream& os) {
     double value;
     parmData >> value;
     if (!parmData) {
-      if (warn) os << "\n PYTHIA Warning: variable recognized, but its value"
-        << " not meaningful; skip:\n   " << line << endl;
+      if (warn) os << "\n PYTHIA Error: variable recognized, but its value"
+        << " not meaningful:\n   " << line << endl;
+      readingFailedSave = true;
       return false;  
     }  
     parm(name, value);
+        
+  // Update vect map.
+  } else if (inDataBase == 4) {
+    istringstream vectData(valueString);
+    vector<double> value(vectorAttributeValue(
+      "value=\"" + valueString + "\"", "value="));
+    if (!vectData) {
+      if (warn) os << "\n PYTHIA Error: variable recognized, but its value"
+        << " not meaningful:\n   " << line << endl;
+      readingFailedSave = true;
+      return false;  
+    }  
+    vect(name, value);
         
   // Update word map.
   } else {
@@ -317,16 +345,19 @@ bool Settings::writeFile(ostream& os, bool writeAll) {
   map<string, Flag>::iterator flagEntry = flags.begin();
   map<string, Mode>::iterator modeEntry = modes.begin();
   map<string, Parm>::iterator parmEntry = parms.begin();
+  map<string, Vect>::iterator vectEntry = vects.begin();
   map<string, Word>::iterator wordEntry = words.begin();
 
   // Loop while there is something left to do.
   while (flagEntry != flags.end() || modeEntry != modes.end() 
-    || parmEntry != parms.end() || wordEntry != words.end()) {
+    || parmEntry != parms.end() || vectEntry != vects.end() 
+    || wordEntry != words.end()) {
 
     // Check if a flag is next in lexigraphical order; if so print it.
     if ( flagEntry != flags.end() 
       && ( modeEntry == modes.end() || flagEntry->first < modeEntry->first ) 
       && ( parmEntry == parms.end() || flagEntry->first < parmEntry->first )
+      && ( vectEntry == vects.end() || flagEntry->first < vectEntry->first )
       && ( wordEntry == words.end() || flagEntry->first < wordEntry->first ) 
       ) {
       string state[2] = {"off", "on"};
@@ -339,6 +370,7 @@ bool Settings::writeFile(ostream& os, bool writeAll) {
     // Else check if mode is next, and if so print it.
     } else if ( modeEntry != modes.end() 
       && ( parmEntry == parms.end() || modeEntry->first < parmEntry->first ) 
+      && ( vectEntry == vects.end() || modeEntry->first < vectEntry->first ) 
       && ( wordEntry == words.end() || modeEntry->first < wordEntry->first ) 
       ) {
       int valNow = modeEntry->second.valNow;
@@ -350,6 +382,7 @@ bool Settings::writeFile(ostream& os, bool writeAll) {
     // Else check if parm is next, and if so print it; 
     // fixed or scientific depending on value.
     } else if ( parmEntry != parms.end()
+      && ( vectEntry == vects.end() || parmEntry->first < vectEntry->first ) 
       && ( wordEntry == words.end() || parmEntry->first < wordEntry->first ) 
       ) {
       double valNow = parmEntry->second.valNow;
@@ -365,6 +398,28 @@ bool Settings::writeFile(ostream& os, bool writeAll) {
         os << valNow << "\n";
       }
       ++parmEntry;
+
+    // Else check if vect is next, and if so print it; 
+    // fixed or scientific depending on value.
+    } else if ( vectEntry != vects.end()
+      && ( wordEntry == words.end() || vectEntry->first < wordEntry->first ) 
+      ) {
+      vector<double> valNow = vectEntry->second.valNow;
+      vector<double> valDefault = vectEntry->second.valDefault;      
+      if ( writeAll || valNow != valDefault ) {
+        os  << vectEntry->second.name << " = ";
+	for (vector<double>::iterator val = valNow.begin();
+	     val != --valNow.end(); ++val) {
+	  if ( *val == 0. ) os << fixed << setprecision(1); 
+	  else if ( abs(*val) < 0.001 ) os << scientific << setprecision(4); 
+	  else if ( abs(*val) < 0.1 ) os << fixed << setprecision(7); 
+	  else if ( abs(*val) < 1000. ) os << fixed << setprecision(5); 
+	  else if ( abs(*val) < 1000000. ) os << fixed << setprecision(3); 
+	  else os << scientific << setprecision(4); 
+	  os << *val << ",";
+	} os << *(--valNow.end()) << "\n";
+      }
+      ++vectEntry;
 
     // Else print word. 
     } else {
@@ -389,14 +444,14 @@ void Settings::list(bool doListAll,  bool doListString, string match,
 
   // Table header; output for bool as off/on.
   if (doListAll) 
-    os << "\n *-------  PYTHIA Flag + Mode + Parm + Word Settings (all) "
-       << " -------------------------------------------------------* \n";
+    os << "\n *-------  PYTHIA Flag + Mode + Parm + Vect + Word Settings (all)"
+       << "  -------------------------------------------------* \n";
   else if (!doListString) 
-    os << "\n *-------  PYTHIA Flag + Mode + Parm + Word Settings (chang" 
-       << "es only)  ----------------------------------------------* \n" ;
+    os << "\n *-------  PYTHIA Flag + Mode + Parm + Vect + Word Settings (cha" 
+       << "nges only)  ---------------------------------------* \n" ;
   else
-    os << "\n *-------  PYTHIA Flag + Mode + Parm + Word Settings (with " 
-       << "requested string)  -------------------------------------* \n" ;
+    os << "\n *-------  PYTHIA Flag + Mode + Parm + Vect + Word Settings (wit" 
+       << "h requested string)  ------------------------------* \n" ;
   os << " |                                                           "
      << "                                                      | \n"
      << " | Name                                          |           "
@@ -412,16 +467,19 @@ void Settings::list(bool doListAll,  bool doListString, string match,
   map<string, Flag>::iterator flagEntry = flags.begin();
   map<string, Mode>::iterator modeEntry = modes.begin();
   map<string, Parm>::iterator parmEntry = parms.begin();
+  map<string, Vect>::iterator vectEntry = vects.begin();
   map<string, Word>::iterator wordEntry = words.begin();
 
   // Loop while there is something left to do.
   while (flagEntry != flags.end() || modeEntry != modes.end() 
-    || parmEntry != parms.end() || wordEntry != words.end()) {
+    || parmEntry != parms.end() || vectEntry != vects.end() 
+    || wordEntry != words.end()) {
 
     // Check if a flag is next in lexigraphical order; if so print it.
     if ( flagEntry != flags.end() 
       && ( modeEntry == modes.end() || flagEntry->first < modeEntry->first ) 
       && ( parmEntry == parms.end() || flagEntry->first < parmEntry->first )
+      && ( vectEntry == vects.end() || flagEntry->first < vectEntry->first )
       && ( wordEntry == words.end() || flagEntry->first < wordEntry->first ) 
       ) {
       string state[2] = {"off", "on"};
@@ -438,6 +496,7 @@ void Settings::list(bool doListAll,  bool doListString, string match,
     // Else check if mode is next, and if so print it.
     } else if ( modeEntry != modes.end() 
       && ( parmEntry == parms.end() || modeEntry->first < parmEntry->first ) 
+      && ( vectEntry == vects.end() || modeEntry->first < vectEntry->first ) 
       && ( wordEntry == words.end() || modeEntry->first < wordEntry->first ) 
       ) {
       int valNow = modeEntry->second.valNow;
@@ -460,6 +519,7 @@ void Settings::list(bool doListAll,  bool doListString, string match,
     // Else check if parm is next, and if so print it; 
     // fixed or scientific depending on value.
     } else if ( parmEntry != parms.end()
+      && ( vectEntry == vects.end() || parmEntry->first < vectEntry->first ) 
       && ( wordEntry == words.end() || parmEntry->first < wordEntry->first ) 
       ) {
       double valNow = parmEntry->second.valNow;
@@ -493,6 +553,53 @@ void Settings::list(bool doListAll,  bool doListString, string match,
       }
       ++parmEntry;
 
+    // Else check if vect is next, and if so print it; 
+    // fixed or scientific depending on value.
+    } else if ( vectEntry != vects.end()
+      && ( wordEntry == words.end() || vectEntry->first < wordEntry->first ) 
+      ) {
+      vector<double> valsNow = vectEntry->second.valNow;
+      vector<double> valsDefault = vectEntry->second.valDefault; 
+      double valNow(0), valDefault(0);
+      if ( doListAll || (!doListString && valsNow != valsDefault ) 
+        || (doListString && vectEntry->first.find(match) != string::npos) ) {
+	for (unsigned int i = 0; i < valsNow.size() || i < valsDefault.size();
+	     ++i) {
+	  if ( i == 0 )
+	    os << " | " << setw(45) << left 
+	       << vectEntry->second.name << right << " |             ";
+	  else
+	    os << " | " << setw(45) << " " << right << " |             ";
+	  for (int j = 0; j < 4; ++j) { 
+	    if (i < valsNow.size()) valNow = valsNow[i];
+	    if (i < valsDefault.size()) valDefault = valsDefault[i];
+	    if (j == 1) valNow = valDefault;  
+	    if (j == 2) valNow = vectEntry->second.valMin;  
+	    if (j == 3) valNow = vectEntry->second.valMax;  
+	    if ( (j == 0 && i >= valsNow.size()) 
+		 || (j == 1 && i >= valsDefault.size()) 
+		 || (j == 2 && !vectEntry->second.hasMin)
+		 || (j == 3 && !vectEntry->second.hasMax) )
+	      os << "            ";
+	    else if ( valNow == 0. ) 
+	      os << fixed << setprecision(1) << setw(12) << valNow; 
+	    else if ( abs(valNow) < 0.001 ) 
+	      os << scientific << setprecision(4) << setw(12) << valNow;  
+	    else if ( abs(valNow) < 0.1 )
+	      os << fixed << setprecision(7) << setw(12) << valNow; 
+	    else if ( abs(valNow) < 1000. )
+	      os << fixed << setprecision(5) << setw(12) << valNow; 
+	    else if ( abs(valNow) < 1000000. )
+	      os << fixed << setprecision(3) << setw(12) << valNow; 
+	    else 
+	      os << scientific << setprecision(4) << setw(12) << valNow; 
+	    if (j == 0) os << " | ";
+	  }  
+	  os << " | \n";
+	}
+      }
+      ++vectEntry;
+
     // Else print word. 
     } else {
       string valNow = wordEntry->second.valNow;
@@ -513,8 +620,8 @@ void Settings::list(bool doListAll,  bool doListString, string match,
   // End of loop over database contents.
   os << " |                                                           "
      << "                                                      | \n"
-     << " *-------  End PYTHIA Flag + Mode + Parm + Word Settings  ---"
-     << "------------------------------------------------------* " << endl;
+     << " *-------  End PYTHIA Flag + Mode + Parm + Vect + Word Settings  ---"
+     << "-----------------------------------------------* " << endl;
 
 }
 
@@ -543,6 +650,13 @@ void Settings::resetAll() {
     parmEntry != parms.end(); ++parmEntry) {
     string name = parmEntry->first;
     resetParm(name);
+  }
+
+  // Loop through the vects table, resetting all entries.
+  for (map<string, Vect>::iterator vectEntry = vects.begin(); 
+    vectEntry != vects.end(); ++vectEntry) {
+    string name = vectEntry->first;
+    resetVect(name);
   }
 
   // Loop through the words table, resetting all entries.
@@ -576,10 +690,50 @@ double Settings::parm(string keyIn) {
   return 0.; 
 }
 
+vector<double> Settings::vect(string keyIn) {
+  if (isVect(keyIn)) return vects[toLower(keyIn)].valNow; 
+  infoPtr->errorMsg("Error in Settings::vect: unknown key", keyIn);
+  return vector<double>(1, 0.); 
+}
+
 string Settings::word(string keyIn) {
   if (isWord(keyIn)) return words[toLower(keyIn)].valNow; 
   infoPtr->errorMsg("Error in Settings::word: unknown key", keyIn);
   return " "; 
+}
+
+//--------------------------------------------------------------------------
+
+// Give back default value, with check that key exists.
+
+bool Settings::flagDefault(string keyIn) {
+  if (isFlag(keyIn)) return flags[toLower(keyIn)].valDefault;
+  infoPtr->errorMsg("Error in Settings::flagDefault: unknown key", keyIn);
+  return false;
+}
+
+int Settings::modeDefault(string keyIn) {
+  if (isMode(keyIn)) return modes[toLower(keyIn)].valDefault;
+  infoPtr->errorMsg("Error in Settings::modeDefault: unknown key", keyIn);
+  return 0;
+}
+
+double Settings::parmDefault(string keyIn) {
+  if (isParm(keyIn)) return parms[toLower(keyIn)].valDefault;
+  infoPtr->errorMsg("Error in Settings::parmDefault: unknown key", keyIn);
+  return 0.;
+}
+
+vector<double> Settings::vectDefault(string keyIn) {
+  if (isVect(keyIn)) return vects[toLower(keyIn)].valDefault;
+  infoPtr->errorMsg("Error in Settings::vectDefault: unknown key", keyIn);
+  return vector<double>(1, 0.);
+}
+
+string Settings::wordDefault(string keyIn) {
+  if (isWord(keyIn)) return words[toLower(keyIn)].valDefault;
+  infoPtr->errorMsg("Error in Settings::wordDefault: unknown key", keyIn);
+  return " ";
 }
 
 //--------------------------------------------------------------------------
@@ -622,6 +776,18 @@ map<string, Parm> Settings::getParmMap(string match) {
   return parmMap;
 }
 
+map<string, Vect> Settings::getVectMap(string match) {
+  // Make the match string lower case. Start with an empty map.
+  match = toLower(match);
+  map<string, Vect> vectMap;  
+  // Loop over the vect map (using iterator).
+  for (map<string,Vect>::iterator vectEntry = vects.begin();
+       vectEntry != vects.end(); ++vectEntry)
+    if (vectEntry->first.find(match) != string::npos) 
+      vectMap[vectEntry->first] = vectEntry->second;
+  return vectMap;
+}
+
 map<string, Word> Settings::getWordMap(string match) {
   // Make the match string lower case. Start with an empty map.
   match = toLower(match);
@@ -639,7 +805,10 @@ map<string, Word> Settings::getWordMap(string match) {
 // Change current value, respecting limits.
 
 void Settings::flag(string keyIn, bool nowIn) { 
-    if (isFlag(keyIn)) flags[toLower(keyIn)].valNow = nowIn; 
+  string keyLower = toLower(keyIn);
+  if (isFlag(keyIn)) flags[keyLower].valNow = nowIn; 
+  // Print:quiet  triggers a whole set of changes. 
+  if (keyLower == "print:quiet") printQuiet( nowIn);
 }
 
 void Settings:: mode(string keyIn, int nowIn) { 
@@ -668,6 +837,21 @@ void Settings::parm(string keyIn, double nowIn) {
   } 
 }  
 
+void Settings::vect(string keyIn, vector<double> nowIn) { 
+  if (isVect(keyIn)) {
+    Vect& vectNow = vects[toLower(keyIn)];
+    vectNow.valNow.clear();
+    for(vector<double>::iterator now = nowIn.begin();
+	now != nowIn.end(); now++) {
+      if (vectNow.hasMin && *now < vectNow.valMin) 
+	vectNow.valNow.push_back(vectNow.valMin); 
+      else if (vectNow.hasMax && *now > vectNow.valMax) 
+	vectNow.valNow.push_back(vectNow.valMax);
+      else vectNow.valNow.push_back(*now); 
+    }
+  } 
+}  
+
 void Settings::word(string keyIn, string nowIn) { 
     if (isWord(keyIn)) words[toLower(keyIn)].valNow = nowIn; 
 }
@@ -691,6 +875,10 @@ void Settings::forceParm(string keyIn, double nowIn) {
   if (isParm(keyIn)) parms[toLower(keyIn)].valNow = nowIn; 
 }
 
+void Settings::forceVect(string keyIn, vector<double> nowIn) { 
+  if (isVect(keyIn)) vects[toLower(keyIn)].valNow = nowIn; 
+}
+
 //--------------------------------------------------------------------------
      
 // Restore current value to default.
@@ -704,58 +892,9 @@ void Settings::resetMode(string keyIn) {
   string keyLower = toLower(keyIn);
   if (isMode(keyIn)) modes[keyLower].valNow 
     = modes[toLower(keyIn)].valDefault ; 
-
-  // For Tune:ee must also restore variables involved in tune.
-  if (keyLower == "tune:ee") {
-    resetParm("StringFlav:probStoUD");
-    resetParm("StringFlav:probQQtoQ");
-    resetParm("StringFlav:probSQtoQQ");
-    resetParm("StringFlav:probQQ1toQQ0");
-    resetParm("StringFlav:mesonUDvector");
-    resetParm("StringFlav:mesonSvector");
-    resetParm("StringFlav:mesonCvector");
-    resetParm("StringFlav:mesonBvector");
-    resetParm("StringFlav:etaSup");
-    resetParm("StringFlav:etaPrimeSup");
-    resetParm("StringFlav:popcornSpair");  
-    resetParm("StringFlav:popcornSmeson");  
-    resetParm("StringZ:aLund");
-    resetParm("StringZ:bLund");  
-    resetParm("StringZ:rFactB");  
-    resetParm("StringPT:sigma");  
-    resetParm("TimeShower:alphaSvalue");  
-    resetParm("TimeShower:pTmin");  
-    resetParm("TimeShower:pTminChgQ");
-  }  
-
-  // For Tune:pp must also restore variables involved in tune.
-  if (keyLower == "tune:pp") {
-    resetMode("PDF:pSet");  
-    resetParm("SigmaProcess:alphaSvalue");  
-    resetFlag("SigmaTotal:zeroAXB");
-    resetFlag("SigmaDiffractive:dampen");  
-    resetFlag("TimeShower:dampenBeamRecoil");  
-    resetFlag("TimeShower:phiPolAsym");  
-    resetParm("SpaceShower:alphaSvalue");  
-    resetFlag("SpaceShower:samePTasMPI");  
-    resetParm("SpaceShower:pT0Ref");  
-    resetParm("SpaceShower:ecmRef");  
-    resetParm("SpaceShower:ecmPow");  
-    resetFlag("SpaceShower:rapidityOrder");  
-    resetFlag("SpaceShower:phiPolAsym");  
-    resetFlag("SpaceShower:phiIntAsym");  
-    resetParm("MultipartonInteractions:alphaSvalue");   
-    resetParm("MultipartonInteractions:pT0Ref");  
-    resetParm("MultipartonInteractions:ecmRef");  
-    resetParm("MultipartonInteractions:ecmPow");  
-    resetMode("MultipartonInteractions:bProfile");  
-    resetParm("BeamRemnants:primordialKTsoft");  
-    resetParm("BeamRemnants:primordialKThard");  
-    resetParm("BeamRemnants:halfScaleForKT");  
-    resetParm("BeamRemnants:halfMassForKT");  
-    resetParm("BeamRemnants:reconnectRange"); 
-  }  
-
+  // For Tune:ee and Tune:pp must also restore variables involved in tunes.
+  if (keyLower == "tune:ee") resetTuneEE();
+  if (keyLower == "tune:pp") resetTunePP();
 }
 
 void Settings::resetParm(string keyIn) {
@@ -763,9 +902,122 @@ void Settings::resetParm(string keyIn) {
     = parms[toLower(keyIn)].valDefault ; 
 }
 
+void Settings::resetVect(string keyIn) {
+  if (isVect(keyIn)) vects[toLower(keyIn)].valNow 
+    = vects[toLower(keyIn)].valDefault ; 
+}
+
 void Settings::resetWord(string keyIn) {
   if (isWord(keyIn)) words[toLower(keyIn)].valNow 
     = words[toLower(keyIn)].valDefault ; 
+}
+
+//--------------------------------------------------------------------------
+
+// Regulate level of printout by overall change of settings.
+
+void Settings::printQuiet(bool quiet) {
+
+  // Switch off as much output as possible.
+  if (quiet) {
+    flag("Init:showProcesses",               false );  
+    flag("Init:showMultipartonInteractions", false );  
+    flag("Init:showChangedSettings",         false );  
+    flag("Init:showAllSettings",             false );  
+    flag("Init:showChangedParticleData",     false );  
+    flag("Init:showChangedResonanceData",    false );  
+    flag("Init:showAllParticleData",         false );  
+    mode("Init:showOneParticleData",             0 );  
+    mode("Next:numberCount",                     0 );  
+    mode("Next:numberShowLHA",                   0 );  
+    mode("Next:numberShowInfo",                  0 );  
+    mode("Next:numberShowProcess",               0 );  
+    mode("Next:numberShowEvent",                 0 );  
+  
+  // Restore ouput settings to default.
+  } else { 
+    resetFlag("Init:showProcesses");  
+    resetFlag("Init:showMultipartonInteractions");  
+    resetFlag("Init:showChangedSettings");  
+    resetFlag("Init:showAllSettings");  
+    resetFlag("Init:showChangedParticleData");  
+    resetFlag("Init:showChangedResonanceData");  
+    resetFlag("Init:showAllParticleData");  
+    resetMode("Init:showOneParticleData");  
+    resetMode("Next:numberCount");  
+    resetMode("Next:numberShowLHA");  
+    resetMode("Next:numberShowInfo");  
+    resetMode("Next:numberShowProcess");  
+    resetMode("Next:numberShowEvent");  
+  }
+
+}
+
+//--------------------------------------------------------------------------
+
+// Restore all e+e- settings to their original values.
+
+void Settings::resetTuneEE() {
+
+  resetParm("StringFlav:probStoUD");
+  resetParm("StringFlav:probQQtoQ");
+  resetParm("StringFlav:probSQtoQQ");
+  resetParm("StringFlav:probQQ1toQQ0");
+  resetParm("StringFlav:mesonUDvector");
+  resetParm("StringFlav:mesonSvector");
+  resetParm("StringFlav:mesonCvector");
+  resetParm("StringFlav:mesonBvector");
+  resetParm("StringFlav:etaSup");
+  resetParm("StringFlav:etaPrimeSup");
+  resetParm("StringFlav:popcornSpair");  
+  resetParm("StringFlav:popcornSmeson");  
+  resetParm("StringZ:aLund");
+  resetParm("StringZ:bLund");  
+  resetParm("StringZ:rFactB");  
+  resetParm("StringPT:sigma");  
+  resetParm("TimeShower:alphaSvalue");  
+  resetParm("TimeShower:pTmin");  
+  resetParm("TimeShower:pTminChgQ"); 
+ 
+}
+
+//--------------------------------------------------------------------------
+
+// Restore all pp settings to their original values.
+
+void Settings::resetTunePP() {
+
+  resetMode("PDF:pSet");  
+  resetFlag("PDF:useLHAPDF");   
+  resetParm("SigmaProcess:alphaSvalue");  
+  resetFlag("SigmaTotal:zeroAXB");
+  resetFlag("SigmaDiffractive:dampen");  
+  resetParm("SigmaDiffractive:maxXB");
+  resetParm("SigmaDiffractive:maxAX");
+  resetParm("SigmaDiffractive:maxXX");  
+  resetFlag("TimeShower:dampenBeamRecoil");  
+  resetFlag("TimeShower:phiPolAsym");  
+  resetParm("SpaceShower:alphaSvalue");  
+  resetFlag("SpaceShower:samePTasMPI");  
+  resetParm("SpaceShower:pT0Ref");  
+  resetParm("SpaceShower:ecmRef");  
+  resetParm("SpaceShower:ecmPow");  
+  resetFlag("SpaceShower:rapidityOrder");  
+  resetFlag("SpaceShower:phiPolAsym");  
+  resetFlag("SpaceShower:phiIntAsym");  
+  resetParm("MultipartonInteractions:alphaSvalue");   
+  resetParm("MultipartonInteractions:pT0Ref");  
+  resetParm("MultipartonInteractions:ecmRef");  
+  resetParm("MultipartonInteractions:ecmPow");  
+  resetMode("MultipartonInteractions:bProfile");  
+  resetParm("MultipartonInteractions:expPow");  
+  resetParm("MultipartonInteractions:a1");
+  resetParm("BeamRemnants:primordialKTsoft");  
+  resetParm("BeamRemnants:primordialKThard");  
+  resetParm("BeamRemnants:halfScaleForKT");  
+  resetParm("BeamRemnants:halfMassForKT");  
+  resetParm("BeamRemnants:reconnectRange");
+  
 }
 
 //--------------------------------------------------------------------------
@@ -777,27 +1029,7 @@ void Settings::initTuneEE( int eeTune) {
 
   // Restore all e+e- settings to their original values.
   // Is first step for setting up a specific tune.
-  if (eeTune != 0) { 
-    resetParm("StringFlav:probStoUD");
-    resetParm("StringFlav:probQQtoQ");
-    resetParm("StringFlav:probSQtoQQ");
-    resetParm("StringFlav:probQQ1toQQ0");
-    resetParm("StringFlav:mesonUDvector");
-    resetParm("StringFlav:mesonSvector");
-    resetParm("StringFlav:mesonCvector");
-    resetParm("StringFlav:mesonBvector");
-    resetParm("StringFlav:etaSup");
-    resetParm("StringFlav:etaPrimeSup");
-    resetParm("StringFlav:popcornSpair");  
-    resetParm("StringFlav:popcornSmeson");  
-    resetParm("StringZ:aLund");
-    resetParm("StringZ:bLund");  
-    resetParm("StringZ:rFactB");  
-    resetParm("StringPT:sigma");  
-    resetParm("TimeShower:alphaSvalue");  
-    resetParm("TimeShower:pTmin");  
-    resetParm("TimeShower:pTminChgQ");  
-  }
+  if (eeTune != 0) resetTuneEE();
 
   // Old flavour and FSR defaults carried over from very old JETSET tune,
   // only with alphaS roughly tuned for "new" pT-ordered shower.
@@ -881,38 +1113,7 @@ void Settings::initTunePP( int ppTune) {
 
   // Restore all pp/ppbar settings to their original values.
   // Is first step for setting up a specific tune.
-  if (ppTune != 0) { 
-    resetMode("PDF:pSet");  
-    resetFlag("PDF:useLHAPDF");   
-    resetParm("SigmaProcess:alphaSvalue");  
-    resetFlag("SigmaTotal:zeroAXB");
-    resetFlag("SigmaDiffractive:dampen");  
-    resetParm("SigmaDiffractive:maxXB");
-    resetParm("SigmaDiffractive:maxAX");
-    resetParm("SigmaDiffractive:maxXX");  
-    resetFlag("TimeShower:dampenBeamRecoil");  
-    resetFlag("TimeShower:phiPolAsym");  
-    resetParm("SpaceShower:alphaSvalue");  
-    resetFlag("SpaceShower:samePTasMPI");  
-    resetParm("SpaceShower:pT0Ref");  
-    resetParm("SpaceShower:ecmRef");  
-    resetParm("SpaceShower:ecmPow");  
-    resetFlag("SpaceShower:rapidityOrder");  
-    resetFlag("SpaceShower:phiPolAsym");  
-    resetFlag("SpaceShower:phiIntAsym");  
-    resetParm("MultipartonInteractions:alphaSvalue");   
-    resetParm("MultipartonInteractions:pT0Ref");  
-    resetParm("MultipartonInteractions:ecmRef");  
-    resetParm("MultipartonInteractions:ecmPow");  
-    resetMode("MultipartonInteractions:bProfile");  
-    resetParm("MultipartonInteractions:expPow");  
-    resetParm("MultipartonInteractions:a1");
-    resetParm("BeamRemnants:primordialKTsoft");  
-    resetParm("BeamRemnants:primordialKThard");  
-    resetParm("BeamRemnants:halfScaleForKT");  
-    resetParm("BeamRemnants:halfMassForKT");  
-    resetParm("BeamRemnants:reconnectRange");
-  } 
+  if (ppTune != 0) resetTunePP(); 
 
   // Decide whether to use LHAPFD where possible.
   bool preferLHAPDF = flag("Tune:preferLHAPDF");
@@ -1221,8 +1422,7 @@ string Settings::toLower(const string& name) {
   string temp   = name.substr( firstChar, lastChar + 1 - firstChar);
 
   // Convert to lowercase letter by letter.
-  for (int i = 0; i < int(temp.length()); ++i) 
-    temp[i] = std::tolower(temp[i]); 
+  for (int i = 0; i < int(temp.length()); ++i) temp[i] = tolower(temp[i]); 
   return temp; 
 
 }
@@ -1291,6 +1491,27 @@ double Settings::doubleAttributeValue(string line, string attribute) {
   valStream >> doubleVal; 
   return doubleVal;     
 
+}
+
+//--------------------------------------------------------------------------
+
+// Extract XML vector value following XML attribute.
+
+vector<double> Settings::vectorAttributeValue(string line, string attribute) {
+  string valString = attributeValue(line, attribute);
+  if (valString == "") return vector<double>(1, 0.); 
+  double         doubleVal;
+  vector<double> vectorVal;
+  size_t         stringPos(0);
+  while (stringPos != string::npos) {
+    stringPos = valString.find(",");
+    istringstream  valStream(valString.substr(0, stringPos));
+    valString = valString.substr(stringPos + 1);
+    valStream >> doubleVal;
+    vectorVal.push_back(doubleVal);
+  }
+  return vectorVal;     
+  
 }
 
 //==========================================================================

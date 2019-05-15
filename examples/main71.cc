@@ -1,5 +1,5 @@
 // main71.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Richard Corke.
+// Copyright (C) 2013 Richard Corke.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -250,6 +250,8 @@ int main() {
     cout << endl;
   }
 
+  // Done.
+  delete jetDef;
   return 0;
 }
 

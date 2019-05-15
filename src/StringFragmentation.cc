@@ -1,5 +1,5 @@
 // StringFragmentation.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -1102,8 +1102,7 @@ bool StringFragmentation::fragmentToJunction(Event& event) {
   double m0Diquark = event[iDiquark].m0();
   while (iPsize > 2) {
     Vec4 pGluNear = event[ iPartonMax[iPsize - 2] ].p();
-    if ( pDiquark.mCalc() > 0. 
-      && (pDiquark + 0.5 * pGluNear).mCalc() > m0Diquark + mJoin ) break; 
+    if ( (pDiquark + 0.5 * pGluNear).mCalc() > m0Diquark + mJoin ) break; 
     pDiquark += pGluNear;
     event[iDiquark].p( pDiquark );
     event[iDiquark].m( pDiquark.mCalc() );

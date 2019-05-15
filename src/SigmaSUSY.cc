@@ -1,5 +1,5 @@
 // SigmaSUSY.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // Main authors of this file: N. Desai, P. Skands
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
@@ -811,7 +811,7 @@ double Sigma2qq2squarksquark::sigmaHat() {
   if (!isUD && abs(id1) % 2 != abs(id3Sav) % 2) return 0.0;
 
   // Coded sigma is for ud -> ~q~q'. Swap t and u for du -> ~q~q'.
-  swapTU = (isUD and abs(id1) % 2 == 0); 
+  swapTU = (isUD && abs(id1) % 2 == 0); 
   int    idIn1A = (swapTU) ? abs(id2) : abs(id1);
   int    idIn2A = (swapTU) ? abs(id1) : abs(id2);
 
@@ -1263,7 +1263,7 @@ void Sigma2qq2squarksquark::setIdColAcol() {
   }
 
   // Coded sigma is for ud -> ~q~q'. Swap t and u for du -> ~q~q'.
-  swapTU = (isUD and abs(id1) % 2 == 0); 
+  swapTU = (isUD && abs(id1) % 2 == 0); 
 
   // Select colour flow topology 
   // A: t-channel neutralino, t-channel chargino, or u-channel gluino
@@ -1370,7 +1370,7 @@ double Sigma2qqbar2squarkantisquark::sigmaHat() {
   bool onlyQCD = settingsPtr->flag("SUSY:qqbar2squarkantisquark:onlyQCD");
 
   // Coded UD sigma is for udbar -> ~u~d'*. Swap t<->u for dbaru -> ~u~d'*.
-  swapTU = (isUD and abs(id1) % 2 != 0); 
+  swapTU = (isUD && abs(id1) % 2 != 0); 
 
   // Coded QQ sigma is for qqbar -> ~q~q*. Swap t<->u for qbarq -> ~q~q*.
   if (!isUD && id1 < 0) swapTU = true;

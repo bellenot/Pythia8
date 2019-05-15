@@ -1,5 +1,5 @@
 // SpaceShower.h is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -20,6 +20,7 @@
 #include "Settings.h"
 #include "StandardModel.h"
 #include "UserHooks.h"
+#include "MergingHooks.h"
 
 namespace Pythia8 {
  
@@ -80,10 +81,12 @@ public:
   // (Separated from rest of init since not virtual.)
   void initPtr(Info* infoPtrIn, Settings* settingsPtrIn, 
     ParticleData* particleDataPtrIn, Rndm* rndmPtrIn,
-    PartonSystems* partonSystemsPtrIn, UserHooks* userHooksPtrIn)  {
+    PartonSystems* partonSystemsPtrIn, UserHooks* userHooksPtrIn,
+    MergingHooks* mergingHooksPtrIn = 0) {
     infoPtr = infoPtrIn; settingsPtr = settingsPtrIn; 
     particleDataPtr = particleDataPtrIn; rndmPtr = rndmPtrIn; 
-    partonSystemsPtr = partonSystemsPtrIn; userHooksPtr = userHooksPtrIn;}
+    partonSystemsPtr = partonSystemsPtrIn; userHooksPtr = userHooksPtrIn;
+    mergingHooksPtr = mergingHooksPtrIn;}
 
   // Initialize generation. Possibility to force re-initialization by hand.
   virtual void init(BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn);
@@ -165,7 +168,7 @@ private:
   // Initialization data, normally only set once.
   bool   doQCDshower, doQEDshowerByQ, doQEDshowerByL, useSamePTasMPI,
          doMEcorrections, doMEafterFirst, doPhiPolAsym, doPhiIntAsym, 
-         doRapidityOrder, canVetoEmission;
+         doRapidityOrder, doSecondHard, canVetoEmission;
   int    pTmaxMatch, pTdampMatch, alphaSorder, alphaEMorder, nQuarkIn, 
          enhanceScreening;
   double pTdampFudge, mc, mb, m2c, m2b, renormMultFac, factorMultFac, 
@@ -179,7 +182,7 @@ private:
   AlphaEM alphaEM;
 
   // Some current values.
-  bool   sideA, dopTdamp;
+  bool   sideA, dopTlimit1, dopTlimit2, dopTdamp;
   int    iNow, iRec, idDaughter, nRad, idResFirst, idResSecond;
   double xDaughter, x1Now, x2Now, m2Dip, m2Rec, pT2damp, pTbegRef;
 
@@ -215,6 +218,9 @@ private:
 
   // Find coefficient of azimuthal asymmetry from gluon polarization.
   void findAsymPol( Event& event, SpaceDipoleEnd* dip);
+
+  // Pointer to MergingHooks object for NLO merging.
+  MergingHooks* mergingHooksPtr;
 
 };
  

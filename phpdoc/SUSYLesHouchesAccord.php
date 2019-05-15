@@ -52,7 +52,9 @@ conventions (with some limitations for the NMSSM
 in the latter case). Internally, PYTHIA 8 uses the 
 SLHA2 conventions and translates SLHA1 input to these when necessary. 
 See the section on SUSY Processes and [<a href="Bibliography.php" target="page">Des11</a>] for more
-information. 
+information. Note that PYTHIA assumes that a spectrum is either fully SHLA1 
+or fully SLHA2 compliant. Mixing of the two standards is discouraged, as 
+this can lead to ambiguities and inconsistencies.  
 
 <p/>
 When reading LHEF files, Pythia automatically looks for SLHA information
@@ -81,7 +83,11 @@ echo "<a href='ParticleData.php?filepath=".$filepath."' target='page'>";?>Partic
 and the <?php $filepath = $_GET["filepath"];
 echo "<a href='ParticleDataScheme.php?filepath=".$filepath."' target='page'>";?>scheme</a> to modify it). This 
 may at times not be desirable, so a few options can be used to curb the right 
-of SLHA to overwrite particle data.
+of SLHA to overwrite particle data. 
+Conversely, it is sometimes useful to allow the user to modify 
+eg a mass parameter relative to its value in the SLHA spectrum. 
+This is normally not permitted (the SLHA spectrum is normally self-consistent 
+and should not be modified), but an option for allowing it is provided.  
 
 <p/>
 The reading-in of information from SLHA or LHEF files is handled by the
@@ -125,17 +131,28 @@ switch off this flag then also SM particles are modified by SLHA input.
 <br/><br/><table><tr><td><strong>SLHA:minMassSM </td><td></td><td> <input type="text" name="3" value="100.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>100.0</strong></code>)</td></tr></table>
 This parameter provides an alternative possibility to ignore SLHA input 
 for all particles with identity codes below 1,000,000 (which mainly
-means SM particle, but also includes e.g. the Higgses in 
+means SM particle, but also includes e.g. the Higgs bosons in 
 two-Higgs-doublet scenarios) whose default masses in PYTHIA lie below 
 some threshold value, given by this parameter. The default value of 
 100.0 allows SLHA input to modify the top quark, but not, e.g., the 
 <i>Z^0</i> and <i>W^+-</i> bosons. 
   
 
+<br/><br/><strong>SLHA:allowUserOverride</strong>  <input type="radio" name="4" value="on"><strong>On</strong>
+<input type="radio" name="4" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Flag to set whether the user is allowed to modify the parameters read 
+from an SLHA spectrum. Is normally kept <code>off</code> to preserve the 
+internal self-consistency of SLHA spectra. If this flag is switched 
+<code>on</code>, the mass values read from the SLHA block MASS are 
+allowed to be modified by the user, using PYTHIA's standard 
+<code>readString</code> and related methods. 
+  
+
 <h3>SLHA DECAY Tables</h3>
 
-<br/><br/><strong>SLHA:useDecayTable</strong>  <input type="radio" name="4" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="4" value="off"><strong>Off</strong>
+<br/><br/><strong>SLHA:useDecayTable</strong>  <input type="radio" name="5" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="5" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Switch to choose whether to read in SLHA <code>DECAY</code> tables or not. 
 If this switch is set to off, PYTHIA will ignore any decay tables found 
@@ -150,7 +167,7 @@ particle, or you may include an SLHA <code>DECAY</code> table for it,
 with the width set explicitly to zero.)
   
 
-<br/><br/><table><tr><td><strong>SLHA:minDecayDeltaM </td><td></td><td> <input type="text" name="5" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>SLHA:minDecayDeltaM </td><td></td><td> <input type="text" name="6" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>)</td></tr></table>
 This parameter sets the smallest allowed mass difference (in GeV,
 between the mass of the mother and the sum of the daughter masses) 
 for a decay mode in a DECAY table to be switched on inside PYTHIA. The
@@ -171,8 +188,8 @@ The following variables are used internally by PYTHIA as local copies
 of SLHA information. User changes will generally have no effect, since
 these variables will be reset by the SLHA reader during initialization.
 
-<br/><br/><strong>SLHA:NMSSM</strong>  <input type="radio" name="6" value="on"><strong>On</strong>
-<input type="radio" name="6" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>SLHA:NMSSM</strong>  <input type="radio" name="7" value="on"><strong>On</strong>
+<input type="radio" name="7" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Corresponds to SLHA block MODSEL entry 3.
   
@@ -288,19 +305,24 @@ if($_POST["3"] != "100.0")
 $data = "SLHA:minMassSM = ".$_POST["3"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["4"] != "on")
+if($_POST["4"] != "off")
 {
-$data = "SLHA:useDecayTable = ".$_POST["4"]."\n";
+$data = "SLHA:allowUserOverride = ".$_POST["4"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["5"] != "1.0")
+if($_POST["5"] != "on")
 {
-$data = "SLHA:minDecayDeltaM = ".$_POST["5"]."\n";
+$data = "SLHA:useDecayTable = ".$_POST["5"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["6"] != "off")
+if($_POST["6"] != "1.0")
 {
-$data = "SLHA:NMSSM = ".$_POST["6"]."\n";
+$data = "SLHA:minDecayDeltaM = ".$_POST["6"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["7"] != "off")
+{
+$data = "SLHA:NMSSM = ".$_POST["7"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);
@@ -310,6 +332,6 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->
 
 

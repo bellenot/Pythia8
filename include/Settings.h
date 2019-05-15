@@ -1,5 +1,5 @@
 // Settings.h is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -83,6 +83,29 @@ public:
 
 //==========================================================================
 
+// Class for vector of doubles.
+
+class Vect {
+
+public:
+
+  // Constructor
+  Vect(string nameIn = " ", vector<double> defaultIn = vector<double>(1, 0.), 
+    bool hasMinIn = false, bool hasMaxIn = false, double minIn = 0., 
+    double maxIn = 0.) :  name(nameIn), valNow(defaultIn), 
+    valDefault(defaultIn), hasMin(hasMinIn), hasMax(hasMaxIn), 
+    valMin(minIn), valMax(maxIn) { }
+
+  // Data members.
+  string name;
+  vector<double> valNow, valDefault;
+  bool   hasMin, hasMax;
+  double valMin, valMax;
+
+};
+
+//==========================================================================
+
 // Class for string words.
 
 class Word {
@@ -101,14 +124,14 @@ public:
 //==========================================================================
 
 // This class holds info on flags (bool), modes (int), 
-// parms (double) and words (string).
+// parms (double), vects (vector of double) and words (string).
 
 class Settings {
 
 public:
 
   // Constructor.
-  Settings() : isInit(false) {}
+  Settings() : isInit(false), readingFailedSave(false) {}
 
   // Initialize Info pointer.
   void initPtr(Info* infoPtrIn) {infoPtr = infoPtrIn;}
@@ -122,6 +145,9 @@ public:
 
   // Read in one update from a single line.
   bool readString(string line, bool warn = true, ostream& os = cout) ; 
+
+  // Keep track whether any readings have failed, invalidating run setup.
+  bool readingFailed() {return readingFailedSave;} 
  
   // Write updates or everything to user-defined file.
   bool writeFile(string toFile, bool writeAll = false) ;
@@ -146,6 +172,8 @@ public:
     return (modes.find(toLower(keyIn)) != modes.end()); }
   bool isParm(string keyIn) {
     return (parms.find(toLower(keyIn)) != parms.end()); }
+  bool isVect(string keyIn) {
+    return (vects.find(toLower(keyIn)) != vects.end()); }
   bool isWord(string keyIn) {
     return (words.find(toLower(keyIn)) != words.end()); }
  
@@ -158,6 +186,9 @@ public:
   void addParm(string keyIn, double defaultIn, bool hasMinIn, 
     bool hasMaxIn, double minIn, double maxIn) { parms[toLower(keyIn)] 
     = Parm(keyIn, defaultIn, hasMinIn, hasMaxIn, minIn, maxIn); }  
+  void addVect(string keyIn, vector<double> defaultIn, bool hasMinIn, 
+    bool hasMaxIn, double minIn, double maxIn) { vects[toLower(keyIn)] 
+    = Vect(keyIn, defaultIn, hasMinIn, hasMaxIn, minIn, maxIn); }  
   void addWord(string keyIn, string defaultIn) {
     words[toLower(keyIn)] = Word(keyIn, defaultIn); }  
 
@@ -165,28 +196,40 @@ public:
   bool   flag(string keyIn);
   int    mode(string keyIn);
   double parm(string keyIn);
+  vector<double> vect(string keyIn);
   string word(string keyIn); 
+
+  // Give back default value, with check that key exists. 
+  bool   flagDefault(string keyIn);
+  int    modeDefault(string keyIn);
+  double parmDefault(string keyIn);
+  vector<double> vectDefault(string keyIn);
+  string wordDefault(string keyIn); 
     
   // Give back a map of all entries whose names match the string "match".
   map<string, Flag> getFlagMap(string match);
   map<string, Mode> getModeMap(string match);
   map<string, Parm> getParmMap(string match);
+  map<string, Vect> getVectMap(string match);
   map<string, Word> getWordMap(string match);
 
   // Change current value, respecting limits.
   void flag(string keyIn, bool nowIn); 
   void mode(string keyIn, int nowIn);
   void parm(string keyIn, double nowIn); 
+  void vect(string keyIn, vector<double> nowIn); 
   void word(string keyIn, string nowIn); 
 
   // Change current value, disregarding limits.
   void forceMode(string keyIn, int nowIn);
   void forceParm(string keyIn, double nowIn);
+  void forceVect(string keyIn, vector<double> nowIn);
      
   // Restore current value to default. 
   void resetFlag(string keyIn);
   void resetMode(string keyIn);
   void resetParm(string keyIn);
+  void resetVect(string keyIn);
   void resetWord(string keyIn);
 
 private:
@@ -203,15 +246,25 @@ private:
   // Map for double parms.
   map<string, Parm> parms;
 
+  // Map for vectors od double.
+  map<string, Vect> vects;
+
   // Map for string words.
   map<string, Word> words;
 
-  // Flag that initialization has been performed.
-  bool isInit;
+  // Flags that initialization has been performed; whether any failures.
+  bool isInit, readingFailedSave;
 
   // Print out table of database, called from listAll and listChanged.
   void list(bool doListAll, bool doListString, string match,
     ostream& os = cout); 
+
+  // Master switch for program printout.
+  void printQuiet(bool quiet);
+
+  // Restore settings used in tunes to e+e- and pp/ppbar data.
+  void resetTuneEE();
+  void resetTunePP();
 
   // Initialize tunes to e+e- and pp/ppbar data.
   void initTuneEE(int eeTune);
@@ -224,6 +277,7 @@ private:
   bool   boolAttributeValue(string line, string attribute);
   int    intAttributeValue(string line, string attribute);
   double doubleAttributeValue(string line, string attribute);
+  vector<double> vectorAttributeValue(string line, string attribute);
 
 };
 

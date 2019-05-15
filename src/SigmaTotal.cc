@@ -1,5 +1,5 @@
 // SigmaTotal.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -25,7 +25,8 @@ namespace Pythia8 {
 // =  5 : phi + p;   =  6 : J/psi + p;
 // =  7 : rho + rho; =  8 : rho + phi;   =  9 : rho + J/psi;
 // = 10 : phi + phi; = 11 : phi + J/psi; = 12 : J/psi + J/psi.  
-// = 13 : Pom + p (preliminary). 
+// = 13 : Pom + p (preliminary).
+// For now a neutron is treated like a proton.  
 
 //--------------------------------------------------------------------------
  
@@ -321,7 +322,8 @@ bool SigmaTotal::calc( int idA, int idB, double eCM) {
 
   // Central diffractive scattering A + B -> A + X + B, only p and pbar.
   mMinAXBsave = 1.;
-  if (idAbsA == 2212 && idAbsB == 2212 && !zeroAXB) {
+  if ( (idAbsA == 2212 || idAbsA == 2112)
+    && (idAbsB == 2212 || idAbsB == 2112) && !zeroAXB) {
     double sMinAXB = pow2(mMinAXBsave);
     double sRefAXB = pow2(2000.);
     sigAXB = sigAXB2TeV * pow( log(0.06 * s / sMinAXB), 1.5 )
@@ -378,7 +380,7 @@ bool SigmaTotal::calc( int idA, int idB, double eCM) {
 
 }
 
-//==========================================================================
+//--------------------------------------------------------------------------
 
 // Calculate parameters in the MBR model.
 
@@ -517,9 +519,9 @@ bool SigmaTotal::calcMBRxsecs( int idA, int idB, double eCM) {
       f2         = exp(2. * eps * dy2) * ( (a1 / (b1 + 2. * alph * dy2))
                  + (a2 / (b2 + 2. * alph * dy2)) );
       f1        *= 0.5 * (1. + erf( (dy1 - 0.5 * dyminCD)
-                 / (dyminSigCD / sqrt(2))) );
+                 / (dyminSigCD / sqrt(2.))) );
       f2        *= 0.5 * (1. + erf( (dy2 - 0.5 *dyminCD)
-                 / (dyminSigCD / sqrt(2))) );
+                 / (dyminSigCD / sqrt(2.))) );
       f         += f1 * f2 * step2;      
     }
     fluxdpe     += step * c1 * f;    
@@ -544,9 +546,9 @@ bool SigmaTotal::calcMBRxsecs( int idA, int idB, double eCM) {
       f2         = exp(eps * dy2) * ( (a1 / (b1 + 2. * alph * dy2))
                  + (a2 / (b2 + 2. * alph * dy2)) );
       f1        *= 0.5 * (1. + erf( (dy1 - 0.5 * dyminCD) 
-                 / (dyminSigCD / sqrt(2))) );
+                 / (dyminSigCD / sqrt(2.))) );
       f2        *= 0.5 * (1. + erf( (dy2 - 0.5 * dyminCD)
-                 /(dyminSigCD / sqrt(2))) );
+                 /(dyminSigCD / sqrt(2.))) );
       f         += f1 * f2 * step2;      
     }
     sigdpe      += step * c1 * f;

@@ -1,5 +1,5 @@
 // main84.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -9,12 +9,9 @@
 
 #include <time.h>
 #include "Pythia.h"
-
 #include "HepMCInterface.h"
 #include "HepMC/GenEvent.h"
 #include "HepMC/IO_GenEvent.h"
-// Following line to be used with HepMC 2.04 onwards.
-#include "HepMC/Units.h"
 
 using namespace Pythia8;
 
@@ -110,14 +107,14 @@ int main( int argc, char* argv[] ){
   pythia.readFile(argv[1]);
   int nEvent = pythia.mode("Main:numberOfEvents");
 
-  // Interface for conversion from Pythia8::Event to HepMC one. 
+  // Interface for conversion from Pythia8::Event to HepMC event. 
+  // Will fill cross section and event weight directly in this program,
+  // so switch it off for normal conversion routine.
   HepMC::I_Pythia8 ToHepMC;
-  //  ToHepMC.set_crash_on_problem();
+  ToHepMC.set_store_xsec(false);
+
   // Specify file where HepMC events will be stored.
   HepMC::IO_GenEvent ascii_io(argv[2], std::ios::out);
-  // Following two lines are deprecated alternative.
-  // HepMC::IO_Ascii ascii_io(argv[2], std::ios::out);
-  // HepMC::IO_AsciiParticles ascii_io(argv[2], std::ios::out);
 
   // Third argument: Maximal number of additional jets
   int njet = atoi(argv[3]);
@@ -307,12 +304,10 @@ int main( int argc, char* argv[] ){
           histPTSixth.fill( pTsixth, weight);
 
           if(weight > 0.){
-            // Construct new empty HepMC event. Form with arguments is only
-            // meaningful for HepMC 2.04 onwards, and even then unnecessary  
-            // if HepMC was built with GeV and mm as units from the onset. 
+            // Construct new empty HepMC event and fill it.
+            // Units will be as chosen for HepMC build, but can be changed
+            // by arguments, e.g. GenEvt( HepMC::Units::GEV, HepMC::Units::MM)  
             HepMC::GenEvent* hepmcevt = new HepMC::GenEvent();
-            //HepMC::GenEvent* hepmcevt = new HepMC::GenEvent(
-            //  HepMC::Units::GEV, HepMC::Units::MM); 
 
             double normhepmc = 1.* xsecEstimate[njet-njetCounter]
                 * nTrialEstimate[njet-njetCounter]
@@ -328,10 +323,8 @@ int main( int argc, char* argv[] ){
             histPTFirstSum.fill( pTfirst, weight*normhepmc);
             histPTSecondSum.fill( pTsecnd, weight*normhepmc);
 
-            // Fill HepMC event, including PDF info.
-            // ToHepMC.fill_next_event( pythia, hepmcevt );
-            // This alternative older method fills event, without PDF info.
-            ToHepMC.fill_next_event( pythia.event, hepmcevt );
+            // Fill HepMC event, with PDF info.
+            ToHepMC.fill_next_event( pythia, hepmcevt );
 
             // Report cross section to hepmc
             HepMC::GenCrossSection xsec;

@@ -22,7 +22,8 @@ export LD_LIBRARY_PATH=$PYTHIA8/lib:$LD_LIBRARY_PATH
 where xx is the Pythia 8.1 subversion.
 As usual type "source .bashrc" after the changes.
 
-2) Before compilation, configure Pythia 8 with shared libraries:
+2) Before compilation, configure Pythia 8 if you want to use
+ shared libraries:
 
 ./configure --enable-shared 
 
@@ -36,11 +37,12 @@ in Root format.
 how Pythia event records can be saved by Root. Needless to say, files
 can become quite large when many events are generated.
 
-6) When upgrading to a new Pythia subversion you should re-generate 
-pythiaDict.cxx to reflect the new classes:
+6) When upgrading to a new Pythia subversion, and you want to use a 
+shared library, you should re-generate pythiaDict.cxx to reflect the 
+new classes:
 
 cd NewPythiaVersion/rootexamples
-make pythiaDict.cxx
+make dict
 
 and use the generated pythiaDict.h and pythiaDict.cxx for building 
 your program.

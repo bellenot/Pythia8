@@ -1,5 +1,5 @@
 // ParticleData.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -7,6 +7,7 @@
 // DecayChannel, ParticleDataEntry and ParticleData classes.
 
 #include "ParticleData.h"
+#include "ResonanceWidths.h"
 #include "StandardModel.h"
 #include "SusyResonanceWidths.h"
 
@@ -520,19 +521,6 @@ void ParticleDataEntry::setConstituentMass() {
 
 }
 
-//--------------------------------------------------------------------------
-
-// Convert string to lowercase for case-insensitive comparisons.
-
-string ParticleDataEntry::toLower(const string& nameConv) { 
-
-  string temp(nameConv);
-  for (int i = 0; i < int(temp.length()); ++i) 
-    temp[i] = std::tolower(temp[i]); 
-  return temp; 
-
-}
-
 //==========================================================================
 
 // ParticleData class.
@@ -866,7 +854,7 @@ bool ParticleData::readXML(string inFile, bool reset) {
       } else if (word1 == "<file") {
         string file = attributeValue(line, "name");
         if (file == "") {
-          infoPtr->errorMsg("Warning in ParticleData::readXML:"
+          infoPtr->errorMsg("Error in ParticleData::readXML:"
             " skip unrecognized file name", line);
         } else files.push_back(file);
       }
@@ -1144,8 +1132,9 @@ void ParticleData::listFF(string outFile) {
   // Check that valid particle.
   if ( (!isParticle(idTmp) && property  != "all" && property  != "new") 
   || idTmp <= 0) {
-    if (warn) os << "\n Warning: input particle not found in Particle"
-      << " Data Table; skip:\n   " << lineIn << "\n";
+    if (warn) os << "\n PYTHIA Error: input particle not found in Particle"
+      << " Data Table:\n   " << lineIn << "\n";
+    readingFailedSave = true;
     return false;
   }
 
@@ -1450,8 +1439,9 @@ void ParticleData::listFF(string outFile) {
   }
 
   // Return false if failed to recognize property.
-  if (warn) os << "\n Warning: input property not found in Particle"
-    << " Data Table; skip:\n   " << lineIn << "\n";
+  if (warn) os << "\n PYTHIA Error: input property not found in Particle"
+    << " Data Table:\n   " << lineIn << "\n";
+  readingFailedSave = true;
   return false;
 
 }
@@ -2003,7 +1993,9 @@ int ParticleData::nextId(int idIn) {
   // Find pointer to current particle and step up. Return 0 if impossible. 
   map<int, ParticleDataEntry>::const_iterator pdtIn = pdt.find(idIn);
   if (pdtIn == pdt.end()) return 0;
-  return (++pdtIn)->first;
+  ++pdtIn;
+  if (pdtIn == pdt.end()) return 0;
+  return pdtIn->first;
 
 }
 
@@ -2029,31 +2021,6 @@ double ParticleData::resOpenFrac(int id1In, int id2In, int id3In) {
   return answer;
 
 }
-
-//--------------------------------------------------------------------------
-
-// Convert string to lowercase for case-insensitive comparisons.
-
-string ParticleData::toLower(const string& nameConv) { 
-
-  string temp(nameConv);
-  for (int i = 0; i < int(temp.length()); ++i) 
-    temp[i] = std::tolower(temp[i]); 
-  return temp; 
-
-}
-
-//--------------------------------------------------------------------------
-
-// Allow several alternative inputs for true/false.
-
-bool ParticleData::boolString(string tag) {
-
-  string tagLow = toLower(tag);
-  return ( tagLow == "true" || tagLow == "1" || tagLow == "on" 
-  || tagLow == "yes" || tagLow == "ok" ); 
-
-}  
 
 //--------------------------------------------------------------------------
 

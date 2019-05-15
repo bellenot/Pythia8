@@ -1,7 +1,7 @@
 
-<chapter name="Matrix Element Merging">
+<chapter name="CKKW-L Merging">
 
-<h2>Matrix Element Merging</h2>
+<h2>CKKW-L Merging</h2>
 
 CKKW-L merging <ref>Lon01</ref> allows for a consistent merging of parton 
 showers with
@@ -14,9 +14,10 @@ process with up to N additional jets.
 <p/> The usage of the merging procedure is illustrated in a few
 example main  programs
 (<code>main81.cc</code>, <code>main82.cc</code>, 
-<code>main83.cc</code> and <code>main84.cc</code>, together with  the
-input files <code>main81.cmnd</code>, <code>main82.cmnd</code> and 
-<code>main84.cmnd</code>). These examples should of course only serve
+<code>main83.cc</code>, <code>main84.cc</code> and <code>main85.cc</code>, 
+together with the input files <code>main81.cmnd</code>, 
+<code>main82.cmnd</code>, <code>main84.cmnd</code> and 
+<code>main85.cmnd</code>). These examples should of course only serve
 as  an illustration, and as such will not make use of the merging in
 all  possible ways. For full generality, the example programs link to
 LHAPDF,  FastJet and HepMC. Of course the user is welcome to  remove
@@ -30,8 +31,8 @@ output.
 
 <p/> Please note that a detailed tutorial on merging in Pythia is available
 from
-<strong>http://home.thep.lu.se/~torbjorn/pythia8/mergingworksheet8160.pdf
-</strong>
+<a href="http://home.thep.lu.se/~torbjorn/pythia8/mergingworksheet8160.pdf">
+http://home.thep.lu.se/~torbjorn/pythia8/mergingworksheet8160.pdf</a>.
 
 <p/> Three very short LHE files (<code>w+_production_lhc_0.lhe</code>,
 <code>w+_production_lhc_1.lhe</code>, <code>w+_production_lhc_2.lhe</code>)
@@ -281,7 +282,7 @@ change the switch
 
 <flag name="Merging:doPTLundMerging" default="off">
 The merging scale is then defined by finding the minimal Pythia evolution pT
-between sets of radiator, emitted an recoiler partons. For this
+between sets of radiator, emitted and recoiler partons. For this
 particular merging scale definition, <ei>u,d,c,s,b,g</ei> are considered
 partons. The Pythia evolution pT of a single three-parton set is defined by
 <p/>
@@ -309,7 +310,7 @@ partons. The Pythia evolution pT of a single three-parton set is defined by
 <p/>
 When using this option, the merging scale is defined by the minimum 
 <ei>pT<sub>evol</sub></ei> for all combinations of three partons in the event, 
-irrespectively of flavour or colour-connections. The merging scale value will
+irrespective of flavour or colour-connections. The merging scale value will
 be read from the <code>Merging:TMS</code> parameter, so that this needs to be 
 set just as in the case of the <ei>kT</ei>-merging prescription. Of course you 
 will also need to set <code>Merging:Process</code> and the maximal number of 
@@ -378,7 +379,10 @@ scale variations as part of uncertainty assessments. If CKKW-L merging is
 enabled, Pythia will by default check if events read from Les Houches file
 are in the matrix element region as defined by the merging scale definition
 and merging scale value. Events outside the matrix element region will be
-discarded. To change this default behaviour, use the flag
+discarded. This will lead to warnings of the form "<code>Les Houches Event 
+fails merging scale cut. Cut by rejecting event</code>". These warnings 
+should, in this case, rather be regarded as information.
+To change the default behaviour, use the flag
 
 <flag name="Merging:enforceCutOnLHE" default="on">
 This will check if the events read from LHE file are in the matrix element
@@ -391,7 +395,7 @@ event is assumed to pass the merging scale cut.
 
 To perform CKKW-L matrix element merging, the user has to decide on a hard 
 process, and communicate this choice to Pythia. This is done by setting the
-input <strong>Merging:Process</strong>
+input <code>Merging:Process</code>
  
 <p/>
 For single processes in the Standard Model or the MSSM, MG4/ME notation is
@@ -571,12 +575,12 @@ bins had instead been filled with the weight
 <strong>Info::mergingWeight() * &sigma;<sub>est</sub>(number of
 additional jets in current ME sample)</strong>. This is the way HepMC
 events should be weighted to produce correct relative weights of
-events (see below, and particularly  examine the example program
-<code>main84.cc</code>).
+events (see below, and particularly examine the example programs
+<code>main84.cc</code> and <code>main85.cc</code>).
 
 <p/> Examples how to use these options are given in <code>main81.cc</code> 
-(<ei>kT</ei> merging) and <code>main84.cc</code> (automatic MG/ME merging 
-for RIVET usage). 
+(<ei>kT</ei> merging), <code>main84.cc</code> (automatic MG/ME merging 
+for RIVET usage), and <code>main85.cc</code> (HepMC output for RIVET usage). 
 
 <br/><br/><hr/>
 <h3>Merging with user-defined merging scale function</h3>
@@ -764,12 +768,37 @@ have to be checked, and the method
 <code>MergingHooks::dampenIfFailCuts(const Event& event)</code> is not 
 sufficiently effective.
 
+<h4>Defining the hard process matrix element</h4>
+
+<p/> The MergingHooks class also allows the expert user to define the matrix 
+element of the hard process, by defining the method 
+
+<method name="virtual double MergingHooks::hardProcessME(const Event&
+inEvent)">
+This routine will be supplied internally with the reconstructed 
+lowest-multiplicity event. From this, it is possible to calculate the squared
+matrix element of the hard process, by using the information stored in the 
+event record. The function should return a <code>double</code> value that 
+corresponds to the matrix element at the phase space point given by the input
+event record. This number will then be multiplied to the product of splitting
+functions that define the probability of the current path of the parton
+shower history. In this way, the hard process configuration can be taken into
+account when choosing the parton shower history, which is, internally, used 
+to generate the "merging weight".
+</method>
+
+<p/> The inclusion of the hard process matrix element into the choice
+of histories becomes relevant when the hard process matrix element has very
+strong phase space dependencies. QCD dijet cross sections for example strongly
+depend on the transverse momentum of the jets. So far, the authors have not 
+encountered any changes upon inclusion of the full hard process matrix 
+element, even for the QCD dijet case.
 
 <br/><br/><hr/>
 <h3>Matrix element merging and HepMC output for RIVET</h3>
 
-An example how to produce matrix element merged events to be analysed
-with RIVET is given by <code>main84.cc</code>. 
+Examples how to produce matrix element merged events to be analysed
+with RIVET are given by <code>main84.cc</code> and <code>main85.cc</code>. 
 
 <p/> The main issue is that the output of separate RIVET runs can not
 in general be combined. To perform a matrix element merging, we
@@ -786,6 +815,63 @@ HepMC file has to be taken as the  full merged cross section
 sigma_est(i)*wckkwl(j)</ei>.
 
 <p/> This procedure is outlined in <code>main84.cc</code>.
+
+Input LHE files with only very inclusive cuts pose further difficulties. For 
+such files (which were already addressed under the heading <strong>Les Houches
+events outside the matrix element region</strong>), the cross section after
+the merging scale cut is not known before the cut is performed. Using Pythia's 
+<code>UserHooks</code> facilities, it is possible to produce a valid estimate
+of the cross section after cuts. This however entails a careful cut definition
+by the user, which might become cumbersome for some in-built merging scale 
+definitions. A reasonable alternative is using the switch 
+
+<flag name="Merging:doXSectionEstimate" default="off">
+If on, estimate cross section after merging scale cut. This switch has to be
+used in conjunction with a merging scale definition (e.g. 
+<code>Merging:doPTLundMerging = on</code>). Then, this merging scale 
+definition will be used as a cut on the input events. After the requested 
+number of Monte Carlo events, the cross section after the cut can be extracted
+by inferring the <code>Info::sigmaGen()</code> method, and the number of 
+accepted events by using <code>Info::nAccepted()</code>
+</flag>
+
+<p/>
+This switch also relies on knowledge on how many partons a LHE file should
+contain. This is important for real-emission kinematics in the case of
+NLO merging. The number of (additional) partons in a LHE file can be set with
+
+<modeopen name="Merging:nRequested" default="-1" min="-1">
+Exact number of additional jets requested for a particular LHE file. If
+a file should for example only contain <ei>W<sup>+</sup> g g </ei> events, 
+this switch should be set to "2" for this LHE file. For NLO merging
+schemes (see <aloc href="NLOMerging">NLO Merging</aloc>), this number has to 
+be set.
+</modeopen>
+
+<p/>
+The usage of these switches to obtain the necessary cross section estimate is 
+illustrated in <code>main85.cc</code>. The example <code>main85.cc</code>
+program is intended as a "front-end" for CKKW-L merging in Pythia8, so we will 
+discuss the program briefly. <code>main85.cc</code> should be used together
+with an input file (like <code>main85.cmnd</code>). The executable should be
+invoked with three arguments: the input file, the "name" of the input LHE 
+files, and the name of the output HepMC event file. To use the LHE files that
+are shipped with the Pythia distribution, a valid usage would be
+</p>
+<code>./main85.exe ./main85.cmnd ./w_production ./myhepmc.hepmc</code>
+</p>
+If you want to use other input LHE files, note 
+that <code>main85.cc</code> assumes the naming 
+convention <ei>name_tree_#nAdditionalJets.lhe</ei>. All settings can 
+be included though the input file, so that <code>main85.cc</code> does not 
+have to be changed explicitly. <code>main85.cc</code> first switches off 
+showers, multiparton interactions and hadronisation, and estimates the cross 
+sections (after enforcing the merging scale cut) of samples for different 
+numbers of additional jets. Then, showers, MPI and hadronisation are switched
+on again, and the CKKW-L merging procedure is performed. Events will be read 
+in a decreasing sequence of jet multiplicities, which also means that e.g. 
+events with two additional partons in the LHE file will be printed to the 
+HepMC file before events with one additional parton.
 
 <br/><br/><hr/>
 <h3>Further variables</h3>
@@ -902,7 +988,7 @@ in evolution <ei>pT</ei>.
 </modepick>
 
 <modepick name="Merging:unorderedPDFscalePrescrip" default="0" min="0" max="1">
-Prescription which scale to use to evaluate ratios of parton distibutions 
+Prescription which scale to use to evaluate ratios of parton distributions 
 for splittings in a sequence of splittings which are not ordered 
 in evolution <ei>pT</ei>.
 <option value="0"> Use the combined splitting scale as argument in PDF ratios,
@@ -965,6 +1051,28 @@ factorisation scale is set to the smaller of the squared transverse masses
 of the two outgoing particles. 
 </flag>
 
+<flag name="Merging:mayRemoveDecayProducts" default="off">
+Remove products of resonances in the hard process, in case Pythia generates
+decay products before merging. This makes merging possible even for an 
+indeterminate final state, if Pythia itself has produced the decay products.
+The merging methods will instead be invoked on the "non-decayed" event,
+thus removing the limitation to only one decay channel when performing 
+the merging.
+This switch is necessary e.g. for slepton pair production in association with
+additional QCD jets, if the input LHE file contains the resonant sleptons, 
+and Pythia decides on a decay according to the branching fractions read from
+SLHA input.
+</flag>
+
+<flag name="Merging:allowSQCDClustering" default="off">
+Allow clustering of gluon emission off squarks.
+</flag>
+
+<flag name="Merging:allowWClustering" default="off">
+Allow clustering of W boson, if interpreted as a final state emission. This
+switch should not be used until electro-weak showers become available. 
+</flag>
+
 </chapter>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->

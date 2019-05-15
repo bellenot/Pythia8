@@ -102,7 +102,7 @@ cross section bigger than the nondiffractive one by reducing
 <p/><strong>string Info::name() &nbsp;</strong> <br/>
   
 <strong>int Info::code() &nbsp;</strong> <br/>
-the name and code of the process that occured.
+the name and code of the process that occurred.
   
 
 <a name="method9"></a>
@@ -159,7 +159,7 @@ the hardest collision to be identified.
   
 <strong>int Info::nFinalSub() &nbsp;</strong> <br/>
 the name, code and number of final-state partons in the subprocess
-that occured when <code>hasSub()</code> is true. For a minimum-bias event 
+that occurred when <code>hasSub()</code> is true. For a minimum-bias event 
 the <code>code</code> would always be 101, while <code>codeSub()</code> 
 would vary depending on the actual hardest interaction, e.g. 111 for 
 <i>g g -> g g</i>. For a Les Houches event the <code>code</code> would 
@@ -431,7 +431,7 @@ echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>";?>Le
   
 <strong>int Info::nFSRinRes() &nbsp;</strong> <br/>
 the number of emissions in the initial-state showering, in the final-state
-showering excluding resonance decys, and in the final-state showering
+showering excluding resonance decays, and in the final-state showering
 inside resonance decays, respectively.
   
 
@@ -456,21 +456,36 @@ but not once the event has been evolved.
 
 <a name="method39"></a>
 <p/><strong>double Info::mergingWeight() &nbsp;</strong> <br/>
-combined CKKW-L weight assigned to the current event. If CKKW-L merging is 
+combined leading-order merging weight assigned to the current event, if 
+tree-level multi-jet merging (i.e. 
+<a href="CKKWLMerging.html" target="page"> CKKW-L</a> or
+<a href="UMEPSMerging.html" target="page"> UMEPS</a> merging) is attempted. If 
+tree-level multi-jet merging is 
 performed, all histograms should be filled with this weight, as discussed in 
- <a href="MatrixElementMerging.html" target="page"> Matrix Element
-Merging</a>.
+ <a href="CKKWLMerging.html" target="page"> CKKW-L Merging</a> and 
+ <a href="UMEPSMerging.html" target="page"> UMEPS Merging</a>.
+  
+
+<a name="method40"></a>
+<p/><strong>double Info::mergingWeightNLO() &nbsp;</strong> <br/>
+combined NLO merging weight assigned to the current event, if 
+NLO multi-jet merging (i.e. 
+<a href="NLOMerging.html" target="page"> NL<sup>3</sup></a> or
+<a href="NLOMerging.html" target="page"> UNLOPS</a> merging) is attempted. If 
+NLO multi-jet merging is 
+performed, all histograms should be filled with this weight, as discussed in 
+ <a href="NLOMerging.html" target="page"> NLO Merging</a> .
   
 
 <h3>Multiparton interactions</h3>
 
-<a name="method40"></a>
+<a name="method41"></a>
 <p/><strong>double Info::a0MPI() &nbsp;</strong> <br/>
 The value of a0 when an x-dependent matter profile is used,
 <code>MultipartonInteractions:bProfile = 4</code>.
   
 
-<a name="method41"></a>
+<a name="method42"></a>
 <p/><strong>double Info::bMPI() &nbsp;</strong> <br/>
 The impact parameter <i>b</i> assumed for the current collision when
 multiparton interactions are simulated. Is not expressed in any physical
@@ -479,7 +494,7 @@ for minimum-bias events (meaning less than that for events with hard
 processes). 
   
 
-<a name="method42"></a>
+<a name="method43"></a>
 <p/><strong>double Info::enhanceMPI() &nbsp;</strong> <br/>
 The choice of impact parameter implies an enhancement or depletion of
 the rate of subsequent interactions, as given by this number. Again
@@ -487,14 +502,14 @@ the average is normalized be unity for minimum-bias events (meaning
 more than that for events with hard processes).  
   
 
-<a name="method43"></a>
+<a name="method44"></a>
 <p/><strong>int Info::nMPI() &nbsp;</strong> <br/>
 The number of hard interactions in the current event. Is 0 for elastic
 and diffractive events, and else at least 1, with more possible from
 multiparton interactions.
   
 
-<a name="method44"></a>
+<a name="method45"></a>
 <p/><strong>int Info::codeMPI(int i) &nbsp;</strong> <br/>
   
 <strong>double Info::pTMPI(int i) &nbsp;</strong> <br/>
@@ -504,7 +519,7 @@ subprocess, with <code>i</code> in the range from 0 to
 information already provided above.  
   
 
-<a name="method45"></a>
+<a name="method46"></a>
 <p/><strong>int Info::iAMPI(int i) &nbsp;</strong> <br/>
   
 <strong>int Info::iBMPI(int i) &nbsp;</strong> <br/>
@@ -516,7 +531,7 @@ event record of the outgoing-state parton that rescatters.
 the first or second beam, respectively.
   
 
-<a name="method46"></a>
+<a name="method47"></a>
 <p/><strong>double Info::eMPI(int i) &nbsp;</strong> <br/>
 The enhancement or depletion of the rate of the <code>i</code>'th 
 subprocess. Is primarily of interest for the 
@@ -536,10 +551,10 @@ updated during the run, it is recommended only to study these properties
 at the end of the event generation, when the full statistics is available.
 The individual process results are not available if 
 <?php $filepath = $_GET["filepath"];
-echo "<a href='ASecondHardProcess.php?filepath=".$filepath."' target='page'>";?>a second hard process</a> has beeen 
+echo "<a href='ASecondHardProcess.php?filepath=".$filepath."' target='page'>";?>a second hard process</a> has been 
 chosen, but can be gleaned from the <code>pythia.stat()</code> output.
 
-<a name="method47"></a>
+<a name="method48"></a>
 <p/><strong>long Info::nTried(int i = 0) &nbsp;</strong> <br/>
   
 <strong>long Info::nSelected(int i = 0) &nbsp;</strong> <br/>
@@ -557,7 +572,7 @@ echo "<a href='ASecondHardProcess.php?filepath=".$filepath."' target='page'>";?>
 second hard process</a> there may also be a mismatch. 
   
 
-<a name="method48"></a>
+<a name="method49"></a>
 <p/><strong>double Info::sigmaGen(int i = 0) &nbsp;</strong> <br/>
   
 <strong>double Info::sigmaErr(int i = 0) &nbsp;</strong> <br/>
@@ -576,7 +591,7 @@ This may be especially useful in the context of the
 <code><?php $filepath = $_GET["filepath"];
 echo "<a href='UserHooks.php?filepath=".$filepath."' target='page'>";?>User Hooks</a></code> facility.
 
-<a name="method49"></a>
+<a name="method50"></a>
 <p/><strong>int Info::getCounter(int i) &nbsp;</strong> <br/>
 the method that gives you access to the value of the various loop 
 counters.
@@ -680,7 +695,7 @@ that therefore are free to use, with the help of the two methods below.
   
   
 
-<a name="method50"></a>
+<a name="method51"></a>
 <p/><strong>void Info::setCounter(int i, int value = 0) &nbsp;</strong> <br/>
 set the above counters to a given value. Only to be used by you 
 for the unassigned counters 40 - 49.
@@ -691,7 +706,7 @@ normally the default value is what you want.
   
   
 
-<a name="method51"></a>
+<a name="method52"></a>
 <p/><strong>void Info::addCounter(int i, int value = 0) &nbsp;</strong> <br/>
 increase the above counters by a given amount. Only to be used by you 
 for the unassigned counters 40 - 49.
@@ -707,7 +722,7 @@ normally the default value is what you want.
 The following methods are mainly intended for internal use,
 e.g. for matrix-element matching.
 
-<a name="method52"></a>
+<a name="method53"></a>
 <p/><strong>void Info::hasHistory(bool hasHistoryIn) &nbsp;</strong> <br/>
   
 <strong>bool Info::hasHistory() &nbsp;</strong> <br/>
@@ -715,14 +730,14 @@ set/get knowledge whether the likely shower history of an event
 has been traced.
   
 
-<a name="method53"></a>
+<a name="method54"></a>
 <p/><strong>void Info::zNowISR(bool zNowIn) &nbsp;</strong> <br/>
   
 <strong>double Info::zNowISR() &nbsp;</strong> <br/>
 set/get value of <i>z</i> in latest ISR branching.
   
 
-<a name="method54"></a>
+<a name="method55"></a>
 <p/><strong>void Info::pT2NowISR(bool pT2NowIn) &nbsp;</strong> <br/>
   
 <strong>double Info::pT2NowISR() &nbsp;</strong> <br/>
@@ -740,17 +755,17 @@ XML-like format of LHE files, see <?php $filepath = $_GET["filepath"];
 echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>";?>
 Les Houches Accord</a> for more details.
 
-<a name="method55"></a>
+<a name="method56"></a>
 <p/><strong>string Info::header(string key) &nbsp;</strong> <br/>
 return the header named <code>key</code>
   
 
-<a name="method56"></a>
+<a name="method57"></a>
 <p/><strong>vector &lt;string&gt; Info::headerKeys() &nbsp;</strong> <br/>
 return a vector of all header key names
   
 
-<a name="method57"></a>
+<a name="method58"></a>
 <p/><strong>void Info::setHeader(string key, string val) &nbsp;</strong> <br/>
 set the header named <code>key</code> with the contents of <code>val</code>
   
@@ -758,4 +773,4 @@ set the header named <code>key</code> with the contents of <code>val</code>
 </body>
 </html>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->

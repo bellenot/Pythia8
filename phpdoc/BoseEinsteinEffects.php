@@ -44,7 +44,7 @@ enhancement of pairs closely separated, which is compensated by a
 depletion of pairs in an intermediate region of separation.
 
 <p/>
-More precisely, the intended target form of the BE corrrelations in 
+More precisely, the intended target form of the BE correlations in 
 BE_32 is
 <br/><i>
 f_2(Q) = (1 + lambda * exp(-Q^2 R^2))
@@ -54,7 +54,7 @@ where <i>Q^2 = (p_1 + p_2)^2 - (m_1 + m_2)^2</i>.
 Here the strength <i>lambda</i> and effective radius <i>R</i>
 are the two main parameters. The first factor of the 
 equation is implemented by pulling pairs of identical hadrons closer
-to each other. This is done in such a way that three-monentum is 
+to each other. This is done in such a way that three-momentum is 
 conserved, but at the price of a small but non-negligible negative 
 shift in the energy of the event. The second factor compensates this
 by pushing particles apart. The negative <i>alpha</i> parameter is 
@@ -80,7 +80,7 @@ of longer-lived particles.
 This algorithm is known to do a reasonable job of describing BE
 phenomena at LEP. It has not been tested against data for hadron 
 colliders, to the best of our knowledge, so one should exercise some 
-judgement before using it. Therefore by default the master switch
+judgment before using it. Therefore by default the master switch
 <?php $filepath = $_GET["filepath"];
 echo "<a href='MasterSwitches.php?filepath=".$filepath."' target='page'>";?>HadronLevel:BoseEinstein</a> is off.
 Furthermore, the implementation found here is not (yet) as 
@@ -196,5 +196,5 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->
 

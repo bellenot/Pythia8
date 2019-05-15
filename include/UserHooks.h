@@ -1,5 +1,5 @@
 // UserHooks.h is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -31,7 +31,7 @@ class UserHooks {
 public:
 
   // Destructor.
-  virtual ~UserHooks() {selBias = 1.;}
+  virtual ~UserHooks() {}
 
   // Initialize pointers and workEvent. Note: not virtual.
   void initPtr( Info* infoPtrIn, Settings* settingsPtrIn, 
@@ -124,6 +124,11 @@ public:
   // Decide whether to veto current partons or not, based on event record.
   // Usage: doVetoPartonLevelEarly( event).
   virtual bool doVetoPartonLevelEarly( const Event& ) {return false;} 
+
+  // Retry same ProcessLevel with a new PartonLevel after a veto in
+  // doVetoPT, doVetoStep, doVetoMPIStep or doVetoPartonLevelEarly
+  // if you overload this method to return true.
+  virtual bool retryPartonLevel() {return false;}
    
   // Possibility to veto event after parton-level selection.
   virtual bool canVetoPartonLevel() {return false;}
@@ -174,7 +179,7 @@ protected:
   // Constructor.
   UserHooks() : infoPtr(0), settingsPtr(0), particleDataPtr(0), rndmPtr(0),
     beamAPtr(0), beamBPtr(0), beamPomAPtr(0), beamPomBPtr(0), coupSMPtr(0),
-    partonSystemsPtr(0), sigmaTotPtr(0) {}
+    partonSystemsPtr(0), sigmaTotPtr(0), selBias(1.) {}
 
   // Pointer to various information on the generation.
   Info*          infoPtr;

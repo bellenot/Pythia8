@@ -1,5 +1,5 @@
 // BeamParticle.h is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -125,6 +125,10 @@ public:
     Rndm* rndmPtrIn, PDF* pdfInPtr, PDF* pdfHardInPtr, bool isUnresolvedIn, 
     StringFlav* flavSelPtrIn);
 
+  // Initialize only the two pdf pointers.
+  void initPDFPtr(PDF* pdfInPtr, PDF* pdfHardInPtr) {
+    pdfBeamPtr = pdfInPtr; pdfHardBeamPtr = pdfHardInPtr; }
+
   // For mesons like pi0 valence content varies from event to event.
   void newValenceContent();
 
@@ -178,6 +182,7 @@ public:
 
   // Overload index operator to access a resolved parton from the list.
   ResolvedParton& operator[](int i) {return resolved[i];}
+  const ResolvedParton& operator[](int i) const {return resolved[i];}
 
   // Total number of partons extracted from beam, and initiators only.
   int size() const {return resolved.size();}

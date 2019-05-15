@@ -62,7 +62,7 @@ that these additional files are correctly compiled and linked.
 The class has to be derived  from the <code>ResonanceWidths</code> 
 base class. It can implement a number of methods. The constructor 
 and the <code>calcWidth</code> ones are always needed, while others 
-are for convenience. Much of the administrativ machinery is handled
+are for convenience. Much of the administrative machinery is handled
 by methods in the base class.
 
 <p/>Thus, in particular, you must implement expressions for all 
@@ -181,6 +181,31 @@ associated with a specific incoming/outgoing state. It allows the
 results of some loop expressions to be pretabulated. 
   
 
+<a name="method5"></a>
+<p/><strong>bool ResonanceWidths::allowCalc() &nbsp;</strong> <br/>
+can normally be left dummy (and then always returns <code>true</code>) but
+can optionally be used to determine whether to force dynamical width
+calculation to be switched off (return <code>false</code>). 
+An example is provided by the 
+<code>SUSYResonanceWidths</code> class, in which the implementation of
+this method checks for the existence of SLHA decay tables for the
+particular resonance in question, and checks if those tables should be
+given precedence over the internal width calculation.
+  
+
+<a name="method6"></a>
+<p/><strong>bool ResonanceWidths::initBSM() &nbsp;</strong> <br/>
+can normally be left dummy, but for advanced implementations it
+provides a possibility to initialize data members of the derived class
+at a very early stage during initialization, before any of the other
+members are called. An example is 
+provided by the <code>SUSYResonanceWidths</code> class, in which 
+an internal pointer to a derived <code>Couplings</code> class must be
+(re)set before any of the other methods are used. A return value of
+<code>false</code> can be used to signal that this 
+initialization step failed. 
+  
+
 <h3>Access to resonance widths</h3> 
 
 Once you have implemented a class, it is straightforward to 
@@ -216,4 +241,4 @@ to <code>include/ResonanceWidths.h</code> and
 </body>
 </html>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->

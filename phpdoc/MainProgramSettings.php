@@ -356,7 +356,7 @@ considered as one single combined event sample you can set this flag
 <br/><br/><table><tr><td><strong>Main:numberOfSubruns  </td><td></td><td> <input type="text" name="37" value="0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>)</td></tr></table>
 The number of subruns you intend to use in your current run.  
 Unlike the two settings above, <code>Pythia</code> itself will not
-intepret this number, but you could e.g. have a loop in your main
+interpret this number, but you could e.g. have a loop in your main
 program to loop over subruns from 0 through 
 <code>numberOfSubruns - 1</code>. 
   
@@ -676,4 +676,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->

@@ -5,20 +5,20 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.170      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 21 Sep 2012  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.175      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 16 Feb 2013  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 21 Sep 2012 at 21:29:44    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 16 Feb 2013 at 11:32:28    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Astronomy and Theoretical Physics,      |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
  |  |      phone: + 46 - 46 - 222 48 16; e-mail: torbjorn@thep.lu.se               |  | 
- |  |   Stefan Ask;  Department of Physics, University of Cambridge,               |  | 
- |  |      Cavendish Laboratory, JJ Thomson Ave., Cambridge CB3 0HE, UK;           |  | 
- |  |      phone: + 41 - 22 - 767 6707; e-mail: Stefan.Ask@cern.ch                 |  | 
- |  |   Richard Corke;  Niels Bohr Institute, University of Copenhagen,            |  | 
- |  |      Blegdamsvej 17, 2100 Copenhagen, Denmark;                               |  | 
- |  |      e-mail: richard.corke@thep.lu.se                                        |  | 
+ |  |   Jesper Roy Christiansen;  Department of Astronomy and Theoretical Physics  |  | 
+ |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
+ |  |      e-mail: Jesper.Roy.Christiansen@thep.lu.se                              |  | 
+ |  |   Philip Ilten;  School of Physics, Uniiversity College Dublin,              |  | 
+ |  |      Belfield, Dublin 4, Ireland;                                            |  | 
+ |  |      e-mail: philten@cern.ch                                                 |  | 
  |  |   Stephen Mrenna;  Computing Division, Simulations Group,                    |  | 
  |  |      Fermi National Accelerator Laboratory, MS 234, Batavia, IL 60510, USA;  |  | 
  |  |      phone: + 1 - 630 - 840 - 2556; e-mail: mrenna@fnal.gov                  |  | 
@@ -27,6 +27,8 @@
  |  |      phone: + 46 - 46 - 222 06 64; e-mail: stefan.prestel@thep.lu.se         |  | 
  |  |   Peter Skands;  Theoretical Physics, CERN, CH-1211 Geneva 23, Switzerland;  |  | 
  |  |      phone: + 41 - 22 - 767 2447; e-mail: peter.skands@cern.ch               |  | 
+ |  |   Stefan Ask; former author; e-mail: ask.stefan@gmail.com                    |  | 
+ |  |   Richard Corke; former author; e-mail: r.corke@errno.net                    |  | 
  |  |                                                                              |  | 
  |  |   The main program reference is the 'Brief Introduction to PYTHIA 8.1',      |  | 
  |  |   T. Sjostrand, S. Mrenna and P. Skands, Comput. Phys. Comm. 178 (2008) 85   |  | 
@@ -44,7 +46,7 @@
  |  |   Disclaimer: this program comes without any guarantees.                     |  | 
  |  |   Beware of errors and use common sense when interpreting results.           |  | 
  |  |                                                                              |  | 
- |  |   Copyright (C) 2012 Torbjorn Sjostrand                                      |  | 
+ |  |   Copyright (C) 2013 Torbjorn Sjostrand                                      |  | 
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  *------------------------------------------------------------------------------*  | 
@@ -75,7 +77,7 @@
  |                                                                  | 
  *-------  End PYTHIA Multiparton Interactions Initialization  -----* 
 
- *-------  PYTHIA Flag + Mode + Parm + Word Settings (changes only)  ----------------------------------------------* 
+ *-------  PYTHIA Flag + Mode + Parm + Vect + Word Settings (changes only)  ---------------------------------------* 
  |                                                                                                                 | 
  | Name                                          |                      Now |      Default         Min         Max | 
  |                                               |                          |                                      | 
@@ -102,7 +104,7 @@
  | SigmaTotal:zeroAXB                            |                       on |          off                         | 
  | SpaceShower:rapidityOrder                     |                       on |          off                         | 
  |                                                                                                                 | 
- *-------  End PYTHIA Flag + Mode + Parm + Word Settings  ---------------------------------------------------------* 
+ *-------  End PYTHIA Flag + Mode + Parm + Vect + Word Settings  --------------------------------------------------* 
 
  --------  LHA initialization information  ------------ 
 
@@ -160,7 +162,7 @@
 
  Impact parameter b =  6.777e-01 gives enhancement factor =  1.623e+00.
  Max pT scale for MPI =  1.960e+03, ISR =  1.960e+03, FSR =  1.960e+03.
- Number of MPI =    12, ISR =     9, FSRproc =    95, FSRreson =    15.
+ Number of MPI =     6, ISR =    12, FSRproc =    46, FSRreson =    25.
 
  --------  End PYTHIA Info Listing  ------------------------------------
 
@@ -186,7 +188,8 @@
 
  --------  End PYTHIA Event Listing  -----------------------------------------------------------------------------------------------
  PYTHIA Abort from Pythia::next: reached end of Les Houches Events File  
- PYTHIA Warning in StringFragmentation::fragmentToJunction: bad convergence junction rest frame  
+ PYTHIA Warning in TimeShower::findMEcorr: ME weight above PS one  
+ PYTHIA Error in SpaceShower::pT2nearQCDthreshold: stuck in loop  
 
  *-------  PYTHIA Event and Cross Section Statistics  -------------------------------------------------------------*
  |                                                                                                                 |
@@ -196,8 +199,8 @@
  |-----------------------------------------------------------------------------------------------------------------|
  |                                                    |                                   |                        |
  | Les Houches User Process(es)                  9999 |         200        200        200 |   5.480e-09  5.488e-10 |
- |    ... whereof user classification code         81 |                               192 |                        | 
- |    ... whereof user classification code         82 |                                 8 |                        | 
+ |    ... whereof user classification code         81 |         192        192        192 |                        | 
+ |    ... whereof user classification code         82 |           8          8          8 |                        | 
  |                                                    |                                   |                        |
  | sum                                                |         200        200        200 |   5.480e-09  5.488e-10 |
  |                                                                                                                 |
@@ -208,45 +211,44 @@
  |  times   message                                                                                                | 
  |                                                                                                                 | 
  |      2   Abort from Pythia::next: reached end of Les Houches Events File                                        | 
- |      2   Warning in StringFragmentation::fragmentToJunction: bad convergence junction rest frame                | 
+ |      6   Error in SpaceShower::pT2nearQCDthreshold: stuck in loop                                               | 
+ |      1   Warning in TimeShower::findMEcorr: ME weight above PS one                                              | 
  |                                                                                                                 | 
  *-------  End PYTHIA Error and Warning Messages Statistics  ------------------------------------------------------* 
 
 
-  2012-09-21 21:29       charged particle multiplicity
+  2013-02-16 11:32       charged particle multiplicity
 
-        1.12*10^ 1                              55         5                                                            
-        1.08*10^ 1                              XX         X                                                            
-        1.04*10^ 1                              XX         X                                                            
-        1.00*10^ 1                          X  XXX         X                                                            
-        0.96*10^ 1                          X  XXX         X                                                            
-        0.92*10^ 1                       5  X5 XXX 5    5  X                                                            
-        0.88*10^ 1                       X  XX XXX X    X  X                                                            
-        0.84*10^ 1                       X  XX XXX X    X  X                                                            
-        0.80*10^ 1                      XX  XX XXX X X  X  X                                                            
-        0.76*10^ 1                      XX  XX XXX X X  X  X                                                            
-        0.72*10^ 1                      XX  XX XXX X X  X  X                                                            
-        0.68*10^ 1                      XX  XX XXX X X  X  X                                                            
-        0.64*10^ 1                      XX  XX XXX X X  X  X                                                            
-        0.60*10^ 1                      XXX XX XXX X X  X  X  X                                                         
-        0.56*10^ 1                      XXX XX XXX X X  X  X  X                                                         
-        0.52*10^ 1                      XXX XX5XXX X5X 5X 5X55X                                                         
-        0.48*10^ 1                      XXX XXXXXX XXX XX XXXXX                                                         
-        0.44*10^ 1                      XXX XXXXXX XXX XX XXXXX                                                         
-        0.40*10^ 1                      XXX XXXXXXXXXXXXX XXXXX X  X                                                    
-        0.36*10^ 1                      XXX XXXXXXXXXXXXX XXXXX X  X                                                    
-        0.32*10^ 1                  5 5 XXX XXXXXXXXXXXXX5XXXXX5X  X 5                                                  
-        0.28*10^ 1                  X X XXX XXXXXXXXXXXXXXXXXXXXX  X X                                                  
-        0.24*10^ 1                  X X XXX XXXXXXXXXXXXXXXXXXXXX  X X                                                  
-        0.20*10^ 1                 XXXX XXXXXXXXXXXXXXXXXXXXXXXXXXXX XX X                                               
-        0.16*10^ 1                 XXXX XXXXXXXXXXXXXXXXXXXXXXXXXXXX XX X                                               
-        0.12*10^ 1              5  XXXX XXXXXXXXXXXXXXXXXXXXXXXXXXXX5XX5X5555  5                                        
-        0.08*10^ 1              X  XXXX XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  X                                        
-        0.04*10^ 1              X  XXXX XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  X                                        
+        1.30*10^ 1                                     X                                                                
+        1.25*10^ 1                                     X                                                                
+        1.20*10^ 1                             X       X                                                                
+        1.15*10^ 1                             X       X                                                                
+        1.10*10^ 1                             X       X                                                                
+        1.05*10^ 1                             X       X                                                                
+        1.00*10^ 1                       X     X    XX X                                                                
+        0.95*10^ 1                       X     X    XX X                                                                
+        0.90*10^ 1                       X     X    XX X    X                                                           
+        0.85*10^ 1                       X     X    XX X    X                                                           
+        0.80*10^ 1                       X    XXX   XX X  XXX                                                           
+        0.75*10^ 1                       X    XXX   XX X  XXX                                                           
+        0.70*10^ 1                     X X    XXXX  XX X  XXX                                                           
+        0.65*10^ 1                     X X    XXXX  XX X  XXX                                                           
+        0.60*10^ 1                     X X    XXXXXXXX XX XXX                                                           
+        0.55*10^ 1                     X X    XXXXXXXX XX XXX                                                           
+        0.50*10^ 1                     X X  X XXXXXXXX XX XXXX                                                          
+        0.45*10^ 1                     X X  X XXXXXXXX XX XXXX                                                          
+        0.40*10^ 1                     X XXXX XXXXXXXXXXXXXXXXX   X                                                     
+        0.35*10^ 1                     X XXXX XXXXXXXXXXXXXXXXX   X                                                     
+        0.30*10^ 1              X     XX XXXX XXXXXXXXXXXXXXXXXXX X                                                     
+        0.25*10^ 1              X     XX XXXX XXXXXXXXXXXXXXXXXXX X                                                     
+        0.20*10^ 1              XX XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  X X X                                              
+        0.15*10^ 1              XX XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  X X X                                              
+        0.10*10^ 1              XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXX XX XX                                          
+        0.05*10^ 1              XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX XXX XX XX                                          
 
           Contents                                                                                                      
-            *10^ 1  0000000000000000000000001001110000000001000000000000000000000000000000000000000000000000000000000000
-            *10^ 0  0000000000001002323089620950114958459351556342241321211110010000000000000000000000000000000000000000
+            *10^ 1  0000000000000000000001000001000011010000000000000000000000000000000000000000000000000000000000000000
+            *10^ 0  0000000000003212223720445282876600436488954332410212021011000000000000000000000000000000000000000000
             *10^-1  0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
             *10^-2  0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 
@@ -255,5 +257,5 @@
             *10^ 1  0001122233444556667788899000112223344455666778889900011222334445566677888990001122233444556667788899
             *10^ 0  1482604826048260482604826048260482604826048260482604826048260482604826048260482604826048260482604826
 
-   Entries  =         200    Mean =  1.3038e+02    Underflow =  0.0000e+00    Low edge  = -5.0000e-01
-   All chan =  2.0000e+02    Rms  =  3.8137e+01    Overflow  =  0.0000e+00    High edge =  3.9950e+02
+   Entries  =         200    Mean =  1.2836e+02    Underflow =  0.0000e+00    Low edge  = -5.0000e-01
+   All chan =  2.0000e+02    Rms  =  3.7654e+01    Overflow  =  0.0000e+00    High edge =  3.9950e+02

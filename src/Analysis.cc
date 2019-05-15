@@ -1,5 +1,5 @@
 // Analysis.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -976,7 +976,9 @@ bool SlowJet::setup(const Event& event) {
     for (int j = 0; j < i; ++j) {
       dPhi = abs( clusters[i].phi - clusters[j].phi );
       if (dPhi > M_PI) dPhi = 2. * M_PI - dPhi;
-      dijTemp = (pow2( clusters[i].y - clusters[j].y) + dPhi*dPhi) / R2;
+      dijTemp = (useStandardR) 
+              ? (pow2( clusters[i].y - clusters[j].y) + dPhi*dPhi) / R2
+         : 2. * (cosh( clusters[i].y - clusters[j].y) - cos(dPhi)) / R2 ;
       if (isAnti)    dijTemp /= max(clusters[i].pT2, clusters[j].pT2); 
       else if (isKT) dijTemp *= min(clusters[i].pT2, clusters[j].pT2); 
       dij[i*(i-1)/2 + j] = dijTemp;
@@ -1041,7 +1043,9 @@ bool SlowJet::doStep() {
     for (int i = 0; i < clSize; ++i) if (i != jMin && i != iMin) {
       dPhi = abs( clusters[i].phi - clusters[jMin].phi );
       if (dPhi > M_PI) dPhi = 2. * M_PI - dPhi;
-      dijTemp = (pow2( clusters[i].y - clusters[jMin].y) + dPhi*dPhi) / R2;
+      dijTemp = (useStandardR) 
+              ? (pow2( clusters[i].y - clusters[jMin].y) + dPhi*dPhi) / R2
+         : 2. * (cosh( clusters[i].y - clusters[jMin].y) - cos(dPhi)) / R2 ;
       if (isAnti)    dijTemp /= max(clusters[i].pT2, clusters[jMin].pT2); 
       else if (isKT) dijTemp *= min(clusters[i].pT2, clusters[jMin].pT2);
       if (i < jMin) dij[jMin*(jMin-1)/2 + i] = dijTemp;

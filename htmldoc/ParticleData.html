@@ -46,7 +46,7 @@ to a truncated relativistic Breit-Wigner, i.e. quadratic in <i>m</i>.
   
 <br/><code>option </code><strong> 4</strong> :  
 as 3, but the width is modified as for 2, and the current mass is used 
-for its phase-space prefactor, i.e. <i>m_0 Gamma_0 -> m Gamma(m)</i>.
+for its phase-space prefactor, i.e. <i>m_0 Gamma_0 -&gt; m Gamma(m)</i>.
   
 <br/><b>Note:</b> this mode only applies to normal hadronic 
 resonances like the <i>rho</i>. The more massive states of the 
@@ -57,7 +57,7 @@ considered separately.
 <p/><code>parm&nbsp; </code><strong> ParticleData:maxEnhanceBW &nbsp;</strong> 
  (<code>default = <strong>2.5</strong></code>; <code>minimum = 1.</code>; <code>maximum = 5.</code>)<br/>
 The modifications in options 2 and 4 above enhance the large-mass tail 
-of the Breit-Wigners (the mass spectrum develops a dm/m divergence). 
+of the Breit-Wigner distributions (the mass spectrum develops a dm/m divergence). 
 However, we expect form factors to dampen this tail at masses some distance 
 above the nominal one, so cut off the rise by requiring the actual
 Breit-Wigner weight not to be more than a factor <code> maxEnhanceBW</code>
@@ -89,13 +89,13 @@ the u quark MSbar mass at 2 GeV scale.
 
 <p/><code>parm&nbsp; </code><strong> ParticleData:msRun &nbsp;</strong> 
  (<code>default = <strong>0.095</strong></code>; <code>minimum = 0.060</code>; <code>maximum = 0.150</code>)<br/>
-  
 the s quark MSbar mass at 2 GeV scale.
+  
 
 <p/><code>parm&nbsp; </code><strong> ParticleData:mcRun &nbsp;</strong> 
  (<code>default = <strong>1.25</strong></code>; <code>minimum = 1.00</code>; <code>maximum = 1.50</code>)<br/>
-  
 the c quark MSbar mass at the mass scale itself.
+  
 
 <p/><code>parm&nbsp; </code><strong> ParticleData:mbRun &nbsp;</strong> 
  (<code>default = <strong>4.20</strong></code>; <code>minimum = 4.00</code>; <code>maximum = 4.50</code>)<br/>
@@ -109,16 +109,16 @@ the t quark MSbar mass at the mass scale itself.
 
 <p/><code>parm&nbsp; </code><strong> ParticleData:alphaSvalueMRun &nbsp;</strong> 
  (<code>default = <strong>0.125</strong></code>; <code>minimum = 0.10</code>; <code>maximum = 0.20</code>)<br/>
-the <i>alpha_s(M_Z)</i> value used to define tha rate at which MSbar
+the <i>alpha_s(M_Z)</i> value used to define the rate at which MSbar
 masses run.
   
 
-
 <h3>Comments on the data</h3>
 
-The starting point for the current data is the 2006 Review of Particle 
-Physics [<a href="Bibliography.html" target="page">Yao06</a>]. All known particle masses, widths and lifetimes
-have been set accordingly, while not-yet-measured particles are kept at
+Much of the current data has been updated based on the 2012 Review of Particle 
+Physics [<a href="Bibliography.html" target="page">Ber12</a>], while some is still based on the 2006 RPP
+[<a href="Bibliography.html" target="page">Yao06</a>]. All known particle masses, widths and lifetimes
+have been set accordingly, while most not-yet-measured particles are kept at
 their values from PYTHIA 6. Decay channels and their branching 
 ratios remain a major worry: many particles do not have one single solidly
 measured branching ratio, and many further do not have known branching 
@@ -165,7 +165,8 @@ The meaning of the various properties and the format used are explained
 <a href="ParticleDataScheme.html" target="page">here</a> and the 
 <code>meMode</code> codes <a href="ParticleDecays.html" target="page">here</a>.
 
-<p/>particle: id="0" name="void" spinType="0" chargeType="0" colType="0" m0="0.0">
+<p/>particle: id="0" name="void" spinType="0" chargeType="0" colType="0"
+          m0="0.00000"
 
 <p/>particle: id="1" name="d" antiName="dbar" spinType="2" chargeType="-1" colType="1"
           m0="0.33000"
@@ -218,44 +219,44 @@ The meaning of the various properties and the format used are explained
 
 <p/>particle: id="15" name="tau-" antiName="tau+" spinType="2" chargeType="-3" colType="0"
           m0="1.77682" tau0="8.71100e-02"
- <br/>      channel: onMode="1" bRatio="0.108924" meMode="1521" products="16 -211"
- <br/>      channel: onMode="1" bRatio="0.006885" meMode="1521" products="16 -321"
- <br/>      channel: onMode="1" bRatio="0.178345" meMode="1531" products="16 11 -12"
- <br/>      channel: onMode="1" bRatio="0.173545" meMode="1531" products="16 13 -14"
- <br/>      channel: onMode="1" bRatio="0.254890" meMode="1532" products="16 111 -211"
- <br/>      channel: onMode="1" bRatio="0.001513" meMode="1532" products="16 311 -321"
- <br/>      channel: onMode="1" bRatio="0.000263" meMode="1532" products="16 221 -321"
- <br/>      channel: onMode="1" bRatio="0.008957" meMode="1533" products="16 -211 -311"
- <br/>      channel: onMode="1" bRatio="0.004491" meMode="1533" products="16 111 -321"
- <br/>      channel: onMode="1" bRatio="0.092370" meMode="1541" products="16 111 111 -211"
- <br/>      channel: onMode="1" bRatio="0.089813" meMode="1541" products="16 -211 -211 211"
- <br/>      channel: onMode="1" bRatio="0.003757" meMode="1542" products="16 111 -211 -311"
- <br/>      channel: onMode="1" bRatio="0.003292" meMode="1542" products="16 -211 211 -321"
- <br/>      channel: onMode="1" bRatio="0.001519" meMode="1542" products="16 -211 -321 321"
- <br/>      channel: onMode="1" bRatio="0.001518" meMode="1542" products="16 111 311 -321"
- <br/>      channel: onMode="1" bRatio="0.001087" meMode="1542" products="16 130 -211 310"
- <br/>      channel: onMode="1" bRatio="0.000555" meMode="1542" products="16 111 111 -321"
- <br/>      channel: onMode="1" bRatio="0.000235" meMode="1542" products="16 130 130 -211"
- <br/>      channel: onMode="1" bRatio="0.000235" meMode="1542" products="16 -211 310 310"
- <br/>      channel: onMode="1" bRatio="0.001744" meMode="1543" products="16 111 -211 221"
- <br/>      channel: onMode="1" bRatio="0.001762" meMode="1544" products="16 22  111 -211"
- <br/>      channel: onMode="1" bRatio="0.044435" meMode="1551" products="16 111 -211 -211 211"
- <br/>      channel: onMode="1" bRatio="0.010313" meMode="1551" products="16 111 111 111 -211"
- <br/>      channel: onMode="1" bRatio="0.004935" meMode="1561" products="16 111 111 -211 -211 211"
- <br/>      channel: onMode="1" bRatio="0.000957" meMode="1561" products="16 111 111 111 111 -211"
- <br/>      channel: onMode="1" bRatio="0.000834" meMode="1561" products="16 -211 -211 -211 211 211"
- <br/>      channel: onMode="1" bRatio="0.000225" meMode="0" products="16 -211 -211 211 221"
- <br/>      channel: onMode="1" bRatio="0.000145" meMode="0" products="16 111 111 -211 221"
- <br/>      channel: onMode="1" bRatio="0.000135" meMode="0" products="16 111 111 -211 223"
- <br/>      channel: onMode="1" bRatio="0.000118" meMode="0" products="16 -211 -211 211 223"
- <br/>      channel: onMode="1" bRatio="0.000400" meMode="0" products="16 223 -321"
- <br/>      channel: onMode="1" bRatio="0.000397" meMode="0" products="16 111 111 111 -321"
- <br/>      channel: onMode="1" bRatio="0.000307" meMode="0" products="16 111 -211 211 -321"
- <br/>      channel: onMode="1" bRatio="0.000280" meMode="0" products="16 221 -323"
- <br/>      channel: onMode="1" bRatio="0.000238" meMode="0" products="16 111 111 -211 -311"
- <br/>      channel: onMode="1" bRatio="0.000225" meMode="0" products="16 -211 -211 211 -311"
- <br/>      channel: onMode="1" bRatio="0.000297" meMode="0" products="16 111 -211 -311 311"
- <br/>      channel: onMode="1" bRatio="0.000059" meMode="0" products="16 111 -211 -321 321"
+ <br/>      channel: onMode="1" bRatio="0.1076825" meMode="1521" products="16 -211"
+ <br/>      channel: onMode="1" bRatio="0.0069601" meMode="1521" products="16 -321"
+ <br/>      channel: onMode="1" bRatio="0.1772832" meMode="1531" products="16 11 -12"
+ <br/>      channel: onMode="1" bRatio="0.1731072" meMode="1531" products="16 13 -14"
+ <br/>      channel: onMode="1" bRatio="0.2537447" meMode="1532" products="16 111 -211"
+ <br/>      channel: onMode="1" bRatio="0.0015809" meMode="1532" products="16 311 -321"
+ <br/>      channel: onMode="1" bRatio="0.0001511" meMode="1532" products="16 221 -321"
+ <br/>      channel: onMode="1" bRatio="0.0083521" meMode="1533" products="16 -211 -311"
+ <br/>      channel: onMode="1" bRatio="0.0042655" meMode="1533" products="16 111 -321"
+ <br/>      channel: onMode="1" bRatio="0.0924697" meMode="1541" products="16 111 111 -211"
+ <br/>      channel: onMode="1" bRatio="0.0925691" meMode="1541" products="16 -211 -211 211"
+ <br/>      channel: onMode="1" bRatio="0.0039772" meMode="1542" products="16 111 -211 -311"
+ <br/>      channel: onMode="1" bRatio="0.0034701" meMode="1542" products="16 -211 211 -321"
+ <br/>      channel: onMode="1" bRatio="0.0014318" meMode="1542" products="16 -211 -321 321"
+ <br/>      channel: onMode="1" bRatio="0.0015809" meMode="1542" products="16 111 311 -321"
+ <br/>      channel: onMode="1" bRatio="0.0011932" meMode="1542" products="16 130 -211 310"
+ <br/>      channel: onMode="1" bRatio="0.0006463" meMode="1542" products="16 111 111 -321"
+ <br/>      channel: onMode="1" bRatio="0.0002386" meMode="1542" products="16 130 130 -211"
+ <br/>      channel: onMode="1" bRatio="0.0002386" meMode="1542" products="16 -211 310 310"
+ <br/>      channel: onMode="1" bRatio="0.0013821" meMode="1543" products="16 111 -211 221"
+ <br/>      channel: onMode="1" bRatio="0.0017520" meMode="1544" products="16 22 111 -211"
+ <br/>      channel: onMode="1" bRatio="0.0459365" meMode="1551" products="16 111 -211 -211 211"
+ <br/>      channel: onMode="1" bRatio="0.0104401" meMode="1551" products="16 111 111 111 -211"
+ <br/>      channel: onMode="1" bRatio="0.0049069" meMode="1561" products="16 111 111 -211 -211 211"
+ <br/>      channel: onMode="1" bRatio="0.0009515" meMode="1561" products="16 111 111 111 111 -211"
+ <br/>      channel: onMode="1" bRatio="0.0008342" meMode="1561" products="16 -211 -211 -211 211 211"
+ <br/>      channel: onMode="1" bRatio="0.0001631" meMode="0" products="16 -211 -211 211 221"
+ <br/>      channel: onMode="1" bRatio="0.0001491" meMode="0" products="16 111 111 -211 221"
+ <br/>      channel: onMode="1" bRatio="0.0001392" meMode="0" products="16 111 111 -211 223"
+ <br/>      channel: onMode="1" bRatio="0.0001193" meMode="0" products="16 -211 -211 211 223"
+ <br/>      channel: onMode="1" bRatio="0.0004077" meMode="0" products="16 223 -321"
+ <br/>      channel: onMode="1" bRatio="0.0004773" meMode="0" products="16 111 111 111 -321"
+ <br/>      channel: onMode="1" bRatio="0.0003052" meMode="0" products="16 111 -211 211 -321"
+ <br/>      channel: onMode="1" bRatio="0.0002784" meMode="0" products="16 221 -323"
+ <br/>      channel: onMode="1" bRatio="0.0002366" meMode="0" products="16 111 111 -211 -311"
+ <br/>      channel: onMode="1" bRatio="0.0002237" meMode="0" products="16 -211 -211 211 -311"
+ <br/>      channel: onMode="1" bRatio="0.0002953" meMode="0" products="16 111 -211 -311 311"
+ <br/>      channel: onMode="1" bRatio="0.0000590" meMode="0" products="16 111 -211 -321 321"
 
 <p/>particle: id="16" name="nu_tau" antiName="nu_taubar" spinType="2" chargeType="0" colType="0"
           m0="0.00000"
@@ -653,13 +654,13 @@ The meaning of the various properties and the format used are explained
 
 <p/>particle: id="113" name="rho0" spinType="3" chargeType="0" colType="0"
           m0="0.77549" mWidth="0.14910" mMin="0.30000" mMax="1.50000"
- <br/>      channel: onMode="1" bRatio="0.9988485" meMode="2" products="211 -211"
- <br/>      channel: onMode="1" bRatio="0.0006000" products="111 22"
- <br/>      channel: onMode="1" bRatio="0.0002950" products="221 22"
- <br/>      channel: onMode="1" bRatio="0.0001010" meMode="1" products="211 -211 111"
- <br/>      channel: onMode="1" bRatio="0.0000470" products="11 -11"
- <br/>      channel: onMode="1" bRatio="0.0000455" products="13 -13"
- <br/>      channel: onMode="1" bRatio="0.0000450" products="111 111 22"
+ <br/>      channel: onMode="1" bRatio="0.9988447" meMode="2" products="211 -211"
+ <br/>      channel: onMode="1" bRatio="0.0005993" products="111 22"
+ <br/>      channel: onMode="1" bRatio="0.0002997" products="221 22"
+ <br/>      channel: onMode="1" bRatio="0.0001009" meMode="1" products="211 -211 111"
+ <br/>      channel: onMode="1" bRatio="0.0000471" products="11 -11"
+ <br/>      channel: onMode="1" bRatio="0.0000454" products="13 -13"
+ <br/>      channel: onMode="1" bRatio="0.0000449" products="111 111 22"
  <br/>      channel: onMode="1" bRatio="0.0000180" products="211 -211 211 -211"
 
 <p/>particle: id="115" name="a_20" spinType="5" chargeType="0" colType="0"
@@ -676,15 +677,15 @@ The meaning of the various properties and the format used are explained
 
 <p/>particle: id="130" name="K_L0" spinType="1" chargeType="0" colType="0"
           m0="0.49761" tau0="1.53300e+04"
- <br/>      channel: onMode="1" bRatio="0.1955770" products="111 111 111"
- <br/>      channel: onMode="1" bRatio="0.1255900" products="211 -211 111"
- <br/>      channel: onMode="1" bRatio="0.2026300" meMode="22" products="-12 11 211"
- <br/>      channel: onMode="1" bRatio="0.2026300" meMode="22" products="12 -11 -211"
- <br/>      channel: onMode="1" bRatio="0.1350900" meMode="22" products="-14 13 211"
- <br/>      channel: onMode="1" bRatio="0.1350900" meMode="22" products="14 -13 -211"
- <br/>      channel: onMode="1" bRatio="0.0019760" products="211 -211"
- <br/>      channel: onMode="1" bRatio="0.0008690" products="111 111"
- <br/>      channel: onMode="1" bRatio="0.0005480" products="22 22"
+ <br/>      channel: onMode="1" bRatio="0.1952278" products="111 111 111"
+ <br/>      channel: onMode="1" bRatio="0.1254178" products="211 -211 111"
+ <br/>      channel: onMode="1" bRatio="0.2027688" meMode="22" products="-12 11 211"
+ <br/>      channel: onMode="1" bRatio="0.2027688" meMode="22" products="12 -11 -211"
+ <br/>      channel: onMode="1" bRatio="0.1352191" meMode="22" products="-14 13 211"
+ <br/>      channel: onMode="1" bRatio="0.1352191" meMode="22" products="14 -13 -211"
+ <br/>      channel: onMode="1" bRatio="0.0019673" products="211 -211"
+ <br/>      channel: onMode="1" bRatio="0.0008641" products="111 111"
+ <br/>      channel: onMode="1" bRatio="0.0005471" products="22 22"
 
 <p/>particle: id="211" name="pi+" antiName="pi-" spinType="1" chargeType="3" colType="0"
           m0="0.13957" tau0="7.80450e+03"
@@ -693,8 +694,8 @@ The meaning of the various properties and the format used are explained
 
 <p/>particle: id="213" name="rho+" antiName="rho-" spinType="3" chargeType="3" colType="0"
           m0="0.77549" mWidth="0.14910" mMin="0.30000" mMax="1.50000"
- <br/>      channel: onMode="1" bRatio="0.9995500" meMode="2" products="211 111"
- <br/>      channel: onMode="1" bRatio="0.0004500" products="211 22"
+ <br/>      channel: onMode="1" bRatio="0.9995502" meMode="2" products="211 111"
+ <br/>      channel: onMode="1" bRatio="0.0004498" products="211 22"
 
 <p/>particle: id="215" name="a_2+" antiName="a_2-" spinType="5" chargeType="3" colType="0"
           m0="1.31830" mWidth="0.10700" mMin="1.00000" mMax="1.70000"
@@ -708,27 +709,27 @@ The meaning of the various properties and the format used are explained
 
 <p/>particle: id="221" name="eta" spinType="1" chargeType="0" colType="0"
           m0="0.54785"
- <br/>      channel: onMode="1" bRatio="0.3938240" products="22 22"
- <br/>      channel: onMode="1" bRatio="0.3251200" products="111 111 111"
- <br/>      channel: onMode="1" bRatio="0.0004400" products="111 22 22"
- <br/>      channel: onMode="1" bRatio="0.2270000" products="211 -211 111"
- <br/>      channel: onMode="1" bRatio="0.0469000" products="211 -211 22"
- <br/>      channel: onMode="1" bRatio="0.0060000" meMode="11" products="22 11 -11"
+ <br/>      channel: onMode="1" bRatio="0.3931181" products="22 22"
+ <br/>      channel: onMode="1" bRatio="0.3257150" products="111 111 111"
+ <br/>      channel: onMode="1" bRatio="0.0002700" products="111 22 22"
+ <br/>      channel: onMode="1" bRatio="0.2274105" products="211 -211 111"
+ <br/>      channel: onMode="1" bRatio="0.0460021" products="211 -211 22"
+ <br/>      channel: onMode="1" bRatio="0.0069003" meMode="11" products="22 11 -11"
  <br/>      channel: onMode="1" bRatio="0.0003100" meMode="11" products="22 13 -13"
  <br/>      channel: onMode="1" bRatio="0.0000060" products="13 -13"
- <br/>      channel: onMode="1" bRatio="0.0004000" meMode="12" products="211 -211 11 -11"
+ <br/>      channel: onMode="1" bRatio="0.0002680" meMode="12" products="211 -211 11 -11"
 
 <p/>particle: id="223" name="omega" spinType="3" chargeType="0" colType="0"
           m0="0.78265" mWidth="0.00849" mMin="0.50000" mMax="1.10000"
- <br/>      channel: onMode="1" bRatio="0.8924150" meMode="1" products="211 -211 111"
- <br/>      channel: onMode="1" bRatio="0.0890000" products="111 22"
- <br/>      channel: onMode="1" bRatio="0.0170000" meMode="2" products="211 -211"
- <br/>      channel: onMode="1" bRatio="0.0004900" products="221 22"
- <br/>      channel: onMode="1" bRatio="0.0007700" meMode="11" products="111 11 -11"
- <br/>      channel: onMode="1" bRatio="0.0000960" meMode="11" products="111 13 -13"
- <br/>      channel: onMode="1" bRatio="0.0000720" products="11 -11"
+ <br/>      channel: onMode="1" bRatio="0.8994773" meMode="1" products="211 -211 111"
+ <br/>      channel: onMode="1" bRatio="0.0834941" products="111 22"
+ <br/>      channel: onMode="1" bRatio="0.0154283" meMode="2" products="211 -211"
+ <br/>      channel: onMode="1" bRatio="0.0004639" products="221 22"
+ <br/>      channel: onMode="1" bRatio="0.0007765" meMode="11" products="111 11 -11"
+ <br/>      channel: onMode="1" bRatio="0.0001311" meMode="11" products="111 13 -13"
+ <br/>      channel: onMode="1" bRatio="0.0000728" products="11 -11"
  <br/>      channel: onMode="1" bRatio="0.0000900" products="13 -13"
- <br/>      channel: onMode="1" bRatio="0.0000670" products="111 111 22"
+ <br/>      channel: onMode="1" bRatio="0.0000660" products="111 111 22"
 
 <p/>particle: id="225" name="f_2" spinType="5" chargeType="0" colType="0"
           m0="1.27510" mWidth="0.18510" mMin="0.60000" mMax="2.00000"
@@ -745,12 +746,12 @@ The meaning of the various properties and the format used are explained
 
 <p/>particle: id="310" name="K_S0" spinType="1" chargeType="0" colType="0"
           m0="0.49761" tau0="2.68420e+01"
- <br/>      channel: onMode="1" bRatio="0.6923500" products="211 -211"
- <br/>      channel: onMode="1" bRatio="0.3069000" products="111 111"
- <br/>      channel: onMode="1" bRatio="0.0000470" meMode="12" products="211 -211 11 -11"
- <br/>      channel: onMode="1" bRatio="0.0003500" meMode="22" products="-12 11 211"
- <br/>      channel: onMode="1" bRatio="0.0003500" meMode="22" products="12 -11 -211"
- <br/>      channel: onMode="1" bRatio="0.0000030" products="22 22"
+ <br/>      channel: onMode="1" bRatio="0.6922420" products="211 -211"
+ <br/>      channel: onMode="1" bRatio="0.3070073" products="111 111"
+ <br/>      channel: onMode="1" bRatio="0.0000479" meMode="12" products="211 -211 11 -11"
+ <br/>      channel: onMode="1" bRatio="0.0003501" meMode="22" products="-12 11 211"
+ <br/>      channel: onMode="1" bRatio="0.0003501" meMode="22" products="12 -11 -211"
+ <br/>      channel: onMode="1" bRatio="0.0000026" products="22 22"
 
 <p/>particle: id="311" name="K0" antiName="Kbar0" spinType="1" chargeType="0" colType="0"
           m0="0.49761"
@@ -759,82 +760,82 @@ The meaning of the various properties and the format used are explained
 
 <p/>particle: id="313" name="K*0" antiName="K*bar0" spinType="3" chargeType="0" colType="0"
           m0="0.89594" mWidth="0.04870" mMin="0.65000" mMax="1.20000"
- <br/>      channel: onMode="1" bRatio="0.6650000" meMode="2" products="321 -211"
- <br/>      channel: onMode="1" bRatio="0.3326900" meMode="2" products="311 111"
- <br/>      channel: onMode="1" bRatio="0.0023100" products="311 22"
+ <br/>      channel: onMode="1" bRatio="0.6649467" meMode="2" products="321 -211"
+ <br/>      channel: onMode="1" bRatio="0.3326633" meMode="2" products="311 111"
+ <br/>      channel: onMode="1" bRatio="0.0023900" products="311 22"
 
 <p/>particle: id="315" name="K*_2(1430)0" antiName="K*_2(1430)bar0" spinType="5" chargeType="0" colType="0"
           m0="1.43240" mWidth="0.10900" mMin="1.10000" mMax="1.80000"
- <br/>      channel: onMode="1" bRatio="0.3340000" products="321 -211"
- <br/>      channel: onMode="1" bRatio="0.1670000" products="311 111"
- <br/>      channel: onMode="1" bRatio="0.1650000" products="323 -211"
- <br/>      channel: onMode="1" bRatio="0.0825000" products="313 111"
- <br/>      channel: onMode="1" bRatio="0.0890000" products="323 -211 111"
- <br/>      channel: onMode="1" bRatio="0.0450000" products="313 211 -211"
- <br/>      channel: onMode="1" bRatio="0.0580000" products="321 -213"
- <br/>      channel: onMode="1" bRatio="0.0290000" products="311 113"
- <br/>      channel: onMode="1" bRatio="0.0290000" products="311 223"
- <br/>      channel: onMode="1" bRatio="0.0015000" products="311 221"
+ <br/>      channel: onMode="1" bRatio="0.3335002" products="321 -211"
+ <br/>      channel: onMode="1" bRatio="0.1667502" products="311 111"
+ <br/>      channel: onMode="1" bRatio="0.1650794" products="323 -211"
+ <br/>      channel: onMode="1" bRatio="0.0825397" products="313 111"
+ <br/>      channel: onMode="1" bRatio="0.0892231" products="323 -211 111"
+ <br/>      channel: onMode="1" bRatio="0.0451128" products="313 211 -211"
+ <br/>      channel: onMode="1" bRatio="0.0581454" products="321 -213"
+ <br/>      channel: onMode="1" bRatio="0.0290727" products="311 113"
+ <br/>      channel: onMode="1" bRatio="0.0290727" products="311 223"
+ <br/>      channel: onMode="1" bRatio="0.0015038" products="311 221"
 
 <p/>particle: id="321" name="K+" antiName="K-" spinType="1" chargeType="3" colType="0"
           m0="0.49368" tau0="3.71300e+03"
- <br/>      channel: onMode="1" bRatio="0.6343000" products="-13 14"
- <br/>      channel: onMode="1" bRatio="0.0000150" products="-11 12"
- <br/>      channel: onMode="1" bRatio="0.2091100" products="211 111"
- <br/>      channel: onMode="1" bRatio="0.0559000" products="211 211 -211"
- <br/>      channel: onMode="1" bRatio="0.0175700" products="211 111 111"
- <br/>      channel: onMode="1" bRatio="0.0498000" meMode="22" products="12 -11 111"
- <br/>      channel: onMode="1" bRatio="0.0332000" meMode="22" products="14 -13 111"
+ <br/>      channel: onMode="1" bRatio="0.6355250" products="-13 14"
+ <br/>      channel: onMode="1" bRatio="0.0000158" products="-11 12"
+ <br/>      channel: onMode="1" bRatio="0.2066081" products="211 111"
+ <br/>      channel: onMode="1" bRatio="0.0559022" products="211 211 -211"
+ <br/>      channel: onMode="1" bRatio="0.0176107" products="211 111 111"
+ <br/>      channel: onMode="1" bRatio="0.0507020" meMode="22" products="12 -11 111"
+ <br/>      channel: onMode="1" bRatio="0.0335313" meMode="22" products="14 -13 111"
  <br/>      channel: onMode="1" bRatio="0.0000220" products="-11 12 111 111"
- <br/>      channel: onMode="1" bRatio="0.0000410" products="-11 12 211 -211"
+ <br/>      channel: onMode="1" bRatio="0.0000409" products="-11 12 211 -211"
  <br/>      channel: onMode="1" bRatio="0.0000140" products="-13 14 111 111"
  <br/>      channel: onMode="1" bRatio="0.0000280" products="-13 14 211 -211"
 
 <p/>particle: id="323" name="K*+" antiName="K*-" spinType="3" chargeType="3" colType="0"
           m0="0.89166" mWidth="0.05080" mMin="0.65000" mMax="1.20000"
- <br/>      channel: onMode="1" bRatio="0.6660000" meMode="2" products="311 211"
- <br/>      channel: onMode="1" bRatio="0.3330000" meMode="2" products="321 111"
- <br/>      channel: onMode="1" bRatio="0.0010000" products="321 22"
+ <br/>      channel: onMode="1" bRatio="0.6660067" meMode="2" products="311 211"
+ <br/>      channel: onMode="1" bRatio="0.3330033" meMode="2" products="321 111"
+ <br/>      channel: onMode="1" bRatio="0.0009900" products="321 22"
 
 <p/>particle: id="325" name="K*_2(1430)+" antiName="K*_2(1430)-" spinType="5" chargeType="3" colType="0"
           m0="1.42560" mWidth="0.09850" mMin="1.10000" mMax="1.80000"
- <br/>      channel: onMode="1" bRatio="0.3330000" products="311 211"
- <br/>      channel: onMode="1" bRatio="0.1660000" products="321 111"
- <br/>      channel: onMode="1" bRatio="0.1647000" products="313 211"
- <br/>      channel: onMode="1" bRatio="0.0824000" products="323 111"
- <br/>      channel: onMode="1" bRatio="0.0890000" products="313 211 111"
- <br/>      channel: onMode="1" bRatio="0.0450000" products="323 211 -211"
- <br/>      channel: onMode="1" bRatio="0.0580000" products="311 213"
- <br/>      channel: onMode="1" bRatio="0.0290000" products="321 113"
- <br/>      channel: onMode="1" bRatio="0.0290000" products="321 223"
- <br/>      channel: onMode="1" bRatio="0.0015000" products="321 221"
- <br/>      channel: onMode="1" bRatio="0.0024000" products="321 22"
+ <br/>      channel: onMode="1" bRatio="0.3330333" products="311 211"
+ <br/>      channel: onMode="1" bRatio="0.1660166" products="321 111"
+ <br/>      channel: onMode="1" bRatio="0.1646498" products="313 211"
+ <br/>      channel: onMode="1" bRatio="0.0823749" products="323 111"
+ <br/>      channel: onMode="1" bRatio="0.0890089" products="313 211 111"
+ <br/>      channel: onMode="1" bRatio="0.0450045" products="323 211 -211"
+ <br/>      channel: onMode="1" bRatio="0.0580058" products="311 213"
+ <br/>      channel: onMode="1" bRatio="0.0290029" products="321 113"
+ <br/>      channel: onMode="1" bRatio="0.0290029" products="321 223"
+ <br/>      channel: onMode="1" bRatio="0.0015002" products="321 221"
+ <br/>      channel: onMode="1" bRatio="0.0024002" products="321 22"
 
 <p/>particle: id="331" name="eta'" spinType="1" chargeType="0" colType="0"
           m0="0.95778" mWidth="0.00020" mMin="0.95578" mMax="0.95978"
- <br/>      channel: onMode="1" bRatio="0.4449000" products="211 -211 221"
- <br/>      channel: onMode="1" bRatio="0.2939500" products="113 22"
- <br/>      channel: onMode="1" bRatio="0.2080000" products="111 111 221"
- <br/>      channel: onMode="1" bRatio="0.0303000" products="223 22"
- <br/>      channel: onMode="1" bRatio="0.0212000" products="22 22"
- <br/>      channel: onMode="1" bRatio="0.0015500" products="111 111 111"
- <br/>      channel: onMode="1" bRatio="0.0001000" products="13 -13 22"
+ <br/>      channel: onMode="1" bRatio="0.4365815" products="211 -211 221"
+ <br/>      channel: onMode="1" bRatio="0.2947428" products="113 22"
+ <br/>      channel: onMode="1" bRatio="0.2172848" products="111 111 221"
+ <br/>      channel: onMode="1" bRatio="0.0276636" products="223 22"
+ <br/>      channel: onMode="1" bRatio="0.0219297" products="22 22"
+ <br/>      channel: onMode="1" bRatio="0.0016900" products="111 111 111"
+ <br/>      channel: onMode="1" bRatio="0.0001076" products="13 -13 22"
 
 <p/>particle: id="333" name="phi" spinType="3" chargeType="0" colType="0"
           m0="1.01946" mWidth="0.00426" mMin="1.00000" mMax="1.04000"
- <br/>      channel: onMode="1" bRatio="0.4919270" meMode="2" products="321 -321"
- <br/>      channel: onMode="1" bRatio="0.3400000" meMode="2" products="130 310"
- <br/>      channel: onMode="1" bRatio="0.0420000" products="-213 211"
- <br/>      channel: onMode="1" bRatio="0.0420000" products="113 111"
- <br/>      channel: onMode="1" bRatio="0.0420000" products="213 -211"
+ <br/>      channel: onMode="1" bRatio="0.4893042" meMode="2" products="321 -321"
+ <br/>      channel: onMode="1" bRatio="0.3422127" meMode="2" products="130 310"
+ <br/>      channel: onMode="1" bRatio="0.0420984" products="-213 211"
+ <br/>      channel: onMode="1" bRatio="0.0420984" products="113 111"
+ <br/>      channel: onMode="1" bRatio="0.0420984" products="213 -211"
  <br/>      channel: onMode="1" bRatio="0.0270000" meMode="1" products="211 -211 111"
- <br/>      channel: onMode="1" bRatio="0.0130000" products="221 22"
- <br/>      channel: onMode="1" bRatio="0.0012500" products="111 22"
- <br/>      channel: onMode="1" bRatio="0.0002970" products="11 -11"
- <br/>      channel: onMode="1" bRatio="0.0002860" products="13 -13"
- <br/>      channel: onMode="1" bRatio="0.0001150" meMode="11" products="221 11 -11"
- <br/>      channel: onMode="1" bRatio="0.0000730" meMode="2" products="211 -211"
- <br/>      channel: onMode="1" bRatio="0.0000520" products="223 111"
+ <br/>      channel: onMode="1" bRatio="0.0130981" products="221 22"
+ <br/>      channel: onMode="1" bRatio="0.0012708" products="111 22"
+ <br/>      channel: onMode="1" bRatio="0.0002956" products="11 -11"
+ <br/>      channel: onMode="1" bRatio="0.0002872" products="13 -13"
+ <br/>      channel: onMode="1" bRatio="0.0001151" meMode="11" products="221 11 -11"
+ <br/>      channel: onMode="1" bRatio="0.0000740" meMode="2" products="211 -211"
+ <br/>      channel: onMode="1" bRatio="0.0000470" products="223 111"
 
 <p/>particle: id="335" name="f'_2(1525)" spinType="5" chargeType="0" colType="0"
           m0="1.52500" mWidth="0.07300" mMin="1.10000" mMax="2.00000"
@@ -3273,9 +3274,9 @@ The meaning of the various properties and the format used are explained
 
 <p/>particle: id="2114" name="Delta0" antiName="Deltabar0" spinType="4" chargeType="0" colType="0"
           m0="1.23200" mWidth="0.11700" mMin="1.08000" mMax="1.60000"
- <br/>      channel: onMode="1" bRatio="0.3314000" products="2212 -211"
- <br/>      channel: onMode="1" bRatio="0.6630000" products="2112 111"
- <br/>      channel: onMode="1" bRatio="0.0056000" products="2112 22"
+ <br/>      channel: onMode="1" bRatio="0.3314104" products="2212 -211"
+ <br/>      channel: onMode="1" bRatio="0.6630208" products="2112 111"
+ <br/>      channel: onMode="1" bRatio="0.0055688" products="2112 22"
 
 <p/>particle: id="2203" name="uu_1" antiName="uu_1bar" spinType="3" chargeType="4" colType="-1"
           m0="0.77133"
@@ -3285,9 +3286,9 @@ The meaning of the various properties and the format used are explained
 
 <p/>particle: id="2214" name="Delta+" antiName="Deltabar-" spinType="4" chargeType="3" colType="0"
           m0="1.23200" mWidth="0.11700" mMin="1.08000" mMax="1.60000"
- <br/>      channel: onMode="1" bRatio="0.6630000" products="2212 111"
- <br/>      channel: onMode="1" bRatio="0.3314000" products="2112 211"
- <br/>      channel: onMode="1" bRatio="0.0056000" products="2212 22"
+ <br/>      channel: onMode="1" bRatio="0.6630208" products="2212 111"
+ <br/>      channel: onMode="1" bRatio="0.3314104" products="2112 211"
+ <br/>      channel: onMode="1" bRatio="0.0055688" products="2212 22"
 
 <p/>particle: id="2224" name="Delta++" antiName="Deltabar--" spinType="4" chargeType="6" colType="0"
           m0="1.23200" mWidth="0.11700" mMin="1.08000" mMax="1.60000"
@@ -3301,23 +3302,23 @@ The meaning of the various properties and the format used are explained
 
 <p/>particle: id="3112" name="Sigma-" antiName="Sigmabar+" spinType="2" chargeType="-3" colType="0"
           m0="1.19745" tau0="4.43400e+01"
- <br/>      channel: onMode="1" bRatio="0.9984760" products="2112 -211"
+ <br/>      channel: onMode="1" bRatio="0.9984757" products="2112 -211"
  <br/>      channel: onMode="1" bRatio="0.0010170" meMode="22" products="-12 11 2112"
  <br/>      channel: onMode="1" bRatio="0.0004500" meMode="22" products="-14 13 2112"
- <br/>      channel: onMode="1" bRatio="0.0000570" meMode="22" products="-12 11 3122"
+ <br/>      channel: onMode="1" bRatio="0.0000573" meMode="22" products="-12 11 3122"
 
 <p/>particle: id="3114" name="Sigma*-" antiName="Sigma*bar+" spinType="4" chargeType="-3" colType="0"
           m0="1.38720" mWidth="0.03940" mMin="1.34000" mMax="1.70000"
- <br/>      channel: onMode="1" bRatio="0.8800000" products="3122 -211"
- <br/>      channel: onMode="1" bRatio="0.0600000" products="3212 -211"
- <br/>      channel: onMode="1" bRatio="0.0600000" products="3112 111"
+ <br/>      channel: onMode="1" bRatio="0.8814590" products="3122 -211"
+ <br/>      channel: onMode="1" bRatio="0.0592705" products="3212 -211"
+ <br/>      channel: onMode="1" bRatio="0.0592705" products="3112 111"
 
 <p/>particle: id="3122" name="Lambda0" antiName="Lambdabar0" spinType="2" chargeType="0" colType="0"
           m0="1.11568" tau0="7.89000e+01"
- <br/>      channel: onMode="1" bRatio="0.6391610" products="2212 -211"
- <br/>      channel: onMode="1" bRatio="0.3581000" products="2112 111"
- <br/>      channel: onMode="1" bRatio="0.0017500" products="2112 22"
- <br/>      channel: onMode="1" bRatio="0.0008320" meMode="22" products="-12 11 2212"
+ <br/>      channel: onMode="1" bRatio="0.6391668" products="2212 -211"
+ <br/>      channel: onMode="1" bRatio="0.3580935" products="2112 111"
+ <br/>      channel: onMode="1" bRatio="0.0017505" products="2112 22"
+ <br/>      channel: onMode="1" bRatio="0.0008322" meMode="22" products="-12 11 2212"
  <br/>      channel: onMode="1" bRatio="0.0001570" meMode="22" products="-14 13 2212"
 
 <p/>particle: id="3124" name="Lambda(1520)0" antiName="Lambda(1520)bar0" spinType="4" chargeType="0" colType="0"
@@ -3343,8 +3344,8 @@ The meaning of the various properties and the format used are explained
 
 <p/>particle: id="3212" name="Sigma0" antiName="Sigmabar0" spinType="2" chargeType="0" colType="0"
           m0="1.19264"
- <br/>      channel: onMode="1" bRatio="0.9950000" products="3122 22"
- <br/>      channel: onMode="1" bRatio="0.0050000" meMode="11" products="3122 11 -11"
+ <br/>      channel: onMode="1" bRatio="0.9950249" products="3122 22"
+ <br/>      channel: onMode="1" bRatio="0.0049751" meMode="11" products="3122 11 -11"
 
 <p/>particle: id="3214" name="Sigma*0" antiName="Sigma*bar0" spinType="4" chargeType="0" colType="0"
           m0="1.38370" mWidth="0.03600" mMin="1.34000" mMax="1.70000"
@@ -3355,16 +3356,16 @@ The meaning of the various properties and the format used are explained
 
 <p/>particle: id="3222" name="Sigma+" antiName="Sigmabar-" spinType="2" chargeType="3" colType="0"
           m0="1.18937" tau0="2.40400e+01"
- <br/>      channel: onMode="1" bRatio="0.5156700" products="2212 111"
- <br/>      channel: onMode="1" bRatio="0.4830800" products="2112 211"
- <br/>      channel: onMode="1" bRatio="0.0012300" products="2212 22"
+ <br/>      channel: onMode="1" bRatio="0.5156743" products="2212 111"
+ <br/>      channel: onMode="1" bRatio="0.4830758" products="2112 211"
+ <br/>      channel: onMode="1" bRatio="0.0012299" products="2212 22"
  <br/>      channel: onMode="1" bRatio="0.0000200" meMode="22" products="-11 12 3122"
 
 <p/>particle: id="3224" name="Sigma*+" antiName="Sigma*bar-" spinType="4" chargeType="3" colType="0"
           m0="1.38280" mWidth="0.03600" mMin="1.34000" mMax="1.70000"
- <br/>      channel: onMode="1" bRatio="0.8800000" products="3122 211"
- <br/>      channel: onMode="1" bRatio="0.0600000" products="3222 111"
- <br/>      channel: onMode="1" bRatio="0.0600000" products="3212 211"
+ <br/>      channel: onMode="1" bRatio="0.8814590" products="3122 211"
+ <br/>      channel: onMode="1" bRatio="0.0592705" products="3222 111"
+ <br/>      channel: onMode="1" bRatio="0.0592705" products="3212 211"
 
 <p/>particle: id="3303" name="ss_1" antiName="ss_1bar" spinType="3" chargeType="-2" colType="-1"
           m0="1.09361"
@@ -3384,11 +3385,11 @@ The meaning of the various properties and the format used are explained
 
 <p/>particle: id="3322" name="Xi0" antiName="Xibar0" spinType="2" chargeType="0" colType="0"
           m0="1.31486" tau0="8.71000e+01"
- <br/>      channel: onMode="1" bRatio="0.9952250" products="3122 111"
+ <br/>      channel: onMode="1" bRatio="0.9952424" products="3122 111"
  <br/>      channel: onMode="1" bRatio="0.0011700" products="3122 22"
  <br/>      channel: onMode="1" bRatio="0.0033300" products="3212 22"
- <br/>      channel: onMode="1" bRatio="0.0002700" meMode="22" products="-12 11 3222"
- <br/>      channel: onMode="1" bRatio="0.0000050" meMode="22" products="-14 13 3222"
+ <br/>      channel: onMode="1" bRatio="0.0002530" meMode="22" products="-12 11 3222"
+ <br/>      channel: onMode="1" bRatio="0.0000046" meMode="22" products="-14 13 3222"
 
 <p/>particle: id="3324" name="Xi*0" antiName="Xi*bar0" spinType="4" chargeType="0" colType="0"
           m0="1.53180" mWidth="0.00910" mMin="1.46000" mMax="1.63000"
@@ -3397,11 +3398,11 @@ The meaning of the various properties and the format used are explained
 
 <p/>particle: id="3334" name="Omega-" antiName="Omegabar+" spinType="4" chargeType="-3" colType="0"
           m0="1.67245" tau0="2.46100e+01"
- <br/>      channel: onMode="1" bRatio="0.6737600" products="3122 -321"
- <br/>      channel: onMode="1" bRatio="0.2340000" products="3322 -211"
- <br/>      channel: onMode="1" bRatio="0.0860000" products="3312 111"
- <br/>      channel: onMode="1" bRatio="0.0006400" products="3324 -211"
- <br/>      channel: onMode="1" bRatio="0.0056000" meMode="22" products="-12 11 3322"
+ <br/>      channel: onMode="1" bRatio="0.6737955" products="3122 -321"
+ <br/>      channel: onMode="1" bRatio="0.2345365" products="3322 -211"
+ <br/>      channel: onMode="1" bRatio="0.0854667" products="3312 111"
+ <br/>      channel: onMode="1" bRatio="0.0006360" products="3324 -211"
+ <br/>      channel: onMode="1" bRatio="0.0055653" meMode="22" products="-12 11 3322"
 
 <p/>particle: id="4101" name="cd_0" antiName="cd_0bar" spinType="1" chargeType="1" colType="-1"
           m0="1.96908"
@@ -4195,13 +4196,13 @@ The meaning of the various properties and the format used are explained
 
 <p/>particle: id="10313" name="K_1(1270)0" antiName="K_1(1270)bar0" spinType="3" chargeType="0" colType="0"
           m0="1.27200" mWidth="0.09000" mMin="1.00000" mMax="2.00000"
- <br/>      channel: onMode="1" bRatio="0.2900000" products="321 -213"
- <br/>      channel: onMode="1" bRatio="0.1450000" products="311 113"
- <br/>      channel: onMode="1" bRatio="0.1900000" products="10321 -211"
- <br/>      channel: onMode="1" bRatio="0.0950000" products="10311 111"
- <br/>      channel: onMode="1" bRatio="0.1100000" products="323 -211"
- <br/>      channel: onMode="1" bRatio="0.0550000" products="313 111"
- <br/>      channel: onMode="1" bRatio="0.1150000" products="311 223"
+ <br/>      channel: onMode="1" bRatio="0.2886598" products="321 -213"
+ <br/>      channel: onMode="1" bRatio="0.1443299" products="311 113"
+ <br/>      channel: onMode="1" bRatio="0.1924399" products="10321 -211"
+ <br/>      channel: onMode="1" bRatio="0.0962199" products="10311 111"
+ <br/>      channel: onMode="1" bRatio="0.1099656" products="323 -211"
+ <br/>      channel: onMode="1" bRatio="0.0549828" products="313 111"
+ <br/>      channel: onMode="1" bRatio="0.1134021" products="311 223"
 
 <p/>particle: id="10321" name="K*_0(1430)+" antiName="K*_0(1430)-" spinType="1" chargeType="3" colType="0"
           m0="1.43000" mWidth="0.27000" mMin="0.70000" mMax="2.20000"
@@ -4210,13 +4211,13 @@ The meaning of the various properties and the format used are explained
 
 <p/>particle: id="10323" name="K_1(1270)+" antiName="K_1(1270)-" spinType="3" chargeType="3" colType="0"
           m0="1.27200" mWidth="0.09000" mMin="1.00000" mMax="2.00000"
- <br/>      channel: onMode="1" bRatio="0.2900000" products="311 213"
- <br/>      channel: onMode="1" bRatio="0.1450000" products="321 113"
- <br/>      channel: onMode="1" bRatio="0.1900000" products="10311 211"
- <br/>      channel: onMode="1" bRatio="0.0950000" products="10321 111"
- <br/>      channel: onMode="1" bRatio="0.1100000" products="313 211"
- <br/>      channel: onMode="1" bRatio="0.0550000" products="323 111"
- <br/>      channel: onMode="1" bRatio="0.1150000" products="321 223"
+ <br/>      channel: onMode="1" bRatio="0.2886598" products="311 213"
+ <br/>      channel: onMode="1" bRatio="0.1443299" products="321 113"
+ <br/>      channel: onMode="1" bRatio="0.1924399" products="10311 211"
+ <br/>      channel: onMode="1" bRatio="0.0962199" products="10321 111"
+ <br/>      channel: onMode="1" bRatio="0.1099656" products="313 211"
+ <br/>      channel: onMode="1" bRatio="0.0549828" products="323 111"
+ <br/>      channel: onMode="1" bRatio="0.1134021" products="321 223"
 
 <p/>particle: id="10331" name="f_0(1710)" spinType="1" chargeType="0" colType="0"
           m0="1.72000" mWidth="0.13500" mMin="1.10000" mMax="2.40000"
@@ -8889,4 +8890,4 @@ The meaning of the various properties and the format used are explained
 </body>
 </html>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->

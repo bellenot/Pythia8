@@ -1,5 +1,5 @@
 // PartonDistributions.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -75,6 +75,22 @@ double PDF::xf(int id, double x, double Q2) {
     if (idAbs == 22) return max(0., xgamma);
     return 0.;
 
+  // Baryon beams: n and nbar by isospin conjugation of p and pbar.
+  } else if (idBeamAbs == 2112) { 
+    int idNow = (idBeam > 0) ? id : -id;
+    int idAbs = abs(id);
+    if (idNow ==  0 || idAbs == 21) return max(0., xg);  
+    if (idNow ==  1) return max(0., xu);
+    if (idNow == -1) return max(0., xubar);
+    if (idNow ==  2) return max(0., xd);
+    if (idNow == -2) return max(0., xdbar);
+    if (idNow ==  3) return max(0., xs);
+    if (idNow == -3) return max(0., xsbar);
+    if (idAbs ==  4) return max(0., xc);
+    if (idAbs ==  5) return max(0., xb);
+    if (idAbs == 22) return max(0., xgamma);
+    return 0.;
+
   // Diagonal meson beams: only pi0, Pomeron for now.
   } else if (idBeam == 111 || idBeam == 990) { 
     int idAbs = abs(id);
@@ -109,11 +125,16 @@ double PDF::xfVal(int id, double x, double Q2) {
   if ( (abs(idSav) != abs(id) && idSav != 9) || x != xSav || Q2 != Q2Sav) 
     {idSav = id; xfUpdate(id, x, Q2); xSav = x; Q2Sav = Q2;}
 
-  // Baryon and nondiagonal meson beams: only p, pbar, pi+, pi- for now.
+  // Baryon and nondiagonal meson beams: only p, pbar, n, nbar, pi+, pi-.
   if (idBeamAbs == 2212) { 
     int idNow = (idBeam > 0) ? id : -id;
     if (idNow == 1) return max(0., xdVal);
     if (idNow == 2) return max(0., xuVal);
+    return 0.;
+  } else if (idBeamAbs == 2112) { 
+    int idNow = (idBeam > 0) ? id : -id;
+    if (idNow == 1) return max(0., xuVal);
+    if (idNow == 2) return max(0., xdVal);
     return 0.;
   } else if (idBeamAbs == 211) {
     int idNow = (idBeam > 0) ? id : -id;
@@ -155,6 +176,11 @@ double PDF::xfSea(int id, double x, double Q2) {
       if (idNow == -1) return max(0., xdbar);
       if (idNow ==  2) return max(0., xuSea);
       if (idNow == -2) return max(0., xubar);
+    } else if (idBeamAbs == 2112) { 
+      if (idNow ==  1) return max(0., xuSea);
+      if (idNow == -1) return max(0., xubar);
+      if (idNow ==  2) return max(0., xdSea);
+      if (idNow == -2) return max(0., xdbar);
     } else {
       if (idAbs <=  2) return max(0., xuSea);       
     }
@@ -179,21 +205,53 @@ double PDF::xfSea(int id, double x, double Q2) {
 
 //--------------------------------------------------------------------------
  
-// Definitions of static variables.
+// Define static member of the LHAPDF class.
+  
+map< int, pair<string, int> > LHAPDF::initializedSets;
 
-string LHAPDF::latestSetName = " ";
-int    LHAPDF::latestMember  = -1;
-int    LHAPDF::latestNSet    = 0;
+//--------------------------------------------------------------------------
+
+// Static method to find the nSet number corresponding to a name and member.
+// Returns -1 if no such LHAPDF set has been initialized.
+ 
+int LHAPDF::findNSet(string setName, int member) {
+  for (map<int, pair<string, int> >::const_iterator
+       i = initializedSets.begin(); i != initializedSets.end(); ++i) {
+    int    iSet    = i->first;
+    string iName   = i->second.first;
+    int    iMember = i->second.second;
+    if (iName == setName && iMember == member) return iSet;
+  }
+  return -1;
+}
+
+//--------------------------------------------------------------------------
+ 
+// Static method to return the lowest non-occupied nSet number.
+
+int LHAPDF::freeNSet() {
+  for (int iSet = 1; iSet <= int(initializedSets.size()); ++iSet) {
+    if (initializedSets.find(iSet) == initializedSets.end()) return iSet;
+  }
+  return initializedSets.size() + 1;
+}
 
 //--------------------------------------------------------------------------
 
 // Initialize a parton density function from LHAPDF.
 
 void LHAPDF::init(string setName, int member, Info* infoPtr) {
-
-  // If already initialized then need not do anything.
-  if (setName == latestSetName && member == latestMember 
-    && nSet == latestNSet) return;
+  
+  // Determine whether the pdf set contains the photon or not
+  // (so far only MRST2004qed).
+  if (setName == "MRST2004qed.LHgrid") hasPhoton = true;
+  else                                 hasPhoton = false;
+  
+  // If already initialized then need not do anything further.
+  pair<string, int> initializedNameMember = initializedSets[nSet];
+  string initializedSetName   = initializedNameMember.first;
+  int    initializedMember    = initializedNameMember.second;  
+  if (setName == initializedSetName && member == initializedMember) return;
 
   // Initialize set. If first character is '/' then assume that name 
   // is given with path, else not.
@@ -213,13 +271,11 @@ void LHAPDF::init(string setName, int member, Info* infoPtr) {
   LHAPDFInterface::initPDFM(nSet, member);
 
   // Do not collect statistics on under/overflow to save time and space.
-   LHAPDFInterface::setPDFparm( "NOSTAT" );
-   LHAPDFInterface::setPDFparm( "LOWKEY" );
-
+  LHAPDFInterface::setPDFparm( "NOSTAT" );
+  LHAPDFInterface::setPDFparm( "LOWKEY" );
+  
   // Save values to avoid unnecessary reinitializations.
-  latestSetName = setName;
-  latestMember  = member;
-  latestNSet    = nSet;
+  if (nSet > 0) initializedSets[nSet] = make_pair(setName, member);
 
 }
 
@@ -242,11 +298,11 @@ void LHAPDF::xfUpdate(int , double x, double Q2) {
   // Let LHAPDF do the evaluation of parton densities.
   double Q = sqrt( max( 0., Q2));
 
-  // Use special call if photon included in proton (so far only MRST2004qed)
-  if (latestSetName == "MRST2004qed.LHgrid" ) {
+  // Use special call if photon included in proton.
+  if (hasPhoton) {
     LHAPDFInterface::evolvePDFPHOTONM( nSet, x, Q, xfArray, xPhoton);
   } 
-  // Else use default LHAPDF call
+  // Else use default LHAPDF call.
   else {
     LHAPDFInterface::evolvePDFM( nSet, x, Q, xfArray);
     xPhoton=0.0;

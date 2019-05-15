@@ -1,5 +1,5 @@
 // PartonDistributions.h is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -95,7 +95,14 @@ public:
 
   // Allow extrapolation beyond boundaries. This is optional.
   void setExtrapolate(bool extrapol); 
-
+ 
+  // Find out the nSet number corresponding to a name and member.
+  // Returns -1 if no such LHAPDF set has been initialized.
+  static int findNSet(string setName, int member);
+  
+  // Return the lowest non-occupied nSet number.
+  static int freeNSet();
+   
 private:
 
   // Initialization of PDF set.
@@ -107,11 +114,12 @@ private:
   // Current set and pdf values.
   int    nSet;
   double xfArray[13];
+  bool   hasPhoton;
   double xPhoton;
 
-  // Keep track of latest initialized PDF, so does not have to repeat.
-  static string latestSetName;
-  static int    latestMember, latestNSet;   
+  // Keep track of what sets have been initialized in LHAPDFInterface.
+  // The key is the nSet index, the value is a pair (name, member number).
+  static map< int, pair<string, int> > initializedSets;
 
 };
  

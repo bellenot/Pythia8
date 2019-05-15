@@ -295,7 +295,7 @@ The Pomeron is introduced in the description of diffractive events,
 i.e. a diffractive system is viewed as a Pomeron-proton collision at a 
 reduced CM energy. Here the PDF's are even less well known. 
 Most experimental parametrizations are NLO, which makes them less
-well suited for Monte Carlo applications. Furthemore note that 
+well suited for Monte Carlo applications. Furthermore note that 
 the momentum sum is arbitrarily normalized to a non-unity value.
 
 <modepick name="PDF:PomSet" default="6" min="1" max="6">
@@ -413,4 +413,4 @@ partons, etc.
 
 </chapter>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->

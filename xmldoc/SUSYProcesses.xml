@@ -137,7 +137,7 @@ are not yet included.
 
 <flag name="SUSY:gg2squarkantisquark" default="off">
 Pair production of a scalar quark together with a scalar antiquark by
-gluon annhilation via <ei>s</ei>-channel gluon exhange, <ei>t</ei>- and 
+gluon annihilation via <ei>s</ei>-channel gluon exchange, <ei>t</ei>- and 
 <ei>u</ei>-channel squark exchange, and the direct 4-point coupling. 
 The cross section expression follows <ref>Boz07</ref>. 
 Validation of the FLV and CPV cases has not yet been completed.
@@ -205,7 +205,7 @@ Validation of the FLV and CPV cases has not yet been completed.
 <flag name="SUSY:qqbar2chi+-chi0" default="off">
 Associated chargino-neutralino production by quark-antiquark
 annihilation. With four neutralino species, two chargino ones, and
-maintaining charge conjugate proceeses separate, this gives 16 
+maintaining charge conjugate processes separate, this gives 16 
 separate processes, codes 1221 - 1236. The cross section expressions 
 follow <ref>Boz07</ref>.
 Validation of the FLV and CPV cases has not yet been completed.
@@ -287,5 +287,5 @@ gauginos with Higgs as one of the decay products.
 
 </chapter>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->
 

@@ -92,21 +92,29 @@
 <aidx href="LesHouchesAccord">Les Houches Accord</aidx><br/>
 <aidx href="SUSYLesHouchesAccord">SUSY Les Houches Accord</aidx><br/>
 <aidx href="HepMCInterface">HepMC Interface</aidx><br/>
-<aidx href="ROOTusage">ROOT usage</aidx><br/>
-<aidx href="RIVETusage">RIVET usage</aidx><br/>
 <aidx href="SemiInternalProcesses">Semi-Internal Processes</aidx><br/>
 <aidx href="SemiInternalResonances">Semi-Internal Resonances</aidx><br/>
 <aidx href="MadGraph5Processes">MadGraph 5 Processes</aidx><br/>
+<aidx href="AlpgenEventInterface">Alpgen Event Interface</aidx><br/>
+<aidx href="MatchingAndMerging">Matching and Merging</aidx><br/>
+&nbsp;&nbsp;--&nbsp;&nbsp; 
+<aidx href="CKKWLMerging">CKKW-L Merging</aidx><br/>
+&nbsp;&nbsp;--&nbsp;&nbsp; 
+<aidx href="JetMatching">Jet Matching</aidx><br/>
+&nbsp;&nbsp;--&nbsp;&nbsp; 
+<aidx href="UMEPSMerging">UMEPS Merging</aidx><br/>
+&nbsp;&nbsp;--&nbsp;&nbsp; 
+<aidx href="NLOMerging">NLO Merging</aidx><br/>
+<aidx href="UserHooks">User Hooks</aidx><br/>
 <aidx href="HadronLevelStandalone">Hadron-Level Standalone</aidx><br/>
 <aidx href="ExternalDecays">External Decays</aidx><br/>
 <aidx href="BeamShape">Beam Shape</aidx><br/>
 <aidx href="PartonDistributions">Parton Distributions</aidx><br/>
 <aidx href="JetFinders">Jet Finders</aidx><br/>
 <aidx href="RandomNumbers">Random Numbers</aidx><br/>
-<aidx href="UserHooks">User Hooks</aidx><br/>
-<aidx href="MatrixElementMerging">Matrix Element Merging</aidx><br/>
-<aidx href="AlpgenAndMLM">ALPGEN and MLM Merging</aidx><br/>
 <aidx href="ImplementNewShowers">Implement New Showers</aidx><br/>
+<aidx href="RIVETusage">RIVET usage</aidx><br/>
+<aidx href="ROOTusage">ROOT usage</aidx><br/>
 </INDEXPHP>
 
 <h4>Reference Materiel</h4>
@@ -123,4 +131,4 @@
 
 </chapter>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->

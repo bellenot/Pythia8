@@ -32,7 +32,7 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 The <code>Hist</code> class gives a simple implementation of 
 one-dimensional histograms, useful for quick-and-dirty testing, 
 without the need to link to more sophisticated packages. 
-For this reson it is used in many of the
+For this reason it is used in many of the
 <?php $filepath = $_GET["filepath"];
 echo "<a href='SampleMainPrograms.php?filepath=".$filepath."' target='page'>";?>sample main programs</a>
 found in the <code>examples</code> subdirectory.
@@ -257,7 +257,7 @@ Gnuplot.
 print a three-column table, where the first column gives the center of 
 each bin and the second and third ones the corresponding bin contents
 of the two histograms. Only works if the two histograms have the same
-x axis (within a tiny tolarance), else nothing will be done.
+x axis (within a tiny tolerance), else nothing will be done.
   
 
 <a name="method13"></a>
@@ -367,4 +367,4 @@ or two histograms by each other, bin by bin.
 </body>
 </html>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->

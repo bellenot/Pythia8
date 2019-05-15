@@ -1,5 +1,5 @@
 // Pythia.h is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -19,7 +19,6 @@
 #include "History.h"
 #include "Info.h"
 #include "LesHouches.h"
-#include "MergingHooks.h"
 #include "PartonLevel.h"
 #include "ParticleData.h"
 #include "PartonDistributions.h"
@@ -35,6 +34,8 @@
 #include "SusyLesHouches.h"
 #include "TimeShower.h"
 #include "UserHooks.h"
+#include "MergingHooks.h"
+#include "Merging.h"
 
 namespace Pythia8 {
  
@@ -47,7 +48,7 @@ class Pythia {
 public:
 
   // Constructor. (See Pythia.cc file.)
-  Pythia(string xmlDir = "../xmldoc");
+  Pythia(string xmlDir = "../xmldoc", bool printBanner = true);
 
   // Destructor. (See Pythia.cc file.)
   ~Pythia();
@@ -164,6 +165,9 @@ public:
   double parm(string key) {return settings.parm(key);}
   string word(string key) {return settings.word(key);}
 
+  // Auxiliary to set parton densities among list of possibilities.
+  PDF* getPDFPtr(int idIn, int sequence = 1);
+
   // The event record for the parton-level central process.
   Event          process;
 
@@ -183,9 +187,9 @@ public:
   Rndm           rndm;
 
   // Standard Model couplings, including alphaS and alphaEM.
-  Couplings     couplings;
-  CoupSUSY      coupSUSY;
-  Couplings*    couplingsPtr;
+  Couplings      couplings;
+  CoupSUSY       coupSUSY;
+  Couplings*     couplingsPtr;
 
   // SusyLesHouches - SLHA object for interface to SUSY spectra.
   SusyLesHouches slha;
@@ -193,7 +197,18 @@ public:
   // The partonic content of each subcollision system (auxiliary to event).
   PartonSystems  partonSystems; 
 
+  // Merging object as wrapper for matrix element merging routines.
+  Merging        merging;
+
+  // Pointer to MergingHooks object for user interaction with the merging.
+  // MergingHooks also more generally steers the matrix element merging.
+  MergingHooks*  mergingHooksPtr;
+
 private: 
+
+  // Copy and = constructors are made private so they cannot be used.
+  Pythia(const Pythia&);
+  Pythia& operator=(const Pythia&);
 
   // Constants: could only be changed in the code itself.
   static const double VERSIONNUMBERCODE;
@@ -254,7 +269,7 @@ private:
 
   // Pointer to UserHooks object for user interaction with program.
   UserHooks* userHooksPtr;
-  bool       hasUserHooks, doVetoProcess, doVetoPartons;
+  bool       hasUserHooks, doVetoProcess, doVetoPartons, retryPartonLevel;
 
   // Pointer to BeamShape object for beam momentum and interaction vertex.
   BeamShape* beamShapePtr;
@@ -281,11 +296,9 @@ private:
   // The main generator class to perform trial showers of the event.
   PartonLevel trialPartonLevel;
 
-  // Pointer to MergingHooks object for user interaction with the merging.
-  MergingHooks* mergingHooksPtr;
-  bool       hasMergingHooks, hasOwnMergingHooks, doUserMerging, 
-             doMGMerging, doKTMerging, doMerging, doPTLundMerging,
-             doCutBasedMerging;
+  // Flags for defining the merging scheme.
+  bool        hasMergingHooks, hasOwnMergingHooks, doMerging;
+
   // The main generator class to produce the hadron level of the event.
   HadronLevel hadronLevel;
 
@@ -325,14 +338,8 @@ private:
   // Check that the final event makes sense.
   bool check(ostream& os = cout);
 
-  // Auxiliary to set parton densities among list of possibilities.
-  PDF* getPDFPtr(int idIn, int sequence = 1);
-
   // Initialization of SLHA data.
   bool initSLHA ();
-
-  // Function to perform CKKW-L merging of the history.
-  bool mergeProcess();
 
 };
  

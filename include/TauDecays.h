@@ -1,5 +1,5 @@
 // TauDecays.h is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Philip Ilten, Torbjorn Sjostrand.
+// Copyright (C) 2013 Philip Ilten, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -110,6 +110,9 @@ private:
   // Pointer to SM coupling data.
   Couplings*    couplingsPtr;
 
+  // Parameters to determine if correlated partner should decay.
+  double tau0Max, tauMax, rMax, xyMax, zMax;
+  bool limitTau0, limitTau, limitRadius, limitCylinder, limitDecay;
 };
 
 //==========================================================================

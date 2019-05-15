@@ -77,7 +77,7 @@ for the latest event are available as output from a few methods.
 create a sphericity analysis object, where
 <br/><code>argument</code><strong> power </strong> (<code>default = <strong>2.</strong></code>) :  
 is the power <i>r</i> defined above, i.e. 
-<br/><code>argumentoption </code><strong> 2.</strong> : gives Spericity, and   
+<br/><code>argumentoption </code><strong> 2.</strong> : gives Sphericity, and   
 <br/><code>argumentoption </code><strong> 1.</strong> : gives the linear form.  
   
 <br/><code>argument</code><strong> select </strong> (<code>default = <strong>2</strong></code>) :  
@@ -100,7 +100,7 @@ most likely the <code>pythia.event</code> one.
   
 <br/><code>argument</code><strong> os </strong> (<code>default = <strong>cout</strong></code>) :  is the output stream for 
 error messages. (The method does not rely on the <code>Info</code>
-mchinery for error messages.)
+machinery for error messages.)
   
 <br/>If the routine returns <code>false</code> the 
 analysis failed, e.g. if too few particles are present to analyze.
@@ -161,7 +161,7 @@ and the minor values.
 The calculation of thrust is more computer-time-intensive than e.g. 
 linear sphericity, introduced above, and has no specific advantages except 
 historical precedent. In the PYTHIA 6 implementation the search was 
-speeded up at the price of then not being guaranteed to hit the absolute
+sped up at the price of then not being guaranteed to hit the absolute
 maximum. The current implementation studies all possibilities, but at
 the price of being slower, with time consumption for an event with
 <i>n</i> particles growing like <i>n^3</i>.
@@ -194,7 +194,7 @@ most likely the <code>pythia.event</code> one.
   
 <br/><code>argument</code><strong> os </strong> (<code>default = <strong>cout</strong></code>) :  is the output stream for 
 error messages. (The method does not rely on the <code>Info</code>
-mchinery for error messages.)
+machinery for error messages.)
   
 <br/>If the routine returns <code>false</code> the 
 analysis failed, e.g. if too few particles are present to analyze.
@@ -335,7 +335,7 @@ and <code>pTscale</code> values. Thus e.g.
   
 <br/><code>argument</code><strong> os </strong> (<code>default = <strong>cout</strong></code>) :  is the output stream for 
 error messages. (The method does not rely on the <code>Info</code>
-mchinery for error messages.)
+machinery for error messages.)
   
 <br/>If the routine returns <code>false</code> the analysis failed, 
 e.g. because the number of particles was smaller than the minimum number
@@ -378,7 +378,7 @@ provides a listing of the reconstructed jets.
 <p/><strong>int ClusterJet::distanceSize() &nbsp;</strong> <br/>
 the number of most recent clustering scales that have been stored
 for readout with the next method. Normally this would be five, 
-but less if fewer clustering steps occured.
+but less if fewer clustering steps occurred.
   
 
 <a name="method23"></a>
@@ -495,12 +495,12 @@ accepted as a jet.
 the geometric center of the jet.
   
 <br/><code>argument</code><strong> eTseed </strong> (<code>default = <strong>1.5 GeV</strong></code>) :  
-the mimimum <i>eT</i> in a cell for this to be acceptable as 
+the minimum <i>eT</i> in a cell for this to be acceptable as 
 the trial center of a jet. 
   
 <br/><code>argument</code><strong> os </strong> (<code>default = <strong>cout</strong></code>) :  is the output stream for 
 error messages. (The method does not rely on the <code>Info</code>
-mchinery for error messages.)
+machinery for error messages.)
   
 <br/>If the routine returns <code>false</code> the analysis failed, 
 but currently this is not foreseen ever to happen.
@@ -652,7 +652,7 @@ Optionally, a <i>pTjetMin</i> requirement is imposed, where only
 clusters with <i>pT > pTjetMin</i> are added to the jets list.
 If so, some of the analyzed particles will not be part of any final 
 jet.</li>
-<li>If instead te smallest measure is a <i>d_ij</i> then the 
+<li>If instead the smallest measure is a <i>d_ij</i> then the 
 four-momenta of the <i>i</i> and <i>j</i> clusters are added 
 to define a single new cluster. Convert this four-momentum to a new 
 <i>(pT, y, phi)</i> triplet and update the list of <i>d_iB</i> 
@@ -670,7 +670,7 @@ The minimal procedure only requires one call per event to do the analysis.
 We will begin by presenting it, and only afterwards some extensions.
 
 <a name="method37"></a>
-<p/><strong>SlowJet::SlowJet(double power, double R, double pTjetMin = 0.,double etaMax = 25., int select = 2, int massSet = 2, SlowJetHook* sjHookPtr = 0) &nbsp;</strong> <br/>
+<p/><strong>SlowJet::SlowJet(double power, double R, double pTjetMin = 0.,double etaMax = 25., int select = 2, int massSet = 2, SlowJetHook* sjHookPtr = 0, bool useStandardR = true) &nbsp;</strong> <br/>
 create a <code>SlowJet</code> instance, where 
 <br/><code>argument</code><strong> power </strong>  :  
 tells (half) the power of the transverse-momentum dependence of the 
@@ -713,13 +713,25 @@ assigned the <i>pi+-</i> mass, and
   
 <br/><code>argumentoption </code><strong> 2</strong> : all given their correct masses.  
   
-<br/><code>argument</code><strong> sjHookPtr </strong> (<code>default = <strong>0</strong></code>) :  
+<<br/><code>argument</code><strong> sjHookPtr </strong> (<code>default = <strong>0</strong></code>) :  
 gives the possibility to send in your own selection routine for which
 particles should be part of the analysis; see further below on the
 <code>SlowJetHook</code> class. If this pointer is sent in nonzero, 
 <code>etaMax</code> and <code>massSet</code> are disregarded, 
 and <code>select</code> only gives the basic selection, to which
 the user can add further requirements.
+  
+<br/><code>argument</code><strong> useStandardR </strong> (<code>default = <strong>true</strong></code>) : definition of <i>R</i>
+distance between two jets.
+<br/><code>argumentoption </code><strong> true</strong> : standard, as described above, 
+<i>DeltaR_ij^2 = (y_i - y_j)^2 + (phi_i - phi_j)^2.</i> 
+  
+<br/><code>argumentoption </code><strong> false</strong> : alternative,
+<i>DeltaR_ij^2 = 2 (cosh(y_i - y_j) - cos(phi_i - phi_j))</i>,
+which corresponds to the rim of the "deformed cone" giving a constant
+invariant mass between the two partons considered (for fixed
+masses and transverse momenta).
+  
   
   
 
@@ -956,4 +968,4 @@ individual particle.
 </body>
 </html>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->

@@ -68,7 +68,7 @@ main51 main52 main53: $(PYTHIA8LOCATION)/$(LIBDIRARCH)/libpythia8.a
 	@ln -fs $(BINDIR)/$@.exe $@.exe
 
 # Create an executable that links to LHAPDF and HepMC
-main61 main62: \
+main61 main62 main85 main86 main87 main88: \
 	$(PYTHIA8LOCATION)/$(LIBDIRARCH)/libpythia8.a $(PYTHIA8LOCATION)/$(LIBDIRARCH)/libhepmcinterface.a
 	@mkdir -p $(BINDIR)
 	$(CXX) $(CXXFLAGS) -Wno-shadow -I$(PYTHIA8LOCATION)/$(INCDIR) -I$(HEPMCLOCATION)/include \

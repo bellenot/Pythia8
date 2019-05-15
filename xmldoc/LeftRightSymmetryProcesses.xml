@@ -30,7 +30,7 @@ and the <ei>Z_R^0</ei> descriptions are  likely to be simplifications,
 but provide a starting point.
 
 <p/>
-For the doubly-charged Higgses, the main decay modes implemented are
+For the doubly-charged Higgs bosons, the main decay modes implemented are
 <ei>H_L^++ -> W_L^+ W_L^+, l_i^+ l_j^+ </ei> (<ei>i, j</ei> generation 
 indices) and <ei>H_R^++ -> W_R^+ W_R^+, l_i^+ l_j^+</ei>.
 
@@ -179,5 +179,5 @@ Yukawa coupling for <ei>H^-- -> tau- tau-</ei>.
 
 </chapter>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->
 

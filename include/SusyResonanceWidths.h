@@ -1,5 +1,5 @@
 // SusyResonanceWidths.h is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand
+// Copyright (C) 2013 Torbjorn Sjostrand
 // Main author of this file: N. Desai
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
@@ -124,8 +124,9 @@ public:
 
 protected:
 
-  virtual bool init(Info* infoPtrIn, Settings* settingsPtrIn,
-	    ParticleData* particleDataPtrIn, Couplings* couplingsPtrIn);
+  // Virtual methods to handle model-specific (non-SM) part of initialization
+  virtual bool initBSM();
+  virtual bool allowCalc();
 
   // Gaussian integrator
   double integrateGauss( WidthFunction* widthFn, double, double, double);
@@ -133,7 +134,7 @@ protected:
   // SUSY couplings
   CoupSUSY* coupSUSYPtr;
   
-  static const bool DEBUG;
+  static const bool DBSUSY;
 
 };
 

@@ -1,5 +1,5 @@
 // Analysis.h is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -418,10 +418,10 @@ public:
   // Constructor.
   SlowJet(int powerIn, double Rin, double pTjetMinIn = 0., 
     double etaMaxIn = 25., int selectIn = 2, int massSetIn = 2,
-    SlowJetHook* sjHookPtrIn = 0) : power(powerIn), R(Rin), 
-    pTjetMin(pTjetMinIn), etaMax(etaMaxIn), select(selectIn), 
-    massSet(massSetIn), sjHookPtr(sjHookPtrIn) 
-    { isAnti = (power < 0); isKT = (power > 0); isCA = (power == 0); 
+    SlowJetHook* sjHookPtrIn = 0, bool useStandardRin = true) 
+    : power(powerIn), R(Rin), pTjetMin(pTjetMinIn), etaMax(etaMaxIn), 
+    select(selectIn), massSet(massSetIn), sjHookPtr(sjHookPtrIn),
+    useStandardR(useStandardRin) { isAnti = (power < 0); isKT = (power > 0);
     R2 = R*R; pT2jetMin = pTjetMin*pTjetMin; cutInEta = (etaMax <= 20.); 
     chargedOnly = (select > 2); visibleOnly = (select == 2); 
     modifyMass = (massSet < 2); noHook = (sjHookPtr == 0); }
@@ -499,11 +499,11 @@ private:
   int    power;
   double R, pTjetMin, etaMax, R2, pT2jetMin; 
   int    select, massSet;
-  bool   isAnti, isKT, isCA, cutInEta, chargedOnly, visibleOnly,
-         modifyMass, noHook;
-
-  // SlowJetHook can be use to tailor particle selection step.
+  // SlowJetHook can be used to tailor particle selection step.
   SlowJetHook* sjHookPtr;
+  bool   useStandardR, isAnti, isKT, cutInEta, chargedOnly, 
+         visibleOnly, modifyMass, noHook;
+
 
   // Intermediate clustering objects and final jet objects.
   vector<SingleSlowJet> clusters;

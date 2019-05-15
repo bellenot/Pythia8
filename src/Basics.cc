@@ -1,5 +1,5 @@
 // Basics.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -532,6 +532,28 @@ double cosphi(const Vec4& v1, const Vec4& v2, const Vec4& n) {
   return cphi; 
 }
 
+//--------------------------------------------------------------------------
+
+// Distance in cylindrical (y, phi) coordinates.
+ 
+double RRapPhi(const Vec4& v1, const Vec4& v2) {
+  double dRap = abs(v1.rap() - v2.rap());
+  double dPhi = abs(v1.phi() - v2.phi());
+  if (dPhi > M_PI) dPhi = 2. * M_PI - dPhi;
+  return sqrt(dRap*dRap + dPhi*dPhi);
+}
+
+//--------------------------------------------------------------------------
+
+// Distance in cylindrical (eta, phi) coordinates.
+ 
+double REtaPhi(const Vec4& v1, const Vec4& v2) {
+  double dEta = abs(v1.eta() - v2.eta());
+  double dPhi = abs(v1.phi() - v2.phi());
+  if (dPhi > M_PI) dPhi = 2. * M_PI - dPhi;
+  return sqrt(dEta*dEta + dPhi*dPhi);
+}
+  
 //--------------------------------------------------------------------------
 
 // Print a four-vector: also operator overloading with friend.

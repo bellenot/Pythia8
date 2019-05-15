@@ -281,7 +281,7 @@ The abovementioned power for valence <ei>d</ei> quarks in protons.
 
 <parm name="BeamRemnants:valenceDiqEnhance" default="2.0" min="0.5" 
 max="10.">
-Enhancement factor for valence diqaurks in baryons, relative to the 
+Enhancement factor for valence diquarks in baryons, relative to the 
 simple sum of the two constituent quarks.
 </parm>
 
@@ -300,4 +300,4 @@ junction-free topology is found.
 
 </chapter>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->

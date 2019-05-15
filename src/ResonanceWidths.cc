@@ -1,11 +1,12 @@
 // ResonanceWidths.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 // Function definitions (not found in the header) for 
 // the ResonanceWidths class and classes derived from it.
 
+#include "ParticleData.h"
 #include "ResonanceWidths.h"
 #include "PythiaComplex.h"
 
@@ -41,6 +42,9 @@ bool ResonanceWidths::init(Info* infoPtrIn, Settings* settingsPtrIn,
   particleDataPtr = particleDataPtrIn;
   couplingsPtr    = couplingsPtrIn;
 
+  // Perform any model dependent initialisations (pure dummy in base class)
+  bool isInit = initBSM();
+  
   // Minimal decaying-resonance width. Minimal phase space for meMode = 103.
   minWidth     = settingsPtr->parm("ResonanceWidths:minWidth");
   minThreshold = settingsPtr->parm("ResonanceWidths:minThreshold");
@@ -80,12 +84,17 @@ bool ResonanceWidths::init(Info* infoPtrIn, Settings* settingsPtrIn,
   if (particlePtr == 0) infoPtr->errorMsg("Error in ResonanceWidths::init:"
       " unknown resonance identity code");   
 
-  // Initialize constants used for a resonance.
-  initConstants();
+  // Check if we are supposed to do the width calculation
+  // (can be false e.g. if SLHA decay table should take precedence instead)
+  bool allowCalcWidth = isInit && allowCalc();
+  if ( allowCalcWidth ) {
+    // Initialize constants used for a resonance.
+    initConstants();
 
-  // Calculate various common prefactors for the current mass.
-  mHat          = mRes;
-  calcPreFac(true);
+    // Calculate various common prefactors for the current mass.
+    mHat          = mRes;
+    calcPreFac(true);
+  }
 
   // Reset quantities to sum. Declare variables inside loop.
   double widTot = 0.; 
@@ -109,7 +118,7 @@ bool ResonanceWidths::init(Info* infoPtrIn, Settings* settingsPtrIn,
     }
 
     // Channels with meMode < 100 must be implemented in derived classes.
-    if (meMode < 100) {
+    if (meMode < 100 || (meMode == 103 && allowCalcWidth)) {
       
       // Read out information on channel: primarily use first two. 
       id1       = particlePtr->channel(i).product(0);

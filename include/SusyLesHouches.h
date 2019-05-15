@@ -1,5 +1,5 @@
 // SusyLesHouches.h is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // Main authors of this file: N. Desai, P. Skands
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
@@ -299,8 +299,8 @@ namespace Pythia8 {
   public: 
 
     LHdecayChannel() : brat(0.0) {};
-    LHdecayChannel(double bratIn, int nDaIn, vector<int> idDaIn, string cIn="") {
-      setChannel(bratIn,nDaIn,idDaIn,cIn);
+    LHdecayChannel(double bratIn, int nDaIn, vector<int> idDaIn, 
+      string cIn="") { setChannel(bratIn,nDaIn,idDaIn,cIn);
     }
 
     // Functions to set decay channel information
@@ -591,7 +591,7 @@ public:
   LHmatrixBlock<3> immsd2in;  // The Im{} input upper off-diagonal msd2
   LHmatrixBlock<3> immsl2in;  // The Im{} input upper off-diagonal msl2
   LHmatrixBlock<3> immse2in;  // The Im{} input upper off-diagonal mse2
-  LHmatrixBlock<3> imtuin,imtdin,imtein; //  The Im{} input upper off-diagonal T
+  LHmatrixBlock<3> imtuin,imtdin,imtein; // The Im{} input upper off-diagonal T
   //CPV + FLV Output
   LHmatrixBlock<3> imvckm;  // The output DRbar running Im{VCKM} at Q
   LHmatrixBlock<3> imupmns; // The output DRbar running Im{UPMNS} at Q
@@ -626,8 +626,8 @@ public:
 
   //********************* GENERIC/USER-DEFINED BLOCKS **********************//
   // bool getEntry(name, indices, value) 
-  //      = true if LHblock and entry exists (value returned in value, typecast 
-  //        by user in call)
+  //      = true if LHblock and entry exists (value returned in value,  
+  //        typecast by user in call)
   //      = false otherwise
   map<string, LHgenericBlock> genericBlocks;
   template <class T> bool getEntry(string, T&);

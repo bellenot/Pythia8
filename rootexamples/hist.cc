@@ -3,7 +3,7 @@
 // It studies the charged multiplicity distribution at the LHC.
 // Modified by Rene Brun, Axel Naumann and Bernhard Meirose 
 // to use ROOT for histogramming.
-// Copyright (C) 2012 Torbjorn Sjostrand
+// Copyright (C) 2013 Torbjorn Sjostrand
 
 // Stdlib header file for input and output.
 #include <iostream>

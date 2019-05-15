@@ -1,5 +1,5 @@
 // PhaseSpace.h is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -241,6 +241,12 @@ protected:
   // Do mass selection and find the associated weight.
   void   trialMass(int iM);
   double weightMass(int iM);
+
+  // The error function erf(x) should normally be in your math library,
+  // but if not uncomment this simple parametrization by Sergei Winitzki.
+  //double erf(double x) { double x2 = x * x; double kx2 = 0.147 * x2; 
+  //  double tmp = sqrt(1. - exp(-x2 * (4./M_PI + kx2) / (1. + kx2)));
+  //  return ((x >= 0.) ? tmp : -tmp); } 
 
 };
  

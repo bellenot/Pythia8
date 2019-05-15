@@ -17,7 +17,7 @@ html/php pages are kept up to date for each subversion.
 <br/><br/>
 <b>Important note:</b>version 8.160 does introduce some elements of 
 backwards incompatibility. Specifically, "multiple interactions", 
-abbreviated MI, haa been renamed "multiparton interactions", MPI. 
+abbreviated MI, has been renamed "multiparton interactions", MPI. 
 This affects many parts of the code and documentation. Also some 
 features are deprecated, although remaining until the end of the 
 8.1xx version series.
@@ -120,7 +120,7 @@ codes were used for the latter).</li>
 <li>Parton densities are stored in HepMC as <i>xf(x,Q^2)</i> 
 rather than the <i>f(x,Q^2)</i> used in (some) previous versions.</li>
 
-<li>The SusyLesHouches class has ben updated so that reading is fully
+<li>The SusyLesHouches class has been updated so that reading is fully
 compatible with the SLHA2 standard. </li>
 
 <li>Improved handling of the Higgs width, relevant for massive and thereby
@@ -202,7 +202,7 @@ illustrates.</li>
 subprocesses are generated in the same event.</li>
 
 <li>The default value for the border between short- and long-lived
-paticles has been changed from 1 mm to 10 mm, to better conform with 
+particles has been changed from 1 mm to 10 mm, to better conform with 
 LHC standards, see  <a href="ParticleDecays.html" target="page">here</a>.
 The default is still to let all unstable particles decay.</li>
 
@@ -266,7 +266,7 @@ calls are made in the same run, specifically in the case that pointers
 to external processes have been handed in.
 
 <li>Changes in <code>main03.cmnd</code> and <code>main04.cmnd</code> 
-so that some nonstandard options are commented ou rather than active. 
+so that some nonstandard options are commented out rather than active. 
 Related comments inserted also in some other <code>.cmnd</code> files, 
 but there without any change in program execution.</li>
 
@@ -280,7 +280,7 @@ but there without any change in program execution.</li>
 <li>8.125: 16 June 2009
 <ul>
 
-<li>Hadronization and timlike-shower parameter default values updated 
+<li>Hadronization and timelike-shower parameter default values updated 
 according to a tune to LEP1 data by Hendrik Hoeth, using the 
 Rivet + Professor framework.</li>
 
@@ -430,7 +430,7 @@ deprecated output formats.</li>
 Les Houches Event Files.</li>
 
 <li>The Makefile has been modified so that "make clean" only
-removes the current compilation and library fles, while 
+removes the current compilation and library files, while 
 "make distclean" gives a more extensive reset and cleanup.
 Thanks to Nils Lavesson for this contribution. Some other
 minor Makefile corrections.</li>
@@ -541,7 +541,7 @@ the ones represented by <code>\n \t \v \b \r \f \a</code>. Applies to
 Les Houches Event files, settings files and particle data files. </li>
 
 <li>Fix it so that the read-in of a Les Houches Event File for the 
-hardest process can be combined with the faciliy to select a specified
+hardest process can be combined with the facility to select a specified
 second hard process.</li>
 
 <li>New empty base class method <code>LHAup::fileFound()</code> 
@@ -942,7 +942,7 @@ not to include it.</li>
 <li>New method <code>SigmaProcess::setupForME()</code> does an
 extended conversion from the internal kinematics to an almost
 equivalent one, better adapted to the mass conventions of matrix-element 
-caclulation programs, such as massive incoming <i>b</i> quarks.
+calculation programs, such as massive incoming <i>b</i> quarks.
 New flags allow to determine whether the <i>c</i>, <i>b</i>, 
 <i>mu</i> and <i>tau</i> should be considered massless or not 
 in the calculations.</li>
@@ -1016,7 +1016,7 @@ in the <code>Sigma1qqbar2KKgluonStar</code> and
 <code>ResonanceKKgluon</code> classes.</li>
 
 <li>Possibility added to let Hidden-Valley <i>gamma_v</i> have 
-a nonero mass and decay by mixing with the ordinary photon. 
+a nonzero mass and decay by mixing with the ordinary photon. 
 Still experimental.</li>
 
 <li>Minor bug fix in handling of three-body phase space.</li>
@@ -1054,9 +1054,9 @@ LHC data [<a href="Bibliography.html" target="page">Cor10a</a>], and has also be
 <li>The description of <i>tau</i> lepton decays has been significantly 
 enhanced, to include helicity information related to the production 
 process and hadronic currents fitted to data. A complete writeup is 
-in preparation [<a href="Bibliography.html" target="page">Ilt11</a>]. A new flag is introduced to revert
-to the old behaviour, for cross-checks, see 
-<a href="ParticleDecays.html" target="page">Particle Decays</a>.
+in preparation, while a summary can be found in [<a href="Bibliography.html" target="page">Ilt12</a>]. 
+A new flag is introduced to revert to the old behaviour, for 
+cross-checks, see <a href="ParticleDecays.html" target="page">Particle Decays</a>.
 The new tau decay machinery is on by default.
 </li>
 
@@ -1084,7 +1084,7 @@ preparation [<a href="Bibliography.html" target="page">Car11</a>]. Also some fur
 have been added.</li> 
 
 <li>Included possibility in <code>TimeShower</code> for QCD dipoles to
-have an adjustible normalization factor, via the new
+have an adjustable normalization factor, via the new
 <code>bool isFlexible</code> and <code>double flexFactor</code>
 properties of <code>class TimeDipoleEnd</code>. This flexibility is used
 to treat radiation off colour topologies with epsilon tensors, in
@@ -1095,7 +1095,7 @@ half-strength dipole is spanned between all combinations of
 final-state quarks. For junctions with an incoming (anti)colour line (such
 as in the BNV-SUSY decay ~t*&rarr;cb), a full-strength dipole is
 instead spanned between the two daughters, with no radiation from the
-decaying object (in its CM). As will be described in a fortcoming
+decaying object (in its CM). As will be described in a forthcoming
 paper with N. Desai, this should give the
 closest possible correspondence to the radiation patterns exhibited
 by higher-order matrix elements for this type of process.</li>
@@ -1319,7 +1319,7 @@ Johan Alwall) and on RIVET interfacing.</li>
 <li>8.157: 10 November 2011
 <ul>
 
-<ii>StefanPrestel joins as new member of the PYTHIA author team.
+<ii>Stefan Prestel joins as new member of the PYTHIA author team.
 He is mainly working on matching/merging issues, and has contributed
 the CKKW-L machinery mentioned below.</li>
 
@@ -1487,7 +1487,7 @@ equivalent, and similarly <code>MultipleInteractions:pT0Ref</code>
 and <code>MultipartonInteractions:pT0Ref</code>. Should you be using 
 methods such as <code>double Info::pTMI(int i)</code> you need to 
 edit the code, however. All the <code>example/main*</code> files
-have been uopdated accordingly.</li>
+have been updated accordingly.</li>
 
 <li>A new option <code>Beams:frameType = 5</code> has been added 
 for the case where an external generator should provide LHA process
@@ -1519,7 +1519,7 @@ are deprecated as a consequence.</li>
 have been updated. This includes a change to the new favoured 
 methods and settings outlined above, plus some update of the 
 physics contents. Some of the examples have been combined,
-some others have been added (e.g. for R-hadroms), and as a consequence
+some others have been added (e.g. for R-hadrons), and as a consequence
 some renumbering has been made. See the modified list of
 <a href="SampleMainPrograms.html" target="page">sample main programs</a> for 
 the new status. In particular note that (the new) <code>main61.cc</code>
@@ -1627,7 +1627,7 @@ the first step the <i>W</i> always acts as recoiler to the <i>b</i>,
 but in subsequent step previously the <i>W</i> remained as recoiler to 
 one dipole, while now all QCD-radiating partons recoil against another 
 coloured parton. The old behaviour could give a (small) unphysical spike 
-of radition collinear with the colourless recoiler in the subsequent 
+of radiation collinear with the colourless recoiler in the subsequent 
 emissions (while the pattern of the first was and remains correct). 
 The old behaviour can be recovered for checks, see
 <code>TimeShower:recoilToColoured</code>.
@@ -1844,7 +1844,7 @@ it calculated implicitly. Thanks to James Monk and Andy Buckley.</li>
 
 <li>The <i>tau</i> decay machinery has been further augmented with
 matrix elements and form factors for a variety of decay modes, such 
-that all modes with a branching ratio above 0.1% are fully modelled.
+that all modes with a branching ratio above 0.1% are fully modeled.
 Several new classes and methods have been added to this end,
 Also, a <i>tau</i> pair coming from a <i>Z^0</i> decay is now 
 handled by assuming the <i>Z^0</i> to be unpolarized when neither 
@@ -1887,7 +1887,7 @@ see <a href="AlpgenAndMLM.html" target="page">ALPGEN and MLM Merging</a>.
 <br/>- More thorough treatment of <code>pp>bb~e+e-veve~</code> with 
 additional <i>b</i>-jets.
 <br/>- Corrected hard <i>mu_r</i> and <i>mu_f</i> choices for 
-dijet and promt photon.
+dijet and prompt photon.
 <br/>- More ways to define a hard process, e.g. with the LEPTONS and 
 NEUTRINO tags. The merging will understand LHE files for mixed processes 
 (e.g. <i>W+</i> and <i>W-</i> production together).
@@ -2075,9 +2075,252 @@ to threshold that widths are switched off to avoid trouble.</li>
 
 </ul>
 </li>
+
+<li>8.175: 18 February 2013
+<ul>
+
+<li>Richard Corke and Stefan Ask leave as active authors, and have
+new e-mail addresses.</li>
+
+<li>Jesper Roy Christiansen and Philip Ilten join as new authors.</li>
+
+<li>A severe bug found and corrected in the handling of junction 
+fragmentation. For some string topologies it could lead to parts of
+partonic systems mainly aligned along the beam axis to obtain an 
+effective tilt, thereby giving rise to a pair of opposing jets that 
+should not be there. The bug was an unfortunate side consequence 
+of the improvement of junction handling introduced in version 7.170, 
+and do not affect versions prior to that. To the largest extent 
+possible, it is recommended to avoid this version. Potential errors
+are likely to be most relevant for processes at low <i>pT</i>,
+whereas processes that already have a large scale proportionately
+are less affected. Sincere apologies, and thanks to Hannes Jung for 
+discovering it.</li>
+
+<li>The initialization is aborted when the user tries to change 
+the value of a non-existing variable in the Settings or
+ParticleData databases, and it becomes impossible to generate events. 
+This may be rather brutal, as opposed to the former policy of 
+ignoring such commands (except for a warning), but avoids that 
+the user wastes time on a run that is likely not to give the wanted 
+results. Thanks to Gavin Salam for stressing this point.</li>
+
+<li> Major updates of the merging code. CKKW-L code is made more flexible, 
+and now includes additional options to facilitate merging of additional 
+jets in MSSM processes. Unitarised ME+PS merging (UMEPS) is introduced 
+as a new merging scheme for tree-level input. An example main program 
+for UMEPS is  added. UMEPS is documented in the new section 
+<a href="UMEPSMerging.html" target="page">UMEPS Merging</a>.
+NLO merging methods are now functional. Two NLO merging schemes are 
+implemented: NL<sup>3</sup> and unitarised NLO+PS merging (UNLOPS), 
+both of which are illustrated with example main programs. NLO merging 
+is documented in <a href="NLOMerging.html" target="page">NLO Merging</a>.
+</li>
+
+<li>The machinery for the MLM-style matching of jets has been 
+expanded to cover input either from ALPGEN, as before, or from
+Madgraph (or other LHEF input), and expanded to cover either a 
+matching algorithm based on the one in ALPGEN or the one in Madgraph. 
+See <a href="JetMatching.html" target="page">Jet Matching</a> for 
+details.</li>  
+
+<li>Neutrons and antineutrons are now allowed as incoming
+beam particles. The neutron PDF is derived from the chosen proton
+PDF by simple isospin conjugation, and total/elastic/diffractive 
+cross sections are assumed the same as for protons.</li>
+
+<li>Update in <code>Pythia.cc</code>, to allow user to override 
+SLHA mass values by hand, controlled by the new flag 
+<code>SLHA:allowUserOverride</code>. This was motivated by people
+wanting to be able to read in a base SLHA spectrum and then quickly 
+scan over particular mass values manually. Corresponding documentation 
+update in <code>SUSYLesHouchesAccord.xml</code>.</li>
+
+<li>Updates to the <code>ResonanceWidths</code> and 
+<code>SUSYResonanceWidths</code> classes, to merge common 
+initialization steps into the base class. Corresponding documentation 
+update in <code>SemiInternalResonances.xml</code>. Also some cosmetic 
+changes in <code>SUSYResonanceWidths</code> to improve conformity 
+with <code>CODINGSTYLE</code> rules.</li>
+
+<li>The <code>SlowJet</code> jet finder is updated with an option
+for an alternative <i>R</i> separation based on 
+<i>cosh(Delta y)-cos(Delta phi)</i>.</li>
+
+<li>Statistics information on the separate subprocesses among
+the Les Houches external input is improved.</li>
+
+<li>The sophisticated tau decay machinery has been expanded so that
+it can also handle production of taus in hypothetical 
+lepton-number-violating processes, such as <i>H0 -> tau+ mu-</i>. 
+</li>
+
+<li>Branching ratios for most light hadrons, and the tau lepton, 
+have been updated to agree with the 2012 Review of Particle Physics 
+[<a href="Bibliography.html" target="page">Ber12</a>], by Anil Pratap Singh.</li>
+
+<li>Photon radiation can now be included in leptonic two-body decays
+of hadrons by setting the new switch 
+<code>ParticleDecays:allowPhotonRadiation = on</code>.
+The lower shower cutoff <code>TimeShower:pTminChgL</code> has been 
+reduced so as to let the simulated photon spectrum extend to lower
+energies. 
+</li>
+
+<li>A new switch <code>MultipartonInteractions:bSelScale</code> has
+been introduced, to determine the relevant mass or <i>pT</i> scale
+of an event for the selection of impact parameter in the MPI 
+framework. In spite of a changed default behaviour (the old being
+option 3), practical consequences are small for most processes. 
+</li>
+
+<li>The new <code>UserHooks::retryPartonLevel()</code> method can be 
+overloaded, so that the same hard process is reused for a new try 
+on the parton level, rather than being rejected completely.
+Thanks to Christian Bauer for suggestion.</li>
+
+<li>A new method <code>Event::undoDecay(int i)</code> can be used 
+to remove the daughters of a particle, and further descendents.
+Does not work for removing the daughters of a parton.</li>
+
+<li>The interface to <code>HepMC</code> has been updated. In particular
+the support for old version has been removed, thereby allowing 
+significant simplifications. The list of methods to set and get the 
+behaviour of the conversion routine has also been updated. The 
+<code>set_event_scale</code> method now stores the renormalization 
+scale (rather than the <i>pT</i> stored previously).
+The examples <code>main41</code>, <code>main42</code>, 
+<code>main61</code>, <code>main62</code> and <code>main84</code>
+have been updated accordingly.</li>
+
+<li>Four new methods to interrogate the default values of the
+four different kinds of settings.</li>
+
+<li>The <code>Vec4</code> class has been expanded with methods to 
+return true rapidity or pseudorapidity, and the <i>R</i> distance 
+in <i>(y, phi)</i> or <i>(eta, phi)</i> cylindrical coordinates.
+Thanks to Andy Buckley.</li>
+
+<li>The copy and = constructors of the <code>Pythia</code> class
+are made private so that compilers will block use of them. 
+Thanks to Andy Buckley.</li>
+
+<li>New option of the <code>Pythia</code> constructor, to omit
+the banner printout where necessary. Also new master switch 
+<code>Print:quiet</code> to switch off most runtime program
+messages. Thanks to Andy Buckley.</li>
+
+<li>Updates in the machinery that restores all affected values 
+to their defaults before setting a new tune.</li>
+
+<li>A new <code>Vect</code> class has been introduced for the 
+<a href="SettingsScheme.html" target="page">Settings</a> database. 
+It can be used to store a vector of double-precision real values. 
+</li>
+
+<li>Three new groupings of existing QCD processes: 
+<code>SoftQCD:inelastic</code>, <code>HardQCD:hardccbar</code>
+and <code>HardQCD:hardbbbar</code>. </li>
+
+<li>New possibility to set the <i>a</i> and <i>b</i> parameters
+of the Lund fragmentation function separately for heavy flavour.
+Especially the <i>b</i> is expected to be universal, but 
+Aurelien Martens and Eli Ben-Haim have found improved fits by 
+relaxing this condition, so we formalize this possibility without
+recommeding it.</li>
+
+<li>Method <code>Pythia::getPDFPtr</code> is made public so it can 
+be used also outside the <code>Pythia</code> class to access PDF
+sets. Internally the PDF bookkeeping is modified to allow for 
+the simultaneous handling of several PDF sets. Thanks to 
+Mathias Ritzmann for providing code changes.</li>
+
+<li>It is now possible to read the separate scale values of all 
+outgoing particles, if this info is stored as a single line in 
+an LHEF, begun by a single hashtag character. This is currently 
+nonstandard and may evolve.</li>
+
+<li>Some improvements to the install targets code in the 
+<code>Makefile</code> and error detection in 
+<code>examples/configure</code>. Thanks to Mikhail Kirsanov.</li>
+
+<li>The CC and FC global environment variables can be set to specify 
+the C++ and Fortran 77/90 compilers, otherwise set in 
+<code>configure</code> and <code>examples/configure</code>.
+Thanks to Mikhail Kirsanov.</li>
+
+<li>Check of shell choice in <code>configure</code> removed. 
+Thanks to Andy Buckley.</li>
+
+<li>Minor modifications in the Makefile and text for Root examples,
+relevant if shared libraries are used.</li>
+
+<li>Previously the whole <code>std</code> namespace has been made
+available in <code>PythiaStdlib.h</code>. Now this behaviour has
+been replaced by the already-existing alternative, where only a 
+part of <code>std</code> is made available, and only inside the 
+<code>Pythia8</code> namespace. Thus user code does not become
+reliant on the choices in PYTHIA. Some related smaller code
+rearrangements. Thanks to Andy Buckley.</li>
+
+<li>When the "second hard" machinery is used to set two hard processes,
+the old behaviour for the <code>SpaceShower:pTmaxMatch = 0</code> and
+<code>TimeShower:pTmaxMatch = 0</code> options was to use the combined
+final state of the two processes to decide what <i>pT_max</i>
+scale to use. This could have unexpected consequences. Now each process 
+is analyzed separately, and therefore has a separate scale. Also 
+for <code>MultipartonInteractions:pTmaxMatch = 0</code> the two
+interactions now are analyzed separately. It is then enough that
+one of them should limit <i>pT_max</i> of subsequent MPI's for
+such a restriction to be imposed. Thanks to Monika Jindal for 
+discovering this bug.</li>
+
+<li>The <code>TimeShower:pTdampMatch</code> option had no effect if
+switched on, since some code was missing. The manual description 
+of it and the more relevant <code>SpaceShower:pTdampMatch</code>
+has been updated.</li>
+
+<li>One minor bug fix and some corrections to make the code compile
+on Windows/VisualC++-2010. A simple error function parametrization
+has been added to <code>PhaseSpace.h</code> and 
+<code>SigmaTotal.h</code>, to be uncommented in case 
+<code>erf(x)</code> is not available by default. Thanks to Guy Barrand 
+for providing the information.</li>
+
+<li>Break a closed dependency loop between <code>ParticleData.h</code>
+and <code>ResonanceWidths.h</code>. Thanks to Andreas Schaelicke and
+Andy Buckley.</li>
+
+<li>In the <code>examples/mainXX.cc</code> programs, class instances 
+that have been created with a <code>new</code> are explicitly 
+<code>delete</code>d at the end of the run. Useful if trying to track
+memory leaks.</li>
+
+<li>Bug fix for R-parity violating decays of R-hadrons, to treat the
+special case of sequential resonance decays after the RPV one. 
+Thanks to Mariangela Lisanti for pointing out this bug.</li>
+
+<li>Changed the maximum allowed value for <code>Tune:pp</code>.
+Thanks to Yevgeny Kats.</li>
+
+<li>Bug fix in the <i>z</i>-value weight for QED ISR emissions.</li>
+
+<li>Some destructors moved for improved consistency.</li>
+
+<li>Constants <code>DEBUG</code> renamed <code>DBSUSY</code> in the
+<code>SusyCouplings</code> and <code>SusyResonanceWidths</code>
+classes to avoid confusion. Thanks to Guy Barrand.</li>
+
+<li>Many typos corrected and some other minor improvements of the 
+online documentation.</li>
+
+<li>The year has been updated to 2013 in files.</li>
+
+</ul>
+</li>
 </ul>
 
 </body>
 </html>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->

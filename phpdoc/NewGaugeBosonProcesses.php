@@ -148,7 +148,7 @@ axial coupling of <i>nu_e</i> neutrinos.
 
 <p/>
 Here are the further couplings that are specific for 
-a scenario with <code>Zprime:universality</code> swiched off:
+a scenario with <code>Zprime:universality</code> switched off:
 
 <br/><br/><table><tr><td><strong>Zprime:vs </td><td></td><td> <input type="text" name="12" value="-0.693" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>-0.693</strong></code>)</td></tr></table>
 vector coupling of <i>s</i> quarks.
@@ -249,7 +249,7 @@ bosons).
   
 
 <p/>
-A massive <i>Z'^0</i> is also likely to decay into Higgses
+A massive <i>Z'^0</i> is also likely to decay into Higgs bosons
 and potentially into other now unknown particles. Such possibilities
 clearly are quite model-dependent, and have not been included 
 for now.
@@ -340,7 +340,7 @@ bosons).
   
 
 <p/>
-A massive <i>W'^+-</i> is also likely to decay into Higgses
+A massive <i>W'^+-</i> is also likely to decay into Higgs bosons
 and potentially into other now unknown particles. Such possibilities
 clearly are quite model-dependent, and have not been included 
 for now.
@@ -577,5 +577,5 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->
 

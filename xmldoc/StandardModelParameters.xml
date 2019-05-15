@@ -46,7 +46,7 @@ The <code>AlphaEM</code> class is used to generate a running
 value at the <ei>M_Z</ei> mass is matched to a low-energy behaviour
 with running starting at the electron mass threshold. The matching
 is done by fitting an effective running coefficient in the region
-betweeen the light-quark treshold and the charm/tau threshold. This
+between the light-quark threshold and the charm/tau threshold. This
 procedure is approximate, but good enough for our purposes. 
 
 <p/>
@@ -296,4 +296,4 @@ possibilities. Unambiguous choice for the lepton-neutrino sector.
 
 </chapter>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->

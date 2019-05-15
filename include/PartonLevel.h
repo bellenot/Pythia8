@@ -1,5 +1,5 @@
 // PartonLevel.h is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -14,7 +14,6 @@
 #include "BeamRemnants.h"
 #include "Event.h"
 #include "Info.h"
-#include "MergingHooks.h"
 #include "MultipartonInteractions.h"
 #include "ParticleData.h"
 #include "PartonSystems.h"
@@ -26,6 +25,7 @@
 #include "StandardModel.h"
 #include "TimeShower.h"
 #include "UserHooks.h"
+#include "MergingHooks.h"
 
 namespace Pythia8 {
  
@@ -180,8 +180,7 @@ private:
   double pTLastBranch;
   int typeLastBranch;
   // Parameters to specify merging usage
-  bool doMerging;
-  bool doMergeFirstEmm;
+  bool canRemoveEvent, canRemoveEmission;
 
 };
 

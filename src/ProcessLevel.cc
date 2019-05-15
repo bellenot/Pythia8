@@ -1,5 +1,5 @@
 // ProcessLevel.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -316,10 +316,6 @@ bool ProcessLevel::init( Info* infoPtrIn, Settings& settings,
   sumImpactFac  = 0.;
   sum2ImpactFac = 0.;
 
-  // Statistics for LHA events.
-  codeLHA.resize(0);
-  nEvtLHA.resize(0);
-
   // Done.
   return true;
 }
@@ -382,7 +378,7 @@ void ProcessLevel::accumulate() {
   double sigmaNow, deltaNow, sigSelNow, weightNow;
   for (int i = 0; i < int(containerPtrs.size()); ++i) 
   if (containerPtrs[i]->sigmaMax() != 0.) {
-    codeNow         =  containerPtrs[i]->code();
+    codeNow         = containerPtrs[i]->code();
     nTryNow         = containerPtrs[i]->nTried();
     nSelNow         = containerPtrs[i]->nSelected();
     nAccNow         = containerPtrs[i]->nAccepted();
@@ -401,35 +397,11 @@ void ProcessLevel::accumulate() {
       nAccNow, sigmaNow, deltaNow, weightNow); 
   }
 
-  // For Les Houches events find subprocess type and update counter.
-  if (infoPtr->isLHA()) {
-    int codeLHANow = infoPtr->codeSub();
-    int iFill = -1;
-    for (int i = 0; i < int(codeLHA.size()); ++i)
-      if (codeLHANow == codeLHA[i]) iFill = i;
-    if (iFill >= 0) ++nEvtLHA[iFill];
-
-    // Add new process when new code and then arrange in order. 
-    else {
-      codeLHA.push_back(codeLHANow);
-      nEvtLHA.push_back(1);
-      for (int i = int(codeLHA.size()) - 1; i > 0; --i) {
-        if (codeLHA[i] < codeLHA[i - 1]) { 
-          swap(codeLHA[i], codeLHA[i - 1]);
-          swap(nEvtLHA[i], nEvtLHA[i - 1]);
-	} 
-        else break;
-      }
-    }
-  }
-
   // Normally only one hard interaction. Then store info and done.
   if (!doSecondHard) {
     double deltaSum = sqrtpos(delta2Sum);
     infoPtr->setSigma( 0, nTrySum, nSelSum, nAccSum, sigmaSum, deltaSum, 
       weightSum); 
-   
-
     return;
   }
 
@@ -529,10 +501,13 @@ void ProcessLevel::statistics(bool reset, ostream& os) {
 
     // Print subdivision by user code for Les Houches process.
     if (containerPtrs[i]->code() == 9999) 
-    for (int j = 0; j < int(codeLHA.size()); ++j)
+      for (int j = 0; j < containerPtrs[i]->codeLHASize(); ++j)
       os << " |    ... whereof user classification code " << setw(10) 
-         << codeLHA[j] << " |                        " << setw(10) 
-         << nEvtLHA[j] << " |                        | \n";
+         << containerPtrs[i]->subCodeLHA(j) << " | " 
+         << setw(11) << containerPtrs[i]->nTriedLHA(j) << " " << setw(10) 
+	 << containerPtrs[i]->nSelectedLHA(j) << " "
+         << setw(10) << containerPtrs[i]->nAcceptedLHA(j) 
+	 << " |                        | \n";
   }
 
   // Print summed process info.
@@ -564,7 +539,7 @@ void ProcessLevel::resetStatistics() {
     containerPtrs[i]->reset();
   if (doSecondHard)  
   for (int i2 = 0; i2 < int(container2Ptrs.size()); ++i2)
-      container2Ptrs[i2]->reset();
+    container2Ptrs[i2]->reset();
 
 }
 
@@ -924,7 +899,8 @@ void ProcessLevel::findJunctions( Event& junEvent) {
     
     // Ignore colorless particles and stages before hard-scattering 
     // final state. 
-    if (abs(junEvent[i].status()) <= 21 || junEvent[i].colType() == 0) continue;
+    if (abs(junEvent[i].status()) <= 21 || junEvent[i].colType() == 0) 
+      continue;
     vector<int> motherList   = junEvent.motherList(i);
     int iMot1 = motherList[0];
     vector<int> sisterList = junEvent.daughterList(iMot1);        
@@ -955,7 +931,8 @@ void ProcessLevel::findJunctions( Event& junEvent) {
 	if (colVertex.find(acol) == colVertex.end()) acolVertex[acol] = iMot;
 	else colVertex.erase(acol);
       } else if (acol < 0) {
-	if (acolVertex.find(-acol) == acolVertex.end()) colVertex[-acol] = iMot;
+	if (acolVertex.find(-acol) == acolVertex.end()) 
+             colVertex[-acol] = iMot;
 	else acolVertex.erase(-acol);
       }
     }
@@ -982,7 +959,8 @@ void ProcessLevel::findJunctions( Event& junEvent) {
 	if (colVertex.find(acol) == colVertex.end()) acolVertex[acol] = iDau;
 	else colVertex.erase(acol);
       } else if (acol < 0) {
-	if (acolVertex.find(-acol) == acolVertex.end()) colVertex[-acol] = iDau;
+	if (acolVertex.find(-acol) == acolVertex.end()) 
+             colVertex[-acol] = iDau;
 	else acolVertex.erase(-acol);
       }
     

@@ -32,9 +32,9 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 An interface to the HepMC [<a href="Bibliography.php" target="page">Dob01</a>] standard event record 
 format has been provided by M. Kirsanov. To use it, the relevant 
 libraries need to be linked, as explained in the <code>README</code> 
-file. Only version 2 of HepMC is supported. (Version 1 requires 
-a different interface structure, which was only supported up until 
-Pythia 8.107.) 
+and <code>README.HepMC</code> files. Only version 2.06 (or later) 
+of HepMC is supported as of 1 January 2013, by agreement with the 
+LHC experimental community.
 
 <p/>
 The (simple) procedure to translate PYTHIA 8 events into HepMC ones 
@@ -42,84 +42,44 @@ is illustrated in the <code>main41.cc</code>, <code>main42.cc</code>
 <code>main61.cc</code> and <code>main62.cc</code>   
 main programs. At the core is a call to the
 <pre>
-HepMC::I_Pythia8::fill_next_event( pythia, hepmcevt, ievnum = -1, convertGluonTo0 = false ) 
+HepMC::I_Pythia8::fill_next_event( pythia, hepmcevt, ievnum = -1) 
 </pre>
 which takes a reference of the generator object and uses it, on the one
-hand, to read out and covert the event record in <code>pythia.event</code> 
-and, on the other hand, to extract and store parton-density (PDF) 
-information for the hard subprocess from <code>pythia.info</code>. 
-The optional last argument, if <code>true</code>, allows you to store 
-gluons as "PDG" code 0 rather than the normal 21; this only applies to 
-the PDF information, not the event record. 
+hand, to read out and convert the event record in <code>pythia.event</code> 
+and, on the other hand, to extract and store parton-density (PDF),
+cross section and other information for the hard subprocess from 
+<code>pythia.info</code>. There is also an alternative form that
+does not requires access to the full <code>pythia</code> object, 
+but only the event record, at the expense of a reduced information
+storage, see below.
 
 <p/>
-The earlier version of this routine,
-<pre>
-HepMC::I_Pythia8::fill_next_event( pythia.event, hepmcevt, ievnum = -1 ) 
-</pre>
-is retained (for now) for backwards compatibility. It takes a PYTHIA event 
-as input and returns a HepMC one, but without storing the PDF information. 
-The latter could then instead be stored by a separate call
-<pre>
-HepMC::I_Pythia8::pdf_put_info( hepmcevt, pythia, convertGluonTo0 = false ) 
-</pre>
-or not, as wished.
+While PYTHIA always stores momenta in units of GeV, with <i>c = 1</i>, 
+HepMC nowadays can be built either for MeV or GeV as default, a choice
+that can then be overridden on an event-by-event basis, see e.g. the 
+<code>main41.cc</code> code. When filling the HepMC event record, PYTHIA 
+will convert to the unit specified for the current HepMC event record. 
 
 <p/>
-While PYTHIA stores momenta in units of GeV, with <i>c = 1</i>, 
-the HepMC standard originally did not specify which units to use, 
-unfortunately. Later versions allow units to be specified either as
-MeV or as GeV. The dividing line goes with the introduction of the
-<code>HEPMC_HAS_UNITS</code> environment variable in HepMC 2.04.
-When PYTHIA is linked to older versions, which do not have this
-environment variable, the default behaviour of 
-<code>fill_next_event</code> is to convert momenta to MeV. 
-To store momenta in GeV instead, you must call 
-<pre>
-HepMC::I_Pythia8::set_convert_to_mev( false ) 
-</pre>
-beforehand. When linked to newer HepMC versions, PYTHIA will adapt
-to the unit specified for the HepMC event record. A default unit
-is chosen when HepMC is built, but this choice can be overridden
-in the constructor of a <code>HepMC::GenEvent</code>, to be either
-GeV or MeV. The <code>main41.cc</code> code illustrates these 
-possibilities. 
+Also for length units there are choices, and again the PYTHIA interface 
+will convert to the units set for the HepMC event record. Here the mm
+choice of PYTHIA seems to be shared by most other programs, and is
+HepMC default. 
 
 <p/>
-Also for length units there could exist ambiguities, but the mm
-choice of PYTHIA seems to be shared by most other programs. 
-When linked to older HepMC versions there is never a conversion, 
-while for newer versions the PYTHIA interface will convert to the 
-units set for the HepMC event record, as for momenta.
-
-<p/>
-By agreement with the LHC experimental community, support for the
-older behaviour will be dropped for all versions released after 
-the end of 2012.
-
-<p/>
-The status code is now based on the new standard for HepMC 2.05,
+The status code is now based on the new standard introduced for HepMC 2.05,
 see the <?php $filepath = $_GET["filepath"];
 echo "<a href='EventRecord.php?filepath=".$filepath."' target='page'>";?>Event::statusHepMC(...)</a> 
-conversion routine for details. The earlier behaviour, where all
-final particles had status 1 and all initial or intermediate ones 
-status 2, is available as a commented-out line in the   
-<code>I_Pythia8::fill_next_event(...)</code> method, and so is simple
-to recover.
+conversion routine for details. 
 
 <p/>
-In HepMC 2.05 it also becomes possible to store the generated cross 
-section and its error. The environment variable
-<code>HEPMC_HAS_CROSS_SECTION</code> is used to check whether this
-possibility exists and, if it does the current values from 
-<code>pythia.info.sigmaGen()</code> and 
+The current values from <code>pythia.info.sigmaGen()</code> and 
 <code>pythia.info.sigmaErr()</code> are stored for each event,
 multiplied by <i>10^9</i> to convert from mb to pb. Note that
 PYTHIA improves its accuracy by Monte Carlo integration in the course
 of the run, so the values associated with the last generated event
-should be the most accurate ones. (If events also come with a dimensional 
-weight, like in some Les Houches strategies, conversion from mb to fb 
-for that weight must be set by hand, see the last method below.)
+should be the most accurate ones. If events also come with a dimensional 
+weight, like in some Les Houches strategies, this weight is in units of pb.
 
 <h2>The public methods</h2>
 
@@ -135,12 +95,12 @@ the constructor and destructor take no arguments.
   
 
 <a name="method2"></a>
-<p/><strong>bool I_Pythia8::fill_next_event( Pythia8::Pythia& pythia, GenEvent* evt, int ievnum = -1, bool convertGluonTo0 = false) &nbsp;</strong> <br/>
+<p/><strong>bool I_Pythia8::fill_next_event( Pythia8::Pythia& pythia, GenEvent* evt, int ievnum = -1) &nbsp;</strong> <br/>
 convert a <code>Pythia</code> event to a <code>HepMC</code> one.
 Will return true if succeeded.
 <br/><code>argument</code><strong> pythia </strong>  : 
 the input <code>Pythia</code> generator object, from which both the 
-event and the parton density information can be obtained.
+event and other information can be obtained.
    
 <br/><code>argument</code><strong> evt </strong>  : 
 the output <code>GenEvt</code> event, in its standard form.
@@ -150,100 +110,110 @@ set the event number of the current event. If negative then the
 internal event number is used, which is incremented by one for
 each new event.
   
-<br/><code>argument</code><strong> convertGluonTo0 </strong>  : 
+  
+
+<a name="method3"></a>
+<p/><strong>bool I_Pythia8::fill_next_event( Pythia8::Event& pyev, GenEvent* evt, int ievnum = -1, Pythia8::Info* pyinfo = 0, Pythia8::Settings* pyset = 0) &nbsp;</strong> <br/>
+convert a <code>Pythia</code> event to a <code>HepMC</code> one.
+Will return true if succeeded.
+<br/><code>argument</code><strong> pyev </strong>  : 
+the input <code>Pythia</code> event that is to be converted to HepMC
+format.
+   
+<br/><code>argument</code><strong> evt </strong>  : 
+the output <code>GenEvt</code> event, in its standard form.
+   
+<br/><code>argument</code><strong> iev </strong>  : 
+set the event number of the current event. If negative then the 
+internal event number is used, which is incremented by one for
+each new event.
+  
+<br/><code>argument</code><strong> pyinfo </strong>  : 
+pointer to the <code>Pythia Info</code> object, which is used to 
+extract PFD values, and process and cross section information.
+Without such a pointer this information therefore cannot be stored,
+i.e. it is equivalent to the three <code>set_store</code> methods
+below being set false. 
+   
+<br/><code>argument</code><strong> pyset </strong>  : 
+pointer to the <code>Pythia Settings</code> object, which is used to 
+decide whether hadronization is carried out, and therefore whether
+to warn about unhadronized partons. Without such a pointer the
+<code>set_free_parton_warnings</code> method below uniquely controls
+the behaviour.
+   
+  
+
+<p/>
+The following paired methods can be used to set and get the status of 
+some switches that modify the behaviour of the conversion routine. 
+The <code>set</code> methods have the same default input values as 
+the internal initialization ones, so that a call without an argument 
+(re)stores the default.
+
+<a name="method4"></a>
+<p/><strong>void I_Pythia8::set_print_inconsistency(bool b = true) &nbsp;</strong> <br/>
+  
+<strong>bool I_Pythia8::print_inconsistency() &nbsp;</strong> <br/>
+print a warning line, on <code>cerr</code>, when inconsistent mother 
+and daughter information is encountered.
+  
+
+<a name="method5"></a>
+<p/><strong>void I_Pythia8::set_free_parton_warnings(bool b = true) &nbsp;</strong> <br/>
+  
+<strong>bool I_Pythia8::free_parton_warnings() &nbsp;</strong> <br/>
+check and print a warning line when unhadronized gluons or quarks are 
+encountered in the event record. Does not apply when Pythia hadronization 
+is switched off. Default is to do this check.
+  
+
+<a name="method6"></a>
+<p/><strong>void I_Pythia8::set_crash_on_problem(bool b = false) &nbsp;</strong> <br/>
+  
+<strong>bool I_Pythia8::crash_on_problem() &nbsp;</strong> <br/>
+if problems (like the free partons above) are encountered then the run 
+is interrupted by an <code>exit(1)</code> command. Default is not to crash.
+  
+
+<a name="method7"></a>
+<p/><strong>void I_Pythia8::set_convert_gluon_to_0(bool b = false) &nbsp;</strong> <br/>
+  
+<strong>bool I_Pythia8::convert_gluon_to_0() &nbsp;</strong> <br/>
 the normal gluon identity code 21 is used also when parton density
 information is stored, unless this optional argument is set true to
 have gluons represented by a 0. This choice does not affect the 
 normal event record, where a gluon is always 21. 
   
-  
-
-<a name="method3"></a>
-<p/><strong>bool I_Pythia8::fill_next_event( Pythia8::Event& pyev, GenEvent* evt, int ievnum = -1 ) &nbsp;</strong> <br/>
-convert a <code>Pythia</code> event to a <code>HepMC</code> one.
-Will return true if succeeded. Do not store parton-density information.
-<br/><code>argument</code><strong> pyev </strong>  : 
-the input <code>Pythia</code> event, in its standard form.
-   
-<br/><code>argument</code><strong> evt </strong>  : 
-the output <code>GenEvt</code> event, in its standard form.
-   
-<br/><code>argument</code><strong> iev </strong>  : 
-set the event number of the current event. If negative then the 
-internal event number is used, which is incremented by one for
-each new event.
-  
-  
-
-<a name="method4"></a>
-<p/><strong>bool I_Pythia8::put_pdf_info( GenEvent* evt, Pythia8::Pythia& pythia, bool convertGluonTo0 = false ) &nbsp;</strong> <br/>
-append parton-density information to an event already stored
-by the previous method.
-<br/><code>argument</code><strong> evt </strong>  : 
-the output <code>GenEvt</code> event record, in its standard form.
-   
-<br/><code>argument</code><strong> pythia </strong>  : 
-the input <code>Pythia</code> generator object, from which both the 
-event and the parton density information can be obtained.
-   
-<br/><code>argument</code><strong> convertGluonTo0 </strong>  : 
-the normal gluon identity code 21 is used also when parton density
-information is stored, unless this optional argument is set true to
-have gluons represented by a 0. 
-  
-  
-
-<p/>
-The following methods can be used to set, and in some cases interrogate,
-the status of some switches that can be used to modify the behaviour
-of the conversion routine. The <code>set</code> methods have the 
-same default input values as the internal initialization ones, so
-that a call without an argument (re)stores the default.
-
-<a name="method5"></a>
-<p/><strong>void I_Pythia8::set_trust_mothers_before_daughters( bool b = true ) &nbsp;</strong> <br/>
-  
-<strong>bool I_Pythia8::trust_mothers_before_daughters() &nbsp;</strong> <br/>
-if there is a conflict in the history information, then trust the 
-information on mothers above that on daughters. Currently this is
-the only option implemented. 
-  
-
-<a name="method6"></a>
-<p/><strong>void I_Pythia8::set_trust_both_mothers_and_daughters( bool b = false ) &nbsp;</strong> <br/>
-  
-<strong>bool I_Pythia8::trust_both_mothers_and_daughters() &nbsp;</strong> <br/>
-currently dummy methods intended to resolve conflicts in the event
-history.
-  
-
-<a name="method7"></a>
-<p/><strong>void I_Pythia8::set_print_inconsistency_errors( bool b = true ) &nbsp;</strong> <br/>
-  
-<strong>bool I_Pythia8::print_inconsistency_errors() &nbsp;</strong> <br/>
-print a warning line, on <code>cerr</code>, when inconsistent mother 
-and daughter information is encountered.
-  
 
 <a name="method8"></a>
-<p/><strong>void I_Pythia8::set_crash_on_problem( bool b = false ) &nbsp;</strong> <br/>
-if problems are encountered then the run is interrupted by an
-<code>exit(1)</code> command. Default is not to crash.
+<p/><strong>void I_Pythia8::set_store_pdf(bool b = true) &nbsp;</strong> <br/>
+  
+<strong>bool I_Pythia8::store_pdf() &nbsp;</strong> <br/>
+for each event store information on the two incoming flavours, their
+x values and common factorization scale, and the values of the two 
+parton distributions, <i>xf(x,Q)</i>.
   
 
 <a name="method9"></a>
-<p/><strong>void I_Pythia8::set_freepartonwarnings( bool b = true ) &nbsp;</strong> <br/>
-interrupt the run by an <code>exit(1)</code> command if unhadronized 
-gluons or quarks are encountered in the event record, unless 
-hadronization is switched off. Default is to crash.
+<p/><strong>void I_Pythia8::set_store_proc(bool b = true) &nbsp;</strong> <br/>
+  
+<strong>bool I_Pythia8::store_proc() &nbsp;</strong> <br/>
+for each event store information on the Pythia process code, the 
+renormalization scale, and <i>alpha_em</i> and <i>alpha_s</i>
+values used for the hard process. 
   
 
 <a name="method10"></a>
-<p/><strong>void I_Pythia8::set_convert_to_mev( bool b = false ) &nbsp;</strong> <br/>
-convert the normal GeV energies, momenta and masses to MeV.
+<p/><strong>void I_Pythia8::set_store_xsec(bool b = true) &nbsp;</strong> <br/>
+  
+<strong>bool I_Pythia8::store_xsec() &nbsp;</strong> <br/>
+for each event store information on the Pythia cross section and its error,
+in pb, and the event weight. If events also come with a dimensional weight, 
+like in some Les Houches strategies, this weight is in units of pb.
   
 
 </body>
 </html>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->

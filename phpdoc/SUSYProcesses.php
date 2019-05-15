@@ -169,7 +169,7 @@ are not yet included.
 <input type="radio" name="8" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Pair production of a scalar quark together with a scalar antiquark by
-gluon annhilation via <i>s</i>-channel gluon exhange, <i>t</i>- and 
+gluon annihilation via <i>s</i>-channel gluon exchange, <i>t</i>- and 
 <i>u</i>-channel squark exchange, and the direct 4-point coupling. 
 The cross section expression follows [<a href="Bibliography.php" target="page">Boz07</a>]. 
 Validation of the FLV and CPV cases has not yet been completed.
@@ -249,7 +249,7 @@ Validation of the FLV and CPV cases has not yet been completed.
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Associated chargino-neutralino production by quark-antiquark
 annihilation. With four neutralino species, two chargino ones, and
-maintaining charge conjugate proceeses separate, this gives 16 
+maintaining charge conjugate processes separate, this gives 16 
 separate processes, codes 1221 - 1236. The cross section expressions 
 follow [<a href="Bibliography.php" target="page">Boz07</a>].
 Validation of the FLV and CPV cases has not yet been completed.
@@ -463,5 +463,5 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->
 

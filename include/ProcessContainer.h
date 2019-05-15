@@ -1,5 +1,5 @@
 // ProcessContainer.h is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -80,7 +80,7 @@ public:
   bool decayResonances( Event& process); 
 
   // Accumulate statistics after user veto.
-  void accumulate() {++nAcc; wtAccSum += weightNow;}
+  void accumulate(); 
 
   // Reset statistics on events generated so far.
   void reset();
@@ -114,6 +114,13 @@ public:
   // Tell whether container is for Les Houches events.
   bool   isLHAContainer() const {return isLHA;}
   int    lhaStrategy()    const {return lhaStrat;}
+
+  // Info on Les Houches events.
+  int    codeLHASize()       const {return codeLHA.size();}
+  int    subCodeLHA(int i)   const {return codeLHA[i];}
+  long   nTriedLHA(int i)    const {return nTryLHA[i];}
+  long   nSelectedLHA(int i) const {return nSelLHA[i];}
+  long   nAcceptedLHA(int i) const {return nAccLHA[i];}
 
   // When two hard processes set or get info whether process is matched.
   void   isSame( bool isSameIn) { isSameSave = isSameIn;}
@@ -160,6 +167,11 @@ private:
   long   nTry, nSel, nAcc, nTryStat;  
   double sigmaMx, sigmaSgn, sigmaSum, sigma2Sum, sigmaNeg, sigmaAvg, 
          sigmaFin, deltaFin, weightNow, wtAccSum;
+
+  // Statistics for Les Houches event classification.
+  vector<int> codeLHA;
+  vector<long> nTryLHA, nSelLHA, nAccLHA;
+  long nTryLast, nSelLast;
 
   // Estimate integrated cross section and its uncertainty. 
   void sigmaDelta();

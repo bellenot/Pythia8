@@ -202,7 +202,7 @@ The <code>workEvent</code> can also be sent on to a
 <method name="virtual bool UserHooks::initAfterBeams()">
 This routine is called by Pythia::init(), after the beams have been
 set up, but before any other initialisation. Therefore, at this stage,
-it is still possible to modifiy settings (apart from
+it is still possible to modify settings (apart from
 <code>Beams:*</code>) and particle data. This is mainly intended
 to be used in conjunction with Les Houches Event files, where
 headers are read in during beam initialisation, see the header
@@ -310,7 +310,7 @@ not be included.
 <method name="virtual bool UserHooks::doVetoPartonLevelEarly(const 
 Event& event)">
 is very similar to <code>doVetoPartonLevel(...)</code> above, but
-the veto can be done earier, as described for 
+the veto can be done earlier, as described for 
 <code>canVetoPartonLevelEarly()</code>.
 
 <h3>(ii) Interrupt during the parton-level evolution, at a 
@@ -337,7 +337,7 @@ Previously existing partons are not touched, except for the
 <aloc href="ParticleProperties">status, mother and daughter</aloc> 
 values, which are updated to reflect the modified history. It is 
 therefore straightforward to find the partons associated with the most 
-recent occurence.
+recent occurrence.
 <br/>An MPI results in four new partons being appended, two incoming
 and two outgoing ones.
 <br/>An ISR results in the whole affected system being copied down,
@@ -376,7 +376,7 @@ completely new event, so the vetoed event will not appear in the
 output of <code>Pythia::next()</code>.
 <argument name="iPos"> is the position/status when the routine is
 called, information that can help you decide your course of action: 
-<argoption value="0"> when no MPI, ISR or FSR occured above the veto scale;
+<argoption value="0"> when no MPI, ISR or FSR occurred above the veto scale;
 </argoption>
 <argoption value="1"> when inside the interleaved MPI + ISR + FSR evolution, 
 after an MPI process;  
@@ -412,7 +412,7 @@ event record, also by using <code>subEvent(...)</code> and
 <code>workEvent</code>.  
 What is different is that the methods in this section give access to the 
 event as it looks like after each of the first few steps in the downwards
-evolution, irrespectively of the <ei>pT</ei> scales of these branchings.
+evolution, irrespective of the <ei>pT</ei> scales of these branchings.
 Furthermore, it is here assumed that the focus normally is on the hardest
 subprocess, so that ISR/FSR emissions associated with additional MPI's
 are not considered. For MPI studies, however, a separate simpler 
@@ -430,7 +430,7 @@ Returns the number of steps <ei>n</ei> each of ISR and FSR, for the
 hardest interaction, that you want to be able to study. That is,
 the method will be called after the first <ei>n</ei> ISR emissions,
 irrespective of the number of FSR ones at the time, and after the 
-first <ei>n</ei> FSR emissions, irespective of the number of ISR ones.
+first <ei>n</ei> FSR emissions, irrespective of the number of ISR ones.
 The number of steps defaults to the first one only, but you are free 
 to pick another value. Note that double diffraction is handled as two 
 separate Pomeron-proton collisions, and thus has two sequences of 
@@ -502,7 +502,7 @@ counted among the accepted ones, and does not contribute to the estimated
 cross section. The <code>Pytha::next()</code> method will begin a 
 completely new event, so the vetoed event will not appear in the 
 output of <code>Pythia::next()</code>.
-<argument name="nMPI"> is the number of MPI subprocesses has occured
+<argument name="nMPI"> is the number of MPI subprocesses has occurred
 so far.
 </argument>
 <argument name="event"> the event record contains a list of all partons 
@@ -518,13 +518,13 @@ had time to radiate, of course.
 The methods in this group are intended to allow the veto of an emission
 in ISR, FSR or MPI, without affecting the evolution in any other way.
 If an emission is vetoed, the event record is "rolled back" to the 
-way it was before the emission occured, and the evolution in <ei>pT</ei> 
+way it was before the emission occurred, and the evolution in <ei>pT</ei> 
 is continued downwards from the rejected value. The decision can be 
 based on full knowledge of the kinematics of the shower branching or MPI.
 
 <p/>
 To identify where shower emissions originated, the ISR/FSR veto
-routines are passed the system from which the radiation occured, according
+routines are passed the system from which the radiation occurred, according
 to the Parton Systems class (see <aloc href="AdvancedUsage">Advanced
 Usage</aloc>). Note, however, that inside the veto routines only the event
 record has been updated; all other information, including the Parton
@@ -554,7 +554,7 @@ generated so far. Of special interest are the ones associated with the
 most recent emission, which are stored in entries from <code>sizeOld</code> 
 through <code>event.size() - 1</code> inclusive. If you veto the emission
 these entries will be removed, and the history info in the remaining
-partons will be restored to a state as if the emission had never occured.
+partons will be restored to a state as if the emission had never occurred.
 </argument>
 <argument name="iSys"> the system where the radiation occurs, according
 to Parton Systems.
@@ -584,7 +584,7 @@ generated so far. Of special interest are the ones associated with the
 most recent emission, which are stored in entries from <code>sizeOld</code> 
 through <code>event.size() - 1</code> inclusive. If you veto the emission
 these entries will be removed, and the history info in the remaining
-partons will be restored to a state as if the emission had never occured.
+partons will be restored to a state as if the emission had never occurred.
 </argument>
 <argument name="iSys"> the system where the radiation occurs, according
 to Parton Systems.
@@ -620,7 +620,7 @@ these entries will be removed.
 </argument>
 </method>
 
-<h3>(v) Modify cross-sections or phase space samling</h3>
+<h3>(v) Modify cross-sections or phase space sampling</h3>
 
 This section addresses two related but different topics. In both
 cases the sampling of events in phase space is modified, so that
@@ -633,7 +633,7 @@ In the second case the repopulation is only to be viewed as a
 technical trick to sample some phase-space regions better, so as 
 to reduce the statistical error. There each event instead obtains
 a compensating weight, the inverse of the differential cross section
-reweighting factor, in such a way thet the integrated cross section
+reweighting factor, in such a way that the integrated cross section
 is unchanged. Below these two cases are considered separately,  
 but note that they share many points.
 
@@ -854,4 +854,4 @@ decay products.
 
 </chapter>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->

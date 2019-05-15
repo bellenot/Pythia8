@@ -1,5 +1,5 @@
 // main31.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Richard Corke, Torbjorn Sjostrand.
+// Copyright (C) 2013 Richard Corke, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -411,7 +411,7 @@ public:
     int r   = (pTemtMode == 0) ? iRecAft : -1;
 
     // When pTemtMode is 0 or 1, iEmt has been selected
-    double pTemt;
+    double pTemt = 0.;
     if (pTemtMode == 0 || pTemtMode == 1) {
       // Which parton is emitted, based on emittedMode:
       //  0 - Pythia definition of emitted
@@ -594,6 +594,7 @@ int main(int, char **) {
   cout << endl;
 
   // Done.                           
+  if (powhegHooks) delete powhegHooks;
   return 0;
 }
 

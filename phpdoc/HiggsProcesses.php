@@ -48,7 +48,7 @@ dependence on <i>mHat</i>, i.e. a width proportional to
 <i>m_Higgs^2 * mHat</i>, while <code>on</code> gives a 
 <i>mHat^3</i> dependence. This does not affect the widths to 
 fermions, which only depend linearly on <i>mHat</i>.
-This flag is used both for SM and BSM Higgses.
+This flag is used both for SM and BSM Higgs bosons.
   
 
 <br/><br/><strong>Higgs:runningLoopMass</strong>  <input type="radio" name="2" value="on" checked="checked"><strong>On</strong>
@@ -68,7 +68,7 @@ used for couplings and the fixed one for phase space.)
 <input type="radio" name="3" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 The Breit-Wigner shape of a Higgs is nontrivial, owing to the rapid 
-width variation with the mass of a Higgs. This imples that a Higgs 
+width variation with the mass of a Higgs. This implies that a Higgs 
 of low nominal mass may still acquire a non-negligible high-end tail.
 The validity of the calculation may be questioned in these wings. 
 With this option on, the <code>Higgs:wingsFac</code> value is used to 
@@ -180,7 +180,7 @@ Code 909.
 A number of further production processes has been implemented, that 
 are specializations of some of the above ones to the high-<i>pT</i> 
 region. The sets therefore could not be used simultaneously
-without unphysical doublecounting, as further explained below. 
+without unphysical double-counting, as further explained below. 
 They are not switched on by the <code>HiggsSM:all</code> flag, but 
 have to be switched on for each separate process after due consideration.
 
@@ -277,7 +277,7 @@ Code 915.
 Scattering <i>q qbar -> H^0 g</i> via an <i>s</i>-channel gluon
 and loop contributions primarily from top. Is strictly speaking a 
 "new" process, not directly derived from <i>g g -> H^0</i>, and
-could therefore be included in the standard mix without doublecounting, 
+could therefore be included in the standard mix without double-counting, 
 but is numerically negligible.
 Code 916.
   
@@ -288,16 +288,16 @@ Further Higgs multiplets arise in a number of scenarios. We here
 concentrate on the MSSM scenario with two Higgs doublets, but with 
 flexibility enough that also other two-Higgs-doublet scenarios could 
 be represented by a suitable choice of parameters. Conventionally the 
-Higgs states are labelled <i>h^0, H^0, A^0</i> and <i>H^+-</i>.
+Higgs states are labeled <i>h^0, H^0, A^0</i> and <i>H^+-</i>.
 If the scalar and pseudocalar states mix the resulting states are 
-labelled <i>H_1^0, H_2^0, H_3^0</i>. In process names and parameter 
+labeled <i>H_1^0, H_2^0, H_3^0</i>. In process names and parameter 
 explanations both notations will be used, but for settings labels 
 we have adapted the shorthand hybrid notation <code>H1</code> for
 <i>h^0(H_1^0)</i>, <code>H2</code> for <i>H^0(H_2^0)</i> and
 <code>A3</code> for <i>A^0(H_3^0)</i>. (Recall that the 
 <code>Settings</code> database does not distinguish upper- and lowercase 
 characters, so that the user has one thing less to worry about, but here 
-it causes probles with <i>h^0</i> vs. <i>H^0</i>.) We leave the issue 
+it causes problems with <i>h^0</i> vs. <i>H^0</i>.) We leave the issue 
 of mass ordering between <i>H^0</i> and <i>A^0</i> open, and thereby 
 also that of <i>H_2^0</i> and <i>H_3^0</i>.
 
@@ -318,7 +318,7 @@ run together to provide a reasonably complete overview of possible
 production channels for a single neutral Higgs state in a two-doublet
 scenarios such as MSSM. The list of processes for neutral states closely 
 mimics the one found for the SM Higgs. Some of the processes 
-vanish for a pure pseudoscalar <i>A^0</i>, but are kept for flexiblity 
+vanish for a pure pseudoscalar <i>A^0</i>, but are kept for flexibility 
 in cases of mixing with the scalar <i>h^0</i> and <i>H^0</i> states, 
 or for use in the context of non-MSSM models. This should work well to 
 represent e.g. that a small admixture of the "wrong" parity would allow 
@@ -654,7 +654,7 @@ Code 1085.
 This section mimics the above section on "Standard-Model Higgs, 
 further processes", i.e. it contains higher-order corrections
 to the processes already listed. The two sets therefore could not 
-be used simultaneously without unphysical doublecounting.
+be used simultaneously without unphysical double-counting.
 They are not controlled by any group flag, but have to be switched 
 on for each separate process after due consideration. We refer to
 the standard-model description for a set of further comments on
@@ -725,7 +725,7 @@ Code 1015.
 Scattering <i>q qbar -> h^0 g</i> via an <i>s</i>-channel gluon
 and loop contributions primarily from top. Is strictly speaking a 
 "new" process, not directly derived from <i>g g -> h^0</i>, and
-could therefore be included in the standard mix without doublecounting, 
+could therefore be included in the standard mix without double-counting, 
 but is numerically negligible.
 Code 1016.
   
@@ -795,7 +795,7 @@ Code 1035.
 Scattering <i>q qbar -> H^0 g</i> via an <i>s</i>-channel gluon
 and loop contributions primarily from top. Is strictly speaking a 
 "new" process, not directly derived from <i>g g -> H^0</i>, and
-could therefore be included in the standard mix without doublecounting, 
+could therefore be included in the standard mix without double-counting, 
 but is numerically negligible.
 Code 1036.
   
@@ -865,7 +865,7 @@ Code 1055.
 Scattering <i>q qbar -> A^0 g</i> via an <i>s</i>-channel gluon
 and loop contributions primarily from top. Is strictly speaking a 
 "new" process, not directly derived from <i>g g -> A^0</i>, and
-could therefore be included in the standard mix without doublecounting, 
+could therefore be included in the standard mix without double-counting, 
 but is numerically negligible.
 Code 1056.
   
@@ -1686,5 +1686,5 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->
 

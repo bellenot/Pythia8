@@ -209,13 +209,13 @@ option.
 <flag name="Tune:preferLHAPDF" default="on">
 Tunes made by experimental collaborations typically use the LHAPDF
 package to obtain their PDF values, and so PYTHIA has to be linked 
-accordingly. For PDFs implemanted natively in PYTHIA it is possible 
+accordingly. For PDFs implemented natively in PYTHIA it is possible 
 to use the respective tunes, without having to link to LHAPDF, if you 
 set <code>Tune:preferLHAPDF = off</code> <i>before</i> the 
 <code>Tune:pp</code> choice. 
 </flag>
 
-<modepick name="Tune:pp" default="5" min="-1" max="11">
+<modepick name="Tune:pp" default="5" min="-1" max="13">
 Choice of tune to <ei>pp/ppbar</ei> data, mainly for the 
 initial-state-radiation, multiparton-interactions and  beam-remnants
 aspects of PYTHIA. Note that the previous crude (non-)tunes
@@ -289,4 +289,4 @@ but uses MRST 2007 LO**, by default from LHAPDF.
 
 </chapter>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->

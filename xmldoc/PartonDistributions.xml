@@ -46,7 +46,7 @@ in memory.
 Two further public methods are <code>xfVal( id, x, Q2)</code> and 
 <code>xfSea( id, x, Q2)</code>. These are simple variants whereby
 the quark distributions can be subdivided into a valence and a sea part.
-If these are not directly accessible in the parametrization, onc can
+If these are not directly accessible in the parametrization, one can
 make the simplified choices <ei>u_sea = ubar_sea, u_val = u_tot - u_sea</ei>,
 and correspondingly for <ei>d</ei>. (Positivity will always be guaranteed
 at output.) The <code>xfUpdate</code> method should also take care of
@@ -143,4 +143,4 @@ stage.
 
 </chapter>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->

@@ -51,7 +51,7 @@ are essentially in agreement with the PDG conventions, e.g.
 <br/>1092214 <code>R+(~g uud)</code> (or gluino-Delta+)
 <br/>For internal bookkeeping of momenta, the code 1009002,
 <code>Rtemp(~g q)</code>, is used to denote the intermediate 
-state formed when only one of the two string peices attached to 
+state formed when only one of the two string pieces attached to 
 the gluino has broken.
 
 <p/>
@@ -243,5 +243,5 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->
 

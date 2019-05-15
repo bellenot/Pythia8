@@ -1,5 +1,5 @@
 // HiddenValleyFragmentation.h is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -113,8 +113,8 @@ class HiddenValleyFragmentation {
 public:
 
   // Constructor. 
-  HiddenValleyFragmentation() : hvFlavSelPtr(NULL), hvPTSelPtr(NULL),
-    hvZSelPtr(NULL) {}
+  HiddenValleyFragmentation() : doHVfrag(false), hvFlavSelPtr(NULL), 
+    hvPTSelPtr(NULL), hvZSelPtr(NULL) {}
 
   // Destructor. 
   ~HiddenValleyFragmentation() { if (doHVfrag) { 

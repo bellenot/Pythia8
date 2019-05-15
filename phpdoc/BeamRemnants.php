@@ -316,7 +316,7 @@ The abovementioned power for valence <i>d</i> quarks in protons.
   
 
 <br/><br/><table><tr><td><strong>BeamRemnants:valenceDiqEnhance </td><td></td><td> <input type="text" name="15" value="2.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.0</strong></code>; <code>minimum = 0.5</code>; <code>maximum = 10.</code>)</td></tr></table>
-Enhancement factor for valence diqaurks in baryons, relative to the 
+Enhancement factor for valence diquarks in baryons, relative to the 
 simple sum of the two constituent quarks.
   
 
@@ -437,4 +437,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->

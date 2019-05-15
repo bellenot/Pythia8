@@ -1,5 +1,5 @@
 // main51.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -52,8 +52,8 @@ double integrate(PDF* nowPDF, double Q2) {
 
 int main() {
  
-  // The Pythia class itself is not used, but some facilities that com along.
-  Pythia pythia;
+  // The Pythia class itself is not used, but some facilities that come along.
+  //Pythia pythia;
 
   // Chosen new PDF set; LHAPDF file name conventions.
   //string pdfSet = "cteq5l.LHgrid";
@@ -138,5 +138,7 @@ int main() {
   cout << oldXSum << newXSum;
 
   // Done.
+  delete oldPDF;
+  delete newPDF;
   return 0;
 }

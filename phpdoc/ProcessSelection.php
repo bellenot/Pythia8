@@ -77,7 +77,7 @@ echo "<a href='QCDProcesses.php?filepath=".$filepath."' target='page'>";?>QCD Pr
 
 QCD processes fall in two main categories: soft and hard. The soft ones
 contain elastic, diffractive and "minimum-bias" events, together
-covering the total cross section. Hard processea are the normal
+covering the total cross section. Hard processes are the normal
 <i>2 -> 2</i> ones, including charm and bottom production. 
 <br/>Reserved code range: 101 - 199. 
 
@@ -112,16 +112,16 @@ Production of hypothetical fourth-generation fermions.
 echo "<a href='HiggsProcesses.php?filepath=".$filepath."' target='page'>";?>Higgs Processes</a></h3>
 
 Higgs production, within or beyond the Standard Model.
-See section on Left-Right-Symmetry processes for doubly charged Higgses.
+See section on Left-Right-Symmetry processes for doubly charged Higgs bosons.
 <br/>Reserved code range: 901 - 999 for a Standard Model Higgs 
-and 1001 - 1199 for MSSM Higgses. 
+and 1001 - 1199 for MSSM Higgs bosons. 
 
 <h3><?php $filepath = $_GET["filepath"];
 echo "<a href='SUSYProcesses.php?filepath=".$filepath."' target='page'>";?>SUSY Processes</a></h3>
 
 Production of supersymmetric particles, currently barely begun.
 <br/>Reserved code range: 1001 - 2999. (Whereof 1001 - 1199
-for Higgses; see above.) 
+for Higgs bosons; see above.) 
 
 <h3><?php $filepath = $_GET["filepath"];
 echo "<a href='NewGaugeBosonProcesses.php?filepath=".$filepath."' target='page'>";?>New-Gauge-Boson 
@@ -135,7 +135,7 @@ echo "<a href='LeftRightSymmetryProcesses.php?filepath=".$filepath."' target='pa
 Processes</a></h3>
 
 Production of righthanded <i>Z_R</i> and <i>W_R</i> bosons and of
-doubly charged Higgses.
+doubly charged Higgs bosons.
 <br/>Reserved code range: 3101 - 3199. 
 
 <h3><?php $filepath = $_GET["filepath"];
@@ -159,7 +159,7 @@ by technicolor interactions. Does not exist yet.
 
 <h3><?php $filepath = $_GET["filepath"];
 echo "<a href='HiddenValleyProcesses.php?filepath=".$filepath."' target='page'>";?>Hidden Valley Processes</a></h3>
-A scenario for the pair prodiction of new particles with couplings 
+A scenario for the pair production of new particles with couplings 
 under a new gauge group, with invisible gauge bosons. Radiation of 
 these gauge bosons is included in the standard final-state parton
 shower.
@@ -179,5 +179,5 @@ processes.
 </body>
 </html>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->
 

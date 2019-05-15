@@ -1,5 +1,5 @@
 // MultipartonInteractions.h is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -170,7 +170,7 @@ private:
   // Initialization data, read from Settings.
   bool   allowRescatter, allowDoubleRes, canVetoMPI;
   int    pTmaxMatch, alphaSorder, alphaEMorder, bProfile, processLevel, 
-         rescatterMode, nQuarkIn, nSample, enhanceScreening;
+         bSelScale, rescatterMode, nQuarkIn, nSample, enhanceScreening;
   double alphaSvalue, Kfactor, pT0Ref, ecmRef, ecmPow, pTmin, coreRadius, 
          coreFraction, expPow, ySepResc, deltaYResc, sigmaPomP, mPomP, pPomP, 
          mMaxPertDiff, mMinPertDiff;

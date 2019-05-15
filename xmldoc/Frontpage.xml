@@ -72,16 +72,16 @@ S&ouml;lvegatan 14A, SE-223 62 Lund, Sweden<br/>
 phone: + 46 - 46 - 222 48 16, e-mail: torbjorn@thep.lu.se   
 
 <p/>
-<b>Stefan Ask</b><br/>
-Department of Physics, University of Cambridge, 
-Cavendish Laboratory, JJ Thomson Ave., Cambridge CB3 0HE, UK<br/>
-phone: +41 - 22 - 767 6707, e-mail: Stefan.Ask@cern.ch
+<b>Jesper Roy Christiansen</b><br/> 
+Department of Astronomy and Theoretical Physics, Lund University, 
+S&ouml;lvegatan 14A, SE-223 62 Lund, Sweden<br/>
+e-mail: Jesper.Roy.Christiansen@thep.lu.se   
 
 <p/>
-<b>Richard Corke</b><br/> 
-Niels Bohr Institute, University of Copenhagen, Blegdamsvej 17,
-2100 Copenhagen, Denmark<br/>
-e-mail: richard.corke@thep.lu.se   
+<b>Philip Ilten</b><br/> 
+School of Physics, University College Dublin, 
+Belfield, Dublin 4, Ireland<br/>
+e-mail: philten@cern.ch
 
 <p/>
 <b>Stephen Mrenna</b><br/> 
@@ -98,8 +98,14 @@ phone: + 46 - 46 - 222 06 64, e-mail: stefan.prestel@thep.lu.se
 
 <p/>
 <b>Peter Skands</b><br/> 
-Theoretical Physics, CERN, CH-1211 Geneva 23, Switerland<br/> 
+Theoretical Physics, CERN, CH-1211 Geneva 23, Switzerland<br/> 
 phone: + 41 - 22 - 767 2447, e-mail: peter.skands@cern.ch 
+
+<h2>Former authors</h2>
+
+<p/><b>Stefan Ask</b>, e-mail: ask.stefan@gmail.com
+
+<p/><b>Richard Corke</b>, e-mail: r.corke@errno.net   
 
 <h2>Further contributions</h2>
 
@@ -127,10 +133,10 @@ especially <b>Paul Newman</b>.
 <br/>Code for equivalent photon flux around an unresolved proton by 
 <b>Oystein Alvestad</b>.
 <br/>Part of the SUSY code by <b>Nishita Desai</b>.
-<br/>Tau decays with decay models and helicity information by 
-<b>Philip Ilten</b>.
 <br/>The MBR diffractive model and central diffraction by 
 <b>Robert Ciesielski</b>.
+<br/>2012 branching ratios for most light hadrons, and the tau lepton,
+by <b>Anil Pratap Singh</b>.
 <br/><b>Note</b>: in several cases modifications have been made to
 the original code, in order to integrate it with PYTHIA. In these cases
 the blame for any mistakes has to rest with the regular authors.
@@ -146,9 +152,9 @@ for Event Generator Authors and Users.
 
 <p/>
 The program and the documentation is
-Copyright &copy; 2012 Torbj&ouml;rn Sj&ouml;strand 
+Copyright &copy; 2013 Torbj&ouml;rn Sj&ouml;strand 
  
 
 </chapter>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->

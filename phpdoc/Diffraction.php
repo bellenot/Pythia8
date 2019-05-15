@@ -101,7 +101,7 @@ Parametrization of the Pomeron flux <ei>f_Pom/p( x_Pom, t)</ei>.
 <input type="radio" name="1" value="2"><strong>2 </strong>: Bruni and Ingelman <ref>Bru93</ref>: also a critical Pomeron giving close to <ei>dm^2/m^2</ei>,  with a <ei>t</ei> distribution  the sum of two exponentials. The original model only covers single diffraction, but is here expanded by analogy to double and central  diffraction.<br/>
 <input type="radio" name="1" value="3"><strong>3 </strong>: a conventional Pomeron description, in the RapGap manual <ref>Jun95</ref> attributed to Berger et al. and Streng  <ref>Ber87a</ref>, but there (and here) with values updated to a  supercritical Pomeron with <ei>epsilon &gt; 0</ei> (see below),  which gives a stronger peaking towards low-mass diffractive states,  and with a mass-dependent (the <ei>alpha'</ei> below) exponential  <ei>t</ei> slope. The original model only covers single diffraction,  but is here expanded by analogy to double and central diffraction. <br/>
 <input type="radio" name="1" value="4"><strong>4 </strong>: a conventional Pomeron description, attributed to Donnachie and Landshoff <ref>Don84</ref>, again with supercritical Pomeron,  with the same two parameters as option 3 above, but this time with a  power-law <ei>t</ei> distribution. The original model only covers single diffraction, but is here expanded by analogy to double and central  diffraction.<br/>
-<input type="radio" name="1" value="5"><strong>5 </strong>:  the MBR (Minimum Bias Rockefeller) simulation of  (anti)proton-proton interactions <ref>Cie12</ref>. The event  generation follows a renormalized-Regge-theory model, sucessfully tested  using CDF data. The simulation includes single and double diffraction, as well as the central diffractive (double-Pomeron exchange) process (106).  Only <ei>p p</ei>, <ei>pbar p</ei> and <ei>p pbar</ei> beam combinations  are allowed for this option. Several parameters of this model are listed  below. <br/>
+<input type="radio" name="1" value="5"><strong>5 </strong>:  the MBR (Minimum Bias Rockefeller) simulation of  (anti)proton-proton interactions <ref>Cie12</ref>. The event  generation follows a renormalized-Regge-theory model, successfully tested  using CDF data. The simulation includes single and double diffraction, as well as the central diffractive (double-Pomeron exchange) process (106).  Only <ei>p p</ei>, <ei>pbar p</ei> and <ei>p pbar</ei> beam combinations  are allowed for this option. Several parameters of this model are listed  below. <br/>
 
 <p/>
 In options 3 and 4 above, the Pomeron Regge trajectory is 
@@ -267,7 +267,7 @@ Pomeron PDF; we remind that some of these add up to less than unit
 momentum sum in the Pomeron, a choice that also affect the value
 one ends up with. Furthermore, like with hadronic cross sections,
 it is quite plausible that the Pomeron-proton cross section increases
-with energy, so we have allowed for a powerlike dependence on the
+with energy, so we have allowed for a power-like dependence on the
 diffractive mass.
 
 <br/><br/><table><tr><td><strong>Diffraction:sigmaRefPomP </td><td></td><td> <input type="text" name="25" value="10." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>10.</strong></code>; <code>minimum = 2.</code>; <code>maximum = 40.</code>)</td></tr></table>
@@ -315,7 +315,7 @@ Diffraction tends to be peripheral, i.e. occur at intermediate impact
 parameter for the two protons. That aspect is implicit in the selection 
 of diffractive cross section. For the simulation of the Pomeron-proton 
 subcollision it is the impact-parameter distribution of that particular 
-subsystem that should rather be modelled. That is, it also involves
+subsystem that should rather be modeled. That is, it also involves
 the transverse coordinate space of a Pomeron wavefunction. The outcome
 of the convolution therefore could be a different shape than for 
 nondiffractive events. For simplicity we allow the same kind of 
@@ -530,4 +530,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->

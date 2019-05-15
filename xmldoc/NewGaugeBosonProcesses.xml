@@ -120,7 +120,7 @@ axial coupling of <ei>nu_e</ei> neutrinos.
 
 <p/>
 Here are the further couplings that are specific for 
-a scenario with <code>Zprime:universality</code> swiched off:
+a scenario with <code>Zprime:universality</code> switched off:
 
 <parm name="Zprime:vs" default="-0.693">
 vector coupling of <ei>s</ei> quarks.
@@ -221,7 +221,7 @@ bosons).
 </parm>
 
 <p/>
-A massive <ei>Z'^0</ei> is also likely to decay into Higgses
+A massive <ei>Z'^0</ei> is also likely to decay into Higgs bosons
 and potentially into other now unknown particles. Such possibilities
 clearly are quite model-dependent, and have not been included 
 for now.
@@ -310,7 +310,7 @@ bosons).
 </parm>
 
 <p/>
-A massive <ei>W'^+-</ei> is also likely to decay into Higgses
+A massive <ei>W'^+-</ei> is also likely to decay into Higgs bosons
 and potentially into other now unknown particles. Such possibilities
 clearly are quite model-dependent, and have not been included 
 for now.
@@ -340,5 +340,5 @@ Code 3041.
 
 </chapter>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->
 

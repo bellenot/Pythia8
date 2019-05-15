@@ -54,7 +54,7 @@ the page contains information of more general interest.
 <td><code>BeamShape</code></td> 
 <td><?php $filepath = $_GET["filepath"];
 echo "<a href='BeamShape.php?filepath=".$filepath."' target='page'>";?>Beam Shape</a></td> 
-<td>vertex amd beam momentum spread</td> 
+<td>vertex and beam momentum spread</td> 
 </tr>
 
 <tr> 
@@ -285,4 +285,4 @@ You can also access an extensive list of the public
 echo "<a href='ProgramMethods.php?filepath=".$filepath."' target='page'>";?>methods</a> in these classes, 
 which compensates for the brevity of the current page. 
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->

@@ -1,5 +1,5 @@
 // Basics.h is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -26,14 +26,12 @@ class RndmEngine {
 
 public:
 
+  // Destructor.
+  virtual ~RndmEngine() {}
+
   // A pure virtual method, wherein the derived class method 
   // generates a random number uniformly distributed between 1 and 1.
   virtual double flat() = 0;
-
-protected:
-
-  // Destructor.
-  virtual ~RndmEngine() {}
 
 }; 
 
@@ -155,6 +153,9 @@ public:
   double thetaXZ() const {return atan2(xx,zz);}
   double pPos() const {return tt + zz;}
   double pNeg() const {return tt - zz;}
+  double rap() const {return 0.5 * log( (tt + zz) / (tt - zz) );}
+  double eta() const {double xyz = sqrt(xx*xx + yy*yy + zz*zz);
+    return 0.5 * log( (xyz + zz) / (xyz - zz) );}
 
   // Member functions that perform operations.
   void rescale3(double fac) {xx *= fac; yy *= fac; zz *= fac;}
@@ -211,8 +212,12 @@ public:
   // phi is azimuthal angle between v1 and v2 around n axis.
   friend double phi(const Vec4& v1, const Vec4& v2, const Vec4& n);
   friend double cosphi(const Vec4& v1, const Vec4& v2, const Vec4& n);
+ 
+  // R is distance in cylindrical (y/eta, phi) coordinates. 
+  friend double RRapPhi(const Vec4& v1, const Vec4& v2);
+  friend double REtaPhi(const Vec4& v1, const Vec4& v2);
 
-  // Print a four-vector
+  // Print a four-vector.
   friend ostream& operator<<(ostream&, const Vec4& v) ;
 
 private:
@@ -268,6 +273,10 @@ double cosphi(const Vec4& v1, const Vec4& v2);
 // phi is azimuthal angle between v1 and v2 around n axis.
 double phi(const Vec4& v1, const Vec4& v2, const Vec4& n);
 double cosphi(const Vec4& v1, const Vec4& v2, const Vec4& n);
+
+// R is distance in cylindrical (y/eta, phi) coordinates. 
+double RRapPhi(const Vec4& v1, const Vec4& v2);
+double REtaPhi(const Vec4& v1, const Vec4& v2);
 
 // Print a four-vector.
 ostream& operator<<(ostream&, const Vec4& v) ;

@@ -66,7 +66,7 @@ to steer the behaviour of a run; normally particle data are considered
 separately but clearly are closely related</dd>
 
 <dt>SLHA</dt>
-<dd>SUSY Les Houchs Accord for interchange of mass and coupling information
+<dd>SUSY Les Houches Accord for interchange of mass and coupling information
 in SUSY scenarios, via a well-defined file format</dd>
 
 <dt>SM</dt>
@@ -89,4 +89,4 @@ Accord takes into account that the unit there is pb)
 
 </chapter>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->

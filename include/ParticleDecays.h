@@ -1,5 +1,5 @@
 // ParticleDecays.h is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -31,14 +31,12 @@ class DecayHandler {
 
 public:
 
+  // Destructor.
+  virtual ~DecayHandler() {}
+
   // A pure virtual method, wherein the derived class method does a decay.
   virtual bool decay(vector<int>& idProd, vector<double>& mProd, 
     vector<Vec4>& pProd, int iDec, const Event& event) = 0;
-
-protected:
-
-  // Destructor.
-  virtual ~DecayHandler() {}
 
 };
  
@@ -95,7 +93,7 @@ private:
 
   // Initialization data, read from Settings.
   bool   limitTau0, limitTau, limitRadius, limitCylinder, limitDecay, 
-         mixB, doFSRinDecays;
+         mixB, doFSRinDecays, doGammaRad;
   int    sophisticatedTau;
   double mSafety, tau0Max, tauMax, rMax, xyMax, zMax, xBdMix, xBsMix, 
          sigmaSoft, multIncrease, multIncreaseWeak, multRefMass, multGoffset, 

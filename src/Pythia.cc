@@ -1,5 +1,5 @@
 // Pythia.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -22,7 +22,7 @@ namespace Pythia8 {
 //--------------------------------------------------------------------------
 
 // The current Pythia (sub)version number, to agree with XML version.
-const double Pythia::VERSIONNUMBERCODE = 8.170;
+const double Pythia::VERSIONNUMBERCODE = 8.175;
 
 //--------------------------------------------------------------------------
 
@@ -39,7 +39,7 @@ const int Pythia::SUBRUNDEFAULT = -999;
   
 // Constructor. 
 
-Pythia::Pythia(string xmlDir) { 
+Pythia::Pythia(string xmlDir, bool printBanner) { 
     
   // Initial values for pointers to PDF's.
   useNewPdfA      = false; 
@@ -128,7 +128,7 @@ Pythia::Pythia(string xmlDir) {
   }
 
   // Write the Pythia banner to output. 
-  banner();
+  if (printBanner) banner();
 
   // Not initialized until at the end of the init() call.
   isInit = false;
@@ -316,6 +316,21 @@ bool Pythia::init() {
     return false;
   }
 
+  // Early readout to be safe in case of a return false.
+  doProcessLevel = settings.flag("ProcessLevel:all");
+
+  // Check that changes in Settings and ParticleData have worked.
+  if (settings.readingFailed()) {
+    info.errorMsg("Abort from Pythia::init: some user settings "
+      "did not make sense");
+    return false;
+  }
+  if (particleData.readingFailed()) {
+    info.errorMsg("Abort from Pythia::init: some user particle data "
+      "did not make sense");
+    return false;
+  }
+
   // Begin initialization. Find which frame type to use.
   info.addCounter(1);
   frameType = mode("Beams:frameType");
@@ -381,7 +396,7 @@ bool Pythia::init() {
         return false;
       }
     } 
- 
+
     // Send in pointer to info. Store or replace LHA pointer in other classes.
     lhaUpPtr->setPtr( &info);
     processLevel.setLHAPtr( lhaUpPtr);
@@ -396,29 +411,51 @@ bool Pythia::init() {
     }
 
     // Set up values related to merging hooks.
-    if (frameType == 4) {
+    if (frameType == 4 || frameType == 5) {
+
       // Set up values related to CKKW-L merging.
-      doUserMerging     = settings.flag("Merging:doUserMerging");
-      doMGMerging       = settings.flag("Merging:doMGMerging");
-      doKTMerging       = settings.flag("Merging:doKTMerging");
-      doPTLundMerging   = settings.flag("Merging:doPTLundMerging");
-      doCutBasedMerging = settings.flag("Merging:doCutBasedMerging");
-      doMerging         = doUserMerging || doMGMerging || doKTMerging
-                       || doPTLundMerging || doCutBasedMerging;
-      // Set up MergingHooks object
-      if (!doUserMerging){
+      bool doUserMerging     = settings.flag("Merging:doUserMerging");
+      bool doMGMerging       = settings.flag("Merging:doMGMerging");
+      bool doKTMerging       = settings.flag("Merging:doKTMerging");
+      bool doPTLundMerging   = settings.flag("Merging:doPTLundMerging");
+      bool doCutBasedMerging = settings.flag("Merging:doCutBasedMerging");
+      // Set up values related to unitarised CKKW merging
+      bool doUMEPSTree       = settings.flag("Merging:doUMEPSTree");
+      bool doUMEPSSubt       = settings.flag("Merging:doUMEPSSubt");
+      // Set up values related to NL3 NLO merging
+      bool doNL3Tree         = settings.flag("Merging:doNL3Tree");
+      bool doNL3Loop         = settings.flag("Merging:doNL3Loop");
+      bool doNL3Subt         = settings.flag("Merging:doNL3Subt");
+      // Set up values related to unitarised NLO merging
+      bool doUNLOPSTree      = settings.flag("Merging:doUNLOPSTree");
+      bool doUNLOPSLoop      = settings.flag("Merging:doUNLOPSLoop");
+      bool doUNLOPSSubt      = settings.flag("Merging:doUNLOPSSubt");
+      bool doUNLOPSSubtNLO   = settings.flag("Merging:doUNLOPSSubtNLO");
+      bool doXSectionEst     = settings.flag("Merging:doXSectionEstimate");
+      doMerging = doUserMerging || doMGMerging || doKTMerging 
+        || doPTLundMerging || doCutBasedMerging || doUMEPSTree || doUMEPSSubt
+        || doNL3Tree || doNL3Loop || doNL3Subt || doUNLOPSTree 
+        || doUNLOPSLoop || doUNLOPSSubt || doUNLOPSSubtNLO || doXSectionEst;
+
+      // Set up MergingHooks object.
+      bool inputMergingHooks = (mergingHooksPtr != 0);
+      if (doMerging && !inputMergingHooks){
         if (hasOwnMergingHooks && mergingHooksPtr) delete mergingHooksPtr;
         mergingHooksPtr = new MergingHooks();
         hasOwnMergingHooks = true;
       }
+
       hasMergingHooks  = (mergingHooksPtr != 0);
       // Merging hooks required for merging. If no merging hooks pointer is
       // available, exit.
-      if (!hasMergingHooks) {
+      if (doMerging && !hasMergingHooks) {
         info.errorMsg("Abort from Pythia::init: "
           "no merging hooks object has been provided");
         return false;
-      } else mergingHooksPtr->setLHEInputFile( lhef);
+      } else if (doMerging) {
+        string lhefIn = (frameType == 4) ? lhef : "";
+        mergingHooksPtr->setLHEInputFile( lhefIn);
+      }
       // Initialise counting of Les Houches Events significantly above the
       // merging scale.
       info.setCounter(41,0);
@@ -441,9 +478,10 @@ bool Pythia::init() {
   }
 
   // Set up values related to user hooks.
-  hasUserHooks  = (userHooksPtr != 0);
-  doVetoProcess = false;
-  doVetoPartons = false;
+  hasUserHooks     = (userHooksPtr != 0);
+  doVetoProcess    = false;
+  doVetoPartons    = false;
+  retryPartonLevel = false;
   if (hasUserHooks) {
     userHooksPtr->initPtr( &info, &settings, &particleData, &rndm,
         &beamA, &beamB, &beamPomA, &beamPomB, couplingsPtr, &partonSystems, 
@@ -452,13 +490,13 @@ bool Pythia::init() {
       info.errorMsg("Abort from Pythia::init: could not initialise UserHooks");
       return false;
     }
-    doVetoProcess = userHooksPtr->canVetoProcessLevel();
-    doVetoPartons = userHooksPtr->canVetoPartonLevel();
+    doVetoProcess    = userHooksPtr->canVetoProcessLevel();
+    doVetoPartons    = userHooksPtr->canVetoPartonLevel();
+    retryPartonLevel = userHooksPtr->retryPartonLevel();
   }
 
   // Back to common initialization. Reset error counters. 
   nErrEvent = 0;
-  info.errorReset();
   info.setTooLowPTmin(false);
   info.sigmaReset();
 
@@ -469,7 +507,8 @@ bool Pythia::init() {
   doDiffraction    = settings.flag("SoftQCD:all") 
                   || settings.flag("SoftQCD:singleDiffractive") 
                   || settings.flag("SoftQCD:doubleDiffractive")
-                  || settings.flag("SoftQCD:centralDiffractive");
+                  || settings.flag("SoftQCD:centralDiffractive")
+                  || settings.flag("SoftQCD:inelastic");
   doResDec         = settings.flag("Standalone:allowResDec");
   doFSRinRes       = doPartonLevel && settings.flag("PartonLevel:FSR") 
                   && settings.flag("PartonLevel:FSRinResonances");
@@ -483,10 +522,9 @@ bool Pythia::init() {
   epTolErr         = settings.parm("Check:epTolErr");
   epTolWarn        = settings.parm("Check:epTolWarn");
 
-
   // Initialise merging hooks.
-  if (hasMergingHooks && doMerging )
-    mergingHooksPtr->init( settings, &info, &particleData );
+  if ( doMerging && (hasMergingHooks || hasOwnMergingHooks) )
+    mergingHooksPtr->init( settings, &info, &particleData, &partonSystems );
 
   // Initialize the random number generator.
   if ( settings.flag("Random:setSeed") )  
@@ -537,11 +575,11 @@ bool Pythia::init() {
 
   // Initialize showers, especially for simple showers in decays. 
   timesPtr->initPtr( &info, &settings, &particleData, &rndm, couplingsPtr, 
-    &partonSystems, userHooksPtr);
+    &partonSystems, userHooksPtr, mergingHooksPtr);
   timesDecPtr->initPtr( &info, &settings, &particleData, &rndm, couplingsPtr, 
-    &partonSystems, userHooksPtr);
+    &partonSystems, userHooksPtr, mergingHooksPtr);
   spacePtr->initPtr( &info, &settings, &particleData, &rndm,
-    &partonSystems, userHooksPtr);
+    &partonSystems, userHooksPtr, mergingHooksPtr);
   timesDecPtr->init( 0, 0);
 
   // Set up values related to beam shape.
@@ -620,8 +658,7 @@ bool Pythia::init() {
     &partonSystems, 0, timesDecPtr, 0, 0, &rHadrons, 0, 0, false);
 
   // Send info/pointers to parton level for trial shower initialization.
-  if ( doMerging
-    && !trialPartonLevel.init( &info, settings, &particleData, 
+  if ( doMerging && !trialPartonLevel.init( &info, settings, &particleData, 
       &rndm, &beamA, &beamB, &beamPomA, &beamPomB, couplingsPtr,
       &partonSystems, &sigmaTot, timesDecPtr, timesPtr, spacePtr, &rHadrons,
       NULL, mergingHooksPtr, true) ) {
@@ -629,6 +666,10 @@ bool Pythia::init() {
       "trialPartonLevel initialization failed");
     return false;
   }
+
+  // Initialise the merging wrapper class.
+  if (doMerging ) merging.init( &settings, &info, &particleData, &rndm,
+    &beamA, &beamB, mergingHooksPtr, &trialPartonLevel );
 
   // Send info/pointers to hadron level for initialization.
   // Note: forceHadronLevel() can come, so we must always initialize. 
@@ -813,10 +854,10 @@ bool Pythia::checkBeams() {
   }
 
   // Hadron-hadron collisions OK, with Pomeron counted as hadron.
-  bool isHadronA = (idAabs == 2212) || (idA == 111) || (idAabs == 211) 
-                || (idA == 990);
-  bool isHadronB = (idBabs == 2212) || (idA == 111)|| (idBabs == 211) 
-                || (idB == 990);
+  bool isHadronA = (idAabs == 2212) || (idAabs == 2112) || (idA == 111) 
+                || (idAabs == 211)  || (idA == 990);
+  bool isHadronB = (idBabs == 2212) || (idBabs == 2112) || (idB == 111)
+                || (idBabs == 211)  || (idB == 990);
   if (isHadronA && isHadronB) return true;
 
   // If no case above then failed.
@@ -993,6 +1034,9 @@ bool Pythia::initPDFs() {
 
 bool Pythia::next() {
 
+  // Check that constructor worked.
+  if (!isConstructed) return false;
+
   // Regularly print how many events have been generated.
   int nPrevious = info.getCounter(3);
   if (nCount > 0 && nPrevious > 0 && nPrevious%nCount == 0)
@@ -1052,9 +1096,10 @@ bool Pythia::next() {
 
   // Recalculate kinematics when beam momentum spread.
   if (doMomentumSpread) nextKinematics();
- 
+
   // Outer loop over hard processes; only relevant for user-set vetoes.
   for ( ; ; ) {
+
     info.addCounter(10);
     bool hasVetoed = false;
 
@@ -1076,18 +1121,21 @@ bool Pythia::next() {
     if (doVetoProcess) {
       hasVetoed = userHooksPtr->doVetoProcessLevel( process);
       if (hasVetoed) {
-        if (abortIfVeto) return false; 
+        if (abortIfVeto) return false;
         continue;
-      } 
+      }
     }
 
-    // Possibility to perform CKKW-L merging on this event.
-    if(doMerging) {
-      hasVetoed = mergeProcess();
-      if (hasVetoed) {
-        if (abortIfVeto) return false; 
+    // Possibility to perform matrix element merging for this event.
+    if (doMerging) {
+      int veto = merging.mergeProcess( process );
+      // Apply possible merging scale cut.
+      if ( veto == -1 ) {
+        hasVetoed = true;
+        if (abortIfVeto) return false;
         continue;
-      } 
+      // Exit because of vanishing no-emission probability. 
+      } else if ( veto == 0 ) break;
     }
 
     // Possibility to stop the generation at this stage.
@@ -1106,10 +1154,11 @@ bool Pythia::next() {
     int sizeMPI       = info.sizeMPIarrays();
     info.addCounter(12);
     for (int i = 14; i < 19; ++i) info.setCounter(i);
-  
+
     // Allow up to ten tries for parton- and hadron-level processing.
     bool physical   = true;
     for (int iTry = 0; iTry < NTRY; ++ iTry) {
+
       info.addCounter(14);
       physical = true;
 
@@ -1124,13 +1173,18 @@ bool Pythia::next() {
       beamPomA.clear();
       beamPomB.clear();
       partonSystems.clear();
-   
+
       // Parton-level evolution: ISR, FSR, MPI.
       if ( !partonLevel.next( process, event) ) {
-        // Skip to next hard process for failure owing to deliberate veto.
+        // Skip to next hard process for failure owing to deliberate veto,
+        // or alternatively retry for the same hard process.
         hasVetoed = partonLevel.hasVetoed(); 
         if (hasVetoed) {
-          if (abortIfVeto) return false; 
+          if (retryPartonLevel) {
+            --iTry;
+            continue;
+          }
+          if (abortIfVeto) return false;
           break;
         } 
         // Else make a new try for other failures.
@@ -1157,7 +1211,6 @@ bool Pythia::next() {
       if (!doHadronLevel) {
         processLevel.accumulate();
         partonLevel.accumulate();
-
         // Optionally check final event for problems.
         if (checkEvent && !check()) {
           info.errorMsg("Abort from Pythia::next: "
@@ -1281,7 +1334,7 @@ bool Pythia::forceHadronLevel(bool findJunctions) {
           partonLevel.resonanceShowers( process, event, false);
         } else event = process;
       }
-    }    
+    }
 
     // Hadron-level: hadronization, decays.
     if (hadronLevel.next( event)) break;
@@ -1430,13 +1483,8 @@ void Pythia::stat() {
   if (showPaL) partonLevel.statistics(false);  
   if (reset)   partonLevel.resetStatistics();   
 
-  // Warning if significant part of events considerably above the
-  // merging scale value.
-  if (hasMergingHooks && doMerging && mergingHooksPtr->stats() ) {
-    string message="Warning in MergingHooks::stats: Most LH";
-    message+=" Events significantly above Merging:TMS cut. Please check.";
-    info.errorMsg(message);
-  }
+  // Merging statistics.
+  if (doMerging) merging.statistics();
 
   // Summary of which and how many warnings/errors encountered.
   if (showErr) info.errorStatistics();
@@ -1456,13 +1504,8 @@ void Pythia::statistics(bool all, bool reset) {
   // Statistics from other classes, e.g. multiparton interactions.
   if (all) partonLevel.statistics(reset);  
 
-  // Warning if significant part of events considerably above the
-  // merging scale value.
-  if (hasMergingHooks && doMerging && mergingHooksPtr->stats() ) {
-    string message="Warning in MergingHooks::stats: Most LH";
-    message+=" Events significantly above Merging:TMS cut. Please check.";
-    info.errorMsg(message);
-  }
+  // Merging statistics.
+  if (doMerging) merging.statistics();
 
   // Summary of which and how many warnings/errors encountered.
   info.errorStatistics();
@@ -1521,17 +1564,17 @@ void Pythia::banner(ostream& os) {
      << "E-223 62 Lund, Sweden;                |  | \n"
      << " |  |      phone: + 46 - 46 - 222 48 16; e-ma"
      << "il: torbjorn@thep.lu.se               |  | \n"
-     << " |  |   Stefan Ask;  Department of Physics, U"
-     << "niversity of Cambridge,               |  | \n"
-     << " |  |      Cavendish Laboratory, JJ Thomson A"
-     << "ve., Cambridge CB3 0HE, UK;           |  | \n"
-     << " |  |      phone: + 41 - 22 - 767 6707; e-mai"
-     << "l: Stefan.Ask@cern.ch                 |  | \n"
-     << " |  |   Richard Corke;  Niels Bohr Institute," 
-     << " University of Copenhagen,            |  | \n"
-     << " |  |      Blegdamsvej 17, 2100 Copenhagen, D"
-     << "enmark;                               |  | \n"
-     << " |  |      e-mail: richard.corke@thep.lu.se  "
+     << " |  |   Jesper Roy Christiansen;  Department " 
+     << "of Astronomy and Theoretical Physics  |  | \n"
+     << " |  |      Lund University, Solvegatan 14A, S"
+     << "E-223 62 Lund, Sweden;                |  | \n"
+     << " |  |      e-mail: Jesper.Roy.Christiansen@th"
+     << "ep.lu.se                              |  | \n"
+     << " |  |   Philip Ilten;  School of Physics, Uni" 
+     << "iversity College Dublin,              |  | \n"
+     << " |  |      Belfield, Dublin 4, Ireland;      "
+     << "                                      |  | \n"
+     << " |  |      e-mail: philten@cern.ch           "
      << "                                      |  | \n"
      << " |  |   Stephen Mrenna;  Computing Division, "
      << "Simulations Group,                    |  | \n"
@@ -1549,6 +1592,10 @@ void Pythia::banner(ostream& os) {
      << "ERN, CH-1211 Geneva 23, Switzerland;  |  | \n"
      << " |  |      phone: + 41 - 22 - 767 2447; e-mai"
      << "l: peter.skands@cern.ch               |  | \n"
+     << " |  |   Stefan Ask; former author; e-mail: as"
+     << "k.stefan@gmail.com                    |  | \n"
+     << " |  |   Richard Corke; former author; e-mail:"
+     << " r.corke@errno.net                    |  | \n"
      << " |  |                                        " 
      << "                                      |  | \n"
      << " |  |   The main program reference is the 'Br"
@@ -1583,7 +1630,7 @@ void Pythia::banner(ostream& os) {
      << " when interpreting results.           |  | \n"
      << " |  |                                        "
      << "                                      |  | \n"
-     << " |  |   Copyright (C) 2012 Torbjorn Sjostrand" 
+     << " |  |   Copyright (C) 2013 Torbjorn Sjostrand" 
      << "                                      |  | \n"
      << " |  |                                        "
      << "                                      |  | \n"
@@ -1631,9 +1678,9 @@ int Pythia::readSubrun(string line, bool warn, ostream& os) {
     name.replace(firstColonColon, 2, ":");   
   }
 
+
   // Convert to lowercase.
-  for (int i = 0; i < int(name.length()); ++i) 
-    name[i] = std::tolower(name[i]); 
+  for (int i = 0; i < int(name.length()); ++i) name[i] = tolower(name[i]); 
 
   // If no match then done.
   if (name != "main:subrun") return subrunLine; 
@@ -1796,7 +1843,7 @@ bool Pythia::check(ostream& os) {
     for (int i = 0; i < event.size(); ++i) {
       int status = event[i].status();
       if (abs(status) == 12) hasBeams = true;
- 
+
       // Check that mother and daughter lists not empty where not expected to.
       vector<int> mList = event.motherList(i);
       vector<int> dList = event.daughterList(i);
@@ -1933,8 +1980,8 @@ PDF* Pythia::getPDFPtr(int idIn, int sequence) {
   // One option is to treat a Pomeron like a pi0.
   if (idIn == 990 && settings.mode("PDF:PomSet") == 2) idIn = 111;
 
-  // Proton beam, normal choice.
-  if (abs(idIn) == 2212 && sequence == 1) {
+  // Proton beam, normal choice. Also used for neutron.
+  if ((abs(idIn) == 2212 || abs(idIn) == 2112) && sequence == 1) {
     int  pSet      = settings.mode("PDF:pSet");
     bool useLHAPDF = settings.flag("PDF:useLHAPDF");
 
@@ -1951,15 +1998,17 @@ PDF* Pythia::getPDFPtr(int idIn, int sequence) {
     else {
       string LHAPDFset    = settings.word("PDF:LHAPDFset");
       int    LHAPDFmember = settings.mode("PDF:LHAPDFmember");
-      tempPDFPtr = new LHAPDF(idIn, LHAPDFset, LHAPDFmember, 1, &info);
+      int nSet = LHAPDF::findNSet(LHAPDFset, LHAPDFmember);
+      if (nSet == -1) nSet = LHAPDF::freeNSet();
+      tempPDFPtr = new LHAPDF(idIn, LHAPDFset, LHAPDFmember, nSet, &info);
 
       // Optionally allow extrapolation beyond x and Q2 limits.
       tempPDFPtr->setExtrapolate( settings.flag("PDF:extrapolateLHAPDF") );
     }
   }
 
-  // Proton beam, special choice for the hard process.
-  else if (abs(idIn) == 2212) {
+  // Proton beam, special choice for the hard process. Also neutron.
+  else if (abs(idIn) == 2212 || abs(idIn) == 2112) {
     int  pSet      = settings.mode("PDF:pHardSet");
     bool useLHAPDF = settings.flag("PDF:useHardLHAPDF");
 
@@ -1976,8 +2025,8 @@ PDF* Pythia::getPDFPtr(int idIn, int sequence) {
     else {
       string LHAPDFset    = settings.word("PDF:hardLHAPDFset");
       int    LHAPDFmember = settings.mode("PDF:hardLHAPDFmember");
-      // May need to require LHAPDF to handle two sets simultaneously.
-     int nSet = (settings.flag("PDF:useLHAPDF")) ? 2 : 1;  
+      int nSet = LHAPDF::findNSet(LHAPDFset, LHAPDFmember);
+      if (nSet == -1) nSet = LHAPDF::freeNSet();
       tempPDFPtr = new LHAPDF(idIn, LHAPDFset, LHAPDFmember, nSet, &info);
  
      // Optionally allow extrapolation beyond x and Q2 limits.
@@ -2105,7 +2154,7 @@ bool Pythia::initSLHA() {
   if (ifailSpc == 1) {
     // no SUSY, but MASS ok
     couplingsPtr->isSUSY = false;
-    info.errorMsg("Warning in Pythia::initSLHA: "
+    info.errorMsg("Info from Pythia::initSLHA: "
 		  "No MODSEL found, keeping internal SUSY switched off");    
   } else if (ifailSpc >= 2) {
     // no SUSY, but problems    
@@ -2158,8 +2207,7 @@ bool Pythia::initSLHA() {
 	antiName = "-"+name;	
 	if (iQnum < int(slha.qnumbersName.size())) {
 	  name = slha.qnumbersName[iQnum];
-	  if (iQnum < int(slha.qnumbersAntiName.size())) 
-	    antiName = slha.qnumbersAntiName[iQnum];
+	  antiName = slha.qnumbersAntiName[iQnum];
 	  if (antiName == "") {
 	    if (name.find("+") != string::npos) {
 	      antiName = name;
@@ -2170,7 +2218,7 @@ bool Pythia::initSLHA() {
 	    } else {
 	      antiName = name+"bar";
 	    }
-	  }
+	  } 
 	}
 	if ( hasAnti == 0) {
 	  antiName = "";
@@ -2183,9 +2231,10 @@ bool Pythia::initSLHA() {
   }
 
   // Import mass spectrum.
-  bool   keepSM     = settings.flag("SLHA:keepSM");
-  double minMassSM  = settings.parm("SLHA:minMassSM");
-  double massMargin = settings.parm("SLHA:minDecayDeltaM");
+  bool   keepSM            = settings.flag("SLHA:keepSM");
+  double minMassSM         = settings.parm("SLHA:minMassSM");
+  double massMargin        = settings.parm("SLHA:minDecayDeltaM");
+  bool   allowUserOverride = settings.flag("SLHA:allowUserOverride");
   if (ifailSpc == 1 || ifailSpc == 0) {
 
     // Loop through to update particle data.
@@ -2203,6 +2252,17 @@ bool Pythia::initSLHA() {
 	  "ignoring MASS entry", "for id = "+idCode.str()
 	  +" (m0 < SLHA:minMassSM)", true);
       } 
+
+      // Also ignore SLHA mass values if user has already set 
+      // a different value and is allowed to override them. 
+      else if (allowUserOverride && particleData.hasChanged(id)) {
+	ostringstream idCode;
+	idCode << id;      
+	ostringstream mValue;
+	mValue << particleData.m0(id);
+	info.errorMsg("Warning in Pythia::initSLHA: keeping user mass",
+	  "for id = " + idCode.str() + ", m0 = " + mValue.str(), true);
+      }
       else particleData.m0(id,mass);
       id = slha.mass.next();
     };
@@ -2313,128 +2373,6 @@ bool Pythia::initSLHA() {
   
   return true;
   
-}
-
-//--------------------------------------------------------------------------
-
-// Function to perform CKKW-L merging on the input event.
-
-bool Pythia::mergeProcess() {
-
-  // Reset weight of the event.
-  mergingHooksPtr->setWeightCKKWL(1.);
-  info.setWeightCKKWL(1.);
-  double wgt = 1.0;
-
-  // Store candidates for the splitting V -> qqbar'.
-  mergingHooksPtr->storeHardProcessCandidates( process);
-
-  // Calculate number of clustering steps.
-  int nSteps   = mergingHooksPtr->getNumberOfClusteringSteps( process);
-
-  // Check if event passes the merging scale cut.
-  double tms   = mergingHooksPtr->tms();
-  // Get merging scale in current event.
-  double tnow  = 0.;
-  // Use KT/Durham merging scale definition.
-  if ( mergingHooksPtr->doKTMerging() || mergingHooksPtr->doMGMerging() )
-    tnow       = mergingHooksPtr->kTms( process );
-  // Use Lund PT merging scale definition.
-  else if ( mergingHooksPtr->doPTLundMerging() )
-    tnow       = mergingHooksPtr->rhoms( process, false );
-   // Use DeltaR_{ij}, pT_i, Q_{ij} combination merging scale definition.
-  else if ( mergingHooksPtr->doCutBasedMerging() )
-    tnow       = mergingHooksPtr->cutbasedms( process );
-  // Use user-defined merging scale.
-  else
-    tnow       = mergingHooksPtr->tmsDefinition( process );
-
-  bool enforceCutOnLHE  = settings.flag("Merging:enforceCutOnLHE");
-  // Enfore merging scale cut if the event did not pass the merging scale
-  // criterion.
-  if ( enforceCutOnLHE && nSteps > 0 && tnow < tms ) {
-    string message="Warning in Pythia::mergeProcess: Les Houches Event";
-    message+=" fails merging scale cut. Cut by rejecting event.";
-    info.errorMsg(message);
-    return true;
-  }
-
-  double TMSMISMATCHPOS = tms / 2. ;
-  // Remember if event is significantly above the merging scale.
-  if ( enforceCutOnLHE && nSteps > 0 && tms > 0. 
-    && tnow > tms && (tnow-tms > TMSMISMATCHPOS) ) {
-    stringstream tmsmis;
-    tmsmis << int(TMSMISMATCHPOS);
-    string message="Warning in Pythia::mergeProcess: Les Houches event";
-    message+=" more than ";
-    message+=tmsmis.str();
-    message+=" GeV above desired merging scale value.";
-    info.errorMsg(message);
-    info.addCounter(41);
-  }
-
-  // For now, prefer construction of ordered histories.
-  mergingHooksPtr->orderHistories(true);
-
-  // Declare pdfWeight and alpha_s weight.
-  double RN = rndm.flat();
-
-  process.scale(0.0);
-  // Generate all histories.
-  History FullHistory( nSteps, 0.0, process, Clustering(), mergingHooksPtr,
-            beamA, beamB, &particleData, &info, true, true, true, true,
-            1.0, 0);
-
-  // Project histories onto desired branches, e.g. only ordered paths.
-  FullHistory.projectOntoDesiredHistories();
-
-  // Calculate CKKWL weight:
-  // Perform reweighting with Sudakov factors, save alpha_s ratios and
-  // PDF ratio weights.
-  wgt = FullHistory.weightTREE( &trialPartonLevel,
-      mergingHooksPtr->AlphaS_FSR(), mergingHooksPtr->AlphaS_ISR(), RN);
-
-  // Event with production scales set for further (trial) showering
-  // and starting conditions for the shower.
-  FullHistory.getStartingConditions( RN, process );
-
-  // Allow to dampen histories in which the lowest multiplicity reclustered
-  // state does not pass the lowest multiplicity cut of the matrix element.
-  double dampWeight = mergingHooksPtr->dampenIfFailCuts(
-    FullHistory.lowestMultProc(RN) );
-
-  // Save the weight of the event for histogramming. Only change the
-  // event weight after trial shower on the matrix element
-  // multiplicity event (= in doVetoStep).
-  wgt *= dampWeight;
-
-  // Set QCD 2->2 starting scale different from arbitrary scale in LHEF!
-  // --> Set to minimal mT of partons.
-  int nFinal = 0;
-  double muf = process[0].e();
-  for ( int i=0; i < process.size(); ++i )
-  if ( process[i].isFinal()
-    && (process[i].colType() != 0 || process[i].id() == 22 ) ) {
-    nFinal++;
-    muf = min( muf, abs(process[i].mT()) );
-  }
-  // For pure QCD dijet events (only!), set the process scale to the
-  // transverse momentum of the outgoing partons.
-  if ( nSteps == 0 && nFinal == 2
-    && ( mergingHooksPtr->getProcessString().compare("pp>jj") == 0
-      || mergingHooksPtr->getProcessString().compare("pp>aj") == 0) )
-    process.scale(muf);
-
-  // Save the weight of the event for histogramming.
-  mergingHooksPtr->setWeightCKKWL(wgt);
-  info.setWeightCKKWL(wgt);
-
-  // If the weight of the event is zero, do not continue evolution.
-  if(wgt == 0.) return true;
-
-  // Done
-  return false;
-
 }
 
 //==========================================================================

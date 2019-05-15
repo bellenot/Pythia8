@@ -1,9 +1,9 @@
 // SigmaExtraDim.h is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
-// Copyright (C) 2012 Stefan Ask for the *LED* routines.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
  
+// Author: Stefan Ask for the *LED* routines.
 // Header file for extra-dimensional-process differential cross sections.
 // Contains classes derived from SigmaProcess via Sigma(1/2)Process.
  
@@ -953,7 +953,7 @@ public:
   virtual void setIdColAcol();
 
   // Info on the subprocess.
-  virtual string name()   const {return "q qbar -> (LED G*) -> q' qbar' (uds)";}
+  virtual string name()  const {return "q qbar -> (LED G*) -> q' qbar' (uds)";}
   virtual int    code()   const {return 5035;}
   virtual string inFlux() const {return "qqbarSame";}
 

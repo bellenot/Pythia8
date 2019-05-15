@@ -30,8 +30,8 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 <h2>Leptoquark Processes</h2>
 
 Leptoquarks arise in many scenarios, and can have widely different
-characteristics, with respect to spin, isospin amd flavour.
-The current implentation in no sense attempts to exhaust these 
+characteristics, with respect to spin, isospin am d flavour.
+The current implementation in no sense attempts to exhaust these 
 possibilities, but only to encode one of the simplest possibilities,
 with a single scalar leptoquark, denoted <i>LQ</i> and assigned PDG
 code 42. The leptoquark is assumed to carry specific quark 
@@ -58,7 +58,7 @@ flavours are displayed.
 <p/>
 The leptoquark is likely to be fairly long-lived, in which case it 
 could have time to fragment into a mesonic- or baryonic-type state, which 
-would decay later on. Currently this posibility is not handled; therefore 
+would decay later on. Currently this possibility is not handled; therefore 
 the leptoquark is always assumed to decay before fragmentation. 
 For that reason the leptoquark can also not be put stable.
 
@@ -167,5 +167,5 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->
 

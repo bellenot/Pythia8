@@ -660,7 +660,7 @@ input, or for a set of particles, with an input vector of identity codes.
   
 <strong>void ParticleData::checkTable(int verbosity,ostream& os = cout) &nbsp;</strong> <br/>
 check that the particle decay table makes sense, especially for decays.
-<br/><code>argument</code><strong> verbosity </strong>  :  level of checks. 0 is only mininal,
+<br/><code>argument</code><strong> verbosity </strong>  :  level of checks. 0 is only minimal,
 e.g. if a particle has no open decay channels. 1, which is the level
 of the first method, provides warning if any individual channel is 
 closed, except for resonances. 2 also prints the 
@@ -673,7 +673,7 @@ but also include resonances in the detailed checks.
 <p/><strong>void ParticleData::addParticle(int id, string name = &quot; &quot;, int spinType = 0, int chargeType = 0, int colType = 0, double m0 = 0., double mWidth = 0., double mMin = 0., double mMax = 0., double tau0 = 0.) &nbsp;</strong> <br/>
   
 <strong>void ParticleData::addParticle(int id, string name, string antiName, int spinType = 0, int chargeType = 0, int colType = 0, double m0 = 0., double mWidth = 0., double mMin = 0., double mMax = 0., double tau0 = 0.) &nbsp;</strong> <br/>
-add a particle to the decay table; in the first form a partcle which is 
+add a particle to the decay table; in the first form a particle which is 
 its own antiparticle, in the second where a separate antiparticle exists.
   
 
@@ -1061,7 +1061,7 @@ set values begin with <code>set</code>.
 <strong>ParticleDataEntry::ParticleDataEntry(int id, string name, string antiName, int spinType = 0, int chargeType = 0, int colType = 0, double m0 = 0., double mWidth = 0., double mMin = 0., double mMax = 0., double tau0 = 0.) &nbsp;</strong> <br/>
 there are two alternative constructors, that both expect the
 properties of a particle as input. The first assumes that there
-is only one particle, thet latter that there is a 
+is only one particle, the latter that there is a 
 particle-antiparticle pair (but if the antiparticle name is
 <code>void</code> one reverts back to the particle-only case).
   
@@ -1567,7 +1567,7 @@ switches and dynamic width for resonances. For internal use.
   
 <strong>double DecayChannel::onShellWidth() &nbsp;</strong> <br/>
 set or get the current partial width of the channel; intended for
-resonances where the widhts are recalculated based on the current
+resonances where the widths are recalculated based on the current
 resonance mass. For internal use.
   
 
@@ -1587,4 +1587,4 @@ positive and negative particles. For internal use.
 </body>
 </html>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->

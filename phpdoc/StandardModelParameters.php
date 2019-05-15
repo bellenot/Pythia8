@@ -73,7 +73,7 @@ The <code>AlphaEM</code> class is used to generate a running
 value at the <i>M_Z</i> mass is matched to a low-energy behaviour
 with running starting at the electron mass threshold. The matching
 is done by fitting an effective running coefficient in the region
-betweeen the light-quark treshold and the charm/tau threshold. This
+between the light-quark threshold and the charm/tau threshold. This
 procedure is approximate, but good enough for our purposes. 
 
 <p/>
@@ -428,4 +428,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->

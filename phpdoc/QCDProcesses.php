@@ -33,7 +33,7 @@ This section is subdivided into soft and hard QCD processes, with
 open charm and bottom production set aside as a special part of the
 latter, and three-jet topologies as a special subset. Kindly note 
 that there is a considerable amount of overlap between the soft and
-hard process classes, so that you are likely to doublecount 
+hard process classes, so that you are likely to double-count 
 if you include both in a run.
 
 <h3>Soft QCD processes</h3>
@@ -50,7 +50,7 @@ We here use the "minimum bias" expression as a shorthand for
 inelastic, nondiffractive events. Strictly speaking, "minimum bias" 
 represents an experimental procedure of accepting "everything", with 
 some non-universal cuts to exclude elastic and diffractive topologies. 
-In practice, the experimental mimimum-bias sample may then contain
+In practice, the experimental minimum-bias sample may then contain
 some contamination of what is in PYTHIA classified as diffractive,
 especially (high-mass) double diffractive. 
 
@@ -72,7 +72,7 @@ as listed separately in the following.
 Minimum-bias events, based on an <?php $filepath = $_GET["filepath"];
 echo "<a href='MultipartonInteractions.php?filepath=".$filepath."' target='page'>";?>
 eikonalized description</a> of all the hard QCD processes, so 
-includes them in combinationation with low-<i>pT</i> events. 
+includes them in combination with low-<i>pT</i> events. 
 Code 101.<br/>
 Since the current description is handled by the multiparton-interactions 
 machinery as part of the parton-level processing, no hard process at 
@@ -82,7 +82,6 @@ Fortunately, in this case a special
 echo "<a href='EventInformation.php?filepath=".$filepath."' target='page'>";?>codeSub()</a></code> 
 method provides information on the first, i.e. hardest, subprocess 
 selected by the multiparton-interactions machinery.
-
   
 
 <br/><br/><strong>SoftQCD:elastic</strong>  <input type="radio" name="3" value="on"><strong>On</strong>
@@ -127,6 +126,13 @@ be reset to on after the selection of a tune (even the default one).
 Code 106.
   
 
+<br/><br/><strong>SoftQCD:inelastic</strong>  <input type="radio" name="7" value="on"><strong>On</strong>
+<input type="radio" name="7" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+All of the above processes, except for elastic. Codes 101,
+103, 104, 105 and 106.
+  
+
 <h3>Hard QCD processes</h3>
 
 This group contains the processes for QCD jet production above
@@ -142,39 +148,39 @@ specifically in <code>SoftQCD:minBias</code> above.
 processes; there is no sensible default.
 <br/><b>Warning 2</b>: you <b>must not</b> mix processes from the 
 <code>SoftQCD</code> and <code>HardQCD</code> process groups, since
-this is likely to lead to doublecounting. 
+this is likely to lead to double-counting. 
   
-<br/><br/><strong>HardQCD:all</strong>  <input type="radio" name="7" value="on"><strong>On</strong>
-<input type="radio" name="7" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>HardQCD:all</strong>  <input type="radio" name="8" value="on"><strong>On</strong>
+<input type="radio" name="8" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Common switch for the group of all hard QCD processes, 
 as listed separately in the following.
   
 
-<br/><br/><strong>HardQCD:gg2gg</strong>  <input type="radio" name="8" value="on"><strong>On</strong>
-<input type="radio" name="8" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>HardQCD:gg2gg</strong>  <input type="radio" name="9" value="on"><strong>On</strong>
+<input type="radio" name="9" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>g g -> g g</i>.
 Code 111.
   
 
-<br/><br/><strong>HardQCD:gg2qqbar</strong>  <input type="radio" name="9" value="on"><strong>On</strong>
-<input type="radio" name="9" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>HardQCD:gg2qqbar</strong>  <input type="radio" name="10" value="on"><strong>On</strong>
+<input type="radio" name="10" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>g g -> q qbar</i>, where <i>q</i> by default
 is a light quark (<i>u, d, s</i>) (see below).
 Code 112.
   
 
-<br/><br/><strong>HardQCD:qg2qg</strong>  <input type="radio" name="10" value="on"><strong>On</strong>
-<input type="radio" name="10" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>HardQCD:qg2qg</strong>  <input type="radio" name="11" value="on"><strong>On</strong>
+<input type="radio" name="11" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>q g -> q g</i> and <i>qbar g -> qbar g</i>.
 Code 113.
   
 
-<br/><br/><strong>HardQCD:qq2qq</strong>  <input type="radio" name="11" value="on"><strong>On</strong>
-<input type="radio" name="11" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>HardQCD:qq2qq</strong>  <input type="radio" name="12" value="on"><strong>On</strong>
+<input type="radio" name="12" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>q q' -> q q'</i>, <i>q qbar' -> q qbar'</i>, 
 <i>qbar qbar' -> qbar qbar'</i>, where <i>q'</i> and <i>q</i> 
@@ -182,29 +188,29 @@ may agree, but the outgoing flavours equals the incoming ones
 Code 114.
   
 
-<br/><br/><strong>HardQCD:qqbar2gg</strong>  <input type="radio" name="12" value="on"><strong>On</strong>
-<input type="radio" name="12" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>HardQCD:qqbar2gg</strong>  <input type="radio" name="13" value="on"><strong>On</strong>
+<input type="radio" name="13" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>q qbar -> g g</i>. 
 Code 115.
   
 
-<br/><br/><strong>HardQCD:qqbar2qqbarNew</strong>  <input type="radio" name="13" value="on"><strong>On</strong>
-<input type="radio" name="13" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>HardQCD:qqbar2qqbarNew</strong>  <input type="radio" name="14" value="on"><strong>On</strong>
+<input type="radio" name="14" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>q qbar -> q' qbar'</i>, where <i>q'</i> 
 by default is a light quark (<i>u, d, s</i>) (see below). 
 Code 116.
   
 
-<br/><br/><table><tr><td><strong>HardQCD:nQuarkNew  </td><td></td><td> <input type="text" name="14" value="3" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>3</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>HardQCD:nQuarkNew  </td><td></td><td> <input type="text" name="15" value="3" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>3</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
 Number of allowed outgoing new quark flavours in the above 
 <i>g g -> q qbar</i> and <i>q qbar -> q' qbar'</i> processes, 
 where quarks are treated as massless in the matrix-element expressions 
 (but correctly in the phase space). It is thus assumed that <i>c cbar</i> 
 and <i>b bbar</i> are added separately with masses taken into account,
 using the processes below. A change to 4 would also include <i>c cbar</i> 
-in the massless approximation, etc. In order to avoid doublecounting
+in the massless approximation, etc. In order to avoid double-counting
 the processes below should then not be used simultaneously.
   
 
@@ -223,32 +229,46 @@ and shower branchings provide major additional sources. All these sources
 come together in the descriptions offered by <code>SoftQCD:minBias</code>
 and <code>HardQCD:all</code>.
 
-<br/><br/><strong>HardQCD:gg2ccbar</strong>  <input type="radio" name="15" value="on"><strong>On</strong>
-<input type="radio" name="15" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>HardQCD:gg2ccbar</strong>  <input type="radio" name="16" value="on"><strong>On</strong>
+<input type="radio" name="16" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>g g -> c cbar</i>. 
 Code 121.
   
 
-<br/><br/><strong>HardQCD:qqbar2ccbar</strong>  <input type="radio" name="16" value="on"><strong>On</strong>
-<input type="radio" name="16" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>HardQCD:qqbar2ccbar</strong>  <input type="radio" name="17" value="on"><strong>On</strong>
+<input type="radio" name="17" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>q qbar -> c cbar</i>. 
 Code 122.
   
 
-<br/><br/><strong>HardQCD:gg2bbbar</strong>  <input type="radio" name="17" value="on"><strong>On</strong>
-<input type="radio" name="17" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>HardQCD:hardccbar</strong>  <input type="radio" name="18" value="on"><strong>On</strong>
+<input type="radio" name="18" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Sum of the previous two event types.
+Codes 121 and 122.
+  
+
+<br/><br/><strong>HardQCD:gg2bbbar</strong>  <input type="radio" name="19" value="on"><strong>On</strong>
+<input type="radio" name="19" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>g g -> b bbar</i>. 
 Code 123.
   
 
-<br/><br/><strong>HardQCD:qqbar2bbbar</strong>  <input type="radio" name="18" value="on"><strong>On</strong>
-<input type="radio" name="18" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>HardQCD:qqbar2bbbar</strong>  <input type="radio" name="20" value="on"><strong>On</strong>
+<input type="radio" name="20" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>q qbar -> b bbar</i>. 
 Code 124.
+  
+
+<br/><br/><strong>HardQCD:hardbbbar</strong>  <input type="radio" name="21" value="on"><strong>On</strong>
+<input type="radio" name="21" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Sum of the previous two event types.
+Codes 123 and 124.
   
 
 <h3>Hard QCD three-parton processes</h3>
@@ -261,50 +281,50 @@ final states, which is what this set of processes allows.
 Cross sections have been taken from [<a href="Bibliography.php" target="page">Ber81</a>].
 <br/>Note that the processes in this section are  <it>not</it> 
 affected by the <code>HardQCD:all</code> switch. In fact, it would 
-be doublecounting to include both the <code>HardQCD:all</code> and 
+be double-counting to include both the <code>HardQCD:all</code> and 
 the <code>HardQCD:3parton</code> processes in a run or study.
 <br/><b>Warning:</b> this section is still incomplete, e.g. the 
 selection of colour flow is very simple, and so it should only
 be used with caution. 
   
-<br/><br/><strong>HardQCD:3parton</strong>  <input type="radio" name="19" value="on"><strong>On</strong>
-<input type="radio" name="19" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>HardQCD:3parton</strong>  <input type="radio" name="22" value="on"><strong>On</strong>
+<input type="radio" name="22" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Common switch for the group of all hard QCD processes with three
 partons in the final state, as listed separately in the following.
   
 
-<br/><br/><strong>HardQCD:gg2ggg</strong>  <input type="radio" name="20" value="on"><strong>On</strong>
-<input type="radio" name="20" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>HardQCD:gg2ggg</strong>  <input type="radio" name="23" value="on"><strong>On</strong>
+<input type="radio" name="23" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>g g -> g g g</i>. 
 Code 131.
   
 
-<br/><br/><strong>HardQCD:qqbar2ggg</strong>  <input type="radio" name="21" value="on"><strong>On</strong>
-<input type="radio" name="21" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>HardQCD:qqbar2ggg</strong>  <input type="radio" name="24" value="on"><strong>On</strong>
+<input type="radio" name="24" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>q qbar -> g g g</i>. 
 Code 132.
   
 
-<br/><br/><strong>HardQCD:qg2qgg</strong>  <input type="radio" name="22" value="on"><strong>On</strong>
-<input type="radio" name="22" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>HardQCD:qg2qgg</strong>  <input type="radio" name="25" value="on"><strong>On</strong>
+<input type="radio" name="25" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>q g -> q g g</i> and <i>qbar g -> qbar g g</i>.
 Code 133.
   
 
-<br/><br/><strong>HardQCD:qq2qqgDiff</strong>  <input type="radio" name="23" value="on"><strong>On</strong>
-<input type="radio" name="23" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>HardQCD:qq2qqgDiff</strong>  <input type="radio" name="26" value="on"><strong>On</strong>
+<input type="radio" name="26" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>q q' -> q q' g</i>, <i>q qbar' -> q qbar' g</i>, 
 and <i>qbar qbar' -> qbar qbar' g</i>.
 Code 134.
   
 
-<br/><br/><strong>HardQCD:qq2qqgSame</strong>  <input type="radio" name="24" value="on"><strong>On</strong>
-<input type="radio" name="24" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>HardQCD:qq2qqgSame</strong>  <input type="radio" name="27" value="on"><strong>On</strong>
+<input type="radio" name="27" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>q q -> q q g</i> and
 <i>qbar qbar -> qbar qbar g</i>
@@ -313,8 +333,8 @@ below, see <code>HardQCD:qqbar2qqbargSame</code>).
 Code 135.
   
 
-<br/><br/><strong>HardQCD:qqbar2qqbargDiff</strong>  <input type="radio" name="25" value="on"><strong>On</strong>
-<input type="radio" name="25" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>HardQCD:qqbar2qqbargDiff</strong>  <input type="radio" name="28" value="on"><strong>On</strong>
+<input type="radio" name="28" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>q qbar -> q' qbar' g</i>, where <i>q'</i> 
 by default is a light quark (<i>u, d, s</i>)
@@ -322,15 +342,15 @@ by default is a light quark (<i>u, d, s</i>)
 Code 136.
   
 
-<br/><br/><strong>HardQCD:qqbar2qqbargSame</strong>  <input type="radio" name="26" value="on"><strong>On</strong>
-<input type="radio" name="26" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>HardQCD:qqbar2qqbargSame</strong>  <input type="radio" name="29" value="on"><strong>On</strong>
+<input type="radio" name="29" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>q qbar -> q qbar g</i>.
 Code 137.
   
 
-<br/><br/><strong>HardQCD:gg2qqbarg</strong>  <input type="radio" name="27" value="on"><strong>On</strong>
-<input type="radio" name="27" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>HardQCD:gg2qqbarg</strong>  <input type="radio" name="30" value="on"><strong>On</strong>
+<input type="radio" name="30" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>g g -> q qbar g</i>, where <i>q</i> by
 default is a light quark (<i>u, d, s</i>)
@@ -338,8 +358,8 @@ default is a light quark (<i>u, d, s</i>)
 Code 138.
   
 
-<br/><br/><strong>HardQCD:qg2qqqbarDiff</strong>  <input type="radio" name="28" value="on"><strong>On</strong>
-<input type="radio" name="28" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>HardQCD:qg2qqqbarDiff</strong>  <input type="radio" name="31" value="on"><strong>On</strong>
+<input type="radio" name="31" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>q g -> q q' qbar'</i> and
 <i>qbar g -> qbar qbar' q'</i>, where <i>q'</i>
@@ -348,8 +368,8 @@ by default is a light quark (<i>u, d, s</i>)
 Code 139.
   
 
-<br/><br/><strong>HardQCD:qg2qqqbarSame</strong>  <input type="radio" name="29" value="on"><strong>On</strong>
-<input type="radio" name="29" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>HardQCD:qg2qqqbarSame</strong>  <input type="radio" name="32" value="on"><strong>On</strong>
+<input type="radio" name="32" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>q g -> q q qbar</i> and
 <i>qbar g -> qbar qbar q</i>.
@@ -404,117 +424,132 @@ fwrite($handle,$data);
 }
 if($_POST["7"] != "off")
 {
-$data = "HardQCD:all = ".$_POST["7"]."\n";
+$data = "SoftQCD:inelastic = ".$_POST["7"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["8"] != "off")
 {
-$data = "HardQCD:gg2gg = ".$_POST["8"]."\n";
+$data = "HardQCD:all = ".$_POST["8"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["9"] != "off")
 {
-$data = "HardQCD:gg2qqbar = ".$_POST["9"]."\n";
+$data = "HardQCD:gg2gg = ".$_POST["9"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["10"] != "off")
 {
-$data = "HardQCD:qg2qg = ".$_POST["10"]."\n";
+$data = "HardQCD:gg2qqbar = ".$_POST["10"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["11"] != "off")
 {
-$data = "HardQCD:qq2qq = ".$_POST["11"]."\n";
+$data = "HardQCD:qg2qg = ".$_POST["11"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["12"] != "off")
 {
-$data = "HardQCD:qqbar2gg = ".$_POST["12"]."\n";
+$data = "HardQCD:qq2qq = ".$_POST["12"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["13"] != "off")
 {
-$data = "HardQCD:qqbar2qqbarNew = ".$_POST["13"]."\n";
+$data = "HardQCD:qqbar2gg = ".$_POST["13"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["14"] != "3")
+if($_POST["14"] != "off")
 {
-$data = "HardQCD:nQuarkNew = ".$_POST["14"]."\n";
+$data = "HardQCD:qqbar2qqbarNew = ".$_POST["14"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["15"] != "off")
+if($_POST["15"] != "3")
 {
-$data = "HardQCD:gg2ccbar = ".$_POST["15"]."\n";
+$data = "HardQCD:nQuarkNew = ".$_POST["15"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["16"] != "off")
 {
-$data = "HardQCD:qqbar2ccbar = ".$_POST["16"]."\n";
+$data = "HardQCD:gg2ccbar = ".$_POST["16"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["17"] != "off")
 {
-$data = "HardQCD:gg2bbbar = ".$_POST["17"]."\n";
+$data = "HardQCD:qqbar2ccbar = ".$_POST["17"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["18"] != "off")
 {
-$data = "HardQCD:qqbar2bbbar = ".$_POST["18"]."\n";
+$data = "HardQCD:hardccbar = ".$_POST["18"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["19"] != "off")
 {
-$data = "HardQCD:3parton = ".$_POST["19"]."\n";
+$data = "HardQCD:gg2bbbar = ".$_POST["19"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["20"] != "off")
 {
-$data = "HardQCD:gg2ggg = ".$_POST["20"]."\n";
+$data = "HardQCD:qqbar2bbbar = ".$_POST["20"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["21"] != "off")
 {
-$data = "HardQCD:qqbar2ggg = ".$_POST["21"]."\n";
+$data = "HardQCD:hardbbbar = ".$_POST["21"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["22"] != "off")
 {
-$data = "HardQCD:qg2qgg = ".$_POST["22"]."\n";
+$data = "HardQCD:3parton = ".$_POST["22"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["23"] != "off")
 {
-$data = "HardQCD:qq2qqgDiff = ".$_POST["23"]."\n";
+$data = "HardQCD:gg2ggg = ".$_POST["23"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["24"] != "off")
 {
-$data = "HardQCD:qq2qqgSame = ".$_POST["24"]."\n";
+$data = "HardQCD:qqbar2ggg = ".$_POST["24"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["25"] != "off")
 {
-$data = "HardQCD:qqbar2qqbargDiff = ".$_POST["25"]."\n";
+$data = "HardQCD:qg2qgg = ".$_POST["25"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["26"] != "off")
 {
-$data = "HardQCD:qqbar2qqbargSame = ".$_POST["26"]."\n";
+$data = "HardQCD:qq2qqgDiff = ".$_POST["26"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["27"] != "off")
 {
-$data = "HardQCD:gg2qqbarg = ".$_POST["27"]."\n";
+$data = "HardQCD:qq2qqgSame = ".$_POST["27"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["28"] != "off")
 {
-$data = "HardQCD:qg2qqqbarDiff = ".$_POST["28"]."\n";
+$data = "HardQCD:qqbar2qqbargDiff = ".$_POST["28"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["29"] != "off")
 {
-$data = "HardQCD:qg2qqqbarSame = ".$_POST["29"]."\n";
+$data = "HardQCD:qqbar2qqbargSame = ".$_POST["29"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["30"] != "off")
+{
+$data = "HardQCD:gg2qqbarg = ".$_POST["30"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["31"] != "off")
+{
+$data = "HardQCD:qg2qqqbarDiff = ".$_POST["31"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["32"] != "off")
+{
+$data = "HardQCD:qg2qqqbarSame = ".$_POST["32"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);
@@ -524,5 +559,5 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->
 

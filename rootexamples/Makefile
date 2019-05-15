@@ -44,7 +44,7 @@ dict: $(SHAREDLIB)
 	rootcint -f pythiaDict.cc -c $(DICTCXXFLAGS) \
            -DPYTHIA8_COMPLETE_ROOT_DICTIONARY \
            pythiaROOT.h pythiaLinkdef.h
-	$(CXX) -shared -o pythiaDict.$(SHAREDSUFFIX) pythiaDict.cc \
+	$(CXX) -shared -fPIC -o pythiaDict.$(SHAREDSUFFIX) pythiaDict.cc \
          -DPYTHIA8_COMPLETE_ROOT_DICTIONARY \
          $(ROOTCXXFLAGS) $(LDFLAGS2)
 

@@ -1,5 +1,5 @@
 // FragmentationFlavZpT.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -483,7 +483,7 @@ int StringFlav::makeDiquark(int id1, int id2, int idHad) {
 
   // Select spin of diquark formed from two valence quarks in proton.
   // (More hadron cases??)
-  if (abs(idHad) == 2212) {
+  if (abs(idHad) == 2212 || abs(idHad) == 2112) {
     if (idMin == 1 && idMax == 2 && rndmPtr->flat() < 0.75) spin = 0;  
 
   // Else select spin of diquark according to production composition.
@@ -536,6 +536,17 @@ void StringZ::init(Settings& settings, ParticleData& particleData,
   rFactB        = settings.parm("StringZ:rFactB");
   rFactH        = settings.parm("StringZ:rFactH");
 
+  // Flags and parameters of nonstandard Lund fragmentation functions.
+  useNonStandC  = settings.flag("StringZ:useNonstandardC");
+  useNonStandB  = settings.flag("StringZ:useNonstandardB");
+  useNonStandH  = settings.flag("StringZ:useNonstandardH");
+  aNonC         = settings.parm("StringZ:aNonstandardC");
+  aNonB         = settings.parm("StringZ:aNonstandardB");
+  aNonH         = settings.parm("StringZ:aNonstandardH");
+  bNonC         = settings.parm("StringZ:bNonstandardC");
+  bNonB         = settings.parm("StringZ:bNonstandardB");
+  bNonH         = settings.parm("StringZ:bNonstandardH");
+
   // Flags and parameters of Peterson/SLAC fragmentation function.
   usePetersonC  = settings.flag("StringZ:usePetersonC");
   usePetersonB  = settings.flag("StringZ:usePetersonB");
@@ -577,16 +588,30 @@ double StringZ::zFrag( int idOld, int idNew, double mT2) {
     return zPeterson( epsilon);
   }
 
+  // Nonstandard a and b values implemented for heavy flavours.
+  double aNow = aLund;
+  double bNow = bLund;
+  if (idFrag == 4 && useNonStandC) {
+    aNow = aNonC;
+    bNow = bNonC;
+  } else if (idFrag == 5 && useNonStandB) {
+    aNow = aNonB;
+    bNow = bNonB;
+  } else if (idFrag >  5 && useNonStandH) {
+    aNow = aNonH;
+    bNow = bNonH;
+  }
+
   // Shape parameters of Lund symmetric fragmentation function.
-  double aShape = aLund;
+  double aShape = aNow;
   if (isOldDiquark) aShape += aExtraDiquark;
-  double bShape = bLund * mT2;
+  double bShape = bNow * mT2;
   double cShape = 1.;
   if (isOldDiquark) cShape -= aExtraDiquark;
   if (isNewDiquark) cShape += aExtraDiquark;
-  if (idFrag == 4) cShape += rFactC * bLund * mc2;
-  if (idFrag == 5) cShape += rFactB * bLund * mb2;
-  if (idFrag >  5) cShape += rFactH * bLund * mT2;
+  if (idFrag == 4) cShape += rFactC * bNow * mc2;
+  if (idFrag == 5) cShape += rFactB * bNow * mb2;
+  if (idFrag >  5) cShape += rFactH * bNow * mT2;
   return zLund( aShape, bShape, cShape);
 
 }

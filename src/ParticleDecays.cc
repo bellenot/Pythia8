@@ -1,5 +1,5 @@
 // ParticleDecays.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -106,6 +106,7 @@ void ParticleDecays::init(Info* infoPtrIn, Settings& settings,
 
   // Allow showers in decays to qqbar/gg/ggg/gammagg.
   doFSRinDecays = settings.flag("ParticleDecays:FSRinDecays");
+  doGammaRad    = settings.flag("ParticleDecays:allowPhotonRadiation");
 
   // Use standard decays or dedicated tau decay package
   sophisticatedTau = settings.mode("ParticleDecays:sophisticatedTau");
@@ -307,6 +308,11 @@ bool ParticleDecays::decay( int iDec, Event& event) {
   // and always flag that partonic system should be fragmented. 
   if (hasPartons && keepPartons && doFSRinDecays) 
     timesDecPtr->shower( iProd[1], iProd.back(), event, mProd[0]);
+
+  // Photon radiation implemented only for two-body decay to leptons.
+  else if (doGammaRad && mult == 2 && event[iProd[1]].isLepton() 
+  && event[iProd[2]].isLepton()) 
+    timesDecPtr->showerQED( iProd[1], iProd[2], event, mProd[0]);   
 
   // For Hidden Valley particles also allow leptons to shower.
   else if (event[iDec].idAbs() > 4900000 && event[iDec].idAbs() < 5000000 

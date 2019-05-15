@@ -1,5 +1,5 @@
 // TauDecays.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Philip Ilten, Torbjorn Sjostrand.
+// Copyright (C) 2013 Philip Ilten, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -83,6 +83,17 @@ void TauDecays::init(Info* infoPtrIn, Settings* settingsPtrIn,
   // User selected tau polarization.
   polSave       = settingsPtr->parm("ParticleDecays:tauPolarization");
 
+  // Parameters to determine if correlated partner should decay.
+  limitTau0     = settingsPtr->flag("ParticleDecays:limitTau0");
+  tau0Max       = settingsPtr->parm("ParticleDecays:tau0Max");
+  limitTau      = settingsPtr->flag("ParticleDecays:limitTau");
+  tauMax        = settingsPtr->parm("ParticleDecays:tauMax");
+  limitRadius   = settingsPtr->flag("ParticleDecays:limitRadius");
+  rMax          = settingsPtr->parm("ParticleDecays:rMax");
+  limitCylinder = settingsPtr->flag("ParticleDecays:limitCylinder");
+  xyMax         = settingsPtr->parm("ParticleDecays:xyMax");
+  zMax          = settingsPtr->parm("ParticleDecays:zMax");
+  limitDecay    = limitTau0 || limitTau || limitRadius || limitCylinder;
 }
 
 //--------------------------------------------------------------------------
@@ -140,7 +151,8 @@ bool TauDecays::decay(int idxOut1, Event& event) {
   // Find and set up the second outgoing particle of the hard process.
   int idxOut2 = (medTmp.daughter1() == idxFirstOut1)
     ? medTmp.daughter2() : medTmp.daughter1();
-  while (idxOut2 > 0 && event[idxOut2].daughter1() != 0) {
+  while (idxOut2 > 0 && event[idxOut2].daughter1() != 0 
+    && event[event[idxOut2].daughter1()].id() == event[idxOut2].id()) {
     idxOut2 = event[idxOut2].daughter1();
   }
   out2     = HelicityParticle(event[idxOut2]); 
@@ -287,6 +299,28 @@ bool TauDecays::decay(int idxOut1, Event& event) {
       "tau production, assuming unpolarized and uncorrelated");
     hardME = hmeUnpolarized.initChannel(particles);
     correlated = false;
+  }
+
+  // Check if correlated partner should decay.
+  if (correlated) {
+    // Check vertex is within limits.
+    if (limitTau0 && out2.tau0() > tau0Max) correlated = false;
+    else if (limitTau && out2.tau() > tauMax) correlated = false;
+    else if (limitRadius && pow2(out2.xDec()) + pow2(out2.yDec())
+      + pow2(out2.zDec()) > pow2(rMax)) correlated = false;
+    else if (limitCylinder && (pow2(out2.xDec()) + pow2(out2.yDec())
+      > pow2(xyMax) || abs(out2.zDec()) > zMax)) correlated = false;
+    // Check partner can decay.
+    else if (!out2.canDecay()) correlated = false;
+    else if (!out2.mayDecay()) correlated = false;
+    // Check partner is compatible with hard matrix element (only leptons).
+    else if (out2.idAbs() < 11 || out2.idAbs() > 16) {
+      infoPtr->errorMsg("Warning in TauDecays::decay: incompatible "
+        "correlated partner in tau decay");
+      correlated = false;
+    }
+    // Undecay correlated partner if already decayed.
+    else if (!out2.isFinal()) event.undoDecay(out2.idx);
   }
 
   // Pick the first tau to decay.
@@ -447,6 +481,10 @@ vector<HelicityParticle> TauDecays::createChildren(HelicityParticle parent) {
     ++decayTries;
   }
 
+  // Swap the children ordering for muons.
+  if (parent.idAbs() == 13 && children.size() == 4 && meMode == 22)
+    swap(children[1], children[3]);
+
   // Set the decay matrix element.  
   // Two body decays.
   if (children.size() == 3) {
@@ -458,7 +496,7 @@ vector<HelicityParticle> TauDecays::createChildren(HelicityParticle parent) {
   // Three body decays.
   else if (children.size() == 4) {
     // Leptonic decay.
-    if (meMode == 1531)	
+    if (meMode == 1531 || (parent.idAbs() == 13 && meMode == 22))	
       decayME = hmeTau2TwoLeptons.initChannel(children);
     // Two meson decay via vector meson.
     else if (meMode == 1532)

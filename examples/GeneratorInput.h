@@ -1,9 +1,10 @@
-// LHAupAlpgen.h is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// GeneratorInput.h is a part of the PYTHIA event generator.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Author: Richard Corke (richard.corke@thep.lu.se)
+// Primary Author: Richard Corke
+// Secondary Author: Stephen Mrenna
 // This file provides the following classes:
 //   AlpgenPar:   a class for parsing ALPGEN parameter files
 //                and reading back out the values
@@ -11,24 +12,19 @@
 //                format event files
 //   AlpgenHooks: a UserHooks derived class for providing
 //                'Alpgen:*' user options
+//   MadgraphPar: a class for parsing MadGraph parameter files
+//                and reading back out the values
 // Example usage is shown in main32.cc, and further details
-// can be found in the 'Alpgen and MLM Merging' manual page.
+// can be found in the 'Jet Matching Style' manual page.
+// Minor changes were made by the secondary author for integration
+// with Madgraph-style matching, and Madgraph input was added.
 
-#ifndef LHAUPALPGEN_H
-#define LHAUPALPGEN_H
+#ifndef Pythia8_GeneratorInput_H
+#define Pythia8_GeneratorInput_H 
 
 // Includes and namespace
 #include "Pythia.h"
 using namespace Pythia8;
-
-//==========================================================================
-
-// Preprocessor settings
-
-// Debug flag to print all particles in each event
-//#define LHADEBUG
-// Debug flag to print particles when an e/p imbalance is found
-//#define LHADEBUGRESCALE
 
 //==========================================================================
 
@@ -71,7 +67,131 @@ private:
   static string trim(string s);
 
   // Storage for parameters
-  map < string, double > params;
+  map<string,double> params;
+
+  // Info pointer if provided
+  Info* infoPtr;
+
+  // Constants
+  static const double ZEROTHRESHOLD;
+
+};
+
+//==========================================================================
+
+// LHAupAlpgen: LHAup derived class for reading in ALPGEN format
+//              event files.
+
+class LHAupAlpgen : public LHAup {
+
+public:
+
+  // Constructor and destructor.
+  LHAupAlpgen(const char *baseFNin, Info *infoPtrIn = NULL);
+  ~LHAupAlpgen() { closeFile(isUnw, ifsUnw); }
+
+  // Override fileFound routine from LHAup.
+  bool fileFound() { return (isUnw != NULL); }
+
+  // Override setInit/setEvent routines from LHAup.
+  bool setInit();
+  bool setEvent(int);
+
+  // Print list of particles; mainly intended for debugging
+  void printParticles();
+
+private:
+
+  // Add resonances to incoming event.
+  bool addResonances();
+
+  // Rescale momenta to remove any imbalances.
+  bool rescaleMomenta();
+
+  // Class variables
+  string    baseFN, parFN, unwFN;  // Incoming filenames
+  AlpgenPar alpgenPar;             // Parameter database
+  int      lprup;                  // Process code
+  double   ebmupA, ebmupB;         // Beam energies
+  int      ihvy1, ihvy2;           // Heavy flavours for certain processes
+  double   mb;                     // Bottom mass
+  ifstream  ifsUnw;                // Input file stream for 'unw' file
+  istream*  isUnw;                 // Input stream for 'unw' file
+  vector<LHAParticle> myParticles; // Local storage for particles
+
+  // Constants
+  static const bool   LHADEBUG, LHADEBUGRESCALE;
+  static const double ZEROTHRESHOLD, EWARNTHRESHOLD, PTWARNTHRESHOLD,
+                      INCOMINGMIN;
+
+};
+
+//==========================================================================
+
+// AlpgenHooks: provides Alpgen file reading options.
+// Note that it is defined with virtual inheritance, so that it can
+// be combined with other UserHooks classes, see e.g. main32.cc.
+
+class AlpgenHooks : virtual public UserHooks {
+
+public:
+
+  // Constructor and destructor
+  AlpgenHooks(Pythia &pythia);
+  ~AlpgenHooks() { if (LHAagPtr) delete LHAagPtr; }
+
+  // Override initAfterBeams routine from UserHooks
+  bool initAfterBeams();
+
+private:
+
+  // LHAupAlpgen pointer
+  LHAupAlpgen* LHAagPtr;
+
+};
+
+//==========================================================================
+
+// MadgraphPar: Class to parse the Madgraph header parameters and
+//               make them available through a simple interface
+
+class MadgraphPar {
+
+public:
+
+  // Constructor
+  MadgraphPar(Info *infoPtrIn = NULL) : infoPtr(infoPtrIn) {}
+
+  // Parse an incoming Madgraph parameter file string
+  bool parse(const string paramStr);
+
+  // Parse an incoming parameter line
+  void extractRunParam(string line);
+
+  // Check if a parameter exists
+  bool haveParam(const string &paramIn) {
+    return (params.find(paramIn) == params.end()) ? false : true; }
+
+  // Get a parameter as a double or integer.
+  // Caller should have already checked existance of the parameter.
+  double getParam(const string &paramIn) {
+    return (haveParam(paramIn)) ? params[paramIn] : 0.; }
+  int    getParamAsInt(const string &paramIn) {
+    return (haveParam(paramIn)) ? int(params[paramIn]) : 0.; }
+
+  // Print parameters read from the '.par' file
+  void printParams();
+
+private:
+
+  // Warn if a parameter is going to be overwriten
+  void warnParamOverwrite(const string &paramIn, double val);
+
+  // Simple string trimmer
+  static string trim(string s);
+
+  // Storage for parameters
+  map<string,double> params;
 
   // Info pointer if provided
   Info *infoPtr;
@@ -79,13 +199,15 @@ private:
   // Constants
   static const double ZEROTHRESHOLD;
 
-};
+}; 
+
+//==========================================================================
+
+// Main implementation of AlpgenPar class. 
+// This may be split out to a separate C++ file if desired, 
+// but currently included here for ease of use.
 
 //--------------------------------------------------------------------------
-
-// Main implementation of AlpgenPar class. This may be split out to a
-// separate C++ file if desired, but currently included here for ease
-// of use.
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -239,62 +361,20 @@ string AlpgenPar::trim(string s) {
 
 //==========================================================================
 
-// LHAupAlpgen: LHAup derived class for reading in ALPGEN format
-//              event files.
-
-class LHAupAlpgen : public LHAup {
-
-public:
-
-  // Constructor and destructor.
-  LHAupAlpgen(const char *baseFNin, Info *infoPtrIn = NULL);
-  ~LHAupAlpgen() { closeFile(isUnw, ifsUnw); }
-
-  // Override fileFound routine from LHAup.
-  bool fileFound() { return (isUnw != NULL); }
-
-  // Override setInit/setEvent routines from LHAup.
-  bool setInit();
-  bool setEvent(int);
-
-  // Print list of particles; mainly intended for debugging
-  void printParticles();
-
-private:
-
-  // Add resonances to incoming event.
-  bool addResonances();
-
-  // Rescale momenta to remove any imbalances.
-  bool rescaleMomenta();
-
-  // Class variables
-  string    baseFN, parFN, unwFN;  // Incoming filenames
-  AlpgenPar alpgenPar;             // Parameter database
-
-  int      lprup;                  // Process code
-  double   ebmupA, ebmupB;         // Beam energies
-  int      ihvy1, ihvy2;           // Heavy flavours for certain processes
-  double   mb;                     // Bottom mass
-
-  ifstream  ifsUnw;                // Input file stream for 'unw' file
-  istream  *isUnw;                 // Input stream for 'unw' file
-
-  vector < LHAParticle > myParticles;  // Local storage for particles
-
-  // Constants
-  static const double ZEROTHRESHOLD, EWARNTHRESHOLD, PTWARNTHRESHOLD,
-                      INCOMINGMIN;
-};
+// Main implementation of LHAupAlpgen class. 
+// This may be split out to a separate C++ file if desired, 
+// but currently included here for ease of use.
 
 // ----------------------------------------------------------------------
 
-// Main implementation of LHAupAlpgen class. This may be split out to a
-// separate C++ file if desired, but currently included here for ease
-// of use.
-
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
+
+// Debug flag to print all particles in each event.
+const bool LHAupAlpgen::LHADEBUG        = false;
+
+// Debug flag to print particles when an e/p imbalance is found.
+const bool LHAupAlpgen::LHADEBUGRESCALE = false;
 
 // A zero threshold value for double comparisons.
 const double LHAupAlpgen::ZEROTHRESHOLD   = 1e-10;
@@ -310,15 +390,15 @@ const double LHAupAlpgen::INCOMINGMIN     = 1e-3;
 
 // Constructor. Opens parameter file and parses then opens event file.
 
-LHAupAlpgen::LHAupAlpgen(const char *baseFNin, Info *infoPtrIn)
-    : baseFN(baseFNin), alpgenPar(infoPtrIn), isUnw(NULL) {
+LHAupAlpgen::LHAupAlpgen(const char* baseFNin, Info* infoPtrIn)
+  : baseFN(baseFNin), alpgenPar(infoPtrIn), isUnw(NULL) {
 
   // Set the info pointer if given
   if (infoPtrIn) setPtr(infoPtrIn);
 
   // Read in '_unw.par' file to get parameters
   ifstream  ifsPar;
-  istream  *isPar = NULL;
+  istream*  isPar = NULL;
 
   // Try gzip file first then normal file afterwards
 #ifdef GZIPSUPPORT
@@ -545,7 +625,7 @@ bool LHAupAlpgen::setEvent(int) {
     // Add particle
     myParticles.push_back(LHAParticle(
         idT, statusT, mother1T, mother2T, col1T, col2T,
-        pxT, pyT, pzT, eT, mT, tauT, spinT));
+        pxT, pyT, pzT, eT, mT, tauT, spinT,-1.));
   }
 
   // Add resonances if required
@@ -574,6 +654,7 @@ bool LHAupAlpgen::setEvent(int) {
 // Print list of particles; mainly intended for debugging
 
 void LHAupAlpgen::printParticles() {
+
   cout << endl << "---- LHAupAlpgen particle listing begin ----" << endl;
   cout << scientific << setprecision(6);
   for (int i = 0; i < int(myParticles.size()); i++) {
@@ -658,7 +739,7 @@ bool LHAupAlpgen::addResonances() {
     mT  = sqrt(eT*eT - pxT*pxT - pyT*pyT - pzT*pzT);
     myParticles.push_back(LHAParticle(
         idT, statusT, mother1T, mother2T, col1T, col2T,
-        pxT, pyT, pzT, eT, mT, tauT, spinT));
+        pxT, pyT, pzT, eT, mT, tauT, spinT, -1.));
 
     // Update decay product mothers (note array size as if from 1)
     myParticles[i1].mother1Part = myParticles[i2].mother1Part =
@@ -788,7 +869,7 @@ bool LHAupAlpgen::addResonances() {
         mT  = sqrt(eT*eT - pxT*pxT - pyT*pyT - pzT*pzT);
         myParticles.push_back(LHAParticle(
             idT, statusT, mother1T, mother2T, col1T, col2T,
-            pxT, pyT, pzT, eT, mT, tauT, spinT));
+            pxT, pyT, pzT, eT, mT, tauT, spinT, -1.));
 
         // Update the decay product mothers
         myParticles[idx  ].mother1Part = myParticles.size();
@@ -810,7 +891,7 @@ bool LHAupAlpgen::addResonances() {
         mT      = sqrt(eT*eT - pxT*pxT - pyT*pyT - pzT*pzT);
         myParticles.push_back(LHAParticle(
             idT, statusT, mother1T, mother2T, col1T, col2T,
-            pxT, pyT, pzT, eT, mT, tauT, spinT));
+            pxT, pyT, pzT, eT, mT, tauT, spinT, -1.));
 
         // If decay products were out of order, reset idx to point
         // at correct decay products
@@ -837,10 +918,9 @@ bool LHAupAlpgen::addResonances() {
     }
 
   // Debug output and done.
-#ifdef LHADEBUG
-  printParticles();
-#endif
+  if (LHADEBUG) printParticles();
   return true;
+
 }
 
 // ----------------------------------------------------------------------
@@ -884,11 +964,11 @@ bool LHAupAlpgen::rescaleMomenta() {
       if (infoPtr) infoPtr->errorMsg("Warning in LHAupAlpgen::setEvent: "
           "large pT imbalance in incoming event");
 
-      // Debug
-#ifdef LHADEBUGRESCALE
-      printParticles();
-      cout << "pxDiff = " << pxDiff << ", pyDiff = " << pyDiff << endl;
-#endif
+      // Debug printout
+      if (LHADEBUGRESCALE) {
+        printParticles();
+        cout << "pxDiff = " << pxDiff << ", pyDiff = " << pyDiff << endl;
+      }
     }
 
     // Adjust all final-state outgoing
@@ -921,16 +1001,16 @@ bool LHAupAlpgen::rescaleMomenta() {
     if (infoPtr) infoPtr->errorMsg("Warning in LHAupAlpgen::setEvent: "
         "large rescaling factor");
 
-    // Debug output
-#ifdef LHADEBUGRESCALE
-    printParticles();
-    cout << "de = " << de << ", dp = " << dp
-         << ", a = " << a << ", b = " << b << endl
-         << "Absolute energy change for incoming 0 = "
-         << abs(a - 1.) * myParticles[0].ePart << endl
-         << "Absolute energy change for incoming 1 = "
-         << abs(b - 1.) * myParticles[1].ePart << endl;
-#endif
+    // Debug printout
+    if (LHADEBUGRESCALE) {
+      printParticles();
+      cout << "de = " << de << ", dp = " << dp
+           << ", a = " << a << ", b = " << b << endl
+           << "Absolute energy change for incoming 0 = "
+           << abs(a - 1.) * myParticles[0].ePart << endl
+           << "Absolute energy change for incoming 1 = "
+           << abs(b - 1.) * myParticles[1].ePart << endl;
+    }
   }
   myParticles[0].ePart  *= a;
   myParticles[0].pzPart *= a;
@@ -960,32 +1040,9 @@ bool LHAupAlpgen::rescaleMomenta() {
 
 //==========================================================================
 
-// AlpgenHooks: provides Alpgen file reading options.
-// Note that it is defined with virtual inheritance, so that it can
-// be combined with other UserHooks classes, see e.g. main32.cc.
-
-class AlpgenHooks : virtual public UserHooks {
-
-public:
-
-  // Constructor and destructor
-  AlpgenHooks(Pythia &pythia);
-  ~AlpgenHooks() { if (LHAagPtr) delete LHAagPtr; }
-
-  // Override initAfterBeams routine from UserHooks
-  bool initAfterBeams();
-
-private:
-
-  // LHAupAlpgen pointer
-  LHAupAlpgen *LHAagPtr;
-};
-
-// ----------------------------------------------------------------------
-
-// Main implementation of AlpgenHooks class. This may be split out to a
-// separate C++ file if desired, but currently included here for ease
-// of use.
+// Main implementation of AlpgenHooks class. 
+// This may be split out to a separate C++ file if desired, 
+// but currently included here for ease of use.
 
 // ----------------------------------------------------------------------
 
@@ -1039,7 +1096,7 @@ bool AlpgenHooks::initAfterBeams() {
   // Set MLM:nJets if requested
   if (setNjet) {
     if (par.haveParam("njets"))
-      settingsPtr->mode("MLM:nJet", par.getParamAsInt("njets"));
+      settingsPtr->mode("JetMatching:nJet", par.getParamAsInt("njets"));
     else
       infoPtr->errorMsg("Warning in AlpgenHooks:init: "
           "no ALPGEN nJet parameter found");
@@ -1051,9 +1108,9 @@ bool AlpgenHooks::initAfterBeams() {
         par.haveParam("etajmax")) {
       double ptjmin = par.getParam("ptjmin");
       ptjmin = max(ptjmin + 5., 1.2 * ptjmin);
-      settingsPtr->parm("MLM:eTjetMin",   ptjmin);
-      settingsPtr->parm("MLM:coneRadius", par.getParam("drjmin"));
-      settingsPtr->parm("MLM:etaJetMax",  par.getParam("etajmax"));
+      settingsPtr->parm("JetMatching:eTjetMin",   ptjmin);
+      settingsPtr->parm("JetMatching:coneRadius", par.getParam("drjmin"));
+      settingsPtr->parm("JetMatching:etaJetMax",  par.getParam("etajmax"));
 
     // Warn if setMLM requested, but parameters not present
     } else {
@@ -1068,4 +1125,115 @@ bool AlpgenHooks::initAfterBeams() {
 
 //==========================================================================
 
-#endif // LHAUPALPGEN_H
+// Main implementation of MadgraphPar class.
+// This may be split out to a separate C++ file if desired, 
+// but currently included here for ease of use.
+
+//--------------------------------------------------------------------------
+
+// Constants: could be changed here if desired, but normally should not.
+// These are of technical nature, as described for each.
+
+// A zero threshold value for double comparisons.
+const double MadgraphPar::ZEROTHRESHOLD = 1e-10;
+
+//--------------------------------------------------------------------------
+
+// Parse an incoming Madgraph parameter file string
+
+bool MadgraphPar::parse(const string paramStr) {
+
+  // Loop over incoming lines
+  stringstream paramStream(paramStr);
+  string line;
+  while ( getline(paramStream, line) ) extractRunParam(line);
+  return true;
+  
+}
+
+//--------------------------------------------------------------------------
+
+// Parse an incoming parameter line
+
+void MadgraphPar::extractRunParam(string line) {
+
+  // Extract information to the right of the final '!' character
+  size_t idz = line.find("#");
+  if ( !(idz == string::npos) ) return;
+  size_t idx = line.find("=");
+  size_t idy = line.find("!");
+  if (idy == string::npos) idy = line.size();
+  if (idx == string::npos) return;
+  string paramName = trim( line.substr( idx + 1, idy - idx - 1) );
+  string paramVal  = trim( line.substr( 0, idx) );
+  replace( paramVal.begin(), paramVal.end(), 'd', 'e');
+
+  // Simple tokeniser
+  istringstream iss(paramVal);
+  double val;
+  if (paramName.find(",") != string::npos) {      
+    string        paramNameNow;
+    istringstream issName( paramName);
+    while ( getline(issName, paramNameNow, ',') ) {
+      iss >> val;
+      warnParamOverwrite( paramNameNow, val);
+      params[paramNameNow] = val;
+    }
+
+  // Default case: assume integer and double on the left
+  } else {
+    iss >> val;
+    warnParamOverwrite( paramName, val);
+    params[paramName] = val;
+  }
+}
+
+//--------------------------------------------------------------------------
+
+// Print parameters read from the '.par' file
+
+void MadgraphPar::printParams() {
+
+  // Loop over all stored parameters and print
+  cout << endl
+       << " *--------  Madgraph parameters  --------*" << endl;
+  for (map<string,double>::iterator it = params.begin();
+       it != params.end(); ++it)
+    cout << " |  " << left << setw(15) << it->first
+         << "  |  " << right << setw(15) << it->second
+         << "  |" << endl;
+  cout << " *---------------------------------------*" << endl;
+}
+
+//--------------------------------------------------------------------------
+
+// Warn if a parameter is going to be overwriten
+
+void MadgraphPar::warnParamOverwrite(const string &paramIn, double val) {
+
+  // Check if present and if new value is different
+  if (haveParam(paramIn) &&
+      abs(getParam(paramIn) - val) > ZEROTHRESHOLD) {
+    if (infoPtr) infoPtr->errorMsg("Warning in LHAupAlpgen::"
+        "warnParamOverwrite: overwriting existing parameter", paramIn);
+  }
+}
+
+//--------------------------------------------------------------------------
+
+// Simple string trimmer
+
+string MadgraphPar::trim(string s) {
+
+  // Remove whitespace in incoming string
+  size_t i;
+  if ( (i = s.find_last_not_of(" \t\r\n")) != string::npos)
+    s = s.substr(0, i + 1);
+  if ( (i = s.find_first_not_of(" \t\r\n")) != string::npos)
+    s = s.substr(i);
+  return s;
+}
+
+//==========================================================================
+
+#endif //  Pythia8_GeneratorInput_H

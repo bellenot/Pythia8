@@ -1,5 +1,5 @@
 // SusyResonanceWidths.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand
+// Copyright (C) 2013 Torbjorn Sjostrand
 // Authors: N. Desai, P. Skands
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
@@ -9,6 +9,7 @@
 
 #include "SusyResonanceWidths.h"
 #include "SusyCouplings.h"
+#include "ParticleData.h"
 #include "PythiaComplex.h"
 
 namespace Pythia8 {
@@ -148,10 +149,10 @@ double Psi::function(double m12sq) {
   double R, factor1, factor2, value;
 
   // Check that the propagators are offshell
-  if(m12sq > pow2(mInt) || abs(m12sq - pow2(mInt)) < gammaInt) return 0; 
+  if (m12sq > pow2(mInt) || abs(m12sq - pow2(mInt)) < gammaInt) return 0; 
 
   R = 1.0/(pow2(m12sq-pow2(mInt)) + pow2(gammaInt*mInt));
-  if(isSqDown){
+  if (isSqDown){
     factor1 = (norm(coupSUSYPtr->LsddX[iSq][iQ][iX])
 	       + norm(coupSUSYPtr->RsddX[iSq][iQ][iX]))*
       (mRes*mRes + m3*m3 - m12sq);
@@ -179,15 +180,15 @@ double Upsilon::function(double m12sq) {
   double R1,R2, S, factor1, factor2, value;
 
   // Check that the propagators are offshell
-  if(m12sq > pow2(mInt) || abs(m12sq - pow2(mInt)) < gammaInt) return 0; 
-  if(m12sq > pow2(mInt2) || abs(m12sq - pow2(mInt2)) < gammaInt2) return 0; 
+  if (m12sq > pow2(mInt) || abs(m12sq - pow2(mInt)) < gammaInt) return 0; 
+  if (m12sq > pow2(mInt2) || abs(m12sq - pow2(mInt2)) < gammaInt2) return 0; 
   
   R1 = 1.0/(pow2(m12sq-pow2(mInt)) + pow2(gammaInt*mInt));
   R2 =  1.0/(pow2(m12sq-pow2(mInt2)) + pow2(gammaInt2*mInt2));
   S = R1 * R2 * ((m12sq - pow2(mInt)) * (m12sq - pow2(mInt2)) 
 		 + gammaInt * mInt * gammaInt2 * mInt2);
 
-  if(isSqDown){
+  if (isSqDown){
     factor1 = real(coupSUSYPtr->LsddX[iSq][iQ][iX] 
 		   * conj(coupSUSYPtr->LsddX[iSq2][iQ][iX])) 
       + real(coupSUSYPtr->RsddX[iSq][iQ][iX] 
@@ -223,7 +224,7 @@ double Phi::function(double m12sqIn) {
 
   m12sq =  m12sqIn;
   // Check that the propagators are offshell
-  if(m12sq > pow2(mInt) || abs(m12sq - pow2(mInt)) < gammaInt) return 0; 
+  if (m12sq > pow2(mInt) || abs(m12sq - pow2(mInt)) < gammaInt) return 0; 
 
   double m23max, m23min, E2, E3;
 
@@ -232,7 +233,7 @@ double Phi::function(double m12sqIn) {
   m23max = pow2(E2+E3) - (sqrt(E2*E2 - m2*m2) - sqrt(E3*E3 - m3*m3)) ;
   m23min = pow2(E2+E3) - (sqrt(E2*E2 - m2*m2) + sqrt(E3*E3 - m3*m3)) ;
 
-  if(E2 < m2 || E3 < m3){
+  if (E2 < m2 || E3 < m3){
     cout <<"Error in Phi:function"<<endl;
     return 0.;
   }
@@ -246,7 +247,7 @@ double Phi::function(double m12sqIn) {
 double Phi::function2(double m23sq) {
 
   // Check that the propagators are offshell
-  if(m23sq > pow2(mInt2) || abs(m23sq - pow2(mInt2)) < gammaInt2) return 0; 
+  if (m23sq > pow2(mInt2) || abs(m23sq - pow2(mInt2)) < gammaInt2) return 0; 
 
   double R1, R2, S, factor1, factor2, factor3, factor4, value, fac;
   int iQ2;
@@ -258,11 +259,11 @@ double Phi::function2(double m23sq) {
 
   fac = 1.0;
 
-  if(isSqDown){
+  if (isSqDown){
     // Only factor is when both d_i and d_j are near.
     iQ2 = (id1%2 == 1)? (id1+1)/2 : (id2+1)/2;
 
-    if(mRes > mInt2 + particleDataPtr->m0(iQ2)) fac = 0.;
+    if (mRes > mInt2 + particleDataPtr->m0(iQ2)) fac = 0.;
 
     factor1 = m1 * m3 * real(coupSUSYPtr->LsddX[iSq][iQ][iX] 
 			     * conj(coupSUSYPtr->LsddX[iSq2][iQ2][iX]))
@@ -281,7 +282,7 @@ double Phi::function2(double m23sq) {
     // Factor A: u and d_1
     iQ2 = (id1+1)/2;
 
-    if(mRes > mInt2 + particleDataPtr->m0(iQ2)) fac = 0.;
+    if (mRes > mInt2 + particleDataPtr->m0(iQ2)) fac = 0.;
 
     factor1 = m1 * m3 * real(coupSUSYPtr->LsuuX[iSq][iQ][iX] 
 			     * conj(coupSUSYPtr->LsddX[iSq2][iQ2][iX]))
@@ -300,7 +301,7 @@ double Phi::function2(double m23sq) {
     // Factor B: u and d_2; change 1 <=> 2
     iQ2 = (id2+1)/2;
 
-    if(mRes > mInt2 + particleDataPtr->m0(iQ2)) fac = 0.;
+    if (mRes > mInt2 + particleDataPtr->m0(iQ2)) fac = 0.;
 
     factor1 += m2 * m3 * real(coupSUSYPtr->LsuuX[iSq][iQ][iX] 
 			      * conj(coupSUSYPtr->LsddX[iSq2][iQ2][iX]))
@@ -416,213 +417,41 @@ double Phi::integrateGauss(double xlo, double xhi, double tol) {
 // The SUSYResonanceWidths Class
 // Derived class for SUSY resonances
 
-const bool SUSYResonanceWidths::DEBUG = false;
+const bool SUSYResonanceWidths::DBSUSY = false;
 
 //--------------------------------------------------------------------------
 
-bool SUSYResonanceWidths::init(Info* infoPtrIn, Settings* settingsPtrIn,
-   ParticleData* particleDataPtrIn, Couplings* couplingsPtrIn) {
+bool SUSYResonanceWidths::initBSM(){
 
-  // Save pointers.
-  infoPtr         = infoPtrIn;
-  settingsPtr     = settingsPtrIn;
-  particleDataPtr = particleDataPtrIn;
-  coupSUSYPtr     = (couplingsPtrIn->isSUSY ? (CoupSUSY *) couplingsPtrIn: 0 );
-
-  // No width calculation necessary for SM-only
-  bool calcWidthAllow = true;
-  if(!couplingsPtrIn->isSUSY) calcWidthAllow = false;
-
-  // Minimal decaying-resonance width. Minimal phase space for meMode = 103.
-  minWidth     = settingsPtr->parm("ResonanceWidths:minWidth");
-  minThreshold = settingsPtr->parm("ResonanceWidths:minThreshold");
-
-  // Pointer to particle species.
-  particlePtr  = particleDataPtr->particleDataEntryPtr(idRes);
-  if (particlePtr == 0) {
-    infoPtr->errorMsg("Error in ResonanceWidths::init:"
-      " unknown resonance identity code");   
-    return false;
-  }  
-
-  // Generic particles should not have meMode < 100, but allow 
-  // some exceptions: not used Higgses and not used Technicolor.
-  if (idRes == 35 || idRes == 36 || idRes == 37 
-    || idRes/1000000 == 3) isGeneric = false;
-
-  // Resonance properties: antiparticle, mass, width
-  hasAntiRes   = particlePtr->hasAnti();
-  mRes         = particlePtr->m0();
-  GammaRes     = particlePtr->mWidth();
-  m2Res        = mRes*mRes;
-
-  // For very narrow resonances assign fictitious small width.
-  if (GammaRes < minWidth) GammaRes = 0.1 * minWidth;  
-  GamMRat      = GammaRes / mRes;
-
-  // Secondary decay chains by default all on.
-  openPos      = 1.;
-  openNeg      = 1.;
-
-  // Allow option where on-shell width is forced to current value.
-  doForceWidth = particlePtr->doForceWidth();
-  forceFactor  = 1.;
-
-  // Check that resonance OK.
-  if (particlePtr == 0) infoPtr->errorMsg("Error in ResonanceWidths::init:"
-      " unknown resonance identity code");   
-
-  // Check if decay table was read in via SLHA
-  bool hasDecayTable = false;
-  if(calcWidthAllow) {
-    for(unsigned int iDec = 1; iDec < (coupSUSYPtr->slhaPtr)->decays.size(); 
-      iDec++)
-      if(!hasDecayTable) hasDecayTable 
-        = ((coupSUSYPtr->slhaPtr)->decays[iDec].getId() == abs(idRes));
-  }
-
-  if(hasDecayTable && settingsPtr->flag("SLHA:useDecayTable")) {
-    calcWidthAllow = false;
-    if(DEBUG) cout<<"Found decay table for:"<<idRes<<endl;  
-  }
-
-  // Initialize constants used for a resonance.
-  if(calcWidthAllow) {
-    mHat          = mRes;
-    initConstants();
-    calcPreFac(true);
-  }
-
-  // Reset quantities to sum. Declare variables inside loop.
-  double widTot = 0.; 
-  double widPos = 0.;
-  double widNeg = 0.;
-  int    idNow, idAnti;
-  double openSecPos, openSecNeg;
-
-  // Loop over all decay channels. Basic properties of channel.
-  for (int i = 0; i < particlePtr->sizeChannels(); ++i) {
-    iChannel    = i;
-    onMode      = particlePtr->channel(i).onMode();
-    meMode      = particlePtr->channel(i).meMode();
-    mult        = particlePtr->channel(i).multiplicity();
-    widNow      = 0.;
-
-    // Warn if not relevant meMode.
-    if ( meMode < 0 || meMode > 103 || (isGeneric && meMode < 100) ) { 
-      infoPtr->errorMsg("Error in ResonanceWidths::init:"
-        " resonance meMode not acceptable"); 
-    }
-
-    // Calculation of SUSY particle widths
-    if (meMode == 103 && GammaRes > 0. && calcWidthAllow &&
-	(!settingsPtr->flag("SLHA:useDecayTable") || !hasDecayTable)) {
-      // Read out information on channel: primarily use first two. 
-      id1       = particlePtr->channel(i).product(0);
-      id2       = particlePtr->channel(i).product(1);
-      id1Abs    = abs(id1);
-      id2Abs    = abs(id2);
-       
-      // Order first two in descending order of absolute values.
-      if (id2Abs > id1Abs) {swap( id1, id2); swap( id1Abs, id2Abs);}
-
-      // Allow for third product to be treated in derived classes.
-      if (mult > 2) { 
-        id3     = particlePtr->channel(i).product(2);
-        id3Abs  = abs(id3);
-        
-        // Also order third into descending order of absolute values.
-        if (id3Abs > id2Abs) {swap( id2, id3); swap( id2Abs, id3Abs);}
-        if (id2Abs > id1Abs) {swap( id1, id2); swap( id1Abs, id2Abs);}
-      }
-
-      // Read out masses. Calculate two-body phase space.
-      mf1       = particleDataPtr->m0(id1Abs);
-      mf2       = particleDataPtr->m0(id2Abs);
-      mr1       = pow2(mf1 / mHat);
-      mr2       = pow2(mf2 / mHat);
-      ps        = (mHat < mf1 + mf2 + MASSMARGIN) ? 0. 
-	: sqrtpos( pow2(1. - mr1 - mr2) - 4. * mr1 * mr2 ) * pow2(mHat);
-      if (mult > 2) {      
-        mf3     = particleDataPtr->m0(id3Abs);
-        mr3     = pow2(mf3 / mHat);
-
-	//Check phase space
-	ps = 1.0;
-	if(mHat < mf1 + mf2 + mf3 + MASSMARGIN) ps = 0.;
-      }
-
-      // Let derived class calculate width for channel provided.
-      calcWidth(true);
-    }
-
-    // Width calculated based on stored values.
-    else widNow = GammaRes * particlePtr->channel(i).bRatio();
-   
-    // Find secondary open fractions of partial width.
-    openSecPos  = 1.;
-    openSecNeg  = 1.;
-    if (widNow > 0.) for (int j = 0; j < mult; ++j) {
-      idNow     = particlePtr->channel(i).product(j);
-      idAnti    = (particleDataPtr->hasAnti(idNow)) ? -idNow : idNow;
-      // Secondary widths not yet initialized for heavier states,
-      // so have to assume unit open fraction there.
-      if (idNow == 23 || abs(idNow) == 24 
-	|| particleDataPtr->m0(abs(idNow)) < mRes) {
-        openSecPos *= particleDataPtr->resOpenFrac(idNow); 
-        openSecNeg *= particleDataPtr->resOpenFrac(idAnti);
-      } 
-    }
-
-    // Store partial widths and secondary open fractions.
-    particlePtr->channel(i).onShellWidth(widNow); 
-    particlePtr->channel(i).openSec( idRes, openSecPos);  
-    particlePtr->channel(i).openSec(-idRes, openSecNeg);  
-
-    // Update sum over all channnels and over open channels only.
-    widTot     += widNow;    
-    if (onMode == 1 || onMode == 2) widPos += widNow * openSecPos;
-    if (onMode == 1 || onMode == 3) widNeg += widNow * openSecNeg;
-  }
-
-  // If no decay channels are open then set particle stable and done.
-  if (widTot < minWidth) { 
-    particlePtr->setMayDecay(false, false);
-    particlePtr->setMWidth(0., false);
-    for (int i = 0; i < particlePtr->sizeChannels(); ++i) 
-      particlePtr->channel(i).bRatio( 0., false);
+  if (couplingsPtr->isSUSY) {
+    coupSUSYPtr     = (CoupSUSY *) couplingsPtr;
     return true;
   }
 
-  // Normalize branching ratios to unity.
-  double bRatio;
-  for (int i = 0; i < particlePtr->sizeChannels(); ++i) {
-    bRatio      = particlePtr->channel(i).onShellWidth() / widTot;
-    particlePtr->channel(i).bRatio( bRatio, false);
-  }
+  return false;
+}
 
-  // Optionally force total width by rescaling of all partial ones.
-  if (doForceWidth) {
-    forceFactor = GammaRes / widTot;
-    for (int i = 0; i < particlePtr->sizeChannels(); ++i)
-      particlePtr->channel(i).onShellWidthFactor( forceFactor);
-  } 
 
-  // Else update newly calculated partial width.
-  else {
-    particlePtr->setMWidth(widTot, false);
-    GammaRes    = widTot;
-  }
+//--------------------------------------------------------------------------
 
-  // Updated width-to-mass ratio. Secondary widths for open.
-  GamMRat       = GammaRes / mRes;  
-  openPos       = widPos / widTot;
-  openNeg       = widNeg / widTot;
+bool SUSYResonanceWidths::allowCalc(){
 
-  // Done.
+  // Check if decay calculations at all possible
+  if ( !couplingsPtr->isSUSY ) return false;
+
+  // Next check if SLHA decay tables are ignored (= always do calculation)
+  if ( !settingsPtr->flag("SLHA:useDecayTable") ) return true;
+
+  // Next check if decay table was read in via SLHA and takes precedence
+  for ( int iDec = 1; iDec < int((coupSUSYPtr->slhaPtr)->decays.size()); ++iDec)
+    if ( (coupSUSYPtr->slhaPtr)->decays[iDec].getId() == abs(idRes) ) {  
+      if (DBSUSY) cout<<"Using external decay table for:"<<idRes<<endl;
+      return false;
+    }
+  
+  // Else we should do the calculation
   return true;
-
-}  
+}
 
 //==========================================================================
 
@@ -666,7 +495,7 @@ void ResonanceSquark::calcWidth(bool) {
   // int isqgen = (abs(idRes)%10 + 1)/2;
 
   // Check that mass is above threshold.
-  if(ps == 0.) return;
+  if (ps == 0.) return;
   else{
     // Two-body decays
     kinFac = (mHat * mHat - mf1 * mf1 - mf2 * mf2);
@@ -675,27 +504,27 @@ void ResonanceSquark::calcWidth(bool) {
   
     //RPV decays
     //Case 1a:  UDD-type 
-    if(id1Abs < 7 && id2Abs < 7){
+    if (id1Abs < 7 && id2Abs < 7){
       
       // Quark generations
       int iq1 = (id1Abs + 1)/2;
       int iq2 = (id2Abs + 1)/2;
       
       // Check for RPV UDD couplings
-      if(!coupSUSYPtr->isUDD) {widNow = 0; return;}
+      if (!coupSUSYPtr->isUDD) {widNow = 0; return;}
       
       // ~q -> q_i + q_j
       
       fac = 2.0 * kinFac / (16.0 * M_PI * pow(mHat,3)); 
       wid = 0.0;
-      if(idown) {
+      if (idown) {
 	if ((id1Abs+id2Abs)%2 == 1){
-	  if(id1Abs%2==1)
-	    for(int isq2 = 1; isq2 < 4; isq2++)
+	  if (id1Abs%2==1)
+	    for (int isq2 = 1; isq2 < 4; isq2++)
 	      wid += norm(coupSUSYPtr->rvUDD[iq2][iq1][isq2] 
                    * coupSUSYPtr->Rdsq[isq][isq2+3]);
 	  else
-	    for(int isq2 = 1; isq2 < 4; isq2++)
+	    for (int isq2 = 1; isq2 < 4; isq2++)
 	      wid += norm(coupSUSYPtr->rvUDD[iq1][iq2][isq2] 
                    * coupSUSYPtr->Rdsq[isq][isq2+3]);
 	}
@@ -703,38 +532,38 @@ void ResonanceSquark::calcWidth(bool) {
       else {
 	if ((id1Abs+id2Abs)%2 != 0) widNow = 0.0;
 	else
-	  for(int isq2 = 1; isq2 < 4; isq2++)
+	  for (int isq2 = 1; isq2 < 4; isq2++)
 	    wid += norm(coupSUSYPtr->rvUDD[isq2][iq1][iq2] 
                  * coupSUSYPtr->Rusq[isq][isq2+3]);
       }
   }
     
     //Case 1b:  LQD-type 
-    else if(id1Abs < 17 && id2Abs < 7){
-      if(!coupSUSYPtr->isLQD) {widNow = 0; return;}
+    else if (id1Abs < 17 && id2Abs < 7){
+      if (!coupSUSYPtr->isLQD) {widNow = 0; return;}
       
       int ilep = (id1Abs - 9)/2;
       int iq = (id2Abs + 1)/2;
     
       fac = kinFac / (16.0 * M_PI * pow(mHat,3)); 
       wid = 0.0;
-      if(idown){
-	if(iq%2 == 0){
+      if (idown){
+	if (iq%2 == 0){
 	  // q is up-type; ~q is right-handed down type
-	  for(int isq2=1; isq2<3; isq2++)
+	  for (int isq2=1; isq2<3; isq2++)
 	    wid += norm(coupSUSYPtr->Rdsq[isq][isq2+3] 
                  * coupSUSYPtr->rvLQD[ilep][iq][isq2]);
 	}else{
 	  //q is down type; ~q left-handed down-type
-	  for(int isq2=1; isq2<3; isq2++)
+	  for (int isq2=1; isq2<3; isq2++)
 	    wid += norm(coupSUSYPtr->Rdsq[isq][isq2] 
                  * coupSUSYPtr->rvLQD[ilep][isq2][isq2]);
 	}
       }
       else{
-	if(iq%2 == 0) {widNow = 0.0; return;}
+	if (iq%2 == 0) {widNow = 0.0; return;}
 	// q is down type; ~q is left-handed up-type
-	for(int isq2=1; isq2<3; isq2++)
+	for (int isq2=1; isq2<3; isq2++)
 	  wid += norm(coupSUSYPtr->Rusq[isq][isq2] 
                * coupSUSYPtr->rvLQD[ilep][isq2][iq]);
       }
@@ -746,10 +575,10 @@ void ResonanceSquark::calcWidth(bool) {
       int iq = (id2Abs + 1)/2;
       
       // ~q -> ~g + q
-      if(id1Abs == 1000021 && idRes%10 == id2Abs) {
+      if (id1Abs == 1000021 && idRes%10 == id2Abs) {
 	// Removed factor of s2W in denominator: strong process -- no EW
 	fac = 2.0 * alpS / (3.0 * pow3(mHat));
-	if(idown)
+	if (idown)
 	  wid = kinFac * (norm(coupSUSYPtr->LsddG[isq][iq]) 
               + norm(coupSUSYPtr->RsddG[isq][iq]))
 	      - 4.0 * mHat * mf2 * real(coupSUSYPtr->LsddG[isq][iq] 
@@ -761,11 +590,11 @@ void ResonanceSquark::calcWidth(bool) {
               * conj(coupSUSYPtr->RsuuG[isq][iq]));
       } 
       else 
-	for(int i=1; i<6 ; i++){
+	for (int i=1; i<6 ; i++){
 	  // ~q -> ~chi0 + q
-	  if(coupSUSYPtr->idNeut(i)==id1Abs && idRes%2 == id2Abs%2){
+	  if (coupSUSYPtr->idNeut(i)==id1Abs && idRes%2 == id2Abs%2){
 	    fac = alpEM *  preFac / (2.0 * (1 - s2W));
-	    if(idown)
+	    if (idown)
 	      wid = kinFac * (norm(coupSUSYPtr->LsddX[isq][iq][i]) 
                   + norm(coupSUSYPtr->RsddX[isq][iq][i]))
 		  - 4.0 * mHat * mf2 * real(coupSUSYPtr->LsddX[isq][iq][i] 
@@ -782,7 +611,7 @@ void ResonanceSquark::calcWidth(bool) {
             && idRes%2 != id2Abs%2){
 	    
 	    fac = alpEM *  preFac / (4.0 * (1 - s2W));
-	    if(idown)
+	    if (idown)
 	      wid = kinFac * (norm(coupSUSYPtr->LsduX[isq][iq][i]) 
                   + norm(coupSUSYPtr->RsduX[isq][iq][i]))
 		  - 4.0 * mHat * mf2 * real(coupSUSYPtr->LsduX[isq][iq][i] 
@@ -806,8 +635,8 @@ void ResonanceSquark::calcWidth(bool) {
       
       int isq2 = (id1Abs/ksusy == 2) ? (id1Abs%10+1)/2 + 3: (id1Abs%10+1)/2;
       
-      if(id2Abs == 23 && id1Abs%2 == idRes%2){
-	if(idown)
+      if (id2Abs == 23 && id1Abs%2 == idRes%2){
+	if (idown)
 	  wid = norm(coupSUSYPtr->LsdsdZ[isq][isq2] 
 		     + coupSUSYPtr->RsdsdZ[isq][isq2]);
 	else
@@ -815,7 +644,7 @@ void ResonanceSquark::calcWidth(bool) {
 		     + coupSUSYPtr->RsusuZ[isq][isq2]);
       }
       else if (id2Abs == 24 && id1Abs%2 != idRes%2){
-	if(idown)
+	if (idown)
 	  wid = norm(coupSUSYPtr->LsusdW[isq2][isq]);
 	else
 	  wid = norm(coupSUSYPtr->LsusdW[isq][isq2]);
@@ -824,7 +653,7 @@ void ResonanceSquark::calcWidth(bool) {
     
     // TODO: Case ~q_i -> ~q_j + h/H
     widNow = fac * wid * ps;
-    if(DEBUG) cout<<idRes<<":: id1:"<<id1Abs<<" id2:"<<id2Abs
+    if (DBSUSY) cout<<idRes<<":: id1:"<<id1Abs<<" id2:"<<id2Abs
 		  <<" Width: "<<widNow<<endl;
     return;
   }
@@ -865,10 +694,10 @@ void ResonanceGluino::calcWidth(bool) {
 
 
   widNow = 0.0;
-  if(ps == 0.) return;
+  if (ps == 0.) return;
   kinFac = (mHat * mHat - mf1 * mf1 + mf2 * mf2);
 
-  if(id1Abs > 1000000 && (id1Abs % 100) < 7 && id2Abs < 7) {
+  if (id1Abs > 1000000 && (id1Abs % 100) < 7 && id2Abs < 7) {
 
     int isq = (abs(id1Abs)/1000000 == 2) ? (abs(id1Abs)%10+1)/2 + 3
                                          : (abs(id1Abs)%10+1)/2;
@@ -876,7 +705,7 @@ void ResonanceGluino::calcWidth(bool) {
     int iq = (id2Abs + 1)/2;
 
     // ~g -> ~q + q
-    if(idown){
+    if (idown){
       widNow = kinFac * (norm(coupSUSYPtr->LsddG[isq][iq]) 
              + norm(coupSUSYPtr->RsddG[isq][iq]))
 	     + 4.0 * mHat * mf2 * real(coupSUSYPtr->LsddG[isq][iq] 
@@ -889,7 +718,7 @@ void ResonanceGluino::calcWidth(bool) {
              * conj(coupSUSYPtr->RsuuG[isq][iq]));
     }
     widNow = widNow * preFac * ps;
-    if(DEBUG) {
+    if (DBSUSY) {
       cout<<"Gluino:: id1:"<<id1Abs<<" id2:"<<id2Abs<<" Width: ";
       cout<<scientific<<widNow<<endl;
     }
@@ -933,8 +762,8 @@ void  ResonanceNeut::calcWidth(bool){
 
   widNow = 0.0;
 
-  if(ps ==0.) return;
-  else if(mult ==2){
+  if (ps ==0.) return;
+  else if (mult ==2){
     // Two-body decays
     
     kinFac = mHat * mHat - mf1 * mf1 + mf2 * mf2;
@@ -943,14 +772,14 @@ void  ResonanceNeut::calcWidth(bool){
             - 2.0 * pow2(mHat) * pow2(mf1);
     
     // Stable lightest neutralino
-    if(idRes == 1000022) return;
+    if (idRes == 1000022) return;
     
     double fac = 0.0;
     int iNeut1 = coupSUSYPtr->typeNeut(idRes);
     int iNeut2 = coupSUSYPtr->typeNeut(id1Abs);
     int iChar1 = coupSUSYPtr->typeChar(id1Abs);
     
-    if(iNeut2>0 && id2Abs == 23){
+    if (iNeut2>0 && id2Abs == 23){
       // ~chi0_i -> chi0_j + Z
       fac = kinFac2 * (norm(coupSUSYPtr->OLpp[iNeut1][iNeut2]) 
           + norm(coupSUSYPtr->ORpp[iNeut1][iNeut2]));
@@ -959,7 +788,7 @@ void  ResonanceNeut::calcWidth(bool){
 	   * conj(coupSUSYPtr->ORpp[iNeut1][iNeut2]));
       fac /= pow2(mf2) * (1.0 - s2W);
     }
-    else if(iChar1>0 && id2Abs==24){
+    else if (iChar1>0 && id2Abs==24){
       // ~chi0_i -> chi+_j + W- (or c.c.)
       
       fac = kinFac2 * (norm(coupSUSYPtr->OL[iNeut1][iChar1]) 
@@ -969,14 +798,14 @@ void  ResonanceNeut::calcWidth(bool){
 	   * conj(coupSUSYPtr->OR[iNeut1][iChar1]));
       fac /= pow2(mf2);
     }
-    else if(id1Abs > 1000000 && id1Abs%100 < 7 && id2Abs < 7){
+    else if (id1Abs > 1000000 && id1Abs%100 < 7 && id2Abs < 7){
       // ~chi0_k -> ~q + q
       bool idown = (id1Abs%2 == 1);
       int iq = (id2Abs + 1 )/ 2;
       int isq = (abs(id1Abs)/1000000 == 2) ? (abs(id1Abs)%10+1)/2 + 3
                                            : (abs(id1Abs)%10+1)/2;
       
-      if(idown){
+      if (idown){
 	fac  = kinFac * (norm(coupSUSYPtr->LsddX[isq][iq][iNeut1]) 
              + norm(coupSUSYPtr->RsddX[isq][iq][iNeut1]));
 	fac += 4.0 * mHat * mf2 * real(coupSUSYPtr->LsddX[isq][iq][iNeut1] 
@@ -991,7 +820,7 @@ void  ResonanceNeut::calcWidth(bool){
       // Extra multiplicative factor of 3 over sleptons
       fac *= 6.0/(1 - s2W);
     }
-    else if(id1Abs > 1000000 && id1Abs%100 > 10 && id1Abs%100 < 17 
+    else if (id1Abs > 1000000 && id1Abs%100 > 10 && id1Abs%100 < 17 
       && id2Abs < 17){
       // ~chi0_k -> ~l + l
       bool idown = id2Abs%2;
@@ -999,7 +828,7 @@ void  ResonanceNeut::calcWidth(bool){
       int isl = (abs(id1Abs)/1000000 == 2) ? (abs(id1Abs)%10+1)/2 + 3
                                            : (abs(id1Abs)%10+1)/2;
       
-      if(idown){
+      if (idown){
 	fac  = kinFac * (norm(coupSUSYPtr->LsllX[isl][il][iNeut1]) 
              + norm(coupSUSYPtr->RsllX[isl][il][iNeut1]));
 	fac += 4.0 * mHat * mf2 * real(coupSUSYPtr->LsllX[isl][il][iNeut1] 
@@ -1013,7 +842,7 @@ void  ResonanceNeut::calcWidth(bool){
     // TODO: Decays in higgs
     // Final width for 2-body decays
     widNow = fac * preFac * ps ;
-    if(DEBUG) {
+    if (DBSUSY) {
       cout<<idRes<<":: id1:"<<id1Abs<<" id2:"<<id2Abs<<" Width: ";
       cout<<scientific<<widNow<<endl;
     }
@@ -1022,30 +851,30 @@ void  ResonanceNeut::calcWidth(bool){
     //RPV 3-body decays
     //Case: UDD-type
 
-    if(!coupSUSYPtr->isUDD) return;
+    if (!coupSUSYPtr->isUDD) return;
 
-    if(id1Abs < 7 && id2Abs < 7 && id3Abs < 7){
+    if (id1Abs < 7 && id2Abs < 7 && id3Abs < 7){
 
       // Check that quarks compatible with UDD structure
-      if((id1Abs+id2Abs+id3Abs)%2 == 1) return; 
+      if ((id1Abs+id2Abs+id3Abs)%2 == 1) return; 
       double rvfac,m12min,m12max,integral;
       int idInt;
       
       // Loop over mass eigenstate in actual propagator
-      for(int idIntRes = 1; idIntRes <= 6; idIntRes++){ 
+      for (int idIntRes = 1; idIntRes <= 6; idIntRes++){ 
 	// Right handed field in the UDD coupling
 	for (int iSq = 1; iSq <= 3; iSq++){ 
 	  double m1, m2, m3, mixfac1(0.), mixfac2(0.), mixfac3(0.);
 	  int itemp1,itemp2,itemp3;
 	  // up/down-type internal lines
-	  for(int itype = 1; itype<=3; itype++){ 
+	  for (int itype = 1; itype<=3; itype++){ 
 	    //itype = 1: up
 	    //itype = 2: down1
 	    //itype = 3: down2
-	    if(itype ==1 ) idInt = coupSUSYPtr->idSup(idIntRes);
+	    if (itype ==1 ) idInt = coupSUSYPtr->idSup(idIntRes);
 	    else idInt = coupSUSYPtr->idSdown(idIntRes);
-	    if(id1Abs%2 == 0){
-	      if(itype == 1){
+	    if (id1Abs%2 == 0){
+	      if (itype == 1){
 		itemp3 = id1Abs;
 		itemp1 = id2Abs;
 		itemp2 = id3Abs;
@@ -1064,8 +893,8 @@ void  ResonanceNeut::calcWidth(bool){
 		rvfac = pow2(
                   coupSUSYPtr->rvUDD[(id1Abs+1)/2][(id2Abs+1)/2][iSq]);
 	      }
-	    }else if(id2Abs%2 == 0){
-	      if(itype==1){
+	    }else if (id2Abs%2 == 0){
+	      if (itype==1){
 		itemp3 = id2Abs;
 		itemp1 = id1Abs;
 		itemp2 = id3Abs;
@@ -1085,7 +914,7 @@ void  ResonanceNeut::calcWidth(bool){
                   coupSUSYPtr->rvUDD[(id2Abs+1)/2][(id2Abs+1)/2][iSq]);
 	      }
 	    }else{
-	      if(itype==1){
+	      if (itype==1){
 		itemp3 = id3Abs;
 		itemp1 = id1Abs;
 		itemp2 = id2Abs;
@@ -1115,21 +944,21 @@ void  ResonanceNeut::calcWidth(bool){
 	    m12max = pow2(mHat-m3);
 
 	    // Ignore mode when 2-body decay is possible
-	    if(mRes > particleDataPtr->m0(idInt) + particleDataPtr->m0(itemp3))
+	    if (mRes > particleDataPtr->m0(idInt) + particleDataPtr->m0(itemp3))
 	      continue;
 	    
 	    // Single diagram squared terms
 	    psi.setInternal(idRes, itemp1, itemp2, itemp3, idInt, 0);
 	    // Mixing with R-states
-	    if(itype == 1)
+	    if (itype == 1)
 	      mixfac1 = norm(coupSUSYPtr->Rusq[idIntRes][iSq+3]); 
 	    else
 	      mixfac1 = norm(coupSUSYPtr->Rdsq[idIntRes][iSq+3]); 
 	    
-	    if(abs(rvfac * mixfac1) > 1.0e-8) {
+	    if (abs(rvfac * mixfac1) > 1.0e-8) {
 	      integral =  integrateGauss(&psi,m12min,m12max,1.0e-4);
 	      widNow += rvfac * mixfac1 * integral;
-	    //   if(DEBUG || idRes == 1000023)
+	    //   if (DBSUSY || idRes == 1000023)
 	    // 	cout << scientific << setw(10) <<"Psi: intRes: "<<idInt
 	    // 	     <<" integral:"<<integral<<" mixfac:"<<mixfac1
 	    // 	     <<" widNow:"<<widNow<<endl;
@@ -1138,9 +967,9 @@ void  ResonanceNeut::calcWidth(bool){
 	    // Mixing of diagrams with different internal squarks 
             // of same isospin
 	    for (int idIntRes2 = 1; idIntRes2 <= 6; idIntRes2++){
-	      if(idIntRes2 == idIntRes) continue;
+	      if (idIntRes2 == idIntRes) continue;
 	      int idInt2;
-	      if(itype == 1 ){
+	      if (itype == 1 ){
 	        idInt2 = coupSUSYPtr->idSup(idIntRes2);
 		mixfac2 = 2.0 * real(coupSUSYPtr->Rusq[idIntRes][iSq+3] 
 			* conj(coupSUSYPtr->Rusq[idIntRes2][iSq+3]));
@@ -1151,14 +980,14 @@ void  ResonanceNeut::calcWidth(bool){
 	      }
 
 	      // Ignore mode when 2-body decay is possible
-	      if(mRes > particleDataPtr->m0(idInt2) 
+	      if (mRes > particleDataPtr->m0(idInt2) 
                       + particleDataPtr->m0(itemp3)) continue;
 
 	      upsil.setInternal(idRes,itemp1, itemp2,itemp3,idInt,idInt2);
-	      if(abs(rvfac * mixfac2) > 0.0) {
+	      if (abs(rvfac * mixfac2) > 0.0) {
 		integral =  integrateGauss(&upsil,m12min,m12max,1.0e-4);
 		widNow += rvfac * mixfac2 * integral;
-		// if(DEBUG || idRes == 1000023)
+		// if (DBSUSY || idRes == 1000023)
 		//   cout << scientific << setw(10) <<"Upsilon: intRes: "
 		//        <<idInt<<" intRes2:"<<idInt2<<" integral:"<<integral
 		//        <<" mixfac:"<<mixfac2<<" widNow:"<<widNow<<endl;
@@ -1169,11 +998,11 @@ void  ResonanceNeut::calcWidth(bool){
             // of different isospin
 
 	    for (int idIntRes2 = 1; idIntRes2 <= 6; idIntRes2++){
-	      if(itype != 1 && idIntRes2 == idIntRes) continue;
+	      if (itype != 1 && idIntRes2 == idIntRes) continue;
 	      int idInt2;
 
 	      for (int iSq2 = 1; iSq2 <= 3; iSq2++){
-		if(itype == 1 ){
+		if (itype == 1 ){
 		  idInt2 = coupSUSYPtr->idSdown(idIntRes2);
 		  mixfac3 = 2.0 * real(coupSUSYPtr->Rusq[idIntRes][iSq+3]  
 			  * conj(coupSUSYPtr->Rdsq[idIntRes2][iSq2+3]));
@@ -1183,10 +1012,10 @@ void  ResonanceNeut::calcWidth(bool){
 			  * conj(coupSUSYPtr->Rdsq[idIntRes2][iSq2+3]));
 		}
 
-		if(abs(rvfac * mixfac3) > 0.0) {
+		if (abs(rvfac * mixfac3) > 0.0) {
 		  phi.setInternal(idRes,itemp1, itemp2,itemp3,idInt,idInt2);
 		  //integral = 0;
-		  //if(idIntRes == 2 && iSq2 ==4)
+		  //if (idIntRes == 2 && iSq2 ==4)
 		  integral =  integrateGauss(&phi,m12min,m12max,1.0e-4);
 		  widNow -= rvfac * mixfac2 * integral;
 		}
@@ -1234,9 +1063,9 @@ void  ResonanceChar::calcPreFac(bool){
 void  ResonanceChar::calcWidth(bool){
 
   widNow = 0.0;
-  if(ps == 0.) return;
+  if (ps == 0.) return;
 
-  if(mult ==2){
+  if (mult ==2){
     double fac = 0.0;
     kinFac = mHat * mHat - mf1 * mf1 + mf2 * mf2;
     kinFac2 = pow(mHat,4) + pow(mf1,4) - 2.0 * pow(mf2,4) 
@@ -1247,7 +1076,7 @@ void  ResonanceChar::calcWidth(bool){
     int idChar2 = coupSUSYPtr->typeChar(id1Abs);
     int idNeut1 = coupSUSYPtr->typeNeut(id1Abs);
     
-    if(idChar2>0 && id2Abs == 23){
+    if (idChar2>0 && id2Abs == 23){
       // ~chi_i -> chi_j + Z
       fac = kinFac2 * (norm(coupSUSYPtr->OLp[idChar1][idChar2]) 
           + norm(coupSUSYPtr->ORp[idChar1][idChar2]));
@@ -1256,7 +1085,7 @@ void  ResonanceChar::calcWidth(bool){
 	   * conj(coupSUSYPtr->ORp[idChar1][idChar2]));
       fac /= pow2(mf2) * (1.0 - s2W);
     }
-    else if(idNeut1>0 && id2Abs==24){
+    else if (idNeut1>0 && id2Abs==24){
       // ~chi_i -> chi0_j + W- (or c.c.)
       
       fac  = kinFac2 * (norm(coupSUSYPtr->OL[idNeut1][idChar1]) 
@@ -1266,14 +1095,14 @@ void  ResonanceChar::calcWidth(bool){
 	   * conj(coupSUSYPtr->OR[idNeut1][idChar1]));
       fac /= pow2(mf2);
     }
-    else if(id1Abs > 1000000 && id1Abs%100 < 7 && id2Abs < 7){
+    else if (id1Abs > 1000000 && id1Abs%100 < 7 && id2Abs < 7){
       // ~chi0_k -> ~q + q
       bool idown = (id1Abs%2 == 1);
       int iq = (id2Abs + 1 )/ 2;
       int isq = (abs(id1Abs)/1000000 == 2) ? (abs(id1Abs)%10+1)/2 + 3
                                            : (abs(id1Abs)%10+1)/2;
       
-      if(idown){
+      if (idown){
 	fac  = kinFac * (norm(coupSUSYPtr->LsduX[isq][iq][idChar1]) 
 	     + norm(coupSUSYPtr->RsduX[isq][iq][idChar1]));
 	fac += 4.0 * mHat * mf2  
@@ -1289,7 +1118,7 @@ void  ResonanceChar::calcWidth(bool){
       }
       fac *= 6.0/(1 - s2W);
     }
-    else if(id1Abs > 1000000 && id1Abs%100 > 10 && id1Abs%100 < 17 
+    else if (id1Abs > 1000000 && id1Abs%100 > 10 && id1Abs%100 < 17 
       && id2Abs < 17){
       // ~chi+_k -> ~l + l
       bool idown = id2Abs%2;
@@ -1297,7 +1126,7 @@ void  ResonanceChar::calcWidth(bool){
       int isl = (abs(id1Abs)/1000000 == 2) ? (abs(id1Abs)%10+1)/2 + 3
                                            : (abs(id1Abs)%10+1)/2;
       
-      if(idown){
+      if (idown){
 	fac  = kinFac * (norm(coupSUSYPtr->LslvX[isl][il][idChar1]) 
              + norm(coupSUSYPtr->RslvX[isl][il][idChar1]));
 	fac += 4.0 * mHat * mf2 * real(coupSUSYPtr->LslvX[isl][il][idChar1] 
@@ -1311,7 +1140,7 @@ void  ResonanceChar::calcWidth(bool){
 
     // TODO: Decays in higgs
     widNow = fac * preFac * ps ;
-    if(DEBUG) {
+    if (DBSUSY) {
       cout<<idRes<<":: id1:"<<id1Abs<<" id2:"<<id2Abs<<" Width: ";
       cout<<scientific<<widNow<<endl;
     }
@@ -1362,7 +1191,7 @@ void ResonanceSlepton::calcWidth(bool) {
   bool islep = idRes%2;
 
   // Check that mass is above threshold.
-  if(ps == 0.) return;
+  if (ps == 0.) return;
   else{
     // Two-body decays
     kinFac = (mHat * mHat - mf1 * mf1 - mf2 * mf2);
@@ -1373,11 +1202,11 @@ void ResonanceSlepton::calcWidth(bool) {
     //Case 2: slepton + gaugino 
 
     if (id1Abs > ksusy && id2Abs > 10 && id2Abs < 17) {
-      for(int i=1; i<6 ; i++){
+      for (int i=1; i<6 ; i++){
 	// ~ell/~nu -> ~chi0 + ell/nu
-	if(coupSUSYPtr->idNeut(i)==id1Abs && idRes%2 == id2Abs%2){
+	if (coupSUSYPtr->idNeut(i)==id1Abs && idRes%2 == id2Abs%2){
 	  fac = alpEM *  preFac / (2.0 * (1 - s2W));
-	  if(islep)
+	  if (islep)
 	    wid = kinFac * (norm(coupSUSYPtr->LsllX[isl][il][i]) 
                 + norm(coupSUSYPtr->RsllX[isl][il][i]))
 	        - 4.0 * mHat * mf2 * real(coupSUSYPtr->LsllX[isl][il][i] 
@@ -1394,7 +1223,7 @@ void ResonanceSlepton::calcWidth(bool) {
           && idRes%2 != id2Abs%2){
 	  
 	  fac = alpEM *  preFac / (4.0 * (1 - s2W));
-	  if(islep)
+	  if (islep)
 	    wid = kinFac * (norm(coupSUSYPtr->LslvX[isl][il][i]) 
                 + norm(coupSUSYPtr->RslvX[isl][il][i]))
 	        - 4.0 * mHat * mf2 * real(coupSUSYPtr->LslvX[isl][il][i] 
@@ -1417,8 +1246,8 @@ void ResonanceSlepton::calcWidth(bool) {
       
       int isl2 = (id1Abs/ksusy == 2) ? (id1Abs%10+1)/2 + 3: (id1Abs%10+1)/2;
       
-      if(id2Abs == 23 && id1Abs%2 == idRes%2){
-	if(islep)
+      if (id2Abs == 23 && id1Abs%2 == idRes%2){
+	if (islep)
 	  wid = norm(coupSUSYPtr->LslslZ[isl][isl2] 
               + coupSUSYPtr->RslslZ[isl][isl2]);
 	else
@@ -1426,7 +1255,7 @@ void ResonanceSlepton::calcWidth(bool) {
               + coupSUSYPtr->RsvsvZ[isl][isl2]);
       }
       else if (id2Abs == 24 && id1Abs%2 != idRes%2){
-	if(islep)
+	if (islep)
 	  wid = norm(coupSUSYPtr->LslsvW[isl2][isl]);
 	else
 	  wid = norm(coupSUSYPtr->LslsvW[isl][isl2]);
@@ -1437,7 +1266,7 @@ void ResonanceSlepton::calcWidth(bool) {
     
     
     widNow = fac * wid * ps;
-    if(DEBUG) cout<<idRes<<":: id1:"<<id1Abs<<" id2:"<<id2Abs
+    if (DBSUSY) cout<<idRes<<":: id1:"<<id1Abs<<" id2:"<<id2Abs
 		  <<" Width: "<<widNow<<endl;
     return;
   }
@@ -1482,7 +1311,7 @@ double SUSYResonanceWidths::integrateGauss(WidthFunction* widthFn,
     cerr<<"xlo = xhi"<<endl;
     return 0.0;
   }
-  if ( xlo > xhi ) {
+  if (xlo > xhi) {
     cerr<<" (integrateGauss:) -> xhi < xlo"<<endl;
     return 0.0;
   }

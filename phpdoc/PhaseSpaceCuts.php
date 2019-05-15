@@ -143,7 +143,7 @@ play a major role, and the phase space generation and cuts have
 been adapted to this. For this class, an alternative set of cuts 
 is used, as outlined in the following. First of all the three
 outgoing partons are ordered in falling <i>pT</i>, i.e. 
-<i>pT_3 > pT_4 > pT_5</i> (where the labelling 3, 4, 5 of the outgoing 
+<i>pT_3 > pT_4 > pT_5</i> (where the labeling 3, 4, 5 of the outgoing 
 partons is random, i.e. unrelated to the order specified in the
 process name). The allowed ranges of <i>pT_3</i> and <i>pT_5</i>
 can be specified, but obviously <i>pT_3max >= pT_5max</i> and
@@ -237,7 +237,7 @@ that is intended to be above the true cross-section behaviour
 over the whole of phase space. It is chosen to be easily integrable 
 and invertible. That way a trial phase space point can be selected 
 according this simple function, and then be accepted by the ratio of
-true to the simple function. For a good efficieny the ratio should be
+true to the simple function. For a good efficiency the ratio should be
 close to unity,  yet never above it. This constrains the absolute 
 normalization of the simple function. The initial search may fail to 
 find the phase space point where the true-to-simple ratio is maximal,
@@ -523,4 +523,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->

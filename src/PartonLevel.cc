@@ -1,5 +1,5 @@
 // PartonLevel.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -54,7 +54,8 @@ bool PartonLevel::init( Info* infoPtrIn, Settings& settings,
   mergingHooksPtr    = mergingHooksPtrIn;
 
   // Min bias and diffraction processes need special treatment.
-  bool doSQ          = settings.flag("SoftQCD:all");
+  bool doSQ          = settings.flag("SoftQCD:all")
+                    || settings.flag("SoftQCD:inelastic");
   bool doMB          = settings.flag("SoftQCD:minBias");
   bool doSD          = settings.flag("SoftQCD:singleDiffractive");
   bool doDD          = settings.flag("SoftQCD:doubleDiffractive");
@@ -68,9 +69,6 @@ bool PartonLevel::init( Info* infoPtrIn, Settings& settings,
   pMaxDiff           = settings.parm("Diffraction:probMaxPert");
   if (mMinDiff > infoPtr->eCM()) doDiffraction = false;
 
-  // Initialise trial shower switch
-  doTrial            = useAsTrial;
-
   // Need MPI initialization for soft QCD processes, even if only first MPI.
   // But no need to initialize MPI if never going to use it.
   doMPI              = settings.flag("PartonLevel:MPI");
@@ -82,16 +80,16 @@ bool PartonLevel::init( Info* infoPtrIn, Settings& settings,
   if (doMinBias || doDiffraction)        doMPIinit = true;
   if (!settings.flag("PartonLevel:all")) doMPIinit = false;  
 
+  // Initialise trial shower switch
+  doTrial            = useAsTrial;
   // Merging initialization.
   bool hasMergingHooks = (mergingHooksPtr != 0);
-  doMerging          =  settings.flag("Merging:doUserMerging")
-                     || settings.flag("Merging:doMGMerging")
-                     || settings.flag("Merging:doKTMerging")
-                     || settings.flag("Merging:doPTLundMerging")
-                     || settings.flag("Merging:doCutBasedMerging");
-  doMerging          = doMerging && hasMergingHooks;
+  canRemoveEvent       = !doTrial && hasMergingHooks
+    && ( mergingHooksPtr->doCKKWLMerging() || mergingHooksPtr->doNL3Merging());
+  canRemoveEmission    = !doTrial && hasMergingHooks
+    && ( mergingHooksPtr->doUMEPSMerging() || mergingHooksPtr->doNL3Merging()
+      || mergingHooksPtr->doUNLOPSMerging() );
 
-  doMergeFirstEmm    = doMerging && !doTrial;
   nTrialEmissions    = 1;
   pTLastBranch       = 0.0;
   typeLastBranch     = 0;
@@ -237,9 +235,14 @@ bool PartonLevel::next( Event& process, Event& event) {
   }
 
   // Number of actual branchings.
-  int nBranch    = 0;
+  int nBranch        = 0;
   // Number of desired branchings, negative value means no restriction.
-  int nBranchMax = (doTrial) ? nTrialEmissions : -1;
+  int nBranchMax     = (doTrial) ? nTrialEmissions : -1;
+
+  // Store merging weight.
+  bool hasMergingHooks = (mergingHooksPtr != 0);
+  if ( hasMergingHooks && canRemoveEvent )
+    mergingHooksPtr->storeWeights(infoPtr->getWeightCKKWL()); 
 
   // Big outer loop to handle up to two systems (in double diffraction),
   // but normally one. (Not indented in following, but end clearly marked.)
@@ -317,16 +320,27 @@ bool PartonLevel::next( Event& process, Event& event) {
       ? spacePtr->limitPTmax( event, Q2Fac, Q2Ren) : false;
     bool limitPTmaxFSR = (doFSRduringProcess) 
       ? timesPtr->limitPTmax( event, Q2Fac, Q2Ren) : false;
-    bool limitPTmaxMPI  = (doMPI)  ? multiPtr->limitPTmax( event) : false;
+    bool limitPTmaxMPI = (doMPI)  ? multiPtr->limitPTmax( event) : false;
 
-    // Set hard scale, maximum for showers and multiparton interactions,
-    double pTscale  = process.scale();
-    if (doSecondHard) pTscale = max( pTscale, process.scaleSecond() );  
-    double pTmaxMPI = (limitPTmaxMPI)  ? pTscale : infoPtr->eCM();
-    double pTmaxISR = (limitPTmaxISR) ? spacePtr->enhancePTmax() * pTscale 
+    // Set hard scale, maximum for showers and multiparton interactions.
+    double pTscaleRad  = process.scale();
+    double pTscaleMPI  = pTscaleRad;
+    if (doSecondHard) {
+      pTscaleRad       = max( pTscaleRad, process.scaleSecond() );  
+      pTscaleMPI       = min( pTscaleMPI, process.scaleSecond() );  
+    }
+    double pTmaxMPI = (limitPTmaxMPI)  ? pTscaleMPI : infoPtr->eCM();
+    double pTmaxISR = (limitPTmaxISR) ? spacePtr->enhancePTmax() * pTscaleRad 
                                       : infoPtr->eCM();
-    double pTmaxFSR = (limitPTmaxFSR) ? timesPtr->enhancePTmax() * pTscale 
+    double pTmaxFSR = (limitPTmaxFSR) ? timesPtr->enhancePTmax() * pTscaleRad 
                                       : infoPtr->eCM();
+
+    // Potentially reset up starting scales for matrix element merging.
+    if ( hasMergingHooks && (doTrial || canRemoveEvent || canRemoveEmission) )
+      mergingHooksPtr->setShowerStartingScales( doTrial,
+        (canRemoveEvent || canRemoveEmission), pTscaleRad, process, pTmaxFSR, 
+        limitPTmaxFSR, pTmaxISR, limitPTmaxISR, pTmaxMPI, limitPTmaxMPI ); 
+
     double pTmax    = max( pTmaxMPI, max( pTmaxISR, pTmaxFSR) );
     pTsaveMPI       = pTmaxMPI;
     pTsaveISR       = pTmaxISR;
@@ -337,8 +351,8 @@ bool PartonLevel::next( Event& process, Event& event) {
     if (doISR) spacePtr->prepare( 0, event, limitPTmaxISR);
     if (doFSRduringProcess) timesPtr->prepare( 0, event, limitPTmaxFSR);
     if (doSecondHard && doISR) spacePtr->prepare( 1, event, limitPTmaxISR);
-    if (doSecondHard && doFSRduringProcess)
-       timesPtr->prepare( 1, event, limitPTmaxFSR);
+    if (doSecondHard && doFSRduringProcess) timesPtr->prepare( 1, event,
+       limitPTmaxFSR);
 
     // Impact parameter has now been chosen, except for diffraction.
     if (!isDiff) infoPtr->setImpact( multiPtr->bMPI(), 
@@ -483,42 +497,9 @@ bool PartonLevel::next( Event& process, Event& event) {
       infoPtr->setPartEvolved( nMPI, nISR);
 
       // Handle potential merging veto.
-      if ( doMergeFirstEmm && (nISRhard + nFSRhard == 1) ){
-        // Get number of clustering steps.
-        int nSteps  = mergingHooksPtr->getNumberOfClusteringSteps(process);
-        // Get maximal number of additional jets.
-        int nJetMax = mergingHooksPtr->nMaxJets();
-        // Get merging scale value.
-        double tms  = mergingHooksPtr->tms();
-        // Get merging scale in current event.
-        double tnow = 0.;
-        // Use KT/Durham merging scale definition.
-        if ( mergingHooksPtr->doKTMerging() || mergingHooksPtr->doMGMerging() )
-          tnow = mergingHooksPtr->kTms(event);
-        // Use Lund PT merging scale definition.
-        else if ( mergingHooksPtr->doPTLundMerging() )
-          tnow = mergingHooksPtr->rhoms(event, false);
-        // Use DeltaR_{ij}, pT_i, Q_{ij} combination merging scale definition.
-        else if ( mergingHooksPtr->doCutBasedMerging() )
-          tnow = mergingHooksPtr->cutbasedms(event);
-        // Use user-defined merging scale.
-        else
-          tnow = mergingHooksPtr->tmsDefinition(event);
-
-        // Check merging veto condition.
-        if ( nSteps < nJetMax && tnow > tms ) {
-          // Reset stored weights.
-          mergingHooksPtr->setWeightCKKWL(0.);
-          infoPtr->setWeightCKKWL(0.);
-          doVeto = true;
-        }
-
-      }
-
-      // Abort event if vetoed.
-      if (doVeto) {
-        if (isDiff) leaveResolvedDiff( iHardLoop, process, event);
-        return false;
+      if ( canRemoveEvent && nISRhard + nFSRhard == 1 ){
+        // Simply check, and possibly reset weights.
+        mergingHooksPtr->doVetoStep( process, event );
       }
 
     // End loop evolution down in pT from hard pT scale.
@@ -593,43 +574,9 @@ bool PartonLevel::next( Event& process, Event& event) {
         }
 
         // Handle potential merging veto.
-        if ( doMergeFirstEmm && (nISRhard + nFSRhard == 1) ){
-          // Get number of clustering steps.
-          int nSteps  = mergingHooksPtr->getNumberOfClusteringSteps(process);
-          // Get maximal number of additional jets.
-          int nJetMax = mergingHooksPtr->nMaxJets();
-          // Get merging scale value.
-          double tms  = mergingHooksPtr->tms();
-          // Get merging scale in current event.
-          double tnow = 0.;
-          // Use KT/Durham merging scale definition.
-          if ( mergingHooksPtr->doKTMerging()
-            || mergingHooksPtr->doMGMerging() )
-            tnow = mergingHooksPtr->kTms(event);
-          // Use Lund PT merging scale definition.
-          else if ( mergingHooksPtr->doPTLundMerging() )
-            tnow = mergingHooksPtr->rhoms(event, false);
-          // Use DeltaR_{ij}, pT_i, Q_{ij} combination merging scale definition.
-          else if ( mergingHooksPtr->doCutBasedMerging() )
-            tnow = mergingHooksPtr->cutbasedms(event);
-          // Use user-defined merging scale.
-          else
-            tnow = mergingHooksPtr->tmsDefinition(event);
-
-          // Check merging veto condition.
-          if ( nSteps < nJetMax && tnow > tms ) {
-            // Reset stored weights.
-            mergingHooksPtr->setWeightCKKWL(0.);
-            infoPtr->setWeightCKKWL(0.);
-            doVeto = true;
-          }
-
-        }
-
-        // Abort event if vetoed.
-        if (doVeto) {
-          if (isDiff) leaveResolvedDiff( iHardLoop, process, event);
-          return false;
+        if ( canRemoveEvent && nISRhard + nFSRhard == 1 ){
+          // Simply check, and possibly reset weights.
+          mergingHooksPtr->doVetoStep( process, event );
         }
 
         // Keep on evolving until nothing is left to be done.
@@ -645,7 +592,7 @@ bool PartonLevel::next( Event& process, Event& event) {
       if (isDiff) leaveResolvedDiff( iHardLoop, process, event);
       return false;
     }
-    
+
     // Add beam remnants, including primordial kT kick and colour tracing.
     if (!doTrial && physical && doRemnants && !remnants.add( event))
       physical = false;
@@ -1054,8 +1001,8 @@ void PartonLevel::setupHardSys( Event& process, Event& event) {
     if (kindJunction <= 4) {
       int iLegF1 = (kindJunction - 1) / 2;    
       for (int iLeg = iLegF1; iLeg <= 2; ++iLeg) {
-	bool colFound = false;
-	for (int i = inM + 1; i < event.size(); ++i) {
+        bool colFound = false;
+        for (int i = inM + 1; i < event.size(); ++i) {
 	  int col = (kindJunction % 2 == 1) ? event[i].col() : event[i].acol();
 	  if (col == process.colJunction(iJun,iLeg)) colFound = true;
         }
@@ -1116,17 +1063,17 @@ void PartonLevel::setupShowerSys( Event& process, Event& event) {
     if (kindJunction <= 4) {
       int iLegF1 = (kindJunction - 1) / 2;    
       for (int iLeg = iLegF1; iLeg <= 2; ++iLeg) {
-        bool colFound = false;
+  	bool colFound = false;
 	for (int i = 1; i < event.size(); ++i) {
 	  int col = (kindJunction % 2 == 1) ? event[i].col() : event[i].acol();
 	  if (col == process.colJunction(iJun,iLeg)) colFound = true;
-        }
-        if (!colFound) doCopy = false;
+	}
+	if (!colFound) doCopy = false;
       }	
     }
     if (doCopy) event.appendJunction( process.getJunction(iJun));
   }
- 
+  
   // Done. 
 }
 
@@ -1255,6 +1202,8 @@ bool PartonLevel::resonanceShowers( Event& process, Event& event,
   int nFSRres = 0;
   // Number of desired branchings, negative value means no restriction.
   int nBranchMax = (doTrial) ? nTrialEmissions : -1;
+  // Vector to tell which junctions have already been copied
+  vector<int> iJunCopied;
 
   while (nHardDone < process.size()) {
     ++nRes;
@@ -1310,7 +1259,7 @@ bool PartonLevel::resonanceShowers( Event& process, Event& event,
     M.bst( hardMother.p(), aftMother.p());
 
     // Extract next partons from hard event into normal event record.
-    vector<bool> iJunCopy;
+    vector<bool> doCopyJun;
     for (int i = iBegin; i < process.size(); ++i) { 
       if (process[i].mother1() != iHardMother) break;
       int iNow = event.append( process[i] );
@@ -1330,16 +1279,16 @@ bool PartonLevel::resonanceShowers( Event& process, Event& event,
 
       // Check if this parton carries a junction color in hard event.
       for (int iJun = 0; iJun < process.sizeJunction(); ++iJun) {
-	if (iJun >= int(iJunCopy.size())) iJunCopy.push_back(false); 
-	int kindJunction = process.kindJunction(iJun);
-	// Only consider junctions that can appear in decays.
+        if (iJun >= int(doCopyJun.size())) doCopyJun.push_back(false); 
+        // Only consider junctions that can appear in decays.
+        int kindJunction = process.kindJunction(iJun);
 	if (kindJunction >= 5) continue;
 	int col = (kindJunction % 2 == 1) ? now.col() : now.acol();
         int iLegF1 = (kindJunction - 1) / 2;
 	for (int iLeg = iLegF1; iLeg <= 2; ++iLeg) 
-	if (col == process.colJunction(iJun,iLeg)) iJunCopy[iJun] = true;
+	if (col == process.colJunction(iJun,iLeg)) doCopyJun[iJun] = true;
       }
-      
+  
       // Update colour and momentum information.
       if (now.col() == colBef) now.col( colAft);
       if (now.acol() == acolBef) now.acol( acolAft);
@@ -1354,16 +1303,22 @@ bool PartonLevel::resonanceShowers( Event& process, Event& event,
     int iEnd = nHardDone - 1;
 
     // Copy down junctions from hard event into normal event record.
-    for (int iJun = 0; iJun < int(iJunCopy.size()); ++iJun) {
-      if (!iJunCopy[iJun]) continue;      
-      Junction junCopy = process.getJunction(iJun);
+    for (int iJun = 0; iJun < int(doCopyJun.size()); ++iJun) {
+      // Check if this junction was already copied
+      for (int jJun = 0; jJun < int(iJunCopied.size()); ++jJun) 
+        if (iJunCopied[jJun] == iJun) doCopyJun[iJun] = false;
+      // Skip if not doing anything
+      if (!doCopyJun[iJun]) continue;      
       // Check for changed colors and update as necessary.
+      Junction junCopy = process.getJunction(iJun);
       for (int iLeg = 0; iLeg <= 2; ++iLeg) {
-	int colLeg = junCopy.col(iLeg);
-	if (colLeg == colBef) junCopy.col(iLeg, colAft);
+        int colLeg = junCopy.col(iLeg);
+        if (colLeg == colBef) junCopy.col(iLeg, colAft);
 	if (colLeg == acolBef) junCopy.col(iLeg, acolAft);
       }
-      event.appendJunction(junCopy);      
+      event.appendJunction(junCopy);
+      // Mark junction as copied (to avoid later recopying)
+      iJunCopied.push_back(iJun);
     }
 
     // Reset pT of last branching
@@ -1375,6 +1330,9 @@ bool PartonLevel::resonanceShowers( Event& process, Event& event,
       if (canSetScale) pTmax 
         = userHooksPtr->scaleResonance( iAftMother, event);
       nFSRhard     = 0; 
+
+      // Set correct scale for trial showers.
+      if (doTrial) pTmax = process.scale();
 
       // Add new system, automatically with two empty beam slots.
       int iSys = partonSystemsPtr->addSys();
@@ -1435,41 +1393,9 @@ bool PartonLevel::resonanceShowers( Event& process, Event& event,
         }
 
         // Handle potential merging veto.
-        if( doMergeFirstEmm && nFSRhard == 1){
-          // Get number of clustering steps.
-          int nSteps  = mergingHooksPtr->getNumberOfClusteringSteps(process);
-          // Get maximal number of additional jets.
-          int nJetMax = mergingHooksPtr->nMaxJets();
-          // Get merging scale value.
-          double tms  = mergingHooksPtr->tms();
-          // Get merging scale in current event.
-          double tnow = 0.;
-          // Use KT/Durham merging scale definition.
-          if(mergingHooksPtr->doKTMerging() || mergingHooksPtr->doMGMerging())
-            tnow = mergingHooksPtr->kTms(event);
-          // Use Lund PT merging scale definition.
-          else if(mergingHooksPtr->doPTLundMerging())
-            tnow = mergingHooksPtr->rhoms(event, false);
-          // Use DeltaR_{ij}, pT_i, Q_{ij} combination merging scale
-          // definition.
-          else if(mergingHooksPtr->doCutBasedMerging())
-            tnow = mergingHooksPtr->cutbasedms(event);
-          // Use user-defined merging scale.
-          else
-            tnow = mergingHooksPtr->tmsDefinition(event);
-
-          // Check veto condition.
-          if( nSteps < nJetMax && tnow > tms) {
-            // Set stored weights to zero.
-            mergingHooksPtr->setWeightCKKWL(0.);
-            infoPtr->setWeightCKKWL(0.);
-            // Now allow veto.
-            doVeto = true;
-          }
-
-          infoPtr->setWeightCKKWL(mergingHooksPtr->getWeightCKKWL());
-          // Abort event if vetoed.
-          if (doVeto) return false;
+        if ( canRemoveEvent && nFSRhard == 1 ) {
+          // Simply check, and possibly reset weights.
+          mergingHooksPtr->doVetoStep( process, event, true );
         }
 
       // Keep on evolving until nothing is left to be done.

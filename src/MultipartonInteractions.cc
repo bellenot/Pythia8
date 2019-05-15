@@ -1,5 +1,5 @@
 // MultipartonInteractions.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -458,6 +458,9 @@ bool MultipartonInteractions::init( bool doMPIinit, int iDiffSysIn,
     expPow       = max(EXPPOWMIN, expPow);
   }
 
+  // Common choice of "pT" scale for determining impact parameter.
+  bSelScale      = settings.mode("MultipartonInteractions:bSelScale");
+
   // Process sets to include in machinery.
   processLevel   = settings.mode("MultipartonInteractions:processLevel");
 
@@ -490,7 +493,8 @@ bool MultipartonInteractions::init( bool doMPIinit, int iDiffSysIn,
   mMinPertDiff   = settings.parm("Diffraction:mMinPert");
 
   // Possibility to allow user veto of MPI
-  canVetoMPI = (userHooksPtr != 0) ? userHooksPtr->canVetoMPIEmission() : false;
+  canVetoMPI = (userHooksPtr != 0) ? userHooksPtr->canVetoMPIEmission() 
+             : false;
 
   // Some common combinations for double Gaussian, as shorthand.
   if (bProfile == 2) {
@@ -801,6 +805,7 @@ void MultipartonInteractions::reset( ) {
 // Requires separate treatment at low and high b values.
 
 void MultipartonInteractions::pTfirst() {
+
   // Pick impact parameter and thereby interaction rate enhancement.
   // This is not used for the x-dependent matter profile, which
   // instead uses trial interactions.
@@ -1022,12 +1027,22 @@ bool MultipartonInteractions::limitPTmax( Event& event) {
   if (pTmaxMatch == 2) return false;
    
   // Look if only quarks (u, d, s, c, b), gluons and photons in final state. 
-  bool onlyQGP = true;
-  for (int i = 5; i < event.size(); ++i) 
-  if (event[i].status() != -21) {
-    int idAbs = event[i].idAbs();
-    if (idAbs > 5 && idAbs != 21 && idAbs != 22) onlyQGP = false;
+  bool onlyQGP1 = true;
+  bool onlyQGP2 = true;
+  int  n21      = 0; 
+  for (int i = 5; i < event.size(); ++i) {
+    if (event[i].status() == -21) ++n21;
+    else if (n21 == 0) {
+      int idAbs = event[i].idAbs();
+      if (idAbs > 5 && idAbs != 21 && idAbs != 22) onlyQGP1 = false;
+    } else if (n21 == 2) {
+      int idAbs = event[i].idAbs();
+      if (idAbs > 5 && idAbs != 21 && idAbs != 22) onlyQGP2 = false;
+    }
   }
+
+  // If two hard interactions then limit if one only contains q/g/gamma.
+  bool onlyQGP = (n21 == 2) ? (onlyQGP1 || onlyQGP2) : onlyQGP1;
   return (onlyQGP);
  
 }
@@ -2291,7 +2306,19 @@ void MultipartonInteractions::overlapNext(Event& event, double pTscale) {
 
   // Default, valid for bProfile = 0. Also initial Sudakov.
   enhanceB = zeroIntCorr;
-  if (bProfile <= 0 || bProfile > 4) return; 
+  if (bProfile <= 0 || bProfile > 4) return;
+
+  // Alternative choices of event scale for Sudakov in (pT, b) space. 
+  if (bSelScale == 1) {
+    vector<double> mmT;
+    for (int i = 5; i < event.size(); ++i) if (event[i].isFinal()) {
+      mmT.push_back( event[i].m() + event[i].mT() );
+      for (int j = int(mmT.size()) - 1; j > 0; --j) 
+        if (mmT[j] > mmT[j - 1]) swap( mmT[j], mmT[j - 1] );
+    }
+    pTscale = 0.5 * mmT[0];
+    for (int j = 1; j < int(mmT.size()); ++j) pTscale += mmT[j] / (j + 1.);
+  } else if (bSelScale == 2) pTscale = event.scale();
   double pT2scale = pTscale*pTscale;
 
   // Use trial interaction for x-dependent matter profile.

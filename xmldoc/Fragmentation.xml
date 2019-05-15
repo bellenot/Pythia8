@@ -80,7 +80,61 @@ or in general any new coloured particle long-lived enough to hadronize.
 </parm>
 
 <p/>
-As an alternative, it is possible to switch over to the 
+Within the string framework, the <ei>b</ei> parameter is universal,
+i.e. common for all flavours. Nevertheless, for fits to experimental
+data, better agreement can be obtained if both <ei>a_Q</ei> and 
+<ei>b_Q</ei> can be set freely in a general expression
+<eq> 
+    f(z) = 1/z^{1 + r_Q * b_Q * m_Q^2} * (1-z)^a_Q * exp(-b_Q m_T^2 / z)
+</eq>
+The below switches and values can be used to achieve this. They should 
+be used with caution and constitute clear deviations from the Lund
+philosophy.
+
+<flag name="StringZ:useNonstandardC" default="off">
+use the above nonstandard Lund ansatz for <ei>c</ei> quarks.
+</flag>
+
+<flag name="StringZ:useNonstandardB" default="off">
+use the above nonstandard Lund ansatz for <ei>b</ei> quarks.
+</flag>
+
+<flag name="StringZ:useNonstandardH" default="off">
+use the above nonstandard Lund ansatz for hypothetical heavier quarks.
+</flag>
+
+<parm name="StringZ:aNonstandardC" default="0.3" min="0.0" max="2.0">
+The <ei>a</ei> parameter in the nonstandard Lund ansatz for
+ <ei>c</ei> quarks.
+</parm>
+
+<parm name="StringZ:aNonstandardB" default="0.3" min="0.0" max="2.0">
+The <ei>a</ei> parameter in the nonstandard Lund ansatz for
+ <ei>b</ei> quarks.
+</parm>
+
+<parm name="StringZ:aNonstandardH" default="0.3" min="0.0" max="2.0">
+The <ei>a</ei> parameter in the nonstandard Lund ansatz for 
+hypothetical heavier quarks.
+</parm>
+
+<parm name="StringZ:bNonstandardC" default="0.8" min="0.2" max="2.0">
+The <ei>b</ei> parameter in the nonstandard Lund ansatz for
+<ei>c</ei> quarks.
+</parm>
+
+<parm name="StringZ:bNonstandardB" default="0.8" min="0.2" max="2.0">
+The <ei>b</ei> parameter in the nonstandard Lund ansatz for
+<ei>b</ei> quarks.
+</parm>
+
+<parm name="StringZ:bNonstandardH" default="0.8" min="0.2" max="2.0">
+The <ei>b</ei> parameter in the nonstandard Lund ansatz for
+hypothetical heavier quarks.
+</parm> 
+
+<p/>
+As another nonstandard alternative, it is possible to switch over to the 
 Peterson/SLAC formula <ref>Pet83</ref>
 <eq>
      f(z) = 1 / ( z * (1 - 1/z - epsilon/(1-z))^2 )
@@ -308,5 +362,5 @@ junction rest frame).
 
 </chapter>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->
 

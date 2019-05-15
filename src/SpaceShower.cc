@@ -1,5 +1,5 @@
 // SpaceShower.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -180,6 +180,9 @@ void SpaceShower::init( BeamParticle* beamAPtrIn,
   strengthIntAsym = settingsPtr->parm("SpaceShower:strengthIntAsym");
   nQuarkIn        = settingsPtr->mode("SpaceShower:nQuarkIn");
 
+  // Possibility of two predetermined hard emissions in event.
+  doSecondHard    = settingsPtr->flag("SecondHard:generate");
+
   // Optional dampening at small pT's when large multiplicities.
   enhanceScreening 
     = settingsPtr->mode("MultipartonInteractions:enhanceScreening");
@@ -200,22 +203,30 @@ bool SpaceShower::limitPTmax( Event& event, double Q2Fac, double Q2Ren) {
 
   // Find whether to limit pT. Begin by user-set cases.
   bool dopTlimit = false;
-  if      (pTmaxMatch == 1) dopTlimit = true;
-  else if (pTmaxMatch == 2) dopTlimit = false;
+  dopTlimit1 = dopTlimit2 = false;
+  if      (pTmaxMatch == 1) dopTlimit = dopTlimit1 = dopTlimit2 = true;
+  else if (pTmaxMatch == 2) dopTlimit = dopTlimit1 = dopTlimit2 = false;
    
   // Look if any quark (u, d, s, c, b), gluon or photon in final state. 
   else {
-    for (int i = 5; i < event.size(); ++i) 
-    if (event[i].status() != -21) {
-      int idAbs = event[i].idAbs();
-      if (idAbs <= 5 || idAbs == 21 || idAbs == 22) dopTlimit = true;
+    int n21 = 0;
+    for (int i = 5; i < event.size(); ++i) {
+      if (event[i].status() == -21) ++n21;
+      else if (n21 == 0) {
+        int idAbs = event[i].idAbs();
+        if (idAbs <= 5 || idAbs == 21 || idAbs == 22) dopTlimit1 = true;
+      } else if (n21 == 2) {
+        int idAbs = event[i].idAbs();
+        if (idAbs <= 5 || idAbs == 21 || idAbs == 22) dopTlimit2 = true;
+      }
     }
+    dopTlimit = (doSecondHard) ? (dopTlimit1 && dopTlimit2) : dopTlimit1;  
   }
 
-  // Dampening at factorization or renormalization scale.
+  // Dampening at factorization or renormalization scale; only for hardest.
   dopTdamp   = false;
   pT2damp    = 0.;
-  if ( !dopTlimit && (pTdampMatch == 1 || pTdampMatch == 2) ) {
+  if ( !dopTlimit1 && (pTdampMatch == 1 || pTdampMatch == 2) ) {
     dopTdamp = true;
     pT2damp  = pow2(pTdampFudge) * ((pTdampMatch == 1) ? Q2Fac : Q2Ren);
   }
@@ -248,13 +259,17 @@ void SpaceShower::prepare( int iSys, Event& event, bool limitPTmaxIn) {
   // Find matrix element corrections for system.
   int MEtype = findMEtype( iSys, event); 
 
+  // In case of DPS overwrite limitPTmaxIn by saved value.
+  if (doSecondHard && iSys == 0) limitPTmaxIn = dopTlimit1; 
+  if (doSecondHard && iSys == 1) limitPTmaxIn = dopTlimit2; 
+
   // Maximum pT scale for dipole ends.
   double pTmax1 = (limitPTmaxIn) ? event[in1].scale() : eCM;
   double pTmax2 = (limitPTmaxIn) ? event[in2].scale() : eCM;
-  if (iSys == 0 && limitPTmaxIn) {
+  if ( limitPTmaxIn && (iSys == 0 || (iSys == 1 && doSecondHard)) ) {
     pTmax1 *= pTmaxFudge;
     pTmax2 *= pTmaxFudge;
-  } else if (iSys > 0 && limitPTmaxIn) {
+  } else if (limitPTmaxIn && iSys > 0) {
     pTmax1 *= pTmaxFudgeMPI;
     pTmax2 *= pTmaxFudgeMPI;
   }
@@ -397,7 +412,7 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
     "xMaxAbs negative"); 
     return;
   }
-  
+
   // Starting values for handling of massive quarks (c/b), if any.
   double idMassive   = 0;
   if ( abs(idDaughter) == 4 ) idMassive = 4;
@@ -917,7 +932,7 @@ void SpaceShower::pT2nextQED( double pT2begDip, double pT2endDip) {
       
       // Select z value of branching f -> f + gamma, and corrective weight.
       idMother = idDaughter;
-      wt = 0.5 * (1. + pow2(z));
+      wt = 1.;
       if (isLeptonBeam) {
         if (f2fIntA > rndmPtr->flat() * (f2fIntA + f2fIntB)) { 
           z = 1. - (1. - zMinAbs) 
@@ -932,6 +947,7 @@ void SpaceShower::pT2nextQED( double pT2begDip, double pT2endDip) {
         z = 1. - (1. - zMinAbs) 
           * pow( (1. - zMaxAbs) / (1. - zMinAbs), rndmPtr->flat() ); 
       }
+      wt *= 0.5 * (1. + pow2(z));
       
       // Derive Q2 and x of mother from pT2 and z. 
       Q2      = pT2 / (1. - z);
@@ -1252,7 +1268,11 @@ bool SpaceShower::branch( Event& event) {
   int ev1Dau1V = event[beamOff1].daughter1();
   int ev2Dau1V = event[beamOff2].daughter1();
   vector<int> statusV, mother1V, mother2V, daughter1V, daughter2V;
-  if (canVetoEmission) {
+
+  // Check if the first emission shoild be checked for removal
+  bool canMergeFirst = (mergingHooksPtr != 0)
+                     ? mergingHooksPtr->canVetoEmission() : false;
+  if (canVetoEmission || canMergeFirst) {
     for ( int iCopy = 0; iCopy < systemSizeOld; ++iCopy) {
       int iOldCopy    = partonSystemsPtr->getAll(iSysSel, iCopy);
       statusV.push_back( event[iOldCopy].status());
@@ -1449,8 +1469,10 @@ bool SpaceShower::branch( Event& event) {
     event[i].rotbst(Mtot);  
 
   // Allow veto of branching. If so restore event record to before emission.
-  if ( canVetoEmission 
-    && userHooksPtr->doVetoISREmission(eventSizeOld, event, iSysSel) ) {
+  if ( (canVetoEmission 
+    && userHooksPtr->doVetoISREmission(eventSizeOld, event, iSysSel))
+    || (canMergeFirst 
+    && mergingHooksPtr->doVetoEmission( event )) ) {
     event.popBack( event.size() - eventSizeOld); 
     event[beamOff1].daughter1( ev1Dau1V);
     event[beamOff2].daughter1( ev2Dau1V);

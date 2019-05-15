@@ -127,7 +127,7 @@ In detail, the list of used or foreseen status codes is:
   <li>83, 84 : from normal string (the difference between the two 
            is technical, whether fragmented off from the top of the 
            string system or from the bottom, useful for debug only)</li>
-  <li>85, 86 : primary produced hadrons in junction frogmentation of 
+  <li>85, 86 : primary produced hadrons in junction fragmentation of 
            the first two string legs in to the junction, 
            in order of treatment</li>
   </ul>
@@ -736,5 +736,5 @@ Currently there is no information on polarization states.
 
 </chapter>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->
 

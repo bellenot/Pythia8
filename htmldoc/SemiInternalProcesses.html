@@ -125,7 +125,7 @@ arrays <code>mME[5]</code> and <code>pME[5]</code>, for masses and
 four-momenta, respectively, can be used for cross-section calculations. 
 Here indices 0 and 1 are the two incoming beams, and 2 and onwards the 
 outgoing particles. Note that this differs by one step from the normal
-internal labelling, where slot 0 is left empty. The four-momenta are 
+internal labeling, where slot 0 is left empty. The four-momenta are 
 defined in the rest frame of the subcollision, with the incoming partons 
 along the <i>+-z</i> direction. The kinematics need not agree with the
 "correct" one stored in the event record, for three reasons. 
@@ -240,7 +240,7 @@ if that still exists.
 
 <a name="method1"></a>
 <p/><strong>void SigmaProcess::initProc() &nbsp;</strong> <br/>
-is called once during initalization, and can then be used to set up
+is called once during initialization, and can then be used to set up
 parameters, such as masses and couplings, and perform calculations 
 that need not be repeated for each new event, thereby saving time. 
 This method needs not be implemented, since in principle all 
@@ -274,7 +274,7 @@ incoming flavour combinations, stored in <code>id1</code> and
 <code>id2</code>, with fixed kinematics, as already illustrated above. 
 The sum over the different flavour combinations provides the total 
 cross section, while their relative size is used to make a selection of 
-a specific incomimg state.
+a specific incoming state.
   
 
 <a name="method4"></a>
@@ -366,7 +366,7 @@ returns the name of the process, as you want it to be shown in listings.
 <p/><strong>int SigmaProcess::code() &nbsp;</strong> <br/>
 returns an integer identifier of the process. This has no internal function, 
 but is only intended as a service for the user to rapidly (and hopefully
-uniquely) identify which process occured in a given event. Numbers below 
+uniquely) identify which process occurred in a given event. Numbers below 
 10000 are reserved for internal PYTHIA use. 
   
 
@@ -443,7 +443,7 @@ once a <i>u</i>, <i>d</i> or <i>s</i> flavour has been selected.
 are the codes of up to two <i>s</i>-channel resonances contributing to 
 the matrix elements. These are used by the program to improve the phase-space 
 selection efficiency, by partly sampling according to the relevant 
-Breit-Wigners. Massless resonances (the gluon and photon) need not be 
+Breit-Wigner distributions. Massless resonances (the gluon and photon) need not be 
 specified.
   
 
@@ -615,4 +615,4 @@ a composite <i>d</i>. Obviously these variations may be combined.
 </body>
 </html>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->

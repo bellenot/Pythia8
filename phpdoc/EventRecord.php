@@ -34,7 +34,7 @@ A <code>Pythia</code> instance contains two members of the
 a brief summary of the main steps of the hard process, while the 
 one called <code>event</code> contains the full history. The
 user would normally interact mainly with the second one, so 
-we will examplify primarily with that one.
+we will exemplify primarily with that one.
 
 <p/>
 The <code>Event</code> class to first approximation is a vector of 
@@ -86,7 +86,7 @@ echo "<a href='ParticleProperties.php?filepath=".$filepath."' target='page'>";?>
 
 <a name="method2"></a>
 <p/><strong>int Event::size() &nbsp;</strong> <br/>
-The event size, i.e. the sie of the <code>vector&lt;Particle&gt;</code>.
+The event size, i.e. the size of the <code>vector&lt;Particle&gt;</code>.
 Thus valid particles, to be accessed by the above indexing operator, 
 are stored in the range <i>0 &lt;= i &lt; size()</i>. See comment 
 above about the (ir)relevance of entry 0. 
@@ -317,7 +317,7 @@ echo "<a href='SecondHardProcess.php?filepath=".$filepath."' target='page'>";?>h
  
 Although you would not normally need to create your own 
 <code>Event</code> instance, there may be times where that
-could be convenient. The typical exampel would be if you want to
+could be convenient. The typical example would be if you want to
 create a new event record that is the sum of a few different ones,
 e.g. if you want to simulate pileup events. There may also be cases
 where you want to add one or a few particles to an existing event
@@ -380,12 +380,22 @@ number.
   
 
 <a name="method24"></a>
+<p/><strong>bool Event::undoDecay(int i) &nbsp;</strong> <br/>
+removes the decay chain of the particle <i>i</i> and thus restores 
+it to its undecayed state. It is only intended for "normal" particle
+decay chains, and will return false in other cases, notably if 
+the particle is coloured. The procedure would not work if non-local
+momentum shifts have been performed, such as with a Bose-Einstein 
+shift procedure (or for a dipole shower recoiler).
+  
+
+<a name="method25"></a>
 <p/><strong>int Event::append(Particle entryIn) &nbsp;</strong> <br/>
 appends a particle to the bottom of the event record and 
 returns the index of this position. 
   
 
-<a name="method25"></a>
+<a name="method26"></a>
 <p/><strong>int Event::append(int id, int status, int mother1, int mother2, int daughter1, int daughter2, int col, int acol, double px, double py, double pz,  double e, double m = 0., double scale = 0., double pol = 9.) &nbsp;</strong> <br/>
 appends a particle to the bottom of the event record and 
 returns the index of this position; 
@@ -394,14 +404,14 @@ echo "<a href='ParticleProperties.php?filepath=".$filepath."' target='page'>";?>
 of the various particle properties.
   
 
-<a name="method26"></a>
+<a name="method27"></a>
 <p/><strong>int Event::append(int id, int status, int mother1, int mother2, int daughter1, int daughter2, int col, int acol, Vec4 p, double m = 0., double scale = 0., double pol = 9.) &nbsp;</strong> <br/>
 appends a particle to the bottom of the event record and 
 returns the index of this position, as above but with four-momentum
 as a <code>Vec4</code>.
   
 
-<a name="method27"></a>
+<a name="method28"></a>
 <p/><strong>int Event::append(int id, int status, int col, int acol, double px, double py, double pz, double e, double m = 0., double scale = 0., double pol = 9.) &nbsp;</strong> <br/>
   
 <strong>int Event::append(int id, int status, int col, int acol, Vec4 p, double m = 0., double scale = 0., double pol = 9.) &nbsp;</strong> <br/>
@@ -410,7 +420,7 @@ returns the index of this position, as above but with vanishing
 (i.e. zero) mother and daughter indices.
   
 
-<a name="method28"></a>
+<a name="method29"></a>
 <p/><strong>int Event::setPDTPtr(int iSet = -1) &nbsp;</strong> <br/>
 send in a pointer to the <code>ParticleData</code> database for 
 particle <code>iSet</code>, by default the most recently appended 
@@ -419,7 +429,7 @@ particle. Also generates a pointer to the
 of the particle.
   
 
-<a name="method29"></a>
+<a name="method30"></a>
 <p/><strong>int Event::copy(int iCopy, int newStatus = 0) &nbsp;</strong> <br/>
 copies the existing particle in entry <code>iCopy</code> to the
 bottom of the event record and returns the index of this position.
@@ -434,12 +444,12 @@ mother of <code>iCopy</code>. An attempt to copy an out-of-range
 entry will return -1.
   
 
-<a name="method30"></a>
+<a name="method31"></a>
 <p/><strong>Particle& Event::back() &nbsp;</strong> <br/>
 returns a reference to the last particle in the event record.
   
 
-<a name="method31"></a>
+<a name="method32"></a>
 <p/><strong>void Event::restorePtrs() &nbsp;</strong> <br/>
 each particle in the event record has a pointer to the whole database
 and another to the particle species itself, used to find some particle
@@ -460,13 +470,13 @@ A few methods exist to rotate and boost events. These derive from the
 echo "<a href='FourVectors.php?filepath=".$filepath."' target='page'>";?>Vec4</a> methods, and affect both the 
 momentum and the vertex (position) components of all particles. 
 
-<a name="method32"></a>
+<a name="method33"></a>
 <p/><strong>void Event::rot(double theta, double phi) &nbsp;</strong> <br/>
 rotate all particles in the event by this polar and azimuthal angle 
 (expressed in radians). 
   
 
-<a name="method33"></a>
+<a name="method34"></a>
 <p/><strong>void Event::bst(double betaX, double betaY, double betaZ) &nbsp;</strong> <br/>
   
 <strong>void Event::bst(double betaX, double betaY, double betaZ, double gamma) &nbsp;</strong> <br/>
@@ -479,7 +489,7 @@ supply a <code>Vec4</code> four-vector, in which case the boost vector
 becomes <i>beta = p/E</i>.
   
 
-<a name="method34"></a>
+<a name="method35"></a>
 <p/><strong>void Event::rotbst(const RotBstMatrix& M) &nbsp;</strong> <br/>
 rotate and boost by the combined action encoded in the 
 <code><?php $filepath = $_GET["filepath"];
@@ -495,12 +505,12 @@ This is only for the expert user, however, and is not discussed
 further here, but only the main points.  
 
 <p/>
-A junction stores the properites associated with a baryon number that
+A junction stores the properties associated with a baryon number that
 is fully resolved, i.e. where three different colour indices are 
 involved. There are two main applications,
 <ol> 
 <li>baryon beams, where at least two valence quarks are kicked out,
-and so the motion of the baryon number is notrivial;</li>
+and so the motion of the baryon number is nontrivial;</li>
 <li>baryon-number violating processes, e.g. in SUSY with broken
 <i>R</i>-parity.</li>
 </ol>
@@ -583,4 +593,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->

@@ -45,7 +45,7 @@ options has been subdivided into what would normally be used and what is
 intended for more special applications.
 
 <p/>
-At the bottom of this webpge is a complete survey of all public 
+At the bottom of this webpage is a complete survey of all public 
 <code>Pythia</code> methods and data members, in a more formal style 
 than the task-oriented descriptions found in the preceding sections.
 This offers complementary information.  
@@ -180,7 +180,7 @@ values.
 <p/> 
 A few alternative forms are available, where the arguments of the
 <code>init(...)</code> call can be used to set the beam parameters.
-These alternatives are now deprecated, and will bew removed for 
+These alternatives are now deprecated, and will be removed for 
 PYTHIA 8.2.  
 
 <p/>
@@ -314,7 +314,7 @@ where xx is the subversion number.<br/>
 Recall that environment variables set locally are only defined in the 
 current instance of the shell. The above lines should go into your 
 <code>.cshrc</code> and <code>.bashrc</code> files, respectively, 
-if you want a more permanant assignment.
+if you want a more permanent assignment.
 </li>
 
 <p/>
@@ -348,7 +348,7 @@ If you are not satisfied with the list of parton density functions that
 are implemented internally or available via the LHAPDF interface
 (see the <?php $filepath = $_GET["filepath"];
 echo "<a href='PDFSelection.php?filepath=".$filepath."' target='page'>";?>PDF Selection</a> page), you 
-can suppy your own by a call to the <code>setPDFPtr(...)</code> method
+can supply your own by a call to the <code>setPDFPtr(...)</code> method
 <pre>
       pythia.setPDFptr( pdfAPtr, pdfBPtr); 
 </pre>
@@ -581,7 +581,7 @@ methods and data members.
 <h3>Constructor and destructor</h3>
 
 <a name="method1"></a>
-<p/><strong>Pythia::Pythia(string xmlDir = &quot;../xmldoc&quot;) &nbsp;</strong> <br/>
+<p/><strong>Pythia::Pythia(string xmlDir = &quot;../xmldoc&quot;,bool printBanner = true) &nbsp;</strong> <br/>
 creates an instance of the <code>Pythia</code> event generators,
 and sets initial default values, notably for all settings and 
 particle data. You may use several <code>Pythia</code> instances 
@@ -597,6 +597,12 @@ you to choose another directory location than the default one. Note
 that it is only the directory location you can change, its contents
 must be the ones of the <code>xmldoc</code> directory in the 
 standard distribution.
+  
+<br/><code>argument</code><strong> printBanner </strong> (<code>default = <strong>true</strong></code>) :  can be set 
+<code>false</code> to stop the program from printing a banner.
+The banner contains useful information, so this option is only 
+intended for runs with multiple <code>Pythia</code> instances,
+where output needs to be restricted.  
   
   
 
@@ -715,7 +721,7 @@ pointer to a <code>LHAup</code>-derived object.
 <a name="method7"></a>
 <p/><strong>bool Pythia::setDecayPtr( DecayHandler* decayHandlePtr, vector&lt;int&gt; handledParticles) &nbsp;</strong> <br/>
 offers the possibility to link to an external program that can do some 
-of the particle decays, instad of using the internal decay machinery.
+of the particle decays, instead of using the internal decay machinery.
 With particles we here mean the normal hadrons and leptons, not 
 top quarks, electroweak bosons or new particles in BSM scenarios. 
 The rules for constructing your own class from the 
@@ -806,7 +812,7 @@ calculation of partial resonance widths, to make it a part of the
 normal process generation machinery, without having to recompile the 
 <code>Pythia</code> library itself.  This allows the decay of new 
 resonances to be handled internally, when combined with new particle
-data. Note that the decay of normal hadrons cannot be modelled here;
+data. Note that the decay of normal hadrons cannot be modeled here;
 this is for New Physics resonances. The rules for constructing your 
 own class from the <code>ResonanceWidths</code> base class are described 
 <?php $filepath = $_GET["filepath"];
@@ -861,7 +867,7 @@ the default value 0 then the internal shower routine will be used.
 
 At the initialization stage all the information provided above is 
 processed, and the stage is set up for the subsequent generation
-of events. Currently several alterative forms of the <code>init</code> 
+of events. Currently several alternative forms of the <code>init</code> 
 method are available for this stage, but only the first one is 
 recommended. 
 
@@ -919,11 +925,11 @@ initialize for collisions with arbitrary beam directions.
 particle identity code for the two incoming beams.
   
 <br/><code>argument</code><strong> pxA, pyA, pzA </strong>  :   
-the three-momntum vector <i>(p_x, p_y, p_z)</i> of the first
+the three-momentum vector <i>(p_x, p_y, p_z)</i> of the first
 incoming beam.
   
 <br/><code>argument</code><strong> pxB, pyB, pzB </strong>  :   
-the three-momntum vector <i>(p_x, p_y, p_z)</i> of the second
+the three-momentum vector <i>(p_x, p_y, p_z)</i> of the second
 incoming beam.
   
 <br/><b>Notes:</b> Deprecated. The method returns false if the 
@@ -1193,48 +1199,69 @@ the name of the variable to be read.
   
   
   
+<h3>Get a PDF set</h3>
+
+<code>Pythia</code> contains an number of parton density sets 
+internally, plus an interface to LHAPDF. With the method below, 
+this machinery is also made available for external usage.
+ 
+<a name="method33"></a>
+<p/><strong>PDF* getPDFPtr(int id, int sequence = 1) &nbsp;</strong> <br/>
+get a pointer to a PDF object. Which PDF is returned depends on the
+<?php $filepath = $_GET["filepath"];
+echo "<a href='PDFSelection.php?filepath=".$filepath."' target='page'>";?>PDF Selection</a> settings.
+<br/><code>argument</code><strong> id </strong>  :   
+the identity code of the incoming particle.
+  
+<br/><code>argument</code><strong> sequence </strong>  :   
+should normally be 1, but 2 can be used for protons to let the PDF
+selection be determined by the special settings for hard processes
+(<code>PDF:useHard</code> etc.). 
+  
+  
+  
 <h3>Data members</h3>
 
 The <code>Pythia</code> class contains a few public data members,
 several of which play a central role. We list them here, with 
 links to the places where they are further described. 
  
-<a name="method33"></a>
+<a name="method34"></a>
 <p/><strong>Event Pythia::process &nbsp;</strong> <br/>
 the hard-process event record, see <?php $filepath = $_GET["filepath"];
 echo "<a href='EventRecord.php?filepath=".$filepath."' target='page'>";?>here</a>
 for further details.
   
  
-<a name="method34"></a>
+<a name="method35"></a>
 <p/><strong>Event Pythia::event &nbsp;</strong> <br/>
 the complete event record, see <?php $filepath = $_GET["filepath"];
 echo "<a href='EventRecord.php?filepath=".$filepath."' target='page'>";?>here</a>
 for further details.
   
  
-<a name="method35"></a>
+<a name="method36"></a>
 <p/><strong>Info Pythia::info &nbsp;</strong> <br/>
 further information on the event-generation process, see 
 <?php $filepath = $_GET["filepath"];
 echo "<a href='EventInformation.php?filepath=".$filepath."' target='page'>";?>here</a> for further details.
   
  
-<a name="method36"></a>
+<a name="method37"></a>
 <p/><strong>Settings Pythia::settings &nbsp;</strong> <br/>
 the settings database, see <?php $filepath = $_GET["filepath"];
 echo "<a href='SettingsScheme.php?filepath=".$filepath."' target='page'>";?>here</a>
 for further details. 
   
  
-<a name="method37"></a>
+<a name="method38"></a>
 <p/><strong>ParticleData Pythia::particleData &nbsp;</strong> <br/>
 the particle properties and decay tables database, see 
 <?php $filepath = $_GET["filepath"];
 echo "<a href='ParticleDataScheme.php?filepath=".$filepath."' target='page'>";?>here</a> for further details. 
   
  
-<a name="method38"></a>
+<a name="method39"></a>
 <p/><strong>Rndm Pythia::rndm &nbsp;</strong> <br/>
 the random number generator, see <?php $filepath = $_GET["filepath"];
 echo "<a href='RandomNumberSeed.php?filepath=".$filepath."' target='page'>";?>here</a>
@@ -1242,21 +1269,21 @@ and <?php $filepath = $_GET["filepath"];
 echo "<a href='RandomNumbers.php?filepath=".$filepath."' target='page'>";?>here</a> for further details. 
   
  
-<a name="method39"></a>
+<a name="method40"></a>
 <p/><strong>CoupSM Pythia::coupSM &nbsp;</strong> <br/>
 Standard Model couplings and mixing matrices, see 
 <?php $filepath = $_GET["filepath"];
 echo "<a href='StandardModelParameters.php?filepath=".$filepath."' target='page'>";?>here</a> for further details. 
   
  
-<a name="method40"></a>
+<a name="method41"></a>
 <p/><strong>SusyLesHouches Pythia::slha &nbsp;</strong> <br/>
 parameters and particle data in the context of supersymmetric models, 
 see <?php $filepath = $_GET["filepath"];
 echo "<a href='SUSYLesHouchesAccord.php?filepath=".$filepath."' target='page'>";?>here</a> for further details.
   
  
-<a name="method41"></a>
+<a name="method42"></a>
 <p/><strong>PartonSystems Pythia::partonSystems &nbsp;</strong> <br/>
 a grouping of the partons in the event record by subsystem, 
 see <?php $filepath = $_GET["filepath"];
@@ -1266,4 +1293,4 @@ echo "<a href='AdvancedUsage.php?filepath=".$filepath."' target='page'>";?>here<
 </body>
 </html>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->

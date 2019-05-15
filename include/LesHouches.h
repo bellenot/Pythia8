@@ -1,5 +1,5 @@
 // LesHouches.h is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -35,7 +35,7 @@ public:
     xMaxProc(xMaxIn) { }
 
   // Process properties.
-  int idProc;
+  int    idProc;
   double xSecProc, xErrProc, xMaxProc;
 
 } ;
@@ -51,18 +51,21 @@ public:
   // Constructors.   
   LHAParticle() : idPart(0), statusPart(0), mother1Part(0), 
     mother2Part(0), col1Part(0), col2Part(0), pxPart(0.), pyPart(0.), 
-    pzPart(0.), ePart(0.), mPart(0.), tauPart(0.), spinPart(9.) { }
+    pzPart(0.), ePart(0.), mPart(0.), tauPart(0.), spinPart(9.), 
+    scalePart(-1.) { }
   LHAParticle(int idIn, int statusIn, int mother1In, int mother2In,
     int col1In, int col2In, double pxIn, double pyIn, double pzIn, 
-    double eIn, double mIn, double tauIn, double spinIn) :
+    double eIn, double mIn, double tauIn, double spinIn,
+    double scaleIn) :
     idPart(idIn), statusPart(statusIn), mother1Part(mother1In), 
     mother2Part(mother2In), col1Part(col1In), col2Part(col2In), 
     pxPart(pxIn), pyPart(pyIn), pzPart(pzIn), ePart(eIn), mPart(mIn), 
-    tauPart(tauIn), spinPart(spinIn) { }
+    tauPart(tauIn), spinPart(spinIn), scalePart(scaleIn) { }
 
   // Particle properties.    
-  int idPart, statusPart, mother1Part, mother2Part, col1Part, col2Part;
-  double pxPart, pyPart, pzPart, ePart, mPart, tauPart, spinPart;
+  int    idPart, statusPart, mother1Part, mother2Part, col1Part, col2Part;
+  double pxPart, pyPart, pzPart, ePart, mPart, tauPart, spinPart,
+         scalePart;
 
 } ;
 
@@ -146,6 +149,7 @@ public:
   double m(int part)       const {return particles[part].mPart;}
   double tau(int part)     const {return particles[part].tauPart;}
   double spin(int part)    const {return particles[part].spinPart;}
+  double scale(int part)   const {return particles[part].scalePart;}
 
   // Give back info on flavour and x values of hard-process initiators.
   int    id1()             const {return id1Save;}
@@ -225,9 +229,10 @@ protected:
   void addParticle(int idIn, int statusIn = 0, int mother1In = 0, 
     int mother2In = 0, int col1In = 0, int col2In = 0, double pxIn = 0., 
     double pyIn = 0., double pzIn = 0., double eIn = 0., double mIn = 0., 
-    double tauIn = 0., double spinIn = 9.) { 
+    double tauIn = 0., double spinIn = 9., double scaleIn = -1.) { 
     particles.push_back( LHAParticle( idIn, statusIn, mother1In, mother2In, 
-    col1In, col2In, pxIn, pyIn, pzIn, eIn, mIn, tauIn, spinIn)); }
+    col1In, col2In, pxIn, pyIn, pzIn, eIn, mIn, tauIn, spinIn, 
+    scaleIn) ); }
 
   // Input info on flavour and x values of hard-process initiators.
   void setIdX(int id1In, int id2In, double x1In, double x2In) 
@@ -264,7 +269,7 @@ protected:
   double xwgtupSave, scalupSave, aqedupSave, aqcdupSave, xSecSumSave,
          xErrSumSave;
   vector<LHAParticle> particlesSave;
-  bool   getPDFSave;
+  bool   getPDFSave, getScale;
   int    id1InSave, id2InSave, id1pdfInSave, id2pdfInSave;
   double x1InSave, x2InSave, x1pdfInSave, x2pdfInSave, scalePDFInSave, 
          pdf1InSave, pdf2InSave;
@@ -277,7 +282,8 @@ private:
   // Beam particle properties.
   int    idBeamASave, idBeamBSave;
   double eBeamASave, eBeamBSave;
-  int    pdfGroupBeamASave, pdfGroupBeamBSave, pdfSetBeamASave, pdfSetBeamBSave;
+  int    pdfGroupBeamASave, pdfGroupBeamBSave, pdfSetBeamASave, 
+         pdfSetBeamBSave;
 
   // The process list, stored as a vector of processes.
   vector<LHAProcess> processes;

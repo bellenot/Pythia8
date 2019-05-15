@@ -107,7 +107,7 @@ describes the mixing of the two flavour-diagonal isoscalar = 0 states.
 (For terminology and details see [<a href="Bibliography.php" target="page">Yao06</a>], chapter 14 on the 
 quark model.)
 This angle is needed to specify the probability for such a <i>q qbar</i> 
-state to project onto a specific meson. More transparent formuale are 
+state to project onto a specific meson. More transparent formulae are 
 obtained by introducing the angle <i>alpha = theta + 54.7</i> degrees:
 <br/><i>
    f  = (uubar + ddbar)/sqrt(2) * sin(alpha) + ssbar * cos(alpha)<br/>  
@@ -154,7 +154,7 @@ observed at non-negligible production rates. Extrapolated to all states
 a fair fraction of all particle production might proceed through such 
 states. There are big uncertainties, however, since these excited 
 mesons in many cases are extremely poorly known. This also means that 
-the modelling of their production and decay is very primitive, and 
+the modeling of their production and decay is very primitive, and 
 even that the inclusion of the production of such states may lead to a
 degraded agreement with data. Currently the default is that all such 
 production is switched off.  
@@ -319,7 +319,7 @@ corresponds to no decuplet production at all.
 
 <p/>
 In addition, if popcorn production is allowed, wherein a set of mesons
-(<i>M</i>) may be producted in between the baryon (<i>B</i>) and 
+(<i>M</i>) may be produced in between the baryon (<i>B</i>) and 
 the antibaryon (<i>Bbar</i>), a set of further parameters is introduced. 
 Currently only the simplest scenario is implemented, wherein at most 
 one intermediate meson may be produced. 
@@ -598,4 +598,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->

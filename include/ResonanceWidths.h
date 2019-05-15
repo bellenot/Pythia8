@@ -1,5 +1,5 @@
 // ResonanceWidths.h is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -110,6 +110,11 @@ protected:
  
   // Initialize constants.
   virtual void initConstants() {} 
+
+  // Virtual methods to handle model-specific (non-SM) part of initialization
+  // for use by derived classes that implement additional models (eg SUSY).
+  virtual bool initBSM() {return true;}
+  virtual bool allowCalc() {return true;}
  
   // Calculate various common prefactors for the current mass.
   // Optional argument calledFromInit only used for Z0.

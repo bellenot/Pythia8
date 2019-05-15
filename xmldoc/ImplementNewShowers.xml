@@ -157,7 +157,7 @@ The question is whether the FSR should be allowed to occur at larger
 scales than the hard process it surrounds. This is process-dependent,
 as illustrated below for the the analogous 
 <code>SpaeShower::limitPTmax(...)</code> method, although the two
-kinds of radiation need not have to be modelled identically.
+kinds of radiation need not have to be modeled identically.
 The <code>TimeShower:pTmaxMatch</code> switch allows you to force the
 behaviour among three options, but you may replace by your own logic. 
 <br/>The internal PYTHIA implementation also allows intermediate options, 
@@ -196,6 +196,18 @@ number of allowed branchings in the call, as useful for matching studies.
 were generated, but only for non-critical statistics purposes.
 <br/>Since the real action typically is delegated to the routines 
 below, it may well be that the existing code need not be replaced.
+</method>
+
+<method name="virtual int TimeShower::showerQED( int iBeg, int iEnd, 
+Event& event, double pTmax)">
+This is a further simplified version of the <code>shower</code>
+method above. Currently it only handles the emission of photons 
+in the decay of a hadron into a pair of leptons, either a charged
+lepton-antilepton or a lepton-neutrino pair. It is properly matched
+to the matrix element in the decay via a virtual photon or 
+<ei>W^+-</ei>, respectively. It is called as part of such decays
+if <code>ParticleDecays:allowPhotonRadiation = on</code>, which is
+not the default value.  
 </method>
 
 <method name="double TimeShower::pTLastInShower()">
@@ -256,7 +268,7 @@ already been selected for MPI or ISR it makes no sense to look for
 a scale smaller than that from FSR, since it would not be able to 
 compete, so <code>pTendAll</code> is set correspondingly. As it happens, 
 FSR is tried before ISR and MPI in the interleaved evolution,
-but this is an implementational detail that could well change.  
+but this is an implementation detail that could well change.  
 <br/>Typically the implementation of this routine would be to set
 up a loop over all possible radiating objects (dipoles, dipole ends, ...),
 for each pick its possible branching scale and then pick the one 
@@ -297,7 +309,7 @@ of interest to most implementors of new showers.
 <method name="int TimeShower::system()">
 This method is not virtual. If a branching is constructed by the 
 previous routine this tiny method should be able to return the number 
-of the selected subsystem <code>iSysSel</code> where it occured, 
+of the selected subsystem <code>iSysSel</code> where it occurred, 
 so that the spacelike shower can be told which system to update, 
 if necessary. Therefore <code>iSysSel</code> must be set in 
 <code>branch</code> (or already in <code>pTnext</code>).  
@@ -352,12 +364,12 @@ scales than the hard process it surrounds. This is process-dependent.
 For instance, if the hard process is <ei>Z^0</ei> production we know
 that ISR should be allowed to go right up to the kinematical limit.
 If it is a <ei>2 -> 2</ei> QCD process the ISR should not exceed
-the scale of the hard process, since if so one would doublecount.
+the scale of the hard process, since if so one would double-count.
 The <code>SpaceShower:pTmaxMatch</code> switch allows you to force the
 behaviour, or else to program your own logic. The current default
 implementation limits <ei>pT</ei> whenever the final state contains 
 a quark (except top), gluon or photon, since then the danger of 
-doublecounting is there. You may replace by your own logic, or leave as is. 
+double-counting is there. You may replace by your own logic, or leave as is. 
 <br/>The internal PYTHIA implementation also allows intermediate options, 
 where emissions can go up to the kinematical limit but be dampened above 
 the factorization or renormalization scale. Therefore the (square of the) 
@@ -387,7 +399,7 @@ the scales at which they were produced.
 <br/> The <code>limitPTmax</code> input agrees with the output of the
 previous method for the hardest process, and is always true for
 subsequent MPI, since there an unlimited <ei>pT</ei> for sure
-would lead to doublecounting.
+would lead to double-counting.
 </method>
 
 <method name="virtual void SpaceShower::update( int iSys, Event& event)">
@@ -413,7 +425,7 @@ already been selected for MPI or ISR it makes no sense to look for
 a scale smaller than that from FSR, since it would not be able to 
 compete, so <code>pTendAll</code> is set correspondingly. As it happens, 
 FSR is tried before ISR and MPI in the interleaved evolution,
-but this is an implementational detail that could well change.  
+but this is an implementation detail that could well change.  
 <br/>Typically the implementation of this routine would be to set
 up a loop over all possible radiating objects (dipoles, dipole ends, ...),
 for each pick its possible branching scale and then pick the one 
@@ -443,7 +455,7 @@ description may be necessary, see <code>doRestart()</code> below.
 <method name="int SpaceShower::system()">
 This method is not virtual. If a branching is constructed by the 
 previous routine this tiny method should be able to return the number 
-of the selected subsystem <code>iSysSel</code> where it occured, 
+of the selected subsystem <code>iSysSel</code> where it occurred, 
 so that the spacelike shower can be told which system to update, 
 if necessary. Therefore <code>iSysSel</code> must be set in 
 <code>branch</code> (or already in <code>pTnext</code>).  
@@ -454,7 +466,7 @@ This method is not virtual. If <code>branch(...)</code> above fails
 to construct a branching, and the conditions are such that the whole
 parton-level description should be restarted, then it should return
 true, else not. Currently only the rescattering description can give
-thi kind of failures, and so the internal <code>rescatterFail</code> 
+this kind of failures, and so the internal <code>rescatterFail</code> 
 boolean must be set true when this should happen, and else false.
 </method>
 
@@ -468,4 +480,4 @@ development/debug phase.
    
 </chapter>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->

@@ -297,17 +297,18 @@ Inside a normal <code>setEvent(...)</code> call, information can be set
 by the following methods:
 <a name="method19"></a>
 <p/><strong>void LHAup::setProcess( int idProcess, double weight, double scale, double alphaQED, double alphaQCD) &nbsp;</strong> <br/>
-tells which kind of process occured, with what weight, at what scale, 
+tells which kind of process occurred, with what weight, at what scale, 
 and which <i>alpha_EM</i> and <i>alpha_strong</i> were used
 (cf. <code>IDPRUP, XWTGUP, SCALUP, AQEDUP, AQCDUP</code>). This method 
 also resets the size of the particle list, and adds the empty zeroth 
 line, so it has to be called before the <code>addParticle</code> method below.
   
 <a name="method20"></a>
-<p/><strong>void LHAup::addParticle( int id, int status, int mother1, int mother2, int colourTag1, int colourTag2, double p_x, double p_y, double p_z, double e, double m, double tau, double spin) &nbsp;</strong> <br/>
+<p/><strong>void LHAup::addParticle( int id, int status, int mother1, int mother2, int colourTag1, int colourTag2, double p_x, double p_y, double p_z, double e, double m, double tau, double spin, double scale) &nbsp;</strong> <br/>
 gives the properties of the next particle handed in (cf. <code>IDUP, ISTUP, 
 MOTHUP(1,..), MOTHUP(2,..), ICOLUP(1,..), ICOLUP(2,..),  PUP(J,..), 
-VTIMUP, SPINUP</code>) .
+VTIMUP, SPINUP</code>; while <code>scale</code> is a new optional property, 
+see further below) .
   
 
 <p/>
@@ -369,6 +370,8 @@ of particles in the event, since the zeroth entry is kept empty
 <strong>double LHAup::tau(int i) &nbsp;</strong> <br/>
   
 <strong>double LHAup::spin(int i) &nbsp;</strong> <br/>
+  
+<strong>double LHAup::scale(int i) &nbsp;</strong> <br/>
 for particle <code>i</code> in the range 
 <code>0 &lt;= i &lt; sizePart()</code>. (But again note that 
 <code>i = 0</code> is an empty line, so the true range begins at 1.)   
@@ -430,6 +433,17 @@ agree with those obtained by the same methods without <code>pdf</code>
 in their names, see explanation in the 
 <a href="EventInformation.html" target="page">Event Information</a> description.
   
+
+<p/>
+As a further, currently completely non-standard feature, it is also
+possible to read in the separate scale values of all final particles.
+Currently such information should appear as a line begun by a single 
+hashtag character (#) and then sequentially the scale value of all 
+particles with status 1. Such scale values could be used e.g. to 
+restrict the maximum scale for shower evolutions for each parton
+separately. This information is returned by the method
+<code>double LHAup::scale(int i)</code>. When no such information 
+has been read from the LHEF, the scale defaults to -1.
 
 <p/>
 <a name="method30"></a>
@@ -581,7 +595,7 @@ is given in <code>main13.cc</code>.
 
 <p/>
 In C++, real numbers are printed with an 'E' to denote the exponent part, 
-e.g. 1.23E+04, and are read in accordingly. Other languges may use other
+e.g. 1.23E+04, and are read in accordingly. Other languages may use other
 letters, e.g. Fortran allows either 'E' or 'D'. A file using
 the latter convention would not be readable by the standard routines.
 In case you have such an "incorrectly formatted" file, a conversion to 
@@ -822,4 +836,4 @@ obtain complete events.
 </body>
 </html>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->

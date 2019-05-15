@@ -1,5 +1,5 @@
 // SusyCouplings.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // Main authors of this file: N. Desai, P. Skands
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
@@ -7,6 +7,7 @@
 // Function definitions (not found in the header) for the 
 // supersymmetric couplings class. 
 
+#include "ParticleData.h"
 #include "SusyCouplings.h"
 
 namespace Pythia8 {
@@ -21,7 +22,7 @@ namespace Pythia8 {
 // These are of technical nature, as described for each.
 
 // Allow verbose printout for debug purposes.
-  const bool CoupSUSY::DEBUG = false;  
+  const bool CoupSUSY::DBSUSY = false;  
 
 //--------------------------------------------------------------------------
 
@@ -71,7 +72,7 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
       mW      = g * v / 2.0;
       mZ      = sqrt(pow(gp,2)+pow(g,2)) * v / 2.0;
       //double tan2W   = pow2(gp)/pow2(g);
-      //if (DEBUG) cout << " tan2W = " << tan2W << endl;
+      //if (DBSUSY) cout << " tan2W = " << tan2W << endl;
       sin2W   = pow2(gp)/(pow2(g)+pow2(gp));  
     } else {
       slhaPtr->message(1,"initSUSY",
@@ -99,7 +100,7 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
   sinb = sqrt(max(0.0,1.0-cosb*cosb));
   
   // Verbose output
-  if (DEBUG) {
+  if (DBSUSY) {
     cout << " sin2W(Q) = " << sin2W << "  mW(Q) = " << mW 
          << "  mZ(Q) = " << mZ << endl;
     cout << " vev(Q) = " << slhaPtr->hmix(3) << " tanb(Q) = " << tanb
@@ -150,7 +151,7 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
       LsuuG[i][j] = complex( Ru(i,j)  ,  imRu(i,j));
       RsuuG[i][j] = complex(-Ru(i,j+3), -imRu(i,j+3));
 
-      if (DEBUG) {
+      if (DBSUSY) {
 	cout << " Lsddg  [" << i << "][" << j << "] = " 
 	     << scientific << setw(10) << LsddG[i][j] 
 	     << " RsddG  [" << i << "][" << j  << "] = " 
@@ -171,7 +172,7 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
     RqqZ[i] =       - 2.0*ef(i)*sin2W ;
 
     // tmp: verbose output
-    if (DEBUG) {
+    if (DBSUSY) {
       cout << " LqqZ  [" << i << "][" << i << "] = " 
            << scientific << setw(10) << LqqZ[i] 
            << " RqqZ  [" << i << "][" << i  << "] = " 
@@ -210,7 +211,7 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
       }
       
       // tmp: verbose output
-      if (DEBUG) {
+      if (DBSUSY) {
 	if (max(abs(LsdsdZ[i][j]),abs(RsdsdZ[i][j])) > 1e-6) {
 	  cout << " LsdsdZ[" << i << "][" << j << "] = " 
                << scientific << setw(10) << LsdsdZ[i][j]
@@ -277,7 +278,7 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
     RllZ[i-10] =       - 2.0*ef(i)*sin2W ;
 
     // tmp: verbose output
-    if (DEBUG) {
+    if (DBSUSY) {
       cout << " LllZ  [" << i-10 << "][" << i-10 << "] = " 
            << scientific << setw(10) << LllZ[i-10] 
            << " RllZ  [" << i-10 << "][" << i-10  << "] = " 
@@ -307,7 +308,7 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
  
   for(int i=1;i<=6;i++){
     for(int j=1;j<=6;j++){
-      if (DEBUG) {
+      if (DBSUSY) {
 	if (max(abs(LsvsvZ[i][j]),abs(RsvsvZ[i][j])) > 1e-6) {
 	  cout << " LsvsvZ[" << i << "][" << j << "] = " 
 	       << scientific << setw(10) << LsvsvZ[i][j]
@@ -342,7 +343,7 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
       RudW[i][j] = 0.0;
             
       // tmp: verbose output
-      if (DEBUG) {
+      if (DBSUSY) {
 	cout << " LudW  [" << i << "][" << j << "] = " 
              << scientific << setw(10) << LudW[i][j]
 	     << " RudW  [" << i << "][" << j << "] = " 
@@ -382,7 +383,7 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
       }
 
       // tmp: verbose output
-      if (DEBUG) {
+      if (DBSUSY) {
 	if (max(abs(LsusdW[k][l]),abs(RsusdW[k][l]))> 1e-6) {
 	  cout << " LsusdW[" << k << "][" << l << "] = " 
                << scientific << setw(10) << LsusdW[k][l]
@@ -402,7 +403,7 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
     RlvW[i] = 0.0;
 
       // tmp: verbose output
-      if (DEBUG) {
+      if (DBSUSY) {
 	cout << " LlvW  [" << i << "] = " 
              << scientific << setw(10) << LlvW[i]
 	     << " RlvW  [" << i << "] = " 
@@ -422,7 +423,7 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
 
 
       // tmp: verbose output
-      if (DEBUG) {
+      if (DBSUSY) {
 	cout << " LslsvW  [" << k << "][" << l << "] = " 
              << scientific << setw(10) << LslsvW[k][l]
 	     << " RslsvW  [" << k << "][" << l << "] = " 
@@ -461,7 +462,7 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
       ni4=complex( slhaPtr->rvnmix(i+3,7), 0.0 );
       ni5=complex( 0.0, 0.0);
     }
-   else if (not isNMSSM) {	
+   else if (!isNMSSM) {	
       ni1=complex( slhaPtr->nmix(i,1), slhaPtr->imnmix(i,1) );
       ni2=complex( slhaPtr->nmix(i,2), slhaPtr->imnmix(i,2) );
       ni3=complex( slhaPtr->nmix(i,3), slhaPtr->imnmix(i,3) );
@@ -494,7 +495,7 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
 	nj3=complex( slhaPtr->rvnmix(i+3,6), 0.0 );
 	nj4=complex( slhaPtr->rvnmix(i+3,7), 0.0 );
       }
-      else if (not isNMSSM) {
+      else if (!isNMSSM) {
 	nj3=complex( slhaPtr->nmix(j,3), slhaPtr->imnmix(j,3) );
 	nj4=complex( slhaPtr->nmix(j,4), slhaPtr->imnmix(j,4) );
       } else {
@@ -512,7 +513,7 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
       ORpp[i][j] = 0.5 * conj(ni3) * nj3 - 0.5 * conj(ni4) * nj4;
       
       // tmp: verbose output
-      if (DEBUG) {
+      if (DBSUSY) {
 	cout << " OL''  [" << i << "][" << j << "] = " 
              << scientific << setw(10) << OLpp[i][j]
 	     << " OR''  [" << i << "][" << j << "] = " 
@@ -526,7 +527,7 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
       
       // Chargino mixing
       complex uj1, uj2, vj1, vj2;      
-      if (slhaPtr->modsel(4)<1 || not slhaPtr->rvumix.exists()) {
+      if (slhaPtr->modsel(4)<1 || !slhaPtr->rvumix.exists()) {
 	uj1=complex( slhaPtr->umix(j,1), slhaPtr->imumix(j,1) );
 	uj2=complex( slhaPtr->umix(j,2), slhaPtr->imumix(j,2) );
 	vj1=complex( slhaPtr->vmix(j,1), slhaPtr->imvmix(j,1) );
@@ -545,7 +546,7 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
       OR[i][j] = 1.0/sqrt(2.0)*conj(ni3)*uj2+conj(ni2)*uj1;
       
       // tmp: verbose output
-      if (DEBUG) {
+      if (DBSUSY) {
 	cout << " OL    [" << i << "][" << j << "] = " 
              << scientific << setw(10) << OL[i][j]
 	     << " OR    [" << i << "][" << j << "] = " 
@@ -584,7 +585,7 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
       }
       
       // tmp: verbose output
-      if (DEBUG) {
+      if (DBSUSY) {
 	cout  <<  " Gen = " << k << " mu = " << mu << " md = " << md 
               << " yUU,DD = " << slhaPtr->yu(k,k) << "," 
               << slhaPtr->yd(k,k) << endl;
@@ -612,7 +613,7 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
 	RsuuX[j][k][i] = -eu*sinW*conj(ni1)*conj(Rujk3)
 	  + mu*cosW*conj(ni4)*conj(Rujk)/2.0/mW/sinb;
 
-	if (DEBUG) {
+	if (DBSUSY) {
 	  if (abs(LsddX[j][k][i]) > 1e-6) {
 	    // tmp: verbose output
 	    cout << " LsddX[" << j << "][" << k << "][" << i << "] = "
@@ -669,7 +670,7 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
 	  LsvvX[j][k][i] = ((ev-T3v)*sinW*ni1 + T3v*cosW*ni2);
 	}
 
-	if (DEBUG) {
+	if (DBSUSY) {
 	  if (abs(LsllX[j][k][i]) > 1e-6) {
 	    // tmp: verbose output
 	    cout << " LsllX[" << j << "][" << k << "][" << i << "] = "
@@ -734,7 +735,7 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
       ORp[i][j] = -conj(ui1)*uj1 - 0.5*conj(ui2)*uj2 
 	+ ( (i == j) ? sin2W : 0.0);
       
-      if (DEBUG) {
+      if (DBSUSY) {
 	// tmp: verbose output
 	cout << " OL'   [" << i << "][" << j << "] = " 
              << scientific << setw(10) << OLp[i][j]
@@ -818,7 +819,7 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
 
 	}
 
-	if (DEBUG) {
+	if (DBSUSY) {
 	  if (max(abs(LsduX[j][l][i]),abs(RsduX[j][l][i])) > 1e-6) {
 	    // tmp: verbose output
 	    cout << " LsduX[" << j << "][" << l << "][" << i << "] = "
@@ -862,7 +863,7 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
 	  } 
 	}
 
-	if (DEBUG) {
+	if (DBSUSY) {
 	  if (max(abs(LslvX[j][k][i]),abs(RslvX[j][k][i])) > 1e-6) {
 	    // tmp: verbose output
 	    cout << " LslvX[" << j << "][" << k << "][" << i << "] = "
@@ -974,7 +975,7 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
     }
   }
   
-  if(DEBUG){ 
+  if(DBSUSY){ 
     for(int i=1;i<=3;i++){
       for(int j=1;j<=3;j++){
 	for(int k=1;k<=3;k++){
@@ -1000,7 +1001,7 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
     }
   }
 			
-  if(DEBUG){
+  if(DBSUSY){
     cout<<"Ru"<<endl;
     for(int i=1;i<=6;i++){
       for(int j=1;j<=6;j++){

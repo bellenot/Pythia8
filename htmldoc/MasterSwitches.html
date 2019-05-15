@@ -186,9 +186,33 @@ on/off = true/false. Further options are found
 <a href="BoseEinsteinEffects.html" target="page">here</a>.
   
 
+<h3>Printing</h3>
+
+<p/><code>flag&nbsp; </code><strong> Print:quiet &nbsp;</strong> 
+ (<code>default = <strong>off</strong></code>)<br/>
+Can be set on to avoid the printing during program execution, to the 
+largest extent possible. This flag acts by setting the relevant values 
+for <code>Init:showProcesses</code>, 
+<code>Init:showMultipartonInteractions</code>,  
+<code>Init:showChangedSettings</code>,  
+<code>Init:showAllSettings</code>,  
+<code>Init:showChangedParticleData</code>,  
+<code>Init:showChangedResonanceData</code>,  
+<code>Init:showAllParticleData</code>,  
+<code>Init:showOneParticleData</code>,  
+<code>Next:numberCount</code>,  
+<code>Next:numberShowLHA</code>,  
+<code>Next:numberShowInfo</code>,  
+<code>Next:numberShowProcess</code>, and  
+<code>Next:numberShowEvent</code>. 
+The change is to off or 0 for <code>Print:quiet = off</code>,
+and restores to the respective default value for <code>= on</code>. 
+Those changes take effect immediately, so individual settings can be 
+changed afterwards.   
+  
 
 
 </body>
 </html>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->

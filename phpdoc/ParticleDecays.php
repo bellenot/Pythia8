@@ -108,7 +108,7 @@ The above <i>rMax</i>, expressed in mm.
    
 
 <p/>
-(vi) Particles may be requested to decay within a given cylidrical 
+(vi) Particles may be requested to decay within a given cylindrical 
 volume around the origin.
 
 <br/><br/><strong>ParticleDecays:limitCylinder</strong>  <input type="radio" name="7" value="on"><strong>On</strong>
@@ -154,11 +154,12 @@ with helicity information related to the production process and with
 the form of the hadronic current fitted to data. It is largely based
 on the corresponding Herwig++ implementation [<a href="Bibliography.php" target="page">Gre07</a>], with
 some input from Tauola [<a href="Bibliography.php" target="page">Jad90</a>]. A complete writeup is 
-in preparation [<a href="Bibliography.php" target="page">Ilt11</a>]. 
+in preparation, but meanwhile a short summary can be found at
+[<a href="Bibliography.php" target="page">Ilt12</a>]. 
 
 <p/>
 For <i>tau</i>s in external processes, interfaced with Les Houches 
-Acccord information available, e.g. via Les Houches Event Files (LHEF), 
+Accord information available, e.g. via Les Houches Event Files (LHEF), 
 the new machinery interprets the SPINUP number for <i>tau</i> leptons 
 as giving their helicity, and decays them accordingly. The only exceptions 
 are when a specific polarization is forced by the user (see below), 
@@ -205,15 +206,36 @@ positive identity code; to the extent an antiparticle exists it will
 automatically obtain the inverse polarization.
   
 
+<h3>QED radiation</h3>
+
+So far PYTHIA does not have any generic machinery for handling QED radiation
+in normal particle decays. In order to include this, a program like Photos 
+[<a href="Bibliography.php" target="page">Bar94, Dav10</a>] could be used as an afterburner. In a few cases,
+however, the existing shower machinery can be used also here: for 
+two-body decays to a lepton pair (<i>l^+ l^-</i> or <i>l^+- nu_l</i>).
+Such decays are mediated by <i>gamma^*/Z^0/W^+-</i> exchange, for
+which PYTHIA does have an existing machinery that can be applied, 
+including first-order matrix-element corrections for the first (hardest)
+photon emission. 
+
+<br/><br/><strong>ParticleDecays:allowPhotonRadiation</strong>  <input type="radio" name="16" value="on"><strong>On</strong>
+<input type="radio" name="16" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Allow or not photon radiations in decays to a lepton pair, see above.
+<br/><b>Note:</b> The current default is to have radiation switched off, 
+in order to avoid double-counting of emissions if you link to an external 
+QED-radiation program, as is the norm in many collaborations.
+  
+
 <h3>Other variables</h3>
 
-<br/><br/><table><tr><td><strong>ParticleDecays:mSafety </td><td></td><td> <input type="text" name="16" value="0.0005" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.0005</strong></code>; <code>minimum = 0.</code>; <code>maximum = 0.01</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ParticleDecays:mSafety </td><td></td><td> <input type="text" name="17" value="0.0005" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.0005</strong></code>; <code>minimum = 0.</code>; <code>maximum = 0.01</code>)</td></tr></table>
 Minimum mass difference required between the decaying mother mass 
 and the sum of the daughter masses, kept as a safety margin to avoid
 numerical problems in the decay generation.
    
 
-<br/><br/><table><tr><td><strong>ParticleDecays:sigmaSoft </td><td></td><td> <input type="text" name="17" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.2</code>; <code>maximum = 2.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ParticleDecays:sigmaSoft </td><td></td><td> <input type="text" name="18" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.2</code>; <code>maximum = 2.</code>)</td></tr></table>
 In semileptonic decays to more than one hadron, such as 
 <i>B -> nu l D pi</i>, decay products after the first three are 
 dampened in momentum by an explicit weight factor 
@@ -234,7 +256,7 @@ a Poissonian distribution, for <i>n_p</i> normal particles and
 </i><br/>
 with <i>mDiff</i> the difference between the decaying particle mass 
 and the sum of the normal-particle masses and the constituent quark masses. 
-For gluonic systems <i>multGoffset</i> offers and optional additional 
+For gluon systems <i>multGoffset</i> offers and optional additional 
 term to the multiplicity. The lowest possible multiplicity is 
 <i>n_p + n_q/2</i> (but at least 2) and the highest possible 10.
 If the picked hadrons have a summed mass above that of the mother a 
@@ -242,27 +264,27 @@ new try is made, including a new multiplicity. These constraints
 imply that the actual average multiplicity does not quite agree with
 the formula above.
 
-<br/><br/><table><tr><td><strong>ParticleDecays:multIncrease </td><td></td><td> <input type="text" name="18" value="4." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>4.</strong></code>; <code>minimum = 2.</code>; <code>maximum = 6.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ParticleDecays:multIncrease </td><td></td><td> <input type="text" name="19" value="4." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>4.</strong></code>; <code>minimum = 2.</code>; <code>maximum = 6.</code>)</td></tr></table>
 The above <i>multIncrease</i> parameter, except for 
 <code>meMode = 23</code>.
    
 
-<br/><br/><table><tr><td><strong>ParticleDecays:multIncreaseWeak </td><td></td><td> <input type="text" name="19" value="2.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.5</strong></code>; <code>minimum = 1.</code>; <code>maximum = 4.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ParticleDecays:multIncreaseWeak </td><td></td><td> <input type="text" name="20" value="2.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.5</strong></code>; <code>minimum = 1.</code>; <code>maximum = 4.</code>)</td></tr></table>
 The above <i>multIncrease</i> parameter, specifically for 
 <code>meMode = 23</code>. Here the weak decay implies that only the 
 virtual W mass should contribute to the production of new particles, 
 rather than the full meson mass.
    
 
-<br/><br/><table><tr><td><strong>ParticleDecays:multRefMass </td><td></td><td> <input type="text" name="20" value="0.7" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.7</strong></code>; <code>minimum = 0.2</code>; <code>maximum = 2.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ParticleDecays:multRefMass </td><td></td><td> <input type="text" name="21" value="0.7" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.7</strong></code>; <code>minimum = 0.2</code>; <code>maximum = 2.0</code>)</td></tr></table>
 The above <i>multRefMass</i> parameter.
    
 
-<br/><br/><table><tr><td><strong>ParticleDecays:multGoffset </td><td></td><td> <input type="text" name="21" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 2.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ParticleDecays:multGoffset </td><td></td><td> <input type="text" name="22" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 2.0</code>)</td></tr></table>
 The above <i>multGoffset</i> parameter.
    
 
-<br/><br/><table><tr><td><strong>ParticleDecays:colRearrange </td><td></td><td> <input type="text" name="22" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.</code>; <code>maximum = 1.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ParticleDecays:colRearrange </td><td></td><td> <input type="text" name="23" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.</code>; <code>maximum = 1.0</code>)</td></tr></table>
 When a decay is given as a list of four partons to be turned into
 hadrons (primarily for modes 41 - 80)  it is assumed that they are 
 listed in pairs, as a first and a second colour singlet, which could 
@@ -271,8 +293,8 @@ the probability that this original assignment is not respected, and
 default corresponds to no memory of this original colour topology.
    
 
-<br/><br/><strong>ParticleDecays:FSRinDecays</strong>  <input type="radio" name="23" value="on"><strong>On</strong>
-<input type="radio" name="23" value="off"><strong>Off</strong>
+<br/><br/><strong>ParticleDecays:FSRinDecays</strong>  <input type="radio" name="24" value="on"><strong>On</strong>
+<input type="radio" name="24" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>true</strong></code>)<br/>
 When a particle decays to <i>q qbar</i>, <i>g g</i>, <i>g g g</i> 
 or <i>gamma g g</i>, with <code>meMode > 90</code>, allow or not a 
@@ -288,7 +310,7 @@ flavour production are used also here.
 Some decays can be treated better than what pure phase space allows,
 by reweighting with appropriate matrix elements. In others a partonic
 content has to be converted to a set of hadrons. The presence of such
-corrections is signalled by a nonvanishing <code>meMode()</code> value
+corrections is signaled by a nonvanishing <code>meMode()</code> value
 for a decay mode in the <?php $filepath = $_GET["filepath"];
 echo "<a href='ParticleDataScheme.php?filepath=".$filepath."' target='page'>";?>particle
 data table</a>. The list of allowed possibilities almost agrees with the 
@@ -448,44 +470,49 @@ if($_POST["15"] != "0")
 $data = "ParticleDecays:tauMother = ".$_POST["15"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["16"] != "0.0005")
+if($_POST["16"] != "off")
 {
-$data = "ParticleDecays:mSafety = ".$_POST["16"]."\n";
+$data = "ParticleDecays:allowPhotonRadiation = ".$_POST["16"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["17"] != "0.5")
+if($_POST["17"] != "0.0005")
 {
-$data = "ParticleDecays:sigmaSoft = ".$_POST["17"]."\n";
+$data = "ParticleDecays:mSafety = ".$_POST["17"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["18"] != "4.")
+if($_POST["18"] != "0.5")
 {
-$data = "ParticleDecays:multIncrease = ".$_POST["18"]."\n";
+$data = "ParticleDecays:sigmaSoft = ".$_POST["18"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["19"] != "2.5")
+if($_POST["19"] != "4.")
 {
-$data = "ParticleDecays:multIncreaseWeak = ".$_POST["19"]."\n";
+$data = "ParticleDecays:multIncrease = ".$_POST["19"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["20"] != "0.7")
+if($_POST["20"] != "2.5")
 {
-$data = "ParticleDecays:multRefMass = ".$_POST["20"]."\n";
+$data = "ParticleDecays:multIncreaseWeak = ".$_POST["20"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["21"] != "0.5")
+if($_POST["21"] != "0.7")
 {
-$data = "ParticleDecays:multGoffset = ".$_POST["21"]."\n";
+$data = "ParticleDecays:multRefMass = ".$_POST["21"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["22"] != "0.5")
 {
-$data = "ParticleDecays:colRearrange = ".$_POST["22"]."\n";
+$data = "ParticleDecays:multGoffset = ".$_POST["22"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["23"] != "true")
+if($_POST["23"] != "0.5")
 {
-$data = "ParticleDecays:FSRinDecays = ".$_POST["23"]."\n";
+$data = "ParticleDecays:colRearrange = ".$_POST["23"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["24"] != "true")
+{
+$data = "ParticleDecays:FSRinDecays = ".$_POST["24"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);
@@ -495,5 +522,5 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->
 

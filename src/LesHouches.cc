@@ -1,5 +1,5 @@
 // LesHouches.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -504,7 +504,7 @@ bool LHAup::setNewEventLHEF(istream& is) {
       >> pup1 >> pup2 >> pup3 >> pup4 >> pup5 >> vtimup >> spinup;
     if (!getall) return false;   
     particlesSave.push_back( LHAParticle( idup, istup, mothup1, mothup2, 
-      icolup1, icolup2, pup1, pup2, pup3, pup4, pup5, vtimup, spinup) );
+      icolup1, icolup2, pup1, pup2, pup3, pup4, pup5, vtimup, spinup, -1.) );
   }
 
   // Flavour and x values of hard-process initiators.
@@ -513,18 +513,32 @@ bool LHAup::setNewEventLHEF(istream& is) {
   x1InSave  = (eBeamASave > 0.) ? particlesSave[1].ePart / eBeamASave : 0.; 
   x2InSave  = (eBeamBSave > 0.) ? particlesSave[2].ePart / eBeamBSave : 0.; 
 
-  // Continue parsing till </event>. Extract pdf info if present.
+  // Continue parsing till </event>. Look for optional info on the way.
   getPDFSave = false;
+  getScale   = false;
   do { 
     if (!getline(is, line)) return false;
-    istringstream getpdf(line);
-    getpdf >> tag;
-    if (!getpdf) return false;
-    if (tag == "#pdf") {
-      getpdf >> id1pdfInSave >> id2pdfInSave >> x1pdfInSave >> x2pdfInSave 
-             >> scalePDFInSave >> pdf1InSave >> pdf2InSave;
-      if (!getpdf) return false;
+    istringstream getinfo(line);
+    getinfo >> tag;
+    if (!getinfo) return false;
+
+    // Extract PDF info if present.
+    if (tag == "#pdf" && !getPDFSave) {
+      getinfo >> id1pdfInSave >> id2pdfInSave >> x1pdfInSave >> x2pdfInSave 
+              >> scalePDFInSave >> pdf1InSave >> pdf2InSave;
+      if (!getinfo) return false;
       getPDFSave = true;
+    
+    // Extract scale info if present.
+    } else if (tag == "#" && !getScale) {
+      double scaleIn = 0;
+      for (int i = 3; i < int(particlesSave.size()); ++i)
+      if (particlesSave[i].statusPart == 1) {
+        if ( !(getinfo >> scaleIn) ) return false;
+        particlesSave[i].scalePart = scaleIn;
+      }
+      if (!getinfo) return false;
+      getScale = true;
     }
   } while (tag != "</event>" && tag != "</event"); 
 
@@ -726,7 +740,7 @@ bool LHAupFromPYTHIA8::setEvent( int ) {
     vtimup   = particle.tau(); 
     spinup   = particle.pol();
     addParticle(idup, istup, mothup1, mothup2, icolup1, icolup2,
-      pup1, pup2, pup3, pup4, pup5, vtimup, spinup) ;
+      pup1, pup2, pup3, pup4, pup5, vtimup, spinup, -1.) ;
   }
 
   // Extract hard-process initiator information from Info class, and store it.

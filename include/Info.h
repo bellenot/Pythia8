@@ -1,5 +1,5 @@
 // Info.h is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -27,7 +27,8 @@ class Info {
 public:
 
   // Constructor. 
-  Info() : eCMSave(0.), lowPTmin(false), a0MPISave(0.), weightCKKWLSave(1.) {
+  Info() : eCMSave(0.), lowPTmin(false), a0MPISave(0.), weightCKKWLSave(1.),
+    weightFIRSTSave(0.) {
     for (int i = 0; i < 40; ++i) counters[i] = 0;} 
 
   // Listing of most available information on current event.
@@ -75,7 +76,7 @@ public:
   int    id2(int i = 0)       const {return id2Save[i];}
   double x1(int i = 0)        const {return x1Save[i];}
   double x2(int i = 0)        const {return x2Save[i];}
-  double y(int i = 0)         const {return 0.5 * log( x1Save[i] / x2Save[i] );}
+  double y(int i = 0)         const {return 0.5 * log( x1Save[i] / x2Save[i]);}
   double tau(int i = 0)       const {return x1Save[i] * x2Save[i];}
 
   // Hard process flavours, x values, parton densities, couplings, Q2 scales.
@@ -189,7 +190,15 @@ public:
   // Set CKKW-L weight.
   void setWeightCKKWL( double weightIn) { weightCKKWLSave = weightIn;}
   // Return merging weight.
-  double mergingWeight() const { return getWeightCKKWL();} 
+  double mergingWeight() const { return weightCKKWLSave;} 
+
+  // Return the complete NLO weight.
+  double mergingWeightNLO() const {
+    return (weightCKKWLSave - weightFIRSTSave); }
+  // Return the O(\alpha_s)-term of the CKKW-L weight.
+  double getWeightFIRST() const { return weightFIRSTSave;}
+  // Set the O(\alpha_s)-term of the CKKW-L weight.
+  void setWeightFIRST( double weightIn) { weightFIRSTSave = weightIn;}
 
   // Return an LHEF header
   string header(const string &key) {
@@ -279,7 +288,7 @@ private:
       = nFSRinResSave = 0; 
     weightSave = bMPISave = enhanceMPISave = weightCKKWLSave = 1.; 
     pTmaxMPISave = pTmaxISRSave = pTmaxFSRSave = pTnowSave = zNowISRSave 
-      = pT2NowISRSave = 0.; 
+      = pT2NowISRSave = weightFIRSTSave = 0.; 
     nameSave = " ";
     for (int i = 0; i < 4; ++i) {
       hasSubSave[i] = false; 
@@ -374,8 +383,8 @@ private:
   void setWeight( double weightIn, int lhaStrategyIn) {
     weightSave = weightIn; lhaStrategySave = lhaStrategyIn; }
 
-  // Save merging weight / CKKW-L weight weight
-  double weightCKKWLSave;
+  // Save merging weight (i.e.  CKKW-L-type weight, summed O(\alpha_s) weight)
+  double weightCKKWLSave, weightFIRSTSave;
 
   // Set LHEF headers
   void setHeader(const string &key, const string &val)

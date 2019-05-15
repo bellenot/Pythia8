@@ -1,5 +1,5 @@
 // TimeShower.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -170,6 +170,9 @@ void TimeShower::init( BeamParticle* beamAPtrIn,
   mHV                = particleDataPtr->m0(idHV);
   brokenHVsym        = (nCHV == 1 && mHV > 0.);
 
+  // Possibility of two predetermined hard emissions in event.
+  doSecondHard    = settingsPtr->flag("SecondHard:generate");
+
   // Possibility to allow user veto of emission step.
   canVetoEmission    = (userHooksPtr != 0) 
                      ? userHooksPtr->canVetoFSREmission() : false;
@@ -185,22 +188,30 @@ bool TimeShower::limitPTmax( Event& event, double Q2Fac, double Q2Ren) {
 
   // Find whether to limit pT. Begin by user-set cases.
   bool dopTlimit = false;
-  if      (pTmaxMatch == 1) dopTlimit = true;
-  else if (pTmaxMatch == 2) dopTlimit = false;
+  dopTlimit1 = dopTlimit2 = false;
+  if      (pTmaxMatch == 1) dopTlimit = dopTlimit1 = dopTlimit2 = true;
+  else if (pTmaxMatch == 2) dopTlimit = dopTlimit1 = dopTlimit2 = false;
    
   // Look if any quark (u, d, s, c, b), gluon or photon in final state. 
   else {
-    for (int i = 5; i < event.size(); ++i) 
-    if (event[i].status() != -21) {
-      int idAbs = event[i].idAbs();
-      if (idAbs <= 5 || idAbs == 21 || idAbs == 22) dopTlimit = true;
+    int n21 = 0;
+    for (int i = 5; i < event.size(); ++i) {
+      if (event[i].status() == -21) ++n21;
+      else if (n21 == 0) {
+        int idAbs = event[i].idAbs();
+        if (idAbs <= 5 || idAbs == 21 || idAbs == 22) dopTlimit1 = true;
+      } else if (n21 == 2) {
+        int idAbs = event[i].idAbs();
+        if (idAbs <= 5 || idAbs == 21 || idAbs == 22) dopTlimit2 = true;
+      }
     }
+    dopTlimit = (doSecondHard) ? (dopTlimit1 && dopTlimit2) : dopTlimit1;  
   }
 
-  // Dampening at factorization or renormalization scale.
+  // Dampening at factorization or renormalization scale; only for hardest.
   dopTdamp   = false;
   pT2damp    = 0.;
-  if ( !dopTlimit && (pTdampMatch == 1 || pTdampMatch == 2) ) {
+  if ( !dopTlimit1 && (pTdampMatch == 1 || pTdampMatch == 2) ) {
     dopTdamp = true;
     pT2damp  = pow2(pTdampFudge) * ((pTdampMatch == 1) ? Q2Fac : Q2Ren);
   }
@@ -257,6 +268,183 @@ int TimeShower::shower( int iBeg, int iEnd, Event& event, double pTmax,
 
 //--------------------------------------------------------------------------
 
+// Top-level routine for QED radiation in hadronic decay to two leptons.
+// Intentionally only does photon radiation, i.e. no photon branchings. 
+
+int TimeShower::showerQED( int i1, int i2, Event& event, double pTmax) {
+
+  // Add new system, automatically with two empty beam slots.
+  int iSys = partonSystemsPtr->addSys();
+  partonSystemsPtr->addOut( iSys, i1);
+  partonSystemsPtr->addOut( iSys, i2);
+  partonSystemsPtr->setSHat( iSys, m2(event[i1], event[i2]) );
+
+  // Charge type of two leptons tells whether MEtype is gamma*/Z0 or W+-.
+  int iChg1  = event[i1].chargeType();
+  int iChg2  = event[i2].chargeType();
+  int MEtype = (iChg1 + iChg2 == 0) ? 102 : 101;
+
+  // Fill dipole-ends list.    
+  dipEnd.resize(0);
+  if (iChg1 != 0) dipEnd.push_back( TimeDipoleEnd(i1, i2, pTmax,
+      0, iChg1, 0, 0, iSys, MEtype, i2) );
+  if (iChg2 != 0) dipEnd.push_back( TimeDipoleEnd(i2, i1, pTmax,
+      0, iChg2, 0, 0, iSys, MEtype, i1) );
+
+  // Begin evolution down in pT from hard pT scale. 
+  int nBranch  = 0;
+  pTLastBranch = 0.;
+  do {
+
+    // Begin loop over all possible radiating dipole ends.
+    dipSel  = 0;
+    iDipSel = -1;
+    double pT2sel = 0.;
+    for (int iDip = 0; iDip < int(dipEnd.size()); ++iDip) {
+      TimeDipoleEnd& dip = dipEnd[iDip]; 
+
+      // Dipole properties. 
+      dip.mRad  = event[dip.iRadiator].m(); 
+      dip.mRec  = event[dip.iRecoiler].m(); 
+      dip.mDip  = m( event[dip.iRadiator], event[dip.iRecoiler] );
+      dip.m2Rad = pow2(dip.mRad);
+      dip.m2Rec = pow2(dip.mRec);
+      dip.m2Dip = pow2(dip.mDip);
+
+      // Find maximum evolution scale for dipole.
+      dip.m2DipCorr    = pow2(dip.mDip - dip.mRec) - dip.m2Rad; 
+      double pTbegDip  = min( pTmax, dip.pTmax ); 
+      double pT2begDip = min( pow2(pTbegDip), 0.25 * dip.m2DipCorr);
+
+      // Do QED evolution where relevant.
+      dip.pT2 = 0.;
+      if (pT2begDip > pT2sel) {
+        pT2nextQED( pT2begDip, pT2sel, dip, event);
+
+        // Update if found larger pT than current maximum. End dipole loop.
+        if (dip.pT2 > pT2sel) {
+          pT2sel  = dip.pT2;
+          dipSel  = &dip;
+          iDipSel = iDip;
+        }
+      } 
+    }
+    double pTsel = (dipSel == 0) ? 0. : sqrt(pT2sel); 
+
+    // Do a final-state emission (if allowed).
+    if (pTsel > 0.) {
+
+      // Find initial radiator and recoiler particles in dipole branching.
+      int iRadBef      = dipSel->iRadiator;
+      int iRecBef      = dipSel->iRecoiler;
+      Particle& radBef = event[iRadBef]; 
+      Particle& recBef = event[iRecBef];
+      Vec4 pRadBef     = event[iRadBef].p(); 
+      Vec4 pRecBef     = event[iRecBef].p();  
+      
+      // Construct kinematics in dipole rest frame; massless emitter.
+      double pTorig       = sqrt( dipSel->pT2);
+      double eRadPlusEmt  = 0.5 * (dipSel->m2Dip + dipSel->m2 - dipSel->m2Rec) 
+        / dipSel->mDip;
+      double e2RadPlusEmt = pow2(eRadPlusEmt);
+      double pzRadPlusEmt = 0.5 * sqrtpos( pow2(dipSel->m2Dip - dipSel->m2 
+        - dipSel->m2Rec) - 4. * dipSel->m2 * dipSel->m2Rec ) / dipSel->mDip;
+      double pT2corr = dipSel->m2 * (e2RadPlusEmt * dipSel->z 
+        * (1. - dipSel->z) - 0.25 * dipSel->m2) / pow2(pzRadPlusEmt);
+      double pTcorr       = sqrtpos( pT2corr );
+      double pzRad        = (e2RadPlusEmt * dipSel->z - 0.5 * dipSel->m2) 
+        / pzRadPlusEmt;
+      double pzEmt        = (e2RadPlusEmt * (1. - dipSel->z) 
+        - 0.5 * dipSel->m2) / pzRadPlusEmt;
+      double mRad         = dipSel->mRad;
+      double mEmt         = 0.;
+
+      // Kinematics reduction for radiator mass. 
+      double m2Ratio    = dipSel->m2Rad / dipSel->m2;
+      pTorig           *= 1. - m2Ratio; 
+      pTcorr           *= 1. - m2Ratio; 
+      pzRad            += pzEmt * m2Ratio;
+      pzEmt            *= 1. - m2Ratio; 
+
+      // Store kinematics of branching in dipole rest frame.
+      double phi = 2. * M_PI * rndmPtr->flat();
+      Vec4 pRad = Vec4( pTcorr * cos(phi), pTcorr * sin(phi), pzRad, 
+        sqrt( pow2(pTcorr) + pow2(pzRad) + pow2(mRad) ) );
+      Vec4 pEmt = Vec4( -pRad.px(), -pRad.py(), pzEmt,
+        sqrt( pow2(pTcorr) + pow2(pzEmt) + pow2(mEmt) ) );
+      Vec4 pRec = Vec4( 0., 0., -pzRadPlusEmt, 
+        sqrt( pow2(pzRadPlusEmt) + dipSel->m2Rec ) );
+
+      // Rotate and boost dipole products to the event frame.
+      RotBstMatrix M;
+      M.fromCMframe(pRadBef, pRecBef);
+      pRad.rotbst(M);
+      pEmt.rotbst(M);
+      pRec.rotbst(M);
+
+      // Define new particles from dipole branching.
+      Particle rad = Particle(radBef.id(), 51, iRadBef, 0, 0, 0, 
+        radBef.col(), radBef.acol(), pRad, mRad, pTsel); 
+      Particle emt = Particle(22, 51, iRadBef, 0, 0, 0,
+        0, 0, pEmt, mEmt, pTsel);
+      Particle rec = Particle(recBef.id(),  52, iRecBef, iRecBef, 0, 0, 
+        recBef.col(), recBef.acol(), pRec, dipSel->mRec, pTsel); 
+
+      // ME corrections can lead to branching being rejected.
+      if (dipSel->MEtype == 0 
+        || findMEcorr( dipSel, rad, rec, emt, false) > rndmPtr->flat() ) { 
+ 
+        // Shower may occur at a displaced vertex, or for unstable particle.
+        if (radBef.hasVertex()) {
+          rad.vProd( radBef.vProd() );
+          emt.vProd( radBef.vProd() );
+        }
+        if (recBef.hasVertex()) rec.vProd( recBef.vProd() );
+        rad.tau( event[iRadBef].tau() );
+        rec.tau( event[iRecBef].tau() );
+
+        // Put new particles into the event record.
+        int iRad = event.append(rad);
+        int iEmt = event.append(emt);
+        event[iRadBef].statusNeg();
+        event[iRadBef].daughters( iRad, iEmt); 
+        int iRec = event.append(rec);
+        event[iRecBef].statusNeg();
+        event[iRecBef].daughters( iRec, iRec);
+
+        // Update to new dipole ends.
+        dipSel->iRadiator = iRad;
+        dipSel->iRecoiler = iRec;
+        dipSel->pTmax = pTsel;
+
+        // Update other dipoles that also involved the radiator or recoiler.
+        for (int i = 0; i < int(dipEnd.size()); ++i) if (i != iDipSel) {
+          if (dipEnd[i].iRadiator  == iRadBef) dipEnd[i].iRadiator  = iRad;
+          if (dipEnd[i].iRecoiler  == iRadBef) dipEnd[i].iRecoiler  = iRad;
+          if (dipEnd[i].iMEpartner == iRadBef) dipEnd[i].iMEpartner = iRad;
+          if (dipEnd[i].iRadiator  == iRecBef) dipEnd[i].iRadiator  = iRec;
+          if (dipEnd[i].iRecoiler  == iRecBef) dipEnd[i].iRecoiler  = iRec;
+          if (dipEnd[i].iMEpartner == iRecBef) dipEnd[i].iMEpartner = iRec;
+        }
+
+        // Done with branching      
+        ++nBranch;
+        pTLastBranch = pTsel;
+      }
+      pTmax = pTsel;
+    }
+    
+    // Keep on evolving until nothing is left to be done.
+    else pTmax = 0.;
+  } while (pTmax > 0.); 
+
+  // Return number of emissions that were performed.
+  return nBranch;
+
+}
+
+//--------------------------------------------------------------------------
+
 // Prepare system for evolution; identify ME.
 
 void TimeShower::prepare( int iSys, Event& event, bool limitPTmaxIn) {
@@ -270,6 +458,10 @@ void TimeShower::prepare( int iSys, Event& event, bool limitPTmaxIn) {
   // No dipoles for 2 -> 1 processes.
   if (partonSystemsPtr->sizeOut(iSys) < 2) return;
  
+  // In case of DPS overwrite limitPTmaxIn by saved value.
+  if (doSecondHard && iSys == 0) limitPTmaxIn = dopTlimit1; 
+  if (doSecondHard && iSys == 1) limitPTmaxIn = dopTlimit2; 
+
   // Loop through final state of system to find possible dipole ends.
   for (int i = 0; i < partonSystemsPtr->sizeOut(iSys); ++i) {
     int iRad = partonSystemsPtr->getOut( iSys, i);
@@ -941,8 +1133,8 @@ void TimeShower::setupQCDdip( int iSys, int i, int colTag, int colSign,
     // Max scale either by parton scale or by half dipole mass.
     double pTmax = event[iRad].scale();
     if (limitPTmaxIn) {
-      if (iSys == 0) pTmax *= pTmaxFudge;
-      if (iSys > 0 && sizeIn > 0) pTmax *= pTmaxFudgeMPI;
+      if (iSys == 0 || (iSys == 1 && doSecondHard)) pTmax *= pTmaxFudge;
+      else if (sizeIn > 0) pTmax *= pTmaxFudgeMPI;
     } else pTmax = 0.5 * m( event[iRad], event[iRec]);
     int colType  = (event[iRad].id() == 21) ? 2 * colSign : colSign;
     int isrType  = (event[iRec].isFinal()) ? 0 : event[iRec].mother1();
@@ -965,7 +1157,7 @@ void TimeShower::setupQCDdip( int iSys, int i, int colTag, int colSign,
       dipEnd.back().isFlexible = true;
       dipEnd.back().flexFactor = flexFactor;
     }
-  }  
+  } 
 
 }
 
@@ -1094,8 +1286,8 @@ void TimeShower::setupQEDdip( int iSys, int i, int chgType, int gamType,
     // Max scale either by parton scale or by half dipole mass.
     double pTmax = event[iRad].scale();
     if (limitPTmaxIn) {
-      if (iSys == 0) pTmax *= pTmaxFudge;
-      if (iSys > 0 && sizeIn > 0) pTmax *= pTmaxFudgeMPI;
+      if (iSys == 0 || (iSys == 1 && doSecondHard)) pTmax *= pTmaxFudge;
+      else if (sizeIn > 0) pTmax *= pTmaxFudgeMPI;
     } else pTmax = 0.5 * m( event[iRad], event[iRec]);
     int isrType = (event[iRec].isFinal()) ? 0 : event[iRec].mother1();
     // This line in case mother is a rescattered parton.
@@ -1161,7 +1353,7 @@ void TimeShower::setupHVdip( int iSys, int i, Event& event,
     // Max scale either by parton scale or by half dipole mass.
     double pTmax = event[iRad].scale();
     if (limitPTmaxIn) {
-      if (iSys == 0) pTmax *= pTmaxFudge;
+      if (iSys == 0 || (iSys == 1 && doSecondHard)) pTmax *= pTmaxFudge;
     } else pTmax = 0.5 * m( event[iRad], event[iRec]);
     int colvType  = (event[iRad].id() > 0) ? 1 : -1;
     dipEnd.push_back( TimeDipoleEnd( iRad, iRec, pTmax, 0, 0, 0, 0, 
@@ -1423,6 +1615,10 @@ void TimeShower::pT2nextQCD(double pT2begDip, double pT2sel,
             wt *= pTpT / (pTpT + dip.m2);
           }
         }
+
+        // Optional dampening of large pT values in hard system.
+        if (dopTdamp && dip.system == 0 && dip.MEtype == 0) 
+          wt *= pT2damp / (dip.pT2 + pT2damp);
       }
     }
 
@@ -1583,6 +1779,10 @@ void TimeShower::pT2nextQED(double pT2begDip, double pT2sel,
           wt *= pT24 / (pT24 + dip.m2);
         }
       }
+
+      // Optional dampening of large pT values in hard system.
+      if (dopTdamp && dip.system == 0 && dip.MEtype == 0) 
+        wt *= pT2damp / (dip.pT2 + pT2damp);
     }
 
   // Iterate until acceptable pT (or have fallen below pTmin).
@@ -1648,6 +1848,10 @@ void TimeShower::pT2nextHV(double pT2begDip, double pT2sel,
       else wt = (1. + pow3(dip.z)) / 2.;
     }
 
+    // Optional dampening of large pT values in hard system.
+    if (dopTdamp && dip.system == 0 && dip.MEtype == 0) 
+      wt *= pT2damp / (dip.pT2 + pT2damp);
+
   // Iterate until acceptable pT (or have fallen below pTmin).
   } while (wt < rndmPtr->flat());  
 
@@ -1665,6 +1869,10 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
   // Check if global recoil should be used.
   useLocalRecoilNow = !(globalRecoil && dipSel->system == 0 
     && partonSystemsPtr->sizeOut(0) <= nMaxGlobalRecoil);
+
+  // Check if the first emission shoild be checked for removal
+  bool canMergeFirst = (mergingHooksPtr != 0)
+                     ? mergingHooksPtr->canVetoEmission() : false;
 
   // Find initial radiator and recoiler particles in dipole branching.
   int iRadBef      = dipSel->iRadiator;
@@ -1851,7 +2059,7 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
   if (dipSel->MEtype > 0) {
     Particle& partner = (dipSel->iMEpartner == iRecBef) 
       ? rec : event[dipSel->iMEpartner];
-    if ( findMEcorr( dipSel, rad, partner, emt) < rndmPtr->flat() ) 
+    if ( findMEcorr( dipSel, rad, partner, emt) < rndmPtr->flat() )
       return false;
   }
 
@@ -1930,8 +2138,9 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
 
   // Allow veto of branching. If so restore event record to before emission.
   bool inResonance = (partonSystemsPtr->getInA(iSysSel) == 0) ? true : false;
-  if ( canVetoEmission && userHooksPtr->doVetoFSREmission( eventSizeOld, 
-    event, iSysSel, inResonance) ) {
+  if ( (canVetoEmission && userHooksPtr->doVetoFSREmission( eventSizeOld, 
+    event, iSysSel, inResonance))
+    || (canMergeFirst && mergingHooksPtr->doVetoEmission( event )) ) {
     event.popBack( event.size() - eventSizeOld);
     event[iRadBef].status( iRadStatusV);
     event[iRadBef].daughters( iRadDau1V, iRadDau2V);
@@ -1940,17 +2149,17 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
       event[iRecBef].daughters( iRecDau1V, iRecDau2V);
     } else if (useLocalRecoilNow) {
       event[iRecBef].mothers( iRecMot1V, iRecMot2V);
-      if (iRecMot1V == beamOff1) event[beamOff1].daughter1( ev1Dau1V);  
+      if (iRecMot1V == beamOff1) event[beamOff1].daughter1( ev1Dau1V);
       if (iRecMot1V == beamOff2) event[beamOff2].daughter1( ev2Dau1V);
     } else {
       for (int iG = 0; iG < int(iGRecBef.size()); ++iG) {
         event[iGRecBef[iG]].statusPos();
         event[iGRecBef[iG]].daughters( 0, 0);
-      }     
-    } 
+      }
+    }
     return false;
   }
-    
+ 
   // For global recoil restore the one nominal recoiler, for bookkeeping.
   if (!useLocalRecoilNow) {
     iRec = iRecBef;
@@ -2822,7 +3031,7 @@ double TimeShower::gammaZmix( Event& event, int iRes, int iDau1, int iDau2) {
 // Normally for primary particles, but also from g/gamma -> f fbar.
   
 double TimeShower::findMEcorr(TimeDipoleEnd* dip, Particle& rad, 
-  Particle& partner, Particle& emt) {
+  Particle& partner, Particle& emt, bool cutEdge) {
   
   // Initial values and matrix element kind.
   double wtME    = 1.;
@@ -2859,17 +3068,25 @@ double TimeShower::findMEcorr(TimeDipoleEnd* dip, Particle& rad,
   }
 
   // Derived ME variables, suitably protected.
-  double x1minus = max(XMARGIN, 1. + r1*r1 - r2*r2 - x1);
-  double x2minus = max(XMARGIN, 1. + r2*r2 - r1*r1 - x2) ;
-  double x3      = max(XMARGIN, 2. - x1 - x2);
+  double x1minus, x2minus, x3;
+  if (cutEdge) {
+    x1minus = max(XMARGIN, 1. + r1*r1 - r2*r2 - x1);
+    x2minus = max(XMARGIN, 1. + r2*r2 - r1*r1 - x2) ;
+    x3      = max(XMARGIN, 2. - x1 - x2);
+  } else {
+    x1minus = max(XMARGIN*XMARGIN, 1. + r1*r1 - r2*r2 - x1);
+    x2minus = max(XMARGIN*XMARGIN, 1. + r2*r2 - r1*r1 - x2) ;
+    x3      = max(XMARGIN*XMARGIN, 2. - x1 - x2);
+  }
 
   // Begin processing of QCD dipoles.
   if (dip->colType !=0 || dip->colvType != 0) {
 
     // Evaluate normal ME, for proper order of particles.
-    if (dip->MEorder) 
-         wtME = calcMEcorr(MEkind, MEcombi, dip->MEmix, x1, x2, r1, r2, r3);
-    else wtME = calcMEcorr(MEkind, MEcombi, dip->MEmix, x2, x1, r2, r1, r3);
+    if (dip->MEorder) wtME = calcMEcorr(MEkind, MEcombi, dip->MEmix, 
+      x1, x2, r1, r2, r3, cutEdge);
+    else wtME = calcMEcorr(MEkind, MEcombi, dip->MEmix, 
+      x2, x1, r2, r1, r3, cutEdge);
 
     // Split up total ME when two radiating particles.
     if (dip->MEsplit) wtME = wtME * x1minus / x3; 
@@ -2890,7 +3107,8 @@ double TimeShower::findMEcorr(TimeDipoleEnd* dip, Particle& rad,
 
   // For flavour neutral system assume vector source and include masses.
   } else if (dip->chgType !=0 && dip->MEtype == 102) {
-    wtME = calcMEcorr(2, 1, dip->MEmix, x1, x2, r1, r2) * x1minus / x3;
+    wtME = calcMEcorr(2, 1, dip->MEmix, x1, x2, r1, r2, 0., cutEdge) 
+      * x1minus / x3;
     wtPS = 2. / ( x3 * x2minus );
   }
   if (wtME > wtPS) infoPtr->errorMsg("Warning in TimeShower::findMEcorr: "
@@ -2934,7 +3152,7 @@ double TimeShower::findMEcorr(TimeDipoleEnd* dip, Particle& rad,
 //       = 4 : mixture (combi=1) +- (combi=2)
 
 double TimeShower::calcMEcorr( int kind, int combiIn, double mixIn, 
-  double x1, double x2, double r1, double r2, double r3) {
+  double x1, double x2, double r1, double r2, double r3, bool cutEdge) {
 
   // Frequent variable combinations.
   double x3     = 2. - x1 - x2;
@@ -2965,17 +3183,19 @@ double TimeShower::calcMEcorr( int kind, int combiIn, double mixIn,
   if (kind == 30) prop13 = prop1 * prop3;
 
   // Check input values. Return zero outside allowed phase space.
-  if (x1 - 2.*r1 < XMARGIN || prop1 < XMARGIN) return 0.;
-  if (x2 - 2.*r2 < XMARGIN || prop2 < XMARGIN) return 0.;
-  // Limits not worked out for r3 > 0.
-  if (kind != 30 && kind != 31) {
-    if (x1 + x2 - 1. - pow2(r1+r2) < XMARGIN) return 0.;
-    // Note: equivalent rewritten form 4. * ( (1. - x1) * (1. - x2) 
-    // * (1. - r1s - r2s - x3) + r1s * (1. - x2s - x3) + r2s 
-    // * (1. - x1s - x3) - pow2(r1s - r2s) ) gives about same result.
-    if ( (x1s - 4.*r1s) * (x2s - 4.*r2s) 
-      - pow2( 2. * (1. - x1 - x2 + r1s + r2s) + x1*x2 ) 
-      < XMARGIN * (XMARGINCOMB + r1 + r2) ) return 0.;
+  if (cutEdge) {
+    if (x1 - 2.*r1 < XMARGIN || prop1 < XMARGIN) return 0.;
+    if (x2 - 2.*r2 < XMARGIN || prop2 < XMARGIN) return 0.;
+    // Limits not worked out for r3 > 0.
+    if (kind != 30 && kind != 31) {
+      if (x1 + x2 - 1. - pow2(r1+r2) < XMARGIN) return 0.;
+      // Note: equivalent rewritten form 4. * ( (1. - x1) * (1. - x2) 
+      // * (1. - r1s - r2s - x3) + r1s * (1. - x2s - x3) + r2s 
+      // * (1. - x1s - x3) - pow2(r1s - r2s) ) gives about same result.
+      if ( (x1s - 4.*r1s) * (x2s - 4.*r2s) 
+        - pow2( 2. * (1. - x1 - x2 + r1s + r2s) + x1*x2 ) 
+        < XMARGIN * (XMARGINCOMB + r1 + r2) ) return 0.;
+    }
   }
 
   // Initial values; phase space.

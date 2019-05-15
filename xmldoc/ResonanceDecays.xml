@@ -9,7 +9,7 @@ between "resonances" and other "particles" made in PYTHIA.
 <li>
 The list of resonances contains <ei>gamma^*/Z^0</ei>, <ei>W^+-</ei>, top, 
 the Higgs, and essentially all new particles of Beyond-the-Standard-Model 
-physics: further Higgses, sfermions, gauginos, techniparticles, and so on. 
+physics: further Higgs bosons, sfermions, gauginos, techniparticles, and so on. 
 The partial widths to different decay channels are perturbatively
 calculable, given the parameters of the respective model, and branching
 ratios may be allowed to vary across a (reasonably broad) resonance peak.
@@ -50,7 +50,7 @@ produced in a hard process. On the other hand, photons can participate
 in shower evolution, and therefore a photon originally assumed
 massless can be assigned an arbitrarily high mass when it is allowed
 to branch into a fermion pair. In some cases this could lead to 
-doublecounting, e.g. between processes such as 
+double-counting, e.g. between processes such as 
 <ei>f fbar -> (gamma^*/Z^0) (gamma^*/Z^0)</ei>,
 <ei>f fbar -> (gamma^*/Z^0) gamma</ei> and 
 <ei>f fbar -> gamma gamma</ei>. Here it make sense to limit the
@@ -103,7 +103,7 @@ the relative rates of <ei>H^0 -> W^+ W^-</ei> and
 <p/>
 We remind that only those particles that Pythia treat as resonances 
 enjoy this property, and only those that are considered as part of the 
-hard process and its assocaited resonance decays.
+hard process and its associated resonance decays.
 
 <p/>
 There is one key restriction on resonances:
@@ -168,7 +168,7 @@ depending on how these were encoded. A further warning is that,
 if you use this facility for <ei>Z^0</ei> or <ei>Z'^0</ei> with 
 <ei>gamma^*/Z^0</ei> or <ei>gamma^*/Z^0/Z'^0</ei> interference on,
 then also the handling of this interference is questionable.
-So, if you need to use the width-rescaling option, be extremely cautios. 
+So, if you need to use the width-rescaling option, be extremely cautious. 
 
 <p/>
 If a resonance does not have a class of its own, with hardcoded equations 
@@ -331,5 +331,5 @@ stored in a work area.
 
 </chapter>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->
 

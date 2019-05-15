@@ -47,7 +47,7 @@ broader usage.
 
 QCD processes fall in two main categories: soft and hard. The soft ones
 contain elastic, diffractive and "minimum-bias" events, together
-covering the total cross section. Hard processea are the normal
+covering the total cross section. Hard processes are the normal
 <ei>2 -> 2</ei> ones, including charm and bottom production. 
 <br/>Reserved code range: 101 - 199. 
 
@@ -77,15 +77,15 @@ Production of hypothetical fourth-generation fermions.
 <h3><aloc href="HiggsProcesses">Higgs Processes</aloc></h3>
 
 Higgs production, within or beyond the Standard Model.
-See section on Left-Right-Symmetry processes for doubly charged Higgses.
+See section on Left-Right-Symmetry processes for doubly charged Higgs bosons.
 <br/>Reserved code range: 901 - 999 for a Standard Model Higgs 
-and 1001 - 1199 for MSSM Higgses. 
+and 1001 - 1199 for MSSM Higgs bosons. 
 
 <h3><aloc href="SUSYProcesses">SUSY Processes</aloc></h3>
 
 Production of supersymmetric particles, currently barely begun.
 <br/>Reserved code range: 1001 - 2999. (Whereof 1001 - 1199
-for Higgses; see above.) 
+for Higgs bosons; see above.) 
 
 <h3><aloc href="NewGaugeBosonProcesses">New-Gauge-Boson 
 Processes</aloc></h3>
@@ -97,7 +97,7 @@ Production of new gauge bosons such as <ei>Z'</ei> and <ei>W'</ei>.
 Processes</aloc></h3>
 
 Production of righthanded <ei>Z_R</ei> and <ei>W_R</ei> bosons and of
-doubly charged Higgses.
+doubly charged Higgs bosons.
 <br/>Reserved code range: 3101 - 3199. 
 
 <h3><aloc href="LeptoquarkProcesses">Leptoquark Processes</aloc></h3>
@@ -118,7 +118,7 @@ by technicolor interactions. Does not exist yet.
 <br/>Reserved code range: 4101 - 4199. 
 
 <h3><aloc href="HiddenValleyProcesses">Hidden Valley Processes</aloc></h3>
-A scenario for the pair prodiction of new particles with couplings 
+A scenario for the pair production of new particles with couplings 
 under a new gauge group, with invisible gauge bosons. Radiation of 
 these gauge bosons is included in the standard final-state parton
 shower.
@@ -136,5 +136,5 @@ processes.
 
 </chapter>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->
 

@@ -53,7 +53,7 @@ users probably will have little interaction with.
 
 <h3>Concepts</h3>
 
-We distinguish four kinds of user-modifiable variables, by the way
+We distinguish five kinds of user-modifiable variables, by the way
 they have to be stored:
 <ol>
 <li>Flags are on/off switches, and are stored as <code>bool</code>.</li>
@@ -61,8 +61,14 @@ they have to be stored:
    and are stored as <code>int</code>.</li>
 <li>Parameters take a continuum of values, and are stored as 
 <code>double</code>. The shorthand notation parm is used in the C++ 
-code and XML tags, so that all four kinds are represented by
+code and XML tags, so that all five kinds are represented by
 four-letter type names.</li>
+<li>Vectors of parameters take a variable length and for each element 
+a continuum of values, and are stored as <code>&lt;vector&gt;double</code>. 
+The shorthand notation vect is used in the C++ code and XML tags, 
+so that all five kinds are represented by four-letter type names.
+When the vector is input as a string, all the values have to be given 
+as a comma-separated list with no blanks, to simplify parsing.</li>
 <li>Words are simple character strings and are stored as 
 <code>string</code>. No blanks or double quotation marks (&quot;) may 
 appear inside a word, the former to simplify parsing of an input file
@@ -88,16 +94,16 @@ requests.</li>
 <li>An allowed range of values, represented by meaningful
 minimum and maximum values. This has no sense for a <code>flag</code> 
 or a <code>word</code> (and is not used there), is usually rather 
-well-defined for a <code>mode</code>, but less so for a <code>parm</code>. 
-Often the allowed range exaggerates the degree of our current knowledge, 
-so as not to restrict too much what the user can do. One may choose 
-not to set the lower or upper limit, in which case the range is 
-open-ended.</li>   
+well-defined for a <code>mode</code>, but less so for a <code>parm</code>
+or <code>vect</code>. Often the allowed range exaggerates the degree of 
+our current knowledge, so as not to restrict too much what the user 
+can do. One may choose not to set the lower or upper limit, in which 
+case the range is open-ended.</li>   
 </ul>
 
 <p/>
 Technically, the <code>Settings</code> class is implemented with the 
-help of four separate maps, one for each kind of variable, with the 
+help of five separate maps, one for each kind of variable, with the 
 variable <code>name</code> used as key. 
 
 <h3>Operation</h3>
@@ -114,10 +120,10 @@ subdirectory.
 
 <p/>
 In all of the files scanned, lines beginning with 
-<code>&lt;flag</code>, <code>&lt;mode</code>, <code>&lt;parm</code> 
-or <code>&lt;word</code> are identified, and the information on 
-such a line is used to define a new flag, mode, parameter or word. 
-To exemplify, consider a line
+<code>&lt;flag</code>, <code>&lt;mode</code>, <code>&lt;parm</code>, 
+<code>&lt;vect</code> or <code>&lt;word</code> are identified, and 
+the information on such a line is used to define a new flag, mode, 
+parameter, vector of parameters or word. To exemplify, consider a line
 <pre>
 &lt;parm name="TimeShower:pTmin" default="0.5" min="0.1" max="2.0">
 </pre> 
@@ -137,10 +143,12 @@ methods to modify some of the default values. The same variable
 can be changed several times. If so, it is the last read value 
 that counts. The two special 
 <code><?php $filepath = $_GET["filepath"];
-echo "<a href='Tunes.php?filepath=".$filepath."' target='page'>";?>Tune:ee</a></code> and 
+echo "<a href='Tunes.php?filepath=".$filepath."' target='page'>";?>Tune:ee</a></code> and  
 <code><?php $filepath = $_GET["filepath"];
-echo "<a href='Tunes.php?filepath=".$filepath."' target='page'>";?>Tune:pp</a></code> 
-modes are expanded to change several settings in one go, but these obey 
+echo "<a href='Tunes.php?filepath=".$filepath."' target='page'>";?>Tune:pp</a></code> modes and the
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='MainProgramSettings.php?filepath=".$filepath."' target='page'>";?>Print:quiet</a></code> flag
+are expanded to change several settings in one go, but these obey 
 the same ordering rules.
 
 <p/> 
@@ -388,6 +396,8 @@ reset all current values to their defaults.
   
 <strong>bool Settings::isParm(string key) &nbsp;</strong> <br/>
   
+<strong>bool Settings::isVect(string key) &nbsp;</strong> <br/>
+  
 <strong>bool Settings::isWord(string key) &nbsp;</strong> <br/>
 return true if an entry of the given name and kind 
 exists, else false.
@@ -400,10 +410,12 @@ exists, else false.
   
 <strong>void Settings::addParm(string key, double default, bool hasMin, bool hasMax, double min, double max) &nbsp;</strong> <br/>
   
+<strong>void Settings::addVect(string key, vector&lt;double&gt; default, bool hasMin, bool hasMax, double min, double max) &nbsp;</strong> <br/>
+  
 <strong>void Settings::addWord(string key, string default) &nbsp;</strong> <br/>
 add an entry of the respective kind to the database. The name and default
-value always has to be supplied, for <code>Mode</code> and 
-<code>Word</code> additionally if lower and/or upper limits are to be 
+value(s) always has to be supplied, for <code>Mode</code>, <code>Parm</code> 
+and <code>Vect</code> additionally if lower and/or upper limits are to be 
 imposed and, if so, what those limit are.
   
 
@@ -414,53 +426,79 @@ imposed and, if so, what those limit are.
   
 <strong>double Settings::parm(string key) &nbsp;</strong> <br/>
   
+<strong>vector&lt;double&gt; Settings::vect(string key) &nbsp;</strong> <br/>
+  
 <strong>string Settings::word(string key) &nbsp;</strong> <br/>
-return the current value of the respective setting. If the name 
+return the current value(s) of the respective setting. If the name 
 does not exist in the database, a value <code>false</code>,
-<code>0</code>, <code>0.</code> and <code>&quot; &quot;</code> 
-is returned, respectively.
+<code>0</code>, <code>0.</code>, ditto vector of length 1, 
+and <code>&quot; &quot;</code> is returned, respectively.
   
 
 <a name="method12"></a>
+<p/><strong>bool Settings::flagDefault(string key) &nbsp;</strong> <br/>
+  
+<strong>int Settings::modeDefault(string key) &nbsp;</strong> <br/>
+  
+<strong>double Settings::parmDefault(string key) &nbsp;</strong> <br/>
+  
+<strong>vector&lt;double&gt; Settings::vectDefault(string key) &nbsp;</strong> <br/>
+  
+<strong>string Settings::wordDefault(string key) &nbsp;</strong> <br/>
+return the default value(s) of the respective setting. If the name 
+does not exist in the database, a value <code>false</code>,
+<code>0</code>, <code>0.</code>, ditto vector of length 1,  
+and <code>&quot; &quot;</code> is returned, respectively.
+  
+
+<a name="method13"></a>
 <p/><strong>map<string, Flag> Settings::getFlagMap(string match) &nbsp;</strong> <br/>
   
 <strong>map<string, Mode> Settings::getModeMap(string match) &nbsp;</strong> <br/>
   
 <strong>map<string, Parm> Settings::getParmMap(string match) &nbsp;</strong> <br/>
   
+<strong>map<string, Vect> Settings::getVectMap(string match) &nbsp;</strong> <br/>
+  
 <strong>map<string, Word> Settings::getWordMap(string match) &nbsp;</strong> <br/>
 return a map of all settings of the respective type that contain the 
 string "match" in its name.
   
 
-<a name="method13"></a>
+<a name="method14"></a>
 <p/><strong>void Settings::flag(string key, bool now) &nbsp;</strong> <br/>
   
 <strong>void Settings::mode(string key, int now) &nbsp;</strong> <br/>
   
 <strong>void Settings::parm(string key, double now) &nbsp;</strong> <br/>
   
+<strong>void Settings::vect(string key, vector&lt;double&gt; now) &nbsp;</strong> <br/>
+  
 <strong>void Settings::word(string key, string now) &nbsp;</strong> <br/>
-change the current value of the respective setting to the provided 
-new value. If lower or upper limits have been set, input values 
+change the current value(s) of the respective setting to the provided 
+new value(s). If lower or upper limits have been set, input values 
 outside the allowed range are reinterpreted as being a the nearest 
 limit.
   
 
-<a name="method14"></a>
+<a name="method15"></a>
 <p/><strong>void Settings::forceMode(string key, int now) &nbsp;</strong> <br/>
   
 <strong>void Settings::forceParm(string key, double now) &nbsp;</strong> <br/>
+  
+<strong>void Settings::forceVect(string key, vector&lt;double&gt; now) &nbsp;</strong> <br/>
 as above, but do not check lower and upper limits, so that the current 
-value can be put outside the intended borders.
+value(s) can be put outside the intended borders.
   
 
-<a name="method15"></a>
+<a name="method16"></a>
 <p/><strong>void Settings::resetFlag(string key) &nbsp;</strong> <br/>
   
 <strong>void Settings::resetMode(string key) &nbsp;</strong> <br/>
   
 <strong>void Settings::resetParm(string key) &nbsp;</strong> <br/>
+  
+<strong>void Settings::resetVect(string key) &nbsp;</strong> <br/>
   
 <strong>void Settings::resetWord(string key) &nbsp;</strong> <br/>
 reset the current value to the default one.
@@ -469,4 +507,4 @@ reset the current value to the default one.
 </body>
 </html>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->

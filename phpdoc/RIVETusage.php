@@ -96,4 +96,4 @@ Note that <code>main42</code> is run in the background.
 </body>
 </html>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->

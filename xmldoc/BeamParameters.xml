@@ -30,6 +30,7 @@ appropriate hard process.
 The PDG <code>id</code> code for the first incoming particle.
 Allowed codes include 
 <br/><ei>2212 = p</ei>, <ei>-2212 = pbar</ei>, 
+<br/><ei>2112 = n</ei>, <ei>-2112 = nbar</ei>, 
 <br/><ei>211 = pi^+</ei>, <ei>-211 = pi^-</ei>, <ei>111 = pi^0</ei>,  
 <br/><ei>990 = Pomeron</ei> (used in diffractive machinery;
 here mainly for debug purposes),
@@ -301,4 +302,4 @@ The time <ei>t</ei> of the interaction vertex is centered at this value.
 
 </chapter>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->

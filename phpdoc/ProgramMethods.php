@@ -46,14 +46,8 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td> </td>
-<td><a href="AlpgenAndMLM.php#method9" target="page">AlpgenHooks(...)</a></td>
-<td>Alpgen And M L M</td>
-</tr>
-
-<tr>
-<td>friend double</td>
-<td><a href="FourVectors.php#method23" target="page">cosphi(...)</a></td>
-<td>Four-Vectors</td>
+<td><a href="AlpgenEventInterface.php#method9" target="page">AlpgenHooks(...)</a></td>
+<td>Alpgen Event Interface</td>
 </tr>
 
 <tr>
@@ -64,31 +58,43 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>friend double</td>
-<td><a href="FourVectors.php#method22" target="page">costheta(...)</a></td>
+<td><a href="FourVectors.php#method25" target="page">cosphi(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
 <tr>
 <td>friend double</td>
-<td><a href="FourVectors.php#method21" target="page">cross3(...)</a></td>
+<td><a href="FourVectors.php#method23" target="page">costheta(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
 <tr>
 <td>friend double</td>
-<td><a href="FourVectors.php#method20" target="page">dot3(...)</a></td>
+<td><a href="FourVectors.php#method22" target="page">cross3(...)</a></td>
 <td>Four-Vectors</td>
+</tr>
+
+<tr>
+<td>friend double</td>
+<td><a href="FourVectors.php#method21" target="page">dot3(...)</a></td>
+<td>Four-Vectors</td>
+</tr>
+
+<tr>
+<td>PDF*</td>
+<td><a href="ProgramFlow.php#method33" target="page">getPDFPtr(...)</a></td>
+<td>Program Flow</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="AlpgenAndMLM.php#method10" target="page">initAfterBeams()</a></td>
-<td>Alpgen And M L M</td>
+<td><a href="AlpgenEventInterface.php#method10" target="page">initAfterBeams()</a></td>
+<td>Alpgen Event Interface</td>
 </tr>
 
 <tr>
 <td>friend double</td>
-<td><a href="FourVectors.php#method19" target="page">m(...)</a></td>
+<td><a href="FourVectors.php#method20" target="page">m(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
@@ -100,7 +106,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>friend double</td>
-<td><a href="FourVectors.php#method19" target="page">m2(...)</a></td>
+<td><a href="FourVectors.php#method20" target="page">m2(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
@@ -112,35 +118,35 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>friend ostream&</td>
-<td><a href="FourVectors.php#method18" target="page">operator&lt;&lt;(...)</a></td>
+<td><a href="FourVectors.php#method19" target="page">operator&lt;&lt;(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
 <tr>
 <td>friend ostream&</td>
-<td><a href="FourVectors.php#method63" target="page">operator&lt;&lt;(...)</a></td>
+<td><a href="FourVectors.php#method65" target="page">operator&lt;&lt;(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
 <tr>
 <td>friend Vec4</td>
-<td><a href="FourVectors.php#method32" target="page">operator*(...)</a></td>
-<td>Four-Vectors</td>
-</tr>
-
-<tr>
-<td>friend Vec4</td>
-<td><a href="FourVectors.php#method32" target="page">operator*(...)</a></td>
-<td>Four-Vectors</td>
-</tr>
-
-<tr>
-<td>friend double</td>
 <td><a href="FourVectors.php#method34" target="page">operator*(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
 <tr>
+<td>friend Vec4</td>
+<td><a href="FourVectors.php#method34" target="page">operator*(...)</a></td>
+<td>Four-Vectors</td>
+</tr>
+
+<tr>
+<td>friend double</td>
+<td><a href="FourVectors.php#method36" target="page">operator*(...)</a></td>
+<td>Four-Vectors</td>
+</tr>
+
+<tr>
 <td>friend Hist</td>
 <td><a href="Histograms.php#method24" target="page">operator*(...)</a></td>
 <td>Histograms</td>
@@ -160,7 +166,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>friend Vec4</td>
-<td><a href="FourVectors.php#method30" target="page">operator+(...)</a></td>
+<td><a href="FourVectors.php#method32" target="page">operator+(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
@@ -184,7 +190,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>friend Vec4</td>
-<td><a href="FourVectors.php#method31" target="page">operator-(...)</a></td>
+<td><a href="FourVectors.php#method33" target="page">operator-(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
@@ -208,7 +214,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>friend Vec4</td>
-<td><a href="FourVectors.php#method33" target="page">operator/(...)</a></td>
+<td><a href="FourVectors.php#method35" target="page">operator/(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
@@ -244,13 +250,25 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>friend double</td>
-<td><a href="FourVectors.php#method23" target="page">phi(...)</a></td>
+<td><a href="FourVectors.php#method24" target="page">phi(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
 <tr>
 <td>friend double</td>
-<td><a href="FourVectors.php#method24" target="page">phi(...)</a></td>
+<td><a href="FourVectors.php#method25" target="page">phi(...)</a></td>
+<td>Four-Vectors</td>
+</tr>
+
+<tr>
+<td>friend double</td>
+<td><a href="FourVectors.php#method26" target="page">REtaPhi(...)</a></td>
+<td>Four-Vectors</td>
+</tr>
+
+<tr>
+<td>friend double</td>
+<td><a href="FourVectors.php#method26" target="page">RRapPhi(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
@@ -274,38 +292,38 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>friend double</td>
-<td><a href="FourVectors.php#method22" target="page">theta(...)</a></td>
+<td><a href="FourVectors.php#method23" target="page">theta(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
 <tr>
 <td> </td>
-<td><a href="AlpgenAndMLM.php#method4" target="page">AlpgenPar::AlpgenPar(...)</a></td>
-<td>Alpgen And M L M</td>
+<td><a href="AlpgenEventInterface.php#method4" target="page">AlpgenPar::AlpgenPar(...)</a></td>
+<td>Alpgen Event Interface</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="AlpgenAndMLM.php#method7" target="page">AlpgenPar::getParam(...)</a></td>
-<td>Alpgen And M L M</td>
+<td><a href="AlpgenEventInterface.php#method7" target="page">AlpgenPar::getParam(...)</a></td>
+<td>Alpgen Event Interface</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="AlpgenAndMLM.php#method7" target="page">AlpgenPar::getParamAsInt(...)</a></td>
-<td>Alpgen And M L M</td>
+<td><a href="AlpgenEventInterface.php#method7" target="page">AlpgenPar::getParamAsInt(...)</a></td>
+<td>Alpgen Event Interface</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="AlpgenAndMLM.php#method6" target="page">AlpgenPar::haveParam(...)</a></td>
-<td>Alpgen And M L M</td>
+<td><a href="AlpgenEventInterface.php#method6" target="page">AlpgenPar::haveParam(...)</a></td>
+<td>Alpgen Event Interface</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="AlpgenAndMLM.php#method5" target="page">AlpgenPar::parse(...)</a></td>
-<td>Alpgen And M L M</td>
+<td><a href="AlpgenEventInterface.php#method5" target="page">AlpgenPar::parse(...)</a></td>
+<td>Alpgen Event Interface</td>
 </tr>
 
 <tr>
@@ -826,12 +844,6 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>int</td>
-<td><a href="EventRecord.php#method24" target="page">Event::append(...)</a></td>
-<td>Event Record</td>
-</tr>
-
-<tr>
-<td>int</td>
 <td><a href="EventRecord.php#method25" target="page">Event::append(...)</a></td>
 <td>Event Record</td>
 </tr>
@@ -850,7 +862,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>int</td>
-<td><a href="EventRecord.php#method27" target="page">Event::append(...)</a></td>
+<td><a href="EventRecord.php#method28" target="page">Event::append(...)</a></td>
+<td>Event Record</td>
+</tr>
+
+<tr>
+<td>int</td>
+<td><a href="EventRecord.php#method28" target="page">Event::append(...)</a></td>
 <td>Event Record</td>
 </tr>
 
@@ -862,25 +880,25 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>Particle&</td>
-<td><a href="EventRecord.php#method30" target="page">Event::back()</a></td>
+<td><a href="EventRecord.php#method31" target="page">Event::back()</a></td>
 <td>Event Record</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventRecord.php#method33" target="page">Event::bst(...)</a></td>
+<td><a href="EventRecord.php#method34" target="page">Event::bst(...)</a></td>
 <td>Event Record</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventRecord.php#method33" target="page">Event::bst(...)</a></td>
+<td><a href="EventRecord.php#method34" target="page">Event::bst(...)</a></td>
 <td>Event Record</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventRecord.php#method33" target="page">Event::bst(...)</a></td>
+<td><a href="EventRecord.php#method34" target="page">Event::bst(...)</a></td>
 <td>Event Record</td>
 </tr>
 
@@ -892,7 +910,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>int</td>
-<td><a href="EventRecord.php#method29" target="page">Event::copy(...)</a></td>
+<td><a href="EventRecord.php#method30" target="page">Event::copy(...)</a></td>
 <td>Event Record</td>
 </tr>
 
@@ -1030,19 +1048,19 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="EventRecord.php#method31" target="page">Event::restorePtrs()</a></td>
+<td><a href="EventRecord.php#method32" target="page">Event::restorePtrs()</a></td>
 <td>Event Record</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventRecord.php#method32" target="page">Event::rot(...)</a></td>
+<td><a href="EventRecord.php#method33" target="page">Event::rot(...)</a></td>
 <td>Event Record</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventRecord.php#method34" target="page">Event::rotbst(...)</a></td>
+<td><a href="EventRecord.php#method35" target="page">Event::rotbst(...)</a></td>
 <td>Event Record</td>
 </tr>
 
@@ -1072,7 +1090,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>int</td>
-<td><a href="EventRecord.php#method28" target="page">Event::setPDTPtr(...)</a></td>
+<td><a href="EventRecord.php#method29" target="page">Event::setPDTPtr(...)</a></td>
 <td>Event Record</td>
 </tr>
 
@@ -1097,6 +1115,12 @@ Many of them are only intended for experts, while undocumented ones are only for
 <tr>
 <td>int</td>
 <td><a href="EventRecord.php#method6" target="page">Event::statusHepMC(...)</a></td>
+<td>Event Record</td>
+</tr>
+
+<tr>
+<td>bool</td>
+<td><a href="EventRecord.php#method24" target="page">Event::undoDecay(...)</a></td>
 <td>Event Record</td>
 </tr>
 
@@ -1246,6 +1270,18 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>bool</td>
+<td><a href="HepMCInterface.php#method7" target="page">I_Pythia8::convert_gluon_to_0()</a></td>
+<td>HepMC Interface</td>
+</tr>
+
+<tr>
+<td>bool</td>
+<td><a href="HepMCInterface.php#method6" target="page">I_Pythia8::crash_on_problem()</a></td>
+<td>HepMC Interface</td>
+</tr>
+
+<tr>
+<td>bool</td>
 <td><a href="HepMCInterface.php#method2" target="page">I_Pythia8::fill_next_event(...)</a></td>
 <td>HepMC Interface</td>
 </tr>
@@ -1257,6 +1293,12 @@ Many of them are only intended for experts, while undocumented ones are only for
 </tr>
 
 <tr>
+<td>bool</td>
+<td><a href="HepMCInterface.php#method5" target="page">I_Pythia8::free_parton_warnings()</a></td>
+<td>HepMC Interface</td>
+</tr>
+
+<tr>
 <td> </td>
 <td><a href="HepMCInterface.php#method1" target="page">I_Pythia8::I_Pythia8()</a></td>
 <td>HepMC Interface</td>
@@ -1264,61 +1306,67 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>bool</td>
-<td><a href="HepMCInterface.php#method7" target="page">I_Pythia8::print_inconsistency_errors()</a></td>
+<td><a href="HepMCInterface.php#method4" target="page">I_Pythia8::print_inconsistency()</a></td>
+<td>HepMC Interface</td>
+</tr>
+
+<tr>
+<td>void</td>
+<td><a href="HepMCInterface.php#method7" target="page">I_Pythia8::set_convert_gluon_to_0(...)</a></td>
+<td>HepMC Interface</td>
+</tr>
+
+<tr>
+<td>void</td>
+<td><a href="HepMCInterface.php#method6" target="page">I_Pythia8::set_crash_on_problem(...)</a></td>
+<td>HepMC Interface</td>
+</tr>
+
+<tr>
+<td>void</td>
+<td><a href="HepMCInterface.php#method5" target="page">I_Pythia8::set_free_parton_warnings(...)</a></td>
+<td>HepMC Interface</td>
+</tr>
+
+<tr>
+<td>void</td>
+<td><a href="HepMCInterface.php#method4" target="page">I_Pythia8::set_print_inconsistency(...)</a></td>
+<td>HepMC Interface</td>
+</tr>
+
+<tr>
+<td>void</td>
+<td><a href="HepMCInterface.php#method8" target="page">I_Pythia8::set_store_pdf(...)</a></td>
+<td>HepMC Interface</td>
+</tr>
+
+<tr>
+<td>void</td>
+<td><a href="HepMCInterface.php#method9" target="page">I_Pythia8::set_store_proc(...)</a></td>
+<td>HepMC Interface</td>
+</tr>
+
+<tr>
+<td>void</td>
+<td><a href="HepMCInterface.php#method10" target="page">I_Pythia8::set_store_xsec(...)</a></td>
 <td>HepMC Interface</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="HepMCInterface.php#method4" target="page">I_Pythia8::put_pdf_info(...)</a></td>
-<td>HepMC Interface</td>
-</tr>
-
-<tr>
-<td>void</td>
-<td><a href="HepMCInterface.php#method10" target="page">I_Pythia8::set_convert_to_mev(...)</a></td>
-<td>HepMC Interface</td>
-</tr>
-
-<tr>
-<td>void</td>
-<td><a href="HepMCInterface.php#method8" target="page">I_Pythia8::set_crash_on_problem(...)</a></td>
-<td>HepMC Interface</td>
-</tr>
-
-<tr>
-<td>void</td>
-<td><a href="HepMCInterface.php#method9" target="page">I_Pythia8::set_freepartonwarnings(...)</a></td>
-<td>HepMC Interface</td>
-</tr>
-
-<tr>
-<td>void</td>
-<td><a href="HepMCInterface.php#method7" target="page">I_Pythia8::set_print_inconsistency_errors(...)</a></td>
-<td>HepMC Interface</td>
-</tr>
-
-<tr>
-<td>void</td>
-<td><a href="HepMCInterface.php#method6" target="page">I_Pythia8::set_trust_both_mothers_and_daughters(...)</a></td>
-<td>HepMC Interface</td>
-</tr>
-
-<tr>
-<td>void</td>
-<td><a href="HepMCInterface.php#method5" target="page">I_Pythia8::set_trust_mothers_before_daughters(...)</a></td>
+<td><a href="HepMCInterface.php#method8" target="page">I_Pythia8::store_pdf()</a></td>
 <td>HepMC Interface</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="HepMCInterface.php#method6" target="page">I_Pythia8::trust_both_mothers_and_daughters()</a></td>
+<td><a href="HepMCInterface.php#method9" target="page">I_Pythia8::store_proc()</a></td>
 <td>HepMC Interface</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="HepMCInterface.php#method5" target="page">I_Pythia8::trust_mothers_before_daughters()</a></td>
+<td><a href="HepMCInterface.php#method10" target="page">I_Pythia8::store_xsec()</a></td>
 <td>HepMC Interface</td>
 </tr>
 
@@ -1330,13 +1378,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method40" target="page">Info::a0MPI()</a></td>
+<td><a href="EventInformation.php#method41" target="page">Info::a0MPI()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventInformation.php#method51" target="page">Info::addCounter(...)</a></td>
+<td><a href="EventInformation.php#method52" target="page">Info::addCounter(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1360,7 +1408,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method41" target="page">Info::bMPI()</a></td>
+<td><a href="EventInformation.php#method42" target="page">Info::bMPI()</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1372,7 +1420,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>int</td>
-<td><a href="EventInformation.php#method44" target="page">Info::codeMPI(...)</a></td>
+<td><a href="EventInformation.php#method45" target="page">Info::codeMPI(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1402,31 +1450,31 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method46" target="page">Info::eMPI(...)</a></td>
+<td><a href="EventInformation.php#method47" target="page">Info::eMPI(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method42" target="page">Info::enhanceMPI()</a></td>
+<td><a href="EventInformation.php#method43" target="page">Info::enhanceMPI()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="EventInformation.php#method49" target="page">Info::getCounter(...)</a></td>
+<td><a href="EventInformation.php#method50" target="page">Info::getCounter(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="EventInformation.php#method52" target="page">Info::hasHistory()</a></td>
+<td><a href="EventInformation.php#method53" target="page">Info::hasHistory()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventInformation.php#method52" target="page">Info::hasHistory(...)</a></td>
+<td><a href="EventInformation.php#method53" target="page">Info::hasHistory(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1438,25 +1486,25 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>string</td>
-<td><a href="EventInformation.php#method55" target="page">Info::header(...)</a></td>
+<td><a href="EventInformation.php#method56" target="page">Info::header(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>vector &lt;string&gt;</td>
-<td><a href="EventInformation.php#method56" target="page">Info::headerKeys()</a></td>
+<td><a href="EventInformation.php#method57" target="page">Info::headerKeys()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="EventInformation.php#method45" target="page">Info::iAMPI(...)</a></td>
+<td><a href="EventInformation.php#method46" target="page">Info::iAMPI(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="EventInformation.php#method45" target="page">Info::iBMPI(...)</a></td>
+<td><a href="EventInformation.php#method46" target="page">Info::iBMPI(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1588,13 +1636,19 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
+<td><a href="EventInformation.php#method40" target="page">Info::mergingWeightNLO()</a></td>
+<td>Event Information</td>
+</tr>
+
+<tr>
+<td>double</td>
 <td><a href="EventInformation.php#method28" target="page">Info::mHat()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>long</td>
-<td><a href="EventInformation.php#method47" target="page">Info::nAccepted(...)</a></td>
+<td><a href="EventInformation.php#method48" target="page">Info::nAccepted(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1642,19 +1696,19 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>int</td>
-<td><a href="EventInformation.php#method43" target="page">Info::nMPI()</a></td>
+<td><a href="EventInformation.php#method44" target="page">Info::nMPI()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>long</td>
-<td><a href="EventInformation.php#method47" target="page">Info::nSelected(...)</a></td>
+<td><a href="EventInformation.php#method48" target="page">Info::nSelected(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>long</td>
-<td><a href="EventInformation.php#method47" target="page">Info::nTried(...)</a></td>
+<td><a href="EventInformation.php#method48" target="page">Info::nTried(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1684,13 +1738,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method54" target="page">Info::pT2NowISR()</a></td>
+<td><a href="EventInformation.php#method55" target="page">Info::pT2NowISR()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventInformation.php#method54" target="page">Info::pT2NowISR(...)</a></td>
+<td><a href="EventInformation.php#method55" target="page">Info::pT2NowISR(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1720,7 +1774,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method44" target="page">Info::pTMPI(...)</a></td>
+<td><a href="EventInformation.php#method45" target="page">Info::pTMPI(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1774,13 +1828,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="EventInformation.php#method50" target="page">Info::setCounter(...)</a></td>
+<td><a href="EventInformation.php#method51" target="page">Info::setCounter(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventInformation.php#method57" target="page">Info::setHeader(...)</a></td>
+<td><a href="EventInformation.php#method58" target="page">Info::setHeader(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1792,13 +1846,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method48" target="page">Info::sigmaErr(...)</a></td>
+<td><a href="EventInformation.php#method49" target="page">Info::sigmaErr(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method48" target="page">Info::sigmaGen(...)</a></td>
+<td><a href="EventInformation.php#method49" target="page">Info::sigmaGen(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1876,13 +1930,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method53" target="page">Info::zNowISR()</a></td>
+<td><a href="EventInformation.php#method54" target="page">Info::zNowISR()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventInformation.php#method53" target="page">Info::zNowISR(...)</a></td>
+<td><a href="EventInformation.php#method54" target="page">Info::zNowISR(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -2146,6 +2200,12 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
+<td><a href="LesHouchesAccord.php#method25" target="page">LHAup::scale(...)</a></td>
+<td>Les Houches Accord</td>
+</tr>
+
+<tr>
+<td>double</td>
 <td><a href="LesHouchesAccord.php#method29" target="page">LHAup::scalePDF()</a></td>
 <td>Les Houches Accord</td>
 </tr>
@@ -2362,20 +2422,20 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>bool</td>
-<td><a href="AlpgenAndMLM.php#method2" target="page">LHAupAlpgen::addResonances()</a></td>
-<td>Alpgen And M L M</td>
+<td><a href="AlpgenEventInterface.php#method2" target="page">LHAupAlpgen::addResonances()</a></td>
+<td>Alpgen Event Interface</td>
 </tr>
 
 <tr>
 <td> </td>
-<td><a href="AlpgenAndMLM.php#method1" target="page">LHAupAlpgen::LHAupAlpgen(...)</a></td>
-<td>Alpgen And M L M</td>
+<td><a href="AlpgenEventInterface.php#method1" target="page">LHAupAlpgen::LHAupAlpgen(...)</a></td>
+<td>Alpgen Event Interface</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="AlpgenAndMLM.php#method3" target="page">LHAupAlpgen::rescaleMomenta()</a></td>
-<td>Alpgen And M L M</td>
+<td><a href="AlpgenEventInterface.php#method3" target="page">LHAupAlpgen::rescaleMomenta()</a></td>
+<td>Alpgen Event Interface</td>
 </tr>
 
 <tr>
@@ -2386,80 +2446,86 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>virtual bool</td>
-<td><a href="MatrixElementMerging.php#method12" target="page">MergingHooks::canCutOnRecState()</a></td>
-<td>Matrix Element Merging</td>
+<td><a href="CKKWLMerging.php#method12" target="page">MergingHooks::canCutOnRecState()</a></td>
+<td>C K K W L Merging</td>
 </tr>
 
 <tr>
 <td>virtual double</td>
-<td><a href="MatrixElementMerging.php#method11" target="page">MergingHooks::dampenIfFailCuts(...)</a></td>
-<td>Matrix Element Merging</td>
+<td><a href="CKKWLMerging.php#method11" target="page">MergingHooks::dampenIfFailCuts(...)</a></td>
+<td>C K K W L Merging</td>
 </tr>
 
 <tr>
 <td>virtual bool</td>
-<td><a href="MatrixElementMerging.php#method13" target="page">MergingHooks::doCutOnRecState(...)</a></td>
-<td>Matrix Element Merging</td>
-</tr>
-
-<tr>
-<td> </td>
-<td><a href="MatrixElementMerging.php#method1" target="page">MergingHooks::MergingHooks()</a></td>
-<td>Matrix Element Merging</td>
-</tr>
-
-<tr>
-<td>int</td>
-<td><a href="MatrixElementMerging.php#method8" target="page">MergingHooks::nHardInLeptons()</a></td>
-<td>Matrix Element Merging</td>
-</tr>
-
-<tr>
-<td>int</td>
-<td><a href="MatrixElementMerging.php#method7" target="page">MergingHooks::nHardInPartons()</a></td>
-<td>Matrix Element Merging</td>
-</tr>
-
-<tr>
-<td>int</td>
-<td><a href="MatrixElementMerging.php#method6" target="page">MergingHooks::nHardOutLeptons()</a></td>
-<td>Matrix Element Merging</td>
-</tr>
-
-<tr>
-<td>int</td>
-<td><a href="MatrixElementMerging.php#method5" target="page">MergingHooks::nHardOutPartons()</a></td>
-<td>Matrix Element Merging</td>
-</tr>
-
-<tr>
-<td>int</td>
-<td><a href="MatrixElementMerging.php#method4" target="page">MergingHooks::nMaxJets()</a></td>
-<td>Matrix Element Merging</td>
-</tr>
-
-<tr>
-<td>int</td>
-<td><a href="MatrixElementMerging.php#method9" target="page">MergingHooks::nResInCurrent()</a></td>
-<td>Matrix Element Merging</td>
-</tr>
-
-<tr>
-<td>double</td>
-<td><a href="MatrixElementMerging.php#method10" target="page">MergingHooks::tms()</a></td>
-<td>Matrix Element Merging</td>
+<td><a href="CKKWLMerging.php#method13" target="page">MergingHooks::doCutOnRecState(...)</a></td>
+<td>C K K W L Merging</td>
 </tr>
 
 <tr>
 <td>virtual double</td>
-<td><a href="MatrixElementMerging.php#method3" target="page">MergingHooks::tmsDefinition(...)</a></td>
-<td>Matrix Element Merging</td>
+<td><a href="CKKWLMerging.php#method14" target="page">MergingHooks::hardProcessME(...)</a></td>
+<td>C K K W L Merging</td>
+</tr>
+
+<tr>
+<td> </td>
+<td><a href="CKKWLMerging.php#method1" target="page">MergingHooks::MergingHooks()</a></td>
+<td>C K K W L Merging</td>
+</tr>
+
+<tr>
+<td>int</td>
+<td><a href="CKKWLMerging.php#method8" target="page">MergingHooks::nHardInLeptons()</a></td>
+<td>C K K W L Merging</td>
+</tr>
+
+<tr>
+<td>int</td>
+<td><a href="CKKWLMerging.php#method7" target="page">MergingHooks::nHardInPartons()</a></td>
+<td>C K K W L Merging</td>
+</tr>
+
+<tr>
+<td>int</td>
+<td><a href="CKKWLMerging.php#method6" target="page">MergingHooks::nHardOutLeptons()</a></td>
+<td>C K K W L Merging</td>
+</tr>
+
+<tr>
+<td>int</td>
+<td><a href="CKKWLMerging.php#method5" target="page">MergingHooks::nHardOutPartons()</a></td>
+<td>C K K W L Merging</td>
+</tr>
+
+<tr>
+<td>int</td>
+<td><a href="CKKWLMerging.php#method4" target="page">MergingHooks::nMaxJets()</a></td>
+<td>C K K W L Merging</td>
+</tr>
+
+<tr>
+<td>int</td>
+<td><a href="CKKWLMerging.php#method9" target="page">MergingHooks::nResInCurrent()</a></td>
+<td>C K K W L Merging</td>
+</tr>
+
+<tr>
+<td>double</td>
+<td><a href="CKKWLMerging.php#method10" target="page">MergingHooks::tms()</a></td>
+<td>C K K W L Merging</td>
+</tr>
+
+<tr>
+<td>virtual double</td>
+<td><a href="CKKWLMerging.php#method3" target="page">MergingHooks::tmsDefinition(...)</a></td>
+<td>C K K W L Merging</td>
 </tr>
 
 <tr>
 <td>virtual</td>
-<td><a href="MatrixElementMerging.php#method2" target="page">MergingHooks::~MergingHooks()</a></td>
-<td>Matrix Element Merging</td>
+<td><a href="CKKWLMerging.php#method2" target="page">MergingHooks::~MergingHooks()</a></td>
+<td>C K K W L Merging</td>
 </tr>
 
 <tr>
@@ -4060,19 +4126,19 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void AlpgenPar::void</td>
-<td><a href="AlpgenAndMLM.php#method8" target="page">printParams()</a></td>
-<td>Alpgen And M L M</td>
+<td><a href="AlpgenEventInterface.php#method8" target="page">printParams()</a></td>
+<td>Alpgen Event Interface</td>
 </tr>
 
 <tr>
 <td>CoupSM</td>
-<td><a href="ProgramFlow.php#method39" target="page">Pythia::coupSM</a></td>
+<td><a href="ProgramFlow.php#method40" target="page">Pythia::coupSM</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>Event</td>
-<td><a href="ProgramFlow.php#method34" target="page">Pythia::event</a></td>
+<td><a href="ProgramFlow.php#method35" target="page">Pythia::event</a></td>
 <td>Program Flow</td>
 </tr>
 
@@ -4102,7 +4168,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>Info</td>
-<td><a href="ProgramFlow.php#method35" target="page">Pythia::info</a></td>
+<td><a href="ProgramFlow.php#method36" target="page">Pythia::info</a></td>
 <td>Program Flow</td>
 </tr>
 
@@ -4180,19 +4246,19 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>ParticleData</td>
-<td><a href="ProgramFlow.php#method37" target="page">Pythia::particleData</a></td>
+<td><a href="ProgramFlow.php#method38" target="page">Pythia::particleData</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>PartonSystems</td>
-<td><a href="ProgramFlow.php#method41" target="page">Pythia::partonSystems</a></td>
+<td><a href="ProgramFlow.php#method42" target="page">Pythia::partonSystems</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>Event</td>
-<td><a href="ProgramFlow.php#method33" target="page">Pythia::process</a></td>
+<td><a href="ProgramFlow.php#method34" target="page">Pythia::process</a></td>
 <td>Program Flow</td>
 </tr>
 
@@ -4234,7 +4300,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>Rndm</td>
-<td><a href="ProgramFlow.php#method38" target="page">Pythia::rndm</a></td>
+<td><a href="ProgramFlow.php#method39" target="page">Pythia::rndm</a></td>
 <td>Program Flow</td>
 </tr>
 
@@ -4288,7 +4354,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>Settings</td>
-<td><a href="ProgramFlow.php#method36" target="page">Pythia::settings</a></td>
+<td><a href="ProgramFlow.php#method37" target="page">Pythia::settings</a></td>
 <td>Program Flow</td>
 </tr>
 
@@ -4300,7 +4366,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>SusyLesHouches</td>
-<td><a href="ProgramFlow.php#method40" target="page">Pythia::slha</a></td>
+<td><a href="ProgramFlow.php#method41" target="page">Pythia::slha</a></td>
 <td>Program Flow</td>
 </tr>
 
@@ -4335,6 +4401,12 @@ Many of them are only intended for experts, while undocumented ones are only for
 </tr>
 
 <tr>
+<td>bool</td>
+<td><a href="SemiInternalResonances.php#method5" target="page">ResonanceWidths::allowCalc()</a></td>
+<td>Semi Internal Resonances</td>
+</tr>
+
+<tr>
 <td>void</td>
 <td><a href="SemiInternalResonances.php#method2" target="page">ResonanceWidths::calcPreFac(...)</a></td>
 <td>Semi Internal Resonances</td>
@@ -4343,6 +4415,12 @@ Many of them are only intended for experts, while undocumented ones are only for
 <tr>
 <td>void</td>
 <td><a href="SemiInternalResonances.php#method3" target="page">ResonanceWidths::calcWidth(...)</a></td>
+<td>Semi Internal Resonances</td>
+</tr>
+
+<tr>
+<td>bool</td>
+<td><a href="SemiInternalResonances.php#method6" target="page">ResonanceWidths::initBSM()</a></td>
 <td>Semi Internal Resonances</td>
 </tr>
 
@@ -4438,91 +4516,91 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="FourVectors.php#method54" target="page">RotBstMatrix::bst(...)</a></td>
-<td>Four-Vectors</td>
-</tr>
-
-<tr>
-<td>void</td>
-<td><a href="FourVectors.php#method55" target="page">RotBstMatrix::bst(...)</a></td>
-<td>Four-Vectors</td>
-</tr>
-
-<tr>
-<td>void</td>
 <td><a href="FourVectors.php#method56" target="page">RotBstMatrix::bst(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="FourVectors.php#method55" target="page">RotBstMatrix::bstback(...)</a></td>
+<td><a href="FourVectors.php#method57" target="page">RotBstMatrix::bst(...)</a></td>
+<td>Four-Vectors</td>
+</tr>
+
+<tr>
+<td>void</td>
+<td><a href="FourVectors.php#method58" target="page">RotBstMatrix::bst(...)</a></td>
+<td>Four-Vectors</td>
+</tr>
+
+<tr>
+<td>void</td>
+<td><a href="FourVectors.php#method57" target="page">RotBstMatrix::bstback(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="FourVectors.php#method62" target="page">RotBstMatrix::deviation()</a></td>
+<td><a href="FourVectors.php#method64" target="page">RotBstMatrix::deviation()</a></td>
 <td>Four-Vectors</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="FourVectors.php#method58" target="page">RotBstMatrix::fromCMframe(...)</a></td>
+<td><a href="FourVectors.php#method60" target="page">RotBstMatrix::fromCMframe(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="FourVectors.php#method60" target="page">RotBstMatrix::invert()</a></td>
+<td><a href="FourVectors.php#method62" target="page">RotBstMatrix::invert()</a></td>
 <td>Four-Vectors</td>
 </tr>
 
 <tr>
 <td>RotBstMatrix&</td>
-<td><a href="FourVectors.php#method51" target="page">RotBstMatrix::operator=(...)</a></td>
+<td><a href="FourVectors.php#method53" target="page">RotBstMatrix::operator=(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="FourVectors.php#method61" target="page">RotBstMatrix::reset()</a></td>
+<td><a href="FourVectors.php#method63" target="page">RotBstMatrix::reset()</a></td>
 <td>Four-Vectors</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="FourVectors.php#method52" target="page">RotBstMatrix::rot(...)</a></td>
+<td><a href="FourVectors.php#method54" target="page">RotBstMatrix::rot(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="FourVectors.php#method53" target="page">RotBstMatrix::rot(...)</a></td>
+<td><a href="FourVectors.php#method55" target="page">RotBstMatrix::rot(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="FourVectors.php#method59" target="page">RotBstMatrix::rotbst(...);</a></td>
+<td><a href="FourVectors.php#method61" target="page">RotBstMatrix::rotbst(...);</a></td>
 <td>Four-Vectors</td>
 </tr>
 
 <tr>
 <td> </td>
-<td><a href="FourVectors.php#method49" target="page">RotBstMatrix::RotBstMatrix()</a></td>
+<td><a href="FourVectors.php#method51" target="page">RotBstMatrix::RotBstMatrix()</a></td>
 <td>Four-Vectors</td>
 </tr>
 
 <tr>
 <td> </td>
-<td><a href="FourVectors.php#method50" target="page">RotBstMatrix::RotBstMatrix(...)</a></td>
+<td><a href="FourVectors.php#method52" target="page">RotBstMatrix::RotBstMatrix(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="FourVectors.php#method57" target="page">RotBstMatrix::toCMframe(...)</a></td>
+<td><a href="FourVectors.php#method59" target="page">RotBstMatrix::toCMframe(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
@@ -4546,6 +4624,12 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
+<td><a href="SettingsScheme.php#method10" target="page">Settings::addVect(...)</a></td>
+<td>Settings Scheme</td>
+</tr>
+
+<tr>
+<td>void</td>
 <td><a href="SettingsScheme.php#method10" target="page">Settings::addWord(...)</a></td>
 <td>Settings Scheme</td>
 </tr>
@@ -4558,43 +4642,61 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="SettingsScheme.php#method13" target="page">Settings::flag(...)</a></td>
+<td><a href="SettingsScheme.php#method14" target="page">Settings::flag(...)</a></td>
+<td>Settings Scheme</td>
+</tr>
+
+<tr>
+<td>bool</td>
+<td><a href="SettingsScheme.php#method12" target="page">Settings::flagDefault(...)</a></td>
 <td>Settings Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="SettingsScheme.php#method14" target="page">Settings::forceMode(...)</a></td>
+<td><a href="SettingsScheme.php#method15" target="page">Settings::forceMode(...)</a></td>
 <td>Settings Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="SettingsScheme.php#method14" target="page">Settings::forceParm(...)</a></td>
+<td><a href="SettingsScheme.php#method15" target="page">Settings::forceParm(...)</a></td>
+<td>Settings Scheme</td>
+</tr>
+
+<tr>
+<td>void</td>
+<td><a href="SettingsScheme.php#method15" target="page">Settings::forceVect(...)</a></td>
 <td>Settings Scheme</td>
 </tr>
 
 <tr>
 <td>map<string, Flag></td>
-<td><a href="SettingsScheme.php#method12" target="page">Settings::getFlagMap(...)</a></td>
+<td><a href="SettingsScheme.php#method13" target="page">Settings::getFlagMap(...)</a></td>
 <td>Settings Scheme</td>
 </tr>
 
 <tr>
 <td>map<string, Mode></td>
-<td><a href="SettingsScheme.php#method12" target="page">Settings::getModeMap(...)</a></td>
+<td><a href="SettingsScheme.php#method13" target="page">Settings::getModeMap(...)</a></td>
 <td>Settings Scheme</td>
 </tr>
 
 <tr>
 <td>map<string, Parm></td>
-<td><a href="SettingsScheme.php#method12" target="page">Settings::getParmMap(...)</a></td>
+<td><a href="SettingsScheme.php#method13" target="page">Settings::getParmMap(...)</a></td>
+<td>Settings Scheme</td>
+</tr>
+
+<tr>
+<td>map<string, Vect></td>
+<td><a href="SettingsScheme.php#method13" target="page">Settings::getVectMap(...)</a></td>
 <td>Settings Scheme</td>
 </tr>
 
 <tr>
 <td>map<string, Word></td>
-<td><a href="SettingsScheme.php#method12" target="page">Settings::getWordMap(...)</a></td>
+<td><a href="SettingsScheme.php#method13" target="page">Settings::getWordMap(...)</a></td>
 <td>Settings Scheme</td>
 </tr>
 
@@ -4630,6 +4732,12 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>bool</td>
+<td><a href="SettingsScheme.php#method9" target="page">Settings::isVect(...)</a></td>
+<td>Settings Scheme</td>
+</tr>
+
+<tr>
+<td>bool</td>
 <td><a href="SettingsScheme.php#method9" target="page">Settings::isWord(...)</a></td>
 <td>Settings Scheme</td>
 </tr>
@@ -4660,7 +4768,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="SettingsScheme.php#method13" target="page">Settings::mode(...)</a></td>
+<td><a href="SettingsScheme.php#method14" target="page">Settings::mode(...)</a></td>
+<td>Settings Scheme</td>
+</tr>
+
+<tr>
+<td>int</td>
+<td><a href="SettingsScheme.php#method12" target="page">Settings::modeDefault(...)</a></td>
 <td>Settings Scheme</td>
 </tr>
 
@@ -4672,7 +4786,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="SettingsScheme.php#method13" target="page">Settings::parm(...)</a></td>
+<td><a href="SettingsScheme.php#method14" target="page">Settings::parm(...)</a></td>
+<td>Settings Scheme</td>
+</tr>
+
+<tr>
+<td>double</td>
+<td><a href="SettingsScheme.php#method12" target="page">Settings::parmDefault(...)</a></td>
 <td>Settings Scheme</td>
 </tr>
 
@@ -4696,31 +4816,55 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="SettingsScheme.php#method15" target="page">Settings::resetFlag(...)</a></td>
+<td><a href="SettingsScheme.php#method16" target="page">Settings::resetFlag(...)</a></td>
 <td>Settings Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="SettingsScheme.php#method15" target="page">Settings::resetMode(...)</a></td>
+<td><a href="SettingsScheme.php#method16" target="page">Settings::resetMode(...)</a></td>
 <td>Settings Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="SettingsScheme.php#method15" target="page">Settings::resetParm(...)</a></td>
+<td><a href="SettingsScheme.php#method16" target="page">Settings::resetParm(...)</a></td>
 <td>Settings Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="SettingsScheme.php#method15" target="page">Settings::resetWord(...)</a></td>
+<td><a href="SettingsScheme.php#method16" target="page">Settings::resetVect(...)</a></td>
+<td>Settings Scheme</td>
+</tr>
+
+<tr>
+<td>void</td>
+<td><a href="SettingsScheme.php#method16" target="page">Settings::resetWord(...)</a></td>
 <td>Settings Scheme</td>
 </tr>
 
 <tr>
 <td> </td>
 <td><a href="SettingsScheme.php#method1" target="page">Settings::Settings()</a></td>
+<td>Settings Scheme</td>
+</tr>
+
+<tr>
+<td>vector&lt;double&gt;</td>
+<td><a href="SettingsScheme.php#method11" target="page">Settings::vect(...)</a></td>
+<td>Settings Scheme</td>
+</tr>
+
+<tr>
+<td>void</td>
+<td><a href="SettingsScheme.php#method14" target="page">Settings::vect(...)</a></td>
+<td>Settings Scheme</td>
+</tr>
+
+<tr>
+<td>vector&lt;double&gt;</td>
+<td><a href="SettingsScheme.php#method12" target="page">Settings::vectDefault(...)</a></td>
 <td>Settings Scheme</td>
 </tr>
 
@@ -4732,7 +4876,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="SettingsScheme.php#method13" target="page">Settings::word(...)</a></td>
+<td><a href="SettingsScheme.php#method14" target="page">Settings::word(...)</a></td>
+<td>Settings Scheme</td>
+</tr>
+
+<tr>
+<td>string</td>
+<td><a href="SettingsScheme.php#method12" target="page">Settings::wordDefault(...)</a></td>
 <td>Settings Scheme</td>
 </tr>
 
@@ -5056,79 +5206,79 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>virtual bool</td>
-<td><a href="ImplementNewShowers.php#method26" target="page">SpaceShower::branch(...)</a></td>
+<td><a href="ImplementNewShowers.php#method27" target="page">SpaceShower::branch(...)</a></td>
 <td>Implement New Showers</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ImplementNewShowers.php#method28" target="page">SpaceShower::doRestart()</a></td>
+<td><a href="ImplementNewShowers.php#method29" target="page">SpaceShower::doRestart()</a></td>
 <td>Implement New Showers</td>
 </tr>
 
 <tr>
 <td>virtual double</td>
-<td><a href="ImplementNewShowers.php#method22" target="page">SpaceShower::enhancePTmax()</a></td>
+<td><a href="ImplementNewShowers.php#method23" target="page">SpaceShower::enhancePTmax()</a></td>
 <td>Implement New Showers</td>
 </tr>
 
 <tr>
 <td>virtual void</td>
-<td><a href="ImplementNewShowers.php#method20" target="page">SpaceShower::init(...)</a></td>
+<td><a href="ImplementNewShowers.php#method21" target="page">SpaceShower::init(...)</a></td>
 <td>Implement New Showers</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ImplementNewShowers.php#method19" target="page">SpaceShower::initPtr(...)</a></td>
+<td><a href="ImplementNewShowers.php#method20" target="page">SpaceShower::initPtr(...)</a></td>
 <td>Implement New Showers</td>
 </tr>
 
 <tr>
 <td>virtual bool</td>
-<td><a href="ImplementNewShowers.php#method21" target="page">SpaceShower::limitPTmax(...)</a></td>
+<td><a href="ImplementNewShowers.php#method22" target="page">SpaceShower::limitPTmax(...)</a></td>
 <td>Implement New Showers</td>
 </tr>
 
 <tr>
 <td>virtual void</td>
-<td><a href="ImplementNewShowers.php#method29" target="page">SpaceShower::list(...)</a></td>
+<td><a href="ImplementNewShowers.php#method30" target="page">SpaceShower::list(...)</a></td>
 <td>Implement New Showers</td>
 </tr>
 
 <tr>
 <td>virtual void</td>
-<td><a href="ImplementNewShowers.php#method23" target="page">SpaceShower::prepare(...)</a></td>
+<td><a href="ImplementNewShowers.php#method24" target="page">SpaceShower::prepare(...)</a></td>
 <td>Implement New Showers</td>
 </tr>
 
 <tr>
 <td>virtual double</td>
-<td><a href="ImplementNewShowers.php#method25" target="page">SpaceShower::pTnext(...)</a></td>
+<td><a href="ImplementNewShowers.php#method26" target="page">SpaceShower::pTnext(...)</a></td>
 <td>Implement New Showers</td>
 </tr>
 
 <tr>
 <td> </td>
-<td><a href="ImplementNewShowers.php#method17" target="page">SpaceShower::SpaceShower()</a></td>
+<td><a href="ImplementNewShowers.php#method18" target="page">SpaceShower::SpaceShower()</a></td>
 <td>Implement New Showers</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="ImplementNewShowers.php#method27" target="page">SpaceShower::system()</a></td>
+<td><a href="ImplementNewShowers.php#method28" target="page">SpaceShower::system()</a></td>
 <td>Implement New Showers</td>
 </tr>
 
 <tr>
 <td>virtual void</td>
-<td><a href="ImplementNewShowers.php#method24" target="page">SpaceShower::update(...)</a></td>
+<td><a href="ImplementNewShowers.php#method25" target="page">SpaceShower::update(...)</a></td>
 <td>Implement New Showers</td>
 </tr>
 
 <tr>
 <td>virtual</td>
-<td><a href="ImplementNewShowers.php#method18" target="page">SpaceShower::~SpaceShower()</a></td>
+<td><a href="ImplementNewShowers.php#method19" target="page">SpaceShower::~SpaceShower()</a></td>
 <td>Implement New Showers</td>
 </tr>
 
@@ -5242,7 +5392,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>virtual bool</td>
-<td><a href="ImplementNewShowers.php#method13" target="page">TimeShower::branch(...)</a></td>
+<td><a href="ImplementNewShowers.php#method14" target="page">TimeShower::branch(...)</a></td>
 <td>Implement New Showers</td>
 </tr>
 
@@ -5272,37 +5422,37 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>virtual void</td>
-<td><a href="ImplementNewShowers.php#method16" target="page">TimeShower::list(...)</a></td>
+<td><a href="ImplementNewShowers.php#method17" target="page">TimeShower::list(...)</a></td>
 <td>Implement New Showers</td>
 </tr>
 
 <tr>
 <td>virtual void</td>
-<td><a href="ImplementNewShowers.php#method9" target="page">TimeShower::prepare(...)</a></td>
+<td><a href="ImplementNewShowers.php#method10" target="page">TimeShower::prepare(...)</a></td>
 <td>Implement New Showers</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ImplementNewShowers.php#method8" target="page">TimeShower::pTLastInShower()</a></td>
+<td><a href="ImplementNewShowers.php#method9" target="page">TimeShower::pTLastInShower()</a></td>
 <td>Implement New Showers</td>
 </tr>
 
 <tr>
 <td>virtual double</td>
-<td><a href="ImplementNewShowers.php#method12" target="page">TimeShower::pTnext(...)</a></td>
+<td><a href="ImplementNewShowers.php#method13" target="page">TimeShower::pTnext(...)</a></td>
 <td>Implement New Showers</td>
 </tr>
 
 <tr>
 <td>virtual bool</td>
-<td><a href="ImplementNewShowers.php#method14" target="page">TimeShower::rescatterPropogateRecoil(...)</a></td>
+<td><a href="ImplementNewShowers.php#method15" target="page">TimeShower::rescatterPropogateRecoil(...)</a></td>
 <td>Implement New Showers</td>
 </tr>
 
 <tr>
 <td>virtual void</td>
-<td><a href="ImplementNewShowers.php#method10" target="page">TimeShower::rescatterUpdate(...)</a></td>
+<td><a href="ImplementNewShowers.php#method11" target="page">TimeShower::rescatterUpdate(...)</a></td>
 <td>Implement New Showers</td>
 </tr>
 
@@ -5313,8 +5463,14 @@ Many of them are only intended for experts, while undocumented ones are only for
 </tr>
 
 <tr>
+<td>virtual int</td>
+<td><a href="ImplementNewShowers.php#method8" target="page">TimeShower::showerQED(...)</a></td>
+<td>Implement New Showers</td>
+</tr>
+
+<tr>
 <td>int</td>
-<td><a href="ImplementNewShowers.php#method15" target="page">TimeShower::system()</a></td>
+<td><a href="ImplementNewShowers.php#method16" target="page">TimeShower::system()</a></td>
 <td>Implement New Showers</td>
 </tr>
 
@@ -5326,7 +5482,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>virtual void</td>
-<td><a href="ImplementNewShowers.php#method11" target="page">TimeShower::update(...)</a></td>
+<td><a href="ImplementNewShowers.php#method12" target="page">TimeShower::update(...)</a></td>
 <td>Implement New Showers</td>
 </tr>
 
@@ -5560,18 +5716,6 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="FourVectors.php#method42" target="page">Vec4::bst(...)</a></td>
-<td>Four-Vectors</td>
-</tr>
-
-<tr>
-<td>void</td>
-<td><a href="FourVectors.php#method43" target="page">Vec4::bst(...)</a></td>
-<td>Four-Vectors</td>
-</tr>
-
-<tr>
-<td>void</td>
 <td><a href="FourVectors.php#method44" target="page">Vec4::bst(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
@@ -5584,13 +5728,25 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="FourVectors.php#method46" target="page">Vec4::bstback(...)</a></td>
+<td><a href="FourVectors.php#method46" target="page">Vec4::bst(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="FourVectors.php#method47" target="page">Vec4::bstback(...)</a></td>
+<td><a href="FourVectors.php#method47" target="page">Vec4::bst(...)</a></td>
+<td>Four-Vectors</td>
+</tr>
+
+<tr>
+<td>void</td>
+<td><a href="FourVectors.php#method48" target="page">Vec4::bstback(...)</a></td>
+<td>Four-Vectors</td>
+</tr>
+
+<tr>
+<td>void</td>
+<td><a href="FourVectors.php#method49" target="page">Vec4::bstback(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
@@ -5619,14 +5775,20 @@ Many of them are only intended for experts, while undocumented ones are only for
 </tr>
 
 <tr>
-<td>void</td>
-<td><a href="FourVectors.php#method37" target="page">Vec4::flip3()</a></td>
+<td>double</td>
+<td><a href="FourVectors.php#method18" target="page">Vec4::eta()</a></td>
 <td>Four-Vectors</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="FourVectors.php#method38" target="page">Vec4::flip4()</a></td>
+<td><a href="FourVectors.php#method39" target="page">Vec4::flip3()</a></td>
+<td>Four-Vectors</td>
+</tr>
+
+<tr>
+<td>void</td>
+<td><a href="FourVectors.php#method40" target="page">Vec4::flip4()</a></td>
 <td>Four-Vectors</td>
 </tr>
 
@@ -5644,31 +5806,31 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>Vec4&</td>
-<td><a href="FourVectors.php#method28" target="page">Vec4::operator*=(...)</a></td>
+<td><a href="FourVectors.php#method30" target="page">Vec4::operator*=(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
 <tr>
 <td>Vec4&</td>
-<td><a href="FourVectors.php#method26" target="page">Vec4::operator+=(...)</a></td>
+<td><a href="FourVectors.php#method28" target="page">Vec4::operator+=(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
 <tr>
 <td>Vec4</td>
-<td><a href="FourVectors.php#method25" target="page">Vec4::operator-()</a></td>
+<td><a href="FourVectors.php#method27" target="page">Vec4::operator-()</a></td>
 <td>Four-Vectors</td>
 </tr>
 
 <tr>
 <td>Vec4&</td>
-<td><a href="FourVectors.php#method27" target="page">Vec4::operator-=(...)</a></td>
+<td><a href="FourVectors.php#method29" target="page">Vec4::operator-=(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
 <tr>
 <td>Vec4&</td>
-<td><a href="FourVectors.php#method29" target="page">Vec4::operator/=(...)</a></td>
+<td><a href="FourVectors.php#method31" target="page">Vec4::operator/=(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
@@ -5775,14 +5937,20 @@ Many of them are only intended for experts, while undocumented ones are only for
 </tr>
 
 <tr>
-<td>void</td>
-<td><a href="FourVectors.php#method35" target="page">Vec4::rescale3(...)</a></td>
+<td>double</td>
+<td><a href="FourVectors.php#method18" target="page">Vec4::rap()</a></td>
 <td>Four-Vectors</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="FourVectors.php#method36" target="page">Vec4::rescale4(...)</a></td>
+<td><a href="FourVectors.php#method37" target="page">Vec4::rescale3(...)</a></td>
+<td>Four-Vectors</td>
+</tr>
+
+<tr>
+<td>void</td>
+<td><a href="FourVectors.php#method38" target="page">Vec4::rescale4(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
@@ -5794,25 +5962,25 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="FourVectors.php#method39" target="page">Vec4::rot(...)</a></td>
+<td><a href="FourVectors.php#method41" target="page">Vec4::rot(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="FourVectors.php#method40" target="page">Vec4::rotaxis(...)</a></td>
+<td><a href="FourVectors.php#method42" target="page">Vec4::rotaxis(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="FourVectors.php#method41" target="page">Vec4::rotaxis(...)</a></td>
+<td><a href="FourVectors.php#method43" target="page">Vec4::rotaxis(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="FourVectors.php#method48" target="page">Vec4::rotbst(...)</a></td>
+<td><a href="FourVectors.php#method50" target="page">Vec4::rotbst(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
@@ -5830,7 +5998,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td> </td>
-<td><a href="FourVectors.php#method1" target="page">Vec4::Vec4()</a></td>
+<td><a href="FourVectors.php#method1" target="page">Vec4::Vec4(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
@@ -5842,4 +6010,4 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 </table>
 
-<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->

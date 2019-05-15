@@ -1,5 +1,5 @@
 // SigmaQCD.h is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -165,7 +165,7 @@ public:
   virtual void setIdColAcol();
 
   // Info on the subprocess.
-  virtual string name()       const {return "A B -> A X B central diffractive";}
+  virtual string name()      const {return "A B -> A X B central diffractive";}
   virtual int    code()       const {return 106;}
   virtual int    nFinal()     const {return 3;}
   virtual bool   isResolved() const {return false;}

@@ -131,7 +131,7 @@ Also how to use an external random-number generator and an external
 parton distribution set.</li>
 
 <li><code>main24.cc</code> : tests of internally implemented cross sections
-for Supersymmetric particle production, with SYSY spectrum defined in
+for Supersymmetric particle production, with SUSY spectrum defined in
 <code>cmssm.spc</code> and settings in <code>main24.cmnd</code>. For
 illustration, an alternative example spectrum is also
 available, <code>sps1aWithDecays.spc</code>, which contains a decay
@@ -164,14 +164,16 @@ samples of input events are stored in the <code>powheg-hvq.lhe</code>
 and <code>powheg-dijets.lhe</code> files, respectively.
 </li>
 
-<li><code>main32.cc</code> : exemplifies MLM merging for ALPGEN events,
-see <a href="AlpgenAndMLM.html" target="page">ALPGEN and MLM merging</a> for further
-details. Traditionally the ALPGEN output is split into one file with 
-events and another with parameters and cross sections (unlike in LHEF).
-Here a sample of <i>W + 3 jets</i> events is stored in 
-<code>main32.unw</code> and the parameters to go with it in 
-<code>main32_unw.par</code>, while normal PYTHIA control cards are in
-<code>main32.cmnd</code>. 
+<li><code>main32.cc</code> : exemplifies MLM merging, either in the 
+ALPGEN variant or in the Madgraph one, and with input events either 
+from ALPGEN or from Madgraph, with relevant control cards stored in
+<code>main32.cmnd</code>. See <a href="JetMatching.html" target="page">Jet Matching</a> 
+for further details. Traditionally the ALPGEN output is 
+split into one file with events and another with parameters and cross 
+sections (unlike in LHEF). Here a sample of <i>W + 3 jets</i> events 
+is stored in <code>main32.unw</code> and the parameters to go with it 
+in <code>main32_unw.par</code>. Madgraph events are taken from the 
+<code>w+_production_lhc_2.lhe</code> file in this case.
 </li>
 
 <li><code>main41.cc</code> : similar to <code>main01</code>, except that 
@@ -249,6 +251,54 @@ the <code>main84.cmnd</code> file and the three data files
 and <code>w+_production_lhc_2.lhe</code>.
 </li>
 
+<li><code>main85.cc</code> : do CKKW-L merging, with HepMC event output. Input
+settings are provided by the <code>main85.cmnd</code> file. This example 
+program allows the use of input Les Houches events that are regularised with 
+only very minimal cuts, and on which Pythia itself should enforce the more 
+restrictive merging scale cut. The example program can be used with the input 
+files <code>w_production_tree_0.lhe</code>, 
+<code>w_production_tree_1.lhe</code> and <code>w_production_tree_2.lhe</code>.
+</li>
+
+<li><code>main86.cc</code> : do unitarised ME+PS (UMEPS) merging, with HepMC 
+event output. Input settings are provided by the <code>main86.cmnd</code> 
+file. This example program allows the consistent use of input Les Houches 
+events that are regularised with only very minimal cuts, similar to 
+<code>main85.cc</code>. The example program can be used with the input files 
+<code>w_production_tree_0.lhe</code>, <code>w_production_tree_1.lhe</code>
+and <code>w_production_tree_2.lhe</code>.
+The program will produce positively and negatively weighted events.
+See <a href="UMEPSMerging.html" target="page">UMEPS Merging</a> for further details.
+</li>
+
+<li><code>main87.cc</code> : do NL<sup>3</sup> NLO merging, with inclusive 
+NLO input, and with HepMC event output. Input settings are provided by 
+the <code>main87.cmnd</code> file. This example program allows the consistent 
+use of input Les Houches events that are regularised with only very minimal 
+cuts, similar to <code>main85.cc</code>. The example program can be 
+used with the tree-level input files <code>w_production_tree_0.lhe</code>, 
+<code>w_production_tree_1.lhe</code>, <code>w_production_tree_2.lhe</code> and
+the inclusive POWHEG input files <code>w_production_powheg_0.lhe</code>, 
+<code>w_production_powheg_1.lhe</code>.
+The program will produce positively and negatively weighted events.
+See <a href="NLOMerging.html" target="page">NLO Merging</a> (NL<sup>3</sup> section) for 
+further details.
+</li>
+
+<li><code>main88.cc</code> : do unitarised NLO+PS (UNLOPS) merging, with 
+inclusive NLO input, and with HepMC event output. Input settings are provided 
+by the <code>main88.cmnd</code> file. This example program allows the 
+consistent use of input Les Houches events that are regularised with only very
+minimal cuts, similar to <code>main85.cc</code>. The example program can be 
+used with the tree-level input files <code>w_production_tree_0.lhe</code>, 
+<code>w_production_tree_1.lhe</code>, <code>w_production_tree_2.lhe</code> and
+the inclusive POWHEG input files <code>w_production_powheg_0.lhe</code>, 
+<code>w_production_powheg_1.lhe</code>.
+The program will produce positively and negatively weighted events.
+See <a href="NLOMerging.html" target="page">NLO Merging</a> (UNLOPS section) for further 
+details.
+</li>
+
 <li><code>main91.cc</code> : exemplifies how you can link in runtime
 generation of hard processes from PYTHIA 6, using the Les Houches
 Accord facilities. This example is deprecated, since PYTHIA 8 by now
@@ -277,4 +327,4 @@ documentation.
 </body>
 </html>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->

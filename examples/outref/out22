@@ -5,20 +5,20 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.170      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 21 Sep 2012  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.175      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 16 Feb 2013  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 21 Sep 2012 at 21:33:31    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 16 Feb 2013 at 11:36:07    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Astronomy and Theoretical Physics,      |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
  |  |      phone: + 46 - 46 - 222 48 16; e-mail: torbjorn@thep.lu.se               |  | 
- |  |   Stefan Ask;  Department of Physics, University of Cambridge,               |  | 
- |  |      Cavendish Laboratory, JJ Thomson Ave., Cambridge CB3 0HE, UK;           |  | 
- |  |      phone: + 41 - 22 - 767 6707; e-mail: Stefan.Ask@cern.ch                 |  | 
- |  |   Richard Corke;  Niels Bohr Institute, University of Copenhagen,            |  | 
- |  |      Blegdamsvej 17, 2100 Copenhagen, Denmark;                               |  | 
- |  |      e-mail: richard.corke@thep.lu.se                                        |  | 
+ |  |   Jesper Roy Christiansen;  Department of Astronomy and Theoretical Physics  |  | 
+ |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
+ |  |      e-mail: Jesper.Roy.Christiansen@thep.lu.se                              |  | 
+ |  |   Philip Ilten;  School of Physics, Uniiversity College Dublin,              |  | 
+ |  |      Belfield, Dublin 4, Ireland;                                            |  | 
+ |  |      e-mail: philten@cern.ch                                                 |  | 
  |  |   Stephen Mrenna;  Computing Division, Simulations Group,                    |  | 
  |  |      Fermi National Accelerator Laboratory, MS 234, Batavia, IL 60510, USA;  |  | 
  |  |      phone: + 1 - 630 - 840 - 2556; e-mail: mrenna@fnal.gov                  |  | 
@@ -27,6 +27,8 @@
  |  |      phone: + 46 - 46 - 222 06 64; e-mail: stefan.prestel@thep.lu.se         |  | 
  |  |   Peter Skands;  Theoretical Physics, CERN, CH-1211 Geneva 23, Switzerland;  |  | 
  |  |      phone: + 41 - 22 - 767 2447; e-mail: peter.skands@cern.ch               |  | 
+ |  |   Stefan Ask; former author; e-mail: ask.stefan@gmail.com                    |  | 
+ |  |   Richard Corke; former author; e-mail: r.corke@errno.net                    |  | 
  |  |                                                                              |  | 
  |  |   The main program reference is the 'Brief Introduction to PYTHIA 8.1',      |  | 
  |  |   T. Sjostrand, S. Mrenna and P. Skands, Comput. Phys. Comm. 178 (2008) 85   |  | 
@@ -44,7 +46,7 @@
  |  |   Disclaimer: this program comes without any guarantees.                     |  | 
  |  |   Beware of errors and use common sense when interpreting results.           |  | 
  |  |                                                                              |  | 
- |  |   Copyright (C) 2012 Torbjorn Sjostrand                                      |  | 
+ |  |   Copyright (C) 2013 Torbjorn Sjostrand                                      |  | 
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  *------------------------------------------------------------------------------*  | 
@@ -75,7 +77,7 @@
  |                                                                  | 
  *-------  End PYTHIA Multiparton Interactions Initialization  -----* 
 
- *-------  PYTHIA Flag + Mode + Parm + Word Settings (changes only)  ----------------------------------------------* 
+ *-------  PYTHIA Flag + Mode + Parm + Vect + Word Settings (changes only)  ---------------------------------------* 
  |                                                                                                                 | 
  | Name                                          |                      Now |      Default         Min         Max | 
  |                                               |                          |                                      | 
@@ -95,7 +97,7 @@
  | SigmaTotal:zeroAXB                            |                       on |          off                         | 
  | SpaceShower:rapidityOrder                     |                       on |          off                         | 
  |                                                                                                                 | 
- *-------  End PYTHIA Flag + Mode + Parm + Word Settings  ---------------------------------------------------------* 
+ *-------  End PYTHIA Flag + Mode + Parm + Vect + Word Settings  --------------------------------------------------* 
 
  --------  PYTHIA Particle Data Table (changed only)  ------------------------------------------------------------------------------
  
@@ -2835,10 +2837,10 @@
                                    Charge sum:  2.000           Momentum sum:     -0.000      0.000      0.000  14000.000  14000.000
 
  --------  End PYTHIA Event Listing  -----------------------------------------------------------------------------------------------
- PYTHIA Error in StringFragmentation::fragment: stuck in joining  
+ PYTHIA Error in StringFragmentation::fragmentToJunction: caught in junction flavour loop  
  PYTHIA Error in Pythia::next: hadronLevel failed; try again  
+ PYTHIA Error in StringFragmentation::fragment: stuck in joining  
  PYTHIA Warning in SpaceShower::pT2nextQCD: weight above unity  
- PYTHIA Warning in StringFragmentation::fragmentToJunction: bad convergence junction rest frame  
 
  *-------  PYTHIA Event and Cross Section Statistics  -------------------------------------------------------------*
  |                                                                                                                 |
@@ -2847,9 +2849,9 @@
  |                                                    |                                   |                        |
  |-----------------------------------------------------------------------------------------------------------------|
  |                                                    |                                   |                        |
- | q qbar -> Theta                                621 |        5870       1000       1000 |   6.331e-08  1.332e-09 |
+ | q qbar -> Theta                                621 |        5955       1000       1000 |   6.183e-08  1.314e-09 |
  |                                                    |                                   |                        |
- | sum                                                |        5870       1000       1000 |   6.331e-08  1.332e-09 |
+ | sum                                                |        5955       1000       1000 |   6.183e-08  1.314e-09 |
  |                                                                                                                 |
  *-------  End PYTHIA Event and Cross Section Statistics ----------------------------------------------------------*
 
@@ -2857,18 +2859,20 @@
  |                                                                                                                 | 
  |  times   message                                                                                                | 
  |                                                                                                                 | 
- |      1   Error in Pythia::next: hadronLevel failed; try again                                                   | 
+ |      2   Error in Pythia::next: hadronLevel failed; try again                                                   | 
  |      1   Error in StringFragmentation::fragment: stuck in joining                                               | 
- |      5   Warning in SpaceShower::pT2nextQCD: weight above unity                                                 | 
- |      1   Warning in StringFragmentation::fragmentToJunction: bad convergence junction rest frame                | 
+ |      1   Error in StringFragmentation::fragmentToJunction: caught in junction flavour loop                      | 
+ |      1   Warning in SpaceShower::pT2nextQCD: weight above unity                                                 | 
  |                                                                                                                 | 
  *-------  End PYTHIA Error and Warning Messages Statistics  ------------------------------------------------------* 
 
 
-  2012-09-21 21:34       Theta mass
+  2013-02-16 11:36       Theta mass
 
-        1.84*10^ 2                                           5                                                          
-        1.76*10^ 2                                           X8                                                         
+        2.00*10^ 2                                           5                                                          
+        1.92*10^ 2                                           X5                                                         
+        1.84*10^ 2                                           XX                                                         
+        1.76*10^ 2                                           XX                                                         
         1.68*10^ 2                                           XX                                                         
         1.60*10^ 2                                           XX                                                         
         1.52*10^ 2                                           XX                                                         
@@ -2876,25 +2880,25 @@
         1.36*10^ 2                                           XX                                                         
         1.28*10^ 2                                           XX                                                         
         1.20*10^ 2                                           XX                                                         
-        1.12*10^ 2                                          4XXX                                                        
-        1.04*10^ 2                                          XXXX                                                        
+        1.12*10^ 2                                           XX                                                         
+        1.04*10^ 2                                          9XX1                                                        
         0.96*10^ 2                                          XXXX                                                        
         0.88*10^ 2                                          XXXX                                                        
         0.80*10^ 2                                          XXXX                                                        
-        0.72*10^ 2                                         5XXXX                                                        
-        0.64*10^ 2                                         XXXXX                                                        
-        0.56*10^ 2                                         XXXXX54                                                      
-        0.48*10^ 2                                         XXXXXXX                                                      
-        0.40*10^ 2                                         XXXXXXX                                                      
-        0.32*10^ 2                                       57XXXXXXX4                                                     
-        0.24*10^ 2                                      1XXXXXXXXXX                                                     
-        0.16*10^ 2                                     1XXXXXXXXXXX942                                                  
-        0.08*10^ 2    13 11 1 11311  11311 51141438895XXXXXXXXXXXXXXXXX61133513433311  1 11    1  1         1  1 1      
+        0.72*10^ 2                                         3XXXX                                                        
+        0.64*10^ 2                                         XXXXX8                                                       
+        0.56*10^ 2                                         XXXXXX                                                       
+        0.48*10^ 2                                         XXXXXX                                                       
+        0.40*10^ 2                                         XXXXXX                                                       
+        0.32*10^ 2                                        6XXXXXX1                                                      
+        0.24*10^ 2                                       XXXXXXXXX9 2                                                   
+        0.16*10^ 2                                   5476XXXXXXXXXX9X  2                                                
+        0.08*10^ 2  1   1   31 11 11 4151  3331654351XXXXXXXXXXXXXXXX68XX41545  31 3 11111   1     111             1  1 
 
           Contents                                                                                                      
-            *10^ 2  0000000000000000000000000000000000000000111100000000000000000000000000000000000000000000000000000000
-            *10^ 1  0000000000000000000000000000000000001236087155211100000000000000000000000000000000000000000000000000
-            *10^ 0  0012011010112110011211041131326674897808704221751085112241232221100101100001001000000000100101000000
+            *10^ 2  0000000000000000000000000000000000000000111000000000000000000000000000000000000000000000000000000000
+            *10^ 1  0000000000000000000000000000000001111226098962211001000000000000000000000000000000000000000000000000
+            *10^ 0  1000100021011011031410022215432412143496368725358560831434002102011111000100000111000000000000010010
             *10^-1  0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 
           Low edge                                                                                                      
@@ -2902,5 +2906,5 @@
             *10^ 1  0000000000111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999
             *10^ 0  0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
 
-   Entries  =        1000    Mean =  3.4186e+02    Underflow =  0.0000e+00    Low edge  =  3.0000e+02
-   All chan =  1.0000e+03    Rms  =  6.9685e+00    Overflow  =  0.0000e+00    High edge =  4.0000e+02
+   Entries  =        1000    Mean =  3.4191e+02    Underflow =  0.0000e+00    Low edge  =  3.0000e+02
+   All chan =  1.0000e+03    Rms  =  6.9577e+00    Overflow  =  0.0000e+00    High edge =  4.0000e+02

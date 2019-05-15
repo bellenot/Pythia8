@@ -15,7 +15,7 @@ and contact interaction production by quark-quark or quark-antiquark
 scattering. For both the <ei>2 -> 1</ei> and <ei>2 -> 2</ei> processes 
 a non-trivial angular dependence is included in the decay, however, 
 only decays into gauge bosons are supported, i.e. not decays through 
-contact interactions. In additions to the compositness scale and couplings 
+contact interactions. In additions to the compositeness scale and couplings 
 listed below, you are expected to change the excited-fermion masses in 
 accordance with what is desired. See <ref>Bau90</ref> for conventions.
 
@@ -216,5 +216,5 @@ Helicity parameter.
 
 </chapter>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->
 

@@ -95,7 +95,7 @@ Code 205.
   
 
 <br/><br/><table><tr><td><strong>PromptPhoton:nQuarkLoop  </td><td></td><td> <input type="text" name="7" value="5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 3</code>; <code>maximum = 6</code>)</td></tr></table>
-Number of quark flavours included in the box graphs resposible for 
+Number of quark flavours included in the box graphs responsible for 
 <i>g g -> g gamma</i> and <i>g g-> gamma gamma</i> processes.
 Owing to the complexity if the massive expressions, quarks are treated 
 as massless. The default value should be applicable in the range of 
@@ -241,7 +241,7 @@ gauge boson, i.e. a <i>gamma^*/Z^0</i> or a <i>W^+-</i>, in
 association with a parton, i.e. a quark, gluon, photon or lepton.
 These processes give first-order corrections to the ones in the
 <code>WeakSingleBoson</code> class, and both sets cannot be used
-simultaneously without unphysical doublecounting. The current class
+simultaneously without unphysical double-counting. The current class
 should only be used to study the high-<i>pT</i> tail of the 
 gauge-boson production processes (for LHC applications at least
 <i>pT</i> > 20 GeV), while the ones in <code>WeakSingleBoson</code> 
@@ -557,5 +557,5 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->
 

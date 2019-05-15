@@ -1,5 +1,5 @@
 // HelicityMatrixElements.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Philip Ilten, Torbjorn Sjostrand.
+// Copyright (C) 2013 Philip Ilten, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -262,7 +262,7 @@ void HelicityMatrixElement::setFermionLine(int position,
   
 complex HelicityMatrixElement::breitWigner(double s, double M, double G) {
   
-  return (-M * M + complex(0, 1) * M * G) / (s - M * M + complex(0, 1) * M * G);
+  return (-M*M + complex(0, 1) * M * G) / (s - M*M + complex(0, 1) * M * G);
   
 }
 
@@ -667,9 +667,9 @@ complex HMEHiggsOdd2TwoFermions::calculateME(vector<int> h) {
 // pfCA is set to +/- one given an H^+/- and pfCV is set to one.
 
 // p2CA: in the MSSM this coupling is given by:
-//       i * g / (sqrt(8) * m_W) * (m_d * tan(beta) + m_u * cot(beta))
+//       i * g / (sqrt(8.) * m_W) * (m_d * tan(beta) + m_u * cot(beta))
 // p2CV: in the MSSM this coupling is given by:
-//       +/- i * g / (sqrt(8) * m_W) * (m_d * tan(beta) - m_u * cot(beta))
+//       +/- i * g / (sqrt(8.) * m_W) * (m_d * tan(beta) - m_u * cot(beta))
 
 //--------------------------------------------------------------------------
 
@@ -1168,11 +1168,10 @@ double HMETau2ThreeMesons::a1PhaseSpace(double s) {
 
 //--------------------------------------------------------------------------
 
-// Return the Breit-Wigner for the a1. Implements equation 3.18 of Z. Phys. C48 
-// (1990) 445-452.
+// Return the Breit-Wigner for the a1. Implements equation 3.18 
+// of Z. Phys. C48 (1990) 445-452.
 
 complex HMETau2ThreeMesons::a1BreitWigner(double s) {
-
 
   double a1M = 1.251; // Mass of the a1.
   double a1G = 0.475; // Width of the a1.
@@ -1185,8 +1184,8 @@ complex HMETau2ThreeMesons::a1BreitWigner(double s) {
 
 // Return summed weighted running p Breit-Wigner resonances.
 
-complex HMETau2ThreeMesons::T(double m0, double m1, double s, vector<double> &M,
-			      vector<double> &G, vector<double> &W) {
+complex HMETau2ThreeMesons::T(double m0, double m1, double s,
+  vector<double> &M, vector<double> &G, vector<double> &W) {
 
   complex num(0, 0);
   double  den(0);
@@ -1203,7 +1202,7 @@ complex HMETau2ThreeMesons::T(double m0, double m1, double s, vector<double> &M,
 // Return summed weighted fixed width Breit-Wigner resonances.
 
 complex HMETau2ThreeMesons::T(double s, vector<double> &M,
-			      vector<double> &G, vector<double> &W) {
+  vector<double> &G, vector<double> &W) {
 
   complex num(0, 0);
   double  den(0);
@@ -1461,8 +1460,8 @@ complex HMETau2ThreePions::a1BreitWigner(double s) {
 
 //==========================================================================
   
-// Tau decay matrix element for tau decay into three mesons with kaons. The form
-// factors are taken from hep-ph/9503474.
+// Tau decay matrix element for tau decay into three mesons with kaons. 
+// The form factors are taken from hep-ph/9503474.
 
 // rhoMa(v): on-shell masses for the axial (vector) rho resonances
 // rhoGa(v): widths for the axial (vector) rho resonances
@@ -1632,28 +1631,28 @@ complex HMETau2ThreeMesonsWithKaons::F4() {
   complex answer;
   // K-, pi-, K+ decay.
   if (mode == PimKmKp)
-    answer = (sqrt(2) - 1) * T(piM, piM, s1, rhoMv, rhoGv, rhoWv) 
-      * (sqrt(2) * T(s3, omegaM, omegaG, omegaW) 
+    answer = (sqrt(2.) - 1) * T(piM, piM, s1, rhoMv, rhoGv, rhoWv) 
+      * (sqrt(2.) * T(s3, omegaM, omegaG, omegaW) 
 	 + T(piM, kM, s2, kstarMa, kstarGa, kstarWa));
   // K0, pi-, Kbar0 decay.
   else if (mode == PimK0bK0)
-    answer = -(sqrt(2) - 1) * T(piM, piM, s1, rhoMv, rhoGv, rhoWv) 
-      * (sqrt(2) * T(s3, omegaM, omegaG, omegaW) 
+    answer = -(sqrt(2.) - 1) * T(piM, piM, s1, rhoMv, rhoGv, rhoWv) 
+      * (sqrt(2.) * T(s3, omegaM, omegaG, omegaW) 
 	 + T(piM, kM, s2, kstarMa, kstarGa, kstarWa));
   // K_S0, pi-, K_S0 decay and K_L0, pi-, K_L0 decay.
   else if (mode == PimKsKs || mode == KlKlPim)
-    answer = (sqrt(2) - 1) * T(piM, piM, s1, rhoMv, rhoGv, rhoWv) 
+    answer = (sqrt(2.) - 1) * T(piM, piM, s1, rhoMv, rhoGv, rhoWv) 
       * (T(piM, kM, s2, kstarMa, kstarGa, kstarWa) 
 	 - T(piM, kM, s4, kstarMa, kstarGa, kstarWa));
   // K_S0, pi-, K_L0 decay.
   else if (mode == KlPimKs)
-    answer = -(sqrt(2) - 1) * T(piM, piM, s1, rhoMv, rhoGv, rhoWv) 
-      * (2 * sqrt(2) * T(s3, omegaM, omegaG, omegaW) 
+    answer = -(sqrt(2.) - 1) * T(piM, piM, s1, rhoMv, rhoGv, rhoWv) 
+      * (2 * sqrt(2.) * T(s3, omegaM, omegaG, omegaW) 
 	 + T(piM, kM, s2, kstarMa, kstarGa, kstarWa)
 	 + T(piM, kM, s4, kstarMa, kstarGa, kstarWa));
   // K-, pi0, K0 decay.
   else if (mode == Pi0K0Km)
-    answer = -(sqrt(2) - 1) * T(piM, piM, s1, rhoMv, rhoGv, rhoWv) 
+    answer = -(sqrt(2.) - 1) * T(piM, piM, s1, rhoMv, rhoGv, rhoWv) 
       * (T(piM, kM, s4, kstarMa, kstarGa, kstarWa) 
 	 - T(piM, kM, s2, kstarMa, kstarGa, kstarWa));
   // pi0, pi0, K- decay.
@@ -1759,7 +1758,8 @@ complex HMETau2ThreeMesonsGeneric::F1() {
     answer = T(s1, k1M, k1G, k1W) * T(piM, kM, s2, kstarM, kstarG, kstarW);
   // K-, pi-, pi+ decay.
   else if (mode == PimPipKm)
-    answer = -T(s1, k1M, k1G, k1W) * T(piM, piM, s2, rhoMa, rhoGa, rhoWa) / 3.0;
+    answer = -T(s1, k1M, k1G, k1W) * T(piM, piM, s2, rhoMa, rhoGa, rhoWa) 
+           / 3.0;
   // pi-, Kbar0, pi0 decay.
   else if (mode == Pi0PimK0b)
     answer = 0;

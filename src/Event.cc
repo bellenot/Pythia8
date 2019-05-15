@@ -1,5 +1,5 @@
 // Event.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -288,6 +288,113 @@ void Event::list(bool showScaleAndVertex, bool showMothersAndDaughters,
   os << "\n --------  End PYTHIA Event Listing  ----------------------------"
      << "-------------------------------------------------------------------"
      << endl;
+}
+
+//--------------------------------------------------------------------------
+
+// Recursively remove the decay products of particle i, update it to be 
+// undecayed, and update all mother/daughter indices to be correct.
+// Warning: assumes that decay chains are nicely ordered. 
+
+bool Event::undoDecay(int i) {
+
+  // Do not remove daughters of a parton, i.e. entry carrying colour.
+  if (i < 0 || i >= int(entry.size())) return false;
+  if (entry[i].col() != 0 || entry[i].acol() != 0) return false;
+
+  // Find range of daughters to remove.
+  int dau1 = entry[i].daughter1();
+  if (dau1 == 0) return false; 
+  int dau2 = entry[i].daughter2();
+  if (dau2 == 0) dau2 = dau1;
+
+  // Refuse if any of the daughters have other mothers.
+  for (int j = dau1; j <= dau2; ++j) if (entry[j].mother1() != i 
+    || (entry[j].mother2() != i && entry[j].mother2() != 0) ) return false;
+
+  // Initialize range arrays for daughters and granddaughters.
+  vector<int> dauBeg, dauEnd;
+  dauBeg.push_back( dau1);
+  dauEnd.push_back( dau2); 
+
+  // Begin recursive search through all decay chains.
+  int iRange = 0;
+  do {
+    for (int j = dauBeg[iRange]; j <= dauEnd[iRange]; ++j) 
+    if (entry[j].status() < 0) {
+      
+      // Find new daughter range, if present.
+      dau1 = entry[j].daughter1();
+      if (dau1 == 0) return false; 
+      dau2 = entry[j].daughter2();
+      if (dau2 == 0) dau2 = dau1;
+       
+      // Check if the range duplicates or contradicts existing ones.
+      bool isNew = true;
+      for (int iR = 0; iR < int(dauBeg.size()); ++iR) {
+        if (dau1 == dauBeg[iR] && dau2 == dauEnd[iR]) isNew = false;
+        else if (dau1 >= dauBeg[iR] && dau1 <= dauEnd[iR]) return false;
+        else if (dau2 >= dauBeg[iR] && dau2 <= dauEnd[iR]) return false;
+      }
+
+      // Add new range where relevant. Keep ranges ordered.
+      if (isNew) {
+        dauBeg.push_back( dau1);
+        dauEnd.push_back( dau2);
+        for (int iR = int(dauBeg.size()) - 1; iR > 0; --iR) {
+          if (dauBeg[iR] < dauBeg[iR - 1]) {
+            swap( dauBeg[iR], dauBeg[iR - 1]);
+            swap( dauEnd[iR], dauEnd[iR - 1]);
+          } else break;
+        }
+      }
+
+    // End of recursive search all decay chains.  
+    }
+  } while (++iRange < int(dauBeg.size())); 
+
+  // Join adjacent ranges to reduce number of erase steps.
+  int iRJ = 0;
+  do {
+    if (dauEnd[iRJ] + 1 == dauBeg[iRJ + 1]) {
+      for (int iRB = iRJ + 1; iRB < int(dauBeg.size()) - 1; ++iRB)
+        dauBeg[iRB] = dauBeg[iRB + 1];
+      for (int iRE = iRJ; iRE < int(dauEnd.size()) - 1; ++iRE)
+        dauEnd[iRE] = dauEnd[iRE + 1];
+      dauBeg.pop_back();
+      dauEnd.pop_back();
+    } else ++iRJ;
+  } while (iRJ < int(dauBeg.size()) - 1);
+
+  // Iterate over relevant ranges, from bottom up.
+  for (int iR = int(dauBeg.size()) - 1; iR >= 0; --iR) {
+    dau1 = dauBeg[iR];
+    dau2 = dauEnd[iR];
+    int nRem = dau2 - dau1 + 1;
+
+    // Remove daughters in each range.
+    entry.erase( entry.begin() + dau1, entry.begin() + dau2 + 1);
+
+    // Update subsequent history to account for removed indices.
+    for (int j = 0; j < int(entry.size()); ++j) {
+      if (entry[j].mother1() > dau2)
+        entry[j].mother1( entry[j].mother1() - nRem );  
+      if (entry[j].mother2() > dau2)
+        entry[j].mother2( entry[j].mother2() - nRem );  
+      if (entry[j].daughter1() > dau2) 
+        entry[j].daughter1( entry[j].daughter1() - nRem );  
+      if (entry[j].daughter2() > dau2) 
+        entry[j].daughter2( entry[j].daughter2() - nRem ); 
+    }
+  } 
+
+  // Update mother that has been undecayed.
+  entry[i].statusPos();
+  entry[i].daughters();
+
+  // Done.
+  return true;
+
 }
 
 //--------------------------------------------------------------------------

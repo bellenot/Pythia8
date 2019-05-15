@@ -49,7 +49,7 @@ interest for a tuning exercise, however.
 <h3>Main variables</h3>
 
 Often the maximum scale of the FSR shower evolution is understood from the
-context. For instance, in a resonace decay half the resonance mass sets an
+context. For instance, in a resonance decay half the resonance mass sets an
 absolute upper limit. For a hard process in a hadronic collision the choice
 is not as unique. Here the <?php $filepath = $_GET["filepath"];
 echo "<a href='CouplingsAndScales.php?filepath=".$filepath."' target='page'>";?>factorization 
@@ -62,26 +62,44 @@ an alternative.
 Way in which the maximum shower evolution scale is set to match the 
 scale of the hard process itself.
 <br/>
-<input type="radio" name="1" value="0"><strong>0 </strong>: <b>(i)</b> if the final state of the hard process  (not counting subsequent resonance decays) contains at least one quark  (<ei>u, d, s, c ,b</ei>), gluon or photon then <ei>pT_max</ei>  is chosen to be the factorization scale for internal processes  and the <code>scale</code> value for Les Houches input;  <b>(ii)</b> if not, emissions are allowed to go all the way up to  the kinematical limit (i.e. to half the dipole mass).  This option agrees with the corresponding one for  <aloc href="SpacelikeShowers">spacelike showers</aloc>. There the  reasoning is that in the former set of processes the ISR emission of yet another quark, gluon or photon could lead to doublecounting, while no such danger exists in the latter case. The argument is less compelling for timelike showers, but could be a reasonable starting point. <br/>
-<input type="radio" name="1" value="1" checked="checked"><strong>1 </strong>: always use the factorization scale for an internal process and the <code>scale</code> value for Les Houches input,  i.e. the lower value. This should avoid doublecounting, but may leave out some emissions that ought to have been simulated. (Also known as wimpy showers.) <br/>
-<input type="radio" name="1" value="2"><strong>2 </strong>: always allow emissions up to the kinematical limit  (i.e. to half the dipole mass). This will simulate all possible event  topologies, but may lead to doublecounting.  (Also known as power showers.) <br/>
-<br/><b>Note:</b> These options only apply to the hard interaction.
-Emissions off subsequent multiparton interactions are always constrainted
-to be below the factorization scale of the process itself. They also
-assume you use interleaved evolution, so that FSR is in direct 
+<input type="radio" name="1" value="0"><strong>0 </strong>: <b>(i)</b> if the final state of the hard process  (not counting subsequent resonance decays) contains at least one quark  (<ei>u, d, s, c ,b</ei>), gluon or photon then <ei>pT_max</ei>  is chosen to be the factorization scale for internal processes  and the <code>scale</code> value for Les Houches input;  <b>(ii)</b> if not, emissions are allowed to go all the way up to  the kinematical limit (i.e. to half the dipole mass).  This option agrees with the corresponding one for  <aloc href="SpacelikeShowers">spacelike showers</aloc>. There the  reasoning is that in the former set of processes the ISR emission of yet another quark, gluon or photon could lead to double-counting, while no such danger exists in the latter case. The argument is less compelling for timelike showers, but could be a reasonable starting point. <br/>
+<input type="radio" name="1" value="1" checked="checked"><strong>1 </strong>: always use the factorization scale for an internal process and the <code>scale</code> value for Les Houches input,  i.e. the lower value. This should avoid double-counting, but may leave out some emissions that ought to have been simulated. (Also known as wimpy showers.) <br/>
+<input type="radio" name="1" value="2"><strong>2 </strong>: always allow emissions up to the kinematical limit  (i.e. to half the dipole mass). This will simulate all possible event  topologies, but may lead to double-counting.  (Also known as power showers.) <br/>
+<br/><b>Note 1:</b> as enumerated in the text, these options take effect 
+both for internal and external processes. Whether a particular option
+makes sense depends on the context. For instance, if events for the same
+basic process to different orders are to be matched, then option 1 would
+be a reasonable first guess. But in more sophisticated descriptions 
+option 2 could be combined with UserHook vetoes on emissions that would
+lead to double-counting, using more flexible phase space boundaries.
+Option 0, finally, may be most realistic when only Born-level processes
+are involved, possibly in combination with a nonzero  
+<code>TimeShower:pTdampMatch</code>. 
+<br/><b>Note 2:</b> These options only apply to the hard interaction.
+If a "second hard" process is present, the two are analyzed and 
+set separately for the default 0 option, while both are affected
+the same way for non-default options 1 and 2. 
+Emissions off subsequent multiparton interactions are always constrained
+to be below the factorization scale of each process itself. The options 
+also assume that you use interleaved evolution, so that FSR is in direct 
 competition with ISR for the hardest emission. If you already 
 generated a number of ISR partons at low <ei>pT</ei>, it would not
-make sense to have a later FSR shower up to the kinematical for all
-of them. 
+make sense to have a later FSR shower up to the kinematical limit
+for all of them. 
+<br/><b>Note 3:</b> Recall that resonance decays are not affected by 
+this mode, but that showers there are always set to fill the full phase
+space, often with built-in matrix-element-matching that give a NLO 
+accuracy. A modification of this behaviour would require you to 
+work with <code>UserHooks</code>.
 
 <br/><br/><table><tr><td><strong>TimeShower:pTmaxFudge </td><td></td><td> <input type="text" name="2" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.25</code>; <code>maximum = 2.0</code>)</td></tr></table>
 In cases where the above <code>pTmaxMatch</code> rules would imply 
 that <i>pT_max = pT_factorization</i>, <code>pTmaxFudge</code> 
 introduces a multiplicative factor <i>f</i> such that instead 
 <i>pT_max = f * pT_factorization</i>. Only applies to the hardest 
-interaction in an event, cf. below. It is strongly suggested that 
-<i>f = 1</i>, but variations around this default can be useful to 
-test this assumption. 
+interaction in an event, and a "second hard" if there is such a one,
+cf. below. It is strongly suggested that <i>f = 1</i>, but variations 
+around this default can be useful to test this assumption. 
 <br/><b>Note:</b>Scales for resonance decays are not affected, but can 
 be set separately by <?php $filepath = $_GET["filepath"];
 echo "<a href='UserHooks.php?filepath=".$filepath."' target='page'>";?>user hooks</a>.
@@ -100,14 +118,19 @@ and no matrix-element corrections are available. Then, in many processes,
 the fall-off in <ei>pT</ei> will be too slow by one factor of <ei>pT^2</ei>. 
 That is, while showers have an approximate <ei>dpT^2/pT^2</ei> shape, often 
 it should become more like <ei>dpT^2/pT^4</ei> at <ei>pT</ei> values above
-the scale of the hard process. This argument is more obvious for ISR,
-but is taken over unchanged for FSR to have a symmetric description.
+the scale of the hard process. This argument is more obvious and relevant 
+for ISR, where emissions could go the the kinematical limit, whereas they 
+are constrained by the respective dipole mass for FSR. Nevertheless this
+matching option is offered for FSR to have a (semi-)symmetric description.
+Note that a dampening factor is applied to all dipoles in the final state
+of the hard process, which is somewhat different from the ISR implementation.
 <br/>
 <input type="radio" name="4" value="0" checked="checked"><strong>0 </strong>: emissions go up to the kinematical limit,  with no special dampening. <br/>
 <input type="radio" name="4" value="1"><strong>1 </strong>: emissions go up to the kinematical limit,   but dampened by a factor <ei>k^2 Q^2_fac/(pT^2 + k^2 Q^2_fac)</ei>,  where <ei>Q_fac</ei> is the factorization scale and <ei>k</ei> is a  multiplicative fudge factor stored in <code>pTdampFudge</code> below. <br/>
 <input type="radio" name="4" value="2"><strong>2 </strong>: emissions go up to the kinematical limit,  but dampened by a factor <ei>k^2 Q^2_ren/(pT^2 + k^2 Q^2_ren)</ei>,  where <ei>Q_ren</ei> is the renormalization scale and <ei>k</ei> is a  multiplicative fudge factor stored in <code>pTdampFudge</code> below.  <br/>
 <br/><b>Note:</b> These options only apply to the hard interaction.
-Emissions off subsequent multiparton interactions are always constrainted
+Specifically, a "second hard" interaction would not be affected.
+Emissions off subsequent multiparton interactions are always constrained
 to be below the factorization scale of the process itself.  
 
 <br/><br/><table><tr><td><strong>TimeShower:pTdampFudge </td><td></td><td> <input type="text" name="5" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.25</code>; <code>maximum = 4.0</code>)</td></tr></table>
@@ -184,7 +207,7 @@ Parton shower cut-off <i>pT</i> for QCD emissions.
 Parton shower cut-off <i>pT</i> for photon coupling to coloured particle.
   
 
-<br/><br/><table><tr><td><strong>TimeShower:pTminChgL </td><td></td><td> <input type="text" name="13" value="0.0005" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.0005</strong></code>; <code>minimum = 0.0001</code>; <code>maximum = 2.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>TimeShower:pTminChgL </td><td></td><td> <input type="text" name="13" value="1e-6" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1e-6</strong></code>; <code>minimum = 1e-10</code>; <code>maximum = 2.0</code>)</td></tr></table>
 Parton shower cut-off <i>pT</i> for pure QED branchings. 
 Assumed smaller than (or equal to) <code>pTminChgQ</code>.
   
@@ -194,7 +217,7 @@ Shower branchings <i>gamma -> f fbar</i>, where <i>f</i> is a
 quark or lepton, in part compete with the hard processes involving 
 <i>gamma^*/Z^0</i> production. In order to avoid overlap it makes
 sense to correlate the maximum <i>gamma</i> mass allowed in showers
-with the minumum <i>gamma^*/Z^0</i> mass allowed in hard processes.
+with the minimum <i>gamma^*/Z^0</i> mass allowed in hard processes.
 In addition, the shower contribution only contains the pure 
 <i>gamma^*</i> contribution, i.e. not the <i>Z^0</i> part, so
 the mass spectrum above 50 GeV or so would not be well described.
@@ -216,7 +239,7 @@ value. The one with larger <i>pT</i> is allowed to carry out its
 proposed action, thereby modifying the conditions for the next steps. 
 This is relevant since the two components compete for the energy 
 contained in the beam remnants: both an interaction and an emission 
-take avay some of the energy, leaving less for the future. The end 
+take away some of the energy, leaving less for the future. The end 
 result is a combined chain of decreasing <i>pT</i> values, where 
 ones associated with new interactions and ones with new emissions 
 are interleaved.  
@@ -224,7 +247,7 @@ are interleaved.
 <p/>
 There is no corresponding requirement for final-state radiation (FSR)
 to be interleaved. Such an FSR emission does not compete directly for 
-beam energy (but see below), and also can be viewed as occuring after 
+beam energy (but see below), and also can be viewed as occurring after 
 the other two components in some kind of time sense. Interleaving is 
 allowed, however, since it can be argued that a high-<i>pT</i> FSR 
 occurs on shorter time scales than a low-<i>pT</i> MPI, say. 
@@ -255,13 +278,13 @@ preserved resonance mass.
 
 <p/>
 One aspect of FSR for a hard process in hadron collisions is that often
-colour diples are formed between a scattered parton and a beam remnant,
+colour dipoles are formed between a scattered parton and a beam remnant,
 or rather the hole left behind by an incoming partons. If such holes
 are allowed as dipole ends and take the recoil when the scattered parton 
 undergoes a branching then this translates into the need to take some
 amount of remnant energy also in the case of FSR, i.e. the roles of 
 ISR and FSR are not completely decoupled. The energy taken away is
-bokkept by increasing the <i>x</i> value assigned to the incoming 
+bookkept by increasing the <i>x</i> value assigned to the incoming 
 scattering parton, and a reweighting factor 
 <i>x_new f(x_new, pT^2) / x_old f(x_old, pT^2)</i> 
 in the emission probability ensures that not unphysically large 
@@ -313,7 +336,7 @@ is shared between all partons in the final state. Thus the radiation
 pattern is unrelated to colour correlations. This is especially
 convenient for some matching algorithms, like MC@NLO, where a full 
 analytic knowledge of the shower radiation pattern is needed to avoid
-doublecountning. (The <i>pT</i>-ordered shower is described in
+double-counting. (The <i>pT</i>-ordered shower is described in
 [<a href="Bibliography.php" target="page">Sjo05</a>], and the corrections for massive radiator and recoiler
 in [<a href="Bibliography.php" target="page">Nor01</a>].)
 
@@ -641,7 +664,7 @@ if($_POST["12"] != "0.4")
 $data = "TimeShower:pTminChgQ = ".$_POST["12"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["13"] != "0.0005")
+if($_POST["13"] != "1e-6")
 {
 $data = "TimeShower:pTminChgL = ".$_POST["13"]."\n";
 fwrite($handle,$data);
@@ -748,4 +771,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->

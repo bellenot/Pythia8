@@ -1,5 +1,5 @@
 // main23.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2012 Torbjorn Sjostrand.
+// Copyright (C) 2013 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -209,7 +209,7 @@ private:
 
 // No dependence on Q2, so leave out name for last argument.
 
-void Scaling::xfUpdate(int id, double x, double ) {
+void Scaling::xfUpdate(int, double x, double ) {
 
   // Valence quarks, carrying 60% of the momentum.
   double dv  = 4. * x * pow3(1. - x);
@@ -235,9 +235,8 @@ void Scaling::xfUpdate(int id, double x, double ) {
   xdVal = dv;
   xdSea = xdbar;
 
-  // idSav = 9 to indicate that all flavours reset. id change dummy. 
+  // idSav = 9 to indicate that all flavours reset.
   idSav = 9;
-  id   = 0;
 
 } 
  
@@ -378,5 +377,9 @@ int main() {
   cout << rndmDist2 << rndmCorr2;
 
   // Done.
+  delete myBeamShape;
+  delete badRndm;
+  delete pdfAPtr;
+  delete pdfBPtr;
   return 0;
 }

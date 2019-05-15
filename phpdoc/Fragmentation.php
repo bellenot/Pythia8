@@ -108,27 +108,87 @@ or in general any new coloured particle long-lived enough to hadronize.
   
 
 <p/>
-As an alternative, it is possible to switch over to the 
+Within the string framework, the <i>b</i> parameter is universal,
+i.e. common for all flavours. Nevertheless, for fits to experimental
+data, better agreement can be obtained if both <i>a_Q</i> and 
+<i>b_Q</i> can be set freely in a general expression
+<br/><i> 
+    f(z) = 1/z^{1 + r_Q * b_Q * m_Q^2} * (1-z)^a_Q * exp(-b_Q m_T^2 / z)
+</i><br/>
+The below switches and values can be used to achieve this. They should 
+be used with caution and constitute clear deviations from the Lund
+philosophy.
+
+<br/><br/><strong>StringZ:useNonstandardC</strong>  <input type="radio" name="7" value="on"><strong>On</strong>
+<input type="radio" name="7" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+use the above nonstandard Lund ansatz for <i>c</i> quarks.
+  
+
+<br/><br/><strong>StringZ:useNonstandardB</strong>  <input type="radio" name="8" value="on"><strong>On</strong>
+<input type="radio" name="8" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+use the above nonstandard Lund ansatz for <i>b</i> quarks.
+  
+
+<br/><br/><strong>StringZ:useNonstandardH</strong>  <input type="radio" name="9" value="on"><strong>On</strong>
+<input type="radio" name="9" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+use the above nonstandard Lund ansatz for hypothetical heavier quarks.
+  
+
+<br/><br/><table><tr><td><strong>StringZ:aNonstandardC </td><td></td><td> <input type="text" name="10" value="0.3" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.3</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 2.0</code>)</td></tr></table>
+The <i>a</i> parameter in the nonstandard Lund ansatz for
+ <i>c</i> quarks.
+  
+
+<br/><br/><table><tr><td><strong>StringZ:aNonstandardB </td><td></td><td> <input type="text" name="11" value="0.3" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.3</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 2.0</code>)</td></tr></table>
+The <i>a</i> parameter in the nonstandard Lund ansatz for
+ <i>b</i> quarks.
+  
+
+<br/><br/><table><tr><td><strong>StringZ:aNonstandardH </td><td></td><td> <input type="text" name="12" value="0.3" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.3</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 2.0</code>)</td></tr></table>
+The <i>a</i> parameter in the nonstandard Lund ansatz for 
+hypothetical heavier quarks.
+  
+
+<br/><br/><table><tr><td><strong>StringZ:bNonstandardC </td><td></td><td> <input type="text" name="13" value="0.8" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.8</strong></code>; <code>minimum = 0.2</code>; <code>maximum = 2.0</code>)</td></tr></table>
+The <i>b</i> parameter in the nonstandard Lund ansatz for
+<i>c</i> quarks.
+  
+
+<br/><br/><table><tr><td><strong>StringZ:bNonstandardB </td><td></td><td> <input type="text" name="14" value="0.8" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.8</strong></code>; <code>minimum = 0.2</code>; <code>maximum = 2.0</code>)</td></tr></table>
+The <i>b</i> parameter in the nonstandard Lund ansatz for
+<i>b</i> quarks.
+  
+
+<br/><br/><table><tr><td><strong>StringZ:bNonstandardH </td><td></td><td> <input type="text" name="15" value="0.8" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.8</strong></code>; <code>minimum = 0.2</code>; <code>maximum = 2.0</code>)</td></tr></table>
+The <i>b</i> parameter in the nonstandard Lund ansatz for
+hypothetical heavier quarks.
+   
+
+<p/>
+As another nonstandard alternative, it is possible to switch over to the 
 Peterson/SLAC formula [<a href="Bibliography.php" target="page">Pet83</a>]
 <br/><i>
      f(z) = 1 / ( z * (1 - 1/z - epsilon/(1-z))^2 )
 </i><br/>
 for charm, bottom and heavier (defined as above) by the three flags
 
-<br/><br/><strong>StringZ:usePetersonC</strong>  <input type="radio" name="7" value="on"><strong>On</strong>
-<input type="radio" name="7" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>StringZ:usePetersonC</strong>  <input type="radio" name="16" value="on"><strong>On</strong>
+<input type="radio" name="16" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 use Peterson for <i>c</i> quarks.
   
 
-<br/><br/><strong>StringZ:usePetersonB</strong>  <input type="radio" name="8" value="on"><strong>On</strong>
-<input type="radio" name="8" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>StringZ:usePetersonB</strong>  <input type="radio" name="17" value="on"><strong>On</strong>
+<input type="radio" name="17" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 use Peterson for <i>b</i> quarks.
   
 
-<br/><br/><strong>StringZ:usePetersonH</strong>  <input type="radio" name="9" value="on"><strong>On</strong>
-<input type="radio" name="9" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>StringZ:usePetersonH</strong>  <input type="radio" name="18" value="on"><strong>On</strong>
+<input type="radio" name="18" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 use Peterson for hypothetical heavier quarks.
   
@@ -136,15 +196,15 @@ use Peterson for hypothetical heavier quarks.
 <p/>
 When switched on, the corresponding epsilon values are chosen to be
 
-<br/><br/><table><tr><td><strong>StringZ:epsilonC </td><td></td><td> <input type="text" name="10" value="0.05" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.05</strong></code>; <code>minimum = 0.01</code>; <code>maximum = 0.25</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StringZ:epsilonC </td><td></td><td> <input type="text" name="19" value="0.05" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.05</strong></code>; <code>minimum = 0.01</code>; <code>maximum = 0.25</code>)</td></tr></table>
 <i>epsilon_c</i>, i.e. the above parameter for <i>c</i> quarks.
   
 
-<br/><br/><table><tr><td><strong>StringZ:epsilonB </td><td></td><td> <input type="text" name="11" value="0.005" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.005</strong></code>; <code>minimum = 0.001</code>; <code>maximum = 0.025</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StringZ:epsilonB </td><td></td><td> <input type="text" name="20" value="0.005" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.005</strong></code>; <code>minimum = 0.001</code>; <code>maximum = 0.025</code>)</td></tr></table>
 <i>epsilon_b</i>, i.e. the above parameter for <i>b</i> quarks.
   
 
-<br/><br/><table><tr><td><strong>StringZ:epsilonH </td><td></td><td> <input type="text" name="12" value="0.005" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.005</strong></code>; <code>minimum = 0.0001</code>; <code>maximum = 0.25</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StringZ:epsilonH </td><td></td><td> <input type="text" name="21" value="0.005" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.005</strong></code>; <code>minimum = 0.0001</code>; <code>maximum = 0.25</code>)</td></tr></table>
 <i>epsilon_h</i>, i.e. the above parameter for hypothetical heavier 
 quarks, normalized to the case where <i>m_h = m_b</i>. The actually 
 used parameter is then <i>epsilon = epsilon_h * (m_b^2 / m_h^2)</i>.
@@ -169,7 +229,7 @@ Then the total squared width is
 </i><br/>
 It is this latter number that is stored in
 
-<br/><br/><table><tr><td><strong>StringPT:sigma </td><td></td><td> <input type="text" name="13" value="0.304" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.304</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 1.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StringPT:sigma </td><td></td><td> <input type="text" name="22" value="0.304" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.304</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 1.0</code>)</td></tr></table>
 the width <i>sigma</i> in the fragmentation process.
   
 
@@ -187,12 +247,12 @@ moment we stay with the current recipe, to boost the above <i>pT</i>
 by a factor <i>enhancedWidth</i> for a small fraction 
 <i>enhancedFraction</i> of the breakups, where
 
-<br/><br/><table><tr><td><strong>StringPT:enhancedFraction </td><td></td><td> <input type="text" name="14" value="0.01" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.01</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 1.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StringPT:enhancedFraction </td><td></td><td> <input type="text" name="23" value="0.01" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.01</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 1.</code>)</td></tr></table>
 <i>enhancedFraction</i>,the fraction of string breaks with enhanced 
 width.
   
 
-<br/><br/><table><tr><td><strong>StringPT:enhancedWidth </td><td></td><td> <input type="text" name="15" value="2.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.0</strong></code>; <code>minimum = 1.0</code>; <code>maximum = 10.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StringPT:enhancedWidth </td><td></td><td> <input type="text" name="24" value="2.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.0</strong></code>; <code>minimum = 1.0</code>; <code>maximum = 10.0</code>)</td></tr></table>
 <i>enhancedWidth</i>,the enhancement of the width in this fraction.
   
 
@@ -206,19 +266,19 @@ parameters, but in a way too complicated to parametrize. The dependence
 is rather mild, however, so for a sensible range of variation the 
 parameters in this section should not be touched.
 
-<br/><br/><table><tr><td><strong>StringFragmentation:stopMass </td><td></td><td> <input type="text" name="16" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 2.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StringFragmentation:stopMass </td><td></td><td> <input type="text" name="25" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 2.0</code>)</td></tr></table>
 Is used to define a <i>W_min = m_q1 + m_q2 + stopMass</i>,
 where <i>m_q1</i> and <i>m_q2</i> are the masses of the two 
 current endpoint quarks or diquarks. 
   
 
-<br/><br/><table><tr><td><strong>StringFragmentation:stopNewFlav </td><td></td><td> <input type="text" name="17" value="2.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.0</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 2.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StringFragmentation:stopNewFlav </td><td></td><td> <input type="text" name="26" value="2.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.0</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 2.0</code>)</td></tr></table>
 Add to <i>W_min</i> an amount <i>stopNewFlav * m_q_last</i>, 
 where <i>q_last</i> is the last <i>q qbar</i> pair produced 
 between the final two hadrons.
   
 
-<br/><br/><table><tr><td><strong>StringFragmentation:stopSmear </td><td></td><td> <input type="text" name="18" value="0.2" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.2</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 0.5</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StringFragmentation:stopSmear </td><td></td><td> <input type="text" name="27" value="0.2" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.2</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 0.5</code>)</td></tr></table>
 The <i>W_min</i> above is then smeared uniformly in the range
 <i>W_min_smeared = W_min * [ 1 - stopSmear, 1 + stopSmear ]</i>.
   
@@ -236,7 +296,7 @@ fragmentation process is started over.)
 There are a few situations when it is meaningful to simplify the
 original task, one way or another.
 
-<br/><br/><table><tr><td><strong>HadronLevel:mStringMin </td><td></td><td> <input type="text" name="19" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>; <code>minimum = 0.5</code>; <code>maximum = 1.5</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>HadronLevel:mStringMin </td><td></td><td> <input type="text" name="28" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>; <code>minimum = 0.5</code>; <code>maximum = 1.5</code>)</td></tr></table>
 Decides whether a partonic system should be considered as a normal
 string or a ministring, the latter only producing one or two primary
 hadrons. The system mass should be above <i>mStringMin</i> plus the 
@@ -244,7 +304,7 @@ sum of quark/diquark constituent masses for a normal string description,
 else the ministring scenario is used.
   
 
-<br/><br/><table><tr><td><strong>FragmentationSystems:mJoin </td><td></td><td> <input type="text" name="20" value="0.3" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.3</strong></code>; <code>minimum = 0.2</code>; <code>maximum = 1.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>FragmentationSystems:mJoin </td><td></td><td> <input type="text" name="29" value="0.3" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.3</strong></code>; <code>minimum = 0.2</code>; <code>maximum = 1.</code>)</td></tr></table>
 When two colour-connected partons are very nearby, with at least 
 one being a gluon, they can be joined into one, to avoid technical 
 problems of very small string regions. The requirement for joining is 
@@ -254,7 +314,7 @@ to the string region under consideration. (Note that, for technical
 reasons, the 0.2 GeV lower limit is de facto hardcoded.)
   
 
-<br/><br/><table><tr><td><strong>FragmentationSystems:mJoinJunction </td><td></td><td> <input type="text" name="21" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.5</code>; <code>maximum = 2.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>FragmentationSystems:mJoinJunction </td><td></td><td> <input type="text" name="30" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.5</code>; <code>maximum = 2.</code>)</td></tr></table>
 When the invariant mass of two of the quarks in a three-quark junction 
 string system becomes too small, the system is simplified to a 
 quark-diquark simple string. The requirement for this simplification 
@@ -281,7 +341,7 @@ The current implementation does not completely abide to the scheme
 presented there, however, but has in part been simplified. (In part 
 for greater clarity, in part since the class is not quite finished yet.) 
 
-<br/><br/><table><tr><td><strong>MiniStringFragmentation:nTry  </td><td></td><td> <input type="text" name="22" value="2" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2</strong></code>; <code>minimum = 1</code>; <code>maximum = 10</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>MiniStringFragmentation:nTry  </td><td></td><td> <input type="text" name="31" value="2" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2</strong></code>; <code>minimum = 1</code>; <code>maximum = 10</code>)</td></tr></table>
 Whenever the machinery is called, first this many attempts are made
 to pick two hadrons that the system fragments to. If the hadrons are 
 too massive the attempt will fail, but a new subsequent try could
@@ -303,7 +363,7 @@ the junction, where the baryon number topologically is located.
 The junction fragmentation scheme is described in [<a href="Bibliography.php" target="page">Sjo03</a>]. 
 The parameters in this section should not be touched except by experts.
 
-<br/><br/><table><tr><td><strong>StringFragmentation:eNormJunction </td><td></td><td> <input type="text" name="23" value="2.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.0</strong></code>; <code>minimum = 0.5</code>; <code>maximum = 10</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StringFragmentation:eNormJunction </td><td></td><td> <input type="text" name="32" value="2.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.0</strong></code>; <code>minimum = 0.5</code>; <code>maximum = 10</code>)</td></tr></table>
 Used to find the effective rest frame of the junction, which is
 complicated when the three string legs may contain additional
 gluons between the junction and the endpoint. To this end,
@@ -316,13 +376,13 @@ Should in principle be (close to) <i>sqrt((1 + a) / b)</i>, with
 fragmentation function. 
   
 
-<br/><br/><table><tr><td><strong>StringFragmentation:eBothLeftJunction </td><td></td><td> <input type="text" name="24" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.5</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StringFragmentation:eBothLeftJunction </td><td></td><td> <input type="text" name="33" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.5</code>)</td></tr></table>
 Retry (up to 10 times) when the first two considered strings in to a 
 junction both have a remaining energy (in the junction rest frame) 
 above this number.
   
 
-<br/><br/><table><tr><td><strong>StringFragmentation:eMaxLeftJunction </td><td></td><td> <input type="text" name="25" value="10.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>10.0</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StringFragmentation:eMaxLeftJunction </td><td></td><td> <input type="text" name="34" value="10.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>10.0</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
 Retry (up to 10 times) when the first two considered strings in to a 
 junction has a highest remaining energy (in the junction rest frame) 
 above a random energy evenly distributed between 
@@ -331,7 +391,7 @@ above a random energy evenly distributed between
 (drawn anew for each test).
   
 
-<br/><br/><table><tr><td><strong>StringFragmentation:eMinLeftJunction </td><td></td><td> <input type="text" name="26" value="0.2" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.2</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StringFragmentation:eMinLeftJunction </td><td></td><td> <input type="text" name="35" value="0.2" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.2</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
 Retry (up to 10 times) when the invariant mass-squared of the final leg 
 and the leftover momentum of the first two treated legs falls below 
 <i>eMinLeftJunction</i> times the energy of the final leg (in the 
@@ -385,102 +445,147 @@ fwrite($handle,$data);
 }
 if($_POST["7"] != "off")
 {
-$data = "StringZ:usePetersonC = ".$_POST["7"]."\n";
+$data = "StringZ:useNonstandardC = ".$_POST["7"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["8"] != "off")
 {
-$data = "StringZ:usePetersonB = ".$_POST["8"]."\n";
+$data = "StringZ:useNonstandardB = ".$_POST["8"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["9"] != "off")
 {
-$data = "StringZ:usePetersonH = ".$_POST["9"]."\n";
+$data = "StringZ:useNonstandardH = ".$_POST["9"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["10"] != "0.05")
+if($_POST["10"] != "0.3")
 {
-$data = "StringZ:epsilonC = ".$_POST["10"]."\n";
+$data = "StringZ:aNonstandardC = ".$_POST["10"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["11"] != "0.005")
+if($_POST["11"] != "0.3")
 {
-$data = "StringZ:epsilonB = ".$_POST["11"]."\n";
+$data = "StringZ:aNonstandardB = ".$_POST["11"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["12"] != "0.005")
+if($_POST["12"] != "0.3")
 {
-$data = "StringZ:epsilonH = ".$_POST["12"]."\n";
+$data = "StringZ:aNonstandardH = ".$_POST["12"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["13"] != "0.304")
+if($_POST["13"] != "0.8")
 {
-$data = "StringPT:sigma = ".$_POST["13"]."\n";
+$data = "StringZ:bNonstandardC = ".$_POST["13"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["14"] != "0.01")
+if($_POST["14"] != "0.8")
 {
-$data = "StringPT:enhancedFraction = ".$_POST["14"]."\n";
+$data = "StringZ:bNonstandardB = ".$_POST["14"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["15"] != "2.0")
+if($_POST["15"] != "0.8")
 {
-$data = "StringPT:enhancedWidth = ".$_POST["15"]."\n";
+$data = "StringZ:bNonstandardH = ".$_POST["15"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["16"] != "1.0")
+if($_POST["16"] != "off")
 {
-$data = "StringFragmentation:stopMass = ".$_POST["16"]."\n";
+$data = "StringZ:usePetersonC = ".$_POST["16"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["17"] != "2.0")
+if($_POST["17"] != "off")
 {
-$data = "StringFragmentation:stopNewFlav = ".$_POST["17"]."\n";
+$data = "StringZ:usePetersonB = ".$_POST["17"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["18"] != "0.2")
+if($_POST["18"] != "off")
 {
-$data = "StringFragmentation:stopSmear = ".$_POST["18"]."\n";
+$data = "StringZ:usePetersonH = ".$_POST["18"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["19"] != "1.")
+if($_POST["19"] != "0.05")
 {
-$data = "HadronLevel:mStringMin = ".$_POST["19"]."\n";
+$data = "StringZ:epsilonC = ".$_POST["19"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["20"] != "0.3")
+if($_POST["20"] != "0.005")
 {
-$data = "FragmentationSystems:mJoin = ".$_POST["20"]."\n";
+$data = "StringZ:epsilonB = ".$_POST["20"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["21"] != "1.0")
+if($_POST["21"] != "0.005")
 {
-$data = "FragmentationSystems:mJoinJunction = ".$_POST["21"]."\n";
+$data = "StringZ:epsilonH = ".$_POST["21"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["22"] != "2")
+if($_POST["22"] != "0.304")
 {
-$data = "MiniStringFragmentation:nTry = ".$_POST["22"]."\n";
+$data = "StringPT:sigma = ".$_POST["22"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["23"] != "2.0")
+if($_POST["23"] != "0.01")
 {
-$data = "StringFragmentation:eNormJunction = ".$_POST["23"]."\n";
+$data = "StringPT:enhancedFraction = ".$_POST["23"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["24"] != "1.0")
+if($_POST["24"] != "2.0")
 {
-$data = "StringFragmentation:eBothLeftJunction = ".$_POST["24"]."\n";
+$data = "StringPT:enhancedWidth = ".$_POST["24"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["25"] != "10.0")
+if($_POST["25"] != "1.0")
 {
-$data = "StringFragmentation:eMaxLeftJunction = ".$_POST["25"]."\n";
+$data = "StringFragmentation:stopMass = ".$_POST["25"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["26"] != "0.2")
+if($_POST["26"] != "2.0")
 {
-$data = "StringFragmentation:eMinLeftJunction = ".$_POST["26"]."\n";
+$data = "StringFragmentation:stopNewFlav = ".$_POST["26"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["27"] != "0.2")
+{
+$data = "StringFragmentation:stopSmear = ".$_POST["27"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["28"] != "1.")
+{
+$data = "HadronLevel:mStringMin = ".$_POST["28"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["29"] != "0.3")
+{
+$data = "FragmentationSystems:mJoin = ".$_POST["29"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["30"] != "1.0")
+{
+$data = "FragmentationSystems:mJoinJunction = ".$_POST["30"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["31"] != "2")
+{
+$data = "MiniStringFragmentation:nTry = ".$_POST["31"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["32"] != "2.0")
+{
+$data = "StringFragmentation:eNormJunction = ".$_POST["32"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["33"] != "1.0")
+{
+$data = "StringFragmentation:eBothLeftJunction = ".$_POST["33"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["34"] != "10.0")
+{
+$data = "StringFragmentation:eMaxLeftJunction = ".$_POST["34"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["35"] != "0.2")
+{
+$data = "StringFragmentation:eMinLeftJunction = ".$_POST["35"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);
@@ -490,5 +595,5 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->
 

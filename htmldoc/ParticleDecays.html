@@ -86,7 +86,7 @@ The above <i>rMax</i>, expressed in mm.
    
 
 <p/>
-(vi) Particles may be requested to decay within a given cylidrical 
+(vi) Particles may be requested to decay within a given cylindrical 
 volume around the origin.
 
 <p/><code>flag&nbsp; </code><strong> ParticleDecays:limitCylinder &nbsp;</strong> 
@@ -134,11 +134,12 @@ with helicity information related to the production process and with
 the form of the hadronic current fitted to data. It is largely based
 on the corresponding Herwig++ implementation [<a href="Bibliography.html" target="page">Gre07</a>], with
 some input from Tauola [<a href="Bibliography.html" target="page">Jad90</a>]. A complete writeup is 
-in preparation [<a href="Bibliography.html" target="page">Ilt11</a>]. 
+in preparation, but meanwhile a short summary can be found at
+[<a href="Bibliography.html" target="page">Ilt12</a>]. 
 
 <p/>
 For <i>tau</i>s in external processes, interfaced with Les Houches 
-Acccord information available, e.g. via Les Houches Event Files (LHEF), 
+Accord information available, e.g. via Les Houches Event Files (LHEF), 
 the new machinery interprets the SPINUP number for <i>tau</i> leptons 
 as giving their helicity, and decays them accordingly. The only exceptions 
 are when a specific polarization is forced by the user (see below), 
@@ -199,6 +200,26 @@ positive identity code; to the extent an antiparticle exists it will
 automatically obtain the inverse polarization.
   
 
+<h3>QED radiation</h3>
+
+So far PYTHIA does not have any generic machinery for handling QED radiation
+in normal particle decays. In order to include this, a program like Photos 
+[<a href="Bibliography.html" target="page">Bar94, Dav10</a>] could be used as an afterburner. In a few cases,
+however, the existing shower machinery can be used also here: for 
+two-body decays to a lepton pair (<i>l^+ l^-</i> or <i>l^+- nu_l</i>).
+Such decays are mediated by <i>gamma^*/Z^0/W^+-</i> exchange, for
+which PYTHIA does have an existing machinery that can be applied, 
+including first-order matrix-element corrections for the first (hardest)
+photon emission. 
+
+<p/><code>flag&nbsp; </code><strong> ParticleDecays:allowPhotonRadiation &nbsp;</strong> 
+ (<code>default = <strong>off</strong></code>)<br/>
+Allow or not photon radiations in decays to a lepton pair, see above.
+<br/><b>Note:</b> The current default is to have radiation switched off, 
+in order to avoid double-counting of emissions if you link to an external 
+QED-radiation program, as is the norm in many collaborations.
+  
+
 <h3>Other variables</h3>
 
 <p/><code>parm&nbsp; </code><strong> ParticleDecays:mSafety &nbsp;</strong> 
@@ -230,7 +251,7 @@ a Poissonian distribution, for <i>n_p</i> normal particles and
 </i><br/>
 with <i>mDiff</i> the difference between the decaying particle mass 
 and the sum of the normal-particle masses and the constituent quark masses. 
-For gluonic systems <i>multGoffset</i> offers and optional additional 
+For gluon systems <i>multGoffset</i> offers and optional additional 
 term to the multiplicity. The lowest possible multiplicity is 
 <i>n_p + n_q/2</i> (but at least 2) and the highest possible 10.
 If the picked hadrons have a summed mass above that of the mother a 
@@ -288,7 +309,7 @@ flavour production are used also here.
 Some decays can be treated better than what pure phase space allows,
 by reweighting with appropriate matrix elements. In others a partonic
 content has to be converted to a set of hadrons. The presence of such
-corrections is signalled by a nonvanishing <code>meMode()</code> value
+corrections is signaled by a nonvanishing <code>meMode()</code> value
 for a decay mode in the <a href="ParticleDataScheme.html" target="page">particle
 data table</a>. The list of allowed possibilities almost agrees with the 
 PYTHIA 6 ones, but several obsolete choices have been removed, 
@@ -359,5 +380,5 @@ multiplicity than the simple string assumed for 82, see the
 </body>
 </html>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->
 

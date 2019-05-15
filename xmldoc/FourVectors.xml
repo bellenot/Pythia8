@@ -40,8 +40,9 @@ quantities such as absolute momentum and direction angles.
 
 A few methods are available to create or copy a four-vector:
 
-<method name="Vec4::Vec4()">
-creates a four-vector with all components set to 0.
+<method name="Vec4::Vec4(double x = 0., double y = 0., double z = 0., 
+double t = 0.)">
+creates a four-vector, by default with all components set to 0.
 </method>
 
 <method name="Vec4::Vec4(const Vec4& v)">
@@ -146,6 +147,12 @@ the angle in the <ei>xz</ei> plane, in the range <ei>-pi</ei> through
 <methodmore name="double Vec4::pNeg()">
 the combinations <ei>E+-p_z</ei>.</methodmore>
 
+<method name="double Vec4::rap()">
+</method>
+<methodmore name="double Vec4::eta()">
+true rapidity <ei>y</ei> and pseudorapidity <ei>eta</ei>.
+</methodmore>
+
 <h3>Friend methods for output</h3>
 
 There are also some <code>friend</code> methods that take one, two 
@@ -194,6 +201,14 @@ const Vec4& v3)">
 const Vec4& v3)">
 the (cosine) of the azimuthal angle between the first two vectors 
 around the direction of the third, in the range 0 through <ei>pi</ei>.
+</methodmore>
+
+<method name="friend double RRapPhi(const Vec4& v1, const Vec4& v2)">
+</method>
+<methodmore name="friend double REtaPhi(const Vec4& v1, const Vec4& v2)">
+the <ei>R</ei> distance measure, in <ei>(y, phi)</ei> or 
+<ei>(eta, phi)</ei> cylindrical coordinates, i.e. 
+<ei>R^2 = (y_1 - y_2)^2 + (phi_1 - phi_2)^2</ei> and equivalent. 
 </methodmore>
 
 <h3>Operations with four-vectors</h3>
@@ -415,4 +430,4 @@ ended with a newline.
 
 </chapter>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->

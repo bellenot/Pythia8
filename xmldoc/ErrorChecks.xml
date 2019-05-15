@@ -31,7 +31,7 @@ used for these checks, may also be called directly.
 
 <modepick name="Check:levelParticleData" default="1">
 The level of verbosity and checks of particle data, if switched on.
-<option value="0">mimimal amount of checks, e.g. that no channels open.
+<option value="0">minimal amount of checks, e.g. that no channels open.
 </option>
 <option value="1">further warning if individual channels closed,
 except for resonances.</option>
@@ -77,7 +77,7 @@ Maximum allowed summed deviation of <ei>E</ei>, <ei>p_x</ei>,
 <ei>p_y</ei> and <ei>p_z</ei> between the incoming beams and the 
 final state, as a fraction of the initial energy, above which the 
 event is counted as aborted.
-(Unfortunetely roundoff errors do not scale linearly with the energy, 
+(Unfortunately roundoff errors do not scale linearly with the energy, 
 and also have a very long tail. So while most events at lower energies 
 may be correct to better than 1e-10, at LHC it does not have to signal 
 any fundamental bug if also the default tolerance above is violated 
@@ -92,4 +92,4 @@ classified as aborted.
 
 </chapter>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->

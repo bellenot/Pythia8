@@ -4,10 +4,6 @@
 #
 # Author: M. Kirsanov
 
-if [ x$BASH_VERSION = x ]; then
-  echo warning: you are not using bash shell on which this script is tested
-fi
-
 #
 # User-changeable part -------------------------------
 #
@@ -44,7 +40,7 @@ for arg in $* ; do
     echo "--prefix=name         : install directory (equivalent to --installdir)"
     echo "--datadir=name        : data directory (for xmldoc), default is install directory"
     echo "--with-hepmc=path     : path to HepMC library to build interface (default is not build)"
-    echo "--with-hepmcversion=v : HepMC version (simplified alternative when using CERN AFS LCG external, e.g. =2.04.00)"
+    echo "--with-hepmcversion=v : HepMC version (simplified alternative when using CERN AFS LCG external, e.g. =2.06.08)"
     echo "--enable-gzip         : turns on support for reading in gzipped files (default no)"
     echo "                        (experimental feature, see README for more details)"
     echo "--with-boost=path     : path to boost installation (default /usr) (required for gzip support)"
@@ -168,8 +164,13 @@ fi
 echo Platform is $ARCH
 
 #default platform settings:
-export FC=g77
-export CC=gcc
+export FCCOPY=$FC
+if [ x$FC = x ]; then
+  export FC=g77
+fi
+if [ x$CC = x ]; then
+  export CC=gcc
+fi
 export FFLAGS="${FFLAGS_OPT}"
 export CFLAGS="${CFLAGS_OPT}"
 export CXXFLAGS="${CXXFLAGS_OPT}"
@@ -188,7 +189,9 @@ LDFLAGSSHARED="${CXXFLAGS} -fPIC -shared"
 LDFLAGLIBNAME="-Wl,-soname"
 SHAREDSUFFIX=so
 if [ $ARCH = Linux ]; then
-  export FC=g77
+  if [ x$FCCOPY = x ]; then
+    export FC=g77
+  fi
   export FFLAGS="${FFLAGS_OPT} -Wno-globals"
   export CFLAGS="${CFLAGS_OPT}"
   export CXXFLAGS="${CXXFLAGS_OPT}"
@@ -209,7 +212,9 @@ if [ $ARCH = Linux ]; then
 fi
 # Linux platform with gcc4: new Fortran90 compiler.
 if [ $ARCH = Linux-gcc4 ]; then
-  export FC=gfortran
+  if [ x$FCCOPY = x ]; then
+    export FC=gfortran
+  fi
   export FFLAGS="${FFLAGS_OPT}"
   export CFLAGS="${CFLAGS_OPT}"
   export CXXFLAGS="${CXXFLAGS_OPT}"
@@ -230,7 +235,9 @@ if [ $ARCH = Linux-gcc4 ]; then
 fi
 # Mac-OSX with gcc4
 if [ $ARCH = Darwin-gcc4 ]; then
-  export FC=gfortran
+  if [ x$FCCOPY = x ]; then
+    export FC=gfortran
+  fi
   export FFLAGS="${FFLAGS_OPT}"
   export CFLAGS="${CFLAGS_OPT}"
   export CXXFLAGS="${CXXFLAGS_OPT}"
@@ -251,7 +258,9 @@ if [ $ARCH = Darwin-gcc4 ]; then
 fi
 # Mac-OSX with gcc3; is not tested
 if [ $ARCH = Darwin ]; then
-  export FC=g77
+  if [ x$FCCOPY = x ]; then
+    export FC=g77
+  fi
   export FFLAGS="${FFLAGS_OPT}"
   export CFLAGS="${CFLAGS_OPT}"
   export CXXFLAGS="${CXXFLAGS_OPT}"

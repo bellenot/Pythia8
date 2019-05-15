@@ -92,7 +92,70 @@ or in general any new coloured particle long-lived enough to hadronize.
   
 
 <p/>
-As an alternative, it is possible to switch over to the 
+Within the string framework, the <i>b</i> parameter is universal,
+i.e. common for all flavours. Nevertheless, for fits to experimental
+data, better agreement can be obtained if both <i>a_Q</i> and 
+<i>b_Q</i> can be set freely in a general expression
+<br/><i> 
+    f(z) = 1/z^{1 + r_Q * b_Q * m_Q^2} * (1-z)^a_Q * exp(-b_Q m_T^2 / z)
+</i><br/>
+The below switches and values can be used to achieve this. They should 
+be used with caution and constitute clear deviations from the Lund
+philosophy.
+
+<p/><code>flag&nbsp; </code><strong> StringZ:useNonstandardC &nbsp;</strong> 
+ (<code>default = <strong>off</strong></code>)<br/>
+use the above nonstandard Lund ansatz for <i>c</i> quarks.
+  
+
+<p/><code>flag&nbsp; </code><strong> StringZ:useNonstandardB &nbsp;</strong> 
+ (<code>default = <strong>off</strong></code>)<br/>
+use the above nonstandard Lund ansatz for <i>b</i> quarks.
+  
+
+<p/><code>flag&nbsp; </code><strong> StringZ:useNonstandardH &nbsp;</strong> 
+ (<code>default = <strong>off</strong></code>)<br/>
+use the above nonstandard Lund ansatz for hypothetical heavier quarks.
+  
+
+<p/><code>parm&nbsp; </code><strong> StringZ:aNonstandardC &nbsp;</strong> 
+ (<code>default = <strong>0.3</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 2.0</code>)<br/>
+The <i>a</i> parameter in the nonstandard Lund ansatz for
+ <i>c</i> quarks.
+  
+
+<p/><code>parm&nbsp; </code><strong> StringZ:aNonstandardB &nbsp;</strong> 
+ (<code>default = <strong>0.3</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 2.0</code>)<br/>
+The <i>a</i> parameter in the nonstandard Lund ansatz for
+ <i>b</i> quarks.
+  
+
+<p/><code>parm&nbsp; </code><strong> StringZ:aNonstandardH &nbsp;</strong> 
+ (<code>default = <strong>0.3</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 2.0</code>)<br/>
+The <i>a</i> parameter in the nonstandard Lund ansatz for 
+hypothetical heavier quarks.
+  
+
+<p/><code>parm&nbsp; </code><strong> StringZ:bNonstandardC &nbsp;</strong> 
+ (<code>default = <strong>0.8</strong></code>; <code>minimum = 0.2</code>; <code>maximum = 2.0</code>)<br/>
+The <i>b</i> parameter in the nonstandard Lund ansatz for
+<i>c</i> quarks.
+  
+
+<p/><code>parm&nbsp; </code><strong> StringZ:bNonstandardB &nbsp;</strong> 
+ (<code>default = <strong>0.8</strong></code>; <code>minimum = 0.2</code>; <code>maximum = 2.0</code>)<br/>
+The <i>b</i> parameter in the nonstandard Lund ansatz for
+<i>b</i> quarks.
+  
+
+<p/><code>parm&nbsp; </code><strong> StringZ:bNonstandardH &nbsp;</strong> 
+ (<code>default = <strong>0.8</strong></code>; <code>minimum = 0.2</code>; <code>maximum = 2.0</code>)<br/>
+The <i>b</i> parameter in the nonstandard Lund ansatz for
+hypothetical heavier quarks.
+   
+
+<p/>
+As another nonstandard alternative, it is possible to switch over to the 
 Peterson/SLAC formula [<a href="Bibliography.html" target="page">Pet83</a>]
 <br/><i>
      f(z) = 1 / ( z * (1 - 1/z - epsilon/(1-z))^2 )
@@ -339,5 +402,5 @@ junction rest frame).
 </body>
 </html>
 
-<!-- Copyright (C) 2012 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2013 Torbjorn Sjostrand -->
 
