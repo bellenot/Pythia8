@@ -13,6 +13,8 @@
 #include "Settings.h"
 #include "SigmaTotal.h"
 #include "SigmaProcess.h"
+#include "SigmaQCD.h"
+#include "SigmaEW.h"
 #include "StandardModel.h"
 
 namespace Pythia8 {
@@ -35,10 +37,10 @@ public:
 
   // Initialize generation. Possibility to force re-initialization by hand.
   bool init( BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, 
-    bool reInit = false);
+    bool reInit = false, ostream& os = cout);
 
   // Reset impact parameter choice.
-  void clear() {bSetInFirst = false;}
+  void clear() {bIsSet = false; bSetInFirst = false;}
 
   // Select first = hardest pT in minbias process.
   void pTfirst(); 
@@ -68,8 +70,8 @@ public:
   double Q2Fac() const {return pT2Fac;}
   double pdf1() const {return xPDF1now;}
   double pdf2() const {return xPDF2now;}
-  double bMI() const {return bNow / bAvg;}
-  double enhanceMI() const {return enhanceB / zeroIntCorr;}
+  double bMI() const {return (bIsSet) ? bNow / bAvg : 0.;}
+  double enhanceMI() const {return (bIsSet) ? enhanceB / zeroIntCorr : 1.;}
 
   // Statistics. (Currently dummy.)
   void statistics() {}
@@ -100,7 +102,7 @@ private:
   int id1, id2;
   double bNow, enhanceB, pT2, pT2shift, pT2Ren, pT2Fac, x1, x2, xT, xT2, 
     tau, y, sHat, tHat, uHat, alpS, alpEM, xPDF1now, xPDF2now;
-  bool bSetInFirst, atLowB;
+  bool bIsSet, bSetInFirst, atLowB;
 
   // Pointers to the two incoming beams.
   BeamParticle* beamAPtr;

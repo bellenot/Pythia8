@@ -43,11 +43,11 @@ void MiniStringFragmentation::initStatic() {
 
   // Initialize the MiniStringFragmentation class proper.
   nTryMass = Settings::mode("MiniStringFragmentation:nTry");
-  sigma = Settings::parameter("StringPT:sigma");
+  sigma = Settings::parm("StringPT:sigma");
   sigma2Had = 2. * pow2( max( SIGMAMIN, sigma) );
 
   // Initialize the b parameter of the z spectrum, used when joining jets.
-  bLund = Settings::parameter("StringZ:bLund");
+  bLund = Settings::parm("StringZ:bLund");
 
 }
 

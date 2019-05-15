@@ -44,10 +44,10 @@ void HadronLevel::initStatic() {
   Decay = Settings::flag("HadronLevel:Decay");
 
   // Boundary mass between string and ministring handling.
-  mStringMin = Settings::parameter("HadronLevel:mStringMin");
+  mStringMin = Settings::parm("HadronLevel:mStringMin");
 
   // For junction processing.
-  eNormJunction = Settings::parameter("StringFragmentation:eNormJunction");
+  eNormJunction = Settings::parm("StringFragmentation:eNormJunction");
 
 }
 
@@ -95,7 +95,7 @@ bool HadronLevel::next( Event& event) {
       // Loop through all remaining entries to find those that can decay.
       int iDec = 0;
       do {
-        if (event[iDec].remains() && event[iDec].canDecay() 
+        if (event[iDec].isFinal() && event[iDec].canDecay() 
           && event[iDec].mayDecay()) {
           decays.decay( iDec, event); 
           if (decays.moreToDo()) moreToDo = true;
@@ -121,7 +121,7 @@ bool HadronLevel::findSinglets(Event& event) {
   iColEnd.resize(0);
   iAcolEnd.resize(0);
   iColAndAcol.resize(0);
-  for (int i = 0; i < event.size(); ++ i) if (event[i].remains()) {
+  for (int i = 0; i < event.size(); ++ i) if (event[i].isFinal()) {
     if (event[i].col() > 0 && event[i].acol() > 0) iColAndAcol.push_back(i);
     else if (event[i].col() > 0) iColEnd.push_back(i);
     else if (event[i].acol() > 0) iAcolEnd.push_back(i); 

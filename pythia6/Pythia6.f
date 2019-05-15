@@ -1,7 +1,7 @@
 C*********************************************************************
 C*********************************************************************
 C*                                                                  **
-C*                                                     March 2006   **
+C*                                                 September 2006   **
 C*                                                                  **
 C*                       The Lund Monte Carlo                       **
 C*                                                                  **
@@ -9,7 +9,7 @@ C*                        PYTHIA version 6.4                        **
 C*                                                                  **
 C*                        Torbjorn Sjostrand                        **
 C*               CERN/PH, CH-1211 Geneva, Switzerland               **
-C*                    phone +41 - 22 - 767 28 41                    **
+C*                    phone +41 - 22 - 767 82 27                    **
 C*                               and                                **
 C*                 Department of Theoretical Physics                **
 C*                         Lund University                          **
@@ -70,6 +70,7 @@ C  S   PYEVNW   ditto, for new multiple interactions scenario        *
 C  S   PYSTAT   to print cross-section and other information         *
 C  S   PYUPEV   to administer the generation of an LHA hard process  *
 C  S   PYUPIN   to provide initialization needed for LHA input       *
+C  S   PYLHEF   to produce a Les Houches Event File from run         *
 C  S   PYINRE   to initialize treatment of resonances                *
 C  S   PYINBM   to read in beam, target and frame choices            *
 C  S   PYINKI   to initialize kinematics of incoming particles       *
@@ -339,9 +340,14 @@ C...Commonblocks.
       COMMON/PYMSRV/RVLAM(3,3,3), RVLAMP(3,3,3), RVLAMB(3,3,3)
       COMMON/PYTCSM/ITCM(0:99),RTCM(0:99)
       COMMON/PYBINS/IHIST(4),INDX(1000),BIN(20000)
+      COMMON/PYLH3P/MODSEL(200),PARMIN(100),PAREXT(200),RMSOFT(0:100),
+     &     AU(3,3),AD(3,3),AE(3,3)
+      COMMON/PYLH3C/CPRO(2),CVER(2)
+      CHARACTER CPRO*12,CVER*12
       SAVE /PYDAT1/,/PYDAT2/,/PYDAT3/,/PYDAT4/,/PYDATR/,/PYSUBS/,
      &/PYPARS/,/PYINT1/,/PYINT2/,/PYINT3/,/PYINT4/,/PYINT5/,
-     &/PYINT6/,/PYINT7/,/PYMSSM/,/PYSSMT/,/PYMSRV/,/PYTCSM/,/PYBINS/
+     &/PYINT6/,/PYINT7/,/PYMSSM/,/PYSSMT/,/PYMSRV/,/PYTCSM/,
+     &/PYBINS/,/PYLH3P/,/PYLH3C/
  
 C...PYDAT1, containing status codes and most parameters.
       DATA MSTU/
@@ -359,7 +365,7 @@ C...PYDAT1, containing status codes and most parameters.
       DATA (PARU(I),I=1,100)/
      &  3.141592653589793D0, 6.283185307179586D0,
      &  0.197327D0, 5.06773D0, 0.389380D0, 2.56819D0,  4*0D0,
-     1  0.001D0, 0.09D0, 0.01D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0,
+     1  0.001D0, 0.09D0, 0.01D0, 2D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0,
      2  0D0,   0D0,   0D0,   0D0,  0D0,  0D0,  0D0,  0D0,  0D0,  0D0,
      3  0D0,   0D0,   0D0,   0D0,  0D0,  0D0,  0D0,  0D0,  0D0,  0D0,
      4  2.0D0,  1.0D0, 0.25D0,  2.5D0, 0.05D0,
@@ -1535,7 +1541,7 @@ C...Default values for main switches and parameters. Reset information.
      5  0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
      6  0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
      7  0,    2,    0,    0,    0,    0,    0,    0,    0,    0,
-     8  6,  400, 2006,   03,   25,    0,    0,    0,    0,    0,
+     8  6,  407, 2006,   09,   25,    0,    0,    0,    0,    0,
      9  0,    0,    0,    0,    0,    0,    0,    0,    0,    0/
       DATA (PARP(I),I=1,100)/
      &  0.25D0,  10D0, 8*0D0,
@@ -1554,7 +1560,8 @@ C...Default values for main switches and parameters. Reset information.
      1  2.0D0, 3*0D0, 1.5D0, 0.5D0, 0.6D0, 2.5D0, 2.0D0, 1.0D0,
      2  1.0D0,  0.4D0, 8*0D0,
      3  0.01D0, 9*0D0,
-     4  1D0, 1D0, 1D0, 1D0, 1D0, 1D0, 1D0, 1D0, 1D0, 1D0,
+     4  1.16D0, 0.0119D0, 0.01D0, 0.01D0, 0.05D0, 
+     4  9.28D0, 0.15D0, 0.02D0, 0.48D0, 0.09D0,
      5  0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0, 0D0,
      6  2.20D0, 23.6D0, 18.4D0, 11.5D0, 0.5D0, 0D0, 0D0, 0D0, 2*0D0,
      7  0D0,   0D0,   0D0,  1.0D0, 6*0D0,
@@ -2018,6 +2025,16 @@ C...Technicolor switches and parameters
 C...Data for histogramming routines.
       DATA IHIST/1000,20000,55,1/
       DATA INDX/1000*0/
+
+C...Data for SUSY Les Houches Accord.
+      DATA CPRO/'PYTHIA      ','PYTHIA      '/
+      DATA CVER/'6.4         ','6.4         '/
+      DATA MODSEL/200*0/
+      DATA PARMIN/100*0D0/
+      DATA RMSOFT/101*0D0/
+      DATA AU/9*0D0/
+      DATA AD/9*0D0/
+      DATA AE/9*0D0/
  
       END
  
@@ -2508,6 +2525,9 @@ C...HEPEVT commonblock.
      &JMOHEP(2,NMXHEP),JDAHEP(2,NMXHEP),PHEP(5,NMXHEP),VHEP(4,NMXHEP)
       DOUBLE PRECISION PHEP,VHEP
       SAVE /HEPEVT/
+
+C...Store HEPEVT commonblock size (for interfacing issues).
+      MSTU(8)=NMXHEP
  
 C...Conversion from PYTHIA to standard, the easy part.
       IF(MCONV.EQ.1) THEN
@@ -2916,7 +2936,9 @@ C...Initialize multiple interactions with variable impact parameter.
           IF(MOD(MSTP(81),10).EQ.0.AND.(CKIN(3).GT.PTMN.OR.
      &    ((MSEL.NE.1.AND.MSEL.NE.2)))) MSTP(82)=MIN(1,MSTP(82))
           IF((MINT(49).NE.0.OR.MSTP(131).NE.0).AND.MSTP(82).GE.2) THEN
+            MINT(35)=1
             CALL PYMULT(1)
+            MINT(35)=3
             CALL PYMIGN(1)
           ENDIF
         ENDIF
@@ -3046,6 +3068,7 @@ C...Generate variables of hard scattering.
   100   CONTINUE
         IF(MINT(51).NE.0.OR.MSTU(24).NE.0) MSTI(52)=MSTI(52)+1
         MINT(31)=0
+        MINT(39)=0
         MINT(51)=0
         MINT(57)=0
         CALL PYRAND
@@ -3322,8 +3345,6 @@ C...Double precision and integer declarations.
       IMPLICIT DOUBLE PRECISION(A-H, O-Z)
       IMPLICIT INTEGER(I-N)
       INTEGER PYK,PYCHGE,PYCOMP
-C...Parameter statement for maximum size of showers.
-      PARAMETER (MAXNUP=500)
 C...Commonblocks.
       COMMON/PYJETS/N,NPAD,K(4000,5),P(4000,5),V(4000,5)
       COMMON/PYCTAG/NCT,MCT(4000,2)
@@ -3388,7 +3409,7 @@ C...Loop over number of pileup events; check space left.
       DO 300 IPILE=1,NPILE
         IF(MINT(84)+100.GE.MSTU(4)) THEN
           CALL PYERRM(11,
-     &    '(PYEVNT:) no more space in PYJETS for pileup events')
+     &    '(PYEVNW:) no more space in PYJETS for pileup events')
           IF(MSTU(21).GE.1) GOTO 310
         ENDIF
         MINT(82)=IPILE
@@ -3399,6 +3420,7 @@ C...Generate variables of hard scattering.
   100   CONTINUE
         IF(MINT(51).NE.0.OR.MSTU(24).NE.0) MSTI(52)=MSTI(52)+1
         MINT(31)=0
+        MINT(39)=0
         MINT(36)=0
         MINT(51)=0
         MINT(57)=0
@@ -3601,7 +3623,7 @@ C...Recalculate energies from momenta and masses (if desired).
         ENDIF
  
 C...Colour promiscuity before string formation
-        IF (MSTP(95).EQ.2.OR.MSTP(95).EQ.3) CALL PYFSCR(MINT(84)+1)
+        CALL PYFSCR(MINT(84)+1)
  
 C...Rearrange partons along strings, check invariant mass cuts.
         MSTU(28)=0
@@ -4671,21 +4693,33 @@ C...Put event in HEPEUP commonblock.
         SPINUP(I)=9D0
   180 CONTINUE
  
-C...Optionally write out event to disk.
+C...Optionally write out event to disk. Minimal size for time/spin fields.
       IF(MSTP(162).GT.0) THEN
         WRITE(MSTP(162),5200) NUP,IDPRUP,XWGTUP,SCALUP,AQEDUP,AQCDUP
         DO 190 I=1,NUP
-          WRITE(MSTP(162),5300) IDUP(I),ISTUP(I),MOTHUP(1,I),
-     &    MOTHUP(2,I),ICOLUP(1,I),ICOLUP(2,I),(PUP(J,I),J=1,5),
-     &    VTIMUP(I),SPINUP(I)
+          IF(VTIMUP(I).EQ.0D0) THEN
+            WRITE(MSTP(162),5300) IDUP(I),ISTUP(I),MOTHUP(1,I),
+     &      MOTHUP(2,I),ICOLUP(1,I),ICOLUP(2,I),(PUP(J,I),J=1,5),
+     &      ' 0. 9.'
+          ELSE
+            WRITE(MSTP(162),5400) IDUP(I),ISTUP(I),MOTHUP(1,I),
+     &      MOTHUP(2,I),ICOLUP(1,I),ICOLUP(2,I),(PUP(J,I),J=1,5),
+     &      VTIMUP(I),' 9.'
+          ENDIF
   190   CONTINUE
+
+C...Optional extra line with parton-density information.
+        IF(MSTP(165).GE.1) WRITE(MSTP(162),5500) MSTI(15),MSTI(16),
+     &  PARI(33),PARI(34),PARI(23),PARI(29),PARI(30) 
       ENDIF
  
 C...Error messages and other print formats.
  5100 FORMAT(1X,'Error: no subprocess switched on.'/
      &1X,'Execution stopped.')
  5200 FORMAT(1P,2I6,4E14.6)
- 5300 FORMAT(1P,I8,5I5,5E18.10,E14.6,E12.4)
+ 5300 FORMAT(1P,I8,5I5,5E18.10,A6)
+ 5400 FORMAT(1P,I8,5I5,5E18.10,E12.4,A3)
+ 5500 FORMAT(1P,'#pdf ',2I5,5E18.10)
  
       RETURN
       END
@@ -4758,6 +4792,125 @@ C...Formats for printout.
  5100 FORMAT(1P,2I8,2E14.6,6I6)
  5200 FORMAT(1P,3E14.6,I6)
  
+      RETURN
+      END
+
+
+C*********************************************************************
+
+C...Combine the two old-style Pythia initialization and event files
+C...into a single Les Houches Event File.
+
+      SUBROUTINE PYLHEF
+ 
+C...Double precision and integer declarations.
+      IMPLICIT DOUBLE PRECISION(A-H, O-Z)
+      IMPLICIT INTEGER(I-N)
+ 
+C...PYTHIA commonblock: only used to provide read/write units and version.
+      COMMON/PYPARS/MSTP(200),PARP(200),MSTI(200),PARI(200)
+      SAVE /PYPARS/
+ 
+C...User process initialization commonblock.
+      INTEGER MAXPUP
+      PARAMETER (MAXPUP=100)
+      INTEGER IDBMUP,PDFGUP,PDFSUP,IDWTUP,NPRUP,LPRUP
+      DOUBLE PRECISION EBMUP,XSECUP,XERRUP,XMAXUP
+      COMMON/HEPRUP/IDBMUP(2),EBMUP(2),PDFGUP(2),PDFSUP(2),
+     &IDWTUP,NPRUP,XSECUP(MAXPUP),XERRUP(MAXPUP),XMAXUP(MAXPUP),
+     &LPRUP(MAXPUP)
+      SAVE /HEPRUP/
+ 
+C...User process event common block.
+      INTEGER MAXNUP
+      PARAMETER (MAXNUP=500)
+      INTEGER NUP,IDPRUP,IDUP,ISTUP,MOTHUP,ICOLUP
+      DOUBLE PRECISION XWGTUP,SCALUP,AQEDUP,AQCDUP,PUP,VTIMUP,SPINUP
+      COMMON/HEPEUP/NUP,IDPRUP,XWGTUP,SCALUP,AQEDUP,AQCDUP,IDUP(MAXNUP),
+     &ISTUP(MAXNUP),MOTHUP(2,MAXNUP),ICOLUP(2,MAXNUP),PUP(5,MAXNUP),
+     &VTIMUP(MAXNUP),SPINUP(MAXNUP)
+      SAVE /HEPEUP/
+
+C...Lines to read in assumed never longer than 200 characters. 
+      PARAMETER (MAXLEN=200)
+      CHARACTER*(MAXLEN) STRING
+
+C...Format for reading lines.
+      CHARACTER*6 STRFMT
+      STRFMT='(A000)'
+      WRITE(STRFMT(3:5),'(I3)') MAXLEN
+
+C...Rewind initialization and event files. 
+      REWIND MSTP(161)
+      REWIND MSTP(162)
+
+C...Write header info.
+      WRITE(MSTP(163),'(A)') '<LesHouchesEvents version="1.0">'
+      WRITE(MSTP(163),'(A)') '<!--'
+      WRITE(MSTP(163),'(A,I1,A1,I3)') 'File generated with PYTHIA ',
+     &MSTP(181),'.',MSTP(182)
+      WRITE(MSTP(163),'(A)') '-->'       
+
+C...Read first line of initialization info and get number of processes.
+      READ(MSTP(161),'(A)',END=400,ERR=400) STRING                  
+      READ(STRING,*,ERR=400) IDBMUP(1),IDBMUP(2),EBMUP(1),
+     &EBMUP(2),PDFGUP(1),PDFGUP(2),PDFSUP(1),PDFSUP(2),IDWTUP,NPRUP
+
+C...Copy initialization lines, omitting trailing blanks. 
+C...Embed in <init> ... </init> block.
+      WRITE(MSTP(163),'(A)') '<init>' 
+      DO 140 IPR=0,NPRUP
+        IF(IPR.GT.0) READ(MSTP(161),'(A)',END=400,ERR=400) STRING
+        LEN=MAXLEN+1  
+  120   LEN=LEN-1
+        IF(LEN.GT.1.AND.STRING(LEN:LEN).EQ.' ') GOTO 120
+        WRITE(MSTP(163),'(A)',ERR=400) STRING(1:LEN)
+  140 CONTINUE
+      WRITE(MSTP(163),'(A)') '</init>' 
+
+C...Begin event loop. Read first line of event info or already done.
+      READ(MSTP(162),'(A)',END=320,ERR=400) STRING    
+  200 CONTINUE
+
+C...Look at first line to know number of particles in event.
+      READ(STRING,*,ERR=400) NUP,IDPRUP,XWGTUP,SCALUP,AQEDUP,AQCDUP
+
+C...Begin an <event> block. Copy event lines, omitting trailing blanks. 
+      WRITE(MSTP(163),'(A)') '<event>' 
+      DO 240 I=0,NUP
+        IF(I.GT.0) READ(MSTP(162),'(A)',END=400,ERR=400) STRING
+        LEN=MAXLEN+1  
+  220   LEN=LEN-1
+        IF(LEN.GT.1.AND.STRING(LEN:LEN).EQ.' ') GOTO 220
+        WRITE(MSTP(163),'(A)',ERR=400) STRING(1:LEN)
+  240 CONTINUE
+              
+C...Copy trailing comment lines - with a # in the first column - as is.
+  260 READ(MSTP(162),'(A)',END=300,ERR=400) STRING    
+      IF(STRING(1:1).EQ.'#') THEN
+        LEN=MAXLEN+1  
+  280   LEN=LEN-1
+        IF(LEN.GT.1.AND.STRING(LEN:LEN).EQ.' ') GOTO 280
+        WRITE(MSTP(163),'(A)',ERR=400) STRING(1:LEN)
+        GOTO 260
+      ENDIF
+
+C..End the <event> block. Loop back to look for next event.
+      WRITE(MSTP(163),'(A)') '</event>' 
+      GOTO 200
+
+C...Successfully reached end of event loop: write closing tag
+C...and remove temporary intermediate files (unless asked not to).
+  300 WRITE(MSTP(163),'(A)') '</event>' 
+  320 WRITE(MSTP(163),'(A)') '</LesHouchesEvents>' 
+      IF(MSTP(164).EQ.1) RETURN
+      CLOSE(MSTP(161),ERR=400,STATUS='DELETE')
+      CLOSE(MSTP(162),ERR=400,STATUS='DELETE')
+      RETURN
+
+C...Error exit.
+  400 WRITE(*,*) ' PYLHEF file joining failed!'
+
       RETURN
       END
  
@@ -8524,7 +8677,7 @@ C...to avoid doublecounting  with DIS.
         CKIN(1)=2D0*CKIN(3)
       ENDIF
  
-C...Set up for multiple interactions.
+C...Set up for multiple interactions (may include impact parameter).
       IF(INMULT.EQ.1) THEN
         IF(MINT(35).LE.1) CALL PYMULT(2)
         IF(MINT(35).GE.2) CALL PYMIGN(2)
@@ -8551,7 +8704,8 @@ C...~nu_e ~nu_e(bar) or ~nu_mu ~nu_mu(bar).
           KFPR(ISUB,1)=KSUSY1+12+2*INT(0.5D0+PYR(0))
           KFPR(ISUB,2)=KFPR(ISUB,1)
 C...~q ~chi/~g; ~q = ~d, ~u, ~s, ~c or ~b.
-        ELSEIF(ISUB.GE.246.AND.ISUB.LE.259) THEN
+        ELSEIF(ISUB.GE.246.AND.ISUB.LE.259.AND.ISUB.NE.255.AND.
+     &  ISUB.NE.257) THEN
           IF(ISUB.GE.258) THEN
             RKF=4D0
           ELSE
@@ -9280,7 +9434,7 @@ C...Check that weight not negative.
       ELSE
         IF(VIOL.LT.MIN(-1D-3,VINT(109))) THEN
           VINT(109)=VIOL
-          WRITE(MSTU(11),5200) VIOL,NGEN(0,3)+1
+          IF(MSTP(123).LE.2) WRITE(MSTU(11),5200) VIOL,NGEN(0,3)+1
           IF(MSTP(122).GE.1) WRITE(MSTU(11),5100) ISUB,VINT(21),
      &    VINT(22),VINT(23),VINT(26)
         ENDIF
@@ -9350,16 +9504,19 @@ C...cross-section used in weighting.
         VINT(108)=VIOL
         IF(VIOL.GT.1D0) THEN
           MINT(10)=1
-          WRITE(MSTU(11),5400) VIOL,NGEN(0,3)+1
+          IF(MSTP(123).EQ.2) WRITE(MSTU(11),5400) VIOL,NGEN(0,3)+1
           IF(ISTSB.EQ.11.AND.(IABS(IDWTUP).EQ.1.OR.IABS(IDWTUP).EQ.2))
      &    THEN
             XMAXUP(KFPR(ISUB,1))=VIOL*XMAXUP(KFPR(ISUB,1))
             IF(KFPR(ISUB,1).LE.9) THEN
-              WRITE(MSTU(11),5800) KFPR(ISUB,1),XMAXUP(KFPR(ISUB,1))
+              IF(MSTP(123).EQ.2) WRITE(MSTU(11),5800) KFPR(ISUB,1),
+     &        XMAXUP(KFPR(ISUB,1))
             ELSEIF(KFPR(ISUB,1).LE.99) THEN
-              WRITE(MSTU(11),5900) KFPR(ISUB,1),XMAXUP(KFPR(ISUB,1))
+              IF(MSTP(123).EQ.2) WRITE(MSTU(11),5900) KFPR(ISUB,1),
+     &        XMAXUP(KFPR(ISUB,1))
             ELSE
-              WRITE(MSTU(11),6000) KFPR(ISUB,1),XMAXUP(KFPR(ISUB,1))
+              IF(MSTP(123).EQ.2) WRITE(MSTU(11),6000) KFPR(ISUB,1),
+     &        XMAXUP(KFPR(ISUB,1))
             ENDIF
           ENDIF
           IF(ISTSB.NE.11.OR.IABS(IDWTUP).EQ.1) THEN
@@ -9370,19 +9527,19 @@ C...cross-section used in weighting.
             IF(MSTP(122).GE.2) WRITE(MSTU(11),5100) ISUB,VINT(21),
      &      VINT(22),VINT(23),VINT(26)
             IF(ISUB.LE.9) THEN
-              WRITE(MSTU(11),5500) ISUB,XSEC(ISUB,1)
+              IF(MSTP(123).EQ.2) WRITE(MSTU(11),5500) ISUB,XSEC(ISUB,1)
             ELSEIF(ISUB.LE.99) THEN
-              WRITE(MSTU(11),5600) ISUB,XSEC(ISUB,1)
+              IF(MSTP(123).EQ.2) WRITE(MSTU(11),5600) ISUB,XSEC(ISUB,1)
             ELSE
-              WRITE(MSTU(11),5700) ISUB,XSEC(ISUB,1)
+              IF(MSTP(123).EQ.2) WRITE(MSTU(11),5700) ISUB,XSEC(ISUB,1)
             ENDIF
           ENDIF
           VINT(108)=1D0
         ENDIF
       ENDIF
  
-C...Multiple interactions: choose impact parameter.
-      VINT(148)=1D0
+C...Multiple interactions: choose impact parameter (if not already done).
+      IF(MINT(39).EQ.0) VINT(148)=1D0
       IF(MINT(50).EQ.1.AND.(ISUB.LE.90.OR.ISUB.GE.96).AND.
      &MSTP(82).GE.3) THEN
         IF(MINT(35).LE.1) CALL PYMULT(5)
@@ -9577,6 +9734,8 @@ C...Double precision and integer declarations
 C...Parameter statement to help give large particle numbers.
       PARAMETER (KSUSY1=1000000,KSUSY2=2000000,KTECHN=3000000,
      &KEXCIT=4000000,KDIMEN=5000000)
+C...Parameter statement for maximum size of showers.
+      PARAMETER (MAXNUR=1000)
  
 C...User process event common block.
       INTEGER MAXNUP
@@ -9589,7 +9748,7 @@ C...User process event common block.
       SAVE /HEPEUP/
  
 C...Commonblocks.
-      COMMON/PYPART/NPART,NPARTD,IPART(MAXNUP),PTPART(MAXNUP)
+      COMMON/PYPART/NPART,NPARTD,IPART(MAXNUR),PTPART(MAXNUR)
       COMMON/PYJETS/N,NPAD,K(4000,5),P(4000,5),V(4000,5)
       COMMON/PYDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
       COMMON/PYDAT2/KCHG(500,4),PMAS(500,4),PARF(2000),VCKM(4,4)
@@ -9685,7 +9844,7 @@ C...Reset K, P and V vectors. Store incoming particles
       MINT(6)=2
       KFRES=0
  
-C...Store incoming partons in their CM-frame
+C...Store incoming partons in their CM-frame. Save pdf value.
       SH=VINT(44)
       SHR=SQRT(SH)
       SHP=VINT(26)*VINT(2)
@@ -9699,6 +9858,7 @@ C...Store incoming partons in their CM-frame
         K(I,3)=MINT(83)+2+JT
         P(I,3)=0.5D0*SHUSER*(-1D0)**(JT-1)
         P(I,4)=0.5D0*SHUSER
+        VINT(38+JT)=XSFX(JT,MINT(14+JT))
   150 CONTINUE
  
 C...Copy incoming partons to documentation lines
@@ -12273,9 +12433,9 @@ C...External
       EXTERNAL PYALPS
       DOUBLE PRECISION PYALPS
 C...Parameter statement for maximum size of showers.
-      PARAMETER (MAXNUP=500)
+      PARAMETER (MAXNUR=1000)
 C...Commonblocks.
-      COMMON/PYPART/NPART,NPARTD,IPART(MAXNUP),PTPART(MAXNUP)
+      COMMON/PYPART/NPART,NPARTD,IPART(MAXNUR),PTPART(MAXNUR)
       COMMON/PYJETS/N,NPAD,K(4000,5),P(4000,5),V(4000,5)
       COMMON/PYDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
       COMMON/PYDAT2/KCHG(500,4),PMAS(500,4),PARF(2000),VCKM(4,4)
@@ -13466,9 +13626,9 @@ C...Double precision and integer declarations.
       IMPLICIT INTEGER(I-N)
       INTEGER PYK,PYCHGE,PYCOMP
 C...Parameter statement for maximum size of showers.
-      PARAMETER (MAXNUP=500)
+      PARAMETER (MAXNUR=1000)
 C...Commonblocks.
-      COMMON/PYPART/NPART,NPARTD,IPART(MAXNUP),PTPART(MAXNUP)
+      COMMON/PYPART/NPART,NPARTD,IPART(MAXNUR),PTPART(MAXNUR)
       COMMON/PYJETS/N,NPAD,K(4000,5),P(4000,5),V(4000,5)
       COMMON/PYDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
       COMMON/PYDAT2/KCHG(500,4),PMAS(500,4),PARF(2000),VCKM(4,4)
@@ -14588,9 +14748,9 @@ C...Double precision and integer declarations.
       IMPLICIT INTEGER(I-N)
       INTEGER PYK,PYCHGE,PYCOMP
 C...Parameter statement for maximum size of showers.
-      PARAMETER (MAXNUP=500)
+      PARAMETER (MAXNUR=1000)
 C...Commonblocks.
-      COMMON/PYPART/NPART,NPARTD,IPART(MAXNUP),PTPART(MAXNUP)
+      COMMON/PYPART/NPART,NPARTD,IPART(MAXNUR),PTPART(MAXNUR)
       COMMON/PYJETS/N,NPAD,K(4000,5),P(4000,5),V(4000,5)
       COMMON/PYDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
       COMMON/PYDAT2/KCHG(500,4),PMAS(500,4),PARF(2000),VCKM(4,4)
@@ -15321,9 +15481,9 @@ C...Double precision and integer declarations.
       IMPLICIT INTEGER(I-N)
       INTEGER PYK,PYCHGE,PYCOMP
 C...Parameter statement for maximum size of showers.
-      PARAMETER (MAXNUP=500)
+      PARAMETER (MAXNUR=1000)
 C...Commonblocks.
-      COMMON/PYPART/NPART,NPARTD,IPART(MAXNUP),PTPART(MAXNUP)
+      COMMON/PYPART/NPART,NPARTD,IPART(MAXNUR),PTPART(MAXNUR)
       COMMON/PYJETS/N,NPAD,K(4000,5),P(4000,5),V(4000,5)
       COMMON/PYCTAG/NCT,MCT(4000,2)
       COMMON/PYDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
@@ -15729,9 +15889,9 @@ C...Parameter statement to help give large particle numbers.
       PARAMETER (KSUSY1=1000000,KSUSY2=2000000,KTECHN=3000000,
      &KEXCIT=4000000,KDIMEN=5000000)
 C...Parameter statement for maximum size of showers.
-      PARAMETER (MAXNUP=500)
+      PARAMETER (MAXNUR=1000)
 C...Commonblocks.
-      COMMON/PYPART/NPART,NPARTD,IPART(MAXNUP),PTPART(MAXNUP)
+      COMMON/PYPART/NPART,NPARTD,IPART(MAXNUR),PTPART(MAXNUR)
       COMMON/PYJETS/N,NPAD,K(4000,5),P(4000,5),V(4000,5)
       COMMON/PYCTAG/NCT,MCT(4000,2)
       COMMON/PYDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
@@ -17711,7 +17871,9 @@ C...Commonblocks.
      &/PYINT2/,/PYINT3/,/PYINT5/,/PYINT7/
 C...Local arrays and saved variables.
       DIMENSION NMUL(20),SIGM(20),KSTR(500,2),VINTSV(80)
-      SAVE XT2,XT2FAC,XC2,XTS,IRBIN,RBIN,NMUL,SIGM
+      SAVE XT2,XT2FAC,XC2,XTS,IRBIN,RBIN,NMUL,SIGM,P83A,P83B,P83C,
+     &CQ2I,CQ2R,PIK,BDIV,B,PLOWB,PHIGHB,PALLB,S4A,S4B,S4C,POWIP,
+     &RPWIP,B2RPDV,B2RPMX,BAVG,VNT145,VNT146,VNT147
  
 C...Initialization of multiple interaction treatment.
       IF(MMUL.EQ.1) THEN
@@ -17773,6 +17935,11 @@ C...Reject result if sigma(parton-parton) is smaller than hadronic one.
  
 C...Start iteration to find k factor.
         YKE=SIGSUM/MAX(1D-10,SIGT(0,0,5))
+        P83A=(1D0-PARP(83))**2
+        P83B=2D0*PARP(83)*(1D0-PARP(83))
+        P83C=PARP(83)**2
+        CQ2I=1D0/PARP(84)**2
+        CQ2R=2D0/(1D0+PARP(84)**2)
         SO=0.5D0
         XI=0D0
         YI=0D0
@@ -17788,7 +17955,7 @@ C...Start iteration to find k factor.
           XK=XI+(YKE-YI)*(XF-XI)/(YF-YI)
         ENDIF
  
-C...Evaluate overlap integrals.
+C...Evaluate overlap integrals. Find where to divide the b range.
         IF(MSTP(82).EQ.2) THEN
           SP=0.5D0*PARU(1)*(1D0-EXP(-XK))
           SOP=SP/PARU(1)
@@ -17799,28 +17966,36 @@ C...Evaluate overlap integrals.
             DELTAB=MIN(0.01D0,0.05D0*PARP(84))
           ELSE
             POWIP=MAX(0.4D0,PARP(83))
+            RPWIP=2D0/POWIP-1D0
             DELTAB=MAX(0.02D0,0.02D0*(2D0/POWIP)**(1D0/POWIP))
             SO=0D0
           ENDIF
           SP=0D0
           SOP=0D0
+          BSP=0D0
+          SOHIGH=0D0
+          IBDIV=0
           B=-0.5D0*DELTAB
   140     B=B+DELTAB
           IF(MSTP(82).EQ.3) THEN
             OV=EXP(-B**2)/PARU(2)
           ELSEIF(MSTP(82).EQ.4) THEN
-            CQ2=PARP(84)**2
-            OV=((1D0-PARP(83))**2*EXP(-MIN(50D0,B**2))+
-     &      2D0*PARP(83)*(1D0-PARP(83))*2D0/(1D0+CQ2)*
-     &      EXP(-MIN(50D0,B**2*2D0/(1D0+CQ2)))+
-     &      PARP(83)**2/CQ2*EXP(-MIN(50D0,B**2/CQ2)))/PARU(2)
+            OV=(P83A*EXP(-MIN(50D0,B**2))+
+     &      P83B*CQ2R*EXP(-MIN(50D0,B**2*CQ2R))+
+     &      P83C*CQ2I*EXP(-MIN(50D0,B**2*CQ2I)))/PARU(2)
           ELSE
             OV=EXP(-B**POWIP)/PARU(2)
             SO=SO+PARU(2)*B*DELTAB*OV
           ENDIF
+          IF(IBDIV.EQ.1) SOHIGH=SOHIGH+PARU(2)*B*DELTAB*OV
           PACC=1D0-EXP(-MIN(50D0,PARU(1)*XK*OV))
           SP=SP+PARU(2)*B*DELTAB*PACC
           SOP=SOP+PARU(2)*B*DELTAB*OV*PACC
+          BSP=BSP+B*PARU(2)*B*DELTAB*PACC
+          IF(IBDIV.EQ.0.AND.PARU(1)*XK*OV.LT.1D0) THEN
+            IBDIV=1 
+            BDIV=B+0.5D0*DELTAB
+          ENDIF
           IF(B.LT.1D0.OR.B*PACC.GT.1D-6) GOTO 140
         ENDIF
         YK=PARU(1)*XK*SO/SP
@@ -17838,12 +18013,40 @@ C...Continue iteration until convergence.
         IF(ABS(YK-YKE).GE.1D-5*YKE) GOTO 130
  
 C...Store some results for subsequent use.
+        BAVG=BSP/SP
         VINT(145)=SIGSUM
         VINT(146)=SOP/SO
         VINT(147)=SOP/SP
+        VNT145=VINT(145)
+        VNT146=VINT(146)
+        VNT147=VINT(147)
+C...PIK = PARU(1)*XK = (VINT(146)/VINT(147))*sigma_jet/sigma_nondiffr.
+        PIK=(VNT146/VNT147)*YKE
+
+C...Find relative weight for low and high impact parameter.
+      PLOWB=PARU(1)*BDIV**2
+      IF(MSTP(82).EQ.3) THEN
+        PHIGHB=PIK*0.5*EXP(-BDIV**2)
+      ELSEIF(MSTP(82).EQ.4) THEN
+        S4A=P83A*EXP(-BDIV**2)
+        S4B=P83B*EXP(-BDIV**2*CQ2R)
+        S4C=P83C*EXP(-BDIV**2*CQ2I)
+        PHIGHB=PIK*0.5*(S4A+S4B+S4C)
+      ELSEIF(PARP(83).GE.1.999D0) THEN
+        PHIGHB=PIK*SOHIGH
+        B2RPDV=BDIV**POWIP
+      ELSE
+        PHIGHB=PIK*SOHIGH
+        B2RPDV=BDIV**POWIP
+        B2RPMX=MAX(2D0*RPWIP,B2RPDV)
+      ENDIF 
+      PALLB=PLOWB+PHIGHB
  
 C...Initialize iteration in xT2 for hardest interaction.
       ELSEIF(MMUL.EQ.2) THEN
+        VINT(145)=VNT145
+        VINT(146)=VNT146
+        VINT(147)=VNT147
         IF(MSTP(82).LE.0) THEN
         ELSEIF(MSTP(82).EQ.1) THEN
           XT2=1D0
@@ -17853,23 +18056,84 @@ C...Initialize iteration in xT2 for hardest interaction.
           XT2FAC=SIGRAT*VINT(149)/(1D0-VINT(149))
         ELSEIF(MSTP(82).EQ.2) THEN
           XT2=1D0
-          XT2FAC=VINT(146)*XSEC(96,1)/MAX(1D-10,SIGT(0,0,5))*
+          XT2FAC=VNT146*XSEC(96,1)/MAX(1D-10,SIGT(0,0,5))*
      &    VINT(149)*(1D0+VINT(149))
         ELSE
           XC2=4D0*CKIN(3)**2/VINT(2)
           IF(CKIN(3).LE.CKIN(5).OR.MINT(82).GE.2) XC2=0D0
         ENDIF
+
+C...Select impact parameter for hardest interaction.
+        IF(MSTP(82).LE.2) RETURN
+  142   IF(PYR(0)*PALLB.LT.PLOWB) THEN
+C...Treatment in low b region.
+          MINT(39)=1
+          B=BDIV*SQRT(PYR(0)) 
+          IF(MSTP(82).EQ.3) THEN
+            OV=EXP(-B**2)/PARU(2)
+          ELSEIF(MSTP(82).EQ.4) THEN
+            OV=(P83A*EXP(-MIN(50D0,B**2))+
+     &      P83B*CQ2R*EXP(-MIN(50D0,B**2*CQ2R))+
+     &      P83C*CQ2I*EXP(-MIN(50D0,B**2*CQ2I)))/PARU(2)
+          ELSE
+            OV=EXP(-B**POWIP)/PARU(2)
+          ENDIF  
+          VINT(148)=OV/VNT147
+          PACC=1D0-EXP(-MIN(50D0,PIK*OV))
+          XT2=1D0
+          XT2FAC=VNT146*VINT(148)*XSEC(96,1)/MAX(1D-10,SIGT(0,0,5))*
+     &    VINT(149)*(1D0+VINT(149))
+        ELSE
+C...Treatment in high b region.
+          MINT(39)=2
+          IF(MSTP(82).EQ.3) THEN
+            B=SQRT(BDIV**2-LOG(PYR(0)))
+            OV=EXP(-B**2)/PARU(2)
+          ELSEIF(MSTP(82).EQ.4) THEN
+            S4RNDM=PYR(0)*(S4A+S4B+S4C)
+            IF(S4RNDM.LT.S4A) THEN
+              B=SQRT(BDIV**2-LOG(PYR(0)))
+            ELSEIF(S4RNDM.LT.S4A+S4B) THEN
+              B=SQRT(BDIV**2-LOG(PYR(0))/CQ2R)
+            ELSE
+              B=SQRT(BDIV**2-LOG(PYR(0))/CQ2I)
+            ENDIF    
+            OV=(P83A*EXP(-MIN(50D0,B**2))+
+     &      P83B*CQ2R*EXP(-MIN(50D0,B**2*CQ2R))+
+     &      P83C*CQ2I*EXP(-MIN(50D0,B**2*CQ2I)))/PARU(2)
+          ELSEIF(PARP(83).GE.1.999D0) THEN
+  144       B2RPW=B2RPDV-LOG(PYR(0))
+            ACCIP=(B2RPW/B2RPDV)**RPWIP
+            IF(ACCIP.LT.PYR(0)) GOTO 144
+            OV=EXP(-B2RPW)/PARU(2)
+            B=B2RPW**(1D0/POWIP)
+          ELSE
+  146       B2RPW=B2RPDV-2D0*LOG(PYR(0))
+            ACCIP=(B2RPW/B2RPMX)**RPWIP*EXP(-0.5D0*(B2RPW-B2RPMX))
+            IF(ACCIP.LT.PYR(0)) GOTO 146
+            OV=EXP(-B2RPW)/PARU(2)
+            B=B2RPW**(1D0/POWIP)
+          ENDIF  
+          VINT(148)=OV/VNT147
+          PACC=(1D0-EXP(-MIN(50D0,PIK*OV)))/(PIK*OV)
+        ENDIF
+        IF(PACC.LT.PYR(0)) GOTO 142
+        VINT(139)=B/BAVG
  
       ELSEIF(MMUL.EQ.3) THEN
 C...Low-pT or multiple interactions (first semihard interaction):
 C...choose xT2 according to dpT2/pT2**2*exp(-(sigma above pT2)/norm)
 C...or (MSTP(82)>=2) dpT2/(pT2+pT0**2)**2*exp(-....).
         ISUB=MINT(1)
+        VINT(145)=VNT145
+        VINT(146)=VNT146
+        VINT(147)=VNT147
         IF(MSTP(82).LE.0) THEN
           XT2=0D0
         ELSEIF(MSTP(82).EQ.1) THEN
           XT2=XT2FAC*XT2/(XT2FAC-XT2*LOG(PYR(0)))
-        ELSEIF(MSTP(82).EQ.2) THEN
+C...Use with "Sudakov" for low b values when impact parameter dependence.
+        ELSEIF(MSTP(82).EQ.2.OR.MINT(39).EQ.1) THEN
           IF(XT2.LT.1D0.AND.EXP(-XT2FAC*XT2/(VINT(149)*(XT2+
      &    VINT(149)))).GT.PYR(0)) XT2=1D0
           IF(XT2.GE.1D0) THEN
@@ -17882,6 +18146,7 @@ C...or (MSTP(82)>=2) dpT2/(pT2+pT0**2)**2*exp(-....).
      &      VINT(149)
           ENDIF
           XT2=MAX(0.01D0*VINT(149),XT2)
+C...Use without "Sudakov" for high b values when impact parameter dep.
         ELSE
           XT2=(XC2+VINT(149))*(1D0+VINT(149))/(1D0+VINT(149)-
      &    PYR(0)*(1D0-XC2))-VINT(149)
@@ -17923,6 +18188,9 @@ C...Choose tau and y*. Calculate cos(theta-hat).
 C...Store results of cross-section calculation.
       ELSEIF(MMUL.EQ.4) THEN
         ISUB=MINT(1)
+        VINT(145)=VNT145
+        VINT(146)=VNT146
+        VINT(147)=VNT147
         XTS=VINT(25)
         IF(ISET(ISUB).EQ.1) XTS=VINT(21)
         IF(ISET(ISUB).EQ.2)
@@ -17936,24 +18204,31 @@ C...Store results of cross-section calculation.
           SIGM(IRBIN)=SIGM(IRBIN)+VINT(153)
         ENDIF
  
-C...Choose impact parameter.
+C...Choose impact parameter if not already done.
       ELSEIF(MMUL.EQ.5) THEN
         ISUB=MINT(1)
-  150   IF(MSTP(82).EQ.3) THEN
-          VINT(148)=PYR(0)/(PARU(2)*VINT(147))
+        VINT(145)=VNT145
+        VINT(146)=VNT146
+        VINT(147)=VNT147
+  150   IF(MINT(39).GT.0) THEN
+        ELSEIF(MSTP(82).EQ.3) THEN
+          EXPB2=PYR(0)
+          B2=-LOG(PYR(0))
+          VINT(148)=EXPB2/(PARU(2)*VNT147)
+          VINT(139)=SQRT(B2)/BAVG
         ELSEIF(MSTP(82).EQ.4) THEN
           RTYPE=PYR(0)
-          CQ2=PARP(84)**2
-          IF(RTYPE.LT.(1D0-PARP(83))**2) THEN
+          IF(RTYPE.LT.P83A) THEN
             B2=-LOG(PYR(0))
-          ELSEIF(RTYPE.LT.1D0-PARP(83)**2) THEN
-            B2=-0.5D0*(1D0+CQ2)*LOG(PYR(0))
+          ELSEIF(RTYPE.LT.P83A+P83B) THEN
+            B2=-LOG(PYR(0))/CQ2R
           ELSE
-            B2=-CQ2*LOG(PYR(0))
+            B2=-LOG(PYR(0))/CQ2I
           ENDIF
-          VINT(148)=((1D0-PARP(83))**2*EXP(-MIN(50D0,B2))+2D0*PARP(83)*
-     &    (1D0-PARP(83))*2D0/(1D0+CQ2)*EXP(-MIN(50D0,B2*2D0/(1D0+CQ2)))+
-     &    PARP(83)**2/CQ2*EXP(-MIN(50D0,B2/CQ2)))/(PARU(2)*VINT(147))
+          VINT(148)=(P83A*EXP(-MIN(50D0,B2))+
+     &    P83B*CQ2R*EXP(-MIN(50D0,B2*CQ2R))+
+     &    P83C*CQ2I*EXP(-MIN(50D0,B2*CQ2I)))/(PARU(2)*VNT147)
+          VINT(139)=SQRT(B2)/BAVG
         ELSEIF(PARP(83).GE.1.999D0) THEN
           POWIP=MAX(2D0,PARP(83))
           RPWIP=2D0/POWIP-1D0
@@ -17966,7 +18241,8 @@ C...Choose impact parameter.
             ACCIP=B2RPW**RPWIP
           ENDIF
           IF(ACCIP.LT.PYR(0)) GOTO 160
-          VINT(148)=EXP(-B2RPW)/(PARU(2)*VINT(147))
+          VINT(148)=EXP(-B2RPW)/(PARU(2)*VNT147)
+          VINT(139)=B2RPW**(1D0/POWIP)/BAVG
         ELSE
           POWIP=MAX(0.4D0,PARP(83))
           RPWIP=2D0/POWIP-1D0
@@ -17979,21 +18255,26 @@ C...Choose impact parameter.
             ACCIP=(0.5D0*B2RPW/RPWIP)**RPWIP*EXP(RPWIP-0.5D0*B2RPW)
           ENDIF
           IF(ACCIP.LT .PYR(0)) GOTO 170
-          VINT(148)=EXP(-B2RPW)/(PARU(2)*VINT(147))
+          VINT(148)=EXP(-B2RPW)/(PARU(2)*VNT147)
+          VINT(139)=B2RPW**(1D0/POWIP)/BAVG
         ENDIF
  
 C...Multiple interactions (variable impact parameter) : reject with
 C...probability exp(-overlap*cross-section above pT/normalization).
-        RNCOR=(IRBIN-20D0*RBIN)*NMUL(IRBIN)
-        SIGCOR=(IRBIN-20D0*RBIN)*SIGM(IRBIN)
-        DO 180 IBIN=IRBIN+1,20
-          RNCOR=RNCOR+NMUL(IBIN)
-          SIGCOR=SIGCOR+SIGM(IBIN)
-  180   CONTINUE
-        SIGABV=(SIGCOR/RNCOR)*VINT(149)*(1D0-XTS)/(XTS+VINT(149))
-        IF(MSTP(171).EQ.1) SIGABV=SIGABV*VINT(2)/VINT(289)
-        VINT(150)=EXP(-MIN(50D0,VINT(146)*VINT(148)*
-     &  SIGABV/MAX(1D-10,SIGT(0,0,5))))
+C...Does not apply to low-b region, where "Sudakov" already included.
+        VINT(150)=1D0 
+        IF(MINT(39).NE.1) THEN
+          RNCOR=(IRBIN-20D0*RBIN)*NMUL(IRBIN)
+          SIGCOR=(IRBIN-20D0*RBIN)*SIGM(IRBIN)
+          DO 180 IBIN=IRBIN+1,20
+            RNCOR=RNCOR+NMUL(IBIN)
+            SIGCOR=SIGCOR+SIGM(IBIN)
+  180     CONTINUE
+          SIGABV=(SIGCOR/RNCOR)*VINT(149)*(1D0-XTS)/(XTS+VINT(149))
+          IF(MSTP(171).EQ.1) SIGABV=SIGABV*VINT(2)/VINT(289)
+          VINT(150)=EXP(-MIN(50D0,VNT146*VINT(148)*
+     &    SIGABV/MAX(1D-10,SIGT(0,0,5))))
+        ENDIF
         IF(MSTP(86).EQ.3.OR.(MSTP(86).EQ.2.AND.ISUB.NE.11.AND.
      &  ISUB.NE.12.AND.ISUB.NE.13.AND.ISUB.NE.28.AND.ISUB.NE.53
      &  .AND.ISUB.NE.68.AND.ISUB.NE.95.AND.ISUB.NE.96)) THEN
@@ -18004,6 +18285,9 @@ C...probability exp(-overlap*cross-section above pT/normalization).
 C...Generate additional multiple semihard interactions.
       ELSEIF(MMUL.EQ.6) THEN
         ISUBSV=MINT(1)
+        VINT(145)=VNT145
+        VINT(146)=VNT146
+        VINT(147)=VNT147
         DO 190 J=11,80
           VINTSV(J)=VINT(J)
   190   CONTINUE
@@ -18043,14 +18327,13 @@ C...Reconstruct strings in hard scattering.
  
 C...Set up starting values for iteration in xT2.
         XT2=4D0*VINT(62)/VINT(2)
- 
         IF(MSTP(82).LE.1) THEN
           SIGRAT=XSEC(ISUB,1)/MAX(1D-10,VINT(315)*VINT(316)*SIGT(0,0,5))
           IF(MINT(141).NE.0.OR.MINT(142).NE.0) SIGRAT=SIGRAT*
      &    VINT(317)/(VINT(318)*VINT(320))
           XT2FAC=SIGRAT*VINT(149)/(1D0-VINT(149))
         ELSE
-          XT2FAC=VINT(146)*VINT(148)*XSEC(ISUB,1)/
+          XT2FAC=VNT146*VINT(148)*XSEC(ISUB,1)/
      &    MAX(1D-10,SIGT(0,0,5))*VINT(149)*(1D0+VINT(149))
         ENDIF
         VINT(63)=0D0
@@ -18936,7 +19219,9 @@ C...Commonblocks.
 C...Local arrays and saved variables.
       DIMENSION NMUL(20),SIGM(20),KSTR(500,2),VINTSV(80),
      &WDTP(0:400),WDTE(0:400,0:5),XPQ(-25:25),KSAV(4,5),PSAV(4,5)
-      SAVE XT2,XT2FAC,XC2,XTS,IRBIN,RBIN,NMUL,SIGM
+      SAVE XT2,XT2FAC,XC2,XTS,IRBIN,RBIN,NMUL,SIGM,P83A,P83B,P83C,
+     &CQ2I,CQ2R,PIK,BDIV,B,PLOWB,PHIGHB,PALLB,S4A,S4B,S4C,POWIP,
+     &RPWIP,B2RPDV,B2RPMX,BAVG,VNT145,VNT146,VNT147
  
 C...Initialization of multiple interaction treatment.
       IF(MMUL.EQ.1) THEN
@@ -18998,6 +19283,11 @@ C...Reject result if sigma(parton-parton) is smaller than hadronic one.
  
 C...Start iteration to find k factor.
         YKE=SIGSUM/MAX(1D-10,SIGT(0,0,5))
+        P83A=(1D0-PARP(83))**2
+        P83B=2D0*PARP(83)*(1D0-PARP(83))
+        P83C=PARP(83)**2
+        CQ2I=1D0/PARP(84)**2
+        CQ2R=2D0/(1D0+PARP(84)**2)
         SO=0.5D0
         XI=0D0
         YI=0D0
@@ -19013,7 +19303,7 @@ C...Start iteration to find k factor.
           XK=XI+(YKE-YI)*(XF-XI)/(YF-YI)
         ENDIF
  
-C...Evaluate overlap integrals.
+C...Evaluate overlap integrals. Find where to divide the b range.
         IF(MSTP(82).EQ.2) THEN
           SP=0.5D0*PARU(1)*(1D0-EXP(-XK))
           SOP=SP/PARU(1)
@@ -19024,28 +19314,36 @@ C...Evaluate overlap integrals.
             DELTAB=MIN(0.01D0,0.05D0*PARP(84))
           ELSE
             POWIP=MAX(0.4D0,PARP(83))
+            RPWIP=2D0/POWIP-1D0
             DELTAB=MAX(0.02D0,0.02D0*(2D0/POWIP)**(1D0/POWIP))
             SO=0D0
           ENDIF
           SP=0D0
           SOP=0D0
+          BSP=0D0
+          SOHIGH=0D0
+          IBDIV=0
           B=-0.5D0*DELTAB
   140     B=B+DELTAB
           IF(MSTP(82).EQ.3) THEN
             OV=EXP(-B**2)/PARU(2)
           ELSEIF(MSTP(82).EQ.4) THEN
-            CQ2=PARP(84)**2
-            OV=((1D0-PARP(83))**2*EXP(-MIN(50D0,B**2))+
-     &      2D0*PARP(83)*(1D0-PARP(83))*2D0/(1D0+CQ2)*
-     &      EXP(-MIN(50D0,B**2*2D0/(1D0+CQ2)))+
-     &      PARP(83)**2/CQ2*EXP(-MIN(50D0,B**2/CQ2)))/PARU(2)
+            OV=(P83A*EXP(-MIN(50D0,B**2))+
+     &      P83B*CQ2R*EXP(-MIN(50D0,B**2*CQ2R))+
+     &      P83C*CQ2I*EXP(-MIN(50D0,B**2*CQ2I)))/PARU(2)
           ELSE
             OV=EXP(-B**POWIP)/PARU(2)
             SO=SO+PARU(2)*B*DELTAB*OV
           ENDIF
+          IF(IBDIV.EQ.1) SOHIGH=SOHIGH+PARU(2)*B*DELTAB*OV
           PACC=1D0-EXP(-MIN(50D0,PARU(1)*XK*OV))
           SP=SP+PARU(2)*B*DELTAB*PACC
           SOP=SOP+PARU(2)*B*DELTAB*OV*PACC
+          BSP=BSP+B*PARU(2)*B*DELTAB*PACC
+          IF(IBDIV.EQ.0.AND.PARU(1)*XK*OV.LT.1D0) THEN
+            IBDIV=1 
+            BDIV=B+0.5D0*DELTAB
+          ENDIF
           IF(B.LT.1D0.OR.B*PACC.GT.1D-6) GOTO 140
         ENDIF
         YK=PARU(1)*XK*SO/SP
@@ -19063,12 +19361,40 @@ C...Continue iteration until convergence.
         IF(ABS(YK-YKE).GE.1D-5*YKE) GOTO 130
  
 C...Store some results for subsequent use.
+        BAVG=BSP/SP
         VINT(145)=SIGSUM
         VINT(146)=SOP/SO
         VINT(147)=SOP/SP
+        VNT145=VINT(145)
+        VNT146=VINT(146)
+        VNT147=VINT(147)
+C...PIK = PARU(1)*XK = (VINT(146)/VINT(147))*sigma_jet/sigma_nondiffr.
+        PIK=(VNT146/VNT147)*YKE
+
+C...Find relative weight for low and high impact parameter..
+      PLOWB=PARU(1)*BDIV**2
+      IF(MSTP(82).EQ.3) THEN
+        PHIGHB=PIK*0.5*EXP(-BDIV**2)
+      ELSEIF(MSTP(82).EQ.4) THEN
+        S4A=P83A*EXP(-BDIV**2)
+        S4B=P83B*EXP(-BDIV**2*CQ2R)
+        S4C=P83C*EXP(-BDIV**2*CQ2I)
+        PHIGHB=PIK*0.5*(S4A+S4B+S4C)
+      ELSEIF(PARP(83).GE.1.999D0) THEN
+        PHIGHB=PIK*SOHIGH
+        B2RPDV=BDIV**POWIP
+      ELSE
+        PHIGHB=PIK*SOHIGH
+        B2RPDV=BDIV**POWIP
+        B2RPMX=MAX(2D0*RPWIP,B2RPDV)
+      ENDIF 
+      PALLB=PLOWB+PHIGHB
  
 C...Initialize iteration in xT2 for hardest interaction.
       ELSEIF(MMUL.EQ.2) THEN
+        VINT(145)=VNT145
+        VINT(146)=VNT146
+        VINT(147)=VNT147
         IF(MSTP(82).LE.0) THEN
         ELSEIF(MSTP(82).EQ.1) THEN
           XT2=1D0
@@ -19078,23 +19404,84 @@ C...Initialize iteration in xT2 for hardest interaction.
           XT2FAC=SIGRAT*VINT(149)/(1D0-VINT(149))
         ELSEIF(MSTP(82).EQ.2) THEN
           XT2=1D0
-          XT2FAC=VINT(146)*XSEC(96,1)/MAX(1D-10,SIGT(0,0,5))*
+          XT2FAC=VNT146*XSEC(96,1)/MAX(1D-10,SIGT(0,0,5))*
      &    VINT(149)*(1D0+VINT(149))
         ELSE
           XC2=4D0*CKIN(3)**2/VINT(2)
           IF(CKIN(3).LE.CKIN(5).OR.MINT(82).GE.2) XC2=0D0
         ENDIF
+
+C...Select impact parameter for hardest interaction.
+        IF(MSTP(82).LE.2) RETURN
+  142   IF(PYR(0)*PALLB.LT.PLOWB) THEN
+C...Treatment in low b region.
+          MINT(39)=1
+          B=BDIV*SQRT(PYR(0)) 
+          IF(MSTP(82).EQ.3) THEN
+            OV=EXP(-B**2)/PARU(2)
+          ELSEIF(MSTP(82).EQ.4) THEN
+            OV=(P83A*EXP(-MIN(50D0,B**2))+
+     &      P83B*CQ2R*EXP(-MIN(50D0,B**2*CQ2R))+
+     &      P83C*CQ2I*EXP(-MIN(50D0,B**2*CQ2I)))/PARU(2)
+          ELSE
+            OV=EXP(-B**POWIP)/PARU(2)
+          ENDIF  
+          VINT(148)=OV/VNT147
+          PACC=1D0-EXP(-MIN(50D0,PIK*OV))
+          XT2=1D0
+          XT2FAC=VNT146*VINT(148)*XSEC(96,1)/MAX(1D-10,SIGT(0,0,5))*
+     &    VINT(149)*(1D0+VINT(149))
+        ELSE
+C...Treatment in high b region.
+          MINT(39)=2
+          IF(MSTP(82).EQ.3) THEN
+            B=SQRT(BDIV**2-LOG(PYR(0)))
+            OV=EXP(-B**2)/PARU(2)
+          ELSEIF(MSTP(82).EQ.4) THEN
+            S4RNDM=PYR(0)*(S4A+S4B+S4C)
+            IF(S4RNDM.LT.S4A) THEN
+              B=SQRT(BDIV**2-LOG(PYR(0)))
+            ELSEIF(S4RNDM.LT.S4A+S4B) THEN
+              B=SQRT(BDIV**2-LOG(PYR(0))/CQ2R)
+            ELSE
+              B=SQRT(BDIV**2-LOG(PYR(0))/CQ2I)
+            ENDIF    
+            OV=(P83A*EXP(-MIN(50D0,B**2))+
+     &      P83B*CQ2R*EXP(-MIN(50D0,B**2*CQ2R))+
+     &      P83C*CQ2I*EXP(-MIN(50D0,B**2*CQ2I)))/PARU(2)
+          ELSEIF(PARP(83).GE.1.999D0) THEN
+  144       B2RPW=B2RPDV-LOG(PYR(0))
+            ACCIP=(B2RPW/B2RPDV)**RPWIP
+            IF(ACCIP.LT.PYR(0)) GOTO 144
+            OV=EXP(-B2RPW)/PARU(2)
+            B=B2RPW**(1D0/POWIP)
+          ELSE
+  146       B2RPW=B2RPDV-2D0*LOG(PYR(0))
+            ACCIP=(B2RPW/B2RPMX)**RPWIP*EXP(-0.5D0*(B2RPW-B2RPMX))
+            IF(ACCIP.LT.PYR(0)) GOTO 146
+            OV=EXP(-B2RPW)/PARU(2)
+            B=B2RPW**(1D0/POWIP)
+          ENDIF  
+          VINT(148)=OV/VNT147
+          PACC=(1D0-EXP(-MIN(50D0,PIK*OV)))/(PIK*OV)
+        ENDIF
+        IF(PACC.LT.PYR(0)) GOTO 142
+        VINT(139)=B/BAVG
  
       ELSEIF(MMUL.EQ.3) THEN
 C...Low-pT or multiple interactions (first semihard interaction):
 C...choose xT2 according to dpT2/pT2**2*exp(-(sigma above pT2)/norm)
 C...or (MSTP(82)>=2) dpT2/(pT2+pT0**2)**2*exp(-....).
         ISUB=MINT(1)
+        VINT(145)=VNT145
+        VINT(146)=VNT146
+        VINT(147)=VNT147
         IF(MSTP(82).LE.0) THEN
           XT2=0D0
         ELSEIF(MSTP(82).EQ.1) THEN
           XT2=XT2FAC*XT2/(XT2FAC-XT2*LOG(PYR(0)))
-        ELSEIF(MSTP(82).EQ.2) THEN
+C...Use with "Sudakov" for low b values when impact parameter dependence.
+        ELSEIF(MSTP(82).EQ.2.OR.MINT(39).EQ.1) THEN
           IF(XT2.LT.1D0.AND.EXP(-XT2FAC*XT2/(VINT(149)*(XT2+
      &    VINT(149)))).GT.PYR(0)) XT2=1D0
           IF(XT2.GE.1D0) THEN
@@ -19107,6 +19494,7 @@ C...or (MSTP(82)>=2) dpT2/(pT2+pT0**2)**2*exp(-....).
      &      VINT(149)
           ENDIF
           XT2=MAX(0.01D0*VINT(149),XT2)
+C...Use without "Sudakov" for high b values when impact parameter dep.
         ELSE
           XT2=(XC2+VINT(149))*(1D0+VINT(149))/(1D0+VINT(149)-
      &    PYR(0)*(1D0-XC2))-VINT(149)
@@ -19148,6 +19536,9 @@ C...Choose tau and y*. Calculate cos(theta-hat).
 C...Store results of cross-section calculation.
       ELSEIF(MMUL.EQ.4) THEN
         ISUB=MINT(1)
+        VINT(145)=VNT145
+        VINT(146)=VNT146
+        VINT(147)=VNT147
         XTS=VINT(25)
         IF(ISET(ISUB).EQ.1) XTS=VINT(21)
         IF(ISET(ISUB).EQ.2)
@@ -19161,24 +19552,31 @@ C...Store results of cross-section calculation.
           SIGM(IRBIN)=SIGM(IRBIN)+VINT(153)
         ENDIF
  
-C...Choose impact parameter.
+C...Choose impact parameter if not already done.
       ELSEIF(MMUL.EQ.5) THEN
         ISUB=MINT(1)
-  150   IF(MSTP(82).EQ.3) THEN
-          VINT(148)=PYR(0)/(PARU(2)*VINT(147))
+        VINT(145)=VNT145
+        VINT(146)=VNT146
+        VINT(147)=VNT147
+  150   IF(MINT(39).GT.0) THEN
+        ELSEIF(MSTP(82).EQ.3) THEN
+          EXPB2=PYR(0)
+          B2=-LOG(PYR(0))
+          VINT(148)=EXPB2/(PARU(2)*VNT147)
+          VINT(139)=SQRT(B2)/BAVG
         ELSEIF(MSTP(82).EQ.4) THEN
           RTYPE=PYR(0)
-          CQ2=PARP(84)**2
-          IF(RTYPE.LT.(1D0-PARP(83))**2) THEN
+          IF(RTYPE.LT.P83A) THEN
             B2=-LOG(PYR(0))
-          ELSEIF(RTYPE.LT.1D0-PARP(83)**2) THEN
-            B2=-0.5D0*(1D0+CQ2)*LOG(PYR(0))
+          ELSEIF(RTYPE.LT.P83A+P83B) THEN
+            B2=-LOG(PYR(0))/CQ2R
           ELSE
-            B2=-CQ2*LOG(PYR(0))
+            B2=-LOG(PYR(0))/CQ2I
           ENDIF
-          VINT(148)=((1D0-PARP(83))**2*EXP(-MIN(50D0,B2))+2D0*PARP(83)*
-     &    (1D0-PARP(83))*2D0/(1D0+CQ2)*EXP(-MIN(50D0,B2*2D0/(1D0+CQ2)))+
-     &    PARP(83)**2/CQ2*EXP(-MIN(50D0,B2/CQ2)))/(PARU(2)*VINT(147))
+          VINT(148)=(P83A*EXP(-MIN(50D0,B2))+
+     &    P83B*CQ2R*EXP(-MIN(50D0,B2*CQ2R))+
+     &    P83C*CQ2I*EXP(-MIN(50D0,B2*CQ2I)))/(PARU(2)*VNT147)
+          VINT(139)=SQRT(B2)/BAVG
         ELSEIF(PARP(83).GE.1.999D0) THEN
           POWIP=MAX(2D0,PARP(83))
           RPWIP=2D0/POWIP-1D0
@@ -19191,7 +19589,8 @@ C...Choose impact parameter.
             ACCIP=B2RPW**RPWIP
           ENDIF
           IF(ACCIP.LT.PYR(0)) GOTO 160
-          VINT(148)=EXP(-B2RPW)/(PARU(2)*VINT(147))
+          VINT(148)=EXP(-B2RPW)/(PARU(2)*VNT147)
+          VINT(139)=B2RPW**(1D0/POWIP)/BAVG
         ELSE
           POWIP=MAX(0.4D0,PARP(83))
           RPWIP=2D0/POWIP-1D0
@@ -19204,21 +19603,26 @@ C...Choose impact parameter.
             ACCIP=(0.5D0*B2RPW/RPWIP)**RPWIP*EXP(RPWIP-0.5D0*B2RPW)
           ENDIF
           IF(ACCIP.LT .PYR(0)) GOTO 170
-          VINT(148)=EXP(-B2RPW)/(PARU(2)*VINT(147))
+          VINT(148)=EXP(-B2RPW)/(PARU(2)*VNT147)
+          VINT(139)=B2RPW**(1D0/POWIP)/BAVG
         ENDIF
  
 C...Multiple interactions (variable impact parameter) : reject with
 C...probability exp(-overlap*cross-section above pT/normalization).
-        RNCOR=(IRBIN-20D0*RBIN)*NMUL(IRBIN)
-        SIGCOR=(IRBIN-20D0*RBIN)*SIGM(IRBIN)
-        DO 180 IBIN=IRBIN+1,20
-          RNCOR=RNCOR+NMUL(IBIN)
-          SIGCOR=SIGCOR+SIGM(IBIN)
-  180   CONTINUE
-        SIGABV=(SIGCOR/RNCOR)*VINT(149)*(1D0-XTS)/(XTS+VINT(149))
-        IF(MSTP(171).EQ.1) SIGABV=SIGABV*VINT(2)/VINT(289)
-        VINT(150)=EXP(-MIN(50D0,VINT(146)*VINT(148)*
-     &  SIGABV/MAX(1D-10,SIGT(0,0,5))))
+C...Does not apply to low-b region, where "Sudakov" already included.
+        VINT(150)=1D0 
+        IF(MINT(39).NE.1) THEN
+          RNCOR=(IRBIN-20D0*RBIN)*NMUL(IRBIN)
+          SIGCOR=(IRBIN-20D0*RBIN)*SIGM(IRBIN)
+          DO 180 IBIN=IRBIN+1,20
+            RNCOR=RNCOR+NMUL(IBIN)
+            SIGCOR=SIGCOR+SIGM(IBIN)
+  180     CONTINUE
+          SIGABV=(SIGCOR/RNCOR)*VINT(149)*(1D0-XTS)/(XTS+VINT(149))
+          IF(MSTP(171).EQ.1) SIGABV=SIGABV*VINT(2)/VINT(289)
+          VINT(150)=EXP(-MIN(50D0,VNT146*VINT(148)*
+     &    SIGABV/MAX(1D-10,SIGT(0,0,5))))
+        ENDIF
         IF(MSTP(86).EQ.3.OR.(MSTP(86).EQ.2.AND.ISUB.NE.11.AND.
      &  ISUB.NE.12.AND.ISUB.NE.13.AND.ISUB.NE.28.AND.ISUB.NE.53
      &  .AND.ISUB.NE.68.AND.ISUB.NE.95.AND.ISUB.NE.96)) THEN
@@ -19231,6 +19635,9 @@ C...Generate additional multiple semihard interactions.
  
 C...Save data for hardest initeraction, to be restored.
         ISUBSV=MINT(1)
+        VINT(145)=VNT145
+        VINT(146)=VNT146
+        VINT(147)=VNT147
         M13SV=MINT(13)
         M14SV=MINT(14)
         M15SV=MINT(15)
@@ -19377,7 +19784,7 @@ C...Set up starting values for iteration in xT2.
      &    VINT(317)/(VINT(318)*VINT(320))
           XT2FAC=SIGRAT*VINT(149)/(1D0-VINT(149))
         ELSE
-          XT2FAC=VINT(146)*VINT(148)*XSEC(ISUB,1)/
+          XT2FAC=VNT146*VINT(148)*XSEC(ISUB,1)/
      &    MAX(1D-10,SIGT(0,0,5))*VINT(149)*(1D0+VINT(149))
         ENDIF
         VINT(63)=0D0
@@ -21661,8 +22068,24 @@ C...Signal PYPREP to use /PYCTAG/ information rather than K(I,KCS).
 C*********************************************************************
  
 C...PYFSCR
-C...Performs colour annealing.
- 
+C...Performs colour annealing. 
+C...MSTP(95) : CR Type
+C...         = 1  : old cut-and-paste reconnections, handled in PYMIHK
+C...         = 2  : Type I(no gg loops); hadron-hadron only
+C...         = 3  : Type I(no gg loops); all beams
+C...         = 4  : Type II(gg loops)  ; hadron-hadron only
+C...         = 5  : Type II(gg loops)  ; all beams
+C...         = 6  : Type S             ; hadron-hadron only 
+C...         = 7  : Type S             ; all beams
+C...Types I and II are described in Sandhoff+Skands, in hep-ph/0604120.
+C...Type S is driven by starting only from free triplets, not octets.
+C...PARP(78) : CR Strength 
+C...        The probability to keep a given colour-dipole pair depends 
+C...        on PARP(78) and the number of interactions, MINT(31):
+C...              PKEEP = (1D0-PARP(78))**(MINT(31)) ;
+C...        PARP(78) -> 1D0 : Full strength. 
+C...        PARP(78) -> 0D0 : Zero strength. No reconnections.       
+
       SUBROUTINE PYFSCR(IP)
 C...Double precision and integer declarations.
       IMPLICIT DOUBLE PRECISION(A-H, O-Z)
@@ -21684,13 +22107,17 @@ C...MCN: Temporary storage of new colour tags
 C...Function to give four-product.
       FOUR(I,J)=P(I,4)*P(J,4)-P(I,1)*P(J,1)-P(I,2)*P(J,2)-P(I,3)*P(J,3)
  
-C...Check valid range of MSTP(95)
-      IF (MSTP(95).LE.1.OR.MSTP(95).GE.6) RETURN
- 
+C...Check valid range of MSTP(95), local copy
+      IF (MSTP(95).LE.1.OR.MSTP(95).GE.8) RETURN
+      MSTP95=MOD(MSTP(95),10)
+C...Set whether CR allowed inside resonance systems or not
+      MRESCR=1
+      IF (MSTP(95).GE.10) MRESCR=0
+
 C...Only works with colour tags.
       IF (MINT(33).EQ.0) GOTO 9999
-C...For MSTP(95)=2 or 4, only apply to hadron-hadron
-      IF (MSTP(95).EQ.2.OR.MSTP(95).EQ.4) THEN
+C...For MSTP(95) even, only apply to hadron-hadron
+      IF (MOD(MSTP(95),2).EQ.0) THEN
          KA1=IABS(MINT(11))
          KA2=IABS(MINT(12))
          IF (KA1.LT.100.OR.KA2.LT.100) GOTO 9999
@@ -21703,6 +22130,28 @@ C...Initialize new tag array (but do not delete old yet)
          MCN(I,2)=0
  100  CONTINUE
  
+      IF (PARP(78).LT.1D0) THEN
+C...  For each final-state dipole, check whether string should be 
+C...  preserved.
+        DO 50 ICT=1,NCT
+          IC=0
+          IA=0
+          DO 40 I=MAX(1,IP),N
+            IF (K(I,1).EQ.3.AND.MCT(I,1).EQ.ICT) IC=I
+            IF (K(I,1).EQ.3.AND.MCT(I,2).EQ.ICT) IA=I
+ 40       CONTINUE
+          IF (IC.NE.0.AND.IA.NE.0) THEN
+C...If no recoupling, save this dipole to new array
+            PKEEP=(1D0-PARP(78))**MINT(31)
+            IF (PYR(0).LT.PKEEP) THEN
+              LCT=LCT+1
+              MCN(IC,1)=LCT
+              MCN(IA,2)=LCT
+            ENDIF
+          ENDIF
+ 50     CONTINUE
+      ENDIF
+
 C...Loop over event record, starting from IP
 C...(Ignore junctions for now.)
       NLOOP=0
@@ -21717,6 +22166,11 @@ C...(Ignore junctions for now.)
 C...Check colour charge
          MCI=KCHG(PYCOMP(K(I,2)),2)*ISIGN(1,K(I,2))
          IF (MCI.EQ.0) GOTO 500
+C...For Seattle algorithm, only start from partons with one dangling
+C...colour tag
+         IF (MSTP(95).EQ.6.OR.MSTP(95).EQ.7) THEN
+           IF (MCI.EQ.2.AND.MCN(I,1).EQ.0.AND.MCN(I,2).EQ.0) GOTO 500
+         ENDIF
 C...  Find optimal partner
          JLOPT=0
          MCJOPT=0
@@ -21747,8 +22201,8 @@ C...Check for gluon loops
                MGGSTR=0
                IF (MCJ.EQ.2.AND.MCI.EQ.2) THEN
                  ICLA=3-ICL
-                 IF (MCN(I,ICLA).EQ.MCN(J,ICL).AND.MSTP(95).LE.3)
-     &                MGGSTR=1
+                 IF (MCN(I,ICLA).EQ.MCN(J,ICL).AND.MSTP(95).LE.3.AND.
+     &                MCN(I,ICLA).NE.0) MGGSTR=1
                ENDIF
 C...Loop over J colour/anticolour, check whether already connected
                DO 200 JCL=1,2
@@ -21764,6 +22218,8 @@ C...Check whether this is a dangling colour tag (ie to junction!)
  195              CONTINUE
                   IF (IFOUND.EQ.0) GOTO 200
 C...Save connection with smallest lambda measure
+C...If best so far was a BR string and this is not, also save.
+C...If best so far was a gg string and this is not, also save.
                   RL=FOUR(I,J)
                   IF (RL.LT.RLOPT.OR.(RL.EQ.RLOPT.AND.PYR(0).LE.0.5D0)
      &                 .OR.(MBROPT.EQ.1.AND.MBRSTR.EQ.0)
@@ -21780,14 +22236,6 @@ C...Save connection with smallest lambda measure
  300        CONTINUE
  400     CONTINUE
          IF (JLOPT.NE.0) THEN
-C...Prioritize glue-glue over glue-quark over quark-quark
-C            IF (MCIMAX.NE.2.AND.MCJMAX.NE.2) THEN
-C               IF (MCI.EQ.2.OR.MCJOPT.EQ.2) RLOPT=MAX(1.1D0*RLMAX,RLOPT)
-C            ELSEIF (MCIMAX.NE.2.OR.MCJMAX.NE.2) THEN
-C               IF(MCI.EQ.2.AND.MCJOPT.EQ.2) RLOPT=MAX(1.1D0*RLMAX,RLOPT)
-C            ELSEIF (MCIMAX.EQ.2.AND.MCJMAX.EQ.2) THEN
-C               IF (MCI.NE.2.OR.MCJOPT.NE.2) RLOPT=0D0
-C            ENDIF
 C...Save pair with largest RLOPT so far
             IF (RLOPT.GE.RLMAX) THEN
                RLMAX=RLOPT
@@ -21812,7 +22260,7 @@ C...Save and iterate
             STOP
          ENDIF
       ELSE
-C...Save and exit. First check for leftover gluon
+C...Save and exit. First check for leftover gluon(s)
          DO 600 I=MAX(1,IP),N
 C...Check colour charge
             MCI=KCHG(PYCOMP(K(I,2)),2)*ISIGN(1,K(I,2))
@@ -21852,7 +22300,7 @@ C...Check colour charge
       ENDIF
  
  9999 RETURN
-      END
+      END 
  
 C*********************************************************************
  
@@ -22489,6 +22937,8 @@ C...Store kinematics variables in PARI.
         DO 130 J=13,26
           PARI(J)=VINT(30+J)
   130   CONTINUE
+        PARI(29)=VINT(39)
+        PARI(30)=VINT(40)
         PARI(31)=VINT(141)
         PARI(32)=VINT(142)
         PARI(33)=VINT(41)
@@ -27229,8 +27679,6 @@ C..End JA
       IF(MSTP(69).GE.2) Q2SF=VINT(2)
  
 C...Identify to which class(es) subprocess belongs
-C...(in principle, a separate class, "+ gamma" should also be
-C...defined, but this ignored for present.)
       ISMECR=0
       ISQCD=0
       ISJETS=0
@@ -27240,6 +27688,8 @@ C...defined, but this ignored for present.)
       IF (ISUBSV.EQ.11.OR.ISUBSV.EQ.12.OR.ISUBSV.EQ.13.OR.
      &     ISUBSV.EQ.28.OR.ISUBSV.EQ.53.OR.ISUBSV.EQ.68) ISQCD=1
       IF ((ISUBSV.EQ.81.OR.ISUBSV.EQ.82).AND.MINT(55).LE.5) ISQCD=1
+      IF (ISUBSV.GE.381.AND.ISUBSV.LE.386) ISQCD=1
+      IF ((ISUBSV.EQ.387.OR.ISUBSV.EQ.388).AND.MINT(55).LE.5) ISQCD=1
       IF (ISTSB.EQ.9) ISQCD=1
       IF ((ISUBSV.GE.86.AND.ISUBSV.LE.89).OR.ISUBSV.EQ.107.OR.
      &     (ISUBSV.GE.14.AND.ISUBSV.LE.16).OR.(ISUBSV.GE.29.AND.
@@ -27249,7 +27699,24 @@ C...defined, but this ignored for present.)
      &     ISUBSV.EQ.167.OR.ISUBSV.EQ.168.OR.(ISUBSV.GE.393.AND.
      &     ISUBSV.LE.395).OR.(ISUBSV.GE.421.AND.ISUBSV.LE.439).OR.
      &     (ISUBSV.GE.461.AND.ISUBSV.LE.479)) ISJETS=1
- 
+C...WBF is special case of ISJETS
+      IF (ISUBSV.EQ.5.OR.ISUBSV.EQ.8.OR.
+     &    (ISUBSV.GE.71.AND.ISUBSV.LE.73).OR.
+     &    ISUBSV.EQ.76.OR.ISUBSV.EQ.77.OR.
+     &    (ISUBSV.GE.121.AND.ISUBSV.LE.124).OR.
+     &    ISUBSV.EQ.173.OR.ISUBSV.EQ.174.OR.
+     &    ISUBSV.EQ.178.OR.ISUBSV.EQ.179.OR.
+     &    ISUBSV.EQ.181.OR.ISUBSV.EQ.182.OR.
+     &    ISUBSV.EQ.186.OR.ISUBSV.EQ.187.OR.
+     &    ISUBSV.EQ.351.OR.ISUBSV.EQ.352) ISJETS=2
+C...Some processes with photons also belong here.
+      IF (ISUBSV.EQ.10.OR.(ISUBSV.GE.18.AND.ISUBSV.LE.20).OR.
+     &     (ISUBSV.GE.33.AND.ISUBSV.LE.36).OR.ISUBSV.EQ.54.OR.
+     &     ISUBSV.EQ.58.OR.ISUBSV.EQ.69.OR.ISUBSV.EQ.70.OR.
+     &     ISUBSV.EQ.80.OR.(ISUBSV.GE.83.AND.ISUBSV.LE.85).OR.
+     &     (ISUBSV.GE.106.AND.ISUBSV.LE.110).OR.ISUBSV.EQ.114.OR.
+     &     (ISUBSV.GE.131.AND.ISUBSV.LE.140)) ISJETS=3
+
 C...Choice of Q2 scale for parton-shower activity.
       IF(MSTP(22).GE.1.AND.(ISUB.EQ.10.OR.ISUB.EQ.83).AND.
      &(MINT(43).EQ.2.OR.MINT(43).EQ.3)) THEN
@@ -27280,6 +27747,12 @@ C...(pT-ordering: max pT2 is s/4)
         IF (MINT(35).GE.3) Q2PS=Q2PS*0.25D0
       ENDIF
       IF(MINT(35).EQ.2.AND.ISTSB.EQ.9) Q2PS=SQPTH
+
+C...Elastic and diffractive events not associated with scales so set 0.
+      IF(ISUBSV.GE.91.AND.ISUBSV.LE.94) THEN
+        Q2SF=0D0
+        Q2PS=0D0
+      ENDIF
  
 C...Store derived kinematical quantities
       VINT(41)=X(1)
@@ -27320,7 +27793,7 @@ C...2 -> n > 2. Limit is tau' = tau of outer process.
         IF(ISTSB.GE.3.AND.ISTSB.LE.5) XT2GMX=VINT(26)
       ENDIF
       VINT(62)=0.25D0*XT2GMX*VINT(2)
-      VINT(61)=SQRT(VINT(62))
+      VINT(61)=SQRT(MAX(0D0,VINT(62)))
  
 C...Calculate parton distributions
       IF(ISTSB.LE.0) GOTO 160
@@ -31113,6 +31586,7 @@ C...Parameter statement to help give large particle numbers.
 C...Commonblocks
       COMMON/PYDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
       COMMON/PYDAT2/KCHG(500,4),PMAS(500,4),PARF(2000),VCKM(4,4)
+      COMMON/PYDAT3/MDCY(500,3),MDME(8000,2),BRAT(8000),KFDP(8000,5)
       COMMON/PYPARS/MSTP(200),PARP(200),MSTI(200),PARI(200)
       COMMON/PYINT1/MINT(400),VINT(400)
       COMMON/PYINT2/ISET(500),KFPR(500,2),COEF(500,20),ICOL(40,4,2)
@@ -31124,8 +31598,8 @@ C...Commonblocks
      &KFAC(2,-40:40),COMFAC,FACK,FACA,SH,TH,UH,SH2,TH2,UH2,SQM3,SQM4,
      &SHR,SQPTH,TAUP,BE34,CTH,X(2),SQMZ,SQMW,GMMZ,GMMW,
      &AEM,AS,XW,XW1,XWC,XWV,POLL,POLR,POLLL,POLRR
-      SAVE /PYDAT1/,/PYDAT2/,/PYPARS/,/PYINT1/,/PYINT2/,/PYINT3/,
-     &/PYINT4/,/PYSUBS/,/PYMSSM/,/PYSGCM/
+      SAVE /PYDAT1/,/PYDAT2/,/PYDAT3/,/PYPARS/,/PYINT1/,/PYINT2/,
+     &/PYINT3/,/PYINT4/,/PYSUBS/,/PYMSSM/,/PYSGCM/
 C...Local arrays and complex variables
       DIMENSION WDTP(0:400),WDTE(0:400,0:5)
       COMPLEX*16 A004,A204,A114,A00U,A20U,A11U
@@ -31760,12 +32234,19 @@ C...W+W+/W-W-
         IF(ISUB.EQ.102) THEN
 C...g + g -> h0 (or H0, or A0)
           CALL PYWIDT(KFHIGG,SH,WDTP,WDTE)
+          WDTP13=0D0
+          DO 345 IDC=MDCY(KFHIGG,2),MDCY(KFHIGG,2)+MDCY(KFHIGG,3)-1
+            IF(KFDP(IDC,1).EQ.21.AND.KFDP(IDC,2).EQ.21.AND.
+     &      KFDP(IDC,3).EQ.0) WDTP13=PMAS(KFHIGG,2)*BRAT(IDC)
+  345     CONTINUE
+          IF(WDTP13.EQ.0D0) CALL PYERRM(26,
+     &    '(PYSGHG:) did not find Higgs -> g g channel')  
           HS=SHR*WDTP(0)
           HF=SHR*(WDTE(0,1)+WDTE(0,2)+WDTE(0,4))
           FACBW=4D0*COMFAC/((SH-SQMH)**2+HS**2)
           IF(ABS(SHR-PMAS(KFHIGG,1)).GT.PARP(48)*PMAS(KFHIGG,2))
      &    FACBW=0D0
-          HI=SHR*WDTP(13)/32D0
+          HI=SHR*WDTP13/32D0
           IF(KFAC(1,21)*KFAC(2,21).EQ.0) GOTO 350
           NCHN=NCHN+1
           ISIG(NCHN,1)=21
@@ -31777,12 +32258,19 @@ C...g + g -> h0 (or H0, or A0)
         ELSEIF(ISUB.EQ.103) THEN
 C...gamma + gamma -> h0 (or H0, or A0)
           CALL PYWIDT(KFHIGG,SH,WDTP,WDTE)
+          WDTP14=0D0
+          DO 355 IDC=MDCY(KFHIGG,2),MDCY(KFHIGG,2)+MDCY(KFHIGG,3)-1
+            IF(KFDP(IDC,1).EQ.22.AND.KFDP(IDC,2).EQ.22.AND.
+     &      KFDP(IDC,3).EQ.0) WDTP14=PMAS(KFHIGG,2)*BRAT(IDC)
+  355     CONTINUE
+          IF(WDTP14.EQ.0D0) CALL PYERRM(26,
+     &    '(PYSGHG:) did not find Higgs -> gamma gamma channel')  
           HS=SHR*WDTP(0)
           HF=SHR*(WDTE(0,1)+WDTE(0,2)+WDTE(0,4))
           FACBW=4D0*COMFAC/((SH-SQMH)**2+HS**2)
           IF(ABS(SHR-PMAS(KFHIGG,1)).GT.PARP(48)*PMAS(KFHIGG,2))
      &    FACBW=0D0
-          HI=SHR*WDTP(14)*2D0
+          HI=SHR*WDTP14*2D0
           IF(KFAC(1,22)*KFAC(2,22).EQ.0) GOTO 360
           NCHN=NCHN+1
           ISIG(NCHN,1)=22
@@ -31878,7 +32366,14 @@ C...f + fbar -> g + h0 (q + qbar -> g + h0 only)
           IF(MSTP(38).NE.0) THEN
 C...Simple case: only do gg <-> h exactly.
           CALL PYWIDT(KFHIGG,SQM4,WDTP,WDTE)
-          FACGH=COMFAC*FACA*(2D0/9D0)*AS*(WDTP(13)/SQRT(SQM4))*
+          WDTP13=0D0
+          DO 385 IDC=MDCY(KFHIGG,2),MDCY(KFHIGG,2)+MDCY(KFHIGG,3)-1
+            IF(KFDP(IDC,1).EQ.21.AND.KFDP(IDC,2).EQ.21.AND.
+     &      KFDP(IDC,3).EQ.0) WDTP13=PMAS(KFHIGG,2)*BRAT(IDC)
+  385     CONTINUE
+          IF(WDTP13.EQ.0D0) CALL PYERRM(26,
+     &    '(PYSGHG:) did not find Higgs -> g g channel')  
+          FACGH=COMFAC*FACA*(2D0/9D0)*AS*(WDTP13/SQRT(SQM4))*
      &    (TH**2+UH**2)/(SH*SQM4)
 C...Propagators: as simulated in PYOFSH and as desired
           HBW4=GMMH/((SQM4-SQMH)**2+GMMH**2)
@@ -31922,7 +32417,14 @@ C...f + g -> f + h0 (q + g -> q + h0 only)
           IF(MSTP(38).NE.0) THEN
 C...Simple case: only do gg <-> h exactly.
           CALL PYWIDT(KFHIGG,SQM4,WDTP,WDTE)
-          FACQH=COMFAC*FACA*(1D0/12D0)*AS*(WDTP(13)/SQRT(SQM4))*
+          WDTP13=0D0
+          DO 405 IDC=MDCY(KFHIGG,2),MDCY(KFHIGG,2)+MDCY(KFHIGG,3)-1
+            IF(KFDP(IDC,1).EQ.21.AND.KFDP(IDC,2).EQ.21.AND.
+     &      KFDP(IDC,3).EQ.0) WDTP13=PMAS(KFHIGG,2)*BRAT(IDC)
+  405     CONTINUE
+          IF(WDTP13.EQ.0D0) CALL PYERRM(26,
+     &    '(PYSGHG:) did not find Higgs -> g g channel')  
+          FACQH=COMFAC*FACA*(1D0/12D0)*AS*(WDTP13/SQRT(SQM4))*
      &    (SH**2+UH**2)/(-TH*SQM4)
 C...Propagators: as simulated in PYOFSH and as desired
           HBW4=GMMH/((SQM4-SQMH)**2+GMMH**2)
@@ -31969,7 +32471,14 @@ C...g + g -> g + h0
           IF(MSTP(38).NE.0) THEN
 C...Simple case: only do gg <-> h exactly.
           CALL PYWIDT(KFHIGG,SQM4,WDTP,WDTE)
-          FACGH=COMFAC*FACA*(3D0/16D0)*AS*(WDTP(13)/SQRT(SQM4))*
+          WDTP13=0D0
+          DO 435 IDC=MDCY(KFHIGG,2),MDCY(KFHIGG,2)+MDCY(KFHIGG,3)-1
+            IF(KFDP(IDC,1).EQ.21.AND.KFDP(IDC,2).EQ.21.AND.
+     &      KFDP(IDC,3).EQ.0) WDTP13=PMAS(KFHIGG,2)*BRAT(IDC)
+  435     CONTINUE
+          IF(WDTP13.EQ.0D0) CALL PYERRM(26,
+     &    '(PYSGHG:) did not find Higgs -> g g channel')  
+          FACGH=COMFAC*FACA*(3D0/16D0)*AS*(WDTP13/SQRT(SQM4))*
      &    (SH**4+TH**4+UH**4+SQM4**4)/(SH*TH*UH*SQM4)
 C...Propagators: as simulated in PYOFSH and as desired
           HBW4=GMMH/((SQM4-SQMH)**2+GMMH**2)
@@ -43083,7 +43592,7 @@ C...16: SPINFO    17: ALPHA     18: MSOFT     19: QNUMBERS
       INTEGER VERBOS
       SAVE VERBOS
 C...Date of last Change
-      PARAMETER (DOC='19 Dec 2005')
+      PARAMETER (DOC='01 May 2006')
 C...MQREAD(0): Number of entries I in MQREAD
 C...      (I): KF code of particle for which a QNUMBERS block has been read.
       DIMENSION IDC(5),KFSUSY(50),MQREAD(0:100)
@@ -43097,14 +43606,6 @@ C...      (I): KF code of particle for which a QNUMBERS block has been read.
      &1000021,1000022,1000023,1000025,1000035,1000024,
      &1000037,1000039,     25,     35,     36,     37,
      &      6,     24,     45,     46,1000045, 9*0/
-      DATA CPRO/'PYTHIA      ','PYTHIA      '/
-      DATA CVER/'6.4         ','6.4         '/
-      DATA MODSEL/200*0/
-      DATA PARMIN/100*0D0/
-      DATA RMSOFT/101*0D0/
-      DATA AU/9*0D0/
-      DATA AD/9*0D0/
-      DATA AE/9*0D0/
       RMFUN(IP)=PMAS(PYCOMP(IP),1)
  
 C...SLHA file assumed opened by user on unit LFN, stored in IMSS(20
@@ -43322,6 +43823,12 @@ C...Notify user that decay table for this KF will be read in.
             WRITE(MSTU(11),*)
      &           ' (PYSLHA:) Reading in SLHA decay table for'//
      &           ' new particle: ', KF
+          ENDIF
+C...Special check for Higgs -> g g, since used in XSEC calculation.
+          IF (KF.EQ.25.OR.KF.EQ.35.OR.KF.EQ.36) THEN
+            WRITE(MSTU(11),*)
+     &           '           Note: the Pythia gg->h/H/A cross section'//
+     &           '           is proportional to the h/H/A->gg width'
           ENDIF
 C...Remove old PYTHIA decay data for this KF.
           IF(KCREP.NE.0.AND.MDCY(KCREP,3).GT.0) THEN
@@ -43930,7 +44437,7 @@ C...If BR's don't add up to 1, rescale, but issue warning.
             CALL PYERRM(7
      &           ,"(PYSLHA:) Forced rescaling of BR's for KF="//CHKF//
      &           ' ; sum was'//CHTMP(9:16)//'.')
-            FAC=1/BRSUM
+            FAC=1D0/BRSUM
             DO 370 IDA=MDCY(KC,2),MDCY(KC,2)+MDCY(KC,3)-1
               IF(MDME(IDA,2).GT.80) GOTO 370
               BRAT(IDA)=FAC*BRAT(IDA)
@@ -44138,7 +44645,7 @@ C...Serious error catching
  8500 FORMAT(F16.5)
  
 C...Formats for user information printout.
- 5000 FORMAT(1x,17('*'),1x,'PYSLHA v1.06: SUSY SPECTRUM '
+ 5000 FORMAT(1x,17('*'),1x,'PYSLHA v1.07: SUSY SPECTRUM '
      &     ,'INTERFACE',1x,17('*')/1x,'*',3x
      &     ,'PYSLHA: Last Change',1x,A,1x,'-',1x,'P.Z. Skands')
  5001 FORMAT(1x,'*',3x,'Wrote spectrum file on unit: ',I3)
@@ -44359,7 +44866,7 @@ C...Then converts to Gunion-Haber conventions.
  
 C...Date of Change
       CHARACTER DOC*11
-      PARAMETER (DOC='14 May 2005')
+      PARAMETER (DOC='01 May 2006')
  
 C...ISASUGRA Input:
       REAL MZERO,MHLF,AZERO,TANB,SGNMU,MTOP
@@ -44513,7 +45020,7 @@ CMrenna change to allow any susy model
             WRITE(MSTU(11),*) ' NUSUG4 = GUT scale 1st/2nd'
      &           //' generation masses'
             WRITE(MSTU(11),*)
-     &           ,' NUSUG5 = GUT scale 3rd generation masses'
+     &           ' NUSUG5 = GUT scale 3rd generation masses'
             READ(LFN,*) INUSUG
             IF (INUSUG.EQ.0) THEN
               GOTO 120
@@ -44550,6 +45057,8 @@ CMrenna change to allow any susy model
           READ(LFN,*) M0,MHF,A0,TANB,SGNMU,MT,XCMGV
           XGMIN(7)=XCMGV
           XGMIN(8)=1.
+C...Planck scale: AMPL = 2.4 E18 GeV = {8 pi G_newton}^{1/2}
+          AMPL=2.4D18
           AMGVSS=M0*MHF*XCMGV/SQRT(3D0)/AMPL
           IF (IMODEL.EQ.5) THEN
             IMODEL=2
@@ -44579,10 +45088,8 @@ C     TANB=REAL(RMSS(5))
 C     SGNMU=REAL(RMSS(4))
       MTOP=MT
  
- 130  CLOSE(LFN)
- 
 C...Initialize MSSM parameter array
-      DO 140 IPAR=1,72
+ 130  DO 140 IPAR=1,72
         SUPER(IPAR)=0.0
  140  CONTINUE
 C...Call ISASUGRA
@@ -44817,9 +45324,9 @@ C...Fix the higgs sector (in PYMSIN) using the masses and mixing angle
 C...output by ISASUSY.
       IMSS(4)=MAX(2,IMSS(4))
  
- 5000 FORMAT(1x,19('*'),1x,'PYSUGI v1.51: PYTHIA/ISASUSY '
+ 5000 FORMAT(1x,19('*'),1x,'PYSUGI v1.52: PYTHIA/ISASUSY '
      &     ,'INTERFACE',1x,19('*')/1x,'*',3x,'PYSUGI: Last Change',1x,A
-     &     ,1x,'-',1x,'P. Skands / A. Raklev'/1x,'*',2x,A/1x,'*')
+     &     ,1x,'-',1x,'P. Skands / S. Mrenna'/1x,'*',2x,A/1x,'*')
  5100 FORMAT(1x,'*',1x,'ISASUSY Input:'/1x,'*',1x,'----------------')
  5200 FORMAT(1x,'*',1x,3x,'M_0',6x,'M_1/2',5x,'A_0',3x,'Tan(beta)',
      &     3x,'Sgn(mu)',3x,'M_t'/1x,'*',1x,4(F8.2,1x),I8,2x,F8.2)
@@ -44874,6 +45381,7 @@ C*********************************************************************
  
 C...PYFEYN
 C...Interface to FeynHiggs for MSSM Higgs sector.
+C...Pythia6.402: Updated to FeynHiggs v.2.3.0+ w/ DOUBLE COMPLEX
 C...P. Skands
  
       SUBROUTINE PYFEYN(IERR)
@@ -44888,7 +45396,11 @@ C...Commonblocks.
 C...SUSY blocks
       COMMON/PYMSSM/IMSS(0:99),RMSS(0:99)
 C...FeynHiggs variables
-      DOUBLE PRECISION RMHIGG(4), SAEFF, UHIGGS(3,3)
+      DOUBLE PRECISION RMHIGG(4)
+      DOUBLE COMPLEX SAEFF, UHIGGS(3,3)
+      DOUBLE COMPLEX DMU,
+     &     AE33, AU33, AD33, AE22, AU22, AD22, AE11, AU11, AD11,
+     &     DM1, DM2, DM3
 C...SLHA Common Block
       COMMON/PYLH3P/MODSEL(200),PARMIN(100),PAREXT(200),RMSOFT(0:100),
      &     AU(3,3),AD(3,3),AE(3,3)
@@ -44955,7 +45467,7 @@ C...  Get Higgs masses & alpha_eff. (UHIGGS redundant here, only for CPV)
      &       'GSCORR. Will not use FeynHiggs for this run.')
         RETURN
       ENDIF
-      ALPHA=ASIN(SAEFF)
+      ALPHA = ASIN(DBLE(SAEFF))
       R=RMSS(18)/ALPHA
       IF (R.LT.0D0.OR.ABS(R).GT.1.2D0.OR.ABS(R).LT.0.8D0) THEN
         CALL PYERRM(1,'(PYFEYN:) Large corrections in Higgs sector.')
@@ -44976,7 +45488,6 @@ C...  Get Higgs masses & alpha_eff. (UHIGGS redundant here, only for CPV)
  
       RETURN
       END
- 
  
 C*********************************************************************
  
@@ -59816,6 +60327,9 @@ C...Four-momentum of particle. Remaining quantities. Loop back.
         P(I,J)=P(I,J)+P(IN(1)+2,4)*P(IN(1),J)+P(IN(2)+2,4)*P(IN(2),J)
         P(N+NRS,J)=P(N+NRS,J)-P(I,J)
  1050 CONTINUE
+      IF(P(IN(1)+2,4).GT.1D0+PARU(14).OR.P(IN(1)+2,4).LT.-PARU(14).OR.
+     &P(IN(2)+2,4).GT.1D0+PARU(14).OR.P(IN(2)+2,4).LT.-PARU(14))
+     &GOTO 200
       IF(P(I,4).LT.P(I,5)) GOTO 710
       KFL(JT)=-KFL(3)
       PMQ(JT)=PMQ(3)
@@ -62628,9 +63142,9 @@ C...Double precision and integer declarations.
 C...Parameter statement to help give large particle numbers.
       PARAMETER (KSUSY1=1000000,KSUSY2=2000000,KTECHN=3000000,
      &KEXCIT=4000000,KDIMEN=5000000)
-      PARAMETER (MAXNUP=500)
+      PARAMETER (MAXNUR=1000)
 C...Commonblocks.
-      COMMON/PYPART/NPART,NPARTD,IPART(MAXNUP),PTPART(MAXNUP)
+      COMMON/PYPART/NPART,NPARTD,IPART(MAXNUR),PTPART(MAXNUR)
       COMMON/PYJETS/N,NPAD,K(4000,5),P(4000,5),V(4000,5)
       COMMON/PYDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
       COMMON/PYDAT2/KCHG(500,4),PMAS(500,4),PARF(2000),VCKM(4,4)
@@ -64184,9 +64698,9 @@ C...Parameter statement to help give large particle numbers.
       PARAMETER (KSUSY1=1000000,KSUSY2=2000000,KTECHN=3000000,
      &KEXCIT=4000000,KDIMEN=5000000)
 C...Parameter statement for maximum size of showers.
-      PARAMETER (MAXNUP=500)
+      PARAMETER (MAXNUR=1000)
 C...Commonblocks.
-      COMMON/PYPART/NPART,NPARTD,IPART(MAXNUP),PTPART(MAXNUP)
+      COMMON/PYPART/NPART,NPARTD,IPART(MAXNUR),PTPART(MAXNUR)
       COMMON/PYJETS/N,NPAD,K(4000,5),P(4000,5),V(4000,5)
       COMMON/PYCTAG/NCT,MCT(4000,2)
       COMMON/PYDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
@@ -64196,10 +64710,10 @@ C...Commonblocks.
       SAVE /PYPART/,/PYJETS/,/PYCTAG/,/PYDAT1/,/PYDAT2/,/PYPARS/,
      &/PYINT1/
 C...Local arrays.
-      DIMENSION IPOS(2*MAXNUP),IREC(2*MAXNUP),IFLG(2*MAXNUP),
-     &ISCOL(2*MAXNUP),ISCHG(2*MAXNUP),PTSCA(2*MAXNUP),IMESAV(2*MAXNUP),
-     &PT2SAV(2*MAXNUP),ZSAV(2*MAXNUP),SHTSAV(2*MAXNUP),
-     &MESYS(MAXNUP,0:2),PSUM(5),DPT(5,4)
+      DIMENSION IPOS(2*MAXNUR),IREC(2*MAXNUR),IFLG(2*MAXNUR),
+     &ISCOL(2*MAXNUR),ISCHG(2*MAXNUR),PTSCA(2*MAXNUR),IMESAV(2*MAXNUR),
+     &PT2SAV(2*MAXNUR),ZSAV(2*MAXNUR),SHTSAV(2*MAXNUR),
+     &MESYS(MAXNUR,0:2),PSUM(5),DPT(5,4)
 C...Statement functions.
       SHAT(I,J)=(P(I,4)+P(J,4))**2-(P(I,1)+P(J,1))**2-
      &(P(I,2)+P(J,2))**2-(P(I,3)+P(J,3))**2
@@ -65311,8 +65825,8 @@ C...Global statistics.
  
 C...Loopback for more emissions if enough space.
       PT2CMX=PT2
-      IF(NPART.LT.MAXNUP-1.AND.NEVOL.LT.2*MAXNUP-2.AND.
-     &NMESYS.LT.MAXNUP-2.AND.N.LT.MSTU(4)-MSTU(32)-5) THEN
+      IF(NPART.LT.MAXNUR-1.AND.NEVOL.LT.2*MAXNUR-2.AND.
+     &NMESYS.LT.MAXNUR-2.AND.N.LT.MSTU(4)-MSTU(32)-5) THEN
         GOTO 280
       ELSE
         CALL PYERRM(11,'(PYPTFS:) no more memory left for shower')
@@ -66953,6 +67467,13 @@ C...Commonblocks.
       COMMON/PYDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
       COMMON/PYDAT2/KCHG(500,4),PMAS(500,4),PARF(2000),VCKM(4,4)
       SAVE /PYDAT1/,/PYDAT2/
+C...Coefficients for second-order threshold matching.
+C...From W.J. Marciano, Phys. Rev. D29 (1984) 580.
+      DIMENSION STEPDN(6),STEPUP(6)
+      DATA STEPDN/0D0,0D0,(2D0*107D0/2025D0),(2D0*963D0/14375D0),
+     &(2D0*321D0/3703D0),0D0/
+      DATA STEPUP/0D0,0D0,0D0,(-2D0*107D0/1875D0),
+     &(-2D0*963D0/13225D0),(-2D0*321D0/3381D0)/
  
 C...Constant alpha_strong trivial. Pick artificial Lambda.
       IF(MSTU(111).LE.0) THEN
@@ -66970,19 +67491,23 @@ C...Find effective Q2, number of flavours and Lambda.
       IF(MSTU(115).GE.2) Q2EFF=MAX(Q2,PARU(114))
       NF=MSTU(112)
       ALAM2=PARU(112)**2
-  100 IF(NF.GT.MAX(2,MSTU(113))) THEN
+  100 IF(NF.GT.MAX(3,MSTU(113))) THEN
         Q2THR=PARU(113)*PMAS(NF,1)**2
         IF(Q2EFF.LT.Q2THR) THEN
           NF=NF-1
-          ALAM2=ALAM2*(Q2THR/ALAM2)**(2D0/(33D0-2D0*NF))
+          Q2RAT=Q2THR/ALAM2
+          ALAM2=ALAM2*Q2RAT**(2D0/(33D0-2D0*NF))
+          IF(MSTU(111).EQ.2) ALAM2=ALAM2*LOG(Q2RAT)**STEPDN(NF)
           GOTO 100
         ENDIF
       ENDIF
-  110 IF(NF.LT.MIN(8,MSTU(114))) THEN
+  110 IF(NF.LT.MIN(6,MSTU(114))) THEN
         Q2THR=PARU(113)*PMAS(NF+1,1)**2
         IF(Q2EFF.GT.Q2THR) THEN
           NF=NF+1
-          ALAM2=ALAM2*(ALAM2/Q2THR)**(2D0/(33D0-2D0*NF))
+          Q2RAT=Q2THR/ALAM2
+          ALAM2=ALAM2*Q2RAT**(-2D0/(33D0-2D0*NF))
+          IF(MSTU(111).EQ.2) ALAM2=ALAM2*LOG(Q2RAT)**STEPUP(NF)
           GOTO 110
         ENDIF
       ENDIF
@@ -67972,7 +68497,7 @@ C...Double precision and integer declarations.
       IMPLICIT INTEGER(I-N)
       INTEGER PYK,PYCHGE,PYCOMP
 C...Parameter for length of information block.
-      PARAMETER (IREFER=22)
+      PARAMETER (IREFER=20)
 C...Commonblocks.
       COMMON/PYDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
       COMMON/PYPARS/MSTP(200),PARP(200),MSTI(200),PARI(200)
@@ -68025,26 +68550,22 @@ C...Data on months, logo, titles, and references.
      &'when interpreting results.      ',
      &'                                ',
      &'Copyright T. Sjostrand (2006)   '/
-      DATA (REFER(J),J=1,18)/
+      DATA (REFER(J),J=1,14)/
      &'An archive of program versions and d',
      &'ocumentation is found on the web:   ',
      &'http://www.thep.lu.se/~torbjorn/Pyth',
      &'ia.html                             ',
      &'                                    ',
      &'                                    ',
-     &'When you cite this program, currentl',
-     &'y the official reference is         ',
-     &'T. Sjostrand, P. Eden, C. Friberg, L',
-     &'. Lonnblad, G. Miu, S. Mrenna and   ',
-     &'E. Norrbin, Computer Physics Commun.',
-     &' 135 (2001) 238.                    ',
-     &'The large manual is                 ',
-     &'                                    ',
+     &'When you cite this program, the offi',
+     &'cial reference is to the 6.4 manual:',
      &'T. Sjostrand, S. Mrenna and P. Skand',
-     &'s,                                  ',
-     &'LU TP 06-13, FERMILAB-PUB-06-052-CD-',
-     &'T [hep-ph/0603175].                 '/
-      DATA (REFER(J),J=19,36)/
+     &'s, JHEP05 (2006) 026                ',
+     &'(LU TP 06-13, FERMILAB-PUB-06-052-CD',
+     &'-T) [hep-ph/0603175].               ',
+     &'                                    ',
+     &'                                    '/
+      DATA (REFER(J),J=15,32)/
      &'Also remember that the program, to a',
      &' large extent, represents original  ',
      &'physics research. Other publications',
@@ -68057,13 +68578,13 @@ C...Data on months, logo, titles, and references.
      &'N/PH, CH-1211 Geneva, Switzerland,  ',
      &'  and Department of Theoretical Phys',
      &'ics, Lund University, Lund, Sweden; ',
-     &'  phone: + 41 - 22 - 767 28 41; e-ma',
+     &'  phone: + 41 - 22 - 767 82 27; e-ma',
      &'il: torbjorn@thep.lu.se             ',
      &'Author: Stephen Mrenna; Computing Di',
      &'vision, Simulations Group,          ',
      &'  Fermi National Accelerator Laborat',
      &'ory, MS 234, Batavia, IL 60510, USA;'/
-      DATA (REFER(J),J=37,2*IREFER)/
+      DATA (REFER(J),J=33,2*IREFER)/
      &'  phone: + 1 - 630 - 840 - 2556; e-m',
      &'ail: mrenna@fnal.gov                ',
      &'Author: Peter Skands; Theoretical Ph',
@@ -72745,17 +73266,18 @@ C...UPINIT
 C...Dummy routine, to be replaced by a user implementing external
 C...processes. Is supposed to fill the HEPRUP commonblock with info
 C...on incoming beams and allowed processes.
- 
+
+C...New example: handles a standard Les Houches Events File.
+
       SUBROUTINE UPINIT
  
 C...Double precision and integer declarations.
       IMPLICIT DOUBLE PRECISION(A-H, O-Z)
       IMPLICIT INTEGER(I-N)
  
-C...Commonblocks.
-      COMMON/PYDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
+C...PYTHIA commonblock: only used to provide read unit MSTP(161).
       COMMON/PYPARS/MSTP(200),PARP(200),MSTI(200),PARI(200)
-      SAVE /PYDAT1/,/PYPARS/
+      SAVE /PYPARS/
  
 C...User process initialization commonblock.
       INTEGER MAXPUP
@@ -72766,35 +73288,95 @@ C...User process initialization commonblock.
      &IDWTUP,NPRUP,XSECUP(MAXPUP),XERRUP(MAXPUP),XMAXUP(MAXPUP),
      &LPRUP(MAXPUP)
       SAVE /HEPRUP/
- 
-C...Read info from file.
-      IF(MSTP(161).GT.0) THEN
-        READ(MSTP(161),*,END=110,ERR=110) IDBMUP(1),IDBMUP(2),EBMUP(1),
-     &  EBMUP(2),PDFGUP(1),PDFGUP(2),PDFSUP(1),PDFSUP(2),IDWTUP,NPRUP
-        DO 100 IPR=1,NPRUP
-          READ(MSTP(161),*,END=110,ERR=110) XSECUP(IPR),XERRUP(IPR),
-     &    XMAXUP(IPR),LPRUP(IPR)
-  100   CONTINUE
-        RETURN
-C...Error or prematurely reached end of file.
-  110   WRITE(MSTU(11),5000)
-        STOP
- 
-C...Else not implemented.
-      ELSE
-        WRITE(MSTU(11),5100)
-        STOP
-      ENDIF
- 
-C...Format for error printout.
- 5000 FORMAT(1X,'Error: UPINIT routine failed to read information'/
-     &1X,'Execution stopped!')
- 5100 FORMAT(1X,'Error: You have not implemented UPINIT routine'/
-     &1X,'Dummy routine in PYTHIA file called instead.'/
-     &1X,'Execution stopped!')
+
+C...Lines to read in assumed never longer than 200 characters. 
+      PARAMETER (MAXLEN=200)
+      CHARACTER*(MAXLEN) STRING
+
+C...Format for reading lines.
+      CHARACTER*6 STRFMT
+      STRFMT='(A000)'
+      WRITE(STRFMT(3:5),'(I3)') MAXLEN
+
+C...Loop until finds line beginning with "<init>" or "<init ". 
+  100 READ(MSTP(161),STRFMT,END=130,ERR=130) STRING
+      IBEG=0
+  110 IBEG=IBEG+1
+C...Allow indentation.
+      IF(STRING(IBEG:IBEG).EQ.' '.AND.IBEG.LT.MAXLEN-5) GOTO 110 
+      IF(STRING(IBEG:IBEG+5).NE.'<init>'.AND.
+     &STRING(IBEG:IBEG+5).NE.'<init ') GOTO 100
+
+C...Read first line of initialization info.
+      READ(MSTP(161),*,END=130,ERR=130) IDBMUP(1),IDBMUP(2),EBMUP(1),
+     &EBMUP(2),PDFGUP(1),PDFGUP(2),PDFSUP(1),PDFSUP(2),IDWTUP,NPRUP
+
+C...Read NPRUP subsequent lines with information on each process.
+      DO 120 IPR=1,NPRUP
+        READ(MSTP(161),*,END=130,ERR=130) XSECUP(IPR),XERRUP(IPR),
+     &  XMAXUP(IPR),LPRUP(IPR)
+  120 CONTINUE
+      RETURN
+
+C...Error exit: give up if initalization does not work.
+  130 WRITE(*,*) ' Failed to read LHEF initialization information.'
+      WRITE(*,*) ' Event generation will be stopped.'
+      STOP  
  
       RETURN
       END
+
+C...Old example: handles a simple Pythia 6.4 initialization file.
+ 
+c      SUBROUTINE UPINIT
+ 
+C...Double precision and integer declarations.
+c      IMPLICIT DOUBLE PRECISION(A-H, O-Z)
+c      IMPLICIT INTEGER(I-N)
+ 
+C...Commonblocks.
+c      COMMON/PYDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
+c      COMMON/PYPARS/MSTP(200),PARP(200),MSTI(200),PARI(200)
+c      SAVE /PYDAT1/,/PYPARS/
+ 
+C...User process initialization commonblock.
+c      INTEGER MAXPUP
+c      PARAMETER (MAXPUP=100)
+c      INTEGER IDBMUP,PDFGUP,PDFSUP,IDWTUP,NPRUP,LPRUP
+c      DOUBLE PRECISION EBMUP,XSECUP,XERRUP,XMAXUP
+c      COMMON/HEPRUP/IDBMUP(2),EBMUP(2),PDFGUP(2),PDFSUP(2),
+c     &IDWTUP,NPRUP,XSECUP(MAXPUP),XERRUP(MAXPUP),XMAXUP(MAXPUP),
+c     &LPRUP(MAXPUP)
+c      SAVE /HEPRUP/
+ 
+C...Read info from file.
+c      IF(MSTP(161).GT.0) THEN
+c        READ(MSTP(161),*,END=110,ERR=110) IDBMUP(1),IDBMUP(2),EBMUP(1),
+c     &  EBMUP(2),PDFGUP(1),PDFGUP(2),PDFSUP(1),PDFSUP(2),IDWTUP,NPRUP
+c        DO 100 IPR=1,NPRUP
+c          READ(MSTP(161),*,END=110,ERR=110) XSECUP(IPR),XERRUP(IPR),
+c     &    XMAXUP(IPR),LPRUP(IPR)
+c  100   CONTINUE
+c        RETURN
+C...Error or prematurely reached end of file.
+c  110   WRITE(MSTU(11),5000)
+c        STOP
+ 
+C...Else not implemented.
+c      ELSE
+c        WRITE(MSTU(11),5100)
+c        STOP
+c      ENDIF
+ 
+C...Format for error printout.
+c 5000 FORMAT(1X,'Error: UPINIT routine failed to read information'/
+c     &1X,'Execution stopped!')
+c 5100 FORMAT(1X,'Error: You have not implemented UPINIT routine'/
+c     &1X,'Dummy routine in PYTHIA file called instead.'/
+c     &1X,'Execution stopped!')
+ 
+c      RETURN
+c      END
  
 C*********************************************************************
  
@@ -72804,17 +73386,18 @@ C...processes. Depending on cross section model chosen, it either has
 C...to generate a process of the type IDPRUP requested, or pick a type
 C...itself and generate this event. The event is to be stored in the
 C...HEPEUP commonblock, including (often) an event weight.
- 
+
+C...New example: handles a standard Les Houches Events File.
+
       SUBROUTINE UPEVNT
  
 C...Double precision and integer declarations.
       IMPLICIT DOUBLE PRECISION(A-H, O-Z)
       IMPLICIT INTEGER(I-N)
  
-C...Commonblocks.
-      COMMON/PYDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
+C...PYTHIA commonblock: only used to provide read unit MSTP(162).
       COMMON/PYPARS/MSTP(200),PARP(200),MSTI(200),PARI(200)
-      SAVE /PYDAT1/,/PYPARS/
+      SAVE /PYPARS/
  
 C...User process event common block.
       INTEGER MAXNUP
@@ -72825,33 +73408,95 @@ C...User process event common block.
      &ISTUP(MAXNUP),MOTHUP(2,MAXNUP),ICOLUP(2,MAXNUP),PUP(5,MAXNUP),
      &VTIMUP(MAXNUP),SPINUP(MAXNUP)
       SAVE /HEPEUP/
- 
-C...Read info from file.
-      IF(MSTP(162).GT.0) THEN
-        READ(MSTP(162),*,END=110,ERR=110) NUP,IDPRUP,XWGTUP,SCALUP,
-     &  AQEDUP,AQCDUP
-        DO 100 I=1,NUP
-          READ(MSTP(162),*,END=110,ERR=110) IDUP(I),ISTUP(I),
-     &    MOTHUP(1,I),MOTHUP(2,I),ICOLUP(1,I),ICOLUP(2,I),
-     &    (PUP(J,I),J=1,5),VTIMUP(I),SPINUP(I)
-  100   CONTINUE
-        RETURN
-C...Special when reached end of file or other error.
-  110   NUP=0
- 
-C...Else not implemented.
-      ELSE
-        WRITE(MSTU(11),5000)
-        STOP
-      ENDIF
- 
-C...Format for error printout.
- 5000 FORMAT(1X,'Error: You have not implemented UPEVNT routine'/
-     &1X,'Dummy routine in PYTHIA file called instead.'/
-     &1X,'Execution stopped!')
+
+C...Lines to read in assumed never longer than 200 characters. 
+      PARAMETER (MAXLEN=200)
+      CHARACTER*(MAXLEN) STRING
+
+C...Format for reading lines.
+      CHARACTER*6 STRFMT
+      STRFMT='(A000)'
+      WRITE(STRFMT(3:5),'(I3)') MAXLEN
+
+C...Loop until finds line beginning with "<event>" or "<event ". 
+  100 READ(MSTP(162),STRFMT,END=130,ERR=130) STRING
+      IBEG=0
+  110 IBEG=IBEG+1
+C...Allow indentation.
+      IF(STRING(IBEG:IBEG).EQ.' '.AND.IBEG.LT.MAXLEN-6) GOTO 110 
+      IF(STRING(IBEG:IBEG+6).NE.'<event>'.AND.
+     &STRING(IBEG:IBEG+6).NE.'<event ') GOTO 100
+
+C...Read first line of event info.
+      READ(MSTP(162),*,END=130,ERR=130) NUP,IDPRUP,XWGTUP,SCALUP,
+     &AQEDUP,AQCDUP
+
+C...Read NUP subsequent lines with information on each particle.
+      DO 120 I=1,NUP
+        READ(MSTP(162),*,END=130,ERR=130) IDUP(I),ISTUP(I),
+     &  MOTHUP(1,I),MOTHUP(2,I),ICOLUP(1,I),ICOLUP(2,I),
+     &  (PUP(J,I),J=1,5),VTIMUP(I),SPINUP(I)
+  120 CONTINUE
+      RETURN
+
+C...Error exit, typically when no more events.
+  130 WRITE(*,*) ' Failed to read LHEF event information.'
+      WRITE(*,*) ' Will assume end of file has been reached.'
+      NUP=0
+      MSTI(51)=1
  
       RETURN
       END
+
+C...Old example: handles a simple Pythia 6.4 event file.
+ 
+c      SUBROUTINE UPEVNT
+ 
+C...Double precision and integer declarations.
+c      IMPLICIT DOUBLE PRECISION(A-H, O-Z)
+c      IMPLICIT INTEGER(I-N)
+ 
+C...Commonblocks.
+c      COMMON/PYDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
+c      COMMON/PYPARS/MSTP(200),PARP(200),MSTI(200),PARI(200)
+c      SAVE /PYDAT1/,/PYPARS/
+ 
+C...User process event common block.
+c      INTEGER MAXNUP
+c      PARAMETER (MAXNUP=500)
+c      INTEGER NUP,IDPRUP,IDUP,ISTUP,MOTHUP,ICOLUP
+c      DOUBLE PRECISION XWGTUP,SCALUP,AQEDUP,AQCDUP,PUP,VTIMUP,SPINUP
+c      COMMON/HEPEUP/NUP,IDPRUP,XWGTUP,SCALUP,AQEDUP,AQCDUP,IDUP(MAXNUP),
+c     &ISTUP(MAXNUP),MOTHUP(2,MAXNUP),ICOLUP(2,MAXNUP),PUP(5,MAXNUP),
+c     &VTIMUP(MAXNUP),SPINUP(MAXNUP)
+c      SAVE /HEPEUP/
+ 
+C...Read info from file.
+c      IF(MSTP(162).GT.0) THEN
+c        READ(MSTP(162),*,END=110,ERR=110) NUP,IDPRUP,XWGTUP,SCALUP,
+c     &  AQEDUP,AQCDUP
+c        DO 100 I=1,NUP
+c          READ(MSTP(162),*,END=110,ERR=110) IDUP(I),ISTUP(I),
+c     &    MOTHUP(1,I),MOTHUP(2,I),ICOLUP(1,I),ICOLUP(2,I),
+c     &    (PUP(J,I),J=1,5),VTIMUP(I),SPINUP(I)
+c  100   CONTINUE
+c        RETURN
+C...Special when reached end of file or other error.
+c  110   NUP=0
+ 
+C...Else not implemented.
+c      ELSE
+c        WRITE(MSTU(11),5000)
+c        STOP
+c      ENDIF
+ 
+C...Format for error printout.
+c 5000 FORMAT(1X,'Error: You have not implemented UPEVNT routine'/
+c     &1X,'Dummy routine in PYTHIA file called instead.'/
+c     &1X,'Execution stopped!')
+ 
+c      RETURN
+c      END
  
 C*********************************************************************
  
@@ -73136,11 +73781,16 @@ C...Dummy function, to be removed when FEYNHIGGS is to be linked.
  
       SUBROUTINE FHSETPARA(IER,SCF,DMT,DMB,DMW,DMZ,DTANB,DMA,DMH,DM3L,
      &     DM3E,DM3Q,DM3U,DM3D,DM2L,DM2E,DM2Q,DM2U, DM2D,DM1L,DM1E,DM1Q,
-     &     DM1U,DM1D,DMU,ATAU,AT,AB,AMU,AC,AS,AE,AU,AD,
+     &     DM1U,DM1D,DMU,AE33,AU33,AD33,AE22,AU22,AD22,AE11,AU11,AD11,
      &     DM1,DM2,DM3,RLT,RLB,QTAU,QT,QB)
       IMPLICIT DOUBLE PRECISION(A-H, O-Z)
       IMPLICIT INTEGER(I-N)
  
+      DOUBLE COMPLEX SAEFF, UHIGGS(3,3)
+      DOUBLE COMPLEX DMU,
+     &     AE33, AU33, AD33, AE22, AU22, AD22, AE11, AU11, AD11,
+     &     DM1, DM2, DM3
+
 C...Commonblocks.
       COMMON/PYDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
       SAVE /PYDAT1/
@@ -73166,7 +73816,12 @@ C...Dummy function, to be removed when FEYNHIGGS is to be linked.
       IMPLICIT INTEGER(I-N)
  
 C...FeynHiggs variables
-      DOUBLE PRECISION RMHIGG(4), SAEFF, UHIGGS(3,3)
+      DOUBLE PRECISION RMHIGG(4)
+      DOUBLE COMPLEX SAEFF, UHIGGS(3,3)
+      DOUBLE COMPLEX DMU,
+     &     AE33, AU33, AD33, AE22, AU22, AD22, AE11, AU11, AD11,
+     &     DM1, DM2, DM3
+
 C...Commonblocks.
       COMMON/PYDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
       SAVE /PYDAT1/
@@ -73181,7 +73836,7 @@ C...Format for error printout.
      &1X,'Execution stopped!')
       RETURN
       END
- 
+  
 C*********************************************************************
  
 C...PYTAUD

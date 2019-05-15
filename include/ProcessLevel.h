@@ -15,6 +15,7 @@
 #include "ProcessContainer.h"
 #include "Pythia6.h"
 #include "PythiaStdlib.h"
+#include "ResonanceDecays.h"
 #include "Settings.h"
 
 namespace Pythia8 {
@@ -41,7 +42,7 @@ public:
   bool next( Event& process); 
 
   // Print statistics on cross sections and number of events.
-  void statistics(ostream& = cout);
+  void statistics(ostream& os = cout);
 
 private: 
 
@@ -67,17 +68,17 @@ private:
   // SigmaTotal object needed to handle soft QCD processes.
   SigmaTotal sigmaTot;
 
+  // ResonanceDecay object does sequential resonance decays.
+  ResonanceDecays resonanceDecays;
+
   // Initialize the internal event generation machinery.
-  bool initInternal( ostream& = cout);
+  bool initInternal( ostream& os = cout);
 
   // Initialize event generation from Pythia 6.3.
   void initPythia6( int idA, int idB, double eCM);
 
   // Generate the next internal event.
   bool getInternalEvnt( Event& process);
-
-  // Do all resonance decays. First draft??
-  bool resonanceDecays( Event& process);
 
   // Read in the hard process from the Les Houches Accord.
   bool getLHAevnt( Event& process);

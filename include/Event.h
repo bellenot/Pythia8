@@ -129,7 +129,7 @@ public:
   // Member functions for output; derived int and bool quantities.
   int idAbs() const {return abs(idSave);}
   int statusAbs() const {return abs(statusSave);}
-  bool remains() const {return (statusSave > 0) ? true : false;}
+  bool isFinal() const {return (statusSave > 0) ? true : false;}
   bool isQ() const {return (abs(idSave) < 9 && idSave != 0) ? true : false;}
   bool isNotQ() const {return (abs(idSave) > 9 || idSave == 0) ? true : false;}
   bool isG() const {return (idSave == 21) ? true : false;}
@@ -168,23 +168,26 @@ public:
   // Further output, based on a pointer to a ParticleDataEntry object.
   string name() const {return particlePtr->name(idSave);}
   string nameWithStatus(int maxLen = 20) const;
+  int spinType() const {return particlePtr->spinType();}
+  int chargeType() const {return particlePtr->chargeType(idSave);}
+  double charge() const {return  particlePtr->charge(idSave);}
+  bool isCharged() const {return (particlePtr->chargeType(idSave) == 0) 
+    ? false : true;}
+  bool isNeutral() const {return (particlePtr->chargeType(idSave) == 0) 
+    ? true : false;}
+  int colType() const {return particlePtr->colType(idSave);}
   double m0() const {return particlePtr->m0();}
+  double mWidth() const {return particlePtr->mWidth();}
+  double mMin() const {return particlePtr->mMin();}
+  double mMax() const {return particlePtr->mMax();}
   double mass() const {return particlePtr->mass();}
   double constituentMass() const {return particlePtr->constituentMass();}
   double tau0() const {return particlePtr->tau0();}
-  int colType() const {return particlePtr->colType(idSave);}
-  double charge() const {return  particlePtr->charge(idSave);}
-  int icharge() const {return particlePtr->charge3(idSave);}
-  bool isCharged() const {return (particlePtr->charge3(idSave) == 0) 
-    ? false : true;}
-  bool isNeutral() const {return (particlePtr->charge3(idSave) == 0) 
-    ? true : false;}
-  bool isVisible() const {return particlePtr->isVisible();}
-  bool isInvisible() const {return particlePtr->isInvisible();}
-  int spinType() const {return particlePtr->spinType();}
-  bool canDecay() const {return particlePtr->canDecay();}
   bool mayDecay() const {return particlePtr->mayDecay();}
+  bool canDecay() const {return particlePtr->canDecay();}
   bool isResonance() const {return particlePtr->isResonance();}
+  bool isVisible() const {return particlePtr->isVisible();}
+  bool externalDecay() const {return particlePtr->externalDecay();}
   ParticleDataEntry& particleData() const {return *particlePtr;}
 
   // Member functions that perform operations.
@@ -203,9 +206,6 @@ public:
     if (hasVertexSave) vProdSave.bst(vec);}
   void rotbst(const RotBstMatrix& M) {pSave.rotbst(M);
     if (hasVertexSave) vProdSave.rotbst(M);} 
-
-  // Print a particle
-  friend ostream& operator<<(ostream&, const Particle&) ;
 
 private:
 
@@ -327,7 +327,7 @@ public:
   Particle& back() {return entry.back();}
 
   // List the particles in an event.
-  void list(ostream& = cout);  
+  void list(ostream& os = cout);  
 
   // Set header specification for event listing.
   void header( string headerIn) {

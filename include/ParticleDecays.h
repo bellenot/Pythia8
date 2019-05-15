@@ -105,7 +105,7 @@ private:
   DecayHandler* decayHandlePtr;
 
   // Multiplicity. Decay products positions and masses.
-  int mode, mult;
+  int meMode, mult;
   vector<int> iProd, idProd, cols, acols, idPartons, idEnds;
   vector<double> mProd, mInv, rndmOrd;
   vector<Vec4> pInv, pProd;

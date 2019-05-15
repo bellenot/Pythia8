@@ -52,10 +52,10 @@ double StringFlav::baryonClebschSum[6]
 void StringFlav::initStatic() {
 
   // Basic parameters for generation of new flavour.
-  probQQtoQ = Settings::parameter("StringFlav:probQQtoQ");
-  probStoU = Settings::parameter("StringFlav:probStoU");
-  probSQtoQQ = Settings::parameter("StringFlav:probSQtoQQ");
-  probQQ1toQQ0 = Settings::parameter("StringFlav:probQQ1toQQ0");
+  probQQtoQ = Settings::parm("StringFlav:probQQtoQ");
+  probStoU = Settings::parm("StringFlav:probStoU");
+  probSQtoQQ = Settings::parm("StringFlav:probSQtoQQ");
+  probQQ1toQQ0 = Settings::parm("StringFlav:probQQ1toQQ0");
 
   // Parameters derived from above.
   probQandQQ = 1. + probQQtoQ;
@@ -66,22 +66,22 @@ void StringFlav::initStatic() {
   probQQ1norm = probQQ1corr / (1. + probQQ1corr);
 
   // Parameters for meson production.
-  mesonUspin1 = Settings::parameter("StringFlav:mesonUspin1");
-  mesonSspin1 = Settings::parameter("StringFlav:mesonSspin1");
-  mesonCspin1 = Settings::parameter("StringFlav:mesonCspin1");
-  mesonBspin1 = Settings::parameter("StringFlav:mesonBspin1");
-  suppressEta = Settings::parameter("StringFlav:suppressEta");
-  suppressEtaPrime = Settings::parameter("StringFlav:suppressEtaPrime");
+  mesonUspin1 = Settings::parm("StringFlav:mesonUspin1");
+  mesonSspin1 = Settings::parm("StringFlav:mesonSspin1");
+  mesonCspin1 = Settings::parm("StringFlav:mesonCspin1");
+  mesonBspin1 = Settings::parm("StringFlav:mesonBspin1");
+  suppressEta = Settings::parm("StringFlav:suppressEta");
+  suppressEtaPrime = Settings::parm("StringFlav:suppressEtaPrime");
 
   // Set parameters for uubar - ddbar - ssbar meson mixing.
   for (int spin = 0; spin < 2; ++spin) { 
     // Mixing angle for pseudoscalar and vector multiplets.
     double alpha;
     if (spin == 0) {
-      double thetaPS = Settings::parameter("StringFlav:thetaPS");
+      double thetaPS = Settings::parm("StringFlav:thetaPS");
       alpha = 90. - (thetaPS + 54.7);
     } else { 
-      double thetaV = Settings::parameter("StringFlav:thetaV");
+      double thetaV = Settings::parm("StringFlav:thetaV");
       alpha = thetaV + 54.7;
     } 
     alpha *= M_PI / 180.;
@@ -96,8 +96,7 @@ void StringFlav::initStatic() {
   }
 
   // Sum of baryon octet and decuplet weights.
-  double suppressDecuplet 
-    = Settings::parameter("StringFlav:suppressDecuplet");
+  double suppressDecuplet = Settings::parm("StringFlav:suppressDecuplet");
   for (int i = 0; i < 6; ++i) baryonClebschSum[i]
     = baryonClebsch12[i] + suppressDecuplet * baryonClebsch32[i];
 
@@ -300,20 +299,20 @@ void StringZ::initStatic() {
   mb2 = pow2( ParticleDataTable::m0(5)); 
 
   // Paramaters of Lund/Bowler symmetric fragmentation function.
-  aLund = Settings::parameter("StringZ:aLund");
-  bLund = Settings::parameter("StringZ:bLund");
-  aExtraDiquark = Settings::parameter("StringZ:aExtraDiquark");
-  rFactC = Settings::parameter("StringZ:bExtraC");
-  rFactB = Settings::parameter("StringZ:bExtraB");
-  rFactH = Settings::parameter("StringZ:bExtraH");
+  aLund = Settings::parm("StringZ:aLund");
+  bLund = Settings::parm("StringZ:bLund");
+  aExtraDiquark = Settings::parm("StringZ:aExtraDiquark");
+  rFactC = Settings::parm("StringZ:bExtraC");
+  rFactB = Settings::parm("StringZ:bExtraB");
+  rFactH = Settings::parm("StringZ:bExtraH");
 
   // Flags and parameters of Peterson/SLAC fragmentation function.
   usePetersonC = Settings::flag("StringZ:usePetersonC");
   usePetersonB = Settings::flag("StringZ:usePetersonB");
   usePetersonH = Settings::flag("StringZ:usePetersonH");
-  epsilonC = Settings::parameter("StringZ:epsilonC");
-  epsilonB = Settings::parameter("StringZ:epsilonB");
-  epsilonH = Settings::parameter("StringZ:epsilonH");
+  epsilonC = Settings::parm("StringZ:epsilonC");
+  epsilonB = Settings::parm("StringZ:epsilonB");
+  epsilonH = Settings::parm("StringZ:epsilonH");
 
 }
 
@@ -512,9 +511,9 @@ double StringPT::enhancedWidth = 2.;
 void StringPT::initStatic() {
 
   // Parameters of the pT width and enhancement.
-  sigmaQ = Settings::parameter("StringPT:sigma") / sqrt(2.);
-  enhancedFraction = Settings::parameter("StringPT:enhancedFraction");
-  enhancedWidth = Settings::parameter("StringPT:enhancedWidth");
+  sigmaQ = Settings::parm("StringPT:sigma") / sqrt(2.);
+  enhancedFraction = Settings::parm("StringPT:enhancedFraction");
+  enhancedWidth = Settings::parm("StringPT:enhancedWidth");
 
 }
 

@@ -72,12 +72,15 @@ bool PartonLevel::next( Event& process, Event& event) {
   bool physical = true;
   for (int iTry = 0; iTry < NTRY; ++ iTry) {
 
-    // Reset counters and flag.
+    // Reset flag, counters and max scales.
+    physical = true;
     nMI = 1;
     nISR = 0;
     nFSRinProc = 0;
     nFSRinRes = 0;
-    physical = true;
+    pTsaveMI = 0.;
+    pTsaveISR = 0.;
+    pTsaveFSR = 0.;
 
     // Identify hard interaction system for showers.
     setupHardSys( process, event);
@@ -90,6 +93,8 @@ bool PartonLevel::next( Event& process, Event& event) {
     double pTmax = process.scale();
     double pTmaxISR = (limitPTmaxISR) ? pTmax : infoPtr->eCM();
     double pTmaxMI = (limitPTmaxMI) ? pTmax : infoPtr->eCM();
+    pTsaveMI = pTmaxMI;
+    pTsaveISR = pTmaxISR;
 
     // Prepare the classes to begin the generation.
     // Need to redo everything??
@@ -133,8 +138,7 @@ bool PartonLevel::next( Event& process, Event& event) {
       // Do an initial-state emission (if allowed).
       else if (pTspace > 0. && pTspace > pTtimes) { 
       //   if (space.branch()) times.update( event); 
-        space.branch( event);
-        ++nISR;
+        if (space.branch( event)) ++nISR;
         pTmax = pTspace;
         pTmaxISR = pTspace;
         pTmaxMI = min( pTspace, pTmaxMI);
@@ -160,10 +164,11 @@ bool PartonLevel::next( Event& process, Event& event) {
       // Find largest scale for final partons.
       double pTmaxFSR = 0.;
       for (int i = 0; i < event.size(); ++i) 
-        if (event[i].remains() && event[i].scale() > pTmaxFSR)
+        if (event[i].isFinal() && event[i].scale() > pTmaxFSR)
           pTmaxFSR = event[i].scale();     
+      pTsaveFSR = pTmaxFSR;
       // Let all partons shower up to their individual scale.
-      times.shower( event, 0, 0, pTmaxFSR);
+      nFSRinProc = times.shower( event, 0, 0, pTmaxFSR);
     }
 
     // If no problems then done, else restore and loop.
@@ -177,11 +182,12 @@ bool PartonLevel::next( Event& process, Event& event) {
   if (!physical) return false;
 
   // Perform showers in resonance decay chains.
-  resonanceShowers( process, event); 
+  nFSRinRes = resonanceShowers( process, event); 
 
   // Store statistics.
   infoPtr->setImpact( multi.bMI(), multi.enhanceMI());
-  infoPtr->setCounters( nMI, nISR, nFSRinProc, nFSRinRes);
+  infoPtr->setEvolution( pTsaveMI, pTsaveISR, pTsaveFSR, 
+    nMI, nISR, nFSRinProc, nFSRinRes);
  
   // Done.
   return true;
@@ -403,9 +409,10 @@ bool PartonLevel::setupUnresolvedSys( Event& process, Event& event) {
 
 // Handle showers in successive resonance decays.
 
-void PartonLevel::resonanceShowers( Event& process, Event& event) {
+int PartonLevel::resonanceShowers( Event& process, Event& event) {
 
   // Isolate next system to be processed, if anything remains.
+  int nFSRinRes = 0;
   while (nHardDone < process.size()) {
     int iBegin = nHardDone;
 
@@ -459,11 +466,13 @@ void PartonLevel::resonanceShowers( Event& process, Event& event) {
     // Do parton showers inside subsystem.
     if (FSRinResonances) {
       double pTmax = 0.5 * hardMother.m();
-      times.shower( event, iPosBefShow[iBegin], iPosBefShow[iEnd], pTmax);
+      nFSRinRes += times.shower( event, iPosBefShow[iBegin], 
+        iPosBefShow[iEnd], pTmax);
     }    
 
-  // No more systems to be processed.
+  // No more systems to be processed. Return total number of emissions.
   }
+  return nFSRinRes;
 
 }
 

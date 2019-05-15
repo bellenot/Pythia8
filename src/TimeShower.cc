@@ -34,9 +34,9 @@ double TimeShower::pTchgQCut = 0.5;
 double TimeShower::pT2chgQCut = 0.25;
 double TimeShower::pTchgLCut = 0.5e-3;
 double TimeShower::pT2chgLCut = 0.25e-6;
-double TimeShower::sin2thetaW = 0.232;
 double TimeShower::mZ = 91.188;
 double TimeShower::gammaZ = 2.478;
+double TimeShower::thetaWRat = 0.35;
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -67,26 +67,26 @@ void TimeShower::initStatic() {
   mb2 = mb * mb;
 
   // Parameters of alphaStrong generation .
-  alphaSvalue = Settings::parameter("TimeShower:alphaSvalue");
+  alphaSvalue = Settings::parm("TimeShower:alphaSvalue");
   alphaSorder = Settings::mode("TimeShower:alphaSorder");
   alphaS2pi = 0.5 * alphaSvalue / M_PI;
  
   // Parameters of QCD evolution. 
   nQuark = Settings::mode("TimeShower:nQuark");
-  pTcolCutMin = Settings::parameter("TimeShower:pTmin"); 
+  pTcolCutMin = Settings::parm("TimeShower:pTmin"); 
  
   // Parameters of QED evolution.
-  alphaEM = Settings::parameter("StandardModel:alphaEMfix");
+  alphaEM = Settings::parm("StandardModel:alphaEMfix");
   alphaEM2pi = 0.5 * alphaEM / M_PI;
-  pTchgQCut = Settings::parameter("TimeShower:pTminchgQ"); 
+  pTchgQCut = Settings::parm("TimeShower:pTminchgQ"); 
   pT2chgQCut = pow2(pTchgQCut);
-  pTchgLCut = Settings::parameter("TimeShower:pTminchgL"); 
+  pTchgLCut = Settings::parm("TimeShower:pTminchgL"); 
   pT2chgLCut = pow2(pTchgLCut);
 
-  // Parameters needed for gamma/Z0 mixing.
-  sin2thetaW = Settings::parameter("StandardModel:sin2thetaW");
+  // Z0 properties needed for gamma/Z0 mixing.
   mZ = ParticleDataTable::m0(23);
-  gammaZ = ParticleDataTable::width(23);
+  gammaZ = ParticleDataTable::mWidth(23);
+  thetaWRat = 1. / (16. * CoupEW::sin2thetaW() * CoupEW::cos2thetaW());
 
 } 
 
@@ -119,26 +119,28 @@ void TimeShower::init() {
 // resonance decays, with showers decoupled from the rest of the event
 // Input provided by range of involved partons.
 
-void TimeShower::shower( Event& event, int iBeg, int iEnd, double pTmax) {
+int TimeShower::shower( Event& event, int iBeg, int iEnd, double pTmax) {
 
   // Prepare system for evolution.
   prepare( event, iBeg, iEnd);
 
   // Begin evolution down in pT from hard pT scale. 
-  int loop =0;
+  int nBranch = 0;
   do {
     double pTtimes = pTnext( event, pTmax, 0.);
-    ++loop;
 
     // Do a final-state emission (if allowed).
     if (pTtimes > 0) {
-      branch( event); 
+      if (branch( event)) ++nBranch; 
       pTmax = pTtimes;
     }
     
   // Keep on evolving until nothing is left to be done.
     else pTmax = 0.;
   } while (pTmax > 0.);   
+
+  // Return number of emissions that were performed.
+  return nBranch;
 
 }
 
@@ -161,13 +163,13 @@ void TimeShower::prepare( Event& event, int iBegIn, int iEndIn) {
 
   // Loop through event record to find possible dipole ends.
   for (int iRad = iBeg; iRad < iEnd; ++iRad) 
-    if (event[iRad].remains()) {
+    if (event[iRad].isFinal()) {
 
     // Find dipole end formed by colour index.
     int colTag = event[iRad].col();     
     if (doQCDshower && colTag > 0) { 
       for (int iRec = iBeg; iRec < iEnd; ++iRec) {
-        if (iRec != iRad && event[iRec].remains() 
+        if (iRec != iRad && event[iRec].isFinal() 
         && (isRes2Two || event[iRec].acol() == colTag) ) {
           double pTmax = event[iRad].scale();
           int colType = 1;
@@ -182,7 +184,7 @@ void TimeShower::prepare( Event& event, int iBegIn, int iEndIn) {
     int acolTag = event[iRad].acol();     
     if (doQCDshower && acolTag > 0) { 
       for (int iRec = iBeg; iRec < iEnd; ++iRec) {
-        if (iRec != iRad && event[iRec].remains() 
+        if (iRec != iRad && event[iRec].isFinal() 
         && (isRes2Two || event[iRec].col() == acolTag) ) {
           double pTmax = event[iRad].scale();
           int colType = -1;
@@ -195,11 +197,11 @@ void TimeShower::prepare( Event& event, int iBegIn, int iEndIn) {
 
     // Find charge-dipole ends. Search procedure to be expanded??
     // Not correct e.g. for t -> b W!!
-    int chgTag = event[iRad].icharge();     
+    int chgTag = event[iRad].chargeType();     
     if (doQEDshowerByQ && chgTag != 0) { 
       for (int iRec = iBeg; iRec < iEnd; ++iRec) {
-        if (iRec != iRad && event[iRec].remains() 
-        && (isRes2Two || event[iRec].icharge() == -chgTag) ) {
+        if (iRec != iRad && event[iRec].isFinal() 
+        && (isRes2Two || event[iRec].chargeType() == -chgTag) ) {
           double pTmax = event[iRad].scale();
           dipole.push_back( 
             TimeDipoleEnd(iRad, iRec, pTmax, 0, chgTag, -1) );
@@ -852,31 +854,31 @@ double TimeShower::gammaZmix( Event& event, int iRes, int iDau1, int iDau2) {
   // Initial flavours and couplings; return if don't make sense.
   if (idIn1 + idIn2 != 0 ) return 0.5;
   int idIn = abs(idIn1);
-  if (idIn == 0 || idIn >18 ) return 0.5; 
-  double eIn = ParticleDataTable::charge(idIn);
-  double aIn = (eIn < -0.1) ? -1. : 1.;
-  double vIn = aIn - 4. * sin2thetaW * eIn; 
+  if (idIn == 0 || idIn > 18 ) return 0.5; 
+  double ei = CoupEW::ef(idIn);
+  double vi = CoupEW::vf(idIn);
+  double ai = CoupEW::af(idIn);
 
   // Final flavours and couplings; return if don't make sense.
   if (event[iDau1].id() + event[iDau2].id() != 0) return 0.5;
   int idOut = abs(event[iDau1].id());
   if (idOut == 0 || idOut >18 ) return 0.5; 
-  double eOut = ParticleDataTable::charge(idOut);
-  double aOut = (eOut < -0.1) ? -1. : 1.;
-  double vOut = aOut - 4. * sin2thetaW * eOut; 
+  double ef = CoupEW::ef(idOut);
+  double vf = CoupEW::vf(idOut);
+  double af = CoupEW::af(idOut);
 
-  // Calculate gamma and Z0 propagators from kinematics.
+  // Calculate prefactors for interference and resonance part.
   Vec4 psum = event[iDau1].p() + event[iDau2].p();
-  double sHat = psum.m2Calc();
-  double prop = 1. / ( pow2(sHat - mZ*mZ) + sHat * gammaZ*gammaZ); 
-  double xwc = 1. / (16. * sin2thetaW * (1.-sin2thetaW));
+  double sH = psum.m2Calc();
+  double intNorm = 2. * thetaWRat * sH * (sH - mZ*mZ)
+    / ( pow2(sH - mZ*mZ) + pow2(sH * gammaZ / mZ) );
+  double resNorm = pow2(thetaWRat * sH) 
+    / ( pow2(sH - mZ*mZ) + pow2(sH * gammaZ / mZ) );
 
   // Calculate vector and axial expressions and find mix.
-  double vect = eIn*eIn * eOut*eOut 
-    + 2. * eIn*vIn * eOut*vOut * xwc * sHat * (sHat - mZ*mZ) * prop 
-    + (vIn*vIn + aIn*aIn) * vOut*vOut * xwc*xwc * sHat*sHat * prop;
-  double axiv = (vIn*vIn + aIn*aIn) * aOut*aOut * xwc*xwc 
-    * sHat*sHat * prop;
+  double vect = ei*ei * ef*ef + ei*vi * intNorm * ef*vf
+    + (vi*vi + ai*ai) * resNorm * vf*vf;
+  double axiv = (vi*vi + ai*ai) * resNorm * af*af;
   return vect / (vect + axiv);
 }
 

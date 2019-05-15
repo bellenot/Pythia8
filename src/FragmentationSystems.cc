@@ -26,11 +26,11 @@ double ColConfig::mStringMin = 1.0;
 void ColConfig::initStatic() {
 
   // Joining of nearby partons along the string.
-  mJoin = Settings::parameter("FragmentationSystems:mJoin");
+  mJoin = Settings::parm("FragmentationSystems:mJoin");
 
   // Simplification of q q q junction topology to quark - diquark one.
-  mJoinJunction = Settings::parameter("FragmentationSystems:mJoinJunction");
-  mStringMin = Settings::parameter("HadronLevel:mStringMin");
+  mJoinJunction = Settings::parm("FragmentationSystems:mJoinJunction");
+  mStringMin = Settings::parm("HadronLevel:mStringMin");
 
 }
 
@@ -327,7 +327,7 @@ const double StringRegion::TINY = 1e-20;
 void StringRegion::initStatic() {
 
   // Joining of nearby partons along the string.
-  mJoin = Settings::parameter("FragmentationSystems:mJoin");
+  mJoin = Settings::parm("FragmentationSystems:mJoin");
   m2Join = mJoin*mJoin;
 
 }

@@ -235,8 +235,38 @@ Code 135.
 Under this heading we group processes involving the production
 of a single electroweak gauge boson, i.e. a <i>gamma^*/Z^0</i>
 or a <i>W^+-</i>, or a pair of them, or one of them in 
-combination with a jet or a photon. Since the three sets are
-partly conflicting, each is associated with its own group flag.
+combination with a parton. Since the three sets are partly 
+conflicting, each is associated with its own group flag.
+In addition, <i>t</i>-channel exchange of such a boson 
+between two fermions form a separate group.
+
+<h4>Boson exchange</h4>
+
+<p/><strong>
+flag name="WeakBosonExchange:all" default="off"
+</strong><br/>
+Common switch for the group of <i>gamma^*/Z^0</i>
+or <i>W^+-</i> exchange between two fermions.
+  
+
+<p/><strong>
+flag name="WeakBosonExchange:ff2ff9gmZ" default="off"
+</strong><br/>
+Scattering <i>f f' -> f f'</i> via </i>gamma^*/Z^0</i>
+<i>t</i>-channel exchange, with full interference
+between the <i>gamma^*</i> and <i>Z^0</i>.
+Code 141.
+  
+
+<p/><strong>
+flag name="WeakBosonExchange:ff2ff9W" default="off"
+</strong><br/>
+Scattering <i>f_1 f_2 -> f_3 f_4</i> via </i>W^+-</i>
+<i>t</i>-channel exchange.
+Code 142.
+  
+
+<h4>Single boson</h4>
 
 <p/><strong>
 flag name="WeakSingleBoson:all" default="off"
@@ -246,7 +276,7 @@ or <i>W^+-</i> production.
   
 
 <p/><strong>
-flag name="WeakSingleBoson:ffbar2Z" default="off"
+flag name="WeakSingleBoson:ffbar2gmZ" default="off"
 </strong><br/>
 Scattering <i>f fbar' -> gamma^*/Z^0</i>, with full interference
 between the <i>gamma^*</i> and <i>Z^0</i>.
@@ -260,7 +290,132 @@ Scattering <i>f fbar' -> W^+-</i>.
 Code 152.
   
 
+<h4>Boson pair</h4>
 
+<p/><strong>
+flag name="WeakDoubleBoson:all" default="off"
+</strong><br/>
+Common switch for the group of pair production of <i>gamma^*/Z^0</i>
+and <i>W^+-</i>.
+  
+ 
+<p/><strong>
+flag name="WeakDoubleBoson:ffbar2ZW" default="off"
+</strong><br/>
+Scattering <i>f fbar' -> Z^0 W^+-</i>. Note that here the 
+<i>gamma^*</i> is not included.
+Code 162.
+  
+ 
+<p/><strong>
+flag name="WeakDoubleBoson:ffbar2WW" default="off"
+</strong><br/>
+Scattering <i>f fbar -> W^+ W^-</i>.
+Code 163.
+  
+
+<h4>Boson and parton</h4>
+
+<p/><strong>
+flag name="WeakBosonAndParton:all" default="off"
+</strong><br/>
+Common switch for the group of production of a single electroweak 
+gauge boson, i.e. a <i>gamma^*/Z^0</i> or a <i>W^+-</i>, in 
+association with a parton, i.e. a quark, gluon, photon or lepton.
+These processes give first-order corrections to the ones in the
+<code>WeakSingleBoson</code> class, and boths sets cannot be used
+simultaneously without unphysical doublecounting. The current class
+should only be used to study the high-<i>pT</i> tail of the 
+gauge-boson production processes, while the ones in 
+<code>WeakSingleBoson</code> should be used for inclusive production.
+  
+ 
+<p/><strong>
+flag name="WeakBosonAndParton:qqbar2Wg" default="off"
+</strong><br/>
+Scattering <i>f fbar -> W^+- g</i>.
+Code 176.
+  
+ 
+<p/><strong>
+flag name="WeakBosonAndParton:qg2Wq" default="off"
+</strong><br/>
+Scattering <i>f g -> f W^+-</i>.
+Code 177.
+  
+ 
+<p/><strong>
+flag name="WeakBosonAndParton:ffbar2Wgm" default="off"
+</strong><br/>
+Scattering <i>f fbar -> W^+- gamma</i>.
+Code 178.
+  
+
+<h3>Top</h3>
+
+Different ways to produce top quarks, singly or (more frequently)
+in pairs.
+
+<p/><strong>
+flag name="Top:all" default="off"
+</strong><br/>
+Common switch for the group of top production.
+  
+
+<p/><strong>
+flag name="Top:gg2ttbar" default="off"
+</strong><br/>
+Scatterings <i>g g -> t tbar</i>. 
+Code 181.
+  
+
+<p/><strong>
+flag name="Top:qqbar2ttbar" default="off"
+</strong><br/>
+Scatterings <i>q qbar -> t tbar</i>. 
+Code 182.
+  
+
+<p/><strong>
+flag name="Top:qq2tq9W" default="off"
+</strong><br/>
+Scatterings <i>q q' -> t q"</i> by t-channel exchange of W boson. 
+Code 183.
+  
+
+<h3>Supersymmetric processes</h3>
+
+Here is collected all processes involving supersymmetric particle 
+production, with the exception of the (extended) Higgs sector.
+Since the number of separate but closely related processes is so big,
+there are not switches for each separate process but only for a
+reasonable set of subgroups.
+
+<br/><b>Important note:</b> 
+In order to simulate SUSY processes it is required to read in the 
+couplings and masses relevant for the scenario to be studied. This 
+is done with the help of the SUSY Les Houches Accord (SLHA). The 
+reading of a relevant SLHA file <b>must</b> be set up, as described 
+on <a href="SusyLesHouches.html" target="page">this page</a>.
+
+<p/><strong>
+flag name="SUSY:all" default="off"
+</strong><br/>
+Common switch for production of supersymmetric particles, i.e. 
+particles with R-parity -1.  
+  
+
+<p/><strong>
+flag name="SUSY:qqbar2chi0chi0" default="off"
+</strong><br/>
+Pair production of neutralinos by quark-antiquark annihilation.  With
+four neutralino species this gives ten separate processes, codes 1001
+- 1010. The current implementation is in a development stage and does
+not include contributions from diagrams with intermediate squarks,
+hence the correct answer is only obtained in the limit of infinitely heavy
+squarks. As yet, there are also no sparticle decays implemented - 
+all neutralinos decay to Gravitino+photon.
+  
 
 </body>
 </html>

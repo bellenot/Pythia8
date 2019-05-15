@@ -1,33 +1,10 @@
 // File: main11.cc
-// This is a simple test program. 
-// It illustrates how HepMC can be interfaced to Pythia8.
-// Still not a finished product, that partly relies on Pythia6.
+// This is a more extensive test program using Pythia6 or Pythia8 processes. 
+// It illustrates how different quantities can be histogrammed.
 // All input is specified in the main11.cmnd file.
-// HepMC events are output to the hepmcout.dat file.
-// Written by Mikhail Kirsanov based on main01.cc.
-// Copyright © 2006 Torbjorn Sjostrand
+// Copyright C 2006 Torbjorn Sjostrand
 
 #include "Pythia.h"
-
-#include "I_Pythia8.h"
-
-#include "HepMC/GenEvent.h"
-#include "HepMC/IO_Ascii.h"
-
-//#include "HepMC/PythiaWrapper.h" // incompatible with Pythia8
-#include <ctype.h>
-    extern struct {
-        int mdcy[3][500], mdme[2][8000];
-        double brat[8000];
-        int kfdp[5][8000];
-    } pydat3_;
-#define pydat3 pydat3_
-
-    extern struct {
-        int ngenpd, ngen[3][501];
-        double xsec[3][501];
-    } pyint5_;
-#define pyint5 pyint5_
 
 using namespace Pythia8; 
 
@@ -35,27 +12,21 @@ using namespace Pythia8;
 
 int main() {
 
-  //  ToHepMC.set_crash_on_problem();
-  HepMC::I_Pythia8 ToHepMC;
-
-  // Specify file where HepMC events will be stored.
-  HepMC::IO_Ascii ascii_io("hepmcout.dat",std::ios::out);
-
   // Generator. Shorthand for the event and for settings.
-  Pythia8::Pythia pythia;
+  Pythia pythia;
   Event& event = pythia.event;
   Settings& settings = pythia.settings;
 
   // Read in commands from external file.
-  pythia.readFile("main11.cmnd");
+  pythia.readFile("main11.cmnd");    
 
   // Extract settings to be used in the main program.
   int idBeamA = settings.mode("Main:idBeamA");
   int idBeamB = settings.mode("Main:idBeamB");
   bool inCMframe = settings.flag("Main:inCMframe");
-  double eCM = settings.parameter("Main:eCM");
-  double eBeamA = settings.parameter("Main:eBeamA");
-  double eBeamB = settings.parameter("Main:eBeamB");
+  double eCM = settings.parm("Main:eCM");
+  double eBeamA = settings.parm("Main:eBeamA");
+  double eBeamB = settings.parm("Main:eBeamB");
   int nEvent = settings.mode("Main:numberOfEvents");
   int nList = settings.mode("Main:numberToList");
   int nShow = settings.mode("Main:timesToShow");
@@ -66,24 +37,15 @@ int main() {
     = settings.flag("Main:showChangedParticleData");
   bool showAllParticleData = settings.flag("Main:showAllParticleData");
 
-  // Switch off everything but Z0 -> leptons in Pythia 6.
-  for ( int idc = pydat3.mdcy[2-1][23-1] ;
-        idc < pydat3.mdcy[2-1][23-1] + pydat3.mdcy[3-1][23-1]; idc++ ) {
-    if ( abs(pydat3.kfdp[1-1][idc-1]) != 11 &&
-         abs(pydat3.kfdp[1-1][idc-1]) != 13 && 
-         abs(pydat3.kfdp[1-1][idc-1]) != 15 )
-      pydat3.mdme[1-1][idc-1] = min(0, pydat3.mdme[1-1][idc-1]);
-  }
-
-  // Initialization for Pythia6 event input.
+  // Initialization in CM or lab frame.
   if (inCMframe) pythia.init( idBeamA, idBeamB, eCM);
   else pythia.init( idBeamA, idBeamB, eBeamA, eBeamB);
 
-  // List changed data.
+  // List changed or all settings data.
   if (showChangedSettings) settings.listChanged();
   if (showAllSettings) settings.listAll();
 
-  // List particle data.  
+  // List changed or all particle data.  
   if (showChangedParticleData) ParticleDataTable::listChanged();
   if (showAllParticleData) ParticleDataTable::listAll();
 
@@ -105,31 +67,23 @@ int main() {
   // Begin event loop.
   int nShowPace = max(1,nEvent/nShow); 
   int iAbort = 0; 
-  bool generated;
   for (int iEvent = 0; iEvent < nEvent; ++iEvent) {
     if (iEvent%nShowPace == 0) cout << " Now begin event " 
       << iEvent << endl;
 
     // Generate events. Quit if too many failures.
-    generated = pythia.next();
-    if (!generated) {
+    if (!pythia.next()) {
       if (++iAbort < nAbort) continue;
       cout << " Event generation aborted prematurely, owing to error!\n"; 
       break;
     }
-    cout << " successfully generated = " << generated << endl;
  
     // List first few events, both hard process and complete events.
     if (iEvent < nList) { 
+      pythia.info.list();
       pythia.process.list();
       event.list();
     }
-
-    // Convert event record to HepMC format and output to file.
-    HepMC::GenEvent* hepmcevt = new HepMC::GenEvent();
-    ToHepMC.fill_next_event( event, hepmcevt );
-    ascii_io << hepmcevt;
-    delete hepmcevt;
 
     // Number of ISR for hard subprocess.
     int nisr = -1;
@@ -156,6 +110,7 @@ int main() {
     int nch = 0;
     int nmi = 0;
     int nfsr = 0;
+    int nfinqg = 0;
     Vec4 pSum = - (event[1].p() + event[2].p());
     double eTsum = 0.;
 
@@ -177,8 +132,9 @@ int main() {
       if (event[i].status() == -52) ++nfsr; 
 
       // Specialize to final particles. Total multiplicity and momentum.
-      if (event[i].remains()) {
+      if (event[i].isFinal()) {
         ++nfin;
+        if (event[i].isQorG()) ++nfinqg;
         if (event[i].isCharged()) ++nch;
         pSum += event[i].p();
 
@@ -206,6 +162,12 @@ int main() {
     nJUN.fill( event.sizeJunction() );
     sumETparticle.fill(eTsum);
 
+    // Debug.
+    if (nfinqg > 0) {
+      cout << " Error: number of unframented q/qbar/g = " << nfinqg << "\n";
+      event.list();
+    }
+
   // End of event loop.
   }
 
@@ -218,9 +180,9 @@ int main() {
   dETparticleDy *= factor;
 
   // Histogram output.
-//  cout << epCons << nFinal<< nChg << nISR << nMI << nISRMI << nFSR 
-//       << nJUN << pThard << sumETparticle << dnCHparticleDy 
-//       << dETparticleDy; 
+  cout << epCons << nFinal<< nChg << nISR << nMI << nISRMI << nFSR 
+       << nJUN << pThard << sumETparticle << dnCHparticleDy 
+       << dETparticleDy; 
 
   // Done.
   return 0;

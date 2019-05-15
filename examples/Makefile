@@ -62,16 +62,17 @@ all:
 	@echo "Usage: for NN = example number: make mainNN"
 
 # Create an executable for one of the normal test programs
-main01 main02 main03 main04 main05 main06 main07 main08 main09 main10 \
-	main12 main13 main14 main15:
+main01 main02 main03 main04 main05 main06 main07 main08 \
+	main11 main12 main13 main14 main15 main16 main17 main18: \
+	../$(LIBDIR)/libpythia8.a
 	@mkdir -p ../$(BINDIR)
 	$(CPP) $(CPPFLAGS) -I../$(INCDIR) $@.cc -o ../$(BINDIR)/$@.exe \
 	-L../$(LIBDIR) -lpythia8 -L$(MYPYTHIA6LOCATION) $(MYPYTHIA6LIBNAME) \
 	$(FLIBS)
 	@ln -fs ../$(BINDIR)/$@.exe $@.exe
 
-# Create an executable for the Fortran test program, as prelude to main02.cc. 
-main02for:
+# Create an executable for the Fortran test program, as prelude to main14.cc. 
+main14for:
 	@mkdir -p ../$(BINDIR)
 	$(FC) $(FFLAGS) $@.f -o ../$(BINDIR)/$@.exe \
 	-L$(MYPYTHIA6LOCATION) $(MYPYTHIA6LIBNAME) $(FLIBS)
@@ -80,7 +81,7 @@ main02for:
 # Create an executable linked to HepMC and CLHEP (if all goes well).
 ifneq (x$(HEPMCLOCATION),x)
  ifneq (x$(CLHEPLOCATION),x)
-  main11:
+  main21:
 	 @mkdir -p ../$(BINDIR)
 	 $(CPP) $(CPPFLAGS) -I../$(INCDIR) -I$(HEPMCLOCATION)/include \
      -I$(CLHEPLOCATION)/include $@.cc -o ../$(BINDIR)/$@.exe \
@@ -91,12 +92,12 @@ ifneq (x$(HEPMCLOCATION),x)
 	 $(FLIBS)
 	 @ln -fs ../$(BINDIR)/$@.exe $@.exe
  else
-  main11:
+  main21:
 	@echo ERROR, apart from HepMC this target needs CLHEP, \
 	variable CLHEPLOCATION
  endif
 else
- main11:
+ main21:
 	@echo ERROR, this target needs HepMC, variable HEPMCLOCATION
 endif
 

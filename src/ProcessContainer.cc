@@ -12,17 +12,25 @@ namespace Pythia8 {
 // Information allowing the generation of a specific process.
 
 //*********
+ 
+// Definitions of static variables and functions.
+
+// Pointer to the information object.
+Info* ProcessContainer::infoPtr;
+
+// Constants: could be changed here if desired, but normally should not.
+// These are of technical nature, as described for each.
+
+// Number of event tries to check maximization finding reliability.
+const int ProcessContainer::NSAMPLE = 100;
+
+//*********
 
 // Initialize 
 
-bool ProcessContainer::init(Info* infoPtrIn, BeamParticle* beamAPtr, 
-  BeamParticle* beamBPtr) {
-
-  // Store input pointers for future use.
-  infoPtr = infoPtrIn;
+bool ProcessContainer::init() {
 
   // Extract info about current process from SigmaProcess object.
-  hasSigmaTot = sigmaProcessPtr->hasSigmaTot();  
   isMinBias = sigmaProcessPtr->isMinBias();
   isResolved = sigmaProcessPtr->isResolved();
   isDiffA = sigmaProcessPtr->isDiffA();
@@ -36,16 +44,6 @@ bool ProcessContainer::init(Info* infoPtrIn, BeamParticle* beamAPtr,
   else if (nFinal == 1) phaseSpacePtr = new PhaseSpace2to1tauy();
   else phaseSpacePtr = new PhaseSpace2to2tauyz();
 
-  // For total cross section processes need cross section and beam info.
-  if (hasSigmaTot) {
-    int idA = beamAPtr->id();
-    int idB = beamBPtr->id();
-    double mA = beamAPtr->m();
-    double mB = beamBPtr->m();
-    sigmaProcessPtr->setSigmaTotalPtr(sigmaTotPtr, idA, idB, mA, mB);
-    phaseSpacePtr->setSigmaTotalPtr(sigmaTotPtr, idA, idB, mA, mB);
-  }
-
   // Store common info for PhaseSpace objects.
   double eCM = infoPtr->eCM();
   phaseSpacePtr->initInfo( sigmaProcessPtr, eCM);
@@ -56,16 +54,29 @@ bool ProcessContainer::init(Info* infoPtrIn, BeamParticle* beamAPtr,
   sigmaMx = 0.;
   sigmaSum = 0.;
   sigma2Sum = 0.;
+  sigmaNeg = 0.;
 
-  // Set up incoming flux (= product of parton densities).
-  sigmaProcessPtr->initFlux( beamAPtr->pdfPtr(), beamBPtr->pdfPtr());
+  // Initialize process. Remove empty inFlux channels and optionally list.
+  sigmaProcessPtr->initProc();
+  sigmaProcessPtr->checkChannels();
 
   // Find maximum of differential cross section * phasespace.
-  phaseSpacePtr->setupSampling();
+  bool physical = phaseSpacePtr->setupSampling();
   sigmaMx = phaseSpacePtr->sigmaMax();
+  double sigmaHalfWay = sigmaMx;
+
+  // Check maximum by a few events, and extrapolate a further increase.
+  if (physical) {
+    for (int sample = 0; sample < NSAMPLE; ++sample) 
+    while (!phaseSpacePtr->trialKin()) { 
+      if (sample == NSAMPLE/2) sigmaHalfWay = phaseSpacePtr->sigmaMax();
+    }   
+    sigmaMx = pow2(phaseSpacePtr->sigmaMax()) / sigmaHalfWay;
+    phaseSpacePtr->setSigmaMax(sigmaMx);
+  }
 
   // Done.
-  return true;
+  return physical;
 }
 
 //*********
@@ -82,9 +93,18 @@ bool ProcessContainer::trialProcess() {
   if (!phaseSpacePtr->trialKin()) return false;
   double sigmaNow = phaseSpacePtr->sigmaNow(); 
 
-  // Update statistics.
+  // Check that not negative cross section.
+  if (sigmaNow < sigmaNeg) {
+    ErrorMessages::message("Warning in ProcessContainer::trialProcess:"
+      " negative cross section set 0", "for " +  sigmaProcessPtr->name() );
+    sigmaNeg = sigmaNow;
+  }
+  if (sigmaNow < 0.) sigmaNow = 0.;
+
+  // Update statistics and maximum.
   sigmaSum += sigmaNow;
   sigma2Sum += pow2(sigmaNow);
+  sigmaMx = phaseSpacePtr->sigmaMax();
 
   // Accept or reject trial point.
   bool accept = (sigmaNow > Rndm::flat() * sigmaMx);  
@@ -190,6 +210,13 @@ bool ProcessContainer::constructProcess( Event& process) {
 // Main routine to initialize list of processes.
 
 bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs) {
+
+  // Reset process list, if filled in previous subrun.
+  if (containerPtrs.size() > 0) {
+    for (int i = 0; i < int(containerPtrs.size()); ++i) 
+      delete containerPtrs[i];
+    containerPtrs.clear(); 
+  }
 
   // Set up requested objects for soft QCD processes.
   bool softQCD = Settings::flag("SoftQCD:all");
@@ -314,13 +341,121 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs) {
   // Set up requested objects for weak gauge boson processes.
   bool weakSingleBosons = Settings::flag("WeakSingleBoson:all");
   if (weakSingleBosons
+    || Settings::flag("WeakSingleBoson:ffbar2gmZ")) {
+    SigmaProcess* sigmaPtr = new Sigma1ffbar2gmZ;
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  if (weakSingleBosons
     || Settings::flag("WeakSingleBoson:ffbar2W")) {
     SigmaProcess* sigmaPtr = new Sigma1ffbar2W;
     ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
     containerPtrs.push_back( containerPtr);
   } 
-  
 
+  // Set up requested objects for weak gauge boson t-channel exchange.
+  bool weakBosonExchanges = Settings::flag("WeakBosonExchange:all");
+  if (weakBosonExchanges
+    || Settings::flag("WeakBosonExchange:ff2ff9gmZ")) {
+    SigmaProcess* sigmaPtr = new Sigma2ff2ff9gmZ;
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  if (weakBosonExchanges
+    || Settings::flag("WeakBosonExchange:ff2ff9W")) {
+    SigmaProcess* sigmaPtr = new Sigma2ff2ff9W;
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  
+  // Set up requested objects for weak gauge boson pair processes.
+  bool weakDoubleBosons = Settings::flag("WeakDoubleBoson:all");
+  if (weakDoubleBosons
+    || Settings::flag("WeakDoubleBoson:ffbar2ZW")) {
+    SigmaProcess* sigmaPtr = new Sigma2ffbar2ZW;
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  if (weakDoubleBosons
+    || Settings::flag("WeakDoubleBoson:ffbar2WW")) {
+    SigmaProcess* sigmaPtr = new Sigma2ffbar2WW;
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  
+  // Set up requested objects for weak gauge boson + parton processes.
+  bool weakBosonAndPartons = Settings::flag("WeakBosonAndParton:all");
+  if (weakBosonAndPartons
+    || Settings::flag("WeakBosonAndParton:qqbar2Wg")) {
+    SigmaProcess* sigmaPtr = new Sigma2qqbar2Wg;
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  if (weakBosonAndPartons
+    || Settings::flag("WeakBosonAndParton:qg2Wq")) {
+    SigmaProcess* sigmaPtr = new Sigma2qg2Wq;
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  if (weakBosonAndPartons
+    || Settings::flag("WeakBosonAndParton:ffbar2Wgm")) {
+    SigmaProcess* sigmaPtr = new Sigma2ffbar2Wgm;
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  
+  // Set up requested objects for top production
+  bool tops = Settings::flag("Top:all");
+  if (tops || Settings::flag("Top:gg2ttbar")) {
+    SigmaProcess* sigmaPtr = new Sigma2gg2QQbar(6, 181, "g g -> t tbar");
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  if (tops || Settings::flag("Top:qqbar2ttbar")) {
+    SigmaProcess* sigmaPtr = new Sigma2qqbar2QQbar(6, 182, "q qbar -> t tbar");
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  if (tops || Settings::flag("Top:qq2tq9W")) {
+    SigmaProcess* sigmaPtr = new Sigma2qq2Qq9W(6, 183, "q q -> t q");
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  
+  // Set up requested objects for neutralino pair processes.
+  bool SUSY = Settings::flag("SUSY:all");
+  if (SUSY || Settings::flag("SUSY:qqbar2chi0chi0")) {
+    SigmaProcess* sigmaPtr = new Sigma2qqbar2chi0chi0(1, 1, 1001);
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+    sigmaPtr = new Sigma2qqbar2chi0chi0(1, 2, 1002); 
+    containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+    sigmaPtr = new Sigma2qqbar2chi0chi0(1, 3, 1003); 
+    containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+    sigmaPtr = new Sigma2qqbar2chi0chi0(1, 4, 1004);
+    containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+    sigmaPtr = new Sigma2qqbar2chi0chi0(2, 2, 1005);
+    containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+    sigmaPtr = new Sigma2qqbar2chi0chi0(2, 3, 1006);
+    containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+    sigmaPtr = new Sigma2qqbar2chi0chi0(2, 4, 1007);
+    containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+    sigmaPtr = new Sigma2qqbar2chi0chi0(3, 3, 1008); 
+    containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+    sigmaPtr = new Sigma2qqbar2chi0chi0(3, 4, 1009);
+    containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+    sigmaPtr = new Sigma2qqbar2chi0chi0(4, 4, 1010); 
+    containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
 
   // Done. 
   return true;

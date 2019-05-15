@@ -79,7 +79,7 @@ public:
   void collect(int iSub, Event& event); 
 
   // List all currently identified singlets.
-  void list(ostream& = cout);
+  void list(ostream& os = cout);
 
 private:
 

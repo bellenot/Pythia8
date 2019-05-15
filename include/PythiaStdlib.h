@@ -1,5 +1,5 @@
-// Header file for functionality pulled in from stdlib,
-// plus powers of small integers and strings to lowercase. 
+// Header file for functionality pulled in from Stdlib,
+// plus a few useful untilities (small powers, string manipulation).
 // Copyright C 2006 Torbjorn Sjostrand
 
 #ifndef Pythia8_PythiaStdlib_H
@@ -22,6 +22,10 @@
 #include <iomanip>
 #include <fstream>
 #include <sstream>
+
+// Stdlib complex numbers specialized to double precision.
+#include <complex>
+typedef std::complex<double> complex;
 
 // Define pi if not yet done.
 #ifndef M_PI
@@ -73,8 +77,47 @@ inline double pow5(const double& x) {return x*x*x*x*x;}
 inline double sqrtpos(const double& x) {return sqrt( max( 0., x));}
 
 // Convert string to lowercase for case-insensitive comparisons.
-inline string tolower(const string& name) { string temp(name);
+inline string tolower(const string& name) { 
+  string temp(name);
   for (int i = 0; i < int(temp.length()); ++i) temp[i] = tolower(temp[i]); 
-  return temp; }
+  return temp; 
+}
+
+// Allow several alternative inputs for true/false.
+inline bool boolString(string tag) {
+  string tagLow = tolower(tag);
+  return (tagLow == "true" || tagLow == "1" || tagLow == "on" 
+  || tagLow == "yes" || tagLow == "ok" ) ? true : false ; 
+}  
+
+// Extract XML value string following XML attribute.
+inline string attributeValue(string line, string attribute) {
+  if (line.find(attribute) == string::npos) return "";
+  int iBegAttri = line.find(attribute); 
+  int iBegQuote = line.find("\"", iBegAttri + 1);
+  int iEndQuote = line.find("\"", iBegQuote + 1);
+  return line.substr(iBegQuote + 1, iEndQuote - iBegQuote - 1);
+}
+
+// Extract XML bool value following XML attribute.
+inline bool boolAttributeValue(string line, string attribute) {
+  string valString = attributeValue(line, attribute);
+  if (valString == "") return false;
+  return boolString(valString);   
+}
+
+// Extract XML int value following XML attribute.
+inline int intAttributeValue(string line, string attribute) {
+  string valString = attributeValue(line, attribute);
+  if (valString == "") return 0; istringstream valStream(valString);
+  int intVal; valStream >> intVal; return intVal;     
+}
+
+// Extract XML double value following XML attribute.
+inline double doubleAttributeValue(string line, string attribute) {
+  string valString = attributeValue(line, attribute);
+  if (valString == "") return 0.; istringstream valStream(valString);
+  double doubleVal; valStream >> doubleVal; return doubleVal;     
+}
 
 #endif // Pythia8_PythiaStdlib_H

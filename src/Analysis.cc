@@ -1,5 +1,5 @@
 // Function definitions (not found in the header) for the 
-// Sphericity and CellJet classes.
+// Sphericity, Thrust, ClusJet and CellJet classes.
 // Copyright C 2006 Torbjorn Sjostrand
 
 #include "Analysis.h"
@@ -42,9 +42,9 @@ bool Sphericity::analyze(Event& event) {
 
   // Loop over desired particles in the event.
   for (int i = 0; i < event.size(); ++i) 
-  if (event[i].remains()) {
+  if (event[i].isFinal()) {
     if (select > 2 && event[i].isNeutral() ) continue;
-    if (select == 2 && event[i].isInvisible() ) continue;
+    if (select == 2 && !event[i].isVisible() ) continue;
     ++nStudy;
 
     // Calculate matrix to be diagonalized. Special cases for speed.
@@ -161,6 +161,7 @@ bool Sphericity::analyze(Event& event) {
 
   // Done.
   return true;
+
 }
 
 //*********
@@ -170,9 +171,10 @@ bool Sphericity::analyze(Event& event) {
 void Sphericity::list(ostream& os) {
 
   // Header.
-  os << "\n --------  Pythia Sphericity Listing, power = " 
-     << fixed << setprecision(3) << setw(6) << power 
-     << "  ------ \n \n  no     lambda      e_x       e_y       e_z \n";
+  os << "\n --------  PYTHIA Sphericity Listing  -------- \n";
+  if (powerInt !=2) os << "      Nonstandard momentum power = " 
+     << fixed << setprecision(3) << setw(6) << power << "\n"; 
+  os << "\n  no     lambda      e_x       e_y       e_z \n";
 
   // The three eigenvalues and eigenvectors.
   os << setprecision(5);
@@ -184,8 +186,479 @@ void Sphericity::list(ostream& os) {
      << setw(10) << eVec3.py() << setw(10) << eVec3.pz() << "\n";
 
   // Listing finished.
-  os << "\n --------  End Pythia Sphericity Listing  ------------------"
-     << endl;
+  os << "\n --------  End PYTHIA Sphericity Listing  ----" << endl;
+
+}
+
+
+//**************************************************************************
+
+// Thrust class.
+// This class finds thrust-related properties of an event.
+
+//*********
+ 
+// Constants: could be changed here if desired, but normally should not.
+// These are of technical nature, as described for each.
+
+// Minimum number of particles to perform study.
+const int Thrust::NSTUDYMIN = 2;
+
+// Major not too low or not possible to find major axis.
+const double Thrust::MAJORMIN = 1e-10;
+
+//*********
+ 
+// Analyze event.
+
+bool Thrust::analyze(Event& event) {
+
+  // Initial values and counters zero.
+  eVal1 = eVal2 = eVal3 = 0.;
+  eVec1 = eVec2 = eVec3 = 0.;
+  int nStudy = 0;
+  vector<Vec4> pOrder;
+  Vec4 pSum, nRef, pPart, pFull, pMax;
+
+  // Loop over desired particles in the event.
+  for (int i = 0; i < event.size(); ++i) 
+  if (event[i].isFinal()) {
+    if (select > 2 && event[i].isNeutral() ) continue;
+    if (select == 2 && !event[i].isVisible() ) continue;
+    ++nStudy;
+
+    // Store momenta. Use energy component for absolute momentum.
+    Vec4 pNow = event[i].p();
+    pNow.e(pNow.pAbs());
+    pSum += pNow;
+    pOrder.push_back(pNow);
+  }
+
+  // Very low multiplicities (0 or 1) not considered.
+  if (nStudy < NSTUDYMIN) {
+    ErrorMessages::message("Warning in Thrust::analyze: "
+    " too few particles"); 
+    return false;
+  }
+
+  // Try all combinations of reference vector orthogonal to two particles.
+  for (int i1 = 0; i1 < nStudy - 1; ++i1) 
+  for (int i2 = i1 + 1; i2 < nStudy; ++i2) {
+    nRef = cross3( pOrder[i1], pOrder[i2]);
+    nRef /= nRef.pAbs();
+    pPart = 0.;
+
+    // Add all momenta with sign; two choices for each reference particle.
+    for (int i = 0; i < nStudy; ++i) if (i != i1 && i != i2) {
+      if (dot3(pOrder[i], nRef) > 0.) pPart += pOrder[i]; 
+      else                            pPart -= pOrder[i];  
+    }  
+    for (int j = 0; j < 4; ++j) {
+      if      (j == 0) pFull = pPart + pOrder[i1] + pOrder[i2];
+      else if (j == 1) pFull = pPart + pOrder[i1] - pOrder[i2];
+      else if (j == 2) pFull = pPart - pOrder[i1] + pOrder[i2];
+      else             pFull = pPart - pOrder[i1] - pOrder[i2];
+      pFull.e(pFull.pAbs());    
+      if (pFull.e() > pMax.e()) pMax = pFull;
+    }
+  }
+
+  // Maximum gives thrust axis and value.
+  eVal1 = pMax.e() / pSum.e();
+  eVec1 = pMax / pMax.e();
+  eVec1.e(0.);
+
+  // Subtract momentum along thrust axis.
+  double pAbsSum = 0.;
+  for (int i = 0; i < nStudy; ++i) {
+    pOrder[i] -= dot3( eVec1, pOrder[i]) * eVec1;
+    pOrder[i].e(pOrder[i].pAbs());
+    pAbsSum += pOrder[i].e();
+  }
+    
+  // Simpleminded major and minor axes if too little transverse left.
+  if (pAbsSum < MAJORMIN * pSum.e()) {
+    if ( abs(eVec1.pz()) > 0.5) eVec2 = Vec4( 1., 0., 0., 0.);
+    else                        eVec2 = Vec4( 0., 0., 1., 0.); 
+    eVec2 -= dot3( eVec1, eVec2) * eVec1;
+    eVec2 /= eVec2.pAbs();
+    eVec3 = cross3( eVec1, eVec2);
+    return true;
+  }
+
+  // Try all reference vectors orthogonal to one particles.
+  pMax = 0.;
+  for (int i1 = 0; i1 < nStudy; ++i1) {
+    nRef = cross3( pOrder[i1], eVec1);
+    nRef /= nRef.pAbs();
+    pPart = 0.;
+
+    // Add all momenta with sign; two choices for each reference particle.
+    for (int i = 0; i < nStudy; ++i) if (i != i1) {
+      if (dot3(pOrder[i], nRef) > 0.) pPart += pOrder[i]; 
+      else                            pPart -= pOrder[i];  
+    }  
+    pFull = pPart + pOrder[i1];
+    pFull.e(pFull.pAbs());    
+    if (pFull.e() > pMax.e()) pMax = pFull;
+    pFull = pPart - pOrder[i1];
+    pFull.e(pFull.pAbs());    
+    if (pFull.e() > pMax.e()) pMax = pFull;    
+  }
+
+  // Maximum gives major axis and value.
+  eVal2 = pMax.e() / pSum.e();
+  eVec2 = pMax / pMax.e();
+  eVec2.e(0.);
+
+  // Orthogonal direction gives minor axis, and from there value.
+  eVec3 = cross3( eVec1, eVec2);
+  pAbsSum = 0.;
+  for (int i = 0; i < nStudy; ++i) 
+    pAbsSum += abs( dot3(eVec3, pOrder[i]) );     
+  eVal3 = pAbsSum / pSum.e();  
+
+   // Done.
+  return true;
+
+}
+
+//*********
+
+// Provide a listing of the info.
+  
+void Thrust::list(ostream& os) {
+
+  // Header.
+  os << "\n --------  PYTHIA Thrust Listing  ------------ \n"
+     << "\n          value      e_x       e_y       e_z \n";
+
+  // The thrust, major and minor values and related event axes.
+  os << setprecision(5);
+  os << " Thr" << setw(11) << eVal1 << setw(11) << eVec1.px() 
+     << setw(10) << eVec1.py() << setw(10) << eVec1.pz() << "\n";
+  os << " Maj" << setw(11) << eVal2 << setw(11) << eVec2.px() 
+     << setw(10) << eVec2.py() << setw(10) << eVec2.pz() << "\n";
+  os << " Min" << setw(11) << eVal3 << setw(11) << eVec3.px() 
+     << setw(10) << eVec3.py() << setw(10) << eVec3.pz() << "\n";
+
+  // Listing finished.
+  os << "\n --------  End PYTHIA Thrust Listing  --------" << endl;
+
+}
+
+//**************************************************************************
+
+// SingleClusterJet class.
+// Simple helper class to ClusterJet for a jet and its contents. 
+
+//*********
+ 
+// Distance measures between two SingleClusterJet objects.
+
+double dist2Fun(int measure, const SingleClusterJet& j1, 
+  const SingleClusterJet& j2) {
+
+  // JADE distance.
+  if (measure == 2) return 2. * j1.pJet.e() * j2.pJet.e() 
+    * (1. - dot3( j1.pJet, j2.pJet) / (j1.pAbs * j2.pAbs) );
+
+  // Durham distance.
+  if (measure == 3) return 2. * pow2( min( j1.pJet.e(), j2.pJet.e() ) ) 
+    * (1. - dot3( j1.pJet, j2.pJet) / (j1.pAbs * j2.pAbs) );
+
+  // Lund distance; "default".
+  return (j1.pAbs * j2.pAbs - dot3( j1.pJet, j2.pJet)) 
+    * 2. * j1.pAbs * j2.pAbs / pow2(j1.pAbs + j2.pAbs);
+
+}  
+
+//**************************************************************************
+
+// ClusterJet class.
+// This class performs a jet clustering according to different
+// distance measures: Lund, JADE or Durham.
+
+//*********
+ 
+// Constants: could be changed here if desired, but normally should not.
+// These are of technical nature, as described for each.
+
+// Initial pT/m preclustering scale as fraction of clustering one.
+const double ClusterJet::PRECLUSTERFRAC = 0.1; 
+// Step with which pT/m is reduced if preclustering gives too few jets.
+const double ClusterJet::PRECLUSTERSTEP = 0.8;
+
+//*********
+ 
+// Analyze event.
+
+bool ClusterJet::analyze(Event& event, double yScaleIn, double pTscaleIn, 
+  int nJetMinIn, int nJetMaxIn) {
+
+  // Input values. Initial values zero.
+  yScale = yScaleIn;
+  pTscale = pTscaleIn;
+  nJetMin = nJetMinIn;
+  nJetMax = nJetMaxIn;
+  particles.resize(0);
+  jets.resize(0);
+  Vec4 pSum;
+
+  // Loop over desired particles in the event.
+  for (int i = 0; i < event.size(); ++i) 
+  if (event[i].isFinal()) {
+    if (select > 2 && event[i].isNeutral() ) continue;
+    if (select == 2 && !event[i].isVisible() ) continue;
+
+    // Store them, possibly with modified mass => new energy.
+    Vec4 pTemp = event[i].p();
+    if (massSet == 0 || massSet == 1) {
+      double mTemp = (massSet == 0 || event[i].id() == 22) 
+        ? 0. : piMass; 
+      double eTemp = sqrt(pTemp.pAbs2() + pow2(mTemp));
+      pTemp.e(eTemp);
+    }
+    particles.push_back( SingleClusterJet(pTemp, i) );
+    pSum += pTemp;
+  }
+
+  // Very low multiplicities not considered.
+  nParticles = particles.size();
+  if (nParticles < nJetMin) {
+    ErrorMessages::message("Warning in ClusterJet::analyze: "
+    " too few particles"); 
+    return false;
+  }
+
+  // Squared maximum distance in GeV^2 for joining.
+  double p2Sum = pSum.m2Calc();
+  dist2Join = max( yScale * p2Sum, pow2(pTscale));
+  double dist2BigMin = 2. * max( dist2Join, p2Sum);
+
+  // Do preclustering if desired and possible. 
+  if (precluster && nParticles > nJetMin + 2) {
+    doPrecluster();
+    if (reassign) doReassign();
+  }
+
+  // If no preclustering: each particle is a starting jet.
+  else for (int i = 0; i < nParticles; ++i) {
+    jets.push_back( SingleClusterJet(particles[i]) );
+    particles[i].daughter = i;
+  }
+ 
+  // Begin iteration towards fewer jets.
+  for ( ; ; ) {
+ 
+    // Find the two closest jets.      
+    double dist2Min = dist2BigMin;
+    int jMin = 0;
+    int kMin = 0;
+    for (int j = 0; j < int(jets.size()) - 1; ++j) 
+    for (int k = j + 1; k < int(jets.size()); ++k) {
+      double dist2 = dist2Fun( measure, jets[j], jets[k]); 
+      if (dist2 < dist2Min) {
+        dist2Min = dist2;
+        jMin = j;
+        kMin = k;
+      }
+    }
+
+    // Stop if no pair below cut and not more jets than allowed. 
+    if ( dist2Min > dist2Join  
+      && (nJetMax < nJetMin || int(jets.size()) <= nJetMax) ) break;
+
+    // Join two closest jets.
+    jets[jMin].pJet += jets[kMin].pJet;
+    jets[jMin].pAbs = jets[jMin].pJet.pAbs();
+    jets[jMin].multiplicity += jets[kMin].multiplicity;
+    jets[kMin] = jets.back();
+    jets.pop_back();
+    for (int i = 0; i < nParticles; ++i) 
+    if (particles[i].daughter == kMin) particles[i].daughter = jMin;
+
+    // Do reassignments of particles to nearest jet if desired.
+    if (reassign) doReassign();
+    
+    // Stop if reached minimum allowed number of jets. Else continue.
+    if (int(jets.size()) <= nJetMin) break; 
+  }
+
+  // Order jets in decreasing energy.
+  for (int j = 0; j < int(jets.size()) - 1; ++j) 
+  for (int k = int(jets.size()) - 1; k > j; --k) 
+  if (jets[k].pJet.e() > jets[k-1].pJet.e()) {
+    swap( jets[k], jets[k-1]);
+    for (int i = 0; i < nParticles; ++i) {
+      if (particles[i].daughter == k) particles[i].daughter = k-1;
+      else if (particles[i].daughter == k-1) particles[i].daughter = k;
+    }
+  }
+
+  // Done.
+  return true;
+}
+
+//*********
+
+// Precluster nearby particles to save computer time.
+  
+void ClusterJet::doPrecluster() {
+
+  // Begin iteration over preclustering scale.
+  distPre = PRECLUSTERFRAC * sqrt(dist2Join) / PRECLUSTERSTEP;
+  for ( ; ;) {
+    distPre *= PRECLUSTERSTEP;
+    dist2Pre = pow2(distPre);
+    for (int i = 0; i < nParticles; ++i) { 
+      particles[i].daughter = -1;
+      particles[i].isAssigned = false;
+    }
+
+    // Sum up low-momentum region. Jet if enough momentum.
+    Vec4 pCentral;
+    int multCentral = 0;
+    for (int i = 0; i < nParticles; ++i) 
+    if (particles[i].pAbs < 2. * distPre) {
+      pCentral += particles[i].pJet;      
+      multCentral += particles[i].multiplicity;      
+      particles[i].isAssigned = true;
+    }
+    if (pCentral.pAbs() > 2. * distPre) { 
+      jets.push_back( SingleClusterJet(pCentral) );
+      jets.back().multiplicity = multCentral;
+      for (int i = 0; i < nParticles; ++i) 
+      if (particles[i].isAssigned) particles[i].daughter = 0;
+    }
+
+    // Find fastest remaining particle until none left.
+    for ( ; ;) {
+      int iMax = -1;
+      double pMax = 0.;
+      for (int i = 0; i < nParticles; ++i) 
+      if ( !particles[i].isAssigned && particles[i].pAbs > pMax) {
+        iMax = i;
+        pMax = particles[i].pAbs;
+      }
+      if (iMax == -1) break;
+ 
+      // Sum up precluster around it according to distance function.
+      Vec4 pPre;
+      int multPre = 0;
+      int nRemain = 0;
+      for (int i = 0; i < nParticles; ++i) 
+      if ( !particles[i].isAssigned) {           
+        double dist2 = dist2Fun( measure, particles[iMax], 
+          particles[i]); 
+        if (dist2 < dist2Pre) {
+          pPre += particles[i].pJet;
+          ++multPre;
+          particles[i].isAssigned = true;
+          particles[i].daughter = jets.size();
+        } else ++nRemain;
+      }
+      jets.push_back( SingleClusterJet(pPre) ); 
+      jets.back().multiplicity = multPre;
+
+      // Decide whether sensible starting configuration or iterate.  
+      if (int(jets.size()) + nRemain < nJetMin) break;
+    }
+    if (int(jets.size()) >= nJetMin) break;
+  }
+
+}
+
+//*********
+
+// Reassign particles to nearest jet to correct misclustering.
+  
+void ClusterJet::doReassign() {
+ 
+  // Reset clustered momenta.
+  for (int j = 0; j < int(jets.size()); ++j) {
+    jets[j].pTemp = 0.;
+    jets[j].multiplicity = 0;
+  }
+
+  // Loop through particles to find closest jet.
+  for (int i = 0; i < nParticles; ++i) {
+    particles[i].daughter = -1;
+    double dist2Min = dist2BigMin;
+    int jMin = 0;
+    for (int j = 0; j < int(jets.size()); ++j) {  
+      double dist2 = dist2Fun( measure, particles[i], jets[j]); 
+      if (dist2 < dist2Min) {
+        dist2Min = dist2;
+        jMin = j; 
+      } 
+    }  
+    jets[jMin].pTemp += particles[i].pJet;
+    ++jets[jMin].multiplicity;
+    particles[i].daughter = jMin;
+  }
+
+  // Replace old by new jet momenta.
+  for (int j = 0; j < int(jets.size()); ++j) 
+    jets[j].pJet = jets[j].pTemp;
+
+  // Check that no empty clusters after reassignments.
+  for ( ;  ; ) {
+
+    // If no empty jets then done.
+    int jEmpty = -1;
+    for (int j = 0; j < int(jets.size()); ++j) 
+      if (jets[j].multiplicity == 0) jEmpty = j;
+    if (jEmpty == -1) return;
+
+    // Find particle assigned to jet with largest distance to it.
+    int iSplit = -1;
+    double dist2Max = 0.;
+    for (int i = 0; i < nParticles; ++i) {
+      int j = particles[i].daughter;
+      double dist2 = dist2Fun( measure, particles[i], jets[j]);
+      if (dist2 > dist2Max) {
+        iSplit = i;
+        dist2Max = dist2;
+      }
+    } 
+
+    // Let this particle form new jet and subtract off from existing.
+    int jSplit = particles[iSplit].daughter;    
+    jets[jEmpty] = SingleClusterJet( particles[iSplit].pJet ); 
+    jets[jSplit].pJet -=  particles[iSplit].pJet;
+    jets[jSplit].pAbs = jets[jSplit].pJet.pAbs();
+    --jets[jSplit].multiplicity;
+  }      
+
+}
+
+//*********
+
+// Provide a listing of the info.
+  
+void ClusterJet::list(ostream& os) {
+
+  // Header.
+  string method = (measure == 1) ? "Lund pT" 
+        : ( (measure == 2) ? "JADE m" : "Durham kT" ) ;
+  os << "\n --------  PYTHIA ClusterJet Listing, " << setw(9) <<  method 
+     << " =" << fixed << setprecision(3) << setw(7) << sqrt(dist2Join) 
+     << " GeV  --- \n \n  no  mult      p_x        p_y        p_z    "
+     << "     e          m \n";
+
+  // The jets.
+  for (int i = 0; i < int(jets.size()); ++i) {
+    os << setw(4) << i << setw(6) << jets[i].multiplicity << setw(11) 
+       << jets[i].pJet.px() << setw(11) << jets[i].pJet.py() 
+       << setw(11) << jets[i].pJet.pz() << setw(11) 
+       << jets[i].pJet.e() << setw(11) << jets[i].pJet.mCalc() 
+       << "\n";  
+  }
+
+  // Listing finished.
+  os << "\n --------  End PYTHIA ClusterJet Listing  ---------------"
+     << "--------" << endl;
 }
 
 //**************************************************************************
@@ -197,17 +670,21 @@ void Sphericity::list(ostream& os) {
  
 // Analyze event.
 
-bool CellJet::analyze(Event& event) {
+bool CellJet::analyze(Event& event, double eTjetMinIn, 
+  double coneRadiusIn, double eTseedIn) {
 
-  // Initial values zero.
+  // Input values. Initial values zero.
+  eTjetMin = eTjetMinIn;
+  coneRadius = coneRadiusIn;
+  eTseed = eTseedIn;
   jets.resize(0);
   vector<SingleCell> cells;
 
   // Loop over desired particles in the event.
   for (int i = 0; i < event.size(); ++i) 
-  if (event[i].remains()) {
+  if (event[i].isFinal()) {
     if (select > 2 && event[i].isNeutral() ) continue;
-    if (select == 2 && event[i].isInvisible() ) continue;
+    if (select == 2 && !event[i].isVisible() ) continue;
 
     // Find particle position in (eta, phi, pT) space.
     double etaNow = event[i].eta();
@@ -334,7 +811,7 @@ bool CellJet::analyze(Event& event) {
 void CellJet::list(ostream& os) {
 
   // Header.
-  os << "\n --------  Pythia CellJet Listing, eTjetMin = " 
+  os << "\n --------  PYTHIA CellJet Listing, eTjetMin = " 
      << fixed << setprecision(3) << setw(8) << eTjetMin 
      << ", coneRadius = " << setw(5) << coneRadius 
      << "  ------------------------------ \n \n  no    "
@@ -354,7 +831,7 @@ void CellJet::list(ostream& os) {
   }
 
   // Listing finished.
-  os << "\n --------  End Pythia CellJet Listing  ------------------"
+  os << "\n --------  End PYTHIA CellJet Listing  ------------------"
      << "-------------------------------------------------"
      << endl;
 }

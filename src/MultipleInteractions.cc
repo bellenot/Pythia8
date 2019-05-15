@@ -82,23 +82,22 @@ void MultipleInteractions::initStatic() {
   pTmaxMatch = Settings::mode("MultipleInteractions:pTmaxMatch"); 
 
   //  Parameters of alphaStrong and cross section generation.
-  alphaSvalue = Settings::parameter("MultipleInteractions:alphaSvalue");
+  alphaSvalue = Settings::parm("MultipleInteractions:alphaSvalue");
   alphaSorder = Settings::mode("MultipleInteractions:alphaSorder");
-  alphaEMfix = Settings::parameter("StandardModel:alphaEMfix"); 
-  Kfactor = Settings::parameter("MultipleInteractions:Kfactor");
+  alphaEMfix = Settings::parm("StandardModel:alphaEMfix"); 
+  Kfactor = Settings::parm("MultipleInteractions:Kfactor");
 
   // Regularization of QCD evolution for pT -> 0. 
-  pT0Ref = Settings::parameter("MultipleInteractions:pT0Ref");
-  ecmRef = Settings::parameter("MultipleInteractions:ecmRef");
-  ecmPow = Settings::parameter("MultipleInteractions:ecmPow");
-  pTmin = Settings::parameter("MultipleInteractions:pTmin");
+  pT0Ref = Settings::parm("MultipleInteractions:pT0Ref");
+  ecmRef = Settings::parm("MultipleInteractions:ecmRef");
+  ecmPow = Settings::parm("MultipleInteractions:ecmPow");
+  pTmin = Settings::parm("MultipleInteractions:pTmin");
 
   // Impact parameter profile.
   bProfile = Settings::mode("MultipleInteractions:bProfile");
-  coreRadius = Settings::parameter("MultipleInteractions:coreRadius");
-  coreFraction = Settings::parameter("MultipleInteractions:coreFraction");
-  expPow = max( EXPPOWMIN, 
-    Settings::parameter("MultipleInteractions:expPow"));
+  coreRadius = Settings::parm("MultipleInteractions:coreRadius");
+  coreFraction = Settings::parm("MultipleInteractions:coreFraction");
+  expPow = max( EXPPOWMIN, Settings::parm("MultipleInteractions:expPow"));
 
   // Various other parameters. 
   nQuark = Settings::mode("MultipleInteractions:nQuark");
@@ -111,7 +110,7 @@ void MultipleInteractions::initStatic() {
 // Initialize the generation process for given beams.
 
 bool MultipleInteractions::init( BeamParticle* beamAPtrIn, 
-  BeamParticle* beamBPtrIn, bool reInit) {
+  BeamParticle* beamBPtrIn, bool reInit, ostream& os) {
 
   // Do not initialize if already done, and reinitialization not asked for.
   if (isInit && !reInit) return true;
@@ -160,14 +159,14 @@ bool MultipleInteractions::init( BeamParticle* beamAPtrIn,
   bool canDoMI = sigmaTot.init( beamAPtr->id(), beamBPtr->id(), eCM);
   if (!canDoMI) return false;
   sigmaND = sigmaTot.sigmaND();
-  cout << "\n *-------  PYTHIA Multiple Interactions Initialization  --"
-       << "-----* \n"
-       << " |                                                        "
-       << "     | \n"
-       << " |                 sigmaNonDiffractive = " << fixed 
-       << setprecision(2) << setw(7) << sigmaND << " mb            | \n"
-       << " |                                                        "
-       << "     | \n";
+  os << "\n *-------  PYTHIA Multiple Interactions Initialization  --"
+     << "-----* \n"
+     << " |                                                        "
+     << "     | \n"
+     << " |                 sigmaNonDiffractive = " << fixed 
+     << setprecision(2) << setw(7) << sigmaND << " mb            | \n"
+     << " |                                                        "
+     << "     | \n";
 
   // The pT0 value may need to be decreased, if sigmaInt < sigmaND.
   for ( ; ; ) { 
@@ -191,16 +190,16 @@ bool MultipleInteractions::init( BeamParticle* beamAPtrIn,
 
     // Sufficiently big SigmaInt or reduce pT0. Output.
     if (sigmaInt > SIGMASTEP * sigmaND) break; 
-    cout << " |  pT0 = "  << setw(5) << pT0 << " gives sigmaInteraction = " 
-         << setw(7) << sigmaInt << " mb: rejected  | \n";
+    os << " |  pT0 = "  << setw(5) << pT0 << " gives sigmaInteraction = " 
+       << setw(7) << sigmaInt << " mb: rejected  | \n";
     pT0 *= PT0STEP;
   }
-  cout << " |  pT0 = " << setw(5) << pT0 << " gives sigmaInteraction = " 
-       << setw(7) << sigmaInt << " mb: accepted  | \n"
-       << " |                                                        "
-       << "     | \n"
-       << " *-------  End PYTHIA Multiple Interactions Initialization"
-       << "  ---* " << endl;
+  os << " |  pT0 = " << setw(5) << pT0 << " gives sigmaInteraction = " 
+     << setw(7) << sigmaInt << " mb: accepted  | \n"
+     << " |                                                        "
+     << "     | \n"
+     << " *-------  End PYTHIA Multiple Interactions Initialization"
+     << "  ---* " << endl;
 
   // Calculate factor relating matter overlap and interaction rate.
   overlapInit();
@@ -323,7 +322,7 @@ bool MultipleInteractions::limitPTmax( Event& event) {
   // Look if only quarks (u, d, s, c, b), gluons and photons in final state. 
   bool onlyQGP = true;
   for (int i = 5; i < event.size(); ++i) {
-    int idAbs=event[i].idAbs();
+    int idAbs = event[i].idAbs();
     if (idAbs > 5 && idAbs != 21 && idAbs != 22) onlyQGP = false;
   }
   return (onlyQGP) ? true : false;
@@ -828,6 +827,7 @@ void MultipleInteractions::overlapFirst() {
   if (bProfile <= 0 || bProfile > 3) {
     bNow = bAvg;
     enhanceB = zeroIntCorr;
+    bIsSet = true;
     atLowB = true;
     return;
   }
@@ -896,7 +896,10 @@ void MultipleInteractions::overlapFirst() {
 
   // Confirm choice of b value. Derive enhancement factor.
   } while (probAccept < Rndm::flat());
-  enhanceB = (normOverlap / normPi) * overlapNow ;  
+  enhanceB = (normOverlap / normPi) * overlapNow ; 
+
+  // Done. 
+  bIsSet = true;
 
 }
 
@@ -974,6 +977,7 @@ void MultipleInteractions::overlapNext(double pTscale) {
   } while (sudakov(pT2scale, enhanceB) < Rndm::flat());
 
   // Done.
+  bIsSet = true;
 }
 
 //**************************************************************************

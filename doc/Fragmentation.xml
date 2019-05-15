@@ -33,13 +33,13 @@ only alternative for light quarks. It is of the form
 with the two main free parameters <ei>a</ei> and <ei>b</ei> to be 
 tuned to data. They are stored in 
 
-<parameter name="StringZ:aLund" default="0.3" min="0.0" max="2.0">
+<parm name="StringZ:aLund" default="0.3" min="0.0" max="2.0">
 The <ei>a</ei> parameter of the Lund symmetric fragmentation function.
-</parameter>
+</parm>
 
-<parameter name="StringZ:bLund" default="0.58" min="0.2" max="2.0">
+<parm name="StringZ:bLund" default="0.58" min="0.2" max="2.0">
 The <ei>b</ei> parameter of the Lund symmetric fragmentation function.
-</parameter>
+</parm>
 
 <p/>
 In principle, each flavour can have a different <ei>a</ei>. Then,
@@ -50,11 +50,11 @@ the shape is
 </eq>
 This is only implemented for diquarks relative to normal quarks:
 
-<parameter name="StringZ:aExtraDiquark" default="0.5" 
+<parm name="StringZ:aExtraDiquark" default="0.5" 
 min="0.0" max="2.0">
 allows a larger <ei>i</ei> for diquarks, with total 
 <ei>a = aLund + aExtraDiquark</ei>.
-</parameter>
+</parm>
 
 <p/>
 Finally, the Bowler modification <ref>Bow81</ref> introduces an extra 
@@ -65,18 +65,18 @@ factor
 for heavy quarks. To keep some flexibility, a multiplicative factor
 <ei>r_Q</ei> is introduced, which ought to be unity but can be set in
 
-<parameter name="StringZ:rFactC" default="1.0" min="0.0" max="2.0">
+<parm name="StringZ:rFactC" default="1.0" min="0.0" max="2.0">
 <ei>r_c</ei>, i.e. the above parameter for <ei>c</ei> quarks.
-</parameter>
+</parm>
 
-<parameter name="StringZ:rFactB" default="1.0" min="0.0" max="2.0">
+<parm name="StringZ:rFactB" default="1.0" min="0.0" max="2.0">
 <ei>r_b</ei>, i.e. the above parameter for <ei>b</ei> quarks.
-</parameter>
+</parm>
 
-<parameter name="StringZ:rFactH" default="1.0" min="0.0" max="2.0">
+<parm name="StringZ:rFactH" default="1.0" min="0.0" max="2.0">
 <ei>r_h</ei>, i.e. the above parameter for heavier hypothetical quarks,
 or in general any new coloured particle long-lived enough to hadronize.
-</parameter>
+</parm>
 
 <p/>
 As an alternative, it is possible to switch over to the 
@@ -101,21 +101,21 @@ use Peterson for hypothetical heavier quarks.
 <p/>
 When switched on, the corresponding epsilon values are chosen to be
 
-<parameter name="StringZ:epsilonC" default="0.05" min="0.01" max="0.25">
+<parm name="StringZ:epsilonC" default="0.05" min="0.01" max="0.25">
 <ei>epsilon_c</ei>, i.e. the above parameter for <ei>c</ei> quarks.
-</parameter>
+</parm>
 
-<parameter name="StringZ:epsilonB" default="0.005" min="0.001" max="0.025">
+<parm name="StringZ:epsilonB" default="0.005" min="0.001" max="0.025">
 <ei>epsilon_b</ei>, i.e. the above parameter for <ei>b</ei> quarks.
-</parameter>
+</parm>
 
-<parameter name="StringZ:epsilonH" default="0.005" min="0.0001" max="0.25">
+<parm name="StringZ:epsilonH" default="0.005" min="0.0001" max="0.25">
 <ei>epsilon_h</ei>, i.e. the above parameter for hypothetical heavier 
 quarks, normalized to the case where <ei>m_h = m_b</ei>. The actually 
 used parameter is then <ei>epsilon = epsilon_h * (m_b^2 / m_h^2)</ei>.
 This allows a sensible scaling to a particle with an unknown higher
 mass without the need for a user intervention. 
-</parameter>
+</parm>
 
 <h3>Fragmentation <ei>pT</ei></h3>
 
@@ -134,9 +134,9 @@ Then the total squared width is
 </eq>
 It is this latter number that is stored in
 
-<parameter name="StringPT:sigma" default="0.36" min="0.0" max="1.0">
+<parm name="StringPT:sigma" default="0.36" min="0.0" max="1.0">
 the width <ei>sigma</ei> in the fragmentation process.
-</parameter>
+</parm>
 
 <p/>
 Since a normal hadron receives <ei>pT</ei> contributions for two string 
@@ -152,16 +152,16 @@ moment we stay with the current recipe, to boost the above <ei>pT</ei>
 by a factor <ei>enhancedWidth</ei> for a small fraction 
 <ei>enhancedFraction</ei> of the breakups, where
 
-<parameter name="StringPT:enhancedFraction" default="0.1" 
+<parm name="StringPT:enhancedFraction" default="0.1" 
 min="0.0" max="0.1">
 <ei>enhancedFraction</ei>,the fraction of string breaks with enhanced 
 width.
-</parameter>
+</parm>
 
-<parameter name="StringPT:enhancedWidth" default="2.0" 
+<parm name="StringPT:enhancedWidth" default="2.0" 
 min="1.0" max="5.0">
 <ei>enhancedWidth</ei>,the enhancement of the width in this fraction.
-</parameter>
+</parm>
 
 <h3>Jet joining procedure</h3>
 
@@ -173,25 +173,25 @@ parameters, but in a way too complicated to parametrize. The dependence
 is rather mild, however, so for a sensible range of variation the 
 parameters in this section should not be touched.
 
-<parameter name="StringFragmentation:stopMass" default="1.0" 
+<parm name="StringFragmentation:stopMass" default="1.0" 
 min="0.0" max="2.0">
 Is used to define a <ei>W_min = m_q1 + m_q2 + stopMass</ei>,
 where <ei>m_q1</ei> and <ei>m_q2</ei> are the masses of the two 
 current endpoint quarks or diquarks. 
-</parameter>
+</parm>
 
-<parameter name="StringFragmentation:stopNewFlav" default="2.0" 
+<parm name="StringFragmentation:stopNewFlav" default="2.0" 
 min="0.0" max="2.0">
 Add to <ei>W_min</ei> an amount <ei>stopNewFlav * m_q_last</ei>, 
 where <ei>q_last</ei> is the last <ei>q qbar</ei> pair produced 
 between the final two hadrons.
-</parameter>
+</parm>
 
-<parameter name="StringFragmentation:stopSmear" default="0.2" 
+<parm name="StringFragmentation:stopSmear" default="0.2" 
 min="0.0" max="0.5">
 The <ei>W_min</ei> above is then smeared uniformly in the range
 <ei>W_min_smeared = W_min * [ 1 - stopSmear, 1 + stopSmear ]</ei>.
-</parameter>
+</parm>
 
 This <ei>W_min_smeared</ei> is then compared with the current remaining
 <ei>W_transverse</ei> to determine if there is energy left for further
@@ -205,16 +205,16 @@ fragmentation process is started over.)
 There are a few situations when it is meaningful to simplify the
 original task, one way or another.
 
-<parameter name="HadronLevel:mStringMin" default="1." 
+<parm name="HadronLevel:mStringMin" default="1." 
 min="0.5" max="1.5">
 Decides whether a partonic system should be considered as a normal
 string or a ministring, the latter only producing one or two primary
 hadrons. The system mass should be above <ei>mStringMin</ei> plus the 
 sum of quark/diquark constituent masses for a normal string description,
 else the ministring scenario is used.
-</parameter>
+</parm>
 
-<parameter name="FragmentationSystems:mJoin" default="0.1" 
+<parm name="FragmentationSystems:mJoin" default="0.1" 
 min="0." max="1.">
 When two colour-connected partons are very nearby, with at least 
 one being a gluon, they can be joined into one, to avoid technical 
@@ -222,9 +222,9 @@ problems of very small string regions. The requirement for joining is
 that the invariant mass of the pair is below <ei>mJoin</ei>, where a 
 gluon only counts with half its momentum, i.e. with its contribution 
 to the string region under consideration.
-</parameter>
+</parm>
 
-<parameter name="FragmentationSystems:mJoinJunction" default="1.0"
+<parm name="FragmentationSystems:mJoinJunction" default="1.0"
 min="0.5" max="2.">
 When the invariant mass of two of the quarks in a three-quark junction 
 string system becomes too small, the system is simplified to a 
@@ -234,7 +234,7 @@ is that the diquark mass, minus the two quark masses, falls below
 the respective quark, if any, are counted as part of the quark 
 four-momentum. Those on the two combined legs are clustered with the 
 diquark when it is formed.
-</parameter>
+</parm>
 
 <h3>Ministrings</h3>
 
@@ -274,7 +274,7 @@ the junction, where the baryon number topologically is located.
 The junction fragmentation scheme is described in <ref>Sjo03</ref>. 
 The parameters in this section should not be touched except by experts.
 
-<parameter name="StringFragmentation:eNormJunction" default="2.0" 
+<parm name="StringFragmentation:eNormJunction" default="2.0" 
 min="0.5" max="10">
 Used to find the effective rest frame of the junction, which is
 complicated when the three string legs may contain additional
@@ -286,16 +286,16 @@ than the currently considered one (in the junction rest frame).
 Should in principle be (close to) <ei>sqrt((1 + a) / b)</ei>, with 
 <ei>a</ei> and <ei>b</ei> the parameters of the Lund symmetric 
 fragmentation function. 
-</parameter>
+</parm>
 
-<parameter name="StringFragmentation:eBothLeftJunction" default="1.0" 
+<parm name="StringFragmentation:eBothLeftJunction" default="1.0" 
 min="0.5">
 Retry (up to 10 times) when the first two considered strings in to a 
 junction both have a remaining energy (in the junction rest frame) 
 above this number.
-</parameter>
+</parm>
 
-<parameter name="StringFragmentation:eMaxLeftJunction" default="10.0" 
+<parm name="StringFragmentation:eMaxLeftJunction" default="10.0" 
 min="0."> 
 Retry (up to 10 times) when the first two considered strings in to a 
 junction has a highest remaining energy (in the junction rest frame) 
@@ -303,15 +303,15 @@ above a random energy evenly distributed between
 <ei>eBothLeftJunction</ei> and 
 <ei>eBothLeftJunction + eMaxLeftJunction</ei> 
 (drawn anew for each test).
-</parameter>
+</parm>
 
-<parameter name="StringFragmentation:eMinLeftJunction" default="0.2" 
+<parm name="StringFragmentation:eMinLeftJunction" default="0.2" 
 min="0."> 
 Retry (up to 10 times) when the invariant mass-squared of the final leg 
 and the leftover momentum of the first two treated legs falls below 
 <ei>eMinLeftJunction</ei> times the energy of the final leg (in the 
 junction rest frame). 
-</parameter>
+</parm>
 
 </chapter>
 

@@ -17,6 +17,19 @@ namespace Pythia8 {
 // (Values will be overwritten in initStatic call, so are purely dummy.)
 
 int InFlux::nQuark = 5;
+bool InFlux::showChannels = false;
+
+// Pointers to the parton densities of the incoming beams.
+PDF* InFlux::pdfAPtr; 
+PDF* InFlux::pdfBPtr; 
+
+// Constants: could be changed here if desired, but normally should not.
+// These are of technical nature, as described for each.
+
+// Map fermions onto their first-generation equivalents.
+const int InFlux::MAPTOFIRST[40] = {0, 0, -12, -11, -12, -11, -12, -11, 
+  -12, -11, 0, 0, -2, -1, -2, -1, -2, -1, -2, -1, 0, 1, 2, 1, 2, 1, 2, 
+  1, 2, 0, 0, 11, 12, 11, 12, 11, 12, 11, 12, 0}; 
 
 //*********
 
@@ -27,46 +40,99 @@ void InFlux::initStatic() {
   // Maximum incoming quark flavour.
   nQuark = Settings::mode("inFlux:nQuark");
 
+  // Print or not initialization data.
+  showChannels = Settings::flag("inFlux:showChannels");
+
 }
 
 //*********
 
-// Weight channels by (two or four) powers of e.
+// Weight channels by two powers of e.
 
-void InFlux::weightCharge(int ePow) {
+void InFlux::weightCharge2() {
 
-  for (int i = 0; i < int(weightAB.size()); ++i) {
-    int id = (abs(idPartonPairA[i]) < 9) ? idPartonPairA[i] 
-      : idPartonPairB[i];
-    double e2 = (id%2 == 0) ? 4./9. : 1./9.;
-    if (ePow == 2) weightAB[i] *= e2;
-    if (ePow == 4) weightAB[i] *= e2 * e2;
+  for (int i = 0; i < sizePair(); ++i) {
+    int id = (abs(inPair[i].idA) < 9) ? inPair[i].idA : inPair[i].idB;
+    inPair[i].fixWeight *= (id%2 == 0) ? 4./9. : 1./9.;
   }
 
 }
 
 //*********
 
-// Weight channels by (two or four) powers of CKM matrix elements.
+// Weight channels by two powers of CKM matrix elements.
 // Currently assume already known instate is q qbar'.
 
-void InFlux::weightCKM(int ckmPow) {
+void InFlux::weightCKM2() {
 
-  for (int i = 0; i < int(weightAB.size()); ++i) {
+  for (int i = 0; i < sizePair(); ++i) {
 
     // Remove impossible combinations.
-    int idA = idPartonPairA[i];
-    int idB = idPartonPairB[i]; 
-    if (idA * idB > 0 || (idA + idB)%2 == 0) weightAB[i] *= 0.;
+    int idA = inPair[i].idA;
+    int idB = inPair[i].idB; 
+    if (idA * idB > 0 || (idA + idB)%2 == 0) inPair[i].fixWeight = 0.;
 
-    // Find up-type and down-type quarks, and read off CKM value.
-    else { 
-      int idAabs = abs(idA);
-      int idBabs = abs(idB);
-      if (idAabs%2 == 1) swap(idAabs, idBabs);
-      double ckm2 = VCKM::V2( (idAabs/2), (idBabs+1)/2 );
-      if (ckmPow == 2) weightAB[i] *= ckm2;
-      if (ckmPow == 4) weightAB[i] *= ckm2 * ckm2;
+    // Read off CKM value.
+    else inPair[i].fixWeight *= VCKM::V2id(idA, idB);
+  }
+
+}
+
+//*********
+
+// Weight channels by sum of squared CKM matrix element 
+// for initial flavour(s). Three possibilities implemented:
+// mode = 1 : CKM weight on one incoming side.
+//      = 2 : decoupled CKM weights on both incoming sides.
+//      = 3 : coupled CKM weights on both incoming sides, as 
+//          consistent with t-channel W exhange (e.g. W+W- -> h0). 
+//      = 4 : as 3, but with specified flavour produced on one side. 
+
+
+void InFlux::weightCKM2sum(int mode, int idQ) {
+
+  // Loop over existing inchannels and read instate.
+  for (int i = 0; i < sizePair(); ++i) {
+    int idA = inPair[i].idA;
+    int idB = inPair[i].idB;
+    int idAabs = abs(idA);
+    int idBabs = abs(idB);
+
+    // mode 1: only f g and f gamma allowed.
+    if (mode == 1) {
+      int idMin = min( idAabs, idBabs);
+      int idMax = max( idAabs, idBabs);
+      if (idMax !=21 && idMax != 22) inPair[i].fixWeight = 0.;
+      else inPair[i].fixWeight *= VCKM::V2sum(idMin);
+    
+    // mode 2: decoupled f f' incoming state.
+    } else if (mode == 2) {
+      if (idAabs > 20 || idBabs > 20) inPair[i].fixWeight = 0.;   
+      else inPair[i].fixWeight *= VCKM::V2sum(idA) *  VCKM::V2sum(idB);
+
+    // mode 3: coupled f f' incoming state (like t-channel W).  
+    } else if (mode == 3) {
+      if (idAabs > 20 || idBabs > 20) inPair[i].fixWeight = 0.; 
+      else if ( (idAabs%2 == idBabs%2 && idA * idB < 0)
+        || (idAabs%2 != idBabs%2 && idA * idB > 0) ) 
+        inPair[i].fixWeight *= VCKM::V2sum(idA) *  VCKM::V2sum(idB);
+      else inPair[i].fixWeight = 0.;   
+
+    // mode 4: coupled f f' incoming state, on one side to specified flavour.  
+    } else if (mode == 4) {
+      if (idAabs > 20 || idBabs > 20) inPair[i].fixWeight = 0.; 
+      else if ( (idA * idB < 0 && (idAabs + idBabs)%2 == 0)
+        || (idA * idB > 0 && (idAabs + idBabs)%2 == 1) ) {
+        if ( (idQ + idAabs)%2 == 1 && (idQ + idBabs)%2 == 1 )
+          inPair[i].fixWeight *= ( VCKM::V2id(idA, idQ) *  VCKM::V2sum(idB)
+            + VCKM::V2sum(idA) * VCKM::V2id(idB, idQ) );
+        else if ( (idQ + idAabs)%2 == 1) 
+          inPair[i].fixWeight *= VCKM::V2id(idA, idQ) * VCKM::V2sum(idB);
+        else if ( (idQ + idBabs)%2 == 1) 
+          inPair[i].fixWeight *= VCKM::V2sum(idA) * VCKM::V2id(idB, idQ);
+        else inPair[i].fixWeight = 0.; 
+      }
+      else inPair[i].fixWeight = 0.;   
     }
   }
 
@@ -79,13 +145,151 @@ void InFlux::weightCKM(int ckmPow) {
 
 void InFlux::weightInvCol() {
 
-  for (int i = 0; i < int(weightAB.size()); ++i) {
+  for (int i = 0; i < sizePair(); ++i) {
 
     // Incoming q qbar pair or g g pair.
-    int idA = idPartonPairA[i];
-    int idB = idPartonPairB[i]; 
-    if (idA * idB < 0 && abs(idA) < 10 && abs(idB) << 10) weightAB[i] /= 3.;
-    if (idA == 21 && idB == 21)  weightAB[i] /= 8.;
+    int idA = inPair[i].idA;
+    int idB = inPair[i].idB; 
+    if (idA * idB < 0 && abs(idA) < 10 && abs(idB) < 10) 
+      inPair[i].fixWeight /= 3.;
+    if (idA == 21 && idB == 21)  inPair[i].fixWeight /= 8.;
+  }
+
+}
+
+//*********
+
+// Weight by a factor of 2 for neutrinos: since only one spin state
+// no spin averaging factor to be applied in some processes.
+
+void InFlux::weightNeutrinoSpin() {
+
+  for (int i = 0; i < sizePair(); ++i) {
+
+    // Look for incoming neutrinos.
+    int idAabs = abs(inPair[i].idA);
+    if (idAabs == 12 || idAabs == 14 || idAabs == 16 || idAabs == 18)
+      inPair[i].fixWeight *= 2.;
+    int idBabs = abs(inPair[i].idB);
+    if (idBabs == 12 || idBabs == 14 || idBabs == 16 || idBabs == 18)
+      inPair[i].fixWeight *= 2.;
+  }
+
+}
+
+//*********
+
+// Weight by channel-specific factors.
+
+void InFlux::weightFixed(int id1, int id2, double nowWeight, 
+  bool flipSide, bool conjugate, bool allGen) {
+
+  // Define charge-conjugate instate. Check whether to be used. 
+  int id1Anti = (abs(id1) < 20) ? -id1 : id1;
+  int id2Anti = (abs(id2) < 20) ? -id2 : id2;
+  bool checkAnti = conjugate && ( (id1Anti != id1) || (id2Anti != id2) ); 
+
+  // Loop over channels and read flavours.
+  for (int i = 0; i < sizePair(); ++i) {
+    int idA = inPair[i].idA;
+    int idB = inPair[i].idB; 
+
+    // Default option: treat all generations same way as first one.
+    if (allGen) {
+      if (abs(idA) < 20) idA = MAPTOFIRST[idA + 20];    
+      if (abs(idB) < 20) idB = MAPTOFIRST[idB + 20];    
+    }
+
+    // If channels match then multiply weights by input number.
+    if ( idA == id1 && idB == id2 ) 
+      inPair[i].fixWeight *= nowWeight;
+    else if ( flipSide && idA == id2 && idB == id1 ) 
+      inPair[i].fixWeight *= nowWeight;
+    else if ( checkAnti &&  idA == id1Anti && idB == id2Anti ) 
+      inPair[i].fixWeight *= nowWeight;
+    else if ( flipSide && checkAnti && idA == id2Anti && idB == id1Anti ) 
+      inPair[i].fixWeight *= nowWeight;
+  }
+
+}
+
+//*********
+
+// Remove empty channels and optionally list remaining ones.
+
+void InFlux::checkChannels(string processName, ostream& os) {
+
+  // Remove empty channels, i.e. fix weight = 0, from list.
+  vector<InPair>::iterator iterPair;
+  for (iterPair = inPair.begin(); iterPair != inPair.end(); ++iterPair) 
+  if (iterPair->fixWeight <= 0.) {
+    inPair.erase(iterPair); 
+    --iterPair;
+  }   
+
+  // Done if not to list flavours and channels.
+  if (!showChannels) return;
+
+  // List process name and allowed incoming flavours in beams.
+  os << "\n InFlux initialization of process " << processName << "\n";
+  os << " Allowed flavours in beam A:";
+  for (int i = 0; i < int(inBeamA.size()); ++i) 
+    os << "  " << inBeamA[i].id;
+  os << "\n"; 
+  os << " Allowed flavours in beam B:";
+  for (int i = 0; i < int(inBeamB.size()); ++i) 
+    os << "  " << inBeamB[i].id;
+  os << "\n"; 
+
+  // List allowed channels and fixed initialization weights.
+  os << " Allowed channels of two incoming flavours with associated "
+     << "fixed initial weight:\n";
+  os << "    idA idB     weight    idA idB     weight    idA idB     "
+     << "weight    idA idB     weight \n" << scientific << setprecision(3);
+  int nList = inPair.size();
+  int nLine = (nList + 3) / 4;
+  for (int iList = 0; iList < 4 * nLine; ++iList) {
+    if (iList > 0 && iList%4 == 0) os << "\n";
+    int i = nLine * iList - (4 * nLine - 1) * (iList/4);
+    if (i < nList) os << setw(7) << inPair[i].idA << setw(4) 
+      << inPair[i].idB << setw(11) << inPair[i].fixWeight;
+  }
+  os << endl;
+
+}
+
+//*********
+
+// Weight by channel-specific factors.
+
+void InFlux::weightInState(int id1, int id2, double nowWeight, 
+  bool flipSide, bool conjugate, bool allGen) {
+
+  // Define charge-conjugate instate. Check whether to be used. 
+  int id1Anti = (abs(id1) < 20) ? -id1 : id1;
+  int id2Anti = (abs(id2) < 20) ? -id2 : id2;
+  bool checkAnti = conjugate && ( (id1Anti != id1) || (id2Anti != id2) ); 
+
+  // Loop over channels and read flavours.
+  for (int i = 0; i < sizePair(); ++i) {
+    int idA = inPair[i].idA;
+    int idB = inPair[i].idB; 
+
+    // Default option: treat all generations same way as first one.
+    if (allGen) {
+      if (abs(idA) < 20) idA = MAPTOFIRST[idA + 20];    
+      if (abs(idB) < 20) idB = MAPTOFIRST[idB + 20];    
+    }
+
+    // If channels match then multiply weights by input number.
+    if ( idA == id1 && idB == id2 ) 
+      inPair[i].varWeight = nowWeight;
+    else if ( flipSide && idA == id2 && idB == id1 ) 
+      inPair[i].varWeight = nowWeight;
+    else if ( checkAnti &&  idA == id1Anti && idB == id2Anti ) 
+      inPair[i].varWeight = nowWeight;
+    else if ( flipSide && checkAnti && idA == id2Anti && idB == id1Anti ) 
+      inPair[i].varWeight = nowWeight;
   }
 
 }
@@ -97,26 +301,27 @@ void InFlux::weightInvCol() {
 double InFlux::flux(double x1, double x2, double Q2) {
 
   // Evaluate and store the required parton densities.
-  for (int j = 0; j < int(idPartonA.size()); ++j) 
-    pdfA[j] = pdfAPtr->xf( idPartonA[j], x1, Q2); 
-  for (int j = 0; j < int(idPartonB.size()); ++j) 
-    pdfB[j] = pdfBPtr->xf( idPartonB[j], x2, Q2); 
+  for (int j = 0; j < sizeBeamA(); ++j) 
+    inBeamA[j].pdf = pdfAPtr->xf( inBeamA[j].id, x1, Q2); 
+  for (int j = 0; j < sizeBeamB(); ++j) 
+    inBeamB[j].pdf = pdfBPtr->xf( inBeamB[j].id, x2, Q2); 
 
   // Multiply on these densities for each of the allowed channels. Sum.
   fluxwtSum = 0.;
-  for (int i = 0; i < int(weightAB.size()); ++i) {
-    for (int j = 0; j < int(idPartonA.size()); ++j) 
-    if (idPartonPairA[i] == idPartonA[j]) {
-      pdfPairA[i] = pdfA[j];
+  for (int i = 0; i < sizePair(); ++i) {
+    for (int j = 0; j < sizeBeamA(); ++j) 
+    if (inPair[i].idA == inBeamA[j].id) {
+      inPair[i].pdfA = inBeamA[j].pdf;
       break;
     }
-    for (int j = 0; j < int(idPartonB.size()); ++j) 
-    if (idPartonPairB[i] == idPartonB[j]) {
-      pdfPairB[i] = pdfB[j];
+    for (int j = 0; j < sizeBeamB(); ++j) 
+    if (inPair[i].idB == inBeamB[j].id) {
+      inPair[i].pdfB = inBeamB[j].pdf;
       break;
     }
-    fluxweightAB[i] = pdfPairA[i] * pdfPairB[i] * weightAB[i];
-    fluxwtSum += fluxweightAB[i];
+    inPair[i].fluxWeight = inPair[i].fixWeight * inPair[i].varWeight 
+      * inPair[i].pdfA * inPair[i].pdfB;
+    fluxwtSum += inPair[i].fluxWeight;
   }
  
   // Done.
@@ -132,13 +337,13 @@ void InFlux::pick() {
 
   // Pick channel. Extract channel flavours.
   double fluxwtRand =  fluxwtSum * Rndm::flat();
-  for (int i = 0; i < int(fluxweightAB.size()); ++i) {
-    fluxwtRand -= fluxweightAB[i];
+  for (int i = 0; i < sizePair(); ++i) {
+    fluxwtRand -= inPair[i].fluxWeight;
     if (fluxwtRand <= 0.) {
-      idNow1 = idPartonPairA[i];
-      idNow2 = idPartonPairB[i];
-      pdfNow1 = pdfPairA[i];
-      pdfNow2 = pdfPairB[i];
+      idNow1 = inPair[i].idA;
+      idNow2 = inPair[i].idB;
+      pdfNow1 = inPair[i].pdfA; 
+      pdfNow2 = inPair[i].pdfB; 
       break;
     }
   }
@@ -157,18 +362,11 @@ void InFlux::pick() {
 void InFluxgg::initChannels() {
 
   // The beams individually.
-  idPartonA.push_back(21);
-  idPartonB.push_back(21);
-  pdfA.push_back(0.);
-  pdfB.push_back(0.);
+  addBeamA(21);
+  addBeamB(21);
  
   // The combined channels.
-  idPartonPairA.push_back(21);
-  idPartonPairB.push_back(21);
-  pdfPairA.push_back(0.);
-  pdfPairB.push_back(0.);
-  weightAB.push_back(1.);
-  fluxweightAB.push_back(1.);
+  addPair(21, 21);
 
 }
 
@@ -186,27 +384,15 @@ void InFluxqg::initChannels() {
   // The beams individually.
   for (int i = -nQuark; i <= nQuark; ++i) {
     int id = (i == 0) ? 21 : i;
-    idPartonA.push_back(id);
-    idPartonB.push_back(id);
-    pdfA.push_back(0.);
-    pdfB.push_back(0.);
+    addBeamA(id);
+    addBeamB(id);
   }
 
   // The combined channels.
   for (int id = -nQuark; id <= nQuark; ++id) 
   if (id != 0) {
-    idPartonPairA.push_back(id);
-    idPartonPairB.push_back(21);
-    pdfPairA.push_back(0.);
-    pdfPairB.push_back(0.);
-    weightAB.push_back(1.);
-    fluxweightAB.push_back(0.);
-    idPartonPairA.push_back(21);
-    idPartonPairB.push_back(id);
-    pdfPairA.push_back(0.);
-    pdfPairB.push_back(0.);
-    weightAB.push_back(1.);
-    fluxweightAB.push_back(1.);
+    addPair(id, 21);
+    addPair(21, id);
   }
 
 }
@@ -226,24 +412,16 @@ void InFluxqqbarqqDiff::initChannels() {
   // The beams individually.
   for (int id = -nQuark; id <= nQuark; ++id) 
   if (id != 0) {
-    idPartonA.push_back(id);
-    idPartonB.push_back(id);
-    pdfA.push_back(0.);
-    pdfB.push_back(0.);
+    addBeamA(id);
+    addBeamB(id);
   }
 
   // The combined channels.
   for (int id1 = -nQuark; id1 <= nQuark; ++id1) 
   if (id1 != 0) 
   for (int id2 = -nQuark; id2 <= nQuark; ++id2) 
-  if (id2 != 0 && id2 != id1) {
-    idPartonPairA.push_back(id1);
-    idPartonPairB.push_back(id2);
-    pdfPairA.push_back(0.);
-    pdfPairB.push_back(0.);
-    weightAB.push_back(1.);
-    fluxweightAB.push_back(1.);
-  }
+  if (id2 != 0 && id2 != id1) 
+    addPair(id1, id2);
 
 }
 
@@ -261,24 +439,16 @@ void InFluxqqDiff::initChannels() {
   // The beams individually.
   for (int id = -nQuark; id <= nQuark; ++id) 
   if (id != 0) {
-    idPartonA.push_back(id);
-    idPartonB.push_back(id);
-    pdfA.push_back(0.);
-    pdfB.push_back(0.);
+    addBeamA(id);
+    addBeamB(id);
   }
 
   // The combined channels.
   for (int id1 = -nQuark; id1 <= nQuark; ++id1) 
   if (id1 != 0) 
   for (int id2 = -nQuark; id2 <= nQuark; ++id2) 
-  if (id2 != 0 && id2 != id1 && id1 * id2 > 0) {
-    idPartonPairA.push_back(id1);
-    idPartonPairB.push_back(id2);
-    pdfPairA.push_back(0.);
-    pdfPairB.push_back(0.);
-    weightAB.push_back(1.);
-    fluxweightAB.push_back(1.);
-  }
+  if (id2 != 0 && id2 != id1 && id1 * id2 > 0) 
+    addPair(id1, id2);
 
 }
 //**************************************************************************
@@ -295,22 +465,14 @@ void InFluxqqSame::initChannels() {
   // The beams individually.
   for (int id = -nQuark; id <= nQuark; ++id) 
   if (id != 0) {
-    idPartonA.push_back(id);
-    idPartonB.push_back(id);
-    pdfA.push_back(0.);
-    pdfB.push_back(0.);
+    addBeamA(id);
+    addBeamB(id);
   }
 
   // The combined channels.
   for (int id = -nQuark; id <= nQuark; ++id) 
-  if (id != 0) {
-    idPartonPairA.push_back(id);
-    idPartonPairB.push_back(id);
-    pdfPairA.push_back(0.);
-    pdfPairB.push_back(0.);
-    weightAB.push_back(1.);
-    fluxweightAB.push_back(1.);
-  }
+  if (id != 0) 
+    addPair(id, id);
 
 }
 
@@ -328,24 +490,16 @@ void InFluxqqbarDiff::initChannels() {
   // The beams individually.
   for (int id = -nQuark; id <= nQuark; ++id) 
   if (id != 0) {
-    idPartonA.push_back(id);
-    idPartonB.push_back(id);
-    pdfA.push_back(0.);
-    pdfB.push_back(0.);
+    addBeamA(id);
+    addBeamB(id);
   }
 
   // The combined channels.
   for (int id1 = -nQuark; id1 <= nQuark; ++id1) 
   if (id1 != 0) 
   for (int id2 = -nQuark; id2 <= nQuark; ++id2) 
-  if (id2 != 0 && id2 != -id1 && id1 * id2 < 0) {
-    idPartonPairA.push_back(id1);
-    idPartonPairB.push_back(id2);
-    pdfPairA.push_back(0.);
-    pdfPairB.push_back(0.);
-    weightAB.push_back(1.);
-    fluxweightAB.push_back(1.);
-  }
+  if (id2 != 0 && id2 != -id1 && id1 * id2 < 0) 
+    addPair(id1, id2);
 
 }
 
@@ -363,22 +517,68 @@ void InFluxqqbarSame::initChannels() {
   // The beams individually.
   for (int id = -nQuark; id <= nQuark; ++id) 
   if (id != 0) {
-    idPartonA.push_back(id);
-    idPartonB.push_back(id);
-    pdfA.push_back(0.);
-    pdfB.push_back(0.);
+    addBeamA(id);
+    addBeamB(id);
   }
 
   // The combined channels.
   for (int id = -nQuark; id <= nQuark; ++id) 
+  if (id != 0) 
+    addPair(id, -id);
+
+}
+
+//**************************************************************************
+
+// InFluxff class.
+// Derived class for f f', f fbar', fbar fbar' incoming state.
+
+//*********
+
+// Fill arrays for a f f' incoming state at initialization.
+// Still needs to do for lepton beams??
+
+void InFluxff::initChannels() {
+
+  // The beams individually.
+  for (int id = -nQuark; id <= nQuark; ++id) 
   if (id != 0) {
-    idPartonPairA.push_back(id);
-    idPartonPairB.push_back(-id);
-    pdfPairA.push_back(0.);
-    pdfPairB.push_back(0.);
-    weightAB.push_back(1.);
-    fluxweightAB.push_back(1.);
+    addBeamA(id);
+    addBeamB(id);
   }
+
+  // The combined channels.
+  for (int id1 = -nQuark; id1 <= nQuark; ++id1) 
+  if (id1 != 0) 
+  for (int id2 = -nQuark; id2 <= nQuark; ++id2) 
+  if (id2 != 0) 
+    addPair(id1, id2);
+
+}
+
+//**************************************************************************
+
+// InFluxffbarSame class.
+// Derived class for f fbar antiparticle incoming state.
+
+//*********
+
+// Fill arrays for a f fbar incoming state at initialization.
+// Still needs to do for lepton beams??
+
+void InFluxffbarSame::initChannels() {
+
+  // The beams individually.
+  for (int id = -nQuark; id <= nQuark; ++id) 
+  if (id != 0) {
+    addBeamA(id);
+    addBeamB(id);
+  }
+
+  // The combined channels.
+  for (int id = -nQuark; id <= nQuark; ++id) 
+  if (id != 0) 
+    addPair(id, -id);
 
 }
 
@@ -397,24 +597,16 @@ void InFluxffbarChg::initChannels() {
   // The beams individually.
   for (int id = -nQuark; id <= nQuark; ++id) 
   if (id != 0) {
-    idPartonA.push_back(id);
-    idPartonB.push_back(id);
-    pdfA.push_back(0.);
-    pdfB.push_back(0.);
+    addBeamA(id);
+    addBeamB(id);
   }
 
   // The combined channels.
   for (int id1 = -nQuark; id1 <= nQuark; ++id1) 
   if (id1 != 0) 
   for (int id2 = -nQuark; id2 <= nQuark; ++id2) 
-  if (id2 != 0 && id1 * id2 < 0 && (abs(id1) + abs(id2))%2 == 1) {
-    idPartonPairA.push_back(id1);
-    idPartonPairB.push_back(id2);
-    pdfPairA.push_back(0.);
-    pdfPairB.push_back(0.);
-    weightAB.push_back(1.);
-    fluxweightAB.push_back(1.);
-  }
+  if (id2 != 0 && id1 * id2 < 0 && (abs(id1) + abs(id2))%2 == 1) 
+    addPair(id1, id2);
 
 }
 

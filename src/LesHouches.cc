@@ -5,6 +5,8 @@
 
 #include "LesHouches.h"
 
+namespace Pythia8 {
+
 //**************************************************************************
 
 // LHAinit class.
@@ -13,7 +15,7 @@
 
 // Print the info; to check it worked.
 
-ostream& operator<<(ostream& os, const LHAinit& lha) {
+void LHAinit::list(ostream& os) {
 
   // Header.
   os << "\n --------  LHA initialization information  ------------ \n"; 
@@ -21,30 +23,32 @@ ostream& operator<<(ostream& os, const LHAinit& lha) {
   // Beam info.
   os << fixed << setprecision(3) 
      << "\n  beam    kind      energy  pdfgrp  pdfset \n" 
-     << "     A  " << setw(6) << lha.idBeamA() <<  setw(12) 
-     << lha.eBeamA() << setw(8) << lha.pdfGroupBeamA() << setw(8) 
-     << lha.pdfSetBeamA() << "\n" 
-     << "     B  " << setw(6) << lha.idBeamB() <<  setw(12) 
-     << lha.eBeamB() << setw(8) << lha.pdfGroupBeamB() << setw(8) 
-     << lha.pdfSetBeamB() << "\n"; 
+     << "     A  " << setw(6) << idBeamAsave 
+     <<  setw(12) << eBeamAsave 
+     << setw(8) << pdfGroupBeamAsave 
+     << setw(8) << pdfSetBeamAsave << "\n" 
+     << "     B  " << setw(6) << idBeamBsave 
+     <<  setw(12) << eBeamBsave 
+     << setw(8) << pdfGroupBeamBsave 
+     << setw(8) << pdfSetBeamBsave << "\n"; 
 
   // Event weighting strategy.
   os << "\n  Event weighting strategy = " << setw(2) 
-     << lha.strategy() << "\n" ;
+     << strategySave << "\n" ;
 
   // Process list.
   os << scientific << setprecision(4) 
      << "\n  Processes, with strategy-dependent cross section info \n" 
      << "  number      xsec (pb)      xerr (pb)      xmax (pb) \n" ;
-  for (int ip = 0; ip < lha.size(); ++ip) {
-    os << setw(8) << lha.idProcess(ip) << setw(15) << lha.xSec(ip) 
-       << setw(15) << lha.xErr(ip) << setw(15) << lha.xMax(ip) 
-       << "\n";
+  for (int ip = 0; ip < int(processes.size()); ++ip) {
+    os << setw(8) << processes[ip].idPr 
+       << setw(15) << processes[ip].xSecPr 
+       << setw(15) << processes[ip].xErrPr 
+       << setw(15) << processes[ip].xMaxPr << "\n";
   }
 
   // Finished.
   os << "\n --------  End LHA initialization information  -------- \n"; 
-  return os;
 
 }
  
@@ -56,7 +60,7 @@ ostream& operator<<(ostream& os, const LHAinit& lha) {
 
 // Print the info; to check it worked.
 
-ostream& operator<<(ostream& os, const LHAevnt& lha) {
+void LHAevnt::list(ostream& os) {
 
   // Header.
   os << "\n --------  LHA event information and listing  -------------"
@@ -64,32 +68,47 @@ ostream& operator<<(ostream& os, const LHAevnt& lha) {
 
   // Basic event info.
   os << scientific << setprecision(4) 
-     << "\n    process = " << setw(8) << lha.idProc() 
-     << "    weight = " << setw(12) << lha.weight() 
-     << "     scale = " << setw(12) << lha.scale() << " (GeV) \n"
+     << "\n    process = " << setw(8) << idPr 
+     << "    weight = " << setw(12) << weightPr 
+     << "     scale = " << setw(12) << scalePr << " (GeV) \n"
      << "                   "
-     << "     alpha_em = " << setw(12) << lha.alphaQED() 
-     << "    alpha_strong = " << setw(12) << lha.alphaQCD() << "\n";
+     << "     alpha_em = " << setw(12) << alphaQEDPr 
+     << "    alpha_strong = " << setw(12) << alphaQCDPr << "\n";
 
   // Particle list
   os << fixed << setprecision(3) 
      << "\n    Participating Particles \n" 
      << "    no        id stat     mothers     colours      p_x        "
      << "p_y        p_z         e          m        tau    spin \n" ;
-  for (int ip = 0; ip < lha.size(); ++ip) {
-    os << setw(6) << ip << setw(10) << lha.id(ip) << setw(5)
-       << lha.status(ip) << setw(6) << lha.mother1(ip) << setw(6) 
-       << lha.mother2(ip) << setw(6) << lha.col1(ip) << setw(6) 
-       << lha.col2(ip) << setw(11) << lha.px(ip) << setw(11) 
-       << lha.py(ip) << setw(11) << lha.pz(ip) << setw(11) << lha.e(ip)
-       << setw(11) << lha.m(ip) << setw(8) << lha.tau(ip) << setw(8) 
-       << lha.spin(ip) << "\n";
+  for (int ip = 0; ip < int(particles.size()); ++ip) {
+    os << setw(6) << ip 
+       << setw(10) << particles[ip].idPa 
+       << setw(5) << particles[ip].statusPa 
+       << setw(6) << particles[ip].mother1Pa
+       << setw(6) << particles[ip].mother2Pa 
+       << setw(6) << particles[ip].col1Pa
+       << setw(6) << particles[ip].col2Pa 
+       << setw(11) << particles[ip].pxPa
+       << setw(11) << particles[ip].pyPa
+       << setw(11) << particles[ip].pzPa 
+       << setw(11) << particles[ip].ePa 
+       << setw(11) <<  particles[ip].mPa 
+       << setw(8) <<  particles[ip].tauPa 
+       << setw(8) <<  particles[ip].spinPa << "\n";
   }
+
+  // PDF info - optional.
+  if (pdfIsSetSv) os << "\n   pdf: id1 =" << setw(5) << id1Sv  
+    << " id2 =" << setw(5) << id2Sv 
+    << " x1 ="  << scientific << setw(10) << x1Sv    
+    << " x2 =" << setw(10) << x2Sv 
+    << " scalePDF =" << setw(10) << scalePDFSv 
+    << " xpdf1 =" << setw(10) << xpdf1Sv    
+    << " xpdf2 =" << setw(10) << xpdf2Sv << "\n";    
 
   // Finished.
   os << "\n --------  End LHA event information and listing  ---------"
      << "--------------------------------------------------------- \n"; 
-  return os;
 
 }
  
@@ -152,6 +171,16 @@ extern "C" {
     double pup[500][5], vtimup[500],spinup[500];
   } hepeup_;
 
+  // The following is used to transfer pdf info from Pythia 6.4.
+  // For another program it would be of no use, but also of no real harm.
+  // Is optional, so can be commented out, if desired.
+  extern struct {
+    int mstp[200];
+    double parp[200];
+    int msti[200];
+    double pari[200];
+  } pypars_;    
+
 }
 
 //*********
@@ -170,6 +199,13 @@ bool LHAevntFortran::set() {
     hepeup_.pup[ip][1], hepeup_.pup[ip][2], hepeup_.pup[ip][3], 
     hepeup_.pup[ip][4], hepeup_.vtimup[ip], hepeup_.spinup[ip]) ;
 
+  // Store pdf info. This part works only for Pythia 6.4 
+  // (cf. extern pypars_ above) but should do no real harm for others.
+  // Is optional, so can be commented out, if desired.
+  pdf(pypars_.msti[14], pypars_.msti[15], 
+      pypars_.pari[32], pypars_.pari[33], pypars_.pari[22], 
+      pypars_.pari[28], pypars_.pari[29]);
+
   // Done.
   return true;
 
@@ -177,25 +213,37 @@ bool LHAevntFortran::set() {
 
 //**************************************************************************
 
-// LHAinitPythia6 class.
+// LHAinitLHEF class.
 
 //*********
 
-// Read in a file previously written from Pythia 6.3 with PYUPIN.
-// It should be transparent how to apply it also to other programs.
+// Read in a Les Houches Event File.
 
-bool LHAinitPythia6::set() {
+bool LHAinitLHEF::set() {
 
-  // Reset infile error flag.
-  is.clear(); 
+  // Check that first line is consistent with proper LHEF file.
+  string line, tag;
+  getline(is, line);
+  if (line.find("<LesHouchesEvents") == string::npos) return false;  
+  if (line.find("version=\"1.0\"" ) == string::npos ) return false;
+ 
+  // Loop over lines until an <init tag is found first on a line.
+  do { 
+    getline(is, line);
+    istringstream getfirst(line);
+    getfirst >> tag;
+    if (!getfirst) return false;
+  } while (tag != "<init>" && tag != "<init"); 
   
   // Read in beam and strategy info, and store it. 
   int idbmupA, idbmupB;
   double ebmupA, ebmupB;
   int pdfgupA, pdfgupB, pdfsupA, pdfsupB, idwtup, nprup;
-  is >> idbmupA >> idbmupB >> ebmupA >> ebmupB >> pdfgupA 
+  getline(is, line);
+  istringstream getbms(line);
+  getbms >> idbmupA >> idbmupB >> ebmupA >> ebmupB >> pdfgupA 
      >> pdfgupB >> pdfsupA >> pdfsupB >> idwtup >> nprup;
-  if (!is) return false;
+  if (!getbms) return false;
   beamA(idbmupA, ebmupA, pdfgupA, pdfsupA);
   beamB(idbmupB, ebmupB, pdfgupB, pdfsupB);
   strategy(idwtup);
@@ -204,8 +252,10 @@ bool LHAinitPythia6::set() {
   double xsecup, xerrup, xmaxup;
   int lprup; 
   for (int ip = 0; ip < nprup; ++ip) { 
-    is >> xsecup >> xerrup >> xmaxup >> lprup ;
-    if (!is) return false;
+    getline(is, line);
+    istringstream getpro(line);
+    getpro >> xsecup >> xerrup >> xmaxup >> lprup ;
+    if (!getpro) return false;
     process(lprup, xsecup, xerrup, xmaxup);
   }
 
@@ -216,23 +266,30 @@ bool LHAinitPythia6::set() {
  
 //**************************************************************************
 
-// LHAevntPythia6 class.
+// LHAevntLHEF class.
 
 //*********
 
-// Read in a file previously written from Pythia 6.3 with PYUPEV.
-// It should be transparent how to apply it also to other programs.
+// Read in a Les Houches Event File.
 
-bool LHAevntPythia6::set() {
-
-  // Reset infile error flag.
-  is.clear(); 
+bool LHAevntLHEF::set() {
+  
+  // Loop over lines until an <event tag is found first on a line.
+  string line, tag;
+  do { 
+    getline(is, line);
+    istringstream getfirst(line);
+    getfirst >> tag;
+    if (!getfirst) return false;
+  } while (tag != "<event>" && tag != "<event"); 
   
   // Read in process info and store it.
   int nup, idprup;
   double xwgtup, scalup, aqedup, aqcdup;
-  is >> nup >> idprup >> xwgtup >> scalup >> aqedup >> aqcdup;
-  if (!is) return false;
+  getline(is, line);
+  istringstream getpro(line);
+  getpro >> nup >> idprup >> xwgtup >> scalup >> aqedup >> aqcdup;
+  if (!getpro) return false;
   process(idprup, xwgtup, scalup, aqedup, aqcdup);
 
   // Read in particle info one by one, and store it.
@@ -241,15 +298,35 @@ bool LHAevntPythia6::set() {
   int idup, istup, mothup1, mothup2, icolup1, icolup2; 
   double pup1, pup2, pup3, pup4, pup5, vtimup, spinup;
   for (int ip = 1; ip <= nup; ++ip) { 
-    is >> idup >> istup >> mothup1 >> mothup2 >> icolup1 >> icolup2 
-       >> pup1 >> pup2 >> pup3 >> pup4 >> pup5 >> vtimup >> spinup;
-    if (!is) return false;   
+    getline(is, line);
+    istringstream getall(line);
+    getall >> idup >> istup >> mothup1 >> mothup2 >> icolup1 >> icolup2 
+      >> pup1 >> pup2 >> pup3 >> pup4 >> pup5 >> vtimup >> spinup;
+    if (!getall) return false;   
     particle(idup, istup, mothup1, mothup2, icolup1, icolup2,
       pup1, pup2, pup3, pup4, pup5, vtimup, spinup) ;
   }
 
+  // Continue parsing till </event>. Extract pdf info.
+  do { 
+    getline(is, line);
+    istringstream getpdf(line);
+    getpdf >> tag;
+    if (!getpdf) return false;
+    if (tag == "#pdf") {
+      int id1, id2;
+      double x1, x2, scalePDF, xpdf1, xpdf2;
+      getpdf >> id1 >> id2 >>  x1 >> x2 >> scalePDF >> xpdf1 >> xpdf2;
+      if (!getpdf) return false;
+      pdf(id1, id2, x1, x2, scalePDF, xpdf1, xpdf2);  
+    }
+  } while (tag != "</event>" && tag != "</event"); 
+  
+
   // Reading worked.
   return true;
 }
- 
+
 //**************************************************************************
+
+} // end namespace Pythia8

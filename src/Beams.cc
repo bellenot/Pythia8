@@ -37,12 +37,12 @@ void BeamParticle::initStatic() {
   maxValQuark = Settings::mode("Beams:maxValQuark");
 
   // Power of (1-x)^power/sqrt(x) for remnant valence quark distribution.
-  valencePowerMeson = Settings::parameter("Beams:valencePowerMeson");
-  valencePowerUinP = Settings::parameter("Beams:valencePowerUinP");
-  valencePowerDinP = Settings::parameter("Beams:valencePowerDinP");
+  valencePowerMeson = Settings::parm("Beams:valencePowerMeson");
+  valencePowerUinP = Settings::parm("Beams:valencePowerUinP");
+  valencePowerDinP = Settings::parm("Beams:valencePowerDinP");
 
   // Enhancement factor of x of diquark.
-  valenceDiqEnhance = Settings::parameter("Beams:valenceDiqEnhance");
+  valenceDiqEnhance = Settings::parm("Beams:valenceDiqEnhance");
 
   // Assume g(x) ~ (1-x)^power/x to constrain companion to sea quark.
   companionPower = Settings::mode("Beams:companionPower");
@@ -54,14 +54,14 @@ void BeamParticle::initStatic() {
   allowJunction = Settings::flag("Beams:allowJunction");
 
   // For diffractive system kick out q/g = norm / mass^power.
-  pickQuarkNorm = Settings::parameter("Beams:pickQuarkNorm");
-  pickQuarkPower = Settings::parameter("Beams:pickQuarkPower");
+  pickQuarkNorm = Settings::parm("Beams:pickQuarkNorm");
+  pickQuarkPower = Settings::parm("Beams:pickQuarkPower");
 
   // Width of primordial kT distribution in diffractive systems.
-  diffPrimKTwidth = Settings::parameter("Beams:diffPrimKTwidth");
+  diffPrimKTwidth = Settings::parm("Beams:diffPrimKTwidth");
 
   // Suppress large masses of beam remnant in diffractive systems. 
-  diffLargeMassSuppress = Settings::parameter("Beams:diffLargeMassSuppress");
+  diffLargeMassSuppress = Settings::parm("Beams:diffLargeMassSuppress");
 }
 
 //*********
@@ -825,7 +825,7 @@ const int BeamRemnants::NTRYKINMATCH = 10;
 void BeamRemnants::initStatic() {
 
   // Width of primordial kT distribution.
-  primordialKTwidth = Settings::parameter("Beams:primordialKTwidth");
+  primordialKTwidth = Settings::parm("Beams:primordialKTwidth");
 
 }
 
@@ -998,7 +998,7 @@ bool BeamRemnants::add( BeamParticle& beamA, BeamParticle& beamB,
     int iBcopy = event.copy(iB, -61);
     event[iBcopy].rotbst(M);
     for (int iAB = max(iA,iB) + 1; iAB < event.size(); ++iAB) {
-      if (!event[iAB].remains()) break;
+      if (!event[iAB].isFinal()) break;
       int iABcopy = event.copy(iAB, 62);
       event[iABcopy].rotbst(M); 
     }

@@ -1,0 +1,19 @@
+<chapter name="Version">
+
+<h2>Version</h2>
+
+The settings on this page should not be changed by the ordinary user,
+but appear here for documentation purposes, and so that they can
+form part od the standard databases and be queried accordingly.
+
+<parm name="Pythia:versionNumber" default="8.060">
+Version and subversion number, with three significant decimals.
+</parm>
+
+<mode name="Pythia:versionDate" default="20060929">
+Last date of change of current (sub)version, in format yyyymmdd.
+</mode>
+
+</chapter>
+
+<!-- Copyright C 2006 Torbjorn Sjostrand -->

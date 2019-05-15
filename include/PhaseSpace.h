@@ -35,9 +35,9 @@ public:
   static void initStatic();
 
   // Store pointer to SigmaTotal and info on beams.
-  void setSigmaTotalPtr(SigmaTotal* sigmaTotPtrIn, int idAIn, int idBIn,
-    double mAIn, double mBIn) { sigmaTotPtr = sigmaTotPtrIn; idA = idAIn;
-    idB = idBIn; mA = mAIn; mB = mBIn;}
+  static void setSigmaTotalPtr(SigmaTotal* sigmaTotPtrIn, int idAIn, 
+    int idBIn, double mAIn, double mBIn) { sigmaTotPtr = sigmaTotPtrIn; 
+    idA = idAIn; idB = idBIn; mA = mAIn; mB = mBIn;}
 
   // Give in pointer to cross section and cm energy.
   void initInfo(SigmaProcess* sigmaProcessPtrIn, double eCMIn);
@@ -54,9 +54,10 @@ public:
   // is to be constructed in the derived class
   virtual bool finalKin() = 0; 
 
-  // Give back current or maximum cross section.
+  // Give back current or maximum cross section, or set latter.
   double sigmaNow() const {return sigmaNw;}
   double sigmaMax() const {return sigmaMx;}
+  void setSigmaMax(double sigmaMaxIn) {sigmaMx = sigmaMaxIn;}
 
   // Give back constructed four-vectors and known masses.
   Vec4 p(int i) const {return pH[i];} 
@@ -81,42 +82,53 @@ protected:
   PhaseSpace() {}
 
   // Static initialization data, normally only set once.
-  static double mHatMin, mHatMax, pTHatMin, pTHatMax, m3Min, m3Max,
-    m4Min, m4Max, sHatMin, sHatMax, pT2HatMin, pT2HatMax, m3SMin, 
-    m3SMax, m4SMin, m4SMax;
-  static bool showSearch;
+  static double mHatGlobalMin, mHatGlobalMax, pTHatMin, pTHatMax, 
+    pTHatMinDiverge, minWidthBreitWigners, pT2HatMin, pT2HatMax;
+  static bool useBreitWigners, showSearch, showViolation;
+  static int gmZmode;
 
   // Constants: could only be changed in the code itself.
   static const double SAFETYMARGIN, TINY, EVENFRAC, SAMESIGMA, 
-    WIDTHMARGIN, SAMEMASS;
+    WIDTHMARGIN, SAMEMASS, MASSMARGIN, EXTRABWWTMAX, THRESHOLDSIZE, 
+    THRESHOLDSTEP;
+
+  // Static information on incoming beams.
+  static int idA, idB;
+  static double mA, mB; 
+  
+  // Static pointer to the total/elastic/diffractive cross section object.
+  static SigmaTotal* sigmaTotPtr;
 
   // Center-of-mass energy.
   double eCM, s; 
 
   // Cross section information.
-  double sigmaNw, sigmaMx;
+  double wtBW, sigmaNw, sigmaMx, sigmaNeg;
 
   // Pointer to cross section. 
   SigmaProcess* sigmaProcessPtr; 
 
+  // Process-specific kinematics properties, almost always available.
+  double mHatMin, mHatMax, sHatMin, sHatMax;
+
   // Event-specific kinematics properties, almost always available.
-  double x1H, x2H, m3, m4, m3S, m4S, mHat, sH, tH, uH, 
-    pAbs, p2Abs, pTH, theta, phi, betaZ;
+  double x1H, x2H, m3, m4, s3, s4, mHat, sH, tH, uH, 
+    pAbs, p2Abs, pTH, theta, phi, betaZ, pTHatMinNow, pT2HatMinNow;
   Vec4 pH[6];
   double mH[6];
 
-  // Much common code for normal 2 -> 1 and 2 -> 2 (2 -> 1/2) machineries:
+  // Much common code for normal 2 -> 1 and 2 -> 2 (= 2 -> 1/2) cases:
 
   // Determine how phase space should be sampled.
-  bool setupSampling1or2(bool is2); 
+  bool setupSampling1or2(bool is2, ostream& os = cout); 
 
   // Select a trial kinematics phase space point.
-  bool trialKin1or2(bool is2); 
+  bool trialKin1or2(bool is2, ostream& os = cout); 
 
   // Presence and properties of any s-channel resonances.
   int idResA, idResB;
   double mResA, mResB, GammaResA, GammaResB, tauResA, tauResB, widResA, 
-    widResB, tRatA, tRatB, aUppA, aUppB, aLowA, aLowB;
+    widResB;
   bool sameResMass;
 
   // Kinematics properties specific to 2 -> 1/2.
@@ -139,14 +151,7 @@ protected:
 
   // Solve equation system for better phase space coefficients in 2 -> 1/2.
   void solveSys( int n, int bin[8], double vec[8], double mat[8][8],
-    double coef[8]); 
-
-  // For elastic/diffractive/minbias need information on incoming beams.
-  int idA, idB;
-  double mA, mB; 
-  
-  // And also pointer to the total/elastic/diffractive cross section.
-  SigmaTotal* sigmaTotPtr;
+    double coef[8], ostream& os = cout); 
 
 };
  
@@ -162,13 +167,18 @@ public:
   PhaseSpace2to1tauy() {}
 
   // Construct the trial kinematics, using methods in base class.
-  virtual bool setupSampling() {return setupSampling1or2(false);} 
-  virtual bool trialKin() {return trialKin1or2(false);}
+  virtual bool setupSampling() {if (!setupMass()) return false;
+    return setupSampling1or2(false);} 
+  virtual bool trialKin() {wtBW = 1.; 
+    return trialKin1or2(false);}
 
   // Construct the final event kinematics.
   virtual bool finalKin();
 
 private:
+
+  // Set up allowed mass range.
+  bool setupMass();
 
 };
  
@@ -184,13 +194,40 @@ public:
   PhaseSpace2to2tauyz() {}
 
   // Construct the trial kinematics, using methods in base class.
-  virtual bool setupSampling() {return setupSampling1or2(true);} 
-  virtual bool trialKin() {return trialKin1or2(true);}
+  virtual bool setupSampling() {if (!setupMasses()) return false; 
+    return setupSampling1or2(true);} 
+  virtual bool trialKin() {if (!trialMasses()) return false; 
+    return trialKin1or2(true);}
 
   // Construct the final event kinematics.
   virtual bool finalKin();
 
 private:
+
+  // Set up for fixed or Breit-Wigner mass selection.
+  bool setupMasses();
+
+  // Select fixed or Breit-Wigner-distrubuted masses.
+  bool trialMasses();
+
+  // Evaluate Breit-Wigner correction factor.
+  void weightMasses();
+
+  // Pick off-shell initialization masses when on-shell not allowed.
+  bool constrainedM3M4();
+  bool constrainedM3();
+  bool constrainedM4();
+
+  // Properties specific to mass selection in 2 -> 2.
+  int id3Mass, id4Mass;
+  bool useBW3, useBW4; 
+  double m34Max, 
+    m3Peak, s3Peak, m3Width, m3Min, m3Max, mw3, wm3Rat, m3Lower, 
+    m3Upper, s3Lower, s3Upper, frac3Flat, frac3Inv, frac3Inv2, 
+    atan3Lower, atan3Upper, int3BW, int3Flat, int3Inv, int3Inv2,
+    m4Peak, s4Peak, m4Width, m4Min, m4Max, mw4, wm4Rat, m4Lower, 
+    m4Upper, s4Lower, s4Upper, frac4Flat, frac4Inv, frac4Inv2, 
+    atan4Lower, atan4Upper, int4BW, int4Flat, int4Inv, int4Inv2;
 
 };
  
@@ -224,7 +261,7 @@ private:
   // Kinematics properties specific to 2 -> 2.
   bool diffA, diffB;
   double m3ElDiff, m4ElDiff, cRes, sResXB, sResAX, sProton,
-    s1, s2, s3, s4, bMin, lambda12, lambda34, tLow, tUpp, tAux;
+    s1, s2, bMin, lambda12, lambda34, tLow, tUpp, tAux;
 
 };
  

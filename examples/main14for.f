@@ -1,6 +1,12 @@
-C...Extract parton-level events according to Les Houches Accord.
-C...The files produced here can then be used as input 
-C...for hadron-level event simulation, also in Pythia8.
+C...main14for.f.
+C...Store Pythia6 parton-level events according to Les Houches Accord,
+C...using the Les Houches Event File format. The files can then be used 
+C...as input for hadron-level event simulation in Pythia8.
+
+C...Note: you need to create two temporary files for MSTP(161) and MSTP(162). 
+C...The final call to PYLHEF will pack them into a standard-compliant 
+C...Les Houches Event File on your unit MSTP(163), and erase the two
+C...temporary files (unless you set MSTP(164)=1).
 
 C...Double precision and integer declarations.
       IMPLICIT DOUBLE PRECISION(A-H, O-Z)
@@ -22,11 +28,18 @@ C...Number of events.
 C...Event kind.
       MSEL=6
 
-C...Files for output.
+C...Temporary files for initialization/event output.
       MSTP(161)=21
-      OPEN(21,FILE='ttsample.init',STATUS='unknown')
+      OPEN(21,FILE='ttbar.init',STATUS='unknown')
       MSTP(162)=22
-      OPEN(22,FILE='ttsample.evnt',STATUS='unknown')
+      OPEN(22,FILE='ttbar.evnt',STATUS='unknown')
+
+C...Final Les Houches Event File, obtained by combining above two.
+      MSTP(163)=23
+      OPEN(23,FILE='ttbar.lhe',STATUS='unknown')
+
+C..Also save the optional parton-density information.
+      MSTP(165)=1
 
 C...Initialize.
       CALL PYINIT('CMS','P','PBAR',1960D0)
@@ -44,4 +57,8 @@ C...Final statistics.
       CALL PYSTAT(1)
       CALL PYUPIN
 
+C...Produce final Les Houches Event File.
+      CALL PYLHEF
+
       END
+

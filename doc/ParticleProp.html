@@ -316,22 +316,25 @@ In addition, a number of derived quantities can easily be obtained
 (but cannot be set), such as:
 
 <p/><strong>
-method name="idAbs"
+method name="idAbs()"
 </strong><br/>
 the absolute value of the particle identity code.
   
 
 <p/><strong>
-method name="statusAbs"
+method name="statusAbs()"
 </strong><br/>
 the absolute value of the status code.
   
 
 <p/><strong>
-method name="remains()"
+method name="isFinal()"
 </strong><br/>
 true for a remaining particle, i.e. one with positive status code, 
-else false.
+else false. Thus, after an event has been fully generated, it 
+separates the final-state particles from intermediate-stage ones. 
+(If used earlier in the generation process, a particle then 
+considered final may well decay later.)  
   
 
 <p/><strong>
@@ -453,12 +456,14 @@ also for particles which PYTHIA did not let decay.
 
 <p/>
 Each Particle contains a pointer to the respective 
-<code>ParticleDataEntry</code> object in the particle data tables. This 
-gives access to properties of the particle species as such. It is there 
-mainly for convenience, and should be thrown if an event is written to 
-disk, to avoid any problems of object persistency. Should an event later 
-be read back in, the pointer will be recreated from the <code>id</code> 
-code. This pointer is used by the following member functions:
+<code>ParticleDataEntry</code> object in the 
+<a href="ParticleDataScheme.html" target="page">particle data tables</a>. 
+This gives access to properties of the particle species as such. It is 
+there mainly for convenience, and should be thrown if an event is 
+written to disk, to avoid any problems of object persistency. Should 
+an event later be read back in, the pointer will be recreated from the 
+<code>id</code> code. This pointer is used by the following member 
+functions:
 
 <p/><strong>
 method name="name()"
@@ -474,9 +479,41 @@ brackets to emphasize that they are intermediaries.
   
 
 <p/><strong>
+method name="spinType()"
+</strong><br/>
+<i>2 *spin + 1</i> when defined, else 0.
+  
+
+<p/><strong>
+method name="charge(), chargeType()"
+</strong><br/>
+charge, and three times it to make an integer.
+  
+
+<p/><strong>
+method name="isCharged(), isNeutral()"
+</strong><br/>
+charge different from or equal to 0.
+  
+
+<p/><strong>
+method name="colType()"
+</strong><br/>
+0 for colour singlets, 1 for triplets, 
+-1 for antitriplets and 2 for octets.
+  
+
+<p/><strong>
 method name="m0()"
 </strong><br/>
 the nominal mass of the particle, according to the data tables.
+  
+
+<p/><strong>
+method name="mWidth(), mMin(), mMax()"
+</strong><br/>
+the width of the particle, and the minimum and maximum allowed mass value
+for particles with a width, according to the data tables.
   
 
 <p/><strong>
@@ -491,46 +528,7 @@ time called.
 method name="constituentMass()"
 </strong><br/>
 will give the constituent masses for quarks and diquarks, 
-else the same masses as normal.
-  
-
-<p/><strong>
-method name="colType()"
-</strong><br/>
-0 for colour singlets, 1 for triplets, 
--1 for antitriplets and 2 for octets.
-  
-
-<p/><strong>
-method name="charge(), icharge()"
-</strong><br/>
-charge, and three times it to make an integer.
-  
-
-<p/><strong>
-method name="isCharged(), isNeutral()"
-</strong><br/>
-charge different from or equal to 0.
-  
-
-<p/><strong>
-method name="isVisible(), isInvisible()"
-</strong><br/>
-particles with/without strong or electromagnetic interactions, 
-which thereby are or are not visible in a normal detector.
-  
-
-<p/><strong>
-method name="spinType()"
-</strong><br/>
-<i>2 *spin + 1</i>; still incomplete implementation.
-  
-
-<p/><strong>
-method name="canDecay()"
-</strong><br/>
-flag whether decay modes have been declared for a particle, 
-so that it could be decayed, should that be requested.
+else the same masses as with <code>m0()</code>.
   
 
 <p/><strong>
@@ -541,27 +539,53 @@ the main user switch to select which particle species to decay.
   
 
 <p/><strong>
+method name="canDecay()"
+</strong><br/>
+flag whether decay modes have been declared for a particle, 
+so that it could be decayed, should that be requested.
+  
+
+<p/><strong>
+method name="isResonance()"
+</strong><br/>
+particles where the decay is to be treated as part of the hard process,
+typically with nominal mass above 20 GeV (<i>W^+-, Z^0, t, ...</i>). 
+  
+
+<p/><strong>
+method name="isVisible()"
+</strong><br/>
+particles with strong or electric charge, or composed of ones having it,  
+which thereby should be considered visible in a normal detector.
+  
+
+<p/><strong>
+method name="externalDecay()"
+</strong><br/>
+particles that are decayed by an external program.
+  
+
+<p/><strong>
 method name="particleData()"
 </strong><br/>
 a reference to the ParticleDataEntry.
   
 
 <p/>
-The <code>Event</code> class also contains a few methods defined for 
-individual particles, but may require some search in the event record 
-and therefore cannot be defined as a <code>Particle</code> method, 
-see below.
-
-<p/>
 There are some further methods, inherited from <code>Vec4</code>, 
-to rotate and boost the four-momentum, and a &lt;&lt; method to list 
-a single particle.
+to rotate and boost the four-momentum.
 
 <p/>
 Not part of the event class proper, but obviously tightly linked,
 are the metods <code>m(Particle, Particle)</code> and 
 <code>m2(Particle, Particle)</code> to calculate the (squared) 
 invariant mass of two particles.
+
+<p/>
+The <a href="Event.html" target="page"><code>Event</code></a> class also 
+contains a few methods defined for individual particles, but these may 
+require some search in the event record and therefore cannot be defined 
+as a <code>Particle</code> method.
 
 <p/>
 Currently there is no information on polarization states.

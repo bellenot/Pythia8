@@ -24,6 +24,7 @@ A) Standard html concepts:
 <h1></h1> a top-level header
 <h2></h2> a subheader
 <h3></h3> a subsubheader
+<h4></h4> a subsubsubheader
 <br/> a new line
 <p/> a new paragraph
 <ol></ol> an ordered list, with <li> items
@@ -62,7 +63,7 @@ B) New concepts for simple markup (no interactivity):
 
 C) New concepts for user interaction (but actually pretty similar to 
 existing HTML concepts):
-<flag name="..." default="...">
+<flag name="..." default="..."></flag>
     a switch to be used in the event generation.
     It should be possible to change the current value, and have 
     the name and the new value written out to a file, as a line 
@@ -82,18 +83,30 @@ existing HTML concepts):
     The min and max values are optional.
 <option value="..."></option>
     a discrete set of options for a <mode>, see above.
-<parameter name="..." default="..." min="..." max="..."></parameter>
+<parm name="..." default="..." min="..." max="..."></parm>
     a double-precision value to be used in the event generation.
     It should be possible to change the current value continuously,
     in a dialogue box, and have the name and the new value written 
     out to a file, as a line in the format name = value.
     The min and max values are optional.
+<particle id="..." name="..." antiName="..." spinType="..." chargeType="..." 
+    colType="..." m0="..." mWidth="..." mMin="..." mMax="..." tau0="...">
+    </particle>
+    the properties of a particle, most of which are optional. It should be
+    possible to change the current values, and have the changed values
+    written back to file.
+<channel onMode="..." bRatio="..." meMode="..." products="..."/></channel>
+    the properties of a dec ay channel. This tag can only appear inside a
+    <particle>...</particle> block. The meMode field is optional. The
+    products appear as a blank-separated list. It should be possible to 
+    change the current values, and have the changed values written back 
+    to file.
+
 
 D) Not yet covered aspects:
-a) particle decays 
-b) the possibility to save changed settings to a file,
-   see SaveRestore.xml.
-c) smarter way to handle references to articles?
+a) the possibility to save changed settings to a file, and later restore
+   them from there, see SaveRestore.xml.
+b) smarter way to handle references to articles?
 
 -->
 

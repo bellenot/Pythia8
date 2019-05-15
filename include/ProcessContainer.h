@@ -16,6 +16,9 @@
 #include "PythiaStdlib.h"
 #include "Settings.h"
 #include "SigmaProcess.h"
+#include "SigmaQCD.h"
+#include "SigmaEW.h"
+#include "SigmaSUSY.h"
 #include "SigmaTotal.h"
 
 namespace Pythia8 {
@@ -35,13 +38,12 @@ public:
 
   // Destructor.
   ~ProcessContainer() {delete phaseSpacePtr; delete sigmaProcessPtr;}
-
-  // Get pointer to SigmaTotal.
-  void setSigmaTotalPtr(SigmaTotal* sigmaTotPtrIn) {
-    sigmaTotPtr = sigmaTotPtrIn;}
+  
+  // Store pointer to Info.
+  static void setInfoPtr(Info* infoPtrIn) {infoPtr = infoPtrIn;}
 
   // Initialize phase space and counters.
-  bool init(Info* infoPtrIn, BeamParticle* beamAPtr, BeamParticle* beamBPtr); 
+  bool init(); 
 
   // Generate a trial event; accepted or not.
   bool trialProcess(); 
@@ -54,9 +56,6 @@ public:
   int code() const {return sigmaProcessPtr->code();}
   int nFinal() const {return sigmaProcessPtr->nFinal();}
 
-  // SigmaTotal is needed by minbias/elastic/diffractive processes.
-  bool needsSigmaTotal() const {return sigmaProcessPtr->hasSigmaTot();}
-
   // Member functions for info on generation process.
   double sigmaMax() const {return sigmaMx;}
   int nTried() const {return nTry;}
@@ -67,8 +66,11 @@ public:
 
 private:
 
-  // Pointer to various information on the generation.
-  Info* infoPtr;
+  // Static pointer to various information on the generation.
+  static Info* infoPtr;
+
+  // Constants: could only be changed in the code itself.
+  static const int NSAMPLE;
 
   // Pointer to the subprocess matrix element.
   SigmaProcess* sigmaProcessPtr;
@@ -76,15 +78,12 @@ private:
   // Pointer to the phase space generator.
   PhaseSpace* phaseSpacePtr;
 
-  // Pointer to total/elastic/diffractive cross sections.
-  SigmaTotal* sigmaTotPtr;
-
   // Info on process.
-  bool hasSigmaTot, isMinBias, isResolved, isDiffA, isDiffB;
+  bool isMinBias, isResolved, isDiffA, isDiffB;
 
   // Statistics on generation process.
   int nTry, nAcc;  
-  double sigmaMx, sigmaSum, sigma2Sum;
+  double sigmaMx, sigmaSum, sigma2Sum, sigmaNeg;
 
 };
  

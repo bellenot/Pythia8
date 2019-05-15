@@ -1,6 +1,6 @@
 // File: main07.cc
 // This is a simple test program. 
-// It illustrates how Pythia6 processes can be used in Pythia8.
+// It illustrates how to generate and analyze minimum-bias events..
 // All input is specified in the main07.cmnd file.
 // Copyright C 2006 Torbjorn Sjostrand
 
@@ -8,9 +8,11 @@
 
 using namespace Pythia8; 
 
+//**************************************************************************
+
 int main() {
 
-  // Generator. Shorthand for the event and the (static) Settings.
+  // Generator. Shorthand for the event and for settings.
   Pythia pythia;
   Event& event = pythia.event;
   Settings& settings = pythia.settings;
@@ -21,69 +23,103 @@ int main() {
   // Extract settings to be used in the main program.
   int idBeamA = settings.mode("Main:idBeamA");
   int idBeamB = settings.mode("Main:idBeamB");
-  double eCM = settings.parameter("Main:eCM");
+  bool inCMframe = settings.flag("Main:inCMframe");
+  double eCM = settings.parm("Main:eCM");
+  double eBeamA = settings.parm("Main:eBeamA");
+  double eBeamB = settings.parm("Main:eBeamB");
   int nEvent = settings.mode("Main:numberOfEvents");
   int nList = settings.mode("Main:numberToList");
   int nShow = settings.mode("Main:timesToShow");
+  int nAbort = settings.mode("Main:timesAllowErrors");
   bool showChangedSettings = settings.flag("Main:showChangedSettings");
   bool showAllSettings = settings.flag("Main:showAllSettings");
-
+  bool showChangedParticleData 
+    = settings.flag("Main:showChangedParticleData");
+  bool showAllParticleData = settings.flag("Main:showAllParticleData");
+ 
   // Initialization for Pythia6 event input.
-  pythia.init( idBeamA, idBeamB, eCM);
+  if (inCMframe) pythia.init( idBeamA, idBeamB, eCM);
+  else pythia.init( idBeamA, idBeamB, eBeamA, eBeamB);
 
   // List changed data.
   if (showChangedSettings) settings.listChanged();
   if (showAllSettings) settings.listAll();
 
-  // Histograms.
-  double epTol = 1e-6 * eCM;
-  Hist epCons("deviation from energy-momentum conservation",100,0.,epTol);
-  Hist nFinal("final particle multiplicity",100,-0.5,799.5);
-  Hist dnparticledy("dn/dy for particles",100,-10.,10.);
+  // List particle data.  
+  if (showChangedParticleData) ParticleDataTable::listChanged();
+  if (showAllParticleData) ParticleDataTable::listAll();
 
+  // Book histograms.
+  double pTmax = 20.;
+  double bMax = 4.;
+  Hist nChg("number of charged particles", 100, -0.5, 799.5);
+  Hist pTspec("scattering pT spectrum", 100, 0., pTmax); 
+  Hist bSpec("b impact parameter spectrum", 100, 0., bMax);
+  Hist enhanceSpec("b enhancement spectrum", 100, 0., 10.);
+  Hist number("number of interactions", 100, -0.5, 99.5);
+  Hist pTb1("pT spectrum for b < 0.5", 100, 0., pTmax); 
+  Hist pTb2("pT spectrum for 0.5 < b < 1", 100, 0., pTmax); 
+  Hist pTb3("pT spectrum for 1 < b < 1.5", 100, 0., pTmax); 
+  Hist pTb4("pT spectrum for 1.5 < b", 100, 0., pTmax); 
+  Hist bpT1("b spectrum for pT < 2", 100, 0., bMax);
+  Hist bpT2("b spectrum for 2 < pT < 5", 100, 0., bMax);
+  Hist bpT3("b spectrum for 5 < pT < 15", 100, 0., bMax);
+  Hist bpT4("b spectrum for 15 < pT", 100, 0., bMax);
+ 
   // Begin event loop.
-  int nPace = max(1,nEvent/nShow); 
+  int nShowPace = max(1,nEvent/nShow); 
+  int iAbort = 0; 
   for (int iEvent = 0; iEvent < nEvent; ++iEvent) {
-    if (iEvent%nPace == 0) cout << " Now begin event " << iEvent << "\n";
+    if (iEvent%nShowPace == 0) cout << " Now begin event " 
+      << iEvent << endl;
 
-    // Generate events. Quit if failure.
+    // Generate events. Quit if too many failures.
     if (!pythia.next()) {
+      if (++iAbort < nAbort) continue;
       cout << " Event generation aborted prematurely, owing to error!\n"; 
       break;
     }
  
     // List first few events, both hard process and complete events.
     if (iEvent < nList) { 
+      pythia.info.list();
       pythia.process.list();
       event.list();
     }
 
-    // Loop over final particles in the event. 
-    int nFin = 0;
-    Vec4 pSum;
-    for (int i = 0; i < event.size(); ++i) if (event[i].remains()) {
-      nFin++;
-      pSum += event[i].p();
-      dnparticledy.fill(event[i].y());
-    }
+    // Charged multiplicity.
+    int nch = 0;
+    for (int i = 1; i < event.size(); ++i)
+      if (event[i].isFinal() && event[i].isCharged()) ++nch; 
+    nChg.fill( nch );
 
-    // Check and print event with too big energy-momentum deviation.
-    nFinal.fill(nFin);
-    double epDev = abs(pSum.e() - eCM) + abs(pSum.px()) + abs(pSum.py())
-      + abs(pSum.pz());
-    epCons.fill(epDev);
-    if (epDev > epTol) {
-      cout << " Warning! Event with epDev = " << scientific 
-           << setprecision(4) << epDev << " now listed:";
-      event.list();
-    }
+    // Study event in (pT, b) space.
+    double pT = pythia.info.pTHat(); 
+    double b = pythia.info.bMI();
+    double enhance = pythia.info.enhanceMI();
+    int nMI = pythia.info.nMI();
+    pTspec.fill( pT );
+    bSpec.fill( b );
+    enhanceSpec.fill( enhance );
+    number.fill( nMI );
+    if (b < 0.5) pTb1.fill( pT );
+    else if (b < 1.0) pTb2.fill( pT );
+    else if (b < 1.5) pTb3.fill( pT );
+    else pTb4.fill( pT );
+    if (pT < 2.) bpT1.fill( b );
+    else if (pT < 5.) bpT2.fill( b );
+    else if (pT < 15.) bpT3.fill( b );
+    else bpT4.fill( b );
 
   // End of event loop.
   }
 
-  // Final statistics and histogram output.
+  // Final statistics.
   pythia.statistics();
-  cout << epCons << nFinal << dnparticledy; 
+  cout << nChg << pTspec << bSpec << enhanceSpec << number;
+  cout << pTb1 << pTb2 << pTb3 << pTb4;
+  cout << bpT1 << bpT2 << bpT3 << bpT4;
 
+  // Done.
   return 0;
 }

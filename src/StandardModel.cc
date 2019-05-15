@@ -207,8 +207,8 @@ void AlphaEM::initStatic() {
 
   // Read in alpha_EM value at 0 and m_Z, and mass of Z.
   order = Settings::mode("StandardModel:alphaEMorder");
-  alpEM0 = Settings::parameter("StandardModel:alphaEM0");
-  alpEMmZ = Settings::parameter("StandardModel:alphaEMmZ");
+  alpEM0 = Settings::parm("StandardModel:alphaEM0");
+  alpEMmZ = Settings::parm("StandardModel:alphaEMmZ");
   double mZ = ParticleDataTable::m0(23);   
   mZ2 = mZ*mZ;
 
@@ -236,6 +236,51 @@ double AlphaEM::alphaEM( double scale2) {
 
 //**************************************************************************
 
+// The CoupEW class.
+
+//*********
+
+// Definitions of static variables.
+
+double CoupEW::s2tW = 0.232;
+double CoupEW::c2tW = 0.768;
+double CoupEW::s2tWbar = 0.232;
+double CoupEW::efSave[20] = { 0., -1./3., 2./3., -1./3., 2./3., -1./3., 
+  2./3., -1./3., 2./3., 0., 0., -1., 0., -1., 0., -1., 0., -1., 0., 0.};
+double CoupEW::vfSave[20] = { }; 
+double CoupEW::afSave[20] = { 0., -1., 1., -1., 1., -1., 1., -1., 1., 
+  0., 0., -1., 1., -1., 1., -1., 1., -1., 1., 0.};
+double CoupEW::lfSave[20] = { }; 
+double CoupEW::rfSave[20] = { }; 
+double CoupEW::ef2Save[20] = { }; 
+double CoupEW::vf2Save[20] = { }; 
+double CoupEW::af2Save[20] = { }; 
+
+//*********
+
+// Initialize electroweak mixing angle and couplings.
+
+void CoupEW::initStatic() { 
+
+  // Read in electroweak mixing angle.
+  s2tW = Settings::parm("StandardModel:sin2thetaW");
+  c2tW = 1. - s2tW;
+  s2tWbar = Settings::parm("StandardModel:sin2thetaWbar");
+
+  // Initialize electroweak couplings.
+  for (int i = 0; i < 20; ++i) {  
+    vfSave[i] = afSave[i] - 4. * s2tWbar * efSave[i];
+    lfSave[i] = afSave[i] - 2. * s2tWbar * efSave[i];
+    rfSave[i] =           - 2. * s2tWbar * efSave[i];
+    ef2Save[i] = pow2(efSave[i]);
+    vf2Save[i] = pow2(vfSave[i]);
+    af2Save[i] = pow2(afSave[i]);
+  }
+
+}
+
+//**************************************************************************
+
 // The VCKM class.
 
 //*********
@@ -243,22 +288,86 @@ double AlphaEM::alphaEM( double scale2) {
 // Definitions of static variables. Initialize to all elements zero.
 
 double VCKM::Vsave[4][4] = { };
+double VCKM::V2out[20] = { };
 
 //*********
 
-// Read in matrix element values and store them.
+// Prepare to handle CKM matrix elements.
 
 void VCKM::initStatic() { 
 
-  Vsave[1][1] = Settings::parameter("StandardModel:Vud");
-  Vsave[1][2] = Settings::parameter("StandardModel:Vus");
-  Vsave[1][3] = Settings::parameter("StandardModel:Vub");
-  Vsave[2][1] = Settings::parameter("StandardModel:Vcd");
-  Vsave[2][2] = Settings::parameter("StandardModel:Vcs");
-  Vsave[2][3] = Settings::parameter("StandardModel:Vcb");
-  Vsave[3][1] = Settings::parameter("StandardModel:Vtd");
-  Vsave[3][2] = Settings::parameter("StandardModel:Vts");
-  Vsave[3][3] = Settings::parameter("StandardModel:Vtb");
+  // Read in matrix element values and store them.
+  Vsave[1][1] = Settings::parm("StandardModel:Vud");
+  Vsave[1][2] = Settings::parm("StandardModel:Vus");
+  Vsave[1][3] = Settings::parm("StandardModel:Vub");
+  Vsave[2][1] = Settings::parm("StandardModel:Vcd");
+  Vsave[2][2] = Settings::parm("StandardModel:Vcs");
+  Vsave[2][3] = Settings::parm("StandardModel:Vcb");
+  Vsave[3][1] = Settings::parm("StandardModel:Vtd");
+  Vsave[3][2] = Settings::parm("StandardModel:Vts");
+  Vsave[3][3] = Settings::parm("StandardModel:Vtb");
+
+  // Sum VCKM^2_out sum for given incoming flavour, excluding top.
+  V2out[1] = pow2(Vsave[1][1]) + pow2(Vsave[2][1]);
+  V2out[2] = pow2(Vsave[1][1]) + pow2(Vsave[1][2]) + pow2(Vsave[1][3]);
+  V2out[3] = pow2(Vsave[1][2]) + pow2(Vsave[2][2]);
+  V2out[4] = pow2(Vsave[2][1]) + pow2(Vsave[2][2]) + pow2(Vsave[2][3]);
+  V2out[5] = pow2(Vsave[1][3]) + pow2(Vsave[2][3]);
+  for (int i = 11; i <= 16; ++i) V2out[i] = 1.;
+ 
+}
+
+//*********
+
+// Return CKM value for incoming flavours (sign irrelevant).
+
+double VCKM::Vid(int id1, int id2) {
+
+  // Use absolute sign (want to cover both q -> q' W and q qbar' -> W).
+  int id1Abs = abs(id1);
+  int id2Abs = abs(id2);
+  if (id1Abs == 0 || id2Abs == 0 || (id1Abs + id2Abs)%2 != 1) return 0.;
+
+  // Ensure proper order before reading out from Vsave or lepton match.
+  if (id1Abs%2 == 1) swap(id1Abs, id2Abs);
+  if (id1Abs <=6 && id2Abs <=6) return Vsave[id1Abs/2][(id2Abs + 1)/2];
+  if ( (id1Abs == 12 || id1Abs == 14 || id1Abs == 16) 
+    && id2Abs == id1Abs - 1 ) return 1.;
+  
+  // No more valid cases.
+  return 0.;
+
+}
+
+//*********
+
+// Pick an outgoing flavour for given incoming one, given CKM mixing.
+
+int VCKM::V2pick(int id) {
+
+  // Initial values.
+  int idIn = abs(id);
+  int idOut = 0;
+  
+  // Quarks: need to make random choice.
+  if (idIn >= 1 && idIn <= 5) {
+    double V2rndm = Rndm::flat() * V2out[idIn]; 
+    if (idIn == 1) idOut = (V2rndm < pow2(Vsave[1][1])) ? 2 : 4;
+    else if (idIn == 2) idOut = (V2rndm < pow2(Vsave[1][1])) ? 1 
+      : ( (V2rndm < pow2(Vsave[1][1]) + pow2(Vsave[1][2])) ? 3 : 5 );
+    else if (idIn == 3) idOut = (V2rndm < pow2(Vsave[1][2])) ? 2 : 4;
+    else if (idIn == 4) idOut = (V2rndm < pow2(Vsave[2][1])) ? 1 
+      : ( (V2rndm < pow2(Vsave[2][1]) + pow2(Vsave[2][2])) ? 3 : 5 );
+    else if (idIn == 5) idOut = (V2rndm < pow2(Vsave[1][3])) ? 2 : 4;
+  
+  // Leptons: unambiguous. 
+  } else if (idIn >= 11 && idIn <= 16) {
+    if (idIn%2 == 1) idOut = idIn + 1;
+    else idOut = idIn - 1;
+  } 
+
+  // Done. Return with sign.
+  return ( (id > 0) ? idOut : -idOut);
 
 }
 

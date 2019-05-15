@@ -27,9 +27,29 @@ Fortran <code>PYSTAT</code> method is called.
 
 <h3>Error messages</h3>
 
+When Pythia is run, errors may occur, and give rise to warning messages.
+These may be of varying severity, as follows:
+<note>Abort</note> means things went seriously wrong, and the 
+initialization or event generation failed. In the former case it is 
+not possible to generate events at all, in the latter the current
+event is flawed and should be skipped. In either case the respective
+method, <code>pythia.init(...)</code> or <code>pythia.next()</code>,
+then also returns the value <code>false</code>. There are occasions
+where an abort may be deliberate, such as when a file of Les Houches
+Events is read and the end of the file is reached.
+<note>Error</note> normally is less severe. Typically the program will
+back up one step and try again. There are cases where this is not possible,
+in particular during the initailization and the generation of a hard
+process, and then the error may be followed by an abort as a direct 
+consequence (with two separate messages).   
+<note>Warning</note> is even less severe. In some cases the program will 
+try again, with  good chances of success, in others no measure at all
+need to be taken. 
+
+<p/>
 The <code>ErrorMessages</code> class is rather small. It is handed any 
-warning or error messages during the event generation phase, and will 
-store each distinct message, with a counter for how many times it is 
+abort, error or warning messages during the event generation phase, and 
+will store each distinct message, with a counter for how many times it is 
 issued. Thus it is possible to limit the number of identical messages 
 issued. The summary table printed by <code>pythia.statistics()</code> 
 provides a table with all the different messages issued, in 

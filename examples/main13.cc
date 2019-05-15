@@ -1,124 +1,161 @@
-// File: main13.cc
+// File: main08.cc
 // This is a simple test program. 
-// It illustrates how to generate and analyze minimum-bias events..
-// All input is specified in the main13.cmnd file.
+// It studies event properties of LEP1 events.
 // Copyright C 2006 Torbjorn Sjostrand
 
 #include "Pythia.h"
 
 using namespace Pythia8; 
 
-//**************************************************************************
-
 int main() {
 
-  // Generator. Shorthand for the event and for settings.
+  // Generator.
   Pythia pythia;
-  Event& event = pythia.event;
-  Settings& settings = pythia.settings;
 
-  // Read in commands from external file.
-  pythia.readFile("main13.cmnd");    
+  // Currently: set up process in Pythia6.
+  // Process selection.
+  pythia.readString("Pythia6:msel = 1");    
 
-  // Extract settings to be used in the main program.
-  int idBeamA = settings.mode("Main:idBeamA");
-  int idBeamB = settings.mode("Main:idBeamB");
-  bool inCMframe = settings.flag("Main:inCMframe");
-  double eCM = settings.parameter("Main:eCM");
-  double eBeamA = settings.parameter("Main:eBeamA");
-  double eBeamB = settings.parameter("Main:eBeamB");
-  int nEvent = settings.mode("Main:numberOfEvents");
-  int nList = settings.mode("Main:numberToList");
-  int nShow = settings.mode("Main:timesToShow");
-  int nAbort = settings.mode("Main:timesAllowErrors");
-  bool showChangedSettings = settings.flag("Main:showChangedSettings");
-  bool showAllSettings = settings.flag("Main:showAllSettings");
-  bool showChangedParticleData 
-    = settings.flag("Main:showChangedParticleData");
-  bool showAllParticleData = settings.flag("Main:showAllParticleData");
- 
-  // Initialization for Pythia6 event input.
-  if (inCMframe) pythia.init( idBeamA, idBeamB, eCM);
-  else pythia.init( idBeamA, idBeamB, eBeamA, eBeamB);
+  // No ISR in e+e-.
+  pythia.readString("Pythia6:mstp(11) = 0"); 
 
-  // List changed data.
-  if (showChangedSettings) settings.listChanged();
-  if (showAllSettings) settings.listAll();
+  // Switch off Z0 decay to charged leptons and neutrinos. 
+  pythia.readString("Pythia6:mdme(182,1) = 0"); 
+  pythia.readString("Pythia6:mdme(183,1) = 0"); 
+  pythia.readString("Pythia6:mdme(184,1) = 0"); 
+  pythia.readString("Pythia6:mdme(185,1) = 0"); 
+  pythia.readString("Pythia6:mdme(186,1) = 0"); 
+  pythia.readString("Pythia6:mdme(187,1) = 0"); 
 
-  // List particle data.  
-  if (showChangedParticleData) ParticleDataTable::listChanged();
-  if (showAllParticleData) ParticleDataTable::listAll();
+  // Future: set up process in Pythia8.
+  // Parton flux and beam remnants not yet set up.
+  /*
+  // Process selection.
+  pythia.readString("WeakSingleBoson:ffbar2gmZ = on");    
 
-  // Book histograms.
-  double pTmax = 20.;
-  double bMax = 4.;
-  Hist nChg("number of charged particles", 100, -0.5, 799.5);
-  Hist pTspec("scattering pT spectrum", 100, 0., pTmax); 
-  Hist bSpec("b impact parameter spectrum", 100, 0., bMax);
-  Hist enhanceSpec("b enhancement spectrum", 100, 0., 10.);
-  Hist number("number of interactions", 100, -0.5, 99.5);
-  Hist pTb1("pT spectrum for b < 0.5", 100, 0., pTmax); 
-  Hist pTb2("pT spectrum for 0.5 < b < 1", 100, 0., pTmax); 
-  Hist pTb3("pT spectrum for 1 < b < 1.5", 100, 0., pTmax); 
-  Hist pTb4("pT spectrum for 1.5 < b", 100, 0., pTmax); 
-  Hist bpT1("b spectrum for pT < 2", 100, 0., bMax);
-  Hist bpT2("b spectrum for 2 < pT < 5", 100, 0., bMax);
-  Hist bpT3("b spectrum for 5 < pT < 15", 100, 0., bMax);
-  Hist bpT4("b spectrum for 15 < pT", 100, 0., bMax);
- 
-  // Begin event loop.
-  int nShowPace = max(1,nEvent/nShow); 
-  int iAbort = 0; 
-  for (int iEvent = 0; iEvent < nEvent; ++iEvent) {
-    if (iEvent%nShowPace == 0) cout << " Now begin event " 
-      << iEvent << endl;
+  // Switch off Z0 decay to charged leptons and neutrinos. 
+  pythia.readString("23:5:onMode = off"); 
+  pythia.readString("23:6:onMode = off"); 
+  pythia.readString("23:7:onMode = off"); 
+  pythia.readString("23:8:onMode = off"); 
+  pythia.readString("23:9:onMode = off"); 
+  pythia.readString("23:10:onMode = off"); 
+  pythia.readString("23:11:onMode = off"); 
+  */
 
-    // Generate events. Quit if too many failures.
-    if (!pythia.next()) {
-      if (++iAbort < nAbort) continue;
-      cout << " Event generation aborted prematurely, owing to error!\n"; 
-      break;
+  // No ISR in e+e-.
+  pythia.readString("PartonLevel:ISR = off"); 
+
+  // LEP1 initialization at Z0 mass. 
+  double mZ = pythia.particleData.m0(23);  
+  pythia.init( 11, -11, mZ);
+
+  // Check that Z0 decay channels set correctly.
+  pythia.particleData.listChanged();
+
+  // Histograms.
+  Hist nCharge("charged multiplicity", 100, -0.5, 99.5);
+  Hist spheri("Sphericity", 100, 0., 1.);
+  Hist linea("Linearity", 100, 0., 1.);
+  Hist thrust("thrust", 100, 0.5, 1.);
+  Hist oblateness("oblateness", 100, 0., 1.);
+  Hist sAxis("cos(theta_Sphericity)", 100, -1., 1.);
+  Hist lAxis("cos(theta_Linearity)", 100, -1., 1.);
+  Hist tAxis("cos(theta_Thrust)", 100, -1., 1.);
+  Hist nLund("Lund jet multiplicity", 40, -0.5, 39.5);
+  Hist nJade("Jade jet multiplicity", 40, -0.5, 39.5);
+  Hist nDurham("Durham jet multiplicity", 40, -0.5, 39.5);
+  Hist eDifLund("Lund e_i - e_{i+1}", 100, -5.,45.);
+  Hist eDifJade("Jade e_i - e_{i+1}", 100, -5.,45.);
+  Hist eDifDurham("Durham e_i - e_{i+1}", 100, -5.,45.);
+
+  // Set up Sphericity, "Linearity", Thurst and cluster jet analyses.
+  Sphericity sph;  
+  Sphericity lin(1.);
+  Thrust thr;
+  ClusterJet lund("Lund"); 
+  ClusterJet jade("Jade"); 
+  ClusterJet durham("Durham"); 
+
+  // Begin event loop. Generate event. Skip if error. List first few.
+  for (int iEvent = 0; iEvent < 10000; ++iEvent) {
+    if (!pythia.next()) continue;
+    if (iEvent < 1) pythia.event.list();
+
+    // Find and histogram charged multiplicity. 
+    int nCh = 0;
+    for (int i = 0; i < pythia.event.size(); ++i) 
+      if (pythia.event[i].isFinal() && pythia.event[i].isCharged()) ++nCh;
+    nCharge.fill( nCh );
+
+    // Find and histogram sphericity. 
+    if (sph.analyze( pythia.event )) { 
+      if (iEvent < 3) sph.list();
+      spheri.fill( sph.sphericity() ); 
+      sAxis.fill( sph.eventAxis(1).pz() );
+      double e1 = sph.eigenValue(1);
+      double e2 = sph.eigenValue(2);
+      double e3 = sph.eigenValue(3);
+      if (e2 > e1 || e3 > e2) cout << "eigenvalues out of order: "
+      << e1 << "  " << e2 << "  " << e3 << endl;
     }
- 
-    // List first few events, both hard process and complete events.
-    if (iEvent < nList) { 
-      pythia.info.list();
-      pythia.process.list();
-      event.list();
+
+    // Find and histogram linearized sphericity. 
+    if (lin.analyze( pythia.event )) {
+      if (iEvent < 3) lin.list();
+      linea.fill( lin.sphericity() ); 
+      lAxis.fill( lin.eventAxis(1).pz() );
+      double e1 = lin.eigenValue(1);
+      double e2 = lin.eigenValue(2);
+      double e3 = lin.eigenValue(3);
+      if (e2 > e1 || e3 > e2) cout << "eigenvalues out of order: "
+      << e1 << "  " << e2 << "  " << e3 << endl;
     }
 
-    // Charged multiplicity.
-    int nch = 0;
-    for (int i = 1; i < event.size(); ++i)
-      if (event[i].remains() && event[i].isCharged()) ++nch; 
-    nChg.fill( nch );
+    // Find and histogram thrust.
+    if (thr.analyze( pythia.event )) {
+      if (iEvent < 3) thr.list();
+      thrust.fill( thr.thrust() );
+      oblateness.fill( thr.oblateness() );
+      tAxis.fill( thr.eventAxis(1).pz() );
+      if ( abs(thr.eventAxis(1).pAbs() - 1.) > 1e-8 
+        || abs(thr.eventAxis(2).pAbs() - 1.) > 1e-8 
+        || abs(thr.eventAxis(3).pAbs() - 1.) > 1e-8 
+        || abs(thr.eventAxis(1) * thr.eventAxis(2)) > 1e-8
+        || abs(thr.eventAxis(1) * thr.eventAxis(3)) > 1e-8
+        || abs(thr.eventAxis(2) * thr.eventAxis(3)) > 1e-8 ) {
+        cout << " suspicious Thrust eigenvectors " << endl;
+        thr.list();
+      }
+    }
 
-    // Study event in (pT, b) space.
-    double pT = pythia.info.pTHat(); 
-    double b = pythia.info.bMI();
-    double enhance = pythia.info.enhanceMI();
-    int nMI = pythia.info.nMI();
-    pTspec.fill( pT );
-    bSpec.fill( b );
-    enhanceSpec.fill( enhance );
-    number.fill( nMI );
-    if (b < 0.5) pTb1.fill( pT );
-    else if (b < 1.0) pTb2.fill( pT );
-    else if (b < 1.5) pTb3.fill( pT );
-    else pTb4.fill( pT );
-    if (pT < 2.) bpT1.fill( b );
-    else if (pT < 5.) bpT2.fill( b );
-    else if (pT < 15.) bpT3.fill( b );
-    else bpT4.fill( b );
+    // Find and histogram cluster jets: Lund, Jade and Durham distance. 
+    if (lund.analyze( pythia.event, 0.01, 0.)) {
+      if (iEvent < 3) lund.list();
+      nLund.fill( lund.size() );
+      for (int j = 0; j < lund.size() - 1; ++j)
+        eDifLund.fill( lund.p(j).e() - lund.p(j+1).e() ); 
+    } 
+    if (jade.analyze( pythia.event, 0.01, 0.)) {
+      if (iEvent < 3) jade.list();
+      nJade.fill( jade.size() );
+      for (int j = 0; j < jade.size() - 1; ++j)
+        eDifJade.fill( jade.p(j).e() - jade.p(j+1).e() ); 
+    } 
+    if (durham.analyze( pythia.event, 0.01, 0.)) {
+      if (iEvent < 3) durham.list();
+      nDurham.fill( durham.size() );
+      for (int j = 0; j < durham.size() - 1; ++j)
+        eDifDurham.fill( durham.p(j).e() - durham.p(j+1).e() ); 
+    } 
 
-  // End of event loop.
+  // End of event loop. Statistics. Output histograms. 
   }
-
-  // Final statistics.
   pythia.statistics();
-  cout << nChg << pTspec << bSpec << enhanceSpec << number;
-  cout << pTb1 << pTb2 << pTb3 << pTb4;
-  cout << bpT1 << bpT2 << bpT3 << bpT4;
+  cout << nCharge << spheri << linea << thrust << oblateness 
+       << sAxis << lAxis << tAxis
+       << nLund << nJade << nDurham
+       << eDifLund << eDifJade << eDifDurham; 
 
   // Done.
   return 0;

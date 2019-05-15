@@ -29,7 +29,8 @@ option value="2"</strong>: CTEQ 5 L.
 
 <p/>
 Obviously this choice is mainly intended to get going, and a much wider 
-selection could be used by linking to an external library.
+selection could be used by linking to 
+<a href="PartonDistributions.html" target="page">an external library</a>.
 
 <p/>
 For electrons/leptons there is no need to choose, since only one 
@@ -71,7 +72,8 @@ flag name="Pythia:checkEvent" default="on"
 </strong><br/>
 When an event has been successfully generated, check that the 
 final event record does not contain any unphysical particles, or 
-nonconserved charge or energy-momentum.
+nonconserved charge or energy-momentum. If this check fails, then
+<code>pythia.next()</code> obtains the value <code>false</code>.
   
 
 <p/><strong>
@@ -84,7 +86,7 @@ at the end of the run.
   
 
 <p/><strong>
-parameter name="Pythia:epTolerance" default="1e-5"
+parm name="Pythia:epTolerance" default="1e-5"
 </strong><br/>
 Maximum allowed summed deviation of <i>E</i>, <i>p_x</i>, 
 <i>p_y</i> and <i>p_z</i> between the incoming beams and the 

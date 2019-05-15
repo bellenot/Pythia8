@@ -305,19 +305,19 @@ const int StringFragmentation::NTRYJRFEQ = 40;
 void StringFragmentation::initStatic() {
 
   // Initialize the StringFragmentation class.
-  stopMass = Settings::parameter("StringFragmentation:stopMass");
-  stopNewFlav = Settings::parameter("StringFragmentation:stopNewFlav");
-  stopSmear = Settings::parameter("StringFragmentation:stopSmear");
-  eNormJunction = Settings::parameter("StringFragmentation:eNormJunction");
+  stopMass = Settings::parm("StringFragmentation:stopMass");
+  stopNewFlav = Settings::parm("StringFragmentation:stopNewFlav");
+  stopSmear = Settings::parm("StringFragmentation:stopSmear");
+  eNormJunction = Settings::parm("StringFragmentation:eNormJunction");
   eBothLeftJunction 
-    = Settings::parameter("StringFragmentation:eBothLeftJunction");
+     = Settings::parm("StringFragmentation:eBothLeftJunction");
   eMaxLeftJunction 
-    = Settings::parameter("StringFragmentation:eMaxLeftJunction");
+    = Settings::parm("StringFragmentation:eMaxLeftJunction");
   eMinLeftJunction 
-    = Settings::parameter("StringFragmentation:eMinLeftJunction");
+    = Settings::parm("StringFragmentation:eMinLeftJunction");
 
   // Initialize the b parameter of the z spectrum, used when joining jets.
-  bLund = Settings::parameter("StringZ:bLund");
+  bLund = Settings::parm("StringZ:bLund");
 
 }
 

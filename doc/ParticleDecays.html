@@ -44,7 +44,7 @@ When on, only particles with <i>tau0 &lt; tau0Max</i> are decayed.
   
 
 <p/><strong>
-parameter name="ParticleDecays:tau0Max" default="1." min="0."
+parm name="ParticleDecays:tau0Max" default="1." min="0."
 </strong><br/>
 The above <i>tau0Max</i>, expressed in mm/c.
   
@@ -60,7 +60,7 @@ When on, only particles with <i>tau &lt; tauMax</i> are decayed.
   
 
 <p/><strong>
-parameter name="ParticleDecays:tauMax" default="1." min="0." 
+parm name="ParticleDecays:tauMax" default="1." min="0." 
 </strong><br/>
 The above <i>tauMax</i>, expressed in mm/c.<br/>
 In order for this and the subsequent tests to work, a <i>tau</i> 
@@ -82,10 +82,10 @@ detector effects.
   
 
 <p/><strong>
-parameter name="ParticleDecays:rMax" default="1." min="0."
+parm name="ParticleDecays:rMax" default="1." min="0."
 </strong><br/>
 The above <i>rMax</i>, expressed in mm/c.
-   
+  
 
 <p/>
 (vi) Particles may be requested to decay within a given cylidrical 
@@ -101,16 +101,16 @@ detector effects.
   
 
 <p/><strong>
-parameter name="ParticleDecays:xyMax" default="1." min="0."
+parm name="ParticleDecays:xyMax" default="1." min="0."
 </strong><br/>
 The above <i>xyMax</i>, expressed in mm/c.
-   
+  
 
 <p/><strong>
-parameter name="ParticleDecays:zMax" default="1." min="0."
+parm name="ParticleDecays:zMax" default="1." min="0."
 </strong><br/>
 The above <i>zMax</i>, expressed in mm/c.
-   
+  
 
 <h3>Mixing</h3>
 
@@ -121,30 +121,30 @@ Allow or not <i>B^0 - B^0bar</i> and <i>B_s^0 - B_s^0bar</i> mixing.
   
 
 <p/><strong>
-parameter name="ParticleDecays:xBdMix" default="0.771" 
+parm name="ParticleDecays:xBdMix" default="0.771" 
 min="0.70" max="0.85"
 </strong><br/>
 The mixing parameter <i>x_d = Delta(m_B^0)/Gamma_B^0</i> in the 
 <i>B^0 - B^0bar</i> system.
-   
+  
 
 <p/><strong>
-parameter name="ParticleDecays:xBsMix" default="25.0" min="15.0" 
+parm name="ParticleDecays:xBsMix" default="25.0" min="15.0" 
 </strong><br/>
 The mixing parameter <i>x_s = Delta(m_B_s^0)/Gamma_B_s^0</i> in the 
 <i>B_s^0 - B_s^0bar</i> system.
-   
+  
 
 <h3>Other variables</h3>
 
 <p/><strong>
-parameter name="ParticleDecays:mSafety" default="0.001" 
+parm name="ParticleDecays:mSafety" default="0.001" 
 min="0." max="0.01"
 </strong><br/>
 Minimum mass difference required between the decaying mother mass 
 and the sum of the daughter masses, kept as a safety margin to avoid
 numerical problems in the decay generation.
-   
+  
 
 <p/>
 When a decay mode is defined in terms of a partonic content, a random 
@@ -163,28 +163,28 @@ multiplicity. There is always some lower limit for the allowed
 multiplicity; if a number smaller than this is picked the choice 
 is repeated.
 <p/><strong>
-parameter name="ParticleDecays:multIncrease" default="4.5" 
+parm name="ParticleDecays:multIncrease" default="4.5" 
 min="3." max="6."
 </strong><br/>
 The above <i>multIncrease</i> parameter.
-   
+  
 
 <p/><strong>
-parameter name="ParticleDecays:multRefMass" default="0.7"
+parm name="ParticleDecays:multRefMass" default="0.7"
 min="0.2" max="2.0"
 </strong><br/>
 The above <i>multRefMass</i> parameter.
-   
+  
 
 <p/><strong>
-parameter name="ParticleDecays:multGoffset" default="0.0" 
+parm name="ParticleDecays:multGoffset" default="0.0" 
 min="0.0" max="2.0"
 </strong><br/>
 The above <i>multGoffset</i> parameter.
-   
+  
 
 <p/><strong>
-parameter name="ParticleDecays:colRearrange" default="0.5" 
+parm name="ParticleDecays:colRearrange" default="0.5" 
 min="0." max="1.0"
 </strong><br/>
 When a decay is given as a list of four partons to be turned into
@@ -193,7 +193,7 @@ in pairs, as a first and a second colour singlet, which could give rise
 to separate sets of hadrons. Here <i>colRearrange</i> is the 
 probability that this original assignment is not respected, and 
 default corresponds to no memory of this original colour topology.
-   
+  
 
 <p/><strong>
 flag name="ParticleDecays:FSRinDecays" default="true"
@@ -206,6 +206,45 @@ the partonic system is hadronized. (The typical example is
 
 In addition, some variables defined for string fragmentation and for
 flavour production are used also here.
+ 
+<h3>Modes for Matrix Element Processing</h3>
+
+Some decays can be treated better than what pure phase space allows,
+by reweighting with appropriate matrix elements. The presence of such
+corrections is signalled by a nonvanishing <code>meMode()</code> value
+for a decay mode in the 
+<a href="ParticleDataScheme.html" target="page">particle
+data table</a>. The list of allowed values almost agrees with the 
+PYTHIA 6 ones, but several obsolete choices have been removed, and 
+a few moved for better consistency. Here is the list of currently 
+allowed <code>meMode()</code> codes:
+<ul>
+<li>  0 : pure phace space of produced particles ("default")</li>
+<li>  1 : <i>omega</i> and <i>phi -> pi+ pi- pi0</i></li>
+<li>  2 : Dalitz decay of <i>pi0</i> and <i>eta</i></li>
+<li>  3 : polarization in <i>V -> PS + PS</i> (<i>V</i> = vector, 
+<i>PS</i> = pseudoscalar), when <i>V</i> is produced by 
+<i>PS -> PS + V</i> or <i>PS -> gamma + V</i></li>
+<li> 11 : turn partons into hadrons and distribute in pure phase 
+space</li>  
+<li> 12 : ditto, but with higher average multiplicity 
+(imagined <i>q -> g</i>)</li>
+<li> 13 - 15 : as 11, but require at least <code>code</code> - 10 number 
+of particles in the decay channel</li>
+<li> 22 - 30 : as 11, but fixed multiplicity <code>code</code> - 20</li>
+<li> 32 : decay to <i>q qbar</i> or <i>g g</i>, which should shower 
+and hadronize</li>
+<li> 33 (was 4) : decay onium to <i>g g g</i> or <i>g g gamma</i> 
+(with matrix element), which should shower and hadronize</li>
+<li> 41 : decay to phase space, but weight up <i>neutrino_tau</i> spectrum
+in <i>tau</i> decay</li>
+<li> 42 : weak decay; if there is a quark spectator system it collapses to 
+one hadron; for leptonic/semileptonic decays the <i>V-A</i> matrix element
+is used, for hadronic decays simple phase space (gives somewhat softer 
+<i>B -> D</i> spectrum than PYTHIA 6; to be improved!??)</li>
+<li> 43 (was 48) : as 42, but require at least three particles 
+in decay</li>
+</ul>
 
 </body>
 </html>

@@ -21,8 +21,10 @@
 #include "ProcessLevel.h"
 #include "Pythia6.h"
 #include "PythiaStdlib.h"
+#include "ResonanceProperties.h"
 #include "Settings.h"
 #include "SigmaProcess.h"
+#include "SusyLesHouches.h"
 
 namespace Pythia8 {
  
@@ -34,11 +36,11 @@ class Pythia {
 
 public:
 
-  // Constructor allows to specify default output stream. 
-  Pythia(ostream& osIn = cout) : osDefault(osIn) { 
+  // Constructor. 
+  Pythia() { 
     // Initial values for parton density functions (PDF's).
     pdfAPtr = 0; pdfBPtr = 0; pdfAnew = false; pdfBnew = false;
-    // Read in files with all flags, modes and parameters.
+    // Read in files with all flags, modes, parms and words.
     settings.init();
     // Read in files with all particle data.
     particleData.init();
@@ -53,10 +55,10 @@ public:
   // Destructor to undo the PDF's created with new.
   ~Pythia() { if (pdfAnew) delete pdfAPtr; if (pdfBnew) delete pdfBPtr; } 
 
-  // Read in one update for flag/mode/parameter/Pythia6 from a single line.
+  // Read in one update for setting/particledata/Pythia6 from a single line.
   bool readString(string, bool warn = true); 
  
-  // Read in updates for flag/mode/parameter/Pythia6 from user-defined file.
+  // Read in updates for setting/particledata/Pythia6 from user-defined file.
   bool readFile(string, bool warn = true);
 
   // Possibility to pass in pointers to PDF's. Usage optional. 
@@ -79,9 +81,15 @@ public:
 
   // Initialization according to the Les Houches Accord.
   bool init( LHAinit* lhaInitPtrIn, LHAevnt* lhaEvntPtrIn);
+
+  // Initialization by a Les Houches Event File.
+  bool init( string LesHouchesEventFile);
  
   // Generate the next event.
   bool next(); 
+
+  // List the current Les Houches event.
+  void LHAevntList(ostream& os = cout) {lhaEvntPtr->list(os);}
 
   // Main routine to provide final statistics on generation.
   void statistics();
@@ -101,6 +109,9 @@ public:
   // ParticleDataTable - is static but declared here for ease of use.
   ParticleDataTable particleData;
 
+  // SusyLesHouches - SLHA object for interface to SUSY spectra.
+  SusyLesHouches slha;
+
 private: 
 
   // Static initialization data, normally only set once.
@@ -111,20 +122,20 @@ private:
   // Constants: could only be changed in the code itself.
   static const int NTRY;
 
-  // Default stream for output. Does not yet work??
-  ostream& osDefault;
-
   // Write the Pythia banner, with symbol and version information.
-  void banner();
+  void banner(ostream& os = cout);
 
   // Initialization routine to set up kinematic and more.
-  bool init(bool inCMframeIn);
+  bool init();
 
   // Initialization routine for all accessible static data members.
   void initStatic();
 
+  // Initialization routine for SUSY spectra.
+  bool initSLHA();
+
   // Check that the final event makes sense.
-  bool check();
+  bool check(ostream& os = cout);
 
   // Pointers to the parton distributions of the two incoming beams.
   PDF* pdfAPtr;  

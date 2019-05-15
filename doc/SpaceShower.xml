@@ -58,11 +58,11 @@ to be below the factorization scale of the process itself.
 
 <p/>
 The amount of QCD radiation in the shower is determined by 
-<parameter name="SpaceShower:alphaSvalue" default="0.127" 
+<parm name="SpaceShower:alphaSvalue" default="0.127" 
 min="0.06" max="0.25">
 The <ei>alpha_strong</ei> value at scale <code>M_Z^2</code>. 
 Default value is picked equal to the one used in CTEQ 5L.  
-</parameter>
+</parm>
 
 <p/>
 The actual value is then regulated by the running to the scale 
@@ -115,7 +115,7 @@ The actual <code>pT0</code> parameter used at a given cm energy scale,
 where <ei>pT0Ref</ei>, <ei>ecmRef</ei> and <ei>ecmPow</ei> are the 
 three parameters below.
 
-<parameter name="SpaceShower:pT0Ref" default="2.2" 
+<parm name="SpaceShower:pT0Ref" default="2.2" 
 min="0.5" max="10.0">
 Regularization of the divergence of the QCD emission probability for 
 <ei>pT -> 0</ei> is obtained by a factor <ei>pT^2 / (pT0^2 + pT^2)</ei>, 
@@ -123,18 +123,18 @@ and by using an <ei>alpha_s(pT0^2 + pT^2)</ei>. An energy dependence
 of the <ei>pT0</ei> choice is introduced by the next two parameters, 
 so that <ei>pT0Ref</ei> is the <ei>pT0</ei> value for the reference 
 cm energy, <ei>pT0Ref = pT0(ecmRef)</ei>.   
-</parameter>
+</parm>
 
-<parameter name="SpaceShower:ecmRef" default="1800.0" min="1.">
+<parm name="SpaceShower:ecmRef" default="1800.0" min="1.">
 The <ei>ecmRef</ei> reference energy scale introduced above.
-</parameter>
+</parm>
 
-<parameter name="SpaceShower:ecmPow" default="0.16" 
+<parm name="SpaceShower:ecmPow" default="0.16" 
 min="0." max="0.5">
 The <ei>ecmPow</ei> energy rescaling pace introduced above.
-</parameter>
+</parm>
 
-<parameter name="SpaceShower:pTmin" default="0.2" 
+<parm name="SpaceShower:pTmin" default="0.2" 
 min="0.1" max="10.0">
 Lower cutoff in <ei>pT</ei>, below which no further ISR branchings 
 are allowed. Normally the <ei>pT0</ei> above would be used to 
@@ -144,19 +144,19 @@ technical reasons. It is possible, however, to set <ei>pT0Ref = 0</ei>
 and use <ei>pTmin</ei> to provide a step-function regularization, 
 or to combine them in intermediate approaches. Currently <ei>pTmin</ei> 
 is taken to be energy-independent.  
-</parameter>
+</parm>
 
-<parameter name="SpaceShower:pTminChgQ" default="0.5" min="0.01">
+<parm name="SpaceShower:pTminChgQ" default="0.5" min="0.01">
 Parton shower cut-off <ei>pT</ei> for photon coupling to a coloured 
 particle.
-</parameter>
+</parm>
 
-<parameter name="SpaceShower:pTminChgL" default="0.0005" min="0.0001">
+<parm name="SpaceShower:pTminChgL" default="0.0005" min="0.0001">
 Parton shower cut-off mass for pure QED branchings. 
 Assumed smaller than (or equal to) <ei>pTminChgQ</ei>.
 Actually, ISR cascades of incoming leptons have not been implemented 
 so far, so should not be used!??
-</parameter>
+</parm>
 
 <h3>Further variables</h3>
 

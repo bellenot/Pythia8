@@ -123,28 +123,30 @@ partons; could be used e.g. for reweighting purposes.
   
 
 <p/><strong>
-method name="Q2Fac()" 
+method name="QFac(), Q2Fac()" 
 </strong><br/>
-the <i>Q^2</i> factorization scale at which the densities were evaluated.
+the <i>Q^2</i> or <i>Q^2</i> factorization scale at which the 
+densities were evaluated.
   
 
 <p/><strong>
-method name="alphaS()" 
+method name="alphaS(), alphaEM()" 
 </strong><br/>
-the <i>alpha_strong</i> value used for the hard process.
+the <i>alpha_strong</i> and <i>alpha_electromagnetic</i> values used 
+for the hard process.
   
 
 <p/><strong>
-method name="Q2Ren()" 
+method name="QRen(), Q2Ren()" 
 </strong><br/>
-the <i>Q^2</i> renormalization scale at which <i>alpha_strong</i> 
-was evaluated.
+the <i>Q</i> or <i>Q^2</i> renormalization scale at which 
+<i>alpha_strong</i> and <i>alpha_electromagnetic</i> were evaluated.
   
 
 <p/><strong>
 method name="mHat(), sHat()"
 </strong><br/>
- the invariant mass and its square for the hard process.
+the invariant mass and its square for the hard process.
   
 
 <p/><strong>
@@ -173,6 +175,18 @@ method name="thetaHat(), phiHat()"
 the polar and azimuthal scattering angles in the rest frame of 
 a <i>2 -> 2</i> process.
   
+
+<p/><strong>
+method name="nTried(), nAccepted()"
+</strong><br/>
+the total number of tried phase-space points and accepted events, 
+summed over all allowed subprocesses.
+
+<p/><strong>
+method name="sigmaGen(), sigmaErr()"
+</strong><br/>
+the estimated cross section and its estimated error,
+summed over all allowed subprocesses, in units of mb. 
 
 <p/><strong>
 method name="bMI()" 

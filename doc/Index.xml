@@ -1,10 +1,10 @@
 <chapter name="Index">
 
-<img src="pythiapicture.gif" alt="Pythia picture" hspace=40/>
+<img src="pythiapicture.gif" alt="Pythia picture" hspace=10/>
 
 <h2>PYTHIA 8 Index</h2>
 
-<h3><a href="pythia8051.pdf" target="page">Brief Introduction</a> (pdf)</h3>
+<h3><a href="pythia8060.pdf" target="page">Brief Introduction</a> (pdf)</h3>
 
 <h3>Program Overview</h3>
 
@@ -17,7 +17,7 @@
 <h3>Setup Run Parameters</h3>
 
 <a href="SaveRestore.xml" target="page">Save/Restore Parameters</a><br/>
-<a href="MainProgram.xml" target="page">Main-Program Parameters</a><br/>
+<a href="MainProgram.xml" target="page">Main-Program Settings</a><br/>
 <a href="Generic.xml" target="page">Generic Settings</a><br/>
 <a href="Partial.xml" target="page">Partial Generation</a><br/>
 <a href="Processes.xml" target="page">Process Selection</a><br/>
@@ -47,18 +47,20 @@
 
 <h3>Link to Other Programs</h3>
 
+<a href="SusyLesHouches.xml" target="page">SUSY Les Houches Accord</a><br/>
 <a href="LesHouches.xml" target="page">The Les Houches Accord</a><br/>
 <a href="Pythia6.xml" target="page">Access PYTHIA 6 Processes</a><br/>
 <a href="PartonDistributions.xml" target="page">Parton Distributions</a><br/>
 <a href="ExternalDecays.xml" target="page">External Decays</a><br/>
 <a href="RandomNumbers.xml" target="page">Random Numbers</a><br/>
+<a href="Utilities.xml" target="page">Stdlib + Utilities</a><br/>
 
 <h3><a href="References.xml" target="page">References</a></h3>
 
 <h3>Internal</h3>
 
-<a href="Internal.xml" target="page">For Internal Use</a><br/>
-<a href="Comments.xml" target="page">Further Comments</a><br/>
+<a href="ImplementProcess.xml" target="page">Implement a Process</a><br/>
+<a href="Version.xml" target="page">Version</a><br/>
 
 </chapter>
 

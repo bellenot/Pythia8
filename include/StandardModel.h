@@ -77,6 +77,46 @@ private:
 
 //**************************************************************************
 
+// The CoupEW class stores and returns electroweak couplings.
+
+class CoupEW {
+
+public:
+
+   // Constructor.
+   CoupEW() {}
+
+  // Initialize, normally from Pythia::init().
+  static void initStatic();
+
+   // Return electroweak mixing angle.
+   static double sin2thetaW() {return s2tW;}
+   static double cos2thetaW() {return c2tW;}
+   static double sin2thetaWbar() {return s2tWbar;}
+
+   // Return electroweak couplings of quarks and leptons.
+   static double ef(int idAbs) {return efSave[idAbs];}
+   static double vf(int idAbs) {return vfSave[idAbs];}
+   static double af(int idAbs) {return afSave[idAbs];}
+   static double t3f(int idAbs) {return 0.5*afSave[idAbs];}
+   static double lf(int idAbs) {return lfSave[idAbs];}
+   static double rf(int idAbs) {return rfSave[idAbs];}
+  
+   // Return some squared couplings.
+   static double ef2(int idAbs) {return ef2Save[idAbs];}
+   static double vf2(int idAbs) {return vf2Save[idAbs];}
+   static double af2(int idAbs) {return af2Save[idAbs];}
+
+private:
+
+   // Store couplings.
+   static double s2tW, c2tW, s2tWbar, efSave[20], vfSave[20], afSave[20],
+     lfSave[20], rfSave[20], ef2Save[20], vf2Save[20], af2Save[20];
+
+};
+
+//**************************************************************************
+
 // The VCKM class stores and returns Cabibbo-Kobayashi-Maskawa 
 
 class VCKM {
@@ -90,13 +130,21 @@ public:
   static void initStatic();
 
   // Return value or square: first index 1/2/3 = u/c/t, second 1/2/3 = d/s/b.
-  static double V(int i, int j) {return Vsave[i][j];}
-  static double V2(int i, int j) {return Vsave[i][j] * Vsave[i][j];}
+  static double Vgen(int genU, int genD) {return Vsave[genU][genD];}
+  static double V2gen(int genU, int genD) {return pow2(Vsave[genU][genD]);}
+
+  // Return value or square for incoming flavours (sign irrelevant).
+  static double Vid(int id1, int id2);
+  static double V2id(int id1, int id2) {return pow2(Vid(id1, id2));}
+
+  // Return sum of squares for given inflavour, or random outflavour.
+  static double V2sum(int id) {return V2out[abs(id)];}
+  static int V2pick(int id);
   
 private:
 
-  // Store VCKM matrix (index 0 not used).
-  static double Vsave[4][4];
+  // Store VCKM matrix (index 0 not used) and sum of squares.
+  static double Vsave[4][4], V2out[20];
 
 };
 

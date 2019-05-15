@@ -12,15 +12,16 @@ commonblocks. Here a C++ equivalent is defined, as two separate classes.
 The <code>LHAinit</code> and <code>LHAevnt</code> classes are base classes, 
 containing reading and printout functions, plus a pure virtual function 
 each. Derived classes have to provide these two virtual functions to do 
-the actual work. Currently the only derived classes are for reading 
-information from the respective Fortran commonblock or for reading
-it from PYTHIA 6.4-produced files. 
+the actual work. The existing derived classes are for reading information 
+from the respective Fortran commonblock or from a Les Houches Event File.
 
 <p/>
 Normally, pointers to objects of the derived classes should be handed
-in with the <code>pythia.init()</code> method. (If you use the LHA 
-interface to PYTHIA 6.4, this is taken care of 
-internally, so no pointers need to be handed in.) 
+in with the <a href="Flow.xml" target="page"><code>pythia.init( 
+LHAinit*, LHAevnt*)</code></a> method. However, if  you use the LHA 
+runtime interface to PYTHIA 6.4 this is taken care of internally, 
+so no pointers need to be handed in. Also, with the new Les Houches
+Event File format a filename can replace the two pointers, see below. 
 
 <h3>Initialization</h3>
 
@@ -74,8 +75,11 @@ size()</code>.
 </method>
 
 <p/>
-The information can also be printed using the overloaded 
-&lt;&lt; operator, e.g. <code>cout &lt;&lt; LHAinitObject</code>.
+The information can also be printed using the <code>list()</code>
+method, e.g. <code>LHAinitObject->list()</code>.
+This is automatically done by the <code>pythia.init</code> call,
+unless the runtime interface to PYTHIA 6 is being used, in which
+case that program is intended to print the information.
 
 <h3>Event input</h3>
 
@@ -104,14 +108,14 @@ return <code>false</code> if it fails to set the info, e.g. if the
 supply of events in a file is exhausted.
 
 <p/>
-Inside <code>set()</code>, cuch information can be set by the following
+Inside <code>set()</code>, such information can be set by the following
 methods:
 <method name="process( idProcess, weight, scale, alphaQED, alphaQCD)"> 
 tells which kind of process occured, with what weight, at what scale, 
 and which <ei>alpha_EM</ei> and <ei>alpha_strong</ei> were used
 (cf. <code>IDPRUP, XWTGUP, SCALUP, AQEDUP, AQCDUP</code>). This method 
 also resets the size of the particle list, and adds the empty zeroth 
-line, so it has to be called before the particle method below.
+line, so it has to be called before the <code>particle</code> method below.
 </method>
 <method name="particle( id, status, mother1, mother2, colourTag1, 
 colourTag2, p_x, p_y, p_z, e, m, tau, spin)"> 
@@ -137,8 +141,29 @@ for particle <code>i</code> in the range
 </method>
 
 <p/>
-The information can also be printed using the overloaded 
-&lt;&lt; operator, e.g. <code>cout &lt;&lt; LHAevntObject</code>.
+In the Les Houches Event File proposal <ref>Alw06</ref> an extension to 
+include information on the parton densities of the colliding partons
+was suggested. This optional further information can be set by
+<method name="pdf( id1, id2, x1, x2, scalePDF, xpdf1, xpdf2)">
+which gives the flavours , the <ei>x</ei> and the <ie>Q</ei> scale 
+(in GeV) at which the parton densities <ei>x*f_i(x, Q)</ei> have been
+evaluated.
+</method>
+
+<p/>
+This information is returned by the methods
+<method name="pdfIsSet(), id1(), id2(), x1(), x2(), scalePDF(), xpdf1(), xpdf2()">
+where the first one tells whether this optional information has been set
+for the current event. (<code>pdf</code> must be called after the
+<code>process</code> call of the event for this to work.)
+</method>
+
+<p/>
+The information can also be printed using the <code>list()</code>
+method, e.g. <code>LHAevntObject->list()</code>.
+In cases where the <code>LHAevntObject</code> is not available to the
+user, the <code>pythia.LHAevntList()</code> method can be used, which 
+is a wrapper for the above. 
 
 <h3>A runtime Fortran interface</h3>
 
@@ -170,37 +195,26 @@ Initialization is with
 i.e. does not require any arguments. 
 
 <p/>
-See further the page on "Accessing PYTHIA 6 Processes" for information 
-how PYTHIA 6.4 can be linked to make use of this facility. 
+See further <a href="Pythia6.xml" target="page">here</a> for 
+information how PYTHIA 6.4 can be linked to make use of this facility. 
 Several of the example main programs illustrate how it can be used. 
 
-<h3>An interface to PYTHIA 6 files</h3>
+<h3>An interface to Les Houches Event Files</h3>
 
-The <code>LHAinitPythia6</code> class derives from <code>LHAinit</code>. 
-It reads initialization information, written from PYTHIA 6.4
-with the <code>PYUPIN</code> routine, from a given file. The file name 
-should be given as argument at the instantiation, e.g.
-<pre> 
-    LHAinitPythia6 lhaInit("ttsample.init");
-</pre>
-
-<p/>
-Thw <code>LHAevntPythia6</code>class derives from <code>LHAevnt</code>. 
-It reads information on the next event, written from PYTHIA 6.4 with 
-the <code>PYUPEV</code> routine, from a given file. The file name should be 
-given as argument at the instantiation, e.g. 
-<pre> 
-    LHAevntPythia6 lhaEvnt("ttsample.evnt");
-</pre> 
+The new Les Houches Event File (LHEF) standard <ref>Alw06</ref> specifies 
+a format where a single file packs initialization and event information.
+This is likely to become the most frequently used procedure to process
+external parton-level events in Pythia. Therefore a special 
+<a href="Flow.xml" target="page"><code>pythia.init("filename")</code></a>
+initialization option exists, where the LHEF name is provided as single
+input. Internally this name is then used to create instances of two derived 
+classes, <code>LHAinitLHEF</code> and <code>LHAevntLHEF</code>. Both of
+them are allowed to read from the same LHEF, first the former and then 
+the latter.
 
 <p/>
-The <code>PYUPEV</code> routine writes mother indices using the Fortran 
-(and Les Houches) convention of the first particle being number 1, 
-and so matches the C++ "fix" of an empty zeroth particle.  
-
-<p/>
-An example how to use events in such exernal files is found in 
-<code>main02.cc</code>.
+An example how to generate events from a LHEF is found in 
+<code>main14.cc</code>.
 
 <h3>Other examples</h3>
 
@@ -218,7 +232,7 @@ beforehand.
 
 <p/>
 An example how this can be used for toy studies is found in 
-<code>main03.cc</code>.
+<code>main16.cc</code>.
 
 </chapter>
 

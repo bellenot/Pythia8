@@ -1,4 +1,5 @@
 // Header file for incoming parton flux. Used by SigmaProcess.
+// InBeam, InPair: simple helper classes.
 // InFlux: base class for combinations of incoming partons.
 // InFluxgg, InFluxqqAnti, InFluxqg, ...: derived classes.
 // Copyright C 2006 Torbjorn Sjostrand
@@ -16,6 +17,41 @@ namespace Pythia8 {
 
 //**************************************************************************
 
+// InBeam is a simple helper class for partons and their flux in a beam.
+
+class InBeam {
+
+public:
+
+  // Constructor.
+  InBeam( int idIn = 0) : id(idIn), pdf(0.) {}
+
+  // Values.
+  int id;
+  double pdf;
+
+};
+
+//**************************************************************************
+
+// InPair is a simple helper class for colliding parton pairs and their flux.
+
+class InPair {
+
+public:
+
+  // Constructor.
+  InPair( int idAIn = 0, int idBIn = 0) : idA(idAIn), idB(idBIn), 
+    fixWeight(1.), varWeight(1.), pdfA(0.), pdfB(0.), fluxWeight(0.) {}
+
+  // Values.
+  int idA, idB;
+  double fixWeight, varWeight, pdfA, pdfB, fluxWeight;
+
+};
+
+//**************************************************************************
+
 // InFlux is the base class for the combined incoming parton flux.
 
 class InFlux {
@@ -28,31 +64,53 @@ public:
   // Initialize static data members.
   static void initStatic();
 
-  // Initialization: store parton-density pointers. Construct channels.
-  void init(PDF* pdfAPtrIn, PDF* pdfBPtrIn) {pdfAPtr = pdfAPtrIn; 
-    pdfBPtr = pdfBPtrIn; initChannels();} 
+  // Initialization: store parton-density pointers. 
+  static void setPDFPtr(PDF* pdfAPtrIn, PDF* pdfBPtrIn) 
+    {pdfAPtr = pdfAPtrIn; pdfBPtr = pdfBPtrIn;} 
 
   // Initialization of process-specific allowed combinations. 
   virtual void initChannels() = 0; 
 
-  // Add even powers of e to weight.
-  void weightCharge(int ePow = 0);
+  // Multiply fixed weight by squared charge.
+  void weightCharge2();
 
-  // Add even powers of CKM matrix element to weight.
-  void weightCKM(int ckmPow = 0);
+  // Multiply fixed weight by squared CKM matrix elements.
+  void weightCKM2();
+
+  // Multiply fixed weight by sum of squared CKM matrix elements.
+  void weightCKM2sum(int mode = 1, int idQ = 0);
 
   // Multiply by colour factor 1/3 or 1/8 for colour annihilation graphs.
   void weightInvCol();
+
+  // Multiply fixed weight by spin factor 2 for neutrinos.
+  void weightNeutrinoSpin();
+
+  // Multiply fixed weight by flavour-specific factor (catch-all).
+  void weightFixed(double nowWeight = 1.) {
+    for (int i = 0; i < sizePair(); ++i) inPair[i].fixWeight *= nowWeight;} 
+  void weightFixed(int id1, int id2, double nowWeight, 
+    bool flipSide = true, bool conjugate = true, bool allGen = true);
+
+  // Remove empty channels and optionally list remaining ones.
+  void checkChannels(string processName, ostream& os = cout);
+
+  // Introduce flavour-specific event-by-event weight factor.
+  void weightInState(double nowWeight = 1.) {
+    for (int i = 0; i < sizePair(); ++i) inPair[i].varWeight = nowWeight;} 
+  void weightInState(int id1, int id2, double nowWeight, 
+    bool flipSide = true, bool conjugate = true, bool allGen = true);
 
   // Calculate products of parton densities for allowed combinations.
   double flux(double x1, double x2, double Q2);
 
   // Information on combination of required partons from the two beams.
-  int nAB() const {return weightAB.size();}
-  int idA(int i) const {return idPartonPairA[i];} 
-  int idB(int i) const {return idPartonPairB[i];} 
-  double wtAB(int i) const {return weightAB[i];} 
-  double fluxwtAB(int i) const {return fluxweightAB[i];} 
+  int nAB() const {return sizePair();}
+  int idA(int i) const {return inPair[i].idA;} 
+  int idB(int i) const {return inPair[i].idB;} 
+  double fixWeightAB(int i) const {return inPair[i].fixWeight;} 
+  double varWeightAB(int i) const {return inPair[i].varWeight;} 
+  double fluxWeightAB(int i) const {return inPair[i].fluxWeight;} 
 
   // Pick one of the possible channels according to their weight.
   void pick();
@@ -63,16 +121,34 @@ public:
 
 protected:
 
+  // Constructor.
+  InFlux() {}
+
   // Static initialization data, normally only set once.
   static int nQuark;
+  static bool showChannels;
 
   // Pointers to parton densities. 
-  PDF* pdfAPtr; 
-  PDF* pdfBPtr;  
+  static PDF* pdfAPtr; 
+  static PDF* pdfBPtr; 
 
-  // Partons in beams and their allowed combinations with weights.
-  vector<int> idPartonA, idPartonB, idPartonPairA, idPartonPairB;
-  vector<double> pdfA, pdfB, pdfPairA, pdfPairB, weightAB, fluxweightAB;
+  // Constants: could only be changed in the code itself.
+  static const int MAPTOFIRST[40] ;
+
+  // Partons in beams, with pdf's.
+  vector<InBeam> inBeamA;
+  vector<InBeam> inBeamB;
+  void addBeamA(int id) {inBeamA.push_back(InBeam(id));}
+  void addBeamB(int id) {inBeamB.push_back(InBeam(id));}
+  int sizeBeamA() const {return inBeamA.size();}
+  int sizeBeamB() const {return inBeamB.size();}
+
+  // Allowed colliding parton pairs, with pdf's.
+  vector<InPair> inPair;
+  void addPair(int idA, int idB) {inPair.push_back(InPair(idA, idB));}
+  int sizePair() const {return inPair.size();}
+
+  // Currently picked incoming channel, and flux sum of all channels.
   int idNow1, idNow2;
   double pdfNow1, pdfNow2, fluxwtSum;
 
@@ -87,7 +163,7 @@ class InFluxgg : public InFlux {
 public:
 
   // Constructor.
-  InFluxgg() {}
+  InFluxgg() {initChannels();}
 
   // Destructor.
   ~InFluxgg() {}
@@ -108,7 +184,7 @@ class InFluxqg : public InFlux {
 public:
 
   // Constructor.
-  InFluxqg() {}
+  InFluxqg() {initChannels();}
 
 private:
 
@@ -127,7 +203,7 @@ class InFluxqqbarqqDiff : public InFlux {
 public:
 
   // Constructor.
-  InFluxqqbarqqDiff() {}
+  InFluxqqbarqqDiff() {initChannels();}
 
 private:
 
@@ -145,7 +221,7 @@ class InFluxqqDiff : public InFlux {
 public:
 
   // Constructor.
-  InFluxqqDiff() {}
+  InFluxqqDiff() {initChannels();}
 
 private:
 
@@ -163,7 +239,7 @@ class InFluxqqSame : public InFlux {
 public:
 
   // Constructor.
-  InFluxqqSame() {}
+  InFluxqqSame() {initChannels();}
 
 private:
 
@@ -181,7 +257,7 @@ class InFluxqqbarDiff : public InFlux {
 public:
 
   // Constructor.
-  InFluxqqbarDiff() {}
+  InFluxqqbarDiff() {initChannels();}
 
 private:
 
@@ -199,7 +275,44 @@ class InFluxqqbarSame : public InFlux {
 public:
 
   // Constructor.
-  InFluxqqbarSame() {}
+  InFluxqqbarSame() {initChannels();}
+
+private:
+
+  // Initialize values.
+  virtual void initChannels();  
+
+};
+ 
+//**************************************************************************
+
+// A derived class for f f', f fbar', fbar fbar' incoming state,
+// where f an f' may be same or different.
+
+class InFluxff : public InFlux {
+
+public:
+
+  // Constructor.
+  InFluxff() {initChannels();}
+
+private:
+
+  // Initialize values.
+  virtual void initChannels();  
+
+};
+ 
+//**************************************************************************
+
+// A derived class for f fbar antiparticle incoming state.
+
+class InFluxffbarSame : public InFlux {
+
+public:
+
+  // Constructor.
+  InFluxffbarSame() {initChannels();}
 
 private:
 
@@ -217,7 +330,7 @@ class InFluxffbarChg : public InFlux {
 public:
 
   // Constructor.
-  InFluxffbarChg() {}
+  InFluxffbarChg() {initChannels();}
 
 private:
 

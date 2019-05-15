@@ -16,23 +16,18 @@ namespace Pythia8 {
 // Definitions of static variables and functions.
 // (Values will be overwritten in initStatic call, so are purely dummy.)
 
-double PhaseSpace::mHatMin = 4.;
-double PhaseSpace::mHatMax = -1.;
-double PhaseSpace::pTHatMin = 2.;
+double PhaseSpace::mHatGlobalMin = 4.;
+double PhaseSpace::mHatGlobalMax = -1.;
+double PhaseSpace::pTHatMin = 0.;
 double PhaseSpace::pTHatMax = -1.;
-double PhaseSpace::m3Min = 2.;
-double PhaseSpace::m3Max = -1.;
-double PhaseSpace::m4Min = 2.;
-double PhaseSpace::m4Max = -1.;
-double PhaseSpace::sHatMin = 16.;
-double PhaseSpace::sHatMax = 1.;
-double PhaseSpace::pT2HatMin = 4.;
+double PhaseSpace::pTHatMinDiverge = 1.;
+double PhaseSpace::pT2HatMin = 0.;
 double PhaseSpace::pT2HatMax = 1.;
-double PhaseSpace::m3SMin = 4.;
-double PhaseSpace::m3SMax = 1.;
-double PhaseSpace::m4SMin = 4.;
-double PhaseSpace::m4SMax = 1.;
+bool PhaseSpace::useBreitWigners = true;
+double PhaseSpace::minWidthBreitWigners = 0.01;
 bool PhaseSpace::showSearch = false;
+bool PhaseSpace::showViolation = false;
+int PhaseSpace::gmZmode = 0;
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -55,35 +50,53 @@ const double PhaseSpace::WIDTHMARGIN = 20.;
 // Special optimization treatment when two resonances at almost same mass.
 const double PhaseSpace::SAMEMASS = 0.01;
 
+// Minimum phase space left when kinematics constraints are combined.
+const double PhaseSpace::MASSMARGIN = 0.01;
+
+// When using Breit-Wigners in 2 -> 2 raise maximum weight estimate.
+const double PhaseSpace::EXTRABWWTMAX = 1.25;
+
+// Size of Breit-Wigner threshold region, for mass selection biasing.
+const double PhaseSpace::THRESHOLDSIZE = 3.;
+
+// Step size in optimal-mass search, for mass selection biasing.
+const double PhaseSpace::THRESHOLDSTEP = 0.2;
+
+// Static information on incoming beams.
+int PhaseSpace::idA, PhaseSpace::idB;
+double PhaseSpace::mA, PhaseSpace::mB; 
+  
+// Static pointer to the total/elastic/diffractive cross section object.
+SigmaTotal* PhaseSpace::sigmaTotPtr;
+
 //*********
 
 // Initialize static data members.
 
 void PhaseSpace::initStatic() {
 
-  // Phase space cuts.
-  mHatMin = Settings::parameter("PhaseSpace:mHatMin");
-  mHatMax = Settings::parameter("PhaseSpace:mHatMax");
-  pTHatMin = Settings::parameter("PhaseSpace:pTHatMin");
-  pTHatMax = Settings::parameter("PhaseSpace:pTHatMax");
-  m3Min = Settings::parameter("PhaseSpace:m3Min");
-  m3Max = Settings::parameter("PhaseSpace:m3Max");
-  m4Min = Settings::parameter("PhaseSpace:m4Min");
-  m4Max = Settings::parameter("PhaseSpace:m4Max");
+  // Standard phase space cuts.
+  mHatGlobalMin = Settings::parm("PhaseSpace:mHatMin");
+  mHatGlobalMax = Settings::parm("PhaseSpace:mHatMax");
+  pTHatMin = Settings::parm("PhaseSpace:pTHatMin");
+  pTHatMax = Settings::parm("PhaseSpace:pTHatMax");
+  pTHatMinDiverge = Settings::parm("PhaseSpace:pTHatMinDiverge");
+
+  // When to use Breit-Wigners.
+  useBreitWigners = Settings::flag("PhaseSpace:useBreitWigners");
+  minWidthBreitWigners = Settings::parm("PhaseSpace:minWidthBreitWigners");
 
   // Quadratic limits often needed, so calculate them.
-  sHatMin = pow2(mHatMin);
-  sHatMax = pow2(mHatMax);
   pT2HatMin = pow2(pTHatMin);
   pT2HatMax = pow2(pTHatMax);
-  m3SMin = pow2(m3Min);
-  m3SMax = pow2(m3Max);
-  m4SMin = pow2(m4Min);
-  m4SMax = pow2(m4Max);
 
   // Print flag for maximization information.
   showSearch = Settings::flag("PhaseSpace:showSearch");
-  
+  showViolation = Settings::flag("PhaseSpace:showViolation");
+
+  // Know whether a Z0 is pure Z0 or admixed with gamma*.
+  gmZmode = Settings::mode("SigmaProcess:gmZmode");  
+
 }
 
 //*********
@@ -102,8 +115,8 @@ void PhaseSpace::initStatic() {
   x2H = 1.;
   m3 = 0.;
   m4 = 0.;
-  m3S = m3 * m3;
-  m4S = m4 * m4;
+  s3 = m3 * m3;
+  s4 = m4 * m4;
   mHat = eCM;
   sH = s;
   tH = 0.;
@@ -113,6 +126,7 @@ void PhaseSpace::initStatic() {
   // Default cross section information.
   sigmaNw = 0.;
   sigmaMx = 0.;
+  sigmaNeg = 0.;
 
 }
 
@@ -120,19 +134,13 @@ void PhaseSpace::initStatic() {
 
 // Determine how phase space should be sampled.
 
-bool PhaseSpace::setupSampling1or2(bool is2) {
+bool PhaseSpace::setupSampling1or2(bool is2, ostream& os) {
 
   // Optional printout.
-  if (showSearch) cout <<  "\n Optimization printout for "  
+  if (showSearch) os <<  "\n Optimization printout for "  
     << sigmaProcessPtr->name() << "\n \n" << scientific << setprecision(3);
 
-  // Set masses. Check that open range in tau (+ set tauMin, tauMax).
-  if (is2) {
-    m3 = sigmaProcessPtr->m(3);
-    m3S = m3 * m3;
-    m4 = sigmaProcessPtr->m(4);
-    m4S = m4 * m4;
-  }
+  // Check that open range in tau (+ set tauMin, tauMax).
   if (!limitTau(is2)) return false; 
 
   // Reset coefficients and matrices of equation system to solve.
@@ -155,6 +163,7 @@ bool PhaseSpace::setupSampling1or2(bool is2) {
     }  
   }
   sigmaMx = 0.;
+  sigmaNeg = 0.;
   
   // Number of used coefficients/points for each dimension: tau, y, c.
   int nTau = 2;
@@ -165,14 +174,14 @@ bool PhaseSpace::setupSampling1or2(bool is2) {
   idResA = sigmaProcessPtr->resonanceA();
   if (idResA != 0) { 
      mResA = ParticleDataTable::m0(idResA);
-     GammaResA = ParticleDataTable::width(idResA);
+     GammaResA = ParticleDataTable::mWidth(idResA);
      if (mHatMin > mResA + WIDTHMARGIN * GammaResA || (mHatMax > 0. 
        && mHatMax < mResA - WIDTHMARGIN * GammaResA) ) idResA = 0; 
   }
   idResB = sigmaProcessPtr->resonanceB();
   if (idResB != 0) { 
      mResB = ParticleDataTable::m0(idResB);
-     GammaResB = ParticleDataTable::width(idResB);
+     GammaResB = ParticleDataTable::mWidth(idResB);
      if (mHatMin > mResB + WIDTHMARGIN * GammaResB || (mHatMax > 0.  
        && mHatMax < mResB - WIDTHMARGIN * GammaResB) ) idResB = 0; 
   }
@@ -188,17 +197,11 @@ bool PhaseSpace::setupSampling1or2(bool is2) {
     nTau += 2;
     tauResA = mResA * mResA / s;
     widResA = mResA * GammaResA / s;
-    tRatA = ((tauResA + tauMax) / (tauResA + tauMin)) * (tauMin / tauMax);
-    aUppA = atan( (tauMax - tauResA) / widResA);
-    aLowA = atan( (tauMin - tauResA) / widResA);
   }
   if (idResB != 0) {
     nTau += 2;
     tauResB = mResB * mResB / s;
     widResB = mResB * GammaResB / s;
-    tRatB = ((tauResB + tauMax) / (tauResB + tauMin)) * (tauMin / tauMax);
-    aUppB = atan( (tauMax - tauResB) / widResB);
-    aLowB = atan( (tauMin - tauResB) / widResB);
   }
 
   // Special case when both resonances have same mass.
@@ -231,17 +234,19 @@ bool PhaseSpace::setupSampling1or2(bool is2) {
       for (int iZ = 0; iZ < nZ; ++iZ) {
         if (is2) selectZ( iZ, 0.5);
 
-        // Calculate cross section. Weight by phase-space volume.
-        if (is2) sigmaProcessPtr->set2Kin( x1H, x2H, sH, tH);
+        // Calculate cross section. Weight by phase-space volume
+        // and Breit-Wigners for masses in 2 -> 2.
+        if (is2) sigmaProcessPtr->set2Kin( x1H, x2H, sH, tH, m3, m4);
         else     sigmaProcessPtr->set1Kin( x1H, x2H, sH);
         double sigmaNow = sigmaProcessPtr->sigmaPDF();
-        sigmaNow *= wtTau * wtY * wtZ;
+        sigmaNow *= wtTau * wtY * wtZ * wtBW; 
         if (sigmaNow > sigmaMx) sigmaMx = sigmaNow; 
 
-        // Optional printout.
-        if (showSearch) cout << " tau =" << setw(11) << tau << "  y =" 
+        // Optional printout. Protect against negative cross sections.
+        if (showSearch) os << " tau =" << setw(11) << tau << "  y =" 
 	  << setw(11) << y << "  z =" << setw(11) << z
 	  << "  sigma =" << setw(11) << sigmaNow << "\n";
+        if (sigmaNow < 0.) sigmaNow = 0.; 
 
         // Sum up tau cross-section pieces in points used.
         binTau[iTau] += 1;
@@ -268,9 +273,9 @@ bool PhaseSpace::setupSampling1or2(bool is2) {
 
         // Integrals over z expressions at tauMax, to be used below.
         if (is2) {
-          double p2AbsMax = 0.25 * (pow2(tauMax * s - m3S - m4S) 
-            - 4. * m3S * m4S) / (tauMax * s);         
-          double zMaxMax = sqrt( max( 0., 1. - pT2HatMin / p2AbsMax) );
+          double p2AbsMax = 0.25 * (pow2(tauMax * s - s3 - s4) 
+            - 4. * s3 * s4) / (tauMax * s);         
+          double zMaxMax = sqrt( max( 0., 1. - pT2HatMinNow / p2AbsMax) );
           double zPosMaxMax = max(ratio34, unity34 + zMaxMax);
           double zNegMaxMax = max(ratio34, unity34 - zMaxMax);
           double intZ0Max = 2. * zMaxMax;
@@ -302,7 +307,7 @@ bool PhaseSpace::setupSampling1or2(bool is2) {
   solveSys( nTau, binTau, vecTau, matTau, tauCoef);
   solveSys( nY, binY, vecY, matY, yCoef);
   if (is2) solveSys( nZ, binZ, vecZ, matZ, zCoef);
-  if (showSearch) cout << "\n";
+  if (showSearch) os << "\n";
 
   // Begin find two most promising maxima among same points as before.
   int iMaxTau[4], iMaxY[4], iMaxZ[4];
@@ -321,16 +326,18 @@ bool PhaseSpace::setupSampling1or2(bool is2) {
       for (int iZ = 0; iZ < nZ; ++iZ) {
         if (is2) selectZ( iZ, 0.5);
 
-        // Calculate cross section. Weight by phase-space volume.
-        if (is2) sigmaProcessPtr->set2Kin( x1H, x2H, sH, tH);
+        // Calculate cross section. Weight by phase-space volume
+        // and Breit-Wigners for masses in 2 -> 2.
+        if (is2) sigmaProcessPtr->set2Kin( x1H, x2H, sH, tH, m3, m4);
         else     sigmaProcessPtr->set1Kin( x1H, x2H, sH);
         double sigmaNow = sigmaProcessPtr->sigmaPDF();
-        sigmaNow *= wtTau * wtY * wtZ;
+        sigmaNow *= wtTau * wtY * wtZ * wtBW;
 
-        // Optional printout.
-        if (showSearch) cout << " tau =" << setw(11) << tau << "  y =" 
+        // Optional printout. Protect against negative cross section.
+        if (showSearch) os << " tau =" << setw(11) << tau << "  y =" 
 	  << setw(11) << y << "  z =" << setw(11) << z
 	  << "  sigma =" << setw(11) << sigmaNow << "\n";
+        if (sigmaNow < 0.) sigmaNow = 0.; 
 
         // Check that point is not simply mirror of already found one.
         bool mirrorPoint = false;
@@ -446,16 +453,18 @@ bool PhaseSpace::setupSampling1or2(bool is2) {
           double sigmaNow = 0.;
           if (insideLimits) {  
 
-            // Calculate cross section. Weight by phase-space volume.
-            if (is2) sigmaProcessPtr->set2Kin( x1H, x2H, sH, tH);
+            // Calculate cross section. Weight by phase-space volume
+            // and Breit-Wigners for masses in 2 -> 2.
+            if (is2) sigmaProcessPtr->set2Kin( x1H, x2H, sH, tH, m3, m4);
             else     sigmaProcessPtr->set1Kin( x1H, x2H, sH);
             sigmaNow = sigmaProcessPtr->sigmaPDF();
-            sigmaNow *= wtTau * wtY * wtZ;
+            sigmaNow *= wtTau * wtY * wtZ * wtBW;
 
-            // Optional printout.
-            if (showSearch) cout << " tau =" << setw(11) << tau << "  y =" 
+            // Optional printout. Protect against negative cross section.
+            if (showSearch) os << " tau =" << setw(11) << tau << "  y =" 
 	      << setw(11) << y << "  z =" << setw(11) << z
 	      << "  sigma =" << setw(11) << sigmaNow << "\n";
+            if (sigmaNow < 0.) sigmaNow = 0.; 
           }
 
           // Save new maximum. Final maximum.
@@ -468,7 +477,7 @@ bool PhaseSpace::setupSampling1or2(bool is2) {
   sigmaMx *= SAFETYMARGIN;
 
   // Optional printout.
-  if (showSearch) cout << "\n Final maximum = "  << setw(11) << sigmaMx << endl;
+  if (showSearch) os << "\n Final maximum = "  << setw(11) << sigmaMx << endl;
 
   // Done.
   return true;
@@ -480,7 +489,7 @@ bool PhaseSpace::setupSampling1or2(bool is2) {
 // Note: by In is meant the integral over the quantity multiplying 
 // coefficient cn. The sum of cn is normalized to unity.
 
-bool PhaseSpace::trialKin1or2(bool is2) {
+bool PhaseSpace::trialKin1or2(bool is2, ostream& os) {
 
   // Choose tau according to h1(tau)/tau, where
   // h1(tau) = c0/I0 + (c1/I1) * 1/tau 
@@ -521,18 +530,37 @@ bool PhaseSpace::trialKin1or2(bool is2) {
     selectZ( iZ, Rndm::flat());
   }
    
-  // Calculate cross section. Weight by phase-space volume.
-  if (is2) sigmaProcessPtr->set2Kin( x1H, x2H, sH, tH);
+  // Calculate cross section. Weight by phase-space volume
+  // and Breit-Wigners for masses in 2 -> 2.
+  if (is2) sigmaProcessPtr->set2Kin( x1H, x2H, sH, tH, m3, m4);
   else     sigmaProcessPtr->set1Kin( x1H, x2H, sH);
   sigmaNw = sigmaProcessPtr->sigmaPDF();
-  sigmaNw *= wtTau * wtY * wtZ;
+  sigmaNw *= wtTau * wtY * wtZ * wtBW;
 
   // Check if maximum violated.
   if (sigmaNw > sigmaMx) {
-    ErrorMessages::message("Error in PhaseSpace2to2tauyz::trialKin: "
+    ErrorMessages::message("Warning in PhaseSpace2to2tauyz::trialKin: "
       "maximum for cross section violated");
+    double violFact = SAFETYMARGIN * sigmaNw / sigmaMx;
     sigmaMx = SAFETYMARGIN * sigmaNw; 
+    // Optional printout of (all) violations.
+    if (showViolation) os << " Maximum for " 
+      << sigmaProcessPtr->name() << " increased by factor " 
+      << ((violFact < 9.99) ? fixed : scientific) << setprecision(3)
+      << violFact << " to " << scientific << sigmaMx << endl;
   }
+
+  // Check if negative cross section.
+  if (sigmaNw < sigmaNeg) {
+    ErrorMessages::message("Warning in PhaseSpace2to2tauyz::trialKin:"
+      " negative cross section set 0", "for " +  sigmaProcessPtr->name() );
+    sigmaNeg = sigmaNw;
+    // Optional printout of (all) violations.
+    if (showViolation) os << " Negative minimum for " 
+      << sigmaProcessPtr->name() << " changed to " << scientific 
+      << setprecision(3) << sigmaNeg << endl;
+  }
+  if (sigmaNw < 0.) sigmaNw = 0.;
 
   // Done.
   return true;
@@ -546,15 +574,15 @@ bool PhaseSpace::limitTau(bool is2) {
 
   // Requirements from allowed mHat range.
   tauMin = sHatMin / s; 
-  tauMax = (mHatMax <= 0.) ? 1. : min( 1., sHatMax / s); 
+  tauMax = (mHatMax < mHatMin) ? 1. : min( 1., sHatMax / s); 
 
   // Requirements from allowed pT range and masses.
   if (is2) {
-    double mT3Min = sqrt(m3S + pT2HatMin);
-    double mT4Min = sqrt(m4S + pT2HatMin);
+    double mT3Min = sqrt(s3 + pT2HatMinNow);
+    double mT4Min = sqrt(s4 + pT2HatMinNow);
     tauMin = max( tauMin, pow2(mT3Min + mT4Min) / s);
   }
-
+  
   // Check that there is an open range.
   return (tauMax > tauMin) ? true : false;
 }
@@ -583,8 +611,8 @@ bool PhaseSpace::limitZ() {
   zMax = 1.;
 
   // Requirements from pTHat limits.
-  zMax = sqrt( max( 0., 1. - pT2HatMin / p2Abs) );
-  if (pTHatMax > 0.) zMin = sqrt( max( 0., 1. - pT2HatMax / p2Abs) );
+  zMax = sqrt( max( 0., 1. - pT2HatMinNow / p2Abs) );
+  if (pTHatMax > pTHatMin) zMin = sqrt( max( 0., 1. - pT2HatMax / p2Abs) );
  
   // Check that there is an open range.
   return (zMax > zMin) ? true : false;
@@ -595,6 +623,24 @@ bool PhaseSpace::limitZ() {
 // Select tau according to a choice of shapes.
 
 void PhaseSpace::selectTau(int iTau, double tauVal, bool is2) {
+
+  // Contributions from s-channel resonances.
+  double tRatA = 0.;
+  double aLowA = 0.;
+  double aUppA = 0.;
+  if (idResA !=0) {
+    tRatA = ((tauResA + tauMax) / (tauResA + tauMin)) * (tauMin / tauMax);
+    aLowA = atan( (tauMin - tauResA) / widResA);
+    aUppA = atan( (tauMax - tauResA) / widResA);
+  }
+  double tRatB = 0.;
+  double aLowB = 0.;
+  double aUppB = 0.;
+  if (idResB != 0) {
+    tRatB = ((tauResB + tauMax) / (tauResB + tauMin)) * (tauMin / tauMax);
+    aLowB = atan( (tauMin - tauResB) / widResB);
+    aUppB = atan( (tauMax - tauResB) / widResB);
+  }
 
   // Select according to 1/tau or 1/tau^2.
   if (iTau == 0) tau = tauMin * pow( tauMax / tauMin, tauVal);
@@ -634,9 +680,10 @@ void PhaseSpace::selectTau(int iTau, double tauVal, bool is2) {
   sH = tau * s;
   mHat = sqrt(sH);
   if (is2) {
-    p2Abs = 0.25 * (pow2(sH - m3S - m4S) - 4. * m3S * m4S) / sH; 
+    p2Abs = 0.25 * (pow2(sH - s3 - s4) - 4. * s3 * s4) / sH; 
     pAbs = sqrt( max(0., p2Abs) );
   }
+
 }
 
 //*********
@@ -677,9 +724,9 @@ void PhaseSpace::selectY(int iY, double yVal) {
 void PhaseSpace::selectZ(int iZ, double zVal) {
 
   // Mass-dependent dampening of pT -> 0 limit.
-  ratio34 = max(TINY, 2. * m3S * m4S / pow2(sH));
+  ratio34 = max(TINY, 2. * s3 * s4 / pow2(sH));
   unity34 = 1. + ratio34;
-  double ratiopT2 = 2. * pT2HatMin / sH;
+  double ratiopT2 = 2. * pT2HatMinNow / sH;
   // ?? constant 0.0001; what if > this ?? 
   if (ratiopT2 < 0.0001) ratio34 = max( ratio34, ratiopT2);
 
@@ -709,8 +756,8 @@ void PhaseSpace::selectZ(int iZ, double zVal) {
 
   // 1 / (unity34 + z).
   } else if (iZ == 2) {
-    double areaNeg = log(zNegMax / zNegMin);
-    double areaPos = log(zPosMin / zPosMax); 
+    double areaNeg = log(zNegMin / zNegMax);
+    double areaPos = log(zPosMax / zPosMin);
     double area = areaNeg + areaPos;
     if (zVal * area < areaNeg) {
       double zValMod = zVal * area / areaNeg;
@@ -763,7 +810,7 @@ void PhaseSpace::selectZ(int iZ, double zVal) {
     + (zCoef[4] / intZ34) / pow2(zPos) );
 
   // Calculate tHat and uHat. 
-  double sH34 = -0.5 * (sH - m3S - m4S);
+  double sH34 = -0.5 * (sH - s3 - s4);
   tH = sH34 + mHat * pAbs * z;
   uH = sH34 - mHat * pAbs * z;
 }
@@ -772,18 +819,18 @@ void PhaseSpace::selectZ(int iZ, double zVal) {
 
 // Solve linear equation system for better phase space coefficients.
   
-void PhaseSpace::solveSys( int n, int bin[8], 
-  double vec[8], double mat[8][8], double coef[8]) {
+void PhaseSpace::solveSys( int n, int bin[8], double vec[8], 
+  double mat[8][8], double coef[8], ostream& os) {
 
   // Optional printout.
   if (showSearch) {
-    cout << "\n Equation system: " << setw(5) << bin[0];  
-    for (int j = 0; j < n; ++j) cout << setw(12) << mat[0][j];
-    cout << setw(12) << vec[0] << "\n";
+    os << "\n Equation system: " << setw(5) << bin[0];  
+    for (int j = 0; j < n; ++j) os << setw(12) << mat[0][j];
+    os << setw(12) << vec[0] << "\n";
     for (int i = 1; i < n; ++i) {
-      cout << "                  " << setw(5) << bin[i];  
-      for (int j = 0; j < n; ++j) cout << setw(12) << mat[i][j];
-      cout << setw(12) << vec[i] << "\n";
+      os << "                  " << setw(5) << bin[i];  
+      for (int j = 0; j < n; ++j) os << setw(12) << mat[i][j];
+      os << setw(12) << vec[i] << "\n";
     }
   }
 
@@ -791,7 +838,7 @@ void PhaseSpace::solveSys( int n, int bin[8],
   double vecNor[8], coefTmp[8];
   for (int i = 0; i < n; ++i) coefTmp[i] = 0.;
 
-  // Check if equation sustem solvable.
+  // Check if equation system solvable.
   bool canSolve = true;  
   for (int i = 0; i < n; ++i) if (bin[i] == 0) canSolve = false;
   double vecSum = 0.;
@@ -839,9 +886,9 @@ void PhaseSpace::solveSys( int n, int bin[8],
 
   // Optional printout.
   if (showSearch) {
-    cout << " Solution:             ";  
-    for (int i = 0; i < n; ++i) cout << setw(12) << coef[i];
-    cout << "\n";
+    os << " Solution:             ";  
+    for (int i = 0; i < n; ++i) os << setw(12) << coef[i];
+    os << "\n";
   }
 }
 
@@ -849,6 +896,33 @@ void PhaseSpace::solveSys( int n, int bin[8],
 
 // PhaseSpace2to1tauy class.
 // 2 -> 1 kinematics for normal subprocesses.
+
+//*********
+
+// Set limits for resonance mass selection.
+
+bool PhaseSpace2to1tauy::setupMass() {
+
+  // Mass limits for current resonance.
+  int idRes = abs(sigmaProcessPtr->resonanceA());
+  double mResMin = (idRes == 0) ? 0. : ParticleDataTable::mMin(idRes);
+  double mResMax = (idRes == 0) ? 0. : ParticleDataTable::mMax(idRes);
+
+  // Compare with global mass limits and pick tighter of them.
+  mHatMin = max( mResMin, mHatGlobalMin);
+  sHatMin = mHatMin*mHatMin;
+  mHatMax = eCM;  
+  if (mResMax > mResMin) mHatMax = min( mHatMax, mResMax);
+  if (mHatGlobalMax > mHatGlobalMin) mHatMax = min( mHatMax, mHatGlobalMax);
+  sHatMax = mHatMax*mHatMax;
+
+  // Default Breit-Wigner weight.
+  wtBW = 1.;
+
+  // Fail if mass window (almost) closed.
+  return (mHatMax > mHatMin + MASSMARGIN); 
+
+}
 
 //*********
 
@@ -877,9 +951,485 @@ bool PhaseSpace2to1tauy::finalKin() {
 
 //*********
 
+// Set up for fixed or Breit-Wigner mass selection.
+  
+bool PhaseSpace2to2tauyz::setupMasses() {
+
+  // Set sHat limits - based on global limits only.
+  mHatMin = mHatGlobalMin;
+  sHatMin = mHatMin*mHatMin;
+  mHatMax = eCM;  
+  if (mHatGlobalMax > mHatGlobalMin) mHatMax = min( eCM, mHatGlobalMax);
+  sHatMax = mHatMax*mHatMax;
+
+  // Masses and widths of resonances. 
+  // id3Mass, id4Mass = 0 also for light q so that is obtains no mass.
+  // gmZmode == 1 means pure photon propagator; set at lower mass limit.
+  id3Mass = abs(sigmaProcessPtr->id3Mass());
+  m3Peak = (id3Mass == 0) ? 0. : ParticleDataTable::m0(id3Mass);
+  m3Width = (id3Mass == 0) ? 0. : ParticleDataTable::mWidth(id3Mass);
+  m3Min = (id3Mass == 0) ? 0. : ParticleDataTable::mMin(id3Mass);
+  m3Max = (id3Mass == 0) ? 0. : ParticleDataTable::mMax(id3Mass);
+  if(id3Mass == 23 && gmZmode == 1) m3Peak = m3Min;
+  s3Peak = m3Peak*m3Peak;
+  useBW3 = useBreitWigners && (m3Width > minWidthBreitWigners);
+  if (!useBW3) m3Width = 0.;
+  mw3 = m3Peak * m3Width;
+  wm3Rat = m3Width / m3Peak;
+  id4Mass = abs(sigmaProcessPtr->id4Mass());
+  m4Peak = (id4Mass == 0) ? 0. : ParticleDataTable::m0(id4Mass);
+  m4Width = (id4Mass == 0) ? 0. : ParticleDataTable::mWidth(id4Mass);
+  m4Min = (id4Mass == 0) ? 0. : ParticleDataTable::mMin(id4Mass);
+  m4Max = (id4Mass == 0) ? 0. : ParticleDataTable::mMax(id4Mass);
+  if(id4Mass == 23 && gmZmode == 1) m4Peak = m4Min;
+  s4Peak = m4Peak*m4Peak;
+  useBW4 = useBreitWigners && (m4Width > minWidthBreitWigners);
+  if (!useBW4) m4Width = 0.;
+  mw4 = m4Peak * m4Width;
+  wm4Rat = m4Width / m4Peak;
+
+  // If either particle is massless then need extra pTHat cut.
+  pTHatMinNow = pTHatMin;
+  if (m3Peak < pTHatMinDiverge || m4Peak < pTHatMinDiverge)
+    pTHatMinNow = max( pTHatMin, pTHatMinDiverge);
+  pT2HatMinNow = pow2(pTHatMinNow);
+
+  // Reduced mass range. Extra safety margin when Breit-Wigners.
+  m34Max = (mHatMax < mHatMin) ? eCM : min( mHatMax, eCM);
+  if (useBW3) {
+    m3Lower = m3Min;
+    m3Upper = m34Max;
+    m3Upper -= (useBW4) ? m4Min : m4Peak;
+    if (m3Max > m3Min) m3Upper = min( m3Upper, m3Max);
+    s3Lower = m3Lower*m3Lower; 
+    s3Upper = m3Upper*m3Upper;
+  }
+  if (useBW4) {
+    m4Lower = m4Min;
+    m4Upper = m34Max;
+    m4Upper -= (useBW3) ? m3Min : m3Peak;
+    if (m4Max > m4Min) m4Upper = min( m4Upper, m4Max); 
+    s4Lower = m4Lower*m4Lower; 
+    s4Upper = m4Upper*m4Upper;
+  }
+
+  // If closed phase space then unallowed process.
+  bool physical = true;
+  if (useBW3 && m3Upper < m3Lower + MASSMARGIN) physical = false;
+  if (useBW4 && m4Upper < m4Lower + MASSMARGIN) physical = false;
+  if (!useBW3 && !useBW4 && m34Max < m3Peak + m4Peak + MASSMARGIN)
+    physical = false;  
+  if (!physical) return false;
+
+  // Prepare to select m3 by BW + flat + 1/s_3.
+  // Determine relative coefficients by allowed mass range. 
+  if (useBW3) {
+    double distToThreshA = (m34Max - m3Peak - m4Peak) * m3Width
+      / (pow2(m3Width) + pow2(m4Width)); 
+    double distToThreshB = (m34Max - m3Peak - m4Min) / m3Width;
+    double distToThresh = min( distToThreshA, distToThreshB);
+    if (distToThresh > THRESHOLDSIZE) {
+      frac3Flat = 0.1;
+      frac3Inv  = 0.1;
+    } else if (distToThresh > - THRESHOLDSIZE) {
+      frac3Flat = 0.25 - 0.15 * distToThresh / THRESHOLDSIZE; 
+      frac3Inv  = 0.15 - 0.05 * distToThresh / THRESHOLDSIZE; 
+    } else {          
+      frac3Flat = 0.4;
+      frac3Inv  = 0.2;
+    }
+    // For gamma*/Z0: increase 1/s_i part and introduce 1/s_i^2 part.
+    frac3Inv2 = 0.;
+    if (id3Mass == 23 && gmZmode == 0) {
+      frac3Flat *= 0.5;
+      frac3Inv  = 0.5 * frac3Inv + 0.25;
+      frac3Inv2 = 0.25;
+    } else if (id3Mass == 23 && gmZmode == 1) {
+      frac3Flat = 0.1;
+      frac3Inv  = 0.4;
+      frac3Inv2 = 0.4;
+    }
+    // Normalization integrals for the respective contribution.
+    atan3Lower = atan( (s3Lower - s3Peak)/ mw3 ); 
+    atan3Upper = atan( (s3Upper - s3Peak)/ mw3 ); 
+    int3BW   = atan3Upper - atan3Lower;
+    int3Flat = s3Upper - s3Lower;
+    int3Inv  = log( s3Upper / s3Lower );
+    int3Inv2 = 1./s3Lower - 1./s3Upper;
+  }
+
+  // Prepare to select m4 by BW + flat + 1/s_4.
+  // Determine relative coefficients by allowed mass range. 
+  if (useBW4) {
+    double distToThreshA = (m34Max - m3Peak - m4Peak) * m4Width
+      / (pow2(m3Width) + pow2(m4Width)); 
+    double distToThreshB = (m34Max - m3Min - m4Peak) / m4Width;
+    double distToThresh = min( distToThreshA, distToThreshB);
+    if (distToThresh > THRESHOLDSIZE) {
+      frac4Flat = 0.1;
+      frac4Inv  = 0.1;
+    } else if (distToThresh > - THRESHOLDSIZE) {
+      frac4Flat = 0.25 - 0.15 * distToThresh / THRESHOLDSIZE; 
+      frac4Inv  = 0.15 - 0.05 * distToThresh / THRESHOLDSIZE; 
+    } else {          
+      frac4Flat = 0.4;
+      frac4Inv  = 0.2;
+    }
+    frac4Inv2 = 0.;
+    // For gamma*/Z0: increase 1/s_i part and introduce 1/s_i^2 part.
+    if (id4Mass == 23 && gmZmode == 0) {
+      frac4Flat *= 0.5;
+      frac4Inv  = 0.5 * frac4Inv + 0.25;
+      frac4Inv2 = 0.25;
+
+    } else if (id4Mass == 23 && gmZmode == 1) {
+      frac4Flat = 0.1;
+      frac4Inv  = 0.4;
+      frac4Inv2 = 0.4;
+    }
+    // Normalization integrals for the respective contribution.
+    atan4Lower = atan( (s4Lower - s4Peak)/ mw4 ); 
+    atan4Upper = atan( (s4Upper - s4Peak)/ mw4 ); 
+    int4BW   = atan4Upper - atan4Lower;
+    int4Flat = s4Upper - s4Lower;
+    int4Inv  = log( s4Upper / s4Lower );
+    int4Inv2 = 1./s4Lower - 1./s4Upper;
+  }
+
+  // Initialization masses. Special cases when constrained phase space.
+  m3 = min(m3Peak, m3Upper);
+  m4 = min(m4Peak, m4Upper);
+  if (m3 + m4 + THRESHOLDSIZE * (m3Width + m4Width) + MASSMARGIN > m34Max) {
+    if (useBW3 && useBW4) physical = constrainedM3M4();
+    else if (useBW3) physical = constrainedM3();
+    else if (useBW4) physical = constrainedM4();
+  }
+  s3 = m3*m3;
+  s4 = m4*m4;
+
+  // Correct selected mass-spectrum to running-width Breit-Wigner.
+  // Extra safety margin for maximum search.
+  weightMasses();
+  if (useBW3) wtBW *= EXTRABWWTMAX;
+  if (useBW4) wtBW *= EXTRABWWTMAX;
+
+  // Done.
+  return physical;
+  
+}
+
+//*********
+
+// Special choice of m3 and m4 when m34Max push them off mass shell.
+// Vary x in expression m3 + m4 = m34Max - x * (Gamma3 + Gamma4).
+// For each x try to put either 3 or 4 as close to mass shell as possible.
+// Maximize BW_3 * BW_4 * beta_34, where latter approximate phase space. 
+
+bool PhaseSpace2to2tauyz::constrainedM3M4() {
+
+  // Initial values.
+  bool foundNonZero = false;
+  double wtMassMax = 0.;
+  double m3WtMax = 0.;
+  double m4WtMax = 0.;
+  double xMax = (m34Max - m3Lower - m4Lower) / (m3Width + m4Width);
+  double xStep = THRESHOLDSTEP * min(1., xMax);
+  double xNow = 0.;
+  double wtMassXbin, wtMassMaxOld, m34, mT34Min, wtMassNow, 
+    wtBW3Now, wtBW4Now, beta34Now;
+ 
+  // Step through increasing x values.
+  do {
+    xNow += xStep;
+    wtMassXbin = 0.;
+    wtMassMaxOld = wtMassMax;
+    m34 = m34Max - xNow * (m3Width + m4Width);
+
+    // Study point where m3 as close as possible to on-shell.
+    m3 = min( m3Upper, m34 - m4Lower);
+    if (m3 > m3Peak) m3 = max( m3Lower, m3Peak);
+    m4 = m34 - m3;
+    if (m4 < m4Lower) {m4 = m4Lower; m3 = m34 - m4;} 
+
+    // Check that inside phase space limit set by pTmin.
+    mT34Min = sqrt(m3*m3 + pT2HatMinNow) + sqrt(m4*m4 + pT2HatMinNow);
+    if (mT34Min < m34Max) {
+
+      // Breit-Wigners and beta factor give total weight.
+      wtMassNow = 0.;
+      if (m3 > m3Lower && m3 < m3Upper && m4 > m4Lower && m4 < m4Upper) {
+        wtBW3Now = mw3 / ( pow2(m3*m3 - s3Peak) + pow2(mw3) );
+        wtBW4Now = mw4 / ( pow2(m4*m4 - s4Peak) + pow2(mw4) );
+        beta34Now = sqrt( pow2(m34Max*m34Max - m3*m3 - m4*m4) 
+          - pow2(2. * m3 * m4) ) / (m34Max*m34Max);
+        wtMassNow = wtBW3Now * wtBW4Now * beta34Now;
+      } 
+
+      // Store new maximum, if any.
+      if (wtMassNow > wtMassXbin) wtMassXbin = wtMassNow; 
+      if (wtMassNow > wtMassMax) {
+        foundNonZero = true;
+        wtMassMax = wtMassNow;
+        m3WtMax = m3;
+        m4WtMax = m4;
+      }
+    }    
+
+    // Study point where m4 as close as possible to on-shell.
+    m4 = min( m4Upper, m34 - m3Lower);
+    if (m4 > m4Peak) m4 = max( m4Lower, m4Peak);
+    m3 = m34 - m4;
+    if (m3 < m3Lower) {m3 = m3Lower; m4 = m34 - m3;}
+
+    // Check that inside phase space limit set by pTmin.
+    mT34Min = sqrt(m3*m3 + pT2HatMinNow) + sqrt(m4*m4 + pT2HatMinNow);
+    if (mT34Min < m34Max) {
+
+      // Breit-Wigners and beta factor give total weight.
+      wtMassNow = 0.;
+      if (m3 > m3Lower && m3 < m3Upper && m4 > m4Lower && m4 < m4Upper) {
+        wtBW3Now = mw3 / ( pow2(m3*m3 - s3Peak) + pow2(mw3) );
+        wtBW4Now = mw4 / ( pow2(m4*m4 - s4Peak) + pow2(mw4) );
+        beta34Now = sqrt( pow2(m34Max*m34Max - m3*m3 - m4*m4) 
+          - pow2(2. * m3 * m4) ) / (m34Max*m34Max);
+        wtMassNow = wtBW3Now * wtBW4Now * beta34Now;
+      } 
+
+      // Store new maximum, if any.
+      if (wtMassNow > wtMassXbin) wtMassXbin = wtMassNow; 
+      if (wtMassNow > wtMassMax) {
+        foundNonZero = true;
+        wtMassMax = wtMassNow;
+        m3WtMax = m3;
+        m4WtMax = m4;
+      }    
+    } 
+
+  // Continue stepping if increasing trend and more x range available.
+  } while ( (!foundNonZero || wtMassXbin > wtMassMaxOld)
+    && xNow < xMax - xStep); 
+
+  // Restore best values for subsequent maximization. Return.
+  m3 = m3WtMax;
+  m4 = m4WtMax;
+  return foundNonZero;
+
+}
+
+//*********
+
+// Special choice of m3 when m34Max pushes it off mass shell.
+// Vary x in expression m3 = m34Max - m4 - x * Gamma3.
+// Maximize BW_3 * beta_34, where latter approximate phase space. 
+
+bool PhaseSpace2to2tauyz::constrainedM3() {
+
+  // Initial values.  
+  bool foundNonZero = false;
+  double wtMassMax = 0.;
+  double m3WtMax = 0.;
+  double mT4Min = sqrt(m4*m4 + pT2HatMinNow);
+  double xMax = (m34Max - m3Lower - m4) / m3Width;
+  double xStep = THRESHOLDSTEP * min(1., xMax);
+  double xNow = 0.;
+  double wtMassNow, mT34Min, wtBW3Now, beta34Now;
+ 
+  // Step through increasing x values; gives m3 unambiguously.
+  do {
+    xNow += xStep;
+    wtMassNow = 0.;
+    m3 = m34Max - m4 - xNow * m3Width;
+
+    // Check that inside phase space limit set by pTmin.
+    mT34Min = sqrt(m3*m3 + pT2HatMinNow) + mT4Min;
+    if (mT34Min < m34Max) {
+
+      // Breit-Wigner and beta factor give total weight.
+      wtBW3Now = mw3 / ( pow2(m3*m3 - s3Peak) + pow2(mw3) );
+      beta34Now = sqrt( pow2(m34Max*m34Max - m3*m3 - m4*m4) 
+        - pow2(2. * m3 * m4) ) / (m34Max*m34Max);
+      wtMassNow = wtBW3Now * beta34Now;
+
+      // Store new maximum, if any.
+      if (wtMassNow > wtMassMax) {
+        foundNonZero = true;
+        wtMassMax = wtMassNow;
+        m3WtMax = m3;
+      }    
+    }
+     
+  // Continue stepping if increasing trend and more x range available.
+  } while ( (!foundNonZero || wtMassNow > wtMassMax) 
+    && xNow < xMax - xStep); 
+
+  // Restore best value for subsequent maximization. Return.
+  m3 = m3WtMax;
+  return foundNonZero;
+
+}
+
+//*********
+
+// Special choice of m4 when m34Max pushes it off mass shell.
+// Vary x in expression m4 = m34Max - m3 - x * Gamma4.
+// Maximize BW_4 * beta_34, where latter approximate phase space. 
+
+bool PhaseSpace2to2tauyz::constrainedM4() {
+
+  // Initial values.  
+  bool foundNonZero = false;
+  double wtMassMax = 0.;
+  double m4WtMax = 0.;
+  double mT3Min = sqrt(m3*m3 + pT2HatMinNow);
+  double xMax = (m34Max - m4Lower - m3) / m4Width;
+  double xStep = THRESHOLDSTEP * min(1., xMax);
+  double xNow = 0.;
+  double wtMassNow, mT34Min, wtBW4Now, beta34Now;
+ 
+  // Step through increasing x values; gives m4 unambiguously.
+  do {
+    xNow += xStep;
+    wtMassNow = 0.;
+    m4 = m34Max - m3 - xNow * m4Width;
+
+    // Check that inside phase space limit set by pTmin.
+    mT34Min = mT3Min + sqrt(m4*m4 + pT2HatMinNow);
+    if (mT34Min < m34Max) {
+
+      // Breit-Wigner and beta factor give total weight.
+      wtBW4Now = mw4 / ( pow2(m4*m4 - s4Peak) + pow2(mw4) );
+      beta34Now = sqrt( pow2(m34Max*m34Max - m3*m3 - m4*m4) 
+        - pow2(2. * m3 * m4) ) / (m34Max*m34Max);
+      wtMassNow = wtBW4Now * beta34Now;
+ 
+      // Store new maximum, if any.
+      if (wtMassNow > wtMassMax) {
+        foundNonZero = true;
+        wtMassMax = wtMassNow;
+        m4WtMax = m4;
+      }
+    }    
+ 
+  // Continue stepping if increasing trend and more x range available.
+  } while ( (!foundNonZero || wtMassNow > wtMassMax) 
+    && xNow < xMax - xStep); 
+
+  // Restore best value for subsequent maximization.
+  m4 = m4WtMax;
+  return foundNonZero;
+
+}
+
+//*********
+
+// Select Breit-Wigner-distributed or fixed masses.
+  
+bool PhaseSpace2to2tauyz::trialMasses() {
+
+  // By default vanishing cross section.
+  sigmaNw = 0.;
+
+  // Distribution for m_3 is BW + flat + 1/s_3 + 1/s_3^2.
+  if (useBW3) { 
+    double pickForm = Rndm::flat();
+    if (pickForm > frac3Flat + frac3Inv + frac3Inv2)
+      s3 = s3Peak + mw3 * tan( atan3Lower + Rndm::flat() * int3BW ); 
+    else if (pickForm > frac3Inv + frac3Inv2) 
+      s3 = s3Lower + Rndm::flat() * (s3Upper - s3Lower);
+    else if (pickForm > frac3Inv2) 
+      s3 = s3Lower * pow( s3Upper / s3Lower, Rndm::flat() ); 
+    else s3 = s3Lower * s3Upper 
+      / (s3Lower + Rndm::flat() * (s3Upper - s3Lower)); 
+    m3 = sqrt(s3);
+  // Else m_3 is fixed at peak value.
+  } else {
+    m3 = m3Peak;
+    s3 = s3Peak;
+  }
+
+  // Distribution for m_4 is BW + flat + 1/s_4 + 1/s_4^2.
+  if (useBW4) { 
+    double pickForm = Rndm::flat();
+    if (pickForm > frac4Flat + frac4Inv + frac4Inv2)
+      s4 = s4Peak + mw4 * tan( atan4Lower + Rndm::flat() * int4BW ); 
+    else if (pickForm > frac4Inv + frac4Inv2) 
+      s4 = s4Lower + Rndm::flat() * (s4Upper - s4Lower);
+    else if (pickForm > frac4Inv2) 
+      s4 = s4Lower * pow( s4Upper / s4Lower, Rndm::flat() );  
+    else s4 = s4Lower * s4Upper 
+      / (s4Lower + Rndm::flat() * (s4Upper - s4Lower)); 
+    m4 = sqrt(s4);
+  // Else m_4 is fixed at peak value.
+  } else {
+    m4 = m4Peak;
+    s4 = s4Peak;
+  }
+
+  // If outside phase space then reject event.
+  if (m3 + m4 + MASSMARGIN > m34Max) return false; 
+
+  // Correct selected mass-spectrum to running-width Breit-Wigner.
+  weightMasses();
+
+  // Done.
+  return true;
+}
+
+//*********
+
+// Naively a fixed-width Breit-Wigner is used to pick the mass.
+// Here come the correction factors for
+// (i) preselection according to BW + flat in s_i + 1/s_i + 1/s_i^2,
+// (ii) reduced allowed mass range,
+// (iii) running width, i.e. m0*Gamma0 -> s*Gamma0/m0.
+// In the end, the weighted distribution is a running-width BW.
+
+void PhaseSpace2to2tauyz::weightMasses() {
+
+  wtBW = 1.;
+  if (useBW3) { 
+    double genBW = (1. - frac3Flat - frac3Inv - frac3Inv2) 
+      * mw3 / ( (pow2(s3 - s3Peak) + pow2(mw3)) * int3BW)
+      + frac3Flat / int3Flat + frac3Inv / (s3 * int3Inv)
+      + frac3Inv2 / (s3*s3 * int3Inv2);
+    double mw3Run = s3 * wm3Rat;
+    double runBW = mw3Run / (pow2(s3 - s3Peak) + pow2(mw3Run)) / M_PI;
+    wtBW *= runBW / genBW ;
+  }  
+  if (useBW4) { 
+    double genBW = (1. - frac4Flat - frac4Inv - frac4Inv2) 
+      * mw4 / ( (pow2(s4 - s4Peak) + pow2(mw4)) * int4BW)
+      + frac4Flat / int4Flat + frac4Inv / (s4 * int4Inv)
+      + frac4Inv2 / (s4*s4 * int3Inv2);
+    double mw4Run = s4 * wm4Rat;
+    double runBW = mw4Run / (pow2(s4 - s4Peak) + pow2(mw4Run)) / M_PI;
+    wtBW *= runBW / genBW;
+  } 
+
+}
+
+//*********
+
 // Construct the four-vector kinematics from the trial values. 
 
 bool PhaseSpace2to2tauyz::finalKin() {
+
+  // Assign masses to particles assumed massless in matrix elements.
+  int id3 = sigmaProcessPtr->id(3);
+  int id4 = sigmaProcessPtr->id(4);
+  if (id3Mass == 0) { m3 = ParticleDataTable::m0(id3); s3 = m3*m3; }
+  if (id4Mass == 0) { m4 = ParticleDataTable::m0(id4); s4 = m4*m4; }
+
+  // Sometimes swap tHat <-> uHat to reflect chosen final-state order. 
+  if (sigmaProcessPtr->swappedTU()) {
+    swap(tH, uH);
+    z = -z;
+  }
+
+  // Check that phase space still open after new mass assignment.
+  if (m3 + m4 + MASSMARGIN > mHat) return false; 
+  p2Abs = 0.25 * (pow2(sH - s3 - s4) - 4. * s3 * s4) / sH; 
+  pAbs = sqrt( max(0., p2Abs) );
 
   // Particle masses; incoming always on mass shell.
   mH[1] = 0.;
@@ -892,8 +1442,8 @@ bool PhaseSpace2to2tauyz::finalKin() {
   pH[2] = Vec4( 0., 0., -0.5 * eCM * x2H, 0.5 * eCM * x2H); 
 
   // Outgoing partons initially in collision CM frame along beam axes.
-  pH[3] = Vec4( 0., 0.,  pAbs, 0.5 * (sH + m3S - m4S) / mHat); 
-  pH[4] = Vec4( 0., 0., -pAbs, 0.5 * (sH + m4S - m3S) / mHat); 
+  pH[3] = Vec4( 0., 0.,  pAbs, 0.5 * (sH + s3 - s4) / mHat); 
+  pH[4] = Vec4( 0., 0., -pAbs, 0.5 * (sH + s4 - s3) / mHat); 
 
   // Then rotate and boost them to overall CM frame
   theta = acos(z);
@@ -1047,8 +1597,6 @@ bool PhaseSpace2to2eldiff::trialKin() {
     // Found acceptable kinematics, so no more looping.
     break;
   }
-  m3S = s3;
-  m4S = s4;
 
   return true;
 

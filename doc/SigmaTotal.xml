@@ -33,25 +33,25 @@ Allow a user to set own cross sections by hand; yes/no = true/false.
 When <code>SigmaTotal:setOwn = yes</code>, the user is expected to set 
 values for the corresponding cross sections:
 
-<parameter name="SigmaTotal:sigmaTot" default="80." min="0.">
+<parm name="SigmaTotal:sigmaTot" default="80." min="0.">
 Total cross section in mb.
-</parameter>
+</parm>
 
-<parameter name="SigmaTotal:sigmaEl" default="20." min="0.">
+<parm name="SigmaTotal:sigmaEl" default="20." min="0.">
 Elastic cross section in mb.
-</parameter>
+</parm>
 
-<parameter name="SigmaTotal:sigmaXB" default="8." min="0.">
+<parm name="SigmaTotal:sigmaXB" default="8." min="0.">
 Single Diffractive cross section <ei>A + B -> X + B</ei> in mb.
-</parameter>
+</parm>
 
-<parameter name="SigmaTotal:sigmaAX" default="8." min="0.">
+<parm name="SigmaTotal:sigmaAX" default="8." min="0.">
 Single Diffractive cross section <ei>A + B -> A + X</ei> in mb.
-</parameter>
+</parm>
 
-<parameter name="SigmaTotal:sigmaXX" default="4." min="0.">
+<parm name="SigmaTotal:sigmaXX" default="4." min="0.">
 Double Diffractive cross section <ei>A + B -> X_1 + X_2</ei> in mb.
-</parameter>
+</parm>
 
 <p/>
 Note that the total cross section subtracted by the elastic and various 

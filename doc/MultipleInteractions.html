@@ -62,12 +62,12 @@ but may lead to doublecounting.
 <p/>
 The rate of interactions is determined by 
 <p/><strong>
-parameter name="MultipleInteractions:alphaSvalue" default="0.127" 
+parm name="MultipleInteractions:alphaSvalue" default="0.127" 
 min="0.06" max="0.25"
 </strong><br/>
 The value of <i>alpha_strong</i> at <i>m_Z</i>. Default value is 
 picked equal to the one used in CTEQ 5L. 
-   
+  
 
 <p/>
 The actual value is then regulated by the running to the scale 
@@ -98,7 +98,7 @@ In addition there is the possibility of a global rescaling of
 cross sections (which could not easily be accommodated by a 
 changed <i>alpha_strong</i>, since <i>alpha_strong</i> runs)
 <p/><strong>
-parameter name="MultipleInteractions:Kfactor" default="1.0" min="0.5" 
+parm name="MultipleInteractions:Kfactor" default="1.0" min="0.5" 
 max="4.0"
 </strong><br/>
 Multiply all cross sections by this fix factor.
@@ -134,7 +134,7 @@ where <i>pT0Ref</i>, <i>ecmRef</i> and <i>ecmPow</i> are the
 three parameters below.
 
 <p/><strong>
-parameter name="MultipleInteractions:pT0Ref" default="2.2" min="0.5" 
+parm name="MultipleInteractions:pT0Ref" default="2.2" min="0.5" 
 max="10.0"
 </strong><br/>
 The <i>pT0Ref</i> scale in the above formula.
@@ -144,13 +144,13 @@ mature form.
   
 
 <p/><strong>
-parameter name="MultipleInteractions:ecmRef" default="1800.0" min="1."
+parm name="MultipleInteractions:ecmRef" default="1800.0" min="1."
 </strong><br/>
 The <i>ecmRef</i> reference energy scale introduced above.
   
 
 <p/><strong>
-parameter name="MultipleInteractions:ecmPow" default="0.16" 
+parm name="MultipleInteractions:ecmPow" default="0.16" 
 min="0.0" max="0.5"
 </strong><br/>
 The <i>ecmPow</i> energy rescaling pace introduced above.
@@ -159,7 +159,7 @@ The <i>ecmPow</i> energy rescaling pace introduced above.
 <p/>
 Alternatively, or in combination, a sharp cut can be used.
 <p/><strong>
-parameter name="MultipleInteractions:pTmin" default="0.2" min="0.1" 
+parm name="MultipleInteractions:pTmin" default="0.2" min="0.1" 
 max="10.0"
 </strong><br/>
 Lower cutoff in <i>pT</i>, below which no further interactions 
@@ -198,25 +198,25 @@ parameter.
   
 
 <p/><strong>
-parameter name="MultipleInteractions:coreRadius" default="0.4"
+parm name="MultipleInteractions:coreRadius" default="0.4"
 min="0.1" max="1."
 </strong><br/>
 When assuming a double Gaussian matter profile, <i>bProfile = 2</i>,
 the inner core is assumed to have a radius that is a factor
 <i>coreRadius</i> smaller than the rest.
-   
+  
 
 <p/><strong>
-parameter name="MultipleInteractions:coreFraction" default="0.5" 
+parm name="MultipleInteractions:coreFraction" default="0.5" 
 min="0." max="1." 
 </strong><br/>
 When assuming a double Gaussian matter profile, <i>bProfile = 2</i>,
 the inner core is assumed to have a fraction <i>coreFraction</i> 
 of the matter content of the hadron.
-   
+  
 
 <p/><strong>
-parameter name="MultipleInteractions:expPow" default="1." 
+parm name="MultipleInteractions:expPow" default="1." 
 min="0.4" max="10."
 </strong><br/>
 When <i>bProfile = 3</i> it gives the power of the assumed overlap 
@@ -227,7 +227,7 @@ obtained with the standard double Gaussian parameters. For
 and for <i>expPow -> infinity</i> to no impact parameter dependence 
 at all, <i>bProfile = 0</i>. For small <i>expPow</i> the program 
 becomes slow and unstable, so the min limit must be respected.
-   
+  
 
 <h3>Further variables</h3>
 

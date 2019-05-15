@@ -7,9 +7,9 @@ once the Graphical User Interface is up and running.
 
 <p/>
 In a window you can specify a filename (including directory)
-where all flag/mode/parameter changes on all the other pages
+where all flag/mode/parameter/word changes on all the other pages
 are written out, one change per line, in the form
-name-of-flag/mode/parameter = value 
+name-of-flag/mode/parameter/word = value 
 
 <p/>
 This writing will occur when you click on a button.   

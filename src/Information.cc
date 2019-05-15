@@ -70,8 +70,15 @@ void Info::list(ostream& os) {
     << setw(10) << Q2RenH << ".\n"; 
 
   // Impact parameter.
-  if (bIsSet) os << " Impact parameter b =" << setw(10) << bH 
+  if (bIsSet) os << "\n Impact parameter b =" << setw(10) << bH 
     << " gives enhancement factor = " << setw(10) << enhanceH << ".\n";
+
+  // Multiple interactions and shower evolution.
+  if (evolIsSet) os << " Max pT scale for MI = " << setw(10) << pTmaxMIH
+    << ", ISR = " << setw(10) << pTmaxISRH << ", FSR = " << setw(10) 
+    << pTmaxISRH << ".\n Number of MI = " << setw(5) << nMIH << ", ISR = " 
+    << setw(5) << nISRH << ", FSRproc = " << setw(5) << nFSRinProcH 
+    << ", FSRreson = " << setw(5) << nFSRinResH << ".\n"; 
        
   // Listing finished.
   os << "\n --------  End PYTHIA Info Listing  --------------------"
@@ -106,14 +113,15 @@ void ErrorMessages::initStatic() {
   
 // Print a message the first few times. Insert in database.
  
-void ErrorMessages::message(string messageIn, string extraIn) {
+void ErrorMessages::message(string messageIn, string extraIn, 
+  ostream& os) {
    
   // Recover number of times message occured. Also inserts new string.
   int times = messages[messageIn];
   ++messages[messageIn];
 
   // Print message the first few times.
-  if (times < timesToPrint) cout << " " << messageIn << " " 
+  if (times < timesToPrint) os << " " << messageIn << " " 
     << extraIn << "\n";
 
 }

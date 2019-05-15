@@ -48,7 +48,7 @@ For parton-shower emission of photons, the
 relevant for low scales.
 
 <p/><strong>
-parameter name="StandardModel:alphaEMfix" default="0.00729735"
+parm name="StandardModel:alphaEMfix" default="0.00729735"
 min="0.0072973" max="0.0072974"
 </strong><br/>
 Fixed <i>alpha_em</i> value used in QED vertices. 
@@ -58,7 +58,7 @@ Fixed <i>alpha_em</i> value used in QED vertices.
 For hard processes (also the ones generated in multiple interactions)
 the <code>AlphaEM</code> class is used, to generate a running
 <i>alpha_em</i>. Since the main application here is for hard
-scales, above <i>m_b$, no attempt is made to provide an accurate 
+scales, above <i>m_b</i>, no attempt is made to provide an accurate 
 description of the running at low scales. Instead, by default,
 the value <code>StandardModel:alphaEMmZ</code>at the <i>M_Z</i> 
 mass scale is input [<a href="References.html" target="page">Eid04</a>]. 
@@ -87,28 +87,65 @@ at the <i>Z^0</i> mass.
   
 
 <p/><strong>
-parameter name="StandardModel:alphaEM0" default="0.00729735"
+parm name="StandardModel:alphaEM0" default="0.00729735"
 min="0.0072973" max="0.0072974"
 </strong><br/>
 The <i>alpha_em</i> value at vanishing momentum transfer. 
   
 
 <p/><strong>
-parameter name="StandardModel:alphaEMmZ" default="0.00781751"
+parm name="StandardModel:alphaEMmZ" default="0.00781751"
 min="0.00780" max="0.00783"
 </strong><br/>
 The <i>alpha_em</i> value at the <i>m_Z</i> mass scale. 
   
 
-<h3>Other electroweak couplings</h3> 
+<h3>The electroweak couplings</h3> 
+
+There are two degrees of freedom that can be set, related to the 
+electroweak mixing angle:
 
 <p/><strong>
-parameter name="StandardModel:sin2thetaW" default="0.232" 
+parm name="StandardModel:sin2thetaW" default="0.232" 
 min="0.225" max="0.240"
 </strong><br/>
-The weak mixing angle.
+The weak mixing angle, as used in all <i>Z^0</i> and <i>W^{+-}</i>
+masses and couplings, except for the vector couplings of fermions
+to the <i>Z^0</i>, see below.
   
 
+<p/><strong>
+parm name="StandardModel:sin2thetaWbar" default="0.232" 
+min="0.225" max="0.240"
+</strong><br/>
+The weak mixing angle, as used to derive the vector couplings of fermions
+to the <i>Z^0</i>, in the relation 
+<i>v_f = a_f - 4 e_f sin^2(theta_W)bar</i>.
+  
+
+<p/>
+These and various couplings can be read out from the static 
+<code>CoupEW</code> class:<br/>
+<code>CoupEW::sin2thetaW()</code> gives the weak mixing angle set above.<br/>
+<code>CoupEW::cos2thetaW()</code> gives 1 minus it.<br/>
+<code>CoupEW::sin2thetaWbar()</code> gives the weak mixing angle as used
+in fermion couplings.<br/>
+<code>CoupEW::ef(idAbs)</code> gives the electrical charge. Note that this 
+and subsequent routines should be called with a positive 
+<code>idAbs</code>.<br/>
+<code>CoupEW::vf(idAbs)</code> gives the vector coupling to 
+<i>Z^0</i>.<br/>
+<code>CoupEW::af(idAbs)</code> gives the axial vector coupling.<br/>
+<code>CoupEW::t3f(idAbs)</code> gives the weak isospin of lefthanded quarks, 
+i.e. <i>a_f/2</i>.<br/> 
+<code>CoupEW::lf(idAbs)</code> gives the lefthanded coupling, i.e.
+<i>(v_f + a_f/2)/2</i> (other definitions may differ by a factor 
+of 2).<br/> 
+<code>CoupEW::rf(idAbs)</code> gives the righthanded coupling, i.e.
+<i>(v_f - a_f/2)/2</i> (with comment as above).<br/> 
+<code>CoupEW::ef2(idAbs)</code> gives <i>e_f^2</i>.<br/>
+<code>CoupEW::vf2(idAbs)</code> gives <i>v_f^2</i>.<br/>
+<code>CoupEW::af2(idAbs)</code> gives <i>a_f^2</i>.
 
 <h3>The quark weak-mixing matrix</h3>
 
@@ -118,58 +155,77 @@ is not taken into account in this parametrization. It is up to the user
 to pick a consistent unitary set of new values whenever changes are made.  
 
 <p/><strong>
-parameter name="StandardModel:Vud" default="0.9745" min="0.973" max="0.976"
+parm name="StandardModel:Vud" default="0.9745" min="0.973" max="0.976"
 </strong><br/>
 The <i>V_ud</i> CKM matrix element.
   
 
 <p/><strong>
-parameter name="StandardModel:Vus" default="0.224" min="0.218" max="0.230"
+parm name="StandardModel:Vus" default="0.224" min="0.218" max="0.230"
 </strong><br/>
 The <i>V_us</i> CKM matrix element.
   
 
 <p/><strong>
-parameter name="StandardModel:Vub" default="0.0037" min="0.002" max="0.006"
+parm name="StandardModel:Vub" default="0.0037" min="0.002" max="0.006"
 </strong><br/>
 The <i>V_ub</i> CKM matrix element.
   
 
 <p/><strong>
-parameter name="StandardModel:Vcd" default="0.224" min="0.218" max="0.230"
+parm name="StandardModel:Vcd" default="0.224" min="0.218" max="0.230"
 </strong><br/>
 The <i>V_cd</i> CKM matrix element.
   
 
 <p/><strong>
-parameter name="StandardModel:Vcs" default="0.9737" min="0.972" max="0.975"
+parm name="StandardModel:Vcs" default="0.9737" min="0.972" max="0.975"
 </strong><br/>
 The <i>V_cs</i> CKM matrix element.
   
 
 <p/><strong>
-parameter name="StandardModel:Vcb" default="0.0415" min="0.033" max="0.040"
+parm name="StandardModel:Vcb" default="0.0415" min="0.033" max="0.040"
 </strong><br/>
 The <i>V_cb</i> CKM matrix element.
   
 
 <p/><strong>
-parameter name="StandardModel:Vtd" default="0.0094" min="0.004" max="0.020"
+parm name="StandardModel:Vtd" default="0.0094" min="0.004" max="0.020"
 </strong><br/>
 The <i>V_td</i> CKM matrix element.
   
 
 <p/><strong>
-parameter name="StandardModel:Vts" default="0.040" min="0.030" max="0.050"
+parm name="StandardModel:Vts" default="0.040" min="0.030" max="0.050"
 </strong><br/>
 The <i>V_ts</i> CKM matrix element.
   
 
 <p/><strong>
-parameter name="StandardModel:Vtb" default="0.9991" min="0.998" max="0.9995"
+parm name="StandardModel:Vtb" default="0.9991" min="0.998" max="0.9995"
 </strong><br/>
 The <i>V_tb</i> CKM matrix element.
   
+
+<p/>
+These couplings can be read back out in a few alternative forms:<br/>
+<code>VCKM::Vgen(genU, genD)</code> gives the CKM mixing element for
+up-type generation index <code>genU</code> (1, 2 or 3) and
+down-type generation index <code>genD</code>.<br/>
+<code>VCKM::V2gen(genU, genD)</code> gives the square of the above.<br/>
+<code>VCKM::Vid(id1, id2)</code> gives the CKM mixing element between
+two quark flavours <code>id1</code> and <code>id2</code>. The sign of 
+the flavours is irrelevant, since the process may be either of the type
+<i>q qbar' -> W</i> or <i>q g -> W q'</i>. Flavour combinations 
+with no CKM mixing (e.g. <i>u u</i>) are given a vanishing value.<br/>
+<code>VCKM::V2id(id1, id2)</code> gives the square of the above.<br/>
+<code>VCKM::V2sum(id)</code> gives the sum of squares that a given
+flavour can couple to, excluding the top quark. Is close to unity
+for the first two generations.<br/>
+<code>VCKM::V2pick(id)</code> picks a CKM partner quark (with the same 
+sign as <code>id</code>) according to the respective squared elements,
+again excluding the top quark from the list of possibilities.
 
 </body>
 </html>

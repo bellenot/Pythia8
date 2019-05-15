@@ -57,15 +57,22 @@ public:
   int codeSub() const {return codeSubSave;}    
   int nFinalSub() const {return nFinalSubSave;}
 
-  // Incoming parton flavours, x values, densities, couplings, Q2 scales.
+  // Incoming parton flavours and x values.
   int id1() const {return id1H;}
   int id2() const {return id2H;}
   double x1() const {return x1H;}
   double x2() const {return x2H;}
+  double y() const {return 0.5 * log( x1H / x2H );}
+  double tau() const {return x1H * x2H;}
+
+  // Incoming parton densities, hard process couplings, Q2 scales.
   double pdf1() const {return pdf1H;}
   double pdf2() const {return pdf2H;}
+  double QFac() const {return sqrtpos(Q2FacH);}
   double Q2Fac() const {return Q2FacH;}
   double alphaS() const {return alphaSH;}
+  double alphaEM() const {return alphaEMH;}
+  double QRen() const {return sqrtpos(Q2RenH);}
   double Q2Ren() const {return Q2RenH;}
 
   // Mandelstam variables (notation as if subcollision).
@@ -80,11 +87,22 @@ public:
   double thetaHat() const {return thetaH;}   
   double phiHat() const {return phiH;}   
 
+  // Cross section estimate.
+  int nTried() const {return nTry;}
+  int nAccepted() const {return nAcc;}
+  double sigmaGen() const {return sigGen;}
+  double sigmaErr() const {return sigErr;}
+
   // Impact parameter picture.
   double bMI() const {return (bIsSet) ? bH : 0.;}
   double enhanceMI() const {return (bIsSet) ? enhanceH : 0.;}
 
-  // Number of times steps have been carried out. (incomplete??)
+  // Maximum pT scales for MI, ISR and FSR (in hard process).
+  double pTmaxMI() const {return pTmaxMIH;}
+  double pTmaxISR() const {return pTmaxISRH;}
+  double pTmaxFSR() const {return pTmaxFSRH;}
+
+  // Number of times steps have been carried out.
   int nMI() const {return nMIH;}
   int nISR() const {return nISRH;}
   int nFSRinProc() const {return nFSRinProcH;}
@@ -93,16 +111,17 @@ public:
 private:
 
   // Store global quantities. 
-  int idAM, idBM;
-  double pzAM, eAM,mAM, pzBM, eBM, mBM, eCMM, sM;
+  int idAM, idBM, nTry, nAcc;
+  double pzAM, eAM,mAM, pzBM, eBM, mBM, eCMM, sM, sigGen, sigErr;
 
   // Store current-event quantities.
   string nameSave, nameSubSave;
   int codeSave, codeSubSave, nFinalSave, nFinalSubSave, nTotal, id1H, id2H, 
     nMIH, nISRH, nFSRinProcH, nFSRinResH;
-  bool isMB, isRes, isDiffA, isDiffB, hasSubSave, bIsSet;  
+  bool isMB, isRes, isDiffA, isDiffB, hasSubSave, bIsSet, evolIsSet;  
   double x1H, x2H, pdf1H, pdf2H, Q2FacH, alphaEMH, alphaSH, Q2RenH, 
-    sH, tH, uH, pTH, m3H, m4H, thetaH, phiH, bH, enhanceH;
+    sH, tH, uH, pTH, m3H, m4H, thetaH, phiH, bH, enhanceH, pTmaxMIH,
+    pTmaxISRH, pTmaxFSRH;
 
   // Set info on the two incoming beams: only from Pythia class.
   friend class Pythia;
@@ -119,11 +138,14 @@ private:
     = alphaEMH = alphaSH = Q2RenH = sH = tH = uH = pTH = m3H = m4H
     = thetaH = phiH = bH = enhanceH = 0.;}
 
-  // Set info on the (sub)process: from ProcessLevel, ProcessContainer or 
-  // MultipleInteractions classes.
+  // Friend classes allowed to set info.
   friend class ProcessLevel;
   friend class ProcessContainer;
+  friend class PartonLevel;
   friend class MultipleInteractions;
+
+  // Set info on the (sub)process: from ProcessLevel, ProcessContainer or 
+  // MultipleInteractions classes.
   void setType( string nameIn, int codeIn, int nFinalIn,  
     bool isMinBiasIn = false, bool isResolvedIn = true, 
     bool isDiffractiveAin = false, bool isDiffractiveBin = false) {
@@ -131,7 +153,7 @@ private:
     isMB = isMinBiasIn; isRes = isResolvedIn; isDiffA = isDiffractiveAin; 
     isDiffB = isDiffractiveBin; nTotal = 2 + nFinalSave; bIsSet = false;
     hasSubSave = false; nameSubSave = " "; codeSubSave = 0; 
-    nFinalSubSave = 0;}
+    nFinalSubSave = 0; evolIsSet = false;}
   void setSubType( string nameSubIn, int codeSubIn, int nFinalSubIn) {  
     hasSubSave = true; nameSubSave = nameSubIn; codeSubSave = codeSubIn; 
     nFinalSubSave = nFinalSubIn;}
@@ -146,15 +168,20 @@ private:
     sH = sHatIn; tH = tHatIn; uH = uHatIn; pTH = pTHatIn; m3H = m3HatIn; 
     m4H = m4HatIn; thetaH = thetaHatIn; phiH = phiHatIn;}
 
-  // Set info on impact parameter: from ProcessContainer or PartonLevel.
-  friend class PartonLevel;
+  // Set info on cross section: from ProcessLevel.
+  void setSigma( int nTryIn, int nAccIn, double sigGenIn, double sigErrIn)
+    { nTry = nTryIn; nAcc = nAccIn; sigGen = sigGenIn; sigErr = sigErrIn;} 
+
+  // Set info on impact parameter: from PartonLevel.
   void setImpact( double bIn, double enhanceIn) {bH = bIn;
     enhanceH = enhanceIn, bIsSet = true;} 
 
-  // Set info on number of evolution steps: only from PartonLevel class.
-  void setCounters( int nMIIn, int nISRIn, int nFSRinProcIn, 
-    int nFSRinResIn) { nMIH = nMIIn; nISRH = nISRIn; 
-    nFSRinProcH = nFSRinProcIn; nFSRinResH= nFSRinResIn;}
+  // Set info on pTmax scales and number of evolution steps: from PartonLevel.
+  void setEvolution( double pTmaxMIIn, double pTmaxISRIn, double pTmaxFSRIn, 
+    int nMIIn, int nISRIn, int nFSRinProcIn, int nFSRinResIn) { 
+    pTmaxMIH = pTmaxMIIn; pTmaxISRH = pTmaxISRIn; pTmaxFSRH = pTmaxFSRIn; 
+    nMIH = nMIIn; nISRH = nISRIn; nFSRinProcH = nFSRinProcIn; 
+    nFSRinResH= nFSRinResIn; evolIsSet = true;}
 
 };
 
@@ -177,7 +204,8 @@ public:
   static void initStatic();
   
   // Print a message the first few times. Insert in database.
-  static void message(string messageIn, string extraIn = " ");
+  static void message(string messageIn, string extraIn = " ",
+    ostream& os = cout);
 
   // Print statistics on errors/warnings.
   static void statistics(ostream& os = cout);

@@ -78,39 +78,39 @@ bool ParticleDecays::decayPtr( DecayHandler* decayHandlePtrIn,
 void ParticleDecays::initStatic() {
 
   // Safety margin in mass to avoid troubles.
-  mSafety = Settings::parameter("ParticleDecays:mSafety");
+  mSafety = Settings::parm("ParticleDecays:mSafety");
 
   // Lifetime and vertex rules for determining whether decay allowed.
   limitTau0 = Settings::flag("ParticleDecays:limitTau0");
-  tau0Max = Settings::parameter("ParticleDecays:tau0Max");
+  tau0Max = Settings::parm("ParticleDecays:tau0Max");
   limitTau = Settings::flag("ParticleDecays:limitTau");
-  tauMax = Settings::parameter("ParticleDecays:tauMax");
+  tauMax = Settings::parm("ParticleDecays:tauMax");
   limitRadius = Settings::flag("ParticleDecays:limitRadius");
-  rMax = Settings::parameter("ParticleDecays:rMax");
+  rMax = Settings::parm("ParticleDecays:rMax");
   limitCylinder = Settings::flag("ParticleDecays:limitCylinder");
-  xyMax = Settings::parameter("ParticleDecays:xyMax");
-  zMax = Settings::parameter("ParticleDecays:zMax");
+  xyMax = Settings::parm("ParticleDecays:xyMax");
+  zMax = Settings::parm("ParticleDecays:zMax");
   limitDecay = limitTau0 || limitTau || limitRadius || limitCylinder;
 
   // B-Bbar mixing parameters.
   mixB = Settings::flag("ParticleDecays:mixB");
-  xBdMix = Settings::parameter("ParticleDecays:xBdMix");
-  xBsMix = Settings::parameter("ParticleDecays:xBsMix");
+  xBdMix = Settings::parm("ParticleDecays:xBdMix");
+  xBsMix = Settings::parm("ParticleDecays:xBsMix");
 
   // Selection of multiplicity and colours in "phase space" model.
-  multIncrease = Settings::parameter("ParticleDecays:multIncrease");
-  multRefMass = Settings::parameter("ParticleDecays:multRefMass");
-  multGoffset = Settings::parameter("ParticleDecays:multGoffset");
-  colRearrange = Settings::parameter("ParticleDecays:colRearrange");
+  multIncrease = Settings::parm("ParticleDecays:multIncrease");
+  multRefMass = Settings::parm("ParticleDecays:multRefMass");
+  multGoffset = Settings::parm("ParticleDecays:multGoffset");
+  colRearrange = Settings::parm("ParticleDecays:colRearrange");
 
   // Flavour parameter from StringFlav and StringFragmentation.
-  probStoU = Settings::parameter("StringFlav:probStoU");
+  probStoU = Settings::parm("StringFlav:probStoU");
   probQandS = 2. + probStoU;
-  stopMass = Settings::parameter("StringFragmentation:stopMass");
+  stopMass = Settings::parm("StringFragmentation:stopMass");
 
   // Parameters for Dalitz decay virtual gamma mass spectrum.
   sRhoDal = pow2(ParticleDataTable::m0(113)); 
-  wRhoDal = pow2(ParticleDataTable::width(113));  
+  wRhoDal = pow2(ParticleDataTable::mWidth(113));  
 
   // Allow showers in decays to qqbar/gg/ggg/gammagg.
   FSRinDecays = Settings::mode("ParticleDecays:FSRinDecays"); 
@@ -175,7 +175,7 @@ bool ParticleDecays::decay( int iDec, Event& event) {
     // Pick a decay channel; allow up to ten tries.
     for (int iTryChannel = 0; iTryChannel < NTRYDECAY; ++iTryChannel) {
       DecayChannel& channel = particleData.decay.pick();
-      mode = channel.modeME();
+      meMode = channel.meMode();
       mult = channel.multiplicity();
 
       // Allow up to ten tries for each channel (e.g with different masses).
@@ -197,7 +197,7 @@ bool ParticleDecays::decay( int iDec, Event& event) {
         }  
 
         // Decays into partons usually translate into hadrons.
-        if (toPartons && (mode < 31 || mode > 40) 
+        if (toPartons && (meMode < 31 || meMode > 40) 
           && !pickHadrons(event) ) continue;
 
         // Need to set colour flow if explicit decay to partons.
@@ -207,7 +207,7 @@ bool ParticleDecays::decay( int iDec, Event& event) {
           cols.push_back(0);
           acols.push_back(0);
         }
-        if (toPartons && (mode > 30 && mode < 41) 
+        if (toPartons && (meMode > 30 && meMode < 41) 
           && !setColours(event) ) continue; 
 
         // Check that enough phase space for decay.
@@ -266,9 +266,9 @@ bool ParticleDecays::decay( int iDec, Event& event) {
   
   // In a decay explicitly to partons then optionally do a shower,
   // and always flag that partonic system should be fragmented. 
-  if ( (mode > 30 && mode < 41) && FSRinDecays ) 
+  if ( (meMode > 30 && meMode < 41) && FSRinDecays ) 
     times.shower( event, iProd[1], iProd.back(), mProd[0]);
-  moreHadronization = (mode > 30 && mode < 41) ? true : false;
+  moreHadronization = (meMode > 30 && meMode < 41) ? true : false;
 
   // Done.
   return true;
@@ -352,25 +352,25 @@ bool ParticleDecays::twoBody(Event& event) {
   double pAbs = 0.5 * sqrtpos( (m0 - m1 - m2) * (m0 + m1 + m2)
     * (m0 + m1 - m2) * (m0 - m1 + m2) ) / m0;  
 
-  // When mode = 3, for V -> PS2 + PS3 (V = vector, pseudoscalar),
+  // When meMode = 3, for V -> PS2 + PS3 (V = vector, pseudoscalar),
   // need to check if production is PS0 -> PS1/gamma + V.
   int iMother = event[iProd[0]].mother1();
   int idSister = 0;
-  if (mode == 3) {
-    if (iMother <= 0 || iMother >= iProd[0]) mode = 0;
+  if (meMode == 3) {
+    if (iMother <= 0 || iMother >= iProd[0]) meMode = 0;
     else { 
       int iDaughter1 = event[iMother].daughter1();
       int iDaughter2 = event[iMother].daughter2();
-      if (iDaughter2 != iDaughter1 + 1) mode = 0;
+      if (iDaughter2 != iDaughter1 + 1) meMode = 0;
       else {
         int idMother = abs( event[iMother].id() );
         if (idMother <= 100 || idMother%10 !=1 
-          || (idMother/1000)%10 != 0) mode = 0; 
+          || (idMother/1000)%10 != 0) meMode = 0; 
         else {
           int iSister = (iProd[0] == iDaughter1) ? iDaughter2 : iDaughter1;
           idSister = abs( event[iSister].id() );
           if ( (idSister <= 100 || idSister%10 !=1 
-            || (idSister/1000)%10 != 0) && idSister != 22) mode = 0; 
+            || (idSister/1000)%10 != 0) && idSister != 22) meMode = 0; 
         } 
       } 
     } 
@@ -399,7 +399,7 @@ bool ParticleDecays::twoBody(Event& event) {
     // Matrix element for PS0 -> PS1 + V1 -> PS1 + PS2 + PS3 of form 
     // cos**2(theta02) in V1 rest frame, and for PS0 -> gamma + V1 
     // -> gamma + PS2 + PS3 of form sin**2(theta02).
-    if (mode == 3) {
+    if (meMode == 3) {
       double p10 = decayer.p() * event[iMother].p();
       double p12 = decayer.p() * prod1.p();
       double p02 = event[iMother].p() * prod1.p();
@@ -453,7 +453,7 @@ bool ParticleDecays::threeBody(Event& event) {
   double sMaxDal = m0*m0;
 
   // Calculate the maximum phase space weight for normal decays.
-  if (mode != 2) {
+  if (meMode != 2) {
     double p1Max = 0.5 * sqrtpos( (m0 - m1 - m23Min) * (m0 + m1 + m23Min)
       * (m0 + m1 - m23Min) * (m0 - m1 + m23Min) ) / m0; 
     double p23Max = 0.5 * sqrtpos( (m23Max - m2 - m3) * (m23Max + m2 + m3)
@@ -482,7 +482,7 @@ bool ParticleDecays::threeBody(Event& event) {
 
       // Pick an intermediate mass flat in the allowed range.
       // (Except for Dalitz, where a mass has already been picked.)
-      if (mode != 2) m23 = m23Min + Rndm::flat() * mDiff;
+      if (meMode != 2) m23 = m23Min + Rndm::flat() * mDiff;
 
       // Translate into relative momenta and find weight.
       p1Abs = 0.5 * sqrtpos( (m0 - m1 - m23) * (m0 + m1 + m23)
@@ -492,7 +492,7 @@ bool ParticleDecays::threeBody(Event& event) {
       wtPS = p1Abs * p23Abs;
 
     // If rejected, try again with new invariant masses.
-    } while ( mode !=2 && wtPS < Rndm::flat() * wtPSmax ); 
+    } while ( meMode !=2 && wtPS < Rndm::flat() * wtPSmax ); 
 
     // Set up m23 -> m2 + m3 isotropic in its rest frame.
     double cosTheta = 2. * Rndm::flat() - 1.;
@@ -523,7 +523,7 @@ bool ParticleDecays::threeBody(Event& event) {
     prod3.bst( p23 );
 
     // Matrix element weight for omega/phi -> pi+ pi- pi0.
-    if (mode == 1) {
+    if (meMode == 1) {
       double p12 = prod1.p() * prod2.p(); 
       double p13 = prod1.p() * prod3.p(); 
       double p23 = prod2.p() * prod3.p(); 
@@ -532,7 +532,7 @@ bool ParticleDecays::threeBody(Event& event) {
       wtMEmax = pow3(m0 * m0) / 150.;
 
     // Matrix element weight for Dalitz decay pi0/eta -> gamma e+ e-..
-    } else if (mode == 2) {
+    } else if (meMode == 2) {
       double p12 = prod1.p() * prod2.p(); 
       double p13 = prod1.p() * prod3.p(); 
       wtME = (s23 - 0.5 * sMinDal) * (p12*p12 + p13*p13) 
@@ -540,7 +540,7 @@ bool ParticleDecays::threeBody(Event& event) {
       wtMEmax = 0.25 * s23 * pow2(sMaxDal - s23);
 
     // Matrix element weight for "onium" -> g + g + g or gamma + g + g.
-    } else if (mode == 33) {
+    } else if (meMode == 33) {
       double x1 = 2. * prod1.e() / m0;
       double x2 = 2. * prod2.e() / m0;
       double x3 = 2. * prod3.e() / m0;
@@ -553,7 +553,7 @@ bool ParticleDecays::threeBody(Event& event) {
       if (prod3.id() == 22 && sqrt(1. - x3) * m0 < 2. * stopMass) wtME = 0.;
 
     // Effective matrix element for nu spectrum in tau -> nu + hadrons.
-    } else if (mode == 41) {
+    } else if (meMode == 41) {
       double x1 = 2. *  prod1.e() / m0;
       wtME = x1 * (3. - 2. * x1);
       double xMax = min( 0.75, 2. * (1. - mSum / m0) ); 
@@ -664,7 +664,7 @@ bool ParticleDecays::mGenerator(Event& event) {
       for (int i = iFrame; i <= mult; ++i) event[iProd[i]].bst(pInv[iFrame]);
 
     // Effective matrix element for nu spectrum in tau -> nu + hadrons.
-    if (mode == 41) {
+    if (meMode == 41) {
       double x1 = 2. * event[iProd[1]].e() / m0;
       wtME = x1 * (3. - 2. * x1);
       double xMax = min( 0.75, 2. * (1. - mSum / m0) ); 
@@ -742,9 +742,9 @@ bool ParticleDecays::pickHadrons(Event& event) {
   }
 
   // Determine whether fixed multiplicity or to be selected at random.
-  int nMin = (mode > 10 && mode <= 15) ? max( 2, mode - 10) : 2;
-  if (mode == 43) nMin = 3;
-  int nFix = (mode > 20 && mode <= 30) ? max( 2, mode - 20) : 0; 
+  int nMin = (meMode > 10 && meMode <= 15) ? max( 2, meMode - 10) : 2;
+  if (meMode == 43) nMin = 3;
+  int nFix = (meMode > 20 && meMode <= 30) ? max( 2, meMode - 20) : 0; 
 
   // Now begin loop to set new hadronic content.
   int nTot, nNew, nSpec, nLeft;
@@ -763,7 +763,7 @@ bool ParticleDecays::pickHadrons(Event& event) {
     diquarkClash = false;
 
     // For weak decays collapse spectators to one particle.
-    if ( (mode == 42 || mode == 43) && nLeft > 1) {
+    if ( (meMode == 42 || meMode == 43) && nLeft > 1) {
       int id1 = idPartons[nPartons - 2];
       int id2 = idPartons[nPartons - 1];
       int idHad; 
@@ -784,7 +784,7 @@ bool ParticleDecays::pickHadrons(Event& event) {
       for (int i = 0; i <= nLeft; ++i) 
         mDiffPS -= ParticleDataTable::constituentMass( idPartons[i] );
       double coeff = multIncrease * log( max( 1.1, mDiffPS / multRefMass ) );
-      if (mode == 12) coeff += multGoffset;
+      if (meMode == 12) coeff += multGoffset;
       if (nFix == 0) {
         do { 
           double gauss = sqrt(coeff) * Rndm::gauss();
@@ -891,17 +891,17 @@ bool ParticleDecays::pickHadrons(Event& event) {
 bool ParticleDecays::setColours(Event& event) {
 
   // Decay to q qbar (or qbar q).
-  if (mode == 32 && idProd[1] > 0 && idProd[1] < 9) {
+  if (meMode == 32 && idProd[1] > 0 && idProd[1] < 9) {
     int newCol = event.nextColTag();
     cols[1] = newCol;
     acols[2] = newCol;
-  } else if (mode == 32 && idProd[1] < 0 && idProd[1] > -9) {
+  } else if (meMode == 32 && idProd[1] < 0 && idProd[1] > -9) {
     int newCol = event.nextColTag();
     cols[2] = newCol;
     acols[1] = newCol;
 
   // Decay to gg.
-  } else if (mode == 32 && idProd[1] == 21) {
+  } else if (meMode == 32 && idProd[1] == 21) {
     int newCol1 = event.nextColTag();
     int newCol2 = event.nextColTag();
     cols[1] = newCol1;
@@ -910,7 +910,7 @@ bool ParticleDecays::setColours(Event& event) {
     acols[2] = newCol1;
 
   // Decay to g g g.
-  } else if (mode == 33 && idProd[1] == 21 && idProd[2] == 21 
+  } else if (meMode == 33 && idProd[1] == 21 && idProd[2] == 21 
     &&  idProd[3] == 21) { 
     int newCol1 = event.nextColTag();
     int newCol2 = event.nextColTag();
@@ -923,7 +923,7 @@ bool ParticleDecays::setColours(Event& event) {
     acols[3] = newCol1;
 
   // Decay to g g gamma: locate which is gamma.
-  } else if (mode == 33) {
+  } else if (meMode == 33) {
     int iGlu1 = (idProd[1] == 21) ? 1 : 3;
     int iGlu2 = (idProd[2] == 21) ? 2 : 3;
     int newCol1 = event.nextColTag();

@@ -115,11 +115,11 @@ void SigmaTotal::initStatic() {
 
   // User-set values for cross sections.  
   setOwn = Settings::flag("SigmaTotal:setOwn");
-  sigTotOwn = Settings::parameter("SigmaTotal:sigmaTot");
-  sigElOwn = Settings::parameter("SigmaTotal:sigmaEl");
-  sigXBOwn = Settings::parameter("SigmaTotal:sigmaXB");
-  sigAXOwn = Settings::parameter("SigmaTotal:sigmaAX");
-  sigXXOwn = Settings::parameter("SigmaTotal:sigmaXX");
+  sigTotOwn = Settings::parm("SigmaTotal:sigmaTot");
+  sigElOwn = Settings::parm("SigmaTotal:sigmaEl");
+  sigXBOwn = Settings::parm("SigmaTotal:sigmaXB");
+  sigAXOwn = Settings::parm("SigmaTotal:sigmaAX");
+  sigXXOwn = Settings::parm("SigmaTotal:sigmaXX");
   
 }
 

@@ -3,29 +3,16 @@
 // LHEevnt: Base class for event information. 
 // LHAinitFortran: derived class with the HEPRUP Fortran initialization info.
 // LHAevntFortran: derived class with the HEPEUP Fortran event info.
-// LHAinitPythia6: derived class reading initilization file from Pythia 6.
-// LHAevntPythia6: derived class reading event file from Pythia 6.
+// LHAinitLHEF: derived class for initilization from Les Houches Event File.
+// LHAevntLHEF: derived class for events from Les Houches Evewnt File.
 // Copyright C 2006 Torbjorn Sjostrand
 
-#ifndef LesHouches_H
-#define LesHouches_H
+#ifndef Pythia8_LesHouches_H
+#define Pythia8_LesHouches_H
 
-// Use Stdlib facilities for input and output.
-#include <iostream>
-#include <fstream>
-#include <iomanip>
-using std::istream; 
-using std::ifstream; 
-using std::ostream; 
-using std::ios; 
-using std::fixed; 
-using std::scientific; 
-using std::setprecision; 
-using std::setw; 
+#include "PythiaStdlib.h"
 
-// Use vector template class from Stdlib.
-#include <vector>
-using std::vector; 
+namespace Pythia8 {
 
 //**************************************************************************
 
@@ -62,7 +49,7 @@ public:
   double xMax(int proc) const {return processes[proc].xMaxPr;} 
    
   // Print the info; useful to check that setting it worked.
-  friend ostream& operator<<(ostream&, const LHAinit&) ;
+  void list(ostream& os = cout);  
 
 protected:
 
@@ -150,8 +137,18 @@ public:
   double tau(int part) const {return particles[part].tauPa;}
   double spin(int part) const {return particles[part].spinPa;}
 
+  // Optional: give back info on parton density values of event.
+  bool pdfIsSet() const {return pdfIsSetSv;}
+  int id1() const {return id1Sv;}
+  int id2() const {return id2Sv;}
+  double x1() const {return x1Sv;}
+  double x2() const {return x2Sv;}
+  double scalePDF() const {return scalePDFSv;}
+  double xpdf1() const {return xpdf1Sv;}
+  double xpdf2() const {return xpdf2Sv;}
+
   // Print the info; useful to check that reading an event worked.
-  friend ostream& operator<<(ostream&, const LHAevnt&) ;
+  void list(ostream& os = cout);  
 
 protected:
 
@@ -167,7 +164,7 @@ protected:
     { idPr = idProcIn; weightPr = weightIn; scalePr = scaleIn; 
     alphaQEDPr = alphaQEDIn; alphaQCDPr = alphaQCDIn; 
     // Clear particle list. Add empty zeroth particle for correct indices.
-    particles.clear(); particle(0); }
+    particles.clear(); particle(0); pdfIsSetSv = false;}
 
   // Input particle info, one particle at the time.
   void particle(int idIn, int statusIn = 0, int mother1In = 0, 
@@ -176,7 +173,14 @@ protected:
     double tauIn = 0., double spinIn = 9.) { 
     particles.push_back( Particle( idIn, statusIn, mother1In, mother2In, 
     col1In, col2In, pxIn, pyIn, pzIn, eIn, mIn, tauIn, spinIn)); }
-  
+
+  // Optionally input info on parton density values of event.
+  void pdf(int id1In, int id2In, double x1In, double x2In, 
+    double scalePDFIn, double xpdf1In, double xpdf2In) 
+    { id1Sv = id1In; id2Sv = id2In; x1Sv = x1In; x2Sv = x2In;
+    scalePDFSv = scalePDFIn; xpdf1Sv = xpdf1In; xpdf2Sv = xpdf2In;
+    pdfIsSetSv = true;}
+
 private:
 
   // Store info on the selected process. 
@@ -202,6 +206,12 @@ private:
 
   // ...so that the particle list can be kept as a vector.
   vector<Particle> particles;
+
+  // Optional info on parton density values of event.
+  bool pdfIsSetSv;
+  int id1Sv, id2Sv;
+  double x1Sv, x2Sv, scalePDFSv, xpdf1Sv, xpdf2Sv;
+
 };
 
 //**************************************************************************
@@ -240,14 +250,14 @@ public:
 
 //**************************************************************************
 
-// A derived class with initialization information from Pythia 6.3.
+// A derived class with initialization information from Les Houches Event File.
 
-class LHAinitPythia6 : public LHAinit {
+class LHAinitLHEF : public LHAinit {
 
 public:
 
   // Constructor.
-  LHAinitPythia6(const char* fileIn) : is(fileIn) {}
+  LHAinitLHEF(const char* fileIn) : is(fileIn) {}
 
   // Routine for doing the job of reading and setting initialization info.  
   bool set(); 
@@ -261,14 +271,14 @@ private:
 
 //**************************************************************************
 
-// A derived class with event information from Pythia 6.3.
+// A derived class with event information from Les Houches Event File.
 
-class LHAevntPythia6 : public LHAevnt {
+class LHAevntLHEF : public LHAevnt {
 
 public:
 
   // Constructor.
-  LHAevntPythia6(const char* fileIn) : is(fileIn) {}
+  LHAevntLHEF(const char* fileIn) : is(fileIn) {}
 
   // Routine for doing the job of reading and setting info on next event.  
   bool set(); 
@@ -282,4 +292,6 @@ private:
 
 //**************************************************************************
 
-#endif // LesHouches_H
+} // end namespace Pythia8
+
+#endif // Pythia8_LesHouches_H

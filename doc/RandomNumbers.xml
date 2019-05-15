@@ -65,7 +65,7 @@ externally to the <code>Pythia</code> code.
 
 <p/>
 An example illustrating how to run with an external random number
-generator is provided in <code>main05.cc</code>.
+generator is provided in <code>main18.cc</code>.
 
 </chapter>
 

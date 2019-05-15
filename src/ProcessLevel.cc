@@ -50,18 +50,14 @@ bool ProcessLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn,
   // Generate the next Pythia 6.4 event. 
   if (hasPythia6) Pythia6::pyupev();
 
-  // Read in a simple event in the LHAevnt format. Default info (to be improved??).
+  // Read in a simple event in the LHAevnt format. Default info.
   if (strategyLHA >= 10) {
     infoPtr->setType( "Simple LHA process", 0, 0, false, true, false, false);
     return getSimpleLHAevnt( process);
   }
 
-  // Read in an event in the LHAevnt format. Default info (to be improved??).
-  if (hasPythia6 || hasLHA) {
-    string name = (hasPythia6) ? "Pythia6 LHA process" : "External LHA process"; 
-    infoPtr->setType( name, 0, 0, false, true, false, false);
-    return getLHAevnt( process);
-  }
+  // Read in an event in the LHAevnt format.
+  if (hasPythia6 || hasLHA) return getLHAevnt( process);
 
   // Done.
   return true;
@@ -153,6 +149,12 @@ bool ProcessLevel::initInternal( ostream& os) {
   double eCM = infoPtr->eCM();
   sigmaTot.init( idA, idB, eCM);
 
+  // Send cross section and beam info to processes and phase space.
+  double mA = beamAPtr->m();
+  double mB = beamBPtr->m();
+  SigmaProcess::setSigmaTotalPtr( &sigmaTot, idA, idB, mA, mB);
+  PhaseSpace::setSigmaTotalPtr( &sigmaTot, idA, idB, mA, mB);
+
   // Sets up containers for all the hard processes.
   SetupContainers setupContainers;
   setupContainers.init(containerPtrs);
@@ -164,12 +166,10 @@ bool ProcessLevel::initInternal( ostream& os) {
     return false;
   }
 
-  // Initialize each process. Special case for minbias/elastic/diffractive.
-  for (int i = 0; i < int(containerPtrs.size()); ++i) {
-    if (containerPtrs[i]->needsSigmaTotal()) 
-      containerPtrs[i]->setSigmaTotalPtr(&sigmaTot);
-    containerPtrs[i]->init(infoPtr, beamAPtr, beamBPtr);
-  }
+  // Initialize each process. 
+  int numberOn = 0;
+  for (int i = 0; i < int(containerPtrs.size()); ++i)
+    if (containerPtrs[i]->init()) ++numberOn;
 
   // Sum maxima for Monte Carlo choice.
   sigmaMaxSum = 0.;
@@ -210,7 +210,7 @@ bool ProcessLevel::initInternal( ostream& os) {
      << endl;
 
   // If sum of maxima vanishes then refuse to do anything. Done.
-  if ( sigmaMaxSum <= 0.) {
+  if ( numberOn == 0  || sigmaMaxSum <= 0.) {
     ErrorMessages::message("Error in ProcessLevel::initInternal: "
       "all processes have vanishing cross sections"); 
     return false;
@@ -271,90 +271,24 @@ bool ProcessLevel::getInternalEvnt( Event& process) {
   containerPtrs[iNow]->constructProcess( process);
 
   // Do all resonance decays. First draft??
-  resonanceDecays( process);
+  resonanceDecays.next( process);
    
   // Add any junctions to the process event record list.
   findJunctions( process);
 
-  // Done.
-  return true;
-}
-
-//*********
-
-// Do all resonance decays. First draft??
-  
-bool ProcessLevel::resonanceDecays( Event& process) {
-
-  // Loop over all entries to find resonances that should decay.
-  int iDec = 0;
-  do {
-    Particle& decayer = process[iDec];
-    if (decayer.remains() && decayer.canDecay() && decayer.mayDecay() 
-    && decayer.isResonance() ) {
-
-      // Particle data for decaying particle.
-      int id0 = decayer.id();
-      double m0 = decayer.m();
-
-      // Pick a decay channel; allow up to ten tries.
-      int NTRYDECAY = 10;
-      double mSafety = 1.; 
-      int id1 = 0;
-      int id2 = 0;
-      double m1 = 0.;
-      double m2 = 0.;
-      for (int iTryChannel = 0; iTryChannel < NTRYDECAY; ++iTryChannel) {
-        DecayChannel& channel = decayer.particleData().decay.pick();
-        // int mode = channel.modeME();
-        int mult = channel.multiplicity();
-
-        // Consider for now only two-body decay. Check phase space. 
-        if (mult != 2) continue;
-        id1 = channel.product(0);
-        if (id0 < 0 && ParticleDataTable::hasAnti(id1)) id1 = -id1;
-        id2 = channel.product(1);
-        if (id0 < 0 && ParticleDataTable::hasAnti(id2)) id2 = -id2;
-        m1 = ParticleDataTable::mass(id1);          
-        m2 = ParticleDataTable::mass(id2); 
-        if (m1 + m2 + mSafety > m0) continue;
-
-      // End of loop over tries.
-      }
-
-      // Energies and absolute momentum in the rest frame.
-      double e1 = 0.5 * (m0*m0 + m1*m1 - m2*m2) / m0;
-      double e2 = 0.5 * (m0*m0 + m2*m2 - m1*m1) / m0;
-      double pAbs = 0.5 * sqrtpos( (m0 - m1 - m2) * (m0 + m1 + m2)
-        * (m0 + m1 - m2) * (m0 - m1 + m2) ) / m0;  
-
-      // Isotropic angles give three-momentum.
-      double cosTheta = 2. * Rndm::flat() - 1.;
-      double sinTheta = sqrt(1. - cosTheta*cosTheta);
-      double phi = 2. * M_PI * Rndm::flat();
-      double pX = pAbs * sinTheta * cos(phi);  
-      double pY = pAbs * sinTheta * sin(phi);  
-      double pZ = pAbs * cosTheta;  
-
-      // Fill four-momenta and boost them away from mother rest frame.
-      Vec4 p1( pX, pY, pZ, e1);
-      Vec4 p2( -pX, -pY, -pZ, e2);
-      p1.bst( decayer.p() );
-      p2.bst( decayer.p() );
-
-      // Find colours.
-      int col = (id1 > 0 && id1 < 9) ? process.nextColTag() : 0; 
-
-      // Append decay products to the event record.
-     process.append( id1, 23, iDec, 0, 0, 0, col, 0, p1, m1, m0);
-     process.append( id2, 23, iDec, 0, 0, 0, 0, col, p2, m2, m0);
-
-     // Modify mother status to show it is a decayed resonance.
-     decayer.status(-22);
-                 
-    // End of loop over all entries.
-    }
-  } while (++iDec < process.size());
+  // Provide current generated cross section estimate.
+  int nTrySum = 0; 
+  int nAccSum = 0;
+  double sigmaSum = 0.;
+  double delta2Sum = 0.;
+  for (int i = 0; i < int(containerPtrs.size()); ++i) 
+  if (containerPtrs[i]->sigmaMax() != 0.) {
+     nTrySum += containerPtrs[i]->nTried();
+     nAccSum += containerPtrs[i]->nAccepted();
+     sigmaSum += containerPtrs[i]->sigmaMC();
+     delta2Sum += pow2(containerPtrs[i]->deltaMC()); 
+   }
+   infoPtr->setSigma( nTrySum, nAccSum, sigmaSum, sqrt(delta2Sum)); 
 
   // Done.
   return true;
@@ -453,6 +387,64 @@ bool ProcessLevel::getLHAevnt( Event& process) {
 
   // Add any junctions to the process event record list.
   findJunctions( process);
+
+  // Extract information that is guaranteed available.
+  string name = (hasPythia6) ? "Pythia6 LHA process" : "External LHA process"; 
+  int code = lhaEvntPtr->idProc();
+  int nFinal = 0;
+  for (int i = 5; i < process.size(); ++i) 
+    if (process[i].mother1() == 3) ++nFinal;
+  int id1 =  process[3].id(); 
+  int id2 =  process[4].id(); 
+  double Q2Fac = pow2(lhaEvntPtr->scale());
+  double alphaEM = lhaEvntPtr->alphaQED();
+  double alphaS = lhaEvntPtr->alphaQCD();
+  double Q2Ren = Q2Fac;
+  double x1 = 2. * process[3].e() / infoPtr->eCM();
+  double x2 = 2. * process[4].e() / infoPtr->eCM();
+  Vec4 pSum = process[3].p() + process[4].p();
+  double sHat = pSum*pSum;
+
+  // Reset quantities that may or may not be known.
+  double pdf1 = 0.;
+  double pdf2 = 0.;
+  double tHat = 0.;
+  double uHat = 0.;
+  double pTHat = 0.;
+  double m3 = 0.;
+  double m4 = 0.;
+  double theta = 0.;
+  double phi = 0.;
+
+  // Read info om parton densities if provided.
+  if (lhaEvntPtr->pdfIsSet()) {
+    pdf1 = lhaEvntPtr->xpdf1();
+    pdf2 = lhaEvntPtr->xpdf2();
+    Q2Fac = pow2(lhaEvntPtr->scalePDF());
+    x1 = lhaEvntPtr->x1();
+    x2 = lhaEvntPtr->x2();
+  }
+
+  // Reconstruct kinematics of 2 -> 2 processes from momenta.
+  if (nFinal == 2) {
+    Vec4 pDifT = process[3].p() - process[5].p();
+    tHat = pDifT*pDifT;    
+    Vec4 pDifU = process[3].p() - process[6].p();
+    uHat = pDifU*pDifU;
+    pTHat = process[5].pT();
+    m3 = process[5].m();    
+    m4 = process[6].m(); 
+    Vec4 p5 = process[5].p();
+    pSum.flip3();
+    p5.bst(pSum);
+    theta = p5.theta();   
+    phi = process[5].phi();   
+  }
+
+  // Store information in Info object.
+  infoPtr->setType( name, code, nFinal, false, true, false, false);
+  infoPtr->setPDFalpha( id1, id2, pdf1, pdf2, Q2Fac, alphaEM, alphaS, Q2Ren);
+  infoPtr->setKin( x1, x2, sHat, tHat, uHat, pTHat, m3, m4, theta, phi);  
 
   // Done.
   return true;

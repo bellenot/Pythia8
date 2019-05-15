@@ -68,7 +68,7 @@ public:
   void init();
 
   // Top-level driver routine to do a single time-like shower.
-  void shower( Event& event, int iBeg, int iEnd, double pTmax);
+  int shower( Event& event, int iBeg, int iEnd, double pTmax);
 
   // Do it in several steps, for interleaved evolution.
   // Prepare system for evolution; identify ME.
@@ -84,7 +84,7 @@ public:
   //void update( Event& event);
 
   // Print dipole list; for debug mainly.
-  void list(ostream& = cout);
+  void list(ostream& os = cout);
 
 private:
 
@@ -94,7 +94,7 @@ private:
   static int alphaSorder, nQuark;
   static double mc, mb, mc2, mb2, alphaSvalue, alphaS2pi, pTcolCutMin,
     alphaEM,alphaEM2pi, pTchgQCut, pT2chgQCut, pTchgLCut, pT2chgLCut, 
-    sin2thetaW, mZ, gammaZ;
+    mZ, gammaZ, thetaWRat;
 
   // Constants: could only be changed in the code itself.
   static const double SIMPLIFYROOT, XMARGIN;

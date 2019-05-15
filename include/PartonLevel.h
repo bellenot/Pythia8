@@ -48,8 +48,9 @@ private:
   // Constants: could only be changed in the code itself.
   static const int NTRY;
 
-  // Event generation strategy. Counters for number of steps.
+  // Event generation strategy. Number of steps. Maximum pT scales.
   int strategyLHA, nMI, nISR, nFSRinProc, nFSRinRes;
+  double pTsaveMI, pTsaveISR, pTsaveFSR;
 
   // Pointer to various information on the generation.
   Info* infoPtr;
@@ -82,7 +83,7 @@ private:
   bool setupUnresolvedSys( Event& process, Event& event);
 
   // Perform showers in resonance decay chains.
-  void resonanceShowers( Event& process, Event& event); 
+  int resonanceShowers( Event& process, Event& event); 
   // Position in main event record of hard partons before showers.
   vector<int> iPosBefShow;
   

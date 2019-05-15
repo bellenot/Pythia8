@@ -51,8 +51,8 @@ during program execution.
 </file>
 
 <file name="Analysis">
-contains routines to analyze events. Currently it can do sphericity 
-and cone-jet finding.
+contains routines to analyze events. Currently it can do sphericity, 
+thrust, Lund/Jade/Durham jet clustering, and cone-jet finding.
 </file>
 
 <file name="ProcessLevel">
@@ -89,8 +89,29 @@ cross sections.
 
 <file name="SigmaProcess">
 contains the base class and derived classes for the evaluation of
-different matrix elements. Will have to be split once a bigger 
-number of processes is implemented.
+different matrix elements. In order to keep this file from becoming 
+too big, actual cross sections are found in the following three files
+of derived classes.
+</file>
+
+<file name="SigmaQCD">
+contains the cross sections and matrix elements for soft and hard
+QCD processes.
+</file>
+
+<file name="SigmaEW">
+contains the cross sections and matrix elements for electroweak
+processes involving photons, <ei>Z^0</ei>'s and <ei>W^+-</ei>'s .
+</file>
+
+<file name="SigmaSUSY">
+contains the cross sections and matrix elements for Supersymmetric
+processes.
+</file>
+
+<file name="SusyLesHouches">
+contains information on SUSY parameters and particle data as specified
+by the SUSY Les Houches Accord.
 </file>
 
 <file name="InFlux">
@@ -98,7 +119,6 @@ keeps track of the allowed combinations of incoming flavours for a
 process, and stores the in-state-specific factors in a cross section.
 This in particular means the parton densities, but also charges,
 CKM matrix elements, and so on.
-  
 </file>
 
 <file name="PhaseSpace">
@@ -120,6 +140,16 @@ gives the possibility to feed in parton configurations for the
 subsequent event generation. Two containers are defined, one for 
 initialization and one for events, that can be read from 
 <code>Pythia</code>. Should be linked to external programs or files.
+</file>
+
+<file name="ResonanceDecays"> 
+decays resonances as part of the hard-process stage, eventually including
+angular correlatiosn between decay products.
+</file>
+
+<file name="ResonanceProperties"> 
+encodes some properties of resonances, such as the dynamic calculation 
+of widths.
 </file>
 
 <file name="TimeShower"> 
@@ -184,7 +214,7 @@ such as <ei>alpha_em</ei> and <ei>sin^2(theta_W)</ei>.
 <file name="Settings"> 
 contains a database of all flags, modes and parameters that determine 
 the performance of the generator. Initial values are set from the 
-contents of the <code>xml</code> files, but these values can then 
+contents of the <code>.xml</code> files, but these values can then 
 be changed by the user.
 </file>
 
@@ -202,10 +232,7 @@ histogram class <code>Hist</code>.
 <file name="PythiaStdlib">
 is only a <code>.h</code> file, containing all the <code>Stdlib</code> 
 headers used in Pythia 8, with <code>using</code> directives. Also 
-inlines <code>pow2(x)</code> - <code>pow5(x)</code> for fast powers of 
-small integers, <code>sqrtpos(x)</code> to avoid that roundoff gives the 
-square root of a negative number, and <code>tolower(string)</code> for 
-producing a lowercase string.
+a few simple inline methods.
 </file>
 
 </chapter>

@@ -27,6 +27,16 @@ to 4 would thus exclude <i>b</i> and <i>bbar</i> as incoming
 partons, etc.
   
 
+<p/>
+There is also the possibility to obtain some documentation.
+<p/><strong>
+flag name="InFlux:showChannels" default="off"
+</strong><br/>
+At initialization show which incoming flavours and flavour combinations
+have beeen set up, process by process, along with initial weight 
+(e.g. charges or CKM factors) assigned to each of them.
+  
+
 <h3>Generic cross sections</h3>
 
 <code>SigmaProcess</code> is base class for all hard processes 
@@ -36,7 +46,7 @@ should give <i>sigmaHat(sHat)</i>, for <i>2 -> 2</i> ones
 
 The size of QCD cross sections is mainly determined by 
 <p/><strong>
-parameter name="SigmaProcess:alphaSvalue" default="0.1265" 
+parm name="SigmaProcess:alphaSvalue" default="0.1265" 
 min="0.06" max="0.25"
 </strong><br/>
 The <i>alpha_strong</i> value at scale <i>M_Z^2</i>. 
@@ -89,6 +99,20 @@ Number of quark flavours included in the box graphs resposible for
 Owing to the complexity if the massive expressions, quarks are treated 
 as massless. The default value should be applicable in the range of 
 transverse momenta above the <i>b</i> mass but below the <i>t</i> one.
+  
+
+<p/><strong>
+mode name="SigmaProcess:gmZmode" default="0" min="0" max="2"
+</strong><br/>
+Choice of full <i>gamma^*/Z^0</i> structure or not in relevant 
+processes.
+<br/><strong>
+option value="0"</strong>: full <i>gamma^*/Z^0</i> structure,
+with interference included.  
+<br/><strong>
+option value="1"</strong>: only pure <i>gamma^*</i> contribution.  
+<br/><strong>
+option value="2"</strong>: only pure <i>Z^0</i> contribution.  
   
 
 </body>

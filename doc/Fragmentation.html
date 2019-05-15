@@ -38,13 +38,13 @@ with the two main free parameters <i>a</i> and <i>b</i> to be
 tuned to data. They are stored in 
 
 <p/><strong>
-parameter name="StringZ:aLund" default="0.3" min="0.0" max="2.0"
+parm name="StringZ:aLund" default="0.3" min="0.0" max="2.0"
 </strong><br/>
 The <i>a</i> parameter of the Lund symmetric fragmentation function.
   
 
 <p/><strong>
-parameter name="StringZ:bLund" default="0.58" min="0.2" max="2.0"
+parm name="StringZ:bLund" default="0.58" min="0.2" max="2.0"
 </strong><br/>
 The <i>b</i> parameter of the Lund symmetric fragmentation function.
   
@@ -59,7 +59,7 @@ the shape is
 This is only implemented for diquarks relative to normal quarks:
 
 <p/><strong>
-parameter name="StringZ:aExtraDiquark" default="0.5" 
+parm name="StringZ:aExtraDiquark" default="0.5" 
 min="0.0" max="2.0"
 </strong><br/>
 allows a larger <i>i</i> for diquarks, with total 
@@ -76,19 +76,19 @@ for heavy quarks. To keep some flexibility, a multiplicative factor
 <i>r_Q</i> is introduced, which ought to be unity but can be set in
 
 <p/><strong>
-parameter name="StringZ:rFactC" default="1.0" min="0.0" max="2.0"
+parm name="StringZ:rFactC" default="1.0" min="0.0" max="2.0"
 </strong><br/>
 <i>r_c</i>, i.e. the above parameter for <i>c</i> quarks.
   
 
 <p/><strong>
-parameter name="StringZ:rFactB" default="1.0" min="0.0" max="2.0"
+parm name="StringZ:rFactB" default="1.0" min="0.0" max="2.0"
 </strong><br/>
 <i>r_b</i>, i.e. the above parameter for <i>b</i> quarks.
   
 
 <p/><strong>
-parameter name="StringZ:rFactH" default="1.0" min="0.0" max="2.0"
+parm name="StringZ:rFactH" default="1.0" min="0.0" max="2.0"
 </strong><br/>
 <i>r_h</i>, i.e. the above parameter for heavier hypothetical quarks,
 or in general any new coloured particle long-lived enough to hadronize.
@@ -124,19 +124,19 @@ use Peterson for hypothetical heavier quarks.
 When switched on, the corresponding epsilon values are chosen to be
 
 <p/><strong>
-parameter name="StringZ:epsilonC" default="0.05" min="0.01" max="0.25"
+parm name="StringZ:epsilonC" default="0.05" min="0.01" max="0.25"
 </strong><br/>
 <i>epsilon_c</i>, i.e. the above parameter for <i>c</i> quarks.
   
 
 <p/><strong>
-parameter name="StringZ:epsilonB" default="0.005" min="0.001" max="0.025"
+parm name="StringZ:epsilonB" default="0.005" min="0.001" max="0.025"
 </strong><br/>
 <i>epsilon_b</i>, i.e. the above parameter for <i>b</i> quarks.
   
 
 <p/><strong>
-parameter name="StringZ:epsilonH" default="0.005" min="0.0001" max="0.25"
+parm name="StringZ:epsilonH" default="0.005" min="0.0001" max="0.25"
 </strong><br/>
 <i>epsilon_h</i>, i.e. the above parameter for hypothetical heavier 
 quarks, normalized to the case where <i>m_h = m_b</i>. The actually 
@@ -163,7 +163,7 @@ Then the total squared width is
 It is this latter number that is stored in
 
 <p/><strong>
-parameter name="StringPT:sigma" default="0.36" min="0.0" max="1.0"
+parm name="StringPT:sigma" default="0.36" min="0.0" max="1.0"
 </strong><br/>
 the width <i>sigma</i> in the fragmentation process.
   
@@ -183,7 +183,7 @@ by a factor <i>enhancedWidth</i> for a small fraction
 <i>enhancedFraction</i> of the breakups, where
 
 <p/><strong>
-parameter name="StringPT:enhancedFraction" default="0.1" 
+parm name="StringPT:enhancedFraction" default="0.1" 
 min="0.0" max="0.1"
 </strong><br/>
 <i>enhancedFraction</i>,the fraction of string breaks with enhanced 
@@ -191,7 +191,7 @@ width.
   
 
 <p/><strong>
-parameter name="StringPT:enhancedWidth" default="2.0" 
+parm name="StringPT:enhancedWidth" default="2.0" 
 min="1.0" max="5.0"
 </strong><br/>
 <i>enhancedWidth</i>,the enhancement of the width in this fraction.
@@ -208,7 +208,7 @@ is rather mild, however, so for a sensible range of variation the
 parameters in this section should not be touched.
 
 <p/><strong>
-parameter name="StringFragmentation:stopMass" default="1.0" 
+parm name="StringFragmentation:stopMass" default="1.0" 
 min="0.0" max="2.0"
 </strong><br/>
 Is used to define a <i>W_min = m_q1 + m_q2 + stopMass</i>,
@@ -217,7 +217,7 @@ current endpoint quarks or diquarks.
   
 
 <p/><strong>
-parameter name="StringFragmentation:stopNewFlav" default="2.0" 
+parm name="StringFragmentation:stopNewFlav" default="2.0" 
 min="0.0" max="2.0"
 </strong><br/>
 Add to <i>W_min</i> an amount <i>stopNewFlav * m_q_last</i>, 
@@ -226,7 +226,7 @@ between the final two hadrons.
   
 
 <p/><strong>
-parameter name="StringFragmentation:stopSmear" default="0.2" 
+parm name="StringFragmentation:stopSmear" default="0.2" 
 min="0.0" max="0.5"
 </strong><br/>
 The <i>W_min</i> above is then smeared uniformly in the range
@@ -246,7 +246,7 @@ There are a few situations when it is meaningful to simplify the
 original task, one way or another.
 
 <p/><strong>
-parameter name="HadronLevel:mStringMin" default="1." 
+parm name="HadronLevel:mStringMin" default="1." 
 min="0.5" max="1.5"
 </strong><br/>
 Decides whether a partonic system should be considered as a normal
@@ -257,7 +257,7 @@ else the ministring scenario is used.
   
 
 <p/><strong>
-parameter name="FragmentationSystems:mJoin" default="0.1" 
+parm name="FragmentationSystems:mJoin" default="0.1" 
 min="0." max="1."
 </strong><br/>
 When two colour-connected partons are very nearby, with at least 
@@ -269,7 +269,7 @@ to the string region under consideration.
   
 
 <p/><strong>
-parameter name="FragmentationSystems:mJoinJunction" default="1.0"
+parm name="FragmentationSystems:mJoinJunction" default="1.0"
 min="0.5" max="2."
 </strong><br/>
 When the invariant mass of two of the quarks in a three-quark junction 
@@ -323,7 +323,7 @@ The junction fragmentation scheme is described in [<a href="References.html" tar
 The parameters in this section should not be touched except by experts.
 
 <p/><strong>
-parameter name="StringFragmentation:eNormJunction" default="2.0" 
+parm name="StringFragmentation:eNormJunction" default="2.0" 
 min="0.5" max="10"
 </strong><br/>
 Used to find the effective rest frame of the junction, which is
@@ -339,7 +339,7 @@ fragmentation function.
   
 
 <p/><strong>
-parameter name="StringFragmentation:eBothLeftJunction" default="1.0" 
+parm name="StringFragmentation:eBothLeftJunction" default="1.0" 
 min="0.5"
 </strong><br/>
 Retry (up to 10 times) when the first two considered strings in to a 
@@ -348,7 +348,7 @@ above this number.
   
 
 <p/><strong>
-parameter name="StringFragmentation:eMaxLeftJunction" default="10.0" 
+parm name="StringFragmentation:eMaxLeftJunction" default="10.0" 
 min="0." 
 </strong><br/>
 Retry (up to 10 times) when the first two considered strings in to a 
@@ -360,7 +360,7 @@ above a random energy evenly distributed between
   
 
 <p/><strong>
-parameter name="StringFragmentation:eMinLeftJunction" default="0.2" 
+parm name="StringFragmentation:eMinLeftJunction" default="0.2" 
 min="0." 
 </strong><br/>
 Retry (up to 10 times) when the invariant mass-squared of the final leg 

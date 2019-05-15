@@ -4,8 +4,12 @@
 
 <code>DecayHandler</code> is a base class for the external handling of 
 decays. The user-written derived class is called if a pointer to it has
-been given with the <code>pythia.decayPtr()</code> method, where it also 
-is specified which particles it will be called for.  
+been given with the 
+<a href="Flow.xml" target="page"><code>pythia.decayPtr()</code></a> method, 
+where it also is specified which particles it will be called for. 
+This particle information is accessible with the 
+<a href="ParticleDataScheme.xml" target="page"><code>externalDecays()</code></a>
+method. 
 
 <p/>
 There is only one pure virtual method in <code>DecayHandler</code>, 
@@ -51,7 +55,7 @@ of <code>event[iDec].id()</code>, where the latter provides the code at
 production.
 
 <p/>
-A sample test program is available in <code>main04.cc</code>, providing 
+A sample test program is available in <code>main17.cc</code>, providing 
 a simple example of how to use thing facility.
 
 </chapter>

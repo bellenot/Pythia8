@@ -86,21 +86,23 @@ parton densities <ei>x*f(x,Q^2</ei> )evaluated for the two incoming
 partons; could be used e.g. for reweighting purposes. 
 </method>
 
-<method name="Q2Fac()"> 
-the <ei>Q^2</ei> factorization scale at which the densities were evaluated.
+<method name="QFac(), Q2Fac()"> 
+the <ei>Q^2</ei> or <ei>Q^2</ei> factorization scale at which the 
+densities were evaluated.
 </method>
 
-<method name="alphaS()"> 
-the <ei>alpha_strong</ei> value used for the hard process.
+<method name="alphaS(), alphaEM()"> 
+the <ei>alpha_strong</ei> and <ei>alpha_electromagnetic</ei> values used 
+for the hard process.
 </method>
 
-<method name="Q2Ren()"> 
-the <ei>Q^2</ei> renormalization scale at which <ei>alpha_strong</ei> 
-was evaluated.
+<method name="QRen(), Q2Ren()"> 
+the <ei>Q</ei> or <ei>Q^2</ei> renormalization scale at which 
+<ei>alpha_strong</ei> and <ei>alpha_electromagnetic</ei> were evaluated.
 </method>
 
 <method name="mHat(), sHat()">
- the invariant mass and its square for the hard process.
+the invariant mass and its square for the hard process.
 </method>
 
 <method name="tHat(), uHat()"> 
@@ -121,6 +123,14 @@ the masses of the two outgoing particles in a <ei>2 -> 2</ei> processes.
 the polar and azimuthal scattering angles in the rest frame of 
 a <ei>2 -> 2</ei> process.
 </method>
+
+<method name="nTried(), nAccepted()">
+the total number of tried phase-space points and accepted events, 
+summed over all allowed subprocesses.
+
+<method name="sigmaGen(), sigmaErr()">
+the estimated cross section and its estimated error,
+summed over all allowed subprocesses, in units of mb. 
 
 <method name="bMI()"> 
 the impact parameter <ei>b</ei> assumed for the current collision when

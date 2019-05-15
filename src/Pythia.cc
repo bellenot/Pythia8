@@ -29,7 +29,7 @@ const int Pythia::NTRY = 10;
 
 //*********
 
-// Read in one update for flag/mode/parameter/Pythia6 from a single line.
+// Read in one update for setting/particledata/Pythia6 from a single line.
 
 bool Pythia::readString(string line, bool warn) {
 
@@ -70,15 +70,18 @@ bool Pythia::readString(string line, bool warn) {
 
 //*********
 
-// Read in updates for flag/mode/parameter/Pythia6 from user-defined file.
+// Read in updates for setting/particledata/Pythia6 from user-defined file.
 
  bool Pythia::readFile(string updateFile, bool warn) {
 
   // Open file with updates.
   const char* cstring = updateFile.c_str();
   ifstream is(cstring);  
-  if (!is) {cout << "Error: user update file " << updateFile 
-     << " not found \n"; return false;}
+  if (!is) {
+    ErrorMessages::message("Error in Pythia::readFile: did not find file",
+      updateFile);
+    return false;
+  }
 
   // Read in one line at a time.
   bool accepted = true;
@@ -123,9 +126,14 @@ bool Pythia::init( int idAin, int idBin, double eAin, double eBin) {
   idB = idBin;
   eA = eAin;
   eB = eBin;
+  inCMframe = false;
 
-  // Send on to common initialization.
-  return init(false);
+  // Send on to common initialization. 
+  bool status = init();
+  if (!status) ErrorMessages::message("Abort from Pythia::init: "
+    "initialization failed");
+  return status;
+
 }
 
 //*********
@@ -138,9 +146,14 @@ bool Pythia::init( int idAin, int idBin, double eCMin) {
   idA = idAin;
   idB = idBin;
   eCM = eCMin;
+  inCMframe = true;
 
   // Send on to common initialization.
-  return init(true);
+  bool status = init();
+  if (!status) ErrorMessages::message("Abort from Pythia::init: "
+    "initialization failed");
+  return status;
+
 }
 
 //*********
@@ -155,16 +168,58 @@ bool Pythia::init( LHAinit* lhaInitPtrIn, LHAevnt* lhaEvntPtrIn) {
   hasLHA = true;
 
   // Set LHAinit information (in some external program).
-  lhaInitPtr->set();
+  bool status = lhaInitPtr->set();
+  if (!status) ErrorMessages::message("Abort from Pythia::init: "
+    "Les Houches initialization failed");
+  if (!status) return false;
 
   // Extract beams from values set in an LHAinit object. 
   idA = lhaInitPtr->idBeamA();
   idB = lhaInitPtr->idBeamB();
   eA = lhaInitPtr->eBeamA();
   eB = lhaInitPtr->eBeamB();
+  inCMframe = false;
 
-  // Now do normal initialization.
-  return init(false);
+  // Now do normal initialization. List info unless runtime to Pythia6.
+  status = init();
+  if (!hasPythia6) lhaInitPtr->list();
+  if (!status) ErrorMessages::message("Abort from Pythia::init: "
+    "initialization failed");
+  return status;
+
+}
+
+//*********
+
+// Routine to initialize when all info is given in a Les Houches Event File.
+
+bool Pythia::init( string LesHouchesEventFile) {
+
+  // Create LHAinit and LHAevnt objects. 
+  const char* cstring = LesHouchesEventFile.c_str();
+  lhaInitPtr = new LHAinitLHEF(cstring);
+  lhaEvntPtr = new LHAevntLHEF(cstring);
+  hasLHA = true;
+
+  // Set LHAinit information (in some external program).
+  bool status = lhaInitPtr->set();
+  if (!status) ErrorMessages::message("Abort from Pythia::init: "
+    "Les Houches initialization failed");
+  if (!status) return false;
+
+  // Extract beams from values set in an LHAinit object. 
+  idA = lhaInitPtr->idBeamA();
+  idB = lhaInitPtr->idBeamB();
+  eA = lhaInitPtr->eBeamA();
+  eB = lhaInitPtr->eBeamB();
+  inCMframe = false;
+
+  // Now do normal initialization. List info unless runtime to Pythia6.
+  status = init();
+  if (!hasPythia6) lhaInitPtr->list(); 
+  if (!status) ErrorMessages::message("Abort from Pythia::init: "
+    "initialization failed");
+  return status;
 
 }
 
@@ -173,13 +228,16 @@ bool Pythia::init( LHAinit* lhaInitPtrIn, LHAevnt* lhaEvntPtrIn) {
 // Main routine to initialize the generation process.
 // (The alternative init forms end up in this one.)
 
-bool Pythia::init(bool inCMframeIn) {
+bool Pythia::init() {
 
   // Reset error counter.
   nErrEvent = 0;
 
   // Initialize all accessible static data members.
   initStatic();
+
+  // Initialize SUSY Les Houches Accord data
+  if (!initSLHA()) return false;
 
   // Set headers to distinguish the two event listing kinds.
   process.header("(hard process)");
@@ -195,12 +253,11 @@ bool Pythia::init(bool inCMframeIn) {
     // Find masses. Initial guess about CM frame.
     mA = ParticleDataTable::m0(idA);
     mB = ParticleDataTable::m0(idB);
-    inCMframe = inCMframeIn;
     betaZ = 0.;
     gammaZ = 1.;
 
     // When not given: find CM energy and set up boost to rest frame.
-    if (!inCMframeIn) {
+    if (!inCMframe) {
       eA = max(eA, mA);
       eB = max(eB, mB);
       pzA = sqrt(eA*eA - mA*mA);
@@ -226,6 +283,9 @@ bool Pythia::init(bool inCMframeIn) {
     // Set up the two beams and the common remnant system.
     beamA.init( idA, pzA, eA, mA, pdfAPtr);
     beamB.init( idB, pzB, eB, mB, pdfBPtr);
+ 
+    // Send PDF pointers to InFlux as static objects.
+    InFlux::setPDFPtr( pdfAPtr, pdfBPtr); 
   }
 
   // Store main info for access in process generation.
@@ -234,6 +294,7 @@ bool Pythia::init(bool inCMframeIn) {
   info.setECM( eCM);
 
   // Set info in and send pointers to the respective program elements.
+  ProcessContainer::setInfoPtr( &info);
   if (!processLevel.init( &info, &beamA, &beamB, hasPythia6, 
     hasLHA, lhaInitPtr, lhaEvntPtr)) return false;
   if (!partonLevel.init( &info, &beamA, &beamB, strategyLHA))
@@ -264,6 +325,7 @@ void Pythia::initStatic() {
   ErrorMessages::initStatic();
   ParticleDataEntry::initStatic();
   AlphaEM::initStatic(); 
+  CoupEW::initStatic(); 
   VCKM::initStatic(); 
   Event::initStatic();
   BeamParticle::initStatic(); 
@@ -284,6 +346,53 @@ void Pythia::initStatic() {
   StringFragmentation::initStatic();
   MiniStringFragmentation::initStatic();
   ParticleDecays::initStatic(); 
+  ResonanceProperties::initStatic();
+  ResonanceGmZ::initStatic();
+  ResonanceW::initStatic();
+}
+
+//*********
+
+// Initialize SUSY Les Houches Accord data.
+
+bool Pythia::initSLHA() {
+
+  // Check whether SUSY is on.
+  if ( !settings.flag("SUSY") ) return true;      
+
+  // Read SUSY Les Houches Accord File.
+  string slhafile = settings.word("SUSY:SusyLesHouchesFile");
+  int ifail = slha.readFile(slhafile);
+
+  // In case of problems, print error and fail init.
+  if (ifail != 0) {
+    ErrorMessages::message("Error from Pythia::initSLHA: "
+      "problem reading SLHA file", slhafile);
+    return false;
+  };
+
+  // Update particle data.
+  int id = slha.mass.first();
+  for (int i = 1; i <= slha.mass.size() ; i++) {
+    double mass = abs(slha.mass(id));
+    particleData.m0(id,mass);
+    id = slha.mass.next();
+  };
+
+  // Check spectrum for consistency. Switch off SUSY if necessary.
+  ifail = slha.checkSpectrum();
+  if (ifail != 0) {
+    ErrorMessages::message("Warning from Pythia::initSLHA: "
+      "Problem with SLHA spectrum.", 
+      "\n Only using masses and switching off SUSY.");
+    settings.flag("SUSY", false);
+    return true;
+  };
+
+  // Store pointer as static member in SigmaProcess.
+  SigmaProcess::setSlhaPtr(&slha);
+
+  return true;
 
 }
 
@@ -295,7 +404,7 @@ bool Pythia::next() {
 
   // Can only generate event if initialization worked.
   if (!isInit) {
-    ErrorMessages::message("Error in Pythia::next: "
+    ErrorMessages::message("Abort from Pythia::next: "
       "not properly initialized so cannot generate events"); 
     return false;
   }
@@ -304,7 +413,7 @@ bool Pythia::next() {
   info.clear();
   process.clear();
   if ( !processLevel.next( process) ) {
-    ErrorMessages::message("Error in Pythia::next: "
+    ErrorMessages::message("Abort from Pythia::next: "
       "processLevel failed; giving up"); 
     return false;
   }
@@ -354,12 +463,8 @@ bool Pythia::next() {
     break;
   }
   if (!physical) {
-    ErrorMessages::message("Error in Pythia::next: "
+    ErrorMessages::message("Abort from Pythia::next: "
       "parton+hadronLevel failed; giving up");
-    // Debug. To remove??
-    info.list();
-    process.list();
-    event.list(); 
     return false;
   }
 
@@ -390,10 +495,10 @@ void Pythia::statistics() {
 
 // Write the Pythia banner, with symbol and version information.
 
-void Pythia::banner() {
+void Pythia::banner(ostream& os) {
 
   // Read in version number and last date of change.
-  double versionNumber = Settings::parameter("Pythia:versionNumber");
+  double versionNumber = Settings::parm("Pythia:versionNumber");
   int versionDate = Settings::mode("Pythia:versionDate");
   string month[12] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};  
@@ -406,106 +511,90 @@ void Pythia::banner() {
   strftime(timeNow,9,"%H:%M:%S",localtime(&t));
 
   
-  cout << "\n"
-       << " *-------------------------------------------" 
-       << "-----------------------------------------* \n"
-       << " |                                           "
-       << "                                         | \n"
-       << " |  *----------------------------------------" 
-       << "--------------------------------------*  | \n"
-       << " |  |                                        "
-       << "                                      |  | \n"
-       << " |  |                                        "
-       << "                                      |  | \n"
-       << " |  |                *......*                "
-       << "  Welcome to the Lund Monte Carlo!    |  | \n" 
-       << " |  |           *:::!!:::::::::::*           " 
-       << "                                      |  | \n"
-       << " |  |        *::::::!!::::::::::::::*        "
-       << "  PPP  Y   Y TTTTT H   H III   A      |  | \n"
-       << " |  |      *::::::::!!::::::::::::::::*      "
-       << "  P  P  Y Y    T   H   H  I   A A     |  | \n"
-       << " |  |     *:::::::::!!:::::::::::::::::*     "
-       << "  PPP    Y     T   HHHHH  I  AAAAA    |  | \n"
-       << " |  |     *:::::::::!!:::::::::::::::::*     "
-       << "  P      Y     T   H   H  I  A   A    |  | \n"
-       << " |  |      *::::::::!!::::::::::::::::*!     "
-       << "  P      Y     T   H   H III A   A    |  | \n"
-       << " |  |        *::::::!!::::::::::::::* !!     "
-       << "                                      |  | \n"
-       << " |  |        !! *:::!!:::::::::::*    !!     "
-       << "  This is PYTHIA version " << fixed << setprecision(3) 
-       << setw(5) << versionNumber << "        |  | \n"
-       << " |  |        !!     !* -><- *         !!     "
-       << "  Last date of change: " << setw(2) << versionDate%100 
-       << " " << month[ (versionDate/100)%100 - 1 ] 
-       << " " << setw(4) << versionDate/10000 <<  "    |  | \n"
-       << " |  |        !!     !!                !!     " 
-       << "                                      |  | \n"
-       << " |  |        !!     !!                !!     "
-       << "  Now is " << dateNow << " at " << timeNow << "      |  | \n"
-       << " |  |        !!                       !!     " 
-       << "                                      |  | \n"
-       << " |  |        !!        lh             !!     " 
-       << "  Disclaimer: this program comes      |  | \n"
-       << " |  |        !!                       !!     "
-       << "  without any guarantees. Beware      |  | \n"
-       << " |  |        !!                 hh    !!     "
-       << "  of errors and use common sense      |  | \n"
-       << " |  |        !!    ll                 !!     " 
-       << "  when interpreting results.          |  | \n"
-       << " |  |        !!                       !!     " 
-       << "                                      |  | \n"
-       << " |  |        !!                              " 
-       << "  Copyright T. Sjostrand (2006)       |  | \n"
-       << " |  |                                        "
-       << "                                      |  | \n"
-       << " |  |   An archive of program versions and do" 
-       << "cumentation is found on the web:      |  | \n"
-       << " |  |   http://www.thep.lu.se/~torbjorn/Pythi" 
-       << "a.html                                |  | \n"
-       << " |  |                                        " 
-       << "                                      |  | \n"
-       << " |  |   The current version is intended for t" 
-       << "ryout and feedback only,              |  | \n"
-       << " |  |   and should not be used for any physic" 
-       << "s studies or production runs.         |  | \n"
-       << " |  |                                        " 
-       << "                                      |  | \n"
-       << " |  |   Currently PYTHIA 6.4 can be used to g"
-       << "enerate processes, see the manual     |  | \n"
-       << " |  |   T. Sjostrand, S. Mrenna and P. Skands"
-       << ", JHEP05 (2006) 026 [hep-ph/0603175]. |  | \n"
-       << " |  |                                        " 
-       << "                                      |  | \n"
-       << " |  |   Main author: Torbjorn Sjostrand; CERN" 
-       << "/PH, CH-1211 Geneva, Switzerland,     |  | \n"
-       << " |  |     and Department of Theoretical Physi"
-       << "cs, Lund University, Lund, Sweden;    |  | \n"
-       << " |  |     phone: + 41 - 22 - 767 82 27; e-mai"
-       << "l: torbjorn@thep.lu.se                |  | \n"
-       << " |  |   Author: Stephen Mrenna; Computing Div"
-       << "ision, Simulations Group,             |  | \n"
-       << " |  |     Fermi National Accelerator Laborato"
-       << "ry, MS 234, Batavia, IL 60510, USA;   |  | \n"
-       << " |  |     phone: + 1 - 630 - 840 - 2556; e-ma"
-       << "il: mrenna@fnal.gov                   |  | \n"
-       << " |  |   Author: Peter Skands; Theoretical Phy"
-       << "sics Department,                      |  | \n"
-       << " |  |     Fermi National Accelerator Laborato"
-       << "ry, MS 106, Batavia, IL 60510, USA;   |  | \n"
-       << " |  |     phone: + 1 - 630 - 840 - 2270; e-ma"
-       << "il: skands@fnal.gov                   |  | \n"
-       << " |  |                                        "
-       << "                                      |  | \n"
-       << " |  |                                        "
-       << "                                      |  | \n"
-       << " |  *----------------------------------------" 
-       << "--------------------------------------*  | \n"
-       << " |                                           "
-       << "                                         | \n"
-       << " *-------------------------------------------" 
-       << "-----------------------------------------* " << endl;
+  os << "\n"
+     << " *-------------------------------------------" 
+     << "-----------------------------------------* \n"
+     << " |                                           "
+     << "                                         | \n"
+     << " |  *----------------------------------------" 
+     << "--------------------------------------*  | \n"
+     << " |  |                                        "
+     << "                                      |  | \n"
+     << " |  |                                        "
+     << "                                      |  | \n"
+     << " |  |   PPP   Y   Y  TTTTT  H   H  III    A  "
+     << "    Welcome to the Lund Monte Carlo!  |  | \n" 
+     << " |  |   P  P   Y Y     T    H   H   I    A A " 
+     << "    This is PYTHIA version " << fixed << setprecision(3) 
+     << setw(5) << versionNumber << "      |  | \n"
+     << " |  |   PPP     Y      T    HHHHH   I   AAAAA"
+     << "    Last date of change: " << setw(2) << versionDate%100 
+     << " " << month[ (versionDate/100)%100 - 1 ] 
+     << " " << setw(4) << versionDate/10000 <<  "  |  | \n"
+     << " |  |   P       Y      T    H   H   I   A   A"
+     << "                                      |  | \n"
+     << " |  |   P       Y      T    H   H  III  A   A"
+     << "    Now is " << dateNow << " at " << timeNow << "    |  | \n"
+     << " |  |                                        " 
+     << "                                      |  | \n"
+     << " |  |   Main author: Torbjorn Sjostrand; CERN" 
+     << "/PH, CH-1211 Geneva, Switzerland,     |  | \n"
+     << " |  |     and Department of Theoretical Physi"
+     << "cs, Lund University, Lund, Sweden;    |  | \n"
+     << " |  |     phone: + 41 - 22 - 767 82 27; e-mai"
+     << "l: torbjorn@thep.lu.se                |  | \n"
+     << " |  |   Author: Stephen Mrenna; Computing Div"
+     << "ision, Simulations Group,             |  | \n"
+     << " |  |     Fermi National Accelerator Laborato"
+     << "ry, MS 234, Batavia, IL 60510, USA;   |  | \n"
+     << " |  |     phone: + 1 - 630 - 840 - 2556; e-ma"
+     << "il: mrenna@fnal.gov                   |  | \n"
+     << " |  |   Author: Peter Skands; Theoretical Phy"
+     << "sics Department,                      |  | \n"
+     << " |  |     Fermi National Accelerator Laborato"
+     << "ry, MS 106, Batavia, IL 60510, USA;   |  | \n"
+     << " |  |     phone: + 1 - 630 - 840 - 2270; e-ma"
+     << "il: skands@fnal.gov                   |  | \n"
+     << " |  |                                        " 
+     << "                                      |  | \n"
+     << " |  |   The main physics reference is the 'PY"
+     << "THIA 6.4 Physics and Manual',         |  | \n"
+     << " |  |   T. Sjostrand, S. Mrenna and P. Skands"
+     << ", JHEP05 (2006) 026 [hep-ph/0603175]. |  | \n"
+     << " |  |   In addition, for PYTHIA 8.0, also quo"
+     << "te the 'Brief Introduction',          |  | \n"
+     << " |  |   T. Sjostrand, CERN-LCGAPP-2005-05 and"
+     << " LU TP 05-43 (2005).                  |  | \n" 
+     << " |  |                                        "
+     << "                                      |  | \n"
+     << " |  |   An archive of program versions and do" 
+     << "cumentation is found on the web:      |  | \n"
+     << " |  |   http://www.thep.lu.se/~torbjorn/Pythi" 
+     << "a.html                                |  | \n"
+     << " |  |                                        "
+     << "                                      |  | \n"
+     << " |  |   Disclaimer: this program comes withou"
+     << "t any guarantees.                     |  | \n"
+     << " |  |   Beware of errors and use common sense"
+     << " when interpreting results.           |  | \n"
+     << " |  |   In addition, the current 8.0 version " 
+     << "is intended for tryout and feedback   |  | \n"
+     << " |  |   only, and should not be used for any " 
+     << "physics studies or production runs.   |  | \n"
+     << " |  |                                        "
+     << "                                      |  | \n"
+     << " |  |   Copyright T. Sjostrand (2006)        " 
+     << "                                      |  | \n"
+     << " |  |                                        "
+     << "                                      |  | \n"
+     << " |  |                                        "
+     << "                                      |  | \n"
+     << " |  *----------------------------------------" 
+     << "--------------------------------------*  | \n"
+     << " |                                           "
+     << "                                         | \n"
+     << " *-------------------------------------------" 
+     << "-----------------------------------------* " << endl;
 
 }
 
@@ -514,7 +603,7 @@ void Pythia::banner() {
 // Check that the final event makes sense: no unknown id codes;
 // charge and energy-momentum conserved.
 
-bool Pythia::check() {
+bool Pythia::check(ostream& os) {
 
   // Reset. Incoming beams counted with negative momentum and charge.
   bool physical = true;
@@ -551,7 +640,7 @@ bool Pythia::check() {
     }
 
     // Add final-state four-momentum and charge.      
-    if (event[i].remains()) {
+    if (event[i].isFinal()) {
       pSum += event[i].p();
       chargeSum += event[i].charge();
     }
@@ -578,23 +667,24 @@ bool Pythia::check() {
 
   // Print (the first few) flawed events.
   if (nErrEvent < nErrList) {
-    cout << " Erroneous event info: \n";
+    os << " Erroneous event info: \n";
     if (iErrId.size() > 0) {
-      cout << " unknown particle codes in lines ";
+      os << " unknown particle codes in lines ";
       for (int i = 0; i < int(iErrId.size()); ++i) 
-        cout << iErrId[i] << " ";
-      cout << "\n";
+        os << iErrId[i] << " ";
+      os << "\n";
     }
     if (iErrNan.size() > 0) {
-      cout << " not-a-number energy/momentum/mass in lines ";
+      os << " not-a-number energy/momentum/mass in lines ";
       for (int i = 0; i < int(iErrNan.size()); ++i) 
-        cout << iErrNan[i] << " ";
-      cout << "\n";
+        os << iErrNan[i] << " ";
+      os << "\n";
     }
-    if (epDev > epTolerance * eLab) cout << scientific << setprecision(3)
+    if (epDev > epTolerance * eLab) os << scientific << setprecision(3)
       << " total energy-momentum non-conservation = " << epDev << "\n";
-    if (abs(chargeSum) > 0.1) cout << fixed << setprecision(2) 
+    if (abs(chargeSum) > 0.1) os << fixed << setprecision(2) 
       << " total charge non-conservation = " << chargeSum << "\n"; 
+    info.list();
     event.list();
   }
 

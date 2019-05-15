@@ -93,28 +93,28 @@ void SpaceShower::initStatic() {
   mb2 = mb * mb;
 
   // Parameters of alphaStrong generation.
-  alphaSvalue = Settings::parameter("SpaceShower:alphaSvalue");
+  alphaSvalue = Settings::parm("SpaceShower:alphaSvalue");
   alphaSorder = Settings::mode("SpaceShower:alphaSorder");
  
   // Regularization of QCD evolution for pT -> 0. Can be taken 
   // same as for multiple interactions, or be set separately.
   samePTasMI = Settings::flag("SpaceShower:samePTasMI"); 
   if (samePTasMI) {
-    pT0Ref = Settings::parameter("MultipleInteractions:pT0Ref");
-    ecmRef = Settings::parameter("MultipleInteractions:ecmRef");
-    ecmPow = Settings::parameter("MultipleInteractions:ecmPow");
-    pTmin = Settings::parameter("MultipleInteractions:pTmin");
+    pT0Ref = Settings::parm("MultipleInteractions:pT0Ref");
+    ecmRef = Settings::parm("MultipleInteractions:ecmRef");
+    ecmPow = Settings::parm("MultipleInteractions:ecmPow");
+    pTmin = Settings::parm("MultipleInteractions:pTmin");
   } else {
-    pT0Ref = Settings::parameter("SpaceShower:pT0Ref");
-    ecmRef = Settings::parameter("SpaceShower:ecmRef");
-    ecmPow = Settings::parameter("SpaceShower:ecmPow");
-    pTmin = Settings::parameter("SpaceShower:pTmin");
+    pT0Ref = Settings::parm("SpaceShower:pT0Ref");
+    ecmRef = Settings::parm("SpaceShower:ecmRef");
+    ecmPow = Settings::parm("SpaceShower:ecmPow");
+    pTmin = Settings::parm("SpaceShower:pTmin");
   }
  
   // Parameters of QED evolution.
-  alphaEM = Settings::parameter("StandardModel:alphaEMfix");
-  pTminChgQ = Settings::parameter("SpaceShower:pTminchgQ"); 
-  pTminChgL = Settings::parameter("SpaceShower:pTminchgL"); 
+  alphaEM = Settings::parm("StandardModel:alphaEMfix");
+  pTminChgQ = Settings::parm("SpaceShower:pTminchgQ"); 
+  pTminChgL = Settings::parm("SpaceShower:pTminchgL"); 
 
   // Various other parameters. 
   doMEcorrections = Settings::flag("SpaceShower:MEcorrections");
@@ -175,7 +175,7 @@ bool SpaceShower::limitPTmax( Event& event) {
   // Look if any quark (u, d, s, c, b), gluon or photon in final state. 
   bool hasQGP = false;
   for (int i = 5; i < event.size(); ++i) {
-    int idAbs=event[i].id();
+    int idAbs = event[i].idAbs();
     if (idAbs <= 5 || idAbs == 21 || idAbs == 22) hasQGP = true;
   }
   return (hasQGP) ? true : false;
@@ -245,11 +245,11 @@ void SpaceShower::prepare( Event& event, bool limitPTmax, int sizeOld) {
   // Find dipole ends for QED radiation. 
   int chgType1 = ( (event[in1].isQ() && doQEDshowerByQ)
     || (event[in1].isL() && doQEDshowerByL) )
-    ? event[in1].icharge() : 0;
+    ? event[in1].chargeType() : 0;
   sysNow->dipEnd[2] = SpaceDipoleEnd( pTmax1, 1, 0, chgType1, -1) ;
   int chgType2 = ( (event[in2].isQ() && doQEDshowerByQ)
     || (event[in2].isL() && doQEDshowerByL) )
-    ? event[in2].icharge() : 0;
+    ? event[in2].chargeType() : 0;
   sysNow->dipEnd[3] = SpaceDipoleEnd( pTmax2, 2, 0, chgType2, -1) ;
 
   // Now find matrix element corrections for system.
@@ -997,7 +997,7 @@ bool SpaceShower::branch( Event& event) {
 
   // Update info on dipole end.
   if (dipEndSel->colType != 0) dipEndSel->colType = mother.colType();
-  if (dipEndSel->chgType != 0) dipEndSel->chgType = mother.icharge();
+  if (dipEndSel->chgType != 0) dipEndSel->chgType = mother.chargeType();
   dipEndSel->MEtype = 0;
 
   // Update info on beam remnants.

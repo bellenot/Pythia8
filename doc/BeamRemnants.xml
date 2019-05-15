@@ -68,11 +68,11 @@ if at all, so the form is supposed to represent <ei>g(x)</ei> at small
 <ei>Q^2</ei> scales, close to the lower cutoff for multiple interactions. 
 </mode>
 
-<parameter name="Beams:primordialKTwidth" default="1." min="0.">
+<parm name="Beams:primordialKTwidth" default="1." min="0.">
 The width of Gaussian distributions in <ei>p_x</ei> and <ei>p_y</ei> 
 separately that is assigned as a primordial <ei>kT</ei> to initiators 
 and beam remnants.
-</parameter>
+</parm>
 
 <p/>
 When assigning relative momentum fractions to beam-remnant partons,
@@ -88,23 +88,23 @@ particles will fix that.) An additional enhancement of the diquark
 momentum is obtained by its <ei>x</ei> value being rescaled by the 
 <code>valenceDiqEnhance</code> factor. 
 
-<parameter name="Beams:valencePowerMeson" default="0.8" min="0.">
+<parm name="Beams:valencePowerMeson" default="0.8" min="0.">
 The abovementioned power for valence quarks in mesons.
-</parameter>
+</parm>
 
-<parameter name="Beams:valencePowerUinP" default="3.5" min="0."> 
+<parm name="Beams:valencePowerUinP" default="3.5" min="0."> 
 The abovementioned power for valence <ei>u</ei> quarks in protons.
-</parameter>
+</parm>
 
-<parameter name="Beams:valencePowerDinP" default="2.0" min="0.">
+<parm name="Beams:valencePowerDinP" default="2.0" min="0.">
 The abovementioned power for valence <ei>d</ei> quarks in protons.
-</parameter>
+</parm>
 
-<parameter name="Beams:valenceDiqEnhance" default="2.0" min="0.5" 
+<parm name="Beams:valenceDiqEnhance" default="2.0" min="0.5" 
 max="10.">
 Enhancement factor for valence diqaurks in baryons, relative to the 
 simple sum of the two constituent quarks.
-</parameter>
+</parm>
 
 <flag name="Beams:allowJunction" default="on">
 The <code>off</code> option is intended for debug purposes only, as follows.
@@ -132,34 +132,34 @@ P_q / P_g = N / m^p
 </eq> 
 is assumed.
 
-<parameter name="Beams:pickQuarkNorm" default="5.0" min="0.">
+<parm name="Beams:pickQuarkNorm" default="5.0" min="0.">
 The abovementioned normalization <ei>N</ei> for the relative quark
 rate in diffractive systems.
-</parameter>
+</parm>
 
-<parameter name="Beams:pickQuarkPower" default="1.0" min="0.">
+<parm name="Beams:pickQuarkPower" default="1.0" min="0.">
 The abovementioned mass-dependence power <ei>p</ei> for the relative 
 quark rate in diffractive systems.
-</parameter>
+</parm>
 
 When a gluon is kicked out from the hadron, the longitudinal momentum
 sharing between the the two remnant partons is determined by the
 same parameters as above. It is plausible that the primordial 
 <ei>kT</ei> may be lower than in perturbative processes, however:
 
-<parameter name="Beams:diffPrimKTwidth" default="0.5" min="0.">
+<parm name="Beams:diffPrimKTwidth" default="0.5" min="0.">
 The width of Gaussian distributions in <ei>p_x</ei> and <ei>p_y</ei> 
 separately that is assigned as a primordial <ei>kT</ei> to the two 
 beam remnants when a gluon is kicked out of a diffractive system.
-</parameter>
+</parm>
 
-<parameter name="Beams:diffLargeMassSuppress" default="2." min="0.">
+<parm name="Beams:diffLargeMassSuppress" default="2." min="0.">
 The choice of longitudinal and transverse structure of a diffractive
 beam remnant implies a remnant mass <ei>m_rem</ei> distribution that 
 knows no bounds. A suppression like <ei>(1 - m_rem^2 / m_diff^2)^p</ei> 
 is therefore introduced, where <ei>p</ei> is the 
 <code>diffLargeMassSuppress</code> parameter.    
 
-</parameter>
+</parm>
 
 <!-- Copyright C 2006 Torbjorn Sjostrand -->

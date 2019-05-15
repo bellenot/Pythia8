@@ -51,22 +51,6 @@ string Particle::nameWithStatus(int maxLen) const {
 
 //*********
 
-// Print a particle.
-
-ostream& operator<<(ostream& os, const Particle& pt) {
-  os << fixed << setprecision(3) << setw(8) << pt.idSave << "   " 
-     << left << setw(12) << pt.nameWithStatus() << right << setw(5) 
-     << pt.statusSave << setw(6) << pt.mother1Save << setw(6) 
-     << pt.mother2Save << setw(6) << pt.daughter1Save << setw(6) 
-     << pt.daughter2Save << setw(6) << pt.colSave << setw(6) 
-     << pt.acolSave << setw(12) << pt.px() << setw(12) << pt.py() 
-     << setw(12) << pt.pz() << setw(12) << pt.e() << setw(12) 
-     << pt.mSave << setw(12) << pt.scaleSave << "\n";
-  return os;
-}
-
-//*********
-
 // Invariant mass of a pair and its square.
 // (Not part of class proper, but tightly linked.)
 

@@ -1,23 +1,32 @@
 Examples how to use Pythia8:
-* main01.cc & main01.cmnd: extensive tests and event properties
-* main02.cc & ttsample.init & ttsample.evnt & main02for.f: 
-    input of LHA events from files
-* main03.cc: LHA tricked to study fixed parton configurations
-* main04.cc: how to link an external decay handler
-* main05.cc: how to link an external random number generator
-* main06.cc: brief example with Z0 pT spectrum
-* main07.cc & main07.cmnd: simplified copy of main01
-* main08.cc & ttsample.init & ttsample.evnt: simplified copy of main02 
-* main09.cc: LEP events with sphericity analysis
-* main10.cc: cell jet analysis of LHC events
-* main11.cc & main11.cmnd: output to HepMC event record format
-* main12.cc & main12.cmnd: Pythia8 internal elastic/diffractive events
-* main13.cc & main13.cmnd: Pythia8 internal minimum-bias events
-* main14.cc & main14.cmnd: compare Pythia8 vs. Pythia6 jet cross sections
 
-Type "gmake mainNN" (or "gmake main02for") to build an executable.
+1) main01 - main07 are strictly internal to Pythia8
+* main01.cc : brief example with charged multiplicity distribution
+* main02.cc : brief example with Z0 pT spectrum
+* main03.cc & main03.cmnd : simple single-particle analysis in jet events
+* main04.cc & main04.cmnd : simple tests of event properties
+* main05.cc : cone-jet analysis of LHC events
+* main06.cc & main06.cmnd : study elastic/diffractive events
+* main07.cc & main07.cmnd : study minimum-bias events
+* main08.cc : combine results of subruns in separate pT bins
+
+2) main11 - main18 link to Pythia6 or other files that come along
+* main11.cc & main11.cmnd : extensive tests and event properties 
+* main12.cc & main12.cmnd : compare Pythia8 vs. Pythia6 cross sections
+* main13.cc : LEP events with sphericity/thrust/jetfinder analysis
++ main14for.f (Fortran!) : have Pythia6 generate a Les Houches Event File 
+* main14.cc & ttbar.lhe : generate events from a Les Houches Event File 
+* main15.cc & main15.cmnd: & main15.spc supersymmetry production using SLHA
+* main16.cc : Les Houches Accord tricked to study fixed parton configurations
+* main17.cc: how to link an external decay handler
+* main18.cc: how to link an external random number generator
+
+3) main21 requires linkage to HepMC, external to this program package
+* main21.cc & main21.cmnd: output to HepMC event record format
+
+Type "gmake mainNN" (or "gmake main14for") to build an executable.
 Type "./mainNN.exe > outputfile" to run program. 
 Type "gmake clean" to clean up the examples directory (but not output files).
 
 Files outNN are examples of possible output from the respective run.
-(Not available for main11, which only works if you linked HepMC properly.)
+(Not available for main21, which only works if you linked HepMC properly.)
