@@ -1,45 +1,49 @@
 <chapter name="Parton Distributions">
 
-<h1>Parton Distributions</h1>
+<h2>Parton Distributions</h2>
 
-The parton distributions file contains the <ci>PDF</ci> class (an 
+The parton distributions file contains the <code>PDF</code> class (an 
 abbreviation hopefully so well accepted that it is used in many places 
-of the code, instead of writing it out in full). <ci>PDF</ci> is the 
-base class, from which specific <ci>PDF</ci> classes are derived.
+of the code, instead of writing it out in full). <code>PDF</code> is the 
+base class, from which specific <code>PDF</code> classes are derived.
 
-The choice of which PDF to use is made by a switch in the <ci>Pythia</ci> 
+<p/>
+The choice of which PDF to use is made by a switch in the <code>Pythia</code> 
 class, see the Generic Settings page. Thus there is no need for a normal 
 user to study this class. The structure must be understood when interfacing 
 new PDF's, however. 
 
-<h2>The PDF base class</h2>
+<h3>The PDF base class</h3>
 
-<ci>PDF</ci> defines the interface that all PDF classes should respect.
+<code>PDF</code> defines the interface that all PDF classes should respect.
 The constructor requires the incoming beam species to be given:
 even if used for a proton PDF, one needs to know whether the beam
-is actually an antiproton. This is one of the reasons why <ci>Pythia</ci> 
+is actually an antiproton. This is one of the reasons why <code>Pythia</code> 
 always defines two PDF objects in an event, one for each beam.
 
-Once a <ci>PDF</ci> object has been constructed, call it <ci>pdf</ci>, 
-the main method is <ci>pdf.xf( id, x, Q2)</ci>, which returns 
+<p/>
+Once a <code>PDF</code> object has been constructed, call it <code>pdf</code>, 
+the main method is <code>pdf.xf( id, x, Q2)</code>, which returns 
 <ei>x*f_id(x, Q2)</ei>, properly taking into account whether the beam 
 is an antiparticle or not.
 
-Whenever the <ci>xf</ci> member is called with a new flavour, <ei>x</ei> 
-or <ei>Q^2</ei>, the <ci>xfUpdate</ci> member is called to do the actual 
+<p/>
+Whenever the <code>xf</code> member is called with a new flavour, <ei>x</ei> 
+or <ei>Q^2</ei>, the <code>xfUpdate</code> member is called to do the actual 
 updating. This routine may either update that particular flavour or all 
 flavours at this <ei>(x, Q^2)</ei> point. (In the latter case the saved 
-<ci>id</ci> value <ci>idSav</ci> should be set to 9.) The choice is to be 
-made by the producer of a given set, based on what he/she deems most 
+<code>id</code> value <code>idSav</code> should be set to 9.) The choice is 
+to be made by the producer of a given set, based on what he/she deems most 
 effective, given that sometimes only one flavour need be evaluated, and 
 about equally often all flavours are needed at the same <ei>x</ei> and 
 <ei>Q^2</ei>. Anyway, the latest value is always kept in memory. This is 
-the other reason why <ci>Pythia</ci> has one separate <ci>PDF</ci> object 
-for each beam, so that values at different <ei>x</ei> can be kept in memory. 
+the other reason why <code>Pythia</code> has one separate <code>PDF</code> 
+object for each beam, so that values at different <ei>x</ei> can be kept 
+in memory. 
 
-<h2>Derived classes</h2>
+<h3>Derived classes</h3>
 
-There is only one pure virtual method, <ci>xfUpdate</ci>, that therefore 
+There is only one pure virtual method, <code>xfUpdate</code>, that therefore 
 must be implemented in any derived class. Currently the list of such 
 classes is tiny:
 
@@ -58,13 +62,13 @@ For charged leptons (e, mu, tau):
 In QED there are not so many ambiguities, so here one set should be 
 enough. On the other hand, there is the problem that the 
 lepton-inside-lepton pdf is integrably divergent for <ei>x -> 1</ei>, 
-which gives numerical problems. Like in Pythia6, the pdf is therefore
+which gives numerical problems. Like in PYTHIA 6, the pdf is therefore
 made to vanish for <ei>x > 1 - 10^{-10}</ei>, and scaled up in the range
 <ei>1 - 10^{-7} &lt; x &lt; 1 - 10^{-10}</ei> in such a way that the 
 total area under the pdf is preserved.</li>
 </ul>   
 
-<h2>References</h2>
+<h3>References</h3>
 
 <ol>
  

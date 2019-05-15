@@ -1,0 +1,86 @@
+<html>
+<head>
+<title>Phase Space Cuts</title>
+</head>
+<body>
+
+<h2>Phase Space Cuts</h2>
+
+<code>PhaseSpace</code> is base class for all hard-process phase-space 
+generators, either generic <i>2 -> 1</i> or <i>2 -> 2</i> ones, 
+or specialized ones like for elastic and diffractive scattering.
+
+<p/>
+In it, it is possible to constrain the kinematics of most processes.
+(Exceptions are "soft physics", i.e. minimum bias, elastic and 
+diffractive processes.) These constraints apply in the rest frame
+of the hars subprocess, and topologies normally would be changed 
+e.g. by subsequent showering activity.
+
+<p/>
+The more particles in the final state, the more cuts can be applied. 
+
+<h3>Cuts in all processes</h3>
+
+<p/><strong>
+parameter name="PhaseSpace:mHatMin" default="4." min="0."
+</strong><br/>
+The minimum invariant mass.
+  
+
+<p/><strong>
+parameter name="PhaseSpace:mHatMax" default="-1."
+</strong><br/>
+The maximum invariant mass.
+A negative value means there is no upper limit.
+  
+
+<h3>Cuts in <i>2 -> 2</i> processes</h3>
+
+<p/><strong>
+parameter name="PhaseSpace:pTHatMin" default="4." min="0."
+</strong><br/>
+The minimum invariant <i>pT</i>.
+  
+
+<p/><strong>
+parameter name="PhaseSpace:pTHatMax" default="-1."
+</strong><br/>
+The maximum invariant <i>pT</i>.
+A negative value means there is no upper limit.
+  
+
+<p/><strong>
+parameter name="PhaseSpace:m3Min" default="2." min="0."
+</strong><br/>
+The minimum invariant mass of the first product.
+Only applies in cases where this particle can have a variable mass.
+  
+
+<p/><strong>
+parameter name="PhaseSpace:m3Max" default="-1."
+</strong><br/>
+The maximum invariant mass of the first product.
+Only applies in cases where this particle can have a variable mass.
+A negative value means there is no upper limit.
+  
+
+<p/><strong>
+parameter name="PhaseSpace:m4Min" default="2." min="0."
+</strong><br/>
+The minimum invariant mass of the second product.
+Only applies in cases where this particle can have a variable mass.
+  
+
+<p/><strong>
+parameter name="PhaseSpace:m4Max" default="-1."
+</strong><br/>
+The maximum invariant mass of the second product.
+Only applies in cases where this particle can have a variable mass.
+A negative value means there is no upper limit.
+  
+
+</body>
+</html>
+
+<!-- Copyright C 2006 Torbjorn Sjostrand -->

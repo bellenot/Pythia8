@@ -1,0 +1,214 @@
+<html>
+<head>
+<title>Particle Decays</title>
+</head>
+<body>
+
+<h2>Particle Decays</h2>
+
+The <code>ParticleDecays</code> class performs the sequential decays of 
+all unstable hadrons produced in the string fragmentation stage,
+i.e. up to and including <i>b</i> hadrons and their decay products, 
+such as the <i>tau</i> lepton. It is not to be used for the decay of 
+more massive resonances, such as top, <i>Z^0</i> or SUSY, where decays 
+must be performed already at the <code>ProcessLevel</code> of the event 
+generation.
+
+The decay description essentially copies the one present in 
+PYTHIA since many years, currently with some simplifications 
+for some charm and bottom channels, and updates will need to be
+introduced eventually.
+
+<h3>Variables determining whether a particle decays</h3>
+
+Before a particle is actually decayed, a number of checks are made.
+
+<p/>
+(i) Decay modes must have been defined for the particle kind;    
+tested by the <code>canDecay()</code> method of <code>Event</code> 
+(and <code>ParticleData</code>).        
+
+<p/>
+(ii) The main switch for allowing this particle kind to decay must 
+be on; tested by the <code>mayDecay()</code> method of <code>Event</code> 
+(and <code>ParticleData</code>). 
+
+<p/>
+(iii) Particles may be requested to have a nominal proper lifetime 
+<i>tau0</i> below a threshold.
+
+<p/><strong>
+flag name="ParticleDecays:limitTau0" default="off"
+</strong><br/>
+When on, only particles with <i>tau0 &lt; tau0Max</i> are decayed.
+  
+
+<p/><strong>
+parameter name="ParticleDecays:tau0Max" default="1." min="0."
+</strong><br/>
+The above <i>tau0Max</i>, expressed in mm/c.
+  
+
+<p/>
+(iv) Particles may be requested to have an actual proper lifetime 
+<i>tau</i> below a threshold.
+
+<p/><strong>
+flag name="ParticleDecays:limitTau" default="off"
+</strong><br/>
+When on, only particles with <i>tau &lt; tauMax</i> are decayed.
+  
+
+<p/><strong>
+parameter name="ParticleDecays:tauMax" default="1." min="0." 
+</strong><br/>
+The above <i>tauMax</i>, expressed in mm/c.<br/>
+In order for this and the subsequent tests to work, a <i>tau</i> 
+is selected and stored for each particle, whether in the end it
+decays or not. (If each test would use a different temporary 
+<i>tau</i> it would lead to inconsistencies.)
+  
+
+<p/>
+(v) Particles may be requested to decay within a given distance 
+of the origin.
+
+<p/><strong>
+flag name="ParticleDecays:limitRadius" default="off"
+</strong><br/>
+When on, only particles with a decay within a radius <i>r &lt; rMax</i> 
+are decayed. There is assumed to be no magnetic field or other 
+detector effects.
+  
+
+<p/><strong>
+parameter name="ParticleDecays:rMax" default="1." min="0."
+</strong><br/>
+The above <i>rMax</i>, expressed in mm/c.
+   
+
+<p/>
+(vi) Particles may be requested to decay within a given cylidrical 
+volume around the origin.
+
+<p/><strong>
+flag name="ParticleDecays:limitCylinder" default="off"
+</strong><br/>
+When on, only particles with a decay within a volume limited by
+<i>rho = sqrt(x^2 + y^2) &lt; xyMax</i> and <i>|z| &lt; zMax</i> 
+are decayed. There is assumed to be no magnetic field or other 
+detector effects.
+  
+
+<p/><strong>
+parameter name="ParticleDecays:xyMax" default="1." min="0."
+</strong><br/>
+The above <i>xyMax</i>, expressed in mm/c.
+   
+
+<p/><strong>
+parameter name="ParticleDecays:zMax" default="1." min="0."
+</strong><br/>
+The above <i>zMax</i>, expressed in mm/c.
+   
+
+<h3>Mixing</h3>
+
+<p/><strong>
+flag name="ParticleDecays:mixB" default="on"
+</strong><br/>
+Allow or not <i>B^0 - B^0bar</i> and <i>B_s^0 - B_s^0bar</i> mixing.
+  
+
+<p/><strong>
+parameter name="ParticleDecays:xBdMix" default="0.771" 
+min="0.70" max="0.85"
+</strong><br/>
+The mixing parameter <i>x_d = Delta(m_B^0)/Gamma_B^0</i> in the 
+<i>B^0 - B^0bar</i> system.
+   
+
+<p/><strong>
+parameter name="ParticleDecays:xBsMix" default="25.0" min="15.0" 
+</strong><br/>
+The mixing parameter <i>x_s = Delta(m_B_s^0)/Gamma_B_s^0</i> in the 
+<i>B_s^0 - B_s^0bar</i> system.
+   
+
+<h3>Other variables</h3>
+
+<p/><strong>
+parameter name="ParticleDecays:mSafety" default="0.001" 
+min="0." max="0.01"
+</strong><br/>
+Minimum mass difference required between the decaying mother mass 
+and the sum of the daughter masses, kept as a safety margin to avoid
+numerical problems in the decay generation.
+   
+
+<p/>
+When a decay mode is defined in terms of a partonic content, a random 
+multiplicity (and a random flavour set) of hadrons is to be picked, 
+especially for some charm and bottom decays. This is done according to 
+a Gaussian distribution, for <i>n_q</i> quarks centered at 
+<i>c + n_q/4</i> and with a width <i>sqrt(c)</i>, with the final 
+number rounded off to the nearest integer. Here
+<br/><i>
+   c = multIncrease * ln ( mDiff / multRefMass)
+</i><br/>
+with <i>mDiff</i> the difference between the decaying particle mass 
+and the sum of the constituent quark masses. For gluonic systems 
+<i>multGoffset</i> offers and optional additonal term to the 
+multiplicity. There is always some lower limit for the allowed 
+multiplicity; if a number smaller than this is picked the choice 
+is repeated.
+<p/><strong>
+parameter name="ParticleDecays:multIncrease" default="4.5" 
+min="3." max="6."
+</strong><br/>
+The above <i>multIncrease</i> parameter.
+   
+
+<p/><strong>
+parameter name="ParticleDecays:multRefMass" default="0.7"
+min="0.2" max="2.0"
+</strong><br/>
+The above <i>multRefMass</i> parameter.
+   
+
+<p/><strong>
+parameter name="ParticleDecays:multGoffset" default="0.0" 
+min="0.0" max="2.0"
+</strong><br/>
+The above <i>multGoffset</i> parameter.
+   
+
+<p/><strong>
+parameter name="ParticleDecays:colRearrange" default="0.5" 
+min="0." max="1.0"
+</strong><br/>
+When a decay is given as a list of four partons to be turned into
+hadrons (i.e. for mode 11 - 30), it is assumed that they are listed
+in pairs, as a first and a second colour singlet, which could give rise 
+to separate sets of hadrons. Here <i>colRearrange</i> is the 
+probability that this original assignment is not respected, and 
+default corresponds to no memory of this original colour topology.
+   
+
+<p/><strong>
+flag name="ParticleDecays:FSRinDecays" default="true"
+</strong><br/>
+When a particle decays to <i>q qbar</i>, <i>g g</i>, <i>g g g</i> 
+or <i>gamma g g</i>, allow or not a shower to develop from it, before 
+the partonic system is hadronized. (The typical example is 
+<i>Upsilon</i> decay.)
+  
+
+In addition, some variables defined for string fragmentation and for
+flavour production are used also here.
+
+</body>
+</html>
+
+<!-- Copyright C 2006 Torbjorn Sjostrand -->
+

@@ -6,15 +6,16 @@
 #ifndef Pythia8_PhaseSpace_H
 #define Pythia8_PhaseSpace_H
 
-#include "Stdlib.h"
 #include "Basics.h"
-#include "Settings.h"
-#include "ParticleData.h"
-#include "Information.h"
 #include "Beams.h"
+#include "Information.h"
+#include "MultipleInteractions.h"
+#include "ParticleData.h"
 #include "PartonDistributions.h"
-#include "SigmaHat.h"
+#include "SigmaProcess.h"
 #include "SigmaTotal.h"
+#include "Settings.h"
+#include "Stdlib.h"
 
 namespace Pythia8 {
  
@@ -33,12 +34,13 @@ public:
   // Initialize static data members.
   static void initStatic();
 
-  // Get pointer to SigmaTotal.
-  void setSigmaTotalPtr(SigmaTotal* sigmaTotPtrIn) {
-    sigmaTotPtr = sigmaTotPtrIn;}
+  // Store pointer to SigmaTotal and info on beams.
+  void setSigmaTotalPtr(SigmaTotal* sigmaTotPtrIn, int idAIn, int idBIn,
+    double mAIn, double mBIn) { sigmaTotPtr = sigmaTotPtrIn; idA = idAIn;
+    idB = idBIn; mA = mAIn; mB = mBIn;}
 
-  // Give in pointer to cross section and store information.
-  void initInfo(SigmaHat* sigmaHatPtrIn, Info& info);
+  // Give in pointer to cross section and cm energy.
+  void initInfo(SigmaProcess* sigmaProcessPtrIn, double eCMIn);
 
   // A pure virtual method, wherein an optimization procedure
   // is used to determine how phase space should be sampled.
@@ -86,15 +88,8 @@ protected:
   // Constants: could only be changed in the code itself.
   static const double SAFETYMARGIN;
 
-  // Pointer to cross section. 
-  SigmaHat* sigmaHatPtr; 
-  
-  // Pointer to the total/elastic/diffractive cross section  object.
-  SigmaTotal* sigmaTotPtr;
-
-  // Beam information.
-  int idA, idB;
-  double mA, mB, eCM, s; 
+  // Energy.
+  double eCM, s; 
 
   // Event-specific kinematics properties.
   double x1H, x2H, m3, m4, m3S, m4S, mHat, sH, tH, uH, 
@@ -104,6 +99,16 @@ protected:
 
   // Cross section information.
   double sigmaNw, sigmaMx;
+
+  // Pointer to cross section. 
+  SigmaProcess* sigmaProcessPtr; 
+
+  // For elastic/diffractive also need information on incoming beams.
+  int idA, idB;
+  double mA, mB; 
+  
+  // Pointer to the total/elastic/diffractive cross section.
+  SigmaTotal* sigmaTotPtr;
 
 };
  
@@ -183,6 +188,28 @@ private:
   bool diffA, diffB;
   double m3ElDiff, m4ElDiff, cRes, sResXB, sResAX, sProton,
     s1, s2, s3, s4, bMin, lambda12, lambda34, tLow, tUpp, tAux;
+
+};
+ 
+//**************************************************************************
+
+// A derived class for minumum bias event. Hardly does anything, since
+// the real action is taken care of by the MultipleInteractions class.
+
+class PhaseSpace2to2minbias : public PhaseSpace {
+
+public:
+
+  // Constructor.
+  PhaseSpace2to2minbias() {}
+
+  // Construct the trial or final event kinematics.
+  virtual bool setupSampling() {sigmaNw = sigmaProcessPtr->sigmaHat();
+    sigmaMx = sigmaNw; return true;}
+  virtual bool trialKin() {return true;}  
+  virtual bool finalKin() {return true;}
+
+private:
 
 };
 

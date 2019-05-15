@@ -1,13 +1,13 @@
 <chapter name="Generic Settings">
 
-<h1>Generic Settings</h1>
+<h2>Generic Settings</h2>
 
 Here are collected a few scattered topics, controlled from the 
-main <ci>Pythia</ci> class.
+main <code>Pythia</code> class.
 
-<h2>Parton densities</h2>
+<h3>Parton densities</h3>
 
-There is one main physics choice to be made with the <ci>Pythia</ci> 
+There is one main physics choice to be made with the <code>Pythia</code> 
 class, namely which parton densities to use, a choice that then is 
 propagated through the program. The simplest option is to pick one 
 of the few distributions available internally:
@@ -19,37 +19,38 @@ antiproton ones):
 <option value="2">CTEQ 5 L.</option>
 </mode> 
 
+<p/>
 Obviously this choice is mainly intended to get going, and a much wider 
-selection could be used by linking to an external library, see the
-Parton Distributions page.
+selection could be used by linking to an external library.
 
+<p/>
 For electrons/leptons there is no need to choose, since only one 
 implementation is available, and should be rather uncontroversial
 (apart from some technical details).
 
-<h2>Random numbers</h2>
+<h3>Random numbers</h3>
 
 The seed of the random number generator can be set here:
 
 <flag name="Pythia:setSeed" default="off">
 Indicates whether a user-set seed should be used every time the 
-<ci>Pythia::init</ci> routine is called. If off, the random number 
+<code>Pythia::init</code> routine is called. If off, the random number 
 generator is initialized with its default seed at the beginning 
-of the run, and never again. If on, each new <ci>Pythia::init</ci> 
+of the run, and never again. If on, each new <code>Pythia::init</code> 
 call (should several be made in the same run) results in the random 
 number being re-initialized, thereby possibly starting over with the 
 same sequence, if you do not watch out.
 </flag>
 
 <mode name="Pythia:seed" default="-1" max="900000000">
-The seed to be used, if <ci>setSeed</ci> is on.<br/>
+The seed to be used, if <code>setSeed</code> is on.<br/>
 A negative value gives the default seed,<br/> 
 a value 0 gives a random seed based on the time, and<br/>
 a value between 1 and 900,000,000 a unique different random number 
 sequence.
 </mode>
 
-<h2>Error Checks</h2>
+<h3>Error Checks</h3>
 
 There is also a few settings related to error checking.
 
@@ -62,7 +63,7 @@ nonconserved charge or energy-momentum.
 <mode name="Pythia:nErrList" default="3">
 The number of erroneous events, in the above check, for which 
 information will be printed. After that, only the error counters
-will be updated, and can be shown with a <ci>pythia.statistics()</ci> 
+will be updated, and can be shown with a <code>pythia.statistics()</code> 
 at the end of the run.
 </mode>
 

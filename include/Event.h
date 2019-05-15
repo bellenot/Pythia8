@@ -7,10 +7,10 @@
 #ifndef Pythia8_Event_H
 #define Pythia8_Event_H
 
-#include "Stdlib.h"
 #include "Basics.h"
-#include "Settings.h"
 #include "ParticleData.h"
+#include "Settings.h"
+#include "Stdlib.h"
 
 namespace Pythia8 {
 
@@ -166,9 +166,7 @@ public:
 
   // Further output, based on a pointer to a ParticleDataEntry object.
   string name() const {return particlePtr->name(idSave);}
-  string nameWithStatus() const {
-    if (statusSave > 0) return particlePtr->name(idSave);
-    return "(" + particlePtr->name(idSave) + ")"; }
+  string nameWithStatus(int maxLen = 20) const;
   double m0() const {return particlePtr->m0();}
   double mass() const {return particlePtr->mass();}
   double constituentMass() const {return particlePtr->constituentMass();}

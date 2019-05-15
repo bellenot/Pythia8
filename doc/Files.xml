@@ -1,209 +1,205 @@
 <chapter name="Program Files">
 
-<h1>Program Files</h1>
+<h2>Program Files</h2>
 
 The code is subdivided into a set of files, mainly by physics 
 task. Each file typically contains one main class, but often
 with a few related helper classes that are not used elsewhere in 
 the program. Normally the files come in pairs.
 <ul>
-<li>A header file, <ci>.h</ci> in the <ci>include</ci> subdirectory, 
-where the public interface of the class is declared, and inline 
-methods are defined.</li>
-<li>A source code file, <ci>.cc</ci> in the <ci>src</ci> subdirectory, 
-where most of the methods are implemented.</li>
+<li>A header file, <code>.h</code> in the <code>include</code> 
+subdirectory, where the public interface of the class is declared, 
+and inline methods are defined.</li>
+<li>A source code file, <code>.cc</code> in the <code>src</code> 
+subdirectory, where most of the methods are implemented.</li>
 </ul>
-During compilation, related dependency files, <ci>.d</ci>, and 
-compiled code, <ci>.o</ci> are created in the <ci>tmp</ci>
+During compilation, related dependency files, <code>.d</code>, and 
+compiled code, <code>.o</code> are created in the <code>tmp</code>
 subdirectory.
 
 <p/>
-In part the <ci>.xml</ci> documentation files in the <ci>doc</ci>
+In part the <code>.xml</code> documentation files in the <code>doc</code>
 subdirectory have matching names, but the match is broken by the
 desire to group topics more by user interaction than internal 
-operation. On this page, however, the function of the different
-code files is summarized, in case one needs to track down some
-particular piece of code.  
+operation. On these pages the function of the different code files 
+is summarized. Currently, each <code>.xml</code> file is also roughly
+translated into an <code>.html</code> one, to allow easy viewing of 
+the contents in a web browser, but without the interactivity
+eventually strived for.
 
-<method name="Pythia"> 
+<file name="Pythia"> 
 is the main class, that administrates the whole event generation 
 process by making use of all the others classes. Objects of most
-other classes reside (directly or indirectly) inside <ci>Pythia</ci>, 
-so only a <ci>Pythia</ci> object needs to be explicitly instantiated 
+other classes reside (directly or indirectly) inside <code>Pythia</code>, 
+so only a <code>Pythia</code> object needs to be explicitly instantiated 
 and addressed   by the user.
-</method>
+</file>
 
-<method name="Event"> 
+<file name="Event"> 
 contains the event record, which basically is a vector of particles.
-This file also contains the <ci>Particle</ci> class, used by 
-<ci>Event</ci>. <ci>Pythia</ci> uses two <ci>Event</ci> objects, 
-one for the process-level record (<ci>process</ci>) and one for the 
-complete event (<ci>event</ci>).
-</method>
+This file also contains the <code>Particle</code> class, used by 
+<code>Event</code>. <code>Pythia</code> uses two <code>Event</code> 
+objects, one for the process-level record (<code>process</code>) and 
+one for the complete event (<code>event</code>).
+</file>
 
-<method name="Information">
+<file name="Information">
 is a simple container that gives access to some information on the
 nature of the current process, such as Mandelstam variables.
 Also contains a small database for errors and warnings encountered 
 during program execution.
-</method>
+</file>
 
-<method name="Analysis">
+<file name="Analysis">
 contains routines to analyze events. Currently it can do sphericity 
 and cone-jet finding.
-</method>
+</file>
 
-<method name="ProcessLevel">
+<file name="ProcessLevel">
 handles the generation of the (hard) process that sets the character 
 of the event. This involves either using internally implemented 
 processes  (few so far), using a runtime interface to the Fortran 
-Pythia process library, or using routines for reading in LHA events. 
-</method>
+PYTHIA 6 process library, or using routines for reading in 
+LHA events. 
+</file>
 
-<method name="PartonLevel">
+<file name="PartonLevel">
 turns the (hard) process above into a complete set of partons, by 
 adding initial- and final-state radiation, multiple parton--parton
 interactions, and beam remnants.
-</method>
+</file>
 
-<method name="HadronLevel">
+<file name="HadronLevel">
 turns the parton-level event above into a set of outgoing particles,
 by applying string fragmentation (with special treatment for low-mass
 systems) and secondary decays.
-</method>
+</file>
 
-<method name="ProcessContainer">
+<file name="ProcessContainer">
 packages the information on a given subprocess, combining the 
 phase-space selection and cross-section evaluation machineries
 with some statistics information. Also sets up the list of processes
 to be studied in a run.  
-</method>
+</file>
 
-<method name="SigmaHat">
+<file name="SigmaTotal"> 
+contains parametrizations of total, elastic and diffractive hadronic 
+cross sections.
+</file>
+
+<file name="SigmaProcess">
 contains the base class and derived classes for the evaluation of
 different matrix elements. Will have to be split once a bigger 
 number of processes is implemented. Also keeps track of the flux of 
 incoming partons, which the matrix elements have to be multiplied by.
-</method>
+</file>
 
-<method name="PhaseSpace">
+<file name="PhaseSpace">
 selects a point in phase space for the hard-process generation,
 optimized to give improved Monte Carlo efficiency.
-</method>
+</file>
 
-<method name="Pythia6">
-is an anomaly, namely the ``good old'' Fortran Pythia 6.4 program, 
+<file name="Pythia6">
+is an anomaly, namely the ``good old'' Fortran PYTHIA 6.4 program, 
 used as the main process library until further notice. Thus there 
-is no <ci>Pythia6.cc</ci> file but instead a <ci>Pythia6.f</ci> one,
-located in the <ci>pythia6</ci> subdirectory. The header file contains 
-the required wrappers to access the relevant parts of the Fortran code 
-from C++.
-</method>
+is no <code>Pythia6.cc</code> file but instead a <code>Pythia6.f</code> 
+one, located in the <code>pythia6</code> subdirectory. The header file 
+contains the required wrappers to access the relevant parts of the 
+Fortran code from C++.
+</file>
 
-<method name="LesHouches">
+<file name="LesHouches">
 gives the possibility to feed in parton configurations for the 
 subsequent event generation. Two containers are defined, one for 
 initialization and one for events, that can be read from 
-<ci>Pythia</ci>. Should be linked to external programs or files.
-</method>
+<code>Pythia</code>. Should be linked to external programs or files.
+</file>
 
-<method name="TimeShower"> 
+<file name="TimeShower"> 
 performs timelike final-state transverse-momentum-ordered 
 shower evolution.
-</method>
+</file>
 
-<method name="SpaceShower"> 
+<file name="SpaceShower"> 
 performs spacelike initial-state transverse-momentum-ordered 
 shower evolution.
-</method>
+</file>
 
-<method name="MultipleInteractions"> 
+<file name="MultipleInteractions"> 
 performs multiple parton--parton interactions.
-</method>
+</file>
 
-<method name="SigmaProcess"> 
-contains the differential cross section for QCD <ei>2 \to 2</ei> 
-processes. Currently only used by <ci>MultipleInteractions</ci>. 
-It is not clear how this class should evolve in the future, if it
-may be absorbed into <ci>SigmaHat</ci>.
-</method>
-
-<method name="SigmaTotal"> 
-contains parametrizations of total, elastic and diffractive hadronic 
-cross sections.
-</method>
-
-<method name="Beams"> 
+<file name="Beams"> 
 contains information on all partons extracted from the beams.
 Defines modified parton distributions accordingly during the
 showering and multiple interactions processing, and afterwards
 sets up beam remnants.
-</method>
+</file>
 
-<method name="PartonDistributions"> 
+<file name="PartonDistributions"> 
 contains parton distribution functions for the proton and electron. 
 Currently very simple, with only two <ei>p</ei> parametrizations 
 available, but it is possible to link in external sets.
-</method>
+</file>
 
-<method name="StringFragmentation"> 
+<file name="StringFragmentation"> 
 performs string fragmentation of a given set of partons.
-</method>
+</file>
 
-<method name="MiniStringFragmentation"> 
+<file name="MiniStringFragmentation"> 
 performs string fragmentation in cases where the colour singlet
 subsystem mass is so small that one or at most two primary hadrons 
 should be produced from it.
-</method>
+</file>
 
-<method name="FragmentationFlavZpT">
+<file name="FragmentationFlavZpT">
 contains the classes for describing the fragmentation steps in
 flavour and in longitudinal and transverse momentum.
-</method>
+</file>
 
-<method name="FragmentationSystems">
+<file name="FragmentationSystems">
 defines some containers of parton systems, for use in 
 the fragmentation routines.
-</method>
+</file>
 
-<method name="ParticleDecays">
+<file name="ParticleDecays">
 performs the decays of all normal unstable hadrons and leptons, i.e. 
 in mass up to and including <ei>b bbar</ei> systems. It is not 
-intended for decays of electroweak resonances, like <ei>\Z^0</ei>.  
-</method>
+intended for decays of electroweak resonances, like <ei>Z^0</ei>.  
+</file>
 
-<method name="StandardModel"> 
-contains the running <ei>\alpha_strong</ei>, with <ei>Lambda</ei> 
+<file name="StandardModel"> 
+contains the running <ei>alpha_strong</ei>, with <ei>Lambda</ei> 
 matching at flavour thresholds, and also a few other parameters 
 such as <ei>alpha_em</ei> and <ei>sin^2(theta_W)</ei>.
-</method>
+</file>
 
-<method name="Settings"> 
+<file name="Settings"> 
 contains a database of all flags, modes and parameters that determine 
 the performance of the generator. Initial values are set from the 
-contents of the <ci>.xml</ci> files, but these values can then 
+contents of the <code>xml</code> files, but these values can then 
 be changed by the user.
-</method>
+</file>
 
-<method name="ParticleData">
+<file name="ParticleData">
 contains a database of all necessary particle data (masses, names, ..)
 and decay channels.
-</method>
+</file>
 
-<method name="Basics">
+<file name="Basics">
 contains some basic facilities of general use: a random number
-generator <ci>Rndm</ci>, a four-vector class <ci>Vec4</ci>, and a 
-histogram class <ci>Hist</ci>.  
-</method>
+generator <code>Rndm</code>, a four-vector class <code>Vec4</code>, and a 
+histogram class <code>Hist</code>.  
+</file>
 
-<method name="Stdlib">
-is only a <ci>.h</ci> file, containing all the <ci>Stdlib</ci> headers 
-used in Pythia 8, with <ci>using</ci> directives. Also inlines 
-<ci>pow2(x)</ci> - <ci>pow5(x)</ci> for fast powers of small integers, 
-<ci>sqrtpos(x)</ci> to avoid that roundoff gives the square root of a
-negative number, and <ci>tolower(string)</ci> for producing a lowercase 
-string.
-</method>
+<file name="Stdlib">
+is only a <code>.h</code> file, containing all the <code>Stdlib</code> 
+headers used in Pythia 8, with <code>using</code> directives. Also 
+inlines <code>pow2(x)</code> - <code>pow5(x)</code> for fast powers of 
+small integers, <code>sqrtpos(x)</code> to avoid that roundoff gives the 
+square root of a negative number, and <code>tolower(string)</code> for 
+producing a lowercase string.
+</file>
 
 </chapter>
 

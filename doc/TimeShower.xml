@@ -1,23 +1,23 @@
 <chapter name="Timelike Showers">
     
-<h1>Timelike Showers</h1>
+<h2>Timelike Showers</h2>
 
-The Pythia algorithm for timelike final-state showers is based on
+The PYTHIA algorithm for timelike final-state showers is based on
 the recent article [1], where a transverse-momentum-ordered
 evolution scheme is introduced. This algorithm is influenced by
-the previous mass-ordered algorithm in Pythia [2] and by the 
+the previous mass-ordered algorithm in PYTHIA [2] and by the 
 dipole-emission formulation in Ariadne [3]. From the mass-ordered
 algorithm it inherits a merging procedure for first-order 
 gluon-emission matrix elements in essentially all two-body decays 
 in the standard model and its minimal supersymmetric extension [4]. 
 
 <p/>
-The normal user is not expected to call <ci>TimeShower</ci> directly, 
-but only have it called from <ci>Pythia</ci>. Some of the parameters 
-below, in particular <ci>TimeShower:alphaSvalue</ci>, would be of 
+The normal user is not expected to call <code>TimeShower</code> directly, 
+but only have it called from <code>Pythia</code>. Some of the parameters 
+below, in particular <code>TimeShower:alphaSvalue</code>, would be of 
 interest for a tuning exercise, however. 
 
-<h2>Main variables</h2>
+<h3>Main variables</h3>
 
 The amount of QCD radiation in the shower is determined by 
 <parameter name="TimeShower:alphaSvalue" default="0.1265" 
@@ -42,7 +42,8 @@ but there is also nothing wrong with it.</option>
 </mode>
 
 <p/>
-QED radiation is currently regulated by <ci>StandardModel:alphaEMfix</ci>,
+QED radiation is currently regulated by 
+<code>StandardModel:alphaEMfix</code>,
 since no QED running is implemented in the shower.
 
 <p/>
@@ -64,10 +65,10 @@ Parton shower cut-off <ei>pT</ei> for photon coupling to coloured particle.
 <parameter name="TimeShower:pTminChgL" default="0.0005" min="0.0001" 
 max="2.0">
 Parton shower cut-off <ei>pT</ei> for pure QED branchings. 
-Assumed smaller than (or equal to) <ci>pTminChgQ</ci>.
+Assumed smaller than (or equal to) <code>pTminChgQ</code>.
 </parameter>
 
-<h2>Further variables</h2>
+<h3>Further variables</h3>
 
 These should normally not be touched. Their only function is for
 cross-checks.
@@ -91,7 +92,9 @@ Allow leptons to radiate photons, i.e. branchings l -> l gamma;
 on/off = true/false.
 </flag>
 
+<p/>
 There are three further possibilities to simplify the shower:
+
 <flag name="TimeShower:MEcorrections" default="on">
 Use of matrix element corrections; on/off = true/false.
 </flag>
@@ -106,7 +109,7 @@ Number of allowed quark flavours in <ei>g -> q qbar</ei> branchings
 <ei>g -> b bbar</ei>, etc. 
 </mode>
 
-<h2>References</h2>
+<h3>References</h3>
 
 <ol>
 <li>T. Sjostrand and P.Z. Skands, Eur. Phys. J. C39 (2005) 129</li>

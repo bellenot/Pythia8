@@ -1,6 +1,7 @@
 // File: main12.cc
 // This is a simple test program. 
-// It illustrates how to use internal Pythia8 processes.
+// It illustrates how to use internal Pythia8 processes,
+// with special emphasis on elastic/diffractive processes.
 // All input is specified in the main12.cmnd file.
 // Copyright C 2006 Torbjorn Sjostrand
 
@@ -50,14 +51,17 @@ int main() {
   if (showAllParticleData) ParticleDataTable::listAll();
 
   // Book histograms.
-  Hist pTspec("scattering pT spectrum", 100, 0., 100.); 
-  Hist pTspecLow("scattering pT spectrum", 100, 0., 1.);
+  Hist pTspec("scattering pT spectrum", 100, 0., 2.5); 
   Hist tSpecEl("elastic |t| spectrum", 100, 0., 5.);
   Hist tSpecSD("single diffractive |t| spectrum", 100, 0., 5.); 
   Hist tSpecDD("double diffractive |t| spectrum", 100, 0., 5.); 
   Hist mSpec("scattering mass spectrum", 100, 0., 100.); 
   Hist mLogSpec("log10(scattering mass spectrum)", 100, 0., 4.); 
-
+  Hist nChg("number of charged particles", 100, -0.5, 99.5);
+  Hist nDiff("number of final particles in diffractive system", 
+    100, -0.5, 99.5);
+  Hist mSpec1("scattering mass spectrum when 1 product", 100, 0., 10.); 
+ 
   // Begin event loop.
   int nShowPace = max(1,nEvent/nShow); 
   int iAbort = 0; 
@@ -79,11 +83,12 @@ int main() {
       event.list();
     }
 
-    // Study event.
-    double pT = pythia.process[5].pT(); 
-    // double pT = pythia.info.pTHat(); // Only works for Pythia8 processes
+    // Study generic event properties.
+    // double pT = pythia.process[5].pT(); 
+    double pT = pythia.info.pTHat();
     pTspec.fill( pT );
-    pTspecLow.fill( pT );
+
+    // Study properties geared towards elastic/diffractive events.
     mSpec.fill( pythia.info.m3Hat() );
     mSpec.fill( pythia.info.m4Hat() );
     mLogSpec.fill( log10(pythia.info.m3Hat()) );
@@ -94,14 +99,35 @@ int main() {
     else if (code == 103 || code == 104) tSpecSD.fill(tAbs);
     else if (code == 105) tSpecDD.fill(tAbs);
 
+    // Study properties geared towards minimum-bias or jet physics.
+    int nch = 0;
+    for (int i = 1; i < event.size(); ++i)
+      if (event[i].remains() && event[i].isCharged()) ++nch; 
+    nChg.fill( nch );
+
+    // Multiplicity distribution in diffractive system.
+    for (int i = 0; i < 2; ++i) 
+    if ( (i == 0 && pythia.info.isDiffractiveA()) 
+      || (i == 1 && pythia.info.isDiffractiveB()) ) {
+      int ndiff = 0;
+      for (int j = 5; j < event.size(); ++j) 
+      if (event[j].remains()) {
+        int k = j;
+        do k = event[k].mother1(); 
+        while (k > 4);
+        if (k == i + 3) ++ndiff;
+      }  
+      nDiff.fill( ndiff );
+      if (ndiff == 1) mSpec1.fill( event[i +3].m() ); 
+    }
+
   // End of event loop.
   }
 
-  // Final statistics.
+  // Final statistics and histograms.
   pythia.statistics();
-  cout << pTspec << pTspecLow;
-  // For elastic/diffractive processes:
-  // cout << tSpecEl << tSpecSD << tSpecDD << mSpec << mLogSpec;
+  cout << pTspec << tSpecEl << tSpecSD << tSpecDD << mSpec << mLogSpec 
+       << nChg << nDiff << mSpec1;
 
   // Done.
   return 0;

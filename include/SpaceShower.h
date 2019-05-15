@@ -7,14 +7,14 @@
 #ifndef Pythia8_SpaceShower_H
 #define Pythia8_SpaceShower_H
 
-#include "Stdlib.h"
 #include "Basics.h"
-#include "Settings.h"
-#include "ParticleData.h"
-#include "StandardModel.h"
+#include "Beams.h"
 #include "Event.h"
 #include "Information.h"
-#include "Beams.h"
+#include "ParticleData.h"
+#include "Settings.h"
+#include "StandardModel.h"
+#include "Stdlib.h"
 
 namespace Pythia8 {
  
@@ -83,7 +83,7 @@ public:
   static void initStatic();
 
   // Initialize generation. Possibility to force re-initialization by hand.
-  void init( BeamParticle& beamA, BeamParticle& beamB);
+  void init( BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn);
 
   // Top-level driver routine to do a single space-like shower.
   // void shower( Event& event, int in1in = -1, int in2in = -1, 
@@ -94,11 +94,10 @@ public:
   void prepare( Event& event, int sizeOld = 0);
 
   // Select next pT in downwards evolution.
-  double pTnext( BeamParticle& beamA, BeamParticle& beamB, 
-    double pTbegAll, double pTendAll);
+  double pTnext( double pTbegAll, double pTendAll);
 
   // ME corrections and kinematics that may give failure,
-  bool branch( BeamParticle& beamA, BeamParticle& beamB, Event& event); 
+  bool branch( Event& event); 
 
   // Update dipole record, if MI of FSR has occured in between.
   void update();
@@ -121,6 +120,10 @@ private:
     Lambda3flav2, Lambda4flav2, Lambda5flav2, sCM, eCM, pT0, pT20,
     pT2min, pT2minChgQ, pT2minChgL; 
 
+  // Pointers to the two incoming beams.
+  BeamParticle* beamAPtr;
+  BeamParticle* beamBPtr;
+
   // alphaStrong calculation.
   AlphaStrong alphaS;
 
@@ -139,16 +142,14 @@ private:
   SpaceDipoleEnd* dipEndSel; 
  
   // Evolve a QCD dipole end. 
-  void pT2nextQCD( BeamParticle& beamA, BeamParticle& beamB, 
-    double pT2begDip, double pT2endDip);
+  void pT2nextQCD( double pT2begDip, double pT2endDip);
 
   // Evolve a QCD dipole end near heavy quark threshold region. 
-  void pT2nearQCDthreshold( BeamParticle& beam, double m2Massive,  
+  void pT2nearQCDthreshold( BeamParticle& beam, double m2Massive, 
     double m2Threshold, double zMinAbs, double zMaxMassive);
 
   // Evolve a QED dipole end. 
-  void pT2nextQED( BeamParticle& beamA, BeamParticle& beamB, 
-    double pT2begDip, double pT2endDip);
+  void pT2nextQED( double pT2begDip, double pT2endDip);
 
   // Find class of ME correction.
   void findMEtype( Event& event);

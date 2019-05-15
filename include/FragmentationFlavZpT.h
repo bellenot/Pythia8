@@ -7,10 +7,10 @@
 #ifndef Pythia8_FragmentationFlavZpT_H
 #define Pythia8_FragmentationFlavZpT_H
 
-#include "Stdlib.h"
 #include "Basics.h"
-#include "Settings.h"
 #include "ParticleData.h"
+#include "Settings.h"
+#include "Stdlib.h"
 
 namespace Pythia8 {
 

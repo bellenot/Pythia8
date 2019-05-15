@@ -1,15 +1,16 @@
 <chapter name="Four-Vectors">
 
-<h1>Four-Vectors</h1>
+<h2>Four-Vectors</h2>
 
-The <ci>Vec4</ci> class gives an implementation of four-vectors. 
+The <code>Vec4</code> class gives an implementation of four-vectors. 
 The member function names are based on the assumption that these 
 represent momentum vectors. Thus one can get or set 
-<ci>px()</ci>, <ci>py()</ci>, <ci>pz()</ci> and <ci>()e</ci>, but not 
-x, y, z or t. (When production vertices are defined in the particle 
-class, this is partly circumvented by new methods that hide a 
-<ci>Vec4</ci>.) Derived quantities like the <ci>pT()</ci>, 
-the <ci>pAbs()</ci>, and the <ci>theta()</ci> and <ci>phi()</ci> angles 
+<code>px()</code>, <code>py()</code>, <code>pz()</code> and 
+<code>()e</code>, but not <ei>x, y, z</ei> or <ei>t</ei>. (When 
+production vertices are defined in the particle class, this is 
+partly circumvented by new methods that hide a <code>Vec4</code>.) 
+Derived quantities like the <code>pT()</code>, the <code>pAbs()</code>, 
+and the <code>theta()</code> and <code>phi()</code> angles 
 may be read out. The names should be self-explanatory, so we refer 
 to the header class.
 
@@ -20,24 +21,25 @@ each other or with double numbers, for all the cases that are
 meaningful.
 
 <p/>
-The <ci>Particle</ci> object contains a <ci>Vec4 p</ci> that stores the 
-particle four-momentum, and another <ci>Vec4 vProd</ci> for the 
-production vertex. Therefore a user would not normally access the 
-<ci>Vec4</ci> class directly, but by using the similarly-named methods 
-of the <ci>Particle</ci> class. (The latter also stores the particle mass 
+The <code>Particle</code> object contains a <code>Vec4 p</code> that 
+stores the particle four-momentum, and another <code>Vec4 vProd</code> 
+for the production vertex. Therefore a user would not normally access the 
+<code>Vec4</code> class directly, but by using the similarly-named methods 
+of the <code>Particle</code> class. (The latter also stores the particle mass 
 separately, offering an element of redundancy, helpful in avoiding some 
 roundoff errors.) However, for simple analysis tasks it may be convenient 
-to use <ci>Vec4</ci>, e.g., to define the four-vector sum of a set of 
+to use <code>Vec4</code>, e.g., to define the four-vector sum of a set of 
 particles.
 
 <p/>
 Simple rotations and boosts of the four-vectors are easily obtained
 with member functions. For a longer sequence of rotations and boosts, 
-and where several <ci>Vec4</ci> are involved for the same set of operations, 
-a more efficient approach is to define a <ci>RotBstMatrix</ci>, which 
-forms a separate auxiliary class. This matrix can be built up from the 
-successive set of operations to be performed and, once defined, 
-it can be applied on as many <ci>Vec4</ci> as required. 
+and where several <code>Vec4</code> are involved for the same set of 
+operations, a more efficient approach is to define a 
+<code>RotBstMatrix</code>, which forms a separate auxiliary class. 
+This matrix can be built up from the successive set of operations to be 
+performed and, once defined, it can be applied on as many 
+<code>Vec4</code> as required. 
 
 </chapter>
 

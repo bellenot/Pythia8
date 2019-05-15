@@ -24,40 +24,55 @@ void Info::list(ostream& os) {
      << scientific << setprecision(3) 
      << " Beam A: id = " << setw(6) << idAM << ", pz = " << setw(10) 
      << pzAM << ", e = " << setw(10) << eAM << ", m = " << setw(10) 
-     << mAM << "\n"
+     << mAM << ".\n"
      << " Beam B: id = " << setw(6) << idBM << ", pz = " << setw(10) 
      << pzBM << ", e = " << setw(10) << eBM << ", m = " << setw(10) 
-     << mBM << "\n\n";
+     << mBM << ".\n\n";
 
   // Colliding parton info.
   if (isRes) 
     os << " In 1: id = " << setw(4) << id1H << ", x = " << setw(10)
        << x1H << ", pdf = " << setw(10) << pdf1H << " at Q2 = " 
-       << setw(10) << Q2pdfH << "\n"  
+       << setw(10) << Q2FacH << ".\n"  
        << " In 2: id = " << setw(4) << id2H << ", x = " << setw(10)
-       << x2H << ", pdf = " << setw(10) << pdf2H << " at same Q2\n\n";  
+       << x2H << ", pdf = " << setw(10) << pdf2H << " at same Q2.\n\n";  
 
-  // Process info.
-  os << ((isRes) ? " Subprocess " : " Process ") << nameSave 
-     << " with code " << codeSave << " is 2 -> " << nFinalSave << "\n";
+  // Process name and code.
+  os << ((isRes && !hasSubSave) ? " Subprocess " : " Process ") << nameSave 
+     << " with code " << codeSave << " is 2 -> " << nFinalSave << ".\n";
+
+  // Subprocess name and code for minimum bias processes.
+  if (hasSubSave)
+    os << " Subprocess " << nameSubSave << " with code " << codeSubSave 
+       << " is 2 -> " << nFinalSubSave << ".\n";
+
+  // Process-type-specific kinematics information.
   if (isRes && nFinalSave == 1) 
-    os << " has  sHat = " << setw(10) << sH << " \n";  
+    os << " It has  sHat = " << setw(10) << sH << ".\n";  
   else if ( isRes && nFinalSave == 2)  
-    os << " has   sHat = " << setw(10) << sH << ",    tHat = " 
+    os << " It has sHat = " << setw(10) << sH << ",    tHat = " 
        << setw(10) << tH << ",    uHat = " << setw(10) << uH << ",\n"
-       << "      pTHat = " << setw(10) << pTH << ",   m3Hat = " 
+       << "       pTHat = " << setw(10) << pTH << ",   m3Hat = " 
        << setw(10) << m3H << ",   m4Hat = " << setw(10) << m4H << ",\n"
-       << "   thetaHat = " << setw(10) << thetaH << ",  phiHat = " 
-       << setw(10) << phiH << "\n";
-  
+       << "    thetaHat = " << setw(10) << thetaH << ",  phiHat = " 
+       << setw(10) << phiH << ".\n";  
   else if ( nFinalSave == 2)  
-    os << " has   s = " << setw(10) << sH << ",    t = " << setw(10) 
+    os << " It has s = " << setw(10) << sH << ",    t = " << setw(10) 
        << tH << ",    u = " << setw(10) << uH << ",\n"
-       << "      pT = " << setw(10) << pTH << ",   m3 = " << setw(10) 
+       << "       pT = " << setw(10) << pTH << ",   m3 = " << setw(10) 
        << m3H << ",   m4 = " << setw(10) << m4H << ",\n" 
-       << "   theta = " << setw(10) << thetaH << ",  phi = " << setw(10) 
-       << phiH << "\n";
-  
+       << "    theta = " << setw(10) << thetaH << ",  phi = " << setw(10) 
+       << phiH << ".\n";
+
+  // Couplings.
+  if (isRes) os << "     alphaEM = " << setw(10) << alphaEMH 
+    << ",  alphaS = " << setw(10) << alphaSH << "    at Q2 = " 
+    << setw(10) << Q2RenH << ".\n"; 
+
+  // Impact parameter.
+  if (bIsSet) os << " Impact parameter b =" << setw(10) << bH 
+    << " gives enhancement factor = " << setw(10) << enhanceH << ".\n";
+       
   // Listing finished.
   os << "\n --------  End PYTHIA Info Listing  --------------------"
      << "----------------" << endl; 

@@ -281,15 +281,19 @@ bool Settings::readString(string line, bool warn) {
  
 // Print out table of database in lexigraphical order.
 
-void Settings::list(bool listAll, ostream& os) {
+void Settings::list(bool listAll,  bool listString, string match,
+  ostream& os) {
 
   // Table header; output for bool as off/on.
   if (listAll) 
     os << "\n *-------  PYTHIA Flag + Mode + Parameter Settings (all)  -"
        << "---------------------------------------* \n";
-  else
+  else if (!listString) 
     os << "\n *-------  PYTHIA Flag + Mode + Parameter Settings (changes" 
        << " only)  -------------------------------* \n" ;
+  else
+    os << "\n *-------  PYTHIA Flag + Mode + Parameter Settings (with re" 
+       << "quested string)  ----------------------* \n" ;
   os << " |                                                           "
      << "                                     | \n"
      << " | Name                                     |          Now | "
@@ -297,6 +301,9 @@ void Settings::list(bool listAll, ostream& os) {
      << " |                                          |              | "
      << "                                     | \n";
  
+  // Convert input string to lowercase for match.
+  match = tolower(match);
+
   // Iterators for the flag, mode and param tables.
   map<string, Flag>::iterator flagEntry = flags.begin();
   map<string, Mode>::iterator modeEntry = modes.begin();
@@ -313,7 +320,8 @@ void Settings::list(bool listAll, ostream& os) {
       string state[2] = {"off", "on"};
       bool valNow = flagEntry->second.valNow;
       bool valDefault = flagEntry->second.valDefault;
-      if ( listAll || valNow != valDefault )
+      if ( listAll || (!listString && valNow != valDefault)
+        || (listString && flagEntry->first.find(match) != string::npos) )
         os << " | " << setw(40) << left 
            << flagEntry->second.name << " | " << setw(12) << right
            << state[valNow] << " | " << setw(12) << state[valDefault] 
@@ -325,7 +333,8 @@ void Settings::list(bool listAll, ostream& os) {
       == parameters.end() || modeEntry->first < paramEntry->first ) ) {
       int valNow = modeEntry->second.valNow;
       int valDefault = modeEntry->second.valDefault;
-      if ( listAll || valNow != valDefault ) {
+      if ( listAll || (!listString && valNow != valDefault)
+        || (listString && modeEntry->first.find(match) != string::npos) ) {
         os << " | " << setw(40) << left 
            << modeEntry->second.name << " | " << setw(12) << right 
            << valNow << " | " << setw(12) << valDefault; 
@@ -343,7 +352,8 @@ void Settings::list(bool listAll, ostream& os) {
     } else {
       double valNow = paramEntry->second.valNow;
       double valDefault = paramEntry->second.valDefault;      
-      if ( listAll || valNow != valDefault ) {
+      if ( listAll || (!listString && valNow != valDefault ) 
+        || (listString && paramEntry->first.find(match) != string::npos) ) {
         os << " | " << setw(40) << left 
            << paramEntry->second.name << right << " | ";
 	for (int i = 0; i < 4; ++i) { 

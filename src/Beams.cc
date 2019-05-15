@@ -16,8 +16,16 @@ namespace Pythia8 {
 // (Values will be overwritten in initStatic call, so are purely dummy.)
 
 int BeamParticle::maxValQuark = 3;
+double BeamParticle::valencePowerMeson = 0.8;
+double BeamParticle::valencePowerUinP = 3.5;
+double BeamParticle::valencePowerDinP = 2.0;
+double BeamParticle::valenceDiqEnhance = 2.0;
 int BeamParticle::companionPower = 4;
 bool BeamParticle::allowJunction = true;
+double BeamParticle::pickQuarkNorm = 5.;
+double BeamParticle::pickQuarkPower = 1.;
+double BeamParticle::diffPrimKTwidth = 0.5;
+double BeamParticle::diffLargeMassSuppress = 2.;
 
 //*********
 
@@ -28,12 +36,32 @@ void BeamParticle::initStatic() {
   // Maximum quark kind in allowed incoming beam hadrons.
   maxValQuark = Settings::mode("Beams:maxValQuark");
 
+  // Power of (1-x)^power/sqrt(x) for remnant valence quark distribution.
+  valencePowerMeson = Settings::parameter("Beams:valencePowerMeson");
+  valencePowerUinP = Settings::parameter("Beams:valencePowerUinP");
+  valencePowerDinP = Settings::parameter("Beams:valencePowerDinP");
+
+  // Enhancement factor of x of diquark.
+  valenceDiqEnhance = Settings::parameter("Beams:valenceDiqEnhance");
+
+  // Assume g(x) ~ (1-x)^power/x to constrain companion to sea quark.
+  companionPower = Settings::mode("Beams:companionPower");
+
   // Assume g(x) ~ (1-x)^power/x to constrain companion to sea quark.
   companionPower = Settings::mode("Beams:companionPower");
 
   // Allow or not more than two valence quarks to be kicked out.
   allowJunction = Settings::flag("Beams:allowJunction");
 
+  // For diffractive system kick out q/g = norm / mass^power.
+  pickQuarkNorm = Settings::parameter("Beams:pickQuarkNorm");
+  pickQuarkPower = Settings::parameter("Beams:pickQuarkPower");
+
+  // Width of primordial kT distribution in diffractive systems.
+  diffPrimKTwidth = Settings::parameter("Beams:diffPrimKTwidth");
+
+  // Suppress large masses of beam remnant in diffractive systems. 
+  diffLargeMassSuppress = Settings::parameter("Beams:diffLargeMassSuppress");
 }
 
 //*********
@@ -595,6 +623,70 @@ bool BeamParticle::remnantColours(Event& event, vector<int>& colFrom,
   // Done.
   return true;
 }
+
+
+//*********
+
+// Pick unrescaled x values for beam remnant sharing.
+
+double BeamParticle::xRemnant( int i) {
+
+  double x = 0.;
+
+  // Calculation of x of valence quark or diquark, for latter as sum.
+  if (resolved[i].isValence()) {  
+
+    // Resolve diquark into sum of two quarks.
+    int id1 = resolved[i].id();
+    int id2 = 0;
+    if (abs(id1) > 10) {
+      id2 = (id1 > 0) ? (id1/100)%10 : -(((-id1)/100)%10);
+      id1 = (id1 > 0) ? id1/1000 : -((-id1)/1000);
+    }
+ 
+    // Loop over (up to) two quarks; add their contributions.
+    for (int iId = 0; iId < 2; ++iId) {
+      int id = (iId == 0) ? id1 : id2;
+      if (id == 0) break;
+      double xPart = 0.; 
+
+      // Assume form (1-x)^a / sqrt(x).
+      double xPow = valencePowerMeson;
+      if (isBaryonBeam) {
+        if (nValKinds == 3 || nValKinds == 1) 
+          xPow = (3. * Rndm::flat() < 2.) 
+            ? valencePowerUinP : valencePowerDinP ; 
+        else if (nValence(id) == 2) xPow = valencePowerUinP;
+        else xPow = valencePowerDinP;
+      }
+      do xPart = pow2( Rndm::flat() );
+      while ( pow(1. - xPart, xPow) < Rndm::flat() ); 
+
+      // End loop over (up to) two quarks. Possibly enhancement for diquarks.
+      x += xPart; 
+    }
+   if (id2 != 0) x *= valenceDiqEnhance;
+      
+  // Calculation of x of sea quark, based on companion association.
+  } else if (resolved[i].isCompanion()) {
+
+    // Find rescaled x value of companion.
+    double xLeft = 1.;
+    for (int iInit = 0; iInit < nInit; ++iInit) 
+      xLeft -= resolved[iInit].x();
+    double xCompanion = resolved[ resolved[i].companion() ].x();
+    xCompanion /= (xLeft + xCompanion);  
+
+    // Now use ansatz q(x; x_c) < N/(x +x_c) to pick x.
+    do x = pow( xCompanion, Rndm::flat()) - xCompanion; 
+    while ( pow( (1. - x - xCompanion) / (1. - xCompanion), companionPower) 
+      * (pow2(x) + pow2(xCompanion)) / pow2(x + xCompanion) < Rndm::flat() );
+
+  // Else, rarely, a single gluon remnant, so value does not matter. 
+  } else x = 1.;
+  return x;
+
+}
    
 //*********
 
@@ -630,6 +722,83 @@ void BeamParticle::list(ostream& os) {
      << setw(11) << pSum.e() << "\n"; 
 
 }
+   
+//*********
+
+// For a diffractive system, decide whether to kick out gluon or quark.
+
+bool BeamParticle::pickGluon(double mDiff) {
+  
+  // Relative weight to pick a quark, assumed falling with energy.
+  double probPickQuark = pickQuarkNorm / pow( mDiff, pickQuarkPower);
+  return  ( (1. + probPickQuark) * Rndm::flat() < 1. ) ? true : false;
+  
+}
+   
+//*********
+
+// Pick a valence quark at random. (Used for diffractive systems.)
+
+int BeamParticle::pickValence() {
+
+  // Pick one valence quark at random.
+  int nTotVal = (isBaryonBeam) ? 3 : 2;
+  double rnVal = Rndm::flat() * nTotVal;
+  int iVal = (rnVal < 1.) ? 1 : ( (rnVal < 2.) ? 2 : 3 );
+
+  // This valence in slot 1, the rest thereafter.
+  idVal1 = 0;
+  idVal2 = 0;
+  idVal3 = 0;
+  int iNow = 0;
+  for (int i = 0; i < nValKinds; ++i) 
+  for (int j = 0; j < nVal[i]; ++j) {
+    ++iNow;
+    if (iNow == iVal) idVal1 = idVal[i];
+    else if ( idVal2 == 0) idVal2 = idVal[i];
+    else idVal3 = idVal[i];
+  }
+
+  // Construct diquark if baryon.
+  if (idVal3 != 0) idVal2 = StringFlav::makeDiquark( idVal2, idVal3);
+
+  // Done.
+  return idVal1;
+
+}
+   
+//*********
+
+// Share lightcone momentum between two remnants in a diffractive system.
+
+double BeamParticle::zShare( double mDiff, double m1, double m2) { 
+
+  // Set up as valence in normal beam so can use xRemnant code.
+  append(0, idVal1, 0., -3);
+  append(0, idVal2, 0., -3);
+  double m2Diff = mDiff*mDiff;
+
+  // Begin to generate z and pT until acceptable solution.
+  double wtAcc = 0.;
+  do {
+    double x1 = xRemnant(0);
+    double x2 = xRemnant(0);
+    zRel = x1 / (x1 + x2);
+    pxRel = diffPrimKTwidth * Rndm::gauss();
+    pyRel = diffPrimKTwidth * Rndm::gauss();
+
+    // Suppress large invariant masses of remnant system.
+    double mTS1 = m1*m1 + pxRel*pxRel + pyRel*pyRel;
+    double mTS2 = m2*m2 + pxRel*pxRel + pyRel*pyRel;
+    double m2Sys = mTS1 / zRel + mTS2 / (1. - zRel);
+    wtAcc = (m2Sys < m2Diff) 
+      ? pow( 1. - m2Sys / m2Diff, diffLargeMassSuppress) : 0.;
+  } while (wtAcc < Rndm::flat());
+
+  // Done.
+  return zRel;
+
+}
 
 //**************************************************************************
 
@@ -641,11 +810,6 @@ void BeamParticle::list(ostream& os) {
 // (Values will be overwritten in initStatic call, so are purely dummy.)
 
 double BeamRemnants::primordialKTwidth = 1.;
-double BeamRemnants::valencePowerMeson = 0.8;
-double BeamRemnants::valencePowerUinP = 3.5;
-double BeamRemnants::valencePowerDinP = 2.0;
-double BeamRemnants::valenceDiqEnhance = 2.0;
-int BeamRemnants::companionPower = 4;
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -662,17 +826,6 @@ void BeamRemnants::initStatic() {
 
   // Width of primordial kT distribution.
   primordialKTwidth = Settings::parameter("Beams:primordialKTwidth");
-
-  // Power of (1-x)^power/sqrt(x) for remnant valence quark distribution.
-  valencePowerMeson = Settings::parameter("Beams:valencePowerMeson");
-  valencePowerUinP = Settings::parameter("Beams:valencePowerUinP");
-  valencePowerDinP = Settings::parameter("Beams:valencePowerDinP");
-
-  // Enhancement factor of x of diquark.
-  valenceDiqEnhance = Settings::parameter("Beams:valenceDiqEnhance");
-
-  // Assume g(x) ~ (1-x)^power/x to constrain companion to sea quark.
-  companionPower = Settings::mode("Beams:companionPower");
 
 }
 
@@ -702,18 +855,10 @@ bool BeamRemnants::add( BeamParticle& beamA, BeamParticle& beamB,
   // Save current complete colour configuration for fast restoration.
   vector<int> colSave;
   vector<int> acolSave;
-  // cout << " begin push_back " << endl;
   for (int i = 0; i < event.size(); ++i) {
-    // cout << " push_back 1 i = " << i << endl;
     colSave.push_back( event[i].col() );
-    // cout << " push_back 2 i = " << i << endl;
     acolSave.push_back( event[i].acol() );
   }
-  //for (int i = 0; i < event.size(); ++i)
-  //  colSave.push_back( event[i].col() );
-  //for (int i = 0; i < event.size(); ++i)
-  //  acolSave.push_back( event[i].acol() );
-  // cout << " end push_back " << endl;
   event.saveJunctionSize();
   
   // Allow several tries to set colours of initiators and remnants.
@@ -752,12 +897,12 @@ bool BeamRemnants::add( BeamParticle& beamA, BeamParticle& beamB,
 
   // Allow ten tries to construct kinematics (but normally works first).
   double xSum[2], xInvM[2], w2Beam[2], wPosRem, wNegRem, w2Rem;
-    for (int iTry = 0; iTry < NTRYKINMATCH; ++iTry) {
+  for (int iTry = 0; iTry < NTRYKINMATCH; ++iTry) {
     physical = true;
 
     // Loop over the two beams. Sum px and py separately within each. 
     for (int iBeam = 0; iBeam < 2; ++iBeam) {
-      BeamParticle& beam = (iBeam == 0) ? beamA : beamB; 
+      BeamParticle& beam = (iBeam == 0) ? beamA : beamB;
       double pxSum = 0.;
       double pySum = 0.;
  
@@ -783,7 +928,7 @@ bool BeamRemnants::add( BeamParticle& beamA, BeamParticle& beamB,
       xSum[iBeam] = 0.;
       xInvM[iBeam] = 0.;
       for (int i = beam.sizeInit(); i < beam.size(); ++i) {
-        double xPrel = xRemnant( i, beam); 
+        double xPrel = beam.xRemnant( i);
         beam[i].x(xPrel);
         xSum[iBeam] += xPrel;
         xInvM[iBeam] += beam[i].mT2()/xPrel;     
@@ -794,7 +939,7 @@ bool BeamRemnants::add( BeamParticle& beamA, BeamParticle& beamB,
   
     // End separate treatment of the two beams. 
     } 
- 
+
     // Recalculate kinematics of initiator systems with primordial kT.
     wPosRem = eCM;
     wNegRem = eCM;
@@ -903,69 +1048,6 @@ bool BeamRemnants::add( BeamParticle& beamA, BeamParticle& beamB,
 
   // Done.
   return true;
-
-}
-
-//*********
-
-// Pick unrescaled x values for beam remnant sharing.
-
-double BeamRemnants::xRemnant( int i, BeamParticle& beam) {
-
-  double x = 0.;
-
-  // Calculation of x of valence quark or diquark, for latter as sum.
-  if (beam[i].isValence()) {  
-
-    // Resolve diquark into sum of two quarks.
-    int id1 = beam[i].id();
-    int id2 = 0;
-    if (abs(id1) > 10) {
-      id2 = (id1 > 0) ? (id1/100)%10 : -(((-id1)/100)%10);
-      id1 = (id1 > 0) ? id1/1000 : -((-id1)/1000);
-    }
- 
-    // Loop over (up to) two quarks; add their contributions.
-    for (int iId = 0; iId < 2; ++iId) {
-      int id = (iId == 0) ? id1 : id2;
-      if (id == 0) break;
-      double xPart = 0.; 
-
-      // Assume form (1-x)^a / sqrt(x).
-      double xPow = valencePowerMeson;
-      if (beam.isBaryon()) {
-        if (beam.nValenceKinds() == 3 || beam.nValenceKinds() == 1) 
-          xPow = (3. * Rndm::flat() < 2.) 
-            ? valencePowerUinP : valencePowerDinP ; 
-        else if (beam.nValence(id) == 2) xPow = valencePowerUinP;
-        else xPow = valencePowerDinP;
-      }
-      do xPart = pow2( Rndm::flat() );
-      while ( pow(1. - xPart, xPow) < Rndm::flat() ); 
-
-      // End loop over (up to) two quarks. Possibly enhancement for diquarks.
-      x += xPart; 
-    }
-   if (id2 != 0) x *= valenceDiqEnhance;
-      
-  // Calculation of x of sea quark, based on companion association.
-  } else if (beam[i].isCompanion()) {
-
-    // Find rescaled x value of companion.
-    double xLeft = 1.;
-    for (int iInit = 0; iInit < beam.sizeInit(); ++iInit) 
-      xLeft -= beam[iInit].x();
-    double xCompanion = beam[ beam[i].companion() ].x();
-    xCompanion /= (xLeft + xCompanion);  
-
-    // Now use ansatz q(x; x_c) < N/(x +x_c) to pick x.
-    do x = pow( xCompanion, Rndm::flat()) - xCompanion; 
-    while ( pow( 1. - x - xCompanion, companionPower) * (pow2(x) 
-      + pow2(xCompanion)) / pow2(x + xCompanion) < Rndm::flat() );
-
-  // Else, rarely, a single gluon remnant, so value does not matter. 
-  } else x = 1.;
-  return x;
 
 }
 

@@ -8,9 +8,9 @@
 #ifndef Pythia8_ParticleData_H
 #define Pythia8_ParticleData_H
 
-#include "Stdlib.h"
 #include "Basics.h"
 #include "Settings.h"
+#include "Stdlib.h"
 
 namespace Pythia8 {
 

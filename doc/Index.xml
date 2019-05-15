@@ -1,8 +1,12 @@
 <chapter name="Index">
 
-<h1>Index</h1>
+<img src="pythiapicture.gif" alt="Pythia picture" hspace=40/>
 
-<h2>Program Overview</h2>
+<h2>PYTHIA 8 Index</h2>
+
+<h3><a href="pythia8051.pdf" target="page">Brief Introduction</a> (pdf)</h3>
+
+<h3>Program Overview</h3>
 
 <a href="Front.xml" target="page">Frontpage</a><br/>
 <a href="Flow.xml" target="page">Program Flow</a><br/>
@@ -10,7 +14,7 @@
 <a href="SettingsScheme.xml" target="page">The Settings Scheme</a><br/>
 <a href="ParticleDataScheme.xml" target="page">The Particle Data Scheme</a><br/>
 
-<h2>Setup Run Parameters</h2>
+<h3>Setup Run Parameters</h3>
 
 <a href="SaveRestore.xml" target="page">Save/Restore Parameters</a><br/>
 <a href="MainProgram.xml" target="page">Main-Program Parameters</a><br/>
@@ -26,11 +30,11 @@
 <a href="MultipleInteractions.xml" target="page">Multiple Interactions</a><br/>
 <a href="BeamRemnants.xml" target="page">Beam Remnants</a><br/>
 <a href="Fragmentation.xml" target="page">Fragmentation</a><br/>
-<a href="FlavourSelection.xml" target="page">FlavourSelection</a><br/>
+<a href="FlavourSelection.xml" target="page">Flavour Selection</a><br/>
 <a href="ParticleDecays.xml" target="page">Particle Decays</a><br/>
 <a href="ParticleData.xml" target="page">Particle Data</a><br/>
 
-<h2>Output</h2>
+<h3>Study Output</h3>
 
 <a href="FourVector.xml" target="page">Four-Vectors</a><br/>
 <a href="ParticleProp.xml" target="page">Particle Properties</a><br/>
@@ -39,16 +43,17 @@
 <a href="EventStatistics.xml" target="page">Event Statistics</a><br/>
 <a href="Histogram.xml" target="page">Histograms</a><br/>
 <a href="Analysis.xml" target="page">Event Analysis</a><br/>
+<a href="HepMC.xml" target="page">HepMC Interface</a><br/>
 
-<h2>Linking to Other Programs</h2>
+<h3>Link to Other Programs</h3>
 
 <a href="LesHouches.xml" target="page">The Les Houches Accord</a><br/>
-<a href="Pythia6.xml" target="page">Accessing Pythia6 Processes</a><br/>
+<a href="Pythia6.xml" target="page">Access PYTHIA 6 Processes</a><br/>
 <a href="PartonDistributions.xml" target="page">Parton Distributions</a><br/>
 <a href="ExternalDecays.xml" target="page">External Decays</a><br/>
 <a href="RandomNumbers.xml" target="page">Random Numbers</a><br/>
 
-<h2>Internal</h2>
+<h3>Internal</h3>
 
 <a href="Internal.xml" target="page">For Internal Use</a><br/>
 <a href="Comments.xml" target="page">Further Comments</a><br/>

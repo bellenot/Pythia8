@@ -1,12 +1,12 @@
 <chapter name="Particle Data">
 
-<h1>Particle Data</h1>
+<h2>Particle Data</h2>
 
 <note>Warning:</note> The handling of particle data has yet to
 reach its final form. This is of course true for the whole program,
 but in terms of user interaction probably more so here than elsewhere.
 
-<h2>Main settings</h2>
+<h3>Main settings</h3>
 
 Currently only one mode is available to change:
 
@@ -25,9 +25,9 @@ as 1, but quadratic in <ei>m</ei> instead of linear.
 </option>
 </mode>
  
-<h2>Modes for Matrix Element Processing</h2>
+<h3>Modes for Matrix Element Processing</h3>
 
-The list of allowed decay mode codes, accessed by <ci>modeME()</ci> 
+The list of allowed decay mode codes, accessed by <code>modeME()</code> 
 above, almost agrees with the Pythia6 ones, but several obsolete have 
 been removed, and a few moved for better consistency. Here is the list 
 of currently allowed codes:
@@ -42,9 +42,9 @@ of currently allowed codes:
 space</li>  
 <li> 12 : ditto, but with higher average multiplicity 
 (imagined <ei>q -> g</ei>)</li>
-<li> 13 - 15 : as 11, but require at least <ci>code</ci> - 10 number 
+<li> 13 - 15 : as 11, but require at least <code>code</code> - 10 number 
 of particles in the decay channel</li>
-<li> 22 - 30 : as 11, but fixed multiplicity <ci>code</ci> - 20</li>
+<li> 22 - 30 : as 11, but fixed multiplicity <code>code</code> - 20</li>
 <li> 32 : decay to <ei>q qbar</ei> or <ei>g g</ei>, which should shower 
 and hadronize</li>
 <li> 33 (was 4) : decay onium to <ei>g g g</ei> or <ei>g g gamma</ei> 
@@ -54,16 +54,16 @@ in <ei>tau</ei> decay</li>
 <li> 42 : weak decay; if there is a quark spectator system it collapses to 
 one hadron; for leptonic/semileptonic decays the <ei>V-A</ei> matrix element
 is used, for hadronic decays simple phase space (gives somewhat softer 
-<ei>B -> D</ei> spectrum than Pythia 6.3; to be improved!??)</li>
+<ei>B -> D</ei> spectrum than PYTHIA 6; to be improved!??)</li>
 <li> 43 (was 48) : as 42, but require at least three particles 
 in decay</li>
 </ul>
 
-<h2>The data itself</h2>
+<h3>The data itself</h3>
 
 Here comes the particle data used in the program. Do not touch.
 
-<!--
+<pre>
 
  <particle>        1  d                 dbar             -1  1     0.33000     0.00000     0.00000  0.00000E+00  0
  <particle>        2  u                 ubar              2  1     0.33000     0.00000     0.00000  0.00000E+00  0
@@ -1450,7 +1450,7 @@ Here comes the particle data used in the program. Do not touch.
  <particle>  9902110  n_diffr0          n_diffrbar0       0  0     0.00000     0.00000     0.00000  0.00000E+00  0
  <particle>  9902210  p_diffr+          p_diffrbar-       3  0     0.00000     0.00000     0.00000  0.00000E+00  0
 
--->
+</pre>
 
 </chapter>
 

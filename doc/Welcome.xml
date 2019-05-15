@@ -1,26 +1,11 @@
-<!-- 
-
-Draft note:
-
-This is intended to be the starting page. It will consist of two frames:
-
-1) A left column containing the navigable index to everything else,
-stored in Index.xml
-2) A right main field where the information/options will be displayed,
-changing as you click on the links in the index.
-
-With HTML options this would be something like
-
--->
-
 <chapter name="Welcome">
  
-<frameset cols="200,*" framespacing="0" frameborder="0" border="0">
-<frame src="Index.xml" name="index" scrolling="auto" border="0" 
-  marginwidth="10" marginheight="10" frameborder="0">
+<frameset cols="260,*" framespacing="0" frameborder="0" border="0">
+<frame src="Index.html" name="index" scrolling="auto" border="0" 
+  marginwidth="20" marginheight="20" frameborder="0">
 </frame>
-<frame src="Front.xml" name="page" scrolling="auto" border="0" 
-  marginwidth="10" marginheight="10" frameborder="0">
+<frame src="Front.html" name="page" scrolling="auto" border="0" 
+  marginwidth="20" marginheight="20" frameborder="0">
 </frame>
 </frameset>
 
@@ -28,8 +13,12 @@ With HTML options this would be something like
 
 <!--
 
-On the individual frames, the following xml tags have to be 
-implemented:
+Important notes for the future:
+
+Much remains to have a good Graphical User Interface in place. 
+Outlined below is the sets of xml tags in current use, that 
+would need to be implemented, and a few other open issues. 
+(More will certainly appear with time.)
 
 A) Standard html concepts:
 <h1></h1> a top-level header
@@ -40,22 +29,23 @@ A) Standard html concepts:
 <ol></ol> an ordered list, with <li> items
 <ul></ul> a bulleted list, with <li> items
 <li></li> an item in an ordered or bulleted list
-<a href="..." target="..."></a>
+<b></b> boldface
+<code></code> inline computer code (teletype font)
+<pre></pre> a piece of code, with linebreaks as formatted (teletype font) 
+<a href="..." target="..."></a> anchor
 <frameset ....></frameset> : only used in Welcome.xml
 <frame ....></frame> : only used in Welcome.xml
+<img src="..." alt="..." hspace=... /> only used in Index.xml
 
 B) New concepts for simple markup (no interactivity):
 <chapter name="..."></chapter> a large chunk of text, 
     stored as one single xml file
-<code></code> computer code, with automatic line breaks 
-    (could use <pre>?)
-<ci></ci> inline computer code
-    (could use <tt>?) 
 <eq></eq> text to be displayed on a separate line, 
     centered if possible (a poor man's equation),
     maybe typeset in italics (<i>)
 <ei></ei> inline variant of above
 <note></note> text begun on new line, in boldface
+<file name="..."></file> name of a program file (new paragraph, boldface)
 <class name="..."></class> information on a specific class,
     specifically the class creation command form.
 <method name="..."></method> explanation of a class method.

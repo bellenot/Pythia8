@@ -1,6 +1,6 @@
 <chapter name="Process Selection">
 
-<h1>Process Selection</h1>
+<h2>Process Selection</h2>
 
 By default all processes are switched off. You should switch on 
 those you want to simulate. This may be done at two levels, either
@@ -16,10 +16,14 @@ two completely different processes would not be a problem), but only
 intended to allow a simpler user separation of different processes. 
 Also the process name is available, as a string.
 
-<h2>Soft QCD processes</h2>
+<h3>Soft QCD processes</h3>
 
-<note>Warning:</note> the minBias process in this group is not yet 
-implemented. 
+As a rule, the processes in this class should not be mixed with
+the simulation of other processes. All by themselves, they are
+intended to represent the total cross section of hadron collisions,
+with the exception of the "rare processes" that one wishes to study
+separately. In particular, jet physics at all scales occurs as part 
+of the minimum-bias description. 
 
 <flag name="SoftQCD:all" default="off">
 Common switch for the group of all soft QCD processes, 
@@ -27,8 +31,17 @@ as listed separately in the following.
 </flag>
 
 <flag name="SoftQCD:minBias" default="off">
-Eikonalized description of all the hard QCD processes, 
-so includes them in combinationation with low-<ei>pT</ei> events. 
+Minimum-bias events, based on an eikonalized description of all the 
+hard QCD processes, so includes them in combinationation with 
+low-<ei>pT</ei> events. Strictly speaking, "minimum bias" represents 
+an experimental procedure of accepting "everything", with some 
+non-universal cuts to exclude elastic and diffractive topologies. 
+In practice, the experimental mimimum-bias sample may then contain
+some contamination of what is here classified as diffractive,
+especially (high-mass) double diffractive. Note that, since the 
+current description is handled by the multiple-interactions machinery 
+as part of the parton-level processing, no hard subprocess at all 
+is defined at the process-level part of the event generation.  
 Code 101.
 </flag>
 
@@ -48,7 +61,13 @@ Double diffractive scattering <ei>A B -> X_1 X_2</ei>.
 Code 105.
 </flag>
 
-<h2>Hard QCD processes</h2>
+<h3>Hard QCD processes</h3>
+
+This group contains the processes for QCD jet production above
+some minimum <ei>pT</ei> threshold, as opposed to the minimum-bias
+process above, where all <ei>pT</ei> scales can be probed. 
+The <ei>pT_min</ei> cut cannot be put too low, or else unreasonably
+large jet cross sections will be obtained.
   
 <flag name="HardQCD:all" default="off">
 Common switch for the group of all hard QCD processes, 
@@ -88,21 +107,40 @@ Scatterings <ei>q qbar -> g g</ei>.
 Code 118.
 </flag>
 
-<h2>Hard QCD processes: heavy-flavour subset</h2>
+<h3>Hard QCD processes: heavy-flavour subset</h3>
+
+These processes form a natural part of the above class, but can
+also be generated separately. Formally the heavy-quark mass makes
+these matrix elements finite in the <ei>pT -> 0</ei> limit, but at
+high energies one may still question the validity of the expressions
+at low <ei>pT</ei> values, like for the other hard-QCD processes.  
+
+<flag name="HardQCD:gg2ccbar" default="off">
+Scatterings <ei>g g -> c cbar</ei>. 
+Code 121.
+</flag>
 
 <flag name="HardQCD:qqbar2ccbar" default="off">
 Scatterings <ei>q qbar -> c cbar</ei>. 
 Code 122.
-Warning: not yet ready for use: no masses in phase space!
+</flag>
+
+<flag name="HardQCD:gg2bbbar" default="off">
+Scatterings <ei>g g -> b bbar</ei>. 
+Code 123.
 </flag>
 
 <flag name="HardQCD:qqbar2bbbar" default="off">
 Scatterings <ei>q qbar -> b bbar</ei>. 
 Code 124.
-Warning: not yet ready for use: no masses in phase space!
 </flag>
 
-<h2>Prompt photon processes</h2>
+<h3>Prompt photon processes</h3>
+
+This group collects the processes where one or two photons are
+produced by the hard process. Additional sources of photons 
+include parton showers and hadron decays. Again a <ei>pT</ei> cut
+is required to stay away from the unphysical low-<ei>pT</ei> region.
 
 <flag name="PromptPhoton:all" default="off">
 Common switch for the group of all prompt photon processes, 
@@ -131,7 +169,7 @@ Code 133.
 
 <flag name="PromptPhoton:qqbar2gammagamma" default="off">
 Scattering <ei>q qbar -> gamma gamma</ei>.
-Code 134. Not yet implemented.
+Code 134.
 </flag>
 
 <flag name="PromptPhoton:gg2gammagamma" default="off">
@@ -141,7 +179,7 @@ dependence in the loop leads to very complicated expressions.
 The current implementation is based on assuming five massless 
 quarks, and thus is questionable at small (<ei>pT &lt; m_b</ei>) 
 or large (<ei>pT > m_t</ei>) transverse momenta.
-Code 135. Not yet implemented.
+Code 135.
 </flag>
 
 </chapter>

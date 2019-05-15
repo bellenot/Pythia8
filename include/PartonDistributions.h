@@ -8,9 +8,9 @@
 #ifndef Pythia8_PartonDistributions_H
 #define Pythia8_PartonDistributions_H
 
-#include "Stdlib.h"
 #include "Basics.h"
 #include "ParticleData.h"
+#include "Stdlib.h"
 
 namespace Pythia8 {
 

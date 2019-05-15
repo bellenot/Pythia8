@@ -23,6 +23,9 @@ double MiniStringFragmentation::bLund = 0.58;
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
 
+// Since diffractive by definition is > 1 particle, try hard. 
+const int MiniStringFragmentation::NTRYDIFFRACTIVE = 200;
+
 // After one-body fragmentation failed, try two-body once more. 
 const int MiniStringFragmentation::NTRYLASTRESORT = 100;
 
@@ -53,7 +56,7 @@ void MiniStringFragmentation::initStatic() {
 // Do the fragmentation: driver routine.
   
 bool MiniStringFragmentation::fragment(int iSub, ColConfig& colConfig, 
-  Event& event) {
+  Event& event, bool isDiff) {
 
   // Read in info on system to be treated.
   iParton = colConfig[iSub].iParton;
@@ -64,8 +67,11 @@ bool MiniStringFragmentation::fragment(int iSub, ColConfig& colConfig,
   m2Sum = mSum*mSum;
   isClosed = colConfig[iSub].isClosed;
 
+  // Do not want diffractive systems to easily collapse to one particle.
+  int nTryFirst = (isDiff) ? NTRYDIFFRACTIVE : nTryMass;
+
   // First try to produce two particles from the system.
-  if (ministring2two( nTryMass, event)) return true;  
+  if (ministring2two( nTryFirst, event)) return true;  
 
   // If this fails, then form one hadron and shuffle momentum.
   if (ministring2one( iSub, colConfig, event)) return true;  

@@ -5,23 +5,24 @@
 #ifndef Pythia8_Pythia_H
 #define Pythia8_Pythia_H
 
-#include "Stdlib.h"
+#include "Analysis.h"
 #include "Basics.h"
-#include "Settings.h"
-#include "ParticleData.h"
-#include "PartonDistributions.h"
 #include "Beams.h"
 #include "Event.h"
-#include "Information.h"
-#include "ProcessLevel.h"
-#include "PartonLevel.h"
 #include "HadronLevel.h"
+#include "Information.h"
 #include "LesHouches.h"
-#include "Pythia6.h"
+#include "MultipleInteractions.h"
+#include "ParticleData.h"
 #include "ParticleDecays.h"
-#include "SigmaHat.h"
+#include "PartonDistributions.h"
+#include "PartonLevel.h"
 #include "PhaseSpace.h"
-#include "Analysis.h"
+#include "ProcessLevel.h"
+#include "Pythia6.h"
+#include "Settings.h"
+#include "SigmaProcess.h"
+#include "Stdlib.h"
 
 namespace Pythia8 {
  
@@ -46,6 +47,7 @@ public:
     // Default for some flags.
     hasPythia6 = false;
     hasLHA = false;
+    isInit = false;
   } 
 
   // Destructor to undo the PDF's created with new.
@@ -157,7 +159,7 @@ private:
   HadronLevel hadronLevel;
 
   // Properties found at the initialization of the event generator.
-  bool inCMframe;
+  bool isInit, inCMframe;
   int idA, idB;  
   double mA, mB, eA, eB, pzA, pzB, eCM, betaZ, gammaZ;
 

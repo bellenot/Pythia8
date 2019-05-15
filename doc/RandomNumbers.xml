@@ -1,71 +1,73 @@
 <chapter name="Random Numbers">
     
-<h1>Random Numbers</h1>
+<h2>Random Numbers</h2>
 
-This page describes the random-number generator in Pythia and how it can 
-be replaced by an external one.
+This page describes the random-number generator in PYTHIA and 
+how it can be replaced by an external one.
  
-<h2>Internal random numbers</h2>
+<h3>Internal random numbers</h3>
 
-The <ci>Rndm</ci> class generates random numbers, using the 
+The <code>Rndm</code> class generates random numbers, using the 
 Marsaglia-Zaman-Tsang algorithm [1]. It is purely static, i.e. only 
 exists in one copy, so that one cannot run several copies, each with 
 the same random number sequence, by mistake. 
 
 <p/>
-Random numbers <ci>R</ci> uniformly distributed in <ci>0 &lt; R &lt; 1</ci> 
-are obtained with
-<code>
+Random numbers <code>R</code> uniformly distributed in 
+<code>0 &lt; R &lt; 1</code> are obtained with
+<pre>
    Rndm::flat();
-</code>
+</pre>
 There are also methods to generate according to an exponential, to 
 <ei>x * exp(-x)</ei>, to a Gaussian, or picked among a set of 
-possibilites, which make use of <ci>flat()</ci>.
+possibilites, which make use of <code>flat()</code>.
 
 <p/>
 If the random number generator is not initialized before, it will be
 so the first time it is asked to generate a random number, and then
 with the default seed, 19780503. You can initialize, or reinitialize,
 with your own choice of seed with a 
-<code>
+<pre>
    Rndm::init(seed);
-</code>
-Here values <ci>0 &lt; seed &lt; 900 000 000</ci> gives so many 
-different random number sequences, while <ci>seed = 0</ci> will call 
-the <ci>Stdlib time(0)</ci> function to provide a "random" <ci>seed</ci>, 
-and <ci>seed &lt; 0</ci> will revert back to the default <ci>seed</ci>.
+</pre>
+Here values <code>0 &lt; seed &lt; 900 000 000</code> gives so many 
+different random number sequences, while <code>seed = 0</code> will call 
+the <code>Stdlib time(0)</code> function to provide a "random" 
+<code>seed</code>, and <code>seed &lt; 0</code> will revert back to 
+the default <code>seed</code>.
 
 <p/>
-The <ci>Pythia</ci> class defines a flag and a mode, that allows the 
-<ci>seed</ci> to be set in the <ci>Pythia::init</ci> call. That would be 
-the standard way for a user to the pick random number sequence in a run.
+The <code>Pythia</code> class defines a flag and a mode, that allows 
+the <code>seed</code> to be set in the <code>Pythia::init</code> call. 
+That would be the standard way for a user to the pick random number 
+sequence in a run.
 
-<h2>External random numbers</h2>
+<h3>External random numbers</h3>
 
-<ci>RndmEngine</ci> is a base class for the external handling of 
+<code>RndmEngine</code> is a base class for the external handling of 
 random-number generation. The user-written derived class is called 
 if a pointer to it has been handed in with the 
-<ci>pythia.rndmEnginePtr()</ci> method. Since the default 
+<code>pythia.rndmEnginePtr()</code> method. Since the default 
 Marsaglia-Zaman-Tsang algorithm is quite good, chances are that any 
 replacement would be a step down, but this may still be required by 
 consistency with other program elements in big experimental frameworks.
 
 <p/>
-There is only one pure virtual method in <ci>RndmEngine</ci>, to generate 
-one random number flat in the range between 0 and 1: 
-<code>
+There is only one pure virtual method in <code>RndmEngine</code>, to 
+generate one random number flat in the range between 0 and 1: 
+<pre>
   virtual double flat() = 0;
-</code>
+</pre>
 Note that methods for initialization are not provided in the base 
 class, in part since input parameters may be specific to the generator
 used, in part since initialization can as well be taken care of 
-externally to Pythia.
+externally to the <code>Pythia</code> code.
 
 <p/>
 An example illustrating how to run with an external random number
-generator is provided in <ci>main05.cc</ci>.
+generator is provided in <code>main05.cc</code>.
 
-<h2>References</h2>
+<h3>References</h3>
 
 <ol>
 <li>G. Marsaglia, A. Zaman and W.-W. Tsang, 

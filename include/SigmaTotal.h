@@ -5,10 +5,10 @@
 #ifndef Pythia8_SigmaTotal_H
 #define Pythia8_SigmaTotal_H
 
-#include "Stdlib.h"
-#include "Settings.h"
-#include "ParticleData.h"
 #include "Information.h"
+#include "ParticleData.h"
+#include "Settings.h"
+#include "Stdlib.h"
 
 namespace Pythia8 {
  
@@ -29,7 +29,7 @@ public:
   static void initStatic();
 
   // Calculate, or recalculate for new beams or new energy.
-  bool init(int, int, double); 
+  bool init(int idA, int idB, double eCM); 
 
   // Read out total and partial cross sections.
   double sigmaTot() const {return sigTot;}

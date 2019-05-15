@@ -1,8 +1,8 @@
 <chapter name="Phase Space Cuts">
 
-<h1>Phase Space Cuts</h1>
+<h2>Phase Space Cuts</h2>
 
-<ci>PhaseSpace</ci> is base class for all hard-process phase-space 
+<code>PhaseSpace</code> is base class for all hard-process phase-space 
 generators, either generic <ei>2 -> 1</ei> or <ei>2 -> 2</ei> ones, 
 or specialized ones like for elastic and diffractive scattering.
 
@@ -16,7 +16,7 @@ e.g. by subsequent showering activity.
 <p/>
 The more particles in the final state, the more cuts can be applied. 
 
-<h2>Cuts in all processes</h2>
+<h3>Cuts in all processes</h3>
 
 <parameter name="PhaseSpace:mHatMin" default="4." min="0.">
 The minimum invariant mass.
@@ -27,7 +27,7 @@ The maximum invariant mass.
 A negative value means there is no upper limit.
 </parameter>
 
-<h2>Cuts in <ei>2 -> 2</ei> processes</h2>
+<h3>Cuts in <ei>2 -> 2</ei> processes</h3>
 
 <parameter name="PhaseSpace:pTHatMin" default="4." min="0.">
 The minimum invariant <ei>pT</ei>.

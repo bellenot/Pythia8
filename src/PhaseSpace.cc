@@ -72,17 +72,11 @@ void PhaseSpace::initStatic() {
 
 // Save pointers and values.
 
-  void PhaseSpace::initInfo(SigmaHat* sigmaHatPtrIn, Info& info) {
+  void PhaseSpace::initInfo(SigmaProcess* sigmaProcessPtrIn, double eCMIn) {
 
-  // Store pointer for future us. 
-  sigmaHatPtr = sigmaHatPtrIn;
-
-  // Beam identities and masses.
-  idA = info.idA();
-  idB = info.idB();
-  mA = info.mA();
-  mB = info.mB();
-  eCM = info.eCM();
+  // Store input pointers for future use. CM energy.
+  sigmaProcessPtr = sigmaProcessPtrIn;
+  eCM = eCMIn;
   s = eCM * eCM;
 
   // Default event-specific kinematics properties.
@@ -134,7 +128,13 @@ bool PhaseSpace2to2tauyz::setupSampling() {
 
   // Debug printout.
   if (PRINT) cout <<  "\n Optimization printout for "  
-    << sigmaHatPtr->name() << "\n" << scientific << setprecision(3);
+    << sigmaProcessPtr->name() << "\n" << scientific << setprecision(3);
+
+  // Set masses.
+  m3 = sigmaProcessPtr->m(3);
+  m3S = m3 * m3;
+  m4 = sigmaProcessPtr->m(4);
+  m4S = m4 * m4;
 
   // Reset coefficients and matrices of equation system to solve.
   int binTau[8], binY[8], binZ[8];
@@ -182,7 +182,8 @@ bool PhaseSpace2to2tauyz::setupSampling() {
         selectZ( iZ, 0.5);
 
         // Calculate cross section. Weight by phase-space volume.
-        double sigmaNow = sigmaHatPtr->sigma2( x1H, x2H, sH, tH);
+        sigmaProcessPtr->set2Kin( x1H, x2H, sH, tH);
+        double sigmaNow = sigmaProcessPtr->sigmaPDF();
         sigmaNow *= wtTau * wtY * wtZ;
         if (sigmaNow > sigmaMx) sigmaMx = sigmaNow; 
 
@@ -255,7 +256,8 @@ bool PhaseSpace2to2tauyz::setupSampling() {
         selectZ( iZ, 0.5);
 
         // Calculate cross section. Weight by phase-space volume.
-        double sigmaNow = sigmaHatPtr->sigma2( x1H, x2H, sH, tH);
+        sigmaProcessPtr->set2Kin( x1H, x2H, sH, tH);
+        double sigmaNow = sigmaProcessPtr->sigmaPDF();
         sigmaNow *= wtTau * wtY * wtZ;
 
         // Debug printout.
@@ -378,7 +380,8 @@ bool PhaseSpace2to2tauyz::setupSampling() {
           if (insideLimits) {  
 
             // Calculate cross section. Weight by phase-space volume.
-            sigmaNow = sigmaHatPtr->sigma2( x1H, x2H, sH, tH);
+            sigmaProcessPtr->set2Kin( x1H, x2H, sH, tH);
+            sigmaNow = sigmaProcessPtr->sigmaPDF();
             sigmaNow *= wtTau * wtY * wtZ;
 
             // Debug printout.
@@ -443,7 +446,8 @@ bool PhaseSpace2to2tauyz::trialKin() {
   selectZ( iZ, Rndm::flat());
 
   // Calculate cross section. Weight by phase-space volume.
-  sigmaNw = sigmaHatPtr->sigma2( x1H, x2H, sH, tH);
+  sigmaProcessPtr->set2Kin( x1H, x2H, sH, tH);
+  sigmaNw = sigmaProcessPtr->sigmaPDF();
   sigmaNw *= wtTau * wtY * wtZ;
 
   // Check if maximum violated.
@@ -797,7 +801,7 @@ const double PhaseSpace2to2eldiff::DIFFMASSMAX = 1e-8;
 bool PhaseSpace2to2eldiff::setupSampling() {
 
   // Find maximum = value of cross section.
-  sigmaNw = sigmaHatPtr->sigma0();
+  sigmaNw = sigmaProcessPtr->sigmaHat();
   sigmaMx = sigmaNw;
 
   // Masses of particles and minimal masses of diffractive states.

@@ -1,10 +1,10 @@
 <chapter name="Standard-Model Parameters">
 
-<h1>Standard-Model Parameters</h1>
+<h2>Standard-Model Parameters</h2>
 
-<h2>The strong coupling</h2> 
+<h3>The strong coupling</h3> 
 
-Currently the only class in this category is <ci>AlphaStrong</ci>, 
+Currently the only class in this category is <code>AlphaStrong</code>, 
 which is used to provide a first- or second-order running 
 <ei>alpha_strong</ei> (or, trivially, a zeroth-order fixed one). 
 Formulae are the standard ones found in [1]. The starting 
@@ -12,28 +12,28 @@ Formulae are the standard ones found in [1]. The starting
 The <ei>Lambda</ei> values are matched at the <ei>b</ei> and <ei>c</ei> 
 flavour thresholds, such that <ei>alpha_strong</ei> is continuous, 
 using an approximate iterative method for second-order matching.
-Since we allow <ei>alpha_strong</ei> to vary separately for timelike 
-showers, spacelike showers and  multiple interactions, the relevant 
-values are to be set in each of these classes. 
+Since we allow <ei>alpha_strong</ei> to vary separately for 
+hard processes, timelike showers, spacelike showers and  multiple 
+interactions, the relevant values are to be set in each of these classes. 
  
 <p/>
 The <ei>alpha_strong</ei> calculation is initialized by 
-<ci>AlphaStrong::init( value, order)</ci>, where <ci>value</ci> 
-is the <ei>alpha_strong</ei> value at <ei>M_Z</ei> and <ci>order</ci> 
+<code>init( value, order)</code>, where <code>value</code> 
+is the <ei>alpha_strong</ei> value at <ei>M_Z</ei> and <code>order</code> 
 is the order of the running, 0, 1 or 2.   Thereafter the value can be 
-calculated by <ci>alphaS(scale)</ci>, where 
-<ci>scale</ci> is the <ei>Q^2</ei> scale in GeV^2>. 
+calculated by <code>alphaS(scale)</code>, where 
+<code>scale</code> is the <ei>Q^2</ei> scale in GeV^2. 
 
 <p/>
-For applications inside shower programs, a second-order <ci>alpha_s</ci> 
+For applications inside shower programs, a second-order <code>alpha_s</code> 
 value can be obtained as the product of the two functions 
-<ci>alphaS1Ord(scale)</ci> and <ci>alphaS2OrdCorr(scale)</ci>, where the 
-first gives a simple first-order running (but with the second-order 
-<ei>Lambda</ei>) and the second the correction factor, below unity, 
-for the second-order terms. This allows a compact handling of evolution 
-equations.
+<code>alphaS1Ord(scale)</code> and <code>alphaS2OrdCorr(scale)</code>, 
+where the first gives a simple first-order running (but with the 
+second-order <ei>Lambda</ei>) and the second the correction factor, 
+below unity, for the second-order terms. This allows a compact handling 
+of evolution equations.
 
-<h2>Electroweak couplings</h2> 
+<h3>Electroweak couplings</h3> 
 
 In addition, this section contains a few further parameters that should
 normally not be touched.
@@ -51,7 +51,7 @@ The weak mixing angle.
 <p/>
 Eventually will appear a running <ei>alpha_em</ei>, and CKM matrix elements.
 
-<h2>References</h2>
+<h3>References</h3>
 
 <ol>
 <li>Particle Data Group, S. Eidelman et al., 

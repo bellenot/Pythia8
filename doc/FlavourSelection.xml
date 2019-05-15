@@ -1,8 +1,8 @@
 <chapter name="Flavour Selection">
 
-<h1>Flavour Selection</h1>
+<h2>Flavour Selection</h2>
 
-The <ci>StringFlav</ci> class handles the choice of a new flavour 
+The <code>StringFlav</code> class handles the choice of a new flavour 
 in the fragmentation process, and the production of a new hadron 
 from a set of input flavours. It is mainly used by the string 
 fragmentation machinery (including ministrings), but also e.g.
@@ -15,7 +15,7 @@ included; the more sophisticated popcorn scenario remains to be
 implemented. Therefore the number of parameters on this page will
 be expanded later on. 
 
-<h2>New flavours</h2>
+<h3>New flavours</h3>
 
 The main parameters of the selection of a new flavour are
 
@@ -42,7 +42,7 @@ apart from the factor of 3 enhancement of spin 0 from counting the
 number of states.
 </parameter> 
 
-<h2>Meson production</h2>
+<h3>Meson production</h3>
 
 For a given set of flavours,the main parameters for meson production
 are
@@ -72,7 +72,7 @@ This angle is needed to specify the probability for such a <ei>q qbar</ei>
 state to project onto a specific meson. More transparent formuale are 
 obtained by introducing the angle <ei>alpha = theta + 54.7</ei> degrees:
 <eq>
-   f  = (uubar + ddbar)/sqrt(2) * sin(alpha) + ssbar * cos(alpha)  
+   f  = (uubar + ddbar)/sqrt(2) * sin(alpha) + ssbar * cos(alpha)<br/>  
    f' = (uubar + ddbar)/sqrt(2) * cos(alpha) - ssbar * sin(alpha)
 </eq>
 
@@ -107,7 +107,7 @@ the additional suppression of <ei>eta</ei> production, multiplying the
 normal production probability.
 </parameter> 
 
-<h2>Baryon production</h2>
+<h3>Baryon production</h3>
 
 The relative rate of baryon production is mainly given by the quark
 and diquark production parameters plus SU(6) Clebsch-Gordans. The
@@ -119,7 +119,7 @@ the suppression, relative to default SU(6) factors, of decuplet
 baryon production.
 </parameter> 
    
-<h2>References</h2>
+<h3>References</h3>
  
 <ol>
 

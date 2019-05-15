@@ -1,23 +1,24 @@
 <chapter name="The Event Record">
 
-<h1>The Event Record</h1>
+<h2>The Event Record</h2>
 
-The <ci>Event</ci> class for event records basically is a vector of 
-<ci>Particle</ci>s, so that it can expand to fit the event size.
-The index operator is overloaded, so that <ci>event[i]</ci> corresponds 
-to the <ci>i</ci>'th particle of an <ci>Event</ci> object <ci>event</ci>. 
-Thus <ci>event[i].id()</ci> returns the identity of the <ci>i</ci>'th 
-particle. References to the first, <ci>i</ci>'th and last particle are 
-obtained with <ci>event.front()</ci>, <ci>event.at(i)</ci> and 
-<ci>event.back()</ci>, respectively.
+The <code>Event</code> class for event records basically is a vector of 
+<code>Particle</code>s, so that it can expand to fit the event size.
+The index operator is overloaded, so that <code>event[i]</code> 
+corresponds to the <code>i</code>'th particle of an <code>Event</code> 
+object <code>event</code>. Thus <code>event[i].id()</code> returns the 
+identity of the <code>i</code>'th particle. References to the first, 
+<code>i</code>'th and last particle are obtained with 
+<code>event.front()</code>, <code>event.at(i)</code> and 
+<code>event.back()</code>, respectively.
 
 <p/>
-The event size can be found with <ci>size()</ci>, i.e. valid particles 
-are stored in <ci>0 &lt;= i &lt; event.size()</ci>.
+The event size can be found with <code>size()</code>, i.e. valid 
+particles are stored in <code>0 &lt;= i &lt; event.size()</code>.
 
 <p/>
 Line 0 is used to represent the event as a whole, with its total
-four-momentum and invariant mass, but does nto form part of the
+four-momentum and invariant mass, but does not form part of the
 event history. Lines 1 and 2 contains the two incoming beams, and 
 only from here on history tracing works as could be expected. That 
 way unassigned mother and daughter indices can be put 0 without 
@@ -29,27 +30,27 @@ minimize the danger of errors.
 
 <p/>
 New particles can be added to the end of the current event record
-with <ci>append(Particle)</ci>, or 
-<ci>append(id, status, mother1, mother2, daughter1, daughter2, 
-col, acol, p, m, scale)</ci>
-where <ci>p</ci> is the four-momentum vector, and everything except 
-<ci>id</ci> defaults to 0. The <ci>append</ci> method returns the index 
-of the new particle position. 
+with <code>append(Particle)</code>, or 
+<code>append(id, status, mother1, mother2, daughter1, daughter2, 
+col, acol, p, m, scale)</code>
+where <code>p</code> is the four-momentum vector, and everything except 
+<code>id</code> defaults to 0. The <code>append</code> method returns 
+the index of the new particle position. 
   
 <p/>
-The existing particle at index <ci>iCopy</ci> can be copied to the end 
-with <ci>copy(iCopy, newStatus = 0)</ci>. By default, i.e. with 
-<ci>newStatus = 0</ci>, everything is copied precisely as it is, 
+The existing particle at index <code>iCopy</code> can be copied to the end 
+with <code>copy(iCopy, newStatus = 0)</code>. By default, i.e. with 
+<code>newStatus = 0</code>, everything is copied precisely as it is, 
 which means that history information has to be modified further by hand 
-to make sense. With a positive <ci>newStatus</ci>, the new copy is set 
-up to be the daughter of the old, with status code <ci>newStatus</ci>, 
-and the status code of <ci>iCopy</ci> is negated. With a negative 
-<ci>newStatus</ci>, the new copy is instead set up to be the mother 
-of <ci>iCopy</ci>.
+to make sense. With a positive <code>newStatus</code>, the new copy is set 
+up to be the daughter of the old, with status code <code>newStatus</code>, 
+and the status code of <code>iCopy</code> is negated. With a negative 
+<code>newStatus</code>, the new copy is instead set up to be the mother 
+of <code>iCopy</code>.
 
 <p/>
-A listing of the whole event is obtained with <ci>list()</ci>. This 
-function takes an <ci>ostream</ci> object as an optional argument.
+A listing of the whole event is obtained with <code>list()</code>. This 
+function takes an <code>ostream</code> object as an optional argument.
 The basic id, status, mother, daughter, colour, four-momentum
 and mass data are always given, but the following switches can be 
 set to provide further information, or restrict the set of particles
@@ -70,7 +71,7 @@ production vertex (in mm or mm/c) and the invariant lifetime
 <flag name="Event:listMothersAndDaughters" default="off">
 The alternative mode, with this option on, gives a list of all
 daughters and mothers of a particle, as defined by the 
-<ci>motherList(i)</ci> and <ci>daughterList(i)</ci> methods 
+<code>motherList(i)</code> and <code>daughterList(i)</code> methods 
 described below. It is purely intended for debug purposes, 
 e.g. when writing an interface to another event record format. 
 </flag>
@@ -78,7 +79,7 @@ e.g. when writing an interface to another event record format.
 <flag name="Event:extraBlankLine" default="off">
 With this option on, an extra blank line is inserted after each 
 particle. There is a tradeoff between improved legibility, in 
-particular for <ci>Event:listMothersAndDaughters</ci> on, and a 
+particular for <code>Event:listMothersAndDaughters</code> on, and a 
 longer listing. 
 </flag>
 
@@ -89,57 +90,58 @@ displayed after the normal particle list.
 
 These choices are stored at the initialization stage of the event.
 If you want to change values later, you have to execcute an
-<ci>Event::initStatic()</ci> yourself for them to take effect.  
+<code>Event::initStatic()</code> yourself for them to take effect.  
 
 <p/>
 The event record can be emptied for the next event by a 
-<ci>clear()</ci>. The last <ci>n</ci> entries can be removed by 
-<ci>popBack(n)</ci>, where <ci>n = 1</ci> by default. 
+<code>clear()</code>. The last <code>n</code> entries can be removed by 
+<code>popBack(n)</code>, where <code>n = 1</code> by default. 
 
 <p/>
-The user would normally be concerned with the <ci>Event</ci> object 
-that is a public member <ci>event</ci> of the <ci>Pythia</ci> class. 
-Thus, having declared a <ci>Pythia</ci> object <ci>pythia</ci>, 
-<ci>pythia.event[i].id()</ci> would be used to return the identity 
-of the <ci>i</ci>'th particle, and <ci>pythia.event.size()</ci> to 
+The user would normally be concerned with the <code>Event</code> object 
+that is a public member <code>event</code> of the <code>Pythia</code> class. 
+Thus, having declared a <code>Pythia</code> object <code>pythia</code>, 
+<code>pythia.event[i].id()</code> would be used to return the identity 
+of the <code>i</code>'th particle, and <code>pythia.event.size()</code> to 
 give the size of the event record. 
 
 <p/>
-A <ci>Pythia</ci> object contains a second event record for the 
-hard process alone, called <ci>process</ci>, used as input for the 
+A <code>Pythia</code> object contains a second event record for the 
+hard process alone, called <code>process</code>, used as input for the 
 generation of the complete event. Thus one may e.g. call either 
-<ci>pythia.process.list()</ci> or <ci>pythia.event.list()</ci>. 
+<code>pythia.process.list()</code> or <code>pythia.event.list()</code>. 
 To distinguish those two rapidly at visual inspection, the 
-<ci>"Pythia Event Listing"</ci> header is printed out differently, 
-in one case adding <ci>"(hard process)"</ci> and in the other 
-<ci>"(complete event)"</ci>. This is set by a header(string) method.
+<code>"Pythia Event Listing"</code> header is printed out differently, 
+in one case adding <code>"(hard process)"</code> and in the other 
+<code>"(complete event)"</code>. This is set by a header(string) method.
 
 <p/>
-One data member in an <ci>Event</ci> object is used to keep track of the  
-largest <ci>col()</ci> or <ci>acol()</ci> tag set so far, so that 
-new ones do not clash. The <ci>lastcolTag()</ci> method returns the 
+One data member in an <code>Event</code> object is used to keep track of the  
+largest <code>col()</code> or <code>acol()</code> tag set so far, so that 
+new ones do not clash. The <code>lastcolTag()</code> method returns the 
 last tag assigned, i.e. largest value in the current event, and 
-<ci>nextColTag()</ci> ups it by one before returing the value. The 
+<code>nextColTag()</code> ups it by one before returing the value. The 
 latter method thus is used when a new colour tag is needed.  
 
 <mode name="Event:startColTag" default="100" min="0" max="1000">
 This sets the initial value used, so that the first one assigned is
-<ci>startColTag+1</ci>, etc. The Les Houches accord [2] suggests this 
+<code>startColTag+1</code>, etc. The Les Houches accord [2] suggests this 
 number to be 500, but 100 works equally well.
 </mode>
 
 <p/>
-The <ci>scale()</ci> methods can be used to set or get the scale 
+The <code>scale()</code> methods can be used to set or get the scale 
 (in GeV) of the event as a whole. Further methods for event properties 
 may be added in the future.
 
 <p/>
-There are also a few methods with an individual particle index <ci>i</ci> 
-as input, but requiring some search operations in the event record, and
-therefore not possible to define inside the <ci>Particle</ci> class:
+There are also a few methods with an individual particle index 
+<code>i</code> as input, but requiring some search operations in 
+the event record, and therefore not possible to define inside the 
+<code>Particle</code> class:
 
 <method name="motherList(i)"> 
-returns a <ci>vector&lt;int></ci> containing a list of all the
+returns a <code>vector&lt;int></code> containing a list of all the
 mothers of a particle. This list is empty for entry 0 , while 
 normally it contains one, two or many mothers. The latter case 
 applies e.g. to string fragmentation, where the whole fragmenting 
@@ -147,27 +149,27 @@ system is counted as mothers. Mothers are listed in ascending order.
 </method>
 
 <method name="daughterList(i)">
-returns a <ci>vector&lt;int></ci> containing a list of all the
+returns a <code>vector&lt;int></code> containing a list of all the
 daughters of a particle. This list is empty for a particle that did 
 not decay (or, if the evolution is stopped early enough, a parton
 that did not branch), while otherwise it can contain a list of 
 varying length, from one to many. Many partons may have the same 
-<ci>daughterList</ci>, e.g. in the hard process and fragmentation steps.
+<code>daughterList</code>, e.g. in the hard process and fragmentation steps.
 For the two incoming beam particles, all shower initiators and beam 
 remnants are counted as daughters, with the one in slot 0 being
 the one leading up to the hardest interaction. 
 </method>
 
 <method name="iTopCopy(i), iBotCopy(i)"> 
-are used to trace carbon copies of the particle at index <ci>i</ci> up 
+are used to trace carbon copies of the particle at index <code>i</code> up 
 to its top mother or down to its bottom daughter. If there are no such 
-carbon copies, <ci>i</ci> itself will be returned.
+carbon copies, <code>i</code> itself will be returned.
 </method>
 
 <method name="iTopCopyId(i), iBotCopyId(i)"> 
 also trace top mother and bottom daughter, but do not require carbon 
 copies, only that one can find an unbroken chain, of mothers or daughters, 
-with the same flavour <ci>id</ci> code. The behaviour when trying to 
+with the same flavour <code>id</code> code. The behaviour when trying to 
 trace a gluon through a shower, with its <ei>g -> g g</ei> branchings, 
 is then rather unpredictable. Similarly, a hard scattering such as 
 <ei>u u -> u u</ei> is better avoided. It should work well for "rare" 
@@ -176,33 +178,34 @@ by ambiguities.
 </method>
 
 <method name="sisterList(i)"> 
-returns a <ci>vector&lt;int></ci> containing a list of all the 
+returns a <code>vector&lt;int></code> containing a list of all the 
 sisters of a particle, i.e. all the daughters of the first mother,
 except the particle itself. 
 </method>
 
 <method name="sisterListTopBot(i)">
- returns a <ci>vector&lt;int></ci> containing a list of all the sisters 
-of a particle, tracking up and back down through carbon copies if 
-required. That is, the particle is first traced up with <ci>iTopCopy()</ci> 
-before its mother is found, and then all the particles in the 
-<ci>daughterList()</ci> of this mother are traced down with 
-<ci>iBotCopy()</ci>, omitting the original particle itself. 
+returns a <code>vector&lt;int></code> containing a list of all the 
+sisters of a particle, tracking up and back down through carbon copies 
+if required. That is, the particle is first traced up with 
+<code>iTopCopy()</code> before its mother is found, and then all 
+the particles in the <code>daughterList()</code> of this mother are 
+traced down with <code>iBotCopy()</code>, omitting the original 
+particle itself. 
 </method>
 
 <method name="isAncestor(i, iAncestor)"> 
-traces the particle <ci>i</ci> upwards through mother, grandmother, 
-and so on, until either <ci>iAncestor</ci> is found or the top of 
+traces the particle <code>i</code> upwards through mother, grandmother, 
+and so on, until either <code>iAncestor</code> is found or the top of 
 the record is reached. Normally one unique mother is required,
 as is the case e.g. in decay chains or in parton showers, so that
 e.g. the tracing through a hard scattering would not work. For
 hadronization, currently first-rank hadrons are identified with the
 respective string endpoint quark, which may be useful e.g. for <ei>b</ei>
 physics. However, currently ministrings or junction topologies give 
-<ci>false</ci>. (??)  
+<code>false</code>. (??)  
 </method>
  
-<h2>The Junction Class</h2>
+<h3>The Junction Class</h3>
 
 The event record also contains a vector of junctions, which often
 is empty or else contains only a very few per event. Methods are
@@ -229,34 +232,35 @@ For each junction, information is stored on the kind of junction, and
 on the three (anti)colour indices that are involved in the junction.
 The possibilities foreseen are:
 <ul>
-<li><ci>kind = 1</ci> : incoming colourless particle to three outgoing 
-colours (e.g. baryon beam remnant or <ci>neutralino -> q q q</ci>);</li>
-<li><ci>kind = 2</ci> : incoming colourless particle to three outgoing 
-anticolours;</li>
-<li><ci>kind = 3</ci> : one incoming anticolor (stored first) and two 
-outgoing  colours (e.g. antisquark decaying to quark);</li>
-<li><ci>kind = 4</ci> : one incoming color (stored first) and two 
+<li><code>kind = 1</code> : incoming colourless particle to three 
+outgoing colours (e.g. baryon beam remnant or 
+<code>neutralino -> q q q</code>);</li>
+<li><code>kind = 2</code> : incoming colourless particle to three 
 outgoing anticolours;</li>
-<li><ci>kind = 5</ci> : incoming colour octet to three colours, 
+<li><code>kind = 3</code> : one incoming anticolor (stored first) 
+and two outgoing  colours (e.g. antisquark decaying to quark);</li>
+<li><code>kind = 4</code> : one incoming color (stored first) and two 
+outgoing anticolours;</li>
+<li><code>kind = 5</code> : incoming colour octet to three colours, 
 where the incoming colour passes through unchanged and so need not 
 be bokkept here, while the incoming anticolor (stored first) and the 
 two outgoing colours are (e.g. gluino decay to three quarks);</li>
-<li><ci>kind = 6</ci> : incoming colour octet to three anticolours, 
+<li><code>kind = 6</code> : incoming colour octet to three anticolours, 
 where the incoming anticolour passes through unchanged and so need not 
 be bookkept here, while the incoming color (stored first) and the two 
 outgoing colours are.</li>
 </ul>
-The odd (even) <ci>kind</ci> codes corresponds to a +1 (-1) change in 
+The odd (even) <code>kind</code> codes corresponds to a +1 (-1) change in 
 baryon number across the junction.
-<note>Warning:</note>Currently only <ci>kind = 1, 2</ci> are 
+<note>Warning:</note>Currently only <code>kind = 1, 2</code> are 
 implemented.
 
 <p/>
 The kind and colour information in the list of junctions can be set 
-or read with methods of the <ci>Event</ci> class, but are not of 
+or read with methods of the <code>Event</code> class, but are not of 
 common interest and so not described here.
 
-<h2>References</h2>
+<h3>References</h3>
 
 <ol>
 

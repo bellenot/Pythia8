@@ -1,0 +1,54 @@
+<html>
+<head>
+<title>Event Statistics</title>
+</head>
+<body>
+
+<h2>Event Statistics</h2>
+
+At the end of the run you will want to write out the final statistics
+on number of events generated, the corresponding cross sections and 
+the number of errors encountered. This is done with
+<pre>
+    pythia.statistics();
+ </pre>
+assuming <code>pythia</code> is an instance of the <code>Pythia</code>
+class. The <code>statistics</code> method in its turn calls on the 
+methods below.
+
+<h3>Cross-section statistics</h3>
+
+The <code>ProcessLevel::statistics()</code> member will loop over the
+list of existing processes, and for each write out name, code,
+the number of tried  and accepted events (in the sense that the 
+Monte Carlo integration involves an initial upper estimate of the
+cross section, that then is compensated by the try-accept/reject
+step), the cross section and the estimated error on the latter. 
+
+<p/> 
+If PYTHIA 6 is used to generate the hard processes, instead the
+Fortran <code>PYSTAT</code> method is called.
+
+<h3>Error messages</h3>
+
+The <code>ErrorMessages</code> class is rather small. It is handed any 
+warning or error messages during the event generation phase, and will 
+store each distinct message, with a counter for how many times it is 
+issued. Thus it is possible to limit the number of identical messages 
+issued. The summary table printed by <code>pythia.statistics()</code> 
+provides a table with all the different messages issued, in 
+alphabetical order, with the total number of times each was generated.
+
+<p/>
+There is only one mode affecting its operation:
+<p/><strong>
+mode name="ErrorMessages:timesToPrint" default="1" min="0"
+</strong><br/>
+The number of times each distinct message is printed. Thit is, by
+default, each new kind of error/warning is only printed once.
+   
+
+</body>
+</html>
+
+<!-- Copyright C 2006 Torbjorn Sjostrand -->

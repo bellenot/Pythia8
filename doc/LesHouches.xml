@@ -1,31 +1,31 @@
 <chapter name="The Les Houches Accord">
 
-<h1>The Les Houches Accord</h1>
+<h2>The Les Houches Accord</h2>
 
 The Les Houches Accord for user processes [1] is the standard way to 
 input parton-level information from a matrix-elements based generator 
-into Pythia. The conventions for which information should be stored
+into PYTHIA. The conventions for which information should be stored
 has been defined in a Fortran context, as two commonblocks. Here a 
 C++ equivalent is defined, as two separate classes.
 
 <p/>
-The <ci>LHAinit</ci> and <ci>LHAevnt</ci> classes are base classes, 
+The <code>LHAinit</code> and <code>LHAevnt</code> classes are base classes, 
 containing reading and printout functions, plus a pure virtual function 
 each. Derived classes have to provide these two virtual functions to do 
 the actual work. Currently the only derived classes are for reading 
 information from the respective Fortran commonblock or for reading
-it from Pythia 6.4-produced files. 
+it from PYTHIA 6.4-produced files. 
 
 <p/>
 Normally, pointers to objects of the derived classes should be handed
-in with the <ci>pythia.init()</ci> method, see further the Particle Flow
-page. (If you use the LHA interface to Pythia 6.4, this is taken care of 
+in with the <code>pythia.init()</code> method. (If you use the LHA 
+interface to PYTHIA 6.4, this is taken care of 
 internally, so no pointers need to be handed in.) 
 
-<h2>Initialization</h2>
+<h3>Initialization</h3>
 
-The <ci>LHAinit</ci> class stores information equivalent to the 
-<ci>/HEPRUP/</ci> commonblock, as required to initialize the event 
+The <code>LHAinit</code> class stores information equivalent to the 
+<code>/HEPRUP/</code> commonblock, as required to initialize the event 
 generation chain. The main difference is that the vector container 
 now allows a flexible number of subprocesses to be defined. For the 
 rest, names have been modified, since the 6-character-limit does not 
@@ -33,25 +33,27 @@ apply, and variables have been regrouped for clarity, but nothing
 fundamental.
 
 <p/>
-The pure virtual function <ci>set()</ci> has to be implemented in the 
+The pure virtual function <code>set()</code> has to be implemented in the 
 derived class, to set relevant information when called. It should
-return <ci>false</ci> if it fails to set the info.
+return <code>false</code> if it fails to set the info.
 
 <p/>
-Inside <ci>set()</ci>, such information can be set by the following 
+Inside <code>set()</code>, such information can be set by the following 
 methods:
 <method name="beamA( identity, energy, pdfGroup, pdfSet)"> 
 sets the properties of the first incoming beam (cf. the Fortran
-<ci>IDBMUP(1), EBMUP(1), PDFGUP(1), PDFSUP(1)</ci>), and similarly 
-a <ci>beamB</ci> method exists. The parton distribution information 
+<code>IDBMUP(1), EBMUP(1), PDFGUP(1), PDFSUP(1)</code>), and similarly 
+a <code>beamB</code> method exists. The parton distribution information 
 defaults to zero, meaning that internal sets are used.
 </method>
 <method name="strategy( choice)"> 
-sets the event weighting and cross section  strategy (cd. <ci>IDWTUP</ci>).
+sets the event weighting and cross section  strategy 
+(cf. <code>IDWTUP</code>).
 </method>
 <method name="process( idProcess, crossSection, crossSectionError, 
 crossSectionMaximum)"> 
-sets info on an allowed process (cf. <ci>LPRUP, XSECUP, XERRUP, XMAXUP</ci>). 
+sets info on an allowed process (cf. <code>LPRUP, XSECUP, XERRUP, 
+XMAXUP</code>). 
 Each new call will append one more entry to the list of processes.
 </method>
 
@@ -67,16 +69,18 @@ for the strategy choice.
 for the number of subprocesses.
 </method>
 <method name="idProcess(i), xSec(i), xErr(i), xMax(i)"> 
-for process <ci>i</ci> in the range <ci>0 &lt;= i &lt; size()</ci>.   
+for process <code>i</code> in the range <code>0 &lt;= i &lt; 
+size()</code>.   
 </method>
 
+<p/>
 The information can also be printed using the overloaded 
-&lt;&lt; operator, e.g. <ci>cout &lt;&lt; LHAinitObject</ci>.
+&lt;&lt; operator, e.g. <code>cout &lt;&lt; LHAinitObject</code>.
 
-<h2>Event input</h2>
+<h3>Event input</h3>
 
-The <ci>LHAevnt</ci> class stores information equivalent to the 
-<ci>/HEPEUP/</ci> commonblock, as required to hand in the next 
+The <code>LHAevnt</code> class stores information equivalent to the 
+<code>/HEPEUP/</code> commonblock, as required to hand in the next 
 parton-level configuration for complete event generation. The main 
 difference is that the vector container now allows a flexible number 
 of partons to be defined. For the rest, names have been modified, 
@@ -88,32 +92,32 @@ The Les Houches standard is based on Fortran arrays beginning with
 index 1, and mother information is defined accordingly. In order to 
 be compatible with this convention, the zeroth line of the C++ particle
 array is kept empty, so that index 1 also here corresponds to the first
-particle. One small incompatibility is that the <ci>size()</ci> method 
-returns the full size of the particle array, including the empty zeroth 
-line, and thus is one larger than the true number of particles 
-(<ci>NUP</ci>). 
+particle. One small incompatibility is that the <code>size()</code> 
+method returns the full size of the particle array, including the 
+empty zeroth line, and thus is one larger than the true number of 
+particles (<code>NUP</code>). 
 
 <p/>
-The pure virtual function <ci>set()</ci> has to be implemented in the 
-derived class, to set relevant information when called. It should
-return <ci>false</ci> if it fails to set the info, e.g. if the supply of 
-events in a file is exhausted.
+The pure virtual function <code>set()</code> has to be implemented in 
+the derived class, to set relevant information when called. It should
+return <code>false</code> if it fails to set the info, e.g. if the 
+supply of events in a file is exhausted.
 
 <p/>
-Inside <ci>set()</ci>, cuch information can be set by the following
+Inside <code>set()</code>, cuch information can be set by the following
 methods:
 <method name="process( idProcess, weight, scale, alphaQED, alphaQCD)"> 
 tells which kind of process occured, with what weight, at what scale, 
 and which <ei>alpha_EM</ei> and <ei>alpha_strong</ei> were used
-(cf. <ci>IDPRUP, XWTGUP, SCALUP, AQEDUP, AQCDUP</ci>). This method also 
-resets the size of the particle list, and adds the empty zeroth line, 
-so it has to be called before the particle method below.
+(cf. <code>IDPRUP, XWTGUP, SCALUP, AQEDUP, AQCDUP</code>). This method 
+also resets the size of the particle list, and adds the empty zeroth 
+line, so it has to be called before the particle method below.
 </method>
 <method name="particle( id, status, mother1, mother2, colourTag1, 
 colourTag2, p_x, p_y, p_z, e, m, tau, spin)"> 
-gives the properties of the next particle handed in (cf. <ci>IDUP, ISTUP, 
+gives the properties of the next particle handed in (cf. <code>IDUP, ISTUP, 
 MOTHUP(1,..), MOTHUP(2,..), ICOLUP(1,..), ICOLUP(2,..),  PUP(J,..), 
-VTIMUP, SPINUP</ci>) .
+VTIMUP, SPINUP</code>) .
 </method>
 
 <p/>
@@ -127,80 +131,80 @@ of particles in the event, since the zeroth entry is kept empty
 </method>
 <method name="id(i), status(i), mother1(i), mother2(i), col1(i), col2(i),
 px(i), py(i), pz(i), e(i), m(i), tau(i), spin(i)"> 
-for particle <ci>i</ci> in the range <ci>0 &lt;= i &lt; size()</ci>. 
-(But again note that i = 0 is an empty line, so the true range begins 
-at 1.)   
+for particle <code>i</code> in the range 
+<code>0 &lt;= i &lt; size()</code>. (But again note that 
+<code>i = 0</code> is an empty line, so the true range begins at 1.)   
 </method>
 
 <p/>
 The information can also be printed using the overloaded 
-&lt;&lt; operator, e.g. <ci>cout &lt;&lt; LHAevntObject</ci>.
+&lt;&lt; operator, e.g. <code>cout &lt;&lt; LHAevntObject</code>.
 
-<h2>A runtime Fortran interface</h2>
+<h3>A runtime Fortran interface</h3>
 
-The <ci>LHAinitFortran</ci> class derives from <ci>LHAinit</ci>. 
+The <code>LHAinitFortran</code> class derives from <code>LHAinit</code>. 
 It reads initialization information from the Les Houches standard 
 Fortran commonblock, assuming this commonblock behaves like an 
-<ci>extern "C" struct</ci> named <ci>heprup_</ci>. (Note the final
+<code>extern "C" struct</code> named <code>heprup_</code>. (Note the final
 underscore, to match how the gcc compiler internally names Fortran
 files.) 
 
 <p/>
 Initialization is with
-<code>
+<pre>
     LHAinitFortran lhaInit();
-</code>
+</pre>
 i.e. does not require any arguments. 
 
 <p/>
-The <ci>LHAevntFortran</ci> class derives from <ci>LHAevnt</ci>. 
+The <code>LHAevntFortran</code> class derives from <code>LHAevnt</code>. 
 It reads information on the next event, stored in the Les Houches 
 standard Fortran commonblock, assuming this commonblock behaves like 
-an <ci>extern "C" struct</ci> named <ci>hepeup_</ci>.
+an <code>extern "C" struct</code> named <code>hepeup_</code>.
 
 <p/>
 Initialization is with
-<code>
+<pre>
     LHAevntFortran lhaEvnt();
-</code>
+</pre>
 i.e. does not require any arguments. 
 
 <p/>
-See further the Accessing Pythia6 Processes page for information how 
-Pythia 6.4 can be linked to make use of this facility. Several of the
-example main programs illustrate how it can be used. 
+See further the page on "Accessing PYTHIA 6 Processes" for information 
+how PYTHIA 6.4 can be linked to make use of this facility. 
+Several of the example main programs illustrate how it can be used. 
 
-<h2>An interface to Pythia6 files</h2>
+<h3>An interface to PYTHIA 6 files</h3>
 
-The <ci>LHAinitPythia6</ci> class derives from <ci>LHAinit</ci>. 
-It reads initialization information, written from Pythia 6.4 with the 
-<ci>PYUPIN</ci> routine, from a given file. The file name should be 
-given as argument at the instantiation, e.g.
-<code> 
+The <code>LHAinitPythia6</code> class derives from <code>LHAinit</code>. 
+It reads initialization information, written from PYTHIA 6.4
+with the <code>PYUPIN</code> routine, from a given file. The file name 
+should be given as argument at the instantiation, e.g.
+<pre> 
     LHAinitPythia6 lhaInit("ttsample.init");
-</code>
+</pre>
 
 <p/>
-Thw <ci>LHAevntPythia6</ci>class derives from <ci>LHAevnt</ci>. 
-It reads information on the next event, written from Pythia 6.4 with 
-the <ci>PYUPEV</ci> routine, from a given file. The file name should be 
+Thw <code>LHAevntPythia6</code>class derives from <code>LHAevnt</code>. 
+It reads information on the next event, written from PYTHIA 6.4 with 
+the <code>PYUPEV</code> routine, from a given file. The file name should be 
 given as argument at the instantiation, e.g. 
-<code> 
+<pre> 
     LHAevntPythia6 lhaEvnt("ttsample.evnt");
-</code> 
+</pre> 
 
 <p/>
-The <ci>PYUPEV</ci> routine writes mother indices using the Fortran 
+The <code>PYUPEV</code> routine writes mother indices using the Fortran 
 (and Les Houches) convention of the first particle being number 1, 
 and so matches the C++ "fix" of an empty zeroth particle.  
 
 <p/>
 An example how to use events in such exernal files is found in 
-<ci>main02.cc</ci>.
+<code>main02.cc</code>.
 
-<h2>Other examples</h2>
+<h3>Other examples</h3>
 
-A special <ci>strategy = 10</ci> (not present in the <ci>IDWTUP</ci> 
+A special <code>strategy = 10</code> (not present in the <code>IDWTUP</code> 
 specification) has been added. It takes a given partonic input, 
 no questions asked, and hadronizes it, i.e. does string fragmentation 
 and decay. Thereby the normal process-level and parton-level machineries 
@@ -214,9 +218,9 @@ beforehand.
 
 <p/>
 An example how this can be used for toy studies is found in 
-<ci>main03.cc</ci>.
+<code>main03.cc</code>.
 
-<h2>References</h2>
+<h3>References</h3>
 
 <ol>
 <li>E. Boos et al., in the Proceedings of the Workshop on Physics at 

@@ -17,8 +17,9 @@ namespace Pythia8 {
 
 double MultipleInteractions::alphaSvalue = 0.127;
 int MultipleInteractions::alphaSorder = 1; 
+double MultipleInteractions::alphaEMfix =  0.00729735;
 double MultipleInteractions::Kfactor = 1.0; 
-double MultipleInteractions::pT0Ref= 3.0; 
+double MultipleInteractions::pT0Ref= 2.2; 
 double MultipleInteractions::ecmRef = 1800.; 
 double MultipleInteractions::ecmPow = 0.16; 
 double MultipleInteractions::pTmin = 0.2; 
@@ -31,6 +32,10 @@ int MultipleInteractions::nSample = 1000;
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
+
+// Factorization scale pT2 by default, but could be shifted to pT2 + pT02.
+// (A priori possible, but problems for flavour threshold interpretation.)
+const bool MultipleInteractions::SHIFTFACSCALE = false;
 
 // Naive upper estimate of cross section too pessimistic, so reduce by this.
 const double MultipleInteractions::SIGMAFUDGE = 0.7; 
@@ -48,17 +53,20 @@ const double MultipleInteractions::SIGMASTEP = 1.1;
 // Refuse too low expPow in impact parameter profile.
 const double MultipleInteractions::EXPPOWMIN = 0.4; 
 
+// Define low-b region by interaction rate above given number.
+const double MultipleInteractions::PROBATLOWB = 0.6;
+
 // Basic step size for b integration; sometimes modified.
-const double MultipleInteractions::BSTEP = 0.02;
+const double MultipleInteractions::BSTEP = 0.01;
 
 // Stop b integration when integrand dropped enough.
-const double MultipleInteractions::BMAX = 1e-6;
+const double MultipleInteractions::BMAX = 1e-8;
 
 // Do not allow too large argument to exp function.
 const double MultipleInteractions::EXPMAX = 50.;
 
 // Convergence criterion for k iteration.
-const double MultipleInteractions::KCONVERGE = 1e-5;
+const double MultipleInteractions::KCONVERGE = 1e-7;
 
 // Conversion of GeV^{-2} to mb for cross section.
 const double MultipleInteractions::CONVERT2MB = 0.389380; 
@@ -72,6 +80,7 @@ void MultipleInteractions::initStatic() {
   //  Parameters of alphaStrong and cross section generation.
   alphaSvalue = Settings::parameter("MultipleInteractions:alphaSvalue");
   alphaSorder = Settings::mode("MultipleInteractions:alphaSorder");
+  alphaEMfix = Settings::parameter("StandardModel:alphaEMfix"); 
   Kfactor = Settings::parameter("MultipleInteractions:Kfactor");
 
   // Regularization of QCD evolution for pT -> 0. 
@@ -97,22 +106,54 @@ void MultipleInteractions::initStatic() {
 
 // Initialize the generation process for given beams.
 
-bool MultipleInteractions::init( BeamParticle& beamA, BeamParticle& beamB) {
+bool MultipleInteractions::init( BeamParticle* beamAPtrIn, 
+  BeamParticle* beamBPtrIn, bool reInit) {
+
+  // Do not initialize if already done, and reinitialization not asked for.
+  if (isInit && !reInit) return true;
+
+  // Store input pointers for future use. 
+  beamAPtr = beamAPtrIn;
+  beamBPtr = beamBPtrIn;
+
+  // Some common combinations for double Gaussian, as shorthand.
+  if (bProfile == 2) {
+    fracA = pow2(1. - coreFraction);
+    fracB = 2. * coreFraction * (1. - coreFraction);
+    fracC = pow2(coreFraction); 
+    radius2B = 0.5 * (1. + pow2(coreRadius));
+    radius2C = pow2(coreRadius);
+
+  // Some common combinations for exp(b^pow), as shorthand.
+  } else if (bProfile == 3) {
+    lowPow = (expPow < 2.) ? true : false;
+    expRev = 2. / expPow - 1.;
+  } 
 
   // Initialize alpha_strong generation.
   alphaS.init( alphaSvalue, alphaSorder); 
 
-  // Initialize matrix-element calculation.
-  dSigmaDt1.init();
-  dSigmaDt2.init();
+  // Attach matrix-element calculation objects.
+  if (!reInit) {
+    sigma2gg2ggT = new Sigma2gg2gg();
+    sigma2gg2ggU = new Sigma2gg2gg();
+    sigma2qg2qgT = new Sigma2qg2qg();
+    sigma2qg2qgU = new Sigma2qg2qg();
+    sigma2qq2qqSameT = new Sigma2qq2qqSame();
+    sigma2qq2qqSameU = new Sigma2qq2qqSame();
+    sigma2qqbar2qqbarSameT = new Sigma2qqbar2qqbarSame();
+    sigma2qqbar2qqbarSameU = new Sigma2qqbar2qqbarSame();
+    sigma2qq2qqDiffT = new Sigma2qq2qqDiff();
+    sigma2qq2qqDiffU = new Sigma2qq2qqDiff();
+  }
 
   // Calculate invariant mass of system. Set current pT0 scale.
-  sCM = m2( beamA.p(), beamB.p());
+  sCM = m2( beamAPtr->p(), beamBPtr->p());
   eCM = sqrt(sCM);
   pT0 = pT0Ref * pow(eCM / ecmRef, ecmPow);
 
   // Get the total inelastic and nondiffractive cross section. Output.
-  bool canDoMI = sigmaTot.init( beamA.id(), beamB.id(), eCM);
+  bool canDoMI = sigmaTot.init( beamAPtr->id(), beamBPtr->id(), eCM);
   if (!canDoMI) return false;
   sigmaND = sigmaTot.sigmaND();
   cout << "\n *-------  PYTHIA Multiple Interactions Initialization  --"
@@ -139,10 +180,10 @@ bool MultipleInteractions::init( BeamParticle& beamA, BeamParticle& beamB) {
     pT2maxmin = pT2max - pT2min;   
 
     // Provide upper estimate of interaction rate d(Prob)/d(pT2).
-    upperEnvelope( beamA, beamB);
+    upperEnvelope();
 
     // Integrate the parton-parton interaction cross section.
-    jetCrossSection( beamA, beamB);
+    jetCrossSection();
 
     // Sufficiently big SigmaInt or reduce pT0. Output.
     if (sigmaInt > SIGMASTEP * sigmaND) break; 
@@ -158,18 +199,181 @@ bool MultipleInteractions::init( BeamParticle& beamA, BeamParticle& beamB) {
        << "  ---* " << endl;
 
   // Calculate factor relating matter overlap and interaction rate.
-  overlapFactor();
+  overlapInit();
 
   // Done.
+  isInit = true;
   return true;
 }
 
 //*********
 
+// Select first = hardest pT in minbias process.
+// Requires separate treatment at low and high b values
+
+void MultipleInteractions::pTfirst() {  
+
+  // Pick impact parameter and thereby interaction rate enhancement.
+  overlapFirst();
+  bSetInFirst = true;
+  double WTacc;
+
+  // At low b values evolve downwards with Sudakov. 
+  if (atLowB) {
+    pT2 = pT2max;
+    do {
+
+      // Pick a pT using a quick-and-dirty cross section estimate.
+      pT2 = fastPT2(pT2);
+
+      // If fallen below lower cutoff then need to restart at top.
+      if (pT2 < pT2min) {
+        pT2 = pT2max;
+        WTacc = 0.;
+
+      // Else pick complete kinematics and evaluate cross-section correction.
+      } else WTacc = sigmaPT2(true) / dSigmaApprox;
+    
+    // Loop until acceptable pT and acceptable kinematics.
+    } while (WTacc < Rndm::flat() || !dSigmaDtSel->final2KinMI()); 
+
+  // At high b values make preliminary pT choice without Sudakov factor.
+  } else {
+    do {
+      pT2 = pT20min0maxR / (pT20minR + Rndm::flat() * pT2maxmin) - pT20R; 
+
+      // Evaluate upper estimate of cross section for this pT2 choice.  
+      dSigmaApprox = pT4dSigmaMax / pow2(pT2 + pT20R);
+
+      // Pick complete kinematics and evaluate cross-section correction.
+      WTacc = sigmaPT2(true) / dSigmaApprox;
+
+      // Evaluate and include Sudakov factor.
+      WTacc *= sudakov( pT2, enhanceB);
+    
+    // Loop until acceptable pT and acceptable kinematics.
+    } while (WTacc < Rndm::flat() || !dSigmaDtSel->final2KinMI()); 
+  }
+  
+}
+
+//*********
+
+// Set up kinematics for first = hardest pT in minbias process.
+
+void MultipleInteractions::setupFirstSys( Info* infoPtr, Event& process) { 
+
+  // Remove any partons of previous failed interactions.
+  if (process.size() > 3) {
+    process.popBack( process.size() - 3);
+    process.initColTag();
+  }
+
+  // Loop over four partons and offset info relative to subprocess itself.
+  int colOffset = process.lastColTag();
+  for (int i = 1; i <= 4; ++i) {
+    Particle parton = dSigmaDtSel->getParton(i);
+    if (i <= 2 ) parton.mothers( i, 0);  
+    else parton.mothers( 3, 4);
+    if (i <= 2 ) parton.daughters( 5, 6);
+    else parton.daughters( 0, 0);
+    int col = parton.col();
+    if (col > 0) parton.col( col + colOffset);
+    int acol = parton.acol();
+    if (acol > 0) parton.acol( acol + colOffset);
+
+    // Put the partons into the event record.
+    process.append(parton);
+  }
+
+  // Set scale from which to begin evolution.
+  process.scale(  sqrt(pT2Fac) );
+
+  // Info on subprocess - specific to mimimum-bias events.
+  string nameSub = dSigmaDtSel->name();
+  int codeSub = dSigmaDtSel->code();
+  int nFinalSub = dSigmaDtSel->nFinal();
+  infoPtr->setSubType( nameSub, codeSub, nFinalSub);
+
+  // Further standard info on process.
+  infoPtr->setPDFalpha( id1, id2, xPDF1now, xPDF2now, pT2Fac, alpEM, alpS, 
+    pT2Ren);
+  double m3 = dSigmaDtSel->m(3);
+  double m4 = dSigmaDtSel->m(4); 
+  double theta = dSigmaDtSel->theta(); 
+  double phi = dSigmaDtSel->phi(); 
+  infoPtr->setKin( x1, x2, sHat, tHat, uHat, sqrt(pT2), m3, m4, theta, phi);
+
+}
+
+//*********
+
+// Select next pT in downwards evolution.
+
+double MultipleInteractions::pTnext( double pTbegAll, double pTendAll) {
+
+  // Pick a pT using a quick-and-dirty cross section estimate.
+  double WTacc;
+  double pT2end = pow2( max(pTmin, pTendAll) );
+  pT2 = pow2(pTbegAll);
+  do {
+    pT2 = fastPT2(pT2);
+
+    // Pick complete kinematics and evaluate cross-section correction.
+    WTacc = sigmaPT2(false) / dSigmaApprox;
+ 
+    // Decide whether to keep the event.
+    if (pT2 < pT2end) return 0.;
+  } while (WTacc < Rndm::flat() || !dSigmaDtSel->final2KinMI()); 
+
+  // Done.
+  return sqrt(pT2);
+
+}
+
+//*********
+
+// Set up the kinematics of the 2 -> 2 scattering process,
+// and store the scattering in the event record.
+
+void MultipleInteractions::scatter( Event& event) {
+
+  // Loop over four partons and offset info relative to subprocess itself.
+  int motherOffset = event.size();
+  int colOffset = event.lastColTag();
+  for (int i = 1; i <= 4; ++i) {
+    Particle parton = dSigmaDtSel->getParton(i);
+    if (i <= 2 ) parton.mothers( i, 0);  
+    else parton.mothers( motherOffset, motherOffset + 1);
+    if (i <= 2 ) parton.daughters( motherOffset + 2, motherOffset + 3);
+    else parton.daughters( 0, 0);
+    int col = parton.col();
+    if (col > 0) parton.col( col + colOffset);
+    int acol = parton.acol();
+    if (acol > 0) parton.acol( acol + colOffset);
+
+    // Put the partons into the event record.
+    event.append(parton);
+  }
+
+  // Add scattered partons to list in beam remnants.
+  int iA = beamAPtr->append( motherOffset, id1, x1);
+  int iB = beamBPtr->append( motherOffset + 1, id2, x2);
+
+  // Find whether incoming partons are valence or sea, so prepared for ISR.
+  beamAPtr->xfISR( iA, id1, x1, pT2);
+  beamAPtr->pickValSeaComp(); 
+  beamBPtr->xfISR( iB, id2, x2, pT2);
+  beamBPtr->pickValSeaComp(); 
+
+  // Done.
+} 
+
+//*********
+
 // Determine constant in d(Prob)/d(pT2) < const / (pT2 + r * pT20)^2.  
 
-void MultipleInteractions::upperEnvelope( BeamParticle& beamA, 
-  BeamParticle& beamB) {  
+void MultipleInteractions::upperEnvelope() {  
 
   // Initially determine constant in jet cross section upper estimate 
   // d(sigma_approx)/d(pT2) < const / (pT2 + r * pT20)^2. 
@@ -180,20 +384,22 @@ void MultipleInteractions::upperEnvelope( BeamParticle& beamA,
     double pT = pTmin * pow( pTmax/pTmin, (iPT + 0.5) / NBINS);
     pT2 = pT*pT;
     pT2shift = pT2 + pT20;
+    pT2Ren = pT2shift;
+    pT2Fac = (SHIFTFACSCALE) ? pT2shift : pT2;
     xT = 2. * pT / eCM;
 
     // Evaluate parton density sums at x1 = x2 = xT.
-    double xPDF1sumMax = (9./4.) * beamA.xf(21, xT, pT2shift);
+    double xPDF1sumMax = (9./4.) * beamAPtr->xf(21, xT, pT2Fac);
     for (int id = 1; id <= nQuark; ++id) 
-      xPDF1sumMax += beamA.xf(id, xT, pT2shift) 
-        + beamA.xf(-id, xT, pT2shift);
-    double xPDF2sumMax = (9./4.) * beamB.xf(21, xT, pT2shift);
+      xPDF1sumMax += beamAPtr->xf(id, xT, pT2Fac) 
+        + beamAPtr->xf(-id, xT, pT2Fac);
+    double xPDF2sumMax = (9./4.) * beamBPtr->xf(21, xT, pT2Fac);
     for (int id = 1; id <= nQuark; ++id)
-      xPDF2sumMax += beamB.xf(id, xT, pT2shift) 
-        + beamB.xf(-id, xT, pT2shift);
+      xPDF2sumMax += beamBPtr->xf(id, xT, pT2Fac) 
+        + beamBPtr->xf(-id, xT, pT2Fac);
 
     // Evaluate alpha_strong, matrix element and phase space volume.
-    double alpS = alphaS.alphaS(pT2shift);
+    alpS = alphaS.alphaS(pT2Ren);
     double dSigmaPartonApprox = CONVERT2MB * Kfactor * 0.5 * M_PI 
       * pow2(alpS / pT2shift);
     double yMax = log(1./xT + sqrt(1./(xT*xT) - 1.));
@@ -217,8 +423,7 @@ void MultipleInteractions::upperEnvelope( BeamParticle& beamA,
 // using stratified Monte Carlo sampling.
 // Store result in pT bins for use as Sudakov form factors.
 
-void MultipleInteractions::jetCrossSection( BeamParticle& beamA, 
-  BeamParticle& beamB) {
+void MultipleInteractions::jetCrossSection() {
 
   // Common factor from bin size in dpT2 / (pT2 + r * pT20)^2 and statistics.   
   double sigmaFactor = (1. / pT20minR - 1. / pT20maxR) / (NBINS * nSample);
@@ -236,9 +441,9 @@ void MultipleInteractions::jetCrossSection( BeamParticle& beamA,
       pT2 = pT20min0maxR / (pT20minR + mappedPT2 * pT2maxmin) - pT20R;
 
       // Evaluate cross section dSigma/dpT2 in phase space point.
-      double dSigma = sigmaPT2( beamA, beamB);
- 
-      // Multiply by (pT2 + r * pT20)^2 to compensate for pT sampling. Sum.
+      double dSigma = sigmaPT2(true);
+
+     // Multiply by (pT2 + r * pT20)^2 to compensate for pT sampling. Sum.
       dSigma *=  pow2(pT2 + pT20R);
       sigmaSum += dSigma; 
       if (dSigma > dSigmaMax) dSigmaMax = dSigma;      
@@ -262,332 +467,23 @@ void MultipleInteractions::jetCrossSection( BeamParticle& beamA,
 
 //*********
 
-// Calculate the actual cross section for initialization decision.
-// Lightly modified copy of acceptPT2; e.g. no previous interactions.
+// Evaluate "Sudakov form factor" for not having a harder interaction
+// at the selected b value, given the pT scale of the event.
 
-double MultipleInteractions::sigmaPT2( BeamParticle& beamA, 
-  BeamParticle& beamB) {
+double MultipleInteractions::sudakov(double pT2sud, double enhance) {
 
-  // Derive shifted pT2 and rapidity limits from chosen pT2.
-  pT2shift = pT2 + pT20;
-  xT = 2. * sqrt(pT2) / eCM;
-  xT2 = xT*xT;   
-  double yMax = log(1./xT + sqrt(1./xT2 - 1.));
+  // Find bin the pT2 scale falls in.
+  double xBin = (pT2sud - pT2min) * pT20maxR 
+    / (pT2maxmin * (pT2sud + pT20R)); 
+  xBin = max(1e-6, min(NBINS - 1e-6, NBINS * xBin) );
+  int iBin = int(xBin);
 
-  // Select rapidities y3 and y4 of the two produced partons.
-  double y3 = yMax * (2. * Rndm::flat() - 1.);
-  double y4 = yMax * (2. * Rndm::flat() - 1.);
-  y = 0.5 * (y3 + y4);
-
-  // Reject some events at large rapidities to improve efficiency.
-  // (Don't have to evaluate PDF's and ME's.)
-  double WTy = (1. - pow2(y3/yMax)) * (1. - pow2(y4/yMax));
-  if (WTy < Rndm::flat()) return 0.; 
-
-  // Failure if x1 or x2 exceed unity.
-  x1 = 0.5 * xT * (exp(y3) + exp(y4));
-  x2 = 0.5 * xT * (exp(-y3) + exp(-y4));
-  if (x1 > 1. || x2 > 1.) return 0.; 
-  tau = x1 * x2;
-
-  // Evaluate parton densities at actual x1 and x2.
-  double xPDF1[21];
-  double xPDF1sum = 0.;
-  for (int id = -nQuark; id <= nQuark; ++id) {
-    if (id == 0) xPDF1[10] = (9./4.) * beamA.xf(21, x1, pT2shift);
-    else xPDF1[id+10] = beamA.xf(id, x1, pT2shift);
-    xPDF1sum += xPDF1[id+10];
-  }
-  double xPDF2[21];
-  double xPDF2sum = 0.;
-  for (int id = -nQuark; id <= nQuark; ++id) {
-    if (id == 0) xPDF2[10] = (9./4.) * beamB.xf(21, x2, pT2shift);
-    else xPDF2[id+10] = beamB.xf(id, x2, pT2shift);
-    xPDF2sum += xPDF2[id+10];
-  }
-
-  // Select incoming flavours according to actual PDF's.
-  id1 = -nQuark-1;
-  double temp = xPDF1sum * Rndm::flat();
-  do { temp -= xPDF1[(++id1) + 10]; } 
-  while (temp > 0. && id1 < nQuark);
-  if (id1 == 0) id1 = 21; 
-  id2 = -nQuark-1;
-  temp = xPDF2sum * Rndm::flat();
-  do { temp -= xPDF2[(++id2) + 10]; } 
-  while (temp > 0. && id2 < nQuark);  
-  if (id2 == 0) id2 = 21; 
-
-  // Prepare to generate differential cross sections.
-  sHat = tau * sCM;
-  double root = sqrtpos(1. - xT2 / tau);
-  double alpS = alphaS.alphaS(pT2shift);
-  double dSigma1, dSigma2;
-
-  // Loop over two symmetrical configurations (tHat <-> uHat).
-  // (Not necessary, but makes for better MC efficiency.)
-  for (int i = 1; i < 3; ++i) {
-    SigmaProcess& dSigmaDtNow = (i == 1) ? dSigmaDt1 : dSigmaDt2;
-    double tHatNow = (i == 1) ? -0.5 * sHat * (1. - root) 
-      : -0.5 * sHat * (1. + root);
-    dSigmaDtNow.setupShThAs(id1, id2, sHat, tHatNow, alpS);  
-    double& dSigma = (i ==1) ? dSigma1 : dSigma2; 
-
-    // Evaluate cross section based on flavours and kinematics.
-    // Factor 4./9. per incoming gluon to compensate for preweighting.
-    // g + g -> g + g.  
-    if (id1 == 21 && id2 == 21) dSigma = (16./81.) * dSigmaDtNow.gg2gg();
-    // q + g -> q + g.   
-    else if (id1 == 21 || id2 == 21) dSigma = (4./9.) * dSigmaDtNow.qg2qg();
-    // q + q -> q + q, involving identical quarks.
-    else if (id1 == id2) dSigma = dSigmaDtNow.qq2qqSame();
-    // q1 + q2 -> q1 + q2, where q1 and q2 are different.  
-    else if (id1 * id2 > 0) dSigma = dSigmaDtNow.qq2qqDiff();
-    // q + qbar -> q + qbar, where q and qbar are each others antiparticles.
-    else if (id1 == -id2) dSigma = dSigmaDtNow.qqbar2qqbarAnti();
-    // q1 + q2bar -> q1 + q2bar, where q1 and q2 are different.  
-    else dSigma = dSigmaDtNow.qqbar2qqbarDiff();
-
-    // Include possibility of K factor, common to all cross sections.
-    dSigma *= Kfactor; 
-  }
-
-  // Form average dSigmaHat/dt, representing dSigmaHat/dpT2 (up to factors).
-  double dSigmaPartonCorr = (dSigma1 + dSigma2) / 2.;
-
-  // Combine cross section, pdf's and phase space integral.
-  double volumePhSp = pow2(2. * yMax) / WTy;
-  double dSigmaCorr = dSigmaPartonCorr * xPDF1sum * xPDF2sum * volumePhSp;
-
-  // Dampen cross section at small pT values; part of formalism.
-  dSigmaCorr *= pow2(pT2 / pT2shift);
-
-  // Done
-  return dSigmaCorr;
-}
-
-//*********
-
-// Calculate factor relating matter overlap and interaction rate,
-// i.e. k in <n_interaction(b)> = k * overlap(b) (neglecting
-// n_int = 0 corrections and energy-momentum conservation effects).
-
-void MultipleInteractions::overlapFactor() {
-
-  // Initial values for iteration. Step size of b integration.
-  double nAvg = sigmaInt / sigmaND;
-  double kNow = 0.5;
-  int stepDir = 1;
-  double deltaB = BSTEP;
-  if (bProfile == 2) deltaB *= min( 0.5, 2.5 * coreRadius); 
-  if (bProfile == 3) deltaB *= max(1., pow(2. / expPow, 1. / expPow)); 
+  // Interpolate inside bin. Optionally include enhancement factor.
+  double sudExp = sudExpPT[iBin] + (xBin - iBin) 
+    * (sudExpPT[iBin + 1] - sudExpPT[iBin]);
+  return exp( -enhance * sudExp);
   
-  // Further variables, with dummy initial values.
-  double nNow = 0.;
-  double kLow = 0.;
-  double nLow = 0.;
-  double kHigh = 0.;
-  double nHigh = 0.;
-  double overlapNow = 0.;
-  double probNow = 0.; 
-  double overlapInt = 0.5;
-  double probInt = 0.; 
-  double probOverlapInt = 0.;
-  double normPi = 1. / (2. * M_PI);
-
-  // Some common combinations for double Gaussian, as shorthand.
-  fractionA = pow2(1. - coreFraction);
-  fractionB = 2. * coreFraction * (1. - coreFraction);
-  fractionC = pow2(coreFraction); 
-  radius2B = 0.5 * (1. + pow2(coreRadius));
-  radius2C = pow2(coreRadius);
-
-  // First close k into an interval by binary steps,
-  // then find k by successive interpolation.  
-  do {
-    if (stepDir == 1) kNow *= 2.;
-    else if (stepDir == -1) kNow *= 0.5;
-    else kNow = kLow + (nAvg - nLow) * (kHigh - kLow) / (nHigh - nLow);
-
-    // Overlap trivial if no impact parameter dependence.
-    if (bProfile <= 0 || bProfile > 3) {
-      probInt = 0.5 * M_PI * (1. - exp(-kNow));
-      probOverlapInt = probInt / M_PI;
-
-    // Else integrate overlap over impact parameter.
-    } else { 
-
-      // Reset integrals.
-      overlapInt = (bProfile == 3) ? 0. : 0.5;
-      probInt = 0.; 
-      probOverlapInt = 0.;
-
-      // Step in b space.
-      double b = -0.5 * deltaB;
-      double bArea = 0.;
-      do {
-        b += deltaB;
-        bArea = 2. * M_PI * b * deltaB;
-
-        // Evaluate overlap at current b value.
-        if (bProfile == 1) { 
-          overlapNow = normPi * exp( -b*b);
-	} else if (bProfile == 2) {          
-          overlapNow = normPi * ( fractionA * exp( -min(EXPMAX, b*b))
-            + fractionB * exp( -min(EXPMAX, b*b / radius2B)) / radius2B
-            + fractionC * exp( -min(EXPMAX, b*b / radius2C)) / radius2C );
-	} else {
-          overlapNow = normPi * exp( -pow( b, expPow));  
-          overlapInt += bArea * overlapNow;
-	}
-
-        // Calculate interaction probability and integrate.
-        probNow = 1. - exp( -min(EXPMAX, M_PI * kNow * overlapNow));
-        probInt += bArea * probNow;
-        probOverlapInt += bArea * overlapNow * probNow;
-
-      // Continue out in b until overlap too small.
-      } while (b < 1. || b * probNow > BMAX); 
-    }      
- 
-    // Ratio of b-integrated k * overlap / (1 - exp( - k * overlap)).
-    nNow = M_PI * kNow * overlapInt / probInt;
-
-    // Replace lower or upper limit of k.
-    if (nNow < nAvg) {
-      kLow = kNow;
-      nLow = nNow;
-      if (stepDir == -1) stepDir = 0;
-    } else {
-      kHigh = kNow;
-      nHigh = nNow;
-      if (stepDir == 1) stepDir = -1;
-    } 
-
-  // Continue iteration until convergence.
-  } while (abs(nNow - nAvg) > KCONVERGE * nAvg);
-
-  // Save relevant final numbers. Done.
-  double avgOverlap  = probOverlapInt / probInt; 
-  zeroIntCorr = probOverlapInt / overlapInt; 
-  normOverlap = normPi * zeroIntCorr / avgOverlap;
-
-}
-
-//*********
-
-// Prepare system for evolution.
-
-void MultipleInteractions::prepare(double pTscale) {  
-
-  // Pick interaction rate enhancement related to impact parameter.
-  selectEnhance(pTscale);
-
-}
-
-//*********
-
-// Pick interaction rate enhancement related to impact parameter.
-
-void MultipleInteractions::selectEnhance(double pTscale) {
-
-  // Default, valid for bProfile = 0. Also initial Sudakov.
-  enhanceB = zeroIntCorr;
-  if (bProfile <= 0 || bProfile > 3) return; 
-  double pT2scale = pTscale*pTscale;
-  double sudakov = 1.;
-
-  // Begin loop over pT-dependent rejection of b value.
-  do {
-
-    // Flat enhancement distribution for simple Gaussian.
-    if (bProfile == 1) {
-      enhanceB = normOverlap * Rndm::flat();  
-
-    // For double Gaussian go the way via b, according to each Gaussian.
-    } else if (bProfile == 2) {
-      double bType = Rndm::flat();  
-      double b2 = -log( Rndm::flat() );
-      if (bType < fractionA) ;
-      else if (bType < fractionA + fractionB) b2 *= radius2B;
-      else b2 *= radius2C; 
-      enhanceB = normOverlap * ( fractionA * exp( -min(EXPMAX, b2))
-        + fractionB * exp( -min(EXPMAX, b2 / radius2B)) / radius2B
-        + fractionC * exp( -min(EXPMAX, b2 / radius2C)) / radius2C ); 
-
-    // For exp( - b^expPow) transform to variable c = b^expPow so that
-    // f(b) = b * exp( - b^expPow) -> f(c) = c^p * exp(-c) with p = expP. 
-    // For  exp( - b^expPow) with expPow >= 2 <=> - 1 < p < 0: 
-    // f(c) < c^p for c < 1,  f(c) < exp(-c) for c > 1.  
-    } else if (bProfile == 3 && expPow > 1.999) {
-      double expNow = max(2., expPow);
-      double expP = 2. / expNow - 1.;
-      double prob1 = expNow / (2. * exp(-1.) + expNow);
-      double b2mod = 0.;
-      double accept = 0.;
-      do { 
-        if (Rndm::flat() < prob1) {
-          b2mod = pow( Rndm::flat(), 0.5 * expNow);
-          accept = exp(-b2mod);
-        } else {
-          b2mod = 1. - log( Rndm::flat() );
-          accept = pow( b2mod, expP);    
-        } 
-      } while (accept < Rndm::flat());
-      enhanceB = normOverlap * exp(-b2mod);  
-
-    // For exp( - b^expPow) with expPow < 2 <=> expP > 0: 
-    // f(c) < p^p exp(-p) for c < 2p,  (2p)^p exp(-p-c/2) for c > 2p.
-    } else if (bProfile == 3) {
-      double expP = 2. / expPow - 1.;
-      double prob1 = expP / (expP + pow(2., expP) * exp( - expP));
-      double b2mod = 0.;
-      double accept = 0.;  
-      do {
-        if (Rndm::flat() < prob1) {
-          b2mod = 2. * expP * Rndm::flat();
-          accept = pow( b2mod / expP, expP) * exp(expP - b2mod);
-        } else {
-          b2mod = 2. * (expP - log( Rndm::flat() )); 
-          accept = pow(0.5 * b2mod / expP, expP) * exp(expP - 0.5 * b2mod);
-        } 
-      } while (accept < Rndm::flat()); 
-      enhanceB = normOverlap *exp(-b2mod);  
-    }
-
-    // Evaluate "Sudakov form factor" for not having a harder interaction
-    // at the selected b value, given the pT scale of the event.
-    double xBin = (pT2scale - pT2min) * pT20maxR 
-      / (pT2maxmin * (pT2scale + pT20R)); 
-    xBin = max(1e-6, min(NBINS - 1e-6, NBINS * xBin) );
-    int iBin = int(xBin);
-    sudakov = exp( - (sudExpPT[iBin] 
-      + (xBin - iBin) * (sudExpPT[iBin + 1] - sudExpPT[iBin]) ));  
-  } while (sudakov < Rndm::flat());
-
-  // Done.
-}
-
-//*********
-
-// Select next pT in downwards evolution.
-
-double MultipleInteractions::pTnext( BeamParticle& beamA, 
-  BeamParticle& beamB, double pTbegAll, double pTendAll) {
-
-  // Pick a pT using a quick-and-dirty cross section estimate.
-  double pT2end = pow2( max(pTmin, pTendAll) );
-  pT2 = pow2(pTbegAll);
-  do pT2 = fastPT2(pT2);
-
-  // Pick complete kinematics, evaluate correction factors to tell 
-  // whether to keep the event.
-  while (pT2 > pT2end && !acceptPT2( beamA, beamB)); 
-
-  // Done.
-  return (pT2 > pT2end) ? sqrt(pT2) : 0.;
-
-}
+} 
 
 //*********
 
@@ -612,13 +508,14 @@ double MultipleInteractions::fastPT2( double pT2beg) {
 
 // Calculate the actual cross section to decide whether fast choice is OK.
 // Select flavours and kinematics for interaction at given pT.
-// Weighting may fail (return false) or succeed (return true).
+// Slightly different treatment for first interaction and subsequent ones.
 
-bool MultipleInteractions::acceptPT2( BeamParticle& beamA, 
-  BeamParticle& beamB) {
+double MultipleInteractions::sigmaPT2(bool isFirst) {
  
   // Derive shifted pT2 and rapidity limits from chosen pT2.
   pT2shift = pT2 + pT20;
+  pT2Ren = pT2shift;
+  pT2Fac = (SHIFTFACSCALE) ? pT2shift : pT2;
   xT = 2. * sqrt(pT2) / eCM;
   xT2 = xT*xT;   
   double yMax = log(1./xT + sqrt(1./xT2 - 1.));
@@ -631,79 +528,120 @@ bool MultipleInteractions::acceptPT2( BeamParticle& beamA,
   // Reject some events at large rapidities to improve efficiency.
   // (Don't have to evaluate PDF's and ME's.)
   double WTy = (1. - pow2(y3/yMax)) * (1. - pow2(y4/yMax));
-  if (WTy < Rndm::flat()) return false; 
+  if (WTy < Rndm::flat()) return 0.; 
 
   // Failure if x1 or x2 exceed what is left in respective beam.
   x1 = 0.5 * xT * (exp(y3) + exp(y4));
   x2 = 0.5 * xT * (exp(-y3) + exp(-y4));
-  if (x1 > beamA.xMax() || x2 > beamB.xMax()) return false; 
+  if (isFirst) {
+    if (x1 > 1. || x2 > 1.) return 0.; 
+  } else {
+    if (x1 > beamAPtr->xMax() || x2 > beamBPtr->xMax()) return 0.; 
+  }
   tau = x1 * x2;
 
-  // Evaluate parton densities at actual x1 and x2.
-  // Note that these densities take into account previous interactions.
+  // Begin evaluate parton densities at actual x1 and x2.
   double xPDF1[21];
   double xPDF1sum = 0.;
-  for (int id = -nQuark; id <= nQuark; ++id) {
-    if (id == 0) xPDF1[10] = (9./4.) * beamA.xfMI(21, x1, pT2shift);
-    else xPDF1[id+10] = beamA.xfMI(id, x1, pT2shift);
-    xPDF1sum += xPDF1[id+10];
-  }
   double xPDF2[21];
   double xPDF2sum = 0.;
-  for (int id = -nQuark; id <= nQuark; ++id) {
-    if (id == 0) xPDF2[10] = (9./4.) * beamB.xfMI(21, x2, pT2shift);
-    else xPDF2[id+10] = beamB.xfMI(id, x2, pT2shift);
-    xPDF2sum += xPDF2[id+10];
+
+  // For first interaction use normal densities.
+  if (isFirst) {
+    for (int id = -nQuark; id <= nQuark; ++id) {
+      if (id == 0) xPDF1[10] = (9./4.) * beamAPtr->xf(21, x1, pT2Fac);
+      else xPDF1[id+10] = beamAPtr->xf(id, x1, pT2Fac);
+      xPDF1sum += xPDF1[id+10];
+    }
+    for (int id = -nQuark; id <= nQuark; ++id) {
+      if (id == 0) xPDF2[10] = (9./4.) * beamBPtr->xf(21, x2, pT2Fac);
+      else xPDF2[id+10] = beamBPtr->xf(id, x2, pT2Fac);
+      xPDF2sum += xPDF2[id+10];
+    }
+  
+  // For subsequent interactions use rescaled densities.
+  } else {
+    for (int id = -nQuark; id <= nQuark; ++id) {
+      if (id == 0) xPDF1[10] = (9./4.) * beamAPtr->xfMI(21, x1, pT2Fac);
+      else xPDF1[id+10] = beamAPtr->xfMI(id, x1, pT2Fac);
+      xPDF1sum += xPDF1[id+10];
+    }
+    for (int id = -nQuark; id <= nQuark; ++id) {
+      if (id == 0) xPDF2[10] = (9./4.) * beamBPtr->xfMI(21, x2, pT2Fac);
+      else xPDF2[id+10] = beamBPtr->xfMI(id, x2, pT2Fac);
+      xPDF2sum += xPDF2[id+10];
+    }
   }
 
   // Select incoming flavours according to actual PDF's.
   id1 = -nQuark-1;
   double temp = xPDF1sum * Rndm::flat();
-  do { temp -= xPDF1[(++id1) + 10]; } 
+  do { xPDF1now = xPDF1[(++id1) + 10]; temp -= xPDF1now; } 
   while (temp > 0. && id1 < nQuark);
   if (id1 == 0) id1 = 21; 
   id2 = -nQuark-1;
   temp = xPDF2sum * Rndm::flat();
-  do { temp -= xPDF2[(++id2) + 10]; } 
+  do { xPDF2now = xPDF2[(++id2) + 10]; temp -= xPDF2now;} 
   while (temp > 0. && id2 < nQuark);  
   if (id2 == 0) id2 = 21; 
+
+  // Assign pointers to processes relevant for incoming flavour choice.
+  // Factor 4./9. per incoming gluon to compensate for preweighting.  
+  SigmaProcess *dSigmaT, *dSigmaU;
+  double gluFac = 1.;
+
+  // g + g -> g + g.  
+  if (id1 == 21 && id2 == 21) {
+    dSigmaT = sigma2gg2ggT;
+    dSigmaU = sigma2gg2ggU;
+    gluFac = 16. / 81.;
+
+  // q + g -> q + g.   
+  } else if (id1 == 21 || id2 == 21) {
+    dSigmaT = sigma2qg2qgT;
+    dSigmaU = sigma2qg2qgU;
+    gluFac = 4. / 9.;
+
+  // q + q -> q + q, involving identical quarks.
+  } else if (id1 == id2) {
+    dSigmaT = sigma2qq2qqSameT;
+    dSigmaU = sigma2qq2qqSameU;
+
+  // q + qbar -> q + qbar, pair of same flavour.
+  } else if (id1 == -id2) {
+    dSigmaT = sigma2qqbar2qqbarSameT;
+    dSigmaU = sigma2qqbar2qqbarSameU;
+
+  // q1 + q2 -> q1 + q2 or q1 + q2bar -> q1 + q2bar, different flavours.  
+  } else {
+    dSigmaT = sigma2qq2qqDiffT;
+    dSigmaU = sigma2qq2qqDiffU;
+  }
 
   // Prepare to generate differential cross sections.
   sHat = tau * sCM;
   double root = sqrtpos(1. - xT2 / tau);
-  double alpS = alphaS.alphaS(pT2shift);
-  double dSigma1, dSigma2;
+  alpS = alphaS.alphaS(pT2Ren);
+  alpEM = alphaEMfix;
 
-  // Loop over two symmetrical configurations (tHat <-> uHat).
+  // Set kinematics for two symmetrical configurations (tHat <-> uHat).
   // (Not necessary, but makes for better MC efficiency.)
-  for (int i = 1; i < 3; ++i) {
-    SigmaProcess& dSigmaDtNow = (i == 1) ? dSigmaDt1 : dSigmaDt2;
-    double tHatNow = (i == 1) ? -0.5 * sHat * (1. - root) 
-      : -0.5 * sHat * (1. + root);
-    dSigmaDtNow.setupShThAs(id1, id2, sHat, tHatNow, alpS);  
-    double& dSigma = (i ==1) ? dSigma1 : dSigma2; 
+  tHat = -0.5 * sHat * (1. - root);
+  uHat = -0.5 * sHat * (1. + root);
+  dSigmaT->set2KinMI( id1, id2, x1, x2, sHat, tHat, uHat, alpS);
+  dSigmaU->set2KinMI( id1, id2, x1, x2, sHat, uHat, tHat, alpS);
 
-    // Evaluate cross section based on flavours and kinematics.
-    // Factor 4./9. per incoming gluon to compensate for preweighting.
-    // g + g -> g + g.  
-    if (id1 == 21 && id2 == 21) dSigma = (16./81.) * dSigmaDtNow.gg2gg();
-    // q + g -> q + g.   
-    else if (id1 == 21 || id2 == 21) dSigma = (4./9.) * dSigmaDtNow.qg2qg();
-    // q + q -> q + q, involving identical quarks.
-    else if (id1 == id2) dSigma = dSigmaDtNow.qq2qqSame();
-    // q1 + q2 -> q1 + q2, where q1 and q2 are different.  
-    else if (id1 * id2 > 0) dSigma = dSigmaDtNow.qq2qqDiff();
-    // q + qbar -> q + qbar, where q and qbar are each others antiparticles.
-    else if (id1 == -id2) dSigma = dSigmaDtNow.qqbar2qqbarAnti();
-    // q1 + q2bar -> q1 + q2bar, where q1 and q2 are different.  
-    else dSigma = dSigmaDtNow.qqbar2qqbarDiff();
-
-    // Include possibility of K factor, common to all cross sections.
-    dSigma *= Kfactor; 
-  }
+  // Evaluate cross sections, include possibility of K factor.
+  double dSigmaNowT = Kfactor * gluFac * dSigmaT->sigmaHat();
+  double dSigmaNowU = Kfactor * gluFac * dSigmaU->sigmaHat();
 
   // Form average dSigmaHat/dt, representing dSigmaHat/dpT2 (up to factors).
-  double dSigmaPartonCorr = (dSigma1 + dSigma2) / 2.;
+  double dSigmaPartonCorr = (dSigmaNowT + dSigmaNowU) / 2.;
+
+  // Pick one of two possible tHat values for acceptable pT.
+  dSigmaDtSel = ((dSigmaNowT + dSigmaNowU) * Rndm::flat() < dSigmaNowT) 
+    ? dSigmaT : dSigmaU;
+  if (dSigmaDtSel == dSigmaU) swap( tHat, uHat);
 
   // Combine cross section, pdf's and phase space integral.
   double volumePhSp = pow2(2. * yMax) / WTy;
@@ -712,65 +650,307 @@ bool MultipleInteractions::acceptPT2( BeamParticle& beamA,
   // Dampen cross section at small pT values; part of formalism.
   dSigmaCorr *= pow2(pT2 / pT2shift);
 
-  // Compare with approximate cross section used to pick pT value.
-  double WTacc = dSigmaCorr / dSigmaApprox;
-  if (WTacc < Rndm::flat()) return false; 
-
-  // Pick one of two possible tHat values for acceptable pT.
-  dSigmaDtSel = ((dSigma1+ dSigma2) * Rndm::flat() < dSigma1) 
-    ? &dSigmaDt1 : &dSigmaDt2;
-
   // Done.
-  return true;
+  return dSigmaCorr;
+}
+
+
+//*********
+
+// Calculate factor relating matter overlap and interaction rate,
+// i.e. k in <n_interaction(b)> = k * overlap(b) (neglecting
+// n_int = 0 corrections and energy-momentum conservation effects).
+
+void MultipleInteractions::overlapInit() {
+
+  // Initial values for iteration. Step size of b integration.
+  nAvg = sigmaInt / sigmaND;
+  kNow = 0.5;
+  int stepDir = 1;
+  double deltaB = BSTEP;
+  if (bProfile == 2) deltaB *= min( 0.5, 2.5 * coreRadius); 
+  if (bProfile == 3) deltaB *= max(1., pow(2. / expPow, 1. / expPow)); 
+  
+  // Further variables, with dummy initial values.
+  double nNow = 0.;
+  double kLow = 0.;
+  double nLow = 0.;
+  double kHigh = 0.;
+  double nHigh = 0.;
+  double overlapNow = 0.;
+  double probNow = 0.; 
+  double overlapInt = 0.5;
+  double probInt = 0.; 
+  double probOverlapInt = 0.;
+  double bProbInt = 0.;
+  normPi = 1. / (2. * M_PI);
+
+  // Subdivision into low-b and high-b region by interaction rate.
+  bool pastBDiv = false;  
+  double overlapHighB = 0.;
+
+  // First close k into an interval by binary steps,
+  // then find k by successive interpolation.  
+  do {
+    if (stepDir == 1) kNow *= 2.;
+    else if (stepDir == -1) kNow *= 0.5;
+    else kNow = kLow + (nAvg - nLow) * (kHigh - kLow) / (nHigh - nLow);
+
+    // Overlap trivial if no impact parameter dependence.
+    if (bProfile <= 0 || bProfile > 3) {
+      probInt = 0.5 * M_PI * (1. - exp(-kNow));
+      probOverlapInt = probInt / M_PI;
+      bProbInt = probInt;
+
+    // Else integrate overlap over impact parameter.
+    } else { 
+
+      // Reset integrals.
+      overlapInt = (bProfile == 3) ? 0. : 0.5;
+      probInt = 0.; 
+      probOverlapInt = 0.;
+      bProbInt = 0.;
+      pastBDiv = false;
+      overlapHighB = 0.;
+
+      // Step in b space.
+      double b = -0.5 * deltaB;
+      double bArea = 0.;
+      do {
+        b += deltaB;
+        bArea = 2. * M_PI * b * deltaB;
+
+        // Evaluate overlap at current b value.
+        if (bProfile == 1) { 
+          overlapNow = normPi * exp( -b*b);
+	} else if (bProfile == 2) {          
+          overlapNow = normPi * ( fracA * exp( -min(EXPMAX, b*b))
+            + fracB * exp( -min(EXPMAX, b*b / radius2B)) / radius2B
+            + fracC * exp( -min(EXPMAX, b*b / radius2C)) / radius2C );
+	} else {
+          overlapNow = normPi * exp( -pow( b, expPow));  
+          overlapInt += bArea * overlapNow;
+	}
+        if (pastBDiv) overlapHighB += bArea * overlapNow;
+
+        // Calculate interaction probability and integrate.
+        probNow = 1. - exp( -min(EXPMAX, M_PI * kNow * overlapNow));
+        probInt += bArea * probNow;
+        probOverlapInt += bArea * overlapNow * probNow;
+        bProbInt += b * bArea * probNow;
+
+        // Check when interaction probability has dropped sufficiently.
+        if (!pastBDiv && probNow < PROBATLOWB) {
+          bDiv = b + 0.5 * deltaB;
+          pastBDiv = true;
+        }
+
+      // Continue out in b until overlap too small.
+      } while (b < 1. || b * probNow > BMAX); 
+    }      
+ 
+    // Ratio of b-integrated k * overlap / (1 - exp( - k * overlap)).
+    nNow = M_PI * kNow * overlapInt / probInt;
+
+    // Replace lower or upper limit of k.
+    if (nNow < nAvg) {
+      kLow = kNow;
+      nLow = nNow;
+      if (stepDir == -1) stepDir = 0;
+    } else {
+      kHigh = kNow;
+      nHigh = nNow;
+      if (stepDir == 1) stepDir = -1;
+    } 
+
+  // Continue iteration until convergence.
+  } while (abs(nNow - nAvg) > KCONVERGE * nAvg);
+
+  // Save relevant final numbers for overlap values.
+  double avgOverlap  = probOverlapInt / probInt; 
+  zeroIntCorr = probOverlapInt / overlapInt; 
+  normOverlap = normPi * zeroIntCorr / avgOverlap;
+  bAvg = bProbInt / probInt;
+
+  // Relative rates for preselection of low-b and high-b region.
+  // Other useful combinations for subsequent selection.
+  if (bProfile > 0 && bProfile <= 3) {
+    probLowB = M_PI * bDiv*bDiv;
+    double probHighB = M_PI * kNow * overlapHighB;
+    if (bProfile == 1) probHighB = M_PI * kNow * 0.5 * exp( -bDiv*bDiv);
+    else if (bProfile == 2) {
+      fracAhigh = fracA * exp( -bDiv*bDiv);
+      fracBhigh = fracB * exp( -bDiv*bDiv / radius2B);
+      fracChigh = fracC * exp( -bDiv*bDiv / radius2C);
+      fracABChigh = fracAhigh + fracBhigh + fracChigh;
+      probHighB = M_PI * kNow * 0.5 * fracABChigh;
+    } else { 
+      cDiv = pow( bDiv, expPow);
+      cMax = max(2. * expRev, cDiv); 
+    } 
+    probLowB /= (probLowB + probHighB);
+  }
+
 }
 
 //*********
 
-// Set up the kinematics of the 2 -> 2 scattering process,
-// and store the scattering in the event record.
+// Pick impact parameter and interaction rate enhancement beforehand,
+// i.e. before even the hardest interaction for minimum-bias events. 
 
-bool MultipleInteractions::scatter( BeamParticle& beamA, 
-  BeamParticle& beamB, Event& event) {
+void MultipleInteractions::overlapFirst() {
 
-  // Set up kinematics in scattering subsystem.
-  // Abort if consistent kinematics could not be found.
-  if (!dSigmaDtSel->doKinematics()) return false;
-
-  // Info for boost to event CM frame, history and colours.
-  double betaZ = (x1 - x2) / (x1 + x2);
-  int motherOffset = event.size();
-  int colOffset = event.lastColTag();
-
-  // Loop over four partons and update info as above.
-  for (int i = 0; i < 4; ++i) {
-    Particle parton = dSigmaDtSel->getParton(i);
-    parton.bst(0., 0., betaZ);
-    if (i < 2 ) parton.mothers( i + 1, 0);  
-    else parton.mothers( motherOffset, motherOffset + 1);
-    if (i < 2 ) parton.daughters( motherOffset + 2, motherOffset + 3);
-    else parton.daughters( 0, 0);
-    int col = parton.col();
-    if (col > 0) parton.col( col + colOffset);
-    int acol = parton.acol();
-    if (acol > 0) parton.acol( acol + colOffset);
-
-    // Put the partons into the event record.
-    event.append(parton);
+  // Trivial values if no impact parameter dependence.
+  if (bProfile <= 0 || bProfile > 3) {
+    bNow = bAvg;
+    enhanceB = zeroIntCorr;
+    atLowB = true;
+    return;
   }
 
-  // Add scattered partons to list in beam remnants.
-  int iA = beamA.append( motherOffset, id1, x1);
-  int iB = beamB.append( motherOffset + 1, id2, x2);
+  // Preliminary choice between and inside low-b and high-b regions.
+  double overlapNow = 0.;
+  double probAccept = 0.;
+  do {
 
-  // Find whether incoming partons are valence or sea, so prepared for ISR.
-  beamA.xfISR( iA, id1, x1, pT2);
-  beamA.pickValSeaComp(); 
-  beamB.xfISR( iB, id2, x2, pT2);
-  beamB.pickValSeaComp(); 
+    // Treatment in low-b region: pick b flat in area.
+    if (Rndm::flat() < probLowB) {
+      atLowB = true;
+      bNow = bDiv * sqrt(Rndm::flat());
+      if (bProfile == 1) overlapNow = normPi * exp( -bNow*bNow);
+      else if (bProfile == 2) overlapNow = normPi * 
+        ( fracA * exp( -bNow*bNow)
+        + fracB * exp( -bNow*bNow / radius2B) / radius2B
+        + fracC * exp( -bNow*bNow / radius2C) / radius2C );
+      else overlapNow = normPi * exp( -pow( bNow, expPow));
+      probAccept = 1. - exp( -min(EXPMAX, M_PI * kNow * overlapNow));
+
+    // Treatment in high-b region: pick b according to overlap.
+    } else {
+
+      // For simple and double Gaussian pick b according to exp(-b^2 / r^2).
+      if (bProfile == 1) {
+        bNow = sqrt(bDiv*bDiv - log(Rndm::flat()));
+        overlapNow = normPi * exp( -min(EXPMAX, bNow*bNow));
+      } else if (bProfile == 2) {
+        double pickFrac = Rndm::flat() * fracABChigh; 
+        if (pickFrac < fracAhigh) bNow = sqrt(bDiv*bDiv - log(Rndm::flat()));
+        else if (pickFrac < fracAhigh + fracBhigh) 
+          bNow = sqrt(bDiv*bDiv - radius2B * log(Rndm::flat()));
+        else bNow = sqrt(bDiv*bDiv - radius2C * log(Rndm::flat()));
+        overlapNow = normPi * ( fracA * exp( -min(EXPMAX, bNow*bNow))
+          + fracB * exp( -min(EXPMAX, bNow*bNow / radius2B)) / radius2B
+          + fracC * exp( -min(EXPMAX, bNow*bNow / radius2C)) / radius2C );
+
+      // For exp( - b^expPow) transform to variable c = b^expPow so that
+      // f(b) = b * exp( - b^expPow) -> f(c) = c^r * exp(-c) with r = expRev. 
+      // case lowPow: expPow < 2 <=> r > 0: preselect according to
+      // f(c) < N exp(-c/2) and then accept with N' * c^r * exp(-c/2). 
+      } else if (lowPow) {
+        double cNow, acceptC;
+        do {      
+          cNow = cDiv - 2. * log(Rndm::flat());
+          acceptC = pow(cNow / cMax, expRev) * exp( -0.5 * (cNow - cMax));
+        } while (acceptC < Rndm::flat());
+        bNow = pow( cNow, 1. / expPow);
+        overlapNow = normPi * exp( -cNow);
+
+      // case !lowPow: expPow >= 2 <=> - 1 < r < 0: preselect according to
+      // f(c) < N exp(-c) and then accept with N' * c^r. 
+      } else {
+        double cNow, acceptC;
+        do {      
+          cNow = cDiv - log(Rndm::flat());
+          acceptC = pow(cNow / cDiv, expRev);
+        } while (acceptC < Rndm::flat());
+        bNow = pow( cNow, 1. / expPow);
+        overlapNow = normPi * exp( -cNow);    
+      }
+      double temp = M_PI * kNow *overlapNow;
+      probAccept = (1. - exp( -min(EXPMAX, temp))) / temp;    
+    }
+
+  // Confirm choice of b value. Derive enhancement factor.
+  } while (probAccept < Rndm::flat());
+  enhanceB = (normOverlap / normPi) * overlapNow ;  
+
+}
+
+//*********
+
+// Pick impact parameter and interaction rate enhancement afterwards,
+// i.e. after a hard interaction is known but before rest of MI treatment.
+
+void MultipleInteractions::overlapNext(double pTscale) {
+
+  // Default, valid for bProfile = 0. Also initial Sudakov.
+  enhanceB = zeroIntCorr;
+  if (bProfile <= 0 || bProfile > 3) return; 
+  double pT2scale = pTscale*pTscale;
+
+  // Begin loop over pT-dependent rejection of b value.
+  do {
+
+    // Flat enhancement distribution for simple Gaussian.
+    if (bProfile == 1) {
+      double expb2 = Rndm::flat();
+      enhanceB = normOverlap * expb2;  
+      bNow = sqrt( -log(expb2));
+
+    // For double Gaussian go the way via b, according to each Gaussian.
+    } else if (bProfile == 2) {
+      double bType = Rndm::flat();  
+      double b2 = -log( Rndm::flat() );
+      if (bType < fracA) ;
+      else if (bType < fracA + fracB) b2 *= radius2B;
+      else b2 *= radius2C; 
+      enhanceB = normOverlap * ( fracA * exp( -min(EXPMAX, b2))
+        + fracB * exp( -min(EXPMAX, b2 / radius2B)) / radius2B
+        + fracC * exp( -min(EXPMAX, b2 / radius2C)) / radius2C ); 
+      bNow = sqrt(b2);
+
+    // For exp( - b^expPow) transform to variable c = b^expPow so that
+    // f(b) = b * exp( - b^expPow) -> f(c) = c^r * exp(-c) with r = expRev. 
+    // case lowPow: expPow < 2 <=> r > 0: 
+    // f(c) < r^r exp(-r) for c < 2r, < (2r)^r exp(-r-c/2) for c > 2r.
+    } else if (lowPow) {
+      double cNow, acceptC;
+      double probLowC = expRev / (expRev + pow(2., expRev) * exp( - expRev));
+      do {
+        if (Rndm::flat() < probLowC) {
+          cNow = 2. * expRev * Rndm::flat();
+          acceptC = pow( cNow / expRev, expRev) * exp(expRev - cNow);
+        } else {
+          cNow = 2. * (expRev - log( Rndm::flat() )); 
+          acceptC = pow(0.5 * cNow / expRev, expRev) * exp(expRev - 0.5 * cNow);
+        }
+      } while (acceptC < Rndm::flat()); 
+      enhanceB = normOverlap *exp(-cNow);  
+      bNow = pow( cNow, 1. / expPow);
+
+    // case !lowPow: expPow >= 2 <=> - 1 < r < 0: 
+    // f(c) < c^r for c < 1,  f(c) < exp(-c) for c > 1.  
+    } else {
+      double cNow, acceptC;
+      double probLowC = expPow / (2. * exp(-1.) + expPow);
+      do { 
+        if (Rndm::flat() < probLowC) {
+          cNow = pow( Rndm::flat(), 0.5 * expPow);
+          acceptC = exp(-cNow);
+        } else {
+          cNow = 1. - log( Rndm::flat() );
+          acceptC = pow( cNow, expRev);    
+        } 
+      } while (acceptC < Rndm::flat());
+      enhanceB = normOverlap * exp(-cNow);  
+      bNow = pow( cNow, 1. / expPow);
+    }
+
+    // Evaluate "Sudakov form factor" for not having a harder interaction.
+  } while (sudakov(pT2scale, enhanceB) < Rndm::flat());
 
   // Done.
-  return true;
-} 
+}
 
 //**************************************************************************
 

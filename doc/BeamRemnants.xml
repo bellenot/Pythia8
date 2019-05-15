@@ -1,10 +1,10 @@
 <chapter name="Beam Remnants">
 
-<h1>Beam Remnants</h1>
+<h2>Beam Remnants</h2>
 
-<h2>Introduction</h2>
+<h3>Introduction</h3>
 
-The <ci>BeamParticle</ci> class contains information on all partons 
+The <code>BeamParticle</code> class contains information on all partons 
 extracted from a beam (so far). As each consecutive multiple interaction 
 defines its respective incoming parton to the hard scattering a 
 new slot is added to the list. This information is modified when 
@@ -19,31 +19,31 @@ described in [1].
 
 <p/>
 Much of the above information is stored in a vector of 
-<ci>ResolvedParton</ci> objects, which each contains flavour and 
+<code>ResolvedParton</code> objects, which each contains flavour and 
 momentum information, as well as valence/companion information and more. 
-The <ci>BeamParticle</ci> method <ci>list()</ci> shows the contents of 
+The <code>BeamParticle</code> method <code>list()</code> shows the contents of 
 this vector, mainly for debug purposes.
 
 <p/>
-The <ci>BeamRemnants</ci> class takes over for the final step of adding 
+The <code>BeamRemnants</code> class takes over for the final step of adding 
 primordial <ei>kT</ei> to the initiators and remnants, assigning the 
 relative longitudinal momentum sharing among the remnants, and 
 constructing the overall kinematics. This step couples the two sides 
 of an event, and could therefore not be covered in the 
-<ci>BeamParticle</ci> class, which only considers one beam at a time. 
+<code>BeamParticle</code> class, which only considers one beam at a time. 
 
 <p/>
 Neither of the methods of these classes are intended for general use,
 and so are not described here. 
 
-<h2>Main variables</h2>
+<h3>Main variables</h3>
 
 Currently there are no crucial parameters to consider. The choice of
-parton densities is made in the <ci>Pythia</ci> class, see the 
+parton densities is made in the <code>Pythia</code> class, see the 
 Generic page. Then pointers to the pdf's are handed on to 
-<ci>BeamParticle</ci> at initialization, for all subsequent usage.
+<code>BeamParticle</code> at initialization, for all subsequent usage.
 
-<h2>Further variables</h2>
+<h3>Further variables</h3>
 
 <mode name="Beams:maxValQuark" default="3" min="0" max="5">
 The maximum valence quark kind allowed in acceptable incoming beams,
@@ -86,7 +86,7 @@ is chosen as the sum of its two constituent <ei>x</ei> values, and can
 thus be above unity. (A common rescaling of all remnant partons and 
 particles will fix that.) An additional enhancement of the diquark 
 momentum is obtained by its <ei>x</ei> value being rescaled by the 
-<ci>valenceDiqEnhance</ci> factor. 
+<code>valenceDiqEnhance</code> factor. 
 
 <parameter name="Beams:valencePowerMeson" default="0.8" min="0.">
 The abovementioned power for valence quarks in mesons.
@@ -107,7 +107,7 @@ simple sum of the two constituent quarks.
 </parameter>
 
 <flag name="Beams:allowJunction" default="on">
-The <ci>off</ci> option is intended for debug purposes only, as follows.
+The <code>off</code> option is intended for debug purposes only, as follows.
 When more than one valence quark is kicked out of a baryon beam,
 as part of the multiple interactions scenario, the subsequent
 hadronization is described in terms of a junction string topology.
@@ -118,7 +118,51 @@ multiple interactions and their showers are redone until a
 junction-free topology is found. 
 </flag> 
 
-<h2>References</h2>
+<h3>Diffractive system</h3>
+
+When an incoming hadron beam is diffractively excited, it is moddeled 
+as if either a valence quark or a gluon is kicked out from the hadron.
+In the former case this produces a simple strong to the leftover 
+remnant, in the latter it gives a hairpin arrangement where a string
+is stretched from one quark in the remnant, via the gluon, back to the   
+rest of the remnant. The latter ought to dominate at higher mass of 
+the diffractive system. Therefore an approximate behaviour like 
+<eq>
+P_q / P_g = N / m^p
+</eq> 
+is assumed.
+
+<parameter name="Beams:pickQuarkNorm" default="5.0" min="0.">
+The abovementioned normalization <ei>N</ei> for the relative quark
+rate in diffractive systems.
+</parameter>
+
+<parameter name="Beams:pickQuarkPower" default="1.0" min="0.">
+The abovementioned mass-dependence power <ei>p</ei> for the relative 
+quark rate in diffractive systems.
+</parameter>
+
+When a gluon is kicked out from the hadron, the longitudinal momentum
+sharing between the the two remnant partons is determined by the
+same parameters as above. It is plausible that the primordial 
+<ei>kT</ei> may be lower than in perturbative processes, however:
+
+<parameter name="Beams:diffPrimKTwidth" default="0.5" min="0.">
+The width of Gaussian distributions in <ei>p_x</ei> and <ei>p_y</ei> 
+separately that is assigned as a primordial <ei>kT</ei> to the two 
+beam remnants when a gluon is kicked out of a diffractive system.
+</parameter>
+
+<parameter name="Beams:diffLargeMassSuppress" default="2." min="0.">
+The choice of longitudinal and transverse structure of a diffractive
+beam remnant implies a remnant mass <ei>m_rem</ei> distribution that 
+knows no bounds. A suppression like <ei>(1 - m_rem^2 / m_diff^2)^p</ei> 
+is therefore introduced, where <ei>p</ei> is the 
+<code>diffLargeMassSuppress</code> parameter.    
+
+</parameter>
+
+<h3>References</h3>
 
 <ol>
 <li>T. Sjostrand and P.Z. Skands, JHEP 03 (2004) 053</li>

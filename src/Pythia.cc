@@ -233,13 +233,15 @@ bool Pythia::init(bool inCMframeIn) {
   info.setBeamB( idB, pzB, eB, mB);
   info.setECM( eCM);
 
-  // Set info in the respective program elements.
-  processLevel.init( info, pdfAPtr, pdfBPtr, hasPythia6, 
-    hasLHA, lhaInitPtr, lhaEvntPtr);
-  partonLevel.init( beamA, beamB, strategyLHA);
-  hadronLevel.init();
+  // Set info in and send pointers to the respective program elements.
+  if (!processLevel.init( &info, &beamA, &beamB, hasPythia6, 
+    hasLHA, lhaInitPtr, lhaEvntPtr)) return false;
+  if (!partonLevel.init( &info, &beamA, &beamB, strategyLHA))
+    return false;
+  if (!hadronLevel.init( &info)) return false;
 
-  // Succeeded. (Check return values from other classes??)
+  // Succeeded.
+  isInit = true; 
   return true;
 }
 
@@ -265,13 +267,12 @@ void Pythia::initStatic() {
   BeamParticle::initStatic(); 
   BeamRemnants::initStatic();
   InFlux::initStatic(); 
-  SigmaHat::initStatic(); 
+  SigmaProcess::initStatic(); 
   SigmaTotal::initStatic();
   PhaseSpace::initStatic();
   TimeShower::initStatic();
   SpaceShower::initStatic();
   MultipleInteractions::initStatic();
-  SigmaProcess::initStatic();
   HadronLevel::initStatic();
   StringFlav::initStatic();
   StringZ::initStatic();
@@ -290,9 +291,17 @@ void Pythia::initStatic() {
 
 bool Pythia::next() {
 
+  // Can only generate event if initialization worked.
+  if (!isInit) {
+    ErrorMessages::message("Error in Pythia::next: "
+      "not properly initialized so cannot generate events"); 
+    return false;
+  }
+
   // Provide the hard process that starts it off. Only one try.
+  info.clear();
   process.clear();
-  if ( !processLevel.next( info, process) ) {
+  if ( !processLevel.next( process) ) {
     ErrorMessages::message("Error in Pythia::next: "
       "processLevel failed; giving up"); 
     return false;
@@ -303,7 +312,7 @@ bool Pythia::next() {
     if (!inCMframe) process.bst(0., 0., betaZ, gammaZ);
     return true;
   }
-
+  
   // Allow up to ten tries for parton- and hadron-level processing.
   bool physical = true;
   for (int iTry = 0; iTry < NTRY; ++ iTry) {
@@ -315,7 +324,7 @@ bool Pythia::next() {
     beamB.clear();
    
     // Parton-level evolution: ISR, FSR, MI.
-    if ( !partonLevel.next( beamA, beamB, process, event) ) {
+    if ( !partonLevel.next( process, event) ) {
       ErrorMessages::message("Warning in Pythia::next: "
         "partonLevel failed; try again"); 
       physical = false; 
@@ -345,6 +354,10 @@ bool Pythia::next() {
   if (!physical) {
     ErrorMessages::message("Error in Pythia::next: "
       "parton+hadronLevel failed; giving up");
+    // Debug. To remove??
+    info.list();
+    process.list();
+    event.list(); 
     return false;
   }
 
@@ -460,9 +473,7 @@ void Pythia::banner() {
        << " |  |   Currently PYTHIA 6.4 can be used to g"
        << "enerate processes, see the manual     |  | \n"
        << " |  |   T. Sjostrand, S. Mrenna and P. Skands"
-       << ",                                     |  | \n"
-       << " |  |   LU TP 06-13, FERMILAB-PUB-06-052-CD-T"
-       << " [hep-ph/0603175].                    |  | \n"
+       << ", JHEP05 (2006) 026 [hep-ph/0603175]. |  | \n"
        << " |  |                                        " 
        << "                                      |  | \n"
        << " |  |   Main author: Torbjorn Sjostrand; CERN" 

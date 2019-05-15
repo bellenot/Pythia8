@@ -1,0 +1,167 @@
+<html>
+<head>
+<title>Flavour Selection</title>
+</head>
+<body>
+
+<h2>Flavour Selection</h2>
+
+The <code>StringFlav</code> class handles the choice of a new flavour 
+in the fragmentation process, and the production of a new hadron 
+from a set of input flavours. It is mainly used by the string 
+fragmentation machinery (including ministrings), but also e.g.
+in some particle decays and for some beam-remnant cases. The basic
+concepts are in agreement with [1].
+
+<p/>
+Currently only simple diquark production of baryons is
+included; the more sophisticated popcorn scenario remains to be 
+implemented. Therefore the number of parameters on this page will
+be expanded later on. 
+
+<h3>New flavours</h3>
+
+The main parameters of the selection of a new flavour are
+
+<p/><strong>
+parameter name="StringFlav:probQQtoQ" default="0.10" min="0.0" max="1.0"
+</strong><br/>
+the suppression of diquark production relative to quark production,
+i.e. of baryon relative to meson production.
+   
+
+<p/><strong>
+parameter name="StringFlav:probStoU" default="0.30" min="0.0" max="1.0"
+</strong><br/>
+the suppression of <i>s</i> quark production relative to ordinary 
+<i>u</i> or <i>d</i> one.
+   
+
+<p/><strong>
+parameter name="StringFlav:probSQtoQQ" default="0.4" min="0.0" max="1.0"
+</strong><br/>
+the suppression of strange diquark production relative to light
+diquark production, over and above the one already given by 
+<i>probStoU</i>.
+   
+ 
+<p/><strong>
+parameter name="StringFlav:probQQ1toQQ0" default="0.05" 
+min="0.0" max="1.0"
+</strong><br/>
+the suppression of spin 1 diquark production relative to spin 0 one,
+apart from the factor of 3 enhancement of spin 0 from counting the
+number of states.
+   
+
+<h3>Meson production</h3>
+
+For a given set of flavours,the main parameters for meson production
+are
+<p/><strong>
+parameter name="StringFlav:mesonUspin1" default="0.50" min="0." max="1."
+</strong><br/>
+the relative fraction of light (<i>u</i>, <i>d</i>) mesons that are 
+chosen to have spin 1, i.e. be vectors, with the remainder having spin 0, 
+i.e. pseudoscalars. 
+   
+<p/><strong>
+parameter name="StringFlav:mesonSspin1" default="0.60" min="0." max="1."
+</strong><br/>
+the relative fraction of strange mesons that are chosen to have spin 1, 
+i.e. be vectors, with the remainder having spin 0, i.e. pseudoscalars. 
+   
+<p/><strong>
+parameter name="StringFlav:mesonCspin1" default="0.70" min="0." max="1."
+</strong><br/>
+the relative fraction of charm mesons that are chosen to have spin 1, 
+i.e. be vectors, with the remainder having spin 0, i.e. pseudoscalars. 
+   
+<p/><strong>
+parameter name="StringFlav:mesonBspin1" default="0.75" min="0." max="1."
+</strong><br/>
+the relative fraction of bottom mesons that are chosen to have spin 1, 
+i.e. be vectors, with the remainder having spin 0, i.e. pseudoscalars. 
+   
+
+<p/>
+Inside each light-quark meson nonet, an octet-singlet mixing angle
+describes the mixing of the two flavour-diagonal isoscalar = 0 states.
+(For terminology and details see [2], chapter 14 on the quark model.)
+This angle is needed to specify the probability for such a <i>q qbar</i> 
+state to project onto a specific meson. More transparent formuale are 
+obtained by introducing the angle <i>alpha = theta + 54.7</i> degrees:
+<br/><i>
+   f  = (uubar + ddbar)/sqrt(2) * sin(alpha) + ssbar * cos(alpha)<br/>  
+   f' = (uubar + ddbar)/sqrt(2) * cos(alpha) - ssbar * sin(alpha)
+</i><br/>
+
+<p/><strong>
+parameter name="StringFlav:thetaPS" default="-15." min="-90." max="90."
+</strong><br/>
+gives the mixing angle <i>theta_PS</i> in the pseudoscalar meson sector
+(which is rather poorly determined), expressed in degrees.
+Here <i>f</i> is associated with <i>eta'</i> and <i>f'</i> with 
+<i>eta</i>. (This standard but counterintuitive choice is fixed up 
+in the code by replacing <i>alpha -> 90^0 - alpha</i> so that 
+<i>eta &lt;-> eta'</i>; relative signs do not matter since we are 
+interested in probabilities only.)
+   
+
+<p/><strong>
+parameter name="StringFlav:thetaV" default="36." min="-90." max="90."
+</strong><br/>
+gives the mixing angle <i>theta_V</i> in the vector meson sector
+(which is somewhat better determined), expressed in degrees.
+Here <i>f</i> is associated with <i>omega</i> and <i>f'</i> 
+with <i>phi</i>.
+   
+
+<p/>
+Further, the simple model overestimates the production of <i>eta</i> 
+and, in particular, <i>eta'</i> mesons, which can be rectified by 
+
+<p/><strong>
+parameter name="StringFlav:suppressEta" default="1.0" min="0." max="1."
+</strong><br/>
+the additional suppression of <i>eta</i> production, multiplying the 
+normal production probability.
+   
+
+<p/><strong>
+parameter name="StringFlav:suppressEtaPrime" default="0.4" min="0." max="1."
+</strong><br/>
+the additional suppression of <i>eta</i> production, multiplying the 
+normal production probability.
+   
+
+<h3>Baryon production</h3>
+
+The relative rate of baryon production is mainly given by the quark
+and diquark production parameters plus SU(6) Clebsch-Gordans. The
+only extra modifiable parameter is
+
+<p/><strong>
+parameter name="StringFlav:suppressDecuplet" default="1.0" 
+min="0.0" max="1.0"
+</strong><br/>
+the suppression, relative to default SU(6) factors, of decuplet 
+baryon production.
+   
+   
+<h3>References</h3>
+ 
+<ol>
+
+<li>B. Andersson, G. Gustafson, G. Ingelman and T. Sjostrand,
+Phys. Rep. 97 (1983) 31</li>
+
+<li>Particle Data Group, S. Eidelman et al., 
+Phys. Lett. B592 (2004) 1</li>
+
+</ol>
+
+</body>
+</html>
+
+<!-- Copyright C 2006 Torbjorn Sjostrand -->

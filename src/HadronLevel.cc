@@ -78,9 +78,11 @@ bool HadronLevel::next( Event& event) {
         if ( colConfig[iSub].massExcess > mStringMin ) {
           if (!stringFrag.fragment( iSub, colConfig, event)) return false; 
 
-        // Low-mass string treated separately.
+        // Low-mass string treated separately. Tell of diffractive system.
         } else { 
-          if (!ministringFrag.fragment( iSub, colConfig, event)) 
+          bool isDiff = infoPtr->isDiffractiveA() 
+            || infoPtr->isDiffractiveB();
+          if (!ministringFrag.fragment( iSub, colConfig, event, isDiff)) 
             return false;
         } 
       }

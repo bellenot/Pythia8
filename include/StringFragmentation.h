@@ -6,14 +6,14 @@
 #ifndef Pythia8_StringFragmentation_H
 #define Pythia8_StringFragmentation_H
 
-#include "Stdlib.h"
 #include "Basics.h"
-#include "Settings.h"
-#include "ParticleData.h"
 #include "Event.h"
 #include "Information.h"
-#include "FragmentationSystems.h"
 #include "FragmentationFlavZpT.h"
+#include "FragmentationSystems.h"
+#include "ParticleData.h"
+#include "Settings.h"
+#include "Stdlib.h"
 
 namespace Pythia8 {
  

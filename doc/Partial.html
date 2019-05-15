@@ -1,0 +1,139 @@
+<html>
+<head>
+<title>Partial Generation</title>
+</head>
+<body>
+
+<h2>Partial Generation</h2>
+
+Sometimes it may be convenient to omit certain aspects of the event 
+generation chain. This cannot be motivated in a full-blown production
+run, but can often be convenient for own understanding and for
+debug purposes. The flags on this page allow just that.
+
+<p/>
+The event generation is subdivided into three levels: the process
+level, the parton level and the hadron level, and flags are grouped
+accordingly. 
+
+<h3>Process Level</h3>
+
+The <code>ProcessLevel</code> class administrates the initial step of 
+the event generation, wherein the basic process is selected. Currently 
+this is done either using some of the internal processes, or with 
+Les Houches Accord input, or from the Fortran PYTHIA 6.4 code, 
+the latter also using the Les Houches Accord standard.
+
+Since there cannot be any event at all without an initial process,
+there is no possibility to switch off this part of the story. It is
+possible, however, to stop the generation immediately after the
+basic process has been selected:
+
+<p/><strong>
+flag name="Pythia:afterProcessLevel" default="on"
+</strong><br/>
+If off then stop the generation after the hard process has been 
+generated, but before the parton-level and hadron-level steps. 
+The <code>process</code> record is filled, but the <code>event</code> 
+one is not.
+  
+ 
+<h3>PartonLevel</h3>
+
+The <code>PartonLevel</code> class administrates the middle step of the 
+event generation, i.e. the evolution from an input (hard) process from
+<code>ProcessLevel</code>, containing a few partons only, to a complete 
+parton-level configuration to be handed on to <code>HadronLevel</code>. 
+This step involves the application of initial- and final-state radiation, 
+multiple interactions and the structure of beam remnants.
+
+<p/>
+Some parts of the event generation on this level may be switched off
+individually: 
+
+<p/><strong>
+flag name="PartonLevel:MI" default="on"
+</strong><br/>
+Master switch for multiple interactions; on/off = true/false.
+Further options are found 
+<a href="MultipleInteractions.html"" target="page">here</a>.
+  
+
+<p/><strong>
+flag name="PartonLevel:ISR" default="on"
+</strong><br/>
+Master switch for initial-state radiation; on/off = true/false.
+Further options are found 
+<a href="SpaceShower.html"" target="page">here</a>.
+  
+
+<p/><strong>
+flag name="PartonLevel:FSRinProcess" default="on"
+</strong><br/>
+Master switch for final-state radiation in association with the
+hard process itself; on/off = true/false.
+Further options are found 
+<a href="TimeShower.html"" target="page">here</a>.
+  
+
+<p/><strong>
+flag name="PartonLevel:FSRinResonances" default="on"
+</strong><br/>
+Master switch for final-state radiation in any resonance decays 
+subsequent to the hard process itself; on/off = true/false.
+Further options are found 
+<a href="TimeShower.html"" target="page">here</a>.
+  
+
+<p/>
+It is also possible to stop the generation immediately after this step:
+
+<p/><strong>
+flag name="Pythia:afterPartonLevel" default="on"
+</strong><br/>
+If off then stop the generation after the hard process and 
+parton-level activity has been generated, but before the 
+hadron-level steps.
+  
+
+
+<h3>HadronLevel</h3>
+
+The <code>HadronLevel</code> class administrates the final step of the 
+event generation, wherein the partonic configuration from 
+<code>PartonLevel</code> is hadronized, including string fragmentation 
+and secondary decays.
+
+<p/>
+Most of the code in this class deals with subdividing the partonic
+content of the event into separate colour singlets, that can be
+treated individually by the string fragmentation machinery. When a
+junction and an antijunction are directly connected, it also breaks 
+the string between the two, so that the topology can be reduced back 
+to two separate one-junction systems, while still preserving the
+expected particle flow in the junction-junction string region(s).
+
+<p/>
+Some parts of the event generation on this level may be switched off
+individually: 
+
+<p/><strong>
+flag name="HadronLevel:Hadronize" default="on"
+</strong><br/>
+Master switch for hadronization; on/off = true/false.
+Further options are found
+<a href="Fragmentation.html"" target="page">here</a>.
+  
+
+<p/><strong>
+flag name="HadronLevel:Decay" default="on"
+</strong><br/>
+Master switch for decays; on/off = true/false.
+Further options are found 
+<a href="ParticleDecays.html"" target="page">here</a>.
+  
+
+</body>
+</html>
+
+<!-- Copyright C 2006 Torbjorn Sjostrand -->

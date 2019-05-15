@@ -6,17 +6,17 @@
 #ifndef Pythia8_ProcessContainer_H
 #define Pythia8_ProcessContainer_H
 
-#include "Stdlib.h"
 #include "Basics.h"
-#include "Settings.h"
-#include "ParticleData.h"
-#include "Event.h"
 #include "Beams.h"
-#include "PartonDistributions.h"
+#include "Event.h"
 #include "Information.h"
+#include "ParticleData.h"
+#include "PartonDistributions.h"
 #include "PhaseSpace.h"
-#include "SigmaHat.h"
+#include "Settings.h"
+#include "SigmaProcess.h"
 #include "SigmaTotal.h"
+#include "Stdlib.h"
 
 namespace Pythia8 {
 
@@ -30,32 +30,32 @@ class ProcessContainer {
 public:
 
   // Constructor. 
-  ProcessContainer(SigmaHat* sigmaHatPtrIn = 0) 
-    : sigmaHatPtr(sigmaHatPtrIn) {} 
+  ProcessContainer(SigmaProcess* sigmaProcessPtrIn = 0) 
+    : sigmaProcessPtr(sigmaProcessPtrIn) {} 
 
   // Destructor.
-  ~ProcessContainer() {delete phaseSpacePtr; delete sigmaHatPtr;}
+  ~ProcessContainer() {delete phaseSpacePtr; delete sigmaProcessPtr;}
 
   // Get pointer to SigmaTotal.
   void setSigmaTotalPtr(SigmaTotal* sigmaTotPtrIn) {
     sigmaTotPtr = sigmaTotPtrIn;}
 
   // Initialize phase space and counters.
-  bool init(Info& info, PDF* pdfAPtrIn, PDF* pdfBPtrIn); 
+  bool init(Info* infoPtrIn, BeamParticle* beamAPtr, BeamParticle* beamBPtr); 
 
   // Generate a trial event; accepted or not.
   bool trialProcess(); 
   
   // Give the hard subprocess.
-  bool constructProcess( Info& info, Event& process); 
+  bool constructProcess( Event& process); 
 
   // Process name and code, and the number of final-state particles.
-  string name() const {return sigmaHatPtr->name();}
-  int code() const {return sigmaHatPtr->code();}
-  int nFinal() const {return sigmaHatPtr->nFinal();}
+  string name() const {return sigmaProcessPtr->name();}
+  int code() const {return sigmaProcessPtr->code();}
+  int nFinal() const {return sigmaProcessPtr->nFinal();}
 
-  // SigmaTotal is needed by elastic/diffractive processes.
-  bool needsSigmaTotal() const {return !isResolved;}
+  // SigmaTotal is needed by minbias/elastic/diffractive processes.
+  bool needsSigmaTotal() const {return sigmaProcessPtr->hasSigmaTot();}
 
   // Member functions for info on generation process.
   double sigmaMax() const {return sigmaMx;}
@@ -67,8 +67,11 @@ public:
 
 private:
 
+  // Pointer to various information on the generation.
+  Info* infoPtr;
+
   // Pointer to the subprocess matrix element.
-  SigmaHat* sigmaHatPtr;
+  SigmaProcess* sigmaProcessPtr;
 
   // Pointer to the phase space generator.
   PhaseSpace* phaseSpacePtr;
@@ -77,7 +80,7 @@ private:
   SigmaTotal* sigmaTotPtr;
 
   // Info on process.
-  bool isResolved, isDiffA, isDiffB;
+  bool hasSigmaTot, isMinBias, isResolved, isDiffA, isDiffB;
 
   // Statistics on generation process.
   int nTry, nAcc;  

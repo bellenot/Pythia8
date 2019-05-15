@@ -1,6 +1,6 @@
 ! File: main11.cmnd
 ! This file contains commands to be read in for a Pythia8 run. 
-! Lines not beginning with a letter, digit or < are comments.
+! Lines not beginning with a letter or digit are comments.
 ! Names are case-insensitive  -  but spellings-sensitive!
 ! The changes here are illustrative, not always physics-motivated.
 

@@ -5,16 +5,16 @@
 #ifndef Pythia8_HadronLevel_H
 #define Pythia8_HadronLevel_H
 
-#include "Stdlib.h"
 #include "Basics.h"
-#include "Settings.h"
-#include "ParticleData.h"
 #include "Event.h"
-#include "Information.h"
 #include "FragmentationSystems.h"
-#include "StringFragmentation.h"
+#include "Information.h"
 #include "MiniStringFragmentation.h"
+#include "ParticleData.h"
 #include "ParticleDecays.h"
+#include "Settings.h"
+#include "Stdlib.h"
+#include "StringFragmentation.h"
 
 namespace Pythia8 {
  
@@ -38,8 +38,9 @@ public:
   // Initialize static data members.
   static void initStatic();
 
-  // Initialize alphaStrong in ParticleDecays.
-  void init() {decays.init();}
+  // Save pointer. Initialize alphaStrong in ParticleDecays.
+  bool init(Info* infoPtrIn) {infoPtr = infoPtrIn; decays.init(); 
+    return true;}
  
   // Generate the next event.
   bool next(Event& event); 
@@ -53,6 +54,9 @@ private:
   // Constants: could only be changed in the code itself.
   static const int NTRYJNREST;
   static const double JJSTRINGM2MAX, JJSTRINGM2FRAC, CONVJNREST, MTHAD;
+
+  // Pointer to various information on the generation.
+  Info* infoPtr;
 
   // The main generator classes for hadronization and decay.
   StringFragmentation stringFrag;

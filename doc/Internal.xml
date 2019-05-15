@@ -1,21 +1,21 @@
 <chapter name="For Internal Use">
 
-<h1>For Internal Use</h1>
+<h2>For Internal Use</h2>
 
-Yhe settings on this page should not be changed by the ordinary user,
+The settings on this page should not be changed by the ordinary user,
 but appears alongside with other parameters and therefore have a place 
 on these pages.
 
-<h2>Version number</h2>
+<h3>Version number</h3>
 
 The version number and version date are defined here, so that they 
 could easily be read out by different programs. 
 
-<parameter name="Pythia:versionNumber" default="8.048">
+<parameter name="Pythia:versionNumber" default="8.051">
 Version and subversion number, with three significant decimals.
 </parameter>
 
-<mode name="Pythia:versionDate" default="20060417">
+<mode name="Pythia:versionDate" default="20060511">
 Last date of change of current (sub)version, in format yyyymmdd.
 </mode>
 

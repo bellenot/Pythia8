@@ -21,10 +21,13 @@ const int PartonLevel::NTRY = 10;
 
 // Main routine to initialize the parton-level generation process.
 
-bool PartonLevel::init( BeamParticle& beamA, BeamParticle& beamB, 
-  int strategyIn) {
+bool PartonLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn, 
+  BeamParticle* beamBPtrIn, int strategyIn) {
 
-  // Save input.
+  // Store input pointers and modes for future use. 
+  infoPtr = infoPtrIn;
+  beamAPtr = beamAPtrIn;
+  beamBPtr = beamBPtrIn;
   strategyLHA = strategyIn;
 
   // Main flags.
@@ -37,8 +40,8 @@ bool PartonLevel::init( BeamParticle& beamA, BeamParticle& beamB,
   // Set info in the respective program elements.
   if (strategyLHA < 10) {
     times.init();
-    if (ISR) space.init( beamA, beamB);
-    if (MI) MI = multi.init( beamA, beamB);
+    if (ISR) space.init( beamAPtr, beamBPtr);
+    if (MI) MI = multi.init( beamAPtr, beamBPtr);
   }
 
   // Succeeded. (Check return values from other classes??)
@@ -49,20 +52,35 @@ bool PartonLevel::init( BeamParticle& beamA, BeamParticle& beamB,
 
 // Main routine to do the parton-level evolution.
 
-bool PartonLevel::next( BeamParticle& beamA, BeamParticle& beamB, 
-  Event& process, Event& event) {
+bool PartonLevel::next( Event& process, Event& event) {
 
   // Special case if all partons already given.
   if (strategyLHA >= 10) return setupSimpleSys( process, event);
+
+  // Special case if unresolved = elastic/diffractive event.
+  if (!infoPtr->isResolved()) return setupUnresolvedSys( process, event);
+
+  // Special case if minimum bias: do hardest interaction.
+  multi.clear();
+  if (infoPtr->isMinBias()) {
+    multi.pTfirst();
+    multi.setupFirstSys( infoPtr, process);
+  }
 
   // Allow up to ten tries; failure possible for beam remnants.
   // Currently caused by lack of junction handling?? (Or colours!)
   bool physical = true;
   for (int iTry = 0; iTry < NTRY; ++ iTry) {
+
+    // Reset counters and flag.
+    nMI = 1;
+    nISR = 0;
+    nFSRinProc = 0;
+    nFSRinRes = 0;
     physical = true;
 
     // Identify hard interaction system for showers.
-    setupHardSys( beamA, beamB, process, event);
+    setupHardSys( process, event);
 
     // Set hard scale, maximum for showers and multiple interactions,
     double pTmax = process.scale();
@@ -85,9 +103,11 @@ bool PartonLevel::next( BeamParticle& beamA, BeamParticle& beamB,
       //  : -1.;
       double pTtimes = -1.;
       pTgen = max( pTgen, pTtimes);
-      double pTmulti =  (MI) ? multi.pTnext( beamA, beamB, pTmax, pTgen) : -1.;
+      double pTmulti =  (MI) ? multi.pTnext( pTmax, pTgen) 
+        : -1.;
       pTgen = max( pTgen, pTmulti);
-      double pTspace = (ISR) ? space.pTnext( beamA, beamB, pTmax, pTgen) : -1.;
+      double pTspace = (ISR) ? space.pTnext( pTmax, pTgen) 
+        : -1.;
 
       // One further possibility is that all pT have fallen
       // below a pTveto scale, and that a special veto routine 
@@ -95,17 +115,18 @@ bool PartonLevel::next( BeamParticle& beamA, BeamParticle& beamB,
 
       // Do a multiple interaction (if allowed).
       if (pTmulti > 0. && pTmulti > pTspace && pTmulti > pTtimes) {
-        if (multi.scatter( beamA, beamB, event)) { 
-          if (ISR) space.prepare( event, sizeOld);
-          // times.update( event);
-	}
+        multi.scatter( event);  
+        ++nMI;
+        if (ISR) space.prepare( event, sizeOld);
+        // times.update( event);
         pTmax = pTmulti;
       }
    
       // Do an initial-state emission (if allowed).
       else if (pTspace > 0. && pTspace > pTtimes) { 
       //   if (space.branch()) times.update( event); 
-        space.branch( beamA, beamB, event);
+        space.branch( event);
+        ++nISR;
         pTmax = pTspace;
       }
 
@@ -122,7 +143,7 @@ bool PartonLevel::next( BeamParticle& beamA, BeamParticle& beamB,
     } while (pTmax > 0.);   
 
     // Now add beam remnants. Includes primordial kT kick and colour tracing.
-    if (!remnants.add( beamA, beamB, event)) physical = false;
+    if (!remnants.add( *beamAPtr, *beamBPtr, event)) physical = false;
 
     // Temporary position for final-state emissions??
     if (FSRinProcess && physical) {
@@ -138,8 +159,8 @@ bool PartonLevel::next( BeamParticle& beamA, BeamParticle& beamB,
     // If no problems then done, else restore and loop.
     if (physical) break;
     event.clear();
-    beamA.clear();
-    beamB.clear();
+    beamAPtr->clear();
+    beamBPtr->clear();
 
   // End loop over ten tries. Hopefully it worked
   }
@@ -148,6 +169,10 @@ bool PartonLevel::next( BeamParticle& beamA, BeamParticle& beamB,
   // Perform showers in resonance decay chains.
   resonanceShowers( process, event); 
 
+  // Store statistics.
+  infoPtr->setImpact( multi.bMI(), multi.enhanceMI());
+  infoPtr->setCounters( nMI, nISR, nFSRinProc, nFSRinRes);
+ 
   // Done.
   return true;
 }
@@ -156,8 +181,7 @@ bool PartonLevel::next( BeamParticle& beamA, BeamParticle& beamB,
 
 // Set up the hard process, excluding subsequent resonance decays.
 
-void PartonLevel::setupHardSys( BeamParticle& beamA, BeamParticle& beamB, 
-  Event& process, Event& event) {
+void PartonLevel::setupHardSys( Event& process, Event& event) {
 
   // Incoming partons to hard process are stored in slots 3 and 4. Scale.
   int inP = 3;
@@ -179,15 +203,15 @@ void PartonLevel::setupHardSys( BeamParticle& beamA, BeamParticle& beamB,
   // Add incoming hard-scattering partons to list in beam remnants.
   // Not valid if not in rest frame??
   double x1 = process[inP].pPlus() / process[0].e();
-  beamA.append( inP, process[inP].id(), x1);
+  beamAPtr->append( inP, process[inP].id(), x1);
   double x2 = process[inM].pMinus() / process[0].e();
-  beamB.append( inM, process[inM].id(), x2);
+  beamBPtr->append( inM, process[inM].id(), x2);
 
   // Find whether incoming partons are valence or sea.
-  beamA.xfISR( 0, process[inP].id(), x1, scale*scale);
-  beamA.pickValSeaComp(); 
-  beamB.xfISR( 0, process[inM].id(), x2, scale*scale);
-  beamB.pickValSeaComp(); 
+  beamAPtr->xfISR( 0, process[inP].id(), x1, scale*scale);
+  beamAPtr->pickValSeaComp(); 
+  beamBPtr->xfISR( 0, process[inM].id(), x2, scale*scale);
+  beamBPtr->pickValSeaComp(); 
 
   // Initialize info needed for subsequent sequential decays + showers.
   nHardDone = 0;
@@ -238,6 +262,130 @@ bool PartonLevel::setupSimpleSys( Event& process, Event& event) {
     event.appendJunction( process.getJunction(i));
 
   // Done.
+  return true;
+}
+
+//*********
+
+// Set up an unresolved process, i.e. elastic or diffractive.
+
+bool PartonLevel::setupUnresolvedSys( Event& process, Event& event) {
+
+  // Copy particles from process to event.
+  for (int i = 0; i < process.size(); ++ i) event.append( process[i]);
+
+  // Loop to find diffractively excited beams.
+  for (int i = 0; i < 2; ++i)  
+  if ( (i == 0 && infoPtr->isDiffractiveA()) 
+    || (i == 1 && infoPtr->isDiffractiveB()) ) {
+    int iBeam = i + 3;
+    BeamParticle* beamPtr = (i == 0) ? beamAPtr : beamBPtr;
+
+    // Diffractive mass. Reconstruct boost and rotation to event cm frame.
+    double mDiff = process[iBeam].m();  
+    double m2Diff = mDiff*mDiff;  
+    double beta = process[iBeam].pAbs() / process[iBeam].e();
+    double theta = process[iBeam].theta();
+    double phi = process[iBeam].phi();
+  
+    // Pick quark or gluon kicked out and flavour subdivision.
+    bool gluonIsKicked = beamPtr->pickGluon(mDiff);
+    int id1 = beamPtr->pickValence();
+    int id2 = beamPtr->pickRemnant();
+
+    // Find flavour masses. Scale them down if too big.
+    double m1 = ParticleDataTable::constituentMass(id1);
+    double m2 = ParticleDataTable::constituentMass(id2);
+    if (m1 + m2 > 0.5 * mDiff) { 
+      double reduce = 0.5 * mDiff / (m1 + m2);
+      m1 *= reduce;
+      m2 *= reduce;
+    }
+
+    // If quark is kicked out, then trivial kinematics in rest frame.
+    if (!gluonIsKicked) { 
+      double pAbs = sqrt( pow2(m2Diff - m1*m1 - m2*m2) 
+        - pow2(2. * m1 * m2) ) / (2. * mDiff);
+      double e1 = (m2Diff + m1*m1 - m2*m2) / (2. * mDiff);
+      double e2 = (m2Diff + m2*m2 - m1*m1) / (2. * mDiff);
+      Vec4 p1(0.,0., -pAbs, e1);
+      Vec4 p2(0.,0., pAbs, e2);
+
+      // Boost and rotate to event cm frame.
+      p1.bst(0., 0., beta); p1.rot(theta, phi);   
+      p2.bst(0., 0., beta); p2.rot(theta, phi);   
+
+      // Set colours.
+      int col1, acol1, col2, acol2;
+      if (ParticleDataTable::colType(id1) == 1) {
+        col1 = event.nextColTag(); acol1 = 0;
+        col2 = 0; acol2 = col1;
+      } else {  
+        col1 = 0; acol1 = event.nextColTag();
+        col2 = acol1; acol2 = 0;
+      }    
+    
+      // Store partons of diffractive system and mark system decayed.
+      int iDauBeg = event.append( id1, 23, iBeam, 0, 0, 0, col1, acol1, 
+        p1, m1);
+      int iDauEnd = event.append( id2, 63, iBeam, 0, 0, 0, col2, acol2, 
+        p2, m2);
+      event[iBeam].statusNeg();
+      event[iBeam].daughters(iDauBeg, iDauEnd);   
+
+
+    // If gluon is kicked out: share momentum between two remnants.
+    } else {
+      double m2Sys, zSys, pxSys, pySys, mTS1, mTS2;
+      zSys = beamPtr->zShare(mDiff, m1, m2);
+
+      // Provide relative pT kick in remnant. Construct (transverse) masses.
+      pxSys = beamPtr->pxShare(); 
+      pySys = beamPtr->pyShare(); 
+      mTS1 = m1*m1 + pxSys*pxSys + pySys*pySys;
+      mTS2 = m2*m2 + pxSys*pxSys + pySys*pySys;
+      m2Sys = mTS1 / zSys + mTS2 / (1. - zSys);
+
+      // Momentum of kicked-out massless gluon in diffractive rest frame.
+      double pAbs = (m2Diff - m2Sys) / (2. * mDiff);
+      Vec4 pG(0., 0., -pAbs, pAbs);
+      Vec4 pRem(0., 0., pAbs, mDiff - pAbs);
+
+      // Momenta of the two beam remnant flavours. (Lightcone p+ = m_diff!)
+      double e1 = 0.5 * (zSys * mDiff + mTS1 / (zSys * mDiff));    
+      double pL1 = 0.5 * (zSys * mDiff - mTS1 / (zSys * mDiff));  
+      Vec4 p1(pxSys, pySys, pL1, e1);
+      Vec4 p2 = pRem - p1;
+  
+      // Boost and rotate to event cm frame.
+      pG.bst(0., 0., beta); pG.rot(theta, phi);   
+      p1.bst(0., 0., beta); p1.rot(theta, phi);   
+      p2.bst(0., 0., beta); p2.rot(theta, phi); 
+
+      // Set colours.
+      int colG, acolG, col1, acol1, col2, acol2;
+      if (ParticleDataTable::colType(id1) == 1) {
+        col1 = event.nextColTag(); acol1 = 0;
+        colG = event.nextColTag(); acolG = col1;
+        col2 = 0; acol2 = colG;
+      } else {  
+        col1 = 0; acol1 = event.nextColTag();
+        colG = acol1; acolG = event.nextColTag();
+        col2 = acolG; acol2 = 0;
+      } 
+       
+      // Store partons of diffractive system and mark system decayed.
+      int iDauBeg = event.append( 21, 23, iBeam, 0, 0, 0, colG, acolG, 
+        pG, m1);
+      event.append( id1, 63, iBeam, 0, 0, 0, col1, acol1, p1, m1);
+      int iDauEnd = event.append( id2, 63, iBeam, 0, 0, 0, col2, acol2, 
+        p2, m2);
+      event[iBeam].statusNeg();
+      event[iBeam].daughters(iDauBeg, iDauEnd);   
+    }
+
+  // End loop over beams. Done.
+  }
   return true;
 }
 

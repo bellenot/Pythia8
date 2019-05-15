@@ -9,11 +9,16 @@ namespace Pythia8 {
 
 // Main routine to initialize generation process.
 
-bool ProcessLevel::init( Info& info, PDF* pdfAPtr, PDF* pdfBPtr, 
-  bool hasPythia6In, bool hasLHAin, LHAinit* lhaInitPtrIn, 
-  LHAevnt* lhaEvntPtrIn) {
+bool ProcessLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn, 
+  BeamParticle* beamBPtrIn, bool hasPythia6In, bool hasLHAin, 
+  LHAinit* lhaInitPtrIn, LHAevnt* lhaEvntPtrIn) {
 
-  // Store pointers to Les Houches Accord input, if any.
+  // Store input pointers for future use. 
+  infoPtr = infoPtrIn;
+  beamAPtr = beamAPtrIn;
+  beamBPtr = beamBPtrIn;
+
+  // Store pointers to Les Houches Accord input if any.
   hasLHA = hasLHAin;
   lhaInitPtr = lhaInitPtrIn;
   lhaEvntPtr = lhaEvntPtrIn;
@@ -21,11 +26,12 @@ bool ProcessLevel::init( Info& info, PDF* pdfAPtr, PDF* pdfBPtr,
 
   // Initialize event generation from Pythia 6.3.
   hasPythia6 = hasPythia6In;
-  if (hasPythia6) initPythia6( info.idA(), info.idB(), info.eCM() );
+  if (hasPythia6) initPythia6( infoPtr->idA(), infoPtr->idB(), 
+    infoPtr->eCM() );
 
   // If not Les Houches or Pythia 6.3 then internal machinery.
   hasInternal = !hasLHA && !hasPythia6;
-  if (hasInternal) initInternal( info, pdfAPtr, pdfBPtr);
+  if (hasInternal) return initInternal();
 
   // Done. (Check return values from other classes??)
   return true;
@@ -36,10 +42,10 @@ bool ProcessLevel::init( Info& info, PDF* pdfAPtr, PDF* pdfBPtr,
 // Main routine to generate the hard process.
 // Currently rather primitive.
 
-  bool ProcessLevel::next( Info& info, Event& process) {
+  bool ProcessLevel::next( Event& process) {
 
   // Generate the next internal event.
-  if (hasInternal) return getInternalEvnt( info, process);
+  if (hasInternal) return getInternalEvnt( process);
 
   // Generate the next Pythia 6.3 event.
   if (hasPythia6) Pythia6::pyupev();
@@ -48,7 +54,7 @@ bool ProcessLevel::init( Info& info, PDF* pdfAPtr, PDF* pdfBPtr,
   if (strategyLHA >= 10) return getSimpleLHAevnt( process);
 
   // Read in an event in the LHAevnt format.
-  if (hasPythia6 || hasLHA) return getLHAevnt( info, process);
+  if (hasPythia6 || hasLHA) return getLHAevnt( process);
 
   // Done.
   return true;
@@ -62,22 +68,22 @@ void ProcessLevel::statistics(ostream& os) {
 
   // Internal statistics.
   if (hasInternal) {
-
-  // Header.
+    
+    // Header.
     os << "\n *-------  PYTHIA Event and Cross Section Statistics  ------"
-       << "----------------------------------*\n"
+       << "---------------------------------------*\n"
        << " |                                                            "
-       << "                                |\n" 
-       << " | Subprocess                          Code |       Number of "
-       << "events |      sigma +- delta    |\n" 
-       << " |                                          |       Tried   Ac"
-       << "cepted |     (estimated) (mb)   |\n"
-       << " |                                          |                 "
-       << "       |                        |\n"
+       << "                                     |\n" 
+       << " | Subprocess                               Code |       Numbe"
+       << "r of events |      sigma +- delta    |\n" 
+       << " |                                               |       Tried"
+       << "   Accepted |     (estimated) (mb)   |\n"
+       << " |                                               |            "
+       << "            |                        |\n"
        << " |------------------------------------------------------------"
-       << "--------------------------------|\n"
-       << " |                                          |                 "
-       << "       |                        |\n";
+       << "-------------------------------------|\n"
+       << " |                                               |            "
+       << "            |                        |\n";
 
     // Reset sum counters.
     int nTrySum = 0; 
@@ -100,26 +106,26 @@ void ProcessLevel::statistics(ostream& os) {
       delta2Sum += pow2(delta);    
 
       // Print individual process info.
-      os << " | " << left << setw(36) << containerPtrs[i]->name() 
-         << right << setw(4) << containerPtrs[i]->code() << " | " 
+      os << " | " << left << setw(40) << containerPtrs[i]->name() 
+         << right << setw(5) << containerPtrs[i]->code() << " | " 
          << setw(11) << nTry << " " << setw(10) << nAcc << " | " 
          << scientific << setprecision(3) << setw(11) << sigma 
          << setw(11) << delta << " |\n";
     }
 
     // Print summed process info.
-    os << " |                                          |                 "
-       << "       |                        |\n"
-       << " | " << left << setw(40) << "sum" << right << " | " << setw(11) 
+    os << " |                                               |            "
+       << "            |                        |\n"
+       << " | " << left << setw(45) << "sum" << right << " | " << setw(11) 
        << nTrySum << " " << setw(10) << nAccSum << " | " << scientific 
        << setprecision(3) << setw(11) << sigmaSum << setw(11) 
        << sqrt(max(0., delta2Sum)) << " |\n";
 
     // Listing finished.
     os << " |                                                            "
-       << "                                |\n"
+       << "                                     |\n"
        << " *-------  End PYTHIA Event and Cross Section Statistics -----"
-       << "--------------------------------*" << endl;
+       << "-------------------------------------*" << endl;
      
   }
 
@@ -132,24 +138,30 @@ void ProcessLevel::statistics(ostream& os) {
 
 // Initialize the internal event generation machinery.
   
-void ProcessLevel::initInternal( Info info, PDF* pdfAPtr, PDF* pdfBPtr,
-  ostream& os) {
+bool ProcessLevel::initInternal( ostream& os) {
 
   // Set up SigmaTotal.
-  int idA = info.idA();
-  int idB = info.idB();
-  double eCM = info.eCM();
+  int idA = infoPtr->idA();
+  int idB = infoPtr->idB();
+  double eCM = infoPtr->eCM();
   sigmaTot.init( idA, idB, eCM);
 
   // Sets up containers for all the hard processes.
   SetupContainers setupContainers;
   setupContainers.init(containerPtrs);
 
-  // Initialize each process. Special case for elastic/diffractive.
+  // If no processes found then refuse to do anything.
+  if ( int(containerPtrs.size()) == 0) {
+    ErrorMessages::message("Error in ProcessLevel::initInternal: "
+      "no processes switched on"); 
+    return false;
+  }
+
+  // Initialize each process. Special case for minbias/elastic/diffractive.
   for (int i = 0; i < int(containerPtrs.size()); ++i) {
     if (containerPtrs[i]->needsSigmaTotal()) 
       containerPtrs[i]->setSigmaTotalPtr(&sigmaTot);
-    containerPtrs[i]->init(info, pdfAPtr, pdfBPtr);
+    containerPtrs[i]->init(infoPtr, beamAPtr, beamBPtr);
   }
 
   // Sum maxima for Monte Carlo choice.
@@ -157,28 +169,46 @@ void ProcessLevel::initInternal( Info info, PDF* pdfAPtr, PDF* pdfBPtr,
   for (int i = 0; i < int(containerPtrs.size()); ++i)
     sigmaMaxSum += containerPtrs[i]->sigmaMax();
 
+  // Construct string with incoming beams and for cm energy.
+  string collision = "We collide " + ParticleDataTable::name(idA)
+    + " with " + ParticleDataTable::name(idB) + " at a CM energy of "; 
+  string pad( 46 - collision.length(), ' ');
+
   // Print initialization information: header.
-  os << "\n *-------  PYTHIA Process Initialization  ----------------*\n"
-     << " |                                                        |\n" 
-     << " | Subprocess                          Code |   Estimated |\n" 
-     << " |                                          |    max (mb) |\n"
-     << " |                                          |             |\n"
-     << " |--------------------------------------------------------|\n"
-     << " |                                          |             |\n";
+  os << "\n *-------  PYTHIA Process Initialization  ---------------------*\n"
+     << " |                                                             |\n" 
+     << " | " << collision << scientific << setprecision(3)<< setw(9) << eCM 
+     << " GeV" << pad << " |\n"
+     << " |                                                             |\n"
+     << " |-------------------------------------------------------------|\n"
+     << " |                                               |             |\n"
+     << " | Subprocess                               Code |   Estimated |\n" 
+     << " |                                               |    max (mb) |\n"
+     << " |                                               |             |\n"
+     << " |-------------------------------------------------------------|\n"
+     << " |                                               |             |\n";
 
 
   // Loop over existing processes: print individual process info.
   for (int i = 0; i < int(containerPtrs.size()); ++i) {
-    os << " | " << left << setw(36) << containerPtrs[i]->name() 
-       << right << setw(4) << containerPtrs[i]->code() << " | " 
+    os << " | " << left << setw(40) << containerPtrs[i]->name() 
+       << right << setw(5) << containerPtrs[i]->code() << " | " 
        << scientific << setprecision(3) << setw(11)  
        << containerPtrs[i]->sigmaMax() << " |\n";
   }
 
   // Listing finished.
-  os << " |                                                        |\n" 
-     << " *-------  End PYTHIA Process Initialization -------------*" 
+  os << " |                                                             |\n" 
+     << " *-------  End PYTHIA Process Initialization ------------------*" 
      << endl;
+
+  // If sum of maxima vanishes then refuse to do anything. Done.
+  if ( sigmaMaxSum <= 0.) {
+    ErrorMessages::message("Error in ProcessLevel::initInternal: "
+      "all processes have vanishing cross sections"); 
+    return false;
+  }
+  return true;
 
 }
 
@@ -214,7 +244,7 @@ void ProcessLevel::initPythia6( int idA, int idB, double eCM) {
 
 // Generate the next internal event.
   
-  bool ProcessLevel::getInternalEvnt( Info& info, Event& process) {
+  bool ProcessLevel::getInternalEvnt( Event& process) {
 
   // Loop over tries until trial event succeeds.
   int iNow;
@@ -231,7 +261,7 @@ void ProcessLevel::initPythia6( int idA, int idB, double eCM) {
   }
 
   // Construct kinematics of acceptable process.
-  containerPtrs[iNow]->constructProcess( info, process);
+  containerPtrs[iNow]->constructProcess( process);
 
   // Add any junctions to the process event record list.
   findJunctions( process);
@@ -245,7 +275,7 @@ void ProcessLevel::initPythia6( int idA, int idB, double eCM) {
 // Read in the hard process from the Les Houches Accord.
 // Many more checks to be done for valid input??
 
-bool ProcessLevel::getLHAevnt( Info& info, Event& process) {
+bool ProcessLevel::getLHAevnt( Event& process) {
 
   // Generate the next Les Houches event.
   if (!lhaEvntPtr->set()) return false;
@@ -253,11 +283,11 @@ bool ProcessLevel::getLHAevnt( Info& info, Event& process) {
   // Let hard process record begin with the event as a whole and
   // the two incoming beam particles.  
   process.append( 90, -11, 0, 0, 1, 2, 0, 0, 
-    Vec4(0., 0., 0., info.eCM()), info.eCM(), 0. ); 
-  process.append( info.idA(), -12, 0, 0, 3, 0, 0, 0, 
-    Vec4(0., 0., info.pzA(), info.eA()), info.mA(), 0. ); 
-  process.append( info.idB(), -12, 0, 0, 4, 0, 0, 0, 
-    Vec4(0., 0., info.pzB(), info.eB()), info.mB(), 0. ); 
+    Vec4(0., 0., 0., infoPtr->eCM()), infoPtr->eCM(), 0. ); 
+  process.append( infoPtr->idA(), -12, 0, 0, 3, 0, 0, 0, 
+    Vec4(0., 0., infoPtr->pzA(), infoPtr->eA()), infoPtr->mA(), 0. ); 
+  process.append( infoPtr->idB(), -12, 0, 0, 4, 0, 0, 0, 
+    Vec4(0., 0., infoPtr->pzB(), infoPtr->eB()), infoPtr->mB(), 0. ); 
 
   // Since LHA partons may be out of order, determine correct one.
   // (Recall that zeroth particle is empty.) 

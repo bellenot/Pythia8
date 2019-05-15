@@ -1,33 +1,33 @@
 <chapter name="Particle Decays">
 
-<h1>Particle Decays</h1>
+<h2>Particle Decays</h2>
 
-The <ci>ParticleDecays</ci> class performs the sequential decays of 
+The <code>ParticleDecays</code> class performs the sequential decays of 
 all unstable hadrons produced in the string fragmentation stage,
 i.e. up to and including <ei>b</ei> hadrons and their decay products, 
 such as the <ei>tau</ei> lepton. It is not to be used for the decay of 
 more massive resonances, such as top, <ei>Z^0</ei> or SUSY, where decays 
-must be performed already at the <ci>ProcessLevel</ci> of the event 
+must be performed already at the <code>ProcessLevel</code> of the event 
 generation.
 
 The decay description essentially copies the one present in 
-Pythia since many years, currently with some simplifications 
+PYTHIA since many years, currently with some simplifications 
 for some charm and bottom channels, and updates will need to be
 introduced eventually.
 
-<h2>Variables determining whether a particle decays</h2>
+<h3>Variables determining whether a particle decays</h3>
 
 Before a particle is actually decayed, a number of checks are made.
 
 <p/>
 (i) Decay modes must have been defined for the particle kind;    
-tested by the <ci>canDecay()</ci> method of <ci>Event</ci> 
-(and <ci>ParticleData</ci>).        
+tested by the <code>canDecay()</code> method of <code>Event</code> 
+(and <code>ParticleData</code>).        
 
 <p/>
 (ii) The main switch for allowing this particle kind to decay must 
-be on; tested by the <ci>mayDecay()</ci> method of <ci>Event</ci> 
-(and <ci>ParticleData</ci>). 
+be on; tested by the <code>mayDecay()</code> method of <code>Event</code> 
+(and <code>ParticleData</code>). 
 
 <p/>
 (iii) Particles may be requested to have a nominal proper lifetime 
@@ -90,7 +90,7 @@ The above <ei>xyMax</ei>, expressed in mm/c.
 The above <ei>zMax</ei>, expressed in mm/c.
 </parameter> 
 
-<h2>Mixing</h2>
+<h3>Mixing</h3>
 
 <flag name="ParticleDecays:mixB" default="on">
 Allow or not <ei>B^0 - B^0bar</ei> and <ei>B_s^0 - B_s^0bar</ei> mixing.
@@ -107,7 +107,7 @@ The mixing parameter <ei>x_s = Delta(m_B_s^0)/Gamma_B_s^0</ei> in the
 <ei>B_s^0 - B_s^0bar</ei> system.
 </parameter> 
 
-<h2>Other variables</h2>
+<h3>Other variables</h3>
 
 <parameter name="ParticleDecays:mSafety" default="0.001" 
 min="0." max="0.01">

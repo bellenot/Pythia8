@@ -5,8 +5,8 @@
 #ifndef Pythia8_StandardModel_H
 #define Pythia8_StandardModel_H
 
-#include "Stdlib.h"
 #include "ParticleData.h"
+#include "Stdlib.h"
 
 namespace Pythia8 {
 

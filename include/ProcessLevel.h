@@ -5,17 +5,17 @@
 #ifndef Pythia8_ProcessLevel_H
 #define Pythia8_ProcessLevel_H
 
-#include "Stdlib.h"
 #include "Basics.h"
-#include "Settings.h"
-#include "ParticleData.h"
-#include "PartonDistributions.h"
 #include "Beams.h"
 #include "Event.h"
 #include "Information.h"
-#include "ProcessContainer.h"
 #include "LesHouches.h"
+#include "ParticleData.h"
+#include "PartonDistributions.h"
+#include "ProcessContainer.h"
 #include "Pythia6.h"
+#include "Settings.h"
+#include "Stdlib.h"
 
 namespace Pythia8 {
   
@@ -32,12 +32,13 @@ public:
   ProcessLevel() {} 
  
   // Initialization assuming all necessary data already read.
-  bool init( Info& info, PDF* pdfAPtr = 0, PDF* pdfBPtr = 0, 
-    bool hasPythia6In = false, bool hasLHAin = false, 
-    LHAinit* lhaInitPtrIn = 0, LHAevnt* lhaEvntPtrIn = 0);
+  bool init( Info* infoPtrIn, BeamParticle* beamAPtrIn, 
+    BeamParticle* beamBPtrIn, bool hasPythia6In = false, 
+    bool hasLHAin = false, LHAinit* lhaInitPtrIn = 0, 
+    LHAevnt* lhaEvntPtrIn = 0);
  
   // Generate the next "hard" process.
-  bool next( Info& info, Event& process); 
+  bool next( Event& process); 
 
   // Print statistics on cross sections and number of events.
   void statistics(ostream& = cout);
@@ -51,7 +52,14 @@ private:
   vector<ProcessContainer*> containerPtrs;
   double sigmaMaxSum;
 
-  // LHAinit and LHAevnt objects for generating external events.
+  // Pointer to various information on the generation.
+  Info* infoPtr;
+
+  // Pointers to the two incoming beams.
+  BeamParticle* beamAPtr;
+  BeamParticle* beamBPtr;
+
+  // Pointers to LHAinit and LHAevnt for generating external events.
   LHAinit* lhaInitPtr;
   LHAevnt* lhaEvntPtr;
   int strategyLHA;
@@ -60,17 +68,16 @@ private:
   SigmaTotal sigmaTot;
 
   // Initialize the internal event generation machinery.
-  void initInternal( Info info, PDF* pdfAPtr, PDF* pdfBPtr,
-    ostream& = cout);
+  bool initInternal( ostream& = cout);
 
   // Initialize event generation from Pythia 6.3.
   void initPythia6( int idA, int idB, double eCM);
 
   // Generate the next internal event.
-  bool getInternalEvnt( Info& info, Event& process);
+  bool getInternalEvnt( Event& process);
 
   // Read in the hard process from the Les Houches Accord.
-  bool getLHAevnt( Info& info, Event& process);
+  bool getLHAevnt( Event& process);
 
   // Read in the hard process, special case if all partons already given.
   bool getSimpleLHAevnt( Event& process);

@@ -1,8 +1,8 @@
 <chapter name="Fragmentation">
 
-<h1>Fragmentation</h1>
+<h2>Fragmentation</h2>
 
-Fragmentation in Pythia is based on the Lund string model [1, 2].
+Fragmentation in PYTHIA is based on the Lund string model [1, 2].
 Several different aspects are involved in the physics description,
 which  here therefore is split accordingly. This also, at least
 partly, reflect the set of classes involved in the fragmentation 
@@ -18,9 +18,9 @@ The fragmentation flavour-choice machinery is also used in a few
 other places of the program, notably particle decays, and is thus
 described on the separate Flavour Selection page.
 
-<h2>Fragmentation functions</h2>
+<h3>Fragmentation functions</h3>
 
-The <ci>StringZ</ci> class handles the choice of longitudinal 
+The <code>StringZ</code> class handles the choice of longitudinal 
 lightcone fraction <ei>z</ei> according to one of two possible 
 shape sets.
 
@@ -59,7 +59,7 @@ allows a larger <ei>i</ei> for diquarks, with total
 <p/>
 Finally, the Bowler modification [3] introduces an extra factor
 <eq>
-    1/z^{r_Q * b * m_Q^2)
+    1/z^{r_Q * b * m_Q^2}
 </eq>
 for heavy quarks. To keep some flexibility, a multiplicative factor
 <ei>r_Q</ei> is introduced, which ought to be unity but can be set in
@@ -90,13 +90,14 @@ use Peterson for <ei>c</ei> quarks.
 </flag>
 
 <flag name="StringZ:usePetersonB" default="off">
-use Peterson for <ei>c</ei> quarks.
+use Peterson for <ei>b</ei> quarks.
 </flag>
 
 <flag name="StringZ:usePetersonH" default="off">
 use Peterson for hypothetical heavier quarks.
 </flag>
 
+<p/>
 When switched on, the corresponding epsilon values are chosen to be
 
 <parameter name="StringZ:epsilonC" default="0.05" min="0.01" max="0.25">
@@ -115,10 +116,10 @@ This allows a sensible scaling to a particle with an unknown higher
 mass without the need for a user intervention. 
 </parameter>
 
-<h2>Fragmentation <ei>pT</ei></h2>
+<h3>Fragmentation <ei>pT</ei></h3>
 
-The <ci>StringPT</ci> class handles the choice of fragmentation <ei>pT</ei>. 
-At each string breaking the quark and antiquark of the pair are
+The <code>StringPT</code> class handles the choice of fragmentation 
+<ei>pT</ei>. At each string breaking the quark and antiquark of the pair are
 supposed to receive opposite and compensating <ei>pT</ei> kicks according
 to a Gaussian distribution in <ei>p_x</ei> and <ei>p_y</ei> separately. 
 Call <ei>sigma_q</ei> the width of the <ei>p_x</ei> and <ei>p_y</ei> 
@@ -161,7 +162,7 @@ min="1.0" max="5.0">
 <ei>enhancedWidth</ei>,the enhancement of the width in this fraction.
 </parameter>
 
-<h2>Jet joining procedure</h2>
+<h3>Jet joining procedure</h3>
 
 String fragmentation is carried out iteratively from both string ends 
 inwards, which means that the two chains of hadrons have to be joined up 
@@ -198,7 +199,7 @@ particle production. If not, i.e. if
 produced from what is currently left, if possible. (If not, the 
 fragmentation process is started over.)
 
-<h2>Simplifying systems</h2>
+<h3>Simplifying systems</h3>
 
 There are a few situations when it is meaningful to simplify the
 original task, one way or another.
@@ -228,16 +229,16 @@ When the invariant mass of two of the quarks in a three-quark junction
 string system becomes too small, the system is simplified to a 
 quark-diquark simple string. The requirement for this simplification 
 is that the diquark mass, minus the two quark masses, falls below 
-<eq>mJoinJunction</eq>. Gluons on the string between the junction and 
+<ei>mJoinJunction</ei>. Gluons on the string between the junction and 
 the respective quark, if any, are counted as part of the quark 
 four-momentum. Those on the two combined legs are clustered with the 
 diquark when it is formed.
 </parameter>
 
-<h2>Ministrings</h2>
+<h3>Ministrings</h3>
 
-The <ci>MiniStringFragmentation</ci> machinery is only used when a string 
-system has so small invariant mass that normal string fragmentation
+The <code>MiniStringFragmentation</code> machinery is only used when a 
+string system has so small invariant mass that normal string fragmentation
 is difficult/impossible. Instead one or two particles are produced,
 in the former case shuffling energy-momentum relative to another
 colour singlet system in the event, while preserving the invariant
@@ -261,7 +262,7 @@ attempts at obtaining two hadrons will be made before eventually
 giving up.
 </mode>
 
-<h2>Junction treatment</h2>
+<h3>Junction treatment</h3>
 
 A junction topology corresponds to an Y arrangement of strings
 i.e. where three string pieces have to be joined up in a junction.
@@ -311,7 +312,7 @@ and the leftover momentum of the first two treated legs falls below
 junction rest frame). 
 </parameter>
    
-<h2>References</h2>
+<h3>References</h3>
  
 <ol>
 

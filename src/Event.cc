@@ -35,6 +35,22 @@ double Particle::eta() const {
 
 //*********
 
+// Particle name, with status but imposed maximum length -> may truncate.
+
+string Particle::nameWithStatus(int maxLen) const {
+
+  string temp = (statusSave > 0) ? particlePtr->name(idSave)
+    : "(" + particlePtr->name(idSave) + ")"; 
+  while (int(temp.length()) > maxLen) {
+    // Remove from end, excluding closing bracket and charge.
+    int iRem = temp.find_last_not_of(")+-0");
+    temp.erase(iRem, 1);
+  }
+  return temp;
+}
+
+//*********
+
 // Print a particle.
 
 ostream& operator<<(ostream& os, const Particle& pt) {
@@ -166,7 +182,7 @@ void Event::list(ostream& os) {
 
     // Basic line for a particle, always printed.
     os << setw(6) << i << setw(10) << pt.id() << "   " << left 
-       << setw(12) << pt.nameWithStatus() << right << setw(5) 
+       << setw(12) << pt.nameWithStatus(12) << right << setw(5) 
        << pt.status() << setw(6) << pt.mother1() << setw(6) 
        << pt.mother2() << setw(6) << pt.daughter1() << setw(6) 
        << pt.daughter2() << setw(6) << pt.col() << setw(6) << pt.acol() 

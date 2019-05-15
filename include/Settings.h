@@ -99,9 +99,14 @@ public:
   // Read in updates from user-defined file.
   static bool readFile(string updateFile, bool warn = true) ;
 
-  // Print out table of database, either all or only changed ones.
-  static void listAll(ostream& os = cout) { list( true, os); } 
-  static void listChanged(ostream& os = cout) { list (false, os); } 
+  // Print out table of database, either all or only changed ones,
+  // or ones containing a given string.
+  static void listAll(ostream& os = cout) { 
+    list( true, false, " ", os); } 
+  static void listChanged(ostream& os = cout) { 
+    list (false, false, " ", os); } 
+  static void list(string match, ostream& os = cout) { 
+    list (false, true, match, os); } 
 
   // Reset all values to their defaults.
   static void resetAll() ;
@@ -170,7 +175,8 @@ private:
   static bool isInit;
 
   // Print out table of database, called from listAll and listChanged.
-  static void list(bool, ostream& = cout) ; 
+  static void list(bool listAll, bool listString, string match,
+    ostream& os = cout) ; 
 
 };
 

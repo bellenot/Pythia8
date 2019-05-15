@@ -6,11 +6,11 @@
 #ifndef Pythia8_Analysis_H
 #define Pythia8_Analysis
 
-#include "Stdlib.h"
 #include "Basics.h"
-#include "Settings.h"
 #include "Event.h"
 #include "Information.h"
+#include "Settings.h"
+#include "Stdlib.h"
 
 namespace Pythia8 {
 

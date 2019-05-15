@@ -1,0 +1,271 @@
+<html>
+<head>
+<title>Event Analysis</title>
+</head>
+<body>
+
+<h2>Event Analysis</h2>
+
+<h3>Introduction</h3>
+
+The routines in this section are intended to be used to analyze
+event properties. As such they are not part of the main event
+generation chain, but can be used in comparisons between Monte
+Carlo events and real data. They are rather free-standing, but 
+assume that input is provided in the PYTHIA 8 
+<code>Event</code> format, and use a few basic facilities such 
+as four-vectors.
+
+<h3>Sphericity</h3>
+
+The standard sphericity tensor is
+<br/><i>
+    S^{ab} = (sum_i p_i^a p_i^b) / (sum_i p_i^2)
+</i><br/>
+where the <i>sum i</i> runs over the particles in the event,
+<i>a, b = x, y, z,</i> and <i>p</i> without such an index is 
+the absolute size of the three-momentum . This tensor can be 
+diagonalized to find eigenvalues and eigenvectors.
+
+<p/>
+The above tensor can be generalized by introducing a power 
+<i>r</i>, such that
+<br/><i>
+    S^{ab} = = (sum_i p_i^a p_i^b p_i^{r-2}) / (sum_i p_i^r)
+</i><br/>
+In particular, <i>r = 1</i> gives a linear dependende on momenta 
+and thus a collinear safe definition, unlike sphericity.
+
+<p/>
+A sphericity analysis object is declared by
+<p/><strong>
+class name="Sphericity sph( power, select)"
+</strong><br/>
+where 
+<br/><strong>
+argument name="power" default="2."</strong>:  
+is the power <i>r</i> defined above, i.e. 
+<br/><strong>
+argoption value="2."</strong>: gives Spericity, and   
+<br/><strong>
+argoption value="1."</strong>: gives the linear form.  
+  
+<br/><strong>
+argument name="select" default="2"</strong>:  
+tells which particles are analyzed,
+<br/><strong>
+argoption value="1"</strong>: all final-state particles,  
+<br/><strong>
+argoption value="2"</strong>: all observable final-state particles, 
+i.e. excluding neutrinos and other particles without strong or
+electromagnetic interactions (the <code>isInvisible()</code> 
+particle method), 
+and  
+<br/><strong>
+argoption value="3"</strong>: only charged final-state particles.  
+  
+  
+
+<p/>
+The analysis is performed by a
+<pre>
+   sph.analyze( event)
+</pre>
+where <code>event</code> is an object of the <code>Event</code> class, 
+most likely the <code>pythia.event</code> one. If the routine returns 
+<code>false</code> the analysis failed, e.g. if too few particles are 
+present to analyze.
+
+<p/>
+After the analysis has been performed, a few <code>Sphericity</code> 
+class methods are available to return the result of the analysis:
+<p/><strong>
+method name="sph()"
+</strong><br/>
+gives the sphericity (or equivalent if <i>r</i> is not 2),
+  
+<p/><strong>
+method name="apl()" 
+</strong><br/>
+gives the aplanarity (with the same comment),
+  
+<p/><strong>
+method name="eigenValue(i)" 
+</strong><br/>
+gives one of the three eigenvalues for <i>i = 1, 2 or 3</i>, in 
+descending order,
+  
+<p/><strong>
+method name="EigenVector(i)" 
+</strong><br/>
+gives the matching eigenvector, as a <code>Vec4</code> with vanishing 
+time/energy component.
+  
+<p/><strong>
+method name="list()" 
+</strong><br/>
+provides a listing of the above information.
+  
+
+<h3>CellJet</h3>
+
+<code>CellJet</code> (a.k.a. <code>PYCELL</code>) is a simple cone jet 
+finder in the UA1 spirit, see the PYTHIA 6 manual. It works in an 
+<i>(eta, phi, eT)</i> space, where <i>eta</i> is pseudorapidity, 
+<i>phi</i> azimuthal angle and <i>eT</i> transverse energy.
+It will draw cones in <i>R = sqrt(Delta-eta^2 + Delta-phi^2)</i> 
+around seed cells. If the total <i>eT</i> inside the cone exceeds 
+the threshold, a jet is formed, and the cells are removed from further 
+analysis. There are no split or merge procedures, so later-found jet 
+may be missing some of the edge regions already used up by previous 
+ones.   
+
+<p/>
+A cell jet analysis object is declared by
+<p/><strong>
+class name="CellJet cellJet( eTjetMin, coneRadius, select, etaMax, 
+nEta, nPhi, eTseed, smear, resolution, upperCut, threshold)"
+</strong><br/>
+where 
+<br/><strong>
+argument name="eTjetMin" default="20. GeV"</strong>:  
+is the minimum transverse energy inside a cone for this to be 
+accepted as a jet.
+  
+<br/><strong>
+argument name="coneRadius" default="0.7"</strong>:  
+ is the size of the cone in <i>(eta, phi)</i> space drawn around 
+the geometric center of the jet.
+  
+<br/><strong>
+argument name="select" default="2"</strong>:  
+<br/><strong>
+argoption value="1"</strong>: all final-state particles,  
+<br/><strong>
+argoption value="2"</strong>: all observable final-state particles, 
+i.e. excluding neutrinos and other particles without strong or
+electromagnetic interactions (the <code>isInvisible()</code> particle 
+method), 
+and  
+<br/><strong>
+argoption value="3"</strong>: only charged final-state particles.  
+  
+<br/><strong>
+argument name="etaMax" default="5."</strong>:  
+the maximum +-pseudorapidity that the detector is assumed to cover.
+  
+<br/><strong>
+argument name="nEta" default="50"</strong>:  
+the number of equal-sized bins that the <i>+-etaMax</i> range 
+is assumed to be divided into.
+  
+<br/><strong>
+argument name="nPhi" default="32"</strong>:  
+the number of equal-sized bins that the <i>phi</i> range 
+<i>+-pi</i> is assumed to be divided into. 
+  
+<br/><strong>
+argument name="eTseed" default="1.5 GeV"</strong>:  
+the mimimum <i>eT</i> in a cell for this to be acceptable as 
+the trial center of a jet. 
+  
+<br/><strong>
+argument name="smear" default="0"</strong>: 
+strategy to smear the actual <i>eT</i> bin by bin, 
+<br/><strong>
+argoption value="0"</strong>: no smearing,  
+<br/><strong>
+argoption value="1"</strong>: smear the <i>eT</i> according to a Gaussian 
+with width <i>resolution * sqrt(eT)</i>, with the Gaussian truncated 
+at 0 and <i>upperCut * eT</i>,  
+<br/><strong>
+argoption value="2"</strong>: smear the <i>e = eT * cosh(eta)</i> according 
+to a Gaussian with width <i>resolution * sqrt(e)</i>, with the 
+Gaussian truncated at 0 and <i>upperCut * e</i>.  
+  
+<br/><strong>
+argument name="resolution" default="0.5"</strong>: 
+see above
+  
+<br/><strong>
+argument name="upperCut" default="2."</strong>: 
+see above
+  
+<br/><strong>
+argument name="threshold" default="0 GeV"</strong>: 
+completely neglect all bins with an <i>eT &lt; threshold</i>.
+  
+  
+
+<p/>
+The analysis is performed by a
+<pre>
+   cellJet.analyze( event)
+</pre>
+where event is an object of the <code>Event</code> class, most likely 
+the <code>pythia.event</code> one. If the routine returns 
+<code>false</code> the analysis failed, but currently this is not 
+foreseen ever to happen.
+
+<p/>
+After the analysis has been performed, a few <code>CellJet</code> 
+class methods are available to return the result of the analysis:
+<p/><strong>
+method name="size()"
+</strong><br/>
+gives the number of jets found,
+  
+<p/><strong>
+method name="eT(i)"
+</strong><br/>
+gives the <i>eT</i> of the <i>i</i>'th jet, where jets have been
+ordered with decreasing <i>eT</i> values,
+  
+<p/><strong>
+method name="etaCenter(i), phiCenter(i)"
+</strong><br/>
+gives the <i>eta</i> and <i>phi</i> coordinates of the geometrical 
+center of the <i>i</i>'th jet,
+  
+<p/><strong>
+method name="etaWeighted(i), phiWeighted(i)"
+</strong><br/>
+gives the <i>eta</i> and <i>phi</i> coordinates of the 
+<i>eT</i>-weighted center of the <i>i</i>'th jet,
+  
+<p/><strong>
+method name="multiplicity(i)"
+</strong><br/>
+gives the number of particles clustered into the <i>i</i>'th jet,
+  
+<p/><strong>
+method name="pMassless(i)"
+</strong><br/>
+gives a Vec4 corresponding to the four-momentum defined by the 
+<i>eT</i> and the weighted center of the <i>i</i>'th jet,
+  
+<p/><strong>
+method name="pMassive(i)"
+</strong><br/>
+gives a <code>Vec4</code> corresponding to the four-momentum defined by 
+the sum of all the contributing cells to the <i>i</i>'th jet, where 
+each cell contributes a four-momentum as if all the <i>eT</i> is 
+deposited in the center of the cell,
+  
+<p/><strong>
+method name="m(i)"
+</strong><br/>
+gives the invariant mass of the <i>i</i>'th jet, defined by the 
+<code>pMassive</code> above,
+  
+<p/><strong>
+method name="list()"
+</strong><br/>
+provides a listing of the above information (except <code>pMassless</code>, 
+for reasons of space).
+  
+
+</body>
+</html>
+
+<!-- Copyright C 2006 Torbjorn Sjostrand -->

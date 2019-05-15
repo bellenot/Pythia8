@@ -7,14 +7,14 @@
 #ifndef Pythia8_Beams_H
 #define Pythia8_Beams_H
 
-#include "Stdlib.h"
 #include "Basics.h"
-#include "Settings.h"
-#include "ParticleData.h"
-#include "PartonDistributions.h"
 #include "Event.h"
 #include "Information.h"
 #include "FragmentationFlavZpT.h"
+#include "PartonDistributions.h"
+#include "ParticleData.h"
+#include "Settings.h"
+#include "Stdlib.h"
 
 namespace Pythia8 {
 
@@ -136,6 +136,9 @@ public:
   bool isMeson() const {return isMesonBeam;}
   bool isBaryon() const {return isBaryonBeam;}
 
+  // Return pointer to pdf's.
+  PDF* pdfPtr() const {return pdfBeamPtr;}
+
   // Maximum x remaining after previous MI and ISR, plus safety margin.
   double xMax(int iSkip = -1);
  
@@ -192,16 +195,36 @@ public:
   bool remnantColours(Event& event, vector<int>& colFrom,
     vector<int>& colTo); 
 
+  // Pick unrescaled x of remnant parton (valence or sea).
+  double xRemnant(int i);
+
   // Tell whether a junction has been resolved, and its junction colours.
   bool hasJunction() const {return hasJunctionBeam;}  
   int junctionCol(int i) const {return junCol[i];}
   void junctionCol(int i, int col) {junCol[i] = col;}
 
+  // For a diffractive system, decide whether to kick out gluon or quark.
+  bool pickGluon(double mDiff);
+
+  // Pick a valence quark at random, and provide the remaining flavour.
+  int pickValence();
+  int pickRemnant() const {return idVal2;}
+
+  // Share lightcone momentum between two remnants in a diffractive system.
+  // At the same time generate a relative pT for the two.
+  double zShare( double mDiff, double m1, double m2);
+  double pxShare() const {return pxRel;}
+  double pyShare() const {return pyRel;}
+ 
 private: 
 
   // Static initialization data, normally only set once.
   static int maxValQuark, companionPower;
+  static double valencePowerMeson, valencePowerUinP,
+    valencePowerDinP, valenceDiqEnhance;
   static bool allowJunction;
+  static double pickQuarkNorm, pickQuarkPower, diffPrimKTwidth,
+    diffLargeMassSuppress;
 
   // Basic properties of a beam particle.
   int idBeam, idBeamAbs;  
@@ -238,6 +261,10 @@ private:
   // Value of companion quark PDF, also given the sea quark x.
   double xCompDist(double xc, double xs);
 
+  // Valence quark subdivision for diffractive systems.
+  int idVal1, idVal2, idVal3;
+  double zRel, pxRel, pyRel;
+
 };
 
 //**************************************************************************
@@ -261,18 +288,13 @@ public:
 private: 
 
   // Static initialization data, normally only set once.
-  static double primordialKTwidth, valencePowerMeson, valencePowerUinP,
-    valencePowerDinP, valenceDiqEnhance;
-  static int companionPower;
+  static double primordialKTwidth;
 
   // Constants: could only be changed in the code itself.
   static const int NTRYCOLMATCH, NTRYKINMATCH;
 
   // Colour collapses (when one colour is mapped onto another).
   vector<int> colFrom, colTo;
-
-  // Pick unrescaled x of remnant parton (valence or sea).
-  double xRemnant(int i, BeamParticle& beam);
 
   // Check that colours are consistent.
   bool checkColours( BeamParticle& beamA, BeamParticle& beamB, Event& event);

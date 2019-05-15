@@ -25,7 +25,7 @@ double SpaceShower::mb2 = 23.04;
 double SpaceShower::alphaSvalue = 0.127;
 int SpaceShower::alphaSorder = 1;
 bool SpaceShower::samePTasMI = true;
-double SpaceShower::pT0Ref= 2.5; 
+double SpaceShower::pT0Ref= 2.2; 
 double SpaceShower::ecmRef = 1800.; 
 double SpaceShower::ecmPow = 0.16; 
 double SpaceShower::pTmin = 0.2; 
@@ -123,7 +123,12 @@ void SpaceShower::initStatic() {
 
 // Initialize alphaStrong and pTmin parameters.
 
-void SpaceShower::init( BeamParticle& beamA, BeamParticle& beamB) {
+void SpaceShower::init( BeamParticle* beamAPtrIn, 
+  BeamParticle* beamBPtrIn) {
+
+  // Store input pointers for future use. 
+  beamAPtr = beamAPtrIn;
+  beamBPtr = beamBPtrIn;
 
   // Combinations of fixed couplings.
   alphaS2pi = 0.5 * alphaSvalue / M_PI;
@@ -141,7 +146,7 @@ void SpaceShower::init( BeamParticle& beamA, BeamParticle& beamB) {
   Lambda3flav2 = pow2(Lambda3flav);
 
   // Calculate invariant mass of system. Set current pT0 scale.
-  sCM = m2( beamA.p(), beamB.p());
+  sCM = m2( beamAPtr->p(), beamBPtr->p());
   eCM = sqrt(sCM);
   pT0 = pT0Ref * pow(eCM / ecmRef, ecmPow);
 
@@ -240,8 +245,7 @@ void SpaceShower::prepare( Event& event, int sizeOld) {
  
 // Select next pT in downwards evolution of the existing dipoles.
 
-double SpaceShower::pTnext( BeamParticle& beamA, BeamParticle& beamB, 
-  double pTbegAll, double pTendAll) {
+double SpaceShower::pTnext( double pTbegAll, double pTendAll) {
   
   // Starting values: no radiating dipole found.
   double pT2sel = pow2(pTendAll);
@@ -272,9 +276,8 @@ double SpaceShower::pTnext( BeamParticle& beamA, BeamParticle& beamB,
 
         // Now do evolution in pT2, for QCD or QED 
         if (pT2begDip > pT2endDip) { 
-          if (dipEndNow->colType != 0) pT2nextQCD( beamA, beamB, 
-            pT2begDip, pT2endDip);
-          else pT2nextQED( beamA, beamB, pT2begDip, pT2endDip);
+          if (dipEndNow->colType != 0) pT2nextQCD( pT2begDip, pT2endDip);
+          else pT2nextQED( pT2begDip, pT2endDip);
         }
 
         // Update if found larger pT than current maximum.
@@ -303,11 +306,10 @@ double SpaceShower::pTnext( BeamParticle& beamA, BeamParticle& beamB,
 
 // Evolve a QCD dipole end. 
 
-void SpaceShower::pT2nextQCD( BeamParticle& beamA, BeamParticle& beamB, 
-  double pT2begDip, double pT2endDip) { 
+void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) { 
 
   // Read beam particle and incoming parton from appropriate side. 
-  BeamParticle& beam = (dipEndNow->side == 1) ? beamA : beamB;
+  BeamParticle& beam = (dipEndNow->side == 1) ? *beamAPtr : *beamBPtr;
   int idDaughter = (dipEndNow->side == 1) ? sysNow->id1 : sysNow->id2;
   double xDaughter = (dipEndNow->side == 1) ? sysNow->x1 : sysNow->x2;
   bool isGluon = (idDaughter == 21) ? true : false;
@@ -628,8 +630,9 @@ void SpaceShower::pT2nextQCD( BeamParticle& beamA, BeamParticle& beamB,
 // df_Q(x, pT2) = (alpha_s/2pi) * (dT2/pT2) * ((gluon) * (splitting)).
 // This implies that effects of Q -> Q + g are neglected in this range. 
 
-void SpaceShower::pT2nearQCDthreshold( BeamParticle& beam, double m2Massive,  
-  double m2Threshold, double zMinAbs, double zMaxMassive) {
+void SpaceShower::pT2nearQCDthreshold( BeamParticle& beam, 
+  double m2Massive, double m2Threshold, double zMinAbs, 
+  double zMaxMassive) {
 
   // Read beam particle and incoming parton from appropriate side. 
   int idDaughter = (dipEndNow->side == 1) ? sysNow->id1 : sysNow->id2;
@@ -704,11 +707,10 @@ void SpaceShower::pT2nearQCDthreshold( BeamParticle& beam, double m2Massive,
 
 // Evolve a QED dipole end. 
 
-void SpaceShower::pT2nextQED( BeamParticle& beamA, BeamParticle& beamB,
-  double pT2begDip, double pT2endDip) { 
+void SpaceShower::pT2nextQED( double pT2begDip, double pT2endDip) { 
 
   // Read beam particle and incoming parton from appropriate side. 
-  BeamParticle& beam = (dipEndNow->side == 1) ? beamA : beamB;
+  BeamParticle& beam = (dipEndNow->side == 1) ? *beamAPtr : *beamBPtr;
   int idDaughter = (dipEndNow->side == 1) ? sysNow->id1 : sysNow->id2;
   double xDaughter = (dipEndNow->side == 1) ? sysNow->x1 : sysNow->x2;
 
@@ -807,8 +809,7 @@ void SpaceShower::pT2nextQED( BeamParticle& beamA, BeamParticle& beamB,
 // Kinematics of branching.
 // Construct mother -> daughter + sister, with recoiler on other side. 
 
-bool SpaceShower::branch( BeamParticle& beamA, BeamParticle& beamB, 
-  Event& event) {
+bool SpaceShower::branch( Event& event) {
 
   // Side on which branching occured.
   int side = dipEndSel->side;
@@ -982,7 +983,7 @@ bool SpaceShower::branch( BeamParticle& beamA, BeamParticle& beamB,
   dipEndSel->MEtype = 0;
 
   // Update info on beam remnants.
-  BeamParticle& beamBranch = (side == 1) ? beamA : beamB;
+  BeamParticle& beamBranch = (side == 1) ? *beamAPtr : *beamBPtr;
   double xNew = (side == 1) ? x1New : x2New;
   beamBranch[iSysSel].lineidx( iMother, idMother, xNew);
   // Redo choice of companion kind whenever new flavour.
@@ -990,7 +991,7 @@ bool SpaceShower::branch( BeamParticle& beamA, BeamParticle& beamB,
     beamBranch.xfISR( iSysSel, idMother, xNew, pT2);
     beamBranch.pickValSeaComp();
   }
-  BeamParticle& beamRecoil = (side == 1) ? beamB : beamA;
+  BeamParticle& beamRecoil = (side == 1) ? *beamBPtr : *beamAPtr;
   beamRecoil[iSysSel].line( iNewRecoiler);
 
   // Done without any errors.
