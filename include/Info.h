@@ -133,8 +133,8 @@ public:
   void errorReset() {messages.clear();}
   
   // Print a message the first few times. Insert in database.
-  void errorMsg(string messageIn, string extraIn = " ",
-    ostream& os = cout);
+  void errorMsg(string messageIn, string extraIn = " ", 
+    bool showAlways = false, ostream& os = cout);
 
   // Provide total number of errors/aborts/warnings experienced to date.
   int  errorTotalNumber();

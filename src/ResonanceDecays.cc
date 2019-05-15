@@ -24,16 +24,19 @@ namespace Pythia8 {
 const int    ResonanceDecays::NTRYCHANNEL = 10;
 
 // Number of tries to pick a set of daughter masses.
-const int    ResonanceDecays::NTRYMASSES = 10000;
+const int    ResonanceDecays::NTRYMASSES  = 10000;
 
 // Mass above threshold for allowed decays.
-const double ResonanceDecays::MSAFETY   = 0.1; 
+const double ResonanceDecays::MSAFETY     = 0.1; 
 
 // When constrainted kinematics cut high-mass tail of Breit-Wigner.
-const double ResonanceDecays::WIDTHCUT  = 5.;
+const double ResonanceDecays::WIDTHCUT    = 5.;
 
 // Small number (relative to 1) to protect against roundoff errors.
-const double ResonanceDecays::TINY      = 1e-10; 
+const double ResonanceDecays::TINY        = 1e-10; 
+
+// Forbid small Breit-Wigner mass range, as mapped onto atan range.
+const double ResonanceDecays::TINYBWRANGE = 1e-8; 
 
 // These numbers are hardwired empirical parameters, 
 // intended to speed up the M-generator.
@@ -103,11 +106,12 @@ bool ResonanceDecays::next( Event& process) {
       pProd.push_back( decayer.p() );
       if (!pickKinematics()) return false;
 
-      // Append decay products to the process event record.
+      // Append decay products to the process event record. Set lifetimes.
       int iFirst = process.size();
         for (int i = 1; i <= mult; ++i) {
-          process.append( idProd[i], 23, iDec, 0, 0, 0, cols[i], acols[i], 
-          pProd[i], mProd[i], m0);
+          int j = process.append( idProd[i], 23, iDec, 0, 0, 0, 
+          cols[i], acols[i], pProd[i], mProd[i], m0);
+          process[j].tau( process[j].tau0() * Rndm::exp() );
 	}
       int iLast = process.size() - 1;
 
@@ -229,16 +233,19 @@ bool ResonanceDecays::pickMasses() {
       double atanMax = atan( (m2Max - m2Nom) / mmWid );
       double atanDif = atanMax - atanMin;
 
+      // Fail if too narrow mass range; e.g. out in tail of Breit-Wigner.
+      if (atanDif < TINYBWRANGE) return false;
+
       // Retry mass according to Breit-Wigner, with simple threshold factor.
       double mr1     = mSum0*mSum0 / m2Mother;
       double mr2     = m2Min / m2Mother;
-      double wtMax   = sqrtpos( pow2(1. - mr1 - mr2) - 4. * mr1 * mr2 ); 
+      double wtMax   = sqrtpos( pow2(1. - mr1 - mr2) - 4. * mr1 * mr2 );
       double m2Now, wt;
       for (int iTryMasses = 0; iTryMasses <= NTRYMASSES; ++ iTryMasses) {
         if (iTryMasses == NTRYMASSES) return false;
         m2Now = m2Nom + mmWid * tan(atanMin + Rndm::flat() * atanDif);
         mr2   = m2Now / m2Mother;
-        wt    = sqrtpos( pow2(1. - mr1 - mr2) - 4. * mr1 * mr2 ); 
+        wt    = sqrtpos( pow2(1. - mr1 - mr2) - 4. * mr1 * mr2 );
         if (wt > Rndm::flat() * wtMax) break;
       } 
 

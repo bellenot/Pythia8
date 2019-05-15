@@ -1006,11 +1006,9 @@ void Sigma2ffbar2LEDUnparticleZ::initProc() {
   double tmpLS    = pow2(m_LambdaU);
 
   //+++ Spin dependent constants from ME.
-  //+++ Spin-0 is only place holder.
   double tmpTerm2 = 0;
   if ( m_spin == 0 ) { 
-    infoPtr->errorMsg("Error in Sigma2ffbar2LEDUnparticleZ::initProc: "
-		      "Incorrect spin value (turn process off)!");
+    tmpTerm2 = 2 * pow2(m_lambda);
   } else if (m_spin == 1) {
     tmpTerm2 = 4 * pow2(m_lambda);
   } else if (m_spin == 2) {
@@ -1047,7 +1045,17 @@ void Sigma2ffbar2LEDUnparticleZ::sigmaKin() {
   //+++ Extra 1/sHS comes from standard 2 to 2 cross section 
   //+++ phase space factors.
 
-  if ( m_spin == 1 ) {
+  if ( m_spin == 0 ) {
+    
+    double A0 = 1/sHS;
+    double T1 = - sH/tH - sH/uH;
+    double T2 = - (1 - mZS/tH)*(1 - mUS/tH);
+    double T3 = - (1 - mZS/uH)*(1 - mUS/uH);
+    double T4 = 2*(1 - mUS/tH)*(1 - mUS/uH);
+
+    m_sigma0 = A0 * ( T1 + T2 + T3 + T4);
+    
+  } else if ( m_spin == 1 ) {
     
     double A0 = 1/sHS;
     double T1 = 0.5 * (tH/uH + uH/tH); 
@@ -1251,11 +1259,9 @@ void Sigma2ffbar2LEDUnparticlegamma::initProc() {
   double tmpLS    = pow2(m_LambdaU);
 
   //+++ Spin dependent constants from ME.
-  //+++ Spin-0 is only place holder.
   double tmpTerm2 = 0;
   if ( m_spin == 0 ) {
-    infoPtr->errorMsg("Error in Sigma2ffbar2LEDUnparticlegamma::initProc: "
-		      "Incorrect spin value (turn process off)!");
+    tmpTerm2 = 2 * pow2(m_lambda);
   } else if (m_spin == 1) {
     tmpTerm2 = 4 * pow2(m_lambda);
   } else if (m_spin == 2) {
@@ -1292,7 +1298,17 @@ void Sigma2ffbar2LEDUnparticlegamma::sigmaKin() {
   //+++ Extra 1/sHS comes from standard 2 to 2 cross section 
   //+++ phase space factors.
 
-  if ( m_spin == 1 ) {
+  if ( m_spin == 0 ) {
+    
+    double A0 = 1/sHS;
+    double T1 = - sH/tH - sH/uH;
+    double T2 = - (1 - mZS/tH)*(1 - mUS/tH);
+    double T3 = - (1 - mZS/uH)*(1 - mUS/uH);
+    double T4 = 2*(1 - mUS/tH)*(1 - mUS/uH);
+    
+    m_sigma0 = A0 * ( T1 + T2 + T3 + T4);
+    
+  } else if ( m_spin == 1 ) {
     
     double A0 = 1/sHS;
     double T1 = 0.5 * (tH/uH + uH/tH); 
@@ -1798,8 +1814,10 @@ double Sigma2ffbar2LEDllbar::sigmaHat() {
   int idAbs      = abs(id1);
 
   //+++ Couplings and constants.
-  //+++ Ql = 1, so only inital fermion flavor is retrieved.
-  double tmp_e2QfQl = 4 * M_PI * alpEM * abs(CoupEW::ef(idAbs)); 
+  //+++ Qq = CoupEW::ef(idAbs), quark, i.e. id > 0.
+  //+++ Ql = CoupEW::ef(11), electron.
+  //  double tmp_e2QfQl = 4 * M_PI * alpEM * abs(CoupEW::ef(idAbs)); // OLD WRONG
+  double tmp_e2QfQl = 4 * M_PI * alpEM * CoupEW::ef(idAbs) * CoupEW::ef(11);
   double tmp_gvq = 0.25 * CoupEW::vf(idAbs);
   double tmp_gaq = 0.25 * CoupEW::af(idAbs);
   double tmp_gLq = tmp_gvq  + tmp_gaq;
@@ -1896,9 +1914,12 @@ void Sigma2ffbar2LEDllbar::setIdColAcol() {
 
   double tmp_rand = Rndm::flat();
   //+++ Flavours trivial.
-  if (tmp_rand < 0.33333333) {      setId( id1, id2, -11, 11); } 
-  else if (tmp_rand < 0.66666667) { setId( id1, id2, -13, 13); } 
-  else {                            setId( id1, id2, -15, 15); }
+  if (tmp_rand < 0.33333333) {      setId( id1, id2, 11, -11); } 
+  else if (tmp_rand < 0.66666667) { setId( id1, id2, 13, -13); } 
+  else {                            setId( id1, id2, 15, -15); }
+
+  // tH defined between f and f': must swap tHat <-> uHat if id1 is fbar.
+  swapTU = (id2 > 0);
 
   //+++ Colour flow topologies. Swap when antiquarks.
   if (abs(id1) < 9) setColAcol( 1, 0, 0, 1, 0, 0, 0, 0);
@@ -1998,9 +2019,9 @@ void Sigma2gg2LEDllbar::setIdColAcol() {
 
   double tmp_rand = Rndm::flat();
   //+++ Flavours trivial.
-  if (tmp_rand < 0.33333333) {      setId( 21, 21, -11, 11); } 
-  else if (tmp_rand < 0.66666667) { setId( 21, 21, -13, 13); } 
-  else {                            setId( 21, 21, -15, 15); }
+  if (tmp_rand < 0.33333333) {      setId( 21, 21, 11, -11); } 
+  else if (tmp_rand < 0.66666667) { setId( 21, 21, 13, -13); } 
+  else {                            setId( 21, 21, 15, -15); }
 
   //+++ Colour flow topologies. 
   setColAcol( 1, 2, 2, 1, 0, 0, 0, 0);

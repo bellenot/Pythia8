@@ -81,7 +81,7 @@ the masses of the two beam particles.
 <p/><strong>double Info::eCM() &nbsp;</strong> <br/>
   
 <strong>double Info::s() &nbsp;</strong> <br/>
-the cm energy and its square for the two beams. 
+the CM energy and its square for the two beams. 
   
 
 <h3>Initialization</h3>

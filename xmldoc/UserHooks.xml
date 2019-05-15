@@ -228,9 +228,11 @@ also by using <code>subEvent(...)</code> and <code>workEvent</code>.
 What is different is that the methods in this section give access to the 
 event as it looks like after each of the first few steps in the downwards
 evolution, irrespectively of the <ei>pT</ei> scales of these branchings.
-Furthermore, it is here assumed that the focus is on the hardest
+Furthermore, it is here assumed that the focus normally is on the hardest
 subprocess, so that ISR/FSR emissions associated with additional MI's
-are not considered.
+are not considered. For MI studies, however, a separate simpler 
+alternative is offered to consider the event after a given number
+of interactions.  
 
 <method name="virtual bool UserHooks::canVetoStep()">
 In the base class this method returns false. If you redefine it
@@ -241,7 +243,7 @@ interrupt the downward ISR and FSR evolution the first
 <method name="virtual int UserHooks::numberVetoStep()">
 Returns the number of steps each of ISR and FSR, for the hardest
 interaction, that you want to be able to study. The number of steps 
-defaults to the first one only, but you are freee to pick another value.
+defaults to the first one only, but you are free to pick another value.
 </method>
 
 <method name="virtual bool UserHooks::doVetoStep(int iPos, 
@@ -272,6 +274,40 @@ generated so far, also including intermediate ones not part of the
 This may not be desirable for comparisons with matrix-element calculations.
 You may want to make use of the <code>subEvent(...)</code> method above to 
 obtain a simplified event record.
+</argument>
+</method>
+
+<method name="virtual bool UserHooks::canVetoMIStep()">
+In the base class this method returns false. If you redefine it
+to return true then the method <code>doVetoMIStep(...)</code> will 
+interrupt the downward MI evolution the first
+<code>numberVetoMIStep()</code> times. 
+
+<method name="virtual int UserHooks::numberVetoMIStep()">
+Returns the number of steps in the MI evolution that you want to be 
+able to study, right after each new step has been taken and the 
+subcollision has been added to the event record. The number of steps 
+defaults to the first one only, but you are free to pick another value.
+</method>
+
+<method name="virtual bool UserHooks::doVetoMIStep(int nMI,
+const Event& event)">
+can optionally be called, as described above. You can study, but not
+modify, the <code>event</code> event record of the partonic process. 
+Based on that you can decide whether to veto the event, true, or let 
+it continue to evolve, false. If you veto, then this event is not
+counted among the accepted ones, and does not contribute to the estimated
+cross section. The <code>Pytha::next()</code> method will begin a 
+completely new event, so the vetoed event will not appear in the 
+output of <code>Pythia::next()</code>.
+<argument name="nMI"> is the number of MI subprocesses has occured
+so far.
+</argument>
+<argument name="event"> the event record contains a list of all partons 
+generated so far, also including intermediate ones not part of the 
+"current final state", e.g. leftovers from the ISR and FSR evolution
+of previously generated systems. The most recently added one has not
+had time to radiate, of course.
 </argument>
 </method>
 

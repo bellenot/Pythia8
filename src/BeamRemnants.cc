@@ -217,6 +217,12 @@ bool BeamRemnants::setKinematics( Event& event) {
     return false;
   }
 
+  // Last beam-status particles. Offset relative to normal beam locations.
+  int nBeams   = 3;
+  for (int i = 3; i < event.size(); ++i) 
+    if (event[i].statusAbs() < 20) nBeams = i + 1; 
+  int nOffset  = nBeams - 3; 
+
   // Reserve space for extra information on the systems and beams.
   int nMaxBeam = max( beamA.size(), beamB.size() );
   vector<double> sHatSys(nMaxBeam);
@@ -624,7 +630,7 @@ bool BeamRemnants::setKinematics( Event& event) {
     beamA[iRem].pz( 0.5 * (pPos - pNeg) );  
 
     // Add these partons to the normal event record.
-    int iNew = event.append( beamA[iRem].id(), 63, 1, 0, 0, 0, 
+    int iNew = event.append( beamA[iRem].id(), 63, 1 + nOffset, 0, 0, 0, 
       beamA[iRem].col(), beamA[iRem].acol(), beamA[iRem].p(), 
       beamA[iRem].m() );  
     beamA[iRem].iPos( iNew);
@@ -638,7 +644,7 @@ bool BeamRemnants::setKinematics( Event& event) {
     beamB[iRem].pz( 0.5 * (pPos - pNeg) );  
 
     // Add these partons to the normal event record. 
-    int iNew = event.append( beamB[iRem].id(), 63, 2, 0, 0, 0, 
+    int iNew = event.append( beamB[iRem].id(), 63, 2 + nOffset, 0, 0, 0, 
       beamB[iRem].col(), beamB[iRem].acol(), beamB[iRem].p(), 
       beamB[iRem].m() );  
     beamB[iRem].iPos( iNew);
@@ -854,7 +860,7 @@ bool BeamRemnants::reconnectColours( Event&  event) {
             int iTopQ    = event.iTopCopyId(iQ);
             int iTopQbar = event.iTopCopyId(iQbar);
             int iMother  = event[iTopQ].mother1();
-           if (event[iTopQbar].mother1() == iMother 
+            if (event[iTopQbar].mother1() == iMother
               && event[iMother].isGluon() && event[iMother].status() != -34
               && event[iMother + 1].status() != -34 ) {
 
@@ -908,7 +914,8 @@ bool BeamRemnants::reconnectColours( Event&  event) {
 
       // If only two beam gluons left of system, set their colour = anticolour.
       // Used by BeamParticle::remnantColours to skip irrelevant gluons.
-      if ( event[iInARec].isGluon() && event[iInBRec].isGluon() 
+      if ( event[iInARec].isGluon() && !event[iInARec].isRescatteredIncoming() 
+	&& event[iInBRec].isGluon() && !event[iInBRec].isRescatteredIncoming() 
         && event[iInARec].col() == event[iInBRec].acol() 
         && event[iInARec].acol() == event[iInBRec].col() ) { 
           event[iInARec].acol( event[iInARec].col() );

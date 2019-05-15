@@ -89,25 +89,25 @@ parameter values below.
   
 
 <p/><code>parm&nbsp; </code><strong> BeamRemnants:primordialKTsoft &nbsp;</strong> 
- (<code>default = <strong>0.4</strong></code>; <code>minimum = 0.</code>)<br/>
+ (<code>default = <strong>0.5</strong></code>; <code>minimum = 0.</code>)<br/>
 The width <i>sigma_soft</i> in the above equation, assigned as a 
 primordial <i>kT</i> to initiators in the soft-interaction limit.
   
 
 <p/><code>parm&nbsp; </code><strong> BeamRemnants:primordialKThard &nbsp;</strong> 
- (<code>default = <strong>2.1</strong></code>; <code>minimum = 0.</code>)<br/>
+ (<code>default = <strong>2.0</strong></code>; <code>minimum = 0.</code>)<br/>
 The width <i>sigma_hard</i> in the above equation, assigned as a 
 primordial <i>kT</i> to initiators in the hard-interaction limit.
   
 
 <p/><code>parm&nbsp; </code><strong> BeamRemnants:halfScaleForKT &nbsp;</strong> 
- (<code>default = <strong>7.</strong></code>; <code>minimum = 0.</code>)<br/>
+ (<code>default = <strong>1.</strong></code>; <code>minimum = 0.</code>)<br/>
 The scale <i>Q_half</i> in the equation above, defining the 
 half-way point between hard and soft interactions. 
   
 
 <p/><code>parm&nbsp; </code><strong> BeamRemnants:halfMassForKT &nbsp;</strong> 
- (<code>default = <strong>2.</strong></code>; <code>minimum = 0.</code>)<br/>
+ (<code>default = <strong>1.</strong></code>; <code>minimum = 0.</code>)<br/>
 The scale <i>m_half</i> in the equation above, defining the 
 half-way point between low-mass and high-mass subsystems.
 (Kinematics construction can easily fail if a system is assigned 
@@ -183,7 +183,7 @@ Allow or not a system to be merged with another one.
   
 
 <p/><code>parm&nbsp; </code><strong> BeamRemnants:reconnectRange &nbsp;</strong> 
- (<code>default = <strong>2.5</strong></code>; <code>minimum = 0.</code>; <code>maximum = 10.</code>)<br/>
+ (<code>default = <strong>10.0</strong></code>; <code>minimum = 0.</code>; <code>maximum = 10.</code>)<br/>
 A system with a hard scale <i>pT</i> can be merged with one of a 
 harder scale with a probability that is 
 <i>pT0_Rec^2 / (pT0_Rec^2 + pT^2)</i>, where
@@ -318,56 +318,6 @@ an error message that the remnant flavour setup failed), and the
 multiple interactions and showers are redone until a 
 junction-free topology is found. 
    
-
-<h3>Diffractive system</h3>
-
-When an incoming hadron beam is diffractively excited, it is modeled 
-as if either a valence quark or a gluon is kicked out from the hadron.
-In the former case this produces a simple string to the leftover 
-remnant, in the latter it gives a hairpin arrangement where a string
-is stretched from one quark in the remnant, via the gluon, back to the   
-rest of the remnant. The latter ought to dominate at higher mass of 
-the diffractive system. Therefore an approximate behaviour like 
-<br/><i>
-P_q / P_g = N / m^p
-</i><br/> 
-is assumed.
-
-<p/><code>parm&nbsp; </code><strong> BeamRemnants:pickQuarkNorm &nbsp;</strong> 
- (<code>default = <strong>5.0</strong></code>; <code>minimum = 0.</code>)<br/>
-The abovementioned normalization <i>N</i> for the relative quark
-rate in diffractive systems.
-  
-
-<p/><code>parm&nbsp; </code><strong> BeamRemnants:pickQuarkPower &nbsp;</strong> 
- (<code>default = <strong>1.0</strong></code>; <code>minimum = 0.</code>)<br/>
-The abovementioned mass-dependence power <i>p</i> for the relative 
-quark rate in diffractive systems.
-  
-
-<p/>
-When a gluon is kicked out from the hadron, the longitudinal momentum
-sharing between the the two remnant partons is determined by the
-same parameters as above. It is plausible that the primordial 
-<i>kT</i> may be lower than in perturbative processes, however:
-
-<p/><code>parm&nbsp; </code><strong> BeamRemnants:diffPrimKTwidth &nbsp;</strong> 
- (<code>default = <strong>0.5</strong></code>; <code>minimum = 0.</code>)<br/>
-The width of Gaussian distributions in <i>p_x</i> and <i>p_y</i> 
-separately that is assigned as a primordial <i>kT</i> to the two 
-beam remnants when a gluon is kicked out of a diffractive system.
-  
-
-<p/><code>parm&nbsp; </code><strong> BeamRemnants:diffLargeMassSuppress &nbsp;</strong> 
- (<code>default = <strong>2.</strong></code>; <code>minimum = 0.</code>)<br/>
-The choice of longitudinal and transverse structure of a diffractive
-beam remnant for a kicked-out gluon implies a remnant mass 
-<i>m_rem</i> distribution (i.e. quark plus diquark invariant mass 
-for a baryon beam) that knows no bounds. A suppression like 
-<i>(1 - m_rem^2 / m_diff^2)^p</i> is therefore introduced, where 
-<i>p</i> is the <code>diffLargeMassSuppress</code> parameter.    
-
-  
 
 </body>
 </html>

@@ -767,7 +767,7 @@ Vanishes in the MSSM.
 
 <parm name="HiggsH2:coup2HchgW" default="0.">
 The <ei>H^0(H_2^0)</ei> coupling to a <ei>H^+- W-+</ei> pair.
-Vanishes in the MSSM.
+Is <ei>sin(beta - alpha)</ei> in the MSSM.
 </parm>
 
 <parm name="HiggsA3:coup2d" default="1.">
@@ -812,9 +812,9 @@ The <ei>A^0(H_3^0)</ei> coupling to <ei>H^+-</ei>.
 Vanishes in the MSSM.
 </parm>
 
-<parm name="HiggsA3:coup2HchgW" default="0.">
+<parm name="HiggsA3:coup2HchgW" default="1.">
 The <ei>A^0(H_3^0)</ei> coupling to a <ei>H^+- W-+</ei> pair.
-Vanishes in the MSSM.
+Is 1 in the MSSM.
 </parm>
 
 <parm name="HiggsHchg:tanBeta" default="5.">
@@ -831,7 +831,7 @@ Is <ei>cos(beta - alpha)</ei> in the MSSM.
 
 <parm name="HiggsHchg:coup2H2W" default="0.">
 The <ei>H^+-</ei> coupling to a <ei>H^0(H_2^0) W^+-</ei> pair.
-Is <ei>1 - cos(beta - alpha)</ei> in the MSSM.
+Is <ei>sin(beta - alpha)</ei> in the MSSM.
 </parm>
 
 <p/>

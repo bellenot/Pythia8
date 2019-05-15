@@ -57,15 +57,15 @@ void BeamParticle::init( int idIn, double pzIn, double eIn, double mIn,
   // Allow or not more than one valence quark to be kicked out.
   allowJunction     = Settings::flag("BeamRemnants:allowJunction");
 
-  // For diffractive system kick out q/g = norm / mass^power.
-  pickQuarkNorm     = Settings::parm("BeamRemnants:pickQuarkNorm");
-  pickQuarkPower    = Settings::parm("BeamRemnants:pickQuarkPower");
+  // For low-mass diffractive system kick out q/g = norm / mass^power.
+  pickQuarkNorm     = Settings::parm("Diffraction:pickQuarkNorm");
+  pickQuarkPower    = Settings::parm("Diffraction:pickQuarkPower");
 
-  // Width of primordial kT distribution in diffractive systems.
-  diffPrimKTwidth   = Settings::parm("BeamRemnants:diffPrimKTwidth");
+  // Width of primordial kT distribution in low-mass diffractive systems.
+  diffPrimKTwidth   = Settings::parm("Diffraction:primKTwidth");
 
-  // Suppress large masses of beam remnant in diffractive systems. 
-  diffLargeMassSuppress = Settings::parm("BeamRemnants:diffLargeMassSuppress");
+  // Suppress large masses of beam remnant in low-mass diffractive systems. 
+  diffLargeMassSuppress = Settings::parm("Diffraction:largeMassSuppress");
 
   // Store info on the incoming beam.
   idBeam            = idIn; 
@@ -526,7 +526,7 @@ bool BeamParticle::remnantFlavours(Event& event) {
   // If no other remnants found, add a gluon or photon to carry momentum.
   if (size() == nInit) {
     int    idRemnant = (isHadronBeam) ? 21 : 22;
-    append(0, idRemnant, 1., -1);     
+    append(0, idRemnant, 0., -1);     
   }
 
   // Set initiator and remnant masses.

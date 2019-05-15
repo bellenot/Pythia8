@@ -93,6 +93,7 @@ OBJS =   $(OUTDIR)/Analysis.obj \
          $(OUTDIR)/ProcessContainer.obj \
          $(OUTDIR)/ProcessLevel.obj \
          $(OUTDIR)/Pythia.obj \
+         $(OUTDIR)/PythiaStdlib.obj \
          $(OUTDIR)/ResonanceDecays.obj \
          $(OUTDIR)/ResonanceWidths.obj \
          $(OUTDIR)/Settings.obj \

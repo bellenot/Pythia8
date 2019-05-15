@@ -43,12 +43,12 @@ const double TimeShower::LAMBDA3MARGIN = 1.1;
 //            systems not locally conserving momentum.
 // Fix up momentum in intermediate systems with rescattering
 const bool   TimeShower::FIXRESCATTER          = true;
-// Veto negative energies for with FIXRESCATTER
+// Veto negative energies when using FIXRESCATTER option.
 const bool   TimeShower::VETONEGENERGY         = false;
 // Do not allow too large time- or spacelike virtualities in fixing-up.
-const double TimeShower::MAXVIRTUALITYFRACTION = 0.8;
+const double TimeShower::MAXVIRTUALITYFRACTION = 0.5;
 // Do not allow too large negative spacelike energy in system rest frame.
-const double TimeShower::MAXNEGENERGYFRACTION  = 1.0; 
+const double TimeShower::MAXNEGENERGYFRACTION  = 0.7; 
 
 //*********
 
@@ -130,7 +130,7 @@ void TimeShower::init( BeamParticle* beamAPtrIn,
   // Consisteny check for gamma -> f fbar variables.
   if (nGammaToQuark <= 0 && nGammaToLepton <= 0) doQEDshowerByGamma = false;  
 
-  // Fraction and colorr factor of gluon emission off onium octat state.
+  // Fraction and colour factor of gluon emission off onium octat state.
   octetOniumFraction = Settings::parm("TimeShower:octetOniumFraction");
   octetOniumColFac   = Settings::parm("TimeShower:octetOniumColFac");
 
@@ -143,6 +143,13 @@ void TimeShower::init( BeamParticle* beamAPtrIn,
   allowRescatter     = Settings::flag("PartonLevel:MI") 
                     && Settings::flag("MultipleInteractions:allowRescatter");
 
+  // Hidden Valley scenario with further shower activity.
+  doHVshower         = Settings::flag("HiddenValley:FSR");
+  nCHV               = Settings::mode("HiddenValley:Ngauge");
+  alphaHVfix         = Settings::parm("HiddenValley:alphaFSR");
+  pThvCut            = Settings::parm("HiddenValley:pTminFSR");
+  pT2hvCut           = pThvCut * pThvCut; 
+  CFHV               = (nCHV == 1) ? 1. : (nCHV * nCHV - 1.)/(2. * nCHV); 
 }
 
 //*********
@@ -208,7 +215,8 @@ void TimeShower::prepare( int iSys, Event& event) {
     if (event[iRad].isFinal() && event[iRad].scale() > 0.) {
 
       // Identify colour octet onium state. Check whether QCD shower allowed.
-      int idRad = event[iRad].id();
+      int idRad    = event[iRad].id();
+      int idRadAbs = abs(idRad);
       bool isOctetOnium 
         = ( idRad == 9900441 || idRad == 9900443 || idRad == 9910441 
          || idRad == 9900551 || idRad == 9900553 || idRad == 9910551 ); 
@@ -230,9 +238,15 @@ void TimeShower::prepare( int iSys, Event& event) {
       bool doChgDip = (chgType != 0) 
                        && ( ( doQEDshowerByQ && event[iRad].isQuark()  )
                          || ( doQEDshowerByL && event[iRad].isLepton() ) );
-      int  gamType  = (event[iRad].id() == 22) ? 1 : 0;
+      int  gamType  = (idRad == 22) ? 1 : 0;
       bool doGamDip = (gamType == 1) && doQEDshowerByGamma;
-      if (doChgDip || doGamDip) setupQEDdip( iSys, i, chgType, gamType, event); 
+      if (doChgDip || doGamDip) setupQEDdip( iSys, i, chgType, gamType, event);
+
+      // Find Hidden Valley dipole ends.
+      bool isHVrad =  (idRadAbs > 4900000 && idRadAbs < 4900007)
+                   || (idRadAbs > 4900010 && idRadAbs < 4900017)
+                   || idRadAbs == 4900101;  
+      if (doHVshower && isHVrad) setupHVdip( iSys, i, event); 
 
     // End loop over system final state. Have now found the dipole ends.
     }
@@ -307,7 +321,9 @@ void TimeShower::rescatterUpdate( int iSys, Event& event) {
               dipNow.MEtype    = 0;
               int isrType      = event[iIn2].mother1();
               // This line in case mother is a rescattered parton.
-              while (isrType > 2) isrType = event[isrType].mother1();
+              while (isrType > 2 + beamOffset) 
+                isrType = event[isrType].mother1();
+              if (isrType > 2) isrType -= beamOffset;
               dipNow.isrType   = isrType;
               done             = true;
             }
@@ -353,7 +369,9 @@ void TimeShower::rescatterUpdate( int iSys, Event& event) {
               dipNow.MEtype    = 0;
               int isrType      = event[iIn2].mother1();
               // This line in case mother is a rescattered parton.
-              while (isrType > 2) isrType = event[isrType].mother1();
+              while (isrType > 2 + beamOffset) 
+                isrType = event[isrType].mother1();
+              if (isrType > 2) isrType -= beamOffset;
               dipNow.isrType   = isrType;
               done             = true;
             }
@@ -399,7 +417,9 @@ void TimeShower::rescatterUpdate( int iSys, Event& event) {
               dipNow.MEtype    = 0;
               int isrType      = event[iIn2].mother1();
               // This line in case mother is a rescattered parton.
-              while (isrType > 2) isrType = event[isrType].mother1();
+              while (isrType > 2 + beamOffset) 
+                isrType = event[isrType].mother1();
+              if (isrType > 2) isrType -= beamOffset;
               dipNow.isrType   = isrType;
               done             = true;
             }
@@ -756,7 +776,8 @@ void TimeShower::setupQCDdip( int iSys, int i, int colTag, int colSign,
     int colType  = (event[iRad].id() == 21) ? 2 * colSign : colSign;
     int isrType  = (event[iRec].isFinal()) ? 0 : event[iRec].mother1();
     // This line in case mother is a rescattered parton.
-    while (isrType > 2) isrType = event[isrType].mother1();
+    while (isrType > 2 + beamOffset) isrType = event[isrType].mother1();
+    if (isrType > 2) isrType -= beamOffset;
     dipEnd.push_back( TimeDipoleEnd( iRad, iRec, pTmax, 
       colType, 0, 0, isrType, iSys, -1, -1, isOctetOnium) );
 
@@ -898,7 +919,8 @@ void TimeShower::setupQEDdip( int iSys, int i, int chgType, int gamType,
     if (iSys == 0) pTmax *= pTmaxFudge;
     int isrType = (event[iRec].isFinal()) ? 0 : event[iRec].mother1();
     // This line in case mother is a rescattered parton.
-    while (isrType > 2) isrType = event[isrType].mother1();
+    while (isrType > 2 + beamOffset) isrType = event[isrType].mother1();
+    if (isrType > 2) isrType -= beamOffset;
     dipEnd.push_back( TimeDipoleEnd(iRad, iRec, pTmax,
       0, chgType, gamType, isrType, iSys, -1) );
 
@@ -917,6 +939,54 @@ void TimeShower::setupQEDdip( int iSys, int i, int chgType, int gamType,
 
 }
 
+//*********
+
+// Setup a dipole end for a Hidden Valley colour charge.
+
+void TimeShower::setupHVdip( int iSys, int i, Event& event) {
+ 
+  // Initial values.
+  int iRad    = partonSystemsPtr->getOut(iSys, i);
+  int iRec    = 0;
+  int idRad   = event[iRad].id();
+  int sizeOut = partonSystemsPtr->sizeOut(iSys);
+
+  // Hidden Valley colour positive for positive id, and vice versa.
+  // Find opposte HV colour in final state of same system.
+  for (int j = 0; j < sizeOut; ++j) if (j != i) {
+    int iRecNow = partonSystemsPtr->getOut(iSys, j);
+    int idRec   = event[iRecNow].id();
+    if ( (abs(idRec) > 4900000 && abs(idRec) < 4900017)
+      && idRad * idRec < 0) {
+      iRec = iRecNow;
+      break;
+    }
+  }
+
+  // Else find heaviest other final-state in same system.
+  // (Intended for decays; should mainly be two-body so unique.)
+  double mMax = -sqrt(LARGEM2);
+   if (iRec == 0)
+  for (int j = 0; j < sizeOut; ++j) if (j != i) {
+    int iRecNow = partonSystemsPtr->getOut(iSys, j);
+    if (event[iRecNow].m() > mMax) {
+      iRec = iRecNow;
+      mMax = event[iRecNow].m();
+    }
+  }
+
+  // Set up dipole end, or report failure. 
+  if (iRec > 0) {
+    double pTmax = event[iRad].scale();
+    if (iSys == 0) pTmax *= pTmaxFudge;
+    int colvType  = (event[iRad].id() > 0) ? 1 : -1;
+    dipEnd.push_back( TimeDipoleEnd( iRad, iRec, pTmax, 0, 0, 0, 0, 
+      iSys, -1, -1, false, true, colvType) );
+  } else infoPtr->errorMsg("Error in TimeShower::setupHVdip: "
+      "failed to locate any recoiling partner");
+
+}
+ 
 //*********
 
 // Select next pT in downwards evolution of the existing dipoles.
@@ -943,13 +1013,15 @@ double TimeShower::pTnext( Event& event, double pTbegAll, double pTendAll) {
     double pTbegDip  = min( pTbegAll, dip.pTmax ); 
     double pT2begDip = min( pow2(pTbegDip), 0.25 * dip.m2DipCorr);
 
-    // Do QCD or QED evolution if it makes sense.
+    // Do QCD, QED or HV evolution if it makes sense.
     dip.pT2 = 0.;
     if (pT2begDip > pT2sel) {
       if      (dip.colType != 0) 
         pT2nextQCD(pT2begDip, pT2sel, dip, event);
       else if (dip.chgType != 0 || dip.gamType != 0)                 
         pT2nextQED(pT2begDip, pT2sel, dip, event);
+      else if (dip.isHiddenValley)
+        pT2nextHV(pT2begDip, pT2sel, dip, event);
 
       // Update if found larger pT than current maximum.
       if (dip.pT2 > pT2sel) {
@@ -1117,14 +1189,13 @@ void TimeShower::pT2nextQCD(double pT2begDip, double pT2sel,
         // For dipole to beam remnant reduce by PDF ratio (approximate!??).
         if (dip.isrType != 0) {
           BeamParticle& beam = (dip.isrType == 1) ? *beamAPtr : *beamBPtr;
-          int iSys    = dip.system;
-          double xOld = beam[iSys].x();
+          int iSysRec = dip.systemRec;
+          double xOld = beam[iSysRec].x();
           double xNew = xOld * (1. + (dip.m2 - dip.m2Rad) / 
             (dip.m2Dip - dip.m2Rad));
-
-          double xMaxAbs = beam.xMax(iSys);
+          double xMaxAbs = beam.xMax(iSysRec);
           if (xMaxAbs < 0.) {
-            infoPtr->errorMsg("Error in TimeShower::pT2nextQCD: "
+            infoPtr->errorMsg("Warning in TimeShower::pT2nextQCD: "
             "xMaxAbs negative"); 
             return;
           }
@@ -1133,8 +1204,8 @@ void TimeShower::pT2nextQCD(double pT2begDip, double pT2sel,
           else {
             int idRec     = event[dip.iRecoiler].id();
             double pdfOld = max ( TINYPDF, 
-                            beam.xfISR( iSys, idRec, xOld, dip.pT2) ); 
-            double pdfNew = beam.xfISR( iSys, idRec, xNew, dip.pT2); 
+                            beam.xfISR( iSysRec, idRec, xOld, dip.pT2) ); 
+            double pdfNew = beam.xfISR( iSysRec, idRec, xNew, dip.pT2); 
             wt *= min( 1., pdfNew / pdfOld); 
           }
         }
@@ -1275,10 +1346,9 @@ void TimeShower::pT2nextQED(double pT2begDip, double pT2sel,
         double xOld = beam[iSys].x();
         double xNew = xOld * (1. + (dip.m2 - dip.m2Rad) / 
           (dip.m2Dip - dip.m2Rad));
-
         double xMaxAbs = beam.xMax(iSys);
         if (xMaxAbs < 0.) {
-          infoPtr->errorMsg("Error in TimeShower::pT2nextQED: "
+          infoPtr->errorMsg("Warning in TimeShower::pT2nextQED: "
           "xMaxAbs negative"); 
           return;
         }
@@ -1292,6 +1362,69 @@ void TimeShower::pT2nextQED(double pT2begDip, double pT2sel,
           wt *= min( 1., pdfNew / pdfOld); 
         }
       }
+    }
+
+  // Iterate until acceptable pT (or have fallen below pTmin).
+  } while (wt < Rndm::flat());  
+
+}
+
+//*********
+
+// Evolve a Hidden Valley dipole end. 
+
+void TimeShower::pT2nextHV(double pT2begDip, double pT2sel, 
+  TimeDipoleEnd& dip, Event& ) { 
+
+  // Lower cut for evolution. Return if no evolution range.
+  double pT2endDip = max( pT2sel, pT2hvCut ); 
+  if (pT2begDip < pT2endDip) return;   
+
+  // C_F * alpha_HV/2 pi.
+  int    colvTypeAbs = abs(dip.colvType);
+  double colvFac     = (colvTypeAbs == 1) ? CFHV : 0.5 * nCHV;
+  double alphaHV2pi  = colvFac * (alphaHVfix / (2. * M_PI));
+
+  // Determine overestimated z range. Find evolution coefficient.
+  double zMinAbs = 0.5 - sqrtpos( 0.25 - pT2endDip / dip.m2DipCorr );
+  if (zMinAbs < SIMPLIFYROOT) zMinAbs = pT2endDip / dip.m2DipCorr;
+  double emitCoefTot = alphaHV2pi * 2. * log(1. / zMinAbs - 1.);
+  
+  // Variables used inside evolution loop.
+  dip.pT2 = pT2begDip;
+  double wt; 
+  
+  // Begin evolution loop towards smaller pT values.
+  do { 
+ 
+    // Pick pT2 (in overestimated z range).
+    dip.pT2 = dip.pT2 * pow(Rndm::flat(), 1. / emitCoefTot);
+    wt = 0.;
+
+    // Abort evolution if below cutoff scale, or below another branching.
+    if ( dip.pT2 < pT2endDip) { dip.pT2 = 0.; return; }
+
+    // Pick z according to dz/(1-z).
+    dip.z = 1. - zMinAbs * pow( 1. / zMinAbs - 1., Rndm::flat() );
+  
+    // Do not accept branching if outside allowed z range.
+    double zMin = 0.5 - sqrtpos( 0.25 - dip.pT2 / dip.m2DipCorr ); 
+    if (zMin < SIMPLIFYROOT) zMin = dip.pT2 / dip.m2DipCorr;
+    dip.m2 = dip.m2Rad + dip.pT2 / (dip.z * (1. - dip.z));
+    if (dip.z > zMin && dip.z < 1. - zMin 
+      && dip.m2 * dip.m2Dip < dip.z * (1. - dip.z) 
+        * pow2(dip.m2Dip + dip.m2 - dip.m2Rec) ) {
+
+      // HV gamma or gluon emission: unique flavour choice.
+      dip.flavour = (nCHV == 1) ? 4900022 : 4900021;
+      dip.mFlavour = 0.;
+
+      // No z weight, except threshold, if to do ME corrections later on.
+      if (dip.MEtype > 0) wt = 1.;
+
+      // z weight for X -> X g_HV.
+      else if (colvTypeAbs == 1) wt = (1. + pow2(dip.z)) / 2.;
+      else wt = (1. + pow3(dip.z)) / 2.;
     }
 
   // Iterate until acceptable pT (or have fallen below pTmin).
@@ -1324,8 +1457,9 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
   iSysSel        = dipSel->system;
   int iSysSelRec = dipSel->systemRec;
 
-  // Default OK for photon emission.
-  if (dipSel->flavour == 22) { 
+  // Default OK for photon or gluon_HV emission.
+  if (dipSel->flavour == 22 || dipSel->flavour == 4900021 
+    || dipSel->flavour == 4900022) { 
   // New colour tag required for gluon emission.
   } else if (dipSel->flavour == 21 && dipSel->colType > 0) { 
     colEmt  = colRad;  
@@ -1376,8 +1510,9 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
   double mRad = dipSel->mRad;
   double mEmt = 0.;
 
-  // Kinematics reduction for q -> q g or q -> q gamma when m_q > 0. 
-  if (abs(dipSel->colType) == 1 || dipSel->chgType != 0) { 
+  // Kinematics reduction for q -> q g/gamma/g_HV when m_q > 0. 
+  if (abs(dipSel->colType) == 1 || dipSel->chgType != 0 
+    || dipSel->isHiddenValley) { 
     pTcorr *= 1. - dipSel->m2Rad / dipSel->m2; 
     pzRad += pzEmt * dipSel->m2Rad / dipSel->m2;
     pzEmt *= 1. - dipSel->m2Rad / dipSel->m2;  
@@ -1430,7 +1565,7 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
   // Kinematics when recoiler is initial-state parton.
   int isrTypeNow = dipSel->isrType;
   if (isrTypeNow != 0) pRec = 2. * recBef.p() - pRec;
-
+ 
   // Define new particles from dipole branching.
   double pTsel = sqrt(dipSel->pT2);
   Particle rad = Particle(idRad, 51, iRadBef, 0, 0, 0, 
@@ -1478,12 +1613,12 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
     int mother2 = event[dipSel->iRecoiler].mother2();  
     event[dipSel->iRecoiler].mothers( iRec, iRec);
     event[iRec].mothers( mother1, mother2);  
-    if (mother1 == 1) event[1].daughter1( iRec);  
-    if (mother1 == 2) event[2].daughter1( iRec);  
+    if (mother1 == 1 + beamOffset) event[1 + beamOffset].daughter1( iRec);  
+    if (mother1 == 2 + beamOffset) event[2 + beamOffset].daughter1( iRec);  
     // For initial-state recoiler also update beam and sHat info.
     BeamParticle& beamRec = (isrTypeNow == 1) ? *beamAPtr : *beamBPtr;
     double xOld = beamRec[iSysSelRec].x();
-    double xRec = 2. * pRec.e() / (beamAPtr->e() + beamBPtr->e()); 
+    double xRec = 2. * pRec.e() / (beamAPtr->e() + beamBPtr->e());
     beamRec[iSysSelRec].iPos( iRec);
     beamRec[iSysSelRec].x( xRec); 
     partonSystemsPtr->setSHat( iSysSelRec,
@@ -1579,7 +1714,41 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
       dipEnd.push_back( TimeDipoleEnd(iEmt, iRad, pTsel, 
         -colType, 0, 0, 0, iSysSel, 11, iRad));
     }
+
+  // Photon_HV emission: update to new dipole ends.
+  } else if (dipSel->flavour == 4900022) { 
+    dipSel->iRadiator = iRad;
+    dipSel->iRecoiler = iRec;
+    dipSel->pTmax = pTsel;
+
+  // Gluon_HV emission: update to new dipole ends.
+  } else if (dipSel->flavour == 4900021) { 
+    dipSel->iRadiator = iRad;
+    dipSel->iRecoiler = iEmt;
+    dipSel->pTmax     = pTsel;
+    for (int i = 0; i < int(dipEnd.size()); ++i) 
+    if (dipEnd[i].iRadiator == iRecBef && dipEnd[i].iRecoiler == iRadBef 
+      && dipEnd[i].isHiddenValley) {
+      dipEnd[i].iRadiator = iRec;
+      dipEnd[i].iRecoiler = iEmt;
+      dipEnd[i].pTmax     = pTsel;
+    }
+    int colvType = (dipSel->colvType > 0) ? 2 : -2 ;
+    dipEnd.push_back( TimeDipoleEnd(iEmt, iRec, pTsel,  
+       0, 0, 0, isrTypeNow, iSysSel, 0, -1, false, true, colvType) );
+    dipEnd.back().systemRec = iSysSelRec;
+    dipEnd.push_back( TimeDipoleEnd(iEmt, iRad, pTsel, 
+      0, 0, 0, 0, iSysSel, 0, -1, false, true, -colvType) );
   }
+
+  // Copy or set lifetime for new final state. 
+  if (event[iRad].id() == event[iRadBef].id()) {
+    event[iRad].tau( event[iRadBef].tau() );
+  } else {
+    event[iRad].tau( event[iRad].tau0() * Rndm::exp() );
+    event[iEmt].tau( event[iEmt].tau0() * Rndm::exp() );
+  } 
+  event[iRec].tau( event[iRecBef].tau() );
 
   // Now update other dipoles that also involved the radiator or recoiler.
   for (int i = 0; i < int(dipEnd.size()); ++i) {
@@ -3030,9 +3199,9 @@ void TimeShower::list(ostream& os) const {
 
   // Header.
   os << "\n --------  PYTHIA TimeShower Dipole Listing  ----------------"
-     << "---------------------------------------- \n \n    i    rad    r"
-     << "ec       pTmax  col  chg  gam  oni  isr  sys sysR type  MErec  "
-     << "   mix  ord  spl  ~gR \n" << fixed << setprecision(3);
+     << "--------------------------------------------- \n \n    i    rad"
+     << "    rec       pTmax  col  chg  gam  oni   hv  isr  sys sysR typ"
+     << "e  MErec     mix  ord  spl  ~gR \n" << fixed << setprecision(3);
   
   // Loop over dipole list and print it.
   for (int i = 0; i < int(dipEnd.size()); ++i) 
@@ -3040,15 +3209,16 @@ void TimeShower::list(ostream& os) const {
      << setw(7) << dipEnd[i].iRecoiler   << setw(12) << dipEnd[i].pTmax 
      << setw(5) << dipEnd[i].colType     << setw(5) << dipEnd[i].chgType
      << setw(5) << dipEnd[i].gamType     << setw(5) << dipEnd[i].isOctetOnium 
-     << setw(5) << dipEnd[i].isrType     << setw(5) << dipEnd[i].system  
-     << setw(5) << dipEnd[i].systemRec   << setw(5) << dipEnd[i].MEtype 
-     << setw(7) << dipEnd[i].iMEpartner  << setw(8) << dipEnd[i].MEmix 
-     << setw(5) << dipEnd[i].MEorder     << setw(5) << dipEnd[i].MEsplit 
-     << setw(5) << dipEnd[i].MEgluinoRec << "\n";
+     << setw(5) << dipEnd[i].isHiddenValley << setw(5) << dipEnd[i].isrType 
+     << setw(5) << dipEnd[i].system      << setw(5) << dipEnd[i].systemRec
+     << setw(5) << dipEnd[i].MEtype      << setw(7) << dipEnd[i].iMEpartner
+     << setw(8) << dipEnd[i].MEmix       << setw(5) << dipEnd[i].MEorder
+     << setw(5) << dipEnd[i].MEsplit     << setw(5) << dipEnd[i].MEgluinoRec 
+     << "\n";
  
   // Done.
   os << "\n --------  End PYTHIA TimeShower Dipole Listing  ------------"
-     << "----------------------------------------" << endl;
+     << "---------------------------------------------" << endl;
   
 }
 

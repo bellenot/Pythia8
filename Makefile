@@ -5,6 +5,7 @@
 #                     Modified 18.11.2006
 #                     26.03.2008 CLHEP dependency removed
 #                  N. Lavesson 28.04.2009 clean/distclean separated
+#                  M. Kirsanov 21.07.2009 Mac-OSX flags added
 
 SHELL = /bin/sh
 
@@ -15,8 +16,6 @@ SHELL = /bin/sh
 #FFLAGSSHARED = -fPIC
 CFLAGSSHARED = -fPIC
 CXXFLAGSSHARED = -fPIC
-#
-LDFLAGSSHARED = $(CXXFLAGS) -pthread -fPIC
 
 
 HEPMCERROR=
@@ -38,9 +37,9 @@ BINDIR=bin
 # Location of libraries to be built.
 ifeq ($(SHAREDLIBS),yes)
   targets=$(LIBDIRARCH)/libpythia8.a
-  targets+=$(LIBDIR)/libpythia8.so
+  targets+=$(LIBDIR)/libpythia8.$(SHAREDSUFFIX)
   targets+=$(LIBDIRARCH)/liblhapdfdummy.a
-  targets+=$(LIBDIR)/liblhapdfdummy.so
+  targets+=$(LIBDIR)/liblhapdfdummy.$(SHAREDSUFFIX)
 else
   targets=$(LIBDIRARCH)/libpythia8.a
   targets+=$(LIBDIRARCH)/liblhapdfdummy.a
@@ -49,7 +48,7 @@ endif
 ifneq (x$(HEPMCLOCATION),x)
  targets+=$(LIBDIRARCH)/libhepmcinterface.a
  ifeq ($(SHAREDLIBS),yes)
-  targets+=$(LIBDIR)/libhepmcinterface.so
+  targets+=$(LIBDIR)/libhepmcinterface.$(SHAREDSUFFIX)
  endif
 endif
 
@@ -105,9 +104,9 @@ $(TMPDIR)/archive/%.d : $(SRCDIR)/%.cc
 objects := $(patsubst $(SRCDIR)/%.cc,$(TMPDIR)/%.o,$(wildcard $(SRCDIR)/*.cc))
 objectsarch := $(patsubst $(SRCDIR)/%.cc,$(TMPDIR)/archive/%.o,$(wildcard $(SRCDIR)/*.cc))
 
-$(LIBDIR)/libpythia8.so: $(objects)
+$(LIBDIR)/libpythia8.$(SHAREDSUFFIX): $(objects)
 	@mkdir -p $(LIBDIR)
-	$(CXX) $(LDFLAGSSHARED) $(objects) -o $@ -shared -Wl,-soname,$(notdir $@)
+	$(CXX) $(LDFLAGSSHARED) -o $@ $(objects) $(LDFLAGLIBNAME),$(notdir $@)
 
 $(LIBDIRARCH)/libpythia8.a: $(objectsarch)
 	@mkdir -p $(LIBDIRARCH)
@@ -116,9 +115,9 @@ $(LIBDIRARCH)/libpythia8.a: $(objectsarch)
 objdum := $(patsubst lhapdfdummy/%.cc,$(TMPDIR)/%.o,$(wildcard lhapdfdummy/*.cc))
 objdumarch := $(patsubst lhapdfdummy/%.cc,$(TMPDIR)/archive/%.o,$(wildcard lhapdfdummy/*.cc))
 
-$(LIBDIR)/liblhapdfdummy.so: $(objdum)
+$(LIBDIR)/liblhapdfdummy.$(SHAREDSUFFIX): $(objdum)
 	@mkdir -p $(LIBDIR)
-	$(CXX) $(LDFLAGSSHARED) $(objdum) -o $@ -shared -Wl,-soname,$(notdir $@)
+	$(CXX) $(LDFLAGSSHARED) -o $@ $(objdum) $(LDFLAGLIBNAME),$(notdir $@)
 
 $(LIBDIRARCH)/liblhapdfdummy.a: $(objdumarch)
 	@mkdir -p $(LIBDIRARCH)
@@ -170,9 +169,9 @@ ifneq (x$(HEPMCLOCATION),x)
    objectsI := $(patsubst hepmcinterface/%.cc,$(TMPDIR)/%.o,$(wildcard hepmcinterface/*.cc))
    objectsIarch := $(patsubst hepmcinterface/%.cc,$(TMPDIR)/archive/%.o,$(wildcard hepmcinterface/*.cc))
 
-   $(LIBDIR)/libhepmcinterface.so : $(objectsI)
+   $(LIBDIR)/libhepmcinterface.$(SHAREDSUFFIX) : $(objectsI)
 	@mkdir -p $(LIBDIR)
-	$(CXX) $(LDFLAGSSHARED) $(objectsI) -o $@ -shared -Wl,-soname,$(notdir $@)
+	$(CXX) $(LDFLAGSSHARED) $(objectsI) -o $@ $(LDFLAGLIBNAME),$(notdir $@)
 
    $(LIBDIRARCH)/libhepmcinterface.a : $(objectsIarch)
 	@mkdir -p $(LIBDIRARCH)
@@ -188,7 +187,7 @@ ifneq (x$(HEPMCLOCATION),x)
 
  else
 
-   $(LIBDIRARCH)/libhepmcinterface.a $(LIBDIR)/libhepmcinterface.so :
+   $(LIBDIRARCH)/libhepmcinterface.a $(LIBDIR)/libhepmcinterface.$(SHAREDSUFFIX) :
 	@echo $(HEPMCERROR)
 
 

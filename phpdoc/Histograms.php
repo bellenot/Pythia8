@@ -234,10 +234,15 @@ unchanged.
 
 <a name="method11"></a>
 <p/><strong>void Hist::table(ostream& os = cout) &nbsp;</strong> <br/>
-prints a two-column table, where the first gives the center of each 
-bin and the second the corresponding bin contents. The desired
-output stream can be provided as argument. The table may be useful 
-for plotting e.g. with Gnuplot.
+  
+<strong>void Hist::table(string fileName) &nbsp;</strong> <br/>
+print a two-column table, where the first column gives the center of 
+each bin and the second one the corresponding bin contents. The desired
+output stream or file name can be provided as argument. The former
+is more flexible (e.g., it allows easy append to an existing file), 
+whereas the latter is simpler for the case that each histogram should 
+be a file of its own. The table may be useful for plotting e.g. with 
+Gnuplot.
   
 
 <a name="method12"></a>

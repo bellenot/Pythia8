@@ -18,7 +18,8 @@
 // SigmaSUSY for supersymmetric production;
 // SigmaLeftRightSym for  processes in left-right-symmetric scenarios;
 // SigmaLeptoquark for leptoquark production.
-// SigmaExtraDim for processes in scenarios for extra dimensions.
+// SigmaExtraDim for processes in scenarios for extra dimensions;
+// SigmaGeneric for generic scalar/fermion/vector pair production.
 
 #ifndef Pythia8_SigmaProcess_H
 #define Pythia8_SigmaProcess_H

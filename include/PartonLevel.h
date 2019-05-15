@@ -40,7 +40,8 @@ public:
  
   // Initialization of all classes at the parton level.
   bool init( Info* infoPtrIn, BeamParticle* beamAPtrIn, 
-    BeamParticle* beamBPtrIn, PartonSystems* partonSystemsPtrIn,
+    BeamParticle* beamBPtrIn, BeamParticle* beamPomAPtrIn, 
+    BeamParticle* beamPomBPtrIn, PartonSystems* partonSystemsPtrIn,
     SigmaTotal* sigmaTotPtr, TimeShower* timesDecPtrIn, 
     TimeShower* timesPtrIn, SpaceShower* spacePtrIn, 
     UserHooks* userHooksPtrIn);
@@ -52,8 +53,12 @@ public:
   bool hasVetoed() const {return doVeto;}
 
   // Accumulate and print statistics.
-  void accumulate() {multi.accumulate();}
-  void statistics(bool reset = false) {if (doMI) multi.statistics(reset);}
+  void accumulate() {multiPtr->accumulate();}
+  void statistics(bool reset = false) {
+    if (doMI) multiMB.statistics(reset);}
+    // For now no separate statistics for diffraction??
+    //if (doMISDA && doDiffraction) multiSDA.statistics(reset); 
+    //if (doMISDB && doDiffraction) multiSDB.statistics(reset);}
 
 private: 
 
@@ -61,16 +66,23 @@ private:
   static const int NTRY;
 
   // Initialization data, mainly read from Settings.
-  bool   doMI, doISR, doFSRduringProcess, doFSRafterProcess, 
-         doFSRinResonances, doRemnants, doSecondHard, doMIinit, 
-         hasLeptonBeams, hasPointLeptons, canVetoPT, canVetoStep,
-         canSetScale;
+  bool   doMinBias, doDiffraction, doMI, doMIMB, doMISDA, doMISDB, doMIinit, 
+         doISR, doFSRduringProcess, doFSRafterProcess,  doFSRinResonances, 
+         doRemnants, doSecondHard, hasLeptonBeams, hasPointLeptons, 
+         canVetoPT, canVetoStep, canVetoMIStep, canSetScale;
+  double mMinDiff, mWidthDiff;
 
   // Event generation strategy. Number of steps. Maximum pT scales.
   bool   doVeto;
   int    nMI, nISR, nFSRinProc, nFSRinRes, nISRhard, nFSRhard, 
-         typeLatest, nVetoStep, typeVetoStep, iSysNow;
+         typeLatest, nVetoStep, typeVetoStep, nVetoMIStep, iSysNow;
   double pTsaveMI, pTsaveISR, pTsaveFSR, pTvetoPT;
+
+  // Current event properties.
+  bool   isMinBias, isDiffA, isDiffB, isDiff, isSingleDiff, isDoubleDiff, 
+         isResolved, isResolvedA, isResolvedB;
+  int    sizeProcess, sizeEvent;
+  double eCMsave; 
 
   // Pointer to various information on the generation.
   Info* infoPtr;
@@ -78,6 +90,12 @@ private:
   // Pointers to the two incoming beams.
   BeamParticle* beamAPtr;
   BeamParticle* beamBPtr;
+
+  // Spare copies of normal pointers. Pointers to Pomeron beam-inside-beam.
+  BeamParticle* beamHadAPtr;  
+  BeamParticle* beamHadBPtr;  
+  BeamParticle* beamPomAPtr;
+  BeamParticle* beamPomBPtr;
 
   // Pointer to information on subcollision parton locations.
   PartonSystems* partonSystemsPtr;
@@ -92,19 +110,31 @@ private:
   // Pointer to spacelike showers.
   SpaceShower* spacePtr;
 
-  // The generator class for multiple interactions.
-  MultipleInteractions multi;
+  // The generator classes for multiple interactions.
+  MultipleInteractions  multiMB;
+  MultipleInteractions  multiSDA;
+  MultipleInteractions  multiSDB;
+  MultipleInteractions* multiPtr;
 
   // The generator class to construct beam-remnant kinematics. 
   BeamRemnants remnants;
 
-  // Set up the hard process, excluding subsequent resonance decays.
-  void setupHardSys( Event& process, Event& event);
-  // Keep track of how much of hard process has been handled.
-  int nHardDone;
+  // Resolved diffraction: find how many systems should have it.
+  int decideResolvedDiff( Event& process);
 
   // Set up an unresolved process, i.e. elastic or diffractive.
   bool setupUnresolvedSys( Event& process, Event& event);
+
+  // Set up the hard process, excluding subsequent resonance decays.
+  void setupHardSys( int iHardLoop, Event& process, Event& event);
+  // Keep track of how much of hard process has been handled.
+  int nHardDone;
+
+  // Resolved diffraction: pick whether to have it and set up for it.
+  void setupResolvedDiff( int iHardLoop, Event& process);
+
+  // Resolved diffraction: restore normal behaviour.
+  void leaveResolvedDiff( int iHardLoop, Event& event);
 
   // Perform showers in resonance decay chains.
   bool resonanceShowers( Event& process, Event& event); 

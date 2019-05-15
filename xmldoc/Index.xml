@@ -49,6 +49,8 @@
 <aidx href="CompositenessProcesses">Compositeness</aidx><br/>
 &nbsp;&nbsp;--&nbsp;&nbsp; 
 <aidx href="ExtraDimensionalProcesses">Extra Dimensions</aidx><br/>
+&nbsp;&nbsp;--&nbsp;&nbsp; 
+<aidx href="HiddenValleyProcesses">Hidden Valleys</aidx><br/>
 <aidx href="ASecondHardProcess">A Second Hard Process</aidx><br/>
 <aidx href="PhaseSpaceCuts">Phase Space Cuts</aidx><br/>
 <aidx href="CouplingsAndScales">Couplings and Scales</aidx><br/>
@@ -59,6 +61,7 @@
 <aidx href="SpacelikeShowers">Spacelike Showers</aidx><br/>
 <aidx href="MultipleInteractions">Multiple Interactions</aidx><br/>
 <aidx href="BeamRemnants">Beam Remnants</aidx><br/>
+<aidx href="Diffraction">Diffraction</aidx><br/>
 <aidx href="Fragmentation">Fragmentation</aidx><br/>
 <aidx href="FlavourSelection">Flavour Selection</aidx><br/>
 <aidx href="ParticleDecays">Particle Decays</aidx><br/>
@@ -86,11 +89,11 @@
 
 <INDEXPHP>
 <aidx href="LesHouchesAccord">Les Houches Accord</aidx><br/>
-<aidx href="AccessPYTHIA6Processes">Access PYTHIA 6 Processes</aidx><br/>
 <aidx href="SemiInternalProcesses">Semi-Internal Processes</aidx><br/>
 <aidx href="SemiInternalResonances">Semi-Internal Resonances</aidx><br/>
 <aidx href="HadronLevelStandalone">Hadron-Level Standalone</aidx><br/>
 <aidx href="SUSYLesHouchesAccord">SUSY Les Houches Accord</aidx><br/>
+<aidx href="ROOTusage">ROOT usage</aidx><br/>
 <aidx href="BeamShape">Beam Shape</aidx><br/>
 <aidx href="PartonDistributions">Parton Distributions</aidx><br/>
 <aidx href="JetFinders">Jet Finders</aidx><br/>

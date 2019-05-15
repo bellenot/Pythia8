@@ -976,6 +976,12 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
+<td><a href="Histograms.php#method11" target="page">Hist::table(...)</a></td>
+<td>Histograms</td>
+</tr>
+
+<tr>
+<td>void</td>
 <td><a href="Histograms.php#method15" target="page">Hist::takeLog(...)</a></td>
 <td>Histograms</td>
 </tr>
@@ -1504,7 +1510,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>bool</td>
-<td><a href="LesHouchesAccord.php#method34" target="page">LHAup::closeLHEF(...)</a></td>
+<td><a href="LesHouchesAccord.php#method35" target="page">LHAup::closeLHEF(...)</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
@@ -1540,7 +1546,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>bool</td>
-<td><a href="LesHouchesAccord.php#method33" target="page">LHAup::eventLHEF()</a></td>
+<td><a href="LesHouchesAccord.php#method34" target="page">LHAup::eventLHEF()</a></td>
+<td>Les Houches Accord</td>
+</tr>
+
+<tr>
+<td>bool</td>
+<td><a href="LesHouchesAccord.php#method28" target="page">LHAup::fileFound()</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
@@ -1588,7 +1600,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>bool</td>
-<td><a href="LesHouchesAccord.php#method32" target="page">LHAup::initLHEF()</a></td>
+<td><a href="LesHouchesAccord.php#method33" target="page">LHAup::initLHEF()</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
@@ -1630,7 +1642,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>bool</td>
-<td><a href="LesHouchesAccord.php#method31" target="page">LHAup::openLHEF(...)</a></td>
+<td><a href="LesHouchesAccord.php#method32" target="page">LHAup::openLHEF(...)</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
@@ -1720,19 +1732,19 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>bool</td>
-<td><a href="LesHouchesAccord.php#method28" target="page">LHAup::setInitLHEF(...)</a></td>
+<td><a href="LesHouchesAccord.php#method29" target="page">LHAup::setInitLHEF(...)</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="LesHouchesAccord.php#method29" target="page">LHAup::setNewEventLHEF(...)</a></td>
+<td><a href="LesHouchesAccord.php#method30" target="page">LHAup::setNewEventLHEF(...)</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="LesHouchesAccord.php#method30" target="page">LHAup::setOldEventLHEF()</a></td>
+<td><a href="LesHouchesAccord.php#method31" target="page">LHAup::setOldEventLHEF()</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
@@ -2572,13 +2584,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method93" target="page">ParticleDataEntry::isGluon()</a></td>
+<td><a href="ParticleDataScheme.php#method94" target="page">ParticleDataEntry::isDiquark()</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleDataScheme.php#method94" target="page">ParticleDataEntry::isGluon()</a></td>
+<td><a href="ParticleDataScheme.php#method93" target="page">ParticleDataEntry::isGluon()</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
@@ -3040,13 +3052,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>static bool</td>
-<td><a href="ParticleDataScheme.php#method44" target="page">ParticleDataTable::isGluon(...)</a></td>
+<td><a href="ParticleDataScheme.php#method45" target="page">ParticleDataTable::isDiquark(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
 <tr>
 <td>static bool</td>
-<td><a href="ParticleDataScheme.php#method45" target="page">ParticleDataTable::isGluon(...)</a></td>
+<td><a href="ParticleDataScheme.php#method44" target="page">ParticleDataTable::isGluon(...)</a></td>
 <td>Particle Data Scheme</td>
 </tr>
 
@@ -4276,7 +4288,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td> </td>
-<td><a href="UserHooks.php#method17" target="page">SuppressSmallPT::SuppressSmallPT(...)</a></td>
+<td><a href="UserHooks.php#method20" target="page">SuppressSmallPT::SuppressSmallPT(...)</a></td>
 <td>User Hooks</td>
 </tr>
 
@@ -4426,7 +4438,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>virtual bool</td>
-<td><a href="UserHooks.php#method18" target="page">UserHooks::canSetResonanceScale()</a></td>
+<td><a href="UserHooks.php#method21" target="page">UserHooks::canSetResonanceScale()</a></td>
+<td>User Hooks</td>
+</tr>
+
+<tr>
+<td>virtual bool</td>
+<td><a href="UserHooks.php#method15" target="page">UserHooks::canVetoMIStep()</a></td>
 <td>User Hooks</td>
 </tr>
 
@@ -4456,7 +4474,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>virtual bool</td>
-<td><a href="UserHooks.php#method15" target="page">UserHooks::canVetoStep()</a></td>
+<td><a href="UserHooks.php#method18" target="page">UserHooks::canVetoStep()</a></td>
+<td>User Hooks</td>
+</tr>
+
+<tr>
+<td>virtual bool</td>
+<td><a href="UserHooks.php#method17" target="page">UserHooks::doVetoMIStep(...)</a></td>
 <td>User Hooks</td>
 </tr>
 
@@ -4492,7 +4516,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>virtual double</td>
-<td><a href="UserHooks.php#method16" target="page">UserHooks::multiplySigmaBy(...)</a></td>
+<td><a href="UserHooks.php#method19" target="page">UserHooks::multiplySigmaBy(...)</a></td>
+<td>User Hooks</td>
+</tr>
+
+<tr>
+<td>virtual int</td>
+<td><a href="UserHooks.php#method16" target="page">UserHooks::numberVetoMIStep()</a></td>
 <td>User Hooks</td>
 </tr>
 
@@ -4504,7 +4534,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>virtual double</td>
-<td><a href="UserHooks.php#method19" target="page">UserHooks::scaleResonance(...)</a></td>
+<td><a href="UserHooks.php#method22" target="page">UserHooks::scaleResonance(...)</a></td>
 <td>User Hooks</td>
 </tr>
 

@@ -306,7 +306,7 @@ private:
   static double maxEnhanceBW, mQRun[7], Lambda5Run;
 
   // Constants: could only be changed in the code itself.
-  static const int    INVISIBLENUMBER, INVISIBLETABLE[32];
+  static const int    INVISIBLENUMBER, INVISIBLETABLE[34];
   static const double MAXTAU0FORDECAY,MINMASSRESONANCE, NARROWMASS,
                       CONSTITUENTMASSTABLE[6];
 

@@ -69,13 +69,24 @@ public:
   // making decision after fixed number of ISR or FSR steps.
   virtual bool canVetoStep() {return false;}
 
-  // Up to how many steps should be checked.
+  // Up to how many ISR + FSR steps of hardest interaction should be checked.
   virtual int numberVetoStep() {return 1;}
 
   // Decide whether to veto current event or not, based on event record.
   // Usage: doVetoStep( iPos, nISR, nFSR, event), where iPos as above,
   // nISR and nFSR number of emissions so far for hard interaction only.
   virtual bool doVetoStep( int , int , int , const Event& ) {return false;} 
+
+  // Possibility to veto MI + ISR + FSR evolution and kill event, 
+  // making decision after fixed number of MI steps.
+  virtual bool canVetoMIStep() {return false;}
+
+  // Up to how many MI steps should be checked.
+  virtual int numberVetoMIStep() {return 1;}
+
+  // Decide whether to veto current event or not, based on event record.
+  // Usage: doVetoMIStep( nMI, event), where nMI is number of MI's so far.
+  virtual bool doVetoMIStep( int , const Event& ) {return false;} 
    
   // Possibility to veto event after parton-level selection.
   virtual bool canVetoPartonLevel() {return false;}

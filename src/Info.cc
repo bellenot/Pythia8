@@ -114,15 +114,16 @@ void Info::list(ostream& os) const {
   
 // Print a message the first few times. Insert in database.
  
-void Info::errorMsg(string messageIn, string extraIn, ostream& os) {
+  void Info::errorMsg(string messageIn, string extraIn, bool showAlways, 
+    ostream& os) {
    
   // Recover number of times message occured. Also inserts new string.
   int times = messages[messageIn];
   ++messages[messageIn];
 
   // Print message the first few times.
-  if (times < TIMESTOPRINT) os << " PYTHIA " << messageIn << " " 
-    << extraIn << endl;
+  if (times < TIMESTOPRINT || showAlways) os << " PYTHIA " 
+    << messageIn << " " << extraIn << endl;
 
 }
 

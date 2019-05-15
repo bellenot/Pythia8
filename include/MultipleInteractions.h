@@ -91,16 +91,16 @@ class MultipleInteractions {
 public:
 
   // Constructor.
-  MultipleInteractions() {sudExpPT.resize(NBINS+1);}
+  MultipleInteractions() {}
 
   // Initialize the generation process for given beams.
-  bool init( bool doMIinit, Info* infoPtrIn, BeamParticle* beamAPtrIn, 
-    BeamParticle* beamBPtrIn, PartonSystems* partonSystemsPtrIn,
-    SigmaTotal* sigmaTotPtrIn, ostream& os = cout);
+  bool init( bool doMIinit, int diffractiveModeIn, Info* infoPtrIn, 
+    BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, 
+    PartonSystems* partonSystemsPtrIn, SigmaTotal* sigmaTotPtrIn, 
+    ostream& os = cout);
 
   // Reset impact parameter choice and update the CM energy.
-  void clear() {bIsSet = false; bSetInFirst = false;
-    eCM = infoPtr->eCM(); sCM = eCM * eCM;}
+  void reset();
 
   // Select first = hardest pT in minbias process.
   void pTfirst(); 
@@ -136,33 +136,33 @@ public:
   // Update and print statistics on number of processes.
   void accumulate() { int iBeg = (infoPtr->isMinBias()) ? 0 : 1; 
     for (int i = iBeg; i < infoPtr->nMI(); ++i) ++nGen[ infoPtr->codeMI(i) ];}
-  void statistics(bool reset = false, ostream& os = cout);
+  void statistics(bool resetStat = false, ostream& os = cout);
   
 private: 
 
   // Constants: could only be changed in the code itself.
   static const bool   SHIFTFACSCALE, PREPICKRESCATTER;
-  static const int    NBINS;
   static const double SIGMAFUDGE, RPT20, PT0STEP, SIGMASTEP, PT0MIN,
                       EXPPOWMIN, PROBATLOWB, BSTEP, BMAX, EXPMAX, 
-                      KCONVERGE, CONVERT2MB, ROOTMIN;
+                      KCONVERGE, CONVERT2MB, ROOTMIN, ECMDEV;
 
   // Initialization data, read from Settings.
   bool   allowRescatter, allowDoubleRes;
   int    pTmaxMatch, alphaSorder, alphaEMorder, bProfile, processLevel, 
          rescatterMode, nQuarkIn, nSample, enhanceScreening;
   double alphaSvalue, Kfactor, pT0Ref, ecmRef, ecmPow, pTmin, coreRadius, 
-         coreFraction, expPow, ySepResc, deltaYResc;
+         coreFraction, expPow, ySepResc, deltaYResc, sigmaPomP, 
+         mMaxPertDiff, mMinPertDiff;
 
   // Other initialization data.
   bool   hasBaryonBeams, hasLowPow;
+  int    diffractiveMode;
   double eCM, sCM, pT0, pT20, pT2min, pTmax, pT2max, pT20R, pT20minR, 
          pT20maxR, pT20min0maxR, pT2maxmin, sigmaND, pT4dSigmaMax, 
-         pT4dProbMax, dSigmaApprox, sigmaInt, zeroIntCorr, normOverlap, 
-         nAvg, kNow, normPi, bAvg, bDiv, probLowB, radius2B, radius2C, 
-         fracA, fracB, fracC, fracAhigh, fracBhigh, fracChigh, fracABChigh, 
-         expRev, cDiv, cMax;
-  vector<double> sudExpPT;
+         pT4dProbMax, dSigmaApprox, sigmaInt, sudExpPT[101], 
+         zeroIntCorr, normOverlap, nAvg, kNow, normPi, bAvg, bDiv, 
+         probLowB, radius2B, radius2C, fracA, fracB, fracC, fracAhigh, 
+         fracBhigh, fracChigh, fracABChigh, expRev, cDiv, cMax;
 
   // Properties specific to current system.
   bool   bIsSet, bSetInFirst, isAtLowB, pickOtherSel;
@@ -170,6 +170,15 @@ private:
   double bNow, enhanceB, pT2, pT2shift, pT2Ren, pT2Fac, x1, x2, xT, xT2, 
          tau, y, sHat, tHat, uHat, alpS, alpEM, xPDF1now, xPDF2now,
          dSigmaSum, x1Sel, x2Sel, sHatSel, tHatSel, uHatSel;
+
+  // Stored values for mass interpolation for diffractive systems.
+  int    nStep, iStepFrom, iStepTo; 
+  double eCMsave, eStepSize, eStepSave, eStepFrom, eStepTo, pT0Save[5], 
+         pT4dSigmaMaxSave[5], pT4dProbMaxSave[5], sigmaIntSave[5], 
+         sudExpPTSave[5][101], zeroIntCorrSave[5], normOverlapSave[5], 
+         kNowSave[5], bAvgSave[5], bDivSave[5], probLowBSave[5], 
+         fracAhighSave[5], fracBhighSave[5], fracChighSave[5], 
+         fracABChighSave[5], cDivSave[5], cMaxSave[5];
 
   // Pointer to various information on the generation.
   Info*  infoPtr;

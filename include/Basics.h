@@ -332,6 +332,9 @@ public:
 
   // Print histogram contents as a table (e.g. for Gnuplot).
   void table(ostream& os = cout) const ;
+  void table(string fileName) const {
+    ofstream streamName(fileName.c_str()); table(streamName); }
+
 
   // Return content of specific bin: -1 gives underflow and nBin overflow.
   double getBinContent(int iBin) ;

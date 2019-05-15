@@ -129,7 +129,7 @@ over the three-body phase space gives the cross section. Here no standard
 set of variables exist. Instead the obvious ones, 
 <code>mH, sH, m3, s3, m4, s4, m5, s5</code>, are complemented by the 
 four-vectors <code>p3cm, p4cm, p5cm</code>, from which further invariants 
-may be calculated. The four-vectors are defined in the cm frame of the 
+may be calculated. The four-vectors are defined in the CM frame of the 
 subcollision, with incoming partons along the <ei>+-z</ei> axis.   
 <br/>In either case, <ei>alpha_s</ei> and <ei>alpha_em</ei> have already 
 been calculated, and are stored in <code>alpS</code> and <code>alpEM</code>. 

@@ -32,7 +32,7 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 The <code>SigmaTotal</code> class returns the total, elastic, diffractive 
 and nondiffractive cross sections in hadronic collisions, and also the
 slopes of the <i>d(sigma)/dt</i> distributions. The parametrizations 
-used are from [<a href="Bibliography.php" target="page">Sch97</a>] which borrows some of the total cross 
+used are from [<a href="Bibliography.php" target="page">Sch94, Sch97</a>] which borrows some of the total cross 
 sections from [<a href="Bibliography.php" target="page">Don92</a>].
 
 <p/>

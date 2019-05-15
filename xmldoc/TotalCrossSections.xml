@@ -5,7 +5,7 @@
 The <code>SigmaTotal</code> class returns the total, elastic, diffractive 
 and nondiffractive cross sections in hadronic collisions, and also the
 slopes of the <ei>d(sigma)/dt</ei> distributions. The parametrizations 
-used are from <ref>Sch97</ref> which borrows some of the total cross 
+used are from <ref>Sch94, Sch97</ref> which borrows some of the total cross 
 sections from <ref>Don92</ref>.
 
 <p/>

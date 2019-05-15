@@ -99,7 +99,7 @@ phone: + 46 - 46 - 222 48 16, e-mail: torbjorn@thep.lu.se
 
 <p/>
 <b>Stefan Ask</b><br/> 
-Department of Physics, University of Manchester,
+School of Physics and Astronomy, University of Manchester, 
 Oxford Road, Manchester M13 9PL, United Kingdom<br/>
 phone: +41 - 22 - 767 5670, e-mail: Stefan.Ask@cern.ch  
 

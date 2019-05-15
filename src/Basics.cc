@@ -984,6 +984,12 @@ ostream& operator<<(ostream& os, const Hist& h) {
         os << NUMBER[(row[ix] / mask) % 10];
       } os << "\n";
     } os << "\n";
+
+  // Print explanation if histogram cannot be shown.
+  } else {
+    os << "     Histogram not shown since lowest value" << scientific 
+       << setprecision(4) << setw(12) << yMin << " and highest value" 
+       << setw(12) << yMax << " are too close \n \n"; 
   }
  
   // Calculate and print statistics.

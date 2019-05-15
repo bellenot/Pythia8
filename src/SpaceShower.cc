@@ -363,7 +363,7 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
   double xMaxAbs     = beam.xMax(iSysNow);
   double zMinAbs     = xDaughter / xMaxAbs;
   if (xMaxAbs < 0.) {
-    infoPtr->errorMsg("Error in SpaceShower::pT2nextQCD: "
+    infoPtr->errorMsg("Warning in SpaceShower::pT2nextQCD: "
     "xMaxAbs negative"); 
     return;
   }
@@ -820,7 +820,7 @@ void SpaceShower::pT2nextQED( double pT2begDip, double pT2endDip) {
   double xMaxAbs  = (isLeptonBeam) ? LEPTONXMAX : beam.xMax(iSysNow);
   double zMinAbs  = xDaughter / xMaxAbs;
   if (xMaxAbs < 0.) {
-    infoPtr->errorMsg("Error in SpaceShower::pT2nextQED: "
+    infoPtr->errorMsg("Warning in SpaceShower::pT2nextQED: "
     "xMaxAbs negative"); 
     return;
   }
@@ -1504,6 +1504,14 @@ bool SpaceShower::branch( Event& event) {
 
   // End iterate over list of rescatterers.
   }
+
+  // Check that beam momentum not used up by rescattered-system boosts.
+    if (beamAPtr->xMax(-1) < 0.0 || beamBPtr->xMax(-1) < 0.0) {
+      infoPtr->errorMsg("Warning in SpaceShower::branch: "
+      "used up beam momentum; retrying parton level");
+      rescatterFail = true;
+      return false;
+    }
 
   // Done without any errors.
   return true;

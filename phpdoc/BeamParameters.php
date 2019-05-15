@@ -68,7 +68,7 @@ The PDG <code>id</code> code for the second incoming particle.
 <br/><br/><table><tr><td><strong>Beams:frameType  </td><td>  &nbsp;&nbsp;(<code>default = <strong>1</strong></code>; <code>minimum = 1</code>; <code>maximum = 4</code>)</td></tr></table>
 Choice of frame for the two colliding particles.
 <br/>
-<input type="radio" name="3" value="1" checked="checked"><strong>1 </strong>: the beams are colliding in their cm frame,  and therefore only the cm energy needs to be provided, see  <code>Beams:eCM</code> below. <br/>
+<input type="radio" name="3" value="1" checked="checked"><strong>1 </strong>: the beams are colliding in their CM frame,  and therefore only the CM energy needs to be provided, see  <code>Beams:eCM</code> below. <br/>
 <input type="radio" name="3" value="2"><strong>2 </strong>: the beams are back-to-back, but with different energies, see <code>Beams:eA</code> and <code>Beams:eB</code> below. This option could also be used for fixed-target configurations. <br/>
 <input type="radio" name="3" value="3"><strong>3 </strong>: the beams are not back-to-back, and therefore the three-momentum of each incoming particle needs to be specified, see <code>Beams:pxA</code> through <code>Beams:pzB</code> below. <br/>
 <input type="radio" name="3" value="4"><strong>4 </strong>: the beam and event information is stored in a  Les Houches Event File, see <code>Beams:LHEF</code> below. <br/>

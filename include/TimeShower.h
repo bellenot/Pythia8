@@ -34,17 +34,19 @@ public:
   // Constructors.
   TimeDipoleEnd() : iRadiator(-1), iRecoiler(-1), pTmax(0.), colType(0), 
     chgType(0), gamType(0), isrType(0), system(0), systemRec(0), MEtype(0), 
-    iMEpartner(-1), isOctetOnium(false), MEmix(0.), MEorder(true), 
-    MEsplit(true), MEgluinoRec(false) { }  
+    iMEpartner(-1), isOctetOnium(false), isHiddenValley(false), colvType(0),
+    MEmix(0.), MEorder(true), MEsplit(true), MEgluinoRec(false) { }  
   TimeDipoleEnd(int iRadiatorIn, int iRecoilerIn, double pTmaxIn = 0., 
     int colIn = 0, int chgIn = 0, int gamIn = 0, int isrIn = 0, 
     int systemIn = 0, int MEtypeIn = 0, int iMEpartnerIn = -1, 
-    bool isOctetOniumIn = false, double MEmixIn = 0., bool MEorderIn = true, 
+    bool isOctetOniumIn = false, bool isHiddenValleyIn = false,
+    int colvTypeIn = 0, double MEmixIn = 0., bool MEorderIn = true, 
     bool MEsplitIn = true, bool MEgluinoRecIn = false) : 
     iRadiator(iRadiatorIn), iRecoiler(iRecoilerIn), pTmax(pTmaxIn), 
     colType(colIn), chgType(chgIn), gamType(gamIn), isrType(isrIn), 
     system(systemIn), systemRec(systemIn) , MEtype(MEtypeIn), 
-    iMEpartner(iMEpartnerIn), isOctetOnium(isOctetOniumIn), MEmix(MEmixIn), 
+    iMEpartner(iMEpartnerIn), isOctetOnium(isOctetOniumIn), 
+    isHiddenValley(isHiddenValleyIn), colvType(colvTypeIn), MEmix(MEmixIn), 
     MEorder (MEorderIn), MEsplit(MEsplitIn), MEgluinoRec(MEgluinoRecIn) { }
 
   // Basic properties related to dipole and matrix element corrections.
@@ -52,7 +54,8 @@ public:
   double pTmax;
   int    colType, chgType, gamType, isrType, system, systemRec,
          MEtype, iMEpartner;
-  bool   isOctetOnium;
+  bool   isOctetOnium, isHiddenValley;
+  int    colvType;
   double MEmix;
   bool   MEorder, MEsplit, MEgluinoRec;
 
@@ -72,7 +75,7 @@ class TimeShower {
 public:
 
   // Constructor.
-  TimeShower() {}
+  TimeShower() {beamOffset = 0;}
 
   // Destructor.
   virtual ~TimeShower() {}
@@ -86,6 +89,11 @@ public:
   // Initialize alphaStrong and related pTmin parameters.
   virtual void init( BeamParticle* beamAPtrIn = 0, 
     BeamParticle* beamBPtrIn = 0);
+
+  // New beams possible for handling of hard diffraction. (Not virtual.)
+  void reassignBeamPtrs( BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn,
+    int beamOffsetIn = 0) {beamAPtr = beamAPtrIn; beamBPtr = beamBPtrIn;
+    beamOffset = beamOffsetIn;}
 
   // Potential enhancement factor of pTmax scale for hardest emission.
   double enhancePTmax() {return pTmaxFudge;}
@@ -123,9 +131,10 @@ protected:
   // Pointer to various information on the generation.
   Info* infoPtr;
 
-  // Pointers to the two incoming beams.
+  // Pointers to the two incoming beams. Offset their location in event.
   BeamParticle* beamAPtr;
   BeamParticle* beamBPtr;
+  int beamOffset;
 
   // Pointer to information on subcollision parton locations.
   PartonSystems* partonSystemsPtr;
@@ -149,14 +158,15 @@ private:
   // Initialization data, normally only set once.
   bool   doQCDshower, doQEDshowerByQ, doQEDshowerByL, doQEDshowerByGamma, 
          doMEcorrections, doPhiPolAsym, doInterleave, allowBeamRecoil,
-         allowRescatter;
+         allowRescatter, doHVshower;
   int    alphaSorder, nGluonToQuark, alphaEMorder, nGammaToQuark, 
-         nGammaToLepton;
+         nGammaToLepton, nCHV;
   double mc, mb, m2c, m2b, alphaSvalue, alphaS2pi, Lambda3flav, 
          Lambda4flav, Lambda5flav, Lambda3flav2, Lambda4flav2, 
          Lambda5flav2, pTcolCutMin, pTcolCut, pT2colCut, pTchgQCut, 
          pT2chgQCut, pTchgLCut, pT2chgLCut, mMaxGamma, m2MaxGamma, 
-         octetOniumFraction, octetOniumColFac, mZ, gammaZ, thetaWRat;
+         octetOniumFraction, octetOniumColFac, mZ, gammaZ, thetaWRat,
+         CFHV, alphaHVfix, pThvCut, pT2hvCut;
 
   // alphaStrong and alphaEM calculations.
   AlphaStrong alphaS;
@@ -167,18 +177,23 @@ private:
   TimeDipoleEnd* dipSel;
   int iDipSel;
 
-  // Setup a dipole end, either QCD or QED/photon one.
+  // Setup a dipole end, either QCD, QED/photon or Hidden Valley one.
   void setupQCDdip( int iSys, int i, int colTag,  int colSign, Event& event,
     bool isOctetOnium = false);
   void setupQEDdip( int iSys, int i, int chgType, int gamType, Event& event); 
+  void setupHVdip( int iSys, int i, Event& event); 
 
   // Evolve a QCD dipole end. 
   void pT2nextQCD( double pT2begDip, double pT2sel, TimeDipoleEnd& dip,
     Event& event);
 
-  // Evolve a QED dipole end (except photon). 
+  // Evolve a QED dipole end, either charged or photon. 
   void pT2nextQED( double pT2begDip, double pT2sel, TimeDipoleEnd& dip,
     Event& event);
+
+  // Evolve a Hidden Valley dipole end. 
+  void pT2nextHV( double pT2begDip, double pT2sel, TimeDipoleEnd& dip,
+    Event& );
 
   // Find kind of QCD ME correction.
   void findMEtype( Event& event, TimeDipoleEnd& dip);

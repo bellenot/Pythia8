@@ -112,7 +112,7 @@ away from this value could do better in some processes.
 
 <p/>
 The amount of QCD radiation in the shower is determined by 
-<br/><br/><table><tr><td><strong>SpaceShower:alphaSvalue </td><td></td><td> <input type="text" name="5" value="0.127" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.127</strong></code>; <code>minimum = 0.06</code>; <code>maximum = 0.25</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>SpaceShower:alphaSvalue </td><td></td><td> <input type="text" name="5" value="0.137" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.137</strong></code>; <code>minimum = 0.06</code>; <code>maximum = 0.25</code>)</td></tr></table>
 The <i>alpha_strong</i> value at scale <code>M_Z^2</code>. 
 Default value is picked equal to the one used in CTEQ 5L.  
   
@@ -144,9 +144,9 @@ divergence, a sharp cutoff and a smooth dampening. These can be
 combined as desired but it makes sense to coordinate with how the 
 same issue is handled in multiple interactions.
 
-<br/><br/><strong>SpaceShower:samePTasMI</strong>  <input type="radio" name="8" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="8" value="off"><strong>Off</strong>
- &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
+<br/><br/><strong>SpaceShower:samePTasMI</strong>  <input type="radio" name="8" value="on"><strong>On</strong>
+<input type="radio" name="8" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Regularize the <i>pT -> 0</i> divergence using the same sharp cutoff 
 and smooth dampening parameters as used to describe multiple interactions.
 That is, the <code>MultipleInteractions:pT0Ref</code>, 
@@ -165,7 +165,7 @@ does NOT propagate to <code>SpaceShower</code>, however.
    
 
 <p/>
-The actual <code>pT0</code> parameter used at a given cm energy scale, 
+The actual <code>pT0</code> parameter used at a given CM energy scale, 
 <i>ecmNow</i>, is obtained as
 <br/><i>
     pT0 = pT0(ecmNow) = pT0Ref * (ecmNow / ecmRef)^ecmPow 
@@ -173,7 +173,7 @@ The actual <code>pT0</code> parameter used at a given cm energy scale,
 where <i>pT0Ref</i>, <i>ecmRef</i> and <i>ecmPow</i> are the 
 three parameters below.
 
-<br/><br/><table><tr><td><strong>SpaceShower:pT0Ref </td><td></td><td> <input type="text" name="9" value="2.2" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.2</strong></code>; <code>minimum = 0.5</code>; <code>maximum = 10.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>SpaceShower:pT0Ref </td><td></td><td> <input type="text" name="9" value="2.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.0</strong></code>; <code>minimum = 0.5</code>; <code>maximum = 10.0</code>)</td></tr></table>
 Regularization of the divergence of the QCD emission probability for 
 <i>pT -> 0</i> is obtained by a factor <i>pT^2 / (pT0^2 + pT^2)</i>, 
 and by using an <i>alpha_s(pT0^2 + pT^2)</i>. An energy dependence 
@@ -186,7 +186,7 @@ cm energy, <i>pT0Ref = pT0(ecmRef)</i>.
 The <i>ecmRef</i> reference energy scale introduced above.
   
 
-<br/><br/><table><tr><td><strong>SpaceShower:ecmPow </td><td></td><td> <input type="text" name="11" value="0.16" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.16</strong></code>; <code>minimum = 0.</code>; <code>maximum = 0.5</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>SpaceShower:ecmPow </td><td></td><td> <input type="text" name="11" value="0.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.0</strong></code>; <code>minimum = 0.</code>; <code>maximum = 0.5</code>)</td></tr></table>
 The <i>ecmPow</i> energy rescaling pace introduced above.
   
 
@@ -354,7 +354,7 @@ if($_POST["4"] != "1.0")
 $data = "SpaceShower:pTdampFudge = ".$_POST["4"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["5"] != "0.127")
+if($_POST["5"] != "0.137")
 {
 $data = "SpaceShower:alphaSvalue = ".$_POST["5"]."\n";
 fwrite($handle,$data);
@@ -369,12 +369,12 @@ if($_POST["7"] != "1")
 $data = "SpaceShower:alphaEMorder = ".$_POST["7"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["8"] != "on")
+if($_POST["8"] != "off")
 {
 $data = "SpaceShower:samePTasMI = ".$_POST["8"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["9"] != "2.2")
+if($_POST["9"] != "2.0")
 {
 $data = "SpaceShower:pT0Ref = ".$_POST["9"]."\n";
 fwrite($handle,$data);
@@ -384,7 +384,7 @@ if($_POST["10"] != "1800.0")
 $data = "SpaceShower:ecmRef = ".$_POST["10"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["11"] != "0.16")
+if($_POST["11"] != "0.0")
 {
 $data = "SpaceShower:ecmPow = ".$_POST["11"]."\n";
 fwrite($handle,$data);

@@ -180,11 +180,11 @@ bool Settings::reInit(string startFile) {
 bool Settings::readString(string line, bool warn, ostream& os) {
 
   // If empty line then done.
-  if (line.find_first_not_of(" ") == string::npos) return true;
+  if (line.find_first_not_of(" \n\t\v\b\r\f\a") == string::npos) return true;
 
   // If first character is not a letter, then taken to be a comment line.
   string lineNow = line;
-  int firstChar = lineNow.find_first_not_of(" ");
+  int firstChar = lineNow.find_first_not_of(" \n\t\v\b\r\f\a");
   if (!isalpha(lineNow[firstChar])) return true; 
 
   // Replace an equal sign by a blank to make parsing simpler.
@@ -606,9 +606,9 @@ void Settings::word(string keyIn, string nowIn) {
 string Settings::toLower(const string& name) { 
 
   // Copy string without initial and trailing blanks.
-  if (name.find_first_not_of(" ") == string::npos) return "";
-  int firstChar = name.find_first_not_of(" ");
-  int lastChar  = name.find_last_not_of(" ");
+  if (name.find_first_not_of(" \n\t\v\b\r\f\a") == string::npos) return "";
+  int firstChar = name.find_first_not_of(" \n\t\v\b\r\f\a");
+  int lastChar  = name.find_last_not_of(" \n\t\v\b\r\f\a");
   string temp   = name.substr( firstChar, lastChar + 1 - firstChar);
 
   // Convert to lowercase letter by letter.

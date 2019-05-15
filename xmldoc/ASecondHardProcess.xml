@@ -44,6 +44,11 @@ A prompt photon recoiling against a quark or gluon jet.
 <flag name="SecondHard:TwoPhotons" default="off">
 Two prompt photons recoiling against each other.
 
+<flag name="SecondHard:Charmonium" default="off">
+Production of charmonium via colour singlet and colour octet channels.
+
+<flag name="SecondHard:Bottomonium" default="off">
+Production of bottomonium via colour singlet and colour octet channels.
 
 <flag name="SecondHard:SingleGmZ" default="off">
 Scattering <ei>q qbar -> gamma^*/Z^0</ei>, with full interference
@@ -62,6 +67,16 @@ Scattering <ei>q qbar -> gamma^*/Z^0 g</ei> and
 <flag name="SecondHard:WAndJet" default="off">
 Scattering <ei>q qbar' -> W^+- g</ei> and
 <ei>q g -> W^+- q'</ei>.
+</flag>
+
+<flag name="SecondHard:TopPair" default="off">
+Production of a top pair, either via QCD processes or via an
+intermediate <ei>gamma^*/Z^0</ei> resonance.
+</flag>
+
+<flag name="SecondHard:SingleTop" default="off">
+Production of a single top, either via a <ei>t-</ei> or 
+an <ei>s-</ei>channel <ei>W^+-</ei> resonance.
 </flag>
 
 <p/>
@@ -301,6 +316,21 @@ be thrown for identical processes. Taken together, it is these
 effects that reduced the event number from "selected" to "accepted".
 (A further reduction may occur if a 
 <aloc href="UserHooks">user hook</aloc> rejects some events.) 
+
+<p/>
+It is allowed to use external Les Houches Accord input for the 
+hardest process, and then pick an internal one for the second hardest.
+In this case PYTHIA does not have access to your thinking concerning
+the external process, and cannot know whether it overlaps with the 
+internal or not. (External events <ei>q qbar' -> e+ nu_e</ei> could 
+agree with the internal <ei>W</ei> ones, or be a <ei>W'</ei> resonance 
+in a BSM scenario, to give one example.) Therefore the combined cross 
+section is always based on the scenario (1) above. Corrections for 
+correlated parton densities are included also in this case, however. 
+That is, an external event that takes a large fraction of the incoming 
+beam momenta stands a fair chance of being rejected when it has to be 
+combined with another hard process. For this reason the "selected" and  
+"accepted" event numbers are likely to disagree.
 
 <p/>
 In the cross section calculation above, the <ei>sigma'_1</ei>

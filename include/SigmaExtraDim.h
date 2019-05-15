@@ -575,6 +575,7 @@ public:
     (m_graviton ? "f fbar -> (LED G*) -> l l" : "f fbar -> (U*) -> l l") ;}
   virtual int    code()       const {return (m_graviton ? 5028 : 5048);}
   virtual string inFlux()     const {return "ffbarSame";}
+  virtual bool   isSChannel() const {return true;}
 
 private:
 

@@ -14,7 +14,8 @@
 
 #include "HepMC/GenEvent.h"
 #include "HepMC/IO_GenEvent.h"
-#include "HepMC/Units.h"
+// Following line to be used with HepMC 2.04 onwards.
+//#include "HepMC/Units.h"
 // Following two lines are deprecated alternative.
 //#include "HepMC/IO_Ascii.h"
 //#include "HepMC/IO_AsciiParticles.h"
@@ -52,10 +53,12 @@ int main() {
         ++nCharged; 
     mult.fill( nCharged );
 
-    // Construct new empty HepMC event. Arguments superfluous 
-    // if HepMC was built with GeV and mm as units. 
-    HepMC::GenEvent* hepmcevt = new HepMC::GenEvent(
-      HepMC::Units::GEV, HepMC::Units::MM); 
+    // Construct new empty HepMC event. Form with arguments is only
+    // meaningful for HepMC 2.04 onwards, and even then unnecessary  
+    // if HepMC was built with GeV and mm as units from the onset. 
+    HepMC::GenEvent* hepmcevt = new HepMC::GenEvent();
+    //HepMC::GenEvent* hepmcevt = new HepMC::GenEvent(
+    //  HepMC::Units::GEV, HepMC::Units::MM); 
 
     // Fill HepMC event, including PDF info.
     ToHepMC.fill_next_event( pythia, hepmcevt );

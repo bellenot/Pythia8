@@ -463,20 +463,28 @@ found in the base class, so as to allow them to be reused in other
 contexts. Specifically, it allows derived classes where one parton-level 
 configuration can be reused several times, e.g. in the context of 
 matrix-element-to-parton-shower matching (example in preparation).
+To begin with also a small utility routine.
 
 <a name="method28"></a>
+<p/><strong>bool LHAup::fileFound() &nbsp;</strong> <br/>
+always returns true in the base class, but in <code>LHAupLHEF</code>
+it returns false if the LHEF provided in the constructor is not
+found and opened correctly.
+  
+
+<a name="method29"></a>
 <p/><strong>bool LHAup::setInitLHEF(ifstream& is) &nbsp;</strong> <br/>
 read in and set all required initialization information from the 
 specified stream. Return false if it fails.
   
 
-<a name="method29"></a>
+<a name="method30"></a>
 <p/><strong>bool LHAup::setNewEventLHEF(ifstream& is) &nbsp;</strong> <br/>
 read in event information from the specified stream into a staging area 
 where it can be reused by <code>setOldEventLHEF</code>.
   
 
-<a name="method30"></a>
+<a name="method31"></a>
 <p/><strong>bool LHAup::setOldEventLHEF() &nbsp;</strong> <br/>
 store the event information from the staging area into the normal 
 location. Thus a single <code>setNewEventLHEF</code> call can be 
@@ -485,6 +493,7 @@ process the same configuration several times. This method currently
 only returns true, i.e. any errors should be caught by the preceding 
 <code>setNewEventLHEF</code> call.
   
+ 
 
 <h3>A runtime Fortran interface</h3>
 
@@ -516,9 +525,32 @@ the C++ structure is provided by the existing <code>setInit()</code> and
 <code>setEvent()</code> code. 
 
 <p/>
-See further 
-<a href="AccessPYTHIA6Processes.html" target="page">here</a> for information how 
-PYTHIA 6.4 can be linked to make use of this facility. 
+Up to and including version 8.125 the <code>LHAupFortran</code> class
+was used to construct a runtime interface to PYTHIA 6.4. This was 
+convenient in the early days of PYTHIA 8 evolution, when this program 
+did not yet contain hard-process generation, and the LHEF standard 
+did not yet exist. Nowadays it is more of a bother, since a full
+cross-platform support leads to many possible combinations. Therefore
+it has been removed in the current version. Nevertheless, should you
+wish to use it, the relevant pieces could be picked up from 8.125
+and reinserted into a later version. These pieces are:
+<ul>
+<li>The <code>include/Pythia6Interface.h</code> file, which provides the
+interfaces to the PYTHIA 6.4 methods you will need to generate
+hard processes.</li>
+<li>The <code>htmldoc/AccessPYTHIA6Processes.html</code> file, 
+which describes the facility.</li>  
+<li>In the <code>examples</code> subdirectory the files 
+<code>main51.cc</code>, <code>main52.cc</code>,
+<code>main52.ccmnd</code>, <code>main52.fcmnd</code>,
+<code>main53.f</code> (!), <code>main54.cc</code> and
+<code>main54.cmnd</code> may serve as useful templates.</li>
+<li>To run them, you need to use the <code>examples/configure</code> 
+and <code>examples/Makefile</code> files, either to replace the current
+one, or to borrow the relevant pieces from (i.e. those pertaining
+to PYTHIA6 variables in <code>configure</code> and to the 
+<code>main51 - main54</code> programs in <code>Makefile</code>).</li>
+</ul>
 
 <h3>Methods for LHEF output</h3>
 
@@ -528,20 +560,20 @@ as well, however. Specifically, there are four routines in the base class
 that can be called to write a Les Houches Event File. These should be 
 called in sequence in order to build up the proper file structure. 
 
-<a name="method31"></a>
+<a name="method32"></a>
 <p/><strong>bool LHAup::openLHEF(string filename) &nbsp;</strong> <br/>
 Opens a file with the filename indicated, and writes a header plus a brief
 comment with date and time information.
   
 
-<a name="method32"></a>
+<a name="method33"></a>
 <p/><strong>bool LHAup::initLHEF() &nbsp;</strong> <br/>
 Writes initialization information to the file above. Such information should
 already have been set with the methods described in the "Initialization"
 section above.
   
 
-<a name="method33"></a>
+<a name="method34"></a>
 <p/><strong>bool LHAup::eventLHEF() &nbsp;</strong> <br/>
 Writes event information to the file above. Such information should
 already have been set with the methods described in the "Event input"
@@ -549,7 +581,7 @@ section above. This call should be repeated once for each event to be
 stored. 
   
 
-<a name="method34"></a>
+<a name="method35"></a>
 <p/><strong>bool LHAup::closeLHEF(bool updateInit = false) &nbsp;</strong> <br/>
 Writes the closing tag and closes the file. Optionally, if 
 <code>updateInit = true</code>, this routine will reopen the file from

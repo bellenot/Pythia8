@@ -63,7 +63,7 @@ public:
 
   // Possibility to pass in pointers to PDF's.
   bool setPDFPtr( PDF* pdfAPtrIn, PDF* pdfBPtrIn, PDF* pdfHardAPtrIn = 0, 
-    PDF* pdfHardBPtrIn = 0);
+    PDF* pdfHardBPtrIn = 0, PDF* pdfPomAPtrIn = 0, PDF* pdfPomBPtrIn = 0);
 
   // Possibility to pass in pointer for external handling of some decays.
   bool setDecayPtr( DecayHandler* decayHandlePtrIn, 
@@ -127,10 +127,12 @@ public:
   bool moreDecays() {return hadronLevel.moreDecays(event);}
 
   // List the current Les Houches event.
-  void LHAeventList(ostream& os = cout) {lhaUpPtr->listEvent(os);}
+  void LHAeventList(ostream& os = cout) {
+    if (lhaUpPtr > 0) lhaUpPtr->listEvent(os);}
 
   // Skip a number of Les Houches events at input.
-  bool LHAeventSkip(int nSkip) {return lhaUpPtr->skipEvent(nSkip);}
+  bool LHAeventSkip(int nSkip) {
+    if (lhaUpPtr > 0) return lhaUpPtr->skipEvent(nSkip); return false;}
 
   // Main routine to provide final statistics on generation.
   void statistics(bool all = false, bool reset = false);
@@ -168,6 +170,7 @@ private:
   static const int NTRY, SUBRUNDEFAULT;
 
   // Initialization data, extracted from database.
+  string xmlPath;
   bool   doProcessLevel, doPartonLevel, doHadronLevel, checkEvent;
   int    nErrList;
   double epTolErr, epTolWarn;
@@ -192,12 +195,20 @@ private:
   PDF* pdfHardAPtr;  
   PDF* pdfHardBPtr; 
 
+  // Extra Pomeron PDF pointers to be used in diffractive processes only. 
+  PDF* pdfPomAPtr;  
+  PDF* pdfPomBPtr; 
+
   // Keep track when "new" has been used and needs a "delete" for PDF's.  
-  bool useNewPdfA, useNewPdfB, useNewPdfHard;
+  bool useNewPdfA, useNewPdfB, useNewPdfHard, useNewPdfPomA, useNewPdfPomB;
 
   // The two incoming beams.
   BeamParticle beamA;
   BeamParticle beamB;
+
+  // Alternative Pomeron beam-inside-beam.
+  BeamParticle beamPomA;
+  BeamParticle beamPomB;
 
   // LHAup object for generating external events.
   bool doLHA, useNewLHA;
@@ -248,11 +259,14 @@ private:
   // Initialization routine to set up the whole generation machinery.
   bool initInternal();
 
-  // Calculate kinematics at initialization.
-  bool initKinematics();
-
   // Initialize tunes to e+e- and pp/ppbar data.
   void initTunes();
+
+  // Check that combinations of settings are allowed; change if not.
+  void checkSettings();
+
+  // Calculate kinematics at initialization.
+  bool initKinematics();
 
   // Recalculate kinematics for each event when beam momentum has a spread.
   void nextKinematics();

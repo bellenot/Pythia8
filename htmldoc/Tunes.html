@@ -42,9 +42,9 @@ parameters and timelike showers.
 
 <p/>
 The situation is worse for multiple interactions, where PYTHIA 8 is more 
-different from PYTHIA 6. Nevertheless, the PYTHIA 6 tunes to CDF data, 
-performed by R.D. Field, have been used as a rough guide in picking 
-reasonable default values.
+different from PYTHIA 6. Nevertheless, a first simple tune is now 
+available, appropriately called "Tune 1", and is default starting with 
+version 8.127.
 
 <p/>
 In the future we hope to see further PYTHIA 8 tunes appear. Like with 
@@ -94,13 +94,18 @@ option.
   
 
 <p/><code>mode&nbsp; </code><strong> Tune:pp &nbsp;</strong> 
- (<code>default = <strong>0</strong></code>)<br/>
+ (<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 2</code>)<br/>
 Choice of tune to <i>pp / ppbar</i> data, mainly for the 
-multiple-interactions and initial-state-radiation aspects of PYTHIA. 
-<br/><b>Note:</b> Currently this is only a placeholder, since no
-tunes alternative to the default values exist. 
+initial-state-radiation, multiple-interactions and  beam-remnants
+aspects of PYTHIA. 
 <br/><code>option </code><strong> 0</strong> : no values are overwritten at initialization, 
 so you can set the individual parameters as you wish.
+  
+<br/><code>option </code><strong> 1</strong> : old default used up to version 8.126, based on 
+some early and primitive comparisons with data.
+  
+<br/><code>option </code><strong> 2</strong> : "Tune 1", new default from 8.127 onwards, 
+based on some data comparisions by Peter Skands.
   
 
   

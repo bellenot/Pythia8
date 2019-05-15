@@ -72,13 +72,18 @@ correctly. The four-momentum and mass have to be provided in units of GeV;
 if you omit the mass it defaults to 0. 
 
 <p/>
-The status code can normally be simplified, however; you only need to recall 
+Outgoing particles that should hadronize should be given status code 23.
+Often this is the only status code you need. You could e.g. also fill in 
+incoming partons with -21 and intermediate ones with -22, if you so wish.
+Usually the choice of status codes is not crucial, so long as you recall 
 that positive numbers correspond to particles that are still around, while
-negative numbers denote ones that already hadronized or decayed, so usually
-<ei>+-1</ei> is good enough. When <code>pythia.next()</code> is called
-those positive-status particles that hadronize/decay get the sign of the
-status code flipped to negative but the absolute value is retained. The
-new particles are added with normal PYTHIA status codes.
+negative numbers denote ones that already hadronized or decayed. However,
+so as not to run into contradictions with the internal PYTHIA checks
+(when <code>Check:event = on</code>), or with external formats such as 
+HepMC, we do recommend the above codes. When <code>pythia.next()</code> 
+is called the positive-status particles that hadronize/decay get the sign 
+of the status code flipped to negative but the absolute value is retained. 
+The new particles are added with normal PYTHIA status codes.
 
 <p/>
 For normal hadronization/decays in <code>pythia.next()</code> the

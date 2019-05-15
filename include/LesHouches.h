@@ -80,7 +80,10 @@ public:
 
   // Set info pointer.
   void setPtr(Info* infoPtrIn) {infoPtr = infoPtrIn;}
-
+ 
+  // Method to be used for LHAupLHEF derived class.
+  virtual bool fileFound() {return true;} 
+ 
   // A pure virtual method setInit, wherein all initialization information 
   // is supposed to be set in the derived class. Can do this by reading a 
   // file or some other way, as desired. Returns false if it did not work. 
@@ -219,10 +222,10 @@ protected:
 
   // Optionally input info on parton density values of event.
   void setPdf(int id1In, int id2In, double x1In, double x2In, 
-    double scalePDFIn, double xpdf1In, double xpdf2In) 
+    double scalePDFIn, double xpdf1In, double xpdf2In, bool pdfIsSetIn) 
     { id1Save = id1In; id2Save = id2In; x1Save = x1In; x2Save = x2In;
     scalePDFSave = scalePDFIn; xpdf1Save = xpdf1In; xpdf2Save = xpdf2In;
-    pdfIsSetSave = true;}
+    pdfIsSetSave = pdfIsSetIn;}
 
   // Three routines for LHEF files, but put here for flexibility.
   bool setInitLHEF(ifstream& is);
@@ -283,6 +286,9 @@ public:
 
   // Destructor.
   ~LHAupLHEF() {}
+
+  // Confirm that file was found and opened as expected.
+  bool fileFound() {return is;} 
 
   // Routine for doing the job of reading and setting initialization info.  
   bool setInit() {return setInitLHEF(is);} 

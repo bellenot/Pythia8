@@ -112,11 +112,12 @@ Info*  ParticleDataEntry::infoPtr         = 0;
 // A particle is invisible if it has neither strong nor electric charge,
 // and is not made up of constituents that have it. Only relevant for
 // long-lived particles. This list may need to be extended.
-const int ParticleDataEntry::INVISIBLENUMBER = 32;
-const int ParticleDataEntry::INVISIBLETABLE[32] = { 12, 14, 16, 18, 23, 25, 
+const int ParticleDataEntry::INVISIBLENUMBER = 34;
+const int ParticleDataEntry::INVISIBLETABLE[34] = { 12, 14, 16, 18, 23, 25, 
   32, 33, 35, 36, 39, 41, 1000012, 1000014, 1000016, 1000018, 1000022, 
   1000023, 1000025, 1000035, 1000045, 1000039, 2000012, 2000014, 2000016, 
-  2000018, 5000039, 5100039, 9900012, 9900014, 9900016, 9900023};     
+  2000018, 4900021, 4900022, 5000039, 5100039, 9900012, 9900014, 9900016, 
+  9900023};     
 
 // Particles with a read-in tau0 (in mm/c) below this mayDecay by default.
 const double ParticleDataEntry::MAXTAU0FORDECAY = 1000.;
@@ -247,7 +248,7 @@ void ParticleDataEntry::initBWmass() {
     ostringstream osWarn;
     osWarn << "for id = " << idSave;
     infoPtr->errorMsg("Warning in ParticleDataEntry::initBWmass:"
-    " switching off width", osWarn.str());
+		      " switching off width", osWarn.str(), true);
     modeBWnow = 0;
   }
 
@@ -898,7 +899,7 @@ bool ParticleDataTable::readFF(string inFile, bool reset) {
   while ( getline(is, line) ) {
 
     // Empty lines begins new particle. 
-    if (line.find_first_not_of(" ") == string::npos) {
+    if (line.find_first_not_of(" \n\t\v\b\r\f\a") == string::npos) {
       readParticle = true;
       continue;
     } 
@@ -1039,13 +1040,13 @@ bool ParticleDataTable::readString(string lineIn, bool warn,
   ostream& os) {
 
   // If empty line then done.
-  if (lineIn.find_first_not_of(" ") == string::npos) return true;
+  if (lineIn.find_first_not_of(" \n\t\v\b\r\f\a") == string::npos) return true;
 
   // Take copy that will be modified.
   string line = lineIn;
 
   // If first character is not a digit then taken to be a comment.
-  int firstChar = line.find_first_not_of(" ");
+  int firstChar = line.find_first_not_of(" \n\t\v\b\r\f\a");
   if (!isdigit(line[firstChar])) return true; 
 
   // Replace colons and equal signs by blanks to make parsing simpler.

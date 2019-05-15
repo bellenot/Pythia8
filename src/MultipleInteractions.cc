@@ -329,9 +329,6 @@ const bool   MultipleInteractions::PREPICKRESCATTER = true;
 // Naive upper estimate of cross section too pessimistic, so reduce by this.
 const double MultipleInteractions::SIGMAFUDGE    = 0.7; 
 
-// Number of bins that the dpT2 / (pT2 + r * pT20)^2 range is split into.
-const int    MultipleInteractions::NBINS         = 100;
-
 // The r value above, picked to allow a flatter correct/trial cross section.
 const double MultipleInteractions::RPT20         = 0.25;
 
@@ -366,16 +363,20 @@ const double MultipleInteractions::CONVERT2MB    = 0.389380;
 // Stay away from division by zero in Jacobian for tHat -> pT2.
 const double MultipleInteractions::ROOTMIN       = 0.01; 
 
+// No need to reinitialize parameters if energy close to previous.
+const double MultipleInteractions::ECMDEV        = 0.01; 
+
 //*********
 
 // Initialize the generation process for given beams.
 
-bool MultipleInteractions::init( bool doMIinit, Info* infoPtrIn, 
-  BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, 
+bool MultipleInteractions::init( bool doMIinit, int diffractiveModeIn,
+  Info* infoPtrIn, BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, 
   PartonSystems* partonSystemsPtrIn, SigmaTotal* sigmaTotPtrIn, 
   ostream& os) {
 
   // Store input pointers for future use. Done if no initialization. 
+  diffractiveMode  = diffractiveModeIn;
   infoPtr          = infoPtrIn;
   beamAPtr         = beamAPtrIn;
   beamBPtr         = beamBPtrIn;
@@ -383,7 +384,7 @@ bool MultipleInteractions::init( bool doMIinit, Info* infoPtrIn,
   sigmaTotPtr      = sigmaTotPtrIn;
   if (!doMIinit) return false;
 
-  // If both beams are baryons then softer PDF's than for mesons/Poerons.
+  // If both beams are baryons then softer PDF's than for mesons/Pomerons.
   hasBaryonBeams = ( beamAPtr->isBaryon() && beamBPtr->isBaryon() );
 
   // Matching in pT of hard interaction to further interactions.
@@ -429,6 +430,10 @@ bool MultipleInteractions::init( bool doMIinit, Info* infoPtrIn,
   // Optional dampening at small pT's when large multiplicities.
   enhanceScreening = Settings::mode("MultipleInteractions:enhanceScreening");
 
+  // Parameters for diffractive systems.
+  sigmaPomP      = Settings::parm("Diffraction:sigmaPomP");
+  mMinPertDiff   = Settings::parm("Diffraction:mMinPert");
+
   // Some common combinations for double Gaussian, as shorthand.
   if (bProfile == 2) {
     fracA        = pow2(1. - coreFraction);
@@ -456,80 +461,139 @@ bool MultipleInteractions::init( bool doMIinit, Info* infoPtrIn,
   sigma2qqbarSame.init( 2, processLevel);
   sigma2qq.init( 3, processLevel);
 
-  // Calculate invariant mass of system. Set current pT0 scale.
-  eCM  = infoPtr->eCM();
-  sCM  = eCM * eCM;
-  pT0 = pT0Ref * pow(eCM / ecmRef, ecmPow);
+  // Calculate invariant mass of system.
+  eCM          = infoPtr->eCM();
+  sCM          = eCM * eCM;
+  mMaxPertDiff = eCM;
+  eCMsave      = eCM;
 
-  // Get the total inelastic and nondiffractive cross section. Output.
+  // Get the total inelastic and nondiffractive cross section.
   if (!sigmaTotPtr->hasSigmaTot()) return false;
-  sigmaND = sigmaTotPtr->sigmaND();
+  bool isNonDiff = (diffractiveMode == 0);
+  sigmaND = (isNonDiff) ? sigmaTotPtr->sigmaND() : sigmaPomP;
+  double sigmaMaxViol = 0.;
+
+  // Output initialization info - first part.
   os << "\n *-------  PYTHIA Multiple Interactions Initialization  --"
-     << "-----* \n"
+     << "----------* \n"
      << " |                                                        "
-     << "     | \n"
-     << " |                 sigmaNonDiffractive = " << fixed 
-     << setprecision(2) << setw(7) << sigmaND << " mb            | \n"
-     << " |                                                        "
-     << "     | \n";
+     << "          | \n";
+  if (isNonDiff)
+    os << " |                   sigmaNonDiffractive = " << fixed 
+       << setprecision(2) << setw(7) << sigmaND << " mb               | \n";
+  else if (diffractiveMode == 1) 
+    os << " |         diffraction XB with sigmaNorm = " << fixed 
+       << setprecision(2) << setw(7) << sigmaND << " mb               | \n";
+  else if (diffractiveMode == 2) 
+    os << " |         diffraction AX with sigmaNorm = " << fixed 
+       << setprecision(2) << setw(7) << sigmaND << " mb               | \n"; 
+  os << " |                                                        "
+     << "          | \n";
 
-  // The pT0 value may need to be decreased, if sigmaInt < sigmaND.
-  double pT4dSigmaMaxBeg = 0.;
-  for ( ; ; ) { 
+  // For diffraction need to cover range of diffractive masses.
+  nStep = (diffractiveMode == 0) ? 1 : 5;
+  eStepSize = (nStep < 2) ? 1. 
+            : log(mMaxPertDiff / mMinPertDiff) / (nStep - 1.);
+  for (int iStep = 0; iStep < nStep; ++iStep) {
 
-    // Derived pT kinematics combinations.
-    pT20         = pT0*pT0;
-    pT2min       = pTmin*pTmin;
-    pTmax        = 0.5*eCM;
-    pT2max       = pTmax*pTmax;
-    pT20R        = RPT20 * pT20;
-    pT20minR     = pT2min + pT20R;
-    pT20maxR     = pT2max + pT20R;
-    pT20min0maxR = pT20minR * pT20maxR;
-    pT2maxmin    = pT2max - pT2min;   
+    // Update and output current diffractive mass
+    if (nStep > 1) {
+      eCM = mMinPertDiff * pow( mMaxPertDiff / mMinPertDiff, 
+            iStep / (nStep - 1.) );
+      sCM = eCM * eCM;
+      os << " |                 diffractive mass = " << scientific 
+         << setprecision(3) << setw(9) << eCM 
+         << " GeV                 | \n";
+    }  
 
-    // Provide upper estimate of interaction rate d(Prob)/d(pT2).
-    upperEnvelope();
+    // Set current pT0 scale.
+    pT0 = pT0Ref * pow(eCM / ecmRef, ecmPow);
 
-    // Integrate the parton-parton interaction cross section.
-    pT4dSigmaMaxBeg = pT4dSigmaMax;
-    jetCrossSection();
+    // The pT0 value may need to be decreased, if sigmaInt < sigmaND.
+    double pT4dSigmaMaxBeg = 0.;
+    for ( ; ; ) { 
 
-    // Sufficiently big SigmaInt or reduce pT0; maybe also pTmin. 
-    if (sigmaInt > SIGMASTEP * sigmaND) break; 
-    os << " |  pT0 = "  << setw(5) << pT0 << " gives sigmaInteraction = " 
-       << setw(7) << sigmaInt << " mb: rejected  | \n";
-    if (pTmin > pT0) pTmin *= PT0STEP; 
-    pT0 *= PT0STEP; 
+      // Derived pT kinematics combinations.
+      pT20         = pT0*pT0;
+      pT2min       = pTmin*pTmin;
+      pTmax        = 0.5*eCM;
+      pT2max       = pTmax*pTmax;
+      pT20R        = RPT20 * pT20;
+      pT20minR     = pT2min + pT20R;
+      pT20maxR     = pT2max + pT20R;
+      pT20min0maxR = pT20minR * pT20maxR;
+      pT2maxmin    = pT2max - pT2min;   
 
-    // Give up if pT0 and pTmin fall too low. 
-    if ( max(pT0, pTmin) < max(PT0MIN, Lambda3) ) {
-      infoPtr->errorMsg("Error in MultipleInteractions::init:"
-        " failed to find acceptable pT0 and pTmin");
-      infoPtr->setTooLowPTmin(true);
-      return false;
+      // Provide upper estimate of interaction rate d(Prob)/d(pT2).
+      upperEnvelope();
+
+      // Integrate the parton-parton interaction cross section.
+      pT4dSigmaMaxBeg = pT4dSigmaMax;
+      jetCrossSection();
+
+      // Sufficiently big SigmaInt or reduce pT0; maybe also pTmin. 
+      if (sigmaInt > SIGMASTEP * sigmaND) break; 
+      os << fixed << setprecision(2) << " |    pT0 = " << setw(5) << pT0  
+         << " gives sigmaInteraction = " << setw(7) << sigmaInt 
+         << " mb: rejected     | \n";
+      if (pTmin > pT0) pTmin *= PT0STEP; 
+      pT0 *= PT0STEP; 
+
+      // Give up if pT0 and pTmin fall too low. 
+      if ( max(pT0, pTmin) < max(PT0MIN, Lambda3) ) {
+        infoPtr->errorMsg("Error in MultipleInteractions::init:"
+          " failed to find acceptable pT0 and pTmin");
+        infoPtr->setTooLowPTmin(true);
+        return false;
+      }
     }
-  }
 
-  // Output for accepted pT0.
-  os << " |  pT0 = " << setw(5) << pT0 << " gives sigmaInteraction = " 
-     << setw(7) << sigmaInt << " mb: accepted  | \n"
-     << " |                                                        "
-     << "     | \n"
+    // Output for accepted pT0.
+    os << fixed << setprecision(2) << " |    pT0 = " << setw(5) << pT0 
+       << " gives sigmaInteraction = "<< setw(7) << sigmaInt 
+       << " mb: accepted     | \n";
+
+    // Calculate factor relating matter overlap and interaction rate.
+    overlapInit();
+
+    // Maximum violation relative to first estimate.
+    sigmaMaxViol = max( sigmaMaxViol, pT4dSigmaMax / pT4dSigmaMaxBeg);
+
+    // Save values calculated.
+    if (nStep > 1) {
+      pT0Save[iStep]          = pT0;
+      pT4dSigmaMaxSave[iStep] = pT4dSigmaMax;
+      pT4dProbMaxSave[iStep]  = pT4dProbMax;
+      sigmaIntSave[iStep]     = sigmaInt; 
+      for (int j = 0; j <= 100; ++j) sudExpPTSave[iStep][j] = sudExpPT[j];
+      zeroIntCorrSave[iStep]  = zeroIntCorr;
+      normOverlapSave[iStep]  = normOverlap;
+      kNowSave[iStep]         = kNow;
+      bAvgSave[iStep]         = bAvg;
+      bDivSave[iStep]         = bDiv; 
+      probLowBSave[iStep]     = probLowB; 
+      fracAhighSave[iStep]    = fracAhigh;
+      fracBhighSave[iStep]    = fracBhigh;
+      fracChighSave[iStep]    = fracBhigh;
+      fracABChighSave[iStep]  = fracABChigh;
+      cDivSave[iStep]         = cDiv;
+      cMaxSave[iStep]         = cMax;
+   }
+
+  // End of loop over diffractive masses.
+  }
+  os << " |                                                        "
+     << "          | \n"
      << " *-------  End PYTHIA Multiple Interactions Initialization"
-     << "  ---* " << endl;
+     << "  --------* " << endl;
 
   // Amount of violation from upperEnvelope to jetCrossSection.
-  if (pT4dSigmaMax > pT4dSigmaMaxBeg) {  
+  if (sigmaMaxViol > 1.) {  
     ostringstream osWarn;
-    osWarn << "by factor " << fixed << setprecision(3) 
-           << pT4dSigmaMax/pT4dSigmaMaxBeg;
+    osWarn << "by factor " << fixed << setprecision(3) << sigmaMaxViol; 
     infoPtr->errorMsg("Warning in MultipleInteractions::init:"
       " maximum increased", osWarn.str());
   }
-
-  // Calculate factor relating matter overlap and interaction rate.
-  overlapInit();
 
   // Reset statistics.
   SigmaMultiple* dSigma;
@@ -545,6 +609,82 @@ bool MultipleInteractions::init( bool doMIinit, Info* infoPtrIn,
 
   // Done.
   return true;
+}
+
+//*********
+
+// Reset impact parameter choice and update the CM energy.
+// For diffraction also interpolate parameters to current CM energy.
+
+void MultipleInteractions::reset( ) {  
+
+  // Reset impact parameter choice.
+  bIsSet      = false; 
+  bSetInFirst = false;
+
+  // Update CM energy. Done if not diffraction and not new energy.
+  eCM = infoPtr->eCM(); 
+  sCM = eCM * eCM;
+  if (nStep == 1 || abs( eCM / eCMsave - 1.) < ECMDEV) return;
+
+  // Current interpolation point.
+  eCMsave   = eCM;
+  eStepSave = log(eCM / mMinPertDiff) / eStepSize;
+  iStepFrom = max( 0, min( nStep - 2, int( eStepSave) ) );
+  iStepTo   = iStepFrom + 1; 
+  eStepTo   = max( 0., min( 1., eStepSave - iStepFrom) );  
+  eStepFrom = 1. - eStepTo; 
+
+  // Update pT0 and combinations derived from it.
+  pT0           = eStepFrom * pT0Save[iStepFrom] 
+                + eStepTo   * pT0Save[iStepTo];
+  pT20          = pT0*pT0;
+  pT2min        = pTmin*pTmin;
+  pTmax         = 0.5*eCM;
+  pT2max        = pTmax*pTmax;
+  pT20R         = RPT20 * pT20;
+  pT20minR      = pT2min + pT20R;
+  pT20maxR      = pT2max + pT20R;
+  pT20min0maxR  = pT20minR * pT20maxR;
+  pT2maxmin     = pT2max - pT2min;  
+
+  // Update other parameters used in pT choice. 
+  pT4dSigmaMax  = eStepFrom * pT4dSigmaMaxSave[iStepFrom] 
+                + eStepTo   * pT4dSigmaMaxSave[iStepTo];
+  pT4dProbMax   = eStepFrom * pT4dProbMaxSave[iStepFrom] 
+                + eStepTo   * pT4dProbMaxSave[iStepTo];
+  sigmaInt      = eStepFrom * sigmaIntSave[iStepFrom] 
+                + eStepTo   * sigmaIntSave[iStepTo];
+  for (int j = 0; j <= 100; ++j)   
+    sudExpPT[j] = eStepFrom * sudExpPTSave[iStepFrom][j] 
+                + eStepTo   * sudExpPTSave[iStepTo][j]; 
+
+  // Update parameters related to the impact-parameter picture.
+  zeroIntCorr   = eStepFrom * zeroIntCorrSave[iStepFrom] 
+                + eStepTo   * zeroIntCorrSave[iStepTo];
+  normOverlap   = eStepFrom * normOverlapSave[iStepFrom] 
+                + eStepTo   * normOverlapSave[iStepTo];
+  kNow          = eStepFrom * kNowSave[iStepFrom] 
+                + eStepTo   * kNowSave[iStepTo];
+  bAvg          = eStepFrom * bAvgSave[iStepFrom] 
+                + eStepTo   * bAvgSave[iStepTo];
+  bDiv          = eStepFrom * bDivSave[iStepFrom] 
+                + eStepTo   * bDivSave[iStepTo];
+  probLowB      = eStepFrom * probLowBSave[iStepFrom] 
+                + eStepTo   * probLowBSave[iStepTo];
+  fracAhigh     = eStepFrom * fracAhighSave[iStepFrom] 
+                + eStepTo   * fracAhighSave[iStepTo];
+  fracBhigh     = eStepFrom * fracBhighSave[iStepFrom] 
+                + eStepTo   * fracBhighSave[iStepTo];
+  fracChigh     = eStepFrom * fracChighSave[iStepFrom] 
+                + eStepTo   * fracChighSave[iStepTo];
+  fracABChigh   = eStepFrom * fracABChighSave[iStepFrom] 
+                + eStepTo   * fracABChighSave[iStepTo];
+  cDiv          = eStepFrom * cDivSave[iStepFrom] 
+                + eStepTo   * cDivSave[iStepTo];
+  cMax          = eStepFrom * cMaxSave[iStepFrom] 
+                + eStepTo   * cMaxSave[iStepTo];
+
 }
 
 //*********
@@ -604,19 +744,34 @@ void MultipleInteractions::pTfirst() {
 
 void MultipleInteractions::setupFirstSys( Event& process) { 
 
+  // Last beam-status particles. Offset relative to normal beam locations.
+  int sizeProc = process.size();
+  int nBeams   = 3;
+  for (int i = 3; i < sizeProc; ++i) 
+    if (process[i].statusAbs() < 20) nBeams = i + 1; 
+  int nOffset  = nBeams - 3; 
+
   // Remove any partons of previous failed interactions.
-  if (process.size() > 3) {
-    process.popBack( process.size() - 3);
+  if (sizeProc > nBeams) {
+    process.popBack( sizeProc - nBeams);
     process.initColTag();
   }
+
+  // Entries 3 and 4, now to be added, come from 1 and 2.
+  process[1 + nOffset].daughter1(3 + nOffset);
+  process[2 + nOffset].daughter1(4 + nOffset);
+
+  // Negate beam status, if not already done. (Case with offset beams.)
+  process[1 + nOffset].statusNeg();
+  process[2 + nOffset].statusNeg();
 
   // Loop over four partons and offset info relative to subprocess itself.
   int colOffset = process.lastColTag();
   for (int i = 1; i <= 4; ++i) {
     Particle parton = dSigmaDtSel->getParton(i);
-    if (i <= 2 ) parton.mothers( i, 0);  
-    else parton.mothers( 3, 4);
-    if (i <= 2 ) parton.daughters( 5, 6);
+    if (i <= 2 ) parton.mothers( i + nOffset, 0);  
+    else parton.mothers( 3 + nOffset, 4 + nOffset);
+    if (i <= 2 ) parton.daughters( 5 + nOffset, 6 + nOffset);
     else parton.daughters( 0, 0);
     int col = parton.col();
     if (col > 0) parton.col( col + colOffset);
@@ -907,8 +1062,8 @@ void MultipleInteractions::upperEnvelope() {
   pT4dSigmaMax = 0.;
   
   // Loop thorough allowed pT range logarithmically evenly.
-  for (int iPT = 0; iPT < NBINS; ++iPT) {
-    double pT = pTmin * pow( pTmax/pTmin, (iPT + 0.5) / NBINS);
+  for (int iPT = 0; iPT < 100; ++iPT) {
+    double pT = pTmin * pow( pTmax/pTmin, 0.01 * (iPT + 0.5) );
     pT2       = pT*pT;
     pT2shift  = pT2 + pT20;
     pT2Ren    = pT2shift;
@@ -954,18 +1109,18 @@ void MultipleInteractions::upperEnvelope() {
 void MultipleInteractions::jetCrossSection() {
 
   // Common factor from bin size in dpT2 / (pT2 + r * pT20)^2 and statistics.   
-  double sigmaFactor = (1. / pT20minR - 1. / pT20maxR) / (NBINS * nSample);
+  double sigmaFactor = (1. / pT20minR - 1. / pT20maxR) / (100. * nSample);
   
   // Loop through allowed pT range evenly in dpT2 / (pT2 + r * pT20)^2.
   sigmaInt         = 0.; 
   double dSigmaMax = 0.;
-  sudExpPT[NBINS]  = 0.;
-  for (int iPT = NBINS - 1; iPT >= 0; --iPT) {
+  sudExpPT[100]  = 0.;
+  for (int iPT = 99; iPT >= 0; --iPT) {
     double sigmaSum = 0.;
 
     // In each pT bin sample a number of random pT values.
     for (int iSample = 0; iSample < nSample; ++iSample) {
-      double mappedPT2 = 1. - (iPT + Rndm::flat()) / NBINS;
+      double mappedPT2 = 1. - 0.01 * (iPT + Rndm::flat());
       pT2 = pT20min0maxR / (pT20minR + mappedPT2 * pT2maxmin) - pT20R;
 
       // Evaluate cross section dSigma/dpT2 in phase space point.
@@ -1003,7 +1158,7 @@ double MultipleInteractions::sudakov(double pT2sud, double enhance) {
   // Find bin the pT2 scale falls in.
   double xBin = (pT2sud - pT2min) * pT20maxR 
     / (pT2maxmin * (pT2sud + pT20R)); 
-  xBin = max(1e-6, min(NBINS - 1e-6, NBINS * xBin) );
+  xBin = max(1e-6, min(100. - 1e-6, 100. * xBin) );
   int iBin = int(xBin);
 
   // Interpolate inside bin. Optionally include enhancement factor.
@@ -1215,9 +1370,9 @@ void MultipleInteractions::findScatteredPartons( Event& event) {
 
     // Case 2: linear rise from ySep - deltaY to ySep + deltaY. 
     case 2:
-      probA = 0.5 * ( yTmp - ySepResc) / deltaYResc;
+      probA = 0.5 * (1. + ( yTmp - ySepResc) / deltaYResc);
       if (probA > Rndm::flat()) scatteredA.push_back( i);
-      probB = 0.5 * (-yTmp - ySepResc) / deltaYResc;
+      probB = 0.5 * (1. + (-yTmp - ySepResc) / deltaYResc);
       if (probB > Rndm::flat()) scatteredB.push_back( i);
       break;
 
@@ -1843,7 +1998,7 @@ void MultipleInteractions::overlapNext(double pTscale) {
 
 // Printe statistics on number of multiple-interactions processes.
 
-void MultipleInteractions::statistics(bool reset, ostream& os) {
+void MultipleInteractions::statistics(bool resetStat, ostream& os) {
     
   // Header.
   os << "\n *-------  PYTHIA Multiple Interactions Statistics  --------"
@@ -1907,7 +2062,7 @@ void MultipleInteractions::statistics(bool reset, ostream& os) {
      << "-*" << endl;
 
   // Optionally reset statistics contants.
-  if (reset) for ( map<int, int>::iterator iter = nGen.begin(); 
+  if (resetStat) for ( map<int, int>::iterator iter = nGen.begin(); 
     iter != nGen.end(); ++iter) iter->second = 0;  
 
 }

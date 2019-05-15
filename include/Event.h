@@ -328,7 +328,8 @@ public:
   void init( string headerIn = "");
 
   // Clear event record.
-  void clear() {entry.resize(0); maxColTag = startColTag; clearJunctions();}
+  void clear() {entry.resize(0); maxColTag = startColTag; scaleSave = 0.;
+    scaleSecondSave = 0.; clearJunctions();}
 
   // Clear event record, and set first particle empty.
   void reset() {clear(); append(90, -11, 0, 0, 0., 0., 0., 0., 0.);}

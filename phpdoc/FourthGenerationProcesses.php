@@ -29,13 +29,12 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 
 <h2>Fourth-Generation Processes</h2>
 
-A fourth generation could have been accommodated within the 
-Standard Model, without the introduction of any new concepts.
-Given the experimental constraints, however, its existence by now
-is very unlikely. Nevertheless we offer a simple implementation, 
-along the lines of the top, since it could be useful also as a 
-template for studies of other new particles with similar 
-characteristics. 
+A fourth generation can be accommodated within the Standard Model, 
+without the introduction of any new concepts. Many experimental 
+constraints exist, but it has not been fully excluded. Therefore 
+we offer a simple implementation, along the lines of the top. 
+It could also be useful as a template for studies of other 
+new particles with similar characteristics. 
 
 <p/>
 The fourth generation are given names as in the third, but with a prime,

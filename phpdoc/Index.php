@@ -88,6 +88,7 @@ echo "<a href='SaveSettings.php?returning=1&filename=".$filename."' target='page
 <a href='SpacelikeShowers.php?filepath=".$filepath."' target='page'>Spacelike Showers</a><br/>
 <a href='MultipleInteractions.php?filepath=".$filepath."' target='page'>Multiple Interactions</a><br/>
 <a href='BeamRemnants.php?filepath=".$filepath."' target='page'>Beam Remnants</a><br/>
+<a href='Diffraction.php?filepath=".$filepath."' target='page'>Diffraction</a><br/>
 <a href='Fragmentation.php?filepath=".$filepath."' target='page'>Fragmentation</a><br/>
 <a href='FlavourSelection.php?filepath=".$filepath."' target='page'>Flavour Selection</a><br/>
 <a href='ParticleDecays.php?filepath=".$filepath."' target='page'>Particle Decays</a><br/>
@@ -121,11 +122,11 @@ echo "<a href='FourVectors.php?filepath=".$filepath."' target='page'>Four-Vector
 $filepath = "files/".$_GET["filename"];
 $filename = $_GET["filename"];
 echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>Les Houches Accord</a><br/>
-<a href='AccessPYTHIA6Processes.php?filepath=".$filepath."' target='page'>Access PYTHIA 6 Processes</a><br/>
 <a href='SemiInternalProcesses.php?filepath=".$filepath."' target='page'>Semi-Internal Processes</a><br/>
 <a href='SemiInternalResonances.php?filepath=".$filepath."' target='page'>Semi-Internal Resonances</a><br/>
 <a href='HadronLevelStandalone.php?filepath=".$filepath."' target='page'>Hadron-Level Standalone</a><br/>
 <a href='SUSYLesHouchesAccord.php?filepath=".$filepath."' target='page'>SUSY Les Houches Accord</a><br/>
+<a href='ROOTusage.php?filepath=".$filepath."' target='page'>ROOT usage</a><br/>
 <a href='BeamShape.php?filepath=".$filepath."' target='page'>Beam Shape</a><br/>
 <a href='PartonDistributions.php?filepath=".$filepath."' target='page'>Parton Distributions</a><br/>
 <a href='JetFinders.php?filepath=".$filepath."' target='page'>Jet Finders</a><br/>

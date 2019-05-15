@@ -493,6 +493,118 @@ class is set also for unresolved lepton beams.</li>
 </ul>
 </li>
 
+<li>8.130: 15 September 2009
+<ul>
+
+<li>New machinery that allows multiple interactions inside diffractive 
+systems. Also new optional Pomeron flux factors and Pomeron PDFs.
+New page on <aloc href="Diffraction">diffraction</aloc> added, where
+further details are collected. Still not tuned, so to be used with 
+caution.</li>
+
+<li>Make Peter Skands' "Tune 1" parameters for ISR and MI default.
+The older simpler tune is still available as an option, see
+<aloc href="Tunes"><code>Tune:pp</code></aloc>. 
+</li>
+
+<li>New possible choices for a second hard process: charmonium,
+bottomonium, top pair and single top.</li>
+
+<li>New code for pair production of generic colour-triplet scalar, 
+fermion or vector. Largely written by Johan Bijnens, partly recycling 
+existing code.</li>
+
+<li>Add user hooks possibility to veto event after a given number
+of multiple interactions.</li>
+
+<li>Add instructions how PYTHIA 8 can be used from inside ROOT.
+Thanks to Andreas Morsch for providing the text and Rene Brun 
+for a simple example.</li>
+
+<li>The <code>main21.cc</code> example extended with an option
+for a single-particle gun.</li>
+
+<li>Improvements and bug fixes in rescattering framework.</li>
+
+<li>New method <code>Hist::table(string fileName)</code> provides a
+more direct way to print a two-column table of histogram contents
+into a file than the current <code>Hist::table(ostream& os = cout)</code>.
+ </li>
+
+<li>Modify reading of external files so that a line only consisting of
+control characters counts as empty, the same way as a line only consisting
+of blanks already did. This includes carriage return, tabs and a few more, 
+the ones represented by <code>\n \t \v \b \r \f \a</code>. Applies to 
+Les Houches Event files, settings files and particle data files. </li>
+
+<li>Fix it so that the read-in of a Les Houches Event File for the 
+hardest process can be combined with the faciliy to select a specified
+second hard process.</li>
+
+<li>New empty base class method <code>LHAup::fileFound()</code> 
+allows the derived class <code>LHAupLHEF</code> to signal more
+clearly that a failed initialization is caused by a failure to open
+the desired file. </li>
+
+<li>Check that a pointer to an <code>LHAup</code> object has been set
+in <code>Pythia::LHAeventList()</code> and
+<code>Pythia::LHAeventSkip(...)</code> calls.</li>
+
+<li>Updated configure and Makefile, e.g. to build shared libraries 
+on Mac OS X.</li>
+
+<li>The options with a direct link to hard-process generation
+in PYTHIA 6 has been removed. It is hardly ever used but 
+complicates the build structure. If required, the relevant 
+pieces could be restored by the user.</li>
+
+<li>New argument to <code>Info::errorMsg(...)</code> allows to 
+show all error messages of a specific kind rather than only the 
+first one, e.g. for initialization.</li>
+
+<li>Correction in decay table of righthanded Majorana neutrinos.
+Thanks to Arnaud Ferrari and Vladimir Savinov.</li>
+
+<li>Correction in expressions in the manual for <ei>H^+-</ei> couplings 
+to an <ei>h^0</ei>, <ei>H^0</ei> or <ei>A^0</ei> and a <ei>W^+-</ei>.
+Thanks to Rikard Enberg.</li>
+
+<li>Fix for accessing uninitialized memory, caused by accessing the 
+daughters of the incoming beams before these daughters actually existed.
+Thanks to David Bailey and Sami Kama.
+</li>
+
+<li>Uninitialized photon PDF inside the proton could give crazy results
+for processes with incoming photons. Thanks to Adam Davison.</li>
+
+<li>Bug fix such that finite lifetimes can be set also for particles
+produced in the hard process. To exemplify, the bug affected 
+<ei>tau</ei> leptons produced in <ei>Z^0</ei> and <ei>W^+-</ei> 
+decays. Thanks to Troels Petersen.</li>
+
+<li>Bug fix in <code>TimeShower</code>, that <code>beamOffset</code>
+could remain uninitialized. Thanks to Sami Kama.</li>
+
+<li>Minor correction to resonance decays: fail if the allowed mass
+range of a Breit-Wigner resonance is a small fraction of the total
+area under the resonance curve.</li>
+
+<li>Correction when all three valence quarks were kicked out from a 
+proton and could give false messages that beam momentum had been 
+used up.</li>
+
+<li>Clarify status codes needed for hadron-level standalone runs in
+order to avoid error messages, and modify the <code>main21.cc</code>
+example accordingly. </li>
+
+<li>Minor corrections in the processes for extra dimensions.</li>
+
+<li>Some other minor additions to existing facilities
+and minor bug fixes.</li>
+
+</ul>
+</li>
+
 </ul>
 
 </chapter>

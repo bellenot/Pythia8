@@ -348,10 +348,15 @@ private:
   static const int    NTRY;
   static const double EXPMAX, DIFFMASSMAX;
 
-  // Kinematics properties specific to 2 -> 2 diffractive.
+  // Initialization data, in constructor or read from Settings.
   bool   isDiffA, isDiffB;
-  double m3ElDiff, m4ElDiff, cRes, sResXB, sResAX, sProton,
-         s1, s2, bMin, lambda12, lambda34, tLow, tUpp, tAux;
+  int    PomFlux;
+  double epsilonPF, alphaPrimePF;
+
+  // Initialization: kinematics properties specific to 2 -> 2 diffractive.
+  double m3ElDiff, m4ElDiff, s1, s2, lambda12, lambda34, tLow, tUpp,
+         cRes, sResXB, sResAX, sProton, bMin, bSlope, bSlope1, bSlope2, 
+         probSlope1, xIntPF, xtCorPF, mp24DL, coefDL, tAux, tAux1, tAux2;
 
 };
  

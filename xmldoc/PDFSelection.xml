@@ -188,7 +188,7 @@ The parton densities of the pion are considerably less well known than
 those of the proton. There are only rather few sets on the market,
 and none particularly recent. Only one comes built-in, but others can 
 be accessed from LHAPDF. Input parametrizations are for the <ei>pi+</ei>.
-From this the <ei>pi-</ei> is obtained by chanrge conjugation and the 
+From this the <ei>pi-</ei> is obtained by charge conjugation and the 
 <ei>pi0</ei> from averaging (half the pions have <ei>d dbar</ei> 
 valence quark content, half <ei>u ubar</ei>.
 
@@ -230,7 +230,7 @@ less well known. There are sets to be found in LHAPDF, and none
 that explicitly provide the Q2-dependence. Therefore only very simple
 alternatives are provided.
 
-<modepick name="PDF:PomSet" default="1" min="1" max="2">
+<modepick name="PDF:PomSet" default="5" min="1" max="5">
 Parton densities that can be used for Pomeron beams. 
 <option value="1"><ei>Q^2</ei>-independent parametrizations
 <ei>xf(x) = N_ab x^a (1 - x)^b</ei>, where <ei>N_ab</ei> ensures
@@ -243,32 +243,61 @@ as quarks. See further below how to set the six parameters of this
 approach.
 </option>
 <option value="2"><ei>pi0</ei> distributions, as specified in the 
-section above.</option>
+section above.
+</option>
+<option value="3">the H1 2006 Fit A <ei>Q^2</ei>-dependent 
+parametrization, based on a tune to their data <ref>H1P06</ref>,
+rescaled by the factor <code>PomRescale</code> below.
+</option>
+<option value="4">the H1 2006 Fit B <ei>Q^2</ei>-dependent 
+parametrization, based on a tune to their data <ref>H1P06</ref>,
+rescaled by the factor <code>PomRescale</code> below.
+</option>
+<option value="5">the H1 2007 Jets <ei>Q^2</ei>-dependent 
+parametrization, based on a tune to their data <ref>H1P07</ref>,
+rescaled by the factor <code>PomRescale</code> below.
+</option>
 </modepick> 
 
 <parm name="PDF:PomGluonA" default="0." min="-0.5" max="2.">
 the parameter <ei>a</ei> in the ansatz <ei>xg(x) = N_ab x^a (1 - x)^b</ei>
 for option 1 above.
+</parm>
 
 <parm name="PDF:PomGluonB" default="3." min="0." max="10.">
 the parameter <ei>b</ei> in the ansatz <ei>xg(x) = N_ab x^a (1 - x)^b</ei>
 for option 1 above.
+</parm>
 
 <parm name="PDF:PomQuarkA" default="0." min="-0.5" max="2.">
 the parameter <ei>a</ei> in the ansatz <ei>xq(x) = N_ab x^a (1 - x)^b</ei>
 for option 1 above.
+</parm>
 
 <parm name="PDF:PomQuarkB" default="3." min="0." max="10.">
 the parameter <ei>b</ei> in the ansatz <ei>xq(x) = N_ab x^a (1 - x)^b</ei>
 for option 1 above.
+</parm>
 
 <parm name="PDF:PomQuarkFrac" default="0.2" min="0." max="1.">
 the fraction of the Pomeron momentum carried by quarks 
 for option 1 above, with the rest carried by gluons.
+</parm>
 
 <parm name="PDF:PomStrangeSupp" default="0.5" min="0." max="1.">
 the suppression of the <ei>s</ei> quark density relative to that of the 
 <ei>d</ei> and <ei>u</ei> ones for option 1 above.
+</parm>
+
+<parm name="PDF:PomRescale" default="1.0" min="0.5" max="5.0">
+Rescale the three H1 fits above by this uniform factor, e.g. to bring 
+up their momentum sum to around unity. By default all three have
+a momentum sum of order 0.5, suggesting that a factor around 2.0
+should be used. You can use <code>examples/main41.cc</code> to get
+a more precise value. Note that also other parameters in the 
+<aloc href="Diffraction">diffraction</aloc> framework may need to
+be retuned when this parameter is changed.
+</parm>
 
 <h3>Parton densities for leptons</h3>
 

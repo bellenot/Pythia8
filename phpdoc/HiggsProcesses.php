@@ -949,7 +949,7 @@ Vanishes in the MSSM.
 
 <br/><br/><table><tr><td><strong>HiggsH2:coup2HchgW </td><td></td><td> <input type="text" name="94" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
 The <i>H^0(H_2^0)</i> coupling to a <i>H^+- W-+</i> pair.
-Vanishes in the MSSM.
+Is <i>sin(beta - alpha)</i> in the MSSM.
   
 
 <br/><br/><table><tr><td><strong>HiggsA3:coup2d </td><td></td><td> <input type="text" name="95" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>)</td></tr></table>
@@ -994,9 +994,9 @@ The <i>A^0(H_3^0)</i> coupling to <i>H^+-</i>.
 Vanishes in the MSSM.
   
 
-<br/><br/><table><tr><td><strong>HiggsA3:coup2HchgW </td><td></td><td> <input type="text" name="104" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>HiggsA3:coup2HchgW </td><td></td><td> <input type="text" name="104" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>)</td></tr></table>
 The <i>A^0(H_3^0)</i> coupling to a <i>H^+- W-+</i> pair.
-Vanishes in the MSSM.
+Is 1 in the MSSM.
   
 
 <br/><br/><table><tr><td><strong>HiggsHchg:tanBeta </td><td></td><td> <input type="text" name="105" value="5." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5.</strong></code>)</td></tr></table>
@@ -1013,7 +1013,7 @@ Is <i>cos(beta - alpha)</i> in the MSSM.
 
 <br/><br/><table><tr><td><strong>HiggsHchg:coup2H2W </td><td></td><td> <input type="text" name="107" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
 The <i>H^+-</i> coupling to a <i>H^0(H_2^0) W^+-</i> pair.
-Is <i>1 - cos(beta - alpha)</i> in the MSSM.
+Is <i>sin(beta - alpha)</i> in the MSSM.
   
 
 <p/>
@@ -1598,7 +1598,7 @@ if($_POST["103"] != "0.")
 $data = "HiggsA3:coup2Hchg = ".$_POST["103"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["104"] != "0.")
+if($_POST["104"] != "1.")
 {
 $data = "HiggsA3:coup2HchgW = ".$_POST["104"]."\n";
 fwrite($handle,$data);

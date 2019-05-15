@@ -281,7 +281,7 @@ bool LHAup::setInitLHEF(ifstream& is) {
   string tag = " ";
   do { 
     if (!getline(is, line)) return false;
-    if (line.find_first_not_of(" ") != string::npos) {
+    if (line.find_first_not_of(" \n\t\v\b\r\f\a") != string::npos) {
       istringstream getfirst(line);
       getfirst >> tag;
       if (!getfirst) return false;
@@ -328,7 +328,7 @@ bool LHAup::setNewEventLHEF(ifstream& is) {
   string line, tag;
   do { 
     if (!getline(is, line)) return false;
-    if (line.find_first_not_of(" ") != string::npos) {
+    if (line.find_first_not_of(" \n\t\v\b\r\f\a") != string::npos) {
       istringstream getfirst(line);
       getfirst >> tag;
       if (!getfirst) return false;
@@ -372,8 +372,20 @@ bool LHAup::setNewEventLHEF(ifstream& is) {
       getpdf >> id1InSave >> id2InSave >> x1InSave >> x2InSave 
              >> scalePDFInSave >> xpdf1InSave >> xpdf2InSave;
       if (!getpdf) return false;
+      getPDFSave = true;
     }
   } while (tag != "</event>" && tag != "</event"); 
+
+  // Need id and x values even when no PDF info. Rest empty.
+  if (!getPDFSave) {
+    id1InSave      = particlesSave[1].idPart;
+    id2InSave      = particlesSave[2].idPart;
+    x1InSave       = particlesSave[1].ePart / eBeamASave; 
+    x2InSave       = particlesSave[2].ePart / eBeamBSave; 
+    scalePDFInSave = 0.;
+    xpdf1InSave    = 0.;
+    xpdf2InSave    = 0.;
+  }
   
   // Reading worked.
   return true;
@@ -389,8 +401,8 @@ bool LHAup::setOldEventLHEF() {
   // Store saved event, optionally also parton density information.
   setProcess(idprupSave, xwgtupSave, scalupSave, aqedupSave, aqcdupSave);
   for (int ip = 1; ip <= nupSave; ++ip) addParticle( particlesSave[ip] );
-  if (getPDFSave) setPdf(id1InSave, id2InSave, x1InSave, x2InSave, 
-    scalePDFInSave, xpdf1InSave, xpdf2InSave);  
+  setPdf(id1InSave, id2InSave, x1InSave, x2InSave, scalePDFInSave, 
+    xpdf1InSave, xpdf2InSave, getPDFSave);  
 
   // Done;
   return true;
@@ -488,7 +500,7 @@ bool LHAupFromPYTHIA8::setEvent( int ) {
   double scalePDFup = infoPtr->QFac();
   double xpdf1up    = infoPtr->pdf1();
   double xpdf2up    = infoPtr->pdf2();
-  setPdf(id1up, id2up, x1up, x2up, scalePDFup, xpdf1up, xpdf2up);  
+  setPdf(id1up, id2up, x1up, x2up, scalePDFup, xpdf1up, xpdf2up, true);  
 
   // Done.
   return true;

@@ -269,9 +269,11 @@ also by using <code>subEvent(...)</code> and <code>workEvent</code>.
 What is different is that the methods in this section give access to the 
 event as it looks like after each of the first few steps in the downwards
 evolution, irrespectively of the <i>pT</i> scales of these branchings.
-Furthermore, it is here assumed that the focus is on the hardest
+Furthermore, it is here assumed that the focus normally is on the hardest
 subprocess, so that ISR/FSR emissions associated with additional MI's
-are not considered.
+are not considered. For MI studies, however, a separate simpler 
+alternative is offered to consider the event after a given number
+of interactions.  
 
 <a name="method12"></a>
 <p/><strong>virtual bool UserHooks::canVetoStep() &nbsp;</strong> <br/>
@@ -284,7 +286,7 @@ interrupt the downward ISR and FSR evolution the first
 <p/><strong>virtual int UserHooks::numberVetoStep() &nbsp;</strong> <br/>
 Returns the number of steps each of ISR and FSR, for the hardest
 interaction, that you want to be able to study. The number of steps 
-defaults to the first one only, but you are freee to pick another value.
+defaults to the first one only, but you are free to pick another value.
   
 
 <a name="method14"></a>
@@ -318,9 +320,45 @@ obtain a simplified event record.
   
   
 
+<a name="method15"></a>
+<p/><strong>virtual bool UserHooks::canVetoMIStep() &nbsp;</strong> <br/>
+In the base class this method returns false. If you redefine it
+to return true then the method <code>doVetoMIStep(...)</code> will 
+interrupt the downward MI evolution the first
+<code>numberVetoMIStep()</code> times. 
+
+<a name="method16"></a>
+<p/><strong>virtual int UserHooks::numberVetoMIStep() &nbsp;</strong> <br/>
+Returns the number of steps in the MI evolution that you want to be 
+able to study, right after each new step has been taken and the 
+subcollision has been added to the event record. The number of steps 
+defaults to the first one only, but you are free to pick another value.
+  
+
+<a name="method17"></a>
+<p/><strong>virtual bool UserHooks::doVetoMIStep(int nMI,const Event& event) &nbsp;</strong> <br/>
+can optionally be called, as described above. You can study, but not
+modify, the <code>event</code> event record of the partonic process. 
+Based on that you can decide whether to veto the event, true, or let 
+it continue to evolve, false. If you veto, then this event is not
+counted among the accepted ones, and does not contribute to the estimated
+cross section. The <code>Pytha::next()</code> method will begin a 
+completely new event, so the vetoed event will not appear in the 
+output of <code>Pythia::next()</code>.
+<br/><code>argument</code><strong> nMI </strong>  :  is the number of MI subprocesses has occured
+so far.
+  
+<br/><code>argument</code><strong> event </strong>  :  the event record contains a list of all partons 
+generated so far, also including intermediate ones not part of the 
+"current final state", e.g. leftovers from the ISR and FSR evolution
+of previously generated systems. The most recently added one has not
+had time to radiate, of course.
+  
+  
+
 <h3>Modify cross-sections</h3>
 
-<a name="method15"></a>
+<a name="method18"></a>
 <p/><strong>virtual bool UserHooks::canVetoStep() &nbsp;</strong> <br/>
 In the base class this method returns false. If you redefine it
 to return true then the method <code>multiplySigmaBy(...)</code> will 
@@ -328,7 +366,7 @@ allow you to modify the cross section weight assigned to the current
 event.
   
 
-<a name="method16"></a>
+<a name="method19"></a>
 <p/><strong>virtual double UserHooks::multiplySigmaBy(const SigmaProcess* sigmaProcessPtr, const PhaseSpace* phaseSpacePtr, bool inEvent) &nbsp;</strong> <br/>
 when called this method should provide the factor by which you want to 
 see the cross section weight of the current event modified by. If you 
@@ -377,7 +415,7 @@ echo "<a href='MultipleInteractions.php?filepath=".$filepath."' target='page'>";
 This class contains <code>canModifySigma()</code> and
 <code>multiplySigmaBy()</code> methods that overload the base class ones.
 
-<a name="method17"></a>
+<a name="method20"></a>
 <p/><strong>SuppressSmallPT::SuppressSmallPT( double pT0timesMI = 1., int numberAlphaS = 0, bool useSameAlphaSasMI = true) &nbsp;</strong> <br/>
  The optional arguments of the constructor provides further variability. 
 <br/><code>argument</code><strong> pT0timesMI </strong>  :  
@@ -415,13 +453,13 @@ are not used in the <code>TimeShower</code> class itself, but when
 showers are called from the <code>PartonLevel</code> generation. Thus
 user calls directly to <code>TimeShower</code> are not affected. 
 
-<a name="method18"></a>
+<a name="method21"></a>
 <p/><strong>virtual bool UserHooks::canSetResonanceScale() &nbsp;</strong> <br/>
 In the base class this method returns false. If you redefine it
 to return true then the method <code>scaleResonance(...)</code> 
 will set the initial scale of downwards shower evolution.
 
-<a name="method19"></a>
+<a name="method22"></a>
 <p/><strong>virtual double UserHooks::scaleResonance( const int iRes, const Event& event) &nbsp;</strong> <br/>
 can optionally be called, as described above. You should return the maximum
 scale, in GeV, from which the shower evolution will begin. The base class

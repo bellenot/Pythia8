@@ -40,29 +40,29 @@ class LHAPDFInterface {
 public:
 
   // Initialize set with full pathname, allowing multiple sets.
-  static void initPDFsetM( int nSet, string name) {
+  static void initPDFsetM( int& nSet, string name) {
     const char* cName = name.c_str(); int lenName = name.length();
     initpdfsetm_( nSet, cName, lenName);
   }
 
   // Initialize set with simple name, allowing multiple sets.
-  static void initPDFsetByNameM( int nSet, string name) {
+  static void initPDFsetByNameM( int& nSet, string name) {
     const char* cName = name.c_str(); int lenName = name.length();
     initpdfsetbynamem_( nSet, cName, lenName);
   }
 
   // Initialize member of set.
-  static void initPDFM(int nSet, int member) {
+  static void initPDFM(int& nSet, int member) {
     initpdfm_(nSet, member);
   }
 
   // Evaluate x f_i(x, Q).
-  static void evolvePDFM( int nSet, double x, double Q, double* xfArray) {
+  static void evolvePDFM( int& nSet, double x, double Q, double* xfArray) {
     evolvepdfm_( nSet, x, Q, xfArray);
   }
 
   // Evaluate x f_i(x, Q) including photon
-  static void evolvePDFPHOTONM( int nSet, double x, double Q, 
+  static void evolvePDFPHOTONM( int& nSet, double x, double Q, 
 				double* xfArray, double& xPhoton) {
     evolvepdfphotonm_( nSet, x, Q, xfArray, xPhoton);
   }

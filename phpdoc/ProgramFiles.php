@@ -214,11 +214,6 @@ so only a <code>Pythia</code> object needs to be explicitly instantiated
 and addressed   by the user.
   
 
-<p/><code>file&nbsp; </code><strong> Pythia6Interface &nbsp;</strong> <br/>
-is a header file only, with interfaces to the key PYTHIA 6 routines,
-as needed for a runtime Les Houches interface to this program. 
-  
-
 <p/><code>file&nbsp; </code><strong> PythiaComplex &nbsp;</strong> <br/>
 is only a <code>.h</code> file, containing a <code>typedef</code> for 
 double precision complex numbers.

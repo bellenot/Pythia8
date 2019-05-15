@@ -40,8 +40,8 @@ The PDG <code>id</code> code for the second incoming particle.
  
 <modepick name="Beams:frameType" default="1" min="1" max="4">
 Choice of frame for the two colliding particles.
-<option value="1">the beams are colliding in their cm frame, 
-and therefore only the cm energy needs to be provided, see 
+<option value="1">the beams are colliding in their CM frame, 
+and therefore only the CM energy needs to be provided, see 
 <code>Beams:eCM</code> below.
 </option>
 <option value="2">the beams are back-to-back, but with different energies,

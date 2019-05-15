@@ -41,7 +41,8 @@ private:
 
   // Constants: could only be changed in the code itself.
   static const int    NTRYCHANNEL, NTRYMASSES;
-  static const double MSAFETY, WIDTHCUT, TINY, WTCORRECTION[11];
+  static const double MSAFETY, WIDTHCUT, TINY, TINYBWRANGE,
+                      WTCORRECTION[11];
 
   // Pointer to various information on the generation.
   Info* infoPtr;

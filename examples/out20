@@ -5,15 +5,15 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.125      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 16 Jun 2009  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.130      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 15 Sep 2009  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 16 Jun 2009 at 17:31:53    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 15 Sep 2009 at 09:06:38    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Theoretical Physics, Lund University,   |  | 
  |  |      Solvegatan 14A, SE-223 62 Lund, Sweden;                                 |  | 
  |  |      phone: + 46 - 46 - 222 48 16; e-mail: torbjorn@thep.lu.se               |  | 
- |  |   Stefan Ask;  Department of Physics, University of Manchester,              |  | 
+ |  |   Stefan Ask;  School of Physics and Astronomy, University of Manchester,    |  | 
  |  |      Oxford Road, Manchester M13 9PL, United Kingdom;                        |  | 
  |  |      phone: + 41 - 22 - 767 5670; e-mail: Stefan.Ask@cern.ch                 |  | 
  |  |   Richard Corke;  Department of Theoretical Physics, Lund University,        |  | 
@@ -50,6 +50,8 @@
  *------------------------------------------------------------------------------------* 
 
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
+ PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
+ PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
 
  *-------  PYTHIA Process Initialization  --------------------------*
  |                                                                  |
@@ -75,11 +77,11 @@
  |                                                    |                                   |                        |
  |-----------------------------------------------------------------------------------------------------------------|
  |                                                    |                                   |                        |
- | f fbar -> gamma*/Z0 gamma*/Z0                  231 |         514          9          9 |   1.006e-09  1.513e-10 |
- | f fbar' -> Z0 W+- (no gamma*!)                 232 |         780         26         26 |   2.514e-09  2.172e-10 |
- | f fbar -> W+ W-                                233 |        1049         65         65 |   7.725e-09  3.979e-10 |
+ | f fbar -> gamma*/Z0 gamma*/Z0                  231 |         425          8          8 |   1.189e-09  1.693e-10 |
+ | f fbar' -> Z0 W+- (no gamma*!)                 232 |         623         20         20 |   2.783e-09  2.754e-10 |
+ | f fbar -> W+ W-                                233 |         900         72         72 |   8.509e-09  4.335e-10 |
  |                                                    |                                   |                        |
- | sum                                                |        2343        100        100 |   1.124e-08  4.779e-10 |
+ | sum                                                |        1948        100        100 |   1.248e-08  5.408e-10 |
  |                                                                                                                 |
  *-------  End PYTHIA Event and Cross Section Statistics ----------------------------------------------------------*
 

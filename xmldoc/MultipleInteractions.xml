@@ -153,14 +153,14 @@ Regularization of the divergence of the QCD cross section for
 and by using an <ei>alpha_s(pT0^2 + pT^2)</ei>. An energy dependence 
 of the <ei>pT0</ei> choice is introduced by two further parameters, 
 so that <ei>pT0Ref</ei> is the <ei>pT0</ei> value for the reference 
-cm energy, <ei>pT0Ref = pT0(ecmRef)</ei>.   
+CM energy, <ei>pT0Ref = pT0(ecmRef)</ei>.   
 <note>Warning:</note> if a large <ei>pT0</ei> is picked for multiple 
 interactions, such that the integrated interaction cross section is 
 below the nondiffractive inelastic one, this <ei>pT0</ei> will 
 automatically be scaled down to cope.
 
 <p/>
-The actual <ei>pT0</ei> parameter used at a given cm energy scale, 
+The actual <ei>pT0</ei> parameter used at a given CM energy scale, 
 <ei>ecmNow</ei>, is obtained as
 <eq>
      pT0 = pT0(ecmNow) = pT0Ref * (ecmNow / ecmRef)^ecmPow 
@@ -168,7 +168,7 @@ The actual <ei>pT0</ei> parameter used at a given cm energy scale,
 where <ei>pT0Ref</ei>, <ei>ecmRef</ei> and <ei>ecmPow</ei> are the 
 three parameters below.
 
-<parm name="MultipleInteractions:pT0Ref" default="2.15" min="0.5" max="10.0">
+<parm name="MultipleInteractions:pT0Ref" default="2.25" min="0.5" max="10.0">
 The <ei>pT0Ref</ei> scale in the above formula.
 <note>Note:</note> <ei>pT0Ref</ei> is one of the key parameters in a
 complete PYTHIA tune. Its value is intimately tied to a number of other
@@ -180,7 +180,7 @@ difficult to give an independent meaning to <ei>pT0Ref</ei>.
 The <ei>ecmRef</ei> reference energy scale introduced above.
 </parm>
 
-<parm name="MultipleInteractions:ecmPow" default="0.16" min="0.0" max="0.5">
+<parm name="MultipleInteractions:ecmPow" default="0.24" min="0.0" max="0.5">
 The <ei>ecmPow</ei> energy rescaling pace introduced above.
 </parm>
 
@@ -243,7 +243,7 @@ for the latter provided that <code>SpaceShower:samePTasMI</code> is on
 The choice of impact-parameter dependence is regulated by several
 parameters.
 
-<modepick name="MultipleInteractions:bProfile" default="2" 
+<modepick name="MultipleInteractions:bProfile" default="1" 
 min="0" max="3">
 Choice of impact parameter profile for the incoming hadron beams.
 <option value="0">no impact parameter dependence at all.</option>
@@ -304,10 +304,11 @@ Switch to allow rescattering of partons, where both incoming partons
 have already rescattered; on/off = true/false. Is only used if 
 <code>MultipleInteractions:allowRescatter</code> is switched on.<br/>
 <b>Warning:</b> currently there is no complete implementation that 
-combines it with shower evolution, so you must used 
+combines it with shower evolution, so you must use 
 <code>PartonLevel:ISR = off</code> and <code>PartonLevel:FSR = off</code>.
-The rate also comes out to be much lower than for single rescattering, 
-so to first approximation it can be neglected.
+If not, a warning will be issued and double rescattering will not be 
+simulated. The rate also comes out to be much lower than for single 
+rescattering, so to first approximation it can be neglected.
 </flag>
 
 <modepick name="MultipleInteractions:rescatterMode" default="0" 
@@ -447,7 +448,7 @@ Since <ei>pT0</ei> can be energy-dependent,  an ansatz
 <eq>
     pT0(ecm) = pT0Ref * (ecm/ecmRef)^ecmPow
 </eq>
-is used, where <ei>ecm</ei> is the current cm frame energy, 
+is used, where <ei>ecm</ei> is the current CM frame energy, 
 <ei>ecmRef</ei> is an arbitrary reference energy where <ei>pT0Ref</ei> 
 is defined, and <ei>ecmPow</ei> gives the energy rescaling pace. For 
 technical reasons, also an absolute lower <ei>pT</ei> scale <ei>pTmin</ei>, 

@@ -963,7 +963,7 @@ true for a gluon.
   
 
 <a name="method45"></a>
-<p/><strong>static bool ParticleDataTable::isGluon(int id) &nbsp;</strong> <br/>
+<p/><strong>static bool ParticleDataTable::isDiquark(int id) &nbsp;</strong> <br/>
 true for a diquark or antidiquark.
   
 
@@ -1355,7 +1355,7 @@ true for a gluon.
   
 
 <a name="method94"></a>
-<p/><strong>bool ParticleDataEntry::isGluon() &nbsp;</strong> <br/>
+<p/><strong>bool ParticleDataEntry::isDiquark() &nbsp;</strong> <br/>
 true for a diquark or antidiquark.
   
 

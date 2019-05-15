@@ -194,26 +194,6 @@ make main44
 time ./main44.exe > out44
 
 echo
-echo Now begin main51
-make main51
-time ./main51.exe > out51
-
-echo
-echo Now begin main52
-make main52
-time ./main52.exe > out52
-
-echo
-echo Now begin main53
-make main53
-time ./main53.exe > out53
-
-echo
-echo Now begin main54
-make main54
-time ./main54.exe > out54
-
-echo
 echo Now begin main61
 make main61
 time ./main61.exe > out61

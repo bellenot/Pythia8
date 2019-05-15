@@ -9,7 +9,9 @@
 // CTEQ5L: derived class for the CTEQ 5L parton densities.
 // LHAPDF: derived class for interface to the LHAPDF library.
 // GRVpiL: derived class for the GRV LO pion parton densities.
-// PomPDF: derived class for Q2-independent Pomeron parton densities.
+// PomFix: derived class for Q2-independent Pomeron parton densities.
+// PomH1FitAB: derived class for the H1 2006 Fit A and FitB Pomeron PDFs. 
+// PomH1Jets: derived class for the H1 2007 Jets Pomeron PDFs.
 // Lepton: derived class for parton densities inside a lepton.
 // LeptonPoint: derived class for unresolved lepton (mainly dummy).
 
@@ -33,13 +35,15 @@ public:
 
   // Constructor.
   PDF(int idBeamIn = 2212) {idBeam = idBeamIn; idBeamAbs = abs(idBeam);
-    setValenceContent(); idSav = 9; xSav = -1.; Q2Sav = -1.; 
-    isSet = true; isInit = false;}
+    setValenceContent(); idSav = 9; xSav = -1.; Q2Sav = -1.;
+    xu = 0.; xd = 0.; xubar = 0.; xdbar = 0.; xs = 0.; xc = 0.; xb = 0.; 
+    xg = 0.; xlepton = 0.; xgamma = 0.; xuVal = 0.; xuSea = 0.;
+    xdVal = 0.; xdSea = 0.; isSet = true; isInit = false;}
 
   // Destructor.
   virtual ~PDF() {}
 
-  // Confirm that PDF has been set up (important for LHAPDF).
+  // Confirm that PDF has been set up (important for LHAPDF and H1 Pomeron).
   bool isSetup() {return isSet;}
 
   // Dynamic choice of meson valence flavours for pi0, K0S, K0L, Pomeron.
@@ -63,7 +67,7 @@ protected:
   double xSav, Q2Sav;
   double xu, xd, xubar, xdbar, xs, xc, xb, xg, xlepton, xgamma,
          xuVal, xuSea, xdVal, xdSea;
-  bool   isSet, isInit, hasLimits; 
+  bool   isSet, isInit; 
 
   // Resolve valence content for assumed meson. Possibly modified later.
   void setValenceContent();
@@ -177,17 +181,19 @@ private:
 
 // Gives generic Q2-independent Pomeron PDF.
 
-class PomPDF : public PDF {
+class PomFix : public PDF {
 
 public:
 
   // Constructor.
-  PomPDF(int idBeamIn = 990, double PomGluonAIn = 0., 
-  double PomGluonBIn = 0., double PomQuarkAIn = 0., double PomQuarkBIn = 0., 
-  double PomQuarkFracIn = 0., double PomStrangeSuppIn = 0.) : PDF(idBeamIn), 
-  PomGluonA(PomGluonAIn), PomGluonB(PomGluonBIn), PomQuarkA(PomQuarkAIn), 
-  PomQuarkB(PomQuarkBIn), PomQuarkFrac(PomQuarkFracIn), 
-  PomStrangeSupp(PomStrangeSuppIn) {init();}
+  PomFix(int idBeamIn = 990, double PomGluonAIn = 0., 
+    double PomGluonBIn = 0., double PomQuarkAIn = 0., 
+    double PomQuarkBIn = 0., double PomQuarkFracIn = 0., 
+    double PomStrangeSuppIn = 0.) : PDF(idBeamIn), 
+    PomGluonA(PomGluonAIn), PomGluonB(PomGluonBIn), 
+    PomQuarkA(PomQuarkAIn), PomQuarkB(PomQuarkBIn), 
+    PomQuarkFrac(PomQuarkFracIn), PomStrangeSupp(PomStrangeSuppIn) 
+    {init();}
 
 private:
 
@@ -200,6 +206,72 @@ private:
 
   // Update PDF values.
   void xfUpdate(int id, double x, double);
+
+};
+ 
+//**************************************************************************
+
+// The H1 2006 Fit A and Fit B Pomeron parametrization.
+// H1 Collaboration, A. Aktas et al., "Measurement and QCD Analysis of
+// the Diffractive Deep-Inelastic Scattering Cross Section at HERA",
+// DESY-06-049, Eur. Phys. J. C48 (2006) 715. e-Print: hep-ex/0606004.
+
+class PomH1FitAB : public PDF {
+
+public:
+
+  // Constructor.
+ PomH1FitAB(int idBeamIn = 990, int iFit = 1, double rescaleIn = 1.,
+   string xmlPath = "../xmldoc/", Info* infoPtr = 0) : PDF(idBeamIn) 
+   {rescale = rescaleIn; init( iFit, xmlPath, infoPtr);}
+
+private:
+
+  // Limits for grid in x, in Q2, and data in (x, Q2).
+  int    nx, nQ2;
+  double rescale, xlow, xupp, dx, Q2low, Q2upp, dQ2;
+  double gluonGrid[100][30];
+  double quarkGrid[100][30];
+
+  // Initialization of data array.
+  void init( int iFit, string xmlPath, Info* infoPtr);
+
+  // Update PDF values.
+  void xfUpdate(int id, double x, double );
+
+};
+ 
+//**************************************************************************
+
+// The H1 2007 Jets Pomeron parametrization..
+// H1 Collaboration, A. Aktas et al., "Dijet Cross Sections and Parton     
+// Densities in Diffractive DIS at HERA", DESY-07-115, Aug 2007. 33pp.    
+// Published in JHEP 0710:042,2007. e-Print: arXiv:0708.3217 [hep-ex]  
+
+class PomH1Jets : public PDF {
+
+public:
+
+  // Constructor.
+  PomH1Jets(int idBeamIn = 990,  double rescaleIn = 1., 
+   string xmlPath = "../xmldoc/", Info* infoPtr = 0) : PDF(idBeamIn) 
+   {rescale = rescaleIn; init( xmlPath, infoPtr);}
+
+private:
+
+  // Arrays for grid in x, in Q2, and data in (x, Q2).
+  double rescale;
+  double xGrid[100];
+  double Q2Grid[88];
+  double gluonGrid[100][88];
+  double singletGrid[100][88];
+  double charmGrid[100][88];
+
+  // Initialization of data array.
+  void init( string xmlPath, Info* infoPtr);
+
+  // Update PDF values.
+  void xfUpdate(int id, double x, double );
 
 };
  

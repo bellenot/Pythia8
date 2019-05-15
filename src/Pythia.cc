@@ -40,10 +40,14 @@ Pythia::Pythia(string xmlDir) {
   useNewPdfA      = false; 
   useNewPdfB      = false; 
   useNewPdfHard   = false; 
+  useNewPdfPomA   = false; 
+  useNewPdfPomB   = false; 
   pdfAPtr         = 0; 
   pdfBPtr         = 0; 
   pdfHardAPtr     = 0; 
   pdfHardBPtr     = 0; 
+  pdfPomAPtr      = 0; 
+  pdfPomBPtr      = 0; 
 
   // Initial values for pointers to Les Houches Event objects.
   doLHA           = false;
@@ -74,18 +78,18 @@ Pythia::Pythia(string xmlDir) {
 
   // Find path to data files, i.e. xmldoc directory location.
   // Environment variable takes precedence, else use constructor input. 
-  string path     = "";
+  xmlPath     = "";
   const char* PYTHIA8DATA = "PYTHIA8DATA"; 
   char* envPath = getenv(PYTHIA8DATA);
   if (envPath != 0 && *envPath != '\0') {
     int i = 0;
-    while (*(envPath+i) != '\0') path += *(envPath+(i++)); 
+    while (*(envPath+i) != '\0') xmlPath += *(envPath+(i++)); 
   } 
-  else path = xmlDir;
-  if (path[ path.length() - 1 ] != '/') path += "/";
+  else xmlPath = xmlDir;
+  if (xmlPath[ xmlPath.length() - 1 ] != '/') xmlPath += "/";
 
   // Read in files with all flags, modes, parms and words.
-  string initFile = path + "Index.xml";
+  string initFile = xmlPath + "Index.xml";
   isConstructed = settings.init( initFile);
   if (!isConstructed) { 
     info.errorMsg("Abort from Pythia::Pythia: settings unavailable");
@@ -93,7 +97,7 @@ Pythia::Pythia(string xmlDir) {
   }
 
   // Read in files with all particle data.
-  string dataFile = path + "ParticleData.xml";
+  string dataFile = xmlPath + "ParticleData.xml";
   isConstructed = particleData.init( dataFile);
   if (!isConstructed) {
     info.errorMsg("Abort from Pythia::Pythia: particle data unavailable");
@@ -123,6 +127,8 @@ Pythia::~Pythia() {
   if (useNewPdfHard && pdfHardBPtr != pdfBPtr) delete pdfHardBPtr; 
   if (useNewPdfA) delete pdfAPtr; 
   if (useNewPdfB) delete pdfBPtr; 
+  if (useNewPdfPomA) delete pdfPomAPtr; 
+  if (useNewPdfPomB) delete pdfPomBPtr; 
 
   // Delete the Les Houches object created with new.
   if (useNewLHA) delete lhaUpPtr;
@@ -146,10 +152,10 @@ bool Pythia::readString(string line, bool warn) {
   if (!isConstructed) return false;
 
   // If empty line then done.
-  if (line.find_first_not_of(" ") == string::npos) return true;
+  if (line.find_first_not_of(" \n\t\v\b\r\f\a") == string::npos) return true;
 
   // If first character is not a letter/digit, then taken to be a comment.
-  int firstChar = line.find_first_not_of(" ");
+  int firstChar = line.find_first_not_of(" \n\t\v\b\r\f\a");
   if (!isalnum(line[firstChar])) return true; 
 
   // Send on particle data to the ParticleData database.
@@ -218,28 +224,33 @@ bool Pythia::readFile(istream& is, bool warn, int subrun) {
 // Routine to pass in pointers to PDF's. Usage optional.
 
 bool Pythia::setPDFPtr( PDF* pdfAPtrIn, PDF* pdfBPtrIn, PDF* pdfHardAPtrIn, 
-  PDF* pdfHardBPtrIn) {
+  PDF* pdfHardBPtrIn, PDF* pdfPomAPtrIn, PDF* pdfPomBPtrIn) {
 
   // Delete any PDF's created in a previous initInternal call.
   if (useNewPdfHard && pdfHardAPtr != pdfAPtr) delete pdfHardAPtr;
   if (useNewPdfHard && pdfHardBPtr != pdfBPtr) delete pdfHardBPtr;
   if (useNewPdfA) delete pdfAPtr;
   if (useNewPdfB) delete pdfBPtr;
+  if (useNewPdfPomA) delete pdfPomAPtr;
+  if (useNewPdfPomB) delete pdfPomBPtr;
 
   // Reset pointers to be empty.
   useNewPdfA    = false;
   useNewPdfB    = false;
   useNewPdfHard = false;
+  useNewPdfPomA = false;
+  useNewPdfPomB = false;
   pdfAPtr       = 0;
   pdfBPtr       = 0;
   pdfHardAPtr   = 0;
   pdfHardBPtr   = 0;
+  pdfPomAPtr    = 0;
+  pdfPomBPtr    = 0;
 
   // Switch off external PDF's by zero as input.
   if (pdfAPtrIn == 0 && pdfBPtrIn == 0) return true;
 
-  // The two PDF objects cannot be one and the same, or unassigned.??
-  // if (pdfAPtrIn == pdfBPtrIn || pdfAPtrIn == 0 || pdfBPtrIn == 0) return false;
+  // The two PDF objects cannot be one and the same.
   if (pdfAPtrIn == pdfBPtrIn) return false;
 
   // Save pointers.  
@@ -251,10 +262,18 @@ bool Pythia::setPDFPtr( PDF* pdfAPtrIn, PDF* pdfBPtrIn, PDF* pdfHardAPtrIn,
   pdfHardBPtr   = pdfBPtrIn;
   
   // Optionally allow separate pointers for hard process.
-  if (pdfHardAPtrIn == 0 || pdfHardBPtrIn == 0) return true;
-  if (pdfHardAPtrIn == pdfHardBPtrIn) return false;
-  pdfHardAPtr   = pdfHardAPtrIn;
-  pdfHardBPtr   = pdfHardBPtrIn;
+  if (pdfHardAPtrIn != 0 && pdfHardBPtrIn != 0) {
+    if (pdfHardAPtrIn == pdfHardBPtrIn) return false;
+    pdfHardAPtr = pdfHardAPtrIn;
+    pdfHardBPtr = pdfHardBPtrIn;
+  }
+  
+  // Optionally allow pointers for Pomerons in the proton.
+  if (pdfPomAPtrIn != 0 && pdfPomBPtrIn != 0) {
+    if (pdfPomAPtrIn == pdfPomBPtrIn) return false;
+    pdfPomAPtr  = pdfPomAPtrIn;
+    pdfPomBPtr  = pdfPomBPtrIn;
+  }
   
   // Done.
   return true;
@@ -342,6 +361,13 @@ bool Pythia::init( string LesHouchesEventFile, bool skipInit) {
   lhaUpPtr->setPtr( &info);
   doLHA      = true;
   useNewLHA  = true;
+
+  // Check that file was properly opened.
+  if (!lhaUpPtr->fileFound()) {
+    info.errorMsg("Abort from Pythia::init: "
+      "Les Houches Event File not found");
+    return false;
+  }
 
   // Store LHEF name in Beams if not already set (for SLHA reader)
   // (also makes sure information is consistent, overwriting any other
@@ -483,6 +509,9 @@ bool Pythia::initInternal() {
   // Initialize tunes to e+e- and pp/ppbar data.
   initTunes();
 
+  // Check that combinations of settings are allowed; change if not.
+  checkSettings();
+
   // Initialize couplings (needed to initialize resonances).
   AlphaEM::initStatic(); 
   CoupEW::initStatic(); 
@@ -564,23 +593,33 @@ bool Pythia::initInternal() {
     if (useNewPdfHard) {
       if (pdfHardAPtr != pdfAPtr) {
         delete pdfHardAPtr;
-        pdfHardAPtr  = 0;
+        pdfHardAPtr = 0;
       }
       if (pdfHardBPtr != pdfBPtr) {
         delete pdfHardBPtr;
-        pdfHardBPtr  = 0;
+        pdfHardBPtr = 0;
       }
-      useNewPdfHard  = false;
+      useNewPdfHard = false;
     }
     if (useNewPdfA) {
       delete pdfAPtr;
-      useNewPdfA   = false;
-      pdfAPtr      = 0;
+      useNewPdfA    = false;
+      pdfAPtr       = 0;
     }
     if (useNewPdfB) {
       delete pdfBPtr;
-      useNewPdfB   = false;
-      pdfBPtr      = 0;
+      useNewPdfB    = false;
+      pdfBPtr       = 0;
+    }
+    if (useNewPdfPomA) {
+      delete pdfPomAPtr;
+      useNewPdfPomA = false;
+      pdfPomAPtr    = 0;
+    }
+    if (useNewPdfPomB) {
+      delete pdfPomBPtr;
+      useNewPdfPomB = false;
+      pdfPomBPtr    = 0;
     }
 
     // Set up the PDF's, if not already done.
@@ -624,6 +663,26 @@ bool Pythia::initInternal() {
       isUnresolvedA, flavSel);
     beamB.init( idB, pzBcm, eB, mB, &info, pdfBPtr, pdfHardBPtr, 
       isUnresolvedB, flavSel);
+
+    // Optionally set up Pomeron PDF's for diffractive physics.
+    if ( settings.flag("SoftQCD:all") 
+      || settings.flag("SoftQCD:singleDiffractive") 
+      || settings.flag("SoftQCD:doubleDiffractive") ) { 
+      if (pdfPomAPtr == 0) {
+        pdfPomAPtr    = getPDFPtr(990);
+        useNewPdfPomA = true; 
+      }
+      if (pdfPomBPtr == 0) {
+        pdfPomBPtr    = getPDFPtr(990);
+        useNewPdfPomB = true; 
+      }
+     
+      // Also set up new alternative beams for these Pomerons.
+      beamPomA.init( 990,  0.5 * eCM, 0.5 * eCM, 0., &info, pdfPomAPtr, 
+        pdfPomAPtr, false, flavSel); 
+      beamPomB.init( 990, -0.5 * eCM, 0.5 * eCM, 0., &info, pdfPomBPtr, 
+        pdfPomBPtr, false, flavSel); 
+    }
   }
 
   // Send info/pointers to process level for initialization.
@@ -632,8 +691,8 @@ bool Pythia::initInternal() {
 
   // Send info/pointers to parton level for initialization.
   if ( doPartonLevel && !partonLevel.init( &info, &beamA, &beamB, 
-    &partonSystems, &sigmaTot, timesDecPtr, timesPtr, spacePtr, 
-    userHooksPtr) ) return false;
+    &beamPomA, &beamPomB, &partonSystems, &sigmaTot, timesDecPtr, 
+    timesPtr, spacePtr, userHooksPtr) ) return false;
 
   // Send info/pointers to hadron level for initialization.
   // Note: forceHadronLevel() can come, so we must always initialize. 
@@ -647,6 +706,140 @@ bool Pythia::initInternal() {
   // Succeeded.
   isInit = true; 
   return true;
+}
+
+//*********
+
+// Initialize tunes to e+e- and pp/ppbar data.
+
+void Pythia::initTunes() {
+
+  // Modes to use. Fast return if all is default.
+  int eeTune = settings.mode("Tune:ee");
+  int ppTune = settings.mode("Tune:pp");
+  if (eeTune == 0 && ppTune == 0) return;
+
+  // Old flavour and FSR defaults carried over from very old JETSET tune,
+  // only with alphaS roughly tuned for "new" pT-ordered shower.
+  if (eeTune == 1) { 
+    settings.parm("StringFlav:probStoUD",     0.30  );
+    settings.parm("StringFlav:probQQtoQ",     0.10  );
+    settings.parm("StringFlav:probSQtoQQ",    0.40  );
+    settings.parm("StringFlav:probQQ1toQQ0",  0.05  );
+    settings.parm("StringFlav:mesonUDvector", 1.00  );
+    settings.parm("StringFlav:mesonSvector",  1.50  );
+    settings.parm("StringFlav:mesonCvector",  2.50  );
+    settings.parm("StringFlav:mesonBvector",  3.00  );
+    settings.parm("StringFlav:etaSup",        1.00  );
+    settings.parm("StringFlav:etaPrimeSup",   0.40  );
+    settings.parm("StringFlav:popcornSpair",  0.50  );  
+    settings.parm("StringFlav:popcornSmeson", 0.50  );  
+    settings.parm("StringZ:aLund",            0.30  );
+    settings.parm("StringZ:bLund",            0.58  );  
+    settings.parm("StringZ:rFactB",           1.00  );  
+    settings.parm("StringPT:sigma",           0.36  );  
+    settings.parm("TimeShower:alphaSvalue",   0.137 );  
+    settings.parm("TimeShower:pTmin",         0.5   );  
+    settings.parm("TimeShower:pTminChgQ",     0.5   );  
+  }
+
+  // Marc Montull's tune to particle composition at LEP1 (August 2007).
+  else if (eeTune == 2) {  
+    settings.parm("StringFlav:probStoUD",     0.22  );
+    settings.parm("StringFlav:probQQtoQ",     0.08  );
+    settings.parm("StringFlav:probSQtoQQ",    0.75  );
+    settings.parm("StringFlav:probQQ1toQQ0",  0.025 );
+    settings.parm("StringFlav:mesonUDvector", 0.5   );
+    settings.parm("StringFlav:mesonSvector",  0.6   );
+    settings.parm("StringFlav:mesonCvector",  1.5   );
+    settings.parm("StringFlav:mesonBvector",  2.5   );
+    settings.parm("StringFlav:etaSup",        0.60  );
+    settings.parm("StringFlav:etaPrimeSup",   0.15  );
+    settings.parm("StringFlav:popcornSpair",  1.0   );
+    settings.parm("StringFlav:popcornSmeson", 1.0   );
+    settings.parm("StringZ:aLund",            0.76  );
+    settings.parm("StringZ:bLund",            0.58  );   // kept fixed
+    settings.parm("StringZ:rFactB",           1.00  );   // kept fixed
+    settings.parm("StringPT:sigma",           0.36  );   // kept fixed
+    settings.parm("TimeShower:alphaSvalue",   0.137 );   // kept fixed 
+    settings.parm("TimeShower:pTmin",         0.5   );   // kept fixed 
+    settings.parm("TimeShower:pTminChgQ",     0.5   );   // kept fixed
+  }
+
+  // Full e+e- tune of flavours and FSR to LEP1 data within the 
+  // Rivet + Professor framework, by Hendrik Hoeth (June 2009).
+  else if (eeTune == 3) {  
+    settings.parm("StringFlav:probStoUD",     0.19  );
+    settings.parm("StringFlav:probQQtoQ",     0.09  );
+    settings.parm("StringFlav:probSQtoQQ",    1.00  );
+    settings.parm("StringFlav:probQQ1toQQ0",  0.027 );
+    settings.parm("StringFlav:mesonUDvector", 0.62  );
+    settings.parm("StringFlav:mesonSvector",  0.725 );
+    settings.parm("StringFlav:mesonCvector",  1.06  );
+    settings.parm("StringFlav:mesonBvector",  3.0   );
+    settings.parm("StringFlav:etaSup",        0.63  );
+    settings.parm("StringFlav:etaPrimeSup",   0.12  );
+    settings.parm("StringFlav:popcornSpair",  0.5   );   // kept fixed
+    settings.parm("StringFlav:popcornSmeson", 0.5   );   // kept fixed
+    settings.parm("StringZ:aLund",            0.3   );   // kept fixed
+    settings.parm("StringZ:bLund",            0.8   );  
+    settings.parm("StringZ:rFactB",           0.67  );  
+    settings.parm("StringPT:sigma",           0.304 );  
+    settings.parm("TimeShower:alphaSvalue",   0.1383);  
+    settings.parm("TimeShower:pTmin",         0.4   );   // kept fixed (near limit) 
+    settings.parm("TimeShower:pTminChgQ",     0.4   );   // kept same as pTmin
+  }
+
+  // Old ISR and MI defaults from early and primitive comparisons with data.
+  if (ppTune == 1) {
+    settings.parm("SpaceShower:alphaSvalue",       0.127 );  
+    settings.flag("SpaceShower:samePTasMI",        true );  
+    settings.parm("SpaceShower:pT0Ref",            2.2   );  
+    settings.parm("SpaceShower:ecmRef",            1800.0);  
+    settings.parm("SpaceShower:ecmPow",            0.16   );  
+    settings.parm("MultipleInteractions:pT0Ref",   2.15  );  
+    settings.parm("MultipleInteractions:ecmPow",   0.16  );  
+    settings.mode("MultipleInteractions:bProfile", 2     );  
+    settings.parm("BeamRemnants:primordialKTsoft", 0.4   );  
+    settings.parm("BeamRemnants:primordialKThard", 2.1   );  
+    settings.parm("BeamRemnants:halfScaleForKT",   7.0   );  
+    settings.parm("BeamRemnants:halfMassForKT",    2.0   );  
+    settings.parm("BeamRemnants:reconnectRange",   2.5   );  
+  }
+  
+  // "Tune 1" simple first tune by Peter Skands to ISR and MI, July 2009.
+  else if (ppTune == 2) {
+    settings.parm("SpaceShower:alphaSvalue",       0.137 );  
+    settings.flag("SpaceShower:samePTasMI",        false );  
+    settings.parm("SpaceShower:pT0Ref",            2.0   );  
+    settings.parm("SpaceShower:ecmRef",            1800.0);  
+    settings.parm("SpaceShower:ecmPow",            0.0   );  
+    settings.parm("MultipleInteractions:pT0Ref",   2.25  );  
+    settings.parm("MultipleInteractions:ecmPow",   0.24  );  
+    settings.mode("MultipleInteractions:bProfile", 1     );  
+    settings.parm("BeamRemnants:primordialKTsoft", 0.5   );  
+    settings.parm("BeamRemnants:primordialKThard", 2.0   );  
+    settings.parm("BeamRemnants:halfScaleForKT",   1.0   );  
+    settings.parm("BeamRemnants:halfMassForKT",    1.0   );  
+    settings.parm("BeamRemnants:reconnectRange",   10.0  );  
+  }
+
+}
+
+//*********
+
+// Check that combinations of settings are allowed; change if not.
+
+void Pythia::checkSettings() {
+
+  // Double rescattering not allowed if ISR or FSR.
+  if ((settings.flag("PartonLevel:ISR") || settings.flag("PartonLevel:FSR"))
+    && settings.flag("MultipleInteractions:allowDoubleRescatter")) {
+    info.errorMsg("Warning in Pythia::checkSettings: "
+        "double rescattering switched off since showering is on");
+    settings.flag("MultipleInteractions:allowDoubleRescatter", false);
+  }
+
 }
 
 //*********
@@ -723,90 +916,6 @@ bool Pythia::initKinematics() {
 
 //*********
 
-// Initialize tunes to e+e- and pp/ppbar data.
-
-void Pythia::initTunes() {
-
-  // Modes to use. Fast return if all is default.
-  int eeTune = settings.mode("Tune:ee");
-  int ppTune = settings.mode("Tune:pp");
-  if (eeTune == 0 && ppTune == 0) return;
-
-  // Old flavour defaults carried over from very old JETSET tune,
-  // only with alphaS roughly tuned for "new" pT-ordered shower.
-  if (eeTune == 1) { 
-    settings.parm("StringFlav:probStoUD",     0.30  );
-    settings.parm("StringFlav:probQQtoQ",     0.10  );
-    settings.parm("StringFlav:probSQtoQQ",    0.40  );
-    settings.parm("StringFlav:probQQ1toQQ0",  0.05  );
-    settings.parm("StringFlav:mesonUDvector", 1.00  );
-    settings.parm("StringFlav:mesonSvector",  1.50  );
-    settings.parm("StringFlav:mesonCvector",  2.50  );
-    settings.parm("StringFlav:mesonBvector",  3.00  );
-    settings.parm("StringFlav:etaSup",        1.00  );
-    settings.parm("StringFlav:etaPrimeSup",   0.40  );
-    settings.parm("StringFlav:popcornSpair",  0.50  );  
-    settings.parm("StringFlav:popcornSmeson", 0.50  );  
-    settings.parm("StringZ:aLund",            0.30  );
-    settings.parm("StringZ:bLund",            0.58  );  
-    settings.parm("StringZ:rFactB",           1.00  );  
-    settings.parm("StringPT:sigma",           0.36  );  
-    settings.parm("TimeShower:alphaSvalue",   0.137 );  
-    settings.parm("TimeShower:pTmin",         0.5   );  
-    settings.parm("TimeShower:pTminChgQ",     0.5   );  
-  }
-
-  // Marc Montull's tune to particle composition at LEP1 (August 2007).
-  else if (eeTune == 2) {  
-    settings.parm("StringFlav:probStoUD",     0.22  );
-    settings.parm("StringFlav:probQQtoQ",     0.08  );
-    settings.parm("StringFlav:probSQtoQQ",    0.75  );
-    settings.parm("StringFlav:probQQ1toQQ0",  0.025 );
-    settings.parm("StringFlav:mesonUDvector", 0.5   );
-    settings.parm("StringFlav:mesonSvector",  0.6   );
-    settings.parm("StringFlav:mesonCvector",  1.5   );
-    settings.parm("StringFlav:mesonBvector",  2.5   );
-    settings.parm("StringFlav:etaSup",        0.60  );
-    settings.parm("StringFlav:etaPrimeSup",   0.15  );
-    settings.parm("StringFlav:popcornSpair",  1.0   );
-    settings.parm("StringFlav:popcornSmeson", 1.0   );
-    settings.parm("StringZ:aLund",            0.76  );
-    settings.parm("StringZ:bLund",            0.58  );   // kept fixed
-    settings.parm("StringZ:rFactB",           1.00  );   // kept fixed
-    settings.parm("StringPT:sigma",           0.36  );   // kept fixed
-    settings.parm("TimeShower:alphaSvalue",   0.137 );   // kept fixed 
-    settings.parm("TimeShower:pTmin",         0.5   );   // kept fixed 
-    settings.parm("TimeShower:pTminChgQ",     0.5   );   // kept fixed
-  }
-
-  // Full e+e- LEP1 data tune within the Rivet + Professor framework 
-  // by Hendrik Hoeth (June 2009).
-  else if (eeTune == 3) {  
-    settings.parm("StringFlav:probStoUD",     0.19  );
-    settings.parm("StringFlav:probQQtoQ",     0.09  );
-    settings.parm("StringFlav:probSQtoQQ",    1.00  );
-    settings.parm("StringFlav:probQQ1toQQ0",  0.027 );
-    settings.parm("StringFlav:mesonUDvector", 0.62  );
-    settings.parm("StringFlav:mesonSvector",  0.725 );
-    settings.parm("StringFlav:mesonCvector",  1.06  );
-    settings.parm("StringFlav:mesonBvector",  3.0   );
-    settings.parm("StringFlav:etaSup",        0.63  );
-    settings.parm("StringFlav:etaPrimeSup",   0.12  );
-    settings.parm("StringFlav:popcornSpair",  0.5   );   // kept fixed
-    settings.parm("StringFlav:popcornSmeson", 0.5   );   // kept fixed
-    settings.parm("StringZ:aLund",            0.3   );   // kept fixed
-    settings.parm("StringZ:bLund",            0.8   );  
-    settings.parm("StringZ:rFactB",           0.67  );  
-    settings.parm("StringPT:sigma",           0.304 );  
-    settings.parm("TimeShower:alphaSvalue",   0.1383);  
-    settings.parm("TimeShower:pTmin",         0.4   );   // kept fixed (near limit) 
-    settings.parm("TimeShower:pTminChgQ",     0.4   );   // kept same as pTmin
-  }
-
-}
-
-//*********
-
 // Main routine to generate the next event, using internal machinery.
 
 bool Pythia::next() {
@@ -852,7 +961,9 @@ bool Pythia::next() {
     info.clear();
     process.clear();
     if ( !processLevel.next( process) ) {
-      info.errorMsg("Abort from Pythia::next: "
+      if (doLHA && info.atEndOfFile()) info.errorMsg("Abort from "
+        "Pythia::next: reached end of Les Houches Events File"); 
+      else info.errorMsg("Abort from Pythia::next: "
         "processLevel failed; giving up"); 
       return false;
     }
@@ -869,24 +980,24 @@ bool Pythia::next() {
       processLevel.accumulate();
       return true;
     }
+
+    // Save spare copy of process record in case of problems.
+    Event processSave = process;
   
     // Allow up to ten tries for parton- and hadron-level processing.
     bool physical   = true;
-    bool hasBoosted = false;
     for (int iTry = 0; iTry < NTRY; ++ iTry) {
-
       physical = true;
 
-      // Restore process record to CM frame if it was boosted.
-      if (hasBoosted) {
-        boostAndVertex( false, false);
-        hasBoosted = false;
-      }
+      // Restore original process record if problems.
+      if (iTry > 0) process = processSave;
 
       // Reset event record and (extracted partons from) beam remnants.
       event.clear();
       beamA.clear();
       beamB.clear();
+      beamPomA.clear();
+      beamPomB.clear();
       partonSystems.clear();
    
       // Parton-level evolution: ISR, FSR, MI.
@@ -909,7 +1020,6 @@ bool Pythia::next() {
 
       // Boost to lab frame (before decays, for vertices).
       boostAndVertex( true, true);
-      if (frameType == 2 || frameType == 3) hasBoosted = true;
 
       // Possibility to stop the generation at this stage.
       if (!doHadronLevel) {
@@ -933,6 +1043,14 @@ bool Pythia::next() {
         continue;
       }
 
+      // Optionally check final event for problems.
+      if (checkEvent && !check()) {
+        info.errorMsg("Error in Pythia::next: "
+          "check of event revealed problems");
+        physical = false; 
+        continue;
+      }
+
       // Stop parton- and hadron-level looping if you got this far.
       break;
     }
@@ -947,19 +1065,13 @@ bool Pythia::next() {
       return false;
     }
 
-    // Process- and parton-level statistics. 
+    // Process- and parton-level statistics. Event scale.
     processLevel.accumulate();
     partonLevel.accumulate();
+    event.scale( process.scale() );
 
     // End of outer loop over hard processes. Done with normal option.
     break;
-  }
-
-  // Optionally check final event for problems.
-  if (checkEvent && !check()) {
-    info.errorMsg("Abort from Pythia::next: "
-      "check of event revealed problems");
-    return false;
   }
 
   // Done.
@@ -1164,8 +1276,8 @@ void Pythia::banner(ostream& os) {
      << "eden;                                 |  | \n"
      << " |  |      phone: + 46 - 46 - 222 48 16; e-ma"
      << "il: torbjorn@thep.lu.se               |  | \n"
-     << " |  |   Stefan Ask;  Department of Physics, U" 
-     << "niversity of Manchester,              |  | \n"
+     << " |  |   Stefan Ask;  School of Physics and As"
+     << "tronomy, University of Manchester,    |  | \n"
      << " |  |      Oxford Road, Manchester M13 9PL, U"
      << "nited Kingdom;                        |  | \n"
      << " |  |      phone: + 41 - 22 - 767 5670; e-mai"
@@ -1245,11 +1357,11 @@ int Pythia::readSubrun(string line, bool warn, ostream& os) {
 
   // If empty line then done.
   int subrunLine = SUBRUNDEFAULT;  
-  if (line.find_first_not_of(" ") == string::npos) return subrunLine;
+  if (line.find_first_not_of(" \n\t\v\b\r\f\a") == string::npos) return subrunLine;
 
   // If first character is not a letter, then done.
   string lineNow = line;
-  int firstChar = lineNow.find_first_not_of(" ");
+  int firstChar = lineNow.find_first_not_of(" \n\t\v\b\r\f\a");
   if (!isalpha(lineNow[firstChar])) return subrunLine; 
 
   // Replace an equal sign by a blank to make parsing simpler.
@@ -1311,11 +1423,18 @@ bool Pythia::check(ostream& os) {
     pSum      = - (event[1].p() + event[2].p());
     chargeSum = - (event[1].charge() + event[2].charge());
 
-  // If no ProcessLevel then sum momentum and charge in initial state.
+  // If no ProcessLevel then sum final state of process record.
+  } else if (process.size() > 0) {
+    pSum = - process[0].p();
+    for (int i = 0; i < process.size(); ++i) 
+      if (process[i].isFinal()) chargeSum -= process[i].charge(); 
+
+  // If process not filled, then use outgoing primary in event.
   } else {
     pSum = - event[0].p();
-    for (int i = 0; i < process.size(); ++i) 
-      if (process[i].isFinal()) chargeSum -= process[i].charge();
+    for (int i = 1; i < event.size(); ++i) 
+      if (event[i].statusAbs() < 10 || event[i].statusAbs() == 23) 
+        chargeSum -= event[i].charge();
   } 
   double eLab = abs(pSum.e());
 
@@ -1468,7 +1587,7 @@ bool Pythia::check(ostream& os) {
 PDF* Pythia::getPDFPtr(int idIn, int sequence) {
 
   // Temporary pointer to be returned. 
-  PDF* tempPDFPtr;
+  PDF* tempPDFPtr = 0;
 
   // One option is to treat a Pomeron like a pi0.
   if (idIn == 990 && settings.mode("PDF:PomSet") == 2) idIn = 111;
@@ -1517,7 +1636,7 @@ PDF* Pythia::getPDFPtr(int idIn, int sequence) {
     }
   }
 
-  // Pion beam (or, in ope option, Pomeron beam). 
+  // Pion beam (or, in one option, Pomeron beam). 
   else if (abs(idIn) == 211 || idIn == 111) {
     bool useLHAPDF = settings.flag("PDF:piUseLHAPDF");
 
@@ -1539,14 +1658,27 @@ PDF* Pythia::getPDFPtr(int idIn, int sequence) {
 
   // Pomeron beam, if not treated like a pi0 beam.
   else if (idIn == 990) {
-    double gluonA      = settings.parm("PDF:PomGluonA");
-    double gluonB      = settings.parm("PDF:PomGluonB");
-    double quarkA      = settings.parm("PDF:PomQuarkA");
-    double quarkB      = settings.parm("PDF:PomQuarkB");
-    double quarkFrac   = settings.parm("PDF:PomQuarkFrac");
-    double strangeSupp = settings.parm("PDF:PomStrangeSupp");
-    tempPDFPtr = new PomPDF( 990, gluonA, gluonB, quarkA, quarkB, 
-      quarkFrac, strangeSupp);
+    int pomSet = settings.mode("PDF:PomSet");
+
+    // A generic Q2-independent parametrization.
+    if (pomSet == 1) { 
+      double gluonA      = settings.parm("PDF:PomGluonA");
+      double gluonB      = settings.parm("PDF:PomGluonB");
+      double quarkA      = settings.parm("PDF:PomQuarkA");
+      double quarkB      = settings.parm("PDF:PomQuarkB");
+      double quarkFrac   = settings.parm("PDF:PomQuarkFrac");
+      double strangeSupp = settings.parm("PDF:PomStrangeSupp");
+      tempPDFPtr = new PomFix( 990, gluonA, gluonB, quarkA, quarkB, 
+        quarkFrac, strangeSupp);
+    
+    // The H1 Q2-dependent parametrizations. Initialization requires files.
+    } else if (pomSet == 3 || pomSet == 4) {
+      double rescale     = settings.parm("PDF:PomRescale");
+      tempPDFPtr = new PomH1FitAB( 990, pomSet - 2, rescale, xmlPath, &info); 
+    } else if (pomSet == 5) {
+      double rescale     = settings.parm("PDF:PomRescale");
+      tempPDFPtr = new PomH1Jets( 990, rescale, xmlPath, &info); 
+    } 
   }
 
   // Lepton beam; resolved or not.

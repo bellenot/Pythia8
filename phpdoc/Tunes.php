@@ -63,9 +63,9 @@ parameters and timelike showers.
 
 <p/>
 The situation is worse for multiple interactions, where PYTHIA 8 is more 
-different from PYTHIA 6. Nevertheless, the PYTHIA 6 tunes to CDF data, 
-performed by R.D. Field, have been used as a rough guide in picking 
-reasonable default values.
+different from PYTHIA 6. Nevertheless, a first simple tune is now 
+available, appropriately called "Tune 1", and is default starting with 
+version 8.127.
 
 <p/>
 In the future we hope to see further PYTHIA 8 tunes appear. Like with 
@@ -98,13 +98,14 @@ and timelike-showering aspects of PYTHIA.
 <input type="radio" name="1" value="2"><strong>2 </strong>: a tune by Marc Montull to the LEP 1 particle composition, as published in the RPP (August 2007). No related (re)tune  to event shapes has been performed, however.   <br/>
 <input type="radio" name="1" value="3"><strong>3 </strong>: a tune to a wide selection of LEP1 data by Hendrik  Hoeth within the Rivet + Professor framework, both to hadronization and timelike-shower parameters (June 2009). These are the default values  starting from version 8.125, so currently there is no need for this option. <br/>
 
-<br/><br/><table><tr><td><strong>Tune:pp  </td><td>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Tune:pp  </td><td>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 2</code>)</td></tr></table>
 Choice of tune to <ei>pp / ppbar</ei> data, mainly for the 
-multiple-interactions and initial-state-radiation aspects of PYTHIA. 
-<note>Note:</note> Currently this is only a placeholder, since no
-tunes alternative to the default values exist. 
+initial-state-radiation, multiple-interactions and  beam-remnants
+aspects of PYTHIA. 
 <br/>
 <input type="radio" name="2" value="0" checked="checked"><strong>0 </strong>: no values are overwritten at initialization,  so you can set the individual parameters as you wish. <br/>
+<input type="radio" name="2" value="1"><strong>1 </strong>: old default used up to version 8.126, based on  some early and primitive comparisons with data. <br/>
+<input type="radio" name="2" value="2"><strong>2 </strong>: "Tune 1", new default from 8.127 onwards,  based on some data comparisions by Peter Skands. <br/>
 
 
 

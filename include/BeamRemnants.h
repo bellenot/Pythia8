@@ -38,6 +38,10 @@ public:
   bool init( Info* infoPtrIn, BeamParticle* beamAPtrIn, 
     BeamParticle* beamBPtrIn, PartonSystems* partonSystemsPtrIn);
 
+  // New beams possible for handling of hard diffraction.
+  void reassignBeamPtrs( BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn) 
+    {beamAPtr = beamAPtrIn; beamBPtr = beamBPtrIn;}
+
   // Select the flavours/kinematics/colours of the two beam remnants. 
   bool add( Event& event);
 

@@ -51,6 +51,9 @@ double integrate(PDF* nowPDF, double Q2) {
 //**************************************************************************
 
 int main() {
+ 
+  // The Pythia class itself is not used, but some fcilities that com along.
+  Pythia pythia;
 
   // Chosen new PDF set; LHAPDF file name conventions.
   //string pdfSet = "cteq5l.LHgrid";
@@ -60,9 +63,12 @@ int main() {
   string pdfSet = "MRST2001lo.LHgrid";
 
   // Pointer to old default and new tryout PDF sets.
-  Pythia pythia;
   PDF* oldPDF = new CTEQ5L(2212);
   PDF* newPDF = new LHAPDF(2212, pdfSet, 0);
+
+  // Alternative: compare two Pomeron PDF's. Boost second by factor 2.
+  //PDF* oldPDF = new PomFix( 990, -0.2, 2.5, 0., 3., 0.4, 0.5);
+  //PDF* newPDF = new PomH1Jets( 990, 2.); 
 
   // Allow extrapolation of PDF's beyond x and Q2 boundaries, at own risk.
   // Default behaviour is to freeze PDF's at boundaries.

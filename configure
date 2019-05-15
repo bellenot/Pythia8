@@ -33,7 +33,7 @@ for arg in $* ; do
     echo "--enable-shared       : turns on shared library creation (default no)"
     echo "--lcgplatform=name    : LCG platform name, default is slc4_ia32_gcc34"
     echo "--with-hepmc=path     : path to HepMC library to build interface (default is not build)"
-    echo "--with-hepmcversion=v : HepMC version (simplified alternative when using CERN AFS LCG external, e.g. =2.03.06)"
+    echo "--with-hepmcversion=v : HepMC version (simplified alternative when using CERN AFS LCG external, e.g. =2.04.00)"
     exit
   elif [ x`echo x${arg} | grep "="` != x ] ; then
     option=`echo ${arg} | awk -F = '{print $1}'`
@@ -66,7 +66,7 @@ if [ "x${HEPMCVERSION}" != "x" ] ; then
 fi
 #   If you want to assign these variables by hand:
 #
-#export HEPMCVERSION=2.03.06
+#export HEPMCVERSION=2.04.00
 #export HEPMCLOCATION=/afs/cern.ch/sw/lcg/external/HepMC/${HEPMCVERSION}/${MYLCGPLATFORM}
 
 
@@ -114,10 +114,14 @@ export CFLAGS_OPT=-O2
 export CFLAGS_DBG=-g
 export CXXFLAGS_OPT="-O2 -ansi -pedantic -W -Wall -Wshadow"
 export CXXFLAGS_DBG="-g -ansi -pedantic -W -Wall -Wshadow"
+# HepMC and FastJet gives too many warnings with -Wshadow, so alternative
+export CXXFLAGS_OPT_NO="-O2 -ansi -pedantic -W -Wall"
+export CXXFLAGS_DBG_NO="-g -ansi -pedantic -W -Wall" 
 #
 # Find platform.
 #
-export ARCH="`uname`"
+export ARCH0="`uname`"
+export ARCH=${ARCH0}
 export theGcc=`g++ --version | head -n 1 | awk '{print$3}' | awk -F . '{print $1}'`
 if [ ${theGcc} = 4 ]; then
   export ARCH=${ARCH}-gcc4
@@ -130,33 +134,45 @@ export CC=gcc
 export FFLAGS="${FFLAGS_OPT}"
 export CFLAGS="${CFLAGS_OPT}"
 export CXXFLAGS="${CXXFLAGS_OPT}"
+export CXXFLAGSNO="${CXXFLAGS_OPT_NO}"
 export FLIBS="-lfrtbegin -lg2c"
 if [ ${COMPMODE} = OPT ]; then
   export FFLAGS="${FFLAGS_OPT}"
   export CFLAGS="${CFLAGS_OPT}"
   export CXXFLAGS="${CXXFLAGS_OPT}"
+  export CXXFLAGSNO="${CXXFLAGS_OPT_NO}"
 fi
 if [ ${COMPMODE} = DBG ]; then
   export FFLAGS="${FFLAGS_DBG}"
   export CFLAGS="${CFLAGS_DBG}"
   export CXXFLAGS="${CXXFLAGS_DBG}"
+  export CXXFLAGSNO="${CXXFLAGS_DBG_NO}"
 fi
+LDFLAGSSHARED="${CXXFLAGS} -pthread -fPIC -shared"
+LDFLAGLIBNAME="-Wl,-soname"
+SHAREDSUFFIX=so
 if [ $ARCH = Linux ]; then
   export FC=g77
   export FFLAGS="${FFLAGS_OPT} -Wno-globals"
   export CFLAGS="${CFLAGS_OPT}"
   export CXXFLAGS="${CXXFLAGS_OPT}"
+  export CXXFLAGSNO="${CXXFLAGS_OPT_NO}"
   export FLIBS="-lfrtbegin -lg2c"
   if [ ${COMPMODE} = OPT ]; then
     export FFLAGS="${FFLAGS_OPT}"
     export CFLAGS="${CFLAGS_OPT}"
     export CXXFLAGS="${CXXFLAGS_OPT}"
+    export CXXFLAGSNO="${CXXFLAGS_OPT_NO}"
   fi
   if [ ${COMPMODE} = DBG ]; then
     export FFLAGS="${FFLAGS_DBG} -Wno-globals"
     export CFLAGS="${CFLAGS_DBG}"
     export CXXFLAGS="${CXXFLAGS_DBG}"
+    export CXXFLAGSNO="${CXXFLAGS_DBG_NO}"
   fi
+  LDFLAGSSHARED="${CXXFLAGS} -pthread -fPIC -shared"
+  LDFLAGLIBNAME="-Wl,-soname"
+  SHAREDSUFFIX=so
 fi
 # Linux platform with gcc4: new Fortran90 compiler.
 if [ $ARCH = Linux-gcc4 ]; then
@@ -164,17 +180,71 @@ if [ $ARCH = Linux-gcc4 ]; then
   export FFLAGS="${FFLAGS_OPT}"
   export CFLAGS="${CFLAGS_OPT}"
   export CXXFLAGS="${CXXFLAGS_OPT}"
+  export CXXFLAGSNO="${CXXFLAGS_OPT_NO}"
   export FLIBS="-lgfortran -lgfortranbegin"
   if [ ${COMPMODE} = OPT ]; then
     export FFLAGS="${FFLAGS_OPT}"
     export CFLAGS="${CFLAGS_OPT}"
     export CXXFLAGS="${CXXFLAGS_OPT}"
+    export CXXFLAGSNO="${CXXFLAGS_OPT_NO}"
   fi
   if [ ${COMPMODE} = DBG ]; then
     export FFLAGS="${FFLAGS_DBG}"
     export CFLAGS="${CFLAGS_DBG}"
     export CXXFLAGS="${CXXFLAGS_DBG}"
+    export CXXFLAGSNO="${CXXFLAGS_DBG_NO}"
   fi
+  LDFLAGSSHARED="${CXXFLAGS} -pthread -fPIC -shared"
+  LDFLAGLIBNAME="-Wl,-soname"
+  SHAREDSUFFIX=so
+fi
+# Mac-OSX with gcc4
+if [ $ARCH = Darwin-gcc4 ]; then
+  export FC=gfortran
+  export FFLAGS="${FFLAGS_OPT}"
+  export CFLAGS="${CFLAGS_OPT}"
+  export CXXFLAGS="${CXXFLAGS_OPT}"
+  export CXXFLAGSNO="${CXXFLAGS_OPT_NO}"
+  export FLIBS="-lgfortran"
+  if [ ${COMPMODE} = OPT ]; then
+    export FFLAGS="${FFLAGS_OPT}"
+    export CFLAGS="${CFLAGS_OPT}"
+    export CXXFLAGS="${CXXFLAGS_OPT}"
+    export CXXFLAGSNO="${CXXFLAGS_OPT_NO}"
+  fi
+  if [ ${COMPMODE} = DBG ]; then
+    export FFLAGS="${FFLAGS_DBG}"
+    export CFLAGS="${CFLAGS_DBG}"
+    export CXXFLAGS="${CXXFLAGS_DBG}"
+    export CXXFLAGSNO="${CXXFLAGS_DBG_NO}"
+  fi
+  LDFLAGSSHARED="${CXXFLAGS} -dynamiclib -single_module -flat_namespace -undefined suppress"
+  LDFLAGLIBNAME="-Wl,-dylib_install_name"
+  SHAREDSUFFIX=dylib
+fi
+# Mac-OSX with gcc3; is not tested
+if [ $ARCH = Darwin ]; then
+  export FC=g77
+  export FFLAGS="${FFLAGS_OPT}"
+  export CFLAGS="${CFLAGS_OPT}"
+  export CXXFLAGS="${CXXFLAGS_OPT}"
+  export CXXFLAGSNO="${CXXFLAGS_OPT_NO}"
+  export FLIBS="-lfrtbegin -lg2c"
+  if [ ${COMPMODE} = OPT ]; then
+    export FFLAGS="${FFLAGS_OPT}"
+    export CFLAGS="${CFLAGS_OPT}"
+    export CXXFLAGS="${CXXFLAGS_OPT}"
+    export CXXFLAGSNO="${CXXFLAGS_OPT_NO}"
+  fi
+  if [ ${COMPMODE} = DBG ]; then
+    export FFLAGS="${FFLAGS_DBG}"
+    export CFLAGS="${CFLAGS_DBG}"
+    export CXXFLAGS="${CXXFLAGS_DBG}"
+    export CXXFLAGSNO="${CXXFLAGS_DBG_NO}"
+  fi
+  LDFLAGSSHARED="${CXXFLAGS} -dynamiclib -single_module -flat_namespace -undefined suppress"
+  LDFLAGLIBNAME="-Wl,-dylib_install_name"
+  SHAREDSUFFIX=dylib
 fi
 
 #Platform & opt/dbg - independent flags and variables:
@@ -211,7 +281,11 @@ echo CC = ${CC} >> config.mk
 echo FFLAGS = ${FFLAGS} >> config.mk
 echo CFLAGS = ${CFLAGS} >> config.mk
 echo CXXFLAGS = ${CXXFLAGS} >> config.mk
+echo CXXFLAGSNO = ${CXXFLAGSNO} >> config.mk
 echo FLIBS = ${FLIBS} >> config.mk
+echo LDFLAGSSHARED = ${LDFLAGSSHARED} >> config.mk
+echo LDFLAGLIBNAME = ${LDFLAGLIBNAME} >> config.mk
+echo SHAREDSUFFIX = ${SHAREDSUFFIX} >> config.mk
 #
 if [ x${HEPMCLOCATION} != x ]; then
   if [ x${HEPMCVERSION} != x ]; then
@@ -225,17 +299,33 @@ fi
 rm -f examples/config.sh
 rm -f examples/config.csh
 if [ x${HEPMCLOCATION} != x ]; then
-  echo "#!/bin/csh" > examples/config.csh
-  echo 'if( ! $?LD_LIBRARY_PATH ) then' >> examples/config.csh
-  echo "  setenv LD_LIBRARY_PATH ${HEPMCLOCATION}/lib" >> examples/config.csh
-  echo "else" >> examples/config.csh
-  echo "  setenv LD_LIBRARY_PATH" '${LD_LIBRARY_PATH}'":${HEPMCLOCATION}/lib" >> examples/config.csh
-  echo "endif" >> examples/config.csh
-  echo "#!/bin/sh" > examples/config.sh
-  echo 'if [ ! $?LD_LIBRARY_PATH ]; then' >> examples/config.sh
-  echo "  export LD_LIBRARY_PATH=${HEPMCLOCATION}/lib" >> examples/config.sh
-  echo fi >> examples/config.sh
-  echo 'if [ $?LD_LIBRARY_PATH ]; then' >> examples/config.sh
-  echo "  export LD_LIBRARY_PATH="'${LD_LIBRARY_PATH}'":${HEPMCLOCATION}/lib" >> examples/config.sh
-  echo fi >> examples/config.sh
+  if [ $ARCH0 != Darwin ]; then
+    echo "#!/bin/csh" > examples/config.csh
+    echo 'if( ! $?LD_LIBRARY_PATH ) then' >> examples/config.csh
+    echo "  setenv LD_LIBRARY_PATH ${HEPMCLOCATION}/lib" >> examples/config.csh
+    echo "else" >> examples/config.csh
+    echo "  setenv LD_LIBRARY_PATH" '${LD_LIBRARY_PATH}'":${HEPMCLOCATION}/lib" >> examples/config.csh
+    echo "endif" >> examples/config.csh
+    echo "#!/bin/sh" > examples/config.sh
+    echo 'if [ ! $?LD_LIBRARY_PATH ]; then' >> examples/config.sh
+    echo "  export LD_LIBRARY_PATH=${HEPMCLOCATION}/lib" >> examples/config.sh
+    echo fi >> examples/config.sh
+    echo 'if [ $?LD_LIBRARY_PATH ]; then' >> examples/config.sh
+    echo "  export LD_LIBRARY_PATH="'${LD_LIBRARY_PATH}'":${HEPMCLOCATION}/lib" >> examples/config.sh
+    echo fi >> examples/config.sh
+  else
+    echo "#!/bin/csh" > examples/config.csh
+    echo 'if( ! $?DYLD_LIBRARY_PATH ) then' >> examples/config.csh
+    echo "  setenv DYLD_LIBRARY_PATH ${HEPMCLOCATION}/lib" >> examples/config.csh
+    echo "else" >> examples/config.csh
+    echo "  setenv DYLD_LIBRARY_PATH" '${DYLD_LIBRARY_PATH}'":${HEPMCLOCATION}/lib" >> examples/config.csh
+    echo "endif" >> examples/config.csh
+    echo "#!/bin/sh" > examples/config.sh
+    echo 'if [ ! $?DYLD_LIBRARY_PATH ]; then' >> examples/config.sh
+    echo "  export DYLD_LIBRARY_PATH=${HEPMCLOCATION}/lib" >> examples/config.sh
+    echo fi >> examples/config.sh
+    echo 'if [ $?DYLD_LIBRARY_PATH ]; then' >> examples/config.sh
+    echo "  export DYLD_LIBRARY_PATH="'${DYLD_LIBRARY_PATH}'":${HEPMCLOCATION}/lib" >> examples/config.sh
+    echo fi >> examples/config.sh
+  fi
 fi

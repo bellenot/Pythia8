@@ -125,7 +125,7 @@ away from this value could do better in some processes.
 <p/>
 The amount of QCD radiation in the shower is determined by 
 <p/><code>parm&nbsp; </code><strong> SpaceShower:alphaSvalue &nbsp;</strong> 
- (<code>default = <strong>0.127</strong></code>; <code>minimum = 0.06</code>; <code>maximum = 0.25</code>)<br/>
+ (<code>default = <strong>0.137</strong></code>; <code>minimum = 0.06</code>; <code>maximum = 0.25</code>)<br/>
 The <i>alpha_strong</i> value at scale <code>M_Z^2</code>. 
 Default value is picked equal to the one used in CTEQ 5L.  
   
@@ -169,7 +169,7 @@ combined as desired but it makes sense to coordinate with how the
 same issue is handled in multiple interactions.
 
 <p/><code>flag&nbsp; </code><strong> SpaceShower:samePTasMI &nbsp;</strong> 
- (<code>default = <strong>on</strong></code>)<br/>
+ (<code>default = <strong>off</strong></code>)<br/>
 Regularize the <i>pT -> 0</i> divergence using the same sharp cutoff 
 and smooth dampening parameters as used to describe multiple interactions.
 That is, the <code>MultipleInteractions:pT0Ref</code>, 
@@ -188,7 +188,7 @@ does NOT propagate to <code>SpaceShower</code>, however.
    
 
 <p/>
-The actual <code>pT0</code> parameter used at a given cm energy scale, 
+The actual <code>pT0</code> parameter used at a given CM energy scale, 
 <i>ecmNow</i>, is obtained as
 <br/><i>
     pT0 = pT0(ecmNow) = pT0Ref * (ecmNow / ecmRef)^ecmPow 
@@ -197,7 +197,7 @@ where <i>pT0Ref</i>, <i>ecmRef</i> and <i>ecmPow</i> are the
 three parameters below.
 
 <p/><code>parm&nbsp; </code><strong> SpaceShower:pT0Ref &nbsp;</strong> 
- (<code>default = <strong>2.2</strong></code>; <code>minimum = 0.5</code>; <code>maximum = 10.0</code>)<br/>
+ (<code>default = <strong>2.0</strong></code>; <code>minimum = 0.5</code>; <code>maximum = 10.0</code>)<br/>
 Regularization of the divergence of the QCD emission probability for 
 <i>pT -> 0</i> is obtained by a factor <i>pT^2 / (pT0^2 + pT^2)</i>, 
 and by using an <i>alpha_s(pT0^2 + pT^2)</i>. An energy dependence 
@@ -212,7 +212,7 @@ The <i>ecmRef</i> reference energy scale introduced above.
   
 
 <p/><code>parm&nbsp; </code><strong> SpaceShower:ecmPow &nbsp;</strong> 
- (<code>default = <strong>0.16</strong></code>; <code>minimum = 0.</code>; <code>maximum = 0.5</code>)<br/>
+ (<code>default = <strong>0.0</strong></code>; <code>minimum = 0.</code>; <code>maximum = 0.5</code>)<br/>
 The <i>ecmPow</i> energy rescaling pace introduced above.
   
 

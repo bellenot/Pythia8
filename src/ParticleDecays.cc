@@ -273,7 +273,7 @@ bool ParticleDecays::decay( int iDec, Event& event) {
     for (int i = 1; i <= mult; ++i) event[iProd[i]].vProd( vDec );
   }
 
-  // Set lifetime of hadrons.
+  // Set lifetime of daughters.
   for (int i = 1; i <= mult; ++i) 
     event[iProd[i]].tau( event[iProd[i]].tau0() * Rndm::exp() );
   

@@ -84,6 +84,10 @@ public:
   // Initialize generation. Possibility to force re-initialization by hand.
   virtual void init(BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn);
 
+  // New beams possible for handling of hard diffraction. (Not virtual.)
+  void reassignBeamPtrs( BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn) 
+    {beamAPtr = beamAPtrIn; beamBPtr = beamBPtrIn;}
+
   // Find whether to limit maximum scale of emissions.
   virtual bool limitPTmax( Event& event, double Q2Fac = 0., 
     double Q2Ren = 0.);

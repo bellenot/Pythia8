@@ -81,39 +81,62 @@ A prompt photon recoiling against a quark or gluon jet.
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Two prompt photons recoiling against each other.
 
-
-<br/><br/><strong>SecondHard:SingleGmZ</strong>  <input type="radio" name="5" value="on"><strong>On</strong>
+<br/><br/><strong>SecondHard:Charmonium</strong>  <input type="radio" name="5" value="on"><strong>On</strong>
 <input type="radio" name="5" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Production of charmonium via colour singlet and colour octet channels.
+
+<br/><br/><strong>SecondHard:Bottomonium</strong>  <input type="radio" name="6" value="on"><strong>On</strong>
+<input type="radio" name="6" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Production of bottomonium via colour singlet and colour octet channels.
+
+<br/><br/><strong>SecondHard:SingleGmZ</strong>  <input type="radio" name="7" value="on"><strong>On</strong>
+<input type="radio" name="7" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scattering <i>q qbar -> gamma^*/Z^0</i>, with full interference
 between the <i>gamma^*</i> and <i>Z^0</i>.
   
 
-<br/><br/><strong>SecondHard:SingleW</strong>  <input type="radio" name="6" value="on"><strong>On</strong>
-<input type="radio" name="6" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>SecondHard:SingleW</strong>  <input type="radio" name="8" value="on"><strong>On</strong>
+<input type="radio" name="8" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scattering <i>q qbar' -> W^+-</i>.
   
 
-<br/><br/><strong>SecondHard:GmZAndJet</strong>  <input type="radio" name="7" value="on"><strong>On</strong>
-<input type="radio" name="7" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>SecondHard:GmZAndJet</strong>  <input type="radio" name="9" value="on"><strong>On</strong>
+<input type="radio" name="9" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scattering <i>q qbar -> gamma^*/Z^0 g</i> and
 <i>q g -> gamma^*/Z^0 q</i>.
   
 
-<br/><br/><strong>SecondHard:WAndJet</strong>  <input type="radio" name="8" value="on"><strong>On</strong>
-<input type="radio" name="8" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>SecondHard:WAndJet</strong>  <input type="radio" name="10" value="on"><strong>On</strong>
+<input type="radio" name="10" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scattering <i>q qbar' -> W^+- g</i> and
 <i>q g -> W^+- q'</i>.
   
 
+<br/><br/><strong>SecondHard:TopPair</strong>  <input type="radio" name="11" value="on"><strong>On</strong>
+<input type="radio" name="11" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Production of a top pair, either via QCD processes or via an
+intermediate <i>gamma^*/Z^0</i> resonance.
+  
+
+<br/><br/><strong>SecondHard:SingleTop</strong>  <input type="radio" name="12" value="on"><strong>On</strong>
+<input type="radio" name="12" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Production of a single top, either via a <i>t-</i> or 
+an <i>s-</i>channel <i>W^+-</i> resonance.
+  
+
 <p/>
 A further process collection comes with a warning flag:
 
-<br/><br/><strong>SecondHard:TwoBJets</strong>  <input type="radio" name="9" value="on"><strong>On</strong>
-<input type="radio" name="9" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>SecondHard:TwoBJets</strong>  <input type="radio" name="13" value="on"><strong>On</strong>
+<input type="radio" name="13" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 The <i>q qbar -> b bbar</i> and <i>g g -> b bbar</i> processes.
 These are already included in the <code>TwoJets</code> sample above,
@@ -354,6 +377,21 @@ effects that reduced the event number from "selected" to "accepted".
 echo "<a href='UserHooks.php?filepath=".$filepath."' target='page'>";?>user hook</a> rejects some events.) 
 
 <p/>
+It is allowed to use external Les Houches Accord input for the 
+hardest process, and then pick an internal one for the second hardest.
+In this case PYTHIA does not have access to your thinking concerning
+the external process, and cannot know whether it overlaps with the 
+internal or not. (External events <i>q qbar' -> e+ nu_e</i> could 
+agree with the internal <i>W</i> ones, or be a <i>W'</i> resonance 
+in a BSM scenario, to give one example.) Therefore the combined cross 
+section is always based on the scenario (1) above. Corrections for 
+correlated parton densities are included also in this case, however. 
+That is, an external event that takes a large fraction of the incoming 
+beam momenta stands a fair chance of being rejected when it has to be 
+combined with another hard process. For this reason the "selected" and  
+"accepted" event numbers are likely to disagree.
+
+<p/>
 In the cross section calculation above, the <i>sigma'_1</i>
 cross sections are based on the number of accepted events, while 
 the <i>f_1norm</i> factor is evaluated based on the cross sections
@@ -449,27 +487,47 @@ fwrite($handle,$data);
 }
 if($_POST["5"] != "off")
 {
-$data = "SecondHard:SingleGmZ = ".$_POST["5"]."\n";
+$data = "SecondHard:Charmonium = ".$_POST["5"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["6"] != "off")
 {
-$data = "SecondHard:SingleW = ".$_POST["6"]."\n";
+$data = "SecondHard:Bottomonium = ".$_POST["6"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["7"] != "off")
 {
-$data = "SecondHard:GmZAndJet = ".$_POST["7"]."\n";
+$data = "SecondHard:SingleGmZ = ".$_POST["7"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["8"] != "off")
 {
-$data = "SecondHard:WAndJet = ".$_POST["8"]."\n";
+$data = "SecondHard:SingleW = ".$_POST["8"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["9"] != "off")
 {
-$data = "SecondHard:TwoBJets = ".$_POST["9"]."\n";
+$data = "SecondHard:GmZAndJet = ".$_POST["9"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["10"] != "off")
+{
+$data = "SecondHard:WAndJet = ".$_POST["10"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["11"] != "off")
+{
+$data = "SecondHard:TopPair = ".$_POST["11"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["12"] != "off")
+{
+$data = "SecondHard:SingleTop = ".$_POST["12"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["13"] != "off")
+{
+$data = "SecondHard:TwoBJets = ".$_POST["13"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);

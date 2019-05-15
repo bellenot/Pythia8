@@ -2369,6 +2369,11 @@ const double PhaseSpace2to2diffractive::DIFFMASSMAX = 1e-8;
 
 bool PhaseSpace2to2diffractive::setupSampling() {
 
+  // Pomeron flux parametrization, and parameters of some options.
+  PomFlux      = Settings::mode("Diffraction:PomFlux");
+  epsilonPF    = Settings::parm("Diffraction:PomFluxEpsilon");
+  alphaPrimePF = Settings::parm("Diffraction:PomFluxAlphaPrime");
+  
   // Find maximum = value of cross section.
   sigmaNw = sigmaProcessPtr->sigmaHatWrap();
   sigmaMx = sigmaNw;
@@ -2381,17 +2386,6 @@ bool PhaseSpace2to2diffractive::setupSampling() {
   s3 = pow2( m3ElDiff);
   s4 = pow2( m4ElDiff);
 
-  // Parameters of low-mass-resonance diffractive enhancement.
-  cRes = sigmaTotPtr->cRes();
-  sResXB = pow2( sigmaTotPtr->mResXB());
-  sResAX = pow2( sigmaTotPtr->mResAX());
-  sProton = sigmaTotPtr->sProton();  
-
-  // Lower limit diffractive slope.
-  if      (!isDiffB) bMin = sigmaTotPtr->bMinSlopeXB();
-  else if (!isDiffA) bMin = sigmaTotPtr->bMinSlopeAX();
-  else               bMin = sigmaTotPtr->bMinSlopeXX();
- 
   // Determine maximum possible t range and coefficient of generation.
   lambda12 = sqrtpos( pow2( s - s1 - s2) - 4. * s1 * s2 );
   lambda34 = sqrtpos( pow2( s - s3 - s4) - 4. * s3 * s4 );
@@ -2399,10 +2393,60 @@ bool PhaseSpace2to2diffractive::setupSampling() {
   double tempB = lambda12 *  lambda34 / s;
   double tempC = (s3 - s1) * (s4 - s2) + (s1 + s4 - s2 - s3)
     * (s1 * s4 - s2 * s3) / s;
-  tLow = -0.5 * (tempA + tempB); 
-  tUpp = tempC / tLow; 
-  tAux = exp( max(-EXPMAX, bMin * (tLow - tUpp)) ) - 1.; 
+  tLow  = -0.5 * (tempA + tempB); 
+  tUpp  = tempC / tLow; 
 
+  // Default for all parametrization-specific parameters. 
+  cRes = sResXB = sResAX = sProton = bMin = bSlope = bSlope1 = bSlope2  
+       = probSlope1 = xIntPF = xtCorPF = mp24DL = coefDL = tAux 
+       = tAux1 = tAux2 = 0.;
+
+  // Schuler&Sjostrand: parameters of low-mass-resonance enhancement.
+  if (PomFlux == 1) { 
+    cRes = sigmaTotPtr->cRes();
+    sResXB = pow2( sigmaTotPtr->mResXB());
+    sResAX = pow2( sigmaTotPtr->mResAX());
+    sProton = sigmaTotPtr->sProton();  
+
+    // Schuler&Sjostrand: lower limit diffractive slope.
+    if      (!isDiffB) bMin = sigmaTotPtr->bMinSlopeXB();
+    else if (!isDiffA) bMin = sigmaTotPtr->bMinSlopeAX();
+    else               bMin = sigmaTotPtr->bMinSlopeXX();
+    tAux = exp( max(-EXPMAX, bMin * (tLow - tUpp)) ) - 1.; 
+
+  // Bruni&Ingelman: relative weight of two diffractive slopes.
+  } else if (PomFlux == 2) {   
+    bSlope1     = 8.0;
+    probSlope1  = 6.38 * ( exp(max(-EXPMAX, bSlope1 * tUpp)) 
+                -  exp(max(-EXPMAX, bSlope1 * tLow)) ) / bSlope1;
+    bSlope2     = 3.0;
+    double pS2  = 0.424 * ( exp(max(-EXPMAX, bSlope2 * tUpp)) 
+                -  exp(max(-EXPMAX, bSlope2 * tLow)) ) / bSlope2;
+    probSlope1 /= probSlope1 + pS2; 
+    tAux1 = exp( max(-EXPMAX, bSlope1 * (tLow - tUpp)) ) - 1.; 
+    tAux2 = exp( max(-EXPMAX, bSlope2 * (tLow - tUpp)) ) - 1.; 
+
+  // Streng&Berger (RapGap): diffractive slope, power of mass spectrum.
+  } else if (PomFlux == 3) {   
+    bSlope        = 4.7; 
+    double xPowPF = 1. - 2. * (1. + epsilonPF);
+    xIntPF        = 2. * (1. + xPowPF);
+    xtCorPF       = 2. * alphaPrimePF; 
+    tAux          = exp( max(-EXPMAX, bSlope  * (tLow - tUpp)) ) - 1.; 
+
+  // Donnachie&Landshoff (RapGap):  power of mass spectrum.
+  } else if (PomFlux == 4) {   
+    mp24DL        = 4. * pow2(ParticleDataTable::m0(2212));
+    double xPowPF = 1. - 2. * (1. + epsilonPF);
+    xIntPF        = 2. * (1. + xPowPF);
+    xtCorPF       = 2. * alphaPrimePF; 
+    // Upper estimate of t dependence, for preliminary choice.
+    coefDL               = 0.85;
+    tAux1                = 1. / pow3(1. - coefDL * tLow);
+    tAux2                = 1. / pow3(1. - coefDL * tUpp);
+  } 
+
+  // Done.
   return true;
 
 }
@@ -2422,41 +2466,122 @@ bool PhaseSpace2to2diffractive::trialKin( bool, bool ) {
       return false;
     }
   
-    // Select diffractive mass/masses according to dm^2/m^2.
-    m3 = (isDiffA) ? m3ElDiff * pow( max(mA, eCM - m4ElDiff) / m3ElDiff,
-      Rndm::flat()) : m3ElDiff;  
-    m4 = (isDiffB) ? m4ElDiff * pow( max(mB, eCM - m3ElDiff) / m4ElDiff,
-      Rndm::flat()) : m4ElDiff;
-    s3 = m3 * m3;
-    s4 = m4 * m4; 
+    // Schuler and Sjostrand:
+    if (PomFlux == 1) {
  
-    // Additional mass factors, including resonance enhancement.
-    if (m3 + m4 >= eCM) continue;  
-    if (isDiffA && !isDiffB) {
-      double facXB = (1. - s3 / s)  
-        * (1. + cRes * sResXB / (sResXB + s3));
-      if (facXB < Rndm::flat() * (1. + cRes)) continue; 
-    } else if (isDiffB && !isDiffA) {
-      double facAX = (1. - s4 / s)  
-        * (1. + cRes * sResAX / (sResAX + s4));
-      if (facAX < Rndm::flat() * (1. + cRes)) continue; 
-    } else {
-      double facXX = (1. - pow2(m3 + m4) / s)  
-        * (s * sProton / (s * sProton + s3 * s4))
-        * (1. + cRes * sResXB / (sResXB + s3))
-        * (1. + cRes * sResAX / (sResAX + s4));
-      if (facXX < Rndm::flat() * pow2(1. + cRes)) continue; 
+      // Select diffractive mass(es) according to dm^2/m^2.
+      m3 = (isDiffA) ? m3ElDiff * pow( max(mA, eCM - m4ElDiff) / m3ElDiff,
+        Rndm::flat()) : m3ElDiff;  
+      m4 = (isDiffB) ? m4ElDiff * pow( max(mB, eCM - m3ElDiff) / m4ElDiff,
+        Rndm::flat()) : m4ElDiff;
+      s3 = m3 * m3;
+      s4 = m4 * m4; 
+
+      // Additional mass factors, including resonance enhancement.
+      if (m3 + m4 >= eCM) continue; 
+      if (isDiffA && !isDiffB) {
+        double facXB = (1. - s3 / s)  
+          * (1. + cRes * sResXB / (sResXB + s3));
+        if (facXB < Rndm::flat() * (1. + cRes)) continue; 
+      } else if (isDiffB && !isDiffA) {
+        double facAX = (1. - s4 / s)  
+          * (1. + cRes * sResAX / (sResAX + s4));
+        if (facAX < Rndm::flat() * (1. + cRes)) continue; 
+      } else {
+        double facXX = (1. - pow2(m3 + m4) / s)  
+          * (s * sProton / (s * sProton + s3 * s4))
+          * (1. + cRes * sResXB / (sResXB + s3))
+          * (1. + cRes * sResAX / (sResAX + s4));
+        if (facXX < Rndm::flat() * pow2(1. + cRes)) continue; 
+      }
+
+      // Select t according to exp(bMin*t) and correct to right slope.
+      tH = tUpp + log(1. + tAux * Rndm::flat()) / bMin;
+      double bDiff = 0.;
+      if (isDiffA && !isDiffB) bDiff = sigmaTotPtr->bSlopeXB(s3) - bMin;
+      else if (!isDiffA) bDiff = sigmaTotPtr->bSlopeAX(s4) - bMin;
+      else bDiff = sigmaTotPtr->bSlopeXX(s3, s4) - bMin;
+      bDiff = max(0., bDiff);
+      if (exp( max(-EXPMAX, bDiff * (tH - tUpp)) ) < Rndm::flat()) continue; 
+  
+    // Bruni and Ingelman:
+    } else if (PomFlux == 2) {
+ 
+      // Select diffractive mass(es) according to dm^2/m^2.
+      m3 = (isDiffA) ? m3ElDiff * pow( max(mA, eCM - m4ElDiff) / m3ElDiff,
+        Rndm::flat()) : m3ElDiff;  
+      m4 = (isDiffB) ? m4ElDiff * pow( max(mB, eCM - m3ElDiff) / m4ElDiff,
+        Rndm::flat()) : m4ElDiff;
+      s3 = m3 * m3;
+      s4 = m4 * m4; 
+
+      // Select t according to exp(bSlope*t) with two possible slopes.
+      tH = (Rndm::flat() < probSlope1) 
+         ? tUpp + log(1. + tAux1 * Rndm::flat()) / bSlope1
+         : tUpp + log(1. + tAux2 * Rndm::flat()) / bSlope2;
+ 
+    // Streng and Berger et al. (RapGap):
+    } else if (PomFlux == 3) { 
+
+      // Select diffractive mass(es) according to dm^2/(m^2)^(1 + 2 epsilon).
+      m3 = m3ElDiff;  
+      m4 = m4ElDiff; 
+      if (isDiffA) {
+        double s3MinPow = pow( m3ElDiff, xIntPF );
+        double s3MaxPow = pow( max(mA, eCM - m4ElDiff), xIntPF );
+        m3 = pow( s3MinPow + Rndm::flat() * (s3MaxPow - s3MinPow), 
+                  1. / xIntPF );
+      }
+      if (isDiffB) {
+        double s4MinPow = pow( m4ElDiff, xIntPF );
+        double s4MaxPow = pow( max(mB, eCM - m3ElDiff), xIntPF );
+        m4 = pow( s4MinPow + Rndm::flat() * (s4MaxPow - s4MinPow), 
+                  1. / xIntPF );
+      }
+      s3 = m3 * m3;
+      s4 = m4 * m4; 
+ 
+      // Select t according to exponential and weigh by x_P^(2 alpha' |t|).
+      tH = tUpp + log(1. + tAux * Rndm::flat()) / bSlope;
+      if ( isDiffA && pow( s3 / s, xtCorPF * abs(tH) ) < Rndm::flat() ) 
+        continue;
+      if ( isDiffB && pow( s4 / s, xtCorPF * abs(tH) ) < Rndm::flat() ) 
+        continue;
+ 
+    // Donnachie and Landshoff (RapGap):
+    } else if (PomFlux == 4) { 
+
+      // Select diffractive mass(es) according to dm^2/(m^2)^(1 + 2 epsilon).
+      m3 = m3ElDiff;  
+      m4 = m4ElDiff; 
+      if (isDiffA) {
+        double s3MinPow = pow( m3ElDiff, xIntPF );
+        double s3MaxPow = pow( max(mA, eCM - m4ElDiff), xIntPF );
+        m3 = pow( s3MinPow + Rndm::flat() * (s3MaxPow - s3MinPow), 
+                  1. / xIntPF );
+      }
+      if (isDiffB) {
+        double s4MinPow = pow( m4ElDiff, xIntPF );
+        double s4MaxPow = pow( max(mB, eCM - m3ElDiff), xIntPF );
+        m4 = pow( s4MinPow + Rndm::flat() * (s4MaxPow - s4MinPow), 
+                  1. / xIntPF );
+      }
+      s3 = m3 * m3;
+      s4 = m4 * m4; 
+ 
+      // Select t according to power and weigh by x_P^(2 alpha' |t|).
+      tH = - (1. / pow( tAux1 + Rndm::flat() * (tAux2 - tAux1), 1./3.) 
+         - 1.) / coefDL;
+      double wDL = pow2( (mp24DL - 2.8 * tH) / (mp24DL - tH) )
+                 / pow4( 1. - tH / 0.7);
+      double wMX = 1. / pow4( 1. - coefDL * tH);
+      if (wDL < Rndm::flat() * wMX) continue;  
+      if ( isDiffA && pow( s3 / s, xtCorPF * abs(tH) ) < Rndm::flat() ) 
+        continue;
+      if ( isDiffB && pow( s4 / s, xtCorPF * abs(tH) ) < Rndm::flat() ) 
+        continue;
     }
 
-    // Select t according to exp(bMin*t) and correct to right slope.
-    tH = tUpp + log(1. + tAux * Rndm::flat()) / bMin;
-    double bDiff = 0.;
-    if (isDiffA && !isDiffB) bDiff = sigmaTotPtr->bSlopeXB(s3) - bMin;
-    else if (!isDiffA) bDiff = sigmaTotPtr->bSlopeAX(s4) - bMin;
-    else bDiff = sigmaTotPtr->bSlopeXX(s3, s4) - bMin;
-    bDiff = max(0., bDiff);
-    if (exp( max(-50., bDiff * (tH - tUpp)) ) < Rndm::flat()) continue; 
- 
     // Check whether m^2 and t choices are consistent.
     lambda34 = sqrtpos( pow2( s - s3 - s4) - 4. * s3 * s4 );
     double tempA = s - (s1 + s2 + s3 + s4) + (s1 - s2) * (s3 - s4) / s;
@@ -2470,15 +2595,14 @@ bool PhaseSpace2to2diffractive::trialKin( bool, bool ) {
 
     // Careful reconstruction of scattering angle.
     double cosTheta = min(1., max(-1., (tempA + 2. * tH) / tempB));
-    double sinTheta = 2. * sqrtpos( -(tempC + tempA * tH + tH * tH) )
+    double sinTheta = 2. * sqrtpos( -(tempC + tempA * tH + tH * tH) ) 
       / tempB;
     theta = asin( min(1., sinTheta));
     if (cosTheta < 0.) theta = M_PI - theta;
 
-    // Found acceptable kinematics, so no more looping.
+    // Found acceptable kinematics, so no more looping. Done
     break;
   }
-
   return true;
 
 }
@@ -2853,6 +2977,10 @@ bool PhaseSpaceLHA::trialKin( bool, bool repeatSame ) {
   else if (strategy == -3 && wtPr > 0.) sigmaNw =  sigmaMx;
   else if (strategy == -3)              sigmaNw = -sigmaMx;
   else if (stratAbs ==  4) sigmaNw = wtPr * CONVERTPB2MB;
+
+  // Set x scales.
+  x1H = lhaUpPtr->x1();
+  x2H = lhaUpPtr->x2(); 
 
   // Done.
   return true;

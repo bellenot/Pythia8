@@ -4,9 +4,9 @@
 
 1) You are supposed to have already compiled PYTHIA 8, as described in 
    the README file of the mother directory. For the moment we assume
-   that you will NOT use the HepMC, LHAPDF, FastJet or PYTHIA 6.4 libraries.
+   that you will NOT use the HepMC, LHAPDF, or FastJet libraries.
 
-2) You are now ready to test run the first twentyseven of the mainNN 
+2) You are now ready to test run the first twentynine of the mainNN 
    examples listed below. Type "gmake mainNN" to build an executable 
    "mainNN.exe". Type "./mainNN.exe > output" to run this executable. 
    Then study the output file. The existing files outNN are examples of 
@@ -29,10 +29,10 @@
    directory. If not, you can go back and do it now. This will create 
    files "config.csh" and "config.sh" in the current directory.
 
-2) If you are going to run examples linked with LHAPDF, FastJet and/or 
-   PYTHIA 6.4, you should as a first step run the script "configure" in 
-   the current directory. You can use command-line arguments to set up 
-   the desired library links. 
+2) If you are going to run examples linked with LHAPDF and/or FastJet,  
+   you should as a first step run the script "configure" in the current 
+   directory. You can use command-line arguments to set up the desired 
+   library links. 
 
    The possible options are:
      --help : prints a brief summary of the options described here.
@@ -48,13 +48,6 @@
      --with-lhapdfsets=path : path to the LHAPDF data files 
          (default is lhapdfpath/../PDFsets, CERN AFS default is 
          lhapdfpath/../../../share/PDFsets)
-     --with-pythia6=path : the path to your local copy of the PYTHIA 6.4
-         library
-     --with-pythia6version=v : a simpler alternative to the above, valid 
-         if you are using the CERN AFS MCGenerators area; then you do not 
-         need to specify the full path but only the version, e.g. =413 
-     --with-pythia6libname=n  : pythia6 library name line: default is the 
-         GENSER standard: -lpythia6 -lpythia6_dummy -lpythia6_pdfdummy
      --with-fastjet=path : path to FastJet (default = /usr/local)
      --with-fastjetversion=v : FastJet version 
          (simplified alternative when using CERN AFS external, e.g. =2.3.3)
@@ -66,13 +59,13 @@
    time, type "source config.csh" if you use the csh or tcsh shell, or 
    "source config.sh" otherwise. (Use "echo $SHELL" if uncertain.)
    This will set or append the environment variables LD_LIBRARY_PATH,
-   needed to find the HepMC libraries. (Eventually also LHAPDF, FastJet
-   and PYTHIA 6.4 libraries, if shared ones are used. Default, if taken
-   from CERN AFS MCGenerators, is archive.) It will also set the variable 
-   LHAPATH, needed to find the LHAPDF data files.
+   needed to find the HepMC libraries. (Eventually also LHAPDF and FastJet
+   libraries, if shared ones are used. Default, if taken from CERN AFS 
+   MCGenerators, is archive.) It will also set the variable LHAPATH, 
+   needed to find the LHAPDF data files.
 
-4) If you want to change to other LHAPDF, FastJet or PYTHIA 6 versions, 
-   you have to rerun the script "configure" and again "source" one of the 
+4) If you want to change to other LHAPDF or FastJet or versions, you 
+   have to rerun the script "configure" and again "source" one of the 
    config.* files. In case of using shared libraries (these will  be taken 
    if both shared and archive ones are on the same path) pay attention to 
    the variable LD_LIBRARY_PATH: subsequent commands "source" will add new 
@@ -85,7 +78,7 @@
 
    LIST OF TEST PROGRAMS
 
-1) main01 - main20 only use the PYTHIA 8 library
+1) main01 - main20, main28 - main29 only use the PYTHIA 8 library
 * main01.cc : brief example with charged multiplicity distribution
 * main02.cc : brief example with Z0 pT spectrum
 * main03.cc & main03.cmnd : simple single-particle analysis in jet events
@@ -106,6 +99,8 @@
 * main18.cc : event filter class to retain a subset of the particles 
 * main19.cc : use two Pythia instances to combine signal and pileup events
 * main20.cc : write a Les Houches Event File with PYTHIA 8-generated events 
+* main28.cc : test program for large extra dimensions or unparticles
+* main29.cc : generic "energy blob" decay for cosmic-ray physics  
 
 2) main21 - main27 are examples how some external programs could be linked
 * main21.cc : external input of parton configurations for hadronization only
@@ -115,8 +110,6 @@
 * main25.cc : how to link an external process to use internally
 * main26.cc : how to link an external resonance and process to use internally
 * main27.cc : how to link an external momentum spread and vertex generator 
-* main28.cc : test program for large extra dimensions or unparticles
-* main29.cc : generic "energy blob" decay for cosmic-ray physics  
 
 3) main31 - main32 require linkage to the HepMC event record library
 * main31.cc & main31.cmnd : simple example output to HepMC 
@@ -128,18 +121,12 @@
 * main43.cc : example of evolution with photon-in-proton: the MRST2004qed set
 * main44.cc : how to create your own PDF and link it in for usage
 
-5) main51 - main54 require linkage to PYTHIA 6.4 (+HepMC once) 
-* main51.cc : runtime Les Houches link to PYTHIA 6.4 for simple tests
-* main52.cc & main52.ccmnd & main52.fcmnd : ditto with external input 
-* main53.f (Fortran!) : have PYTHIA 6.4 generate a Les Houches Event File 
-* main54.cc & main54.cmnd : input from PYTHIA 6.4 and output to HepMC
-
-6) main61 requires linkage to FastJet
+5) main61 requires linkage to FastJet
 * main61.cc : rate of W + jets events using kT-clustering for jets 
  
-Note 1: main31, main32 and main54 save HepMC-formatted events on 
-    hepmcoutNN.dat; these files become so big that they have not 
-    been included in the distribution. 
+Note 1: main31 and main32 save HepMC-formatted events on hepmcoutNN.dat;     
+    these files become so big that they have not been included in the 
+    distribution. 
 Note 2: There is no main00 program, but main00 is defined in the 
     Makefile to link to PYTHIA 8, so this name can be used for 
     simple first tests.

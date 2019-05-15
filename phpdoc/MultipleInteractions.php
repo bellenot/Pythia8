@@ -146,14 +146,14 @@ Regularization of the divergence of the QCD cross section for
 and by using an <i>alpha_s(pT0^2 + pT^2)</i>. An energy dependence 
 of the <i>pT0</i> choice is introduced by two further parameters, 
 so that <i>pT0Ref</i> is the <i>pT0</i> value for the reference 
-cm energy, <i>pT0Ref = pT0(ecmRef)</i>.   
+CM energy, <i>pT0Ref = pT0(ecmRef)</i>.   
 <br/><b>Warning:</b> if a large <i>pT0</i> is picked for multiple 
 interactions, such that the integrated interaction cross section is 
 below the nondiffractive inelastic one, this <i>pT0</i> will 
 automatically be scaled down to cope.
 
 <p/>
-The actual <i>pT0</i> parameter used at a given cm energy scale, 
+The actual <i>pT0</i> parameter used at a given CM energy scale, 
 <i>ecmNow</i>, is obtained as
 <br/><i>
      pT0 = pT0(ecmNow) = pT0Ref * (ecmNow / ecmRef)^ecmPow 
@@ -161,7 +161,7 @@ The actual <i>pT0</i> parameter used at a given cm energy scale,
 where <i>pT0Ref</i>, <i>ecmRef</i> and <i>ecmPow</i> are the 
 three parameters below.
 
-<br/><br/><table><tr><td><strong>MultipleInteractions:pT0Ref </td><td></td><td> <input type="text" name="7" value="2.15" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.15</strong></code>; <code>minimum = 0.5</code>; <code>maximum = 10.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>MultipleInteractions:pT0Ref </td><td></td><td> <input type="text" name="7" value="2.25" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.25</strong></code>; <code>minimum = 0.5</code>; <code>maximum = 10.0</code>)</td></tr></table>
 The <i>pT0Ref</i> scale in the above formula.
 <br/><b>Note:</b> <i>pT0Ref</i> is one of the key parameters in a
 complete PYTHIA tune. Its value is intimately tied to a number of other
@@ -173,7 +173,7 @@ difficult to give an independent meaning to <i>pT0Ref</i>.
 The <i>ecmRef</i> reference energy scale introduced above.
   
 
-<br/><br/><table><tr><td><strong>MultipleInteractions:ecmPow </td><td></td><td> <input type="text" name="9" value="0.16" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.16</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 0.5</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>MultipleInteractions:ecmPow </td><td></td><td> <input type="text" name="9" value="0.24" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.24</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 0.5</code>)</td></tr></table>
 The <i>ecmPow</i> energy rescaling pace introduced above.
   
 
@@ -223,12 +223,12 @@ effective <ei>pT0</ei> for consecutive interactions.
 The choice of impact-parameter dependence is regulated by several
 parameters.
 
-<br/><br/><table><tr><td><strong>MultipleInteractions:bProfile  </td><td>  &nbsp;&nbsp;(<code>default = <strong>2</strong></code>; <code>minimum = 0</code>; <code>maximum = 3</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>MultipleInteractions:bProfile  </td><td>  &nbsp;&nbsp;(<code>default = <strong>1</strong></code>; <code>minimum = 0</code>; <code>maximum = 3</code>)</td></tr></table>
 Choice of impact parameter profile for the incoming hadron beams.
 <br/>
 <input type="radio" name="12" value="0"><strong>0 </strong>: no impact parameter dependence at all.<br/>
-<input type="radio" name="12" value="1"><strong>1 </strong>: a simple Gaussian matter distribution;  no free parameters.<br/>
-<input type="radio" name="12" value="2" checked="checked"><strong>2 </strong>: a double Gaussian matter distribution,  with the two free parameters <ei>coreRadius</ei> and  <ei>coreFraction</ei>.<br/>
+<input type="radio" name="12" value="1" checked="checked"><strong>1 </strong>: a simple Gaussian matter distribution;  no free parameters.<br/>
+<input type="radio" name="12" value="2"><strong>2 </strong>: a double Gaussian matter distribution,  with the two free parameters <ei>coreRadius</ei> and  <ei>coreFraction</ei>.<br/>
 <input type="radio" name="12" value="3"><strong>3 </strong>: an overlap function, i.e. the convolution of  the matter distributions of the two incoming hadrons, of the form <ei>exp(- b^expPow)</ei>, where <ei>expPow</ei> is a free  parameter.<br/>
 
 <br/><br/><table><tr><td><strong>MultipleInteractions:coreRadius </td><td></td><td> <input type="text" name="13" value="0.4" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.4</strong></code>; <code>minimum = 0.1</code>; <code>maximum = 1.</code>)</td></tr></table>
@@ -282,10 +282,11 @@ Switch to allow rescattering of partons, where both incoming partons
 have already rescattered; on/off = true/false. Is only used if 
 <code>MultipleInteractions:allowRescatter</code> is switched on.<br/>
 <b>Warning:</b> currently there is no complete implementation that 
-combines it with shower evolution, so you must used 
+combines it with shower evolution, so you must use 
 <code>PartonLevel:ISR = off</code> and <code>PartonLevel:FSR = off</code>.
-The rate also comes out to be much lower than for single rescattering, 
-so to first approximation it can be neglected.
+If not, a warning will be issued and double rescattering will not be 
+simulated. The rate also comes out to be much lower than for single 
+rescattering, so to first approximation it can be neglected.
   
 
 <br/><br/><table><tr><td><strong>MultipleInteractions:rescatterMode  </td><td>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 4</code>)</td></tr></table>
@@ -415,7 +416,7 @@ Since <i>pT0</i> can be energy-dependent,  an ansatz
 <br/><i>
     pT0(ecm) = pT0Ref * (ecm/ecmRef)^ecmPow
 </i><br/>
-is used, where <i>ecm</i> is the current cm frame energy, 
+is used, where <i>ecm</i> is the current CM frame energy, 
 <i>ecmRef</i> is an arbitrary reference energy where <i>pT0Ref</i> 
 is defined, and <i>ecmPow</i> gives the energy rescaling pace. For 
 technical reasons, also an absolute lower <i>pT</i> scale <i>pTmin</i>, 
@@ -515,7 +516,7 @@ if($_POST["6"] != "3")
 $data = "MultipleInteractions:processLevel = ".$_POST["6"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["7"] != "2.15")
+if($_POST["7"] != "2.25")
 {
 $data = "MultipleInteractions:pT0Ref = ".$_POST["7"]."\n";
 fwrite($handle,$data);
@@ -525,7 +526,7 @@ if($_POST["8"] != "1800.0")
 $data = "MultipleInteractions:ecmRef = ".$_POST["8"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["9"] != "0.16")
+if($_POST["9"] != "0.24")
 {
 $data = "MultipleInteractions:ecmPow = ".$_POST["9"]."\n";
 fwrite($handle,$data);
@@ -540,7 +541,7 @@ if($_POST["11"] != "0")
 $data = "MultipleInteractions:enhanceScreening = ".$_POST["11"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["12"] != "2")
+if($_POST["12"] != "1")
 {
 $data = "MultipleInteractions:bProfile = ".$_POST["12"]."\n";
 fwrite($handle,$data);

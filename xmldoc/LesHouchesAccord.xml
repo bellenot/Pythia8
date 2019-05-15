@@ -437,6 +437,13 @@ found in the base class, so as to allow them to be reused in other
 contexts. Specifically, it allows derived classes where one parton-level 
 configuration can be reused several times, e.g. in the context of 
 matrix-element-to-parton-shower matching (example in preparation).
+To begin with also a small utility routine.
+
+<method name="bool LHAup::fileFound()"> 
+always returns true in the base class, but in <code>LHAupLHEF</code>
+it returns false if the LHEF provided in the constructor is not
+found and opened correctly.
+</method>
 
 <method name="bool LHAup::setInitLHEF(ifstream& is)">
 read in and set all required initialization information from the 
@@ -456,6 +463,7 @@ process the same configuration several times. This method currently
 only returns true, i.e. any errors should be caught by the preceding 
 <code>setNewEventLHEF</code> call.
 </method>
+ 
 
 <h3>A runtime Fortran interface</h3>
 
@@ -487,9 +495,32 @@ the C++ structure is provided by the existing <code>setInit()</code> and
 <code>setEvent()</code> code. 
 
 <p/>
-See further 
-<aloc href="AccessPYTHIA6Processes">here</aloc> for information how 
-PYTHIA 6.4 can be linked to make use of this facility. 
+Up to and including version 8.125 the <code>LHAupFortran</code> class
+was used to construct a runtime interface to PYTHIA 6.4. This was 
+convenient in the early days of PYTHIA 8 evolution, when this program 
+did not yet contain hard-process generation, and the LHEF standard 
+did not yet exist. Nowadays it is more of a bother, since a full
+cross-platform support leads to many possible combinations. Therefore
+it has been removed in the current version. Nevertheless, should you
+wish to use it, the relevant pieces could be picked up from 8.125
+and reinserted into a later version. These pieces are:
+<ul>
+<li>The <code>include/Pythia6Interface.h</code> file, which provides the
+interfaces to the PYTHIA 6.4 methods you will need to generate
+hard processes.</li>
+<li>The <code>htmldoc/AccessPYTHIA6Processes.html</code> file, 
+which describes the facility.</li>  
+<li>In the <code>examples</code> subdirectory the files 
+<code>main51.cc</code>, <code>main52.cc</code>,
+<code>main52.ccmnd</code>, <code>main52.fcmnd</code>,
+<code>main53.f</code> (!), <code>main54.cc</code> and
+<code>main54.cmnd</code> may serve as useful templates.</li>
+<li>To run them, you need to use the <code>examples/configure</code> 
+and <code>examples/Makefile</code> files, either to replace the current
+one, or to borrow the relevant pieces from (i.e. those pertaining
+to PYTHIA6 variables in <code>configure</code> and to the 
+<code>main51 - main54</code> programs in <code>Makefile</code>).</li>
+</ul>
 
 <h3>Methods for LHEF output</h3>
 

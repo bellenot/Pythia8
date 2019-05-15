@@ -5,15 +5,15 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.125      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 16 Jun 2009  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.130      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 15 Sep 2009  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 16 Jun 2009 at 17:39:41    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 15 Sep 2009 at 09:09:13    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Theoretical Physics, Lund University,   |  | 
  |  |      Solvegatan 14A, SE-223 62 Lund, Sweden;                                 |  | 
  |  |      phone: + 46 - 46 - 222 48 16; e-mail: torbjorn@thep.lu.se               |  | 
- |  |   Stefan Ask;  Department of Physics, University of Manchester,              |  | 
+ |  |   Stefan Ask;  School of Physics and Astronomy, University of Manchester,    |  | 
  |  |      Oxford Road, Manchester M13 9PL, United Kingdom;                        |  | 
  |  |      phone: + 41 - 22 - 767 5670; e-mail: Stefan.Ask@cern.ch                 |  | 
  |  |   Richard Corke;  Department of Theoretical Physics, Lund University,        |  | 
@@ -50,6 +50,8 @@
  *------------------------------------------------------------------------------------* 
 
  PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
+ PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
+ PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
 
  *-------  PYTHIA Process Initialization  --------------------------*
  |                                                                  |
@@ -136,7 +138,7 @@
  *-------  End PYTHIA Error and Warning Messages Statistics  ------------------------------------------------------* 
 
 
-  2009-06-16 17:39       center-of-mass energy deviation
+  2009-09-15 09:09       center-of-mass energy deviation
 
         5.60*10^ 2                                                      1                                               
         5.40*10^ 2                                                 319  X                                               
@@ -182,7 +184,7 @@
    All chan =  1.0000e+04    Rms  =  2.8558e+00    Overflow  =  0.0000e+00    High edge =  2.0000e+01
 
 
-  2009-06-16 17:39       net pX offset
+  2009-09-15 09:09       net pX offset
 
         6.00*10^ 2                                                    8                                                 
         5.80*10^ 2                                                 959X                                                 
@@ -230,7 +232,7 @@
    All chan =  1.0000e+04    Rms  =  1.3855e-01    Overflow  =  0.0000e+00    High edge =  1.0000e+00
 
 
-  2009-06-16 17:39       net pY offset
+  2009-09-15 09:09       net pY offset
 
         6.00*10^ 2                                                    1                                                 
         5.80*10^ 2                                                    X9                                                
@@ -278,7 +280,7 @@
    All chan =  1.0000e+04    Rms  =  1.4276e-01    Overflow  =  0.0000e+00    High edge =  1.0000e+00
 
 
-  2009-06-16 17:39       net pZ offset
+  2009-09-15 09:09       net pZ offset
 
         2.90*10^ 2                                                 2     5                                              
         2.80*10^ 2                                                 X  7  X                                              
@@ -325,7 +327,7 @@
    All chan =  1.0000e+04    Rms  =  2.8870e+00    Overflow  =  0.0000e+00    High edge =  1.0000e+01
 
 
-  2009-06-16 17:39       individual abs(pZ) offset
+  2009-09-15 09:09       individual abs(pZ) offset
 
         8.10*10^ 2                                                   6                                                  
         7.80*10^ 2                                                  5X95                                                
@@ -370,7 +372,7 @@
    All chan =  2.0000e+04    Rms  =  2.0309e+00    Overflow  =  0.0000e+00    High edge =  1.0000e+01
 
 
-  2009-06-16 17:39       vertex x position
+  2009-09-15 09:09       vertex x position
 
         3.00*10^ 2                                                  7 1                                                 
         2.90*10^ 2                                                  X X  8                                              
@@ -418,7 +420,7 @@
    All chan =  9.9890e+03    Rms  =  2.9891e-01    Overflow  =  5.0000e+00    High edge =  1.0000e+00
 
 
-  2009-06-16 17:39       vertex y position
+  2009-09-15 09:09       vertex y position
 
         2.70*10^ 2                                               8X    3                                                
         2.60*10^ 2                                               XX 379X 2                                              
@@ -463,7 +465,7 @@
    All chan =  9.9950e+03    Rms  =  3.0114e-01    Overflow  =  2.0000e+00    High edge =  1.0000e+00
 
 
-  2009-06-16 17:39       vertex z position
+  2009-09-15 09:09       vertex z position
 
         4.20*10^ 2                                                   9 4                                                
         4.05*10^ 2                                                   X5X                                                
@@ -509,7 +511,7 @@
    All chan =  1.0000e+04    Rms  =  2.0296e+01    Overflow  =  0.0000e+00    High edge =  1.0000e+02
 
 
-  2009-06-16 17:39       vertex time
+  2009-09-15 09:09       vertex time
 
         4.50*10^ 2                                                   3                                                  
         4.35*10^ 2                                                   X                                                  
@@ -557,7 +559,7 @@
    All chan =  1.0000e+04    Rms  =  2.0600e+01    Overflow  =  0.0000e+00    High edge =  1.0000e+02
 
 
-  2009-06-16 17:39       vertex |x| + |t|
+  2009-09-15 09:09       vertex |x| + |t|
 
         4.05*10^ 2                                                12 4                                                  
         3.90*10^ 2                                                XX X                                                  

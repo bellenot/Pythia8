@@ -112,22 +112,22 @@ Allow or not selection of primordial <i>kT</i> according to the
 parameter values below.
   
 
-<br/><br/><table><tr><td><strong>BeamRemnants:primordialKTsoft </td><td></td><td> <input type="text" name="2" value="0.4" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.4</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>BeamRemnants:primordialKTsoft </td><td></td><td> <input type="text" name="2" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
 The width <i>sigma_soft</i> in the above equation, assigned as a 
 primordial <i>kT</i> to initiators in the soft-interaction limit.
   
 
-<br/><br/><table><tr><td><strong>BeamRemnants:primordialKThard </td><td></td><td> <input type="text" name="3" value="2.1" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.1</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>BeamRemnants:primordialKThard </td><td></td><td> <input type="text" name="3" value="2.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.0</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
 The width <i>sigma_hard</i> in the above equation, assigned as a 
 primordial <i>kT</i> to initiators in the hard-interaction limit.
   
 
-<br/><br/><table><tr><td><strong>BeamRemnants:halfScaleForKT </td><td></td><td> <input type="text" name="4" value="7." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>7.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>BeamRemnants:halfScaleForKT </td><td></td><td> <input type="text" name="4" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
 The scale <i>Q_half</i> in the equation above, defining the 
 half-way point between hard and soft interactions. 
   
 
-<br/><br/><table><tr><td><strong>BeamRemnants:halfMassForKT </td><td></td><td> <input type="text" name="5" value="2." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>BeamRemnants:halfMassForKT </td><td></td><td> <input type="text" name="5" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
 The scale <i>m_half</i> in the equation above, defining the 
 half-way point between low-mass and high-mass subsystems.
 (Kinematics construction can easily fail if a system is assigned 
@@ -204,7 +204,7 @@ of a lower-<i>pT</i> system are merged with the ones in a higher-pT one.
 Allow or not a system to be merged with another one.
   
 
-<br/><br/><table><tr><td><strong>BeamRemnants:reconnectRange </td><td></td><td> <input type="text" name="9" value="2.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.5</strong></code>; <code>minimum = 0.</code>; <code>maximum = 10.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>BeamRemnants:reconnectRange </td><td></td><td> <input type="text" name="9" value="10.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>10.0</strong></code>; <code>minimum = 0.</code>; <code>maximum = 10.</code>)</td></tr></table>
 A system with a hard scale <i>pT</i> can be merged with one of a 
 harder scale with a probability that is 
 <i>pT0_Rec^2 / (pT0_Rec^2 + pT^2)</i>, where
@@ -335,52 +335,6 @@ multiple interactions and showers are redone until a
 junction-free topology is found. 
    
 
-<h3>Diffractive system</h3>
-
-When an incoming hadron beam is diffractively excited, it is modeled 
-as if either a valence quark or a gluon is kicked out from the hadron.
-In the former case this produces a simple string to the leftover 
-remnant, in the latter it gives a hairpin arrangement where a string
-is stretched from one quark in the remnant, via the gluon, back to the   
-rest of the remnant. The latter ought to dominate at higher mass of 
-the diffractive system. Therefore an approximate behaviour like 
-<br/><i>
-P_q / P_g = N / m^p
-</i><br/> 
-is assumed.
-
-<br/><br/><table><tr><td><strong>BeamRemnants:pickQuarkNorm </td><td></td><td> <input type="text" name="17" value="5.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5.0</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
-The abovementioned normalization <i>N</i> for the relative quark
-rate in diffractive systems.
-  
-
-<br/><br/><table><tr><td><strong>BeamRemnants:pickQuarkPower </td><td></td><td> <input type="text" name="18" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
-The abovementioned mass-dependence power <i>p</i> for the relative 
-quark rate in diffractive systems.
-  
-
-<p/>
-When a gluon is kicked out from the hadron, the longitudinal momentum
-sharing between the the two remnant partons is determined by the
-same parameters as above. It is plausible that the primordial 
-<i>kT</i> may be lower than in perturbative processes, however:
-
-<br/><br/><table><tr><td><strong>BeamRemnants:diffPrimKTwidth </td><td></td><td> <input type="text" name="19" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
-The width of Gaussian distributions in <i>p_x</i> and <i>p_y</i> 
-separately that is assigned as a primordial <i>kT</i> to the two 
-beam remnants when a gluon is kicked out of a diffractive system.
-  
-
-<br/><br/><table><tr><td><strong>BeamRemnants:diffLargeMassSuppress </td><td></td><td> <input type="text" name="20" value="2." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
-The choice of longitudinal and transverse structure of a diffractive
-beam remnant for a kicked-out gluon implies a remnant mass 
-<i>m_rem</i> distribution (i.e. quark plus diquark invariant mass 
-for a baryon beam) that knows no bounds. A suppression like 
-<i>(1 - m_rem^2 / m_diff^2)^p</i> is therefore introduced, where 
-<i>p</i> is the <code>diffLargeMassSuppress</code> parameter.    
-
-  
-
 <input type="hidden" name="saved" value="1"/>
 
 <?php
@@ -401,22 +355,22 @@ if($_POST["1"] != "on")
 $data = "BeamRemnants:primordialKT = ".$_POST["1"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["2"] != "0.4")
+if($_POST["2"] != "0.5")
 {
 $data = "BeamRemnants:primordialKTsoft = ".$_POST["2"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["3"] != "2.1")
+if($_POST["3"] != "2.0")
 {
 $data = "BeamRemnants:primordialKThard = ".$_POST["3"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["4"] != "7.")
+if($_POST["4"] != "1.")
 {
 $data = "BeamRemnants:halfScaleForKT = ".$_POST["4"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["5"] != "2.")
+if($_POST["5"] != "1.")
 {
 $data = "BeamRemnants:halfMassForKT = ".$_POST["5"]."\n";
 fwrite($handle,$data);
@@ -436,7 +390,7 @@ if($_POST["8"] != "on")
 $data = "BeamRemnants:reconnectColours = ".$_POST["8"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["9"] != "2.5")
+if($_POST["9"] != "10.0")
 {
 $data = "BeamRemnants:reconnectRange = ".$_POST["9"]."\n";
 fwrite($handle,$data);
@@ -474,26 +428,6 @@ fwrite($handle,$data);
 if($_POST["16"] != "on")
 {
 $data = "BeamRemnants:allowJunction = ".$_POST["16"]."\n";
-fwrite($handle,$data);
-}
-if($_POST["17"] != "5.0")
-{
-$data = "BeamRemnants:pickQuarkNorm = ".$_POST["17"]."\n";
-fwrite($handle,$data);
-}
-if($_POST["18"] != "1.0")
-{
-$data = "BeamRemnants:pickQuarkPower = ".$_POST["18"]."\n";
-fwrite($handle,$data);
-}
-if($_POST["19"] != "0.5")
-{
-$data = "BeamRemnants:diffPrimKTwidth = ".$_POST["19"]."\n";
-fwrite($handle,$data);
-}
-if($_POST["20"] != "2.")
-{
-$data = "BeamRemnants:diffLargeMassSuppress = ".$_POST["20"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);

@@ -3,8 +3,8 @@
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Function definitions (not found in the header) for the PDF,
-// GRV94L, CTEQ5L, LHAPDF  and Lepton classes.
+// Function definitions (not found in the header) for the PDF, GRV94L, 
+// CTEQ5L, LHAPDF, GRVpiL, PomFix, PomH1FitAB, PomH1Jets and Lepton classes.
 
 #include "PartonDistributions.h"
 #include "LHAPDFInterface.h"
@@ -668,9 +668,13 @@ void GRVpiL::xfUpdate(int id, double x, double Q2) {
  
 //**************************************************************************
 
+// Pomeron PDF: simple Q2-independent parametrizations N x^a (1 - x)^b.
+
+//*********
+ 
 // Calculate normalization factors once and for all.
 
-void PomPDF::init() {
+void PomFix::init() {
  
   normGluon = GammaReal(PomGluonA + PomGluonB + 2.) 
             / (GammaReal(PomGluonA + 1.) * GammaReal(PomGluonB + 1.));
@@ -683,7 +687,7 @@ void PomPDF::init() {
 
 // Gives a generic Q2-independent Pomeron PDF.
 
-void PomPDF::xfUpdate(int id, double x, double) {
+void PomFix::xfUpdate(int id, double x, double) {
 
   // Gluon and quark distributions.
   double gl = normGluon * pow(x, PomGluonA) * pow( (1. - x), PomGluonB); 
@@ -710,6 +714,258 @@ void PomPDF::xfUpdate(int id, double x, double) {
   id    = 0;
 
 }
+ 
+//**************************************************************************
+
+// Pomeron PDF: the H1 2006 Fit A and Fit B Q2-dependent parametrizations.
+
+//*********
+
+void PomH1FitAB::init( int iFit, string xmlPath, Info* infoPtr) {
+
+  // Open files from which grids should be read in.
+  if (xmlPath[ xmlPath.length() - 1 ] != '/') xmlPath += "/";
+  string dataFile = (iFit == 1) ? "PomH1FitA.data" : "PomH1FitB.data";
+  ifstream is( (xmlPath + dataFile).c_str() );
+  if (!is) {
+    if (infoPtr > 0) infoPtr->errorMsg("Error from PomH1FitAB::init: "
+      "the H1 Pomeron parametrization file was not found");  
+    else cout << " Error from PomH1FitAB::init: "
+      << "the H1 Pomeron parametrization file was not found" << endl;  
+    isSet = false;
+    return;
+  }
+
+  // Lower and upper bounds. Bin widths for logarithmic spacing.
+  nx    = 100;
+  xlow  = 0.001;
+  xupp  = 0.99;
+  dx    = log(xupp / xlow) / (nx - 1.);
+  nQ2   = 30;
+  Q2low = 1.0;
+  Q2upp = 30000.;
+  dQ2   = log(Q2upp / Q2low) / (nQ2 - 1.);
+ 
+  // Read in quark data grid.
+  for (int i = 0; i < nx; ++i) 
+    for (int j = 0; j < nQ2; ++j) 
+      is >> quarkGrid[i][j];
+  
+  // Read in gluon data grid.
+  for (int i = 0; i < nx; ++i) 
+    for (int j = 0; j < nQ2; ++j) 
+      is >> gluonGrid[i][j];
+
+  // Check for errors during read-in of file.
+  if (!is) {
+    if (infoPtr > 0) infoPtr->errorMsg("Error from PomH1FitAB::init: "
+      "the H1 Pomeron parametrization files could not be read");  
+    else cout << " Error from PomH1FitAB::init: "
+      << "the H1 Pomeron parametrization files could not be read" << endl;  
+    isSet = false;
+    return;
+  }
+
+  // Done.
+  isSet = true;
+  return;
+}
+
+//*********
+
+void PomH1FitAB::xfUpdate(int id, double x, double Q2) {
+
+  // Retrict input to validity range.
+  double xt  = min( xupp, max( xlow, x) );
+  double Q2t = min( Q2upp, max( Q2low, Q2) ); 
+
+  // Lower grid point and distance above it.
+  double dlx  = log( xt / xlow) / dx;
+  int i       = min( nx - 2,  int(dlx) );
+  dlx        -= i;
+  double dlQ2 = log( Q2t / Q2low) / dQ2;
+  int j       = min( nQ2 - 2, int(dlQ2) );
+  dlQ2       -= j;
+ 
+  // Interpolate to derive quark PDF.
+  double qu = (1. - dlx) * (1. - dlQ2) * quarkGrid[i][j] 
+            +       dlx  * (1. - dlQ2) * quarkGrid[i + 1][j] 
+            + (1. - dlx) *       dlQ2  * quarkGrid[i][j + 1]
+            +       dlx  *       dlQ2  * quarkGrid[i + 1][j + 1];  
+
+  // Interpolate to derive gluon PDF. 
+  double gl = (1. - dlx) * (1. - dlQ2) * gluonGrid[i][j] 
+            +       dlx  * (1. - dlQ2) * gluonGrid[i + 1][j] 
+            + (1. - dlx) *       dlQ2  * gluonGrid[i][j + 1]
+            +       dlx  *       dlQ2  * gluonGrid[i + 1][j + 1];
+
+  // Update values.
+  xg    = rescale * gl;
+  xu    = rescale * qu;
+  xd    = xu; 
+  xubar = xu; 
+  xdbar = xu;
+  xs    = xu;
+  xc    = 0.;
+  xb    = 0.;
+
+  // Subdivision of valence and sea.
+  xuVal = 0.;
+  xuSea = xu;
+  xdVal = 0.;
+  xdSea = xu;
+
+  // idSav = 9 to indicate that all flavours reset. id change dummy. 
+  idSav = 9;
+  id    = 0;
+
+} 
+ 
+//**************************************************************************
+
+// Pomeron PDF: the H1 2007 Jets Q2-dependent parametrization.
+
+//*********
+
+void PomH1Jets::init( string xmlPath, Info* infoPtr) {
+
+  // Open files from which grids should be read in.
+  if (xmlPath[ xmlPath.length() - 1 ] != '/') xmlPath += "/";
+  ifstream isg( (xmlPath + "PomH1JetsGluon.data").c_str() );
+  ifstream isq( (xmlPath + "PomH1JetsSinglet.data").c_str() );
+  ifstream isc( (xmlPath + "PomH1JetsCharm.data").c_str() );
+  if (!isg || !isq || !isc) {
+    if (infoPtr > 0) infoPtr->errorMsg("Error from PomH1Jets::init: "
+      "the H1 Pomeron parametrization files were not found");  
+    else cout << " Error from PomH1Jets::init: "
+      << "the H1 Pomeron parametrization files were not found" << endl;  
+    isSet = false;
+    return;
+  }
+
+  // Read in x and Q grids. Do interpolation logarithmically in Q2.
+  for (int i = 0; i < 100; ++i) {
+    isg >> setw(13) >> xGrid[i];
+  }
+  for (int j = 0; j < 88; ++j) {
+    isg >> setw(13) >> Q2Grid[j];
+    Q2Grid[j] = log( Q2Grid[j] );
+  }
+
+  // Read in  gluon data grid.
+  for (int j = 0; j < 88; ++j) {
+    for (int i = 0; i < 100; ++i) {
+      isg >> setw(13) >> gluonGrid[i][j];
+    }
+  }
+
+  // Identical x and Q2 grid for singlet, so skip ahead.
+  double dummy;
+  for (int i = 0; i < 188; ++i) isq >> setw(13) >> dummy;  
+
+  // Read in singlet data grid.
+  for (int j = 0; j < 88; ++j) {
+    for (int i = 0; i < 100; ++i) {
+      isq >> setw(13) >> singletGrid[i][j];
+    }
+  }
+
+  // Identical x and Q2 grid for charm, so skip ahead.
+  for (int i = 0; i < 188; ++i) isc >> setw(13) >> dummy;  
+
+  // Read in charm data grid. 
+  for (int j = 0; j < 88; ++j) {
+    for (int i = 0; i < 100; ++i) {
+      isc >> setw(13) >> charmGrid[i][j];
+    }
+  }
+
+  // Check for errors during read-in of files.
+  if (!isg || !isq || !isc) {
+    if (infoPtr > 0) infoPtr->errorMsg("Error from PomH1Jets::init: "
+      "the H1 Pomeron parametrization files could not be read");  
+    else cout << " Error from PomH1Jets::init: "
+      << "the H1 Pomeron parametrization files could not be read" << endl;  
+    isSet = false;
+    return;
+  }
+
+  // Done.
+  isSet = true;
+  return;
+}
+
+//*********
+
+void PomH1Jets::xfUpdate(int id, double x, double Q2) {
+
+  // Find position in x array.
+  double xLog = log(x);
+  int    i    = 0;
+  double dx   = 0.; 
+  if (xLog <= xGrid[0]);     
+  else if (xLog >= xGrid[99]) {
+    i  = 98;
+    dx = 1.; 
+  } else {
+    while (xLog > xGrid[i]) ++i;
+    --i;
+    dx = (xLog - xGrid[i]) / (xGrid[i + 1] - xGrid[i]);
+  }
+ 
+  // Find position in y array.
+  double Q2Log = log(Q2);
+  int    j     = 0;
+  double dQ2   = 0.;
+  if (Q2Log <= Q2Grid[0]);
+  else if (Q2Log >= Q2Grid[87]) {
+    j   = 86;
+    dQ2 = 1.;  
+  } else {
+    while (Q2Log > Q2Grid[j]) ++j; 
+    --j;
+    dQ2 = (Q2Log - Q2Grid[j]) / (Q2Grid[j + 1] - Q2Grid[j]);
+  } 
+ 
+  // Interpolate to derive gluon PDF. 
+  double gl = (1. - dx) * (1. - dQ2) * gluonGrid[i][j] 
+            +       dx  * (1. - dQ2) * gluonGrid[i + 1][j] 
+            + (1. - dx) *       dQ2  * gluonGrid[i][j + 1]
+            +       dx  *       dQ2  * gluonGrid[i + 1][j + 1];  
+
+  // Interpolate to derive singlet PDF. (Sum of u, d, s, ubar, dbar, sbar.)
+  double sn = (1. - dx) * (1. - dQ2) * singletGrid[i][j] 
+            +       dx  * (1. - dQ2) * singletGrid[i + 1][j] 
+            + (1. - dx) *       dQ2  * singletGrid[i][j + 1]
+            +       dx  *       dQ2  * singletGrid[i + 1][j + 1];  
+
+  // Interpolate to derive charm PDF. (Charge-square times c and cbar.)
+  double ch = (1. - dx) * (1. - dQ2) * charmGrid[i][j] 
+            +       dx  * (1. - dQ2) * charmGrid[i + 1][j] 
+            + (1. - dx) *       dQ2  * charmGrid[i][j + 1]
+            +       dx  *       dQ2  * charmGrid[i + 1][j + 1];  
+
+  // Update values.  
+  xg    = rescale * gl;
+  xu    = rescale * sn / 6.;
+  xd    = xu; 
+  xubar = xu; 
+  xdbar = xu;
+  xs    = xu;
+  xc    = rescale * ch * 9./8.;
+  xb    = 0.;
+
+  // Subdivision of valence and sea.
+  xuVal = 0.;
+  xuSea = xu;
+  xdVal = 0.;
+  xdSea = xd;
+
+  // idSav = 9 to indicate that all flavours reset. id change dummy. 
+  idSav = 9;
+  id    = 0;
+
+} 
  
 //**************************************************************************
 

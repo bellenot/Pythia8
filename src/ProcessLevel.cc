@@ -566,8 +566,8 @@ bool ProcessLevel::initSLHA() {
 	ostringstream idCode;
 	idCode << id;      
 	infoPtr->errorMsg("Warning in ProcessLevel::initSLHA: "
-			  "ignoring MASS entry for id = "+idCode.str()
-			  +" (m0 < SLHA:minMassSM)");
+	  "ignoring MASS entry", "for id = "+idCode.str()
+	  +" (m0 < SLHA:minMassSM)", true);
       }
       id = slhaPtr->mass.next();
     };
@@ -594,8 +594,8 @@ bool ProcessLevel::initSLHA() {
       ostringstream idCode;
       idCode << idRes;      
       infoPtr->errorMsg("Warning in ProcessLevel::initSLHA: "
-			"ignoring DECAY table for id = "+idCode.str()
-			+" (m0 < SLHA:minMassSM)");
+        "ignoring DECAY table", "for id = " + idCode.str()
+	+ " (m0 < SLHA:minMassSM)", true);
       continue;
     }
     
@@ -647,9 +647,9 @@ bool ProcessLevel::initSLHA() {
 	  errCode << idRes <<" ->";
 	  for (int jDa=0; jDa<int(idDa.size()); ++jDa) errCode<<" "<<idDa[jDa];
 	  infoPtr->errorMsg("Warning in ProcessLevel::initSLHA: "
-		 "switching off " + errCode.str() + " (mRes - mDa < massMargin)");
-	  cout << "       (Note: cross sections will be scaled by remaining"
-               << " open branching fractions!)" << endl;
+	    "switching off decay",  errCode.str() + " (mRes - mDa < massMargin)"
+            "\n       (Note: cross sections will be scaled by remaining"
+	    " open branching fractions!)" , true);
 	  onMode=0;
 	}
 	
@@ -989,6 +989,12 @@ void ProcessLevel::findJunctions( Event& junEvent) {
 
     // Find all daughters and store daughter colours and anticolours.
     vector<int> daughters = junEvent.daughterList(i);
+    // Debug??
+    if (junEvent.size() == 3 && daughters.size() > 0) {
+      cout << " warning: dughtersize = " << daughters.size() << endl;
+      junEvent.list();
+    } 
+    // End debug???
     vector<int> cols, acols;
     for (int j = 0; j < int(daughters.size()); ++j) {
       int colDau  = junEvent[ daughters[j] ].col();

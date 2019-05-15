@@ -226,7 +226,7 @@ The parton densities of the pion are considerably less well known than
 those of the proton. There are only rather few sets on the market,
 and none particularly recent. Only one comes built-in, but others can 
 be accessed from LHAPDF. Input parametrizations are for the <i>pi+</i>.
-From this the <i>pi-</i> is obtained by chanrge conjugation and the 
+From this the <i>pi-</i> is obtained by charge conjugation and the 
 <i>pi0</i> from averaging (half the pions have <i>d dbar</i> 
 valence quark content, half <i>u ubar</i>.
 
@@ -270,35 +270,55 @@ less well known. There are sets to be found in LHAPDF, and none
 that explicitly provide the Q2-dependence. Therefore only very simple
 alternatives are provided.
 
-<br/><br/><table><tr><td><strong>PDF:PomSet  </td><td>  &nbsp;&nbsp;(<code>default = <strong>1</strong></code>; <code>minimum = 1</code>; <code>maximum = 2</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>PDF:PomSet  </td><td>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 1</code>; <code>maximum = 5</code>)</td></tr></table>
 Parton densities that can be used for Pomeron beams. 
 <br/>
-<input type="radio" name="15" value="1" checked="checked"><strong>1 </strong>: <ei>Q^2</ei>-independent parametrizations <ei>xf(x) = N_ab x^a (1 - x)^b</ei>, where <ei>N_ab</ei> ensures unit momentum sum. The <ei>a</ei> and <ei>b</ei> parameters can be  set separately for the gluon and the quark distributions. The momentum fraction of gluons and quarks can be freely mixed, and  production of <ei>s</ei> quarks can be suppressed relative to  that of <ei>d</ei> and <ei>u</ei> ones, with antiquarks as likely  as quarks. See further below how to set the six parameters of this  approach. <br/>
-<input type="radio" name="15" value="2"><strong>2 </strong>: <ei>pi0</ei> distributions, as specified in the  section above.<br/>
+<input type="radio" name="15" value="1"><strong>1 </strong>: <ei>Q^2</ei>-independent parametrizations <ei>xf(x) = N_ab x^a (1 - x)^b</ei>, where <ei>N_ab</ei> ensures unit momentum sum. The <ei>a</ei> and <ei>b</ei> parameters can be  set separately for the gluon and the quark distributions. The momentum fraction of gluons and quarks can be freely mixed, and  production of <ei>s</ei> quarks can be suppressed relative to  that of <ei>d</ei> and <ei>u</ei> ones, with antiquarks as likely  as quarks. See further below how to set the six parameters of this  approach. <br/>
+<input type="radio" name="15" value="2"><strong>2 </strong>: <ei>pi0</ei> distributions, as specified in the  section above. <br/>
+<input type="radio" name="15" value="3"><strong>3 </strong>: the H1 2006 Fit A <ei>Q^2</ei>-dependent  parametrization, based on a tune to their data <ref>H1P06</ref>, rescaled by the factor <code>PomRescale</code> below. <br/>
+<input type="radio" name="15" value="4"><strong>4 </strong>: the H1 2006 Fit B <ei>Q^2</ei>-dependent  parametrization, based on a tune to their data <ref>H1P06</ref>, rescaled by the factor <code>PomRescale</code> below. <br/>
+<input type="radio" name="15" value="5" checked="checked"><strong>5 </strong>: the H1 2007 Jets <ei>Q^2</ei>-dependent  parametrization, based on a tune to their data <ref>H1P07</ref>, rescaled by the factor <code>PomRescale</code> below. <br/>
 
 <br/><br/><table><tr><td><strong>PDF:PomGluonA </td><td></td><td> <input type="text" name="16" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>; <code>minimum = -0.5</code>; <code>maximum = 2.</code>)</td></tr></table>
 the parameter <i>a</i> in the ansatz <i>xg(x) = N_ab x^a (1 - x)^b</i>
 for option 1 above.
+  
 
 <br/><br/><table><tr><td><strong>PDF:PomGluonB </td><td></td><td> <input type="text" name="17" value="3." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>3.</strong></code>; <code>minimum = 0.</code>; <code>maximum = 10.</code>)</td></tr></table>
 the parameter <i>b</i> in the ansatz <i>xg(x) = N_ab x^a (1 - x)^b</i>
 for option 1 above.
+  
 
 <br/><br/><table><tr><td><strong>PDF:PomQuarkA </td><td></td><td> <input type="text" name="18" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>; <code>minimum = -0.5</code>; <code>maximum = 2.</code>)</td></tr></table>
 the parameter <i>a</i> in the ansatz <i>xq(x) = N_ab x^a (1 - x)^b</i>
 for option 1 above.
+  
 
 <br/><br/><table><tr><td><strong>PDF:PomQuarkB </td><td></td><td> <input type="text" name="19" value="3." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>3.</strong></code>; <code>minimum = 0.</code>; <code>maximum = 10.</code>)</td></tr></table>
 the parameter <i>b</i> in the ansatz <i>xq(x) = N_ab x^a (1 - x)^b</i>
 for option 1 above.
+  
 
 <br/><br/><table><tr><td><strong>PDF:PomQuarkFrac </td><td></td><td> <input type="text" name="20" value="0.2" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.2</strong></code>; <code>minimum = 0.</code>; <code>maximum = 1.</code>)</td></tr></table>
 the fraction of the Pomeron momentum carried by quarks 
 for option 1 above, with the rest carried by gluons.
+  
 
 <br/><br/><table><tr><td><strong>PDF:PomStrangeSupp </td><td></td><td> <input type="text" name="21" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.</code>; <code>maximum = 1.</code>)</td></tr></table>
 the suppression of the <i>s</i> quark density relative to that of the 
 <i>d</i> and <i>u</i> ones for option 1 above.
+  
+
+<br/><br/><table><tr><td><strong>PDF:PomRescale </td><td></td><td> <input type="text" name="22" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.5</code>; <code>maximum = 5.0</code>)</td></tr></table>
+Rescale the three H1 fits above by this uniform factor, e.g. to bring 
+up their momentum sum to around unity. By default all three have
+a momentum sum of order 0.5, suggesting that a factor around 2.0
+should be used. You can use <code>examples/main41.cc</code> to get
+a more precise value. Note that also other parameters in the 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='Diffraction.php?filepath=".$filepath."' target='page'>";?>diffraction</a> framework may need to
+be retuned when this parameter is changed.
+  
 
 <h3>Parton densities for leptons</h3>
 
@@ -309,8 +329,8 @@ However, insofar as e.g. <i>e^+ e^-</i> data often are corrected
 back to a world without any initial-state photon radiation, it is 
 useful to have a corresponding option available here.
 
-<br/><br/><strong>PDF:lepton</strong>  <input type="radio" name="22" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="22" value="off"><strong>Off</strong>
+<br/><br/><strong>PDF:lepton</strong>  <input type="radio" name="23" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="23" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Use parton densities for lepton beams or not. If off the colliding
 leptons carry the full beam energy, if on part of the energy is 
@@ -330,7 +350,7 @@ only which quarks are allowed to contribute to the hard-process cross
 sections. Note that separate but similarly named modes are available 
 for multiple interactions and spacelike showers.
 
-<br/><br/><table><tr><td><strong>PDFinProcess:nQuarkIn  </td><td></td><td> <input type="text" name="23" value="5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>PDFinProcess:nQuarkIn  </td><td></td><td> <input type="text" name="24" value="5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
 Number of allowed incoming quark flavours in the beams; a change 
 to 4 would thus exclude <i>b</i> and <i>bbar</i> as incoming 
 partons, etc.
@@ -421,7 +441,7 @@ if($_POST["14"] != "0")
 $data = "PDF:piLHAPDFmember = ".$_POST["14"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["15"] != "1")
+if($_POST["15"] != "5")
 {
 $data = "PDF:PomSet = ".$_POST["15"]."\n";
 fwrite($handle,$data);
@@ -456,14 +476,19 @@ if($_POST["21"] != "0.5")
 $data = "PDF:PomStrangeSupp = ".$_POST["21"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["22"] != "on")
+if($_POST["22"] != "1.0")
 {
-$data = "PDF:lepton = ".$_POST["22"]."\n";
+$data = "PDF:PomRescale = ".$_POST["22"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["23"] != "5")
+if($_POST["23"] != "on")
 {
-$data = "PDFinProcess:nQuarkIn = ".$_POST["23"]."\n";
+$data = "PDF:lepton = ".$_POST["23"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["24"] != "5")
+{
+$data = "PDFinProcess:nQuarkIn = ".$_POST["24"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);
