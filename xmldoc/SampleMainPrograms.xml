@@ -116,14 +116,14 @@ from a PYTHIA base class, and then handed in for internal use.</li>
 
 <li><code>main31.cc</code> : similar to main01, except that the 
 event record is output in the HepMC event record format. Requires 
-that HepMC and CLHEP are properly linked.</li>
+that HepMC is properly linked.</li>
 
 <li><code>main32.cc</code> : a streamlined version for the generation
 of events that are then stored in HepMC format, without any event 
 analysis. That is, all physics studies will have to be done afterwards.
 The name of the input "cards file" (e.g. <code>main32.cmnd</code>)
 and output HepMC event file are to be provided as command-line arguments.
-Requires that HepMC and CLHEP are properly linked.</li>
+Requires that HepMC is properly linked.</li>
 
 <li><code>main41.cc</code> : a test of the shape of parton densities,
 as a check prior to using a given PDF set in a generator.  Requires 
@@ -157,8 +157,8 @@ Requires that PYTHIA 6.4 is properly linked.</li>
 to generate hard processes, which are directly input to be generated
 in full by the internal machinery, using the settings in 
 <code>main54.cmnd</code>, and the output consists of a file with 
-HepMC event records for further analysis. Requires that PYTHIA 6.4, 
-HepMC and CLHEP are properly linked.</li>
+HepMC event records for further analysis. Requires that PYTHIA 6.4 
+and HepMC are properly linked.</li>
 
 </ul>
 

@@ -1,5 +1,5 @@
 // HepMCInterface.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Mikhail Kirsanov, Torbjorn Sjostrand.
+// Copyright (C) 2008 Mikhail Kirsanov, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -57,15 +57,13 @@ namespace HepMC {
 	std::vector<GenParticle*> hepevt_particles( pyev.size() );
     int i, istatus;
     for ( i = 1; i < pyev.size(); ++i ) {
-      istatus = pyev[i].status();
-      if( pyev[i].status() > 0) istatus = 1; // We lose here part of information
-                                             // due to HEPEVT - HepMC convention
+      // We here lose the detailed Pythia status information to conform to
+      // HepMC (HEPEVT) conventions: 1 = existing, 2 = decayed/fragmented. 
+      istatus = (pyev[i].status() > 0) ? 1 : 2;
+      // Alberto Ribon will schedule a further discussion on status codes
+      // for the next HepMC public review.
       hepevt_particles[i] = new GenParticle(
-#ifndef HEPMC2
-        HepLorentzVector( m_mom_scale_factor*pyev[i].p().px(),
-#else
               FourVector( m_mom_scale_factor*pyev[i].p().px(),
-#endif
                           m_mom_scale_factor*pyev[i].p().py(),
                           m_mom_scale_factor*pyev[i].p().pz(),
                           m_mom_scale_factor*pyev[i].p().e()  ),
@@ -119,35 +117,20 @@ namespace HepMC {
           }
         }
         // b. if no suitable production vertex exists - and the particle
-        // has atleast one mother or position information to store -
+        // has at least one mother or position information to store -
         // make one
-#ifndef HEPMC2
-        HepLorentzVector prod_pos( pyev[i].xProd(), pyev[i].yProd(),
-                                   pyev[i].zProd(), pyev[i].tProd() );
-#else
               FourVector prod_pos( pyev[i].xProd(), pyev[i].yProd(),
                                    pyev[i].zProd(), pyev[i].tProd() );
-#endif
         unsigned int nparents = mothers.size();
-#ifndef HEPMC2
         if ( !prod_vtx && ( nparents > 0 ||
-                            prod_pos != HepLorentzVector(0,0,0,0) ) ) {
-#else
-        if ( !prod_vtx && ( nparents > 0 ||
-                                  prod_pos != FourVector(0,0,0,0) ) ) {
-#endif
+                                  prod_pos != FourVector() ) ) {
            prod_vtx = new GenVertex();
            prod_vtx->add_particle_out( p );
            evt->add_vertex( prod_vtx );
         }
         // c. if prod_vtx doesn't already have position specified, fill it
-#ifndef HEPMC2
-        if ( prod_vtx && prod_vtx->position()==HepLorentzVector(0,0,0,0) )
+        if ( prod_vtx && prod_vtx->position()==FourVector() )
           prod_vtx->set_position( prod_pos );
-#else
-        if ( prod_vtx && prod_vtx->position()==FourVector(0,0,0,0) )
-          prod_vtx->set_position( prod_pos );
-#endif
         // d. loop over mothers to make sure their end_vertices are
         //     consistent
         imother = 0;
@@ -246,9 +229,9 @@ namespace HepMC {
     double x1 = pythia.info.x1();
     double x2 = pythia.info.x2();
     double Q  = pythia.info.QRen();
-    double pdf1 = pythia.info.pdf1()/pythia.info.x1();
-    double pdf2 = pythia.info.pdf2()/pythia.info.x2();
-    // here f(x) is put as a pdf density, not xf(x)!
+    double pdf1 = pythia.info.pdf1();
+    double pdf2 = pythia.info.pdf2();
+    // here xf(x) is put as a pdf density, not f(x)!
     evt->set_pdf_info( PdfInfo(id1,id2,x1,x2,Q,pdf1,pdf2) ) ;
   }
 

@@ -39,7 +39,7 @@ bool Rndm::rndmEnginePtr( RndmEngine* rndmPtrIn) {
 
   // Save pointer.
   if (rndmPtrIn == 0) return false; 
-  rndmPtr = rndmPtrIn;
+  rndmPtr         = rndmPtrIn;
   useExternalRndm = true;
 
   // Done.
@@ -62,10 +62,10 @@ void Rndm::init(int seedIn) {
   // Unpack seed.
   int ij = (seed/30082) % 31329;
   int kl = seed % 30082;
-  int i = (ij/177) % 177 + 2;
-  int j = ij % 177 + 2;
-  int k = (kl/169) % 178 + 1;
-  int l =  kl % 169;
+  int i  = (ij/177) % 177 + 2;
+  int j  = ij % 177 + 2;
+  int k  = (kl/169) % 178 + 1;
+  int l  =  kl % 169;
 
   // Initialize random number array.
   for (int ii = 0; ii < 97; ++ii) {
@@ -86,9 +86,9 @@ void Rndm::init(int seedIn) {
   // Initialize other variables.
   double twom24 = 1.;
   for (int i24 = 0; i24 < 24; ++i24) twom24 *= 0.5;
-  c = 362436. * twom24;
-  cd = 7654321. * twom24;
-  cm = 16777213. * twom24;
+  c   = 362436. * twom24;
+  cd  = 7654321. * twom24;
+  cm  = 16777213. * twom24;
   i97 = 96;
   j97 = 32;
 
@@ -134,16 +134,16 @@ double Rndm::gauss() {
 
   // Generate pair of Gaussian random numbers.
   if (!saveGauss) {
-    saveGauss = true;
-    double r = sqrt(-2. * log(flat()));
+    saveGauss  = true;
+    double r   = sqrt(-2. * log(flat()));
     double phi = 2. * M_PI * flat();
-    save = r * sin(phi);
-    return r * cos(phi);
+    save       = r * sin(phi);
+    return       r * cos(phi);
 
   // Use saved element of pair.
   } else {
-    saveGauss = false;
-    return save;
+    saveGauss  = false;
+    return       save;
   }
 
 } 
@@ -181,14 +181,18 @@ const double Vec4::TINY = 1e-20;
 
 // Rotation (simple).
 
-void Vec4::rot(double theta, double phi) {
+void Vec4::rot(double thetaIn, double phiIn) {
 
-  double cthe = cos(theta); double sthe = sin(theta);
-  double cphi = cos(phi); double sphi = sin(phi);
+  double cthe = cos(thetaIn); 
+  double sthe = sin(thetaIn);
+  double cphi = cos(phiIn); 
+  double sphi = sin(phiIn);
   double tmpx =  cthe * cphi * xx -    sphi * yy + sthe * cphi * zz;
   double tmpy =  cthe * sphi * xx +    cphi * yy + sthe * sphi * zz;
   double tmpz = -sthe *        xx +                cthe *        zz; 
-  xx = tmpx; yy = tmpy; zz = tmpz;
+  xx          = tmpx; 
+  yy          = tmpy; 
+  zz          = tmpz;
 
 }
 
@@ -196,16 +200,21 @@ void Vec4::rot(double theta, double phi) {
 
 // Azimuthal rotation phi around an arbitrary axis (nz, ny, nz).
 
-void Vec4::rotaxis(double phi, double nx, double ny, double nz) {
+void Vec4::rotaxis(double phiIn, double nx, double ny, double nz) {
 
   double norm = 1./sqrt(nx*nx + ny*ny + nz*nz);
-  nx *= norm; ny *=norm; nz *=norm; 
-  double cphi = cos(phi);  double sphi = sin(phi);
+  nx         *= norm; 
+  ny         *= norm; 
+  nz         *= norm; 
+  double cphi = cos(phiIn);  
+  double sphi = sin(phiIn);
   double comb = (nx * xx + ny * yy + nz * zz) * (1. - cphi);
   double tmpx = cphi * xx + comb * nx + sphi * (ny * zz - nz * yy);
   double tmpy = cphi * yy + comb * ny + sphi * (nz * xx - nx * zz);
   double tmpz = cphi * zz + comb * nz + sphi * (nx * yy - ny * xx);
-  xx = tmpx; yy = tmpy; zz = tmpz;
+  xx          = tmpx; 
+  yy          = tmpy; 
+  zz          = tmpz;
 
 }
 
@@ -213,17 +222,24 @@ void Vec4::rotaxis(double phi, double nx, double ny, double nz) {
 
 // Azimuthal rotation phi around an arbitrary (3-vector component of) axis.
 
-void Vec4::rotaxis(double phi, const Vec4& n) {
+void Vec4::rotaxis(double phiIn, const Vec4& n) {
 
-  double nx = n.xx; double ny = n.yy; double nz = n.zz;
+  double nx   = n.xx; 
+  double ny   = n.yy; 
+  double nz   = n.zz;
   double norm = 1./sqrt(nx*nx + ny*ny + nz*nz);
-  nx *= norm; ny *=norm; nz *=norm; 
-  double cphi = cos(phi);  double sphi = sin(phi);
+  nx         *= norm; 
+  ny          *=norm; 
+  nz          *=norm; 
+  double cphi = cos(phiIn);  
+  double sphi = sin(phiIn);
   double comb = (nx * xx + ny * yy + nz * zz) * (1. - cphi);
   double tmpx = cphi * xx + comb * nx + sphi * (ny * zz - nz * yy);
   double tmpy = cphi * yy + comb * ny + sphi * (nz * xx - nx * zz);
   double tmpz = cphi * zz + comb * nz + sphi * (nx * yy - ny * xx);
-  xx = tmpx; yy = tmpy; zz = tmpz;
+  xx          = tmpx; 
+  yy          = tmpy; 
+  zz          = tmpz;
 
 }
 
@@ -263,19 +279,19 @@ void Vec4::bst(double betaX, double betaY, double betaZ, double gamma) {
 
 // Boost given by a Vec4 p.
 
-void Vec4::bst(const Vec4& p) {
+void Vec4::bst(const Vec4& pIn) {
 
-  double betaX = p.xx/p.tt;
-  double betaY = p.yy/p.tt;
-  double betaZ = p.zz/p.tt;
+  double betaX = pIn.xx / pIn.tt;
+  double betaY = pIn.yy / pIn.tt;
+  double betaZ = pIn.zz / pIn.tt;
   double beta2 = betaX*betaX + betaY*betaY + betaZ*betaZ;
   double gamma = 1. / sqrt(1. - beta2);
   double prod1 = betaX * xx + betaY * yy + betaZ * zz;
   double prod2 = gamma * (gamma * prod1 / (1. + gamma) + tt);
-  xx += prod2 * betaX;
-  yy += prod2 * betaY;
-  zz += prod2 * betaZ;
-  tt = gamma * (tt + prod1);
+  xx          += prod2 * betaX;
+  yy          += prod2 * betaY;
+  zz          += prod2 * betaZ;
+  tt           = gamma * (tt + prod1);
 
 }
 
@@ -283,18 +299,18 @@ void Vec4::bst(const Vec4& p) {
 
 // Boost given by a Vec4 p and double m.
 
-void Vec4::bst(const Vec4& p, double m) {
+void Vec4::bst(const Vec4& pIn, double mIn) {
 
-  double betaX = p.xx/p.tt;
-  double betaY = p.yy/p.tt;
-  double betaZ = p.zz/p.tt;
-  double gamma = p.tt / m;
+  double betaX = pIn.xx / pIn.tt;
+  double betaY = pIn.yy / pIn.tt;
+  double betaZ = pIn.zz / pIn.tt;
+  double gamma = pIn.tt / mIn;
   double prod1 = betaX * xx + betaY * yy + betaZ * zz;
   double prod2 = gamma * (gamma * prod1 / (1. + gamma) + tt);
-  xx += prod2 * betaX;
-  yy += prod2 * betaY;
-  zz += prod2 * betaZ;
-  tt = gamma * (tt + prod1);
+  xx          += prod2 * betaX;
+  yy          += prod2 * betaY;
+  zz          += prod2 * betaZ;
+  tt           = gamma * (tt + prod1);
 
 }
 
@@ -302,19 +318,19 @@ void Vec4::bst(const Vec4& p, double m) {
 
 // Boost given by a Vec4 p; boost in opposite direction.
 
-void Vec4::bstback(const Vec4& p) {
+void Vec4::bstback(const Vec4& pIn) {
 
-  double betaX = -p.xx/p.tt;
-  double betaY = -p.yy/p.tt;
-  double betaZ = -p.zz/p.tt;
+  double betaX = -pIn.xx / pIn.tt;
+  double betaY = -pIn.yy / pIn.tt;
+  double betaZ = -pIn.zz / pIn.tt;
   double beta2 = betaX*betaX + betaY*betaY + betaZ*betaZ;
   double gamma = 1. / sqrt(1. - beta2);
   double prod1 = betaX * xx + betaY * yy + betaZ * zz;
   double prod2 = gamma * (gamma * prod1 / (1. + gamma) + tt);
-  xx += prod2 * betaX;
-  yy += prod2 * betaY;
-  zz += prod2 * betaZ;
-  tt = gamma * (tt + prod1);
+  xx          += prod2 * betaX;
+  yy          += prod2 * betaY;
+  zz          += prod2 * betaZ;
+  tt           = gamma * (tt + prod1);
 
 }
 
@@ -322,18 +338,18 @@ void Vec4::bstback(const Vec4& p) {
 
 // Boost given by a Vec4 p and double m; boost in opposite direction.
 
-void Vec4::bstback(const Vec4& p, double m) {
+void Vec4::bstback(const Vec4& pIn, double mIn) {
 
-  double betaX = -p.xx/p.tt;
-  double betaY = -p.yy/p.tt;
-  double betaZ = -p.zz/p.tt;
-  double gamma = p.tt / m;
+  double betaX = -pIn.xx / pIn.tt;
+  double betaY = -pIn.yy / pIn.tt;
+  double betaZ = -pIn.zz / pIn.tt;
+  double gamma = pIn.tt / mIn;
   double prod1 = betaX * xx + betaY * yy + betaZ * zz;
   double prod2 = gamma * (gamma * prod1 / (1. + gamma) + tt);
-  xx += prod2 * betaX;
-  yy += prod2 * betaY;
-  zz += prod2 * betaZ;
-  tt = gamma * (tt + prod1);
+  xx          += prod2 * betaX;
+  yy          += prod2 * betaY;
+  zz          += prod2 * betaZ;
+  tt           = gamma * (tt + prod1);
 
 }
 

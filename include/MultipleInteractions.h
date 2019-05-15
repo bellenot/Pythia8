@@ -89,7 +89,7 @@ public:
   MultipleInteractions() {sudExpPT.resize(NBINS+1);}
 
   // Initialize the generation process for given beams.
-  bool init( Info* infoPtrIn, BeamParticle* beamAPtrIn, 
+  bool init( bool doMIinit, Info* infoPtrIn, BeamParticle* beamAPtrIn, 
     BeamParticle* beamBPtrIn, SigmaTotal* sigmaTotPtrIn, 
     ostream& os = cout);
 
@@ -101,7 +101,7 @@ public:
   void pTfirst(); 
 
   // Set up kinematics for first = hardest pT in minbias process.
-  void setupFirstSys( Info* infoPtr, Event& process);
+  void setupFirstSys( Event& process);
 
   // Find whether to limit maximum scale of emissions.
   bool limitPTmax( Event& event);
@@ -114,22 +114,22 @@ public:
   double pTnext( double pTbegAll, double pTendAll);
 
   // Set up kinematics of acceptable interaction.
-  void scatter( Info* infoPtr, Event& event); 
+  void scatter( Event& event); 
 
   // Get some information on current interaction.
-  double Q2Ren() const {return pT2Ren;}
-  double alphaSH() const {return alpS;}
-  double alphaEMH() const {return alpEM;}
-  double x1H() const {return x1;} 
-  double x2H() const {return x2;} 
-  double Q2Fac() const {return pT2Fac;}
-  double pdf1() const {return xPDF1now;}
-  double pdf2() const {return xPDF2now;}
-  double bMI() const {return (bIsSet) ? bNow / bAvg : 0.;}
+  double Q2Ren()     const {return pT2Ren;}
+  double alphaSH()   const {return alpS;}
+  double alphaEMH()  const {return alpEM;}
+  double x1H()       const {return x1;} 
+  double x2H()       const {return x2;} 
+  double Q2Fac()     const {return pT2Fac;}
+  double pdf1()      const {return xPDF1now;}
+  double pdf2()      const {return xPDF2now;}
+  double bMI()       const {return (bIsSet) ? bNow / bAvg : 0.;}
   double enhanceMI() const {return (bIsSet) ? enhanceB / zeroIntCorr : 1.;}
 
   // Update and print statistics on number of processes.
-  void accumulate( Info* infoPtr) { int iBeg = (infoPtr->isMinBias()) ? 0 : 1; 
+  void accumulate() { int iBeg = (infoPtr->isMinBias()) ? 0 : 1; 
     for (int i = iBeg; i < infoPtr->nMI(); ++i) ++nGen[ infoPtr->codeMI(i) ];}
   void statistics(bool reset = false, ostream& os = cout);
   

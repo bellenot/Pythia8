@@ -53,7 +53,7 @@ bool ProcessContainer::init(Info* infoPtrIn, BeamParticle* beamAPtr,
   isResolved  = sigmaProcessPtr->isResolved();
   isDiffA     = sigmaProcessPtr->isDiffA();
   isDiffB     = sigmaProcessPtr->isDiffB();
-  int nFinal  = sigmaProcessPtr->nFinal();
+  int nFin    = sigmaProcessPtr->nFinal();
   lhaStrat    = (isLHA) ? lhaUpPtr->strategy() : 0;
   lhaStratAbs = abs(lhaStrat);
   allowNegSig = sigmaProcessPtr->allowNegativeSigma();
@@ -65,8 +65,8 @@ bool ProcessContainer::init(Info* infoPtrIn, BeamParticle* beamAPtr,
                         phaseSpacePtr = new PhaseSpace2to2elastic();
   else if (!isResolved) phaseSpacePtr = new PhaseSpace2to2diffractive( 
                                         isDiffA, isDiffB);
-  else if (nFinal == 1) phaseSpacePtr = new PhaseSpace2to1tauy();
-  else if (nFinal == 2) phaseSpacePtr = new PhaseSpace2to2tauyz();
+  else if (nFin == 1)   phaseSpacePtr = new PhaseSpace2to1tauy();
+  else if (nFin == 2)   phaseSpacePtr = new PhaseSpace2to2tauyz();
   else                  phaseSpacePtr = new PhaseSpace2to3tauycyl();
 
   // Store pointers and perform simple initialization.
@@ -108,7 +108,7 @@ bool ProcessContainer::init(Info* infoPtrIn, BeamParticle* beamAPtr,
 
   // Check maximum by a few events, and extrapolate a further increase.
   if (physical & !isLHA) {
-    int nSample = (nFinal < 3) ? N12SAMPLE : N3SAMPLE;
+    int nSample = (nFin < 3) ? N12SAMPLE : N3SAMPLE;
     for (int iSample = 0; iSample < nSample; ++iSample) 
     while (!phaseSpacePtr->trialKin(false)) { 
       if (iSample == nSample/2) sigmaHalfWay = phaseSpacePtr->sigmaMax();
@@ -354,8 +354,8 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
   }
 
   // Further info on process. Reset quantities that may or may not be known.
-  int    id1     =  process[3].id(); 
-  int    id2     =  process[4].id(); 
+  int    id1Now  =  process[3].id(); 
+  int    id2Now  =  process[4].id(); 
   double pdf1    = 0.;
   double pdf2    = 0.;
   double tHat    = 0.;
@@ -365,18 +365,18 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
   double m4      = 0.;
   double theta   = 0.;
   double phi     = 0.;
-  double Q2Fac, alphaEM, alphaS, Q2Ren, x1, x2, sHat;
+  double Q2FacNow, alphaEM, alphaS, Q2Ren, x1Now, x2Now, sHat;
 
   // Internally generated and stored information.
   if (!isLHA) {
     pdf1         = sigmaProcessPtr->pdf1();
     pdf2         = sigmaProcessPtr->pdf2();
-    Q2Fac        = sigmaProcessPtr->Q2Fac();
+    Q2FacNow     = sigmaProcessPtr->Q2Fac();
     alphaEM      = sigmaProcessPtr->alphaEMRen();
     alphaS       = sigmaProcessPtr->alphaSRen();
     Q2Ren        = sigmaProcessPtr->Q2Ren();
-    x1           = phaseSpacePtr->x1();
-    x2           = phaseSpacePtr->x2();
+    x1Now        = phaseSpacePtr->x1();
+    x2Now        = phaseSpacePtr->x2();
     sHat         = phaseSpacePtr->sHat();
     tHat         = phaseSpacePtr->tHat();
     uHat         = phaseSpacePtr->uHat();
@@ -389,12 +389,12 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
 
   // Les Houches Accord process partly available, partly to be constructed.
   else {
-    Q2Fac        = pow2(scale);
+    Q2FacNow     = pow2(scale);
     alphaEM      = lhaUpPtr->alphaQED();
     alphaS       = lhaUpPtr->alphaQCD();
-    Q2Ren        = Q2Fac;
-    x1           = 2. * process[3].e() / infoPtr->eCM();
-    x2           = 2. * process[4].e() / infoPtr->eCM();
+    Q2Ren        = Q2FacNow;
+    x1Now        = 2. * process[3].e() / infoPtr->eCM();
+    x2Now        = 2. * process[4].e() / infoPtr->eCM();
     Vec4 pSum    = process[3].p() + process[4].p();
     sHat         = pSum * pSum;
 
@@ -402,9 +402,9 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
     if (lhaUpPtr->pdfIsSet()) {
       pdf1       = lhaUpPtr->xpdf1();
       pdf2       = lhaUpPtr->xpdf2();
-      Q2Fac      = pow2(lhaUpPtr->scalePDF());
-      x1         = lhaUpPtr->x1();
-      x2         = lhaUpPtr->x2();
+      Q2FacNow   = pow2(lhaUpPtr->scalePDF());
+      x1Now      = lhaUpPtr->x1();
+      x2Now      = lhaUpPtr->x2();
     }
 
     // Reconstruct kinematics of 2 -> 2 processes from momenta.
@@ -425,8 +425,10 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
 
   // Store information.
   if (isHardest) {
-    infoPtr->setPDFalpha( id1, id2, pdf1, pdf2, Q2Fac, alphaEM, alphaS, Q2Ren);
-    infoPtr->setKin( x1, x2, sHat, tHat, uHat, pTHat, m3, m4, theta, phi);
+    infoPtr->setPDFalpha( id1Now, id2Now, pdf1, pdf2, Q2FacNow, 
+      alphaEM, alphaS, Q2Ren);
+    infoPtr->setKin( x1Now, x2Now, sHat, tHat, uHat, pTHat, m3, m4, 
+      theta, phi);
   }
   infoPtr->setTypeMI( code(), pTHat);
 

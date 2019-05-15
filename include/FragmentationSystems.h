@@ -127,13 +127,13 @@ public:
   void setUp(Vec4 p1, Vec4 p2, bool isMassless = false);
 
   // Construct a four-momentum from (x+, x-, px, py).
-  Vec4 pHad( double xPos, double xNeg, double px, double py) 
-    { return xPos * pPos + xNeg * pNeg + px * eX + py * eY; }
+  Vec4 pHad( double xPosIn, double xNegIn, double pxIn, double pyIn) 
+    { return xPosIn * pPos + xNegIn * pNeg + pxIn * eX + pyIn * eY; }
 
   // Project a four-momentum onto (x+, x-, px, py). Read out projection.
   void project(Vec4 pIn);
-  void project( double px, double py, double pz, double e) 
-    { project( Vec4( px, py, pz, e) ); }
+  void project( double pxIn, double pyIn, double pzIn, double eIn) 
+    { project( Vec4( pxIn, pyIn, pzIn, eIn) ); }
   double xPos() const {return xPosProj;} 
   double xNeg() const {return xNegProj;} 
   double px() const {return pxProj;} 

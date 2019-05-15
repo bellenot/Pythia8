@@ -42,14 +42,15 @@ public:
 private:
 
   // Constants: could only be changed in the code itself.
-  static const int NITER;
+  static const int    NITER;
+  static const double SAFETYMARGIN1, SAFETYMARGIN2;
 
   // Data members.
   bool   isInit, lastCallToFull;
   int    order;
-  double valueRef, valueNow, scale2Now, Lambda3Save, Lambda4Save, 
-         Lambda5Save, Lambda3Save2, Lambda4Save2, Lambda5Save2, 
-         mc, mb, mZ, mc2, mb2;
+  double valueRef, valueNow, scale2Now, scale2Min, Lambda3Save, 
+         Lambda4Save, Lambda5Save, Lambda3Save2, Lambda4Save2, 
+         Lambda5Save2, mc, mb, mZ, mc2, mb2;
 
 };
 

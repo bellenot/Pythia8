@@ -200,7 +200,7 @@ bool SpaceShower::limitPTmax( Event& event, double Q2Fac, double Q2Ren) {
 // Prepare system for evolution; identify ME.
 // Routine may be called after multiple interactions, for a new subystem.
 
-void SpaceShower::prepare( int iSys, Event& event, bool limitPTmax) {
+void SpaceShower::prepare( int iSys, Event& event, bool limitPTmaxIn) {
 
   // Find positions of incoming colliding partons.
   int in1 = event.getInSystem( iSys, 0);
@@ -213,9 +213,9 @@ void SpaceShower::prepare( int iSys, Event& event, bool limitPTmax) {
   int MEtype = findMEtype( iSys, event); 
 
   // Maximum pT scale for dipole ends.
-  double pTmax1 = (limitPTmax) ? event[in1].scale() : eCM;
-  double pTmax2 = (limitPTmax) ? event[in2].scale() : eCM;
-  if (iSys == 0 && limitPTmax) {
+  double pTmax1 = (limitPTmaxIn) ? event[in1].scale() : eCM;
+  double pTmax2 = (limitPTmaxIn) ? event[in2].scale() : eCM;
+  if (iSys == 0 && limitPTmaxIn) {
     pTmax1 *= pTmaxFudge;
     pTmax2 *= pTmaxFudge;
   }
@@ -879,103 +879,103 @@ void SpaceShower::pT2nextQED( double pT2begDip, double pT2endDip) {
 bool SpaceShower::branch( Event& event) {
 
   // Side on which branching occured.
-  int side         = abs(dipEndSel->side);
-  double sideSign  = (side == 1) ? 1. : -1.;
+  int side          = abs(dipEndSel->side);
+  double sideSign   = (side == 1) ? 1. : -1.;
 
   // Read in flavour and colour variables.
-  int iDaughter    = event.getInSystem( iSysSel, side - 1);
-  int iRecoiler    = event.getInSystem( iSysSel, 2 - side);
-  int idDaughter   = dipEndSel->idDaughter;
-  int idMother     = dipEndSel->idMother;
-  int idSister     = dipEndSel->idSister;
-  int colDaughter  = event[iDaughter].col();
-  int acolDaughter = event[iDaughter].acol();
+  int iDaughter     = event.getInSystem( iSysSel, side - 1);
+  int iRecoiler     = event.getInSystem( iSysSel, 2 - side);
+  int idDaughterNow = dipEndSel->idDaughter;
+  int idMother      = dipEndSel->idMother;
+  int idSister      = dipEndSel->idSister;
+  int colDaughter   = event[iDaughter].col();
+  int acolDaughter  = event[iDaughter].acol();
 
   // Read in kinematical variables.
-  double x1        = dipEndSel->x1;
-  double x2        = dipEndSel->x2;
-  double m2        = dipEndSel->m2Dip;
-  double m         = sqrt(m2);
-  double pT2       = dipEndSel->pT2;
-  double z         = dipEndSel->z;
-  double Q2        = dipEndSel->Q2; 
-  double mSister   = dipEndSel->mSister;
-  double m2Sister  = dipEndSel->m2Sister;
-  double pT2corr   = dipEndSel->pT2corr;
-  double phi       = dipEndSel->phi;
+  double x1         = dipEndSel->x1;
+  double x2         = dipEndSel->x2;
+  double m2         = dipEndSel->m2Dip;
+  double m          = sqrt(m2);
+  double pT2        = dipEndSel->pT2;
+  double z          = dipEndSel->z;
+  double Q2         = dipEndSel->Q2; 
+  double mSister    = dipEndSel->mSister;
+  double m2Sister   = dipEndSel->m2Sister;
+  double pT2corr    = dipEndSel->pT2corr;
+  double phi        = dipEndSel->phi;
 
   // Take copy of existing system, to be given modified kinematics.
   int eventSizeOld  = event.size();
   int systemSizeOld = event.sizeSystem(iSysSel);
   for ( int iCopy = 0; iCopy < systemSizeOld; ++iCopy) {
-    int iOldCopy = event.getInSystem( iSysSel, iCopy);
-    int statusNew = (iOldCopy == iDaughter 
+    int iOldCopy    = event.getInSystem( iSysSel, iCopy);
+    int statusNew   = (iOldCopy == iDaughter 
       || iOldCopy == iRecoiler) ? event[iOldCopy].status() : 44;
     event.copy(iOldCopy, statusNew);
   }
  
   // Define colour flow in branching.
   // Default corresponds to f -> f + gamma.
-  int colMother  = colDaughter;
-  int acolMother = acolDaughter;
-  int colSister  = 0;
-  int acolSister = 0; 
+  int colMother     = colDaughter;
+  int acolMother    = acolDaughter;
+  int colSister     = 0;
+  int acolSister    = 0; 
   if (idSister == 22) ; 
   // q -> q + g and 50% of g -> g + g; need new colour.
   else if (idSister == 21 && ( (idMother > 0 && idMother < 9)
   || (idMother == 21 && Rndm::flat() < 0.5) ) ) {  
-    colMother    = event.nextColTag();
-    colSister    = colMother;
-    acolSister   = colDaughter;
+    colMother       = event.nextColTag();
+    colSister       = colMother;
+    acolSister      = colDaughter;
   // qbar -> qbar + g and other 50% of g -> g + g; need new colour.
   } else if (idSister == 21) {  
-    acolMother   = event.nextColTag();
-    acolSister   = acolMother;
-    colSister    = acolDaughter;
+    acolMother      = event.nextColTag();
+    acolSister      = acolMother;
+    colSister       = acolDaughter;
   // q -> g + q.
-  } else if (idDaughter == 21 && idMother > 0) { 
-    colMother    = colDaughter;
-    acolMother   = 0;
-    colSister    = acolDaughter;
+  } else if (idDaughterNow == 21 && idMother > 0) { 
+    colMother       = colDaughter;
+    acolMother      = 0;
+    colSister       = acolDaughter;
   // qbar -> g + qbar
-  } else if (idDaughter == 21) {
-    acolMother   = acolDaughter;
-    colMother    = 0;
-    acolSister   = colDaughter;
+  } else if (idDaughterNow == 21) {
+    acolMother      = acolDaughter;
+    colMother       = 0;
+    acolSister      = colDaughter;
   // g -> q + qbar.
-  } else if (idDaughter > 0 && idDaughter < 9) {
-    acolMother   = event.nextColTag();
-    acolSister   = acolMother;
+  } else if (idDaughterNow > 0 && idDaughterNow < 9) {
+    acolMother      = event.nextColTag();
+    acolSister      = acolMother;
   // g -> qbar + q.
-  } else if (idDaughter < 0 && idDaughter > -9) {
-    colMother    = event.nextColTag();
-    colSister    = colMother;
+  } else if (idDaughterNow < 0 && idDaughterNow > -9) {
+    colMother       = event.nextColTag();
+    colSister       = colMother;
   // q -> gamma + q.
-  } else if (idDaughter == 22 && idMother > 0) {
-    colMother    = event.nextColTag();
-    colSister    = colMother; 
+  } else if (idDaughterNow == 22 && idMother > 0) {
+    colMother       = event.nextColTag();
+    colSister       = colMother; 
    // qbar -> gamma + qbar.
-  } else if (idDaughter == 22) {
-    acolMother   = event.nextColTag();
-    acolSister   = acolMother;
+  } else if (idDaughterNow == 22) {
+    acolMother      = event.nextColTag();
+    acolSister      = acolMother;
   }   
 
   // Construct kinematics of mother, sister and recoiler in old rest frame.
-  double pTbranch = sqrt(pT2corr) * m2 / ( z * (m2 + Q2) );
-  double pzMother = sideSign * 0.5 * m * ( (m2 - Q2) / ( z * (m2 + Q2) )
+  double pTbranch   = sqrt(pT2corr) * m2 / ( z * (m2 + Q2) );
+  double pzMother   = sideSign * 0.5 * m * ( (m2 - Q2) / ( z * (m2 + Q2) )
     + (Q2 + m2Sister) / m2 ); 
-  double eMother  = sqrt( pow2(pTbranch) + pow2(pzMother) );
-  double pzSister = pzMother - sideSign * 0.5 * (m2 + Q2) / m;
-  double eSister  = sqrt( pow2(pTbranch) + pow2(pzSister) + m2Sister );
+  double eMother    = sqrt( pow2(pTbranch) + pow2(pzMother) );
+  double pzSister   = pzMother - sideSign * 0.5 * (m2 + Q2) / m;
+  double eSister    = sqrt( pow2(pTbranch) + pow2(pzSister) + m2Sister );
   double eNewRecoiler = 0.5 * (m2 + Q2) / m;
   Vec4 pMother( pTbranch, 0., pzMother, eMother );
   Vec4 pSister( pTbranch, 0., pzSister, eSister ); 
   Vec4 pNewRecoiler( 0., 0., -sideSign * eNewRecoiler, eNewRecoiler);
 
   // Indices of partons involved. Add new sister.
-  int iMother      = eventSizeOld + side - 1;
-  int iNewRecoiler = eventSizeOld + 2 - side;
-  int iSister      = event.append( idSister, 43, iMother, 0, 0, 0,
+  int iMother       = eventSizeOld + side - 1;
+  int iNewRecoiler  = eventSizeOld + 2 - side;
+  int iSister       = event.append( idSister, 43, iMother, 0, 0, 0,
      colSister, acolSister, pSister, mSister, sqrt(pT2) );
 
   // References to the partons involved.
@@ -1008,9 +1008,9 @@ bool SpaceShower::branch( Event& event) {
   // Find boost from old rest frame to event cm frame.
   RotBstMatrix MfromRest;
   // The boost to the new rest frame.
-  Vec4 sumNew = pMother + pNewRecoiler;
-  double betaX = sumNew.px() / sumNew.e();
-  double betaZ = sumNew.pz() / sumNew.e();
+  Vec4 sumNew       = pMother + pNewRecoiler;
+  double betaX      = sumNew.px() / sumNew.e();
+  double betaZ      = sumNew.pz() / sumNew.e();
   MfromRest.bst( -betaX, 0., -betaZ);
   // Alignment of  radiator + recoiler to +- z axis, and rotation +phi.
   pMother.rotbst(MfromRest);  
@@ -1059,7 +1059,7 @@ bool SpaceShower::branch( Event& event) {
   double xNew = (side == 1) ? x1New : x2New;
   beamNow[iSysSel].update( iMother, idMother, xNew);
   // Redo choice of companion kind whenever new flavour.
-  if (idMother != idDaughter) {
+  if (idMother != idDaughterNow) {
     beamNow.xfISR( iSysSel, idMother, xNew, pT2);
     beamNow.pickValSeaComp();
   }
@@ -1117,10 +1117,10 @@ int SpaceShower::findMEtype( int iSys, Event& event) {
 
 // Provide maximum of expected ME weight; for preweighting of evolution.
 
-double SpaceShower::calcMEmax( int MEtype, int idMother, int idDaughter) {
+double SpaceShower::calcMEmax( int MEtype, int idMother, int idDaughterIn) {
 
   // Currently only one non-unity case: g(gamma) f -> V f'.
-  if (MEtype == 1 && idMother > 20 && idDaughter < 20) return 3.;
+  if (MEtype == 1 && idMother > 20 && idDaughterIn < 20) return 3.;
   return 1.;
 
 }  
@@ -1131,7 +1131,7 @@ double SpaceShower::calcMEmax( int MEtype, int idMother, int idDaughter) {
 // Note: currently ME corrections are only allowed for first branching 
 // on each side, so idDaughter is essentially known and checks overkill.
 
-double SpaceShower::calcMEcorr(int MEtype, int idMother, int idDaughter,
+double SpaceShower::calcMEcorr(int MEtype, int idMother, int idDaughterIn,
   double M2, double z, double Q2) {
 
   // Convert to Mandelstam variables. Sometimes may need to swap later.
@@ -1139,7 +1139,7 @@ double SpaceShower::calcMEcorr(int MEtype, int idMother, int idDaughter,
   double tH = -Q2;
   double uH = Q2 - M2 * (1. - z) / z;
   int idMabs = abs(idMother);
-  int idDabs = abs(idDaughter);
+  int idDabs = abs(idDaughterIn);
 
   // Corrections for f + fbar -> s-channel vector boson.
   if (MEtype == 1) {

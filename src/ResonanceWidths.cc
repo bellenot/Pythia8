@@ -375,16 +375,16 @@ bool ResonanceWidths::initBasic(int idResIn) {
 // Normalization to unit integral if matrix element is unity 
 // and there are no phase-space restrictions. 
  
-double ResonanceWidths::numInt1BW(double mHat, double m1, double Gamma1, 
+double ResonanceWidths::numInt1BW(double mHatIn, double m1, double Gamma1, 
   double mMin1, double m2, int psMode) {
 
   // Check that phase space is open for integration.
-  if (mMin1 + m2 > mHat) return 0.;
+  if (mMin1 + m2 > mHatIn) return 0.;
 
   // Precalculate coefficients for Breit-Wigner selection.
   double s1       = m1 * m1;
   double mG1      = m1 * Gamma1;
-  double mMax1    = mHat - m2; 
+  double mMax1    = mHatIn - m2; 
   double atanMin1 = atan( (mMin1 * mMin1 - s1) / mG1 );
   double atanMax1 = atan( (mMax1 * mMax1 - s1) / mG1 );
   double atanDif1 = atanMax1 - atanMin1;
@@ -395,29 +395,30 @@ double ResonanceWidths::numInt1BW(double mHat, double m1, double Gamma1,
 
   // Variables used in loop over integration points.
   double sum      = 0.;
-  double mr2      = pow2(m2 / mHat);
-  double xNow1, sNow1, mNow1, mrNow1, ps, value; 
+  double mrNow2   = pow2(m2 / mHatIn);
+  double xNow1, sNow1, mNow1, mrNow1, psNow, value; 
 
   // Loop with first-particle mass selection.
   for (int ip1 = 0; ip1 < NPOINT; ++ip1) {
     xNow1         = xStep * (ip1 + 0.5);
     sNow1         = s1 + mG1 * tan(atanMin1 + xNow1 * atanDif1);
     mNow1         = min( mMax1, max( mMin1, sqrtpos(sNow1) ) );
-    mrNow1        = pow2(mNow1 / mHat);
+    mrNow1        = pow2(mNow1 / mHatIn);
 
     // Evaluate value and add to sum. Different matrix elements.
-    ps            = sqrtpos( pow2(1. - mrNow1 - mr2) - 4. * mrNow1 * mr2);
+    psNow         = sqrtpos( pow2(1. - mrNow1 - mrNow2) 
+                    - 4. * mrNow1 * mrNow2);
     value         = 1.;
-    if (psMode == 1) value = ps;
-    if (psMode == 2) value = ps * ps;
-    if (psMode == 3) value = pow3(ps);
-    if (psMode == 5) value = ps * 
-      (pow2(1. - mrNow1 - mr2) + 8. * mrNow1 * mr2);
-    sum += value;
+    if (psMode == 1) value = psNow;
+    if (psMode == 2) value = psNow * psNow;
+    if (psMode == 3) value = pow3(psNow);
+    if (psMode == 5) value = psNow * 
+      (pow2(1. - mrNow1 - mrNow2) + 8. * mrNow1 * mrNow2);
+    sum          += value;
 
   // End of  loop over integration points. Overall normalization.
   }  
-  sum *= wtDif1;
+  sum            *= wtDif1;
  
   // Done.
   return sum;
@@ -430,23 +431,23 @@ double ResonanceWidths::numInt1BW(double mHat, double m1, double Gamma1,
 // Normalization to unit integral if matrix element is unity
 // and there are no phase-space restrictions. 
  
-double ResonanceWidths::numInt2BW(double mHat, double m1, double Gamma1, 
+double ResonanceWidths::numInt2BW(double mHatIn, double m1, double Gamma1, 
   double mMin1, double m2, double Gamma2, double mMin2, int psMode) {
 
   // Check that phase space is open for integration.
-  if (mMin1 + mMin2 > mHat) return 0.;
+  if (mMin1 + mMin2 > mHatIn) return 0.;
 
   // Precalculate coefficients for Breit-Wigner selection.
   double s1       = m1 * m1;
   double mG1      = m1 * Gamma1;
-  double mMax1    = mHat - mMin2; 
+  double mMax1    = mHatIn - mMin2; 
   double atanMin1 = atan( (mMin1 * mMin1 - s1) / mG1 );
   double atanMax1 = atan( (mMax1 * mMax1 - s1) / mG1 );
   double atanDif1 = atanMax1 - atanMin1;
   double wtDif1   = atanDif1 / (M_PI * NPOINT); 
   double s2       = m2 * m2;
   double mG2      = m2 * Gamma2;
-  double mMax2    = mHat - mMin1; 
+  double mMax2    = mHatIn - mMin1; 
   double atanMin2 = atan( (mMin2 * mMin2 - s2) / mG2 );
   double atanMax2 = atan( (mMax2 * mMax2 - s2) / mG2 );
   double atanDif2 = atanMax2 - atanMin2;
@@ -467,9 +468,9 @@ double ResonanceWidths::numInt2BW(double mHat, double m1, double Gamma1,
   double atanDHi2 = 0.;
   double wtDLo2   = 0.;
   double wtDHi2   = 0.;
-  if (m1 + m2 > mHat) {
-    mustDiv = true;
-    double tmpDiv = (mHat - m1 - m2) / (Gamma1 + Gamma2);
+  if (m1 + m2 > mHatIn) {
+    mustDiv       = true;
+    double tmpDiv = (mHatIn - m1 - m2) / (Gamma1 + Gamma2);
     mDiv1         = m1 + Gamma1 * tmpDiv;
     atanDiv1      = atan( (mDiv1 * mDiv1 - s1) / mG1 );
     atanDLo1      = atanDiv1 - atanMin1;
@@ -490,7 +491,7 @@ double ResonanceWidths::numInt2BW(double mHat, double m1, double Gamma1,
 
   // Variables used in loop over integration points.
   double sum      = 0.;
-  double xNow1, sNow1, mNow1, mrNow1, xNow2, sNow2, mNow2, mrNow2, ps, 
+  double xNow1, sNow1, mNow1, mrNow1, xNow2, sNow2, mNow2, mrNow2, psNow, 
          value; 
   double wtNow1   = wtDif1; 
   double wtNow2   = wtDif2; 
@@ -510,7 +511,7 @@ double ResonanceWidths::numInt2BW(double mHat, double m1, double Gamma1,
       wtNow1      = wtDHi1;
     }
     mNow1         = min( mMax1, max( mMin1, sqrtpos(sNow1) ) );
-    mrNow1        = pow2(mNow1 / mHat);
+    mrNow1        = pow2(mNow1 / mHatIn);
 
     // Inner loop with second-particle mass selection.
     for (int ip2 = 0; ip2 < nIter; ++ip2) {
@@ -527,19 +528,19 @@ double ResonanceWidths::numInt2BW(double mHat, double m1, double Gamma1,
         wtNow2    = wtDHi2;
       }
       mNow2       = min( mMax2, max( mMin2, sqrtpos(sNow2) ) );
-      mrNow2      = pow2(mNow2 / mHat);
+      mrNow2      = pow2(mNow2 / mHatIn);
 
       // Check that point is inside phase space.
-      if (mNow1 + mNow2 > mHat) break;
+      if (mNow1 + mNow2 > mHatIn) break;
 
       // Evaluate value and add to sum. Different matrix elements.
-      ps          = sqrtpos( pow2(1. - mrNow1 - mrNow2) 
-                  - 4. * mrNow1 * mrNow2);
+      psNow       = sqrtpos( pow2(1. - mrNow1 - mrNow2) 
+                    - 4. * mrNow1 * mrNow2);
       value       = 1.;
-      if      (psMode == 1) value = ps;
-      else if (psMode == 2) value = ps * ps;
-      else if (psMode == 3) value = pow3(ps);
-      else if (psMode == 5) value = ps 
+      if      (psMode == 1) value = psNow;
+      else if (psMode == 2) value = psNow * psNow;
+      else if (psMode == 3) value = pow3(psNow);
+      else if (psMode == 5) value = psNow 
         * (pow2(1. - mrNow1 - mrNow2) + 8. * mrNow1 * mrNow2);
       sum        += value * wtNow1 * wtNow2;
 
@@ -1034,9 +1035,9 @@ double ResonanceH::eta2gg() {
   complex phi, etaNow;
 
   // Loop over s, c, b, t quark flavours.
-  for (int id = 3; id < 7; ++id) {
-    mLoop   = (useRunLoopMass) ? ParticleDataTable::mRun(id, mHat)
-                               : ParticleDataTable::m0(id);
+  for (int idNow = 3; idNow < 7; ++idNow) {
+    mLoop   = (useRunLoopMass) ? ParticleDataTable::mRun(idNow, mHat)
+                               : ParticleDataTable::m0(idNow);
     epsilon = pow2(2. * mLoop / mHat);
 
     // Value of loop integral.
@@ -1044,17 +1045,17 @@ double ResonanceH::eta2gg() {
       root    = sqrt(1. - epsilon);
       rootLog = (epsilon < 1e-4) ? log(4. / epsilon - 2.)
                 : log( (1. + root) / (1. - root) );
-      phi = complex( -0.25 * (pow2(rootLog) - pow2(M_PI)), 
-                     0.5 * M_PI * rootLog );
+      phi     = complex( -0.25 * (pow2(rootLog) - pow2(M_PI)), 
+                0.5 * M_PI * rootLog );
     } 
-    else phi = complex( pow2( asin(1. / sqrt(epsilon)) ), 0.);
+    else phi  = complex( pow2( asin(1. / sqrt(epsilon)) ), 0.);
   
     // Factors that depend on Higgs and flavour type.
     if (higgsType < 3) etaNow = -0.5 * epsilon 
       * (complex(1., 0.) + (1. - epsilon) * phi);
     else etaNow = -0.5 * epsilon * phi;    
-    if (id%2 == 1) etaNow *= coup2d;
-    else           etaNow *= coup2u;   
+    if (idNow%2 == 1) etaNow *= coup2d;
+    else              etaNow *= coup2u;   
     
     // Sum up contribution and return square of absolute value.
     eta += etaNow;
@@ -1072,22 +1073,22 @@ double ResonanceH::eta2gaga() {
 
   // Initial values.
   complex eta = complex(0., 0.);
-  int     id;
+  int     idNow;
   double  ef, mLoop, epsilon, root, rootLog;
   complex phi, etaNow;
 
   // Loop over s, c, b, t, mu, tau, W+-, H+- flavours.
   for (int idLoop = 0; idLoop < 8; ++idLoop) {
-    if      (idLoop < 4) id = idLoop + 3;
-    else if (idLoop < 6) id = 2 * idLoop + 5;
-    else if (idLoop < 7) id = 24;
-    else                 id = 37;
-    if (id == 37 && higgsType == 0) continue;
+    if      (idLoop < 4) idNow = idLoop + 3;
+    else if (idLoop < 6) idNow = 2 * idLoop + 5;
+    else if (idLoop < 7) idNow = 24;
+    else                 idNow = 37;
+    if (idNow == 37 && higgsType == 0) continue;
  
     // Charge and loop integral parameter.
-    ef      = (id < 20) ? CoupEW::ef(id) : 1.;
-    mLoop   = (useRunLoopMass) ? ParticleDataTable::mRun(id, mHat)
-                               : ParticleDataTable::m0(id);
+    ef      = (idNow < 20) ? CoupEW::ef(idNow) : 1.;
+    mLoop   = (useRunLoopMass) ? ParticleDataTable::mRun(idNow, mHat)
+                               : ParticleDataTable::m0(idNow);
     epsilon = pow2(2. * mLoop / mHat);
 
     // Value of loop integral.
@@ -1095,23 +1096,23 @@ double ResonanceH::eta2gaga() {
       root    = sqrt(1. - epsilon);
       rootLog = (epsilon < 1e-4) ? log(4. / epsilon - 2.)
                 : log( (1. + root) / (1. - root) );
-      phi = complex( -0.25 * (pow2(rootLog) - pow2(M_PI)), 
-                     0.5 * M_PI * rootLog );
+      phi     = complex( -0.25 * (pow2(rootLog) - pow2(M_PI)), 
+                0.5 * M_PI * rootLog );
     } 
-    else phi = complex( pow2( asin(1. / sqrt(epsilon)) ), 0.);
+    else phi  = complex( pow2( asin(1. / sqrt(epsilon)) ), 0.);
 
     // Expressions for quarks and leptons that depend on Higgs type.
-    if (id < 17) { 
+    if (idNow < 17) { 
       if (higgsType < 3) etaNow = -0.5 * epsilon 
         * (complex(1., 0.) + (1. - epsilon) * phi);
       else etaNow = -0.5 * epsilon * phi;    
-      if (id < 7 && id%2 == 1) etaNow *= 3. * pow2(ef) * coup2d;
-      else if (id < 7 )        etaNow *= 3. * pow2(ef) * coup2u;
-      else                     etaNow *=      pow2(ef) * coup2l;
+      if (idNow < 7 && idNow%2 == 1) etaNow *= 3. * pow2(ef) * coup2d;
+      else if (idNow < 7 )           etaNow *= 3. * pow2(ef) * coup2u;
+      else                           etaNow *=      pow2(ef) * coup2l;
     } 
 
     // Expression for W+-.
-    else if (id == 24) etaNow = (complex(0.5 + 0.75 * epsilon, 0.)
+    else if (idNow == 24) etaNow = (complex(0.5 + 0.75 * epsilon, 0.)
       + 0.75 * epsilon * (2. - epsilon) * phi) * coup2W;  
  
     // Expression for H+-.
@@ -1119,7 +1120,7 @@ double ResonanceH::eta2gaga() {
      * pow2(mW / mHchg) * coup2Hchg;      
     
     // Sum up contribution and return square of absolute value.
-    eta += etaNow;
+    eta       += etaNow;
   }
   return (pow2(eta.real()) + pow2(eta.imag()));
 
@@ -1134,49 +1135,49 @@ double ResonanceH::eta2gaZ() {
 
   // Initial values.
   complex eta = complex(0., 0.);
-  int     id;
+  int     idNow;
   double  ef, vf, mLoop, epsilon, epsPrime, root, rootLog, asinEps;
   complex phi, psi, phiPrime, psiPrime, fXY, f1, etaNow;
 
   // Loop over s, c, b, t, mu , tau, W+-, H+- flavours.
   for (int idLoop = 0; idLoop < 7; ++idLoop) {
-    if      (idLoop < 4) id = idLoop + 3;
-    else if (idLoop < 6) id = 2 * idLoop + 5;
-    else if (idLoop < 7) id = 24;
-    else                 id = 37;
+    if      (idLoop < 4) idNow = idLoop + 3;
+    else if (idLoop < 6) idNow = 2 * idLoop + 5;
+    else if (idLoop < 7) idNow = 24;
+    else                 idNow = 37;
 
     // Electroweak charges and loop integral parameters.
-    ef       = (id < 20) ? CoupEW::ef(id) : 1.;
-    vf       = (id < 20) ? CoupEW::vf(id) : 0.;
-    mLoop    = (useRunLoopMass) ? ParticleDataTable::mRun(id, mHat)
-                                : ParticleDataTable::m0(id);
-    epsilon  = pow2(2. * mLoop / mHat);
-    epsPrime = pow2(2. * mLoop / mZ);
+    ef        = (idNow < 20) ? CoupEW::ef(idNow) : 1.;
+    vf        = (idNow < 20) ? CoupEW::vf(idNow) : 0.;
+    mLoop     = (useRunLoopMass) ? ParticleDataTable::mRun(idNow, mHat)
+                                 : ParticleDataTable::m0(idNow);
+    epsilon   = pow2(2. * mLoop / mHat);
+    epsPrime  = pow2(2. * mLoop / mZ);
 
     // Value of loop integral for epsilon = 4 m^2 / sHat.
     if (epsilon <= 1.) {
       root    = sqrt(1. - epsilon);
       rootLog = (epsilon < 1e-4) ? log(4. / epsilon - 2.)
                 : log( (1. + root) / (1. - root) );
-      phi = complex( -0.25 * (pow2(rootLog) - pow2(M_PI)), 
-                     0.5 * M_PI * rootLog );
-      psi = 0.5 * root * complex( rootLog, -M_PI); 
+      phi     = complex( -0.25 * (pow2(rootLog) - pow2(M_PI)), 
+                0.5 * M_PI * rootLog );
+      psi     = 0.5 * root * complex( rootLog, -M_PI); 
     } else {
       asinEps = asin(1. / sqrt(epsilon));
-      phi = complex( pow2(asinEps), 0.);
-      psi = complex( sqrt(epsilon - 1.) * asinEps, 0.);
+      phi     = complex( pow2(asinEps), 0.);
+      psi     = complex( sqrt(epsilon - 1.) * asinEps, 0.);
     }
 
     // Value of loop integral for epsilonPrime = 4 m^2 / m_Z^2.
     if (epsPrime <= 1.) {
-      root    = sqrt(1. - epsPrime);
-      rootLog = (epsPrime < 1e-4) ? log(4. / epsPrime - 2.)
-              : log( (1. + root) / (1. - root) );
+      root     = sqrt(1. - epsPrime);
+      rootLog  = (epsPrime < 1e-4) ? log(4. / epsPrime - 2.)
+                 : log( (1. + root) / (1. - root) );
       phiPrime = complex( -0.25 * (pow2(rootLog) - pow2(M_PI)), 
                           0.5 * M_PI * rootLog );
       psiPrime = 0.5 * root * complex( rootLog, -M_PI); 
     } else {
-      asinEps = asin(1. / sqrt(epsPrime));
+      asinEps  = asin(1. / sqrt(epsPrime));
       phiPrime = complex( pow2(asinEps), 0.);
       psiPrime = complex( sqrt(epsPrime - 1.) * asinEps, 0.);
     }
@@ -1190,14 +1191,14 @@ double ResonanceH::eta2gaZ() {
       * (phi - phiPrime);    
 
     // Expressions for quarks and leptons that depend on Higgs type.
-    if (id < 17) { 
+    if (idNow < 17) { 
       etaNow = (higgsType < 3) ? -fXY + 0.25 * f1 : 0.25 * f1;
-      if (id < 7 && id%2 == 1) etaNow *= 3. * ef * vf * coup2d;
-      else if (id < 7)         etaNow *= 3. * ef * vf * coup2u;
+      if (idNow < 7 && idNow%2 == 1) etaNow *= 3. * ef * vf * coup2d;
+      else if (idNow < 7)         etaNow *= 3. * ef * vf * coup2u;
       else                     etaNow *=      ef * vf * coup2l;
 
     // Expression for W+-.
-    } else if (id == 24) {
+    } else if (idNow == 24) {
       double coef1  = 3. - sin2tW / cos2tW;
       double coefXY = (1. + 2. / epsilon) * sin2tW / cos2tW 
         - (5. + 2. / epsilon);
@@ -1732,31 +1733,31 @@ void ResonanceGraviton::calcWidth(bool) {
 void ResonanceLeptoquark::initConstants() {
 
   // Locally stored properties and couplings.
-  kCoup         = Settings::parm("LeptoQuark:kCoup");
+  kCoup      = Settings::parm("LeptoQuark:kCoup");
 
   // Check that flavour info in decay channel is correctly set.
-  int id1 = particlePtr->decay[0].product(0);
-  int id2 = particlePtr->decay[0].product(1);
-  if (id1 < 1 || id1 > 5) {
+  int id1Now = particlePtr->decay[0].product(0);
+  int id2Now = particlePtr->decay[0].product(1);
+  if (id1Now < 1 || id1Now > 5) {
     infoPtr->errorMsg("Error in ResonanceLeptoquark::init:"
       " unallowed input quark flavour reset to u"); 
-    id1   = 2;
-    particlePtr->decay[0].product(0, id1);
+    id1Now   = 2;
+    particlePtr->decay[0].product(0, id1Now);
   }
-  if (abs(id2) < 11 || abs(id2) > 16) {
+  if (abs(id2Now) < 11 || abs(id2Now) > 16) {
     infoPtr->errorMsg("Error in ResonanceLeptoquark::init:"
       " unallowed input lepton flavour reset to e-"); 
-    id2   = 11;
-    particlePtr->decay[0].product(1, id2);
+    id2Now   = 11;
+    particlePtr->decay[0].product(1, id2Now);
   }
 
   // Set/overwrite charge and name of particle.
   bool changed  = particlePtr->hasChanged();
-  int chargeLQ  = ParticleDataTable::chargeType(id1) 
-                + ParticleDataTable::chargeType(id2);
+  int chargeLQ  = ParticleDataTable::chargeType(id1Now) 
+                + ParticleDataTable::chargeType(id2Now);
   particlePtr->setChargeType(chargeLQ); 
-  string nameLQ = "LQ_" + ParticleDataTable::name(id1) + ","
-                + ParticleDataTable::name(id2);
+  string nameLQ = "LQ_" + ParticleDataTable::name(id1Now) + ","
+                + ParticleDataTable::name(id2Now);
   particlePtr->setNames(nameLQ, nameLQ + "bar"); 
   if (!changed) particlePtr->setHasChanged(false);
 

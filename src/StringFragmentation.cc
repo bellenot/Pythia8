@@ -690,12 +690,12 @@ StringRegion StringFragmentation::finalRegion() {
     if (xPosJoin < 0.) return region;
     pPosJoin = system.regionLowPos(posEnd.iPosOld).pHad( xPosJoin, 0., 0., 0.);
   } else {
-    for (int iPos = posEnd.iPosOld; iPos <= negEnd.iPosOld; ++iPos) {
-      if (iPos == posEnd.iPosOld) pPosJoin 
-        += system.regionLowPos(iPos).pHad( posEnd.xPosOld, 0., 0., 0.);
-      else if (iPos == negEnd.iPosOld) pPosJoin 
-        += system.regionLowPos(iPos).pHad( 1. - negEnd.xPosOld, 0., 0., 0.);
-      else pPosJoin += system.regionLowPos(iPos).pHad( 1., 0., 0., 0.);
+    for (int iPosNow = posEnd.iPosOld; iPosNow <= negEnd.iPosOld; ++iPosNow) {
+      if (iPosNow == posEnd.iPosOld) pPosJoin 
+        += system.regionLowPos(iPosNow).pHad( posEnd.xPosOld, 0., 0., 0.);
+      else if (iPosNow == negEnd.iPosOld) pPosJoin 
+        += system.regionLowPos(iPosNow).pHad( 1. - negEnd.xPosOld, 0., 0., 0.);
+      else pPosJoin += system.regionLowPos(iPosNow).pHad( 1., 0., 0., 0.);
     }
   }
     
@@ -706,12 +706,12 @@ StringRegion StringFragmentation::finalRegion() {
     if (xNegJoin < 0.) return region;
     pNegJoin = system.regionLowNeg(negEnd.iNegOld).pHad( 0., xNegJoin, 0., 0.);
   } else {
-    for (int iNeg = negEnd.iNegOld; iNeg <= posEnd.iNegOld; ++iNeg) {
-      if (iNeg == negEnd.iNegOld) pNegJoin 
-        += system.regionLowNeg(iNeg).pHad( 0., negEnd.xNegOld, 0., 0.);
-      else if (iNeg == posEnd.iNegOld) pNegJoin 
-        += system.regionLowNeg(iNeg).pHad( 0., 1. - posEnd.xNegOld, 0., 0.);
-      else pNegJoin += system.regionLowNeg(iNeg).pHad( 0., 1., 0., 0.);
+    for (int iNegNow = negEnd.iNegOld; iNegNow <= posEnd.iNegOld; ++iNegNow) {
+      if (iNegNow == negEnd.iNegOld) pNegJoin 
+        += system.regionLowNeg(iNegNow).pHad( 0., negEnd.xNegOld, 0., 0.);
+      else if (iNegNow == posEnd.iNegOld) pNegJoin 
+        += system.regionLowNeg(iNegNow).pHad( 0., 1. - posEnd.xNegOld, 0., 0.);
+      else pNegJoin += system.regionLowNeg(iNegNow).pHad( 0., 1., 0., 0.);
     }
   }
 
@@ -1061,12 +1061,12 @@ RotBstMatrix StringFragmentation::junctionRestFrame(Vec4& p0, Vec4& p1,
   Vec4& p2) {
 
   // Calculate masses and other invariants.
-  Vec4 pSum   = p0 + p1 + p2;
-  double sHat = pSum.m2Calc();
+  Vec4 pSumJun  = p0 + p1 + p2;
+  double sHat   = pSumJun.m2Calc();
   double pp[3][3];
-  pp[0][0] = p0.m2Calc();
-  pp[1][1] = p1.m2Calc();
-  pp[2][2] = p2.m2Calc();
+  pp[0][0]      = p0.m2Calc();
+  pp[1][1]      = p1.m2Calc();
+  pp[2][2]      = p2.m2Calc();
   pp[0][1] = pp[1][0] = p0 * p1;  
   pp[0][2] = pp[2][0] = p0 * p2;  
   pp[1][2] = pp[2][1] = p1 * p2;  
@@ -1081,9 +1081,9 @@ RotBstMatrix StringFragmentation::junctionRestFrame(Vec4& p0, Vec4& p1,
   int i = (pp[1][1] > pp[0][0]) ? 1 : 0;
   if (pp[2][2] > max(pp[0][0], pp[1][1])) i = 2; 
   int j, k;
-  double ei = 0.;
-  double ej = 0.;
-  double ek = 0.;
+  double ei     = 0.;
+  double ej     = 0.;
+  double ek     = 0.;
   for (int iTry = 0; iTry < 3; ++iTry) {
 
     // Pick j to give minimal eiMax, and k the third vector.
@@ -1102,9 +1102,9 @@ RotBstMatrix StringFragmentation::junctionRestFrame(Vec4& p0, Vec4& p1,
 
     // Trivial to find new parton energies if all three partons are massless.
     if (m2i < M2MAXJRF) {
-      ei = sqrt( 2. * pipk * pipj / (3. * pjpk) );
-      ej = sqrt( 2. * pjpk * pipj / (3. * pipk) );
-      ek = sqrt( 2. * pipk * pjpk / (3. * pipj) );
+      ei        = sqrt( 2. * pipk * pipj / (3. * pjpk) );
+      ej        = sqrt( 2. * pjpk * pipj / (3. * pipk) );
+      ek        = sqrt( 2. * pipk * pjpk / (3. * pipj) );
 
     // Else find three-momentum range for parton i and values at extremes.
     } else { 
@@ -1175,10 +1175,14 @@ RotBstMatrix StringFragmentation::junctionRestFrame(Vec4& p0, Vec4& p1,
   double eNew[3];  eNew[i] = ei;  eNew[j] = ej;  eNew[k] = ek;
   
   // Boost (copy of) partons to their rest frame.
-  RotBstMatrix Mmove;  Mmove.bstback(pSum);
-  Vec4 p0cm = p0;  p0cm.rotbst(Mmove);
-  Vec4 p1cm = p1;  p1cm.rotbst(Mmove);
-  Vec4 p2cm = p2;  p2cm.rotbst(Mmove); 
+  RotBstMatrix Mmove;  
+  Vec4 p0cm = p0;  
+  Vec4 p1cm = p1;  
+  Vec4 p2cm = p2;  
+  Mmove.bstback(pSumJun);
+  p0cm.rotbst(Mmove);
+  p1cm.rotbst(Mmove);
+  p2cm.rotbst(Mmove); 
 
   // Construct difference vectors and the boost to junction rest frame.
   Vec4 pDir01      = p0cm / p0cm.e() - p1cm / p1cm.e();

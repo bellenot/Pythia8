@@ -240,7 +240,7 @@ void ParticleDataEntry::initBWmass() {
       mChannelSum += ParticleDataTable::m0( decay[i].product(j) );
     mThrSum += decay[i].bRatio() * mChannelSum;
   }
-  mThr = mThrSum / bRatSum;
+  mThr = (bRatSum == 0.) ? 0. : mThrSum / bRatSum;
 
   // Switch off Breit-Wigner if very close to threshold.
   if (mThr + NARROWMASS > m0Save) {
@@ -796,7 +796,7 @@ bool ParticleDataTable::readXML(string inFile, bool reset) {
   // All particle data at this stage defines baseline original.
   if (reset) for (map<int, ParticleDataEntry>::iterator pdtEntry 
     = pdt.begin(); pdtEntry != pdt.end(); ++pdtEntry) {
-    ParticleDataEntry* particlePtr = &pdtEntry->second;
+    particlePtr = &pdtEntry->second;
     particlePtr->setHasChanged(false);
   }
 
@@ -817,9 +817,9 @@ void ParticleDataTable::listXML(string outFile) {
     ofstream os(cstring);  
 
   // Iterate through the particle data table.
-  for (map<int, ParticleDataEntry>::const_iterator pdtEntry 
+  for (map<int, ParticleDataEntry>::iterator pdtEntry 
     = pdt.begin(); pdtEntry != pdt.end(); ++pdtEntry) {
-    const ParticleDataEntry* particlePtr = &pdtEntry->second;
+    particlePtr = &pdtEntry->second;
 
     // Print particle properties.
     os << "<particle id=\"" << particlePtr->id() << "\""
@@ -988,9 +988,9 @@ void ParticleDataTable::listFF(string outFile) {
     ofstream os(cstring);  
 
   // Iterate through the particle data table. 
-  for (map<int, ParticleDataEntry>::const_iterator pdtEntry 
+  for (map<int, ParticleDataEntry>::iterator pdtEntry 
     = pdt.begin(); pdtEntry != pdt.end(); ++pdtEntry) {
-    const ParticleDataEntry* particlePtr = &pdtEntry->second;
+    particlePtr = &pdtEntry->second;
 
     // Pick format for mass and width based on mass value.
     double m0Now = particlePtr->m0();
@@ -1396,9 +1396,9 @@ void ParticleDataTable::list(bool changedOnly, bool changedRes, ostream& os) {
 
   // Iterate through the particle data table. Option to skip unchanged.
   int nList = 0;
-  for (map<int, ParticleDataEntry>::const_iterator pdtEntry 
+  for (map<int, ParticleDataEntry>::iterator pdtEntry 
     = pdt.begin(); pdtEntry != pdt.end(); ++pdtEntry) {
-    const ParticleDataEntry* particlePtr = &pdtEntry->second;
+    particlePtr = &pdtEntry->second;
     if ( !changedOnly || particlePtr->hasChanged() ||
       ( changedRes && particlePtr->getResonancePtr() != 0 ) ) {
 
@@ -1473,7 +1473,7 @@ void ParticleDataTable::list(vector<int> idList, ostream& os) {
 
   // Iterate through the given list of input particles.
   for (int i = 0; i < int(idList.size()); ++i) {
-    const ParticleDataEntry* particlePtr = particleDataPtr(idList[i]);
+    particlePtr = particleDataPtr(idList[i]);
 
     // Pick format for mass and width based on mass value.
     double m0Now = particlePtr->m0();
@@ -1504,15 +1504,15 @@ void ParticleDataTable::list(vector<int> idList, ostream& os) {
 
     // Loop through the decay channel table for each particle.
     if (particlePtr->decay.size() > 0) {
-      for (int i = 0; i < int(particlePtr->decay.size()); ++i) {
-        const DecayChannel& channel = particlePtr->decay[i];
+      for (int j = 0; j < int(particlePtr->decay.size()); ++j) {
+        const DecayChannel& channel = particlePtr->decay[j];
         os << "          "  << setprecision(7) 
-           << setw(5) << i 
+           << setw(5) << j 
            << setw(6) << channel.onMode() 
            << fixed<< setw(12) << channel.bRatio() 
            << setw(5) << channel.meMode() << " ";
-        for (int j = 0; j < channel.multiplicity(); ++j) 
-          os << setw(8) << channel.product(j) << " ";
+        for (int k = 0; k < channel.multiplicity(); ++k) 
+          os << setw(8) << channel.product(k) << " ";
         os << "\n";  
       }
     }  
@@ -1545,9 +1545,9 @@ void ParticleDataTable::checkTable(int verbosity, ostream& os) {
   int nErr = 0;
 
   // Loop through all particles.
-  for (map<int, ParticleDataEntry>::const_iterator pdtEntry 
+  for (map<int, ParticleDataEntry>::iterator pdtEntry 
   = pdt.begin(); pdtEntry != pdt.end(); ++pdtEntry) {
-    const ParticleDataEntry* particlePtr = &pdtEntry->second;
+    particlePtr = &pdtEntry->second;
   
     // Extract some particle properties. Set some flags;
     int id = particlePtr->id();

@@ -76,6 +76,8 @@ public:
   double pdf2()           const {return pdf2Save;}
   double QFac()           const {return sqrtpos(Q2FacSave);}
   double Q2Fac()          const {return Q2FacSave;}
+  bool   isValence1()     const {return isVal1;}
+  bool   isValence2()     const {return isVal2;}
   double alphaS()         const {return alphaSSave;}
   double alphaEM()        const {return alphaEMSave;}
   double QRen()           const {return sqrtpos(Q2RenSave);}
@@ -147,7 +149,7 @@ private:
 
   // Store current-event quantities.
   bool   isRes, isDiffA, isDiffB, isMB, isLH, hasSubSave, bIsSet, evolIsSet,
-         atEOF;  
+         atEOF, isVal1, isVal2;  
   int    codeSave, codeSubSave, nFinalSave, nFinalSubSave, nTotal, 
          id1Save, id2Save, nMISave, nISRSave, nFSRinProcSave, nFSRinResSave;
   double x1Save, x2Save, pdf1Save, pdf2Save, Q2FacSave, alphaEMSave, 
@@ -174,12 +176,12 @@ private:
 
   // Reset info for current event: only from Pythia class.
   void clear() { isRes = isDiffA = isDiffB = isMB = isLH = atEOF = bIsSet 
-    = false; codeSave = nFinalSave = nTotal = id1Save = id2Save = nMISave 
-    = nISRSave = nFSRinProcSave = nFSRinResSave = 0; x1Save = x2Save 
-    = pdf1Save = pdf2Save = Q2FacSave = alphaEMSave = alphaSSave = Q2RenSave 
-    = sH = tH = uH = pTH = m3H = m4H = thetaH = phiH = 0.; nameSave = " "; 
-    weightSave = bMISave = enhanceMISave = 1.; codeMISave.resize(0); 
-    pTMISave.resize(0);}
+    = isVal1 =isVal2 = false; codeSave = nFinalSave = nTotal = id1Save 
+    = id2Save = nMISave = nISRSave = nFSRinProcSave = nFSRinResSave = 0; 
+    x1Save = x2Save = pdf1Save = pdf2Save = Q2FacSave = alphaEMSave 
+    = alphaSSave = Q2RenSave = sH = tH = uH = pTH = m3H = m4H = thetaH 
+    = phiH = 0.; nameSave = " "; weightSave = bMISave = enhanceMISave = 1.; 
+    codeMISave.resize(0); pTMISave.resize(0);}
 
   // Set info on the (sub)process: from ProcessLevel, ProcessContainer or 
   // MultipleInteractions classes.
@@ -211,6 +213,10 @@ private:
   void setSigma( long nTryIn, long nSelIn, long nAccIn, double sigGenIn, 
     double sigErrIn) { nTry = nTryIn; nSel = nSelIn; nAcc = nAccIn; 
     sigGen = sigGenIn; sigErr = sigErrIn;} 
+
+  // Set info on valence character of hard collision partons: from PartonLevel.
+  void setValence( bool isVal1In, bool isVal2In) {isVal1 = isVal1In; 
+    isVal2 = isVal2In;}
 
   // Set info on impact parameter: from PartonLevel.
   void setImpact( double bMIIn, double enhanceMIIn) {bMISave = bMIIn;

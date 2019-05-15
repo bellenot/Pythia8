@@ -460,8 +460,8 @@ double Sigma2ff2fftW::sigmaHat() {
 void Sigma2ff2fftW::setIdColAcol() {
 
   // Pick out-flavours by relative CKM weights.
-  int id3 = VCKM::V2pick(id1);
-  int id4 = VCKM::V2pick(id2);
+  id3 = VCKM::V2pick(id1);
+  id4 = VCKM::V2pick(id2);
   setId( id1, id2, id3, id4);
 
   // Colour flow topologies. Swap when antiquarks.
@@ -581,8 +581,7 @@ void Sigma2qq2QqtW::setIdColAcol() {
   } 
   else if ((id2Abs + idNew)%2 == 1) side = 2;
 
-  // Pick out-flavours by relative CKM weights.
-  int id3, id4; 
+  // Pick out-flavours by relative CKM weights. 
   if (side == 1) {
     // q q' -> t q" : correct order from start.
     id3 = (id1 > 0) ? idNew : -idNew;
@@ -1298,10 +1297,10 @@ void Sigma2ffbargmZWgmZW::setupProd( Event& process, int i1, int i2,
   bool smallPT = false;
   do {
     smallPT = false;
-    double theta = acos(2. * Rndm::flat() - 1.);
-    double phi   = 2. * M_PI * Rndm::flat();
+    double thetaNow = acos(2. * Rndm::flat() - 1.);
+    double phiNow   = 2. * M_PI * Rndm::flat();
     for (int i = 1; i <= 6; ++i) { 
-      pRot[i].rot( theta, phi);
+      pRot[i].rot( thetaNow, phiNow);
       if (pRot[i].pT2() < 1e-4 * pRot[i].pAbs2()) smallPT = true;
     }
   } while (smallPT); 

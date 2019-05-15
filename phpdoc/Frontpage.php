@@ -86,7 +86,7 @@ arXiv:0710.3820</b>.
 Main author: <b>Torbj&ouml;rn Sj&ouml;strand</b><br/> 
 Department of Theoretical Physics, Lund University, 
 SE-223 62 Lund, Sweden<br/>
-phone: + 41 - 22 - 767 82 27, e-mail: torbjorn@thep.lu.se   
+phone: + 46 - 46 - 222 48 16, e-mail: torbjorn@thep.lu.se   
 
 <p/>
 Author: <b>Stephen Mrenna</b><br/> 

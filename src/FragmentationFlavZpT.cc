@@ -105,7 +105,7 @@ void StringFlav::init() {
   etaPrimeSup = Settings::parm("StringFlav:etaPrimeSup");
 
   // Sum of baryon octet and decuplet weights.
-  double decupletSup = Settings::parm("StringFlav:decupletSup");
+  decupletSup = Settings::parm("StringFlav:decupletSup");
   for (int i = 0; i < 6; ++i) baryonCGSum[i]
     = baryonCGOct[i] + decupletSup * baryonCGDec[i];
 
@@ -737,9 +737,9 @@ void StringPT::init() {
 
 double StringPT::pxy() {
 
-  double pxy = sigmaQ * Rndm::gauss();
-  if (Rndm::flat() < enhancedFraction) pxy *= enhancedWidth;
-  return pxy;
+  double pxyNow = sigmaQ * Rndm::gauss();
+  if (Rndm::flat() < enhancedFraction) pxyNow *= enhancedWidth;
+  return pxyNow;
 
 }
   

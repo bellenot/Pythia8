@@ -80,8 +80,7 @@ bool PartonLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn,
   // Set info and initialize the respective program elements.
   timesPtr->init( beamAPtr, beamBPtr);
   if (doISR) spacePtr->init( beamAPtr, beamBPtr);
-  if (doMIinit && !multi.init( infoPtr, beamAPtr, beamBPtr, sigmaTotPtr)) 
-    doMI = false;
+  doMI = multi.init( doMIinit, infoPtr, beamAPtr, beamBPtr, sigmaTotPtr);
   remnants.init( infoPtr, beamAPtr, beamBPtr);  
 
   // Succeeded. (Check return values from other classes??)
@@ -101,7 +100,7 @@ bool PartonLevel::next( Event& process, Event& event) {
   if (doMIinit) multi.clear();
   if (infoPtr->isMinBias()) {
     multi.pTfirst();
-    multi.setupFirstSys( infoPtr, process);
+    multi.setupFirstSys( process);
   }
 
   // Allow up to ten tries; failure possible for beam remnants.
@@ -185,7 +184,7 @@ bool PartonLevel::next( Event& process, Event& event) {
 
       // Do a multiple interaction (if allowed).
       if (pTmulti > 0. && pTmulti > pTspace && pTmulti > pTtimes) {
-        multi.scatter( infoPtr, event);  
+        multi.scatter( event);  
         typeLatest = 1;
         ++nMI;
         if (doISR)              spacePtr->prepare( nMI - 1, event);
@@ -362,12 +361,15 @@ void PartonLevel::setupHardSys( Event& process, Event& event) {
   double x2 = process[inM].pMinus() / process[0].e();
   beamBPtr->append( inM, process[inM].id(), x2);
 
-  // Scale. Find whether incoming partons are valence or sea.
+  // Scale. Find whether incoming partons are valence or sea. Store.
   double scale = process.scale();
   beamAPtr->xfISR( 0, process[inP].id(), x1, scale*scale);
-  beamAPtr->pickValSeaComp(); 
+  int vsc1 = beamAPtr->pickValSeaComp(); 
   beamBPtr->xfISR( 0, process[inM].id(), x2, scale*scale);
-  beamBPtr->pickValSeaComp(); 
+  int vsc2 = beamBPtr->pickValSeaComp();
+  bool isVal1 = (vsc1 == -3); 
+  bool isVal2 = (vsc2 == -3); 
+  infoPtr->setValence( isVal1, isVal2);
 
   // Initialize info needed for subsequent sequential decays + showers.
   nHardDone = 0;
@@ -469,11 +471,11 @@ bool PartonLevel::setupUnresolvedSys( Event& process, Event& event) {
     BeamParticle* beamPtr = (i == 0) ? beamAPtr : beamBPtr;
 
     // Diffractive mass. Reconstruct boost and rotation to event cm frame.
-    double mDiff = process[iBeam].m();  
+    double mDiff  = process[iBeam].m();  
     double m2Diff = mDiff*mDiff;  
-    double beta = process[iBeam].pAbs() / process[iBeam].e();
-    double theta = process[iBeam].theta();
-    double phi = process[iBeam].phi();
+    double beta   = process[iBeam].pAbs() / process[iBeam].e();
+    double theta  = process[iBeam].theta();
+    double phi    = process[iBeam].phi();
   
     // Pick quark or gluon kicked out and flavour subdivision.
     bool gluonIsKicked = beamPtr->pickGluon(mDiff);
@@ -529,8 +531,8 @@ bool PartonLevel::setupUnresolvedSys( Event& process, Event& event) {
       // Provide relative pT kick in remnant. Construct (transverse) masses.
       pxSys = beamPtr->pxShare(); 
       pySys = beamPtr->pyShare(); 
-      mTS1 = m1*m1 + pxSys*pxSys + pySys*pySys;
-      mTS2 = m2*m2 + pxSys*pxSys + pySys*pySys;
+      mTS1  = m1*m1 + pxSys*pxSys + pySys*pySys;
+      mTS2  = m2*m2 + pxSys*pxSys + pySys*pySys;
       m2Sys = mTS1 / zSys + mTS2 / (1. - zSys);
 
       // Momentum of kicked-out massless gluon in diffractive rest frame.
@@ -583,25 +585,25 @@ bool PartonLevel::setupUnresolvedSys( Event& process, Event& event) {
 int PartonLevel::resonanceShowers( Event& process, Event& event) {
 
   // Isolate next system to be processed, if anything remains.
-  int nFSRinRes = 0;
+  int nFSRres = 0;
   while (nHardDone < process.size()) {
     int iBegin = nHardDone;
 
     // Mother in hard process and in complete event (after shower).
-    int iHardMother = process[iBegin].mother1();
+    int iHardMother      = process[iBegin].mother1();
     Particle& hardMother = process[iHardMother];
-    int iBefMother = iPosBefShow[iHardMother];
-    int iAftMother = event.iBotCopyId(iBefMother);
-    Particle& aftMother = event[iAftMother];
+    int iBefMother       = iPosBefShow[iHardMother];
+    int iAftMother       = event.iBotCopyId(iBefMother);
+    Particle& aftMother  = event[iAftMother];
 
     // From now mother counts as decayed.
     aftMother.statusNeg();
 
     // Mother can have been moved by showering (in any of previous steps), 
     // so prepare to update colour and momentum information for system.
-    int colBef = hardMother.col();
+    int colBef  = hardMother.col();
     int acolBef = hardMother.acol();
-    int colAft = aftMother.col();
+    int colAft  = aftMother.col();
     int acolAft = aftMother.acol();
     RotBstMatrix M;
     M.bst( hardMother.p(), aftMother.p());
@@ -671,7 +673,7 @@ int PartonLevel::resonanceShowers( Event& process, Event& event) {
         // Do a final-state emission (if allowed).
         if (pTtimes > 0.) {
           if (timesDecPtr->branch( event)) {
-            ++nFSRinRes; 
+            ++nFSRres; 
             ++nFSRhard;
             if (canVetoStep && nFSRhard <= nVetoStep) typeVetoStep = 5;
 	  }
@@ -696,7 +698,7 @@ int PartonLevel::resonanceShowers( Event& process, Event& event) {
 
   // No more systems to be processed. Return total number of emissions.
   }
-  return nFSRinRes;
+  return nFSRres;
 
 }
  

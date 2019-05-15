@@ -235,22 +235,22 @@ void PhaseSpace::decayKinematicsStep( Event& process, int iRes) {
 
     // Products and product masses. 
     int    i2   = i1 + 1;
-    double m1   = process[i1].m();
-    double m2   = process[i2].m();
+    double m1t  = process[i1].m();
+    double m2t  = process[i2].m();
 
     // Energies and absolute momentum in the rest frame.
-    double e1   = 0.5 * (m0*m0 + m1*m1 - m2*m2) / m0;
-    double e2   = 0.5 * (m0*m0 + m2*m2 - m1*m1) / m0;
-    double pAbs = 0.5 * sqrtpos( (m0 - m1 - m2) * (m0 + m1 + m2)
-      * (m0 + m1 - m2) * (m0 - m1 + m2) ) / m0;  
+    double e1   = 0.5 * (m0*m0 + m1t*m1t - m2t*m2t) / m0;
+    double e2   = 0.5 * (m0*m0 + m2t*m2t - m1t*m1t) / m0;
+    double p12  = 0.5 * sqrtpos( (m0 - m1t - m2t) * (m0 + m1t + m2t)
+      * (m0 + m1t - m2t) * (m0 - m1t + m2t) ) / m0;  
 
     // Pick isotropic angles to give three-momentum. 
     double cosTheta = 2. * Rndm::flat() - 1.;
     double sinTheta = sqrt(1. - cosTheta*cosTheta);
-    double phi      = 2. * M_PI * Rndm::flat();
-    double pX       = pAbs * sinTheta * cos(phi);  
-    double pY       = pAbs * sinTheta * sin(phi);  
-    double pZ       = pAbs * cosTheta;  
+    double phi12    = 2. * M_PI * Rndm::flat();
+    double pX       = p12 * sinTheta * cos(phi12);  
+    double pY       = p12 * sinTheta * sin(phi12);  
+    double pZ       = p12 * cosTheta;  
 
     // Fill four-momenta in mother rest frame and then boost to lab frame. 
     Vec4 p1(  pX,  pY,  pZ, e1);
@@ -270,18 +270,20 @@ void PhaseSpace::decayKinematicsStep( Event& process, int iRes) {
     // Products and product masses. 
     int    i2      = i1 + 1;
     int    i3      = i2 + 1;
-    double m1      = process[i1].m();
-    double m2      = process[i2].m();
-    double m3      = process[i3].m();
-    double mDiff   = m0 - (m1 + m2 + m3);
+    double m1t     = process[i1].m();
+    double m2t     = process[i2].m();
+    double m3t     = process[i3].m();
+    double mDiff   = m0 - (m1t + m2t + m3t);
 
     // Kinematical limits for 2+3 mass. Maximum phase-space weight.
-    double m23Min  = m2 + m3;
-    double m23Max  = m0 - m1;
-    double p1Max   = 0.5 * sqrtpos( (m0 - m1 - m23Min) * (m0 + m1 + m23Min)
-      * (m0 + m1 - m23Min) * (m0 - m1 + m23Min) ) / m0; 
-    double p23Max  = 0.5 * sqrtpos( (m23Max - m2 - m3) * (m23Max + m2 + m3)
-      * (m23Max + m2 - m3) * (m23Max - m2 + m3) ) / m23Max;
+    double m23Min  = m2t + m3t;
+    double m23Max  = m0 - m1t;
+    double p1Max   = 0.5 * sqrtpos( (m0 - m1t - m23Min) 
+      * (m0 + m1t + m23Min) * (m0 + m1t - m23Min) 
+      * (m0 - m1t + m23Min) ) / m0; 
+    double p23Max  = 0.5 * sqrtpos( (m23Max - m2t - m3t) 
+      * (m23Max + m2t + m3t) * (m23Max + m2t - m3t) 
+      * (m23Max - m2t + m3t) ) / m23Max;
     double wtPSmax = 0.5 * p1Max * p23Max;
 
     // Pick an intermediate mass m23 flat in the allowed range.
@@ -290,10 +292,10 @@ void PhaseSpace::decayKinematicsStep( Event& process, int iRes) {
       m23 = m23Min + Rndm::flat() * mDiff;
 
       // Translate into relative momenta and find phase-space weight.
-      p1Abs  = 0.5 * sqrtpos( (m0 - m1 - m23) * (m0 + m1 + m23)
-        * (m0 + m1 - m23) * (m0 - m1 + m23) ) / m0; 
-      p23Abs = 0.5 * sqrtpos( (m23 - m2 - m3) * (m23 + m2 + m3)
-        * (m23 + m2 - m3) * (m23 - m2 + m3) ) / m23;
+      p1Abs  = 0.5 * sqrtpos( (m0 - m1t - m23) * (m0 + m1t + m23)
+        * (m0 + m1t - m23) * (m0 - m1t + m23) ) / m0; 
+      p23Abs = 0.5 * sqrtpos( (m23 - m2t - m3t) * (m23 + m2t + m3t)
+        * (m23 + m2t - m3t) * (m23 - m2t + m3t) ) / m23;
       wtPS   = p1Abs * p23Abs;
 
     // If rejected, try again with new invariant masses.
@@ -302,23 +304,23 @@ void PhaseSpace::decayKinematicsStep( Event& process, int iRes) {
     // Set up m23 -> m2 + m3 isotropic in its rest frame.
     double cosTheta = 2. * Rndm::flat() - 1.;
     double sinTheta = sqrt(1. - cosTheta*cosTheta);
-    double phi      = 2. * M_PI * Rndm::flat();
-    double pX       = p23Abs * sinTheta * cos(phi);  
-    double pY       = p23Abs * sinTheta * sin(phi);  
+    double phi23    = 2. * M_PI * Rndm::flat();
+    double pX       = p23Abs * sinTheta * cos(phi23);  
+    double pY       = p23Abs * sinTheta * sin(phi23);  
     double pZ       = p23Abs * cosTheta;  
-    double e2       = sqrt( m2*m2 + p23Abs*p23Abs);
-    double e3       = sqrt( m3*m3 + p23Abs*p23Abs);
+    double e2       = sqrt( m2t*m2t + p23Abs*p23Abs);
+    double e3       = sqrt( m3t*m3t + p23Abs*p23Abs);
     Vec4 p2(  pX,  pY,  pZ, e2);
     Vec4 p3( -pX, -pY, -pZ, e3);
 
     // Set up 0 -> 1 + 23 isotropic in its rest frame.
     cosTheta        = 2. * Rndm::flat() - 1.;
     sinTheta        = sqrt(1. - cosTheta*cosTheta);
-    phi             = 2. * M_PI * Rndm::flat();
-    pX              = p1Abs * sinTheta * cos(phi);  
-    pY              = p1Abs * sinTheta * sin(phi);  
+    phi23           = 2. * M_PI * Rndm::flat();
+    pX              = p1Abs * sinTheta * cos(phi23);  
+    pY              = p1Abs * sinTheta * sin(phi23);  
     pZ              = p1Abs * cosTheta;  
-    double e1       = sqrt( m1*m1 + p1Abs*p1Abs);
+    double e1       = sqrt( m1t*m1t + p1Abs*p1Abs);
     double e23      = sqrt( m23*m23 + p1Abs*p1Abs);
     Vec4 p1( pX, pY, pZ, e1);
 
@@ -358,14 +360,15 @@ void PhaseSpace::decayKinematicsStep( Event& process, int iRes) {
 
   // Calculate the maximum weight in the decay.
   double wtPSmax = 1. / WTCORRECTION[mult];
-  double mMax    = mDiff + mProd[mult];
-  double mMin    = 0.; 
+  double mMaxWT  = mDiff + mProd[mult];
+  double mMinWT  = 0.; 
   for (int i = mult - 1; i > 0; --i) {
-    mMax        += mProd[i];
-    mMin        += mProd[i+1];
+    mMaxWT      += mProd[i];
+    mMinWT      += mProd[i+1];
     double mNow  = mProd[i];
-    wtPSmax *= 0.5 * sqrtpos( (mMax - mMin - mNow) * (mMax + mMin + mNow)
-    * (mMax + mMin - mNow) * (mMax - mMin + mNow) ) / mMax;  
+    wtPSmax *= 0.5 * sqrtpos( (mMaxWT - mMinWT - mNow) 
+      * (mMaxWT + mMinWT + mNow) * (mMaxWT + mMinWT - mNow) 
+      * (mMaxWT - mMinWT + mNow) ) / mMaxWT;  
   }
 
   // Begin loop to find the set of intermediate invariant masses.
@@ -402,21 +405,21 @@ void PhaseSpace::decayKinematicsStep( Event& process, int iRes) {
   vector<Vec4> pInv;
   pInv.resize(mult + 1);
   for (int i = 1; i < mult; ++i) {
-    double pAbs = 0.5 * sqrtpos( (mInv[i] - mInv[i+1] - mProd[i]) 
+    double p12 = 0.5 * sqrtpos( (mInv[i] - mInv[i+1] - mProd[i]) 
       * (mInv[i] + mInv[i+1] + mProd[i]) * (mInv[i] + mInv[i+1] - mProd[i])
       * (mInv[i] - mInv[i+1] + mProd[i]) ) / mInv[i]; 
 
     // Isotropic angles give three-momentum.
     double cosTheta = 2. * Rndm::flat() - 1.;
     double sinTheta = sqrt(1. - cosTheta*cosTheta);
-    double phi      = 2. * M_PI * Rndm::flat();
-    double pX       = pAbs * sinTheta * cos(phi);  
-    double pY       = pAbs * sinTheta * sin(phi);  
-    double pZ       = pAbs * cosTheta;  
+    double phiLoc   = 2. * M_PI * Rndm::flat();
+    double pX       = p12 * sinTheta * cos(phiLoc);  
+    double pY       = p12 * sinTheta * sin(phiLoc);  
+    double pZ       = p12 * cosTheta;  
 
     // Calculate energies, fill four-momenta.
-    double eHad     = sqrt( mProd[i]*mProd[i] + pAbs*pAbs);
-    double eInv     = sqrt( mInv[i+1]*mInv[i+1] + pAbs*pAbs);
+    double eHad     = sqrt( mProd[i]*mProd[i] + p12*p12);
+    double eInv     = sqrt( mInv[i+1]*mInv[i+1] + p12*p12);
     pProd.push_back( Vec4( pX, pY, pZ, eHad) );
     pInv[i+1].p( -pX, -pY, -pZ, eInv);
   }       
@@ -565,21 +568,21 @@ bool PhaseSpace::setupSampling123(bool is2, bool is3, ostream& os) {
       selectY( iY, 0.5);
       for (int iZ = 0; iZ < nZ; ++iZ) {
         if (is2) selectZ( iZ, 0.5);
-        double sigmaNow = 0.;
+        double sigmaTmp = 0.;
 
         // 2 -> 1: calculate cross section, weighted by phase-space volume.
         if (!is2 && !is3) {
           sigmaProcessPtr->set1Kin( x1H, x2H, sH);
-          sigmaNow = sigmaProcessPtr->sigmaPDF();
-          sigmaNow *= wtTau * wtY; 
+          sigmaTmp = sigmaProcessPtr->sigmaPDF();
+          sigmaTmp *= wtTau * wtY; 
 
         // 2 -> 2: calculate cross section, weighted by phase-space volume
         // and Breit-Wigners for masses
         } else if (is2) {
           sigmaProcessPtr->set2Kin( x1H, x2H, sH, tH, m3, m4, 
             runBW3H, runBW4H);
-          sigmaNow = sigmaProcessPtr->sigmaPDF();
-          sigmaNow *= wtTau * wtY * wtZ * wtBW; 
+          sigmaTmp = sigmaProcessPtr->sigmaPDF();
+          sigmaTmp *= wtTau * wtY * wtZ * wtBW; 
 
         // 2 -> 3: repeat internal 3-body phase space several times and
         // keep maximal cross section, weighted by phase-space volume
@@ -591,27 +594,27 @@ bool PhaseSpace::setupSampling123(bool is2, bool is3, ostream& os) {
               m3, m4, m5, runBW3H, runBW4H, runBW5H);
             double sigmaTry = sigmaProcessPtr->sigmaPDF();
             sigmaTry *= wtTau * wtY * wt3Body * wtBW; 
-            if (sigmaTry > sigmaNow) sigmaNow = sigmaTry;
+            if (sigmaTry > sigmaTmp) sigmaTmp = sigmaTry;
 	  }
 	}
 
         // Allow possibility for user to modify cross section. (3body??)
-        if (canModifySigma) sigmaNow 
+        if (canModifySigma) sigmaTmp 
            *= userHooksPtr->multiplySigmaBy( sigmaProcessPtr, this, false);
 
         // Check if current maximum exceeded.
-        if (sigmaNow > sigmaMx) sigmaMx = sigmaNow; 
+        if (sigmaTmp > sigmaMx) sigmaMx = sigmaTmp; 
 
         // Optional printout. Protect against negative cross sections.
         if (showSearch) os << " tau =" << setw(11) << tau << "  y =" 
 	  << setw(11) << y << "  z =" << setw(11) << z
-	  << "  sigma =" << setw(11) << sigmaNow << "\n";
-        if (sigmaNow < 0.) sigmaNow = 0.; 
+	  << "  sigma =" << setw(11) << sigmaTmp << "\n";
+        if (sigmaTmp < 0.) sigmaTmp = 0.; 
 
         // Sum up tau cross-section pieces in points used.
         if (!hasPointLeptons) {
           binTau[iTau] += 1;
-          vecTau[iTau] += sigmaNow;
+          vecTau[iTau] += sigmaTmp;
           matTau[iTau][0] += 1. / intTau0;
           matTau[iTau][1] += (1. / intTau1) / tau;
           if (idResA != 0) {
@@ -631,7 +634,7 @@ bool PhaseSpace::setupSampling123(bool is2, bool is3, ostream& os) {
         // Sum up y cross-section pieces in points used.
         if (!hasPointLeptons) {
           binY[iY] += 1;
-          vecY[iY] += sigmaNow;
+          vecY[iY] += sigmaTmp;
           matY[iY][0] += (yMax / intY01) * (y + yMax);
           matY[iY][1] += (yMax / intY01) * (yMax - y);
           matY[iY][2] += (yMax / intY2) / cosh(y);
@@ -656,7 +659,7 @@ bool PhaseSpace::setupSampling123(bool is2, bool is3, ostream& os) {
   
           // Sum up z cross-section pieces in points used.
           binZ[iZ] += 1;
-          vecZ[iZ] += sigmaNow;
+          vecZ[iZ] += sigmaTmp;
           matZ[iZ][0] += 1.; 
           matZ[iZ][1] += (intZ0Max / intZ12Max) / zNeg;
           matZ[iZ][2] += (intZ0Max / intZ12Max) / zPos;
@@ -712,21 +715,21 @@ bool PhaseSpace::setupSampling123(bool is2, bool is3, ostream& os) {
       selectY( iY, 0.5);
       for (int iZ = 0; iZ < nZ; ++iZ) {
         if (is2) selectZ( iZ, 0.5);
-        double sigmaNow = 0.;
+        double sigmaTmp = 0.;
 
         // 2 -> 1: calculate cross section, weighted by phase-space volume.
         if (!is2 && !is3) {
           sigmaProcessPtr->set1Kin( x1H, x2H, sH);
-          sigmaNow = sigmaProcessPtr->sigmaPDF();
-          sigmaNow *= wtTau * wtY; 
+          sigmaTmp = sigmaProcessPtr->sigmaPDF();
+          sigmaTmp *= wtTau * wtY; 
 
         // 2 -> 2: calculate cross section, weighted by phase-space volume
         // and Breit-Wigners for masses
         } else if (is2) {
           sigmaProcessPtr->set2Kin( x1H, x2H, sH, tH, m3, m4, 
             runBW3H, runBW4H);
-          sigmaNow = sigmaProcessPtr->sigmaPDF();
-          sigmaNow *= wtTau * wtY * wtZ * wtBW; 
+          sigmaTmp = sigmaProcessPtr->sigmaPDF();
+          sigmaTmp *= wtTau * wtY * wtZ * wtBW; 
 
         // 2 -> 3: repeat internal 3-body phase space several times and
         // keep maximal cross section, weighted by phase-space volume
@@ -738,32 +741,32 @@ bool PhaseSpace::setupSampling123(bool is2, bool is3, ostream& os) {
               m3, m4, m5, runBW3H, runBW4H, runBW5H);
             double sigmaTry = sigmaProcessPtr->sigmaPDF();
             sigmaTry *= wtTau * wtY * wt3Body * wtBW; 
-            if (sigmaTry > sigmaNow) sigmaNow = sigmaTry;
+            if (sigmaTry > sigmaTmp) sigmaTmp = sigmaTry;
 	  }
 	}
 
         // Allow possibility for user to modify cross section. (3body??)
-        if (canModifySigma) sigmaNow 
+        if (canModifySigma) sigmaTmp 
           *= userHooksPtr->multiplySigmaBy( sigmaProcessPtr, this, false);
 
         // Optional printout. Protect against negative cross section.
         if (showSearch) os << " tau =" << setw(11) << tau << "  y =" 
 	  << setw(11) << y << "  z =" << setw(11) << z
-	  << "  sigma =" << setw(11) << sigmaNow << "\n";
-        if (sigmaNow < 0.) sigmaNow = 0.; 
+	  << "  sigma =" << setw(11) << sigmaTmp << "\n";
+        if (sigmaTmp < 0.) sigmaTmp = 0.; 
 
         // Check that point is not simply mirror of already found one.
         bool mirrorPoint = false;
         for (int iMove = 0; iMove < nMax; ++iMove)
-          if (abs(sigmaNow - sigMax[iMove]) < SAMESIGMA 
-	    * (sigmaNow + sigMax[iMove])) mirrorPoint = true; 
+          if (abs(sigmaTmp - sigMax[iMove]) < SAMESIGMA 
+	    * (sigmaTmp + sigMax[iMove])) mirrorPoint = true; 
 
         // Add to or insert in maximum list. Only first two count.
 	if (!mirrorPoint) {
           int iInsert = 0;
           for (int iMove = nMax - 1; iMove >= -1; --iMove) {
             iInsert = iMove + 1;
-            if (iInsert == 0 || sigmaNow < sigMax[iMove]) break;
+            if (iInsert == 0 || sigmaTmp < sigMax[iMove]) break;
 	    iMaxTau[iMove + 1] = iMaxTau[iMove];
 	    iMaxY[iMove + 1] = iMaxY[iMove];
 	    iMaxZ[iMove + 1] = iMaxZ[iMove];
@@ -772,7 +775,7 @@ bool PhaseSpace::setupSampling123(bool is2, bool is3, ostream& os) {
 	  iMaxTau[iInsert] = iTau;
 	  iMaxY[iInsert] = iY;
 	  iMaxZ[iInsert] = iZ;
-	  sigMax[iInsert] = sigmaNow;
+	  sigMax[iInsert] = sigmaTmp;
           if (nMax < NMAXTRY) ++nMax;  
 	}
 
@@ -866,22 +869,22 @@ bool PhaseSpace::setupSampling123(bool is2, bool is3, ostream& os) {
 	  }
 
           // Evaluate cross-section. 
-          double sigmaNow = 0.;
+          double sigmaTmp = 0.;
           if (insideLimits) {  
 
             // 2 -> 1: calculate cross section, weighted by phase-space volume.
             if (!is2 && !is3) {
               sigmaProcessPtr->set1Kin( x1H, x2H, sH);
-              sigmaNow = sigmaProcessPtr->sigmaPDF();
-              sigmaNow *= wtTau * wtY; 
+              sigmaTmp = sigmaProcessPtr->sigmaPDF();
+              sigmaTmp *= wtTau * wtY; 
 
             // 2 -> 2: calculate cross section, weighted by phase-space volume
             // and Breit-Wigners for masses
             } else if (is2) {
               sigmaProcessPtr->set2Kin( x1H, x2H, sH, tH, m3, m4, 
                 runBW3H, runBW4H);
-              sigmaNow = sigmaProcessPtr->sigmaPDF();
-              sigmaNow *= wtTau * wtY * wtZ * wtBW; 
+              sigmaTmp = sigmaProcessPtr->sigmaPDF();
+              sigmaTmp *= wtTau * wtY * wtZ * wtBW; 
   
             // 2 -> 3: repeat internal 3-body phase space several times and
             // keep maximal cross section, weighted by phase-space volume
@@ -893,24 +896,24 @@ bool PhaseSpace::setupSampling123(bool is2, bool is3, ostream& os) {
                   m3, m4, m5, runBW3H, runBW4H, runBW5H);
                 double sigmaTry = sigmaProcessPtr->sigmaPDF();
                 sigmaTry *= wtTau * wtY * wt3Body * wtBW; 
-                if (sigmaTry > sigmaNow) sigmaNow = sigmaTry;
+                if (sigmaTry > sigmaTmp) sigmaTmp = sigmaTry;
 	      }
     	    }
 
             // Allow possibility for user to modify cross section.
-            if (canModifySigma) sigmaNow 
+            if (canModifySigma) sigmaTmp 
               *= userHooksPtr->multiplySigmaBy( sigmaProcessPtr, this, false);
 
             // Optional printout. Protect against negative cross section.
             if (showSearch) os << " tau =" << setw(11) << tau << "  y =" 
 	      << setw(11) << y << "  z =" << setw(11) << z
-	      << "  sigma =" << setw(11) << sigmaNow << "\n";
-            if (sigmaNow < 0.) sigmaNow = 0.; 
+	      << "  sigma =" << setw(11) << sigmaTmp << "\n";
+            if (sigmaTmp < 0.) sigmaTmp = 0.; 
           }
 
           // Save new maximum. Final maximum.
-          sigGrid[iGrid] = sigmaNow;
-          if (sigmaNow > sigmaMx) sigmaMx = sigmaNow;
+          sigGrid[iGrid] = sigmaTmp;
+          if (sigmaTmp > sigmaMx) sigmaMx = sigmaTmp;
 	}
       }
     }
@@ -1607,7 +1610,8 @@ void PhaseSpace::setupMass1(int iM) {
   useBW[iM]    = useBreitWigners && (mWidth[iM] > minWidthBreitWigners);
   if (!useBW[iM]) mWidth[iM] = 0.;
   mw[iM]       = mPeak[iM] * mWidth[iM];
-  wmRat[iM]    = mWidth[iM] / mPeak[iM];
+  wmRat[iM]    = (idMass[iM] == 0 || mPeak[iM] == 0.) 
+               ? 0. : mWidth[iM] / mPeak[iM];
 
   // Simple Breit-Wigner range, upper edge to be corrected subsequently.
   if (useBW[iM]) {

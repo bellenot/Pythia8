@@ -50,7 +50,7 @@ public:
   bool hasVetoed() const {return doVeto;}
 
   // Accumulate and print statistics.
-  void accumulate() {multi.accumulate( infoPtr);}
+  void accumulate() {multi.accumulate();}
   void statistics(bool reset = false) {if (doMI) multi.statistics(reset);}
 
 private: 

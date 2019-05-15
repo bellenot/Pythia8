@@ -369,11 +369,12 @@ bool LHAupLHEF::setEvent( int ) {
     getpdf >> tag;
     if (!getpdf) return false;
     if (tag == "#pdf") {
-      int id1, id2;
-      double x1, x2, scalePDF, xpdf1, xpdf2;
-      getpdf >> id1 >> id2 >>  x1 >> x2 >> scalePDF >> xpdf1 >> xpdf2;
+      int id1In, id2In;
+      double x1In, x2In, scalePDFIn, xpdf1In, xpdf2In;
+      getpdf >> id1In >> id2In >>  x1In >> x2In >> scalePDFIn 
+             >> xpdf1In >> xpdf2In;
       if (!getpdf) return false;
-      setPdf(id1, id2, x1, x2, scalePDF, xpdf1, xpdf2);  
+      setPdf(id1In, id2In, x1In, x2In, scalePDFIn, xpdf1In, xpdf2In);  
     }
   } while (tag != "</event>" && tag != "</event"); 
   
@@ -422,7 +423,7 @@ bool LHAupFromPYTHIA8::setInit() {
 
 //*********
 
-// Read in event information from from PYTHIA 8.
+// Read in event information from PYTHIA 8.
 
 bool LHAupFromPYTHIA8::setEvent( int ) {
 
@@ -440,40 +441,40 @@ bool LHAupFromPYTHIA8::setEvent( int ) {
   // Read in particle info one by one, excluding zero and beams, and store it.
   // Note unusual C++ loop range, to better reflect LHA/Fortran standard.
   int nup   = processPtr->size() - 3;
-  int    idup, status, istup, mothup1, mothup2, icolup1, icolup2; 
+  int    idup, statusup, istup, mothup1, mothup2, icolup1, icolup2; 
   double pup1, pup2, pup3, pup4, pup5, vtimup, spinup;
   for (int ip = 1; ip <= nup; ++ip) {
     Particle& particle = (*processPtr)[ip + 2];
-    idup    = particle.id(); 
+    idup     = particle.id(); 
     // Convert from PYTHIA8 to LHA status codes.
-    status  = particle.status();
-    if (ip < 3)          istup = -1;
-    else if (status < 0) istup =  2;
-    else                 istup =  1;
-    mothup1 = max(0, particle.mother1() - 2); 
-    mothup2 = max(0, particle.mother2() - 2); 
-    icolup1 = particle.col();
-    icolup2 = particle.acol();
-    pup1    = particle.px();
-    pup2    = particle.py();
-    pup3    = particle.pz();
-    pup4    = particle.e();
-    pup5    = particle.m();
-    vtimup  = particle.tau(); 
-    spinup  = 9.;
+    statusup = particle.status();
+    if (ip < 3)            istup = -1;
+    else if (statusup < 0) istup =  2;
+    else                   istup =  1;
+    mothup1  = max(0, particle.mother1() - 2); 
+    mothup2  = max(0, particle.mother2() - 2); 
+    icolup1  = particle.col();
+    icolup2  = particle.acol();
+    pup1     = particle.px();
+    pup2     = particle.py();
+    pup3     = particle.pz();
+    pup4     = particle.e();
+    pup5     = particle.m();
+    vtimup   = particle.tau(); 
+    spinup   = 9.;
     addParticle(idup, istup, mothup1, mothup2, icolup1, icolup2,
       pup1, pup2, pup3, pup4, pup5, vtimup, spinup) ;
   }
 
   // Also extract pdf information from Info class, and store it.
-  int    id1      = infoPtr->id1();
-  int    id2      = infoPtr->id2();
-  double x1       = infoPtr->x1();
-  double x2       = infoPtr->x2();
-  double scalePDF = infoPtr->QFac();
-  double xpdf1    = infoPtr->pdf1();
-  double xpdf2    = infoPtr->pdf2();
-  setPdf(id1, id2, x1, x2, scalePDF, xpdf1, xpdf2);  
+  int    id1up      = infoPtr->id1();
+  int    id2up      = infoPtr->id2();
+  double x1up       = infoPtr->x1();
+  double x2up       = infoPtr->x2();
+  double scalePDFup = infoPtr->QFac();
+  double xpdf1up    = infoPtr->pdf1();
+  double xpdf2up    = infoPtr->pdf2();
+  setPdf(id1up, id2up, x1up, x2up, scalePDFup, xpdf1up, xpdf2up);  
 
   // Done.
   return true;

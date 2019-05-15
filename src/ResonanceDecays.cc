@@ -606,7 +606,7 @@ bool ResonanceDecays::pickKinematics() {
   if (mult == 2) {
 
     // Masses. 
-    double m0   = mProd[0];
+    m0          = mProd[0];
     double m1   = mProd[1];    
     double m2   = mProd[2];    
 
@@ -638,7 +638,7 @@ bool ResonanceDecays::pickKinematics() {
   if (mult == 3) {
 
     // Masses. 
-    double m0      = mProd[0];
+    m0             = mProd[0];
     double m1      = mProd[1];    
     double m2      = mProd[2];    
     double m3      = mProd[3]; 
@@ -708,7 +708,7 @@ bool ResonanceDecays::pickKinematics() {
   // Do a multibody decay using the M-generator algorithm.
 
   // Mother and sum daughter masses. 
-  double m0      = mProd[0];
+  m0             = mProd[0];
   double mSum    = mProd[1];
   for (int i = 2; i <= mult; ++i) mSum += mProd[i]; 
   double mDiff   = m0 - mSum;

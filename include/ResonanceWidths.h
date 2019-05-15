@@ -121,9 +121,9 @@ protected:
   virtual void calcWidth(bool = false) {}
 
   // Simple routines for matrix-element integration over Breit-Wigners.
-  double numInt1BW(double mHat, double m1, double Gamma1, double mMin1, 
+  double numInt1BW(double mHatIn, double m1, double Gamma1, double mMin1, 
     double m2, int psMode = 1);
-  double numInt2BW(double mHat, double m1, double Gamma1, double mMin1, 
+  double numInt2BW(double mHatIn, double m1, double Gamma1, double mMin1, 
     double m2, double Gamma2, double mMin2, int psMode = 1);
 
 };

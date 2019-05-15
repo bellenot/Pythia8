@@ -33,8 +33,7 @@ for arg in $* ; do
     echo "--enable-shared       : turns on shared library creation (default no)"
     echo "--lcgplatform=name    : LCG platform name, default is slc4_ia32_gcc34"
     echo "--with-hepmc=path     : path to HepMC library to build interface (default is not build)"
-    echo "--with-hepmcversion=v : HepMC version (simplified alternative when using CERN AFS LCG external, e.g. =2.01.08)"
-    echo "--with-clhepversion=v : CLHEP version (needed if HepMC 1.XX.XX is used, to be taken from CERN AFS LCG external, e.g. =1.9.3.2)"
+    echo "--with-hepmcversion=v : HepMC version (simplified alternative when using CERN AFS LCG external, e.g. =2.03.06)"
     exit
   elif [ x`echo x${arg} | grep "="` != x ] ; then
     option=`echo ${arg} | awk -F = '{print $1}'`
@@ -45,8 +44,6 @@ for arg in $* ; do
       HEPMCVERSION=${value}
     elif [ "x${option}" = "x--with-hepmc" ] ; then
       HEPMCLOCATION=${value}
-    elif [ "x${option}" = "x--with-clhepversion" ] ; then
-      CLHEPVERSION=${value}
     else
       echo "${arg}: wrong option. Ignored." >&2
     fi
@@ -56,11 +53,10 @@ done
 echo compilation mode is $COMPMODE
 echo sharedlibs = $SHAREDLIBS
 
-# Environment variables for building HepMC interface library. Remark: starting
-# from HepMC version 2.00.00 CLHEP is not needed. Note that the HepMC interface
-# library is used by the examples main31, main32. Attention: if you have already
-# run these examples and you change HepMC or CLHEP version, you should
-# reset your LD_LIBRARY_PATH
+# Environment variables for building HepMC interface library. Note that
+# the HepMC interface library is used by the examples main31, main32.
+# Attention: if you have already run these examples and you change HepMC
+# version you should reset your LD_LIBRARY_PATH
 # The default values here correspond to CERN AFS lcg external
 #
 if [ "x${HEPMCVERSION}" != "x" ] ; then
@@ -68,17 +64,10 @@ if [ "x${HEPMCVERSION}" != "x" ] ; then
     export HEPMCLOCATION=/afs/cern.ch/sw/lcg/external/HepMC/${HEPMCVERSION}/${MYLCGPLATFORM}
   fi
 fi
-if [ "x${CLHEPVERSION}" != "x" ] ; then
-  if [ "x${CLHEPLOCATION}" = "x" ] ; then
-    export CLHEPLOCATION=/afs/cern.ch/sw/lcg/external/clhep/${CLHEPVERSION}/${MYLCGPLATFORM}
-  fi
-fi
 #   If you want to assign these variables by hand:
 #
-#export HEPMCVERSION=1.28.02
+#export HEPMCVERSION=2.03.06
 #export HEPMCLOCATION=/afs/cern.ch/sw/lcg/external/HepMC/${HEPMCVERSION}/${MYLCGPLATFORM}
-#export CLHEPVERSION=1.9.3.2
-#export CLHEPLOCATION=/afs/cern.ch/sw/lcg/external/clhep/${CLHEPVERSION}/${MYLCGPLATFORM}
 
 
 if [ "x${HEPMCVERSION}" = "x" ] ; then
@@ -89,19 +78,27 @@ if [ "x${HEPMCVERSION}" = "x" ] ; then
     echo $test1
     echo $test2
     if [ "x${test1}" != "x" ] ; then
-      export HEPMCVERSION=1.`echo $HEPMCLOCATION | awk -F \/1. '{print $2}' | awk -F \/ '{print $1}'`
+      echo "Warning: HepMC 1 cannot be used anymore; Please use HepMC 2"
+      echo "         The interface will not be built"
+      export HEPMCLOCATION=
     fi
     if [ "x${test2}" != "x" ] ; then
       export HEPMCVERSION=2.`echo $HEPMCLOCATION | awk -F \/2. '{print $2}' | awk -F \/ '{print $1}'`
     fi
   fi
 fi
+if [ "x${HEPMCVERSION}" != "x" ] ; then
+  export HEPMCMAINVERSION=`echo ${HEPMCVERSION} | awk -F . '{print$1}'`
+  if [ ${HEPMCMAINVERSION} = 1 ] ; then
+    echo "Warning: HepMC 1 cannot be used anymore; Please use HepMC 2"
+    echo "         The interface will not be built"
+    export HEPMCLOCATION=
+  fi
+fi
 if [ "x${HEPMCLOCATION}" != "x" ] ; then
   if [ "x${HEPMCVERSION}" = "x" ] ; then
-    echo hepmc specifyed, but cannot find out which HepMC version
-    echo "please give the HepMC version (as an argument, before the path)"
-    echo exiting
-    exit 1
+    echo "Warning: hepmc specifyed, but cannot find out which HepMC version"
+    echo "Warning: if you specify HepMC 1 the compilation of interface will fail"
   fi
 fi
 
@@ -115,8 +112,8 @@ export FFLAGS_OPT="-O2"
 export FFLAGS_DBG=-g
 export CFLAGS_OPT=-O2
 export CFLAGS_DBG=-g
-export CXXFLAGS_OPT="-O2 -ansi -pedantic -W -Wall"
-export CXXFLAGS_DBG="-g -ansi -pedantic -W -Wall"
+export CXXFLAGS_OPT="-O2 -ansi -pedantic -W -Wall -Wshadow"
+export CXXFLAGS_DBG="-g -ansi -pedantic -W -Wall -Wshadow"
 #
 # Find platform.
 #
@@ -191,20 +188,14 @@ fi
 if [ $?HEPMCLOCATION ]; then
   if [ x${HEPMCLOCATION} != x ]; then
     if [ ! -d ${HEPMCLOCATION}/include ]; then
-      echo ERROR in HEPMCLOCATION: directory ${HEPMCLOCATION}/include does not exist
+      echo "Warning: bad HEPMCLOCATION: directory ${HEPMCLOCATION}/include does not exist"
+      echo "         The interface will not be built"
+      export HEPMCLOCATION=
     fi
     if [ ! -d ${HEPMCLOCATION}/lib ]; then
-      echo ERROR in HEPMCLOCATION: directory ${HEPMCLOCATION}/lib does not exist
-    fi
-  fi
-fi
-if [ $?CLHEPLOCATION ]; then
-  if [ x${CLHEPLOCATION} != x ]; then
-    if [ ! -d ${CLHEPLOCATION}/include ]; then
-      echo ERROR in CLHEPLOCATION: directory ${CLHEPLOCATION}/include does not exist
-    fi
-    if [ ! -d ${CLHEPLOCATION}/lib ]; then
-      echo ERROR in CLHEPLOCATION: directory ${CLHEPLOCATION}/lib does not exist
+      echo "Warning: bad HEPMCLOCATION: directory ${HEPMCLOCATION}/lib does not exist"
+      echo "         The interface will not be built"
+      export HEPMCLOCATION=
     fi
   fi
 fi
@@ -222,17 +213,11 @@ echo CFLAGS = ${CFLAGS} >> config.mk
 echo CXXFLAGS = ${CXXFLAGS} >> config.mk
 echo FLIBS = ${FLIBS} >> config.mk
 #
-if [ x${HEPMCVERSION} != x ]; then
-  echo HEPMCVERSION = ${HEPMCVERSION} >> config.mk
-fi
 if [ x${HEPMCLOCATION} != x ]; then
+  if [ x${HEPMCVERSION} != x ]; then
+    echo HEPMCVERSION = ${HEPMCVERSION} >> config.mk
+  fi
   echo HEPMCLOCATION = ${HEPMCLOCATION} >> config.mk
-fi
-if [ x${CLHEPVERSION} != x ]; then
-  echo CLHEPVERSION = ${CLHEPVERSION} >> config.mk
-fi
-if [ x${CLHEPLOCATION} != x ]; then
-  echo CLHEPLOCATION = ${CLHEPLOCATION} >> config.mk
 fi
 #
 #
@@ -246,9 +231,6 @@ if [ x${HEPMCLOCATION} != x ]; then
   echo "else" >> examples/config.csh
   echo "  setenv LD_LIBRARY_PATH" '${LD_LIBRARY_PATH}'":${HEPMCLOCATION}/lib" >> examples/config.csh
   echo "endif" >> examples/config.csh
-  if [ x${CLHEPLOCATION} != x ]; then
-    echo "setenv LD_LIBRARY_PATH" '${LD_LIBRARY_PATH}'":${CLHEPLOCATION}/lib" >> examples/config.csh
-  fi
   echo "#!/bin/sh" > examples/config.sh
   echo 'if [ ! $?LD_LIBRARY_PATH ]; then' >> examples/config.sh
   echo "  export LD_LIBRARY_PATH=${HEPMCLOCATION}/lib" >> examples/config.sh
@@ -256,7 +238,4 @@ if [ x${HEPMCLOCATION} != x ]; then
   echo 'if [ $?LD_LIBRARY_PATH ]; then' >> examples/config.sh
   echo "  export LD_LIBRARY_PATH="'${LD_LIBRARY_PATH}'":${HEPMCLOCATION}/lib" >> examples/config.sh
   echo fi >> examples/config.sh
-  if [ x${CLHEPLOCATION} != x ]; then
-    echo "export LD_LIBRARY_PATH="'${LD_LIBRARY_PATH}'":${CLHEPLOCATION}/lib" >> examples/config.sh
-  fi
 fi

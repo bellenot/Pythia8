@@ -11,6 +11,7 @@
 
 // Stdlib header files for mathematics.
 #include <cmath>
+#include <cstdlib>
 
 // Stdlib header files for strings and containers.
 #include <string>

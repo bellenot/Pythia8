@@ -1,5 +1,5 @@
 // SusyLesHouches.h is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Peter Skands, Torbjorn Sjostrand.
+// Copyright (C) 2008 Peter Skands, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -112,9 +112,9 @@ public:
     // 0: normal return. Entry did not previously exist and has been created.
     // 1: normal return. Entry did previously exist and has been overwritten.
     //-1: failure. 
-    int set(int i,T val) { 
-      int alreadyexisting=exists(i)?1:0;
-      entry[i]=val; 
+    int set(int iIn,T valIn) { 
+      int alreadyexisting=exists(iIn)?1:0;
+      entry[iIn]=valIn; 
       return alreadyexisting;
     };
     // Read index and value from SLHA data line
@@ -123,19 +123,20 @@ public:
       return linestream ? set(i,val) : -1;
     };
     // With i already given, read value from remaining SLHA data line
-    int set(int i,istringstream& linestream) {
+    int set(int iIn,istringstream& linestream) {
       linestream >> val;
-      return linestream ? set(i,val) : -1;
+      return linestream ? set(iIn,val) : -1;
     };
     // Shorthand for entry[0]. Used e.g. for block ALPHA.
-    void set(T val) { entry[0]=val; };
+    void set(T valIn) { entry[0]=valIn; };
 
     // Does entry i already exist in this block?
-    bool exists(int i) {return entry.find(i) != entry.end() ? true : false;};
+    bool exists(int iIn) {return entry.find(iIn) != entry.end() 
+      ? true : false;};
 
     // Indexing with (). Output only.
-    T operator()(int i=0) {
-      if (exists(i)) {return entry[i];} else {T dummy(0); return dummy;};
+    T operator()(int iIn=0) {
+      if (exists(iIn)) {return entry[iIn];} else {T dummy(0); return dummy;};
     };
 
     // Size of map
@@ -204,9 +205,9 @@ public:
     void clear() { initialized=false; };
 
     // Set matrix entry
-    int set(int i,int j, double val) { 
-      if (i>0 && j>0 && i<=size && j<=size) {
-	entry[i][j]=val;
+    int set(int iIn,int jIn, double valIn) { 
+      if (iIn>0 && jIn>0 && iIn<=size && jIn<=size) {
+	entry[iIn][jIn]=valIn;
 	initialized=true;
 	return 0;
       } else {
@@ -221,9 +222,9 @@ public:
     };
 
     // () Overloading: Get entry
-    double operator()(int i, int j) const {
-      return (i <= size && j <= size && i > 0 && j > 0) ? 
-	entry[i][j] : 0.0;
+    double operator()(int iIn, int jIn) const {
+      return (iIn <= size && jIn <= size && iIn > 0 && jIn > 0) ? 
+	entry[iIn][jIn] : 0.0;
     };
 
     // Set and get scale for DRbar running blocks.
@@ -280,9 +281,9 @@ public:
     void clear() { initialized=false; };
     
     // Set matrix entry
-    int set(int i,int j, int k, double val) { 
-      if (i>0 && j>0 && k>0 && i<=size && j<=size && k<=size) {
-	entry[i][j][k]=val;
+    int set(int iIn,int jIn, int kIn, double valIn) { 
+      if (iIn>0 && jIn>0 && kIn>0 && iIn<=size && jIn<=size && kIn<=size) {
+	entry[iIn][jIn][kIn]=valIn;
 	initialized=true;
 	return 0;
       } else {
@@ -297,9 +298,9 @@ public:
     };
 
     // () Overloading: Get entry
-    double operator()(int i, int j, int k) const {
-      return (i <= size && j <= size && k <= size && i > 0 && j > 0 && k > 0) ?
-	entry[i][j][k] : 0.0;
+    double operator()(int iIn, int jIn, int kIn) const {
+      return (iIn <= size && jIn <= size && kIn <= size && iIn > 0 
+	&& jIn > 0 && kIn > 0) ? entry[iIn][jIn][kIn] : 0.0;
     };
 
     // Set and get scale for DRbar running blocks.
@@ -464,6 +465,7 @@ public:
   matrixblock<3> nmhmix;   // The NMSSM scalar Higgs mixing
   matrixblock<3> nmamix;   // The NMSSM pseudoscalar Higgs mixing
   matrixblock<5> nmnmix;   // The NMSSM neutralino mixing
+  matrixblock<5> imnmnmix; //   Im{} (for future use)
 
   //*************************** SET BLOCK VALUE ****************************//
   template <class T> int set(string,T);
@@ -483,4 +485,5 @@ private:
 };
 
 #endif
+
 

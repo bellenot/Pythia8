@@ -98,30 +98,31 @@ int main() {
 
 /*
 
-Pythia8060 with main16.spc (heavy squarks, msq ~ 5e9)
+Pythia8107 with main22.spc
 
- | q qbar -> ~chi_10 ~chi_10                1001 |        3975        357 |   1.890e-13  4.864e-15 |
- | q qbar -> ~chi_10 ~chi_20                1002 |        6629        525 |   2.827e-13  5.940e-15 |
- | q qbar -> ~chi_10 ~chi_30                1003 |       35950       3633 |   1.855e-12  1.576e-14 |
- | q qbar -> ~chi_10 ~chi_40                1004 |        3114        210 |   1.264e-13  4.117e-15 |
- | q qbar -> ~chi_20 ~chi_20                1005 |        3162        257 |   1.390e-13  4.147e-15 |
- | q qbar -> ~chi_20 ~chi_30                1006 |      110289      10862 |   5.731e-12  2.743e-14 |
- | q qbar -> ~chi_20 ~chi_40                1007 |        2184        170 |   9.396e-14  3.580e-15 |
- | q qbar -> ~chi_30 ~chi_30                1008 |          47          5 |   1.190e-15  2.815e-16 |
- | q qbar -> ~chi_30 ~chi_40                1009 |      346486      33969 |   1.769e-11  4.793e-14 |
- | q qbar -> ~chi_40 ~chi_40                1010 |         158         12 |   7.890e-15  9.946e-16 |
- 
-Pythia 6 with same spectrum and neutralinos forced stable. 
+| q qbar -> ~chi_10 ~chi_10                     1201 |      195282      18237      18237 |   1.050e-11  4.361e-14 |
+| q qbar -> ~chi_10 ~chi_20                     1202 |       20837       1806       1806 |   1.036e-12  1.466e-14 |
+| q qbar -> ~chi_10 ~chi_30                     1203 |       14590       3534       3534 |   2.030e-12  1.970e-14 |
+| q qbar -> ~chi_10 ~chi_40                     1204 |        4549        789        789 |   4.422e-13  9.488e-15 |
+| q qbar -> ~chi_20 ~chi_20                     1205 |      249758      32059      32059 |   1.821e-11  5.781e-14 |
+| q qbar -> ~chi_20 ~chi_30                     1206 |       42509      10542      10542 |   6.040e-12  3.347e-14 |
+| q qbar -> ~chi_20 ~chi_40                     1207 |       19282       2964       2964 |   1.705e-12  1.809e-14 |
+| q qbar -> ~chi_30 ~chi_30                     1208 |          14          1          1 |   1.512e-15  1.512e-15 |
+| q qbar -> ~chi_30 ~chi_40                     1209 |      126415      29986      29986 |   1.707e-11  5.545e-14 |
+| q qbar -> ~chi_40 ~chi_40                     1210 |         498         82         82 |   4.403e-14  2.890e-15 |
 
- I 216 f + fbar -> ~chi1 + ~chi1    I          369          1716 I  1.822E-13 I
- I 217 f + fbar -> ~chi2 + ~chi2    I          255          1211 I  1.399E-13 I
- I 218 f + fbar -> ~chi3 + ~chi3    I            6            20 I  2.475E-15 I
- I 219 f + fbar -> ~chi4 + ~chi4    I           11            59 I  6.165E-15 I
- I 220 f + fbar -> ~chi1 + ~chi2    I          572          2824 I  2.819E-13 I
- I 221 f + fbar -> ~chi1 + ~chi3    I         3451         14329 I  1.803E-12 I
- I 222 f + fbar -> ~chi1 + ~chi4    I          233          1182 I  1.368E-13 I
- I 223 f + fbar -> ~chi2 + ~chi3    I        10808         45052 I  5.690E-12 I
- I 224 f + fbar -> ~chi2 + ~chi4    I          189           906 I  9.563E-14 I
- I 225 f + fbar -> ~chi3 + ~chi4    I        34106        142123 I  1.755E-11 I
+Pythia 6.4.16 with same spectrum and neutralinos forced stable. 
+
+! 216 f + fbar -> ~chi1 + ~chi1    I       177200       1875296 I  1.030E-11 I
+! 217 f + fbar -> ~chi2 + ~chi2    I       324265       2542319 I  1.882E-11 I
+! 218 f + fbar -> ~chi3 + ~chi3    I           38           163 I  2.196E-15 I
+! 219 f + fbar -> ~chi4 + ~chi4    I          789          4886 I  4.536E-14 I
+! 220 f + fbar -> ~chi1 + ~chi2    I        17541        207626 I  1.017E-12 I
+! 221 f + fbar -> ~chi1 + ~chi3    I        35838        146111 I  2.064E-12 I
+! 222 f + fbar -> ~chi1 + ~chi4    I         7859         44297 I  4.502E-13 I
+! 223 f + fbar -> ~chi2 + ~chi3    I       105194        426610 I  6.115E-12 I
+! 224 f + fbar -> ~chi2 + ~chi4    I        30338        198133 I  1.751E-12 I
+! 225 f + fbar -> ~chi3 + ~chi4    I       300938       1266278 I  1.746E-11 I
 
 */
+

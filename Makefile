@@ -3,6 +3,7 @@
 #
 #                  M. Kirsanov 07.04.2006
 #                     Modified 18.11.2006
+#                     26.03.2008 CLHEP dependency removed
 
 SHELL = /bin/sh
 
@@ -19,14 +20,6 @@ LDFLAGSSHARED = $(CXXFLAGS) -pthread -fPIC
 
 HEPMCERROR=
 ifneq (x$(HEPMCLOCATION),x)
- HEPMCVFLAG=
- ifneq (x$(HEPMCVERSION),x)
-  ifeq ($(findstring x2,x$(HEPMCVERSION)),x2)
-   HEPMCVFLAG+= -DHEPMC2
-  endif
- else
-  HEPMCERROR= HepMC interface: ERROR, HEPMCVERSION should be defined with HEPMCLOCATION
- endif
  ifeq ($(wildcard $(HEPMCLOCATION)/include/HepMC/*.h),)
   HEPMCERROR= HepMC interface: ERROR, no HepMC headers found in ${HEPMCLOCATION}/include/HepMC
  endif
@@ -142,20 +135,10 @@ ifneq ($(MAKECMDGOALS),clean)
 -include $(depsarch)
 endif
 
-# Build HepMC interface part if HepMC and CLHEP locations are set.
+# Build HepMC interface part if HepMC location is set.
 
 ifneq (x$(HEPMCLOCATION),x)
  HEPMCINCLUDE=-I$(HEPMCLOCATION)/include
- ifneq ($(findstring x2,x$(HEPMCVERSION)),x2)
-  ifneq (x$(CLHEPLOCATION),x)
-   HEPMCINCLUDE+= -I$(CLHEPLOCATION)/include
-   ifeq ($(wildcard $(CLHEPLOCATION)/include/CLHEP/Vector/*.h),)
-    HEPMCERROR= HepMC interface: ERROR, no CLHEP vector headers found in ${CLHEPLOCATION}/include/CLHEP/Vector
-   endif
-  else
-   HEPMCERROR= HepMC interface: ERROR, CLHEPLOCATION should be defined with HEPMCLOCATION
-  endif
- endif
 
  ifeq (x$(HEPMCERROR),x)
 

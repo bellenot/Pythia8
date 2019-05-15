@@ -8,11 +8,14 @@ corresponding update notes for PYTHIA 6. There are three main
 reasons for this:
 <ul>
 <li>The manual contained on these html/php pages is kept up to date.
-  (However, the "Brief Introduction" may not always be.)</li>
-<li> 8.1 is a quite new code, so there are many minor changes that, 
-  if all were to be documented, would hide the key ones.</li>
-<li> 8.1 is not yet used for "mission critical" applications, 
-  so there is less need to trace changed behaviour.</li>
+  (However, the "Brief Introduction" may not always be.)
+</li>
+<li>8.1 is a quite new code, so there are many minor changes that, 
+  if all were to be documented, would hide the key ones.
+</li>
+<li>8.1 is not yet used for "mission critical" applications, 
+  so there is less need to trace changed behaviour.
+</li>
 </ul>
 
 <h3>Main news by version</h3>
@@ -21,62 +24,84 @@ reasons for this:
 <li>8.101: 10 November 2007
 <ul>
 <li>New option to initialize with arbitrary beam directions<br/>
-<code>pythia.init( idA, idB, pxA, pyA, pzA, pxB, pyB, pzB)</code></li>
+<code>pythia.init( idA, idB, pxA, pyA, pzA, pxB, pyB, pzB)</code>
+</li>
 <li>The <code>LHAevnt</code> and <code>LHAinit</code> classes have been 
 joined into a new <code>LHAup</code> one, with new options that allow 
-the writing of a Les Houches Event File.</li>
-</ul></li>
+the writing of a Les Houches Event File.
+</li>
+</ul>
+</li>
 
 <li>8.102: 6 December 2007
 <ul>
 <li>Limited capability to use two different <code>Pythia</code> instances 
 for signal + pileup event generation, see <code>main19.cc</code> for an 
-example.</li> 
+example.
+</li> 
 <li>Added capability to set <aloc href="BeamParameters">beam energy spread 
-and beam vertex</aloc>.<br/>
+and beam vertex</aloc>.
+<br/>
 <b>Warning:</b> as a consequence, some settings names have been changed, 
-see below.</li>
-</ul></li>
+see below.
+</li>
+</ul>
+</li>
 
 <li>8.103: 22 January 2008
 <ul>
-<li>Updated HepMC conversion routine.</li>
+<li>Updated HepMC conversion routine.
+</li>
 <li>In the <code>Event</code> class the <code>=</code> and 
 <code>=+</code> methods have been overloaded to allow the copying 
-or appending of event records. Illustrated in <code>main19.cc</code>.</li>
-</ul></li>
+or appending of event records. Illustrated in <code>main19.cc</code>.
+</li>
+</ul>
+</li>
 
 <li>8.104: 14 February 2008
 <ul>
-<li>Updated configure scripts.</li>
+<li>Updated configure scripts.
+</li>
 <li>The <code>SusyLesHouches</code> class updated to handle 
-SLHA version 2.</li>
+SLHA version 2.
+</li>
 <li>The <code>forceHadronLevel()</code> method introduced for standalone 
-hadronization.</li>
+hadronization.
+</li>
 <li><code>main15.cc</code> illustrated how either full hadronization or 
 only decays of some particles can be looped over for the rest of the 
-event retained.</li>
+event retained.
+</li>
 <li>The html and php page formatting improved with 
-cascading style sheets.</li>
+cascading style sheets.
+</li>
 <li>The static <code>ErrorMsg</code> class has been removed and 
 its functionality moved into the non-static <code>Info</code> class,
-in the renamed Info file.</li>
-</ul></li>
+in the renamed Info file.
+</li>
+</ul>
+</li>
 
 <li>8.105: 24 February 2008
 <ul>
 <li>Further reduction of the use of static, with related code changes.
 This should allow to have several almost independent <code>Pythia</code> 
 instances. Some static classes still remain, however, notably for
-random number generation and particle properties.</li>
-<li>Several minor improvements and new options.</li>
-</ul></li>
+random number generation and particle properties.
+</li>
+<li>Several minor improvements and new options.
+</li>
+</ul>
+</li>
 
 <li>8.106: 11 March 2008
 <ul>
 <li>Improved handling of the Higgs width, relevant for massive and thereby
 broad resonance shapes. 
-</ul></li>
+</li>
+</ul>
+</li>
 
 <li>8.107: 17 March 2008
 <ul>
@@ -85,7 +110,41 @@ broad resonance shapes.
 method. Previously the "system" entry in line 0 was counted as their 
 mother, which gave rise to an unexpected extra vertex in the conversion 
 to the HepMC format.
-</ul></li>
+</li>
+</ul>
+</li>
+
+<li>8.108: 1 May 2008
+<ul>
+<li>Support for HepMC version 1 is removed, to simplify the code and 
+reflect the evolution of the field.
+</li>
+<li>Status codes are stored in HepMC only as 1 for existing and 2 for
+decayed or fragmented particles (whereas previously the original PYTHIA
+codes were used for the latter).
+</li>
+<li>Parton densities are stored in HepMC as <ei>xf(x,Q^2)</ei> 
+rather than the <ei>f(x,Q^2)</ei> used in (some) previous versions.
+</li>
+<li>The SusyLesHouches class has ben updated so that reading is fully
+compatible with the SLHA2 standard. 
+</li>
+<li>The matrix elements for neutralino pair production have now been
+completed and checked.
+</li>
+<li>A new compilation option <code>-Wshadow</code> is introduced and 
+code is rewritten at all places where this option gave warnings.
+</li>
+<li>Minor library correction to allow compilation with gcc 4.3.0.</li>
+<li>Ensure that <ei>alpha_strong</ei> does not blow up, by introducing 
+a minimal scale somewhat above <ei>Lambda_3</ei> (roughly where
+<ei>alpha_strong = 10</ei>). 
+</li>
+<li>New methods <code>isValence1()</code> and <code>isValence2()</code> 
+in the <code>Info</code> class.  
+</li>
+</ul>
+</li>
 
 </ul>
  
@@ -96,8 +155,10 @@ It then may become preferable to rename existing settings to form
 new logical groups. Here is a list of thise changes that have been 
 made since be 8.100 baseline version. 
 <ul>
-<li>A '*' is used as wildcard.</li>
-<li>Names within brackets denotes also new/changed functionality.</li>
+<li>A '*' is used as wildcard.
+</li>
+<li>Names within brackets denotes also new/changed functionality.
+</li>
 </ul>
 
 <table cellspacing="5">

@@ -409,10 +409,10 @@ void ProcessLevel::statistics(bool reset, ostream& os) {
 
     // Print subdivision by user code for Les Houches process.
     if (containerPtrs[i]->code() == 9999) 
-    for (int i = 0; i < int(codeLHA.size()); ++i)
+    for (int j = 0; j < int(codeLHA.size()); ++j)
       os << " |    ... whereof user classification code " << setw(10) 
-         << codeLHA[i] << " |                        " << setw(10) 
-         << nEvtLHA[i] << " |                        | \n";
+         << codeLHA[j] << " |                        " << setw(10) 
+         << nEvtLHA[j] << " |                        | \n";
   }
 
   // Print summed process info.
@@ -463,9 +463,6 @@ bool ProcessLevel::initSLHA() {
     id = slhaPtr->mass.next();
   };
 
-  // Print spectrum 
-  slhaPtr->printSpectrum();
-
   // Check spectrum for consistency. Switch off SUSY if necessary.
   ifail = slhaPtr->checkSpectrum();
   if (ifail != 0) {
@@ -473,9 +470,12 @@ bool ProcessLevel::initSLHA() {
       "Problem with SLHA spectrum.", 
       "\n Only using masses and switching off SUSY.");
     Settings::flag("SUSY", false);
+    slhaPtr->printSpectrum();
     return true;
   };
 
+  // Print spectrum. Done. 
+  slhaPtr->printSpectrum();
   return true;
 
 }

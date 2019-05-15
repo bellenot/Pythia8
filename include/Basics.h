@@ -142,15 +142,15 @@ public:
   void rescale4(double fac) {xx *= fac; yy *= fac; zz *= fac; tt *= fac;}
   void flip3() {xx = -xx; yy = -yy; zz = -zz;}
   void flip4() {xx = -xx; yy = -yy; zz = -zz; tt = -tt;}
-  void rot(double theta, double phi); 
-  void rotaxis(double phi, double nx, double ny, double nz); 
-  void rotaxis(double phi, const Vec4& n);
+  void rot(double thetaIn, double phiIn); 
+  void rotaxis(double phiIn, double nx, double ny, double nz); 
+  void rotaxis(double phiIn, const Vec4& n);
   void bst(double betaX, double betaY, double betaZ); 
   void bst(double betaX, double betaY, double betaZ, double gamma); 
-  void bst(const Vec4& p); 
-  void bst(const Vec4& p, double m); 
-  void bstback(const Vec4& p); 
-  void bstback(const Vec4& p, double m); 
+  void bst(const Vec4& pIn); 
+  void bst(const Vec4& pIn, double mIn); 
+  void bstback(const Vec4& pIn); 
+  void bstback(const Vec4& pIn, double mIn); 
   void rotbst(const RotBstMatrix& M); 
 
   // Operator overloading with member functions

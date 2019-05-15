@@ -180,10 +180,10 @@ double BeamParticle::xMax(int iSkip) {
 // multiple interactions. By picking a non-negative iSkip value,
 // one particular interaction is skipped, as needed for ISR  
 
-double BeamParticle::xfModified(int iSkip, int id, double x, double Q2) {
+double BeamParticle::xfModified(int iSkip, int idIn, double x, double Q2) {
 
   // Initial values.
-  idSave    = id;
+  idSave    = idIn;
   iSkipSave = iSkip;
   xqVal     = 0.;
   xqgSea    = 0.;
@@ -193,9 +193,13 @@ double BeamParticle::xfModified(int iSkip, int id, double x, double Q2) {
   if (size() == 0) {
     if (x >= 1.) return 0.;
     bool canBeVal = false;
-    for (int i = 0; i < nValKinds; ++i) if (id == idVal[i]) canBeVal = true;
-    if (canBeVal) { xqVal = xfVal( id, x, Q2); xqgSea = xfSea( id, x, Q2); }
-    else xqgSea = xf( id, x, Q2);
+    for (int i = 0; i < nValKinds; ++i) 
+      if (idIn == idVal[i]) canBeVal = true;
+    if (canBeVal) { 
+      xqVal     = xfVal( idIn, x, Q2); 
+      xqgSea    = xfSea( idIn, x, Q2); 
+    }
+    else xqgSea = xf( idIn, x, Q2);
 
   // More complicated procedure for non-first interaction.
   } else { 
@@ -234,17 +238,18 @@ double BeamParticle::xfModified(int iSkip, int id, double x, double Q2) {
     // Calculate total rescaling factor and pdf for sea and gluon.
     double rescaleGS = max( 0., (1. - xValLeft - xCompAdded) 
       / (1. - xValTot) );
-    xqgSea = rescaleGS * xfSea( id, xRescaled, Q2); 
+    xqgSea = rescaleGS * xfSea( idIn, xRescaled, Q2); 
 
     // Find valence part and rescale it to remaining number of quarks. 
     for (int i = 0; i < nValKinds; ++i) 
-    if (id == idVal[i] && nValLeft[i] > 0) 
-      xqVal = xfVal( id, xRescaled, Q2) 
+    if (idIn == idVal[i] && nValLeft[i] > 0) 
+      xqVal = xfVal( idIn, xRescaled, Q2) 
       * double(nValLeft[i]) / double(nVal[i]); 
                                                                                
     // Find companion part, by adding all companion contributions.
     for (int i = 0; i < size(); ++i) 
-    if (i != iSkip && resolved[i].id() == -id && resolved[i].isUnmatched()) {
+    if (i != iSkip && resolved[i].id() == -idIn 
+      && resolved[i].isUnmatched()) {
       double xsRescaled = resolved[i].x() / (xLeft + resolved[i].x());
       double xcRescaled = x / (xLeft + resolved[i].x());  
       double xqCompNow = xCompDist( xcRescaled, xsRescaled); 
@@ -270,7 +275,7 @@ double BeamParticle::xfModified(int iSkip, int id, double x, double Q2) {
 // companion kind; in the latter case also pick its companion.
 // Assumes xfModified has already been called.
 
-  void BeamParticle::pickValSeaComp() {
+  int BeamParticle::pickValSeaComp() {
 
   // If parton already has a companion than reset code for this.
   int oldCompanion = resolved[iSkipSave].companion();
@@ -307,6 +312,9 @@ double BeamParticle::xfModified(int iSkip, int id, double x, double Q2) {
   // Bookkeep assignment; for sea--companion pair both ways.  
   resolved[iSkipSave].companion(vsc);
   if (vsc >= 0) resolved[vsc].companion(iSkipSave);
+  
+  // Done; return code for choice (to distinguish valence/sea in Info).
+  return vsc;
 
 } 
 
@@ -680,8 +688,8 @@ double BeamParticle::xRemnant( int i) {
  
     // Loop over (up to) two quarks; add their contributions.
     for (int iId = 0; iId < 2; ++iId) {
-      int id = (iId == 0) ? id1 : id2;
-      if (id == 0) break;
+      int idNow = (iId == 0) ? id1 : id2;
+      if (idNow == 0) break;
       double xPart = 0.; 
 
       // Assume form (1-x)^a / sqrt(x).
@@ -690,7 +698,7 @@ double BeamParticle::xRemnant( int i) {
         if (nValKinds == 3 || nValKinds == 1) 
           xPow = (3. * Rndm::flat() < 2.) 
             ? valencePowerUinP : valencePowerDinP ; 
-        else if (nValence(id) == 2) xPow = valencePowerUinP;
+        else if (nValence(idNow) == 2) xPow = valencePowerUinP;
         else xPow = valencePowerDinP;
       }
       do xPart = pow2( Rndm::flat() );

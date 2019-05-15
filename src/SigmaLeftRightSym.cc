@@ -194,16 +194,16 @@ void Sigma1ffbar2WRight::sigmaKin() {
   // Reset quantities to sum. Declare variables inside loop.
   double widOutPos = 0.; 
   double widOutNeg = 0.; 
-  int    id1, id2, id1Abs, id2Abs, id1Neg, id2Neg, onMode;
+  int    id1Now, id2Now, id1Abs, id2Abs, id1Neg, id2Neg, onMode;
   double widNow, widSecPos, widSecNeg, mf1, mf2, mr1, mr2, kinFac;
 
   // Loop over all W_R^+- decay channels. 
   for (int i = 0; i < particlePtr->decay.size(); ++i) {
     widNow = 0.;
-    id1         = particlePtr->decay[i].product(0);
-    id2         = particlePtr->decay[i].product(1);
-    id1Abs      = abs(id1);
-    id2Abs      = abs(id2);
+    id1Now      = particlePtr->decay[i].product(0);
+    id2Now      = particlePtr->decay[i].product(1);
+    id1Abs      = abs(id1Now);
+    id2Abs      = abs(id2Now);
 
     // Check that above threshold. Phase space.
     mf1 = ParticleDataTable::m0(id1Abs);
@@ -219,9 +219,9 @@ void Sigma1ffbar2WRight::sigmaKin() {
       if (id1Abs < 9) widNow *= colQ * VCKM::V2id(id1Abs, id2Abs);
  
       // Secondary width from top and righthanded neutrino decay.
-      id1Neg    = (id1Abs < 19) ? -id1 : id1Abs; 
-      id2Neg    = (id2Abs < 19) ? -id2 : id2Abs; 
-      widSecPos = ParticleDataTable::resOpenFrac(id1, id2); 
+      id1Neg    = (id1Abs < 19) ? -id1Now : id1Abs; 
+      id2Neg    = (id2Abs < 19) ? -id2Now : id2Abs; 
+      widSecPos = ParticleDataTable::resOpenFrac(id1Now, id2Now); 
       widSecNeg = ParticleDataTable::resOpenFrac(id1Neg, id2Neg); 
 
       // Add weight for channels on for all, W_R^+ and W_R^-, respectively.

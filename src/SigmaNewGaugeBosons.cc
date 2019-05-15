@@ -36,10 +36,10 @@ void Sigma1ffbarZprimeWprime::setupProd( Event& process, int i1, int i2,
   bool smallPT = false;
   do {
     smallPT = false;
-    double theta = acos(2. * Rndm::flat() - 1.);
-    double phi   = 2. * M_PI * Rndm::flat();
+    double thetaNow = acos(2. * Rndm::flat() - 1.);
+    double phiNow   = 2. * M_PI * Rndm::flat();
     for (int i = 1; i <= 6; ++i) { 
-      pRot[i].rot( theta, phi);
+      pRot[i].rot( thetaNow, phiNow);
       if (pRot[i].pT2() < 1e-4 * pRot[i].pAbs2()) smallPT = true;
     }
   } while (smallPT); 
@@ -742,7 +742,7 @@ double Sigma1ffbar2Rhorizontal::sigmaHat() {
 void Sigma1ffbar2Rhorizontal::setIdColAcol() {
 
   // Outgoing R0 or R0bar.
-  int id3 = (id1 +id2 > 0) ? 41 : -41;
+  id3 = (id1 +id2 > 0) ? 41 : -41;
   setId( id1, id2, id3);
 
   // Colour flow topologies. Swap when antiquarks.

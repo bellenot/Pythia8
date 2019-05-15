@@ -498,11 +498,11 @@ bool ParticleDecays::threeBody(Event& event) {
 
     // Matrix-element weight for omega/phi -> pi+ pi- pi0.
     if (meMode == 1) {
-      double p12 = prod1.p() * prod2.p(); 
-      double p13 = prod1.p() * prod3.p(); 
-      double p23 = prod2.p() * prod3.p(); 
-      wtME = pow2(m1 * m2 * m3) - pow2(m1 * p23) - pow2(m2 * p13) 
-        - pow2(m3 * p12) + 2. * p12 * p13 * p23;
+      double p1p2 = prod1.p() * prod2.p(); 
+      double p1p3 = prod1.p() * prod3.p(); 
+      double p2p3 = prod2.p() * prod3.p(); 
+      wtME = pow2(m1 * m2 * m3) - pow2(m1 * p2p3) - pow2(m2 * p1p3) 
+        - pow2(m3 * p1p2) + 2. * p1p2 * p1p3 * p2p3;
       wtMEmax = pow3(m0 * m0) / 150.;
 
     // Effective matrix element for nu spectrum in tau -> nu + hadrons.
@@ -881,9 +881,9 @@ bool ParticleDecays::pickHadrons() {
 
   // Replace generic spectator flavour code by the actual one.
   for (int i = 0; i < nPartons; ++i) {
-    int idProd = idPartons[i];
-    int idNew = idProd;
-    if (idProd == 81) { 
+    int idPart = idPartons[i];
+    int idNew = idPart;
+    if (idPart == 81) { 
       int idAbs = abs(idDec);
       if ( (idAbs/1000)%10 == 0 ) { 
         idNew = -(idAbs/10)%10; 
@@ -894,16 +894,16 @@ bool ParticleDecays::pickHadrons() {
       if (idDec < 0) idNew = -idNew;
 
     // Replace generic random flavour by a randomly selected one.
-    } else if (idProd == 82 || idProd == 83) {
+    } else if (idPart == 82 || idPart == 83) {
       double mFlav;
       do {
         int idDummy = -flavSelPtr->pickLightQ();
-        FlavContainer flavDummy(idDummy, idProd - 82);
+        FlavContainer flavDummy(idDummy, idPart - 82);
         do idNew = flavSelPtr->pick(flavDummy).id; 
         while (idNew == 0);  
         mFlav = ParticleDataTable::constituentMass(idNew);
       } while (2. * mFlav + stopMass > mProd[0]);
-    } else if (idProd == -82 || idProd == -83) {
+    } else if (idPart == -82 || idPart == -83) {
       idNew = -idPartons[i-1];
     } 
     idPartons[i] = idNew;

@@ -31,7 +31,6 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 
 The implementation of SUSY processes is barely begun, so this page
 is more a placeholder than a repository of useful processes.
-Even the processes that have been implemented are not yet fully handled.
 
 <p/>
 Here is collected processes involving supersymmetric particle 
@@ -59,12 +58,8 @@ particles with R-parity -1.
 <input type="radio" name="2" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Pair production of neutralinos by quark-antiquark annihilation. With
-four neutralino species this gives ten separate processes, codes 1201
-- 1210. The current implementation is in a development stage and does
-not include contributions from diagrams with intermediate squarks,
-hence the correct answer is only obtained in the limit of infinitely heavy
-squarks. As yet, there are also no sparticle decays implemented - 
-all neutralinos decay to Gravitino+photon.
+four neutralino species this gives ten separate processes, codes 
+1201 - 1210. Neutralino decays have not yet been implemented.
   
 
 

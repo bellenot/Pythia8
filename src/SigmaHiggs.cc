@@ -2185,9 +2185,9 @@ void Sigma2qg2Hchgq::setIdColAcol() {
 
   // Flavour set up for q g -> H+- q'.
   int idq = (id2 == 21) ? id1 : id2;
-  int id3 = ( (idq > 0 && idOld%2 == 0) || (idq < 0 && idOld%2 != 0) )
-          ? 37 : -37;
-  int id4 = (idq > 0) ? idNew : -idNew;
+  id3     = ( (idq > 0 && idOld%2 == 0) || (idq < 0 && idOld%2 != 0) )
+            ? 37 : -37;
+  id4     = (idq > 0) ? idNew : -idNew;
   setId( id1, id2, id3, id4);
 
   // tH defined between f and f': must swap tHat <-> uHat if q g in.

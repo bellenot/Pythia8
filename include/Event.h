@@ -158,11 +158,16 @@ public:
   double pMinus()    const {return pSave.pMinus();}
   double y()         const;
   double eta()       const; 
-  Vec4  vDec()       const {return vProdSave + tauSave * pSave / mSave;}
-  double xDec() const {return vProdSave.px() + tauSave * pSave.px() / mSave;}
-  double yDec() const {return vProdSave.py() + tauSave * pSave.py() / mSave;}
-  double zDec() const {return vProdSave.pz() + tauSave * pSave.pz() / mSave;}
-  double tDec() const {return vProdSave.e() + tauSave * pSave.e() / mSave;}
+  Vec4   vDec()      const {return (tauSave > 0. && mSave > 0.) 
+    ? vProdSave + tauSave * pSave / mSave : vProdSave;}
+  double xDec()      const {return (tauSave > 0. && mSave > 0.) 
+    ? vProdSave.px() + tauSave * pSave.px() / mSave : vProdSave.px();}
+  double yDec()      const {return (tauSave > 0. && mSave > 0.)  
+    ? vProdSave.py() + tauSave * pSave.py() / mSave : vProdSave.py();}
+  double zDec()      const {return (tauSave > 0. && mSave > 0.)  
+    ? vProdSave.pz() + tauSave * pSave.pz() / mSave : vProdSave.pz();}
+  double tDec()      const {return (tauSave > 0. && mSave > 0.)  
+    ? vProdSave.e()  + tauSave * pSave.e()  / mSave : vProdSave.e();}
 
   // Further output, based on a pointer to a ParticleDataEntry object.
   string name()      const {return particlePtr->name(idSave);}
@@ -195,8 +200,8 @@ public:
   void rescale3(double fac) {pSave.rescale3(fac);}
   void rescale4(double fac) {pSave.rescale4(fac);}
   void rescale5(double fac) {pSave.rescale4(fac); mSave *= fac;}
-  void rot(double theta, double phi) {pSave.rot(theta, phi);
-    if (hasVertexSave) vProdSave.rot(theta, phi);} 
+  void rot(double thetaIn, double phiIn) {pSave.rot(thetaIn, phiIn);
+    if (hasVertexSave) vProdSave.rot(thetaIn, phiIn);} 
   void bst(double betaX, double betaY, double betaZ) {
     pSave.bst(betaX, betaY, betaZ);
     if (hasVertexSave) vProdSave.bst(betaX, betaY, betaZ);}
@@ -338,17 +343,17 @@ public:
   }
   int append(int id, int status, int mother1, int mother2, int daughter1, 
     int daughter2, int col, int acol, double px, double py, double pz, 
-    double e, double m = 0., double scale = 0.) {entry.push_back( 
+    double e, double m = 0., double scaleIn = 0.) {entry.push_back( 
     Particle(id, status, mother1, mother2, daughter1, daughter2, col, acol, 
-    px, py, pz, e, m, scale) ); 
+    px, py, pz, e, m, scaleIn) ); 
     if (col > maxColTag) maxColTag = col;   
     if (acol > maxColTag) maxColTag = acol;
     return entry.size() - 1;
   }
   int append(int id, int status, int mother1, int mother2, int daughter1, 
     int daughter2, int col, int acol, Vec4 p, double m = 0., 
-    double scale = 0.) {entry.push_back( Particle(id, status, mother1, 
-    mother2, daughter1, daughter2, col, acol, p, m, scale) ); 
+    double scaleIn = 0.) {entry.push_back( Particle(id, status, mother1, 
+    mother2, daughter1, daughter2, col, acol, p, m, scaleIn) ); 
     if (col > maxColTag) maxColTag = col;   
     if (acol > maxColTag) maxColTag = acol;
     return entry.size() - 1;

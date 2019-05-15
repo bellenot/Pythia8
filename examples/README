@@ -63,7 +63,7 @@
    time, type "source config.csh" if you use the csh or tcsh shell, or 
    "source config.sh" otherwise. (Use "echo $SHELL" if uncertain.)
    This will set or append the environment variables LD_LIBRARY_PATH,
-   needed to find the HepMC and CLHEP libraries. (Eventually also LHAPDF
+   needed to find the HepMC libraries. (Eventually also LHAPDF
    and PYTHIA 6.4 libraries, if shared ones are used. Default, if taken
    from CERN AFS MCGenerators, is archive.) It will also set the variable 
    LHAPATH, needed to find the LHAPDF data files.

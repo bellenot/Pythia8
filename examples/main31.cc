@@ -15,9 +15,9 @@
 
 #include "HepMC/GenEvent.h"
 
-// IO_Ascii works both with HepMC version 1 and 2, but does not write PDF info.
+// IO_Ascii writes the event but does not write PDF info.
 #include "HepMC/IO_Ascii.h"
-// IO_ExtendedAscii.h works only with HepMC version 2, and writes PDF info.
+// IO_ExtendedAscii.h also writes PDF info.
 //#include "HepMC/IO_ExtendedAscii.h" 
 
 //#include "HepMC/IO_AsciiParticles.h"
@@ -29,7 +29,7 @@ int main() {
   //  ToHepMC.set_crash_on_problem();
 
   // Specify file where HepMC events will be stored.
-  // For HepMC version 1 only use IO_Ascii, else free to choose.
+  // Free to choose whether to include PDF info or not in file.
   HepMC::IO_Ascii ascii_io("hepmcout31.dat",std::ios::out);
   //HepMC::IO_ExtendedAscii ascii_io("hepmcout31.dat",std::ios::out);
 
@@ -56,9 +56,9 @@ int main() {
     // Convert event record to HepMC format.
     HepMC::GenEvent* hepmcevt = new HepMC::GenEvent();
 
-    // With this command only the event record is converted (HepMC 1 or 2).
+    // With this command only the event record is converted.
     ToHepMC.fill_next_event( pythia.event, hepmcevt );
-    // With this command also parton-density information is stored (HepMC 2).
+    // With this command also parton-density information is stored.
     //ToHepMC.fill_next_event( pythia, hepmcevt );
 
     // Output to file.

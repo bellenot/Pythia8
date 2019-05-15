@@ -273,14 +273,15 @@ protected:
   // Partons in beams, with PDF's.
   vector<InBeam> inBeamA;
   vector<InBeam> inBeamB;
-  void addBeamA(int id) {inBeamA.push_back(InBeam(id));}
-  void addBeamB(int id) {inBeamB.push_back(InBeam(id));}
+  void addBeamA(int idIn) {inBeamA.push_back(InBeam(idIn));}
+  void addBeamB(int idIn) {inBeamB.push_back(InBeam(idIn));}
   int sizeBeamA() const {return inBeamA.size();}
   int sizeBeamB() const {return inBeamB.size();}
  
   // Allowed colliding parton pairs, with pdf's.
   vector<InPair> inPair;
-  void addPair(int idA, int idB) {inPair.push_back(InPair(idA, idB));}
+  void addPair(int idAIn, int idBIn) {
+    inPair.push_back(InPair(idAIn, idBIn));}
   int sizePair() const {return inPair.size();}
 
   // Store Q2 renormalization and factorization scales, and related values.

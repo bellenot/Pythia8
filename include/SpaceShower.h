@@ -87,7 +87,7 @@ public:
   virtual double enhancePTmax() {return pTmaxFudge;}
 
   // Prepare system for evolution; identify ME.
-  virtual void prepare( int iSys, Event& event, bool limitPTmax = true);
+  virtual void prepare( int iSys, Event& event, bool limitPTmaxIn = true);
 
   // Update dipole list after each FSR emission. Currently superfluous.
   // Usage: update( iSys, event).  
@@ -167,10 +167,10 @@ private:
   int findMEtype( int iSys, Event& event);
 
   // Provide maximum of expected ME weight; for preweighting of evolution.
-  double calcMEmax( int MEtype, int idMother, int idDaughter);
+  double calcMEmax( int MEtype, int idMother, int idDaughterIn);
 
   // Provide actual ME weight for current branching.
-  double calcMEcorr(int MEtype, int idMother, int idDaughter, double M2, 
+  double calcMEcorr(int MEtype, int idMother, int idDaughterIn, double M2, 
     double z, double Q2); 
 
   // Find coefficient of azimuthal asymmetry from gluon polarization.

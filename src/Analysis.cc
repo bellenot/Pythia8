@@ -736,11 +736,11 @@ bool CellJet::analyze(const Event& event, double eTjetMinIn,
     if (abs(etaNow) > etaMax) continue;
     double phiNow = event[i].phi();
     double pTnow  = event[i].pT();
-    int iEtaNow = max(1, min( nEta, 1 + int(nEta * 0.5 
+    int iEtaNow   = max(1, min( nEta, 1 + int(nEta * 0.5 
       * (1. + etaNow / etaMax) ) ) );
-    int iPhiNow = max(1, min( nPhi, 1 + int(nPhi * 0.5
+    int iPhiNow   = max(1, min( nPhi, 1 + int(nPhi * 0.5
       * (1. + phiNow / M_PI) ) ) );
-    int iCell = nPhi * iEtaNow + iPhiNow;
+    int iCell     = nPhi * iEtaNow + iPhiNow;
 
     // Add pT to cell already hit or book a new cell.
     bool found = false;
@@ -788,56 +788,56 @@ bool CellJet::analyze(const Event& event, double eTjetMinIn,
 
     // If too small cell eT then done, else start new trial jet.  
     if (eTmax < eTseed) break;
-    double etaCenter = cells[jMax].etaCell;
-    double phiCenter = cells[jMax].phiCell;
-    double eTjet = 0.;
+    double etaCenterNow = cells[jMax].etaCell;
+    double phiCenterNow = cells[jMax].phiCell;
+    double eTjetNow     = 0.;
 
     //  Sum up unused cells within required distance of seed.
     for (int j = 0; j < int(cells.size()); ++j) {
       if (cells[j].isUsed) continue;
-      double dEta = abs( cells[j].etaCell - etaCenter );
+      double dEta = abs( cells[j].etaCell - etaCenterNow );
       if (dEta > coneRadius) continue;
-      double dPhi = abs( cells[j].phiCell - phiCenter );
+      double dPhi = abs( cells[j].phiCell - phiCenterNow );
       if (dPhi > M_PI) dPhi = 2. * M_PI - dPhi;
       if (dPhi > coneRadius) continue;
       if (pow2(dEta) + pow2(dPhi) > pow2(coneRadius)) continue;
       cells[j].isAssigned = true;
-      eTjet += cells[j].eTcell;
+      eTjetNow += cells[j].eTcell;
     }
 
     // Reject cluster below minimum ET.
-    if (eTjet < eTjetMin) {
+    if (eTjetNow < eTjetMin) {
       cells[jMax].canBeSeed = false; 
       for (int j = 0; j < int(cells.size()); ++j) 
         cells[j].isAssigned = false;
 
     // Else find new jet properties. 
     } else {
-      double etaWeighted = 0.;
-      double phiWeighted = 0.;
-      int multiplicity   = 0;
-      Vec4 pMassive;
+      double etaWeightedNow = 0.;
+      double phiWeightedNow = 0.;
+      int multiplicityNow   = 0;
+      Vec4 pMassiveNow;
       for (int j = 0; j < int(cells.size()); ++j) 
       if (cells[j].isAssigned) {
         cells[j].canBeSeed  = false; 
         cells[j].isUsed     = true; 
         cells[j].isAssigned = false; 
-        etaWeighted += cells[j].eTcell * cells[j].etaCell;
+        etaWeightedNow += cells[j].eTcell * cells[j].etaCell;
         double phiCell = cells[j].phiCell; 
-        if (abs(phiCell - phiCenter) > M_PI) 
-          phiCell += (phiCenter > 0.) ? 2. * M_PI : -2. * M_PI;
-        phiWeighted  += cells[j].eTcell * phiCell;
-        multiplicity += cells[j].multiplicity;
-        pMassive     += cells[j].eTcell * Vec4( 
+        if (abs(phiCell - phiCenterNow) > M_PI) 
+          phiCell += (phiCenterNow > 0.) ? 2. * M_PI : -2. * M_PI;
+        phiWeightedNow  += cells[j].eTcell * phiCell;
+        multiplicityNow += cells[j].multiplicity;
+        pMassiveNow     += cells[j].eTcell * Vec4( 
            cos(cells[j].phiCell),  sin(cells[j].phiCell), 
           sinh(cells[j].etaCell), cosh(cells[j].etaCell) );
       } 
-      etaWeighted /= eTjet;
-      phiWeighted /= eTjet; 
+      etaWeightedNow /= eTjetNow;
+      phiWeightedNow /= eTjetNow; 
 
       // Bookkeep new jet, in decreasing ET order.
-      jets.push_back( SingleCellJet( eTjet, etaCenter, phiCenter,
-        etaWeighted, phiWeighted, multiplicity, pMassive) ); 
+      jets.push_back( SingleCellJet( eTjetNow, etaCenterNow, phiCenterNow,
+        etaWeightedNow, phiWeightedNow, multiplicityNow, pMassiveNow) ); 
       for (int i = int(jets.size()) - 1; i > 0; --i) {
         if (jets[i-1].eTjet > jets[i].eTjet) break;
         swap( jets[i-1], jets[i]);

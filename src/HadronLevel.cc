@@ -367,9 +367,9 @@ bool HadronLevel::traceFromCol(int indxCol, Event& event, int iJun,
     if (!hasFound && kindJun == 2 && event.sizeJunction() > 1)  
     for (int iAntiJun = 0; iAntiJun < event.sizeJunction(); ++iAntiJun) 
     if (iAntiJun != iJun && event.kindJunction(iAntiJun) == 1)
-    for (int iCol = 0; iCol < 3; ++iCol) 
-    if (event.endColJunction(iAntiJun, iCol) == indxCol) {
-      iParton.push_back( -(10 + 10 * iAntiJun + iCol) );   
+    for (int iColAnti = 0; iColAnti < 3; ++iColAnti) 
+    if (event.endColJunction(iAntiJun, iColAnti) == indxCol) {
+      iParton.push_back( -(10 + 10 * iAntiJun + iColAnti) );   
       indxCol = 0;
       hasFound = true;
       break;
@@ -438,9 +438,9 @@ bool HadronLevel::traceFromAcol(int indxCol, Event& event, int iJun,
     if (!hasFound && kindJun == 1 && event.sizeJunction() > 1) 
     for (int iAntiJun = 0; iAntiJun < event.sizeJunction(); ++iAntiJun) 
     if (iAntiJun != iJun && event.kindJunction(iAntiJun) == 2) 
-    for (int iCol = 0; iCol < 3; ++iCol)
-    if (event.endColJunction(iAntiJun, iCol) == indxCol) {
-      iParton.push_back( -(10 + 10 * iAntiJun + iCol) );   
+    for (int iColAnti = 0; iColAnti < 3; ++iColAnti)
+    if (event.endColJunction(iAntiJun, iColAnti) == indxCol) {
+      iParton.push_back( -(10 + 10 * iAntiJun + iColAnti) );   
       indxCol = 0;
       hasFound = true;
       break;

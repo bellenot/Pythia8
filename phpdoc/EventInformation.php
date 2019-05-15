@@ -138,6 +138,13 @@ the <i>Q^2</i> or <i>Q^2</i> factorization scale at which the
 densities were evaluated.
   
 
+<p/><code>method&nbsp; </code><strong> isValence1(), isValence2() &nbsp;</strong> <br/>
+<code>true</code> if the two hard incoming partons have been picked 
+to belong to the valence piece of the parton-density distribution, 
+else <code>false</code>. Should be interpreted with caution.
+Information is not set if you switch off parton-level processing. 
+  
+
 <p/><code>method&nbsp; </code><strong> alphaS(), alphaEM() &nbsp;</strong> <br/>
 the <i>alpha_strong</i> and <i>alpha_electromagnetic</i> values used 
 for the hard process.

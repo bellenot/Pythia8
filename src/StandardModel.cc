@@ -19,7 +19,12 @@ namespace Pythia8 {
 // These are of technical nature, as described for each.
 
 // Number of iterations to determine Lambda from given alpha_s.
-const int AlphaStrong::NITER = 10;
+const int AlphaStrong::NITER           = 10;
+
+// Always evaluate running alpha_s above Lambda3 to avoid disaster.
+// Safety margin picked to freeze roughly for alpha_s = 10.
+const double AlphaStrong::SAFETYMARGIN1 = 1.07;
+const double AlphaStrong::SAFETYMARGIN2 = 1.33;
 
 //*********
 
@@ -40,13 +45,14 @@ void AlphaStrong::init( double valueIn, int orderIn) {
 
   // Fix alpha_s.
   if (order == 0) {
-    Lambda3Save = Lambda4Save = Lambda5Save = 0.;
+    Lambda3Save = Lambda4Save = Lambda5Save = scale2Min = 0.;
 
   // First order alpha_s: match at flavour thresholds.
   } else if (order == 1) {
     Lambda5Save = mZ * exp( -6. * M_PI / (23. * valueRef) );
     Lambda4Save = Lambda5Save * pow(mb/Lambda5Save, 2./25.); 
     Lambda3Save = Lambda4Save * pow(mc/Lambda4Save, 2./27.); 
+    scale2Min   = pow2(SAFETYMARGIN1 * Lambda3Save);
 
   // Second order alpha_s: iterative match at flavour thresholds.
   } else {
@@ -100,6 +106,7 @@ void AlphaStrong::init( double valueIn, int orderIn) {
       valueIter   = valueC / correction; 
       Lambda3Save = mc * exp( -6. * M_PI / (27. * valueIter) );
     }
+    scale2Min     = pow2(SAFETYMARGIN2 * Lambda3Save);
   }
 
   // Save squares of mass and Lambda values as well.
@@ -120,8 +127,11 @@ void AlphaStrong::init( double valueIn, int orderIn) {
 
 double AlphaStrong::alphaS( double scale2) {
 
-  // If equal to old scale then same answer.
+  // Check for initialization and ensure minimal scale2 value.
   if (!isInit) return 0.;
+  if (scale2 < scale2Min) scale2 = scale2Min;
+
+  // If equal to old scale then same answer.
   if (scale2 == scale2Now && (order < 2 || lastCallToFull)) return valueNow;
   scale2Now      = scale2;
   lastCallToFull = true;
@@ -176,8 +186,11 @@ double AlphaStrong::alphaS( double scale2) {
 
 double  AlphaStrong::alphaS1Ord( double scale2) {
 
-  // If equal to old scale then same answer.
+  // Check for initialization and ensure minimal scale2 value.
   if (!isInit) return 0.;
+  if (scale2 < scale2Min) scale2 = scale2Min;
+
+  // If equal to old scale then same answer.
   if (scale2 == scale2Now && (order < 2 || !lastCallToFull)) return valueNow;
   scale2Now      = scale2;
   lastCallToFull = false;
@@ -206,8 +219,11 @@ double  AlphaStrong::alphaS1Ord( double scale2) {
 
 double AlphaStrong::alphaS2OrdCorr( double scale2) {
 
+  // Check for initialization and ensure minimal scale2 value.
+  if (!isInit) return 1.;
+  if (scale2 < scale2Min) scale2 = scale2Min;
+
   // Only meaningful for second order calculations.
-  if (!isInit)   return 1.;
   if (order < 2) return 1.; 
   
   // Second order correction term: differs by mass region.  

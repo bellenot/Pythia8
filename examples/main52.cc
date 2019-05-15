@@ -141,7 +141,7 @@ int main() {
     for (int i = 0; i < event.size(); ++i) {
       if (abs(event[i].status()) > 30) break;
       if (event[i].status() == -22 || event[i].status() == -23) {      
-        int iNow = i;
+        iNow = i;
         while (event[iNow].daughter2() == event[iNow].daughter1() &&
           event[iNow].daughter1() > iNow) iNow = event[iNow].daughter1();
         pHard += event[iNow].p();
