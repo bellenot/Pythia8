@@ -11,8 +11,8 @@
 Compositeness scenarios may give rise to sharp resonances of excited 
 quarks and leptons. An excited copy of the first generation is 
 implemented, consisting of spin 1/2 particles. The possibility of 
-contact interactions between SM quarks is also implemented in the 
-context of <i>2 -> 2</i> quark scattering. 
+contact interactions between SM fermions is also implemented in the 
+context of <i>2 -> 2</i> quark or fermion-lepton scattering. 
 
 <p/>  
 Related to excited fermions, the current implementation contains gauge 
@@ -26,12 +26,12 @@ listed below, you are expected to change the excited-fermion masses in
 accordance with what is desired. See [<a href="Bibliography.html" target="page">Bau90</a>] for conventions.
 
 <p/>
-The quark contact interactions are implemented according to 
-[<a href="Bibliography.html" target="page">Eic83</a>]. The processes include the QCD contributions 
-as well as interference. For this reason the two processes 
-below converge toward, <code>HardQCD:qq2qq</code> and 
-<code>HardQCD:qqbar2qqbarNew</code>, when the contact interaction 
-contributions are close to zero. 
+The contact interactions are implemented according to [<a href="Bibliography.html" target="page">Eic83</a>]. 
+The processes include the SM contributions as well as interference. 
+For this reason the processes below converge toward the SM equivalents 
+when the contact interaction contributions are close to zero, e.g. 
+<code>HardQCD:qq2qq</code> and <code>HardQCD:qqbar2qqbarNew</code> in 
+the case of quark scattering. 
 
 <h3>Excited fermions, production processes</h3>
 
@@ -184,7 +184,7 @@ Strength <i>f_c</i> of the <i>SU(3)</i> coupling.
 
 <h3>Contact interactions, production processes</h3>
 
-The processes including quark contact interactions are
+The processes including contact interactions are
 
 <p/><code>flag&nbsp; </code><strong> ContactInteractions:QCqq2qq &nbsp;</strong> 
  (<code>default = <strong>off</strong></code>)<br/>
@@ -196,6 +196,24 @@ Code 4201.
  (<code>default = <strong>off</strong></code>)<br/>
 Scatterings <i>q qbar -> q' qbar'</i> including contact interactions. 
 Code 4202.
+  
+
+<p/><code>flag&nbsp; </code><strong> ContactInteractions:QCffbar2eebar &nbsp;</strong> 
+ (<code>default = <strong>off</strong></code>)<br/>
+Scatterings <i>f fbar -> e- e+</i> including contact interactions. 
+Code 4203.
+  
+
+<p/><code>flag&nbsp; </code><strong> ContactInteractions:QCffbar2mumubar &nbsp;</strong> 
+ (<code>default = <strong>off</strong></code>)<br/>
+Scatterings <i>f fbar -> mu- mu+</i> including contact interactions. 
+Code 4204.
+  
+
+<p/><code>flag&nbsp; </code><strong> ContactInteractions:QCffbar2tautaubar &nbsp;</strong> 
+ (<code>default = <strong>off</strong></code>)<br/>
+Scatterings <i>f fbar -> tau- tau+</i> including contact interactions. 
+Code 4205.
   
 
 <h3>Contact interactions, parameters</h3>

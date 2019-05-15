@@ -135,7 +135,11 @@ void TimeShower::init( BeamParticle* beamAPtrIn,
   m2MaxGamma         = pow2(mMaxGamma);
 
   // Consisteny check for gamma -> f fbar variables.
-  if (nGammaToQuark <= 0 && nGammaToLepton <= 0) doQEDshowerByGamma = false;  
+  if (nGammaToQuark <= 0 && nGammaToLepton <= 0) doQEDshowerByGamma = false; 
+
+  // Possibility of a global recoil stategy, e.g. for MC@NLO.
+  globalRecoil       = settingsPtr->flag("TimeShower:globalRecoil");
+  nMaxGlobalRecoil   = settingsPtr->mode("TimeShower:nMaxGlobalRecoil");
 
   // Fraction and colour factor of gluon emission off onium octat state.
   octetOniumFraction = settingsPtr->parm("TimeShower:octetOniumFraction");
@@ -1172,14 +1176,30 @@ double TimeShower::pTnext( Event& event, double pTbegAll, double pTendAll) {
   double pT2sel = pTendAll * pTendAll;
   for (int iDip = 0; iDip < int(dipEnd.size()); ++iDip) {
     TimeDipoleEnd& dip = dipEnd[iDip]; 
+
+    // Check if global recoil should be used.
+    useLocalRecoilNow = !(globalRecoil && dip.system == 0 
+      && partonSystemsPtr->sizeOut(0) <= nMaxGlobalRecoil);
    
-    // Dipole properties. (Could partly be moved up to prepare??)
-    dip.mRad  = event[dip.iRadiator].m(); 
-    dip.m2Rad = pow2(dip.mRad);
-    dip.mRec  = event[dip.iRecoiler].m(); 
-    dip.m2Rec = pow2(dip.mRec);
-    dip.mDip  = m( event[dip.iRadiator], event[dip.iRecoiler] );
-    dip.m2Dip = pow2(dip.mDip);
+    // Dipole properties; normal local recoil. 
+    dip.mRad   = event[dip.iRadiator].m(); 
+    if (useLocalRecoilNow) {
+      dip.mRec = event[dip.iRecoiler].m(); 
+      dip.mDip = m( event[dip.iRadiator], event[dip.iRecoiler] );
+
+    // Dipole properties, alternative global recoil. Squares.
+    } else {
+      Vec4 pSumGlobal;
+      for (int i = 0; i < partonSystemsPtr->sizeOut( dip.system); ++i) { 
+        int ii = partonSystemsPtr->getOut( dip.system, i);
+        if (ii !=  dip.iRadiator) pSumGlobal += event[ii].p();
+      }
+      dip.mRec = pSumGlobal.mCalc();
+      dip.mDip = m( event[dip.iRadiator].p(), pSumGlobal); 
+    } 
+    dip.m2Rad  = pow2(dip.mRad);
+    dip.m2Rec  = pow2(dip.mRec);
+    dip.m2Dip  = pow2(dip.mDip);
 
     // Find maximum evolution scale for dipole.
     dip.m2DipCorr    = pow2(dip.mDip - dip.mRec) - dip.m2Rad; 
@@ -1364,7 +1384,7 @@ void TimeShower::pT2nextQCD(double pT2begDip, double pT2sel,
         }
 
         // Suppression factors for dipole to beam remnant.
-        if (dip.isrType != 0) {
+        if (dip.isrType != 0 && useLocalRecoilNow) {
          BeamParticle& beam = (dip.isrType == 1) ? *beamAPtr : *beamBPtr;
           int iSysRec = dip.systemRec;
           double xOld = beam[iSysRec].x();
@@ -1524,7 +1544,7 @@ void TimeShower::pT2nextQED(double pT2begDip, double pT2sel,
       wt *= (alphaEMnow / alphaEMmax);
 
       // Suppression factors for dipole to beam remnant.
-      if (dip.isrType != 0) {
+      if (dip.isrType != 0 && useLocalRecoilNow) {
         BeamParticle& beam = (dip.isrType == 1) ? *beamAPtr : *beamBPtr;
         int iSys    = dip.system;
         double xOld = beam[iSys].x();
@@ -1632,11 +1652,30 @@ void TimeShower::pT2nextHV(double pT2begDip, double pT2sel,
 
 bool TimeShower::branch( Event& event, bool isInterleaved) {
 
-  // Find initial particles in dipole branching.
+  // Check if global recoil should be used.
+  useLocalRecoilNow = !(globalRecoil && dipSel->system == 0 
+    && partonSystemsPtr->sizeOut(0) <= nMaxGlobalRecoil);
+
+  // Find initial radiator and recoiler particles in dipole branching.
   int iRadBef      = dipSel->iRadiator;
   int iRecBef      = dipSel->iRecoiler;
   Particle& radBef = event[iRadBef]; 
   Particle& recBef = event[iRecBef];
+
+  // Find their momenta, with special sum for global recoil.
+  Vec4 pRadBef     = event[iRadBef].p(); 
+  Vec4 pRecBef; 
+  vector<int> iGRecBef, iGRec; 
+  if (useLocalRecoilNow) pRecBef =  event[iRecBef].p(); 
+  else {
+    for (int i = 0; i < partonSystemsPtr->sizeOut( dipSel->system); ++i) { 
+      int iG = partonSystemsPtr->getOut( dipSel->system, i);
+      if (iG !=  dipSel->iRadiator) {
+        iGRecBef.push_back(iG);
+        pRecBef += event[iG].p();
+      }
+    }
+  }
 
   // Default flavours and colour tags for new particles in dipole branching. 
   int idRad        = radBef.id();
@@ -1742,7 +1781,7 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
 
   // Find rest frame and angles of original dipole.
   RotBstMatrix M;
-  M.fromCMframe(radBef.p(), recBef.p());
+  M.fromCMframe(pRadBef, pRecBef);
 
   // Evaluate coefficient of azimuthal asymmetry from gluon polarization.
   findAsymPol( event, dipSel);
@@ -1768,7 +1807,6 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
 
     // Azimuthal phi weighting: loop to new phi value if required.
     if (dipSel->asymPol != 0.) {
-      Vec4 pRadBef = event[iRadBef].p();
       Vec4 pAunt = event[dipSel->iAunt].p();
       double cosPhi = cosphi( pRad, pAunt, pRadBef );
       wtPhi = ( 1. + dipSel->asymPol * (2. * pow2(cosPhi) - 1.) )
@@ -1777,7 +1815,9 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
   } while (wtPhi < rndmPtr->flat()) ;
 
   // Kinematics when recoiler is initial-state parton.
-  int isrTypeNow = dipSel->isrType;
+  int isrTypeNow  = dipSel->isrType;
+  int isrTypeSave = isrTypeNow;
+  if (!useLocalRecoilNow) isrTypeNow = 0;
   if (isrTypeNow != 0) pRec = 2. * recBef.p() - pRec;
 
   // PS dec 2010: check if radiator has flexible normalization 
@@ -1837,22 +1877,46 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
   if (recBef.hasVertex()) rec.vProd( recBef.vProd() );
 
   // Put new particles into the event record.
+  // Mark original dipole partons as branched and set daughters/mothers.
   int iRad = event.append(rad);
   int iEmt = event.append(emt);
-  int iRec = event.append(rec);
-
-  // Mark original dipole partons as branched and set daughters/mothers.
   event[iRadBef].statusNeg();
   event[iRadBef].daughters( iRad, iEmt); 
-  if (isrTypeNow == 0) {
-    event[iRecBef].statusNeg();
-    event[iRecBef].daughters( iRec, iRec);
+  int iRec = 0; 
+  if (useLocalRecoilNow) {
+    iRec = event.append(rec);
+    if (isrTypeNow == 0) {
+      event[iRecBef].statusNeg();
+      event[iRecBef].daughters( iRec, iRec);
+    } else {
+      event[iRecBef].mothers( iRec, iRec);
+      event[iRec].mothers( iRecMot1V, iRecMot2V);  
+      if (iRecMot1V == beamOff1) event[beamOff1].daughter1( iRec);  
+      if (iRecMot1V == beamOff2) event[beamOff2].daughter1( iRec);
+    } 
+ 
+  // Global recoil: need to find relevant rotation+boost for recoilers:
+  // boost+rotate to rest frame, boost along z axis, rotate+boost back.
   } else {
-    event[iRecBef].mothers( iRec, iRec);
-    event[iRec].mothers( iRecMot1V, iRecMot2V);  
-    if (iRecMot1V == beamOff1) event[beamOff1].daughter1( iRec);  
-    if (iRecMot1V == beamOff2) event[beamOff2].daughter1( iRec);
-  } 
+    RotBstMatrix MG = M;
+    MG.invert();
+    double pzRecBef = -0.5 * sqrtpos( pow2(dipSel->m2Dip - dipSel->m2Rad 
+      - dipSel->m2Rec) - 4. * dipSel->m2Rad * dipSel->m2Rec ) / dipSel->mDip;
+    double eRecBef  = sqrt( pow2(pzRecBef) + dipSel->m2Rec);
+    double pzRecAft = -pzRadPlusEmt; 
+    double eRecAft  = sqrt( pow2(pzRecAft) + dipSel->m2Rec);
+    MG.bst( Vec4(0., 0., pzRecBef, eRecBef), Vec4(0., 0., pzRecAft, eRecAft) );
+    MG.rotbst( M);
+
+    // Global recoil: copy particles, and rotate+boost momenta (not vertices).
+    for (int iG = 0; iG < int(iGRecBef.size()); ++iG) {
+      iRec = event.copy( iGRecBef[iG], 52);
+      iGRec.push_back( iRec);
+      Vec4 pGRec = event[iRec].p();
+      pGRec.rotbst( MG);
+      event[iRec].p( pGRec);
+    } 
+  }  
 
   // Allow veto of branching. If so restore event record to before emission.
   bool inResonance = (partonSystemsPtr->getInA(iSysSel) == 0) ? true : false;
@@ -1861,15 +1925,27 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
     event.popBack( event.size() - eventSizeOld);
     event[iRadBef].status( iRadStatusV);
     event[iRadBef].daughters( iRadDau1V, iRadDau2V);
-    if (isrTypeNow == 0) {
+    if (useLocalRecoilNow && isrTypeNow == 0) {
       event[iRecBef].status( iRecStatusV);
       event[iRecBef].daughters( iRecDau1V, iRecDau2V);
-    } else {
+    } else if (useLocalRecoilNow) {
       event[iRecBef].mothers( iRecMot1V, iRecMot2V);
       if (iRecMot1V == beamOff1) event[beamOff1].daughter1( ev1Dau1V);  
       if (iRecMot1V == beamOff2) event[beamOff2].daughter1( ev2Dau1V);
+    } else {
+      for (int iG = 0; iG < int(iGRecBef.size()); ++iG) {
+        event[iGRecBef[iG]].statusPos();
+        event[iGRecBef[iG]].daughters( 0, 0);
+      }     
     } 
     return false;
+  }
+    
+  // For global recoil restore the one nominal recoiler, for bookkeeping.
+  if (!useLocalRecoilNow) {
+    iRec = iRecBef;
+    for (int iG = 0; iG < int(iGRecBef.size()); ++iG) 
+    if (iGRecBef[iG] == iRecBef) iRec = iGRec[iG];
   }
 
   // For initial-state recoiler also update beam and sHat info.
@@ -1931,7 +2007,7 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
     if (recoilToColoured && inResonance && event[iRec].col() == 0 
       && event[iRec].acol() == 0) iRecMod = iRad;
     dipEnd.push_back( TimeDipoleEnd(iEmt, iRecMod, pTsel,  
-       colType, 0, 0, isrTypeNow, iSysSel, 0));
+       colType, 0, 0, isrTypeSave, iSysSel, 0));
     dipEnd.back().systemRec = iSysSelRec;
     // PS dec 2010: the (iEmt,iRec) dipole "inherits" flexible normalization
     if (isFlexible) {
@@ -1948,10 +2024,8 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
       if ( !isFlexible && dipEnd[i].iRecoiler == iRadBef 
         && dipEnd[i].colType * dipSel->colType < 0 ) 
         dipEnd[i].iRecoiler = iEmt;
-
       if (dipEnd[i].iRadiator == iRadBef && abs(dipEnd[i].colType) == 2) {
         dipEnd[i].colType /= 2;
- 
         if (dipEnd[i].system != dipEnd[i].systemRec) continue;
 
         // Note: gluino -> quark + squark gives a deeper radiation dip than
@@ -2018,7 +2092,7 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
     }
     int colvType = (dipSel->colvType > 0) ? 2 : -2 ;
     dipEnd.push_back( TimeDipoleEnd(iEmt, iRec, pTsel,  
-       0, 0, 0, isrTypeNow, iSysSel, 0, -1, false, true, colvType) );
+       0, 0, 0, isrTypeSave, iSysSel, 0, -1, false, true, colvType) );
     dipEnd.back().systemRec = iSysSelRec;
     dipEnd.push_back( TimeDipoleEnd(iEmt, iRad, pTsel, 
       0, 0, 0, 0, iSysSel, 0, -1, false, true, -colvType) );
@@ -2048,11 +2122,22 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
       }
     }
     if (dipEnd[i].iRadiator  == iRadBef) dipEnd[i].iRadiator  = iRad;
-    if (dipEnd[i].iRadiator  == iRecBef) dipEnd[i].iRadiator  = iRec;
     if (dipEnd[i].iRecoiler  == iRadBef) dipEnd[i].iRecoiler  = iRad;
-    if (dipEnd[i].iRecoiler  == iRecBef) dipEnd[i].iRecoiler  = iRec;
     if (dipEnd[i].iMEpartner == iRadBef) dipEnd[i].iMEpartner = iRad;
-    if (dipEnd[i].iMEpartner == iRecBef) dipEnd[i].iMEpartner = iRec;
+    if (useLocalRecoilNow) {
+      if (dipEnd[i].iRadiator  == iRecBef) dipEnd[i].iRadiator  = iRec;
+      if (dipEnd[i].iRecoiler  == iRecBef) dipEnd[i].iRecoiler  = iRec;
+      if (dipEnd[i].iMEpartner == iRecBef) dipEnd[i].iMEpartner = iRec;
+    } else {
+      for (int iG = 0; iG < int(iGRecBef.size()); ++iG) {
+        if (dipEnd[i].iRadiator  == iGRecBef[iG]) 
+            dipEnd[i].iRadiator  =  iGRec[iG];
+        if (dipEnd[i].iRecoiler  == iGRecBef[iG]) 
+            dipEnd[i].iRecoiler  =  iGRec[iG];
+        if (dipEnd[i].iMEpartner == iGRecBef[iG]) 
+            dipEnd[i].iMEpartner =  iGRec[iG];
+      }
+    }
   }
 
   // PS Apr 2011
@@ -2083,7 +2168,12 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
   // Finally update the list of all partons in all systems.
   partonSystemsPtr->replace(iSysSel, iRadBef, iRad);  
   partonSystemsPtr->addOut(iSysSel, iEmt);
-  partonSystemsPtr->replace(iSysSelRec, iRecBef, iRec);
+  if (useLocalRecoilNow) 
+    partonSystemsPtr->replace(iSysSelRec, iRecBef, iRec);
+  else {
+    for (int iG = 0; iG < int(iGRecBef.size()); ++iG) 
+    partonSystemsPtr->replace(iSysSel, iGRecBef[iG], iGRec[iG]);
+  }
 
   // Done. 
   return true;

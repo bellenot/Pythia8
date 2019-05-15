@@ -25,6 +25,12 @@
 
 #endif // GZIPSUPPORT
 
+namespace Pythia8 {
+
+//==========================================================================
+
+// The SusyLesHouches class.
+
 //==========================================================================
 
 // Main routine to read in SLHA and LHEF+SLHA files
@@ -171,7 +177,7 @@ int SusyLesHouches::readFile(string slhaFileIn, int verboseIn,
       // (more will be done with SLHA1 & 2 specific blocks below, this is 
       //  just to make sure we have a complete copy of the input file, 
       //  including also any unknown/user/generic blocks)
-      GenericBlock gBlock;
+      LHgenericBlock gBlock;
       genericBlocks[blockName]=gBlock;
 
       // QNUMBERS blocks (cf. arXiv:0712.3311 [hep-ph])
@@ -182,7 +188,7 @@ int SusyLesHouches::readFile(string slhaFileIn, int verboseIn,
 	string pdgString = blockIn.substr(pdgBegin,pdgEnd-pdgBegin);
 	istringstream linestream(pdgString);
 	// Create and add new block with this code as zero'th entry
-	Block<int> newQnumbers;
+	LHblock<int> newQnumbers;
 	newQnumbers.set(0,linestream);
 	qnumbers.push_back(newQnumbers);	
 	// Default name: PDG code
@@ -326,8 +332,7 @@ int SusyLesHouches::readFile(string slhaFileIn, int verboseIn,
         wstream >> width;
         if (wstream) {
           // Set 
-          decayTable tmp(idNow,width);
-          decays.push_back(decayTable(idNow,width));          
+          decays.push_back(LHdecayTable(idNow,width));          
           decayIndices[idNow]=decays.size()-1;
           //Set PDG code and width
           if (width <= 0.0) {
@@ -1672,7 +1677,7 @@ int SusyLesHouches::checkDecays() {
   for (int i = 0; i < int(decays.size()); ++i) { 
     
     // Shorthand
-    decayTable decTab = decays[i];
+    LHdecayTable decTab = decays[i];
     int idRes = decTab.getId();
     double width = decTab.getWidth();
     if (width <= 0.0 || decTab.size() == 0) continue;
@@ -1751,7 +1756,10 @@ void SusyLesHouches::message(int level, string place,string themessage,
   return;
 }
 
+}
+
 //==========================================================================
+
 
 
 

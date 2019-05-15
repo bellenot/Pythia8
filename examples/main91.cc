@@ -9,7 +9,7 @@
 // from various code pieces that were separately available up until 
 // Pythia 8.125. In addition to modifying the below code to fit your
 // needs, you also have to modify examples/Makefile to link properly
-// for main51, including the Pythia 6.4xx library to be used (where
+// for main91, including the Pythia 6.4xx library to be used (where
 // xx is the current subversion number). 
 
 // All hard PYTHIA 6.4 processes should be available for full generation
@@ -180,8 +180,10 @@ int main() {
   pythia.readString("Next:numberShowEvent = 0"); 
 
   // Initialize to access Pythia6 generator by Les Houches interface.
+  pythia.readString("Beams:frameType = 5"); 
   LHAupFortran pythia6;
-  pythia.init(&pythia6);    
+  pythia.setLHAupPtr( &pythia6);
+  pythia.init();    
 
   // Set some generation values.
   int nEvent = 100;

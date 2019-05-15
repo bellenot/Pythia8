@@ -207,8 +207,8 @@ private:
   int    vsc1, vsc2;
 
   // Other initialization data.
-  bool   hasBaryonBeams, hasLowPow;
-  int    diffractiveMode;
+  bool   hasBaryonBeams, hasLowPow, globalRecoilFSR;
+  int    diffractiveMode, nMaxGlobalRecoilFSR;
   double eCM, sCM, pT0, pT20, pT2min, pTmax, pT2max, pT20R, pT20minR, 
          pT20maxR, pT20min0maxR, pT2maxmin, sigmaND, pT4dSigmaMax, 
          pT4dProbMax, dSigmaApprox, sigmaInt, sudExpPT[101], 

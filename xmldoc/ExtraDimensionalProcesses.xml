@@ -277,7 +277,7 @@ dimension radius.
 
 The LED graviton, where the KK-modes normally are summed and do not 
 give rise to phenomena individually, is assigned PDG code 5000039. 
-The graviton emission and virtual graviton exchange processes uses 
+The graviton emission and virtual graviton exchange processes use 
 the same implementation as the corresponding unparticle processes, 
 which are all described in <ref>Ask10</ref>. It is also possible to 
 generate monojet events from scalar graviton emission as described 
@@ -356,6 +356,63 @@ Scatterings <ei>g g -> (LED G*) -> l l</ei>.
 Code 5029.
 </flag>
 
+<p/> 
+Dijet production including graviton exchange is also available, using 
+the same effective theory approach as the LED G exchange processes 
+above or including more detailed amplitudes in accordance with 
+<ref>Fra11</ref>. In case of the latter, the value of <ei>LambdaT</ei> 
+is used as the value of the cut-off scale <ei>Lambda</ei>. For this 
+reason the dijet processes only relates to the LED model and no 
+unparticle versions are available. The processes are grouped together 
+like their <ei>HardQCD</ei> equivalents and should therefore converge 
+to the same results in the limit of an insignificant graviton 
+contribution.
+
+<p/>
+<ei>Warning:</ei> These LED dijets processes are still being validated. 
+
+<flag name="ExtraDimensionsLED:dijets" default="off">
+Common switch for the group of lowest-order <ei>jet jet</ei> 
+production processes with graviton exchange, i.e. the six ones 
+below.
+</flag>
+
+<flag name="ExtraDimensionsLED:gg2DJgg" default="off">
+Scatterings <ei>g g -> (LED G*) -> g g</ei>. 
+Code 5030.
+</flag>
+
+<flag name="ExtraDimensionsLED:gg2DJqqbar" default="off">
+Scatterings <ei>g g -> (LED G*) -> q qbar</ei>. Number of 
+outgoing flavours specified by <ei>nQuarkNew</ei> parameter 
+below.
+Code 5031.
+</flag>
+
+<flag name="ExtraDimensionsLED:qg2DJqg" default="off">
+Scatterings <ei>q g -> (LED G*) -> q g</ei> and 
+<ei>qbar g -> (LED G*) -> qbar g</ei>. 
+Code 5032.
+</flag>
+
+<flag name="ExtraDimensionsLED:qq2DJqq" default="off">
+Scatterings <ei>q q(bar)' -> (LED G*) -> q q(bar)'</ei>. 
+Including <ei>q</ei> and <ei>qbar</ei> of same or different 
+flavours, but the outgoing flavours equals the incoming ones. 
+Code 5033.
+</flag>
+
+<flag name="ExtraDimensionsLED:qqbar2DJgg" default="off">
+Scatterings <ei>q qbar -> (LED G*) -> g g</ei>. 
+Code 5034.
+</flag>
+
+<flag name="ExtraDimensionsLED:qqbar2DJqqbarNew" default="off">
+Scatterings <ei>q qbar -> (LED G*) -> q' qbar'</ei>. Number of 
+outgoing flavours specified by <ei>nQuarkNew</ei> parameter below.
+Code 5035.
+</flag>
+
 <h3>Large Extra Dimensions, parameters</h3>
 
 <flag name="ExtraDimensionsLED:GravScalar" default="off">
@@ -376,6 +433,14 @@ Fundamental scale of gravity in <ei>D = 4 + n</ei> dimensions.
 <parm name="ExtraDimensionsLED:LambdaT" default="2000." min="100.0">
 Ultraviolet cutoff parameter for the virtual graviton exchange processes.
 </parm>
+
+<modepick name="ExtraDimensionsLED:NegInt" default="0" min="0" max="1">
+Allows to change sign of the interference terms in the graviton exchange 
+processes, common in connection to using the <ei>Hewett</ei> convention 
+<ref>Hew99</ref>. 
+<option value="0">1</option>
+<option value="1">-1</option>
+</modepick>
 
 <modepick name="ExtraDimensionsLED:CutOffMode" default="0" min="0" max="3">
 Options for when the hard scale of the process (e.g. <ei>sHat</ei>) 
@@ -403,11 +468,23 @@ Coupling related to scalar graviton emission.
 Coupling related to scalar graviton emission.
 </parm>
 
+<modeopen name="ExtraDimensionsLED:nQuarkNew" default="3" min="0" max="5">
+Number of allowed outgoing new quark flavours in the above
+<ei>q qbar -> (LED G*) -> q' qbar'</ei> and <ei>g g -> (LED G*) -> q' qbar'</ei> 
+processes. Similar to <ei>HardQCD:nQuarkNew</ei> for the QCD processes.
+</modeopen>
+
+<modeopen name="ExtraDimensionsLED:opMode" default="0" min="0" max="1">
+Options to specify <ei>S</ei> function for LED dijet amplitudes.
+<option value="0">Use detailed amplitude, as described in <ref>Fra11</ref>.</option>
+<option value="1">Use conventional <ei>LambdaT</ei> parametrization, like the other LED processes.</option>
+</modeopen>
+
 <h3>Unparticles, production processes</h3>
 
 As mentioned above, the similar unparticle and graviton processes 
 share the same implementations. The unparticle processes, however, 
-only uses the dedicated unparticle parameters below. The unparticle 
+only use the dedicated unparticle parameters below. The unparticle 
 is also assigned the PDG code 5000039 and is therefore called 
 <ei>Graviton</ei> in the event record. The graviton and unparticle 
 emission as well as virtual graviton and unparticle exchange processes 

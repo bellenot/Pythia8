@@ -1305,13 +1305,44 @@ void MergingHooks::init( Settings& settings, Info* infoPtrIn,
 // Function to return the number of clustering steps for the current event
 
 int MergingHooks::getNumberOfClusteringSteps(const Event& event){
-  // Count the number of final state particles
-  int nFinal = 0;
+
+  // Count the number of final state partons
+  int nFinalPartons = 0;
   for( int i=0; i < event.size(); ++i)
-    if( event[i].isFinal())
-      nFinal++;
+    if( event[i].isFinal() && event[i].isParton())
+      nFinalPartons++;
+
+  // Add tops to number of partons
+  for( int i=0; i < event.size(); ++i)
+    if( event[i].isFinal() && event[i].idAbs() == 6)
+      nFinalPartons++;
+
+  // Count the number of final state leptons
+  int nFinalLeptons = 0;
+  for( int i=0; i < event.size(); ++i)
+    if( event[i].isFinal() && event[i].isLepton())
+      nFinalLeptons++;
+
+  // Add neutralinos to number of leptons
+  for( int i=0; i < event.size(); ++i)
+    if( event[i].isFinal()
+      && event[i].idAbs() == 1000022)
+      nFinalLeptons++;
+
+  // Count the number of final state electroweak bosons
+  int nFinalBosons = 0;
+  for( int i=0; i < event.size(); ++i)
+    if( event[i].isFinal()
+      && ( event[i].idAbs() == 24
+        || event[i].idAbs() == 23 ) )
+      nFinalBosons++;
+
+  // Save sum of all final state particles
+  int nFinal = nFinalPartons + nFinalLeptons + 2*nFinalBosons;
+
   // Return the difference to the core process outgoing particles
   return (nFinal - nHardOutPartons() - nHardOutLeptons());
+
 }
 
 //--------------------------------------------------------------------------

@@ -267,7 +267,7 @@ public:
 private: 
 
   // Constants: could only be changed in the code itself.
-  static const double MASSMIN, GAMMAMARGIN;
+  static const double MASSMINWZ, MASSMINT, GAMMAMARGIN;
 
   // Higgs type in current instance.
   int    higgsType;
@@ -277,6 +277,7 @@ private:
   double sin2tW, cos2tW, mT, mZ, mW, mHchg, GammaT, GammaZ, GammaW,
          coup2d, coup2u, coup2l, coup2Z, coup2W, coup2Hchg, coup2H1H1, 
          coup2A3A3, coup2H1Z, coup2A3Z, coup2A3H1, coup2HchgW,
+         mLowT, mStepT, mLowZ, mStepZ, mLowW, mStepW,
          kinFacT[101], kinFacZ[101], kinFacW[101];
  
   // Initialize constants.

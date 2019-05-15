@@ -137,10 +137,10 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
   }
 
   // Shorthand for squark mixing matrices 
-  SusyLesHouches::MatrixBlock<6> Ru(slhaPtr->usqmix);
-  SusyLesHouches::MatrixBlock<6> Rd(slhaPtr->dsqmix);
-  SusyLesHouches::MatrixBlock<6> imRu(slhaPtr->imusqmix);
-  SusyLesHouches::MatrixBlock<6> imRd(slhaPtr->imdsqmix);  
+  LHmatrixBlock<6> Ru(slhaPtr->usqmix);
+  LHmatrixBlock<6> Rd(slhaPtr->dsqmix);
+  LHmatrixBlock<6> imRu(slhaPtr->imusqmix);
+  LHmatrixBlock<6> imRd(slhaPtr->imdsqmix);  
   
   // Construct ~g couplings
   for (int i=1; i<=6; i++) {
@@ -227,8 +227,8 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
     }
   }
 
-  SusyLesHouches::MatrixBlock<6> Rsl(slhaPtr->selmix);
-  SusyLesHouches::MatrixBlock<3> Rsv(slhaPtr->snumix);
+  LHmatrixBlock<6> Rsl(slhaPtr->selmix);
+  LHmatrixBlock<3> Rsv(slhaPtr->snumix);
   
   // In RPV, the slepton mixing matrices include Higgs bosons
   // Here we just extract the entries corresponding to the slepton PDG codes
@@ -917,11 +917,11 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
 
   // Shorthand for RPV couplings 
   // The input LNV lambda couplings
-  SusyLesHouches::Tensor3Block<3> rvlle(slhaPtr->rvlamlle); 
+  LHtensor3Block<3> rvlle(slhaPtr->rvlamlle); 
   // The input LNV lambda' couplings
-  SusyLesHouches::Tensor3Block<3> rvlqd(slhaPtr->rvlamlqd); 
+  LHtensor3Block<3> rvlqd(slhaPtr->rvlamlqd); 
   // The input BNV lambda'' couplings
-  SusyLesHouches::Tensor3Block<3> rvudd(slhaPtr->rvlamudd); 
+  LHtensor3Block<3> rvudd(slhaPtr->rvlamudd); 
 
   isLLE = false;
   isLQD = false;
@@ -1228,5 +1228,6 @@ int CoupSUSY::typeChar(int idPDG) {
 //==========================================================================
 
 } // end namespace Pythia8
+
 
 

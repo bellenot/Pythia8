@@ -26,7 +26,7 @@ ifneq (x$(HEPMCLOCATION),x)
 endif
 
 # Location of directories.
-TMPDIR=tmp
+MYTMPDIR=tmp
 TOPDIR=$(shell \pwd)
 INCDIR=include
 SRCDIR=src
@@ -60,20 +60,20 @@ config.mk: ./configure
 
 # Main part: build Pythia8 library. 
 
-$(TMPDIR)/%.o : $(SRCDIR)/%.cc
-	@mkdir -p $(TMPDIR)
+$(MYTMPDIR)/%.o : $(SRCDIR)/%.cc
+	@mkdir -p $(MYTMPDIR)
 	$(CXX) $(CXXFLAGS) $(CXXFLAGSSHARED) -c -I$(INCDIR) $< -o $@
 
-$(TMPDIR)/archive/%.o : $(SRCDIR)/%.cc
-	@mkdir -p $(TMPDIR)/archive
+$(MYTMPDIR)/archive/%.o : $(SRCDIR)/%.cc
+	@mkdir -p $(MYTMPDIR)/archive
 	$(CXX) $(CXXFLAGS) -c -I$(INCDIR) $< -o $@
 
-$(TMPDIR)/%.o : lhapdfdummy/%.cc
-	@mkdir -p $(TMPDIR)
+$(MYTMPDIR)/%.o : lhapdfdummy/%.cc
+	@mkdir -p $(MYTMPDIR)
 	$(CXX) $(CXXFLAGS) $(CXXFLAGSSHARED) -c -I$(INCDIR) $< -o $@
 
-$(TMPDIR)/archive/%.o : lhapdfdummy/%.cc
-	@mkdir -p $(TMPDIR)/archive
+$(MYTMPDIR)/archive/%.o : lhapdfdummy/%.cc
+	@mkdir -p $(MYTMPDIR)/archive
 	$(CXX) $(CXXFLAGS) -c -I$(INCDIR) $< -o $@
 
 # Creating the dependency files *.d
@@ -84,25 +84,25 @@ $(TMPDIR)/archive/%.o : lhapdfdummy/%.cc
 # removes empty *.d files produced in case of error.
 
 ifeq ($(SHAREDLIBS),yes)
-  $(TMPDIR)/%.d : $(SRCDIR)/%.cc
+  $(MYTMPDIR)/%.d : $(SRCDIR)/%.cc
 	@echo Making dependency for file $<; \
-	mkdir -p $(TMPDIR); \
+	mkdir -p $(MYTMPDIR); \
 	$(CC) -M -I$(INCDIR) $< | \
 	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' | \
-	sed 's/$*\.o/$(TMPDIR)\/$*.o/' > $@; \
+	sed 's/$*\.o/$(MYTMPDIR)\/$*.o/' > $@; \
 	[ -s $@ ] || rm -f $@
 endif
 
-$(TMPDIR)/archive/%.d : $(SRCDIR)/%.cc
+$(MYTMPDIR)/archive/%.d : $(SRCDIR)/%.cc
 	@echo Making dependency for file $<; \
-	mkdir -p $(TMPDIR)/archive; \
+	mkdir -p $(MYTMPDIR)/archive; \
 	$(CC) -M -I$(INCDIR) $< | \
 	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' | \
-	sed 's/$*\.o/$(TMPDIR)\/archive\/$*.o/' > $@; \
+	sed 's/$*\.o/$(MYTMPDIR)\/archive\/$*.o/' > $@; \
 	[ -s $@ ] || rm -f $@
 
-objects := $(patsubst $(SRCDIR)/%.cc,$(TMPDIR)/%.o,$(wildcard $(SRCDIR)/*.cc))
-objectsarch := $(patsubst $(SRCDIR)/%.cc,$(TMPDIR)/archive/%.o,$(wildcard $(SRCDIR)/*.cc))
+objects := $(patsubst $(SRCDIR)/%.cc,$(MYTMPDIR)/%.o,$(wildcard $(SRCDIR)/*.cc))
+objectsarch := $(patsubst $(SRCDIR)/%.cc,$(MYTMPDIR)/archive/%.o,$(wildcard $(SRCDIR)/*.cc))
 
 $(LIBDIR)/libpythia8.$(SHAREDSUFFIX): $(objects)
 	@mkdir -p $(LIBDIR)
@@ -112,8 +112,8 @@ $(LIBDIRARCH)/libpythia8.a: $(objectsarch)
 	@mkdir -p $(LIBDIRARCH)
 	ar cru $@ $(objectsarch)
 
-objdum := $(patsubst lhapdfdummy/%.cc,$(TMPDIR)/%.o,$(wildcard lhapdfdummy/*.cc))
-objdumarch := $(patsubst lhapdfdummy/%.cc,$(TMPDIR)/archive/%.o,$(wildcard lhapdfdummy/*.cc))
+objdum := $(patsubst lhapdfdummy/%.cc,$(MYTMPDIR)/%.o,$(wildcard lhapdfdummy/*.cc))
+objdumarch := $(patsubst lhapdfdummy/%.cc,$(MYTMPDIR)/archive/%.o,$(wildcard lhapdfdummy/*.cc))
 
 $(LIBDIR)/liblhapdfdummy.$(SHAREDSUFFIX): $(objdum)
 	@mkdir -p $(LIBDIR)
@@ -123,8 +123,8 @@ $(LIBDIRARCH)/liblhapdfdummy.a: $(objdumarch)
 	@mkdir -p $(LIBDIRARCH)
 	ar cru $@ $(objdumarch)
 
-deps := $(patsubst $(SRCDIR)/%.cc,$(TMPDIR)/%.d,$(wildcard $(SRCDIR)/*.cc))
-depsarch := $(patsubst $(SRCDIR)/%.cc,$(TMPDIR)/archive/%.d,$(wildcard $(SRCDIR)/*.cc))
+deps := $(patsubst $(SRCDIR)/%.cc,$(MYTMPDIR)/%.d,$(wildcard $(SRCDIR)/*.cc))
+depsarch := $(patsubst $(SRCDIR)/%.cc,$(MYTMPDIR)/archive/%.d,$(wildcard $(SRCDIR)/*.cc))
 
 
 # The "if" below is needed in order to avoid producing the dependency files
@@ -142,32 +142,32 @@ ifneq (x$(HEPMCLOCATION),x)
 
  ifeq (x$(HEPMCERROR),x)
 
-   $(TMPDIR)/%.o : hepmcinterface/%.cc config.mk
-	@mkdir -p $(TMPDIR)
+   $(MYTMPDIR)/%.o : hepmcinterface/%.cc config.mk
+	@mkdir -p $(MYTMPDIR)
 	$(CXX) $(CXXFLAGS) $(CXXFLAGSSHARED) $(HEPMCVFLAG) -c -I$(INCDIR) $(HEPMCINCLUDE) $< -o $@
 
-   $(TMPDIR)/archive/%.o : hepmcinterface/%.cc config.mk
-	@mkdir -p $(TMPDIR)/archive
+   $(MYTMPDIR)/archive/%.o : hepmcinterface/%.cc config.mk
+	@mkdir -p $(MYTMPDIR)/archive
 	$(CXX) $(CXXFLAGS) $(HEPMCVFLAG) -c -I$(INCDIR) $(HEPMCINCLUDE) $< -o $@
 
-   $(TMPDIR)/%.d : hepmcinterface/%.cc
+   $(MYTMPDIR)/%.d : hepmcinterface/%.cc
 	@echo Making dependency for file $<; \
-	mkdir -p $(TMPDIR); \
+	mkdir -p $(MYTMPDIR); \
 	$(CC) -M -I$(INCDIR) $(HEPMCINCLUDE) $< | \
 	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' | \
-	sed 's/$*.o/$(TMPDIR)\/$*.o/' > $@; \
+	sed 's/$*.o/$(MYTMPDIR)\/$*.o/' > $@; \
 	[ -s $@ ] || rm -f $@
 
-   $(TMPDIR)/archive/%.d : hepmcinterface/%.cc
+   $(MYTMPDIR)/archive/%.d : hepmcinterface/%.cc
 	@echo Making dependency for file $<; \
-	mkdir -p $(TMPDIR)/archive; \
+	mkdir -p $(MYTMPDIR)/archive; \
 	$(CC) -M -I$(INCDIR) $(HEPMCINCLUDE) $< | \
 	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' | \
-	sed 's/$*.o/$(TMPDIR)\/archive\/$*.o/' > $@; \
+	sed 's/$*.o/$(MYTMPDIR)\/archive\/$*.o/' > $@; \
 	[ -s $@ ] || rm -f $@
 
-   objectsI := $(patsubst hepmcinterface/%.cc,$(TMPDIR)/%.o,$(wildcard hepmcinterface/*.cc))
-   objectsIarch := $(patsubst hepmcinterface/%.cc,$(TMPDIR)/archive/%.o,$(wildcard hepmcinterface/*.cc))
+   objectsI := $(patsubst hepmcinterface/%.cc,$(MYTMPDIR)/%.o,$(wildcard hepmcinterface/*.cc))
+   objectsIarch := $(patsubst hepmcinterface/%.cc,$(MYTMPDIR)/archive/%.o,$(wildcard hepmcinterface/*.cc))
 
    $(LIBDIR)/libhepmcinterface.$(SHAREDSUFFIX) : $(objectsI)
 	@mkdir -p $(LIBDIR)
@@ -177,8 +177,8 @@ ifneq (x$(HEPMCLOCATION),x)
 	@mkdir -p $(LIBDIRARCH)
 	ar cru $(LIBDIRARCH)/libhepmcinterface.a $(objectsIarch)
 
-   depsI := $(patsubst hepmcinterface/%.cc,$(TMPDIR)/%.d,$(wildcard hepmcinterface/*.cc))
-   depsIarch := $(patsubst hepmcinterface/%.cc,$(TMPDIR)/archive/%.d,$(wildcard hepmcinterface/*.cc))
+   depsI := $(patsubst hepmcinterface/%.cc,$(MYTMPDIR)/%.d,$(wildcard hepmcinterface/*.cc))
+   depsIarch := $(patsubst hepmcinterface/%.cc,$(MYTMPDIR)/archive/%.d,$(wildcard hepmcinterface/*.cc))
 
    ifeq (,$(findstring clean, $(MAKECMDGOALS)))
    -include $(depsI)
@@ -201,10 +201,10 @@ endif
 .PHONY: clean distclean
 
 clean:
-	rm -rf $(TMPDIR)
+	rm -rf $(MYTMPDIR)
 	rm -rf $(LIBDIR)
 	rm -rf $(BINDIR)
-	cd examples; rm -f *.exe; cd -
+	cd examples; rm -rf bin; rm -f *.exe; cd -
 	cd rootexamples; rm -f *.exe; cd -
 
 distclean: clean

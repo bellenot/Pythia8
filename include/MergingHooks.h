@@ -190,6 +190,20 @@ public:
     return 1.;
   }
 
+  // Hooks to disallow states in the construction of all histories, e.g.
+  // because jets are below the merging scale or fail the matrix element cuts
+  // Function to allow interference in the construction of histories 
+  virtual bool canCutOnRecState() { return false; }
+  // Function to check reclustered state while generating all possible
+  // histories
+  // Function implementing check of reclustered events while constructing
+  // all possible histories
+  virtual bool doCutOnRecState( const Event& event ) {
+    // Dummy statement to avoid compiler warnings
+    if(false) cout << event[0].e();
+    return false;
+  }
+
   // Make History class friend to allow access to advanced switches
   friend class History;
   // Make Pythia class friend

@@ -30,7 +30,7 @@ public:
   void init( ParticleData* particleDataPtrIn, CoupSUSY* coupSUSYPtrIn);
 
   virtual void setInternal(int idResIn, int id1In, int id2In, int id3In, 
-    int idIntIn) { setInternal2(idResIn, id1In, id2In, id3In, idIntIn);}
+    int idIntIn, int) {setInternal2(idResIn, id1In, id2In, id3In, idIntIn);}
 
   virtual double function(double m12);
   virtual double function(double m12, double m23);
@@ -60,7 +60,7 @@ public:
   virtual ~Psi() { };
 
   virtual void setInternal(int idResIn, int id1In, int id2In, int id3In, 
-    int idIntIn);
+    int idIntIn, int);
   virtual double function(double m12);
 
 };

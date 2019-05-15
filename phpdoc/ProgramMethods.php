@@ -2199,8 +2199,20 @@ Many of them are only intended for experts, while undocumented ones are only for
 </tr>
 
 <tr>
+<td>virtual bool</td>
+<td><a href="MatrixElementMerging.php#method12" target="page">MergingHooks::canCutOnRecState()</a></td>
+<td>Matrix Element Merging</td>
+</tr>
+
+<tr>
 <td>virtual double</td>
 <td><a href="MatrixElementMerging.php#method11" target="page">MergingHooks::dampenIfFailCuts(...)</a></td>
+<td>Matrix Element Merging</td>
+</tr>
+
+<tr>
+<td>virtual bool</td>
+<td><a href="MatrixElementMerging.php#method13" target="page">MergingHooks::doCutOnRecState(...)</a></td>
 <td>Matrix Element Merging</td>
 </tr>
 

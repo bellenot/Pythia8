@@ -32,8 +32,8 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 Compositeness scenarios may give rise to sharp resonances of excited 
 quarks and leptons. An excited copy of the first generation is 
 implemented, consisting of spin 1/2 particles. The possibility of 
-contact interactions between SM quarks is also implemented in the 
-context of <i>2 -> 2</i> quark scattering. 
+contact interactions between SM fermions is also implemented in the 
+context of <i>2 -> 2</i> quark or fermion-lepton scattering. 
 
 <p/>  
 Related to excited fermions, the current implementation contains gauge 
@@ -47,12 +47,12 @@ listed below, you are expected to change the excited-fermion masses in
 accordance with what is desired. See [<a href="Bibliography.php" target="page">Bau90</a>] for conventions.
 
 <p/>
-The quark contact interactions are implemented according to 
-[<a href="Bibliography.php" target="page">Eic83</a>]. The processes include the QCD contributions 
-as well as interference. For this reason the two processes 
-below converge toward, <code>HardQCD:qq2qq</code> and 
-<code>HardQCD:qqbar2qqbarNew</code>, when the contact interaction 
-contributions are close to zero. 
+The contact interactions are implemented according to [<a href="Bibliography.php" target="page">Eic83</a>]. 
+The processes include the SM contributions as well as interference. 
+For this reason the processes below converge toward the SM equivalents 
+when the contact interaction contributions are close to zero, e.g. 
+<code>HardQCD:qq2qq</code> and <code>HardQCD:qqbar2qqbarNew</code> in 
+the case of quark scattering. 
 
 <h3>Excited fermions, production processes</h3>
 
@@ -221,7 +221,7 @@ Strength <i>f_c</i> of the <i>SU(3)</i> coupling.
 
 <h3>Contact interactions, production processes</h3>
 
-The processes including quark contact interactions are
+The processes including contact interactions are
 
 <br/><br/><strong>ContactInteractions:QCqq2qq</strong>  <input type="radio" name="25" value="on"><strong>On</strong>
 <input type="radio" name="25" value="off" checked="checked"><strong>Off</strong>
@@ -237,38 +237,59 @@ Scatterings <i>q qbar -> q' qbar'</i> including contact interactions.
 Code 4202.
   
 
+<br/><br/><strong>ContactInteractions:QCffbar2eebar</strong>  <input type="radio" name="27" value="on"><strong>On</strong>
+<input type="radio" name="27" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scatterings <i>f fbar -> e- e+</i> including contact interactions. 
+Code 4203.
+  
+
+<br/><br/><strong>ContactInteractions:QCffbar2mumubar</strong>  <input type="radio" name="28" value="on"><strong>On</strong>
+<input type="radio" name="28" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scatterings <i>f fbar -> mu- mu+</i> including contact interactions. 
+Code 4204.
+  
+
+<br/><br/><strong>ContactInteractions:QCffbar2tautaubar</strong>  <input type="radio" name="29" value="on"><strong>On</strong>
+<input type="radio" name="29" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scatterings <i>f fbar -> tau- tau+</i> including contact interactions. 
+Code 4205.
+  
+
 <h3>Contact interactions, parameters</h3>
 
-<br/><br/><table><tr><td><strong>ContactInteractions:nQuarkNew  </td><td></td><td> <input type="text" name="27" value="3" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>3</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ContactInteractions:nQuarkNew  </td><td></td><td> <input type="text" name="30" value="3" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>3</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
 Number of allowed outgoing new quark flavours in the above
 <i>q qbar -> q' qbar'</i> process. Similar to <i>HardQCD:nQuarkNew</i> 
 for the QCD processes.
   
 
-<br/><br/><table><tr><td><strong>ContactInteractions:Lambda </td><td></td><td> <input type="text" name="28" value="1000." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1000.</strong></code>; <code>minimum = 100.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ContactInteractions:Lambda </td><td></td><td> <input type="text" name="31" value="1000." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1000.</strong></code>; <code>minimum = 100.</code>)</td></tr></table>
 Compositeness scale <i>Lambda</i> in GeV.
   
 
 <br/><br/><table><tr><td><strong>ContactInteractions:etaLL  </td><td>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = -1</code>; <code>maximum = 1</code>)</td></tr></table>
 Helicity parameter. 
 <br/>
-<input type="radio" name="29" value="1"><strong>1 </strong>: <br/>
-<input type="radio" name="29" value="0" checked="checked"><strong>0 </strong>: <br/>
-<input type="radio" name="29" value="-1"><strong>-1 </strong>: <br/>
+<input type="radio" name="32" value="1"><strong>1 </strong>: <br/>
+<input type="radio" name="32" value="0" checked="checked"><strong>0 </strong>: <br/>
+<input type="radio" name="32" value="-1"><strong>-1 </strong>: <br/>
 
 <br/><br/><table><tr><td><strong>ContactInteractions:etaRR  </td><td>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = -1</code>; <code>maximum = 1</code>)</td></tr></table>
 Helicity parameter. 
 <br/>
-<input type="radio" name="30" value="1"><strong>1 </strong>: <br/>
-<input type="radio" name="30" value="0" checked="checked"><strong>0 </strong>: <br/>
-<input type="radio" name="30" value="-1"><strong>-1 </strong>: <br/>
+<input type="radio" name="33" value="1"><strong>1 </strong>: <br/>
+<input type="radio" name="33" value="0" checked="checked"><strong>0 </strong>: <br/>
+<input type="radio" name="33" value="-1"><strong>-1 </strong>: <br/>
 
 <br/><br/><table><tr><td><strong>ContactInteractions:etaLR  </td><td>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = -1</code>; <code>maximum = 1</code>)</td></tr></table>
 Helicity parameter. 
 <br/>
-<input type="radio" name="31" value="1"><strong>1 </strong>: <br/>
-<input type="radio" name="31" value="0" checked="checked"><strong>0 </strong>: <br/>
-<input type="radio" name="31" value="-1"><strong>-1 </strong>: <br/>
+<input type="radio" name="34" value="1"><strong>1 </strong>: <br/>
+<input type="radio" name="34" value="0" checked="checked"><strong>0 </strong>: <br/>
+<input type="radio" name="34" value="-1"><strong>-1 </strong>: <br/>
 
 <input type="hidden" name="saved" value="1"/>
 
@@ -415,29 +436,44 @@ if($_POST["26"] != "off")
 $data = "ContactInteractions:QCqqbar2qqbar = ".$_POST["26"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["27"] != "3")
+if($_POST["27"] != "off")
 {
-$data = "ContactInteractions:nQuarkNew = ".$_POST["27"]."\n";
+$data = "ContactInteractions:QCffbar2eebar = ".$_POST["27"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["28"] != "1000.")
+if($_POST["28"] != "off")
 {
-$data = "ContactInteractions:Lambda = ".$_POST["28"]."\n";
+$data = "ContactInteractions:QCffbar2mumubar = ".$_POST["28"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["29"] != "0")
+if($_POST["29"] != "off")
 {
-$data = "ContactInteractions:etaLL = ".$_POST["29"]."\n";
+$data = "ContactInteractions:QCffbar2tautaubar = ".$_POST["29"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["30"] != "0")
+if($_POST["30"] != "3")
 {
-$data = "ContactInteractions:etaRR = ".$_POST["30"]."\n";
+$data = "ContactInteractions:nQuarkNew = ".$_POST["30"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["31"] != "0")
+if($_POST["31"] != "1000.")
 {
-$data = "ContactInteractions:etaLR = ".$_POST["31"]."\n";
+$data = "ContactInteractions:Lambda = ".$_POST["31"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["32"] != "0")
+{
+$data = "ContactInteractions:etaLL = ".$_POST["32"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["33"] != "0")
+{
+$data = "ContactInteractions:etaRR = ".$_POST["33"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["34"] != "0")
+{
+$data = "ContactInteractions:etaLR = ".$_POST["34"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);

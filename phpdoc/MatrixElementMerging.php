@@ -439,6 +439,39 @@ non-merging-scale-related cuts to the matrix element.
 states for pure QCD matrix element configurations is given by
 <code>main83.cc</code> (to be used with e.g. <code>main82.cmnd</code>).
 
+<h4>Influencing the construction of all possible histories</h4>
+
+<p/> Even more powerful - and dangerous - is influencing the construction
+of histories directly. This should only be attempted by expert users. If you 
+believe manipulations completely unavoidable, we advise you to take great care 
+when redefining the following functions.
+
+<a name="method12"></a>
+<p/><strong>virtual bool MergingHooks::canCutOnRecState() &nbsp;</strong> <br/>
+In the base class this method returns false. If you redefine it
+to return true then the method <code>doCutOnRecState(...)</code>
+will be called for each reclustered state encountered in the generation of
+all possible histories of the matrix element state.  
+  
+
+<a name="method13"></a>
+<p/><strong>virtual bool MergingHooks::doCutOnRecState(const Event&event) &nbsp;</strong> <br/>
+This routine will be supplied internally with every possible reclustered 
+event that can be reached by reclustering any number of partons in
+the matrix element input state. The new, reclustered, states can then be 
+analysed. If the method returns false, no further clusterings of the 
+reclustered state will be attempted, thus disallowing all history branches
+which contain the disallowed state.   
+  
+
+<p/> 
+Clearly, these methods are highly intrusive. It could e.g. happen that no 
+history is allowed, which would make merging impossible. One example where 
+this method could be useful is if cuts on the core <i>2 -> 2</i> processes
+have to be checked, and the method 
+<code>MergingHooks::dampenIfFailCuts(const Event& event)</code> is not 
+sufficiently effective.
+
 <br/><br/><hr/>
 <h3>Matrix element merging and HepMC output for RIVET</h3>
 

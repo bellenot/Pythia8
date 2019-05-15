@@ -922,6 +922,9 @@ bool Pythia::next() {
   // Simpler option when only HadronLevel to be generated.
   if (!doProcessLevel) {
 
+    // Reset info array (while event record contains data).
+    info.clear();
+
     // Set correct energy for system.
     Vec4 pSum = 0.;
     for (int i = 1; i < event.size(); ++i) 
@@ -1987,7 +1990,7 @@ bool Pythia::initSLHA() {
   for (int iTable=0; iTable < int(slha.decays.size()); iTable++) {
     
     // Pointer to this SLHA table
-    SusyLesHouches::decayTable* slhaTable=&(slha.decays[iTable]);
+    LHdecayTable* slhaTable=&(slha.decays[iTable]);
     
     // Extract ID and create pointer to corresponding particle data object
     int idRes     = slhaTable->getId();
@@ -2028,8 +2031,7 @@ bool Pythia::initSLHA() {
     // with negative branching fractions as having the equivalent positive
     // branching fraction, but being switched off for this run
     for (int iChannel=0 ; iChannel<slhaTable->size(); iChannel++) {
-      SusyLesHouches::decayChannel slhaChannel 
-        = slhaTable->getChannel(iChannel);
+      LHdecayChannel slhaChannel = slhaTable->getChannel(iChannel);
       double brat      = slhaChannel.getBrat();
       vector<int> idDa = slhaChannel.getIdDa();
       if (idDa.size() >= 9) {
@@ -2096,63 +2098,74 @@ bool Pythia::initSLHA() {
 
 bool Pythia::mergeProcess() {
 
-  // Reset weight of the event
+  // Reset weight of the event.
   mergingHooksPtr->setWeight(1.);
   info.setMergingWeight(1.);
   double wgt = 1.0;
-  // Store candidates for the splitting V -> qqbar'
+
+  // Store candidates for the splitting V -> qqbar'.
   mergingHooksPtr->storeHardProcessCandidates( process);
-  // Calculate number of clustering steps
+
+  // Calculate number of clustering steps.
   int nSteps = mergingHooksPtr->getNumberOfClusteringSteps( process);
 
-  // Save number of hard final state quarks / leptons
-  int nQuarks        = mergingHooksPtr->nHardOutPartons();
-  bool isHadronic    = (mergingHooksPtr->nHardInLeptons() == 0);
+  // Save number of hard final state quarks / leptons.
+  int nQuarks     = mergingHooksPtr->nHardOutPartons();
+  int nLeptons    = mergingHooksPtr->nHardOutLeptons();
+  bool isHadronic = (mergingHooksPtr->nHardInLeptons() == 0);
 
-  // Set qcd 2->2 starting scale different from arbirtrary scale in LHEF!
-  // --> Set to pT of partons
+  // Set QCD 2->2 starting scale different from arbirtrary scale in LHEF!
+  // --> Set to pT of partons.
   double pT = 0.;
   for( int i=0; i < process.size(); ++i)
-    if(process[i].isFinal() && process[i].colType() != 0) {
-      pT = sqrt(pow(process[i].px(),2) + pow(process[i].py(),2));
-      break;
-    }
+  if(process[i].isFinal() && process[i].colType() != 0) {
+    pT = process[i].pT();
+    break;
+  }
 
-  // Declare pdfWeight and as weight
+  // Count number of top quarks to distinguish process with stable top pair
+  // from pure QCD di-jets.
+  int nTops = 0;
+  for( int i=0; i < process.size(); ++i)
+    if(process[i].isFinal() && process[i].idAbs() == 6) ++nTops;
+
+  // Declare pdfWeight and alpha_s weight.
   double RN = rndm.flat();
-
   process.scale(0.0);
-  // Generate all histories
+
+  // Generate all histories.
   History FullHistory( nSteps, 0.0, process, Clustering(), mergingHooksPtr,
             beamA, beamB, &particleData, &info, true, true, 1.0, 0);
-  // Perform reweighting with Sudakov factors, save as ratios and
-  // PDF ratio weights
-  double weight = FullHistory.weightTREE( &trialPartonLevel,
-    mergingHooksPtr->AlphaS_FSR(),mergingHooksPtr->AlphaS_ISR(), RN);
-  double maxScale = 0.0;
+
+  // Perform reweighting with Sudakov factors, save alpha_s ratios and
+  // PDF ratio weights.
+  wgt = FullHistory.weightTREE( &trialPartonLevel,
+    mergingHooksPtr->AlphaS_FSR(), mergingHooksPtr->AlphaS_ISR(), RN);
+
   // Event with production scales set for further (trial) showering
-  // and starting conditions for the shower
-  FullHistory.getStartingConditions(RN, maxScale, process, &info);
+  // and starting conditions for the shower.
+  FullHistory.getStartingConditions( RN, process );
 
   // Allow to dampen histories in which the lowest multiplicity reclustered
-  // state does not pass the lowest multiplicity cut of the matrix element
+  // state does not pass the lowest multiplicity cut of the matrix element.
   double dampWeight = mergingHooksPtr->dampenIfFailCuts(
-                        FullHistory.lowestMultProc(RN) );
+    FullHistory.lowestMultProc(RN) );
 
   // Save the weight of the event for histogramming. Only change the
   // event weight after trial shower on the matrix element
-  // multiplicity event (= in doVetoStep)
-  wgt = weight*dampWeight;
+  // multiplicity event (= in doVetoStep).
+  wgt *= dampWeight;
 
   // For pure QCD dijet events (only!), set the process scale to the
-  // transverse momentum of the outgoing partons 
-  if(isHadronic && nQuarks > 0 && nSteps == 0) process.scale(pT);
+  // transverse momentum of the outgoing partons.
+  if ( isHadronic && nQuarks == 2 && nLeptons == 0 && nTops == 0
+    && nSteps == 0 ) process.scale(pT);
 
-  // Save the weight of the event for histogramming
+  // Save the weight of the event for histogramming.
   mergingHooksPtr->setWeight(wgt);
   info.setMergingWeight(wgt);
 
-  // If the weight of the event is zero, do not continue evolution
+  // If the weight of the event is zero, do not continue evolution.
   if(wgt == 0.) return true;
 
   // Done
@@ -2160,9 +2173,6 @@ bool Pythia::mergeProcess() {
 
 }
 
-
-
 //==========================================================================
+
 } // end namespace Pythia8
-
-

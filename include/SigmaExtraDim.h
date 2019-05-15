@@ -13,7 +13,7 @@
 #include "SigmaProcess.h"
  
 namespace Pythia8 {
- 
+
 //==========================================================================
  
 // A derived class for g g -> G^* (excited graviton state).
@@ -598,7 +598,7 @@ public:
  
 private:
  
-  int    eDspin, eDcutoff, eDnGrav;
+  int    eDspin, eDcutoff, eDnGrav, eDnegInt;
   bool   eDgraviton;
   double eDdU, eDLambdaU, eDlambda, eDlambda2chi,
          eDterm1, eDterm2, eDterm3, eDtff;
@@ -679,7 +679,7 @@ public:
  
 private:
  
-  int    eDspin, eDcutoff, eDnGrav,eDnxx, eDnxy;
+  int    eDspin, eDcutoff, eDnGrav,eDnxx, eDnxy, eDnegInt;
   bool   eDgraviton;
   double eDdU, eDLambdaU, eDlambda, eDlambda2chi, eDtff,
          eDmZ, eDmZS, eDGZ, eDGZS, eDabsMeU, eDdenomPropZ, eDrePropGamma,
@@ -727,7 +727,251 @@ private:
   double eDdU, eDLambdaU, eDlambda, eDlambda2chi, eDsigma0, eDtff;
  
 };
+
+//==========================================================================
+
+// A derived class for g g -> (LED G*) -> g g.
+
+class Sigma2gg2LEDgg : public Sigma2Process {
+
+public:
+
+  // Constructor.
+  Sigma2gg2LEDgg() {}
+
+  // Initialize process. 
+  virtual void initProc(); 
+
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
+
+  // Evaluate d(sigmaHat)/d(tHat). 
+  virtual double sigmaHat() {return sigma;}
+
+  // Select flavour, colour and anticolour.
+  virtual void setIdColAcol();
+
+  // Info on the subprocess.
+  virtual string name()   const {return "g g -> (LED G*) -> g g";}
+  virtual int    code()   const {return 5030;}
+  virtual string inFlux() const {return "gg";}
+
+private:
+
+  // Values stored for colour flow selection.
+  double sigTS, sigUS, sigTU, sigSum, sigma;
+
+  // Model parameters.
+  int eDopMode, eDnGrav, eDcutoff, eDnegInt;
+  double eDMD, eDLambdaT, eDtff;
+
+};
+
+//==========================================================================
+
+// A derived class for g g -> (LED G*) -> q qbar.
+
+class Sigma2gg2LEDqqbar : public Sigma2Process {
+
+public:
+
+  // Constructor.
+  Sigma2gg2LEDqqbar() {}
+
+  // Initialize process. 
+  virtual void initProc(); 
+
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
+
+  // Evaluate d(sigmaHat)/d(tHat). 
+  virtual double sigmaHat() {return sigma;}
+
+  // Select flavour, colour and anticolour.
+  virtual void setIdColAcol();
+
+  // Info on the subprocess.
+  virtual string name()   const {return "g g -> (LED G*) -> q qbar (uds)";}
+  virtual int    code()   const {return 5031;}
+  virtual string inFlux() const {return "gg";}
+
+private:
+
+  // Number of quarks to be considered in massless approximation.
+  int    nQuarkNew;
+
+  // Values stored for colour flow selection.
+  int    idNew;
+  double mNew, m2New, sigTS, sigUS, sigSum, sigma;
+
+  // Model parameters.
+  int eDopMode, eDnGrav, eDcutoff, eDnegInt;
+  double eDMD, eDLambdaT, eDtff;
+
+};
  
+//==========================================================================
+
+// A derived class for q g -> (LED G*) -> q g.
+// Use massless approximation also for Q since no alternative.
+
+class Sigma2qg2LEDqg : public Sigma2Process {
+
+public:
+
+  // Constructor.
+  Sigma2qg2LEDqg() {}
+
+  // Initialize process. 
+  virtual void initProc(); 
+
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
+
+  // Evaluate d(sigmaHat)/d(tHat). 
+  virtual double sigmaHat() {return sigma;}
+
+  // Select flavour, colour and anticolour.
+  virtual void setIdColAcol();
+
+  // Info on the subprocess.
+  virtual string name()   const {return "q g -> (LED G*) -> q g";}
+  virtual int    code()   const {return 5032;}
+  virtual string inFlux() const {return "qg";}
+
+private:
+
+  // Values stored for colour flow selection.
+  double mNew, m2New, sigTS, sigTU, sigSum, sigma;
+
+  // Model parameters.
+  int eDopMode, eDnGrav, eDcutoff, eDnegInt;
+  double eDMD, eDLambdaT, eDtff;
+
+};
+ 
+//==========================================================================
+
+// A derived class for q q(bar)' -> (LED G*) -> q q(bar)'.
+
+class Sigma2qq2LEDqq : public Sigma2Process {
+
+public:
+
+  // Constructor.
+  Sigma2qq2LEDqq() {}
+
+  // Initialize process. 
+  virtual void initProc(); 
+
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
+
+  // Evaluate d(sigmaHat)/d(tHat). 
+  virtual double sigmaHat();
+
+  // Select flavour, colour and anticolour.
+  virtual void setIdColAcol();
+
+  // Info on the subprocess.
+  virtual string name()   const {return "q q(bar)' -> (LED G*) -> q q(bar)'";}
+  virtual int    code()   const {return 5033;}
+  virtual string inFlux() const {return "qq";}
+
+ private:
+
+  // Values stored for colour flow selection.
+  double sigT, sigU, sigTU, sigST, sigSum;
+  double sigGrT1, sigGrT2, sigGrU, sigGrTU, sigGrST;
+ 
+  // Model parameters.
+  int eDopMode, eDnGrav, eDcutoff, eDnegInt;
+  double eDMD, eDLambdaT, eDtff;
+
+};
+ 
+//==========================================================================
+
+// A derived class for q qbar -> (LED G*) -> g g.
+
+class Sigma2qqbar2LEDgg : public Sigma2Process {
+
+public:
+
+  // Constructor.
+  Sigma2qqbar2LEDgg() {}
+
+  // Initialize process. 
+  virtual void initProc(); 
+
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
+
+  // Evaluate d(sigmaHat)/d(tHat). 
+  virtual double sigmaHat() {return sigma;}
+
+  // Select flavour, colour and anticolour.
+  virtual void setIdColAcol();
+
+  // Info on the subprocess.
+  virtual string name()   const {return "q qbar -> (LED G*) -> g g";}
+  virtual int    code()   const {return 5034;}
+  virtual string inFlux() const {return "qqbarSame";}
+
+ private:
+
+  // Values stored for colour flow selection.
+  double sigTS, sigUS, sigSum, sigma;
+
+  // Model parameters.
+  int eDopMode, eDnGrav, eDcutoff, eDnegInt;
+  double eDMD, eDLambdaT, eDtff;
+
+};
+  
+//==========================================================================
+
+// A derived class for q qbar -> (LED G*) -> q' qbar'.
+
+class Sigma2qqbar2LEDqqbarNew : public Sigma2Process {
+
+public:
+
+  // Constructor.
+  Sigma2qqbar2LEDqqbarNew() {}
+
+  // Initialize process. 
+  virtual void initProc(); 
+
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
+
+  // Evaluate d(sigmaHat)/d(tHat). 
+  virtual double sigmaHat() {return sigma;}
+
+  // Select flavour, colour and anticolour.
+  virtual void setIdColAcol();
+
+  // Info on the subprocess.
+  virtual string name()   const {return "q qbar -> (LED G*) -> q' qbar' (uds)";}
+  virtual int    code()   const {return 5035;}
+  virtual string inFlux() const {return "qqbarSame";}
+
+ private:
+
+  // Number of quarks to be considered in massless approximation.
+  int    nQuarkNew;
+
+  // Values stored for colour flow selection.
+  int    idNew;
+  double mNew, m2New, sigS, sigma;
+
+  // Model parameters.
+  int eDopMode, eDnGrav, eDcutoff;
+  double eDMD, eDLambdaT, eDtff;
+
+};
+
 //==========================================================================
  
 } // end namespace Pythia8

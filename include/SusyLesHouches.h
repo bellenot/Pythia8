@@ -30,6 +30,367 @@
 // Stdlib namespace
 using namespace std;
 
+//************************* SLHA AUX CLASSES *****************************//
+
+namespace Pythia8 { 
+
+  //class LHblock: the generic SLHA block (see below for matrices)
+  //Explicit typing required, e.g. block<double> minpar;
+  template <class T> class LHblock {    
+    
+  public: 
+    
+    //Constructor. 
+    LHblock<T>() : idnow(0) {} ;    
+    
+    //Does block exist?
+    bool exists() { return int(entry.size()) == 0 ? false : true ; };
+    //Clear block
+    void clear() { entry.clear(); };    
+    
+    //set: set block entry values.
+    //Possible return values from set:
+    // 0: normal return. Entry did not previously exist and has been created.
+    // 1: normal return. Entry did previously exist and has been overwritten.
+    //-1: failure. 
+    int set(int iIn,T valIn) { 
+      int alreadyexisting=exists(iIn)?1:0;
+      entry[iIn]=valIn; 
+      return alreadyexisting;
+    };
+    // Read index and value from SLHA data line
+    int set(istringstream& linestream, bool indexed=true) {
+      i = 0;
+      if (indexed) linestream >> i >> val;
+      else linestream >> val;
+      return linestream ? set(i,val) : -1;
+    };
+    // With i already given, read value from remaining SLHA data line
+    int set(int iIn,istringstream& linestream) {
+      linestream >> val;
+      return linestream ? set(iIn,val) : -1;
+    };
+    // Shorthand for entry[0]. Used e.g. for block ALPHA.
+    void set(T valIn) { entry[0]=valIn; };
+
+    // Does entry i already exist in this block?
+    bool exists(int iIn) {return entry.find(iIn) != entry.end() 
+      ? true : false;};
+
+    // Indexing with (). Output only.
+    T operator()() {
+      if (exists(0)) {return entry[0];} else {T dummy(0); return dummy;};
+    };
+    T operator()(int iIn) {
+      if (exists(iIn)) {return entry[iIn];} else {T dummy(0); return dummy;};
+    };
+
+    // Size of map
+    int size() {return int(entry.size());};
+
+    // First and next key code
+    int first() { idnow = entry.begin()->first; return idnow; };
+    int next() { 
+      typename map<int,T>::iterator itnow;
+      itnow = ++entry.find(idnow);
+      if ( itnow == entry.end() ) itnow=entry.begin();
+      return idnow = itnow->first;
+    };
+
+    // Simple print utility
+    void print() {
+      bool finished=false;
+      int ibegin=first();
+      i=ibegin;
+      while (!finished) {
+	cout << "  "<< i << " " << entry[i] <<endl;
+	i=next();
+	if (i == ibegin) finished=true;
+      };       
+    };
+
+    // Special for DRbar running blocks.
+    void setq(double qIn) { qDRbar=qIn; }
+    double q() { return qDRbar; }
+ 
+  protected: 
+    map<int,T> entry;    
+
+  private:
+    int idnow;
+    double qDRbar;
+    //Auxiliary vars
+    int i; 
+    T val;
+  };
+
+  // Derived class for generic blocks containing vectors of strings.
+  class LHgenericBlock : public LHblock<string> {    
+
+  public:
+    
+    //Constructor. 
+    LHgenericBlock() { } ;    
+
+    // Read index and value from SLHA data line
+    int set(string lineIn) {
+      entry[entry.size()] = lineIn;
+      return 0;
+    };
+    
+  };
+
+  // class LHmatrixBlock: the generic SLHA matrix 
+  // Explicit sizing required, e.g.LHmatrixBlock<4> nmix;
+  template <int size> class LHmatrixBlock {    
+  public: 
+    //Constructor. Set uninitialized and explicitly zero.
+    LHmatrixBlock<size>() { 
+      initialized=false; 
+      for (i=1;i<=size;i++) {
+	for (j=1;j<=size;j++) {
+	  entry[i][j]=0.0;
+	};
+      };
+    };    
+    
+    // Assignment
+    LHmatrixBlock& operator=(const LHmatrixBlock& m) { 
+      if (this != &m) { 
+	for (i=0;i<size;i++) for (j=0;j<=size;j++) entry[i][j] = m(i,j);
+	qDRbar = m.qDRbar; 
+	initialized = m.initialized; 
+      } 
+      return *this; };
+
+    // Does this matrix contain any entries?
+    bool exists() { return initialized; };
+    // Clear initialized flag
+    void clear() { initialized=false; };
+
+    // Set matrix entry
+    int set(int iIn,int jIn, double valIn) { 
+      if (iIn>0 && jIn>0 && iIn<=size && jIn<=size) {
+	entry[iIn][jIn]=valIn;
+	initialized=true;
+	return 0;
+      } else {
+	return -1;
+      };
+    };
+
+    // Set entry from linestream (used during file read)
+    int set(istringstream& linestream) {
+      linestream >> i >> j >> val;
+      return linestream ? set(i,j,val) : -1;
+    };
+
+    // () Overloading: Get entry
+    double operator()(int iIn, int jIn) const {
+      return (iIn <= size && jIn <= size && iIn > 0 && jIn > 0) ? 
+	entry[iIn][jIn] : 0.0;
+    };
+
+    // Set and get scale for DRbar running LHblocks.
+    void setq(double qIn) { qDRbar=qIn; }
+    double q() { return qDRbar; }
+
+    // Simple print utility, to be elaborated on.
+    void print() {
+      for (i=1;i<=size;i++) {
+	cout << "   "<<i << " " ;
+	for (j=1;j<=size;j++) cout << entry[i][j] << " ";
+	cout << endl;
+      };
+    };
+
+  private:
+    bool initialized;
+    double entry[size+1][size+1];
+    double qDRbar;
+    //Auxiliary vars
+    int i,j; 
+    double val;
+  };
+
+  // class tensorBlock: the generic SLHA tensor
+  // Explicit sizing required, e.g. tensorBlock<3> rvlam;
+  template <int size> class LHtensor3Block {    
+  public: 
+    //Constructor. Set uninitialized and explicitly zero.
+    LHtensor3Block<size>() { 
+      initialized=false; 
+      for (i=1;i<=size;i++) {
+	for (j=1;j<=size;j++) {
+	  for (k=1;k<=size;k++) {
+	    entry[i][j][k]=0.0;
+	  };
+	};
+      };
+    };    
+    
+    // Assignment
+    LHtensor3Block& operator=(const LHtensor3Block& m) { 
+      if (this != &m) { 
+	for (i=0;i<size;i++) for (j=0;j<=size;j++) for (k=0;k<=size;k++) 
+	  entry[i][j][k] = m(i,j,k);
+	qDRbar = m.qDRbar; 
+	initialized = m.initialized; 
+      } 
+      return *this; };
+    
+    // Does this matrix contain any entries?
+    bool exists() { return initialized; };
+    // Clear initialized flag
+    void clear() { initialized=false; };
+    
+    // Set matrix entry
+    int set(int iIn,int jIn, int kIn, double valIn) { 
+      if (iIn>0 && jIn>0 && kIn>0 && iIn<=size && jIn<=size && kIn<=size) {
+	entry[iIn][jIn][kIn]=valIn;
+	initialized=true;
+	return 0;
+      } else {
+	return -1;
+      };
+    };
+
+    // Set entry from linestream (used during file read)
+    int set(istringstream& linestream) {
+      linestream >> i >> j >> k >> val;
+      return linestream ? set(i,j,k,val) : -1;
+    };
+
+    // () Overloading: Get entry
+    double operator()(int iIn, int jIn, int kIn) const {
+      return (iIn <= size && jIn <= size && kIn <= size && iIn > 0 
+	&& jIn > 0 && kIn > 0) ? entry[iIn][jIn][kIn] : 0.0;
+    };
+
+    // Set and get scale for DRbar running LHblocks.
+    void setq(double qIn) { qDRbar=qIn; }
+    double q() { return qDRbar; }
+
+    // Simple print utility, to be elaborated on.
+    void print() {
+      for (i=1;i<=size;i++) {	
+	for (j=1;j<=size;j++) {
+	  cout << "   "<<i << " "<<j << " " ;
+	  for (k=1;k<=size;k++) {
+	    cout << entry[i][j][k] << " ";	   
+	    cout << endl; 
+	  };
+	};
+      };
+    };
+
+  private:
+    bool initialized;
+    double entry[size+1][size+1][size+1];
+    double qDRbar;
+    //Auxiliary vars
+    int i,j,k; 
+    double val;
+  };
+
+  //*************************** DECAY TABLES ***************************//
+
+  class LHdecayChannel {
+  public: 
+
+    LHdecayChannel() : brat(0.0) {};
+    LHdecayChannel(double bratIn, int nDaIn, vector<int> idDaIn, string cIn="") {
+      setChannel(bratIn,nDaIn,idDaIn,cIn);
+    }
+
+    // Functions to set decay channel information
+    void setChannel(double bratIn, int nDaIn, vector<int> idDaIn, 
+      string cIn="") {
+      brat    = bratIn;
+      for (int i=0; i<=nDaIn; i++) {
+	if (i < int(idDaIn.size())) idDa.push_back(idDaIn[i]);
+	comment = cIn;
+      }
+    }
+    void setBrat(double bratIn) {brat=bratIn;}
+    void setIdDa(vector<int> idDaIn) {idDa = idDaIn;}
+    
+    // Functions to get decay channel information
+    double getBrat() {return brat;}
+    int getNDa() {return int(idDa.size());}
+    vector<int> getIdDa() {return idDa;}
+    string getComment() {return comment;}
+    
+  private:
+    double brat;
+    vector<int> idDa;
+    string comment;
+      
+  };
+
+  class LHdecayTable {        
+  public: 
+    
+  LHdecayTable() : id(0), width(0.0) {};
+  LHdecayTable(int idIn) : id(idIn), width(0.0) {};
+  LHdecayTable(int idIn, double widthIn) : id(idIn), width(widthIn) {};
+    
+    // Functions to get PDG code (id) and width
+    int    getId() {return id;}
+    double getWidth() {return width;} 
+    
+    // Functions to set PDG code (id) and width
+    void setId(int idIn) {id = idIn;}
+    void setWidth(double widthIn) {width=widthIn;}
+
+    // Function to reset size and width (width -> 0 by default)
+    void reset(double widthIn=0.0) {table.resize(0); width=widthIn;}
+    
+    // Function to add another decay channel
+    void addChannel(LHdecayChannel channelIn) {table.push_back(channelIn);}
+    void addChannel(double bratIn, int nDaIn, vector<int> idDaIn, 
+      string cIn="") {
+      LHdecayChannel newChannel(bratIn, nDaIn, idDaIn, cIn);
+      table.push_back(newChannel);
+    }
+
+    // Function to return number of decay channels
+    int size() {return int(table.size());}
+
+    // Function to return a branching ratio
+    double getBrat(int iChannel) {
+      if (iChannel >= 0 && iChannel < int(table.size())) {
+	return table[iChannel].getBrat();
+      } else {
+	return 0.0;
+      }
+    }
+    // Function to return daughter PDG codes 
+    vector<int> getIdDa(int iChannel) {
+      if (iChannel >= 0 && iChannel < int(table.size())) {
+	return table[iChannel].getIdDa();
+      } else {
+	vector<int> dum;
+	return dum;
+      }
+    }
+    // Function to return a decay channel
+    LHdecayChannel getChannel(int iChannel) {
+      if (iChannel >= 0 && iChannel < int(table.size())) {
+	return table[iChannel];
+      } else {
+	LHdecayChannel dum;
+	return dum;
+      }
+    }
+    
+  private:
+    int id;
+    double width;
+    vector<LHdecayChannel> table;
+
+  };
+
 //==========================================================================
 
 class SusyLesHouches {
@@ -108,511 +469,155 @@ public:
     
   };
 
-  //***************************** SLHA CLASSES *****************************//
-
-  //class Block: the generic SLHA block (see below for matrices)
-  //Explicit typing required, e.g. block<double> minpar;
-  template <class T> class Block {    
-
-  public: 
-
-    //Constructor. 
-    Block<T>() : idnow(0) {} ;    
-
-    //Does block exist?
-    bool exists() { return int(entry.size()) == 0 ? false : true ; };
-    //Clear block
-    void clear() { entry.clear(); };    
-
-    //set: set block entry values.
-    //Possible return values from set:
-    // 0: normal return. Entry did not previously exist and has been created.
-    // 1: normal return. Entry did previously exist and has been overwritten.
-    //-1: failure. 
-    int set(int iIn,T valIn) { 
-      int alreadyexisting=exists(iIn)?1:0;
-      entry[iIn]=valIn; 
-      return alreadyexisting;
-    };
-    // Read index and value from SLHA data line
-    int set(istringstream& linestream, bool indexed=true) {
-      i = 0;
-      if (indexed) linestream >> i >> val;
-      else linestream >> val;
-      return linestream ? set(i,val) : -1;
-    };
-    // With i already given, read value from remaining SLHA data line
-    int set(int iIn,istringstream& linestream) {
-      linestream >> val;
-      return linestream ? set(iIn,val) : -1;
-    };
-    // Shorthand for entry[0]. Used e.g. for block ALPHA.
-    void set(T valIn) { entry[0]=valIn; };
-
-    // Does entry i already exist in this block?
-    bool exists(int iIn) {return entry.find(iIn) != entry.end() 
-      ? true : false;};
-
-    // Indexing with (). Output only.
-    T operator()(int iIn=0) {
-      if (exists(iIn)) {return entry[iIn];} else {T dummy(0); return dummy;};
-    };
-
-    // Size of map
-    int size() {return int(entry.size());};
-
-    // First and next key code
-    int first() { idnow = entry.begin()->first; return idnow; };
-    int next() { 
-      typename map<int,T>::iterator itnow;
-      itnow = ++entry.find(idnow);
-      if ( itnow == entry.end() ) itnow=entry.begin();
-      return idnow = itnow->first;
-    };
-
-    // Simple print utility
-    void print() {
-      bool finished=false;
-      int ibegin=first();
-      i=ibegin;
-      while (!finished) {
-	cout << "  "<< i << " " << entry[i] <<endl;
-	i=next();
-	if (i == ibegin) finished=true;
-      };       
-    };
-
-    // Special for DRbar running blocks.
-    void setq(double qIn) { qDRbar=qIn; }
-    double q() { return qDRbar; }
- 
-  protected: 
-    map<int,T> entry;    
-
-  private:
-    int idnow;
-    double qDRbar;
-    //Auxiliary vars
-    int i; 
-    T val;
-  };
-
-  // Derived class for generic blocks containing vectors of strings.
-  class GenericBlock : public Block<string> {    
-
-  public:
-    
-    //Constructor. 
-    GenericBlock() { } ;    
-
-    // Read index and value from SLHA data line
-    int set(string lineIn) {
-      entry[entry.size()] = lineIn;
-      return 0;
-    };
-    
-  };
-
-  // class MatrixBlock: the generic SLHA matrix 
-  // Explicit sizing required, e.g. MatrixBlock<4> nmix;
-  template <int size> class MatrixBlock {    
-  public: 
-    //Constructor. Set uninitialized and explicitly zero.
-    MatrixBlock<size>() { 
-      initialized=false; 
-      for (i=1;i<=size;i++) {
-	for (j=1;j<=size;j++) {
-	  entry[i][j]=0.0;
-	};
-      };
-    };    
-
-    // Assignment
-    MatrixBlock& operator=(const MatrixBlock& m) { 
-      if (this != &m) { 
-	for (i=0;i<size;i++) for (j=0;j<=size;j++) entry[i][j] = m(i,j);
-	qDRbar = m.qDRbar; 
-	initialized = m.initialized; 
-      } 
-      return *this; };
-
-    // Does this matrix contain any entries?
-    bool exists() { return initialized; };
-    // Clear initialized flag
-    void clear() { initialized=false; };
-
-    // Set matrix entry
-    int set(int iIn,int jIn, double valIn) { 
-      if (iIn>0 && jIn>0 && iIn<=size && jIn<=size) {
-	entry[iIn][jIn]=valIn;
-	initialized=true;
-	return 0;
-      } else {
-	return -1;
-      };
-    };
-
-    // Set entry from linestream (used during file read)
-    int set(istringstream& linestream) {
-      linestream >> i >> j >> val;
-      return linestream ? set(i,j,val) : -1;
-    };
-
-    // () Overloading: Get entry
-    double operator()(int iIn, int jIn) const {
-      return (iIn <= size && jIn <= size && iIn > 0 && jIn > 0) ? 
-	entry[iIn][jIn] : 0.0;
-    };
-
-    // Set and get scale for DRbar running Blocks.
-    void setq(double qIn) { qDRbar=qIn; }
-    double q() { return qDRbar; }
-
-    // Simple print utility, to be elaborated on.
-    void print() {
-      for (i=1;i<=size;i++) {
-	cout << "   "<<i << " " ;
-	for (j=1;j<=size;j++) cout << entry[i][j] << " ";
-	cout << endl;
-      };
-    };
-
-  private:
-    bool initialized;
-    double entry[size+1][size+1];
-    double qDRbar;
-    //Auxiliary vars
-    int i,j; 
-    double val;
-  };
-
-  // class tensorBlock: the generic SLHA tensor
-  // Explicit sizing required, e.g. tensorBlock<3> rvlam;
-  template <int size> class Tensor3Block {    
-  public: 
-    //Constructor. Set uninitialized and explicitly zero.
-    Tensor3Block<size>() { 
-      initialized=false; 
-      for (i=1;i<=size;i++) {
-	for (j=1;j<=size;j++) {
-	  for (k=1;k<=size;k++) {
-	    entry[i][j][k]=0.0;
-	  };
-	};
-      };
-    };    
-    
-    // Assignment
-    Tensor3Block& operator=(const Tensor3Block& m) { 
-      if (this != &m) { 
-	for (i=0;i<size;i++) for (j=0;j<=size;j++) for (k=0;k<=size;k++) 
-	  entry[i][j][k] = m(i,j,k);
-	qDRbar = m.qDRbar; 
-	initialized = m.initialized; 
-      } 
-      return *this; };
-    
-    // Does this matrix contain any entries?
-    bool exists() { return initialized; };
-    // Clear initialized flag
-    void clear() { initialized=false; };
-    
-    // Set matrix entry
-    int set(int iIn,int jIn, int kIn, double valIn) { 
-      if (iIn>0 && jIn>0 && kIn>0 && iIn<=size && jIn<=size && kIn<=size) {
-	entry[iIn][jIn][kIn]=valIn;
-	initialized=true;
-	return 0;
-      } else {
-	return -1;
-      };
-    };
-
-    // Set entry from linestream (used during file read)
-    int set(istringstream& linestream) {
-      linestream >> i >> j >> k >> val;
-      return linestream ? set(i,j,k,val) : -1;
-    };
-
-    // () Overloading: Get entry
-    double operator()(int iIn, int jIn, int kIn) const {
-      return (iIn <= size && jIn <= size && kIn <= size && iIn > 0 
-	&& jIn > 0 && kIn > 0) ? entry[iIn][jIn][kIn] : 0.0;
-    };
-
-    // Set and get scale for DRbar running Blocks.
-    void setq(double qIn) { qDRbar=qIn; }
-    double q() { return qDRbar; }
-
-    // Simple print utility, to be elaborated on.
-    void print() {
-      for (i=1;i<=size;i++) {	
-	for (j=1;j<=size;j++) {
-	  cout << "   "<<i << " "<<j << " " ;
-	  for (k=1;k<=size;k++) {
-	    cout << entry[i][j][k] << " ";	   
-	    cout << endl; 
-	  };
-	};
-      };
-    };
-
-  private:
-    bool initialized;
-    double entry[size+1][size+1][size+1];
-    double qDRbar;
-    //Auxiliary vars
-    int i,j,k; 
-    double val;
-  };
-
-  //*************************** DECAY TABLES ***************************//
-
-  class decayChannel {
-  public: 
-
-    decayChannel() : brat(0.0) {};
-    decayChannel(double bratIn, int nDaIn, vector<int> idDaIn, string cIn="") {
-      setChannel(bratIn,nDaIn,idDaIn,cIn);
-    }
-
-    // Functions to set decay channel information
-    void setChannel(double bratIn, int nDaIn, vector<int> idDaIn, 
-      string cIn="") {
-      brat    = bratIn;
-      for (int i=0; i<=nDaIn; i++) {
-	if (i < int(idDaIn.size())) idDa.push_back(idDaIn[i]);
-	comment = cIn;
-      }
-    }
-    void setBrat(double bratIn) {brat=bratIn;}
-    void setIdDa(vector<int> idDaIn) {idDa = idDaIn;}
-    
-    // Functions to get decay channel information
-    double getBrat() {return brat;}
-    int getNDa() {return int(idDa.size());}
-    vector<int> getIdDa() {return idDa;}
-    string getComment() {return comment;}
-    
-  private:
-    double brat;
-    vector<int> idDa;
-    string comment;
-      
-  };
-
-  class decayTable {        
-  public: 
-    
-  decayTable() : id(0), width(0.0) {};
-  decayTable(int idIn) : id(idIn), width(0.0) {};
-  decayTable(int idIn, double widthIn) : id(idIn), width(widthIn) {};
-    
-    // Functions to get PDG code (id) and width
-    int    getId() {return id;}
-    double getWidth() {return width;} 
-    
-    // Functions to set PDG code (id) and width
-    void setId(int idIn) {id = idIn;}
-    void setWidth(double widthIn) {width=widthIn;}
-
-    // Function to reset size and width (width -> 0 by default)
-    void reset(double widthIn=0.0) {table.resize(0); width=widthIn;}
-    
-    // Function to add another decay channel
-    void addChannel(decayChannel channelIn) {table.push_back(channelIn);}
-    void addChannel(double bratIn, int nDaIn, vector<int> idDaIn, 
-      string cIn="") {
-      decayChannel newChannel(bratIn, nDaIn, idDaIn, cIn);
-      table.push_back(newChannel);
-    }
-
-    // Function to return number of decay channels
-    int size() {return int(table.size());}
-
-    // Function to return a branching ratio
-    double getBrat(int iChannel) {
-      if (iChannel >= 0 && iChannel < int(table.size())) {
-	return table[iChannel].getBrat();
-      } else {
-	return 0.0;
-      }
-    }
-    // Function to return daughter PDG codes 
-    vector<int> getIdDa(int iChannel) {
-      if (iChannel >= 0 && iChannel < int(table.size())) {
-	return table[iChannel].getIdDa();
-      } else {
-	vector<int> dum;
-	return dum;
-      }
-    }
-    // Function to return a decay channel
-    decayChannel getChannel(int iChannel) {
-      if (iChannel >= 0 && iChannel < int(table.size())) {
-	return table[iChannel];
-      } else {
-	decayChannel dum;
-	return dum;
-      }
-    }
-    
-  private:
-    int id;
-    double width;
-    vector<decayChannel> table;
-
-  };
-
   //*************************** THE SLHA1 BLOCKS ***************************//
   //Blocks for model definition:
-  Block<int> modsel;
-  Block<int> modsel21;
-  Block<double> modsel12;
-  Block<double> minpar;
-  Block<double> extpar;
-  Block<double> sminputs;
+  LHblock<int> modsel;
+  LHblock<int> modsel21;
+  LHblock<double> modsel12;
+  LHblock<double> minpar;
+  LHblock<double> extpar;
+  LHblock<double> sminputs;
   //Blocks for RGE program specific output
-  Block<string> spinfo;
-  Block<string> spinfo3;
-  Block<string> spinfo4;
+  LHblock<string> spinfo;
+  LHblock<string> spinfo3;
+  LHblock<string> spinfo4;
   //Blocks for DCY program specific output
-  Block<string> dcinfo;
-  Block<string> dcinfo3;
-  Block<string> dcinfo4;
+  LHblock<string> dcinfo;
+  LHblock<string> dcinfo3;
+  LHblock<string> dcinfo4;
   //Blocks for mass and coupling spectrum
-  Block<double> mass;
-  MatrixBlock<4> nmix;
-  MatrixBlock<2> umix;
-  MatrixBlock<2> vmix;
-  MatrixBlock<2> stopmix;
-  MatrixBlock<2> sbotmix;
-  MatrixBlock<2> staumix;
-  Block<double> alpha;
-  Block<double> hmix;
-  Block<double> gauge;
-  Block<double> msoft;
-  MatrixBlock<3> au;
-  MatrixBlock<3> ad;
-  MatrixBlock<3> ae;
-  MatrixBlock<3> yu;
-  MatrixBlock<3> yd;
-  MatrixBlock<3> ye;
+  LHblock<double> mass;
+  LHmatrixBlock<4> nmix;
+  LHmatrixBlock<2> umix;
+  LHmatrixBlock<2> vmix;
+  LHmatrixBlock<2> stopmix;
+  LHmatrixBlock<2> sbotmix;
+  LHmatrixBlock<2> staumix;
+  LHblock<double> alpha;
+  LHblock<double> hmix;
+  LHblock<double> gauge;
+  LHblock<double> msoft;
+  LHmatrixBlock<3> au;
+  LHmatrixBlock<3> ad;
+  LHmatrixBlock<3> ae;
+  LHmatrixBlock<3> yu;
+  LHmatrixBlock<3> yd;
+  LHmatrixBlock<3> ye;
 
   //************************ THE SLHA1 DECAY TABLES ************************//
-  vector<decayTable> decays;
+  vector<LHdecayTable> decays;
   map<int,int> decayIndices;
 
   //********************* THE BSM-SLHA QNUMBERS BLOCKS *********************//
-  vector< Block<int> > qnumbers;     // Zero'th entry is PDG code
+  vector< LHblock<int> > qnumbers;     // Zero'th entry is PDG code
   vector< string > qnumbersName;
   vector< string > qnumbersAntiName;
 
   //*************************** THE SLHA2 BLOCKS ***************************//
   //Additions to SLHA1
-  Block<double> qextpar;  
+  LHblock<double> qextpar;  
 
   //FLV Input
-  Block<double> vckmin;  // The input CKM Wolfenstein parms.
-  Block<double> upmnsin; // The input PMNS PDG parms.
-  MatrixBlock<3> msq2in; // The input upper off-diagonal msq2
-  MatrixBlock<3> msu2in; // The input upper off-diagonal msu2
-  MatrixBlock<3> msd2in; // The input upper off-diagonal msd2
-  MatrixBlock<3> msl2in; // The input upper off-diagonal msl2
-  MatrixBlock<3> mse2in; // The input upper off-diagonal mse2
-  MatrixBlock<3> tuin;   // The input upper off-diagonal TU
-  MatrixBlock<3> tdin;   // The input upper off-diagonal TD
-  MatrixBlock<3> tein;   // The input upper off-diagonal TE
+  LHblock<double> vckmin;  // The input CKM Wolfenstein parms.
+  LHblock<double> upmnsin; // The input PMNS PDG parms.
+  LHmatrixBlock<3> msq2in; // The input upper off-diagonal msq2
+  LHmatrixBlock<3> msu2in; // The input upper off-diagonal msu2
+  LHmatrixBlock<3> msd2in; // The input upper off-diagonal msd2
+  LHmatrixBlock<3> msl2in; // The input upper off-diagonal msl2
+  LHmatrixBlock<3> mse2in; // The input upper off-diagonal mse2
+  LHmatrixBlock<3> tuin;   // The input upper off-diagonal TU
+  LHmatrixBlock<3> tdin;   // The input upper off-diagonal TD
+  LHmatrixBlock<3> tein;   // The input upper off-diagonal TE
   //FLV Output
-  MatrixBlock<3> vckm;    // The output DRbar running Re{VCKM} at Q
-  MatrixBlock<3> upmns;   // The output DRbar running Re{UPMNS} at Q
-  MatrixBlock<3> msq2;    // The output DRbar running msq2 at Q
-  MatrixBlock<3> msu2;    // The output DRbar running msu2 at Q
-  MatrixBlock<3> msd2;    // The output DRbar running msd2 at Q
-  MatrixBlock<3> msl2;    // The output DRbar running msl2 at Q
-  MatrixBlock<3> mse2;    // The output DRbar running mse2 at Q
-  MatrixBlock<3> tu;      // The output DRbar running TU at Q
-  MatrixBlock<3> td;      // The output DRbar running TD at Q
-  MatrixBlock<3> te;      // The output DRbar running TE at Q
-  MatrixBlock<6> usqmix;  // The Re{} up squark mixing matrix
-  MatrixBlock<6> dsqmix;   // The Re{} down squark mixing matrix
-  MatrixBlock<6> selmix;   // The Re{} selectron mixing matrix
-  MatrixBlock<3> snumix;   // The Re{} sneutrino mixing matrix
-  MatrixBlock<3> snsmix;   // The scalar sneutrino mixing matrix
-  MatrixBlock<3> snamix;   // The pseudoscalar neutrino mixing matrix
-
+  LHmatrixBlock<3> vckm;    // The output DRbar running Re{VCKM} at Q
+  LHmatrixBlock<3> upmns;   // The output DRbar running Re{UPMNS} at Q
+  LHmatrixBlock<3> msq2;    // The output DRbar running msq2 at Q
+  LHmatrixBlock<3> msu2;    // The output DRbar running msu2 at Q
+  LHmatrixBlock<3> msd2;    // The output DRbar running msd2 at Q
+  LHmatrixBlock<3> msl2;    // The output DRbar running msl2 at Q
+  LHmatrixBlock<3> mse2;    // The output DRbar running mse2 at Q
+  LHmatrixBlock<3> tu;      // The output DRbar running TU at Q
+  LHmatrixBlock<3> td;      // The output DRbar running TD at Q
+  LHmatrixBlock<3> te;      // The output DRbar running TE at Q
+  LHmatrixBlock<6> usqmix;  // The Re{} up squark mixing matrix
+  LHmatrixBlock<6> dsqmix;   // The Re{} down squark mixing matrix
+  LHmatrixBlock<6> selmix;   // The Re{} selectron mixing matrix
+  LHmatrixBlock<3> snumix;   // The Re{} sneutrino mixing matrix
+  LHmatrixBlock<3> snsmix;   // The scalar sneutrino mixing matrix
+  LHmatrixBlock<3> snamix;   // The pseudoscalar neutrino mixing matrix
+  
   //RPV Input
-  Tensor3Block<3> rvlamllein; // The input LNV lambda couplings
-  Tensor3Block<3> rvlamlqdin; // The input LNV lambda' couplings
-  Tensor3Block<3> rvlamuddin; // The input BNV lambda'' couplings
-  Tensor3Block<3> rvtllein;   // The input LNV T couplings
-  Tensor3Block<3> rvtlqdin;   // The input LNV T' couplings
-  Tensor3Block<3> rvtuddin;   // The input BNV T'' couplings
-  Block<double> rvkappain;    // The input LNV kappa couplings
-  Block<double> rvdin;        // The input LNV D terms
-  Block<double> rvm2lh1in;    // The input LNV m2LH1 couplings
-  Block<double> rvsnvevin;    // The input LNV sneutrino vevs
+  LHtensor3Block<3> rvlamllein; // The input LNV lambda couplings
+  LHtensor3Block<3> rvlamlqdin; // The input LNV lambda' couplings
+  LHtensor3Block<3> rvlamuddin; // The input BNV lambda'' couplings
+  LHtensor3Block<3> rvtllein;   // The input LNV T couplings
+  LHtensor3Block<3> rvtlqdin;   // The input LNV T' couplings
+  LHtensor3Block<3> rvtuddin;   // The input BNV T'' couplings
+  LHblock<double> rvkappain;    // The input LNV kappa couplings
+  LHblock<double> rvdin;        // The input LNV D terms
+  LHblock<double> rvm2lh1in;    // The input LNV m2LH1 couplings
+  LHblock<double> rvsnvevin;    // The input LNV sneutrino vevs
   //RPV Output
-  Tensor3Block<3> rvlamlle;   // The output LNV lambda couplings
-  Tensor3Block<3> rvlamlqd;   // The output LNV lambda' couplings
-  Tensor3Block<3> rvlamudd;   // The output BNV lambda'' couplings
-  Tensor3Block<3> rvtlle;     // The output LNV T couplings
-  Tensor3Block<3> rvtlqd;     // The output LNV T' couplings
-  Tensor3Block<3> rvtudd;     // The output BNV T'' couplings
-  Block<double> rvkappa;      // The output LNV kappa couplings
-  Block<double> rvd;          // The output LNV D terms
-  Block<double> rvm2lh1;      // The output LNV m2LH1 couplings
-  Block<double> rvsnvev;      // The output LNV sneutrino vevs
-  MatrixBlock<7> rvnmix;      // The RPV neutralino mixing matrix
-  MatrixBlock<5> rvumix;      // The RPV chargino L mixing matrix
-  MatrixBlock<5> rvvmix;      // The RPV chargino R mixing matrix
-  MatrixBlock<5> rvhmix;      // The RPV neutral scalar mixing matrix
-  MatrixBlock<5> rvamix;      // The RPV neutral pseudoscalar mixing matrix
-  MatrixBlock<8> rvlmix;      // The RPV charged fermion mixing matrix
-
+  LHtensor3Block<3> rvlamlle;   // The output LNV lambda couplings
+  LHtensor3Block<3> rvlamlqd;   // The output LNV lambda' couplings
+  LHtensor3Block<3> rvlamudd;   // The output BNV lambda'' couplings
+  LHtensor3Block<3> rvtlle;     // The output LNV T couplings
+  LHtensor3Block<3> rvtlqd;     // The output LNV T' couplings
+  LHtensor3Block<3> rvtudd;     // The output BNV T'' couplings
+  LHblock<double> rvkappa;      // The output LNV kappa couplings
+  LHblock<double> rvd;          // The output LNV D terms
+  LHblock<double> rvm2lh1;      // The output LNV m2LH1 couplings
+  LHblock<double> rvsnvev;      // The output LNV sneutrino vevs
+  LHmatrixBlock<7> rvnmix;      // The RPV neutralino mixing matrix
+  LHmatrixBlock<5> rvumix;      // The RPV chargino L mixing matrix
+  LHmatrixBlock<5> rvvmix;      // The RPV chargino R mixing matrix
+  LHmatrixBlock<5> rvhmix;      // The RPV neutral scalar mixing matrix
+  LHmatrixBlock<5> rvamix;      // The RPV neutral pseudoscalar mixing matrix
+  LHmatrixBlock<8> rvlmix;      // The RPV charged fermion mixing matrix
+  
   //CPV Input
-  Block<double> imminpar;
-  Block<double> imextpar;
+  LHblock<double> imminpar;
+  LHblock<double> imextpar;
   //CPV Output
-  MatrixBlock<4> cvhmix;   // The CPV Higgs mixing matrix
-  MatrixBlock<4> imcvhmix; // Optional: imaginary components
-  MatrixBlock<3> imau,imad,imae; // Im{} of AU, AD, AE
-  Block<double> imhmix;
-  Block<double> immsoft;
+  LHmatrixBlock<4> cvhmix;   // The CPV Higgs mixing matrix
+  LHmatrixBlock<4> imcvhmix; // Optional: imaginary components
+  LHmatrixBlock<3> imau,imad,imae; // Im{} of AU, AD, AE
+  LHblock<double> imhmix;
+  LHblock<double> immsoft;
 
   //CPV + FLV Input
-  MatrixBlock<3> immsq2in;  // The Im{} input upper off-diagonal msq2
-  MatrixBlock<3> immsu2in;  // The Im{} input upper off-diagonal msu2
-  MatrixBlock<3> immsd2in;  // The Im{} input upper off-diagonal msd2
-  MatrixBlock<3> immsl2in;  // The Im{} input upper off-diagonal msl2
-  MatrixBlock<3> immse2in;  // The Im{} input upper off-diagonal mse2
-  MatrixBlock<3> imtuin,imtdin,imtein; //  The Im{} input upper off-diagonal T
+  LHmatrixBlock<3> immsq2in;  // The Im{} input upper off-diagonal msq2
+  LHmatrixBlock<3> immsu2in;  // The Im{} input upper off-diagonal msu2
+  LHmatrixBlock<3> immsd2in;  // The Im{} input upper off-diagonal msd2
+  LHmatrixBlock<3> immsl2in;  // The Im{} input upper off-diagonal msl2
+  LHmatrixBlock<3> immse2in;  // The Im{} input upper off-diagonal mse2
+  LHmatrixBlock<3> imtuin,imtdin,imtein; //  The Im{} input upper off-diagonal T
   //CPV + FLV Output
-  MatrixBlock<3> imvckm;  // The output DRbar running Im{VCKM} at Q
-  MatrixBlock<3> imupmns; // The output DRbar running Im{UPMNS} at Q
-  MatrixBlock<3> immsq2;  // The output DRbar running msq2 at Q
-  MatrixBlock<3> immsu2;  // The output DRbar running msu2 at Q
-  MatrixBlock<3> immsd2;  // The output DRbar running msd2 at Q
-  MatrixBlock<3> immsl2;  // The output DRbar running msl2 at Q
-  MatrixBlock<3> immse2;  // The output DRbar running mse2 at Q
-  MatrixBlock<3> imtu,imtd,imte; // Im{} of TU, TD, TE
-  MatrixBlock<6> imusqmix;// The Im{} up squark mixing matrix
-  MatrixBlock<6> imdsqmix; // The Im{} down squark mixing matrix
-  MatrixBlock<6> imselmix; // The Im{} selectron mixing matrix
-  MatrixBlock<3> imsnumix; // The Im{} sneutrino mixing matrix
-  MatrixBlock<4> imnmix;   // The Im{} neutralino mixing matrix
-  MatrixBlock<4> imumix;   // The Im{} chargino L mixing matrix
-  MatrixBlock<4> imvmix;   // The Im{} chargino R mixing matrix
-
+  LHmatrixBlock<3> imvckm;  // The output DRbar running Im{VCKM} at Q
+  LHmatrixBlock<3> imupmns; // The output DRbar running Im{UPMNS} at Q
+  LHmatrixBlock<3> immsq2;  // The output DRbar running msq2 at Q
+  LHmatrixBlock<3> immsu2;  // The output DRbar running msu2 at Q
+  LHmatrixBlock<3> immsd2;  // The output DRbar running msd2 at Q
+  LHmatrixBlock<3> immsl2;  // The output DRbar running msl2 at Q
+  LHmatrixBlock<3> immse2;  // The output DRbar running mse2 at Q
+  LHmatrixBlock<3> imtu,imtd,imte; // Im{} of TU, TD, TE
+  LHmatrixBlock<6> imusqmix;// The Im{} up squark mixing matrix
+  LHmatrixBlock<6> imdsqmix; // The Im{} down squark mixing matrix
+  LHmatrixBlock<6> imselmix; // The Im{} selectron mixing matrix
+  LHmatrixBlock<3> imsnumix; // The Im{} sneutrino mixing matrix
+  LHmatrixBlock<4> imnmix;   // The Im{} neutralino mixing matrix
+  LHmatrixBlock<4> imumix;   // The Im{} chargino L mixing matrix
+  LHmatrixBlock<4> imvmix;   // The Im{} chargino R mixing matrix
+  
   //NMSSM Input
   //    All input is in EXTPAR
   //NMSSM Output
-  Block<double> nmssmrun;  // The Block of NMSSM running parameters
-  MatrixBlock<3> nmhmix;   // The NMSSM scalar Higgs mixing
-  MatrixBlock<3> nmamix;   // The NMSSM pseudoscalar Higgs mixing
-  MatrixBlock<5> nmnmix;   // The NMSSM neutralino mixing
-  MatrixBlock<5> imnmnmix; //   Im{} (for future use)
-
+  LHblock<double> nmssmrun;  // The LHblock of NMSSM running parameters
+  LHmatrixBlock<3> nmhmix;   // The NMSSM scalar Higgs mixing
+  LHmatrixBlock<3> nmamix;   // The NMSSM pseudoscalar Higgs mixing
+  LHmatrixBlock<5> nmnmix;   // The NMSSM neutralino mixing
+  LHmatrixBlock<5> imnmnmix; //   Im{} (for future use)
+  
   //*************************** SET BLOCK VALUE ****************************//
   template <class T> int set(string,T);
   template <class T> int set(string,int,T);
@@ -621,10 +626,10 @@ public:
 
   //********************* GENERIC/USER-DEFINED BLOCKS **********************//
   // bool getEntry(name, indices, value) 
-  //      = true if Block and entry exists (value returned in value, typecast 
+  //      = true if LHblock and entry exists (value returned in value, typecast 
   //        by user in call)
   //      = false otherwise
-  map<string, GenericBlock> genericBlocks;
+  map<string, LHgenericBlock> genericBlocks;
   template <class T> bool getEntry(string, T&);
   template <class T> bool getEntry(string, int, T&);
   template <class T> bool getEntry(string, int, int, T&);
@@ -655,7 +660,7 @@ template <class T> int SusyLesHouches::set(string blockName, T val) {
 
   // Add new generic block if not already existing
   if (genericBlocks.find(blockName) == genericBlocks.end()) {
-    GenericBlock gBlock;
+    LHgenericBlock gBlock;
     genericBlocks[blockName]=gBlock;
   }
 
@@ -674,7 +679,7 @@ template <class T> int SusyLesHouches::set(string blockName, int indx, T val) {
 
   // Add new generic block if not already existing
   if (genericBlocks.find(blockName) == genericBlocks.end()) {
-    GenericBlock gBlock;
+    LHgenericBlock gBlock;
     genericBlocks[blockName]=gBlock;
   }
 
@@ -694,7 +699,7 @@ template <class T> int SusyLesHouches::set(string blockName, int indx,
 
   // Add new generic block if not already existing
   if (genericBlocks.find(blockName) == genericBlocks.end()) {
-    GenericBlock gBlock;
+    LHgenericBlock gBlock;
     genericBlocks[blockName]=gBlock;
   }
 
@@ -714,7 +719,7 @@ template <class T> int SusyLesHouches::set(string blockName, int indx,
 
   // Add new generic block if not already existing
   if (genericBlocks.find(blockName) == genericBlocks.end()) {
-    GenericBlock gBlock;
+    LHgenericBlock gBlock;
     genericBlocks[blockName]=gBlock;
   }
 
@@ -750,7 +755,7 @@ template <class T> bool SusyLesHouches::getEntry(string blockName, T& val) {
     return false;
   }
   // Attempt to extract value as class T 
-  GenericBlock block = genericBlocks[blockName];
+  LHgenericBlock block = genericBlocks[blockName];
   istringstream linestream(block(0));
   linestream >> val; 
   if ( !linestream ) {
@@ -782,7 +787,7 @@ template <class T> bool SusyLesHouches::getEntry(string blockName, int indx,
     return false;
   }
   // Attempt to extract indexed value as class T 
-  GenericBlock block = genericBlocks[blockName];
+  LHgenericBlock block = genericBlocks[blockName];
   // Loop over block contents, search for indexed entry with index i
   for (int jEntry = 0; jEntry < block.size(); jEntry++) {
     istringstream linestream(block(jEntry));
@@ -821,7 +826,7 @@ template <class T> bool SusyLesHouches::getEntry(string blockName, int indx,
     return false;
   }
   // Attempt to extract matrix-indexed value as class T 
-  GenericBlock block = genericBlocks[blockName];
+  LHgenericBlock block = genericBlocks[blockName];
   // Loop over block contents, search for indexed entry with indices i, j
   for (int jEntry = 0; jEntry < block.size(); jEntry++) {
     istringstream linestream(block(jEntry));
@@ -860,7 +865,7 @@ template <class T> bool SusyLesHouches::getEntry(string blockName, int indx,
     return false;
   }
   // Attempt to extract tensor-indexed value as class T 
-  GenericBlock block = genericBlocks[blockName];
+  LHgenericBlock block = genericBlocks[blockName];
   // Loop over block contents, search for indexed entry with indices i, j, k
   for (int jEntry = 0; jEntry < block.size(); jEntry++) {
     istringstream linestream(block(jEntry));
@@ -878,8 +883,10 @@ template <class T> bool SusyLesHouches::getEntry(string blockName, int indx,
   message(1,"getEntry","problem extracting tensor-indexed entry from block "
 	  +blockName);
   return false;
-}
+ }
 
+}
 #endif
+
 
 

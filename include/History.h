@@ -118,8 +118,8 @@ public:
            MergingHooks* mergingHooksPtrIn,
            BeamParticle beamAIn,
            BeamParticle beamBIn,
-           ParticleData* particleDataIn,
-           Info* infoIn,
+           ParticleData* particleDataPtrIn,
+           Info* infoPtrIn,
            bool isOrdered,
            bool isStronglyOrdered,
            double probin,
@@ -143,11 +143,7 @@ public:
                     AlphaStrong * asISR, double RN);
 
   // Function to set the state with complete scales for evolution 
-  void getStartingConditions( const double RN, double& hardScale,
-         Event& outState, Info* infoPtr);
-
-  // Function to set the state with complete scales for evolution 
-  bool getHardEvent( const double RN, Event& outState);
+  void getStartingConditions( const double RN, Event& outState );
 
   // Function to get the lowest multiplicity reclustered event
   Event lowestMultProc( const double RN) {
@@ -237,11 +233,6 @@ private:
   // NO INPUT
   // OUTPUT double : pT scale of last FSR splitting in history 
   double pTFSR();
-
-  // Functions to return the event with the last splitting reclustered
-  // NO INPUT
-  // OUTPUT Event : event without last splitting 
-  Event lastState();
 
   // Function to choose a path from all paths in the tree
   // according to their splitting probabilities
@@ -583,10 +574,10 @@ private:
   BeamParticle beamB;
   // ParticleData needed to initialise the shower AND to get the
   // correct masses of partons needed in calculation of probability
-  ParticleData* particleData;
+  ParticleData* particleDataPtr;
 
   // Info object to have access to all information read from LHE file
-  Info* info;
+  Info* infoPtr;
 
   // Minimal scalar sum of pT used in Herwig to choose history
   double sumScalarPT;

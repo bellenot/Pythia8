@@ -5,7 +5,7 @@
 This page documents Higgs production within and beyond the Standard Model
 (SM and BSM for short). This includes several different processes and, 
 for the BSM scenarios, a large set of parameters that would only be fixed 
-within a more specific framework such as MSSM. Two choices can be made 
+within a more specific framework such as MSSM. Three choices can be made 
 irrespective of the particular model:
 
 <flag name="Higgs:cubicWidth" default="off">
@@ -32,6 +32,24 @@ typically gives a noticeably higher cross section for these channels.
 (For a decay to a pair of fermions, such as top, the running mass is
 used for couplings and the fixed one for phase space.)
 </flag>
+
+<flag name="Higgs:clipWings" default="on">
+The Breit-Wigner shape of a Higgs is nontrivial, owing to the rapid 
+width variation with the mass of a Higgs. This imples that a Higgs 
+of low nominal mass may still acquire a non-negligible high-end tail.
+The validity of the calculation may be questioned in these wings. 
+With this option on, the <code>Higgs:wingsFac</code> value is used to 
+cut away the wings.
+</parm>
+
+<parm name="Higgs:wingsFac" default="50." min="0.">
+With <code>Higgs:clipWings</code> on, all Higgs masses which deviate 
+from the nominal one by more than <code>Higgs:wingsFac</code>
+times the nominal width are forbidden. This is achieved by setting
+the <code>mMin</code> and <code>mMax</code> values of the Higgs states
+at initialization (but never so as to allow a wider range than already
+set by the user, alternatively by the default values).   
+</parm>
 
 <h3>Standard-Model Higgs, basic processes</h3>
 

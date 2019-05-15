@@ -309,6 +309,99 @@ by the branching, <i>m2 = pT2/(z(1-z))</i>. Note that
 <i>m2 = 4 pT2_hard</i> is the kinematical limit for a scattering 
 at 90 degrees without beam recoil.    
   
+
+<h3>Global recoil</h3>
+
+The final-state algorithm is based on dipole-style recoils, where
+one single parton takes the full recoil of a branching. This is unlike 
+the initial-state algorithm, where the complete already-existing 
+final state shares the recoil of each new emission. As an alternative,
+also the final-state algorithm contains an option where the recoil 
+is shared between all partons in the final state. Thus the radiation
+pattern is unrelated to colour correlations. This is especially
+convenient for some matching algorithms, like MC@NLO, where a full 
+analytic knowledge of the shower radiation pattern is needed to avoid
+doublecountning. (The <i>pT</i>-ordered shower is described in
+[<a href="Bibliography.html" target="page">Sjo05</a>], and the corrections for massive radiator and recoiler
+in [<a href="Bibliography.html" target="page">Nor01</a>].)
+
+<p/> 
+Technically, the radiation pattern is most conveniently represented
+in the rest frame of the final state of the hard subprocess. Then, for 
+each parton at a time, the rest of the final state can be viewed as 
+a single effective parton. This "parton" has a fixed invariant mass 
+during the emission process, and takes the recoil without any changed 
+direction of motion. The momenta of the individual new recoilers are 
+then obtained by a simple common boost of the original ones.
+
+<p/> 
+This alternative approach will miss out on the colour coherence
+phenomena. Specifically, with the whole subcollision mass as "dipole"
+mass, the phase space for subsequent emissions is larger than for
+the normal dipole algorithm. The phase space difference grows as 
+more and more gluons are created, and thus leads to a way too steep
+multiplication of soft gluons. Therefore the main application is
+for the first one or few emissions of the shower, where a potential 
+overestimate of the emission rate is to be corrected for anyway,
+by matching to the relevant matrix elements. Thereafter, subsequent 
+emissions should be handled as before, i.e. with dipoles spanned
+between nearby partons. Furthermore, only the first (hardest) 
+subcollision is handled with global recoils, since subsequent MPI's 
+would not be subject to matrix element corrections anyway.
+
+<p/> 
+In order for the mid-shower switch from global to local recoils
+to work, colours are traced and bookkept just as for normal showers; 
+it is only that this information is not used in those steps where 
+a global recoil is requested. (Thus, e.g., a gluon is still bookkept 
+as one colour and one anticolour dipole end, with half the charge 
+each, but with global recoil those two ends radiate identically.)
+
+<p/><code>flag&nbsp; </code><strong> TimeShower:globalRecoil &nbsp;</strong> 
+ (<code>default = <strong>off</strong></code>)<br/>
+Alternative approach as above, where all final-state particles share
+the recoil of an emission. 
+<br/>If off, then use the standard dipole-recoil approach. 
+<br/>If on, use the alternative global recoil, but only for the first 
+interaction, and only while the number of particles in the final state 
+is at most <code>TimeShower:nMaxGlobalRecoil</code> before the 
+branching. 
+  
+  
+<p/><code>mode&nbsp; </code><strong> TimeShower:nMaxGlobalRecoil &nbsp;</strong> 
+ (<code>default = <strong>2</strong></code>; <code>minimum = 1</code>)<br/>
+Represents the maximum number of particles in the final state for which 
+the next final-state emission can be performed with the global recoil 
+strategy. This number counts all particles, whether they are
+allowed to radiate or not, e.g. also <i>Z^0</i>. Also partons 
+created by initial-state radiation emissions counts towards this sum, 
+as part of the interleaved evolution. Without interleaved evolution
+this option would not make sense, since then a varying and large 
+number of partons could already have been created by the initial-state
+radiation before the first final-state one, and then there is not 
+likely to be any matrix elements available for matching.
+  
+
+<p/> 
+The global-recoil machinery does not work well with rescattering in the
+MPI machinery, since then the recoiling system is not uniquely defined.
+<code>MultipartonInteractions:allowRescatter = off</code> by default,
+so this is not a main issue. If both options are switched on,
+rescattering will only be allowed to kick in after the global recoil
+has ceased to be active, i.e. once the <code>nMaxGlobalRecoil</code> 
+limit has been exceeded. This should not be a major conflict,
+since rescattering is mainly of interest at later stages of the 
+downwards <i>pT</i> evolution.
+
+<p/> 
+Further, it is strongly recommended to set 
+<code>TimeShower:MEcorrections = off</code> (not default!), i.e. not 
+to correct the emission probability to the internal matrix elements. 
+The internal ME options do not cover any cases relevant for a multibody 
+recoiler anyway, so no guarantees are given what prescription would
+come to be used. Instead, without ME corrections,  a process-independent 
+emission rate is obtained, and  <a href="UserHooks.html" target="page">user hooks</a> 
+can provide the desired process-specific rejection factors. 
  
 <h3>Radiation off octet onium states</h3>
 

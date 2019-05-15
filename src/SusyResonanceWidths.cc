@@ -77,7 +77,7 @@ double WidthFunction::function(double,double) {
 //--------------------------------------------------------------------------
 
 void Psi::setInternal (int idResIn, int id1In, int id2In, int id3In, 
-  int idIntIn) {
+  int idIntIn, int) {
 
   setInternal2(idResIn, id1In, id2In, id3In, idIntIn);
 
@@ -1119,7 +1119,7 @@ void  ResonanceNeut::calcWidth(bool){
 	      continue;
 	    
 	    // Single diagram squared terms
-	    psi.setInternal(idRes, itemp1, itemp2,itemp3,idInt);
+	    psi.setInternal(idRes, itemp1, itemp2, itemp3, idInt, 0);
 	    // Mixing with R-states
 	    if(itype == 1)
 	      mixfac1 = norm(coupSUSYPtr->Rusq[idIntRes][iSq+3]); 

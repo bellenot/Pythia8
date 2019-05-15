@@ -209,6 +209,20 @@ bool ResonanceWidths::init(Info* infoPtrIn, Settings* settingsPtrIn,
   openPos       = widPos / widTot;
   openNeg       = widNeg / widTot;
 
+  // Clip wings of Higgses.
+  bool isHiggs = (idRes == 25 || idRes == 35 ||idRes == 36 ||idRes == 37);   
+  bool clipHiggsWings = settingsPtr->flag("Higgs:clipWings");
+  if (isHiggs && clipHiggsWings) {
+    double mMinNow  = particlePtr->mMin();
+    double mMaxNow  = particlePtr->mMax();
+    double wingsFac = settingsPtr->parm("Higgs:wingsFac");
+    double mMinWing = mRes - wingsFac * GammaRes;
+    double mMaxWing = mRes + wingsFac * GammaRes;
+    if (mMinWing > mMinNow) particlePtr->setMMinNoChange(mMinWing);
+    if (mMaxWing < mMaxNow || mMaxNow < mMinNow) 
+      particlePtr->setMMaxNoChange(mMaxWing);
+  }
+
   // Done.
   return true;
     
@@ -391,11 +405,12 @@ double ResonanceWidths::numInt1BW(double mHatIn, double m1, double Gamma1,
     psNow         = sqrtpos( pow2(1. - mrNow1 - mrNow2) 
                     - 4. * mrNow1 * mrNow2);
     value         = 1.;
-    if (psMode == 1) value = psNow;
-    if (psMode == 2) value = psNow * psNow;
-    if (psMode == 3) value = pow3(psNow);
-    if (psMode == 5) value = psNow * 
-      (pow2(1. - mrNow1 - mrNow2) + 8. * mrNow1 * mrNow2);
+    if      (psMode == 1) value = psNow;
+    else if (psMode == 2) value = psNow * psNow;
+    else if (psMode == 3) value = pow3(psNow);
+    else if (psMode == 5) value = psNow 
+      * (pow2(1. - mrNow1 - mrNow2) + 8. * mrNow1 * mrNow2);
+    else if (psMode == 6) value = pow3(psNow);
     sum          += value;
 
   // End of  loop over integration points. Overall normalization.
@@ -417,7 +432,7 @@ double ResonanceWidths::numInt2BW(double mHatIn, double m1, double Gamma1,
   double mMin1, double m2, double Gamma2, double mMin2, int psMode) {
 
   // Check that phase space is open for integration.
-  if (mMin1 + mMin2 > mHatIn) return 0.;
+  if (mMin1 + mMin2 >= mHatIn) return 0.;
 
   // Precalculate coefficients for Breit-Wigner selection.
   double s1       = m1 * m1;
@@ -524,6 +539,7 @@ double ResonanceWidths::numInt2BW(double mHatIn, double m1, double Gamma1,
       else if (psMode == 3) value = pow3(psNow);
       else if (psMode == 5) value = psNow 
         * (pow2(1. - mrNow1 - mrNow2) + 8. * mrNow1 * mrNow2);
+      else if (psMode == 6) value = pow3(psNow);
       sum        += value * wtNow1 * wtNow2;
 
     // End of second and first loop over integration points.
@@ -800,7 +816,9 @@ void ResonanceFour::calcWidth(bool) {
 // These are of technical nature, as described for each.
 
 // Minimal mass for W, Z, top in integration over respective Breit-Wigner.
-const double ResonanceH::MASSMIN = 10.;
+// Top constrainted by t -> W b decay, which is not seen in simple top BW.
+const double ResonanceH::MASSMINWZ = 10.;
+const double ResonanceH::MASSMINT  = 100.;
 
 // Number of widths above threshold where B-W integration not needed.
 const double ResonanceH::GAMMAMARGIN = 10.;
@@ -871,14 +889,21 @@ void ResonanceH::initConstants() {
 
   // Initialization of threshold kinematical factor by stepwise
   // numerical integration of H -> t tbar, Z0 Z0 and W+ W-. 
-  int psMode = (higgsType < 3) ? 3 : 1;       
+  int psModeT  = (higgsType < 3) ? 3 : 1;       
+  int psModeWZ = (higgsType < 3) ? 5 : 6; 
+  mLowT        = max( 2.02 * MASSMINT, 0.5 * mT);
+  mStepT       = 0.01 * (3. * mT - mLowT);    
+  mLowZ        = max( 2.02 * MASSMINWZ, 0.5 * mZ);
+  mStepZ       = 0.01 * (3. * mZ - mLowZ);    
+  mLowW        = max( 2.02 * MASSMINWZ, 0.5 * mW);
+  mStepW       = 0.01 * (3. * mW - mLowW);    
   for (int i = 0; i <= 100; ++i) { 
-    kinFacT[i] = numInt2BW( (0.5 + 0.025 * i) * mT, 
-                 mT, GammaT, MASSMIN, mT, GammaT, MASSMIN, psMode);
-    kinFacZ[i] = numInt2BW( (0.5 + 0.025 * i) * mZ,
-                 mZ, GammaZ, MASSMIN, mZ, GammaZ, MASSMIN, 5);
-    kinFacW[i] = numInt2BW( (0.5 + 0.025 * i) * mW,
-                 mW, GammaW, MASSMIN, mW, GammaW, MASSMIN, 5);
+    kinFacT[i] = numInt2BW( mLowT + i * mStepT, 
+                 mT, GammaT, MASSMINT,  mT, GammaT, MASSMINT,  psModeT);
+    kinFacZ[i] = numInt2BW( mLowZ + i * mStepZ,
+                 mZ, GammaZ, MASSMINWZ, mZ, GammaZ, MASSMINWZ, psModeWZ);
+    kinFacW[i] = numInt2BW( mLowW + i * mStepW,
+                 mW, GammaW, MASSMINWZ, mW, GammaW, MASSMINWZ, psModeWZ);
   }
 
 }
@@ -914,15 +939,13 @@ void ResonanceH::calcWidth(bool) {
       kinFac = (higgsType < 3) ? pow3(ps) : ps;
     }
 
-    // Top near or below threshold: interpolate in table or extrapolate below.
-    else if (id1Abs == 6 && mHat > 0.5 * mT) {
-      double xTab = 40. * (mHat / mT - 0.5);
+    // Top near or below threshold: interpolate in table.
+    else if (id1Abs == 6 && mHat > mLowT) {
+      double xTab = (mHat - mLowT) / mStepT;
       int    iTab = max( 0, min( 99, int(xTab) ) );
       kinFac      = kinFacT[iTab] 
                   * pow( kinFacT[iTab + 1] / kinFacT[iTab], xTab - iTab);
     }
-    else if (id1Abs == 6) kinFac = kinFacT[0] 
-      * 2. / (1. + pow6(0.5 * mT / mHat));
 
     // Coupling from mass and from BSM deviation from SM.
     double coupFac = pow2(particleDataPtr->mRun(id1Abs, mHat) / mHat);
@@ -951,13 +974,13 @@ void ResonanceH::calcWidth(bool) {
   else if (id1Abs == 23 && id2Abs == 23) {
     // If Higgs heavy use on-shell expression, else interpolation in table
     if (mHat > 3. * mZ) kinFac = (1.  - 4. * mr1 + 12. * mr1 * mr1) * ps;
-    else if (mHat > 0.5 * mZ) {
-      double xTab = 40. * (mHat / mZ - 0.5);
+    else if (mHat > mLowZ) {
+      double xTab = (mHat - mLowZ) / mStepZ;
       int    iTab = max( 0, min( 99, int(xTab) ) );
       kinFac      = kinFacZ[iTab] 
                   * pow( kinFacZ[iTab + 1] / kinFacZ[iTab], xTab - iTab );
     }
-    else kinFac   = kinFacZ[0] * 2. / (1. + pow6(0.5 * mZ / mHat));
+    else kinFac   = 0.;
     // Prefactor, normally rescaled to mRes^2 * mHat rather than mHat^3.
     widNow        = 0.25 * preFac * pow2(coup2Z) * kinFac;
     if (!useCubicWidth) widNow *= pow2(mRes / mHat);   
@@ -967,13 +990,13 @@ void ResonanceH::calcWidth(bool) {
   else if (id1Abs == 24 && id2Abs == 24) {
     // If Higgs heavy use on-shell expression, else interpolation in table.
     if (mHat > 3. * mW) kinFac = (1.  - 4. * mr1 + 12. * mr1 * mr1) * ps;
-    else if (mHat > 0.5 * mW) {
-      double xTab = 40. * (mHat / mW - 0.5);
+    else if (mHat > mLowW) {
+      double xTab = (mHat - mLowW) / mStepW;
       int    iTab = max( 0, min( 99, int(xTab) ) );
       kinFac      = kinFacW[iTab] 
                   * pow( kinFacW[iTab + 1] / kinFacW[iTab], xTab - iTab);
     }
-    else kinFac   = kinFacW[0] * 2. / (1. + pow6(0.5 * mW / mHat));
+    else kinFac   = 0.;
     // Prefactor, normally rescaled to mRes^2 * mHat rather than mHat^3.
     widNow        = 0.5 * preFac * pow2(coup2W) * kinFac;
     if (!useCubicWidth) widNow *= pow2(mRes / mHat);   

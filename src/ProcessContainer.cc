@@ -1890,6 +1890,18 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs,
     sigmaPtr = new Sigma2QCqqbar2qqbar();
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   } 
+  if (settings.flag("ContactInteractions:QCffbar2eebar")) {
+    sigmaPtr = new Sigma2QCffbar2llbar(11, 4003);
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }
+  if (settings.flag("ContactInteractions:QCffbar2mumubar")) {
+    sigmaPtr = new Sigma2QCffbar2llbar(13, 4004);
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }
+  if (settings.flag("ContactInteractions:QCffbar2tautaubar")) {
+    sigmaPtr = new Sigma2QCffbar2llbar(15, 4005);
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
 
   // Set spin of particles in the Hidden Valley scenario.
   int spinFv = settings.mode("HiddenValley:spinFv");
@@ -2150,6 +2162,31 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs,
   }
   if (settings.flag("ExtraDimensionsLED:gg2llbar")) {
     sigmaPtr = new Sigma2gg2LEDllbar( true );
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }
+  bool extraDimLEDdij = settings.flag("ExtraDimensionsLED:dijets");
+  if (extraDimLEDdij || settings.flag("ExtraDimensionsLED:gg2DJgg")) {
+    sigmaPtr = new Sigma2gg2LEDgg;
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }
+  if (extraDimLEDdij || settings.flag("ExtraDimensionsLED:gg2DJqqbar")) {
+    sigmaPtr = new Sigma2gg2LEDqqbar;
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }
+  if (extraDimLEDdij || settings.flag("ExtraDimensionsLED:qg2DJqg")) {
+    sigmaPtr = new Sigma2qg2LEDqg;
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }
+  if (extraDimLEDdij || settings.flag("ExtraDimensionsLED:qq2DJqq")) {
+    sigmaPtr = new Sigma2qq2LEDqq;
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }
+  if (extraDimLEDdij || settings.flag("ExtraDimensionsLED:qqbar2DJgg")) {
+    sigmaPtr = new Sigma2qqbar2LEDgg;
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }
+  if (extraDimLEDdij || settings.flag("ExtraDimensionsLED:qqbar2DJqqbarNew")) {
+    sigmaPtr = new Sigma2qqbar2LEDqqbarNew;
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   }
 

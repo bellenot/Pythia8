@@ -68,8 +68,8 @@ History::History( int depth,
          MergingHooks* mergingHooksPtrIn,
          BeamParticle beamAIn,
          BeamParticle beamBIn,
-         ParticleData* particleDataIn,
-         Info* infoIn,
+         ParticleData* particleDataPtrIn,
+         Info* infoPtrIn,
          bool isOrdered = true,
          bool isStronglyOrdered = true,
          double probin = 1.0,
@@ -86,8 +86,8 @@ History::History( int depth,
       mergingHooksPtr(mergingHooksPtrIn),
       beamA(beamAIn),
       beamB(beamBIn),
-      particleData(particleDataIn),
-      info(infoIn)
+      particleDataPtr(particleDataPtrIn),
+      infoPtr(infoPtrIn)
     {
 
   // Initialise beam particles
@@ -163,11 +163,18 @@ History::History( int depth,
       }
     }
 
+    // Check if reclustered state should be disallowed
+    if(  mergingHooksPtr->canCutOnRecState()
+      && mergingHooksPtr->doCutOnRecState(cluster(*it->second)) ){
+      continue;
+    }
+
     // Perform the clustering and recurse and construct the next
     // history node.
     children.push_back(new History(depth - 1,it->first,cluster(*it->second),
-           *it->second, mergingHooksPtr, beamA, beamB, particleData, info,
-           ordered, stronglyOrdered, prob*getProb(*it->second), this ));
+           *it->second, mergingHooksPtr, beamA, beamB, particleDataPtr,
+           infoPtr, ordered, stronglyOrdered, prob*getProb(*it->second),
+           this ));
   }
 }
   
@@ -187,8 +194,8 @@ double History::weightTREE(PartonLevel* trial, AlphaStrong * asFSR,
                   AlphaStrong * asISR, double RN){
 
   // Read alpha_S in ME calculation and maximal scale (eCM)
-  double asME     = info->alphaS();
-  double maxScale = (foundCompletePath) ? info->eCM() : info->QFac();
+  double asME     = infoPtr->alphaS();
+  double maxScale = (foundCompletePath) ? infoPtr->eCM() : infoPtr->QFac();
 
   // Select a path of clusterings
   History *  selected = select(RN);
@@ -217,12 +224,14 @@ double History::weightTREE(PartonLevel* trial, AlphaStrong * asFSR,
 
 // Function to set the state with complete scales for evolution 
 
-void History::getStartingConditions( const double RN, double& hardScale,
-               Event& outState, Info* infoPtr) {
+void History::getStartingConditions( const double RN, Event& outState ) {
 
+  // Select the history
   History *  selected = select(RN);
 
+  // Copy the output state
   outState = state;
+
   // Set the scale of the lowest order process
   if(!selected->mother){
     int nFinal = 0;
@@ -242,32 +251,31 @@ void History::getStartingConditions( const double RN, double& hardScale,
 //    else
 //      outState.scale(0.5*outState[5].m());
 
+      // Save information on last splitting, to allow the next
+      // emission in the shower to have smaller rapidity with
+      // respect to the last ME splitting 
+      // For hard process, use dummy values
+      if(mergingHooksPtr->getNumberOfClusteringSteps(state) == 0) {
+        infoPtr->zNowISR(0.5);
+        infoPtr->pT2NowISR(pow(state[0].e(),2));
+        infoPtr->hasHistory(true);
+      // For incomplete process, try to use real values
+      } else {
+        infoPtr->zNowISR(selected->zISR());
+        infoPtr->pT2NowISR(pow(selected->pTISR(),2));
+        infoPtr->hasHistory(true);
+      }
+
+  } else {
+
+    // Save information on last splitting, to allow the next
+    // emission in the shower to have smaller rapidity with
+    // respect to the last ME splitting 
+    infoPtr->zNowISR(selected->zISR());
+    infoPtr->pT2NowISR(pow(selected->pTISR(),2));
+    infoPtr->hasHistory(true);
   }
 
-  hardScale = selected->scale;
-
-  infoPtr->zNowISR(selected->zISR());
-  infoPtr->pT2NowISR(pow(selected->pTISR(),2));
-
-}
-
-//--------------------------------------------------------------------------
-
-// Function to set the state with complete scales for evolution 
-
-bool History::getHardEvent( const double RN, Event& outState) {
-
-  // Pick history
-  History *  selected = select(RN);
-  // Set scales in the states to the scales pythia would have set
-  selected->setScalesInHistory();
-  // If no mother state, no clustering allowed
-  if(!selected->mother){
-    cout << "Disallow clustering of new, incomplete process!" << endl;
-    return false;
-  }
-  outState = selected->lastState();
-  return true;
 }
 
 //--------------------------------------------------------------------------
@@ -316,7 +324,7 @@ double History::getPDFratio( int side, bool forSudakov,
   if( pdfNum > 1e-15 && pdfDen > 1e-10 )
     pdfRatio *= pdfNum / pdfDen;
   else {
-    info->errorMsg("Warning in History:getPDFratio: Found tiny PDF in",
+    infoPtr->errorMsg("Warning in History:getPDFratio: Found tiny PDF in",
                    "calculation of PDF ratio, put PDF ratio to 1.");
     pdfRatio = 1.;
   }
@@ -410,7 +418,7 @@ void History::setScales( vector<int> index, bool forward) {
       double scaleNew = 1.;
 
       if(mergingHooksPtr->incompleteScalePrescip()==0){
-        scaleNew = info->QFac();
+        scaleNew = infoPtr->QFac();
       } else if(mergingHooksPtr->incompleteScalePrescip()==1){
         Vec4 pOut;
         pOut.p(0.,0.,0.,0.);
@@ -689,20 +697,6 @@ double History::pTFSR() {
 
 //--------------------------------------------------------------------------
 
-// Functions to return the event with the last splitting reclustered
-// NO INPUT
-// OUTPUT Event : event without last splitting 
-
-Event History::lastState() {
-  Event outState = state;
-  // Do nothing for ME level state
-  if(mother->mother)
-    outState = mother->lastState();
-  return outState;
-}
-
-//--------------------------------------------------------------------------
-
 // Function to choose a path from all paths in the tree
 // according to their splitting probabilities
 // IN double    : Random number
@@ -768,8 +762,8 @@ double History::weightTree(PartonLevel* trial, double as0, double maxscale,
       int flav = state[3].id();
 
       // Find numerator/denominator scale
-      double scaleNum = (children.empty()) ? info->QFac() : maxscale;
-      double scaleDen = info->QFac();
+      double scaleNum = (children.empty()) ? infoPtr->QFac() : maxscale;
+      double scaleDen = infoPtr->QFac();
       // For initial parton, multiply by PDF ratio
       double ratio = getPDFratio(sideRad, false, flav, x, scaleNum,
                        flav, x, scaleDen);
@@ -783,8 +777,8 @@ double History::weightTree(PartonLevel* trial, double as0, double maxscale,
       int flav = state[4].id();
 
       // Find numerator/denominator scale
-      double scaleNum = (children.empty()) ? info->QFac() : maxscale;
-      double scaleDen = info->QFac();
+      double scaleNum = (children.empty()) ? infoPtr->QFac() : maxscale;
+      double scaleDen = infoPtr->QFac();
       // For initial parton, multiply with PDF ratio
       double ratio = getPDFratio(sideRec, false, flav, x, scaleNum,
                        flav, x, scaleDen);
@@ -830,7 +824,7 @@ double History::weightTree(PartonLevel* trial, double as0, double maxscale,
     int flav = getCurrentFlav(sideP);
 
     // Find numerator scale
-    double scaleNum = (children.empty()) ? info->QFac() : maxscale;
+    double scaleNum = (children.empty()) ? infoPtr->QFac() : maxscale;
     // Multiply PDF ratio
     double ratio = getPDFratio(sideP, false, flav, x, scaleNum,
                      flav, x, newScale);
@@ -843,7 +837,7 @@ double History::weightTree(PartonLevel* trial, double as0, double maxscale,
     int flav = getCurrentFlav(sideM);
 
     // Find numerator scale
-    double scaleNum = (children.empty()) ? info->QFac() : maxscale;
+    double scaleNum = (children.empty()) ? infoPtr->QFac() : maxscale;
     // Multiply PDF ratio
     double ratio = getPDFratio(sideM, false, flav, x, scaleNum,
                      flav, x, newScale);
@@ -878,12 +872,24 @@ double History::doTrialShower(PartonLevel* trial, double maxscale) {
   double pTtrial = 0.0;
 
   // Reset output event
-  event.init("(hard process-modified)", particleData);
+  event.init("(hard process-modified)", particleDataPtr);
   event.clear();
   // If the maximal scale and the minimal scale coincide (as would
   // be the case for the corrected scales of unordered histories),
   // do not generate Sudakov
   if(pTreclus >= maxscale) return 1.0;
+
+  // Find z and pT values at which the current state was formed, to
+  // ensure that the showers can order the next emission correctly in
+  // rapidity, if required
+  double z = ( mergingHooksPtr->getNumberOfClusteringSteps(state) == 0)
+           ? 0.5
+           : mother->getCurrentZ(clusterIn.emittor,clusterIn.recoiler,
+               clusterIn.emitted);
+  // Store z and pT values at which the current state was formed
+  infoPtr->zNowISR(z);
+  infoPtr->pT2NowISR(pow(maxscale,2));
+  infoPtr->hasHistory(true);
 
   // Perform trial shower emission
   trial->next(process,event);
@@ -1112,15 +1118,15 @@ vector<Clustering> History::getAllClusterings() {
     }
 
     if(!ret.empty())
-      info->errorMsg("Warning in History::getAllClusterings: Changed",
+      infoPtr->errorMsg("Warning in History::getAllClusterings: Changed",
       "colour structure to allow at least one clustering");
     else
-      info->errorMsg("Warning in History::getAllClusterings: No clusterings",
+      infoPtr->errorMsg("Warning in History::getAllClusterings: No clusterings",
         "found. History incomplete");
 
   // If no colour rearrangements should be done, print warning and return
   } else {
-    info->errorMsg("Warning in History::getAllClusterings: No clusterings",
+    infoPtr->errorMsg("Warning in History::getAllClusterings: No clusterings",
       "found. History incomplete");
   }
   // Done
@@ -1266,9 +1272,9 @@ vector<Clustering> History::findTriple (int EmtTagIn, int colTopIn,
       int pTdef = event[iRad].isFinal() ? 1 : -1;
       int sign = (a < FinalSize)? 1 : -1 ;
 
+      // First colour topology: g --> qqbar. Here, emt & rad should
+      // have same flavour (causes problems for gamma->qqbar).
       if (colTop == 1) {
-        // First colour topology: g --> qqbar. Here, emt & rad should
-        // have same flavour (causes problems for gamma->qqbar).
 
         if ( event[iRad].id() == -sign*event[EmtTag].id() ) {
           int col = -1;
@@ -1395,37 +1401,39 @@ vector<Clustering> History::findTriple (int EmtTagIn, int colTopIn,
           for(int l = 0; l < int(PosInitPartn.size()); ++l)
             if(PosInitPartn[l] != iRad) RecInit = PosInitPartn[l];
 
-          // Still, find colour-connected partner
+          // Find the colour connected partner
+          // Find colour index of radiator before splitting
+          int col = getRadBeforeCol(iRad, EmtTag, event);
+          int acl = getRadBeforeAcol(iRad, EmtTag, event);
+
+          // Find the correct partner: If a colour line has split,
+          // the partner is connected to the radiator before the splitting
+          // by a colour line (same reasoning for anticolour). The colour
+          // that split is the colour appearing twice in the
+          // radiator + emitted pair.
+          // Thus, if we remove a colour index with the clustering,
+          // we should look for a colour partner, else look for
+          // an anticolour partner
+          int colRemove = (event[iRad].col() == event[EmtTag].col())
+                  ? event[iRad].col() : 0;
+
           int iPartner = 0;
-          // Find colout tag
-          int col = -1;
-          int acl = -1;
-          if( event[iRad].col() == event[EmtTag].col() )
-            acl = event[iRad].acol();
-          else if( event[iRad].acol() == event[EmtTag].acol() )
-            col = event[iRad].col();        
+          if(colRemove > 0 && col > 0)
+            iPartner = FindCol(col,iRad,EmtTag,event,1,true)
+                     + FindCol(col,iRad,EmtTag,event,2,true);
+          else if(colRemove > 0 && acl > 0)
+            iPartner = FindCol(acl,iRad,EmtTag,event,1,true)
+                     + FindCol(acl,iRad,EmtTag,event,2,true);
 
-          int iColPartner = -1;
-          int iAclPartner = -1;
-          if( col>0 ) {
-            // First try to find anticolour
-            iAclPartner = FindCol(col,iRad,EmtTag,event,1,true);
-            // Then try to find colour
-            iColPartner = FindCol(col,iRad,EmtTag,event,2,true);
-          } else if( acl > 0 ) {
-            // First try to find colour
-            iColPartner = FindCol(acl,iRad,EmtTag,event,1,true);
-            // Then try to find anticolour
-            iAclPartner = FindCol(acl,iRad,EmtTag,event,2,true);
-          }
-
-          if( allowedClustering( iRad, EmtTag, RecInit, RecInit, event ) ) {
+          if( allowedClustering( iRad, EmtTag, RecInit, iPartner, event ) ) {
             clus.push_back( Clustering(EmtTag, iRad, RecInit, iPartner,
                  pTLund(event[iRad],event[EmtTag],event[RecInit], pTdef) ));
               continue;
           }
+
         }
 
+      // Second colour topology: Gluon emission
       } else {
         if ( (event[iRad].col() == event[EmtTag].acol())
            || (event[iRad].acol() == event[EmtTag].col())
@@ -1501,7 +1509,7 @@ vector<Clustering> History::findTriple (int EmtTagIn, int colTopIn,
             for(int l = 0; l < int(PosInitPartn.size()); ++l)
               if(PosInitPartn[l] != iRad) RecInit = PosInitPartn[l];
 
-            // Find the colour connceted partner
+            // Find the colour connected partner
             // Find colour index of radiator before splitting
             col = getRadBeforeCol(iRad, EmtTag, event);
             acl = getRadBeforeAcol(iRad, EmtTag, event);
@@ -1558,7 +1566,7 @@ double History::getProb(const Clustering & SystemIn) {
   // If the splitting resulted in disallowed evolution variable,
   // disallow the splitting
   if(SystemIn.pT() <= 0.){
-    info->errorMsg("Warning in History::getProb: Reconstructed evolution",
+    infoPtr->errorMsg("Warning in History::getProb: Reconstructed evolution",
       "variable has negative value, set splitting probability to 0.");
     return 0.;
   }
@@ -1614,8 +1622,8 @@ double History::getProb(const Clustering & SystemIn) {
         && ( abs(state[Rad].id()) >= 4 && abs(state[Rad].id()) < 7);
     bool isMassive = mergingHooksPtr->includeMassive()
                     && (g2QQmassive || Q2Qgmassive);
-    double m2Emt0 = pow(particleData->m0(state[Emt].id()),2);
-    double m2Rad0 = pow(particleData->m0(state[Rad].id()),2);
+    double m2Emt0 = pow(particleDataPtr->m0(state[Emt].id()),2);
+    double m2Rad0 = pow(particleDataPtr->m0(state[Rad].id()),2);
 
     // Correction of virtuality for massive splittings
     if( g2QQmassive)      Q1sq += m2Emt0;
@@ -1632,7 +1640,7 @@ double History::getProb(const Clustering & SystemIn) {
     bool Q2QgmassiveRec = mergingHooksPtr->includeMassive()
         && state[Emt].id() == 21
         && ( abs(state[Rec].id()) >= 4 && abs(state[Rec].id()) < 7);
-    double m2Rec0 = pow(particleData->m0(state[Rad].id()),2);
+    double m2Rec0 = pow(particleDataPtr->m0(state[Rad].id()),2);
     if( g2QQmassiveRec)      Q2sq += m2Emt0;
     else if(Q2QgmassiveRec)  Q2sq += m2Rec0;
 
@@ -1652,7 +1660,7 @@ double History::getProb(const Clustering & SystemIn) {
     } else if(mergingHooksPtr->pickByPoPT2()) {
       fac = 1./(pT1sq + pT0sq);
     } else {
-      info->errorMsg("Error in History::getProb: Scheme for calculating",
+      infoPtr->errorMsg("Error in History::getProb: Scheme for calculating",
         "shower splitting probability is undefined.");
     }
 
@@ -1738,7 +1746,7 @@ double History::getProb(const Clustering & SystemIn) {
 
     // Print error if no kernel calculated
     } else {
-      info->errorMsg("Error in History::getProb: Splitting kernel undefined",
+      infoPtr->errorMsg("Error in History::getProb: Splitting kernel undefined",
         "in ISR clustering.");
     }
 
@@ -1759,14 +1767,12 @@ double History::getProb(const Clustering & SystemIn) {
 
     if(mergingHooksPtr->includeRedundant()){
       // Initialise the spacelike shower alpha_S
-      double alphaSvalue = 0.137;
-      int    alphaSorder = 1;
-      AlphaStrong AlphaSinPS;
-      AlphaSinPS.init(alphaSvalue,alphaSorder);
-      double as = AlphaSinPS.alphaS(pT1sq + pT0sq)/(2.*M_PI);
+      AlphaStrong* asISR = mergingHooksPtr->AlphaS_ISR();
+      double as = (*asISR).alphaS(pT1sq + pT0sq) / (2.*M_PI);
       // Multiply with alpha_S
       showerProb *= as;
     }
+
   // Done for ISR case, begin FSR case
 
   }  else if (isFSR || isFSRinREC){
@@ -1794,8 +1800,8 @@ double History::getProb(const Clustering & SystemIn) {
     double Q2sq = Q2.m2Calc();
 
     // Correction of virtuality for massive splittings
-    double m2Rad0 = pow(particleData->m0(state[Rad].id()),2);
-    double m2Rec0 = pow(particleData->m0(state[Rad].id()),2);
+    double m2Rad0 = pow(particleDataPtr->m0(state[Rad].id()),2);
+    double m2Rec0 = pow(particleDataPtr->m0(state[Rad].id()),2);
     if( abs(state[Rad].id()) >= 4 && abs(state[Rad].id()) < 7)
       Q1sq -= m2Rad0;
     if( abs(state[Rec].id()) >= 4 && abs(state[Rec].id()) < 7)
@@ -1811,7 +1817,7 @@ double History::getProb(const Clustering & SystemIn) {
     } else if(mergingHooksPtr->pickByPoPT2()) {
       fac = 1. / pT1sq;
     } else {
-      info->errorMsg("Error in History::getProb: Scheme for calculating",
+      infoPtr->errorMsg("Error in History::getProb: Scheme for calculating",
         "shower splitting probability is undefined.");
     }
     // Calculate shower splitting probability:
@@ -1871,7 +1877,7 @@ double History::getProb(const Clustering & SystemIn) {
       int flavour = state[Emt].id();
       // Get correct masses for the quarks
       // (needed to calculate splitting function?)
-      double mFlavour = particleData->m0(flavour);
+      double mFlavour = particleDataPtr->m0(flavour);
       // Get mass of quark/antiquark pair
       double mDipole = m(state[Rad].p(), state[Emt].p());
       // Factor determining if gluon decay was allowed
@@ -1879,7 +1885,7 @@ double History::getProb(const Clustering & SystemIn) {
       // Shower splitting function
       double num = 0.5*TR * ( z1*z1 + (1.-z1)*(1.-z1) );
       if(beta <= 0.) {
-        info->errorMsg("Warning in History::getProb: g->qqbar",
+        infoPtr->errorMsg("Warning in History::getProb: g->qqbar",
           "kinematically not allowed.");
       }
 
@@ -1887,28 +1893,26 @@ double History::getProb(const Clustering & SystemIn) {
 
     // Print error if no kernel calculated
     } else {
-      info->errorMsg("Error in History::getProb: Splitting kernel undefined",
+      infoPtr->errorMsg("Error in History::getProb: Splitting kernel undefined",
         "in FSR clustering.");
     }
 
     if(mergingHooksPtr->includeRedundant()){
-      // Initialise the timelike shower alpha_S
-      double alphaSvalue = 0.1382;
-      int    alphaSorder = 1;
-      AlphaStrong AlphaSinPS;
-      AlphaSinPS.init(alphaSvalue,alphaSorder);
-      double as = AlphaSinPS.alphaS(pT1sq)/(2.*M_PI);
+      // Initialise the spacelike shower alpha_S
+      AlphaStrong* asFSR = mergingHooksPtr->AlphaS_FSR();
+      double as = (*asFSR).alphaS(pT1sq) / (2.*M_PI);
       // Multiply with alpha_S
       showerProb *= as;
     }
+
     // Done for FSR
   } else {
-    info->errorMsg("Error in History::getProb: Radiation could not be",
+    infoPtr->errorMsg("Error in History::getProb: Radiation could not be",
       "interpreted as FSR or ISR.");
   }
 
   if(showerProb <= 0.){
-    info->errorMsg("Warning in History::getProb: Splitting probability",
+    infoPtr->errorMsg("Warning in History::getProb: Splitting probability",
       "negative, raised to 0.");
     showerProb = 0.;
   }
@@ -1993,24 +1997,20 @@ void History::setupBeams(){
 
   // Scale. For ME multiplicity history, put scale to mu_F
   // (since sea/valence quark content is chosen from this scale)
-  double scalePDF = (mother) ? scale : info->QFac();
+  double scalePDF = (mother) ? scale : infoPtr->QFac();
   // Find whether incoming partons are valence or sea. Store.
   // Can I do better, e.g. by setting the scale to the hard process
   // scale (= M_W) or by replacing one of the x values by some x/z??
   beamA.xfISR( 0, state[inP].id(), x1, scalePDF*scalePDF);
-  int vsc1 = -1;
   if(!mother){
-    vsc1 = beamA.pickValSeaComp();
+    beamA.pickValSeaComp();
   }  else {
-    vsc1 = motherPcompRes;
     beamA[0].companion(motherPcompRes);
   }
   beamB.xfISR( 0, state[inM].id(), x2, scalePDF*scalePDF);
-  int vsc2 = -1;
   if(!mother){
-    vsc2 = beamB.pickValSeaComp();
+    beamB.pickValSeaComp();
   } else {
-    vsc2 = motherMcompRes;
     beamB[0].companion(motherMcompRes);
   }
 
@@ -2088,7 +2088,7 @@ Event History::cluster(const Clustering & inSystem) {
 
   // Construct the clustered event
   Event NewEvent = Event();
-  NewEvent.init("(hard process-modified)", particleData);
+  NewEvent.init("(hard process-modified)", particleDataPtr);
   NewEvent.clear();
   // Copy all unchanged particles to NewEvent
   for (int i = 0; i < state.size(); ++i)
@@ -2120,8 +2120,8 @@ Event History::cluster(const Clustering & inSystem) {
   // Put dummy values for colours
   RadBefore.cols(RecBefore.acol(),RecBefore.col());
   // Put mass for radiator and recoiler
-  RecBefore.m(particleData->m0(state[Rec].id()));
-  RadBefore.m(particleData->m0(radID));
+  RecBefore.m(particleDataPtr->m0(state[Rec].id()));
+  RadBefore.m(particleDataPtr->m0(radID));
 
   // Construct momenta and  colours of clustered particles
   // ISR/FSR splittings are treated differently
@@ -2302,8 +2302,8 @@ Event History::cluster(const Clustering & inSystem) {
   // Put some dummy production scales for RecBefore, RadBefore
   RecBefore.scale(mu);
   RadBefore.scale(mu);
-  RecBefore.setPDTPtr(particleData);
-  RadBefore.setPDTPtr(particleData);
+  RecBefore.setPDTPtr(particleDataPtr);
+  RadBefore.setPDTPtr(particleDataPtr);
 
   // Append new recoiler and find new radiator colour
   NewEvent.append(RecBefore);
@@ -2317,7 +2317,7 @@ Event History::cluster(const Clustering & inSystem) {
 
   // Build the clustered event
   Event outState = Event();
-  outState.init("(hard process-modified)", particleData);
+  outState.init("(hard process-modified)", particleDataPtr);
   outState.clear();
 
   // Copy system and incoming beam particles to outState
@@ -2874,7 +2874,7 @@ int History::getRadBeforeCol(const int rad, const int emt,
 
     // Quark emission in FSR
     if (type == 1 && event[emt].id() != 21) {
-      // If radiating is a gluon, remove the repeated index, and take
+      // If radiating is a quark, remove the repeated index, and take
       // the remaining indices as colour and anticolour 
       int colRemove = (event[rad].col() == event[emt].acol())
                     ? event[rad].acol() : 0;
@@ -2888,6 +2888,14 @@ int History::getRadBeforeCol(const int rad, const int emt,
                     ? event[rad].col() : 0;
       radBeforeCol  = (event[rad].col()  == colRemove)
                     ? event[emt].col() : event[rad].col();
+    //Quark emissions in ISR
+    } else if (type == -1 && event[emt].id() != 21) {
+      // If emitted is a quark, remove the repeated index, and take
+      // the remaining indices as colour and anticolour 
+      int colRemove = (event[rad].col() == event[emt].col())
+                    ? event[rad].col() : 0;
+      radBeforeCol  = (event[rad].col()  == colRemove)
+                    ? event[emt].acol() : event[rad].col();
     //Gluon emissions in ISR
     } else if (type == -1 && event[emt].id() == 21) {
       // If emitted is a gluon, remove the repeated index, and take
@@ -2955,9 +2963,10 @@ int History::getRadBeforeAcol(const int rad, const int emt,
 
   // Get reconstructed anti-quark colours
   } else if ( radBeforeFlav != 21 && radBeforeFlav < 0){
+
     // Antiquark emission in FSR
     if (type == 1 && event[emt].id() != 21) {
-      // If radiating is a gluon, remove the repeated index, and take
+      // If radiating is a antiquark, remove the repeated index, and take
       // the remaining indices as colour and anticolour 
       int colRemove = (event[rad].col() == event[emt].acol())
                     ? event[rad].acol() : 0;
@@ -2971,6 +2980,14 @@ int History::getRadBeforeAcol(const int rad, const int emt,
                     ? event[rad].acol() : 0;
       radBeforeAcl  = (event[rad].acol()  == colRemove)
                     ? event[emt].acol() : event[rad].acol();
+    //Antiquark emissions in ISR
+    } else if (type == -1 && event[emt].id() != 21) {
+      // If emitted is an antiquark, remove the repeated index, and take
+      // the remaining indices as colour and anticolour 
+      int colRemove = (event[rad].acol() == event[emt].acol())
+                    ? event[rad].acol() : 0;
+      radBeforeAcl  = (event[rad].acol()  == colRemove)
+                    ? event[emt].col() : event[rad].acol();
     //Gluon emissions in ISR
     } else if (type == -1 && event[emt].id() == 21) {
       // If emitted is a gluon, remove the repeated index, and take
@@ -4145,7 +4162,7 @@ double History::pTLund(const Particle& RadAfterBranch,
   double m2Rad = (mergingHooksPtr->includeMassive()
                && abs(RadAfterBranch.id()) >= 4
                && abs(RadAfterBranch.id()) < 7)
-               ? pow(particleData->m0(RadAfterBranch.id()), 2)
+               ? pow(particleDataPtr->m0(RadAfterBranch.id()), 2)
                : 0.;
   // Construct 2->3 variables for FSR
   Vec4   sum     = RadAfterBranch.p() + RecAfterBranch.p()
@@ -4164,7 +4181,7 @@ double History::pTLund(const Particle& RadAfterBranch,
   // pT^2 = separation*virtuality
   pTpyth *= (Qsq - sign*m2Rad);
   if(pTpyth < 0.){
-    info->errorMsg("Warning in History::pTLund: Reconstructed evolution",
+    infoPtr->errorMsg("Warning in History::pTLund: Reconstructed evolution",
       "variable for massive splitting negative, raised to 0.");
     pTpyth = 0.;
   }

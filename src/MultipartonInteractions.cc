@@ -469,6 +469,10 @@ bool MultipartonInteractions::init( bool doMPIinit, int diffractiveModeIn,
   // Rescattering not yet implemented for x-dependent impact profile.
   if (bProfile == 4) allowRescatter = false;
 
+  // A global recoil FSR stategy restricts rescattering.
+  globalRecoilFSR     = settings.flag("TimeShower:globalRecoil");
+  nMaxGlobalRecoilFSR = settings.mode("TimeShower:nMaxGlobalRecoil");
+
   // Various other parameters. 
   nQuarkIn       = settings.mode("MultipartonInteractions:nQuarkIn");
   nSample        = settings.mode("MultipartonInteractions:nSample");
@@ -1067,11 +1071,16 @@ double MultipartonInteractions::pTnext( double pTbegAll, double pTendAll,
     }
   }
 
+  // Do not allow rescattering while sill FSR with global recoil.
+  bool allowRescatterNow = allowRescatter;
+  if (globalRecoilFSR && partonSystemsPtr->sizeOut(0) <= nMaxGlobalRecoilFSR)
+    allowRescatterNow = false;
+
   // Initial pT2 value.
   pT2 = pow2(pTbegAll);
 
   // Find the set of already scattered partons on the two sides.
-  if (allowRescatter) findScatteredPartons( event);
+  if (allowRescatterNow) findScatteredPartons( event);
 
   // Pick a pT2 using a quick-and-dirty cross section estimate.
   do {
@@ -1089,7 +1098,7 @@ double MultipartonInteractions::pTnext( double pTbegAll, double pTendAll,
       dSigmaScatter   = sigmaPT2scatter(false); 
 
       // Also cross section from rescattering if allowed.
-      dSigmaRescatter = (allowRescatter) ? sigmaPT2rescatter( event) : 0.;
+      dSigmaRescatter = (allowRescatterNow) ? sigmaPT2rescatter( event) : 0.;
 
       // Normalize to dSigmaApprox, which was set in fastPT2 above.
       WTacc = (dSigmaScatter + dSigmaRescatter) / dSigmaApprox;
@@ -1122,7 +1131,7 @@ double MultipartonInteractions::pTnext( double pTbegAll, double pTendAll,
     } while (WTacc < rndmPtr->flat());
 
     // When rescattering possible: new interaction or rescattering?
-    if (allowRescatter) {
+    if (allowRescatterNow) {
       pickRescatter = (i1Sel > 0 || i2Sel > 0);
 
       // Restore kinematics for selected scattering/rescattering. 

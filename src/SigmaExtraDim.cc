@@ -13,6 +13,77 @@ namespace Pythia8 {
 
 //==========================================================================
 
+// ampLedS (amplitude) method for LED graviton tree level exchange.
+// Based on Eq. (8) in JHEP 1105 (2011) 092, arXiv:1101.4919.
+
+complex ampLedS(double x, double n, double L, double M) {
+  
+  complex cS(0., 0.);
+  if (n <= 0) return cS;
+
+  // Constants.
+  double exp1 = n - 2;
+  double exp2 = n + 2;
+  double rC = sqrt(pow(M_PI,n)) * pow(L,exp1) 
+            / (GammaReal(n/2.) * pow(M,exp2));
+
+  // Base functions, F1 and F2.
+  complex I(0., 1.);
+  if (x < 0) { 
+    double sqrX = sqrt(-x);
+    if (int(n) % 2 == 0) { 
+      cS = -log(fabs(1 - 1/x));
+    } else {
+      cS = (2.*atan(sqrX) - M_PI)/sqrX;
+    }
+  } else if ((x > 0) && (x < 1)) {
+    double sqrX = sqrt(x);
+    if (int(n) % 2 == 0) { 
+      cS = -log(fabs(1 - 1/x)) - M_PI*I;
+    } else {
+      double rat = (sqrX + 1)/(sqrX - 1);
+      cS = log(fabs(rat))/sqrX - M_PI*I/sqrX;
+    }
+  } else if (x > 1){
+    double sqrX = sqrt(x);
+    if (int(n) % 2 == 0) { 
+      cS = -log(fabs(1 - 1/x));
+    } else {
+      double rat = (sqrX + 1)/(sqrX - 1);
+      cS = log(fabs(rat))/sqrX;
+    }
+  }
+  
+  // Recursive part.
+  int nL;
+  int nD;
+  if (int(n) % 2 == 0) { 
+    nL = int(n/2.); 
+    nD = 2;
+  } else { 
+    nL = int((n + 1)/2.);
+    nD = 1;
+  }
+  for (int i=1; i<nL; ++i) {
+    cS = x*cS - 2./nD;
+    nD += 2;
+  }
+
+  return rC*cS;
+}
+
+//--------------------------------------------------------------------------
+
+// Common method, "Mandelstam polynomial", for LED dijet processes.
+
+double funLedG(double x, double y) {
+  double ret = pow(x,4) + 10. * pow(x,3) * y + 42. * pow2(x) * pow2(y) 
+             + 64. * x * pow(y,3) + 32. * pow(y,4);
+  return ret;
+}
+
+//==========================================================================
+
 // Sigma1gg2GravitonStar class.
 // Cross section for g g -> G* (excited graviton state). 
 
@@ -2085,6 +2156,7 @@ void Sigma2ffbar2LEDgammagamma::initProc() {
     eDdU       = 2;
     eDLambdaU  = settingsPtr->parm("ExtraDimensionsLED:LambdaT");
     eDlambda   = 1;
+    eDnegInt   = settingsPtr->mode("ExtraDimensionsLED:NegInt");
     eDcutoff   = settingsPtr->mode("ExtraDimensionsLED:CutOffMode"); 
     eDtff      = settingsPtr->parm("ExtraDimensionsLED:t");
   } else {
@@ -2092,11 +2164,13 @@ void Sigma2ffbar2LEDgammagamma::initProc() {
     eDdU       = settingsPtr->parm("ExtraDimensionsUnpart:dU");
     eDLambdaU  = settingsPtr->parm("ExtraDimensionsUnpart:LambdaU");
     eDlambda   = settingsPtr->parm("ExtraDimensionsUnpart:lambda");
+    eDnegInt   = 0;
   }
 
   // Model dependent constants.
   if (eDgraviton) {
     eDlambda2chi = 4*M_PI;
+    if (eDnegInt == 1) eDlambda2chi *= -1.;
   } else {
     double tmPAdU = 16 * pow2(M_PI) * sqrt(M_PI) / pow(2. * M_PI, 2. * eDdU)
       * GammaReal(eDdU + 0.5) / (GammaReal(eDdU - 1.) * GammaReal(2. * eDdU));
@@ -2337,6 +2411,7 @@ void Sigma2ffbar2LEDllbar::initProc() {
     eDdU       = 2;
     eDLambdaU  = settingsPtr->parm("ExtraDimensionsLED:LambdaT");
     eDlambda   = 1;
+    eDnegInt   = settingsPtr->mode("ExtraDimensionsLED:NegInt");
     eDcutoff   = settingsPtr->mode("ExtraDimensionsLED:CutOffMode"); 
     eDtff      = settingsPtr->parm("ExtraDimensionsLED:t");
   } else {
@@ -2346,6 +2421,7 @@ void Sigma2ffbar2LEDllbar::initProc() {
     eDlambda   = settingsPtr->parm("ExtraDimensionsUnpart:lambda");
     eDnxx      = settingsPtr->mode("ExtraDimensionsUnpart:gXX");
     eDnxy      = settingsPtr->mode("ExtraDimensionsUnpart:gXY");
+    eDnegInt   = 0;
   }
 
   eDmZ  = particleDataPtr->m0(23);
@@ -2356,6 +2432,7 @@ void Sigma2ffbar2LEDllbar::initProc() {
   // Model dependent constants.
   if (eDgraviton) {
     eDlambda2chi = 4*M_PI;
+    if (eDnegInt == 1) eDlambda2chi *= -1.;
   } else {
     double tmPAdU = 16 * pow2(M_PI) * sqrt(M_PI) / pow(2. * M_PI, 2. * eDdU)
       * GammaReal(eDdU + 0.5) / (GammaReal(eDdU - 1.) * GammaReal(2. * eDdU));
@@ -2649,6 +2726,598 @@ void Sigma2gg2LEDllbar::setIdColAcol() {
 
   // Colour flow topologies. 
   setColAcol( 1, 2, 2, 1, 0, 0, 0, 0);
+
+}
+
+//==========================================================================
+
+// Sigma2gg2LEDgg class.
+// Cross section for g g -> (LED G*) -> g g.
+
+//--------------------------------------------------------------------------
+
+// Initialize process. 
+  
+void Sigma2gg2LEDgg::initProc() {
+
+  // Read model parameters.
+  eDopMode   = settingsPtr->mode("ExtraDimensionsLED:opMode");
+  eDnGrav    = settingsPtr->mode("ExtraDimensionsLED:n");
+  eDMD       = settingsPtr->parm("ExtraDimensionsLED:MD");
+  eDLambdaT  = settingsPtr->parm("ExtraDimensionsLED:LambdaT");
+  eDnegInt   = settingsPtr->mode("ExtraDimensionsLED:NegInt");
+  eDcutoff   = settingsPtr->mode("ExtraDimensionsLED:CutOffMode"); 
+  eDtff      = settingsPtr->parm("ExtraDimensionsLED:t");
+
+} 
+
+//--------------------------------------------------------------------------
+
+// Evaluate d(sigmaHat)/d(tHat) - no incoming flavour dependence.
+
+void Sigma2gg2LEDgg::sigmaKin() {
+
+  // Get S(x) values for G amplitude.
+  complex sS(0., 0.);
+  complex sT(0., 0.);
+  complex sU(0., 0.);
+  if (eDopMode == 0) {
+    sS = ampLedS( sH/pow2(eDLambdaT), eDnGrav, eDLambdaT, eDMD);
+    sT = ampLedS( tH/pow2(eDLambdaT), eDnGrav, eDLambdaT, eDMD);
+    sU = ampLedS( uH/pow2(eDLambdaT), eDnGrav, eDLambdaT, eDMD);
+  } else {
+    // Form factor.
+    double effLambda = eDLambdaT;
+    if ((eDcutoff == 2) || (eDcutoff == 3)) {
+      double ffterm = sqrt(Q2RenSave) / (eDtff * eDLambdaT);
+      double exp    = double(eDnGrav) + 2.;
+      double formfa = 1. + pow(ffterm, exp);
+      effLambda *= pow(formfa,0.25);
+    }
+    sS = 4.*M_PI/pow(effLambda,4);
+    sT = 4.*M_PI/pow(effLambda,4);
+    sU = 4.*M_PI/pow(effLambda,4);
+    if (eDnegInt == 1) {
+      sS *= -1.;
+      sT *= -1.;
+      sU *= -1.;
+    }
+  }
+
+  // Calculate kinematics dependence.
+  double sH3 = sH*sH2;
+  double tH3 = tH*tH2;
+  double uH3 = uH*uH2;
+  
+  sigTS  = (128. * pow2(M_PI) * pow2(alpS)) * (9./4.)
+         * (tH2 / sH2 + 2. * tH / sH + 3. + 2. * sH / tH + sH2 / tH2)
+         + 24.*M_PI*alpS*( (sH3/tH + tH2 + 3.*(sH*tH + sH2))*sS.real() 
+		         + (tH3/sH + sH2 + 3.*(tH*sH + tH2))*sT.real())
+         + pow2(uH2)*( 4.*real(sS*conj(sS)) + sS.real()*sT.real() 
+	             + sS.imag()*sT.imag() + 4.*real(sT*conj(sT)));
+
+
+  sigUS  = (128. * pow2(M_PI) * pow2(alpS)) * (9./4.)
+         * (uH2 / sH2 + 2. * uH / sH + 3. + 2. * sH / uH + sH2 / uH2)
+         + 24.*M_PI*alpS*( (sH3/uH + uH2 + 3.*(sH*uH + sH2))*sS.real() 
+                         + (uH3/sH + sH2 + 3.*(uH*sH + uH2))*sU.real())
+         + pow2(tH2)*( 4.*real(sS*conj(sS)) + sS.real()*sU.real() 
+		     + sS.imag()*sU.imag() + 4.*real(sU*conj(sU)));
+
+  sigTU  = (128. * pow2(M_PI) * pow2(alpS)) * (9./4.) 
+         * (tH2 / uH2 + 2. * tH / uH + 3. + 2. * uH / tH + uH2 / tH2)
+         + 24.*M_PI*alpS*( (tH3/uH + uH2 + 3.*(tH*uH + tH2))*sT.real() 
+		         + (uH3/tH + tH2 + 3.*(uH*tH + uH2))*sU.real())
+         + pow2(sH2)*( 4.*real(sT*conj(sT)) + sT.real()*sU.real() 
+		     + sT.imag()*sU.imag() + 4.*real(sU*conj(sU)));
+
+  sigSum = sigTS + sigUS + sigTU;
+
+  // Answer contains factor 1/2 from identical gluons.
+  sigma  = 0.5 * sigSum / (128. * M_PI * sH2);  
+
+}
+
+//--------------------------------------------------------------------------
+
+// Select identity, colour and anticolour.
+
+void Sigma2gg2LEDgg::setIdColAcol() {
+
+  // Flavours are trivial.
+  setId( id1, id2, 21, 21);
+
+  // Three colour flow topologies, each with two orientations.
+  double sigRand = sigSum * rndmPtr->flat();
+  if (sigRand < sigTS) setColAcol( 1, 2, 2, 3, 1, 4, 4, 3);
+  else if (sigRand < sigTS + sigUS) 
+                       setColAcol( 1, 2, 3, 1, 3, 4, 4, 2);
+  else                 setColAcol( 1, 2, 3, 4, 1, 4, 3, 2); 
+  if (rndmPtr->flat() > 0.5) swapColAcol();
+
+}
+
+//==========================================================================
+
+// Sigma2gg2LEDqqbar class.
+// Cross section for g g -> (LED G*) -> q qbar.
+
+//--------------------------------------------------------------------------
+
+// Initialize process. 
+  
+void Sigma2gg2LEDqqbar::initProc() {
+
+  // Read number of quarks to be considered in massless approximation
+  // as well as model parameters.
+  nQuarkNew  = settingsPtr->mode("ExtraDimensionsLED:nQuarkNew");
+  eDopMode   = settingsPtr->mode("ExtraDimensionsLED:opMode");
+  eDnGrav    = settingsPtr->mode("ExtraDimensionsLED:n");
+  eDMD       = settingsPtr->parm("ExtraDimensionsLED:MD");
+  eDLambdaT  = settingsPtr->parm("ExtraDimensionsLED:LambdaT");
+  eDnegInt   = settingsPtr->mode("ExtraDimensionsLED:NegInt");
+  eDcutoff   = settingsPtr->mode("ExtraDimensionsLED:CutOffMode"); 
+  eDtff      = settingsPtr->parm("ExtraDimensionsLED:t");
+
+} 
+
+//--------------------------------------------------------------------------
+
+// Evaluate d(sigmaHat)/d(tHat) - no incoming flavour dependence. 
+
+void Sigma2gg2LEDqqbar::sigmaKin() { 
+
+  // Get S(x) values for G amplitude.
+  complex sS(0., 0.);
+  complex sT(0., 0.);
+  complex sU(0., 0.);
+  if (eDopMode == 0) {
+    sS = ampLedS( sH/pow2(eDLambdaT), eDnGrav, eDLambdaT, eDMD);
+    sT = ampLedS( tH/pow2(eDLambdaT), eDnGrav, eDLambdaT, eDMD);
+    sU = ampLedS( uH/pow2(eDLambdaT), eDnGrav, eDLambdaT, eDMD);
+  } else {
+    // Form factor.
+    double effLambda = eDLambdaT;
+    if ((eDcutoff == 2) || (eDcutoff == 3)) {
+      double ffterm = sqrt(Q2RenSave) / (eDtff * eDLambdaT);
+      double exp    = double(eDnGrav) + 2.;
+      double formfa = 1. + pow(ffterm, exp);
+      effLambda *= pow(formfa,0.25);
+    }
+    sS = 4.*M_PI/pow(effLambda,4);
+    sT = 4.*M_PI/pow(effLambda,4);
+    sU = 4.*M_PI/pow(effLambda,4);
+    if (eDnegInt == 1) {
+      sS *= -1.;
+      sT *= -1.;
+      sU *= -1.;
+    }
+  }
+
+  // Pick new flavour.
+  idNew = 1 + int( nQuarkNew * rndmPtr->flat() ); 
+  mNew  = particleDataPtr->m0(idNew);
+  m2New = mNew*mNew;
+  
+  // Calculate kinematics dependence.
+  sigTS = 0.;
+  sigUS = 0.;
+  if (sH > 4. * m2New) {
+    double tH3 = tH*tH2;
+    double uH3 = uH*uH2;
+    sigTS = (16. * pow2(M_PI) * pow2(alpS)) 
+          * ((1./6.) * uH / tH - (3./8.) * uH2 / sH2)
+          - 0.5 * M_PI * alpS * uH2 * sS.real() 
+          + (3./16.) * uH3 * tH * real(sS*conj(sS));
+    sigUS = (16. * pow2(M_PI) * pow2(alpS)) 
+          * ((1./6.) * tH / uH - (3./8.) * tH2 / sH2)
+          - 0.5 * M_PI * alpS * tH2 * sS.real()
+          + (3./16.) * tH3 * uH * real(sS*conj(sS)); 
+  }
+  sigSum = sigTS + sigUS;
+
+  // Answer is proportional to number of outgoing flavours.
+  sigma  = nQuarkNew * sigSum / (16. * M_PI * sH2);  
+
+}
+
+//--------------------------------------------------------------------------
+
+// Select identity, colour and anticolour.
+
+void Sigma2gg2LEDqqbar::setIdColAcol() {
+
+  // Flavours are trivial.
+  setId( id1, id2, idNew, -idNew);
+
+  // Two colour flow topologies.
+  double sigRand = sigSum * rndmPtr->flat();
+  if (sigRand < sigTS) setColAcol( 1, 2, 2, 3, 1, 0, 0, 3);
+  else                 setColAcol( 1, 2, 3, 1, 3, 0, 0, 2); 
+
+}
+
+//==========================================================================
+
+// Sigma2qg2LEDqg class.
+// Cross section for q g -> (LED G*) -> q g.
+
+//--------------------------------------------------------------------------
+
+// Initialize process. 
+  
+void Sigma2qg2LEDqg::initProc() {
+
+  // Read model parameters.
+  eDopMode   = settingsPtr->mode("ExtraDimensionsLED:opMode");
+  eDnGrav    = settingsPtr->mode("ExtraDimensionsLED:n");
+  eDMD       = settingsPtr->parm("ExtraDimensionsLED:MD");
+  eDLambdaT  = settingsPtr->parm("ExtraDimensionsLED:LambdaT");
+  eDnegInt   = settingsPtr->mode("ExtraDimensionsLED:NegInt");
+  eDcutoff   = settingsPtr->mode("ExtraDimensionsLED:CutOffMode"); 
+  eDtff      = settingsPtr->parm("ExtraDimensionsLED:t");
+
+} 
+
+//--------------------------------------------------------------------------
+
+// Evaluate d(sigmaHat)/d(tHat) - no incoming flavour dependence. 
+
+void Sigma2qg2LEDqg::sigmaKin() { 
+
+  // Get S(x) values for G amplitude.
+  complex sS(0., 0.);
+  complex sT(0., 0.);
+  complex sU(0., 0.);
+  if (eDopMode == 0) {
+    sS = ampLedS( sH/pow2(eDLambdaT), eDnGrav, eDLambdaT, eDMD);
+    sT = ampLedS( tH/pow2(eDLambdaT), eDnGrav, eDLambdaT, eDMD);
+    sU = ampLedS( uH/pow2(eDLambdaT), eDnGrav, eDLambdaT, eDMD);
+  } else {
+    // Form factor.
+    double effLambda = eDLambdaT;
+    if ((eDcutoff == 2) || (eDcutoff == 3)) {
+      double ffterm = sqrt(Q2RenSave) / (eDtff * eDLambdaT);
+      double exp    = double(eDnGrav) + 2.;
+      double formfa = 1. + pow(ffterm, exp);
+      effLambda *= pow(formfa,0.25);
+    }
+    sS = 4.*M_PI/pow(effLambda,4);
+    sT = 4.*M_PI/pow(effLambda,4);
+    sU = 4.*M_PI/pow(effLambda,4);
+    if (eDnegInt == 1) {
+      sS *= -1.;
+      sT *= -1.;
+      sU *= -1.;
+    }
+  }
+
+  // Calculate kinematics dependence.
+  double sH3 = sH*sH2;
+  double uH3 = uH*uH2;
+  sigTS  = (16. * pow2(M_PI) * pow2(alpS)) 
+         * (uH2 / tH2 - (4./9.) * uH / sH)
+         + (4./3.) * M_PI * alpS * uH2 * sT.real()
+         - 0.5 * uH3 * sH * real(sT*conj(sT));
+  sigTU  = (16. * pow2(M_PI) * pow2(alpS)) 
+         * (sH2 / tH2 - (4./9.) * sH / uH)
+         + (4./3.) * M_PI * alpS * sH2 * sT.real()
+         - 0.5 * sH3 * uH * real(sT*conj(sT));
+  sigSum = sigTS + sigTU;
+
+  // Answer.
+  sigma  = sigSum / (16. * M_PI * sH2);  
+
+}
+
+//--------------------------------------------------------------------------
+
+// Select identity, colour and anticolour.
+
+void Sigma2qg2LEDqg::setIdColAcol() {
+
+  // Outgoing = incoming flavours.
+  setId( id1, id2, id1, id2);
+
+  // Two colour flow topologies. Swap if first is gluon, or when antiquark.
+  double sigRand = sigSum * rndmPtr->flat();
+  if (sigRand < sigTS) setColAcol( 1, 0, 2, 1, 3, 0, 2, 3);
+  else                 setColAcol( 1, 0, 2, 3, 2, 0, 1, 3); 
+  if (id1 == 21) swapCol1234();
+  if (id1 < 0 || id2 < 0) swapColAcol();
+
+}
+
+//==========================================================================
+
+// Sigma2qq2LEDqq class.
+// Cross section for q q(bar)' -> (LED G*) -> q q(bar)'
+
+//--------------------------------------------------------------------------
+
+// Initialize process. 
+  
+void Sigma2qq2LEDqq::initProc() {
+
+  // Read model parameters.
+  eDopMode   = settingsPtr->mode("ExtraDimensionsLED:opMode");
+  eDnGrav    = settingsPtr->mode("ExtraDimensionsLED:n");
+  eDMD       = settingsPtr->parm("ExtraDimensionsLED:MD");
+  eDLambdaT  = settingsPtr->parm("ExtraDimensionsLED:LambdaT");
+  eDnegInt   = settingsPtr->mode("ExtraDimensionsLED:NegInt");
+  eDcutoff   = settingsPtr->mode("ExtraDimensionsLED:CutOffMode"); 
+  eDtff      = settingsPtr->parm("ExtraDimensionsLED:t");
+
+} 
+
+//--------------------------------------------------------------------------
+
+// Evaluate d(sigmaHat)/d(tHat), part independent of incoming flavour. 
+
+void Sigma2qq2LEDqq::sigmaKin() { 
+
+  // Get S(x) values for G amplitude.
+  complex sS(0., 0.);
+  complex sT(0., 0.);
+  complex sU(0., 0.);
+  if (eDopMode == 0) {
+    sS = ampLedS( sH/pow2(eDLambdaT), eDnGrav, eDLambdaT, eDMD);
+    sT = ampLedS( tH/pow2(eDLambdaT), eDnGrav, eDLambdaT, eDMD);
+    sU = ampLedS( uH/pow2(eDLambdaT), eDnGrav, eDLambdaT, eDMD);
+  } else {
+    // Form factor.
+    double effLambda = eDLambdaT;
+    if ((eDcutoff == 2) || (eDcutoff == 3)) {
+      double ffterm = sqrt(Q2RenSave) / (eDtff * eDLambdaT);
+      double exp    = double(eDnGrav) + 2.;
+      double formfa = 1. + pow(ffterm, exp);
+      effLambda *= pow(formfa,0.25);
+    }
+    sS = 4.*M_PI/pow(effLambda,4);
+    sT = 4.*M_PI/pow(effLambda,4);
+    sU = 4.*M_PI/pow(effLambda,4);
+    if (eDnegInt == 1) {
+      sS *= -1.;
+      sT *= -1.;
+      sU *= -1.;
+    }
+  }
+
+  // Calculate kinematics dependence for different terms.
+  sigT   = (4./9.) * (sH2 + uH2) / tH2;
+  sigU   = (4./9.) * (sH2 + tH2) / uH2;
+  sigTU  = - (8./27.) * sH2 / (tH * uH);
+  sigST  = - (8./27.) * uH2 / (sH * tH);
+  // Graviton terms.
+  sigGrT1 = funLedG(tH, uH) * real(sT*conj(sT)) / 8.;
+  sigGrT2 = funLedG(tH, sH) * real(sT*conj(sT)) / 8.;
+  sigGrU  = funLedG(uH, tH) * real(sU*conj(sU)) / 8.;
+  sigGrTU = (8./9.) * M_PI * alpS * sH2 
+          * ((4.*uH + tH)*sT.real()/uH + (4.*tH + uH)*sU.real()/tH)
+          + (sT.real()*sU.real() + sT.imag()*sU.imag()) 
+          * (4.*tH + uH)*(4.*uH + tH) * sH2 / 48.;
+  sigGrST = (8./9.) * M_PI * alpS * uH2 
+          * ((4.*tH + sH)*sS.real()/tH + (4.*sH + tH)*sT.real()/sH)
+          + (sS.real()*sT.real() + sS.imag()*sT.imag())
+          * (4.*sH + tH)*(4.*tH + sH) * uH2 / 48.;
+
+}
+
+//--------------------------------------------------------------------------
+
+// Evaluate d(sigmaHat)/d(tHat), including incoming flavour dependence. 
+
+double Sigma2qq2LEDqq::sigmaHat() {  
+
+  // Combine cross section terms; factor 1/2 when identical quarks.
+  if (id2 ==  id1) {
+    sigSum  = (16. * pow2(M_PI) * pow2(alpS)) * (sigT + sigU + sigTU)
+            + sigGrT1 + sigGrU + sigGrTU;
+    sigSum *= 0.5;
+  } else if (id2 == -id1) {
+    sigSum = (16. * pow2(M_PI) * pow2(alpS)) * (sigT + sigST) 
+           + sigGrT2 + sigGrST;
+  } else { 
+    sigSum = 16. * pow2(M_PI) * pow2(alpS) * sigT + sigGrT1;
+  }
+
+  // Answer.
+  return sigSum / (16. * M_PI * sH2);  
+
+}
+
+//--------------------------------------------------------------------------
+
+// Select identity, colour and anticolour.
+
+void Sigma2qq2LEDqq::setIdColAcol() {
+
+  // Outgoing = incoming flavours.
+  setId( id1, id2, id1, id2);
+
+  // Colour flow topologies. Swap when antiquarks.
+  double sigTtot = sigT + sigGrT2;
+  double sigUtot = sigU + sigGrU;
+  if (id1 * id2 > 0)  setColAcol( 1, 0, 2, 0, 2, 0, 1, 0);
+  else                setColAcol( 1, 0, 0, 1, 2, 0, 0, 2);
+  if (id2 == id1 && (sigTtot + sigUtot) * rndmPtr->flat() > sigTtot)
+                      setColAcol( 1, 0, 2, 0, 1, 0, 2, 0);
+  if (id1 < 0) swapColAcol();
+
+}
+
+//==========================================================================
+
+// Sigma2qqbar2LEDgg class.
+// Cross section for q qbar -> (LED G*) -> g g.
+
+//--------------------------------------------------------------------------
+
+// Initialize process. 
+  
+void Sigma2qqbar2LEDgg::initProc() {
+
+  // Read model parameters.
+  eDopMode   = settingsPtr->mode("ExtraDimensionsLED:opMode");
+  eDnGrav    = settingsPtr->mode("ExtraDimensionsLED:n");
+  eDMD       = settingsPtr->parm("ExtraDimensionsLED:MD");
+  eDLambdaT  = settingsPtr->parm("ExtraDimensionsLED:LambdaT");
+  eDnegInt   = settingsPtr->mode("ExtraDimensionsLED:NegInt");
+  eDcutoff   = settingsPtr->mode("ExtraDimensionsLED:CutOffMode"); 
+  eDtff      = settingsPtr->parm("ExtraDimensionsLED:t");
+
+} 
+
+//--------------------------------------------------------------------------
+
+// Evaluate d(sigmaHat)/d(tHat) - no incoming flavour dependence. 
+
+void Sigma2qqbar2LEDgg::sigmaKin() { 
+
+  // Get S(x) values for G amplitude.
+  complex sS(0., 0.);
+  complex sT(0., 0.);
+  complex sU(0., 0.);
+  if (eDopMode == 0) {
+    sS = ampLedS( sH/pow2(eDLambdaT), eDnGrav, eDLambdaT, eDMD);
+    sT = ampLedS( tH/pow2(eDLambdaT), eDnGrav, eDLambdaT, eDMD);
+    sU = ampLedS( uH/pow2(eDLambdaT), eDnGrav, eDLambdaT, eDMD);
+  } else {
+    // Form factor.
+    double effLambda = eDLambdaT;
+    if ((eDcutoff == 2) || (eDcutoff == 3)) {
+      double ffterm = sqrt(Q2RenSave) / (eDtff * eDLambdaT);
+      double exp    = double(eDnGrav) + 2.;
+      double formfa = 1. + pow(ffterm, exp);
+      effLambda *= pow(formfa,0.25);
+    }
+    sS = 4.*M_PI/pow(effLambda,4);
+    sT = 4.*M_PI/pow(effLambda,4);
+    sU = 4.*M_PI/pow(effLambda,4);
+    if (eDnegInt == 1) {
+      sS *= -1.;
+      sT *= -1.;
+      sU *= -1.;
+    }
+  }
+
+  // Calculate kinematics dependence.
+  double tH3 = tH*tH2;
+  double uH3 = uH*uH2;
+  sigTS  = (16. * pow2(M_PI) * pow2(alpS)) 
+         * ((1./6.) * uH / tH - (3./8.) * uH2 / sH2)
+         - 0.5 * M_PI * alpS * uH2 * sS.real() 
+         + (3./16.) * uH3 * tH * real(sS*conj(sS));
+  sigUS  = (16. * pow2(M_PI) * pow2(alpS)) 
+         * ((1./6.) * tH / uH - (3./8.) * tH2 / sH2)
+         - 0.5 * M_PI * alpS * tH2 * sS.real()
+         + (3./16.) * tH3 * uH * real(sS*conj(sS));
+
+  sigSum = sigTS + sigUS;
+
+  // Answer contains factor 1/2 from identical gluons.
+  sigma  = (64./9.) * 0.5 * sigSum / (16. * M_PI * sH2);  
+
+}
+
+//--------------------------------------------------------------------------
+
+// Select identity, colour and anticolour.
+
+void Sigma2qqbar2LEDgg::setIdColAcol() {
+
+  // Outgoing flavours trivial.
+  setId( id1, id2, 21, 21);
+
+  // Two colour flow topologies. Swap if first is antiquark.
+  double sigRand = sigSum * rndmPtr->flat();
+  if (sigRand < sigTS) setColAcol( 1, 0, 0, 2, 1, 3, 3, 2);
+  else                 setColAcol( 1, 0, 0, 2, 3, 2, 1, 3); 
+  if (id1 < 0) swapColAcol();
+
+}
+
+//==========================================================================
+
+// Sigma2qqbar2LEDqqbarNew class.
+// Cross section q qbar -> (LED G*) -> q' qbar'.
+
+//--------------------------------------------------------------------------
+
+// Initialize process. 
+  
+void Sigma2qqbar2LEDqqbarNew::initProc() {
+
+  // Read number of quarks to be considered in massless approximation
+  // as well as model parameters.
+  nQuarkNew  = settingsPtr->mode("ExtraDimensionsLED:nQuarkNew");
+  eDopMode   = settingsPtr->mode("ExtraDimensionsLED:opMode");
+  eDnGrav    = settingsPtr->mode("ExtraDimensionsLED:n");
+  eDMD       = settingsPtr->parm("ExtraDimensionsLED:MD");
+  eDLambdaT  = settingsPtr->parm("ExtraDimensionsLED:LambdaT");
+  eDcutoff   = settingsPtr->mode("ExtraDimensionsLED:CutOffMode"); 
+  eDtff      = settingsPtr->parm("ExtraDimensionsLED:t");
+
+} 
+
+//--------------------------------------------------------------------------
+
+// Evaluate d(sigmaHat)/d(tHat) - no incoming flavour dependence. 
+
+void Sigma2qqbar2LEDqqbarNew::sigmaKin() { 
+
+  // Get S(x) values for G amplitude.
+  complex sS(0., 0.);
+  complex sT(0., 0.);
+  complex sU(0., 0.);
+  if (eDopMode == 0) {
+    sS = ampLedS( sH/pow2(eDLambdaT), eDnGrav, eDLambdaT, eDMD);
+    sT = ampLedS( tH/pow2(eDLambdaT), eDnGrav, eDLambdaT, eDMD);
+    sU = ampLedS( uH/pow2(eDLambdaT), eDnGrav, eDLambdaT, eDMD);
+  } else {
+    // Form factor.
+    double effLambda = eDLambdaT;
+    if ((eDcutoff == 2) || (eDcutoff == 3)) {
+      double ffterm = sqrt(Q2RenSave) / (eDtff * eDLambdaT);
+      double exp    = double(eDnGrav) + 2.;
+      double formfa = 1. + pow(ffterm, exp);
+      effLambda *= pow(formfa,0.25);
+    }
+    sS = 4.*M_PI/pow(effLambda,4);
+    sT = 4.*M_PI/pow(effLambda,4);
+    sU = 4.*M_PI/pow(effLambda,4);
+  }
+
+  // Pick new flavour.
+  idNew = 1 + int( nQuarkNew * rndmPtr->flat() ); 
+  mNew  = particleDataPtr->m0(idNew);
+  m2New = mNew*mNew;
+
+  // Calculate kinematics dependence.
+  sigS                      = 0.;
+  if (sH > 4. * m2New) {
+    sigS = (16. * pow2(M_PI) * pow2(alpS)) 
+         * (4./9.) * (tH2 + uH2) / sH2
+         + funLedG(sH, tH) * real(sS*conj(sS)) / 8.; 
+  }
+  // Answer is proportional to number of outgoing flavours.
+  sigma = nQuarkNew * sigS / (16. * M_PI * sH2);  
+
+}
+
+//--------------------------------------------------------------------------
+
+// Select identity, colour and anticolour.
+
+void Sigma2qqbar2LEDqqbarNew::setIdColAcol() {
+
+  // Set outgoing flavours ones.
+  id3 = (id1 > 0) ? idNew : -idNew;
+  setId( id1, id2, id3, -id3);
+
+  // Colour flow topologies. Swap when antiquarks.
+  setColAcol( 1, 0, 0, 2, 1, 0, 0, 2);
+  if (id1 < 0) swapColAcol();
 
 }
 

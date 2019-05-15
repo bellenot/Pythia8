@@ -1725,6 +1725,76 @@ this up.</li>
 
 </ul>
 </li>
+
+<li>8.162: 12 March 2012
+<ul>
+
+<li>A new option allows for several partons to share the recoil in
+final-state radiation, see<?php $filepath = $_GET["filepath"];
+echo "<a href='TimelikeShowers.php?filepath=".$filepath."' target='page'>";?>Timelike
+Showers</a>. It is mainly intended to be used in the context of
+matching to matrix elements, and so only to be used in the first
+few branchings.</li>
+
+<li>Several new processes for LED dijet production, see
+<?php $filepath = $_GET["filepath"];
+echo "<a href='ExtraDimensionalProcesses.php?filepath=".$filepath."' target='page'>";?>Extra Dimensions</a>.</li>
+
+<li>Small update of the <code>Sigma2ffbar2LEDllbar</code> and 
+<code>Sigma2ffbar2LEDgammagamma</code> LED processes.</li>
+
+<li>New <code>Sigma2QCffbar2llbar</code> 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='CompositenessProcesses.php?filepath=".$filepath."' target='page'>";?>contact interaction</a> 
+process.</li>
+
+<li>Inclusion of a new method in the 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='MatrixElementMerging.php?filepath=".$filepath."' target='page'>";?>matrix-element merging</a> 
+framework to influence the construction of histories, e.g. to already 
+in the construction of histories disallow paths that fail the 
+<i>2 -> 2</i> cuts.</li>
+
+<li>Further minor updates of the matrix-element merging code,
+mainly for improved clarity.</li>
+
+<li>Minor bug fix in the handling of beam and event information fed
+in from an <code>LHAup</code> instance.</li>
+
+<li>Minor bug fix for potential crashes from uninitialized variables 
+for the merging machinery when merging is not used.</li>
+
+<li>Updated History class for matrix element merging, 
+also avoiding some compiler warnings.</li>
+
+<li>Bug fixes in the handling of correlated mass choices in resonance
+decays, such as <i>H -> Z^*0 Z^*0</i>.</li>
+
+<li>Bug fix when the process-level execution is switched off,
+where <code>Info::isResolved()</code> could be called before its 
+value was initialized. Thanks to Christian Pulvermacher 
+for finding this.</li>
+
+<li>Corrected matrix-element expression for mass selection in
+<i>A^0 -> Z^*0 Z^*0</i> and <i>A^0 -> W^*+ W^*-</i>.</li>
+
+<li>SM Higgs mass updated to 125 GeV and default width and branching 
+ratios modified accordingly. Minor technical improvements of width
+calculation.</li>
+
+<li>The usage of nested classes has been removed from 
+<code>SusyLesHouches</code>, since it could give compilation errors 
+on some platforms. The new class names begin with <code>LH</code>
+and all classes have been put inside the <code>Pythia8</code> 
+namespace.</li>
+
+<li>Minor Makefile updates. Thanks to Mikhail Kirsanov.</li>
+
+<li>Minor changes to avoid some clang compiler warnings on the 
+Mac OS X platform.</li>
+
+</ul>
+</li>
 </ul>
 
 </body>

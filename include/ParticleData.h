@@ -171,6 +171,9 @@ public:
     mWidthSave = mWidthIn; if (countAsChanged) hasChangedSave = true;}
   void setMMin(double mMinIn) {mMinSave = mMinIn; hasChangedSave = true;}
   void setMMax(double mMaxIn) {mMaxSave = mMaxIn; hasChangedSave = true;}
+  // Special options specifically when cutting wings of Breit-Wigners.
+  void setMMinNoChange(double mMinIn) {mMinSave = mMinIn;}
+  void setMMaxNoChange(double mMaxIn) {mMaxSave = mMaxIn;}
   void setTau0(double tau0In) {tau0Save = tau0In; hasChangedSave = true;}
   void setIsResonance(bool isResonanceIn) {isResonanceSave = isResonanceIn; 
     hasChangedSave = true;}

@@ -183,9 +183,11 @@ private:
   bool   doQCDshower, doQEDshowerByQ, doQEDshowerByL, doQEDshowerByGamma, 
          doMEcorrections, doMEafterFirst, doPhiPolAsym, doInterleave, 
          allowBeamRecoil, dampenBeamRecoil, recoilToColoured, 
-         allowRescatter, canVetoEmission, doHVshower, brokenHVsym;
+         allowRescatter, canVetoEmission, doHVshower, brokenHVsym,
+         globalRecoil, useLocalRecoilNow;
   int    pTmaxMatch, pTdampMatch, alphaSorder, nGluonToQuark, 
-         alphaEMorder, nGammaToQuark, nGammaToLepton, nCHV, idHV;
+         alphaEMorder, nGammaToQuark, nGammaToLepton, nCHV, idHV,
+         nMaxGlobalRecoil;
   double pTdampFudge, mc, mb, m2c, m2b, alphaSvalue, alphaS2pi, 
          Lambda3flav, Lambda4flav, Lambda5flav, Lambda3flav2, Lambda4flav2, 
          Lambda5flav2, pTcolCutMin, pTcolCut, pT2colCut, pTchgQCut, 

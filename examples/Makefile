@@ -14,7 +14,6 @@ endif
 -include $(PYTHIA8LOCATION)/config.mk
 
 # Location of directories.
-TMPDIR=tmp
 TOPDIR=$(shell \pwd)
 INCDIR=include
 SRCDIR=src

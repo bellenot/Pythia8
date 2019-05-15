@@ -85,6 +85,14 @@ is based on the latter number, and so is reduced by the amount associated
 by the vetoed events. Also type (v) modifies the cross section, while
 types (iv) and (vi) do not.
 
+<p/>
+A warning. When you program your own derived class, do remember that you 
+must exactly match the arguments of the base-class methods you overload. 
+If not, your methods will be considered as completely new ones, and 
+compile without any warnings, but not be used inside <code>Pythia</code>.
+So, at the debug stage, do insert some suitable print statements to check
+that the new methods are called (and do what they should).
+
 <h3>The basic components</h3>
 
 For a derived <code>UserHooks</code> class to be called during the 
