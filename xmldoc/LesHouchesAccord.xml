@@ -484,7 +484,19 @@ the decay chain has already been set, however (e.g. <ei>H &rarr; WW/ZZ</ei>
 or <ei>t &rarr; b W</ei>), then decay is still isotropic. 
  
 <p/> 
-There is one setting available for event input. 
+There are two settings available for event input. 
+ 
+<modeopen name="LesHouches:idRenameBeams" default="1000022" min="0"> 
+PYTHIA only implements a certain number of incoming beam particles.
+Specifically it needs to have PDFs for every composite particle to
+be used. Sometimes exotic beam particles are used, e.g. when a 
+neutralino is supposed to be the Dark Matter particle and therefore
+neutralino pairs can collide and annihilate. Such a particle identity
+code, picked by this mode, is mapped onto an incoming tau neutrino 
+beam (or antineutrino for the second beam), to bring it to a familiar 
+situation. The trick cannot be used for composite particles, nor for 
+a pair of different particles. 
+</modeopen> 
  
 <modepick name="LesHouches:setLifetime" default="1" min="0" max="2"> 
 handling of the decay time information stored in <code>VTIMUP</code> 

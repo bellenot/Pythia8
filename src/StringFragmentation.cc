@@ -880,7 +880,7 @@ bool StringFragmentation::fragmentToJunction(Event& event) {
   double errInJRF = pow2(costheta(pWTinJRF[0], pWTinJRF[1]) + 0.5)
     + pow2(costheta(pWTinJRF[0], pWTinJRF[2]) + 0.5)
     + pow2(costheta(pWTinJRF[1], pWTinJRF[2]) + 0.5);
-  if (errInJRF > errInCM) {
+  if (errInJRF > errInCM + CONVJNREST) {
     infoPtr->errorMsg("Warning in StringFragmentation::fragmentTo"
       "Junction: bad convergence junction rest frame");
     MtoJRF.reset();
@@ -1037,6 +1037,10 @@ bool StringFragmentation::fragmentToJunction(Event& event) {
               break;
             }
           }
+
+          // Possible to produce zero hadrons if the end point is not a diquark.
+          if (iTryInner > NTRYJNMATCH && !noNegE && nHadrons == 0 && 
+            abs(idPos) < 10) break;
 
           // End of fragmentation loop. Inner loopback if ends on a diquark.
           if ( noNegE && abs(posEnd.flavOld.id) < 10 ) break;

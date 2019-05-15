@@ -5710,6 +5710,12 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>virtual bool</td>
+<td><a href="UserHooks.php#method38" target="page">UserHooks::canReconnectResonanceSystems()</a></td>
+<td>User Hooks</td>
+</tr>
+
+<tr>
+<td>virtual bool</td>
 <td><a href="UserHooks.php#method36" target="page">UserHooks::canSetResonanceScale()</a></td>
 <td>User Hooks</td>
 </tr>
@@ -5771,6 +5777,12 @@ Many of them are only intended for experts, while undocumented ones are only for
 <tr>
 <td>virtual bool</td>
 <td><a href="UserHooks.php#method16" target="page">UserHooks::canVetoStep()</a></td>
+<td>User Hooks</td>
+</tr>
+
+<tr>
+<td>virtual bool</td>
+<td><a href="UserHooks.php#method39" target="page">UserHooks::doReconnectResonanceSystems(...)</a></td>
 <td>User Hooks</td>
 </tr>
 

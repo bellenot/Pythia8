@@ -871,7 +871,7 @@ int BeamParticle::pickValence() {
   }
 
   // Construct diquark if baryon.
-  if (idVal3 != 0) idVal2 = flavSelPtr->makeDiquark( idVal2, idVal3);
+  if (idVal3 != 0) idVal2 = flavSelPtr->makeDiquark( idVal2, idVal3, idBeam);
 
   // Done.
   return idVal1;

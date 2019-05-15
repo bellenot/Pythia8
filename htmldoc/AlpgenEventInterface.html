@@ -110,10 +110,22 @@ files <i>input_unw.par</i> and <i>input.unw</i>, the value
 <i>input</i> should be used. 
    
  
-<p/><code>flag&nbsp; </code><strong> Alpgen:setMasses &nbsp;</strong> 
+<p/><code>flag&nbsp; </code><strong> Alpgen:setLightMasses &nbsp;</strong> 
+ (<code>default = <strong>off</strong></code>)<br/>
+When switched on, <i>c</i> and <i>b</i> quark masses provided 
+by ALPGEN are set in the PYTHIA 
+<a href="ParticleDataScheme.html" target="page">particle database</a>. 
+Since ALPGEN may set these two masses to vanish, the parton shower
+programs have been provided with some protection, but other parts of
+the code may not be as fortunate. You should therefore only switch on 
+this option if you know what you are doing.
+   
+ 
+<p/><code>flag&nbsp; </code><strong> Alpgen:setHeavyMasses &nbsp;</strong> 
  (<code>default = <strong>on</strong></code>)<br/>
-When switched on, any particle masses provided by ALPGEN are set in 
-the PYTHIA <a href="ParticleDataScheme.html" target="page">particle database</a>. 
+When switched on, <i>t</i>, <i>Z</i>, <i>W</i> and <i>H</i> 
+masses provided by ALPGEN are set in the PYTHIA 
+<a href="ParticleDataScheme.html" target="page">particle database</a>. 
    
  
 <p/><code>flag&nbsp; </code><strong> Alpgen:setMLM &nbsp;</strong> 

@@ -135,14 +135,14 @@ void Sigma1gg2GravitonStar::sigmaKin() {
 
   // RS graviton coupling
   if (eDsmbulk) widthIn *= 2. * pow2(eDcoupling[21] * mH);
-  else          widthIn *= pow2(kappaMG);
+  else          widthIn *= pow2(kappaMG * mH / mRes);
 
   // Set up Breit-Wigner. Width out only includes open channels.
   double sigBW    = 5. * M_PI/ ( pow2(sH - m2Res) + pow2(sH * GamMRat) );
   double widthOut = gStarPtr->resWidthOpen(idGstar, mH);
 
   // Modify cross section in wings of peak. Done.
-  sigma           = widthIn * sigBW * widthOut * pow2(sH / m2Res);
+  sigma           = widthIn * sigBW * widthOut;
 
 }
 
@@ -287,8 +287,7 @@ void Sigma1ffbar2GravitonStar::sigmaKin() {
   double widthOut = gStarPtr->resWidthOpen(idGstar, mH);
 
   // Modify cross section in wings of peak. Done.
-  sigma0          = widthIn * sigBW * widthOut * pow2(sH / m2Res);
-
+  sigma0          = widthIn * sigBW * widthOut * sH / m2Res;
 }
 
 //--------------------------------------------------------------------------
@@ -301,7 +300,7 @@ double Sigma1ffbar2GravitonStar::sigmaHat() {
 
   // RS graviton coupling
   if (eDsmbulk) sigma *= 2. * pow2(eDcoupling[min( abs(id1), 26)] * mH);
-  else          sigma *= pow2(kappaMG);
+  else          sigma *= pow2(kappaMG * mH / mRes);
 
   // If initial quarks, 1/N_C
   if (abs(id1) < 9) sigma /= 3.;
@@ -597,7 +596,7 @@ void Sigma2gg2GravitonStarg::initProc() {
 void Sigma2gg2GravitonStarg::sigmaKin() {
 
   //  Evaluate cross section. Secondary width for G*.
-  sigma = (3. * pow2(kappaMG) * alpS) / (32. * sH * s3)
+  sigma = (3. * pow2(kappaMG) * alpS) / (32. * sH * m2Res)
     * ( pow2(tH2 + tH * uH + uH2) / (sH2 * tH * uH)
     + 2. * (tH2 / uH + uH2 / tH) / sH + 3. * (tH / uH + uH / tH)
     + 2. * (sH / uH + sH/tH) + sH2 / (tH * uH) );
@@ -672,7 +671,7 @@ void Sigma2qg2GravitonStarq::initProc() {
 void Sigma2qg2GravitonStarq::sigmaKin() {
 
   //  Evaluate cross section. Secondary width for G*.
-  sigma = -(pow2(kappaMG) * alpS) / (192. * sH * s3)
+  sigma = -(pow2(kappaMG) * alpS) / (192. * sH * m2Res )
     * ( 4. * (sH2 + uH2) / (tH * sH) + 9. * (sH + uH) / sH + sH / uH
     + uH2 / sH2 + 3. * tH * (4. + sH / uH + uH / sH) / sH
     + 4. * tH2 * (1. / uH + 1. / sH) / sH + 2. * tH2 * tH / (uH * sH2) );
@@ -752,7 +751,7 @@ void Sigma2qqbar2GravitonStarg::initProc() {
 void Sigma2qqbar2GravitonStarg::sigmaKin() {
 
   // Evaluate cross section. Secondary width for G*.
-  sigma = (pow2(kappaMG) * alpS) / (72. * sH * s3)
+  sigma = (pow2(kappaMG) * alpS) / (72. * sH * m2Res)
     * ( 4. * (tH2 + uH2) / sH2 + 9. * (tH + uH) / sH
     + (tH2 / uH + uH2 / tH) / sH + 3. * (4. + tH / uH + uH/ tH)
     + 4. * (sH / uH + sH / tH) + 2. * sH2 / (tH * uH) );

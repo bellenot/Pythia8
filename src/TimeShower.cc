@@ -18,6 +18,10 @@ namespace Pythia8 {
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
 
+// Minimal allowed c and b quark masses, for flavour thresholds.
+const double TimeShower::MCMIN        = 1.2;
+const double TimeShower::MBMIN        = 4.0;
+
 // For small x approximate 1 - sqrt(1 - x) by x/2.
 const double TimeShower::SIMPLIFYROOT = 1e-8;
 
@@ -89,8 +93,8 @@ void TimeShower::init( BeamParticle* beamAPtrIn,
   pTdampFudge        = settingsPtr->parm("TimeShower:pTdampFudge");
 
   // Charm and bottom mass thresholds.
-  mc                 = particleDataPtr->m0(4);
-  mb                 = particleDataPtr->m0(5);
+  mc                 = max( MCMIN, particleDataPtr->m0(4));
+  mb                 = max( MBMIN, particleDataPtr->m0(5));
   m2c                = mc * mc;
   m2b                = mb * mb;
 
@@ -2684,8 +2688,9 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
       ? rec : event[dipSel->iMEpartner];
     if ( findMEcorr( dipSel, rad, partner, emt) < rndmPtr->flat() )
       return false;
-    if (findMEcorrWeak( dipSel, rad.p(), partner.p(), emt.p(), p3weak, p4weak,
-      event[iRadBef].p(), event[iRecBef].p())  < rndmPtr->flat() )
+    if (dipSel->MEtype >= 200 && dipSel->MEtype <= 210 
+      && findMEcorrWeak( dipSel, rad.p(), partner.p(), emt.p(), p3weak, p4weak,
+      event[iRadBef].p(), event[iRecBef].p()) < rndmPtr->flat() )
       return false;
   }
 

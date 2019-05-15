@@ -137,8 +137,9 @@ bool ProcessContainer::init(bool isFirst, Info* infoPtrIn,
     phaseSpacePtr->setSigmaMax(sigmaMx);
   }
 
-  // Allow Pythia to overwrite Les Houches lifetime input.
-  setLifetime = settings.mode("LesHouches:setLifetime");
+  // Allow Pythia to overwrite incoming beams or Les Houches lifetime input.
+  idRenameBeams = settings.mode("LesHouches:idRenameBeams");
+  setLifetime   = settings.mode("LesHouches:setLifetime");
 
   // Done.
   return physical;
@@ -294,11 +295,15 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
 
   // Let hard process record begin with the event as a whole and
   // the two incoming beam particles.
+  int idA = infoPtr->idA();
+  if (abs(idA) == idRenameBeams) idA = 16;
+  int idB = infoPtr->idB();
+  if (abs(idB) == idRenameBeams) idB = -16;
   process.append( 90, -11, 0, 0, 0, 0, 0, 0,
     Vec4(0., 0., 0., infoPtr->eCM()), infoPtr->eCM(), 0. );
-  process.append( infoPtr->idA(), -12, 0, 0, 0, 0, 0, 0,
+  process.append( idA, -12, 0, 0, 0, 0, 0, 0,
     Vec4(0., 0., infoPtr->pzA(), infoPtr->eA()), infoPtr->mA(), 0. );
-  process.append( infoPtr->idB(), -12, 0, 0, 0, 0, 0, 0,
+  process.append( idB, -12, 0, 0, 0, 0, 0, 0,
     Vec4(0., 0., infoPtr->pzB(), infoPtr->eB()), infoPtr->mB(), 0. );
 
   // For nondiffractive process no interaction selected so far, so done.
@@ -449,6 +454,8 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
     for (int i = 1; i < lhaUpPtr->sizePart(); ++i) {
       int iOld = newPos[i];
       int id = lhaUpPtr->id(iOld);
+      if (i == 1 && abs(id) == idRenameBeams) id = 16;
+      if (i == 2 && abs(id) == idRenameBeams) id = -16;
 
       // Translate from LHA status codes.
       int lhaStatus =  lhaUpPtr->status(iOld);

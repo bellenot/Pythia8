@@ -110,10 +110,10 @@ private:
   bool   suppressLeadingB;
   double probQQtoQ, probStoUD, probSQtoQQ, probQQ1toQQ0, probQandQQ,
          probQandS, probQandSinQQ, probQQ1corr, probQQ1corrInv, probQQ1norm,
-         mesonRate[4][6], mesonRateSum[4], mesonMix1[2][6], mesonMix2[2][6],
-         etaSup, etaPrimeSup, decupletSup, baryonCGSum[6], baryonCGMax[6],
-         popcornRate, popcornSpair, popcornSmeson, scbBM[3], popFrac,
-         popS[3], dWT[3][7], lightLeadingBSup, heavyLeadingBSup;
+         probQQ1join[4], mesonRate[4][6], mesonRateSum[4], mesonMix1[2][6], 
+         mesonMix2[2][6], etaSup, etaPrimeSup, decupletSup, baryonCGSum[6], 
+         baryonCGMax[6], popcornRate, popcornSpair, popcornSmeson, scbBM[3], 
+         popFrac, popS[3], dWT[3][7], lightLeadingBSup, heavyLeadingBSup;
 
 };
  

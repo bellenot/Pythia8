@@ -180,7 +180,7 @@ Code 3145.
 <br/><br/><strong>LeftRightSymmmetry:ffbar2HRHR</strong>  <input type="radio" name="15" value="on"><strong>On</strong>
 <input type="radio" name="15" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-Scatterings <i>f fbar &rarr;  H_R^++ H_L^--</i>. 
+Scatterings <i>f fbar &rarr;  H_R^++ H_R^--</i>. 
 Code 3146. 
    
  

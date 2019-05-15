@@ -338,13 +338,15 @@ bool HadronLevel::findSinglets(Event& event) {
   // (Only one system in extreme cases, and then second empty.)
   if (iPartonJun.size() > 0 && iPartonAntiJun.size() > 0) {
     if (!splitJunctionPair(event)) return false;
-    for(int i = 0; i < int(iPartonJun.size()); ++i) 
+    for (int i = 0; i < int(iPartonJun.size()); ++i)
       if (iPartonJun[i].size() > 0)
         if  (!colConfig.insert(iPartonJun[i], event)) return false;
-    for(int i = 0; i < int(iPartonAntiJun.size()); ++i) 
-      if(iPartonAntiJun[i].size() > 0)
+
+    for (int i = 0; i < int(iPartonAntiJun.size()); ++i) 
+      if (iPartonAntiJun[i].size() > 0)
         if (!colConfig.insert(iPartonAntiJun[i], event)) return false;
   }
+
   // Error if not same number of junctions and antijuctions left here.
   if ( iPartonJun.size() != iPartonAntiJun.size() ) {
      infoPtr->errorMsg("Error in HadronLevel::findSinglets: "
@@ -426,6 +428,18 @@ bool HadronLevel::traceFromCol(int indxCol, Event& event, int iJun,
       break;
     }
 
+    // Check opposite-sign junction colours.
+    if (!hasFound)
+      for (int iAntiJun = 0; iAntiJun < event.sizeJunction(); ++iAntiJun)
+        if (iAntiJun != iJun && event.kindJunction(iAntiJun) %2 == 1)
+          for (int iColAnti = 0; iColAnti < 3; ++iColAnti)
+            if (event.colJunction(iAntiJun, iColAnti) == indxCol) {
+              iParton.push_back( -(10 + 10 * iAntiJun + iColAnti) );
+              indxCol = 0;
+              hasFound = true;
+              break;
+            }
+
     // In a pinch, check list of opposite-sign junction end colours.
     // Store in iParton list as -(10 + 10 * iAntiJun + iAntiLeg).
     if (!hasFound && kindJun % 2 == 0 && event.sizeJunction() > 1)
@@ -496,6 +510,18 @@ bool HadronLevel::traceFromAcol(int indxCol, Event& event, int iJun,
       hasFound = true;
       break;
     }
+
+     // Check opposite-sign junction colours.
+    if (!hasFound)
+    for (int iAntiJun = 0; iAntiJun < event.sizeJunction(); ++iAntiJun)
+      if (iAntiJun != iJun && event.kindJunction(iAntiJun) % 2 == 0)
+        for (int iColAnti = 0; iColAnti < 3; ++iColAnti)
+          if (event.colJunction(iAntiJun, iColAnti) == indxCol) {
+            iParton.push_back( -(10 + 10 * iAntiJun + iColAnti) );
+            indxCol = 0;
+            hasFound = true;
+            break;
+          }
 
     // In a pinch, check list of opposite-sign junction end colours.
     // Store in iParton list as -(10 + 10 * iAntiJun + iLeg).
@@ -711,23 +737,33 @@ bool HadronLevel::splitJunctionPair(Event& event) {
         int mother1 = min( iGluLeg[iReg], iGluLeg[iReg + 1]);
         int mother2 = max( iGluLeg[iReg], iGluLeg[iReg + 1]);
 
+        // Need to store variables, since it is not safe to use references 
+        // with append.
+        int gJunCol   = gJun.col();
+        int gJunAcol  = gJun.acol();
+        int gAntiAcol = gAnti.acol();
+        Vec4 gJunP    = gJun.p();
+        Vec4 gAntiP   = gAnti.p();
+        double gJunM  = gJun.m();
+        double gAntiM = gAnti.m();
+
         // Can keep one of old colours but need one new so unambiguous.
-        colQ = gJun.acol();
-        acolQ = event.nextColTag();
+        colQ          = gJun.acol();
+        acolQ         = event.nextColTag();
 
         // Store copied gluons with reduced momenta.
         int iGjun = event.append( 21, 75, mother1, mother2, 0, 0,
-          gJun.col(), gJun.acol(), (1. - 0.5 * xPos) * gJun.p(),
-          (1. - 0.5 * xPos) * gJun.m());
+          gJunCol, gJunAcol, (1. - 0.5 * xPos) * gJunP,
+          (1. - 0.5 * xPos) * gJunM);
         int iGanti = event.append( 21, 75, mother1, mother2, 0, 0,
-          acolQ, gAnti.acol(), (1. - 0.5 * xNeg) * gAnti.p(),
-          (1. - 0.5 * xNeg) * gAnti.m());
+          acolQ, gAntiAcol, (1. - 0.5 * xNeg) * gAntiP,
+          (1. - 0.5 * xNeg) * gAntiM);
 
         // Store the new q qbar pair with remaining momenta.
         int iQ = event.append( idQ, 75, mother1, mother2, 0, 0,
-          colQ, 0, 0.5 * xNeg * gAnti.p(), 0.5 * xNeg * gAnti.m() );
+          colQ, 0, 0.5 * xNeg * gAntiP, 0.5 * xNeg * gAntiM );
         int iQbar = event.append( -idQ, 75, mother1, mother2, 0, 0,
-          0, acolQ, 0.5 * xPos * gJun.p(), 0.5 * xPos * gJun.m() );
+          0, acolQ, 0.5 * xPos * gJunP, 0.5 * xPos * gJunM );
 
         // Update junction and antijunction legs with gluons and quarks.
         for (int i = 0; i < iReg; ++i)

@@ -123,7 +123,7 @@ Code 3145.
 </flag> 
  
 <flag name="LeftRightSymmmetry:ffbar2HRHR" default="off"> 
-Scatterings <ei>f fbar &rarr;  H_R^++ H_L^--</ei>. 
+Scatterings <ei>f fbar &rarr;  H_R^++ H_R^--</ei>. 
 Code 3146. 
 </flag> 
  

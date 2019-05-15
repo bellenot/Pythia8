@@ -136,16 +136,30 @@ files <i>input_unw.par</i> and <i>input.unw</i>, the value
 <i>input</i> should be used. 
    
  
-<br/><br/><strong>Alpgen:setMasses</strong>  <input type="radio" name="2" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="2" value="off"><strong>Off</strong>
+<br/><br/><strong>Alpgen:setLightMasses</strong>  <input type="radio" name="2" value="on"><strong>On</strong>
+<input type="radio" name="2" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+When switched on, <i>c</i> and <i>b</i> quark masses provided 
+by ALPGEN are set in the PYTHIA 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='ParticleDataScheme.php?filepath=".$filepath."' target='page'>";?>particle database</a>. 
+Since ALPGEN may set these two masses to vanish, the parton shower
+programs have been provided with some protection, but other parts of
+the code may not be as fortunate. You should therefore only switch on 
+this option if you know what you are doing.
+   
+ 
+<br/><br/><strong>Alpgen:setHeavyMasses</strong>  <input type="radio" name="3" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="3" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
-When switched on, any particle masses provided by ALPGEN are set in 
-the PYTHIA <?php $filepath = $_GET["filepath"];
+When switched on, <i>t</i>, <i>Z</i>, <i>W</i> and <i>H</i> 
+masses provided by ALPGEN are set in the PYTHIA 
+<?php $filepath = $_GET["filepath"];
 echo "<a href='ParticleDataScheme.php?filepath=".$filepath."' target='page'>";?>particle database</a>. 
    
  
-<br/><br/><strong>Alpgen:setMLM</strong>  <input type="radio" name="3" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="3" value="off"><strong>Off</strong>
+<br/><br/><strong>Alpgen:setMLM</strong>  <input type="radio" name="4" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="4" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 When switched on, the merging parameters (see below) are set according to 
 the ALPGEN hard process cuts: 
@@ -159,8 +173,8 @@ where the <code>ptjmin</code>, <code>drjmin</code> and
 existing values of these parameters are overwritten. 
    
  
-<br/><br/><strong>Alpgen:setNjet</strong>  <input type="radio" name="4" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="4" value="off"><strong>Off</strong>
+<br/><br/><strong>Alpgen:setNjet</strong>  <input type="radio" name="5" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="5" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 When switched on, the <code>JetMatching:nJet</code> parameter (see below) 
 is set to the incoming <code>njet</code> ALPGEN parameter. Note that any 
@@ -319,19 +333,24 @@ if($_POST["1"] != "void")
 $data = "Alpgen:file = ".$_POST["1"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["2"] != "on")
+if($_POST["2"] != "off")
 {
-$data = "Alpgen:setMasses = ".$_POST["2"]."\n";
+$data = "Alpgen:setLightMasses = ".$_POST["2"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["3"] != "on")
 {
-$data = "Alpgen:setMLM = ".$_POST["3"]."\n";
+$data = "Alpgen:setHeavyMasses = ".$_POST["3"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["4"] != "on")
 {
-$data = "Alpgen:setNjet = ".$_POST["4"]."\n";
+$data = "Alpgen:setMLM = ".$_POST["4"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["5"] != "on")
+{
+$data = "Alpgen:setNjet = ".$_POST["5"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);

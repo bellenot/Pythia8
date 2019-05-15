@@ -126,19 +126,23 @@ When option 5 is selected, the following parameters of the MBR model
 <br/><br/><table><tr><td><strong>Diffraction:MBRepsilon </td><td></td><td> <input type="text" name="4" value="0.104" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.104</strong></code>; <code>minimum = 0.02</code>; <code>maximum = 0.15</code>)</td></tr></table>
 <br/><br/><table><tr><td><strong>Diffraction:MBRalpha </td><td></td><td> <input type="text" name="5" value="0.25" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.25</strong></code>; <code>minimum = 0.1</code>; <code>maximum = 0.4</code>)</td></tr></table>
 the parameters of the Pomeron trajectory. 
+   
  
 <br/><br/><table><tr><td><strong>Diffraction:MBRbeta0 </td><td></td><td> <input type="text" name="6" value="6.566" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>6.566</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 10.0</code>)</td></tr></table>
 <br/><br/><table><tr><td><strong>Diffraction:MBRsigma0 </td><td></td><td> <input type="text" name="7" value="2.82" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.82</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 5.0</code>)</td></tr></table>
 the Pomeron-proton coupling, and the total Pomeron-proton cross section. 
+   
  
 <br/><br/><table><tr><td><strong>Diffraction:MBRm2Min </td><td></td><td> <input type="text" name="8" value="1.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.5</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 3.0</code>)</td></tr></table>
 the lowest value of the mass squared of the dissociated system. 
- 
+   
+
 <br/><br/><table><tr><td><strong>Diffraction:MBRdyminSDflux </td><td></td><td> <input type="text" name="9" value="2.3" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.3</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 5.0</code>)</td></tr></table>
 <br/><br/><table><tr><td><strong>Diffraction:MBRdyminDDflux </td><td></td><td> <input type="text" name="10" value="2.3" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.3</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 5.0</code>)</td></tr></table>
 <br/><br/><table><tr><td><strong>Diffraction:MBRdyminCDflux </td><td></td><td> <input type="text" name="11" value="2.3" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.3</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 5.0</code>)</td></tr></table>
 the minimum width of the rapidity gap used in the calculation of 
 <i>Ngap(s)</i> (flux renormalization). 
+   
  
 <br/><br/><table><tr><td><strong>Diffraction:MBRdyminSD </td><td></td><td> <input type="text" name="12" value="2.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.0</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 5.0</code>)</td></tr></table>
 <br/><br/><table><tr><td><strong>Diffraction:MBRdyminDD </td><td></td><td> <input type="text" name="13" value="2.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.0</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 5.0</code>)</td></tr></table>
@@ -146,12 +150,14 @@ the minimum width of the rapidity gap used in the calculation of
 the minimum width of the rapidity gap used in the calculation of cross 
 sections, i.e. the parameter <i>dy_S</i>, which suppresses the cross 
 section at low <i>dy</i> (non-diffractive region). 
+   
  
 <br/><br/><table><tr><td><strong>Diffraction:MBRdyminSigSD </td><td></td><td> <input type="text" name="15" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.001</code>; <code>maximum = 5.0</code>)</td></tr></table>
 <br/><br/><table><tr><td><strong>Diffraction:MBRdyminSigDD </td><td></td><td> <input type="text" name="16" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.001</code>; <code>maximum = 5.0</code>)</td></tr></table>
 <br/><br/><table><tr><td><strong>Diffraction:MBRdyminSigCD </td><td></td><td> <input type="text" name="17" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.001</code>; <code>maximum = 5.0</code>)</td></tr></table>
 the parameter <i>sigma_S</i>, used for the cross section suppression at 
 low <i>dy</i> (non-diffractive region). 
+   
  
 <h3>Separation into low and high masses</h3> 
  

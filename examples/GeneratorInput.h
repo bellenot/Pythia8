@@ -1071,7 +1071,8 @@ AlpgenHooks::AlpgenHooks(Pythia &pythia) : LHAagPtr(NULL) {
 bool AlpgenHooks::initAfterBeams() {
 
   // Read in ALPGEN specific configuration variables
-  bool setMasses = settingsPtr->flag("Alpgen:setMasses");
+  bool setLightMasses = settingsPtr->flag("Alpgen:setLightMasses");
+  bool setHeavyMasses = settingsPtr->flag("Alpgen:setHeavyMasses");
   bool setNjet   = settingsPtr->flag("Alpgen:setNjet");
   bool setMLM    = settingsPtr->flag("Alpgen:setMLM");
 
@@ -1084,9 +1085,11 @@ bool AlpgenHooks::initAfterBeams() {
   }
 
   // Set masses if requested
-  if (setMasses) {
+  if (setLightMasses) {
     if (par.haveParam("mc")) particleDataPtr->m0(4,  par.getParam("mc"));
     if (par.haveParam("mb")) particleDataPtr->m0(5,  par.getParam("mb"));
+  }
+  if (setHeavyMasses) {
     if (par.haveParam("mt")) particleDataPtr->m0(6,  par.getParam("mt"));
     if (par.haveParam("mz")) particleDataPtr->m0(23, par.getParam("mz"));
     if (par.haveParam("mw")) particleDataPtr->m0(24, par.getParam("mw"));

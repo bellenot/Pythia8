@@ -57,7 +57,7 @@ public:
 
   // Shower step vetoes (after the first emission, for Shower-kT scheme)
   int  numberVetoStep() {return 1;}
-  bool canVetoStep() { return true; }
+  bool canVetoStep() { return false; }
   bool doVetoStep(int,  int, int, const Event& ) { return false; }
 
 protected:
@@ -360,6 +360,7 @@ bool JetMatchingAlpgen::initAfterBeams() {
   eTjetMin        = settingsPtr->parm("JetMatching:eTjetMin");
   coneRadius      = settingsPtr->parm("JetMatching:coneRadius");
   etaJetMax       = settingsPtr->parm("JetMatching:etaJetMax");
+  doShowerKt      = settingsPtr->flag("JetMatching:doShowerKt");
 
   // Use etaJetMax + coneRadius in input to jet algorithms
   etaJetMaxAlgo   = etaJetMax + coneRadius;
@@ -1018,15 +1019,15 @@ bool JetMatchingMadgraph::doVetoStep(int iPos, int nISR, int nFSR,
     if ( workEvent[i].isFinal()
       && (workEvent[i].statusAbs()==43 || workEvent[i].statusAbs()==51)) {
       // Only check partons originating from QCD splittings.
-      int iPos = 1;
+      int jPos = 1;
       bool QCDemission = true;
-      while ( workEvent[iPos].statusAbs() > 23 ) {
-        if ( workEvent[iPos].id() == 22 || workEvent[iPos].id() == 23
-          || workEvent[iPos].idAbs() == 24){
+      while ( workEvent[jPos].statusAbs() > 23 ) {
+        if ( workEvent[jPos].id() == 22 || workEvent[jPos].id() == 23
+          || workEvent[jPos].idAbs() == 24){
           QCDemission = false;
           break;
         }
-        iPos = workEvent[iPos].mother1();
+        jPos = workEvent[jPos].mother1();
       }
       // Get kinematical pT.
       if (QCDemission) {
@@ -1326,7 +1327,8 @@ bool JetMatchingMadgraph::matchPartonsToJets(int iType) {
 int JetMatchingMadgraph::matchPartonsToJetsLight() {
 
   // Count the number of hard partons
-  int nParton = origTypeIdx[0].size();
+  //BUG!! int nParton = origTypeIdx[0].size();
+  int nParton = typeIdx[0].size();
 
   // Initialize SlowJet with current working event
   if (!slowJet->setup(workEventJet) ) {

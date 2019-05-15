@@ -32,6 +32,9 @@ public:
     valueRef(0.), valueNow(0.), scale2Now(0.) {}
   AlphaStrong(double valueIn, int orderIn = 1) {
     init( valueIn, orderIn) ;}
+  
+  // Destructor.
+  virtual ~AlphaStrong() {}
 
   // Initialization for given value at M_Z and given order.
   virtual void init(double valueIn = 0.12, int orderIn = 1, int nfmaxIn = 6,

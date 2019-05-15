@@ -26,7 +26,7 @@ namespace Pythia8 {
 const int    ResonanceWidths::NPOINT         = 100;
 
 // The mass of a resonance must not be too small.
-const double ResonanceWidths::MASSMIN        = 1.0;
+const double ResonanceWidths::MASSMIN        = 0.4;
 
 // The sum of product masses must not be too close to the resonance mass.
 const double ResonanceWidths::MASSMARGIN     = 0.1;
@@ -1805,7 +1805,7 @@ void ResonanceGraviton::calcWidth(bool) {
 
   // RS graviton coupling
   if (eDsmbulk) widNow *= 2. * pow2(eDcoupling[min( id1Abs, 26)] * mHat);
-  else          widNow *= pow2(kappaMG);
+  else          widNow *= pow2(kappaMG * mHat / mRes);
 
 }
 

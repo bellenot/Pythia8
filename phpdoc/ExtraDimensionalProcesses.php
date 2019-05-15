@@ -145,11 +145,14 @@ The formulas for longitudinal bosons should be appropriate up to
    
  
 <br/><br/><table><tr><td><strong>ExtraDimensionsG*:kappaMG </td><td></td><td> <input type="text" name="10" value="0.054" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.054</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
-dimensionless coupling, which enters quadratically in all partial 
-widths of the <i>G^*</i>. Is 
+dimensionless coupling, which enters quadratically in all on-shell
+partial widths of the <i>G^*</i>. Is 
 <i>kappa m_G* = sqrt(2) x_1 k / Mbar_Pl</i>, 
 where <i>x_1 = 3.83</i> is the first zero of the <i>J_1</i> Bessel 
 function and <i>Mbar_Pl</i> is the modified Planck mass. 
+In width and cross section calculations, <i>kappa</i> is fixed by 
+the on-shell <i>G^*</i> mass and <i>kappaMG</i>, i.e.
+<i>kappaMG</i> scales with the off-shell <i>G^*</i> mass.
    
  
 <br/><br/><table><tr><td><strong>ExtraDimensionsG*:Gll </td><td></td><td> <input type="text" name="11" value="0.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.0</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>

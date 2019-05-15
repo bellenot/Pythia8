@@ -43,6 +43,18 @@ the suppression of spin 1 diquark production relative to spin 0 one,
 apart from the factor of 3 enhancement of spin 1 from counting the 
 number of states. 
 </parm> 
+
+<pvec name="StringFlav:probQQ1toQQ0join" default="0.5,0.7,0.9,1.0"
+min="0.0" max="1.0">
+when two already produced quarks are to be combined to a diquark,
+e.g. in the junction framework, these numbers give the suppression 
+of spin 1 diquark production relative to spin 0 one, apart from the 
+factor of 3 enhancement of spin 1 from counting the number of states.
+The four components give the suppression when the heaviest quark is
+<ei>u/d</ei>, <ei>s</ei>, <ei>c</ei> or <ei>b</ei>, respectively.
+These parameters are seldom used and currently not constrained by any 
+data, so very much a guesswork.
+</pvec> 
  
 <h3>Standard-meson production</h3> 
  

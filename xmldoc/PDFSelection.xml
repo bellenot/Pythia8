@@ -272,7 +272,7 @@ The parton densities of the pion are considerably less well known than
 those of the proton. There are only rather few sets on the market, 
 and none particularly recent. Only one comes built-in, but others can 
 be accessed from LHAPDF. Input parametrizations are for the <ei>pi+</ei>. 
->From this the <ei>pi-</ei> is obtained by charge conjugation and the 
+From this the <ei>pi-</ei> is obtained by charge conjugation and the 
 <ei>pi0</ei> from averaging (half the pions have <ei>d dbar</ei> 
 valence quark content, half <ei>u ubar</ei>. 
  

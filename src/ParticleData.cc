@@ -274,7 +274,7 @@ void ParticleDataEntry::initBWmass() {
   double bRatSum = 0.;
   double mThrSum = 0;
   for (int i = 0; i < int(channels.size()); ++i)
-  if (channels[i].onMode() >= 0) {
+  if (channels[i].onMode() > 0) {
     bRatSum += channels[i].bRatio();
     double mChannelSum = 0.;
     for (int j = 0; j < channels[i].multiplicity(); ++j)
@@ -1494,12 +1494,12 @@ void ParticleData::list(bool changedOnly, bool changedRes, ostream& os) {
 
       // Print particle properties.
       ++nList;
-      string antiNameTmp = particlePtr->name(-1);
-      if (antiNameTmp == "void") antiNameTmp = " ";
-      os << "\n" << setw(8) << particlePtr->id() << "  "
-         << left << setw(16) << particlePtr->name() << " "
-         << setw(16) << antiNameTmp << "  "
-         << right << setw(2) << particlePtr->spinType() << "  "
+      os << "\n" << setw(8) << particlePtr->id() << "  " << left;
+      if (particlePtr->name(-1) == "void") 
+        os << setw(33) << particlePtr->name() << "  ";
+      else os << setw(16) << particlePtr->name() << " "
+         << setw(16) << particlePtr->name(-1) << "  ";
+      os << right << setw(2) << particlePtr->spinType() << "  "
          << setw(2) << particlePtr->chargeType() << "  "
          << setw(2) << particlePtr->colType() << " "
          << setw(10) << particlePtr->m0() << " "
@@ -1566,12 +1566,12 @@ void ParticleData::list(vector<int> idList, ostream& os) {
     else os << scientific << setprecision(3);
 
     // Print particle properties.
-    string antiNameTmp = particlePtr->name(-1);
-    if (antiNameTmp == "void") antiNameTmp = " ";
-    os << "\n" << setw(8) << particlePtr->id() << "  "
-       << left << setw(16) << particlePtr->name() << " "
-       << setw(16) << antiNameTmp << "  "
-       << right << setw(2) << particlePtr->spinType() << "  "
+    os << "\n" << setw(8) << particlePtr->id() << "  " << left;
+    if (particlePtr->name(-1) == "void") 
+      os << setw(33) << particlePtr->name() << "  ";
+    else os << setw(16) << particlePtr->name() << " "
+       << setw(16) << particlePtr->name(-1) << "  ";
+    os << right << setw(2) << particlePtr->spinType() << "  "
        << setw(2) << particlePtr->chargeType() << "  "
        << setw(2) << particlePtr->colType() << " "
        << setw(10) << particlePtr->m0() << " "

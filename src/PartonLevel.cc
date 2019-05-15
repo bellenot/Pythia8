@@ -134,6 +134,10 @@ bool PartonLevel::init( Info* infoPtrIn, Settings& settings,
   canSetScale        = (userHooksPtr != 0)
                      ? userHooksPtr->canSetResonanceScale() : false;
 
+  // Possibility to reconnect specifically for resonance decays.
+  canReconResSys     = (userHooksPtr != 0)
+                     ? userHooksPtr->canReconnectResonanceSystems() : false;
+
   // Done with initialization only for FSR in resonance decays.
   if (beamAPtr == 0 || beamBPtr == 0) return true;
 
@@ -222,6 +226,7 @@ bool PartonLevel::next( Event& process, Event& event) {
   isDoubleDiff   = isDiffA && isDiffB;
   isSingleDiff   = isDiff && !isDoubleDiff  && !isCentralDiff;
   isNonDiff      = infoPtr->isNonDiffractive();
+  doVeto         = false;
 
   // nHardLoop counts how many hard-scattering subsystems are to be processed.
   // Almost always 1, but elastic and low-mass diffraction gives 0, while
@@ -265,6 +270,8 @@ bool PartonLevel::next( Event& process, Event& event) {
     sizeProcess = process.size();
     sizeEvent   = event.size();
     partonSystemsPtr->clear();
+    if (event.lastColTag() > process.lastColTag())
+      process.initColTag(event.lastColTag());
   }
 
   // If you need to restore then do not throw existing diffractive system.
@@ -603,7 +610,7 @@ bool PartonLevel::next( Event& process, Event& event) {
         timesPtr->prepare( iSys, event);
 
       // Set up initial veto scale.
-      doVeto        = false;
+      doVeto = false;
       pTveto = pTvetoPT;
 
       // Begin evolution down in pT from hard pT scale.
@@ -676,9 +683,10 @@ bool PartonLevel::next( Event& process, Event& event) {
       return false;
     }
 
+    // Perform showers in resonance decay chains before beams & reconnection.
     if (earlyResDec) {
+      int oldSizeEvt = event.size();
       int oldSizeSys = partonSystemsPtr->sizeSys();
-      // Perform showers in resonance decay chains.
       if (nBranchMax <= 0 || nBranch < nBranchMax)
         doVeto = !resonanceShowers( process, event, true);
       // Abort event if vetoed.
@@ -693,6 +701,10 @@ bool PartonLevel::next( Event& process, Event& event) {
       // Perform decays and showers of W and Z emitted in shower.
       // To do:check if W/Z emission is on in ISR or FSR??
       if (!wzDecayShowers( event)) return false;
+
+      // User hook to reconnect colours specifically in resonance decays.
+      if (canReconResSys && !userHooksPtr->doReconnectResonanceSystems( 
+        oldSizeEvt, event)) return false;
     }
 
     // Add beam remnants, including primordial kT kick and colour tracing.
@@ -720,8 +732,9 @@ bool PartonLevel::next( Event& process, Event& event) {
   // End big outer loop to handle two systems in double diffraction.
   }
 
+  // Perform showers in resonance decay chains after beams & reconnection.
   if (!earlyResDec) {
-    // Perform showers in resonance decay chains.
+    int oldSizeEvt = event.size();
     if (nBranchMax <= 0 || nBranch < nBranchMax)
       doVeto = !resonanceShowers( process, event, true);
     // Abort event if vetoed.
@@ -730,6 +743,10 @@ bool PartonLevel::next( Event& process, Event& event) {
     // Perform decays and showers of W and Z emitted in shower.
     // To do:check if W/Z emission is on in ISR or FSR??
     if (!wzDecayShowers( event)) return false;
+
+    // User hook to reconnect colours specifically in resonance decays.
+    if (canReconResSys && !userHooksPtr->doReconnectResonanceSystems( 
+      oldSizeEvt, event)) return false;
   }
 
   // Store event properties. Not available for diffraction.
@@ -1353,7 +1370,7 @@ bool PartonLevel::resonanceShowers( Event& process, Event& event,
       if (iTraceRHadron > 0) iAftMother = iTraceRHadron;
     }
     Particle& aftMother  = event[iAftMother];
-   
+
     // From now on mother counts as decayed.
     aftMother.statusNeg();
 
@@ -1403,7 +1420,7 @@ bool PartonLevel::resonanceShowers( Event& process, Event& event,
       now.rotbst( M);
 
       // Update vertex information.
-      if (now.hasVertex()) now.vProd( aftMother.vDec() );
+      if (now.hasVertex()) now.vProd( event[iAftMother].vDec() );
 
       // Complete task of copying next subsystem into event record.
       ++nHardDone;
@@ -1432,6 +1449,15 @@ bool PartonLevel::resonanceShowers( Event& process, Event& event,
     // Reset pT of last branching
     pTLastBranch = 0.0;
 
+    // Add new system, automatically with two empty beam slots.
+    int iSys = partonSystemsPtr->addSys();
+    partonSystemsPtr->setSHat(iSys, pow2(hardMother.m()) );
+    partonSystemsPtr->setPTHat(iSys, 0.5 * hardMother.m() );
+    
+    // Loop over allowed range to find all final-state particles.
+    for (int i = iPosBefShow[iBegin]; i <= iPosBefShow[iEnd]; ++i)
+    if (event[i].isFinal()) partonSystemsPtr->addOut( iSys, i);
+
     // Do parton showers inside subsystem: maximum scale by mother mass.
     if (doFSRinResonances) {
       double pTmax = 0.5 * hardMother.m();
@@ -1441,15 +1467,6 @@ bool PartonLevel::resonanceShowers( Event& process, Event& event,
 
       // Set correct scale for trial showers.
       if (doTrial) pTmax = process.scale();
-
-      // Add new system, automatically with two empty beam slots.
-      int iSys = partonSystemsPtr->addSys();
-      partonSystemsPtr->setSHat(iSys, pow2(hardMother.m()) );
-      partonSystemsPtr->setPTHat(iSys, 0.5 * hardMother.m() );
-    
-      // Loop over allowed range to find all final-state particles.
-      for (int i = iPosBefShow[iBegin]; i <= iPosBefShow[iEnd]; ++i)
-      if (event[i].isFinal()) partonSystemsPtr->addOut( iSys, i);
 
       // Let prepare routine do the setup.
       timesDecPtr->prepare( iSys, event);
@@ -1878,36 +1895,39 @@ bool PartonLevel::wzDecayShowers( Event& event) {
         }
       }
     }
-        
-    // Do parton showers inside subsystem: maximum scale by mother mass.
-    if (typeWZ > 0 && doFSRinResonances) {
-      double pTmax = 0.5 * event[iWZ].m();
 
-      // Add new system, automatically with two empty beam slots.
+    // Add new system, automatically with two empty beam slots.
+    if (typeWZ > 0) {
+      // Maximum shower scale set by mother mass.
+      double pTmax = 0.5 * event[iWZ].m();
       int iSys = partonSystemsPtr->addSys();
       partonSystemsPtr->setSHat(iSys, pow2(event[iWZ].m()) );
       partonSystemsPtr->setPTHat(iSys, pTmax );
       for (int i = sizeSave; i < event.size(); ++i)
         partonSystemsPtr->addOut( iSys, i);
+        
+      // Do parton showers inside subsystem.
+      if (doFSRinResonances) {
           
-      // Let prepare routine do the setup.
-      timesDecPtr->prepare( iSys, event);
-          
-      // Begin evolution down in pT from hard pT scale.
-      do {
-        double pTtimes = timesDecPtr->pTnext( event, pTmax, 0.);
+        // Let prepare routine do the setup.
+        timesDecPtr->prepare( iSys, event);
+     
+        // Begin evolution down in pT from hard pT scale.
+        do {
+          double pTtimes = timesDecPtr->pTnext( event, pTmax, 0.);
             
-        // Do a final-state emission (if allowed).
-        if (pTtimes > 0.) {
-          timesDecPtr->branch( event);
-          pTmax = pTtimes;
-        }
+          // Do a final-state emission (if allowed).
+          if (pTtimes > 0.) {
+            timesDecPtr->branch( event);
+            pTmax = pTtimes;
+          }
     
-        // If no pT scales above zero then nothing to be done.
-        else pTmax = 0.;
+          // If no pT scales above zero then nothing to be done.
+          else pTmax = 0.;
     
-        // Keep on evolving until nothing is left to be done.
-      } while (pTmax > 0.);
+          // Keep on evolving until nothing is left to be done.
+        } while (pTmax > 0.);
+      }
     }
 
   // End loop over event to find W/Z gauge bosons.

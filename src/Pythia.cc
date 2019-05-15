@@ -22,7 +22,7 @@ namespace Pythia8 {
 //--------------------------------------------------------------------------
 
 // The current Pythia (sub)version number, to agree with XML version.
-const double Pythia::VERSIONNUMBERCODE = 8.185;
+const double Pythia::VERSIONNUMBERCODE = 8.186;
 
 //--------------------------------------------------------------------------
 
@@ -480,6 +480,9 @@ bool Pythia::init() {
     // Extract beams from values set in an LHAinit object.
     idA = lhaUpPtr->idBeamA();
     idB = lhaUpPtr->idBeamB();
+    int idRenameBeams = settings.mode("LesHouches:idRenameBeams");
+    if (abs(idA) == idRenameBeams) idA = 16;
+    if (abs(idB) == idRenameBeams) idB = -16;
     if (idA == 0 || idB == 0) doProcessLevel = false;
     eA  = lhaUpPtr->eBeamA();
     eB  = lhaUpPtr->eBeamB();
@@ -1171,10 +1174,11 @@ bool Pythia::next() {
 
     // Allow up to ten tries for parton- and hadron-level processing.
     bool physical   = true;
-    for (int iTry = 0; iTry < NTRY; ++ iTry) {
+    for (int iTry = 0; iTry < NTRY; ++iTry) {
 
       info.addCounter(14);
-      physical = true;
+      physical  = true;
+      hasVetoed = false;
 
       // Restore original process record if problems.
       if (iTry > 0) process = processSave;

@@ -188,8 +188,8 @@ protected:
 private:
 
   // Constants: could only be changed in the code itself.
-  static const double SIMPLIFYROOT, XMARGIN, XMARGINCOMB, TINYPDF, LARGEM2,
-                      THRESHM2, LAMBDA3MARGIN, WEAKPSWEIGHT, WG2QEXTRA;
+  static const double MCMIN, MBMIN, SIMPLIFYROOT, XMARGIN, XMARGINCOMB, 
+         TINYPDF, LARGEM2, THRESHM2, LAMBDA3MARGIN, WEAKPSWEIGHT, WG2QEXTRA;
   // Rescatter: try to fix up recoil between systems
   static const bool   FIXRESCATTER, VETONEGENERGY;
   static const double MAXVIRTUALITYFRACTION, MAXNEGENERGYFRACTION;

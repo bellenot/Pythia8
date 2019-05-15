@@ -172,7 +172,17 @@ public:
   // Decide whether to veto an MPI based on event record.
   // Usage: doVetoMPIEmission( sizeOld, event) where sizeOld
   // is size of event record before the current MPI.
-  virtual bool doVetoMPIEmission(int, const Event &) { return false; }
+  virtual bool doVetoMPIEmission( int, const Event &) { return false; }
+
+  // Possibility to reconnect colours from resonance decay systems.
+  virtual bool canReconnectResonanceSystems() { return false; }
+
+  // Do reconnect colours from resonance decay systems.
+  // Usage: doVetoFSREmission( oldSizeEvt, event) 
+  // where oldSizeEvent is the event size before resonance decays.
+  // Should normally return true, while false means serious failure.
+  // Value of PartonLevel:earlyResDec determines where method is called.
+  virtual bool doReconnectResonanceSystems( int, Event &) {return true;}
 
 protected:
 

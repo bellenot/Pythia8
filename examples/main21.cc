@@ -127,7 +127,7 @@ void fillPartons(int type, double ee, Event& event, ParticleData& pdt,
         colNow[iq] = colNew;
       }
       // Update daughter range of mother.
-      event[1].daughters(1, event.size() - 1);
+      event[1].daughters(2, event.size() - 1);
  
     }
 

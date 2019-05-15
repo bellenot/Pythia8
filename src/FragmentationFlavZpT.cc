@@ -54,6 +54,11 @@ void StringFlav::init(Settings& settings, Rndm* rndmPtrIn) {
   probQQ1corrInv  = 1. / probQQ1corr;
   probQQ1norm     = probQQ1corr / (1. + probQQ1corr);
 
+  // Spin parameters for combining two quarks to a diquark.
+  vector<double> pQQ1tmp = settings.pvec("StringFlav:probQQ1toQQ0join");
+  for (int i = 0; i < 4; ++i) 
+    probQQ1join[i] = 3. * pQQ1tmp[i] / (1. + 3. * pQQ1tmp[i]);
+
   // Parameters for normal meson production.
   for (int i = 0; i < 4; ++i) mesonRate[i][0] = 1.;
   mesonRate[0][1] = settings.parm("StringFlav:mesonUDvector");
@@ -486,9 +491,9 @@ int StringFlav::makeDiquark(int id1, int id2, int idHad) {
   if (abs(idHad) == 2212 || abs(idHad) == 2112) {
     if (idMin == 1 && idMax == 2 && rndmPtr->flat() < 0.75) spin = 0;
 
-  // Else select spin of diquark according to production composition.
-  } else {
-    if (idMin != idMax && rndmPtr->flat() > probQQ1norm) spin = 0;
+  // Else select spin of diquark according to assumed spin-1 suppression.
+  } else if (idMin != idMax) {
+    if (rndmPtr->flat() > probQQ1join[min(idMax,5) - 2]) spin = 0;
   }
 
   // Combined diquark code.

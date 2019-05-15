@@ -158,7 +158,7 @@ private:
   LHAup*           lhaUpPtr;
 
   // Possibility to modify Les Houches input.
-  int    setLifetime;
+  int    idRenameBeams, setLifetime;
 
   // Info on process.
   bool   isLHA, isNonDiff, isResolved, isDiffA, isDiffB, isDiffC, isQCD3body,

@@ -92,7 +92,8 @@ private:
          doMPICD, doMPIinit, doISR, doFSRduringProcess, doFSRafterProcess,
          doFSRinResonances, doRemnants, doSecondHard, hasLeptonBeams,
          hasPointLeptons, canVetoPT, canVetoStep, canVetoMPIStep,
-         canVetoEarly, canSetScale, allowRH, earlyResDec, vetoWeakJets;
+         canVetoEarly, canSetScale, allowRH, earlyResDec, vetoWeakJets,
+         canReconResSys;
   double mMinDiff, mWidthDiff, pMaxDiff, vetoWeakDeltaR2;
 
   // Event generation strategy. Number of steps. Maximum pT scales.

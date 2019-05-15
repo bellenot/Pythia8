@@ -23,6 +23,10 @@ namespace Pythia8 {
 // and then one can end in infinite loop of impossible kinematics.
 const int    SpaceShower::MAXLOOPTINYPDF = 10;
 
+// Minimal allowed c and b quark masses, for flavour thresholds.
+const double SpaceShower::MCMIN          = 1.2;
+const double SpaceShower::MBMIN          = 4.0;
+
 // Switch to alternative (but equivalent) backwards evolution for
 // g -> Q Qbar (Q = c or b) when below QTHRESHOLD * mQ2.
 const double SpaceShower::CTHRESHOLD     = 2.0;
@@ -75,6 +79,12 @@ const double SpaceShower::LEPTONFUDGE    = 10.;
 // Overestimation extra factor for t-channel weak ME corrections.
 const double SpaceShower::WEAKPSWEIGHT = 5.;
 
+// Overestimation extra factors by branching type
+const double SpaceShower::HEADROOMQ2G = 1.35;
+const double SpaceShower::HEADROOMQ2Q = 1.15;
+const double SpaceShower::HEADROOMG2Q = 1.35;
+const double SpaceShower::HEADROOMG2G = 1.35;
+
 //--------------------------------------------------------------------------
 
 // Initialize alphaStrong, alphaEM and related pTmin parameters.
@@ -103,8 +113,8 @@ void SpaceShower::init( BeamParticle* beamAPtrIn,
   doRapidityOrder = settingsPtr->flag("SpaceShower:rapidityOrder");
 
   // Charm, bottom and lepton mass thresholds.
-  mc              = particleDataPtr->m0(4);
-  mb              = particleDataPtr->m0(5);
+  mc              = max( MCMIN, particleDataPtr->m0(4));
+  mb              = max( MBMIN, particleDataPtr->m0(5));
   m2c             = pow2(mc);
   m2b             = pow2(mb);
 
@@ -626,10 +636,11 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
 
       // Integrals of splitting kernels for gluons: g -> g, q -> g.
       if (isGluon) {
-        g2gInt = 6. * log(zMaxAbs * (1.-zMinAbs)
-          / (zMinAbs * (1.-zMaxAbs)));
+        g2gInt = HEADROOMG2G * 6. 
+          * log(zMaxAbs * (1.-zMinAbs) / (zMinAbs * (1.-zMaxAbs)));
         if (doMEcorrections) g2gInt *= calcMEmax(MEtype, 21, 21);
-        q2gInt = (16./3.) * (1./sqrt(zMinAbs) - 1./sqrt(zMaxAbs));
+        q2gInt = HEADROOMQ2G * (16./3.) 
+          * (1./sqrt(zMinAbs) - 1./sqrt(zMaxAbs));
         if (doMEcorrections) q2gInt *= calcMEmax(MEtype, 1, 21);
 
         // Parton density of potential quark mothers to a g.
@@ -657,9 +668,10 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
 
       // Integrals of splitting kernels for quarks: q -> q, g -> q.
       } else {
-        q2qInt = (8./3.) * log( (1. - zMinAbs) / (1. - zMaxAbs) );
+        q2qInt = HEADROOMQ2Q * (8./3.) 
+          * log( (1. - zMinAbs) / (1. - zMaxAbs) );
         if (doMEcorrections) q2qInt *= calcMEmax(MEtype, 1, 1);
-        g2qInt = 0.5 * (zMaxAbs - zMinAbs);
+        g2qInt = HEADROOMG2Q * 0.5 * (zMaxAbs - zMinAbs);
         if (doMEcorrections) g2qInt *= calcMEmax(MEtype, 21, 1);
 
         // Increase estimated upper weight for g -> Q + Qbar.
@@ -749,6 +761,8 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
         z = 1. / ( 1. + ((1. - zMinAbs) / zMinAbs) * pow( (zMinAbs *
           (1. - zMaxAbs)) / (zMaxAbs * (1. - zMinAbs)), rndmPtr->flat() ) );
         wt = pow2( 1. - z * (1. - z));
+        // Account for headroom factor used to enhance trial probability
+        wt /= HEADROOMG2G;
       } else {
       // q -> g (+ q): also select flavour.
         double temp = xPDFmotherSum * rndmPtr->flat();
@@ -760,6 +774,8 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
           * ( sqrt(zMaxAbs)- sqrt(zMinAbs) ));
         wt = 0.5 * (1. + pow2(1. - z)) * sqrt(z)
           * xPDFdaughter / xPDFmother[idMother + 10];
+        // Account for headroom factor used to enhance trial probability
+        wt /= HEADROOMQ2G;
       }
 
     // Select z value of branching to q, and corrective weight.
@@ -785,17 +801,21 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
           wt = 0.5 * (1. + pow2(z)) - z * pow2(1.-z) * m2Massive / pT2;
         }
         if (isValence) wt *= sqrt(z);
+        // Account for headroom factor for sea quarks
+        else wt /= HEADROOMQ2Q;
       // g -> q (+ qbar).
       } else {
         idMother = 21;
         idSister = - idDaughter;
         z = zMinAbs + rndmPtr->flat() * (zMaxAbs - zMinAbs);
         if (!isMassive) {
-          wt = (pow2(z) + pow2(1.-z)) * xPDFdaughter / xPDFgMother ;
+          wt = (pow2(z) + pow2(1.-z)) * xPDFdaughter / xPDFgMother;
         } else {
           wt = (pow2(z) + pow2(1.-z) + 2. * z * (1.-z) * m2Massive / pT2)
             * xPDFdaughter / (xPDFgMother * g2Qenhance) ;
         }
+        // Account for headroom factor for gluons
+        wt /= HEADROOMG2Q;
       }
     }
 

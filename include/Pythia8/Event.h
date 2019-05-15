@@ -535,9 +535,11 @@ public:
   void clearJunctions() {junction.resize(0);}
  
   // Add a junction to the list, study it or extra input.
-  void appendJunction( int kind, int col0, int col1, int col2)
-    { junction.push_back( Junction( kind, col0, col1, col2) );}
-  void appendJunction(Junction junctionIn) {junction.push_back(junctionIn);}
+  int appendJunction( int kind, int col0, int col1, int col2)
+    { junction.push_back( Junction( kind, col0, col1, col2) );
+    return junction.size() - 1;}
+  int appendJunction(Junction junctionIn) {junction.push_back(junctionIn);
+    return junction.size() - 1;}
   int sizeJunction() const {return junction.size();}
   bool remainsJunction(int i) const {return junction[i].remains();}
   void remainsJunction(int i, bool remainsIn) {junction[i].remains(remainsIn);}

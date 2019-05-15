@@ -2865,6 +2865,65 @@ Thanks to Stefano Camarda.</li>
 the full particle data table.</li> 
 
 <li>Some other minor fixes.</li> 
+ 
+</ul> 
+</li> 
+ 
+<li>8.186: 8 July 2014 
+<ul> 
+
+<li>A new user hook to help experimentation with colour reconnection,
+in particular in relation to resonance decays.</li> 
+
+<li>New set of parameters <code>StringFlav:probQQ1toQQ0join</code>,
+used to pick diquark spin when two already produced quarks are to be
+joined into a diquark.</li> 
+
+<li>Possibility to map the bookkeeping of exotic unresolved incoming 
+beams in Les Houches event files onto neutrino beams, see
+<code>LesHouches:idRenameBeams</code>. Primarily intended for dark matter 
+annihilation. Thanks to Leila Ali Cavasonza and Jiang-Hao Yu.
+</li> 
+
+<li>A correction to the graviton (<i>G^*</i>) + parton hard processes 
+(5003-5005) to account for off-shell <i>G^*</i> production. 
+The previous formula assumed the graviton was on-shell and could 
+greatly overestimate the low-mass tail of the <i>G^*</i>.</li> 
+
+<li>Bug fixes in <code>examples/JetMatching.h</code>, for uninitialized
+boolean, and number of partons to match for heavy flavour handling. 
+The former bug was introduced with the new matching schemes in version
+8.185 and affected matching to ALPGEN, since no events were rejected.
+Thanks to Chris Brust.</li> 
+
+<li>Differentiate the reading of ALPGEN masses, so that vanishing 
+<i>c</i> or <i>b</i> masses in ALPGEN are not unwittingly used
+where inappropriate. Also protect the <i>c</i> and <i>b</i> masses 
+from being set too low in <code>TimeShower</code> and 
+<code>SpaceShower</code>, so that flavour thresholds are not messed up.</li> 
+
+<li>Reduce number of maximum violation warnings in <code>SpaceShower</code> 
+by leaving some headroom for branching weights.</li> 
+
+<li>Bug fix that <code>hasVetoed</code> in <code>Pythia.cc</code> was not
+reset correctly in some specific cases. Thanks to Christian Bauer and
+Calvin Berggren.</li> 
+
+<li>Bug fix in PartonLevel.cc where a reference could become invalid.
+Thanks to Thomas R&ouml;ssler.</li> 
+
+<li>Improvements and bug fixes in junction handling.</li> 
+
+<li>Bug fix to not reuse colour indices in double diffraction.</li> 
+
+<li>Bug fix in the calculation of the average mass threshold of 
+open decay channels of a resonance. Reduced 
+<code>ResonanceWidths::MASSMIN</code> parameter value.</li> 
+
+<li>Correct typo in left-right symmetry documentation. Thanks to 
+Nady Bakhet.</li> 
+
+<li>Some other minor fixes. Thanks to Pere Mato for two of them.</li> 
 
 </ul> 
 </li> 
