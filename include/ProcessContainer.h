@@ -24,7 +24,7 @@
 #include "SigmaTotal.h"
 #include "StandardModel.h"
 #include "SusyCouplings.h"
-#include "SusyLesHouches.h"
+#include "SLHAinterface.h"
 #include "UserHooks.h"
 
 namespace Pythia8 {
@@ -51,7 +51,7 @@ public:
   bool init(bool isFirst, Info* infoPtrIn, Settings& settings, 
     ParticleData* particleDataPtrIn, Rndm* rndmPtrIn, BeamParticle* beamAPtr, 
     BeamParticle* beamBPtr, Couplings* couplings, SigmaTotal* sigmaTotPtr, 
-    ResonanceDecays* resDecaysPtrIn, SusyLesHouches* slhaPtr, 
+    ResonanceDecays* resDecaysPtrIn, SLHAinterface* slhaInterfacePtr, 
     UserHooks* userHooksPtr); 
 
   // Store or replace Les Houches pointer.

@@ -113,7 +113,7 @@ public:
   double LllZ[7], RllZ[7]; 
 
   //lvW couplings
-  complex LlvW[4], RlvW[4];
+  complex LlvW[4][4], RlvW[4][4];
 
   // ~l~lZ couplings
   complex LslslZ[7][7],RslslZ[7][7];

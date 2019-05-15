@@ -34,21 +34,21 @@ public:
 
   // Constructors.
   TimeDipoleEnd() : iRadiator(-1), iRecoiler(-1), pTmax(0.), colType(0), 
-    chgType(0), gamType(0), isrType(0), system(0), systemRec(0), MEtype(0), 
-    iMEpartner(-1), isOctetOnium(false), isHiddenValley(false), colvType(0),
-    MEmix(0.), MEorder(true), MEsplit(true), MEgluinoRec(false),
-    isFlexible(false) { }  
-  TimeDipoleEnd(int iRadiatorIn, int iRecoilerIn, double pTmaxIn = 0., 
-    int colIn = 0, int chgIn = 0, int gamIn = 0, int isrIn = 0, 
-    int systemIn = 0, int MEtypeIn = 0, int iMEpartnerIn = -1, 
-    bool isOctetOniumIn = false, bool isHiddenValleyIn = false,
-    int colvTypeIn = 0, double MEmixIn = 0., bool MEorderIn = true, 
-    bool MEsplitIn = true, bool MEgluinoRecIn = false, 
+    chgType(0), gamType(0), weakType(0), isrType(0), system(0), systemRec(0), 
+    MEtype(0), iMEpartner(-1), weakPol(0), isOctetOnium(false), 
+    isHiddenValley(false), colvType(0), MEmix(0.), MEorder(true), 
+    MEsplit(true), MEgluinoRec(false), isFlexible(false) { }  
+ TimeDipoleEnd(int iRadiatorIn, int iRecoilerIn, double pTmaxIn = 0., 
+    int colIn = 0, int chgIn = 0, int gamIn = 0, int weakTypeIn = 0, 
+    int isrIn = 0, int systemIn = 0, int MEtypeIn = 0, int iMEpartnerIn = -1, 
+    int weakPolIn = 0, bool isOctetOniumIn = false, 
+    bool isHiddenValleyIn = false, int colvTypeIn = 0, double MEmixIn = 0., 
+    bool MEorderIn = true, bool MEsplitIn = true, bool MEgluinoRecIn = false, 
     bool isFlexibleIn = false) : 
     iRadiator(iRadiatorIn), iRecoiler(iRecoilerIn), pTmax(pTmaxIn), 
-    colType(colIn), chgType(chgIn), gamType(gamIn), isrType(isrIn), 
-    system(systemIn), systemRec(systemIn) , MEtype(MEtypeIn), 
-    iMEpartner(iMEpartnerIn), isOctetOnium(isOctetOniumIn), 
+    colType(colIn), chgType(chgIn), gamType(gamIn), weakType(weakTypeIn),
+    isrType(isrIn), system(systemIn), systemRec(systemIn), MEtype(MEtypeIn), 
+    iMEpartner(iMEpartnerIn), weakPol(weakPolIn), isOctetOnium(isOctetOniumIn), 
     isHiddenValley(isHiddenValleyIn), colvType(colvTypeIn), MEmix(MEmixIn), 
     MEorder (MEorderIn), MEsplit(MEsplitIn), MEgluinoRec(MEgluinoRecIn),
     isFlexible(isFlexibleIn)  { }
@@ -56,13 +56,12 @@ public:
   // Basic properties related to dipole and matrix element corrections.
   int    iRadiator, iRecoiler;
   double pTmax;
-  int    colType, chgType, gamType, isrType, system, systemRec,
-         MEtype, iMEpartner;
+  int    colType, chgType, gamType, weakType, isrType, system, systemRec, 
+         MEtype, iMEpartner, weakPol;
   bool   isOctetOnium, isHiddenValley;
   int    colvType;
   double MEmix;
-  bool   MEorder, MEsplit, MEgluinoRec;
-  bool   isFlexible;
+  bool   MEorder, MEsplit, MEgluinoRec, isFlexible;
 
   // Properties specific to current trial emission.
   int    flavour, iAunt;
@@ -123,7 +122,8 @@ public:
   double pTLastInShower() {return pTLastBranch;}
 
   // Prepare system for evolution after each new interaction; identify ME.
-  virtual void prepare( int iSys, Event& event, bool limitPTmaxIn = true);
+  virtual void prepare( int iSys, Event& event, bool limitPTmaxIn = true, 
+    double pTfirstTrialIn = 1e9);
 
   // Update dipole list after a multiparton interactions rescattering.
   virtual void rescatterUpdate( int iSys, Event& event);
@@ -132,7 +132,8 @@ public:
   virtual void update( int iSys, Event& event);
 
   // Select next pT in downwards evolution.
-  virtual double pTnext( Event& event, double pTbegAll, double pTendAll);
+  virtual double pTnext( Event& event, double pTbegAll, double pTendAll, 
+    bool isFirstTrial = false);
 
   // ME corrections and kinematics that may give failure.
   virtual bool branch( Event& event, bool isInterleaved = false); 
@@ -185,28 +186,29 @@ private:
   static const double MAXVIRTUALITYFRACTION, MAXNEGENERGYFRACTION;
 
   // Initialization data, normally only set once.
-  bool   doQCDshower, doQEDshowerByQ, doQEDshowerByL, doQEDshowerByGamma, 
-         doMEcorrections, doMEafterFirst, doPhiPolAsym, doInterleave, 
-         allowBeamRecoil, dampenBeamRecoil, recoilToColoured, 
+  bool   doQCDshower, doQEDshowerByQ, doQEDshowerByL, doQEDshowerByGamma,
+         doWeakShower, doMEcorrections, doMEafterFirst, doPhiPolAsym, 
+         doInterleave, allowBeamRecoil, dampenBeamRecoil, recoilToColoured,
          allowRescatter, canVetoEmission, doHVshower, brokenHVsym,
-         globalRecoil, useLocalRecoilNow, doSecondHard;
+         globalRecoil, useLocalRecoilNow, doSecondHard, singleWeakEmission;
   int    pTmaxMatch, pTdampMatch, alphaSorder, nGluonToQuark, 
          alphaEMorder, nGammaToQuark, nGammaToLepton, nCHV, idHV,
-         nMaxGlobalRecoil;
+         nMaxGlobalRecoil, weakMode;
   double pTdampFudge, mc, mb, m2c, m2b, renormMultFac, factorMultFac,
          alphaSvalue, alphaS2pi, Lambda3flav, Lambda4flav, Lambda5flav, 
          Lambda3flav2, Lambda4flav2, Lambda5flav2, pTcolCutMin, pTcolCut, 
          pT2colCut, pTchgQCut, pT2chgQCut, pTchgLCut, pT2chgLCut, 
-         mMaxGamma, m2MaxGamma, octetOniumFraction, octetOniumColFac, 
-         mZ, gammaZ, thetaWRat, CFHV, alphaHVfix, pThvCut, pT2hvCut, 
-         mHV, pTmaxFudgeMPI;
+         pTweakCut, pT2weakCut, mMaxGamma, m2MaxGamma, octetOniumFraction, 
+         octetOniumColFac, mZ, gammaZ, thetaWRat, mW, gammaW, CFHV, alphaHVfix,
+         pThvCut, pT2hvCut, mHV, pTmaxFudgeMPI, weakEnhancement, 
+         pTfirstTrial, extraScaleTerm;
 
   // alphaStrong and alphaEM calculations.
   AlphaStrong alphaS;
   AlphaEM     alphaEM;
 
   // Some current values.
-  bool   dopTlimit1, dopTlimit2, dopTdamp;
+  bool   dopTlimit1, dopTlimit2, dopTdamp, hasWeaklyRadiated;
   double pT2damp, kRad, kEmt;
 
   // All dipole ends and a pointer to the selected hardest dipole end.
@@ -214,11 +216,13 @@ private:
   TimeDipoleEnd* dipSel;
   int iDipSel;
 
-  // Setup a dipole end, either QCD, QED/photon or Hidden Valley one.
+  // Setup a dipole end, either QCD, QED/photon, weak or Hidden Valley one.
   void setupQCDdip( int iSys, int i, int colTag,  int colSign, Event& event,
     bool isOctetOnium = false, bool limitPTmaxIn = true);
   void setupQEDdip( int iSys, int i, int chgType, int gamType, Event& event, 
     bool limitPTmaxIn = true); 
+  void setupWeakdip( int iSys, int i,int weakType, Event& event, 
+    bool limitPTmaxIn = true);
   void setupHVdip( int iSys, int i, Event& event, bool limitPTmaxIn = true); 
 
   // Evolve a QCD dipole end. 
@@ -227,6 +231,10 @@ private:
 
   // Evolve a QED dipole end, either charged or photon. 
   void pT2nextQED( double pT2begDip, double pT2sel, TimeDipoleEnd& dip,
+    Event& event);
+
+  // Evolve a weak dipole end.
+  void pT2nextWeak( double pT2begDip, double pT2sel, TimeDipoleEnd& dip,
     Event& event);
 
   // Evolve a Hidden Valley dipole end. 
@@ -266,4 +274,3 @@ private:
 } // end namespace Pythia8
 
 #endif // Pythia8_TimeShower_H
-

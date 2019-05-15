@@ -191,7 +191,7 @@ public:
     double mIn = 0., double scaleIn = 0., ParticleData* ptr = 0)
     : Particle(idIn, statusIn, mother1In, mother2In, daughter1In, daughter2In,
     colIn, acolIn, pxIn, pyIn, pzIn, eIn, mIn, scaleIn) {
-    if (ptr) { setPDTPtr(ptr); setPDEPtr(); }
+    if (ptr) setPDEPtr( ptr->particleDataEntryPtr( idIn) );
     rho = vector< vector<complex> >(spinStates(), 
       vector<complex>(spinStates(), 0));
     D   = vector< vector<complex> >(spinStates(), 
@@ -203,7 +203,7 @@ public:
     double mIn = 0., double scaleIn = 0., ParticleData* ptr = 0)
     : Particle(idIn, statusIn, mother1In, mother2In, daughter1In, daughter2In,
     colIn, acolIn, pIn, mIn, scaleIn) {
-    if (ptr) { setPDTPtr(ptr); setPDEPtr();}
+    if (ptr) setPDEPtr( ptr->particleDataEntryPtr( idIn) );
     rho = vector< vector<complex> >(spinStates(), 
       vector<complex>(spinStates(), 0));
     D   = vector< vector<complex> >(spinStates(), 
@@ -212,7 +212,7 @@ public:
     direction = 1; }
   HelicityParticle(const Particle& ptIn, ParticleData* ptr = 0) 
     : Particle(ptIn) {
-    if (ptr) { setPDTPtr(ptr); setPDEPtr();}
+    if (ptr) setPDEPtr( ptr->particleDataEntryPtr( id()) );
     rho = vector< vector<complex> >(spinStates(), 
       vector<complex>(spinStates(), 0));
     D   = vector< vector<complex> >(spinStates(), 

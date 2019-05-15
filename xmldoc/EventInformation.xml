@@ -233,6 +233,17 @@ the <ei>Q</ei> or <ei>Q^2</ei> renormalization scale at which
 <ei>alpha_strong</ei> and <ei>alpha_electromagnetic</ei> were evaluated.
 </methodmore>
 
+<method name="double Info::scalup()"> 
+returns the stored <code>SCALUP</code> value for Les Houches events, 
+and else zero. It may agree with both the <code>QFac()</code> and 
+<code>QRen()</code> values, as explained above. However, to repeat,
+should the input <code>SCALUP</code> scale be negative, separate positive 
+factorization and renormalization scales are calculated and set as for 
+internally generated events. Furthermore, when PDF info is supplied for 
+the Les Houches event, the factorization scale is set by this PDF info 
+(<code>scalePDF</code>), which can disagree with <code>SCALUP</code>. 
+</method>
+
 <h3>Hard process kinematics</h3>
 
 The methods in this section provide info on the kinematics of the hard 

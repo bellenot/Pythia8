@@ -4077,8 +4077,6 @@ Event History::cluster( const Clustering & inSystem ) {
   // Copy all the junctions one by one
   for (int i = 0; i < state.sizeJunction(); ++i)
     NewEvent.appendJunction( state.getJunction(i) );
-  // Set particle data table pointer
-  NewEvent.setPDTPtr();
   // Find an appropriate scale for the hard process
   double mu = choseHardScale(state);
   // Initialise scales for new event
@@ -4309,8 +4307,6 @@ Event History::cluster( const Clustering & inSystem ) {
   // Put some dummy production scales for RecBefore, RadBefore
   RecBefore.scale(mu);
   RadBefore.scale(mu);
-  RecBefore.setPDTPtr(particleDataPtr);
-  RadBefore.setPDTPtr(particleDataPtr);
 
   // Append new recoiler and find new radiator colour
   NewEvent.append(RecBefore);
@@ -4340,8 +4336,6 @@ Event History::cluster( const Clustering & inSystem ) {
   // Copy all the junctions one by one
   for (int i = 0; i < state.sizeJunction(); ++i)
     outState.appendJunction( state.getJunction(i) );
-  // Set particle data table pointer
-  outState.setPDTPtr();
   // Initialise scales for new event
   outState.saveSize();
   outState.saveJunctionSize();

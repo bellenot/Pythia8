@@ -37,7 +37,7 @@ public:
     particleDataPtr = particleDataPtrIn; rndmPtr = rndmPtrIn;}
  
   // Generate the next decay sequence.
-  bool next( Event& process); 
+  bool next( Event& process, int iDecNow = 0); 
 
 private: 
 

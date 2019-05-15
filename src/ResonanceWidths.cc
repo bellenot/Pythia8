@@ -166,7 +166,7 @@ bool ResonanceWidths::init(Info* infoPtrIn, Settings* settingsPtrIn,
       idAnti    = (particleDataPtr->hasAnti(idNow)) ? -idNow : idNow;
       // Secondary widths not yet initialized for heavier states,
       // so have to assume unit open fraction there.
-      if (idNow == 23 || abs(idNow) == 24 
+      if (idNow == 23 || abs(idNow) == 24 || idNow == 93 || abs(idNow) == 94 
 	|| particleDataPtr->m0(abs(idNow)) < mRes) {
         openSecPos *= particleDataPtr->resOpenFrac(idNow); 
         openSecNeg *= particleDataPtr->resOpenFrac(idAnti);
@@ -574,6 +574,9 @@ void ResonanceGmZ::initConstants() {
   gmZmode     = settingsPtr->mode("WeakZ0:gmZmode");
   thetaWRat   = 1. / (16. * couplingsPtr->sin2thetaW() 
                 * couplingsPtr->cos2thetaW());
+
+  // The Z0copy with id = 93 is a pure Z0.
+  if (idRes == 93) gmZmode = 2;  
 
 }
 

@@ -222,7 +222,7 @@ In addition, the shower contribution only contains the pure
 <i>gamma^*</i> contribution, i.e. not the <i>Z^0</i> part, so
 the mass spectrum above 50 GeV or so would not be well described.
 
-<br/><br/><table><tr><td><strong>TimeShower:mMaxGamma </td><td></td><td> <input type="text" name="14" value="10.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>10.0</strong></code>; <code>minimum = 0.001</code>; <code>maximum = 50.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>TimeShower:mMaxGamma </td><td></td><td> <input type="text" name="14" value="10.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>10.0</strong></code>; <code>minimum = 0.001</code>; <code>maximum = 5000.0</code>)</td></tr></table>
 Maximum invariant mass allowed for the created fermion pair in a 
 <i>gamma -> f fbar</i> branching in the shower.
   
@@ -492,6 +492,125 @@ states that are allowed to radiate, normalized to the <i>q -> q g</i>
 splitting kernel. Thus the default corresponds to twice the radiation
 off a quark. The physically preferred range would be between 1 and 9/4.
   
+ 
+<h3>Weak showers</h3>
+
+The emission of <i>W^+-</i> and <i>Z^0</i> gauge bosons off fermions 
+is intended to become an integrated part of the initial- and final-state
+radiation frameworks, and is fully interleaved with QCD and QED emissions. 
+Currently it is under development, with only the FSR machinery available 
+in the public version, and off by default. Another restriction is that
+there is no simulation of the full <i>gamma^*/Z^0</i> interference:
+at low masses the QED shower involves a pure <i>gamma^*</i> component, 
+whereas the weak shower generates a pure <i>Z^0</i>. 
+
+<p/>
+Most events will not contain a <i>W^+-/Z^0</i> emission at all, and in 
+a shower framework it is not straightforward to force such emissions to 
+happen without biasing the event sample in some respect. An option is 
+available to enhance the emission rate artificially, but it is then the 
+responsibility of the user to correct the cross section accordingly, and 
+not to pick an enhancement so big that the probability for more than one 
+emission is non-negligible. (It is not enough to assign an event weight 
+<i>1/e^n</i> where <i>e</i> is the enhancement factor and <i>n</i> 
+is the number of emitted gauge bosons. This still misses to account for the 
+change in phase space for late emissions by the effect of earlier ones,
+or equivalently for the unwanted change in the Sudakov form factor. See
+[<a href="Bibliography.php" target="page">Lon12a</a>] for a detailed discussion and possible solutions.) 
+
+<p/>
+Another enhancement probability is to only allow some specific 
+<i>W^+-/Z^0</i> decay modes. By default the shower is inclusive,
+since it should describe all that can happen with unit probability. 
+This also holds even if the <i>W^+-</i> and <i>Z^0</i> produced 
+in the hard process have been restricted to specific decay channels.
+The trick that allows this is that two new "aliases" have been produced,
+a <code>Zcopy</code> with identity code 93 and a <code>Wcopy</code> with
+code 94. These copies are used specifically to bookkeep decay channels
+open for <i>W^+-/Z^0</i> bosons produced in the shower. For the rest
+they are invisible, i.e. you will not find them in event listings.
+The separation into two sets of gauge bosons then also allows the  
+selection of specific decay modes for 93 and 94, i.e. for only the
+gauge bosons produced in the shower. As above it is here up to the user 
+to reweight the event to compensate for the bias introduced, and to watch
+out for possible complications. In this case there is no kinematics bias,
+but one would miss out on topologies where a not-selected decay channel
+could be part of the background to the selected one, notably when more
+than one gauge boson is produced.
+
+<p/>
+Note that the common theme is that a bias leads to an event-specific
+weight, since each event is unique. It also means that the cross-section
+information obtained e.g. by <code>Pythia::stat()</code> is misleading,
+since it has not been corrected for such weights. This is different from 
+biases in a predetermined hard process, where the net reduction in cross 
+section can be calculated once and for all at initialization, and events 
+generated with unit weight thereafter.
+
+<p/>
+Special for the weak showers is that couplings are different for left- and
+righthanded fermions. With incoming unpolarized beams this should average out,
+at least so long as only one weak emission occurs. In the case of several
+weak emissions off the same fermion the correlation between them will carry 
+a memory of the fermion helicity. Such a memory is retained for the 
+affected dipole end, and is reflected in the <code>Particle::pol()</code>
+property, it being <i>+1</i> (<i>-1</i>) for fermions considered 
+righthanded (lefthanded), and 0 for the bulk where no choice has been
+made.  
+
+<p/>
+The FSR shower emission is always matched to the matrix element for 
+emission off a <i>f fbar</i> weak dipole. (Emission rates are normalized 
+to the invariant mass of the dipole at the time of the weak emission, 
+i.e. discounting the energy lost by previous QCD/QED emissions.)
+Also the angular distribution in the subsequent <i>V = W^+-/Z^0</i> decay 
+is matched to the matrix element expression for 
+<i>f fbar -> f fbar V -> f fbar f' fbar'</i>. Afterwards the 
+<i>f' fbar'</i> system undergoes showers and hadronization just like
+any <i>W^+-/Z^0</i> decay products would. 
+
+<p/>
+A few special switches are available for the weak framework, several mainly 
+intended for tryout purposes, as follows.
+
+<br/><br/><strong>TimeShower:weakShower</strong>  <input type="radio" name="22" value="on"><strong>On</strong>
+<input type="radio" name="22" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Allow a weak shower, yes or no.
+  
+
+<br/><br/><table><tr><td><strong>TimeShower:weakShowerMode  </td><td></td><td> <input type="text" name="23" value="0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 2</code>)</td></tr></table>
+<br/><code>option </code><strong> 0</strong> :  Allow both <i>W^+-</i> and <i>Z^0</i> branchings. 
+  
+<br/><code>option </code><strong> 1</strong> :  Allow only <i>W^+-</i> branchings.   
+<br/><code>option </code><strong> 2</strong> :  Allow only <i>Z^0</i> branchings.   
+  
+
+<br/><br/><table><tr><td><strong> </td><td></td><td> <input type="text" name="24" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.1</code>; <code>maximum = 2.0</code>)</td></tr></table>
+Parton shower cut-off <i>pT</i> for weak branchings.
+
+<br/><br/><table><tr><td><strong>TimeShower:weakShowerEnhancement </td><td></td><td> <input type="text" name="25" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>; <code>minimum = 1.</code>; <code>maximum = 10.</code>)</td></tr></table>
+Enhancement factor for the weak shower. This is used to increase the statistics 
+of weak shower emissions. Remember afterwards to correct for the additional 
+weak emissions (i.e. divide the weak emissions by the same factor), and recall
+the warnings above. 
+  
+
+<br/><br/><strong>TimeShower:singleWeakEmission</strong>  <input type="radio" name="26" value="on"><strong>On</strong>
+<input type="radio" name="26" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+This parameter allows to stop the weak shower after a single emission.
+If on, only a single weak emission is allowed.
+If off, an unlimited number of weak emissions possible.
+  
+
+<br/><br/><table><tr><td><strong>TimeShower:extraScaleTerm </td><td></td><td> <input type="text" name="27" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>; <code>minimum = 0.</code>; <code>maximum = 2.</code>)</td></tr></table>
+The normal showers uses <i>pT^2</i> as ordering variable, but for 
+massive particles it could be preferred to use <i>pT^2 + M^2</i> 
+instead. This parameter allows to use <i>pT^2 + k * M^2</i> for 
+weak showers, thus <i>k = 0</i> is the standard ordering and 
+is used as default.
+  
 
 <h3>Further variables</h3>
 
@@ -500,62 +619,62 @@ branching types in the shower, or in other respects simplify the shower.
 These should normally not be touched. Their main function is for 
 cross-checks.
 
-<br/><br/><strong>TimeShower:QCDshower</strong>  <input type="radio" name="22" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="22" value="off"><strong>Off</strong>
+<br/><br/><strong>TimeShower:QCDshower</strong>  <input type="radio" name="28" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="28" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Allow a QCD shower, i.e. branchings <i>q -> q g</i>, <i>g -> g g</i> 
 and <i>g -> q qbar</i>; on/off = true/false.
   
 
-<br/><br/><table><tr><td><strong>TimeShower:nGluonToQuark  </td><td></td><td> <input type="text" name="23" value="5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>TimeShower:nGluonToQuark  </td><td></td><td> <input type="text" name="29" value="5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
 Number of allowed quark flavours in <i>g -> q qbar</i> branchings
 (phase space permitting). A change to 4 would exclude 
 <i>g -> b bbar</i>, etc. 
   
 
-<br/><br/><strong>TimeShower:QEDshowerByQ</strong>  <input type="radio" name="24" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="24" value="off"><strong>Off</strong>
+<br/><br/><strong>TimeShower:QEDshowerByQ</strong>  <input type="radio" name="30" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="30" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Allow quarks to radiate photons, i.e. branchings <i>q -> q gamma</i>; 
 on/off = true/false.
   
 
-<br/><br/><strong>TimeShower:QEDshowerByL</strong>  <input type="radio" name="25" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="25" value="off"><strong>Off</strong>
+<br/><br/><strong>TimeShower:QEDshowerByL</strong>  <input type="radio" name="31" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="31" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Allow leptons to radiate photons, i.e. branchings <i>l -> l gamma</i>;  
 on/off = true/false.
   
 
-<br/><br/><strong>TimeShower:QEDshowerByGamma</strong>  <input type="radio" name="26" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="26" value="off"><strong>Off</strong>
+<br/><br/><strong>TimeShower:QEDshowerByGamma</strong>  <input type="radio" name="32" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="32" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Allow photons to branch into lepton or quark pairs, i.e. branchings 
 <i>gamma -> l+ l-</i> and <i>gamma -> q qbar</i>;
 on/off = true/false.
   
 
-<br/><br/><table><tr><td><strong>TimeShower:nGammaToQuark  </td><td></td><td> <input type="text" name="27" value="5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>TimeShower:nGammaToQuark  </td><td></td><td> <input type="text" name="33" value="5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
 Number of allowed quark flavours in <i>gamma -> q qbar</i> branchings
 (phase space permitting). A change to 4 would exclude 
 <i>g -> b bbar</i>, etc. 
   
 
-<br/><br/><table><tr><td><strong>TimeShower:nGammaToLepton  </td><td></td><td> <input type="text" name="28" value="3" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>3</strong></code>; <code>minimum = 0</code>; <code>maximum = 3</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>TimeShower:nGammaToLepton  </td><td></td><td> <input type="text" name="34" value="3" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>3</strong></code>; <code>minimum = 0</code>; <code>maximum = 3</code>)</td></tr></table>
 Number of allowed lepton flavours in <i>gamma -> l+ l-</i> branchings
 (phase space permitting). A change to 2 would exclude 
 <i>gamma -> tau+ tau-</i>, and a change to 1 also 
 <i>gamma -> mu+ mu-</i>. 
   
 
-<br/><br/><strong>TimeShower:MEcorrections</strong>  <input type="radio" name="29" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="29" value="off"><strong>Off</strong>
+<br/><br/><strong>TimeShower:MEcorrections</strong>  <input type="radio" name="35" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="35" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Use of matrix element corrections where available; on/off = true/false.
   
 
-<br/><br/><strong>TimeShower:MEafterFirst</strong>  <input type="radio" name="30" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="30" value="off"><strong>Off</strong>
+<br/><br/><strong>TimeShower:MEafterFirst</strong>  <input type="radio" name="36" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="36" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Use of matrix element corrections also after the first emission,
 for dipole ends of the same system that did not yet radiate.
@@ -563,14 +682,14 @@ Only has a meaning if <code>MEcorrections</code> above is
 switched on. 
   
 
-<br/><br/><strong>TimeShower:phiPolAsym</strong>  <input type="radio" name="31" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="31" value="off"><strong>Off</strong>
+<br/><br/><strong>TimeShower:phiPolAsym</strong>  <input type="radio" name="37" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="37" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Azimuthal asymmetry induced by gluon polarization; on/off = true/false.
   
 
-<br/><br/><strong>TimeShower:recoilToColoured</strong>  <input type="radio" name="32" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="32" value="off"><strong>Off</strong>
+<br/><br/><strong>TimeShower:recoilToColoured</strong>  <input type="radio" name="38" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="38" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 In the decays of coloured resonances, say <i>t -> b W</i>, it is not 
 possible to set up dipoles with matched colours. Originally the 
@@ -709,59 +828,89 @@ if($_POST["21"] != "2.")
 $data = "TimeShower:octetOniumColFac = ".$_POST["21"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["22"] != "on")
+if($_POST["22"] != "off")
 {
-$data = "TimeShower:QCDshower = ".$_POST["22"]."\n";
+$data = "TimeShower:weakShower = ".$_POST["22"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["23"] != "5")
+if($_POST["23"] != "0")
 {
-$data = "TimeShower:nGluonToQuark = ".$_POST["23"]."\n";
+$data = "TimeShower:weakShowerMode = ".$_POST["23"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["24"] != "on")
+if($_POST["24"] != "1.0")
 {
-$data = "TimeShower:QEDshowerByQ = ".$_POST["24"]."\n";
+$data = " = ".$_POST["24"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["25"] != "on")
+if($_POST["25"] != "1.")
 {
-$data = "TimeShower:QEDshowerByL = ".$_POST["25"]."\n";
+$data = "TimeShower:weakShowerEnhancement = ".$_POST["25"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["26"] != "on")
+if($_POST["26"] != "off")
 {
-$data = "TimeShower:QEDshowerByGamma = ".$_POST["26"]."\n";
+$data = "TimeShower:singleWeakEmission = ".$_POST["26"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["27"] != "5")
+if($_POST["27"] != "0.")
 {
-$data = "TimeShower:nGammaToQuark = ".$_POST["27"]."\n";
+$data = "TimeShower:extraScaleTerm = ".$_POST["27"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["28"] != "3")
+if($_POST["28"] != "on")
 {
-$data = "TimeShower:nGammaToLepton = ".$_POST["28"]."\n";
+$data = "TimeShower:QCDshower = ".$_POST["28"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["29"] != "on")
+if($_POST["29"] != "5")
 {
-$data = "TimeShower:MEcorrections = ".$_POST["29"]."\n";
+$data = "TimeShower:nGluonToQuark = ".$_POST["29"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["30"] != "on")
 {
-$data = "TimeShower:MEafterFirst = ".$_POST["30"]."\n";
+$data = "TimeShower:QEDshowerByQ = ".$_POST["30"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["31"] != "on")
 {
-$data = "TimeShower:phiPolAsym = ".$_POST["31"]."\n";
+$data = "TimeShower:QEDshowerByL = ".$_POST["31"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["32"] != "on")
 {
-$data = "TimeShower:recoilToColoured = ".$_POST["32"]."\n";
+$data = "TimeShower:QEDshowerByGamma = ".$_POST["32"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["33"] != "5")
+{
+$data = "TimeShower:nGammaToQuark = ".$_POST["33"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["34"] != "3")
+{
+$data = "TimeShower:nGammaToLepton = ".$_POST["34"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["35"] != "on")
+{
+$data = "TimeShower:MEcorrections = ".$_POST["35"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["36"] != "on")
+{
+$data = "TimeShower:MEafterFirst = ".$_POST["36"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["37"] != "on")
+{
+$data = "TimeShower:phiPolAsym = ".$_POST["37"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["38"] != "on")
+{
+$data = "TimeShower:recoilToColoured = ".$_POST["38"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);

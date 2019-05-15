@@ -304,15 +304,17 @@ empty zeroth line, and thus is one larger than the true number of
 particles (<code>NUP</code>). 
 
 <a name="method18"></a>
-<p/><strong>virtual bool LHAup::setEvent(int idProcess = 0) &nbsp;</strong> <br/>
+<p/><strong>virtual bool LHAup::setEvent(int idProcess = 0, double mRecalculate = -1.) &nbsp;</strong> <br/>
 this pure virtual method has to be implemented in the derived class, 
 to set relevant information when called. For strategy options +-1 
 and +-2 the input <code>idProcess</code> value specifies which process 
 that should be generated, while <code>idProcess</code> is irrelevant 
-for strategies +-3 and +-4. The method should return false if it fails 
-to set the info, i.e. normally that the supply of events in a file is 
-exhausted. If so, no event is generated, and <code>Pythia::next()</code> 
-returns false. You can then interrogate 
+for strategies +-3 and +-4. The <code>mRecalculate</code> input alllows
+an optional recalculation of the mass from the four-momentum, see 
+<code>LesHouches::mRecalculate</code> below. The method should return 
+false if it fails to set the info, i.e. normally that the supply of 
+events in a file is exhausted. If so, no event is generated, and 
+<code>Pythia::next()</code> returns false. You can then interrogate 
 <code><?php $filepath = $_GET["filepath"];
 echo "<a href='EventInformation.php?filepath=".$filepath."' target='page'>";?>Info::atEndOfFile()</a></code> 
 to confirm that indeed the failure is caused in this method, and decide 
@@ -520,6 +522,26 @@ and <i>t -> b W -> b f fbar</i>, where the process-independent
 correlations implemented for internal processes are used. If part of 
 the decay chain has already been set, however (e.g. <i>H -> WW/ZZ</i> 
 or <i>t -> b W</i>), then decay is still isotropic.
+
+<p/>
+There is only one parameter that can be used to modify the setting
+of event information, if implemented in the derived class. It is 
+prompted by an unforeseen choice made in some programs (like CalcHEP)
+of storing the nominal mass of a particle species rather than the
+mass of the current member of that species. This is likely to  
+induce energy-momentum nonconservation when the event is further 
+processed.
+
+<br/><br/><table><tr><td><strong>LesHouches:mRecalculate </td><td></td><td> <input type="text" name="1" value="-1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>-1.</strong></code>)</td></tr></table>
+Does not have any effect by default, or more generally when it is negative.
+If it is positive then all particles with an input mass above this
+value will have the mass recalculated and reset from the four-momentum,  
+<i>m^2 = E^2 - p^2</i>. Obviously such a step is problematic
+numerically for light particles, so it should only be used for the
+programs and particles where it is needed. Thus the value ought to be 
+at least 10 GeV, so that only massive particles like <i>W^+-</i>, 
+<i>Z^0</i> and <i>t</i> are affected. 
+   
 
 <h3>An interface to Les Houches Event Files</h3>
 
@@ -865,6 +887,30 @@ In addition, the <code>PartonLevel:all = off</code> command found in
 <code>main20.cc</code> obviously must be removed if one wants to
 obtain complete events.
  
+<input type="hidden" name="saved" value="1"/>
+
+<?php
+echo "<input type='hidden' name='filepath' value='".$_GET["filepath"]."'/>"?>
+
+<table width="100%"><tr><td align="right"><input type="submit" value="Save Settings" /></td></tr></table>
+</form>
+
+<?php
+
+if($_POST["saved"] == 1)
+{
+$filepath = $_POST["filepath"];
+$handle = fopen($filepath, 'a');
+
+if($_POST["1"] != "-1.")
+{
+$data = "LesHouches:mRecalculate = ".$_POST["1"]."\n";
+fwrite($handle,$data);
+}
+fclose($handle);
+}
+
+?>
 </body>
 </html>
 

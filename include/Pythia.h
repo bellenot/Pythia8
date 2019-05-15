@@ -31,7 +31,7 @@
 #include "SigmaTotal.h"
 #include "SpaceShower.h"
 #include "StandardModel.h"
-#include "SusyLesHouches.h"
+#include "SLHAinterface.h"
 #include "TimeShower.h"
 #include "UserHooks.h"
 #include "MergingHooks.h"
@@ -188,11 +188,10 @@ public:
 
   // Standard Model couplings, including alphaS and alphaEM.
   Couplings      couplings;
-  CoupSUSY       coupSUSY;
   Couplings*     couplingsPtr;
 
-  // SusyLesHouches - SLHA object for interface to SUSY spectra.
-  SusyLesHouches slha;
+  // SLHA Interface
+  SLHAinterface slhaInterface;
 
   // The partonic content of each subcollision system (auxiliary to event).
   PartonSystems  partonSystems; 
@@ -234,7 +233,7 @@ private:
 
   // information for error checkout.
   int    nErrEvent;
-  vector<int> iErrId, iErrCol, iErrNan, iErrNanVtx;
+  vector<int> iErrId, iErrCol, iErrEpm, iErrNan, iErrNanVtx;
 
   // Pointers to the parton distributions of the two incoming beams.
   PDF* pdfAPtr;  

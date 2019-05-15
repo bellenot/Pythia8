@@ -98,6 +98,8 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
   }
   cosb = sqrt( 1.0 / (1.0 + tanb*tanb) );
   sinb = sqrt(max(0.0,1.0-cosb*cosb));
+
+  double beta = acos(cosb);
   
   // Verbose output
   if (DBSUSY) {
@@ -137,6 +139,55 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
     mAHiggs = 0.0;
   }
 
+  // Pass SLHA input to 2HDM sector
+
+  double sba = sin(beta-alphaHiggs);
+  double cba = cos(beta-alphaHiggs);
+  double cosa = cos(alphaHiggs);
+  double sina = sin(alphaHiggs);
+
+  // h0
+  settingsPtr->parm("HiggsH1:coup2d", -sina/cosb); 
+  settingsPtr->parm("HiggsH1:coup2u",  cosa/sinb); 
+  settingsPtr->parm("HiggsH1:coup2l", cosa/sinb); 
+  settingsPtr->parm("HiggsH1:coup2Z", sba); 
+  settingsPtr->parm("HiggsH1:coup2W", sba); 
+  // H0
+  settingsPtr->parm("HiggsH2:coup2d", cosa/cosb); 
+  settingsPtr->parm("HiggsH2:coup2u", sina/sinb); 
+  settingsPtr->parm("HiggsH2:coup2l", sina/sinb); 
+  settingsPtr->parm("HiggsH2:coup2Z", cba); 
+  settingsPtr->parm("HiggsH2:coup2W", cba); 
+  settingsPtr->parm("HiggsH2:coup2H1Z", 0.0); 
+  settingsPtr->parm("HiggsH2:coup2HchgW", sba); 
+  // A0
+  settingsPtr->parm("HiggsA3:coup2d", tanb); 
+  settingsPtr->parm("HiggsA3:coup2u", cosb/sinb); 
+  settingsPtr->parm("HiggsA3:coup2l", cosb/sinb); 
+  settingsPtr->parm("HiggsA3:coup2Z", 0.0); 
+  settingsPtr->parm("HiggsA3:coup2W", 0.0); 
+  settingsPtr->parm("HiggsA3:coup2H1Z", cba); 
+  settingsPtr->parm("HiggsA3:coup2H2Z", sba); 
+  settingsPtr->parm("HiggsA3:coup2HchgW", 1.0); 
+  
+  // H^+
+  settingsPtr->parm("HiggsHchg:tanBeta", tanb); 
+  settingsPtr->parm("HiggsHchg:coup2H1W", cba); 
+  settingsPtr->parm("HiggsHchg:coup2H2W", sba); 
+  
+  // Triple higgs couplings
+  
+  double cbpa = cos(beta+alphaHiggs);
+  double sbpa = sin(beta+alphaHiggs);
+  
+  settingsPtr->parm("HiggsH1:coup2Hchg", cos(2*beta)*sbpa + 2*pow2(cosW)*sba); 
+  settingsPtr->parm("HiggsH2:coup2Hchg", -cos(2*beta)*cbpa + 2*pow2(cosW)*cba);  
+  settingsPtr->parm("HiggsH2:coup2H1H1", 2*sin(2*alphaHiggs)*sbpa - cos(2*alphaHiggs)*cbpa); 
+  settingsPtr->parm("HiggsH2:coup2A3A3", -cos(2*beta)*cbpa);  
+  settingsPtr->parm("HiggsH2:coup2A3H1", 0.0);
+  settingsPtr->parm("HiggsA3:coup2H1H1", 0.0); 
+  settingsPtr->parm("HiggsA3:coup2Hchg", 0.0); 
+  
   // Shorthand for squark mixing matrices 
   LHmatrixBlock<6> Ru(slhaPtr->usqmix);
   LHmatrixBlock<6> Rd(slhaPtr->dsqmix);
@@ -399,16 +450,18 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
 
   // Construct lvW couplings
   for (int i=1;i<=3;i++){
-    LlvW[i] = sqrt(2.0) * cosW;
-    RlvW[i] = 0.0;
+    for (int j=1;j<=3;++j){
+       LlvW[i][j] = (i==j) ? sqrt(2.0) * cosW : 0.0 ;
+       RlvW[i][j] = 0.0;
 
       // tmp: verbose output
       if (DBSUSY) {
-	cout << " LlvW  [" << i << "] = " 
-             << scientific << setw(10) << LlvW[i]
-	     << " RlvW  [" << i << "] = " 
-             << scientific << setw(10) << RlvW[i] << endl;
+	cout << " LlvW  [" << i << "][" << j << "] = " 
+             << scientific << setw(10) << LlvW[i][j]
+	     << " RlvW  [" << i << "][" << j << "] = " 
+             << scientific << setw(10) << RlvW[i][j] << endl;
       }
+    }
   }
 
   // Construct ~l~vW couplings

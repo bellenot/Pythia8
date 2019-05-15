@@ -117,6 +117,7 @@ OBJS =   $(OUTDIR)/Analysis.obj \
          $(OUTDIR)/SigmaQCD.obj \
          $(OUTDIR)/SigmaSUSY.obj \
          $(OUTDIR)/SigmaTotal.obj \
+         $(OUTDIR)/SLHAinterface.obj \
          $(OUTDIR)/SpaceShower.obj \
          $(OUTDIR)/StandardModel.obj \
          $(OUTDIR)/StringFragmentation.obj \

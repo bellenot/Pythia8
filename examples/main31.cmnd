@@ -3,6 +3,9 @@
 ! Lines not beginning with a letter or digit are comments.
 ! Names are case-insensitive  -  but spellings-sensitive!
 ! The settings here are illustrative, not always physics-motivated.
+! You should carefully consider what changes need be done for the 
+! process you study currently, and consider some of the options
+! as reasonable measures of uncertainties in the matching process.
 
 ! Number of events - use 0 for all LHEF events in the input file.
 Main:numberOfEvents = 0
@@ -41,8 +44,8 @@ POWHEG:veto = 1
 POWHEG:vetoCount = 3
 
 ! Selection of pThard (note, for events where there is no
-! radiation, pThard is always set to be Q_fac):
-!  0 - pThard = Q_fac
+! radiation, pThard is always set to be SCALUP):
+!  0 - pThard = SCALUP (of the LHA/LHEF standard)
 !  1 - the pT of the POWHEG emission is tested against all other
 !      incoming and outgoing partons, with the minimal value chosen
 !  2 - the pT of all final-state partons is tested against all other
@@ -55,7 +58,9 @@ POWHEG:pThard = 2
 !      partons. pTemt is set to the minimum of these values
 !  2 - the pT of all final-state partons is tested against all other
 !      incoming and outgoing partons, with the minimal value chosen
-POWHEG:pTemt = 2
+! WARNING: the choice here can give significant variations in the final
+! distributions, notably in the tail to large pT values.
+POWHEG:pTemt = 0
 
 ! Selection of emitted parton for FSR
 !  0 - Pythia definition of emitted
@@ -77,5 +82,5 @@ POWHEG:pTdef = 1
 POWHEG:MPIveto = 0
 
 ! Further options (optional, for tryout)
-PartonLevel:MPI = off
-HadronLevel:All = off
+!PartonLevel:MPI = off
+!HadronLevel:All = off

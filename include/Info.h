@@ -94,6 +94,7 @@ public:
   double alphaEM(int i = 0)   const {return alphaEMSave[i];}
   double QRen(int i = 0)      const {return sqrtpos(Q2RenSave[i]);}
   double Q2Ren(int i = 0)     const {return Q2RenSave[i];}
+  double scalup(int i = 0)    const {return scalupSave[i];}
 
   // Mandelstam variables (notation as if subcollision).
   double mHat(int i = 0)      const {return sqrt(sH[i]);}   
@@ -248,8 +249,8 @@ private:
          nISRSave, nFSRinProcSave, nFSRinResSave;
   double x1Save[4], x2Save[4], x1pdfSave[4], x2pdfSave[4], pdf1Save[4], 
          pdf2Save[4], Q2FacSave[4], alphaEMSave[4], alphaSSave[4], 
-         Q2RenSave[4], sH[4], tH[4], uH[4], pTH[4], m3H[4], m4H[4], 
-         thetaH[4], phiH[4], weightSave, bMPISave, enhanceMPISave, 
+         Q2RenSave[4], scalupSave[4], sH[4], tH[4], uH[4], pTH[4], m3H[4], 
+         m4H[4], thetaH[4], phiH[4], weightSave, bMPISave, enhanceMPISave, 
          pTmaxMPISave, pTmaxISRSave, pTmaxFSRSave, pTnowSave, 
          zNowISRSave, pT2NowISRSave;
   string nameSave, nameSubSave[4];
@@ -296,8 +297,8 @@ private:
         = id1Save[i] = id2Save[i] = 0;
       x1pdfSave[i] = x2pdfSave[i] = pdf1Save[i] = pdf2Save[i] 
         = Q2FacSave[i] = alphaEMSave[i] = alphaSSave[i] = Q2RenSave[i] 
-        = x1Save[i] = x2Save[i] = sH[i] = tH[i] = uH[i] = pTH[i] 
-        = m3H[i] = m4H[i] = thetaH[i] = phiH[i] = 0.;
+        = scalupSave[i] = x1Save[i] = x2Save[i] = sH[i] = tH[i] = uH[i] 
+        = pTH[i] = m3H[i] = m4H[i] = thetaH[i] = phiH[i] = 0.;
       nameSubSave[i] = " ";
     }
     codeMPISave.resize(0); iAMPISave.resize(0); iBMPISave.resize(0);  
@@ -326,12 +327,12 @@ private:
     codeSubSave[iDS] = codeSubIn; nFinalSubSave[iDS] = nFinalSubIn;}
   void setPDFalpha( int iDS, int id1pdfIn, int id2pdfIn, double x1pdfIn, 
     double x2pdfIn, double pdf1In, double pdf2In, double Q2FacIn, 
-    double alphaEMIn, double alphaSIn, double Q2RenIn) {
+    double alphaEMIn, double alphaSIn, double Q2RenIn, double scalupIn) {
     id1pdfSave[iDS] = id1pdfIn; id2pdfSave[iDS] = id2pdfIn; 
     x1pdfSave[iDS] = x1pdfIn; x2pdfSave[iDS] = x2pdfIn;
     pdf1Save[iDS] = pdf1In; pdf2Save[iDS] = pdf2In; Q2FacSave[iDS] = Q2FacIn; 
     alphaEMSave[iDS] = alphaEMIn; alphaSSave[iDS] = alphaSIn; 
-    Q2RenSave[iDS] = Q2RenIn;}
+    Q2RenSave[iDS] = Q2RenIn; scalupSave[iDS] = scalupIn;}
   void setKin( int iDS, int id1In, int id2In, double x1In, double x2In, 
     double sHatIn, double tHatIn, double uHatIn, double pTHatIn, 
     double m3HatIn, double m4HatIn, double thetaHatIn, double phiHatIn) {

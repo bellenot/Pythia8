@@ -166,6 +166,7 @@ bool PartonLevel::init( Info* infoPtrIn, Settings& settings,
     partonSystemsPtr, sigmaTotPtr, userHooksPtr);
   remnants.init( infoPtr, settings, rndmPtr, beamAPtr, beamBPtr, 
     partonSystemsPtr);
+  resonanceDecays.init( infoPtr, particleDataPtr, rndmPtr); 
 
   // Succeeded, or not.
   multiPtr       = &multiMB;
@@ -361,7 +362,11 @@ bool PartonLevel::next( Event& process, Event& event) {
     doVeto        = false;
     double pTveto = pTvetoPT;
     typeLatest    = 0;
-
+    
+    // Need to know if first emission to allow for weak shower
+    // to go to the scale pT2 + mW2 (mZ2) instead of just pT2. 
+    bool isFirstTrial = true;
+    
     // Begin evolution down in pT from hard pT scale.  
     do {
       infoPtr->addCounter(22); 
@@ -372,7 +377,7 @@ bool PartonLevel::next( Event& process, Event& event) {
       // Order calls to minimize time expenditure.
       double pTgen = 0.;
       double pTtimes = (doFSRduringProcess) 
-        ? timesPtr->pTnext( event, pTmaxFSR, pTgen) : -1.;
+        ? timesPtr->pTnext( event, pTmaxFSR, pTgen, isFirstTrial) : -1.;
       pTgen = max( pTgen, pTtimes);
       double pTmulti = (doMPI) 
         ? multiPtr->pTnext( pTmaxMPI, pTgen, event) : -1.;
@@ -381,7 +386,7 @@ bool PartonLevel::next( Event& process, Event& event) {
         ? spacePtr->pTnext( event, pTmaxISR, pTgen, nRad) : -1.;
       double pTnow = max( pTtimes, max( pTmulti, pTspace));
       infoPtr->setPTnow( pTnow);
-
+      isFirstTrial = false;
       // Allow a user veto. Only do it once, so remember to change pTveto.
       if (pTveto > 0. && pTveto > pTnow) {
         pTveto = -1.; 
@@ -624,6 +629,10 @@ bool PartonLevel::next( Event& process, Event& event) {
   // Abort event if vetoed.
   if (doVeto) return false;
 
+  // Perform decays and showers of W and Z emitted in shower.
+  // To do:check if W/Z emission is on in ISR or FSR??
+  if (!wzDecayShowers( event)) return false;
+
   // Store event properties. Not available for diffraction.
   if (!isDiff) infoPtr->setEvolution( pTsaveMPI, pTsaveISR, pTsaveFSR, 
     nMPI, nISR, nFSRinProc, nFSRinRes);
@@ -779,10 +788,11 @@ bool PartonLevel::setupUnresolvedSys( Event& process, Event& event) {
       Vec4 p1(pxSys, pySys, pL1, e1);
       Vec4 p2 = pRem - p1;
   
-      // Boost and rotate to event cm frame.
+      // Boost and rotate to event cm frame. Improve precision.
       pG.rotbst( MtoCM);   
       p1.rotbst( MtoCM);   
-      p2.rotbst( MtoCM);   
+      p2.rotbst( MtoCM); 
+      pG.e( pG.pAbs());   
 
       // Set colours.
       int colG, acolG, col1, acol1, col2, acol2;
@@ -806,11 +816,9 @@ bool PartonLevel::setupUnresolvedSys( Event& process, Event& event) {
       process.nextColTag();
              
       // Store partons of diffractive system and mark system decayed.
-      int iDauBeg = event.append( 21, 23, iBeam, 0, 0, 0, colG, acolG, 
-        pG, m1);
+      int iDauBeg = event.append( 21, 23, iBeam, 0, 0, 0, colG, acolG, pG, 0.);
       event.append( id1, 63, iBeam, 0, 0, 0, col1, acol1, p1, m1);
-      int iDauEnd = event.append( id2, 63, iBeam, 0, 0, 0, col2, acol2, 
-        p2, m2);
+      int iDauEnd = event.append( id2, 63, iBeam, 0, 0, 0, col2, acol2, p2, m2);
       event[iBeam].statusNeg();
       event[iBeam].daughters(iDauBeg, iDauEnd);   
     }
@@ -1406,6 +1414,241 @@ bool PartonLevel::resonanceShowers( Event& process, Event& event,
   // No more systems to be processed. Set total number of emissions.
   }
   if (skipForR) nFSRinRes = nFSRres;
+  return true;
+
+}
+
+//--------------------------------------------------------------------------
+
+// Perform decays and showers of W and Z emitted in shower.
+
+bool PartonLevel::wzDecayShowers( Event& event) {
+
+  // Identify W/Z produced by a parton shower.
+  for (int iWZ = 0; iWZ < event.size(); ++iWZ) 
+  if (event[iWZ].isFinal() 
+    && (event[iWZ].id() == 23 || event[iWZ].idAbs() == 24) ) { 
+    int iWZtop = event[iWZ].iTopCopy();
+    if (event[iWZtop].statusAbs() == 56) { 
+
+      // Map id_Z = 23 -> 93 and id_W = 24 -> 94, for separate decay settings. 
+      // Let W/Z resonance decay. Restore correct identity and status codes.
+      int sizeSave   = event.size();
+      int idSave     = event[iWZ].id();
+      event[iWZ].id( (idSave > 0) ? idSave + 70 : idSave - 70);
+      int statusSave = event[iWZ].status();
+      resonanceDecays.next( event, iWZ); 
+      event[iWZ].id( idSave);
+      event[iWZ].status( -statusSave);
+      if (event.size() - sizeSave != 2) {
+	infoPtr->errorMsg("Error in PartonLevel::wzDecayShowers: "
+	  "not two decay products");
+	return false;
+      }
+
+      // Identify fermion after W/Z emission.
+      vector<int>  iSisters = event[iWZtop].sisterList();
+      if(iSisters.size() != 1) {
+	infoPtr->errorMsg("Error in PartonLevel::wzDecayShowers: "
+	  "Not able to find a single sister particle");
+	return false;
+      }
+      double iEmitter = iSisters[0];
+
+      // Boosts to study decay in W/Z rest frame.  
+      RotBstMatrix MtoNew, MtoRest, MtoCM;
+      MtoNew.bst( event[iWZtop].p(), event[iWZ].p());
+      MtoRest.bstback( event[iWZ].p());
+      MtoCM.bst( event[iWZ].p());
+
+      // Emitter and recoiler in W/Z rest frame.
+      Vec4 pEmitter = event[iEmitter].p();
+      pEmitter.rotbst( MtoNew);
+      pEmitter.rotbst( MtoRest);
+      if (event[iWZtop + 1].statusAbs() != 52) {
+	infoPtr->errorMsg("Error in PartonLevel::wzDecayShowers: "
+	  "Found wrong recoiler");
+	return false;
+      }
+      Vec4 pRecoiler = event[iWZtop + 1].p();
+      pRecoiler.rotbst( MtoNew);
+      pRecoiler.rotbst( MtoRest);
+      Vec4 pWZRest = event[iWZ].p();    
+      pWZRest.rotbst( MtoRest);
+
+      // Always choose p4 as the particle and p5 as the anti-particle.
+      Vec4 p4 = pEmitter;
+      Vec4 p5 = pRecoiler;
+      if (event[iEmitter].id() < 0) swap( p4, p5);
+
+      // Decay daughters in W/Z rest frame.
+      // Always choose pDec1 as the particle and p2Dec as the anti-particle.
+      Vec4 pDec1 = event[sizeSave].p();
+      Vec4 pDec2 = event[sizeSave + 1].p();
+      if (event[sizeSave].id() < 0) swap( pDec1, pDec2);
+      pDec1.rotbst( MtoRest);
+      pDec2.rotbst( MtoRest);
+
+      // Couplings.
+      double li2, ri2, lf2, rf2; 
+      // Z - Couplings: make use of initial fermion polarization if set.
+      if (event[iWZ].id() == 23) {
+	li2 = pow2(couplingsPtr->lf( event[iEmitter].idAbs() ));
+	ri2 = pow2(couplingsPtr->rf( event[iEmitter].idAbs() ));
+	lf2 = pow2(couplingsPtr->lf( event[sizeSave].idAbs() ));
+	rf2 = pow2(couplingsPtr->rf( event[sizeSave].idAbs() ));
+	if ( abs( event[iEmitter].pol() + 1.) < 0.1) ri2 = 0.;
+	if ( abs( event[iEmitter].pol() - 1.) < 0.1) li2 = 0.;    
+      // W - Couplings.
+      } else {
+	li2 = 1.;
+	ri2 = 0.;
+	lf2 = 1.;
+	rf2 = 0.;
+      }
+
+      // Different needed kinematic variables.
+      double sWZER = (p4 + pWZRest + p5).m2Calc();
+      double x1    = 2. * p4 * (p4 + pWZRest + p5) / sWZER;
+      double x2    = 2. * p5 * (p4 + pWZRest + p5) / sWZER;
+      double x1s   = x1 * x1;
+      double x2s   = x2 * x2;
+      double m2Sel = pWZRest.m2Calc();
+      double rWZER = m2Sel / sWZER;
+
+      // Calculate constants needed in correction.
+      double con[9];
+      con[0] = 2. * m2Sel * (1.-x1) * ((x2s+1.-x1-x2) - rWZER * (1.-x2))
+	     * (li2 * lf2 + ri2 * rf2);
+      con[1] = 2. * m2Sel * (1.-x2) * ((x1s+1.-x1-x2) - rWZER * (1.-x1))
+	     * (li2 * rf2 + ri2 * lf2);
+      con[2] = 2. * m2Sel * (1.-x1) * ((x2s+1.-x1-x2) - rWZER * (1.-x2))
+	     * (li2 * rf2 + ri2 * lf2);
+      con[3] = 2. * m2Sel * (1.-x2) * ((x1s+1.-x1-x2) - rWZER * (1.-x1))
+	     * (li2 * lf2 + ri2 * rf2);
+      con[4] = m2Sel * sWZER * (1.-x1) * (1.-x2) * ((x1+x2-1.) + rWZER)
+	     * (li2 + ri2) * (lf2 + rf2);
+      con[5] = -4. * (1.-x1) * (1.-x2) 
+	     * (li2 + ri2) * (lf2 + rf2);
+      con[6] = -4. * (1.-x1) * (1.-x2) 
+	     * (li2 + ri2) * (lf2 + rf2);
+      con[7] = 4. * (1.-x1) * ((1.-x1) - rWZER * (1.-x2))
+	     * (li2 + ri2) * (lf2 + rf2);
+      con[8] = 4. * (1.-x2) * ((1.-x2) - rWZER * (1.-x1)) 
+	     * (li2 + ri2) * (lf2 + rf2);
+
+      // Find maximum value: try pDec1 and pDec2 = -pDec1 along +-x, +-y, +-z.
+      double wtMax  = 0.;
+      double pAbs12 = pDec1.pAbs();
+      for (int j = 0; j < 6; ++j) {
+	Vec4 pDec1Test( 0., 0., 0., pDec1.e());
+	Vec4 pDec2Test( 0., 0., 0., pDec2.e());
+	if      (j == 0) { pDec1Test.px(  pAbs12);  pDec1Test.px( -pAbs12);}
+	else if (j == 1) { pDec1Test.px( -pAbs12);  pDec1Test.px(  pAbs12);}
+	else if (j == 2) { pDec1Test.py(  pAbs12);  pDec1Test.py( -pAbs12);}
+	else if (j == 3) { pDec1Test.py( -pAbs12);  pDec1Test.py(  pAbs12);}
+	else if (j == 4) { pDec1Test.pz(  pAbs12);  pDec1Test.pz( -pAbs12);}
+	else if (j == 5) { pDec1Test.pz( -pAbs12);  pDec1Test.pz(  pAbs12);}
+
+	// Evaluate matrix element and compare with current maximum. 
+	double p2p4Test = p4 * pDec1Test;
+	double p3p4Test = p4 * pDec2Test;
+	double p2p5Test = p5 * pDec1Test;
+	double p3p5Test = p5 * pDec2Test;
+	double testValues[9] = { p2p4Test, p2p5Test, p3p4Test, p3p5Test, 1.,
+	  p2p5Test * p3p4Test, p2p4Test * p3p5Test, p2p4Test * p3p4Test, 
+	  p2p5Test * p3p5Test};
+	double wtTest = 0.;
+	for (int i = 0; i < 9; ++i) wtTest += con[i] * testValues[i];
+	if (wtTest > wtMax) wtMax = wtTest;
+      }
+
+      // Multiply by four to ensure maximum is an overestimate.
+      wtMax *= 4.;
+
+      // Iterate with new angles until weighting succeeds.
+      int nRot = -1;
+      double wt = 0.;
+      do {
+	++nRot;
+	if (nRot > 0) { 
+	  RotBstMatrix MrndmRot;
+	  MrndmRot.rot( acos(2. * rndmPtr->flat() - 1.), 
+	    2. * M_PI * rndmPtr->flat());
+	  pDec1.rotbst(MrndmRot);   
+	  pDec2.rotbst(MrndmRot);    
+	}
+
+	// p2 is decay product, p3 is anti decay product,
+	// p4 is dipole particle, p5 is dipole anti particle.
+	// So far assumed that we always have qQ-dipole.    
+	double p2p4 = p4 * pDec1;
+	double p3p4 = p4 * pDec2;
+	double p2p5 = p5 * pDec1;
+	double p3p5 = p5 * pDec2;
+
+	// Calculate weight and compare with maximum weight.
+	double wtValues[9] = { p2p4, p2p5, p3p4, p3p5, 1., p2p5 * p3p4,
+	  p2p4 * p3p5, p2p4 * p3p4, p2p5 * p3p5};
+	wt =  0.;
+	for (int i = 0; i < 9; ++i) wt += con[i] * wtValues[i];
+	if (wt > wtMax || wt < 0.) {
+	  infoPtr->errorMsg("Error in PartonLevel::wzDecayShowers: "
+	  "wt bigger than wtMax or less than zero");
+	  return false;
+	}
+      } while (wt < wtMax * rndmPtr->flat());
+
+      // If momenta rotated then store new ones.
+      if (nRot > 0) {
+	pDec1.rotbst( MtoCM);
+	pDec2.rotbst( MtoCM);
+	if(event[sizeSave].id() > 0) {
+	  event[sizeSave].p( pDec1);
+	  event[sizeSave + 1].p( pDec2);
+	}
+	else {
+	  event[sizeSave].p( pDec2);
+	  event[sizeSave + 1].p( pDec1);
+	}
+      }
+
+      // Do parton showers inside subsystem: maximum scale by mother mass.
+      if (doFSRinResonances) {
+	double pTmax = 0.5 * event[iWZ].m();
+
+	// Add new system, automatically with two empty beam slots.
+	int iSys = partonSystemsPtr->addSys();
+	partonSystemsPtr->setSHat(iSys, pow2(event[iWZ].m()) );
+	partonSystemsPtr->setPTHat(iSys, pTmax );
+	for (int i = sizeSave; i < event.size(); ++i)
+	  partonSystemsPtr->addOut( iSys, i);
+
+	// Let prepare routine do the setup.    
+	timesDecPtr->prepare( iSys, event);
+
+	// Begin evolution down in pT from hard pT scale. 
+	do {
+	  double pTtimes = timesDecPtr->pTnext( event, pTmax, 0.);
+
+	  // Do a final-state emission (if allowed).
+	  if (pTtimes > 0.) {
+	    timesDecPtr->branch( event);
+	    pTmax = pTtimes;
+	  }
+
+	  // If no pT scales above zero then nothing to be done.
+	  else pTmax = 0.;
+
+	// Keep on evolving until nothing is left to be done.
+	} while (pTmax > 0.);
+      }
+
+    // End loop over W/Z gauge bosons.
+    }
+  }
+
+  // Done.
   return true;
 
 }

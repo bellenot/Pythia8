@@ -18,6 +18,7 @@
 #include "ParticleData.h"
 #include "PartonSystems.h"
 #include "PythiaStdlib.h"
+#include "ResonanceDecays.h"
 #include "RHadrons.h"
 #include "Settings.h"
 #include "SigmaTotal.h"
@@ -58,6 +59,9 @@ public:
   // Perform showers in resonance decay chains. (For special cases.)
   void setupShowerSys( Event& process, Event& event);
   bool resonanceShowers( Event& process, Event& event, bool skipForR); 
+
+  // Perform decays and showers of W and Z emitted in shower.
+  bool wzDecayShowers( Event& event); 
 
   // Tell whether failure was due to vetoing.
   bool hasVetoed() const {return doVeto;}
@@ -155,6 +159,9 @@ private:
   
   // The RHadrons class is used to fragment off and decay R-hadrons.
   RHadrons*    rHadronsPtr;
+
+  // ResonanceDecay object does sequential resonance decays.
+  ResonanceDecays resonanceDecays;
 
   // Resolved diffraction: find how many systems should have it.
   int decideResolvedDiff( Event& process);

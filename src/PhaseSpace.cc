@@ -163,6 +163,9 @@ void PhaseSpace::init(bool isFirst, SigmaProcess* sigmaProcessPtrIn,
   bias2SelPow      = settingsPtr->parm("PhaseSpace:bias2SelectionPow");
   bias2SelRef      = settingsPtr->parm("PhaseSpace:bias2SelectionRef");
 
+  // Possibility to recalculate mass for Les Houches input.
+  mRecalculate     = settingsPtr->parm("LesHouches:mRecalculate");
+
   // Default event-specific kinematics properties.
   x1H             = 1.;
   x2H             = 1.;
@@ -2278,7 +2281,7 @@ bool PhaseSpace2to2elastic::setupSampling() {
   // Determine maximum possible t range.
   lambda12S  = pow2(s - s1 - s2) - 4. * s1 * s2 ;
   tLow       = - lambda12S / s; 
-  tUpp       = 0; 
+  tUpp       = 0.; 
 
   // Production model with Coulomb corrections need more parameters.
   useCoulomb =  settingsPtr->flag("SigmaTotal:setOwn") 
@@ -2319,35 +2322,44 @@ bool PhaseSpace2to2elastic::setupSampling() {
 
 bool PhaseSpace2to2elastic::trialKin( bool, bool ) {
 
-    // Select t according to exp(bSlope*t).
-    if (!useCoulomb || sigmaNuc > rndmPtr->flat() * (sigmaNuc + sigmaCou)) 
-      tH = tUpp + log(1. + tAux * rndmPtr->flat()) / bSlope;
+  // Allow for possibility that energy varies from event to event.
+  if (doEnergySpread) {
+    eCM       = infoPtr->eCM();
+    s         = eCM * eCM;
+    lambda12S = pow2(s - s1 - s2) - 4. * s1 * s2 ;
+    tLow      = - lambda12S / s; 
+    tAux      = exp( max(-EXPMAX, bSlope * (tLow - tUpp)) ) - 1.; 
+  }
 
-    // Select t according to 1/t^2.
-    else tH = tLow * tUpp / (tUpp + rndmPtr->flat() * (tLow - tUpp));
+  // Select t according to exp(bSlope*t).
+  if (!useCoulomb || sigmaNuc > rndmPtr->flat() * (sigmaNuc + sigmaCou)) 
+   tH = tUpp + log(1. + tAux * rndmPtr->flat()) / bSlope;
 
-    // Correction factor for ratio full/simulated.
-    if (useCoulomb) {
-      double sigmaN   = CONVERTEL * pow2(sigmaTot) * (1. + rho*rho) 
-                      * exp(bSlope * tH);
-      double alpEM    = couplingsPtr->alphaEM(-tH);
-      double sigmaC   = pow2(alpEM) / (4. * CONVERTEL * tH*tH);
-      double sigmaGen = 2. * (sigmaN + sigmaC);
-      double form2    = pow4(lambda/(lambda - tH));
-      double phase    = signCou * alpEM 
-                      * (-phaseCst - log(-0.5 * bSlope * tH));
-      double sigmaCor = sigmaN + pow2(form2) * sigmaC 
-        - signCou * alpEM * sigmaTot * (form2 / (-tH)) 
-          *  exp(0.5 * bSlope * tH) * (rho * cos(phase) + sin(phase)); 
-      sigmaNw         = sigmaMx * sigmaCor / sigmaGen;
-    }
+ // Select t according to 1/t^2.
+  else tH = tLow * tUpp / (tUpp + rndmPtr->flat() * (tLow - tUpp));
 
-    // Careful reconstruction of scattering angle.
-    double tRat = s * tH / lambda12S;
-    double cosTheta = min(1., max(-1., 1. + 2. * tRat ) );
-    double sinTheta = 2. * sqrtpos( -tRat * (1. + tRat) );
-    theta = asin( min(1., sinTheta));
-    if (cosTheta < 0.) theta = M_PI - theta;
+  // Correction factor for ratio full/simulated.
+  if (useCoulomb) {
+    double sigmaN   = CONVERTEL * pow2(sigmaTot) * (1. + rho*rho) 
+                    * exp(bSlope * tH);
+    double alpEM    = couplingsPtr->alphaEM(-tH);
+    double sigmaC   = pow2(alpEM) / (4. * CONVERTEL * tH*tH);
+    double sigmaGen = 2. * (sigmaN + sigmaC);
+    double form2    = pow4(lambda/(lambda - tH));
+    double phase    = signCou * alpEM 
+                    * (-phaseCst - log(-0.5 * bSlope * tH));
+    double sigmaCor = sigmaN + pow2(form2) * sigmaC 
+      - signCou * alpEM * sigmaTot * (form2 / (-tH)) 
+      *  exp(0.5 * bSlope * tH) * (rho * cos(phase) + sin(phase)); 
+    sigmaNw         = sigmaMx * sigmaCor / sigmaGen;
+  }
+
+  // Careful reconstruction of scattering angle.
+  double tRat       = s * tH / lambda12S;
+  double cosTheta   = min(1., max(-1., 1. + 2. * tRat ) );
+  double sinTheta   = 2. * sqrtpos( -tRat * (1. + tRat) );
+  theta             = asin( min(1., sinTheta));
+  if (cosTheta < 0.) theta = M_PI - theta;
 
   return true;
 
@@ -2523,6 +2535,31 @@ bool PhaseSpace2to2diffractive::setupSampling() {
 // Monte Carlo acceptance/rejection at this stage.
 
 bool PhaseSpace2to2diffractive::trialKin( bool, bool ) {
+
+  // Allow for possibility that energy varies from event to event.
+  if (doEnergySpread) {
+    eCM       = infoPtr->eCM();
+    s         = eCM * eCM;
+    lambda12 = sqrtpos( pow2( s - s1 - s2) - 4. * s1 * s2 );
+    lambda34 = sqrtpos( pow2( s - s3 - s4) - 4. * s3 * s4 );
+    double tempA = s - (s1 + s2 + s3 + s4) + (s1 - s2) * (s3 - s4) / s;
+    double tempB = lambda12 *  lambda34 / s;
+    double tempC = (s3 - s1) * (s4 - s2) + (s1 + s4 - s2 - s3)
+      * (s1 * s4 - s2 * s3) / s;
+    tLow  = -0.5 * (tempA + tempB); 
+    tUpp  = tempC / tLow; 
+    if (PomFlux == 1) { 
+      tAux = exp( max(-EXPMAX, bMin * (tLow - tUpp)) ) - 1.;
+    } else if (PomFlux == 2) {   
+      tAux1 = exp( max(-EXPMAX, bSlope1 * (tLow - tUpp)) ) - 1.; 
+      tAux2 = exp( max(-EXPMAX, bSlope2 * (tLow - tUpp)) ) - 1.; 
+    } else if (PomFlux == 3) {   
+      tAux          = exp( max(-EXPMAX, bSlope  * (tLow - tUpp)) ) - 1.; 
+    } else if (PomFlux == 4) {   
+      tAux1                = 1. / pow3(1. - coefDL * tLow);
+      tAux2                = 1. / pow3(1. - coefDL * tUpp);
+    }
+  }
 
   // Loop over attempts to set up masses and t consistently.
   for (int loop = 0; ; ++loop) { 
@@ -2939,6 +2976,43 @@ bool PhaseSpace2to3diffractive::setupSampling() {
 // Monte Carlo acceptance/rejection at this stage.
 
 bool PhaseSpace2to3diffractive::trialKin( bool, bool ) {
+
+  // Allow for possibility that energy varies from event to event.
+  if (doEnergySpread) {
+    eCM       = infoPtr->eCM();
+    s         = eCM * eCM;
+    for (int i = 0; i < 2; ++i) {
+      s3 = (i == 0) ? s1 : pow2(mA + m5min);
+      s4 = (i == 0) ? pow2(mB + m5min) : s2;
+      double lambda12 = sqrtpos( pow2( s - s1 - s2) - 4. * s1 * s2 );
+      double lambda34 = sqrtpos( pow2( s - s3 - s4) - 4. * s3 * s4 );
+      double tempA    = s - (s1 + s2 + s3 + s4) + (s1 - s2) * (s3 - s4) / s;
+      double tempB    = lambda12 *  lambda34 / s;
+      double tempC    = (s3 - s1) * (s4 - s2) + (s1 + s4 - s2 - s3)
+                      * (s1 * s4 - s2 * s3) / s;
+      tLow[i]         = -0.5 * (tempA + tempB); 
+      tUpp[i]         = tempC / tLow[i]; 
+    }
+    s3 = s1;
+    s4 = s2;
+    if (PomFlux == 1) {
+      tAux[0] = exp( max(-EXPMAX, bMin[0] * (tLow[0] - tUpp[0])) ) - 1.; 
+      tAux[1] = exp( max(-EXPMAX, bMin[1] * (tLow[1] - tUpp[1])) ) - 1.; 
+    } else if (PomFlux == 2) {   
+      for (int i = 0; i < 2; ++i) {
+        tAux1[i] = exp( max(-EXPMAX, bSlope1 * (tLow[i] - tUpp[i])) ) - 1.; 
+        tAux2[i] = exp( max(-EXPMAX, bSlope2 * (tLow[i] - tUpp[i])) ) - 1.; 
+      }
+    } else if (PomFlux == 3) {   
+      tAux[0]       = exp( max(-EXPMAX, bSlope  * (tLow[0] - tUpp[0])) ) - 1.; 
+      tAux[1]       = exp( max(-EXPMAX, bSlope  * (tLow[1] - tUpp[1])) ) - 1.; 
+    } else if (PomFlux == 4) {   
+      tAux1[0]      = 1. / pow3(1. - coefDL * tLow[0]);
+      tAux2[0]      = 1. / pow3(1. - coefDL * tUpp[0]);
+      tAux1[1]      = 1. / pow3(1. - coefDL * tLow[1]);
+      tAux2[1]      = 1. / pow3(1. - coefDL * tUpp[1]);
+    }
+  }
 
   // Trivial kinematics of incoming hadrons.
   double lambda12 = sqrtpos( pow2( s - s1 - s2) - 4. * s1 * s2 );
@@ -3820,7 +3894,7 @@ bool PhaseSpaceLHA::trialKin( bool, bool repeatSame ) {
   }
   
   // Generate Les Houches event. Return if fail (= end of file).
-  bool physical = lhaUpPtr->setEvent(idProcNow);
+  bool physical = lhaUpPtr->setEvent(idProcNow, mRecalculate);
   if (!physical) return false;
 
   // Find which process was generated.

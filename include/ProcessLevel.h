@@ -21,7 +21,7 @@
 #include "Settings.h"
 #include "SigmaTotal.h"
 #include "SusyCouplings.h"
-#include "SusyLesHouches.h"
+#include "SLHAinterface.h"
 #include "StandardModel.h"
 #include "UserHooks.h"
 
@@ -47,7 +47,7 @@ public:
     ParticleData* particleDataPtrIn, Rndm* rndmPtrIn, 
     BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, 
     Couplings* couplingsPtrIn, SigmaTotal* sigmaTotPtrIn, bool doLHAin, 
-    SusyLesHouches* slhaPtrIn, UserHooks* userHooksPtrIn, 
+    SLHAinterface* slhaInterfacePtrIn, UserHooks* userHooksPtrIn, 
     vector<SigmaProcess*>& sigmaPtrs, ostream& os = cout);
 
   // Store or replace Les Houches pointer.
@@ -124,16 +124,13 @@ private:
   SigmaTotal*     sigmaTotPtr;
 
   // Pointer to SusyLesHouches object for interface to SUSY spectra.
-  SusyLesHouches* slhaPtr;
+  SLHAinterface*  slhaInterfacePtr;
 
   // Pointer to userHooks object for user interaction with program.
   UserHooks*      userHooksPtr;
 
   // Pointer to LHAup for generating external events.
   LHAup*          lhaUpPtr;
-
-  // Initialization of some SLHA blocks.
-  void initSLHA();
 
   // ResonanceDecay object does sequential resonance decays.
   ResonanceDecays resonanceDecays;

@@ -20,7 +20,7 @@ What is stored for each particle is
 <li>the polarization/spin/helicity of the particle (optional),</li>
 <li>the production vertex and proper lifetime (optional),</li>
 <li>a pointer to the particle kind in the particle data table, and</li>
-<li>a pointer to the whole particle data table.</li>
+<li>a pointer to the event the particle belongs to.</li>
 </ul>
 From these, a number of further quantities may be derived.
 
@@ -95,6 +95,8 @@ In detail, the list of used or foreseen status codes is:
            different system from the radiator</li>
   <li>55 : copy of a recoiler, when in the final state of a 
            different system from the radiator</li>
+  <li>56 : a <ei>W</ei> or <ei>Z</ei> gauge boson produced in the
+           shower evolution</li>
   </ul>
 <li>61 - 69 : particles produced by beam-remnant treatment</li>
   <ul>
@@ -199,9 +201,9 @@ from a hard <ei>2 -> n</ei> interaction.</li>
 </ol>    
 <note>Note 1:</note> in backwards evolution of initial-state showers, 
 the mother may well appear below the daughter in the event record. 
-<note>Note 2:</note> the <code>motherList(i)</code> method of the 
-<code>Event</code> class returns a vector of all the mothers, 
-providing a uniform representation for all five cases. 
+<note>Note 2:</note> the <code>motherList()</code> method below returns 
+a vector of all the mothers, providing a uniform representation for all 
+five cases. 
 </methodmore>
 
 <method name="int Particle::daughter1()">
@@ -234,13 +236,13 @@ but not always. An example is hadron beams (indices 1 and 2), where each
 beam remnant and the initiator of each multiparton interaction has the 
 respective beam as mother, but the beam itself only has the initiator 
 of the hardest interaction as daughter.
-<note>Note 3:</note> the <code>daughterList(i)</code> method of the 
-<code>Event</code> class returns a vector of all the daughters, 
-providing a uniform representation for all five cases. With this method, 
-also all the daughters of the beams are caught, with the initiators of 
-the basic process given first,  while the rest are in no guaranteed order 
-(since they are found by a scanning of the event record for particles
-with the beam as mother, with no further information). 
+<note>Note 3:</note> the <code>daughterList()</code> method below 
+returns a vector of all the daughters, providing a uniform representation 
+for all five cases. With this method, also all the daughters of the beams 
+are caught, with the initiators of the basic process given first,  while 
+the rest are in no guaranteed order (since they are found by a scanning 
+of the event record for particles with the beam as mother, with no further 
+information). 
 </methodmore>
 
 <method name="int Particle::col()"> 
@@ -358,7 +360,6 @@ sets the production vertex components in one go.
 
 <h3>Further output methods</h3>
 
-<p/>
 In addition, a number of derived quantities can easily be obtained, 
 but cannot be set, such as:
 
@@ -477,6 +478,17 @@ and thus is defined also for particles which PYTHIA did not let decay.
 </methodmore>
 
 <p/>
+Not part of the <code>Particle</code> class proper, but obviously tightly 
+linked, are the two methods 
+
+<method name="double m(const Particle& pp1, const Particle& pp2)">
+</method>
+<methodmore name="double m2(const Particle& pp1, const Particle& pp2)">
+the (squared) invariant mass of two particles.
+</methodmore>
+
+<h3>Properties of the particle species</h3>
+
 Each Particle contains a pointer to the respective 
 <code>ParticleDataEntry</code> object in the 
 <aloc href="ParticleDataScheme">particle data tables</aloc>. 
@@ -604,15 +616,105 @@ i.e. not for R-hadrons and other exotic states).
 a reference to the ParticleDataEntry.
 </method>
 
-<p/>
-Not part of the <code>Particle</code> class proper, but obviously tightly 
-linked, are the two methods 
+<h3>Methods that may access the event the particle belongs to</h3>
 
-<method name="double m(const Particle& pp1, const Particle& pp2)">
+A particle can be created on its own. When inserted into an event record,
+it obtains a pointer to that event-as-a-whole. It is then possible to 
+use methods that do not make sense for a particle in isolation. These
+methods are listed below. Whenever the pointer to the event is not 
+defined, these will return an appropriate "null" value, this being -1
+for an integer, false for a bool, and empty for a vector, unless otherwise
+specified.  
+
+<method name="void Particle::index()">
+the index of the particle itself in the event record.
 </method>
-<methodmore name="double m2(const Particle& pp1, const Particle& pp2)">
-the (squared) invariant mass of two particles.
+
+<method name="int Particle::statusHepMC()">
+returns the status code according to the HepMC conventions agreed in
+February 2009. This convention does not preserve the full information
+provided by the internal PYTHIA status code, as obtained by
+<code>Particle::status()</code>, but comes reasonably close. 
+The allowed output values are:
+<ul>
+<li>0 : an empty entry, with no meaningful information and therefore
+to be skipped unconditionally;</li> 
+<li>1 : a final-state particle, i.e. a particle that is not decayed
+further by the generator (may also include unstable particles that 
+are to be decayed later, as part of the detector simulation);</li> 
+<li>2 : a decayed Standard Model hadron or tau or mu lepton, excepting 
+virtual intermediate states thereof (i.e. the particle must undergo
+a normal decay, not e.g. a shower branching);</li>
+<li>3 : a documentation entry (not used in PYTHIA);</li> 
+<li>4 : an incoming beam particle;</li> 
+<li>11 - 200 : an intermediate (decayed/branched/...) particle that does 
+not fulfill the criteria of status code 2, with a generator-dependent 
+classification of its nature; in PYTHIA the absolute value of the normal 
+status code is used.</li> 
+</ul>
+<note>Note:</note> for a particle without a properly set pointer to its
+event, codes 1 and 4 can still be inferred from its status code, while
+everythg else is assigned code 0. 
+</method>
+
+<method name="int Particle::iTopCopy()"> 
+</method>
+<methodmore name="int Particle::iBotCopy()"> 
+are used to trace carbon copies of the particle up to its top mother 
+or down to its bottom daughter. If there are no such carbon copies, 
+the index of the particle itself will be returned. A carbon copy is 
+when the "same" particle appears several times in the event record, but 
+with changed momentum owing to recoil effects. 
 </methodmore>
+
+<method name="int Particle::iTopCopyId()"> 
+</method>
+<methodmore name="int Particle::iBotCopyId()"> 
+also trace top mother and bottom daughter, but do not require carbon 
+copies, only that one can find an unbroken chain, of mothers or daughters, 
+with the same flavour <code>id</code> code. When it encounters ambiguities,
+say a <ei>g -> g g</ei> branching or a <ei>u u -> u u</ei> hard scattering,
+it will stop the tracing and return the current position. It can be confused
+by nontrivial flavour changes, e.g. a hard process <ei>u d -> d u</ei>  
+by <ei>W^+-</ei> exchange will give the wrong answer. These methods
+therefore are of limited use for common particles, in particular for the
+gluon, but should work well for "rare" particles. 
+</methodmore>
+
+<method name="vector&lt;int&gt; Particle::sisterList(bool traceTopBot 
+= false)"> 
+returns a vector of all the sister indices of the particle, i.e. all the 
+daughters of the first mother, except the particle itself. If the argument
+<code>traceTopBot = true</code> the particle is first traced up with 
+<code>iTopCopy()</code> before its mother is found, and then all the 
+particles in the <code>daughterList()</code> of this mother are traced down 
+with <code>iBotCopy()</code>, omitting the original particle itself.
+The method is not meaningful for the 0 entry, with status code -11, and
+there returns an empty list. 
+</method>
+
+<method name="bool Particle::isAncestor(int iAncestor)"> 
+traces the particle upwards through mother, grandmother, and so on, until 
+either <ei>iAncestor</ei> is found or the top of the record is reached. 
+Normally one unique mother is required, as is the case e.g. in decay chains 
+or in parton showers, so that e.g. the tracing through a hard scattering 
+would not work. For hadronization, first-rank hadrons are identified with 
+the respective string endpoint quark, which may be useful e.g. for 
+<ei>b</ei> physics, while higher-rank hadrons give <code>false</code>. 
+Currently also ministrings that collapsed to one single hadron and 
+junction topologies give <code>false</code>.  
+</method>
+
+<method name="bool Particle::undoDecay()">
+removes the decay chain of the particle and thus restores 
+it to its undecayed state. It is only intended for "normal" particle
+decay chains, and will return false in other cases, notably if 
+the particle is coloured. The procedure would not work if non-local
+momentum shifts have been performed, such as with a Bose-Einstein 
+shift procedure (or for a dipole shower recoiler). As the decay products
+are erased from the event record, mother and daughter indices are 
+updated to retain a correct history for the remaining particles.
+</method>
 
 <h3>Methods that perform operations</h3>
 
@@ -659,7 +761,7 @@ as above, but also use <ei>gamma> = e/m</ei> to reduce roundoff errors.
 </method>
 <methodmore name="void Particle::bstback(const Vec4& pBst, double mBst)">
 as above, but with sign of boost flipped.
-</method>
+</methodmore>
 
 <method name="void Particle::rotbst(const RotBstMatrix& M)">
 combined rotation and boost of the four-momentum and production vertex.  
@@ -712,27 +814,20 @@ constructs an particle that is a copy of the input one.
 copies the input particle.
 </method>
 
-<method name="void Particle::setPDTPtr()">
-sets the pointer to the <code>ParticleData</code> objects,
-i.e. to the full particle data table. Also calls <code>setPDEPtr</code>
-below.
+<method name="void Particle::setEvtPtr(Event* evtPtr)">
+sets the pointer to the <code>Event</code> object the particle
+belongs to. This method is automatically called when a particle
+is appended to an event record. Also calls <code>setPDEPtr</code> below.
 </method>
 
-<method name="void Particle::setPDEPtr()">
+<method name="void Particle::setPDEPtr(ParticleDataEntry* pdePtr = 0)">
 sets the pointer to the <code>ParticleDataEntry</code> object of the
-particle, based on its current <code>id</code> code.
+particle, based on its current <code>id</code> code. If the particle
+belongs to an event there is no need to provide the input argument. 
+As explained above, a valid <code>ParticleDataEntry</code> pointer 
+is needed for the methods that provide information generic to the 
+particle species. 
 </method>
-
-<h3>Final notes</h3>
-
-The 
-<code><aloc href="EventRecord">Event</aloc></code> 
-class also contains a few methods defined for individual particles, 
-but these may require some search in the event record and therefore 
-cannot be defined as  <code>Particle</code> methods.
-
-<p/>
-Currently there is no information on polarization states.
 
 </chapter>
 

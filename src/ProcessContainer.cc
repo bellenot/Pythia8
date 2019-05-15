@@ -48,7 +48,7 @@ bool ProcessContainer::init(bool isFirst, Info* infoPtrIn,
   Settings& settings, ParticleData* particleDataPtrIn, Rndm* rndmPtrIn, 
   BeamParticle* beamAPtr, BeamParticle* beamBPtr, Couplings* couplingsPtr, 
   SigmaTotal* sigmaTotPtr, ResonanceDecays* resDecaysPtrIn, 
-  SusyLesHouches* slhaPtr, UserHooks* userHooksPtrIn) {
+  SLHAinterface* slhaInterfacePtr, UserHooks* userHooksPtrIn) {
 
   // Extract info about current process from SigmaProcess object.
   isLHA       = sigmaProcessPtr->isLHA();
@@ -93,7 +93,7 @@ bool ProcessContainer::init(bool isFirst, Info* infoPtrIn,
     phaseSpacePtr->setLHAPtr(lhaUpPtr);
   }
   sigmaProcessPtr->init(infoPtr, &settings, particleDataPtr, rndmPtr, 
-    beamAPtr, beamBPtr, couplingsPtr, sigmaTotPtr, slhaPtr);
+    beamAPtr, beamBPtr, couplingsPtr, sigmaTotPtr, slhaInterfacePtr);
   phaseSpacePtr->init( isFirst, sigmaProcessPtr, infoPtr, &settings,
     particleDataPtr, rndmPtr, beamAPtr,  beamBPtr, couplingsPtr, sigmaTotPtr, 
     userHooksPtr);
@@ -305,7 +305,8 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
   // Entries 3 and 4, now to be added, come from 1 and 2.
   process[1].daughter1(3);
   process[2].daughter1(4);
-  double scale = 0.;
+  double scale  = 0.;
+  double scalup = 0.;
   
   // For DiffC entries 3 - 5 come jointly from 1 and 2 (to keep HepMC happy).
   if (isDiffC) {
@@ -437,7 +438,8 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
     } 
 
     // Find scale from which to begin MPI/ISR/FSR evolution.
-    scale = lhaUpPtr->scale();
+    scalup = lhaUpPtr->scale();
+    scale  = scalup;
     double scalePr = (scale < 0.) ? sqrt(Q2Fac()) : scale;
     process.scale( scalePr);
 
@@ -625,7 +627,7 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
   // Store information.
   if (isHardest) {
     infoPtr->setPDFalpha( 0, id1pdf, id2pdf, x1pdf, x2pdf, pdf1, pdf2, 
-      Q2FacNow, alphaEM, alphaS, Q2Ren);
+      Q2FacNow, alphaEM, alphaS, Q2Ren, scalup);
     infoPtr->setKin( 0, id1Now, id2Now, x1Now, x2Now, sHat, tHat, uHat, 
       pTHatL, m3, m4, theta, phi);
   }

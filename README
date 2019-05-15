@@ -143,6 +143,8 @@ that .so should be replaced with .dylib for Mac OS X):
                                        in this directory)
   boost_path/lib/libboost_iostreams.so (or boost_path/lib64/...)
   zlib_path/libz.so
+The zlib library may not be necessary when linking against PYTHIA 
+using shared libraries. 
 
 Note that when compiling a final PYTHIA executable, these libraries
 must also be included, e.g.:

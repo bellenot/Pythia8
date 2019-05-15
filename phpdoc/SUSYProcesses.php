@@ -341,6 +341,20 @@ Still missing but to be included in a forthcoming update
 are: 3-body decays of charginos (via RPV), and 2-body decays of squarks and
 gauginos with Higgs as one of the decay products. 
 
+Some 3-body decays have been implemented with Matrix Element weighting.  
+In particular, those for a neutralino to a lighter neutralino and a fermion pair 
+can be enabled.
+
+<br/><br/><strong>SUSYResonance:3BodyMatrixElement</strong>  <input type="radio" name="21" value="on"><strong>On</strong>
+<input type="radio" name="21" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+When "on", the spin-averaged, squared matrix element is used
+to sample the phase space for resonance decay.  Currently, only
+possible for a heavy neutralino decay to a light neutralino
+and a fermion-antifermion pair.
+  
+
+
 <input type="hidden" name="saved" value="1"/>
 
 <?php
@@ -454,6 +468,11 @@ fwrite($handle,$data);
 if($_POST["20"] != "off")
 {
 $data = "SUSY:qq2antisquark = ".$_POST["20"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["21"] != "off")
+{
+$data = "SUSYResonance:3BodyMatrixElement = ".$_POST["21"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);

@@ -22,7 +22,7 @@ namespace Pythia8 {
 //--------------------------------------------------------------------------
 
 // The current Pythia (sub)version number, to agree with XML version.
-const double Pythia::VERSIONNUMBERCODE = 8.175;
+const double Pythia::VERSIONNUMBERCODE = 8.176;
 
 //--------------------------------------------------------------------------
 
@@ -483,9 +483,8 @@ bool Pythia::init() {
   doVetoPartons    = false;
   retryPartonLevel = false;
   if (hasUserHooks) {
-    userHooksPtr->initPtr( &info, &settings, &particleData, &rndm,
-        &beamA, &beamB, &beamPomA, &beamPomB, couplingsPtr, &partonSystems, 
-        &sigmaTot); 
+    userHooksPtr->initPtr( &info, &settings, &particleData, &rndm, &beamA, &beamB, 
+      &beamPomA, &beamPomB, couplingsPtr, &partonSystems, &sigmaTot); 
     if (!userHooksPtr->initAfterBeams()) {
       info.errorMsg("Abort from Pythia::init: could not initialise UserHooks");
       return false;
@@ -533,22 +532,20 @@ bool Pythia::init() {
   // Check that combinations of settings are allowed; change if not.
   checkSettings();
 
-  // Initialize couplings (needed to initialize resonances).
-  // Check if SUSY couplings need to be read in
-  if( !initSLHA()) info.errorMsg("Error in Pythia::init: "
-    "Could not read SLHA file");
-  if (couplingsPtr->isSUSY) {
-    // Initialize the SM and SUSY.
-    coupSUSY.init( settings, &rndm); 
-    coupSUSY.initSUSY(&slha, &settings, &particleData);
-    couplingsPtr = (Couplings *) &coupSUSY;
-  } else {
-    // Initialize the SM couplings.
-    couplingsPtr->init( settings, &rndm);
-  }
+  // Initialize the SM couplings (needed to initialize resonances).
+  couplingsPtr->init( settings, &rndm );
 
-  // Reset couplingsPtr to the correct place.
+  // Initialize SLHA interface (including SLHA/BSM couplings).
+  bool useSLHAcouplings = false;
+  slhaInterface.setPtr( &info );
+  slhaInterface.init( settings, &rndm, couplingsPtr, &particleData, 
+                      useSLHAcouplings );
+  if (useSLHAcouplings) couplingsPtr = slhaInterface.couplingsPtr;
+
+  // Reset couplingsPtr to the correct memory address.
   particleData.initPtr( &info, &settings, &rndm, couplingsPtr);
+  if (hasUserHooks) userHooksPtr->initPtr( &info, &settings, &particleData, &rndm,
+    &beamA, &beamB, &beamPomA, &beamPomB, couplingsPtr, &partonSystems, &sigmaTot); 
 
   // Set headers to distinguish the two event listing kinds. 
   int startColTag = settings.mode("Event:startColTag");
@@ -631,8 +628,8 @@ bool Pythia::init() {
 
   // Send info/pointers to process level for initialization.
   if ( doProcessLevel && !processLevel.init( &info, settings, &particleData, 
-    &rndm, &beamA, &beamB, couplingsPtr, &sigmaTot, doLHA, &slha, userHooksPtr,
-    sigmaPtrs) ) {
+    &rndm, &beamA, &beamB, couplingsPtr, &sigmaTot, doLHA, &slhaInterface, 
+    userHooksPtr, sigmaPtrs) ) {
     info.errorMsg("Abort from Pythia::init: "
       "processLevel initialization failed");
     return false;
@@ -1306,9 +1303,15 @@ bool Pythia::forceHadronLevel(bool findJunctions) {
   }
 
   // Check whether any junctions in system. (Normally done in ProcessLevel.)
+  // Avoid it if there are no final-state coloured partons.
   if (findJunctions) {
     event.clearJunctions();
-    processLevel.findJunctions( event);
+    for (int i = 0; i < event.size(); ++i) 
+    if (event[i].isFinal() 
+    && (event[i].col() != 0 || event[i].acol() != 0)) {
+      processLevel.findJunctions( event);
+      break;
+    }
   }
 
   // Save spare copy of event in case of failure.
@@ -1711,6 +1714,7 @@ bool Pythia::check(ostream& os) {
   bool listBeams    = false;
   iErrId.resize(0);
   iErrCol.resize(0);
+  iErrEpm.resize(0);
   iErrNan.resize(0);
   iErrNanVtx.resize(0);
   Vec4 pSum;
@@ -1768,11 +1772,17 @@ bool Pythia::check(ostream& os) {
       }        
     }
 
-    // Look for particles with not-a-number energy/momentum/mass.
+    // Look for particles with mismatched or not-a-number energy/momentum/mass.
     if (abs(event[i].px()) >= 0. && abs(event[i].py()) >= 0. 
       && abs(event[i].pz()) >= 0.  && abs(event[i].e()) >= 0. 
-      && abs(event[i].m()) >= 0.) ;
-    else {
+      && abs(event[i].m()) >= 0.) {
+      if (abs(event[i].mCalc() - event[i].m()) > epTolErr * event[i].e()) {
+        info.errorMsg("Error in Pythia::check: "
+          "unmatched particle energy/momentum/mass"); 
+        physical = false;
+        iErrEpm.push_back(i);
+      }
+    } else {
       info.errorMsg("Error in Pythia::check: "
         "not-a-number energy/momentum/mass"); 
       physical = false;
@@ -1845,8 +1855,8 @@ bool Pythia::check(ostream& os) {
       if (abs(status) == 12) hasBeams = true;
 
       // Check that mother and daughter lists not empty where not expected to.
-      vector<int> mList = event.motherList(i);
-      vector<int> dList = event.daughterList(i);
+      vector<int> mList = event[i].motherList();
+      vector<int> dList = event[i].daughterList();
       if (mList.size() == 0 && abs(status) != 11 && abs(status) != 12) 
         noMot.push_back(i);
       if (dList.size() == 0 && status < 0 && status != -11) 
@@ -1854,7 +1864,9 @@ bool Pythia::check(ostream& os) {
 
       // Check that the particle appears in the daughters list of each mother.
       for (int j = 0; j < int(mList.size()); ++j) {
-        vector<int> dmList = event.daughterList( mList[j] );
+        if ( event[mList[j]].daughter1() <= i 
+          && event[mList[j]].daughter2() >= i ) continue;
+        vector<int> dmList = event[mList[j]].daughterList();
         bool foundMatch = false;
         for (int k = 0; k < int(dmList.size()); ++k) 
         if (dmList[k] == i) {
@@ -1875,7 +1887,11 @@ bool Pythia::check(ostream& os) {
 
       // Check that the particle appears in the mothers list of each daughter.
       for (int j = 0; j < int(dList.size()); ++j) {
-        vector<int> mdList = event.motherList( dList[j] );
+        if ( event[dList[j]].statusAbs() > 80 
+          && event[dList[j]].statusAbs() < 90
+          && event[dList[j]].mother1() <= i 
+          && event[dList[j]].mother2() >= i) continue; 
+        vector<int> mdList = event[dList[j]].motherList();
         bool foundMatch = false;
         for (int k = 0; k < int(mdList.size()); ++k) 
         if (mdList[k] == i) {
@@ -1919,6 +1935,12 @@ bool Pythia::check(ostream& os) {
       os << " incorrect colour assignments in lines ";
       for (int i = 0; i < int(iErrCol.size()); ++i) 
         os << iErrCol[i] << " ";
+      os << "\n";
+    }
+    if (iErrEpm.size() > 0) {
+      os << " mismatch between energy/momentum/mass in lines ";
+      for (int i = 0; i < int(iErrEpm.size()); ++i) 
+        os << iErrEpm[i] << " ";
       os << "\n";
     }
     if (iErrNan.size() > 0) {
@@ -2092,287 +2114,6 @@ PDF* Pythia::getPDFPtr(int idIn, int sequence) {
   
   // Done.
   return tempPDFPtr; 
-}
-
-//--------------------------------------------------------------------------
-
-// Initialize SUSY Les Houches Accord data.
-
-bool Pythia::initSLHA() {
-
-  // Initial and settings values.
-  int    ifailLHE    = 1;
-  int    ifailSpc    = 1;
-  int    readFrom    = settings.mode("SLHA:readFrom");
-  string lhefFile    = settings.word("Beams:LHEF");
-  string lhefHeader  = settings.word("Beams:LHEFheader");
-  string slhaFile    = settings.word("SLHA:file");
-  int    verboseSLHA = settings.mode("SLHA:verbose");
-  bool   slhaUseDec  = settings.flag("SLHA:useDecayTable");
-
-  // No SUSY by default
-  couplingsPtr->isSUSY = false;
-
-  // Option with no SLHA read-in at all.
-  if (readFrom == 0) return true;  
-
-  // First check LHEF header (if reading from LHEF)
-  if (readFrom == 1) {
-    if (lhefHeader != "void") 
-      ifailLHE = slha.readFile(lhefHeader, verboseSLHA, slhaUseDec );    
-    else if (lhefFile != "void")
-      ifailLHE = slha.readFile(lhefFile, verboseSLHA, slhaUseDec );    
-  }
-
-  // If LHEF read successful, everything needed should already be ready
-  if (ifailLHE == 0) {
-    ifailSpc = 0;
-    couplingsPtr->isSUSY = true;
-  // If no LHEF file or no SLHA info in header, read from SLHA:file
-  } else {
-    lhefFile = "void";
-    if ( settings.word("SLHA:file") == "none"
-	 || settings.word("SLHA:file") == "void" 
-	 || settings.word("SLHA:file") == "" 
-	 || settings.word("SLHA:file") == " ") return true;      
-    ifailSpc = slha.readFile(slhaFile,verboseSLHA, slhaUseDec);
-  }
-
-  // In case of problems, print error and fail init.
-  if (ifailSpc != 0) {
-    info.errorMsg("Error in Pythia::initSLHA: "
-      "problem reading SLHA file", slhaFile);
-    return false;
-  } else {
-    couplingsPtr->isSUSY = true;
-  }
-  
-  // Check spectrum for consistency. Switch off SUSY if necessary.
-  ifailSpc = slha.checkSpectrum();
-
-  // ifail >= 1 : no MODSEL found -> don't switch on SUSY
-  if (ifailSpc == 1) {
-    // no SUSY, but MASS ok
-    couplingsPtr->isSUSY = false;
-    info.errorMsg("Info from Pythia::initSLHA: "
-		  "No MODSEL found, keeping internal SUSY switched off");    
-  } else if (ifailSpc >= 2) {
-    // no SUSY, but problems    
-    info.errorMsg("Warning in Pythia::initSLHA: "
-		      "Problem with SLHA MASS or QNUMBERS.");    
-    couplingsPtr->isSUSY = false;
-  }
-  // ifail = 0 : MODSEL found, spectrum OK
-  else if (ifailSpc == 0) {
-    // Print spectrum. Done. 
-    slha.printSpectrum(0);
-  }
-  else if (ifailSpc < 0) {
-    info.errorMsg("Warning in Pythia::initSLHA: "
-		      "Problem with SLHA spectrum.", 
-		      "\n Only using masses and switching off SUSY.");
-    settings.flag("SUSY:all", false);
-    couplingsPtr->isSUSY = false;
-    slha.printSpectrum(ifailSpc);
-  } 
-
-  // Import qnumbers
-  if ( (ifailSpc == 1 || ifailSpc == 0) && slha.qnumbers.size() > 0) {
-    for (int iQnum=0; iQnum < int(slha.qnumbers.size()); iQnum++) {
-      // Always use positive id codes
-      int id = abs(slha.qnumbers[iQnum](0));
-      ostringstream idCode;
-      idCode << id;      
-      if (particleData.isParticle(id)) {
-	info.errorMsg("Warning in Pythia::initSLHA: "
-		      "ignoring QNUMBERS", "for id = "+idCode.str()
-		      +" (already exists)", true);
-      } else {
-	int qEM3    = slha.qnumbers[iQnum](1);
-	int nSpins  = slha.qnumbers[iQnum](2);
-	int colRep  = slha.qnumbers[iQnum](3);
-	int hasAnti = slha.qnumbers[iQnum](4);
-	// Translate colRep to PYTHIA colType
-	int colType = 0;
-	if (colRep == 3) colType = 1;
-	else if (colRep == -3) colType = -1;
-	else if (colRep == 8) colType = 2;
-	else if (colRep == 6) colType = 3;
-	else if (colRep == -6) colType = -3;
-	// Default name: PDG code
-	string name, antiName;
-	ostringstream idStream;
-	idStream<<id;
-	name     = idStream.str();
-	antiName = "-"+name;	
-	if (iQnum < int(slha.qnumbersName.size())) {
-	  name = slha.qnumbersName[iQnum];
-	  antiName = slha.qnumbersAntiName[iQnum];
-	  if (antiName == "") {
-	    if (name.find("+") != string::npos) {
-	      antiName = name;
-	      antiName.replace(antiName.find("+"),1,"-");
-	    } else if (name.find("-") != string::npos) {
-	      antiName = name;
-	      antiName.replace(antiName.find("-"),1,"+");
-	    } else {
-	      antiName = name+"bar";
-	    }
-	  } 
-	}
-	if ( hasAnti == 0) {
-	  antiName = "";
-	  particleData.addParticle(id, name, nSpins, qEM3, colType); 
-	} else {
-	  particleData.addParticle(id, name, antiName, nSpins, qEM3, colType); 
-	}
-      }
-    }
-  }
-
-  // Import mass spectrum.
-  bool   keepSM            = settings.flag("SLHA:keepSM");
-  double minMassSM         = settings.parm("SLHA:minMassSM");
-  double massMargin        = settings.parm("SLHA:minDecayDeltaM");
-  bool   allowUserOverride = settings.flag("SLHA:allowUserOverride");
-  if (ifailSpc == 1 || ifailSpc == 0) {
-
-    // Loop through to update particle data.
-    int    id = slha.mass.first();
-    for (int i = 1; i <= slha.mass.size() ; i++) {
-      double mass = abs(slha.mass(id));
-
-      // Ignore masses for known SM particles or particles with 
-      // default masses < minMassSM; overwrite masses for rest.
-      if (keepSM && (id < 25 || (id > 80 && id < 1000000))) ;
-      else if (id < 1000000 && particleData.m0(id) < minMassSM) {
-	ostringstream idCode;
-	idCode << id;      
-	info.errorMsg("Warning in Pythia::initSLHA: "
-	  "ignoring MASS entry", "for id = "+idCode.str()
-	  +" (m0 < SLHA:minMassSM)", true);
-      } 
-
-      // Also ignore SLHA mass values if user has already set 
-      // a different value and is allowed to override them. 
-      else if (allowUserOverride && particleData.hasChanged(id)) {
-	ostringstream idCode;
-	idCode << id;      
-	ostringstream mValue;
-	mValue << particleData.m0(id);
-	info.errorMsg("Warning in Pythia::initSLHA: keeping user mass",
-	  "for id = " + idCode.str() + ", m0 = " + mValue.str(), true);
-      }
-      else particleData.m0(id,mass);
-      id = slha.mass.next();
-    };
-
-  }
-
-  // Update decay data.
-  for (int iTable=0; iTable < int(slha.decays.size()); iTable++) {
-    
-    // Pointer to this SLHA table
-    LHdecayTable* slhaTable=&(slha.decays[iTable]);
-    
-    // Extract ID and create pointer to corresponding particle data object
-    int idRes     = slhaTable->getId();
-    ParticleDataEntry* particlePtr 
-      = particleData.particleDataEntryPtr(idRes);
-    
-    // Ignore decay channels for known SM particles or particles with 
-    // default masses < minMassSM; overwrite masses for rest.
-    if (keepSM && (idRes < 25 || (idRes > 80 && idRes < 1000000))) continue;
-    else if (idRes < 1000000 && particleData.m0(idRes) < minMassSM) {
-      ostringstream idCode;
-      idCode << idRes;      
-      info.errorMsg("Warning in Pythia::initSLHA: "
-        "ignoring DECAY table", "for id = " + idCode.str()
-	+ " (m0 < SLHA:minMassSM)", true);
-      continue;
-    }
-    
-    // Extract and store total width (absolute value, neg -> switch off)
-    double widRes = abs(slhaTable->getWidth());
-    particlePtr->setMWidth(widRes);
-
-    // Reset decay table of the particle. Allow decays, treat as resonance.
-    if (slhaTable->size() > 0) {
-      particlePtr->clearChannels();
-      particleData.mayDecay(idRes,true);
-      particleData.isResonance(idRes,true);
-    }        
-    
-    // Reset to stable if width <= 0.0
-    if (slhaTable->getWidth() <= 0.0) particleData.mayDecay(idRes,false);
-    
-    // Set initial minimum mass.
-    double brWTsum   = 0.;
-    double massWTsum = 0.;
-    
-    // Loop over SLHA channels, import into Pythia, treating channels
-    // with negative branching fractions as having the equivalent positive
-    // branching fraction, but being switched off for this run
-    for (int iChannel=0 ; iChannel<slhaTable->size(); iChannel++) {
-      LHdecayChannel slhaChannel = slhaTable->getChannel(iChannel);
-      double brat      = slhaChannel.getBrat();
-      vector<int> idDa = slhaChannel.getIdDa();
-      if (idDa.size() >= 9) {
-	info.errorMsg("Error in Pythia::initSLHA: "
-			  "max number of decay products is 8.");
-      } else if (idDa.size() <= 1) {
-	info.errorMsg("Error in Pythia::initSLHA: "
-			  "min number of decay products is 2.");	  
-      }
-      else {
-	int onMode = 1;
-	if (brat < 0.0) onMode = 0;
-	
-	// Check phase space, including margin
-	double massSum = massMargin;
-	for (int jDa=0; jDa<int(idDa.size()); ++jDa) 
-	  massSum += particleData.m0( idDa[jDa] ); 
-	if (onMode == 1 && brat > 0.0 && massSum > particleData.m0(idRes) ) {
-	  // String containing decay name
-	  ostringstream errCode;
-	  errCode << idRes <<" ->";
-	  for (int jDa=0; jDa<int(idDa.size()); ++jDa) errCode<<" "<<idDa[jDa];
-	  info.errorMsg("Warning in Pythia::initSLHA: switching off decay",  
-            errCode.str() + " (mRes - mDa < minDecayDeltaM)"
-            "\n       (Note: cross sections will be scaled by remaining"
-	    " open branching fractions!)" , true);
-	  onMode=0;
-	}
-	
-	// Branching-ratio-weighted average mass in decay.
-	brWTsum   += abs(brat);
-	massWTsum += abs(brat) * massSum;
-	
-	// Add channel
-	int id0 = idDa[0];
-	int id1 = idDa[1];
-	int id2 = (idDa.size() >= 3) ? idDa[2] : 0;
-	int id3 = (idDa.size() >= 4) ? idDa[3] : 0;
-	int id4 = (idDa.size() >= 5) ? idDa[4] : 0;
-	int id5 = (idDa.size() >= 6) ? idDa[5] : 0;
-	int id6 = (idDa.size() >= 7) ? idDa[6] : 0;
-	int id7 = (idDa.size() >= 8) ? idDa[7] : 0;
-	particlePtr->addChannel(onMode,abs(brat),101,
-				      id0,id1,id2,id3,id4,id5,id6,id7);
-	
-      }
-    }
-    
-    // Set minimal mass, but always below nominal one.
-    if (slhaTable->size() > 0) {
-      double massAvg = massWTsum / brWTsum;
-      double massMin = min( massAvg, particlePtr->m0()) - massMargin;
-      particlePtr->setMMin(massMin);
-    }
-  }
-  
-  return true;
-  
 }
 
 //==========================================================================

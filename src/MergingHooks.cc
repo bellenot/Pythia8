@@ -2301,7 +2301,6 @@ Event MergingHooks::bareEvent(const Event& inputEventIn,
       inputEvent.append( inputEventIn[i] );
     for (int i = 0; i < inputEventIn.sizeJunction(); ++i)
       inputEvent.appendJunction( inputEventIn.getJunction(i) );
-    inputEvent.setPDTPtr();
     inputEvent.saveSize();
     inputEvent.saveJunctionSize();
   }
@@ -2353,7 +2352,6 @@ Event MergingHooks::bareEvent(const Event& inputEventIn,
     for (int i = 0; i < inputEventIn.sizeJunction(); ++i) 
       newProcess.appendJunction( inputEventIn.getJunction(i));
 
-    newProcess.setPDTPtr();
     newProcess.saveSize();
     newProcess.saveJunctionSize();
 

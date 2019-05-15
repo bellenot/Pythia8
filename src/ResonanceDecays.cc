@@ -45,10 +45,11 @@ const double ResonanceDecays::WTCORRECTION[11] = { 1., 1., 1.,
 
 //--------------------------------------------------------------------------
   
-bool ResonanceDecays::next( Event& process) {
+bool ResonanceDecays::next( Event& process, int iDecNow) {
 
   // Loop over all entries to find resonances that should decay.
-  int iDec = 0;
+  // (Except for iDecNow > 0, where only it will be handled.)
+  int iDec = iDecNow;
   do {
     Particle& decayer = process[iDec];
     if (decayer.isFinal() && decayer.canDecay() && decayer.mayDecay() 
@@ -138,7 +139,7 @@ bool ResonanceDecays::next( Event& process) {
                  
     // End of loop over all entries.
     }
-  } while (++iDec < process.size());
+  } while (iDecNow == 0 && ++iDec < process.size());
 
   // Done.
   return true;

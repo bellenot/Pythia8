@@ -150,8 +150,8 @@ int main() {
     // Begin event loop.
     for (int iEvent = 0; iEvent < nEvent; ++iEvent) {
 
-      // Generate events. Quit if failure.
-      if (!pythia.next()) break;
+      // Generate events. Skip if failure.
+      if (!pythia.next()) continue;
 
       // Soft events have no upper pT limit. They therefore overlap
       // with hard events, and the overlap must be removed by hand.

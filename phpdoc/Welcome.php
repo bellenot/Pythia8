@@ -1,6 +1,6 @@
 <html>
 <head>
-<title>Welcome</title>
+<title>PYTHIA 8 online manual</title>
 <link rel="stylesheet" type="text/css" href="pythia.css"/>
 <link rel="shortcut icon" href="pythia32.gif"/>
 </head>

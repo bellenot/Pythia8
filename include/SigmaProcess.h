@@ -37,6 +37,7 @@
 #include "Settings.h"
 #include "SigmaTotal.h"
 #include "StandardModel.h"
+#include "SLHAinterface.h"
 #include "SusyLesHouches.h"
 
 namespace Pythia8 {
@@ -90,8 +91,8 @@ public:
   // Perform simple initialization and store pointers.
   void init(Info* infoPtrIn, Settings* settingsPtrIn,
     ParticleData* particleDataPtrIn, Rndm* rndmPtrIn,
-    BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, Couplings* couplings, 
-	    SigmaTotal* sigmaTotPtrIn = 0, SusyLesHouches* slhaPtr = 0); 
+    BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, Couplings* couplings,
+    SigmaTotal* sigmaTotPtrIn = 0, SLHAinterface* slhaInterfacePtrIn = 0); 
 
   // Store or replace Les Houches pointer.
   void setLHAPtr( LHAup* lhaUpPtrIn) {lhaUpPtr = lhaUpPtrIn;}  
@@ -297,7 +298,7 @@ protected:
   // Pointer to the total/elastic/diffractive cross section object.
   SigmaTotal*     sigmaTotPtr;
 
-  // Pointer to the SLHA object.
+  // Pointer to an SLHA object.
   SusyLesHouches* slhaPtr;
 
   // Pointer to LHAup for generating external events.

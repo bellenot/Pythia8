@@ -631,6 +631,13 @@ void ParticleData::initWidths( vector<ResonanceWidths*> resonancePtrs) {
   resonancePtr = new ResonanceLeptoquark(42);
   setResonancePtr( 42, resonancePtr);
 
+  // 93 = Z0copy and 94 = W+-copy used to pick decay channels
+  // for W/Z production in parton showers.
+  resonancePtr = new ResonanceGmZ(93);
+  setResonancePtr( 93, resonancePtr);
+  resonancePtr = new ResonanceW(94);
+  setResonancePtr( 94, resonancePtr);
+
   // Supersymmetry
   //  - Squarks
   for(int i = 1; i < 7; i++){

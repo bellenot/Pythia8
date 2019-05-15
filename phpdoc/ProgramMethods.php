@@ -100,7 +100,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="ParticleProperties.php#method61" target="page">m(...)</a></td>
+<td><a href="ParticleProperties.php#method38" target="page">m(...)</a></td>
 <td>Particle Properties</td>
 </tr>
 
@@ -112,7 +112,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="ParticleProperties.php#method61" target="page">m2(...)</a></td>
+<td><a href="ParticleProperties.php#method38" target="page">m2(...)</a></td>
 <td>Particle Properties</td>
 </tr>
 
@@ -244,7 +244,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>ParticleDataEntry&</td>
-<td><a href="ParticleProperties.php#method60" target="page">particleDataEntry()</a></td>
+<td><a href="ParticleProperties.php#method61" target="page">particleDataEntry()</a></td>
 <td>Particle Properties</td>
 </tr>
 
@@ -844,18 +844,6 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>int</td>
-<td><a href="EventRecord.php#method25" target="page">Event::append(...)</a></td>
-<td>Event Record</td>
-</tr>
-
-<tr>
-<td>int</td>
-<td><a href="EventRecord.php#method26" target="page">Event::append(...)</a></td>
-<td>Event Record</td>
-</tr>
-
-<tr>
-<td>int</td>
 <td><a href="EventRecord.php#method27" target="page">Event::append(...)</a></td>
 <td>Event Record</td>
 </tr>
@@ -868,157 +856,175 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>int</td>
-<td><a href="EventRecord.php#method28" target="page">Event::append(...)</a></td>
-<td>Event Record</td>
-</tr>
-
-<tr>
-<td>Particle&</td>
-<td><a href="EventRecord.php#method1" target="page">Event::at(...)</a></td>
-<td>Event Record</td>
-</tr>
-
-<tr>
-<td>Particle&</td>
-<td><a href="EventRecord.php#method31" target="page">Event::back()</a></td>
-<td>Event Record</td>
-</tr>
-
-<tr>
-<td>void</td>
-<td><a href="EventRecord.php#method34" target="page">Event::bst(...)</a></td>
-<td>Event Record</td>
-</tr>
-
-<tr>
-<td>void</td>
-<td><a href="EventRecord.php#method34" target="page">Event::bst(...)</a></td>
-<td>Event Record</td>
-</tr>
-
-<tr>
-<td>void</td>
-<td><a href="EventRecord.php#method34" target="page">Event::bst(...)</a></td>
-<td>Event Record</td>
-</tr>
-
-<tr>
-<td>void</td>
-<td><a href="EventRecord.php#method21" target="page">Event::clear()</a></td>
+<td><a href="EventRecord.php#method29" target="page">Event::append(...)</a></td>
 <td>Event Record</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="EventRecord.php#method30" target="page">Event::copy(...)</a></td>
+<td><a href="EventRecord.php#method30" target="page">Event::append(...)</a></td>
+<td>Event Record</td>
+</tr>
+
+<tr>
+<td>int</td>
+<td><a href="EventRecord.php#method30" target="page">Event::append(...)</a></td>
+<td>Event Record</td>
+</tr>
+
+<tr>
+<td>Particle&</td>
+<td><a href="EventRecord.php#method2" target="page">Event::at(...)</a></td>
+<td>Event Record</td>
+</tr>
+
+<tr>
+<td>Particle&</td>
+<td><a href="EventRecord.php#method2" target="page">Event::back()</a></td>
+<td>Event Record</td>
+</tr>
+
+<tr>
+<td>void</td>
+<td><a href="EventRecord.php#method35" target="page">Event::bst(...)</a></td>
+<td>Event Record</td>
+</tr>
+
+<tr>
+<td>void</td>
+<td><a href="EventRecord.php#method35" target="page">Event::bst(...)</a></td>
+<td>Event Record</td>
+</tr>
+
+<tr>
+<td>void</td>
+<td><a href="EventRecord.php#method35" target="page">Event::bst(...)</a></td>
+<td>Event Record</td>
+</tr>
+
+<tr>
+<td>void</td>
+<td><a href="EventRecord.php#method22" target="page">Event::clear()</a></td>
+<td>Event Record</td>
+</tr>
+
+<tr>
+<td>int</td>
+<td><a href="EventRecord.php#method32" target="page">Event::copy(...)</a></td>
 <td>Event Record</td>
 </tr>
 
 <tr>
 <td>vector&lt;int&gt;</td>
-<td><a href="EventRecord.php#method5" target="page">Event::daughterList(...)</a></td>
+<td><a href="EventRecord.php#method6" target="page">Event::daughterList(...)</a></td>
 <td>Event Record</td>
 </tr>
 
 <tr>
 <td> </td>
-<td><a href="EventRecord.php#method17" target="page">Event::Event(...)</a></td>
+<td><a href="EventRecord.php#method18" target="page">Event::Event(...)</a></td>
+<td>Event Record</td>
+</tr>
+
+<tr>
+<td>Particle&</td>
+<td><a href="EventRecord.php#method2" target="page">Event::front()</a></td>
 <td>Event Record</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="EventRecord.php#method7" target="page">Event::iBotCopy(...)</a></td>
+<td><a href="EventRecord.php#method8" target="page">Event::iBotCopy(...)</a></td>
 <td>Event Record</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="EventRecord.php#method8" target="page">Event::iBotCopyId(...)</a></td>
+<td><a href="EventRecord.php#method9" target="page">Event::iBotCopyId(...)</a></td>
 <td>Event Record</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventRecord.php#method20" target="page">Event::init(...)</a></td>
+<td><a href="EventRecord.php#method21" target="page">Event::init(...)</a></td>
 <td>Event Record</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventRecord.php#method12" target="page">Event::initColTag(...)</a></td>
+<td><a href="EventRecord.php#method13" target="page">Event::initColTag(...)</a></td>
 <td>Event Record</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="EventRecord.php#method11" target="page">Event::isAncestor(...)</a></td>
+<td><a href="EventRecord.php#method12" target="page">Event::isAncestor(...)</a></td>
 <td>Event Record</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="EventRecord.php#method7" target="page">Event::iTopCopy(...)</a></td>
+<td><a href="EventRecord.php#method8" target="page">Event::iTopCopy(...)</a></td>
 <td>Event Record</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="EventRecord.php#method8" target="page">Event::iTopCopyId(...)</a></td>
+<td><a href="EventRecord.php#method9" target="page">Event::iTopCopyId(...)</a></td>
 <td>Event Record</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="EventRecord.php#method13" target="page">Event::lastColTag()</a></td>
+<td><a href="EventRecord.php#method14" target="page">Event::lastColTag()</a></td>
 <td>Event Record</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventRecord.php#method3" target="page">Event::list()</a></td>
+<td><a href="EventRecord.php#method4" target="page">Event::list()</a></td>
 <td>Event Record</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventRecord.php#method3" target="page">Event::list(...)</a></td>
+<td><a href="EventRecord.php#method4" target="page">Event::list(...)</a></td>
 <td>Event Record</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventRecord.php#method3" target="page">Event::list(...)</a></td>
+<td><a href="EventRecord.php#method4" target="page">Event::list(...)</a></td>
 <td>Event Record</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventRecord.php#method3" target="page">Event::list(...)</a></td>
+<td><a href="EventRecord.php#method4" target="page">Event::list(...)</a></td>
 <td>Event Record</td>
 </tr>
 
 <tr>
 <td>vector&lt;int&gt;</td>
-<td><a href="EventRecord.php#method4" target="page">Event::motherList(...)</a></td>
+<td><a href="EventRecord.php#method5" target="page">Event::motherList(...)</a></td>
 <td>Event Record</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="EventRecord.php#method14" target="page">Event::nextColTag()</a></td>
+<td><a href="EventRecord.php#method15" target="page">Event::nextColTag()</a></td>
 <td>Event Record</td>
 </tr>
 
 <tr>
 <td>Event&</td>
-<td><a href="EventRecord.php#method19" target="page">Event::operator+=(...)</a></td>
+<td><a href="EventRecord.php#method20" target="page">Event::operator+=(...)</a></td>
 <td>Event Record</td>
 </tr>
 
 <tr>
 <td>Event&</td>
-<td><a href="EventRecord.php#method18" target="page">Event::operator=(...)</a></td>
+<td><a href="EventRecord.php#method19" target="page">Event::operator=(...)</a></td>
 <td>Event Record</td>
 </tr>
 
@@ -1036,91 +1042,97 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="EventRecord.php#method23" target="page">Event::popBack(...)</a></td>
+<td><a href="EventRecord.php#method24" target="page">Event::popBack(...)</a></td>
 <td>Event Record</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventRecord.php#method22" target="page">Event::reset()</a></td>
+<td><a href="EventRecord.php#method25" target="page">Event::remove(...)</a></td>
 <td>Event Record</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventRecord.php#method32" target="page">Event::restorePtrs()</a></td>
+<td><a href="EventRecord.php#method23" target="page">Event::reset()</a></td>
 <td>Event Record</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventRecord.php#method33" target="page">Event::rot(...)</a></td>
+<td><a href="EventRecord.php#method33" target="page">Event::restorePtrs()</a></td>
 <td>Event Record</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventRecord.php#method35" target="page">Event::rotbst(...)</a></td>
+<td><a href="EventRecord.php#method34" target="page">Event::rot(...)</a></td>
+<td>Event Record</td>
+</tr>
+
+<tr>
+<td>void</td>
+<td><a href="EventRecord.php#method36" target="page">Event::rotbst(...)</a></td>
 <td>Event Record</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventRecord.php#method15" target="page">Event::scale()</a></td>
+<td><a href="EventRecord.php#method16" target="page">Event::scale()</a></td>
 <td>Event Record</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventRecord.php#method15" target="page">Event::scale(...)</a></td>
+<td><a href="EventRecord.php#method16" target="page">Event::scale(...)</a></td>
 <td>Event Record</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventRecord.php#method16" target="page">Event::scaleSecond()</a></td>
+<td><a href="EventRecord.php#method17" target="page">Event::scaleSecond()</a></td>
 <td>Event Record</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventRecord.php#method16" target="page">Event::scaleSecond(...)</a></td>
+<td><a href="EventRecord.php#method17" target="page">Event::scaleSecond(...)</a></td>
 <td>Event Record</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="EventRecord.php#method29" target="page">Event::setPDTPtr(...)</a></td>
+<td><a href="EventRecord.php#method31" target="page">Event::setEvtPtr(...)</a></td>
 <td>Event Record</td>
 </tr>
 
 <tr>
 <td>vector&lt;int&gt;</td>
-<td><a href="EventRecord.php#method9" target="page">Event::sisterList(...)</a></td>
+<td><a href="EventRecord.php#method10" target="page">Event::sisterList(...)</a></td>
 <td>Event Record</td>
 </tr>
 
 <tr>
 <td>vector&lt;int&gt;</td>
-<td><a href="EventRecord.php#method10" target="page">Event::sisterListTopBot(...)</a></td>
+<td><a href="EventRecord.php#method11" target="page">Event::sisterListTopBot(...)</a></td>
 <td>Event Record</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="EventRecord.php#method2" target="page">Event::size()</a></td>
+<td><a href="EventRecord.php#method3" target="page">Event::size()</a></td>
 <td>Event Record</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="EventRecord.php#method6" target="page">Event::statusHepMC(...)</a></td>
+<td><a href="EventRecord.php#method7" target="page">Event::statusHepMC(...)</a></td>
 <td>Event Record</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="EventRecord.php#method24" target="page">Event::undoDecay(...)</a></td>
+<td><a href="EventRecord.php#method26" target="page">Event::undoDecay(...)</a></td>
 <td>Event Record</td>
 </tr>
 
@@ -1378,13 +1390,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method41" target="page">Info::a0MPI()</a></td>
+<td><a href="EventInformation.php#method42" target="page">Info::a0MPI()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventInformation.php#method52" target="page">Info::addCounter(...)</a></td>
+<td><a href="EventInformation.php#method53" target="page">Info::addCounter(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1408,7 +1420,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method42" target="page">Info::bMPI()</a></td>
+<td><a href="EventInformation.php#method43" target="page">Info::bMPI()</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1420,7 +1432,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>int</td>
-<td><a href="EventInformation.php#method45" target="page">Info::codeMPI(...)</a></td>
+<td><a href="EventInformation.php#method46" target="page">Info::codeMPI(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1450,31 +1462,31 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method47" target="page">Info::eMPI(...)</a></td>
+<td><a href="EventInformation.php#method48" target="page">Info::eMPI(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method43" target="page">Info::enhanceMPI()</a></td>
+<td><a href="EventInformation.php#method44" target="page">Info::enhanceMPI()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="EventInformation.php#method50" target="page">Info::getCounter(...)</a></td>
+<td><a href="EventInformation.php#method51" target="page">Info::getCounter(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="EventInformation.php#method53" target="page">Info::hasHistory()</a></td>
+<td><a href="EventInformation.php#method54" target="page">Info::hasHistory()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventInformation.php#method53" target="page">Info::hasHistory(...)</a></td>
+<td><a href="EventInformation.php#method54" target="page">Info::hasHistory(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1486,25 +1498,25 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>string</td>
-<td><a href="EventInformation.php#method56" target="page">Info::header(...)</a></td>
+<td><a href="EventInformation.php#method57" target="page">Info::header(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>vector &lt;string&gt;</td>
-<td><a href="EventInformation.php#method57" target="page">Info::headerKeys()</a></td>
+<td><a href="EventInformation.php#method58" target="page">Info::headerKeys()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="EventInformation.php#method46" target="page">Info::iAMPI(...)</a></td>
+<td><a href="EventInformation.php#method47" target="page">Info::iAMPI(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="EventInformation.php#method46" target="page">Info::iBMPI(...)</a></td>
+<td><a href="EventInformation.php#method47" target="page">Info::iBMPI(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1594,7 +1606,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>int</td>
-<td><a href="EventInformation.php#method35" target="page">Info::lhaStrategy()</a></td>
+<td><a href="EventInformation.php#method36" target="page">Info::lhaStrategy()</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1606,13 +1618,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method31" target="page">Info::m3Hat()</a></td>
+<td><a href="EventInformation.php#method32" target="page">Info::m3Hat()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method31" target="page">Info::m4Hat()</a></td>
+<td><a href="EventInformation.php#method32" target="page">Info::m4Hat()</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1630,25 +1642,25 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method39" target="page">Info::mergingWeight()</a></td>
+<td><a href="EventInformation.php#method40" target="page">Info::mergingWeight()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method40" target="page">Info::mergingWeightNLO()</a></td>
+<td><a href="EventInformation.php#method41" target="page">Info::mergingWeightNLO()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method28" target="page">Info::mHat()</a></td>
+<td><a href="EventInformation.php#method29" target="page">Info::mHat()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>long</td>
-<td><a href="EventInformation.php#method48" target="page">Info::nAccepted(...)</a></td>
+<td><a href="EventInformation.php#method49" target="page">Info::nAccepted(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1678,37 +1690,37 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>int</td>
-<td><a href="EventInformation.php#method36" target="page">Info::nFSRinProc()</a></td>
+<td><a href="EventInformation.php#method37" target="page">Info::nFSRinProc()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="EventInformation.php#method36" target="page">Info::nFSRinRes()</a></td>
+<td><a href="EventInformation.php#method37" target="page">Info::nFSRinRes()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="EventInformation.php#method36" target="page">Info::nISR()</a></td>
+<td><a href="EventInformation.php#method37" target="page">Info::nISR()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="EventInformation.php#method44" target="page">Info::nMPI()</a></td>
+<td><a href="EventInformation.php#method45" target="page">Info::nMPI()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>long</td>
-<td><a href="EventInformation.php#method48" target="page">Info::nSelected(...)</a></td>
+<td><a href="EventInformation.php#method49" target="page">Info::nSelected(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>long</td>
-<td><a href="EventInformation.php#method48" target="page">Info::nTried(...)</a></td>
+<td><a href="EventInformation.php#method49" target="page">Info::nTried(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1726,61 +1738,61 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method32" target="page">Info::phiHat()</a></td>
+<td><a href="EventInformation.php#method33" target="page">Info::phiHat()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method30" target="page">Info::pT2Hat()</a></td>
+<td><a href="EventInformation.php#method31" target="page">Info::pT2Hat()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method55" target="page">Info::pT2NowISR()</a></td>
+<td><a href="EventInformation.php#method56" target="page">Info::pT2NowISR()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventInformation.php#method55" target="page">Info::pT2NowISR(...)</a></td>
+<td><a href="EventInformation.php#method56" target="page">Info::pT2NowISR(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method30" target="page">Info::pTHat()</a></td>
+<td><a href="EventInformation.php#method31" target="page">Info::pTHat()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method37" target="page">Info::pTmaxFSR()</a></td>
+<td><a href="EventInformation.php#method38" target="page">Info::pTmaxFSR()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method37" target="page">Info::pTmaxISR()</a></td>
+<td><a href="EventInformation.php#method38" target="page">Info::pTmaxISR()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method37" target="page">Info::pTmaxMPI()</a></td>
+<td><a href="EventInformation.php#method38" target="page">Info::pTmaxMPI()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method45" target="page">Info::pTMPI(...)</a></td>
+<td><a href="EventInformation.php#method46" target="page">Info::pTMPI(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method38" target="page">Info::pTnow()</a></td>
+<td><a href="EventInformation.php#method39" target="page">Info::pTnow()</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1827,32 +1839,38 @@ Many of them are only intended for experts, while undocumented ones are only for
 </tr>
 
 <tr>
+<td>double</td>
+<td><a href="EventInformation.php#method28" target="page">Info::scalup()</a></td>
+<td>Event Information</td>
+</tr>
+
+<tr>
 <td>void</td>
-<td><a href="EventInformation.php#method51" target="page">Info::setCounter(...)</a></td>
+<td><a href="EventInformation.php#method52" target="page">Info::setCounter(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventInformation.php#method58" target="page">Info::setHeader(...)</a></td>
+<td><a href="EventInformation.php#method59" target="page">Info::setHeader(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method28" target="page">Info::sHat()</a></td>
+<td><a href="EventInformation.php#method29" target="page">Info::sHat()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method49" target="page">Info::sigmaErr(...)</a></td>
+<td><a href="EventInformation.php#method50" target="page">Info::sigmaErr(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method49" target="page">Info::sigmaGen(...)</a></td>
+<td><a href="EventInformation.php#method50" target="page">Info::sigmaGen(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1864,13 +1882,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method29" target="page">Info::tHat()</a></td>
+<td><a href="EventInformation.php#method30" target="page">Info::tHat()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method32" target="page">Info::thetaHat()</a></td>
+<td><a href="EventInformation.php#method33" target="page">Info::thetaHat()</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1882,19 +1900,19 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method29" target="page">Info::uHat()</a></td>
+<td><a href="EventInformation.php#method30" target="page">Info::uHat()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method33" target="page">Info::weight()</a></td>
+<td><a href="EventInformation.php#method34" target="page">Info::weight()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method34" target="page">Info::weightSum()</a></td>
+<td><a href="EventInformation.php#method35" target="page">Info::weightSum()</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1930,13 +1948,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method54" target="page">Info::zNowISR()</a></td>
+<td><a href="EventInformation.php#method55" target="page">Info::zNowISR()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventInformation.php#method54" target="page">Info::zNowISR(...)</a></td>
+<td><a href="EventInformation.php#method55" target="page">Info::zNowISR(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -2536,55 +2554,55 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="ParticleProperties.php#method66" target="page">Particle::bst(...)</a></td>
+<td><a href="ParticleProperties.php#method73" target="page">Particle::bst(...)</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleProperties.php#method67" target="page">Particle::bst(...)</a></td>
+<td><a href="ParticleProperties.php#method74" target="page">Particle::bst(...)</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleProperties.php#method68" target="page">Particle::bst(...)</a></td>
+<td><a href="ParticleProperties.php#method75" target="page">Particle::bst(...)</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleProperties.php#method69" target="page">Particle::bst(...)</a></td>
+<td><a href="ParticleProperties.php#method76" target="page">Particle::bst(...)</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleProperties.php#method70" target="page">Particle::bstback(...)</a></td>
+<td><a href="ParticleProperties.php#method77" target="page">Particle::bstback(...)</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleProperties.php#method70" target="page">Particle::bstback(...)</a></td>
+<td><a href="ParticleProperties.php#method77" target="page">Particle::bstback(...)</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleProperties.php#method50" target="page">Particle::canDecay()</a></td>
+<td><a href="ParticleProperties.php#method51" target="page">Particle::canDecay()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleProperties.php#method41" target="page">Particle::charge()</a></td>
+<td><a href="ParticleProperties.php#method42" target="page">Particle::charge()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="ParticleProperties.php#method41" target="page">Particle::chargeType()</a></td>
+<td><a href="ParticleProperties.php#method42" target="page">Particle::chargeType()</a></td>
 <td>Particle Properties</td>
 </tr>
 
@@ -2602,13 +2620,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>int</td>
-<td><a href="ParticleProperties.php#method43" target="page">Particle::colType()</a></td>
+<td><a href="ParticleProperties.php#method44" target="page">Particle::colType()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleProperties.php#method47" target="page">Particle::constituentMass()</a></td>
+<td><a href="ParticleProperties.php#method48" target="page">Particle::constituentMass()</a></td>
 <td>Particle Properties</td>
 </tr>
 
@@ -2632,7 +2650,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleProperties.php#method51" target="page">Particle::doExternalDecay()</a></td>
+<td><a href="ParticleProperties.php#method52" target="page">Particle::doExternalDecay()</a></td>
 <td>Particle Properties</td>
 </tr>
 
@@ -2674,6 +2692,18 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>int</td>
+<td><a href="ParticleProperties.php#method64" target="page">Particle::iBotCopy()</a></td>
+<td>Particle Properties</td>
+</tr>
+
+<tr>
+<td>int</td>
+<td><a href="ParticleProperties.php#method65" target="page">Particle::iBotCopyId()</a></td>
+<td>Particle Properties</td>
+</tr>
+
+<tr>
+<td>int</td>
 <td><a href="ParticleProperties.php#method1" target="page">Particle::id()</a></td>
 <td>Particle Properties</td>
 </tr>
@@ -2685,14 +2715,26 @@ Many of them are only intended for experts, while undocumented ones are only for
 </tr>
 
 <tr>
-<td>bool</td>
-<td><a href="ParticleProperties.php#method42" target="page">Particle::isCharged()</a></td>
+<td>void</td>
+<td><a href="ParticleProperties.php#method62" target="page">Particle::index()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleProperties.php#method57" target="page">Particle::isDiquark()</a></td>
+<td><a href="ParticleProperties.php#method67" target="page">Particle::isAncestor(...)</a></td>
+<td>Particle Properties</td>
+</tr>
+
+<tr>
+<td>bool</td>
+<td><a href="ParticleProperties.php#method43" target="page">Particle::isCharged()</a></td>
+<td>Particle Properties</td>
+</tr>
+
+<tr>
+<td>bool</td>
+<td><a href="ParticleProperties.php#method58" target="page">Particle::isDiquark()</a></td>
 <td>Particle Properties</td>
 </tr>
 
@@ -2704,37 +2746,37 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleProperties.php#method56" target="page">Particle::isGluon()</a></td>
+<td><a href="ParticleProperties.php#method57" target="page">Particle::isGluon()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleProperties.php#method59" target="page">Particle::isHadron()</a></td>
+<td><a href="ParticleProperties.php#method60" target="page">Particle::isHadron()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleProperties.php#method54" target="page">Particle::isLepton()</a></td>
+<td><a href="ParticleProperties.php#method55" target="page">Particle::isLepton()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleProperties.php#method42" target="page">Particle::isNeutral()</a></td>
+<td><a href="ParticleProperties.php#method43" target="page">Particle::isNeutral()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleProperties.php#method58" target="page">Particle::isParton()</a></td>
+<td><a href="ParticleProperties.php#method59" target="page">Particle::isParton()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleProperties.php#method55" target="page">Particle::isQuark()</a></td>
+<td><a href="ParticleProperties.php#method56" target="page">Particle::isQuark()</a></td>
 <td>Particle Properties</td>
 </tr>
 
@@ -2746,13 +2788,25 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleProperties.php#method52" target="page">Particle::isResonance()</a></td>
+<td><a href="ParticleProperties.php#method53" target="page">Particle::isResonance()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleProperties.php#method53" target="page">Particle::isVisible()</a></td>
+<td><a href="ParticleProperties.php#method54" target="page">Particle::isVisible()</a></td>
+<td>Particle Properties</td>
+</tr>
+
+<tr>
+<td>int</td>
+<td><a href="ParticleProperties.php#method64" target="page">Particle::iTopCopy()</a></td>
+<td>Particle Properties</td>
+</tr>
+
+<tr>
+<td>int</td>
+<td><a href="ParticleProperties.php#method65" target="page">Particle::iTopCopyId()</a></td>
 <td>Particle Properties</td>
 </tr>
 
@@ -2764,7 +2818,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="ParticleProperties.php#method44" target="page">Particle::m0()</a></td>
+<td><a href="ParticleProperties.php#method45" target="page">Particle::m0()</a></td>
 <td>Particle Properties</td>
 </tr>
 
@@ -2782,13 +2836,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="ParticleProperties.php#method46" target="page">Particle::mass()</a></td>
+<td><a href="ParticleProperties.php#method47" target="page">Particle::mass()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ParticleProperties.php#method49" target="page">Particle::mayDecay()</a></td>
+<td><a href="ParticleProperties.php#method50" target="page">Particle::mayDecay()</a></td>
 <td>Particle Properties</td>
 </tr>
 
@@ -2800,13 +2854,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="ParticleProperties.php#method45" target="page">Particle::mMax()</a></td>
+<td><a href="ParticleProperties.php#method46" target="page">Particle::mMax()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="ParticleProperties.php#method45" target="page">Particle::mMin()</a></td>
+<td><a href="ParticleProperties.php#method46" target="page">Particle::mMin()</a></td>
 <td>Particle Properties</td>
 </tr>
 
@@ -2842,37 +2896,37 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="ParticleProperties.php#method45" target="page">Particle::mWidth()</a></td>
+<td><a href="ParticleProperties.php#method46" target="page">Particle::mWidth()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>string</td>
-<td><a href="ParticleProperties.php#method38" target="page">Particle::name()</a></td>
+<td><a href="ParticleProperties.php#method39" target="page">Particle::name()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>string</td>
-<td><a href="ParticleProperties.php#method39" target="page">Particle::nameWithStatus()</a></td>
+<td><a href="ParticleProperties.php#method40" target="page">Particle::nameWithStatus()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleProperties.php#method73" target="page">Particle::offsetCol(...)</a></td>
+<td><a href="ParticleProperties.php#method80" target="page">Particle::offsetCol(...)</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleProperties.php#method72" target="page">Particle::offsetHistory(...))</a></td>
+<td><a href="ParticleProperties.php#method79" target="page">Particle::offsetHistory(...))</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>Particle&</td>
-<td><a href="ParticleProperties.php#method78" target="page">Particle::operator=(...)</a></td>
+<td><a href="ParticleProperties.php#method85" target="page">Particle::operator=(...)</a></td>
 <td>Particle Properties</td>
 </tr>
 
@@ -2902,25 +2956,25 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td> </td>
-<td><a href="ParticleProperties.php#method74" target="page">Particle::Particle()</a></td>
+<td><a href="ParticleProperties.php#method81" target="page">Particle::Particle()</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td> </td>
-<td><a href="ParticleProperties.php#method75" target="page">Particle::Particle(...)</a></td>
+<td><a href="ParticleProperties.php#method82" target="page">Particle::Particle(...)</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td> </td>
-<td><a href="ParticleProperties.php#method76" target="page">Particle::Particle(...)</a></td>
+<td><a href="ParticleProperties.php#method83" target="page">Particle::Particle(...)</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td> </td>
-<td><a href="ParticleProperties.php#method77" target="page">Particle::Particle(...)</a></td>
+<td><a href="ParticleProperties.php#method84" target="page">Particle::Particle(...)</a></td>
 <td>Particle Properties</td>
 </tr>
 
@@ -2980,31 +3034,31 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="ParticleProperties.php#method62" target="page">Particle::rescale3(...)</a></td>
+<td><a href="ParticleProperties.php#method69" target="page">Particle::rescale3(...)</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleProperties.php#method63" target="page">Particle::rescale4(...)</a></td>
+<td><a href="ParticleProperties.php#method70" target="page">Particle::rescale4(...)</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleProperties.php#method64" target="page">Particle::rescale5(...)</a></td>
+<td><a href="ParticleProperties.php#method71" target="page">Particle::rescale5(...)</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleProperties.php#method65" target="page">Particle::rot(...)</a></td>
+<td><a href="ParticleProperties.php#method72" target="page">Particle::rot(...)</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleProperties.php#method71" target="page">Particle::rotbst(...)</a></td>
+<td><a href="ParticleProperties.php#method78" target="page">Particle::rotbst(...)</a></td>
 <td>Particle Properties</td>
 </tr>
 
@@ -3016,19 +3070,25 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="ParticleProperties.php#method80" target="page">Particle::setPDEPtr()</a></td>
+<td><a href="ParticleProperties.php#method86" target="page">Particle::setEvtPtr(...)</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ParticleProperties.php#method79" target="page">Particle::setPDTPtr()</a></td>
+<td><a href="ParticleProperties.php#method87" target="page">Particle::setPDEPtr(...)</a></td>
+<td>Particle Properties</td>
+</tr>
+
+<tr>
+<td>vector&lt;int&gt;</td>
+<td><a href="ParticleProperties.php#method66" target="page">Particle::sisterList(...)</a></td>
 <td>Particle Properties</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="ParticleProperties.php#method40" target="page">Particle::spinType()</a></td>
+<td><a href="ParticleProperties.php#method41" target="page">Particle::spinType()</a></td>
 <td>Particle Properties</td>
 </tr>
 
@@ -3047,6 +3107,12 @@ Many of them are only intended for experts, while undocumented ones are only for
 <tr>
 <td>void</td>
 <td><a href="ParticleProperties.php#method15" target="page">Particle::statusCode(...)</a></td>
+<td>Particle Properties</td>
+</tr>
+
+<tr>
+<td>int</td>
+<td><a href="ParticleProperties.php#method63" target="page">Particle::statusHepMC()</a></td>
 <td>Particle Properties</td>
 </tr>
 
@@ -3070,7 +3136,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="ParticleProperties.php#method48" target="page">Particle::tau0()</a></td>
+<td><a href="ParticleProperties.php#method49" target="page">Particle::tau0()</a></td>
 <td>Particle Properties</td>
 </tr>
 
@@ -3095,6 +3161,12 @@ Many of them are only intended for experts, while undocumented ones are only for
 <tr>
 <td>double</td>
 <td><a href="ParticleProperties.php#method11" target="page">Particle::tProd()</a></td>
+<td>Particle Properties</td>
+</tr>
+
+<tr>
+<td>bool</td>
+<td><a href="ParticleProperties.php#method68" target="page">Particle::undoDecay()</a></td>
 <td>Particle Properties</td>
 </tr>
 

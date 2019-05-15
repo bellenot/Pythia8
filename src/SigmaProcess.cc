@@ -38,7 +38,7 @@ const int    SigmaProcess::NCOMPSTEP  = 10;
 void SigmaProcess::init(Info* infoPtrIn, Settings* settingsPtrIn,
   ParticleData* particleDataPtrIn, Rndm* rndmPtrIn, BeamParticle* beamAPtrIn, 
   BeamParticle* beamBPtrIn, Couplings* couplingsPtrIn, 
-  SigmaTotal* sigmaTotPtrIn, SusyLesHouches* slhaPtrIn) {
+  SigmaTotal* sigmaTotPtrIn, SLHAinterface* slhaInterfacePtrIn) {
 
   // Store pointers.
   infoPtr         = infoPtrIn;
@@ -49,7 +49,9 @@ void SigmaProcess::init(Info* infoPtrIn, Settings* settingsPtrIn,
   beamBPtr        = beamBPtrIn;
   couplingsPtr    = couplingsPtrIn;
   sigmaTotPtr     = sigmaTotPtrIn;
-  slhaPtr         = slhaPtrIn;
+  // Pointer to SLHA object allows semi-internal processes to access
+  // SLHA blocks via getEntry() methods, see arXiv:1109.5852
+  slhaPtr         = (slhaInterfacePtrIn != 0) ? &slhaInterfacePtrIn->slha : 0;
 
   // Read out some properties of beams to allow shorthand.
   idA             = (beamAPtr != 0) ? beamAPtr->id() : 0;

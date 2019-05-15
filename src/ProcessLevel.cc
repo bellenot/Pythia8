@@ -45,19 +45,19 @@ bool ProcessLevel::init( Info* infoPtrIn, Settings& settings,
   ParticleData* particleDataPtrIn, Rndm* rndmPtrIn, 
   BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, 
   Couplings* couplingsPtrIn, SigmaTotal* sigmaTotPtrIn, bool doLHA, 
-  SusyLesHouches* slhaPtrIn, UserHooks* userHooksPtrIn, 
+  SLHAinterface* slhaInterfacePtrIn, UserHooks* userHooksPtrIn, 
   vector<SigmaProcess*>& sigmaPtrs, ostream& os) {
 
   // Store input pointers for future use. 
-  infoPtr         = infoPtrIn;
-  particleDataPtr = particleDataPtrIn;
-  rndmPtr         = rndmPtrIn;
-  beamAPtr        = beamAPtrIn;
-  beamBPtr        = beamBPtrIn;
-  couplingsPtr    = couplingsPtrIn;
-  sigmaTotPtr     = sigmaTotPtrIn;
-  userHooksPtr    = userHooksPtrIn;
-  slhaPtr         = slhaPtrIn;
+  infoPtr          = infoPtrIn;
+  particleDataPtr  = particleDataPtrIn;
+  rndmPtr          = rndmPtrIn;
+  beamAPtr         = beamAPtrIn;
+  beamBPtr         = beamBPtrIn;
+  couplingsPtr     = couplingsPtrIn;
+  sigmaTotPtr      = sigmaTotPtrIn;
+  userHooksPtr     = userHooksPtrIn;
+  slhaInterfacePtr = slhaInterfacePtrIn;
 
   // Send on some input pointers.
   resonanceDecays.init( infoPtr, particleDataPtr, rndmPtr);
@@ -169,15 +169,15 @@ bool ProcessLevel::init( Info* infoPtrIn, Settings& settings,
     return false;
   }
 
-  // Initialize SLHA blocks SMINPUTS and MASS from PYTHIA SM parameter values.
-  initSLHA();
+  // Fill SLHA blocks SMINPUTS and MASS from PYTHIA SM parameter values.
+  slhaInterfacePtr->pythia2slha(particleDataPtr);
 
   // Initialize each process. 
   int numberOn = 0;
   for (int i = 0; i < int(containerPtrs.size()); ++i)
     if (containerPtrs[i]->init(true, infoPtr, settings, particleDataPtr, 
       rndmPtr, beamAPtr, beamBPtr, couplingsPtr, sigmaTotPtr,  
-      &resonanceDecays, slhaPtr, userHooksPtr)) ++numberOn;
+      &resonanceDecays, slhaInterfacePtr, userHooksPtr)) ++numberOn;
 
   // Sum maxima for Monte Carlo choice.
   sigmaMaxSum = 0.;
@@ -196,7 +196,7 @@ bool ProcessLevel::init( Info* infoPtrIn, Settings& settings,
     for (int i2 = 0; i2 < int(container2Ptrs.size()); ++i2)
       if (container2Ptrs[i2]->init(false, infoPtr, settings, particleDataPtr, 
         rndmPtr, beamAPtr, beamBPtr, couplingsPtr, sigmaTotPtr, 
-        &resonanceDecays, slhaPtr, userHooksPtr)) ++number2On;
+        &resonanceDecays, slhaInterfacePtr, userHooksPtr)) ++number2On;
     sigma2MaxSum = 0.;
     for (int i2 = 0; i2 < int(container2Ptrs.size()); ++i2)
       sigma2MaxSum += container2Ptrs[i2]->sigmaMax();
@@ -541,52 +541,6 @@ void ProcessLevel::resetStatistics() {
   for (int i2 = 0; i2 < int(container2Ptrs.size()); ++i2)
     container2Ptrs[i2]->reset();
 
-}
-
-//--------------------------------------------------------------------------
-
-// Initialize SLHA blocks SMINPUTS and MASS from PYTHIA SM parameter values.
-
-void ProcessLevel::initSLHA() {
-
-  // Initialize block SMINPUTS.
-  string blockName = "sminputs";
-  double mZ = particleDataPtr->m0(23);
-  slhaPtr->set(blockName,1,1.0/couplingsPtr->alphaEM(pow2(mZ)));
-  slhaPtr->set(blockName,2,couplingsPtr->GF());
-  slhaPtr->set(blockName,3,couplingsPtr->alphaS(pow2(mZ)));
-  slhaPtr->set(blockName,4,mZ);
-  // b mass (should be running mass, here pole for time being)
-  slhaPtr->set(blockName,5,particleDataPtr->m0(5));
-  slhaPtr->set(blockName,6,particleDataPtr->m0(6));
-  slhaPtr->set(blockName,7,particleDataPtr->m0(15));
-  slhaPtr->set(blockName,8,particleDataPtr->m0(16));
-  slhaPtr->set(blockName,11,particleDataPtr->m0(11));
-  slhaPtr->set(blockName,12,particleDataPtr->m0(12));
-  slhaPtr->set(blockName,13,particleDataPtr->m0(13));
-  slhaPtr->set(blockName,14,particleDataPtr->m0(14));
-  // Force 3 lightest quarks massless 
-  slhaPtr->set(blockName,21,double(0.0));
-  slhaPtr->set(blockName,22,double(0.0));
-  slhaPtr->set(blockName,23,double(0.0));
-  // c mass (should be running mass, here pole for time being)
-  slhaPtr->set(blockName,24,particleDataPtr->m0(4));
-
-  // Initialize block MASS.
-  blockName = "mass";
-  int id = 1; 
-  int count = 0;
-  while (particleDataPtr->nextId(id) > id) {
-    slhaPtr->set(blockName,id,particleDataPtr->m0(id));
-    id = particleDataPtr->nextId(id);
-    ++count;
-    if (count > 10000) {
-      infoPtr->errorMsg("Error in ProcessLevel::initSLHA: "
-		      "encountered infinite loop when saving mass block");
-      break;
-    }
-  }
-  
 }
 
 //--------------------------------------------------------------------------

@@ -47,12 +47,19 @@ current event record:
 <method name="Particle& Event::operator[](int i)">
 </method>
 <methodmore name="const Particle& Event::operator[](int i)">
-</methodmore>
-<methodmore name="Particle& Event::at(int i)">
 returns a (<code>const</code>) reference to the <ei>i</ei>'th particle
 in the event record, which can be used to get (or set) all the 
 <aloc href="ParticleProperties">properties</aloc> of this particle. 
 </methodmore>
+
+<method name="Particle& Event::front()">
+</method>
+<methodmore name="Particle& Event::at(int i)">
+</methodmore>
+<methodmore name="Particle& Event::back()">
+</methodmore>
+returns a reference to the zeroth, <ei>i</ei>'th or last particle
+in the event record, as an alternative to the methods above.
 
 <method name="int Event::size()">
 The event size, i.e. the size of the <code>vector&lt;Particle&gt;</code>.
@@ -145,7 +152,6 @@ not fulfill the criteria of status code 2, with a generator-dependent
 classification of its nature; in PYTHIA the absolute value of the normal 
 status code is used.</li> 
 </ul>
-
 </method>
 
 <h3>Further output methods</h3>
@@ -196,13 +202,16 @@ the particles in the <code>daughterList()</code> of this mother are
 traced down with <code>iBotCopy()</code>, omitting the original 
 particle itself. Any non-final particles are removed from the list.
 Should this make the list empty the search criterion is widened so that
-all final daughters are allowed, not only carbon-copy ones. A second
-argument <code>false</code> inhibits the second step, and increases 
-the risk that an empty list is returned. A typical example of this
-is for ISR cascades, e.g. <ei>e -> e gamma</ei> where the photon 
-may not have any obvious sister in the final state if the bottom copy 
-of the photon is an electron that annihilates and thus is not part of 
-the final state.  
+all final daughters are allowed, not only carbon-copy ones. That is, 
+starting from the top mother, all its daughters are found, except for
+the traced-up one, and then all their daughters, and so on. This can 
+produce quite extensive and rather useless output, notably when tracing 
+parton showers. A second argument <code>false</code> inhibits the second 
+step, and increases the risk that an empty list is returned. A typical 
+example of this is for ISR cascades, e.g. <ei>e -> e gamma</ei> where 
+the photon may not have any obvious sister in the final state if the 
+bottom copy of the photon is an electron that annihilates and thus is 
+not part of the final state.  
 </method>
 
 <method name="bool Event::isAncestor(int i, int iAncestor)"> 
@@ -324,7 +333,15 @@ the pseudoparticle is not assigned any momentum or mass.
 
 <method name="void Event::popBack(int n = 1)">
 removes the last <ei>n</ei> particle entries; must be a positive 
-number.
+number. History (and other) information of remaning entries is
+untouched, and so may be internally inconsistent.
+</method>
+
+<method name="void Event::remove(int iFirst, int iLast)">
+removes particles in the range between indices <code>iFirst</code> 
+and <code>iLast</code>, including the endpoints. History (and other) 
+information of remaning entries is untouched, and so may be internally 
+inconsistent. 
 </method>
 
 <method name="bool Event::undoDecay(int i)">
@@ -333,7 +350,9 @@ it to its undecayed state. It is only intended for "normal" particle
 decay chains, and will return false in other cases, notably if 
 the particle is coloured. The procedure would not work if non-local
 momentum shifts have been performed, such as with a Bose-Einstein 
-shift procedure (or for a dipole shower recoiler).
+shift procedure (or for a dipole shower recoiler). The history 
+information of the remaining particles, many of which may have new 
+indices, is updated to be internally consistent.
 </method>
 
 <method name="int Event::append(Particle entryIn)">
@@ -370,12 +389,11 @@ returns the index of this position, as above but with vanishing
 (i.e. zero) mother and daughter indices.
 </method>
 
-<method name="int Event::setPDTPtr(int iSet = -1)">
-send in a pointer to the <code>ParticleData</code> database for 
-particle <code>iSet</code>, by default the most recently appended 
-particle. Also generates a pointer to the 
-<code>ParticleDataEntry</code> object of the identity code
-of the particle.
+<method name="int Event::setEvtPtr(int iSet = -1)">
+send in the <code>this</code> pointer of the current <code>Event</code> 
+itself to the particle <code>iSet</code>, by default the most recently 
+appended particle. Also generates a pointer to the 
+<code>ParticleDataEntry</code> object of the identity code of the particle.
 </method>
 
 <method name="int Event::copy(int iCopy, int newStatus = 0)">
@@ -392,19 +410,13 @@ mother of <code>iCopy</code>. An attempt to copy an out-of-range
 entry will return -1.
 </method>
 
-<method name="Particle& Event::back()">
-returns a reference to the last particle in the event record.
-</method>
-
 <method name="void Event::restorePtrs()">
-each particle in the event record has a pointer to the whole database
-and another to the particle species itself, used to find some particle
-properties. The latter pointer is automatically set/changed whenever 
-the particle identity is set/changed by one of the normal methods. 
-(It is the "changed" part that prompts the inclusion of a pointer 
-to the whole database.) Of course the pointer values are specific to 
-the memory locations of the current run, and so it has no sense to 
-save them if events are written to file. Should you use some
+each particle in the event record has a pointer to the event itself
+and another to the particle species it belongs to. The latter pointer 
+is automatically set/changed whenever the particle identity is 
+set/changed by one of the normal methods. Of course the pointer values 
+are specific to the memory locations of the current run, and so it has 
+no sense to save them if events are written to file. Should you use some
 persistency scheme that bypasses the normal methods when the event is 
 read back in, you can use <code>restorePtrs()</code> afterwards to set 
 these pointers appropriately.

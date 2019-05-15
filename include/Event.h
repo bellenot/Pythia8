@@ -22,6 +22,7 @@ namespace Pythia8 {
 // Forward references to ParticleDataEntry and ResonanceWidths classes.
 class ParticleDataEntry;
 class ResonanceWidths;
+class Event;
 
 //==========================================================================
 
@@ -37,7 +38,7 @@ public:
     daughter1Save(0), daughter2Save(0), colSave(0), acolSave(0), 
     pSave(Vec4(0.,0.,0.,0.)), mSave(0.), scaleSave(0.), polSave(9.), 
     hasVertexSave(false), vProdSave(Vec4(0.,0.,0.,0.)), tauSave(0.), 
-    pdePtr(0), pdtPtr(0) { }  
+    pdePtr(0), evtPtr(0) { }  
   Particle(int idIn, int statusIn = 0, int mother1In = 0, 
     int mother2In = 0, int daughter1In = 0, int daughter2In = 0,
     int colIn = 0, int acolIn = 0, double pxIn = 0., double pyIn = 0., 
@@ -48,7 +49,7 @@ public:
     daughter2Save(daughter2In), colSave(colIn), acolSave(acolIn), 
     pSave(Vec4(pxIn, pyIn, pzIn, eIn)), mSave(mIn), scaleSave(scaleIn), 
     polSave(polIn), hasVertexSave(false), vProdSave(Vec4(0.,0.,0.,0.)), 
-    tauSave(0.), pdePtr(0), pdtPtr(0) { }  
+    tauSave(0.), pdePtr(0), evtPtr(0) { }  
   Particle(int idIn, int statusIn, int mother1In, int mother2In, 
     int daughter1In, int daughter2In, int colIn, int acolIn, 
     Vec4 pIn, double mIn = 0., double scaleIn = 0., double polIn = 9.) 
@@ -57,7 +58,7 @@ public:
     daughter2Save(daughter2In), colSave(colIn), acolSave(acolIn), 
     pSave(pIn), mSave(mIn), scaleSave(scaleIn), polSave(polIn), 
     hasVertexSave(false), vProdSave(Vec4(0.,0.,0.,0.)), tauSave(0.), 
-    pdePtr(0), pdtPtr(0) { }  
+    pdePtr(0), evtPtr(0) { }  
   Particle(const Particle& pt) : idSave(pt.idSave), 
     statusSave(pt.statusSave), mother1Save(pt.mother1Save), 
     mother2Save(pt.mother2Save), daughter1Save(pt.daughter1Save), 
@@ -65,7 +66,7 @@ public:
     acolSave(pt.acolSave), pSave(pt.pSave), mSave(pt.mSave), 
     scaleSave(pt.scaleSave), polSave(pt.polSave), 
     hasVertexSave(pt.hasVertexSave), vProdSave(pt.vProdSave), 
-    tauSave(pt.tauSave), pdePtr(pt.pdePtr), pdtPtr(pt.pdtPtr) { } 
+    tauSave(pt.tauSave), pdePtr(pt.pdePtr), evtPtr(pt.evtPtr) { } 
   Particle& operator=(const Particle& pt) {if (this != &pt) {
     idSave = pt.idSave; statusSave = pt.statusSave; 
     mother1Save = pt.mother1Save; mother2Save = pt.mother2Save; 
@@ -73,13 +74,12 @@ public:
     colSave = pt.colSave; acolSave = pt.acolSave; pSave = pt.pSave; 
     mSave = pt.mSave; scaleSave = pt.scaleSave; polSave = pt.polSave;
     hasVertexSave = pt.hasVertexSave; vProdSave = pt.vProdSave; 
-    tauSave = pt.tauSave; pdePtr = pt.pdePtr; pdtPtr = pt.pdtPtr; } 
+    tauSave = pt.tauSave; pdePtr = pt.pdePtr; evtPtr = pt.evtPtr; } 
     return *this; } 
 
-  // Member functions to set the ParticleData and ParticleDataEntry pointers.
-  void setPDTPtr(ParticleData* pdtPtrIn) { pdtPtr = pdtPtrIn; setPDEPtr();}
-  void setPDEPtr() {pdePtr = (pdtPtr != 0) 
-    ? pdtPtr->particleDataEntryPtr( idSave) : 0;}
+  // Member functions to set the Event and ParticleDataEntry pointers.
+  void setEvtPtr(Event* evtPtrIn) { evtPtr = evtPtrIn; setPDEPtr();}
+  void setPDEPtr(ParticleDataEntry* pdePtrIn = 0);
       
   // Member functions for input.
   void id(int idIn) {idSave = idIn; setPDEPtr();}
@@ -185,6 +185,19 @@ public:
   double tDec()      const {return (tauSave > 0. && mSave > 0.)  
     ? vProdSave.e()  + tauSave * pSave.e()  / mSave : vProdSave.e();}
 
+  // Methods that can refer back to the event the particle belongs to. 
+  int index()        const;
+  int statusHepMC()  const;
+  int iTopCopy()     const;
+  int iBotCopy()     const;
+  int iTopCopyId()   const;
+  int iBotCopyId()   const;
+  vector<int> motherList()   const;
+  vector<int> daughterList() const;
+  vector<int> sisterList(bool traceTopBot = false) const;
+  bool isAncestor(int iAncestor) const;
+  bool undoDecay();
+
   // Further output, based on a pointer to a ParticleDataEntry object.
   string name()      const {
     return (pdePtr != 0) ? pdePtr->name(idSave) : " ";}
@@ -285,9 +298,9 @@ private:
   // Event::restorePtrs() can be called to restore the missing information. 
   ParticleDataEntry* pdePtr;  //!
 
-  // Pointer to the whole particle data table. Used to update the above 
-  // pointer when id(...) changes identity. As above it should not be saved.
-  ParticleData*      pdtPtr;  //!  
+  // Pointer to the whole event record to which the particle belongs (if any). 
+  // As above it should not be saved.
+  Event*             evtPtr;  //!  
 
 };
 
@@ -380,15 +393,17 @@ public:
   Particle& operator[](int i) {return entry[i];}
   const Particle& operator[](int i) const {return entry[i];}
 
-  // Other way to access an element of event record.
+  // Implement standard references to elements in the particle array.
+  Particle& front()   {return entry.front();}
   Particle& at(int i) {return entry.at(i);} 
+  Particle& back()    {return entry.back();}
 
   // Event record size.
   int size() const {return entry.size();}
 
   // Put a new particle at the end of the event record; return index.
   int append(Particle entryIn) {    
-    entry.push_back(entryIn); setPDTPtr();
+    entry.push_back(entryIn); setEvtPtr();
     if (entryIn.col() > maxColTag) maxColTag = entryIn.col();   
     if (entryIn.acol() > maxColTag) maxColTag = entryIn.acol();
     return entry.size() - 1;
@@ -397,7 +412,7 @@ public:
     int daughter2, int col, int acol, double px, double py, double pz, 
     double e, double m = 0., double scaleIn = 0., double polIn = 9.) {
     entry.push_back( Particle(id, status, mother1, mother2, daughter1, 
-    daughter2, col, acol, px, py, pz, e, m, scaleIn, polIn) ); setPDTPtr();
+    daughter2, col, acol, px, py, pz, e, m, scaleIn, polIn) ); setEvtPtr();
     if (col > maxColTag) maxColTag = col;   
     if (acol > maxColTag) maxColTag = acol;
     return entry.size() - 1;
@@ -406,7 +421,7 @@ public:
     int daughter2, int col, int acol, Vec4 p, double m = 0., 
     double scaleIn = 0., double polIn = 9.) {
     entry.push_back( Particle(id, status, mother1, mother2, daughter1, 
-    daughter2, col, acol, p, m, scaleIn, polIn) ); setPDTPtr();
+    daughter2, col, acol, p, m, scaleIn, polIn) ); setEvtPtr();
     if (col > maxColTag) maxColTag = col;   
     if (acol > maxColTag) maxColTag = acol;
     return entry.size() - 1;
@@ -416,28 +431,25 @@ public:
   int append(int id, int status, int col, int acol, double px, double py, 
     double pz, double e, double m = 0., double scaleIn = 0., 
     double polIn = 9.) { entry.push_back( Particle(id, status, 0, 0, 0, 0, 
-    col, acol, px, py, pz, e, m, scaleIn, polIn) ); setPDTPtr(); 
+    col, acol, px, py, pz, e, m, scaleIn, polIn) ); setEvtPtr(); 
     if (col > maxColTag) maxColTag = col;   
     if (acol > maxColTag) maxColTag = acol;
     return entry.size() - 1;
   }
   int append(int id, int status, int col, int acol, Vec4 p, double m = 0., 
     double scaleIn = 0., double polIn = 9.) {entry.push_back( Particle(id, 
-    status, 0, 0, 0, 0, col, acol, p, m, scaleIn, polIn) ); setPDTPtr(); 
+    status, 0, 0, 0, 0, col, acol, p, m, scaleIn, polIn) ); setEvtPtr(); 
     if (col > maxColTag) maxColTag = col;   
     if (acol > maxColTag) maxColTag = acol;
     return entry.size() - 1;
   }
 
-  // Set pointer to ParticleData for a particle, by default latest one.
-  void setPDTPtr(int iSet = -1) {if (iSet < 0) iSet = entry.size() - 1;
-    entry[iSet].setPDTPtr( particleDataPtr);}
+  // Set pointer to the event for a particle, by default latest one.
+  void setEvtPtr(int iSet = -1) {if (iSet < 0) iSet = entry.size() - 1;
+    entry[iSet].setEvtPtr( this);}
 
   // Add a copy of an existing particle at the end of the event record.
   int copy(int iCopy, int newStatus = 0);
-
-  // Implement reference "back" to access last element.
-  Particle& back() {return entry.back();}
 
   // List the particles in an event.
   void list() const; 
@@ -452,12 +464,18 @@ public:
     else {int newSize = max( 0, size() - nRemove); 
     entry.resize(newSize);} } 
 
+  // Remove entries from iFirst to iLast, including endpoints.
+  void remove(int iFirst, int iLast) { 
+    if (iFirst < 0 || iLast >= int(entry.size()) || iLast < iFirst) return;
+    entry.erase( entry.begin() + iFirst, entry.begin() + iLast + 1);
+  } 
+
   // Undo the decay of a single particle (where daughters well-defined).
   bool undoDecay(int i);
 
   // Restore all ParticleDataEntry* pointers in the Particle vector.
   // Useful when a persistent copy of the event record is read back in.
-  void restorePtrs() { for (int i = 0; i < size(); ++i) setPDTPtr(i); } 
+  void restorePtrs() { for (int i = 0; i < size(); ++i) setEvtPtr(i); } 
 
   // Save or restore the size of the event record (throwing at the end).
   void saveSize() {savedSize = entry.size();}
@@ -547,6 +565,9 @@ public:
   Event& operator+=(const Event& addEvent);
 
 private: 
+
+  // The Particle class needs to access particle data.
+  friend class Particle;
 
   // Constants: could only be changed in the code itself.
   static const int IPERLINE;

@@ -468,7 +468,7 @@ bool LHAup::setInitLHEF(istream& is, bool readHeaders) {
 // Read in event information from a Les Houches Event File,
 // into a staging area where it can be reused by setOldEventLHEF.
 
-bool LHAup::setNewEventLHEF(istream& is) {
+bool LHAup::setNewEventLHEF(istream& is, double mRecalculate ) {
   
   // Loop over lines until an <event tag is found first on a line.
   string line, tag;
@@ -497,12 +497,16 @@ bool LHAup::setNewEventLHEF(istream& is) {
   // (Recall that process(...) above added empty particle at index 0.) 
   int idup, istup, mothup1, mothup2, icolup1, icolup2; 
   double pup1, pup2, pup3, pup4, pup5, vtimup, spinup;
+  bool doRecalculate = (mRecalculate > 0.);
   for (int ip = 1; ip <= nupSave; ++ip) { 
     if (!getline(is, line)) return false;
     istringstream getall(line);
     getall >> idup >> istup >> mothup1 >> mothup2 >> icolup1 >> icolup2 
       >> pup1 >> pup2 >> pup3 >> pup4 >> pup5 >> vtimup >> spinup;
     if (!getall) return false;   
+    // Optionally recalculate mass from four-momentum.
+    if (doRecalculate && pup5 > mRecalculate) 
+      pup5 = sqrtpos( pup4*pup4 - pup1*pup1 - pup2*pup2 - pup3*pup3);
     particlesSave.push_back( LHAParticle( idup, istup, mothup1, mothup2, 
       icolup1, icolup2, pup1, pup2, pup3, pup4, pup5, vtimup, spinup, -1.) );
   }
@@ -603,7 +607,7 @@ istream* LHAup::openFile(const char *fn, ifstream &ifs) {
     new boost::iostreams::filtering_istream();
 
   // Pass along the 'good()' flag, so code elsewhere works unmodified.
-  if (!ifs.good()) fis->setstate(ios_base::badbit);
+  if (!ifs.good()) fis->setstate(std::ios_base::badbit);
 
   // Check filename ending to decide which filters to apply.
   else {
@@ -703,7 +707,7 @@ bool LHAupFromPYTHIA8::setInit() {
 
 // Read in event information from PYTHIA 8.
 
-bool LHAupFromPYTHIA8::setEvent( int ) {
+bool LHAupFromPYTHIA8::setEvent( int, double ) {
 
   // Read process information from Info class, and store it.
   // Note: renormalization scale here, factorization further down.

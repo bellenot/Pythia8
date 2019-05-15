@@ -14,15 +14,30 @@
 #include "PythiaComplex.h"
 #include "SigmaProcess.h"
 #include "SusyCouplings.h"
-#include "SusyLesHouches.h"
 
 namespace Pythia8 {
  
 //==========================================================================
 
+// An intermediate class for SUSY 2 -> 2 processes with nontrivial decay angles.
+
+class Sigma2SUSY : public Sigma2Process {
+
+public:
+
+  // Constructor.
+  Sigma2SUSY() { };
+
+  // Evaluate weight for decay angles.
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+
+ }; 
+ 
+//==========================================================================
+
 // A derived class for q qbar -> neutralino_i neutralino_j.
 
-class Sigma2qqbar2chi0chi0 : public Sigma2Process {
+class Sigma2qqbar2chi0chi0 : public Sigma2SUSY {
 
 public:
 
@@ -64,14 +79,18 @@ public:
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
+  // Evaluate weight for decay angles.
+  //  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+
   // Info on the subprocess.
   virtual string name()    const {return nameSave;}
   virtual int    code()    const {return codeSave;}
-  virtual string inFlux()  const {return "qq";}
+  virtual string inFlux()  const {return "ff";}
   virtual int    id3Mass() const {return abs(id3);}
   virtual int    id4Mass() const {return abs(id4);}
   virtual int    resonanceA() const {return 23;}
   virtual bool   isSUSY()  const {return true;}  
+  virtual double getSigma0() const {return sigma0;}
 
  protected:  
 

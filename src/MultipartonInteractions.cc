@@ -1006,7 +1006,7 @@ void MultipartonInteractions::setupFirstSys( Event& process) {
 
   // Further standard info on process.
   infoPtr->setPDFalpha( iDiffSys, id1, id2, x1, x2, xPDF1now, xPDF2now, 
-    pT2Fac, alpEM, alpS, pT2Ren);
+    pT2Fac, alpEM, alpS, pT2Ren, 0.);
   double m3    = dSigmaDtSel->m(3);
   double m4    = dSigmaDtSel->m(4); 
   double theta = dSigmaDtSel->thetaMPI(); 

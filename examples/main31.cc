@@ -260,7 +260,7 @@ public:
   // Extraction of pThard based on the incoming event.
   // Assume that all the final-state particles are in a continuous block
   // at the end of the event and the final entry is the POWHEG emission.
-  // If there is no POWHEG emission, then pThard is set to Qfac.
+  // If there is no POWHEG emission, then pThard is set to SCALUP.
 
   bool canVetoMPIStep()    { return true; }
   int  numberVetoMPIStep() { return 1; }
@@ -289,9 +289,9 @@ public:
     bool isEmt = (count == nFinal) ? false : true;
     int  iEmt  = (isEmt) ? e.size() - 1 : -1;
 
-    // If there is no radiation or if pThardMode is 0 then set pThard to Qfac.
+    // If there is no radiation or if pThardMode is 0 then set pThard to SCALUP.
     if (!isEmt || pThardMode == 0) {
-      pThard = infoPtr->QFac();
+      pThard = infoPtr->scalup();
       
     // If pThardMode is 1 then the pT of the POWHEG emission is checked against
     // all other incoming and outgoing partons, with the minimal value taken
@@ -303,7 +303,6 @@ public:
     // taken
     } else if (pThardMode == 2) {
       pThard = pTcalc(e, -1, -1, -1, -1, -1);
-
     }
 
     // Find MPI veto pT if necessary
@@ -312,7 +311,7 @@ public:
     }
 
 #ifdef DBGOUTPUT
-    cout << "doVetoMPIStep: Qfac = " << infoPtr->QFac()
+    cout << "doVetoMPIStep: Qfac = " << infoPtr->scalup()
          << ", pThard = " << pThard << endl << endl;
 #endif
 

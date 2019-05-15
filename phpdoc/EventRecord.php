@@ -76,8 +76,6 @@ current event record:
 <p/><strong>Particle& Event::operator[](int i) &nbsp;</strong> <br/>
   
 <strong>const Particle& Event::operator[](int i) &nbsp;</strong> <br/>
-  
-<strong>Particle& Event::at(int i) &nbsp;</strong> <br/>
 returns a (<code>const</code>) reference to the <i>i</i>'th particle
 in the event record, which can be used to get (or set) all the 
 <?php $filepath = $_GET["filepath"];
@@ -85,6 +83,16 @@ echo "<a href='ParticleProperties.php?filepath=".$filepath."' target='page'>";?>
   
 
 <a name="method2"></a>
+<p/><strong>Particle& Event::front() &nbsp;</strong> <br/>
+  
+<strong>Particle& Event::at(int i) &nbsp;</strong> <br/>
+  
+<strong>Particle& Event::back() &nbsp;</strong> <br/>
+  
+returns a reference to the zeroth, <i>i</i>'th or last particle
+in the event record, as an alternative to the methods above.
+
+<a name="method3"></a>
 <p/><strong>int Event::size() &nbsp;</strong> <br/>
 The event size, i.e. the size of the <code>vector&lt;Particle&gt;</code>.
 Thus valid particles, to be accessed by the above indexing operator, 
@@ -92,7 +100,7 @@ are stored in the range <i>0 &lt;= i &lt; size()</i>. See comment
 above about the (ir)relevance of entry 0. 
   
 
-<a name="method3"></a>
+<a name="method4"></a>
 <p/><strong>void Event::list() &nbsp;</strong> <br/>
   
 <strong>void Event::list(ostream& os) &nbsp;</strong> <br/>
@@ -131,7 +139,7 @@ well-defined <?php $filepath = $_GET["filepath"];
 echo "<a href='ParticleProperties.php?filepath=".$filepath."' target='page'>";?>rules</a>. The 
 two methods below can do this job easier for you.
 
-<a name="method4"></a>
+<a name="method5"></a>
 <p/><strong>vector&lt;int&gt; Event::motherList(int i) &nbsp;</strong> <br/>
 returns a vector of all the mother indices of the particle at index 
 <i>i</i>. This list is empty for entries 0, 1 and 2,
@@ -142,7 +150,7 @@ as mothers to the primary hadrons. Many particles may have the same
 <code>motherList</code>. Mothers are listed in ascending order.
   
 
-<a name="method5"></a>
+<a name="method6"></a>
 <p/><strong>vector&lt;int&gt; Event::daughterList(int i) &nbsp;</strong> <br/>
 returns a vector of all the daughter indices of the particle at index 
 <i>i</i>. This list is empty for a particle that did 
@@ -156,7 +164,7 @@ i.e. is not counted as part of the history. Many partons may have the
 same <code>daughterList</code>. Daughters are listed in ascending order.
   
 
-<a name="method6"></a>
+<a name="method7"></a>
 <p/><strong>int Event::statusHepMC(int i) &nbsp;</strong> <br/>
 returns the status code according to the HepMC conventions agreed in
 February 2009. This convention does not preserve the full information
@@ -179,7 +187,6 @@ not fulfill the criteria of status code 2, with a generator-dependent
 classification of its nature; in PYTHIA the absolute value of the normal 
 status code is used.</li> 
 </ul>
-
   
 
 <h3>Further output methods</h3>
@@ -190,7 +197,7 @@ in handy, in the exploration of the history of an event, but where
 the outcome is not always obvious if one is not familiar with the
 detailed structure of an event record.
 
-<a name="method7"></a>
+<a name="method8"></a>
 <p/><strong>int Event::iTopCopy(int i) &nbsp;</strong> <br/>
   
 <strong>int Event::iBotCopy(int i) &nbsp;</strong> <br/>
@@ -201,7 +208,7 @@ when the "same" particle appears several times in the event record, but
 with changed momentum owing to recoil effects. 
   
 
-<a name="method8"></a>
+<a name="method9"></a>
 <p/><strong>int Event::iTopCopyId(int i) &nbsp;</strong> <br/>
   
 <strong>int Event::iBotCopyId(int i) &nbsp;</strong> <br/>
@@ -216,14 +223,14 @@ therefore are of limited use for common particles, in particular for the
 gluon, but should work well for "rare" particles. 
   
 
-<a name="method9"></a>
+<a name="method10"></a>
 <p/><strong>vector&lt;int&gt; Event::sisterList(int i) &nbsp;</strong> <br/>
 returns a vector of all the sister indices of the particle at index 
 <i>i</i>, i.e. all the daughters of the first mother, except the 
 particle itself. 
   
 
-<a name="method10"></a>
+<a name="method11"></a>
 <p/><strong>vector&lt;int&gt; Event::sisterListTopBot(int i,bool widenSearch = true) &nbsp;</strong> <br/>
 returns a vector of all the sister indices of the particle at index 
 <i>i</i>, tracking up and back down through carbon copies 
@@ -233,16 +240,19 @@ the particles in the <code>daughterList()</code> of this mother are
 traced down with <code>iBotCopy()</code>, omitting the original 
 particle itself. Any non-final particles are removed from the list.
 Should this make the list empty the search criterion is widened so that
-all final daughters are allowed, not only carbon-copy ones. A second
-argument <code>false</code> inhibits the second step, and increases 
-the risk that an empty list is returned. A typical example of this
-is for ISR cascades, e.g. <i>e -> e gamma</i> where the photon 
-may not have any obvious sister in the final state if the bottom copy 
-of the photon is an electron that annihilates and thus is not part of 
-the final state.  
+all final daughters are allowed, not only carbon-copy ones. That is, 
+starting from the top mother, all its daughters are found, except for
+the traced-up one, and then all their daughters, and so on. This can 
+produce quite extensive and rather useless output, notably when tracing 
+parton showers. A second argument <code>false</code> inhibits the second 
+step, and increases the risk that an empty list is returned. A typical 
+example of this is for ISR cascades, e.g. <i>e -> e gamma</i> where 
+the photon may not have any obvious sister in the final state if the 
+bottom copy of the photon is an electron that annihilates and thus is 
+not part of the final state.  
   
 
-<a name="method11"></a>
+<a name="method12"></a>
 <p/><strong>bool Event::isAncestor(int i, int iAncestor) &nbsp;</strong> <br/>
 traces the particle <i>i</i> upwards through mother, grandmother, 
 and so on, until either <i>iAncestor</i> is found or the top of 
@@ -268,19 +278,19 @@ assigned is <code>startColTag + 1</code>, etc. The Les Houches accord
 well.
   
 
-<a name="method12"></a>
+<a name="method13"></a>
 <p/><strong>void Event::initColTag(int colTag = 0) &nbsp;</strong> <br/>
 forces the current colour tag value to be the larger of the input
 <code>colTag</code> and the above <code>Event:startColTag</code>
 values. 
   
 
-<a name="method13"></a>
+<a name="method14"></a>
 <p/><strong>int Event::lastColTag() &nbsp;</strong> <br/>
 returns the current maximum colour tag.
   
 
-<a name="method14"></a>
+<a name="method15"></a>
 <p/><strong>int Event::nextColTag() &nbsp;</strong> <br/>
 increases the current maximum colour tag by one and returns this 
 new value. This method is used whenever a new colour tag is needed.
@@ -293,7 +303,7 @@ echo "<a href='EventInformation.php?filepath=".$filepath."' target='page'>";?>se
 directly in the event generation, a few are stored directly in the
 <code>Event</code> class, however. 
 
-<a name="method15"></a>
+<a name="method16"></a>
 <p/><strong>void Event::scale( double scaleIn) &nbsp;</strong> <br/>
   
 <strong>double Event::scale() &nbsp;</strong> <br/>
@@ -303,7 +313,7 @@ Matches the function of the <code>scale</code> variable in the
 echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>";?>Les Houches Accord</a>. 
   
 
-<a name="method16"></a>
+<a name="method17"></a>
 <p/><strong>void Event::scaleSecond( double scaleSecondIn) &nbsp;</strong> <br/>
   
 <strong>double Event::scaleSecond() &nbsp;</strong> <br/>
@@ -323,18 +333,18 @@ e.g. if you want to simulate pileup events. There may also be cases
 where you want to add one or a few particles to an existing event
 record.  
 
-<a name="method17"></a>
+<a name="method18"></a>
 <p/><strong>Event::Event(int capacity = 100) &nbsp;</strong> <br/>
 creates an empty event record, but with a reserved size
 <i>capacity</i> for the <code>Particle</code> vector.  
   
 
-<a name="method18"></a>
+<a name="method19"></a>
 <p/><strong>Event& Event::operator=(const Event& oldEvent) &nbsp;</strong> <br/>
 copies the input event record.
   
 
-<a name="method19"></a>
+<a name="method20"></a>
 <p/><strong>Event& Event::operator+=(const Event& addEvent) &nbsp;</strong> <br/>
 appends an event to an existing one. For the appended particles 
 mother, daughter and colour tags are shifted to make a consistent 
@@ -343,7 +353,7 @@ but the zeroth particle of the combined event is updated to the
 full energy-momentum content.
   
 
-<a name="method20"></a>
+<a name="method21"></a>
 <p/><strong>void Event::init(string headerIn = &quot;&quot;, ParticleData* particleDataPtrIn = 0, int startColTagIn = 100) &nbsp;</strong> <br/>
 initializes colour, the pointer to the particle database, and the 
 header specification used for the event listing. We remind that a 
@@ -359,13 +369,13 @@ append an event, the modified event is printed with
 <code>"(combination of several events)"</code> as a reminder.
   
 
-<a name="method21"></a>
+<a name="method22"></a>
 <p/><strong>void Event::clear() &nbsp;</strong> <br/>
 empties event record. Specifically the <code>Particle</code> vector 
 size is reset to zero.
   
 
-<a name="method22"></a>
+<a name="method23"></a>
 <p/><strong>void Event::reset() &nbsp;</strong> <br/>
 empties the event record, as <code>clear()</code> above, but then 
 fills the zero entry of the <code>Particle</code> vector with the 
@@ -373,29 +383,40 @@ pseudoparticle used to represent the event as a whole. At this point
 the pseudoparticle is not assigned any momentum or mass.
   
 
-<a name="method23"></a>
+<a name="method24"></a>
 <p/><strong>void Event::popBack(int n = 1) &nbsp;</strong> <br/>
 removes the last <i>n</i> particle entries; must be a positive 
-number.
+number. History (and other) information of remaning entries is
+untouched, and so may be internally inconsistent.
   
 
-<a name="method24"></a>
+<a name="method25"></a>
+<p/><strong>void Event::remove(int iFirst, int iLast) &nbsp;</strong> <br/>
+removes particles in the range between indices <code>iFirst</code> 
+and <code>iLast</code>, including the endpoints. History (and other) 
+information of remaning entries is untouched, and so may be internally 
+inconsistent. 
+  
+
+<a name="method26"></a>
 <p/><strong>bool Event::undoDecay(int i) &nbsp;</strong> <br/>
 removes the decay chain of the particle <i>i</i> and thus restores 
 it to its undecayed state. It is only intended for "normal" particle
 decay chains, and will return false in other cases, notably if 
 the particle is coloured. The procedure would not work if non-local
 momentum shifts have been performed, such as with a Bose-Einstein 
-shift procedure (or for a dipole shower recoiler).
+shift procedure (or for a dipole shower recoiler). The history 
+information of the remaining particles, many of which may have new 
+indices, is updated to be internally consistent.
   
 
-<a name="method25"></a>
+<a name="method27"></a>
 <p/><strong>int Event::append(Particle entryIn) &nbsp;</strong> <br/>
 appends a particle to the bottom of the event record and 
 returns the index of this position. 
   
 
-<a name="method26"></a>
+<a name="method28"></a>
 <p/><strong>int Event::append(int id, int status, int mother1, int mother2, int daughter1, int daughter2, int col, int acol, double px, double py, double pz,  double e, double m = 0., double scale = 0., double pol = 9.) &nbsp;</strong> <br/>
 appends a particle to the bottom of the event record and 
 returns the index of this position; 
@@ -404,14 +425,14 @@ echo "<a href='ParticleProperties.php?filepath=".$filepath."' target='page'>";?>
 of the various particle properties.
   
 
-<a name="method27"></a>
+<a name="method29"></a>
 <p/><strong>int Event::append(int id, int status, int mother1, int mother2, int daughter1, int daughter2, int col, int acol, Vec4 p, double m = 0., double scale = 0., double pol = 9.) &nbsp;</strong> <br/>
 appends a particle to the bottom of the event record and 
 returns the index of this position, as above but with four-momentum
 as a <code>Vec4</code>.
   
 
-<a name="method28"></a>
+<a name="method30"></a>
 <p/><strong>int Event::append(int id, int status, int col, int acol, double px, double py, double pz, double e, double m = 0., double scale = 0., double pol = 9.) &nbsp;</strong> <br/>
   
 <strong>int Event::append(int id, int status, int col, int acol, Vec4 p, double m = 0., double scale = 0., double pol = 9.) &nbsp;</strong> <br/>
@@ -420,16 +441,15 @@ returns the index of this position, as above but with vanishing
 (i.e. zero) mother and daughter indices.
   
 
-<a name="method29"></a>
-<p/><strong>int Event::setPDTPtr(int iSet = -1) &nbsp;</strong> <br/>
-send in a pointer to the <code>ParticleData</code> database for 
-particle <code>iSet</code>, by default the most recently appended 
-particle. Also generates a pointer to the 
-<code>ParticleDataEntry</code> object of the identity code
-of the particle.
+<a name="method31"></a>
+<p/><strong>int Event::setEvtPtr(int iSet = -1) &nbsp;</strong> <br/>
+send in the <code>this</code> pointer of the current <code>Event</code> 
+itself to the particle <code>iSet</code>, by default the most recently 
+appended particle. Also generates a pointer to the 
+<code>ParticleDataEntry</code> object of the identity code of the particle.
   
 
-<a name="method30"></a>
+<a name="method32"></a>
 <p/><strong>int Event::copy(int iCopy, int newStatus = 0) &nbsp;</strong> <br/>
 copies the existing particle in entry <code>iCopy</code> to the
 bottom of the event record and returns the index of this position.
@@ -444,21 +464,14 @@ mother of <code>iCopy</code>. An attempt to copy an out-of-range
 entry will return -1.
   
 
-<a name="method31"></a>
-<p/><strong>Particle& Event::back() &nbsp;</strong> <br/>
-returns a reference to the last particle in the event record.
-  
-
-<a name="method32"></a>
+<a name="method33"></a>
 <p/><strong>void Event::restorePtrs() &nbsp;</strong> <br/>
-each particle in the event record has a pointer to the whole database
-and another to the particle species itself, used to find some particle
-properties. The latter pointer is automatically set/changed whenever 
-the particle identity is set/changed by one of the normal methods. 
-(It is the "changed" part that prompts the inclusion of a pointer 
-to the whole database.) Of course the pointer values are specific to 
-the memory locations of the current run, and so it has no sense to 
-save them if events are written to file. Should you use some
+each particle in the event record has a pointer to the event itself
+and another to the particle species it belongs to. The latter pointer 
+is automatically set/changed whenever the particle identity is 
+set/changed by one of the normal methods. Of course the pointer values 
+are specific to the memory locations of the current run, and so it has 
+no sense to save them if events are written to file. Should you use some
 persistency scheme that bypasses the normal methods when the event is 
 read back in, you can use <code>restorePtrs()</code> afterwards to set 
 these pointers appropriately.
@@ -470,13 +483,13 @@ A few methods exist to rotate and boost events. These derive from the
 echo "<a href='FourVectors.php?filepath=".$filepath."' target='page'>";?>Vec4</a> methods, and affect both the 
 momentum and the vertex (position) components of all particles. 
 
-<a name="method33"></a>
+<a name="method34"></a>
 <p/><strong>void Event::rot(double theta, double phi) &nbsp;</strong> <br/>
 rotate all particles in the event by this polar and azimuthal angle 
 (expressed in radians). 
   
 
-<a name="method34"></a>
+<a name="method35"></a>
 <p/><strong>void Event::bst(double betaX, double betaY, double betaZ) &nbsp;</strong> <br/>
   
 <strong>void Event::bst(double betaX, double betaY, double betaZ, double gamma) &nbsp;</strong> <br/>
@@ -489,7 +502,7 @@ supply a <code>Vec4</code> four-vector, in which case the boost vector
 becomes <i>beta = p/E</i>.
   
 
-<a name="method35"></a>
+<a name="method36"></a>
 <p/><strong>void Event::rotbst(const RotBstMatrix& M) &nbsp;</strong> <br/>
 rotate and boost by the combined action encoded in the 
 <code><?php $filepath = $_GET["filepath"];

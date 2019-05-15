@@ -11,6 +11,16 @@
 // to improve statistics when this could be a problem.
 // Option (a) is faster than (b), but less generic.
 
+// Note 1: the compartmentalization of hadronization in forceHadronLevel
+// from the rest of the event processing somewhat limits the ways the 
+// program can retry in case of problems, and so an occasional abort
+// may occur more easily than normally.
+
+// Note 2: for simple cases, where it is only one particle that is to be
+// decayed repeatedly, the event[i].undoDecay() method is handy.
+// When used for several particles, remember that the position of
+// some particles may be moved by the undoDecay step.
+
 #include "Pythia.h"
 using namespace Pythia8;
  

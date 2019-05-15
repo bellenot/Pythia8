@@ -2083,7 +2083,7 @@ fragmentation. For some string topologies it could lead to parts of
 partonic systems mainly aligned along the beam axis to obtain an 
 effective tilt, thereby giving rise to a pair of opposing jets that 
 should not be there. The bug was an unfortunate side consequence 
-of the improvement of junction handling introduced in version 7.170, 
+of the improvement of junction handling introduced in version 8.170, 
 and do not affect versions prior to that. To the largest extent 
 possible, it is recommended to avoid this version. Potential errors
 are likely to be most relevant for processes at low <ei>pT</ei>,
@@ -2309,6 +2309,81 @@ classes to avoid confusion. Thanks to Guy Barrand.</li>
 online documentation.</li>
 
 <li>The year has been updated to 2013 in files.</li>
+
+</ul>
+</li>
+
+<li>8.176: 18 April 2013
+<ul>
+
+<li>Introduce weak shower, whereby <ei>W^+-</ei> and <ei>Z^0</ei>
+gauge bosons can be produced interleaved with ordinary QCD and 
+QED emissions. Currently only available for final-state radiation,
+and off by default, see 
+<aloc href="TimelikeShowers">Timelike Showers</aloc>.
+A new status code 56 denotes <ei>W^+-</ei> and <ei>Z^0</ei> gauge 
+bosons produced by the FSR parton showers.</li>
+
+<li>The gauge bosons produced by showers decay at the end of the 
+parton-level step. New identity codes 93 for a <code>Zcopy</code> 
+and 94 for a <code>Wcopy</code> can be used to set the decay modes 
+of shower-produced gauge bosons separately from hard-process ones,
+but do not appear in event listings.</li>
+
+<li>The <code>Particle</code> class has been updated with a pointer
+to the mother <code>Event</code> class, replacing the previous pointer
+to the <code>ParticleData</code> class. Thereby several old methods 
+in the <code>Event</code> class can obtain new equivalents for the
+<code>Particle</code> one. That is, a call <code>event.method(i)</code>
+instead can be written <code>event[i].method()</code>. The duplicated
+methods are <code>statusHepMC</code>, <code>iTopCopy</code>, 
+<code>iBotCopy</code>, <code>iTopCopyId</code>, <code>iBotCopyId</code>, 
+<code>motherList</code>, <code>daughterList</code>, <code>sisterList</code>, 
+<code>isAncestor</code> and <code>undoDecay</code>. Omitted is  
+<code>sisterListTopBot</code>, while <code>sisterList</code> obtains an
+optional argument. A new method <code>index</code> is introduced.
+The now redundant <code>Event</code> class methods will be removed in
+PYTHIA version 8.2. Thanks to Andy Buckley for suggestion.
+</li>
+
+<li>The initialization of SUSY couplings and particle data has been
+moved from the <code>Pythia</code> and <code>ProcessLevel</code> classes
+to a new dedicated <code>SLHAinterface</code> class.</li>
+
+<li>Some SUSY 3-body decays have been implemented with Matrix Element 
+weighting.</li> 
+
+<li>New method <code>Info::scalup()</code> returns the Les Houches 
+<code>SCALUP</code> variable. This method is now used instead of 
+<code>QFac()</code> in <code>main31.cc</code>, to set maximal scale for 
+shower radiation in case that the event contains no POWHEG emission, and 
+thereby sidesteps a potential bug when PDF information is provided in the 
+Les Houches Event File. Also some default values have been changed in 
+<code>main31.cmnd</code>. Thanks to James Monk.</li> 
+
+<li>New parameter <code>LesHouches:mRecalculate</code> can be used to
+prompt the recalculation of a particle mass from its four-momentum.
+This may be required for Les Houches input events where the nominal
+mass of the particle species is stored in the mass slot, rather than
+the actual mass of the current particle, as foreseen.</li> 
+
+<li>Extra checks that tracing of junctions in particular and partonic
+colour singlets in general are only performed when the event record
+contains coloured unhadronized partons. Thanks to James Catmore.</li>
+
+<li>Minor correction related to GZIP support. Thanks to James Monk.</li>
+
+<li>Recalculate the phase space of diffractive processes for each event  
+when variable beam energies are allowed. Thanks to Oldrich Kepka for
+finding the bug.</li>
+
+<li>Fix a bug whereby a gluon in diffractive systems would obtain a 
+light-quark mass.</li>
+
+<li>The <code>Pythia::check()</code> method can also check that each 
+particle obeys <ei>E^2 - p^2 = m^2</ei> (within numerical precision).
+Speed up the checks on mother-daughter history by streamlining the 
+handling of simple cases.</li>
 
 </ul>
 </li>
