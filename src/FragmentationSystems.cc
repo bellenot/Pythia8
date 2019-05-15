@@ -239,7 +239,8 @@ bool ColConfig::joinJunction( vector<int>& iPartonIn, Event& event,
 
   // Nothing to do if no two legs have small invariant mass, and 
   // system as a whole is above MiniStringFragmentation threshold.
-  if (mMin > mJoinJunction && massExcessIn > mStringMin) return false;  
+  if (legA == -1 || (mMin > mJoinJunction && massExcessIn > mStringMin)) 
+    return false;  
 
   // Construct separate index arrays for the three legs.
   vector<int> iLegA, iLegB, iLegC;

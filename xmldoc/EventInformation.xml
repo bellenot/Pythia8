@@ -120,7 +120,10 @@ user-defined classification code. The methods below would also provide
 information for such particular subcollisions.  
 </methodmore>
 
-<h3>Hard process parton densities and scales</h3>
+<h3>Hard process initiators</h3>
+
+The methods in this sections refer to the two initial partons of the
+hard <ei>2 -> n</ei> process.
 
 <method name="int Info::id1()"> 
 </method>
@@ -141,20 +144,6 @@ rapidity and scaled mass-squared of the hard-process subsystem, as
 defined by the above <ei>x</ei> values. 
 </methodmore>
 
-<method name="double Info::pdf1()"> 
-</method>
-<methodmore name="double Info::pdf2()">
-parton densities <ei>x*f(x,Q^2</ei> )evaluated for the two incoming 
-partons; could be used e.g. for reweighting purposes. 
-</methodmore>
-
-<method name="double Info::QFac()"> 
-</method>
-<methodmore name="double Info::Q2Fac()">
-the <ei>Q</ei> or <ei>Q^2</ei> factorization scale at which the 
-densities were evaluated.
-</methodmore>
-
 <method name="bool Info::isValence1()"> 
 </method>
 <methodmore name="bool Info::isValence2()">
@@ -162,6 +151,65 @@ densities were evaluated.
 to belong to the valence piece of the parton-density distribution, 
 else <code>false</code>. Should be interpreted with caution.
 Information is not set if you switch off parton-level processing. 
+</methodmore>
+
+<h3>Hard process parton densities and scales</h3>
+
+The methods in this section refer to the partons for which parton 
+densities have been defined, in order to calculate the cross section
+of the hard process. These partons would normally agree with the 
+ones above, the initiators of the <ei>2 -> n</ei> process, but it 
+does not have to be so. Currently the one counterexample is POWHEG 
+events <ref>Ali10</ref>. Here the original hard process could be
+<ei>2 -> (n-1)</ei>. The NLO machinery at times would add an
+initial-state branching to give a <ei>2 -> n</ei> process with a
+changed initial state. In that case the values in this section
+refer to the original <ei>2 -> (n-1)</ei> state and the initiator
+ones above to the complete<ei>2 -> n</ei> process. The 
+<code>Info::list()</code> printout will contain a warning in such cases.
+
+<p/>
+For external events in the Les Houches format, the pdf information
+is obtained from the optional <code>#pdf</code> line. When this 
+information is absent, the parton identities and <ei>x</ei> values agree
+with the initiator ones above, while the pdf values are unknown and
+therefore set to vanish. The <ei>alpha_s</ei> and <ei>alpha_em</ei>
+values are part of the compulsory information. The factorization and 
+renormalization scales are both equated with the one compulsory scale 
+value in the Les Houches standard, except when a <code>#pdf</code> 
+line provides the factorization scale separately. If <ei>alpha_s</ei>, 
+<ei>alpha_em</ei> or the compulsory scale value are negative at input
+then new values are defined as for internal processes.  
+
+<method name="int Info::id1pdf()"> 
+</method>
+<methodmore name="int Info::id2pdf()">
+the identities of the two partons for which parton density values
+are defined. 
+</methodmore>
+
+<method name="double Info::x1pdf()"> 
+</method>
+<methodmore name="double Info::x2pdf()">
+<ei>x</ei> fractions of the two partons for which parton density values
+are defined.
+</methodmore>
+
+<method name="double Info::pdf1()"> 
+</method>
+<methodmore name="double Info::pdf2()">
+parton densities <ei>x*f(x,Q^2)</ei> evaluated for the two incoming 
+partons; could be used e.g. for reweighting purposes in conjunction 
+with the <code>idpdf</code>, <code>xpdf</code> and <code>QFac</code>
+methods. Events obtained from external programs or files may not
+contain this information and, if so, 0 is returned.
+</methodmore>
+
+<method name="double Info::QFac()"> 
+</method>
+<methodmore name="double Info::Q2Fac()">
+the <ei>Q</ei> or <ei>Q^2</ei> factorization scale at which the 
+densities were evaluated.
 </methodmore>
 
 <method name="double Info::alphaS()"> 

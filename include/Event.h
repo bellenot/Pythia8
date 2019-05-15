@@ -458,6 +458,7 @@ public:
   // Save or restore the size of the event record (throwing at the end).
   void saveSize() {savedSize = entry.size();}
   void restoreSize() {entry.resize(savedSize);}   
+  int  savedSizeValue() {return savedSize;}
 
   // Initialize and access colour tag information.
   void initColTag(int colTag = 0) {maxColTag = max( colTag,startColTag);}

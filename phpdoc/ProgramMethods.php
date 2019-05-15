@@ -1288,25 +1288,25 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method37" target="page">Info::a0MPI()</a></td>
+<td><a href="EventInformation.php#method39" target="page">Info::a0MPI()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventInformation.php#method48" target="page">Info::addCounter(...)</a></td>
+<td><a href="EventInformation.php#method50" target="page">Info::addCounter(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method23" target="page">Info::alphaEM()</a></td>
+<td><a href="EventInformation.php#method25" target="page">Info::alphaEM()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method23" target="page">Info::alphaS()</a></td>
+<td><a href="EventInformation.php#method25" target="page">Info::alphaS()</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1318,7 +1318,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method38" target="page">Info::bMPI()</a></td>
+<td><a href="EventInformation.php#method40" target="page">Info::bMPI()</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1330,7 +1330,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>int</td>
-<td><a href="EventInformation.php#method41" target="page">Info::codeMPI(...)</a></td>
+<td><a href="EventInformation.php#method43" target="page">Info::codeMPI(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1360,31 +1360,31 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method43" target="page">Info::eMPI(...)</a></td>
+<td><a href="EventInformation.php#method45" target="page">Info::eMPI(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method39" target="page">Info::enhanceMPI()</a></td>
+<td><a href="EventInformation.php#method41" target="page">Info::enhanceMPI()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="EventInformation.php#method46" target="page">Info::getCounter(...)</a></td>
+<td><a href="EventInformation.php#method48" target="page">Info::getCounter(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="EventInformation.php#method49" target="page">Info::hasHistory()</a></td>
+<td><a href="EventInformation.php#method51" target="page">Info::hasHistory()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventInformation.php#method49" target="page">Info::hasHistory(...)</a></td>
+<td><a href="EventInformation.php#method51" target="page">Info::hasHistory(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1396,13 +1396,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>int</td>
-<td><a href="EventInformation.php#method42" target="page">Info::iAMPI(...)</a></td>
+<td><a href="EventInformation.php#method44" target="page">Info::iAMPI(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="EventInformation.php#method42" target="page">Info::iBMPI(...)</a></td>
+<td><a href="EventInformation.php#method44" target="page">Info::iBMPI(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1414,7 +1414,19 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>int</td>
+<td><a href="EventInformation.php#method21" target="page">Info::id1pdf()</a></td>
+<td>Event Information</td>
+</tr>
+
+<tr>
+<td>int</td>
 <td><a href="EventInformation.php#method17" target="page">Info::id2()</a></td>
+<td>Event Information</td>
+</tr>
+
+<tr>
+<td>int</td>
+<td><a href="EventInformation.php#method21" target="page">Info::id2pdf()</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1462,19 +1474,19 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>bool</td>
-<td><a href="EventInformation.php#method22" target="page">Info::isValence1()</a></td>
+<td><a href="EventInformation.php#method20" target="page">Info::isValence1()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="EventInformation.php#method22" target="page">Info::isValence2()</a></td>
+<td><a href="EventInformation.php#method20" target="page">Info::isValence2()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="EventInformation.php#method32" target="page">Info::lhaStrategy()</a></td>
+<td><a href="EventInformation.php#method34" target="page">Info::lhaStrategy()</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1486,13 +1498,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method28" target="page">Info::m3Hat()</a></td>
+<td><a href="EventInformation.php#method30" target="page">Info::m3Hat()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method28" target="page">Info::m4Hat()</a></td>
+<td><a href="EventInformation.php#method30" target="page">Info::m4Hat()</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1510,19 +1522,19 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method36" target="page">Info::mergingWeight()</a></td>
+<td><a href="EventInformation.php#method38" target="page">Info::mergingWeight()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method25" target="page">Info::mHat()</a></td>
+<td><a href="EventInformation.php#method27" target="page">Info::mHat()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>long</td>
-<td><a href="EventInformation.php#method44" target="page">Info::nAccepted()</a></td>
+<td><a href="EventInformation.php#method46" target="page">Info::nAccepted()</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1552,109 +1564,109 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>int</td>
-<td><a href="EventInformation.php#method33" target="page">Info::nFSRinProc()</a></td>
+<td><a href="EventInformation.php#method35" target="page">Info::nFSRinProc()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="EventInformation.php#method33" target="page">Info::nFSRinRes()</a></td>
+<td><a href="EventInformation.php#method35" target="page">Info::nFSRinRes()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="EventInformation.php#method33" target="page">Info::nISR()</a></td>
+<td><a href="EventInformation.php#method35" target="page">Info::nISR()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="EventInformation.php#method40" target="page">Info::nMPI()</a></td>
+<td><a href="EventInformation.php#method42" target="page">Info::nMPI()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>long</td>
-<td><a href="EventInformation.php#method44" target="page">Info::nSelected()</a></td>
+<td><a href="EventInformation.php#method46" target="page">Info::nSelected()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>long</td>
-<td><a href="EventInformation.php#method44" target="page">Info::nTried()</a></td>
+<td><a href="EventInformation.php#method46" target="page">Info::nTried()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method20" target="page">Info::pdf1()</a></td>
+<td><a href="EventInformation.php#method23" target="page">Info::pdf1()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method20" target="page">Info::pdf2()</a></td>
+<td><a href="EventInformation.php#method23" target="page">Info::pdf2()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method29" target="page">Info::phiHat()</a></td>
+<td><a href="EventInformation.php#method31" target="page">Info::phiHat()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method27" target="page">Info::pT2Hat()</a></td>
+<td><a href="EventInformation.php#method29" target="page">Info::pT2Hat()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method51" target="page">Info::pT2NowISR()</a></td>
+<td><a href="EventInformation.php#method53" target="page">Info::pT2NowISR()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventInformation.php#method51" target="page">Info::pT2NowISR(...)</a></td>
+<td><a href="EventInformation.php#method53" target="page">Info::pT2NowISR(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method27" target="page">Info::pTHat()</a></td>
+<td><a href="EventInformation.php#method29" target="page">Info::pTHat()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method34" target="page">Info::pTmaxFSR()</a></td>
+<td><a href="EventInformation.php#method36" target="page">Info::pTmaxFSR()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method34" target="page">Info::pTmaxISR()</a></td>
+<td><a href="EventInformation.php#method36" target="page">Info::pTmaxISR()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method34" target="page">Info::pTmaxMPI()</a></td>
+<td><a href="EventInformation.php#method36" target="page">Info::pTmaxMPI()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method41" target="page">Info::pTMPI(...)</a></td>
+<td><a href="EventInformation.php#method43" target="page">Info::pTMPI(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method35" target="page">Info::pTnow()</a></td>
+<td><a href="EventInformation.php#method37" target="page">Info::pTnow()</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1672,25 +1684,25 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method21" target="page">Info::Q2Fac()</a></td>
+<td><a href="EventInformation.php#method24" target="page">Info::Q2Fac()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method24" target="page">Info::Q2Ren()</a></td>
+<td><a href="EventInformation.php#method26" target="page">Info::Q2Ren()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method21" target="page">Info::QFac()</a></td>
+<td><a href="EventInformation.php#method24" target="page">Info::QFac()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method24" target="page">Info::QRen()</a></td>
+<td><a href="EventInformation.php#method26" target="page">Info::QRen()</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1702,25 +1714,25 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="EventInformation.php#method47" target="page">Info::setCounter(...)</a></td>
+<td><a href="EventInformation.php#method49" target="page">Info::setCounter(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method25" target="page">Info::sHat()</a></td>
+<td><a href="EventInformation.php#method27" target="page">Info::sHat()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method45" target="page">Info::sigmaErr()</a></td>
+<td><a href="EventInformation.php#method47" target="page">Info::sigmaErr()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method45" target="page">Info::sigmaGen()</a></td>
+<td><a href="EventInformation.php#method47" target="page">Info::sigmaGen()</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1732,13 +1744,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method26" target="page">Info::tHat()</a></td>
+<td><a href="EventInformation.php#method28" target="page">Info::tHat()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method29" target="page">Info::thetaHat()</a></td>
+<td><a href="EventInformation.php#method31" target="page">Info::thetaHat()</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1750,19 +1762,19 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method26" target="page">Info::uHat()</a></td>
+<td><a href="EventInformation.php#method28" target="page">Info::uHat()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method30" target="page">Info::weight()</a></td>
+<td><a href="EventInformation.php#method32" target="page">Info::weight()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method31" target="page">Info::weightSum()</a></td>
+<td><a href="EventInformation.php#method33" target="page">Info::weightSum()</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1774,7 +1786,19 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
+<td><a href="EventInformation.php#method22" target="page">Info::x1pdf()</a></td>
+<td>Event Information</td>
+</tr>
+
+<tr>
+<td>double</td>
 <td><a href="EventInformation.php#method18" target="page">Info::x2()</a></td>
+<td>Event Information</td>
+</tr>
+
+<tr>
+<td>double</td>
+<td><a href="EventInformation.php#method22" target="page">Info::x2pdf()</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1786,13 +1810,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method50" target="page">Info::zNowISR()</a></td>
+<td><a href="EventInformation.php#method52" target="page">Info::zNowISR()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventInformation.php#method50" target="page">Info::zNowISR(...)</a></td>
+<td><a href="EventInformation.php#method52" target="page">Info::zNowISR(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1822,7 +1846,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>bool</td>
-<td><a href="LesHouchesAccord.php#method35" target="page">LHAup::closeLHEF(...)</a></td>
+<td><a href="LesHouchesAccord.php#method37" target="page">LHAup::closeLHEF(...)</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
@@ -1858,13 +1882,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>bool</td>
-<td><a href="LesHouchesAccord.php#method34" target="page">LHAup::eventLHEF()</a></td>
+<td><a href="LesHouchesAccord.php#method36" target="page">LHAup::eventLHEF()</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="LesHouchesAccord.php#method28" target="page">LHAup::fileFound()</a></td>
+<td><a href="LesHouchesAccord.php#method30" target="page">LHAup::fileFound()</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
@@ -1882,7 +1906,19 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>int</td>
+<td><a href="LesHouchesAccord.php#method27" target="page">LHAup::id1pdf()</a></td>
+<td>Les Houches Accord</td>
+</tr>
+
+<tr>
+<td>int</td>
 <td><a href="LesHouchesAccord.php#method25" target="page">LHAup::id2()</a></td>
+<td>Les Houches Accord</td>
+</tr>
+
+<tr>
+<td>int</td>
+<td><a href="LesHouchesAccord.php#method27" target="page">LHAup::id2pdf()</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
@@ -1912,7 +1948,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>bool</td>
-<td><a href="LesHouchesAccord.php#method33" target="page">LHAup::initLHEF()</a></td>
+<td><a href="LesHouchesAccord.php#method35" target="page">LHAup::initLHEF()</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
@@ -1924,7 +1960,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="LesHouchesAccord.php#method26" target="page">LHAup::listEvent(...)</a></td>
+<td><a href="LesHouchesAccord.php#method28" target="page">LHAup::listEvent(...)</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
@@ -1954,7 +1990,19 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>bool</td>
-<td><a href="LesHouchesAccord.php#method32" target="page">LHAup::openLHEF(...)</a></td>
+<td><a href="LesHouchesAccord.php#method34" target="page">LHAup::openLHEF(...)</a></td>
+<td>Les Houches Accord</td>
+</tr>
+
+<tr>
+<td>double</td>
+<td><a href="LesHouchesAccord.php#method27" target="page">LHAup::pdf1()</a></td>
+<td>Les Houches Accord</td>
+</tr>
+
+<tr>
+<td>double</td>
+<td><a href="LesHouchesAccord.php#method27" target="page">LHAup::pdf2()</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
@@ -1972,7 +2020,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>bool</td>
-<td><a href="LesHouchesAccord.php#method25" target="page">LHAup::pdfIsSet()</a></td>
+<td><a href="LesHouchesAccord.php#method27" target="page">LHAup::pdfIsSet()</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
@@ -2014,7 +2062,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="LesHouchesAccord.php#method25" target="page">LHAup::scalePDF()</a></td>
+<td><a href="LesHouchesAccord.php#method27" target="page">LHAup::scalePDF()</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
@@ -2037,6 +2085,12 @@ Many of them are only intended for experts, while undocumented ones are only for
 </tr>
 
 <tr>
+<td>void</td>
+<td><a href="LesHouchesAccord.php#method24" target="page">LHAup::setIdX(...)</a></td>
+<td>Les Houches Accord</td>
+</tr>
+
+<tr>
 <td>virtual bool</td>
 <td><a href="LesHouchesAccord.php#method4" target="page">LHAup::setInit()</a></td>
 <td>Les Houches Accord</td>
@@ -2044,25 +2098,25 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>bool</td>
-<td><a href="LesHouchesAccord.php#method29" target="page">LHAup::setInitLHEF(...)</a></td>
+<td><a href="LesHouchesAccord.php#method31" target="page">LHAup::setInitLHEF(...)</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="LesHouchesAccord.php#method30" target="page">LHAup::setNewEventLHEF(...)</a></td>
+<td><a href="LesHouchesAccord.php#method32" target="page">LHAup::setNewEventLHEF(...)</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="LesHouchesAccord.php#method31" target="page">LHAup::setOldEventLHEF()</a></td>
+<td><a href="LesHouchesAccord.php#method33" target="page">LHAup::setOldEventLHEF()</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="LesHouchesAccord.php#method24" target="page">LHAup::setPdf(...)</a></td>
+<td><a href="LesHouchesAccord.php#method26" target="page">LHAup::setPdf(...)</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
@@ -2116,7 +2170,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>virtual bool</td>
-<td><a href="LesHouchesAccord.php#method27" target="page">LHAup::skipEvent(...)</a></td>
+<td><a href="LesHouchesAccord.php#method29" target="page">LHAup::skipEvent(...)</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
@@ -2158,7 +2212,19 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
+<td><a href="LesHouchesAccord.php#method27" target="page">LHAup::x1pdf()</a></td>
+<td>Les Houches Accord</td>
+</tr>
+
+<tr>
+<td>double</td>
 <td><a href="LesHouchesAccord.php#method25" target="page">LHAup::x2()</a></td>
+<td>Les Houches Accord</td>
+</tr>
+
+<tr>
+<td>double</td>
+<td><a href="LesHouchesAccord.php#method27" target="page">LHAup::x2pdf()</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
@@ -2171,18 +2237,6 @@ Many of them are only intended for experts, while undocumented ones are only for
 <tr>
 <td>double</td>
 <td><a href="LesHouchesAccord.php#method14" target="page">LHAup::xMax(...)</a></td>
-<td>Les Houches Accord</td>
-</tr>
-
-<tr>
-<td>double</td>
-<td><a href="LesHouchesAccord.php#method25" target="page">LHAup::xpdf1()</a></td>
-<td>Les Houches Accord</td>
-</tr>
-
-<tr>
-<td>double</td>
-<td><a href="LesHouchesAccord.php#method25" target="page">LHAup::xpdf2()</a></td>
 <td>Les Houches Accord</td>
 </tr>
 

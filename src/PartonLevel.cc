@@ -66,7 +66,7 @@ bool PartonLevel::init( Info* infoPtrIn, Settings& settings,
   mMinDiff           = settings.parm("Diffraction:mMinPert");
   mWidthDiff         = settings.parm("Diffraction:mWidthPert");
   pMaxDiff           = settings.parm("Diffraction:probMaxPert");
-  if (mMinDiff + mWidthDiff > infoPtr->eCM()) doDiffraction = false;
+  if (mMinDiff > infoPtr->eCM()) doDiffraction = false;
 
   // Need MPI initialization for soft QCD processes, even if only first MPI.
   // But no need to initialize MPI if never going to use it.

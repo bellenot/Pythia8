@@ -127,13 +127,13 @@ void LHAup::listEvent(ostream& os) {
   }
 
   // PDF info - optional.
-  if (pdfIsSetSave) os << "\n   pdf: id1 =" << setw(5) << id1Save  
-    << " id2 =" << setw(5) << id2Save 
-    << " x1 ="  << scientific << setw(10) << x1Save    
-    << " x2 =" << setw(10) << x2Save 
+  if (pdfIsSetSave) os << "\n     pdf: id1 =" << setw(5) << id1pdfSave  
+    << " id2 =" << setw(5) << id2pdfSave 
+    << " x1 ="  << scientific << setw(10) << x1pdfSave    
+    << " x2 =" << setw(10) << x2pdfSave 
     << " scalePDF =" << setw(10) << scalePDFSave 
-    << " xpdf1 =" << setw(10) << xpdf1Save    
-    << " xpdf2 =" << setw(10) << xpdf2Save << "\n";    
+    << " pdf1 =" << setw(10) << pdf1Save    
+    << " pdf2 =" << setw(10) << pdf2Save << "\n";    
 
   // Finished.
   os << "\n --------  End LHA event information and listing  ---------"
@@ -238,13 +238,13 @@ bool LHAup::eventLHEF() {
 
   // Optionally write information on PDF values at hard interaction.
   if (pdfIsSetSave) osLHEF << "#pdf" 
-           << " " << setw(4) << id1Save
-           << " " << setw(4) << id2Save
-           << " " << setw(13) << x1Save 
-           << " " << setw(13) << x2Save 
+           << " " << setw(4) << id1pdfSave
+           << " " << setw(4) << id2pdfSave
+           << " " << setw(13) << x1pdfSave 
+           << " " << setw(13) << x2pdfSave 
            << " " << setw(13) << scalePDFSave 
-           << " " << setw(13) << xpdf1Save 
-           << " " << setw(13) << xpdf2Save << "\n"; 
+           << " " << setw(13) << pdf1Save 
+           << " " << setw(13) << pdf2Save << "\n"; 
 
   // Done.
   osLHEF << "</event>" << endl;
@@ -380,6 +380,12 @@ bool LHAup::setNewEventLHEF(istream& is) {
       icolup1, icolup2, pup1, pup2, pup3, pup4, pup5, vtimup, spinup) );
   }
 
+  // Flavour and x values of hard-process initiators.
+  id1InSave = particlesSave[1].idPart;
+  id2InSave = particlesSave[2].idPart;
+  x1InSave  = particlesSave[1].ePart / eBeamASave; 
+  x2InSave  = particlesSave[2].ePart / eBeamBSave; 
+
   // Continue parsing till </event>. Extract pdf info if present.
   getPDFSave = false;
   do { 
@@ -388,8 +394,8 @@ bool LHAup::setNewEventLHEF(istream& is) {
     getpdf >> tag;
     if (!getpdf) return false;
     if (tag == "#pdf") {
-      getpdf >> id1InSave >> id2InSave >> x1InSave >> x2InSave 
-             >> scalePDFInSave >> xpdf1InSave >> xpdf2InSave;
+      getpdf >> id1pdfInSave >> id2pdfInSave >> x1pdfInSave >> x2pdfInSave 
+             >> scalePDFInSave >> pdf1InSave >> pdf2InSave;
       if (!getpdf) return false;
       getPDFSave = true;
     }
@@ -397,13 +403,13 @@ bool LHAup::setNewEventLHEF(istream& is) {
 
   // Need id and x values even when no PDF info. Rest empty.
   if (!getPDFSave) {
-    id1InSave      = particlesSave[1].idPart;
-    id2InSave      = particlesSave[2].idPart;
-    x1InSave       = particlesSave[1].ePart / eBeamASave; 
-    x2InSave       = particlesSave[2].ePart / eBeamBSave; 
+    id1pdfInSave   = id1InSave;
+    id2pdfInSave   = id2InSave;
+    x1pdfInSave    = x1InSave; 
+    x2pdfInSave    = x2InSave; 
     scalePDFInSave = 0.;
-    xpdf1InSave    = 0.;
-    xpdf2InSave    = 0.;
+    pdf1InSave     = 0.;
+    pdf2InSave     = 0.;
   }
   
   // Reading worked.
@@ -418,16 +424,16 @@ bool LHAup::setNewEventLHEF(istream& is) {
 bool LHAup::setOldEventLHEF() {
 
   // Store saved event, optionally also parton density information.
-  setProcess(idprupSave, xwgtupSave, scalupSave, aqedupSave, aqcdupSave);
+  setProcess( idprupSave, xwgtupSave, scalupSave, aqedupSave, aqcdupSave);
   for (int ip = 1; ip <= nupSave; ++ip) addParticle( particlesSave[ip] );
-  setPdf(id1InSave, id2InSave, x1InSave, x2InSave, scalePDFInSave, 
-    xpdf1InSave, xpdf2InSave, getPDFSave);  
+  setIdX( id1InSave, id2InSave, x1InSave, x2InSave);  
+  setPdf( id1pdfInSave, id2pdfInSave, x1pdfInSave, x2pdfInSave, 
+    scalePDFInSave, pdf1InSave, pdf2InSave, getPDFSave);  
 
   // Done;
   return true;
 
 }
-
 
 //==========================================================================
 
@@ -558,15 +564,23 @@ bool LHAupFromPYTHIA8::setEvent( int ) {
       pup1, pup2, pup3, pup4, pup5, vtimup, spinup) ;
   }
 
-  // Also extract pdf information from Info class, and store it.
+  // Extract hard-process initiator information from Info class, and store it.
   int    id1up      = infoPtr->id1();
   int    id2up      = infoPtr->id2();
   double x1up       = infoPtr->x1();
   double x2up       = infoPtr->x2();
+  setIdX( id1up, id2up, x1up, x2up);
+
+  // Also extract pdf information from Info class, and store it.
+  int    id1pdfup   = infoPtr->id1pdf();
+  int    id2pdfup   = infoPtr->id2pdf();
+  double x1pdfup    = infoPtr->x1pdf();
+  double x2pdfup    = infoPtr->x2pdf();
   double scalePDFup = infoPtr->QFac();
-  double xpdf1up    = infoPtr->pdf1();
-  double xpdf2up    = infoPtr->pdf2();
-  setPdf(id1up, id2up, x1up, x2up, scalePDFup, xpdf1up, xpdf2up, true);  
+  double pdf1up     = infoPtr->pdf1();
+  double pdf2up     = infoPtr->pdf2();
+  setPdf(id1pdfup, id2pdfup, x1pdfup, x2pdfup, scalePDFup, pdf1up, 
+    pdf2up, true);  
 
   // Done.
   return true;

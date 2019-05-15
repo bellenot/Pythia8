@@ -993,13 +993,14 @@ void MultipartonInteractions::setupFirstSys( Event& process) {
   infoPtr->setTypeMPI( codeSub, pTMPI, 0, 0, enhanceB / zeroIntCorr);
 
   // Further standard info on process.
-  infoPtr->setPDFalpha( id1, id2, xPDF1now, xPDF2now, pT2Fac, alpEM, alpS, 
-    pT2Ren);
+  infoPtr->setPDFalpha( id1, id2, x1, x2, xPDF1now, xPDF2now, pT2Fac, 
+    alpEM, alpS, pT2Ren);
   double m3    = dSigmaDtSel->m(3);
   double m4    = dSigmaDtSel->m(4); 
   double theta = dSigmaDtSel->thetaMPI(); 
   double phi   = dSigmaDtSel->phiMPI(); 
-  infoPtr->setKin( x1, x2, sHat, tHat, uHat, sqrt(pT2), m3, m4, theta, phi);
+  infoPtr->setKin( id1, id2, x1, x2, sHat, tHat, uHat, sqrt(pT2), m3, m4, 
+    theta, phi);
 
 }
 
@@ -2152,7 +2153,7 @@ void MultipartonInteractions::overlapInit() {
 
     // Other required values.
     a0now  = kNow;
-    infoPtr->a0MPI(a0now * XDEP_SMB2FM);
+    infoPtr->seta0MPI(a0now * XDEP_SMB2FM);
     a02now = a0now * a0now;
     double xMin = 2. * pTmin / infoPtr->eCM();
     a2max  = a0now * (XDEP_A1 + a1 * log(1. / xMin));

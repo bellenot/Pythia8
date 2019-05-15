@@ -381,22 +381,16 @@ for particle <code>i</code> in the range
   
 
 <p/>
-In the LHEF description [<a href="Bibliography.php" target="page">Alw06</a>] an extension to 
-include information on the parton densities of the colliding partons
-is suggested. This optional further information can be set by
+From the information in the event record it is possible to set 
+the flavour and <i>x</i> values of the initiators 
 <a name="method24"></a>
-<p/><strong>void LHAup::setPdf( int id1, int id2, double x1, double x2, double scalePDF, double xpdf1, double xpdf2) &nbsp;</strong> <br/>
-which gives the flavours , the <i>x</i> and the <ie>Q</i> scale 
-(in GeV) at which the parton densities <i>x*f_i(x, Q)</i> have been
-evaluated.
+<p/><strong>void LHAup::setIdX(int id1, int id2, double x1, double x2) &nbsp;</strong> <br/>
   
 
 <p/>
 This information is returned by the methods
 <a name="method25"></a>
-<p/><strong>bool LHAup::pdfIsSet() &nbsp;</strong> <br/>
-  
-<strong>int LHAup::id1() &nbsp;</strong> <br/>
+<p/><strong>int LHAup::id1() &nbsp;</strong> <br/>
   
 <strong>int LHAup::id2() &nbsp;</strong> <br/>
   
@@ -404,18 +398,48 @@ This information is returned by the methods
   
 <strong>double LHAup::x2() &nbsp;</strong> <br/>
   
-<strong>double LHAup::scalePDF() &nbsp;</strong> <br/>
-  
-<strong>double LHAup::xpdf1() &nbsp;</strong> <br/>
-  
-<strong>double LHAup::xpdf2() &nbsp;</strong> <br/>
-where the first one tells whether this optional information has been set
-for the current event. (<code>setPdf(...)</code> must be called after the
-<code>setProcess(...)</code> call of the event for this to work.)
+
+<p/>
+In the LHEF description [<a href="Bibliography.php" target="page">Alw06</a>] an extension to 
+include information on the parton densities of the colliding partons
+is suggested. This optional further information can be set by
+<a name="method26"></a>
+<p/><strong>void LHAup::setPdf( int id1pdf, int id2pdf, double x1pdf, double x2pdf, double scalePDF, double pdf1, double pdf2, bool pdfIsSet) &nbsp;</strong> <br/>
+which gives the flavours , the <i>x</i> and the <ie>Q</i> scale 
+(in GeV) at which the parton densities <i>x*f_i(x, Q)</i> have been
+evaluated. The last argument is normally <code>true</code>.
   
 
 <p/>
-<a name="method26"></a>
+This information is returned by the methods
+<a name="method27"></a>
+<p/><strong>bool LHAup::pdfIsSet() &nbsp;</strong> <br/>
+  
+<strong>int LHAup::id1pdf() &nbsp;</strong> <br/>
+  
+<strong>int LHAup::id2pdf() &nbsp;</strong> <br/>
+  
+<strong>double LHAup::x1pdf() &nbsp;</strong> <br/>
+  
+<strong>double LHAup::x2pdf() &nbsp;</strong> <br/>
+  
+<strong>double LHAup::scalePDF() &nbsp;</strong> <br/>
+  
+<strong>double LHAup::pdf1() &nbsp;</strong> <br/>
+  
+<strong>double LHAup::pdf2() &nbsp;</strong> <br/>
+where the first one tells whether this optional information has been set
+for the current event. (<code>setPdf(...)</code> must be called after the
+<code>setProcess(...)</code> call of the event for this to work.)
+Note that the flavour and <i>x</i> values usually but not always 
+agree with those obtained by the same methods without <code>pdf</code>
+in their names, see explanation in the 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='EventInformation.php?filepath=".$filepath."' target='page'>";?>Event Information</a> description.
+  
+
+<p/>
+<a name="method28"></a>
 <p/><strong>void LHAup::listEvent(ostream& os = cout) &nbsp;</strong> <br/>
 prints the above information for the current event.  In cases where the
 <code>LHAup</code> object is not available to the user, the 
@@ -423,7 +447,7 @@ prints the above information for the current event.  In cases where the
 be used, which is a wrapper for the above. 
   
 
-<a name="method27"></a>
+<a name="method29"></a>
 <p/><strong>virtual bool LHAup::skipEvent(int nSkip) &nbsp;</strong> <br/>
 skip ahead <code>nSkip</code> events in the Les Houches generation
 sequence, without doing anything further with them. Mainly
@@ -451,6 +475,17 @@ wrong mix of different event types. (Since the original intention is
 unknown, the cross section will not be corrected for the fraction of
 open channels, i.e. the procedure used for internal processes is not
 applied in this case.) 
+
+<p/>
+Even if PYTHIA can select resonance decay modes according to its 
+internal tables, there is normally no way for it to know which 
+decay angular correlations should exist in the simulated process.
+Therefore almost all decays are isotropic. The exceptions are Higgs and
+top decays, in the decay chains <i>H -> WW/ZZ -> f fbar f' fbar'</i> 
+and <i>t -> b W -> b f fbar</i>, where the process-independent 
+correlations implemented for internal processes are used. If part of 
+the decay chain has already been set, however (e.g. <i>H -> WW/ZZ</i> 
+or <i>t -> b W</i>), then decay is still isotropic.
 
 <h3>An interface to Les Houches Event Files</h3>
 
@@ -500,26 +535,26 @@ configuration can be reused several times, e.g. in the context of
 matrix-element-to-parton-shower matching (example in preparation).
 To begin with also a small utility routine.
 
-<a name="method28"></a>
+<a name="method30"></a>
 <p/><strong>bool LHAup::fileFound() &nbsp;</strong> <br/>
 always returns true in the base class, but in <code>LHAupLHEF</code>
 it returns false if the LHEF provided in the constructor is not
 found and opened correctly.
   
 
-<a name="method29"></a>
+<a name="method31"></a>
 <p/><strong>bool LHAup::setInitLHEF(ifstream& is) &nbsp;</strong> <br/>
 read in and set all required initialization information from the 
 specified stream. Return false if it fails.
   
 
-<a name="method30"></a>
+<a name="method32"></a>
 <p/><strong>bool LHAup::setNewEventLHEF(ifstream& is) &nbsp;</strong> <br/>
 read in event information from the specified stream into a staging area 
 where it can be reused by <code>setOldEventLHEF</code>.
   
 
-<a name="method31"></a>
+<a name="method33"></a>
 <p/><strong>bool LHAup::setOldEventLHEF() &nbsp;</strong> <br/>
 store the event information from the staging area into the normal 
 location. Thus a single <code>setNewEventLHEF</code> call can be 
@@ -582,20 +617,20 @@ as well, however. Specifically, there are four routines in the base class
 that can be called to write a Les Houches Event File. These should be 
 called in sequence in order to build up the proper file structure. 
 
-<a name="method32"></a>
+<a name="method34"></a>
 <p/><strong>bool LHAup::openLHEF(string filename) &nbsp;</strong> <br/>
 Opens a file with the filename indicated, and writes a header plus a brief
 comment with date and time information.
   
 
-<a name="method33"></a>
+<a name="method35"></a>
 <p/><strong>bool LHAup::initLHEF() &nbsp;</strong> <br/>
 Writes initialization information to the file above. Such information should
 already have been set with the methods described in the "Initialization"
 section above.
   
 
-<a name="method34"></a>
+<a name="method36"></a>
 <p/><strong>bool LHAup::eventLHEF() &nbsp;</strong> <br/>
 Writes event information to the file above. Such information should
 already have been set with the methods described in the "Event input"
@@ -603,7 +638,7 @@ section above. This call should be repeated once for each event to be
 stored. 
   
 
-<a name="method35"></a>
+<a name="method37"></a>
 <p/><strong>bool LHAup::closeLHEF(bool updateInit = false) &nbsp;</strong> <br/>
 Writes the closing tag and closes the file. Optionally, if 
 <code>updateInit = true</code>, this routine will reopen the file from

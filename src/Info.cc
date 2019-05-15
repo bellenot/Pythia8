@@ -52,12 +52,20 @@ void Info::list(ostream& os) const {
   }
 
   // Colliding parton info.
-  if (isRes) 
-    os << " In 1: id = " << setw(4) << id1Save << ", x = " << setw(10)
-       << x1Save << ", pdf = " << setw(10) << pdf1Save << " at Q2 = " 
+  if (isRes) {
+    os << " In 1: id = " << setw(4) << id1pdfSave << ", x = " << setw(10)
+       << x1pdfSave << ", pdf = " << setw(10) << pdf1Save << " at Q2 = " 
        << setw(10) << Q2FacSave << ".\n"  
-       << " In 2: id = " << setw(4) << id2Save << ", x = " << setw(10)
-       << x2Save << ", pdf = " << setw(10) << pdf2Save << " at same Q2.\n\n";  
+       << " In 2: id = " << setw(4) << id2pdfSave << ", x = " << setw(10)
+       << x2pdfSave << ", pdf = " << setw(10) << pdf2Save << " at same Q2.\n";  
+    bool matchIdX = true;
+    if (id1pdfSave != id1Save || id2pdfSave != id2Save) matchIdX = false;
+    if (abs(x1pdfSave - x1Save) > 1e-4 * x1Save) matchIdX = false;
+    if (abs(x2pdfSave - x2Save) > 1e-4 * x2Save) matchIdX = false;
+    if (!matchIdX) os << " Warning: above flavour/x info does not match"
+       << " incoming partons in event!\n";
+    os << "\n";
+  }
 
   // Process name and code.
   os << ((isRes && !hasSubSave) ? " Subprocess " : " Process ") << nameSave 

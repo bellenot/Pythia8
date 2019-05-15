@@ -1224,6 +1224,32 @@ bool Sigma3Process::setupForME() {
 
 //--------------------------------------------------------------------------
 
+// Evaluate weight for decay angles.
+
+double SigmaLHAProcess::weightDecay( Event& process, int iResBeg,
+  int iResEnd) {
+
+  // Do nothing if decays present already at input.
+  if (iResBeg < process.savedSizeValue()) return 1.;
+
+  // Identity of mother of decaying reseonance(s).
+  int idMother = process[process[iResBeg].mother1()].idAbs();
+
+  // For Higgs decay hand over to standard routine.
+  if (idMother == 25 || idMother == 35 || idMother == 36) 
+    return weightHiggsDecay( process, iResBeg, iResEnd);
+
+  // For top decay hand over to standard routine.
+  if (idMother == 6) 
+    return weightTopDecay( process, iResBeg, iResEnd);
+
+  // Else done.
+  return 1.; 
+
+}
+
+//--------------------------------------------------------------------------
+
 // Set scale, alpha_strong and alpha_EM when not set.
 
 void SigmaLHAProcess::setScale() {

@@ -1738,6 +1738,45 @@ Mac OS X platform.</li>
 
 </ul>
 </li>
+
+<li>8.163: 27 March 2012
+<ul>
+
+<li>New methods in the 
+<a href="EventInformation.html" target="page"><code>Info</code></a> class, 
+<code>id1pdf()</code>, <code>id2pdf()</code>, <code>x1pdf()</code> 
+and <code>x2pdf()</code>, to denote the partons for which parton 
+distribution values have been defined. Previously this was assumed 
+to agree with the incoming partons to the hard process, the same 
+methods without the <code>pdf</code> qualifier. However, now the 
+POWHEG approach offers a counterexample. Also the reading and 
+handling of Les Houches (and other) events, and the interface 
+to HepMC, has been modified accordingly. 
+</li>
+
+<li>The decay of Higgs and top resonances read in from Les Houches 
+Event files is now performed with angular correlations as for 
+internal processes. LHE files should normally contain all process-specific
+resonance decay chains and, if not, decays are made isotropic. 
+The <i>H -> WW/ZZ -> f fbar f' fbar'</i> and 
+<i>t -> b W -> b f fbar</i> correlations are process-independent,
+however, and thus can be handled internally. If part of the decay
+chain has already been set, e.g. <i>H -> WW/Z></i> or <i>t -> b W</i>,
+then the subsequent decays are still isotropic.</li>
+
+<li>Updated instructions how to link to HepMC, 
+in <code>README.HepMC</code>.</li>
+
+<li>Bug fix in the turn-on of resolved diffraction for low
+CM energies. Thanks to Erwin Visser.</li>
+
+<li>Bug fix in the handling of string junctions at very high energies,
+caused by numerical errors. Thanks to Erwin Visser.</li>
+
+<li>Some other small changes, mainly aesthetics.</li>
+
+</ul>
+</li>
 </ul>
 
 </body>

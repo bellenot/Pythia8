@@ -333,36 +333,58 @@ for particle <code>i</code> in the range
 </methodmore>
 
 <p/>
+From the information in the event record it is possible to set 
+the flavour and <ei>x</ei> values of the initiators 
+<method name="void LHAup::setIdX(int id1, int id2, double x1, double x2)"> 
+</method>
+
+<p/>
+This information is returned by the methods
+<method name="int LHAup::id1()">
+</method>
+<methodmore name="int LHAup::id2()">
+</methodmore>
+<methodmore name="double LHAup::x1()">
+</methodmore>
+<methodmore name="double LHAup::x2()"
+the flavour and <ei>x</ei> values of the two initiators. 
+</methodmore>
+
+<p/>
 In the LHEF description <ref>Alw06</ref> an extension to 
 include information on the parton densities of the colliding partons
 is suggested. This optional further information can be set by
-<method name="void LHAup::setPdf( int id1, int id2, double x1, double x2, 
-double scalePDF, double xpdf1, double xpdf2)">
+<method name="void LHAup::setPdf( int id1pdf, int id2pdf, double x1pdf, 
+double x2pdf, double scalePDF, double pdf1, double pdf2, bool pdfIsSet)">
 which gives the flavours , the <ei>x</ei> and the <ie>Q</ei> scale 
 (in GeV) at which the parton densities <ei>x*f_i(x, Q)</ei> have been
-evaluated.
+evaluated. The last argument is normally <code>true</code>.
 </method>
 
 <p/>
 This information is returned by the methods
 <method name="bool LHAup::pdfIsSet()">
 </method>
-<methodmore name="int LHAup::id1()">
+<methodmore name="int LHAup::id1pdf()">
 </methodmore>
-<methodmore name="int LHAup::id2()">
+<methodmore name="int LHAup::id2pdf()">
 </methodmore>
-<methodmore name="double LHAup::x1()">
+<methodmore name="double LHAup::x1pdf()">
 </methodmore>
-<methodmore name="double LHAup::x2()">
+<methodmore name="double LHAup::x2pdf()">
 </methodmore>
 <methodmore name="double LHAup::scalePDF()">
 </methodmore>
-<methodmore name="double LHAup::xpdf1()">
+<methodmore name="double LHAup::pdf1()">
 </methodmore>
-<methodmore name="double LHAup::xpdf2()">
+<methodmore name="double LHAup::pdf2()">
 where the first one tells whether this optional information has been set
 for the current event. (<code>setPdf(...)</code> must be called after the
 <code>setProcess(...)</code> call of the event for this to work.)
+Note that the flavour and <ei>x</ei> values usually but not always 
+agree with those obtained by the same methods without <code>pdf</code>
+in their names, see explanation in the 
+<aloc href="EventInformation">Event Information</aloc> description.
 </methodmore>
 
 <p/>
@@ -400,6 +422,17 @@ wrong mix of different event types. (Since the original intention is
 unknown, the cross section will not be corrected for the fraction of
 open channels, i.e. the procedure used for internal processes is not
 applied in this case.) 
+
+<p/>
+Even if PYTHIA can select resonance decay modes according to its 
+internal tables, there is normally no way for it to know which 
+decay angular correlations should exist in the simulated process.
+Therefore almost all decays are isotropic. The exceptions are Higgs and
+top decays, in the decay chains <ei>H -> WW/ZZ -> f fbar f' fbar'</ei> 
+and <ei>t -> b W -> b f fbar</ei>, where the process-independent 
+correlations implemented for internal processes are used. If part of 
+the decay chain has already been set, however (e.g. <ei>H -> WW/ZZ</ei> 
+or <ei>t -> b W</ei>), then decay is still isotropic.
 
 <h3>An interface to Les Houches Event Files</h3>
 

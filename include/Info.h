@@ -77,7 +77,11 @@ public:
   double y()              const {return 0.5 * log( x1Save / x2Save );}
   double tau()            const {return x1Save * x2Save;}
 
-  // Incoming parton densities, hard process couplings, Q2 scales.
+  // Hard process flavours, x values, parton densities, couplings, Q2 scales.
+  int    id1pdf()         const {return id1pdfSave;}
+  int    id2pdf()         const {return id2pdfSave;}
+  double x1pdf()          const {return x1pdfSave;}
+  double x2pdf()          const {return x2pdfSave;}
   double pdf1()           const {return pdf1Save;}
   double pdf2()           const {return pdf2Save;}
   double QFac()           const {return sqrtpos(Q2FacSave);}
@@ -202,18 +206,19 @@ private:
   double sigGen, sigErr, wtAccSum;
   int    lhaStrategySave;
 
-  // Store common MPI information
+  // Store common MPI information.
   double a0MPISave;
 
   // Store current-event quantities.
   bool   isRes, isDiffA, isDiffB, isMB, isLH, hasSubSave, bIsSet, evolIsSet,
          atEOF, isVal1, isVal2, hasHistorySave;  
   int    codeSave, codeSubSave, nFinalSave, nFinalSubSave, nTotal, 
-         id1Save, id2Save, nMPISave, nISRSave, nFSRinProcSave, nFSRinResSave;
-  double x1Save, x2Save, pdf1Save, pdf2Save, Q2FacSave, alphaEMSave, 
-         alphaSSave, Q2RenSave, sH, tH, uH, pTH, m3H, m4H, thetaH, phiH, 
-         weightSave, bMPISave, enhanceMPISave, pTmaxMPISave, pTmaxISRSave, 
-         pTmaxFSRSave, pTnowSave, zNowISRSave, pT2NowISRSave;
+         id1Save, id2Save, id1pdfSave, id2pdfSave, nMPISave, nISRSave, 
+         nFSRinProcSave, nFSRinResSave;
+  double x1Save, x2Save, x1pdfSave, x2pdfSave, pdf1Save, pdf2Save, Q2FacSave, 
+         alphaEMSave, alphaSSave, Q2RenSave, sH, tH, uH, pTH, m3H, m4H, 
+         thetaH, phiH, weightSave, bMPISave, enhanceMPISave, pTmaxMPISave, 
+         pTmaxISRSave, pTmaxFSRSave, pTnowSave, zNowISRSave, pT2NowISRSave;
   string nameSave, nameSubSave;
   vector<int>    codeMPISave, iAMPISave, iBMPISave;
   vector<double> pTMPISave, eMPISave;
@@ -242,12 +247,15 @@ private:
   void clear() { isRes = isDiffA = isDiffB = isMB = isLH = hasSubSave 
     = bIsSet = evolIsSet = atEOF = isVal1 =isVal2 = hasHistorySave = false; 
     codeSave = codeSubSave = nFinalSave = nFinalSubSave = nTotal = id1Save 
-    = id2Save = nMPISave = nISRSave = nFSRinProcSave = nFSRinResSave = 0; 
-    x1Save = x2Save = pdf1Save = pdf2Save = Q2FacSave = alphaEMSave 
-    = alphaSSave = Q2RenSave = sH = tH = uH = pTH = m3H = m4H = thetaH 
-    = phiH = 0.; weightSave = bMPISave = enhanceMPISave = mergingWeightSave 
-    = 1.; pTmaxMPISave = pTmaxISRSave = pTmaxFSRSave = pTnowSave 
-    = zNowISRSave = pT2NowISRSave = 0.; nameSave = nameSubSave = " "; 
+    = id2Save = id1pdfSave = id2pdfSave = nMPISave = nISRSave 
+    = nFSRinProcSave = nFSRinResSave = 0; 
+    x1Save = x2Save = x1pdfSave = x2pdfSave = pdf1Save = pdf2Save 
+    = Q2FacSave = alphaEMSave = alphaSSave = Q2RenSave = sH = tH = uH 
+    = pTH = m3H = m4H = thetaH = phiH = 0.; 
+    weightSave = bMPISave = enhanceMPISave = mergingWeightSave = 1.; 
+    pTmaxMPISave = pTmaxISRSave = pTmaxFSRSave = pTnowSave = zNowISRSave 
+    = pT2NowISRSave = 0.; 
+    nameSave = nameSubSave = " "; 
     codeMPISave.resize(0); iAMPISave.resize(0); iBMPISave.resize(0);  
     pTMPISave.resize(0); eMPISave.resize(0); }
 
@@ -264,16 +272,18 @@ private:
   void setSubType( string nameSubIn, int codeSubIn, int nFinalSubIn) {  
     hasSubSave = true; nameSubSave = nameSubIn; codeSubSave = codeSubIn; 
     nFinalSubSave = nFinalSubIn;}
-  void setPDFalpha( int id1In, int id2In,  double pdf1In, double pdf2In, 
-    double Q2FacIn, double alphaEMIn, double alphaSIn, double Q2RenIn) 
-    {id1Save = id1In; id2Save = id2In; pdf1Save = pdf1In; pdf2Save = pdf2In; 
-    Q2FacSave = Q2FacIn; alphaEMSave = alphaEMIn; alphaSSave = alphaSIn; 
-    Q2RenSave = Q2RenIn;}
-  void setKin( double x1In, double x2In, double sHatIn, double tHatIn, 
-    double uHatIn, double pTHatIn, double m3HatIn, double m4HatIn, 
-    double thetaHatIn, double phiHatIn) {x1Save = x1In; x2Save = x2In; 
-    sH = sHatIn; tH = tHatIn; uH = uHatIn; pTH = pTHatIn; m3H = m3HatIn; 
-    m4H = m4HatIn; thetaH = thetaHatIn; phiH = phiHatIn;}
+  void setPDFalpha( int id1pdfIn, int id2pdfIn, double x1pdfIn, double x2pdfIn, 
+    double pdf1In, double pdf2In, double Q2FacIn, double alphaEMIn, 
+    double alphaSIn, double Q2RenIn) {id1pdfSave = id1pdfIn; 
+    id2pdfSave = id2pdfIn; x1pdfSave = x1pdfIn; x2pdfSave = x2pdfIn;
+    pdf1Save = pdf1In; pdf2Save = pdf2In; Q2FacSave = Q2FacIn; 
+    alphaEMSave = alphaEMIn; alphaSSave = alphaSIn; Q2RenSave = Q2RenIn;}
+  void setKin( int id1In, int id2In, double x1In, double x2In, double sHatIn, 
+    double tHatIn, double uHatIn, double pTHatIn, double m3HatIn, 
+    double m4HatIn, double thetaHatIn, double phiHatIn) {id1Save = id1In;
+    id2Save = id2In; x1Save = x1In; x2Save = x2In; sH = sHatIn; tH = tHatIn; 
+    uH = uHatIn; pTH = pTHatIn; m3H = m3HatIn; m4H = m4HatIn; 
+    thetaH = thetaHatIn; phiH = phiHatIn;}
   void setTypeMPI( int codeMPIIn, double pTMPIIn, int iAMPIIn = 0, 
     int iBMPIIn = 0, double eMPIIn = 1.) {codeMPISave.push_back(codeMPIIn); 
     pTMPISave.push_back(pTMPIIn); iAMPISave.push_back(iAMPIIn); 
@@ -303,7 +313,7 @@ private:
   void setPTnow( double pTnowIn) {pTnowSave = pTnowIn;}
 
   // Set a0 from MultipartonInteractions.
-  void a0MPI(double a0MPIin) {a0MPISave = a0MPIin;}
+  void seta0MPI(double a0MPIin) {a0MPISave = a0MPIin;}
 
   // Set info whether reading of Les Houches Accord file at end.
   void setEndOfFile( bool atEOFin) {atEOF = atEOFin;}

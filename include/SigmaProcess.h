@@ -588,6 +588,9 @@ public:
   // Dummy function: action is put in PhaseSpaceLHA.
   virtual double sigmaPDF() {return 1.;}
 
+  // Evaluate weight for decay angular configuration, where relevant.
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
+
   // Set scale, when that is missing for an external LHA process.
   virtual void   setScale(); 
 

@@ -267,22 +267,22 @@ void I_Pythia8::put_pdf_info( GenEvent* evt, Pythia8::Pythia& pythia,
   bool convertGluonTo0 ) {
 
   // Flavours of incoming partons.
-  int id1 = pythia.info.id1();
-  int id2 = pythia.info.id2();
+  int id1pdf = pythia.info.id1pdf();
+  int id2pdf = pythia.info.id2pdf();
   if ( convertGluonTo0 ) {
-    if ( id1 == 21 ) id1 = 0;
-    if ( id2 == 21 ) id2 = 0;
+    if ( id1pdf == 21 ) id1pdf = 0;
+    if ( id2pdf == 21 ) id2pdf = 0;
   }
 
   // x, Q and x*f(x) for incoming partons.
-  double x1 = pythia.info.x1();
-  double x2 = pythia.info.x2();
-  double Q  = pythia.info.QFac();
-  double pdf1 = pythia.info.pdf1();
-  double pdf2 = pythia.info.pdf2();
+  double x1pdf = pythia.info.x1pdf();
+  double x2pdf = pythia.info.x2pdf();
+  double Qfac  = pythia.info.QFac();
+  double pdf1  = pythia.info.pdf1();
+  double pdf2  = pythia.info.pdf2();
 
   // Store PDF info and done.
-  evt->set_pdf_info( PdfInfo( id1, id2, x1, x2, Q, pdf1, pdf2) ) ;
+  evt->set_pdf_info( PdfInfo( id1pdf, id2pdf, x1pdf, x2pdf, Qfac, pdf1, pdf2) );
 
   }
 

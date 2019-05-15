@@ -144,15 +144,21 @@ public:
   double tau(int part)     const {return particles[part].tauPart;}
   double spin(int part)    const {return particles[part].spinPart;}
 
-  // Optional: give back info on parton density values of event.
-  bool   pdfIsSet()        const {return pdfIsSetSave;}
+  // Give back info on flavour and x values of hard-process initiators.
   int    id1()             const {return id1Save;}
   int    id2()             const {return id2Save;}
   double x1()              const {return x1Save;}
   double x2()              const {return x2Save;}
+
+  // Optional: give back info on parton density values of event.
+  bool   pdfIsSet()        const {return pdfIsSetSave;}
+  int    id1pdf()          const {return id1pdfSave;}
+  int    id2pdf()          const {return id2pdfSave;}
+  double x1pdf()           const {return x1pdfSave;}
+  double x2pdf()           const {return x2pdfSave;}
   double scalePDF()        const {return scalePDFSave;}
-  double xpdf1()           const {return xpdf1Save;}
-  double xpdf2()           const {return xpdf2Save;}
+  double pdf1()            const {return pdf1Save;}
+  double pdf2()            const {return pdf2Save;}
 
   // Print the info; useful to check that reading an event worked.
   void   listEvent(ostream& os = cout);  
@@ -220,12 +226,16 @@ protected:
     particles.push_back( LHAParticle( idIn, statusIn, mother1In, mother2In, 
     col1In, col2In, pxIn, pyIn, pzIn, eIn, mIn, tauIn, spinIn)); }
 
+  // Input info on flavour and x values of hard-process initiators.
+  void setIdX(int id1In, int id2In, double x1In, double x2In) 
+    { id1Save = id1In; id2Save = id2In; x1Save = x1In; x2Save = x2In;}
+
   // Optionally input info on parton density values of event.
-  void setPdf(int id1In, int id2In, double x1In, double x2In, 
-    double scalePDFIn, double xpdf1In, double xpdf2In, bool pdfIsSetIn) 
-    { id1Save = id1In; id2Save = id2In; x1Save = x1In; x2Save = x2In;
-    scalePDFSave = scalePDFIn; xpdf1Save = xpdf1In; xpdf2Save = xpdf2In;
-    pdfIsSetSave = pdfIsSetIn;}
+  void setPdf(int id1pdfIn, int id2pdfIn, double x1pdfIn, double x2pdfIn, 
+    double scalePDFIn, double pdf1In, double pdf2In, bool pdfIsSetIn) 
+    { id1pdfSave = id1pdfIn; id2pdfSave = id2pdfIn; x1pdfSave = x1pdfIn; 
+    x2pdfSave = x2pdfIn; scalePDFSave = scalePDFIn; pdf1Save = pdf1In; 
+    pdf2Save = pdf2In; pdfIsSetSave = pdfIsSetIn;}
 
   // Three routines for LHEF files, but put here for flexibility.
   bool setInitLHEF(istream& is);
@@ -237,8 +247,9 @@ protected:
   double xwgtupSave, scalupSave, aqedupSave, aqcdupSave;
   vector<LHAParticle> particlesSave;
   bool   getPDFSave;
-  int    id1InSave, id2InSave;
-  double x1InSave, x2InSave, scalePDFInSave, xpdf1InSave, xpdf2InSave;
+  int    id1InSave, id2InSave, id1pdfInSave, id2pdfInSave;
+  double x1InSave, x2InSave, x1pdfInSave, x2pdfInSave, scalePDFInSave, 
+         pdf1InSave, pdf2InSave;
 
 private:
 
@@ -246,24 +257,25 @@ private:
   int strategySave;
 
   // Beam particle properties.
-  int idBeamASave, idBeamBSave;
+  int    idBeamASave, idBeamBSave;
   double eBeamASave, eBeamBSave;
-  int pdfGroupBeamASave, pdfGroupBeamBSave, pdfSetBeamASave, pdfSetBeamBSave;
+  int    pdfGroupBeamASave, pdfGroupBeamBSave, pdfSetBeamASave, pdfSetBeamBSave;
 
   // The process list, stored as a vector of processes.
   vector<LHAProcess> processes;
 
   // Store info on the selected process. 
-  int idProc;
+  int    idProc;
   double weightProc, scaleProc, alphaQEDProc, alphaQCDProc;
 
   // The particle list, stored as a vector of particles.
   vector<LHAParticle> particles;
 
-  // Optional info on parton density values of event.
+  // Info on initiators and optionally on parton density values of event.
   bool   pdfIsSetSave;
-  int    id1Save, id2Save;
-  double x1Save, x2Save, scalePDFSave, xpdf1Save, xpdf2Save;
+  int    id1Save, id2Save, id1pdfSave, id2pdfSave;
+  double x1Save, x2Save, x1pdfSave, x2pdfSave, scalePDFSave, pdf1Save, 
+         pdf2Save;
  
   // File to which to write Les Houches Event File information.
   string fileName;
