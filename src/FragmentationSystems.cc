@@ -392,17 +392,17 @@ int ColConfig::findSinglet(int i) {
 
 // List all currently identified singlets.
 
-void ColConfig::list(ostream& os) const {
+void ColConfig::list() const {
 
   // Header. Loop over all individual singlets.
-  os << "\n --------  Colour Singlet Systems Listing -------------------\n";
+  cout << "\n --------  Colour Singlet Systems Listing -------------------\n";
   for (int iSub = 0; iSub < int(singlets.size()); ++iSub) {
 
     // List all partons belonging to each singlet.
-    os << " singlet " << iSub << " contains " ;
+    cout << " singlet " << iSub << " contains " ;
     for (int i = 0; i < singlets[iSub].size(); ++i)
-      os << singlets[iSub].iParton[i] << " ";
-    os << "\n";
+      cout << singlets[iSub].iParton[i] << " ";
+    cout << "\n";
 
   // Done.
   }

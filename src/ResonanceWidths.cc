@@ -1741,6 +1741,7 @@ void ResonanceExcited::calcWidth(bool) {
   else {
     if (id1Abs < 17 && id2Abs < 17 && id3Abs > 0 && id3Abs < 17 ) {
       widNow = preFac * pow2(contactDec * mHat) / (pow2(Lambda) * 96. * M_PI);
+      if (mHat < mf1 + mf2 + mf3 ) widNow = 0.;
       if (id3Abs < 10) widNow *= 3.;
       if (id1Abs == id2Abs && id1Abs == id3Abs) {
         if (idRes - 4000000 < 10) widNow *= 4./3.;

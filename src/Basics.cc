@@ -1272,18 +1272,36 @@ Hist& Hist::operator/=(double f) {
   return *this;
 }
 
+Hist Hist::operator+(double f) const {
+  Hist h = *this; return h += f;}
+
+Hist Hist::operator+(const Hist& h2) const {
+  Hist h = *this; return h += h2;}
+
+Hist Hist::operator-(double f) const {
+  Hist h = *this; return h -= f;}
+
+Hist Hist::operator-(const Hist& h2) const {
+  Hist h = *this; return h -= h2;}
+
+Hist Hist::operator*(double f) const {
+  Hist h = *this; return h *= f;}
+
+Hist Hist::operator*(const Hist& h2) const {
+  Hist h = *this; return h *= h2;}
+
+Hist Hist::operator/(double f) const {
+  Hist h = *this; return h /= f;}
+
+Hist Hist::operator/(const Hist& h2) const {
+  Hist h = *this; return h /= h2;}
+
 //--------------------------------------------------------------------------
 
 // Implementation of operator overloading with friends.
 
 Hist operator+(double f, const Hist& h1) {
   Hist h = h1; return h += f;}
-
-Hist operator+(const Hist& h1, double f) {
-  Hist h = h1; return h += f;}
-
-Hist operator+(const Hist& h1, const Hist& h2) {
-  Hist h = h1; return h += h2;}
 
 Hist operator-(double f, const Hist& h1) {
   Hist h   = h1;
@@ -1293,20 +1311,8 @@ Hist operator-(double f, const Hist& h1) {
   for (int ix = 0; ix < h1.nBin; ++ix) h.res[ix] = f - h1.res[ix];
   return h;}
 
-Hist operator-(const Hist& h1, double f) {
-  Hist h = h1; return h -= f;}
-
-Hist operator-(const Hist& h1, const Hist& h2) {
-  Hist h = h1; return h -= h2;}
-
 Hist operator*(double f, const Hist& h1) {
   Hist h = h1; return h *= f;}
-
-Hist operator*(const Hist& h1, double f) {
-  Hist h = h1; return h *= f;}
-
-Hist operator*(const Hist& h1, const Hist& h2) {
-  Hist h = h1; return h *= h2;}
 
 Hist operator/(double f, const Hist& h1) {
   Hist h = h1;
@@ -1317,12 +1323,6 @@ Hist operator/(double f, const Hist& h1) {
     h.res[ix] = (abs(h1.res[ix]) < Hist::TINY) ? 0. : f/h1.res[ix];
   return h;
 }
-
-Hist operator/(const Hist& h1, double f) {
-  Hist h = h1; return h /= f;}
-
-Hist operator/(const Hist& h1, const Hist& h2) {
-  Hist h = h1; return h /= h2;}
 
 //==========================================================================
 

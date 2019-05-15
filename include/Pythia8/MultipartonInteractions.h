@@ -104,8 +104,7 @@ public:
     Settings& settings, ParticleData* particleDataPtr, Rndm* rndmPtrIn,
     BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn,
     Couplings* couplingsPtrIn, PartonSystems* partonSystemsPtrIn,
-    SigmaTotal* sigmaTotPtrIn, UserHooks* userHooksPtrIn,
-    ostream& os = cout);
+    SigmaTotal* sigmaTotPtrIn, UserHooks* userHooksPtrIn);
 
   // Reset impact parameter choice and update the CM energy.
   void reset();
@@ -157,7 +156,7 @@ public:
   void accumulate() { int iBeg = (infoPtr->isNonDiffractive()) ? 0 : 1;
     for (int i = iBeg; i < infoPtr->nMPI(); ++i)
     ++nGen[ infoPtr->codeMPI(i) ];}
-  void statistics(bool resetStat = false, ostream& os = cout);
+  void statistics(bool resetStat = false);
   void resetStatistics() { for ( map<int, int>::iterator iter = nGen.begin();
     iter != nGen.end(); ++iter) iter->second = 0; }
 

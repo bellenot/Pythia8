@@ -118,11 +118,20 @@ void BeamParticle::init( int idIn, double pzIn, double eIn, double mIn,
   // Add remnants for photon beam unless ISR ends up as a photon.
   gammaRemnants     = false;
 
+  // Is there a gamma beam inside lepton.
+  lepton2gamma      = settings.flag("PDF:lepton2gamma");
+
   // Store info on the incoming beam.
   idBeam            = idIn;
   initBeamKind();
   pBeam             = Vec4( 0., 0., pzIn, eIn);
   mBeam             = mIn;
+
+  // Initialize gamma-in-lepton kinematic variables.
+  xGm               = 1.;
+  kTgamma           = 0.;
+  phiGamma          = 0.;
+
   clear();
 
 }
@@ -136,11 +145,13 @@ void BeamParticle::init( int idIn, double pzIn, double eIn, double mIn,
 void BeamParticle::initBeamKind() {
 
   // Reset.
-  idBeamAbs    = abs(idBeam);
-  isLeptonBeam = false;
-  isHadronBeam = false;
-  isMesonBeam  = false;
-  isBaryonBeam = false;
+  idBeamAbs        = abs(idBeam);
+  isLeptonBeam     = false;
+  isHadronBeam     = false;
+  isMesonBeam      = false;
+  isBaryonBeam     = false;
+  isGammaBeam      = false;
+  hasGammaInLepton = false;
   nValKinds    = 0;
 
   // Check for leptons.
@@ -149,6 +160,8 @@ void BeamParticle::initBeamKind() {
     nVal[0]   = 1;
     idVal[0]  = idBeam;
     isLeptonBeam = true;
+    // If not a neutrino, set hasGammaInLepton appropriately.
+    if ( idBeamAbs%2 == 1 && lepton2gamma ) hasGammaInLepton = true;
   }
 
   // Valence content for photons.
@@ -401,7 +414,7 @@ int BeamParticle::pickValSeaComp() {
   // For lepton beam assume same-kind lepton inside is valence.
   else if (isLeptonBeam && idSave == idBeam) vsc = -3;
 
-  // Separate method for photon beams.
+  // Separate method for photon beams so do nothing here.
   else if (isGammaBeam) ;
 
   // Decide if valence or sea quark.
@@ -459,7 +472,7 @@ double BeamParticle::xValFrac(int j, double Q2) {
   if (isBaryonBeam && nVal[j] == 2) return uValInt;
 
   // Meson: (2 * u + d) / 2 of proton so same total valence quark fraction.
-    return 0.5 * (2. * uValInt + dValInt);
+  return 0.5 * (2. * uValInt + dValInt);
 
 }
 
@@ -565,6 +578,7 @@ bool BeamParticle::gammaInitiatorIsVal(int iResolved, double Q2) {
 bool BeamParticle::gammaInitiatorIsVal(int idInit, double x, double Q2) {
 
   // Gluon is not a valence parton.
+  initiatorValence = false;
   if ( idInit == 0 || abs(idInit) == 21 ) return false;
 
   else {
@@ -649,7 +663,7 @@ bool BeamParticle::remnantFlavours(Event& event, bool isDIS) {
     nValLeft[i] = nVal[i];
     for (int j = 0; j < nInit; ++j) if (resolved[j].isValence()
       && resolved[j].id() == idVal[i]) --nValLeft[i];
-    // No valence quarks if ISR find the original beam photon.
+      // No valence quarks if ISR find the original beam photon.
     if( isGammaBeam && doISR && !gammaRemnants ) nValLeft[i] = 0;
     // Add remaining valence quarks to record. Partly temporary values.
     for (int k = 0; k < nValLeft[i]; ++k) append(0, idVal[i], 0., -3);
@@ -1039,26 +1053,26 @@ bool BeamParticle::roomFor2Remnants(int id1, double x1, double eCM){
 
 // Print the list of resolved partons in a beam.
 
-void BeamParticle::list(ostream& os) const {
+void BeamParticle::list() const {
 
   // Header.
-  os << "\n --------  PYTHIA Partons resolved in beam  -----------------"
-     << "-------------------------------------------------------------\n"
-     << "\n    i  iPos      id       x    comp   xqcomp    pTfact      "
-     << "colours      p_x        p_y        p_z         e          m \n";
+  cout << "\n --------  PYTHIA Partons resolved in beam  -----------------"
+       << "-------------------------------------------------------------\n"
+       << "\n    i  iPos      id       x    comp   xqcomp    pTfact      "
+       << "colours      p_x        p_y        p_z         e          m \n";
 
   // Loop over list of removed partons and print it.
   double xSum  = 0.;
   Vec4   pSum;
   for (int i = 0; i < size(); ++i) {
     ResolvedParton res = resolved[i];
-    os << fixed << setprecision(6) << setw(5) << i << setw(6) << res.iPos()
-       << setw(8) << res.id() << setw(10) << res.x() << setw(6)
-       << res.companion() << setw(10) << res.xqCompanion() << setw(10)
-       << res.pTfactor() << setprecision(3) << setw(6) << res.col()
-       << setw(6) << res.acol() << setw(11) << res.px() << setw(11)
-       << res.py() << setw(11) << res.pz() << setw(11) << res.e()
-       << setw(11) << res.m() << "\n";
+    cout << fixed << setprecision(6) << setw(5) << i << setw(6) << res.iPos()
+         << setw(8) << res.id() << setw(10) << res.x() << setw(6)
+         << res.companion() << setw(10) << res.xqCompanion() << setw(10)
+         << res.pTfactor() << setprecision(3) << setw(6) << res.col()
+         << setw(6) << res.acol() << setw(11) << res.px() << setw(11)
+         << res.py() << setw(11) << res.pz() << setw(11) << res.e()
+         << setw(11) << res.m() << "\n";
 
     // Also find sum of x and p values.
     if (res.companion() != -10) {
@@ -1068,13 +1082,13 @@ void BeamParticle::list(ostream& os) const {
   }
 
   // Print sum and endline.
-  os << setprecision(6) << "             x sum:" << setw(10) << xSum
-     << setprecision(3) << "                                p sum:"
-     << setw(11) << pSum.px() << setw(11) << pSum.py() << setw(11)
-     << pSum.pz() << setw(11) << pSum.e()
-     << "\n\n --------  End PYTHIA Partons resolved in beam  -----------"
-     << "---------------------------------------------------------------"
-     << endl;
+  cout << setprecision(6) << "             x sum:" << setw(10) << xSum
+       << setprecision(3) << "                                p sum:"
+       << setw(11) << pSum.px() << setw(11) << pSum.py() << setw(11)
+       << pSum.pz() << setw(11) << pSum.e()
+       << "\n\n --------  End PYTHIA Partons resolved in beam  -----------"
+       << "---------------------------------------------------------------"
+       << endl;
 }
 
 //--------------------------------------------------------------------------

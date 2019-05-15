@@ -383,7 +383,7 @@ boson has been emitted in the shower evolution.
    
  
 <a name="method19"></a>
-<p/><strong>virtual void TimeShower::list( ostream& os = cout) &nbsp;</strong> <br/>
+<p/><strong>virtual void TimeShower::list() &nbsp;</strong> <br/>
 This method is not at all required. In the current implementation it 
 outputs a list of all the dipole ends, with information on the 
 respective dipole. The routine is not called anywhere in the public 
@@ -440,15 +440,23 @@ histories.
    
  
 <a name="method22"></a>
-<p/><strong>virtual vector &lt;double&gt; TimeShower::getStateVariables( const Event& event, int iRad, int iEmt, int iRec, string name) &nbsp;</strong> <br/>
-This function should return a vector of variables related to the splitting 
+<p/><strong>virtual map &lt;string,double&gt; TimeShower::getStateVariables( const Event& event, int iRad, int iEmt, int iRec, string name) &nbsp;</strong> <br/>
+This function should return a map of variables related to the splitting 
 that produced the particles <code>event[iRad]</code>, <code>event[iRec]</code> 
-and <code>event[iEmt]</code>. The first entry in this vector must be the 
-evolution variable associated with the splitting. All other entries are 
-auxiliary variables related to the splitting (e.g. an energy sharing variable, 
-an azimuthal angle, kinematical invariants etc.). The identifier 
-<code>name</code> can be used for additional flexibility, e.g. if multiple 
-kernels with identical post-branching states exist. 
+and <code>event[iEmt]</code>. Four entries are compulsory, 
+<br/>- the key <code>t</code> gives the evolution variable associated 
+with the splitting, 
+<br/>- the key <code>tRS</code> gives the evolution variable at 
+which the shower should be restarted after a branching, 
+<br/>- the key <code>scaleAS</code> gives the argument of 
+<i>&alpha;<sub>s</sub> used for the branching, and 
+<br/>- the key <code>scalePDF</code> gives the argument of PDF factors 
+used for the branching. 
+<br/>All other entries are optional and may be auxiliary variables related 
+to the splitting (e.g. an energy sharing variable, an azimuthal angle, 
+kinematical invariants etc.). 
+<br/>The identifier <code>name</code> can be used for additional flexibility, 
+e.g. if multiple kernels with identical post-branching states exist. 
    
  
 <a name="method23"></a>
@@ -634,7 +642,7 @@ boson has been emitted in the shower evolution.
    
  
 <a name="method38"></a>
-<p/><strong>virtual void SpaceShower::list( ostream& os = cout) &nbsp;</strong> <br/>
+<p/><strong>virtual void SpaceShower::list() &nbsp;</strong> <br/>
 This method is not at all required. In the current implementation it 
 outputs a list of all the dipole ends, with information on the 
 respective dipole. The routine is not called anywhere in the public 
@@ -672,15 +680,23 @@ crucial in setting up consistent parton shower histories.
    
  
 <a name="method41"></a>
-<p/><strong>virtual vector &lt;double&gt; SpaceShower::getStateVariables( const Event& event, int iRad, int iEmt, int iRec, string name) &nbsp;</strong> <br/>
-This function should return a vector of variables related to the splitting 
+<p/><strong>virtual map &lt;string,double&gt; SpaceShower::getStateVariables( const Event& event, int iRad, int iEmt, int iRec, string name) &nbsp;</strong> <br/>
+This function should return a map of variables related to the splitting 
 that produced the particles <code>event[iRad]</code>, <code>event[iRec]</code> 
-and <code>event[iEmt]</code>. The first entry in this vector must be the 
-evolution variable associated with the splitting. All other entries are 
-auxiliary variables related to the splitting (e.g. an energy sharing variable, 
-an azimuthal angle, kinematical invariants etc.). The identifier 
-<code>name</code> can be used for additional flexibility, e.g. if multiple 
-kernels with identical post-branching states exist. 
+and <code>event[iEmt]</code>. Four entries are compulsory, 
+<br/>- the key <code>t</code> gives the evolution variable associated 
+with the splitting, 
+<br/>- the key <code>tRS</code> gives the evolution variable at 
+which the shower should be restarted after a branching, 
+<br/>- the key <code>scaleAS</code> gives the argument of 
+<i>&alpha;<sub>s</sub> used for the branching, and 
+<br/>- the key <code>scalePDF</code> gives the argument of PDF factors 
+used for the branching. 
+<br/>All other entries are optional and may be auxiliary variables related 
+to the splitting (e.g. an energy sharing variable, an azimuthal angle, 
+kinematical invariants etc.). 
+<br/>The identifier <code>name</code> can be used for additional flexibility, 
+e.g. if multiple kernels with identical post-branching states exist. 
    
  
 <a name="method42"></a>

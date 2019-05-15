@@ -88,6 +88,7 @@ echo "<a href='SaveSettings.php?returning=1&filename=".$filename."' target='page
 <a href='ResonanceDecays.php?filepath=".$filepath."' target='page'>Resonance Decays</a><br/> 
 <a href='TimelikeShowers.php?filepath=".$filepath."' target='page'>Timelike Showers</a><br/> 
 <a href='SpacelikeShowers.php?filepath=".$filepath."' target='page'>Spacelike Showers</a><br/> 
+<a href='Variations.php?filepath=".$filepath."' target='page'>Automated Shower Variations</a><br/> 
 <a href='WeakShowers.php?filepath=".$filepath."' target='page'>Weak Showers</a><br/> 
 <a href='MultipartonInteractions.php?filepath=".$filepath."' target='page'>Multiparton Interactions</a><br/> 
 <a href='BeamRemnants.php?filepath=".$filepath."' target='page'>Beam Remnants</a><br/> 
@@ -158,6 +159,7 @@ echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>Les Ho
 <a href='ImplementNewShowers.php?filepath=".$filepath."' target='page'>Implement New Showers</a><br/> 
 <a href='RIVETusage.php?filepath=".$filepath."' target='page'>RIVET usage</a><br/> 
 <a href='ROOTusage.php?filepath=".$filepath."' target='page'>ROOT usage</a><br/> 
+<a href='PythonInterface.php?filepath=".$filepath."' target='page'>A Python Interface</a><br/> 
 
 ";?>
  

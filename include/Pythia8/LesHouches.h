@@ -117,7 +117,7 @@ public:
   double xErrSum()       const {return xErrSumSave;}
 
   // Print the initialization info; useful to check that setting it worked.
-  void   listInit(ostream& os = cout);
+  void   listInit();
 
   // A pure virtual method setEvent, wherein information on the next event
   // is supposed to be set in the derived class.
@@ -169,7 +169,7 @@ public:
   double pdf2()            const {return pdf2Save;}
 
   // Print the info; useful to check that reading an event worked.
-  void   listEvent(ostream& os = cout);
+  void   listEvent();
 
   // Skip ahead a number of events, which are not considered further.
   // Mainly intended for debug when using the LHAupLHEF class.
@@ -397,7 +397,7 @@ public:
   bool setNewEventLHEF();
 
   // Update cross-section information at the end of the run.
-  bool updateSigma();
+  bool updateSigma() {return true;}
 
 protected:
 

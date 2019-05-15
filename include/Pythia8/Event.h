@@ -458,12 +458,8 @@ public:
   int copy(int iCopy, int newStatus = 0);
 
   // List the particles in an event.
-  void list(int precision = 3) const;
-  void list(ostream& os, int precision = 3) const;
-  void list(bool showScaleAndVertex, bool showMothersAndDaughters = false,
-    int precision = 3) const;
-  void list(bool showScaleAndVertex, bool showMothersAndDaughters,
-    ostream& os, int precision = 3) const;
+  void list(bool showScaleAndVertex = false,
+    bool showMothersAndDaughters = false, int precision = 3) const;
 
   // Remove last n entries.
   void popBack(int nRemove = 1) { if (nRemove ==1) entry.pop_back();
@@ -545,7 +541,7 @@ public:
   void restoreJunctionSize() {junction.resize(savedJunctionSize);}
 
   // List any junctions in the event; for debug mainly.
-  void listJunctions(ostream& os = cout) const;
+  void listJunctions() const;
 
   // Save event record size at Parton Level, i.e. before hadronization.
   void savePartonLevelSize() {savedPartonLevelSize = entry.size();}

@@ -105,7 +105,7 @@ your <code>PythiaStdlib.h</code> file:
    // Stdlib header file for dynamic library loading. 
    #ifndef __CINT__ 
    #define dlsym __ 
-   #include <dlfcn.h> 
+   #include &lt;lfcn.h&gt; 
    #undef dlsym 
    #endif 
 </pre> 

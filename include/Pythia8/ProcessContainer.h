@@ -100,9 +100,12 @@ public:
   long   nSelected()   const {return nSel;}
   long   nAccepted()   const {return nAcc;}
   double weightSum()   const {return wtAccSum;}
-  double sigmaSelMC()  {if (nTry > nTryStat) sigmaDelta(); return sigmaAvg;}
-  double sigmaMC()     {if (nTry > nTryStat) sigmaDelta(); return sigmaFin;}
-  double deltaMC()     {if (nTry > nTryStat) sigmaDelta(); return deltaFin;}
+  double sigmaSelMC( bool doAccumulate = true)
+    { if (nTry > nTryStat && doAccumulate) sigmaDelta(); return sigmaAvg;}
+  double sigmaMC(    bool doAccumulate = true)
+    { if (nTry > nTryStat && doAccumulate) sigmaDelta(); return sigmaFin;}
+  double deltaMC(    bool doAccumulate = true)
+    { if (nTry > nTryStat && doAccumulate) sigmaDelta(); return deltaFin;}
 
   // Some kinematics quantities.
   int    id1()         const {return sigmaProcessPtr->id(1);}
@@ -112,6 +115,8 @@ public:
   double Q2Fac()       const {return sigmaProcessPtr->Q2Fac();}
   double mHat()        const {return sqrtpos(phaseSpacePtr->sHat());}
   double pTHat()       const {return phaseSpacePtr->pTHat();}
+  double xGamma1()     const {return sigmaProcessPtr->xGamma1();}
+  double xGamma2()     const {return sigmaProcessPtr->xGamma2();}
 
   // Tell whether container is for Les Houches events.
   bool   isLHAContainer() const {return isLHA;}
@@ -175,9 +180,18 @@ private:
   double sigmaMx, sigmaSgn, sigmaSum, sigma2Sum, sigmaNeg, sigmaAvg,
          sigmaFin, deltaFin, weightNow, wtAccSum;
 
+  // Flags to store whether beam has a gamma beam inside.
+  bool   beamAhasGamma, beamBhasGamma;
+
   // Statistics for Les Houches event classification.
   vector<int> codeLHA;
   vector<long> nTryLHA, nSelLHA, nAccLHA;
+
+  // More fine-grained event counting.
+  long nTryRequested, nSelRequested, nAccRequested;
+
+  // Temporary summand for handling (weighted) events when vetoes are applied.
+  double sigmaTemp, sigma2Temp;
 
   // Estimate integrated cross section and its uncertainty.
   void sigmaDelta();

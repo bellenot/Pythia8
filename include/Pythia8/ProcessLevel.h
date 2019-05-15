@@ -46,10 +46,10 @@ public:
   bool init( Info* infoPtrIn, Settings& settings,
     ParticleData* particleDataPtrIn, Rndm* rndmPtrIn,
     BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn,
+    BeamParticle* beamGamAPtrIn, BeamParticle* beamGamBPtrIn,
     Couplings* couplingsPtrIn, SigmaTotal* sigmaTotPtrIn, bool doLHAin,
     SLHAinterface* slhaInterfacePtrIn, UserHooks* userHooksPtrIn,
-    vector<SigmaProcess*>& sigmaPtrs, vector<PhaseSpace*>& phaseSpacePtrs,
-    ostream& os = cout);
+    vector<SigmaProcess*>& sigmaPtrs, vector<PhaseSpace*>& phaseSpacePtrs);
 
   // Store or replace Les Houches pointer.
   void setLHAPtr( LHAup* lhaUpPtrIn) {lhaUpPtr = lhaUpPtrIn;
@@ -62,10 +62,10 @@ public:
   bool nextLHAdec( Event& process);
 
   // Accumulate and update statistics (after possible user veto).
-  void accumulate();
+  void accumulate( bool doAccumulate = true);
 
   // Print statistics on cross sections and number of events.
-  void statistics(bool reset = false, ostream& os = cout);
+  void statistics(bool reset = false);
 
   // Reset statistics.
   void resetStatistics();
@@ -92,6 +92,10 @@ private:
   double mHatMin1, mHatMax1, pTHatMin1, pTHatMax1, mHatMin2, mHatMax2,
          pTHatMin2, pTHatMax2, sigmaND, sumImpactFac, sum2ImpactFac;
 
+  // Variables for gamma-inside-lepton collisions.
+  bool   isLepton2gamma;
+  double xGamma1, xGamma2;
+
   // Vector of containers of internally-generated processes.
   vector<ProcessContainer*> containerPtrs;
   int    iContainer, iLHACont;
@@ -117,6 +121,10 @@ private:
   // Pointers to the two incoming beams.
   BeamParticle*   beamAPtr;
   BeamParticle*   beamBPtr;
+
+  // Pointers to the two possible photon beams inside the incoming beams.
+  BeamParticle*   beamGamAPtr;
+  BeamParticle*   beamGamBPtr;
 
   // Pointer to Standard Model couplings, including alphaS and alphaEM.
   Couplings*      couplingsPtr;
@@ -152,7 +160,7 @@ private:
   bool checkColours( Event& process);
 
   // Print statistics when two hard processes allowed.
-  void statistics2(bool reset, ostream& os = cout);
+  void statistics2(bool reset);
 
 };
 

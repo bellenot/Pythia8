@@ -10,7 +10,7 @@
 #define Pythia8_Pythia_H
 
 // Version number defined for use in macros and for consistency checks.
-#define PYTHIA_VERSION 8.215
+#define PYTHIA_VERSION 8.219
 
 // Header files for the Pythia class and for what else the user may need.
 #include "Pythia8/Analysis.h"
@@ -61,6 +61,10 @@ public:
   Pythia(Settings& settingsIn, ParticleData& particleDataIn,
     bool printBanner = true);
 
+  // Constructor taking input from streams instead of files.
+  Pythia( istream& settingsStrings, istream& particleDataStrings,
+    bool printBanner = true);
+
   // Destructor. (See Pythia.cc file.)
   ~Pythia();
 
@@ -85,7 +89,8 @@ public:
 
   // Possibility to pass in pointers to PDF's.
   bool setPDFPtr( PDF* pdfAPtrIn, PDF* pdfBPtrIn, PDF* pdfHardAPtrIn = 0,
-    PDF* pdfHardBPtrIn = 0, PDF* pdfPomAPtrIn = 0, PDF* pdfPomBPtrIn = 0);
+    PDF* pdfHardBPtrIn = 0, PDF* pdfPomAPtrIn = 0, PDF* pdfPomBPtrIn = 0,
+    PDF* pdfGamAPtrIn = 0, PDF* pdfGamBPtrIn = 0);
 
   // Possibility to pass in pointer to external LHA-interfaced generator.
   bool setLHAupPtr( LHAup* lhaUpPtrIn) {lhaUpPtr = lhaUpPtrIn; return true;}
@@ -150,8 +155,7 @@ public:
   bool forceRHadronDecays() {return doRHadronDecays();}
 
   // List the current Les Houches event.
-  void LHAeventList(ostream& os = cout) {
-    if (lhaUpPtr != 0) lhaUpPtr->listEvent(os);}
+  void LHAeventList() { if (lhaUpPtr != 0) lhaUpPtr->listEvent();}
 
   // Skip a number of Les Houches events at input.
   bool LHAeventSkip(int nSkip) {
@@ -248,8 +252,13 @@ private:
   PDF* pdfPomAPtr;
   PDF* pdfPomBPtr;
 
+  // Extra Photon PDF pointers to be used in lepton -> gamma processes.
+  PDF* pdfGamAPtr;
+  PDF* pdfGamBPtr;
+
   // Keep track when "new" has been used and needs a "delete" for PDF's.
-  bool useNewPdfA, useNewPdfB, useNewPdfHard, useNewPdfPomA, useNewPdfPomB;
+  bool useNewPdfA, useNewPdfB, useNewPdfHard, useNewPdfPomA, useNewPdfPomB,
+       useNewPdfGamA, useNewPdfGamB;
 
   // The two incoming beams.
   BeamParticle beamA;
@@ -258,6 +267,10 @@ private:
   // Alternative Pomeron beam-inside-beam.
   BeamParticle beamPomA;
   BeamParticle beamPomB;
+
+  // Alternative photon beam-inside-beam.
+  BeamParticle beamGamA;
+  BeamParticle beamGamB;
 
   // LHAup object for generating external events.
   bool   doLHA, useNewLHA;
@@ -319,10 +332,10 @@ private:
   RHadrons   rHadrons;
 
   // Write the Pythia banner, with symbol and version information.
-  void banner(ostream& os = cout);
+  void banner();
 
   // Check for lines in file that mark the beginning of new subrun.
-  int readSubrun(string line, bool warn = true, ostream& os = cout);
+  int readSubrun(string line, bool warn = true);
 
   // Check for lines that mark the beginning or end of commented section.
   int readCommented(string line);
@@ -349,11 +362,12 @@ private:
   bool doRHadronDecays();
 
   // Check that the final event makes sense.
-  bool check(ostream& os = cout);
+  bool check();
 
   // Initialization of SLHA data.
   bool initSLHA ();
   stringstream particleDataBuffer;
+
 };
 
 //==========================================================================

@@ -88,6 +88,10 @@ public:
       np_lo = nPartons;
     }
 
+    // Reset the event weight to incorporate corrective factor.
+    bool updateWgt = settingsPtr->flag("Merging:includeWeightInXsection");
+    double norm    = (abs(infoPtr->lhaStrategy()) == 4) ? 1./1e9 : 1.;
+
     // Choose randomly if this event should be treated as subtraction or
     // as regular event. Put the correct settings accordingly.
     if (isunlops && np_nlo == 0 && np_lo == -1) {
@@ -156,6 +160,11 @@ public:
         settingsPtr->flag("Merging:doUMEPSTree", true);
         settingsPtr->flag("Merging:doUMEPSSubt", false);
         settingsPtr->mode("Merging:nRecluster",0);
+      }
+      // Reset the event weight to incorporate corrective factor.
+      if ( updateWgt) {
+        infoPtr->updateWeight(infoPtr->weight()*norm*normFactor);
+        normFactor = 1.;
       }
     }
 

@@ -33,9 +33,9 @@ public:
 
 //--------------------------------------------------------------------------
 
-// Printing function, inteded for debugging.
+// Printing function, intended for debugging.
 
-void ColourDipole::print() {
+void ColourDipole::list() {
 
   cout << setw(10) << this << setw(6) << col << setw(3) << colReconnection
        << setw(6) << iCol << setw(5) << iAcol << setw(6) << iColLeg << setw(5)
@@ -81,9 +81,9 @@ public:
 
 //--------------------------------------------------------------------------
 
-// Printing function, inteded for debugging.
+// Printing function, intended for debugging.
 
-void ColourJunction::print() {
+void ColourJunction::list() {
 
   cout << setw(6) << kind() << setw(6)
        << col(0) << setw(6) << col(1) << setw(6) << col(2) << setw(6)
@@ -102,9 +102,9 @@ void ColourJunction::print() {
 
 //--------------------------------------------------------------------------
 
-// Printing function, inteded for debugging.
+// Printing function, intended for debugging.
 
-void ColourParticle::list() {
+void ColourParticle::listParticle() {
 
   const Particle& pt = (*this);
 
@@ -122,21 +122,21 @@ void ColourParticle::list() {
 
 //--------------------------------------------------------------------------
 
-// Printing function, inteded for debugging.
+// Printing function, intended for debugging.
 
 void ColourParticle::listActiveDips() {
 
   cout << "active dips: " << endl;
   for (int i = 0; i < int(activeDips.size()); ++i)
-    activeDips[i]->print();
+    activeDips[i]->list();
 
 }
 
 //--------------------------------------------------------------------------
 
-// Printing function, inteded for debugging.
+// Printing function, intended for debugging.
 
-void ColourParticle::print() {
+void ColourParticle::listDips() {
 
   cout << "---   Particle   ---" << endl;
   for (int i = 0; i < int(dips.size()); ++i) {
@@ -2311,7 +2311,7 @@ void ColourReconnection::listDipoles(bool onlyActive, bool onlyReal) {
       continue;
     if (onlyReal && !dipoles[i]->isReal)
       continue;
-    dipoles[i]->print();
+    dipoles[i]->list();
   }
   cout << " --- finished listing ---" << endl;
 
@@ -2350,7 +2350,7 @@ void ColourReconnection::listJunctions() {
 
   cout << " --- listing junctions ---" << endl;
   for (int i = 0; i < int(junctions.size()); ++i)
-    junctions[i].print();
+    junctions[i].list();
   cout << " --- finished listing ---" << endl;
 
 }

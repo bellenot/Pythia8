@@ -49,9 +49,15 @@ int main() {
       }
 
       // Get CKKWL weight of current event. Histogram and accumulate it.
-      double weight = pythia.info.mergingWeight();
+      double evtweight = pythia.info.weight();
+      double weight    = pythia.info.mergingWeight();
       weightNow.fill( weight);
+
+      weight      *= evtweight;
       sigmaSample += weight;
+
+      // Do nothing for vanishing weight (event record might not be filled)
+      if ( weight == 0 ) continue;
 
       // Find the final copy of the W+, which is after the full shower.
       int iW = 0;

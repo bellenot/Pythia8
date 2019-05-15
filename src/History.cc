@@ -2286,10 +2286,18 @@ double History::weightTree(PartonLevel* trial, double as0, double aem0,
     double asScale = pow2( newScale );
     if (mergingHooksPtr->unorderedASscalePrescip() == 1)
       asScale = pow2( clusterIn.pT() );
+
+    // Add regularisation scale to initial state alpha_s.
     bool FSR = mother->state[clusterIn.emittor].isFinal();
+    if (!FSR) asScale += pow2(mergingHooksPtr->pT0ISR());
+
+    // Directly get argument of running alpha_s from shower plugin.
+    if (mergingHooksPtr->useShowerPlugin() )
+      asScale = getShowerPluginScale(mother->state, clusterIn.emittor,
+        clusterIn.emitted, clusterIn.recoiler, "scaleAS", asScale);
+
     double alphaSinPS = (FSR) ? (*asFSR).alphaS(asScale)
-                      : (*asISR).alphaS(asScale
-                                       + pow2(mergingHooksPtr->pT0ISR()) );
+                              : (*asISR).alphaS(asScale);
     asWeight *= alphaSinPS / as0;
   }
 
@@ -2298,13 +2306,19 @@ double History::weightTree(PartonLevel* trial, double as0, double aem0,
     double aemScale = pow2( newScale );
     if (mergingHooksPtr->unorderedASscalePrescip() == 1)
       aemScale = pow2( clusterIn.pT() );
+
+    // Add regularisation scale to initial state alpha_s.
     bool FSR = mother->state[clusterIn.emittor].isFinal();
+    if (!FSR) aemScale += pow2(mergingHooksPtr->pT0ISR());
+
+    // Directly get argument of running alpha_em from shower plugin.
+    if (mergingHooksPtr->useShowerPlugin() )
+      aemScale = getShowerPluginScale(mother->state, clusterIn.emittor,
+        clusterIn.emitted, clusterIn.recoiler, "scaleEM", aemScale);
+
     double alphaEMinPS = (FSR) ? (*aemFSR).alphaEM(aemScale)
-                      : (*aemISR).alphaEM(aemScale
-                                       + pow2(mergingHooksPtr->pT0ISR()) );
-
+                               : (*aemISR).alphaEM(aemScale);
     aemWeight *= alphaEMinPS / aem0;
-
   }
 
   // Calculate pdf ratios: Get both sides of event
@@ -2381,7 +2395,14 @@ double History::weightTreeALPHAS( double as0, AlphaStrong * asFSR,
     double asScale = pow2( scale );
     if (mergingHooksPtr->unorderedASscalePrescip() == 1)
       asScale = pow2( clusterIn.pT() );
+
+    // Add regularisation scale to initial state alpha_s.
     if (!FSR) asScale += pow2(mergingHooksPtr->pT0ISR());
+
+    // Directly get argument of running alpha_s from shower plugin.
+    if (mergingHooksPtr->useShowerPlugin() )
+      asScale = getShowerPluginScale(mother->state, clusterIn.emittor,
+        clusterIn.emitted, clusterIn.recoiler, "scaleAS", asScale);
 
     double alphaSinPS = (FSR) ? (*asFSR).alphaS(asScale)
                               : (*asISR).alphaS(asScale);
@@ -2422,7 +2443,14 @@ double History::weightTreeALPHAEM( double aem0, AlphaEM * aemFSR,
     double aemScale = pow2( scale );
     if (mergingHooksPtr->unorderedASscalePrescip() == 1)
       aemScale = pow2( clusterIn.pT() );
-    if (!FSR ) aemScale += pow2(mergingHooksPtr->pT0ISR());
+
+    // Add regularisation scale to initial state alpha_em.
+    if (!FSR) aemScale += pow2(mergingHooksPtr->pT0ISR());
+
+    // Directly get argument of running alpha_em from shower plugin.
+    if (mergingHooksPtr->useShowerPlugin() )
+      aemScale = getShowerPluginScale(mother->state, clusterIn.emittor,
+        clusterIn.emitted, clusterIn.recoiler, "scaleEM", aemScale);
 
     double alphaEMinPS = (FSR) ? (*aemFSR).alphaEM(aemScale)
                                : (*aemISR).alphaEM(aemScale);
@@ -2640,6 +2668,14 @@ double History::weightFirst(PartonLevel* trial, double as0, double muR,
     asScale2 += pow(mergingHooksPtr->pT0ISR(),2);
     b = 1.;
   }
+
+  // Directly get argument of running alpha_s from shower plugin.
+  if (mergingHooksPtr->useShowerPlugin() ){
+    asScale2 = getShowerPluginScale(mother->state, clusterIn.emittor,
+      clusterIn.emitted, clusterIn.recoiler, "scaleAS", asScale2);
+    b = 1.;
+  }
+
   // Find summand beta_0 / 2 * ln(muR^2/t_i) due to as expansion.
   double NF = 4.;
   double BETA0 = 11. - 2./3.* NF;
@@ -2722,6 +2758,14 @@ double History::weightFirstALPHAS( double as0, double muR,
     asScale += pow2( mergingHooksPtr->pT0ISR() );
     b = 1.;
   }
+
+  // Directly get argument of running alpha_s from shower plugin.
+  if (mergingHooksPtr->useShowerPlugin() ) {
+    asScale = getShowerPluginScale(mother->state, clusterIn.emittor,
+      clusterIn.emitted, clusterIn.recoiler, "scaleAS", asScale);
+    b = 1.;
+  }
+
   // Find summand beta_0 / 2 * ln(muR^2/t_i) due to as expansion.
   double NF = 4.;
   double BETA0 = 11. - 2./3.* NF;
@@ -2995,7 +3039,7 @@ double History::doTrialShower( PartonLevel* trial, int type,
     infoPtr->hasHistory(true);
 
     // Setup weak shower settings.
-    setupWeakShower(0);
+    if (mergingHooksPtr->doWeakClustering()) setupWeakShower(0);
 
     // Perform trial shower emission
     trial->next(process,event);
@@ -3169,7 +3213,7 @@ History::countEmissions(PartonLevel* trial, double maxscale,
     }
 
     // Setup the weak shower information.
-    setupWeakShower(0);
+    if (mergingHooksPtr->doWeakClustering()) setupWeakShower(0);
 
     // Perform trial shower emission
     trial->next(process,event);
@@ -3211,10 +3255,17 @@ History::countEmissions(PartonLevel* trial, double maxscale,
     // emission was above the minimal scale
     double alphaSinPS = as0;
     double pdfs = 1.0;
+
+    double asScale2 = pTtrial*pTtrial;
+    // Directly get argument of running alpha_s from shower plugin.
+    if (mergingHooksPtr->useShowerPlugin() )
+      asScale2 = getShowerPluginScale(mother->state, clusterIn.emittor,
+        clusterIn.emitted, clusterIn.recoiler, "scaleAS", asScale2);
+
     // Initial state splittings.
     if ( (showerType == -1 || showerType == 2) && typeTrial == 2 ) {
       // Get weight to translate to alpha_s at fixed renormalisation scale.
-      if ( fixas ) alphaSinPS = (*asISR).alphaS(pTtrial*pTtrial);
+      if ( fixas ) alphaSinPS = (*asISR).alphaS(asScale2);
       // Get weight to translate to PDFs at fixed factorisation scale.
       if ( fixpdf )
         pdfs = pdfFactor( event, typeTrial, pTtrial,
@@ -3222,7 +3273,7 @@ History::countEmissions(PartonLevel* trial, double maxscale,
     // Final state splittings.
     } else if ( (showerType == 1 || showerType == 2) && typeTrial >= 3 ) {
       // Get weight to translate to alpha_s at fixed renormalisation scale.
-      if ( fixas ) alphaSinPS = (*asFSR).alphaS(pTtrial*pTtrial);
+      if ( fixas ) alphaSinPS = (*asFSR).alphaS(asScale2);
       // Get weight to translate to PDFs at fixed factorisation scale. Needed
       // for final state splittings with initial state recoiler.
       if ( fixpdf )
@@ -5241,6 +5292,24 @@ double History::getProb(const Clustering & SystemIn) {
 
       if (pT2QQcorr < 0.0) showerProb = 0.0;
     }
+
+    // Check cuts on momentum fraction.
+    double pT2minNow = mergingHooksPtr->pTcut();
+    double zMaxAbs   = 1. - 0.5 * (pT2minNow / m2Dip) *
+                       ( sqrt( 1. + 4. * m2Dip / pT2minNow ) - 1. );
+    zMaxAbs          = min(1.,zMaxAbs);
+    double zMinAbs   = max(0.,1. - zMaxAbs);
+
+    // Massive z limit.
+    int radBefID = getRadBeforeFlav(Rad, Emt, state);
+    if ( abs(radBefID) == 4 || abs(radBefID) == 5 ) {
+      double m2Massive   = pow2(particleDataPtr->m0(radBefID));
+      double mRatio      = sqrt( m2Massive / m2Dip );
+      double zMaxMassive = (1. -  mRatio) / ( 1. +  mRatio * (1. -  mRatio) );
+      zMaxAbs            = min(zMaxAbs, zMaxMassive);
+    }
+
+    if (z1 < zMinAbs || z1 > zMaxAbs) showerProb = 0.0;
 
     if (mergingHooksPtr->includeRedundant()) {
       // Initialise the spacelike shower alpha_S
@@ -8228,8 +8297,7 @@ double History::pTLund(const Event& event, int rad, int emt, int rec,
 
   // Use external shower for merging.
   if ( mergingHooksPtr->useShowerPlugin() ) {
-
-    vector<double> stateVars;
+    map<string,double> stateVars;
     bool isFSR = showers->timesPtr->isTimelike(event, rad, emt, rec, "");
     if (isFSR) {
       string name = showers->timesPtr->getSplittingName(event, rad, emt, rec);
@@ -8241,7 +8309,8 @@ double History::pTLund(const Event& event, int rad, int emt, int rec,
         name);
     }
 
-    return (stateVars.size() > 0 ? sqrt(stateVars[0]) : -1.0);
+    return ( (stateVars.size() > 0 && stateVars.find("t") != stateVars.end())
+             ? sqrt(stateVars["t"]) : -1.0 );
   }
 
   // Save type: 1 = FSR pT definition, else ISR definition
@@ -9140,6 +9209,35 @@ void History::setupWeakHard(vector<int>& mode, vector<int>& fermionLines,
     }
   }
 }
+
+//--------------------------------------------------------------------------
+
+// Function to retrieve scale information from external showers.
+
+double History::getShowerPluginScale(const Event& event, int rad, int emt,
+  int rec, string key, double scalePythia) {
+
+  // Done if no shower plugin is used.
+  if ( !mergingHooksPtr->useShowerPlugin() ) return scalePythia;
+
+  // Retrieve state variables.
+  map<string,double> stateVars;
+  bool isFSR = showers->timesPtr->isTimelike(event, rad, emt, rec, "");
+  if (isFSR) {
+    string name = showers->timesPtr->getSplittingName(event, rad, emt, rec);
+    stateVars   = showers->timesPtr->getStateVariables(event, rad, emt, rec,
+      name);
+  } else {
+    string name = showers->spacePtr->getSplittingName(event, rad, emt, rec);
+    stateVars   = showers->spacePtr->getStateVariables(event, rad, emt, rec,
+      name);
+  }
+
+  return ( (stateVars.size() > 0 && stateVars.find(key) != stateVars.end())
+           ? stateVars[key] : -1.0 );
+
+}
+
 //==========================================================================
 
 } // end namespace Pythia8

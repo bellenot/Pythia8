@@ -168,8 +168,7 @@ bool SigmaPartialWave::readFile(string xmlPath, string filename) {
   while (ifs.good()) {
     // Get line, convert to lowercase and strip leading whitespace
     getline(ifs, line);
-    for (unsigned int i = 0; i < line.length(); i++)
-      line[i] = tolower(line[i]);
+    toLowerRep(line, false);
     string::size_type startPos = line.find_first_not_of("  ");
     if (startPos != string::npos) line = line.substr(startPos);
     // Skip blank lines and lines that start with '#'

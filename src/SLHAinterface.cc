@@ -138,14 +138,14 @@ bool SLHAinterface::initSLHA(Settings& settings,
   // ifail = 0 : MODSEL found, spectrum OK
   else if (ifailSpc == 0) {
     // Print spectrum. Done.
-    slha.printSpectrum(0);
+    slha.listSpectrum(0);
   }
   else if (ifailSpc < 0) {
     infoPtr->errorMsg(warnPref + "Problem with SLHA spectrum.",
       "\n Only using masses and switching off SUSY.");
     settings.flag("SUSY:all", false);
     couplingsPtr->isSUSY = false;
-    slha.printSpectrum(ifailSpc);
+    slha.listSpectrum(ifailSpc);
   }
 
   // SLHA1 : SLHA2 compatibility

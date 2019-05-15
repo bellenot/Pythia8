@@ -153,7 +153,7 @@ creates an instance of the <code>LHAupMadgraph</code> class.
 <argument name="pythia"> pointer to the <code>Pythia</code> instance, 
 such that some of its facilities can be used inside the interface. 
 </argument> 
-<argument name="match" default="true"> should be true if jet matching is 
+<argument name="match" default="on"> should be true if jet matching is 
 requested. For tree-level generation MLM matching is used, while 
 FxFx matching is used for aMC@NLO generation. This is set up in 
 <code>LHAupMadgraph::setInit()</code>, which could be modified to 
@@ -169,7 +169,8 @@ it may be necessary to prepend the full pathname of the executable:
 </argument> 
 </method> 
  
-<method name="bool LHAupMadgraph::readString(string line, Stage stage = Auto)"> 
+<method name="bool LHAupMadgraph::readString(string line, 
+Stage stage = Auto)"> 
 allows the user to send commands to MadGraph. 
 <argument name="line"> the command to be sent to MadGraph. 
 Any string begining with <code>"configure "</code> is used for the initial 

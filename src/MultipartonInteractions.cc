@@ -341,7 +341,7 @@ bool MultipartonInteractions::init( bool doMPIinit, int iDiffSysIn,
   Info* infoPtrIn, Settings& settings, ParticleData* particleDataPtr,
   Rndm* rndmPtrIn, BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn,
   Couplings* couplingsPtrIn, PartonSystems* partonSystemsPtrIn,
-  SigmaTotal* sigmaTotPtrIn, UserHooks* userHooksPtrIn, ostream& os) {
+  SigmaTotal* sigmaTotPtrIn, UserHooks* userHooksPtrIn) {
 
   // Store input pointers for future use. Done if no initialization.
   iDiffSys         = iDiffSysIn;
@@ -489,24 +489,25 @@ bool MultipartonInteractions::init( bool doMPIinit, int iDiffSysIn,
   // Output initialization info - first part.
   bool showMPI = settings.flag("Init:showMultipartonInteractions");
   if (showMPI) {
-    os << "\n *-------  PYTHIA Multiparton Interactions Initialization  "
-       << "---------* \n"
-       << " |                                                        "
-       << "          | \n";
+    cout << "\n *-------  PYTHIA Multiparton Interactions Initialization  "
+         << "---------* \n"
+         << " |                                                        "
+         << "          | \n";
     if (isNonDiff)
-      os << " |                   sigmaNonDiffractive = " << fixed
-         << setprecision(2) << setw(7) << sigmaND << " mb               | \n";
+      cout << " |                   sigmaNonDiffractive = " << fixed
+           << setprecision(2) << setw(7) << sigmaND << " mb               |"
+           << " \n";
     else if (iDiffSys == 1)
-      os << " |                          diffraction XB                "
-         << "          | \n";
+      cout << " |                          diffraction XB                "
+           << "          | \n";
     else if (iDiffSys == 2)
-      os << " |                          diffraction AX                "
-         << "          | \n";
+      cout << " |                          diffraction AX                "
+           << "          | \n";
     else if (iDiffSys == 3)
-      os << " |                          diffraction AXB               "
+      cout << " |                          diffraction AXB               "
+           << "          | \n";
+    cout << " |                                                        "
          << "          | \n";
-    os << " |                                                        "
-       << "          | \n";
   }
 
   // For diffraction need to cover range of diffractive masses.
@@ -522,7 +523,7 @@ bool MultipartonInteractions::init( bool doMPIinit, int iDiffSysIn,
             iStep / (nStep - 1.) );
       sCM = eCM * eCM;
       sigmaND = sigmaPomP * pow( eCM / mPomP, pPomP);
-      if (showMPI) os << " |    diffractive mass = " << scientific
+      if (showMPI) cout << " |    diffractive mass = " << scientific
         << setprecision(3) << setw(9) << eCM << " GeV and sigmaNorm = "
         << fixed << setw(6) << sigmaND << " mb    | \n";
     }
@@ -569,7 +570,7 @@ bool MultipartonInteractions::init( bool doMPIinit, int iDiffSysIn,
 
       // Sufficiently big SigmaInt or reduce pT0; maybe also pTmin.
       if (sigmaInt > SIGMASTEP * sigmaND) break;
-      if (showMPI) os << fixed << setprecision(2) << " |    pT0 = "
+      if (showMPI) cout << fixed << setprecision(2) << " |    pT0 = "
         << setw(5) << pT0 << " gives sigmaInteraction = " << setw(7)
         << sigmaInt << " mb: rejected     | \n";
       if (pTmin > pT0) pTmin *= PT0STEP;
@@ -585,7 +586,7 @@ bool MultipartonInteractions::init( bool doMPIinit, int iDiffSysIn,
     }
 
     // Output for accepted pT0.
-    if (showMPI) os << fixed << setprecision(2) << " |    pT0 = "
+    if (showMPI) cout << fixed << setprecision(2) << " |    pT0 = "
       << setw(5) << pT0 << " gives sigmaInteraction = "<< setw(7)
       << sigmaInt << " mb: accepted     | \n";
 
@@ -621,15 +622,15 @@ bool MultipartonInteractions::init( bool doMPIinit, int iDiffSysIn,
 
   // Output details for x-dependent matter profile.
   if (bProfile == 4 && showMPI)
-    os << " |                                              "
-       << "                    | \n"
-       << fixed << setprecision(2)
-       << " |  x-dependent matter profile: a1 = " << a1 << ", "
-       << "a0 = " << a0now * XDEP_SMB2FM << ", bStep = "
-       << bstepNow << "  | \n";
+    cout << " |                                              "
+         << "                    | \n"
+         << fixed << setprecision(2)
+         << " |  x-dependent matter profile: a1 = " << a1 << ", "
+         << "a0 = " << a0now * XDEP_SMB2FM << ", bStep = "
+         << bstepNow << "  | \n";
 
   // End initialization printout.
-  if (showMPI) os << " |                                              "
+  if (showMPI) cout << " |                                              "
      << "                    | \n"
      << " *-------  End PYTHIA Multiparton Interactions Initialization"
      << "  -----* " << endl;
@@ -2401,27 +2402,27 @@ void MultipartonInteractions::overlapNext(Event& event, double pTscale,
 
 //--------------------------------------------------------------------------
 
-// Printe statistics on number of multiparton-interactions processes.
+// Print statistics on number of multiparton-interactions processes.
 
-void MultipartonInteractions::statistics(bool resetStat, ostream& os) {
+void MultipartonInteractions::statistics(bool resetStat) {
 
   // Header.
-  os << "\n *-------  PYTHIA Multiparton Interactions Statistics  -----"
-     << "---*\n"
-     << " |                                                            "
-     << " |\n"
-     << " |  Note: excludes hardest subprocess if already listed above "
-     << " |\n"
-     << " |                                                            "
-     << " |\n"
-     << " | Subprocess                               Code |       Times"
-     << " |\n"
-     << " |                                               |            "
-     << " |\n"
-     << " |------------------------------------------------------------"
-     << "-|\n"
-     << " |                                               |            "
-     << " |\n";
+  cout << "\n *-------  PYTHIA Multiparton Interactions Statistics  -----"
+       << "---*\n"
+       << " |                                                            "
+       << " |\n"
+       << " |  Note: excludes hardest subprocess if already listed above "
+       << " |\n"
+       << " |                                                            "
+       << " |\n"
+       << " | Subprocess                               Code |       Times"
+       << " |\n"
+       << " |                                               |            "
+       << " |\n"
+       << " |------------------------------------------------------------"
+       << "-|\n"
+       << " |                                               |            "
+       << " |\n";
 
   // Loop over existing processes. Sum of all subprocesses.
   int numberSum = 0;
@@ -2450,21 +2451,21 @@ void MultipartonInteractions::statistics(bool resetStat, ostream& os) {
     }
 
     // Print individual process info.
-    os << " | " << left << setw(40) << name << right << setw(5) << code
-       << " | " << setw(11) << number << " |\n";
+    cout << " | " << left << setw(40) << name << right << setw(5) << code
+         << " | " << setw(11) << number << " |\n";
   }
 
   // Print summed process info.
-  os << " |                                                            "
-     << " |\n"
-     << " | " << left << setw(45) << "sum" << right << " | " << setw(11)
+  cout << " |                                                            "
+       << " |\n"
+       << " | " << left << setw(45) << "sum" << right << " | " << setw(11)
        << numberSum  << " |\n";
 
     // Listing finished.
-  os << " |                                               |            "
-     << " |\n"
-     << " *-------  End PYTHIA Multiparton Interactions Statistics ----"
-     << "-*" << endl;
+  cout << " |                                               |            "
+       << " |\n"
+       << " *-------  End PYTHIA Multiparton Interactions Statistics ----"
+       << "-*" << endl;
 
   // Optionally reset statistics contents.
   if (resetStat) resetStatistics();

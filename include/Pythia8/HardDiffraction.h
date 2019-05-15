@@ -60,7 +60,7 @@ private:
   static const double PROTONMASS;
 
   // Initialization and event data.
-  int    pomSet, pomFlux, iBeam, idA, idB;
+  int    pomFlux, iBeam, idA, idB;
   double rescale, normPom, a1, a2, a3, A1, A2, A3, a0, ap, b0,
          mA, mB, s, s1, s2, s3, s4,
          xPomA, xPomB, tPomA, tPomB, thetaPomA, thetaPomB;

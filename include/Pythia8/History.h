@@ -820,6 +820,10 @@ private:
   void setupWeakHard(vector<int>& mode, vector<int>& fermionLines,
     vector<Vec4>& mom);
 
+  // Functions to retrieve scale information from external showers.
+  double getShowerPluginScale(const Event& event, int rad, int emt, int rec,
+    string key, double scalePythia);
+
   //----------------------------------------------------------------------//
   // Class members.
   //----------------------------------------------------------------------//

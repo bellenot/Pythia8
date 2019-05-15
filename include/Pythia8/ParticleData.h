@@ -348,11 +348,6 @@ private:
   // Set constituent mass.
   void setConstituentMass();
 
-  // Useful functions for string handling.
-  string toLower(const string& nameConv) { string temp(nameConv);
-    for (int i = 0; i < int(temp.length()); ++i) temp[i] = tolower(temp[i]);
-    return temp; }
-
 };
 
 //==========================================================================
@@ -386,8 +381,15 @@ public:
     couplingsPtr = couplingsPtrIn;}
 
   // Read in database from specific file.
-  bool init(string startFile = "../xmldoc/ParticleData.xml") {
+  bool init(string startFile = "../share/Pythia8/xmldoc/ParticleData.xml") {
     initCommon(); return readXML(startFile);}
+
+  // Read in database from saved file stored in memory.
+  bool init(const ParticleData& particleDataIn) {
+    initCommon(); return copyXML(particleDataIn);}
+
+  // Read in database from an istream.
+  bool init(istream& is) { initCommon(); return readXML(is);}
 
   // Overwrite existing database by reading from specific file.
   bool reInit(string startFile, bool xmlFormat = true) { initCommon();
@@ -396,36 +398,42 @@ public:
   // Initialize pointers, normal Breit-Wigners and special resonances.
   void initWidths(vector<ResonanceWidths*> resonancePtrs);
 
-  // Read or list whole (or part of) database from/to an XML file.
+  // Read and process or list whole (or part of) database from/to an XML file.
   bool readXML(string inFile, bool reset = true) ;
   void listXML(string outFile);
+  bool readXML(istream& is, bool reset=true);
+
+  // Copy and process XML information from another particleData object.
+  bool copyXML(const ParticleData &particleDataIn);
+
+  // Auxiliary functions to readXML() and copyXML().
+  bool loadXML(string inFile, bool reset = true) ;
+  bool loadXML(istream& is, bool reset=true);
+  bool processXML(bool reset = true) ;
 
   // Read or list whole (or part of) database from/to a free format file.
   bool readFF(string inFile, bool reset = true) ;
+  bool readFF(istream& is, bool reset = true);
   void listFF(string outFile);
 
   // Read in one update from a single line.
-  bool readString(string lineIn, bool warn = true, ostream& os = cout) ;
+  bool readString(string lineIn, bool warn = true) ;
 
   // Keep track whether any readings have failed, invalidating run setup.
   bool readingFailed() {return readingFailedSave;}
 
   // Print out table of whole database, or of only part of it.
-  void listAll(ostream& os = cout) {list(false, true, os);}
-  void listChanged(ostream& os = cout) {list(true, false, os);}
-  void listChanged(bool changedRes, ostream& os = cout) {
-    list(true, changedRes, os);}
-  void list(bool changedOnly = false, bool changedRes = true,
-    ostream& os = cout);
+  void listAll() {list(false, true);}
+  void listChanged(bool changedRes = false) {list(true, changedRes);}
+  void list(bool changedOnly = false, bool changedRes = true);
 
   // Print out specified particles.
-  void list(int idList, ostream& os = cout) {vector<int> idListTemp;
-    idListTemp.push_back(idList); list( idListTemp, os);}
-  void list(vector<int> idList, ostream& os = cout);
+  void list(int idList) {vector<int> idListTemp;
+    idListTemp.push_back(idList); list( idListTemp);}
+  void list(vector<int> idList);
 
   // Check that table makes sense, especially for decays.
-  void checkTable(ostream& os = cout) {checkTable(1, os);};
-  void checkTable(int verbosity, ostream& os = cout) ;
+  void checkTable(int verbosity = 1) ;
 
   // Add new entry.
   void addParticle(int idIn, string nameIn = " ", int spinTypeIn = 0,
@@ -639,9 +647,6 @@ private:
   void   initCommon();
 
   // Useful functions for string handling.
-  string toLower(const string& nameConv) { string temp(nameConv);
-    for (int i = 0; i < int(temp.length()); ++i) temp[i] = tolower(temp[i]);
-    return temp; }
   bool   boolString(string tag) { string tagLow = toLower(tag);
     return ( tagLow == "true" || tagLow == "1" || tagLow == "on"
     || tagLow == "yes" || tagLow == "ok" ); }
@@ -651,6 +656,9 @@ private:
   bool   boolAttributeValue(string line, string attribute);
   int    intAttributeValue(string line, string attribute);
   double doubleAttributeValue(string line, string attribute);
+
+  // Vector of strings containing the readable lines of the XML file.
+  vector<string> xmlFileSav;
 
 };
 

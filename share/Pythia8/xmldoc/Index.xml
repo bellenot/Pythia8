@@ -59,6 +59,7 @@
 <aidx href="ResonanceDecays">Resonance Decays</aidx><br/> 
 <aidx href="TimelikeShowers">Timelike Showers</aidx><br/> 
 <aidx href="SpacelikeShowers">Spacelike Showers</aidx><br/> 
+<aidx href="Variations">Automated Shower Variations</aidx><br/> 
 <aidx href="WeakShowers">Weak Showers</aidx><br/> 
 <aidx href="MultipartonInteractions">Multiparton Interactions</aidx><br/> 
 <aidx href="BeamRemnants">Beam Remnants</aidx><br/> 
@@ -123,6 +124,7 @@
 <aidx href="ImplementNewShowers">Implement New Showers</aidx><br/> 
 <aidx href="RIVETusage">RIVET usage</aidx><br/> 
 <aidx href="ROOTusage">ROOT usage</aidx><br/> 
+<aidx href="PythonInterface">A Python Interface</aidx><br/> 
 </INDEXPHP> 
  
 <h4>Reference Materiel</h4> 

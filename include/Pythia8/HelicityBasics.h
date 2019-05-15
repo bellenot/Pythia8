@@ -103,7 +103,7 @@ Wave4 conj(Wave4 w);
 Wave4 epsilon(Wave4 w1, Wave4 w2, Wave4 w3);
 double m2(Wave4 w);
 double m2(Wave4 w1, Wave4 w2);
-ostream& operator<< (ostream& os, Wave4 w);
+ostream& operator<<(ostream& os, Wave4 w);
 
 //==========================================================================
 
@@ -153,7 +153,7 @@ public:
   friend GammaMatrix operator+(complex s, GammaMatrix g);
 
   // << GammaMatrix.
-  friend ostream& operator<< (ostream& os, GammaMatrix g);
+  friend ostream& operator<<(ostream& os, GammaMatrix g);
 
 protected:
 
@@ -172,7 +172,7 @@ Wave4 operator*(Wave4 w, GammaMatrix g);
 GammaMatrix operator*(complex s, GammaMatrix g);
 GammaMatrix operator-(complex s, GammaMatrix g);
 GammaMatrix operator+(complex s, GammaMatrix g);
-ostream& operator<< (ostream& os, GammaMatrix g);
+ostream& operator<<(ostream& os, GammaMatrix g);
 
 //==========================================================================
 

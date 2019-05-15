@@ -139,6 +139,9 @@ public:
   // Set new pZ and E, but keep the rest the same.
   void newPzE( double pzIn, double eIn) {pBeam = Vec4( 0., 0., pzIn, eIn);}
 
+  // Set new mass. Used with photons when virtuality is sampled.
+  void newM( double mIn) { mBeam = mIn; }
+
   // Member functions for output.
   int id() const {return idBeam;}
   Vec4 p() const {return pBeam;}
@@ -151,9 +154,10 @@ public:
   bool isUnresolved() const {return isUnresolvedBeam;}
   // As hadrons here we only count those we know how to handle remnants for.
   bool isHadron() const {return isHadronBeam;}
-  bool isMeson() const {return isMesonBeam;}
+  bool isMeson()  const {return isMesonBeam;}
   bool isBaryon() const {return isBaryonBeam;}
-  bool isGamma() const {return isGammaBeam;}
+  bool isGamma()  const {return isGammaBeam;}
+  bool hasGamma() const {return hasGammaInLepton;}
 
   // Maximum x remaining after previous MPI and ISR, plus safety margin.
   double xMax(int iSkip = -1);
@@ -161,6 +165,10 @@ public:
   // Special hard-process parton distributions (can agree with standard ones).
   double xfHard(int idIn, double x, double Q2)
     {return pdfHardBeamPtr->xf(idIn, x, Q2);}
+
+  // Overestimate for PDFs. Same as normal except photons inside leptons.
+  double xfMax(int idIn, double x, double Q2)
+    {return pdfHardBeamPtr->xfMax(idIn, x, Q2);}
 
   // Standard parton distributions.
   double xf(int idIn, double x, double Q2)
@@ -212,7 +220,7 @@ public:
     return resolved.size() - 1;}
 
   // Print extracted parton list; for debug mainly.
-  void list(ostream& os = cout) const;
+  void list() const;
 
   // How many different flavours, and how many quarks of given flavour.
   int nValenceKinds() const {return nValKinds;}
@@ -284,6 +292,18 @@ public:
   double gammaPDFRefScale(int flavour)
     { return pdfBeamPtr->gammaPDFRefScale(flavour); }
 
+  // Returns the x_gamma value for last PDF call. Used to set up the value.
+  double xGammaPDF(int idParton) { return pdfBeamPtr->xGamma(idParton); }
+  void newxGamma(double xGmIn) { xGm = xGmIn; }
+  // Returns saved x_gamma value. Used after the value is set previously.
+  double xGamma() { return xGm; }
+
+  // Set and get the direction and magnitude of kT for photons inside leptons.
+  void newGammaKTPhi(double kTIn, double phiIn)
+    { kTgamma = kTIn; phiGamma = phiIn; }
+  double gammaKTx() { return kTgamma*cos(phiGamma); }
+  double gammaKTy() { return kTgamma*sin(phiGamma); }
+
 private:
 
   // Constants: could only be changed in the code itself.
@@ -328,8 +348,12 @@ private:
   double xqgTot, xqVal, xqgSea, xqCompSum;
 
   // Variables related to photon beams.
-  bool   doISR, gammaRemnants, initiatorValence;
+  bool   doISR, gammaRemnants, initiatorValence, lepton2gamma,
+         hasGammaInLepton;
   double pTminISR;
+
+  // Kinematic variables for photon from lepton.
+  double xGm, kTgamma, phiGamma;
 
   // The list of resolved partons.
   vector<ResolvedParton> resolved;

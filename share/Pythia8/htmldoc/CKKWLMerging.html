@@ -1361,6 +1361,22 @@ of an external shower plugin. This will become possible as soon as new
 showers containing the necessary ingredients are available in Pythia. 
    
  
+<p/><code>flag&nbsp; </code><strong> Merging:applyVeto &nbsp;</strong> 
+ (<code>default = <strong>on</strong></code>)<br/>
+If off, no event veto based on the merging scale is applied in CKKW-L merging. 
+This means that the user has to implement the veto by hand in the Pythia main 
+program. It can be useful to postpone event vetoes for the purpose of merging 
+scale variations. 
+   
+ 
+<p/><code>flag&nbsp; </code><strong> Merging:includeWeightInXsection &nbsp;</strong> 
+ (<code>default = <strong>on</strong></code>)<br/>
+If on, then the reweighting of events in the CKKW-L scheme is included in 
+the event weight <code>Info::weight()</code>, the merging weight 
+<code>Info:mergingWeight()</code> is unity, and the cross section printed 
+by <code>Info::sigmaGen()</code> includes the effect of CKKW-L merging. 
+   
+ 
 </body>
 </html>
  

@@ -186,7 +186,9 @@ public:
     doWeakClusteringSave(false),
     doSQCDClusteringSave(false),
     doIgnoreEmissionsSave(true),
-    doIgnoreStepSave(true), hasJetMaxLocal(false) {
+    doIgnoreStepSave(true),
+    hasJetMaxLocal(false),
+    includeWGTinXSECSave(false) {
       inputEvent = Event(); resonances.resize(0); infoPtr = 0;
       particleDataPtr = 0; partonSystemsPtr = 0;}
 
@@ -412,12 +414,29 @@ public:
   // Function to check if emission should be rejected.
   bool doVetoEmission( const Event& );
 
- //----------------------------------------------------------------------//
+  //----------------------------------------------------------------------//
   // Functions used as clusterings / probabilities
   //----------------------------------------------------------------------//
 
   bool useShowerPluginSave;
   virtual bool useShowerPlugin() { return useShowerPluginSave; }
+
+  //----------------------------------------------------------------------//
+  // Functions to retrieve if merging weight should countin the internal
+  // cross section and the event weight.
+  //----------------------------------------------------------------------//
+
+  bool includeWGTinXSEC() { return includeWGTinXSECSave;}
+
+  //----------------------------------------------------------------------//
+  // Functions to retrieve event veto information
+  //----------------------------------------------------------------------//
+
+  int nHardNow()      { return nHardNowSave; }
+  double tmsHardNow() { return tmsHardNowSave; }
+  int nJetsNow()      { return nJetNowSave; }
+  double tmsNow()     { return tmsNowSave;}
+
 
 protected:
 
@@ -469,6 +488,8 @@ protected:
 
   // Flag to only do phase space cut, rejecting events below the tms cut.
   bool   doEstimateXSection;
+
+  bool applyVeto;
 
   // Save input event in case decay products need to be detached.
   Event inputEvent;
@@ -532,6 +553,12 @@ protected:
   int nJetMaxNLOLocal;
   bool hasJetMaxLocal;
 
+  // Event veto and hard process information, if veto should not applied be
+  // directly, but is up to the user.
+  bool includeWGTinXSECSave;
+  int nHardNowSave, nJetNowSave;
+  double tmsHardNowSave, tmsNowSave;
+
   //----------------------------------------------------------------------//
   // Generic setup functions
   //----------------------------------------------------------------------//
@@ -539,8 +566,7 @@ protected:
   // Functions for internal use inside Pythia source code
   // Initialize.
   void init( Settings settings, Info* infoPtrIn,
-    ParticleData* particleDataPtrIn, PartonSystems* partonSystemsPtrIn,
-    ostream& os = cout);
+    ParticleData* particleDataPtrIn, PartonSystems* partonSystemsPtrIn);
 
   // Function storing candidates for the hard process in the current event
   // Needed in order not to cluster members of the core process
@@ -663,19 +689,24 @@ protected:
   double muR() { return (muRSave > 0.) ? muRSave : infoPtr->QRen();}
   // Store / get factorisation scale used in matrix element calculation.
   double muFinME() {
+    // Start with checking the event attribute called "muf".
     string mus = infoPtr->getEventAttribute("muf2",true);
     double mu  = (mus.empty()) ? 0. : atof((char*)mus.c_str());
     mu = sqrt(mu);
+    // Check the scales tag of the event.
     if (infoPtr->scales) mu = infoPtr->getScalesAttribute("muf");
     return (mu > 0.) ? mu : (muFinMESave > 0.) ? muFinMESave : infoPtr->QFac();
   }
   double muRinME() {
+    // Start with checking the event attribute called "mur2".
     string mus = infoPtr->getEventAttribute("mur2",true);
     double mu  = (mus.empty()) ? 0. : atof((char*)mus.c_str());
     mu = sqrt(mu);
+    // Check the scales tag of the event.
     if (infoPtr->scales) mu = infoPtr->getScalesAttribute("mur");
     return (mu > 0.) ? mu : (muRinMESave > 0.) ? muRinMESave : infoPtr->QRen();
   }
+
 
   //----------------------------------------------------------------------//
   // Functions to steer merging code
@@ -733,11 +764,24 @@ protected:
   // Set CKKW-L weight.
   void setWeightCKKWL( double weightIn){
     weightCKKWLSave = weightIn;
-    infoPtr->setWeightCKKWL(weightIn); }
+    if ( !includeWGTinXSEC() ) infoPtr->setWeightCKKWL(weightIn); }
   // Set O(\alpha_s) weight.
   void setWeightFIRST( double weightIn){
     weightFIRSTSave = weightIn;
     infoPtr->setWeightFIRST(weightIn); }
+
+
+  //----------------------------------------------------------------------//
+  // Functions and members to store the event veto information
+  //----------------------------------------------------------------------//
+
+  // Set CKKWL veto information.
+  void setEventVetoInfo(int nJetNowIn, double tmsNowIn) {
+    nJetNowSave = nJetNowIn; tmsNowSave = tmsNowIn; }
+
+  // Set the hard process information.
+  void setHardProcessInfo(int nHardNowIn, double tmsHardNowIn) {
+    nHardNowSave = nHardNowIn; tmsHardNowSave = tmsHardNowIn; }
 
 };
 

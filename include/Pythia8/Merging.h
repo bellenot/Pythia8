@@ -88,7 +88,7 @@ protected:
     CoupSM* coupSMPtrIn);
 
   // Function to print statistics.
-  void statistics(ostream& os = cout);
+  void statistics();
 
   //----------------------------------------------------------------------//
   // Functions that implement matrix element merging.

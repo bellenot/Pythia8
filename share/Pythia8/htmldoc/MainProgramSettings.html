@@ -198,6 +198,24 @@ important and would be a standard feature of any separate command file.
 The number of events to be generated. 
    
  
+<p/><code>mode&nbsp; </code><strong> Main:numberOfTriedEvents &nbsp;</strong> 
+ (<code>default = <strong>0</strong></code>; <code>minimum = 0</code>)<br/>
+The number of events to be tried during generation. Any number smaller than one 
+means that the setting will be ignored. 
+   
+ 
+<p/><code>mode&nbsp; </code><strong> Main:numberOfSelectedEvents &nbsp;</strong> 
+ (<code>default = <strong>0</strong></code>; <code>minimum = 0</code>)<br/>
+The number of events to be selected during generation. Any number smaller than 
+one means that the setting will be ignored. 
+   
+ 
+<p/><code>mode&nbsp; </code><strong> Main:numberOfAcceptedEvents &nbsp;</strong> 
+ (<code>default = <strong>0</strong></code>; <code>minimum = 0</code>)<br/>
+The number of events to be accepted during generation. Any number smaller than 
+one means that the setting will be ignored. 
+   
+ 
 <p/><code>mode&nbsp; </code><strong> Main:timesAllowErrors &nbsp;</strong> 
  (<code>default = <strong>10</strong></code>)<br/>
 Allow this many times that <code>pythia.next()</code> returns false, 

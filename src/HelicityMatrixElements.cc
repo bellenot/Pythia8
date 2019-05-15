@@ -323,7 +323,7 @@ complex HelicityMatrixElement::dBreitWigner(double m0, double m1, double s,
 void HMETwoFermions2W2TwoFermions::initConstants() {
 
   // Set the constants for the W'.
-  if (abs(pID[4]) == 34 && settingsPtr) {
+  if (pID.size() > 4 && abs(pID[4]) == 34 && settingsPtr) {
     if (abs(pID[0]) < 11) {
       p0CA = settingsPtr->parm("Wprime:aq");
       p0CV = settingsPtr->parm("Wprime:vq");

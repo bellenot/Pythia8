@@ -660,38 +660,20 @@ int Event::copy(int iCopy, int newStatus) {
 
 //--------------------------------------------------------------------------
 
-// Print an event - special cases that rely on the general method.
-// Not inline to make them directly callable in (some) debuggers.
-
-void Event::list(int precision) const {
-  list(false, false, cout, precision);
-}
-
-void Event::list(ostream& os, int precision) const {
-  list(false, false, os, precision);
-}
-
-void Event::list(bool showScaleAndVertex, bool showMothersAndDaughters,
-  int precision) const {
-  list(showScaleAndVertex, showMothersAndDaughters, cout, precision);
-}
-
-//--------------------------------------------------------------------------
-
 // Print an event.
 
 void Event::list(bool showScaleAndVertex, bool showMothersAndDaughters,
-  ostream& os, int precision) const {
+  int precision) const {
 
   // Header.
-  os << "\n --------  PYTHIA Event Listing  " << headerList << "----------"
-     << "-------------------------------------------------\n \n    no    "
-     << "    id   name            status     mothers   daughters     colou"
-     << "rs      p_x        p_y        p_z         e          m \n";
+  cout << "\n --------  PYTHIA Event Listing  " << headerList << "----------"
+       << "-------------------------------------------------\n \n    no    "
+       << "    id   name            status     mothers   daughters     colou"
+       << "rs      p_x        p_y        p_z         e          m \n";
   if (showScaleAndVertex)
-    os << "                                    scale         pol          "
-       << "                   xProd      yProd      zProd      tProd      "
-       << " tau\n";
+    cout << "                                    scale         pol          "
+         << "                   xProd      yProd      zProd      tProd      "
+         << " tau\n";
 
   // Precision. At high energy switch to scientific format for momenta.
   int prec = max( 3, precision);
@@ -704,45 +686,51 @@ void Event::list(bool showScaleAndVertex, bool showMothersAndDaughters,
     const Particle& pt = entry[i];
 
     // Basic line for a particle, always printed.
-    os << setw(6) << i << setw(10) << pt.id() << "   " << left
-       << setw(18) << pt.nameWithStatus(18) << right << setw(4)
-       << pt.status() << setw(6) << pt.mother1() << setw(6)
-       << pt.mother2() << setw(6) << pt.daughter1() << setw(6)
-       << pt.daughter2() << setw(6) << pt.col() << setw(6) << pt.acol()
-       << ( (useFixed) ? fixed : scientific ) << setprecision(prec)
-       << setw(8+prec) << pt.px() << setw(8+prec) << pt.py()
-       << setw(8+prec) << pt.pz() << setw(8+prec) << pt.e()
-       << setw(8+prec) << pt.m() << "\n";
+    cout << setw(6) << i << setw(10) << pt.id() << "   " << left
+         << setw(18) << pt.nameWithStatus(18) << right << setw(4)
+         << pt.status() << setw(6) << pt.mother1() << setw(6)
+         << pt.mother2() << setw(6) << pt.daughter1() << setw(6)
+         << pt.daughter2() << setw(6) << pt.col() << setw(6) << pt.acol()
+         << ( (useFixed) ? fixed : scientific ) << setprecision(prec)
+         << setw(8+prec) << pt.px() << setw(8+prec) << pt.py()
+         << setw(8+prec) << pt.pz() << setw(8+prec) << pt.e()
+         << setw(8+prec) << pt.m() << "\n";
 
     // Optional extra line for scale value, polarization and production vertex.
     if (showScaleAndVertex)
-      os << "                              " << setw(8+prec) << pt.scale()
-         << " " << fixed << setprecision(prec) << setw(8+prec) << pt.pol()
-         << "                        " << scientific << setprecision(prec)
-         << setw(8+prec) << pt.xProd() << setw(8+prec) << pt.yProd()
-         << setw(8+prec) << pt.zProd() << setw(8+prec) << pt.tProd()
-         << setw(8+prec) << pt.tau() << "\n";
+      cout << "                              " << setw(8+prec) << pt.scale()
+           << " " << fixed << setprecision(prec) << setw(8+prec) << pt.pol()
+           << "                        " << scientific << setprecision(prec)
+           << setw(8+prec) << pt.xProd() << setw(8+prec) << pt.yProd()
+           << setw(8+prec) << pt.zProd() << setw(8+prec) << pt.tProd()
+           << setw(8+prec) << pt.tau() << "\n";
 
     // Optional extra line, giving a complete list of mothers and daughters.
     if (showMothersAndDaughters) {
       int linefill = 2;
-      os << "                mothers:";
+      cout << "                mothers:";
       vector<int> allMothers = pt.motherList();
       for (int j = 0; j < int(allMothers.size()); ++j) {
-        os << " " <<  allMothers[j];
-        if (++linefill == IPERLINE) {os << "\n                "; linefill = 0;}
+        cout << " " <<  allMothers[j];
+        if (++linefill == IPERLINE) {
+          cout << "\n                ";
+          linefill = 0;
+        }
       }
-      os << ";   daughters:";
+      cout << ";   daughters:";
       vector<int> allDaughters = pt.daughterList();
       for (int j = 0; j < int(allDaughters.size()); ++j) {
-        os << " " <<  allDaughters[j];
-        if (++linefill == IPERLINE) {os << "\n                "; linefill = 0;}
+        cout << " " <<  allDaughters[j];
+        if (++linefill == IPERLINE) {
+          cout << "\n                ";
+          linefill = 0;
+        }
       }
-      if (linefill !=0) os << "\n";
+      if (linefill !=0) cout << "\n";
     }
 
     // Extra blank separation line when each particle spans more than one line.
-    if (showScaleAndVertex || showMothersAndDaughters) os << "\n";
+    if (showScaleAndVertex || showMothersAndDaughters) cout << "\n";
 
     // Statistics on momentum and charge.
     if (entry[i].status() > 0) {
@@ -752,17 +740,17 @@ void Event::list(bool showScaleAndVertex, bool showMothersAndDaughters,
   }
 
   // Line with sum charge, momentum, energy and invariant mass.
-  os << fixed << setprecision(3) << "                                   "
-     << "Charge sum:" << setw(7) << chargeSum << "           Momentum sum:"
-     << ( (useFixed) ? fixed : scientific ) << setprecision(prec)
-     << setw(8+prec) << pSum.px() << setw(8+prec) << pSum.py()
-     << setw(8+prec) << pSum.pz() << setw(8+prec) << pSum.e()
-     << setw(8+prec) << pSum.mCalc() << "\n";
+  cout << fixed << setprecision(3) << "                                   "
+       << "Charge sum:" << setw(7) << chargeSum << "           Momentum sum:"
+       << ( (useFixed) ? fixed : scientific ) << setprecision(prec)
+       << setw(8+prec) << pSum.px() << setw(8+prec) << pSum.py()
+       << setw(8+prec) << pSum.pz() << setw(8+prec) << pSum.e()
+       << setw(8+prec) << pSum.mCalc() << "\n";
 
   // Listing finished.
-  os << "\n --------  End PYTHIA Event Listing  ----------------------------"
-     << "-------------------------------------------------------------------"
-     << endl;
+  cout << "\n --------  End PYTHIA Event Listing  ----------------------------"
+       << "-------------------------------------------------------------------"
+       << endl;
 }
 
 //--------------------------------------------------------------------------
@@ -781,26 +769,26 @@ void Event::eraseJunction(int i) {
 
 // Print the junctions in an event.
 
-void Event::listJunctions(ostream& os) const {
+void Event::listJunctions() const {
 
   // Header.
-  os << "\n --------  PYTHIA Junction Listing  "
-     << headerList.substr(0,30) << "\n \n    no  kind  col0  col1  col2 "
-     << "endc0 endc1 endc2 stat0 stat1 stat2\n";
+  cout << "\n --------  PYTHIA Junction Listing  "
+       << headerList.substr(0,30) << "\n \n    no  kind  col0  col1  col2 "
+       << "endc0 endc1 endc2 stat0 stat1 stat2\n";
 
   // Loop through junctions in event and list them.
   for (int i = 0; i < sizeJunction(); ++i)
-    os << setw(6) << i << setw(6) << kindJunction(i) << setw(6)
-       << colJunction(i, 0) << setw(6) << colJunction(i, 1) << setw(6)
-       << colJunction(i, 2) << setw(6) << endColJunction(i, 0) << setw(6)
-       << endColJunction(i, 1) << setw(6) << endColJunction(i, 2) << setw(6)
-       << statusJunction(i, 0) << setw(6) << statusJunction(i, 1) << setw(6)
-       << statusJunction(i, 2) << "\n";
+    cout << setw(6) << i << setw(6) << kindJunction(i) << setw(6)
+         << colJunction(i, 0) << setw(6) << colJunction(i, 1) << setw(6)
+         << colJunction(i, 2) << setw(6) << endColJunction(i, 0) << setw(6)
+         << endColJunction(i, 1) << setw(6) << endColJunction(i, 2) << setw(6)
+         << statusJunction(i, 0) << setw(6) << statusJunction(i, 1) << setw(6)
+         << statusJunction(i, 2) << "\n";
 
   // Alternative if no junctions. Listing finished.
-  if (sizeJunction() == 0) os << "    no junctions present \n";
-  os << "\n --------  End PYTHIA Junction Listing  --------------------"
-     << "------" << endl;
+  if (sizeJunction() == 0) cout << "    no junctions present \n";
+  cout << "\n --------  End PYTHIA Junction Listing  --------------------"
+       << "------" << endl;
 }
 
 //--------------------------------------------------------------------------

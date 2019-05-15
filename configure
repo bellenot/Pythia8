@@ -61,6 +61,7 @@ Optional external packages.
   root     : Use ROOT trees and histograms with PYTHIA.
   gzip     : Enable reading of GZIPPED files using the libz library.
   boost    : Needed for LHAPDF6 when using the LHAPDF6.h plugin.
+  python   : Interface to use PYTHIA in Python.
 
 Installation directories.
 --prefix=DIR           : Directory to install PYTHIA [$PWD].
@@ -87,7 +88,7 @@ OPTIONS="-h --h -help --help --enable-debug --enable-64bit"
 OPTIONS+=" --enable-shared --lcg"
 OPTIONS+=" --prefix --prefix-bin --prefix-lib --prefix-include --prefix-share"
 for PKG in "evtgen" "fastjet3" "hepmc2" "hepmc3" "lhapdf5" "lhapdf6" "powheg"\
-    "promc" "root" "boost" "gzip"; do
+    "promc" "root" "gzip" "boost" "python"; do
     OPTIONS+=" --with-$PKG --with-$PKG-bin --with-$PKG-lib --with-$PKG-include"
     OPTIONS+=" --with-$PKG-version"; done
 OPTIONS+=" --with-lhapdf6-plugin"
@@ -256,6 +257,8 @@ configure_package "ROOT" "/afs/cern.ch/sw/lcg/releases/ROOT"\
 configure_package "GZIP" "" "" "include" "lib" "" "zlib.h" "z" ""
 configure_package "BOOST" "/afs/cern.ch/sw/lcg/releases/Boost"\
     "bin" "include" "lib" "" "boost/shared_ptr.hpp" "" ""
+configure_package "PYTHON" "/afs/cern.ch/sw/lcg/external/Python"\
+    "bin" "include" "lib" "python" "Python.h" "" ""
 
 # Check package dependencies (order does not matter).
 for IDX in ${!PKG_LIST[@]}; do PKG=${PKG_LIST[$IDX]}
@@ -276,8 +279,9 @@ for IDX in ${!PKG_LIST[@]}; do PKG=${PKG_LIST[$IDX]}
 	    fi; done; IFS=" "; fi; done
 
 # Write the configuation to screen and file, update the pythia8-config script.
-sed 's|CFG_FILE=.*|CFG_FILE='"$PREFIX_SHARE"'/examples/Makefile.inc|;n' \
-    bin/pythia8-config > bin/tmp; mv bin/tmp bin/pythia8-config
+sed 's|^CFG_FILE=.*|CFG_FILE='"$PREFIX_SHARE"'/examples/Makefile.inc|;n' \
+    bin/pythia8-config > bin/tmp
+chmod a+x bin/tmp; mv bin/tmp bin/pythia8-config
 echo "---------------------------------------------------------------------"
 echo "|                    PYTHIA Configuration Summary                   |"
 echo "---------------------------------------------------------------------"
@@ -310,7 +314,7 @@ for IDX in ${!PKG_LIST[@]}; do
     if [ "$PKG_USE" = true ]; then echo "* $PKG"
 	eval PKG_BIN=\${${PKG}_CFG[1]}; eval PKG_INC=\${${PKG}_CFG[2]};
 	eval PKG_LIB=\${${PKG}_CFG[3]};
-    else PKG_BIN=""; PKG_INC=""; PKG_LIB=""; fi
+    else PKG_BIN=""; PKG_INC="./"; PKG_LIB="./"; fi
     cat >> $CFG_FILE << BLOCKTEXT
 
 # $PKG configuration.

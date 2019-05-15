@@ -79,6 +79,9 @@ public:
   // Read a MadGraph command string.
   bool readString(string line, Stage stage = Auto);
 
+  // Add a MadGraph configuration card to be used.
+  void addCard(string src, string dst);
+
   // Set the number of events to generate per run.
   void setEvents(int eventsIn);
 
@@ -124,6 +127,7 @@ protected:
   bool match, amcatnlo;
   string dir, exe, lhegz;
   double sigWgt, wgt;
+  vector< pair<string, string> > cards;
 
   // The MadGraph commands for the config, generate, and launch stages.
   vector<string> configureLines, generateLines, launchLines;
@@ -189,6 +193,21 @@ bool LHAupMadgraph::readString(string line, Stage stage) {
     override[Launch] = true; launchLines.push_back(line);
   } else return false;
   return true;
+}
+
+//--------------------------------------------------------------------------
+
+// Add a MadGraph configuration card to be used.
+
+// In general, MadGraph should be configured via the readString
+// method. However, there are some cases where the user might wish to
+// provide an entire configuration card, e.g. setting BSM model
+// space. This method allows the user to provide a source card, src,
+// which is then copied to <MadGraph run directory>/Cards/dst. These
+// cards are copied before any MadGraph processes are launched.
+
+void LHAupMadgraph::addCard(string src, string dst) {
+  cards.push_back(make_pair(src, dst));
 }
 
 //--------------------------------------------------------------------------
@@ -280,7 +299,7 @@ bool LHAupMadgraph::configure() {
 // Run the generate stage of MadGraph.
 
 // The final command of "output <dir> -f -nojpeg\n" is automatically
-// set, if not overridden. MadGraph is the run and the output is
+// set, if not overridden. MadGraph is then run and the output is
 // checked. Finally, the configuration is updated and the type of run,
 // MadGraph or aMC@NLO, is determined.
 
@@ -316,6 +335,13 @@ bool LHAupMadgraph::generate() {
     copy << orig.rdbuf(); copy.close();
   }
   orig.close();
+
+  // Copy over any user provided configuration cards.
+  for (int iCard = 0; iCard < (int)cards.size(); ++iCard) {
+    ifstream src((cards[iCard].first).c_str(), ios::binary);
+    ofstream dst((dir + "/Cards/" + cards[iCard].second).c_str(), ios::binary);
+    dst << src.rdbuf();
+  }
   return true;
 
 }

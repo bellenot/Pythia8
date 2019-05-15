@@ -82,7 +82,7 @@ public:
   int getIndexOfOut(int iSys, int iPos) const;
 
   // List all current systems.
-  void list(ostream& os = cout) const;
+  void list() const;
 
 private:
 

@@ -371,13 +371,17 @@ bool BeamRemnants::setKinematics( Event& event) {
     gammaOneRemnant = true;
 
   // Special kinematics setup for one-remnant systems (DIS).
-  if(gammaOneRemnant || isDIS) return setOneRemnKinematics(event);
+  if(gammaOneRemnant || isDIS) return setOneRemnKinematics(event, iDS);
 
   // Last beam-status particles. Offset relative to normal beam locations.
   int nBeams   = 3;
   for (int i = 3; i < event.size(); ++i)
     if (event[i].statusAbs() < 20) nBeams = i + 1;
   int nOffset  = nBeams - 3;
+
+  // If extra photons in event fix the offset.
+  if (beamA.hasGamma()) --nOffset;
+  if (beamB.hasGamma()) --nOffset;
 
   // Reserve space for extra information on the systems and beams.
   int nMaxBeam = max( beamA.size(), beamB.size() );
@@ -821,7 +825,7 @@ bool BeamRemnants::setKinematics( Event& event) {
 // remnant system, other created by ISR, and for Deeply Inelastic Scattering.
 // Currently assumes unresolved lepton.
 
-bool BeamRemnants::setOneRemnKinematics( Event& event) {
+bool BeamRemnants::setOneRemnKinematics( Event& event, int beamOffset) {
 
   // Identify beams with and without remnant.
   int iBeamHad;
@@ -833,12 +837,12 @@ bool BeamRemnants::setOneRemnKinematics( Event& event) {
   // Identify remnant-side hadronic four-momentum and scattered lepton if DIS.
   int iLepScat = isDIS ? (beamOther[0].iPos() + 2) : -1;
   Vec4 pHadScat;
-  for (int i = 5; i < event.size(); ++i)
+  for (int i = 5 + beamOffset; i < event.size(); ++i)
     if (event[i].isFinal() && i != iLepScat) pHadScat += event[i].p();
 
   // Set scattered lepton momentum if DIS and find the hadronic system.
   Vec4 pLepScat = isDIS ? event[iLepScat].p() : Vec4();
-  Vec4 pHadTot  = event[0].p();
+  Vec4 pHadTot  = event[1 + beamOffset].p() + event[2 + beamOffset].p();
   if ( isDIS ) pHadTot -= pLepScat;
   Vec4 pRemnant = pHadTot - pHadScat;
   double w2Tot  = pHadTot.m2Calc();
@@ -1007,10 +1011,10 @@ bool BeamRemnants::setOneRemnKinematics( Event& event) {
   RotBstMatrix MforScat;
   MforScat.bst( pHadScat, pNewScat);
   int sizeSave = event.size();
-  for (int i = 5; i < sizeSave; ++i)
-  if ( i != iLepScat && event[i].isFinal() ) {
-    int iNew = event.copy( i, 62);
-    event[iNew].rotbst( MforScat);
+  for (int i = 5 + beamOffset; i < sizeSave; ++i)
+    if ( i != iLepScat && event[i].isFinal() ) {
+      int iNew = event.copy( i, 62);
+      event[iNew].rotbst( MforScat);
   }
 
   // Calculate kinematics of remnants and insert into event record.
@@ -1021,8 +1025,8 @@ bool BeamRemnants::setOneRemnKinematics( Event& event) {
     double wPosNow = beamHad[iRem].mT2() / wNegNow;
     beamHad[iRem].pz(-0.5 * (wNegNow - wPosNow));
     beamHad[iRem].e ( 0.5 * (wPosNow + wNegNow));
-    int iNew = event.append( beamHad[iRem].id(), 63, iBeamHad, 0, 0, 0,
-      beamHad[iRem].col(), beamHad[iRem].acol(), beamHad[iRem].p(),
+    int iNew = event.append( beamHad[iRem].id(), 63, iBeamHad + beamOffset,
+      0, 0, 0, beamHad[iRem].col(), beamHad[iRem].acol(), beamHad[iRem].p(),
       beamHad[iRem].m() );
     beamHad[iRem].iPos( iNew);
   }

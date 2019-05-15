@@ -264,7 +264,7 @@ Note that cross section errors are only meaningful for strategies +-3.
    
  
 <a name="method17"></a>
-<p/><strong>void LHAup::listInit(ostream& os = cout) &nbsp;</strong> <br/>
+<p/><strong>void LHAup::listInit() &nbsp;</strong> <br/>
 prints the above initialization information. This method is 
 automatically called from <code>Pythia::init()</code>, 
 so would normally not need to be called directly by the user. 
@@ -477,10 +477,10 @@ has been read from the LHEF, the scale defaults to -1.
  
 <p/> 
 <a name="method30"></a>
-<p/><strong>void LHAup::listEvent(ostream& os = cout) &nbsp;</strong> <br/>
+<p/><strong>void LHAup::listEvent() &nbsp;</strong> <br/>
 prints the above information for the current event.  In cases where the 
 <code>LHAup</code> object is not available to the user, the 
-<code>Pythia::LHAeventList(ostream& os = cout)</code> method can 
+<code>Pythia::LHAeventList()</code> method can 
 be used, which is a wrapper for the above. 
    
  

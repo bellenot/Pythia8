@@ -167,8 +167,7 @@ bool PowhegProcs::readString(string line) {
 
   // Find the key.
   firstChar = line.find_first_of("  \t\f\v\n\r");
-  string key = line.substr(0, firstChar);
-  for (int i = 0; i < int(key.length()); ++i) key[i] = tolower(key[i]);
+  string key = toLower( line.substr(0, firstChar), false);
 
   // Add the setting.
   if (key.size() > 0

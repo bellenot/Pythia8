@@ -48,7 +48,7 @@ void Merging::init( Settings* settingsPtrIn, Info* infoPtrIn,
 //--------------------------------------------------------------------------
 
 // Function to print information.
-void Merging::statistics( ostream& os ) {
+void Merging::statistics() {
 
   // Recall switch to enfore merging scale cut.
   bool enforceCutOnLHE  = settingsPtr->flag("Merging:enforceCutOnLHE");
@@ -61,20 +61,20 @@ void Merging::statistics( ostream& os ) {
   if (!printBanner) return;
 
   // Header.
-  os << "\n *-------  PYTHIA Matrix Element Merging Information  ------"
-     << "-------------------------------------------------------*\n"
-     << " |                                                            "
-     << "                                                     |\n";
+  cout << "\n *-------  PYTHIA Matrix Element Merging Information  ------"
+       << "-------------------------------------------------------*\n"
+       << " |                                                            "
+       << "                                                     |\n";
   // Print warning if the minimal tms value of any event was significantly
   // above the desired merging scale value.
-  os << " | Warning in Merging::statistics: All Les Houches events"
-     << " significantly above Merging:TMS cut. Please check.       |\n";
+  cout << " | Warning in Merging::statistics: All Les Houches events"
+       << " significantly above Merging:TMS cut. Please check.       |\n";
 
   // Listing finished.
-  os << " |                                                            "
-     << "                                                     |\n"
-     << " *-------  End PYTHIA Matrix Element Merging Information -----"
-     << "-----------------------------------------------------*" << endl;
+  cout << " |                                                            "
+       << "                                                     |\n"
+       << " *-------  End PYTHIA Matrix Element Merging Information -----"
+       << "-----------------------------------------------------*" << endl;
 }
 
 //--------------------------------------------------------------------------
@@ -130,9 +130,15 @@ int Merging::mergeProcess(Event& process){
   mergingHooksPtr->nRequestedSave
     = settingsPtr->mode("Merging:nRequested");
 
+  // Ensure that merging weight is not counted twice.
+  bool includeWGT = mergingHooksPtr->includeWGTinXSEC();
+
   // Possibility to apply merging scale to an input event.
   bool applyTMSCut = settingsPtr->flag("Merging:doXSectionEstimate");
-  if ( applyTMSCut && cutOnProcess(process) ) return -1;
+  if ( applyTMSCut && cutOnProcess(process) ) {
+    if (includeWGT) infoPtr->updateWeight(0.);
+    return -1;
+  }
   // Done if only a cut should be applied.
   if ( applyTMSCut ) return 1;
 
@@ -171,6 +177,9 @@ int Merging::mergeProcessCKKWL( Event& process) {
   // For now, prefer construction of ordered histories.
   mergingHooksPtr->orderHistories(true);
 
+  // Ensure that merging weight is not counted twice.
+  bool includeWGT = mergingHooksPtr->includeWGTinXSEC();
+
   // Reset weight of the event.
   double wgt = 1.0;
   mergingHooksPtr->setWeightCKKWL(1.);
@@ -194,12 +203,21 @@ int Merging::mergeProcessCKKWL( Event& process) {
   // Calculate number of clustering steps.
   int nSteps = mergingHooksPtr->getNumberOfClusteringSteps( newProcess, true);
 
+  // Check if hard event cut should be applied later.
+  bool allowReject = settingsPtr->flag("Merging:applyVeto");
+
   // Too few steps can be possible if a chain of resonance decays has been
   // removed. In this case, reject this event, since it will be handled in
   // lower-multiplicity samples.
   int nRequested = mergingHooksPtr->nRequested();
-  if (nSteps < nRequested) {
-    mergingHooksPtr->setWeightCKKWL(0.);
+
+  // Store hard event cut information, reset veto information.
+  mergingHooksPtr->setHardProcessInfo(nSteps, tmsnow);
+  mergingHooksPtr->setEventVetoInfo(-1, -1.);
+
+  if (nSteps < nRequested && allowReject) {
+    if (!includeWGT) mergingHooksPtr->setWeightCKKWL(0.);
+    if ( includeWGT) infoPtr->updateWeight(0.);
     return -1;
   }
 
@@ -224,7 +242,8 @@ int Merging::mergeProcessCKKWL( Event& process) {
 
   // Do not apply cut if the configuration could not be projected onto an
   // underlying born configuration.
-  bool applyCut = nSteps > 0 && FullHistory.select(RN)->nClusterings() > 0;
+  bool applyCut = allowReject
+                && nSteps > 0 && FullHistory.select(RN)->nClusterings() > 0;
 
   // Enfore merging scale cut if the event did not pass the merging scale
   // criterion.
@@ -233,7 +252,8 @@ int Merging::mergeProcessCKKWL( Event& process) {
     string message="Warning in Merging::mergeProcessCKKWL: Les Houches Event";
     message+=" fails merging scale cut. Reject event.";
     infoPtr->errorMsg(message);
-    mergingHooksPtr->setWeightCKKWL(0.);
+    if (!includeWGT) mergingHooksPtr->setWeightCKKWL(0.);
+    if ( includeWGT) infoPtr->updateWeight(0.);
     return -1;
   }
 
@@ -285,13 +305,17 @@ int Merging::mergeProcessCKKWL( Event& process) {
   wgt *= dampWeight;
 
   // Save the weight of the event for histogramming.
-  mergingHooksPtr->setWeightCKKWL(wgt);
+  if (!includeWGT) mergingHooksPtr->setWeightCKKWL(wgt);
+
+  // Update the event weight.
+  double norm = (abs(infoPtr->lhaStrategy()) == 4) ? 1/1e9 : 1.;
+  if ( includeWGT) infoPtr->updateWeight(infoPtr->weight()*wgt*norm);
 
   // Allow merging hooks to veto events from now on.
   mergingHooksPtr->doIgnoreStep(false);
 
   // If no-emission probability is zero.
-  if ( wgt == 0. ) return 0;
+  if ( allowReject && wgt == 0. ) return 0;
 
   // Done
   return 1;
@@ -319,6 +343,9 @@ int Merging::mergeProcessUMEPS( Event& process) {
     mergingHooksPtr->allowCutOnRecState(true);
   // For now, prefer construction of ordered histories.
   mergingHooksPtr->orderHistories(true);
+
+  // Ensure that merging weight is not counted twice.
+  bool includeWGT = mergingHooksPtr->includeWGTinXSEC();
 
   // Reset any incoming spins for W+-.
   if (mergingHooksPtr->doWeakClustering())
@@ -349,7 +376,8 @@ int Merging::mergeProcessUMEPS( Event& process) {
   // removed. In this case, reject this event, since it will be handled in
   // lower-multiplicity samples.
   if (nSteps < nRequested) {
-    mergingHooksPtr->setWeightCKKWL(0.);
+    if (!includeWGT) mergingHooksPtr->setWeightCKKWL(0.);
+    if ( includeWGT) infoPtr->updateWeight(0.);
     return -1;
   }
 
@@ -378,7 +406,8 @@ int Merging::mergeProcessUMEPS( Event& process) {
     string message="Warning in Merging::mergeProcessUMEPS: Les Houches Event";
     message+=" fails merging scale cut. Reject event.";
     infoPtr->errorMsg(message);
-    mergingHooksPtr->setWeightCKKWL(0.);
+    if (!includeWGT) mergingHooksPtr->setWeightCKKWL(0.);
+    if ( includeWGT) infoPtr->updateWeight(0.);
     return -1;
   }
 
@@ -388,7 +417,8 @@ int Merging::mergeProcessUMEPS( Event& process) {
     && !FullHistory.getFirstClusteredEventAboveTMS( RN, nRecluster,
           newProcess, nPerformed, false ) ) {
     // Discard if the state could not be reclustered to a state above TMS.
-    mergingHooksPtr->setWeightCKKWL(0.);
+    if (!includeWGT) mergingHooksPtr->setWeightCKKWL(0.);
+    if ( includeWGT) infoPtr->updateWeight(0.);
     return -1;
   }
 
@@ -424,7 +454,11 @@ int Merging::mergeProcessUMEPS( Event& process) {
   wgt *= dampWeight;
 
   // Save the weight of the event for histogramming.
-  mergingHooksPtr->setWeightCKKWL(wgt);
+  if (!includeWGT) mergingHooksPtr->setWeightCKKWL(wgt);
+
+  // Update the event weight.
+  double norm = (abs(infoPtr->lhaStrategy()) == 4) ? 1/1e9 : 1.;
+  if ( includeWGT) infoPtr->updateWeight(infoPtr->weight()*wgt*norm);
 
   // Set QCD 2->2 starting scale different from arbitrary scale in LHEF!
   // --> Set to minimal mT of partons.
@@ -831,7 +865,9 @@ int Merging::mergeProcessUNLOPS( Event& process) {
     }
   }
 
-  int depth =  -1;
+  // New UNLOPS strategy based on UN2LOPS.
+  bool doUNLOPS2 = false;
+  int depth = (!doUNLOPS2) ? -1 : ( (containsRealKin) ? nSteps-1 : nSteps);
 
   // Calculate weights.
   // Do LO or first part of NLO tree-level reweighting
@@ -941,8 +977,9 @@ int Merging::mergeProcessUNLOPS( Event& process) {
     mergingHooksPtr->setWeightFIRST(wgtFIRST);
     // Subtract the O(\alpha_s)-term from the CKKW-L weight
     // If PDF contributions have not been included, subtract these later
-
-    if (order > -1) wgt = wgt - wgtFIRST;
+    // New UNLOPS based on UN2LOPS.
+    if (doUNLOPS2 && order > -1) wgt = -wgt*(wgtFIRST-1.);
+    else if (order > -1) wgt = wgt - wgtFIRST;
 
   }
 

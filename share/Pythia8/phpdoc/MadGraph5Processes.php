@@ -183,7 +183,7 @@ creates an instance of the <code>LHAupMadgraph</code> class.
 <br/><code>argument</code><strong> pythia </strong>  :  pointer to the <code>Pythia</code> instance, 
 such that some of its facilities can be used inside the interface. 
    
-<br/><code>argument</code><strong> match </strong> (<code>default = <strong>true</strong></code>) :  should be true if jet matching is 
+<br/><code>argument</code><strong> match </strong> (<code>default = <strong>on</strong></code>) :  should be true if jet matching is 
 requested. For tree-level generation MLM matching is used, while 
 FxFx matching is used for aMC@NLO generation. This is set up in 
 <code>LHAupMadgraph::setInit()</code>, which could be modified to 

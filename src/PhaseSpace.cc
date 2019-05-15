@@ -503,10 +503,10 @@ void PhaseSpace::setup3Body() {
 
 // Determine how phase space should be sampled.
 
-bool PhaseSpace::setupSampling123(bool is2, bool is3, ostream& os) {
+bool PhaseSpace::setupSampling123(bool is2, bool is3) {
 
   // Optional printout.
-  if (showSearch) os <<  "\n PYTHIA Optimization printout for "
+  if (showSearch) cout <<  "\n PYTHIA Optimization printout for "
     << sigmaProcessPtr->name() << "\n \n" << scientific << setprecision(3);
 
   // Check that open range in tau (+ set tauMin, tauMax).
@@ -610,7 +610,7 @@ bool PhaseSpace::setupSampling123(bool is2, bool is3, ostream& os) {
         // 2 -> 1: calculate cross section, weighted by phase-space volume.
         if (!is2 && !is3) {
           sigmaProcessPtr->set1Kin( x1H, x2H, sH);
-          sigmaTmp = sigmaProcessPtr->sigmaPDF();
+          sigmaTmp = sigmaProcessPtr->sigmaPDF(true);
           sigmaTmp *= wtTau * wtY;
 
         // 2 -> 2: calculate cross section, weighted by phase-space volume
@@ -618,7 +618,7 @@ bool PhaseSpace::setupSampling123(bool is2, bool is3, ostream& os) {
         } else if (is2) {
           sigmaProcessPtr->set2Kin( x1H, x2H, sH, tH, m3, m4,
             runBW3H, runBW4H);
-          sigmaTmp = sigmaProcessPtr->sigmaPDF();
+          sigmaTmp = sigmaProcessPtr->sigmaPDF(true);
           sigmaTmp *= wtTau * wtY * wtZ * wtBW;
 
         // 2 -> 3: repeat internal 3-body phase space several times and
@@ -629,7 +629,7 @@ bool PhaseSpace::setupSampling123(bool is2, bool is3, ostream& os) {
             if (!select3Body()) continue;
             sigmaProcessPtr->set3Kin( x1H, x2H, sH, p3cm, p4cm, p5cm,
               m3, m4, m5, runBW3H, runBW4H, runBW5H);
-            double sigmaTry = sigmaProcessPtr->sigmaPDF();
+            double sigmaTry = sigmaProcessPtr->sigmaPDF(true);
             sigmaTry *= wtTau * wtY * wt3Body * wtBW;
             if (sigmaTry > sigmaTmp) sigmaTmp = sigmaTry;
           }
@@ -646,7 +646,7 @@ bool PhaseSpace::setupSampling123(bool is2, bool is3, ostream& os) {
         if (sigmaTmp > sigmaMx) sigmaMx = sigmaTmp;
 
         // Optional printout. Protect against negative cross sections.
-        if (showSearch) os << " tau =" << setw(11) << tau << "  y ="
+        if (showSearch) cout << " tau =" << setw(11) << tau << "  y ="
           << setw(11) << y << "  z =" << setw(11) << z
           << "  sigma =" << setw(11) << sigmaTmp << "\n";
         if (sigmaTmp < 0.) sigmaTmp = 0.;
@@ -726,7 +726,7 @@ bool PhaseSpace::setupSampling123(bool is2, bool is3, ostream& os) {
   if (!hasOnePointLepton && !hasTwoPointLeptons)
     solveSys( nY, binY, vecY, matY, yCoef);
   if (is2) solveSys( nZ, binZ, vecZ, matZ, zCoef);
-  if (showSearch) os << "\n";
+  if (showSearch) cout << "\n";
 
   // Provide cumulative sum of coefficients.
   tauCoefSum[0] = tauCoef[0];
@@ -764,7 +764,7 @@ bool PhaseSpace::setupSampling123(bool is2, bool is3, ostream& os) {
         // 2 -> 1: calculate cross section, weighted by phase-space volume.
         if (!is2 && !is3) {
           sigmaProcessPtr->set1Kin( x1H, x2H, sH);
-          sigmaTmp = sigmaProcessPtr->sigmaPDF();
+          sigmaTmp = sigmaProcessPtr->sigmaPDF(true);
           sigmaTmp *= wtTau * wtY;
 
         // 2 -> 2: calculate cross section, weighted by phase-space volume
@@ -772,7 +772,7 @@ bool PhaseSpace::setupSampling123(bool is2, bool is3, ostream& os) {
         } else if (is2) {
           sigmaProcessPtr->set2Kin( x1H, x2H, sH, tH, m3, m4,
             runBW3H, runBW4H);
-          sigmaTmp = sigmaProcessPtr->sigmaPDF();
+          sigmaTmp = sigmaProcessPtr->sigmaPDF(true);
           sigmaTmp *= wtTau * wtY * wtZ * wtBW;
 
         // 2 -> 3: repeat internal 3-body phase space several times and
@@ -783,7 +783,7 @@ bool PhaseSpace::setupSampling123(bool is2, bool is3, ostream& os) {
             if (!select3Body()) continue;
             sigmaProcessPtr->set3Kin( x1H, x2H, sH, p3cm, p4cm, p5cm,
               m3, m4, m5, runBW3H, runBW4H, runBW5H);
-            double sigmaTry = sigmaProcessPtr->sigmaPDF();
+            double sigmaTry = sigmaProcessPtr->sigmaPDF(true);
             sigmaTry *= wtTau * wtY * wt3Body * wtBW;
             if (sigmaTry > sigmaTmp) sigmaTmp = sigmaTry;
           }
@@ -797,7 +797,7 @@ bool PhaseSpace::setupSampling123(bool is2, bool is3, ostream& os) {
         if (canBias2Sel) sigmaTmp *= pow( pTH / bias2SelRef, bias2SelPow);
 
         // Optional printout. Protect against negative cross section.
-        if (showSearch) os << " tau =" << setw(11) << tau << "  y ="
+        if (showSearch) cout << " tau =" << setw(11) << tau << "  y ="
           << setw(11) << y << "  z =" << setw(11) << z
           << "  sigma =" << setw(11) << sigmaTmp << "\n";
         if (sigmaTmp < 0.) sigmaTmp = 0.;
@@ -830,7 +830,7 @@ bool PhaseSpace::setupSampling123(bool is2, bool is3, ostream& os) {
       }
     }
   }
-  if (showSearch) os << "\n";
+  if (showSearch) cout << "\n";
 
   // Read out starting position for search.
   sigmaMx = sigMax[0];
@@ -924,7 +924,7 @@ bool PhaseSpace::setupSampling123(bool is2, bool is3, ostream& os) {
             // 2 -> 1: calculate cross section, weighted by phase-space volume.
             if (!is2 && !is3) {
               sigmaProcessPtr->set1Kin( x1H, x2H, sH);
-              sigmaTmp = sigmaProcessPtr->sigmaPDF();
+              sigmaTmp = sigmaProcessPtr->sigmaPDF(true);
               sigmaTmp *= wtTau * wtY;
 
             // 2 -> 2: calculate cross section, weighted by phase-space volume
@@ -932,7 +932,7 @@ bool PhaseSpace::setupSampling123(bool is2, bool is3, ostream& os) {
             } else if (is2) {
               sigmaProcessPtr->set2Kin( x1H, x2H, sH, tH, m3, m4,
                 runBW3H, runBW4H);
-              sigmaTmp = sigmaProcessPtr->sigmaPDF();
+              sigmaTmp = sigmaProcessPtr->sigmaPDF(true);
               sigmaTmp *= wtTau * wtY * wtZ * wtBW;
 
             // 2 -> 3: repeat internal 3-body phase space several times and
@@ -943,7 +943,7 @@ bool PhaseSpace::setupSampling123(bool is2, bool is3, ostream& os) {
                 if (!select3Body()) continue;
                 sigmaProcessPtr->set3Kin( x1H, x2H, sH, p3cm, p4cm, p5cm,
                   m3, m4, m5, runBW3H, runBW4H, runBW5H);
-                double sigmaTry = sigmaProcessPtr->sigmaPDF();
+                double sigmaTry = sigmaProcessPtr->sigmaPDF(true);
                 sigmaTry *= wtTau * wtY * wt3Body * wtBW;
                 if (sigmaTry > sigmaTmp) sigmaTmp = sigmaTry;
               }
@@ -957,7 +957,7 @@ bool PhaseSpace::setupSampling123(bool is2, bool is3, ostream& os) {
             if (canBias2Sel) sigmaTmp *= pow( pTH / bias2SelRef, bias2SelPow);
 
             // Optional printout. Protect against negative cross section.
-            if (showSearch) os << " tau =" << setw(11) << tau << "  y ="
+            if (showSearch) cout << " tau =" << setw(11) << tau << "  y ="
               << setw(11) << y << "  z =" << setw(11) << z
               << "  sigma =" << setw(11) << sigmaTmp << "\n";
             if (sigmaTmp < 0.) sigmaTmp = 0.;
@@ -974,7 +974,8 @@ bool PhaseSpace::setupSampling123(bool is2, bool is3, ostream& os) {
   sigmaPos = sigmaMx;
 
   // Optional printout.
-  if (showSearch) os << "\n Final maximum = "  << setw(11) << sigmaMx << endl;
+  if (showSearch) cout << "\n Final maximum = "  << setw(11) << sigmaMx
+    << endl;
 
   // Done.
   return true;
@@ -986,7 +987,7 @@ bool PhaseSpace::setupSampling123(bool is2, bool is3, ostream& os) {
 // Note: by In is meant the integral over the quantity multiplying
 // coefficient cn. The sum of cn is normalized to unity.
 
-bool PhaseSpace::trialKin123(bool is2, bool is3, bool inEvent, ostream& os) {
+bool PhaseSpace::trialKin123(bool is2, bool is3, bool inEvent) {
 
   // Allow for possibility that energy varies from event to event.
   if (doEnergySpread) {
@@ -1088,20 +1089,20 @@ bool PhaseSpace::trialKin123(bool is2, bool is3, bool inEvent, ostream& os) {
       sigmaMx = SAFETYMARGIN * sigmaNw;
       newSigmaMx = true;
       if (showViolation) {
-        if (violFact < 9.99) os << fixed;
-        else                 os << scientific;
-        os << " PYTHIA Maximum for " << sigmaProcessPtr->name()
-           << " increased by factor " << setprecision(3) << violFact
-           << " to " << scientific << sigmaMx << endl;
+        if (violFact < 9.99) cout << fixed;
+        else                 cout << scientific;
+        cout << " PYTHIA Maximum for " << sigmaProcessPtr->name()
+             << " increased by factor " << setprecision(3) << violFact
+             << " to " << scientific << sigmaMx << endl;
       }
 
     // Violation strategy 2: weight event (done in ProcessContainer).
     } else if (showViolation && sigmaNw > sigmaPos) {
       double violFact = sigmaNw / sigmaMx;
-      if (violFact < 9.99) os << fixed;
-      else                 os << scientific;
-      os << " PYTHIA Maximum for " << sigmaProcessPtr->name()
-         << " exceeded by factor " << setprecision(3) << violFact << endl;
+      if (violFact < 9.99) cout << fixed;
+      else                 cout << scientific;
+      cout << " PYTHIA Maximum for " << sigmaProcessPtr->name()
+           << " exceeded by factor " << setprecision(3) << violFact << endl;
       sigmaPos = sigmaNw;
     }
   }
@@ -1113,7 +1114,7 @@ bool PhaseSpace::trialKin123(bool is2, bool is3, bool inEvent, ostream& os) {
     sigmaNeg = sigmaNw;
 
     // Optional printout of (all) violations.
-    if (showViolation) os << " PYTHIA Negative minimum for "
+    if (showViolation) cout << " PYTHIA Negative minimum for "
       << sigmaProcessPtr->name() << " changed to " << scientific
       << setprecision(3) << sigmaNeg << endl;
   }
@@ -1605,17 +1606,17 @@ bool PhaseSpace::select3Body() {
 // Solve linear equation system for better phase space coefficients.
 
 void PhaseSpace::solveSys( int n, int bin[8], double vec[8],
-  double mat[8][8], double coef[8], ostream& os) {
+  double mat[8][8], double coef[8]) {
 
   // Optional printout.
   if (showSearch) {
-    os << "\n Equation system: " << setw(5) << bin[0];
-    for (int j = 0; j < n; ++j) os << setw(12) << mat[0][j];
-    os << setw(12) << vec[0] << "\n";
+    cout << "\n Equation system: " << setw(5) << bin[0];
+    for (int j = 0; j < n; ++j) cout << setw(12) << mat[0][j];
+    cout << setw(12) << vec[0] << "\n";
     for (int i = 1; i < n; ++i) {
-      os << "                  " << setw(5) << bin[i];
-      for (int j = 0; j < n; ++j) os << setw(12) << mat[i][j];
-      os << setw(12) << vec[i] << "\n";
+      cout << "                  " << setw(5) << bin[i];
+      for (int j = 0; j < n; ++j) cout << setw(12) << mat[i][j];
+      cout << setw(12) << vec[i] << "\n";
     }
   }
 
@@ -1671,9 +1672,9 @@ void PhaseSpace::solveSys( int n, int bin[8], double vec[8],
 
   // Optional printout.
   if (showSearch) {
-    os << " Solution:             ";
-    for (int i = 0; i < n; ++i) os << setw(12) << coef[i];
-    os << "\n";
+    cout << " Solution:             ";
+    for (int i = 0; i < n; ++i) cout << setw(12) << coef[i];
+    cout << "\n";
   }
 }
 
@@ -3576,7 +3577,6 @@ bool PhaseSpace2to3tauycyl::finalKin() {
 // The PhaseSpace2to3yyycyl class.
 // Phase space for 2 -> 3 QCD processes, 1 + 2 -> 3 + 4 + 5 set up in
 // y3, y4, y5, pT2_3, pT2_5, phi_3 and phi_5, and with R separation cut.
-// Note: here cout is used for output, not os. Change??
 
 //--------------------------------------------------------------------------
 

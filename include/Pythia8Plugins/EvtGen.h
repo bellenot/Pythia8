@@ -407,7 +407,7 @@ void EvtGenDecays::updatePythia() {
 
 void EvtGenDecays::updateEvtGen() {
   if (!pythiaPtr || !evtgen) return;
-  int pyId = pythiaPtr->particleData.nextId(0);
+  int pyId = pythiaPtr->particleData.nextId(1);
   while (pyId != 0) {
     EvtId egId = EvtPDL::evtIdFromStdHep(pyId);
     EvtPDL::reSetMass   (egId, pythiaPtr->particleData.m0(pyId));

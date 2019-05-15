@@ -51,6 +51,7 @@ public:
     ParticleData* particleDataPtrIn, Rndm* rndmPtrIn,
     BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn,
     BeamParticle* beamPomAPtrIn, BeamParticle* beamPomBPtrIn,
+    BeamParticle* beamGamAPtrIn, BeamParticle* beamGamBPtrIn,
     Couplings* couplingsPtrIn, PartonSystems* partonSystemsPtrIn,
     SigmaTotal* sigmaTotPtr, TimeShower* timesDecPtrIn,
     TimeShower* timesPtrIn, SpaceShower* spacePtrIn,
@@ -143,6 +144,9 @@ private:
   BeamParticle*  beamHadBPtr;
   BeamParticle*  beamPomAPtr;
   BeamParticle*  beamPomBPtr;
+  // Pointers to photon beams inside lepton beams.
+  BeamParticle*  beamGamAPtr;
+  BeamParticle*  beamGamBPtr;
 
   // Pointers to Standard Model couplings.
   Couplings*     couplingsPtr;
@@ -169,6 +173,10 @@ private:
 
   // The generator class to construct beam-remnant kinematics.
   BeamRemnants remnants;
+
+  // Variables for photon inside electron.
+  bool   beamAhasGamma, beamBhasGamma, beamHasGamma;
+  double Q2maxGamma;
 
   // The RHadrons class is used to fragment off and decay R-hadrons.
   RHadrons*    rHadronsPtr;
@@ -205,6 +213,13 @@ private:
 
   // Hard diffraction: leave the process record.
   void leaveHardDiff( Event& process, Event& event);
+
+  // Photon beam inside lepton beam: set up the parton level generation.
+  bool setupResolvedLeptonGamma( Event& process);
+
+  // Photon beam inside lepton beam: recover the whole event and
+  // add scattered leptons.
+  void leaveResolvedLeptonGamma( Event& process, Event& event);
 
   // Pointer to MergingHooks object for user interaction with the merging.
   MergingHooks* mergingHooksPtr;

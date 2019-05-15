@@ -54,12 +54,20 @@ ifeq ($(POWHEG_USE),true)
   endif
 endif
 
+# Python.
+PYTHON_COMMON=-I$(PYTHON_INCLUDE) $(CXX_COMMON) -Wl,-rpath,$(PREFIX_LIB)
+ifeq ($(PYTHON_USE),true)
+  TARGETS+=$(LOCAL_LIB)/_pythia8.so
+endif
+
 # GZIP.
 OBJ_COMMON=-MD $(CXX_COMMON)
-LIB_COMMON=-ldl
+LIB_COMMON=-Wl,-rpath,$(PREFIX_LIB) -ldl
 ifeq ($(GZIP_USE),true)
+  PYTHON_COMMON+= -DGZIPSUPPORT -I$(GZIP_INCLUDE)
+  PYTHON_COMMON+= -L$(GZIP_LIB) -Wl,-rpath,$(GZIP_LIB) -lz
   OBJ_COMMON+= -DGZIPSUPPORT -I$(GZIP_INCLUDE)
-  LIB_COMMON+= -L$(GZIP_LIB) -lz
+  LIB_COMMON+= -L$(GZIP_LIB) -Wl,-rpath,$(GZIP_LIB) -lz
 endif
 
 ################################################################################
@@ -102,11 +110,11 @@ $(LOCAL_TMP)/LHAPDF%Plugin.o: $(LOCAL_INCLUDE)/Pythia8Plugins/$$(LHAPDF%_PLUGIN)
 $(LOCAL_LIB)/libpythia8lhapdf5.so: $(LOCAL_TMP)/LHAPDF5Plugin.o\
 	$(LOCAL_LIB)/libpythia8.a
 	$(CXX) $^ -o $@ $(CXX_COMMON) $(CXX_SHARED) $(CXX_SONAME),$(notdir $@)\
-	 -L$(LHAPDF5_LIB) -Wl,-rpath $(LHAPDF5_LIB) -lLHAPDF -lgfortran
+	 -L$(LHAPDF5_LIB) -Wl,-rpath,$(LHAPDF5_LIB) -lLHAPDF -lgfortran
 $(LOCAL_LIB)/libpythia8lhapdf6.so: $(LOCAL_TMP)/LHAPDF6Plugin.o\
 	$(LOCAL_LIB)/libpythia8.a
 	$(CXX) $^ -o $@ $(CXX_COMMON) $(CXX_SHARED) $(CXX_SONAME),$(notdir $@)\
-	 -L$(LHAPDF6_LIB) -Wl,-rpath $(LHAPDF6_LIB) -lLHAPDF
+	 -L$(LHAPDF6_LIB) -Wl,-rpath,$(LHAPDF6_LIB) -lLHAPDF
 
 # POWHEG (exclude any executable ending with sh).
 $(LOCAL_TMP)/POWHEGPlugin.o: $(LOCAL_INCLUDE)/Pythia8Plugins/LHAPowheg.h
@@ -116,7 +124,21 @@ $(LOCAL_LIB)/libpythia8powheg%.so: $(POWHEG_BIN)/% $(LOCAL_TMP)/POWHEGPlugin.o\
 	$(LOCAL_LIB)/libpythia8.a
 	ln -s $< $(notdir $<); $(CXX) $(notdir $<) $(LOCAL_TMP)/POWHEGPlugin.o\
 	 $(LOCAL_LIB)/libpythia8.a -o $@ $(CXX_COMMON) $(CXX_SHARED)\
-	 $(CXX_SONAME),$(notdir $@) -Wl,-rpath $(POWHEG_BIN); rm $(notdir $<)
+	 $(CXX_SONAME),$(notdir $@) -Wl,-rpath,$(POWHEG_BIN); rm $(notdir $<)
+
+# Python (turn off all warnings for readability).
+$(LOCAL_LIB)/pythia8.py: $(LOCAL_INCLUDE)/Pythia8Plugins/PythonWrapper.h
+	SPLIT=`grep -n "PYTHON SOURCE" $< | cut -d : -f 1`;\
+	 SPLIT=$$[$$SPLIT+1]; tail -n +$$SPLIT $< | cut -d "/" -f 3- > $@
+	$(PYTHON_BIN)python -m compileall $(LOCAL_LIB)
+$(LOCAL_LIB)/_pythia8.so: $(LOCAL_INCLUDE)/Pythia8Plugins/PythonWrapper.h\
+	$(LOCAL_LIB)/pythia8.py $(wildcard $(LOCAL_INCLUDE)/*/*.h) |\
+	$(LOCAL_LIB)/libpythia8$(LIB_SUFFIX)
+	$(CXX) -x c++ $< -o $@ -w $(PYTHON_COMMON) $(CXX_SHARED)\
+	 $(CXX_SONAME),$(notdir $@) -L$(LOCAL_LIB) -lpythia8
+	if type "install_name_tool" &> /dev/null; then\
+	 install_name_tool -change libpythia8$(LIB_SUFFIX)\
+	 $(PREFIX_LIB)/libpythia8$(LIB_SUFFIX) $@; fi
 
 # Install (rsync is used for finer control).
 install: all

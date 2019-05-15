@@ -86,6 +86,12 @@ const double SpaceShower::HEADROOMG2Q = 1.35;
 const double SpaceShower::HEADROOMG2G = 1.35;
 const double SpaceShower::HEADROOMHQG = 1.35;
 
+// Limit on size of number of rejections for uncertainty variations.
+const double SpaceShower::REJECTFACTOR = 0.1;
+
+// Limit on probability for uncertainty variations.
+const double SpaceShower::PROBLIMIT = 0.99;
+
 //--------------------------------------------------------------------------
 
 // Initialize alphaStrong, alphaEM and related pTmin parameters.
@@ -111,7 +117,8 @@ void SpaceShower::init( BeamParticle* beamAPtrIn,
   pTdampFudge     = settingsPtr->parm("SpaceShower:pTdampFudge");
 
   // Optionally force emissions to be ordered in rapidity/angle.
-  doRapidityOrder = settingsPtr->flag("SpaceShower:rapidityOrder");
+  doRapidityOrder    = settingsPtr->flag("SpaceShower:rapidityOrder");
+  doRapidityOrderMPI = settingsPtr->flag("SpaceShower:rapidityOrderMPI");
 
   // Charm, bottom and lepton mass thresholds.
   mc              = max( MCMIN, particleDataPtr->m0(4));
@@ -249,6 +256,15 @@ void SpaceShower::init( BeamParticle* beamAPtrIn,
   splittingNameNow   = "";
   enhanceFactors.clear();
 
+  // Enable automated uncertainty variations.
+  nVarQCD            = 0;
+  doUncertainties    = settingsPtr->flag("UncertaintyBands:doVariations")
+                    && initUncertainties();
+  doUncertaintiesNow = doUncertainties;
+  uVarNflavQ         = settingsPtr->mode("UncertaintyBands:nFlavQ");
+  uVarMPIshowers     = settingsPtr->flag("UncertaintyBands:MPIshowers");
+  cNSpTmin           = settingsPtr->parm("UncertaintyBands:cNSpTmin");
+
 }
 
 //--------------------------------------------------------------------------
@@ -274,8 +290,7 @@ bool SpaceShower::limitPTmax( Event& event, double Q2Fac, double Q2Ren) {
   // Also count number of heavy coloured particles, like top.
   else {
     int n21 = 0;
-    int iBegin = 5;
-    if (infoPtr->isHardDiffractive()) iBegin = 9;
+    int iBegin = 5 + beamOffset;
     for (int i = iBegin; i < event.size(); ++i) {
       if (event[i].status() == -21) ++n21;
       else if (n21 == 0) {
@@ -526,6 +541,7 @@ double SpaceShower::pTnext( Event& event, double pTbegAll, double pTendAll,
     dipEndNow      = &dipEnd[iDipEnd];
     iSysNow        = dipEndNow->system;
     dipEndNow->pT2 = 0.;
+    dipEndNow->pAccept = 1.0;
     double pTbegDip = min( pTbegAll, dipEndNow->pTmax );
 
     // Check whether dipole end should be allowed to shower.
@@ -656,6 +672,12 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
   double pT2PDF         = pT2;
   bool   needNewPDF     = true;
 
+  // Add more headroom if doing uncertainty variations
+  // (to ensure at least a minimal number of failed branchings).
+  doUncertaintiesNow    = doUncertainties;
+  if (!uVarMPIshowers && iSysNow != 0) doUncertaintiesNow = false;
+  double overFac        = doUncertaintiesNow ? 1.5 : 1.0;
+
   // Set default values for enhanced emissions.
   bool isEnhancedQ2QG, isEnhancedG2QQ, isEnhancedQ2GQ, isEnhancedG2GG;
   isEnhancedQ2QG = isEnhancedG2QQ = isEnhancedQ2GQ = isEnhancedG2GG = false;
@@ -731,12 +753,12 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
 
       // Integrals of splitting kernels for gluons: g -> g, q -> g.
       if (isGluon) {
-        g2gInt = HEADROOMG2G * 6.
+        g2gInt = overFac * HEADROOMG2G * 6.
           * log(zMaxAbs * (1.-zMinAbs) / (zMinAbs * (1.-zMaxAbs)));
         if (doMEcorrections) g2gInt *= calcMEmax(MEtype, 21, 21);
         // Optionally enhanced branching rate.
         if (canEnhanceET) g2gInt *= userHooksPtr->enhanceFactor("isr:G2GG");
-        q2gInt = HEADROOMQ2G * (16./3.)
+        q2gInt = overFac * HEADROOMQ2G * (16./3.)
           * (1./sqrt(zMinAbs) - 1./sqrt(zMaxAbs));
         if (doMEcorrections) q2gInt *= calcMEmax(MEtype, 1, 21);
         // Optionally enhanced branching rate.
@@ -761,7 +783,7 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
       } else if (isValence) {
         zRootMin = (1. + sqrt(zMinAbs)) / (1. - sqrt(zMinAbs));
         zRootMax = (1. + sqrt(zMaxAbs)) / (1. - sqrt(zMaxAbs));
-        q2qInt = (8./3.) * log( zRootMax / zRootMin );
+        q2qInt = overFac * (8./3.) * log( zRootMax / zRootMin );
         if (doMEcorrections) q2qInt *= calcMEmax(MEtype, 1, 1);
         // Optionally enhanced branching rate.
         if (canEnhanceET) q2qInt *= userHooksPtr->enhanceFactor("isr:Q2QG");
@@ -769,12 +791,12 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
 
       // Integrals of splitting kernels for quarks: q -> q, g -> q.
       } else {
-        q2qInt = HEADROOMQ2Q * (8./3.)
+        q2qInt = overFac * HEADROOMQ2Q * (8./3.)
           * log( (1. - zMinAbs) / (1. - zMaxAbs) );
         if (doMEcorrections) q2qInt *= calcMEmax(MEtype, 1, 1);
         // Optionally enhanced branching rate.
         if (canEnhanceET) q2qInt *= userHooksPtr->enhanceFactor("isr:Q2QG");
-        g2qInt = HEADROOMG2Q * 0.5 * (zMaxAbs - zMinAbs);
+        g2qInt = overFac * HEADROOMG2Q * 0.5 * (zMaxAbs - zMinAbs);
         if (doMEcorrections) g2qInt *= calcMEmax(MEtype, 21, 1);
         // Optionally enhanced branching rate.
         if (canEnhanceET) g2qInt *= userHooksPtr->enhanceFactor("isr:G2QQ");
@@ -967,6 +989,9 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
       }
     }
 
+    // Cancel out uncertainty-band extra headroom factors.
+    wt /= overFac;
+
     // Derive Q2 and x of mother from pT2 and z.
     Q2      = pT2 / (1. - z);
     xMother = xDaughter / z;
@@ -983,8 +1008,15 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
     pT2corr = Q2 - z * (m2Dip + Q2) * (Q2 + m2Sister) / m2Dip;
     if (pT2corr < TINYPT2) { wt = 0.; continue; }
 
-    // Optionally veto emissions not ordered in rapidity (= angle).
-    if ( doRapidityOrder && dipEndNow->nBranch > 0
+    // For emissions in the hard scattering system, optionally veto
+    // emissions not ordered in rapidity (= angle).
+    if ( iSysNow == 0 && doRapidityOrder && dipEndNow->nBranch > 0
+      && pT2 > pow2( (1. - z) / (z * (1. - dipEndNow->zOld)) )
+      * dipEndNow->pT2Old ) { wt = 0.; continue; }
+
+    // For emissions in any secondary scattering system, optionally veto
+    // emissions not ordered in rapidity (= angle).
+    if ( iSysNow != 0 && doRapidityOrderMPI && dipEndNow->nBranch > 0
       && pT2 > pow2( (1. - z) / (z * (1. - dipEndNow->zOld)) )
       * dipEndNow->pT2Old ) { wt = 0.; continue; }
 
@@ -1037,6 +1069,12 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
     double xPDFmotherNew =
       beam.xfISR(iSysNow, idMother, xMother, pdfScale2);
     wt *= xPDFmotherNew / xPDFdaughterNew;
+
+    // If doing uncertainty variations, postpone accept/reject to branch()
+    if (wt > 0. && pT2 > pT2min && doUncertaintiesNow ) {
+      dipEndNow->pAccept = wt;
+      wt      = 1.0;
+    }
 
     // Check that valence step does not cause problem.
     if (wt > 1. && pT2 > PT2MINWARN) infoPtr->errorMsg("Warning in "
@@ -1154,6 +1192,12 @@ void SpaceShower::pT2nearThreshold( BeamParticle& beam,
 
     }
 
+    // If doing uncertainty variations, postpone accept/reject to branch().
+    if (wt > 0. && pT2 > pT2min && doUncertaintiesNow ) {
+      dipEndNow->pAccept = wt;
+      wt      = 1.0;
+    }
+
   // Iterate until acceptable pT and z.
   } while (wt < rndmPtr->flat()) ;
 
@@ -1162,6 +1206,8 @@ void SpaceShower::pT2nearThreshold( BeamParticle& beam,
 
   // Save values for (so far) acceptable branching.
   double mSister = (abs(idDaughter) == 4) ? mc : mb;
+
+  splittingNameNow = "isr:G2QQ";
   dipEndNow->store( idDaughter, idMother, -idDaughter, x1Now, x2Now, m2Dip,
     pT2, z, xMother, Q2, mSister, pow2(mSister), pT2corr);
 
@@ -2085,8 +2131,13 @@ bool SpaceShower::branch( Event& event) {
   bool canMergeFirst = (mergingHooksPtr != 0)
                      ? mergingHooksPtr->canVetoEmission() : false;
 
+  // Check if doing uncertainty variations
+  doUncertaintiesNow = doUncertainties;
+  if (!uVarMPIshowers && iSysSel != 0) doUncertaintiesNow = false;
+
   // Save further properties to be restored.
-  if (canVetoEmission || canMergeFirst || canEnhanceET || doWeakShower) {
+  if (canVetoEmission || canMergeFirst || canEnhanceET || doWeakShower
+    || doUncertaintiesNow) {
     for ( int iCopy = 0; iCopy < systemSizeOld; ++iCopy) {
       int iOldCopy    = partonSystemsPtr->getAll(iSysSel, iCopy);
       statusV.push_back( event[iOldCopy].status());
@@ -2411,6 +2462,34 @@ bool SpaceShower::branch( Event& event) {
       }
       return false;
     }
+  }
+
+ // Recover delayed shower-accept probability for uncertainty variations.
+  double pAccept = dipEndSel->pAccept;
+
+  // Decide if we are going to accept or reject this branching.
+  // (Without wasting time generating random numbers if pAccept = 1.)
+  bool acceptEvent = true;
+  if (pAccept < 1.0) acceptEvent = (rndmPtr->flat() < pAccept);
+
+  // If doing uncertainty variations, calculate accept/reject reweightings.
+  if (doUncertaintiesNow) calcUncertainties( acceptEvent, pAccept, pT20,
+    dipEndSel, &mother, &sister);
+
+  // Return false if we decided to reject this branching.
+  if( !acceptEvent ) {
+    // Restore kinematics before returning
+   event.popBack( event.size() - eventSizeOld);
+    event[beamOff1].daughter1( ev1Dau1V);
+    event[beamOff2].daughter1( ev2Dau1V);
+    for ( int iCopy = 0; iCopy < systemSizeOld; ++iCopy) {
+      int iOldCopy = partonSystemsPtr->getAll(iSysSel, iCopy);
+      event[iOldCopy].status( statusV[iCopy]);
+      event[iOldCopy].mothers( mother1V[iCopy], mother2V[iCopy]);
+      event[iOldCopy].daughters( daughter1V[iCopy], daughter2V[iCopy]);
+    }
+    // Tell calling method that this trial was rejected
+    return false;
   }
 
   // Allow veto of branching. If so restore event record to before emission.
@@ -2746,6 +2825,263 @@ bool SpaceShower::branch( Event& event) {
 
 //--------------------------------------------------------------------------
 
+// Initialize the choices of uncertainty variations of the shower.
+
+bool SpaceShower::initUncertainties() {
+
+  // Populate lists of uncertainty variations for SpaceShower, by keyword.
+  uVarMuSoftCorr = settingsPtr->flag("UncertaintyBands:muSoftCorr");
+  dASmax         = settingsPtr->parm("UncertaintyBands:deltaAlphaSmax");
+
+  // Reset uncertainty variation maps.
+  varG2GGmuRfac.clear();    varG2GGcNS.clear();
+  varQ2QGmuRfac.clear();    varQ2QGcNS.clear();
+  varQ2GQmuRfac.clear();    varQ2GQcNS.clear();
+  varX2XGmuRfac.clear();    varX2XGcNS.clear();
+  varG2QQmuRfac.clear();    varG2QQcNS.clear();
+
+  // Get uncertainty variations from Settings (as list of strings to parse).
+  vector<string> uVars = settingsPtr->wvec("UncertaintyBands:List");
+  nUncertaintyVariations = int(uVars.size());
+  if (nUncertaintyVariations == 0) return false;
+  if (infoPtr->nWeights() <= 1.) {
+    infoPtr->setNWeights( nUncertaintyVariations + 1 );
+    infoPtr->setWeightLabel( 0, "Baseline");
+    for(int iWeight = 1; iWeight <= nUncertaintyVariations; ++iWeight) {
+      string uVarString = uVars[iWeight - 1];
+      int iEnd = uVarString.find(" ", 0);
+      string valueString = uVarString.substr(0, iEnd);
+      infoPtr->setWeightLabel(iWeight, valueString);
+    }
+  }
+
+  // List of keywords recognised by SpaceShower.
+  vector<string> keys;
+  keys.push_back("isr:muRfac");
+  keys.push_back("isr:G2GG:muRfac");
+  keys.push_back("isr:Q2QG:muRfac");
+  keys.push_back("isr:Q2GQ:muRfac");
+  keys.push_back("isr:X2XG:muRfac");
+  keys.push_back("isr:G2QQ:muRfac");
+  keys.push_back("isr:cNS");
+  keys.push_back("isr:G2GG:cNS");
+  keys.push_back("isr:Q2QG:cNS");
+  keys.push_back("isr:Q2GQ:cNS");
+  keys.push_back("isr:X2XG:cNS");
+  keys.push_back("isr:G2QQ:cNS");
+
+  // Store number of QCD variations (as separator to QED ones).
+  int nKeysQCD=keys.size();
+
+  // Parse each string in uVars to look for recognised keywords.
+  for (int iWeight = 1; iWeight <= int(uVars.size()); ++iWeight) {
+    // Convert to lowercase (to be case-insensitive). Also remove "=" signs
+    // and extra spaces, so "key=value", "key = value" mapped to "key value"
+    string uVarString = toLower(uVars[iWeight - 1]);
+    while (uVarString.find("=") != string::npos) {
+      int firstEqual = uVarString.find_first_of("=");
+      uVarString.replace(firstEqual, 1, " ");
+    }
+    while (uVarString.find("  ") != string::npos)
+      uVarString.erase( uVarString.find("  "), 1);
+    if (uVarString == "" || uVarString == " ") continue;
+
+    // Loop over all keywords.
+    int nRecognizedQCD = 0;
+    for (int iWord = 0; iWord < int(keys.size()); ++iWord) {
+      // Transform string to lowercase to avoid case-dependence.
+      string key = toLower(keys[iWord]);
+      // Skip if empty or keyword not found.
+      if (uVarString.find(key) == string::npos) continue;
+      // Extract variation value/factor.
+      int iKey = uVarString.find(key);
+      int iBeg = uVarString.find(" ", iKey) + 1;
+      int iEnd = uVarString.find(" ", iBeg);
+      string valueString = uVarString.substr(iBeg, iEnd - iBeg);
+      stringstream ss(valueString);
+      double value;
+      ss >> value;
+      if (!ss) continue;
+
+      // Store (iWeight,value) pairs
+      // RECALL: use lowercase for all keys here (since converted above).
+      if (key == "isr:murfac" || key == "isr:g2gg:murfac")
+        varG2GGmuRfac[iWeight] = value;
+      if (key == "isr:murfac" || key == "isr:q2qg:murfac")
+        varQ2QGmuRfac[iWeight] = value;
+      if (key == "isr:murfac" || key == "isr:q2gq:murfac")
+        varQ2GQmuRfac[iWeight] = value;
+      if (key == "isr:murfac" || key == "isr:x2xg:murfac")
+        varX2XGmuRfac[iWeight] = value;
+      if (key == "isr:murfac" || key == "isr:g2qq:murfac")
+        varG2QQmuRfac[iWeight] = value;
+       if (key == "isr:cns" || key == "isr:g2gg:cns")
+        varG2GGcNS[iWeight] = value;
+      if (key == "isr:cns" || key == "isr:q2qg:cns")
+        varQ2QGcNS[iWeight] = value;
+      if (key == "isr:cns" || key == "isr:q2gq:cns")
+        varQ2GQcNS[iWeight] = value;
+      if (key == "isr:cns" || key == "isr:x2xg:cns")
+        varX2XGcNS[iWeight] = value;
+      if (key == "isr:cns" || key == "isr:g2qq:cns")
+        varG2QQcNS[iWeight] = value;
+      // Tell that we found at least one recognized and parseable keyword.
+      if (iWord < nKeysQCD) nRecognizedQCD++;
+    } // End loop over QCD keywords
+
+    // Tell whether this uncertainty variation contained >= 1 QCD variation.
+    if (nRecognizedQCD > 0) ++nVarQCD;
+  } // End loop over UVars.
+
+  // Let the calling function know if we found anything.
+  return (nVarQCD > 0);
+}
+
+//--------------------------------------------------------------------------
+
+// Calculate uncertainties for the current event.
+
+void SpaceShower::calcUncertainties(bool accept, double pAccept, double pT20in,
+  SpaceDipoleEnd* dip, Particle* motPtr, Particle* sisPtr) {
+
+  // Sanity check.
+  if (!doUncertainties || !doUncertaintiesNow || nUncertaintyVariations <= 0)
+    return;
+
+  // Define pointer and iterator to loop over the contents of each
+  // (iWeight,value) map.
+  map<int,double>* varPtr=0;
+  map<int,double>::iterator itVar;
+  // Make sure we have a dummy to point to if no map to be used.
+  map<int,double> dummy;     dummy.clear();
+
+  // Store uncertainty variation factors, initialised to unity.
+  // Make vector sizes + 1 since 0 = default and variations start at 1.
+  vector<double> uVarFac(nUncertaintyVariations + 1, 1.0);
+  vector<bool> doVar(nUncertaintyVariations + 1, false);
+
+  // Extract IDs, with standard ISR nomenclature: mot -> dau(Q2) + sis
+  int idSis = sisPtr->id();
+  int idMot = motPtr->id();
+
+  // QCD variations.
+  if (dip->colType != 0) {
+
+    // QCD renormalization-scale variations.
+    if (alphaSorder == 0) varPtr = &dummy;
+    else if (idMot == 21 && idSis == 21) varPtr = &varG2GGmuRfac;
+    else if (idMot == 21 && abs(idSis) <= nQuarkIn) varPtr = &varG2QQmuRfac;
+    else if (abs(idMot) <= nQuarkIn) {
+      if (abs(idMot) <= uVarNflavQ) varPtr = &varQ2QGmuRfac;
+      else varPtr = &varX2XGmuRfac;
+    }
+    else varPtr = &dummy;
+    for (itVar = varPtr->begin(); itVar != varPtr->end(); ++itVar) {
+      int iWeight   = itVar->first;
+      double valFac = itVar->second;
+      double muR2 = renormMultFac * (dip->pT2 + pT20in);
+      double alphaSbaseline = alphaS.alphaS(muR2);
+      // Correction-factor alphaS.
+      double muR2var = max(1.1 * Lambda3flav2, pow2(valFac) * muR2);
+      double alphaSratio = alphaS.alphaS(muR2var) / alphaSbaseline;
+      // Apply soft correction factor only for (on-shell) gluon emission
+      double facCorr = 1.;
+      if (idSis == 21 && uVarMuSoftCorr) {
+        // Use smallest alphaS and b0, to make the compensation conservative.
+        int nf = 5;
+        if (dip->pT2 < pow2(mc)) nf = 3;
+        else if (dip->pT2 < pow2(mb)) nf = 4;
+        double alphaScorr = alphaS.alphaS(dip->m2Dip);
+        double facSoft    = alphaScorr * (33. - 2. * nf) / (6. * M_PI);
+        // Zeta is energy fraction of emitted (on-shell) gluon = 1 - z.
+        double zeta = 1. - dip->z;
+        facCorr = 1. + (1. - zeta) * facSoft * log(valFac);
+      }
+      // Apply correction factor here for emission processes.
+      double alphaSfac   = alphaSratio * facCorr;
+      // Limit absolute variation to +/- deltaAlphaSmax
+      if (alphaSfac > 1.)
+        alphaSfac = min(alphaSfac, (alphaSbaseline + dASmax) / alphaSbaseline);
+      else if (alphaSbaseline > dASmax)
+        alphaSfac = max(alphaSfac, (alphaSbaseline - dASmax) / alphaSbaseline);
+      uVarFac[iWeight] *= alphaSfac;
+      doVar[iWeight] = true;
+    }
+
+    // QCD finite-term variations (only when no MECs and above pT threshold).
+    if (dip->MEtype != 0 || dip->pT2 < pow2(cNSpTmin) ) varPtr = &dummy;
+    else if (idMot == 21 && idSis == 21) varPtr = &varG2GGcNS;
+    else if (idMot == 21 && abs(idSis) <= nQuarkIn) varPtr = &varG2QQcNS;
+    else if (abs(idMot) <= nQuarkIn) {
+      if (abs(idMot) <= uVarNflavQ) varPtr = &varQ2QGcNS;
+      else varPtr = &varX2XGcNS;
+    }
+    else varPtr = &dummy;
+    for (itVar = varPtr->begin(); itVar != varPtr->end(); ++itVar) {
+      int iWeight   = itVar->first;
+      double valFac = itVar->second;
+      // Correction-factor alphaS.
+      double z   = dip->z;
+      double Q2  = dip->pT2;
+      // Virtuality for off-shell massive quarks.
+      if (idMot == 21 && abs(idSis) >= 4 && idSis != 21)
+        Q2 = max(1., Q2+pow2(sisPtr->m0()));
+      else if (idSis == 21 && abs(idMot) >= 4 && idMot != 21)
+        Q2 = max(1., Q2+pow2(motPtr->m0()));
+      double yQ  = Q2 / dip->m2Dip;
+      double num = yQ * valFac;
+      double denom = 1.;
+      // G->GG.
+      if (idSis == 21 && idMot == 21)
+        denom = pow2(1. - z * (1.-z)) / (z*(1.-z));
+      // Q->QG.
+      else if (idSis == 21)
+        denom = (1. + pow2(z)) / (1. - z);
+      // Q->GQ.
+      else if (idMot == idSis)
+        denom = (1. + pow2(1. - z)) / z;
+      // G->QQ.
+      else
+        denom = pow2(z) + pow2(1. - z);
+      // Compute reweight ratio.
+      double minReWeight =  max( 1. + num / denom, REJECTFACTOR );
+      uVarFac[iWeight] *= minReWeight;
+      doVar[iWeight] = true;
+    }
+  }
+
+  // Ensure 0 < PacceptPrime < 1 (with small margins).
+  for (int iWeight = 1; iWeight<=nUncertaintyVariations; ++iWeight) {
+    if (!doVar[iWeight]) continue;
+    double pAcceptPrime = pAccept * uVarFac[iWeight];
+    if (pAcceptPrime > PROBLIMIT) uVarFac[iWeight] *= PROBLIMIT / pAcceptPrime;
+  }
+
+  // Apply reject or accept reweighting factors according to input decision.
+  for (int iWeight = 1; iWeight <= nUncertaintyVariations; ++iWeight) {
+    if (!doVar[iWeight]) continue;
+    // If trial accepted: apply ratio of accept probabilities.
+    if (accept) infoPtr->reWeight(iWeight, uVarFac[iWeight]);
+    // If trial rejected : apply Sudakov reweightings.
+    else {
+      // Check for near-singular denominators (indicates too few failures,
+      // and hence would need to increase headroom).
+      double denom = 1. - pAccept;
+      if (denom < REJECTFACTOR) {
+        stringstream message;
+        message << iWeight;
+        infoPtr->errorMsg("Warning in SpaceShower: reject denom for iWeight = ",
+          message.str());
+      }
+      // Force reweighting factor > 0.
+      double reWtFail = max(0.01, (1. - uVarFac[iWeight] * pAccept) / denom);
+      infoPtr->reWeight(iWeight, reWtFail);
+    }
+  }
+}
+
+//--------------------------------------------------------------------------
+
 // Find class of ME correction.
 
   int SpaceShower::findMEtype( int iSys, Event& event, bool weakRadiation) {
@@ -3011,25 +3347,25 @@ void SpaceShower::update(int , Event &, bool hasWeakRad) {
 
 // Print the list of dipoles.
 
-void SpaceShower::list(ostream& os) const {
+void SpaceShower::list() const {
 
   // Header.
-  os << "\n --------  PYTHIA SpaceShower Dipole Listing  -------------- \n"
-     << "\n    i  syst  side   rad   rec       pTmax  col  chg  ME rec \n"
-     << fixed << setprecision(3);
+  cout << "\n --------  PYTHIA SpaceShower Dipole Listing  -------------- \n"
+       << "\n    i  syst  side   rad   rec       pTmax  col  chg  ME rec \n"
+       << fixed << setprecision(3);
 
   // Loop over dipole list and print it.
   for (int i = 0; i < int(dipEnd.size()); ++i)
-  os << setw(5) << i << setw(6) << dipEnd[i].system
-     << setw(6) << dipEnd[i].side << setw(6) << dipEnd[i].iRadiator
-     << setw(6) << dipEnd[i].iRecoiler << setw(12) << dipEnd[i].pTmax
-     << setw(5) << dipEnd[i].colType << setw(5) << dipEnd[i].chgType
-     << setw(5) << dipEnd[i].MEtype << setw(4)
-     << dipEnd[i].normalRecoil << "\n";
+  cout << setw(5) << i << setw(6) << dipEnd[i].system
+       << setw(6) << dipEnd[i].side << setw(6) << dipEnd[i].iRadiator
+       << setw(6) << dipEnd[i].iRecoiler << setw(12) << dipEnd[i].pTmax
+       << setw(5) << dipEnd[i].colType << setw(5) << dipEnd[i].chgType
+       << setw(5) << dipEnd[i].MEtype << setw(4)
+       << dipEnd[i].normalRecoil << "\n";
 
   // Done.
-  os << "\n --------  End PYTHIA SpaceShower Dipole Listing  ----------"
-     << endl;
+  cout << "\n --------  End PYTHIA SpaceShower Dipole Listing  ----------"
+       << endl;
 
 
 }

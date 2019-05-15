@@ -18,6 +18,179 @@ but this should only affect a small part of the user code.
  
 <ul> 
  
+<li>8.219: 10 May 2016 
+<ul> 
+ 
+<li>An interface to the Python programming language has been introduced, 
+see <a href="APythonInterface.html" target="page">A Python Interface</a> for details. 
+Various minor changes in the C++ code have been done in order to permit 
+the automatic generation of the interface.</li> 
+ 
+<li>Included a new framework for automated parton-shower uncertainty bands. 
+Variations of the QCD renormalisation scale for both initial- and 
+final-state showers can now be computed by Pythia on the fly, and are 
+provided as a list of alternative weights for each event, representing 
+the probability that the given event would have occurred under different 
+shower assumptions. So-called "nonsingular terms" can also be added to 
+the splitting kernels to estimate the possible effect of missing 
+matrix-element corrections. Full documentation is found on the 
+<a href="Variations.html" target="page">Automated Shower Variations</a> page, 
+and a paper is due to appear on arXiv shortly.</li> 
+ 
+<li>When a final-state <i>g &rarr; g g</i> branching happens with 
+a massive recoiler, radiation in the recoiler direction is now 
+by default further suppressed to respect the "dead cone" effect, 
+see new switch <code>TimeShower:recoilDeadCone</code>. Furthermore 
+a new switch, <code>TimeShower:MEextended</code>, on by defaults, 
+attempts to guess the most relevant ME correction when the 
+correct choice is not known or implemented. Thanks to 
+Jesse Thaler, Michele Selvaggi and Fabio Maltoni.</li> 
+ 
+<li>The <i>gamma-gamma</i> hard-process machinery has been extended to 
+convolute the partonic PDFs in a photon with the flux of photons inside 
+a lepton. The description is intended for the region of quasireal photons, 
+but full kinematics is implemented.</li> 
+ 
+<li>New constructors that take streams rather than files as input. 
+Thus the contents of a file can be read and then broadcast to multiple 
+instances of Pythia, eliminating the inefficiency of multiple jobs 
+reading from the same initialization files. This facilitates running 
+with MPIs (Message Process Interfaces). Affected areas are settings, 
+particle data and PDF grids.</li> 
+ 
+<li>Small additions and fixes to the LHEF3 framework, to keep track of 
+weight keys, and improve parsing.</li> 
+ 
+<li>A new class allows PDF data files in the lhagrid1 format, 
+with some restrictions, to be read and used. This does not replace 
+all that you can do with a complete LHAPDF6 installation, but at 
+least permits some simple studies without LHAPDF6 + Boost. 
+New example <code>main55.cc</code> illustrates this, and event 
+properties for an intermediate spinless resonance in 
+<i>&gamma; + &gamma; &rarr; &gamma; + &gamma;</i> at 750 GeV.</li> 
+ 
+<li>Four Pomeron PDF sets from the ACTW study [<a href="Bibliography.html" target="page">Alv99</a>] now 
+implemented.</li> 
+ 
+<li>The three Pomeron H1 Jets PDF data files have been joined to one. 
+</li> 
+ 
+<li>The <a href="ExternalDecays.html" target="page">external decays</a> interface has 
+been extended by a new method that allows sequential decays to be done 
+in one call.</li> 
+ 
+<li>Increased possibilities to set the <i>epsilon</i> and 
+<i>alpha'</i> parameters of the Pomeron trajectory for 
+hard-diffraction Pomeron fluxes.</li> 
+ 
+<li>Extrapolation of PDFs to small <i>x</i> values when 
+<code>PDF:extrapolate = on</code> now extended to more cases.</li> 
+ 
+<li>New flag <code>TimeShower:QEDshowerByOther</code> allows charged 
+resonances, like the <i>W^+-</i>, to radiate photons.</li> 
+ 
+<li>The jet matching algorithm in <code>JetMatching.h</code> has been 
+extended to better handle heavy quarks, heavy colored particles (such 
+as squarks) and "other" partons (coloured but produced from an 
+Electroweak vertex).</li> 
+ 
+<li>Added a new option <code>SpaceShower:rapidityOrderMPI</code>, which 
+will enforce an ordering in rapidity for emissions off secondary 
+scattering systems. This will be enabled by default, ensuring backwards 
+compatibility. The old <code>SpaceShower:rapidityOrder</code> now only 
+refers to the hard(est) subprocess.</li> 
+ 
+<li>Changes to the cross section handling in the presence of user 
+vetoes/weights, containing three changes: 
+<br/>1. Counter of selected event <code>pythia.info.nSelected()</code> 
+is now updated  immediately after the hard process generation. 
+<br/>2. More fine-grained input settings to enforce that Pythia 
+generates (or reads) exactly a fixed number of hard process events. 
+<br/>3. The Pythia "internal cross section" 
+<code>pythia.info.sigmaGen()</code> and the event weight 
+<code>pythia.info.weight()</code> now directly include the effect of 
+event vetoes and event reweighting that are applied by the leading-order 
+ME+PS merging prescriptions.</li> 
+ 
+<li>Changes to the merging classes to allow for a postponed CKKW-L 
+event veto. (See end of <a href="CKKWLMerging.html" target="page">CKKW-L Merging</a> 
+page for details.)</li> 
+ 
+<li>Small changes to virtual parton shower functions, and to the merging 
+classes, to prepare ME+PS merging with the Vincia parton shower.</li> 
+ 
+<li>The <a href="HepMCInterface.html" target="page">HepMC</a> interface has been 
+modified such that the detection of unhadronized quarks or gluons 
+leads to an exception being thrown, so that the user can decide what 
+action to take. See further new/renamed <code>free_parton_exception</code> 
+switch. The usage of exceptions for this specific task is by request 
+from ATLAS, and does not represent a general change of programming 
+style. Thanks to James Monk.</li> 
+ 
+<li>A class <code>WVec</code> has been introduced to store vectors of 
+strings. The delimiters { } are introduced to provide input with 
+embedded blanks, and broken up across several lines. See further the 
+<a href="SettingsScheme.html" target="page">Settings Scheme</a> description.</li> 
+ 
+<li>The <code>Settings::toLower</code> method used to convert a string 
+to lowercase, and also trim it from initial or trailing blanks and special 
+characters, now moved to <code>PythiaStdlib.h</code> so it can be used 
+more generally. Other code changes accordingly.</li> 
+ 
+<li>Remove many rarely (if ever) used <code>ostream& os = cout</code> 
+optional arguments in favour of hardcoded <code>cout</code> in the code. 
+Eliminates some redundancy of methods.</li> 
+ 
+<li>Rename <code>...print(...</code> methods to <code>...list(...</code> 
+to favour a more regular naming pattern.</li> 
+ 
+<li>Minor <code>configure</code> and <code>Makefile</code> updates, 
+to address potential linking problems on some platforms for boost, gzip 
+and promc. Thanks to Dmitri Konstantinov.</li> 
+ 
+<li>New <code>--config</code> option of <code>pythia8-config</code> 
+echoes the arguments passed to <code>configure</code>.</li> 
+ 
+<li>The description of <code>POWHEG:vetoCount = 0</code> has been 
+corrected. Thanks to Florian Koenig.</li> 
+ 
+<li>Allow for lightest neutralino not to decay as a resonance.</li> 
+ 
+<li>Do not switch off the Breit-Wigner width treatment of a resonance 
+as easily as previously, but only if the width is below 1e-6 GeV.</li> 
+ 
+<li>Make some <code>SlowJet</code> methods virtual to allow derived 
+classes with modified properties.</li> 
+ 
+<li>Moved some misplaced info on parton-level choice of MPIs.</li> 
+ 
+<li>Corrected typos where some bottomonium long-distance matrix element 
+had been set larger than normally assumed.</li> 
+ 
+<li>Fixed typo potentially giving incorrect colour flow in resonance 
+decays.</li> 
+ 
+<li>Fixed an out-of-bounds array access in HelicityMatrixElements. 
+Thanks to Vittorio Zecca.</li> 
+ 
+<li>Fixes in <code>main80.cc</code> and <code>main89.cc</code>.</li> 
+ 
+<li>Fixed problem with the SLHAinterface not being zeroed-out when 
+using repeated subruns.</li> 
+ 
+<li>Minor fix for beam particles, that no default was set as to whether 
+they are gammas or not.</li> 
+ 
+<li>Cleaned up error printout for the PDF classes.</li> 
+ 
+<li>Change a few true/false to on/off in the documentation to make the 
+php version of the manual recognize them.</li> 
+ 
+<li>Some trivial code, manual and bibliography updates.</li> 
+ 
+</ul> 
+</li> 
+ 
 <li>8.215: 4 January 2016 
 <ul> 
  

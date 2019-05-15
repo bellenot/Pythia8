@@ -337,7 +337,7 @@ the probability that this original assignment is not respected, and
 default corresponds to no memory of this original colour topology. 
 </parm> 
  
-<flag name="ParticleDecays:FSRinDecays" default="true"> 
+<flag name="ParticleDecays:FSRinDecays" default="on"> 
 When a particle decays to <ei>q qbar</ei>, <ei>g g</ei>, <ei>g g g</ei> 
 or <ei>gamma g g</ei>, with <code>meMode > 90</code>, allow or not a 
 shower to develop from it, before the partonic system is hadronized. 

@@ -106,6 +106,21 @@ constructed. In this case new values for <i>kT</i> are sampled. If this
 does not work, a new shower is generated and in some rare cases the 
 parton-level generation fails and the hard process is rejected. 
  
+<h3>Photon-photon in lepton-lepton</h3> 
+ 
+Photon-photon interactions can happen also in lepton-lepton collisions. 
+How to set up these collisions is described in 
+<a href="PDFSelection.html" target="page">PDF selection</a>. Since the current 
+framework can handle only (quasi-)real photons, a upper limit for the 
+photon virtuality needs to be set. This can be done with the parameter 
+<code>Photon:Q2max</code>. The upper limit for virtuality will set also 
+the upper limit for the <i>k_T</i> of the photon, which in turn will 
+be the same as the <i>k_T</i> of the scattered lepton. 
+ 
+<p/><code>parm&nbsp; </code><strong> Photon:Q2max &nbsp;</strong> 
+ (<code>default = <strong>1.0</strong></code>; <code>minimum = 0.5</code>; <code>maximum = 2.0</code>)<br/>
+Upper limit for (quasi-)real photon virtuality in <i>GeV^2</i>. 
+   
  
 </body>
 </html>

@@ -220,17 +220,21 @@
        visualization, http://root.cern.ch. This package is only used
        for the "examples/main9[1,2].cc" examples.
    BOOST) Advanced C++ libraries, http://www.boost.org/, which are needed
-       when using either LHAPDF6 or GZIP.
-   GZIP) support for the reading of gzipped LHE files. It relies upon
-       BOOST and zlib to function. The BOOST location can be specified
-       with "--with-boost=PATH" while the "--with-gzip=PATH" provides
-       the location for "zlib.h" and "libz.[so,dylib]". From BOOST the
-       headers in "iostreams/" and the library
-       "libboost_iostreams.[so,dylib]" are required.  Note that when
-       compiling a final PYTHIA executable, these libraries must also
-       be included, e.g.: "-lboost_iostreams -lz". This is done
-       automatically for the examples in "examples/"
-       when GZIP support is enabled.
+       when using the C++ interface for LHAPDF6.
+   GZIP) Support for the reading of gzipped LHE files. It relies upon
+       zlib to function. The "--with-gzip=PATH" provides the location
+       for "zlib.h" and "libz.[so,dylib]". Note that when compiling a
+       final PYTHIA executable, the zlib library must also be
+       included, e.g.: "-lz". This is done automatically for the
+       examples in "examples/" when GZIP support is enabled.
+   PYTHON) Provides a Python interface to Pythia. To build this interface,
+       the executable "python" must be available, as well as the
+       Python system header "Python.h". Typically this can be found
+       under "/usr/include/pythonX.Y". Note that the interface
+       includes this header as "#include <Python.h>" so the user will
+       typically need to explicitly set the include path with
+       "--with-python-include=/usr/include/pythonX.Y" or something
+       similar. The interface works both with Python 2 and 3.
 
 ----------------------------------------------------------------------
 

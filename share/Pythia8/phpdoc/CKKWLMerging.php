@@ -1342,6 +1342,24 @@ of an external shower plugin. This will become possible as soon as new
 showers containing the necessary ingredients are available in Pythia. 
    
  
+<br/><br/><strong>Merging:applyVeto</strong>  <input type="radio" name="42" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="42" value="off"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
+If off, no event veto based on the merging scale is applied in CKKW-L merging. 
+This means that the user has to implement the veto by hand in the Pythia main 
+program. It can be useful to postpone event vetoes for the purpose of merging 
+scale variations. 
+   
+ 
+<br/><br/><strong>Merging:includeWeightInXsection</strong>  <input type="radio" name="43" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="43" value="off"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
+If on, then the reweighting of events in the CKKW-L scheme is included in 
+the event weight <code>Info::weight()</code>, the merging weight 
+<code>Info:mergingWeight()</code> is unity, and the cross section printed 
+by <code>Info::sigmaGen()</code> includes the effect of CKKW-L merging. 
+   
+ 
 <input type="hidden" name="saved" value="1"/>
 
 <?php
@@ -1560,6 +1578,16 @@ fwrite($handle,$data);
 if($_POST["41"] != "off")
 {
 $data = "Merging:useShowerPlugin = ".$_POST["41"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["42"] != "on")
+{
+$data = "Merging:applyVeto = ".$_POST["42"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["43"] != "on")
+{
+$data = "Merging:includeWeightInXsection = ".$_POST["43"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);

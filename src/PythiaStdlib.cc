@@ -11,6 +11,28 @@ namespace Pythia8 {
 
 //==========================================================================
 
+// Convert string to lowercase for case-insensitive comparisons.
+// By default remove any initial and trailing blanks or escape characters.
+
+string toLower(const string& name, bool trim) {
+
+  // Copy string without initial and trailing blanks or escape characters.
+  string temp = name;
+  if (trim) {
+    if (name.find_first_not_of(" \n\t\v\b\r\f\a") == string::npos) return "";
+    int firstChar = name.find_first_not_of(" \n\t\v\b\r\f\a");
+    int lastChar  = name.find_last_not_of(" \n\t\v\b\r\f\a");
+    temp          = name.substr( firstChar, lastChar + 1 - firstChar);
+  }
+
+  // Convert to lowercase letter by letter.
+  for (int i = 0; i < int(temp.length()); ++i) temp[i] = tolower(temp[i]);
+  return temp;
+
+}
+
+//--------------------------------------------------------------------------
+
 // The Gamma function for real arguments, using the Lanczos approximation.
 // Code based on http://en.wikipedia.org/wiki/Lanczos_approximation
 

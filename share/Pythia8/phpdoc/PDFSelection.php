@@ -44,16 +44,22 @@ echo "<a href='PartonDistributions.php?filepath=".$filepath."' target='page'>";?
 <br/><br/><strong>PDF:extrapolate</strong>  <input type="radio" name="1" value="on"><strong>On</strong>
 <input type="radio" name="1" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-Allow PDF sets to be extrapolated. This is a global flag that affects 
-all PDF sets used. However, only LHAPDF5 PDF sets can currently be 
-extrapolated so this does not affect internal or LHAPDF6 sets. Parton 
-densities have a guaranteed range of validity in <i>x</i> 
-and <i>Q^2</i>, and what should be done beyond that range usually is 
-not explained by the authors of PDF sets. Nevertheless these 
-boundaries very often are exceeded, e.g. minimum-bias studies at LHC 
-may sample <i>x</i> values down to <i>10^-8</i>, while many PDF 
-sets stop already at <i>10^-5</i>. The default behaviour is then 
-that the PDF's are frozen at the boundary, i.e. <i>xf(x,Q^2)</i> is 
+Allow PDF sets to be extrapolated, notably to small <i>x</i> values. 
+This is a global flag that affects all PDF sets used, whenever 
+extrapolation has been implemented. Currently the main use is for LHAPDF5, 
+while LHAPDF6 sets are not affected. Among internal PDFs, all Pomeron sets 
+are affected by this flag, as are the CTEQ6/CT09 proton ones. For the rest 
+some by default extrapolate to small <i>x</i> (GRV 94 L, MRST/MSTW) while 
+others are frozen at the border (CTEQ 5 L, NNPDF). When in doubt, check 
+whether and how the behaviour depends on the choice made for your region 
+of interest. 
+<br/>To put the issue in context, parton densities have a guaranteed 
+range of validity in <i>x</i> and <i>Q^2</i>, and what should be done 
+beyond that range usually is not explained by the authors of PDF sets. 
+Nevertheless these boundaries very often are exceeded, e.g. minimum-bias 
+studies at LHC may sample <i>x</i> values down to <i>10^-8</i>, while 
+many PDF sets stop already at <i>10^-5</i>. The default behaviour is 
+then that the PDF's are frozen at the boundary, i.e. <i>xf(x,Q^2)</i> is 
 fixed at its value at <i>x_min</i> for all values <i>x &lt; 
 x_min</i>, and so on. This is a conservative approach. Alternatively, 
 if you switch on extrapolation, then parametrizations will be extended 
@@ -93,6 +99,13 @@ is based on the original smaller grid.
 boundaries of the grid, by recommendation of the authors, while 
 LHAPDF also offers an option with a smooth extrapolation outside 
 the grid boundaries. 
+ 
+<p/> 
+If you do not want to install LHAPDF, it is possible to use LHAPDF6 
+data grids natively in PYTHIA. This is based on a simplified 
+implementation of interpolation in a <code>.dat</code> "lhagrid1" 
+file, and so does not give fully identical results, and also is not 
+foolproof. 
  
 <p/> 
 The selection of parton densities is made once and then is propagated 
@@ -175,6 +188,17 @@ set to use. If member is not supplied, then <code>0</code> is assumed.
 for <code>LHAPDF5:set/member</code> but now the LHAPDF6 library is 
 used instead. 
    
+<br/><code>option </code><strong> LHAGrid1:filename</strong> : Use the internal implementation 
+of interpolation in <code>.dat</code> files in the default "lhagrid1" 
+LHAPDF6 format. This is a simplified implementation, with cubic 
+interpolation in <i>ln(x)</i> and in <i>ln(Q2)</i>. If 
+there are several <i>Q^2</i> subgrids they have to have the same 
+<i>x</i> grid. (Linear interpolation in <i>ln(Q2)</i> is used, 
+should a subgrid contain fewer than four <i>Q2</i> values.) 
+Other restrictions may also apply, so use with caution. 
+If the <code>filename</code> begins with a / it is supposed to contain 
+the absolute path to the file, and if not the file is supposed to be 
+located in the standard <code>share/Pythia8/xmldoc</code> directory. 
    
 <br/><b>Warning 1:</b> the <i>alpha_s(M_Z)</i> values and the order of the 
 running in the description above is purely informative, and does not 
@@ -298,6 +322,10 @@ integer.
 for <code>LHAPDF5:set/member</code> but now the LHAPDF6 library is 
 used instead. 
    
+<br/><code>option </code><strong> LHAGrid1:filename</strong> : Use the internal implementation 
+of interpolation in <code>.dat</code> files in the default "lhagrid1" 
+LHAPDF6 format, cf. the corresponding proton option. 
+   
    
  
 <br/><br/><table><tr><td><strong>PDF:piSetB  </td><td></td><td> <input type="text" name="8" value="void" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>void</strong></code>)</td></tr></table>
@@ -315,15 +343,67 @@ Most experimental parametrizations are NLO, which makes them less
 well suited for Monte Carlo applications. Furthermore note that 
 the momentum sum is arbitrarily normalized to a non-unity value. 
  
-<br/><br/><table><tr><td><strong>PDF:PomSet  </td><td>  &nbsp;&nbsp;(<code>default = <strong>6</strong></code>; <code>minimum = 1</code>; <code>maximum = 6</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>PDF:PomSet  </td><td></td><td> <input type="text" name="9" value="6" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>6</strong></code>)</td></tr></table>
 Parton densities that can be used for Pomeron beams. 
-<br/>
-<input type="radio" name="9" value="1"><strong>1 </strong>: <ei>Q^2</ei>-independent parametrizations  <ei>xf(x) = N_ab x^a (1 - x)^b</ei>, where <ei>N_ab</ei> ensures  unit momentum sum. The <ei>a</ei> and <ei>b</ei> parameters can be  set separately for the gluon and the quark distributions. The  momentum fraction of gluons and quarks can be freely mixed, and  production of <ei>s</ei> quarks can be suppressed relative to  that of <ei>d</ei> and <ei>u</ei> ones, with antiquarks as likely  as quarks. See further below how to set the six parameters of this  approach.  <br/>
-<input type="radio" name="9" value="2"><strong>2 </strong>: <ei>pi0</ei> distributions, as specified in the  section above.  <br/>
-<input type="radio" name="9" value="3"><strong>3 </strong>: the H1 2006 Fit A NLO <ei>Q^2</ei>-dependent  parametrization, based on a tune to their data <ref>H1P06</ref>,  rescaled by the factor <code>PomRescale</code> below.  <br/>
-<input type="radio" name="9" value="4"><strong>4 </strong>: the H1 2006 Fit B NLO <ei>Q^2</ei>-dependent  parametrization, based on a tune to their data <ref>H1P06</ref>,  rescaled by the factor <code>PomRescale</code> below.  <br/>
-<input type="radio" name="9" value="5"><strong>5 </strong>: the H1 2007 Jets NLO <ei>Q^2</ei>-dependent  parametrization, based on a tune to their data <ref>H1P07</ref>,  rescaled by the factor <code>PomRescale</code> below.  <br/>
-<input type="radio" name="9" value="6" checked="checked"><strong>6 </strong>: the H1 2006 Fit B LO <ei>Q^2</ei>-dependent  parametrization, based on a tune to their data <ref>H1P06</ref>,  rescaled by the factor <code>PomRescale</code> below.  <br/>
+<br/><code>option </code><strong> 1</strong> : <i>Q^2</i>-independent parametrizations 
+<i>xf(x) = N_ab x^a (1 - x)^b</i>, where <i>N_ab</i> ensures 
+unit momentum sum. The <i>a</i> and <i>b</i> parameters can be 
+set separately for the gluon and the quark distributions. The 
+momentum fraction of gluons and quarks can be freely mixed, and 
+production of <i>s</i> quarks can be suppressed relative to 
+that of <i>d</i> and <i>u</i> ones, with antiquarks as likely 
+as quarks. See further below how to set the six parameters of this 
+approach. 
+   
+<br/><code>option </code><strong> 2</strong> : <i>pi0</i> distributions, as specified in the 
+section above. 
+   
+<br/><code>option </code><strong> 3</strong> : the H1 2006 Fit A NLO <i>Q^2</i>-dependent 
+parametrization, based on a tune to their data [<a href="Bibliography.php" target="page">H1P06</a>], 
+rescaled by the factor <code>PomRescale</code> below. 
+   
+<br/><code>option </code><strong> 4</strong> : the H1 2006 Fit B NLO <i>Q^2</i>-dependent 
+parametrization, based on a tune to their data [<a href="Bibliography.php" target="page">H1P06</a>], 
+rescaled by the factor <code>PomRescale</code> below. 
+   
+<br/><code>option </code><strong> 5</strong> : the H1 2007 Jets NLO <i>Q^2</i>-dependent 
+parametrization, based on a tune to their data [<a href="Bibliography.php" target="page">H1P07</a>], 
+rescaled by the factor <code>PomRescale</code> below. 
+   
+<br/><code>option </code><strong> 6</strong> : the H1 2006 Fit B LO <i>Q^2</i>-dependent 
+parametrization, based on a tune to their data [<a href="Bibliography.php" target="page">H1P06</a>], 
+rescaled by the factor <code>PomRescale</code> below. 
+   
+<br/><code>option </code><strong> 7</strong> : the ACTW B NLO <i>Q^2</i>-dependent 
+parametrization with <i>epsilon=0.14</i>, 
+based on a tune to H1 and ZEUS data [<a href="Bibliography.php" target="page">Alv99</a>], 
+rescaled by the factor <code>PomRescale</code> below. 
+   
+<br/><code>option </code><strong> 8</strong> : the ACTW D NLO <i>Q^2</i>-dependent 
+parametrization with <i>epsilon=0.14</i>, 
+based on a tune to H1 and ZEUS data [<a href="Bibliography.php" target="page">Alv99</a>], 
+rescaled by the factor <code>PomRescale</code> below. 
+   
+<br/><code>option </code><strong> 9</strong> : the ACTW SG NLO <i>Q^2</i>-dependent 
+parametrization with <i>epsilon=0.14</i>, 
+based on a tune to H1 and ZEUS data [<a href="Bibliography.php" target="page">Alv99</a>], 
+rescaled by the factor <code>PomRescale</code> below. 
+   
+<br/><code>option </code><strong> 10</strong> : the ACTW D NLO <i>Q^2</i>-dependent 
+parametrization with <i>epsilon=0.19</i>, 
+based on a tune to H1 and ZEUS data [<a href="Bibliography.php" target="page">Alv99</a>], 
+rescaled by the factor <code>PomRescale</code> below. 
+   
+<br/><code>option </code><strong> LHAPDF5:set/member</strong> : Use an external LHAPDF5 set, 
+cf. the corresponding proton option. 
+   
+<br/><code>option </code><strong> LHAPDF6:set/member</strong> : Use an external LHAPDF6 set, 
+cf. the corresponding proton option. 
+   
+<br/><code>option </code><strong> LHAGrid1:filename</strong> : Use the internal implementation 
+for a LHAPDF6 set, cf. the corresponding proton option. 
+   
+   
  
 <br/><br/><table><tr><td><strong>PDF:PomGluonA </td><td></td><td> <input type="text" name="10" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>; <code>minimum = -0.5</code>; <code>maximum = 2.</code>)</td></tr></table>
 the parameter <i>a</i> in the ansatz <i>xg(x) = N_ab x^a (1 - x)^b</i> 
@@ -417,6 +497,28 @@ selection machinery currently does not allow one resolved and one
 unresolved beam. For lepton-neutrino collisions to work you must 
 therefore set <code>PDF:lepton = off</code>. 
  
+<h4>Photons from lepton beams</h4> 
+ 
+Lepton beams can also emit resolved photons and therefore have partonic 
+content. The PDFs describing these can be obtained by convoluting 
+the photon flux with the selected photon PDFs. Currently the photon flux 
+is modelled according to equivalent photon approximation (EPA) which 
+gives the flux of bremsstrahlung photons. 
+ 
+<br/><br/><strong>PDF:lepton2gamma</strong>  <input type="radio" name="19" value="on"><strong>On</strong>
+<input type="radio" name="19" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+When set on, the photon-inside-lepton PDFs are used and processes with quark 
+or gluon initiators can be generated. Can be used only with charged leptons. 
+The photon PDF set is selected with the <code>PDF:GammaSet</code> option 
+above. 
+   
+ 
+<br/><br/><table><tr><td><strong>PDF:lepton2gammaSet  </td><td>  &nbsp;&nbsp;(<code>default = <strong>1</strong></code>)</td></tr></table>
+The photon flux. Currently one option available. 
+<br/>
+<input type="radio" name="20" value="1" checked="checked"><strong>1 </strong>:  Convolute the photon flux from EPA with the selected photon  PDF set. Convolution integral is performed "on the fly", meaning that the  actual integral is not computed but the <ei>x_gamma</ei> is sampled  event-by-event. Since the final PDF value depends on the sampled value for  <ei>x_gamma</ei> the phase-space sampling is set up using an overestimate for  the PDFs. This makes the process selection somewhat less efficient compared  to the case where the PDFs are fixed (e.g. for protons).<br/>
+ 
 <h3>Incoming parton selection</h3> 
  
 There is one useful degree of freedom to restrict the set of incoming 
@@ -425,7 +527,7 @@ only which quarks are allowed to contribute to the hard-process cross
 sections. Note that separate but similarly named modes are available 
 for multiparton interactions and spacelike showers. 
  
-<br/><br/><table><tr><td><strong>PDFinProcess:nQuarkIn  </td><td></td><td> <input type="text" name="19" value="5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>PDFinProcess:nQuarkIn  </td><td></td><td> <input type="text" name="21" value="5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
 Number of allowed incoming quark flavours in the beams; a change 
 to 4 would thus exclude <i>b</i> and <i>bbar</i> as incoming 
 partons, etc. 
@@ -536,9 +638,19 @@ if($_POST["18"] != "on")
 $data = "PDF:lepton = ".$_POST["18"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["19"] != "5")
+if($_POST["19"] != "off")
 {
-$data = "PDFinProcess:nQuarkIn = ".$_POST["19"]."\n";
+$data = "PDF:lepton2gamma = ".$_POST["19"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["20"] != "1")
+{
+$data = "PDF:lepton2gammaSet = ".$_POST["20"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["21"] != "5")
+{
+$data = "PDFinProcess:nQuarkIn = ".$_POST["21"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);

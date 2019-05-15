@@ -365,9 +365,9 @@ the probability that this original assignment is not respected, and
 default corresponds to no memory of this original colour topology. 
    
  
-<br/><br/><strong>ParticleDecays:FSRinDecays</strong>  <input type="radio" name="25" value="on"><strong>On</strong>
+<br/><br/><strong>ParticleDecays:FSRinDecays</strong>  <input type="radio" name="25" value="on" checked="checked"><strong>On</strong>
 <input type="radio" name="25" value="off"><strong>Off</strong>
- &nbsp;&nbsp;(<code>default = <strong>true</strong></code>)<br/>
+ &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 When a particle decays to <i>q qbar</i>, <i>g g</i>, <i>g g g</i> 
 or <i>gamma g g</i>, with <code>meMode > 90</code>, allow or not a 
 shower to develop from it, before the partonic system is hadronized. 
@@ -587,7 +587,7 @@ if($_POST["24"] != "0.5")
 $data = "ParticleDecays:colRearrange = ".$_POST["24"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["25"] != "true")
+if($_POST["25"] != "on")
 {
 $data = "ParticleDecays:FSRinDecays = ".$_POST["25"]."\n";
 fwrite($handle,$data);

@@ -141,17 +141,20 @@ parametrized as
 alpha(t) = 1 + epsilon + alpha' t 
 </i><br/> 
 The <i>epsilon</i> and <i>alpha'</i> parameters can be set 
-separately in options 3 and 4: 
+separately in options 3 and 4, and additionally <i>alpha'</i> 
+is set in option 1: 
  
 <p/><code>parm&nbsp; </code><strong> Diffraction:PomFluxEpsilon &nbsp;</strong> 
  (<code>default = <strong>0.085</strong></code>; <code>minimum = 0.02</code>; <code>maximum = 0.15</code>)<br/>
-The Pomeron trajectory intercept <i>epsilon</i> above. For technical 
-reasons <i>epsilon &gt; 0</i> is necessary in the current implementation. 
+The Pomeron trajectory intercept <i>epsilon</i> above for the 3 and 4 
+flux options. For technical reasons <i>epsilon &gt; 0</i> is necessary 
+in the current implementation. 
    
  
 <p/><code>parm&nbsp; </code><strong> Diffraction:PomFluxAlphaPrime &nbsp;</strong> 
  (<code>default = <strong>0.25</strong></code>; <code>minimum = 0.1</code>; <code>maximum = 0.4</code>)<br/>
-The Pomeron trajectory slope <i>alpha'</i> above. 
+The Pomeron trajectory slope <i>alpha'</i> above for the 1, 3 and 4 
+flux options. 
    
  
 Values are fixed in options 6 and 7. 

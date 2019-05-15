@@ -2030,8 +2030,7 @@ void HardProcess::clear() {
 // Initialise MergingHooks class
 
 void MergingHooks::init( Settings settings, Info* infoPtrIn,
-  ParticleData* particleDataPtrIn, PartonSystems* partonSystemsPtrIn,
-  ostream& os){
+  ParticleData* particleDataPtrIn, PartonSystems* partonSystemsPtrIn){
 
   // Save pointers
   infoPtr               = infoPtrIn;
@@ -2095,6 +2094,13 @@ void MergingHooks::init( Settings settings, Info* infoPtrIn,
 
   // Flag to only do phase space cut.
   doEstimateXSection   =  settings.flag("Merging:doXSectionEstimate");
+
+  // Flag to check if merging weight should directly be included in the cross
+  // section.
+  includeWGTinXSECSave = settings.flag("Merging:includeWeightInXsection");
+
+  // Flag to check if CKKW-L event veto should be applied.
+  applyVeto            =  settings.flag("Merging:applyVeto");
 
   // Get core process from user input
   processSave           = settings.word("Merging:Process");
@@ -2206,11 +2212,15 @@ void MergingHooks::init( Settings settings, Info* infoPtrIn,
 
   }
 
+  // Read additional settings for NLO merging methods.
   if ( doNL3 || doUNLOPS || doEstimateXSection ) {
     tmsValueSave    = settings.parm("Merging:TMS");
     nJetMaxSave     = settings.mode("Merging:nJetMax");
     nJetMaxNLOSave  = settings.mode("Merging:nJetMaxNLO");
   }
+
+  // Internal Pythia cross section should not include NLO merging weights.
+  if ( doNL3 || doUNLOPS ) includeWGTinXSECSave = false;
 
   hasJetMaxLocal  = false;
   nJetMaxLocal    = nJetMaxSave;
@@ -2226,114 +2236,114 @@ void MergingHooks::init( Settings settings, Info* infoPtrIn,
 
   if (!writeBanner) return;
 
-  // Write banner
-  os << "\n *------------------ MEPS Merging Initialization  ---------------"
-     << "---*";
-  os << "\n |                                                               "
-     << "   |\n";
+  // Write banner.
+  cout << "\n *------------------ MEPS Merging Initialization  ---------------"
+       << "---*";
+  cout << "\n |                                                               "
+       << "   |\n";
   if ( doKTMergingSave || doMGMergingSave || doUserMergingSave
     || doPTLundMergingSave || doCutBasedMergingSave )
-    os << " | CKKW-L merge                                                  "
-       << "   |\n"
-       << " |"<< setw(34) << processSave << "  with up to"
-       << setw(3) << nJetMaxSave << " additional jets |\n";
+    cout << " | CKKW-L merge                                                  "
+         << "   |\n"
+         << " |"<< setw(34) << processSave << "  with up to"
+         << setw(3) << nJetMaxSave << " additional jets |\n";
   else if ( doNL3 )
-    os << " | NL3 merge                                                     "
-       << "   |\n"
-       << " |" << setw(31) << processSave << " with jets up to"
-       << setw(3) << nJetMaxNLOSave << " correct to NLO |\n"
-       << " | and up to" << setw(3) << nJetMaxSave
-       << " additional jets included by CKKW-L merging at LO    |\n";
+    cout << " | NL3 merge                                                     "
+         << "   |\n"
+         << " |" << setw(31) << processSave << " with jets up to"
+         << setw(3) << nJetMaxNLOSave << " correct to NLO |\n"
+         << " | and up to" << setw(3) << nJetMaxSave
+         << " additional jets included by CKKW-L merging at LO    |\n";
   else if ( doUNLOPS )
-    os << " | UNLOPS merge                                                  "
-       << "   |\n"
-       << " |" << setw(31) << processSave << " with jets up to"
-       << setw(3)<< nJetMaxNLOSave << " correct to NLO |\n"
-       << " | and up to" << setw(3) << nJetMaxSave
-       << " additional jets included by UMEPS merging at LO     |\n";
+    cout << " | UNLOPS merge                                                  "
+         << "   |\n"
+         << " |" << setw(31) << processSave << " with jets up to"
+         << setw(3)<< nJetMaxNLOSave << " correct to NLO |\n"
+         << " | and up to" << setw(3) << nJetMaxSave
+         << " additional jets included by UMEPS merging at LO     |\n";
   else if ( doUMEPS )
-    os << " | UMEPS merge                                                   "
-       << "   |\n"
-       << " |" << setw(34) << processSave << "  with up to"
-       << setw(3) << nJetMaxSave << " additional jets |\n";
+    cout << " | UMEPS merge                                                   "
+         << "   |\n"
+         << " |" << setw(34) << processSave << "  with up to"
+         << setw(3) << nJetMaxSave << " additional jets |\n";
 
   if ( doKTMergingSave )
-    os << " | Merging scale is defined in kT, with value ktMS = "
-       << tmsValueSave << " GeV";
+    cout << " | Merging scale is defined in kT, with value ktMS = "
+         << tmsValueSave << " GeV";
   else if ( doMGMergingSave )
-    os << " | Perform automanted MG/ME merging \n"
-       << " | Merging scale is defined in kT, with value ktMS = "
+    cout << " | Perform automanted MG/ME merging \n"
+         << " | Merging scale is defined in kT, with value ktMS = "
        << setw(6) << fixed << setprecision(1) << tmsValueSave << " GeV |";
   else if ( doUserMergingSave )
-    os << " | Merging scale is defined by the user, with value tMS = "
-       << setw(6) << fixed << setprecision(1) << tmsValueSave << "     |";
+    cout << " | Merging scale is defined by the user, with value tMS = "
+         << setw(6) << fixed << setprecision(1) << tmsValueSave << "     |";
   else if ( doPTLundMergingSave )
-    os << " | Merging scale is defined by Lund pT, with value tMS = "
-       << setw(6) << fixed << setprecision(1) << tmsValueSave << " GeV |";
+    cout << " | Merging scale is defined by Lund pT, with value tMS = "
+         << setw(6) << fixed << setprecision(1) << tmsValueSave << " GeV |";
   else if ( doCutBasedMergingSave )
-    os << " | Merging scale is defined by combination of Delta R_{ij}, pT_i "
-       << "   |\n"
-       << " | and Q_{ij} cut, with values                                   "
-       << "   |\n"
-       << " | Delta R_{ij,min} = "
-       << setw(7) << scientific << setprecision(2) << tmsListSave[0]
-       << "                                      |\n"
-       << " | pT_{i,min}       = "
-       << setw(6) << fixed << setprecision(1) << tmsListSave[1]
-       << " GeV                                    |\n"
-       << " | Q_{ij,min}       = "
-       << setw(6) << fixed << setprecision(1) << tmsListSave[2]
-       << " GeV                                    |";
+    cout << " | Merging scale is defined by combination of Delta R_{ij}, pT_i "
+         << "   |\n"
+         << " | and Q_{ij} cut, with values                                   "
+         << "   |\n"
+         << " | Delta R_{ij,min} = "
+         << setw(7) << scientific << setprecision(2) << tmsListSave[0]
+         << "                                      |\n"
+         << " | pT_{i,min}       = "
+         << setw(6) << fixed << setprecision(1) << tmsListSave[1]
+         << " GeV                                    |\n"
+         << " | Q_{ij,min}       = "
+         << setw(6) << fixed << setprecision(1) << tmsListSave[2]
+         << " GeV                                    |";
   else if ( doNL3TreeSave )
-    os << " | Generate tree-level O(alpha_s)-subtracted events              "
-       << "   |\n"
-       << " | Merging scale is defined by Lund pT, with value tMS = "
-       << setw(6) << fixed << setprecision(1) << tmsValueSave << " GeV |";
+    cout << " | Generate tree-level O(alpha_s)-subtracted events              "
+         << "   |\n"
+         << " | Merging scale is defined by Lund pT, with value tMS = "
+         << setw(6) << fixed << setprecision(1) << tmsValueSave << " GeV |";
   else if ( doNL3LoopSave )
-    os << " | Generate virtual correction unit-weight events                "
-       << "   |\n"
-       << " | Merging scale is defined by Lund pT, with value tMS = "
+    cout << " | Generate virtual correction unit-weight events                "
+         << "   |\n"
+         << " | Merging scale is defined by Lund pT, with value tMS = "
        << setw(6) << fixed << setprecision(1) << tmsValueSave << " GeV |";
   else if ( doNL3SubtSave )
-    os << " | Generate reclustered tree-level events                        "
-       << "   |\n"
-       << " | Merging scale is defined by Lund pT, with value tMS = "
-       << setw(6) << fixed << setprecision(1) << tmsValueSave << " GeV |";
+    cout << " | Generate reclustered tree-level events                        "
+         << "   |\n"
+         << " | Merging scale is defined by Lund pT, with value tMS = "
+         << setw(6) << fixed << setprecision(1) << tmsValueSave << " GeV |";
   else if ( doUNLOPSTreeSave )
-    os << " | Generate tree-level O(alpha_s)-subtracted events              "
-       << "   |\n"
-       << " | Merging scale is defined by Lund pT, with value tMS = "
-       << setw(6) << fixed << setprecision(1) << tmsValueSave << " GeV |";
+    cout << " | Generate tree-level O(alpha_s)-subtracted events              "
+         << "   |\n"
+         << " | Merging scale is defined by Lund pT, with value tMS = "
+         << setw(6) << fixed << setprecision(1) << tmsValueSave << " GeV |";
   else if ( doUNLOPSLoopSave )
-    os << " | Generate virtual correction unit-weight events                "
-       << "   |\n"
-       << " | Merging scale is defined by Lund pT, with value tMS = "
-       << setw(6) << fixed << setprecision(1) << tmsValueSave << " GeV |";
+    cout << " | Generate virtual correction unit-weight events                "
+         << "   |\n"
+         << " | Merging scale is defined by Lund pT, with value tMS = "
+         << setw(6) << fixed << setprecision(1) << tmsValueSave << " GeV |";
   else if ( doUNLOPSSubtSave )
-    os << " | Generate reclustered tree-level events                        "
-       << "   |\n"
-       << " | Merging scale is defined by Lund pT, with value tMS = "
-       << setw(6) << fixed << setprecision(1) << tmsValueSave << " GeV |";
+    cout << " | Generate reclustered tree-level events                        "
+         << "   |\n"
+         << " | Merging scale is defined by Lund pT, with value tMS = "
+         << setw(6) << fixed << setprecision(1) << tmsValueSave << " GeV |";
   else if ( doUNLOPSSubtNLOSave )
-    os << " | Generate reclustered loop-level events                        "
-       << "   |\n"
-       << " | Merging scale is defined by Lund pT, with value tMS = "
-       << setw(6) << fixed << setprecision(1) << tmsValueSave << " GeV |";
+    cout << " | Generate reclustered loop-level events                        "
+         << "   |\n"
+         << " | Merging scale is defined by Lund pT, with value tMS = "
+         << setw(6) << fixed << setprecision(1) << tmsValueSave << " GeV |";
   else if ( doUMEPSTreeSave )
-    os << " | Generate tree-level events                                    "
-       << "   |\n"
-       << " | Merging scale is defined by Lund pT, with value tMS = "
-       << setw(6) << fixed << setprecision(1) << tmsValueSave << " GeV |";
+    cout << " | Generate tree-level events                                    "
+         << "   |\n"
+         << " | Merging scale is defined by Lund pT, with value tMS = "
+         << setw(6) << fixed << setprecision(1) << tmsValueSave << " GeV |";
   else if ( doUMEPSSubtSave )
-    os << " | Generate reclustered tree-level events                        "
-       << "   |\n"
-       << " | Merging scale is defined by Lund pT, with value tMS = "
-       << setw(6) << fixed << setprecision(1) << tmsValueSave << " GeV |";
+    cout << " | Generate reclustered tree-level events                        "
+         << "   |\n"
+         << " | Merging scale is defined by Lund pT, with value tMS = "
+         << setw(6) << fixed << setprecision(1) << tmsValueSave << " GeV |";
 
-  os << "\n |                                                               "
-     << "   |";
-  os << "\n *-------------- END MEPS Merging Initialization  ---------------"
-     << "---*\n\n";
+  cout << "\n |                                                               "
+       << "   |";
+  cout << "\n *-------------- END MEPS Merging Initialization  ---------------"
+       << "---*\n\n";
 
 }
 
@@ -2420,6 +2430,12 @@ bool MergingHooks::doVetoStep( const Event& process, const Event& event,
     pTsave = infoPtr->pTnow();
     if ( nRecluster() == 1) nSteps--;
 
+    // Store veto inputs to perform veto at a later stage.
+    if (!applyVeto) {
+      setEventVetoInfo(nSteps, tnow);
+      return false;
+    }
+
     // Check merging veto condition.
     bool veto = false;
     if ( nSteps > nMaxJetsNLO() && nSteps < nJetMax && tnow > tms() ) {
@@ -2428,7 +2444,8 @@ bool MergingHooks::doVetoStep( const Event& process, const Event& event,
       // Save weight before veto, in case veto needs to be revoked.
       weightCKKWL2Save = getWeightCKKWL();
       // Reset stored weights.
-      setWeightCKKWL(0.);
+      if ( !includeWGTinXSEC() ) setWeightCKKWL(0.);
+      if (  includeWGTinXSEC() ) infoPtr->updateWeight(0.);
       veto = true;
     }
 
@@ -2540,7 +2557,8 @@ bool MergingHooks::doVetoStep( const Event& process, const Event& event,
     // Check veto condition.
     if ( !check && nSteps > nMaxJetsNLO() && nSteps < nJetMax && tnow > tms()){
       // Set stored weights to zero.
-      setWeightCKKWL(0.);
+      if ( !includeWGTinXSEC() ) setWeightCKKWL(0.);
+      if (  includeWGTinXSEC() ) infoPtr->updateWeight(0.);
       // Now allow veto.
       veto = true;
     }
@@ -3058,14 +3076,19 @@ bool MergingHooks::setShowerStartingScales( bool isTrial,
   // "no-MPI-probability" to multi-jet events. ("Hard" MPI are included
   // by not restricting MPI when showering the lowest-multiplicity sample.)
   double pT2to2 = 0;
-  int nFinalPartons = 0, nFinalOther = 0;
-  for ( int i = 0; i < event.size(); ++i )
+  int nFinalPartons = 0, nInitialPartons = 0, nFinalOther = 0;
+  for ( int i = 0; i < event.size(); ++i ) {
+    if ( (event[i].mother1() == 1 || event[i].mother1() == 2 )
+      && (event[i].idAbs()   < 6  || event[i].id()      == 21) )
+      nInitialPartons++;
     if (event[i].isFinal() && (event[i].idAbs() < 6 || event[i].id() == 21)) {
         nFinalPartons++;
         pT2to2 = event[i].pT();
     } else if ( event[i].isFinal() ) nFinalOther++;
-  bool is2to2QCD     = ( nFinalPartons == 2 && nFinalOther == 0 );
-  bool hasMPIoverlap = ( nFinalPartons == 2 && nFinalOther == 0 );
+  }
+  bool is2to2QCD     = ( nFinalPartons == 2 && nInitialPartons == 2
+                      && nFinalOther   == 0 );
+  bool hasMPIoverlap = is2to2QCD;
   bool is2to1        = ( nFinalPartons == 0 );
 
   double scale   = event.scale();
@@ -3466,6 +3489,24 @@ double MergingHooks::rhoms( const Event& event, bool withColour){
     }
   }
 
+  int nInitialPartons = 0, nFinalOther = 0;
+  for ( int i = 0; i < event.size(); ++i ) {
+    if ( (event[i].mother1() == 1 || event[i].mother1() == 2 )
+      && (event[i].idAbs()   < 6  || event[i].id()      == 21) )
+      nInitialPartons++;
+    if (event[i].isFinal() && event[i].idAbs() >= 6 && event[i].id() != 21)
+      nFinalOther++;
+  }
+  bool is2to2QCD = ( int(FinalPartPos.size()) == 2 && nInitialPartons == 2
+                  && nFinalOther   == 0 );
+
+  // For pure QCD set the cut to the pT of the dijet system.
+  if (is2to2QCD) {
+    double pt12 = min(event[FinalPartPos[0]].pT(),
+                      event[FinalPartPos[1]].pT());
+    return pt12;
+  }
+
   // Find minimal pythia pt in event
   double ptmin = event[0].e();
   for(int i=0; i < int(FinalPartPos.size()); ++i){
@@ -3559,13 +3600,15 @@ double MergingHooks::rhoms( const Event& event, bool withColour){
         for(int j=0; j < int(FinalPartPos.size()); ++j) {
           // Allow both initial partons as recoiler
           if ( i != j ){
+            double temp = pt12;
+
             // Check with first initial as recoiler
-            double temp = rhoPythia( event, FinalPartPos[i], FinalPartPos[j],
-                                     in1, 1 );
+            if (event[in1].colType() != 0)
+              temp = rhoPythia( event, FinalPartPos[i],FinalPartPos[j],in1, 1);
             pt12 = min(pt12, temp);
             // Check with second initial as recoiler
-            temp        = rhoPythia( event, FinalPartPos[i], FinalPartPos[j],
-                                     in2, 1 );
+            if (event[in2].colType() != 0)
+              temp = rhoPythia( event, FinalPartPos[i],FinalPartPos[j],in2, 1);
             pt12 = min(pt12, temp);
           }
         }
@@ -3595,7 +3638,7 @@ double MergingHooks::rhoPythia(const Event& event, int rad, int emt, int rec,
   // Use external shower for merging.
   // Ask showers for evolution variable.
   if ( useShowerPlugin() ) {
-    vector<double> stateVars;
+    map<string,double> stateVars;
     bool isFSR = showers->timesPtr->isTimelike(event, rad, emt, rec, "");
     if (isFSR) {
       string name = showers->timesPtr->getSplittingName(event, rad, emt, rec);
@@ -3606,7 +3649,8 @@ double MergingHooks::rhoPythia(const Event& event, int rad, int emt, int rec,
       stateVars   = showers->spacePtr->getStateVariables(event, rad, emt, rec,
         name);
     }
-    return (stateVars.size() > 0 ? sqrt(stateVars[0]) : -1.0);
+    return ( (stateVars.size() > 0 && stateVars.find("t") != stateVars.end())
+             ? sqrt(stateVars["t"]) : -1.0 );
   }
 
   // Note: If massive particles are involved, this definition slightly differs

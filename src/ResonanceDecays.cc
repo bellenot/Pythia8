@@ -607,7 +607,7 @@ bool ResonanceDecays::pickColours(int iDec, Event& process) {
     acols[iPickA] = cols[iPickT];
 
     // Remove matched antitriplet and store new colour dipole ends.
-    iAtriplet[pickT] = iAtriplet.back();
+    iAtriplet[pickA] = iAtriplet.back();
     iAtriplet.pop_back();
     iDipCol.push_back(iPickT);
     iDipAcol.push_back(iPickA);

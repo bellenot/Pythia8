@@ -459,13 +459,13 @@ The colour-octet long-distance matrix
 elements <i>&lt;O[3S1(8)]&gt;</i> for the <i>3S1</i> bottomonium states. 
    
  
-<br/><br/><table><tr><td><strong>Bottomonium:O(3S1)[1S0(8)] </td><td></td><td> <input type="text" name="49" value="0.02,0.06,0.1" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.02,0.06,0.1</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Bottomonium:O(3S1)[1S0(8)] </td><td></td><td> <input type="text" name="49" value="0.02,0.006,0.01" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.02,0.006,0.01</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
 The colour-octet long-distance matrix 
 elements <i>&lt;O[1S0(8)]&gt;</i> for the <i>3S1</i> 
 bottomonium states. 
    
  
-<br/><br/><table><tr><td><strong>Bottomonium:O(3S1)[3P0(8)] </td><td></td><td> <input type="text" name="50" value="0.02,0.06,0.1" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.02,0.06,0.1</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Bottomonium:O(3S1)[3P0(8)] </td><td></td><td> <input type="text" name="50" value="0.02,0.006,0.01" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.02,0.006,0.01</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
 The colour-octet long-distance matrix 
 elements <i>&lt;O[3P0(8)]&gt;/m_Q^2</i> for the <i>3S1</i> bottomonium 
 states. The remaining <i>&lt;O[3PJ(8)]&gt;/m_Q^2</i> 
@@ -945,12 +945,12 @@ if($_POST["48"] != "0.15,0.045,0.075")
 $data = "Bottomonium:O(3S1)[3S1(8)] = ".$_POST["48"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["49"] != "0.02,0.06,0.1")
+if($_POST["49"] != "0.02,0.006,0.01")
 {
 $data = "Bottomonium:O(3S1)[1S0(8)] = ".$_POST["49"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["50"] != "0.02,0.06,0.1")
+if($_POST["50"] != "0.02,0.006,0.01")
 {
 $data = "Bottomonium:O(3S1)[3P0(8)] = ".$_POST["50"]."\n";
 fwrite($handle,$data);

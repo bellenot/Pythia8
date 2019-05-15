@@ -41,7 +41,6 @@ void HardDiffraction::init(Info* infoPtrIn, Settings& settingsPtrIn,
   beamPomBPtr = beamPomBPtrIn;
 
   // Set diffraction parameters.
-  pomSet      = settings.mode("PDF:PomSet");
   pomFlux     = settings.mode("Diffraction:PomFlux");
 
   // Read out some properties of beams to allow shorthand.
@@ -52,11 +51,13 @@ void HardDiffraction::init(Info* infoPtrIn, Settings& settingsPtrIn,
 
   // Set up Pomeron flux constants.
   rescale = settings.parm("Diffraction:PomFluxRescale");
+  a0      = 1. + settings.parm("Diffraction:PomFluxEpsilon");
+  ap      = settings.parm("Diffraction:PomFluxAlphaPrime");
+
   if (pomFlux == 1) {
     double sigmaRefPomP = settings.parm("Diffraction:sigmaRefPomP");
     normPom = pow2(sigmaRefPomP) * 0.02;
     b0      = 2.3;
-    ap      = 0.25;
   } else if (pomFlux == 2) {
     normPom = 1/2.3;
     A1      = 6.38;
@@ -64,14 +65,12 @@ void HardDiffraction::init(Info* infoPtrIn, Settings& settingsPtrIn,
     a1      = 8.;
     a2      = 3.;
   } else if (pomFlux == 3) {
-    normPom = 1.99;
-    a0      = 1.085;
-    ap      = 0.25;
+    double beta = 10.;
+    normPom = pow2(beta)/(16.*M_PI);
     a1      = 4.7;
   } else if (pomFlux == 4) {
-    normPom = 0.74;
-    ap      = 0.06;
-    a0      = 1.1182;
+    double beta = 1.8;
+    normPom = 9. * pow2(beta) / (4. * pow2(M_PI));
     A1      = 0.27;
     a1      = 8.38;
     A2      = 0.56;
@@ -105,6 +104,7 @@ void HardDiffraction::init(Info* infoPtrIn, Settings& settingsPtrIn,
     if (nGap < 1.) nGap = 1.;
     normPom = cflux/nGap;
   } else if (pomFlux == 6 || pomFlux == 7) {
+    // Has fixed values of eps and alpha' to get normalisation correct
     ap = 0.06;
     b0 = 5.5;
     if (pomFlux == 6) a0 = 1.1182;
@@ -239,10 +239,10 @@ double HardDiffraction::xfPom(double xIn) {
   }
 
   // Donnachie-Landshoff Pomeron flux, see Phys. Lett. B 191 (1987) 309.
-  // flux = beta^2(0)/(16 pi) x^(1 - 2*alpha(t)) F_1(t)^2 with
+  // flux = 9 beta^2(0)/(4 pi^2) x^(1 - 2*alpha(t)) F_1(t)^2 with
   // F_1(t)^2 = 0.27 exp(8.38 t) + 0.56 exp(3.78 t) + 0.18 exp(1.36 t)
   //          = (4m_p^2-2.8t)^2/(4m_p^2-t)^2*(1/(1-t/0.7))^4
-  // => x * flux = beta^2(0)/(16 pi) * x^(2 - 2*\alpha(t)) F_1(t)^2
+  // => x * flux = 9 beta^2(0)/(4 pi^2) * x^(2 - 2*\alpha(t)) F_1(t)^2
   else if (pomFlux == 4) {
     double Q = 2. * ap * log(1./x);
     xFlux    = normPom * exp(log(1./x) * (2.*a0 - 2.));

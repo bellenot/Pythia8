@@ -128,7 +128,46 @@ constructed. In this case new values for <i>kT</i> are sampled. If this
 does not work, a new shower is generated and in some rare cases the 
 parton-level generation fails and the hard process is rejected. 
  
+<h3>Photon-photon in lepton-lepton</h3> 
  
+Photon-photon interactions can happen also in lepton-lepton collisions. 
+How to set up these collisions is described in 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='PDFSelection.php?filepath=".$filepath."' target='page'>";?>PDF selection</a>. Since the current 
+framework can handle only (quasi-)real photons, a upper limit for the 
+photon virtuality needs to be set. This can be done with the parameter 
+<code>Photon:Q2max</code>. The upper limit for virtuality will set also 
+the upper limit for the <i>k_T</i> of the photon, which in turn will 
+be the same as the <i>k_T</i> of the scattered lepton. 
+ 
+<br/><br/><table><tr><td><strong>Photon:Q2max </td><td></td><td> <input type="text" name="1" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.5</code>; <code>maximum = 2.0</code>)</td></tr></table>
+Upper limit for (quasi-)real photon virtuality in <i>GeV^2</i>. 
+   
+ 
+<input type="hidden" name="saved" value="1"/>
+
+<?php
+echo "<input type='hidden' name='filepath' value='".$_GET["filepath"]."'/>"?>
+
+<table width="100%"><tr><td align="right"><input type="submit" value="Save Settings" /></td></tr></table>
+</form>
+
+<?php
+
+if($_POST["saved"] == 1)
+{
+$filepath = $_POST["filepath"];
+$handle = fopen($filepath, 'a');
+
+if($_POST["1"] != "1.0")
+{
+$data = "Photon:Q2max = ".$_POST["1"]."\n";
+fwrite($handle,$data);
+}
+fclose($handle);
+}
+
+?>
 </body>
 </html>
  

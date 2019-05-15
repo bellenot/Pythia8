@@ -89,7 +89,7 @@ public:
   int findSinglet(int i);
 
   // List all currently identified singlets.
-  void list(ostream& os = cout) const;
+  void list() const;
 
 private:
 

@@ -186,11 +186,10 @@ protected:
 
   // Determine how phase space should be sampled.
   void setup3Body();
-  bool setupSampling123(bool is2, bool is3, ostream& os = cout);
+  bool setupSampling123(bool is2, bool is3);
 
   // Select a trial kinematics phase space point.
-  bool trialKin123(bool is2, bool is3, bool inEvent = true,
-    ostream& os = cout);
+  bool trialKin123(bool is2, bool is3, bool inEvent = true);
 
   // Presence and properties of any s-channel resonances.
   int    idResA, idResB;
@@ -225,7 +224,7 @@ protected:
 
   // Solve equation system for better phase space coefficients in 2 -> 1/2/3.
   void solveSys( int n, int bin[8], double vec[8], double mat[8][8],
-    double coef[8], ostream& os = cout);
+    double coef[8]);
 
   // Properties specific to resonance mass selection in 2 -> 2 and 2 -> 3.
   bool   useBW[6];

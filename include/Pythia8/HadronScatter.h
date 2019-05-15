@@ -103,7 +103,8 @@ typedef pair < int, int > HSIndex;
 
 class HadronScatterPair {
 public:
-  // Constructor
+  // Constructors.
+  HadronScatterPair() {}
   HadronScatterPair(const HSIndex &i1in, int yt1in, int pt1in,
                     const HSIndex &i2in, int yt2in, int pt2in,
                     double measureIn) :

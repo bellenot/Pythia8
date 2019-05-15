@@ -104,7 +104,7 @@ private:
   // Special beam remnant kinematics when only one remnant system added.
   // This is the case e.g for Deeply Inelastic Scattering and photon
   // collisions with other side ended up to beam photon by ISR.
-  bool setOneRemnKinematics( Event& event);
+  bool setOneRemnKinematics( Event& event, int beamOffset);
 
   // Update colours of outgoing particles in the event.
   void updateColEvent( Event& event, vector<pair <int,int> > colChanges);
