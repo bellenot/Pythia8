@@ -37,8 +37,8 @@ const int    SigmaProcess::NCOMPSTEP  = 10;
 
 void SigmaProcess::init(Info* infoPtrIn, Settings* settingsPtrIn,
   ParticleData* particleDataPtrIn, Rndm* rndmPtrIn, BeamParticle* beamAPtrIn, 
-  BeamParticle* beamBPtrIn, CoupSM* coupSMPtrIn, SigmaTotal* sigmaTotPtrIn, 
-  CoupSUSY* coupSUSYPtrIn, SusyLesHouches* slhaPtrIn) {
+  BeamParticle* beamBPtrIn, Couplings* couplingsPtrIn, SigmaTotal* sigmaTotPtrIn,
+  SusyLesHouches* slhaPtrIn) {
 
   // Store pointers.
   infoPtr         = infoPtrIn;
@@ -47,9 +47,8 @@ void SigmaProcess::init(Info* infoPtrIn, Settings* settingsPtrIn,
   rndmPtr         = rndmPtrIn;
   beamAPtr        = beamAPtrIn;
   beamBPtr        = beamBPtrIn;
-  coupSMPtr       = coupSMPtrIn;
+  couplingsPtr    = couplingsPtrIn;
   sigmaTotPtr     = sigmaTotPtrIn;
-  coupSUSYPtr     = coupSUSYPtrIn;
   slhaPtr         = slhaPtrIn;
 
   // Read out some properties of beams to allow shorthand.
@@ -578,10 +577,10 @@ double SigmaProcess::weightHiggsDecay( Event& process, int iResBeg,
 
   // Z0 Z0 decay: vector and axial couplings of two fermion pairs.
   if (idZW1 == 23) {
-    double vf1 = coupSMPtr->vf(process[i3].idAbs());
-    double af1 = coupSMPtr->af(process[i3].idAbs());
-    double vf2 = coupSMPtr->vf(process[i5].idAbs());
-    double af2 = coupSMPtr->af(process[i5].idAbs());
+    double vf1 = couplingsPtr->vf(process[i3].idAbs());
+    double af1 = couplingsPtr->af(process[i3].idAbs());
+    double vf2 = couplingsPtr->vf(process[i5].idAbs());
+    double af2 = couplingsPtr->af(process[i5].idAbs());
     double va12asym = 4. * vf1 * af1 * vf2 * af2 
       / ( (vf1*vf1 + af1*af1) * (vf2*vf2 + af2*af2) );
     double etaMod = higgsEta / pow2( particleDataPtr->m0(23) );
@@ -691,8 +690,8 @@ void Sigma1Process::store1Kin( double x1in, double x2in, double sHin) {
   if (factorScale1 == 2) Q2FacSave = factorFixScale; 
 
   // Evaluate alpha_strong and alpha_EM.
-  alpS   = coupSMPtr->alphaS(Q2RenSave);  
-  alpEM  = coupSMPtr->alphaEM(Q2RenSave);  
+  alpS   = couplingsPtr->alphaS(Q2RenSave);  
+  alpEM  = couplingsPtr->alphaEM(Q2RenSave);  
 
 }
 
@@ -797,8 +796,8 @@ void Sigma2Process::store2Kin( double x1in, double x2in, double sHin,
   }
 
   // Evaluate alpha_strong and alpha_EM.
-  alpS  = coupSMPtr->alphaS(Q2RenSave);  
-  alpEM = coupSMPtr->alphaEM(Q2RenSave);  
+  alpS  = couplingsPtr->alphaS(Q2RenSave);  
+  alpEM = couplingsPtr->alphaEM(Q2RenSave);  
 
 }
 
@@ -1111,8 +1110,8 @@ void Sigma3Process::store3Kin( double x1in, double x2in, double sHin,
   }
 
   // Evaluate alpha_strong and alpha_EM.
-  alpS  = coupSMPtr->alphaS(Q2RenSave);  
-  alpEM = coupSMPtr->alphaEM(Q2RenSave);  
+  alpS  = couplingsPtr->alphaS(Q2RenSave);  
+  alpEM = couplingsPtr->alphaEM(Q2RenSave);  
 
 }
 
@@ -1306,11 +1305,11 @@ void SigmaLHAProcess::setScale() {
   // If alpha_strong and alpha_EM have not been set, then set them.
   if (lhaUpPtr->alphaQCD() < 0.001) {
     double Q2RenNow = (scaleLHA < 0.) ? Q2RenSave : pow2(scaleLHA);
-    alpS = coupSMPtr->alphaS(Q2RenNow);
+    alpS = couplingsPtr->alphaS(Q2RenNow);
   }
   if (lhaUpPtr->alphaQED() < 0.001) {
     double Q2RenNow = (scaleLHA < 0.) ? Q2RenSave : pow2(scaleLHA);
-    alpEM = coupSMPtr->alphaEM(Q2RenNow);  
+    alpEM = couplingsPtr->alphaEM(Q2RenNow);  
   }
 
 }

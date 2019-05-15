@@ -255,7 +255,7 @@ double Sigma1ffbar2GravitonStar::weightDecay( Event& process, int iResBeg,
 //==========================================================================
 
 // Sigma1qqbar2KKgluonStar class.
-// Cross section for q qbar -> KK-gluon^* (excited KK-gluon state).
+// Cross section for q qbar -> g^*/KK-gluon^* (excited KK-gluon state).
 
 //--------------------------------------------------------------------------
 
@@ -270,12 +270,21 @@ void Sigma1qqbar2KKgluonStar::initProc() {
   m2Res     = mRes*mRes;
   GamMRat   = GammaRes / mRes;
 
-  // KK-gluon couplings.
-  for (int i = 0; i < 10; ++i) m_coupling[i] = 0.;
-  double tmp_coup = settingsPtr->parm("ExtraDimensionsG*:KKgqq");
-  for (int i = 1; i <= 4; ++i)  m_coupling[i] = tmp_coup;
-  m_coupling[5] = settingsPtr->parm("ExtraDimensionsG*:KKgbb"); 
-  m_coupling[6] = settingsPtr->parm("ExtraDimensionsG*:KKgtt");
+  // KK-gluon gv/ga couplings and interference.
+  for (int i = 0; i < 10; ++i) { m_gv[i] = 0.; m_ga[i] = 0.; }
+  double tmp_gL = settingsPtr->parm("ExtraDimensionsG*:KKgqL");
+  double tmp_gR = settingsPtr->parm("ExtraDimensionsG*:KKgqR");
+  for (int i = 1; i <= 4; ++i) { 
+    m_gv[i] = 0.5 * (tmp_gL + tmp_gR);
+    m_ga[i] = 0.5 * (tmp_gL - tmp_gR); 
+  }
+  tmp_gL = settingsPtr->parm("ExtraDimensionsG*:KKgbL"); 
+  tmp_gR = settingsPtr->parm("ExtraDimensionsG*:KKgbR"); 
+  m_gv[5] = 0.5 * (tmp_gL + tmp_gR); m_ga[5] = 0.5 * (tmp_gL - tmp_gR); 
+  tmp_gL = settingsPtr->parm("ExtraDimensionsG*:KKgtL"); 
+  tmp_gR = settingsPtr->parm("ExtraDimensionsG*:KKgtR"); 
+  m_gv[6] = 0.5 * (tmp_gL + tmp_gR); m_ga[6] = 0.5 * (tmp_gL - tmp_gR); 
+  interfMode    = settingsPtr->mode("ExtraDimensionsG*:KKintMode");
 
   // Set pointer to particle properties and decay table.
   gStarPtr = particleDataPtr->particleDataEntryPtr(idKKgluon);
@@ -288,15 +297,48 @@ void Sigma1qqbar2KKgluonStar::initProc() {
 
 void Sigma1qqbar2KKgluonStar::sigmaKin() { 
 
-  // Incoming width for fermions, disregarding colour factor.
+  // Incoming width for fermions.
   double widthIn  = alpS * mH * 4 / 27; 
+  double widthOut = alpS * mH / 6; 
+
+  // Loop over all decay channels.
+  sumSM  = 0.;
+  sumInt = 0.;
+  sumKK  = 0.;
+
+  for (int i = 0; i < gStarPtr->sizeChannels(); ++i) {
+    int idAbs = abs( gStarPtr->channel(i).product(0) );
+
+    // Only contributions quarks.
+    if ( idAbs > 0 && idAbs <= 6 ) {
+      double mf = particleDataPtr->m0(idAbs);
+
+      // Check that above threshold. Phase space.
+      if (mH > 2. * mf + MASSMARGIN) {
+        double mr    = pow2(mf / mH);
+        double beta  = sqrtpos(1. - 4. * mr);
+      
+	// Store sum of combinations. For outstate only open channels.
+        int onMode = gStarPtr->channel(i).onMode();
+        if (onMode == 1 || onMode == 2) {
+          sumSM  += beta * (1. + 2. * mr);
+          sumInt += beta * m_gv[min(idAbs, 9)] * (1. + 2. * mr);
+          sumKK  += beta * (pow2(m_gv[min(idAbs, 9)]) * (1. + 2.*mr) 
+			  + pow2(m_ga[min(idAbs, 9)]) * (1. - 4.*mr));
+	}
+      }
+    }
+  }
 
   // Set up Breit-Wigner. Width out only includes open channels. 
-  double sigBW    = 12. * M_PI / ( pow2(sH - m2Res) + pow2(sH * GamMRat) );    
-  double widthOut = gStarPtr->resWidthOpen(idKKgluon, mH);
+  sigSM  = widthIn * 12. * M_PI *  widthOut / sH2;
+  sigInt = 2. * sigSM * sH * (sH - m2Res) 
+         / ( pow2(sH - m2Res) + pow2(sH * GamMRat) );
+  sigKK  = sigSM * sH2 / ( pow2(sH - m2Res) + pow2(sH * GamMRat) );
 
-  // Do not modify cross section in wings of peak, to be understood!
-  sigma0          = widthIn * sigBW * widthOut; // * pow2(sH / m2Res);
+  // Optionally only keep g* or gKK term.
+  if (interfMode == 1) {sigInt = 0.; sigKK = 0.;}
+  if (interfMode == 2) {sigSM  = 0.; sigInt = 0.;}
 
 }
 
@@ -307,7 +349,10 @@ void Sigma1qqbar2KKgluonStar::sigmaKin() {
 double Sigma1qqbar2KKgluonStar::sigmaHat() {
 
   // RS graviton coupling.
-  double sigma = sigma0 * pow2(m_coupling[min(abs(id1), 9)]);
+  double sigma = sigSM * sumSM
+               + m_gv[min(abs(id1), 9)] * sigInt * sumInt
+               + ( pow2(m_gv[min(abs(id1), 9)]) 
+		 + pow2(m_ga[min(abs(id1), 9)]) ) * sigKK * sumKK;
 
   return sigma;
 }
@@ -329,7 +374,7 @@ void Sigma1qqbar2KKgluonStar::setIdColAcol() {
 
 //--------------------------------------------------------------------------
 
-// Evaluate weight for KK-gluon* decay angle.
+// Evaluate weight for KK-gluon* decay angle (based on ffbar2gmZ).
   
 double Sigma1qqbar2KKgluonStar::weightDecay( Event& process, int iResBeg, 
   int iResEnd) {
@@ -341,26 +386,42 @@ double Sigma1qqbar2KKgluonStar::weightDecay( Event& process, int iResBeg,
   if (idMother == 6) 
     return weightTopDecay( process, iResBeg, iResEnd);
 
-  // G* should sit in entry 5.
+  // g* should sit in entry 5.
   if (iResBeg != 5 || iResEnd != 5) return 1.;
 
-  // Phase space factors. Reconstruct decay angle.
-  double mr1    = pow2(process[6].m()) / sH;
-  double mr2    = pow2(process[7].m()) / sH;
-  double betaf  = sqrtpos( pow2(1. - mr1 - mr2) - 4. * mr1 * mr2); 
+  // Couplings for in- and out-flavours (alpS already included).
+  int idInAbs  = process[3].idAbs();
+  double vi    = m_gv[min(idInAbs, 9)];
+  double ai    = m_ga[min(idInAbs, 9)];
+  int idOutAbs = process[6].idAbs();
+  double vf    = m_gv[min(idOutAbs, 9)];
+  double af    = m_ga[min(idOutAbs, 9)];
+
+  // Phase space factors. (One power of beta left out in formulae.)
+  double mf    = process[6].m();
+  double mr    = mf*mf / sH;
+  double betaf = sqrtpos(1. - 4. * mr); 
+
+  // Coefficients of angular expression.
+  double coefTran = sigSM + vi * sigInt * vf
+    + (vi*vi + ai*ai) * sigKK * (vf*vf + pow2(betaf) * af*af);
+  double coefLong = 4. * mr * ( sigSM + vi * sigInt * vf 
+			      + (vi*vi + ai*ai) * sigKK * vf*vf );
+  double coefAsym = betaf * ( ai * sigInt * af 
+    + 4. * vi * ai * sigKK * vf * af );
+
+  // Flip asymmetry for in-fermion + out-antifermion.
+  if (process[3].id() * process[6].id() < 0) coefAsym = -coefAsym;
+
+  // Reconstruct decay angle and weight for it.
   double cosThe = (process[3].p() - process[4].p()) 
     * (process[7].p() - process[6].p()) / (sH * betaf);
-
-  // Default is isotropic decay.
-  double wt     = 1.;
-
-  // Angular weight for f + fbar -> g* -> f + fbar.
-  if (process[6].idAbs() < 19)
-    wt = (1. + pow2(cosThe) + (1 - pow2(betaf)) * (1 - pow2(cosThe))) / 2.;
+  double wtMax = 2. * (coefTran + abs(coefAsym));
+  double wt    = coefTran * (1. + pow2(cosThe)) 
+     + coefLong * (1. - pow2(cosThe)) + 2. * coefAsym * cosThe;
 
   // Done.
-  return wt;
-
+  return (wt / wtMax);
 }
 
 //==========================================================================
@@ -654,37 +715,41 @@ void Sigma2ffbar2TEVffbar::initProc() {
   if (gmZmode>=0 && gmZmode<=5) {
     for (int i=1 ; i<17 ; i++) {
       if (i==7) { i=11; }
-      if (i==6) { continue; } // skip the ttbar decay and add its contribution later
+      // skip the ttbar decay and add its contribution later
+      if (i==6) { continue; } 
       if (i<9) {
         wgmKKFactor += ( (alphaem_fixed / 6.) * 4. 
-                    * coupSMPtr->ef(i) * coupSMPtr->ef(i) * 3. );
+                    * couplingsPtr->ef(i) * couplingsPtr->ef(i) * 3. );
       }
       else {
         wgmKKFactor += (alphaem_fixed / 6.) * 4.
-                    * coupSMPtr->ef(i) * coupSMPtr->ef(i);
+                    * couplingsPtr->ef(i) * couplingsPtr->ef(i);
       }
     }
   }
   
   // Get the helicity-couplings of the Z0 to all the fermions except top
-  gMinusF  = ( coupSMPtr->t3f(idNew) - coupSMPtr->ef(idNew) 
-           * coupSMPtr->sin2thetaW() ) 
-           / sqrt( coupSMPtr->sin2thetaW()*coupSMPtr->cos2thetaW() );
-  gPlusF   = -1. * coupSMPtr->ef(idNew) * coupSMPtr->sin2thetaW() 
-           / sqrt( coupSMPtr->sin2thetaW() * coupSMPtr->cos2thetaW() );
+  gMinusF  = ( couplingsPtr->t3f(idNew) - couplingsPtr->ef(idNew) 
+           * couplingsPtr->sin2thetaW() ) 
+           / sqrt( couplingsPtr->sin2thetaW()*couplingsPtr->cos2thetaW() );
+  gPlusF   = -1. * couplingsPtr->ef(idNew) * couplingsPtr->sin2thetaW() 
+           / sqrt( couplingsPtr->sin2thetaW() * couplingsPtr->cos2thetaW() );
   // Get the helicity-couplings of the Z0 to the top quark
-  gMinusTop  = ( coupSMPtr->t3f(6) - coupSMPtr->ef(6)
-             * coupSMPtr->sin2thetaW() )
-             / sqrt( coupSMPtr->sin2thetaW()*coupSMPtr->cos2thetaW() );
+  gMinusTop  = ( couplingsPtr->t3f(6) - couplingsPtr->ef(6)
+             * couplingsPtr->sin2thetaW() )
+             / sqrt( couplingsPtr->sin2thetaW()*couplingsPtr->cos2thetaW() );
 
-  gPlusTop   = -1. * coupSMPtr->ef(6) * coupSMPtr->sin2thetaW()
-             / sqrt( coupSMPtr->sin2thetaW() * coupSMPtr->cos2thetaW() );
+  gPlusTop   = -1. * couplingsPtr->ef(6) * couplingsPtr->sin2thetaW()
+             / sqrt( couplingsPtr->sin2thetaW() * couplingsPtr->cos2thetaW() );
   // calculate the constant factor of the unique ttbar decay width
   ttbar_wFactorA = pow2(gMinusTop) + pow2(gPlusTop);
   ttbar_wFactorB = 6.*gMinusTop*gPlusTop - pow2(gMinusTop) - pow2(gPlusTop);
 
   // Secondary open width fraction, relevant for top (or heavier).
-  openFracPair = particleDataPtr->resOpenFrac(idNew, -idNew);
+  openFracPair = 1.;
+  if ((idNew >=6 && idNew <=8) || idNew == 17 || idNew == 18)  
+    openFracPair = particleDataPtr->resOpenFrac(idNew, -idNew);
+
 }
 
 //--------------------------------------------------------------------------
@@ -751,11 +816,11 @@ double Sigma2ffbar2TEVffbar::sigmaHat() {
   int idAbs = abs(id1);
 
   // The couplings of the Z0 to the fermions for in/out flavors
-  gMinusf  = ( coupSMPtr->t3f(idAbs) - coupSMPtr->ef(idAbs) 
-	       * coupSMPtr->sin2thetaW() ) 
-           / sqrt( coupSMPtr->sin2thetaW()*coupSMPtr->cos2thetaW() );
-  gPlusf   = -1. * coupSMPtr->ef(idAbs)*coupSMPtr->sin2thetaW() 
-           / sqrt( coupSMPtr->sin2thetaW()*coupSMPtr->cos2thetaW() );
+  gMinusf  = ( couplingsPtr->t3f(idAbs) - couplingsPtr->ef(idAbs) 
+	       * couplingsPtr->sin2thetaW() ) 
+           / sqrt( couplingsPtr->sin2thetaW()*couplingsPtr->cos2thetaW() );
+  gPlusf   = -1. * couplingsPtr->ef(idAbs)*couplingsPtr->sin2thetaW() 
+           / sqrt( couplingsPtr->sin2thetaW()*couplingsPtr->cos2thetaW() );
 
   // Initialize the some values
   helicityME2 = 0.;
@@ -778,17 +843,17 @@ double Sigma2ffbar2TEVffbar::sigmaHat() {
       // 0=SM gmZ,  1=SM gm,  2=SM Z,  3=SM+KK gmZ,  4=KK gm,  5=KK Z
       switch(gmZmode) { 
         case 0: // SM photon and Z0 only
-          gammaProp = coupSMPtr->ef(idAbs)*coupSMPtr->ef(idNew)/sH;
+          gammaProp = couplingsPtr->ef(idAbs)*couplingsPtr->ef(idNew)/sH;
           resProp   = gf*gF/( sH - m2Res + M_I*sH*(wZ0/mRes) );
           break;
         case 1: // SM photon only
-          gammaProp = coupSMPtr->ef(idAbs)*coupSMPtr->ef(idNew)/sH;
+          gammaProp = couplingsPtr->ef(idAbs)*couplingsPtr->ef(idNew)/sH;
           break;
         case 2: // SM Z0 only
           resProp   = gf*gF/( sH - m2Res + M_I*sH*(wZ0/mRes) );
           break;
         case 3: // KK photon and Z
-          gammaProp = coupSMPtr->ef(idAbs)*coupSMPtr->ef(idNew)/sH;
+          gammaProp = couplingsPtr->ef(idAbs)*couplingsPtr->ef(idNew)/sH;
           resProp   = gf*gF/( sH - m2Res + M_I*sH*(wZ0/mRes) );
           ZPropKK   = complex(0.,0.);
           gmPropKK  = complex(0.,0.);
@@ -809,16 +874,16 @@ double Sigma2ffbar2TEVffbar::sigmaHat() {
 	    // KK photon
             ttbar_wgmKKn = 2.*(alphaem_fixed*3./6.)*mgmKKn
                          * sqrt(1.-4.*m2Top/m2gmKKn)
-                         * 2.*pow2(coupSMPtr->ef(6))*(1.+2.*(m2Top/m2gmKKn));
+                         * 2.*pow2(couplingsPtr->ef(6))*(1.+2.*(m2Top/m2gmKKn));
             wgmKKn       = wgmKKFactor*mgmKKn+ttbar_wgmKKn;
 	    // the propogators
-            gmPropKK += (2.*coupSMPtr->ef(idAbs)*coupSMPtr->ef(idNew)) 
+            gmPropKK += (2.*couplingsPtr->ef(idAbs)*couplingsPtr->ef(idNew)) 
 	              / (sH-m2gmKKn+M_I*sH*wgmKKn/mgmKKn);
             ZPropKK  += (2.*gf*gF)/(sH-m2ZKKn+M_I*sH*wZKKn/mZKKn );
           }
           break;
         case 4: // SM photon and Z0 with KK photon only
-          gammaProp = coupSMPtr->ef(idAbs)*coupSMPtr->ef(idNew)/sH;
+          gammaProp = couplingsPtr->ef(idAbs)*couplingsPtr->ef(idNew)/sH;
           resProp   = gf*gF/( sH - m2Res + M_I*sH*(wZ0/mRes) );
           gmPropKK  = complex(0.,0.);
           for (int n_excitation = 1; n_excitation <= n_excitation_max; 
@@ -828,14 +893,14 @@ double Sigma2ffbar2TEVffbar::sigmaHat() {
 
             ttbar_wgmKKn = 2.*(alphaem_fixed*3./6.)*mgmKKn
                            * sqrt(1.-4.*m2Top/m2gmKKn)
-                           * 2.*pow2(coupSMPtr->ef(6))*(1.+2.*(m2Top/m2gmKKn));
+                           * 2.*pow2(couplingsPtr->ef(6))*(1.+2.*(m2Top/m2gmKKn));
             wgmKKn         = wgmKKFactor*mgmKKn+ttbar_wgmKKn;
-            gmPropKK += (2.*coupSMPtr->ef(idAbs)*coupSMPtr->ef(idNew)) 
+            gmPropKK += (2.*couplingsPtr->ef(idAbs)*couplingsPtr->ef(idNew)) 
 	              / (sH-m2gmKKn+M_I*sH*wgmKKn/mgmKKn);
           }
           break;
         case 5: // SM photon and Z0 with KK Z only
-          gammaProp = coupSMPtr->ef(idAbs)*coupSMPtr->ef(idNew)/sH;
+          gammaProp = couplingsPtr->ef(idAbs)*couplingsPtr->ef(idNew)/sH;
           resProp   = gf*gF/( sH - m2Res + M_I*sH*(wZ0/mRes) );
           ZPropKK   = complex(0.,0.);
           for (int n_excitation = 1; n_excitation <= n_excitation_max; 
@@ -1621,8 +1686,8 @@ double Sigma2ffbar2LEDUnparticleZ::sigmaHat() {
   int idAbs    = abs(id1);
   // Note: 1/2 * (g_L^2 + g_R^2) = (g_v^2 + g_a^2) 
   double facEWS  = 4 * M_PI * alpEM  
-                   / (coupSMPtr->sin2thetaW() * coupSMPtr->cos2thetaW()) 
-                   * ( 0.25 * 0.25 * coupSMPtr->vf2af2(idAbs) );   
+                   / (couplingsPtr->sin2thetaW() * couplingsPtr->cos2thetaW()) 
+                   * ( 0.25 * 0.25 * couplingsPtr->vf2af2(idAbs) );   
 
   // Mass Spectrum, (m^2)^(d-2)
   double tmpExp = m_dU - 2;
@@ -1867,7 +1932,7 @@ double Sigma2ffbar2LEDUnparticlegamma::sigmaHat() {
 
   // Electroweak couplings..
   int idAbs    = abs(id1);
-  double facEWS = 4 * M_PI * alpEM * coupSMPtr->ef2(idAbs);
+  double facEWS = 4 * M_PI * alpEM * couplingsPtr->ef2(idAbs);
 
   // Mass Spectrum, (m^2)^(d-2)
   double tmpExp = m_dU - 2;
@@ -2017,7 +2082,7 @@ double Sigma2ffbar2LEDgammagamma::sigmaHat() {
   if (m_spin == 0) {
     sigma = pow2(m_lambda2chi) * m_term1 / 8;
   } else {
-    double tmp_e2Q2 = 4 * M_PI * alpEM * coupSMPtr->ef2(idAbs);
+    double tmp_e2Q2 = 4 * M_PI * alpEM * couplingsPtr->ef2(idAbs);
     double tmp_dUpi = m_dU * M_PI;
     sigma = pow2(tmp_e2Q2) * m_term1
           - tmp_e2Q2 * m_lambda2chi * cos(tmp_dUpi) * m_term2
@@ -2278,20 +2343,20 @@ double Sigma2ffbar2LEDllbar::sigmaHat() {
   int idAbs      = abs(id1);
 
   // Couplings and constants.
-  // Qq = coupSMPtr->ef(idAbs), quark, i.e. id > 0.
-  // Ql = coupSMPtr->ef(11), electron.
-  double tmp_e2QfQl = 4 * M_PI * alpEM * coupSMPtr->ef(idAbs) 
-                      * coupSMPtr->ef(11);
-  double tmp_gvq = 0.25 * coupSMPtr->vf(idAbs);
-  double tmp_gaq = 0.25 * coupSMPtr->af(idAbs);
+  // Qq = couplingsPtr->ef(idAbs), quark, i.e. id > 0.
+  // Ql = couplingsPtr->ef(11), electron.
+  double tmp_e2QfQl = 4 * M_PI * alpEM * couplingsPtr->ef(idAbs) 
+                      * couplingsPtr->ef(11);
+  double tmp_gvq = 0.25 * couplingsPtr->vf(idAbs);
+  double tmp_gaq = 0.25 * couplingsPtr->af(idAbs);
   double tmp_gLq = tmp_gvq  + tmp_gaq;
   double tmp_gRq = tmp_gvq  - tmp_gaq;
-  double tmp_gvl = 0.25 * coupSMPtr->vf(11);
-  double tmp_gal = 0.25 * coupSMPtr->af(11);
+  double tmp_gvl = 0.25 * couplingsPtr->vf(11);
+  double tmp_gal = 0.25 * couplingsPtr->af(11);
   double tmp_gLl = tmp_gvl  + tmp_gal;
   double tmp_gRl = tmp_gvl  - tmp_gal;
   double tmp_e2s2c2 = 4 * M_PI * alpEM 
-                    / (coupSMPtr->sin2thetaW() * coupSMPtr->cos2thetaW());
+                    / (couplingsPtr->sin2thetaW() * couplingsPtr->cos2thetaW());
      
   // LL, RR, LR, RL  couplings.
   vector<double> tmp_coupZ; 

@@ -20,20 +20,20 @@ namespace Pythia8 {
 // These are of technical nature, as described for each.
 
 // Allow verbose printout for debug purposes.
-const bool CoupSUSY::DEBUG = false;
+  const bool CoupSUSY::DEBUG = false;
+  
 
 //--------------------------------------------------------------------------
 
 // Initialize SM+SUSY couplings (only performed once).
 
-void CoupSUSY::init (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn, 
-  ParticleData* particleDataPtrIn, CoupSM* coupSMPtrIn) {
+void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn, 
+  ParticleData* particleDataPtrIn) {
 
   // Save pointers..
   slhaPtr         = slhaPtrIn;
   settingsPtr     = settingsPtrIn;
   particleDataPtr = particleDataPtrIn;
-  coupSMPtr       = coupSMPtrIn;
   
   // Is NMSSM switched on?
   isNMSSM = (slhaPtr->modsel(3) != 1 ? false : true);
@@ -51,19 +51,33 @@ void CoupSUSY::init (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
   // (default to pole values if no running available)
   mW        = mWpole;
   mZ        = mZpole;
-  sin2W     = 1.0 - pow(mW/mZ,2);  
+  sin2W     = sin2thetaW();
 
-  if (slhaPtr->gauge.exists(1) && slhaPtr->gauge.exists(2) 
-      && slhaPtr->hmix.exists(3)) {
-    double gp=slhaPtr->gauge(1);
-    double g =slhaPtr->gauge(2);
-    double v =slhaPtr->hmix(3);
-    mW      = g * v / 2.0;
-    mZ      = sqrt(pow(gp,2)+pow(g,2)) * v / 2.0;
-    double tan2W   = pow2(gp)/pow2(g);
-    if (DEBUG) cout << " tan2W = " << tan2W << endl;
-    sin2W   = pow2(gp)/(pow2(g)+pow2(gp));  
+  if (settingsPtr->mode("SUSY:sin2thetaWMode") == 3) {
+    // Possibility to force on-shell sin2W definition, mostly intended for 
+    // cross-checks
+    sin2W     = 1.0 - pow(mW/mZ,2); 
+  }else if (settingsPtr->mode("SUSY:sin2thetaWMode") == 2){
+    // Possibility to use running sin2W definition, derived from gauge
+  // couplings in running SLHA blocks (normally defined at SUSY scale)
+    if(slhaPtr->gauge.exists(1) && slhaPtr->gauge.exists(2) 
+       && slhaPtr->hmix.exists(3)) {
+      double gp=slhaPtr->gauge(1);
+      double g =slhaPtr->gauge(2);
+      double v =slhaPtr->hmix(3);
+      mW      = g * v / 2.0;
+      mZ      = sqrt(pow(gp,2)+pow(g,2)) * v / 2.0;
+      double tan2W   = pow2(gp)/pow2(g);
+      if (DEBUG) cout << " tan2W = " << tan2W << endl;
+      sin2W   = pow2(gp)/(pow2(g)+pow2(gp));  
+    } else {
+      cout<<" GAUGE block not found in SLHA; using sin(thetaW) at mZ"<<endl;
+    }
   }
+
+  //Overload the SM value of sin2thetaW
+  s2tW = sin2W;
+
   sinW = sqrt(sin2W);
   cosW = sqrt(1.0-sin2W);
 
@@ -82,16 +96,16 @@ void CoupSUSY::init (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
     for (int i=1;i<=3;i++) {
       for (int j=1;j<=3;j++) {
 	cout << " VCKM  [" << i << "][" << j << "] = " 
-             << scientific << setw(10) << coupSMPtr->VCKMgen(i,j) << endl;
+             << scientific << setw(10) << VCKMgen(i,j) << endl;
       }
     }
   }  
   
   // Shorthand for squark mixing matrices 
-  SusyLesHouches::matrixblock<6> Ru(slhaPtr->usqmix);
-  SusyLesHouches::matrixblock<6> Rd(slhaPtr->dsqmix);
-  SusyLesHouches::matrixblock<6> imRu(slhaPtr->imusqmix);
-  SusyLesHouches::matrixblock<6> imRd(slhaPtr->imusqmix);
+  SusyLesHouches::MatrixBlock<6> Ru(slhaPtr->usqmix);
+  SusyLesHouches::MatrixBlock<6> Rd(slhaPtr->dsqmix);
+  SusyLesHouches::MatrixBlock<6> imRu(slhaPtr->imusqmix);
+  SusyLesHouches::MatrixBlock<6> imRd(slhaPtr->imdsqmix);  
   
   // Construct ~g couplings
   for (int i=1 ; i<=6 ; i++) {
@@ -100,15 +114,26 @@ void CoupSUSY::init (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
       RsddG[i][j] = complex(-Rd(i,j+3), -imRd(i,j+3));
       LsuuG[i][j] = complex( Ru(i,j)  ,  imRu(i,j));
       RsuuG[i][j] = complex(-Ru(i,j+3), -imRu(i,j+3));
+
+      if (DEBUG) {
+	cout << " Lsddg  [" << i << "][" << j << "] = " 
+	     << scientific << setw(10) << LsddG[i][j] 
+	     << " RsddG  [" << i << "][" << j  << "] = " 
+	     << scientific << setw(10) << RsddG[i][j] << endl;
+	cout << " Lsuug  [" << i << "][" << j << "] = " 
+	     << scientific << setw(10) << LsuuG[i][j] 
+	     << " RsuuG  [" << i << "][" << j  << "] = " 
+	     << scientific << setw(10) << RsuuG[i][j] << endl;
+      }
     }
   }
-  
+
   // Construct qqZ couplings
   for (int i=1 ; i<=6 ; i++) {
     
     // q[i] q[i] Z (def with extra factor 2 compared to [Okun])
-    LqqZ[i] = coupSMPtr->af(i) - 2.0*coupSMPtr->ef(i)*sin2W ;
-    RqqZ[i] =                  - 2.0*coupSMPtr->ef(i)*sin2W ;
+    LqqZ[i] = af(i) - 2.0*ef(i)*sin2W ;
+    RqqZ[i] =                  - 2.0*ef(i)*sin2W ;
 
     // tmp: verbose output
     if (DEBUG) {
@@ -178,7 +203,7 @@ void CoupSUSY::init (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
       // CKM matrix (use Pythia one if no SLHA)
       // (NB: could also try input one if no running one found, but
       // would then need to compute from Wolfenstein)
-      complex Vij=coupSMPtr->VCKMgen(i,j);
+      complex Vij=VCKMgen(i,j);
       if (slhaPtr->vckm.exists()) {
 	Vij=complex(slhaPtr->vckm(i,j),slhaPtr->imvckm(i,j));
       }
@@ -213,7 +238,7 @@ void CoupSUSY::init (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
 	  // CKM matrix (use Pythia one if no SLHA)
 	  // (NB: could also try input one if no running one found, but
 	  // would then need to compute from Wolfenstein)
-	  complex Vij=coupSMPtr->VCKMgen(i,j);
+	  complex Vij=VCKMgen(i,j);
 	  if (slhaPtr->vckm.exists()) {
 	    Vij=complex(slhaPtr->vckm(i,j),slhaPtr->imvckm(i,j));
 	  }
@@ -291,7 +316,7 @@ void CoupSUSY::init (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
       
       // ~chi0 [i] ~chi0 [j] Z : couplings
       OLpp[i][j] = -0.5 * ni3 * conj(nj3) + 0.5 * ni4 * conj(nj4);
-      ORpp[i][j] =  0.5 * conj(ni3) * nj3 - 0.5 * conj(ni4) * nj4;
+      ORpp[i][j] = 0.5 * conj(ni3) * nj3 - 0.5 * conj(ni4) * nj4;
       
     // tmp: verbose output
       if (DEBUG) {
@@ -365,23 +390,23 @@ void CoupSUSY::init (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
       for (int j=1;j<=6;j++) {
 	
 	// Squark mixing
-	complex Rdjk  = complex(Rd(j,k),  imRd(j,k)  );
+  	complex Rdjk  = complex(Rd(j,k),  imRd(j,k)  );
 	complex Rdjk3 = complex(Rd(j,k+3),imRd(j,k+3));
 	complex Rujk  = complex(Ru(j,k),  imRu(j,k)  );
 	complex Rujk3 = complex(Ru(j,k+3),imRu(j,k+3));
 	
 	// ~d[j] d[k] ~chi0[i]
-	double rt2 = sqrt(2.0);
-	LsddX[j][k][i] = ((ed-T3d)*sinW/cosW*ni1 + T3d*ni2)*conj(Rdjk)/rt2
-	  + md*ni3*conj(Rdjk3)/2.0/rt2/mW/cosb; 
-	RsddX[j][k][i] = -ed*sinW/cosW*conj(ni1)*conj(Rdjk3)/rt2 
-	  + md*conj(ni3)*conj(Rdjk)/2.0/rt2/mW/cosb;
+	// Changed according to new notation
+	LsddX[j][k][i] = ((ed-T3d)*sinW*ni1 + T3d*cosW*ni2)*conj(Rdjk)
+	  + md*cosW*ni3*conj(Rdjk3)/2.0/mW/cosb; 
+	RsddX[j][k][i] = -ed*sinW*conj(ni1)*conj(Rdjk3) 
+	  + md*cosW*conj(ni3)*conj(Rdjk)/2.0/mW/cosb;
 
 	// ~u[j] u[k] ~chi0[i]
-	LsuuX[j][k][i] = ((eu-T3u)*sinW/cosW*ni1 + T3u*ni2)*conj(Rujk)/rt2
-	  + mu*ni4*conj(Rujk3)/2.0/rt2/mW/sinb;
-	RsuuX[j][k][i] = -eu*sinW/cosW*conj(ni1)*conj(Rujk3)/rt2
-	  + mu*conj(ni4)*conj(Rujk)/2.0/rt2/mW/sinb;
+	LsuuX[j][k][i] = ((eu-T3u)*sinW*ni1 + T3u*cosW*ni2)*conj(Rujk)
+	  + mu*cosW*ni4*conj(Rujk3)/2.0/mW/sinb;
+	RsuuX[j][k][i] = -eu*sinW*conj(ni1)*conj(Rujk3)
+	  + mu*cosW*conj(ni4)*conj(Rujk)/2.0/mW/sinb;
 
 	if (DEBUG) {
 	  if (abs(LsddX[j][k][i]) > 1e-6) {
@@ -453,8 +478,7 @@ void CoupSUSY::init (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
       // Initial guess 0,0,0,mc,mb,mt with the latter from the PDT
       double mul = particleDataPtr->m0(2*l);
       double mdl = particleDataPtr->m0(2*l-1);
-      if (l == 1) { mul=0.0 ; mdl=0.0; }
-      if (l == 2) { mdl=0.0 ; mul=0.0; } 
+      if (l == 1 || l == 2) { mul=0.0 ; mdl=0.0; }
       
       // Compute running mass from Yukawas and vevs if possible.
       if (slhaPtr->yd.exists() && slhaPtr->hmix.exists(3)) {
@@ -496,8 +520,8 @@ void CoupSUSY::init (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
 	  // CKM matrix (use Pythia one if no SLHA)
 	  // (NB: could also try input one if no running one found, but
 	  // would then need to compute from Wolfenstein)
-	  complex Vlk=coupSMPtr->VCKMgen(l,k);
-	  complex Vkl=coupSMPtr->VCKMgen(k,l);
+	  complex Vlk=VCKMgen(l,k);
+	  complex Vkl=VCKMgen(k,l);
 	  if (slhaPtr->vckm.exists()) {
 	    Vlk=complex(slhaPtr->vckm(l,k),slhaPtr->imvckm(l,k));
 	    Vkl=complex(slhaPtr->vckm(k,l),slhaPtr->imvckm(k,l));
@@ -513,14 +537,14 @@ void CoupSUSY::init (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
 	  double rt2 = sqrt(2.0);
 	  
 	  // ~d[j] u[l] ~chi+[i]
-	  LsduX[j][l][i] += 0.5*(ui1*conj(Rdjk) 
-				 - mdk*ui2*conj(Rdjk3)/rt2/mW/cosb)*Vlk;
-	  RsduX[j][l][i] -= 0.5*mul*conj(vi2)*Vlk*Rdjk/rt2/mW/sinb; 
+	  LsduX[j][l][i] += (ui1*conj(Rdjk) 
+			     - mdk*ui2*conj(Rdjk3)/rt2/mW/cosb)*Vlk;
+	  RsduX[j][l][i] -= mul*conj(vi2)*Vlk*conj(Rdjk)/rt2/mW/sinb; 
 
 	  // ~u[j] d[l] ~chi+[i]
-	  LsudX[j][l][i] += 0.5*(vi1*conj(Rujk)
-				 - muk*vi2*conj(Rujk3)/rt2/mW/sinb)*conj(Vkl);
-	  RsudX[j][l][i] -= 0.5*mdl*conj(ui2)*conj(Vkl)*conj(Rujk)/rt2/mW/cosb;
+	  LsudX[j][l][i] += (conj(vi1)*Rujk
+			     - muk*conj(vi2)*Rujk3/rt2/mW/sinb)*Vkl;
+	  RsudX[j][l][i] -= mdl*ui2*Vkl*Rujk/rt2/mW/cosb;
 
 	}
 
@@ -580,10 +604,108 @@ void CoupSUSY::init (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
       pdePtr->setNames(lName,lName+"bar");
     }
   }
+
+  // Shorthand for RPV couplings 
+  SusyLesHouches::Tensor3Block<3> rvlle(slhaPtr->rvlamlle); // The input LNV lambda couplings
+  SusyLesHouches::Tensor3Block<3> rvlqd(slhaPtr->rvlamlqd); // The input LNV lambda' couplings
+  SusyLesHouches::Tensor3Block<3> rvudd(slhaPtr->rvlamudd); // The input BNV lambda'' couplings
+
+  isLLE = false;
+  isLQD = false;
+  isUDD = false;
+
+  // Symmetry properties
+  if(rvlle.exists()){
+    isLLE = true;
+    for(int i=1;i<=3;i++){
+      for(int j=i;j<=3;j++){ 
+	//lambda(i,j,k)=-lambda(j,i,k)
+	for(int k=1;k<=3;k++){
+	  if(i==j){
+	    rvLLE[i][j][k] = 0.0;
+	  }else{
+	    rvLLE[i][j][k] = rvlle(i,j,k);
+	    rvLLE[j][i][k] = -rvlle(i,j,k);
+	  }
+	}
+      }
+    }
+  }
+
+  if(rvlqd.exists()){
+    isLQD=true;
+    for(int i=1;i<=3;i++){
+      for(int j=1;j<=3;j++){ 
+	for(int k=1;k<=3;k++){
+	    rvLQD[i][j][k] = rvlqd(i,j,k);
+	}
+      }
+    }
+  }
+  
+  //lambda''(k,j,i)=-lambda''(k,i,j)
+
+  if(rvudd.exists()){
+    isUDD = true;
+    for(int i=1;i<=3;i++){
+      for(int j=i;j<=3;j++){ 
+	for(int k=1;k<=3;k++){
+	  if(i==j){
+	    rvUDD[k][i][j] = 0.0;
+	  }else{
+	    rvUDD[k][i][j] = rvudd(k,i,j);
+	    rvUDD[k][j][i] = -rvudd(k,i,j);
+	  }
+	}
+      }
+    }
+  }
+
+  
+  if(DEBUG){ 
+    for(int i=1;i<=3;i++){
+      for(int j=1;j<=3;j++){
+	for(int k=1;k<=3;k++){
+	  if(rvlle.exists())
+	    cout<<"LambdaLLE["<<i<<"]["<<j<<"]["<<k<<"]="<<rvLLE[i][j][k]<<" ";
+	  if(rvlqd.exists())
+	    cout<<"LambdaLQD["<<i<<"]["<<j<<"]["<<k<<"]="<<rvLQD[i][j][k]<<" ";
+	  if(rvudd.exists())
+	    cout<<"LambdaUDD["<<i<<"]["<<j<<"]["<<k<<"]="<<rvUDD[i][j][k]<<"\n";
+	}
+      }
+    }
+  }
+
+  // Store the squark mixing matrix
+  for(int i=1;i<=6;i++){
+    for(int j=1;j<=3;j++){
+      Rusq[i][j]   = complex(Ru(i,j),  imRu(i,j)  );
+      Rusq[i][j+3] = complex(Ru(i,j+3),imRu(i,j+3));
+      Rdsq[i][j]   = complex(Rd(i,j),  imRd(i,j)  );
+      Rdsq[i][j+3] = complex(Rd(i,j+3),imRd(i,j+3));
+    }
+  }
 			
+  if(DEBUG){
+    cout<<"Ru"<<endl;
+    for(int i=1;i<=6;i++){
+      for(int j=1;j<=6;j++){
+	cout << real(Rusq[i][j])<<"  ";
+      }
+      cout<<endl;
+    }
+    cout<<"Rd"<<endl;
+    for(int i=1;i<=6;i++){
+      for(int j=1;j<=6;j++){
+	cout << real(Rdsq[i][j])<<"  ";
+      }
+      cout<<endl;
+    }
+  }
+
   // Let everyone know we are ready
   isInit = true;
-  
 }
 
 //--------------------------------------------------------------------------
@@ -758,6 +880,7 @@ string CoupSUSY::getName(int pdgCode) {
 
 }
   
+
 //==========================================================================
 
 } // end namespace Pythia8

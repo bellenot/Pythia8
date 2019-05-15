@@ -5,10 +5,10 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.142      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 15 Aug 2010  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.145      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 10 Nov 2010  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 15 Aug 2010 at 19:24:19    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 11 Nov 2010 at 20:08:45    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Theoretical Physics, Lund University,   |  | 
  |  |      Solvegatan 14A, SE-223 62 Lund, Sweden;                                 |  | 
@@ -55,10 +55,10 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.142      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 15 Aug 2010  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.145      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 10 Nov 2010  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 15 Aug 2010 at 19:24:19    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 11 Nov 2010 at 20:08:45    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Theoretical Physics, Lund University,   |  | 
  |  |      Solvegatan 14A, SE-223 62 Lund, Sweden;                                 |  | 
@@ -105,10 +105,10 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.142      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 15 Aug 2010  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.145      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 10 Nov 2010  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 15 Aug 2010 at 19:24:19    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 11 Nov 2010 at 20:08:46    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Theoretical Physics, Lund University,   |  | 
  |  |      Solvegatan 14A, SE-223 62 Lund, Sweden;                                 |  | 
@@ -155,10 +155,10 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.142      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 15 Aug 2010  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.145      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 10 Nov 2010  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 15 Aug 2010 at 19:24:19    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 11 Nov 2010 at 20:08:46    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Theoretical Physics, Lund University,   |  | 
  |  |      Solvegatan 14A, SE-223 62 Lund, Sweden;                                 |  | 
@@ -3614,7 +3614,7 @@
  *-------  End PYTHIA Error and Warning Messages Statistics  ------------------------------------------------------* 
 
 
-  2010-08-15 19:24       number of pileup events per signal event
+  2010-11-11 20:09       number of pileup events per signal event
 
         3.12*10^ 1    8                                                                                                 
         3.00*10^ 1    X                                                                                                 
@@ -3658,7 +3658,7 @@
    All chan =  1.0000e+02    Rms  =  1.3991e+00    Overflow  =  0.0000e+00    High edge =  9.9500e+01
 
 
-  2010-08-15 19:24       number of beam A + gas events per signal event
+  2010-11-11 20:09       number of beam A + gas events per signal event
 
         5.80*10^ 1  5                                                                                                   
         5.60*10^ 1  X                                                                                                   
@@ -3705,7 +3705,7 @@
    All chan =  1.0000e+02    Rms  =  6.8491e-01    Overflow  =  0.0000e+00    High edge =  9.9500e+01
 
 
-  2010-08-15 19:24       number of beam B + gas events per signal event
+  2010-11-11 20:09       number of beam B + gas events per signal event
 
         7.00*10^ 1  X                                                                                                   
         6.75*10^ 1  X                                                                                                   
@@ -3751,7 +3751,7 @@
    All chan =  1.0000e+02    Rms  =  6.6000e-01    Overflow  =  0.0000e+00    High edge =  9.9500e+01
 
 
-  2010-08-15 19:24       number of charged multiplicity
+  2010-11-11 20:09       number of charged multiplicity
 
         1.12*10^ 1                      5                                                                               
         1.08*10^ 1                      X                                                                               
@@ -3797,7 +3797,7 @@
    All chan =  1.0000e+02    Rms  =  1.2596e+02    Overflow  =  0.0000e+00    High edge =  1.9995e+03
 
 
-  2010-08-15 19:24       total pZ of system
+  2010-11-11 20:09       total pZ of system
 
         5.20*10^ 1                                                    X                                                 
         5.00*10^ 1                                                    X                                                 

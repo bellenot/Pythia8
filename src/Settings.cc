@@ -560,6 +560,58 @@ string Settings::word(string keyIn) {
 
 //--------------------------------------------------------------------------
  
+// Get a map of entries whose names contain the string "match".
+
+map<string, Flag> Settings::getFlagMap(string match) {
+  // Make the match string lower case. Start with an empty map.
+  match = toLower(match);
+  map<string, Flag> flagMap;  
+  // Loop over the flag map (using iterator).
+  for (map<string,Flag>::iterator flagEntry = flags.begin();
+       flagEntry != flags.end(); ++flagEntry)
+    if (flagEntry->first.find(match) != string::npos) 
+      flagMap[flagEntry->first] = flagEntry->second;
+  return flagMap;
+}
+
+map<string, Mode> Settings::getModeMap(string match) {
+  // Make the match string lower case. Start with an empty map.
+  match = toLower(match);
+  map<string, Mode> modeMap;  
+  // Loop over the mode map (using iterator).
+  for (map<string,Mode>::iterator modeEntry = modes.begin();
+       modeEntry != modes.end(); ++modeEntry)
+    if (modeEntry->first.find(match) != string::npos) 
+      modeMap[modeEntry->first] = modeEntry->second;
+  return modeMap;
+}
+
+map<string, Parm> Settings::getParmMap(string match) {
+  // Make the match string lower case. Start with an empty map.
+  match = toLower(match);
+  map<string, Parm> parmMap;  
+  // Loop over the parm map (using iterator).
+  for (map<string,Parm>::iterator parmEntry = parms.begin();
+       parmEntry != parms.end(); ++parmEntry)
+    if (parmEntry->first.find(match) != string::npos) 
+      parmMap[parmEntry->first] = parmEntry->second;
+  return parmMap;
+}
+
+map<string, Word> Settings::getWordMap(string match) {
+  // Make the match string lower case. Start with an empty map.
+  match = toLower(match);
+  map<string, Word> wordMap;  
+  // Loop over the word map (using iterator).
+  for (map<string,Word>::iterator wordEntry = words.begin();
+       wordEntry != words.end(); ++wordEntry)
+    if (wordEntry->first.find(match) != string::npos) 
+      wordMap[wordEntry->first] = wordEntry->second;
+  return wordMap;
+}
+
+//--------------------------------------------------------------------------
+ 
 // Change current value, respecting limits.
 
 void Settings::flag(string keyIn, bool nowIn) { 
@@ -832,7 +884,7 @@ void Settings::initTunePP( int ppTune) {
     parm("BeamRemnants:reconnectRange",      10.0  );  
   }
   
-  // Draft Tune 2C, July 2010.
+  // Tune 2C, July 2010.
   else if (ppTune == 3) {
     mode("PDF:pSet",                         8     );  
     parm("SigmaProcess:alphaSvalue",         0.135 );  
@@ -860,7 +912,7 @@ void Settings::initTunePP( int ppTune) {
     parm("BeamRemnants:reconnectRange",      3.0   );  
   }
   
-  // Draft Tune 2M, July 2010.
+  // Tune 2M, July 2010.
   else if (ppTune == 4) {
     mode("PDF:pSet",                         4     );  
     parm("SigmaProcess:alphaSvalue",         0.1265);  
@@ -888,14 +940,17 @@ void Settings::initTunePP( int ppTune) {
     parm("BeamRemnants:reconnectRange",      3.0   );  
   }
  
-  // Draft Tune 3C, July 2010.
+  // Tune 4C, October 2010.
   else if (ppTune == 5) {
     mode("PDF:pSet",                         8     );  
     parm("SigmaProcess:alphaSvalue",         0.135 );  
-    flag("SigmaDiffractive:dampen",          true );  
+    flag("SigmaDiffractive:dampen",          true  );
+    parm("SigmaDiffractive:maxXB",           65.0  );
+    parm("SigmaDiffractive:maxAX",           65.0  );
+    parm("SigmaDiffractive:maxXX",           65.0  );  
     flag("TimeShower:dampenBeamRecoil",      true  );  
     flag("TimeShower:phiPolAsym",            true  );  
-    parm("SpaceShower:alphaSvalue",          0.130 );  
+    parm("SpaceShower:alphaSvalue",          0.137 );  
     flag("SpaceShower:samePTasMI",           false );  
     parm("SpaceShower:pT0Ref",               2.0   );  
     parm("SpaceShower:ecmRef",               1800.0);  
@@ -904,44 +959,16 @@ void Settings::initTunePP( int ppTune) {
     flag("SpaceShower:phiPolAsym",           true  );  
     flag("SpaceShower:phiIntAsym",           true  );  
     parm("MultipleInteractions:alphaSvalue", 0.135 );   
-    parm("MultipleInteractions:pT0Ref",      2.10  );  
+    parm("MultipleInteractions:pT0Ref",      2.085 );  
     parm("MultipleInteractions:ecmRef",      1800. );  
-    parm("MultipleInteractions:ecmPow",      0.18  );  
+    parm("MultipleInteractions:ecmPow",      0.19  );  
     mode("MultipleInteractions:bProfile",    3     );  
-    parm("MultipleInteractions:expPow",      1.6   );  
+    parm("MultipleInteractions:expPow",      2.0   );  
     parm("BeamRemnants:primordialKTsoft",    0.5   );  
     parm("BeamRemnants:primordialKThard",    2.0   );  
     parm("BeamRemnants:halfScaleForKT",      1.0   );  
     parm("BeamRemnants:halfMassForKT",       1.0   );  
-    parm("BeamRemnants:reconnectRange",      3.0   );  
-  }
-  
-  // Draft Tune 3M, July 2010.
-  else if (ppTune == 6) {
-    mode("PDF:pSet",                         4     );  
-    parm("SigmaProcess:alphaSvalue",         0.1265);  
-    flag("SigmaDiffractive:dampen",          true );  
-    flag("TimeShower:dampenBeamRecoil",      true  );  
-    flag("TimeShower:phiPolAsym",            true  );  
-    parm("SpaceShower:alphaSvalue",          0.130 );  
-    flag("SpaceShower:samePTasMI",           false );  
-    parm("SpaceShower:pT0Ref",               2.0   );  
-    parm("SpaceShower:ecmRef",               1800.0);  
-    parm("SpaceShower:ecmPow",               0.0   );  
-    flag("SpaceShower:rapidityOrder",        true  );  
-    flag("SpaceShower:phiPolAsym",           true  );  
-    flag("SpaceShower:phiIntAsym",           true  );  
-    parm("MultipleInteractions:alphaSvalue", 0.127 );   
-    parm("MultipleInteractions:pT0Ref",      2.20  );  
-    parm("MultipleInteractions:ecmRef",      1800. );  
-    parm("MultipleInteractions:ecmPow",      0.20  );  
-    mode("MultipleInteractions:bProfile",    3     );  
-    parm("MultipleInteractions:expPow",      1.15  );  
-    parm("BeamRemnants:primordialKTsoft",    0.5   );  
-    parm("BeamRemnants:primordialKThard",    2.0   );  
-    parm("BeamRemnants:halfScaleForKT",      1.0   );  
-    parm("BeamRemnants:halfMassForKT",       1.0   );  
-    parm("BeamRemnants:reconnectRange",      3.0   );  
+    parm("BeamRemnants:reconnectRange",      1.5   );  
   }
 
 }

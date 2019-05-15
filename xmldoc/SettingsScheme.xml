@@ -391,6 +391,17 @@ does not exist in the database, a value <code>false</code>,
 is returned, respectively.
 </methodmore>
 
+<method name="map<string, Flag> Settings::getFlagMap(string match)"> 
+</method>
+<methodmore name="map<string, Mode> Settings::getModeMap(string match)"> 
+</methodmore>
+<methodmore name="map<string, Parm> Settings::getParmMap(string match)"> 
+</methodmore>
+<methodmore name="map<string, Word> Settings::getWordMap(string match)">
+return a map of all settings of the respective type that contain the 
+string "match" in its name.
+</methodmore>
+
 <method name="void Settings::flag(string key, bool now)"> 
 </method>
 <methodmore name="void Settings::mode(string key, int now)"> 

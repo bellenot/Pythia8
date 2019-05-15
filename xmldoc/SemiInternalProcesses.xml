@@ -442,6 +442,16 @@ decay of an intermediate resonance, but is directly describing the
 transition from the initial to the final state. 
 </method>
 
+<method name="int SigmaProcess::isQCD3body()">
+there are two different 3-body phase-space selection machineries,
+of which the non-QCD one is default. If you overload this method
+instead the QCD-inspired machinery will be used. The differences 
+between these two is related to which 
+<aloc href="PhaseSpaceCuts">phase space cuts</aloc>
+can be set, and also that the QCD machinery assumes (almost) massless
+outgoing partons.
+</method>
+
 <method name="int SigmaProcess::idTchan1()">
 </method>
 <methodmore name="int SigmaProcess::idTchan2()">

@@ -25,15 +25,14 @@ The description of
 is in this case based on some further model assumptions.
 
 <p/>
-Most of the processes below are divergent in the limit 
-<ei>pT -> 0</ei>, and therefore a <ei>pTmin</ei> scale should 
-be set. Comparisons with data indicate that this divergence 
-can be tamed the same way as for the normal QCD <ei>2 -> 2</ei> cross 
-sections, which makes sense, since they are all dominated by the
-same kind of <ei>t</ei>-channel gluon exchange. It is therefore
-possible to use the <aloc href="UserHooks">SuppressSmallPT</aloc>
-user hook to impose a reweighting that cancels the low-<ei>pT</ei>
-divergence.
+Most of the processes below are divergent in the limit <ei>pT -> 0</ei>, 
+and therefore a <ei>pTmin</ei> scale should be set. Comparisons with 
+data indicate that this divergence can be tamed the same way as for 
+the normal QCD <ei>2 -> 2</ei> cross sections <ref>Bar06,Kra08</ref>, 
+which makes sense, since they are all dominated by the same kind of 
+<ei>t</ei>-channel gluon exchange. It is therefore possible to use the 
+<aloc href="UserHooks">SuppressSmallPT</aloc> user hook to impose a 
+reweighting that cancels the low-<ei>pT</ei> divergence.
 
 <p/>
 An eikonalized description of these processes is included in the 

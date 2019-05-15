@@ -123,7 +123,7 @@ void Sigma1ffbar2gmZZprime::initProc() {
   GammaRes    = particleDataPtr->mWidth(32);
   m2Res       = mRes*mRes;
   GamMRat     = GammaRes / mRes;
-  sin2tW      = coupSMPtr->sin2thetaW();
+  sin2tW      = couplingsPtr->sin2thetaW();
   cos2tW      = 1. - sin2tW;
   thetaWRat   = 1. / (16. * sin2tW * cos2tW);
 
@@ -221,9 +221,9 @@ void Sigma1ffbar2gmZZprime::sigmaKin() {
         ps        = sqrtpos(1. - 4. * mr); 
 
         // Couplings of gamma^*/Z^0/Z'^0  to final flavour 
-        ef        = coupSMPtr->ef(idAbs);
-        af        = coupSMPtr->af(idAbs);
-        vf        = coupSMPtr->vf(idAbs);
+        ef        = couplingsPtr->ef(idAbs);
+        af        = couplingsPtr->af(idAbs);
+        vf        = couplingsPtr->vf(idAbs);
         apf       = afZp[idAbs];
         vpf       = vfZp[idAbs];
 
@@ -295,9 +295,9 @@ double Sigma1ffbar2gmZZprime::sigmaHat() {
 
   // Couplings to an incoming flavour.
   int idAbs      = abs(id1); 
-  double ei      = coupSMPtr->ef(idAbs);
-  double ai      = coupSMPtr->af(idAbs);
-  double vi      = coupSMPtr->vf(idAbs);
+  double ei      = couplingsPtr->ef(idAbs);
+  double ai      = couplingsPtr->af(idAbs);
+  double vi      = couplingsPtr->vf(idAbs);
   double api     = afZp[idAbs];
   double vpi     = vfZp[idAbs];
   double ei2     = ei * ei;
@@ -352,14 +352,14 @@ double Sigma1ffbar2gmZZprime::weightDecay( Event& process, int iResBeg,
     (idOutAbs < 7 || ( idOutAbs > 10 && idOutAbs < 17)) ) {
 
     // Couplings for in- and out-flavours.
-    double ei  = coupSMPtr->ef(idInAbs);
-    double vi  = coupSMPtr->vf(idInAbs);
-    double ai  = coupSMPtr->af(idInAbs);
+    double ei  = couplingsPtr->ef(idInAbs);
+    double vi  = couplingsPtr->vf(idInAbs);
+    double ai  = couplingsPtr->af(idInAbs);
     double vpi = vfZp[idInAbs];
     double api = afZp[idInAbs];
-    double ef  = coupSMPtr->ef(idOutAbs);
-    double vf  = coupSMPtr->vf(idOutAbs);
-    double af  = coupSMPtr->af(idOutAbs);
+    double ef  = couplingsPtr->ef(idOutAbs);
+    double vf  = couplingsPtr->vf(idOutAbs);
+    double af  = couplingsPtr->af(idOutAbs);
     double vpf = vfZp[idOutAbs];
     double apf = afZp[idOutAbs];
 
@@ -490,7 +490,7 @@ void Sigma1ffbar2Wprime::initProc() {
   GammaRes = particleDataPtr->mWidth(34);
   m2Res    = mRes*mRes;
   GamMRat  = GammaRes / mRes;
-  thetaWRat = 1. / (12. * coupSMPtr->sin2thetaW());
+  thetaWRat = 1. / (12. * couplingsPtr->sin2thetaW());
 
   // Axial and vector couplings of fermions.
   aqWp      = settingsPtr->parm("Wprime:aq");
@@ -530,7 +530,7 @@ double Sigma1ffbar2Wprime::sigmaHat() {
   // Secondary width for W+ or W-. CKM and colour factors.
   int idUp = (abs(id1)%2 == 0) ? id1 : id2;
   double sigma = (idUp > 0) ? sigma0Pos : sigma0Neg;
-  if (abs(id1) < 7) sigma *= coupSMPtr->V2CKMid(abs(id1), abs(id2)) / 3.;
+  if (abs(id1) < 7) sigma *= couplingsPtr->V2CKMid(abs(id1), abs(id2)) / 3.;
 
   // Couplings.
   if (abs(id1) < 7) sigma *= 0.5 * (aqWp * aqWp + vqWp * vqWp);
@@ -655,8 +655,8 @@ double Sigma1ffbar2Wprime::weightDecay( Event& process, int iResBeg,
 
       //  Couplings of outgoing fermion from Z. Combine with kinematics.
       int idAbs     = process[i5].idAbs();
-      double lfZ    = coupSMPtr->lf(idAbs); 
-      double rfZ    = coupSMPtr->rf(idAbs); 
+      double lfZ    = couplingsPtr->lf(idAbs); 
+      double rfZ    = couplingsPtr->rf(idAbs); 
       wt            = lfZ*lfZ * fGK135 + rfZ*rfZ * fGK136;
       wtMax         = 4. * s3now * s4now * (lfZ*lfZ + rfZ*rfZ) 
                     * (xiT + xiU - xjTU);
@@ -696,7 +696,7 @@ void Sigma1ffbar2Rhorizontal::initProc() {
   GammaRes = particleDataPtr->mWidth(41);
   m2Res    = mRes*mRes;
   GamMRat  = GammaRes / mRes;
-  thetaWRat = 1. / (12. * coupSMPtr->sin2thetaW());
+  thetaWRat = 1. / (12. * couplingsPtr->sin2thetaW());
 
   // Set pointer to particle properties and decay table.
   particlePtr = particleDataPtr->particleDataEntryPtr(41);

@@ -44,7 +44,7 @@ public:
   // Initialize list of processes.
   bool init(int inState, int processLevel, Info* infoPtr, 
     Settings* settingsPtr, ParticleData* particleDataPtr, Rndm* rndmPtrIn, 
-    BeamParticle* beamAPtr, BeamParticle* beamBPtr, CoupSM* coupSMPtr);
+    BeamParticle* beamAPtr, BeamParticle* beamBPtr, Couplings* couplingsPtr);
 
   // Calculate cross section summed over possibilities.
   double sigma( int id1, int id2, double x1, double x2, double sHat, 
@@ -101,7 +101,7 @@ public:
   // Initialize the generation process for given beams.
   bool init( bool doMIinit, int diffractiveModeIn, Info* infoPtrIn, 
     Settings& settings, ParticleData* particleDataPtr, Rndm* rndmPtrIn, 
-    BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, CoupSM* coupSMPtrIn, 
+    BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, Couplings* couplingsPtrIn, 
     PartonSystems* partonSystemsPtrIn, SigmaTotal* sigmaTotPtrIn, 
     ostream& os = cout);
 
@@ -197,7 +197,7 @@ private:
   BeamParticle*  beamBPtr;
 
   // Pointers to Standard Model couplings.
-  CoupSM*        coupSMPtr;
+  Couplings*        couplingsPtr;
 
   // Pointer to information on subcollision parton locations.
   PartonSystems* partonSystemsPtr;

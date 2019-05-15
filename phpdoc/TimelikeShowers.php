@@ -30,8 +30,9 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 <h2>Timelike Showers</h2>
 
 The PYTHIA algorithm for timelike final-state showers is based on
-the recent article [<a href="Bibliography.php" target="page">Sjo05</a>], where a transverse-momentum-ordered
-evolution scheme is introduced. This algorithm is influenced by
+the article [<a href="Bibliography.php" target="page">Sjo05</a>], where a transverse-momentum-ordered
+evolution scheme is introduced, with the extension to fully interleaved
+evolution covered in [<a href="Bibliography.php" target="page">Cor10a</a>]. This algorithm is influenced by
 the previous mass-ordered algorithm in PYTHIA [<a href="Bibliography.php" target="page">Ben87</a>] and by 
 the dipole-emission formulation in Ariadne [<a href="Bibliography.php" target="page">Gus86</a>]. From the 
 mass-ordered algorithm it inherits a merging procedure for first-order 

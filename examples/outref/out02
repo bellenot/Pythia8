@@ -5,10 +5,10 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.142      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 15 Aug 2010  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.145      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 10 Nov 2010  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 15 Aug 2010 at 19:18:41    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 11 Nov 2010 at 20:03:30    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Theoretical Physics, Lund University,   |  | 
  |  |      Solvegatan 14A, SE-223 62 Lund, Sweden;                                 |  | 
@@ -551,7 +551,7 @@
  *-------  End PYTHIA Error and Warning Messages Statistics  ------------------------------------------------------* 
 
 
-  2010-08-15 19:18       dN/dpTZ
+  2010-11-11 20:03       dN/dpTZ
 
         8.70*10^ 1    7                                                                                                 
         8.40*10^ 1    X3                                                                                                

@@ -6,10 +6,10 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.142      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 15 Aug 2010  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.145      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 10 Nov 2010  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 15 Aug 2010 at 19:23:24    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 11 Nov 2010 at 20:07:51    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Theoretical Physics, Lund University,   |  | 
  |  |      Solvegatan 14A, SE-223 62 Lund, Sweden;                                 |  | 
@@ -1709,7 +1709,7 @@
  *-------  End PYTHIA Error and Warning Messages Statistics  ------------------------------------------------------* 
 
 
-  2010-08-15 19:23       Higgs rapidity
+  2010-11-11 20:08       Higgs rapidity
 
         2.90*10^-1                                                    5                                                 
         2.80*10^-1                                                    X  5                                              
@@ -1756,7 +1756,7 @@
    All chan =  5.0000e+00    Rms  =  1.5188e+00    Overflow  =  0.0000e+00    High edge =  1.0000e+01
 
 
-  2010-08-15 19:23       charged pseudorapidity
+  2010-11-11 20:08       charged pseudorapidity
 
         2.32*10^ 1                                           94X57767  XX3341                                           
         2.24*10^ 1                                          3XXXXXXXXXXXXXXXX 2                                         
@@ -1803,7 +1803,7 @@
    All chan =  1.0494e+03    Rms  =  3.3881e+00    Overflow  =  4.8500e-01    High edge =  1.0000e+01
 
 
-  2010-08-15 19:23       charged multiplicity
+  2010-11-11 20:08       charged multiplicity
 
         4.60*10^ 1                         X                                                                            
         4.40*10^ 1                  5    X X     X  5                                                                   

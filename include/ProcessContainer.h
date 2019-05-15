@@ -50,9 +50,9 @@ public:
   // Initialize phase space and counters.
   bool init(bool isFirst, Info* infoPtrIn, Settings& settings, 
     ParticleData* particleDataPtrIn, Rndm* rndmPtrIn, BeamParticle* beamAPtr, 
-    BeamParticle* beamBPtr, CoupSM* coupSMPtr, SigmaTotal* sigmaTotPtr, 
-    CoupSUSY* coupSUSYPtr, ResonanceDecays* resDecaysPtrIn, 
-    SusyLesHouches* slhaPtr, UserHooks* userHooksPtr); 
+    BeamParticle* beamBPtr, Couplings* couplings, SigmaTotal* sigmaTotPtr, 
+    ResonanceDecays* resDecaysPtrIn, SusyLesHouches* slhaPtr, 
+    UserHooks* userHooksPtr); 
 
   // Store or replace Les Houches pointer.
   void setLHAPtr( LHAup* lhaUpPtrIn) {lhaUpPtr = lhaUpPtrIn;
@@ -166,7 +166,7 @@ public:
  
   // Initialization assuming all necessary data already read.
   bool init(vector<ProcessContainer*>& containerPtrs, Settings& settings,
-    ParticleData* particleDataPtr, CoupSUSY& coupSUSY);
+    ParticleData* particleDataPtr, Couplings* couplings);
  
   // Initialization of a second hard process.
   bool init2(vector<ProcessContainer*>& container2Ptrs, Settings& settings);

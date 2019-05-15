@@ -39,8 +39,8 @@ public:
 
   // Initialize HadronLevel classes as required.
   bool init(Info* infoPtrIn, Settings& settings, ParticleData& particleData,
-    Rndm* rndmPtrIn, TimeShower* timesDecPtr, DecayHandler* decayHandlePtr, 
-    vector<int> handledParticles);
+    Rndm* rndmPtrIn, Couplings* couplingsPtrIn, TimeShower* timesDecPtr, 
+    DecayHandler* decayHandlePtr, vector<int> handledParticles);
 
   // Get pointer to StringFlav instance (needed by BeamParticle).
   StringFlav* getStringFlavPtr() {return &flavSel;}
@@ -62,13 +62,16 @@ private:
   double mStringMin, eNormJunction, widthSepBE;
 
   // Pointer to various information on the generation.
-  Info*     infoPtr;
+  Info*      infoPtr;
 
   // Pointer to the random number generator.
-  Rndm*     rndmPtr;
+  Rndm*      rndmPtr;
+
+  // Pointers to Standard Model couplings.
+  Couplings* couplingsPtr;
 
   // Configuration of colour-singlet systems.
-  ColConfig colConfig;   
+  ColConfig  colConfig;   
 
   // Colour information.
   vector<int>    iColEnd, iAcolEnd, iColAndAcol, iParton, iPartonJun, 

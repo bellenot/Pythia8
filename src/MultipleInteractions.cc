@@ -36,7 +36,7 @@ const double SigmaMultiple::OTHERFRAC  = 0.2;
 
   bool SigmaMultiple::init(int inState, int processLevel, Info* infoPtr, 
     Settings* settingsPtr, ParticleData* particleDataPtr, Rndm* rndmPtrIn,  
-    BeamParticle* beamAPtr, BeamParticle* beamBPtr, CoupSM* coupSMPtr) {
+    BeamParticle* beamAPtr, BeamParticle* beamBPtr, Couplings* couplingsPtr) {
 
   // Store input pointer for future use. 
   rndmPtr          = rndmPtrIn;
@@ -212,10 +212,10 @@ const double SigmaMultiple::OTHERFRAC  = 0.2;
   // Initialize the processes.
   for (int i = 0; i < nChan; ++i) {
     sigmaT[i]->init( infoPtr, settingsPtr, particleDataPtr, rndmPtr, 
-      beamAPtr, beamBPtr, coupSMPtr);
+      beamAPtr, beamBPtr, couplingsPtr);
     sigmaT[i]->initProc();
     sigmaU[i]->init( infoPtr, settingsPtr, particleDataPtr, rndmPtr, 
-      beamAPtr, beamBPtr, coupSMPtr);
+      beamAPtr, beamBPtr, couplingsPtr);
     sigmaU[i]->initProc();
 
     // Prepare for massive kinematics (but fixed masses!) where required.
@@ -382,7 +382,7 @@ const double MultipleInteractions::ECMDEV        = 0.01;
 bool MultipleInteractions::init( bool doMIinit, int diffractiveModeIn,
   Info* infoPtrIn, Settings& settings, ParticleData* particleDataPtr,  
   Rndm* rndmPtrIn, BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, 
-  CoupSM* coupSMPtrIn, PartonSystems* partonSystemsPtrIn,  
+  Couplings* couplingsPtrIn, PartonSystems* partonSystemsPtrIn,  
   SigmaTotal* sigmaTotPtrIn, ostream& os) {
 
   // Store input pointers for future use. Done if no initialization. 
@@ -391,7 +391,7 @@ bool MultipleInteractions::init( bool doMIinit, int diffractiveModeIn,
   rndmPtr          = rndmPtrIn;
   beamAPtr         = beamAPtrIn;
   beamBPtr         = beamBPtrIn;
-  coupSMPtr        = coupSMPtrIn;
+  couplingsPtr     = couplingsPtrIn;
   partonSystemsPtr = partonSystemsPtrIn;
   sigmaTotPtr      = sigmaTotPtrIn;
   if (!doMIinit) return false;
@@ -469,13 +469,13 @@ bool MultipleInteractions::init( bool doMIinit, int diffractiveModeIn,
 
   // Attach matrix-element calculation objects.
   sigma2gg.init( 0, processLevel, infoPtr, &settings, particleDataPtr,
-    rndmPtr, beamAPtr, beamBPtr, coupSMPtr);
+    rndmPtr, beamAPtr, beamBPtr, couplingsPtr);
   sigma2qg.init( 1, processLevel, infoPtr, &settings, particleDataPtr,
-    rndmPtr, beamAPtr, beamBPtr, coupSMPtr);
+    rndmPtr, beamAPtr, beamBPtr, couplingsPtr);
   sigma2qqbarSame.init( 2, processLevel, infoPtr, &settings, particleDataPtr, 
-    rndmPtr, beamAPtr, beamBPtr, coupSMPtr);
+    rndmPtr, beamAPtr, beamBPtr, couplingsPtr);
   sigma2qq.init( 3, processLevel, infoPtr, &settings, particleDataPtr,
-    rndmPtr,  beamAPtr, beamBPtr, coupSMPtr);
+    rndmPtr,  beamAPtr, beamBPtr, couplingsPtr);
 
   // Calculate invariant mass of system.
   eCM          = infoPtr->eCM();

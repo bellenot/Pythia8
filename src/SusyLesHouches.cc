@@ -9,11 +9,12 @@
 
 // Main routine to read in SLHA and LHEF+SLHA files
 
-int SusyLesHouches::readFile(string slhaFileIn, int verboseIn) {
+int SusyLesHouches::readFile(string slhaFileIn, int verboseIn, bool useDecayIn) {
 
   // Copy inputs to local
   slhaFile = slhaFileIn;
   verbose  = verboseIn;
+  useDecay = useDecayIn;
 
   // Check that input file is OK.
   int iFailFile=0;
@@ -117,6 +118,13 @@ int SusyLesHouches::readFile(string slhaFileIn, int verboseIn) {
       int nameEnd=blockIn.find(" ",7);
       blockName=line.substr(nameBegin,nameEnd-nameBegin);
       
+      // Copy input file as generic blocks (containing strings)
+      // (more will be done with SLHA1 & 2 specific blocks below, this is 
+      //  just to make sure we have a complete copy of the input file, 
+      //  including also any unknown/user/generic blocks)
+      GenericBlock gBlock;
+      genericBlocks[blockName]=gBlock;
+
       //Find Q=... for DRbar running blocks
       if (blockIn.find("q=") != string::npos) {
         int qbegin=blockIn.find("q=")+2;
@@ -200,6 +208,15 @@ int SusyLesHouches::readFile(string slhaFileIn, int verboseIn) {
       //Extract PDG code and width
       istringstream dstream(nameNow);
       dstream >> idNow;
+
+      //Ignore decay if decay table read-in switched off
+      if( !useDecay ) {
+	decay = "";
+	message(0,"readFile","ignoring DECAY table for "+nameNow
+		+" (DECAY read-in switched off)",iLine);
+	continue;
+      }
+
       if (dstream) {
         string widthName=decay.substr(nameEnd+1,decay.length());
         istringstream wstream(widthName);
@@ -270,6 +287,10 @@ int SusyLesHouches::readFile(string slhaFileIn, int verboseIn) {
       //string comment = line.substr(line.find("#"),line.length());    
       int ifail=-2;
       istringstream linestream(line);
+
+      // Add line to generic block (carbon copy of input structure)
+      genericBlocks[blockName].set(line);
+
       //MODEL
       if (blockName == "modsel") {
         int i;
@@ -466,7 +487,6 @@ int SusyLesHouches::readFile(string slhaFileIn, int verboseIn) {
           message(0,"readFile","reading  DECAY table for "+nameNow,0);
         decayPrinted = true;
       }
-      //      cout << " found decay mode "<<line<<endl;
       double brat;
       bool ok=true;
       int nDa = 0;
@@ -518,8 +538,8 @@ void SusyLesHouches::printHeader() {
   if (verbose == 0) return;
   setprecision(3);
   if (! headerPrinted) {
-    cout <<" *--------------------  SusyLesHouches v0.05 SUSY/BSM Interface  ---------------------*\n";
-    message(0,"","Last Change 12 May 2009 - P. Z. Skands",0);
+    cout <<" *--------------------  SusyLesHouches v0.06 SUSY/BSM Interface  ---------------------*\n";
+    message(0,"","Last Change 20 Oct 2010 - P. Z. Skands",0);
     headerPrinted=true;
   }
 }
@@ -1224,6 +1244,72 @@ int SusyLesHouches::checkDecays() {
   return iFailDecays;
 
 }
+
+//--------------------------------------------------------------------------
+
+// utilities to read generic blocks
+
+template <class T> bool SusyLesHouches::getEntry(string blockName, T& val) {
+  // Safety checks
+  if (genericBlocks.find(blockName) == genericBlocks.end()) {
+    message(1,"getEntry","attempting to extract entry from non-existent block "
+	    +blockName);
+    return false;
+  }
+  if (genericBlocks[blockName].size() == 0) {
+    message(1,"getEntry","attempting to extract entry from zero-size block "
+	    +blockName);
+    return false;
+  }
+  if (genericBlocks[blockName].size() >= 2) {
+    message(1,"getEntry","attempting to extract un-indexed entry from multi-entry block "+blockName);
+    return false;
+  }
+  // Attempt to extract value as class T 
+  GenericBlock block = genericBlocks[blockName];
+  istringstream linestream(block(0));
+  linestream >> val; 
+  if ( !linestream ) {
+    message(1,"getEntry","problem extracting un-indexed entry from block "+blockName);
+    return false;
+  } 
+  // If made it all the way here, value was successfully extracted. Return true.
+  return true;
+}
+
+template <class T> bool SusyLesHouches::getEntry(string blockName, int indx, 
+						 T& val) {
+  // Safety checks
+  if (genericBlocks.find(blockName) == genericBlocks.end()) {
+    message(1,"getEntry","attempting to extract entry from non-existent block "
+	    +blockName);
+    return false;
+  }
+  if (genericBlocks[blockName].size() == 0) {
+    message(1,"getEntry","attempting to extract entry from zero-size block "
+	    +blockName);
+    return false;
+  }
+  // Attempt to extract indexed value as class T 
+  GenericBlock block = genericBlocks[blockName];
+  // Loop over block contents, search for indexed entry with index i
+  for (int jEntry = 0; jEntry < block.size(); jEntry++) {
+    istringstream linestream(block(jEntry));
+    // Buffer line according to format selected by T
+    int indxNow;
+    T valNow;
+    linestream >> indxNow >> valNow;
+    // If index found and value was readable, return true
+    if (linestream && indxNow == indx) {
+      val = valNow;
+      return true;
+    }
+  }
+  // If index not found or unreadable, return false
+  message(1,"getEntry","problem extracting indexed entry from block "+blockName);
+  return false;
+}
+
 
 //--------------------------------------------------------------------------
 

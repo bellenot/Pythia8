@@ -43,7 +43,7 @@ ProcessLevel::~ProcessLevel() {
 
 bool ProcessLevel::init( Info* infoPtrIn, Settings& settings, 
   ParticleData* particleDataPtrIn, Rndm* rndmPtrIn, 
-  BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, CoupSM* coupSMPtrIn,
+  BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, Couplings* couplingsPtrIn,
   SigmaTotal* sigmaTotPtrIn, bool doLHA, SusyLesHouches* slhaPtrIn, 
   UserHooks* userHooksPtrIn, vector<SigmaProcess*>& sigmaPtrs, ostream& os) {
 
@@ -53,7 +53,7 @@ bool ProcessLevel::init( Info* infoPtrIn, Settings& settings,
   rndmPtr         = rndmPtrIn;
   beamAPtr        = beamAPtrIn;
   beamBPtr        = beamBPtrIn;
-  coupSMPtr       = coupSMPtrIn;
+  couplingsPtr    = couplingsPtrIn;
   sigmaTotPtr     = sigmaTotPtrIn;
   userHooksPtr    = userHooksPtrIn;
   slhaPtr         = slhaPtrIn;
@@ -102,12 +102,9 @@ bool ProcessLevel::init( Info* infoPtrIn, Settings& settings,
     if (mHatOverlap && pTHatOverlap) cutsOverlap = true;
   }
 
-  // Initialize SUSY Les Houches Accord data
-  if (!initSLHA(settings)) return false;
-
   // Set up containers for all the internal hard processes.
   SetupContainers setupContainers;
-  setupContainers.init(containerPtrs, settings, particleDataPtr, coupSUSY);
+  setupContainers.init(containerPtrs, settings, particleDataPtr, couplingsPtr);
 
   // Append containers for external hard processes, if any.
   if (sigmaPtrs.size() > 0) {
@@ -137,14 +134,19 @@ bool ProcessLevel::init( Info* infoPtrIn, Settings& settings,
   bool hasSUSY = false;
   for (int i = 0; i < int(containerPtrs.size()); ++i)
     if (containerPtrs[i]->isSUSY()) hasSUSY = true;
-  if (hasSUSY && !coupSUSY.isInit) coupSUSY.init(slhaPtr, &settings, 
-    particleDataPtr, coupSMPtr); 
+
+  //If SUSY processes requested but no SUSY couplings present
+  if(hasSUSY && !couplingsPtr->isSUSY) {
+    infoPtr->errorMsg("Error in ProcessLevel::init: "
+      "SUSY process switched on but no SUSY couplings found"); 
+    return false;
+  }
 
   // Initialize each process. 
   int numberOn = 0;
   for (int i = 0; i < int(containerPtrs.size()); ++i)
     if (containerPtrs[i]->init(true, infoPtr, settings, particleDataPtr, 
-      rndmPtr, beamAPtr, beamBPtr, coupSMPtr, sigmaTotPtr, &coupSUSY, 
+      rndmPtr, beamAPtr, beamBPtr, couplingsPtr, sigmaTotPtr,  
       &resonanceDecays, slhaPtr, userHooksPtr)) ++numberOn;
 
   // Sum maxima for Monte Carlo choice.
@@ -163,7 +165,7 @@ bool ProcessLevel::init( Info* infoPtrIn, Settings& settings,
     }
     for (int i2 = 0; i2 < int(container2Ptrs.size()); ++i2)
       if (container2Ptrs[i2]->init(false, infoPtr, settings, particleDataPtr, 
-        rndmPtr, beamAPtr, beamBPtr, coupSMPtr, sigmaTotPtr, &coupSUSY, 
+        rndmPtr, beamAPtr, beamBPtr, couplingsPtr, sigmaTotPtr, 
         &resonanceDecays, slhaPtr, userHooksPtr)) ++number2On;
     sigma2MaxSum = 0.;
     for (int i2 = 0; i2 < int(container2Ptrs.size()); ++i2)
@@ -482,220 +484,6 @@ void ProcessLevel::statistics(bool reset, ostream& os) {
 
 //--------------------------------------------------------------------------
 
-// Initialize SUSY Les Houches Accord data.
-
-bool ProcessLevel::initSLHA(Settings& settings) {
-
-  // Initial and settings values.
-  int    ifailLHE    = 1;
-  int    ifailSpc    = 1;
-  int    ifailDec    = 1;
-  int    readFrom    = settings.mode("SLHA:readFrom");
-  string lhefFile    = settings.word("Beams:LHEF");
-  string slhaFile    = settings.word("SLHA:file");
-  int    verboseSLHA = settings.mode("SLHA:verbose");
-
-  // Option with no SLHA read-in at all.
-  if (readFrom == 0) return true;  
-
-  // First check LHEF header (if reading from LHEF)
-  if (readFrom == 1 && lhefFile != "void") {
-    ifailLHE = slhaPtr->readFile(lhefFile, verboseSLHA);    
-  }
-
-  // If LHEF read successful, everything needed should already be ready
-  if (ifailLHE == 0) {
-    ifailSpc = 0;
-    ifailDec = 0;
-  // If no LHEF file or no SLHA info in header, read from SLHA:file
-  } else {
-    lhefFile = "void";
-    if ( settings.word("SLHA:file") == "none"
-	 || settings.word("SLHA:file") == "void" 
-	 || settings.word("SLHA:file") == "" 
-	 || settings.word("SLHA:file") == " ") return true;      
-    ifailSpc = slhaPtr->readFile(slhaFile,verboseSLHA);
-  }
-
-  // In case of problems, print error and fail init.
-  if (ifailSpc != 0) {
-    infoPtr->errorMsg("Error in ProcessLevel::initSLHA: "
-      "problem reading SLHA file", slhaFile);
-    return false;
-  };
-
-  /*
-  // Check decays for consistency (replaced by internal Pythia check below)
-  ifailDec = slhaPtr->checkDecays();
-  if (ifailDec != 0) {
-    infoPtr->errorMsg("Warning in ProcessLevel::initSLHA: "
-		      "Problem with SLHA decay tables.");     
-  }
-  */
-  
-  // Check spectrum for consistency. Switch off SUSY if necessary.
-  ifailSpc = slhaPtr->checkSpectrum();
-  // ifail > 1 : no MODSEL found -> don't switch on SUSY
-  if (ifailSpc == 1) {
-    // no SUSY, but MASS ok
-  } else if (ifailSpc >= 2) {
-    // no SUSY, but problems    
-    infoPtr->errorMsg("Warning in ProcessLevel::initSLHA: "
-		      "Problem with SLHA MASS or QNUMBERS.");    
-  }
-  // ifail = 0 : MODSEL found, spectrum OK
-  else if (ifailSpc == 0) {
-    // Print spectrum. Done. 
-    slhaPtr->printSpectrum();
-  }
-  else if (ifailSpc < 0) {
-    infoPtr->errorMsg("Warning in ProcessLevel::initSLHA: "
-		      "Problem with SLHA spectrum.", 
-		      "\n Only using masses and switching off SUSY.");
-    settings.flag("SUSY:all", false);
-    slhaPtr->printSpectrum();
-  } 
-
-  // Import mass spectrum.
-  bool   keepSM    = settings.flag("SLHA:keepSM");
-  double minMassSM = settings.parm("SLHA:minMassSM");
-  if (ifailSpc == 1 || ifailSpc == 0) {
-
-    // Loop through to update particle data.
-    int    id = slhaPtr->mass.first();
-    for (int i = 1; i <= slhaPtr->mass.size() ; i++) {
-      double mass = abs(slhaPtr->mass(id));
-
-      // Ignore masses for known SM particles or particles with 
-      // default masses < minMassSM; overwrite masses for rest.
-      if (keepSM && (id < 25 || (id > 80 && id < 1000000))) ;
-      else if (id < 1000000 && particleDataPtr->m0(id) < minMassSM) {
-	ostringstream idCode;
-	idCode << id;      
-	infoPtr->errorMsg("Warning in ProcessLevel::initSLHA: "
-	  "ignoring MASS entry", "for id = "+idCode.str()
-	  +" (m0 < SLHA:minMassSM)", true);
-      } 
-      else particleDataPtr->m0(id,mass);
-      id = slhaPtr->mass.next();
-    };
-
-    // Init SUSY couplings
-    if (ifailSpc == 0) coupSUSY.init(slhaPtr, &settings, particleDataPtr, 
-      coupSMPtr);       
-
-  }
-
-  // Update decay data.
-  for (int iTable=0; iTable < int(slhaPtr->decays.size()); iTable++) {
-    
-    // Pointer to this SLHA table
-    SusyLesHouches::decayTable* slhaTable=&slhaPtr->decays[iTable];
-    
-    // Extract ID and create pointer to corresponding particle data object
-    int idRes     = slhaTable->getId();
-    ParticleDataEntry* particlePtr 
-      = particleDataPtr->particleDataEntryPtr(idRes);
-    
-    // Ignore decay channels for known SM particles or particles with 
-    // default masses < minMassSM; overwrite masses for rest.
-    if (keepSM && (idRes < 25 || (idRes > 80 && idRes < 1000000))) continue;
-    else if (idRes < 1000000 && particleDataPtr->m0(idRes) < minMassSM) {
-      ostringstream idCode;
-      idCode << idRes;      
-      infoPtr->errorMsg("Warning in ProcessLevel::initSLHA: "
-        "ignoring DECAY table", "for id = " + idCode.str()
-	+ " (m0 < SLHA:minMassSM)", true);
-      continue;
-    }
-    
-    // Extract and store total width (absolute value, neg -> switch off)
-    double widRes = abs(slhaTable->getWidth());
-    particlePtr->setMWidth(widRes);
-    
-    // Reset decay table of the particle. Allow decays.
-    if (slhaTable->size() > 0) {
-      particlePtr->clearChannels();
-      particleDataPtr->mayDecay(idRes,true);
-    }        
-    
-    // Reset to stable if width <= 0.0
-    if (slhaTable->getWidth() <= 0.0) particleDataPtr->mayDecay(idRes,false);
-    
-    // Mass margin between lowest mass allowed and "average" decay channel.
-    double massMargin = 1.;
-    
-    // Set initial minimum mass.
-    double brWTsum   = 0.;
-    double massWTsum = 0.;
-    
-    // Loop over SLHA channels, import into Pythia, treating channels
-    // with negative branching fractions as having the equivalent positive
-    // branching fraction, but being switched off for this run
-    for (int iChannel=0 ; iChannel<slhaTable->size(); iChannel++) {
-      SusyLesHouches::decayChannel slhaChannel = slhaTable->getChannel(iChannel);
-      double brat      = slhaChannel.getBrat();
-      vector<int> idDa = slhaChannel.getIdDa();
-      if (idDa.size() >= 9) {
-	infoPtr->errorMsg("Error in ProcessLevel::initSLHA: "
-			  "max number of decay products is 8.");
-      } else if (idDa.size() <= 1) {
-	infoPtr->errorMsg("Error in ProcessLevel::initSLHA: "
-			  "min number of decay products is 2.");	  
-      }
-      else {
-	int onMode = 1;
-	if (brat < 0.0) onMode = 0;
-	
-	// Check phase space, including margin
-	double massSum = massMargin;
-	for (int jDa=0; jDa<int(idDa.size()); ++jDa) 
-	  massSum += particleDataPtr->m0( idDa[jDa] ); 
-	if (onMode == 1 && brat > 0.0 && massSum > particleDataPtr->m0(idRes) ) {
-	  // String containing decay name
-	  ostringstream errCode;
-	  errCode << idRes <<" ->";
-	  for (int jDa=0; jDa<int(idDa.size()); ++jDa) errCode<<" "<<idDa[jDa];
-	  infoPtr->errorMsg("Warning in ProcessLevel::initSLHA: "
-	    "switching off decay",  errCode.str() + " (mRes - mDa < massMargin)"
-            "\n       (Note: cross sections will be scaled by remaining"
-	    " open branching fractions!)" , true);
-	  onMode=0;
-	}
-	
-	// Branching-ratio-weighted average mass in decay.
-	brWTsum   += abs(brat);
-	massWTsum += abs(brat) * massSum;
-	
-	// Add channel
-	int id0 = idDa[0];
-	int id1 = idDa[1];
-	int id2 = (idDa.size() >= 3) ? idDa[2] : 0;
-	int id3 = (idDa.size() >= 4) ? idDa[3] : 0;
-	int id4 = (idDa.size() >= 5) ? idDa[4] : 0;
-	int id5 = (idDa.size() >= 6) ? idDa[5] : 0;
-	int id6 = (idDa.size() >= 7) ? idDa[6] : 0;
-	int id7 = (idDa.size() >= 8) ? idDa[7] : 0;
-	particlePtr->addChannel(onMode,abs(brat),101,
-				      id0,id1,id2,id3,id4,id5,id6,id7);
-	
-      }
-    }
-    
-    // Set minimal mass, but always below nominal one.
-    if (slhaTable->size() > 0) {
-      double massAvg = massWTsum / brWTsum;
-      double massMin = min( massAvg, particlePtr->m0()) - massMargin;
-      particlePtr->setMMin(massMin);
-    }
-  }
-  
-  return true;
-  
-}
-
-//--------------------------------------------------------------------------
-
 // Generate the next event with one interaction.
   
 bool ProcessLevel::nextOne( Event& process) {
@@ -990,83 +778,238 @@ void ProcessLevel::combineProcessRecords( Event& process, Event& process2) {
 //--------------------------------------------------------------------------
 
 // Add any junctions to the process event record list.
-// First try, so still incomplete. ?? 
 // Also check that do not doublebook if called repeatedly.
 
 void ProcessLevel::findJunctions( Event& junEvent) {
 
-  // Loop though event; isolate all uncoloured particles.
-  for (int i = 0; i < junEvent.size(); ++i) 
-  if ( junEvent[i].col() == 0 && junEvent[i].acol() == 0) {
-
-    // Find all daughters and store daughter colours and anticolours.
-    vector<int> daughters = junEvent.daughterList(i);
-    // Debug??
-    if (junEvent.size() == 3 && daughters.size() > 0) {
-      cout << " warning: daughtersize = " << daughters.size() << endl;
-      junEvent.list();
-    } 
-    // End debug???
-    vector<int> cols, acols;
-    for (int j = 0; j < int(daughters.size()); ++j) {
-      int colDau  = junEvent[ daughters[j] ].col();
-      int acolDau = junEvent[ daughters[j] ].acol();
-      if (colDau > 0)  cols.push_back( colDau);      
-      if (acolDau > 0) acols.push_back( acolDau);      
+  // Find the total number of unmatched colours & anticolours in the event
+  map<int,int> colMap, acolMap;
+  for (int i = 0; i < junEvent.size(); ++i) {
+    // Consider all external lines (including initial incoming ones)
+    int col  = junEvent[i].col();
+    int acol = junEvent[i].acol();
+    if (junEvent[i].isFinal() || abs(junEvent[i].status()) == 21) {
+      // Cross initial-state colors
+      if (junEvent[i].status() == -21) {
+	col  = junEvent[i].acol();
+	acol = junEvent[i].col();
+      }
+      if (col > 0) {
+	// If unmatched (so far), add end. Else erase matching parton. 
+	if (acolMap.find(col) == acolMap.end() ) colMap[col] = i;
+	else acolMap.erase(col);
+      }
+      if (acol > 0) {
+	// If unmatched (so far), add end. Else erase matching parton. 
+	if (colMap.find(acol) == colMap.end()) acolMap[acol] = i;
+	else colMap.erase(acol);
+      }
     }
-
-    // Remove all matching colour-anticolour pairs.
-    bool foundPair = true;
-    while (foundPair && cols.size() > 0 && acols.size() > 0) {
-      foundPair = false;
-      for (int j = 0; j < int(cols.size()); ++j) {
-        for (int k = 0; k < int(acols.size()); ++k) {
-	  if (acols[k] == cols[j]) { 
-            cols[j]  = cols.back();  
-            cols.pop_back();     
-            acols[k] = acols.back(); 
-            acols.pop_back();     
-            foundPair = true; 
-            break;
-	  }
-	} if (foundPair) break;
+    // For internal particles, check for internal junction lines
+    // by counting total number of triplets at each vertex
+    else if (abs(junEvent[i].status()) == 22) {
+      int cSum = 0;
+      int idRes = junEvent[i].id();
+      // Only consider triplets for the time being, since these are the ones
+      // most likely to cause trouble.
+      // (E.g., internal stop in resonant stop production)
+      if (junEvent[i].colType() != 1) continue;
+      // Decaying particle crossed => triplet <-> antitriplet
+      if (idRes < 0) cSum += (junEvent[i].colType() % 2) ; 
+      else cSum -= (junEvent[i].colType() % 2) ; 
+      int iDau1 = junEvent[i].daughter1();
+      int iDau2 = max(iDau1,junEvent[i].daughter2());
+      for (int iDau=iDau1; iDau<=iDau2; iDau++) {
+	if (junEvent[iDau].id() > 0) cSum += (junEvent[iDau].colType() % 2) ; 
+	else cSum -= (junEvent[iDau].colType() % 2) ; 
       }
-    } 
-
-    // Store an (anti)junction when three (anti)coloured daughters.
-    // But first check that junction not already exists.
-    if (cols.size() == 3 && acols.size() == 0) {
-      bool foundMatch = false;
-      for (int iJun = 0; iJun < junEvent.sizeJunction(); ++iJun) 
-      if (junEvent.kindJunction(iJun) == 1) {
-        int nMatch = 0;
-        for (int j = 0; j < 3; ++j) { 
-          int colNow = junEvent.colJunction(iJun, j); 
-          if (colNow == cols[0] || colNow == cols[1] 
-            || colNow == cols[2]) ++nMatch;
-        } 
-        if (nMatch == 3) foundMatch = true;
+      // Add dangling internal tag if not already present
+      if (cSum != 0) {
+	if (idRes > 0 && acolMap.find(col) == acolMap.end()) acolMap[col]=i;
+	if (idRes < 0 && colMap.find(acol) == colMap.end()) colMap[acol]=i;
       }
-      if (!foundMatch)
-        junEvent.appendJunction( 1, cols[0], cols[1], cols[2]);
     }
-    if (acols.size() == 3 && cols.size() == 0) {
-      bool foundMatch = false;
-      for (int iJun = 0; iJun < junEvent.sizeJunction(); ++iJun) 
-      if (junEvent.kindJunction(iJun) == 2) {
-        int nMatch = 0;
-        for (int j = 0; j < 3; ++j) { 
-          int colNow = junEvent.colJunction(iJun, j); 
-          if (colNow == acols[0] || colNow == acols[1] 
-            || colNow == acols[2]) ++nMatch;
-        } 
-        if (nMatch == 3) foundMatch = true;
-      }
-      if (!foundMatch)
-      junEvent.appendJunction( 2, acols[0], acols[1], acols[2]);
+  }  
+
+  // Number of expected junctions and antijunctions
+  // (Add 2 to account for max 2 junction-antijunction connections)
+  int nJunc     = (colMap.size()+2)/3;
+  int nAntiJunc = (acolMap.size()+2)/3;
+
+  //cout<<" nJunc = "<<nJunc<<" nAntiJunc = "<<nAntiJunc<<endl;
+
+  // If no junctions expected, return without doing anything more
+  if (max(nJunc,nAntiJunc) == 0) return;
+
+  // Junctions expected. Check (and skip) any that have already been added
+  for (int iJun = 0; iJun < junEvent.sizeJunction(); ++iJun) {
+    // Remove the tags corresponding to each of the 3 existing junction legs
+    for (int j = 0; j < 3; ++j) { 
+      int colNow = junEvent.colJunction(iJun, j); 
+      if (junEvent.kindJunction(iJun) % 2 == 1) colMap.erase(colNow);
+      else acolMap.erase(colNow);
     }
   }
 
+  // Update Number of expected junctions and antijunctions
+  nJunc     = (colMap.size()+2)/3;
+  nAntiJunc = (acolMap.size()+2)/3;
+
+  // cout<<" AR nJunc = "<<nJunc<<" nAntiJunc = "<<nAntiJunc<<endl;
+
+  // If no (more) junctions expected, return without doing anything more
+  if (max(nJunc,nAntiJunc) == 0) return;
+  
+  // Loop: first check colors, then anticolors
+  for (int mAcol = 0; mAcol <= 1; mAcol++) { 
+    map<int,int>& cMap = colMap;
+    if (mAcol == 1) cMap = acolMap;
+
+    // Trace colours to find junction vertices and missing lines from 
+    // internal junction-antijunction connections (such connections *must*
+    // be represented by internal lines connecting the junction vertices)
+    for (map<int,int>::iterator it = cMap.begin(); it != cMap.end(); it++) {
+      int col1 = it->first;
+      int i1   = it->second;
+      int i2   = i1;
+      bool goForward = false;
+      // Reverse direction for particles in initial state
+      if ( !junEvent[i1].isFinal() ) goForward = true;
+      // Skip colour tags that have already been associated with a junction
+      bool skipCol = false;
+      for (int iJun = 0; iJun < junEvent.sizeJunction(); ++iJun) {
+	// Only look at other (anti)junctions
+	if (junEvent.kindJunction(iJun) % 2 == mAcol) continue;
+	for (int j = 0; j < 3; ++j) { 
+	  int colNow = junEvent.colJunction(iJun, j); 
+	  if (colNow == col1) skipCol = true;
+	}
+      }
+      if (skipCol) {
+	//cout << "Skipping (a)col : "<<col1<<" at "<<i1<<endl;
+	continue;
+      }     
+      //cout << "Tracing (a)col : "<<col1<<" from "<<i1<<endl;
+      bool search = true;
+      while ( search ) {
+	// Step to mother (or daughter, if doing forward search)
+	if (goForward) {
+	  i1     = i2;
+	  // For now, assume daughter1 always is the one that leads to the 
+	  // hard interaction. Otherwise, may need to search among daughters.
+	  i2     = junEvent[i1].daughter1();
+	} else {
+	  i2     = junEvent[i1].mother2();
+	  i1     = junEvent[i1].mother1();
+	}
+	int iDau1  = junEvent[i1].daughter1(); 
+	int iDau2  = max(iDau1,junEvent[i1].daughter2()); 
+	int barSum = 0;      
+	// If we went all the way back to the beam without finding a violation,
+	// skip and try next
+	if (i1 <= 0 || abs(junEvent[i1].status()) <= 20) search = false;
+	// Check baryon number of vertex, counting incoming
+	// partons with a minus sign
+	else {
+	  //cout << "    at : "<<i1<<" colType = "<<junEvent[i1].colType()<<endl;
+	  if (abs(junEvent[i1].colType()) == 1) barSum -= junEvent[i1].colType();
+	  if (i2 != 0 && abs(junEvent[i2].colType()) == 1 ) 
+	    barSum -= junEvent[i2].colType();
+	  for (int iDau = iDau1; iDau <= iDau2; iDau++)
+	    if ( abs(junEvent[iDau].colType()) == 1 ) 
+	      barSum += junEvent[iDau].colType();
+	}
+	// If still searching, and if B is violated at this vertex => junction
+	// Still needs additional refinement for complicated cases ???
+	if (search && barSum != 0) {	
+	  //cout<<" (anti)junction found at : "<<i1<<endl;
+	  // Find the 3 (anti)colour tags for this junction
+	  // If going forward, now change i2 from daughter to other mother
+	  if (goForward && i2 == iDau1) {
+	    if (junEvent[i2].mother1() == i1) i2 = junEvent[i2].mother2();
+	    else i2 = junEvent[i2].mother1();
+	  }
+	  //cout <<" Checking vertex: i1 = "<<i1<<" i2 = "<<i2<<endl;
+	  // Determine which (anti)color tags go to junction
+	  vector<int> colJu;	
+	  int c1(0), c2(0), cMot1(0), cMot2(0);
+	  // First determine number of incoming lines
+	  if (mAcol == 0) {
+	    // For junctions: look at incoming anticolors
+	    c1 = junEvent[i1].acol();
+	    c2 = 0;
+	    // Also store incoming colors, to check for flow-through later
+	    cMot1  = junEvent[i1].col(); 
+	    if ( i2 != 0 ) {
+	      c2     = junEvent[i2].acol();
+	      cMot2  = junEvent[i1].col(); 
+	      // Remove annihilation-type flows
+	      if (c1 != 0 && junEvent[i2].col() == c1) c1 = 0;
+	      if (c2 != 0 && junEvent[i1].col() == c2) c2 = 0;
+	      // Remove anticolors flowing through diagram
+	      for (int iDau = iDau1; iDau <= iDau2; iDau++) {
+		int acolDau = junEvent[iDau].acol();	
+		if (c1 != 0 && acolDau == c1) c1 = 0;
+		if (c2 != 0 && acolDau == c2) c2 = 0;
+	      }
+	    }
+	  } else {
+	    // For antijunctions: look at incoming colors
+	    c1 = junEvent[i1].col();
+	    c2 = 0;
+	    // Also store incoming anticolors, to check for flow-through later
+	    cMot1  = junEvent[i1].acol();
+	    if ( i2 != 0 ) {
+	      c2    = junEvent[i2].col();
+	      cMot2 = junEvent[i2].acol();
+	      // Remove annihilation-type flows
+	      if (c1 != 0 && junEvent[i2].acol() == c1) c1 = 0;
+	      if (c2 != 0 && junEvent[i1].acol() == c2) c2 = 0;
+	      // Remove colors flowing through diagram
+	      for (int iDau = iDau1; iDau <= iDau2; iDau++) {
+		int colDau = junEvent[iDau].col();	
+		if (c1 != 0 && colDau == c1) c1 = 0;
+		if (c2 != 0 && colDau == c2) c2 = 0;
+	      }
+	    }
+	  }
+	  // Add non-annihilated colors
+	  if (c1 != 0) colJu.push_back(c1);
+	  if (c2 != 0) colJu.push_back(c2);
+	  // Determine junction kind from number of incoming lines
+	  int kindJun = 1 + mAcol + 2*colJu.size();
+	  //cout<<" Junction type : "<<kindJun<<endl;
+	  // Now add daughter color tags to junction
+	  for (int iDau = iDau1; iDau <= iDau2; iDau++) {
+	    c1 = 0;
+	    // For junctions: look at final-state colors, and vice-versa
+	    if (mAcol == 0) c1 = junEvent[iDau].col();
+	    else c1 = junEvent[iDau].acol();
+	    // Remove non-existent and (anti)colors flowing through diagram
+	    if (c1 == 0 || c1 == cMot1 || c1 == cMot2) continue;	      
+	    // Remove final-state matching color-anticolor pairs
+	    bool matchedPair = false;
+	    for (int jDau = iDau1; jDau <= iDau2; jDau++) 
+	      if (mAcol==0 && c1 == junEvent[jDau].acol()) matchedPair = true;
+	      else if (mAcol==1 && c1 == junEvent[jDau].col()) matchedPair = true;
+	    if (matchedPair) continue;
+	    // Else add anticolor to junction ends
+	    else colJu.push_back(c1);
+	  }
+	  if (colJu.size() != 3) {
+	    cout<< " (ProcessLevel::findJunctions:) problem identifying junction "<<endl;
+	    search = false;
+	  } else {
+	    //cout<< " adding junction type "
+	    //     <<kindJun<<" "<<colJu[0]<<" "<<colJu[1]<<" "<<colJu[2]<<endl;
+	    junEvent.appendJunction( kindJun, colJu[0], colJu[1], colJu[2]);   
+	    search = false;
+	  }
+	}
+      }
+    }
+  }
+ 
   // Done.
 }
 
@@ -1115,21 +1058,23 @@ bool ProcessLevel::checkColours( Event& process) {
   }
 
   // Remove (anti)colours coming from an (anti)junction.
-  // Temporary solution; only relevant for some cases??
-  for (int iJun = 0; iJun < process.sizeJunction(); ++iJun)  
-  if ( process.kindJunction(iJun) == 1 
-    || process.kindJunction(iJun) == 2) {
+
+  //cout<<" Removing junction tags in:"<<endl;
+  //process.list();
+  //cout<<"   Size of junctions "<<process.sizeJunction()<<endl;
+
+  for (int iJun = 0; iJun < process.sizeJunction(); ++iJun) {    
     for (int j = 0; j < 3; ++j) { 
       int colJun = process.colJunction(iJun, j);
       for (int ic = 0; ic < int(colTags.size()) ; ++ic)
-      if (colJun == colTags[ic]) {
-        colTags[ic] = colTags[colTags.size() - 1]; 
-        colTags.pop_back();
-        break;
-      } 
+	if (colJun == colTags[ic]) {
+	  colTags[ic] = colTags[colTags.size() - 1]; 
+	  colTags.pop_back();
+	  break;
+	} 
     }
   }
-
+  
   // Loop through all colour tags and find their positions (by sign). 
   for (int ic = 0; ic < int(colTags.size()); ++ic) {
     col = colTags[ic];
@@ -1177,8 +1122,10 @@ bool ProcessLevel::checkColours( Event& process) {
       iNowA = acolPos[0];
       if ( process[iNow].status() == -21 &&  process[iNowA].status() == -21 );
       else if ( (process[iNow].mother1() != process[iNowA].mother1()) 
-             || (process[iNow].mother2() != process[iNowA].mother2()) ) 
-             physical = false;
+		|| (process[iNow].mother2() != process[iNowA].mother2()) ) {
+	cout<<" Argh!"<<endl;
+	physical = false;
+      }
     }
 
   }

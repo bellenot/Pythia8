@@ -26,7 +26,7 @@ class Sigma2qqbar2chi0chi0 : public Sigma2Process {
 public:
 
   // Constructor.
-  Sigma2qqbar2chi0chi0() { };
+  Sigma2qqbar2chi0chi0() {};
 
   // Constructor.
   Sigma2qqbar2chi0chi0(int id3chiIn, int id4chiIn, int codeIn) { 
@@ -35,6 +35,7 @@ public:
     id3chi   = id3chiIn; 
     id4chi   = id4chiIn; 
     codeSave = codeIn; 
+
 
     // Construct id codes from ordering indices.
     id3                  = 1000022; 
@@ -47,7 +48,7 @@ public:
     if (id4chi == 3) id4 = 1000025; 
     if (id4chi == 4) id4 = 1000035; 
     if (id4chi == 5) id4 = 1000045; 
-    
+
   }
 
   // Initialize process. 
@@ -81,6 +82,8 @@ public:
   double  sigma0, ui, uj, ti, tj, openFracPair;
   complex propZ;
 
+  CoupSUSY* coupSUSYPtr;
+
 };
 
 //==========================================================================
@@ -108,7 +111,7 @@ public:
     if (id4chi == 3) id4 = 1000025; 
     if (id4chi == 4) id4 = 1000035; 
     if (id4chi == 5) id4 = 1000045; 
-    
+
   }
 
   // Calculate flavour-independent parts of cross section.
@@ -186,7 +189,7 @@ public:
     if (id4sq  == 4) id4 = 2000001 + (isUp ? 1 : 0); 
     if (id4sq  == 5) id4 = 2000003 + (isUp ? 1 : 0); 
     if (id4sq  == 6) id4 = 2000005 + (isUp ? 1 : 0); 
-    
+
   }
 
   // Initialize process. 
@@ -217,6 +220,9 @@ public:
 
   // Values stored for later use
   double  sigma0, ui, uj, ti, tj, openFracPair;
+
+  //SUSY couplings
+  CoupSUSY* coupSUSYPtr;
 
 };
 
@@ -334,6 +340,8 @@ private:
   vector<double> tNeut, uNeut, tChar, uChar;
   double sumCt, sumCu, sumNt, sumNu, sumGt, sumGu, sumInterference;
 
+  //SUSY couplings
+  CoupSUSY* coupSUSYPtr;
 };
 
 //==========================================================================
@@ -403,6 +411,9 @@ private:
   complex propZW; 
   double sumColS, sumColT, sumColSCC, sumColTCC, sumInterference;
 
+  //SUSY couplings
+  CoupSUSY* coupSUSYPtr;
+
 };
 
 //==========================================================================
@@ -414,7 +425,8 @@ class Sigma2gg2squarkantisquark : public Sigma2Process {
 public:
 
   // Constructor.
-  Sigma2gg2squarkantisquark() {}
+  Sigma2gg2squarkantisquark() {
+  }
 
   // Constructor.
   Sigma2gg2squarkantisquark(int id34In, int codeIn) { 
@@ -459,6 +471,9 @@ private:
 
   // Color flow info
   double sumColT, sumColU, sumInterference;
+
+  //SUSY couplings
+  CoupSUSY* coupSUSYPtr;
 
 };
 
@@ -510,7 +525,10 @@ private:
   // Basic process information
   int     id3Sav, codeSave;
   string  nameSave;
-  double sigmaA, sigmaB, comFac, m2Glu, m2Sq, openFracPair;
+  double sigmaA, sigmaB, comFacHat, m2Glu, m2Sq, openFracPair;
+
+  //SUSY couplings
+  CoupSUSY* coupSUSYPtr;
 
 };
 
@@ -523,7 +541,8 @@ class Sigma2gg2gluinogluino : public Sigma2Process {
 public:
 
   // Constructor.
-  Sigma2gg2gluinogluino() {}
+  Sigma2gg2gluinogluino() {
+  }
 
   // Initialize process. 
   virtual void initProc(); 
@@ -550,6 +569,9 @@ private:
   // Values stored for process type and colour flow selection.
   double sigTS, sigUS, sigTU, sigSum, sigma, openFracPair;
 
+  //SUSY couplings
+  CoupSUSY* coupSUSYPtr;
+
 };
 
 //==========================================================================
@@ -561,7 +583,9 @@ class Sigma2qqbar2gluinogluino : public Sigma2Process {
 public:
 
   // Constructor.
-  Sigma2qqbar2gluinogluino() {}
+  Sigma2qqbar2gluinogluino() {
+
+}
 
   // Initialize process. 
   virtual void initProc(); 
@@ -588,11 +612,67 @@ private:
   // Values stored for process type and colour flow selection.
   double openFracPair, s34Avg, sigS, tHG, uHG, tHG2, uHG2;
 
+  //SUSY couplings
+  CoupSUSY* coupSUSYPtr;
+
 };
 
 //==========================================================================
 
+class Sigma1qq2antisquark : public Sigma1Process {
+public:
+
+  // Constructor.
+  Sigma1qq2antisquark() {}
+  
+
+  Sigma1qq2antisquark(int id3In) {
+
+    idRes = id3In;
+
+  }
+
+  // Initialize process. 
+  virtual void initProc(); 
+
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
+
+  // Evaluate d(sigmaHat)/d(tHat).  
+  virtual double sigmaHat();
+
+  // Select flavour, colour and anticolour.
+  virtual void setIdColAcol();
+
+  // Info on the subprocess.
+  virtual string name()    const {return nameSave;}
+  virtual int    code()    const {return codeSave;} 
+  virtual string inFlux()  const {return "qq";}
+  virtual bool   isSUSY()  const {return true;}  
+  virtual bool   isRPV()   const {return true;}
+  virtual int    resonanceA() const {return idRes;}
+
+private:
+
+  // Values stored for process type and colour flow selection.
+  double mRes, GammaRes, m2Res, GamMRat, sigBW, widthOut;
+  int    squarkType, codeSave, idRes;
+  string nameSave;
+
+  //SUSY couplings
+  CoupSUSY* coupSUSYPtr;
+
+};
+
+
+//==========================================================================
 } // end namespace Pythia8
+
+
+
+
+
+
 
 #endif // Pythia8_SigmaSUSY_H
 

@@ -8,19 +8,22 @@ Main:numberToList = 2              ! number of events to print
 Main:timesToShow = 20              ! show how far along run is
 Main:showChangedSettings = on      ! print changed flags/modes/parameters
 Main:showAllSettings = off         ! print all flags/modes/parameters
-#Main:showChangedParticleData = on  ! print changed particle and decay data
-#Main:showAllParticleData = on      ! print all particle and decay data
+Main:showChangedParticleData = off  ! print changed particle and decay data
+#Main:showAllParticleData = off      ! print all particle and decay data
 
 ! 2) Beam parameter settings. Values below agree with default ones.
 Beams:idA = 2212                   ! first beam, p = 2212, pbar = -2212
 Beams:idB = 2212                   ! second beam, p = 2212, pbar = -2212
 Beams:eCM = 14000.                 ! CM energy of collision
 
-! 3) Settings for SUSY and the hard-process generation
-SLHA:file = sps1a.spc    
-#SUSY:all = on                      ! Switches on ALL (~400) SUSY processes
-SUSY:gg2gluinogluino  = on      
-SUSY:qqbar2gluinogluino  = on
+! 3) Read SLHA spectrum, with or without DECAY tables
+SLHA:file = sps1a.spc       
+#SLHA:file = sps1aWithDecays.spc      
+
+! 4) Process selection 
+SUSY:all = on                      ! Switches on ALL (~400) SUSY processes
+#SUSY:gg2gluinogluino  = on      
+#SUSY:qqbar2gluinogluino  = on
 #SUSY:qg2squarkgluino = on
 #SUSY:gg2squarkantisquark = on
 #SUSY:qqbar2squarkantisquark = on
@@ -28,18 +31,14 @@ SUSY:qqbar2gluinogluino  = on
 #SUSY:qqbar2chi0chi0  = on
 #SUSY:qqbar2chi+-chi0 = on
 #SUSY:qqbar2chi+chi-  = on
-#SUSY:qg2chi0squark  = on
+#SUSY:qg2chi0squark = on
 #SUSY:qg2chi+-squark  = on
 ! Optionally select only specific sparticle codes in the final state
-#SUSY:idA        = 1000006           ! 0: all
-#SUSY:idB        = 1000006           ! 0: all
+#SUSY:idA        = 2000001           ! 0: all
+#SUSY:idB        = 2000001           ! 0: all
 
-! 4) Settings for the event generation process in the Pythia8 library.
+! 5) Settings for the event generation process in the Pythia8 library.
 PartonLevel:MI = off               ! no multiple interactions
 PartonLevel:ISR = off              ! no initial-state radiation 
 PartonLevel:FSR = off              ! no final-state radiation
 HadronLevel:Hadronize = off        ! no hadronization
-
-! 5) Non-standard settings; exemplifies tuning possibilities.
-#SpaceShower:pT0Ref = 2.0           ! dampening of pT -> 0 divergence
-#MultipleInteractions:pT0Ref = 3.0  ! dampening of pT -> 0 divergence

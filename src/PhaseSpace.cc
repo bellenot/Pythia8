@@ -85,7 +85,7 @@ const double PhaseSpace::WTCORRECTION[11] = { 1., 1., 1.,
 void PhaseSpace::init(bool isFirst, SigmaProcess* sigmaProcessPtrIn, 
   Info* infoPtrIn, Settings* settingsPtrIn, ParticleData* particleDataPtrIn, 
   Rndm* rndmPtrIn, BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, 
-  CoupSM* coupSMPtrIn, SigmaTotal* sigmaTotPtrIn, UserHooks* userHooksPtrIn) {
+  Couplings* couplingsPtrIn, SigmaTotal* sigmaTotPtrIn, UserHooks* userHooksPtrIn) {
 
   // Store input pointers for future use.
   sigmaProcessPtr = sigmaProcessPtrIn;
@@ -95,7 +95,7 @@ void PhaseSpace::init(bool isFirst, SigmaProcess* sigmaProcessPtrIn,
   rndmPtr         = rndmPtrIn;
   beamAPtr        = beamAPtrIn;
   beamBPtr        = beamBPtrIn;
-  coupSMPtr       = coupSMPtrIn;
+  couplingsPtr    = couplingsPtrIn;
   sigmaTotPtr     = sigmaTotPtrIn;
   userHooksPtr    = userHooksPtrIn;
 
@@ -464,8 +464,10 @@ void PhaseSpace::setup3Body() {
   // Check for massive t-channel propagator particles.
   int idTchan1    = abs( sigmaProcessPtr->idTchan1() ); 
   int idTchan2    = abs( sigmaProcessPtr->idTchan2() ); 
-  mTchan1         = (idTchan1 == 0) ? 0. : particleDataPtr->m0(idTchan1);
-  mTchan2         = (idTchan2 == 0) ? 0. : particleDataPtr->m0(idTchan2);
+  mTchan1         = (idTchan1 == 0) ? pTHatMinDiverge 
+                                    : particleDataPtr->m0(idTchan1);
+  mTchan2         = (idTchan2 == 0) ? pTHatMinDiverge 
+                                    : particleDataPtr->m0(idTchan2);
   sTchan1         = mTchan1 * mTchan1; 
   sTchan2         = mTchan2 * mTchan2; 
 
@@ -2295,7 +2297,7 @@ bool PhaseSpace2to2elastic::trialKin( bool, bool ) {
     if (useCoulomb) {
       double sigmaN   = CONVERTEL * pow2(sigmaTot) * (1. + rho*rho) 
                       * exp(bSlope * tH);
-      double alpEM    = coupSMPtr->alphaEM(-tH);
+      double alpEM    = couplingsPtr->alphaEM(-tH);
       double sigmaC   = pow2(alpEM) / (4. * CONVERTEL * tH*tH);
       double sigmaGen = 2. * (sigmaN + sigmaC);
       double form2    = pow4(lambda/(lambda - tH));

@@ -27,7 +27,7 @@ void Sigma1ffbar2ZRight::initProc() {
   GammaRes = particleDataPtr->mWidth(idZR);
   m2Res    = mRes*mRes;
   GamMRat  = GammaRes / mRes;
-  sin2tW   = coupSMPtr->sin2thetaW();
+  sin2tW   = couplingsPtr->sin2thetaW();
 
   // Set pointer to particle properties and decay table.
   ZRPtr    = particleDataPtr->particleDataEntryPtr(idZR);
@@ -175,7 +175,7 @@ void Sigma1ffbar2WRight::initProc() {
   GammaRes = particleDataPtr->mWidth(idWR);
   m2Res    = mRes*mRes;
   GamMRat  = GammaRes / mRes;
-  thetaWRat = 1. / (12. * coupSMPtr->sin2thetaW());
+  thetaWRat = 1. / (12. * couplingsPtr->sin2thetaW());
 
   // Set pointer to particle properties and decay table.
   particlePtr = particleDataPtr->particleDataEntryPtr(idWR);
@@ -216,7 +216,7 @@ void Sigma1ffbar2WRight::sigmaKin() {
 
       // Combine kinematics with colour factor and CKM couplings.
       widNow = kinFac;
-      if (id1Abs < 9) widNow *= colQ * coupSMPtr->V2CKMid(id1Abs, id2Abs);
+      if (id1Abs < 9) widNow *= colQ * couplingsPtr->V2CKMid(id1Abs, id2Abs);
  
       // Secondary width from top and righthanded neutrino decay.
       id1Neg    = (id1Abs < 19) ? -id1Now : id1Abs; 
@@ -250,7 +250,7 @@ double Sigma1ffbar2WRight::sigmaHat() {
   // Secondary width for W_R^+ or W_R^-. CKM and colour factors.
   int idUp = (abs(id1)%2 == 0) ? id1 : id2;
   double sigma = (idUp > 0) ? sigma0Pos : sigma0Neg;
-  if (abs(id1) < 9) sigma *= coupSMPtr->V2CKMid(abs(id1), abs(id2)) / 3.;
+  if (abs(id1) < 9) sigma *= couplingsPtr->V2CKMid(abs(id1), abs(id2)) / 3.;
 
   // Answer.
   return sigma;    
@@ -615,7 +615,7 @@ double Sigma3ff2HchgchgfftWW::sigmaHat() {
 
   // Basic cross section. CKM factors for final states.
   double sigma = (id2 == id1 && id1Abs > 10) ? sigma0TU : sigma0T;
-  sigma       *= coupSMPtr->V2CKMsum(id1Abs) * coupSMPtr->V2CKMsum(id2Abs);
+  sigma       *= couplingsPtr->V2CKMsum(id1Abs) * couplingsPtr->V2CKMsum(id2Abs);
 
   // Secondary width for H0.
   sigma       *= (chg1 + chg2 == 2) ? openFracPos : openFracNeg;
@@ -638,8 +638,8 @@ void Sigma3ff2HchgchgfftWW::setIdColAcol() {
   // Pick out-flavours by relative CKM weights.
   int id1Abs   = abs(id1);
   int id2Abs   = abs(id2);
-  id4          = coupSMPtr->V2CKMpick(id1);
-  id5          = coupSMPtr->V2CKMpick(id2);
+  id4          = couplingsPtr->V2CKMpick(id1);
+  id5          = couplingsPtr->V2CKMpick(id2);
 
   // Find charge of Higgs .
   id3 = (( id1Abs%2 == 0 && id1 > 0) || (id1Abs%2 == 1 && id1 < 0) ) 
@@ -713,7 +713,7 @@ void Sigma2ffbar2HchgchgHchgchg::initProc() {
   GammaRes     = particleDataPtr->mWidth(23);
   m2Res        = mRes*mRes;
   GamMRat      = GammaRes / mRes;
-  sin2tW       = coupSMPtr->sin2thetaW();
+  sin2tW       = couplingsPtr->sin2thetaW();
   preFac       = (1. - 2. * sin2tW) / ( 8. * sin2tW * (1. - sin2tW) );
 
   // Open fraction from secondary widths.
@@ -729,9 +729,9 @@ double Sigma2ffbar2HchgchgHchgchg::sigmaHat() {
 
   // Electroweak couplings to gamma^*/Z^0.
   int    idAbs   = abs(id1);
-  double ei      = coupSMPtr->ef(idAbs);
-  double vi      = coupSMPtr->vf(idAbs); 
-  double ai      = coupSMPtr->af(idAbs); 
+  double ei      = couplingsPtr->ef(idAbs);
+  double vi      = couplingsPtr->vf(idAbs); 
+  double ai      = couplingsPtr->af(idAbs); 
 
   // Part via gamma^*/Z^0 propagator.No Z^0 coupling to H_R.
   double resProp = 1. / ( pow2(sH - m2Res) + pow2(sH * GamMRat) );

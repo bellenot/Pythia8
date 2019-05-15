@@ -6,10 +6,11 @@ The starting point for the multiple interactions physics scenario in
 PYTHIA is provided by <ref>Sjo87</ref>. Recent developments have 
 included a more careful study of flavour and colour correlations, 
 junction topologies and the relationship to beam remnants 
-<ref>Sjo04</ref>, and interleaving with initial-state radiation 
+<ref>Sjo04</ref>, interleaving with initial-state radiation 
 <ref>Sjo05</ref>, making use of transverse-momentum-ordered
-initial- and final-state showers. Currently a framework to handle
-rescattering is under development.
+initial- and final-state showers, with the extension to fully 
+interleaved evolution covered in <ref>Cor10a</ref>. A framework to 
+handle rescattering is described in <ref>Cor09</ref>.
 
 <p/>
 A big unsolved issue is how the colour of all these subsystems is 

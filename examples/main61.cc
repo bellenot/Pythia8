@@ -173,8 +173,8 @@ int main() {
       firstEvent = false;
     }
 
-    // Extract inclusive jets sorted by pT
-    inclusiveJets = clustSeq.inclusive_jets();
+    // Extract inclusive jets sorted by pT (note minimum pT of 20.0 GeV)
+    inclusiveJets = clustSeq.inclusive_jets(20.0);
     sortedJets    = sorted_by_pt(inclusiveJets);  
 
     // Missing ET cut
@@ -194,15 +194,11 @@ int main() {
                               pythia.event[idxElec].e());
  
     for (unsigned int i = 0; i < sortedJets.size(); i++) {
-      // Only count jets that have ET > 20.0 and |eta| < 2.0
-      if (sortedJets[i].perp()      < 20.0) break;
-      if (fabs(sortedJets[i].rap()) > 2.0)  continue;
-
-      // Check deltaR between W decay electron and jets
-      double deltaPhi = fjElec.phi() - sortedJets[i].phi();
-      double deltaEta = fjElec.eta() - sortedJets[i].eta();
-      double deltaR = sqrt(deltaPhi * deltaPhi + deltaEta * deltaEta);
-      if (deltaR < 0.52) { vetoEvent = true; break; }
+      // Only count jets that have |eta| < 2.0
+      if (fabs(sortedJets[i].rap()) > 2.0) continue;
+      // Check distance between W decay electron and jets
+      if (fjElec.squared_distance(sortedJets[i]) < 0.52 * 0.52)
+        { vetoEvent = true; break; }
 
       // Fill dSigma histograms and count jets with ET > 25.0
       if (sortedJets[i].perp() > 25.0)

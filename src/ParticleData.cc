@@ -8,6 +8,7 @@
 
 #include "ParticleData.h"
 #include "StandardModel.h"
+#include "SusyResonanceWidths.h"
 
 // Allow string and character manipulation.
 #include <cctype>
@@ -447,9 +448,9 @@ void ParticleDataEntry::setResonancePtr(
 }
 
 void ParticleDataEntry::resInit(Info* infoPtrIn, Settings* settingsPtrIn, 
-  ParticleData* particleDataPtrIn, CoupSM* coupSMPtrIn) {
+  ParticleData* particleDataPtrIn, Couplings* couplingsPtrIn) {
   if (resonancePtr != 0) resonancePtr->init(infoPtrIn, settingsPtrIn, 
-  particleDataPtrIn, coupSMPtrIn);
+  particleDataPtrIn, couplingsPtrIn);
 }  
 
 double ParticleDataEntry::resWidth(int idSgn, double mHat, int idIn, 
@@ -623,6 +624,37 @@ void ParticleData::initWidths( vector<ResonanceWidths*> resonancePtrs) {
   // A leptoquark.
   resonancePtr = new ResonanceLeptoquark(42);
   setResonancePtr( 42, resonancePtr);
+
+  // Supersymmetry
+  //  - Squarks
+  for(int i = 1; i < 7; i++){
+    resonancePtr = new ResonanceSquark(1000000 + i);
+    setResonancePtr( 1000000 + i, resonancePtr);
+    resonancePtr = new ResonanceSquark(2000000 + i);
+    setResonancePtr( 2000000 + i, resonancePtr);
+  }
+
+  // - Gluino
+  resonancePtr = new ResonanceGluino(1000021);
+  setResonancePtr( 1000021, resonancePtr);
+
+  // - Charginos
+  resonancePtr = new ResonanceChar(1000024);
+  setResonancePtr( 1000024, resonancePtr);
+  resonancePtr = new ResonanceChar(1000037);
+  setResonancePtr( 1000037, resonancePtr);
+
+  // - Neutralinos
+  resonancePtr = new ResonanceNeut(1000022);
+  setResonancePtr( 1000022, resonancePtr);
+  resonancePtr = new ResonanceNeut(1000023);
+  setResonancePtr( 1000023, resonancePtr);
+  resonancePtr = new ResonanceNeut(1000025);
+  setResonancePtr( 1000025, resonancePtr);
+  resonancePtr = new ResonanceNeut(1000035);
+  setResonancePtr( 1000035, resonancePtr);
+  resonancePtr = new ResonanceNeut(1000045);
+  setResonancePtr( 1000045, resonancePtr);
 
   // Excited quarks and leptons.
   for (int i = 1; i < 7; ++i) {

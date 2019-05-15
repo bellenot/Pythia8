@@ -4114,19 +4114,43 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="SettingsScheme.php#method12" target="page">Settings::flag(...)</a></td>
+<td><a href="SettingsScheme.php#method13" target="page">Settings::flag(...)</a></td>
 <td>Settings Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="SettingsScheme.php#method13" target="page">Settings::forceMode(...)</a></td>
+<td><a href="SettingsScheme.php#method14" target="page">Settings::forceMode(...)</a></td>
 <td>Settings Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="SettingsScheme.php#method13" target="page">Settings::forceParm(...)</a></td>
+<td><a href="SettingsScheme.php#method14" target="page">Settings::forceParm(...)</a></td>
+<td>Settings Scheme</td>
+</tr>
+
+<tr>
+<td>map<string, Flag></td>
+<td><a href="SettingsScheme.php#method12" target="page">Settings::getFlagMap(...)</a></td>
+<td>Settings Scheme</td>
+</tr>
+
+<tr>
+<td>map<string, Mode></td>
+<td><a href="SettingsScheme.php#method12" target="page">Settings::getModeMap(...)</a></td>
+<td>Settings Scheme</td>
+</tr>
+
+<tr>
+<td>map<string, Parm></td>
+<td><a href="SettingsScheme.php#method12" target="page">Settings::getParmMap(...)</a></td>
+<td>Settings Scheme</td>
+</tr>
+
+<tr>
+<td>map<string, Word></td>
+<td><a href="SettingsScheme.php#method12" target="page">Settings::getWordMap(...)</a></td>
 <td>Settings Scheme</td>
 </tr>
 
@@ -4192,7 +4216,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="SettingsScheme.php#method12" target="page">Settings::mode(...)</a></td>
+<td><a href="SettingsScheme.php#method13" target="page">Settings::mode(...)</a></td>
 <td>Settings Scheme</td>
 </tr>
 
@@ -4204,7 +4228,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="SettingsScheme.php#method12" target="page">Settings::parm(...)</a></td>
+<td><a href="SettingsScheme.php#method13" target="page">Settings::parm(...)</a></td>
 <td>Settings Scheme</td>
 </tr>
 
@@ -4228,25 +4252,25 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="SettingsScheme.php#method14" target="page">Settings::resetFlag(...)</a></td>
+<td><a href="SettingsScheme.php#method15" target="page">Settings::resetFlag(...)</a></td>
 <td>Settings Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="SettingsScheme.php#method14" target="page">Settings::resetMode(...)</a></td>
+<td><a href="SettingsScheme.php#method15" target="page">Settings::resetMode(...)</a></td>
 <td>Settings Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="SettingsScheme.php#method14" target="page">Settings::resetParm(...)</a></td>
+<td><a href="SettingsScheme.php#method15" target="page">Settings::resetParm(...)</a></td>
 <td>Settings Scheme</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="SettingsScheme.php#method14" target="page">Settings::resetWord(...)</a></td>
+<td><a href="SettingsScheme.php#method15" target="page">Settings::resetWord(...)</a></td>
 <td>Settings Scheme</td>
 </tr>
 
@@ -4264,7 +4288,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="SettingsScheme.php#method12" target="page">Settings::word(...)</a></td>
+<td><a href="SettingsScheme.php#method13" target="page">Settings::word(...)</a></td>
 <td>Settings Scheme</td>
 </tr>
 
@@ -4300,7 +4324,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>int</td>
-<td><a href="SemiInternalProcesses.php#method20" target="page">SigmaProcess::gmZmode()</a></td>
+<td><a href="SemiInternalProcesses.php#method21" target="page">SigmaProcess::gmZmode()</a></td>
 <td>Semi Internal Processes</td>
 </tr>
 
@@ -4330,13 +4354,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>int</td>
-<td><a href="SemiInternalProcesses.php#method17" target="page">SigmaProcess::idTchan1()</a></td>
+<td><a href="SemiInternalProcesses.php#method18" target="page">SigmaProcess::idTchan1()</a></td>
 <td>Semi Internal Processes</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="SemiInternalProcesses.php#method17" target="page">SigmaProcess::idTchan2()</a></td>
+<td><a href="SemiInternalProcesses.php#method18" target="page">SigmaProcess::idTchan2()</a></td>
 <td>Semi Internal Processes</td>
 </tr>
 
@@ -4349,6 +4373,12 @@ Many of them are only intended for experts, while undocumented ones are only for
 <tr>
 <td>void</td>
 <td><a href="SemiInternalProcesses.php#method1" target="page">SigmaProcess::initProc()</a></td>
+<td>Semi Internal Processes</td>
+</tr>
+
+<tr>
+<td>int</td>
+<td><a href="SemiInternalProcesses.php#method17" target="page">SigmaProcess::isQCD3body()</a></td>
 <td>Semi Internal Processes</td>
 </tr>
 
@@ -4402,19 +4432,19 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="SemiInternalProcesses.php#method18" target="page">SigmaProcess::tChanFracPow1()</a></td>
+<td><a href="SemiInternalProcesses.php#method19" target="page">SigmaProcess::tChanFracPow1()</a></td>
 <td>Semi Internal Processes</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="SemiInternalProcesses.php#method18" target="page">SigmaProcess::tChanFracPow2()</a></td>
+<td><a href="SemiInternalProcesses.php#method19" target="page">SigmaProcess::tChanFracPow2()</a></td>
 <td>Semi Internal Processes</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="SemiInternalProcesses.php#method19" target="page">SigmaProcess::useMirrorWeight()</a></td>
+<td><a href="SemiInternalProcesses.php#method20" target="page">SigmaProcess::useMirrorWeight()</a></td>
 <td>Semi Internal Processes</td>
 </tr>
 
@@ -4528,7 +4558,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>Vec4</td>
-<td><a href="EventAnalysis.php#method6" target="page">Sphericity::EventAxis(...)</a></td>
+<td><a href="EventAnalysis.php#method6" target="page">Sphericity::eventAxis(...)</a></td>
 <td>Event Analysis</td>
 </tr>
 

@@ -78,6 +78,12 @@ namespace HepMC {
                           m_mom_scale_factor*pyev[i].p().e()  ),
         pyev[i].id(), istatus                );
       hepevt_particles[i]->suggest_barcode(i);
+      // colour flow uses index 1 and 2
+      int colType = pyev[i].colType();
+      if (colType ==  1 || colType == 2)
+        hepevt_particles[i]->set_flow(1, pyev[i].col());
+      if (colType == -1 || colType == 2)
+        hepevt_particles[i]->set_flow(2, pyev[i].acol());
     }
 
     //

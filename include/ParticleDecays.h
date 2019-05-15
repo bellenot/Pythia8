@@ -55,8 +55,9 @@ public:
   // Initialize: store pointers and find settings
   void init(Info* infoPtrIn, Settings& settings, 
     ParticleData* particleDataPtrIn, Rndm* rndmPtrIn, 
-    TimeShower* timesDecPtrIn, StringFlav* flavSelPtrIn, 
-    DecayHandler* decayHandlePtrIn, vector<int> handledParticles); 
+    Couplings* couplingsPtrIn, TimeShower* timesDecPtrIn, 
+    StringFlav* flavSelPtrIn, DecayHandler* decayHandlePtrIn, 
+    vector<int> handledParticles); 
  
   // Perform a decay of a single particle.
   bool decay(int iDec, Event& event); 
@@ -78,6 +79,9 @@ private:
 
   // Pointer to the random number generator.
   Rndm*         rndmPtr;
+
+  // Pointers to Standard Model couplings.
+  Couplings*    couplingsPtr;
 
   // Pointers to timelike showers, for decays to partons (e.g. Upsilon).
   TimeShower*   timesDecPtr;

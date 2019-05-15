@@ -166,7 +166,13 @@ public:
   int    mode(string keyIn);
   double parm(string keyIn);
   string word(string keyIn); 
-  
+    
+  // Give back a map of all entries whose names match the string "match".
+  map<string, Flag> getFlagMap(string match);
+  map<string, Mode> getModeMap(string match);
+  map<string, Parm> getParmMap(string match);
+  map<string, Word> getWordMap(string match);
+
   // Change current value, respecting limits.
   void flag(string keyIn, bool nowIn); 
   void mode(string keyIn, int nowIn);

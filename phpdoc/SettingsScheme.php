@@ -422,6 +422,18 @@ is returned, respectively.
   
 
 <a name="method12"></a>
+<p/><strong>map<string, Flag> Settings::getFlagMap(string match) &nbsp;</strong> <br/>
+  
+<strong>map<string, Mode> Settings::getModeMap(string match) &nbsp;</strong> <br/>
+  
+<strong>map<string, Parm> Settings::getParmMap(string match) &nbsp;</strong> <br/>
+  
+<strong>map<string, Word> Settings::getWordMap(string match) &nbsp;</strong> <br/>
+return a map of all settings of the respective type that contain the 
+string "match" in its name.
+  
+
+<a name="method13"></a>
 <p/><strong>void Settings::flag(string key, bool now) &nbsp;</strong> <br/>
   
 <strong>void Settings::mode(string key, int now) &nbsp;</strong> <br/>
@@ -435,7 +447,7 @@ outside the allowed range are reinterpreted as being a the nearest
 limit.
   
 
-<a name="method13"></a>
+<a name="method14"></a>
 <p/><strong>void Settings::forceMode(string key, int now) &nbsp;</strong> <br/>
   
 <strong>void Settings::forceParm(string key, double now) &nbsp;</strong> <br/>
@@ -443,7 +455,7 @@ as above, but do not check lower and upper limits, so that the current
 value can be put outside the intended borders.
   
 
-<a name="method14"></a>
+<a name="method15"></a>
 <p/><strong>void Settings::resetFlag(string key) &nbsp;</strong> <br/>
   
 <strong>void Settings::resetMode(string key) &nbsp;</strong> <br/>

@@ -46,25 +46,25 @@ version 8.127.
 It was noted, in particular by Hendrik Hoeth, that the
 program had a tension between parameters needed to describe minimum-bias
 and underlying-event activity.  Therefore some further physics features 
-have been introduced in the code itself, which are made default as of
-8.140. This version also includes two new draft tunes, 2C and 2M, based 
-on the CTEQ 6L1 and the MRST LO** PDF sets, respectively. These have been 
-made by hand, as a prequel to complete Professor-style tunings. 
+have been introduced in the code itself <ref>Cor10a</ref>, which are made 
+default as of 8.140. This version also includes two new tunes, 2C and 2M, 
+based on the CTEQ 6L1 and the MRST LO** PDF sets, respectively. These have 
+been made by hand, as a prequel to complete Professor-style tunings. 
 
 <p/>
 The very first data to come out of the LHC shows a higher rapidity plateau
 than predicted for current PYTHIA 6 tunes, also for the lower energies.
-This may suggest some tension in the data. Therefore two alternatives,
-3C and 3M, have been produced by a few brute-force changes of 2C and 2M.
-This includes a reduced admixture of diffractive topologies 
-(21% diffractive of the inelastic cross section at 7 TeV in 3C and 3M,
-vs. 32% in 2C and 2M) and a steeper multiplicity variation with energy.
+This may suggest some tension in the data. Two alternatives, 3C and 3M, 
+were produced by a few brute-force changes of 2C and 2M. These were introduced
+in 8.140, but discontinued in 8.145 in favour of the new 4C tune, that 
+is based on a more serious study of some early LHC data. 
 
 <p/>
-Some comparisons between these tunes and data, obtained with the 
-Rivet package, have been posted on
+Some comparisons between these tunes and data are published in 
+<ref>Cor10a</ref>, and further comparisons have been posted on
 <a href="http://home.thep.lu.se/~richard/pythia81/">   
 http://home.thep.lu.se/~richard/pythia81/</a>.
+Most of the plots have been produced with the Rivet package <ref>Buc10</ref>.
 
 <p/>
 In the future we hope to see further PYTHIA 8 tunes appear. Like with 
@@ -138,10 +138,11 @@ option.
 </option>
 </modepick>
 
-<modepick name="Tune:pp" default="0" min="0" max="6">
+<modepick name="Tune:pp" default="0" min="0" max="5">
 Choice of tune to <ei>pp / ppbar</ei> data, mainly for the 
 initial-state-radiation, multiple-interactions and  beam-remnants
-aspects of PYTHIA. 
+aspects of PYTHIA. Note that the previous crude (non-)tunes
+3C and 3M are removed as of 8.145, superseded by the 4C tune.
 <option value="0">no values are overwritten at initialization, 
 so you can set the individual parameters as you wish. Most default
 values are based on "Tune 1", option 2 below, but some new options 
@@ -154,26 +155,23 @@ some early and primitive comparisons with data.
 data comparisons by Peter Skands. Largely but not wholly overlaps
 with the default option 0.
 </option>
-<option value="3">"Tune 2C", new draft tune, introduced with 8.140. 
+<option value="3">"Tune 2C", introduced with 8.140 <ref>Cor10a</ref>. 
 It uses the CTEQ 6L1 PDF, and is intended to give good agreement with 
 much of the published CDF data.
 </option>
-<option value="4">"Tune 2M", new draft tune, introduced with 8.140.
+<option value="4">"Tune 2M", introduced with 8.140 <ref>Cor10a</ref>.
 It is uses the MRST LO** PDF, which has a momentum sum somewhat above 
 unity, which is compensated by a smaller <ei>alpha_s</ei> than in the
 previous tune. Again it is intended to give good agreement with much of 
 the published CDF data.
 </option>
-<option value="5">"Tune 3C", new draft tune, introduced with 8.140. 
+<option value="5">"Tune 4C", new tune, introduced with 8.145 <ref>Cor10a</ref>. 
 Starts out from tune 2C, but with a reduced cross section for 
 diffraction, plus modified multiple interactions parameters to give
 a higher and more rapidly increasing charged pseudorapidity plateau,
 for better agreement with some early key LHC numbers. 
 </option>
-<option value="6">"Tune 3M" tune, introduced with 8.140. 
-Starts out from tune 2M and then does the same kind of modifications
-as for 3C.
-</option>
+
 
 </modepick>
 

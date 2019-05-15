@@ -110,7 +110,7 @@ private:
  
 //==========================================================================
  
-// A derived class for q qbar -> KK-gluon^* (excited kk-gluon state).
+// A derived class for q qbar -> g^*/KK-gluon^* (excited kk-gluon state).
  
 class Sigma1qqbar2KKgluonStar : public Sigma1Process {
  
@@ -135,7 +135,7 @@ public:
   virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
  
   // Info on the subprocess.
-  virtual string name()       const {return "q qbar -> KK-gluon*";}
+  virtual string name()       const {return "q qbar -> g*/KK-gluon*";}
   virtual int    code()       const {return 5006;}
   virtual string inFlux()     const {return "qqbarSame";}
   virtual int    resonanceA() const {return idKKgluon;}
@@ -144,10 +144,16 @@ private:
  
   // Parameters set at initialization or for current kinematics.
   int    idKKgluon;
-  double mRes, GammaRes, m2Res, GamMRat, sigma0;
+  double mRes, GammaRes, m2Res, GamMRat;
+  double sumSM, sumInt, sumKK, sigSM, sigInt, sigKK;
  
-  // Couplings between graviton and SM (indexed by particle id).
-  double m_coupling[10];
+  // Couplings between kk gluon and SM (indexed by particle id).
+  // Helicity dependent couplings. Use vector/axial-vector
+  // couplings internally, gv/ga = 0.5 * (gL +/- gR).
+  double m_gv[10], m_ga[10];
+
+  // Interference parameter.
+  int interfMode;
  
   // Pointer to properties of the particle species, to access decay
   // channels.

@@ -53,16 +53,15 @@ echo "<a href='TimelikeShowers.php?filepath=".$filepath."' target='page'>";?>fin
 is in this case based on some further model assumptions.
 
 <p/>
-Most of the processes below are divergent in the limit 
-<i>pT -> 0</i>, and therefore a <i>pTmin</i> scale should 
-be set. Comparisons with data indicate that this divergence 
-can be tamed the same way as for the normal QCD <i>2 -> 2</i> cross 
-sections, which makes sense, since they are all dominated by the
-same kind of <i>t</i>-channel gluon exchange. It is therefore
-possible to use the <?php $filepath = $_GET["filepath"];
-echo "<a href='UserHooks.php?filepath=".$filepath."' target='page'>";?>SuppressSmallPT</a>
-user hook to impose a reweighting that cancels the low-<i>pT</i>
-divergence.
+Most of the processes below are divergent in the limit <i>pT -> 0</i>, 
+and therefore a <i>pTmin</i> scale should be set. Comparisons with 
+data indicate that this divergence can be tamed the same way as for 
+the normal QCD <i>2 -> 2</i> cross sections [<a href="Bibliography.php" target="page">Bar06,Kra08</a>], 
+which makes sense, since they are all dominated by the same kind of 
+<i>t</i>-channel gluon exchange. It is therefore possible to use the 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='UserHooks.php?filepath=".$filepath."' target='page'>";?>SuppressSmallPT</a> user hook to impose a 
+reweighting that cancels the low-<i>pT</i> divergence.
 
 <p/>
 An eikonalized description of these processes is included in the 

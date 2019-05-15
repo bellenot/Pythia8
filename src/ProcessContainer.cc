@@ -46,10 +46,9 @@ const int ProcessContainer::N3SAMPLE  = 1000;
 
 bool ProcessContainer::init(bool isFirst, Info* infoPtrIn, 
   Settings& settings, ParticleData* particleDataPtrIn, Rndm* rndmPtrIn, 
-  BeamParticle* beamAPtr, BeamParticle* beamBPtr, CoupSM* coupSMPtr, 
-  SigmaTotal* sigmaTotPtr, CoupSUSY* coupSUSYPtr, 
-  ResonanceDecays* resDecaysPtrIn, SusyLesHouches* slhaPtr, 
-  UserHooks* userHooksPtr) {
+  BeamParticle* beamAPtr, BeamParticle* beamBPtr, Couplings* couplingsPtr, 
+  SigmaTotal* sigmaTotPtr, ResonanceDecays* resDecaysPtrIn, 
+  SusyLesHouches* slhaPtr, UserHooks* userHooksPtr) {
 
   // Extract info about current process from SigmaProcess object.
   isLHA       = sigmaProcessPtr->isLHA();
@@ -78,6 +77,7 @@ bool ProcessContainer::init(bool isFirst, Info* infoPtrIn,
   else if (isQCD3body)  phaseSpacePtr = new PhaseSpace2to3yyycyl();
   else                  phaseSpacePtr = new PhaseSpace2to3tauycyl();
 
+
   // Store pointers and perform simple initialization.
   infoPtr         = infoPtrIn;
   particleDataPtr = particleDataPtrIn;
@@ -88,9 +88,9 @@ bool ProcessContainer::init(bool isFirst, Info* infoPtrIn,
     phaseSpacePtr->setLHAPtr(lhaUpPtr);
   }
   sigmaProcessPtr->init(infoPtr, &settings, particleDataPtr, rndmPtr, 
-    beamAPtr, beamBPtr, coupSMPtr, sigmaTotPtr, coupSUSYPtr, slhaPtr);
+    beamAPtr, beamBPtr, couplingsPtr, sigmaTotPtr, slhaPtr);
   phaseSpacePtr->init( isFirst, sigmaProcessPtr, infoPtr, &settings,
-    particleDataPtr, rndmPtr, beamAPtr,  beamBPtr, coupSMPtr, sigmaTotPtr, 
+    particleDataPtr, rndmPtr, beamAPtr,  beamBPtr, couplingsPtr, sigmaTotPtr, 
     userHooksPtr);
 
   // Reset cross section statistics.
@@ -143,6 +143,7 @@ bool ProcessContainer::trialProcess() {
   for (int iTry = 0;  ; ++iTry) {
 
     // Generate a trial phase space point, if meaningful.
+
     if (sigmaMx == 0.) return false;
     infoPtr->setEndOfFile(false);
     bool repeatSame = (iTry > 0);
@@ -184,6 +185,7 @@ bool ProcessContainer::trialProcess() {
     bool select = true;
     if (lhaStratAbs < 3) select 
       = (newSigmaMx || rndmPtr->flat() * abs(sigmaMx) < abs(sigmaNow)); 
+
     if (select) ++nSel;
     if (select || lhaStratAbs != 2) return select;
   }
@@ -617,7 +619,7 @@ void ProcessContainer::sigmaDelta() {
 // Main routine to initialize list of processes.
 
 bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs, 
-  Settings& settings, ParticleData* particleDataPtr, CoupSUSY& coupSUSY) {
+  Settings& settings, ParticleData* particleDataPtr, Couplings* couplings) {
 
   // Reset process list, if filled in previous subrun.
   if (containerPtrs.size() > 0) {
@@ -1444,216 +1446,249 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs,
   }
 
   // Set up requested objects for SUSY pair processes.
-  bool SUSYs = settings.flag("SUSY:all");
-  bool nmssm = settings.flag("SLHA:NMSSM");
+  if(couplings->isSUSY){ 
+    CoupSUSY* coupSUSY = (CoupSUSY *) couplings;
 
-  // Preselected SUSY codes
-  int codeA = max( abs(settings.mode("SUSY:idA")),
-                   abs(settings.mode("SUSY:idB")));
-  int codeB = min( abs(settings.mode("SUSY:idA")),
-                   abs(settings.mode("SUSY:idB")));
+    bool SUSYs = settings.flag("SUSY:all");
+    bool nmssm = settings.flag("SLHA:NMSSM");
 
-  // MSSM: 4 neutralinos
-  int nNeut = 4;
-  if (nmssm) nNeut = 5;
+    // Preselected SUSY codes
+    int codeA = max( abs(settings.mode("SUSY:idA")),
+		     abs(settings.mode("SUSY:idB")));
+    int codeB = min( abs(settings.mode("SUSY:idA")),
+		     abs(settings.mode("SUSY:idB")));
 
-  // Gluino-gluino
-  if (SUSYs || settings.flag("SUSY:gg2gluinogluino")) {
-    sigmaPtr = new Sigma2gg2gluinogluino();
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  }
-  if (SUSYs || settings.flag("SUSY:qqbar2gluinogluino")) {
-    sigmaPtr = new Sigma2qqbar2gluinogluino();
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  }
-
-  // Gluino-squark  
-  if (SUSYs || settings.flag("SUSY:qg2squarkgluino")) {
-    int iproc = 1202; 
-    for (int idx = 1; idx <= 6; ++idx) {
-      for (int iso = 1; iso <= 2; ++iso) {
-	iproc++;
-	int id3 = iso + ((idx <= 3) ? 1000000+2*(idx-1) : 2000000+2*(idx-4));
-	int id4 = 1000021;
-	// Skip if specific codes not asked for
-	if (codeA != 0 && codeA != abs(id3) && codeA != abs(id4)) continue;
-	if (codeB != 0 && ( codeA != max(abs(id3),abs(id4)) 
-			    || codeB != min(abs(id3),abs(id4)) ) ) continue;
-	sigmaPtr = new Sigma2qg2squarkgluino(id3,iproc);
-	containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    // MSSM: 4 neutralinos
+    int nNeut = 4;
+    if (nmssm) nNeut = 5;
+    
+    // Gluino-gluino
+    if (SUSYs || settings.flag("SUSY:gg2gluinogluino")) {
+      // Skip if specific codes not asked for 
+      if (codeA == 0 || codeA == 1000021) {
+	if (codeB == 0 || codeB == 1000021 ) {
+	  sigmaPtr = new Sigma2gg2gluinogluino();
+	  containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+	}
       }
     }
-  }
-
-  // Squark-antisquark (gg initiated)
-  if (SUSYs || settings.flag("SUSY:gg2squarkantisquark")) {
-    int iproc = 1214;
-    for (int idx = 1; idx <= 6; ++idx) {
-      for (int iso = 1; iso <= 2; ++iso) {
-	iproc++;
-	int id = iso + ((idx <= 3) ? 1000000+2*(idx-1) : 2000000+2*(idx-4)); 
-
-	// Skip if specific codes not asked for
-	if (codeA != 0 && codeA != abs(id)) continue;
-	if (codeA != 0 && codeB != 0 && codeB != abs(id)) continue;
-	sigmaPtr = new Sigma2gg2squarkantisquark(id,iproc);
-	containerPtrs.push_back( new ProcessContainer(sigmaPtr) ); 	
+    if (SUSYs || settings.flag("SUSY:qqbar2gluinogluino")) {
+      // Skip if specific codes not asked for 
+      if (codeA == 0 || codeA == 1000021) {
+	if (codeB == 0 || codeB == 1000021 ) {
+	  sigmaPtr = new Sigma2qqbar2gluinogluino();
+	  containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+	}
       }
     }
-  }
-
-  // Squark-antisquark (qqbar initiated)
-  if (SUSYs || settings.flag("SUSY:qqbar2squarkantisquark")) {
-    int iproc = 1230;
-    for (int idx = 1; idx <= 6; ++idx) {
-      for (int iso = 1; iso <= 2; ++iso) {
-	for (int jso = iso; jso >= 1; --jso) {
-	  for (int jdx = 1; jdx <= 6; ++jdx) {
-	    if (iso == jso && jdx < idx) continue;	    
-	    int id1 = iso + ((idx <= 3) ? 1000000+2*(idx-1) 
-		                        : 2000000+2*(idx-4));
-	    int id2 = jso + ((jdx <= 3) ? 1000000+2*(jdx-1) 
-                                        : 2000000+2*(jdx-4));
-	    // Update process number counter (for ~q~q, +2 if not self-conj)
-	    //if (iproc == 1302) iproc=1310;
-	    iproc++;
-	    if (iso == jso && id1 != id2) iproc++;
-	    // Skip if specific codes not asked for
-	    if (codeA != 0 && codeA != abs(id1) && codeA != abs(id2)) continue;
-	    if (codeB != 0 && ( codeA != max(abs(id1),abs(id2)) ||
-				codeB != min(abs(id1),abs(id2)) ) ) continue;
-	    if (iso == jso && id1 != id2) {
-	      sigmaPtr = new Sigma2qqbar2squarkantisquark(id1,-id2,iproc-1);
-	      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );   
-	      sigmaPtr = new Sigma2qqbar2squarkantisquark(id2,-id1,iproc);
-	      containerPtrs.push_back( new ProcessContainer(sigmaPtr) ); 
-	    } else {
-	      sigmaPtr = new Sigma2qqbar2squarkantisquark(id1,-id2,iproc);
-	      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );   
+    
+    // Gluino-squark  
+    if (SUSYs || settings.flag("SUSY:qg2squarkgluino")) {
+      int iproc = 1202; 
+      for (int idx = 1; idx <= 6; ++idx) {
+	for (int iso = 1; iso <= 2; ++iso) {
+	  iproc++;
+	  int id3 = iso + ((idx <= 3) ? 1000000+2*(idx-1) : 2000000+2*(idx-4));
+	  int id4 = 1000021;
+	  // Skip if specific codes not asked for
+	  if (codeA != 0 && codeA != abs(id3) && codeA != abs(id4)) continue;
+	  if (codeB != 0 && ( codeA != max(abs(id3),abs(id4)) 
+			      || codeB != min(abs(id3),abs(id4)) ) ) continue;
+	  sigmaPtr = new Sigma2qg2squarkgluino(id3,iproc);
+	  containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+	}
+      }
+    }
+    
+    // Squark-antisquark (gg initiated)
+    if (SUSYs || settings.flag("SUSY:gg2squarkantisquark")) {
+      int iproc = 1214;
+      for (int idx = 1; idx <= 6; ++idx) {
+	for (int iso = 1; iso <= 2; ++iso) {
+	  iproc++;
+	  int id = iso + ((idx <= 3) ? 1000000+2*(idx-1) : 2000000+2*(idx-4)); 
+	  
+	  // Skip if specific codes not asked for
+	  if (codeA != 0 && codeA != abs(id)) continue;
+	  if (codeA != 0 && codeB != 0 && codeB != abs(id)) continue;
+	  sigmaPtr = new Sigma2gg2squarkantisquark(id,iproc);
+	  containerPtrs.push_back( new ProcessContainer(sigmaPtr) ); 	
+	}
+      }
+    }
+    
+    // Squark-antisquark (qqbar initiated)
+    if (SUSYs || settings.flag("SUSY:qqbar2squarkantisquark")) {
+      int iproc = 1230;
+      for (int idx = 1; idx <= 6; ++idx) {
+	for (int iso = 1; iso <= 2; ++iso) {
+	  for (int jso = iso; jso >= 1; --jso) {
+	    for (int jdx = 1; jdx <= 6; ++jdx) {
+	      if (iso == jso && jdx < idx) continue;	    
+	      int id1 = iso + ((idx <= 3) ? 1000000+2*(idx-1) 
+			       : 2000000+2*(idx-4));
+	      int id2 = jso + ((jdx <= 3) ? 1000000+2*(jdx-1) 
+			       : 2000000+2*(jdx-4));
+	      // Update process number counter (for ~q~q, +2 if not self-conj)
+	      //if (iproc == 1302) iproc=1310;
+	      iproc++;
+	      if (iso == jso && id1 != id2) iproc++;
+	      // Skip if specific codes not asked for
+	      if (codeA != 0 && codeA != abs(id1) && codeA != abs(id2)) continue;
+	      if (codeB != 0 && ( codeA != max(abs(id1),abs(id2)) ||
+				  codeB != min(abs(id1),abs(id2)) ) ) continue;
+	      if (iso == jso && id1 != id2) {
+		sigmaPtr = new Sigma2qqbar2squarkantisquark(id1,-id2,iproc-1);
+		containerPtrs.push_back( new ProcessContainer(sigmaPtr) );   
+		sigmaPtr = new Sigma2qqbar2squarkantisquark(id2,-id1,iproc);
+		containerPtrs.push_back( new ProcessContainer(sigmaPtr) ); 
+	      } else {
+		sigmaPtr = new Sigma2qqbar2squarkantisquark(id1,-id2,iproc);
+		containerPtrs.push_back( new ProcessContainer(sigmaPtr) );   
+	      }
 	    }
 	  }
 	}
       }
     }
-  }
-
-  // Squark-squark
-  if (SUSYs || settings.flag("SUSY:qq2squarksquark")) {
-    int iproc = 1350; 
-    for (int idx = 1; idx <= 6; ++idx) {
-      for (int iso = 1; iso <= 2; ++iso) {
-	for (int jso = iso; jso >= 1; jso--) {
-	  for (int jdx = 1; jdx <= 6; ++jdx) {
-	    if (iso == jso && jdx < idx) continue;
-	    iproc++;
-	    int id1 = iso + ((idx <= 3) ? 1000000+2*(idx-1) : 2000000+2*(idx-4));
-	    int id2 = jso + ((jdx <= 3) ? 1000000+2*(jdx-1) : 2000000+2*(jdx-4));
-	    // Skip if specific codes not asked for
-	    if (codeA != 0 && codeA != abs(id1) && codeA != abs(id2)) continue;
-	    if (codeB != 0 && ( codeA != max(abs(id1),abs(id2)) 
-				|| codeB != min(abs(id1),abs(id2)) ) ) continue;
-	    sigmaPtr = new Sigma2qq2squarksquark(id1,id2,iproc);
-	    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );	    
+    
+    // Squark-squark
+    if (SUSYs || settings.flag("SUSY:qq2squarksquark")) {
+      int iproc = 1350; 
+      for (int idx = 1; idx <= 6; ++idx) {
+	for (int iso = 1; iso <= 2; ++iso) {
+	  for (int jso = iso; jso >= 1; jso--) {
+	    for (int jdx = 1; jdx <= 6; ++jdx) {
+	      if (iso == jso && jdx < idx) continue;
+	      iproc++;
+	      int id1 = iso + ((idx <= 3) ? 1000000+2*(idx-1) : 2000000+2*(idx-4));
+	      int id2 = jso + ((jdx <= 3) ? 1000000+2*(jdx-1) : 2000000+2*(jdx-4));
+	      // Skip if specific codes not asked for
+	      if (codeA != 0 && codeA != abs(id1) && codeA != abs(id2)) continue;
+	      if (codeB != 0 && ( codeA != max(abs(id1),abs(id2)) 
+				  || codeB != min(abs(id1),abs(id2)) ) ) continue;
+	      sigmaPtr = new Sigma2qq2squarksquark(id1,id2,iproc);
+	      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );	    
+	    }
 	  }
 	}
       }
     }
-  }
-
-  // Neutralino + squark
-  if (SUSYs || settings.flag("SUSY:qg2chi0squark")) {
-    int iproc = 1430;
-    for (int iNeut= 1; iNeut <= nNeut; iNeut++) {
-      for (int idx = 1; idx <= 6; idx++) {
-	bool isUp = false;
-	for (int iso = 1; iso <= 2; iso++) {
-	  if (iso == 2) isUp = true;
+    
+    // Neutralino + squark
+    if (SUSYs || settings.flag("SUSY:qg2chi0squark")) {
+      int iproc = 1430;
+      for (int iNeut= 1; iNeut <= nNeut; iNeut++) {
+	for (int idx = 1; idx <= 6; idx++) {
+	  bool isUp = false;
+	  for (int iso = 1; iso <= 2; iso++) {
+	    if (iso == 2) isUp = true;
+	    iproc++;
+	    int id3 = coupSUSY->idNeut(iNeut);
+	    int id4 = iso + ((idx <= 3) ? 1000000+2*(idx-1) : 2000000+2*(idx-4));
+	    // Skip if specific codes not asked for
+	    if (codeA != 0 && codeA != abs(id3) && codeA != abs(id4)) continue;
+	    if (codeB != 0 && codeB != min(abs(id3),abs(id4)) ) continue;
+	    if (codeA != 0 && codeA == codeB) continue;
+	    sigmaPtr = new Sigma2qg2chi0squark(iNeut,idx,isUp,iproc);
+	    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+	  }
+	}
+      }
+    }
+    
+    // Chargino + squark
+    if (SUSYs || settings.flag("SUSY:qg2chi+-squark")) {
+      int iproc = 1490;
+      for (int iChar = 1; iChar <= 2; iChar++) {
+	for (int idx = 1; idx <= 6; idx++) {
+	  bool isUp = false;
+	  for (int iso = 1; iso <= 2; iso++) {
+	    if (iso == 2) isUp = true;
+	    iproc++;
+	    int id3 = coupSUSY->idChar(iChar);
+	    int id4 = iso + ((idx <= 3) ? 1000000+2*(idx-1) : 2000000+2*(idx-4));
+	    // Skip if specific codes not asked for
+	    if (codeA != 0 && codeA != abs(id3) && codeA != abs(id4)) continue;
+	    if (codeB != 0 && codeB != min(abs(id3),abs(id4)) ) continue;
+	    if (codeA != 0 && codeA == codeB) continue;
+	    sigmaPtr = new Sigma2qg2charsquark(iChar,idx,isUp,iproc);
+	    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+	  }
+	}
+      }
+    }
+    
+    // Neutralino pairs
+    if (SUSYs || settings.flag("SUSY:qqbar2chi0chi0")) {
+      int iproc = 1550;
+      for (int iNeut2 = 1; iNeut2 <= nNeut; iNeut2++) {
+	for (int iNeut1 = 1; iNeut1 <= iNeut2; iNeut1++) {
 	  iproc++;
-	  int id3 = coupSUSY.idNeut(iNeut);
-	  int id4 = iso + ((idx <= 3) ? 1000000+2*(idx-1) : 2000000+2*(idx-4));
-	  if (codeA != 0 && codeA != abs(id3) && codeA != abs(id4)) continue;
-	  if (codeB != 0 && codeB != min(abs(id3),abs(id4)) ) continue;
-	  sigmaPtr = new Sigma2qg2chi0squark(iNeut,idx,isUp,iproc);
+	  if (codeA != 0 && codeA != abs(coupSUSY->idNeut(iNeut1)) && 
+	      codeA != abs(coupSUSY->idNeut(iNeut2))) continue;
+	  if (codeB != 0 && (codeA != max(abs(coupSUSY->idNeut(iNeut1)),
+					  abs(coupSUSY->idNeut(iNeut2))) ||
+			     codeB != min(abs(coupSUSY->idNeut(iNeut1)),
+					  abs(coupSUSY->idNeut(iNeut2)))) ) continue;
+	  sigmaPtr = new Sigma2qqbar2chi0chi0(iNeut1, iNeut2,iproc);
 	  containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
 	}
       }
     }
-  }
-
-  // Chargino + squark
-  if (SUSYs || settings.flag("SUSY:qg2chi+-squark")) {
-    int iproc = 1490;
-    for (int iChar = 1; iChar <= 2; iChar++) {
-      for (int idx = 1; idx <= 6; idx++) {
-	bool isUp = false;
-	for (int iso = 1; iso <= 2; iso++) {
-	  if (iso == 2) isUp = true;
-	  iproc++;
-	  int id3 = coupSUSY.idChar(iChar);
-	  int id4 = iso + ((idx <= 3) ? 1000000+2*(idx-1) : 2000000+2*(idx-4));
-	  if (codeA != 0 && codeA != abs(id3) && codeA != abs(id4)) continue;
-	  if (codeB != 0 && codeB != min(abs(id3),abs(id4)) ) continue;
-	  sigmaPtr = new Sigma2qg2charsquark(iChar,idx,isUp,iproc);
+    
+    // Neutralino-Chargino
+    if (SUSYs || settings.flag("SUSY:qqbar2chi+-chi0")) {
+      int iproc = 1570;
+      for (int iNeut = 1; iNeut <= nNeut; iNeut++) {
+	for (int iChar = 1; iChar <= 2; ++iChar) {
+	  iproc += 2;
+	  if (codeA != 0 && codeA != coupSUSY->idNeut(iNeut)
+	      && codeA != coupSUSY->idChar(iChar)) continue;
+	  if (codeB != 0 
+	      && ( codeA != max(coupSUSY->idNeut(iNeut),coupSUSY->idChar(iChar))
+		   || codeB != min(coupSUSY->idNeut(iNeut),coupSUSY->idChar(iChar)))
+	      ) continue;
+	  sigmaPtr = new Sigma2qqbar2charchi0( iChar, iNeut, iproc-1);
+	  containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+	  sigmaPtr = new Sigma2qqbar2charchi0(-iChar, iNeut, iproc); 
+	  containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+	}
+      }
+    } 
+    
+    // Chargino-Chargino
+    if (SUSYs || settings.flag("SUSY:qqbar2chi+chi-")) {
+      int iproc = 1590;
+      for (int i = 1; i <= 2; ++i) {
+	for (int j = 1; j <= 2; ++j) {
+	  iproc++;	
+	  if (codeA != 0 && codeA != abs(coupSUSY->idChar(i)) 
+	      && codeA != abs(coupSUSY->idChar(j))) continue;
+	  if (codeB != 0 
+	      && ( codeA != max(coupSUSY->idChar(i),coupSUSY->idChar(j))
+		   || codeB != min(coupSUSY->idChar(i),coupSUSY->idChar(j)) ) ) 
+	    continue;
+	  sigmaPtr = new Sigma2qqbar2charchar( i,-j, iproc);
+	  containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+	}
+      }
+    } 
+    
+    // RPV squark production
+    if(SUSYs || settings.flag("SUSY:qq2antisquark")) {
+      for (int idx = 1; idx <= 6; ++idx) {
+	for (int iso = 1; iso <= 2; ++iso) {
+	  int id1 = iso + ((idx <= 3) ? 1000000+2*(idx-1) : 2000000+2*(idx-4));
+	  if(codeA !=0 && codeA != abs(id1)) continue;
+	  sigmaPtr = new Sigma1qq2antisquark(id1);
 	  containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
 	}
       }
     }
+    
   }
 
-  // Neutralino pairs
-  if (SUSYs || settings.flag("SUSY:qqbar2chi0chi0")) {
-    int iproc = 1550;
-    for (int iNeut2 = 1; iNeut2 <= nNeut; iNeut2++) {
-      for (int iNeut1 = 1; iNeut1 <= iNeut2; iNeut1++) {
-	iproc++;
-	if (codeA != 0 && codeA != abs(coupSUSY.idNeut(iNeut1)) 
-	    && codeA != abs(coupSUSY.idNeut(iNeut2))) continue;
-	if (codeB != 0 && codeB != min(abs(coupSUSY.idNeut(iNeut1)),
-				       abs(coupSUSY.idNeut(iNeut2))) ) continue;
-	sigmaPtr = new Sigma2qqbar2chi0chi0(iNeut1, iNeut2,iproc);
-	containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-      }
-    }
-  }
-
-  // Neutralino-Chargino
-  if (SUSYs || settings.flag("SUSY:qqbar2chi+-chi0")) {
-    int iproc = 1570;
-    for (int iNeut = 1; iNeut <= nNeut; iNeut++) {
-      for (int iChar = 1; iChar <= 2; ++iChar) {
-	iproc += 2;
-	if (codeA != 0 && codeA != coupSUSY.idNeut(iNeut)
-	    && codeA != coupSUSY.idChar(iChar)) continue;
-	if (codeB != 0 
-	    && ( codeA != max(coupSUSY.idNeut(iNeut),coupSUSY.idChar(iChar))
-		 || codeB != min(coupSUSY.idNeut(iNeut),coupSUSY.idChar(iChar)))
-	    ) continue;
-	sigmaPtr = new Sigma2qqbar2charchi0( iChar, iNeut, iproc-1);
-	containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-	sigmaPtr = new Sigma2qqbar2charchi0(-iChar, iNeut, iproc); 
-	containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-      }
-    }
-  } 
-  
-  // Chargino-Chargino
-  if (SUSYs || settings.flag("SUSY:qqbar2chi+chi-")) {
-    int iproc = 1590;
-    for (int i = 1; i <= 2; ++i) {
-      for (int j = 1; j <= 2; ++j) {
-	iproc++;	
-	if (codeA != 0 && codeA != abs(coupSUSY.idChar(i)) 
-	    && codeA != abs(coupSUSY.idChar(j))) continue;
-	if (codeB != 0 
-	    && ( codeA != max(coupSUSY.idChar(i),coupSUSY.idChar(j))
-		 || codeB != min(coupSUSY.idChar(i),coupSUSY.idChar(j)) ) ) 
-	  continue;
-	sigmaPtr = new Sigma2qqbar2charchar( i,-j, iproc);
-	containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-      }
-    }
-  } 
-  
   // Set up requested objects for New-Gauge-Boson processes.
   if (settings.flag("NewGaugeBoson:ffbar2gmZZprime")) {
     sigmaPtr = new Sigma1ffbar2gmZZprime();

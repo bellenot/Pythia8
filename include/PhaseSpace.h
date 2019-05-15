@@ -48,7 +48,7 @@ public:
   void init(bool isFirst, SigmaProcess* sigmaProcessPtrIn, 
     Info* infoPtrIn, Settings* settingsPtrIn, ParticleData* particleDataPtrIn,  
     Rndm* rndmPtrIn, BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, 
-    CoupSM* coupSMPtrIn, SigmaTotal* sigmaTotPtrIn, UserHooks* userHooksPtrIn);
+    Couplings* couplingsPtrIn, SigmaTotal* sigmaTotPtrIn, UserHooks* userHooksPtrIn);
 
   // Update the CM energy of the event.
   void newECM(double eCMin) {eCM = eCMin; s = eCM * eCM;}
@@ -134,7 +134,7 @@ protected:
   BeamParticle* beamBPtr;
 
   // Pointer to Standard Model couplings.
-  CoupSM*         coupSMPtr;
+  Couplings*         couplingsPtr;
   
   // Pointer to the total/elastic/diffractive cross section object.
   SigmaTotal*   sigmaTotPtr;

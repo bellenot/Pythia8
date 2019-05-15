@@ -5,10 +5,10 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.142      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 15 Aug 2010  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.145      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 10 Nov 2010  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 15 Aug 2010 at 19:19:46    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 11 Nov 2010 at 20:04:33    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Theoretical Physics, Lund University,   |  | 
  |  |      Solvegatan 14A, SE-223 62 Lund, Sweden;                                 |  | 
@@ -176,7 +176,7 @@
  *-------  End PYTHIA Error and Warning Messages Statistics  ------------------------------------------------------* 
 
 
-  2010-08-15 19:19       number of jets
+  2010-11-11 20:04       number of jets
 
         5.00*10^ 1      5               
         4.80*10^ 1      X               
@@ -219,7 +219,7 @@
    All chan =  2.0000e+02    Rms  =  1.8193e+00    Overflow  =  0.0000e+00    High edge =  1.9500e+01
 
 
-  2010-08-15 19:19       eT for jets
+  2010-11-11 20:04       eT for jets
 
         1.30*10^ 2      6                                                                                               
         1.25*10^ 2      X                                                                                               
@@ -263,7 +263,7 @@
    All chan =  9.1400e+02    Rms  =  1.0674e+02    Overflow  =  6.0000e+00    High edge =  5.0000e+02
 
 
-  2010-08-15 19:19       eta for jets
+  2010-11-11 20:04       eta for jets
 
         3.00*10^ 1                                                    X                                                 
         2.88*10^ 1                                                    X                                                 
@@ -306,7 +306,7 @@
    All chan =  9.2000e+02    Rms  =  1.6070e+00    Overflow  =  0.0000e+00    High edge =  5.0000e+00
 
 
-  2010-08-15 19:19       phi for jets
+  2010-11-11 20:04       phi for jets
 
         1.60*10^ 1                                                                       X                              
         1.55*10^ 1                                                                       X                              
@@ -349,7 +349,7 @@
    All chan =  9.1300e+02    Rms  =  1.8016e+00    Overflow  =  2.0000e+00    High edge =  3.1416e+00
 
 
-  2010-08-15 19:19       R distance between jets
+  2010-11-11 20:04       R distance between jets
 
         0.92*10^ 2                                8                                                                     
         0.88*10^ 2                               8X                                                                     
@@ -390,7 +390,7 @@
    All chan =  1.9870e+03    Rms  =  1.1301e+00    Overflow  =  0.0000e+00    High edge =  1.0000e+01
 
 
-  2010-08-15 19:19       eT difference
+  2010-11-11 20:04       eT difference
 
         1.25*10^ 2                      4                                                                               
         1.20*10^ 2                      X                                                                               

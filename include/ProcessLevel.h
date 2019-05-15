@@ -45,8 +45,8 @@ public:
   // Initialization.
   bool init( Info* infoPtrIn, Settings& settings,
     ParticleData* particleDataPtrIn, Rndm* rndmPtrIn, 
-    BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, CoupSM* CoupSMPtrIn, 
-    SigmaTotal* sigmaTotPtrIn, bool doLHAin, SusyLesHouches* slhaPtrIn, 
+    BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, Couplings* couplingsPtrIn, 
+    SigmaTotal* sigmaTotPtrIn, bool doLHAin, SusyLesHouches* slhaPtrIn,
     UserHooks* userHooksPtrIn, vector<SigmaProcess*>& sigmaPtrs, 
     ostream& os = cout);
 
@@ -102,13 +102,10 @@ private:
   BeamParticle*   beamBPtr;
 
   // Pointer to Standard Model couplings, including alphaS and alphaEM.
-  CoupSM*         coupSMPtr;
+  Couplings*      couplingsPtr;
 
   // Pointer to SigmaTotal object needed to handle soft QCD processes.
   SigmaTotal*     sigmaTotPtr;
-
-  // The CoupSUSY object needed to handle SUSY processes.
-  CoupSUSY        coupSUSY;
 
   // Pointer to SusyLesHouches object for interface to SUSY spectra.
   SusyLesHouches* slhaPtr;

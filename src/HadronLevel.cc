@@ -34,12 +34,14 @@ const double HadronLevel::MTHAD          = 0.9;
 // Find settings. Initialize HadronLevel classes as required.
 
 bool HadronLevel::init(Info* infoPtrIn, Settings& settings, 
-  ParticleData& particleData, Rndm* rndmPtrIn, TimeShower* timesDecPtr, 
-  DecayHandler* decayHandlePtr, vector<int> handledParticles) {
+  ParticleData& particleData, Rndm* rndmPtrIn, Couplings* couplingsPtrIn,
+  TimeShower* timesDecPtr, DecayHandler* decayHandlePtr, 
+  vector<int> handledParticles) {
 
   // Save pointers.
   infoPtr        = infoPtrIn;
   rndmPtr        = rndmPtrIn;
+  couplingsPtr   = couplingsPtrIn;
 
   // Main flags.
   doHadronize    = settings.flag("HadronLevel:Hadronize");
@@ -61,8 +63,8 @@ bool HadronLevel::init(Info* infoPtrIn, Settings& settings,
   ministringFrag.init(infoPtr, settings, &particleData, rndmPtr, &flavSel);
  
   // Initialize particle decays.  
-  decays.init(infoPtr, settings, &particleData, rndmPtr, timesDecPtr, &flavSel, 
-    decayHandlePtr, handledParticles); 
+  decays.init(infoPtr, settings, &particleData, rndmPtr, couplingsPtr, 
+    timesDecPtr, &flavSel, decayHandlePtr, handledParticles); 
 
   // Initialize BoseEinstein. 
   boseEinstein.init(infoPtr, settings, particleData); 
@@ -246,16 +248,16 @@ bool HadronLevel::findSinglets(Event& event) {
     int kindJun = event.kindJunction(iJun);
     iParton.resize(0);
 
-    // First kind: three (anti)colours out from junction.
-    if (kindJun == 1 || kindJun == 2) {
-      for (int iCol = 0; iCol < 3; ++iCol) {
-        int indxCol = event.colJunction(iJun, iCol);    
-        iParton.push_back( -(10 + 10 * iJun + iCol) );
-        if (kindJun == 1 && !traceFromAcol(indxCol, event, iJun, iCol)) 
-          return false;       
-        if (kindJun == 2 && !traceFromCol(indxCol, event, iJun, iCol)) 
-          return false;
-      }       
+    // Loop over junction legs
+    for (int iCol = 0; iCol < 3; ++iCol) {
+      int indxCol = event.colJunction(iJun, iCol);    
+      iParton.push_back( -(10 + 10 * iJun + iCol) );
+      // Junctions: find color ends
+      if (kindJun % 2 == 1 && !traceFromAcol(indxCol, event, iJun, iCol)) 
+	return false;       
+      // Antijunctions: find anticolor ends
+      if (kindJun % 2 == 0 && !traceFromCol(indxCol, event, iJun, iCol)) 
+	return false;
     }
 
     // Keep in memory a junction hooked up with an antijunction,
@@ -263,10 +265,10 @@ bool HadronLevel::findSinglets(Event& event) {
     int nNeg = 0;
     for (int i = 0; i < int(iParton.size()); ++i) if (iParton[i] < 0) 
       ++nNeg; 
-    if (nNeg > 3 && kindJun == 1) { 
+    if (nNeg > 3 && kindJun % 2 == 1) { 
       for (int i = 0; i < int(iParton.size()); ++i) 
         iPartonJun.push_back(iParton[i]);
-    } else if (nNeg > 3 && kindJun == 2) { 
+    } else if (nNeg > 3 && kindJun % 2 == 0) { 
       for (int i = 0; i < int(iParton.size()); ++i) 
         iPartonAntiJun.push_back(iParton[i]);
     } else {
@@ -366,17 +368,17 @@ bool HadronLevel::traceFromCol(int indxCol, Event& event, int iJun,
     }
 
     // In a pinch, check list of end colours on other (anti)junction.
-    if (!hasFound && kindJun == 2 && event.sizeJunction() > 1)  
-    for (int iAntiJun = 0; iAntiJun < event.sizeJunction(); ++iAntiJun) 
-    if (iAntiJun != iJun && event.kindJunction(iAntiJun) == 1)
-    for (int iColAnti = 0; iColAnti < 3; ++iColAnti) 
-    if (event.endColJunction(iAntiJun, iColAnti) == indxCol) {
-      iParton.push_back( -(10 + 10 * iAntiJun + iColAnti) );   
-      indxCol = 0;
-      hasFound = true;
-      break;
-    }
-
+    if (!hasFound && kindJun % 2 == 0 && event.sizeJunction() > 1)  
+      for (int iAntiJun = 0; iAntiJun < event.sizeJunction(); ++iAntiJun) 
+	if (iAntiJun != iJun && event.kindJunction(iAntiJun) %2 == 1)
+	  for (int iColAnti = 0; iColAnti < 3; ++iColAnti) 
+	    if (event.endColJunction(iAntiJun, iColAnti) == indxCol) {
+	      iParton.push_back( -(10 + 10 * iAntiJun + iColAnti) );   
+	      indxCol = 0;
+	      hasFound = true;
+	      break;
+	    }
+    
   // Keep on tracing via gluons until reached end of leg.
   } while (hasFound && indxCol > 0 && loop < loopMax); 
 
@@ -426,7 +428,6 @@ bool HadronLevel::traceFromAcol(int indxCol, Event& event, int iJun,
     for (int i = 0; i < int(iColAndAcol.size()); ++i)      
     if (event[ iColAndAcol[i] ].col() == indxCol) {
       iParton.push_back( iColAndAcol[i] );
-
       // Update to new colour. Remove gluon.
       indxCol = event[ iColAndAcol[i] ].acol();
       if (kindJun > 0) event.endColJunction(iJun, iCol, indxCol);
@@ -437,18 +438,18 @@ bool HadronLevel::traceFromAcol(int indxCol, Event& event, int iJun,
     }
 
     // In a pinch, check list of colours on other (anti)junction.
-    if (!hasFound && kindJun == 1 && event.sizeJunction() > 1) 
+    if (!hasFound && kindJun % 2 == 1 && event.sizeJunction() > 1) 
     for (int iAntiJun = 0; iAntiJun < event.sizeJunction(); ++iAntiJun) 
-    if (iAntiJun != iJun && event.kindJunction(iAntiJun) == 2) 
-    for (int iColAnti = 0; iColAnti < 3; ++iColAnti)
-    if (event.endColJunction(iAntiJun, iColAnti) == indxCol) {
-      iParton.push_back( -(10 + 10 * iAntiJun + iColAnti) );   
-      indxCol = 0;
-      hasFound = true;
-      break;
-    } 
-
-  // Keep on tracing via gluons until reached end of leg.
+      if (iAntiJun != iJun && event.kindJunction(iAntiJun) % 2 == 0) 
+	for (int iColAnti = 0; iColAnti < 3; ++iColAnti)
+	  if (event.endColJunction(iAntiJun, iColAnti) == indxCol) {
+	    iParton.push_back( -(10 + 10 * iAntiJun + iColAnti) );   
+	    indxCol = 0;
+	    hasFound = true;
+	    break;
+	  } 
+    
+    // Keep on tracing via gluons until reached end of leg.
   } while (hasFound && indxCol > 0 && loop < loopMax); 
 
   // Something went wrong in colour tracing.

@@ -116,12 +116,12 @@ fi
 
 # export FFLAGS_OPT="-O2 -Wuninitialized"
 # -Wuninitialized outputs many irrelevant warnings and therefore obscurs 
-export FFLAGS_OPT="-O2"
+export FFLAGS_OPT="-O2 -fbounds-check"
 export FFLAGS_DBG=-g
-export CFLAGS_OPT=-O2
+export CFLAGS_OPT="-O2 -fbounds-check"
 export CFLAGS_DBG=-g
-export CXXFLAGS_OPT="-O2 -ansi -pedantic -W -Wall -Wshadow ${ENABLE64}"
-export CXXFLAGS_DBG="-g -ansi -pedantic -W -Wall -Wshadow ${ENABLE64}"
+export CXXFLAGS_OPT="-O2 -ansi -pedantic -W -Wall -Wshadow -fbounds-check ${ENABLE64}"
+export CXXFLAGS_DBG="-g -ansi -pedantic -W -Wall -Wshadow -fbounds-check ${ENABLE64}"
 #
 # Find platform.
 #

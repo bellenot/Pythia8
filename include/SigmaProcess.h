@@ -31,12 +31,12 @@
 #include "LesHouches.h"
 #include "ParticleData.h"
 #include "PartonDistributions.h"
+#include "PythiaComplex.h"
 #include "PythiaStdlib.h"
 #include "ResonanceWidths.h"
 #include "Settings.h"
 #include "SigmaTotal.h"
 #include "StandardModel.h"
-#include "SusyCouplings.h"
 #include "SusyLesHouches.h"
 
 namespace Pythia8 {
@@ -90,9 +90,8 @@ public:
   // Perform simple initialization and store pointers.
   void init(Info* infoPtrIn, Settings* settingsPtrIn,
     ParticleData* particleDataPtrIn, Rndm* rndmPtrIn,
-    BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, CoupSM* coupSMPtrIn, 
-    SigmaTotal* sigmaTotPtrIn = 0, CoupSUSY* coupSUSYPtrIn = 0, 
-    SusyLesHouches* slhaPtrIn = 0); 
+    BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, Couplings* couplings, 
+	    SigmaTotal* sigmaTotPtrIn = 0, SusyLesHouches* slhaPtr = 0); 
 
   // Store or replace Les Houches pointer.
   void setLHAPtr( LHAup* lhaUpPtrIn) {lhaUpPtr = lhaUpPtrIn;}  
@@ -274,13 +273,10 @@ protected:
   BeamParticle*   beamBPtr;
 
   // Pointer to Standard Model couplings, including alphaS and alphaEM.
-  CoupSM*         coupSMPtr;
+  Couplings*         couplingsPtr;
   
   // Pointer to the total/elastic/diffractive cross section object.
   SigmaTotal*     sigmaTotPtr;
-
-  // Pointer to SUSY couplings.
-  CoupSUSY*       coupSUSYPtr;
 
   // Pointer to the SLHA object.
   SusyLesHouches* slhaPtr;

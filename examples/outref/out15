@@ -5,10 +5,10 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.142      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 15 Aug 2010  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.145      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 10 Nov 2010  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 15 Aug 2010 at 19:23:18    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 11 Nov 2010 at 20:07:46    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Theoretical Physics, Lund University,   |  | 
  |  |      Solvegatan 14A, SE-223 62 Lund, Sweden;                                 |  | 
@@ -1505,6 +1505,16 @@
                                    Charge sum:  2.000           Momentum sum:     -0.000      0.000     -0.000  14000.000  14000.000
 
  --------  End PYTHIA Event Listing  -----------------------------------------------------------------------------------------------
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
 
  --------  PYTHIA Event Listing  (complete event)  --------------------------------------------------------------------------------- 
  
@@ -3945,8 +3955,949 @@
                                    Charge sum:  2.000           Momentum sum:     -0.000      0.000     -0.000  14000.000  14000.000
 
  --------  End PYTHIA Event Listing  -----------------------------------------------------------------------------------------------
- PYTHIA Error in StringFragmentation::fragment: stuck in joining  
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ PYTHIA Error in HadronLevel::traceFromCol: colour tracing failed  
  PYTHIA Error in Pythia::forceHadronLevel: hadronLevel failed; try again  
+ PYTHIA Abort from Pythia::forceHadronLevel: hadronLevel failed; giving up  
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
+ (ProcessLevel::findJunctions:) problem identifying junction 
 
  *-------  PYTHIA Event and Cross Section Statistics  -------------------------------------------------------------*
  |                                                                                                                 |
@@ -3955,10 +4906,10 @@
  |                                                    |                                   |                        |
  |-----------------------------------------------------------------------------------------------------------------|
  |                                                    |                                   |                        |
- | g g -> b bbar                                  123 |         387         96         96 |   9.003e-05  4.874e-06 |
- | q qbar -> b bbar                               124 |           9          4          4 |   2.348e-06  1.042e-06 |
+ | g g -> b bbar                                  123 |         398         99         99 |   8.371e-05  4.735e-06 |
+ | q qbar -> b bbar                               124 |           8          1          1 |   2.923e-06  2.923e-06 |
  |                                                    |                                   |                        |
- | sum                                                |         396        100        100 |   9.238e-05  4.985e-06 |
+ | sum                                                |         406        100        100 |   8.664e-05  5.564e-06 |
  |                                                                                                                 |
  *-------  End PYTHIA Event and Cross Section Statistics ----------------------------------------------------------*
 
@@ -3966,17 +4917,18 @@
  |                                                                                                                 | 
  |  times   message                                                                                                | 
  |                                                                                                                 | 
- |      9   Error in Pythia::forceHadronLevel: hadronLevel failed; try again                                       | 
- |      9   Error in StringFragmentation::fragment: stuck in joining                                               | 
+ |    250   Abort from Pythia::forceHadronLevel: hadronLevel failed; giving up                                     | 
+ |   2500   Error in HadronLevel::traceFromCol: colour tracing failed                                              | 
+ |   2500   Error in Pythia::forceHadronLevel: hadronLevel failed; try again                                       | 
  |      1   Warning in MultipleInteractions::init: maximum increased                                               | 
  |      3   Warning in ParticleDataEntry::initBWmass: switching off width                                          | 
  |                                                                                                                 | 
  *-------  End PYTHIA Error and Warning Messages Statistics  ------------------------------------------------------* 
 
 
-  2010-08-15 19:23       number of b quarks in an event
+  2010-11-11 20:07       number of b quarks in an event
 
-        0.96*10^ 2    5       
+        0.96*10^ 2    8       
         0.92*10^ 2    X       
         0.88*10^ 2    X       
         0.84*10^ 2    X       
@@ -3998,12 +4950,12 @@
         0.20*10^ 2    X       
         0.16*10^ 2    X       
         0.12*10^ 2    X       
-        0.08*10^ 2    X 5     
+        0.08*10^ 2    X 2     
         0.04*10^ 2    X X     
 
           Contents            
             *10^ 1  0090000000
-            *10^ 0  0040600000
+            *10^ 0  0050500000
             *10^-1  0000000000
             *10^-2  0000000000
 
@@ -4012,40 +4964,44 @@
             *10^-1  5555555555
             *10^-2  0000000000
 
-   Entries  =         100    Mean =  2.1200e+00    Underflow =  0.0000e+00    Low edge  = -5.0000e-01
-   All chan =  1.0000e+02    Rms  =  4.7497e-01    Overflow  =  0.0000e+00    High edge =  9.5000e+00
+   Entries  =         100    Mean =  2.1000e+00    Underflow =  0.0000e+00    Low edge  = -5.0000e-01
+   All chan =  1.0000e+02    Rms  =  4.3589e-01    Overflow  =  0.0000e+00    High edge =  9.5000e+00
 
 
-  2010-08-15 19:23       number of times same event is used
+  2010-11-11 20:07       number of times same event is used
 
+        5.60*10^ 1  5         
+        5.40*10^ 1  X         
+        5.20*10^ 1  X         
+        5.00*10^ 1  X         
+        4.80*10^ 1  X         
+        4.60*10^ 1  X         
+        4.40*10^ 1  X         
+        4.20*10^ 1  X         
+        4.00*10^ 1  X         
+        3.80*10^ 1  X         
         3.60*10^ 1  X         
-        3.45*10^ 1  X         
-        3.30*10^ 1  X         
-        3.15*10^ 1  X         
-        3.00*10^ 1  XX        
-        2.85*10^ 1  XX        
-        2.70*10^ 1  XX        
-        2.55*10^ 1  XX        
-        2.40*10^ 1  XX        
-        2.25*10^ 1  XX        
-        2.10*10^ 1  XX        
-        1.95*10^ 1  XX7       
-        1.80*10^ 1  XXX       
-        1.65*10^ 1  XXX       
-        1.50*10^ 1  XXX       
-        1.35*10^ 1  XXX       
+        3.40*10^ 1  X         
+        3.20*10^ 1  X         
+        3.00*10^ 1  X         
+        2.80*10^ 1  X         
+        2.60*10^ 1  X         
+        2.40*10^ 1  X5        
+        2.20*10^ 1  XX        
+        2.00*10^ 1  XX        
+        1.80*10^ 1  XX        
+        1.60*10^ 1  XX5       
+        1.40*10^ 1  XXX       
         1.20*10^ 1  XXX       
-        1.05*10^ 1  XXX7      
-        0.90*10^ 1  XXXX      
-        0.75*10^ 1  XXXX      
+        1.00*10^ 1  XXX       
+        0.80*10^ 1  XXX       
         0.60*10^ 1  XXXX      
-        0.45*10^ 1  XXXX      
-        0.30*10^ 1  XXXXX3    
-        0.15*10^ 1  XXXXXX    
+        0.40*10^ 1  XXXX      
+        0.20*10^ 1  XXXX5     
 
           Contents            
-            *10^ 1  3311000000
-            *10^ 0  6090320000
+            *10^ 1  5210000000
+            *10^ 0  5356100000
             *10^-1  0000000000
             *10^-2  0000000000
 
@@ -4054,44 +5010,39 @@
             *10^-1  5555555555
             *10^-2  0000000000
 
-   Entries  =         100    Mean =  1.2000e+00    Underflow =  0.0000e+00    Low edge  = -5.0000e-01
-   All chan =  1.0000e+02    Rms  =  1.2247e+00    Overflow  =  0.0000e+00    High edge =  9.5000e+00
+   Entries  =         100    Mean =  7.5000e-01    Underflow =  0.0000e+00    Low edge  = -5.0000e-01
+   All chan =  1.0000e+02    Rms  =  9.8362e-01    Overflow  =  0.0000e+00    High edge =  9.5000e+00
 
 
-  2010-08-15 19:23       mass of opposite-sign muon pair
+  2010-11-11 20:07       mass of opposite-sign muon pair
 
-        2.24*10^ 1  5                                                                                                   
-        2.16*10^ 1  X                                                                                                   
-        2.08*10^ 1  X                                                                                                   
-        2.00*10^ 1  XX                                                                                                  
-        1.92*10^ 1  XX                                                                                                  
-        1.84*10^ 1  XX                                                                                                  
-        1.76*10^ 1  XX                                                                                                  
-        1.68*10^ 1  XX                                                                                                  
-        1.60*10^ 1  XX                                                                                                  
-        1.52*10^ 1  XX                                                                                                  
-        1.44*10^ 1  XX                                                                                                  
-        1.36*10^ 1  XX                                                                                                  
-        1.28*10^ 1  XX                                                                                                  
-        1.20*10^ 1  XX                                                                                                  
-        1.12*10^ 1  XX                                                                                                  
-        1.04*10^ 1  XX                                                                                                  
-        0.96*10^ 1  XX3                                                                                                 
-        0.88*10^ 1  XXX                                                                                                 
-        0.80*10^ 1  XXX                                                                                                 
-        0.72*10^ 1  XXX88                                                                                               
-        0.64*10^ 1  XXXXX   5                                                                                           
-        0.56*10^ 1  XXXXX2  X                                                                                           
-        0.48*10^ 1  XXXXXX  X                                                                                           
-        0.40*10^ 1  XXXXXX  X X                                                                                         
-        0.32*10^ 1  XXXXXX7 X X                     7                                                                   
-        0.24*10^ 1  XXXXXXX5X X 5 5 5      5        X5     5                                                            
-        0.16*10^ 1  XXXXXXXXX2X X2X X2 22  X     22 XX2 2 2X       2   2                                     2  2       
-        0.08*10^ 1  XXXXXXXXXXX XXX XX XX  X     XX XXX X XX       X   X                                     X  X       
+        1.84*10^ 1  5                                                                                                   
+        1.76*10^ 1  X                                                                                                   
+        1.68*10^ 1  X                                                                                                   
+        1.60*10^ 1  X                                                                                                   
+        1.52*10^ 1  X                                                                                                   
+        1.44*10^ 1  X                                                                                                   
+        1.36*10^ 1  X                                                                                                   
+        1.28*10^ 1  X                                                                                                   
+        1.20*10^ 1  X                                                                                                   
+        1.12*10^ 1  X                                                                                                   
+        1.04*10^ 1  X                                                                                                   
+        0.96*10^ 1  X                                                                                                   
+        0.88*10^ 1  X                                                                                                   
+        0.80*10^ 1  X X                                                                                                 
+        0.72*10^ 1  X X                                                                                                 
+        0.64*10^ 1  X5X                                                                                                 
+        0.56*10^ 1  XXX                                                                                                 
+        0.48*10^ 1  XXX                                                                                                 
+        0.40*10^ 1  XXX X X   X X                                                                                       
+        0.32*10^ 1  XXX7X X   X X                    7                                                                  
+        0.24*10^ 1  XXXXX X5 5X X                    X                                                                  
+        0.16*10^ 1  XXXXX2XX2XX X  2    2       22  2X    2    2    2 2 2                   2                           
+        0.08*10^ 1  XXXXXXXXXXX X  X    X       XX  XX    X    X    X X X                   X                           
 
           Contents                                                                                                      
-            *10^ 1  2200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-            *10^ 0  2097753261402120210110020000011032101012000000010001000000000000000000000000000000000000010010000000
+            *10^ 1  1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+            *10^ 0  8683414212404001000010000000110013000010000100001010100000000000000000001000000000000000000000000000
             *10^-1  0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
             *10^-2  0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 
@@ -4100,39 +5051,42 @@
             *10^ 0  0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
             *10^-1  0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 
-   Entries  =         114    Mean =  1.0377e+01    Underflow =  0.0000e+00    Low edge  =  0.0000e+00
-   All chan =  1.1400e+02    Rms  =  1.5921e+01    Overflow  =  0.0000e+00    High edge =  1.0000e+02
+   Entries  =          71    Mean =  1.0782e+01    Underflow =  0.0000e+00    Low edge  =  0.0000e+00
+   All chan =  7.1000e+01    Rms  =  1.5299e+01    Overflow  =  0.0000e+00    High edge =  1.0000e+02
 
 
-  2010-08-15 19:23       mass of same-sign muon pair
+  2010-11-11 20:07       mass of same-sign muon pair
 
-        6.00*10^ 0   X   X                                                                                              
-        5.75*10^ 0   X   X                                                                                              
-        5.50*10^ 0   X   X                                                                                              
-        5.25*10^ 0   X   X                                                                                              
-        5.00*10^ 0  XX   XX                                                                                             
-        4.75*10^ 0  XX   XX                                                                                             
-        4.50*10^ 0  XX   XX                                                                                             
-        4.25*10^ 0  XX   XX                                                                                             
-        4.00*10^ 0  XXX  XXX             X                                                                              
-        3.75*10^ 0  XXX  XXX             X                                                                              
-        3.50*10^ 0  XXX  XXX             X                                                                              
-        3.25*10^ 0  XXX  XXX             X                                                                              
-        3.00*10^ 0  XXXXXXXX   X XX      X                                                                              
-        2.75*10^ 0  XXXXXXXX   X XX      X                                                                              
-        2.50*10^ 0  XXXXXXXX   X XX      X                                                                              
-        2.25*10^ 0  XXXXXXXX   X XX      X                                                                              
-        2.00*10^ 0  XXXXXXXX   X XX XX   X                                                                              
-        1.75*10^ 0  XXXXXXXX   X XX XX   X                                                                              
-        1.50*10^ 0  XXXXXXXX   X XX XX   X                                                                              
-        1.25*10^ 0  XXXXXXXX   X XX XX   X                                                                              
-        1.00*10^ 0  XXXXXXXX X XXXX XX X X X         XX      X                  X        X            XX                
-        0.75*10^ 0  XXXXXXXX X XXXX XX X X X         XX      X                  X        X            XX                
-        0.50*10^ 0  XXXXXXXX X XXXX XX X X X         XX      X                  X        X            XX                
-        0.25*10^ 0  XXXXXXXX X XXXX XX X X X         XX      X                  X        X            XX                
+        4.05*10^ 0   77 7   7                                                                                           
+        3.90*10^ 0   XX X   X                                                                                           
+        3.75*10^ 0   XX X   X                                                                                           
+        3.60*10^ 0   XX X   X                                                                                           
+        3.45*10^ 0   XX X   X                                                                                           
+        3.30*10^ 0   XX X   X                                                                                           
+        3.15*10^ 0   XX X   X                                                                                           
+        3.00*10^ 0   XX X   X                                                                                           
+        2.85*10^ 0   XX X   X                                                                                           
+        2.70*10^ 0   XX X   X                                                                                           
+        2.55*10^ 0   XX X   X                                                                                           
+        2.40*10^ 0   XX X   X                                                                                           
+        2.25*10^ 0   XX X   X                                                                                           
+        2.10*10^ 0   XX X   X3  33   3                                          3                                       
+        1.95*10^ 0   XX X   XX  XX   X                                          X                                       
+        1.80*10^ 0   XX X   XX  XX   X                                          X                                       
+        1.65*10^ 0   XX X   XX  XX   X                                          X                                       
+        1.50*10^ 0   XX X   XX  XX   X                                          X                                       
+        1.35*10^ 0   XX X   XX  XX   X                                          X                                       
+        1.20*10^ 0   XX X   XX  XX   X                                          X                                       
+        1.05*10^ 0  7XX7X777XX 7XX  7X7 7                                       X         7                             
+        0.90*10^ 0  XXXXXXXXXX XXX  XXX X                                       X         X                             
+        0.75*10^ 0  XXXXXXXXXX XXX  XXX X                                       X         X                             
+        0.60*10^ 0  XXXXXXXXXX XXX  XXX X                                       X         X                             
+        0.45*10^ 0  XXXXXXXXXX XXX  XXX X                                       X         X                             
+        0.30*10^ 0  XXXXXXXXXX XXX  XXX X                                       X         X                             
+        0.15*10^ 0  XXXXXXXXXX XXX  XXX X                                       X         X                             
 
           Contents                                                                                                      
-            *10^ 0  5643365401031330220104010000000001100000010000000000000000001000000001000000000000110000000000000000
+            *10^ 0  1441411142012200121010000000000000000000000000000000000000002000000000100000000000000000000000000000
             *10^-1  0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
             *10^-2  0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
             *10^-3  0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
@@ -4142,6 +5096,6 @@
             *10^ 0  0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
             *10^-1  0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 
-   Entries  =          65    Mean =  1.3812e+01    Underflow =  0.0000e+00    Low edge  =  0.0000e+00
-   All chan =  6.4000e+01    Rms  =  1.7944e+01    Overflow  =  1.0000e+00    High edge =  1.0000e+02
+   Entries  =          36    Mean =  1.2667e+01    Underflow =  0.0000e+00    Low edge  =  0.0000e+00
+   All chan =  3.6000e+01    Rms  =  1.6412e+01    Overflow  =  0.0000e+00    High edge =  1.0000e+02
 

@@ -1,11 +1,11 @@
 # runmains is a part of the PYTHIA event generator.
-# Copyright (C) 2008 Torbjorn Sjostrand.
+# Copyright (C) 2010 Torbjorn Sjostrand.
 # PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 # Please respect the MCnet Guidelines, see GUIDELINES for details. 
  
 # Simple script to run all the mainXX test programs
-# The ones from main31 and higher need linkage to external libraries,
-# however, and therefore the execution exits before them by default.
+# Several of the ones from main31 and higher need linkage to external 
+# libraries, however, and therefore the execution exits before them by default.
 # If you want to change that behaviour, comment out the "exit" line.
 # The subdirectory outref contains output from reference run.
 
@@ -163,6 +163,11 @@ echo
 echo Now begin main71
 make main71
 time ./main71.exe > out71
+
+echo
+echo Now begin main72
+make main72
+time ./main72.exe > out72
 
 # This code section stops the testing before the mainXX programs
 # that need access to various external libraries.  

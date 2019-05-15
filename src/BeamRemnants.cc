@@ -968,11 +968,14 @@ bool BeamRemnants::checkColours( Event& event) {
   for (int iJun = 0; iJun < event.sizeJunction(); ++iJun)
   for (int leg = 0; leg < 3; ++leg) {
     int col = event.colJunction(iJun, leg); 
-    for (int iCol = 0; iCol < int(colFrom.size()); ++iCol) 
-    if (col == colFrom[iCol]) {
-      col = colTo[iCol]; 
-      event.colJunction(iJun, leg, col);
-    } 
+    //cout<< " BeamRemnants iJun = "<<iJun<<" leg = "<<leg<<" col = "<<col<<endl;
+    for (int iCol = 0; iCol < int(colFrom.size()); ++iCol) {
+      //cout << " iCol = "<<iCol<<" colFrom = "<<colFrom[iCol]<<endl;
+      if (col == colFrom[iCol]) {
+	col = colTo[iCol]; 
+	event.colJunction(iJun, leg, col);
+      } 
+    }
   }
 
   // Arrays for current colours and anticolours, and for singlet gluons.
@@ -1096,7 +1099,31 @@ bool BeamRemnants::checkColours( Event& event) {
         }
       }
 
-    // End junction check. More junction cases to come??
+      // Other junction types
+      else if ( kindJun == 3 || kindJun == 5) {
+	bool foundCol = false;
+        for (int iCol = 0; iCol < int(colList.size()); ++iCol) 
+        if (colList[iCol] == colEnd) { 
+          colList[iCol] = colList.back(); 
+          colList.pop_back();     
+          foundCol = true; 
+          break;
+        }  
+      } 
+
+      // Other antijunction types
+      else if ( kindJun == 4 || kindJun == 6) {
+        bool foundCol = false;
+        for (int iAcol = 0; iAcol < int(acolList.size()); ++iAcol) 
+        if (acolList[iAcol] == colEnd) { 
+          acolList[iAcol] = acolList.back(); 
+          acolList.pop_back();     
+          foundCol = true; 
+          break;
+        }
+      }
+
+      // End junction check. 
     }
   }
 

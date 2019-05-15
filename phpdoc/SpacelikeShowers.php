@@ -30,8 +30,10 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 <h2>Spacelike Showers</h2>
 
 The PYTHIA algorithm for spacelike initial-state showers is 
-based on the recent article [<a href="Bibliography.php" target="page">Sjo05</a>], where a 
-transverse-momentum-ordered backwards evolution scheme is introduced. 
+based on the article [<a href="Bibliography.php" target="page">Sjo05</a>], where a 
+transverse-momentum-ordered backwards evolution scheme is introduced, 
+with the extension to fully interleaved evolution covered in 
+[<a href="Bibliography.php" target="page">Cor10a</a>]. 
 This algorithm is a further development of the virtuality-ordered one 
 presented in [<a href="Bibliography.php" target="page">Sj085</a>], with matching to first-order matrix 
 element for <i>Z^0</i>, <i>W^+-</i> and Higgs (in the 

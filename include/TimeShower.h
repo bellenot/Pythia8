@@ -178,15 +178,16 @@ private:
   // Initialization data, normally only set once.
   bool   doQCDshower, doQEDshowerByQ, doQEDshowerByL, doQEDshowerByGamma, 
          doMEcorrections, doPhiPolAsym, doInterleave, allowBeamRecoil,
-         dampenBeamRecoil, allowRescatter, canVetoEmission, doHVshower;
+         dampenBeamRecoil, allowRescatter, canVetoEmission, doHVshower,
+         brokenHVsym;
   int    pTmaxMatch, pTdampMatch, alphaSorder, nGluonToQuark, 
-         alphaEMorder, nGammaToQuark, nGammaToLepton, nCHV;
+         alphaEMorder, nGammaToQuark, nGammaToLepton, nCHV, idHV;
   double pTdampFudge, mc, mb, m2c, m2b, alphaSvalue, alphaS2pi, 
          Lambda3flav, Lambda4flav, Lambda5flav, Lambda3flav2, Lambda4flav2, 
          Lambda5flav2, pTcolCutMin, pTcolCut, pT2colCut, pTchgQCut, 
          pT2chgQCut, pTchgLCut, pT2chgLCut, mMaxGamma, m2MaxGamma, 
          octetOniumFraction, octetOniumColFac, mZ, gammaZ, thetaWRat,
-         CFHV, alphaHVfix, pThvCut, pT2hvCut, pTmaxFudgeMI;
+         CFHV, alphaHVfix, pThvCut, pT2hvCut, mHV, pTmaxFudgeMI;
 
   // alphaStrong and alphaEM calculations.
   AlphaStrong alphaS;
@@ -194,7 +195,7 @@ private:
 
   // Some current values.
   bool   dopTdamp;
-  double pT2damp;
+  double pT2damp, kRad, kEmt;
 
   // All dipole ends and a pointer to the selected hardest dipole end.
   vector<TimeDipoleEnd> dipEnd;
@@ -235,7 +236,7 @@ private:
 
   // Calculate value of QCD ME correction.
   double calcMEcorr( int kind, int combiIn, double mixIn, double x1, 
-    double x2, double r1, double r2);
+    double x2, double r1, double r2, double r3 = 0.);
 
   // Find coefficient of azimuthal asymmetry from gluon polarization.
   void findAsymPol( Event& event, TimeDipoleEnd* dip);

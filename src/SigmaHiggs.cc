@@ -374,8 +374,8 @@ void Sigma2ffbar2HZ::initProc() {
   widZ         = particleDataPtr->mWidth(23);
   mZS          = mZ*mZ;
   mwZS         = pow2(mZ * widZ);
-  thetaWRat    = 1. / (16. * coupSMPtr->sin2thetaW() 
-                 * coupSMPtr->cos2thetaW());  
+  thetaWRat    = 1. / (16. * couplingsPtr->sin2thetaW() 
+                 * couplingsPtr->cos2thetaW());  
 
   // Secondary open width fraction.
   openFracPair = particleDataPtr->resOpenFrac(idRes, 23);
@@ -402,7 +402,7 @@ double Sigma2ffbar2HZ::sigmaHat() {
 
   // Coupling a_f^2 + v_f^2 to s-channel Z0 and colour factor.
   int idAbs    = abs(id1);
-  double sigma = sigma0 * coupSMPtr->vf2af2(idAbs);
+  double sigma = sigma0 * couplingsPtr->vf2af2(idAbs);
   if (idAbs < 9) sigma /= 3.;
 
   // Secondary width for H0 and Z0 or H1 and Z0 or H2 and Z0 or A3 and Z0.
@@ -459,11 +459,11 @@ double Sigma2ffbar2HZ::weightDecay( Event& process, int iResBeg,
 
   // Find left- and righthanded couplings of fermion pairs.
   int    idAbs = process[i1].idAbs(); 
-  double liS   = pow2( coupSMPtr->lf(idAbs) );
-  double riS   = pow2( coupSMPtr->rf(idAbs) );
+  double liS   = pow2( couplingsPtr->lf(idAbs) );
+  double riS   = pow2( couplingsPtr->rf(idAbs) );
   idAbs        = process[i3].idAbs(); 
-  double lfS   = pow2( coupSMPtr->lf(idAbs) );
-  double rfS   = pow2( coupSMPtr->rf(idAbs) );
+  double lfS   = pow2( couplingsPtr->lf(idAbs) );
+  double rfS   = pow2( couplingsPtr->rf(idAbs) );
 
   // Evaluate relevant four-products.
   double pp13  = process[i1].p() * process[i3].p();
@@ -524,7 +524,7 @@ void Sigma2ffbar2HW::initProc() {
   widW            = particleDataPtr->mWidth(24);
   mWS             = mW*mW;
   mwWS            = pow2(mW * widW);
-  thetaWRat       = 1. / (4. * coupSMPtr->sin2thetaW());  
+  thetaWRat       = 1. / (4. * couplingsPtr->sin2thetaW());  
 
   // Secondary open width fractions.
   openFracPairPos = particleDataPtr->resOpenFrac(idRes,  24);
@@ -552,7 +552,7 @@ double Sigma2ffbar2HW::sigmaHat() {
 
   // CKM and colour factors.
   double sigma = sigma0;
-  if (abs(id1) < 9) sigma *= coupSMPtr->V2CKMid(abs(id1), abs(id2)) / 3.;
+  if (abs(id1) < 9) sigma *= couplingsPtr->V2CKMid(abs(id1), abs(id2)) / 3.;
 
   // Secondary width for H0 and W+-.
   int idUp     = (abs(id1)%2 == 0) ? id1 : id2;
@@ -664,8 +664,8 @@ void Sigma3ff2HfftZZ::initProc() {
 
   // Common fixed mass and coupling factor.
   mZS = pow2( particleDataPtr->m0(23) );
-  prefac = 0.25 * mZS * pow3( 4. * M_PI / (coupSMPtr->sin2thetaW() 
-           * coupSMPtr->cos2thetaW()) );  
+  prefac = 0.25 * mZS * pow3( 4. * M_PI / (couplingsPtr->sin2thetaW() 
+           * couplingsPtr->cos2thetaW()) );  
 
   // Secondary open width fraction.
   openFrac = particleDataPtr->resOpenFrac(idRes);
@@ -702,10 +702,10 @@ double Sigma3ff2HfftZZ::sigmaHat() {
   // Flavour-dependent coupling factors for two incoming flavours.
   int id1Abs = abs(id1);
   int id2Abs = abs(id2);
-  double lf1S  = pow2( coupSMPtr->lf(id1Abs) );    
-  double rf1S  = pow2( coupSMPtr->rf(id1Abs) );    
-  double lf2S  = pow2( coupSMPtr->lf(id2Abs) );    
-  double rf2S  = pow2( coupSMPtr->rf(id2Abs) );    
+  double lf1S  = pow2( couplingsPtr->lf(id1Abs) );    
+  double rf1S  = pow2( couplingsPtr->rf(id1Abs) );    
+  double lf2S  = pow2( couplingsPtr->lf(id2Abs) );    
+  double rf2S  = pow2( couplingsPtr->rf(id2Abs) );    
   double c1    = lf1S * lf2S + rf1S * rf2S;
   double c2    = lf1S * rf2S + rf1S * lf2S;
 
@@ -804,7 +804,7 @@ void Sigma3ff2HfftWW::initProc() {
 
   // Common fixed mass and coupling factor.
   mWS = pow2( particleDataPtr->m0(24) );
-  prefac = mWS * pow3( 4. * M_PI / coupSMPtr->sin2thetaW() );  
+  prefac = mWS * pow3( 4. * M_PI / couplingsPtr->sin2thetaW() );  
 
   // Secondary open width fraction.
   openFrac = particleDataPtr->resOpenFrac(idRes);
@@ -842,8 +842,8 @@ double Sigma3ff2HfftWW::sigmaHat() {
     || (id1Abs%2 != id2Abs%2 && id1 * id2 < 0) ) return 0.;
 
   // Basic cross section. CKM factors for final states.
-  double sigma = sigma0 * pow3(alpEM) * coupSMPtr->V2CKMsum(id1Abs) 
-    * coupSMPtr->V2CKMsum(id2Abs);
+  double sigma = sigma0 * pow3(alpEM) * couplingsPtr->V2CKMsum(id1Abs) 
+    * couplingsPtr->V2CKMsum(id2Abs);
 
   // Secondary width for H0, H1, H2 or A3.
   sigma       *= openFrac;
@@ -864,8 +864,8 @@ double Sigma3ff2HfftWW::sigmaHat() {
 void Sigma3ff2HfftWW::setIdColAcol() {
 
   // Pick out-flavours by relative CKM weights.
-  id4 = coupSMPtr->V2CKMpick(id1);
-  id5 = coupSMPtr->V2CKMpick(id2);
+  id4 = couplingsPtr->V2CKMpick(id1);
+  id5 = couplingsPtr->V2CKMpick(id2);
   setId( id1, id2, idRes, id4, id5);
 
   // Colour flow topologies. Swap when antiquarks.
@@ -971,7 +971,7 @@ void Sigma3gg2HQQbar::initProc() {
 
   // Common mass and coupling factors.
   double mWS      = pow2(particleDataPtr->m0(24));
-  prefac          = (4. * M_PI / coupSMPtr->sin2thetaW()) * pow2(4. * M_PI) 
+  prefac          = (4. * M_PI / couplingsPtr->sin2thetaW()) * pow2(4. * M_PI) 
                   * 0.25 / mWS;
 
   // Secondary open width fraction.
@@ -1443,7 +1443,7 @@ void Sigma3qqbar2HQQbar::initProc() {
 
   // Common mass and coupling factors.
   double mWS      = pow2(particleDataPtr->m0(24));
-  prefac          = (4. * M_PI / coupSMPtr->sin2thetaW()) * pow2(4. * M_PI) 
+  prefac          = (4. * M_PI / couplingsPtr->sin2thetaW()) * pow2(4. * M_PI) 
                   * 0.25 / mWS;
 
   // Secondary open width fraction.
@@ -1625,7 +1625,7 @@ void Sigma2qg2Hq::initProc() {
 
   // Standard parameters.
   m2W       = pow2( particleDataPtr->m0(24) );
-  thetaWRat = 1. / (24. * coupSMPtr->sin2thetaW()); 
+  thetaWRat = 1. / (24. * couplingsPtr->sin2thetaW()); 
  
   // Secondary open width fraction.
   openFrac = particleDataPtr->resOpenFrac(idRes);
@@ -2028,7 +2028,7 @@ void Sigma1ffbar2Hchg::initProc() {
 
   // Couplings.
   m2W       = pow2(particleDataPtr->m0(24));
-  thetaWRat = 1. / (8. * coupSMPtr->sin2thetaW());
+  thetaWRat = 1. / (8. * couplingsPtr->sin2thetaW());
   tan2Beta  = pow2(settingsPtr->parm("HiggsHchg:tanBeta"));
 
 } 
@@ -2128,7 +2128,7 @@ void Sigma2qg2Hchgq::initProc() {
 
   // Standard parameters.
   m2W       = pow2( particleDataPtr->m0(24) );
-  thetaWRat = 1. / (24. * coupSMPtr->sin2thetaW()); 
+  thetaWRat = 1. / (24. * couplingsPtr->sin2thetaW()); 
   tan2Beta  = pow2(settingsPtr->parm("HiggsHchg:tanBeta"));
 
   // Incoming flavour within same doublet. Uptype and downtype flavours.
@@ -2248,7 +2248,7 @@ void Sigma2ffbar2A3H12::initProc() {
   double GammaZ = particleDataPtr->mWidth(23);
   m2Z        = mZ * mZ;
   mGammaZ    = mZ * GammaZ;
-  thetaWRat  = 1. / (4. * coupSMPtr->sin2thetaW() * coupSMPtr->cos2thetaW()); 
+  thetaWRat  = 1. / (4. * couplingsPtr->sin2thetaW() * couplingsPtr->cos2thetaW()); 
 
   // Secondary open width fraction.
   openFrac   = particleDataPtr->resOpenFrac(36, higgs12);
@@ -2275,8 +2275,8 @@ double Sigma2ffbar2A3H12::sigmaHat() {
 
   // Couplings for incoming flavour.
   int idAbs    = abs(id1);
-  double lIn   = coupSMPtr->lf(idAbs);
-  double rIn   = coupSMPtr->rf(idAbs);
+  double lIn   = couplingsPtr->lf(idAbs);
+  double rIn   = couplingsPtr->rf(idAbs);
 
   // Combine to total cross section. Colour factor.
   double sigma = (pow2(lIn) + pow2(rIn)) * sigma0 * openFrac;        
@@ -2348,7 +2348,7 @@ void Sigma2ffbar2HchgH12::initProc() {
   double GammaW = particleDataPtr->mWidth(24);
   m2W        = mW * mW;
   mGammaW    = mW * GammaW;
-  thetaWRat  = 1. / (2. * coupSMPtr->sin2thetaW()); 
+  thetaWRat  = 1. / (2. * couplingsPtr->sin2thetaW()); 
 
   // Secondary open width fraction.
   openFracPos   = particleDataPtr->resOpenFrac( 37, higgs12);
@@ -2377,7 +2377,7 @@ double Sigma2ffbar2HchgH12::sigmaHat() {
   // Combine to total cross section. CKM and colour factor.
   int idUp = (abs(id1)%2 == 0) ? id1 : id2;
   double sigma = (idUp > 0) ? sigma0 * openFracPos : sigma0 * openFracNeg;
-  if (abs(id1) < 9) sigma *= coupSMPtr->V2CKMid(abs(id1), abs(id2)) / 3.;
+  if (abs(id1) < 9) sigma *= couplingsPtr->V2CKMid(abs(id1), abs(id2)) / 3.;
   return sigma;
 
 }
@@ -2439,11 +2439,11 @@ void Sigma2ffbar2HposHneg::initProc() {
   double GammaZ = particleDataPtr->mWidth(23);
   m2Z       = mZ * mZ;
   mGammaZ   = mZ * GammaZ;
-  thetaWRat = 1. / (4. * coupSMPtr->sin2thetaW() * coupSMPtr->cos2thetaW()); 
+  thetaWRat = 1. / (4. * couplingsPtr->sin2thetaW() * couplingsPtr->cos2thetaW()); 
 
   // Charged Higgs coupling to gamma and Z0.
   eH        = -1.;
-  lH        = -1. + 2. * coupSMPtr->sin2thetaW();
+  lH        = -1. + 2. * couplingsPtr->sin2thetaW();
 
   // Secondary open width fraction.
   openFrac  = particleDataPtr->resOpenFrac(37, -37);
@@ -2475,9 +2475,9 @@ double Sigma2ffbar2HposHneg::sigmaHat() {
 
   // Couplings for incoming flavour.
   int idAbs    = int(id1);
-  double eIn   = coupSMPtr->ef(idAbs);
-  double lIn   = coupSMPtr->lf(idAbs);
-  double rIn   = coupSMPtr->rf(idAbs);
+  double eIn   = couplingsPtr->ef(idAbs);
+  double lIn   = couplingsPtr->lf(idAbs);
+  double rIn   = couplingsPtr->rf(idAbs);
 
   // Combine to total cross section. Colour factor.
   double sigma = (pow2(eIn) * gamSig + eIn * (lIn + rIn) * intSig 

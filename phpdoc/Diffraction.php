@@ -32,11 +32,12 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 <h3>Introduction</h3>
 
 Diffraction is not well understood, and several alternative approaches
-have been proposed. Here we follw a fairly conventional Pomeron-based
-one, but integrated to make full use of the standard PYTHIA machinery
-for multiple interactions, parton showers and hadronization. This
-is the approach pioneered in the PomPyt program by 
-Ingelman and collaborators [<a href="Bibliography.php" target="page">Ing97</a>].
+have been proposed. Here we follow a fairly conventional Pomeron-based
+one, in the Ingelman-Schlein spirit [<a href="Bibliography.php" target="page">Ing85</a>],
+but integrated to make full use of the standard PYTHIA machinery
+for multiple interactions, parton showers and hadronization
+[<a href="Bibliography.php" target="page">Nav10,Cor10a</a>]. This is the approach pioneered in the PomPyt 
+program by Ingelman and collaborators [<a href="Bibliography.php" target="page">Ing97</a>].
 
 <p/>
 For ease of use (and of modelling), the Pomeron-specific parts of the 

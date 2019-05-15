@@ -128,6 +128,8 @@ bool ResonanceDecays::next( Event& process) {
 
 }
 
+//--------------------------------------------------------------------------
+
 // Select masses of decay products.
  
 bool ResonanceDecays::pickMasses() {

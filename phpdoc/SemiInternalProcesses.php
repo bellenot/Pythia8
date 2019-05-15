@@ -496,6 +496,18 @@ transition from the initial to the final state.
   
 
 <a name="method17"></a>
+<p/><strong>int SigmaProcess::isQCD3body() &nbsp;</strong> <br/>
+there are two different 3-body phase-space selection machineries,
+of which the non-QCD one is default. If you overload this method
+instead the QCD-inspired machinery will be used. The differences 
+between these two is related to which 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='PhaseSpaceCuts.php?filepath=".$filepath."' target='page'>";?>phase space cuts</a>
+can be set, and also that the QCD machinery assumes (almost) massless
+outgoing partons.
+  
+
+<a name="method18"></a>
 <p/><strong>int SigmaProcess::idTchan1() &nbsp;</strong> <br/>
   
 <strong>int SigmaProcess::idTchan2() &nbsp;</strong> <br/>
@@ -507,7 +519,7 @@ of the  <i>t</i>-channel-exchanged particles on the two side of the
 event are provided. Only the absolute value is of interest.
   
 
-<a name="method18"></a>
+<a name="method19"></a>
 <p/><strong>double SigmaProcess::tChanFracPow1() &nbsp;</strong> <br/>
   
 <strong>double SigmaProcess::tChanFracPow2() &nbsp;</strong> <br/>
@@ -529,7 +541,7 @@ selected independently, with the first <i>pT</i> then fixed
 by transverse-momentum conservation.
   
 
-<a name="method19"></a>
+<a name="method20"></a>
 <p/><strong>bool SigmaProcess::useMirrorWeight() &nbsp;</strong> <br/>
 in <i>2 -> 3</i> processes the phase space selection used here
 involves a twofold ambiguity basically corresponding to a flipping of 
@@ -540,7 +552,7 @@ improved by making a preselection based on the relative propagator
 weights, <code>true</code>.  
   
 
-<a name="method20"></a>
+<a name="method21"></a>
 <p/><strong>int SigmaProcess::gmZmode() &nbsp;</strong> <br/>
 allows a possibility to override the global mode 
 <code><?php $filepath = $_GET["filepath"];

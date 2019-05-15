@@ -37,9 +37,15 @@ inputting SUSY models, and SUSY processes cannot be run unless such an
 input has taken place. 
 
 <p/>
+The SLHA input format can also be extended for use with more general BSM
+models, beyond SUSY. Information specific to  how to use the SLHA
+interface for generic BSM models is collected below,
+under <a href="#generic">Using SLHA for generic BSM Models</a>. 
+
+<p/>
 Most of the SUSY implementation in PYTHIA 8 is compatible with both the 
-SLHA1 and SLHA2 conventions (with the exception of R-parity violation and 
-the NMSSM extension in the latter case). Internally, PYTHIA 8 uses the 
+SLHA1 and SLHA2 conventions (with some limitations for the NMSSM 
+in the latter case). Internally, PYTHIA 8 uses the 
 SLHA2 conventions and translates SLHA1 input to these when necessary. 
 See the section on SUSY Processes for more information.
 
@@ -52,14 +58,10 @@ file containing SLHA information may be specified using
 <code>SLHA:file</code> (see below). 
 
 <p/>
-With the so-called <code>QNUMBERS</code> extension [<a href="Bibliography.php" target="page">Alw07</a>], the 
-SLHA input format can also be used for more general BSM models, although 
-the implementation of this extension is not yet complete in PYTHIA 8. 
-
-<p/>
 Finally, the SLHA input capability can of course also be used to input 
-SLHA-formatted MASS and DECAY tables for other particles, such as the top 
-quark, furnishing a less sophisticated but more universal complement to the
+SLHA-formatted <code>MASS</code> and <code>DECAY</code> tables for 
+other particles, such as the Higgs boson, furnishing a less 
+sophisticated but more universal complement to the
 standard PYTHIA 8-specific methods for inputting such information (for the
 latter, see the section on <?php $filepath = $_GET["filepath"];
 echo "<a href='ParticleData.php?filepath=".$filepath."' target='page'>";?>Particle Data</a>
@@ -72,7 +74,8 @@ of SLHA to overwrite particle data.
 The reading-in of information from SLHA or LHEF files is handled by the
 <code>SusyLesHouches</code> class, while the subsequent calculation of 
 derived quantities of direct application to SUSY processes is done in the
-<code>CoupSUSY</code> class.
+<code>CoupSUSY</code>, <code>SigmaSUSY</code>,
+and <code>SUSYResonanceWidths</code> classes.
 
 <h3>SLHA Switches and Parameters</h3>
 
@@ -106,7 +109,23 @@ as is other codes in the range 25 - 80 and 1,000,000 - . If you
 switch off this flag then also SM particles are modified by SLHA input.
   
 
-<br/><br/><table><tr><td><strong>SLHA:minMassSM </td><td></td><td> <input type="text" name="3" value="100.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>100.0</strong></code>)</td></tr></table>
+<br/><br/><strong>SLHA:useDecayTable</strong>  <input type="radio" name="3" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="3" value="off"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
+Switch to choose whether to read in SLHA <code>DECAY</code> tables or not. 
+If this switch is set to off, PYTHIA will ignore any decay tables found 
+in the SLHA file, and all decay widths will be calculated internally by
+PYTHIA. If switched on, SLHA decay tables will be read in, and will
+then supersede PYTHIA's internal calculations, with PYTHIA only
+computing the decays for particles for which no SLHA decay table is
+found. (To set a particle stable, you may either omit an SLHA 
+<code>DECAY</code> table for it and then  
+use PYTHIA's internal <code>id:MayDecay</code> switch for that
+particle, or you may include an SLHA <code>DECAY</code> table for it, 
+with the width set explicitly to zero.)
+  
+
+<br/><br/><table><tr><td><strong>SLHA:minMassSM </td><td></td><td> <input type="text" name="4" value="100.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>100.0</strong></code>)</td></tr></table>
 This parameter provides an alternative possibility to ignore SLHA input 
 for all particles with identity codes below 1,000,000 (which mainly
 means SM particle, but also includes e.g. the Higgses in 
@@ -128,12 +147,69 @@ The following variables are used internally by PYTHIA as local copies
 of SLHA information. User changes will generally have no effect, since
 these variables will be reset by the SLHA reader during initialization.
 
-<br/><br/><strong>SLHA:NMSSM</strong>  <input type="radio" name="4" value="on"><strong>On</strong>
-<input type="radio" name="4" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>SLHA:NMSSM</strong>  <input type="radio" name="5" value="on"><strong>On</strong>
+<input type="radio" name="5" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Corresponds to SLHA block MODSEL entry 3.
   
 
+<h2>Using SLHA for generic BSM Models</h2>
+
+</p>
+Using the <code>QNUMBERS</code> extension [<a href="Bibliography.php" target="page">Alw07</a>], the SLHA
+can also be used to define new particles, with arbitrary quantum
+numbers. This already serves as a useful way to introduce new
+particles and can be combined with <code>MASS</code> and 
+<code>DECAY</code> tables in the usual
+way, to generate isotropically distributed decays or even chains of
+such decays. (If you want something better than isotropic, sorry, you'll
+have to do some actual work ...)
+</p>
+A more advanced further option is to make use of the possibility
+in the SLHA to include user-defined blocks with arbitrary
+names and contents. Obviously, standalone 
+PYTHIA 8 does not know what to do with such information. However, it
+does not throw it away either, but instead stores the contents of user
+blocks as strings, which can be read back later, with the user
+having full control over the format used to read the individual entries. 
+</p>
+The contents of both standard and user-defined SLHA blocks can be accessed 
+in any class inheriting from PYTHIA 8's <code>SigmaProcess</code>
+class (i.e., in particular, from any semi-internal process written by
+a user), through its SLHA pointer, <code>slhaPtr</code>, by using the following
+method: 
+<pre>
+  bool slhaPtr->getEntry(string blockName, int indx, double& val); 
+</pre>
+This particular example assumes that the user wants to read the entry
+with index <code>indx</code> in the user-defined
+block <code>blockName</code>, and that it should be interpreted as
+a <code>double</code>. If anything went wrong (i.e., the block doesn't
+exist, or it doesn't have an entry with that index, or that entry
+can't be read as a double), the method returns false; true
+otherwise. This effectively allows to input completely arbitrary
+parameters using the SLHA machinery, with the user having full control
+over names and conventions. Of course, it is then the user's
+responsibility to ensure complete consistency between the names and
+conventions used in the SLHA input, and those assumed in any
+user-written semi-internal process code. 
+</p>
+The method above is in fact only one specific example (the
+most frequent?) of how to read user block entries. For special
+applications for which the above method is insufficient, we therefore
+encourage users to look among the following templated methods instead,
+which should enable read-in of of <i>any</i> kind of information: 
+<pre>
+  template &lt;class T&gt; bool getEntry(string blockName, int indx, T& val);
+  template &lt;class T&gt bool getEntry(string blockName, T& val);
+</pre>
+Two further options, to access matrix-indexed and tensor-indexed
+    blocks, have not been implemented yet, but could easily be added,
+    if there are explicit use cases:
+<pre>
+  template &lt;class T&gt; bool getEntry(string blockName, int, int, T&);
+  template &lt;class T&gt; bool getEntry(string blockName, vector&lt;int&gt;, T&);
+</pre>
 <input type="hidden" name="saved" value="1"/>
 
 <?php
@@ -159,14 +235,19 @@ if($_POST["2"] != "on")
 $data = "SLHA:keepSM = ".$_POST["2"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["3"] != "100.0")
+if($_POST["3"] != "on")
 {
-$data = "SLHA:minMassSM = ".$_POST["3"]."\n";
+$data = "SLHA:useDecayTable = ".$_POST["3"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["4"] != "off")
+if($_POST["4"] != "100.0")
 {
-$data = "SLHA:NMSSM = ".$_POST["4"]."\n";
+$data = "SLHA:minMassSM = ".$_POST["4"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["5"] != "off")
+{
+$data = "SLHA:NMSSM = ".$_POST["5"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);

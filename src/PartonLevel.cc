@@ -29,7 +29,7 @@ bool PartonLevel::init( Info* infoPtrIn, Settings& settings,
   ParticleData* particleDataPtrIn, Rndm* rndmPtrIn,
   BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, 
   BeamParticle* beamPomAPtrIn, BeamParticle* beamPomBPtrIn, 
-  CoupSM* coupSMPtrIn, PartonSystems* partonSystemsPtrIn, 
+  Couplings* couplingsPtrIn, PartonSystems* partonSystemsPtrIn, 
   SigmaTotal* sigmaTotPtr, TimeShower* timesDecPtrIn, TimeShower* timesPtrIn, 
   SpaceShower* spacePtrIn, UserHooks* userHooksPtrIn) {
 
@@ -43,7 +43,7 @@ bool PartonLevel::init( Info* infoPtrIn, Settings& settings,
   beamHadBPtr        = beamBPtr;
   beamPomAPtr        = beamPomAPtrIn;
   beamPomBPtr        = beamPomBPtrIn;
-  coupSMPtr          = coupSMPtrIn;
+  couplingsPtr       = couplingsPtrIn;
   partonSystemsPtr   = partonSystemsPtrIn;
   timesDecPtr        = timesDecPtrIn;
   timesPtr           = timesPtrIn;
@@ -116,12 +116,12 @@ bool PartonLevel::init( Info* infoPtrIn, Settings& settings,
   timesPtr->init( beamAPtr, beamBPtr);
   if (doISR) spacePtr->init( beamAPtr, beamBPtr);
   doMIMB  =  multiMB.init( doMIinit, 0, infoPtr, settings, particleDataPtr,
-    rndmPtr, beamAPtr, beamBPtr, coupSMPtr, partonSystemsPtr, sigmaTotPtr);
+    rndmPtr, beamAPtr, beamBPtr, couplingsPtr, partonSystemsPtr, sigmaTotPtr);
   if (doDiffraction) doMISDA = multiSDA.init( doMIinit, 1, infoPtr, 
-    settings, particleDataPtr, rndmPtr, beamPomBPtr, beamAPtr, coupSMPtr,
+    settings, particleDataPtr, rndmPtr, beamPomBPtr, beamAPtr, couplingsPtr,
     partonSystemsPtr, sigmaTotPtr);
   if (doDiffraction) doMISDB = multiSDB.init( doMIinit, 2, infoPtr, 
-    settings, particleDataPtr, rndmPtr, beamPomAPtr, beamBPtr, coupSMPtr, 
+    settings, particleDataPtr, rndmPtr, beamPomAPtr, beamBPtr, couplingsPtr, 
     partonSystemsPtr, sigmaTotPtr);
   remnants.init( infoPtr, settings, rndmPtr, beamAPtr, beamBPtr, 
     partonSystemsPtr);  

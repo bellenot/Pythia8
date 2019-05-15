@@ -5,10 +5,10 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.142      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 15 Aug 2010  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.145      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 10 Nov 2010  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 15 Aug 2010 at 19:25:41    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 11 Nov 2010 at 20:10:31    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Theoretical Physics, Lund University,   |  | 
  |  |      Solvegatan 14A, SE-223 62 Lund, Sweden;                                 |  | 
@@ -137,7 +137,7 @@
  *-------  End PYTHIA Error and Warning Messages Statistics  ------------------------------------------------------* 
 
 
-  2010-08-15 19:25       center-of-mass energy deviation
+  2010-11-11 20:10       center-of-mass energy deviation
 
         5.40*10^ 2                                                   34423                                              
         5.20*10^ 2                                                 74XXXXX                                              
@@ -182,7 +182,7 @@
    All chan =  1.0000e+04    Rms  =  2.8698e+00    Overflow  =  0.0000e+00    High edge =  2.0000e+01
 
 
-  2010-08-15 19:25       net pX offset
+  2010-11-11 20:10       net pX offset
 
         6.25*10^ 2                                                    6                                                 
         6.00*10^ 2                                                    X                                                 
@@ -225,7 +225,7 @@
    All chan =  1.0000e+04    Rms  =  1.4155e-01    Overflow  =  0.0000e+00    High edge =  1.0000e+00
 
 
-  2010-08-15 19:25       net pY offset
+  2010-11-11 20:10       net pY offset
 
         5.80*10^ 2                                                   7                                                  
         5.60*10^ 2                                                 5 X49                                                
@@ -272,7 +272,7 @@
    All chan =  1.0000e+04    Rms  =  1.4228e-01    Overflow  =  0.0000e+00    High edge =  1.0000e+00
 
 
-  2010-08-15 19:25       net pZ offset
+  2010-11-11 20:10       net pZ offset
 
         2.90*10^ 2                                                    1                                                 
         2.80*10^ 2                                                    X  8                                              
@@ -319,7 +319,7 @@
    All chan =  1.0000e+04    Rms  =  2.8812e+00    Overflow  =  0.0000e+00    High edge =  1.0000e+01
 
 
-  2010-08-15 19:25       individual abs(pZ) offset
+  2010-11-11 20:10       individual abs(pZ) offset
 
         8.40*10^ 2                                                   4                                                  
         8.10*10^ 2                                                   X                                                  
@@ -365,7 +365,7 @@
    All chan =  2.0000e+04    Rms  =  2.0334e+00    Overflow  =  0.0000e+00    High edge =  1.0000e+01
 
 
-  2010-08-15 19:25       vertex x position
+  2010-11-11 20:10       vertex x position
 
         3.00*10^ 2                                                      55                                              
         2.90*10^ 2                                                  2   XX                                              
@@ -413,7 +413,7 @@
    All chan =  9.9860e+03    Rms  =  2.9885e-01    Overflow  =  1.1000e+01    High edge =  1.0000e+00
 
 
-  2010-08-15 19:25       vertex y position
+  2010-11-11 20:10       vertex y position
 
         2.80*10^ 2                                                  11                                                  
         2.70*10^ 2                                              4 2 XX2 9                                               
@@ -459,7 +459,7 @@
    All chan =  9.9900e+03    Rms  =  2.9729e-01    Overflow  =  4.0000e+00    High edge =  1.0000e+00
 
 
-  2010-08-15 19:25       vertex z position
+  2010-11-11 20:10       vertex z position
 
         4.35*10^ 2                                                    2                                                 
         4.20*10^ 2                                                    X                                                 
@@ -506,7 +506,7 @@
    All chan =  1.0000e+04    Rms  =  2.0385e+01    Overflow  =  0.0000e+00    High edge =  1.0000e+02
 
 
-  2010-08-15 19:25       vertex time
+  2010-11-11 20:10       vertex time
 
         4.20*10^ 2                                                    3                                                 
         4.05*10^ 2                                                   1X 3                                               
@@ -552,7 +552,7 @@
    All chan =  1.0000e+04    Rms  =  2.0423e+01    Overflow  =  0.0000e+00    High edge =  1.0000e+02
 
 
-  2010-08-15 19:25       vertex |x| + |t|
+  2010-11-11 20:10       vertex |x| + |t|
 
         4.20*10^ 2                                                  8                                                   
         4.05*10^ 2                                           5    27X                                                   

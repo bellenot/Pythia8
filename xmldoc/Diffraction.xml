@@ -5,11 +5,12 @@
 <h3>Introduction</h3>
 
 Diffraction is not well understood, and several alternative approaches
-have been proposed. Here we follw a fairly conventional Pomeron-based
-one, but integrated to make full use of the standard PYTHIA machinery
-for multiple interactions, parton showers and hadronization. This
-is the approach pioneered in the PomPyt program by 
-Ingelman and collaborators <ref>Ing97</ref>.
+have been proposed. Here we follow a fairly conventional Pomeron-based
+one, in the Ingelman-Schlein spirit <ref>Ing85</ref>,
+but integrated to make full use of the standard PYTHIA machinery
+for multiple interactions, parton showers and hadronization
+<ref>Nav10,Cor10a</ref>. This is the approach pioneered in the PomPyt 
+program by Ingelman and collaborators <ref>Ing97</ref>.
 
 <p/>
 For ease of use (and of modelling), the Pomeron-specific parts of the 

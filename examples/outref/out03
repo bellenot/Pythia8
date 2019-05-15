@@ -5,10 +5,10 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.142      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 15 Aug 2010  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.145      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 10 Nov 2010  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 15 Aug 2010 at 19:18:48    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 11 Nov 2010 at 20:03:36    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Theoretical Physics, Lund University,   |  | 
  |  |      Solvegatan 14A, SE-223 62 Lund, Sweden;                                 |  | 
@@ -1477,7 +1477,7 @@
  *-------  End PYTHIA Error and Warning Messages Statistics  ------------------------------------------------------* 
 
 
-  2010-08-15 19:19       process pT scale
+  2010-11-11 20:04       process pT scale
 
         1.45*10^ 2                           4                                                                          
         1.40*10^ 2                           X                                                                          
@@ -1524,7 +1524,7 @@
    All chan =  9.9700e+02    Rms  =  1.7464e+01    Overflow  =  3.0000e+00    High edge =  2.0000e+02
 
 
-  2010-08-15 19:19       charged particle multiplicity
+  2010-11-11 20:04       charged particle multiplicity
 
         5.00*10^ 1                         5                                                                            
         4.80*10^ 1                         X 5                                                                          
@@ -1567,7 +1567,7 @@
    All chan =  1.0000e+03    Rms  =  7.0759e+01    Overflow  =  0.0000e+00    High edge =  7.9950e+02
 
 
-  2010-08-15 19:19       dn/dy for charged particles
+  2010-11-11 20:04       dn/dy for charged particles
 
         2.50*10^ 1                                                    2X8 6                                             
         2.40*10^ 1                                              5794XXXXXXX7                                            
@@ -1610,7 +1610,7 @@
    All chan =  1.0236e+03    Rms  =  3.2357e+00    Overflow  =  3.0000e-02    High edge =  1.0000e+01
 
 
-  2010-08-15 19:19       dn/dpT for charged particles
+  2010-11-11 20:04       dn/dpT for charged particles
 
         2.60*10^ 2    7                                                                                                 
         2.50*10^ 2    X                                                                                                 

@@ -102,7 +102,10 @@ study the hadronization of junction topologies. </li>
 
 <li><code>main22.cc</code> : tests of internally implemented cross sections
 for Supersymmetric particle production, with SYSY spectrum defined in
-<code>sps1a.spc</code> and settings in <code>main22.cmnd</code>.</li>
+<code>sps1a.spc</code> and settings in <code>main22.cmnd</code>. For
+illustration, an alternative example spectrum is also
+available, <code>sps1aWithDecays.spc</code>, which contains a decay
+table in SLHA format.</li>
 
 <li><code>main23.cc</code> : shows how an external decay handler can 
 be linked to handle the decays of some particles.</li>
@@ -178,6 +181,14 @@ parton showers to LHEF-style input based on the POWHEG approach,
 in this particular case for the POWHEG-hvq program applied to top
 pair production [<a href="Bibliography.html" target="page">Cor10</a>]. The small sample of input events 
 is stored in the <code>powheg-hvq.lhe</code> file.
+</li>
+
+<li><code>main72.cc</code> : input RPV-SUSY events from an LHEF file that
+  contains an SLHA spectrum inside its <code><header></code>. The
+  event file, <code>main72.lhe</code>, contains a sample events that 
+  illustrate how to arrange color tags in the presence of the
+  color-space epsilon tensors that accompany baryon number violating
+  event topologies. 
 </li>
 
 </ul>

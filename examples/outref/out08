@@ -5,10 +5,10 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.142      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 15 Aug 2010  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.145      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 10 Nov 2010  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 15 Aug 2010 at 19:20:34    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 11 Nov 2010 at 20:05:22    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Theoretical Physics, Lund University,   |  | 
  |  |      Solvegatan 14A, SE-223 62 Lund, Sweden;                                 |  | 
@@ -470,7 +470,7 @@
  *-------  End PYTHIA Error and Warning Messages Statistics  ------------------------------------------------------* 
 
 
-  2010-08-15 19:20       pTHat distribution, unweighted
+  2010-11-11 20:05       pTHat distribution, unweighted
 
         4.05*10^ 3            8                                                                                         
         3.90*10^ 3            X                                                                                         
@@ -515,7 +515,7 @@
    All chan =  4.9524e+04    Rms  =  2.1577e+02    Overflow  =  4.7600e+02    High edge =  1.0000e+03
 
 
-  2010-08-15 19:20       pTHat distribution, weighted
+  2010-11-11 20:05       pTHat distribution, weighted
 
         4.60*10^-5            7                                                                                         
         4.40*10^-5            X                                                                                         
@@ -556,7 +556,7 @@
    All chan =  1.3635e-04    Rms  =  3.6976e+01    Overflow  =  1.1737e-09    High edge =  1.0000e+03
 
 
-  2010-08-15 19:20       pTHat distribution, pT3*weighted
+  2010-11-11 20:05       pTHat distribution, pT3*weighted
 
         5.20*10^ 1            X                                                                                         
         5.00*10^ 1            X                                                                                         
@@ -600,7 +600,7 @@
    All chan =  3.9470e+02    Rms  =  1.2576e+02    Overflow  =  2.1495e+00    High edge =  1.0000e+03
 
 
-  2010-08-15 19:20       pTHat distribution, pT5*weighted
+  2010-11-11 20:05       pTHat distribution, pT5*weighted
 
         5.80*10^ 5            68                                                                                        
         5.60*10^ 5            XX6 6                                                                                     

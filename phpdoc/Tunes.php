@@ -73,25 +73,25 @@ version 8.127.
 It was noted, in particular by Hendrik Hoeth, that the
 program had a tension between parameters needed to describe minimum-bias
 and underlying-event activity.  Therefore some further physics features 
-have been introduced in the code itself, which are made default as of
-8.140. This version also includes two new draft tunes, 2C and 2M, based 
-on the CTEQ 6L1 and the MRST LO** PDF sets, respectively. These have been 
-made by hand, as a prequel to complete Professor-style tunings. 
+have been introduced in the code itself [<a href="Bibliography.php" target="page">Cor10a</a>], which are made 
+default as of 8.140. This version also includes two new tunes, 2C and 2M, 
+based on the CTEQ 6L1 and the MRST LO** PDF sets, respectively. These have 
+been made by hand, as a prequel to complete Professor-style tunings. 
 
 <p/>
 The very first data to come out of the LHC shows a higher rapidity plateau
 than predicted for current PYTHIA 6 tunes, also for the lower energies.
-This may suggest some tension in the data. Therefore two alternatives,
-3C and 3M, have been produced by a few brute-force changes of 2C and 2M.
-This includes a reduced admixture of diffractive topologies 
-(21% diffractive of the inelastic cross section at 7 TeV in 3C and 3M,
-vs. 32% in 2C and 2M) and a steeper multiplicity variation with energy.
+This may suggest some tension in the data. Two alternatives, 3C and 3M, 
+were produced by a few brute-force changes of 2C and 2M. These were introduced
+in 8.140, but discontinued in 8.145 in favour of the new 4C tune, that 
+is based on a more serious study of some early LHC data. 
 
 <p/>
-Some comparisons between these tunes and data, obtained with the 
-Rivet package, have been posted on
+Some comparisons between these tunes and data are published in 
+[<a href="Bibliography.php" target="page">Cor10a</a>], and further comparisons have been posted on
 <a href="http://home.thep.lu.se/~richard/pythia81/">   
 http://home.thep.lu.se/~richard/pythia81/</a>.
+Most of the plots have been produced with the Rivet package [<a href="Bibliography.php" target="page">Buc10</a>].
 
 <p/>
 In the future we hope to see further PYTHIA 8 tunes appear. Like with 
@@ -150,18 +150,19 @@ and timelike-showering aspects of PYTHIA.
 <input type="radio" name="1" value="2"><strong>2 </strong>: a tune by Marc Montull to the LEP 1 particle composition, as published in the RPP (August 2007). No related (re)tune  to event shapes has been performed, however.   <br/>
 <input type="radio" name="1" value="3"><strong>3 </strong>: a tune to a wide selection of LEP1 data by Hendrik  Hoeth within the Rivet + Professor framework, both to hadronization and timelike-shower parameters (June 2009). These are the default values  starting from version 8.125, so currently there is no need for this option. <br/>
 
-<br/><br/><table><tr><td><strong>Tune:pp  </td><td>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 6</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Tune:pp  </td><td>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
 Choice of tune to <ei>pp / ppbar</ei> data, mainly for the 
 initial-state-radiation, multiple-interactions and  beam-remnants
-aspects of PYTHIA. 
+aspects of PYTHIA. Note that the previous crude (non-)tunes
+3C and 3M are removed as of 8.145, superseded by the 4C tune.
 <br/>
 <input type="radio" name="2" value="0" checked="checked"><strong>0 </strong>: no values are overwritten at initialization,  so you can set the individual parameters as you wish. Most default values are based on "Tune 1", option 2 below, but some new options  introduced in 8.140 means that the two no longer agree.  <br/>
 <input type="radio" name="2" value="1"><strong>1 </strong>: default used up to version 8.126, based on  some early and primitive comparisons with data. <br/>
 <input type="radio" name="2" value="2"><strong>2 </strong>: "Tune 1", default in 8.127 - 8.139, based on some  data comparisons by Peter Skands. Largely but not wholly overlaps with the default option 0. <br/>
-<input type="radio" name="2" value="3"><strong>3 </strong>: "Tune 2C", new draft tune, introduced with 8.140.  It uses the CTEQ 6L1 PDF, and is intended to give good agreement with  much of the published CDF data. <br/>
-<input type="radio" name="2" value="4"><strong>4 </strong>: "Tune 2M", new draft tune, introduced with 8.140. It is uses the MRST LO** PDF, which has a momentum sum somewhat above  unity, which is compensated by a smaller <ei>alpha_s</ei> than in the previous tune. Again it is intended to give good agreement with much of  the published CDF data. <br/>
-<input type="radio" name="2" value="5"><strong>5 </strong>: "Tune 3C", new draft tune, introduced with 8.140.  Starts out from tune 2C, but with a reduced cross section for  diffraction, plus modified multiple interactions parameters to give a higher and more rapidly increasing charged pseudorapidity plateau, for better agreement with some early key LHC numbers.  <br/>
-<input type="radio" name="2" value="6"><strong>6 </strong>: "Tune 3M" tune, introduced with 8.140.  Starts out from tune 2M and then does the same kind of modifications as for 3C. <br/>
+<input type="radio" name="2" value="3"><strong>3 </strong>: "Tune 2C", introduced with 8.140 <ref>Cor10a</ref>.  It uses the CTEQ 6L1 PDF, and is intended to give good agreement with  much of the published CDF data. <br/>
+<input type="radio" name="2" value="4"><strong>4 </strong>: "Tune 2M", introduced with 8.140 <ref>Cor10a</ref>. It is uses the MRST LO** PDF, which has a momentum sum somewhat above  unity, which is compensated by a smaller <ei>alpha_s</ei> than in the previous tune. Again it is intended to give good agreement with much of  the published CDF data. <br/>
+<input type="radio" name="2" value="5"><strong>5 </strong>: "Tune 4C", new tune, introduced with 8.145 <ref>Cor10a</ref>.  Starts out from tune 2C, but with a reduced cross section for  diffraction, plus modified multiple interactions parameters to give a higher and more rapidly increasing charged pseudorapidity plateau, for better agreement with some early key LHC numbers.  <br/>
+
 
 
 <input type="hidden" name="saved" value="1"/>

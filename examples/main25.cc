@@ -61,7 +61,7 @@ void Sigma2bg2Hb::initProc() {
   // Masses and couplings.
   m2b       = pow2( particleDataPtr->m0(5) );
   m2W       = pow2( particleDataPtr->m0(24) );
-  thetaWRat = 1. / (24. * coupSMPtr->sin2thetaW()); 
+  thetaWRat = 1. / (24. * couplingsPtr->sin2thetaW()); 
 
   // Suppression from secondary widths.
   openFrac = particleDataPtr->resOpenFrac(25);

@@ -794,7 +794,7 @@ void Sigma3qg2qgg::setIdColAcol(){
 void Sigma3gg2qqbarg::initProc() {
 
   // Read number of quarks to be considered in massless approximation.
-  nQuarkNew       = double(settingsPtr->mode("HardQCD:nQuarkNew"));
+  nQuarkNew       = settingsPtr->mode("HardQCD:nQuarkNew");
 
 }
 
@@ -820,7 +820,7 @@ void Sigma3gg2qqbarg::sigmaKin() {
   // Extra factor of (6.) from picking a final state configuration
   // Extra factor of nQuarkNew
   // Extra factor of (3. / 8.) ^ 2 as averaging over two incoming gluons
-  sigma = 6. * double(nQuarkNew) * (3. / 8.) * (3. / 8.) * m2Calc();
+  sigma = 6. * nQuarkNew * (3. / 8.) * (3. / 8.) * m2Calc();
 
 }
 
@@ -1002,7 +1002,7 @@ inline void Sigma3qq2qqgDiff::mapFinal() {
 void Sigma3qqbar2qqbargDiff::initProc() {
 
   // Read number of quarks to be considered in massless approximation.
-  nQuarkNew       = double(settingsPtr->mode("HardQCD:nQuarkNew"));
+  nQuarkNew       = settingsPtr->mode("HardQCD:nQuarkNew");
 
 }
 

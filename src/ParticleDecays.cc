@@ -44,7 +44,8 @@ const double ParticleDecays::WTCORRECTION[11] = { 1., 1., 1.,
 // Initialize and save pointers.
 
 void ParticleDecays::init(Info* infoPtrIn, Settings& settings, 
-  ParticleData* particleDataPtrIn, Rndm* rndmPtrIn, TimeShower* timesDecPtrIn, 
+  ParticleData* particleDataPtrIn, Rndm* rndmPtrIn, 
+  Couplings* couplingsPtrIn, TimeShower* timesDecPtrIn, 
   StringFlav* flavSelPtrIn, DecayHandler* decayHandlePtrIn, 
   vector<int> handledParticles) {
 
@@ -52,6 +53,7 @@ void ParticleDecays::init(Info* infoPtrIn, Settings& settings,
   infoPtr         = infoPtrIn;
   particleDataPtr = particleDataPtrIn;
   rndmPtr         = rndmPtrIn;         
+  couplingsPtr    = couplingsPtrIn;
   flavSelPtr      = flavSelPtrIn;
 
   // Save pointer to timelike shower, as needed in some few decays.

@@ -72,7 +72,7 @@ Code 5005.
 Currently there is one process for the production of a gluon resonance.
 
 <flag name="ExtraDimensionsG*:qqbar2KKgluon*" default="off">
-Scatterings <ei>q qbar -> KKgluon^*</ei>. 
+Scatterings <ei>q qbar -> g^*/KKgluon^*</ei>. 
 Code 5006.
 </flag>
 
@@ -120,17 +120,38 @@ Coupling between graviton and top quark.
 Coupling between graviton and vector bosons.
 </parm>
 
-<parm name="ExtraDimensionsG*:KKgqq" default="0.2" min="0.0">
-Coupling between KK gluon and light quarks.
+<parm name="ExtraDimensionsG*:KKgqR" default="-0.2">
+Coupling between KK-gluon and a right-handed light quark.
 </parm>
 
-<parm name="ExtraDimensionsG*:KKgbb" default="0.72" min="0.0">
-Coupling between KK gluon and bottom quarks.
+<parm name="ExtraDimensionsG*:KKgqL" default="-0.2">
+Coupling between KK-gluon and a left-handed light quark.
 </parm>
 
-<parm name="ExtraDimensionsG*:KKgtt" default="3.61" min="0.0">
-Coupling between KK gluon and top quarks.
+<parm name="ExtraDimensionsG*:KKgbR" default="-0.2">
+Coupling between KK-gluon and a right-handed bottom quark.
 </parm>
+
+<parm name="ExtraDimensionsG*:KKgbL" default="1.0">
+Coupling between KK-gluon and a left-handed bottom quark.
+</parm>
+
+<parm name="ExtraDimensionsG*:KKgtR" default="4.0">
+Coupling between KK-gluon and a right-handed top quark.
+</parm>
+
+<parm name="ExtraDimensionsG*:KKgtL" default="1.0">
+Coupling between KK-gluon and a left-handed top quark.
+</parm>
+
+<modepick name="ExtraDimensionsG*:KKintMode" default="0" min="0" max="2">
+Choice of full <ei>g^*/KK-gluon^*</ei> structure or not in relevant 
+processes.
+<option value="0">full <ei>g^*/KK-gluon^*</ei> structure, with 
+interference included.</option>
+<option value="1">only pure <ei>gluon_{SM}</ei> contribution.</option>
+<option value="2">only pure <ei>gluon_{KK}</ei> contribution.</option>
+</modepick>
 
 <h3>TeV^-1 Sized Extra Dimension, production processes</h3>
 

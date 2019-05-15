@@ -148,7 +148,7 @@ public:
   double V2CKMsum(int id) {return V2CKMout[abs(id)];}
   int    V2CKMpick(int id);
 
-private:
+protected:
 
   // Constants: could only be changed in the code itself.
   static const double efSave[20], afSave[20];
@@ -166,6 +166,19 @@ private:
 
   // An AlphaEM instance for general use (but not MI, ISR, FSR).
   AlphaEM     alphaEMlocal;
+
+};
+
+//==========================================================================
+
+// Generic couplings class
+
+class Couplings : public CoupSM {
+
+public:
+  
+  Couplings(){}
+  bool isSUSY;
 
 };
 

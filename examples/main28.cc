@@ -108,13 +108,18 @@ int main() {
     pythia.readString("ExtraDimensionsTEV:mStar = 4000");
     pythia.readString("PhaseSpace:mHatMin = 1000");
     pythia.readString("PhaseSpace:mHatMax = 6000");
+    pythia.readString("5000023:isResonance = false");
   } else if (nTest == 8){
     pythia.readString("ExtraDimensionsG*:all = on");
   } else if (nTest == 9){
     pythia.readString("ExtraDimensionsG*:qqbar2KKgluon* = on");
-    pythia.readString("ExtraDimensionsG*:KKgqq = 0.2");
-    pythia.readString("ExtraDimensionsG*:KKgbb = 0.72111");
-    pythia.readString("ExtraDimensionsG*:KKgtt = 3.60555");
+    pythia.readString("ExtraDimensionsG*:KKintMode = 2");
+    pythia.readString("ExtraDimensionsG*:KKgqR = -0.2");
+    pythia.readString("ExtraDimensionsG*:KKgqL = -0.2");
+    pythia.readString("ExtraDimensionsG*:KKgbR = -0.2");
+    pythia.readString("ExtraDimensionsG*:KKgbL = 1.0");
+    pythia.readString("ExtraDimensionsG*:KKgtR = 5.0");
+    pythia.readString("ExtraDimensionsG*:KKgtL = 1.0");
     pythia.readString("5100021:m0 = 2000");
   }
 

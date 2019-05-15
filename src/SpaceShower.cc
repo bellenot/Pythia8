@@ -665,7 +665,7 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
     }
 
     // Derive Q2 and x of mother from pT2 and z. 
-    Q2      = pT2 / (1.- z);
+    Q2      = pT2 / (1. - z);
     xMother = xDaughter / z;
     // Correction to x for massive recoiler from rescattering.
     if (!dipEndNow->normalRecoil) {
@@ -1716,7 +1716,7 @@ double SpaceShower::calcMEcorr(int MEtype, int idMother, int idDaughterIn,
 void SpaceShower::findAsymPol( Event& event, SpaceDipoleEnd* dip) {
 
   // Default is no asymmetry. Only gluons are studied.
-  dip->iFinPol = 0.;
+  dip->iFinPol = 0;
   dip->asymPol = 0.;
   int iRad = dip->iRadiator;
   if (!doPhiPolAsym || dip->idDaughter != 21) return;

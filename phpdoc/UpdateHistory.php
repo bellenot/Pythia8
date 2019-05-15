@@ -999,6 +999,91 @@ root of histogram bin contents.
 </ul>
 </li>
 
+<li>8.145: 10 November 2010
+<ul>
+
+<li><code>Couplings</code> is defined in <code>StandardModel.h</code>
+as a derived class of <code>coupSM</code> and has only one extra flag: 
+<code>isSUSY</code> to check presence of extra couplings.Changed all 
+pointers <code>CoupSM*</code> to <code>Couplings*</code> and removed 
+explicit references to <code>CoupSUSY*</code>. The <code>coupSUSY</code>
+object is only initialised if SUSY couplings are present. The new pointer 
+<code>couplingsPtr</code> points either to only SM couplings or SM+SUSY 
+couplings based on SLHA data.</li>
+
+<li>New files <code>SusyResonanceWidths.h/cc</code> contains the 
+<code>SusyResonanceWidths</code> class, which inherits from
+<code>ResonanceWidths</code> but typecasts the <code>couplingsPtr</code> 
+to <code>(CoupSUSY*) coupSUSYPtr</code>.  This is the base class for 
+all SUSY resonances. It contains the <code>ResonanceSquark</code> class 
+for all squark decays. A new flag <code>SLHA:useDecayTable</code> 
+to check if internal widths should be overwritten by those read in 
+via SLHA.</li>
+
+<li>Added new functionality to <code>SusyLesHouches</code> for read-in 
+of generic user blocks in the SLHA format, along with methods to 
+extract parameters from them with typecasting controlled by the user. 
+Intended for use with user-written semi-internal processes.</li>
+
+<li>Added <code>Sigma1qq2antisquark</code> cross section.
+
+<li>Some new flags and modes in the <code>SUSY</code> and 
+<code>SLHA</code> series offer further functionality.</li>
+
+<li>Several further changes as a consequence of the upgrade of the SUSY
+machinery.</li> 
+
+<li>Bug/typo fixes in rotation matrices for SUSY couplings and for the
+processes <code>qqbar2squarkantisquark</code>,
+<code>qq2squarksquark</code> and more.
+
+<li>Improved handling of colour junctions. Added new example program 
+<code>main72.cc</code>, to illustrate read-in of color junction 
+structures via LHEF (<code>main72.lhe</code>). The example used is SUSY 
+with RPV.</li>
+
+<li>New Tune 4C introduced as <code>Tune:pp = 5</code>. The more crude
+(non-)tunes 3C and 3M are removed.
+
+<li>New methods <code>Settings::getFlagMap(...)</code>,
+<code>Settings::getModeMap(...)</code>, 
+<code>Settings::getParmMap(...)</code> and
+<code>Settings::getWordMap(...)</code> allows to return a map of all
+settings of the respective type that contain a specific string 
+in its name.
+</li>
+
+<li>Improved description of excited <i>g^*/KK-gluon^*</i> production
+in the <code>Sigma1qqbar2KKgluonStar</code> and
+<code>ResonanceKKgluon</code> classes.
+
+<li>Possibility added to let Hidden-Valley <i>gamma_v</i> have 
+a nonero mass and decay by mixing with the ordinary photon. 
+Still experimental.</li>
+
+<li>Minor bug fix in handling of three-body phase space.</li>
+
+<li>Minor correction in <code>Sigma2ffbar2TEVffbar</code> class.</li>
+
+<li>Bug fix for decays of <i>W'</i> to a pair of heavy fermions when 
+<i>gV != gA</i>. Thanks to M. Chizhov, see arXiv:0705.3944. </li>
+
+<li>Restore the older EHLQ-based encoding of the <i>f fbar -> Z W</i> 
+cross section, which was changed in version 8.140, since comparisons 
+with Madgraph gives much better agreement with it than with the 
+expression of Brown, Sahdev and Mikaelian.</li>
+
+<li>The <code>HepMCInterface</code> now also stores colour flow 
+information for coloured particles.
+
+<li>Pointer to <code>Couplings</code> made available for particle decays.
+
+<li>Minor update in <code>main61.cc</code> for more elegant usage 
+of FastJet, as suggested by Gregory Soyez.</li>
+
+</ul>
+</li>
+
 </ul>
 
 </body>

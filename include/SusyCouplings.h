@@ -14,22 +14,24 @@
 #include "SusyLesHouches.h"
 
 namespace Pythia8 {
- 
+
+class ParticleData;
+
 //==========================================================================
 
 // CoupSUSY
 // Auxiliary class to compute and store various SM and SUSY couplings.
 
-class CoupSUSY {
+class CoupSUSY : public Couplings{
 
 public:
 
   // Constructor
-  CoupSUSY() {isInit=false; isNMSSM = false;}
+  CoupSUSY() {isInit=false; isNMSSM = false;isSUSY=true;}
 
   // Initialize
-  void init(SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn, 
-    ParticleData* particleDataPtrIn, CoupSM* coupSMPtrIn);
+  void initSUSY(SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn, 
+    ParticleData* particleDataPtrIn);
 
   // Status flag. Flag for NMSSM.
   bool isInit, isNMSSM;
@@ -103,6 +105,14 @@ public:
   // ~ud~chi+ couplings
   complex LsudX[7][4][3], RsudX[7][4][3];
 
+  // RPV couplings
+  double rvLLE[4][4][4], rvLQD[4][4][4], rvUDD[4][4][4];
+  // Flags for RPV couplings
+  bool isLLE, isLQD, isUDD;
+
+  //Squark mixing matrix: needed for RPV 
+  complex Rusq[7][7], Rdsq[7][7];
+
   // Return neutralino, chargino, sup, sdown and slepton flavour codes.
   int idNeut(int idChi);
   int idChar(int idChi); 
@@ -113,22 +123,20 @@ public:
   // Return a particle name, given the PDG code.
   string getName(int pdgCode);    
 
-private:
-
-  // Debug flag
-  static const bool   DEBUG;
-
   // Pointer to SLHA instance
+  // Used in SusyResonanceWidths for checking if decay table exists
   SusyLesHouches* slhaPtr;
+
+private:
+  // Debug flag
+  static const bool DEBUG;
+
 
   // Pointer to the settings database.
   Settings*      settingsPtr;
 
   // Pointer to the particle data table.
   ParticleData*  particleDataPtr;
-
-  // Pointer to the Standard Models couplings. 
-  CoupSM*        coupSMPtr;
 
 };
 

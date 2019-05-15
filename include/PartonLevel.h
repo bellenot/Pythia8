@@ -44,7 +44,7 @@ public:
     ParticleData* particleDataPtrIn, Rndm* rndmPtrIn, 
     BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, 
     BeamParticle* beamPomAPtrIn, BeamParticle* beamPomBPtrIn, 
-    CoupSM* coupSMPtrIn, PartonSystems* partonSystemsPtrIn, 
+    Couplings* couplingsPtrIn, PartonSystems* partonSystemsPtrIn, 
     SigmaTotal* sigmaTotPtr, TimeShower* timesDecPtrIn, 
     TimeShower* timesPtrIn, SpaceShower* spacePtrIn, 
     UserHooks* userHooksPtrIn);
@@ -107,7 +107,7 @@ private:
   BeamParticle*  beamPomBPtr;
 
   // Pointers to Standard Model couplings.
-  CoupSM*        coupSMPtr;
+  Couplings*     couplingsPtr;
   
   // Pointer to information on subcollision parton locations.
   PartonSystems* partonSystemsPtr;

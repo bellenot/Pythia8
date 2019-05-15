@@ -5,10 +5,10 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.142      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 15 Aug 2010  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.145      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 10 Nov 2010  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 15 Aug 2010 at 19:20:07    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 11 Nov 2010 at 20:04:54    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Theoretical Physics, Lund University,   |  | 
  |  |      Solvegatan 14A, SE-223 62 Lund, Sweden;                                 |  | 
@@ -876,7 +876,7 @@
  *-------  End PYTHIA Error and Warning Messages Statistics  ------------------------------------------------------* 
 
 
-  2010-08-15 19:20       number of charged particles
+  2010-11-11 20:05       number of charged particles
 
         1.04*10^ 2       58                                                                                             
         1.00*10^ 2       XX                                                                                             
@@ -920,7 +920,7 @@
    All chan =  1.0000e+03    Rms  =  9.0826e+01    Overflow  =  0.0000e+00    High edge =  7.9950e+02
 
 
-  2010-08-15 19:20       number of charged particles in |eta| < 1
+  2010-11-11 20:05       number of charged particles in |eta| < 1
 
         6.50*10^ 1      6                                                                                               
         6.25*10^ 1      X                                                                                               
@@ -964,7 +964,7 @@
    All chan =  9.9800e+02    Rms  =  1.8309e+01    Overflow  =  2.0000e+00    High edge =  9.9500e+01
 
 
-  2010-08-15 19:20       <pT>(n_charged) in |eta| < 1
+  2010-11-11 20:05       <pT>(n_charged) in |eta| < 1
 
         1.16*10^ 0                                                                                     5 3    8         
         1.12*10^ 0                                                                                     X X    X         
@@ -1011,7 +1011,7 @@
    All chan =  5.6287e-01    Rms  =  2.5633e+01    Overflow  =  1.0046e+00    High edge =  9.9500e+01
 
 
-  2010-08-15 19:20       scattering pT spectrum
+  2010-11-11 20:05       scattering pT spectrum
 
         3.75*10^ 1                   7                                                                                  
         3.60*10^ 1                   X X                                                                                
@@ -1054,7 +1054,7 @@
    All chan =  9.9000e+02    Rms  =  3.4697e+00    Overflow  =  1.0000e+01    High edge =  2.0000e+01
 
 
-  2010-08-15 19:20       b impact parameter spectrum
+  2010-11-11 20:05       b impact parameter spectrum
 
         4.60*10^ 1                        5                                                                             
         4.40*10^ 1                        X     5                                                                       
@@ -1095,7 +1095,7 @@
    All chan =  1.0000e+03    Rms  =  4.0735e-01    Overflow  =  0.0000e+00    High edge =  4.0000e+00
 
 
-  2010-08-15 19:20       b enhancement spectrum
+  2010-11-11 20:05       b enhancement spectrum
 
         1.80*10^ 2  8                                                                                                   
         1.74*10^ 2  X                                                                                                   
@@ -1143,7 +1143,7 @@
    All chan =  1.0000e+03    Rms  =  1.3548e+00    Overflow  =  0.0000e+00    High edge =  1.0000e+01
 
 
-  2010-08-15 19:20       number of interactions
+  2010-11-11 20:05       number of interactions
 
         3.24*10^ 2   1                                                                                                  
         3.12*10^ 2   X                                                                                                  
@@ -1188,7 +1188,7 @@
    All chan =  1.0000e+03    Rms  =  7.0827e+00    Overflow  =  0.0000e+00    High edge =  9.9500e+01
 
 
-  2010-08-15 19:20       pT spectrum for b < 0.5
+  2010-11-11 20:05       pT spectrum for b < 0.5
 
         6.00*10^ 0                                 X   X                                                                
         5.75*10^ 0                                 X   X                                                                
@@ -1230,7 +1230,7 @@
    All chan =  1.1600e+02    Rms  =  3.2495e+00    Overflow  =  5.0000e+00    High edge =  2.0000e+01
 
 
-  2010-08-15 19:20       pT spectrum for 0.5 < b < 1
+  2010-11-11 20:05       pT spectrum for 0.5 < b < 1
 
         2.00*10^ 1                          X                                                                           
         1.92*10^ 1                          X                                                                           
@@ -1273,7 +1273,7 @@
    All chan =  3.8300e+02    Rms  =  3.1239e+00    Overflow  =  4.0000e+00    High edge =  2.0000e+01
 
 
-  2010-08-15 19:20       pT spectrum for 1 < b < 1.5
+  2010-11-11 20:05       pT spectrum for 1 < b < 1.5
 
         2.00*10^ 1                 X X                                                                                  
         1.92*10^ 1              8  X X                                                                                  
@@ -1316,7 +1316,7 @@
    All chan =  3.7900e+02    Rms  =  2.7386e+00    Overflow  =  1.0000e+00    High edge =  2.0000e+01
 
 
-  2010-08-15 19:20       pT spectrum for 1.5 < b
+  2010-11-11 20:05       pT spectrum for 1.5 < b
 
         1.00*10^ 1            X   X                                                                                     
         0.96*10^ 1            X   X                                                                                     
@@ -1359,7 +1359,7 @@
    All chan =  1.1200e+02    Rms  =  2.4082e+00    Overflow  =  0.0000e+00    High edge =  2.0000e+01
 
 
-  2010-08-15 19:20       b spectrum for pT < 2
+  2010-11-11 20:05       b spectrum for pT < 2
 
         1.12*10^ 1                              5                                                                       
         1.08*10^ 1                              X                                                                       
@@ -1405,7 +1405,7 @@
    All chan =  1.0100e+02    Rms  =  2.6332e-01    Overflow  =  0.0000e+00    High edge =  4.0000e+00
 
 
-  2010-08-15 19:20       b spectrum for 2 < pT < 5
+  2010-11-11 20:05       b spectrum for 2 < pT < 5
 
         2.50*10^ 1                                 X                                                                    
         2.40*10^ 1                        X        X                                                                    
@@ -1448,7 +1448,7 @@
    All chan =  4.4300e+02    Rms  =  3.3532e-01    Overflow  =  0.0000e+00    High edge =  4.0000e+00
 
 
-  2010-08-15 19:20       b spectrum for 5 < pT < 15
+  2010-11-11 20:05       b spectrum for 5 < pT < 15
 
         2.40*10^ 1                 X                                                                                    
         2.30*10^ 1             X   X    X                                                                               
@@ -1490,7 +1490,7 @@
    All chan =  4.2000e+02    Rms  =  3.6452e-01    Overflow  =  0.0000e+00    High edge =  4.0000e+00
 
 
-  2010-08-15 19:20       b spectrum for 15 < pT
+  2010-11-11 20:05       b spectrum for 15 < pT
 
         5.00*10^ 0      X    X                                                                                          
         4.80*10^ 0      X    X                                                                                          

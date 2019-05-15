@@ -156,6 +156,9 @@ void TimeShower::init( BeamParticle* beamAPtrIn,
   pThvCut            = settingsPtr->parm("HiddenValley:pTminFSR");
   pT2hvCut           = pThvCut * pThvCut; 
   CFHV               = (nCHV == 1) ? 1. : (nCHV * nCHV - 1.)/(2. * nCHV); 
+  idHV               = (nCHV == 1) ? 4900022 : 4900021;
+  mHV                = particleDataPtr->m0(idHV);
+  brokenHVsym        = (nCHV == 1 && mHV > 0.);
 
   // Possibility to allow user veto of emission step.
   canVetoEmission = (userHooksPtr > 0) ? userHooksPtr->canVetoFSREmission() 
@@ -737,9 +740,15 @@ void TimeShower::setupQCDdip( int iSys, int i, int colTag, int colSign,
   // by (p_i + p_j)^2 - (m_i + m_j)^2 = 2 (p_i p_j - m_i m_j).
   if (iRec == 0 && !allowInitial) {
     bool hasJunction = false;
-    for (int iJun = 0; iJun < event.sizeJunction(); ++ iJun)
-    for (int iLeg = 0; iLeg < 3; ++iLeg) 
-      if (event.endColJunction( iJun, iLeg) == colTag) hasJunction = true;
+    for (int iJun = 0; iJun < event.sizeJunction(); ++ iJun) {
+      // For types 1&2, all legs in final state
+      // For types 3&4, two legs in final state
+      // For types 5&6, one leg in final state
+      int iBeg = (event.kindJunction(iJun)-1)/2;
+      for (int iLeg = iBeg; iLeg < 3; ++iLeg) {
+	if (event.endColJunction( iJun, iLeg) == colTag) hasJunction = true;
+      }
+    }
     if (!hasJunction) { 
       double ppMin = LARGEM2; 
       for (int j = 0; j < sizeOut; ++j) if (j != i) { 
@@ -1514,8 +1523,8 @@ void TimeShower::pT2nextHV(double pT2begDip, double pT2sel,
         * pow2(dip.m2Dip + dip.m2 - dip.m2Rec) ) {
 
       // HV gamma or gluon emission: unique flavour choice.
-      dip.flavour = (nCHV == 1) ? 4900022 : 4900021;
-      dip.mFlavour = 0.;
+      dip.flavour  = idHV;
+      dip.mFlavour = mHV;
 
       // No z weight, except threshold, if to do ME corrections later on.
       if (dip.MEtype > 0) wt = 1.;
@@ -1546,18 +1555,17 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
   Particle& recBef = event[iRecBef];
 
   // Default flavours and colour tags for new particles in dipole branching. 
-  int idRad      = radBef.id();
-  int idEmt      = dipSel->flavour; 
-  int colRad     = radBef.col();
-  int acolRad    = radBef.acol();
-  int colEmt     = 0;
-  int acolEmt    = 0;
-  iSysSel        = dipSel->system;
-  int iSysSelRec = dipSel->systemRec;
+  int idRad        = radBef.id();
+  int idEmt        = dipSel->flavour; 
+  int colRad       = radBef.col();
+  int acolRad      = radBef.acol();
+  int colEmt       = 0;
+  int acolEmt      = 0;
+  iSysSel          = dipSel->system;
+  int iSysSelRec   = dipSel->systemRec;
 
   // Default OK for photon, photon_HV or gluon_HV emission.
-  if (dipSel->flavour == 22 || dipSel->flavour == 4900021 
-    || dipSel->flavour == 4900022) { 
+  if (dipSel->flavour == 22 || dipSel->flavour == idHV) { 
   // New colour tag required for gluon emission.
   } else if (dipSel->flavour == 21 && dipSel->colType > 0) { 
     colEmt  = colRad;  
@@ -1593,35 +1601,52 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
 
   // Construct kinematics in dipole rest frame: 
   // begin simple (like g -> g g).
-  double eRadPlusEmt = 0.5 * (dipSel->m2Dip + dipSel->m2 - dipSel->m2Rec) 
+  double eRadPlusEmt  = 0.5 * (dipSel->m2Dip + dipSel->m2 - dipSel->m2Rec) 
     / dipSel->mDip;
   double e2RadPlusEmt = pow2(eRadPlusEmt);
   double pzRadPlusEmt = 0.5 * sqrtpos( pow2(dipSel->m2Dip - dipSel->m2 
     - dipSel->m2Rec) - 4. * dipSel->m2 * dipSel->m2Rec ) / dipSel->mDip;
   double pT2corr = dipSel->m2 * (e2RadPlusEmt * dipSel->z * (1. - dipSel->z)
-    - 0.25 * dipSel->m2) / pow2(pzRadPlusEmt);
-  double pTcorr = sqrtpos( pT2corr );
-  double pzRad = (e2RadPlusEmt * dipSel->z - 0.5 * dipSel->m2) 
-    / pzRadPlusEmt;
-  double pzEmt = (e2RadPlusEmt * (1. - dipSel->z) - 0.5 * dipSel->m2) 
-    / pzRadPlusEmt;
-  double mRad = dipSel->mRad;
-  double mEmt = 0.;
+                      - 0.25 * dipSel->m2) / pow2(pzRadPlusEmt);
+  double pTcorr       = sqrtpos( pT2corr );
+  double pzRad        = (e2RadPlusEmt * dipSel->z - 0.5 * dipSel->m2) 
+                      / pzRadPlusEmt;
+  double pzEmt        = (e2RadPlusEmt * (1. - dipSel->z) - 0.5 * dipSel->m2) 
+                      / pzRadPlusEmt;
+  double mRad         = dipSel->mRad;
+  double mEmt         = 0.;
+
+  // Kinematics reduction for q -> q gamma_v when m_q > 0 and m_gamma_v > 0.
+  if ( abs(dipSel->colvType) == 1 && dipSel->mFlavour > 0.) {  
+    mEmt              = dipSel->mFlavour;
+    if (pow2(mRad + mEmt) > dipSel->m2) return false;
+    double m2Emt      = pow2(mEmt);
+    double lambda     = sqrtpos( pow2(dipSel->m2 - dipSel->m2Rad - m2Emt)
+                      - 4. * dipSel->m2Rad * m2Emt );
+    kRad              = 0.5 * (dipSel->m2 - lambda + m2Emt - dipSel->m2Rad) 
+                      / dipSel->m2;
+    kEmt              = 0.5 * (dipSel->m2 - lambda + dipSel->m2Rad - m2Emt)
+                      / dipSel->m2; 
+    pTcorr           *= 1. - kRad - kEmt;
+    double pzMove     = kRad * pzRad - kEmt * pzEmt;
+    pzRad            -= pzMove;
+    pzEmt            += pzMove; 
 
   // Kinematics reduction for q -> q g/gamma/g_HV when m_q > 0. 
-  if (abs(dipSel->colType) == 1 || dipSel->chgType != 0 
+  } else if (abs(dipSel->colType) == 1 || dipSel->chgType != 0 
     || abs(dipSel->colvType) == 1) { 
-    pTcorr *= 1. - dipSel->m2Rad / dipSel->m2; 
-    pzRad += pzEmt * dipSel->m2Rad / dipSel->m2;
-    pzEmt *= 1. - dipSel->m2Rad / dipSel->m2;  
+    pTcorr           *= 1. - dipSel->m2Rad / dipSel->m2; 
+    pzRad            += pzEmt * dipSel->m2Rad / dipSel->m2;
+    pzEmt            *= 1. - dipSel->m2Rad / dipSel->m2; 
+ 
   // Kinematics reduction for g -> q qbar or gamma -> f fbar when m_f > 0;
   } else if (abs(dipSel->flavour) < 20) {
-    mEmt = dipSel->mFlavour;
-    mRad = mEmt;
-    double beta = sqrtpos( 1. - 4. * pow2(mEmt) / dipSel->m2 );   
-    pTcorr *= beta;
-    pzRad = 0.5 * ( (1. + beta) * pzRad + (1. - beta) * pzEmt );
-    pzEmt = pzRadPlusEmt - pzRad;
+    mEmt              = dipSel->mFlavour;
+    mRad              = mEmt;
+    double beta       = sqrtpos( 1. - 4. * pow2(mEmt) / dipSel->m2 );   
+    pTcorr           *= beta;
+    pzRad             = 0.5 * ( (1. + beta) * pzRad + (1. - beta) * pzEmt );
+    pzEmt             = pzRadPlusEmt - pzRad;
   } 
 
   // Find rest frame and angles of original dipole.
@@ -1889,6 +1914,31 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
     if (dipEnd[i].iRecoiler  == iRecBef) dipEnd[i].iRecoiler  = iRec;
     if (dipEnd[i].iMEpartner == iRadBef) dipEnd[i].iMEpartner = iRad;
     if (dipEnd[i].iMEpartner == iRecBef) dipEnd[i].iMEpartner = iRec;
+  }
+
+  // PS Sept 2010
+  // Update any junctions downstream of this branching (if necessary)
+  // (This happens, e.g., via LHEF, when adding showers to intermediate 
+  //  coloured resonances whose decays involved junctions)
+  for (int iJun = 0; iJun < event.sizeJunction(); iJun++) {
+    // Number of incoming colour lines for this junction.
+    int nIncoming = (event.kindJunction(iJun)-1)/2;
+    // Check radiator colour or anticolour, depending on junction kind
+    // (if junction, incoming = anticolours, and vice versa)
+    int colChk = 0; 
+    colChk = ( event.kindJunction(iJun) % 2 == 0 )
+           ? event[iRadBef].col() : event[iRadBef].acol();
+    // Loop over incoming junction ends
+    for (int iCol = 0; iCol < nIncoming; iCol++) {      
+      int colJun = event.endColJunction( iJun, iCol);      
+      // If match, update junction end with new upstream (anti)colour 
+      if (colJun == colChk) {
+	int colNew = 0;
+	if ( event.kindJunction(iJun) % 2 == 0 ) colNew = colRad;
+	else colNew = acolRad;
+	event.endColJunction( iJun, iCol, colNew );
+      }
+    }
   }
 
   // Finally update the list of all partons in all systems.
@@ -2244,13 +2294,19 @@ void TimeShower::findMEtype( Event& event, TimeDipoleEnd& dip) {
   // Initial value. Mark if no ME corrections to be applied.
   bool setME = true;
   if (!doMEcorrections) setME = false; 
-
-  // No ME corrections in 2 -> n processes.
   int iMother  = event[dip.iRadiator].mother1();
   int iMother2 = event[dip.iRadiator].mother2();
-  if (iMother2 != iMother && iMother2 != 0) setME = false;
-  if (event[dip.iRecoiler].mother1() != iMother)  setME = false;    
-  if (event[dip.iRecoiler].mother2() != iMother2) setME = false;    
+
+  // Allow ME corrections for Hidden Valley pair in 2 -> 2.
+  if (dip.isHiddenValley && event[dip.iRecoiler].id() 
+    == -event[dip.iRadiator].id());
+
+  // Else no ME corrections in 2 -> n processes.
+  else {
+    if (iMother2 != iMother && iMother2 != 0) setME = false;
+    if (event[dip.iRecoiler].mother1() != iMother)  setME = false;    
+    if (event[dip.iRecoiler].mother2() != iMother2) setME = false; 
+  }   
 
   // No ME corrections for recoiler in initial state.
   if (event[dip.iRecoiler].status() < 0) setME = false;  
@@ -2328,6 +2384,13 @@ void TimeShower::findMEtype( Event& event, TimeDipoleEnd& dip) {
     int MEkind = 0;
     int MEcombi = 4;
     dip.MEmix = 0.5;
+
+    // Hidden Valley with massive gamma_v covered by two special cases.
+    if (isHiddenColour && brokenHVsym) {
+      MEkind = (dau2Type == 0 || dau2Type > 6) ? 30 : 31;
+      dip.MEtype = 5 * MEkind + 1; 
+      return;
+    }
 
     // Triplet recoiling against gluino needs enhanced radiation
     // to match to matrix elements.
@@ -2535,6 +2598,26 @@ double TimeShower::findMEcorr(TimeDipoleEnd* dip, Particle& rad,
   double x2      = 2. * (sum * partner.p()) / pow2(eCMME); 
   double r1      = rad.m() / eCMME;
   double r2      = partner.m() / eCMME; 
+  double r3      = 0.;
+
+  // Evaluate kinematics for Hidden Valley with massive gamma_v.
+  double gammavCorr = 1.;
+  if (dip->colvType != 0 && brokenHVsym) {
+    r3              = emt.m() / eCMME;
+    double x3Tmp    = 2. - x1 - x2; 
+    gammavCorr      = x3Tmp / (x3Tmp - kRad * (x1 + x3Tmp));    
+    // For Q_v Qbar_v pair correct kinematics to common average mass.
+    if (MEkind == 31) {
+      double m2Pair = (rad.p() + partner.p()).m2Calc();
+      double m2Avg  = 0.5 * (rad.m2() + partner.m2())  
+                    - 0.25 * pow2(rad.m2() - partner.m2()) / m2Pair;
+      r1            = sqrt(m2Avg) / eCMME;
+      r2            = r1;
+      double xShift = 0.5 * (x1 + x2) * (partner.m2() - rad.m2()) / m2Pair;
+      x1           += xShift;
+      x2           -= xShift;  
+    }
+  }
 
   // Derived ME variables, suitably protected.
   double x1minus = max(XMARGIN, 1. + r1*r1 - r2*r2 - x1);
@@ -2546,8 +2629,8 @@ double TimeShower::findMEcorr(TimeDipoleEnd* dip, Particle& rad,
 
     // Evaluate normal ME, for proper order of particles.
     if (dip->MEorder) 
-         wtME = calcMEcorr(MEkind, MEcombi, dip->MEmix, x1, x2, r1, r2);
-    else wtME = calcMEcorr(MEkind, MEcombi, dip->MEmix, x2, x1, r2, r1);
+         wtME = calcMEcorr(MEkind, MEcombi, dip->MEmix, x1, x2, r1, r2, r3);
+    else wtME = calcMEcorr(MEkind, MEcombi, dip->MEmix, x2, x1, r2, r1, r3);
 
     // Split up total ME when two radiating particles.
     if (dip->MEsplit) wtME = wtME * x1minus / x3; 
@@ -2555,6 +2638,7 @@ double TimeShower::findMEcorr(TimeDipoleEnd* dip, Particle& rad,
     // Evaluate shower rate to be compared with.
     wtPS = 2. / ( x3 * x2minus );
     if (dip->MEgluinoRec) wtPS *= 9./4.;
+    if (dip->colvType != 0 && brokenHVsym) wtPS *= gammavCorr;
   
   // For generic charge combination currently only massless expression.
   // (Masses included only to respect phase space boundaries.)
@@ -2602,6 +2686,8 @@ double TimeShower::findMEcorr(TimeDipoleEnd* dip, Particle& rad,
 //      = 14 : ~q -> q ~g
 //      = 15 : q -> ~q ~g
 //      = 16 : (9/4)*(eikonal) for gg -> ~g ~g
+//      = 30 : Dv -> d qv     (Dv= hidden valley fermion, qv= valley scalar)
+//      = 31 : S  -> Dv Dvbar (S=scalar color singlet)
 // Note that the order of the decay products is important.
 // combi = 1 : pure non-gamma5, i.e. vector/scalar/...
 //       = 2 : pure gamma5, i.e. axial vector/pseudoscalar/....
@@ -2609,7 +2695,7 @@ double TimeShower::findMEcorr(TimeDipoleEnd* dip, Particle& rad,
 //       = 4 : mixture (combi=1) +- (combi=2)
 
 double TimeShower::calcMEcorr( int kind, int combiIn, double mixIn, 
-  double x1, double x2, double r1, double r2) {
+  double x1, double x2, double r1, double r2, double r3) {
 
   // Frequent variable combinations.
   double x3     = 2. - x1 - x2;
@@ -2633,16 +2719,25 @@ double TimeShower::calcMEcorr( int kind, int combiIn, double mixIn,
   double prop13 = prop1 * x3;
   double prop23 = prop2 * x3;
 
+  // Special case: Hidden-Valley massive photon. 
+  double r3s    = r3 * r3;
+  double prop3  = r3s - x3;
+  double prop3s = prop3 * prop3;
+  if (kind == 30) prop23 = prop2 * prop3;
+
   // Check input values. Return zero outside allowed phase space.
   if (x1 - 2.*r1 < XMARGIN || prop1 < XMARGIN) return 0.;
   if (x2 - 2.*r2 < XMARGIN || prop2 < XMARGIN) return 0.;
-  if (x1 + x2 - 1. - pow2(r1+r2) < XMARGIN) return 0.;
-  // Note: equivalent rewritten form 4. * ( (1. - x1) * (1. - x2) 
-  // * (1. - r1s - r2s - x3) + r1s * (1. - x2s - x3) + r2s 
-  // * (1. - x1s - x3) - pow2(r1s - r2s) ) gives abot same result.
-  if ( (x1s - 4.*r1s) * (x2s - 4.*r2s) 
-    - pow2( 2. * (1. - x1 - x2 + r1s + r2s) + x1*x2 ) 
-    < XMARGIN * (XMARGINCOMB + r1 + r2) ) return 0.;
+  // Limits not worked out for r3 > 0.
+  if (kind != 30 && kind != 31) {
+    if (x1 + x2 - 1. - pow2(r1+r2) < XMARGIN) return 0.;
+    // Note: equivalent rewritten form 4. * ( (1. - x1) * (1. - x2) 
+    // * (1. - r1s - r2s - x3) + r1s * (1. - x2s - x3) + r2s 
+    // * (1. - x1s - x3) - pow2(r1s - r2s) ) gives about same result.
+    if ( (x1s - 4.*r1s) * (x2s - 4.*r2s) 
+      - pow2( 2. * (1. - x1 - x2 + r1s + r2s) + x1*x2 ) 
+      < XMARGIN * (XMARGINCOMB + r1 + r2) ) return 0.;
+  }
 
   // Initial values; phase space.
   int combi   = max(1, min(4, combiIn) ); 
@@ -3268,6 +3363,30 @@ double TimeShower::calcMEcorr( int kind, int combiIn, double mixIn,
       rFO = ps * 4.5 * ( (x1+x2-1.+offset-r1s-r2s)/prop12 
       - r1s/prop2s - r2s/prop1s );
       break; 
+
+    // Dv -> qv d.
+    case 30:
+      rLO = ps*(1.-r1s+r2s+2.*r2);
+      rFO = ( 0.5*r3s + 2.*r1q + 0.5*r2s*r3s + r2*r3s - 2.*r1s 
+             - 0.5*r1s*r3s - 2.*r1s*r2s - 4.*r1s*r2 ) / prop2s
+          + ( -2. + 2.*r2q + 2.*r1q + 2.*r2s*r3s - 4.*r2 + 2.*r2*r3s 
+             + 4.*r2*r2s - 4.*r1s*r2s - 4.*r1s*r2 ) /prop23
+          + ( -2. - 0.5*r3s - 2.*r2s - 4.*r2 + 2.*r1s ) / prop2
+          + ( -2. - r3s - 2.*r2s - r2s*r3s - 4.*r2 - 2.*r2*r3s 
+             + 2.*r1s + r1s*r3s ) / prop3s
+          + ( -1. - r3s - r2s - 4.*r2 + r1s - x2 ) / prop3
+          + 1.;
+      break;
+
+    // S -> Dv Dvbar
+    case 31:
+      rLO = ps*(1.-4.*r1s);
+      rFO = (r3s + 2.*r1s) * (-1. + 4.*r1s) * (1./prop1s + 1./prop2s)
+          + (-1. + 8.*r1s - x2) / prop1
+          + (-1. + 8.*r1s - x1) / prop2          
+          + 2. * (1. - 6.*r1s + 8.*r1q + 4.*r3s*r1s) / prop12
+          + 2.;
+      break;
 
     // Eikonal expression for kind == 1; also acts as default.
     default:

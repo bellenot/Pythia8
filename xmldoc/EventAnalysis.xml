@@ -92,7 +92,7 @@ gives one of the three eigenvalues for <ei>i</ei> = 1, 2 or 3, in
 descending order,
 </method>
 
-<method name="Vec4 Sphericity::EventAxis(i)"> 
+<method name="Vec4 Sphericity::eventAxis(i)"> 
 gives the matching normalized eigenvector, as a <code>Vec4</code> 
 with vanishing time/energy component.
 </method>

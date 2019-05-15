@@ -5,10 +5,10 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.142      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 15 Aug 2010  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.145      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 10 Nov 2010  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 15 Aug 2010 at 19:21:08    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 11 Nov 2010 at 20:05:56    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Theoretical Physics, Lund University,   |  | 
  |  |      Solvegatan 14A, SE-223 62 Lund, Sweden;                                 |  | 
@@ -2400,7 +2400,7 @@
  pythia.info: sigma = 3.498e-12 +- 3.756e-13
 
 
-  2010-08-15 19:21       pT first collision
+  2010-11-11 20:06       pT first collision
 
         1.00*10^ 1                                                     X                                                
         0.96*10^ 1                                                     X                                                
@@ -2443,7 +2443,7 @@
    All chan =  1.8300e+02    Rms  =  4.4499e+01    Overflow  =  1.7000e+01    High edge =  2.0000e+02
 
 
-  2010-08-15 19:21       pT second collision
+  2010-11-11 20:06       pT second collision
 
         4.35*10^ 1            7                                                                                         
         4.20*10^ 1            X                                                                                         
@@ -2490,7 +2490,7 @@
    All chan =  2.0000e+02    Rms  =  1.3015e+01    Overflow  =  0.0000e+00    High edge =  2.0000e+02
 
 
-  2010-08-15 19:21       pT first-second collision
+  2010-11-11 20:06       pT first-second collision
 
         8.10*10^ 0                                                              7                                       
         7.80*10^ 0                                                              X                                       
@@ -2535,7 +2535,7 @@
    All chan =  1.4100e+02    Rms  =  3.1206e+01    Overflow  =  5.9000e+01    High edge =  1.0000e+02
 
 
-  2010-08-15 19:21       number of multiple interactions
+  2010-11-11 20:06       number of multiple interactions
 
         2.40*10^ 1         X                                                                                            
         2.30*10^ 1       X X                                                                                            
@@ -2577,7 +2577,7 @@
    All chan =  2.0000e+02    Rms  =  3.5073e+00    Overflow  =  0.0000e+00    High edge =  9.9500e+01
 
 
-  2010-08-15 19:21       b enhancement factor
+  2010-11-11 20:06       b enhancement factor
 
         1.12*10^ 1           5            5     5                                                                       
         1.08*10^ 1           X            X     X                                                                       
@@ -2623,7 +2623,7 @@
    All chan =  2.0000e+02    Rms  =  9.2977e-01    Overflow  =  0.0000e+00    High edge =  1.0000e+01
 
 
-  2010-08-15 19:21       charged multiplicity
+  2010-11-11 20:06       charged multiplicity
 
         1.50*10^ 1                            X                                                                         
         1.44*10^ 1                            X                                                                         

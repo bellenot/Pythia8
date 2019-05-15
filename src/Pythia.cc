@@ -54,6 +54,9 @@ Pythia::Pythia(string xmlDir) {
   useNewLHA       = false;
   lhaUpPtr        = 0;
 
+  //Initial value for couplings pointer
+  couplingsPtr = &couplings;
+
   // Initial value for pointer to external decay handler.
   decayHandlePtr  = 0;
 
@@ -93,7 +96,7 @@ Pythia::Pythia(string xmlDir) {
   }
 
   // Read in files with all particle data.
-  particleData.initPtr( &info, &settings, &rndm, &coupSM);
+  particleData.initPtr( &info, &settings, &rndm, couplingsPtr);
   string dataFile = xmlPath + "ParticleData.xml";
   isConstructed = particleData.init( dataFile);
   if (!isConstructed) {
@@ -103,11 +106,6 @@ Pythia::Pythia(string xmlDir) {
 
   // Write the Pythia banner to output. 
   banner();
-
-  // Set headers to distinguish the two event listing kinds. 
-  int startColTag = settings.mode("Event:startColTag");
-  process.init("(hard process)", &particleData, startColTag);
-  event.init("(complete event)", &particleData, startColTag);
 
   // Not initialized until at the end of initInternal.
   isInit = false;
@@ -524,7 +522,28 @@ bool Pythia::initInternal() {
   checkSettings();
 
   // Initialize couplings (needed to initialize resonances).
-  coupSM.init( settings, &rndm); 
+  // Check if SUSY couplings need to be read in
+  if( !initSLHA()) 
+    info.errorMsg("Error in Pythia::initInternal: "
+		   "Could not read SLHA file");
+
+  if (couplingsPtr->isSUSY){
+    //Initialize the SM and SUSY
+    coupSUSY.init( settings, &rndm); 
+    coupSUSY.initSUSY(&slha, &settings, &particleData);
+    couplingsPtr = (Couplings *) &coupSUSY;
+  } else {
+    // Initialize the SM couplings
+    couplingsPtr->init( settings, &rndm);
+  }
+
+  //Reset couplingsPtr to the correct place
+  particleData.initPtr( &info, &settings, &rndm, couplingsPtr);
+
+  // Set headers to distinguish the two event listing kinds. 
+  int startColTag = settings.mode("Event:startColTag");
+  process.init("(hard process)", &particleData, startColTag);
+  event.init("(complete event)", &particleData, startColTag);
 
   // Final setup stage of particle data, notably resonance widths.
   particleData.initWidths( resonancePtrs);
@@ -536,7 +555,7 @@ bool Pythia::initInternal() {
   doVetoPartons = (hasUserHooks) 
                 ? userHooksPtr->canVetoPartonLevel() : false;
   if (hasUserHooks) userHooksPtr->initPtr( &info, &settings, &particleData,
-    &rndm, &beamA, &beamB, &beamPomA, &beamPomB, &coupSM, &partonSystems, 
+    &rndm, &beamA, &beamB, &beamPomA, &beamPomB, couplingsPtr, &partonSystems, 
     &sigmaTot); 
 
   // Set up objects for timelike and spacelike showers.
@@ -552,9 +571,9 @@ bool Pythia::initInternal() {
   }
 
   // Initialize showers, especially for simple showers in decays. 
-  timesPtr->initPtr( &info, &settings, &particleData, &rndm, &coupSM, 
+  timesPtr->initPtr( &info, &settings, &particleData, &rndm, couplingsPtr, 
     &partonSystems, userHooksPtr);
-  timesDecPtr->initPtr( &info, &settings, &particleData, &rndm, &coupSM, 
+  timesDecPtr->initPtr( &info, &settings, &particleData, &rndm, couplingsPtr, 
     &partonSystems, userHooksPtr);
   spacePtr->initPtr( &info, &settings, &particleData, &rndm,
     &partonSystems, userHooksPtr);
@@ -602,18 +621,19 @@ bool Pythia::initInternal() {
 
   // Send info/pointers to process level for initialization.
   if ( doProcessLevel && !processLevel.init( &info, settings, &particleData, 
-    &rndm, &beamA, &beamB, &coupSM, &sigmaTot, doLHA, &slha, userHooksPtr, 
+    &rndm, &beamA, &beamB, couplingsPtr, &sigmaTot, doLHA, &slha, userHooksPtr, 
     sigmaPtrs) ) return false;
 
   // Send info/pointers to parton level for initialization.
   if ( doPartonLevel && !partonLevel.init( &info, settings, &particleData, 
-    &rndm, &beamA, &beamB, &beamPomA, &beamPomB, &coupSM, &partonSystems, 
+    &rndm, &beamA, &beamB, &beamPomA, &beamPomB, couplingsPtr, &partonSystems, 
     &sigmaTot, timesDecPtr, timesPtr, spacePtr, userHooksPtr) ) return false;
 
   // Send info/pointers to hadron level for initialization.
   // Note: forceHadronLevel() can come, so we must always initialize. 
-  if ( !hadronLevel.init( &info, settings, particleData, &rndm, timesDecPtr, 
-    decayHandlePtr, handledParticles) ) return false;
+  if ( !hadronLevel.init( &info, settings, particleData, &rndm,  
+    couplingsPtr, timesDecPtr, decayHandlePtr, handledParticles) ) 
+    return false;
 
   // Optionally check particle data table for inconsistencies.
   if ( settings.flag("Check:particleData") ) 
@@ -849,6 +869,8 @@ bool Pythia::initPDFs() {
 
 bool Pythia::next() {
 
+
+
   // Set/reset info counters specific to each event.
   info.addCounter(3);
   for (int i = 10; i < 13; ++i) info.setCounter(i);
@@ -886,6 +908,7 @@ bool Pythia::next() {
     return false;
   }
 
+
   // Pick beam momentum spread and beam vertex. 
   if (doMomentumSpread || doVertexSpread) beamShapePtr->pick(); 
 
@@ -900,6 +923,7 @@ bool Pythia::next() {
     // Provide the hard process that starts it off. Only one try.
     info.clear();
     process.clear();
+
     if ( !processLevel.next( process) ) {
       if (doLHA && info.atEndOfFile()) info.errorMsg("Abort from "
         "Pythia::next: reached end of Les Houches Events File"); 
@@ -907,6 +931,7 @@ bool Pythia::next() {
         "processLevel failed; giving up"); 
       return false;
     }
+
     info.addCounter(11);
 
     // Possibility for a user veto of the process-level event.
@@ -1307,7 +1332,8 @@ int Pythia::readSubrun(string line, bool warn, ostream& os) {
 
   // If empty line then done.
   int subrunLine = SUBRUNDEFAULT;  
-  if (line.find_first_not_of(" \n\t\v\b\r\f\a") == string::npos) return subrunLine;
+  if (line.find_first_not_of(" \n\t\v\b\r\f\a") == string::npos) 
+    return subrunLine;
 
   // If first character is not a letter, then done.
   string lineNow = line;
@@ -1654,6 +1680,224 @@ PDF* Pythia::getPDFPtr(int idIn, int sequence) {
 
 //--------------------------------------------------------------------------
 
+// Initialize SUSY Les Houches Accord data.
+
+bool Pythia::initSLHA() {
+
+
+  // Initial and settings values.
+  int    ifailLHE    = 1;
+  int    ifailSpc    = 1;
+  int    ifailDec    = 1;
+  int    readFrom    = settings.mode("SLHA:readFrom");
+  string lhefFile    = settings.word("Beams:LHEF");
+  string slhaFile    = settings.word("SLHA:file");
+  int    verboseSLHA = settings.mode("SLHA:verbose");
+  bool   slhaUseDec  = settings.flag("SLHA:useDecayTable");
+
+  // No SUSY by default
+  couplingsPtr->isSUSY = false;
+
+  // Option with no SLHA read-in at all.
+  if (readFrom == 0) return true;  
+
+  // First check LHEF header (if reading from LHEF)
+  if (readFrom == 1 && lhefFile != "void") {
+    ifailLHE = slha.readFile(lhefFile, verboseSLHA, slhaUseDec );    
+  }
+
+  // If LHEF read successful, everything needed should already be ready
+  if (ifailLHE == 0) {
+    ifailSpc = 0;
+    ifailDec = 0;
+    couplingsPtr->isSUSY = true;
+  // If no LHEF file or no SLHA info in header, read from SLHA:file
+  } else {
+    lhefFile = "void";
+    if ( settings.word("SLHA:file") == "none"
+	 || settings.word("SLHA:file") == "void" 
+	 || settings.word("SLHA:file") == "" 
+	 || settings.word("SLHA:file") == " ") return true;      
+    ifailSpc = slha.readFile(slhaFile,verboseSLHA, slhaUseDec);
+  }
+
+  // In case of problems, print error and fail init.
+  if (ifailSpc != 0) {
+    info.errorMsg("Error in ProcessLevel::initSLHA: "
+      "problem reading SLHA file", slhaFile);
+    return false;
+  }else{
+    couplingsPtr->isSUSY = true;
+  }
+
+  /*
+  // Check decays for consistency (replaced by internal Pythia check below)
+  ifailDec = checkDecays();
+  if (ifailDec != 0) {
+    infoPtr->errorMsg("Warning in ProcessLevel::initSLHA: "
+		      "Problem with SLHA decay tables.");     
+  }
+  */
+  
+  // Check spectrum for consistency. Switch off SUSY if necessary.
+  ifailSpc = slha.checkSpectrum();
+  // ifail > 1 : no MODSEL found -> don't switch on SUSY
+  if (ifailSpc == 1) {
+    // no SUSY, but MASS ok
+  } else if (ifailSpc >= 2) {
+    // no SUSY, but problems    
+    info.errorMsg("Warning in ProcessLevel::initSLHA: "
+		      "Problem with SLHA MASS or QNUMBERS.");    
+  }
+  // ifail = 0 : MODSEL found, spectrum OK
+  else if (ifailSpc == 0) {
+    // Print spectrum. Done. 
+    slha.printSpectrum();
+  }
+  else if (ifailSpc < 0) {
+    info.errorMsg("Warning in ProcessLevel::initSLHA: "
+		      "Problem with SLHA spectrum.", 
+		      "\n Only using masses and switching off SUSY.");
+    settings.flag("SUSY:all", false);
+    slha.printSpectrum();
+  } 
+
+  // Import mass spectrum.
+  bool   keepSM    = settings.flag("SLHA:keepSM");
+  double minMassSM = settings.parm("SLHA:minMassSM");
+  if (ifailSpc == 1 || ifailSpc == 0) {
+
+    // Loop through to update particle data.
+    int    id = slha.mass.first();
+    for (int i = 1; i <= slha.mass.size() ; i++) {
+      double mass = abs(slha.mass(id));
+
+      // Ignore masses for known SM particles or particles with 
+      // default masses < minMassSM; overwrite masses for rest.
+      if (keepSM && (id < 25 || (id > 80 && id < 1000000))) ;
+      else if (id < 1000000 && particleData.m0(id) < minMassSM) {
+	ostringstream idCode;
+	idCode << id;      
+	info.errorMsg("Warning in ProcessLevel::initSLHA: "
+	  "ignoring MASS entry", "for id = "+idCode.str()
+	  +" (m0 < SLHA:minMassSM)", true);
+      } 
+      else particleData.m0(id,mass);
+      id = slha.mass.next();
+    };
+
+  }
+
+  // Update decay data.
+  for (int iTable=0; iTable < int(slha.decays.size()); iTable++) {
+    
+    // Pointer to this SLHA table
+    SusyLesHouches::decayTable* slhaTable=&(slha.decays[iTable]);
+    
+    // Extract ID and create pointer to corresponding particle data object
+    int idRes     = slhaTable->getId();
+    ParticleDataEntry* particlePtr 
+      = particleData.particleDataEntryPtr(idRes);
+    
+    // Ignore decay channels for known SM particles or particles with 
+    // default masses < minMassSM; overwrite masses for rest.
+    if (keepSM && (idRes < 25 || (idRes > 80 && idRes < 1000000))) continue;
+    else if (idRes < 1000000 && particleData.m0(idRes) < minMassSM) {
+      ostringstream idCode;
+      idCode << idRes;      
+      info.errorMsg("Warning in ProcessLevel::initSLHA: "
+        "ignoring DECAY table", "for id = " + idCode.str()
+	+ " (m0 < SLHA:minMassSM)", true);
+      continue;
+    }
+    
+    // Extract and store total width (absolute value, neg -> switch off)
+    double widRes = abs(slhaTable->getWidth());
+    particlePtr->setMWidth(widRes);
+
+    // Reset decay table of the particle. Allow decays.
+    if (slhaTable->size() > 0) {
+      particlePtr->clearChannels();
+      particleData.mayDecay(idRes,true);
+    }        
+    
+    // Reset to stable if width <= 0.0
+    if (slhaTable->getWidth() <= 0.0) particleData.mayDecay(idRes,false);
+    
+    // Mass margin between lowest mass allowed and "average" decay channel.
+    double massMargin = 1.;
+    
+    // Set initial minimum mass.
+    double brWTsum   = 0.;
+    double massWTsum = 0.;
+    
+    // Loop over SLHA channels, import into Pythia, treating channels
+    // with negative branching fractions as having the equivalent positive
+    // branching fraction, but being switched off for this run
+    for (int iChannel=0 ; iChannel<slhaTable->size(); iChannel++) {
+      SusyLesHouches::decayChannel slhaChannel 
+        = slhaTable->getChannel(iChannel);
+      double brat      = slhaChannel.getBrat();
+      vector<int> idDa = slhaChannel.getIdDa();
+      if (idDa.size() >= 9) {
+	info.errorMsg("Error in ProcessLevel::initSLHA: "
+			  "max number of decay products is 8.");
+      } else if (idDa.size() <= 1) {
+	info.errorMsg("Error in ProcessLevel::initSLHA: "
+			  "min number of decay products is 2.");	  
+      }
+      else {
+	int onMode = 1;
+	if (brat < 0.0) onMode = 0;
+	
+	// Check phase space, including margin
+	double massSum = massMargin;
+	for (int jDa=0; jDa<int(idDa.size()); ++jDa) 
+	  massSum += particleData.m0( idDa[jDa] ); 
+	if (onMode == 1 && brat > 0.0 && massSum > particleData.m0(idRes) ) {
+	  // String containing decay name
+	  ostringstream errCode;
+	  errCode << idRes <<" ->";
+	  for (int jDa=0; jDa<int(idDa.size()); ++jDa) errCode<<" "<<idDa[jDa];
+	  info.errorMsg("Warning in ProcessLevel::initSLHA: "
+	    "switching off decay",  errCode.str() + " (mRes - mDa < massMargin)"
+            "\n       (Note: cross sections will be scaled by remaining"
+	    " open branching fractions!)" , true);
+	  onMode=0;
+	}
+	
+	// Branching-ratio-weighted average mass in decay.
+	brWTsum   += abs(brat);
+	massWTsum += abs(brat) * massSum;
+	
+	// Add channel
+	int id0 = idDa[0];
+	int id1 = idDa[1];
+	int id2 = (idDa.size() >= 3) ? idDa[2] : 0;
+	int id3 = (idDa.size() >= 4) ? idDa[3] : 0;
+	int id4 = (idDa.size() >= 5) ? idDa[4] : 0;
+	int id5 = (idDa.size() >= 6) ? idDa[5] : 0;
+	int id6 = (idDa.size() >= 7) ? idDa[6] : 0;
+	int id7 = (idDa.size() >= 8) ? idDa[7] : 0;
+	particlePtr->addChannel(onMode,abs(brat),101,
+				      id0,id1,id2,id3,id4,id5,id6,id7);
+	
+      }
+    }
+    
+    // Set minimal mass, but always below nominal one.
+    if (slhaTable->size() > 0) {
+      double massAvg = massWTsum / brWTsum;
+      double massMin = min( massAvg, particlePtr->m0()) - massMargin;
+      particlePtr->setMMin(massMin);
+    }
+  }
+  
+  return true;
+  
+}
+
+//==========================================================================
 } // end namespace Pythia8
 
 

@@ -25,8 +25,8 @@ namespace Pythia8 {
 class DecayChannel;
 class ParticleData;
 class ParticleDataEntry;
-class CoupSM;
-  
+class Couplings;
+
 //==========================================================================
 
 // The ResonanceWidths is the base class. Also used for generic resonaces.
@@ -43,8 +43,8 @@ public:
     idRes = idResIn; isGeneric = isGenericIn;}
  
   // Calculate and store partial and total widths at the nominal mass. 
-  bool init(Info* infoPtrIn, Settings* settingsPtrIn,
-    ParticleData* particleDataPtrIn, CoupSM* coupSMPtrIn);
+  virtual bool init(Info* infoPtrIn, Settings* settingsPtrIn,
+    ParticleData* particleDataPtrIn, Couplings* couplingsPtrIn);
 
   // Return identity of particle species.
   int id() const {return idRes;}
@@ -106,8 +106,8 @@ protected:
   // Pointer to the particle data table.
   ParticleData* particleDataPtr;
 
-  // Pointer to Standard Model couplings.
-  CoupSM*       coupSMPtr;
+  // Pointers to Standard Model and SUSY couplings.
+  Couplings*    couplingsPtr;
  
   // Initialize constants.
   virtual void initConstants() {} 
@@ -471,7 +471,7 @@ private:
 
 //==========================================================================
 
-// The ResonanceKKgluon class handles the excited kk-gluon resonance.
+// The ResonanceKKgluon class handles the g^*/KK-gluon^* resonance.
 
 class ResonanceKKgluon : public ResonanceWidths {
 
@@ -482,20 +482,25 @@ public:
  
 private: 
 
-  // Locally stored properties and couplings.
-  bool   m_smbulk;
+  // Locally stored properties.
+  double normSM, normInt, normKK;
 
-  // Couplings between KK gluon and SM (map from particle id to coupling).
-  double m_coupling[10];
+  // Couplings between kk gluon and SM (indexed by particle id).
+  // Helicity dependent couplings. Use vector/axial-vector
+  // couplings internally, gv/ga = 0.5 * (gL +/- gR).
+  double m_gv[10], m_ga[10];
+
+  // Interference parameter.
+  int interfMode;
 
   // Initialize constants.
   virtual void initConstants(); 
  
   // Calculate various common prefactors for the current mass.
-  virtual void calcPreFac(bool = false);
+  virtual void calcPreFac(bool calledFromInit = false);
 
   // Caclulate width for currently considered channel.
-  virtual void calcWidth(bool = false);
+  virtual void calcWidth(bool calledFromInit = false);
 
 };
 

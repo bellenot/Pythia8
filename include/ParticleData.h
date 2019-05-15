@@ -25,8 +25,10 @@ namespace Pythia8 {
 // Forward reference to some classes.
 class ParticleData;
 class ResonanceWidths;
-class CoupSM;
-  
+class Couplings;
+class CoupSUSY;
+class SUSYResonanceWidths;
+
 //==========================================================================
 
 // This class holds info on a single decay channel.
@@ -268,7 +270,7 @@ public:
   void   setResonancePtr(ResonanceWidths* resonancePtrIn); 
   ResonanceWidths* getResonancePtr() {return resonancePtr;}
   void   resInit(Info* infoPtrIn, Settings* settingsPtrIn, 
-    ParticleData* particleDataPtrIn, CoupSM* coupSMPtrIn);
+    ParticleData* particleDataPtrIn, Couplings* couplingsPtrIn);
   double resWidth(int idSgn, double mHat, int idIn = 0, 
     bool openOnly = false, bool setBR = false);
   double resWidthOpen(int idSgn, double mHat, int idIn = 0);
@@ -330,8 +332,8 @@ public:
 
   // Initialize pointers.
   void initPtr(Info* infoPtrIn, Settings* settingsPtrIn, Rndm* rndmPtrIn, 
-    CoupSM* coupSMPtrIn) {infoPtr = infoPtrIn; settingsPtr = settingsPtrIn;
-    rndmPtr = rndmPtrIn; coupSMPtr = coupSMPtrIn;}
+    Couplings* couplingsPtrIn) {infoPtr = infoPtrIn; settingsPtr = settingsPtrIn;
+    rndmPtr = rndmPtrIn; couplingsPtr = couplingsPtrIn;}
  
   // Read in database from specific file.
   bool init(string startFile = "../xmldoc/ParticleData.xml") {
@@ -522,7 +524,7 @@ public:
   void setResonancePtr(int idIn, ResonanceWidths* resonancePtrIn) { 
     if (isParticle(idIn)) pdt[abs(idIn)].setResonancePtr( resonancePtrIn);} 
   void resInit(int idIn) { if (isParticle(idIn)) 
-    pdt[abs(idIn)].resInit(infoPtr, settingsPtr, this, coupSMPtr);} 
+    pdt[abs(idIn)].resInit(infoPtr, settingsPtr, this, couplingsPtr);} 
   double resWidth(int idIn, double mHat, int idInFlav = 0, 
     bool openOnly = false, bool setBR = false) {
     return isParticle(idIn) ? pdt[abs(idIn)].resWidth(idIn, mHat,
@@ -563,7 +565,7 @@ private:
   Rndm*     rndmPtr;
 
   // Pointer to Standard Model couplings.
-  CoupSM*   coupSMPtr;
+  Couplings*   couplingsPtr;
 
   // All particle data stored in a map.
   map<int, ParticleDataEntry> pdt;

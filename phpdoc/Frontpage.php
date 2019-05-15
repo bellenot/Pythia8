@@ -99,10 +99,10 @@ S&ouml;lvegatan 14A, SE-223 62 Lund, Sweden<br/>
 phone: + 46 - 46 - 222 48 16, e-mail: torbjorn@thep.lu.se   
 
 <p/>
-<b>Stefan Ask</b><br/> 
-School of Physics and Astronomy, University of Manchester, 
-Oxford Road, Manchester M13 9PL, United Kingdom<br/>
-phone: +41 - 22 - 767 5670, e-mail: Stefan.Ask@cern.ch  
+<b>Stefan Ask</b><br/>
+Department of Physics, University of Cambridge, 
+Cavendish Laboratory, JJ Thomson Ave., Cambridge CB3 0HE, UK<br/>
+phone: +41 - 22 - 767 6707, e-mail: Stefan.Ask@cern.ch
 
 <p/>
 <b>Richard Corke</b><br/> 
@@ -139,13 +139,15 @@ by <b>Rene Brun</b> and <b>Andreas Morsch</b>.
 <br/>Code and data for the CTEQ/CT PDFs by <b>Joey Huston</b> 
 and colleagues. 
 <br/>Help with implementing new proton PDFs by <b>Tomas Kasemets</b>.
-<br/>Code and data for Pomeron PDFs by <b>H1</b> collaboration.  
+<br/>Code and data for Pomeron PDFs by <b>H1</b> collaboration and
+especially <b>Paul Newman</b>.  
 <br/>Help with implementing new Pomeron fluxes and PDFs by <b>Sparsh Navin</b>.
 <br/>The new Hidden Valley code developed together with <b>Lisa Carloni</b>.
 <br/>Code for a Kaluza-Klein electroweak gauge boson provided by
 <b>Noam Hod</b> and <b>Mark Sutton</b>.
 <br/>Code for equivalent photon flux around an unresolved proton by 
 <b>Oystein Alvestad</b>.
+<br/>Part of the SUSY code by <b>Nishita Desai</b>.
 <br/><b>Note</b>: in several cases modifications have been made to
 the original code, in order to integrate it with PYTHIA. In these cases
 the blame for any mistakes has to rest with the regular authors.

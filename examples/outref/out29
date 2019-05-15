@@ -5,10 +5,10 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.142      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 15 Aug 2010  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.145      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 10 Nov 2010  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 15 Aug 2010 at 19:25:48    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 11 Nov 2010 at 20:10:38    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Theoretical Physics, Lund University,   |  | 
  |  |      Solvegatan 14A, SE-223 62 Lund, Sweden;                                 |  | 
@@ -588,7 +588,7 @@
  *-------  End PYTHIA Error and Warning Messages Statistics  ------------------------------------------------------* 
 
 
-  2010-08-15 19:25       energy spectrum of photons
+  2010-11-11 20:10       energy spectrum of photons
 
         3.00*10^ 4  3                                                                                                   
         2.90*10^ 4  X                                                                                                   
@@ -636,7 +636,7 @@
    All chan =  3.8881e+04    Rms  =  8.0290e+00    Overflow  =  0.0000e+00    High edge =  2.5000e+02
 
 
-  2010-08-15 19:25       energy spectrum of e+ and e-
+  2010-11-11 20:10       energy spectrum of e+ and e-
 
         3.12*10^ 4  9                                                                                                   
         3.00*10^ 4  X                                                                                                   
@@ -680,7 +680,7 @@
    All chan =  3.7162e+04    Rms  =  9.2868e+00    Overflow  =  0.0000e+00    High edge =  2.5000e+02
 
 
-  2010-08-15 19:25       energy spectrum of p and pbar
+  2010-11-11 20:10       energy spectrum of p and pbar
 
         0.96*10^ 3   8                                                                                                  
         0.92*10^ 3  8X                                                                                                  
@@ -722,7 +722,7 @@
    All chan =  3.5920e+03    Rms  =  1.4949e+01    Overflow  =  0.0000e+00    High edge =  2.5000e+02
 
 
-  2010-08-15 19:25       energy spectrum of neutrinos
+  2010-11-11 20:10       energy spectrum of neutrinos
 
         9.00*10^ 4  5                                                                                                   
         8.70*10^ 4  X                                                                                                   

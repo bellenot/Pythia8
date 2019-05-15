@@ -117,6 +117,9 @@ public:
 
   // Initialization according to the Les Houches Accord.
   bool init( LHAup* lhaUpPtrIn);
+
+  // Initialization of SLHA data
+  bool initSLHA ();
  
   // Generate the next event.
   bool next(); 
@@ -163,7 +166,8 @@ public:
   Rndm           rndm;
 
   // Standard Model couplings, including alphaS and alphaEM.
-  CoupSM         coupSM;
+  Couplings     couplings, *couplingsPtr;
+  CoupSUSY      coupSUSY;
 
   // SusyLesHouches - SLHA object for interface to SUSY spectra.
   SusyLesHouches slha;

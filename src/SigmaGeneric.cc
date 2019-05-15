@@ -293,7 +293,7 @@ void Sigma2ffbar2fGfGbar::sigmaKin() {
 double Sigma2ffbar2fGfGbar::sigmaHat() { 
 
   // Charge and colour factors.
-  double eNow  = coupSMPtr->ef( abs(id1) );    
+  double eNow  = couplingsPtr->ef( abs(id1) );    
   double sigma = sigma0 * pow2(eNow);
   if (abs(id1) < 9) sigma /= 3.;
 

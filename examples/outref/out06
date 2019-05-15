@@ -5,10 +5,10 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.142      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 15 Aug 2010  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.145      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 10 Nov 2010  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 15 Aug 2010 at 19:19:55    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 11 Nov 2010 at 20:04:42    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Theoretical Physics, Lund University,   |  | 
  |  |      Solvegatan 14A, SE-223 62 Lund, Sweden;                                 |  | 
@@ -227,7 +227,7 @@
  *-------  End PYTHIA Error and Warning Messages Statistics  ------------------------------------------------------* 
 
 
-  2010-08-15 19:20       scattering pT spectrum
+  2010-11-11 20:04       scattering pT spectrum
 
         2.16*10^ 3  6                                                                                                   
         2.08*10^ 3  X                                                                                                   
@@ -272,7 +272,7 @@
    All chan =  1.8320e+04    Rms  =  4.8095e-01    Overflow  =  1.6800e+03    High edge =  2.5000e+00
 
 
-  2010-08-15 19:20       elastic |t| spectrum
+  2010-11-11 20:04       elastic |t| spectrum
 
         3.90*10^ 3  7                                                                                                   
         3.75*10^ 3  X                                                                                                   
@@ -316,7 +316,7 @@
    All chan =  1.3205e+04    Rms  =  5.3789e-02    Overflow  =  0.0000e+00    High edge =  1.0000e+00
 
 
-  2010-08-15 19:20       elastic log10(|t|) spectrum
+  2010-11-11 20:04       elastic log10(|t|) spectrum
 
         4.80*10^ 2                                                                          16 61                       
         4.60*10^ 2                                                                          XXXXX 1                     
@@ -358,7 +358,7 @@
    All chan =  1.3205e+04    Rms  =  1.0519e+00    Overflow  =  0.0000e+00    High edge =  0.0000e+00
 
 
-  2010-08-15 19:20       single diffractive |t| spectrum
+  2010-11-11 20:04       single diffractive |t| spectrum
 
         3.75*10^ 2  3                                                                                                   
         3.60*10^ 2  X                                                                                                   
@@ -401,7 +401,7 @@
    All chan =  2.7980e+03    Rms  =  4.4809e-01    Overflow  =  2.9360e+03    High edge =  2.0000e+00
 
 
-  2010-08-15 19:20       double diffractive |t| spectrum
+  2010-11-11 20:04       double diffractive |t| spectrum
 
         6.50*10^ 1   2                                                                                                  
         6.25*10^ 1   X                                                                                                  
@@ -445,7 +445,7 @@
    All chan =  6.2500e+02    Rms  =  1.3470e+00    Overflow  =  4.3600e+02    High edge =  5.0000e+00
 
 
-  2010-08-15 19:20       scattering mass spectrum
+  2010-11-11 20:04       scattering mass spectrum
 
         3.24*10^ 4  8                                                                                                   
         3.12*10^ 4  X                                                                                                   
@@ -490,7 +490,7 @@
    All chan =  3.6265e+04    Rms  =  9.9211e+00    Overflow  =  3.7350e+03    High edge =  1.0000e+02
 
 
-  2010-08-15 19:20       log10(scattering mass spectrum)
+  2010-11-11 20:04       log10(scattering mass spectrum)
 
         1.45*10^ 2     8    4                                                                                           
         1.40*10^ 2     X    X                                                                                           
@@ -537,7 +537,7 @@
    All chan =  7.8560e+03    Rms  =  1.1526e+00    Overflow  =  0.0000e+00    High edge =  4.0000e+00
 
 
-  2010-08-15 19:20       number of charged particles in diffractive event
+  2010-11-11 20:04       number of charged particles in diffractive event
 
         6.00*10^ 2    X                                                                                                 
         5.75*10^ 2    X                                                                                                 
@@ -579,7 +579,7 @@
    All chan =  6.5500e+03    Rms  =  2.2002e+01    Overflow  =  2.4500e+02    High edge =  9.9500e+01
 
 
-  2010-08-15 19:20       number of final particles in diffractive system
+  2010-11-11 20:04       number of final particles in diffractive system
 
         4.60*10^ 2    X                                                                                                 
         4.40*10^ 2    X                                                                                                 

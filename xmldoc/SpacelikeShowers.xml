@@ -3,8 +3,10 @@
 <h2>Spacelike Showers</h2>
 
 The PYTHIA algorithm for spacelike initial-state showers is 
-based on the recent article <ref>Sjo05</ref>, where a 
-transverse-momentum-ordered backwards evolution scheme is introduced. 
+based on the article <ref>Sjo05</ref>, where a 
+transverse-momentum-ordered backwards evolution scheme is introduced, 
+with the extension to fully interleaved evolution covered in 
+<ref>Cor10a</ref>. 
 This algorithm is a further development of the virtuality-ordered one 
 presented in <ref>Sj085</ref>, with matching to first-order matrix 
 element for <ei>Z^0</ei>, <ei>W^+-</ei> and Higgs (in the 
