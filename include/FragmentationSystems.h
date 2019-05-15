@@ -41,9 +41,9 @@ public:
 
   // Stored quantities. 
   vector<int> iParton;
-  Vec4 pSum;
+  Vec4   pSum;
   double mass, massExcess;
-  bool hasJunction, isClosed, isCollected;
+  bool   hasJunction, isClosed, isCollected;
   
 };
  
@@ -123,10 +123,9 @@ public:
   static const double TINY;
 
   // Data members.
-  bool isSetUp, isEmpty;
-  Vec4 pPos, pNeg, eX, eY;
-  double w2;
-  double xPosProj, xNegProj, pxProj, pyProj;
+  bool   isSetUp, isEmpty;
+  Vec4   pPos, pNeg, eX, eY;
+  double w2, xPosProj, xNegProj, pxProj, pyProj;
 
   // Set up four-vectors for longitudinal and transverse directions.
   void setUp(Vec4 p1, Vec4 p2, bool isMassless = false);

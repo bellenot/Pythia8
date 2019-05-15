@@ -38,11 +38,11 @@ public:
 private: 
 
   // Initialization data, normally only set once.
-  static int nTryMass;
+  static int    nTryMass;
   static double sigma, sigma2Had, bLund;
 
   // Constants: could only be changed in the code itself.
-  static const int NTRYDIFFRACTIVE, NTRYLASTRESORT, NTRYFLAV;
+  static const int    NTRYDIFFRACTIVE, NTRYLASTRESORT, NTRYFLAV;
   static const double SIGMAMIN;
 
   // Attempt to produce two particles from a cluster.
@@ -55,11 +55,11 @@ private:
   StringFlav flavSel;
 
   // Data members.
-  vector<int> iParton;
+  vector<int>   iParton;
   FlavContainer flav1, flav2;
-  Vec4 pSum;
+  Vec4   pSum;
   double mSum, m2Sum;
-  bool isClosed;
+  bool   isClosed;
 
 };
 

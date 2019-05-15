@@ -305,9 +305,9 @@ double InFlux::flux(double x1, double x2, double Q2) {
 
   // Evaluate and store the required parton densities.
   for (int j = 0; j < sizeBeamA(); ++j) 
-    inBeamA[j].pdf = beamAPtr->xf( inBeamA[j].id, x1, Q2); 
+    inBeamA[j].pdf = beamAPtr->xfHard( inBeamA[j].id, x1, Q2); 
   for (int j = 0; j < sizeBeamB(); ++j) 
-    inBeamB[j].pdf = beamBPtr->xf( inBeamB[j].id, x2, Q2); 
+    inBeamB[j].pdf = beamBPtr->xfHard( inBeamB[j].id, x2, Q2); 
 
   // Multiply on these densities for each of the allowed channels. Sum.
   fluxwtSum = 0.;

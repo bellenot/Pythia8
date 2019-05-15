@@ -15,7 +15,6 @@ int main() {
 
   // Shorthand for some public members of pythia (also static ones).
   Event& event = pythia.event;
-  Settings& settings = pythia.settings;
   ParticleDataTable& pdt = pythia.particleData;
   Info& info = pythia.info;
 
@@ -23,21 +22,21 @@ int main() {
   pythia.readFile("main03.cmnd");    
 
   // Extract settings to be used in the main program.
-  int idBeamA = settings.mode("Main:idBeamA");
-  int idBeamB = settings.mode("Main:idBeamB");
-  double eCM = settings.parm("Main:eCM");
-  int nEvent = settings.mode("Main:numberOfEvents");
-  int nList = settings.mode("Main:numberToList");
-  int nShow = settings.mode("Main:timesToShow");
-  bool showChangedSettings = settings.flag("Main:showChangedSettings");
-  bool showChangedParticleData = settings.flag("Main:showChangedParticleData");
+  int    idBeamA = pythia.mode("Main:idBeamA");
+  int    idBeamB = pythia.mode("Main:idBeamB");
+  double eCM     = pythia.parm("Main:eCM");
+  int    nEvent  = pythia.mode("Main:numberOfEvents");
+  int    nList   = pythia.mode("Main:numberToList");
+  int    nShow   = pythia.mode("Main:timesToShow");
+  bool   showCS  = pythia.flag("Main:showChangedSettings");
+  bool   showCPD = pythia.flag("Main:showChangedParticleData");
 
   // Initialize.
   pythia.init( idBeamA, idBeamB, eCM);
 
   // List changed data.
-  if (showChangedSettings) settings.listChanged();
-  if (showChangedParticleData) pdt.listChanged();
+  if (showCS) pythia.settings.listChanged();
+  if (showCPD) pdt.listChanged();
 
   // Book histograms.
   Hist pThard("process pT scale", 100, 0., 200.);

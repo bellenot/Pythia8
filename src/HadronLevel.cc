@@ -14,8 +14,8 @@ namespace Pythia8 {
 // Definitions of static variables.
 // (Values will be overwritten in initStatic call, so are purely dummy.)
 
-bool HadronLevel::Hadronize              = true;
-bool HadronLevel::Decay                  = true;
+bool   HadronLevel::Hadronize            = true;
+bool   HadronLevel::Decay                = true;
 double HadronLevel::mStringMin           = 1.;
 double HadronLevel::eNormJunction        = 2.0;
 

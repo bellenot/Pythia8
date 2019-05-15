@@ -62,18 +62,18 @@ public:
 private:
 
   // Static initialization data, normally only set once.
-  static bool setOwn;
+  static bool   setOwn;
   static double sigTotOwn, sigElOwn, sigXBOwn, sigAXOwn, sigXXOwn;
 
   // Constants: could only be changed in the code itself.
-  static const int IHADATABLE[], IHADBTABLE[], ISDTABLE[], IDDTABLE[];
+  static const int    IHADATABLE[], IHADBTABLE[], ISDTABLE[], IDDTABLE[];
   static const double MMIN, EPSILON, ETA, X[], Y[], BETA0[], BHAD[],
-    ALPHAPRIME, CONVERTEL, CONVERTSD, CONVERTDD, MMIN0, CRES, MRES0, 
-    CSD[10][8], CDD[10][9], SPROTON;
+                      ALPHAPRIME, CONVERTEL, CONVERTSD, CONVERTDD, MMIN0, 
+                      CRES, MRES0, CSD[10][8], CDD[10][9], SPROTON;
 
   // Store values found by init.
   double sigTot, sigEl, sigXB, sigAX, sigXX, sigND, bEl, s, bA, bB,
-    alP2, s0, exp4, mMinXBsave, mMinAXsave, mResXBsave, mResAXsave;
+         alP2, s0, exp4, mMinXBsave, mMinAXsave, mResXBsave, mResAXsave;
 
 };
  

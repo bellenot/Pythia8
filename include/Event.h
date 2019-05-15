@@ -290,6 +290,10 @@ public:
   // Initialize static data members.
   static void initStatic();
 
+  // Clear event record.
+  void clear() {entry.resize(0); maxColTag = startColTag; 
+    junction.resize(0); clearSystems();}
+
   // Overload index operator to access element of event record.
   Particle& operator[](int i) {return entry[i];}
   const Particle& operator[](int i) const {return entry[i];}
@@ -321,16 +325,16 @@ public:
   Particle& back() {return entry.back();}
 
   // List the particles in an event.
-  void list(ostream& os = cout);  
+  void list(ostream& os = cout) const;  
 
   // Set header specification for event listing.
   void header( string headerIn) {
     headerList.replace(0, headerIn.length() + 2, headerIn + "  ");}
 
-  // Clear event record, or remove last n entries.
-  void clear() {entry.resize(0); maxColTag = startColTag; junction.resize(0);}
+  // Remove last n entries.
   void popBack(int nRemove = 1) { if (nRemove ==1) entry.pop_back();
-    else {int newSize = max( 0, size() - nRemove); entry.resize(newSize);} } 
+    else {int newSize = max( 0, size() - nRemove); 
+    entry.resize(newSize);} } 
 
   // Save or restore the size of the event record (throwing at the end).
   void saveSize() {savedSize = entry.size();}
@@ -346,24 +350,37 @@ public:
   double scale() const {return scaleSave;}
 
   // Find complete list of daughters and mothers.
-  vector<int> motherList(int i);
-  vector<int> daughterList(int i);
+  vector<int> motherList(int i) const;
+  vector<int> daughterList(int i) const;
  
   // Trace the first and last copy of one and the same particle.
-  int iTopCopy(int i);
-  int iBotCopy(int i);
+  int iTopCopy(int i) const;
+  int iBotCopy(int i) const;
 
   // Trace the first and last copy of a particle, using flavour match.
-  int iTopCopyId(int i);
-  int iBotCopyId(int i);
+  int iTopCopyId(int i) const;
+  int iBotCopyId(int i) const;
 
   // Find list of sisters, also tracking up and down identical copies.
-  vector<int> sisterList(int i);
-  vector<int> sisterListTopBot(int i, bool widenSearch = true);
+  vector<int> sisterList(int i) const;
+  vector<int> sisterListTopBot(int i, bool widenSearch = true) const;
 
   // Check whether two particles have a direct mother-daughter relation.
-  bool isAncestor(int i, int iAncestor);
+  bool isAncestor(int i, int iAncestor) const;
 
+  // Member functions for rotations and boosts of an event.
+  void rot(double theta, double phi) 
+    {for (int i = 0; i < size(); ++i) entry[i].rot(theta, phi);} 
+  void bst(double betaX, double betaY, double betaZ) 
+    {for (int i = 0; i < size(); ++i) entry[i].bst(betaX, betaY, betaZ);}
+  void bst(double betaX, double betaY, double betaZ, double gamma) 
+    {for (int i = 0; i < size(); ++i) entry[i].bst(betaX, betaY, betaZ, 
+    gamma);}
+  void bst(const Vec4& vec) 
+    {for (int i = 0; i < size(); ++i) entry[i].bst(vec);}
+  void rotbst(const RotBstMatrix& M) 
+    {for (int i = 0; i < size(); ++i) entry[i].rotbst(M);}
+ 
   // Add a junction to the list, study it or extra input.
   void appendJunction( int kind, int col0, int col1, int col2)  
     { junction.push_back( Junction( kind, col0, col1, col2) );} 
@@ -387,19 +404,32 @@ public:
   void saveJunctionSize() {savedJunctionSize = junction.size();}
   void restoreJunctionSize() {junction.resize(savedJunctionSize);}   
 
-  // Member functions for rotations and boosts of an event.
-  void rot(double theta, double phi) 
-    {for (int i = 0; i < size(); ++i) entry[i].rot(theta, phi);} 
-  void bst(double betaX, double betaY, double betaZ) 
-    {for (int i = 0; i < size(); ++i) entry[i].bst(betaX, betaY, betaZ);}
-  void bst(double betaX, double betaY, double betaZ, double gamma) 
-    {for (int i = 0; i < size(); ++i) entry[i].bst(betaX, betaY, betaZ, 
-    gamma);}
-  void bst(const Vec4& vec) 
-    {for (int i = 0; i < size(); ++i) entry[i].bst(vec);}
-  void rotbst(const RotBstMatrix& M) 
-    {for (int i = 0; i < size(); ++i) entry[i].rotbst(M);}
- 
+  // Operations with grouped systems of partons for internal use only.
+  // (Used by combined MI, ISR, FSR and BR machinery in PartonLevel.)
+
+  // Reset all systems and system number to empty.
+  void clearSystems() {beginSys.resize(0); sizeSys.resize(0); 
+    memberSys.resize(0);}
+  
+  // Get number of systems or number of members in a system. 
+  int sizeSystems() const {return beginSys.size();}
+  int sizeSystem(int iSys) const {return sizeSys[iSys];}
+
+  // New system or new parton in system.
+  int newSystem() {beginSys.push_back(memberSys.size()); 
+    sizeSys.push_back(0); return (beginSys.size() - 1);}
+  void addToSystem(int iSys, int iPos);
+
+  // Get or set value of given member in given system. Replace value by new.
+  int getInSystem(int iSys, int iMem) const {
+    return memberSys[beginSys[iSys] + iMem];}
+  void setInSystem(int iSys, int iMem, int iPos) {
+    memberSys[beginSys[iSys] + iMem] = iPos;}
+  void replaceInSystem(int iSys, int iPosOld, int iPosNew);
+
+  // List members in systems; for debug mainly.
+  void listSystems(ostream& os = cout) const;
+
 private: 
 
   // Static initialization data, normally only set once.
@@ -427,6 +457,9 @@ private:
 
   // Header specification in event listing (at most 40 characters wide).
   string headerList;
+
+  // Offsets, sizes and values of systems.
+  vector<int> beginSys, sizeSys, memberSys;
   
 };
 

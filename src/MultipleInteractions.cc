@@ -431,21 +431,21 @@ bool MultipleInteractions::init( BeamParticle* beamAPtrIn,
   if (isInit && !reInit) return true;
 
   // Store input pointers for future use. 
-  beamAPtr = beamAPtrIn;
-  beamBPtr = beamBPtrIn;
+  beamAPtr    = beamAPtrIn;
+  beamBPtr    = beamBPtrIn;
 
   // Some common combinations for double Gaussian, as shorthand.
   if (bProfile == 2) {
-    fracA    = pow2(1. - coreFraction);
-    fracB    = 2. * coreFraction * (1. - coreFraction);
-    fracC    = pow2(coreFraction); 
-    radius2B = 0.5 * (1. + pow2(coreRadius));
-    radius2C = pow2(coreRadius);
+    fracA     = pow2(1. - coreFraction);
+    fracB     = 2. * coreFraction * (1. - coreFraction);
+    fracC     = pow2(coreFraction); 
+    radius2B  = 0.5 * (1. + pow2(coreRadius));
+    radius2C  = pow2(coreRadius);
 
   // Some common combinations for exp(b^pow), as shorthand.
   } else if (bProfile == 3) {
-    lowPow = (expPow < 2.);
-    expRev = 2. / expPow - 1.;
+    lowPow    = (expPow < 2.);
+    expRev    = 2. / expPow - 1.;
   } 
 
   // Initialize alpha_strong generation.
@@ -681,12 +681,12 @@ double MultipleInteractions::pTnext( double pTbegAll, double pTendAll) {
   pT2 = pow2(pTbegAll);
   do {
     pT2 = fastPT2(pT2);
+    if (pT2 < pT2end) return 0.;
 
     // Pick complete kinematics and evaluate cross-section correction.
     WTacc = sigmaPT2(false) / dSigmaApprox;
  
     // Decide whether to keep the event.
-    if (pT2 < pT2end) return 0.;
   } while (WTacc < Rndm::flat() || !dSigmaDtSel->final2KinMI()); 
 
   // Done.
@@ -720,6 +720,10 @@ void MultipleInteractions::scatter( Info* infoPtr, Event& event) {
     event.append(parton);
     if (i == 3) pTMI = parton.pT();
   }
+
+  // Store participating partons as a new set in list of all systems.
+  int iSys = event.newSystem();
+  for (int i = 0; i < 4; ++i) event.addToSystem(iSys, motherOffset + i); 
 
   // Add scattered partons to list in beam remnants.
   int iA = beamAPtr->append( motherOffset, id1, x1);
@@ -887,6 +891,7 @@ double MultipleInteractions::sigmaPT2(bool isFirst) {
   pT2Ren = pT2shift;
   pT2Fac = (SHIFTFACSCALE) ? pT2shift : pT2;
   xT = 2. * sqrt(pT2) / eCM;
+  if (xT >= 1.) return 0.;
   xT2 = xT*xT;   
   double yMax = log(1./xT + sqrt(1./xT2 - 1.));
 

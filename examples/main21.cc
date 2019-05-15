@@ -2,13 +2,13 @@
 // This is a simple test program.
 // It illustrates how HepMC can be interfaced to Pythia8.
 // It studies the charged multiplicity distribution at the LHC.
-// HepMC events are output to the hepmcout.dat file.
+// HepMC events are output to the hepmcout21.dat file.
 // Written by Mikhail Kirsanov based on main01.cc.
 // Copyright C 2007 Torbjorn Sjostrand
 
 #include "Pythia.h"
 
-#include "I_Pythia8.h"
+#include "HepMCInterface.h"
 
 #include "HepMC/GenEvent.h"
 #include "HepMC/IO_Ascii.h"
@@ -21,8 +21,8 @@ int main() {
   //  ToHepMC.set_crash_on_problem();
 
   // Specify file where HepMC events will be stored.
-  HepMC::IO_Ascii ascii_io("hepmcout.dat",std::ios::out);
-  // HepMC::IO_AsciiParticles ascii_io("hepmcout.dat",std::ios::out);
+  HepMC::IO_Ascii ascii_io("hepmcout21.dat",std::ios::out);
+  // HepMC::IO_AsciiParticles ascii_io("hepmcout21.dat",std::ios::out);
 
   // Generator. Process selection. LHC initialization. Histogram.
   Pythia pythia;

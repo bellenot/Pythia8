@@ -10,7 +10,7 @@ SHELL = /bin/sh
 
 # flags:
 #
-FFLAGSSHARED = -fPIC
+#FFLAGSSHARED = -fPIC
 CFLAGSSHARED = -fPIC
 CXXFLAGSSHARED = -fPIC
 #
@@ -42,15 +42,28 @@ LIBDIRARCH=lib/archive
 BINDIR=bin
 
 # Location of libraries to be built.
-targets=$(LIBDIR)/libpythia8.so
-targets+=$(LIBDIRARCH)/libpythia8.a
+ifeq ($(SHAREDLIBS),yes)
+  targets=$(LIBDIRARCH)/libpythia8.a
+  targets+=$(LIBDIR)/libpythia8.so
+  targets+=$(LIBDIRARCH)/liblhapdfdummy.a
+  targets+=$(LIBDIR)/liblhapdfdummy.so
+else
+  targets=$(LIBDIRARCH)/libpythia8.a
+  targets+=$(LIBDIRARCH)/liblhapdfdummy.a
+endif
+
 ifneq (x$(HEPMCLOCATION),x)
- targets+=$(LIBDIR)/libhepmcinterface.so
  targets+=$(LIBDIRARCH)/libhepmcinterface.a
+ ifeq ($(SHAREDLIBS),yes)
+  targets+=$(LIBDIR)/libhepmcinterface.so
+ endif
 endif
-ifeq (x$(PYTHIA6LOCATION),x)
- targets+=$(LIBDIRARCH)/libpythia6.a
-endif
+
+
+all: $(targets) config.mk
+
+config.mk: ./configure
+	./configure
 
 # Main part: build Pythia8 library. 
 
@@ -62,6 +75,14 @@ $(TMPDIR)/archive/%.o : $(SRCDIR)/%.cc
 	@mkdir -p $(TMPDIR)/archive
 	$(CXX) $(CXXFLAGS) -c -I$(INCDIR) $< -o $@
 
+$(TMPDIR)/%.o : lhapdfdummy/%.cc
+	@mkdir -p $(TMPDIR)
+	$(CXX) $(CXXFLAGS) $(CXXFLAGSSHARED) -c -I$(INCDIR) $< -o $@
+
+$(TMPDIR)/archive/%.o : lhapdfdummy/%.cc
+	@mkdir -p $(TMPDIR)/archive
+	$(CXX) $(CXXFLAGS) -c -I$(INCDIR) $< -o $@
+
 # Creating the dependency files *.d
 # The compiler with option -M is used to build the dependency strings. They
 # are further edited with sed (stream editor). The first sed command adds the
@@ -69,13 +90,15 @@ $(TMPDIR)/archive/%.o : $(SRCDIR)/%.cc
 # object files are put in the directory different from src. The last line
 # removes empty *.d files produced in case of error.
 
-$(TMPDIR)/%.d : $(SRCDIR)/%.cc
+ifeq ($(SHAREDLIBS),yes)
+  $(TMPDIR)/%.d : $(SRCDIR)/%.cc
 	@echo Making dependency for file $<; \
 	mkdir -p $(TMPDIR); \
 	$(CC) -M -I$(INCDIR) $< | \
 	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' | \
 	sed 's/$*.o/$(TMPDIR)\/$*.o/' > $@; \
 	[ -s $@ ] || rm -f $@
+endif
 
 $(TMPDIR)/archive/%.d : $(SRCDIR)/%.cc
 	@echo Making dependency for file $<; \
@@ -84,11 +107,6 @@ $(TMPDIR)/archive/%.d : $(SRCDIR)/%.cc
 	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' | \
 	sed 's/$*.o/$(TMPDIR)\/archive\/$*.o/' > $@; \
 	[ -s $@ ] || rm -f $@
-
-all: $(targets) config.mk
-
-config.mk: ./configure
-	./configure
 
 objects := $(patsubst $(SRCDIR)/%.cc,$(TMPDIR)/%.o,$(wildcard $(SRCDIR)/*.cc))
 objectsarch := $(patsubst $(SRCDIR)/%.cc,$(TMPDIR)/archive/%.o,$(wildcard $(SRCDIR)/*.cc))
@@ -99,7 +117,18 @@ $(LIBDIR)/libpythia8.so: $(objects)
 
 $(LIBDIRARCH)/libpythia8.a: $(objectsarch)
 	@mkdir -p $(LIBDIRARCH)
-	ar cru $(LIBDIRARCH)/libpythia8.a $(objectsarch)
+	ar cru $@ $(objectsarch)
+
+objdum := $(patsubst lhapdfdummy/%.cc,$(TMPDIR)/%.o,$(wildcard lhapdfdummy/*.cc))
+objdumarch := $(patsubst lhapdfdummy/%.cc,$(TMPDIR)/archive/%.o,$(wildcard lhapdfdummy/*.cc))
+
+$(LIBDIR)/liblhapdfdummy.so: $(objdum)
+	@mkdir -p $(LIBDIR)
+	$(CXX) $(LDFLAGSSHARED) $(objdum) -o $@ -shared -Wl,-soname,$(notdir $@)
+
+$(LIBDIRARCH)/liblhapdfdummy.a: $(objdumarch)
+	@mkdir -p $(LIBDIRARCH)
+	ar cru $@ $(objdumarch)
 
 deps := $(patsubst $(SRCDIR)/%.cc,$(TMPDIR)/%.d,$(wildcard $(SRCDIR)/*.cc))
 depsarch := $(patsubst $(SRCDIR)/%.cc,$(TMPDIR)/archive/%.d,$(wildcard $(SRCDIR)/*.cc))
@@ -111,22 +140,6 @@ depsarch := $(patsubst $(SRCDIR)/%.cc,$(TMPDIR)/archive/%.d,$(wildcard $(SRCDIR)
 ifneq ($(MAKECMDGOALS),clean)
 -include $(deps)
 -include $(depsarch)
-endif
-
-# Build Pythia6 library if a location with existing Pythia6 is not set
-
-ifeq (x$(PYTHIA6LOCATION),x)
-
- $(TMPDIR)/archive/%.o : pythia6/%.f
-	@mkdir -p $(TMPDIR)/archive
-	$(FC) $(FFLAGS) -c $< -o $@
-
- objectsP6 := $(patsubst pythia6/%.f,$(TMPDIR)/archive/%.o,$(wildcard pythia6/*.f))
-
- $(LIBDIRARCH)/libpythia6.a : $(objectsP6)
-	@mkdir -p $(LIBDIRARCH)
-	ar cru $(LIBDIRARCH)/libpythia6.a $(objectsP6)
-
 endif
 
 # Build HepMC interface part if HepMC and CLHEP locations are set.
@@ -146,15 +159,15 @@ ifneq (x$(HEPMCLOCATION),x)
 
  ifeq (x$(HEPMCERROR),x)
 
-  $(TMPDIR)/%.o : hepmcinterface/%.cc
+   $(TMPDIR)/%.o : hepmcinterface/%.cc config.mk
 	@mkdir -p $(TMPDIR)
 	$(CXX) $(CXXFLAGS) $(CXXFLAGSSHARED) $(HEPMCVFLAG) -c -I$(INCDIR) $(HEPMCINCLUDE) $< -o $@
 
-  $(TMPDIR)/archive/%.o : hepmcinterface/%.cc
+   $(TMPDIR)/archive/%.o : hepmcinterface/%.cc config.mk
 	@mkdir -p $(TMPDIR)/archive
 	$(CXX) $(CXXFLAGS) $(HEPMCVFLAG) -c -I$(INCDIR) $(HEPMCINCLUDE) $< -o $@
 
-  $(TMPDIR)/%.d : hepmcinterface/%.cc
+   $(TMPDIR)/%.d : hepmcinterface/%.cc
 	@echo Making dependency for file $<; \
 	mkdir -p $(TMPDIR); \
 	$(CC) -M -I$(INCDIR) $(HEPMCINCLUDE) $< | \
@@ -162,7 +175,7 @@ ifneq (x$(HEPMCLOCATION),x)
 	sed 's/$*.o/$(TMPDIR)\/$*.o/' > $@; \
 	[ -s $@ ] || rm -f $@
 
-  $(TMPDIR)/archive/%.d : hepmcinterface/%.cc
+   $(TMPDIR)/archive/%.d : hepmcinterface/%.cc
 	@echo Making dependency for file $<; \
 	mkdir -p $(TMPDIR)/archive; \
 	$(CC) -M -I$(INCDIR) $(HEPMCINCLUDE) $< | \
@@ -170,28 +183,28 @@ ifneq (x$(HEPMCLOCATION),x)
 	sed 's/$*.o/$(TMPDIR)\/archive\/$*.o/' > $@; \
 	[ -s $@ ] || rm -f $@
 
-  objectsI := $(patsubst hepmcinterface/%.cc,$(TMPDIR)/%.o,$(wildcard hepmcinterface/*.cc))
-  objectsIarch := $(patsubst hepmcinterface/%.cc,$(TMPDIR)/archive/%.o,$(wildcard hepmcinterface/*.cc))
+   objectsI := $(patsubst hepmcinterface/%.cc,$(TMPDIR)/%.o,$(wildcard hepmcinterface/*.cc))
+   objectsIarch := $(patsubst hepmcinterface/%.cc,$(TMPDIR)/archive/%.o,$(wildcard hepmcinterface/*.cc))
 
-  $(LIBDIR)/libhepmcinterface.so : $(objectsI)
+   $(LIBDIR)/libhepmcinterface.so : $(objectsI)
 	@mkdir -p $(LIBDIR)
 	$(CXX) $(LDFLAGSSHARED) $(objectsI) -o $@ -shared -Wl,-soname,$(notdir $@)
 
-  $(LIBDIRARCH)/libhepmcinterface.a : $(objectsIarch)
+   $(LIBDIRARCH)/libhepmcinterface.a : $(objectsIarch)
 	@mkdir -p $(LIBDIRARCH)
 	ar cru $(LIBDIRARCH)/libhepmcinterface.a $(objectsIarch)
 
-  depsI := $(patsubst hepmcinterface/%.cc,$(TMPDIR)/%.d,$(wildcard hepmcinterface/*.cc))
-  depsIarch := $(patsubst hepmcinterface/%.cc,$(TMPDIR)/archive/%.d,$(wildcard hepmcinterface/*.cc))
+   depsI := $(patsubst hepmcinterface/%.cc,$(TMPDIR)/%.d,$(wildcard hepmcinterface/*.cc))
+   depsIarch := $(patsubst hepmcinterface/%.cc,$(TMPDIR)/archive/%.d,$(wildcard hepmcinterface/*.cc))
 
-  ifneq ($(MAKECMDGOALS),clean)
+   ifneq ($(MAKECMDGOALS),clean)
    -include $(depsI)
    -include $(depsIarch)
-  endif
+   endif
 
  else
 
-  $(LIBDIR)/libhepmcinterface.so : hepmcinterface/I_Pythia8.cc
+   $(LIBDIR)/libhepmcinterface.so : hepmcinterface/I_Pythia8.cc
 	@echo $(HEPMCERROR)
 
  endif
@@ -209,7 +222,10 @@ clean:
 	rm -f config.mk
 	cd $(SRCDIR); rm -f *~; rm -f \#*; cd -
 	cd $(INCDIR); rm -f *~; rm -f \#*; cd -
-	cd doc; rm -f *~; rm -f \#*; cd -
-	cd pythia6; rm -f *~; rm -f \#*; cd -
+	cd xmldoc; rm -f *~; rm -f \#*; cd -
+	cd htmldoc; rm -f *~; rm -f \#*; cd -
+	cd phpdoc; rm -f *~; rm -f \#*; cd -
+	cd hepmcinterface; rm -f *~; rm -f \#*; cd -
+	cd lhapdfdummy; rm -f *~; rm -f \#*; cd -
 	cd examples; rm -rf *.exe; rm -f *~; rm -f \#*; rm -f core*; rm -f config.*; cd -
 

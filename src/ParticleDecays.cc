@@ -284,7 +284,7 @@ bool ParticleDecays::decay( int iDec, Event& event) {
   // In a decay explicitly to partons then optionally do a shower,
   // and always flag that partonic system should be fragmented. 
   if (hasPartons && keepPartons && FSRinDecays) 
-    times.shower( event, iProd[1], iProd.back(), mProd[0]);
+    timesDecPtr->shower( iProd[1], iProd.back(), event, mProd[0]);
 
   // Done.
   return true;

@@ -7,6 +7,7 @@
 #define Pythia8_TimeShower_H
 
 #include "Basics.h"
+#include "BeamParticle.h"
 #include "Event.h"
 #include "ParticleData.h"
 #include "PythiaStdlib.h"
@@ -25,28 +26,30 @@ public:
 
   // Constructors.
   TimeDipoleEnd() : iRadiator(-1), iRecoiler(-1), pTmax(0.), colType(0), 
-    chgType(0), gamType(0), MEtype(0), iMEpartner(-1), MEmix(0.), 
-    MEorder(true), MEsplit(true), MEgluinoDau(false) { }  
+    chgType(0), gamType(0), isrType(0), system(0), MEtype(0), 
+    iMEpartner(-1), MEmix(0.), MEorder(true), MEsplit(true), 
+    MEgluinoDau(false) { }  
   TimeDipoleEnd(int iRadiatorIn, int iRecoilerIn, double pTmaxIn = 0., 
-    int colIn = 0, int chgIn = 0, int gamIn = 0, int MEtypeIn = 0, 
-    int iMEpartnerIn = -1, double MEmixIn = 0., bool MEorderIn = true, 
-    bool MEsplitIn = true, bool MEgluinoDauIn = false) 
-    : iRadiator(iRadiatorIn), iRecoiler(iRecoilerIn), pTmax(pTmaxIn), 
-    colType(colIn), chgType(chgIn), gamType(gamIn), MEtype(MEtypeIn), 
+    int colIn = 0, int chgIn = 0, int gamIn = 0, int isrIn = 0, 
+    int systemIn = 0, int MEtypeIn = 0, int iMEpartnerIn = -1, 
+    double MEmixIn = 0., bool MEorderIn = true, bool MEsplitIn = true, 
+    bool MEgluinoDauIn = false) : iRadiator(iRadiatorIn), 
+    iRecoiler(iRecoilerIn), pTmax(pTmaxIn), colType(colIn), chgType(chgIn), 
+    gamType(gamIn), isrType(isrIn), system(systemIn), MEtype(MEtypeIn), 
     iMEpartner(iMEpartnerIn), MEmix(MEmixIn), MEorder (MEorderIn), 
     MEsplit(MEsplitIn), MEgluinoDau(MEgluinoDauIn) { }
 
   // Basic properties related to dipole and matrix element corrections.
-  int iRadiator, iRecoiler;
+  int    iRadiator, iRecoiler;
   double pTmax;
-  int colType, chgType, gamType, MEtype, iMEpartner;
+  int    colType, chgType, gamType, isrType, system, MEtype, iMEpartner;
   double MEmix;
-  bool MEorder, MEsplit, MEgluinoDau;
+  bool   MEorder, MEsplit, MEgluinoDau;
 
   // Properties specific to current trial emission.
-  int flavour, iAunt;
+  int    flavour, iAunt;
   double mRad, m2Rad, mRec, m2Rec, mDip, m2Dip, m2DipCorr, 
-    pT2, m2, z, mFlavour, asymPol;   
+         pT2, m2, z, mFlavour, asymPol;   
   
 } ;
 
@@ -59,64 +62,90 @@ class TimeShower {
 public:
 
   // Constructor.
-  TimeShower() {dipole.reserve(20);}
+  TimeShower() {}
+
+  // Destructor.
+  virtual ~TimeShower() {}
 
   // Initialize static data members.
   static void initStatic();
 
   // Initialize alphaStrong and related pTmin parameters.
-  void init();
+  virtual void init( BeamParticle* beamAPtrIn = 0, 
+    BeamParticle* beamBPtrIn = 0);
 
-  // Top-level driver routine to do a single time-like shower.
-  int shower( Event& event, int iBeg, int iEnd, double pTmax);
+  // Potential enhancement factor of pTmax scale for hardest emission.
+  virtual double enhancePTmax() {return pTmaxFudge;}
 
-  // Do it in several steps, for interleaved evolution.
-  // Prepare system for evolution; identify ME.
-  void prepare( Event& event, int iBegIn = -1, int iEndIn = -1);
+  // Top-level routine to do a full time-like shower in resonance decay.
+  virtual int shower( int iBeg, int iEnd, Event& event, double pTmax);
+
+  // Prepare system for evolution after each new interaction; identify ME.
+  virtual void prepare( int iSys, Event& event);
+
+  // Update dipole list after each ISR emission.  
+  virtual void update( int iSys, Event& event);
 
   // Select next pT in downwards evolution.
-  double pTnext( Event& event, double pTbegAll, double pTendAll);
+  virtual double pTnext( Event& event, double pTbegAll, double pTendAll);
 
   // ME corrections and kinematics that may give failure,
-  bool branch( Event& event); 
+  virtual bool branch( Event& event); 
 
-  // Update dipole record if MI or ISR.
-  //void update( Event& event);
+  // Tell which system was the last processed one.
+  int system() const {return iSysSel;}; 
 
   // Print dipole list; for debug mainly.
-  void list(ostream& os = cout);
+  virtual void list( ostream& os = cout);
+
+protected:
+
+  // Static initialization data, normally only set once.
+  static bool   doQCDshower, doQEDshowerByQ, doQEDshowerByL, 
+                doQEDshowerByGamma, doMEcorrections, doPhiPolAsym,
+                allowBeamRecoil;
+  static int    alphaSorder, alphaEMorder, nGluonToQuark, nGammaToQuark, 
+                nGammaToLepton;
+  static double pTmaxFudge, mc, mb, m2c, m2b, alphaSvalue, alphaS2pi, 
+                pTcolCutMin, pTchgQCut, pT2chgQCut, pTchgLCut, pT2chgLCut, 
+                mMaxGamma, m2MaxGamma, octetOniumFraction, mZ, gammaZ, 
+                thetaWRat;
+
+  // Constants: could only be changed in the code itself.
+  static const double SIMPLIFYROOT, XMARGIN, TINYPDF, LARGEM2;
+
+  // Pointers to the two incoming beams.
+  BeamParticle* beamAPtr;
+  BeamParticle* beamBPtr;
+
+  // Store index of last processed system.
+  int iSysSel;
 
 private:
 
-  // Static initialization data, normally only set once.
-  static bool doQCDshower, doQEDshowerByQ, doQEDshowerByL, 
-    doQEDshowerByGamma, doMEcorrections, doPhiPolAsym;
-  static int alphaSorder, alphaEMorder, nGluonToQuark, nGammaToQuark, 
-    nGammaToLepton;
-  static double mc, mb, m2c, m2b, alphaSvalue, alphaS2pi, pTcolCutMin,
-    pTchgQCut, pT2chgQCut, pTchgLCut, pT2chgLCut, mMaxGamma, m2MaxGamma,
-    octetOniumFraction, mZ, gammaZ, thetaWRat;
-
-  // Constants: could only be changed in the code itself.
-  static const double SIMPLIFYROOT, XMARGIN;
-
   // Other non-static initialization data.
   double Lambda3flav, Lambda4flav, Lambda5flav, Lambda3flav2, Lambda4flav2, 
-    Lambda5flav2, pTcolCut, pT2colCut;
+         Lambda5flav2, pTcolCut, pT2colCut;
 
   // alphaStrong and alphaEM calculations.
   AlphaStrong alphaS;
-  AlphaEM alphaEM;
+  AlphaEM     alphaEM;
 
   // All dipole ends and a pointer to the selected hardest dipole end.
-  vector<TimeDipoleEnd> dipole;
+  vector<TimeDipoleEnd> dipEnd;
   TimeDipoleEnd* dipSel;
- 
+
+  // Setup a dipole end, either QCD or QED/photon one.
+  void setupQCDdip( int iSys, int i, int colTag, int colSign, Event& event);
+  void setupQEDdip( int iSys, int i, int chgType, int gamType, Event& event); 
+
   // Evolve a QCD dipole end. 
-  void pT2nextQCD( double pT2begDip, double pT2sel, TimeDipoleEnd& dip);
+  void pT2nextQCD( double pT2begDip, double pT2sel, TimeDipoleEnd& dip,
+    Event& event);
 
   // Evolve a QED dipole end (except photon). 
-  void pT2nextQED( double pT2begDip, double pT2sel, TimeDipoleEnd& dip);
+  void pT2nextQED( double pT2begDip, double pT2sel, TimeDipoleEnd& dip,
+    Event& event);
 
   // Find kind of QCD ME correction.
   void findMEtype( Event& event, TimeDipoleEnd& dip);

@@ -22,33 +22,32 @@ int main() {
   pythia.readFile("main06.cmnd");    
 
   // Extract settings to be used in the main program.
-  int idBeamA = settings.mode("Main:idBeamA");
-  int idBeamB = settings.mode("Main:idBeamB");
-  bool inCMframe = settings.flag("Main:inCMframe");
-  double eCM = settings.parm("Main:eCM");
-  double eBeamA = settings.parm("Main:eBeamA");
-  double eBeamB = settings.parm("Main:eBeamB");
-  int nEvent = settings.mode("Main:numberOfEvents");
-  int nList = settings.mode("Main:numberToList");
-  int nShow = settings.mode("Main:timesToShow");
-  int nAbort = settings.mode("Main:timesAllowErrors");
-  bool showChangedSettings = settings.flag("Main:showChangedSettings");
-  bool showAllSettings = settings.flag("Main:showAllSettings");
-  bool showChangedParticleData 
-    = settings.flag("Main:showChangedParticleData");
-  bool showAllParticleData = settings.flag("Main:showAllParticleData");
+  int    idBeamA   = settings.mode("Main:idBeamA");
+  int    idBeamB   = settings.mode("Main:idBeamB");
+  bool   inCMframe = settings.flag("Main:inCMframe");
+  double eCM       = settings.parm("Main:eCM");
+  double eBeamA    = settings.parm("Main:eBeamA");
+  double eBeamB    = settings.parm("Main:eBeamB");
+  int    nEvent    = settings.mode("Main:numberOfEvents");
+  int    nList     = settings.mode("Main:numberToList");
+  int    nShow     = settings.mode("Main:timesToShow");
+  int    nAbort    = settings.mode("Main:timesAllowErrors");
+  bool   showCS    = settings.flag("Main:showChangedSettings");
+  bool   showAS    = settings.flag("Main:showAllSettings");
+  bool   showCPD   = settings.flag("Main:showChangedParticleData");
+  bool   showAPD   = settings.flag("Main:showAllParticleData");
  
-  // Initialization for Pythia6 event input.
+  // Initialization.
   if (inCMframe) pythia.init( idBeamA, idBeamB, eCM);
   else pythia.init( idBeamA, idBeamB, eBeamA, eBeamB);
 
-  // List changed data.
-  if (showChangedSettings) settings.listChanged();
-  if (showAllSettings) settings.listAll();
+  // List settings.
+  if (showCS) settings.listChanged();
+  if (showAS) settings.listAll();
 
   // List particle data.  
-  if (showChangedParticleData) ParticleDataTable::listChanged();
-  if (showAllParticleData) ParticleDataTable::listAll();
+  if (showCPD) ParticleDataTable::listChanged();
+  if (showAPD) ParticleDataTable::listAll();
 
   // Book histograms.
   Hist pTspec("scattering pT spectrum", 100, 0., 2.5); 

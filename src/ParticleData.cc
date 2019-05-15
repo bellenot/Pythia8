@@ -1016,10 +1016,14 @@ bool ParticleDataTable::readString(string lineIn, bool warn,
     return true; 
   } 
 
-  // Selective search for matching decay channels: read in particles to match.
+  // Selective search for matching decay channels.
   if (property == "onifany" || property == "offifany"
-    || property == "onifall" || property == "offifall") {
-    int onMode = (property == "onifany" || property == "onifall") ? 1 : 0;
+    || property == "onifall" || property == "offifall"
+    || property == "onifmatch" || property == "offifmatch") {
+    int onMode = (property == "onifany" || property == "onifall"
+      || property == "onifmatch") ? 1 : 0;
+
+    // Read in particles to match.
     vector<int> idToMatch;
     int idRead;
     for ( ; ; ) {
@@ -1028,12 +1032,15 @@ bool ParticleDataTable::readString(string lineIn, bool warn,
       idToMatch.push_back(abs(idRead));
     }   
     int nToMatch = idToMatch.size();
+  
+    // Loop over all decay channels.
     for (int i = 0; i < pdt[id].decay.size(); ++i) {
+      int multi = pdt[id].decay[i].multiplicity();
 
       // Look for any match at all.
       if (property == "onifany" || property == "offifany") {      
         bool foundMatch = false;
-        for (int j = 0; j < pdt[id].decay[i].multiplicity(); ++j) {        
+        for (int j = 0; j < multi; ++j) {        
           int idNow =  abs(pdt[id].decay[i].product(j));
           for (int k = 0; k < nToMatch; ++k) 
   	  if (idNow == idToMatch[k]) {foundMatch = true; break;}
@@ -1043,18 +1050,23 @@ bool ParticleDataTable::readString(string lineIn, bool warn,
 
       // Look for match of all products provided.
       } else {
-        vector<int> idUnmatched;
-        for (int k = 0; k < nToMatch; ++k) 
-          idUnmatched.push_back(idToMatch[k]);
         int nUnmatched = nToMatch;
-        for (int j = 0; j < pdt[id].decay[i].multiplicity(); ++j) {        
-          int idNow =  abs(pdt[id].decay[i].product(j));
-          for (int k = 0; k < nUnmatched; ++k) 
-	  if (idNow == idUnmatched[k]) {
-            idUnmatched[k] = idUnmatched[--nUnmatched];
-            break;
+        if (multi < nToMatch);
+        else if ( multi > nToMatch && (property == "onifmatch" 
+          || property == "offifmatch") );    
+        else {
+          vector<int> idUnmatched;
+          for (int k = 0; k < nToMatch; ++k) 
+            idUnmatched.push_back(idToMatch[k]);
+          for (int j = 0; j < multi; ++j) {        
+            int idNow =  abs(pdt[id].decay[i].product(j));
+            for (int k = 0; k < nUnmatched; ++k) 
+	    if (idNow == idUnmatched[k]) {
+              idUnmatched[k] = idUnmatched[--nUnmatched];
+              break;
+	    }
+            if (nUnmatched == 0) break;
 	  }
-          if (nUnmatched == 0) break;
 	}
         if (nUnmatched == 0) pdt[id].decay[i].onMode(onMode); 
       }

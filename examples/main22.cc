@@ -1,36 +1,69 @@
 // File: main22.cc
 // This is a simple test program. 
-// It illustrates how HepMC can be interfaced to Pythia8.
-// Still not a finished product, that partly relies on Pythia6.
+// It illustrates the chain Pythia6 -> Pythia8 -> HepMC.
 // All input is specified in the main22.cmnd file.
-// HepMC events are output to the hepmcout.dat file.
-// Written by Mikhail Kirsanov based on main11.cc.
+// HepMC events are output to the hepmcout22.dat file.
+// Written by Mikhail Kirsanov based on main12.cc.
 // Copyright C 2007 Torbjorn Sjostrand
 
 #include "Pythia.h"
+#include "LHAFortran.h"
+#include "Pythia6Interface.h"
 
-#include "I_Pythia8.h"
+#include "HepMCInterface.h"
 
 #include "HepMC/GenEvent.h"
 #include "HepMC/IO_Ascii.h"
 //#include "HepMC/IO_AsciiParticles.h"
 
 //#include "HepMC/PythiaWrapper.h" // incompatible with Pythia8
-#include <ctype.h>
-    extern struct {
-        int mdcy[3][500], mdme[2][8000];
-        double brat[8000];
-        int kfdp[5][8000];
-    } pydat3_;
-#define pydat3 pydat3_
-
-    extern struct {
-        int ngenpd, ngen[3][501];
-        double xsec[3][501];
-    } pyint5_;
-#define pyint5 pyint5_
 
 using namespace Pythia8; 
+
+//**************************************************************************
+
+// Implement initialization fillHepRup method for Pythia6 example.
+
+bool LHAinitFortran::fillHepRup() { 
+
+  // Set process to generate.
+  // Example: Z+jet production, must set pTmin, canset mMin.
+  Pythia6Interface::pygive("msel = 13"); 
+  Pythia6Interface::pygive("ckin(3) = 20."); 
+  Pythia6Interface::pygive("ckin(1) = 50."); 
+
+  // Switch off everything but Z0 -> leptons. 
+  // Warning: only works with version Pythia 6.411 onwards.
+  Pythia6Interface::pygive("23:alloff"); 
+  Pythia6Interface::pygive("23:onifany = 11 13 15"); 
+
+  // Speed up initialization: multiple interactions only in C++ code.
+  Pythia6Interface::pygive("mstp(81)=0");
+    
+  // Initialize for 14 TeV pp collider.
+  Pythia6Interface::pyinit("cms","p","p",14000.);   
+
+  // Fill initialization information in HEPRUP.
+  Pythia6Interface::pyupin();
+
+  // Done.
+  return true;
+
+}
+
+//**************************************************************************
+
+// Implement event generation fillHepEup method for Pythia6 example.
+
+bool LHAevntFortran::fillHepEup() { 
+
+  // Generate and fill the next Pythia6 event in HEPEUP.
+  Pythia6Interface::pyupev();
+
+  // Done.
+  return true;
+
+}
 
 //**************************************************************************
 
@@ -40,8 +73,8 @@ int main() {
   HepMC::I_Pythia8 ToHepMC;
 
   // Specify file where HepMC events will be stored.
-  HepMC::IO_Ascii ascii_io("hepmcout.dat",std::ios::out);
-//  HepMC::IO_AsciiParticles ascii_io("hepmcout.dat",std::ios::out);
+  HepMC::IO_Ascii ascii_io("hepmcout22.dat",std::ios::out);
+//  HepMC::IO_AsciiParticles ascii_io("hepmcout22.dat",std::ios::out);
 
   // Generator. Shorthand for the event and for settings.
   Pythia8::Pythia pythia;
@@ -52,44 +85,30 @@ int main() {
   pythia.readFile("main22.cmnd");
 
   // Extract settings to be used in the main program.
-  int idBeamA = settings.mode("Main:idBeamA");
-  int idBeamB = settings.mode("Main:idBeamB");
-  bool inCMframe = settings.flag("Main:inCMframe");
-  double eCM = settings.parm("Main:eCM");
-  double eBeamA = settings.parm("Main:eBeamA");
-  double eBeamB = settings.parm("Main:eBeamB");
-  int nEvent = settings.mode("Main:numberOfEvents");
-  int nList = settings.mode("Main:numberToList");
-  int nShow = settings.mode("Main:timesToShow");
-  int nAbort = settings.mode("Main:timesAllowErrors");
-  bool showChangedSettings = settings.flag("Main:showChangedSettings");
-  bool showAllSettings = settings.flag("Main:showAllSettings");
-  bool showChangedParticleData 
-    = settings.flag("Main:showChangedParticleData");
-  bool showAllParticleData = settings.flag("Main:showAllParticleData");
+  int  nEvent  = settings.mode("Main:numberOfEvents");
+  int  nList   = settings.mode("Main:numberToList");
+  int  nShow   = settings.mode("Main:timesToShow");
+  int  nAbort  = settings.mode("Main:timesAllowErrors");
+  bool showCS  = settings.flag("Main:showChangedSettings");
+  bool showAS  = settings.flag("Main:showAllSettings");
+  bool showCPD = settings.flag("Main:showChangedParticleData");
+  bool showAPD = settings.flag("Main:showAllParticleData");
 
-  // Switch off everything but Z0 -> leptons in Pythia 6.
-  for ( int idc = pydat3.mdcy[2-1][23-1] ;
-        idc < pydat3.mdcy[2-1][23-1] + pydat3.mdcy[3-1][23-1]; idc++ ) {
-    if ( abs(pydat3.kfdp[1-1][idc-1]) != 11 &&
-         abs(pydat3.kfdp[1-1][idc-1]) != 13 && 
-         abs(pydat3.kfdp[1-1][idc-1]) != 15 )
-      pydat3.mdme[1-1][idc-1] = min(0, pydat3.mdme[1-1][idc-1]);
-  }
-
-  // Initialization for Pythia6 event input.
-  if (inCMframe) pythia.init( idBeamA, idBeamB, eCM);
-  else pythia.init( idBeamA, idBeamB, eBeamA, eBeamB);
+  // Initialize to access Pythia6 generator by Les Houches interface.
+  LHAinitFortran pythia6Init;
+  LHAevntFortran pythia6Evnt;
+  pythia.init(&pythia6Init, &pythia6Evnt);    
 
   // List changed data.
-  if (showChangedSettings) settings.listChanged();
-  if (showAllSettings) settings.listAll();
+  if (showCS) settings.listChanged();
+  if (showAS) settings.listAll();
 
   // List particle data.  
-  if (showChangedParticleData) ParticleDataTable::listChanged();
-  if (showAllParticleData) ParticleDataTable::listAll();
+  if (showCPD) ParticleDataTable::listChanged();
+  if (showAPD) ParticleDataTable::listAll();
 
   // Histograms.
+  double eCM   = 14000.;
   double epTol = 1e-7 * eCM;
   Hist epCons("deviation from energy-momentum conservation",100,0.,epTol);
   Hist nFinal("final particle multiplicity",100,-0.5,1599.5);
@@ -220,9 +239,9 @@ int main() {
   dETparticleDy *= factor;
 
   // Histogram output.
-//  cout << epCons << nFinal<< nChg << nISR << nMI << nISRMI << nFSR 
-//       << nJUN << pThard << sumETparticle << dnCHparticleDy 
-//       << dETparticleDy; 
+  cout << epCons << nFinal<< nChg << nISR << nMI << nISRMI << nFSR 
+       << nJUN << pThard << sumETparticle << dnCHparticleDy 
+       << dETparticleDy; 
 
   // Done.
   return 0;

@@ -1,12 +1,56 @@
 // File: main11.cc
-// This is a more extensive test program using Pythia6 or Pythia8 processes. 
-// It illustrates how different quantities can be histogrammed.
-// All input is specified in the main11.cmnd file.
+// This is a simple test program linking to Pythia6 for hard processes. 
 // Copyright C 2007 Torbjorn Sjostrand
 
 #include "Pythia.h"
+#include "LHAFortran.h"
+#include "Pythia6Interface.h"
 
 using namespace Pythia8; 
+
+//**************************************************************************
+
+// Implement initialization fillHepRup method for Pythia6 example.
+
+bool LHAinitFortran::fillHepRup() { 
+
+  // Set process to generate.
+  // Example 1: QCD production; must set pTmin.  
+  //Pythia6Interface::pygive("msel = 1"); 
+  //Pythia6Interface::pygive("ckin(3) = 20.");
+  // Example 2: t-tbar production.  
+  //Pythia6Interface::pygive("msel = 6"); 
+  // Example 3: Z0 production; must set mMin.
+  Pythia6Interface::pygive("msel = 11"); 
+  Pythia6Interface::pygive("ckin(1) = 50."); 
+
+  // Speed up initialization: multiple interactions only in C++ code.
+  Pythia6Interface::pygive("mstp(81)=0");
+    
+  // Initialize for 14 TeV pp collider.
+  Pythia6Interface::pyinit("cms","p","p",14000.);   
+
+  // Fill initialization information in HEPRUP.
+  Pythia6Interface::pyupin();
+
+  // Done.
+  return true;
+
+}
+
+//**************************************************************************
+
+// Implement event generation fillHepEup method for Pythia6 example.
+
+bool LHAevntFortran::fillHepEup() { 
+
+  // Generate and fill the next Pythia6 event in HEPEUP.
+  Pythia6Interface::pyupev();
+
+  // Done.
+  return true;
+
+}
 
 //**************************************************************************
 
@@ -17,59 +61,33 @@ int main() {
   Event& event = pythia.event;
   Settings& settings = pythia.settings;
 
-  // Read in commands from external file.
-  pythia.readFile("main11.cmnd");    
+  // Set Pythia8 generation aspects.
+  pythia.readString("Beams:primordialKThard = 2.");    
+  pythia.readString("MultipleInteractions:bProfile = 3");    
 
-  // Extract settings to be used in the main program.
-  int idBeamA = settings.mode("Main:idBeamA");
-  int idBeamB = settings.mode("Main:idBeamB");
-  bool inCMframe = settings.flag("Main:inCMframe");
-  double eCM = settings.parm("Main:eCM");
-  double eBeamA = settings.parm("Main:eBeamA");
-  double eBeamB = settings.parm("Main:eBeamB");
-  int nEvent = settings.mode("Main:numberOfEvents");
-  int nList = settings.mode("Main:numberToList");
-  int nShow = settings.mode("Main:timesToShow");
-  int nAbort = settings.mode("Main:timesAllowErrors");
-  bool showChangedSettings = settings.flag("Main:showChangedSettings");
-  bool showAllSettings = settings.flag("Main:showAllSettings");
-  bool showChangedParticleData 
-    = settings.flag("Main:showChangedParticleData");
-  bool showAllParticleData = settings.flag("Main:showAllParticleData");
+  // Initialize to access Pythia6 generator by Les Houches interface.
+  LHAinitFortran pythia6Init;
+  LHAevntFortran pythia6Evnt;
+  pythia.init(&pythia6Init, &pythia6Evnt);    
 
-  // Initialization in CM or lab frame.
-  if (inCMframe) pythia.init( idBeamA, idBeamB, eCM);
-  else pythia.init( idBeamA, idBeamB, eBeamA, eBeamB);
+  // Set some generation values.
+  int nEvent = 100;
+  int nList = 1;
+  int nAbort = 10;
 
-  // List changed or all settings data.
-  if (showChangedSettings) settings.listChanged();
-  if (showAllSettings) settings.listAll();
-
-  // List changed or all particle data.  
-  if (showChangedParticleData) ParticleDataTable::listChanged();
-  if (showAllParticleData) ParticleDataTable::listAll();
+  // List changed settings data.
+  settings.listChanged();
 
   // Histograms.
+  double eCM = 14000.;
   double epTol = 1e-7 * eCM;
   Hist epCons("deviation from energy-momentum conservation",100,0.,epTol);
   Hist nFinal("final particle multiplicity",100,-0.5,1599.5);
   Hist nChg("final charged multiplicity",100,-0.5,799.5);
-  Hist nISR("number of ISR emissions for hard system",40,-0.5,39.5);
-  Hist nMI("number of MI (excluding hard system)",100,-0.5,99.5);
-  Hist nISRMI("number of ISR emissions per MI",40,-0.5,39.5);
-  Hist nFSR("total number of FSR emissions",100,-0.5,299.5);
-  Hist nJUN("number of junctions",10,-0.5,9.5);
-  Hist pThard("ISR pT kick to hard system",100,0.,400.);
-  Hist sumETparticle("summed ET of particles",100,0.,2000.);
-  Hist dnCHparticleDy("dn_charged/dy for particles",100,-10.,10.);
-  Hist dETparticleDy("dET/dy for particles",100,-10.,10.);
 
   // Begin event loop.
-  int nShowPace = max(1,nEvent/nShow); 
   int iAbort = 0; 
   for (int iEvent = 0; iEvent < nEvent; ++iEvent) {
-    if (iEvent%nShowPace == 0) cout << " Now begin event " 
-      << iEvent << endl;
 
     // Generate events. Quit if too many failures.
     if (!pythia.next()) {
@@ -81,108 +99,41 @@ int main() {
     // List first few events, both hard process and complete events.
     if (iEvent < nList) { 
       pythia.info.list();
+      // This call to Pythia6 is superfluous, but shows it can be done.
+      Pythia6Interface::pylist(1);
       pythia.process.list();
       event.list();
     }
 
-    // Number of ISR for hard subprocess.
-    int nisr = -1;
-    int iNow = 3;
-    do { iNow = event[iNow].mother1(); ++nisr;}
-    while (iNow > 1 && abs(event[iNow].status()) < 50 ); 
-    nISR.fill(nisr);
-
-    // Total pT kick of hard subsystem.
-    Vec4 pHard;
-    for (int i = 0; i < event.size(); ++i) {
-      if (abs(event[i].status()) > 30) break;
-      if (event[i].status() == -22 || event[i].status() == -23) {      
-        int iNow = i;
-        while (event[iNow].daughter2() == event[iNow].daughter1() &&
-          event[iNow].daughter1() > iNow) iNow = event[iNow].daughter1();
-        pHard += event[iNow].p();
-      }
-    }
-    pThard.fill(pHard.pT());
-
     // Reset quantities to be summed over event.
     int nfin = 0;
     int nch = 0;
-    int nmi = 0;
-    int nfsr = 0;
-    int nfinqg = 0;
     Vec4 pSum = - (event[1].p() + event[2].p());
-    double eTsum = 0.;
 
-    // Loop over particles in the event. 
-    for (int i = 0; i < event.size(); ++i) {
-
-      // Number of MI and of ISR per MI.
-      if (i < event.size() - 1 && event[i].status() == -31 
-        && event[i+1].status() == -31) {
-        ++nmi;
-        int inow = i;
-        int nisrmi = -1;
-        do { inow = event[inow].mother1(); ++ nisrmi;}
-        while (inow > 1 && abs(event[inow].status()) < 50) ; 
-        nISRMI.fill(nisrmi);
-      }
-    
-      // Number of FSR branchings.
-      if (event[i].status() == -52) ++nfsr; 
-
-      // Specialize to final particles. Total multiplicity and momentum.
-      if (event[i].isFinal()) {
-        ++nfin;
-        if (event[i].isQuark() || event[i].isGluon()) ++nfinqg;
-        if (event[i].isCharged()) ++nch;
-        pSum += event[i].p();
-
-        // Final-state particle spectra.
-        double eTnow = event[i].pT();
-        double ynow = event[i].y();
-        eTsum += eTnow;
-        if (event[i].isCharged()) dnCHparticleDy.fill(ynow);
-        dETparticleDy.fill(ynow,eTnow);
-
-      // End of loop over (final/all) particles.
-      }
+    // Loop over final particles in the event. 
+    for (int i = 0; i < event.size(); ++i) 
+    if (event[i].isFinal()) {
+      ++nfin;
+      if (event[i].isCharged()) ++nch;
+      pSum += event[i].p();
     }
 
-    // Energy-momentum deviation.
+    // Fill summed quantities. 
     double epDev = abs(pSum.e()) + abs(pSum.px()) + abs(pSum.py())
       + abs(pSum.pz());
     epCons.fill(epDev);
-      
-    // Fill summed quantities.
     nFinal.fill(nfin);
     nChg.fill(nch);
-    nMI.fill(nmi);
-    nFSR.fill(nfsr);
-    nJUN.fill( event.sizeJunction() );
-    sumETparticle.fill(eTsum);
-
-    // Debug.
-    if (nfinqg > 0) {
-      cout << " Error: number of unframented q/qbar/g = " << nfinqg << "\n";
-      event.list();
-    }
 
   // End of event loop.
   }
 
-  // Final statistics.
+  // Final statistics. Must do call to Pythia6 explicitly.
   pythia.statistics();
-
-  // Histogram normalization.
-  double factor = 5. / (nEvent - nAbort);  
-  dnCHparticleDy *= factor;
-  dETparticleDy *= factor;
+  Pythia6Interface::pystat(1);  
 
   // Histogram output.
-  cout << epCons << nFinal<< nChg << nISR << nMI << nISRMI << nFSR 
-       << nJUN << pThard << sumETparticle << dnCHparticleDy 
-       << dETparticleDy; 
+  cout << epCons << nFinal<< nChg; 
 
   // Done.
   return 0;

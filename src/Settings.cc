@@ -30,6 +30,7 @@ bool Settings::init(string startFile, ostream& os) {
 
   // Don't initialize if it has already been done.
   if (isInit) return true;
+  int nError = 0;
 
   // List of files to be checked. Start with input file. 
   vector<string> files;
@@ -46,8 +47,11 @@ bool Settings::init(string startFile, ostream& os) {
     ifstream is(cstring);  
 
     // Check that instream is OK.
-    if (!is) {os << "\n Error: settings file " << files[i] 
-       << " not found \n"; return false;}
+    if (!is) {
+      os << "\n PYTHIA Error: settings file " << files[i] 
+         << " not found" << endl; 
+      return false;
+    }
 
     // Read in one line at a time.
     string line;
@@ -59,8 +63,10 @@ bool Settings::init(string startFile, ostream& os) {
       getfirst >> tag;
 
       // Skip ahead if not interesting. Only look for new files in startfile.
-      if (tag != "<flag" && tag != "<mode" && tag != "<parm"
-         && tag != "<word" && (tag != "<a" || i > 0) ) continue;
+      if (tag != "<flag" && tag != "<flagfix" && tag != "<mode" 
+         && tag != "<modeopen" && tag != "<modepick" && tag != "<modefix" 
+         && tag != "<parm" && tag != "<parmfix" && tag != "<word" 
+         && tag != "<wordfix" && tag != "<aidx") continue;
 
       // Read and append continuation line(s) if line does not contain >.
       while (line.find(">") == string::npos) {   
@@ -72,49 +78,60 @@ bool Settings::init(string startFile, ostream& os) {
       // Remove extra blanks before an = sign.
       while (line.find(" =") != string::npos) line.erase( line.find(" ="), 1);
 
-      // Find name attribute.
-      string nameAttribute = (tag != "<a") ? "name=" : "href=";
-      string name = attributeValue( line, nameAttribute);
-      if (name == "") {
-        os << " Error: failed to find name attribute in line " << line;
-        continue;
-      }        
-
       // Add file also to be read.
-      if (tag == "<a") {
-        files.push_back(pathName + name);
+      if (tag == "<aidx") {
+        string name = attributeValue( line, "href");
+        if (name == "") {
+          os << " PYTHIA Error: failed to find name attribute in line " 
+             << line << endl;
+          ++nError;
+          continue;
+        }        
+        files.push_back(pathName + name + ".xml");
         continue;
       }
 
+      // Find name attribute.
+      string name = attributeValue( line, "name=");
+      if (name == "") {
+        os << " PYTHIA Error: failed to find name attribute in line " 
+           << line << endl;
+        ++nError;
+        continue;
+      }        
+
       // Check that default value attribute present, and whether max and min.
       if (line.find("default=") == string::npos) {
-        os << " Error: failed to find default value token in line " << line;
+        os << " PYTHIA Error: failed to find default value token in line " 
+           << line << endl;
+        ++nError;
         continue;
       }        
       bool hasMin = (line.find("min=") != string::npos);
       bool hasMax = (line.find("max=") != string::npos);
     
       // Check for occurence of a bool and add to flag map.
-      if (tag == "<flag") {
+      if (tag == "<flag" || tag == "<flagfix") {
         bool value = boolAttributeValue( line, "default=");
         addFlag( name, value);
     
       // Check for occurence of an int and add to mode map.
-      } else if (tag == "<mode") {
+      } else if (tag == "<mode" || tag == "<modeopen" 
+        || tag == "<modepick" || tag == "<modefix") {
         int value  = intAttributeValue( line, "default="); 
         int minVal = intAttributeValue( line, "min=");
         int maxVal = intAttributeValue( line, "max=");
         addMode( name, value, hasMin, hasMax, minVal, maxVal);	  
     
       // Check for occurence of a double and add to parm map.
-      } else if (tag == "<parm") {
+      } else if (tag == "<parm" || tag == "<parmfix") {
         double value  = doubleAttributeValue( line, "default="); 
         double minVal = doubleAttributeValue( line, "min=");
         double maxVal = doubleAttributeValue( line, "max=");
         addParm( name, value, hasMin, hasMax, minVal, maxVal);
     
       // Check for occurence of a string and add to word map.
-      } else if (tag == "<word") {
+      } else if (tag == "<word" || tag == "<wordfix") {
         string value = attributeValue( line, "default="); 
         addWord( name, value);
       }
@@ -124,6 +141,7 @@ bool Settings::init(string startFile, ostream& os) {
   };
 
   // Done.
+  if (nError > 0) return false;
   isInit = true;
   return true;
 
@@ -183,8 +201,8 @@ bool Settings::readString(string line, bool warn, ostream& os) {
   else if (isParm(name)) inDataBase = 3; 
   else if (isWord(name)) inDataBase = 4; 
   if (inDataBase == 0) {
-    if (warn) os << "\n Warning: input string not found in settings"
-      << " databases; skip:\n   " << line << "\n";
+    if (warn) os << "\n PYTHIA Warning: input string not found in settings"
+      << " databases; skip:\n   " << line << endl;
     return false;  
   }  
 
@@ -192,8 +210,8 @@ bool Settings::readString(string line, bool warn, ostream& os) {
   string valueString;
   splitLine >> valueString;
   if (!splitLine) {
-    if (warn) os << "\n Warning: variable recognized, but its value"
-      << " not meaningful; skip:\n   " << line << "\n";
+    if (warn) os << "\n PYTHIA Warning: variable recognized, but its value"
+      << " not meaningful; skip:\n   " << line << endl;
     return false;  
   }  
 
@@ -208,8 +226,8 @@ bool Settings::readString(string line, bool warn, ostream& os) {
     int value;
     modeData >> value;
     if (!modeData) {
-      if (warn) os << "\n Warning: variable recognized, but its value"
-        << " not meaningful; skip:\n   " << line << "\n";
+      if (warn) os << "\n PYTHIA Warning: variable recognized, but its value"
+        << " not meaningful; skip:\n   " << line << endl;
       return false;  
     }  
     mode(name, value);
@@ -220,8 +238,8 @@ bool Settings::readString(string line, bool warn, ostream& os) {
     double value;
     parmData >> value;
     if (!parmData) {
-      if (warn) os << "\n Warning: variable recognized, but its value"
-        << " not meaningful; skip:\n   " << line << "\n";
+      if (warn) os << "\n PYTHIA Warning: variable recognized, but its value"
+        << " not meaningful; skip:\n   " << line << endl;
       return false;  
     }  
     parm(name, value);
@@ -260,8 +278,8 @@ bool Settings::writeFile(string toFile, bool writeAll) {
 bool Settings::writeFile(ostream& os, bool writeAll) {
 
   // Write simple header as comment.
-  if (writeAll) os << "! List of all current Pythia ";
-  else          os << "! List of all modified Pythia ";
+  if (writeAll) os << "! List of all current PYTHIA ";
+  else          os << "! List of all modified PYTHIA ";
   os << fixed << setprecision(3) << parm("Pythia:versionNumber")
      << " settings.\n";
 

@@ -71,12 +71,12 @@ public:
 private:
 
   // State of the random number generator.
-  static bool initRndm, saveGauss; 
-  static int i97, j97, defaultSeed;
+  static bool   initRndm, saveGauss; 
+  static int    i97, j97, defaultSeed;
   static double u[97], c, cd, cm, save;
 
   // Pointer for external random number generation.
-  static bool useExternalRndm; 
+  static bool   useExternalRndm; 
   static RndmEngine* rndmPtr;
 
 };
@@ -356,13 +356,13 @@ public:
 private:
 
   // Constants: could only be changed in the code itself.
-  static const int NBINMAX, NLINES;
+  static const int    NBINMAX, NLINES;
   static const double TOLERANCE, TINY, SMALLFRAC, DYAC[];
-  static const char NUMBER[];
+  static const char   NUMBER[];
 
   // Properties and contents of a histogram.
   string title;
-  int nBin, nFill; 
+  int    nBin, nFill; 
   double xMin, xMax, dx, under, inside, over; 
   vector<double> res;
 

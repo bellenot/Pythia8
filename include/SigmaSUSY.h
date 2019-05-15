@@ -43,12 +43,12 @@ public:
 private:
 
   // Values stored for colour flow selection.
-  int id3chi, id4chi, codeSave;
-  string nameSave;
+  int     id3chi, id4chi, codeSave;
+  string  nameSave;
 
   // Couplings
-  double sin2W, mZ, wZ;      // shorthand for sin2thetaW, mZ, and GammaZ
-  double LqqZ[10], RqqZ[10];  // qqZ couplings
+  double  sin2W, mZ, wZ;      // shorthand for sin2thetaW, mZ, and GammaZ
+  double  LqqZ[10], RqqZ[10];  // qqZ couplings
   complex LsqXi[10][10], RsqXi[10][10]; // qsqchi_i couplings
   complex LsqXj[10][10], RsqXj[10][10]; // qsqchi_j couplings
   complex OL, OR;

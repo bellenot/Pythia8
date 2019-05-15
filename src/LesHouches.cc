@@ -1,6 +1,5 @@
 // Function definitions (not found in the header) for the LHAinit,
-// LHAevnt, LHAinitFortran, LHAevntFortran, LHAinitPythia6 and 
-// LHAevntPythia6 classes.
+// LHAevnt, LHAinitLHEF and LHAevntLHEF classes.
 // Copyright C 2007 Torbjorn Sjostrand
 
 #include "LesHouches.h"
@@ -114,105 +113,6 @@ void LHAevnt::list(ostream& os) {
  
 //**************************************************************************
 
-// LHAinitFortran class.
-
-//*********
-
-// Give access to the HEPRUP Fortran commonblock.
-
-extern "C" {
-
-  extern struct {
-    int idbmup[2];
-    double ebmup[2];
-    int pdfgup[2], pdfsup[2], idwtup, nprup;
-    double xsecup[100], xerrup[100], xmaxup[100];
-    int lprup[100];
-  } heprup_;
-
-}
-
-//*********
-
-// Read in information stored in the HEPRUP Fortran commonblock.
-
-bool LHAinitFortran::set() {
-
-  // Store beam and strategy info. 
-  beamA(heprup_.idbmup[0], heprup_.ebmup[0], heprup_.pdfgup[0], 
-    heprup_.pdfsup[0]);
-  beamB(heprup_.idbmup[1], heprup_.ebmup[1], heprup_.pdfgup[1], 
-    heprup_.pdfsup[1]);
-  strategy(heprup_.idwtup);
-
-  // Store process info.
-  for (int ip = 0; ip < heprup_.nprup; ++ip) process(heprup_.lprup[ip], 
-    heprup_.xsecup[ip], heprup_.xerrup[ip], heprup_.xmaxup[ip]) ;
-
-  // Done.
-  return true;
-
-}
- 
-//**************************************************************************
-
-// LHAevntFortran class.
-
-//*********
-
-// Give access to the HEPEUP Fortran commonblock.
-
-extern "C" {
-
-  extern struct {
-    int nup, idprup;
-    double xwgtup, scalup, aqedup, aqcdup;
-    int idup[500], istup[500], mothup[500][2], icolup[500][2];
-    double pup[500][5], vtimup[500],spinup[500];
-  } hepeup_;
-
-  // The following is used to transfer pdf info from Pythia 6.4.
-  // For another program it would be of no use, but also of no real harm.
-  // Is optional, so can be commented out, if desired.
-  extern struct {
-    int mstp[200];
-    double parp[200];
-    int msti[200];
-    double pari[200];
-  } pypars_;    
-
-}
-
-//*********
-
-// Read in information stored in the HEPEUP Fortran commonblock.
-bool LHAevntFortran::set() {
-
-  // Store process info.
-  process(hepeup_.idprup, hepeup_.xwgtup, hepeup_.scalup, hepeup_.aqedup, 
-    hepeup_.aqcdup);
-  
-  // Store particle info.
-  for (int ip = 0; ip < hepeup_.nup; ++ip) particle(hepeup_.idup[ip], 
-    hepeup_.istup[ip], hepeup_.mothup[ip][0], hepeup_.mothup[ip][1], 
-    hepeup_.icolup[ip][0], hepeup_.icolup[ip][1], hepeup_.pup[ip][0], 
-    hepeup_.pup[ip][1], hepeup_.pup[ip][2], hepeup_.pup[ip][3], 
-    hepeup_.pup[ip][4], hepeup_.vtimup[ip], hepeup_.spinup[ip]) ;
-
-  // Store pdf info. This part works only for Pythia 6.4 
-  // (cf. extern pypars_ above) but should do no real harm for others.
-  // Is optional, so can be commented out, if desired.
-  pdf(pypars_.msti[14], pypars_.msti[15], 
-      pypars_.pari[32], pypars_.pari[33], pypars_.pari[22], 
-      pypars_.pari[28], pypars_.pari[29]);
-
-  // Done.
-  return true;
-
-}
-
-//**************************************************************************
-
 // LHAinitLHEF class.
 
 //*********
@@ -282,7 +182,7 @@ bool LHAevntLHEF::set() {
     getfirst >> tag;
     if (!getfirst) return false;
   } while (tag != "<event>" && tag != "<event"); 
-  
+
   // Read in process info and store it.
   int nup, idprup;
   double xwgtup, scalup, aqedup, aqcdup;
@@ -307,7 +207,7 @@ bool LHAevntLHEF::set() {
       pup1, pup2, pup3, pup4, pup5, vtimup, spinup) ;
   }
 
-  // Continue parsing till </event>. Extract pdf info.
+  // Continue parsing till </event>. Extract pdf info if present.
   do { 
     getline(is, line);
     istringstream getpdf(line);

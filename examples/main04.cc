@@ -19,22 +19,22 @@ int main() {
   pythia.readFile("main04.cmnd");    
 
   // Extract settings to be used in the main program.
-  int idBeamA = settings.mode("Main:idBeamA");
-  int idBeamB = settings.mode("Main:idBeamB");
-  double eCM = settings.parm("Main:eCM");
-  int nEvent = settings.mode("Main:numberOfEvents");
-  int nList = settings.mode("Main:numberToList");
-  int nShow = settings.mode("Main:timesToShow");
-  int nAbort = settings.mode("Main:timesAllowErrors");
-  bool showChangedSettings = settings.flag("Main:showChangedSettings");
-  bool showAllSettings = settings.flag("Main:showAllSettings");
+  int    idBeamA = settings.mode("Main:idBeamA");
+  int    idBeamB = settings.mode("Main:idBeamB");
+  double eCM     = settings.parm("Main:eCM");
+  int    nEvent  = settings.mode("Main:numberOfEvents");
+  int    nList   = settings.mode("Main:numberToList");
+  int    nShow   = settings.mode("Main:timesToShow");
+  int    nAbort  = settings.mode("Main:timesAllowErrors");
+  bool   showCS  = settings.flag("Main:showChangedSettings");
+  bool   showAS  = settings.flag("Main:showAllSettings");
 
   // Initialization for Pythia6 event input.
   pythia.init( idBeamA, idBeamB, eCM);
 
-  // List changed data.
-  if (showChangedSettings) settings.listChanged();
-  if (showAllSettings) settings.listAll();
+  // List changed or all data.
+  if (showCS) settings.listChanged();
+  if (showAS) settings.listAll();
 
   // Histograms.
   double epTol = 1e-6 * eCM;

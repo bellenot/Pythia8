@@ -1,10 +1,9 @@
 // Header file for Les Houches Accord user process information.
 // LHAinit: base class for initialization information.
 // LHEevnt: Base class for event information. 
-// LHAinitFortran: derived class with the HEPRUP Fortran initialization info.
-// LHAevntFortran: derived class with the HEPEUP Fortran event info.
 // LHAinitLHEF: derived class for initilization from Les Houches Event File.
 // LHAevntLHEF: derived class for events from Les Houches Evewnt File.
+// Code for interfacing with Fortran commonblocks is found in LHAFortran.h.
 // Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_LesHouches_H
@@ -29,27 +28,27 @@ public:
   virtual bool set() = 0; 
 
   // Give back info on beams.
-  int idBeamA() const {return idBeamAsave;}
-  int idBeamB() const {return idBeamBsave;}
+  int    idBeamA() const {return idBeamAsave;}
+  int    idBeamB() const {return idBeamBsave;}
   double eBeamA() const {return eBeamAsave;}
   double eBeamB() const {return eBeamBsave;}
-  int pdfGroupBeamA() const {return pdfGroupBeamAsave;}
-  int pdfGroupBeamB() const {return pdfGroupBeamBsave;}
-  int pdfSetBeamA() const {return pdfSetBeamAsave;}
-  int pdfSetBeamB() const {return pdfSetBeamBsave;}
+  int    pdfGroupBeamA() const {return pdfGroupBeamAsave;}
+  int    pdfGroupBeamB() const {return pdfGroupBeamBsave;}
+  int    pdfSetBeamA() const {return pdfSetBeamAsave;}
+  int    pdfSetBeamB() const {return pdfSetBeamBsave;}
     
   // Give back weight strategy.
-  int strategy() const {return strategySave;}
+  int    strategy() const {return strategySave;}
 
   // Give back info on processes.
-  int size() const {return processes.size();} 
-  int idProcess(int proc) const {return processes[proc].idPr;} 
+  int    size() const {return processes.size();} 
+  int    idProcess(int proc) const {return processes[proc].idPr;} 
   double xSec(int proc) const {return processes[proc].xSecPr;}    
   double xErr(int proc) const {return processes[proc].xErrPr;}    
   double xMax(int proc) const {return processes[proc].xMaxPr;} 
    
   // Print the info; useful to check that setting it worked.
-  void list(ostream& os = cout);  
+  void   list(ostream& os = cout);  
 
 protected:
 
@@ -115,20 +114,20 @@ public:
   virtual bool set() = 0; 
 
   // Give back process number, weight, scale, alpha_em, alpha_s.
-  int idProc() const {return idPr;} 
+  int    idProc() const {return idPr;} 
   double weight() const {return weightPr;} 
   double scale() const {return scalePr;} 
   double alphaQED() const {return alphaQEDPr;} 
   double alphaQCD() const {return alphaQCDPr;} 
 
   // Give back info on separate particle.
-  int size() const {return particles.size();}
-  int id(int part) const {return particles[part].idPa;}
-  int status(int part) const {return particles[part].statusPa;}
-  int mother1(int part) const {return particles[part].mother1Pa;}
-  int mother2(int part) const {return particles[part].mother2Pa;}
-  int col1(int part) const {return particles[part].col1Pa;}
-  int col2(int part) const {return particles[part].col2Pa;}
+  int    size() const {return particles.size();}
+  int    id(int part) const {return particles[part].idPa;}
+  int    status(int part) const {return particles[part].statusPa;}
+  int    mother1(int part) const {return particles[part].mother1Pa;}
+  int    mother2(int part) const {return particles[part].mother2Pa;}
+  int    col1(int part) const {return particles[part].col1Pa;}
+  int    col2(int part) const {return particles[part].col2Pa;}
   double px(int part) const {return particles[part].pxPa;}
   double py(int part) const {return particles[part].pyPa;}
   double pz(int part) const {return particles[part].pzPa;}
@@ -138,9 +137,9 @@ public:
   double spin(int part) const {return particles[part].spinPa;}
 
   // Optional: give back info on parton density values of event.
-  bool pdfIsSet() const {return pdfIsSetSv;}
-  int id1() const {return id1Sv;}
-  int id2() const {return id2Sv;}
+  bool   pdfIsSet() const {return pdfIsSetSv;}
+  int    id1() const {return id1Sv;}
+  int    id2() const {return id2Sv;}
   double x1() const {return x1Sv;}
   double x2() const {return x2Sv;}
   double scalePDF() const {return scalePDFSv;}
@@ -148,7 +147,7 @@ public:
   double xpdf2() const {return xpdf2Sv;}
 
   // Print the info; useful to check that reading an event worked.
-  void list(ostream& os = cout);  
+  void   list(ostream& os = cout);  
 
 protected:
 
@@ -208,43 +207,9 @@ private:
   vector<Particle> particles;
 
   // Optional info on parton density values of event.
-  bool pdfIsSetSv;
-  int id1Sv, id2Sv;
+  bool   pdfIsSetSv;
+  int    id1Sv, id2Sv;
   double x1Sv, x2Sv, scalePDFSv, xpdf1Sv, xpdf2Sv;
-
-};
-
-//**************************************************************************
-
-// A derived class with initialization information from 
-// the HEPRUP Fortran commonblock.
-
-class LHAinitFortran : public LHAinit {
-
-public:
-
-  // Constructor.
-  LHAinitFortran() {}
-
-  // Routine for doing the job of setting initialization info.  
-  bool set(); 
-
-};
-
-//**************************************************************************
-
-// A derived class with event information from 
-// the HEPEUP Fortran commonblock.
-
-class LHAevntFortran: public LHAevnt {
-
-public:
-
-  // Constructor.
-  LHAevntFortran() {}
-
-  // Routine for doing the job of setting info on next event.  
-  bool set(); 
 
 };
 

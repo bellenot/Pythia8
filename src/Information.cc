@@ -128,30 +128,44 @@ void ErrorMsg::message(string messageIn, string extraIn,
 
 //*********
 
+// Provide total number of errors experienced to date.
+
+int ErrorMsg::totalNumber() {
+
+  int nTot = 0;
+  for ( map<string, int>::iterator messageEntry = messages.begin();
+    messageEntry != messages.end(); ++messageEntry)
+    nTot += messageEntry->second;
+  return nTot;
+
+}
+
+//*********
+
 // Print statistics on errors/warnings.
 
 void ErrorMsg::statistics(ostream& os) {
 
   // Header.
   os << "\n *-------  PYTHIA Error and Warning Messages Statistics  "
-     << "---------------------------------------------------------* \n"
+     << "-----------------------------------------------------* \n"
      << " |                                                       "
-     << "                                                         | \n"
+     << "                                                     | \n"
      << " |  times   message                                      "
-     << "                                                         | \n" 
+     << "                                                     | \n" 
      << " |                                                       "
-     << "                                                         | \n";
+     << "                                                     | \n";
 
   // Loop over all messages
   map<string, int>::iterator messageEntry = messages.begin();
   if (messageEntry == messages.end()) 
     os << " |      0   no errors or warnings to report              "
-       << "                                                         | \n";
+       << "                                                     | \n";
   while (messageEntry != messages.end()) {
     // Debug printout.
     string temp = messageEntry->first;
     int len = temp.length();
-    temp.insert( len, max(0, 101 - len), ' ');
+    temp.insert( len, max(0, 97 - len), ' ');
     os << " | " << setw(6) << messageEntry->second << "   " 
        << temp << " | \n";
     ++messageEntry;
@@ -159,9 +173,9 @@ void ErrorMsg::statistics(ostream& os) {
 
   // Done. 
   os << " |                                                       "
-     << "                                                         | \n"
+     << "                                                     | \n"
      << " *-------  End PYTHIA Error and Warning Messages Statistics"
-     << "  -----------------------------------------------------* " 
+     << "  -------------------------------------------------* " 
      << endl;
 
 }

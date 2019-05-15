@@ -6,17 +6,17 @@
 #define Pythia8_ProcessLevel_H
 
 #include "Basics.h"
-#include "Beams.h"
+#include "BeamParticle.h"
 #include "Event.h"
 #include "Information.h"
 #include "LesHouches.h"
 #include "ParticleData.h"
 #include "PartonDistributions.h"
 #include "ProcessContainer.h"
-#include "Pythia6.h"
 #include "PythiaStdlib.h"
 #include "ResonanceDecays.h"
 #include "Settings.h"
+#include "UserHooks.h"
 
 namespace Pythia8 {
   
@@ -34,12 +34,15 @@ public:
  
   // Initialization assuming all necessary data already read.
   bool init( Info* infoPtrIn, BeamParticle* beamAPtrIn, 
-    BeamParticle* beamBPtrIn, bool hasPythia6In = false, 
-    bool hasLHAin = false, LHAinit* lhaInitPtrIn = 0, 
-    LHAevnt* lhaEvntPtrIn = 0);
+    BeamParticle* beamBPtrIn, bool hasLHAin = false, 
+    LHAinit* lhaInitPtrIn = 0, LHAevnt* lhaEvntPtrIn = 0, 
+    UserHooks* userHooksPtrIn = 0);
  
   // Generate the next "hard" process.
   bool next( Event& process); 
+
+  // Accumulate and update statistics (after possible user veto).
+  void accumulate();
 
   // Print statistics on cross sections and number of events.
   void statistics(ostream& os = cout);
@@ -47,10 +50,11 @@ public:
 private: 
 
   // Which machinery is used to generate events?
-  bool hasInternal, hasPythia6, hasLHA;
+  bool hasInternal, hasLHA;
 
   // Vector of containers of internally-generated processes.
   vector<ProcessContainer*> containerPtrs;
+  int    iNow;
   double sigmaMaxSum;
 
   // Pointer to various information on the generation.
@@ -65,6 +69,9 @@ private:
   LHAevnt* lhaEvntPtr;
   int strategyLHA;
 
+  // Pointer to userHooks object for user interaction with program.
+  UserHooks* userHooksPtr;
+
   // SigmaTotal object needed to handle soft QCD processes.
   SigmaTotal sigmaTot;
 
@@ -74,20 +81,20 @@ private:
   // Initialize the internal event generation machinery.
   bool initInternal( ostream& os = cout);
 
-  // Initialize event generation from Pythia 6.3.
-  void initPythia6( int idA, int idB, double eCM);
-
   // Generate the next internal event.
-  bool getInternalEvnt( Event& process);
+  bool nextInternal( Event& process);
 
   // Read in the hard process from the Les Houches Accord.
-  bool getLHAevnt( Event& process);
+  bool nextLHA( Event& process);
 
   // Read in the hard process, special case if all partons already given.
-  bool getSimpleLHAevnt( Event& process);
+  bool nextSimpleLHA( Event& process);
 
   // Add any junctions to the process event record list.
   void findJunctions( Event& process);
+
+  // Check that colours match up.
+  bool checkColours( Event& process);
 
 };
 

@@ -13,33 +13,61 @@ if [ x$MYLCGPLATFORM = x ]; then
   export MYLCGPLATFORM=slc3_ia32_gcc323
 fi
 
-#Compilation mode. Is not changed if specified outside
-if [ x$COMPMODE = x ]; then
-  export COMPMODE=OPT
-fi
-#if [ x$COMPMODE = x ]; then
-#  export COMPMODE=DBG
-#fi
-echo compilation mode is $COMPMODE
+# Defaults
+export COMPMODE=OPT
+export SHAREDLIBS=no
 
-# Environment variables managing the usage of Pythia6 library. If the
-# variables below are not set, the local Pythia6 library will be built
-# and used.
-# The default values here correspond to CERN AFS (but you may want to change
-# the version and/or platform).
-#
-#export PYTHIA6LOCATION=/afs/cern.ch/sw/lcg/app/releases/GENSER/GENSER_1_4_1/${MYLCGPLATFORM}/lib/archive
-#export PYTHIA6VERSION=6_406
-#export PYTHIA6LIBNAME="-lpythia${PYTHIA6VERSION} -ldummy_pythia${PYTHIA6VERSION} -lpdfdummy_pythia${PYTHIA6VERSION}"
-#
-# Environment variables for building HepMC interface library. Comment out ALL
-# of them if this interface is not needed or if you don't have both CLHEP
-# and HepMC in your computer (remark: starting from HepMC version 2.00.00
-# CLHEP is not needed). Note that this library is used by the examples
-# main21, main22. Attention: if you change HepMC or CLHEP version, you should
+for arg in $* ; do
+  if [ "x$arg" = "x--enable-debug" ] ; then
+    COMPMODE=DBG
+  elif [ "x$arg" = "x--enable-shared" ] ; then
+    SHAREDLIBS=yes
+  elif [ "x$arg" = "x--help" ] ; then
+    echo -e \
+    "\nUsage: ./configure [options] , where options are:\n\n"\
+    "--help            : prints this help\n"\
+    "--enable-debug    : turns on debugging flags and turns off optimization\n"\
+    "--enable-shared   : turns on shared library creation (default no)\n"\
+    "--lcgplatform=lcgplatformname : platform, default is slc3_ia32_gcc323\n"\
+    "--with-hepmcversion : HepMC version (to be taken from CERN afs lcg external, e.g. =1.27.02)\n"\
+    "--with-clhepversion : CLHEP version (to be taken from CERN afs lcg external, e.g. =1.9.2.3-aa)\n"
+    exit
+  elif [ "x${arg}" != "x${arg/=/}" ] ; then
+    option=${arg/=*/}
+    value=${arg/*=/}
+    if [ "x${option}" = "x--lcgplatform" ] ; then
+      MYLCGPLATFORM=${value}
+    elif [ "x${option}" = "x--with-hepmcversion" ] ; then
+      HEPMCVERSION=${value}
+    elif [ "x${option}" = "x--with-clhepversion" ] ; then
+      CLHEPVERSION=${value}
+    else
+      echo "${arg}: wrong option. Ignored." >&2
+    fi
+  fi
+done
+
+echo compilation mode is $COMPMODE
+echo sharedlibs = $SHAREDLIBS
+
+# Environment variables for building HepMC interface library. Remark: starting
+# from HepMC version 2.00.00 CLHEP is not needed. Note that the HepMC interface
+# library is used by the examples main21, main22. Attention: if you have already
+# run these examples and you change HepMC or CLHEP version, you should
 # reset your LD_LIBRARY_PATH
-# The default values here correspond to CERN AFS (but you may want to change
-# the version and/or platform).
+# The default values here correspond to CERN AFS lcg external
+#
+if [ "x${HEPMCVERSION}" != "x" ] ; then
+  if [ "x${HEPMCLOCATION}" = "x" ] ; then
+    export HEPMCLOCATION=/afs/cern.ch/sw/lcg/external/HepMC/${HEPMCVERSION}/${MYLCGPLATFORM}
+  fi
+fi
+if [ "x${CLHEPVERSION}" != "x" ] ; then
+  if [ "x${CLHEPLOCATION}" = "x" ] ; then
+    export CLHEPLOCATION=/afs/cern.ch/sw/lcg/external/clhep/${CLHEPVERSION}/${MYLCGPLATFORM}
+  fi
+fi
+#   If you want to assign these variables by hand:
 #
 #export HEPMCVERSION=1.27.02
 #export HEPMCLOCATION=/afs/cern.ch/sw/lcg/external/HepMC/${HEPMCVERSION}/${MYLCGPLATFORM}
@@ -71,6 +99,7 @@ echo Platform is $ARCH
 
 #default platform settings:
 export FC=g77
+export CC=gcc
 export FFLAGS="${FFLAGS_OPT}"
 export CFLAGS="${CFLAGS_OPT}"
 export CXXFLAGS="${CXXFLAGS_OPT}"
@@ -161,7 +190,10 @@ rm -f config.mk
 
 echo SHELL = /bin/sh > config.mk
 echo ARCH = ${ARCH} >> config.mk
+echo MYLCGPLATFORM = ${MYLCGPLATFORM} >> config.mk
+echo SHAREDLIBS = ${SHAREDLIBS} >> config.mk
 echo FC = ${FC} >> config.mk
+echo CC = ${CC} >> config.mk
 echo FFLAGS = ${FFLAGS} >> config.mk
 echo CFLAGS = ${CFLAGS} >> config.mk
 echo CXXFLAGS = ${CXXFLAGS} >> config.mk

@@ -86,6 +86,10 @@ bool   PhaseSpace::hasPointLeptons      = false;
 // Pointer to the total/elastic/diffractive cross section object.
 SigmaTotal* PhaseSpace::sigmaTotPtr     = 0;
 
+// Pointer to userHooks object.
+UserHooks* PhaseSpace::userHooksPtr     = 0;
+bool   PhaseSpace::canModifySigma       = false;
+
 //*********
 
 // Initialize static data members.
@@ -120,24 +124,30 @@ void PhaseSpace::initStatic() {
 
 // Store pointers to beams and SigmaTotal.
  
-void PhaseSpace::setBeamSigmaPtr( BeamParticle* beamAPtrIn, 
-  BeamParticle* beamBPtrIn, SigmaTotal* sigmaTotPtrIn) {
+void PhaseSpace::setStaticPtrs( BeamParticle* beamAPtrIn, 
+  BeamParticle* beamBPtrIn, SigmaTotal* sigmaTotPtrIn,
+  UserHooks* userHooksPtrIn) {
 
   // Store input.
-  beamAPtr = beamAPtrIn;
-  beamBPtr = beamBPtrIn;
-  sigmaTotPtr = sigmaTotPtrIn; 
+  beamAPtr        = beamAPtrIn;
+  beamBPtr        = beamBPtrIn;
+  sigmaTotPtr     = sigmaTotPtrIn;
+  userHooksPtr    = userHooksPtrIn; 
 
   // Some commonly used beam information.
-  idA = beamAPtr->id(); 
-  idB = beamBPtr->id(); 
-  mA  = beamAPtr->m(); 
-  mB  = beamBPtr->m(); 
+  idA             = beamAPtr->id(); 
+  idB             = beamBPtr->id(); 
+  mA              = beamAPtr->m(); 
+  mB              = beamBPtr->m(); 
 
   // Flag if lepton beams, and if non-resolved ones.
-  hasLeptonBeams = ( beamAPtr->isLepton() || beamBPtr->isLepton() );
+  hasLeptonBeams  = ( beamAPtr->isLepton() || beamBPtr->isLepton() );
   hasPointLeptons = ( hasLeptonBeams 
     && (beamAPtr->isUnresolved() || beamBPtr->isUnresolved() ) );
+
+  // Flag if user should be allow to reweight cross section.
+  canModifySigma  = (userHooksPtr > 0) 
+                  ? userHooksPtr->canModifySigma() : false; 
 
 }
 
@@ -163,7 +173,9 @@ void PhaseSpace::initInfo(SigmaProcess* sigmaProcessPtrIn, double eCMIn) {
   sH = s;
   tH = 0.;
   uH = 0.;
+  pTH = 0.;
   theta = 0.;
+  phi = 0.;
 
   // Default cross section information.
   sigmaNw = 0.;
@@ -288,6 +300,12 @@ bool PhaseSpace::setupSampling1or2(bool is2, ostream& os) {
         else     sigmaProcessPtr->set1Kin( x1H, x2H, sH);
         double sigmaNow = sigmaProcessPtr->sigmaPDF();
         sigmaNow *= wtTau * wtY * wtZ * wtBW; 
+
+        // Allow possibility for user to modify cross section.
+        if (canModifySigma) sigmaNow 
+           *= userHooksPtr->multiplySigmaBy( sigmaProcessPtr, this, false);
+
+        // Check if current maximum exceeded.
         if (sigmaNow > sigmaMx) sigmaMx = sigmaNow; 
 
         // Optional printout. Protect against negative cross sections.
@@ -407,6 +425,10 @@ bool PhaseSpace::setupSampling1or2(bool is2, ostream& os) {
         else     sigmaProcessPtr->set1Kin( x1H, x2H, sH);
         double sigmaNow = sigmaProcessPtr->sigmaPDF();
         sigmaNow *= wtTau * wtY * wtZ * wtBW;
+
+        // Allow possibility for user to modify cross section.
+        if (canModifySigma) sigmaNow 
+          *= userHooksPtr->multiplySigmaBy( sigmaProcessPtr, this, false);
 
         // Optional printout. Protect against negative cross section.
         if (showSearch) os << " tau =" << setw(11) << tau << "  y =" 
@@ -537,6 +559,10 @@ bool PhaseSpace::setupSampling1or2(bool is2, ostream& os) {
             sigmaNow = sigmaProcessPtr->sigmaPDF();
             sigmaNow *= wtTau * wtY * wtZ * wtBW;
 
+            // Allow possibility for user to modify cross section.
+            if (canModifySigma) sigmaNow 
+              *= userHooksPtr->multiplySigmaBy( sigmaProcessPtr, this, false);
+
             // Optional printout. Protect against negative cross section.
             if (showSearch) os << " tau =" << setw(11) << tau << "  y =" 
 	      << setw(11) << y << "  z =" << setw(11) << z
@@ -566,7 +592,7 @@ bool PhaseSpace::setupSampling1or2(bool is2, ostream& os) {
 // Note: by In is meant the integral over the quantity multiplying 
 // coefficient cn. The sum of cn is normalized to unity.
 
-bool PhaseSpace::trialKin1or2(bool is2, ostream& os) {
+bool PhaseSpace::trialKin1or2(bool is2, bool inEvent, ostream& os) {
 
   // Choose tau according to h1(tau)/tau, where
   // h1(tau) = c0/I0 + (c1/I1) * 1/tau 
@@ -610,6 +636,10 @@ bool PhaseSpace::trialKin1or2(bool is2, ostream& os) {
   else     sigmaProcessPtr->set1Kin( x1H, x2H, sH);
   sigmaNw = sigmaProcessPtr->sigmaPDF();
   sigmaNw *= wtTau * wtY * wtZ * wtBW;
+
+  // Allow possibility for user to modify cross section.
+  if (canModifySigma) sigmaNw 
+    *= userHooksPtr->multiplySigmaBy( sigmaProcessPtr, this, inEvent);
 
   // Check if maximum violated.
   if (sigmaNw > sigmaMx) {
@@ -950,10 +980,12 @@ void PhaseSpace::selectZ(int iZ, double zVal) {
     + (zCoef[2] / intZ12) / zPos + (zCoef[3] / intZ34) / pow2(zNeg)
     + (zCoef[4] / intZ34) / pow2(zPos) );
 
-  // Calculate tHat and uHat. 
+  // Calculate tHat and uHat. Also gives pTHat.
   double sH34 = -0.5 * (sH - s3 - s4);
-  tH = sH34 + mHat * pAbs * z;
-  uH = sH34 - mHat * pAbs * z;
+  tH  = sH34 + mHat * pAbs * z;
+  uH  = sH34 - mHat * pAbs * z;
+  pTH = sqrtpos( (tH * uH - s3 * s4) / sH); 
+
 }
 
 //*********
@@ -1670,7 +1702,7 @@ bool PhaseSpace2to2eldiff::setupSampling() {
 // Select a trial kinematics phase space point. Perform full
 // Monte Carlo acceptance/rejection at this stage.
 
-bool PhaseSpace2to2eldiff::trialKin() {
+bool PhaseSpace2to2eldiff::trialKin( bool ) {
 
   // Loop over attempts to set up masses and t consistently.
   for (int loop = 0; ; ++loop) { 

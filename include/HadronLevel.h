@@ -15,6 +15,7 @@
 #include "PythiaStdlib.h"
 #include "Settings.h"
 #include "StringFragmentation.h"
+#include "TimeShower.h"
 
 namespace Pythia8 {
  
@@ -39,8 +40,8 @@ public:
   static void initStatic();
 
   // Save pointer. Initialize alphaStrong in ParticleDecays.
-  bool init(Info* infoPtrIn) {infoPtr = infoPtrIn; decays.init(); 
-    return true;}
+  bool init(Info* infoPtrIn, TimeShower* timesDecPtrIn) {
+    infoPtr = infoPtrIn; decays.init(timesDecPtrIn); return true;}
  
   // Generate the next event.
   bool next(Event& event); 
@@ -48,11 +49,11 @@ public:
 private: 
 
   // Static initialization data, normally only set once.
-  static bool Hadronize, Decay;
+  static bool   Hadronize, Decay;
   static double mStringMin, eNormJunction, mThad;
 
   // Constants: could only be changed in the code itself.
-  static const int NTRYJNREST;
+  static const int    NTRYJNREST;
   static const double JJSTRINGM2MAX, JJSTRINGM2FRAC, CONVJNREST, MTHAD;
 
   // Pointer to various information on the generation.
@@ -81,9 +82,9 @@ private:
   bool splitJunctionPair(Event& event);
 
   // Colour information.
-  vector<int> iColEnd, iAcolEnd, iColAndAcol, iParton, iPartonJun, 
-    iPartonAntiJun, iJunLegA, iJunLegB, iJunLegC, iAntiLegA, iAntiLegB, 
-    iAntiLegC, iGluLeg;
+  vector<int>    iColEnd, iAcolEnd, iColAndAcol, iParton, iPartonJun, 
+                 iPartonAntiJun, iJunLegA, iJunLegB, iJunLegC,  
+                 iAntiLegA, iAntiLegB, iAntiLegC, iGluLeg;
   vector<double> m2Pair; 
   
 };

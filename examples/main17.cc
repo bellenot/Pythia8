@@ -101,7 +101,7 @@ int main() {
   handledParticles.push_back(443);
 
   // Hand pointer and list to Pythia.
-  pythia.decayPtr( handleDecays, handledParticles);
+  pythia.setDecayPtr( handleDecays, handledParticles);
 
   // Initialization for charmonium (singlet+octet) production at the LHC.
   pythia.readString("Charmonium:all = on");

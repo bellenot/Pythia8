@@ -7,7 +7,7 @@
 #define Pythia8_MultipleInteractions_H
 
 #include "Basics.h"
-#include "Beams.h"
+#include "BeamParticle.h"
 #include "Event.h"
 #include "Information.h"
 #include "PythiaStdlib.h"
@@ -48,8 +48,8 @@ public:
   bool swapTU() {return pickedU;}
 
   // Return code or name of a specified process, for statistics table.
-  int nProc() const {return nChan;}
-  int codeProc(int iProc) const {return sigmaT[iProc]->code();}
+  int    nProc() const {return nChan;}
+  int    codeProc(int iProc) const {return sigmaT[iProc]->code();}
   string nameProc(int iProc) const {return sigmaT[iProc]->name();}
 
 private:
@@ -58,8 +58,8 @@ private:
   static const double MASSMARGIN, OTHERFRAC;
 
   // Number of processes. Some use massive matrix elements.
-  int nChan;
-  vector<bool> needMasses;
+  int            nChan;
+  vector<bool>   needMasses;
   vector<double> m3Fix, m4Fix, sHatMin;
 
   // Vector of process list, one for t-channel and one for u-channel.
@@ -67,8 +67,8 @@ private:
 
   // Values of cross sections in process list above.
   vector<double> sigmaTval, sigmaUval;
-  double sigmaTsum, sigmaUsum;
-  bool pickedU;
+  double         sigmaTsum, sigmaUsum;
+  bool           pickedU;
   
 };
  
@@ -76,7 +76,6 @@ private:
 
 // The MultipleInteractions class contains the main methods for the 
 // generation of multiple parton-parton interactions in hadronic collisions.
-
 
 class MultipleInteractions {
 
@@ -134,31 +133,33 @@ public:
 private: 
 
   // Static initialization data, normally only set once.
-  static int pTmaxMatch, alphaSorder, alphaEMorder, bProfile, processLevel, 
-    nQuark, nSample;
+  static int    pTmaxMatch, alphaSorder, alphaEMorder, bProfile, 
+                processLevel, nQuark, nSample;
   static double alphaSvalue, Kfactor, pT0Ref, ecmRef, ecmPow, 
-    pTmin, coreRadius, coreFraction, expPow;
+                pTmin, coreRadius, coreFraction, expPow;
 
   // Constants: could only be changed in the code itself.
-  static const bool SHIFTFACSCALE;
-  static const int NBINS;
+  static const bool   SHIFTFACSCALE;
+  static const int    NBINS;
   static const double SIGMAFUDGE, RPT20, PT0STEP, SIGMASTEP, EXPPOWMIN,
-    PROBATLOWB, BSTEP, BMAX, EXPMAX, KCONVERGE, CONVERT2MB;
+                      PROBATLOWB, BSTEP, BMAX, EXPMAX, KCONVERGE, 
+                      CONVERT2MB;
 
   // Other non-static initialization data.
   double eCM, sCM, pT0, pT20, pT2min, pTmax, pT2max, pT20R, pT20minR, 
-    pT20maxR, pT20min0maxR, pT2maxmin, sigmaND, pT4dSigmaMax, pT4dProbMax, 
-    dSigmaApprox, sigmaInt, zeroIntCorr, normOverlap, nAvg, kNow, normPi, 
-    bAvg, bDiv, probLowB, radius2B, radius2C, fracA, fracB, fracC, 
-    fracAhigh, fracBhigh, fracChigh, fracABChigh, expRev, cDiv, cMax;
+         pT20maxR, pT20min0maxR, pT2maxmin, sigmaND, pT4dSigmaMax, 
+         pT4dProbMax, dSigmaApprox, sigmaInt, zeroIntCorr, normOverlap, 
+         nAvg, kNow, normPi, bAvg, bDiv, probLowB, radius2B, radius2C, 
+         fracA, fracB, fracC, fracAhigh, fracBhigh, fracChigh, fracABChigh, 
+         expRev, cDiv, cMax;
   vector<double> sudExpPT;
-  bool isInit, lowPow;
+  bool   isInit, lowPow;
 
   // Properties specific to current system.
-  int id1, id2;
+  int    id1, id2;
   double bNow, enhanceB, pT2, pT2shift, pT2Ren, pT2Fac, x1, x2, xT, xT2, 
-    tau, y, sHat, tHat, uHat, alpS, alpEM, xPDF1now, xPDF2now;
-  bool bIsSet, bSetInFirst, atLowB;
+         tau, y, sHat, tHat, uHat, alpS, alpEM, xPDF1now, xPDF2now;
+  bool   bIsSet, bSetInFirst, atLowB;
 
   // Pointers to the two incoming beams.
   BeamParticle* beamAPtr;

@@ -31,12 +31,12 @@ public:
 protected:
 
   // Static initialization data, normally only set once.
-  static int alphaSorder, alphaEMorder;
+  static int    alphaSorder, alphaEMorder;
   static double alphaSvalue, alphaEMfix;
 
   // Static alphaStrong and alphaElectromagnetic calculation.
   static AlphaStrong alphaS;
-  static AlphaEM alphaEM;
+  static AlphaEM     alphaEM;
 
   // Constants: could only be changed in the code itself.
   static const double MASSMARGIN;
@@ -79,7 +79,7 @@ private:
   static ParticleDataEntry* particlePtr;
 
   // Static properties and couplings.
-  static int gmZmode;
+  static int    gmZmode;
   static double mRes, GammaRes, m2Res, GamMRat, thetaWRat;
 
   // Current values.
@@ -129,7 +129,7 @@ private:
   double widSum, sigOpen;
 
   // Dummy to avoid compiler warnings.
-  int idSave;
+  int    idSave;
 
 };
 

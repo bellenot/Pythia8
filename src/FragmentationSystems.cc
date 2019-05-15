@@ -46,7 +46,10 @@ void ColConfig::insert( vector<int>& iPartonIn, Event& event) {
   double mSumIn = 0.;
   bool hasJunctionIn = false;
   for (int i = 0; i < int(iPartonIn.size()); ++i) {
-  if (iPartonIn[i] < 0) { hasJunctionIn = true; continue;}
+    if (iPartonIn[i] < 0) { 
+      hasJunctionIn = true; 
+      continue;
+    }
     pSumIn += event[ iPartonIn[i] ].p();
     if (!event[ iPartonIn[i] ].isGluon()) 
       mSumIn += event[ iPartonIn[i] ].constituentMass();
@@ -121,12 +124,6 @@ void ColConfig::insert( vector<int>& iPartonIn, Event& event) {
     }
   }
 
-  // Store list of partons. Not needed??
-  //int iBegIn = iPartonSave.size();
-  //for (int i = 0; i < int(iPartonIn.size()); ++i) 
-  //  iPartonSave.push_back( iPartonIn[i]);
-  //int iEndIn = iPartonSave.size();  
-
   // Store new colour singlet system at the end.
   singlets.push_back( ColSinglet(iPartonIn, pSumIn, massIn,
     massExcessIn, hasJunctionIn, isClosedIn) );
@@ -153,25 +150,44 @@ void ColConfig::insert( vector<int>& iPartonIn, Event& event) {
 bool ColConfig::joinJunction( vector<int>& iPartonIn, Event& event,
   double massExcessIn) {
 
-  // Find four-momentum and endpoint quark masses on the three legs.
-  Vec4 pLeg[3];
+  // Find four-momentum and endpoint quarks and masses on the three legs.
+  Vec4   pLeg[3];
   double mLeg[3];
+  int    idAbsLeg[3];
   int leg = -1;
   for (int i = 0; i < int(iPartonIn.size()); ++ i) {
     if (iPartonIn[i] < 0) ++leg;
     else {
-      pLeg[leg] += event[ iPartonIn[i] ].p(); 
-      mLeg[leg] = event[ iPartonIn[i] ].m();
+      pLeg[leg]    += event[ iPartonIn[i] ].p(); 
+      mLeg[leg]     = event[ iPartonIn[i] ].m();
+      idAbsLeg[leg] = event[ iPartonIn[i] ].idAbs();
     }
   }
 
   // Calculate invariant mass of three pairs, minus endpoint masses. 
-  double m01 = (pLeg[0] + pLeg[1]).mCalc() - mLeg[0] - mLeg[1];
-  double m02 = (pLeg[0] + pLeg[2]).mCalc() - mLeg[0] - mLeg[2];
-  double m12 = (pLeg[1] + pLeg[2]).mCalc() - mLeg[1] - mLeg[2];
-  double mMin = m01; int legA = 0; int legB = 1; 
-  if (m02 < mMin) {mMin = m02; legA = 0; legB = 2;}
-  if (m12 < mMin) {mMin = m12; legA = 1; legB = 2;} 
+  double m01  = (pLeg[0] + pLeg[1]).mCalc() - mLeg[0] - mLeg[1];
+  double m02  = (pLeg[0] + pLeg[2]).mCalc() - mLeg[0] - mLeg[2];
+  double m12  = (pLeg[1] + pLeg[2]).mCalc() - mLeg[1] - mLeg[2];
+  
+  // Find lowest-mass pair not involving diquark.
+  double mMin = mJoinJunction + 1.;
+  int    legA = -1;
+  int    legB = -1; 
+  if (m01 < mMin && idAbsLeg[0] < 9 && idAbsLeg[1] < 9) {
+    mMin = m01; 
+    legA = 0; 
+    legB = 1;
+  }
+  if (m02 < mMin && idAbsLeg[0] < 9 && idAbsLeg[2] < 9) {
+    mMin = m02; 
+    legA = 0; 
+    legB = 2;
+  }
+  if (m12 < mMin && idAbsLeg[1] < 9 && idAbsLeg[2] < 9) {
+    mMin = m12; 
+    legA = 1; 
+    legB = 2;
+  } 
   int legC = 3 - legA - legB;  
 
   // Nothing to do if no two legs have small invariant mass, and 
@@ -213,18 +229,16 @@ bool ColConfig::joinJunction( vector<int>& iPartonIn, Event& event,
   }
 
   // Second step: combine two quarks into a diquark. 
-  int iQA = iLegA.back();
-  int iQB = iLegB.back();
-  int idQA = event[iQA].id();
-  int idQB = event[iQB].id();
-  // Cannot be done if one of them already is a diquark.
-  if (abs(idQA) > 10 || abs(idQB) > 10) return false;
-  int idNew = StringFlav::makeDiquark( idQA, idQB ); 
+  int iQA     = iLegA.back();
+  int iQB     = iLegB.back();
+  int idQA    = event[iQA].id();
+  int idQB    = event[iQB].id();
+  int idNew   = StringFlav::makeDiquark( idQA, idQB ); 
   // Diquark colour is opposite to parton closest to junction on third leg.
-  int colNew = (idNew > 0) ? 0 : event[ iLegC[0] ].acol();
+  int colNew  = (idNew > 0) ? 0 : event[ iLegC[0] ].acol();
   int acolNew = (idNew > 0) ? event[ iLegC[0] ].col() : 0;
-  Vec4 pNew = pLeg[legA] + pLeg[legB];
-  int iNew = event.append( idNew, 74, min(iQA, iQB), max( iQA, iQB),
+  Vec4 pNew   = pLeg[legA] + pLeg[legB];
+  int iNew    = event.append( idNew, 74, min(iQA, iQB), max( iQA, iQB),
      0, 0, colNew, acolNew, pNew, pNew.mCalc() );
  
   // Mark joined partons and reduce remaining system.

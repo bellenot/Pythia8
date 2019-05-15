@@ -1,47 +1,113 @@
-1) First edit file "configure". You can change compilation mode (OPT
-   for optimised compilation, DBG for compilation with debugger).
-   Put there the locations of available libraries. If some libraries 
-   are unavailable, comment out the respective lines. 
-   If a compiled Pythia6 is unavailable, the source code included in 
-   this distribution will be used to build the local library. 
-   If HepMC or CLHEP are unavailable, the HepMC interface library will 
-   not be built and some examples will be impossible to use. 
-   The program will work perfectly well standalone, however.
+----------------------------------------------------------------------
 
-2) Type "configure" (or "./configure" if the directory is not in your 
-   path). This creates file config.mk and files examples/config.sh, 
-   examples/config.csh. This step is optional since Make will run the 
-   script configure anyway, but possible errors in the paths will be 
+   BASIC INSTALLATION
+
+1) Once you have unpacked your tarball into a new (sub)directory,
+   the first step is to run the "configure" script. If you accept the 
+   default compiler options, and plan to run PYTHIA 8 standalone, you 
+   only have to type "configure". This will create the file config.mk. 
+   Actually, running this script by hand is optional since "make" will 
+   run "configure" anyway, but possible errors in the paths will be 
    less clearly visible.
 
-3) Type "gmake" or "make". This will create the libraries (up to three 
-   of them). On Linux systems gmake and make are usually equivalent.
-   For others, in case of doubt, use gmake. This applies below as well.
+2) Type "gmake" or "make". This will create an archive library. 
+   On Linux systems gmake and make are usually equivalent. For others, 
+   in case of doubt, use gmake. This applies below as well.
 
-4) The libraries should now be ready for use. To study some examples,
-   go to the "examples" subdirectory. There you can use "gmake mainNN",
-   for NN a two-digit number corresponding to one of the existing examples.
-   This will build an executable "mainNN.exe". If you work with HepMC,
-   then before running your executable for the first time type
-   "source config.csh" for csh or tcsh, or "source config.sh"
-   for bash and similar shells. This will add HepMC and CLHEP locations
-   to the variable LD_LIBRARY_PATH. Then you can run the executable
-   with "./mainNN.exe > outputfile" (where the initial "./" may not 
-   be necessary). 
-   
-5) Typing "gmake clean" will remove all temporary files, except any 
-   output files you may have created during your test runs. (If you do 
-   it in the main directory it will apply to all subdirectories, if in
-   examples then only for that subdirectory.) 
+3) The library should now be ready for use. To study some examples,
+   go to the "examples" subdirectory. The README file in that 
+   subdirectory contain further instructions how executables can 
+   be built and run.
+    
+4) At any time, typing "gmake clean" will remove all temporary files
+   (including the compiled PYTHIA 8 library) except any output files 
+   you may have created during your test runs. (If you do it in the 
+   main directory it will apply to all subdirectories, if in examples 
+   then only for that subdirectory.) 
 
-The shared libraries are created by default together with archive libraries,
-but by default are not used in examples.
+----------------------------------------------------------------------
+
+   ADVANCED INSTALLATION
+
+1) If you want to set various compilation options, or prepare the 
+   linking to the HepMC external library then the "configure" script 
+   will have to do more work. There are two different ways to 
+   accomplish this.
+
+1.1) If you have access to the CERN afs filesystem, so that libraries 
+     can be picked up  from the /afs/cern.ch/sw/lcg/external area, you 
+     can run "configure"  with a suitable combination of the following 
+     command-line arguments: 
+     --help : prints a brief summary of the options described here.
+     --enable-debug : turns on debugging flags and turns off optimization.
+     --enable-shared : turns on shared-library creation,
+         in addition to the archive libraries always built.
+     --lcgplatform=xxx : allows you to specify the platform assumed for
+         compilation, which also affects the assumed location of the 
+         libraries below; default is slc3_ia32_gcc323 while other supported
+         values for xxx include slc4_ia32_gcc34 and slc4_amd64_gcc34. 
+     --with-hepmcversion=xxx : allows you later on to link to the HepMC
+         library. The latest "old" version would be 1.27.02, while a 
+         more modern one would be 2.00.02.
+     --with-clhepversion=xxx : if you use HepMC version 1 you also need
+         to link to CLHEP, e.g. HepMC 1.27.02 requires CLHEP 1.9.2.3-aa.
+         HepMC version 2 does not require CLHEP.
+
+1.2) If you want to use external libraries from some different location, 
+     then you have to edit the "configure" file by hand before you run 
+     it, to provide the paths where you have the respective libraries 
+     installed on your local platform. Search in the "configure" file for
+       HEPMCLOCATION
+       CLHEPLOCATION
+
+   Information on the selected paths is stored in the files 
+   examples/config.sh and examples/config.csh when you run "configure".
+
+2) If you want to change the versions of HepMC and/or CLHEP, you have to
+   rerun the script "configure" with relevant options, then type "make" 
+   to recompile the library hepmcinterface. If you tried already to run 
+   examples with previous versions, pay attention to the environment 
+   variable LD_LIBRARY_PATH (see README in examples).
+
+3) If you have two CPUs or cores on your computer then using the -j2 
+   option on make/gmake may speed up compilation.
+
+4) Necessary data are automatically loaded when you use the default 
+   PYTHIA installation directory structure and run the main programs in 
+   the examples subdirectory. However, in the general case, you must 
+   provide the path to the .xml files, originally stored in the xmldoc 
+   directory, where default settings and particle data are found. This 
+   can be done in two ways.
+
+4.1) You can set the environment variable PYTHIA8DATA to contain the 
+     location of the xmldoc directory. In the csh and tcsh shells this 
+     could e.g. be
+       setenv PYTHIA8DATA /home/myname/pythia8080/xmldoc
+     while in other shells it could be
+       export PYTHIA8DATA=/home/myname/pythia8080/xmldoc
+     Recall that environment variables set locally are only defined in 
+     the current instance of the shell. The above lines should go into 
+     your .cshrc and .bashrc files, respectively, if you want a more 
+     permanent assignment.
+
+4.2) You can provide the path as argument to the Pythia constructor in 
+     your main program, e.g.
+       Pythia pythia("/home/myname/pythia8080/xmldoc");
+
+   When PYTHIA8DATA is set it takes precedence, else the path in the 
+   constructor is used, else one defaults to the ../xmldoc directory.
+
+----------------------------------------------------------------------
+
+   LEARN MORE
 
 To learn more about the current program:
 
-A) A brief self-contained introduction is found in the pythia8060.pdf
-   file.
+A) A brief self-contained introduction is found in the 
+   htmldoc/pythia8080.pdf file.
 
 B) Details can be found by opening a web browser on the 
-   doc/Welcome.html file, and then navigating among the pages 
+   htmldoc/Welcome.html file, and then navigating among the pages 
    in the index there.   
+
+----------------------------------------------------------------------

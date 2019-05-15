@@ -17,7 +17,10 @@
 #include "ProcessLevel.h"
 #include "PythiaStdlib.h"
 #include "Settings.h"
+#include "SpaceShower.h"
 #include "SusyLesHouches.h"
+#include "TimeShower.h"
+#include "UserHooks.h"
 
 namespace Pythia8 {
  
@@ -30,28 +33,39 @@ class Pythia {
 public:
 
   // Constructor. (See Pythia.cc file.)
-  Pythia();
+  Pythia(string xmlDir = "../xmldoc");
 
   // Destructor. (See Pythia.cc file.)
   ~Pythia();
 
-  // Read in one update for setting/particledata/Pythia6 from a single line.
+  // Read in one update for a setting or particle data from a single line.
   bool readString(string, bool warn = true); 
  
-  // Read in updates for setting/particledata/Pythia6 from user-defined file.
+  // Read in updates for settings or particle data from user-defined file.
   bool readFile(string, bool warn = true);
 
   // Possibility to pass in pointers to PDF's. Usage optional. 
-  bool PDFPtr( PDF* pdfAPtrIn, PDF* pdfBPtrIn);
+  bool setPDFPtr( PDF* pdfAPtrIn, PDF* pdfBPtrIn, PDF* pdfHardAPtrIn = 0, 
+    PDF* pdfHardBPtrIn = 0);
 
   // Possibility to pass in pointer for external handling of some decays.
-  bool decayPtr( DecayHandler* decayHandlePtrIn, 
+  bool setDecayPtr( DecayHandler* decayHandlePtrIn, 
     vector<int> handledParticles) 
     { return hadronLevel.decayPtr( decayHandlePtrIn, handledParticles);}  
 
   // Possibility to pass in pointer for external random number generation.
-  bool rndmEnginePtr( RndmEngine* rndmPtrIn) 
-    { return Rndm::rndmEnginePtr( rndmPtrIn);}   
+  bool setRndmEnginePtr( RndmEngine* rndmEnginePtrIn) 
+    { return Rndm::rndmEnginePtr( rndmEnginePtrIn);}  
+
+  // Possibility to pass in pointer for user hooks. Usage optional. 
+  bool setUserHooksPtr( UserHooks* userHooksPtrIn) 
+    { userHooksPtr = userHooksPtrIn; return true;} 
+
+  // Possibility to pass in pointer for external showers. Usage optional. 
+  bool setShowerPtr( TimeShower* timesDecPtrIn, 
+    TimeShower* timesPtrIn = 0, SpaceShower* spacePtrIn = 0) 
+    { timesDecPtr = timesDecPtrIn; timesPtr = timesPtrIn;
+    spacePtr = spacePtrIn; return true;} 
 
   // Initialization with two beams specified.
   bool init( int idAin, int idBin, double eAin, double eBin);
@@ -77,6 +91,12 @@ public:
   // Main routine to provide final statistics on generation.
   void statistics(bool all = false);
 
+  // Read in settings values: shorthand, not new functionality.
+  bool   flag(string key) {return settings.flag(key);}
+  int    mode(string key) {return settings.mode(key);} 
+  double parm(string key) {return settings.parm(key);}
+  string word(string key) {return settings.word(key);}
+
   // The event record for the parton-level central process.
   Event process;
 
@@ -98,8 +118,8 @@ public:
 private: 
 
   // Static initialization data, normally only set once.
-  static bool partonLevelOn, hadronLevelOn, checkEvent;
-  static int nErrList;
+  static bool   doPartonLevel, doHadronLevel, checkEvent;
+  static int    nErrList;
   static double epTolerance;
 
   // Constants: could only be changed in the code itself.
@@ -120,28 +140,41 @@ private:
   // Check that the final event makes sense.
   bool check(ostream& os = cout);
 
+  // Keep track when "new" has been used and needs a "delete".  
+  bool pdfAnew, pdfBnew, pdfHardNew;
+
   // Pointers to the parton distributions of the two incoming beams.
   PDF* pdfAPtr;  
   PDF* pdfBPtr; 
 
-  // Auxiliary to set parton densities among list of possibilities.
-  PDF* setPDFPtr(int idIn);
+  // Extra PDF pointers to be used in hard processes only. 
+  PDF* pdfHardAPtr;  
+  PDF* pdfHardBPtr; 
 
-  // Keep track when "new" has been used and needs a "delete".  
-  bool pdfAnew, pdfBnew;
+  // Auxiliary to set parton densities among list of possibilities.
+  PDF* getPDFPtr(int idIn, int sequence = 1);
 
   // The two incoming beams.
   BeamParticle beamA;
   BeamParticle beamB;
-
-  // Should Pythia6 be used for generating external events?
-  bool hasPythia6;
 
   // LHAinit and LHAevnt objects for generating external events.
   bool hasLHA;
   LHAinit* lhaInitPtr;
   LHAevnt* lhaEvntPtr;
   int strategyLHA;
+
+  // Pointer to userHooks object for user interaction with program.
+  UserHooks* userHooksPtr;
+  bool hasUserHooks, doVetoProcess, doVetoPartons;
+
+  // Keep track when "new" has been used and needs a "delete".  
+  bool timesNew, spaceNew;
+
+  // Pointers to timelike and spacelike showers.
+  TimeShower*  timesDecPtr;
+  TimeShower*  timesPtr;
+  SpaceShower* spacePtr;
 
   // The main generator class to define the core process of the event.
   ProcessLevel processLevel;
@@ -156,12 +189,12 @@ private:
   ErrorMsg errorMsg; 
 
   // Properties found at the initialization of the event generator.
-  bool isInit, inCMframe;
-  int idA, idB;  
+  bool   isConstructed, isInit, inCMframe;
+  int    idA, idB;  
   double mA, mB, eA, eB, pzA, pzB, eCM, betaZ, gammaZ;
 
   // information for error checkout.
-  int nErrEvent;
+  int    nErrEvent;
   vector<int> iErrId, iErrNan;
 
 };

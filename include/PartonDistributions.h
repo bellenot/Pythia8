@@ -2,7 +2,9 @@
 // PDF: base class.
 // GRV94L: derived class for the GRV 94L parton densities.
 // CTEQ5L: derived class for the CTEQ 5L parton densities.
+// LHAPDFinterface: derived class for interface to the LHAPDF library.
 // Lepton: derived class for parton densities inside a lepton.
+// LeptonPoint: derived class for unresolved lepton (mainly dummy).
 // Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_PartonDistributions_H
@@ -24,26 +26,34 @@ public:
 
   // Constructor.
   PDF(int idBeamIn = 2212) {idBeam = idBeamIn; idSav = 9; xSav = -1.; 
-    Q2Sav = -1.; isInit = false;}
+    Q2Sav = -1.; isSet = true; isInit = false; hasLimits = false;}
 
   // Destructor.
   virtual ~PDF() {}
 
+  // Confirm that PDF has been set up (important for LHAPDF).
+  bool isSetup() {return isSet;}
+
+  // Set limits in x and Q2. This is optional.
+  void setLimits(double xMinIn, double xMaxIn, double Q2MinIn, 
+    double Q2MaxIn) {xMin = xMinIn; xMax = xMaxIn; Q2Min = Q2MinIn;
+    Q2Max = Q2MaxIn; hasLimits = true;}
+
   // Read out parton density
-  double xf(int, double, double);
+  double xf(int id, double x, double Q2);
 
   // Read out valence and sea part of parton densities.
-  double xfVal(int, double, double);
-  double xfSea(int, double, double);
+  double xfVal(int id, double x, double Q2);
+  double xfSea(int id, double x, double Q2);
   
 protected:
 
   // Store relevant quantities.
-  int idBeam, idSav;
-  double xSav, Q2Sav;
+  int    idBeam, idSav;
+  double xSav, Q2Sav, xMin, xMax, Q2Min, Q2Max;
   double xu, xd, xubar, xdbar, xs, xc, xb, xg, xlepton, xgamma,
-    xuVal, xuSea, xdVal, xdSea;
-  bool isInit; 
+         xuVal, xuSea, xdVal, xdSea;
+  bool   isSet, isInit, hasLimits; 
 
   // Update parton densities.
   virtual void xfUpdate(int id, double x, double Q2) = 0; 
@@ -59,11 +69,15 @@ class GRV94L : public PDF {
 
 public:
 
-  GRV94L(int idBeamIn = 2212) : PDF(idBeamIn) {;}
+  // Constructor.
+  GRV94L(int idBeamIn = 2212) : PDF(idBeamIn) {}
 
 private:
 
+  // Update PDF values.
   void xfUpdate(int id, double x, double Q2);
+
+  // Auxiliary routines used during the updating.
   double grvv (double x, double n, double ak, double bk, double a, 
     double b, double c, double d);
   double grvw (double x, double s, double al, double be, double ak, 
@@ -82,11 +96,43 @@ class CTEQ5L : public PDF {
 
 public:
 
-  CTEQ5L(int idBeamIn = 2212) : PDF(idBeamIn) {;}
+  // Constructor.
+  CTEQ5L(int idBeamIn = 2212) : PDF(idBeamIn) {}
 
 private:
 
+  // Update PDF values.
   void xfUpdate(int id, double x, double Q2);
+
+};
+
+//*********
+
+// Provide interface to the LHAPDF library of parton densities.
+
+class LHAPDF : public PDF {
+
+public:
+
+  // Constructor.
+  LHAPDF(int idBeamIn, string setName, int member = 0,  int nSetIn = 1) 
+    : PDF(idBeamIn), nSet(nSetIn) {init( setName, member);} 
+
+private:
+
+  // Initialization of PDF set.
+  void init(string setName, int member);
+
+  // Update all PDF values.
+  void xfUpdate(int , double x, double Q2);
+
+  // Current set and pdf values.
+  int    nSet;
+  double xfArray[13];
+
+  // Keep track of latest initialized PDF, so does not have to repeat.
+  static string latestSetName;
+  static int    latestMember, latestNSet;   
 
 };
 
@@ -98,10 +144,12 @@ class Lepton : public PDF {
 
 public:
 
-  Lepton(int idBeamIn = 11) : PDF(idBeamIn) {;}
+  // Constructor.
+  Lepton(int idBeamIn = 11) : PDF(idBeamIn) {}
 
 private:
 
+  // Update PDF values.
   void xfUpdate(int id, double x, double Q2);
 
 };
@@ -114,13 +162,13 @@ class LeptonPoint : public PDF {
 
 public:
 
-  LeptonPoint(int idBeamIn = 11) : PDF(idBeamIn) {;}
+  // Constructor.
+  LeptonPoint(int idBeamIn = 11) : PDF(idBeamIn) {}
 
 private:
 
-  // Set values. Some dummy operations to avoid compiler warnings.
-  void xfUpdate(int id, double x, double Q2) {xlepton = 1; xgamma = 0.;
-    idSav = 9; id = 0; xSav = x; Q2Sav = Q2;}
+  // Update PDF values in trivial way. 
+  void xfUpdate(int , double , double ) {xlepton = 1; xgamma = 0.;}
 
 };
 

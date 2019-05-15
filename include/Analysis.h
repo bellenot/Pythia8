@@ -33,14 +33,14 @@ public:
     powerMod = 0.5 * power - 1.;}
   
   // Analyze event.
-  bool analyze(Event& event);
+  bool analyze(const Event& event);
 
   // Return info on results of analysis.
-  double sphericity() const {return 1.5 * (eVal2 + eVal3);}
-  double aplanarity() const {return 1.5 * eVal3;}
+  double sphericity()      const {return 1.5 * (eVal2 + eVal3);}
+  double aplanarity()      const {return 1.5 * eVal3;}
   double eigenValue(int i) const {return (i < 2) ? eVal1 :
     ( (i < 3) ? eVal2 : eVal3 ) ;}
-  Vec4 eventAxis(int i) const {return (i < 2) ? eVec1 :
+  Vec4 eventAxis(int i)    const {return (i < 2) ? eVec1 :
     ( (i < 3) ? eVec2 : eVec3 ) ;}
 
   // Provide a listing of the info.
@@ -49,17 +49,17 @@ public:
 private: 
 
   // Constants: could only be changed in the code itself.
-  static const int NSTUDYMIN;
+  static const int    NSTUDYMIN;
   static const double P2MIN, EIGENVALUEMIN;
 
   // Properties of analysis.
   double power;
-  int select, powerInt; 
+  int    select, powerInt; 
   double powerMod;
 
   // Outcome of analysis.
   double eVal1, eVal2, eVal3; 
-  Vec4 eVec1, eVec2, eVec3; 
+  Vec4   eVec1, eVec2, eVec3; 
 
 };  
 
@@ -76,13 +76,13 @@ public:
   Thrust(int selectIn = 2) : select(selectIn) {}
   
   // Analyze event.
-  bool analyze(Event& event);
+  bool analyze(const Event& event);
 
   // Return info on results of analysis.
-  double thrust() const {return eVal1;}
-  double tMajor() const {return eVal2;}
-  double tMinor() const {return eVal3;}
-  double oblateness() const {return eVal2 - eVal3;}
+  double thrust()       const {return eVal1;}
+  double tMajor()       const {return eVal2;}
+  double tMinor()       const {return eVal3;}
+  double oblateness()   const {return eVal2 - eVal3;}
   Vec4 eventAxis(int i) const {return (i < 2) ? eVec1 :
     ( (i < 3) ? eVec2 : eVec3 ) ;}
 
@@ -92,15 +92,15 @@ public:
 private: 
 
   // Constants: could only be changed in the code itself.
-  static const int NSTUDYMIN;
+  static const int    NSTUDYMIN;
   static const double MAJORMIN;
 
   // Properties of analysis.
-  int select; 
+  int    select; 
 
   // Outcome of analysis.
   double eVal1, eVal2, eVal3; 
-  Vec4 eVec1, eVec2, eVec3; 
+  Vec4   eVec1, eVec2, eVec3; 
 
 };  
 
@@ -125,11 +125,11 @@ public:
   // Properties of jet.
   // Note: mother, daughter and isAssigned only used for original 
   // particles, multiplicity and pTemp only for reconstructed jets.
-  Vec4 pJet; 
-  int mother, daughter, multiplicity;
-  bool isAssigned;
+  Vec4   pJet; 
+  int    mother, daughter, multiplicity;
+  bool   isAssigned;
   double pAbs; 
-  Vec4 pTemp; 
+  Vec4   pTemp; 
 
   // Distance measures (Lund, JADE, Durham) with friend.
   friend double dist2Fun(int measure, const SingleClusterJet& j1, 
@@ -159,11 +159,11 @@ public:
   }
       
   // Analyze event.
-  bool analyze(Event& event, double yScaleIn, double pTscaleIn, 
+  bool analyze(const Event& event, double yScaleIn, double pTscaleIn, 
     int nJetMinIn = 1, int nJetMaxIn = 0);
 
   // Return info on jets produced.
-  int size() const {return jets.size();}
+  int    size() const {return jets.size();}
   Vec4 p(int j) const {return jets[j].pJet;}
 
   // Return belonging of particle to one of the jets (-1 if none).
@@ -181,16 +181,15 @@ private:
   static const double PRECLUSTERFRAC, PRECLUSTERSTEP;
 
   // Properties of analysis.
-  int measure;
-  int select, massSet; 
-  bool precluster, reassign;
+  int    measure, select, massSet; 
+  bool   precluster, reassign;
   double yScale, pTscale;
-  int nJetMin, nJetMax; 
+  int    nJetMin, nJetMax; 
 
   // Temporary results.
   double piMass, dist2Join, dist2BigMin, distPre, dist2Pre;
   vector<SingleClusterJet> particles;
-  int nParticles;
+  int    nParticles;
 
   // Member functions for some operations (for clarity).
   void doPrecluster();
@@ -218,10 +217,10 @@ public:
     isAssigned(false) {}
 
   // Properties of cell.
-  int iCell;
+  int    iCell;
   double etaCell, phiCell, eTcell;
-  int multiplicity;
-  bool canBeSeed, isUsed, isAssigned;
+  int    multiplicity;
+  bool   canBeSeed, isUsed, isAssigned;
 
 } ;
 
@@ -245,8 +244,8 @@ public:
 
   // Properties of jet.
   double eTjet, etaCenter, phiCenter, etaWeighted, phiWeighted;
-  int multiplicity;
-  Vec4 pMassive;  
+  int    multiplicity;
+  Vec4   pMassive;  
 
 } ;
 
@@ -268,22 +267,22 @@ public:
     threshold(thresholdIn) { }
   
   // Analyze event.
-  bool analyze(Event& event, double eTjetMinIn = 20., 
+  bool analyze(const Event& event, double eTjetMinIn = 20., 
     double coneRadiusIn = 0.7, double eTseedIn = 1.5);
 
   // Return info on results of analysis.
-  int size() const {return jets.size();}
-  double eT(int i) const {return jets[i].eTjet;}
-  double etaCenter(int i) const {return jets[i].etaCenter;}
-  double phiCenter(int i) const {return jets[i].phiCenter;}
-  double etaWeighted(int i) const {return jets[i].etaWeighted;}
-  double phiWeighted(int i) const {return jets[i].phiWeighted;}
+  int    size()              const {return jets.size();}
+  double eT(int i)           const {return jets[i].eTjet;}
+  double etaCenter(int i)    const {return jets[i].etaCenter;}
+  double phiCenter(int i)    const {return jets[i].phiCenter;}
+  double etaWeighted(int i)  const {return jets[i].etaWeighted;}
+  double phiWeighted(int i)  const {return jets[i].phiWeighted;}
   double multiplicity(int i) const {return jets[i].multiplicity;}
-  Vec4 pMassless(int i) const {return jets[i].eTjet * Vec4(
-    cos(jets[i].phiWeighted), sin(jets[i].phiWeighted),
-    sinh(jets[i].etaWeighted), cosh(jets[i].etaWeighted) );}
-  Vec4 pMassive(int i) const {return jets[i].pMassive;}
-  double m(int i) const {return jets[i].pMassive.mCalc();}
+  Vec4 pMassless(int i)      const {return jets[i].eTjet * Vec4(
+           cos(jets[i].phiWeighted),  sin(jets[i].phiWeighted),
+          sinh(jets[i].etaWeighted), cosh(jets[i].etaWeighted) );}
+  Vec4 pMassive(int i)       const {return jets[i].pMassive;}
+  double m(int i)            const {return jets[i].pMassive.mCalc();}
 
   // Provide a listing of the info.
   void list(ostream& os = cout);
@@ -292,7 +291,7 @@ private:
 
   // Properties of analysis.
   double etaMax; 
-  int nEta, nPhi, select, smear;
+  int    nEta, nPhi, select, smear;
   double resolution, upperCut, threshold;
   double eTjetMin, coneRadius, eTseed; 
 

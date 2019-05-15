@@ -29,7 +29,7 @@ const double Sphericity::EIGENVALUEMIN = 1e-10;
  
 // Analyze event.
 
-bool Sphericity::analyze(Event& event) {
+bool Sphericity::analyze(const Event& event) {
 
   // Initial values, tensor and counters zero.
   eVal1 = eVal2 = eVal3 = 0.;
@@ -211,7 +211,7 @@ const double Thrust::MAJORMIN  = 1e-10;
  
 // Analyze event.
 
-bool Thrust::analyze(Event& event) {
+bool Thrust::analyze(const Event& event) {
 
   // Initial values and counters zero.
   eVal1 = eVal2 = eVal3 = 0.;
@@ -393,8 +393,8 @@ const double ClusterJet::PRECLUSTERSTEP = 0.8;
  
 // Analyze event.
 
-bool ClusterJet::analyze(Event& event, double yScaleIn, double pTscaleIn, 
-  int nJetMinIn, int nJetMaxIn) {
+bool ClusterJet::analyze(const Event& event, double yScaleIn, 
+  double pTscaleIn, int nJetMinIn, int nJetMaxIn) {
 
   // Input values. Initial values zero.
   yScale  = yScaleIn;
@@ -670,7 +670,7 @@ void ClusterJet::list(ostream& os) {
  
 // Analyze event.
 
-bool CellJet::analyze(Event& event, double eTjetMinIn, 
+bool CellJet::analyze(const Event& event, double eTjetMinIn, 
   double coneRadiusIn, double eTseedIn) {
 
   // Input values. Initial values zero.

@@ -43,7 +43,7 @@ public:
   static void initStatic();
 
   // Store pointer to SigmaTotal and info on beams.
-  static void setSigmaTotalPtr(SigmaTotal* sigmaTotPtrIn, int idAIn, 
+  static void setStaticPtrs(SigmaTotal* sigmaTotPtrIn, int idAIn, 
     int idBIn, double mAIn, double mBIn) { sigmaTotPtr = sigmaTotPtrIn; 
     idA = idAIn; idB = idBIn; mA = mAIn; mB = mBIn; 
     hasLeptonBeams = ( ParticleDataTable::isLepton(idA) 
@@ -66,20 +66,19 @@ public:
   virtual double sigmaPDF() {return 0.;}
 
   // Input and complement kinematics for resolved 2 -> 1 process.
-  virtual bool set1Kin( double x1in, double x2in, double sHin)
-    {return (x1in + x2in + sHin > 0.);} 
+  // Usage: set1Kin( x1in, x2in, sHin).
+  virtual bool set1Kin( double , double , double ) {return false;} 
 
   // Input and complement kinematics for resolved 2 -> 2 process.
-  virtual bool set2Kin( double x1in, double x2in, double sHin, double tHin,
-    double m3in, double m4in)
-    {return (x1in + x2in + sHin + tHin + m3in + m4in > 0.);} 
+  // Usage: set2Kin( x1in, x2in, sHin, tHin, m3in, m4in).
+  virtual bool set2Kin( double , double , double , double , double , 
+    double ) {return false;} 
 
   // Ditto, but for Multiple Interactions applications, so different input.
-  virtual bool set2KinMI( int id1in, int id2in, double x1in, double x2in,
-    double sHin, double tHin, double uHin, double alpSin, double alpEMin,
-    bool needMasses, double m3in, double m4in) {
-    return ( (id1in + id2in + x1in + x2in + sHin + tHin + uHin + alpSin 
-    + alpEMin +m3in + m4in > 0.) && needMasses);} 
+  // Usage: set2KinMI( id1in, id2in, x1in, x2in, sHin, tHin, uHin, 
+  //        alpSin, alpEMin, needMasses, m3in, m4in)
+  virtual bool set2KinMI( int , int , double , double , double , double , 
+    double , double , double , bool , double , double ) {return false;}
 
   // Select incoming parton channel and extract parton densities (resolved).
   virtual void pickInState() {}
@@ -90,54 +89,54 @@ public:
   // Perform kinematics for a Multiple Interaction, in its rest frame.
   virtual bool final2KinMI() {return true;}
 
+  // Remove empty inFlux channels and optionally list remaining ones.
+  void checkChannels() {
+    if (inFluxPtr != 0) inFluxPtr->checkChannels(name());}
+
   // Process name and code, and the number of final-state particles.
-  virtual string name() const {return "unnamed process";}
-  virtual int code() const {return 0;}
-  virtual int nFinal() const {return 2;};
+  virtual string name()     const {return "unnamed process";}
+  virtual int    code()     const {return 0;}
+  virtual int    nFinal()   const {return 2;};
 
   // Special treatment needed for elastic and diffractive processes.
-  virtual bool isMinBias() const {return false;};
+  virtual bool isMinBias()  const {return false;};
   virtual bool isResolved() const {return true;};
-  virtual bool isDiffA() const {return false;};
-  virtual bool isDiffB() const {return false;};
+  virtual bool isDiffA()    const {return false;};
+  virtual bool isDiffB()    const {return false;};
 
   // Flavours in 2 -> 2 processes where masses needed from beginning. 
   // (For a light quark masses will be used in the final kinematics,
   // but not at the matrix-element level. For a gluon no masses at all.) 
-  virtual int id3Mass() const {return 0;}
-  virtual int id4Mass() const {return 0;}
+  virtual int id3Mass()     const {return 0;}
+  virtual int id4Mass()     const {return 0;}
 
   // Special treatment needed if process contains an s-channel resonance.
-  virtual int resonanceA() const {return 0;}
-  virtual int resonanceB() const {return 0;}
+  virtual int resonanceA()  const {return 0;}
+  virtual int resonanceB()  const {return 0;}
 
   // Tell whether tHat and uHat are swapped (= same as swap 3 and 4).
-  bool swappedTU() const {return swapTU;}
+  bool swappedTU()          const {return swapTU;}
   
   // Give back particle properties: flavours, colours, masses, or all.
-  int id(int i) const {return idH[i];}
-  int col(int i) const {return colH[i];} 
-  int acol(int i) const {return acolH[i];}
-  double m(int i) const {return mH[i];}
-  Particle getParton(int i) {return parton[i];}
+  int    id(int i)          const {return idH[i];}
+  int    col(int i)         const {return colH[i];} 
+  int    acol(int i)        const {return acolH[i];}
+  double m(int i)           const {return mH[i];}
+  Particle getParton(int i) const {return parton[i];}
 
   // Give back couplings and parton densities. Not all known for minbias.
-  double Q2Ren() const {return Q2RenH;}
-  double alphaEMH() const {return alpEM;}
-  double alphaSH() const {return alpS;}
-  double Q2Fac() const {return Q2FacH;}
-  double pdf1() const {return pdf1H;}
-  double pdf2() const {return pdf2H;}
+  double Q2Ren()            const {return Q2RenH;}
+  double alphaEMH()         const {return alpEM;}
+  double alphaSH()          const {return alpS;}
+  double Q2Fac()            const {return Q2FacH;}
+  double pdf1()             const {return pdf1H;}
+  double pdf2()             const {return pdf2H;}
 
   // Give back angles; relevant only for multipe-interactions processes.
-  double thetaMI() const {return atan2( sinTheta, cosTheta);}
-  double phiMI() const {return phi;}
-  double sHBetaMI() const {return sHBeta;}
-  double pT2MI() const {return pT2Mass;}
-
-  // Remove empty inFlux channels and optionally list remaining ones.
-  void checkChannels() {
-    if (inFluxPtr != 0) inFluxPtr->checkChannels(name());}
+  double thetaMI()          const {return atan2( sinTheta, cosTheta);}
+  double phiMI()            const {return phi;}
+  double sHBetaMI()         const {return sHBeta;}
+  double pT2MI()            const {return pT2Mass;}
 
 protected:
 
@@ -145,20 +144,20 @@ protected:
   SigmaProcess() {inFluxPtr = 0; for (int i = 0; i < 6; ++i) mH[i] = 0.;}
 
   // Static initialization data, normally only set once.
-  static int alphaSorder,alphaEMorder, nQuark;
+  static int    alphaSorder,alphaEMorder, nQuark;
   static double alphaSvalue;
 
   // Static alphaStrong and alphaElectromagnetic calculation.
   static AlphaStrong alphaS;
-  static AlphaEM alphaEM;
+  static AlphaEM     alphaEM;
 
   // Constants: could only be changed in the code itself.
   static const double CONVERT2MB, MASSMARGIN;
 
   // Static information on incoming beams.
-  static int idA, idB;
+  static int    idA, idB;
   static double mA, mB; 
-  static bool hasLeptonBeams;
+  static bool   hasLeptonBeams;
   
   // Static pointer to the total/elastic/diffractive cross section object.
   static SigmaTotal* sigmaTotPtr;
@@ -170,8 +169,8 @@ protected:
   double Q2RenH, alpEM, alpS, Q2FacH, pdf1H, pdf2H;
 
   // Store flavour, colour, anticolour, mass, angles and the whole particle.
-  int idH[6], colH[6], acolH[6];
-  double mH[6], cosTheta, sinTheta, phi, sHMass, sHBeta, pT2Mass;
+  int      idH[6], colH[6], acolH[6];
+  double   mH[6], cosTheta, sinTheta, phi, sHMass, sHBeta, pT2Mass;
   Particle parton[6];
 
   // Pointer to the parton-flux object.
@@ -267,7 +266,7 @@ protected:
   Sigma1Process() {}
 
   // Store subprocess kinematics quantities.
-  int id1, id2, id3;
+  int    id1, id2, id3;
   double x1, x2, sH, sH2;
 
 };
@@ -319,8 +318,8 @@ protected:
   Sigma2Process() {}
 
   // Store subprocess kinematics quantities.
-  bool id12IsSet;
-  int id1, id2, id3, id4;
+  bool   id12IsSet;
+  int    id1, id2, id3, id4;
   double x1, x2, sH, tH, uH, sH2, tH2, uH2, m3, s3, m4, s4, pT2;
 
 };

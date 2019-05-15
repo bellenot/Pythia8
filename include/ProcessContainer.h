@@ -7,7 +7,7 @@
 #define Pythia8_ProcessContainer_H
 
 #include "Basics.h"
-#include "Beams.h"
+#include "BeamParticle.h"
 #include "Event.h"
 #include "Information.h"
 #include "ParticleData.h"
@@ -48,18 +48,21 @@ public:
   // Give the hard subprocess.
   bool constructProcess( Event& process); 
 
+  // Accumulate statistics after user veto.
+  void accumulate() {++nAcc;}
+
   // Process name and code, and the number of final-state particles.
-  string name() const {return sigmaProcessPtr->name();}
-  int code() const {return sigmaProcessPtr->code();}
-  int nFinal() const {return sigmaProcessPtr->nFinal();}
+  string name()      const {return sigmaProcessPtr->name();}
+  int    code()      const {return sigmaProcessPtr->code();}
+  int    nFinal()    const {return sigmaProcessPtr->nFinal();}
 
   // Member functions for info on generation process.
-  double sigmaMax() const {return sigmaMx;}
-  int nTried() const {return nTry;}
-  int nAccepted() const {return nAcc;}
-  double sigmaMC() const {return (nTry == 0) ? 0. : sigmaSum / nTry;}
-  double deltaMC() const {return (nTry <= 1) ? 0. :
-    sqrtpos( (sigma2Sum / nTry - pow2(sigmaSum / nTry)) / nTry );} 
+  double sigmaMax()  const {return sigmaMx;}
+  long   nTried()    const {return nTry;}
+  long   nSelected() const {return nSel;}
+  long   nAccepted() const {return nAcc;}
+  double sigmaMC()  {if (nTry > nTryStat) sigmaDelta(); return sigmaFin;}
+  double deltaMC()  {if (nTry > nTryStat) sigmaDelta(); return deltaFin;} 
 
 private:
 
@@ -76,11 +79,14 @@ private:
   PhaseSpace* phaseSpacePtr;
 
   // Info on process.
-  bool isMinBias, isResolved, isDiffA, isDiffB, hasOctetOnium;
+  bool   isMinBias, isResolved, isDiffA, isDiffB, hasOctetOnium;
 
-  // Statistics on generation process.
-  int nTry, nAcc;  
-  double sigmaMx, sigmaSum, sigma2Sum, sigmaNeg;
+  // Statistics on generation process. (Long integers just in case.)
+  long   nTry, nSel, nAcc, nTryStat;  
+  double sigmaMx, sigmaSum, sigma2Sum, sigmaNeg, sigmaFin, deltaFin;
+
+  // Estimate integrated cross section and its uncertainty. 
+  void sigmaDelta();
 
 };
  

@@ -6,7 +6,8 @@
 #define Pythia8_PartonLevel_H
 
 #include "Basics.h"
-#include "Beams.h"
+#include "BeamParticle.h"
+#include "BeamRemnants.h"
 #include "Event.h"
 #include "Information.h"
 #include "MultipleInteractions.h"
@@ -15,6 +16,7 @@
 #include "Settings.h"
 #include "SpaceShower.h"
 #include "TimeShower.h"
+#include "UserHooks.h"
 
 namespace Pythia8 {
  
@@ -28,14 +30,19 @@ class PartonLevel {
 public:
 
   // Constructor. 
-  PartonLevel() {} 
+  PartonLevel() : userHooksPtr(0) {} 
  
   // Initialization assuming all necessary data already read.
   bool init( Info* infoPtrIn, BeamParticle* beamAPtrIn, 
-    BeamParticle* beamBPtrIn, int strategyIn = 0);
+    BeamParticle* beamBPtrIn,  TimeShower* timesDecPtrIn,
+    TimeShower* timesPtrIn, SpaceShower* spacePtrIn, 
+    int strategyIn = 0, UserHooks* userHooksPtrIn = 0);
  
   // Generate the next parton-level process.
   bool next( Event& process, Event& event); 
+
+  // Tell whether failure was due to vetoing.
+  bool hasVetoed() const {return doVeto;}
 
   // Accumulate and print statistics.
   void accumulate() {multi.accumulate( infoPtr);}
@@ -44,15 +51,19 @@ public:
 private: 
 
   // Initialization data, normally only set once.
-  bool doISR, doMI, doFSRinProcess, doFSRinResonances, doRemnants, 
-    hasLeptonBeams, hasPointLeptons;
+  bool doMI, doISR, doFSRduringProcess, doFSRafterProcess, 
+       doFSRinResonances, doRemnants, hasLeptonBeams, 
+    hasPointLeptons, canVetoPT, canVetoStep;
 
   // Constants: could only be changed in the code itself.
   static const int NTRY;
 
   // Event generation strategy. Number of steps. Maximum pT scales.
-  int strategyLHA, nMI, nISR, nFSRinProc, nFSRinRes;
-  double pTsaveMI, pTsaveISR, pTsaveFSR;
+  bool   doVeto;
+  int    strategyLHA, nMI, nISR, nFSRinProc, nFSRinRes, 
+         nISRhard, nFSRhard, typeLatest, nVetoStep, typeVetoStep, 
+         iSysNow;
+  double pTsaveMI, pTsaveISR, pTsaveFSR, pTvetoPT;
 
   // Pointer to various information on the generation.
   Info* infoPtr;
@@ -61,11 +72,15 @@ private:
   BeamParticle* beamAPtr;
   BeamParticle* beamBPtr;
 
-  // The generator class for timelike showers
-  TimeShower times;
+  // Pointer to userHooks object for user interaction with program.
+  UserHooks* userHooksPtr;
 
-  // The generator class for spacelike showers
-  SpaceShower space;
+  // Pointers to timelike showers for resonance decays and the rest.
+  TimeShower* timesDecPtr;
+  TimeShower* timesPtr;
+
+  // Pointer to spacelike showers.
+  SpaceShower* spacePtr;
 
   // The generator class for multiple interactions.
   MultipleInteractions multi;

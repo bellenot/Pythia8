@@ -53,8 +53,8 @@ SpaceShower:pT0Ref = 3.0           ! dampening of pT -> 0 divergence
 
 ! 6) Modify particle data properties.
 111:mayDecay = off                  ! switch off pi0 decays
-310:0:branchingRatio = 0.6895        ! BR(K0_short -> pi+ pi-)
-310:1:branchingRatio = 0.3105        ! BR(K0_short -> pi0 pi0) 
+310:0:bRatio = 0.6895               ! BR(K0_short -> pi+ pi-)
+310:1:bRatio = 0.3105               ! BR(K0_short -> pi0 pi0) 
 
 ! 7) Completely replace or add new particle. (Here update omega.)
 223:new =  omega  void  0  0  0.78259  0.00849  0.10000  0.0  1  0 

@@ -8,7 +8,7 @@
 #define Pythia8_InFlux_H
 
 #include "Basics.h"
-#include "Beams.h"
+#include "BeamParticle.h"
 #include "PartonDistributions.h"
 #include "PythiaStdlib.h"
 #include "Settings.h"
@@ -28,7 +28,7 @@ public:
   InBeam( int idIn = 0) : id(idIn), pdf(0.) {}
 
   // Values.
-  int id;
+  int    id;
   double pdf;
 
 };
@@ -46,7 +46,7 @@ public:
     fixWeight(1.), varWeight(1.), pdfA(0.), pdfB(0.), fluxWeight(0.) {}
 
   // Values.
-  int idA, idB;
+  int    idA, idB;
   double fixWeight, varWeight, pdfA, pdfB, fluxWeight;
 
 };
@@ -66,7 +66,7 @@ public:
   static void initStatic();
 
   // Initialization: store parton-density pointers. 
-  static void setBeamPtr( BeamParticle* beamAPtrIn, 
+  static void setStaticPtrs( BeamParticle* beamAPtrIn, 
     BeamParticle* beamBPtrIn) {beamAPtr = beamAPtrIn; 
     beamBPtr = beamBPtrIn;} 
 
@@ -107,19 +107,19 @@ public:
   double flux(double x1, double x2, double Q2);
 
   // Information on combination of required partons from the two beams.
-  int nAB() const {return sizePair();}
-  int idA(int i) const {return inPair[i].idA;} 
-  int idB(int i) const {return inPair[i].idB;} 
-  double fixWeightAB(int i) const {return inPair[i].fixWeight;} 
-  double varWeightAB(int i) const {return inPair[i].varWeight;} 
+  int    nAB()               const {return sizePair();}
+  int    idA(int i)          const {return inPair[i].idA;} 
+  int    idB(int i)          const {return inPair[i].idB;} 
+  double fixWeightAB(int i)  const {return inPair[i].fixWeight;} 
+  double varWeightAB(int i)  const {return inPair[i].varWeight;} 
   double fluxWeightAB(int i) const {return inPair[i].fluxWeight;} 
 
   // Pick one of the possible channels according to their weight.
-  void pick();
-  int id1() const {return idNow1;}
-  int id2() const {return idNow2;}
-  double pdf1() const {return pdfNow1;}
-  double pdf2() const {return pdfNow2;}
+  void   pick();
+  int    id1()               const {return idNow1;}
+  int    id2()               const {return idNow2;}
+  double pdf1()              const {return pdfNow1;}
+  double pdf2()              const {return pdfNow2;}
 
 protected:
 
@@ -127,7 +127,7 @@ protected:
   InFlux() {}
 
   // Static initialization data, normally only set once.
-  static int nQuark;
+  static int  nQuark;
   static bool showChannels;
 
   // Static pointers to beams.
@@ -151,7 +151,7 @@ protected:
   int sizePair() const {return inPair.size();}
 
   // Currently picked incoming channel, and flux sum of all channels.
-  int idNow1, idNow2;
+  int    idNow1, idNow2;
   double pdfNow1, pdfNow2, fluxwtSum;
 
 };

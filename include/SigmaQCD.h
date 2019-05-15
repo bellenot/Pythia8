@@ -201,7 +201,7 @@ public:
 private:
 
   // Values stored for colour flow selection.
-  int idNew;
+  int    idNew;
   double mNew, m2New, sigTS, sigUS, sigSum;
 
 };
@@ -359,7 +359,7 @@ public:
  private:
 
   // Values stored for colour flow selection.
-  int idNew;
+  int    idNew;
   double mNew, m2New, sigS;
 
 };
@@ -427,7 +427,7 @@ public:
  private:
 
   // Values stored for process type and colour flow selection.
-  int idNew, codeSave;
+  int    idNew, codeSave;
   string nameSave;
   double sigTS, sigUS, sigSum;
 
@@ -465,7 +465,7 @@ public:
  private:
 
   // Values stored for process type.
-  int idNew, codeSave;
+  int    idNew, codeSave;
   string nameSave;
 
 };

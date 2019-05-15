@@ -197,7 +197,7 @@ public:
 private:
 
   //  Z parameters for propagator. Set flux.
-  int gmZmode;
+  int    gmZmode;
   double mZ, mZS, thetaWRat;
 
 };
@@ -269,7 +269,7 @@ public:
 private:
 
   // Values stored for process type. W parameters for propagator.
-  int idNew, codeSave;
+  int    idNew, codeSave;
   string nameSave;
   double mW, mWS, thetaWRat;
 
@@ -367,7 +367,7 @@ public:
 private:
 
   // Values stored for colour flow selection.
-  int idNew;
+  int    idNew;
   double mNew, m2New, sigS;
 
 };
@@ -446,7 +446,7 @@ private:
 
   // Store partial results of calculation.
   double sigma, Zprop, Zint, cgg, cgZ, cZZ, cfg, cfZ, cff, rat34, lambdaS,
-    intA, intB, gSS, gTT, gST, gUU, gSU, ei, vi, ai;
+         intA, intB, gSS, gTT, gST, gUU, gSU, ei, vi, ai;
 
   // Help routine: evaluate result for given inflavour.
   double helpEvaluate(int id);

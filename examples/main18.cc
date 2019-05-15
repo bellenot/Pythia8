@@ -99,7 +99,7 @@ int main() {
 
   // A class to do random numbers externally. Hand pointer to Pythia.
   RndmEngine* badRndm = new stupidRndm();
-  pythia.rndmEnginePtr( badRndm);
+  pythia.setRndmEnginePtr( badRndm);
 
   // Generate and show some "random" numbers.
   /*
@@ -123,7 +123,8 @@ int main() {
   cout << rndmDist2 << rndmCorr2;
 
   // Initialization for ttbar production at the LHC.
-  pythia.readString("Pythia6:msel = 6");
+  pythia.readString("Top:gg2ttbar = on");
+  pythia.readString("Top:qqbar2ttbar = on");
   pythia.init( 2212, 2212, 14000.);
 
   // Begin event loop.

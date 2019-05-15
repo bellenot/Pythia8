@@ -56,7 +56,7 @@ public:
   static void initStatic();
 
   // Initialize alphaStrong (needed to shower decays to partons).
-  void init() {times.init();}
+  void init(TimeShower* timesDecPtrIn) {timesDecPtr = timesDecPtrIn;}
  
   // Perform a decay of a single particle.
   bool decay(int iDec, Event& event); 
@@ -68,13 +68,13 @@ private:
 
   // Static initialization data, normally only set once.
   static bool limitTau0, limitTau, limitRadius, limitCylinder, limitDecay, 
-    mixB, FSRinDecays;
+               mixB, FSRinDecays;
   static double mSafety, tau0Max, tauMax, rMax, xyMax, zMax, xBdMix, 
-    xBsMix, sigmaSoft, multIncrease, multRefMass, multGoffset, 
-    colRearrange, stopMass, sRhoDal, wRhoDal;
+                xBsMix, sigmaSoft, multIncrease, multRefMass, multGoffset, 
+                colRearrange, stopMass, sRhoDal, wRhoDal;
 
   // Constants: could only be changed in the code itself.
-  static const int NTRYDECAY;
+  static const int    NTRYDECAY;
   static const double MSAFEDALITZ, WTCORRECTION[11];
 
   // Check whether a decay is allowed, given the upcoming decay vertex.
@@ -114,18 +114,18 @@ private:
   ParticleDataEntry* decDataPtr;
 
   // Multiplicity. Decay products positions and masses.
-  int idDec, meMode, mult;
-  vector<int> iProd, idProd, cols, acols, idPartons;
+  int            idDec, meMode, mult;
+  vector<int>    iProd, idProd, cols, acols, idPartons;
   vector<FlavContainer> flavEnds;
   vector<double> mProd, mInv, rndmOrd;
-  vector<Vec4> pInv, pProd;
-  bool hasPartons, keepPartons;    
+  vector<Vec4>   pInv, pProd;
+  bool           hasPartons, keepPartons;    
 
   // Flavour generator; needed when required to pick hadrons.
   StringFlav flavSel;
 
-  // Timelike parton shower, needed when explicit decay to partons.
-  TimeShower times;
+  // Pointers to timelike showers, for decays to partons (e.g. Upsilon).
+  TimeShower* timesDecPtr;
   
 };
  

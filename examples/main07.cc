@@ -21,34 +21,33 @@ int main() {
   pythia.readFile("main07.cmnd");    
 
   // Extract settings to be used in the main program.
-  int idBeamA = settings.mode("Main:idBeamA");
-  int idBeamB = settings.mode("Main:idBeamB");
-  bool inCMframe = settings.flag("Main:inCMframe");
-  double eCM = settings.parm("Main:eCM");
-  double eBeamA = settings.parm("Main:eBeamA");
-  double eBeamB = settings.parm("Main:eBeamB");
-  int nEvent = settings.mode("Main:numberOfEvents");
-  int nList = settings.mode("Main:numberToList");
-  int nShow = settings.mode("Main:timesToShow");
-  int nAbort = settings.mode("Main:timesAllowErrors");
-  bool showChangedSettings = settings.flag("Main:showChangedSettings");
-  bool showAllSettings = settings.flag("Main:showAllSettings");
-  bool showChangedParticleData 
-    = settings.flag("Main:showChangedParticleData");
-  bool showAllParticleData = settings.flag("Main:showAllParticleData");
-  bool showAllStatistics = settings.flag("Main:showAllStatistics");
+  int    idBeamA   = settings.mode("Main:idBeamA");
+  int    idBeamB   = settings.mode("Main:idBeamB");
+  bool   inCMframe = settings.flag("Main:inCMframe");
+  double eCM       = settings.parm("Main:eCM");
+  double eBeamA    = settings.parm("Main:eBeamA");
+  double eBeamB    = settings.parm("Main:eBeamB");
+  int    nEvent    = settings.mode("Main:numberOfEvents");
+  int    nList     = settings.mode("Main:numberToList");
+  int    nShow     = settings.mode("Main:timesToShow");
+  int    nAbort    = settings.mode("Main:timesAllowErrors");
+  bool   showCS    = settings.flag("Main:showChangedSettings");
+  bool   showAS    = settings.flag("Main:showAllSettings");
+  bool   showCPD   = settings.flag("Main:showChangedParticleData");
+  bool   showAPD   = settings.flag("Main:showAllParticleData");
+  bool   showAStat = settings.flag("Main:showAllStatistics");
  
   // Initialization for Pythia6 event input.
   if (inCMframe) pythia.init( idBeamA, idBeamB, eCM);
   else pythia.init( idBeamA, idBeamB, eBeamA, eBeamB);
 
   // List changed data.
-  if (showChangedSettings) settings.listChanged();
-  if (showAllSettings) settings.listAll();
+  if (showCS) settings.listChanged();
+  if (showAS) settings.listAll();
 
   // List particle data.  
-  if (showChangedParticleData) ParticleDataTable::listChanged();
-  if (showAllParticleData) ParticleDataTable::listAll();
+  if (showCPD) ParticleDataTable::listChanged();
+  if (showAPD) ParticleDataTable::listAll();
 
   // Book histograms.
   double pTmax = 20.;
@@ -116,7 +115,7 @@ int main() {
   }
 
   // Final statistics.
-  pythia.statistics(showAllStatistics);
+  pythia.statistics(showAStat);
   cout << nChg << pTspec << bSpec << enhanceSpec << number;
   cout << pTb1 << pTb2 << pTb3 << pTb4;
   cout << bpT1 << bpT2 << bpT3 << bpT4;

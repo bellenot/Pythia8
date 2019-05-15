@@ -22,7 +22,7 @@ int main() {
   pythia.init("ttbar.lhe");      
 
   // Book histogram.
-  Hist nCharged("charged particle multiplicity",100,-0.5,199.5); 
+  Hist nCharged("charged particle multiplicity",100,-0.5,999.5); 
   Hist thetaRatio("ratio of two cos(theta) calculations",100,0.5,1.5); 
 
   // Allow for possibility of a few faulty events.
@@ -38,7 +38,7 @@ int main() {
       if (++iAbort < nAbort) continue;
       break;
     }
- 
+  
     // List first few events: Les Houches, hard process and complete.
     if (iEvent < nPrint) {     
       pythia.LHAevntList();               

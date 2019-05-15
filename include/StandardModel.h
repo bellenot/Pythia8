@@ -41,11 +41,11 @@ private:
   static const int NITER;
 
   // Data members.
-  bool isInit, lastCallToFull;
-  int order;
+  bool   isInit, lastCallToFull;
+  int    order;
   double valueRef, valueNow, scale2Now, Lambda3Save, Lambda4Save, 
-    Lambda5Save, Lambda3Save2, Lambda4Save2, Lambda5Save2, mc, mb, mZ, 
-    mc2, mb2;
+         Lambda5Save, Lambda3Save2, Lambda4Save2, Lambda5Save2, 
+         mc, mb, mZ, mc2, mb2;
 
 };
 
@@ -116,7 +116,8 @@ private:
 
    // Store couplings.
    static double s2tW, c2tW, s2tWbar, efSave[20], vfSave[20], afSave[20],
-     lfSave[20], rfSave[20], ef2Save[20], vf2Save[20], af2Save[20];
+                 lfSave[20], rfSave[20], ef2Save[20], vf2Save[20], 
+                 af2Save[20];
 
 };
 
@@ -144,7 +145,7 @@ public:
 
   // Return sum of squares for given inflavour, or random outflavour.
   static double V2sum(int id) {return V2out[abs(id)];}
-  static int V2pick(int id);
+  static int    V2pick(int id);
   
 private:
 

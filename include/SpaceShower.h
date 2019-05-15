@@ -8,7 +8,7 @@
 #define Pythia8_SpaceShower_H
 
 #include "Basics.h"
-#include "Beams.h"
+#include "BeamParticle.h"
 #include "Event.h"
 #include "Information.h"
 #include "ParticleData.h"
@@ -27,46 +27,31 @@ class SpaceDipoleEnd {
 public:
 
   // Constructor.
-  SpaceDipoleEnd( double pTmaxIn = 0., int sideIn = 0, int colTypeIn = 0, 
-    int chgTypeIn = 0, int MEtypeIn = 0) : pTmax(pTmaxIn), side(sideIn),
+  SpaceDipoleEnd( int systemIn = 0, int sideIn = 0, int iRadiatorIn = 0, 
+    int iRecoilerIn = 0, double pTmaxIn = 0., int colTypeIn = 0, 
+    int chgTypeIn = 0,  int MEtypeIn = 0) : system(systemIn), side(sideIn), 
+    iRadiator(iRadiatorIn), iRecoiler(iRecoilerIn), pTmax(pTmaxIn), 
     colType(colTypeIn), chgType(chgTypeIn), MEtype(MEtypeIn) { }
-
+ 
+  // Store values for trial emission.
+  void store( int idDaughterIn, int idMotherIn, int idSisterIn,   
+    double x1In, double x2In, double m2DipIn, double pT2In, double zIn, 
+    double Q2In, double mSisterIn, double m2SisterIn, double pT2corrIn, 
+    double phiIn) {idDaughter = idDaughterIn; idMother = idMotherIn;
+    idSister = idSisterIn; x1 = x1In; x2 = x2In; m2Dip = m2DipIn;
+    pT2 = pT2In; z = zIn; Q2 = Q2In; mSister = mSisterIn; 
+    m2Sister = m2SisterIn; pT2corr = pT2corrIn; phi = phiIn;}
+ 
   // Basic properties related to evolution and matrix element corrections.
+  int    system, side, iRadiator, iRecoiler;
   double pTmax;
-  int side, colType, chgType, MEtype;
+  int    colType, chgType, MEtype;
   
   // Properties specific to current trial emission.
-  int idMother, idSister;  
-  double pT2, z, Q2, mSister, m2Sister, pT2corr, phi;
+  int    idDaughter, idMother, idSister;  
+  double x1, x2, m2Dip, pT2, z, Q2, mSister, m2Sister, pT2corr, phi;
 
 } ;
- 
-//**************************************************************************
-
-// Data on colliding system, to be used inside SpaceShower.
-
-class SpaceSystem {
-
-public:
-
-  // Constructors.
-  SpaceSystem() {}
-  SpaceSystem( vector<int> iPartonIn) {
-    for (int i = 0; i < int(iPartonIn.size()); ++i) 
-    iParton.push_back( iPartonIn[i] ); }
-
-  // List of partons belonging to dipole system.
-  vector<int> iParton;
-  
-  // Properties of system.
-  int id1, id2; 
-  double m, m2, x1, x2;
-
-  // Four dipole ends: two sides with QCD (0, 1) and QED (2, 3) separate.
-  SpaceDipoleEnd dipEnd[4];
-
-} ;
-
  
 //**************************************************************************
 
@@ -77,69 +62,86 @@ class SpaceShower {
 public:
 
   // Constructor.
-  SpaceShower() {system.reserve(10);}
+  SpaceShower() {}
+
+  // Destructor.
+  virtual ~SpaceShower() {}
 
   // Initialize static data members.
   static void initStatic();
 
   // Initialize generation. Possibility to force re-initialization by hand.
-  void init( BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn);
+  virtual void init( BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn);
 
   // Find whether to limit maximum scale of emissions.
-  bool limitPTmax( Event& event);
+  virtual bool limitPTmax( Event& event);
 
-  // Do it in several steps, for interleaved evolution.
+  // Potential enhancement factor of pTmax scale for hardest emission.
+  virtual double enhancePTmax() {return pTmaxFudge;}
+
   // Prepare system for evolution; identify ME.
-  void prepare( Event& event, bool limitPTmax, int sizeOld = 0);
+  virtual void prepare( int iSys, Event& event, bool limitPTmax = true);
+
+  // Update dipole list after each FSR emission. Currently superfluous.
+  // Usage: update( iSys, event).  
+  virtual void update( int , Event& ) {}
 
   // Select next pT in downwards evolution.
-  double pTnext( double pTbegAll, double pTendAll);
+  virtual double pTnext( Event& event, double pTbegAll, double pTendAll);
 
   // ME corrections and kinematics that may give failure,
-  bool branch( Event& event); 
+  virtual bool branch( Event& event); 
 
-  // Update dipole record, if MI of FSR has occured in between.
-  void update();
+  // Tell which system was the last processed one.
+  int system() const {return iSysSel;} 
 
-private: 
+  // Print dipole list; for debug mainly.
+  virtual void list(ostream& os = cout);
+
+protected:
 
   // Static initialization data, normally only set once.
-  static bool doQCDshower, doQEDshowerByQ, doQEDshowerByL, samePTasMI,
-    doMEcorrections, doPhiPolAsym;
-  static int pTmaxMatch, alphaSorder, alphaEMorder, nQuark;
-  static double mc, mb, m2c, m2b, alphaSvalue, pT0Ref, ecmRef, ecmPow, 
-    pTmin, pTminChgQ, pTminChgL;
+  static bool   doQCDshower, doQEDshowerByQ, doQEDshowerByL, samePTasMI,
+                doMEcorrections, doPhiPolAsym;
+  static int    pTmaxMatch, alphaSorder, alphaEMorder, nQuark;
+  static double pTmaxFudge, mc, mb, m2c, m2b, alphaSvalue, alphaS2pi, 
+                pT0Ref, ecmRef, ecmPow, pTmin, pTminChgQ, pTminChgL;
 
   // Constants: could only be changed in the code itself.
   static const double CTHRESHOLD, BTHRESHOLD, EVALPDFSTEP, TINYPDF, 
-    TINYKERNELPDF, TINYPT2, HEAVYPT2EVOL, HEAVYXEVOL, EXTRASPACEQ,
-    LEPTONXMIN, LEPTONXMAX, LEPTONPT2MIN, LEPTONFUDGE;
-
-  // Other non-static initialization data.
-  double alphaS2pi, Lambda3flav, Lambda4flav, Lambda5flav, 
-    Lambda3flav2, Lambda4flav2, Lambda5flav2, sCM, eCM, pT0, pT20,
-    pT2min, pT2minChgQ, pT2minChgL; 
+                      TINYKERNELPDF, TINYPT2, HEAVYPT2EVOL, HEAVYXEVOL, 
+                      EXTRASPACEQ, LEPTONXMIN, LEPTONXMAX, LEPTONPT2MIN, 
+                      LEPTONFUDGE;
 
   // Pointers to the two incoming beams.
   BeamParticle* beamAPtr;
   BeamParticle* beamBPtr;
 
+  // Store index of last processed system.
+  int iSysSel;
+
+private: 
+
+  // Other non-static initialization data.
+  double Lambda3flav, Lambda4flav, Lambda5flav, Lambda3flav2, 
+         Lambda4flav2, Lambda5flav2, sCM, eCM, pT0, pT20, pT2min, 
+         pT2minChgQ, pT2minChgL; 
+
+  // Some current values.
+  int    iNow, iRec, idDaughter;
+  double xDaughter, x1Now, x2Now, m2Dip;
+
   // alphaStrong and alphaEM calculations.
   AlphaStrong alphaS;
   AlphaEM alphaEM;
 
-  // List of partons in system.
-  vector<int> iParton; 
+  // All dipole ends
+  vector<SpaceDipoleEnd> dipEnd;
 
-  // All (sub)systems.
-  vector<SpaceSystem> system;
-
-  // Pointers to the current and hardest (so far) system and dipole ends.
-  int iSysNow;
-  SpaceSystem* sysNow;
+  // Pointers to the current and hardest (so far) dipole ends.
+  int iDipNow, iSysNow;
   SpaceDipoleEnd* dipEndNow; 
-  int iSysSel;
-  SpaceSystem* sysSel;
+  int iDipSel;
   SpaceDipoleEnd* dipEndSel; 
  
   // Evolve a QCD dipole end. 
@@ -153,7 +155,7 @@ private:
   void pT2nextQED( double pT2begDip, double pT2endDip);
 
   // Find class of ME correction.
-  void findMEtype( Event& event);
+  int findMEtype( int iSys, Event& event);
 
   // Provide maximum of expected ME weight; for preweighting of evolution.
   double calcMEmax( int MEtype, int idMother);

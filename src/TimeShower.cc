@@ -20,11 +20,13 @@ bool   TimeShower::doQEDshowerByL     = true;
 bool   TimeShower::doQEDshowerByGamma = true;
 bool   TimeShower::doMEcorrections    = true;
 bool   TimeShower::doPhiPolAsym       = true;
+bool   TimeShower::allowBeamRecoil    = true;
 int    TimeShower::alphaSorder        = 1;
 int    TimeShower::alphaEMorder       = 1;
 int    TimeShower::nGluonToQuark      = 5;
 int    TimeShower::nGammaToQuark      = 5;
 int    TimeShower::nGammaToLepton     = 3;
+double TimeShower::pTmaxFudge         = 1.0;
 double TimeShower::mc                 = 1.5;
 double TimeShower::mb                 = 4.8;
 double TimeShower::m2c                = 2.25;
@@ -52,6 +54,12 @@ const double TimeShower::SIMPLIFYROOT = 1e-8;
 // Do not allow x too close to 0 or 1 in matrix element expressions.
 const double TimeShower::XMARGIN      = 1e-10;
 
+// Lower limit on PDF value in order to avoid division by zero.
+const double TimeShower::TINYPDF      = 1e-10;
+
+// Big starting value in search for smallest invariant-mass pair.
+const double TimeShower::LARGEM2      = 1e20;
+
 //*********
 
 // Initialize static data members.
@@ -65,6 +73,10 @@ void TimeShower::initStatic() {
   doQEDshowerByGamma = Settings::flag("TimeShower:QEDshowerByGamma");
   doMEcorrections    = Settings::flag("TimeShower:MEcorrections");
   doPhiPolAsym       = Settings::flag("TimeShower:phiPolAsym"); 
+  allowBeamRecoil    = Settings::flag("TimeShower:allowBeamRecoil"); 
+
+  // Matching in pT of hard interaction to shower evolution.
+  pTmaxFudge         = Settings::parm("TimeShower:pTmaxFudge"); 
 
   // Charm and bottom mass thresholds.
   mc                 = ParticleDataTable::m0(4); 
@@ -111,7 +123,12 @@ void TimeShower::initStatic() {
 
 // Initialize alphaStrong, alphaEM and related pTmin parameters.
 
-void TimeShower::init() {
+void TimeShower::init( BeamParticle* beamAPtrIn, 
+  BeamParticle* beamBPtrIn) {
+
+  // Store input pointers for future use. 
+  beamAPtr     = beamAPtrIn;
+  beamBPtr     = beamBPtrIn;
 
   // Initialize alphaStrong generation.
   alphaS.init( alphaSvalue, alphaSorder); 
@@ -123,26 +140,33 @@ void TimeShower::init() {
   Lambda5flav2 = pow2(Lambda5flav);
   Lambda4flav2 = pow2(Lambda4flav);
   Lambda3flav2 = pow2(Lambda3flav);
+
+  // Initialize alphaEM generation.
+  alphaEM.init( alphaEMorder); 
  
   // Parameters of QCD evolution. 
   pTcolCut     = max( pTcolCutMin, 1.1 * Lambda3flav );
   pT2colCut    = pow2(pTcolCut);  
 
-  // Initialize alphaEM generation.
-  alphaEM.init( alphaEMorder); 
-
 }
 
 //*********
 
-// Top-level driver routine to do a single time-like shower. Used e.g. in 
-// resonance decays, with showers decoupled from the rest of the event
-// Input provided by range of involved partons.
+// Top-level routine to do a full time-like shower in resonance decay.
 
-int TimeShower::shower( Event& event, int iBeg, int iEnd, double pTmax) {
+int TimeShower::shower( int iBeg, int iEnd, Event& event, double pTmax) {
 
-  // Prepare system for evolution.
-  prepare( event, iBeg, iEnd);
+  // Add new system, with two empty beam slots.
+  int iSys = event.newSystem();
+  event.addToSystem( iSys, 0);
+  event.addToSystem( iSys, 0);
+    
+  // Loop over allowed range to find all final-state particles.
+  for (int i = iBeg; i <= iEnd; ++i) 
+  if (event[i].isFinal()) event.addToSystem( iSys, i);
+
+  // Let prepare routine do the setup.    
+  prepare( iSys, event);
 
   // Begin evolution down in pT from hard pT scale. 
   int nBranch = 0;
@@ -150,12 +174,12 @@ int TimeShower::shower( Event& event, int iBeg, int iEnd, double pTmax) {
     double pTtimes = pTnext( event, pTmax, 0.);
 
     // Do a final-state emission (if allowed).
-    if (pTtimes > 0) {
+    if (pTtimes > 0.) {
       if (branch( event)) ++nBranch; 
       pTmax = pTtimes;
     }
     
-  // Keep on evolving until nothing is left to be done.
+    // Keep on evolving until nothing is left to be done.
     else pTmax = 0.;
   } while (pTmax > 0.); 
 
@@ -167,132 +191,276 @@ int TimeShower::shower( Event& event, int iBeg, int iEnd, double pTmax) {
 //*********
 
 // Prepare system for evolution; identify ME.
-// Still to handle: resonance -> 3, strings to remnant, etc.
 
-void TimeShower::prepare( Event& event, int iBegIn, int iEndIn) {
+void TimeShower::prepare( int iSys, Event& event) {
 
-  // Reset list of radiating dipole ends.
-  dipole.clear();
+  // Reset dipole-ends list for first interaction and for resonance decays.
+  if (iSys == 0 || event.getInSystem( iSys, 0) == 0) dipEnd.resize(0);
+  int dipEndSizeBeg = dipEnd.size();
+ 
+  // Loop through final state of system to find possible dipole ends.
+  for (int i = 2; i < event.sizeSystem( iSys); ++i) {
+    int iRad = event.getInSystem( iSys, i);
+    if (event[iRad].isFinal() && event[iRad].scale() > 0.) {
 
-  // Range to be covered: provided or (default) all.
-  int iBeg = (iBegIn > 0) ? iBegIn : 0;
-  int iEnd = (iEndIn > 0) ? iEndIn + 1 : event.size();  
+      // Identify colour octet onium state. Check whether QCD shower allowed.
+      int idRad = event[iRad].id();
+      bool isOctetOnium 
+        = ( idRad == 9900441 || idRad == 9900443 || idRad == 9910441 
+         || idRad == 9900551 || idRad == 9900553 || idRad == 9910551 ); 
+      bool doQCD = doQCDshower;
+      if (doQCD && isOctetOnium) doQCD = (Rndm::flat() < octetOniumFraction);
 
-  // If only two decay products of resonance then relative recoilers.
-  bool isRes2Two = (iEndIn - iBegIn == 1);  
+      // Find dipole end formed by colour index.
+      int colTag = event[iRad].col();    
+      if (doQCD && colTag > 0) setupQCDdip( iSys, i, colTag, 1, event); 
 
-  // Loop through event record to find possible dipole ends.
-  for (int iRad = iBeg; iRad < iEnd; ++iRad) 
-  if (event[iRad].isFinal() && event[iRad].scale() > 0.) {
+      // Find dipole end formed by anticolour index.
+      int acolTag = event[iRad].acol();     
+      if (doQCD && acolTag > 0) setupQCDdip( iSys, i, acolTag, -1, event); 
 
-    // Identify colour octet onium state. Check whether QCD shower allowed.
-    int idRad = event[iRad].id();
-    bool isOctetOnium 
-      = ( idRad == 9900441 || idRad == 9900443 || idRad == 9910441 
-       || idRad == 9900551 || idRad == 9900553 || idRad == 9910551 ); 
-    bool doQCD = doQCDshower;
-    if (doQCD && isOctetOnium) doQCD = (Rndm::flat() < octetOniumFraction);
+      // Find "charge-dipole" and "photon-dipole" ends. 
+      int  chgType  = event[iRad].chargeType();  
+      bool doChgDip = (chgType != 0) 
+                       && ( ( doQEDshowerByQ && event[iRad].isQuark()  )
+                         || ( doQEDshowerByL && event[iRad].isLepton() ) );
+      int  gamType  = (event[iRad].id() == 22) ? 1 : 0;
+      bool doGamDip = (gamType == 1) && doQEDshowerByGamma;
+      if (doChgDip || doGamDip) setupQEDdip( iSys, i, chgType, gamType, event); 
 
-    // Find dipole end formed by colour index.
-    int colTag = event[iRad].col();     
-    if (doQCD && colTag > 0) { 
-      for (int iRec = iBeg; iRec < iEnd; ++iRec) {
-        if ( iRec != iRad && event[iRec].isFinal() 
-        && (isRes2Two || event[iRec].acol() == colTag) ) {
-          double pTmax = event[iRad].scale();
-          int colType  = (event[iRad].id() == 21) ? 2 : 1;
-          dipole.push_back( 
-            TimeDipoleEnd(iRad, iRec, pTmax, colType, 0, 0, -1) );
-	}  
+    // End loop over system final state. Have now found the dipole ends.
+    }
+  }
+
+  // Loop through dipole ends to find matrix element corrections.
+  for (int iDip = dipEndSizeBeg; iDip < int(dipEnd.size()); ++iDip) 
+    findMEtype( event, dipEnd[iDip]); 
+
+}
+
+//*********
+
+// Update dipole list after each ISR emission (so not used for resonances).  
+
+void TimeShower::update( int iSys, Event& event) {
+
+  // Find new and old positions of partons in the system.
+  vector<int> iNew, iOld;
+  int size = event.sizeSystem( iSys) - 1;  
+  for (int i = 0; i < size; ++i) {
+    iNew.push_back( event.getInSystem( iSys, i) );
+    if (i < 2) iOld.push_back( event[iNew[i]].daughter2() );
+    else       iOld.push_back( event[iNew[i]].mother1() );
+  }
+  int iNewNew = event.getInSystem( iSys, size);
+  
+  // Swap beams to let 0 be side on which branching occured. 
+  if (event[iNew[0]].status() != -41) {
+    swap( iNew[0], iNew[1]);   
+    swap( iOld[0], iOld[1]);   
+  }
+
+  // Loop over all dipole ends belonging to the system.
+  for (int iDip = 0; iDip < int(dipEnd.size()); ++iDip) 
+  if (dipEnd[iDip].system == iSys) {
+    TimeDipoleEnd& dipNow = dipEnd[iDip];
+
+    // Replace radiator (always in final state so simple).
+    for (int i = 2; i < size; ++i) 
+    if (dipNow.iRadiator == iOld[i]) { 
+      dipNow.iRadiator = iNew[i];
+      break;
+    }
+
+    // Replace ME partner (always in final state, if exists, so simple).
+    for (int i = 2; i < size; ++i) 
+    if (dipNow.iMEpartner == iOld[i]) { 
+      dipNow.iMEpartner = iNew[i];
+      break;
+    }
+
+    // Recoiler: by default pick old one, only moved. Note excluded beam.
+    int iRec = 0;
+    for (int i = 1; i < size; ++i) 
+    if (dipNow.iRecoiler == iOld[i]) { 
+      iRec = iNew[i];
+      break;
+    }
+
+    // QCD recoiler: check if colour hooks up with new final parton.
+    if ( dipNow.colType > 0 
+      && event[dipNow.iRadiator].col() == event[iNewNew].acol() ) { 
+      iRec = iNewNew;
+      dipNow.isrType = 0;
+    }
+    if ( dipNow.colType < 0 
+      && event[dipNow.iRadiator].acol() == event[iNewNew].col() ) { 
+      iRec = iNewNew;
+      dipNow.isrType = 0;
+    }
+      
+    // QCD recoiler: check if colour hooks up with new beam parton.
+    if ( iRec == 0 && dipNow.colType > 0 
+      && event[dipNow.iRadiator].col() == event[iNew[0]].col() )
+      iRec = iNew[0];
+    if ( iRec == 0 && dipNow.colType < 0 
+      && event[dipNow.iRadiator].acol() == event[iNew[0]].acol() ) 
+      iRec = iNew[0];
+
+    // QED/photon recoiler: either to new particle or remains to beam.
+    if ( iRec == 0 && (dipNow.chgType != 0 || dipNow.gamType != 0) ) {
+      if ( event[iNew[0]].chargeType() == 0 ) {
+        iRec = iNewNew;
+        dipNow.isrType = 0;
+      } else {
+        iRec = iNew[0];
       }
     }
 
-    // Find dipole end formed by anticolour index.
-    int acolTag = event[iRad].acol();     
-    if (doQCD && acolTag > 0) { 
-      for (int iRec = iBeg; iRec < iEnd; ++iRec) {
-        if (iRec != iRad && event[iRec].isFinal() 
-        && (isRes2Two || event[iRec].col() == acolTag) ) {
-          double pTmax = event[iRad].scale();
-          int colType  = (event[iRad].id() == 21) ? -2 : -1;
-          dipole.push_back( 
-            TimeDipoleEnd(iRad, iRec, pTmax, colType, 0, 0, -1) );
-	}  
-      }
+    // Done. Kill dipole if failed to find new recoiler. 
+    dipNow.iRecoiler = iRec;
+    if (iRec == 0) {
+      dipNow.colType = 0;
+      dipNow.chgType = 0;
+      dipNow.gamType = 0; 
+      ErrorMsg::message("Error in TimeShower::update: "
+      "failed to locate new recoiling partner");
+    } 
+  }
+  
+  // Find new dipole end formed by colour index.
+  int colTag = event[iNewNew].col();     
+  if (doQCDshower && colTag > 0) setupQCDdip( iSys, size, colTag, 1, event); 
+  
+  // Find new dipole end formed by anticolour index.
+  int acolTag = event[iNewNew].acol();     
+  if (doQCDshower && acolTag > 0) setupQCDdip( iSys, size, acolTag, -1, event); 
+
+  // Find new "charge-dipole" and "photon-dipole" ends. 
+  int  chgType  = event[iNewNew].chargeType();  
+  bool doChgDip = (chgType != 0) 
+                  && ( ( doQEDshowerByQ && event[iNewNew].isQuark()  )
+                    || ( doQEDshowerByL && event[iNewNew].isLepton() ) );
+  int  gamType  = (event[iNewNew].id() == 22) ? 1 : 0;
+  bool doGamDip = (gamType == 1) && doQEDshowerByGamma;
+  if (doChgDip || doGamDip) setupQEDdip( iSys, size, chgType, gamType, event); 
+
+}
+
+//*********
+
+// Setup a dipole end for a QCD colour charge.
+
+void TimeShower::setupQCDdip( int iSys, int i, int colTag, int colSign, 
+  Event& event) {
+ 
+  // Initial values. Find if allowed to hook up beams.
+  int iRad = event.getInSystem( iSys, i);
+  int iRec = 0;
+  int size = event.sizeSystem( iSys);
+  int jMin = ( allowBeamRecoil && (event.getInSystem( iSys, 0) > 0)
+    && (event.getInSystem( iSys, 1) > 0) ) ? 0 : 2;
+
+  // Colour: other end by same index in beam or opposite in final state.
+  if (colSign > 0) 
+  for (int j = jMin; j < size; ++j) if (j != i) {
+    int iRecNow = event.getInSystem( iSys, j);
+    if ( (j < 2 && event[iRecNow].col()  == colTag)
+      || (i > 1 && event[iRecNow].acol() == colTag) ) { 
+      iRec = iRecNow;
+      break;
     }
+  }
 
-    // Find charge-dipole ends. Still preliminary??
-    int chgType = event[iRad].chargeType();     
-    if ( chgType != 0 && ( ( doQEDshowerByQ && event[iRad].isQuark() )  
-      || ( doQEDshowerByL && event[iRad].isLepton() ) ) ) { 
-      vector<int> sisterList = event.sisterListTopBot(iRad);
-      if (sisterList.size() == 0)
-        ErrorMsg::message("Error in TimeShower::prepare: "
-          "failed to locate recoiling sister to charge"); 
-      else {         
-        int iRec = sisterList[0];
-        // If several sisters find their charges.
-        if (sisterList.size() > 1) {
-          vector<int>    sisterCharge;
-          vector<double> sisterWeight;
-          for (int i = 0; i < int(sisterList.size()); ++i) {
-            sisterCharge.push_back( event[sisterList[i]].chargeType() );    
-            sisterWeight.push_back( 0. );
-	  }          
-          // Match, in decreasing priority, to (i) exactly opposite charge,
-          // or (ii) charge-weighted opposite, or (iii) any sister.
-          double sisterWeightSum = 0.;
-          for (int i = 0; i < int(sisterList.size()); ++i) 
-          if (sisterCharge[i] + chgType == 0) {
-            sisterWeight[i]  = 1.;
-            sisterWeightSum += 1.;
-	  }  
-          if (sisterWeightSum == 0.) 
-          for (int i = 0; i < int(sisterList.size()); ++i) 
-          if (sisterCharge[i] * chgType < 0) {
-            sisterWeight[i]  = abs(sisterCharge[i]);
-            sisterWeightSum += sisterWeight[i];
-	  }  
-          if (sisterWeightSum == 0.) 
-          for (int i = 0; i < int(sisterList.size()); ++i) {
-            sisterWeight[i]  = 1.;
-            sisterWeightSum += 1.;
-	  }  
-          // Pick according to probabilities above. Fill dipole.
-          sisterWeightSum *= Rndm::flat();
-          for (int i = 0; i < int(sisterList.size()); ++i) {
-            iRec = sisterList[i];
-            sisterWeightSum -= sisterWeight[i];
-            if (sisterWeightSum < 0.) break;
-	  } 
-	}
-        double pTmax = event[iRad].scale();
-        dipole.push_back( 
-          TimeDipoleEnd(iRad, iRec, pTmax, 0, chgType, 0, -1) );
-      }
+  // Anticolour: other end by same index in beam or opposite in final state.
+  if (colSign < 0) 
+  for (int j = jMin; j < size; ++j) if (j != i) {
+    int iRecNow = event.getInSystem( iSys, j);
+    if ( (j < 2 && event[iRecNow].acol()  == colTag)
+      || (i > 1 && event[iRecNow].col() == colTag) ) { 
+      iRec = iRecNow;
+      break;
     }
+  }
 
-    // Find photons and put them at dipole with (one of) sister(s).
-    if (doQEDshowerByGamma && event[iRad].id() == 22) { 
-      vector<int> sisterList = event.sisterListTopBot(iRad);
-      if (sisterList.size() == 0)
-        ErrorMsg::message("Error in TimeShower::prepare: "
-          "failed to locate recoiling sister to photon"); 
-      else {         
-        int iRecRndm = int( sisterList.size() * Rndm::flat() );
-        int iRec = sisterList[iRecRndm];
-        double pTmax = event[iRad].scale();
-        dipole.push_back( 
-          TimeDipoleEnd(iRad, iRec, pTmax, 0, 0, 1, -1) );
-      }  
-    }
+  // If fail, then other end to nearest recoiler in final state,
+  // by (p_i + p_j)^2 - (m_i + m_j)^2 = 2 (p_i p_j - m_i m_j).
+  if (iRec == 0) {
+    double ppMin = LARGEM2; 
+    for (int j = 2; j < size; ++j) if (j != i) { 
+      int iRecNow = event.getInSystem( iSys, j);
+      double ppNow = event[iRecNow].p() * event[iRad].p() 
+                   - event[iRecNow].m() * event[iRad].m();
+      if (ppNow < ppMin) {
+        iRec  = iRecNow;
+        ppMin = ppNow;
+      } 
+    }     
+  }
 
-  // End event record loop. Have now found the dipole ends.
-  } 
+  // Store dipole colour end.
+  if (iRec > 0) { 
+    double pTmax = event[iRad].scale();
+    if (iSys == 0) pTmax *= pTmaxFudge;
+    int colType  = (event[iRad].id() == 21) ? 2 * colSign : colSign;
+    int isrType  = (event[iRec].isFinal()) ? 0 : event[iRec].mother1();
+    dipEnd.push_back( TimeDipoleEnd( iRad, iRec, pTmax, 
+      colType, 0, 0, isrType, iSys, -1) );
+  }
 
-  // Now loop through dipole ends to find matrix element corrections.
-  for (int iDip = 0; iDip < int(dipole.size()); ++iDip) 
-    findMEtype( event, dipole[iDip]); 
+}
+
+//*********
+
+// Setup a dipole end for a QED colour charge or a photon.
+
+void TimeShower::setupQEDdip( int iSys, int i, int chgType, int gamType, 
+  Event& event) {
+ 
+  // Initial values. Find if allowed to hook up beams.
+  int iRad = event.getInSystem( iSys, i);
+  int iRec = 0;
+  int size = event.sizeSystem( iSys);
+  int jMin = ( allowBeamRecoil && (event.getInSystem( iSys, 0) > 0)
+    && (event.getInSystem( iSys, 1) > 0) ) ? 0 : 2;
+
+  // Find nearest recoiler, charge-squared-weighted 
+  // (p_i + p_j)^2 - (m_i + m_j)^2 = 2 (p_i p_j - m_i m_j).
+  double ppMin = LARGEM2; 
+  for (int j = jMin; j < size; ++j) if (j != i) {
+    int iRecNow = event.getInSystem( iSys, j);
+    int chgTypeRecNow = event[iRecNow].chargeType(); 
+    if (chgTypeRecNow != 0) {
+      double ppNow = (event[iRecNow].p() * event[iRad].p() 
+                   -  event[iRecNow].m() * event[iRad].m()) 
+                   / pow2(chgTypeRecNow);
+      if (ppNow < ppMin) {
+        iRec  = iRecNow;
+        ppMin = ppNow;
+      } 
+    }     
+  }
+
+  // If fail find any nearest recoiler in final state.
+  if (iRec == 0) 
+  for (int j = 2; j < size; ++j) if (j != i) {
+    int iRecNow = event.getInSystem( iSys, j);
+    double ppNow = event[iRecNow].p() * event[iRad].p() 
+                 - event[iRecNow].m() * event[iRad].m(); 
+    if (ppNow < ppMin) {
+      iRec  = iRecNow;
+      ppMin = ppNow;
+    }     
+  }
+ 
+  // Fill charge-dipole or photon-dipole end.
+  if (iRec > 0) { 
+    double pTmax = event[iRad].scale();
+    if (iSys == 0) pTmax *= pTmaxFudge;
+    int isrType = (event[iRec].isFinal()) ? 0 : event[iRec].mother1();
+    dipEnd.push_back( TimeDipoleEnd(iRad, iRec, pTmax, 
+      0, chgType, gamType, isrType, iSys, -1) );
+  }
 
 }
 
@@ -305,8 +473,8 @@ double TimeShower::pTnext( Event& event, double pTbegAll, double pTendAll) {
   // Begin loop over all possible radiating dipole ends.
   dipSel = 0;
   double pT2sel = pTendAll * pTendAll;
-  for (int iDip = 0; iDip < int(dipole.size()); ++iDip) {
-    TimeDipoleEnd& dip = dipole[iDip]; 
+  for (int iDip = 0; iDip < int(dipEnd.size()); ++iDip) {
+    TimeDipoleEnd& dip = dipEnd[iDip]; 
    
     // Dipole properties. (Could partly be moved up to prepare??)
     dip.mRad  = event[dip.iRadiator].m(); 
@@ -325,9 +493,9 @@ double TimeShower::pTnext( Event& event, double pTbegAll, double pTendAll) {
     dip.pT2 = 0.;
     if (pT2begDip > pT2sel) {
       if      (dip.colType != 0) 
-        pT2nextQCD(pT2begDip, pT2sel, dip);
+        pT2nextQCD(pT2begDip, pT2sel, dip, event);
       else if (dip.chgType != 0 || dip.gamType != 0)                 
-        pT2nextQED(pT2begDip, pT2sel, dip);
+        pT2nextQED(pT2begDip, pT2sel, dip, event);
 
       // Update if found larger pT than current maximum.
       if (dip.pT2 > pT2sel) {
@@ -347,7 +515,7 @@ double TimeShower::pTnext( Event& event, double pTbegAll, double pTendAll) {
 // Evolve a QCD dipole end. 
 
 void TimeShower::pT2nextQCD(double pT2begDip, double pT2sel, 
-  TimeDipoleEnd& dip) { 
+  TimeDipoleEnd& dip, Event& event) { 
 
   // Lower cut for evolution. Return if no evolution range.
   double pT2endDip = max( pT2sel, pT2colCut );   
@@ -485,6 +653,23 @@ void TimeShower::pT2nextQCD(double pT2begDip, double pT2sel,
           double beta  = sqrtpos( 1. - 4. * pow2(dip.mFlavour) / dip.m2 );
           wt = beta * ( pow2(dip.z) + pow2(1. - dip.z) );
         }
+
+        // For dipole to beam remnant reduce by PDF ratio (approximate!??).
+        if (dip.isrType != 0) {
+          BeamParticle& beam = (dip.isrType == 1) ? *beamAPtr : *beamBPtr;
+          int iSys    = dip.system;
+          double xOld = beam[iSys].x();
+          double xNew = xOld * (1. + (dip.m2 - dip.m2Rad) / 
+            (dip.m2Dip - dip.m2Rad));
+          if (xNew > beam.xMax(iSys)) wt = 0.;              
+          else {
+            int idRec     = event[dip.iRecoiler].id();
+            double pdfOld = max ( TINYPDF, 
+                            beam.xfISR( iSys, idRec, xOld, dip.pT2) ); 
+            double pdfNew = beam.xfISR( iSys, idRec, xNew, dip.pT2); 
+            wt *= min( 1., pdfNew / pdfOld); 
+	  }
+        }
       }
     }
 
@@ -498,7 +683,7 @@ void TimeShower::pT2nextQCD(double pT2begDip, double pT2sel,
 // Evolve a QED dipole end, either charged or photon. 
 
 void TimeShower::pT2nextQED(double pT2begDip, double pT2sel, 
-  TimeDipoleEnd& dip) { 
+  TimeDipoleEnd& dip, Event& event) { 
 
   // Lower cut for evolution. Return if no evolution range.
   double pT2chgCut = (dip.chgType != 0 && abs(dip.chgType) != 3)
@@ -574,12 +759,12 @@ void TimeShower::pT2nextQED(double pT2begDip, double pT2sel,
       // For gamma -> f fbar also impose maximum mass.
       && (hasCharge || dip.m2 < m2MaxGamma) ) {
 
-      // Emission: unique flavour choice.
+      // Photon emission: unique flavour choice.
       if (hasCharge) {
         dip.flavour = 22;
         dip.mFlavour = 0.;
 
-      // Branching: either lepton or quark flavour choice.   
+      // Photon branching: either lepton or quark flavour choice.   
       } else {
         if (Rndm::flat() * chg2Sum < chg2SumL)  
           dip.flavour  = 9 + 2 * min(3, 1 + int(chg2SumL * Rndm::flat()));
@@ -607,11 +792,28 @@ void TimeShower::pT2nextQED(double pT2begDip, double pT2sel,
         double beta  = sqrtpos( 1. - 4. * pow2(dip.mFlavour) / dip.m2 );
         wt = beta * ( pow2(dip.z) + pow2(1. - dip.z) );
       }
-    }
 
-    // Correct to current value of alpha_EM.
-    double alphaEMnow = alphaEM.alphaEM(dip.pT2);
-    wt *= (alphaEMnow / alphaEMmax);
+      // Correct to current value of alpha_EM.
+      double alphaEMnow = alphaEM.alphaEM(dip.pT2);
+      wt *= (alphaEMnow / alphaEMmax);
+
+      // For dipole to beam remnant reduce by PDF ratio (approximate!??).
+      if (dip.isrType != 0) {
+        BeamParticle& beam = (dip.isrType == 1) ? *beamAPtr : *beamBPtr;
+        int iSys    = dip.system;
+        double xOld = beam[iSys].x();
+        double xNew = xOld * (1. + (dip.m2 - dip.m2Rad) / 
+          (dip.m2Dip - dip.m2Rad));
+        if (xNew > beam.xMax(iSys)) wt = 0.;
+        else {
+          int idRec     = event[dip.iRecoiler].id();
+          double pdfOld = max ( TINYPDF, 
+                          beam.xfISR( iSys, idRec, xOld, dip.pT2) ); 
+          double pdfNew = beam.xfISR( iSys, idRec, xNew, dip.pT2); 
+          wt *= min( 1., pdfNew / pdfOld); 
+        }
+      }
+    }
 
   // Iterate until acceptable pT (or have fallen below pTmin).
   } while (wt < Rndm::flat());  
@@ -640,6 +842,7 @@ bool TimeShower::branch( Event& event) {
   int acolRad = radBef.acol();
   int colEmt  = 0;
   int acolEmt = 0;
+  iSysSel     = dipSel->system;
 
   // Default OK for photon emission.
   if (dipSel->flavour == 22) { 
@@ -744,14 +947,23 @@ bool TimeShower::branch( Event& event) {
     } 
   } while (wtPhi < Rndm::flat()) ;
 
+  // Kinematics when recoiler is initial-state parton.
+  int isrTypeNow = dipSel->isrType;
+  if (isrTypeNow != 0) pRec = 2. * recBef.p() - pRec;
+
   // Define new particles from dipole branching.
   double pTsel = sqrt(dipSel->pT2);
   Particle rad = Particle(idRad, 51, iRadBef, 0, 0, 0, 
     colRad, acolRad, pRad, mRad, pTsel); 
   Particle emt = Particle(idEmt, 51, iRadBef, 0, 0, 0,
     colEmt, acolEmt, pEmt, mEmt, pTsel);
-  Particle rec = Particle(recBef.id(), 52, iRecBef, iRecBef, 0, 0, 
-    recBef.col(), recBef.acol(), pRec, dipSel->mRec, pTsel); 
+
+  // Recoiler either in final or in initial state
+  Particle rec = (isrTypeNow == 0)
+    ? Particle(recBef.id(),  52, iRecBef, iRecBef, 0, 0, 
+      recBef.col(), recBef.acol(), pRec, dipSel->mRec, pTsel) 
+    : Particle(recBef.id(), -53, 0, 0, iRecBef, iRecBef, 
+      recBef.col(), recBef.acol(), pRec, 0., 0.); 
 
   // ME corrections can lead to branching being rejected.
   if (dipSel->MEtype > 0) {
@@ -766,50 +978,83 @@ bool TimeShower::branch( Event& event) {
   int iEmt = event.append(emt);
   int iRec = event.append(rec);
 
-  // Mark original dipole partons as branched and set daughters.
+  // Mark original dipole partons as branched and set daughters/mothers.
   event[dipSel->iRadiator].statusNeg();
   event[dipSel->iRadiator].daughters( iRad, iEmt); 
-  event[dipSel->iRecoiler].statusNeg();
-  event[dipSel->iRecoiler].daughters( iRec, iRec);
-  
+  if (isrTypeNow == 0) {
+    event[dipSel->iRecoiler].statusNeg();
+    event[dipSel->iRecoiler].daughters( iRec, iRec);
+  } else {
+    int mother1 = event[dipSel->iRecoiler].mother1();  
+    int mother2 = event[dipSel->iRecoiler].mother2();  
+    event[dipSel->iRecoiler].mothers( iRec, iRec);
+    event[iRec].mothers( mother1, mother2);  
+    if (mother1 == 1) event[1].daughter1( iRec);  
+    if (mother1 == 2) event[2].daughter1( iRec);  
+    // For initial-state recoiler also update beam info.
+    BeamParticle& beamRec = (mother1 == 1) ? *beamAPtr : *beamBPtr;
+    double xRec = pRec.e() / beamRec.e(); 
+    beamRec[iSysSel].iPos( iRec);
+    beamRec[iSysSel].x( xRec); 
+  }
+
   // Photon emission: update to new dipole ends; add new photon "dipole".
   if (dipSel->flavour == 22) { 
     dipSel->iRadiator = iRad;
     dipSel->iRecoiler = iRec;
     dipSel->pTmax = pTsel;
-    if (doQEDshowerByGamma) 
-      dipole.push_back( TimeDipoleEnd(iEmt, iRad, pTsel, 0, 0, 1, 0));
+    if (doQEDshowerByGamma) dipEnd.push_back( TimeDipoleEnd(iEmt, iRad, 
+      pTsel, 0, 0, 1, 0, iSysSel, 0));
  
   // Gluon emission: update both dipole ends and add two new ones.
   } else if (dipSel->flavour == 21) { 
     dipSel->iRadiator = iRad;
     dipSel->iRecoiler = iEmt;
-    dipSel->pTmax = pTsel;
-    for (int i = 0; i < int(dipole.size()); ++i) {
-      if (dipole[i].iRadiator == iRecBef && dipole[i].iRecoiler == iRadBef 
-        && dipole[i].colType != 0) {
-        dipole[i].iRadiator = iRec;
-        dipole[i].iRecoiler = iEmt;
-        dipole[i].pTmax = pTsel;
+    dipSel->isrType   = 0;
+    dipSel->pTmax     = pTsel;
+    for (int i = 0; i < int(dipEnd.size()); ++i) {
+      if (dipEnd[i].iRadiator == iRecBef && dipEnd[i].iRecoiler == iRadBef 
+        && dipEnd[i].colType != 0) {
+        dipEnd[i].iRadiator = iRec;
+        dipEnd[i].iRecoiler = iEmt;
+        // Strive to match colour to anticolour inside closed system.
+        if (dipEnd[i].colType * dipSel->colType > 0) 
+          dipEnd[i].iRecoiler = iRad;
+        dipEnd[i].pTmax = pTsel;
       }
     }
     int colType = (dipSel->colType > 0) ? 2 : -2 ;
-    dipole.push_back( TimeDipoleEnd(iEmt, iRec, pTsel, colType, 0, 0, 0));
-    dipole.push_back( TimeDipoleEnd(iEmt, iRad, pTsel, -colType, 0, 0, 0));
+    dipEnd.push_back( TimeDipoleEnd(iEmt, iRec, pTsel,  
+       colType, 0, 0, isrTypeNow, iSysSel, 0));
+    dipEnd.push_back( TimeDipoleEnd(iEmt, iRad, pTsel, 
+      -colType, 0, 0, 0, iSysSel, 0));
 
   // Gluon branching to q qbar: update current dipole and other of gluon.
   } else if (dipSel->colType != 0) {
-    for (int i = 0; i < int(dipole.size()); ++i) {
-      if (dipole[i].iRadiator == iRadBef && abs(dipole[i].colType) == 2) {
-        dipole[i].colType /= 2;
-        dipole[i].MEtype = 6;
-        if ( &dipole[i] == dipSel ) dipole[i].iMEpartner = iRad;
-        else dipole[i].iMEpartner = iEmt;
+    for (int i = 0; i < int(dipEnd.size()); ++i) {
+      if (dipEnd[i].iRadiator == iRadBef && abs(dipEnd[i].colType) == 2) {
+        dipEnd[i].colType /= 2;
+        dipEnd[i].MEtype = 6;
+        if (&dipEnd[i] == dipSel) dipEnd[i].iMEpartner = iRad;
+        else                      dipEnd[i].iMEpartner = iEmt;
       }
+      // Strive to match colour to anticolour inside closed system.
+      if ( dipEnd[i].iRecoiler == iRadBef 
+        && dipEnd[i].colType * dipSel->colType < 0 ) 
+        dipEnd[i].iRecoiler = iEmt;
     }
     dipSel->iRadiator = iEmt;
     dipSel->iRecoiler = iRec;
-    dipSel->pTmax = pTsel;
+    dipSel->pTmax     = pTsel;
+
+    // Gluon branching to q qbar: also add two charge dipole ends.
+    if (doQEDshowerByQ) {
+      int chgType = event[iRad].chargeType(); 
+      dipEnd.push_back( TimeDipoleEnd(iRad, iEmt, pTsel, 
+        0,  chgType, 0, 0, iSysSel, 6, iEmt));
+      dipEnd.push_back( TimeDipoleEnd(iEmt, iRad, pTsel, 
+        0, -chgType, 0, 0, iSysSel, 6, iRad));
+    }
 
   // Photon branching to f fbar: inactivate photon "dipole";
   // optionally add new charge and colour dipole ends. 
@@ -819,39 +1064,38 @@ bool TimeShower::branch( Event& event) {
     int colType = event[iRad].colType();
     if ( chgType != 0 && ( ( doQEDshowerByQ && colType != 0 )  
       || ( doQEDshowerByL && colType == 0 ) ) ) { 
-      dipole.push_back( TimeDipoleEnd(iRad, iEmt, pTsel, 0,  chgType, 0, 
-        6, iEmt));
-      dipole.push_back( TimeDipoleEnd(iEmt, iRad, pTsel, 0, -chgType, 0, 
-        6, iRad));
+      dipEnd.push_back( TimeDipoleEnd(iRad, iEmt, pTsel, 
+        0,  chgType, 0, 0, iSysSel, 6, iEmt));
+      dipEnd.push_back( TimeDipoleEnd(iEmt, iRad, pTsel, 
+        0, -chgType, 0, 0, iSysSel, 6, iRad));
     }
     if (colType != 0 && doQCDshower) {
-      dipole.push_back( TimeDipoleEnd(iRad, iEmt, pTsel,  colType, 0, 0, 
-        6, iEmt));
-      dipole.push_back( TimeDipoleEnd(iEmt, iRad, pTsel, -colType, 0, 0, 
-        6, iRad));
+      dipEnd.push_back( TimeDipoleEnd(iRad, iEmt, pTsel, 
+         colType, 0, 0, 0, iSysSel, 6, iEmt));
+      dipEnd.push_back( TimeDipoleEnd(iEmt, iRad, pTsel, 
+        -colType, 0, 0, 0, iSysSel, 6, iRad));
     }
   }
 
   // Now update other dipoles that also involved the radiator or recoiler.
-  for (int i = 0; i < int(dipole.size()); ++i) {
-    if (dipole[i].iRadiator  == iRadBef) dipole[i].iRadiator  = iRad;
-    if (dipole[i].iRadiator  == iRecBef) dipole[i].iRadiator  = iRec;
-    if (dipole[i].iRecoiler  == iRadBef) dipole[i].iRecoiler  = iRad;
-    if (dipole[i].iRecoiler  == iRecBef) dipole[i].iRecoiler  = iRec;
-    if (dipole[i].iMEpartner == iRadBef) dipole[i].iMEpartner = iRad;
-    if (dipole[i].iMEpartner == iRecBef) dipole[i].iMEpartner = iRec;
+  for (int i = 0; i < int(dipEnd.size()); ++i) {
+    if (dipEnd[i].iRadiator  == iRadBef) dipEnd[i].iRadiator  = iRad;
+    if (dipEnd[i].iRadiator  == iRecBef) dipEnd[i].iRadiator  = iRec;
+    if (dipEnd[i].iRecoiler  == iRadBef) dipEnd[i].iRecoiler  = iRad;
+    if (dipEnd[i].iRecoiler  == iRecBef) dipEnd[i].iRecoiler  = iRec;
+    if (dipEnd[i].iMEpartner == iRadBef) dipEnd[i].iMEpartner = iRad;
+    if (dipEnd[i].iMEpartner == iRecBef) dipEnd[i].iMEpartner = iRec;
   }
+
+  // Finally update the list of all partons in all systems.
+  event.replaceInSystem(iSysSel, iRadBef, iRad);  
+  event.addToSystem(iSysSel, iEmt);
+  event.replaceInSystem(iSysSel, iRecBef, iRec); 
 
   // Done. 
   return true;
 
 }
-
-//*********
-
-//void TimeShower::update( Event& event) {
-// ;
-//}
 
 //*********
 
@@ -863,14 +1107,25 @@ bool TimeShower::branch( Event& event) {
 
 void TimeShower::findMEtype( Event& event, TimeDipoleEnd& dip) {
 
-  // Return if no ME corrections to be applied.
-  if (!doMEcorrections) { 
-    dip.MEtype = 0;
-    return;
-  } 
+  // Initial value. Mark if no ME corrections to be applied.
+  bool setME = true;
+  if (!doMEcorrections) setME = false; 
 
   // Temporary: kill ME corrections for emissions off a gluon or photon.??
-  if (event[dip.iRadiator].id() == 21 || dip.gamType != 0) {
+  if (event[dip.iRadiator].id() == 21 || dip.gamType != 0) setME = false;
+
+  // No ME corrections in 2 -> n processes.
+  int iMother  = event[dip.iRadiator].mother1();
+  int iMother2 = event[dip.iRadiator].mother2();
+  if (iMother2 != iMother && iMother2 != 0) setME = false;
+  if (event[dip.iRecoiler].mother1() != iMother)  setME = false;    
+  if (event[dip.iRecoiler].mother2() != iMother2) setME = false;    
+
+  // No ME corrections for recoiler in initial state.
+  if (event[dip.iRecoiler].status() < 0) setME = false; 
+
+  // Done if no ME to be set.
+  if (!setME) {
     dip.MEtype = 0;
     return;
   } 
@@ -896,7 +1151,6 @@ void TimeShower::findMEtype( Event& event, TimeDipoleEnd& dip) {
     dip.MEtype = 0;
 
     // Find mother type.
-    int iMother = event[dip.iRadiator].mother1();
     int idMother = 0;
     if ( event[dip.iRecoiler].mother1() == iMother && iMother >= 0) 
       idMother = event[iMother].id();
@@ -1901,26 +2155,26 @@ void TimeShower::list(ostream& os) {
 
   // Header.
   os << "\n --------  PYTHIA TimeShower Dipole Listing  ----------------"
-     << "-------------------- \n \n    i    rad    rec       pTmax  col "
-     << " chg  gam type  MErec     mix  ord  spl  glu \n" 
-     << fixed << setprecision(3);
+     << "------------------------------ \n \n    i    rad    rec       "
+     << "pTmax  col  chg  gam  isr  sys type  MErec     mix  ord  spl  "
+     << "glu \n" << fixed << setprecision(3);
   
   // Loop over dipole list and print it.
-  for (int i = 0; i < int(dipole.size()); ++i) {
-    os << setw(5) << i << setw(7) << dipole[i].iRadiator 
-       << setw(7) << dipole[i].iRecoiler << setw(12) << dipole[i].pTmax 
-       << setw(5) << dipole[i].colType << setw(5) << dipole[i].chgType
-       << setw(5) << dipole[i].gamType << setw(5) << dipole[i].MEtype 
-       << setw(7) << dipole[i].iMEpartner << setw(8) << dipole[i].MEmix 
-       << setw(5) << dipole[i].MEorder << setw(5) << dipole[i].MEsplit 
-       << setw(5) << dipole[i].MEgluinoDau << "\n";
-  }
+  for (int i = 0; i < int(dipEnd.size()); ++i) 
+  os << setw(5) << i << setw(7) << dipEnd[i].iRadiator 
+     << setw(7) << dipEnd[i].iRecoiler << setw(12) << dipEnd[i].pTmax 
+     << setw(5) << dipEnd[i].colType << setw(5) << dipEnd[i].chgType
+     << setw(5) << dipEnd[i].gamType << setw(5) << dipEnd[i].isrType 
+     << setw(5) << dipEnd[i].system  << setw(5) << dipEnd[i].MEtype 
+     << setw(7) << dipEnd[i].iMEpartner << setw(8) << dipEnd[i].MEmix 
+     << setw(5) << dipEnd[i].MEorder << setw(5) << dipEnd[i].MEsplit 
+     << setw(5) << dipEnd[i].MEgluinoDau << "\n";
+ 
 
   // Done.
   os << "\n --------  End PYTHIA TimeShower Dipole Listing  ------------"
-     << "--------------------" << endl;
+     << "------------------------------" << endl;
   
-
 }
 
 //**************************************************************************

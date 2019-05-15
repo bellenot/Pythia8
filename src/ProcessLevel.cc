@@ -10,27 +10,23 @@ namespace Pythia8 {
 // Main routine to initialize generation process.
 
 bool ProcessLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn, 
-  BeamParticle* beamBPtrIn, bool hasPythia6In, bool hasLHAin, 
-  LHAinit* lhaInitPtrIn, LHAevnt* lhaEvntPtrIn) {
+  BeamParticle* beamBPtrIn, bool hasLHAin, LHAinit* lhaInitPtrIn, 
+  LHAevnt* lhaEvntPtrIn, UserHooks* userHooksPtrIn) {
 
   // Store input pointers for future use. 
-  infoPtr     = infoPtrIn;
-  beamAPtr    = beamAPtrIn;
-  beamBPtr    = beamBPtrIn;
+  infoPtr      = infoPtrIn;
+  beamAPtr     = beamAPtrIn;
+  beamBPtr     = beamBPtrIn;
+  userHooksPtr = userHooksPtrIn;
 
   // Store pointers to Les Houches Accord input if any.
-  hasLHA      = hasLHAin;
-  lhaInitPtr  = lhaInitPtrIn;
-  lhaEvntPtr  = lhaEvntPtrIn;
-  strategyLHA = (hasLHA) ? lhaInitPtr->strategy() : 0;  
+  hasLHA       = hasLHAin;
+  lhaInitPtr   = lhaInitPtrIn;
+  lhaEvntPtr   = lhaEvntPtrIn;
+  strategyLHA  = (hasLHA) ? lhaInitPtr->strategy() : 0;  
 
-  // Initialize event generation from Pythia 6.3.
-  hasPythia6  = hasPythia6In;
-  if (hasPythia6) initPythia6( infoPtr->idA(), infoPtr->idB(), 
-    infoPtr->eCM() );
-
-  // If not Les Houches or Pythia 6.3 then internal machinery.
-  hasInternal = !hasLHA && !hasPythia6;
+  // If not Les Houches then internal machinery.
+  hasInternal  = !hasLHA;
   if (hasInternal) return initInternal();
 
   // Done. (Check return values from other classes??)
@@ -44,24 +40,57 @@ bool ProcessLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn,
 
   bool ProcessLevel::next( Event& process) {
 
-  // Generate the next internal event. 
-  if (hasInternal) return getInternalEvnt( process);
+  // Starting value.
+  bool physical = false;  
 
-  // Generate the next Pythia 6.4 event. 
-  if (hasPythia6) Pythia6::pyupev();
+  // Generate the next internal event. 
+  if (hasInternal) physical = nextInternal( process);
 
   // Read in a simple event in the LHAevnt format. Default info.
-  if (strategyLHA >= 10) {
+  else if (strategyLHA >= 10) {
     infoPtr->setType( "Simple LHA process", 0, 0, false, true, false, false);
     infoPtr->setTypeMI( 0, 0.);
-    return getSimpleLHAevnt( process);
+    physical = nextSimpleLHA( process);
   }
 
   // Read in an event in the LHAevnt format.
-  if (hasPythia6 || hasLHA) return getLHAevnt( process);
+  else if (hasLHA) physical = nextLHA( process);
+
+  // Check that colour assignments make sense.
+  if (physical) physical = checkColours( process);
 
   // Done.
-  return true;
+  return physical;
+}
+
+//*********
+
+// Accumulate and update statistics (after possible user veto).
+  
+void ProcessLevel::accumulate() {
+
+  // Currently does not handle LHA processes ??
+  if (hasLHA) return;
+
+  // Increase number of accepted events.
+  containerPtrs[iNow]->accumulate();
+
+  // Provide current generated cross section estimate.
+  long   nTrySum   = 0; 
+  long   nSelSum   = 0; 
+  long   nAccSum   = 0;
+  double sigmaSum  = 0.;
+  double delta2Sum = 0.;
+  for (int i = 0; i < int(containerPtrs.size()); ++i) 
+  if (containerPtrs[i]->sigmaMax() != 0.) {
+    nTrySum       += containerPtrs[i]->nTried();
+    nSelSum       += containerPtrs[i]->nSelected();
+    nAccSum       += containerPtrs[i]->nAccepted();
+    sigmaSum      += containerPtrs[i]->sigmaMC();
+    delta2Sum     += pow2(containerPtrs[i]->deltaMC()); 
+  }
+  infoPtr->setSigma( nTrySum, nSelSum, nAccSum, sigmaSum, sqrt(delta2Sum)); 
+
 }
 
 //*********
@@ -75,23 +104,24 @@ void ProcessLevel::statistics(ostream& os) {
     
     // Header.
     os << "\n *-------  PYTHIA Event and Cross Section Statistics  ------"
-       << "---------------------------------------*\n"
+       << "--------------------------------------------------*\n"
        << " |                                                            "
-       << "                                     |\n" 
-       << " | Subprocess                               Code |       Numbe"
-       << "r of events |      sigma +- delta    |\n" 
+       << "                                                |\n" 
+       << " | Subprocess                               Code |            "
+       << "Number of events       |      sigma +- delta    |\n" 
        << " |                                               |       Tried"
-       << "   Accepted |     (estimated) (mb)   |\n"
+       << "   Selected   Accepted |     (estimated) (mb)   |\n"
        << " |                                               |            "
-       << "            |                        |\n"
+       << "                       |                        |\n"
        << " |------------------------------------------------------------"
-       << "-------------------------------------|\n"
+       << "------------------------------------------------|\n"
        << " |                                               |            "
-       << "            |                        |\n";
+       << "                       |                        |\n";
 
     // Reset sum counters.
-    int    nTrySum   = 0; 
-    int    nAccSum   = 0;
+    long   nTrySum   = 0; 
+    long   nSelSum   = 0; 
+    long   nAccSum   = 0;
     double sigmaSum  = 0.;
     double delta2Sum = 0.;
 
@@ -100,41 +130,40 @@ void ProcessLevel::statistics(ostream& os) {
     if (containerPtrs[i]->sigmaMax() != 0.) {
 
       // Read info for process. Sum counters.
-      int    nTry  = containerPtrs[i]->nTried();
-      int    nAcc  = containerPtrs[i]->nAccepted();
-      double sigma = containerPtrs[i]->sigmaMC();
-      double delta = containerPtrs[i]->deltaMC(); 
-      nTrySum   += nTry;
-      nAccSum   += nAcc; 
-      sigmaSum  += sigma;
-      delta2Sum += pow2(delta);    
+      long   nTry    = containerPtrs[i]->nTried();
+      long   nSel    = containerPtrs[i]->nSelected();
+      long   nAcc    = containerPtrs[i]->nAccepted();
+      double sigma   = containerPtrs[i]->sigmaMC();
+      double delta   = containerPtrs[i]->deltaMC(); 
+      nTrySum       += nTry;
+      nSelSum       += nSel;
+      nAccSum       += nAcc; 
+      sigmaSum      += sigma;
+      delta2Sum     += pow2(delta);    
 
       // Print individual process info.
       os << " | " << left << setw(40) << containerPtrs[i]->name() 
          << right << setw(5) << containerPtrs[i]->code() << " | " 
-         << setw(11) << nTry << " " << setw(10) << nAcc << " | " 
-         << scientific << setprecision(3) << setw(11) << sigma 
-         << setw(11) << delta << " |\n";
+         << setw(11) << nTry << " " << setw(10) << nSel << " " 
+         << setw(10) << nAcc << " | " << scientific << setprecision(3) 
+         << setw(11) << sigma << setw(11) << delta << " |\n";
     }
 
     // Print summed process info.
     os << " |                                               |            "
-       << "            |                        |\n"
+       << "                       |                        |\n"
        << " | " << left << setw(45) << "sum" << right << " | " << setw(11) 
-       << nTrySum << " " << setw(10) << nAccSum << " | " << scientific 
-       << setprecision(3) << setw(11) << sigmaSum << setw(11) 
-       << sqrtpos(delta2Sum) << " |\n";
+       << nTrySum << " " << setw(10) << nSelSum << " " << setw(10) 
+       << nAccSum << " | " << scientific << setprecision(3) << setw(11) 
+       << sigmaSum << setw(11) << sqrtpos(delta2Sum) << " |\n";
 
     // Listing finished.
     os << " |                                                            "
-       << "                                     |\n"
+       << "                                                |\n"
        << " *-------  End PYTHIA Event and Cross Section Statistics -----"
-       << "-------------------------------------*" << endl;
+       << "------------------------------------------------*" << endl;
      
   }
-
-  // Pythia6 statistics.
-  if (hasPythia6) Pythia6::pystat(0);
 
 }
 
@@ -153,9 +182,9 @@ bool ProcessLevel::initInternal( ostream& os) {
   // Send cross section and beam info to influx, processes and phase space.
   double mA = beamAPtr->m();
   double mB = beamBPtr->m();
-  InFlux::setBeamPtr( beamAPtr, beamBPtr); 
-  SigmaProcess::setSigmaTotalPtr( &sigmaTot, idA, idB, mA, mB);
-  PhaseSpace::setBeamSigmaPtr( beamAPtr, beamBPtr, &sigmaTot);
+  InFlux::setStaticPtrs( beamAPtr, beamBPtr); 
+  SigmaProcess::setStaticPtrs( &sigmaTot, idA, idB, mA, mB);
+  PhaseSpace::setStaticPtrs( beamAPtr, beamBPtr, &sigmaTot, userHooksPtr);
 
   // Sets up containers for all the hard processes.
   SetupContainers setupContainers;
@@ -223,47 +252,19 @@ bool ProcessLevel::initInternal( ostream& os) {
 
 //*********
 
-// Initialize event generation from Pythia 6.3.
-
-void ProcessLevel::initPythia6( int idA, int idB, double eCM) {
-
-  // Simplified translation into input accessible by Pythia 6.3,
-  // assuming we are in the cm frame, and only have p/pbar/e+/e- beams.
-  string frame = "cms";
-  string beam = "p";
-  if (idA == -2212) beam = "pbar";
-  if (idA == 11) beam = "e-";
-  if (idA == -11) beam = "e+";
-  string target = "p";
-  if (idB == -2212) target = "pbar";
-  if (idB == 11) target = "e-";
-  if (idB == -11) target = "e+";
-
-  // Initialize Pythia 6.3, without multiple interactions.
-  Pythia6::pygive("mstp(81)=0");
-  Pythia6::pyinit(frame, beam, target, eCM);
-
-  // Create pointer to LHAevnt. Warning: delete it somewhere??
-  lhaEvntPtr = new LHAevntFortran;  
-
-  // Done.
-}
-
-//*********
-
 // Generate the next internal event.
   
-bool ProcessLevel::getInternalEvnt( Event& process) {
+bool ProcessLevel::nextInternal( Event& process) {
 
   // Loop over tries until trial event succeeds.
-  int iNow;
   for ( ; ; ) {
 
     // Pick one of the subprocesses.
     double sigmaMaxNow = sigmaMaxSum * Rndm::flat();
+    int iMax = containerPtrs.size() - 1;
     iNow = -1;
     do sigmaMaxNow -= containerPtrs[++iNow]->sigmaMax();
-    while (sigmaMaxNow > 0. && iNow < int(containerPtrs.size()) - 1);
+    while (sigmaMaxNow > 0. && iNow < iMax);
     
     // Do a trial event of this subprocess; accept or not.
     if (containerPtrs[iNow]->trialProcess()) break;
@@ -278,20 +279,6 @@ bool ProcessLevel::getInternalEvnt( Event& process) {
   // Add any junctions to the process event record list.
   findJunctions( process);
 
-  // Provide current generated cross section estimate.
-  int nTrySum = 0; 
-  int nAccSum = 0;
-  double sigmaSum = 0.;
-  double delta2Sum = 0.;
-  for (int i = 0; i < int(containerPtrs.size()); ++i) 
-  if (containerPtrs[i]->sigmaMax() != 0.) {
-     nTrySum += containerPtrs[i]->nTried();
-     nAccSum += containerPtrs[i]->nAccepted();
-     sigmaSum += containerPtrs[i]->sigmaMC();
-     delta2Sum += pow2(containerPtrs[i]->deltaMC()); 
-   }
-   infoPtr->setSigma( nTrySum, nAccSum, sigmaSum, sqrt(delta2Sum)); 
-
   // Done.
   return true;
 }
@@ -301,7 +288,7 @@ bool ProcessLevel::getInternalEvnt( Event& process) {
 // Read in the hard process from the Les Houches Accord.
 // Many more checks to be done for valid input??
 
-bool ProcessLevel::getLHAevnt( Event& process) {
+bool ProcessLevel::nextLHA( Event& process) {
 
   // Generate the next Les Houches event.
   if (!lhaEvntPtr->set()) return false;
@@ -391,7 +378,7 @@ bool ProcessLevel::getLHAevnt( Event& process) {
   findJunctions( process);
 
   // Extract information that is guaranteed available.
-  string name = (hasPythia6) ? "Pythia6 LHA process" : "External LHA process"; 
+  string name = "External LHA process"; 
   int code = lhaEvntPtr->idProc();
   int nFinal = 0;
   for (int i = 5; i < process.size(); ++i) 
@@ -448,15 +435,19 @@ bool ProcessLevel::getLHAevnt( Event& process) {
   infoPtr->setKin( x1, x2, sHat, tHat, uHat, pTHat, m3, m4, theta, phi);  
   infoPtr->setTypeMI( code, pTHat);
 
+  // Do all resonance decays. First draft?? Junctions in decays??
+  resonanceDecays.next( process);
+
   // Done.
   return true;
+
 }
 
 //*********
 
 // Read in the hard process, special case if all partons already given.
 
-bool ProcessLevel::getSimpleLHAevnt( Event& process) {
+bool ProcessLevel::nextSimpleLHA( Event& process) {
 
   // Generate the next Les Houches event.
   if (!lhaEvntPtr->set()) return false;
@@ -569,6 +560,109 @@ void ProcessLevel::findJunctions( Event& process) {
   }
 
   // Done.
+}
+
+//*********
+
+// Check that colours match up.
+
+bool ProcessLevel::checkColours( Event& process) {
+
+  // Variables and arrays for common usage.
+  bool physical = true;
+  bool match;
+  int colType, col, acol, iPos, iNow, iNowA;
+  vector<int> colTags, colPos, acolPos;
+
+  // Check that each particle has the kind of colours expected of it.
+  for (int i = 0; i < process.size(); ++i) {
+    colType = process[i].colType();
+    col     = process[i].col();
+    acol    = process[i].acol();
+    if      (colType ==  0 && (col != 0 || acol != 0)) physical = false;
+    else if (colType ==  1 && (col <= 0 || acol != 0)) physical = false;
+    else if (colType == -1 && (col != 0 || acol <= 0)) physical = false;
+    else if (colType ==  2 && (col <= 0 || acol <= 0)) physical = false;
+    else if (colType < -1 || colType > 2)              physical = false; 
+
+    // Add to the list of colour tags.
+    if (col > 0) {
+      match = false;
+      for (int ic = 0; ic < int(colTags.size()) ; ++ic)
+        if (col == colTags[ic]) match = true;
+      if (!match) colTags.push_back(col);
+    } else if (acol > 0) {
+      match = false;
+      for (int ic = 0; ic < int(colTags.size()) ; ++ic)
+        if (acol == colTags[ic]) match = true;
+      if (!match) colTags.push_back(acol);
+    }
+  }
+
+  // Warn and give up if particles did not have the expected colours.
+  if (!physical) {
+    ErrorMsg::message("Error in ProcessLevel::checkColours: "
+      "incorrect colour assignment"); 
+    return false;
+  }
+
+  // Loop through all colour tags and find their positions (by sign). 
+  for (int ic = 0; ic < int(colTags.size()); ++ic) {
+    col = colTags[ic];
+    colPos.resize(0);
+    acolPos.resize(0);
+    for (int i = 0; i < process.size(); ++i) {
+      if (process[i].col() == col) colPos.push_back(i); 
+      if (process[i].acol() == col) acolPos.push_back(i); 
+    }
+
+    // Trace colours back through decays; remove daughters.
+    while (colPos.size() > 1) {
+      iPos = colPos.size() - 1; 
+      iNow = colPos[iPos]; 
+      if ( process[iNow].mother1() == colPos[iPos - 1]
+        && process[iNow].mother2() == 0) colPos.pop_back();
+      else break;
+    }           
+    while (acolPos.size() > 1) {
+      iPos = acolPos.size() - 1; 
+      iNow = acolPos[iPos]; 
+      if ( process[iNow].mother1() == acolPos[iPos - 1]
+        && process[iNow].mother2() == 0) acolPos.pop_back();
+      else break;
+    } 
+
+    // Now colour should exist in only 2 copies.
+    if (colPos.size() + acolPos.size() != 2) physical = false;
+
+    // If both colours or both anticolours then one mother of the other.
+    else if (colPos.size() == 2) {
+      iNow = colPos[1];
+      if ( process[iNow].mother1() != colPos[0] 
+        && process[iNow].mother2() != colPos[0] ) physical = false;
+    }
+    else if (acolPos.size() == 2) {
+      iNowA = acolPos[1];
+      if ( process[iNowA].mother1() != acolPos[0] 
+        && process[iNowA].mother2() != acolPos[0] ) physical = false;
+    }
+    
+    // If one of each then should have same mother(s), or point to beams.
+    else {
+      iNow  = colPos[0];
+      iNowA = acolPos[0];
+      if ( (iNow == 3 && iNowA == 4) || (iNow == 4 && iNowA == 3) );
+      else if ( (process[iNow].mother1() != process[iNowA].mother1()) 
+             || (process[iNow].mother2() != process[iNowA].mother2()) ) 
+             physical = false;
+    }
+  }
+
+  // Error message if problem found. Done.
+  if (!physical) ErrorMsg::message("Error in ProcessLevel::checkColours: "
+    "unphysical colour flow"); 
+  return physical;
+
 }
 
 //**************************************************************************

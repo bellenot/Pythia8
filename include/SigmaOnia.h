@@ -41,7 +41,7 @@ public:
  private:
 
   // Values stored for process type and colour flow selection.
-  int idNew, idHad, codeSave;
+  int    idNew, idHad, codeSave;
   string nameSave;
   double oniumME;
 
@@ -79,7 +79,7 @@ public:
  private:
 
   // Values stored for process type and colour flow selection.
-  int idNew, idHad, jSave, codeSave;
+  int    idNew, idHad, jSave, codeSave;
   string nameSave;
   double oniumME;
 
@@ -117,7 +117,7 @@ public:
  private:
 
   // Values stored for process type and colour flow selection.
-  int idNew, idHad, jSave, codeSave;
+  int    idNew, idHad, jSave, codeSave;
   string nameSave;
   double oniumME;
 
@@ -155,7 +155,7 @@ public:
  private:
 
   // Values stored for process type and colour flow selection.
-  int idNew, idHad, jSave, codeSave;
+  int    idNew, idHad, jSave, codeSave;
   string nameSave;
   double oniumME;
 
@@ -193,7 +193,7 @@ public:
  private:
 
   // Values stored for process type and colour flow selection.
-  int idNew, idHad, stateSave, codeSave;
+  int    idNew, idHad, stateSave, codeSave;
   string nameSave;
   double oniumME;
 
@@ -231,7 +231,7 @@ public:
  private:
 
   // Values stored for process type and colour flow selection.
-  int idNew, idHad, stateSave, codeSave;
+  int    idNew, idHad, stateSave, codeSave;
   string nameSave;
   double oniumME;
 
@@ -270,7 +270,7 @@ public:
  private:
 
   // Values stored for process type and colour flow selection.
-  int idNew, idHad, stateSave, codeSave;
+  int    idNew, idHad, stateSave, codeSave;
   string nameSave;
   double oniumME;
 

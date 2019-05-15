@@ -56,11 +56,15 @@ bool ProcessContainer::init() {
 
   // Reset cross section statistics.
   nTry      = 0;
+  nSel      = 0;
   nAcc      = 0;
+  nTryStat  = 0;
   sigmaMx   = 0.;
   sigmaSum  = 0.;
   sigma2Sum = 0.;
   sigmaNeg  = 0.;
+  sigmaFin  = 0.;
+  deltaFin  = 0.;
 
   // Initialize process. Remove empty inFlux channels and optionally list.
   sigmaProcessPtr->initProc();
@@ -68,14 +72,14 @@ bool ProcessContainer::init() {
   sigmaProcessPtr->checkChannels();
 
   // Find maximum of differential cross section * phasespace.
-  bool physical = phaseSpacePtr->setupSampling();
-  sigmaMx = phaseSpacePtr->sigmaMax();
+  bool physical       = phaseSpacePtr->setupSampling();
+  sigmaMx             = phaseSpacePtr->sigmaMax();
   double sigmaHalfWay = sigmaMx;
 
   // Check maximum by a few events, and extrapolate a further increase.
   if (physical) {
     for (int sample = 0; sample < NSAMPLE; ++sample) 
-    while (!phaseSpacePtr->trialKin()) { 
+    while (!phaseSpacePtr->trialKin(false)) { 
       if (sample == NSAMPLE/2) sigmaHalfWay = phaseSpacePtr->sigmaMax();
     }   
     sigmaMx = pow2(phaseSpacePtr->sigmaMax()) / sigmaHalfWay;
@@ -88,7 +92,7 @@ bool ProcessContainer::init() {
 
 //*********
 
-// Generate a trial event; accepted or not.
+// Generate a trial event; selected or not.
  
 bool ProcessContainer::trialProcess() { 
 
@@ -97,7 +101,7 @@ bool ProcessContainer::trialProcess() {
   ++nTry;
 
   // Generate a trial phase space point, with cross section.
-  if (!phaseSpacePtr->trialKin()) return false;
+  if (!phaseSpacePtr->trialKin(true)) return false;
   double sigmaNow = phaseSpacePtr->sigmaNow(); 
 
   // Check that not negative cross section.
@@ -113,10 +117,10 @@ bool ProcessContainer::trialProcess() {
   sigma2Sum += pow2(sigmaNow);
   sigmaMx    = phaseSpacePtr->sigmaMax();
 
-  // Accept or reject trial point.
-  bool accept = (sigmaNow > Rndm::flat() * sigmaMx);  
-  if (accept) ++nAcc;
-  return accept;
+  // Select or reject trial point.
+  bool select = (sigmaNow > Rndm::flat() * sigmaMx);  
+  if (select) ++nSel;
+  return select;
 
 }
 
@@ -126,11 +130,11 @@ bool ProcessContainer::trialProcess() {
 
 bool ProcessContainer::constructProcess( Event& process) { 
 
-  // Construct flavour and colours for accepted event.
+  // Construct flavour and colours for selected event.
   if (isResolved && !isMinBias) sigmaProcessPtr->pickInState();
   sigmaProcessPtr->setIdColAcol();
 
-  // Construct kinematics from accepted phase space point.
+  // Construct kinematics from selected phase space point.
   if (!phaseSpacePtr->finalKin()) return false;
 
   // Basic info on process.
@@ -206,6 +210,38 @@ bool ProcessContainer::constructProcess( Event& process) {
 
   // Done.
   return true;
+}
+
+//*********
+
+// Estimate integrated cross section and its uncertainty.
+
+void ProcessContainer::sigmaDelta() {
+
+  // Initial values. No analysis meaningful unless accepted events.
+  nTryStat = nTry;
+  sigmaFin = 0.;
+  deltaFin = 0.;
+  if (nAcc == 0) return;
+
+  // Average value.
+  double nTryInv  = 1. / nTry;
+  double nSelInv  = 1. / nSel;
+  double nAccInv  = 1. / nAcc;
+  double sigmaAvg = sigmaSum * nTryInv ;
+  double fracAcc  = nAcc * nSelInv;
+  sigmaFin        = sigmaAvg * fracAcc;
+
+  // Estimated error. Qadratic sum of cross section term and
+  // binomial from accept/reject step.
+  deltaFin = sigmaFin;
+  if (nAcc == 1) return;
+  double delta2Sig   = (sigma2Sum *nTryInv - pow2(sigmaAvg)) * nTryInv
+    / pow2(sigmaAvg);
+  double delta2Veto  = (nSel - nAcc) * nAccInv * nSelInv;
+  double delta2Sum   = delta2Sig + delta2Veto;
+  deltaFin           = sqrtpos(delta2Sum) * sigmaFin; 
+
 }
  
 //**************************************************************************

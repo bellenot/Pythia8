@@ -48,18 +48,18 @@ public:
   static const double TINY;
  
   // Data members.
-  bool fromPos;
-  int iEnd, iMax, idHad, iPosOld, iNegOld, iPosNew, iNegNew;
+  bool   fromPos;
+  int    iEnd, iMax, idHad, iPosOld, iNegOld, iPosNew, iNegNew;
   double pxOld, pyOld, pxNew, pyNew, pxHad, pyHad, mHad, mT2Had, zHad,
-    GammaOld, GammaNew, xPosOld, xPosNew, xPosHad, xNegOld, xNegNew,
-    xNegHad;
+         GammaOld, GammaNew, xPosOld, xPosNew, xPosHad, xNegOld, xNegNew,
+         xNegHad;
   FlavContainer flavOld, flavNew;
-  Vec4 pHad, pSoFar;
+  Vec4   pHad, pSoFar;
 
   // Classes for flavour, pT and z generation.
   StringFlav flavSel;
-  StringPT pTsel;
-  StringZ zSel;
+  StringPT   pTsel;
+  StringZ    zSel;
 
 };
   
@@ -88,13 +88,15 @@ private:
 
   // Static initialization data, normally only set once.
   static double stopMass, stopNewFlav, stopSmear, eNormJunction,
-    eBothLeftJunction, eMaxLeftJunction, eMinLeftJunction, bLund;
+                eBothLeftJunction, eMaxLeftJunction, eMinLeftJunction, 
+                bLund;
 
   // Constants: could only be changed in the code itself.
-  static const int NTRYFLAV, NTRYJOIN, NSTOPMASS, NTRYJNREST, 
-    NTRYJNMATCH, NTRYJRFEQ;
+  static const int    NTRYFLAV, NTRYJOIN, NSTOPMASS, NTRYJNREST, 
+                      NTRYJNMATCH, NTRYJRFEQ;
   static const double FACSTOPMASS, CLOSEDM2MAX, CLOSEDM2FRAC, EXPMAX,
-    MATCHPOSNEG, EJNWEIGHTMAX, CONVJNREST, M2MAXJRF, CONVJRFEQ;
+                      MATCHPOSNEG, EJNWEIGHTMAX, CONVJNREST, M2MAXJRF, 
+                      CONVJRFEQ;
 
   // Find region where to put first string break for closed gluon loop.
   vector<int> findFirstRegion(vector<int>& iPartonIn, Event& event);
@@ -128,14 +130,14 @@ private:
 
   // Classes for flavour, pT and z generation.
   StringFlav flavSel;
-  StringPT pTsel;
-  StringZ zSel;
+  StringPT   pTsel;
+  StringZ    zSel;
 
   // Data members.
-  bool hasJunction, isClosed;
-  int iPos, iNeg;
+  bool   hasJunction, isClosed;
+  int    iPos, iNeg;
   double w2Rem, stopMassNow;
-  Vec4 pSum, pRem, pJunctionHadrons;
+  Vec4   pSum, pRem, pJunctionHadrons;
 
   // List of partons in string system.
   vector<int> iParton;

@@ -145,7 +145,7 @@ int Event::copy(int iCopy, int newStatus) {
 
 // Print an event.
 
-void Event::list(ostream& os) {
+void Event::list(ostream& os) const {
 
   // Header.
   os << "\n --------  PYTHIA Event Listing  " << headerList << "----------"
@@ -163,7 +163,7 @@ void Event::list(ostream& os) {
   double chargeSum = 0.;
   for (int i = 0; i < int(entry.size()); ++i) 
   if (!listFinalOnly || entry[i].status() > 0) {
-    Particle& pt = entry[i];
+    const Particle& pt = entry[i];
 
     // Basic line for a particle, always printed.
     os << setw(6) << i << setw(10) << pt.id() << "   " << left 
@@ -241,7 +241,7 @@ void Event::list(ostream& os) {
 
 // Find complete list of mothers.
 
-vector<int> Event::motherList(int i) {
+vector<int> Event::motherList(int i) const {
 
   // Vector of all the mothers; created empty.
   vector<int> mothers;
@@ -277,7 +277,7 @@ vector<int> Event::motherList(int i) {
 
 // Find complete list of daughters.
 
-vector<int> Event::daughterList(int i) {
+vector<int> Event::daughterList(int i) const {
 
   // Vector of all the daughters; created empty.
   vector<int> daughters;
@@ -315,7 +315,7 @@ vector<int> Event::daughterList(int i) {
 
 // Trace the first and last copy of one and the same particle.
 
-int Event::iTopCopy( int i) {
+int Event::iTopCopy( int i) const {
 
   int iUp = i;
   while ( iUp > 0 && entry[iUp].mother2() == entry[iUp].mother1()
@@ -324,7 +324,7 @@ int Event::iTopCopy( int i) {
 
 }
 
-int Event::iBotCopy( int i) {
+int Event::iBotCopy( int i) const {
 
   int iDn = i;
   while ( iDn > 0 && entry[iDn].daughter2() == entry[iDn].daughter1()
@@ -337,20 +337,23 @@ int Event::iBotCopy( int i) {
 
 // Trace the first and last copy of one and the same particle,
 // also through shower branchings, making use of flavour matches.
-// This sometimes does not work, e.g. g -> g g gives ambiguities.
+// Stops tracing when this gives ambiguities.
 
-int Event::iTopCopyId( int i) {
+int Event::iTopCopyId( int i) const {
 
   int id = entry[i].id();
   int iUp = i;
   for ( ; ; ) {
     int mother1 = entry[iUp].mother1();
-    if ( mother1 > 0 && entry[mother1].id() == id) { 
+    int id1     = (mother1 > 0) ? entry[mother1].id() : 0;
+    int mother2 = entry[iUp].mother2();
+    int id2     = (mother2 > 0) ? entry[mother2].id() : 0;
+    if (mother2 != mother1 && id2 == id1) break;
+    if (id1 == id) { 
       iUp = mother1; 
       continue;
     }
-    int mother2 = entry[iUp].mother2();
-    if ( mother2 > 0 && entry[mother2].id() == id) {
+    if (id2 == id) {
       iUp = mother2; 
       continue;
     }
@@ -360,18 +363,21 @@ int Event::iTopCopyId( int i) {
 
 }
 
-int Event::iBotCopyId( int i) {
+int Event::iBotCopyId( int i) const {
 
   int id = entry[i].id();
   int iDn = i;
   for ( ; ; ) {
     int daughter1 = entry[iDn].daughter1();
-    if ( daughter1 > 0 && entry[daughter1].id() == id) { 
+    int id1       = (daughter1 > 0) ? entry[daughter1].id() : 0;
+    int daughter2 = entry[iDn].daughter2();
+    int id2       = (daughter2 > 0) ? entry[daughter2].id() : 0;
+    if (daughter2 != daughter1 && id2 == id1) break;
+    if (id1 == id) { 
       iDn = daughter1; 
       continue;
     }
-    int daughter2 = entry[iDn].daughter2();
-    if ( daughter2 > 0 && entry[daughter2].id() == id) { 
+    if (id2 == id) {
       iDn = daughter2; 
       continue;
     }
@@ -385,7 +391,7 @@ int Event::iBotCopyId( int i) {
 
 // Find complete list of sisters.
 
-vector<int> Event::sisterList(int i) {
+vector<int> Event::sisterList(int i) const {
 
   // Vector of all the sisters; created empty.
   vector<int> sisters;
@@ -410,7 +416,7 @@ vector<int> Event::sisterList(int i) {
 // down with iBotCopy to give sisters at same level of evolution.
 // Should this not give any final particles, the search is widened.
 
-vector<int> Event::sisterListTopBot(int i, bool widenSearch) {
+vector<int> Event::sisterListTopBot(int i, bool widenSearch) const {
 
   // Vector of all the sisters; created empty.
   vector<int> sisters;
@@ -474,7 +480,7 @@ vector<int> Event::sisterListTopBot(int i, bool widenSearch) {
 // first-rank hadrons are associated with the respective end quark.
 // Still to be completed and tested! ?? Missing: junctions, 81, 82
 
-bool Event::isAncestor(int i, int iAncestor) {
+bool Event::isAncestor(int i, int iAncestor) const {
 
   // Begin loop to trace upwards from the daughter.
   int iUp = i;
@@ -521,6 +527,60 @@ void Event::eraseJunction(int i) {
   for (int j = i; j < int(junction.size()) - 1; ++j) 
     junction[j] = junction[j + 1];
   junction.pop_back();
+
+}
+
+//*********
+
+// Add parton to system, by shifting everything below to make room.
+ 
+void Event::addToSystem(int iSys, int iPos) {
+
+  int newPos = beginSys[iSys] + sizeSys[iSys];
+  memberSys.push_back(0);
+  for (int i = int(memberSys.size()) - 2; i >= newPos; --i)
+    memberSys[i+1] = memberSys[i];
+  memberSys[newPos] = iPos;
+  ++sizeSys[iSys];
+  for (int i = iSys + 1; i < int(beginSys.size()); ++i) ++beginSys[i];
+
+}
+
+//*********
+
+// Replace existing value by new one in given system but unknown member.
+ 
+void Event::replaceInSystem(int iSys, int iPosOld, int iPosNew) {
+
+  for (int i = beginSys[iSys]; i < beginSys[iSys] + sizeSys[iSys]; ++i) 
+  if (memberSys[i] == iPosOld) memberSys[i] = iPosNew;
+
+}
+
+//*********
+
+// List members in systems; for debug mainly.
+
+void Event::listSystems(ostream& os) const {
+
+
+  // Header.
+  os << "\n --------  PYTHIA Systems Listing (in Event)  ---------------"
+     << "-------------------------- \n \n system  members  \n";
+  
+  // Loop over dipole list and print it.
+  for (int iSys = 0; iSys < int(beginSys.size()); ++iSys) {
+    os << " " << setw(5) << iSys << " ";
+    for (int iMem = 0; iMem < sizeSys[iSys]; ++iMem) {
+      if (iMem%16 == 0 && iMem > 0) os << "\n       ";
+      os << " " << setw(4) << memberSys[beginSys[iSys] + iMem];
+    }
+    os << "\n";
+  }
+
+  // Done.
+  os << "\n --------  End PYTHIA Systems Listing (in Event)  -----------"
+     << "--------------------------" << endl;
 
 }
 

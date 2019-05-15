@@ -1,8 +1,9 @@
 // Function definitions (not found in the header) for the PDF,
-// GRV94L, CTEQ5L and Lepton classes.
+// GRV94L, CTEQ5L, LHAPDF  and Lepton classes.
 // Copyright C 2007 Torbjorn Sjostrand
 
 #include "PartonDistributions.h"
+#include "LHAPDFInterface.h"
 
 namespace Pythia8 {
  
@@ -235,7 +236,7 @@ void GRV94L::xfUpdate(int id, double x, double Q2) {
 
   // idSav = 9 to indicate that all flavours reset. id change dummy. 
   idSav = 9;
-  id = 0;
+  id   = 0;
 
 } 
 
@@ -431,7 +432,94 @@ void CTEQ5L::xfUpdate(int id, double x, double Q2) {
 
   // idSav = 9 to indicate that all flavours reset. id change is dummy here. 
   idSav = 9;
-  id = 0;
+  id    = 0;
+
+}
+ 
+//**************************************************************************
+
+// Interface to the LHAPDF library.
+
+//*********
+ 
+// Definitions of static variables.
+
+string LHAPDF::latestSetName = " ";
+int    LHAPDF::latestMember  = -1;
+int    LHAPDF::latestNSet    = 0;
+
+//*********
+
+// Initialize a parton density function from LHAPDF.
+
+void LHAPDF::init(string setName, int member) {
+
+  // If already initialized then need not do anything.
+  if (setName == latestSetName && member == latestMember 
+    && nSet == latestNSet) return;
+
+  // Initialize set. If first character is '/' then assume that name 
+  // is given with path, else not.
+  if (setName[0] == '/') LHAPDFInterface::initPDFsetM( nSet, setName);
+  else LHAPDFInterface::initPDFsetByNameM( nSet, setName);
+
+  // Check that not dummy library was linked and put nSet negative.
+  isSet = (nSet >= 0); 
+  if (!isSet) ErrorMsg::message("Error from LHAPDF::init: "
+    "you try to use LHAPDF but did not link it");    
+
+  // Initialize member.
+  LHAPDFInterface::initPDFM(nSet, member);
+
+  // Save values to avoid unnecessary reinitializations.
+  latestSetName = setName;
+  latestMember  = member;
+  latestNSet    = nSet;
+
+}
+
+//*********
+
+// Give the parton distribution function set from LHAPDF.
+
+void LHAPDF::xfUpdate(int , double x, double Q2) {
+
+  // Let pdf's vanish above xMax.
+  if (hasLimits && x > xMax) {
+    xg = xu = xd = xubar = xdbar = xs = xc = xb = 0.;
+    xuVal = xuSea = xdVal = xdSea = 0.;
+    idSav = 9;
+  }
+
+  // Freeze pdf's below xMin.
+  if (hasLimits && x < xMin) x = xMin;
+
+  // Freeze pdf's below Q2Min and above Q2Max.
+  if (hasLimits && Q2 < Q2Min) Q2 = Q2Min;
+  if (hasLimits && Q2 > Q2Max) Q2 = Q2Max;
+  double Q = sqrt( max( 0., Q2));
+
+  // Let LHAPDF do the evaluation of parton densities.
+  LHAPDFInterface::evolvePDFM( nSet, x, Q, xfArray);
+
+  // Update values.
+  xg    = xfArray[6];
+  xu    = xfArray[8]; 
+  xd    = xfArray[7]; 
+  xubar = xfArray[4]; 
+  xdbar = xfArray[5]; 
+  xs    = xfArray[9]; 
+  xc    = xfArray[10]; 
+  xb    = xfArray[11];
+
+  // Subdivision of valence and sea.
+  xuVal = xu - xubar; 
+  xuSea = xubar; 
+  xdVal = xd - xdbar; 
+  xdSea = xdbar;
+
+  // idSav = 9 to indicate that all flavours reset. 
+  idSav = 9; 
 
 }
  
@@ -472,7 +560,7 @@ void Lepton::xfUpdate(int id, double x, double Q2) {
 
   // idSav = 9 to indicate that all flavours reset. id change is dummy here. 
   idSav = 9;
-  id = 0;
+  id    = 0;
 
 }
  

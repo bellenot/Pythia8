@@ -90,14 +90,16 @@ private:
 
   // Static initialization data, normally only set once.
   static double probQQtoQ, probStoUD, probSQtoQQ, probQQ1toQQ0, 
-    probQandQQ, probQandS, probQandSinQQ, probQQ1corr, probQQ1corrInv,
-    probQQ1norm, mesonRate[4][6], mesonRateSum[4], mesonMix1[2][6], 
-    mesonMix2[2][6], etaSup, etaPrimeSup, decupletSup,
-    baryonCGOct[6], baryonCGDec[6], baryonCGSum[6], baryonCGMax[6],
-    popcornRate, popcornSpair, popcornSmeson, scbBM[3], popFrac, popS[3], 
-    dWT[3][7], lightLeadingBSup, heavyLeadingBSup;
-  static bool suppressLeadingB;
-  static int mesonMultipletCode[6];
+                probQandQQ, probQandS, probQandSinQQ, probQQ1corr, 
+                probQQ1corrInv, probQQ1norm, mesonRate[4][6], 
+                mesonRateSum[4], mesonMix1[2][6], mesonMix2[2][6], 
+                etaSup, etaPrimeSup, decupletSup, baryonCGOct[6], 
+                baryonCGDec[6], baryonCGSum[6], baryonCGMax[6],
+                popcornRate, popcornSpair, popcornSmeson, scbBM[3], 
+                popFrac, popS[3], dWT[3][7], lightLeadingBSup, 
+                heavyLeadingBSup;
+  static bool   suppressLeadingB;
+  static int    mesonMultipletCode[6];
 };
  
 //**************************************************************************
@@ -121,9 +123,9 @@ public:
 private: 
 
   // Static initialization data, normally only set once.
-  static bool usePetersonC, usePetersonB, usePetersonH;
+  static bool   usePetersonC, usePetersonB, usePetersonH;
   static double mc2, mb2, aLund, bLund, aExtraDiquark, rFactC, rFactB, 
-    rFactH, epsilonC, epsilonB, epsilonH;
+                rFactH, epsilonC, epsilonB, epsilonH;
 
   // Constants: could only be changed in the code itself.
     static const double CFROMUNITY, AFROMZERO, AFROMC, EXPMAX;

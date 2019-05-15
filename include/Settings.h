@@ -28,7 +28,7 @@ public:
 
   // Data members.
   string name;
-  bool valNow, valDefault;
+  bool   valNow, valDefault;
 
 };
 
@@ -48,9 +48,9 @@ public:
 
   // Data members.
   string name;
-  int valNow, valDefault;
-  bool hasMin, hasMax;
-  int valMin, valMax;
+  int    valNow, valDefault;
+  bool   hasMin, hasMax;
+  int    valMin, valMax;
 
 };
 
@@ -72,7 +72,7 @@ public:
   // Data members.
   string name;
   double valNow, valDefault;
-  bool hasMin, hasMax;
+  bool   hasMin, hasMax;
   double valMin, valMax;
 
 };
@@ -107,11 +107,11 @@ public:
   Settings() {}
  
   // Read in database from specific file.
-  static bool init(string startFile = "../doc/Index.xml", 
+  static bool init(string startFile = "../xmldoc/Index.xml", 
     ostream& os = cout) ;
 
   // Overwrite existing database by reading from specific file.
-  static bool reInit(string startFile = "../doc/Index.xml") ;
+  static bool reInit(string startFile = "../xmldoc/Index.xml") ;
 
   // Read in one update from a single line.
   static bool readString(string line, bool warn = true, 
@@ -156,8 +156,8 @@ public:
     words[toLower(keyIn)] = Word(keyIn, defaultIn); }  
 
   // Give back current value, with check that key exists. 
-  static bool flag(string keyIn);
-  static int mode(string keyIn);
+  static bool   flag(string keyIn);
+  static int    mode(string keyIn);
   static double parm(string keyIn);
   static string word(string keyIn); 
   
@@ -210,10 +210,10 @@ private:
 
   // Useful functions for string handling.
   static string toLower(const string& name);
-  static bool boolString(string tag);
+  static bool   boolString(string tag);
   static string attributeValue(string line, string attribute);
-  static bool boolAttributeValue(string line, string attribute);
-  static int intAttributeValue(string line, string attribute);
+  static bool   boolAttributeValue(string line, string attribute);
+  static int    intAttributeValue(string line, string attribute);
   static double doubleAttributeValue(string line, string attribute);
 
 };

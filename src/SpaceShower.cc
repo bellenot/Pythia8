@@ -18,24 +18,26 @@ namespace Pythia8 {
 bool   SpaceShower::doQCDshower     = true;
 bool   SpaceShower::doQEDshowerByQ  = true;
 bool   SpaceShower::doQEDshowerByL  = true;
+bool   SpaceShower::samePTasMI      = true;
+bool   SpaceShower::doMEcorrections = true;
+bool   SpaceShower::doPhiPolAsym    = true;
 int    SpaceShower::pTmaxMatch      = 0;
+int    SpaceShower::alphaSorder     = 1;
+int    SpaceShower::alphaEMorder    = 1;
+int    SpaceShower::nQuark          = 5;
+double SpaceShower::pTmaxFudge      = 1.0;
 double SpaceShower::mc              = 1.5;
 double SpaceShower::mb              = 4.8;
 double SpaceShower::m2c             = 2.25;
 double SpaceShower::m2b             = 23.04;
 double SpaceShower::alphaSvalue     = 0.127;
-int    SpaceShower::alphaSorder     = 1;
-int    SpaceShower::alphaEMorder    = 1;
-bool   SpaceShower::samePTasMI      = true;
+double SpaceShower::alphaS2pi       = 0.02013;
 double SpaceShower::pT0Ref          = 2.2; 
 double SpaceShower::ecmRef          = 1800.; 
 double SpaceShower::ecmPow          = 0.16; 
 double SpaceShower::pTmin           = 0.2; 
 double SpaceShower::pTminChgQ       = 0.5;
 double SpaceShower::pTminChgL       = 0.5e-3;
-bool   SpaceShower::doMEcorrections = true;
-bool   SpaceShower::doPhiPolAsym    = true;
-int    SpaceShower::nQuark          = 5;
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -96,6 +98,7 @@ void SpaceShower::initStatic() {
 
   // Matching in pT of hard interaction to shower evolution.
   pTmaxMatch      = Settings::mode("SpaceShower:pTmaxMatch"); 
+  pTmaxFudge      = Settings::parm("SpaceShower:pTmaxFudge"); 
 
   // Charm, bottom and lepton mass thresholds.
   mc              = ParticleDataTable::m0(4); 
@@ -106,6 +109,7 @@ void SpaceShower::initStatic() {
   // Parameters of alphaStrong generation.
   alphaSvalue     = Settings::parm("SpaceShower:alphaSvalue");
   alphaSorder     = Settings::mode("SpaceShower:alphaSorder");
+  alphaS2pi       = 0.5 * alphaSvalue / M_PI;
  
   // Regularization of QCD evolution for pT -> 0. Can be taken 
   // same as for multiple interactions, or be set separately.
@@ -146,15 +150,9 @@ void SpaceShower::init( BeamParticle* beamAPtrIn,
   // Store input pointers for future use. 
   beamAPtr     = beamAPtrIn;
   beamBPtr     = beamBPtrIn;
-
-  // Combinations of fixed couplings.
-  alphaS2pi    = 0.5 * alphaSvalue / M_PI;
   
   // Initialize alpha_strong generation.
   alphaS.init( alphaSvalue, alphaSorder); 
-
-  // Initialize alphaEM generation.
-  alphaEM.init( alphaEMorder); 
   
   // Lambda for 5, 4 and 3 flavours.
   Lambda5flav  = alphaS.Lambda5(); 
@@ -163,6 +161,9 @@ void SpaceShower::init( BeamParticle* beamAPtrIn,
   Lambda5flav2 = pow2(Lambda5flav);
   Lambda4flav2 = pow2(Lambda4flav);
   Lambda3flav2 = pow2(Lambda3flav);
+
+  // Initialize alphaEM generation.
+  alphaEM.init( alphaEMorder); 
 
   // Calculate invariant mass of system. Set current pT0 scale.
   sCM          = m2( beamAPtr->p(), beamBPtr->p());
@@ -200,75 +201,51 @@ bool SpaceShower::limitPTmax( Event& event) {
 //*********
 
 // Prepare system for evolution; identify ME.
-// Routine may be called after multiple interactions, 
-// skipping part up to sizeOld, which was already processed.
+// Routine may be called after multiple interactions, for a new subystem.
 
-void SpaceShower::prepare( Event& event, bool limitPTmax, int sizeOld) {
-
- // Reset list of (sub)systems first time around.
-  if (sizeOld == 0) system.resize(0);
+void SpaceShower::prepare( int iSys, Event& event, bool limitPTmax) {
 
   // Find positions of incoming colliding partons.
-  int in1 = 0;
-  int in2 = 0;
-  for (int i = sizeOld; i < int(event.size()); ++i) {  
-    if (event[i].status() == -21 || event[i].status() == -31) {
-      if (event[i].mother1() == 1) in1 = i;
-      if (event[i].mother1() == 2) in2 = i;
-    }
-    if (in1 > 0 && in2 > 0) break;
-  } 
-  if (in1 <= 0 || in2 <= 0) {
-    ErrorMsg::message("Error in SpaceShower::prepare: "
-      "failed to locate the two incoming partons"); 
-    return;
+  int in1 = event.getInSystem( iSys, 0);
+  int in2 = event.getInSystem( iSys, 1);
+
+  // Reset dipole-ends list for first interaction.
+  if (iSys == 0) dipEnd.resize(0);
+
+  // Find matrix element corrections for system.
+  int MEtype = findMEtype( iSys, event); 
+
+  // Maximum pT scale for dipole ends.
+  double pTmax1 = (limitPTmax) ? event[in1].scale() : eCM;
+  double pTmax2 = (limitPTmax) ? event[in2].scale() : eCM;
+  if (iSys == 0 && limitPTmax) {
+    pTmax1 *= pTmaxFudge;
+    pTmax2 *= pTmaxFudge;
   }
-
-  // Find list of all particles contained in incoming system.
-  iParton.resize(0);
-  iParton.push_back(in1);
-  iParton.push_back(in2);
-  for (int i = sizeOld; i < int(event.size()); ++i) {
-    if (i != in1 && i != in2) {   
-      int iMother = event[i].mother1();
-      while ( iMother > 0 && iMother != in1 && iMother != in2 ) 
-        iMother = event[iMother].mother1();  
-      if (iMother == in1 || iMother == in2) iParton.push_back(i);
-    }
-  }
-
-  // Store new system.
-  system.push_back(iParton);
-  sysNow = &system[system.size() - 1];  
-
-  // Find further properties of the system.
-  sysNow->id1 = event[in1].id();
-  sysNow->id2 = event[in2].id();
-  sysNow->m   =  m( event[in1], event[in2] );
-  sysNow->m2  = pow2(sysNow->m);
-  sysNow->x1  = event[in1].pPlus() / event[0].e();  
-  sysNow->x2  = event[in2].pMinus() / event[0].e();   
 
   // Find dipole ends for QCD radiation.
-  double pTmax1 = (limitPTmax) ? event[in1].scale() : eCM;
-  int colType1 = doQCDshower ? event[in1].colType() : 0;
-  sysNow->dipEnd[0] = SpaceDipoleEnd( pTmax1, 1, colType1, 0, -1) ;
-  double pTmax2 = (limitPTmax) ? event[in2].scale() : eCM;
-  int colType2 = doQCDshower ? event[in2].colType() : 0;
-  sysNow->dipEnd[1] = SpaceDipoleEnd( pTmax2, 2, colType2, 0, -1) ;
+  if (doQCDshower) {
+    int colType1 = event[in1].colType();
+    dipEnd.push_back( SpaceDipoleEnd( iSys,  1, in1, in2, pTmax1, 
+      colType1, 0, MEtype) );
+    int colType2 = event[in2].colType();
+    dipEnd.push_back( SpaceDipoleEnd( iSys,  2, in2, in1, pTmax2, 
+      colType2, 0, MEtype) );
+  }
 
-  // Find dipole ends for QED radiation. 
-  int chgType1 = ( (event[in1].isQuark() && doQEDshowerByQ)
-    || (event[in1].isLepton() && doQEDshowerByL) )
-    ? event[in1].chargeType() : 0;
-  sysNow->dipEnd[2] = SpaceDipoleEnd( pTmax1, 1, 0, chgType1, -1) ;
-  int chgType2 = ( (event[in2].isQuark() && doQEDshowerByQ)
-    || (event[in2].isLepton() && doQEDshowerByL) )
-    ? event[in2].chargeType() : 0;
-  sysNow->dipEnd[3] = SpaceDipoleEnd( pTmax2, 2, 0, chgType2, -1) ;
-
-  // Now find matrix element corrections for system.
-  findMEtype( event); 
+  // Find dipole ends for QED radiation.
+  if (doQEDshowerByQ || doQEDshowerByL) {
+    int chgType1 = ( (event[in1].isQuark() && doQEDshowerByQ)
+      || (event[in1].isLepton() && doQEDshowerByL) )
+      ? event[in1].chargeType() : 0;
+    dipEnd.push_back( SpaceDipoleEnd( iSys, -1, in1, in2, pTmax1, 
+      0, chgType1, MEtype) );
+    int chgType2 = ( (event[in2].isQuark() && doQEDshowerByQ)
+      || (event[in2].isLepton() && doQEDshowerByL) )
+      ? event[in2].chargeType() : 0;
+    dipEnd.push_back( SpaceDipoleEnd( iSys, -2, in2, in1, pTmax2, 
+      0, chgType2, MEtype) );
+  }
 
 }
 
@@ -276,61 +253,65 @@ void SpaceShower::prepare( Event& event, bool limitPTmax, int sizeOld) {
  
 // Select next pT in downwards evolution of the existing dipoles.
 
-double SpaceShower::pTnext( double pTbegAll, double pTendAll) {
-  
+double SpaceShower::pTnext( Event& , double pTbegAll, double pTendAll) {
+
   // Starting values: no radiating dipole found.
   double pT2sel = pow2(pTendAll);
-  sysSel        = 0;
+  iDipSel       = 0;
+  iSysSel       = 0;
   dipEndSel     = 0; 
 
-  // Loop over all possible radiating systems.
-  for (int iSystem = 0; iSystem < int(system.size()); ++iSystem) {
-    iSysNow = iSystem;
-    sysNow  = &system[iSystem];  
-
-    // Loop over four dipole ends for each radiating system.
-    for (int iDipEnd = 0; iDipEnd < 4; ++iDipEnd) {
-      dipEndNow      = &sysNow->dipEnd[iDipEnd];        
-      dipEndNow->pT2 = 0.;
+  // Loop over all possible dipole ends.
+  for (int iDipEnd = 0; iDipEnd < int(dipEnd.size()); ++iDipEnd) {
+    iDipNow        = iDipEnd;
+    dipEndNow      = &dipEnd[iDipEnd];        
+    iSysNow        = dipEndNow->system;
+    dipEndNow->pT2 = 0.;
    
-      // Check whether dipole end should be allowed to shower. 
-      double pT2begDip = pow2( min( pTbegAll, dipEndNow->pTmax ));
-      if (pT2begDip > pT2sel 
-        && ( dipEndNow->colType != 0 || dipEndNow->chgType != 0 ) ) {
-        double pT2endDip = 0.;
+    // Check whether dipole end should be allowed to shower. 
+    double pT2begDip = pow2( min( pTbegAll, dipEndNow->pTmax ));
+    if (pT2begDip > pT2sel 
+      && ( dipEndNow->colType != 0 || dipEndNow->chgType != 0 ) ) {
+      double pT2endDip = 0.;
 
-        // Determine lower cut for evolution, for QCD or QED (q or l).      
-        if (dipEndNow->colType != 0) pT2endDip = max( pT2sel, pT2min );   
-        else if (abs(dipEndNow->chgType) != 3) pT2endDip 
-          = max( pT2sel, pT2minChgQ );   
-        else pT2endDip = max( pT2sel, pT2minChgL );  
+      // Determine lower cut for evolution, for QCD or QED (q or l).      
+      if (dipEndNow->colType != 0) pT2endDip = max( pT2sel, pT2min );   
+      else if (abs(dipEndNow->chgType) != 3) pT2endDip 
+        = max( pT2sel, pT2minChgQ );   
+      else pT2endDip = max( pT2sel, pT2minChgL );  
 
-        // Now do evolution in pT2, for QCD or QED 
-        if (pT2begDip > pT2endDip) { 
-          if (dipEndNow->colType != 0) pT2nextQCD( pT2begDip, pT2endDip);
-          else                         pT2nextQED( pT2begDip, pT2endDip);
-        }
+      // Find properties of dipole and radiating dipole end.
+      bool ordered = ( abs(dipEndNow->side) == 1 ); 
+      BeamParticle& beamNow = (ordered) ? *beamAPtr : *beamBPtr;
+      BeamParticle& beamRec = (ordered) ? *beamBPtr : *beamAPtr;
+      iNow         = beamNow[iSysNow].iPos();
+      iRec         = beamRec[iSysNow].iPos();
+      idDaughter   = beamNow[iSysNow].id();
+      xDaughter    = beamNow[iSysNow].x();
+      x1Now        = (ordered) ? xDaughter : beamRec[iSysNow].x();
+      x2Now        = (ordered) ? beamRec[iSysNow].x() : xDaughter;
+      m2Dip        = x1Now * x2Now * sCM; 
 
-        // Update if found larger pT than current maximum.
-        if (dipEndNow->pT2 > pT2sel) {
-          pT2sel    = dipEndNow->pT2;
-          iSysSel   = iSysNow;
-          sysSel    = sysNow;
-          dipEndSel = dipEndNow;
-        }
+      // Now do evolution in pT2, for QCD or QED 
+      if (pT2begDip > pT2endDip) { 
+        if (dipEndNow->colType != 0) pT2nextQCD( pT2begDip, pT2endDip);
+        else                         pT2nextQED( pT2begDip, pT2endDip);
       }
 
-    // End loop over dipole ends and systems.
+      // Update if found larger pT than current maximum.
+      if (dipEndNow->pT2 > pT2sel) {
+        pT2sel    = dipEndNow->pT2;
+        iDipSel   = iDipNow;
+        iSysSel   = iSysNow;
+        dipEndSel = dipEndNow;
+      }
+
+    // End loop over dipole ends.
     }
   } 
-  
-  // Check if g -> Q + Qbar. ?? to do what 
-  if (dipEndSel != 0 && dipEndSel->idMother == 21 
-    && ( abs(dipEndSel->idSister) == 4 || abs(dipEndSel->idSister) == 5) ) {
-  } ; 
 
   // Return nonvanishing value if found pT is bigger than already found.
-  return (sysSel == 0) ? 0. : sqrt(pT2sel); 
+  return (dipEndSel == 0) ? 0. : sqrt(pT2sel); 
 }
 
 //*********
@@ -339,22 +320,18 @@ double SpaceShower::pTnext( double pTbegAll, double pTendAll) {
 
 void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) { 
 
-  // Read beam particle and incoming parton from appropriate side. 
-  BeamParticle& beam = (dipEndNow->side == 1) ? *beamAPtr   : *beamBPtr;
-  int    idDaughter  = (dipEndNow->side == 1) ? sysNow->id1 : sysNow->id2;
-  double xDaughter   = (dipEndNow->side == 1) ? sysNow->x1  : sysNow->x2;
+  // Some properties and kinematical starting values.
+  BeamParticle& beam = ( abs(dipEndNow->side) == 1 ) 
+                     ? *beamAPtr : *beamBPtr;
   bool   isGluon     = (idDaughter == 21);
   bool   isValence   = beam[iSysNow].isValence();
   int    MEtype      = dipEndNow->MEtype;
+  double pT2         = pT2begDip;
+  double xMaxAbs     = beam.xMax(iSysNow);
+  double zMinAbs     = xDaughter / xMaxAbs;
 
-  // Some kinematical starting values.
-  double pT2     = pT2begDip;
-  double m2      = sysNow->m2;
-  double xMaxAbs = beam.xMax(iSysNow);
-  double zMinAbs = xDaughter / xMaxAbs;
-
-  // Evolution below scale of massive quark or at large x is impossible.
-  double idMassive                      = 0;
+  // Starting values for handling of massive quarks (c/b), if any.
+  double idMassive   = 0;
   if ( abs(idDaughter) == 4 ) idMassive = 4;
   if ( abs(idDaughter) == 5 ) idMassive = 5;
   bool   isMassive   = (idMassive > 0);
@@ -362,10 +339,12 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
   double mRatio      = 0.;
   double zMaxMassive = 1.;
   double m2Threshold = pT2;
+
+  // Evolution below scale of massive quark or at large x is impossible.
   if (isMassive) { 
     m2Massive = (idMassive == 4) ? m2c : m2b;
     if (pT2 < HEAVYPT2EVOL * m2Massive) return;
-    mRatio = sqrt( m2Massive / m2 );
+    mRatio = sqrt( m2Massive / m2Dip );
     zMaxMassive = (1. -  mRatio) / ( 1. +  mRatio * (1. -  mRatio) ); 
     if (xDaughter > HEAVYXEVOL * zMaxMassive * xMaxAbs) return; 
   
@@ -374,7 +353,7 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
       : min( pT2, BTHRESHOLD * m2b); 
   }
   
-  // Variables used inside evolution loop. (Mainly dummy start values.)
+  // Variables used inside evolution loop. (Mainly dummy starting values.)
   int    nFlavour       = 3; 
   double b0             = 4.5;
   double Lambda2        = Lambda3flav2;
@@ -430,9 +409,9 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
         b0        = 27./6.;
         Lambda2   = Lambda3flav2;
       }
-      zMaxAbs = 1. - 0.5 * (pT2minNow / m2) *
-        ( sqrt( 1. + 4. * m2 / pT2minNow ) - 1. );
-      if (isMassive) zMaxAbs = min( zMaxAbs, zMaxMassive);  
+      zMaxAbs = 1. - 0.5 * (pT2minNow / m2Dip) *
+        ( sqrt( 1. + 4. * m2Dip / pT2minNow ) - 1. );
+      if (isMassive) zMaxAbs = min( zMaxAbs, zMaxMassive); 
 
       // Go to another z range with lower mass scale if current is closed.
       if (zMinAbs > zMaxAbs) { 
@@ -610,14 +589,14 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
     // Forbidden emission if outside allowed z range for given pT2.
     mSister = ParticleDataTable::m0(idSister);
     m2Sister = pow2(mSister);
-    pT2corr = Q2 - z * (m2 + Q2) * (Q2 + m2Sister) / m2;
+    pT2corr = Q2 - z * (m2Dip + Q2) * (Q2 + m2Sister) / m2Dip;
     if(pT2corr < TINYPT2) { wt = 0.; continue; }
 
     // If creating heavy quark by Q -> g + Q then next need g -> Q + Qbar.
     // So minimum total mass2 is 4 * m2Sister, but use more to be safe.
     if ( isGluon && ( abs(idMother) == 4 || abs(idMother) == 5 )) {
       double m2QQsister =  EXTRASPACEQ * 4. * m2Sister;
-      double pT2QQcorr = Q2 - z * (m2 + Q2) * (Q2 + m2QQsister) / m2;
+      double pT2QQcorr = Q2 - z * (m2Dip + Q2) * (Q2 + m2QQsister) / m2Dip;
       if(pT2QQcorr < TINYPT2) { wt = 0.; continue; }
     }  
 
@@ -625,7 +604,7 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
     phi = 2. * M_PI * Rndm::flat();
 
     // Evaluation of ME correction.
-    if (doMEcorrections) wt *= calcMEcorr(MEtype, idMother, m2, z, Q2) 
+    if (doMEcorrections) wt *= calcMEcorr(MEtype, idMother, m2Dip, z, Q2) 
       / calcMEmax(MEtype, idMother); 
 
     // Evaluation of new daughter and mother PDF's.
@@ -642,15 +621,8 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
   } while (wt < Rndm::flat()) ;
 
   // Save values for (so far) acceptable branching.
-  dipEndNow->idMother = idMother;  
-  dipEndNow->idSister = idSister;  
-  dipEndNow->pT2      = pT2;  
-  dipEndNow->z        = z; 
-  dipEndNow->Q2       = Q2;
-  dipEndNow->mSister  = mSister;  
-  dipEndNow->m2Sister = m2Sister;  
-  dipEndNow->pT2corr  = pT2corr;  
-  dipEndNow->phi      = phi;  
+  dipEndNow->store( idDaughter,idMother, idSister, x1Now, x2Now, m2Dip,
+    pT2, z, Q2, mSister, m2Sister, pT2corr, phi);  
 
 }
 
@@ -665,12 +637,7 @@ void SpaceShower::pT2nearQCDthreshold( BeamParticle& beam,
   double m2Massive, double m2Threshold, double zMinAbs, 
   double zMaxMassive) {
 
-  // Read beam particle and incoming parton from appropriate side. 
-  int    idDaughter = (dipEndNow->side == 1) ? sysNow->id1 : sysNow->id2;
-  double xDaughter  = (dipEndNow->side == 1) ? sysNow->x1  : sysNow->x2;
-
-  // Further initial values, to be used in kinematics and weighting.
-  double m2            = sysNow->m2;
+  // Initial values, to be used in kinematics and weighting.
   double Lambda2       = (abs(idDaughter) == 4) ? Lambda4flav2 : Lambda5flav2;
   double logM2Lambda2  = log( m2Massive / Lambda2 );
   double xPDFmotherOld = beam.xfISR(iSysNow, 21, xDaughter, m2Threshold);
@@ -702,7 +669,7 @@ void SpaceShower::pT2nearQCDthreshold( BeamParticle& beam,
 
     // Check that kinematically possible choice.
     Q2 = pT2 / (1.-z) - m2Massive;
-    pT2corr = Q2 - z * (m2 + Q2) * (Q2 + m2Massive) / m2;
+    pT2corr = Q2 - z * (m2Dip + Q2) * (Q2 + m2Massive) / m2Dip;
     if(pT2corr < TINYPT2) continue;
     
     // Correction factor for running alpha_s.  ??
@@ -722,15 +689,9 @@ void SpaceShower::pT2nearQCDthreshold( BeamParticle& beam,
   double phi = 2. * M_PI * Rndm::flat();
 
   // Save values for (so far) acceptable branching.
-  dipEndNow->idMother = 21;  
-  dipEndNow->idSister = -idDaughter;  
-  dipEndNow->pT2      = pT2;  
-  dipEndNow->z        = z; 
-  dipEndNow->Q2       = Q2;
-  dipEndNow->mSister  = (abs(idDaughter) == 4) ? mc : mb;  
-  dipEndNow->m2Sister = pow2(dipEndNow->mSister);  
-  dipEndNow->pT2corr  = pT2corr;  
-  dipEndNow->phi      = phi;  
+  double mSister = (abs(idDaughter) == 4) ? mc : mb;  
+  dipEndNow->store( idDaughter, 21, -idDaughter, x1Now, x2Now, m2Dip,
+    pT2, z, Q2, mSister, pow2(mSister), pT2corr, phi);  
 
 }
 
@@ -740,17 +701,13 @@ void SpaceShower::pT2nearQCDthreshold( BeamParticle& beam,
 
 void SpaceShower::pT2nextQED( double pT2begDip, double pT2endDip) { 
 
-  // Read beam particle and incoming parton from appropriate side. 
-  BeamParticle& beam  = (dipEndNow->side == 1) ? *beamAPtr   : *beamBPtr;
-  bool   isLeptonBeam = beam.isLepton();
-  int    idDaughter   = (dipEndNow->side == 1) ? sysNow->id1 : sysNow->id2;
-  double xDaughter    = (dipEndNow->side == 1) ? sysNow->x1  : sysNow->x2;
-
   // Type of dipole and starting values.
-  int    MEtype   = dipEndNow->MEtype;
-  bool   isPhoton = (idDaughter == 22);
-  double pT2      = pT2begDip;
-  double m2       = sysNow->m2;
+  BeamParticle& beam  = ( abs(dipEndNow->side) == 1 ) 
+                      ? *beamAPtr : *beamBPtr;
+  bool   isLeptonBeam = beam.isLepton();
+  int    MEtype       = dipEndNow->MEtype;
+  bool   isPhoton     = (idDaughter == 22);
+  double pT2          = pT2begDip;
   double m2Lepton = (isLeptonBeam) ? pow2(beam.m()) : 0.; 
   if (isLeptonBeam && pT2begDip < m2Lepton) return;
 
@@ -766,8 +723,8 @@ void SpaceShower::pT2nextQED( double pT2begDip, double pT2endDip) {
   double zMinAbs  = xDaughter / xMaxAbs;
 
   // Maximum z from minimum pT and, for lepton, from minimum x_gamma.
-  double zMaxAbs = 1. - 0.5 * (pT2endDip / m2) *
-    ( sqrt( 1. + 4. * m2 / pT2endDip ) - 1. );
+  double zMaxAbs = 1. - 0.5 * (pT2endDip / m2Dip) *
+    ( sqrt( 1. + 4. * m2Dip / pT2endDip ) - 1. );
   if (isLeptonBeam) {
     double zMaxLepton = xDaughter / (xDaughter + LEPTONXMIN);
     if (zMaxLepton < zMaxAbs) zMaxAbs = zMaxLepton;
@@ -787,7 +744,7 @@ void SpaceShower::pT2nextQED( double pT2begDip, double pT2endDip) {
   // Upper estimate for evolution equation, including fudge factor. 
   if (doMEcorrections) f2fInt *= calcMEmax(MEtype, 1);
   double kernelPDF = alphaEM2pi * f2fInt;
-  double fudge = (isLeptonBeam) ? LEPTONFUDGE * log(m2/m2Lepton) : 1.;
+  double fudge = (isLeptonBeam) ? LEPTONFUDGE * log(m2Dip/m2Lepton) : 1.;
   kernelPDF *= fudge;
   if (kernelPDF < TINYKERNELPDF) return;
   
@@ -838,7 +795,7 @@ void SpaceShower::pT2nextQED( double pT2begDip, double pT2endDip) {
     // Forbidden emission if outside allowed z range for given pT2.
     mSister  = 0.;
     m2Sister = 0.;
-    pT2corr  = Q2 - z * (m2 + Q2) * (Q2 + m2Sister) / m2;
+    pT2corr  = Q2 - z * (m2Dip + Q2) * (Q2 + m2Sister) / m2Dip;
     if(pT2corr < TINYPT2) { wt = 0.; continue; }
 
     // Select phi angle of branching at random.
@@ -848,7 +805,7 @@ void SpaceShower::pT2nextQED( double pT2begDip, double pT2endDip) {
     if (isLeptonBeam) wt *= log(pT2 / m2Lepton) / fudge;
 
     // Evaluation of ME correction.
-    if (doMEcorrections) wt *= calcMEcorr(MEtype, idMother, m2, z, Q2) 
+    if (doMEcorrections) wt *= calcMEcorr(MEtype, idMother, m2Dip, z, Q2) 
       / calcMEmax(MEtype, idMother);
 
     // Correct to current value of alpha_EM.
@@ -865,15 +822,8 @@ void SpaceShower::pT2nextQED( double pT2begDip, double pT2endDip) {
   } while (wt < Rndm::flat()) ;
 
   // Save values for (so far) acceptable branching.
-  dipEndNow->idMother = idMother;  
-  dipEndNow->idSister = 22;  
-  dipEndNow->pT2      = pT2;  
-  dipEndNow->z        = z; 
-  dipEndNow->Q2       = Q2;
-  dipEndNow->mSister  = mSister;  
-  dipEndNow->m2Sister = m2Sister;  
-  dipEndNow->pT2corr  = pT2corr;  
-  dipEndNow->phi      = phi;  
+  dipEndNow->store( idDaughter,idMother, 22, x1Now, x2Now, m2Dip,
+    pT2, z, Q2, mSister, m2Sister, pT2corr, phi);  
 
 }
 
@@ -885,23 +835,23 @@ void SpaceShower::pT2nextQED( double pT2begDip, double pT2endDip) {
 bool SpaceShower::branch( Event& event) {
 
   // Side on which branching occured.
-  int side = dipEndSel->side;
-  double sideSign = (side == 1) ? 1. : -1.;
+  int side         = abs(dipEndSel->side);
+  double sideSign  = (side == 1) ? 1. : -1.;
 
   // Read in flavour and colour variables.
-  int iDaughter    = sysSel->iParton[side - 1];
-  int iRecoiler    = sysSel->iParton[2 - side];
-  int idDaughter   = (side == 1) ? sysSel->id1 : sysSel->id2;
+  int iDaughter    = event.getInSystem( iSysSel, side - 1);
+  int iRecoiler    = event.getInSystem( iSysSel, 2 - side);
+  int idDaughter   = dipEndSel->idDaughter;
   int idMother     = dipEndSel->idMother;
   int idSister     = dipEndSel->idSister;
   int colDaughter  = event[iDaughter].col();
   int acolDaughter = event[iDaughter].acol();
 
   // Read in kinematical variables.
-  double m         = sysSel->m;
-  double m2        = sysSel->m2;
-  double x1        = sysSel->x1;
-  double x2        = sysSel->x2;
+  double x1        = dipEndSel->x1;
+  double x2        = dipEndSel->x2;
+  double m2        = dipEndSel->m2Dip;
+  double m         = sqrt(m2);
   double pT2       = dipEndSel->pT2;
   double z         = dipEndSel->z;
   double Q2        = dipEndSel->Q2; 
@@ -911,10 +861,10 @@ bool SpaceShower::branch( Event& event) {
   double phi       = dipEndSel->phi;
 
   // Take copy of existing system, to be given modified kinematics.
-  int eventSizeOld = event.size();
-  int systemSizeOld = sysSel->iParton.size();
+  int eventSizeOld  = event.size();
+  int systemSizeOld = event.sizeSystem(iSysSel);
   for ( int iCopy = 0; iCopy < systemSizeOld; ++iCopy) {
-    int iOldCopy = sysSel->iParton[iCopy];
+    int iOldCopy = event.getInSystem( iSysSel, iCopy);
     int statusNew = (iOldCopy == iDaughter 
       || iOldCopy == iRecoiler) ? event[iOldCopy].status() : 44;
     event.copy(iOldCopy, statusNew);
@@ -1001,8 +951,10 @@ bool SpaceShower::branch( Event& event) {
   // Update mother and daughter pointers; also for beams.
   daughter.mothers( iMother, 0);
   mother.daughters( iSister, iDaughter); 
-  event[1].daughter1( (side == 1) ? iMother : iNewRecoiler ); 
-  event[2].daughter1( (side == 2) ? iMother : iNewRecoiler ); 
+  if (iSysSel == 0) {
+    event[1].daughter1( (side == 1) ? iMother : iNewRecoiler ); 
+    event[2].daughter1( (side == 2) ? iMother : iNewRecoiler ); 
+  }
 
   // Find boost to old rest frame, and rotation -phi.
   RotBstMatrix Mtot;
@@ -1038,36 +990,36 @@ bool SpaceShower::branch( Event& event) {
  
   // Update list of partons in system; adding newly produced one.
   for ( int iCopy = 0; iCopy < systemSizeOld; ++iCopy) 
-    sysSel->iParton[iCopy] = eventSizeOld + iCopy;
-  sysSel->iParton.push_back(eventSizeOld + systemSizeOld);
+    event.setInSystem( iSysSel, iCopy, eventSizeOld + iCopy);
+  event.addToSystem( iSysSel, eventSizeOld + systemSizeOld);
 
-  // Update info on system, including in beam remnants.
-  if (side == 1) {
-    sysSel->id1 = idMother;
-    sysSel->x1  = x1New;
-  } else {
-    sysSel->id2 = idMother;
-    sysSel->x2  = x2New;
+  // Update info on dipole ends (QCD or QED).
+  for (int iDip = 0; iDip < int(dipEnd.size()); ++iDip)
+  if ( dipEnd[iDip].system == iSysSel && abs(dipEnd[iDip].side) == side ) {    
+    dipEnd[iDip].iRadiator = iMother;
+    dipEnd[iDip].iRecoiler = iNewRecoiler;
+    if (dipEnd[iDip].side > 0) 
+      dipEnd[iDip].colType = mother.colType();
+    else {
+      dipEnd[iDip].chgType = 0;
+      if ( (mother.isQuark() && doQEDshowerByQ)
+        || (mother.isLepton() && doQEDshowerByL) ) 
+        dipEnd[iDip].chgType = mother.chargeType();
+    }
+    dipEnd[iDip].MEtype = 0;
   }
-  sysSel->m2    = m2 / z;
-  sysSel->m     = sqrt(sysSel->m2);
-
-  // Update info on dipole end.
-  if (dipEndSel->colType != 0) dipEndSel->colType = mother.colType();
-  if (dipEndSel->chgType != 0) dipEndSel->chgType = mother.chargeType();
-  dipEndSel->MEtype = 0;
 
   // Update info on beam remnants.
-  BeamParticle& beamBranch = (side == 1) ? *beamAPtr : *beamBPtr;
+  BeamParticle& beamNow = (side == 1) ? *beamAPtr : *beamBPtr;
   double xNew = (side == 1) ? x1New : x2New;
-  beamBranch[iSysSel].lineidx( iMother, idMother, xNew);
+  beamNow[iSysSel].update( iMother, idMother, xNew);
   // Redo choice of companion kind whenever new flavour.
   if (idMother != idDaughter) {
-    beamBranch.xfISR( iSysSel, idMother, xNew, pT2);
-    beamBranch.pickValSeaComp();
+    beamNow.xfISR( iSysSel, idMother, xNew, pT2);
+    beamNow.pickValSeaComp();
   }
-  BeamParticle& beamRecoil = (side == 1) ? *beamBPtr : *beamAPtr;
-  beamRecoil[iSysSel].line( iNewRecoiler);
+  BeamParticle& beamRec = (side == 1) ? *beamBPtr : *beamAPtr;
+  beamRec[iSysSel].iPos( iNewRecoiler);
 
   // Done without any errors.
   return true;
@@ -1078,17 +1030,17 @@ bool SpaceShower::branch( Event& event) {
 
 // Find class of ME correction.
 
-void SpaceShower::findMEtype( Event& event) {
+int SpaceShower::findMEtype( int iSys, Event& event) {
 
   // Default values and no action.
   int MEtype = 0; 
   if (!doMEcorrections) ;
 
   // Identify systems producing a single resonance.
-  else if (sysNow->iParton.size() == 3) {
-    int idIn1 = event[sysNow->iParton[0]].id();
-    int idIn2 = event[sysNow->iParton[1]].id();
-    int idRes = event[sysNow->iParton[2]].id();
+  else if (event.sizeSystem( iSys) == 3) {
+    int idIn1 = event[event.getInSystem( iSys, 0)].id();
+    int idIn2 = event[event.getInSystem( iSys, 1)].id();
+    int idRes = event[event.getInSystem( iSys, 2)].id();
 
     // f + fbar -> vector boson. 
     if ( (idRes == 23 || abs(idRes) == 24 || idRes == 32 
@@ -1101,8 +1053,8 @@ void SpaceShower::findMEtype( Event& event) {
        || ( idIn1 == 22 && idIn2 == 22 ) ) ) MEtype = 2; 
   }
 
-  // Set matrix element correction type. 
-  for (int i = 0; i < 4; ++i) sysNow->dipEnd[i].MEtype = MEtype;
+  // Done.
+  return MEtype;
 
 }
 
@@ -1149,6 +1101,32 @@ double SpaceShower::calcMEcorr(int MEtype, int idMother,
   }
 
   return 1.;
+
+}
+
+//*********
+
+// Print the list of dipoles.
+
+void SpaceShower::list(ostream& os) {
+
+  // Header.
+  os << "\n --------  PYTHIA SpaceShower Dipole Listing  ---------- \n"
+     << "\n    i  syst  side   rad   rec       pTmax  col  chg type \n" 
+     << fixed << setprecision(3);
+  
+  // Loop over dipole list and print it.
+  for (int i = 0; i < int(dipEnd.size()); ++i) 
+  os << setw(5) << i << setw(6) << dipEnd[i].system 
+     << setw(6) << dipEnd[i].side << setw(6) << dipEnd[i].iRadiator 
+     << setw(6) << dipEnd[i].iRecoiler << setw(12) << dipEnd[i].pTmax 
+     << setw(5) << dipEnd[i].colType << setw(5) << dipEnd[i].chgType
+     << setw(5) << dipEnd[i].MEtype << "\n";
+
+  // Done.
+  os << "\n --------  End PYTHIA SpaceShower Dipole Listing  ------"
+     << endl;
+  
 
 }
  

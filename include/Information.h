@@ -29,108 +29,119 @@ public:
   void list(ostream& os = cout);
   
   // Beam particles (in rest frame). CM energy of event.
-  int idA() const {return idAM;}
-  int idB() const {return idBM;}
-  double pzA() const {return pzAM;}
-  double pzB() const {return pzBM;}
-  double eA() const {return eAM;}
-  double eB() const {return eBM;}
-  double mA() const {return mAM;}
-  double mB() const {return mBM;}
-  double eCM() const {return eCMM;}
-  double s() const {return sM;}
+  int    idA()            const {return idAM;}
+  int    idB()            const {return idBM;}
+  double pzA()            const {return pzAM;}
+  double pzB()            const {return pzBM;}
+  double eA()             const {return eAM;}
+  double eB()             const {return eBM;}
+  double mA()             const {return mAM;}
+  double mB()             const {return mBM;}
+  double eCM()            const {return eCMM;}
+  double s()              const {return sM;}
 
   // Process name and code, and the number of final-state particles.
-  string name() const {return nameSave;}
-  int code() const {return codeSave;}    
-  int nFinal() const {return nFinalSave;}
+  string name()           const {return nameSave;}
+  int    code()           const {return codeSave;}    
+  int    nFinal()         const {return nFinalSave;}
 
   // Are beam particles resolved, with pdf's? Are they diffractive? 
-  bool isResolved() const {return isRes;}
-  bool isDiffractiveA() const {return isDiffA;} 
-  bool isDiffractiveB() const {return isDiffB;} 
-  bool isMinBias() const {return isMB;}
+  bool   isResolved()     const {return isRes;}
+  bool   isDiffractiveA() const {return isDiffA;} 
+  bool   isDiffractiveB() const {return isDiffB;} 
+  bool   isMinBias()      const {return isMB;}
 
   // For minbias identify hardest subprocess.
-  bool hasSub() const {return hasSubSave;}
-  string nameSub() const {return nameSubSave;}
-  int codeSub() const {return codeSubSave;}    
-  int nFinalSub() const {return nFinalSubSave;}
+  bool   hasSub()         const {return hasSubSave;}
+  string nameSub()        const {return nameSubSave;}
+  int    codeSub()        const {return codeSubSave;}    
+  int    nFinalSub()      const {return nFinalSubSave;}
 
   // Incoming parton flavours and x values.
-  int id1() const {return id1H;}
-  int id2() const {return id2H;}
-  double x1() const {return x1H;}
-  double x2() const {return x2H;}
-  double y() const {return 0.5 * log( x1H / x2H );}
-  double tau() const {return x1H * x2H;}
+  int    id1()            const {return id1H;}
+  int    id2()            const {return id2H;}
+  double x1()             const {return x1H;}
+  double x2()             const {return x2H;}
+  double y()              const {return 0.5 * log( x1H / x2H );}
+  double tau()            const {return x1H * x2H;}
 
   // Incoming parton densities, hard process couplings, Q2 scales.
-  double pdf1() const {return pdf1H;}
-  double pdf2() const {return pdf2H;}
-  double QFac() const {return sqrtpos(Q2FacH);}
-  double Q2Fac() const {return Q2FacH;}
-  double alphaS() const {return alphaSH;}
-  double alphaEM() const {return alphaEMH;}
-  double QRen() const {return sqrtpos(Q2RenH);}
-  double Q2Ren() const {return Q2RenH;}
+  double pdf1()           const {return pdf1H;}
+  double pdf2()           const {return pdf2H;}
+  double QFac()           const {return sqrtpos(Q2FacH);}
+  double Q2Fac()          const {return Q2FacH;}
+  double alphaS()         const {return alphaSH;}
+  double alphaEM()        const {return alphaEMH;}
+  double QRen()           const {return sqrtpos(Q2RenH);}
+  double Q2Ren()          const {return Q2RenH;}
 
   // Mandelstam variables (notation as if subcollision).
-  double mHat() const {return sqrt(sH);}   
-  double sHat() const {return sH;}   
-  double tHat() const {return tH;}   
-  double uHat() const {return uH;}   
-  double pTHat() const {return pTH;} 
-  double pT2Hat() const {return pTH*pTH;} 
-  double m3Hat() const {return m3H;}   
-  double m4Hat() const {return m4H;} 
-  double thetaHat() const {return thetaH;}   
-  double phiHat() const {return phiH;}   
+  double mHat()           const {return sqrt(sH);}   
+  double sHat()           const {return sH;}   
+  double tHat()           const {return tH;}   
+  double uHat()           const {return uH;}   
+  double pTHat()          const {return pTH;} 
+  double pT2Hat()         const {return pTH*pTH;} 
+  double m3Hat()          const {return m3H;}   
+  double m4Hat()          const {return m4H;} 
+  double thetaHat()       const {return thetaH;}   
+  double phiHat()         const {return phiH;}   
 
   // Cross section estimate.
-  int nTried() const {return nTry;}
-  int nAccepted() const {return nAcc;}
-  double sigmaGen() const {return sigGen;}
-  double sigmaErr() const {return sigErr;}
+  long   nTried()         const {return nTry;}
+  long   nSelected()      const {return nSel;}
+  long   nAccepted()      const {return nAcc;}
+  double sigmaGen()       const {return sigGen;}
+  double sigmaErr()       const {return sigErr;}
 
   // Impact parameter picture.
-  double bMI() const {return (bIsSet) ? bH : 0.;}
-  double enhanceMI() const {return (bIsSet) ? enhanceH : 0.;}
+  double bMI()            const {return (bIsSet) ? bH : 0.;}
+  double enhanceMI()      const {return (bIsSet) ? enhanceH : 0.;}
 
   // Maximum pT scales for MI, ISR and FSR (in hard process).
-  double pTmaxMI() const {return pTmaxMIH;}
-  double pTmaxISR() const {return pTmaxISRH;}
-  double pTmaxFSR() const {return pTmaxFSRH;}
+  double pTmaxMI()        const {return pTmaxMIH;}
+  double pTmaxISR()       const {return pTmaxISRH;}
+  double pTmaxFSR()       const {return pTmaxFSRH;}
 
   // Number of multiple interactions, with code and pT for them.
-  int nMI() const {return nMIH;}
-  int codeMI(int i) const {return (i >= 0 && i < nMIH) ? codeMISave[i] : 0;} 
-  double pTMI(int i) const {return (i >= 0 && i < nMIH) ? pTMISave[i] : 0.;} 
+  int    nMI()            const {return nMIH;}
+  int    codeMI(int i)    const {return codeMISave[i];} 
+  double pTMI(int i)      const {return pTMISave[i];} 
 
   // Number of times other steps have been carried out.
-  int nISR() const {return nISRH;}
-  int nFSRinProc() const {return nFSRinProcH;}
-  int nFSRinRes() const {return nFSRinResH;}
+  int    nISR()           const {return nISRH;}
+  int    nFSRinProc()     const {return nFSRinProcH;}
+  int    nFSRinRes()      const {return nFSRinResH;}
 
 private:
 
-  // Store global quantities. 
-  int idAM, idBM, nTry, nAcc;
-  double pzAM, eAM,mAM, pzBM, eBM, mBM, eCMM, sM, sigGen, sigErr;
+  // Store common beam quantities. 
+  int    idAM, idBM;
+  double pzAM, eAM,mAM, pzBM, eBM, mBM, eCMM, sM;
+
+  // Store common integrated cross section quantities.
+  long   nTry, nSel, nAcc;
+  double sigGen, sigErr;
 
   // Store current-event quantities.
   string nameSave, nameSubSave;
-  int codeSave, codeSubSave, nFinalSave, nFinalSubSave, nTotal, id1H, id2H, 
-    nMIH, nISRH, nFSRinProcH, nFSRinResH;
-  bool isMB, isRes, isDiffA, isDiffB, hasSubSave, bIsSet, evolIsSet;  
+  int    codeSave, codeSubSave, nFinalSave, nFinalSubSave, nTotal, 
+         id1H, id2H, nMIH, nISRH, nFSRinProcH, nFSRinResH;
+  bool   isMB, isRes, isDiffA, isDiffB, hasSubSave, bIsSet, evolIsSet;  
   double x1H, x2H, pdf1H, pdf2H, Q2FacH, alphaEMH, alphaSH, Q2RenH, 
-    sH, tH, uH, pTH, m3H, m4H, thetaH, phiH, bH, enhanceH, pTmaxMIH,
-    pTmaxISRH, pTmaxFSRH;
-  vector<int> codeMISave;
+         sH, tH, uH, pTH, m3H, m4H, thetaH, phiH, bH, enhanceH, pTmaxMIH,
+         pTmaxISRH, pTmaxFSRH;
+  vector<int>    codeMISave;
   vector<double> pTMISave;
 
-  // Set info on the two incoming beams: only from Pythia class.
+  // Friend classes allowed to set info.
   friend class Pythia;
+  friend class ProcessLevel;
+  friend class ProcessContainer;
+  friend class PartonLevel;
+  friend class MultipleInteractions;
+
+  // Set info on the two incoming beams: only from Pythia class.
   void setBeamA( int idAin, double pzAin, double eAin, double mAin) {
     idAM = idAin; pzAM = pzAin; eAM = eAin; mAM = mAin;}
   void setBeamB( int idBin, double pzBin, double eBin, double mBin) {
@@ -144,12 +155,6 @@ private:
     = alphaEMH = alphaSH = Q2RenH = sH = tH = uH = pTH = m3H = m4H 
     = thetaH = phiH = bH = enhanceH = 0.; codeMISave.resize(0);
     pTMISave.resize(0);}
-
-  // Friend classes allowed to set info.
-  friend class ProcessLevel;
-  friend class ProcessContainer;
-  friend class PartonLevel;
-  friend class MultipleInteractions;
 
   // Set info on the (sub)process: from ProcessLevel, ProcessContainer or 
   // MultipleInteractions classes.
@@ -178,8 +183,9 @@ private:
     codeMISave.push_back(codeMIIn); pTMISave.push_back(pTMIIn);}
 
   // Set info on cross section: from ProcessLevel.
-  void setSigma( int nTryIn, int nAccIn, double sigGenIn, double sigErrIn)
-    { nTry = nTryIn; nAcc = nAccIn; sigGen = sigGenIn; sigErr = sigErrIn;} 
+  void setSigma( long nTryIn, long nSelIn, long nAccIn, double sigGenIn, 
+    double sigErrIn) { nTry = nTryIn; nSel = nSelIn; nAcc = nAccIn; 
+    sigGen = sigGenIn; sigErr = sigErrIn;} 
 
   // Set info on impact parameter: from PartonLevel.
   void setImpact( double bIn, double enhanceIn) {bH = bIn;
@@ -190,7 +196,7 @@ private:
     int nMIIn, int nISRIn, int nFSRinProcIn, int nFSRinResIn) { 
     pTmaxMIH = pTmaxMIIn; pTmaxISRH = pTmaxISRIn; pTmaxFSRH = pTmaxFSRIn; 
     nMIH = nMIIn; nISRH = nISRIn; nFSRinProcH = nFSRinProcIn; 
-    nFSRinResH= nFSRinResIn; evolIsSet = true;}
+    nFSRinResH = nFSRinResIn; evolIsSet = true;}
 
 };
 
@@ -215,6 +221,9 @@ public:
   // Print a message the first few times. Insert in database.
   static void message(string messageIn, string extraIn = " ",
     ostream& os = cout);
+
+  // Provide total number of errors experienced to date.
+  static int totalNumber();
 
   // Print statistics on errors/warnings.
   static void statistics(ostream& os = cout);
