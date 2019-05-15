@@ -464,6 +464,8 @@ void StringRegion::setUp(Vec4 p1, Vec4 p2, bool isMassless) {
     double k2 = 0.5 * ( (m1Sq + p1p2) / root - 1.);
     pPos = (1. + k1) * p1 - k2 * p2;
     pNeg = (1. + k2) * p2 - k1 * p1;
+    if (pPos.e() < TINY || pNeg.e() < TINY)
+      {isSetUp = true; isEmpty = true; return;}
   }
 
   // Find two spacelike transverse four-vector directions.

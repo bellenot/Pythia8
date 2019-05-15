@@ -133,7 +133,7 @@ events, combined into one common event record.</li>
  
 <li><code>main20.cc</code> : shows how PYTHIA 8 can write a Les Houches 
 Event File, using facilities potentially useful also for other programs 
-to write an LHEF.</li> 
+to write an LHEF. See also <code>main64.cc</code>.</li> 
  
 <li><code>main21.cc</code> : an example how a single particle or various 
 parton-level configurations can be input directly for hadronization, 
@@ -286,6 +286,12 @@ contains undecayed resonances with helicity information. These
 would then be decayed isotropically by PYTHIA, but this example 
 shows how one could do better. Some input in <code>main62.cmnd</code>. 
 </li> 
+ 
+<li><code>main63.cc</code> : exemplifies how a user hook can be used 
+to enhance the rate of rare emissions in the shower.</li> 
+ 
+<li><code>main64.cc</code> : examplifies how LHEF version 3 events can 
+be written on an external file.</li> 
  
 <li><code>main71.cc</code> : an example how the FastJet jet finding 
 package can be linked to allow an analysis of the final state, 

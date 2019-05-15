@@ -1,4 +1,4 @@
-// ColosurReconnection.cc is a part of the PYTHIA event generator.
+// ColourReconnection.cc is a part of the PYTHIA event generator.
 // Copyright (C) 2015 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
@@ -488,7 +488,7 @@ void ColourReconnection::setupDipoles( Event& event, int iFirst) {
     if (wrongSystem)
       continue;
 
-    // Loop over legs of anti junction.
+    // Loop over legs of antijunction.
     if (event.kindJunction(i) == 2)
     for (int jCol = 0; jCol < 3; ++jCol) {
       int curCol = event.colJunction(i,jCol);
@@ -671,7 +671,7 @@ void ColourReconnection::setupDipoles( Event& event, int iFirst) {
         if (j == 0) firstCol = newCol;
         lastCol = newCol;
 
-        // Check if it is anti junction need special dipole.
+        // Check if it is antijunction need special dipole.
         if (j == 0 && isAntiJun[i]) {
           int col = event.colJunction( - int(chains[i][j]/10) - 1,
                                        -chains[i][j] % 10);
@@ -1000,7 +1000,7 @@ void ColourReconnection::swapDipoles(ColourDipole* dip1,
     }
   }
 
-  // Update list of junctions (only junctions, anti junctions stay the same).
+  // Update list of junctions (only junctions, antijunctions stay the same).
   for (int i = 0; i < int(junctions.size()); ++i)
   if (junctions[i].kind() % 2 == 1)
   for (int iLeg = 0; iLeg < 3; ++iLeg) {
@@ -1040,7 +1040,7 @@ void ColourReconnection::singleJunction(ColourDipole* dip1,
   // Check that all dipoles are active.
   if (!dip1->isActive || !dip2->isActive) return;
 
-  // Do nothing if one of the dipoles is a junction or anti junction.
+  // Do nothing if one of the dipoles is a junction or antijunction.
   if (dip1->isJun || dip1->isAntiJun) return;
   if (dip2->isJun || dip2->isAntiJun) return;
 
@@ -1170,7 +1170,7 @@ void ColourReconnection::singleJunction(ColourDipole* dip1,
 void ColourReconnection::singleJunction(ColourDipole* dip1,
   ColourDipole* dip2, ColourDipole* dip3) {
 
-  // Do nothing if one of the dipoles is a junction or anti junction.
+  // Do nothing if one of the dipoles is a junction or antijunction.
   if (dip1->isJun || dip1->isAntiJun) return;
   if (dip2->isJun || dip2->isAntiJun) return;
   if (dip3->isJun || dip3->isAntiJun) return;
@@ -3092,7 +3092,7 @@ void ColourReconnection::doJunctionTrial(Event& event,
     iActive1 = dipoles.size() - 1;
   }
 
-  // Now make dipole between anti junction and iAcol1.
+  // Now make dipole between antijunction and iAcol1.
   // Start by finding real iAcol.
   int iAcol3real  = particles[iAcol3].dips[dip3->iAcolLeg].front()->iAcol;
   dipoles.push_back(new ColourDipole(newCol2, -( iAntiJun * 10 + 10),
@@ -3105,7 +3105,7 @@ void ColourReconnection::doJunctionTrial(Event& event,
   dipoles.back()->iAcolLeg = dip3->iAcolLeg;
   int iActive2 = dipoles.size() - 1;
 
-  // Now make dipole between anti junction and iAcol1.
+  // Now make dipole between antijunction and iAcol1.
   // Start by finding real iAcol.
   int iAcol4real = particles[iAcol4].dips[dip4->iAcolLeg].front()->iAcol;
   dipoles.push_back(new ColourDipole(newCol3, -( iAntiJun * 10 + 10 + 1),
@@ -3119,7 +3119,7 @@ void ColourReconnection::doJunctionTrial(Event& event,
   int iActive3 = dipoles.size() - 1;
 
   // Update already existing dipoles, start by internal dipoles.
-  // Now take dipoles connected to the anti junction
+  // Now take dipoles connected to the antijunction
   // and a possible gluon-gluon connection.
   if (mode == 1) {
     if (dip2 == dip4) {
@@ -3316,7 +3316,7 @@ void ColourReconnection::doJunctionTrial(Event& event,
   junctions[iJun].dips[1] = dip2;
   junctions[iJun].dips[2] = dipoles[iActive1];
 
-  // Set anti junction information.
+  // Set antijunction information.
   junctions[iAntiJun].dips[0] = dipoles[iActive2];
   junctions[iAntiJun].dips[1] = dipoles[iActive3];
   junctions[iAntiJun].dipsOrig[0] = dipoles[iReal2];
@@ -3392,7 +3392,7 @@ void ColourReconnection::doTripleJunctionTrial(Event& event,
   int iJun = junctions.size();
   int iAntiJun = junctions.size() + 1;
 
-  // Now make dipole between anti junction and iAcol1.
+  // Now make dipole between antijunction and iAcol1.
   // Start by finding real iAcol.
   int iAcol1real
     = particles[iAcol1].dips[dip1->iAcolLeg].front()->iAcol;
@@ -3406,7 +3406,7 @@ void ColourReconnection::doTripleJunctionTrial(Event& event,
   dipoles.back()->iAcolLeg = dip1->iAcolLeg;
   int iActive1 = dipoles.size() - 1;
 
-  // Now make dipole between anti junction and iAcol2.
+  // Now make dipole between antijunction and iAcol2.
   // Start by finding real iAcol2.
   int iAcol2real
     = particles[iAcol2].dips[dip2->iAcolLeg].front()->iAcol;
@@ -3420,7 +3420,7 @@ void ColourReconnection::doTripleJunctionTrial(Event& event,
   dipoles.back()->iAcolLeg = dip2->iAcolLeg;
   int iActive2 = dipoles.size() - 1;
 
-  // Now make dipole between anti junction and iAcol3.
+  // Now make dipole between antijunction and iAcol3.
   // Start by finding real iAcol3.
   int iAcol3real
     = particles[iAcol3].dips[dip3->iAcolLeg].front()->iAcol;
@@ -3481,7 +3481,7 @@ void ColourReconnection::doTripleJunctionTrial(Event& event,
   junctions[iJun].dips[1] = dip2;
   junctions[iJun].dips[2] = dip3;
 
-  // Update the anti junction.
+  // Update the antijunction.
   junctions[iAntiJun].dips[0] = dipoles[iActive1];
   junctions[iAntiJun].dips[1] = dipoles[iActive2];
   junctions[iAntiJun].dips[2] = dipoles[iActive3];

@@ -419,8 +419,8 @@ LHAupAlpgen::LHAupAlpgen(const char* baseFNin, Info* infoPtrIn)
   }
 
   // Read entire contents into string and close file
-  string paramStr((istreambuf_iterator<char>(isPar->rdbuf())),
-                   istreambuf_iterator<char>());
+  string paramStr((std::istreambuf_iterator<char>(isPar->rdbuf())),
+                   std::istreambuf_iterator<char>());
 
   // Make sure we reached EOF and not other error
   if (ifsPar.bad()) {

@@ -425,8 +425,8 @@ void Sigma2lgm2Hchgchgl::initProc() {
   // Set process properties: H_L^++-- or H_R^++-- and e/mu/tau.
   idHLR        = (leftRight == 1) ? 9900041 : 9900042;
   codeSave     = (leftRight == 1) ? 3122 : 3142;
-  if (idLep == 13) codeSave += 2;
-  if (idLep == 15) codeSave += 4;
+  if (idLep == 13) codeSave += 1;
+  if (idLep == 15) codeSave += 2;
   if      (codeSave == 3122) nameSave = "l^+- gamma -> H_L^++-- e^-+";
   else if (codeSave == 3123) nameSave = "l^+- gamma -> H_L^++-- mu^-+";
   else if (codeSave == 3124) nameSave = "l^+- gamma -> H_L^++-- tau^-+";

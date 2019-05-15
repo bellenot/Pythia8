@@ -80,6 +80,9 @@ POWHEG:pTdef = 1
 !  1 - When there is no radiation, MPIs with a scale above pT_1 are vetoed,
 !      else MPIs with a scale above (pT_1 + pT_2 + pT_3) / 2 are vetoed
 POWHEG:MPIveto = 0
+! Note that POWHEG:MPIveto = 1 should be combined with
+! MultipartonInteractions:pTmaxMatch = 2
+! which here is taken care of in main31.cc.
 
 ! QED vetoing
 !  0 - No QED vetoing is done for pTemt > 0.

@@ -32,7 +32,6 @@
 #include "Pythia8/TimeShower.h"
 #include "Pythia8/UserHooks.h"
 
-
 namespace Pythia8 {
 
 //==========================================================================
@@ -88,6 +87,11 @@ public:
   // Provide the type of the last branching in the shower.
   int typeLastInShower(){ return typeLastBranch; }
 
+  // Make History and MergingHooks friends for access to private functions.
+  // This is helpful when merging with an external shower plugin.
+  friend class History;
+  friend class MergingHooks;
+
 private:
 
   // Constants: could only be changed in the code itself.
@@ -101,6 +105,7 @@ private:
          canVetoMPIStep, canVetoEarly, canSetScale, allowRH, earlyResDec,
          vetoWeakJets, canReconResSys, doReconnect, doHardDiff,
          forceResonanceCR;
+  int    pTmaxMatchMPI;
   double mMinDiff, mWidthDiff, pMaxDiff, vetoWeakDeltaR2;
 
   // Event generation strategy. Number of steps. Maximum pT scales.
@@ -114,7 +119,7 @@ private:
   bool   isNonDiff, isDiffA, isDiffB, isDiffC, isDiff, isSingleDiff,
          isDoubleDiff, isCentralDiff, isResolved, isResolvedA,
          isResolvedB, isResolvedC, isHardDiffA, isHardDiffB, isHardDiff,
-         isSetupDiff, doDiffVeto;
+         doDiffVeto;
   int    sizeProcess, sizeEvent, nHardDone, nHardDoneRHad, iDS;
   double eCMsave;
   vector<bool> inRHadDecay;

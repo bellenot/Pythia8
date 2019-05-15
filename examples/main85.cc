@@ -62,7 +62,7 @@ int main( int argc, char* argv[] ){
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
-  // Switch off all showering and MPI when extimating the cross section after
+  // Switch off all showering and MPI when estimating the cross section after
   // the merging scale cut.
   bool fsr = pythia.flag("PartonLevel:FSR");
   bool isr = pythia.flag("PartonLevel:ISR");
@@ -82,6 +82,8 @@ int main( int argc, char* argv[] ){
   // Save estimates in vectors.
   vector<double> xsecLO;
   vector<double> nAcceptLO;
+  vector<double> nSelectedLO;
+  vector<int> strategyLO;
 
   cout << endl << endl << endl;
   cout << "Start estimating ckkwl tree level cross section" << endl;
@@ -115,7 +117,9 @@ int main( int argc, char* argv[] ){
     pythia.stat();
 
     xsecLO.push_back(pythia.info.sigmaGen());
+    nSelectedLO.push_back(pythia.info.nSelected());
     nAcceptLO.push_back(pythia.info.nAccepted());
+    strategyLO.push_back(pythia.info.lhaStrategy());
 
     // Restart with ME of a reduced the number of jets
     if( njetcounterLO > 0 )
@@ -186,11 +190,15 @@ int main( int argc, char* argv[] ){
 
       // Do not print zero-weight events.
       if ( weight == 0. ) continue;
-
       // Construct new empty HepMC event.
       HepMC::GenEvent* hepmcevt = new HepMC::GenEvent();
       // Get correct cross section from previous estimate.
       double normhepmc = xsecLO[iNow] / nAcceptLO[iNow];
+
+      // weighted events
+      if( abs(strategyLO[iNow]) == 4)
+        normhepmc = 1. / (1e9*nSelectedLO[iNow]);
+
       // Set event weight
       hepmcevt->weights().push_back(weight*normhepmc);
       // Fill HepMC event

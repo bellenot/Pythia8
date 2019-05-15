@@ -29,7 +29,12 @@ tested by the <code>canDecay()</code> method of <code>Event</code>
 <p/> 
 (ii) The main switch for allowing this particle kind to decay must 
 be on; tested by the <code>mayDecay()</code> method of <code>Event</code> 
-(and <code>ParticleData</code>). 
+(and <code>ParticleData</code>). By default this is defined as true for 
+all particles with <ei>tau0</ei> below 1000 mm, and false for ones above, 
+see the <aloc href="ParticleDataScheme">Particle Data Scheme</aloc>. 
+This means that <ei>mu^+-</ei>, <ei>pi^+-</ei>, <ei>K^+-</ei>, 
+<ei>K^0_L</ei> and  <ei>n/nbar</ei> always remain stable unless decays 
+are explicity switched on, e.g. <code>211:mayDecay  = true</code>. 
  
 <p/> 
 (iii) Particles may be requested to have a nominal proper lifetime 

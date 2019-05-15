@@ -315,6 +315,7 @@ public:
 
   // Get information on hard diffractive events.
   bool   hasUnresolvedBeams() const {return hasUnresBeams;}
+  bool   hasPomPsystem()      const {return hasPomPsys;}
   bool   isHardDiffractive()  const {return isHardDiffA || isHardDiffB;}
   bool   isHardDiffractiveA() const {return isHardDiffA;}
   bool   isHardDiffractiveB() const {return isHardDiffB;}
@@ -352,7 +353,8 @@ private:
   // Store current-event quantities.
   bool   isRes, isDiffA, isDiffB, isDiffC, isND, isLH, hasSubSave[4],
          bIsSet, evolIsSet, atEOF, isVal1, isVal2, hasHistorySave,
-         abortPartonLevel, isHardDiffA, isHardDiffB, hasUnresBeams;
+         abortPartonLevel, isHardDiffA, isHardDiffB, hasUnresBeams,
+         hasPomPsys;
   int    codeSave, codeSubSave[4], nFinalSave, nFinalSubSave[4], nTotal,
          id1Save[4], id2Save[4], id1pdfSave[4], id2pdfSave[4], nMPISave,
          nISRSave, nFSRinProcSave, nFSRinResSave;
@@ -399,7 +401,7 @@ private:
   void clear() {
     isRes = isDiffA = isDiffB = isDiffC = isND = isLH = bIsSet
       = evolIsSet = atEOF = isVal1 = isVal2 = hasHistorySave
-      = hasUnresBeams = false;
+      = isHardDiffA = isHardDiffB = hasUnresBeams = hasPomPsys = false;
     codeSave = nFinalSave = nTotal = nMPISave = nISRSave = nFSRinProcSave
       = nFSRinResSave = 0;
     weightSave = bMPISave = enhanceMPISave = weightCKKWLSave = 1.;
@@ -511,17 +513,19 @@ private:
   void setIsResolved(bool isResIn) {isRes = isResIn;}
 
   // Set info on hard diffraction.
-  void setHardDiff( bool hasUnresBeamsIn = false,
+  void setHardDiff( bool hasUnresBeamsIn = false, bool hasPomPsysIn = false,
     bool isHardDiffAIn = false, bool isHardDiffBIn = false,
     double xPomAIn = 0., double xPomBIn = 0., double tPomAIn = 0.,
     double tPomBIn = 0.) { hasUnresBeams = hasUnresBeamsIn;
-      isHardDiffA = isHardDiffAIn; isHardDiffB = isHardDiffBIn;
-      xPomA = xPomAIn; xPomB = xPomBIn;
-      tPomA = tPomAIn; tPomB = tPomBIn;}
+    hasPomPsys = hasPomPsysIn; isHardDiffA = isHardDiffAIn;
+    isHardDiffB = isHardDiffBIn;
+    xPomA = xPomAIn; xPomB = xPomBIn;
+    tPomA = tPomAIn; tPomB = tPomBIn;}
 
   // Set information in hard diffractive events.
   void setHasUnresolvedBeams(bool hasUnresBeamsIn)
     {hasUnresBeams = hasUnresBeamsIn;}
+  void setHasPomPsystem(bool hasPomPsysIn) {hasPomPsys = hasPomPsysIn;}
 
 };
 

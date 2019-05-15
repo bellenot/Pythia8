@@ -912,7 +912,7 @@ another process in between, the file will be corrupted.
 Return the name of the LHE file above. 
 </method> 
  
-<h3>PYTHIA 8 output to an LHEF</h3> 
+<h3>PYTHIA 8 output to a Les Houches Event File version 1.0</h3> 
  
 The above methods could be used by any program to write an LHEF. 
 For PYTHIA 8 to do this, a derived class already exists, 
@@ -958,6 +958,71 @@ that the above initialization is replaced by
 In addition, the <code>PartonLevel:all = off</code> command found in 
 <code>main20.cc</code> obviously must be removed if one wants to 
 obtain complete events. 
+ 
+<h3>PYTHIA 8 output to a Les Houches Event File version 3.0</h3> 
+ 
+PYTHIA 8 also supports LHEF 3.0 output, and we include a 
+general LHEF3 writer (<code>Pythia::Writer</code> of LHEF3.h and 
+LHEF3.cc) for this purpose. The functions of this 
+file writer are used in the <code>LHEF3FromPYTHIA8</code>. 
+This latter class allows users to output PYTHIA events 
+in LHEF3 format from a PYTHIA main program. An example of how to use 
+<code>LHEF3FromPYTHIA8</code> is found in the 
+<code>main20lhef3.cc</code> example. Please note that, although 
+similar, the usage of <code>LHEF3FromPYTHIA8</code> differs from 
+the usage of <code>LHAupFromPYTHIA8</code>, with  <code>LHEF3FromPYTHIA8 
+</code> requiring fewer function calls. 
+ 
+<p/> 
+To print a comprehensive LHE file, <code>LHEF3FromPYTHIA8</code> 
+is constructed with pointers to an <code>Event</code> object, 
+as well as pointers to instances of <code>Settings</code>, 
+<code>Info</code> and <code>ParticleData</code>, giving e.g. 
+a constructor call 
+<br/><code>LHEF3FromPYTHIA8 myLHEF3(&pythia.event, &pythia.settings, 
+&pythia.info, &pythia.particleData);</code> 
+ 
+<p/> 
+As a next step, you should open the output file by using the 
+<code>LHAupFromPYTHIA8</code> member function 
+<br/><code>openLHEF(string name)</code> 
+</br> 
+where <code>name</code> is the output file name. 
+ 
+<p/> 
+Then, the method <code>setInit()</code> should be called to store the 
+initialization information (read from <code>settings</code> and 
+<code>info</code>) and write the header and init blocks into the 
+output file. Note that at this stage, the cross section printed 
+in the init block is not sensible, as no integration has yet 
+taken place. The init block can be updated at the end of 
+the event generation (see below). 
+ 
+</p> 
+During event generation, you should use <code>setEvent()</code> to 
+write the event information (as read from <code>info</code> and 
+<code>event</code>) to the output file. 
+ 
+</p> 
+Finally, before leaving your main program, it is necessary to 
+close the output file by using the 
+<code>LHAupFromPYTHIA8</code> member function 
+<br/><code>closeLHEF( bool doUpdate = false)</code> 
+</br> 
+The boolean variable <code>doUpdate</code> is optional. 
+If <code>doUpdate</code> is used, and if 
+<code>doUpdate = true</code>, then the init block of the output 
+file will be updated with the latest cross section information. 
+ 
+<p/> 
+Currently there are some limitations, that could be overcome if 
+necessary. Firstly, you may mix many processes in the same run, 
+but the cross-section information stored in <code>info</code> only 
+refers to the sum of them all, and therefore they are all classified 
+as a common process 9999. Secondly, you should generate your events 
+in the CM frame of the collision, since this is the assumed frame of 
+stored Les Houches events, and no boosts have been implemented 
+for the case that <code>Pythia::process</code> is not in this frame. 
  
 </chapter> 
  

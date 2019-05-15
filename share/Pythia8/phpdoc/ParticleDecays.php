@@ -57,7 +57,13 @@ tested by the <code>canDecay()</code> method of <code>Event</code>
 <p/> 
 (ii) The main switch for allowing this particle kind to decay must 
 be on; tested by the <code>mayDecay()</code> method of <code>Event</code> 
-(and <code>ParticleData</code>). 
+(and <code>ParticleData</code>). By default this is defined as true for 
+all particles with <i>tau0</i> below 1000 mm, and false for ones above, 
+see the <?php $filepath = $_GET["filepath"];
+echo "<a href='ParticleDataScheme.php?filepath=".$filepath."' target='page'>";?>Particle Data Scheme</a>. 
+This means that <i>mu^+-</i>, <i>pi^+-</i>, <i>K^+-</i>, 
+<i>K^0_L</i> and  <i>n/nbar</i> always remain stable unless decays 
+are explicity switched on, e.g. <code>211:mayDecay  = true</code>. 
  
 <p/> 
 (iii) Particles may be requested to have a nominal proper lifetime 

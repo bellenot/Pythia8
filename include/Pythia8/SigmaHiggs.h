@@ -624,7 +624,7 @@ public:
 
   // Info on the subprocess.
   virtual string name()       const {return "f fbar' -> H+-";}
-  virtual int    code()       const {return 961;}
+  virtual int    code()       const {return 1061;}
   virtual string inFlux()     const {return "ffbarChg";}
   virtual int    resonanceA() const {return 37;}
 

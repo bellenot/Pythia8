@@ -117,7 +117,9 @@ public:
   void setupFirstSys( Event& process);
 
   // Find whether to limit maximum scale of emissions.
+  // Provide sum pT / 2 as potential limit where relevant.
   bool limitPTmax( Event& event);
+  double scaleLimitPT() const {return scaleLimitPTsave;}
 
   // Prepare system for evolution.
   void prepare(Event& event, double pTscale = 1000.) {
@@ -201,7 +203,7 @@ private:
   int    id1Save, id2Save;
   double pT2Save, x1Save, x2Save, sHatSave, tHatSave, uHatSave,
          alpSsave, alpEMsave, pT2FacSave, pT2RenSave, xPDF1nowSave,
-         xPDF2nowSave;
+         xPDF2nowSave, scaleLimitPTsave;
   SigmaProcess *dSigmaDtSelSave;
 
   // vsc1, vsc2:     for minimum-bias events with trial interaction, store

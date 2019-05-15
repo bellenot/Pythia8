@@ -105,7 +105,9 @@ class. A special class, <code>EvtGenDecays</code>, is provided
 in <code>Pythia8Plugins</code> which can be called after an event has 
 been generated, to perform all remaining decays via EvtGen. An example 
 of how to use this class is provided in <code>main48.cc</code>. 
- 
+A more detailed discussion of some physics considerations, notably 
+event weights for forced decays, can be found in 
+<a href="../pdfdoc/evtgen.pdf">this note</a>. 
 </body>
 </html>
  

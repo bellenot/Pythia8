@@ -46,7 +46,7 @@ bool SUSYResonanceWidths::allowCalc(){
   if (settingsPtr->flag("SLHA:useDecayTable") ) {
 
     // Next check if decay table was read in via SLHA and takes precedence
-    for ( int iDec = 1; iDec < int((coupSUSYPtr->slhaPtr)->decays.size());
+    for ( int iDec = 0; iDec < int((coupSUSYPtr->slhaPtr)->decays.size());
           ++iDec)
       if ( (coupSUSYPtr->slhaPtr)->decays[iDec].getId() == abs(idRes) ) {
         if (DBSUSY) cout<<"Using external decay table for:"<<idRes<<endl;

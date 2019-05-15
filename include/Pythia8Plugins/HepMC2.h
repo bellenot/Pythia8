@@ -93,7 +93,7 @@ inline bool Pythia8ToHepMC::fill_next_event( Pythia8::Event& pyev,
 
   // 1. Error if no event passed.
   if (!evt) {
-    std::cerr << "Pythia8ToHepMC::fill_next_event error - passed null event."
+    std::cout << " Pythia8ToHepMC::fill_next_event error: passed null event."
               << std::endl;
     return 0;
   }
@@ -120,7 +120,7 @@ inline bool Pythia8ToHepMC::fill_next_event( Pythia8::Event& pyev,
   int newBarcode = 0;
   if (append) {
     if (!rootParticle) {
-      std::cerr << "Pythia8ToHepMC::fill_next_event error - passed null "
+      std::cout << " Pythia8ToHepMC::fill_next_event error: passed null "
                 << "root particle in append mode." << std::endl;
       return 0;
     }
@@ -210,8 +210,8 @@ inline bool Pythia8ToHepMC::fill_next_event( Pythia8::Event& pyev,
       // Note: we could provide a fix by joining the two vertices with a
       // dummy particle if the problem arises often.
       } else if (ppp->end_vertex() != prod_vtx ) {
-       if ( m_print_inconsistency ) std::cerr
-          << "HepMC::Pythia8ToHepMC: inconsistent mother/daugher "
+       if ( m_print_inconsistency ) std::cout
+          << " Pythia8ToHepMC::fill_next_event: inconsistent mother/daugher "
           << "information in Pythia8 event " << std::endl
           << "i = " << i << " mother = " << mother
           << "\n This warning can be turned off with the "
@@ -233,7 +233,8 @@ inline bool Pythia8ToHepMC::fill_next_event( Pythia8::Event& pyev,
   for (int i = iStart; i < pyev.size(); ++i) {
     if ( !hepevt_particles[i]->end_vertex() &&
          !hepevt_particles[i]->production_vertex() ) {
-      std::cerr << "hanging particle " << i << std::endl;
+      std::cout << " Pythia8ToHepMC::fill_next_event error: "
+        << "hanging particle " << i << std::endl;
       GenVertex* prod_vtx = new GenVertex();
       prod_vtx->add_particle_out( hepevt_particles[i] );
       evt->add_vertex( prod_vtx );
@@ -243,12 +244,14 @@ inline bool Pythia8ToHepMC::fill_next_event( Pythia8::Event& pyev,
     if ( doHadr && m_free_parton_warnings ) {
       if ( hepevt_particles[i]->pdg_id() == 21 &&
         !hepevt_particles[i]->end_vertex() ) {
-        std::cerr << "gluon without end vertex " << i << std::endl;
+        std::cout << " Pythia8ToHepMC::fill_next_event error "
+          << "gluon without end vertex " << i << std::endl;
         if ( m_crash_on_problem ) exit(1);
       }
       if ( abs(hepevt_particles[i]->pdg_id()) <= 6 &&
         !hepevt_particles[i]->end_vertex()         ) {
-        std::cerr << "quark without end vertex " << i << std::endl;
+        std::cout << " Pythia8ToHepMC::fill_next_event error "
+          << "quark without end vertex " << i << std::endl;
         if ( m_crash_on_problem ) exit(1);
       }
     }

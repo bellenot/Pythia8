@@ -827,7 +827,7 @@ bool BeamRemnants::setDISKinematics( Event& event) {
 
   // Allow ten tries to construct kinematics (but normally works first).
   bool isPhysical = true;
-  double xSum, xInvM, w2Remn, lambda;
+  double xSum, xInvM, w2Remn, wDiff;
   for (int iTry = 0; iTry < NTRYKINMATCH; ++iTry) {
     isPhysical = true;
 
@@ -843,8 +843,8 @@ bool BeamRemnants::setDISKinematics( Event& event) {
 
     // Squared transverse mass for remnant, may give failure.
     w2Remn = xSum * xInvM;
-    lambda = pow2( w2Tot - w2Scat - w2Remn) - 4. * w2Scat * w2Remn;
-    if (lambda < 0.) isPhysical = false;
+    wDiff  = sqrt(w2Tot) - sqrtpos(w2Scat) - sqrtpos(w2Remn);
+    if (wDiff < 0.) isPhysical = false;
     if (isPhysical) break;
   }
   if (!isPhysical) {
@@ -854,6 +854,7 @@ bool BeamRemnants::setDISKinematics( Event& event) {
   }
 
   // Boost of scattered system to compensate for remnant mass.
+  double lambda = pow2( w2Tot - w2Scat - w2Remn) - 4. * w2Scat * w2Remn;
   double pzNew = 0.5 * sqrt( lambda / w2Tot);
   double eNewScat = 0.5 * (w2Tot + w2Scat - w2Remn) / sqrt(w2Tot);
   Vec4 pNewScat( 0., 0., pzNew, eNewScat);
@@ -861,7 +862,7 @@ bool BeamRemnants::setDISKinematics( Event& event) {
   MforScat.bst( pHadScat, pNewScat);
   int sizeSave = event.size();
   for (int i = 5; i < sizeSave; ++i)
-  if (event[i].isFinal() && event[i].id() != beamLep[0].id()) {
+  if (i != iLepScat && event[i].isFinal()) {
     int iNew = event.copy( i, 62);
     event[iNew].rotbst( MforScat);
   }

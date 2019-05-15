@@ -10,30 +10,16 @@
 // SLHA interface.
 // (The Pythia-specific components reside in the SLHAinterface class.)
 
-#ifndef SLHA_H
-#define SLHA_H
+#ifndef Pythia8_SLHA_H
+#define Pythia8_SLHA_H
 
-// Stdlib header files for string and character manipulation.
-#include <string>
-#include <cctype>
-// Stdlib header files for containers.
-#include <vector>
-#include <map>
-// Stdlib header files for input/output.
-#include <iostream>
-#include <iomanip>
-#include <fstream>
-#include <sstream>
-// Stdlib header files for mathematics.
-#include <cmath>
-#include <cstdlib>
-
-// Stdlib namespace
-using namespace std;
-
-//************************* SLHA AUX CLASSES *****************************//
+#include "Pythia8/PythiaStdlib.h"
 
 namespace Pythia8 {
+
+//==========================================================================
+
+//************************* SLHA AUX CLASSES *****************************//
 
   //class LHblock: the generic SLHA block (see below for matrices)
   //Explicit typing required, e.g. block<double> minpar;
@@ -887,6 +873,9 @@ template <class T> bool SusyLesHouches::getEntry(string blockName, int indx,
   return false;
  }
 
+//==========================================================================
+
+
 } // end of namespace Pythia8
 
-#endif
+#endif // end Pythia8_SLHA_H

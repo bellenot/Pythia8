@@ -180,8 +180,11 @@ In detail, the list of used or foreseen status codes is:
   <li>91 : normal decay products</li> 
   <li>92 : decay products after oscillation <i>B0 &harr; B0bar</i> or 
            <i>B_s0 &harr; B_s0bar</i></li> 
-  <li>93, 94 : decay handled by external program, normally 
+  <li>93, 94 : decay handled by an external program, normally 
            or with oscillation</li> 
+  <li>95, 96 : a forced decay handled by an external program, i.e. picked 
+           from a subset of the possible channels to enhance the rate 
+           of rare signals, normally or with oscillation</li> 
   <li>99 : particles with momenta shifted by Bose-Einstein effects 
            (not a proper decay, but bookkept as an <i>1 &rarr; 1</i> such, 
            happening after decays of short-lived resonances but before 

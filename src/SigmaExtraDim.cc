@@ -287,7 +287,7 @@ void Sigma1ffbar2GravitonStar::sigmaKin() {
   double widthOut = gStarPtr->resWidthOpen(idGstar, mH);
 
   // Modify cross section in wings of peak. Done.
-  sigma0          = widthIn * sigBW * widthOut * sH / m2Res;
+  sigma0          = widthIn * sigBW * widthOut;
 }
 
 //--------------------------------------------------------------------------

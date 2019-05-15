@@ -154,10 +154,10 @@ public:
   // (Must use set here since else name+signature clash with get methods.)
   void setName(string nameIn) {nameSave = nameIn; hasChangedSave = true;}
   void setAntiName(string antiNameIn) {antiNameSave = antiNameIn;
-    hasChangedSave = true;}
+    hasAntiSave = (toLower(antiNameIn) != "void"); hasChangedSave = true;}
   void setNames(string nameIn, string antiNameIn) {nameSave = nameIn;
-    antiNameSave = antiNameIn; hasAntiSave = true; if (toLower(antiNameIn)
-    == "void") hasAntiSave = false; hasChangedSave = true;}
+    antiNameSave = antiNameIn; hasAntiSave = (toLower(antiNameIn) != "void");
+    hasChangedSave = true;}
   void setSpinType(int spinTypeIn) {spinTypeSave = spinTypeIn;
     hasChangedSave = true;}
   void setChargeType(int chargeTypeIn) {chargeTypeSave = chargeTypeIn;
@@ -286,7 +286,7 @@ public:
 private:
 
   // Constants: could only be changed in the code itself.
-  static const int    INVISIBLENUMBER, INVISIBLETABLE[52], KNOWNNOWIDTH[3];
+  static const int    INVISIBLENUMBER, INVISIBLETABLE[80], KNOWNNOWIDTH[3];
   static const double MAXTAU0FORDECAY,MINMASSRESONANCE, NARROWMASS,
                       CONSTITUENTMASSTABLE[10];
 

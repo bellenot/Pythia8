@@ -304,6 +304,9 @@ const double StringFragmentation::MDIQUARKMIN   = -2.0;
 // Consider junction-leg parton as massless if m2 tiny.
 const double StringFragmentation::M2MAXJRF      = 1e-4;
 
+// Protect against numerical precision giving zero or negative m2.
+const double StringFragmentation::M2MINJRF      = 1e-4;
+
 // Iterate junction rest frame equation until convergence or too many tries.
 const double StringFragmentation::CONVJRFEQ     = 1e-12;
 const int    StringFragmentation::NTRYJRFEQ     = 40;
@@ -314,7 +317,7 @@ const int    StringFragmentation::NTRYJRFEQ     = 40;
 
 void StringFragmentation::init(Info* infoPtrIn, Settings& settings,
   ParticleData* particleDataPtrIn, Rndm* rndmPtrIn, StringFlav* flavSelPtrIn,
-  StringPT* pTSelPtrIn, StringZ* zSelPtrIn) {
+  StringPT* pTSelPtrIn, StringZ* zSelPtrIn, UserHooks* userHooksPtrIn) {
 
   // Save pointers.
   infoPtr         = infoPtrIn;
@@ -323,6 +326,7 @@ void StringFragmentation::init(Info* infoPtrIn, Settings& settings,
   flavSelPtr      = flavSelPtrIn;
   pTSelPtr        = pTSelPtrIn;
   zSelPtr         = zSelPtrIn;
+  userHooksPtr    = userHooksPtrIn;
 
   // Initialize the StringFragmentation class.
   stopMass        = zSelPtr->stopMass();
@@ -418,6 +422,9 @@ bool StringFragmentation::fragment( int iSub, ColConfig& colConfig,
     // Variables used to help identifying baryons from junction splittings.
     bool usedPosJun = false, usedNegJun = false;
 
+    // Keep track of the momentum of hadrons taken from left and right.
+    Vec4 hadMomPos, hadMomNeg;
+
     for ( ; ; ) {
 
       // Take a step either from the positive or the negative end.
@@ -426,6 +433,16 @@ bool StringFragmentation::fragment( int iSub, ColConfig& colConfig,
 
       // Construct trial hadron and check that energy remains.
       nowEnd.newHadron();
+
+    // Possibility for a user to change the fragmentation parameters.
+     if ( (userHooksPtr != 0) && userHooksPtr->canChangeFragPar() ) {
+       if ( !userHooksPtr->doChangeFragPar( flavSelPtr, zSelPtr, pTSelPtr,
+         (fromPos ? idPos : idNeg),
+         (fromPos ? hadMomPos.m2Calc() : hadMomNeg.m2Calc()), iParton) )
+         infoPtr->errorMsg("Error in StringFragmentation::fragment: "
+           "failed to change hadronisation parameters.");
+      }
+
       if ( energyUsedUp(fromPos) ) break;
 
       // Construct kinematics of the new hadron and store it.
@@ -447,6 +464,18 @@ bool StringFragmentation::fragment( int iSub, ColConfig& colConfig,
           usedNegJun = true;
         }
       }
+
+      // Possibility for a user to veto the hadron production.
+      if ( (userHooksPtr != 0) && userHooksPtr->canChangeFragPar() ) {
+        // Provide full particle info for veto decision.
+        if ( userHooksPtr->doVetoFragmentation( Particle( nowEnd.idHad,
+          statusHad, iPos, iNeg, 0, 0, 0, 0, pHad, nowEnd.mHad) ) )
+          continue;
+        // Bookkeeping of momentum taken away.
+        if (fromPos) hadMomPos += pHad;
+        else         hadMomNeg += pHad;
+      }
+
       hadrons.append( nowEnd.idHad, statusHad, iPos, iNeg,
         0, 0, 0, 0, pHad, nowEnd.mHad);
       if (pHad.e() < 0.) break;
@@ -895,15 +924,15 @@ bool StringFragmentation::fragmentToJunction(Event& event) {
   int leg = -1;
   // PS (4/10/2011) Protect against invalid systems
   if (iParton[0] > 0) {
-    infoPtr->errorMsg("Error in StringFragmentation::fragment"
-                      "ToJunction: iParton[0] not a valid junctionNumber");
+    infoPtr->errorMsg("Error in StringFragmentation::fragmentToJunction: "
+      "iParton[0] not a valid junctionNumber");
     return false;
   }
   for (int i = 0; i < int(iParton.size()); ++i) {
     if (iParton[i] < 0) {
       if (leg == 2) {
-        infoPtr->errorMsg("Error in StringFragmentation::fragment"
-                          "ToJunction: unprocessed multi-junction system");
+        infoPtr->errorMsg("Error in StringFragmentation::fragmentToJunction: "
+          "unprocessed multi-junction system");
         return false;
       }
       legBeg[++leg] = i + 1;
@@ -938,6 +967,15 @@ bool StringFragmentation::fragmentToJunction(Event& event) {
       + pow2(costheta(pWTinJRF[0], pWTinJRF[2]) + 0.5)
       + pow2(costheta(pWTinJRF[1], pWTinJRF[2]) + 0.5);
 
+    // Check that no two legs has unreasonably small invariant mass.
+    if ( (pWTinJRF[0] + pWTinJRF[1]).m2Calc() < M2MINJRF
+      || (pWTinJRF[0] + pWTinJRF[2]).m2Calc() < M2MINJRF
+      || (pWTinJRF[1] + pWTinJRF[2]).m2Calc() < M2MINJRF ) {
+      infoPtr->errorMsg("Error in StringFragmentation::fragmentToJunction: "
+        "too small leg-leg invariant mass");
+      return false;
+    }
+
     // Find new JRF from the set of weighted momenta.
     Mstep = junctionRestFrame( pWTinJRF[0], pWTinJRF[1], pWTinJRF[2]);
     // Fortran code will not take full step after the first few
@@ -950,8 +988,8 @@ bool StringFragmentation::fragmentToJunction(Event& event) {
     + pow2(costheta(pWTinJRF[0], pWTinJRF[2]) + 0.5)
     + pow2(costheta(pWTinJRF[1], pWTinJRF[2]) + 0.5);
   if (errInJRF > errInCM + CONVJNREST) {
-    infoPtr->errorMsg("Warning in StringFragmentation::fragmentTo"
-      "Junction: bad convergence junction rest frame");
+    infoPtr->errorMsg("Warning in StringFragmentation::fragmentToJunction: "
+      "bad convergence junction rest frame");
     MtoJRF.reset();
     MtoJRF.bstback(pSum);
   }
@@ -1256,7 +1294,8 @@ RotBstMatrix StringFragmentation::junctionRestFrame(Vec4& p0, Vec4& p1,
       double pkMin = sqrtpos( ekMin*ekMin - m2k );
       double fMin  = ejMin * ekMin + 0.5 * pjMin * pkMin - pjpk;
       // Maximum estimated when j + k is at rest, alternatively j at rest.
-      double eiMax = (pipj + pipk) / sqrt(m2j + m2k + 2. * pjpk);
+      double eiMax = (pipj + pipk)
+                   / sqrt( max( M2MINJRF, m2j + m2k + 2. * pjpk) );
       if (m2j > M2MAXJRF) eiMax = min( eiMax, pipj / sqrt(m2j) );
       double piMax = sqrtpos( eiMax*eiMax - m2i );
       double temp  = eiMax*eiMax - 0.25 *piMax*piMax;

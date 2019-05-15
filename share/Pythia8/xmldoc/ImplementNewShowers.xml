@@ -351,6 +351,81 @@ code, but has been inserted at various places during the
 development/debug phase. 
 </method> 
  
+</p> 
+One of the major complications when combining fixed-order calculations 
+with parton showers comes from constructing a parton shower history. This 
+crucial step requires very precise knowledge of the functional forms 
+of the evolution variable (e.g. transverse momentum), the auxiliary 
+variable (e.g. an energy sharing variable), as well as the parton 
+shower splitting probabilities and the (inverse) parton shower momentum 
+mapping. All of these are readily available within the parton shower, 
+but can be difficult to reconstruct, particularly if non-general improvements 
+are included in the parton shower. To minimise code proliferation and 
+bug potential, the timelike showers contain easy-access functions that can 
+be loaded directly from PYTHIA's merging machinery. These include 
+ 
+<method name="virtual Event TimeShower::clustered( const Event& event, 
+string name, int iRad, int iEmt, int iRec)"> 
+This function should return a PYTHIA event record in which the emission 
+of the particle with index <code>iEmt</code> in the input 
+<code>event</code> (also changing the radiator with index <code>iRad</code> 
+and the recoiler with index <code>iRec</code>) is undone. <code>name</code> 
+is a string identifier for the splitting. Such reclustered events are 
+crucial in setting up consistent parton shower histories. 
+</method> 
+ 
+<method name="virtual Event TimeShower::branched( const Event& event, 
+int iRadBef, int iRecBef, int idEmt, double pT2, double z, double RN, 
+vector&lt;double&gt; aux)"> 
+This function should return a PYTHIA event record which includes the 
+emission with flavour <code>idEmt</code> at the evolution variable 
+<code>pT2</code>, auxiliary variable <code>z</code> and second 
+auxiliary variable <code>RN</code> (e.g. a random angle). Further 
+auxiliary double values can be specified through <code>aux</code>. The 
+emission should be performed by radiation from the particle with 
+index <code>iRadBef</code> in the input <code>event</code>, with 
+particle <code>iRecBef</code> taking the momentum recoil. This 
+can be needed to evaluate complicated splitting kernels. 
+</method> 
+ 
+<method name="virtual double TimeShower::pT2Times( const 
+Particle& rad, const Particle& emt, const Particle& rec)"> 
+This function should return the evolution variable at which 
+particle <code>emt</code> is radiated from particle 
+<code>rad</code>, where <code>rec</code> took the recoil 
+of the emission. This allows for a convenient and robust 
+way to calculate the evolution variable. 
+</method> 
+ 
+<method name="virtual double TimeShower::zTimes( const 
+Particle& rad, const Particle& emt, const Particle& rec)"> 
+This function should return the auxiliary variable at which 
+particle <code>emt</code> is radiated from particle 
+<code>rad</code>, where <code>rec</code> took the recoil 
+of the emission. This allows for a convenient and robust 
+way to calculate the auxiliary variable. 
+</method> 
+ 
+<method name="virtual string TimeShower::getSplittingName( const 
+Event& event, int iRad, int iEmt)"> 
+This function should return a string identifier of the 
+splitting producing the particles with indices 
+<code>iRad</code> and <code>iEmt</code> in the input <code>event</code>. 
+If e.g. <code>iRad</code> is the index of a final state quark 
+and <code>iEmt</code> the index of a final state antiquark, we could imagine 
+returning the string "fsr:G2QQ" (which is the name of such a branching 
+in PYTHIA's UserHooks facilities). 
+</method> 
+ 
+<method name="virtual double TimeShower::getSplittingProb( const 
+Event& event, int iRad, int iEmt, int iRec)"> 
+This function should return the probability of an emission 
+of the particle with index <code>iEmt</code> from the particle 
+with index <code>iRad</code>, where the particle with index <code>iRec</code> 
+took the recoil of the emission. All indices are relative to the 
+input <code>event</code>. 
+</method> 
+ 
 <h3>The SpaceShower interface</h3> 
  
 If you want to replace the <code>SpaceShower</code> class this would 
@@ -513,6 +588,77 @@ outputs a list of all the dipole ends, with information on the
 respective dipole. The routine is not called anywhere in the public 
 code, but has been inserted at various places during the 
 development/debug phase. 
+</method> 
+ 
+</p> 
+As mentioned at the end of the section on timelike showers, it can 
+be beneficial to merging and matching machinery of PYTHIA if some 
+additional functionality is available. This in particular includes 
+easy access to a) the evolution variable, b) the auxiliary (energy-sharing) 
+variable, c) to parton shower splitting probabilities and d) to the 
+(inverse) parton shower momentum mapping. Thus, as in the timelike case, 
+it can be beneficial to define the functions 
+ 
+<method name="virtual Event SpaceShower::clustered( const Event& event, 
+string name, int iRad, int iEmt, int iRec)"> 
+This function should return a PYTHIA event record in which the emission 
+of the particle with index <code>iEmt</code> in the input 
+<code>event</code> (also changing the radiator with index <code>iRad</code> 
+and the recoiler with index <code>iRec</code>) is undone. <code>name</code> 
+is a string identifier for the splitting. Such reclustered events are 
+crucial in setting up consistent parton shower histories. 
+</method> 
+ 
+<method name="virtual Event SpaceShower::branched( const Event& event, 
+int iRadBef, int iRecBef, int idEmt, double pT2, double z, double RN, 
+vector&lt;double&gt; aux)"> 
+This function should return a PYTHIA event record which includes the 
+emission with flavour <code>idEmt</code> at the evolution variable 
+<code>pT2</code>, auxiliary variable <code>z</code> and second 
+auxiliary variable <code>RN</code> (e.g. a random angle). Further 
+auxiliary double values can be specified through <code>aux</code>. The 
+emission should be performed by radiation from the particle with 
+index <code>iRadBef</code> in the input <code>event</code>, with 
+particle <code>iRecBef</code> taking the momentum recoil. This 
+can be needed to evaluate complicated splitting kernels. 
+</method> 
+ 
+<method name="virtual double SpaceShower::pT2Space( const 
+Particle& rad, const Particle& emt, const Particle& rec)"> 
+This function should return the evolution variable at which 
+particle <code>emt</code> is radiated from particle 
+<code>rad</code>, where <code>rec</code> took the recoil 
+of the emission. This allows for a convenient and robust 
+way to calculate the evolution variable. 
+</method> 
+ 
+<method name="virtual double SpaceShower::zSpace( const 
+Particle& rad, const Particle& emt, const Particle& rec)"> 
+This function should return the auxiliary variable at which 
+particle <code>emt</code> is radiated from particle 
+<code>rad</code>, where <code>rec</code> took the recoil 
+of the emission. This allows for a convenient and robust 
+way to calculate the auxiliary variable. 
+</method> 
+ 
+<method name="virtual string SpaceShower::getSplittingName( const 
+Event& event, int iRad, int iEmt)"> 
+This function should return a string identifier of the 
+splitting producing the particles with indices 
+<code>iRad</code> and <code>iEmt</code> in the input <code>event</code>. 
+If e.g. <code>iRad</code> is the index of an intial state quark 
+and <code>iEmt</code> the index of a final state gluon, we could imagine 
+returning the string "isr:Q2QG" (which is the name of such a branching 
+in PYTHIA's UserHooks facilities). 
+</method> 
+ 
+<method name="virtual double SpaceShower::getSplittingProb( const 
+Event& event, int iRad, int iEmt, int iRec)"> 
+This function should return the probability of an emission 
+of the particle with index <code>iEmt</code> from the particle 
+with index <code>iRad</code>, where the particle with index <code>iRec</code> 
+took the recoil of the emission. All indices are relative to the 
+input <code>event</code>. 
 </method> 
  
 </chapter> 

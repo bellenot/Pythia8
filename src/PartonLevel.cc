@@ -61,8 +61,8 @@ bool PartonLevel::init( Info* infoPtrIn, Settings& settings,
   bool doSD          = settings.flag("SoftQCD:singleDiffractive");
   bool doDD          = settings.flag("SoftQCD:doubleDiffractive");
   bool doCD          = settings.flag("SoftQCD:centralDiffractive");
-  doNonDiff          =  doSQ || doND;
-  doDiffraction      =  doSQ || doSD || doDD || doCD;
+  doNonDiff          = doSQ || doND;
+  doDiffraction      = doSQ || doSD || doDD || doCD;
   doHardDiff         = settings.flag("Diffraction:doHard");
   sampleTypeDiff     = (doHardDiff) ? settings.mode("Diffraction:sampleType")
                      : 0;
@@ -83,6 +83,9 @@ bool PartonLevel::init( Info* infoPtrIn, Settings& settings,
   doMPIinit          = doMPI;
   if (doNonDiff || doDiffraction)        doMPIinit = true;
   if (!settings.flag("PartonLevel:all")) doMPIinit = false;
+
+  // Nature of MPI matching also used here for one case.
+  pTmaxMatchMPI      = settings.mode("MultipartonInteractions:pTmaxMatch");
 
   // Initialise trial shower switch.
   doTrial            = useAsTrial;
@@ -231,33 +234,32 @@ void PartonLevel::resetTrial() {
 bool PartonLevel::next( Event& process, Event& event) {
 
   // Current event classification.
-  isResolved     = infoPtr->isResolved();
-  isResolvedA    = isResolved;
-  isResolvedB    = isResolved;
-  isResolvedC    = isResolved;
-  isDiffA        = infoPtr->isDiffractiveA();
-  isDiffB        = infoPtr->isDiffractiveB();
-  isDiffC        = infoPtr->isDiffractiveC();
-  isDiff         = isDiffA || isDiffB || isDiffC;
-  isCentralDiff  = isDiffC;
-  isDoubleDiff   = isDiffA && isDiffB;
-  isSingleDiff   = isDiff && !isDoubleDiff  && !isCentralDiff;
-  isNonDiff      = infoPtr->isNonDiffractive();
+  isResolved        = infoPtr->isResolved();
+  isResolvedA       = isResolved;
+  isResolvedB       = isResolved;
+  isResolvedC       = isResolved;
+  isDiffA           = infoPtr->isDiffractiveA();
+  isDiffB           = infoPtr->isDiffractiveB();
+  isDiffC           = infoPtr->isDiffractiveC();
+  isDiff            = isDiffA || isDiffB || isDiffC;
+  isCentralDiff     = isDiffC;
+  isDoubleDiff      = isDiffA && isDiffB;
+  isSingleDiff      = isDiff && !isDoubleDiff  && !isCentralDiff;
+  isNonDiff         = infoPtr->isNonDiffractive();
 
-  // Default values for what is to come.
-  isHardDiffA    = false;
-  isHardDiffB    = false;
-  isHardDiff     = false;
-  doDiffVeto     = false;
-  isSetupDiff    = false;
-
-  // The setup of the diffractive events can come after the first evolution.
-  doVeto         = false;
-  int nHardDiffLoop = 1;
-  infoPtr->setAbortPartonLevel(false);
-
+  // Default values for what is to come with diffraction.
+  isHardDiffA       = false;
+  isHardDiffB       = false;
+  isHardDiff        = false;
+  doDiffVeto        = false;
   // Mark hard diffractive events to handle CR correctly.
-  bool doDiffCR = false;
+  bool doDiffCR     = false;
+  // The setup of the diffractive events can come after the first evolution.
+  int nHardDiffLoop = 1;
+
+  // Parton-level vetoes for matching and merging.
+  doVeto            = false;
+  infoPtr->setAbortPartonLevel(false);
 
   // Prepare for a potential hard diffractive event.
   if (doHardDiff) {
@@ -272,7 +274,7 @@ bool PartonLevel::next( Event& process, Event& event) {
 
     // No hard double diffraction yet, so randomly choose one of the sides.
     if (isHardDiffA && isHardDiffB) {
-      if (rndmPtr-> flat() < 0.5) isHardDiffA = false;
+      if (rndmPtr->flat() < 0.5) isHardDiffA = false;
       else isHardDiffB = false;
     }
     isHardDiff = isHardDiffA || isHardDiffB;
@@ -282,26 +284,18 @@ bool PartonLevel::next( Event& process, Event& event) {
     double xPomB = (isHardDiffA) ? hardDiffraction.getXPomeronB() : 0.;
     double tPomA = (isHardDiffB) ? hardDiffraction.getTPomeronA() : 0.;
     double tPomB = (isHardDiffA) ? hardDiffraction.getTPomeronB() : 0.;
-    infoPtr->setHardDiff( false, isHardDiffA, isHardDiffB,
+    infoPtr->setHardDiff( false, false, isHardDiffA, isHardDiffB,
       xPomA, xPomB, tPomA, tPomB);
 
     // Discard all nondiffractive events if only diffractive sample is wanted.
-    if (!isHardDiff && (sampleTypeDiff == 3 || sampleTypeDiff == 4)) {
+    if (!isHardDiff && sampleTypeDiff > 2) {
       doDiffVeto = true;
       return false;
     }
 
     if (isHardDiff) {
-      // Discard all diffractive events if only want nondiffractive sample.
-      if (sampleTypeDiff == 5) {
-        infoPtr->setHardDiff( false, false, false, 0., 0., 0., 0.);
-        doDiffVeto = true;
-        return false;
-      }
-
       // Set up the diffractive system if run without MPI veto.
-      else if (sampleTypeDiff == 1 || sampleTypeDiff ==  3)
-        setupHardDiff( process);
+      if (sampleTypeDiff%2 == 1) setupHardDiff( process);
 
       // Allow for second loop if run with MPI veto.
       else nHardDiffLoop = 2;
@@ -333,6 +327,9 @@ bool PartonLevel::next( Event& process, Event& event) {
   bool hasMergingHooks = (mergingHooksPtr != 0);
   if ( hasMergingHooks && canRemoveEvent )
     mergingHooksPtr->storeWeights(infoPtr->getWeightCKKWL());
+
+  // Reset event weight coming from enhanced branchings.
+  if (userHooksPtr != 0) userHooksPtr->setEnhancedEventWeight(1.);
 
   // Loop to set up diffractive system if run with MPI veto.
   for (int iHardDiffLoop = 1; iHardDiffLoop <= nHardDiffLoop;
@@ -424,12 +421,13 @@ bool PartonLevel::next( Event& process, Event& event) {
 
     // Set hard scale, maximum for showers and multiparton interactions.
     double pTscaleRad  = process.scale();
-    double pTscaleMPI  = pTscaleRad;
+    double pTscaleMPI  = (doMPI && pTmaxMatchMPI == 3)
+                       ? multiPtr->scaleLimitPT() : pTscaleRad;
     if (doSecondHard) {
       pTscaleRad       = max( pTscaleRad, process.scaleSecond() );
       pTscaleMPI       = min( pTscaleMPI, process.scaleSecond() );
     }
-    double pTmaxMPI = (limitPTmaxMPI)  ? pTscaleMPI : infoPtr->eCM();
+    double pTmaxMPI = (limitPTmaxMPI) ? pTscaleMPI : infoPtr->eCM();
     double pTmaxISR = (limitPTmaxISR) ? spacePtr->enhancePTmax() * pTscaleRad
                                       : infoPtr->eCM();
     double pTmaxFSR = (limitPTmaxFSR) ? timesPtr->enhancePTmax() * pTscaleRad
@@ -471,13 +469,14 @@ bool PartonLevel::next( Event& process, Event& event) {
       // Order calls to minimize time expenditure.
       double pTgen = 0.;
       double pTtimes = (doFSRduringProcess)
-        ? timesPtr->pTnext( event, pTmaxFSR, pTgen, isFirstTrial) : -1.;
+        ? timesPtr->pTnext( event, pTmaxFSR, pTgen, isFirstTrial, doTrial)
+        : -1.;
       pTgen = max( pTgen, pTtimes);
       double pTmulti = (doMPI)
         ? multiPtr->pTnext( pTmaxMPI, pTgen, event) : -1.;
       pTgen = max( pTgen, pTmulti);
       double pTspace = (doISR)
-        ? spacePtr->pTnext( event, pTmaxISR, pTgen, nRad) : -1.;
+        ? spacePtr->pTnext( event, pTmaxISR, pTgen, nRad, doTrial) : -1.;
       double pTnow = max( pTtimes, max( pTmulti, pTspace));
 
       // Update information.
@@ -503,9 +502,9 @@ bool PartonLevel::next( Event& process, Event& event) {
           ++nMPI;
           if (canVetoMPIStep && nMPI <= nVetoMPIStep) typeVetoStep = 1;
 
-          // Break for exclusive hard diffraction with MPI veto.
+          // Break for hard diffraction with MPI veto.
           if (isHardDiff && sampleTypeDiff == 4 && iHardDiffLoop == 1) {
-            infoPtr->setHardDiff( false, false, false, 0., 0., 0., 0.);
+            infoPtr->setHardDiff( false, false, false, false, 0., 0., 0., 0.);
             doDiffVeto = true;
             return false;
           }
@@ -551,9 +550,9 @@ bool PartonLevel::next( Event& process, Event& event) {
         }
 
         // Set maximal scales for next pT to pick.
-        pTmaxMPI = min(pTspace, pTmaxMPI);
-        pTmaxISR = pTspace;
-        pTmaxFSR = min(pTspace, pTmaxFSR);
+        pTmaxMPI = min( min(pTspace,pTmaxISR), pTmaxMPI);
+        pTmaxISR = min(pTspace,pTmaxISR);
+        pTmaxFSR = min( min(pTspace,pTmaxISR), pTmaxFSR);
         pTmax    = pTspace;
       }
 
@@ -578,9 +577,9 @@ bool PartonLevel::next( Event& process, Event& event) {
         }
 
         // Set maximal scales for next pT to pick.
-        pTmaxMPI = min(pTtimes, pTmaxMPI);
-        pTmaxISR = min(pTtimes, pTmaxISR);
-        pTmaxFSR = pTtimes;
+        pTmaxMPI = min( min(pTtimes,pTmaxFSR), pTmaxMPI);
+        pTmaxISR = min( min(pTtimes,pTmaxFSR), pTmaxISR);
+        pTmaxFSR = min(pTtimes, pTmaxFSR);
         pTmax    = pTtimes;
       }
 
@@ -799,17 +798,17 @@ bool PartonLevel::next( Event& process, Event& event) {
     }
 
     // Find the first particle in the current diffractive system.
-    int  iFirst    = 0;
+    int  iFirst = 0;
     if (isDiff) {
       doDiffCR = isDiff;
-      iFirst    = (iHardLoop == 1) ? 5 + sizeEvent - sizeProcess : sizeEvent;
+      iFirst   = (iHardLoop == 1) ? 5 + sizeEvent - sizeProcess : sizeEvent;
       if (isDiffC) iFirst = 6 + sizeEvent - sizeProcess;
     }
 
     // Change the first particle for hard diffraction.
-    if (sampleTypeDiff == 1 || sampleTypeDiff == 3 || iHardDiffLoop == 2) {
+    if (infoPtr->hasPomPsystem()) {
       doDiffCR = true;
-      iFirst    = 5;
+      iFirst   = 5;
     }
 
     // Add beam remnants, including primordial kT kick and colour tracing.
@@ -834,7 +833,7 @@ bool PartonLevel::next( Event& process, Event& event) {
   if (isDiff) leaveResolvedDiff( iHardLoop, process, event);
   if (!physical) {
     // Leave hard diffractive system properly if beam remnant failed.
-    if (isHardDiff) leaveHardDiff( process, event);
+    if (infoPtr->hasPomPsystem()) leaveHardDiff( process, event);
     return false;
   }
 
@@ -843,8 +842,7 @@ bool PartonLevel::next( Event& process, Event& event) {
 
   // If no additional MPI has been found then set up the diffractive
   // system the first time around.
-  if (isHardDiff && (sampleTypeDiff == 2 || sampleTypeDiff == 4) &&
-    iHardDiffLoop == 1 && nMPI == 1) {
+  if (isHardDiff && sampleTypeDiff%2 == 0 && iHardDiffLoop == 1 && nMPI == 1){
     event.clear();
     beamAPtr->clear();
     beamBPtr->clear();
@@ -924,13 +922,12 @@ bool PartonLevel::next( Event& process, Event& event) {
     // If inclusive sample wanted for MPI veto and nMPI > 1
     // then event is non-diffractive and we can break the loop.
     if (sampleTypeDiff == 2 && iHardDiffLoop == 1 && nMPI > 1) {
-      infoPtr->setHardDiff( false, false, false, 0., 0., 0., 0.);
+      infoPtr->setHardDiff( false, false, false, false, 0., 0., 0., 0.);
       break;
     }
 
     // Leave diffractive system properly.
-    if (sampleTypeDiff == 1 || sampleTypeDiff == 3 || iHardDiffLoop == 2)
-      leaveHardDiff( process, event);
+    if (infoPtr->hasPomPsystem()) leaveHardDiff( process, event);
   }
 
   // End big outer loop to handle the setup of the diffractive system.
@@ -1142,7 +1139,7 @@ void PartonLevel::setupHardSys( Event& process, Event& event) {
   int nOffset  = sizeEvent - sizeProcess;
 
   // Corrected information for hard diffraction.
-  if (isSetupDiff) {
+  if (infoPtr->hasPomPsystem()) {
     iDiffMot = (isHardDiffB) ? 4 : 3;
     inS      = iDiffMot;
     inP      = 7;
@@ -1655,7 +1652,7 @@ void PartonLevel::setupHardDiff( Event& process) {
   else if (isHardDiffB) multiPtr = &multiSDB;
 
   // Done.
-  isSetupDiff = true;
+  infoPtr->setHasPomPsystem( true);
 
 }
 

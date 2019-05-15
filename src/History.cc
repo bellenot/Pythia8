@@ -76,6 +76,7 @@ History::History( int depth,
          BeamParticle beamBIn,
          ParticleData* particleDataPtrIn,
          Info* infoPtrIn,
+         PartonLevel* showersIn,
          bool isOrdered = true,
          bool isStronglyOrdered = true,
          bool isAllowed = true,
@@ -101,7 +102,8 @@ History::History( int depth,
       beamA(beamAIn),
       beamB(beamBIn),
       particleDataPtr(particleDataPtrIn),
-      infoPtr(infoPtrIn)
+      infoPtr(infoPtrIn),
+      showers(showersIn)
     {
 
   // Initialise beam particles
@@ -230,7 +232,7 @@ History::History( int depth,
     // history node.
     children.push_back(new History(depth - 1,it->first,cluster(*it->second),
            *it->second, mergingHooksPtr, beamA, beamB, particleDataPtr,
-           infoPtr, ordered, stronglyOrdered, allowed, true,
+           infoPtr, showers, ordered, stronglyOrdered, allowed, true,
            prob*getProb(*it->second), this ));
   }
 }
@@ -257,7 +259,7 @@ bool History::projectOntoDesiredHistories() {
 // OUT double         : (Sukadov) , (alpha_S ratios) , (PDF ratios)
 
 double History::weightTREE(PartonLevel* trial, AlphaStrong * asFSR,
-                  AlphaStrong * asISR, double RN) {
+  AlphaStrong * asISR, double RN) {
 
   if ( mergingHooksPtr->canCutOnRecState() && !foundAllowedPath ) {
     string message="Warning in History::weightTREE: No allowed history";
@@ -293,8 +295,8 @@ double History::weightTREE(PartonLevel* trial, AlphaStrong * asFSR,
 
   // Do trial shower, calculation of alpha_S ratios, PDF ratios
   sudakov  = selected->weightTree( trial, asME, maxScale,
-               selected->clusterIn.pT(), asFSR, asISR, asWeight,
-               pdfWeight );
+    selected->clusterIn.pT(), asFSR, asISR, asWeight,
+    pdfWeight );
 
   // MPI no-emission probability
   int njetsMaxMPI = mergingHooksPtr->nMinMPI();
@@ -368,7 +370,7 @@ double History::weightLOOP(PartonLevel* trial, double RN ) {
 // Function to calculate O(\alpha_s)-term of CKKWL-weight for NLO merging
 
 double History::weightFIRST(PartonLevel* trial, AlphaStrong* asFSR,
-                  AlphaStrong* asISR, double RN, Rndm* rndmPtr ) {
+  AlphaStrong* asISR, double RN, Rndm* rndmPtr ) {
 
   // Read alpha_S in ME calculation and maximal scale (eCM)
   double asME   = infoPtr->alphaS();
@@ -421,7 +423,7 @@ double History::weightFIRST(PartonLevel* trial, AlphaStrong* asFSR,
 //--------------------------------------------------------------------------
 
 double History::weight_UMEPS_TREE(PartonLevel* trial, AlphaStrong * asFSR,
-                  AlphaStrong * asISR, double RN) {
+  AlphaStrong * asISR, double RN) {
   // No difference to CKKW-L. Recycle CKKW-L function.
   return weightTREE( trial, asFSR, asISR, RN);
 }
@@ -431,7 +433,7 @@ double History::weight_UMEPS_TREE(PartonLevel* trial, AlphaStrong * asFSR,
 // Function to return weight of virtual correction events for NLO merging
 
 double History::weight_UMEPS_SUBT(PartonLevel* trial, AlphaStrong * asFSR,
-                  AlphaStrong * asISR, double RN ) {
+  AlphaStrong * asISR, double RN ) {
 
   // Read alpha_S in ME calculation and maximal scale (eCM)
   double asME     = infoPtr->alphaS();
@@ -449,7 +451,7 @@ double History::weight_UMEPS_SUBT(PartonLevel* trial, AlphaStrong * asFSR,
 
   // Do trial shower, calculation of alpha_S ratios, PDF ratios
   sudakov   = selected->weightTree(trial, asME, maxScale,
-                selected->clusterIn.pT(), asFSR,asISR, asWeight, pdfWeight);
+    selected->clusterIn.pT(), asFSR, asISR, asWeight, pdfWeight);
 
   // MPI no-emission probability.
   int njetsMaxMPI = mergingHooksPtr->nMinMPI()+1;
@@ -489,7 +491,7 @@ double History::weight_UMEPS_SUBT(PartonLevel* trial, AlphaStrong * asFSR,
 //--------------------------------------------------------------------------
 
 double History::weight_UNLOPS_TREE(PartonLevel* trial, AlphaStrong * asFSR,
-                  AlphaStrong * asISR, double RN) {
+  AlphaStrong * asISR, double RN, int depth) {
 
   // Read alpha_S in ME calculation and maximal scale (eCM)
   double asME     = infoPtr->alphaS();
@@ -505,8 +507,17 @@ double History::weight_UNLOPS_TREE(PartonLevel* trial, AlphaStrong * asFSR,
   double pdfWeight = 1.;
 
   // Do trial shower, calculation of alpha_S ratios, PDF ratios
-  double wt = selected->weightTree(trial, asME, maxScale,
-                selected->clusterIn.pT(), asFSR, asISR, asWeight, pdfWeight);
+  double wt = 1.;
+  if (depth < 0) wt = selected->weightTree(trial, asME, maxScale,
+    selected->clusterIn.pT(), asFSR, asISR, asWeight, pdfWeight);
+  else {
+    wt   = selected->weightTreeEmissions( trial, 1, 0, depth, maxScale );
+    if (wt > 0.) asWeight  = selected->weightTreeALPHAS( asME, asFSR, asISR,
+                             depth);
+    if (wt > 0.) pdfWeight = selected->weightTreePDFs( maxScale,
+                             selected->clusterIn.pT(), depth);
+  }
+
   // MPI no-emission probability.
   int njetsMaxMPI = mergingHooksPtr->nMinMPI();
   double mpiwt = selected->weightTreeEmissions( trial, -1, 0, njetsMaxMPI,
@@ -544,15 +555,17 @@ double History::weight_UNLOPS_TREE(PartonLevel* trial, AlphaStrong * asFSR,
 
 //--------------------------------------------------------------------------
 
-double History::weight_UNLOPS_LOOP(PartonLevel* trial, double RN ) {
+double History::weight_UNLOPS_LOOP(PartonLevel* trial, AlphaStrong * asFSR,
+  AlphaStrong * asISR, double RN, int depth) {
   // No difference to default NL3
-  return weightLOOP(trial, RN );
+  if (depth < 0) return weightLOOP(trial, RN);
+  else return weight_UNLOPS_TREE(trial, asFSR,asISR, RN,depth);
 }
 
 //--------------------------------------------------------------------------
 
 double History::weight_UNLOPS_SUBT(PartonLevel* trial, AlphaStrong * asFSR,
-                  AlphaStrong * asISR, double RN ) {
+  AlphaStrong * asISR, double RN, int depth) {
 
   // Select a path of clusterings
   History *  selected = select(RN);
@@ -572,17 +585,25 @@ double History::weight_UNLOPS_SUBT(PartonLevel* trial, AlphaStrong * asFSR,
   double nSteps = mergingHooksPtr->getNumberOfClusteringSteps(state);
   if ( nSteps == 2 && mergingHooksPtr->nRecluster() == 2
     && ( !foundCompletePath
-      || !selected->allIntermediateAboveRhoMS( mergingHooksPtr->tms() )) ) {
+      || !selected->allIntermediateAboveRhoMS( mergingHooksPtr->tms() )) )
     return 0.;
-  }
 
   // Get weights: alpha_S ratios and PDF ratios
   double asWeight  = 1.;
   double pdfWeight = 1.;
   // Do trial shower, calculation of alpha_S ratios, PDF ratios
-  double sudakov = selected->weightTree(trial, asME, maxScale,
-                     selected->clusterIn.pT(), asFSR, asISR,
-                     asWeight, pdfWeight);
+  double sudakov = 1.;
+  if (depth < 0)
+    sudakov = selected->weightTree(trial, asME, maxScale,
+      selected->clusterIn.pT(), asFSR, asISR, asWeight, pdfWeight);
+  else {
+    sudakov   = selected->weightTreeEmissions( trial, 1, 0, depth, maxScale );
+    if (sudakov > 0.) asWeight  = selected->weightTreeALPHAS( asME, asFSR,
+                                  asISR, depth);
+    if (sudakov > 0.) pdfWeight = selected->weightTreePDFs( maxScale,
+                                  selected->clusterIn.pT(), depth);
+  }
+
   // MPI no-emission probability.
   int njetsMaxMPI = mergingHooksPtr->nMinMPI()+1;
   double mpiwt = selected->weightTreeEmissions( trial, -1, 0, njetsMaxMPI,
@@ -599,23 +620,28 @@ double History::weight_UNLOPS_SUBT(PartonLevel* trial, AlphaStrong * asFSR,
 
 //--------------------------------------------------------------------------
 
-double History::weight_UNLOPS_SUBTNLO(PartonLevel* trial, double RN ) {
+double History::weight_UNLOPS_SUBTNLO(PartonLevel* trial, AlphaStrong * asFSR,
+  AlphaStrong * asISR, double RN, int depth) {
 
-  // Select a path of clusterings
-  History *  selected = select(RN);
-  // Set scales in the states to the scales pythia would have set
-  selected->setScalesInHistory();
-  // So far, no reweighting
-  double wt = 1.;
-  // Only reweighting with MPI no-emission probability
-  double maxScale = (foundCompletePath) ? infoPtr->eCM()
-                  : mergingHooksPtr->muFinME();
-  int njetsMaxMPI = mergingHooksPtr->nMinMPI()+1;
-  double mpiwt = selected->weightTreeEmissions( trial, -1, 0, njetsMaxMPI,
-                   maxScale );
-  wt = mpiwt;
-  // Done
-  return wt;
+  if (depth < 0) {
+
+    // Select a path of clusterings
+    History *  selected = select(RN);
+    // Set scales in the states to the scales pythia would have set
+    selected->setScalesInHistory();
+    // So far, no reweighting
+    double wt = 1.;
+    // Only reweighting with MPI no-emission probability
+    double maxScale = (foundCompletePath) ? infoPtr->eCM()
+                    : mergingHooksPtr->muFinME();
+    int njetsMaxMPI = mergingHooksPtr->nMinMPI()+1;
+    double mpiwt = selected->weightTreeEmissions( trial, -1, 0, njetsMaxMPI,
+                     maxScale );
+    wt = mpiwt;
+    // Done
+    return wt;
+
+  } else return weight_UNLOPS_SUBT(trial, asFSR, asISR, RN, depth);
 
 }
 
@@ -624,14 +650,13 @@ double History::weight_UNLOPS_SUBTNLO(PartonLevel* trial, double RN ) {
 // Function to calculate O(\alpha_s)-term of CKKWL-weight for NLO merging
 
 double History::weight_UNLOPS_CORRECTION( int order, PartonLevel* trial,
-                  AlphaStrong* asFSR, AlphaStrong* asISR,
-                  double RN, Rndm* rndmPtr ) {
+  AlphaStrong* asFSR, AlphaStrong* asISR, double RN, Rndm* rndmPtr ) {
 
   // Already done if no correction should be calculated
   if ( order < 0 ) return 0.;
 
   // Read alpha_S in ME calculation and maximal scale (eCM)
-  double asME   = infoPtr->alphaS();
+  double asME     = infoPtr->alphaS();
   double muR      = mergingHooksPtr->muRinME();
   double maxScale = (foundCompletePath)
                   ? infoPtr->eCM()
@@ -762,10 +787,14 @@ void History::printHistory( const double RN ) {
 
 void History::printStates() {
   if ( !mother ) {
+    cout << scientific << setprecision(6) << "Probability=" << prob << endl;
     state.list();
     return;
   }
   // Print.
+  double p = (mother) ? prob/mother->prob : prob;
+  cout << scientific << setprecision(6) << "Probability=" << p
+       << " scale=" << clusterIn.pT() << endl;
   state.list();
   // Recurse
   mother->printStates();
@@ -824,7 +853,7 @@ bool History::getFirstClusteredEventAboveTMS( const double RN, int nDesired,
 
     // Continue loop if reclustered event has unresolved partons.
   } while ( mergingHooksPtr->getNumberOfClusteringSteps(dummy) > 0
-         && mergingHooksPtr->rhoms( dummy, false) < mergingHooksPtr->tms() );
+         && mergingHooksPtr->tmsNow( dummy) < mergingHooksPtr->tms() );
 
   // Update the hard process.
   if ( doUpdate ) process = dummy;
@@ -914,6 +943,11 @@ double History::getPDFratio( int side, bool forSudakov, bool useHardPDFs,
         pdfDen = max(1e-10,beamB.xfISR(0, flavDen, xDen, muDen*muDen));
     }
   }
+
+  // Cut out charm threshold.
+  if ( forSudakov && abs(flavNum) ==4 && abs(flavDen) == 4 && muDen == muNum
+    && muNum < particleDataPtr->m0(4))
+    pdfDen = pdfNum = 1.0;
 
   // Return ratio of pdfs
   if ( pdfNum > 1e-15 && pdfDen > 1e-10 ) {
@@ -1101,9 +1135,9 @@ void History::setScales( vector<int> index, bool forward) {
     if (mother) {
       scale = max(mergingHooksPtr->pTcut(), scale);
     }
+
     // If this is NOT the 2->2 process, check and enforce ordering
     if (iChild != -1 && !children.empty()) {
-
       if (scale > children[iChild]->scale ) {
         if (mergingHooksPtr->unorderedScalePrescip() == 0) {
           // Use larger scale as common splitting scale for mother and child
@@ -1421,6 +1455,7 @@ bool History::trimHistories() {
     // subsequent path.
     sumold = it->first;
   }
+
   // Done
   return !goodBranches.empty();
 }
@@ -1431,6 +1466,7 @@ bool History::trimHistories() {
 
 bool History::keepHistory() {
   bool keepPath = true;
+
   // Tag unordered paths for removal.
   if ( mergingHooksPtr->getProcessString().compare("pp>jj") == 0
     || mergingHooksPtr->getProcessString().compare("pp>aj") == 0 ) {
@@ -1439,6 +1475,11 @@ bool History::keepHistory() {
     double maxScale = hardFacScale(state);
     keepPath = isOrderedPath( maxScale );
   }
+
+  keepPath = isOrderedPath( infoPtr->eCM() );
+
+  // More stringent criterion.
+  //keepPath = allIntermediateAboveRhoMS( mergingHooksPtr->tms() );
 
   //Done
   return keepPath;
@@ -1451,6 +1492,10 @@ bool History::keepHistory() {
 bool History::isOrderedPath( double maxscale ) {
   double newscale = clusterIn.pT();
   if ( !mother ) return true;
+  if ( mother->state[clusterIn.emittor].idAbs() == 21
+    && mother->state[clusterIn.emitted].idAbs() == 5
+    && !mother->state[clusterIn.emittor].isFinal())
+    newscale=maxscale;
   bool ordered = mother->isOrderedPath(newscale);
   if ( !ordered || maxscale < newscale) return false;
   return ordered;
@@ -1470,7 +1515,7 @@ bool History::allIntermediateAboveRhoMS( double rhoms, bool good ) {
   for ( int i = 0; i < state.size(); ++i )
     if ( state[i].isFinal() && state[i].colType() != 0 )
       nFinal++;
-  double rhoNew = (nFinal > 0 ) ? mergingHooksPtr->rhoms( state, false )
+  double rhoNew = (nFinal > 0 ) ? mergingHooksPtr->tmsNow( state )
                 : state[0].e();
   // Assume state from ME generator passes merging scale cut.
   if ( !mother ) return good;
@@ -1510,8 +1555,8 @@ bool History::foundAnyOrderedPaths() {
 //     AlphaStrong: Initialised shower alpha_s object for ISR
 //                  alpha_s ratio calculation (can be different from previous)
 
-double History::weightTree(PartonLevel* trial, double as0, double maxscale,
-  double pdfScale, AlphaStrong * asFSR, AlphaStrong * asISR,
+double History::weightTree(PartonLevel* trial, double as0,
+  double maxscale, double pdfScale, AlphaStrong * asFSR, AlphaStrong * asISR,
   double& asWeight, double& pdfWeight) {
 
   // Use correct scale
@@ -1554,7 +1599,7 @@ double History::weightTree(PartonLevel* trial, double as0, double maxscale,
     return 1.0;
   }
 
-  // Remember new PDF scale n case true sclae should be used for un-ordered
+  // Remember new PDF scale n case true scale should be used for un-ordered
   // splittings.
   double newPDFscale = newScale;
   if (mergingHooksPtr->unorderedPDFscalePrescip() == 1)
@@ -1562,7 +1607,7 @@ double History::weightTree(PartonLevel* trial, double as0, double maxscale,
 
   // Recurse
   double w = mother->weightTree(trial, as0, newScale, newPDFscale,
-                       asFSR, asISR, asWeight, pdfWeight);
+    asFSR, asISR, asWeight, pdfWeight);
 
   // Do nothing for empty state
   if (state.size() < 3) return 1.0;
@@ -1572,8 +1617,9 @@ double History::weightTree(PartonLevel* trial, double as0, double maxscale,
   w *= doTrialShower(trial, 1, maxscale);
   if ( w < 1e-12 ) return 0.0;
 
-  // Calculate alpha_s ratio for current state
-  if ( asFSR && asISR ) {
+  int emtType = mother->state[clusterIn.emitted].colType();
+  // Calculate alpha_s ratio for current state.
+  if ( asFSR && asISR && emtType != 0) {
     double asScale = pow2( newScale );
     if (mergingHooksPtr->unorderedASscalePrescip() == 1)
       asScale = pow2( clusterIn.pT() );
@@ -1633,14 +1679,18 @@ double History::weightTree(PartonLevel* trial, double as0, double maxscale,
 // Function to return the \alpha_s-ratio part of the CKKWL weight of a path.
 
 double History::weightTreeALPHAS( double as0, AlphaStrong * asFSR,
-  AlphaStrong * asISR ) {
+  AlphaStrong * asISR, int njetMax ) {
 
   // For ME state, do nothing.
   if ( !mother ) return 1.;
   // Recurse
-  double w = mother->weightTreeALPHAS( as0, asFSR, asISR );
+  double w = mother->weightTreeALPHAS( as0, asFSR, asISR, njetMax );
   // Do nothing for empty state
   if (state.size() < 3) return w;
+
+  // If this node has too many jets, no not calculate no-emission probability.
+  int njetNow = mergingHooksPtr->getNumberOfClusteringSteps( state) ;
+  if (njetNow >= njetMax) return 1.0;
 
   // Calculate alpha_s ratio for current state
   if ( asFSR && asISR ) {
@@ -1648,9 +1698,12 @@ double History::weightTreeALPHAS( double as0, AlphaStrong * asFSR,
     if (mergingHooksPtr->unorderedASscalePrescip() == 1)
       asScale = pow2( clusterIn.pT() );
     bool FSR = mother->state[clusterIn.emittor].isFinal();
-    double alphaSinPS = (FSR)
-                ? (*asFSR).alphaS(asScale)
-                : (*asISR).alphaS(asScale + pow2(mergingHooksPtr->pT0ISR()) );
+
+    if (!FSR)
+      asScale += pow2(mergingHooksPtr->pT0ISR());
+
+    double alphaSinPS = (FSR) ? (*asFSR).alphaS(asScale)
+                              : (*asISR).alphaS(asScale);
     w *= alphaSinPS / as0;
   }
 
@@ -1662,13 +1715,18 @@ double History::weightTreeALPHAS( double as0, AlphaStrong * asFSR,
 
 // Function to return the PDF-ratio part of the CKKWL weight of a path.
 
-double History::weightTreePDFs( double maxscale, double pdfScale ) {
+double History::weightTreePDFs( double maxscale, double pdfScale,
+  int njetMax ) {
 
   // Use correct scale
   double newScale = scale;
 
   // For ME state, just multiply by PDF ratios
   if ( !mother ) {
+
+    // If this node has too many jets, no not calculate PDF ratio.
+    int njet = mergingHooksPtr->getNumberOfClusteringSteps( state);
+    if (njet > njetMax) return 1.0;
 
     double wt = 1.;
     int sideRad = (state[3].pz() > 0) ? 1 :-1;
@@ -1703,17 +1761,20 @@ double History::weightTreePDFs( double maxscale, double pdfScale ) {
     return wt;
   }
 
-  // Remember new PDF scale n case true sclae should be used for un-ordered
+  // Remember new PDF scale n case true scale should be used for un-ordered
   // splittings.
   double newPDFscale = newScale;
   if ( mergingHooksPtr->unorderedPDFscalePrescip() == 1)
     newPDFscale = clusterIn.pT();
 
   // Recurse
-  double w = mother->weightTreePDFs( newScale, newPDFscale );
+  double w = mother->weightTreePDFs( newScale, newPDFscale, njetMax );
 
   // Do nothing for empty state
   if (state.size() < 3) return w;
+
+  // If this node has too many jets, no not calculate PDF ratio.
+  int njetNow = mergingHooksPtr->getNumberOfClusteringSteps( state) ;
 
   // Calculate pdf ratios: Get both sides of event
   int inP = 3;
@@ -1732,10 +1793,14 @@ double History::weightTreePDFs( double maxscale, double pdfScale ) {
                       ? pdfScale : maxscale );
     double scaleDen = (mergingHooksPtr->unorderedPDFscalePrescip() == 1)
                     ? clusterIn.pT() : newScale;
-    // Multiply PDF ratio
+
+    double xDen = (njetNow == njetMax) ? mother->getCurrentX(sideP) : x;
+    int flavDen = (njetNow == njetMax) ? mother->getCurrentFlav(sideP) : flav;
+    double sDen = (njetNow == njetMax) ? mergingHooksPtr->muFinME() : scaleDen;
     double ratio = getPDFratio(sideP, false, false, flav, x, scaleNum,
-                     flav, x, scaleDen);
+                     flavDen, xDen, sDen);
     w *= ratio;
+
   }
 
   if ( mother->state[inM].colType() != 0 ) {
@@ -1749,9 +1814,12 @@ double History::weightTreePDFs( double maxscale, double pdfScale ) {
                       ? pdfScale : maxscale );
     double scaleDen = (mergingHooksPtr->unorderedPDFscalePrescip() == 1)
                     ? clusterIn.pT() : newScale;
-    // Multiply PDF ratio
+
+    double xDen = (njetNow == njetMax) ? mother->getCurrentX(sideM) : x;
+    int flavDen = (njetNow == njetMax) ? mother->getCurrentFlav(sideM) : flav;
+    double sDen = (njetNow == njetMax) ? mergingHooksPtr->muFinME() : scaleDen;
     double ratio = getPDFratio(sideM, false, false, flav, x, scaleNum,
-                     flav, x, scaleDen);
+                     flavDen, xDen, sDen);
     w *= ratio;
   }
 
@@ -1769,6 +1837,7 @@ double History::weightTreeEmissions( PartonLevel* trial, int type,
   // Use correct scale
   double newScale = scale;
   // For ME state, just multiply by PDF ratios
+
   if ( !mother ) return 1.0;
   // Recurse
   double w = mother->weightTreeEmissions(trial,type,njetMin,njetMax,newScale);
@@ -1779,7 +1848,6 @@ double History::weightTreeEmissions( PartonLevel* trial, int type,
   // If this node has too many jets, no not calculate no-emission probability.
   int njetNow = mergingHooksPtr->getNumberOfClusteringSteps( state) ;
   if (njetNow >= njetMax) return 1.0;
-
   if (njetNow < njetMin ) w *= 1.0;
   // Do trial shower on current state, return zero if not successful
   else w *= doTrialShower(trial, type, maxscale);
@@ -1937,6 +2005,7 @@ double History::weightFirstALPHAS( double as0, double muR,
   double BETA0 = 11. - 2./3.* NF;
   // For fixed \alpha_s in matrix element
   w += as0 / (2.*M_PI) * 0.5 * BETA0 * log( (muR*muR) / (b*asScale) );
+
   // Done
   return w;
 
@@ -1986,7 +2055,7 @@ double History::weightFirstPDFs( double as0, double maxscale, double pdfScale,
     return wt;
   }
 
-  // Remember new PDF scale n case true sclae should be used for un-ordered
+  // Remember new PDF scale n case true scale should be used for un-ordered
   // splittings.
   double newPDFscale = newScale;
   if (mergingHooksPtr->unorderedPDFscalePrescip() == 1)
@@ -2116,7 +2185,7 @@ double History::hardRenScale(const Event& event) {
   // of the hard process at the pT of the dijet system, rather than at fixed
   // arbitrary scale.
   if ( mergingHooksPtr->getProcessString().compare("pp>jj") == 0
-    || mergingHooksPtr->getProcessString().compare("pp>aj") == 0 ) {
+       || mergingHooksPtr->getProcessString().compare("pp>aj") == 0 ) {
     // Find the mT in the hard sub-process.
     vector <double> mT;
     for ( int i=0; i < event.size(); ++i)
@@ -2161,6 +2230,9 @@ double History::doTrialShower( PartonLevel* trial, int type,
 
   // Set output.
   bool doVeto          = false;
+  double wt            = 1.;
+  bool canEnhanceTrial = (trial->userHooksPtr!=0)
+         && trial->userHooksPtr->canEnhanceTrial();
 
   while ( true ) {
 
@@ -2192,7 +2264,7 @@ double History::doTrialShower( PartonLevel* trial, int type,
              ? 0.5
              : mother->getCurrentZ(clusterIn.emittor,clusterIn.recoiler,
                  clusterIn.emitted);
-    // Store z and pT values at which the current state was formed
+    // Store z and pT values at which the current state was formed.
     infoPtr->zNowISR(z);
     infoPtr->pT2NowISR(pow(startingScale,2));
     infoPtr->hasHistory(true);
@@ -2205,6 +2277,13 @@ double History::doTrialShower( PartonLevel* trial, int type,
 
     // Clear parton systems.
     trial->resetTrial();
+
+    // Get enhanced trial emission weight.
+    double pTEnhanced = (canEnhanceTrial)
+                      ? trial->userHooksPtr->getEnhancedTrialPT() : 0.;
+    double wtEnhanced = (canEnhanceTrial)
+                      ? trial->userHooksPtr->getEnhancedTrialWeight() : 1.;
+    if ( canEnhanceTrial && pTEnhanced > 0.) pTtrial = pTEnhanced;
 
     // Get veto (merging) scale value
     double vetoScale  = (mother) ? 0. : mergingHooksPtr->tms();
@@ -2223,12 +2302,33 @@ double History::doTrialShower( PartonLevel* trial, int type,
     if ( mergingHooksPtr->canVetoTrialEmission()
       && mergingHooksPtr->doVetoTrialEmission( process, event) ) continue;
 
+    int iRecAft = event.size() - 1;
+    int iEmt    = event.size() - 2;
+    int iRadAft = event.size() - 3;
+    if ( (event[iRecAft].status() != 52 && event[iRecAft].status() != -53) ||
+         event[iEmt].status() != 51 || event[iRadAft].status() != 51)
+      iRecAft = iEmt = iRadAft = -1;
+    for (int i = event.size() - 1; i > 0; i--) {
+      if      (iRadAft == -1 && event[i].status() == -41) iRadAft = i;
+      else if (iEmt    == -1 && event[i].status() ==  43) iEmt    = i;
+      else if (iRecAft == -1 && event[i].status() == -42) iRecAft = i;
+      if (iRadAft != -1 && iEmt != -1 && iRecAft != -1) break;
+    }
+
     // Only consider allowed emissions for veto:
     // Only allow MPI for MPI no-emission probability.
     if ( type == -1 && typeTrial != 1 ) continue;
     // Only allow ISR or FSR for radiative no-emission probability.
     if ( type ==  1 && !(typeTrial == 2 || typeTrial >= 3) ) continue;
 
+    // Update enhanced trial shower weight.
+    if (canEnhanceTrial && pTtrial > minScale) wt *= (1. - 1./wtEnhanced);
+    // Done with enhanced trial showers if weight is zero.
+    if ( canEnhanceTrial && wt == 0.) break;
+    // Continue producing trial emissions in case of enhanced showers.
+    if ( canEnhanceTrial && pTtrial > minScale) continue;
+
+    // Continue if this state is below the veto scale
     // Veto event if trial pT was above the next nodal scale.
     if ( pTtrial > minScale ) doVeto = true;
 
@@ -2256,7 +2356,9 @@ double History::doTrialShower( PartonLevel* trial, int type,
   }
 
   // Done
-  return ( (doVeto) ? 0. : 1. );
+  double res = (canEnhanceTrial) ? wt : ( (doVeto) ? 0. : 1. );
+  return res;
+
 }
 
 //--------------------------------------------------------------------------
@@ -2303,6 +2405,8 @@ History::countEmissions(PartonLevel* trial, double maxscale,
       startingScale = min( startingScale, hardFacScale(process) );
 
   vector<double> wts;
+  bool canEnhanceTrial = (trial->userHooksPtr!=0)
+         && trial->userHooksPtr->canEnhanceTrial();
 
   while ( true ) {
     // Reset trialShower object
@@ -2344,6 +2448,13 @@ History::countEmissions(PartonLevel* trial, double maxscale,
     // Clear parton systems.
     trial->resetTrial();
 
+    // Get enhanced trial emission weight.
+    double pTEnhanced = (canEnhanceTrial)
+                      ? trial->userHooksPtr->getEnhancedTrialPT() : 0.;
+    double wtEnhanced = (canEnhanceTrial)
+                      ? trial->userHooksPtr->getEnhancedTrialWeight() : 1.;
+    if ( canEnhanceTrial && pTEnhanced > 0.) pTtrial = pTEnhanced;
+
     // Get veto (merging) scale value
     double vetoScale  = (mother) ? 0. : mergingHooksPtr->tms();
     // Get merging scale in current event
@@ -2358,6 +2469,9 @@ History::countEmissions(PartonLevel* trial, double maxscale,
     // Retry if the trial emission was not allowed.
     if ( mergingHooksPtr->canVetoTrialEmission()
       && mergingHooksPtr->doVetoTrialEmission( process, event) ) continue;
+
+    // Set weight of enhanced emission.
+    double enhance = (canEnhanceTrial && pTtrial > minscale) ? wtEnhanced : 1.;
 
     // Check if a new emission should be generated, either because
     // the latest emission was not of the desired kind or if the
@@ -2385,7 +2499,7 @@ History::countEmissions(PartonLevel* trial, double maxscale,
 
     // Save weight correcting to emission generated with fixed scales.
     if ( typeTrial == 2 || typeTrial >= 3 )
-      wts.push_back(as0/alphaSinPS*pdfs);
+      wts.push_back(as0/alphaSinPS * pdfs * 1./enhance);
 
   }
 
@@ -2517,7 +2631,7 @@ bool History::registerPath(History & l, bool isOrdered,
     else return false;
   }
 
-  if ( foundCompletePath && !isComplete )
+  if ( foundCompletePath && !isComplete)
     return false;
   if ( !mergingHooksPtr->canCutOnRecState()
     && !mergingHooksPtr->allowCutOnRecState() )
@@ -2592,32 +2706,32 @@ vector<Clustering> History::getAllQCDClusterings() {
   vector<Clustering> ret;
   // Initialise vectors to keep track of position of partons in the
   // history-defining state
-  vector <int> PosFinalPartn;
-  vector <int> PosInitPartn;
-  vector <int> PosFinalGluon;
-  vector <int> PosFinalQuark;
-  vector <int> PosFinalAntiq;
-  vector <int> PosInitGluon;
-  vector <int> PosInitQuark;
-  vector <int> PosInitAntiq;
+  vector <int> posFinalPartn;
+  vector <int> posInitPartn;
+  vector <int> posFinalGluon;
+  vector <int> posFinalQuark;
+  vector <int> posFinalAntiq;
+  vector <int> posInitGluon;
+  vector <int> posInitQuark;
+  vector <int> posInitAntiq;
 
   // Search event record for final state particles and store these in
   // quark, anti-quark and gluon vectors
   for ( int i=0; i < state.size(); ++i )
     if ( state[i].isFinal() && state[i].colType() !=0 ) {
       // Store final partons
-      if ( state[i].id() == 21 ) PosFinalGluon.push_back(i);
+      if ( state[i].id() == 21 ) posFinalGluon.push_back(i);
       else if ( state[i].idAbs() < 10 && state[i].id() > 0)
-        PosFinalQuark.push_back(i);
+        posFinalQuark.push_back(i);
       else if ( state[i].idAbs() < 10 && state[i].id() < 0)
-        PosFinalAntiq.push_back(i);
+        posFinalAntiq.push_back(i);
     } else if (state[i].status() == -21 && state[i].colType() != 0 ) {
       // Store initial partons
-      if ( state[i].id() == 21 ) PosInitGluon.push_back(i);
+      if ( state[i].id() == 21 ) posInitGluon.push_back(i);
       else if ( state[i].idAbs() < 10 && state[i].id() > 0)
-        PosInitQuark.push_back(i);
+        posInitQuark.push_back(i);
       else if ( state[i].idAbs() < 10 && state[i].id() < 0)
-        PosInitAntiq.push_back(i);
+        posInitAntiq.push_back(i);
     }
 
   // Get all clusterings for input state
@@ -2636,18 +2750,18 @@ vector<Clustering> History::getAllQCDClusterings() {
         && mergingHooksPtr->allowColourShuffling() ) {
     Event NewState = Event(state);
     // Start with changing final state quark colour
-    for(int i = 0; i < int(PosFinalQuark.size()); ++i) {
+    for(int i = 0; i < int(posFinalQuark.size()); ++i) {
       // Never change the hard process candidates
-      if ( mergingHooksPtr->hardProcess.matchesAnyOutgoing(PosFinalQuark[i],
+      if ( mergingHooksPtr->hardProcess.matchesAnyOutgoing(posFinalQuark[i],
        NewState) )
         continue;
-      int col = NewState[PosFinalQuark[i]].col();
-      for(int j = 0; j < int(PosInitAntiq.size()); ++j) {
+      int col = NewState[posFinalQuark[i]].col();
+      for(int j = 0; j < int(posInitAntiq.size()); ++j) {
         // Now swap colours
-        int acl = NewState[PosInitAntiq[j]].acol();
+        int acl = NewState[posInitAntiq[j]].acol();
         if ( col == acl ) continue;
-        NewState[PosFinalQuark[i]].col(acl);
-        NewState[PosInitAntiq[j]].acol(col);
+        NewState[posFinalQuark[i]].col(acl);
+        NewState[posInitAntiq[j]].acol(col);
         systems = getQCDClusterings(NewState);
         if (!systems.empty()) {
           state = NewState;
@@ -2659,18 +2773,18 @@ vector<Clustering> History::getAllQCDClusterings() {
       }
     }
     // Now change final state antiquark anticolour
-    for(int i = 0; i < int(PosFinalAntiq.size()); ++i) {
+    for(int i = 0; i < int(posFinalAntiq.size()); ++i) {
       // Never change the hard process candidates
-      if ( mergingHooksPtr->hardProcess.matchesAnyOutgoing(PosFinalAntiq[i],
+      if ( mergingHooksPtr->hardProcess.matchesAnyOutgoing(posFinalAntiq[i],
        NewState) )
         continue;
-      int acl = NewState[PosFinalAntiq[i]].acol();
-      for(int j = 0; j < int(PosInitQuark.size()); ++j) {
+      int acl = NewState[posFinalAntiq[i]].acol();
+      for(int j = 0; j < int(posInitQuark.size()); ++j) {
         // Now swap colours
-        int col = NewState[PosInitQuark[j]].col();
+        int col = NewState[posInitQuark[j]].col();
         if ( col == acl ) continue;
-        NewState[PosFinalAntiq[i]].acol(col);
-        NewState[PosInitQuark[j]].col(acl);
+        NewState[posFinalAntiq[i]].acol(col);
+        NewState[posInitQuark[j]].col(acl);
         systems = getQCDClusterings(NewState);
         if (!systems.empty()) {
           state = NewState;
@@ -2705,51 +2819,51 @@ vector<Clustering> History::getQCDClusterings( const Event& event) {
 
   // Initialise vectors to keep track of position of partons in the
   // input event
-  vector <int> PosFinalPartn;
-  vector <int> PosInitPartn;
+  vector <int> posFinalPartn;
+  vector <int> posInitPartn;
 
-  vector <int> PosFinalGluon;
-  vector <int> PosFinalQuark;
-  vector <int> PosFinalAntiq;
-  vector <int> PosInitGluon;
-  vector <int> PosInitQuark;
-  vector <int> PosInitAntiq;
+  vector <int> posFinalGluon;
+  vector <int> posFinalQuark;
+  vector <int> posFinalAntiq;
+  vector <int> posInitGluon;
+  vector <int> posInitQuark;
+  vector <int> posInitAntiq;
 
   // Search event record for final state particles and store these in
   // quark, anti-quark and gluon vectors
   for (int i=0; i < event.size(); ++i)
     if ( event[i].isFinal() && event[i].colType() !=0 ) {
       // Store final partons
-      PosFinalPartn.push_back(i);
-      if ( event[i].id() == 21 ) PosFinalGluon.push_back(i);
+      posFinalPartn.push_back(i);
+      if ( event[i].id() == 21 ) posFinalGluon.push_back(i);
       else if ( event[i].idAbs() < 10 && event[i].id() > 0)
-        PosFinalQuark.push_back(i);
+        posFinalQuark.push_back(i);
       else if ( event[i].idAbs() < 10 && event[i].id() < 0)
-        PosFinalAntiq.push_back(i);
+        posFinalAntiq.push_back(i);
     } else if ( event[i].status() == -21 && event[i].colType() != 0 ) {
       // Store initial partons
-      PosInitPartn.push_back(i);
-      if ( event[i].id() == 21 ) PosInitGluon.push_back(i);
+      posInitPartn.push_back(i);
+      if ( event[i].id() == 21 ) posInitGluon.push_back(i);
       else if ( event[i].idAbs() < 10 && event[i].id() > 0)
-        PosInitQuark.push_back(i);
+        posInitQuark.push_back(i);
       else if ( event[i].idAbs() < 10 && event[i].id() < 0)
-        PosInitAntiq.push_back(i);
+        posInitAntiq.push_back(i);
     }
 
-  int nFiGluon = int(PosFinalGluon.size());
-  int nFiQuark = int(PosFinalQuark.size());
-  int nFiAntiq = int(PosFinalAntiq.size());
-  int nInGluon = int(PosInitGluon.size());
-  int nInQuark = int(PosInitQuark.size());
-  int nInAntiq = int(PosInitAntiq.size());
+  int nFiGluon = int(posFinalGluon.size());
+  int nFiQuark = int(posFinalQuark.size());
+  int nFiAntiq = int(posFinalAntiq.size());
+  int nInGluon = int(posInitGluon.size());
+  int nInQuark = int(posInitQuark.size());
+  int nInAntiq = int(posInitAntiq.size());
 
   vector<Clustering> systems;
 
   // Find rad + emt + rec systems:
   // (1) Start from gluon and find all (rad,rec,emt=gluon) triples
   for (int i = 0; i < nFiGluon; ++i) {
-    int EmtGluon = PosFinalGluon[i];
-    systems = findQCDTriple( EmtGluon, 2, event, PosFinalPartn, PosInitPartn);
+    int EmtGluon = posFinalGluon[i];
+    systems = findQCDTriple( EmtGluon, 2, event, posFinalPartn, posInitPartn);
     ret.insert(ret.end(), systems.begin(), systems.end());
     systems.resize(0);
   }
@@ -2769,8 +2883,8 @@ vector<Clustering> History::getQCDClusterings( const Event& event) {
     // (2) Start from quark and find all (rad,rec,emt=quark) triples
     //     ( when g -> q qbar occured )
     for( int i=0; i < nFiQuark; ++i) {
-      int EmtQuark = PosFinalQuark[i];
-      systems = findQCDTriple( EmtQuark,1,event, PosFinalPartn, PosInitPartn);
+      int EmtQuark = posFinalQuark[i];
+      systems = findQCDTriple( EmtQuark,1,event, posFinalPartn, posInitPartn);
       ret.insert(ret.end(), systems.begin(), systems.end());
       systems.resize(0);
     }
@@ -2778,14 +2892,28 @@ vector<Clustering> History::getQCDClusterings( const Event& event) {
     // (3) Start from anti-quark and find all (rad,rec,emt=anti-quark)
     //     triples ( when g -> q qbar occured )
     for( int i=0; i < nFiAntiq; ++i) {
-      int EmtAntiq = PosFinalAntiq[i];
-      systems = findQCDTriple( EmtAntiq,1,event, PosFinalPartn, PosInitPartn);
+      int EmtAntiq = posFinalAntiq[i];
+      systems = findQCDTriple( EmtAntiq,1,event, posFinalPartn, posInitPartn);
       ret.insert(ret.end(), systems.begin(), systems.end());
       systems.resize(0);
     }
   }
 
   return ret;
+}
+
+//--------------------------------------------------------------------------
+
+// Function to attach (spin-dependent duplicates of) a clustering.
+
+void History::attachClusterings (vector<Clustering>& clus, int iEmt, int iRad,
+    int iRec, int iPartner, double pT, const Event&) {
+
+  // Trivial at the moment. Will become more complicated for weak merging.
+  clus.push_back( Clustering(iEmt, iRad, iRec, iPartner, pT));
+
+  return;
+
 }
 
 //--------------------------------------------------------------------------
@@ -2802,8 +2930,8 @@ vector<Clustering> History::getQCDClusterings( const Event& event) {
 
 vector<Clustering> History::findQCDTriple (int EmtTagIn, int colTopIn,
                       const Event& event,
-                      vector<int> PosFinalPartn,
-                      vector <int> PosInitPartn ) {
+                      vector<int> posFinalPartn,
+                      vector <int> posInitPartn ) {
 
   // Copy input parton tag
   int EmtTag = EmtTagIn;
@@ -2812,17 +2940,17 @@ vector<Clustering> History::findQCDTriple (int EmtTagIn, int colTopIn,
   int colTop = colTopIn;
 
   // Initialise FinalSize
-  int FinalSize = int(PosFinalPartn.size());
-  int InitSize = int(PosInitPartn.size());
-  int Size = InitSize + FinalSize;
+  int finalSize = int(posFinalPartn.size());
+  int initSize = int(posInitPartn.size());
+  int size = initSize + finalSize;
 
   vector<Clustering> clus;
 
   // Search final partons to find partons colour-connected to
   // event[EmtTag], choose radiator, then choose recoiler
-  for ( int a = 0; a < Size; ++a ) {
-    int i    = (a < FinalSize)? a : (a - FinalSize) ;
-    int iRad = (a < FinalSize)? PosFinalPartn[i] : PosInitPartn[i];
+  for ( int a = 0; a < size; ++a ) {
+    int i    = (a < finalSize)? a : (a - finalSize) ;
+    int iRad = (a < finalSize)? posFinalPartn[i] : posInitPartn[i];
 
     if ( event[iRad].col() == event[EmtTag].col()
       && event[iRad].acol() == event[EmtTag].acol() )
@@ -2830,7 +2958,7 @@ vector<Clustering> History::findQCDTriple (int EmtTagIn, int colTopIn,
 
     if (iRad != EmtTag ) {
       int pTdef = event[iRad].isFinal() ? 1 : -1;
-      int sign = (a < FinalSize)? 1 : -1 ;
+      int sign = (a < finalSize)? 1 : -1 ;
 
       // First colour topology: g --> qqbar. Here, emt & rad should
       // have same flavour (causes problems for gamma->qqbar).
@@ -2839,13 +2967,25 @@ vector<Clustering> History::findQCDTriple (int EmtTagIn, int colTopIn,
         if ( event[iRad].id() == -sign*event[EmtTag].id() ) {
           int col = -1;
           int acl = -1;
-          if (event[iRad].id() < 0) {
-            col = event[EmtTag].acol();
-            acl = event[iRad].acol();
+
+          if (event[iRad].isFinal() ) {
+            if (event[iRad].id() < 0) {
+              col = event[EmtTag].col();
+              acl = 0;
+            } else {
+              acl = event[EmtTag].acol();
+              col = 0;
+            }
           } else {
-             col = event[EmtTag].col();
-             acl = event[iRad].col();
+            if (event[iRad].id() < 0) {
+              acl = event[EmtTag].acol();
+              col = 0;
+            } else {
+              col = event[EmtTag].col();
+              acl = 0;
+            }
           }
+
           // Recoiler
           int iRec     = 0;
           // Colour partner
@@ -2860,8 +3000,8 @@ vector<Clustering> History::findQCDTriple (int EmtTagIn, int colTopIn,
               // Save colour recoiler
               iPartner = iRec;
               // Reset kinematic recoiler to initial state parton
-              for(int l = 0; l < int(PosInitPartn.size()); ++l)
-                if (PosInitPartn[l] != iRad) iRec = PosInitPartn[l];
+              for(int l = 0; l < int(posInitPartn.size()); ++l)
+                if (posInitPartn[l] != iRad) iRec = posInitPartn[l];
             // For final state splittings, colour partner and recoiler are
             // identical
             } else {
@@ -2869,8 +3009,9 @@ vector<Clustering> History::findQCDTriple (int EmtTagIn, int colTopIn,
             }
             if ( iRec != 0 && iPartner != 0
              && allowedClustering( iRad, EmtTag, iRec, iPartner, event) ) {
-              clus.push_back( Clustering(EmtTag, iRad, iRec, iPartner,
-                   pTLund(event[iRad], event[EmtTag], event[iRec], pTdef) ));
+               attachClusterings (clus, EmtTag, iRad, iRec, iPartner,
+                   pTLund(event[iRad], event[EmtTag], event[iRec], pTdef),
+                   event);
               continue;
             }
 
@@ -2884,8 +3025,8 @@ vector<Clustering> History::findQCDTriple (int EmtTagIn, int colTopIn,
               // Save colour recoiler
               iPartner = iRec;
               // Reset kinematic recoiler to initial state parton
-              for(int l = 0; l < int(PosInitPartn.size()); ++l)
-                if (PosInitPartn[l] != iRad) iRec = PosInitPartn[l];
+              for(int l = 0; l < int(posInitPartn.size()); ++l)
+                if (posInitPartn[l] != iRad) iRec = posInitPartn[l];
             // For final state splittings, colour partner and recoiler are
             // identical
             } else {
@@ -2893,8 +3034,9 @@ vector<Clustering> History::findQCDTriple (int EmtTagIn, int colTopIn,
             }
             if ( iRec != 0 && iPartner != 0
              && allowedClustering( iRad, EmtTag, iRec, iPartner, event) ) {
-              clus.push_back( Clustering(EmtTag, iRad, iRec, iPartner,
-                   pTLund(event[iRad], event[EmtTag], event[iRec], pTdef) ));
+                attachClusterings (clus, EmtTag, iRad, iRec, iPartner,
+                   pTLund(event[iRad], event[EmtTag], event[iRec], pTdef),
+                   event);
               continue;
             }
           }
@@ -2912,8 +3054,8 @@ vector<Clustering> History::findQCDTriple (int EmtTagIn, int colTopIn,
               // Save colour recoiler
               iPartner = iRec;
               // Reset kinematic recoiler to initial state parton
-              for(int l = 0; l < int(PosInitPartn.size()); ++l)
-                if (PosInitPartn[l] != iRad) iRec = PosInitPartn[l];
+              for(int l = 0; l < int(posInitPartn.size()); ++l)
+                if (posInitPartn[l] != iRad) iRec = posInitPartn[l];
             // For final state splittings, colour partner and recoiler are
             // identical
             } else {
@@ -2921,8 +3063,9 @@ vector<Clustering> History::findQCDTriple (int EmtTagIn, int colTopIn,
             }
             if ( iRec != 0 && iPartner != 0
              && allowedClustering( iRad, EmtTag, iRec, iPartner, event) ) {
-              clus.push_back( Clustering(EmtTag, iRad, iRec, iPartner,
-                   pTLund(event[iRad], event[EmtTag], event[iRec], pTdef) ));
+                attachClusterings (clus, EmtTag, iRad, iRec, iPartner,
+                   pTLund(event[iRad], event[EmtTag], event[iRec], pTdef),
+                   event);
               continue;
             }
 
@@ -2936,8 +3079,8 @@ vector<Clustering> History::findQCDTriple (int EmtTagIn, int colTopIn,
               // Save colour recoiler
               iPartner = iRec;
               // Reset kinematic recoiler to initial state parton
-              for(int l = 0; l < int(PosInitPartn.size()); ++l)
-                if (PosInitPartn[l] != iRad) iRec = PosInitPartn[l];
+              for(int l = 0; l < int(posInitPartn.size()); ++l)
+                if (posInitPartn[l] != iRad) iRec = posInitPartn[l];
             // For final state splittings, colour partner and recoiler are
             // identical
             } else {
@@ -2945,8 +3088,9 @@ vector<Clustering> History::findQCDTriple (int EmtTagIn, int colTopIn,
             }
             if ( iRec != 0 && iPartner != 0
              && allowedClustering( iRad, EmtTag, iRec, iPartner, event) ) {
-              clus.push_back( Clustering(EmtTag, iRad, iRec, iPartner,
-                   pTLund(event[iRad], event[EmtTag], event[iRec], pTdef) ));
+                attachClusterings (clus, EmtTag, iRad, iRec, iPartner,
+                   pTLund(event[iRad], event[EmtTag], event[iRec], pTdef),
+                   event);
               continue;
             }
           }
@@ -2959,8 +3103,8 @@ vector<Clustering> History::findQCDTriple (int EmtTagIn, int colTopIn,
           // by full remaining system, so this is just a
           // labelling for such a process)
           int RecInit  = 0;
-          for(int l = 0; l < int(PosInitPartn.size()); ++l)
-            if (PosInitPartn[l] != iRad) RecInit = PosInitPartn[l];
+          for(int l = 0; l < int(posInitPartn.size()); ++l)
+            if (posInitPartn[l] != iRad) RecInit = posInitPartn[l];
 
           // Find the colour connected partner
           // Find colour index of radiator before splitting
@@ -2976,19 +3120,20 @@ vector<Clustering> History::findQCDTriple (int EmtTagIn, int colTopIn,
           // we should look for a colour partner, else look for
           // an anticolour partner
           int colRemove = (event[iRad].col() == event[EmtTag].col())
-                  ? event[iRad].col() : 0;
+                  ? event[iRad].col() : event[iRad].acol();
 
           int iPartner = 0;
-          if (colRemove > 0 && col > 0)
+          if (colRemove > 0 && col > 0 && col != colRemove)
             iPartner = FindCol(col,iRad,EmtTag,event,1,true)
                      + FindCol(col,iRad,EmtTag,event,2,true);
-          else if (colRemove > 0 && acl > 0)
+          else if (colRemove > 0 && acl > 0 && acl != colRemove)
             iPartner = FindCol(acl,iRad,EmtTag,event,1,true)
                      + FindCol(acl,iRad,EmtTag,event,2,true);
 
           if ( allowedClustering( iRad, EmtTag, RecInit, iPartner, event ) ) {
-            clus.push_back( Clustering(EmtTag, iRad, RecInit, iPartner,
-                 pTLund(event[iRad],event[EmtTag],event[RecInit], pTdef) ));
+               attachClusterings (clus, EmtTag, iRad, RecInit, iPartner,
+                   pTLund(event[iRad], event[EmtTag], event[RecInit], pTdef),
+                   event);
               continue;
           }
         }
@@ -3015,8 +3160,8 @@ vector<Clustering> History::findQCDTriple (int EmtTagIn, int colTopIn,
               col = event[EmtTag].col();
               acl = event[iRad].acol();
             } else {
-              col = event[iRad].col();
-              acl = event[iRad].acol();
+              col = event[EmtTag].col();
+              acl = event[EmtTag].acol();
             }
 
             int iRec = 0;
@@ -3025,8 +3170,9 @@ vector<Clustering> History::findQCDTriple (int EmtTagIn, int colTopIn,
               if ( (sign < 0) && (event[iRec].isFinal()) ) iRec = 0;
               if (iRec != 0
                && allowedClustering( iRad, EmtTag, iRec, iRec, event) ) {
-                clus.push_back( Clustering(EmtTag, iRad, iRec, iRec,
-                     pTLund(event[iRad],event[EmtTag],event[iRec], pTdef) ));
+                  attachClusterings (clus, EmtTag, iRad, iRec, iRec,
+                     pTLund(event[iRad], event[EmtTag], event[iRec], pTdef),
+                     event);
                 continue;
               }
 
@@ -3034,20 +3180,21 @@ vector<Clustering> History::findQCDTriple (int EmtTagIn, int colTopIn,
               if ( (sign < 0) && (event[iRec].isFinal()) ) iRec = 0;
               if (iRec != 0
                && allowedClustering( iRad, EmtTag, iRec, iRec, event) ) {
-                clus.push_back( Clustering(EmtTag, iRad, iRec, iRec,
-                     pTLund(event[iRad],event[EmtTag],event[iRec], pTdef) ));
+                  attachClusterings (clus, EmtTag, iRad, iRec, iRec,
+                   pTLund(event[iRad], event[EmtTag], event[iRec], pTdef),
+                   event);
                 continue;
               }
             }
-
 
             if (acl > 0) {
               iRec = FindCol(acl,iRad,EmtTag,event,1,true);
               if ( (sign < 0) && (event[iRec].isFinal()) ) iRec = 0;
               if (iRec != 0
                && allowedClustering( iRad, EmtTag, iRec, iRec, event) ) {
-                clus.push_back( Clustering(EmtTag, iRad, iRec, iRec,
-                     pTLund(event[iRad],event[EmtTag],event[iRec], pTdef) ));
+                  attachClusterings (clus, EmtTag, iRad, iRec, iRec,
+                   pTLund(event[iRad], event[EmtTag], event[iRec], pTdef),
+                   event);
                 continue;
               }
 
@@ -3055,8 +3202,9 @@ vector<Clustering> History::findQCDTriple (int EmtTagIn, int colTopIn,
               if ( (sign < 0) && (event[iRec].isFinal()) ) iRec = 0;
               if (iRec != 0
                && allowedClustering( iRad, EmtTag, iRec, iRec, event) ) {
-                clus.push_back( Clustering(EmtTag, iRad, iRec, iRec,
-                     pTLund(event[iRad],event[EmtTag],event[iRec], pTdef) ));
+                  attachClusterings (clus, EmtTag, iRad, iRec, iRec,
+                   pTLund(event[iRad], event[EmtTag], event[iRec], pTdef),
+                   event);
                 continue;
               }
             }
@@ -3070,8 +3218,8 @@ vector<Clustering> History::findQCDTriple (int EmtTagIn, int colTopIn,
             // labelling for such a process)
             int RecInit = 0;
             int iPartner = 0;
-            for(int l = 0; l < int(PosInitPartn.size()); ++l)
-              if (PosInitPartn[l] != iRad) RecInit = PosInitPartn[l];
+            for(int l = 0; l < int(posInitPartn.size()); ++l)
+              if (posInitPartn[l] != iRad) RecInit = posInitPartn[l];
 
             // Find the colour connected partner
             // Find colour index of radiator before splitting
@@ -3095,9 +3243,9 @@ vector<Clustering> History::findQCDTriple (int EmtTagIn, int colTopIn,
                        + FindCol(acl,iRad,EmtTag,event,2,true);
 
             if ( allowedClustering( iRad, EmtTag, RecInit, iPartner, event)) {
-              clus.push_back( Clustering(EmtTag, iRad, RecInit, iPartner,
-                   pTLund(event[iRad],event[EmtTag],event[RecInit], pTdef)));
-
+                 attachClusterings (clus, EmtTag, iRad, RecInit, iPartner,
+                   pTLund(event[iRad], event[EmtTag], event[RecInit], pTdef),
+                   event);
               continue;
             }
           }
@@ -3139,31 +3287,31 @@ vector<Clustering> History::getEWClusterings( const Event& event) {
 
   // Initialise vectors to keep track of position of partons in the
   // input event
-  vector <int> PosFinalPartn;
-  vector <int> PosInitPartn;
-  vector <int> PosFinalW;
+  vector <int> posFinalPartn;
+  vector <int> posInitPartn;
+  vector <int> posFinalW;
 
   // Search event record for final state particles and store these in
   // quark, anti-quark and gluon vectors
-  for ( int i=0; i < event.size(); ++i )
-    if ( event[i].isFinal() && abs(event[i].colType()) == 1 ) {
+  for ( int i=3; i < event.size(); ++i )
+    if ( event[i].isFinal() ) {
       // Store final partons
-      PosFinalPartn.push_back(i);
-    } else if ( event[i].status() == -21 && abs(event[i].colType()) == 1 ) {
+      posFinalPartn.push_back(i);
+    } else {
       // Store initial partons
-      PosInitPartn.push_back(i);
+      posInitPartn.push_back(i);
     }
   // Search event record for final W
   for ( int i=0; i < event.size(); ++i )
     if ( event[i].isFinal() && event[i].idAbs() == 24 )
-      PosFinalW.push_back( i );
+      posFinalW.push_back( i );
 
   vector<Clustering> systems;
   // Find rad + emt + rec systems:
   // (1) Start from W boson and find all (rad,rec,emt=W) triples
-  for ( int i = 0; i <  int(PosFinalW.size()); ++i ) {
-    int EmtW = PosFinalW[i];
-    systems = findEWTriple( EmtW, event, PosFinalPartn);
+  for ( int i = 0; i <  int(posFinalW.size()); ++i ) {
+    int emtW = posFinalW[i];
+    systems = findEWTriple( emtW, event, posFinalPartn, posInitPartn);
     ret.insert(ret.end(), systems.begin(), systems.end());
     systems.resize(0);
   }
@@ -3183,42 +3331,12 @@ vector<Clustering> History::getEWClusterings( const Event& event) {
 //     Event : event record to be checked for ptential partners
 // OUT vector of all allowed radiator+recoiler+emitted triples
 
-vector<Clustering> History::findEWTriple ( int EmtTagIn, const Event& event,
-                      vector<int> PosFinalPartn ) {
-  // Copy input parton tag
-  int EmtTag = EmtTagIn;
-  // Copy input colour topology tag
-  // (1: g --> qqbar splitting present, 2:rest)
-
-  // Initialise FinalSize
-  int FinalSize = int(PosFinalPartn.size());
+vector<Clustering> History::findEWTriple ( int, const Event&,
+  vector<int>, vector<int> ) {
 
   vector<Clustering> clus;
-
-  // Search final partons to find partons colour-connected to
-  // event[EmtTag], choose radiator, then choose recoiler
-  for ( int a = 0; a < FinalSize; ++a ) {
-
-    int iRad = PosFinalPartn[a];
-    if (iRad != EmtTag ) {
-      int pTdef = 1;
-      // Find recoiler by flavour.
-      int flavRad = event[iRad].id();
-      int flavEmt = event[EmtTag].id();
-
-      // Loop through final partons and try to find matching flavours.
-      for ( int i = 0; i < FinalSize; ++i ) {
-        int iRec = PosFinalPartn[i];
-        if ( i != a && flavEmt > 0
-          && event[iRec].id() == -flavRad - 1 )
-          clus.push_back( Clustering(EmtTag, iRad, iRec, iRec,
-               pTLund(event[iRad],event[EmtTag],event[iRec], pTdef) ) );
-      }
-    }
-  }
-
-  // Done
   return clus;
+
 }
 
 //--------------------------------------------------------------------------
@@ -3250,68 +3368,68 @@ vector<Clustering> History::getSQCDClusterings( const Event& event) {
 
   // Initialise vectors to keep track of position of partons in the
   // input event
-  vector <int> PosFinalPartn;
-  vector <int> PosInitPartn;
+  vector <int> posFinalPartn;
+  vector <int> posInitPartn;
 
-  vector <int> PosFinalGluon;
-  vector <int> PosFinalQuark;
-  vector <int> PosFinalAntiq;
-  vector <int> PosInitGluon;
-  vector <int> PosInitQuark;
-  vector <int> PosInitAntiq;
+  vector <int> posFinalGluon;
+  vector <int> posFinalQuark;
+  vector <int> posFinalAntiq;
+  vector <int> posInitGluon;
+  vector <int> posInitQuark;
+  vector <int> posInitAntiq;
 
   // Search event record for final state particles and store these in
   // quark, anti-quark and gluon vectors
   for (int i=0; i < event.size(); ++i)
     if ( event[i].isFinal() && event[i].colType() !=0 ) {
       // Store final partons
-      PosFinalPartn.push_back(i);
+      posFinalPartn.push_back(i);
       if ( event[i].id() == 21 || event[i].id() == 1000021)
-        PosFinalGluon.push_back(i);
+        posFinalGluon.push_back(i);
       else if ( (event[i].idAbs() < 10 && event[i].id() > 0)
              || (event[i].idAbs() < 1000010 && event[i].idAbs() > 1000000
              && event[i].id() > 0)
              || (event[i].idAbs() < 2000010 && event[i].idAbs() > 2000000
              && event[i].id() > 0))
-        PosFinalQuark.push_back(i);
+        posFinalQuark.push_back(i);
       else if ( (event[i].idAbs() < 10 && event[i].id() < 0)
              || (event[i].idAbs() < 1000010 && event[i].idAbs() > 1000000
              && event[i].id() < 0)
              || (event[i].idAbs() < 2000010 && event[i].idAbs() > 2000000
              && event[i].id() < 0))
-        PosFinalAntiq.push_back(i);
+        posFinalAntiq.push_back(i);
     } else if ( event[i].status() == -21 && event[i].colType() != 0 ) {
       // Store initial partons
-      PosInitPartn.push_back(i);
+      posInitPartn.push_back(i);
       if ( event[i].id() == 21 || event[i].id() == 1000021)
-        PosInitGluon.push_back(i);
+        posInitGluon.push_back(i);
       else if ( (event[i].idAbs() < 10 && event[i].id() > 0)
              || (event[i].idAbs() < 1000010 && event[i].idAbs() > 1000000
              && event[i].id() > 0)
              || (event[i].idAbs() < 2000010 && event[i].idAbs() > 2000000
              && event[i].id() > 0))
-        PosInitQuark.push_back(i);
+        posInitQuark.push_back(i);
       else if ( (event[i].idAbs() < 10 && event[i].id() < 0)
              || (event[i].idAbs() < 1000010 && event[i].idAbs() > 1000000
              && event[i].id() < 0)
              || (event[i].idAbs() < 2000010 && event[i].idAbs() > 2000000
              && event[i].id() < 0))
-        PosInitAntiq.push_back(i);
+        posInitAntiq.push_back(i);
     }
 
-  int nFiGluon = int(PosFinalGluon.size());
-  int nFiQuark = int(PosFinalQuark.size());
-  int nFiAntiq = int(PosFinalAntiq.size());
-  int nInGluon = int(PosInitGluon.size());
-  int nInQuark = int(PosInitQuark.size());
-  int nInAntiq = int(PosInitAntiq.size());
+  int nFiGluon = int(posFinalGluon.size());
+  int nFiQuark = int(posFinalQuark.size());
+  int nFiAntiq = int(posFinalAntiq.size());
+  int nInGluon = int(posInitGluon.size());
+  int nInQuark = int(posInitQuark.size());
+  int nInAntiq = int(posInitAntiq.size());
   vector<Clustering> systems;
 
   // Find rad + emt + rec systems:
   // (1) Start from gluon and find all (rad,rec,emt=gluon) triples
   for (int i = 0; i < nFiGluon; ++i) {
-    int EmtGluon = PosFinalGluon[i];
-    systems = findSQCDTriple( EmtGluon, 2, event, PosFinalPartn, PosInitPartn);
+    int EmtGluon = posFinalGluon[i];
+    systems = findSQCDTriple( EmtGluon, 2, event, posFinalPartn, posInitPartn);
     ret.insert(ret.end(), systems.begin(), systems.end());
     systems.resize(0);
   }
@@ -3331,8 +3449,8 @@ vector<Clustering> History::getSQCDClusterings( const Event& event) {
     // (2) Start from quark and find all (rad,rec,emt=quark) triples
     //     ( when g -> q qbar occured )
     for( int i=0; i < nFiQuark; ++i) {
-      int EmtQuark = PosFinalQuark[i];
-      systems = findSQCDTriple( EmtQuark,1,event, PosFinalPartn, PosInitPartn);
+      int EmtQuark = posFinalQuark[i];
+      systems = findSQCDTriple( EmtQuark,1,event, posFinalPartn, posInitPartn);
       ret.insert(ret.end(), systems.begin(), systems.end());
       systems.resize(0);
     }
@@ -3340,8 +3458,8 @@ vector<Clustering> History::getSQCDClusterings( const Event& event) {
     // (3) Start from anti-quark and find all (rad,rec,emt=anti-quark)
     //     triples ( when g -> q qbar occured )
     for( int i=0; i < nFiAntiq; ++i) {
-      int EmtAntiq = PosFinalAntiq[i];
-      systems = findSQCDTriple( EmtAntiq,1,event, PosFinalPartn, PosInitPartn);
+      int EmtAntiq = posFinalAntiq[i];
+      systems = findSQCDTriple( EmtAntiq,1,event, posFinalPartn, posInitPartn);
       ret.insert(ret.end(), systems.begin(), systems.end());
       systems.resize(0);
     }
@@ -3365,8 +3483,8 @@ vector<Clustering> History::getSQCDClusterings( const Event& event) {
 
 vector<Clustering> History::findSQCDTriple (int EmtTagIn, int colTopIn,
                       const Event& event,
-                      vector<int> PosFinalPartn,
-                      vector <int> PosInitPartn ) {
+                      vector<int> posFinalPartn,
+                      vector <int> posInitPartn ) {
 
   // Copy input parton tag
   int EmtTag = EmtTagIn;
@@ -3379,17 +3497,17 @@ vector<Clustering> History::findSQCDTriple (int EmtTagIn, int colTopIn,
   int offsetR = 2000000;
 
   // Initialise FinalSize
-  int FinalSize = int(PosFinalPartn.size());
-  int InitSize = int(PosInitPartn.size());
-  int Size = InitSize + FinalSize;
+  int finalSize = int(posFinalPartn.size());
+  int initSize = int(posInitPartn.size());
+  int size = initSize + finalSize;
 
   vector<Clustering> clus;
 
   // Search final partons to find partons colour-connected to
   // event[EmtTag], choose radiator, then choose recoiler
-  for ( int a = 0; a < Size; ++a ) {
-    int i    = (a < FinalSize)? a : (a - FinalSize) ;
-    int iRad = (a < FinalSize)? PosFinalPartn[i] : PosInitPartn[i];
+  for ( int a = 0; a < size; ++a ) {
+    int i    = (a < finalSize)? a : (a - finalSize) ;
+    int iRad = (a < finalSize)? posFinalPartn[i] : posInitPartn[i];
 
     if ( event[iRad].col() == event[EmtTag].col()
       && event[iRad].acol() == event[EmtTag].acol() )
@@ -3404,7 +3522,7 @@ vector<Clustering> History::findSQCDTriple (int EmtTagIn, int colTopIn,
 
     if (iRad != EmtTag ) {
       int pTdef = event[iRad].isFinal() ? 1 : -1;
-      int sign = (a < FinalSize)? 1 : -1 ;
+      int sign = (a < finalSize)? 1 : -1 ;
 
       // Disalllow clusterings resulting in an initial state sQCD parton!
       int radBefID = getRadBeforeFlav(iRad,EmtTag,event);
@@ -3468,8 +3586,8 @@ vector<Clustering> History::findSQCDTriple (int EmtTagIn, int colTopIn,
               // Save colour recoiler
               iPartner = iRec;
               // Reset kinematic recoiler to initial state parton
-              for(int l = 0; l < int(PosInitPartn.size()); ++l)
-                if (PosInitPartn[l] != iRad) iRec = PosInitPartn[l];
+              for(int l = 0; l < int(posInitPartn.size()); ++l)
+                if (posInitPartn[l] != iRad) iRec = posInitPartn[l];
             // For final state splittings, colour partner and recoiler are
             // identical
             } else {
@@ -3483,8 +3601,9 @@ vector<Clustering> History::findSQCDTriple (int EmtTagIn, int colTopIn,
 
             if ( iRec != 0 && iPartner != 0
              && allowedClustering( iRad, EmtTag, iRec, iPartner, event) ) {
-              clus.push_back( Clustering(EmtTag, iRad, iRec, iPartner,
-                   pTLund(event[iRad], event[EmtTag], event[iRec], pTdef) ));
+                attachClusterings (clus, EmtTag, iRad, iRec, iPartner,
+                   pTLund(event[iRad], event[EmtTag], event[iRec], pTdef),
+                   event);
               continue;
             }
 
@@ -3498,8 +3617,8 @@ vector<Clustering> History::findSQCDTriple (int EmtTagIn, int colTopIn,
               // Save colour recoiler
               iPartner = iRec;
               // Reset kinematic recoiler to initial state parton
-              for(int l = 0; l < int(PosInitPartn.size()); ++l)
-                if (PosInitPartn[l] != iRad) iRec = PosInitPartn[l];
+              for(int l = 0; l < int(posInitPartn.size()); ++l)
+                if (posInitPartn[l] != iRad) iRec = posInitPartn[l];
             // For final state splittings, colour partner and recoiler are
             // identical
             } else {
@@ -3513,8 +3632,9 @@ vector<Clustering> History::findSQCDTriple (int EmtTagIn, int colTopIn,
 
             if ( iRec != 0 && iPartner != 0
              && allowedClustering( iRad, EmtTag, iRec, iPartner, event) ) {
-              clus.push_back( Clustering(EmtTag, iRad, iRec, iPartner,
-                   pTLund(event[iRad], event[EmtTag], event[iRec], pTdef) ));
+                attachClusterings (clus, EmtTag, iRad, iRec, iPartner,
+                   pTLund(event[iRad], event[EmtTag], event[iRec], pTdef),
+                   event);
               continue;
             }
           }
@@ -3531,8 +3651,8 @@ vector<Clustering> History::findSQCDTriple (int EmtTagIn, int colTopIn,
               // Save colour recoiler
               iPartner = iRec;
               // Reset kinematic recoiler to initial state parton
-              for(int l = 0; l < int(PosInitPartn.size()); ++l)
-                if (PosInitPartn[l] != iRad) iRec = PosInitPartn[l];
+              for(int l = 0; l < int(posInitPartn.size()); ++l)
+                if (posInitPartn[l] != iRad) iRec = posInitPartn[l];
             // For final state splittings, colour partner and recoiler are
             // identical
             } else {
@@ -3546,8 +3666,9 @@ vector<Clustering> History::findSQCDTriple (int EmtTagIn, int colTopIn,
 
             if ( iRec != 0 && iPartner != 0
              && allowedClustering( iRad, EmtTag, iRec, iPartner, event) ) {
-              clus.push_back( Clustering(EmtTag, iRad, iRec, iPartner,
-                   pTLund(event[iRad], event[EmtTag], event[iRec], pTdef) ));
+                attachClusterings (clus, EmtTag, iRad, iRec, iPartner,
+                   pTLund(event[iRad], event[EmtTag], event[iRec], pTdef),
+                   event);
               continue;
             }
 
@@ -3561,8 +3682,8 @@ vector<Clustering> History::findSQCDTriple (int EmtTagIn, int colTopIn,
               // Save colour recoiler
               iPartner = iRec;
               // Reset kinematic recoiler to initial state parton
-              for(int l = 0; l < int(PosInitPartn.size()); ++l)
-                if (PosInitPartn[l] != iRad) iRec = PosInitPartn[l];
+              for(int l = 0; l < int(posInitPartn.size()); ++l)
+                if (posInitPartn[l] != iRad) iRec = posInitPartn[l];
             // For final state splittings, colour partner and recoiler are
             // identical
             } else {
@@ -3576,8 +3697,9 @@ vector<Clustering> History::findSQCDTriple (int EmtTagIn, int colTopIn,
 
             if ( iRec != 0 && iPartner != 0
              && allowedClustering( iRad, EmtTag, iRec, iPartner, event) ) {
-              clus.push_back( Clustering(EmtTag, iRad, iRec, iPartner,
-                   pTLund(event[iRad], event[EmtTag], event[iRec], pTdef) ));
+                attachClusterings (clus, EmtTag, iRad, iRec, iPartner,
+                   pTLund(event[iRad], event[EmtTag], event[iRec], pTdef),
+                   event);
               continue;
             }
           }
@@ -3592,8 +3714,8 @@ vector<Clustering> History::findSQCDTriple (int EmtTagIn, int colTopIn,
           // by full remaining system, so this is just a
           // labelling for such a process)
           int RecInit  = 0;
-          for(int l = 0; l < int(PosInitPartn.size()); ++l)
-            if (PosInitPartn[l] != iRad) RecInit = PosInitPartn[l];
+          for(int l = 0; l < int(posInitPartn.size()); ++l)
+            if (posInitPartn[l] != iRad) RecInit = posInitPartn[l];
 
           // Find the colour connected partner
           // Find colour index of radiator before splitting
@@ -3620,8 +3742,9 @@ vector<Clustering> History::findSQCDTriple (int EmtTagIn, int colTopIn,
                      + FindCol(acl,iRad,EmtTag,event,2,true);
 
           if ( allowedClustering( iRad, EmtTag, RecInit, iPartner, event ) ) {
-            clus.push_back( Clustering(EmtTag, iRad, RecInit, iPartner,
-                 pTLund(event[iRad],event[EmtTag],event[RecInit], pTdef) ));
+               attachClusterings (clus, EmtTag, iRad, RecInit, iPartner,
+                   pTLund(event[iRad], event[EmtTag], event[RecInit], pTdef),
+                   event);
               continue;
           }
         }
@@ -3663,8 +3786,9 @@ vector<Clustering> History::findSQCDTriple (int EmtTagIn, int colTopIn,
                 iRec = 0;
               if (iRec != 0
                && allowedClustering( iRad, EmtTag, iRec, iRec, event) ) {
-                clus.push_back( Clustering(EmtTag, iRad, iRec, iRec,
-                     pTLund(event[iRad],event[EmtTag],event[iRec], pTdef) ));
+                  attachClusterings (clus, EmtTag, iRad, iRec, iRec,
+                    pTLund(event[iRad], event[EmtTag], event[iRec], pTdef),
+                    event);
                 continue;
               }
 
@@ -3676,8 +3800,9 @@ vector<Clustering> History::findSQCDTriple (int EmtTagIn, int colTopIn,
                 iRec = 0;
               if (iRec != 0
                && allowedClustering( iRad, EmtTag, iRec, iRec, event) ) {
-                clus.push_back( Clustering(EmtTag, iRad, iRec, iRec,
-                     pTLund(event[iRad],event[EmtTag],event[iRec], pTdef) ));
+                  attachClusterings (clus, EmtTag, iRad, iRec, iRec,
+                    pTLund(event[iRad], event[EmtTag], event[iRec], pTdef),
+                    event);
                 continue;
               }
             }
@@ -3691,8 +3816,9 @@ vector<Clustering> History::findSQCDTriple (int EmtTagIn, int colTopIn,
                 iRec = 0;
               if (iRec != 0
                && allowedClustering( iRad, EmtTag, iRec, iRec, event) ) {
-                clus.push_back( Clustering(EmtTag, iRad, iRec, iRec,
-                     pTLund(event[iRad],event[EmtTag],event[iRec], pTdef) ));
+                  attachClusterings (clus, EmtTag, iRad, iRec, iRec,
+                    pTLund(event[iRad], event[EmtTag], event[iRec], pTdef),
+                    event);
                 continue;
               }
 
@@ -3704,8 +3830,9 @@ vector<Clustering> History::findSQCDTriple (int EmtTagIn, int colTopIn,
                 iRec = 0;
               if (iRec != 0
                && allowedClustering( iRad, EmtTag, iRec, iRec, event) ) {
-                clus.push_back( Clustering(EmtTag, iRad, iRec, iRec,
-                     pTLund(event[iRad],event[EmtTag],event[iRec], pTdef) ));
+                  attachClusterings (clus, EmtTag, iRad, iRec, iRec,
+                    pTLund(event[iRad], event[EmtTag], event[iRec], pTdef),
+                    event);
                 continue;
               }
             }
@@ -3725,8 +3852,8 @@ vector<Clustering> History::findSQCDTriple (int EmtTagIn, int colTopIn,
             // labelling for such a process)
             int RecInit = 0;
             int iPartner = 0;
-            for(int l = 0; l < int(PosInitPartn.size()); ++l)
-              if (PosInitPartn[l] != iRad) RecInit = PosInitPartn[l];
+            for(int l = 0; l < int(posInitPartn.size()); ++l)
+              if (posInitPartn[l] != iRad) RecInit = posInitPartn[l];
 
             // Find the colour connected partner
             // Find colour index of radiator before splitting
@@ -3750,9 +3877,9 @@ vector<Clustering> History::findSQCDTriple (int EmtTagIn, int colTopIn,
                        + FindCol(acl,iRad,EmtTag,event,2,true);
 
             if ( allowedClustering( iRad, EmtTag, RecInit, iPartner, event)) {
-              clus.push_back( Clustering(EmtTag, iRad, RecInit, iPartner,
-                   pTLund(event[iRad],event[EmtTag],event[RecInit], pTdef)));
-
+              attachClusterings (clus, EmtTag, iRad, RecInit, iPartner,
+                   pTLund(event[iRad], event[EmtTag], event[RecInit], pTdef),
+                   event);
               continue;
             }
           }
@@ -3789,7 +3916,7 @@ double History::getProb(const Clustering & SystemIn) {
 
   // Initialise all combinatorical factors
   double CF = 4./3.;
-  double NC = 3.;
+  double CA = 3.;
   // Flavour is known when reclustring, thus n_f=1
   double TR = 1./2.;
 
@@ -3798,6 +3925,18 @@ double History::getProb(const Clustering & SystemIn) {
   bool isFSRinREC = (state[Rad].isFinal() && !state[Rec].isFinal());
   bool isISR = !state[Rad].isFinal();
 
+  // Check if external splitting probability should be used.
+  if ( mergingHooksPtr->useShowerPlugin() ) {
+    int iPartner = (isISR && SystemIn.partner > 0) ? SystemIn.partner : Rec;
+    // Construct name.
+    string name = "";
+    double pr = 0.;
+    if (isISR)
+          pr = showers->spacePtr->getSplittingProb(state,Rad,Emt,iPartner);
+    else  pr = showers->timesPtr->getSplittingProb(state,Rad,Emt,iPartner);
+    return abs(pr);
+  }
+
   // Check if this is the clustering 2->3 to 2->2.
   // If so, use weight for joined evolution
   int nFinal = 0;
@@ -3805,6 +3944,9 @@ double History::getProb(const Clustering & SystemIn) {
     if (state[i].isFinal()) nFinal++;
   bool isLast = (nFinal == (mergingHooksPtr->hardProcess.nQuarksOut()
                            +mergingHooksPtr->hardProcess.nLeptonOut()+1));
+
+  // Do not calculate splitting functions for electroweak emissions
+  bool isElectroWeak = (state[Emt].idAbs() == 23 || state[Emt].idAbs() == 24);
 
   if (isISR) {
     // Find incoming particles
@@ -3827,7 +3969,7 @@ double History::getProb(const Clustering & SystemIn) {
     // Q^2 for emission off radiator line
     double Q1sq = -Q1.m2Calc();
     // pT^2 for emission off radiator line
-    double pT1sq = pow(SystemIn.pT(),2);
+    double pT1sq = pow(pTLund(state[Rad], state[Emt], state[Rec], -1),2);
     // Remember if massive particles involved: Mass corrections for
     // to g->QQ and Q->Qg splittings
     bool g2QQmassive = mergingHooksPtr->includeMassive()
@@ -3843,7 +3985,7 @@ double History::getProb(const Clustering & SystemIn) {
     bool isMassive = mergingHooksPtr->includeMassive()
                     && ( g2QQmassive || Q2Qgmassive
                       || state[Emt].id() == 1000021);
-    double m2Emt0 = pow(particleDataPtr->m0(state[Emt].id()),2);
+    double m2Emt0 = state[Emt].p().m2Calc();
     double m2Rad0 = pow(particleDataPtr->m0(state[Rad].id()),2);
 
     // Correction of virtuality for massive splittings
@@ -3861,7 +4003,7 @@ double History::getProb(const Clustering & SystemIn) {
     bool Q2QgmassiveRec = mergingHooksPtr->includeMassive()
         && state[Emt].id() == 21
         && ( state[Rec].idAbs() >= 4 && state[Rec].idAbs() < 7);
-    double m2Rec0 = pow(particleDataPtr->m0(state[Rad].id()),2);
+    double m2Rec0 = pow(particleDataPtr->m0(state[Rec].id()),2);
     if ( g2QQmassiveRec)      Q2sq += m2Emt0;
     else if (Q2QgmassiveRec)  Q2sq += m2Rec0;
 
@@ -3889,8 +4031,16 @@ double History::getProb(const Clustering & SystemIn) {
     // Calculate shower splitting probability:
     // Splitting functions*normalization*ME reweighting factors
 
+    if ( isElectroWeak ) {
+
+      // For electroweak splittings, the probabilities depend on the
+      // full shower history, and can hence not be calculated correctly
+      // here. Thus, use dummy value and "dress" with full probabilities
+      // later, once the path is known.
+      showerProb = 1.;
+
     // Calculate branching probability for q -> q g
-    if ( state[Emt].id() == 21 && state[Rad].id() != 21) {
+    } else if ( state[Emt].id() == 21 && state[Rad].id() != 21) {
       // Find splitting kernel
       double num = CF*(1. + pow(z1,2)) / (1.-z1);
       if (isMassive) num -= CF * z1 * (1.-z1) * (m2Rad0/pT1sq);
@@ -3923,7 +4073,7 @@ double History::getProb(const Clustering & SystemIn) {
     // Calculate branching probability for g -> g g
     } else if ( state[Emt].id() == 21 && state[Rad].id() == 21) {
       // Calculate splitting kernel
-      double num = 2.*NC*pow2(1. - z1*(1.-z1)) / (z1*(1.-z1));
+      double num = 2.*CA*pow2(1. - z1*(1.-z1)) / (z1*(1.-z1));
 
       // Include ME reweighting for higgs!!
       // Find ME reweighting factor
@@ -4020,18 +4170,19 @@ double History::getProb(const Clustering & SystemIn) {
     }
 
     // If corrected pT below zero in ISR, put probability to zero
-    double m2Sister0 = pow(state[Emt].m0(),2);
-    double pT2corr = (Q1sq - z1*(m2Dip + Q1sq)*(Q1sq + m2Sister0)/m2Dip);
-    if (pT2corr < 0.) showerProb *= 1e-9;
+    double m2Sister = pow(state[Emt].m(),2);
+    double pT2corr = (Q1sq - z1*(m2Dip + Q1sq)*(Q1sq + m2Sister)/m2Dip);
+    if (pT2corr < 0.) showerProb  = 0.0;
 
     // If creating heavy quark by Q -> gQ then next need g -> Q + Qbar.
     // So minimum total mass2 is 4 * m2Sister, but use more to be safe.
     if ( state[Emt].id() == state[Rad].id()
        && ( state[Rad].idAbs() == 4 || state[Rad].idAbs() == 5 )) {
-      double m2QQsister =  2.*4.*m2Sister0;
+      double m2QQsister =  2.*4.*m2Sister;
       double pT2QQcorr = Q1sq - z1*(m2Dip + Q1sq)*(Q1sq + m2QQsister)
                        / m2Dip;
-      if (pT2QQcorr < 0.0) showerProb *= 1e-9;
+
+      if (pT2QQcorr < 0.0) showerProb = 0.0;
     }
 
     if (mergingHooksPtr->includeRedundant()) {
@@ -4047,20 +4198,16 @@ double History::getProb(const Clustering & SystemIn) {
   }  else if (isFSR || isFSRinREC) {
 
     // Construct dipole mass
-    Vec4   sum     = state[Rad].p() + state[Rec].p() + state[Emt].p();
-    double m2Dip = sum.m2Calc();
-    // Construct 2->3 variables for FSR
-    double x1 = 2. * (sum * state[Rad].p()) / m2Dip;
-    double x2 = 2. * (sum * state[Rec].p()) / m2Dip;
-    double prop1  = max(1e-12, 1. - x1);
-    double prop2  = max(1e-12, 1. - x2);
-    double x3     = max(1e-12, 2. - x1 - x2);
-    // Energy fraction z=E_q1/E_qi in branch q(i)q(2) -> q(1)g(3)q(2)
-    double z1 = x1/(x1 + x3);
+    int recSign  = (state[Rec].isFinal()) ? 1 : -1;
+    Vec4   sum   = state[Rad].p() + recSign*state[Rec].p() + state[Emt].p();
+    double m2Dip = abs(sum.m2Calc());
 
     // Virtuality of the splittings
     Vec4 Q1( state[Rad].p() + state[Emt].p() );
     Vec4 Q2( state[Rec].p() + state[Emt].p() );
+
+    // Get z value.
+    double z1 = getCurrentZ( Rad, Rec, Emt);
 
     // Q^2 for emission off radiator line
     double Q1sq = Q1.m2Calc();
@@ -4074,9 +4221,10 @@ double History::getProb(const Clustering & SystemIn) {
                        && state[Rad].id() != 21 );
     bool isMassiveRec = ( state[Rec].idAbs() >= 4
                        && state[Rec].id() != 21 );
+
     // Correction of virtuality for massive splittings.
     double m2Rad0 = pow(particleDataPtr->m0(state[Rad].id()),2);
-    double m2Rec0 = pow(particleDataPtr->m0(state[Rad].id()),2);
+    double m2Rec0 = pow(particleDataPtr->m0(state[Rec].id()),2);
     if ( mergingHooksPtr->includeMassive() && isMassiveRad ) Q1sq -= m2Rad0;
     if ( mergingHooksPtr->includeMassive() && isMassiveRec ) Q2sq -= m2Rec0;
 
@@ -4087,6 +4235,7 @@ double History::getProb(const Clustering & SystemIn) {
       double facJoined = (1.-z1)/Q1sq * m2Dip/( Q1sq + Q2sq );
       double facSingle = mergingHooksPtr->fsrInRecNorm() * 1./ pT1sq;
       fac = (!isFSRinREC && isLast) ? facJoined : facSingle;
+
     } else if (mergingHooksPtr->pickByPoPT2()) {
       fac = 1. / pT1sq;
     } else {
@@ -4097,16 +4246,25 @@ double History::getProb(const Clustering & SystemIn) {
     // Calculate shower splitting probability:
     // Splitting functions*normalization*ME reweighting factors
 
+    if ( isElectroWeak ) {
+
+      // For electroweak splittings, the probabilities depend on the
+      // full shower history, and can hence not be calculated correctly
+      // here. Thus, use dummy value and "dress" with full probabilities
+      // later, once the path is known.
+      showerProb = 1.;
+
     // Calculate branching probability for g -> g_1 g_2
-    if ( state[Emt].id() == 21 && state[Rad].id() == 21) {
+    } else if ( state[Emt].id() == 21 && state[Rad].colType() == 2) {
+
       // Calculate splitting kernel
-      double num = 0.5* NC * (1. + pow3(z1)) / (1.-z1);
+      double num = 0.5* CA * (1. + pow3(z1)) / (1.-z1);
       // Multiply factors
       showerProb = num*fac;
 
     // Calculate branching probability for q -> q g with quark recoiler
     } else if ( state[Emt].id() == 21
-             && state[Rad].id() != 21 && state[Rec].id() != 21) {
+             && state[Rad].colType() != 2 && state[Rec].colType() != 2) {
       // For a qqbar dipole in FSR, ME corrections exist and the
       // splitting function "z-weight" is set to 1.0 (only for 2->2 ??)
       double num = CF * 2./(1.-z1);
@@ -4127,6 +4285,12 @@ double History::getProb(const Clustering & SystemIn) {
       // FSR splitting of a 2->2 process
       if ( nCol == 3
         && int(mergingHooksPtr->hardProcess.hardIntermediate.size()) == 1 ) {
+        // Construct 2->3 variables for FSR
+        double x1 = 2. * (sum * state[Rad].p()) / m2Dip;
+        double x2 = 2. * (sum * state[Rec].p()) / m2Dip;
+        double prop1  = max(1e-12, 1. - x1);
+        double prop2  = max(1e-12, 1. - x2);
+        double x3     = max(1e-12, 2. - x1 - x2);
         // Calculate the ME reweighting factor
         double ShowerRate1       = 2./( x3 * prop2 );
         double meDividingFactor1 = prop1 / x3;
@@ -4136,21 +4300,9 @@ double History::getProb(const Clustering & SystemIn) {
       // Multiply factors
       showerProb = num*fac*meReweighting;
 
-    // Calculate branching probability for q1 -> q2 w+- with quark recoiler
-    } else if ( state[Emt].idAbs() == 24
-             && state[Rad].id()    != 21 && state[Rec].id() != 21 ) {
-      double m2W = state[Emt].p().m2Calc();
-      double num = ( 3.*pow2(m2W / m2Dip)
-                   + 2.* (m2W/m2Dip)*(x1 + x2)
-                   + pow2(x1) + pow2(x2) ) / ( prop1*prop2 )
-                 - (m2W/m2Dip) / pow2(prop1)
-                 - (m2W/m2Dip) / pow2(prop2);
-      // Multiply factors
-      showerProb = num*fac;
-
     // Calculate branching probability for q -> q g with gluon recoiler
-    } else if ( state[Emt].id() == 21 && state[Rad].id() != 21
-      && state[Rec].id() == 21 ) {
+    } else if ( state[Emt].id() == 21 && state[Rad].colType() != 2
+      && state[Rec].colType() == 2 ) {
       // For qg /qbarg dipoles, the splitting function is
       // calculated and not weighted by a ME correction factor
       // Shower splitting function
@@ -4189,6 +4341,14 @@ double History::getProb(const Clustering & SystemIn) {
       showerProb *= as;
     }
 
+    double m2DipCorr  = pow2(sqrt(m2Dip) - sqrt(m2Rec0)) - m2Rad0;
+    double zMin       = 0.5 - sqrtpos( 0.25 - pT1sq / m2DipCorr );
+    double m2         = m2Rad0 + 2. * state[Rad].p()*state[Emt].p();
+    bool keepMassive  = (z1 > zMin && z1 < 1. - zMin
+      && m2 * m2Dip < z1 * (1. - z1) * pow2(m2Dip + m2 - m2Rec0) );
+    // No emission probability outside disallowed z range.
+    if (!keepMassive) showerProb *= 0.0;
+
     // Done for FSR
   } else {
     string message="Error in History::getProb: Radiation could not be";
@@ -4198,21 +4358,10 @@ double History::getProb(const Clustering & SystemIn) {
 
   if (showerProb <= 0.) showerProb = 0.;
 
-//  // Different coupling constants for qcd and ew splittings
-//  if ( state[Emt].colType() != 0 ) {
-//    AlphaStrong* asFSR = mergingHooksPtr->AlphaS_FSR();
-//    double as = (*asFSR).alphaS(91.188*91.188) / (2.*M_PI);
-//    showerProb *= as;
-//  } else {
-//    AlphaEM* aEMFSR = mergingHooksPtr->AlphaEM_FSR();
-//    double aEM = (*aEMFSR).alphaEM(91.188*91.188) / (2.*M_PI);
-//    showerProb *= aEM;
-//  }
-
   // Done
   return showerProb;
-}
 
+}
 
 //--------------------------------------------------------------------------
 
@@ -4410,7 +4559,7 @@ double History::hardProcessME( const Event& event ) {
 // IN Clustering : rad,rec,emt triple to be clustered to two partons
 // OUT clustered state
 
-Event History::cluster( const Clustering & inSystem ) {
+Event History::cluster( Clustering & inSystem ) {
 
   // Initialise tags of particles to be changed
   int Rad = inSystem.emittor;
@@ -4426,6 +4575,23 @@ Event History::cluster( const Clustering & inSystem ) {
   Event NewEvent = Event();
   NewEvent.init("(hard process-modified)", particleDataPtr);
   NewEvent.clear();
+
+  // Check if external clustering should be used.
+  if ( mergingHooksPtr->useShowerPlugin() ) {
+    int iPartner = (radType == -1 && inSystem.partner > 0)
+                 ? inSystem.partner : Rec;
+    // Construct name.
+    string name = "";
+    if (radType ==  1)
+      name = showers->timesPtr->getSplittingName(state,Rad,Emt);
+    if (radType == -1)
+      name = showers->spacePtr->getSplittingName(state,Rad,Emt);
+    if (radType ==  1)
+      return showers->timesPtr->clustered(state,name,Rad,Emt,iPartner);
+    if (radType == -1)
+      return showers->spacePtr->clustered(state,name,Rad,Emt,iPartner);
+  }
+
   // Copy all unchanged particles to NewEvent
   for (int i = 0; i < state.size(); ++i)
     if ( i != Rad && i != Rec && i != Emt )
@@ -4546,6 +4712,7 @@ Event History::cluster( const Clustering & inSystem ) {
     RecBefore.m(sqrt(mSsq));
 
   } else if ( radType + recType == 0 ) {
+
     // Clustering of final(rad)/initial(rec) dipole splitting
     // Get eCM of (rad,rec,emt) triple
     Vec4   sum     = state[Rad].p() + state[Rec].p() + state[Emt].p();
@@ -4579,6 +4746,14 @@ Event History::cluster( const Clustering & inSystem ) {
     // Rescale recoiler momentum
     Rec4mom = 2.*state[Rec].p() - Rec4mom;
 
+    // Ensure that recoiler is massless to
+    // very good accuracy.
+    if ( abs(Rec4mom.mCalc()) > 1e-7 ) {
+      double pzSign = (Rec4mom.pz() > 0.) ? 1. : -1.;
+      double eRec   = Rec4mom.e();
+      Rec4mom.p(0., 0., pzSign*eRec, eRec);
+    }
+
     RadBefore.p(Rad4mom);
     RecBefore.p(Rec4mom);
     RadBefore.m(sqrt(mRsq));
@@ -4587,6 +4762,7 @@ Event History::cluster( const Clustering & inSystem ) {
     RecBefore.m( 0.0 );
 
   } else {
+
     // Clustering of initial(rad)/initial(rec) dipole splitting
     // We want to cluster: Meaning doing the inverse of a process
     //            ( pDaughter + pRecoiler -> pOut )
@@ -4596,6 +4772,8 @@ Event History::cluster( const Clustering & inSystem ) {
     Vec4 pMother( state[Rad].p() );
     Vec4 pSister( state[Emt].p() );
     Vec4 pPartner( state[Rec].p() );
+    Vec4 pDaughterBef( 0.,0.,0.,0. );
+    Vec4 pRecoilerBef( 0.,0.,0.,0. );
     Vec4 pDaughter( 0.,0.,0.,0. );
     Vec4 pRecoiler( 0.,0.,0.,0. );
 
@@ -4612,53 +4790,11 @@ Event History::cluster( const Clustering & inSystem ) {
     RotBstMatrix rot_by_pphi;
     rot_by_pphi.rot(0.,phi);
 
-    // Transform pMother and outgoing momenta
-    pMother.rotbst( rot_by_mphi );
-    pSister.rotbst( rot_by_mphi );
-    pPartner.rotbst( rot_by_mphi );
-    for(int i=3; i< NewEvent.size(); ++i)
-      NewEvent[i].rotbst( rot_by_mphi );
-
     // Get mother and partner x values
     // x1 after isr
     double x1 = 2. * pMother.e() / eCM;
     // x2 after isr
     double x2 = 2. * pPartner.e() / eCM;
-
-    pDaughter.p( pMother - pSister);
-    pRecoiler.p( pPartner );
-
-    // Find boost from event cm frame to rest frame of
-    // of-shell daughter + on-shell recoiler
-    RotBstMatrix from_CM_to_DR;
-    if (sign == 1)
-      from_CM_to_DR.toCMframe(pDaughter, pRecoiler);
-    else
-      from_CM_to_DR.toCMframe(pRecoiler, pDaughter);
-
-    // Transform all momenta
-    pMother.rotbst( from_CM_to_DR );
-    pPartner.rotbst( from_CM_to_DR );
-    pSister.rotbst( from_CM_to_DR );
-    for(int i=3; i< NewEvent.size(); ++i)
-      NewEvent[i].rotbst( from_CM_to_DR );
-
-    // Find theta angle between pMother and z-axis and undo
-    // rotation that would have been done by shower
-    double theta = pMother.theta();
-    if ( pMother.px() < 0. ) theta *= -1.;
-    if (sign == -1) theta += M_PI;
-
-    // Find rotation by +theta
-    RotBstMatrix rot_by_ptheta;
-    rot_by_ptheta.rot(theta, 0.);
-
-    // Transform all momenta
-    pMother.rotbst( rot_by_ptheta );
-    pPartner.rotbst( rot_by_ptheta );
-    pSister.rotbst( rot_by_ptheta );
-    for(int i=3; i< NewEvent.size(); ++i)
-      NewEvent[i].rotbst( rot_by_ptheta );
 
     // Find z of the splitting
     Vec4 qDip( pMother - pSister);
@@ -4666,42 +4802,76 @@ Event History::cluster( const Clustering & inSystem ) {
     Vec4 qBefore(qDip + pPartner);
     double z = qBefore.m2Calc() / qAfter.m2Calc();
 
-    // Calculate new e_CM^2
+    // Calculate e_CM^2 before the splitting.
     double x1New = z*x1; // x1 before isr
     double x2New = x2;   // x2 before isr
     double sHat = x1New*x2New*eCM*eCM;
 
-    // Construct daughter and recoiler momenta
-    pDaughter.p( 0., 0.,  sign*0.5*sqrt(sHat), 0.5*sqrt(sHat));
-    pRecoiler.p( 0., 0., -sign*0.5*sqrt(sHat), 0.5*sqrt(sHat));
+    // Construct daughter and recoiler momenta before the splitting.
+    // (Note: For final result, only needs to be boosted into
+    //        frame with unchanged "recoiler" momentum)
+    pDaughterBef.p( 0., 0.,  sign*0.5*sqrt(sHat), 0.5*sqrt(sHat));
+    pRecoilerBef.p( 0., 0., -sign*0.5*sqrt(sHat), 0.5*sqrt(sHat));
 
-    // Find boost from current (daughter+recoiler rest frame)
-    // frame to rest frame of daughter+unchanged recoiler to
-    // recover the old x2 value
+    // Rotate momenta defined in the lab frame by phi
+    pMother.rotbst( rot_by_mphi );
+    pSister.rotbst( rot_by_mphi );
+    pPartner.rotbst( rot_by_mphi );
+    for(int i=3; i< NewEvent.size(); ++i)
+      NewEvent[i].rotbst( rot_by_mphi );
+
+    // Find boost from lab frame to rest frame of
+    // off-shell daughter + on-shell recoiler dipole
+    pDaughter.p( pMother - pSister);
+    pRecoiler.p( pPartner );
+    RotBstMatrix from_CM_to_DRoff;
+    if (sign == 1)
+      from_CM_to_DRoff.toCMframe(pDaughter, pRecoiler);
+    else
+      from_CM_to_DRoff.toCMframe(pRecoiler, pDaughter);
+
+    // Rotate and boost all momenta to rest frame of off-shell daughter +
+    // on-shell recoiler dipole
+    pMother.rotbst( from_CM_to_DRoff );
+    pPartner.rotbst( from_CM_to_DRoff );
+    pSister.rotbst( from_CM_to_DRoff );
+    for(int i=3; i< NewEvent.size(); ++i)
+      NewEvent[i].rotbst( from_CM_to_DRoff );
+
+    // Find longitudinal boost from on-shell daughter + on-shell recoiler
+    // dipole rest frame to the frame in which the recoiler momentum (x-value)
+    // does not change in the splitting process.
     RotBstMatrix from_DR_to_CM;
     from_DR_to_CM.bst( 0., 0., sign*( x1New - x2New ) / ( x1New + x2New ) );
 
-    // Correct for momentum mismatch by transforming all momenta
-    pMother.rotbst( from_DR_to_CM );
-    pPartner.rotbst( from_DR_to_CM );
-    pSister.rotbst( from_DR_to_CM );
-    pDaughter.rotbst( from_DR_to_CM );
-    pRecoiler.rotbst( from_DR_to_CM );
+    // Boost all momenta into the "unchanged recoiler" frame, thereby
+    // correcting for momentum mismatch by transferring the recoil to all
+    // final state particles.
+    pDaughterBef.rotbst( from_DR_to_CM );
+    pRecoilerBef.rotbst( from_DR_to_CM );
     for(int i=3; i< NewEvent.size(); ++i)
       NewEvent[i].rotbst( from_DR_to_CM );
 
-    // Transform pMother and outgoing momenta
-    pMother.rotbst( rot_by_pphi );
-    pPartner.rotbst( rot_by_pphi );
-    pSister.rotbst( rot_by_pphi );
-    pDaughter.rotbst( rot_by_pphi );
-    pRecoiler.rotbst( rot_by_pphi );
+    // Transform outgoing momenta
     for(int i=3; i< NewEvent.size(); ++i)
       NewEvent[i].rotbst( rot_by_pphi );
 
+    // Ensure that radiator and recoiler are massless to
+    // very good accuracy.
+    if ( abs(pRecoilerBef.mCalc()) > 1e-7 ) {
+      double pzSign = (pRecoilerBef.pz() > 0.) ? 1. : -1.;
+      double eRec   = pRecoilerBef.e();
+      pRecoilerBef.p(0., 0., pzSign*eRec, eRec);
+    }
+    if ( abs(pDaughterBef.mCalc()) > 1e-7 ) {
+      double pzSign = (pDaughterBef.pz() > 0.) ? 1. : -1.;
+      double eDau   = pDaughterBef.e();
+      pDaughterBef.p(0., 0., pzSign*eDau, eDau);
+    }
+    // Transform pMother and outgoing momenta
     // Set momenta of particles to be attached to new event record
-    RecBefore.p( pRecoiler );
-    RadBefore.p( pDaughter );
+    RecBefore.p( pRecoilerBef );
+    RadBefore.p( pDaughterBef );
     if (RecBefore.pz() > 0.) RecBefore.mother1(1);
     else RecBefore.mother1(2);
     if (RadBefore.pz() > 0.) RadBefore.mother1(1);
@@ -4749,7 +4919,7 @@ Event History::cluster( const Clustering & inSystem ) {
   bool radAppended = false;
   bool recAppended = false;
   int size = int(outState.size());
-  // Save position of radiator in new event record
+  // Save position of radiator and recoiler in new event record.
   int radPos = 0;
 
   // Append first incoming particle
@@ -4825,12 +4995,12 @@ Event History::cluster( const Clustering & inSystem ) {
       outState.append( NewEvent[i]);
 
   // Find intermediate and respective daughters
-  vector<int> PosIntermediate;
-  vector<int> PosDaughter1;
-  vector<int> PosDaughter2;
+  vector<int> posIntermediate;
+  vector<int> posDaughter1;
+  vector<int> posDaughter2;
   for(int i=0; i < int(outState.size()); ++i)
     if (outState[i].status() == -22) {
-      PosIntermediate.push_back(i);
+      posIntermediate.push_back(i);
       int d1 = outState[i].daughter1();
       int d2 = outState[i].daughter2();
       // Find daughters in output state
@@ -4840,25 +5010,25 @@ Event History::cluster( const Clustering & inSystem ) {
       // Else put first final particle as first daughter
       // and last final particle as second daughter
       if (daughter1 > 0)
-        PosDaughter1.push_back( daughter1);
+        posDaughter1.push_back( daughter1);
       else {
         daughter1 = 0;
         while(!outState[daughter1].isFinal() ) daughter1++;
-        PosDaughter1.push_back( daughter1);
+        posDaughter1.push_back( daughter1);
       }
       if (daughter2 > 0)
-        PosDaughter2.push_back( daughter2);
+        posDaughter2.push_back( daughter2);
       else {
         daughter2 = outState.size()-1;
         while(!outState[daughter2].isFinal() ) daughter2--;
-        PosDaughter2.push_back( daughter2);
+        posDaughter2.push_back( daughter2);
       }
     }
   // Set daughters and mothers
-  for(int i=0; i < int(PosIntermediate.size()); ++i) {
-    outState[PosIntermediate[i]].daughters(PosDaughter1[i],PosDaughter2[i]);
-    outState[PosDaughter1[i]].mother1(PosIntermediate[i]);
-    outState[PosDaughter2[i]].mother1(PosIntermediate[i]);
+  for(int i=0; i < int(posIntermediate.size()); ++i) {
+    outState[posIntermediate[i]].daughters(posDaughter1[i],posDaughter2[i]);
+    outState[posDaughter1[i]].mother1(posIntermediate[i]);
+    outState[posDaughter2[i]].mother1(posIntermediate[i]);
   }
 
   // Find range of final state partons
@@ -4960,6 +5130,7 @@ Event History::cluster( const Clustering & inSystem ) {
 
   // If event is not constructed properly, return false
   if ( !validEvent(outState) ) {
+    // Set momenta of particles to be attached to new event record
     outState.reset();
     return outState;
   }
@@ -5376,7 +5547,7 @@ int History::getRadBeforeCol(const int rad, const int emt,
       // If emitted is a gluon, remove the repeated index, and take
       // the remaining indices as colour and anticolour
       int colRemove = (event[rad].col() == event[emt].acol())
-                    ? event[rad].acol() : event[rad].col();
+                    ? event[rad].col() : event[rad].acol();
       radBeforeCol  = (event[rad].col()  == colRemove)
                     ? event[emt].col() : event[rad].col();
     //Gluon emissions in ISR
@@ -5469,7 +5640,7 @@ int History::getRadBeforeAcol(const int rad, const int emt,
       // If emitted is a gluon, remove the repeated index, and take
       // the remaining indices as colour and anticolour
       int colRemove = (event[rad].col() == event[emt].acol())
-                    ? event[rad].acol() : event[rad].col();
+                    ? event[rad].col() : event[rad].acol();
       radBeforeAcl  = (event[rad].acol() == colRemove)
                     ? event[emt].acol() : event[rad].acol();
     //Gluon emissions in ISR
@@ -6062,6 +6233,14 @@ bool History::allowedClustering( int rad, int emt, int rec, int partner,
     else if (nTripletts != 2 && nFinalQuarkExc%2 == 0) allowed = false;
   }
 
+  // Minimal phase space checks.
+  if ( abs((event[rad].p()+type*event[emt].p()+event[rec].p()).pz())
+     > (event[rad].p()+type*event[emt].p()+event[rec].p()).e()
+    || (type == -1
+      && (event[rad].p()-event[emt].p()+event[rec].p()).m2Calc() < 0.) ){
+    return false;
+  }
+
   // No problems with gluon radiation
   if (event[emt].id() == 21)
     return allowed;
@@ -6415,7 +6594,8 @@ bool History::allowedClustering( int rad, int emt, int rec, int partner,
         }
       }
     // Save the type of flavour
-    int flavType = (event[iOther].id() > 0) ? 1 : -1;
+    int flavType = (iOther > 0 && event[iOther].id() > 0) ? 1
+                 : (iOther > 0) ? -1 : 0;
     // Try finding colour singlets
     bool isColSing = getColSinglet(flavType,iOther,event,exclude,colSinglet);
     // Check if colour singlet also is a flavour singlet
@@ -6647,11 +6827,11 @@ bool History::validEvent( const Event& event ) {
 // for finding the history path in the mother -> children direction
 
 bool History::equalClustering( Clustering clus1 , Clustering clus2 ) {
-  return (  (clus1.emittor  == clus2.emittor)
-         && (clus1.emitted  == clus2.emitted)
-         && (clus1.recoiler == clus2.recoiler)
-         && (clus1.partner  == clus2.partner)
-         && (clus1.pT()    == clus2.pT()) );
+  return (  (clus1.emittor     == clus2.emittor)
+         && (clus1.emitted     == clus2.emitted)
+         && (clus1.recoiler    == clus2.recoiler)
+         && (clus1.partner     == clus2.partner)
+         && (clus1.pT()        == clus2.pT()) );
 }
 
 //--------------------------------------------------------------------------
@@ -6721,14 +6901,46 @@ double History::getCurrentZ(const int rad,
   double z = 0.;
 
   if (type == 1) {
-    // Construct 2->3 variables for FSR
-    Vec4   sum     = state[rad].p() + state[rec].p()
-                   + state[emt].p();
+
+    Vec4 radAfterBranch(state[rad].p());
+    Vec4 recAfterBranch(state[rec].p());
+    Vec4 emtAfterBranch(state[emt].p());
+
+    // Store masses both after and prior to emission.
+    double m2RadAft = radAfterBranch.m2Calc();
+    double m2EmtAft = emtAfterBranch.m2Calc();
+    double m2RadBef = 0.;
+    if ( state[rad].idAbs() != 21 && state[rad].idAbs() != 22
+      && state[emt].idAbs() != 24 && state[rad].idAbs() != state[emt].idAbs())
+      m2RadBef = m2RadAft;
+
+    double Qsq   = (radAfterBranch + emtAfterBranch).m2Calc();
+
+    double m2final = (radAfterBranch +recAfterBranch +emtAfterBranch).m2Calc();
+    // More complicated for initial state recoiler.
+    if ( !state[rec].isFinal() ){
+      double mar2  = m2final - 2. * Qsq + 2. * m2RadBef;
+       recAfterBranch *=  (1. - (Qsq - m2RadBef)/(mar2 - m2RadBef))
+                         /(1. + (Qsq - m2RadBef)/(mar2 - m2RadBef));
+       // If Qsq is larger than mar2 the event is not kinematically possible.
+       // Just return random z, since clustering will be discarded.
+       if (Qsq > mar2) return 0.5;
+    }
+
+    Vec4   sum   = radAfterBranch + recAfterBranch + emtAfterBranch;
     double m2Dip = sum.m2Calc();
-    double x1 = 2. * (sum * state[rad].p()) / m2Dip;
-    double x3 = 2. * (sum * state[emt].p()) / m2Dip;
+    // Construct 2->3 variables for FSR
+    double x1 = 2. * (sum * radAfterBranch) / m2Dip;
+    double x2 = 2. * (sum * recAfterBranch) / m2Dip;
+
+    // Prepare for more complicated z definition for massive splittings.
+    double lambda13 = sqrt( pow2(Qsq - m2RadAft - m2EmtAft )
+                         - 4.*m2RadAft*m2EmtAft);
+    double k1 = ( Qsq - lambda13 + (m2EmtAft - m2RadAft ) ) / ( 2. * Qsq );
+    double k3 = ( Qsq - lambda13 - (m2EmtAft - m2RadAft ) ) / ( 2. * Qsq );
     // Calculate z of splitting, different for FSR
-    z = x1/(x1+x3);
+    z = 1./ ( 1- k1 -k3) * ( x1 / (2.-x2) - k3);
+
   } else {
     // Construct momenta of dipole before/after splitting for ISR
     Vec4 qBR(state[rad].p() - state[emt].p() + state[rec].p());
@@ -6746,8 +6958,20 @@ double History::getCurrentZ(const int rad,
 // Function to compute "pythia pT separation" from Particle input
 
 double History::pTLund(const Particle& RadAfterBranch,
-              const Particle& EmtAfterBranch,
-              const Particle& RecAfterBranch, int ShowerType) {
+  const Particle& EmtAfterBranch, const Particle& RecAfterBranch,
+  int ShowerType) {
+
+  // Use external shower for merging.
+  if ( mergingHooksPtr->useShowerPlugin() ) {
+    double pT2 = 0.;
+    if (ShowerType ==  1) pT2 =
+      showers->timesPtr->pT2Times(RadAfterBranch, EmtAfterBranch,
+      RecAfterBranch);
+    if (ShowerType == -1) pT2 =
+       showers->spacePtr->pT2Space(RadAfterBranch, EmtAfterBranch,
+       RecAfterBranch);
+    return sqrt(pT2);
+  }
 
   // Save type: 1 = FSR pT definition, else ISR definition
   int Type   = ShowerType;
@@ -6755,111 +6979,81 @@ double History::pTLund(const Particle& RadAfterBranch,
   int sign = (Type==1) ? 1 : -1;
   Vec4 Q(RadAfterBranch.p() + sign*EmtAfterBranch.p());
   double Qsq = sign * Q.m2Calc();
-  // Mass term of radiator: Consider all non-light quark or gluon radiators
-  // massive partons.
-  bool isMassive = ( RadAfterBranch.idAbs() >= 4
-                  && RadAfterBranch.id() != 21 );
-  double m2Rad   = ( mergingHooksPtr->includeMassive() && isMassive )
-                 ? pow2( particleDataPtr->m0(RadAfterBranch.id()) ) : 0.;
-  // Construct 2->3 variables for FSR
-  Vec4   sum     = RadAfterBranch.p() + RecAfterBranch.p()
-                 + EmtAfterBranch.p();
-  double m2Dip = sum.m2Calc();
-  double x1 = 2. * (sum * RadAfterBranch.p()) / m2Dip;
-  double x3 = 2. * (sum * EmtAfterBranch.p()) / m2Dip;
-  // Construct momenta of dipole before/after splitting for ISR
-  Vec4 qBR(RadAfterBranch.p() - EmtAfterBranch.p() + RecAfterBranch.p());
-  Vec4 qAR(RadAfterBranch.p() + RecAfterBranch.p());
-  // Calculate z of splitting, different for FSR and ISR
 
-  double z = (Type==1) ? x1/(x1+x3)
-                     : (qBR.m2Calc())/( qAR.m2Calc());
+  // Construct 2->3 variables for FSR
+  Vec4 radAft(RadAfterBranch.p());
+  Vec4 recAft(RecAfterBranch.p());
+  Vec4 emtAft(EmtAfterBranch.p());
+
+  // Store masses both after and prior to emission.
+  double m2RadAft = radAft.m2Calc();
+  double m2EmtAft = emtAft.m2Calc();
+
+  double m2RadBef = 0.;
+  if ( RadAfterBranch.idAbs() != 21 && RadAfterBranch.idAbs() != 22
+       && EmtAfterBranch.idAbs() != 24
+     && RadAfterBranch.idAbs() != EmtAfterBranch.idAbs() )
+    m2RadBef = m2RadAft;
+  else if (!RadAfterBranch.isFinal()) {
+    if (RadAfterBranch.idAbs() == 21 && EmtAfterBranch.idAbs() != 21)
+      m2RadBef = m2EmtAft;
+  }
+
+  double m2final = (radAft + recAft + emtAft).m2Calc();
+  // More complicated for initial state recoiler.
+  if ( !RecAfterBranch.isFinal() && RadAfterBranch.isFinal() ){
+    double mar2  = m2final - 2. * Qsq + 2. * m2RadBef;
+     recAft *=  (1. - (Qsq - m2RadBef)/(mar2 - m2RadBef))
+               /(1. + (Qsq - m2RadBef)/(mar2 - m2RadBef));
+     // Reclustering not kinematically possible if Qsq is larger than mar2.
+     if (Qsq > mar2) return 0.;
+  }
+
+  Vec4   sum   = radAft + recAft + emtAft;
+  double m2Dip = sum.m2Calc();
+  double x1 = 2. * (sum * radAft) / m2Dip;
+  double x2 = 2. * (sum * recAft) / m2Dip;
+
+  // Construct momenta of dipole before/after splitting for ISR
+  double q2BR = (RadAfterBranch.p() - EmtAfterBranch.p()
+               + RecAfterBranch.p()).m2Calc();
+  double q2AR = (RadAfterBranch.p() + RecAfterBranch.p()).m2Calc();
+
+  // Prepare for more complicated z definition for massive splittings.
+  double lambda13 = sqrt( pow2(Qsq - m2RadAft - m2EmtAft )
+    - 4. * m2RadAft*m2EmtAft );
+  double k1 = ( Qsq - lambda13 + (m2EmtAft - m2RadAft ) ) / ( 2. * Qsq );
+  double k3 = ( Qsq - lambda13 - (m2EmtAft - m2RadAft ) ) / ( 2. * Qsq );
+
+  // Calculate z of splitting, different for FSR and ISR
+  double z = (Type==1) ? 1./ ( 1- k1 -k3) * ( x1 / (2.-x2) - k3)
+                     : q2BR / q2AR;
+
   // Separation of splitting, different for FSR and ISR
   double pTpyth = (Type==1) ? z*(1.-z) : (1.-z);
+
   // pT^2 = separation*virtuality
-  pTpyth *= (Qsq - sign*m2Rad);
+  if (Type == 1) pTpyth *= (Qsq - m2RadBef);
+  else           pTpyth *= Qsq;
+
+  // Check for threshold in ISR, only relevant for c and b.
+  // Use pT2 = (1 - z) * (Qsq + m^2).
+  if ( Type != 1) {
+    if ( (RadAfterBranch.idAbs() == 4 || EmtAfterBranch.idAbs() == 4)
+         && RadAfterBranch.idAbs() != EmtAfterBranch.idAbs()) {
+      if (pTpyth < 2 * pow2(particleDataPtr->m0(4)))
+        pTpyth = (Qsq + pow2(particleDataPtr->m0(4)) ) * (1. - q2BR/q2AR);
+    } else if ( (RadAfterBranch.idAbs() == 5 || EmtAfterBranch.idAbs() == 5)
+                && RadAfterBranch.idAbs() != EmtAfterBranch.idAbs()) {
+      if (pTpyth < 2 * pow2(particleDataPtr->m0(5)))
+        pTpyth = (Qsq + pow2(particleDataPtr->m0(5)) ) * (1. - q2BR/q2AR);
+    }
+  }
+
   if ( pTpyth < 0. ) pTpyth = 0.;
 
   // Return pT
   return sqrt(pTpyth);
-}
-
-//--------------------------------------------------------------------------
-
-// Function to return the position of the initial line before (or after)
-// a single (!) splitting.
-
-int History::posChangedIncoming(const Event& event, bool before) {
-
-  // Check for initial state splittings.
-  // Consider a splitting to exist if both mother and sister were found.
-  // Find sister
-  int iSister = 0;
-  for (int i =0; i < event.size(); ++i)
-    if (event[i].status() == 43) {
-      iSister = i;
-      break;
-    }
-  // Find mother
-  int iMother = 0;
-  if (iSister > 0) iMother = event[iSister].mother1();
-
-  // Initial state splitting has been found.
-  if (iSister > 0 && iMother > 0) {
-
-    // Find flavour, mother flavour
-    int flavSister  = event[iSister].id();
-    int flavMother  = event[iMother].id();
-
-    // Find splitting flavour
-    int flavDaughter = 0;
-    if ( abs(flavMother) < 21 && flavSister     == 21)
-      flavDaughter = flavMother;
-    else if ( flavMother     == 21 && flavSister     == 21)
-      flavDaughter = flavMother;
-    else if ( flavMother     == 21 && abs(flavSister) < 21)
-      flavDaughter = -1*flavSister;
-    else if ( abs(flavMother) < 21 && abs(flavSister) < 21)
-      flavDaughter = 21;
-
-    // Find initial state (!) daughter
-    int iDaughter = 0;
-    for (int i =0; i < event.size(); ++i)
-      if ( !event[i].isFinal()
-        && event[i].mother1() == iMother
-        && event[i].id()      == flavDaughter )
-        iDaughter = i;
-
-    // Done for initial state splitting.
-    if ( !before ) return iMother;
-    else return iDaughter;
-
-  }
-
-  // Check for final state splittings with initial state recoiler.
-  // Consider a splitting to exist if both mother and daughter were found.
-  // Find new mother
-  iMother = 0;
-  for (int i =0; i < event.size(); ++i)
-    if ( abs(event[i].status()) == 53 || abs(event[i].status()) == 54) {
-      iMother = i;
-      break;
-    }
-  // Find daughter
-  int iDaughter = 0;
-  if (iMother > 0) iDaughter = event[iMother].daughter1();
-
-  // Done if final state splitting has been found.
-  if (iDaughter > 0 && iMother > 0) {
-
-    // Done for final state splitting.
-    if ( !before ) return iMother;
-    else return iDaughter;
-
-  }
-
-  // If no splitting has been found, return zero.
-  return 0;
 
 }
 

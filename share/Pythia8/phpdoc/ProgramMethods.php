@@ -27,6 +27,12 @@ Many of them are only intended for experts, while undocumented ones are only for
 </tr>
 
 <tr>
+<td>virtual bool</td>
+<td><a href="UserHooks.php#method45" target="page">canChangeFragPar()</a></td>
+<td>User Hooks</td>
+</tr>
+
+<tr>
 <td>friend double</td>
 <td><a href="FourVectors.php#method25" target="page">cosphi(...)</a></td>
 <td>Four-Vectors</td>
@@ -51,9 +57,27 @@ Many of them are only intended for experts, while undocumented ones are only for
 </tr>
 
 <tr>
+<td>virtual bool</td>
+<td><a href="UserHooks.php#method46" target="page">doChangeFragPar(...)</a></td>
+<td>User Hooks</td>
+</tr>
+
+<tr>
 <td>friend double</td>
 <td><a href="FourVectors.php#method22" target="page">dot3(...)</a></td>
 <td>Four-Vectors</td>
+</tr>
+
+<tr>
+<td>virtual bool</td>
+<td><a href="UserHooks.php#method47" target="page">doVetoFragmentation(...)</a></td>
+<td>User Hooks</td>
+</tr>
+
+<tr>
+<td>double</td>
+<td><a href="UserHooks.php#method43" target="page">getEnhancedEventWeight()</a></td>
+<td>User Hooks</td>
 </tr>
 
 <tr>
@@ -5434,85 +5458,121 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>virtual bool</td>
-<td><a href="ImplementNewShowers.php#method29" target="page">SpaceShower::branch(...)</a></td>
+<td><a href="ImplementNewShowers.php#method35" target="page">SpaceShower::branch(...)</a></td>
+<td>Implement New Showers</td>
+</tr>
+
+<tr>
+<td>virtual Event</td>
+<td><a href="ImplementNewShowers.php#method41" target="page">SpaceShower::branched(...)</a></td>
+<td>Implement New Showers</td>
+</tr>
+
+<tr>
+<td>virtual Event</td>
+<td><a href="ImplementNewShowers.php#method40" target="page">SpaceShower::clustered(...)</a></td>
 <td>Implement New Showers</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ImplementNewShowers.php#method31" target="page">SpaceShower::doRestart()</a></td>
+<td><a href="ImplementNewShowers.php#method37" target="page">SpaceShower::doRestart()</a></td>
 <td>Implement New Showers</td>
 </tr>
 
 <tr>
 <td>virtual double</td>
-<td><a href="ImplementNewShowers.php#method25" target="page">SpaceShower::enhancePTmax()</a></td>
+<td><a href="ImplementNewShowers.php#method31" target="page">SpaceShower::enhancePTmax()</a></td>
 <td>Implement New Showers</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ImplementNewShowers.php#method32" target="page">SpaceShower::getHasWeaklyRadiated()</a></td>
+<td><a href="ImplementNewShowers.php#method38" target="page">SpaceShower::getHasWeaklyRadiated()</a></td>
+<td>Implement New Showers</td>
+</tr>
+
+<tr>
+<td>virtual string</td>
+<td><a href="ImplementNewShowers.php#method44" target="page">SpaceShower::getSplittingName(...)</a></td>
+<td>Implement New Showers</td>
+</tr>
+
+<tr>
+<td>virtual double</td>
+<td><a href="ImplementNewShowers.php#method45" target="page">SpaceShower::getSplittingProb(...)</a></td>
 <td>Implement New Showers</td>
 </tr>
 
 <tr>
 <td>virtual void</td>
-<td><a href="ImplementNewShowers.php#method23" target="page">SpaceShower::init(...)</a></td>
+<td><a href="ImplementNewShowers.php#method29" target="page">SpaceShower::init(...)</a></td>
 <td>Implement New Showers</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ImplementNewShowers.php#method22" target="page">SpaceShower::initPtr(...)</a></td>
+<td><a href="ImplementNewShowers.php#method28" target="page">SpaceShower::initPtr(...)</a></td>
 <td>Implement New Showers</td>
 </tr>
 
 <tr>
 <td>virtual bool</td>
-<td><a href="ImplementNewShowers.php#method24" target="page">SpaceShower::limitPTmax(...)</a></td>
+<td><a href="ImplementNewShowers.php#method30" target="page">SpaceShower::limitPTmax(...)</a></td>
 <td>Implement New Showers</td>
 </tr>
 
 <tr>
 <td>virtual void</td>
-<td><a href="ImplementNewShowers.php#method33" target="page">SpaceShower::list(...)</a></td>
+<td><a href="ImplementNewShowers.php#method39" target="page">SpaceShower::list(...)</a></td>
 <td>Implement New Showers</td>
 </tr>
 
 <tr>
 <td>virtual void</td>
-<td><a href="ImplementNewShowers.php#method26" target="page">SpaceShower::prepare(...)</a></td>
+<td><a href="ImplementNewShowers.php#method32" target="page">SpaceShower::prepare(...)</a></td>
 <td>Implement New Showers</td>
 </tr>
 
 <tr>
 <td>virtual double</td>
-<td><a href="ImplementNewShowers.php#method28" target="page">SpaceShower::pTnext(...)</a></td>
+<td><a href="ImplementNewShowers.php#method42" target="page">SpaceShower::pT2Space(...)</a></td>
+<td>Implement New Showers</td>
+</tr>
+
+<tr>
+<td>virtual double</td>
+<td><a href="ImplementNewShowers.php#method34" target="page">SpaceShower::pTnext(...)</a></td>
 <td>Implement New Showers</td>
 </tr>
 
 <tr>
 <td> </td>
-<td><a href="ImplementNewShowers.php#method20" target="page">SpaceShower::SpaceShower()</a></td>
+<td><a href="ImplementNewShowers.php#method26" target="page">SpaceShower::SpaceShower()</a></td>
 <td>Implement New Showers</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="ImplementNewShowers.php#method30" target="page">SpaceShower::system()</a></td>
+<td><a href="ImplementNewShowers.php#method36" target="page">SpaceShower::system()</a></td>
 <td>Implement New Showers</td>
 </tr>
 
 <tr>
 <td>virtual void</td>
-<td><a href="ImplementNewShowers.php#method27" target="page">SpaceShower::update(...)</a></td>
+<td><a href="ImplementNewShowers.php#method33" target="page">SpaceShower::update(...)</a></td>
+<td>Implement New Showers</td>
+</tr>
+
+<tr>
+<td>virtual double</td>
+<td><a href="ImplementNewShowers.php#method43" target="page">SpaceShower::zSpace(...)</a></td>
 <td>Implement New Showers</td>
 </tr>
 
 <tr>
 <td>virtual</td>
-<td><a href="ImplementNewShowers.php#method21" target="page">SpaceShower::~SpaceShower()</a></td>
+<td><a href="ImplementNewShowers.php#method27" target="page">SpaceShower::~SpaceShower()</a></td>
 <td>Implement New Showers</td>
 </tr>
 
@@ -5631,6 +5691,18 @@ Many of them are only intended for experts, while undocumented ones are only for
 </tr>
 
 <tr>
+<td>virtual Event</td>
+<td><a href="ImplementNewShowers.php#method21" target="page">TimeShower::branched(...)</a></td>
+<td>Implement New Showers</td>
+</tr>
+
+<tr>
+<td>virtual Event</td>
+<td><a href="ImplementNewShowers.php#method20" target="page">TimeShower::clustered(...)</a></td>
+<td>Implement New Showers</td>
+</tr>
+
+<tr>
 <td>double</td>
 <td><a href="ImplementNewShowers.php#method6" target="page">TimeShower::enhancePTmax()</a></td>
 <td>Implement New Showers</td>
@@ -5639,6 +5711,18 @@ Many of them are only intended for experts, while undocumented ones are only for
 <tr>
 <td>bool</td>
 <td><a href="ImplementNewShowers.php#method18" target="page">TimeShower::getHasWeaklyRadiated()</a></td>
+<td>Implement New Showers</td>
+</tr>
+
+<tr>
+<td>virtual string</td>
+<td><a href="ImplementNewShowers.php#method24" target="page">TimeShower::getSplittingName(...)</a></td>
+<td>Implement New Showers</td>
+</tr>
+
+<tr>
+<td>virtual double</td>
+<td><a href="ImplementNewShowers.php#method25" target="page">TimeShower::getSplittingProb(...)</a></td>
 <td>Implement New Showers</td>
 </tr>
 
@@ -5675,6 +5759,12 @@ Many of them are only intended for experts, while undocumented ones are only for
 <tr>
 <td>virtual void</td>
 <td><a href="ImplementNewShowers.php#method10" target="page">TimeShower::prepareGlobal(...)</a></td>
+<td>Implement New Showers</td>
+</tr>
+
+<tr>
+<td>virtual double</td>
+<td><a href="ImplementNewShowers.php#method22" target="page">TimeShower::pT2Times(...)</a></td>
 <td>Implement New Showers</td>
 </tr>
 
@@ -5733,6 +5823,12 @@ Many of them are only intended for experts, while undocumented ones are only for
 </tr>
 
 <tr>
+<td>virtual double</td>
+<td><a href="ImplementNewShowers.php#method23" target="page">TimeShower::zTimes(...)</a></td>
+<td>Implement New Showers</td>
+</tr>
+
+<tr>
 <td>virtual</td>
 <td><a href="ImplementNewShowers.php#method2" target="page">TimeShower::~TimeShower()</a></td>
 <td>Implement New Showers</td>
@@ -5753,6 +5849,18 @@ Many of them are only intended for experts, while undocumented ones are only for
 <tr>
 <td>virtual bool</td>
 <td><a href="UserHooks.php#method31" target="page">UserHooks::canBiasSelection()</a></td>
+<td>User Hooks</td>
+</tr>
+
+<tr>
+<td>virtual bool</td>
+<td><a href="UserHooks.php#method40" target="page">UserHooks::canEnhanceEmission()</a></td>
+<td>User Hooks</td>
+</tr>
+
+<tr>
+<td>virtual bool</td>
+<td><a href="UserHooks.php#method44" target="page">UserHooks::canEnhanceTrial()</a></td>
 <td>User Hooks</td>
 </tr>
 
@@ -5901,6 +6009,12 @@ Many of them are only intended for experts, while undocumented ones are only for
 </tr>
 
 <tr>
+<td>virtual double</td>
+<td><a href="UserHooks.php#method41" target="page">UserHooks::enhanceFactor(...)</a></td>
+<td>User Hooks</td>
+</tr>
+
+<tr>
 <td>virtual bool</td>
 <td><a href="UserHooks.php#method6" target="page">UserHooks::initAfterBeams()</a></td>
 <td>User Hooks</td>
@@ -5957,6 +6071,12 @@ Many of them are only intended for experts, while undocumented ones are only for
 <tr>
 <td> </td>
 <td><a href="UserHooks.php#method1" target="page">UserHooks::UserHooks()</a></td>
+<td>User Hooks</td>
+</tr>
+
+<tr>
+<td>virtual double</td>
+<td><a href="UserHooks.php#method42" target="page">UserHooks::vetoProbability(...)</a></td>
 <td>User Hooks</td>
 </tr>
 

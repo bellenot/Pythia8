@@ -8,6 +8,7 @@
 // MergingHooks classes.
 
 #include "Pythia8/MergingHooks.h"
+#include "Pythia8/PartonLevel.h"
 
 namespace Pythia8 {
 
@@ -634,7 +635,6 @@ void HardProcess::translateProcessString( string process){
   int nOut  = 64;
 
   // Start mapping user-defined particles onto particle ids.
-  //string fullProc = "pp>{blaa,124}LEPTONS,NEUTRINOS";
   string fullProc = process;
 
   // Find user-defined hard process content
@@ -668,6 +668,7 @@ void HardProcess::translateProcessString( string process){
       userParticleStrings[i].erase(userParticleStrings[i].begin()
                                   +userParticleStrings[i].find(" ", 0));
   }
+
   // Convert particle numbers in user particle to integers
   vector<int>userParticleNumbers;
   if ( int(userParticleStrings.size()) > 1) {
@@ -999,7 +1000,7 @@ void HardProcess::storeCandidates( const Event& event, string process){
     PosOutgoing2.push_back(0);
 
   // For QCD dijet or e+e- > jets hard process, do not store any candidates,
-  // as to not discrimintate clusterings
+  // as to not discriminate clusterings
   if (  process.compare("pp>jj") == 0
     || process.compare("e+e->jj") == 0
     || process.compare("e+e->(z>jj)") == 0 ){
@@ -1474,10 +1475,15 @@ void HardProcess::storeCandidates( const Event& event, string process){
     for(int j=0; j < int(outgoing2.size()); ++j){
       // Do nothing if this particle has already be found,
       // or if this particle is a jet, lepton container or lepton
+
       if (  outgoing2[j] == 99
         || outgoing2[j] == 2212
-        || abs(outgoing2[j]) > 10)
+        || (abs(outgoing2[j]) > 10 && abs(outgoing2[j]) < 20)
+        || outgoing2[j] == 1100
+        || outgoing2[j] == 1200
+        || outgoing2[j] == 2400 )
         continue;
+
       // If the particle matches an outgoing quark, save it
       if (event[i].id() == outgoing2[j]){
         // Save parton
@@ -1485,6 +1491,7 @@ void HardProcess::storeCandidates( const Event& event, string process){
         // remove entry form lists
         outgoing2[j] = 99;
         iPosChecked.push_back(i);
+        break;
       }
     }
 
@@ -1494,7 +1501,10 @@ void HardProcess::storeCandidates( const Event& event, string process){
       // or if this particle is a jet, lepton container or lepton
       if (  outgoing1[j] == 99
         || outgoing1[j] == 2212
-        || abs(outgoing1[j]) > 10)
+        || (abs(outgoing1[j]) > 10 && abs(outgoing1[j]) < 20)
+        || outgoing1[j] == 1100
+        || outgoing1[j] == 1200
+        || outgoing1[j] == 2400 )
         continue;
       // If the particle matches an outgoing antiquark, save it
       if (event[i].id() == outgoing1[j]){
@@ -1503,6 +1513,7 @@ void HardProcess::storeCandidates( const Event& event, string process){
         // Remove parton from list
         outgoing1[j] = 99;
         iPosChecked.push_back(i);
+        break;
       }
     }
   }
@@ -1557,6 +1568,9 @@ bool HardProcess::matchesAnyOutgoing(int iPos, const Event& event){
   if ( event[iPos].mother1()*event[iPos].mother2() == 12
       // Or particle has taken recoil from first splitting
       || (  event[iPos].status() == 44
+         && event[event[iPos].mother1()].mother1()
+           *event[event[iPos].mother1()].mother2() == 12 )
+      || (  event[iPos].status() == 48
          && event[event[iPos].mother1()].mother1()
            *event[event[iPos].mother1()].mother2() == 12 )
       // Or particle has on-shell resonace as mother
@@ -2000,6 +2014,7 @@ void MergingHooks::init( Settings settings, Info* infoPtrIn,
   infoPtr               = infoPtrIn;
   particleDataPtr       = particleDataPtrIn;
   partonSystemsPtr      = partonSystemsPtrIn;
+  showers               = 0;
 
   // Initialise AlphaS objects for reweighting
   double alphaSvalueFSR = settings.parm("TimeShower:alphaSvalue");
@@ -2013,10 +2028,6 @@ void MergingHooks::init( Settings settings, Info* infoPtrIn,
   int    alphaSuseCMWISR= settings.flag("SpaceShower:alphaSuseCMW");
   AlphaS_ISRSave.init(alphaSvalueISR, alphaSorderISR, alphaSnfmax,
     alphaSuseCMWISR);
-
-  // Initialise AlphaEM objects for reweighting
-  int    alphaEMFSRorder = settings.mode("TimeShower:alphaEMorder");
-  AlphaEM_FSRSave.init(alphaEMFSRorder, &settings);
 
   // Initialise merging switches
   doUserMergingSave      = settings.flag("Merging:doUserMerging");
@@ -2171,6 +2182,9 @@ void MergingHooks::init( Settings settings, Info* infoPtrIn,
     nJetMaxNLOSave  = settings.mode("Merging:nJetMaxNLO");
   }
 
+  // Check if external shower plugin should be used.
+  useShowerPluginSave = settings.flag("Merging:useShowerPlugin");
+
   bool writeBanner =  doKTMergingSave || doMGMergingSave
                    || doUserMergingSave
                    || doNL3 || doUNLOPS || doUMEPS
@@ -2308,7 +2322,7 @@ bool MergingHooks::doVetoEmission( const Event& event) {
   // Get number of clustering steps
   int nSteps  = getNumberOfClusteringSteps(event);
   // Get merging scale in current event
-  double tnow = rhoms( event, false);
+  double tnow = tmsNow( event);
 
   // Get maximal number of additional jets
   int nJetMax = nMaxJets();
@@ -2353,6 +2367,7 @@ bool MergingHooks::doVetoStep( const Event& process, const Event& event,
   // decay products first.
   int nSteps  = (doResonance) ? getNumberOfClusteringSteps(process)
               : getNumberOfClusteringSteps( bareEvent( process, false) );
+
   // Get maximal number of additional jets.
   int nJetMax = nMaxJets();
   // Get merging scale in current event.
@@ -2806,7 +2821,7 @@ bool MergingHooks::isInHard( int iPos, const Event& event){
 
 // Function to return the number of clustering steps for the current event
 
-int MergingHooks::getNumberOfClusteringSteps(const Event& event){
+int MergingHooks::getNumberOfClusteringSteps(const Event& event ){
 
   // Count the number of final state partons
   int nFinalPartons = 0;
@@ -2854,7 +2869,10 @@ int MergingHooks::getNumberOfClusteringSteps(const Event& event){
              + 2*(nFinalBosons - nHardOutBosons() );
 
   // Return the difference to the core process outgoing particles
-  return (nFinal - nHardOutPartons() - nHardOutLeptons() );
+  int nsteps = nFinal - nHardOutPartons() - nHardOutLeptons();
+
+  // Return the difference to the core process outgoing particles
+  return nsteps;
 
 }
 
@@ -2904,7 +2922,7 @@ bool MergingHooks::isFirstEmission(const Event& event ) {
   int nLeptons      = nHardOutLeptons();
 
   // The state is already in the PS region if the number of leptons had been
-  // increased bt QED splittings.
+  // increased by QED splittings.
   if (nFinalLeptons > nLeptons) return false;
 
   // If the mumber of photons if larger than in the hard process, QED
@@ -2924,72 +2942,120 @@ bool MergingHooks::isFirstEmission(const Event& event ) {
 
 //--------------------------------------------------------------------------
 
-// Function to set the correct starting scales of the shower
+// Function to set the correct starting scales of the shower.
+// Note: 2 -> 2 QCD systems can be produced by MPI. Hence, there is an
+// overlap between MPI and "hard" 2 -> 2 QCD systems which needs to be
+// removed by no-MPI probabilities. This means that for any "hard" 2 -> 2 QCD
+// system, multiparton interactions should start at the maximal scale
+// of multiple interactions. The same argument holds for any "hard" process
+// that overlaps with MPI.
 
-// Set starting scales
 bool MergingHooks::setShowerStartingScales( bool isTrial,
   bool doMergeFirstEmm, double& pTscaleIn, const Event& event,
   double& pTmaxFSRIn, bool& limitPTmaxFSRIn,
   double& pTmaxISRIn, bool& limitPTmaxISRIn,
   double& pTmaxMPIIn, bool& limitPTmaxMPIIn ) {
 
-  // MPI treated differently in case of qcd djiet merging, since hard MPI
-  // can be misidentified as hard process.
-  bool isPureQCD = ( getProcessString().compare("pp>jj") == 0 );
-  int nSteps     = getNumberOfClusteringSteps( bareEvent(event, false) );
+  // Local copies of power/wimpy shower booleans and scales.
+  bool   limitPTmaxFSR = limitPTmaxFSRIn;
+  bool   limitPTmaxISR = limitPTmaxISRIn;
+  bool   limitPTmaxMPI = limitPTmaxMPIIn;
+  double pTmaxFSR      = pTmaxFSRIn;
+  double pTmaxISR      = pTmaxISRIn;
+  double pTmaxMPI      = pTmaxMPIIn;
+  double pTscale       = pTscaleIn;
+
+  // Check if the process only contains two outgoing partons. If so, then
+  // this process could also have been produced by MPI. Thus, the MPI starting
+  // scale would need to be set accordingly to correctly attach a
+  // "no-MPI-probability" to multi-jet events. ("Hard" MPI are included
+  // by not restricting MPI when showering the lowest-multiplicity sample.)
+  double pT2to2 = 0;
+  int nFinalPartons = 0, nFinalOther = 0;
+  for ( int i = 0; i < event.size(); ++i )
+    if (event[i].isFinal() && (event[i].idAbs() < 6 || event[i].id() == 21)) {
+        nFinalPartons++;
+        pT2to2 = event[i].pT();
+    } else if ( event[i].isFinal() ) nFinalOther++;
+  bool is2to2QCD     = ( nFinalPartons == 2 && nFinalOther == 0 );
+  bool hasMPIoverlap = ( nFinalPartons == 2 && nFinalOther == 0 );
+
   double scale   = event.scale();
 
-  bool doRecluster = doUMEPSSubt() || doNL3Subt() || doUNLOPSSubt()
-                  || doUNLOPSSubtNLO();
-
-  // Set correct starting scales for trial showers.
+  // Set the starting scales for trial showers.
   if ( isTrial ) {
-    // Reset shower scales.
-    pTmaxISRIn = pTmaxFSRIn = scale;
-    if ( limitPTmaxISRIn ) pTmaxISRIn = min(scale,muF());
-    if ( limitPTmaxFSRIn ) pTmaxFSRIn = min(scale,muF());
-    // Reset MPI scale.
-    if ( !isPureQCD ) pTmaxMPIIn = scale;
-    else  pTmaxMPIIn = infoPtr->eCM();
+
+    // Reset shower and MPI scales.
+    pTmaxISR = pTmaxFSR = pTmaxMPI = scale;
+
+    // Reset to minimal scale for wimpy showers. Keep scales for EW+QCD
+    // merging.
+    if ( limitPTmaxISR ) pTmaxISR = min(scale,muF());
+    if ( limitPTmaxFSR ) pTmaxFSR = min(scale,muF());
+    if ( limitPTmaxMPI ) pTmaxMPI = min(scale,muF());
+
+    // For pure QCD set the PS starting scales to the pT of the dijet system.
+    if (is2to2QCD) {
+      pTmaxFSR = pT2to2;
+      pTmaxISR = pT2to2;
+    }
+
+    // If necessary, set the MPI starting scale to the collider energy.
+    if ( hasMPIoverlap ) pTmaxMPI = infoPtr->eCM();
+
     // Reset phase space limitation flags
-    if ( pTscaleIn < infoPtr->eCM() ) {
-      limitPTmaxISRIn = limitPTmaxFSRIn = true;
-      if ( !isPureQCD ) limitPTmaxMPIIn = true;
-      else limitPTmaxMPIIn = false;
+    if ( pTscale < infoPtr->eCM() ) {
+      limitPTmaxISR = limitPTmaxFSR = limitPTmaxMPI = true;
+      // If necessary, set the MPI starting scale to the collider energy.
+      if ( hasMPIoverlap ) limitPTmaxMPI = false;
+    }
+
+  }
+
+  // Set the starting scales for regular showers.
+  if ( doMergeFirstEmm ) {
+
+    // Remember if this is a "regular" shower off a reclustered event.
+    bool doRecluster = doUMEPSSubt() || doNL3Subt() || doUNLOPSSubt()
+                    || doUNLOPSSubtNLO();
+
+    // Reset shower and MPI scales.
+    pTmaxISR = pTmaxFSR = pTmaxMPI = scale;
+
+    // Reset to minimal scale for wimpy showers. Keep scales for EW+QCD
+    // merging.
+    if ( limitPTmaxISR ) pTmaxISR = min(scale,muF());
+    if ( limitPTmaxFSR ) pTmaxFSR = min(scale,muF());
+    if ( limitPTmaxMPI ) pTmaxMPI = min(scale,muF());
+
+    // For pure QCD set the PS starting scales to the pT of the dijet system.
+    if (is2to2QCD) {
+      pTmaxFSR = pT2to2;
+      pTmaxISR = pT2to2;
+    }
+
+    // If necessary, set the MPI starting scale to the collider energy.
+    if ( hasMPIoverlap && !doRecluster ) {
+      pTmaxMPI = infoPtr->eCM();
+      limitPTmaxMPI = false;
+    }
+
+    // For reclustered events, no-MPI-probability between "pTmaxMPI" and
+    // "scale" already included in the event weight.
+    if ( doRecluster ) {
+      pTmaxMPI      = muMI();
+      limitPTmaxMPI = true;
     }
   }
 
-  // Reset starting scales.
-  if ( isPureQCD && doMergeFirstEmm ) {
-    // Set correct shower starting scales.
-    if ( nSteps == 0 && !doRecluster && pTscaleIn < infoPtr->eCM() ) {
-      pTmaxMPIIn = infoPtr->eCM();
-      limitPTmaxMPIIn = false;
-    }
-  }
-
-  // Reset starting scales.
-  if ( !isPureQCD && doMergeFirstEmm ) {
-    // Set correct shower starting scales.
-    if ( nSteps == 0 && !doRecluster ) {
-      pTscaleIn = infoPtr->eCM();
-      limitPTmaxMPIIn = false;
-    }
-    if ( limitPTmaxISRIn ) pTscaleIn = min(scale,muF());
-    if ( limitPTmaxFSRIn ) pTscaleIn = min(scale,muF());
-    pTmaxISRIn = pTmaxFSRIn = pTscaleIn;
-    // Reset MPI starting scale. Standard treatment
-    if ( pTscaleIn < infoPtr->eCM()
-      &&  !(nSteps == 0 && !doRecluster
-        && (limitPTmaxISRIn || limitPTmaxFSRIn)) ) {
-      pTmaxMPIIn = pTscaleIn;
-      limitPTmaxMPIIn = true;
-    }
-    if (doRecluster) {
-      pTmaxMPIIn = muMI();
-      limitPTmaxMPIIn = true;
-    }
-  }
+  // Reset power/wimpy shower switches iand scales if necessary.
+  limitPTmaxFSRIn = limitPTmaxFSR;
+  limitPTmaxISRIn = limitPTmaxISR;
+  limitPTmaxMPIIn = limitPTmaxMPI;
+  pTmaxFSRIn      = pTmaxFSR;
+  pTmaxISRIn      = pTmaxISR;
+  pTmaxMPIIn      = pTmaxMPI;
+  pTscaleIn       = pTscale;
 
   // Done
   return true;
@@ -3261,6 +3327,7 @@ double MergingHooks::rhoms( const Event& event, bool withColour){
         || getProcessString().compare("e+e->(z>jj)") == 0 )
         FinalPartPos.push_back(i);
     }
+
   }
 
   // Get index of first incoming
@@ -3292,6 +3359,7 @@ double MergingHooks::rhoms( const Event& event, bool withColour){
   // Find minimal pythia pt in event
   double ptmin = event[0].e();
   for(int i=0; i < int(FinalPartPos.size()); ++i){
+
     double pt12  = ptmin;
     // Compute pythia ISR separation i-jet and first incoming
     if (event[in1].colType() != 0) {
@@ -3372,6 +3440,10 @@ double MergingHooks::rhoms( const Event& event, bool withColour){
                               event[FinalPartPos[j]],
                               event[FinalPartPos[k]], 1 );
             pt12 = min(pt12, temp);
+            temp = rhoPythia( event[FinalPartPos[j]],
+                              event[FinalPartPos[i]],
+                              event[FinalPartPos[k]], 1 );
+            pt12 = min(pt12, temp);
           }
         }
       }
@@ -3414,35 +3486,155 @@ double MergingHooks::rhoPythia(const Particle& RadAfterBranch,
               const Particle& EmtAfterBranch,
               const Particle& RecAfterBranch, int ShowerType){
 
+  // Ask showers for evolution variable.
+  if ( useShowerPlugin() ) {
+    double pT2 = 0.;
+    if (ShowerType ==  1) pT2 =
+      showers->timesPtr->pT2Times(RadAfterBranch, EmtAfterBranch,
+      RecAfterBranch);
+    if (ShowerType == -1) pT2 =
+      showers->spacePtr->pT2Space(RadAfterBranch, EmtAfterBranch,
+      RecAfterBranch);
+    return sqrt(pT2);
+  }
+
+  // Note: If massive particles are involved, this definition slightly differs
+  // from History:pTLund(), as we need to ensure consistency with
+  // aMC@NLO_MadGraph5 (!). In the latter, no masses are available at the
+  // point where the merging scale value is calculated, and thus masses are set
+  // by hand there, and consequently here.
+
+  bool allowed = true;
+
   // Save type: 1 = FSR pT definition, else ISR definition
   int Type   = ShowerType;
+
+  // Set masses (as used in MG5).
+  double m0u = 0.0, m0d = 0.0, m0c = 1.5, m0s = 0.0, m0t = 172.5,
+         m0b = 4.7, m0w = 80.4, m0z = 91.188, m0x = 1000.0;
+  if (false) cout << m0u*m0d*m0c*m0s*m0t*m0b*m0w*m0z*m0x;
+
   // Calculate virtuality of splitting
   int sign = (Type==1) ? 1 : -1;
   Vec4 Q(RadAfterBranch.p() + sign*EmtAfterBranch.p());
   double Qsq = sign * Q.m2Calc();
-  // Mass term of radiator
-  double m2Rad = ( includeMassive()
-               && abs(RadAfterBranch.id()) >= 4
-               && abs(RadAfterBranch.id()) < 7)
-               ? pow(particleDataPtr->m0(RadAfterBranch.id()), 2)
-               : 0.;
+
+  // Splitting not possible for negative virtuality.
+  if ( Qsq < 0.0 ) allowed = false;
+
   // Construct 2->3 variables for FSR
-  Vec4   sum     = RadAfterBranch.p() + RecAfterBranch.p()
-                 + EmtAfterBranch.p();
+  Vec4 radAft(RadAfterBranch.p());
+  Vec4 recAft(RecAfterBranch.p());
+  Vec4 emtAft(EmtAfterBranch.p());
+
+  // Try to reconstruct flavour of radiator before emission.
+  int idRadBef = 0;
+  int flavEmt = EmtAfterBranch.id();
+  int flavRad = RadAfterBranch.id();
+  // gluon radiation: idBef = idAft
+  if (abs(flavEmt) == 21 || abs(flavEmt) == 22 ) idRadBef=flavRad;
+  // final state gluon splitting: idBef = 21
+  if (Type ==  1 && flavEmt == -flavRad) idRadBef=21;
+  // final state quark -> gluon conversion
+  if (Type ==  1 && abs(flavEmt) < 10 && flavRad == 21) idRadBef=flavEmt;
+  // initial state gluon splitting: idBef = -idEmt
+  if (Type == -1 && abs(flavEmt) < 10 && flavRad == 21) idRadBef=-flavEmt;
+  // initial state gluon -> quark conversion
+  if (Type == -1 && abs(flavEmt) < 10 && flavRad == flavEmt) idRadBef=21;
+  // W-boson radiation
+  if (flavEmt ==  24) idRadBef = RadAfterBranch.id()+1;
+  if (flavEmt == -24) idRadBef = RadAfterBranch.id()-1;
+
+  // Store masses both after and prior to emission.
+  double m2RadAft = radAft.m2Calc();
+  double m2EmtAft = emtAft.m2Calc();
+  double m2RadBef = 0.;
+  if ( RadAfterBranch.idAbs() != 21 && RadAfterBranch.idAbs() != 22
+    && EmtAfterBranch.idAbs() != 24
+    && RadAfterBranch.idAbs() != EmtAfterBranch.idAbs() )
+    m2RadBef = m2RadAft;
+  else if (EmtAfterBranch.idAbs() == 24) {
+    if (idRadBef != 0) {
+      if( abs(idRadBef) == 4 ) m2RadBef       = pow(m0c,2);
+      if( abs(idRadBef) == 5 ) m2RadBef       = pow(m0b,2);
+      if( abs(idRadBef) == 6 ) m2RadBef       = pow(m0t,2);
+      if( abs(idRadBef) == 9000001 ) m2RadBef = pow(m0x,2);
+    }
+  } else if (!RadAfterBranch.isFinal()) {
+    if (RadAfterBranch.idAbs() == 21 && EmtAfterBranch.idAbs() != 21)
+      m2RadBef = m2EmtAft;
+  }
+
+  //double m2RadAft = 0.;
+  //double m2EmtAft = 0.;
+  //double m2RadBef = 0.;
+
+  double m2Final = (radAft + recAft + emtAft).m2Calc();
+  // Final state splitting not possible for negative "dipole mass".
+  if (m2Final < 0.0) allowed = false;
+
+  // Rescaling of recoiler for FSR with initial state recoiler.
+  if ( !RecAfterBranch.isFinal() && RadAfterBranch.isFinal() ){
+    double mar2  = m2Final - 2. * Qsq + 2. * m2RadBef;
+    double rescale =  (1. - (Qsq - m2RadBef)/(mar2 - m2RadBef))
+                     /(1. + (Qsq - m2RadBef)/(mar2 - m2RadBef));
+    // Final-initial splitting not possible for negative rescaling.
+    if (rescale < 0.0) allowed = false;
+    recAft *= rescale;
+  }
+
+  Vec4   sum     = radAft + recAft + emtAft;
   double m2Dip = sum.m2Calc();
-  double x1 = 2. * (sum * RadAfterBranch.p()) / m2Dip;
-  double x3 = 2. * (sum * EmtAfterBranch.p()) / m2Dip;
+  double x1 = 2. * (sum * radAft) / m2Dip;
+  double x2 = 2. * (sum * recAft) / m2Dip;
+
+  // Final state splitting not possible for ill-defined 3-body-variables.
+  if ( RadAfterBranch.isFinal()
+    && ( x1 < 0.0 || x1 > 1.0 || x2 < 0.0 || x2 > 1.0)) allowed = false;
+
   // Construct momenta of dipole before/after splitting for ISR
   Vec4 qBR(RadAfterBranch.p() - EmtAfterBranch.p() + RecAfterBranch.p());
   Vec4 qAR(RadAfterBranch.p() + RecAfterBranch.p());
+
+  // Prepare for more complicated z definition for massive splittings.
+  double lambda13 = sqrt( pow2(Qsq - m2RadAft - m2EmtAft )
+                         - 4. * m2RadAft*m2EmtAft );
+  double k1 = ( Qsq - lambda13 + (m2EmtAft - m2RadAft ) ) / ( 2. * Qsq );
+  double k3 = ( Qsq - lambda13 - (m2EmtAft - m2RadAft ) ) / ( 2. * Qsq );
+
   // Calculate z of splitting, different for FSR and ISR
-  double z = (Type==1) ? x1/(x1+x3)
+  double z = (Type==1) ? 1./ ( 1- k1 -k3) * ( x1 / (2.-x2) - k3)
                      : (qBR.m2Calc())/( qAR.m2Calc());
+
+  // Splitting not possible for ill-defined energy sharing.
+  if ( z < 0.0 || z > 1.0) allowed = false;
+
   // Separation of splitting, different for FSR and ISR
   double pTpyth = (Type==1) ? z*(1.-z) : (1.-z);
+
   // pT^2 = separation*virtuality
-  pTpyth *= (Qsq - sign*m2Rad);
-  if (pTpyth < 0.) pTpyth = 0.;
+  if (Type == 1) pTpyth *= (Qsq - m2RadBef);
+  else           pTpyth *= Qsq;
+
+  // Check for threshold in ISR, only relevant for c and b.
+  // Use pT2 = (1 - z) * (Qsq + m^2).
+  if ( Type != 1) {
+    if ( ( RadAfterBranch.idAbs() == 4 || EmtAfterBranch.idAbs() == 4)
+      && RadAfterBranch.idAbs() != EmtAfterBranch.idAbs() ) {
+    if (pTpyth < 2 * pow(m0c,2)) pTpyth = (Qsq + pow(m0c,2)) * (1. - z);
+    } else if ( (RadAfterBranch.idAbs() == 5 || EmtAfterBranch.idAbs() == 5)
+             && RadAfterBranch.idAbs() != EmtAfterBranch.idAbs() ) {
+     if (pTpyth < 2 * pow(m0b,2))
+       pTpyth = (Qsq + pow(m0b,2) ) * (1. - z);
+    }
+  }
+
+  // Kinematically impossible splittings should not be included in the
+  // pT definition!
+  if (!allowed) pTpyth = 1e15;
+
+  if ( pTpyth < 0. ) pTpyth = 0.;
+
   // Return pT
   return sqrt(pTpyth);
 }

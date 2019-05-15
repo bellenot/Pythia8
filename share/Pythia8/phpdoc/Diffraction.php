@@ -435,7 +435,7 @@ Allows for the possibility to include hard diffraction tests in a run.
 There is also the possibility to select only a specific subset of events 
 in hard diffraction. 
  
-<br/><br/><table><tr><td><strong>Diffraction:sampleType  </td><td>  &nbsp;&nbsp;(<code>default = <strong>1</strong></code>; <code>minimum = 1</code>; <code>maximum = 5</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Diffraction:sampleType  </td><td>  &nbsp;&nbsp;(<code>default = <strong>1</strong></code>; <code>minimum = 1</code>; <code>maximum = 4</code>)</td></tr></table>
 Type of process the user wants to generate. Depends strongly on how an event 
 is classified as diffractive. 
 <br/>
@@ -443,8 +443,6 @@ is classified as diffractive.
 <input type="radio" name="33" value="2"><strong>2 </strong>: Generate an inclusive sample of both diffractive and  nondiffractive hard processes, MPI-checked.  <br/>
 <input type="radio" name="33" value="3"><strong>3 </strong>: Generate an exclusive diffractive sample, MPI-unchecked.  <br/>
 <input type="radio" name="33" value="4"><strong>4 </strong>: Generate an exclusive diffractive sample, MPI-checked.  <br/>
-<input type="radio" name="33" value="5"><strong>5 </strong>: Generate an exclusive sample, rejecting all diffractive  events, MPI-unchecked, so the complement of option 3.  <br/>
- 
 <input type="hidden" name="saved" value="1"/>
 
 <?php

@@ -1841,9 +1841,11 @@ int SusyLesHouches::checkSpectrum() {
 void SusyLesHouches::message(int level, string place,string themessage,
   int line) {
   if (verboseSav == 0) return;
+  // By default all output to cout, but lines below allow finer control.
+  ostream* outstream = &cout;
   //Send normal messages and warnings to stdout, errors to stderr.
-  ostream* outstream = &cerr;
-  if (level <= 1) outstream = &cout;
+  //ostream* outstream = &cerr;
+  //if (level <= 1) outstream = &cout;
   // if (level == 2) { *outstream << endl; }
   if (place != "") *outstream  <<  " | (SLHA::"+place+") ";
   else *outstream  <<  " | ";

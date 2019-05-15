@@ -567,6 +567,9 @@ public:
     LPRUP.resize(NPRUP);
   }
 
+  // Clear all members.
+  void clear();
+
   // PDG id's of beam particles. (first/second is in +/-z direction).
   pair<long,long> IDBMUP;
 
@@ -785,8 +788,25 @@ public:
   // filename: the name of the file to read from.
   //
   Reader(string filenameIn)
-    : filename(filenameIn), intstream(filename.c_str()), file(&intstream) {
+    : filename(filenameIn), intstream(NULL), file(NULL) {
+    intstream = new igzstream(filename.c_str());
+    file = intstream;
     isGood = init();
+  }
+
+  // (Re)initialize the Reader with a filename from which to read an event
+  // file. After this, all information from the header and init block is
+  // available.
+  //
+  // filename: File name (not used as the input file stream is given)
+  // isIn    : Name of the input file stream.
+  bool setup(string filenameIn) {
+    filename = filenameIn;
+    if (intstream) delete intstream;
+    intstream = new igzstream(filename.c_str());
+    file = intstream;
+    isGood = init();
+    return isGood;
   }
 
 private:
@@ -819,7 +839,7 @@ protected:
 
   // A local stream which is unused if a stream is supplied from the
   // outside.
-  igzstream intstream;
+  igzstream* intstream;
 
   // The stream we are reading from. This may be a pointer to an
   // external stream or the internal intstream.
@@ -952,7 +972,7 @@ public:
 
   // Write out the event stored in hepeup, followed by optional
   // comment lines.
-  bool writeEvent(HEPEUP * peup = 0);
+  bool writeEvent(HEPEUP * peup = 0, int pDigits = 15);
 
 protected:
 

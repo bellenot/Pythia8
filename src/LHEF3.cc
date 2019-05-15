@@ -48,7 +48,7 @@ void LHAweights::print(ostream & file) const {
   for ( map<string,string>::const_iterator it = attributes.begin();
         it != attributes.end(); ++it )
     file << " " << it->first << "=\"" << it->second << "\"";
-  file << " >";
+  file << ">";
   for ( int j = 0, M = weights.size(); j < M; ++j ) file << " " << weights[j];
   file << "</weights>" << endl;
 }
@@ -86,7 +86,7 @@ void LHAscales::print(ostream & file) const {
   for ( map<string,double>::const_iterator it = attributes.begin();
         it != attributes.end(); ++it )
     file << " " << it->first << "=\"" << it->second << "\"";
-  file << contents;
+  file << ">" << contents;
   file << "</scales>" << endl;
 }
 
@@ -402,6 +402,28 @@ void LHAinitrwgt::print(ostream & file) const {
 
 //==========================================================================
 
+// The HEPRUP class is a simple container for the Les Houches file init block.
+
+void HEPRUP::clear() {
+  IDBMUP = make_pair(0,0);
+  EBMUP = make_pair(0,0);
+  PDFGUP = make_pair(0,0);
+  PDFSUP = make_pair(0,0);
+  IDWTUP = -1;
+  NPRUP = 0;
+  XSECUP.resize(0);
+  XERRUP.resize(0);
+  XMAXUP.resize(0);
+  LPRUP.resize(0);
+  initrwgt.clear();
+  generators.resize(0);
+  weightgroups.clear();
+  weights.clear();
+
+}
+
+//==========================================================================
+
 // The HEPEUP class is a simple container corresponding to the Les Houches
 // accord (<A HREF="http://arxiv.org/abs/hep-ph/0109068">hep-ph/0109068</A>)
 // common block with the same name. The members are named in the same
@@ -507,6 +529,15 @@ bool Reader::init() {
     version = 3;
   else
     return false;
+
+  // Clear all members.
+  outsideBlock="";
+  headerBlock="";
+  headerComments="";
+  heprup.clear();
+  initComments="";
+  hepeup.clear();
+  eventComments="";
 
   // Loop over all lines until we hit the </init> tag.
   while ( getLine() && currentLine.find("</init>") == string::npos ) {
@@ -836,7 +867,7 @@ void Writer::init() {
 // Write out the event stored in hepeup, followed by optional
 // comment lines.
 
-bool Writer::writeEvent(HEPEUP * peup) {
+bool Writer::writeEvent(HEPEUP * peup, int pDigits) {
 
   HEPEUP & eup = (peup? *peup: hepeup);
 
@@ -844,7 +875,7 @@ bool Writer::writeEvent(HEPEUP * peup) {
   for ( map<string,string>::const_iterator it = eup.attributes.begin();
         it != eup.attributes.end(); ++it )
     file << " " << it->first << "=\"" << it->second << "\"";
-  file << ">" << endl;
+  file << ">" << std::flush << endl;
   file << " " << setw(4) << eup.NUP
        << " " << setw(6) << eup.IDPRUP
        << " " << setw(14) << eup.XWGTUP
@@ -852,8 +883,6 @@ bool Writer::writeEvent(HEPEUP * peup) {
        << " " << setw(14) << eup.AQEDUP
        << " " << setw(14) << eup.AQCDUP << endl;
   eup.resize();
-
-  int pDigits = 18;
 
   for ( int i = 0; i < eup.NUP; ++i )
     file << " " << setw(8) << eup.IDUP[i]

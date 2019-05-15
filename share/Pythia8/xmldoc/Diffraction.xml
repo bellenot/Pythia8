@@ -444,7 +444,7 @@ Allows for the possibility to include hard diffraction tests in a run.
 There is also the possibility to select only a specific subset of events 
 in hard diffraction. 
  
-<modepick name="Diffraction:sampleType" default="1" min="1" max="5"> 
+<modepick name="Diffraction:sampleType" default="1" min="1" max="4"> 
 Type of process the user wants to generate. Depends strongly on how an event 
 is classified as diffractive. 
 <option value="1">Generate an inclusive sample of both diffractive and 
@@ -457,11 +457,7 @@ nondiffractive hard processes, MPI-checked.
 </option> 
 <option value="4">Generate an exclusive diffractive sample, MPI-checked. 
 </option> 
-<option value="5">Generate an exclusive sample, rejecting all diffractive 
-events, MPI-unchecked, so the complement of option 3. 
-</option> 
 </modepick> 
- 
 </chapter> 
  
 <!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

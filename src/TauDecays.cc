@@ -142,8 +142,8 @@ bool TauDecays::decay(int idxOut1, Event& event) {
 
   // Set the incoming particles of the hard process.
   int idxMediatorTop = mediator.iTopCopyId();
-  int idxIn1         = event[event[idxMediatorTop].mother1()].iBotCopyId();
-  int idxIn2         = event[event[idxMediatorTop].mother2()].iBotCopyId();
+  int idxIn1         = event[idxMediatorTop].mother1();
+  int idxIn2         = event[idxMediatorTop].mother2();
   in1                = HelicityParticle(event[idxIn1]);
   in1.direction      = -1;
   in2                = HelicityParticle(event[idxIn2]);
@@ -303,7 +303,8 @@ bool TauDecays::internalMechanism(Event&) {
   if (abs(mediator.id()) == 22 || abs(mediator.id()) == 23 ||
       abs(mediator.id()) == 32) {
     // Produced from fermions: s-channel.
-    if (abs(in1.id()) <= 18 && abs(in2.id()) <= 18) {
+    if (abs(in1.id()) <= 18 && abs(in2.id()) <= 18 && in1.daughter2() == 0 &&
+        in2.daughter2() == 0 && in1.daughter1() == in2.daughter1()) {
       particles.push_back(mediator);
       hardME = hmeTwoFermions2GammaZ2TwoFermions.initChannel(particles);
     // Unknown photon production.
@@ -312,7 +313,8 @@ bool TauDecays::internalMechanism(Event&) {
   // Produced from a W or W'.
   } else if (abs(mediator.id()) == 24 || abs(mediator.id()) == 34) {
     // Produced from fermions: s-channel.
-    if (abs(in1.id()) <= 18 && abs(in2.id()) <= 18) {
+    if (abs(in1.id()) <= 18 && abs(in2.id()) <= 18 && in1.daughter2() == 0 &&
+        in2.daughter2() == 0 && in1.daughter1() == in2.daughter1()) {
       particles.push_back(mediator);
       hardME = hmeTwoFermions2W2TwoFermions.initChannel(particles);
     // Unknown W production.

@@ -263,9 +263,18 @@ vector < string > Info::headerKeys() {
 
 //--------------------------------------------------------------------------
 
-// Set the LHEF3 objects read from the init and header blocks.
+// Reset the LHEF3 objects read from the init and header blocks.
 
-void Info::setLHEF3InitInfo() { initrwgt = 0;}
+void Info::setLHEF3InitInfo() {
+  initrwgt     = 0;
+  generators   = 0;
+  weightgroups = 0;
+  init_weights = 0;
+}
+
+//--------------------------------------------------------------------------
+
+// Set the LHEF3 objects read from the init and header blocks.
 
 void Info::setLHEF3InitInfo( int LHEFversionIn, LHAinitrwgt *initrwgtIn,
   vector<LHAgenerator> *generatorsIn,
@@ -280,9 +289,20 @@ void Info::setLHEF3InitInfo( int LHEFversionIn, LHAinitrwgt *initrwgtIn,
 
 //--------------------------------------------------------------------------
 
-// Set the LHEF3 objects read from the event block.
+// Reset the LHEF3 objects read from the event block.
 
-void Info::setLHEF3EventInfo() { scales = 0; weights = 0; rwgt = 0;}
+void Info::setLHEF3EventInfo() {
+  eventAttributes    = 0;
+  weights_detailed   = 0;
+  weights_compressed = 0;
+  scales             = 0;
+  weights            = 0;
+  rwgt               = 0;
+}
+
+//--------------------------------------------------------------------------
+
+// Set the LHEF3 objects read from the event block.
 
 void Info::setLHEF3EventInfo( map<string, string> *eventAttributesIn,
     map<string,double> *weights_detailedIn,

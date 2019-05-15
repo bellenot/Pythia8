@@ -133,11 +133,12 @@ method should be provided with the list of relevant particles.</li>
  
 <li><code>isVisible</code>: a flag telling whether a particle species 
 is to be considered as visible in a detector or not, as used e.g. in 
-analysis routines. By default this includes neutrinos and a few BSM 
-particles (gravitino, sneutrinos, neutralinos) that have neither strong 
-nor electromagnetic charge, and are not made up of constituents that 
-have it. The value of this flag is only relevant if a particle is 
-long-lived enough actually to make it to a detector.</li> 
+analysis routines. By default the invisibles include neutrinos, 
+Dark Matter particles (codes 51 - 60) and a few BSM particles (gravitino, 
+sneutrinos, neutralinos) that have neither strong nor electromagnetic 
+charge, and are not made up of constituents that have it. The value of 
+this flag is only relevant if a particle is long-lived enough actually 
+to make it to a detector.</li> 
  
 <li><code>doForceWidth</code>: a flag applicable only for resonances 
 (see <code>isResonance</code> above), whereby it is possible to force 
@@ -857,11 +858,12 @@ method should be provided with the list of relevant particles.
 <strong>bool ParticleData::isVisible(int id) &nbsp;</strong> <br/>
 a flag telling whether a particle species is to be considered as 
 visible in a detector or not, as used e.g. in analysis routines. 
-By default this includes neutrinos and a few BSM particles 
-(gravitino, sneutrinos, neutralinos) that have neither strong nor 
-electromagnetic charge, and are not made up of constituents that 
-have it. The value of this flag is only relevant if a particle is 
-long-lived enough actually to make it to a detector. 
+By default the invisibles include neutrinos, Dark Matter particles 
+(codes 51 - 60) and a few BSM particles (gravitino, sneutrinos, 
+neutralinos) that have neither strong nor electromagnetic charge, 
+and are not made up of constituents that have it. The value of this 
+flag is only relevant if a particle is long-lived enough actually 
+to make it to a detector. 
    
  
 <a name="method33"></a>
@@ -1252,11 +1254,12 @@ method should be provided with the list of relevant particles.
 <strong>bool ParticleDataEntry::isVisible() &nbsp;</strong> <br/>
 a flag telling whether a particle species is to be considered as 
 visible in a detector or not, as used e.g. in analysis routines. 
-By default this includes neutrinos and a few BSM particles 
-(gravitino, sneutrinos, neutralinos) that have neither strong nor 
-electromagnetic charge, and are not made up of constituents that 
-have it. The value of this flag is only relevant if a particle is 
-long-lived enough actually to make it to a detector. 
+By default the invisibles include neutrinos, Dark Matter particles 
+(codes 51 - 60) and a few BSM particles (gravitino, sneutrinos, 
+neutralinos) that have neither strong nor electromagnetic charge, 
+and are not made up of constituents that have it. The value of this 
+flag is only relevant if a particle is long-lived enough actually 
+to make it to a detector. 
    
  
 <a name="method83"></a>

@@ -12,32 +12,175 @@ but this should only affect a small part of the user code.
  
 <ul> 
  
+<li>8.212: 23 September 2015 
+<ul> 
+ 
+<li>Included new weighting facilities in initial- and final-state showers. 
+This allows to consistently enhance rare shower branchings without 
+impairing the no-emission probabilities, see 
+<aloc href="UserHooks">User Hooks</aloc>. A new <code>main63.cc</code>, 
+together with <code>main63.cmnd</code>, illustrates this feature.</li> 
+ 
+<li>Added new functionality to time- and spacelike showers to streamline 
+merging with external shower plugins, see 
+<aloc href="ImplementNewShowers">Implement New Showers</aloc>.</li> 
+ 
+<li>New possibility to access hadronization parameters in each step of 
+the hadronization process, and to veto individual hadrons, see 
+<aloc href="UserHooks">User Hooks</aloc>. Thanks to Christian Bierlich. 
+</li> 
+ 
+<li>The <aloc href="ExternalDecays">EvtGen interface</aloc> has been 
+expanded with the possibility to force a rare decay of some of the 
+particle species handled by EvtGen, with an event weight compensating 
+for this bias. New status codes 95 or 96 single out particles from a 
+forced decay, without or with oscillation. Documentation has been 
+expanded.</li> 
+ 
+<li>New option <code>MultipartonInteractions:pTmaxMatch = 3</code> 
+introduced to allow better matching for multiparton final states. 
+Thanks to Paolo Gunnellini.</li> 
+ 
+<li>Added possibility to write Les Houches Event Files abiding to the 
+latest (v. 3) standard,see 
+<aloc href="LesHouchesAccord">Les Houches Accord</aloc>. The new 
+<code>main64.cc</code> illustrates how to use the LHEF3 writer.</li> 
+ 
+<li>Fixes in the merging machinery, related to the scales associated 
+with final-state splittings with an initial-state recoiler. The 
+evolution scales and energy sharing values associated with this 
+configuration were not calculated correctly, as an incorrect recoiler 
+momentum was used, leading to a numerical small deviation from the 
+actual result. This issue has now been corrected. Some additional 
+matching and merging changes, mostly to make the reclustering in the 
+merging numerically more stable, and to make UN2LOPS possible.</li> 
+ 
+<li>Fix bug for the <code>Beams:newLHEFsameInit = on</code> option, 
+whereby several LHE files can be read in without new initialization 
+for each. When the gzip support was improved in 8.209 the filenames 
+were no longer reset properly, and so no files beyond the first one 
+were read. Thanks to Roberto Franceschini.</li> 
+ 
+<li>Bug fix in the junction handling for the case of gluinos.</li> 
+ 
+<li>Avoid segmentation fault for some rare junction topologies. 
+Thanks to Gabriel Magill.</li> 
+ 
+<li>Minor fix for the path to the PowhegBox plugin, as used in the 
+<code>Makefile</code>.</li> 
+ 
+<li>Minor fix for the <code>configure</code> script, for the case 
+of building a shared library on Mac OS X. Thanks to Mikhail Kirsanov. 
+</li> 
+ 
+<li>Several minor changes in the hard diffractive machinery.</li> 
+ 
+<li>PDG codes 51 - 60 have been reserved for Dark Matter (DM) particles. 
+51, 52 and 53 are intended for spin 0, 1/2 and 1 stable DM particles, 
+respectively. 54 and 55 are for spin 0 and 1 unstable mediators of 
+s-channel DM pair creation or annihilation. The rest can be used freely, 
+say in models with several DM particles. Masses should be set 
+appropriately. Particles 54 and 55 come equipped with a fictitious mix 
+of potential decay modes, to be modified according to the specific model. 
+By default all have separate antiparticles, with negative codes. 
+These can be removed by setting the antiparticle name to be "void". The 
+<code>ParticleData::antiName(...)</code> method has been fixed to accept 
+this, just like <code>ParticleData::names(...)</code> already did. </li> 
+ 
+<li>Several processes have been set up with wrong process codes, and are 
+now fixed. The corrections are 4003 &rarr; 4203, 4004 &rarr; 4204, 
+4005 &rarr; 4205, 961 &rarr; 1061, 3124 &rarr; 3123, 3126 &rarr; 3124, 
+3144 &rarr; 3143, and 3146 &rarr; 3144.</li> 
+ 
+<li>For <ei>tau</ei> decay spin correlations the 
+<ei>f fbar &rarr; V &rarr; f fbar</ei> matrix element, 
+<ei>V = gamma/Z^0</ei> or <ei>W^+-</ei>, is now only used when the 
+incoming fermion pair has no other daughters. Else the simpler 
+<ei>V &rarr; f fbar</ei> matrix element is used.</li> 
+ 
+<li>Minor technical changes, to allow for external <ei>pT</ei>-unordered 
+parton showers. No effect for the internal showers.</li> 
+ 
+<li>The SLHA reading operation has become significantly less verbose: 
+where previously identical warning messages could be issued for 
+many particle codes, now these codes are collected into a single list 
+that is written once.</li> 
+ 
+<li>Bug fix in the input of SLHA decay tables. Previously, the first DECAY 
+entry could be ignored under certain conditions, so that the internal SUSY 
+machinery was used to calculate decay properties. This was the case, in 
+particular, when internal SUSY processes were invoked to generate events. 
+</li> 
+ 
+<li>Minor correction in the cross section for <ei>f fbar &rarr; G*</ei> 
+for extra-dimensional processes.</li> 
+ 
+<li><code>main85.cc</code> has been updated so it can handle weighted 
+events.</li> 
+ 
+<li><code>main89mlm.cmnd</code> contained misleading instructions which 
+are now changed.</li> 
+ 
+<li>Protect against rare but disastrous negative mass-squared by numerical 
+roundoff in string fragmentation.</li> 
+ 
+<li>Introduce protection against numerical instability of companion quark 
+distribution in <ei>x &rarr; 1</ei> limit.</li> 
+ 
+<li>Use the <code>PythiaStdlib.h</code> header rather than accessing 
+Stdlib directly in <code>SusyLesHouches.h</code>.</li> 
+ 
+<li>Output to <code>cerr</code> replaced by ditto to <code>cout</code>. 
+Excepted is the examples main programs, where it serves a pedagogical 
+function, while a separate <code>cerr</code> is less relevant for big 
+batch runs. (<code>Also FJcore</code> code is excepted).</li> 
+ 
+<li>Give final-state showers used for decays access to the beams; 
+not needed for PYTHIA itself but for some plugin showers.</li> 
+ 
+<li>Fix minor typo in <code>README</code>, in instruction for enabling 
+64 bit compilation.</li> 
+ 
+<li>Insert two missing <code>std::</code> in 
+<code>Pythia8Plugins/GeneratorInputs.h</code>.</li> 
+ 
+<li>Minor update in histogram overflow handling.</li> 
+ 
+<li>Add to the documentation that 
+<code>TimeShower:weightGluonToQuark = 1</code> is required for consistent 
+aMC@NLO merging.</li> 
+ 
+<li>Clarify documentation on which particles are stable by default.</li> 
+ 
+</ul> 
+</li> 
+ 
 <li>8.210: 29 June 2015 
 <ul> 
-
-<li>Bug fix in CKKW-L merging for LHE files, such that the factorization
-  and renormalization scales are set by the <code>SCALUP</code> value if 
-the <code>muf2</code> and  <code>mur2</code> LHEF3 attributes have not
+ 
+<li>Bug fix in CKKW-L merging for LHE files, such that the factorization 
+and renormalization scales are set by the <code>SCALUP</code> value if 
+the <code>muf2</code> and  <code>mur2</code> LHEF3 attributes have not 
 been set, and the user has not set any explicit values. This change 
 restores the PYTHIA 8.1 behaviour.</li> 
  
 <li>Various technical improvements in the machinery for hard 
 diffraction.</li> 
-
+ 
 <li>Correct quark flavour selection when a string spanned directly 
 between two junctions is split up.</li> 
  
-<li>Check that SK-I and SK-II colour reconnection machineries only
+<li>Check that SK-I and SK-II colour reconnection machineries only 
 are called for event topologies they are set up to handle.</li> 
-
-<li>Bug fixes in partial widths of the <ei>W'</ei> boson. Results are
+ 
+<li>Bug fixes in partial widths of the <ei>W'</ei> boson. Results are 
 correct when the <ei>W'</ei> is a simply rescaled copy of the <ei>W</ei>, 
 but not for more general couplings. Thanks to Mihail Chizhov. </li> 
  
-<li>Minor fix in default location of PDF data files in the constructors.
+<li>Minor fix in default location of PDF data files in the constructors. 
 No practical consequence since correct non-default values are used.</li> 
-
-<li>Tiny fix in the <code>configure</code> script, so that CXX options
+ 
+<li>Tiny fix in the <code>configure</code> script, so that CXX options 
 containing an equal sign are parsed correctly.</li> 
  
 </ul> 

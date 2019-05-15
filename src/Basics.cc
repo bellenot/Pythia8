@@ -857,8 +857,10 @@ void Hist::null() {
 void Hist::fill(double x, double w) {
 
   ++nFill;
+  if (x < xMin) {under += w; return;}
+  if (x > xMax) {over  += w; return;}
   int iBin = int(floor((x - xMin)/dx));
-  if (iBin < 0)          under += w;
+  if      (iBin < 0)     under += w;
   else if (iBin >= nBin) over  += w;
   else                 {inside += w; res[iBin] += w; }
 

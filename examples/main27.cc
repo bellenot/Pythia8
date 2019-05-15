@@ -130,7 +130,7 @@ int main() {
       mHatHisto.fill( pythia.event[iZ].m() );
       pTmuHisto.fill( pythia.event[imu].pT() );
     }
-    if(iEvent%10 == 0) cout << "Event: " << iEvent << endl << flush;
+    if(iEvent%10 == 0) cout << "Event: " << iEvent << endl << std::flush;
   } // end for iEvent<500
 
   // Done. Print results.

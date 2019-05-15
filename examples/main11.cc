@@ -19,6 +19,7 @@ int main() {
 #else
   bool useGzip = false;
 #endif
+  cout << " useGzip = " << useGzip << endl;
 
   // Generator. We here stick with default values, but changes
   // could be inserted with readString or readFile.

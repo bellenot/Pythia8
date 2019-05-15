@@ -116,13 +116,13 @@ public:
 
   // Select next pT in downwards evolution.
   virtual double pTnext( Event& event, double pTbegAll, double pTendAll,
-    int nRadIn = -1);
+    int nRadIn = -1, bool doTrialIn = false);
 
   // ME corrections and kinematics that may give failure.
   virtual bool branch( Event& event);
 
   // Tell which system was the last processed one.
-  int system() const {return iSysSel;}
+  virtual int system() const {return iSysSel;}
 
   // Flag for failure in branch(...) that will force a retry of parton level.
   bool doRestart() const {return rescatterFail;}
@@ -132,6 +132,47 @@ public:
 
   // Print dipole list; for debug mainly.
   virtual void list(ostream& os = cout) const;
+
+  // Functions to allow usage of shower kinematics, evolution variables,
+  // and splitting probabilities outside of shower.
+  // Virtual so that shower plugins can overwrite these functions.
+  // This makes it possible for another piece of the code to request
+  // these - which is very convenient for merging.
+  // Function variable names are not included to avoid compiler warnings.
+  // Please see the documentation under "Implement New Showers" for details.
+
+  // Return clustering kinematics - as needed form merging.
+  // Usage: clustered( const Event& event, string name, int iRad, int iEmt,
+  //                   int iRec)
+  virtual Event clustered( const Event&, string, int, int, int)
+    { return Event();}
+
+  // Return state after a branching, as needed to evaluate more complicated
+  // kernels.
+  // Usage: branched( const Event& event, int iRadBef, int iRecBef, int idEmt,
+  //                  double pT2, double z, double RN, vector<double> aux)
+  virtual Event branched( const Event&, int, int, int, int, double,
+    double, double, vector<double>) { return Event();}
+
+  // Return the evolution variable.
+  // Usage: pT2Space( const Particle& rad, const Particle& emt,
+  //                  const Particle& rec)
+  virtual double pT2Space ( const Particle&, const Particle&, const Particle&)
+    { return 0.;}
+
+  // Return the auxiliary (energy sharing) variable.
+  // Usage: zSpace( const Particle& rad, const Particle& emt,
+  //                const Particle& rec)
+  virtual double zSpace ( const Particle&, const Particle&, const Particle&)
+    { return 0.;}
+
+  // Return a string to identifier of a splitting.
+  // Usage: getSplittingName( const Event& event, int iRad, int iEmt)
+  virtual string getSplittingName( const Event&, int, int) { return "";}
+
+  // Return the splitting probability.
+  // Usage: getSplittingProb( const Event& event, int iRad, int iEmt, int iRec)
+  virtual double getSplittingProb( const Event&, int, int, int ) { return 0.;}
 
 protected:
 
@@ -183,7 +224,8 @@ private:
   bool   doQCDshower, doQEDshowerByQ, doQEDshowerByL, useSamePTasMPI,
          doWeakShower, doMEcorrections, doMEafterFirst, doPhiPolAsym,
          doPhiIntAsym, doRapidityOrder, useFixedFacScale, doSecondHard,
-         canVetoEmission, alphaSuseCMW, singleWeakEmission, vetoWeakJets;
+         canVetoEmission, hasUserHooks, alphaSuseCMW, singleWeakEmission,
+         vetoWeakJets;
   int    pTmaxMatch, pTdampMatch, alphaSorder, alphaSnfmax, alphaEMorder,
          nQuarkIn, enhanceScreening, weakMode;
   double pTdampFudge, mc, mb, m2c, m2b, renormMultFac, factorMultFac,
@@ -202,6 +244,13 @@ private:
   bool   sideA, dopTlimit1, dopTlimit2, dopTdamp, hasWeaklyRadiated, tChannel;
   int    iNow, iRec, idDaughter, nRad, idResFirst, idResSecond;
   double xDaughter, x1Now, x2Now, m2Dip, m2Rec, pT2damp, pTbegRef, pdfScale2;
+
+  // Bookkeeping of enhanced  actual or trial emissions (see EPJC (2013) 73).
+  bool doTrialNow, canEnhanceEmission, canEnhanceTrial, canEnhanceET;
+  string splittingNameNow, splittingNameSel;
+  map< double, pair<string,double> > enhanceFactors;
+  void storeEnhanceFactor(double pT2, string name, double enhanceFactorIn)
+    { enhanceFactors.insert(make_pair(pT2,make_pair(name,enhanceFactorIn)));}
 
   // List of emissions in different sides in different systems:
   vector<int> nRadA,nRadB;

@@ -31,12 +31,12 @@
 
    INSTALLATION - ADVANCED OPTIONS
 
-1) If you want to set various compilation options, the following two options 
+1) If you want to set various compilation options, the following two options
    are available.
 
 1.1) You can use command-line arguments to the configure script for
      finer grain control of the installation. A full description of
-     the options is given by running "configure --help". Here additional 
+     the options is given by running "configure --help". Here additional
      clarification is provided.
      --enable-debug : turns on debugging flags and turns off optimization.
          (This makes program execution much slower. If you later want to
@@ -44,7 +44,7 @@
          this option, since default is to allow optimization.)
      --enable-shared : turns on shared-library creation,
          in addition to the archive libraries always built.
-     --enable-64bits : turns on 64 bits compilation flag
+     --enable-64bit : turns on 64 bits compilation flag
          (is automatic on many 64-bit installations, but just in case).
      --lcg=PLATFORM : allows you to specify the platform assumed for
          compilation, which also affects the assumed location of the
@@ -56,7 +56,7 @@
          a "gmake install" command subsequent to the "gmake" one.
          Note that the files in the current working directory are
          kept.
-     --prefix-COMPONENT=DIR : finer grain control over where the "bin", "lib", 
+     --prefix-COMPONENT=DIR : finer grain control over where the "bin", "lib",
          "include", and "share" directories are copied for installation.
      --arch=ARCH : sets the architecture to be used. The two options
          are either "Darwin" for OS X, or "Linux" for other *nix
@@ -80,7 +80,7 @@
      --lib-suffix=SUF : the shared library suffix to use. This only
          effects the name of "lib/libpythia8.SUF". Typically for *nix
          systems this is ".so" and for OS X this is ".dylib".
-         
+
 1.2) All of the options listed above are formatted into
      "Makefile.inc", which is also copied to
      "examples/Makefile.inc" whenever "gmake" is run and
@@ -117,7 +117,7 @@
      where again xx is the subversion number.
 
    When PYTHIA8DATA is set it takes precedence, else the path in the
-   constructor is used, else one defaults to the ../share/Pythia8/xmldoc 
+   constructor is used, else one defaults to the ../share/Pythia8/xmldoc
    directory, which works fine when you run the examples/mainNN programs.
 
 ----------------------------------------------------------------------
@@ -163,7 +163,7 @@
          for libraries and headers on the paths "/foo/lib" and
          "/foo/include", but the binaries on the path "/foo/bar" and
          not "/foo/bin".
-     --with-PACKAGE-lib=DIR : same as above for bin, but now for 
+     --with-PACKAGE-lib=DIR : same as above for bin, but now for
          libraries.
      --with-PACKAGE-include=DIR : same as above for bin, but now for
           headers.
@@ -188,7 +188,7 @@
        http://lcgapp.cern.ch/project/simu/HepMC/. The interface
        between PYTHIA 8 and HepMC is provided via the
        "include/Pythia8Plugins/HepMC2.h" header.
-   HEPMC3) An interface for the upcoming HepMC 3 format. Currently this 
+   HEPMC3) An interface for the upcoming HepMC 3 format. Currently this
        package does nothing, as the record does not exist yet.
    LHAPDF5) Provides an interface to the FORTRAN version of LHAPDF,
        details can be found here:
@@ -219,7 +219,7 @@
    ROOT) The ROOT HEP package used for data analysis and
        visualization, http://root.cern.ch. This package is only used
        for the "examples/main9[1,2].cc" examples.
-   BOOST) Advanced C++ libraries, http://www.boost.org/, which are needed 
+   BOOST) Advanced C++ libraries, http://www.boost.org/, which are needed
        when using either LHAPDF6 or GZIP.
    GZIP) support for the reading of gzipped LHE files. It relies upon
        BOOST and zlib to function. The BOOST location can be specified
@@ -291,9 +291,9 @@ versions of methods needed for proper compilation.)
 contains pre-built PYTHIA packages ready to be used under Windows
 Visual Studio.
 
-We take no responsibility for either of these solutions. 
-Also note that linking with other libraries may involve further 
-problems, in particular for the dynamic loading of LHAPDF. 
+We take no responsibility for either of these solutions.
+Also note that linking with other libraries may involve further
+problems, in particular for the dynamic loading of LHAPDF.
 
 ----------------------------------------------------------------------
 

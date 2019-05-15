@@ -113,7 +113,9 @@ $(LOCAL_TMP)/POWHEGPlugin.o: $(LOCAL_INCLUDE)/Pythia8Plugins/LHAPowheg.h
 $(LOCAL_LIB)/libpythia8powheg%sh.so: $(POWHEG_BIN)/%sh;
 $(LOCAL_LIB)/libpythia8powheg%.so: $(POWHEG_BIN)/% $(LOCAL_TMP)/POWHEGPlugin.o\
 	$(LOCAL_LIB)/libpythia8.a
-	$(CXX) $^ -o $@ $(CXX_COMMON) $(CXX_SHARED) $(CXX_SONAME),$(notdir $@)
+	ln -s $< $(notdir $<); $(CXX) $(notdir $<) $(LOCAL_TMP)/POWHEGPlugin.o\
+	 $(LOCAL_LIB)/libpythia8.a -o $@ $(CXX_COMMON) $(CXX_SHARED)\
+	 $(CXX_SONAME),$(notdir $@) -Wl,-rpath $(POWHEG_BIN); rm $(notdir $<)
 
 # Install (rsync is used for finer control).
 install: all

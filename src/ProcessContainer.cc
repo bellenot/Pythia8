@@ -2133,15 +2133,15 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs,
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   }
   if (settings.flag("ContactInteractions:QCffbar2eebar")) {
-    sigmaPtr = new Sigma2QCffbar2llbar(11, 4003);
+    sigmaPtr = new Sigma2QCffbar2llbar(11, 4203);
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   }
   if (settings.flag("ContactInteractions:QCffbar2mumubar")) {
-    sigmaPtr = new Sigma2QCffbar2llbar(13, 4004);
+    sigmaPtr = new Sigma2QCffbar2llbar(13, 4204);
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   }
   if (settings.flag("ContactInteractions:QCffbar2tautaubar")) {
-    sigmaPtr = new Sigma2QCffbar2llbar(15, 4005);
+    sigmaPtr = new Sigma2QCffbar2llbar(15, 4205);
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   }
 

@@ -1160,4 +1160,397 @@ bool LHAupFromPYTHIA8::updateSigma() {
 
 //==========================================================================
 
+// LHEF3FromPythia8 class.
+
+//--------------------------------------------------------------------------
+
+// Function to open the output file stream.
+
+bool LHEF3FromPythia8::openLHEF(string fileNameIn) {
+
+  // Open file for writing. Reset it to be empty.
+  fileName = fileNameIn;
+  const char* cstring = fileName.c_str();
+  osLHEF.open(cstring, ios::out | ios::trunc);
+  if (!osLHEF) {
+    infoPtr->errorMsg("Error in LHAup::openLHEF:"
+      " could not open file", fileName);
+    return false;
+  }
+
+  // Done.
+  return true;
+}
+
+//--------------------------------------------------------------------------
+
+// Routine for reading, setting and printing the initialisation info.
+
+bool LHEF3FromPythia8::setInit() {
+
+  // Start with clean writer.
+  writer.headerStream.str("");
+  writer.initStream.str("");
+  writer.headerStream.clear();
+  writer.initStream.clear();
+
+  // PDG id's of beam particles. (first/second is in +/-z direction).
+  heprup.IDBMUP = make_pair(infoPtr->idA(), infoPtr->idB());
+
+  // Energy of beam particles given in GeV.
+  heprup.EBMUP = make_pair(infoPtr->eA(),infoPtr->eB());
+
+  // The author group for the PDF used for the beams according to the
+  // PDFLib specification.
+  heprup.PDFGUP = make_pair(0,0);
+
+  // The id number the PDF used for the beams according to the
+  // PDFLib specification.
+  heprup.PDFSUP = make_pair(0,0);
+
+  // Master switch indicating how the ME generator envisages the
+  // events weights should be interpreted according to the Les Houches
+  // accord.
+  heprup.IDWTUP = -4;
+
+  // The number of different subprocesses in this file.
+  heprup.NPRUP = 1;
+
+  // The cross sections for the different subprocesses in pb.
+  vector<double> XSECUP;
+  for ( int i=0; i < heprup.NPRUP; ++i)
+    XSECUP.push_back(CONVERTMB2PB * infoPtr->sigmaGen());
+  heprup.XSECUP = XSECUP;
+
+  // The statistical error in the cross sections for the different
+  // subprocesses in pb.
+  vector<double> XERRUP;
+  for ( int i=0; i < heprup.NPRUP; ++i)
+    XERRUP.push_back(CONVERTMB2PB * infoPtr->sigmaErr());
+  heprup.XERRUP = XERRUP;
+
+  // The maximum event weights (in HEPEUP::XWGTUP) for different
+  vector<double> XMAXUP;
+  for ( int i=0; i < heprup.NPRUP; ++i) XMAXUP.push_back(0.0);
+  heprup.XMAXUP = XMAXUP;
+
+  // The subprocess code for the different subprocesses.
+  vector<int> LPRUP;
+  for ( int i=0; i < heprup.NPRUP; ++i) LPRUP.push_back(9999+i);
+  heprup.LPRUP = LPRUP;
+
+  // Contents of the LHAinitrwgt tag
+  if (infoPtr->initrwgt) heprup.initrwgt = *(infoPtr->initrwgt);
+
+  // Contents of the LHAgenerator tags.
+  if (infoPtr->generators) heprup.generators = *(infoPtr->generators);
+
+  // A map of the LHAweightgroup tags, indexed by name.
+  if (infoPtr->weightgroups) heprup.weightgroups = *(infoPtr->weightgroups);
+
+  // A map of the LHAweight tags, indexed by name.
+  if (infoPtr->init_weights) heprup.weights = *(infoPtr->init_weights);
+
+  // Get init information.
+  writer.version = 3;
+
+  string line, tag;
+
+  // Not implemented yet:
+  // Write header block of input LHEF
+  // Write header comments of input LHEF
+
+  // Print Pythia settings
+  stringstream setout;
+  settingsPtr->listAll(setout);
+  while ( getline(setout,line) )
+    writer.headerBlock() << line << "\n";
+
+  // Not implemented yet:
+  // Write init comments of input LHEF.
+
+  writer.heprup = heprup;
+  writer.init();
+
+  // Done
+  return true;
+}
+
+//--------------------------------------------------------------------------
+
+// Routine for reading, setting and printing the next event.
+
+bool LHEF3FromPythia8::setEvent(int) {
+
+  Event event = *eventPtr;
+
+  // Begin filling Les Houches blocks.
+  hepeup.clear();
+  hepeup.resize(0);
+
+  // The number of particle entries in the current event.
+  hepeup.NUP = 2;
+  for ( int i = 0; i < int(event.size()); ++i) {
+    if ( event[i].status() == -22) ++hepeup.NUP;
+    if ( event[i].isFinal()) ++hepeup.NUP;
+  }
+
+  // The subprocess code for this event (as given in LPRUP).
+  hepeup.IDPRUP = 9999;
+
+  // The weight for this event.
+  hepeup.XWGTUP = infoPtr->weight();
+
+  // The PDF weights for the two incoming partons. Note that this
+  // variable is not present in the current LesHouches accord
+  // (<A HREF="http://arxiv.org/abs/hep-ph/0109068">hep-ph/0109068</A>),
+  // hopefully it will be present in a future accord.
+  hepeup.XPDWUP = make_pair(0,0);
+
+  // The scale in GeV used in the calculation of the PDF's in this
+  // event.
+  hepeup.SCALUP = eventPtr->scale();
+
+  // The value of the QED coupling used in this event.
+  hepeup.AQEDUP = infoPtr->alphaEM();
+
+  // The value of the QCD coupling used in this event.
+  hepeup.AQCDUP = infoPtr->alphaS();
+
+  // Find incoming particles.
+  int in1, in2;
+  in1 = in2 = 0;
+  for ( int i = 0; i < int( event.size()); ++i) {
+    if ( event[i].mother1() == 1 && in1 == 0) in1 = i;
+    if ( event[i].mother1() == 2 && in2 == 0) in2 = i;
+  }
+
+  // Find resonances in hard process.
+  vector<int> hardResonances;
+  for ( int i = 0; i < int(event.size()); ++i) {
+    if ( event[i].status() != -22) continue;
+    if ( event[i].mother1() != 3) continue;
+    if ( event[i].mother2() != 4) continue;
+    hardResonances.push_back(i);
+  }
+
+  // Find resonances and decay products after showering.
+  vector<int> evolvedResonances;
+  vector<pair<int,int> > evolvedDecayProducts;
+  for ( int j = 0; j < int(hardResonances.size()); ++j) {
+    for ( int i = int(event.size())-1; i > 0; --i) {
+      if ( i == hardResonances[j]
+        || (event[i].mother1() == event[i].mother2()
+         && event[i].isAncestor(hardResonances[j])) ) {
+        evolvedResonances.push_back(i);
+        evolvedDecayProducts.push_back(
+          make_pair(event[i].daughter1(), event[i].daughter2()) );
+        break;
+      }
+    }
+  }
+
+  // Event for bookkeeping of resonances.
+  Event now  = Event();
+  now.init("(dummy event)", particleDataPtr);
+  now.reset();
+
+  // The PDG id's for the particle entries in this event.
+  // The status codes for the particle entries in this event.
+  // Indices for the first and last mother for the particle entries in
+  // this event.
+  // The colour-line indices (first(second) is (anti)colour) for the
+  // particle entries in this event.
+  // Lab frame momentum (Px, Py, Pz, E and M in GeV) for the particle
+  // entries in this event.
+  // Invariant lifetime (c*tau, distance from production to decay in
+  // mm) for the particle entries in this event.
+  // Spin info for the particle entries in this event given as the
+  // cosine of the angle between the spin vector of a particle and the
+  // 3-momentum of the decaying particle, specified in the lab frame.
+  hepeup.IDUP.push_back(event[in1].id());
+  hepeup.IDUP.push_back(event[in2].id());
+  hepeup.ISTUP.push_back(-1);
+  hepeup.ISTUP.push_back(-1);
+  hepeup.MOTHUP.push_back(make_pair(0,0));
+  hepeup.MOTHUP.push_back(make_pair(0,0));
+  hepeup.ICOLUP.push_back(make_pair(event[in1].col(),event[in1].acol()));
+  hepeup.ICOLUP.push_back(make_pair(event[in2].col(),event[in2].acol()));
+  vector <double> p;
+  p.push_back(0.0);
+  p.push_back(0.0);
+  p.push_back(event[in1].pz());
+  p.push_back(event[in1].e());
+  p.push_back(event[in1].m());
+  hepeup.PUP.push_back(p);
+  p.resize(0);
+  p.push_back(0.0);
+  p.push_back(0.0);
+  p.push_back(event[in2].pz());
+  p.push_back(event[in2].e());
+  p.push_back(event[in2].m());
+  hepeup.PUP.push_back(p);
+  p.resize(0);
+  hepeup.VTIMUP.push_back(event[in1].tau());
+  hepeup.VTIMUP.push_back(event[in2].tau());
+  hepeup.SPINUP.push_back(event[in1].pol());
+  hepeup.SPINUP.push_back(event[in2].pol());
+
+  now.append(event[in1]);
+  now.append(event[in2]);
+
+  // Attach resonances
+  for ( int j = 0; j < int(evolvedResonances.size()); ++j) {
+    int i = evolvedResonances[j];
+    hepeup.IDUP.push_back(event[i].id());
+    hepeup.ISTUP.push_back(2);
+    hepeup.MOTHUP.push_back(make_pair(1,2));
+    hepeup.ICOLUP.push_back(make_pair(event[i].col(),event[i].acol()));
+    p.push_back(event[i].px());
+    p.push_back(event[i].py());
+    p.push_back(event[i].pz());
+    p.push_back(event[i].e());
+    p.push_back(event[i].m());
+    hepeup.PUP.push_back(p);
+    p.resize(0);
+    hepeup.VTIMUP.push_back(event[i].tau());
+    hepeup.SPINUP.push_back(event[i].pol());
+    now.append(event[i]);
+    now.back().statusPos();
+  }
+
+  // Loop through event and attach remaining decays
+  vector<int> iSkip;
+  int iDec = 0;
+  do {
+
+    if ( now[iDec].isFinal() && now[iDec].canDecay()
+      && now[iDec].mayDecay() && now[iDec].isResonance() ) {
+
+      int iD1 = now[iDec].daughter1();
+      int iD2 = now[iDec].daughter2();
+
+      // Done if no daughters exist.
+      if ( iD1 == 0 || iD2 == 0 ) continue;
+
+     // Attach daughters.
+     for ( int k = iD1; k <= iD2; ++k ) {
+       Particle partNow = event[k];
+       hepeup.IDUP.push_back(partNow.id());
+       hepeup.MOTHUP.push_back(make_pair(iDec,iDec));
+       hepeup.ICOLUP.push_back(make_pair(partNow.col(),partNow.acol()));
+       p.push_back(partNow.px());
+       p.push_back(partNow.py());
+       p.push_back(partNow.pz());
+       p.push_back(partNow.e());
+       p.push_back(partNow.m());
+       hepeup.PUP.push_back(p);
+       p.resize(0);
+       hepeup.VTIMUP.push_back(partNow.tau());
+       hepeup.SPINUP.push_back(partNow.pol());
+       now.append(partNow);
+       if ( partNow.canDecay() && partNow.mayDecay() && partNow.isResonance()){
+         now.back().statusPos();
+         hepeup.ISTUP.push_back(2);
+       } else
+         hepeup.ISTUP.push_back(1);
+
+       iSkip.push_back(k);
+     }
+
+     // End of loop over all entries.
+    }
+  } while (++iDec < now.size());
+
+  // Attach final state particles
+  for ( int i = 0; i < int(event.size()); ++i) {
+    if (!event[i].isFinal()) continue;
+    // Skip resonance decay products.
+    bool skip = false;
+    for ( int j = 0; j < int(evolvedDecayProducts.size()); ++j) {
+      skip = ( i >= evolvedDecayProducts[j].first
+            && i <= evolvedDecayProducts[j].second);
+    }
+    if (skip) continue;
+    for ( int j = 0; j < int(iSkip.size()); ++j) {
+      skip = ( i == iSkip[j] );
+    }
+    if (skip) continue;
+
+    hepeup.IDUP.push_back(event[i].id());
+    hepeup.ISTUP.push_back(1);
+    hepeup.MOTHUP.push_back(make_pair(1,2));
+    hepeup.ICOLUP.push_back(make_pair(event[i].col(),event[i].acol()));
+    p.push_back(event[i].px());
+    p.push_back(event[i].py());
+    p.push_back(event[i].pz());
+    p.push_back(event[i].e());
+    p.push_back(event[i].m());
+    hepeup.PUP.push_back(p);
+    p.resize(0);
+    hepeup.VTIMUP.push_back(event[i].tau());
+    hepeup.SPINUP.push_back(event[i].pol());
+    now.append(event[i]);
+  }
+
+  // A pointer to the current HEPRUP object.
+  hepeup.heprup = &heprup;
+
+  // The weights associated with this event, as given by the LHAwgt tags.
+  if (infoPtr->weights_detailed)
+    hepeup.weights_detailed = *(infoPtr->weights_detailed);
+
+  // The weights associated with this event, as given by the LHAweights tags.
+  if (infoPtr->weights_compressed)
+    hepeup.weights_compressed = *(infoPtr->weights_compressed);
+
+  // Contents of the LHAscales tag
+  if (infoPtr->scales) hepeup.scales = *(infoPtr->scales);
+
+  // Contents of the LHAweights tag (compressed format)
+  if (infoPtr->weights) hepeup.weights = *(infoPtr->weights);
+
+  // Contents of the LHArwgt tag (detailed format)
+  if (infoPtr->rwgt) hepeup.rwgt = *(infoPtr->rwgt);
+
+  // Any other attributes.
+  if (infoPtr->eventAttributes)
+    hepeup.attributes = *(infoPtr->eventAttributes);
+
+  // Not implemented yet:
+  // Write event comments of input LHEF.
+
+  writer.hepeup = hepeup;
+  writer.writeEvent(&hepeup,pDigits);
+
+  return true;
+
+}
+
+//--------------------------------------------------------------------------
+
+// Write end of a Les Houches Event File and close it.
+
+bool LHEF3FromPythia8::closeLHEF(bool updateInit) {
+
+  // Write an end to the file.
+  osLHEF << "</LesHouchesEvents>" << endl;
+  osLHEF.close();
+
+  // Optionally update the cross section information.
+  if (updateInit) {
+    const char* cstring = fileName.c_str();
+    osLHEF.open(cstring, ios::in | ios::out);
+
+    setInit();
+    osLHEF.close();
+  }
+
+  // Done.
+  return true;
+
+}
+
+//==========================================================================
+
 } // end namespace Pythia8

@@ -136,19 +136,60 @@ public:
 
   // Select next pT in downwards evolution.
   virtual double pTnext( Event& event, double pTbegAll, double pTendAll,
-    bool isFirstTrial = false);
+    bool isFirstTrial = false, bool doTrialIn = false);
 
   // ME corrections and kinematics that may give failure.
   virtual bool branch( Event& event, bool isInterleaved = false);
 
   // Tell which system was the last processed one.
-  int system() const {return iSysSel;};
+  virtual int system() const {return iSysSel;};
 
   // Tell whether FSR has done a weak emission.
   bool getHasWeaklyRadiated() {return hasWeaklyRadiated;}
 
   // Print dipole list; for debug mainly.
   virtual void list( ostream& os = cout) const;
+
+  // Functions to allow usage of shower kinematics, evolution variables,
+  // and splitting probabilities outside of shower.
+  // Virtual so that shower plugins can overwrite these functions.
+  // This makes it possible for another piece of the code to request
+  // these - which is very convenient for merging.
+  // Function variable names are not included to avoid compiler warnings.
+  // Please see the documentation under "Implement New Showers" for details.
+
+  // Return clustering kinematics - as needed for merging.
+  // Usage: clustered( const Event& event, string name, int iRad, int iEmt,
+  //                   int iRec)
+  virtual Event clustered( const Event&, string, int, int, int)
+    { return Event();}
+
+  // Return state after a branching, as needed to evaluate more complicated
+  // kernels.
+  // Usage: branched( const Event& event, int iRadBef, int iRecBef, int idEmt,
+  //                  double pT2, double z, double RN, vector<double> aux)
+  virtual Event branched( const Event&, int, int, int, double,
+    double, double, vector<double>) { return Event();}
+
+  // Return the evolution variable.
+  // Usage: pT2Times( const Particle& rad, const Particle& emt,
+  //                  const Particle& rec)
+  virtual double pT2Times ( const Particle&, const Particle&, const Particle&)
+    { return 0.;}
+
+  // Return the auxiliary (energy sharing) variable.
+  // Usage: zTimes( const Particle& rad, const Particle& emt,
+  //                const Particle& rec)
+  virtual double zTimes ( const Particle&, const Particle&, const Particle&)
+    { return 0.;}
+
+  // Return a string identifier of a splitting.
+  // Uage: getSplittingName( const Event& event, int iRad, int iEmt)
+  virtual string getSplittingName( const Event&, int, int) { return "";}
+
+  // Return the splitting probability.
+  // Usage: getSplittingProb( const Event& event, int iRad, int iEmt, int iRec)
+  virtual double getSplittingProb( const Event&, int, int, int ) { return 0.;}
 
 protected:
 
@@ -200,7 +241,8 @@ private:
          doInterleave, allowBeamRecoil, dampenBeamRecoil, recoilToColoured,
          useFixedFacScale, allowRescatter, canVetoEmission, doHVshower,
          brokenHVsym, globalRecoil, useLocalRecoilNow, doSecondHard,
-         singleWeakEmission, alphaSuseCMW, vetoWeakJets, allowMPIdipole;
+         hasUserHooks, singleWeakEmission, alphaSuseCMW, vetoWeakJets,
+         allowMPIdipole;
   int    pTmaxMatch, pTdampMatch, alphaSorder, alphaSnfmax, nGluonToQuark,
          weightGluonToQuark, alphaEMorder, nGammaToQuark, nGammaToLepton,
          nCHV, idHV, nMaxGlobalRecoil, weakMode;
@@ -221,6 +263,13 @@ private:
   // Some current values.
   bool   dopTlimit1, dopTlimit2, dopTdamp, hasWeaklyRadiated;
   double pT2damp, kRad, kEmt, pdfScale2;
+
+  // Bookkeeping of enhanced  actual or trial emissions (see EPJC (2013) 73).
+  bool doTrialNow, canEnhanceEmission, canEnhanceTrial, canEnhanceET;
+  string splittingNameNow, splittingNameSel;
+  map< double, pair<string,double> > enhanceFactors;
+  void storeEnhanceFactor(double pT2, string name, double enhanceFactorIn)
+    { enhanceFactors.insert(make_pair(pT2,make_pair(name,enhanceFactorIn)));}
 
   // All dipole ends and a pointer to the selected hardest dipole end.
   vector<TimeDipoleEnd> dipEnd;

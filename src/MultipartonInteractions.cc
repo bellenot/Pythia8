@@ -972,23 +972,28 @@ bool MultipartonInteractions::limitPTmax( Event& event) {
     || infoPtr->isDiffractiveB() || infoPtr->isDiffractiveC() ) return true;
 
   // Look if only quarks (u, d, s, c, b), gluons and photons in final state.
-  bool onlyQGP1 = true;
-  bool onlyQGP2 = true;
-  int  n21      = 0;
-  int iBegin = 5;
+  bool onlyQGP1      = true;
+  bool onlyQGP2      = true;
+  double scaleLimit1 = 0.;
+  double scaleLimit2 = 0.;
+  int  n21           = 0;
+  int iBegin         = 5;
   if (infoPtr->isHardDiffractive()) iBegin = 9;
   for (int i = iBegin; i < event.size(); ++i) {
     if (event[i].status() == -21) ++n21;
     else if (n21 == 0) {
+      scaleLimit1 += 0.5 * event[i].pT();
       int idAbs = event[i].idAbs();
       if (idAbs > 5 && idAbs != 21 && idAbs != 22) onlyQGP1 = false;
     } else if (n21 == 2) {
+      scaleLimit2 += 0.5 * event[i].pT();
       int idAbs = event[i].idAbs();
       if (idAbs > 5 && idAbs != 21 && idAbs != 22) onlyQGP2 = false;
     }
   }
 
   // If two hard interactions then limit if one only contains q/g/gamma.
+  scaleLimitPTsave = (n21 == 2) ? min( scaleLimit1, scaleLimit2) : scaleLimit1;
   bool onlyQGP = (n21 == 2) ? (onlyQGP1 || onlyQGP2) : onlyQGP1;
   return (onlyQGP);
 

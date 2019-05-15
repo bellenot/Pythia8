@@ -212,8 +212,8 @@ void TimeShower::init( BeamParticle* beamAPtrIn,
   doSecondHard    = settingsPtr->flag("SecondHard:generate");
 
   // Possibility to allow user veto of emission step.
-  canVetoEmission    = (userHooksPtr != 0)
-                     ? userHooksPtr->canVetoFSREmission() : false;
+  hasUserHooks       = (userHooksPtr != 0);
+  canVetoEmission    = hasUserHooks && userHooksPtr->canVetoFSREmission();
 
   // Set initial value, just in case.
   dopTdamp           = false;
@@ -221,6 +221,21 @@ void TimeShower::init( BeamParticle* beamAPtrIn,
 
   // Default values for the weak shower.
   hasWeaklyRadiated  = false;
+
+  // Disallow simultaneous splitting and trial emission enhancements.
+  canEnhanceEmission = hasUserHooks && userHooksPtr->canEnhanceEmission();
+  canEnhanceTrial    = hasUserHooks && userHooksPtr->canEnhanceTrial();
+  if (canEnhanceEmission && canEnhanceTrial) {
+    infoPtr->errorMsg("Error in SpaceShower::init: Enhance for both actual "
+    "and trial emissions not possible. Both switched off.");
+    canEnhanceEmission = false;
+    canEnhanceTrial    = false;
+  }
+
+  // Properties for enhanced emissions.
+  splittingNameSel   = "";
+  splittingNameNow   = "";
+  enhanceFactors.clear();
 
 }
 
@@ -1740,12 +1755,23 @@ void TimeShower::setupHVdip( int iSys, int i, Event& event,
 // Select next pT in downwards evolution of the existing dipoles.
 
 double TimeShower::pTnext( Event& event, double pTbegAll, double pTendAll,
-  bool isFirstTrial) {
+  bool isFirstTrial, bool doTrialIn) {
 
   // Begin loop over all possible radiating dipole ends.
   dipSel  = 0;
   iDipSel = -1;
   double pT2sel = pTendAll * pTendAll;
+
+  // Check if enhanced emissions should be applied.
+  doTrialNow    = doTrialIn;
+  canEnhanceET  = (!doTrialNow && canEnhanceEmission)
+               || ( doTrialNow && canEnhanceTrial);
+
+  // Starting values for enhanced emissions.
+  splittingNameSel = "";
+  splittingNameNow = "";
+  enhanceFactors.clear();
+  if (hasUserHooks) userHooksPtr->setEnhancedTrial(0., 1.);
 
   for (int iDip = 0; iDip < int(dipEnd.size()); ++iDip) {
     TimeDipoleEnd& dip = dipEnd[iDip];
@@ -1874,6 +1900,7 @@ double TimeShower::pTnext( Event& event, double pTbegAll, double pTendAll,
         pT2sel  = dip.pT2;
         dipSel  = &dip;
         iDipSel = iDip;
+        splittingNameSel = splittingNameNow;
       }
     }
   }
@@ -1925,8 +1952,19 @@ void TimeShower::pT2nextQCD(double pT2begDip, double pT2sel,
   double wt            = 0.;
   bool   mustFindRange = true;
 
+  // Set default values for enhanced emissions.
+  bool isEnhancedQ2QG, isEnhancedG2QQ, isEnhancedG2GG;
+  isEnhancedQ2QG = isEnhancedG2QQ = isEnhancedG2GG = false;
+  double enhanceNow = 1.;
+  string nameNow = "";
+
   // Begin evolution loop towards smaller pT values.
   do {
+
+    // Default values for current tentative emission.
+    isEnhancedQ2QG = isEnhancedG2QQ = isEnhancedG2GG = false;
+    enhanceNow = 1.;
+    nameNow = "";
 
     // Initialize evolution coefficients at the beginning and
     // reinitialize when crossing c and b flavour thresholds.
@@ -1959,9 +1997,18 @@ void TimeShower::pT2nextQCD(double pT2begDip, double pT2sel,
 
       // Find emission coefficients for X -> X g and g -> q qbar.
       emitCoefGlue = wtPSglue * colFac * log(1. / zMinAbs - 1.);
+      // Optionally enhanced branching rate.
+      if (canEnhanceET && colTypeAbs == 2)
+        emitCoefGlue *= userHooksPtr->enhanceFactor("fsr:G2GG");
+      if (canEnhanceET && colTypeAbs == 1)
+        emitCoefGlue *= userHooksPtr->enhanceFactor("fsr:Q2QG");
+
       emitCoefTot  = emitCoefGlue;
       if (colTypeAbs == 2 && event[dip.iRadiator].id() == 21) {
         emitCoefQqbar = wtPSqqbar * (1. - 2. * zMinAbs);
+        // Optionally enhanced branching rate.
+        if (canEnhanceET)
+          emitCoefQqbar *= userHooksPtr->enhanceFactor("fsr:G2QQ");
         emitCoefTot  += emitCoefQqbar;
       }
 
@@ -2027,6 +2074,40 @@ void TimeShower::pT2nextQCD(double pT2begDip, double pT2sel,
           dip.mFlavour = particleDataPtr->m0(dip.flavour);
         }
 
+
+        if (dip.flavour == 21
+          && (colTypeAbs == 1 || colTypeAbs == 3) ) {
+          nameNow = "fsr:Q2QG";
+          // Optionally enhanced branching rate.
+          if (canEnhanceET) {
+            double enhance = userHooksPtr->enhanceFactor(nameNow);
+            if (enhance != 1.) {
+              enhanceNow = enhance;
+              isEnhancedQ2QG = true;
+            }
+          }
+        } else if (dip.flavour == 21) {
+          nameNow = "fsr:G2GG";
+          // Optionally enhanced branching rate.
+          if (canEnhanceET) {
+            double enhance = userHooksPtr->enhanceFactor(nameNow);
+            if (enhance != 1.) {
+              enhanceNow = enhance;
+              isEnhancedG2GG = true;
+            }
+          }
+        } else {
+          nameNow = "fsr:G2QQ";
+          // Optionally enhanced branching rate.
+          if (canEnhanceET) {
+            double enhance = userHooksPtr->enhanceFactor(nameNow);
+            if (enhance != 1.) {
+              enhanceNow = enhance;
+              isEnhancedG2QQ = true;
+            }
+          }
+        }
+
         // No z weight, except threshold, if to do ME corrections later on.
         if (dip.MEtype > 0) {
           wt = 1.;
@@ -2037,6 +2118,7 @@ void TimeShower::pT2nextQCD(double pT2begDip, double pT2sel,
         } else if (dip.flavour == 21
           && (colTypeAbs == 1 || colTypeAbs == 3) ) {
           wt = (1. + pow2(dip.z)) / wtPSglue;
+
         } else if (dip.flavour == 21) {
           wt = (1. + pow3(dip.z)) / wtPSglue;
 
@@ -2109,6 +2191,14 @@ void TimeShower::pT2nextQCD(double pT2begDip, double pT2sel,
   // Iterate until acceptable pT (or have fallen below pTmin).
   } while (wt < rndmPtr->flat());
 
+  // Store outcome of enhanced branching rate analysis.
+  splittingNameNow = nameNow;
+  if (canEnhanceET) {
+    if (isEnhancedQ2QG) storeEnhanceFactor(dip.pT2,"fsr:Q2QG", enhanceNow);
+    if (isEnhancedG2QQ) storeEnhanceFactor(dip.pT2,"fsr:G2QQ", enhanceNow);
+    if (isEnhancedG2QQ) storeEnhanceFactor(dip.pT2,"fsr:G2GG", enhanceNow);
+  }
+
 }
 
 //--------------------------------------------------------------------------
@@ -2139,6 +2229,12 @@ void TimeShower::pT2nextQED(double pT2begDip, double pT2sel,
   double alphaEMmax  = alphaEM.alphaEM(renormMultFac * dip.m2DipCorr);
   double alphaEM2pi  = alphaEMmax / (2. * M_PI);
 
+  // Set default values for enhanced emissions.
+  bool isEnhancedQ2QA, isEnhancedA2LL, isEnhancedA2QQ;
+  isEnhancedQ2QA = isEnhancedA2LL = isEnhancedA2QQ = false;
+  double enhanceNow = 1.;
+  string nameNow = "";
+
   // Emission: upper estimate for matrix element weighting; charge factor.
   if (hasCharge) {
     wtPSgam     = 2.;
@@ -2148,6 +2244,8 @@ void TimeShower::pT2nextQED(double pT2begDip, double pT2sel,
     zMinAbs = 0.5 - sqrtpos( 0.25 - pT2endDip / dip.m2DipCorr );
     if (zMinAbs < SIMPLIFYROOT) zMinAbs = pT2endDip / dip.m2DipCorr;
     emitCoefTot = alphaEM2pi * chg2 * wtPSgam * log(1. / zMinAbs - 1.);
+    // Optionally enhanced branching rate.
+    if (canEnhanceET) emitCoefTot *= userHooksPtr->enhanceFactor("fsr:Q2QA");
 
   // Branching: sum of squared charge factors for lepton and quark daughters.
   } else {
@@ -2157,6 +2255,10 @@ void TimeShower::pT2nextQED(double pT2begDip, double pT2sel,
     else if (nGammaToQuark > 2) chg2SumQ =  6. / 9.;
     else if (nGammaToQuark > 1) chg2SumQ =  5. / 9.;
     else if (nGammaToQuark > 0) chg2SumQ =  1. / 9.;
+
+    // Optionally enhanced branching rate.
+    if (canEnhanceET) chg2SumL *= userHooksPtr->enhanceFactor("fsr:A2LL");
+    if (canEnhanceET) chg2SumQ *= userHooksPtr->enhanceFactor("fsr:A2QQ");
 
     // Total sum of squared charge factors. Find evolution coefficient.
     chg2Sum     = chg2SumL + 3. * chg2SumQ;
@@ -2169,6 +2271,12 @@ void TimeShower::pT2nextQED(double pT2begDip, double pT2sel,
 
   // Begin evolution loop towards smaller pT values.
   do {
+
+
+    // Default values for current tentative emission.
+    isEnhancedQ2QA = isEnhancedA2LL = isEnhancedA2QQ = false;
+    enhanceNow = 1.;
+    nameNow = "";
 
     // Pick pT2 (in overestimated z range).
     dip.pT2 = dip.pT2 * pow(rndmPtr->flat(), 1. / emitCoefTot);
@@ -2210,6 +2318,39 @@ void TimeShower::pT2nextQED(double pT2begDip, double pT2sel,
           else                  dip.flavour = 5;
         }
         dip.mFlavour = particleDataPtr->m0(dip.flavour);
+      }
+
+
+      if (hasCharge) {
+        nameNow = "fsr:Q2QA";
+        // Optionally enhanced branching rate.
+        if (canEnhanceET) {
+          double enhance = userHooksPtr->enhanceFactor(nameNow);
+          if (enhance != 1.) {
+            enhanceNow = enhance;
+            isEnhancedQ2QA = true;
+          }
+        }
+      } else if (dip.flavour > 10) {
+        nameNow = "fsr:A2LL";
+        // Optionally enhanced branching rate.
+        if (canEnhanceET) {
+          double enhance = userHooksPtr->enhanceFactor(nameNow);
+          if (enhance != 1.) {
+            enhanceNow = enhance;
+            isEnhancedA2LL = true;
+          }
+        }
+      } else {
+        nameNow = "fsr:A2QQ";
+        // Optionally enhanced branching rate.
+        if (canEnhanceET) {
+          double enhance = userHooksPtr->enhanceFactor(nameNow);
+          if (enhance != 1.) {
+            enhanceNow = enhance;
+            isEnhancedA2QQ = true;
+          }
+        }
       }
 
       // No z weight, except threshold, if to do ME corrections later on.
@@ -2294,6 +2435,14 @@ void TimeShower::pT2nextQED(double pT2begDip, double pT2sel,
   // Iterate until acceptable pT (or have fallen below pTmin).
   } while (wt < rndmPtr->flat());
 
+  // Store outcome of enhanced branching rate analysis.
+  splittingNameNow = nameNow;
+  if (canEnhanceET) {
+    if (isEnhancedQ2QA) storeEnhanceFactor(dip.pT2,"fsr:Q2QA", enhanceNow);
+    if (isEnhancedA2LL) storeEnhanceFactor(dip.pT2,"fsr:A2LL", enhanceNow);
+    if (isEnhancedA2QQ) storeEnhanceFactor(dip.pT2,"fsr:A2QQ", enhanceNow);
+  }
+
 }
 
 //--------------------------------------------------------------------------
@@ -2337,6 +2486,12 @@ void TimeShower::pT2nextWeak(double pT2begDip, double pT2sel,
     weakCoupling = alphaEM2pi * thetaWRat
       * pow2(2. * coupSMPtr->rf( event[dip.iRadiator].idAbs() ));
 
+  // Set default values for enhanced emissions.
+  bool isEnhancedQ2QW;
+  isEnhancedQ2QW = false;
+  double enhanceNow = 1.;
+  string nameNow = "";
+
   // Variables used inside evolution loop.
   emitCoefTot = weakEnhancement * weakCoupling
     * wtPSgam * log(1. / zMinAbs - 1.);
@@ -2347,8 +2502,17 @@ void TimeShower::pT2nextWeak(double pT2begDip, double pT2sel,
   dip.pT2 = pT2begDip;
   double wt;
 
+  // Optionally enhanced branching rate.
+  if (canEnhanceET) emitCoefTot *= userHooksPtr->enhanceFactor("fsr:Q2QW");
+
   // Begin evolution loop towards smaller pT values.
   do {
+
+    // Default values for current tentative emission.
+    isEnhancedQ2QW = false;
+    enhanceNow = 1.;
+    nameNow = "";
+
     // Pick pT2 (in overestimated z range).
     dip.pT2 = dip.pT2 * pow(rndmPtr->flat(), 1. / emitCoefTot);
     wt = 0.;
@@ -2383,6 +2547,16 @@ void TimeShower::pT2nextWeak(double pT2begDip, double pT2sel,
       // Correct to current value of alpha_EM.
       double alphaEMnow = alphaEM.alphaEM(renormMultFac * dip.pT2);
       wt *= (alphaEMnow / alphaEMmax);
+
+      nameNow = "fsr:Q2QW";
+      // Optionally enhanced branching rate.
+      if (canEnhanceET) {
+        double enhance = userHooksPtr->enhanceFactor(nameNow);
+        if (enhance != 1.) {
+          enhanceNow = enhance;
+          isEnhancedQ2QW = true;
+        }
+      }
 
       // Suppression factors for dipole to beam remnant.
       if (dip.isrType != 0 && useLocalRecoilNow) {
@@ -2428,6 +2602,11 @@ void TimeShower::pT2nextWeak(double pT2begDip, double pT2sel,
     // Iterate until acceptable pT (or have fallen below pTmin).
   } while (wt < rndmPtr->flat());
 
+  // Store outcome of enhanced branching rate analysis.
+  splittingNameNow = nameNow;
+  if (canEnhanceET && isEnhancedQ2QW)
+    storeEnhanceFactor(dip.pT2,"fsr:Q2QW", enhanceNow);
+
 }
 
 //--------------------------------------------------------------------------
@@ -2455,8 +2634,22 @@ void TimeShower::pT2nextHV(double pT2begDip, double pT2sel,
   dip.pT2 = pT2begDip;
   double wt;
 
+  // Set default values for enhanced emissions.
+  bool isEnhancedQ2QHV;
+  isEnhancedQ2QHV = false;
+  double enhanceNow = 1.;
+  string nameNow = "";
+
+  // Optionally enhanced branching rate.
+  if (canEnhanceET) emitCoefTot *= userHooksPtr->enhanceFactor("fsr:Q2QHV");
+
   // Begin evolution loop towards smaller pT values.
   do {
+
+    // Default values for current tentative emission.
+    isEnhancedQ2QHV = false;
+    enhanceNow = 1.;
+    nameNow = "";
 
     // Pick pT2 (in overestimated z range).
     dip.pT2 = dip.pT2 * pow(rndmPtr->flat(), 1. / emitCoefTot);
@@ -2486,6 +2679,17 @@ void TimeShower::pT2nextHV(double pT2begDip, double pT2sel,
       // z weight for X -> X g_HV.
       else if (colvTypeAbs == 1) wt = (1. + pow2(dip.z)) / 2.;
       else wt = (1. + pow3(dip.z)) / 2.;
+
+      nameNow = "fsr:Q2QHV";
+      // Optionally enhanced branching rate.
+      if (canEnhanceET) {
+        double enhance = userHooksPtr->enhanceFactor(nameNow);
+        if (enhance != 1.) {
+          enhanceNow = enhance;
+          isEnhancedQ2QHV = true;
+        }
+      }
+
     }
 
     // Optional dampening of large pT values in hard system.
@@ -2494,6 +2698,11 @@ void TimeShower::pT2nextHV(double pT2begDip, double pT2sel,
 
   // Iterate until acceptable pT (or have fallen below pTmin).
   } while (wt < rndmPtr->flat());
+
+  // Store outcome of enhanced branching rate analysis.
+  splittingNameNow = nameNow;
+  if (canEnhanceET && isEnhancedQ2QHV)
+    storeEnhanceFactor(dip.pT2,"fsr:Q2QHV", enhanceNow);
 
 }
 
@@ -2557,6 +2766,15 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
   bool canMergeFirst = (mergingHooksPtr != 0)
                      ? mergingHooksPtr->canVetoEmission() : false;
 
+  int npartons = 0, nfinal = 0, nw = 0, nz = 0;
+  for ( int i = 0; i < event.size(); ++i) {if(event[i].isFinal() ) {
+      nfinal++;
+      if (event[i].colType() != 0) npartons++;
+      if (event[i].id() == 23) nz++;
+      if (event[i].idAbs() == 24) nw++;
+    }
+  }
+
   // Find initial radiator and recoiler particles in dipole branching.
   int iRadBef      = dipSel->iRadiator;
   int iRecBef      = dipSel->iRecoiler;
@@ -2595,7 +2813,6 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
   if ( dipSel->MEtype == 201 || dipSel->MEtype == 202
     || dipSel->MEtype == 203 || dipSel->MEtype == 206
     || dipSel->MEtype == 207 || dipSel->MEtype == 208) {
-
     // Trace back to original mother. MPI not allowed to radiate weakly.
     int i2to2Mother = iRadBef;
     while (i2to2Mother != 5 && i2to2Mother != 6 && i2to2Mother != 0)
@@ -2730,6 +2947,10 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
   // Find rest frame and angles of original dipole.
   RotBstMatrix M;
   M.fromCMframe(pRadBef, pRecBef);
+  RotBstMatrix M1;
+  M1.fromCMframe(pRadBef, pRecBef);
+  RotBstMatrix M2;
+  M2.toCMframe(pRadBef, pRecBef);
 
   // Evaluate coefficient of azimuthal asymmetry from gluon polarization.
   findAsymPol( event, dipSel);
@@ -2926,6 +3147,68 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
     return false;
   }
 
+  // Calculate event weight for enhanced emission rate.
+  if (canEnhanceET) {
+
+    // Check if emission weight was enhanced. Get enhance weight factor.
+    bool foundEnhance = false;
+    double weight = 1.;
+    double vp = 0.;
+    // Move backwards as last elements have highest pT, thus are chosen
+    // splittings.
+    for ( map<double,pair<string,double> >::reverse_iterator
+          it = enhanceFactors.rbegin();
+          it != enhanceFactors.rend(); ++it ){
+      if (it->second.first.find(splittingNameSel) != string::npos
+        && abs(it->second.second-1.0) > 1e-9) {
+        foundEnhance = true;
+        weight       = it->second.second;
+        vp           = userHooksPtr->vetoProbability(it->second.first);
+        break;
+      }
+    }
+
+    // Check emission veto.
+    bool vetoedEnhancedEmission = false;
+    if (foundEnhance && rndmPtr->flat() < vp ) vetoedEnhancedEmission = true;
+    // Calculate new event weight.
+    double rwgt = 1.;
+    if (foundEnhance && vetoedEnhancedEmission) rwgt *= (1.-1./weight)/vp;
+    else if (foundEnhance) rwgt *= 1./((1.-vp)*weight);
+
+    // Reset enhance factors after usage.
+    enhanceFactors.clear();
+
+    // Set events weights, so that these could be used externally.
+    double wtOld = userHooksPtr->getEnhancedEventWeight();
+    if (!doTrialNow && canEnhanceEmission)
+      userHooksPtr->setEnhancedEventWeight(wtOld*rwgt);
+    if ( doTrialNow && canEnhanceTrial)
+      userHooksPtr->setEnhancedTrial(sqrt(dipSel->pT2), weight);
+
+    // Veto if necessary.
+    if (vetoedEnhancedEmission && canEnhanceEmission) {
+
+      event.popBack( event.size() - eventSizeOld);
+      event[iRadBef].status( iRadStatusV);
+      event[iRadBef].daughters( iRadDau1V, iRadDau2V);
+      if (useLocalRecoilNow && isrTypeNow == 0) {
+        event[iRecBef].status( iRecStatusV);
+        event[iRecBef].daughters( iRecDau1V, iRecDau2V);
+      } else if (useLocalRecoilNow) {
+        event[iRecBef].mothers( iRecMot1V, iRecMot2V);
+        if (iRecMot1V == beamOff1) event[beamOff1].daughter1( ev1Dau1V);
+        if (iRecMot1V == beamOff2) event[beamOff2].daughter1( ev2Dau1V);
+      } else {
+        for (int iG = 0; iG < int(iGRecBef.size()); ++iG) {
+          event[iGRecBef[iG]].statusPos();
+          event[iGRecBef[iG]].daughters( 0, 0);
+        }
+      }
+      return false;
+    }
+  }
+
   // For global recoil restore the one nominal recoiler, for bookkeeping.
   if (!useLocalRecoilNow) {
     iRec = iRecBef;
@@ -3010,6 +3293,7 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
         double m1 = (event[iRad].p()+event[dipEnd[i].iRadiator].p()).m2Calc();
         double m2 = (event[iEmt].p()+event[dipEnd[i].iRadiator].p()).m2Calc();
         dipEnd[i].iRecoiler = (m1 > m2) ? iRad : iEmt;
+        dipEnd[i].iMEpartner = dipEnd[i].iRecoiler;
       }
     }
     int colType = (dipSel->colType > 0) ? 2 : -2 ;
@@ -3052,6 +3336,7 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
         double m1 = (event[iRad].p()+event[dipEnd[i].iRadiator].p()).m2Calc();
         double m2 = (event[iEmt].p()+event[dipEnd[i].iRadiator].p()).m2Calc();
         dipEnd[i].iRecoiler = (m1 > m2) ? iRad : iEmt;
+        dipEnd[i].iMEpartner = dipEnd[i].iRecoiler;
       }
     }
     dipSel->iRadiator = iEmt;
