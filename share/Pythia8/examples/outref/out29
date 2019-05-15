@@ -9,10 +9,10 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.200      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 11 Oct 2014  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.201      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 14 Oct 2014  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 11 Oct 2014 at 14:40:38    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 14 Oct 2014 at 10:06:41    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Astronomy and Theoretical Physics,      |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
@@ -32,7 +32,7 @@
  |  |   Stefan Prestel;  Theoretical Physics Group,                                |  | 
  |  |      SLAC National Accelerator Laboratory, Menlo Park, CA 94025, USA;        |  | 
  |  |      e-mail: prestel@slac.stanford.edu                                       |  | 
- |  |   Christine Rasmussen;  Department of Astronomy and Theoretical Physics,     |  | 
+ |  |   Christine O. Rasmussen;  Department of Astronomy and Theoretical Physics,  |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
  |  |      e-mail: christine.rasmussen@thep.lu.se                                  |  | 
  |  |   Peter Skands;  School of Physics,                                          |  | 
@@ -40,7 +40,7 @@
  |  |      e-mail: peter.skands@monash.edu                                         |  | 
  |  |                                                                              |  | 
  |  |   The main program reference is 'An Introduction to PYTHIA 8.2',             |  | 
- |  |   T. Sjostrand et al, arXiv:1410.???? [hep-ph]                               |  | 
+ |  |   T. Sjostrand et al, arXiv:1410.3012 [hep-ph]                               |  | 
  |  |                                                                              |  | 
  |  |   The main physics reference is the 'PYTHIA 6.4 Physics and Manual',         |  | 
  |  |   T. Sjostrand, S. Mrenna and P. Skands, JHEP05 (2006) 026 [hep-ph/0603175]. |  | 
@@ -167,7 +167,7 @@
  *-------  End PYTHIA Error and Warning Messages Statistics  ------------------------------------------------------* 
 
 
-  2014-10-11 14:40       charged multiplicity
+  2014-10-14 10:06       charged multiplicity
 
         5.00*10^ 1                         5                                                                            
         4.80*10^ 1                    X  5XX X                                                                          
@@ -210,7 +210,7 @@
    All chan =  1.0000e+03    Rms  =  7.2026e+01    Overflow  =  0.0000e+00    High edge =  7.9900e+02
 
 
-  2014-10-11 14:40       jet multiplicity
+  2014-10-14 10:06       jet multiplicity
 
         2.90*10^ 2      4               
         2.80*10^ 2      X               
@@ -257,7 +257,7 @@
    All chan =  1.0000e+03    Rms  =  1.4004e+00    Overflow  =  0.0000e+00    High edge =  1.9500e+01
 
 
-  2014-10-11 14:40       reconstructed W mass
+  2014-10-14 10:06       reconstructed W mass
 
         1.00*10^ 2                                          5                                                           
         0.96*10^ 2                                          X                                                           
@@ -300,7 +300,7 @@
    All chan =  8.1900e+02    Rms  =  1.0169e+01    Overflow  =  4.0000e+00    High edge =  1.4000e+02
 
 
-  2014-10-11 14:40       reconstructed t mass
+  2014-10-14 10:06       reconstructed t mass
 
         1.74*10^ 1                                                  3 3 33                                              
         1.68*10^ 1                                                  X X XX                                              
@@ -347,7 +347,7 @@
    All chan =  4.8400e+02    Rms  =  1.8224e+01    Overflow  =  2.2000e+01    High edge =  2.2000e+02
 
 
-  2014-10-11 14:40       reconstructed W mass error
+  2014-10-14 10:06       reconstructed W mass error
 
         2.60*10^ 1                                                 X                                                    
         2.50*10^ 1                                              X  XX                                                   
@@ -391,7 +391,7 @@
    All chan =  6.6900e+02    Rms  =  4.0852e+00    Overflow  =  8.6000e+01    High edge =  1.0000e+01
 
 
-  2014-10-11 14:40       reconstructed t mass error
+  2014-10-14 10:06       reconstructed t mass error
 
         1.12*10^ 1                                            5                                                         
         1.08*10^ 1                                            X                                                         
@@ -437,7 +437,7 @@
    All chan =  3.4700e+02    Rms  =  9.4172e+00    Overflow  =  6.5000e+01    High edge =  2.0000e+01
 
 
-  2014-10-11 14:40       reconstructed pT_t
+  2014-10-14 10:06       reconstructed pT_t
 
         7.00*10^ 1    2        
         6.75*10^ 1    X        
@@ -483,7 +483,7 @@
    All chan =  3.4700e+02    Rms  =  5.9911e+01    Overflow  =  0.0000e+00    High edge =  2.7500e+02
 
 
-  2014-10-11 14:40       reconstructed delta-m_t(pT_t)
+  2014-10-14 10:06       reconstructed delta-m_t(pT_t)
 
        -0.90*10^ 0  XX3XXXXXXXX
        -1.05*10^ 0  XX XXX5XXXX
@@ -539,10 +539,10 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.200      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 11 Oct 2014  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.201      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 14 Oct 2014  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 11 Oct 2014 at 14:40:55    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 14 Oct 2014 at 10:06:58    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Astronomy and Theoretical Physics,      |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
@@ -562,7 +562,7 @@
  |  |   Stefan Prestel;  Theoretical Physics Group,                                |  | 
  |  |      SLAC National Accelerator Laboratory, Menlo Park, CA 94025, USA;        |  | 
  |  |      e-mail: prestel@slac.stanford.edu                                       |  | 
- |  |   Christine Rasmussen;  Department of Astronomy and Theoretical Physics,     |  | 
+ |  |   Christine O. Rasmussen;  Department of Astronomy and Theoretical Physics,  |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
  |  |      e-mail: christine.rasmussen@thep.lu.se                                  |  | 
  |  |   Peter Skands;  School of Physics,                                          |  | 
@@ -570,7 +570,7 @@
  |  |      e-mail: peter.skands@monash.edu                                         |  | 
  |  |                                                                              |  | 
  |  |   The main program reference is 'An Introduction to PYTHIA 8.2',             |  | 
- |  |   T. Sjostrand et al, arXiv:1410.???? [hep-ph]                               |  | 
+ |  |   T. Sjostrand et al, arXiv:1410.3012 [hep-ph]                               |  | 
  |  |                                                                              |  | 
  |  |   The main physics reference is the 'PYTHIA 6.4 Physics and Manual',         |  | 
  |  |   T. Sjostrand, S. Mrenna and P. Skands, JHEP05 (2006) 026 [hep-ph/0603175]. |  | 
@@ -679,7 +679,7 @@
  *-------  End PYTHIA Error and Warning Messages Statistics  ------------------------------------------------------* 
 
 
-  2014-10-11 14:41       charged multiplicity
+  2014-10-14 10:07       charged multiplicity
 
         6.50*10^ 1                           2                                                                          
         6.25*10^ 1                           X                                                                          
@@ -723,7 +723,7 @@
    All chan =  1.0000e+03    Rms  =  6.3310e+01    Overflow  =  0.0000e+00    High edge =  7.9900e+02
 
 
-  2014-10-11 14:41       jet multiplicity
+  2014-10-14 10:07       jet multiplicity
 
         2.90*10^ 2      8               
         2.80*10^ 2      X               
@@ -770,7 +770,7 @@
    All chan =  1.0000e+03    Rms  =  1.4952e+00    Overflow  =  0.0000e+00    High edge =  1.9500e+01
 
 
-  2014-10-11 14:41       reconstructed W mass
+  2014-10-14 10:07       reconstructed W mass
 
         8.10*10^ 1                                         3                                                            
         7.80*10^ 1                                         XX                                                           
@@ -815,7 +815,7 @@
    All chan =  8.2100e+02    Rms  =  1.0575e+01    Overflow  =  4.0000e+00    High edge =  1.4000e+02
 
 
-  2014-10-11 14:41       reconstructed t mass
+  2014-10-14 10:07       reconstructed t mass
 
         2.24*10^ 1                                                        5                                             
         2.16*10^ 1                                                        X                                             
@@ -861,7 +861,7 @@
    All chan =  4.8600e+02    Rms  =  1.6861e+01    Overflow  =  2.2000e+01    High edge =  2.2000e+02
 
 
-  2014-10-11 14:41       reconstructed W mass error
+  2014-10-14 10:07       reconstructed W mass error
 
         2.24*10^ 1                                         5                                                            
         2.16*10^ 1                                         X      3                                                     
@@ -907,7 +907,7 @@
    All chan =  6.7000e+02    Rms  =  4.1348e+00    Overflow  =  9.9000e+01    High edge =  1.0000e+01
 
 
-  2014-10-11 14:41       reconstructed t mass error
+  2014-10-14 10:07       reconstructed t mass error
 
         1.00*10^ 1                                                  X    X                                              
         0.96*10^ 1                                                  X    X                                              
@@ -950,7 +950,7 @@
    All chan =  3.6300e+02    Rms  =  9.4988e+00    Overflow  =  5.8000e+01    High edge =  2.0000e+01
 
 
-  2014-10-11 14:41       reconstructed pT_t
+  2014-10-14 10:07       reconstructed pT_t
 
         6.75*10^ 1     8       
         6.50*10^ 1     X       
@@ -995,7 +995,7 @@
    All chan =  3.6300e+02    Rms  =  6.0502e+01    Overflow  =  0.0000e+00    High edge =  2.7500e+02
 
 
-  2014-10-11 14:41       reconstructed delta-m_t(pT_t)
+  2014-10-14 10:07       reconstructed delta-m_t(pT_t)
 
         1.50*10^ 0            6
         1.25*10^ 0            X
@@ -1049,10 +1049,10 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.200      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 11 Oct 2014  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.201      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 14 Oct 2014  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 11 Oct 2014 at 14:41:19    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 14 Oct 2014 at 10:07:23    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Astronomy and Theoretical Physics,      |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
@@ -1072,7 +1072,7 @@
  |  |   Stefan Prestel;  Theoretical Physics Group,                                |  | 
  |  |      SLAC National Accelerator Laboratory, Menlo Park, CA 94025, USA;        |  | 
  |  |      e-mail: prestel@slac.stanford.edu                                       |  | 
- |  |   Christine Rasmussen;  Department of Astronomy and Theoretical Physics,     |  | 
+ |  |   Christine O. Rasmussen;  Department of Astronomy and Theoretical Physics,  |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
  |  |      e-mail: christine.rasmussen@thep.lu.se                                  |  | 
  |  |   Peter Skands;  School of Physics,                                          |  | 
@@ -1080,7 +1080,7 @@
  |  |      e-mail: peter.skands@monash.edu                                         |  | 
  |  |                                                                              |  | 
  |  |   The main program reference is 'An Introduction to PYTHIA 8.2',             |  | 
- |  |   T. Sjostrand et al, arXiv:1410.???? [hep-ph]                               |  | 
+ |  |   T. Sjostrand et al, arXiv:1410.3012 [hep-ph]                               |  | 
  |  |                                                                              |  | 
  |  |   The main physics reference is the 'PYTHIA 6.4 Physics and Manual',         |  | 
  |  |   T. Sjostrand, S. Mrenna and P. Skands, JHEP05 (2006) 026 [hep-ph/0603175]. |  | 
@@ -1190,7 +1190,7 @@
  *-------  End PYTHIA Error and Warning Messages Statistics  ------------------------------------------------------* 
 
 
-  2014-10-11 14:41       charged multiplicity
+  2014-10-14 10:07       charged multiplicity
 
         6.00*10^ 1                         X                                                                            
         5.75*10^ 1                         X                                                                            
@@ -1232,7 +1232,7 @@
    All chan =  1.0000e+03    Rms  =  6.5847e+01    Overflow  =  0.0000e+00    High edge =  7.9900e+02
 
 
-  2014-10-11 14:41       jet multiplicity
+  2014-10-14 10:07       jet multiplicity
 
         3.00*10^ 2      4               
         2.90*10^ 2      X               
@@ -1280,7 +1280,7 @@
    All chan =  1.0000e+03    Rms  =  1.4553e+00    Overflow  =  0.0000e+00    High edge =  1.9500e+01
 
 
-  2014-10-11 14:41       reconstructed W mass
+  2014-10-14 10:07       reconstructed W mass
 
         7.80*10^ 1                                           X                                                          
         7.50*10^ 1                                         7 X                                                          
@@ -1324,7 +1324,7 @@
    All chan =  8.4300e+02    Rms  =  1.0289e+01    Overflow  =  7.0000e+00    High edge =  1.4000e+02
 
 
-  2014-10-11 14:41       reconstructed t mass
+  2014-10-14 10:07       reconstructed t mass
 
         2.70*10^ 1                                                         X                                            
         2.60*10^ 1                                                         X                                            
@@ -1369,7 +1369,7 @@
    All chan =  4.9300e+02    Rms  =  1.6972e+01    Overflow  =  1.5000e+01    High edge =  2.2000e+02
 
 
-  2014-10-11 14:41       reconstructed W mass error
+  2014-10-14 10:07       reconstructed W mass error
 
         2.16*10^ 1                                          3                                                           
         2.08*10^ 1                                          X                                                           
@@ -1414,7 +1414,7 @@
    All chan =  7.0500e+02    Rms  =  4.2314e+00    Overflow  =  9.1000e+01    High edge =  1.0000e+01
 
 
-  2014-10-11 14:41       reconstructed t mass error
+  2014-10-14 10:07       reconstructed t mass error
 
         1.30*10^ 1                                           X                                                          
         1.25*10^ 1                                           X                                                          
@@ -1458,7 +1458,7 @@
    All chan =  3.7600e+02    Rms  =  8.9637e+00    Overflow  =  5.5000e+01    High edge =  2.0000e+01
 
 
-  2014-10-11 14:41       reconstructed pT_t
+  2014-10-14 10:07       reconstructed pT_t
 
         6.20*10^ 1    5X       
         6.00*10^ 1    XX5      
@@ -1503,7 +1503,7 @@
    All chan =  3.7600e+02    Rms  =  6.5100e+01    Overflow  =  0.0000e+00    High edge =  2.7500e+02
 
 
-  2014-10-11 14:41       reconstructed delta-m_t(pT_t)
+  2014-10-14 10:07       reconstructed delta-m_t(pT_t)
 
         3.00*10^ 0         6   
         2.80*10^ 0         X   
@@ -1561,10 +1561,10 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.200      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 11 Oct 2014  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.201      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 14 Oct 2014  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 11 Oct 2014 at 14:41:44    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 14 Oct 2014 at 10:07:49    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Astronomy and Theoretical Physics,      |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
@@ -1584,7 +1584,7 @@
  |  |   Stefan Prestel;  Theoretical Physics Group,                                |  | 
  |  |      SLAC National Accelerator Laboratory, Menlo Park, CA 94025, USA;        |  | 
  |  |      e-mail: prestel@slac.stanford.edu                                       |  | 
- |  |   Christine Rasmussen;  Department of Astronomy and Theoretical Physics,     |  | 
+ |  |   Christine O. Rasmussen;  Department of Astronomy and Theoretical Physics,  |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
  |  |      e-mail: christine.rasmussen@thep.lu.se                                  |  | 
  |  |   Peter Skands;  School of Physics,                                          |  | 
@@ -1592,7 +1592,7 @@
  |  |      e-mail: peter.skands@monash.edu                                         |  | 
  |  |                                                                              |  | 
  |  |   The main program reference is 'An Introduction to PYTHIA 8.2',             |  | 
- |  |   T. Sjostrand et al, arXiv:1410.???? [hep-ph]                               |  | 
+ |  |   T. Sjostrand et al, arXiv:1410.3012 [hep-ph]                               |  | 
  |  |                                                                              |  | 
  |  |   The main physics reference is the 'PYTHIA 6.4 Physics and Manual',         |  | 
  |  |   T. Sjostrand, S. Mrenna and P. Skands, JHEP05 (2006) 026 [hep-ph/0603175]. |  | 
@@ -1700,7 +1700,7 @@
  *-------  End PYTHIA Error and Warning Messages Statistics  ------------------------------------------------------* 
 
 
-  2014-10-11 14:42       charged multiplicity
+  2014-10-14 10:08       charged multiplicity
 
         5.80*10^ 1                         X                                                                            
         5.60*10^ 1                         X                                                                            
@@ -1747,7 +1747,7 @@
    All chan =  1.0000e+03    Rms  =  6.8004e+01    Overflow  =  0.0000e+00    High edge =  7.9900e+02
 
 
-  2014-10-11 14:42       jet multiplicity
+  2014-10-14 10:08       jet multiplicity
 
         3.12*10^ 2      3               
         3.00*10^ 2      X               
@@ -1791,7 +1791,7 @@
    All chan =  1.0000e+03    Rms  =  1.4918e+00    Overflow  =  0.0000e+00    High edge =  1.9500e+01
 
 
-  2014-10-11 14:42       reconstructed W mass
+  2014-10-14 10:08       reconstructed W mass
 
         8.10*10^ 1                                         7                                                            
         7.80*10^ 1                                         X7                                                           
@@ -1836,7 +1836,7 @@
    All chan =  8.4700e+02    Rms  =  1.0275e+01    Overflow  =  6.0000e+00    High edge =  1.4000e+02
 
 
-  2014-10-11 14:42       reconstructed t mass
+  2014-10-14 10:08       reconstructed t mass
 
         2.16*10^ 1                                                      3                                               
         2.08*10^ 1                                                      X                                               
@@ -1881,7 +1881,7 @@
    All chan =  5.0600e+02    Rms  =  1.7548e+01    Overflow  =  1.6000e+01    High edge =  2.2000e+02
 
 
-  2014-10-11 14:42       reconstructed W mass error
+  2014-10-14 10:08       reconstructed W mass error
 
         2.40*10^ 1                                               X                                                      
         2.30*10^ 1                                               X                                                      
@@ -1923,7 +1923,7 @@
    All chan =  6.8800e+02    Rms  =  4.1520e+00    Overflow  =  9.8000e+01    High edge =  1.0000e+01
 
 
-  2014-10-11 14:42       reconstructed t mass error
+  2014-10-14 10:08       reconstructed t mass error
 
         1.12*10^ 1                                                   5                                                  
         1.08*10^ 1                                                   X                                                  
@@ -1969,7 +1969,7 @@
    All chan =  3.7900e+02    Rms  =  9.3679e+00    Overflow  =  6.4000e+01    High edge =  2.0000e+01
 
 
-  2014-10-11 14:42       reconstructed pT_t
+  2014-10-14 10:08       reconstructed pT_t
 
         8.00*10^ 1     2       
         7.75*10^ 1     X       
@@ -2016,7 +2016,7 @@
    All chan =  3.7900e+02    Rms  =  6.1575e+01    Overflow  =  0.0000e+00    High edge =  2.7500e+02
 
 
-  2014-10-11 14:42       reconstructed delta-m_t(pT_t)
+  2014-10-14 10:08       reconstructed delta-m_t(pT_t)
 
         0.75*10^ 0            5
         0.60*10^ 0            X
@@ -2070,10 +2070,10 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.200      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 11 Oct 2014  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.201      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 14 Oct 2014  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 11 Oct 2014 at 14:42:25    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 14 Oct 2014 at 10:08:29    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Astronomy and Theoretical Physics,      |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
@@ -2093,7 +2093,7 @@
  |  |   Stefan Prestel;  Theoretical Physics Group,                                |  | 
  |  |      SLAC National Accelerator Laboratory, Menlo Park, CA 94025, USA;        |  | 
  |  |      e-mail: prestel@slac.stanford.edu                                       |  | 
- |  |   Christine Rasmussen;  Department of Astronomy and Theoretical Physics,     |  | 
+ |  |   Christine O. Rasmussen;  Department of Astronomy and Theoretical Physics,  |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
  |  |      e-mail: christine.rasmussen@thep.lu.se                                  |  | 
  |  |   Peter Skands;  School of Physics,                                          |  | 
@@ -2101,7 +2101,7 @@
  |  |      e-mail: peter.skands@monash.edu                                         |  | 
  |  |                                                                              |  | 
  |  |   The main program reference is 'An Introduction to PYTHIA 8.2',             |  | 
- |  |   T. Sjostrand et al, arXiv:1410.???? [hep-ph]                               |  | 
+ |  |   T. Sjostrand et al, arXiv:1410.3012 [hep-ph]                               |  | 
  |  |                                                                              |  | 
  |  |   The main physics reference is the 'PYTHIA 6.4 Physics and Manual',         |  | 
  |  |   T. Sjostrand, S. Mrenna and P. Skands, JHEP05 (2006) 026 [hep-ph/0603175]. |  | 
@@ -2205,7 +2205,7 @@
  *-------  End PYTHIA Error and Warning Messages Statistics  ------------------------------------------------------* 
 
 
-  2014-10-11 14:43       charged multiplicity
+  2014-10-14 10:09       charged multiplicity
 
         5.60*10^ 1                            5                                                                         
         5.40*10^ 1                         5  X                                                                         
@@ -2251,7 +2251,7 @@
    All chan =  1.0000e+03    Rms  =  6.5644e+01    Overflow  =  0.0000e+00    High edge =  7.9900e+02
 
 
-  2014-10-11 14:43       jet multiplicity
+  2014-10-14 10:09       jet multiplicity
 
         2.90*10^ 2       5              
         2.80*10^ 2      4X              
@@ -2298,7 +2298,7 @@
    All chan =  1.0000e+03    Rms  =  1.4003e+00    Overflow  =  0.0000e+00    High edge =  1.9500e+01
 
 
-  2014-10-11 14:43       reconstructed W mass
+  2014-10-14 10:09       reconstructed W mass
 
         8.10*10^ 1                                         3XX                                                          
         7.80*10^ 1                                         XXX                                                          
@@ -2343,7 +2343,7 @@
    All chan =  8.3600e+02    Rms  =  1.0456e+01    Overflow  =  4.0000e+00    High edge =  1.4000e+02
 
 
-  2014-10-11 14:43       reconstructed t mass
+  2014-10-14 10:09       reconstructed t mass
 
         1.84*10^ 1                                                    5                                                 
         1.76*10^ 1                                                    X                                                 
@@ -2384,7 +2384,7 @@
    All chan =  5.1000e+02    Rms  =  1.7345e+01    Overflow  =  1.8000e+01    High edge =  2.2000e+02
 
 
-  2014-10-11 14:43       reconstructed W mass error
+  2014-10-14 10:09       reconstructed W mass error
 
         2.24*10^ 1                                                         5                                            
         2.16*10^ 1                                                         X                                            
@@ -2430,7 +2430,7 @@
    All chan =  6.9900e+02    Rms  =  4.1380e+00    Overflow  =  9.3000e+01    High edge =  1.0000e+01
 
 
-  2014-10-11 14:43       reconstructed t mass error
+  2014-10-14 10:09       reconstructed t mass error
 
         1.12*10^ 1                                                              5                                       
         1.08*10^ 1                                                              X                                       
@@ -2476,7 +2476,7 @@
    All chan =  3.6500e+02    Rms  =  9.0799e+00    Overflow  =  6.1000e+01    High edge =  2.0000e+01
 
 
-  2014-10-11 14:43       reconstructed pT_t
+  2014-10-14 10:09       reconstructed pT_t
 
         8.40*10^ 1     X       
         8.10*10^ 1     X       
@@ -2522,7 +2522,7 @@
    All chan =  3.6500e+02    Rms  =  5.9243e+01    Overflow  =  0.0000e+00    High edge =  2.7500e+02
 
 
-  2014-10-11 14:43       reconstructed delta-m_t(pT_t)
+  2014-10-14 10:09       reconstructed delta-m_t(pT_t)
 
         1.25*10^ 0           66
         1.00*10^ 0           XX
@@ -2579,10 +2579,10 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.200      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 11 Oct 2014  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.201      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 14 Oct 2014  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 11 Oct 2014 at 14:43:10    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 14 Oct 2014 at 10:09:16    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Astronomy and Theoretical Physics,      |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
@@ -2602,7 +2602,7 @@
  |  |   Stefan Prestel;  Theoretical Physics Group,                                |  | 
  |  |      SLAC National Accelerator Laboratory, Menlo Park, CA 94025, USA;        |  | 
  |  |      e-mail: prestel@slac.stanford.edu                                       |  | 
- |  |   Christine Rasmussen;  Department of Astronomy and Theoretical Physics,     |  | 
+ |  |   Christine O. Rasmussen;  Department of Astronomy and Theoretical Physics,  |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
  |  |      e-mail: christine.rasmussen@thep.lu.se                                  |  | 
  |  |   Peter Skands;  School of Physics,                                          |  | 
@@ -2610,7 +2610,7 @@
  |  |      e-mail: peter.skands@monash.edu                                         |  | 
  |  |                                                                              |  | 
  |  |   The main program reference is 'An Introduction to PYTHIA 8.2',             |  | 
- |  |   T. Sjostrand et al, arXiv:1410.???? [hep-ph]                               |  | 
+ |  |   T. Sjostrand et al, arXiv:1410.3012 [hep-ph]                               |  | 
  |  |                                                                              |  | 
  |  |   The main physics reference is the 'PYTHIA 6.4 Physics and Manual',         |  | 
  |  |   T. Sjostrand, S. Mrenna and P. Skands, JHEP05 (2006) 026 [hep-ph/0603175]. |  | 
@@ -2718,7 +2718,7 @@
  *-------  End PYTHIA Error and Warning Messages Statistics  ------------------------------------------------------* 
 
 
-  2014-10-11 14:43       charged multiplicity
+  2014-10-14 10:10       charged multiplicity
 
         6.00*10^ 1                           X                                                                          
         5.75*10^ 1                           X                                                                          
@@ -2760,7 +2760,7 @@
    All chan =  1.0000e+03    Rms  =  6.3947e+01    Overflow  =  0.0000e+00    High edge =  7.9900e+02
 
 
-  2014-10-11 14:43       jet multiplicity
+  2014-10-14 10:10       jet multiplicity
 
         2.90*10^ 2      9               
         2.80*10^ 2      X               
@@ -2807,7 +2807,7 @@
    All chan =  1.0000e+03    Rms  =  1.4713e+00    Overflow  =  0.0000e+00    High edge =  1.9500e+01
 
 
-  2014-10-11 14:43       reconstructed W mass
+  2014-10-14 10:10       reconstructed W mass
 
         0.92*10^ 2                                          X                                                           
         0.88*10^ 2                                          X                                                           
@@ -2848,7 +2848,7 @@
    All chan =  8.1500e+02    Rms  =  9.1538e+00    Overflow  =  8.0000e+00    High edge =  1.4000e+02
 
 
-  2014-10-11 14:43       reconstructed t mass
+  2014-10-14 10:10       reconstructed t mass
 
         1.84*10^ 1                                                   5     5                                            
         1.76*10^ 1                                                   X3  3 X                                            
@@ -2889,7 +2889,7 @@
    All chan =  4.9700e+02    Rms  =  1.7901e+01    Overflow  =  2.4000e+01    High edge =  2.2000e+02
 
 
-  2014-10-11 14:43       reconstructed W mass error
+  2014-10-14 10:10       reconstructed W mass error
 
         2.32*10^ 1                                                   8                                                  
         2.24*10^ 1                                                   X                                                  
@@ -2936,7 +2936,7 @@
    All chan =  6.7400e+02    Rms  =  4.0811e+00    Overflow  =  9.3000e+01    High edge =  1.0000e+01
 
 
-  2014-10-11 14:43       reconstructed t mass error
+  2014-10-14 10:10       reconstructed t mass error
 
         1.20*10^ 1                                                   X                                                  
         1.15*10^ 1                                                   X                                                  
@@ -2978,7 +2978,7 @@
    All chan =  3.5900e+02    Rms  =  9.1761e+00    Overflow  =  6.1000e+01    High edge =  2.0000e+01
 
 
-  2014-10-11 14:43       reconstructed pT_t
+  2014-10-14 10:10       reconstructed pT_t
 
         7.50*10^ 1    2        
         7.25*10^ 1    X        
@@ -3026,7 +3026,7 @@
    All chan =  3.5900e+02    Rms  =  6.3243e+01    Overflow  =  0.0000e+00    High edge =  2.7500e+02
 
 
-  2014-10-11 14:43       reconstructed delta-m_t(pT_t)
+  2014-10-14 10:10       reconstructed delta-m_t(pT_t)
 
         0.80*10^ 1           3 
         0.75*10^ 1           X 
@@ -3082,10 +3082,10 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.200      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 11 Oct 2014  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.201      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 14 Oct 2014  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 11 Oct 2014 at 14:43:53    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 14 Oct 2014 at 10:10:03    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Astronomy and Theoretical Physics,      |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
@@ -3105,7 +3105,7 @@
  |  |   Stefan Prestel;  Theoretical Physics Group,                                |  | 
  |  |      SLAC National Accelerator Laboratory, Menlo Park, CA 94025, USA;        |  | 
  |  |      e-mail: prestel@slac.stanford.edu                                       |  | 
- |  |   Christine Rasmussen;  Department of Astronomy and Theoretical Physics,     |  | 
+ |  |   Christine O. Rasmussen;  Department of Astronomy and Theoretical Physics,  |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
  |  |      e-mail: christine.rasmussen@thep.lu.se                                  |  | 
  |  |   Peter Skands;  School of Physics,                                          |  | 
@@ -3113,7 +3113,7 @@
  |  |      e-mail: peter.skands@monash.edu                                         |  | 
  |  |                                                                              |  | 
  |  |   The main program reference is 'An Introduction to PYTHIA 8.2',             |  | 
- |  |   T. Sjostrand et al, arXiv:1410.???? [hep-ph]                               |  | 
+ |  |   T. Sjostrand et al, arXiv:1410.3012 [hep-ph]                               |  | 
  |  |                                                                              |  | 
  |  |   The main physics reference is the 'PYTHIA 6.4 Physics and Manual',         |  | 
  |  |   T. Sjostrand, S. Mrenna and P. Skands, JHEP05 (2006) 026 [hep-ph/0603175]. |  | 
@@ -3221,7 +3221,7 @@
  *-------  End PYTHIA Error and Warning Messages Statistics  ------------------------------------------------------* 
 
 
-  2014-10-11 14:44       charged multiplicity
+  2014-10-14 10:10       charged multiplicity
 
         6.25*10^ 1                        4                                                                             
         6.00*10^ 1                        X                                                                             
@@ -3264,7 +3264,7 @@
    All chan =  1.0000e+03    Rms  =  6.1573e+01    Overflow  =  0.0000e+00    High edge =  7.9900e+02
 
 
-  2014-10-11 14:44       jet multiplicity
+  2014-10-14 10:10       jet multiplicity
 
         2.90*10^ 2      31              
         2.80*10^ 2      XX              
@@ -3311,7 +3311,7 @@
    All chan =  1.0000e+03    Rms  =  1.4166e+00    Overflow  =  0.0000e+00    High edge =  1.9500e+01
 
 
-  2014-10-11 14:44       reconstructed W mass
+  2014-10-14 10:10       reconstructed W mass
 
         8.10*10^ 1                                         7                                                            
         7.80*10^ 1                                         X73                                                          
@@ -3356,7 +3356,7 @@
    All chan =  8.3600e+02    Rms  =  1.0394e+01    Overflow  =  4.0000e+00    High edge =  1.4000e+02
 
 
-  2014-10-11 14:44       reconstructed t mass
+  2014-10-14 10:10       reconstructed t mass
 
         2.40*10^ 1                                                     X                                                
         2.30*10^ 1                                                     X                                                
@@ -3398,7 +3398,7 @@
    All chan =  5.0400e+02    Rms  =  1.7979e+01    Overflow  =  2.8000e+01    High edge =  2.2000e+02
 
 
-  2014-10-11 14:44       reconstructed W mass error
+  2014-10-14 10:10       reconstructed W mass error
 
         2.24*10^ 1                                                          5                                           
         2.16*10^ 1                                                          X                                           
@@ -3444,7 +3444,7 @@
    All chan =  6.9700e+02    Rms  =  4.1420e+00    Overflow  =  8.4000e+01    High edge =  1.0000e+01
 
 
-  2014-10-11 14:44       reconstructed t mass error
+  2014-10-14 10:10       reconstructed t mass error
 
         1.12*10^ 1                                                       5                                              
         1.08*10^ 1                                                       X                                              
@@ -3490,7 +3490,7 @@
    All chan =  3.7200e+02    Rms  =  9.3820e+00    Overflow  =  6.8000e+01    High edge =  2.0000e+01
 
 
-  2014-10-11 14:44       reconstructed pT_t
+  2014-10-14 10:10       reconstructed pT_t
 
         7.00*10^ 1    2        
         6.75*10^ 1    X        
@@ -3536,7 +3536,7 @@
    All chan =  3.7200e+02    Rms  =  6.3307e+01    Overflow  =  0.0000e+00    High edge =  2.7500e+02
 
 
-  2014-10-11 14:44       reconstructed delta-m_t(pT_t)
+  2014-10-14 10:10       reconstructed delta-m_t(pT_t)
 
         1.10*10^ 1          1  
         1.05*10^ 1          X  
@@ -3593,10 +3593,10 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.200      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 11 Oct 2014  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.201      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 14 Oct 2014  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 11 Oct 2014 at 14:44:43    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 14 Oct 2014 at 10:10:57    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Astronomy and Theoretical Physics,      |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
@@ -3616,7 +3616,7 @@
  |  |   Stefan Prestel;  Theoretical Physics Group,                                |  | 
  |  |      SLAC National Accelerator Laboratory, Menlo Park, CA 94025, USA;        |  | 
  |  |      e-mail: prestel@slac.stanford.edu                                       |  | 
- |  |   Christine Rasmussen;  Department of Astronomy and Theoretical Physics,     |  | 
+ |  |   Christine O. Rasmussen;  Department of Astronomy and Theoretical Physics,  |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
  |  |      e-mail: christine.rasmussen@thep.lu.se                                  |  | 
  |  |   Peter Skands;  School of Physics,                                          |  | 
@@ -3624,7 +3624,7 @@
  |  |      e-mail: peter.skands@monash.edu                                         |  | 
  |  |                                                                              |  | 
  |  |   The main program reference is 'An Introduction to PYTHIA 8.2',             |  | 
- |  |   T. Sjostrand et al, arXiv:1410.???? [hep-ph]                               |  | 
+ |  |   T. Sjostrand et al, arXiv:1410.3012 [hep-ph]                               |  | 
  |  |                                                                              |  | 
  |  |   The main physics reference is the 'PYTHIA 6.4 Physics and Manual',         |  | 
  |  |   T. Sjostrand, S. Mrenna and P. Skands, JHEP05 (2006) 026 [hep-ph/0603175]. |  | 
@@ -3733,7 +3733,7 @@
  *-------  End PYTHIA Error and Warning Messages Statistics  ------------------------------------------------------* 
 
 
-  2014-10-11 14:45       charged multiplicity
+  2014-10-14 10:12       charged multiplicity
 
         6.75*10^ 1                   4                                                                                  
         6.50*10^ 1                   X                                                                                  
@@ -3778,7 +3778,7 @@
    All chan =  1.0000e+03    Rms  =  6.1411e+01    Overflow  =  0.0000e+00    High edge =  7.9900e+02
 
 
-  2014-10-11 14:45       jet multiplicity
+  2014-10-14 10:12       jet multiplicity
 
         2.70*10^ 2      94              
         2.60*10^ 2      XX              
@@ -3823,7 +3823,7 @@
    All chan =  1.0000e+03    Rms  =  1.5017e+00    Overflow  =  0.0000e+00    High edge =  1.9500e+01
 
 
-  2014-10-11 14:45       reconstructed W mass
+  2014-10-14 10:12       reconstructed W mass
 
         8.40*10^ 1                                          X                                                           
         8.10*10^ 1                                          X                                                           
@@ -3869,7 +3869,7 @@
    All chan =  8.2400e+02    Rms  =  1.1061e+01    Overflow  =  2.0000e+00    High edge =  1.4000e+02
 
 
-  2014-10-11 14:45       reconstructed t mass
+  2014-10-14 10:12       reconstructed t mass
 
         2.00*10^ 1                                                           X                                          
         1.92*10^ 1                                                 8     8   X                                          
@@ -3912,7 +3912,7 @@
    All chan =  4.9100e+02    Rms  =  1.6004e+01    Overflow  =  1.5000e+01    High edge =  2.2000e+02
 
 
-  2014-10-11 14:45       reconstructed W mass error
+  2014-10-14 10:12       reconstructed W mass error
 
         2.24*10^ 1                                                  5                                                   
         2.16*10^ 1                                                  X                                                   
@@ -3958,7 +3958,7 @@
    All chan =  6.5500e+02    Rms  =  3.9719e+00    Overflow  =  1.0600e+02    High edge =  1.0000e+01
 
 
-  2014-10-11 14:45       reconstructed t mass error
+  2014-10-14 10:12       reconstructed t mass error
 
         1.40*10^ 1                      X                                                                               
         1.35*10^ 1                      X                                                                               
@@ -4004,7 +4004,7 @@
    All chan =  3.7400e+02    Rms  =  9.3592e+00    Overflow  =  5.0000e+01    High edge =  2.0000e+01
 
 
-  2014-10-11 14:45       reconstructed pT_t
+  2014-10-14 10:12       reconstructed pT_t
 
         6.80*10^ 1    X        
         6.60*10^ 1    X        
@@ -4051,7 +4051,7 @@
    All chan =  3.7400e+02    Rms  =  6.6650e+01    Overflow  =  0.0000e+00    High edge =  2.7500e+02
 
 
-  2014-10-11 14:45       reconstructed delta-m_t(pT_t)
+  2014-10-14 10:12       reconstructed delta-m_t(pT_t)
 
         1.20*10^ 0         X   
         1.00*10^ 0         X   
@@ -4102,10 +4102,10 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.200      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 11 Oct 2014  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.201      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 14 Oct 2014  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 11 Oct 2014 at 14:45:47    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 14 Oct 2014 at 10:12:02    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Astronomy and Theoretical Physics,      |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
@@ -4125,7 +4125,7 @@
  |  |   Stefan Prestel;  Theoretical Physics Group,                                |  | 
  |  |      SLAC National Accelerator Laboratory, Menlo Park, CA 94025, USA;        |  | 
  |  |      e-mail: prestel@slac.stanford.edu                                       |  | 
- |  |   Christine Rasmussen;  Department of Astronomy and Theoretical Physics,     |  | 
+ |  |   Christine O. Rasmussen;  Department of Astronomy and Theoretical Physics,  |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
  |  |      e-mail: christine.rasmussen@thep.lu.se                                  |  | 
  |  |   Peter Skands;  School of Physics,                                          |  | 
@@ -4133,7 +4133,7 @@
  |  |      e-mail: peter.skands@monash.edu                                         |  | 
  |  |                                                                              |  | 
  |  |   The main program reference is 'An Introduction to PYTHIA 8.2',             |  | 
- |  |   T. Sjostrand et al, arXiv:1410.???? [hep-ph]                               |  | 
+ |  |   T. Sjostrand et al, arXiv:1410.3012 [hep-ph]                               |  | 
  |  |                                                                              |  | 
  |  |   The main physics reference is the 'PYTHIA 6.4 Physics and Manual',         |  | 
  |  |   T. Sjostrand, S. Mrenna and P. Skands, JHEP05 (2006) 026 [hep-ph/0603175]. |  | 
@@ -4242,7 +4242,7 @@
  *-------  End PYTHIA Error and Warning Messages Statistics  ------------------------------------------------------* 
 
 
-  2014-10-11 14:46       charged multiplicity
+  2014-10-14 10:13       charged multiplicity
 
         5.60*10^ 1                    X  X                                                                              
         5.40*10^ 1                    X  X                                                                              
@@ -4288,7 +4288,7 @@
    All chan =  1.0000e+03    Rms  =  6.2860e+01    Overflow  =  0.0000e+00    High edge =  7.9900e+02
 
 
-  2014-10-11 14:46       jet multiplicity
+  2014-10-14 10:13       jet multiplicity
 
         2.70*10^ 2      63              
         2.60*10^ 2      XX              
@@ -4333,7 +4333,7 @@
    All chan =  1.0000e+03    Rms  =  1.4213e+00    Overflow  =  0.0000e+00    High edge =  1.9500e+01
 
 
-  2014-10-11 14:46       reconstructed W mass
+  2014-10-14 10:13       reconstructed W mass
 
         8.40*10^ 1                                          7                                                           
         8.10*10^ 1                                          X                                                           
@@ -4379,7 +4379,7 @@
    All chan =  8.4800e+02    Rms  =  1.0273e+01    Overflow  =  4.0000e+00    High edge =  1.4000e+02
 
 
-  2014-10-11 14:46       reconstructed t mass
+  2014-10-14 10:13       reconstructed t mass
 
         2.00*10^ 1                                                  X                                                   
         1.92*10^ 1                                                  X                                                   
@@ -4422,7 +4422,7 @@
    All chan =  4.9600e+02    Rms  =  1.8448e+01    Overflow  =  2.0000e+01    High edge =  2.2000e+02
 
 
-  2014-10-11 14:46       reconstructed W mass error
+  2014-10-14 10:13       reconstructed W mass error
 
         2.50*10^ 1                                                   X                                                  
         2.40*10^ 1                                                   X                                                  
@@ -4465,7 +4465,7 @@
    All chan =  6.8800e+02    Rms  =  4.0999e+00    Overflow  =  1.0800e+02    High edge =  1.0000e+01
 
 
-  2014-10-11 14:46       reconstructed t mass error
+  2014-10-14 10:13       reconstructed t mass error
 
         1.00*10^ 1                                           X                                                          
         0.96*10^ 1                                           X                                                          
@@ -4508,7 +4508,7 @@
    All chan =  3.5800e+02    Rms  =  9.6429e+00    Overflow  =  6.6000e+01    High edge =  2.0000e+01
 
 
-  2014-10-11 14:46       reconstructed pT_t
+  2014-10-14 10:13       reconstructed pT_t
 
         7.00*10^ 1     5       
         6.80*10^ 1     X       
@@ -4557,7 +4557,7 @@
    All chan =  3.5800e+02    Rms  =  6.6711e+01    Overflow  =  0.0000e+00    High edge =  2.7500e+02
 
 
-  2014-10-11 14:46       reconstructed delta-m_t(pT_t)
+  2014-10-14 10:13       reconstructed delta-m_t(pT_t)
 
         3.25*10^ 0          X  
         3.00*10^ 0          X  
@@ -4609,10 +4609,10 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.200      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 11 Oct 2014  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.201      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 14 Oct 2014  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 11 Oct 2014 at 14:46:52    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 14 Oct 2014 at 10:13:13    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Astronomy and Theoretical Physics,      |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
@@ -4632,7 +4632,7 @@
  |  |   Stefan Prestel;  Theoretical Physics Group,                                |  | 
  |  |      SLAC National Accelerator Laboratory, Menlo Park, CA 94025, USA;        |  | 
  |  |      e-mail: prestel@slac.stanford.edu                                       |  | 
- |  |   Christine Rasmussen;  Department of Astronomy and Theoretical Physics,     |  | 
+ |  |   Christine O. Rasmussen;  Department of Astronomy and Theoretical Physics,  |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
  |  |      e-mail: christine.rasmussen@thep.lu.se                                  |  | 
  |  |   Peter Skands;  School of Physics,                                          |  | 
@@ -4640,7 +4640,7 @@
  |  |      e-mail: peter.skands@monash.edu                                         |  | 
  |  |                                                                              |  | 
  |  |   The main program reference is 'An Introduction to PYTHIA 8.2',             |  | 
- |  |   T. Sjostrand et al, arXiv:1410.???? [hep-ph]                               |  | 
+ |  |   T. Sjostrand et al, arXiv:1410.3012 [hep-ph]                               |  | 
  |  |                                                                              |  | 
  |  |   The main physics reference is the 'PYTHIA 6.4 Physics and Manual',         |  | 
  |  |   T. Sjostrand, S. Mrenna and P. Skands, JHEP05 (2006) 026 [hep-ph/0603175]. |  | 
@@ -4749,7 +4749,7 @@
  *-------  End PYTHIA Error and Warning Messages Statistics  ------------------------------------------------------* 
 
 
-  2014-10-11 14:47       charged multiplicity
+  2014-10-14 10:13       charged multiplicity
 
         5.40*10^ 1                         5                                                                            
         5.20*10^ 1                         X                                                                            
@@ -4794,7 +4794,7 @@
    All chan =  1.0000e+03    Rms  =  6.9511e+01    Overflow  =  0.0000e+00    High edge =  7.9900e+02
 
 
-  2014-10-11 14:47       jet multiplicity
+  2014-10-14 10:13       jet multiplicity
 
         2.80*10^ 2      9               
         2.70*10^ 2      X2              
@@ -4840,7 +4840,7 @@
    All chan =  1.0000e+03    Rms  =  1.4456e+00    Overflow  =  0.0000e+00    High edge =  1.9500e+01
 
 
-  2014-10-11 14:47       reconstructed W mass
+  2014-10-14 10:13       reconstructed W mass
 
         9.00*10^ 1                                          3                                                           
         8.70*10^ 1                                          X                                                           
@@ -4888,7 +4888,7 @@
    All chan =  8.2300e+02    Rms  =  9.9387e+00    Overflow  =  1.1000e+01    High edge =  1.4000e+02
 
 
-  2014-10-11 14:47       reconstructed t mass
+  2014-10-14 10:13       reconstructed t mass
 
         2.00*10^ 1                                                       X                                              
         1.92*10^ 1                                                       X                                              
@@ -4931,7 +4931,7 @@
    All chan =  4.7600e+02    Rms  =  1.7509e+01    Overflow  =  1.1000e+01    High edge =  2.2000e+02
 
 
-  2014-10-11 14:47       reconstructed W mass error
+  2014-10-14 10:13       reconstructed W mass error
 
         2.40*10^ 1                                                   X                                                  
         2.30*10^ 1                                                   X                                                  
@@ -4973,7 +4973,7 @@
    All chan =  6.7300e+02    Rms  =  4.2694e+00    Overflow  =  1.0700e+02    High edge =  1.0000e+01
 
 
-  2014-10-11 14:47       reconstructed t mass error
+  2014-10-14 10:13       reconstructed t mass error
 
         1.00*10^ 1                                                X   X                                                 
         0.96*10^ 1                                                X   X                                                 
@@ -5016,7 +5016,7 @@
    All chan =  3.5100e+02    Rms  =  9.3069e+00    Overflow  =  5.6000e+01    High edge =  2.0000e+01
 
 
-  2014-10-11 14:47       reconstructed pT_t
+  2014-10-14 10:13       reconstructed pT_t
 
         7.75*10^ 1    4        
         7.50*10^ 1    X        
@@ -5061,7 +5061,7 @@
    All chan =  3.5100e+02    Rms  =  6.4133e+01    Overflow  =  0.0000e+00    High edge =  2.7500e+02
 
 
-  2014-10-11 14:47       reconstructed delta-m_t(pT_t)
+  2014-10-14 10:13       reconstructed delta-m_t(pT_t)
 
         0.44*10^ 1         8   
         0.40*10^ 1         X   
@@ -5113,10 +5113,10 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.200      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 11 Oct 2014  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.201      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 14 Oct 2014  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 11 Oct 2014 at 14:47:17    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 14 Oct 2014 at 10:13:38    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Astronomy and Theoretical Physics,      |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
@@ -5136,7 +5136,7 @@
  |  |   Stefan Prestel;  Theoretical Physics Group,                                |  | 
  |  |      SLAC National Accelerator Laboratory, Menlo Park, CA 94025, USA;        |  | 
  |  |      e-mail: prestel@slac.stanford.edu                                       |  | 
- |  |   Christine Rasmussen;  Department of Astronomy and Theoretical Physics,     |  | 
+ |  |   Christine O. Rasmussen;  Department of Astronomy and Theoretical Physics,  |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
  |  |      e-mail: christine.rasmussen@thep.lu.se                                  |  | 
  |  |   Peter Skands;  School of Physics,                                          |  | 
@@ -5144,7 +5144,7 @@
  |  |      e-mail: peter.skands@monash.edu                                         |  | 
  |  |                                                                              |  | 
  |  |   The main program reference is 'An Introduction to PYTHIA 8.2',             |  | 
- |  |   T. Sjostrand et al, arXiv:1410.???? [hep-ph]                               |  | 
+ |  |   T. Sjostrand et al, arXiv:1410.3012 [hep-ph]                               |  | 
  |  |                                                                              |  | 
  |  |   The main physics reference is the 'PYTHIA 6.4 Physics and Manual',         |  | 
  |  |   T. Sjostrand, S. Mrenna and P. Skands, JHEP05 (2006) 026 [hep-ph/0603175]. |  | 
@@ -5253,7 +5253,7 @@
  *-------  End PYTHIA Error and Warning Messages Statistics  ------------------------------------------------------* 
 
 
-  2014-10-11 14:47       charged multiplicity
+  2014-10-14 10:14       charged multiplicity
 
         5.60*10^ 1                           5                                                                          
         5.40*10^ 1                           X                                                                          
@@ -5299,7 +5299,7 @@
    All chan =  1.0000e+03    Rms  =  6.5303e+01    Overflow  =  0.0000e+00    High edge =  7.9900e+02
 
 
-  2014-10-11 14:47       jet multiplicity
+  2014-10-14 10:14       jet multiplicity
 
         2.80*10^ 2       5              
         2.70*10^ 2      7X              
@@ -5345,7 +5345,7 @@
    All chan =  1.0000e+03    Rms  =  1.3821e+00    Overflow  =  0.0000e+00    High edge =  1.9500e+01
 
 
-  2014-10-11 14:47       reconstructed W mass
+  2014-10-14 10:14       reconstructed W mass
 
         0.96*10^ 2                                          8                                                           
         0.92*10^ 2                                          X                                                           
@@ -5387,7 +5387,7 @@
    All chan =  8.4000e+02    Rms  =  1.0677e+01    Overflow  =  5.0000e+00    High edge =  1.4000e+02
 
 
-  2014-10-11 14:47       reconstructed t mass
+  2014-10-14 10:14       reconstructed t mass
 
         1.74*10^ 1                                                         3                                            
         1.68*10^ 1                                                         X                                            
@@ -5434,7 +5434,7 @@
    All chan =  4.8800e+02    Rms  =  1.8246e+01    Overflow  =  2.3000e+01    High edge =  2.2000e+02
 
 
-  2014-10-11 14:47       reconstructed W mass error
+  2014-10-14 10:14       reconstructed W mass error
 
         2.24*10^ 1                                                 55   5                                               
         2.16*10^ 1                                                 XX  3X                                               
@@ -5480,7 +5480,7 @@
    All chan =  6.9900e+02    Rms  =  4.2576e+00    Overflow  =  9.2000e+01    High edge =  1.0000e+01
 
 
-  2014-10-11 14:47       reconstructed t mass error
+  2014-10-14 10:14       reconstructed t mass error
 
         1.12*10^ 1                 5                                                                                    
         1.08*10^ 1                 X                                                                                    
@@ -5526,7 +5526,7 @@
    All chan =  3.4200e+02    Rms  =  9.5636e+00    Overflow  =  7.5000e+01    High edge =  2.0000e+01
 
 
-  2014-10-11 14:47       reconstructed pT_t
+  2014-10-14 10:14       reconstructed pT_t
 
         6.75*10^ 1     8       
         6.50*10^ 1     X       
@@ -5571,7 +5571,7 @@
    All chan =  3.4200e+02    Rms  =  5.8005e+01    Overflow  =  0.0000e+00    High edge =  2.7500e+02
 
 
-  2014-10-11 14:47       reconstructed delta-m_t(pT_t)
+  2014-10-14 10:14       reconstructed delta-m_t(pT_t)
 
         2.50*10^ 0           6 
         2.25*10^ 0           X 
@@ -5624,10 +5624,10 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.200      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 11 Oct 2014  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.201      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 14 Oct 2014  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 11 Oct 2014 at 14:47:40    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 14 Oct 2014 at 10:14:03    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Astronomy and Theoretical Physics,      |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
@@ -5647,7 +5647,7 @@
  |  |   Stefan Prestel;  Theoretical Physics Group,                                |  | 
  |  |      SLAC National Accelerator Laboratory, Menlo Park, CA 94025, USA;        |  | 
  |  |      e-mail: prestel@slac.stanford.edu                                       |  | 
- |  |   Christine Rasmussen;  Department of Astronomy and Theoretical Physics,     |  | 
+ |  |   Christine O. Rasmussen;  Department of Astronomy and Theoretical Physics,  |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
  |  |      e-mail: christine.rasmussen@thep.lu.se                                  |  | 
  |  |   Peter Skands;  School of Physics,                                          |  | 
@@ -5655,7 +5655,7 @@
  |  |      e-mail: peter.skands@monash.edu                                         |  | 
  |  |                                                                              |  | 
  |  |   The main program reference is 'An Introduction to PYTHIA 8.2',             |  | 
- |  |   T. Sjostrand et al, arXiv:1410.???? [hep-ph]                               |  | 
+ |  |   T. Sjostrand et al, arXiv:1410.3012 [hep-ph]                               |  | 
  |  |                                                                              |  | 
  |  |   The main physics reference is the 'PYTHIA 6.4 Physics and Manual',         |  | 
  |  |   T. Sjostrand, S. Mrenna and P. Skands, JHEP05 (2006) 026 [hep-ph/0603175]. |  | 
@@ -5766,7 +5766,7 @@
  *-------  End PYTHIA Error and Warning Messages Statistics  ------------------------------------------------------* 
 
 
-  2014-10-11 14:48       charged multiplicity
+  2014-10-14 10:14       charged multiplicity
 
         6.00*10^ 1                           X                                                                          
         5.75*10^ 1                           X                                                                          
@@ -5808,7 +5808,7 @@
    All chan =  1.0000e+03    Rms  =  6.8326e+01    Overflow  =  0.0000e+00    High edge =  7.9900e+02
 
 
-  2014-10-11 14:48       jet multiplicity
+  2014-10-14 10:14       jet multiplicity
 
         2.60*10^ 2      XX              
         2.50*10^ 2      XX              
@@ -5852,7 +5852,7 @@
    All chan =  1.0000e+03    Rms  =  1.4856e+00    Overflow  =  0.0000e+00    High edge =  1.9500e+01
 
 
-  2014-10-11 14:48       reconstructed W mass
+  2014-10-14 10:14       reconstructed W mass
 
         7.80*10^ 1                                           X                                                          
         7.50*10^ 1                                          XX                                                          
@@ -5896,7 +5896,7 @@
    All chan =  8.0800e+02    Rms  =  1.0075e+01    Overflow  =  6.0000e+00    High edge =  1.4000e+02
 
 
-  2014-10-11 14:48       reconstructed t mass
+  2014-10-14 10:14       reconstructed t mass
 
         2.24*10^ 1                                                   5   5                                              
         2.16*10^ 1                                                   X   X                                              
@@ -5942,7 +5942,7 @@
    All chan =  4.7900e+02    Rms  =  1.7735e+01    Overflow  =  2.2000e+01    High edge =  2.2000e+02
 
 
-  2014-10-11 14:48       reconstructed W mass error
+  2014-10-14 10:14       reconstructed W mass error
 
         2.24*10^ 1                                                     5                                                
         2.16*10^ 1                                                     X                                                
@@ -5988,7 +5988,7 @@
    All chan =  6.5300e+02    Rms  =  4.0367e+00    Overflow  =  1.0400e+02    High edge =  1.0000e+01
 
 
-  2014-10-11 14:48       reconstructed t mass error
+  2014-10-14 10:14       reconstructed t mass error
 
         1.30*10^ 1                                          X                                                           
         1.25*10^ 1                                          X                                                           
@@ -6032,7 +6032,7 @@
    All chan =  3.5900e+02    Rms  =  9.3815e+00    Overflow  =  6.6000e+01    High edge =  2.0000e+01
 
 
-  2014-10-11 14:48       reconstructed pT_t
+  2014-10-14 10:14       reconstructed pT_t
 
         6.60*10^ 1    5        
         6.40*10^ 1    X        
@@ -6080,7 +6080,7 @@
    All chan =  3.5900e+02    Rms  =  6.3385e+01    Overflow  =  0.0000e+00    High edge =  2.7500e+02
 
 
-  2014-10-11 14:48       reconstructed delta-m_t(pT_t)
+  2014-10-14 10:14       reconstructed delta-m_t(pT_t)
 
         3.00*10^ 0          5  
         2.75*10^ 0          X  
@@ -6136,10 +6136,10 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.200      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 11 Oct 2014  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.201      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 14 Oct 2014  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 11 Oct 2014 at 14:48:04    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 14 Oct 2014 at 10:14:28    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Astronomy and Theoretical Physics,      |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
@@ -6159,7 +6159,7 @@
  |  |   Stefan Prestel;  Theoretical Physics Group,                                |  | 
  |  |      SLAC National Accelerator Laboratory, Menlo Park, CA 94025, USA;        |  | 
  |  |      e-mail: prestel@slac.stanford.edu                                       |  | 
- |  |   Christine Rasmussen;  Department of Astronomy and Theoretical Physics,     |  | 
+ |  |   Christine O. Rasmussen;  Department of Astronomy and Theoretical Physics,  |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
  |  |      e-mail: christine.rasmussen@thep.lu.se                                  |  | 
  |  |   Peter Skands;  School of Physics,                                          |  | 
@@ -6167,7 +6167,7 @@
  |  |      e-mail: peter.skands@monash.edu                                         |  | 
  |  |                                                                              |  | 
  |  |   The main program reference is 'An Introduction to PYTHIA 8.2',             |  | 
- |  |   T. Sjostrand et al, arXiv:1410.???? [hep-ph]                               |  | 
+ |  |   T. Sjostrand et al, arXiv:1410.3012 [hep-ph]                               |  | 
  |  |                                                                              |  | 
  |  |   The main physics reference is the 'PYTHIA 6.4 Physics and Manual',         |  | 
  |  |   T. Sjostrand, S. Mrenna and P. Skands, JHEP05 (2006) 026 [hep-ph/0603175]. |  | 
@@ -6276,7 +6276,7 @@
  *-------  End PYTHIA Error and Warning Messages Statistics  ------------------------------------------------------* 
 
 
-  2014-10-11 14:48       charged multiplicity
+  2014-10-14 10:14       charged multiplicity
 
         5.80*10^ 1                               5                                                                      
         5.60*10^ 1                               X                                                                      
@@ -6323,7 +6323,7 @@
    All chan =  1.0000e+03    Rms  =  6.6163e+01    Overflow  =  0.0000e+00    High edge =  7.9900e+02
 
 
-  2014-10-11 14:48       jet multiplicity
+  2014-10-14 10:14       jet multiplicity
 
         3.00*10^ 2      3               
         2.90*10^ 2      X               
@@ -6371,7 +6371,7 @@
    All chan =  1.0000e+03    Rms  =  1.4271e+00    Overflow  =  0.0000e+00    High edge =  1.9500e+01
 
 
-  2014-10-11 14:48       reconstructed W mass
+  2014-10-14 10:14       reconstructed W mass
 
         9.00*10^ 1                                          7                                                           
         8.70*10^ 1                                          X                                                           
@@ -6419,7 +6419,7 @@
    All chan =  8.2300e+02    Rms  =  9.6944e+00    Overflow  =  5.0000e+00    High edge =  1.4000e+02
 
 
-  2014-10-11 14:48       reconstructed t mass
+  2014-10-14 10:14       reconstructed t mass
 
         2.24*10^ 1                                                      5                                               
         2.16*10^ 1                                                      X                                               
@@ -6465,7 +6465,7 @@
    All chan =  4.7400e+02    Rms  =  1.7707e+01    Overflow  =  3.1000e+01    High edge =  2.2000e+02
 
 
-  2014-10-11 14:48       reconstructed W mass error
+  2014-10-14 10:14       reconstructed W mass error
 
         2.16*10^ 1                                                  3                                                   
         2.08*10^ 1                                                  X                                                   
@@ -6510,7 +6510,7 @@
    All chan =  6.8900e+02    Rms  =  4.2992e+00    Overflow  =  8.5000e+01    High edge =  1.0000e+01
 
 
-  2014-10-11 14:48       reconstructed t mass error
+  2014-10-14 10:14       reconstructed t mass error
 
         1.12*10^ 1                                             5                                                        
         1.08*10^ 1                                             X                                                        
@@ -6556,7 +6556,7 @@
    All chan =  3.4500e+02    Rms  =  9.3117e+00    Overflow  =  7.6000e+01    High edge =  2.0000e+01
 
 
-  2014-10-11 14:48       reconstructed pT_t
+  2014-10-14 10:14       reconstructed pT_t
 
         6.75*10^ 1     4       
         6.50*10^ 1     X       
@@ -6601,7 +6601,7 @@
    All chan =  3.4500e+02    Rms  =  5.9874e+01    Overflow  =  0.0000e+00    High edge =  2.7500e+02
 
 
-  2014-10-11 14:48       reconstructed delta-m_t(pT_t)
+  2014-10-14 10:14       reconstructed delta-m_t(pT_t)
 
         0.52*10^ 1          4  
         0.48*10^ 1          X  
@@ -6656,10 +6656,10 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.200      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 11 Oct 2014  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.201      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 14 Oct 2014  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 11 Oct 2014 at 14:48:28    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 14 Oct 2014 at 10:14:53    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Astronomy and Theoretical Physics,      |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
@@ -6679,7 +6679,7 @@
  |  |   Stefan Prestel;  Theoretical Physics Group,                                |  | 
  |  |      SLAC National Accelerator Laboratory, Menlo Park, CA 94025, USA;        |  | 
  |  |      e-mail: prestel@slac.stanford.edu                                       |  | 
- |  |   Christine Rasmussen;  Department of Astronomy and Theoretical Physics,     |  | 
+ |  |   Christine O. Rasmussen;  Department of Astronomy and Theoretical Physics,  |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
  |  |      e-mail: christine.rasmussen@thep.lu.se                                  |  | 
  |  |   Peter Skands;  School of Physics,                                          |  | 
@@ -6687,7 +6687,7 @@
  |  |      e-mail: peter.skands@monash.edu                                         |  | 
  |  |                                                                              |  | 
  |  |   The main program reference is 'An Introduction to PYTHIA 8.2',             |  | 
- |  |   T. Sjostrand et al, arXiv:1410.???? [hep-ph]                               |  | 
+ |  |   T. Sjostrand et al, arXiv:1410.3012 [hep-ph]                               |  | 
  |  |                                                                              |  | 
  |  |   The main physics reference is the 'PYTHIA 6.4 Physics and Manual',         |  | 
  |  |   T. Sjostrand, S. Mrenna and P. Skands, JHEP05 (2006) 026 [hep-ph/0603175]. |  | 
@@ -6796,7 +6796,7 @@
  *-------  End PYTHIA Error and Warning Messages Statistics  ------------------------------------------------------* 
 
 
-  2014-10-11 14:48       charged multiplicity
+  2014-10-14 10:15       charged multiplicity
 
         6.00*10^ 1                              5                                                                       
         5.80*10^ 1                              X                                                                       
@@ -6844,7 +6844,7 @@
    All chan =  1.0000e+03    Rms  =  6.5929e+01    Overflow  =  0.0000e+00    High edge =  7.9900e+02
 
 
-  2014-10-11 14:48       jet multiplicity
+  2014-10-14 10:15       jet multiplicity
 
         2.90*10^ 2      3               
         2.80*10^ 2      X               
@@ -6891,7 +6891,7 @@
    All chan =  1.0000e+03    Rms  =  1.4720e+00    Overflow  =  0.0000e+00    High edge =  1.9500e+01
 
 
-  2014-10-11 14:48       reconstructed W mass
+  2014-10-14 10:15       reconstructed W mass
 
         0.92*10^ 2                                          8                                                           
         0.88*10^ 2                                          X                                                           
@@ -6932,7 +6932,7 @@
    All chan =  8.2300e+02    Rms  =  9.5174e+00    Overflow  =  1.0000e+01    High edge =  1.4000e+02
 
 
-  2014-10-11 14:48       reconstructed t mass
+  2014-10-14 10:15       reconstructed t mass
 
         2.16*10^ 1                                                      3                                               
         2.08*10^ 1                                                      X                                               
@@ -6977,7 +6977,7 @@
    All chan =  5.0100e+02    Rms  =  1.7887e+01    Overflow  =  2.0000e+01    High edge =  2.2000e+02
 
 
-  2014-10-11 14:48       reconstructed W mass error
+  2014-10-14 10:15       reconstructed W mass error
 
         2.50*10^ 1                                                     X                                                
         2.40*10^ 1                                                     X                                                
@@ -7020,7 +7020,7 @@
    All chan =  6.8400e+02    Rms  =  4.1034e+00    Overflow  =  9.3000e+01    High edge =  1.0000e+01
 
 
-  2014-10-11 14:48       reconstructed t mass error
+  2014-10-14 10:15       reconstructed t mass error
 
         1.00*10^ 1                                       X  X                X                                          
         0.96*10^ 1                                       X  X                X                                          
@@ -7063,7 +7063,7 @@
    All chan =  3.7000e+02    Rms  =  9.0098e+00    Overflow  =  7.3000e+01    High edge =  2.0000e+01
 
 
-  2014-10-11 14:48       reconstructed pT_t
+  2014-10-14 10:15       reconstructed pT_t
 
         7.00*10^ 1     X       
         6.75*10^ 1    4X       
@@ -7107,7 +7107,7 @@
    All chan =  3.7000e+02    Rms  =  6.1888e+01    Overflow  =  0.0000e+00    High edge =  2.7500e+02
 
 
-  2014-10-11 14:48       reconstructed delta-m_t(pT_t)
+  2014-10-14 10:15       reconstructed delta-m_t(pT_t)
 
         0.28*10^ 1          9  
         0.24*10^ 1          X  

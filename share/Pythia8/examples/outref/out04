@@ -5,10 +5,10 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.200      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 11 Oct 2014  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.201      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 14 Oct 2014  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 11 Oct 2014 at 14:30:56    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 14 Oct 2014 at 09:56:37    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Astronomy and Theoretical Physics,      |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
@@ -28,7 +28,7 @@
  |  |   Stefan Prestel;  Theoretical Physics Group,                                |  | 
  |  |      SLAC National Accelerator Laboratory, Menlo Park, CA 94025, USA;        |  | 
  |  |      e-mail: prestel@slac.stanford.edu                                       |  | 
- |  |   Christine Rasmussen;  Department of Astronomy and Theoretical Physics,     |  | 
+ |  |   Christine O. Rasmussen;  Department of Astronomy and Theoretical Physics,  |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
  |  |      e-mail: christine.rasmussen@thep.lu.se                                  |  | 
  |  |   Peter Skands;  School of Physics,                                          |  | 
@@ -36,7 +36,7 @@
  |  |      e-mail: peter.skands@monash.edu                                         |  | 
  |  |                                                                              |  | 
  |  |   The main program reference is 'An Introduction to PYTHIA 8.2',             |  | 
- |  |   T. Sjostrand et al, arXiv:1410.???? [hep-ph]                               |  | 
+ |  |   T. Sjostrand et al, arXiv:1410.3012 [hep-ph]                               |  | 
  |  |                                                                              |  | 
  |  |   The main physics reference is the 'PYTHIA 6.4 Physics and Manual',         |  | 
  |  |   T. Sjostrand, S. Mrenna and P. Skands, JHEP05 (2006) 026 [hep-ph/0603175]. |  | 
@@ -332,7 +332,7 @@
  *-------  End PYTHIA Error and Warning Messages Statistics  ------------------------------------------------------* 
 
 
-  2014-10-11 14:31       rapidity of charged particles; all
+  2014-10-14 09:57       rapidity of charged particles; all
 
         1.16*10^ 3                                                        5                                             
         1.12*10^ 3                                             355  4     X 834                                         
@@ -379,7 +379,7 @@
    All chan =  6.4907e+04    Rms  =  4.1121e+00    Overflow  =  1.0000e+01    High edge =  1.0000e+01
 
 
-  2014-10-11 14:31       number of charged particles; all
+  2014-10-14 09:57       number of charged particles; all
 
         3.24*10^ 2  1                                                                                                   
         3.12*10^ 2  X                                                                                                   
@@ -424,7 +424,7 @@
    All chan =  1.0000e+03    Rms  =  8.0861e+01    Overflow  =  0.0000e+00    High edge =  7.9950e+02
 
 
-  2014-10-11 14:31       number of charged particles; single diffraction
+  2014-10-14 09:57       number of charged particles; single diffraction
 
         2.90*10^ 1  X                                                                                                   
         2.80*10^ 1  X                                                                                                   
@@ -471,7 +471,7 @@
    All chan =  9.2000e+01    Rms  =  2.7002e+01    Overflow  =  0.0000e+00    High edge =  7.9950e+02
 
 
-  2014-10-11 14:31       number of charged particles, double diffractive
+  2014-10-14 09:57       number of charged particles, double diffractive
 
         2.70*10^ 1     X                                                                                                
         2.60*10^ 1     X                                                                                                
@@ -516,7 +516,7 @@
    All chan =  8.9000e+01    Rms  =  1.4281e+01    Overflow  =  0.0000e+00    High edge =  7.9950e+02
 
 
-  2014-10-11 14:31       number of charged particles, central diffractive
+  2014-10-14 09:57       number of charged particles, central diffractive
 
         4.05*10^ 0  7                                                                                                   
         3.90*10^ 0  X                                                                                                   
@@ -561,7 +561,7 @@
    All chan =  6.0000e+00    Rms  =  1.1700e+01    Overflow  =  0.0000e+00    High edge =  7.9950e+02
 
 
-  2014-10-11 14:31       number of charged particles, non-diffractive
+  2014-10-14 09:57       number of charged particles, non-diffractive
 
         7.25*10^ 1        8                                                                                             
         7.00*10^ 1        X                                                                                             
@@ -608,7 +608,7 @@
    All chan =  5.4000e+02    Rms  =  8.5735e+01    Overflow  =  0.0000e+00    High edge =  7.9950e+02
 
 
-  2014-10-11 14:31       <pt>(n_charged) all
+  2014-10-14 09:57       <pt>(n_charged) all
 
         7.50*10^-1                                         9                                                            
         7.25*10^-1                                  X      X               X   7                                        
@@ -656,7 +656,7 @@
    All chan =  3.7437e-01    Rms  =  1.2365e+02    Overflow  =  0.0000e+00    High edge =  7.9950e+02
 
 
-  2014-10-11 14:31       <pt>(n_charged) single diffraction
+  2014-10-14 09:57       <pt>(n_charged) single diffraction
 
         6.75*10^-1                          8                                                                           
         6.50*10^-1                          X                                                                           
@@ -701,7 +701,7 @@
    All chan =  3.7138e-01    Rms  =  5.4986e+01    Overflow  =  0.0000e+00    High edge =  7.9950e+02
 
 
-  2014-10-11 14:31       <pt>(n_charged) double diffraction
+  2014-10-14 09:57       <pt>(n_charged) double diffraction
 
         5.00*10^-1           3                                                                                          
         4.80*10^-1         1 X                                                                                          
@@ -744,7 +744,7 @@
    All chan =  3.7318e-01    Rms  =  2.2473e+01    Overflow  =  0.0000e+00    High edge =  7.9950e+02
 
 
-  2014-10-11 14:31       <pt>(n_charged) central diffraction
+  2014-10-14 09:57       <pt>(n_charged) central diffraction
 
         3.60*10^-1  9   1                                                                                               
         3.48*10^-1  X   X                                                                                               
@@ -792,7 +792,7 @@
    All chan =  3.4856e-01    Rms  =  1.3835e+01    Overflow  =  0.0000e+00    High edge =  7.9950e+02
 
 
-  2014-10-11 14:31       <pt>(n_charged) non-diffractive   
+  2014-10-14 09:57       <pt>(n_charged) non-diffractive   
 
         7.50*10^-1                                         9                                                            
         7.25*10^-1                                  X      X               X   7                                        
@@ -840,7 +840,7 @@
    All chan =  4.7291e-01    Rms  =  1.1873e+02    Overflow  =  0.0000e+00    High edge =  7.9950e+02
 
 
-  2014-10-11 14:31       log10(mass), by diffractive system
+  2014-10-14 09:57       log10(mass), by diffractive system
 
         5.40*10^ 2                                                                                    X                 
         5.20*10^ 2                                                                                    X                 
@@ -885,7 +885,7 @@
    All chan =  8.1600e+02    Rms  =  1.3738e+00    Overflow  =  0.0000e+00    High edge =  5.0000e+00
 
 
-  2014-10-11 14:31       <n_charged>(log10(mass))
+  2014-10-14 09:57       <n_charged>(log10(mass))
 
         1.12*10^ 2                                                                                    7                 
         1.08*10^ 2                                                                        1           X                 
@@ -931,7 +931,7 @@
    All chan =  7.8772e+01    Rms  =  8.8411e-01    Overflow  =  0.0000e+00    High edge =  5.0000e+00
 
 
-  2014-10-11 14:31       <pT>_charged>(log10(mass))
+  2014-10-14 09:57       <pT>_charged>(log10(mass))
 
         5.40*10^-1                                                                  9                                   
         5.20*10^-1          3                                                       X     3                             
@@ -976,7 +976,7 @@
    All chan =  4.4231e-01    Rms  =  1.0927e+00    Overflow  =  0.0000e+00    High edge =  5.0000e+00
 
 
-  2014-10-11 14:31       elastic |t| spectrum
+  2014-10-14 09:57       elastic |t| spectrum
 
         6.75*10^ 1  4                                                                                                   
         6.50*10^ 1  X                                                                                                   
@@ -1021,7 +1021,7 @@
    All chan =  2.7300e+02    Rms  =  4.3306e-02    Overflow  =  0.0000e+00    High edge =  1.0000e+00
 
 
-  2014-10-11 14:31       elastic log10(|t|) spectrum
+  2014-10-14 09:57       elastic log10(|t|) spectrum
 
         1.84*10^ 1                                                                            5                         
         1.76*10^ 1                                                                            X                         
@@ -1062,7 +1062,7 @@
    All chan =  2.7300e+02    Rms  =  5.1305e-01    Overflow  =  0.0000e+00    High edge =  0.0000e+00
 
 
-  2014-10-11 14:31       single diffractive |t| spectrum
+  2014-10-14 09:57       single diffractive |t| spectrum
 
         1.40*10^ 1   X                                                                                                  
         1.35*10^ 1   X                                                                                                  
@@ -1108,7 +1108,7 @@
    All chan =  9.2000e+01    Rms  =  7.4555e-02    Overflow  =  0.0000e+00    High edge =  2.0000e+00
 
 
-  2014-10-11 14:31       double diffractive |t| spectrum
+  2014-10-14 09:57       double diffractive |t| spectrum
 
         1.00*10^ 1  XX                                                                                                  
         0.96*10^ 1  XX                                                                                                  
@@ -1151,7 +1151,7 @@
    All chan =  8.9000e+01    Rms  =  4.4853e-01    Overflow  =  0.0000e+00    High edge =  5.0000e+00
 
 
-  2014-10-11 14:31       central diffractive |t| spectrum
+  2014-10-14 09:57       central diffractive |t| spectrum
 
         3.00*10^ 0  XX                                                                                                  
         2.88*10^ 0  XX                                                                                                  
@@ -1194,7 +1194,7 @@
    All chan =  1.2000e+01    Rms  =  1.2659e-01    Overflow  =  0.0000e+00    High edge =  5.0000e+00
 
 
-  2014-10-11 14:31       diffractive mass spectrum
+  2014-10-14 09:57       diffractive mass spectrum
 
         3.00*10^ 1   X                                                                                                  
         2.88*10^ 1   X                                                                                                  
@@ -1237,7 +1237,7 @@
    All chan =  1.8800e+02    Rms  =  2.3119e+01    Overflow  =  8.8000e+01    High edge =  1.0000e+02
 
 
-  2014-10-11 14:31       log10(diffractive mass spectrum)
+  2014-10-14 09:57       log10(diffractive mass spectrum)
 
         8.10*10^ 0    7           7     7                                                                               
         7.80*10^ 0    X           X     X                                                                               
@@ -1282,7 +1282,7 @@
    All chan =  2.7600e+02    Rms  =  9.8382e-01    Overflow  =  0.0000e+00    High edge =  4.0000e+00
 
 
-  2014-10-11 14:31       total pT_hard spectrum
+  2014-10-14 09:57       total pT_hard spectrum
 
         2.08*10^ 2  5                                                                                                   
         2.00*10^ 2  X                                                                                                   
@@ -1326,7 +1326,7 @@
    All chan =  9.9200e+02    Rms  =  3.6048e+00    Overflow  =  8.0000e+00    High edge =  2.0000e+01
 
 
-  2014-10-11 14:31       nondiffractive pT_hard spectrum
+  2014-10-14 09:57       nondiffractive pT_hard spectrum
 
         1.84*10^ 1                   555          5                                                                     
         1.76*10^ 1           3       XXX          X                                                                     
@@ -1367,7 +1367,7 @@
    All chan =  5.3200e+02    Rms  =  3.5336e+00    Overflow  =  8.0000e+00    High edge =  2.0000e+01
 
 
-  2014-10-11 14:31       b impact parameter spectrum
+  2014-10-14 09:57       b impact parameter spectrum
 
         2.60*10^ 1                         X                                                                            
         2.50*10^ 1                         X                                                                            
@@ -1411,7 +1411,7 @@
    All chan =  5.4000e+02    Rms  =  4.2485e-01    Overflow  =  0.0000e+00    High edge =  4.0000e+00
 
 
-  2014-10-11 14:31       b enhancement spectrum
+  2014-10-14 09:57       b enhancement spectrum
 
         9.00*10^ 1  3                                                                                                   
         8.70*10^ 1  X                                                                                                   
@@ -1459,7 +1459,7 @@
    All chan =  5.4000e+02    Rms  =  1.3947e+00    Overflow  =  0.0000e+00    High edge =  1.0000e+01
 
 
-  2014-10-11 14:31       number of interactions
+  2014-10-14 09:57       number of interactions
 
         2.00*10^ 2   3                                                                                                  
         1.92*10^ 2   X                                                                                                  
@@ -1502,7 +1502,7 @@
    All chan =  5.4000e+02    Rms  =  5.4243e+00    Overflow  =  0.0000e+00    High edge =  9.9500e+01
 
 
-  2014-10-11 14:31       pT spectrum for b < 0.5
+  2014-10-14 09:57       pT spectrum for b < 0.5
 
         4.05*10^ 0                               77 7                                                                   
         3.90*10^ 0                               XX X                                                                   
@@ -1547,7 +1547,7 @@
    All chan =  6.7000e+01    Rms  =  3.3644e+00    Overflow  =  3.0000e+00    High edge =  2.0000e+01
 
 
-  2014-10-11 14:31       pT spectrum for 0.5 < b < 1
+  2014-10-14 09:57       pT spectrum for 0.5 < b < 1
 
         9.00*10^ 0                               X                                                                      
         8.70*10^ 0                               X                                                                      
@@ -1595,7 +1595,7 @@
    All chan =  1.8700e+02    Rms  =  3.3200e+00    Overflow  =  3.0000e+00    High edge =  2.0000e+01
 
 
-  2014-10-11 14:31       pT spectrum for 1 < b < 1.5
+  2014-10-14 09:57       pT spectrum for 1 < b < 1.5
 
         1.20*10^ 1           X                                                                                          
         1.15*10^ 1           X                                                                                          
@@ -1637,7 +1637,7 @@
    All chan =  2.1900e+02    Rms  =  2.5914e+00    Overflow  =  2.0000e+00    High edge =  2.0000e+01
 
 
-  2014-10-11 14:31       pT spectrum for 1.5 < b
+  2014-10-14 09:57       pT spectrum for 1.5 < b
 
         5.00*10^ 0         X                                                                                            
         4.80*10^ 0         X                                                                                            
@@ -1680,7 +1680,7 @@
    All chan =  5.9000e+01    Rms  =  2.7904e+00    Overflow  =  0.0000e+00    High edge =  2.0000e+01
 
 
-  2014-10-11 14:31       b spectrum for pT < 2
+  2014-10-14 09:57       b spectrum for pT < 2
 
         1.12*10^ 1                                     5                                                                
         1.08*10^ 1                                     X                                                                
@@ -1726,7 +1726,7 @@
    All chan =  8.8000e+01    Rms  =  2.9341e-01    Overflow  =  0.0000e+00    High edge =  4.0000e+00
 
 
-  2014-10-11 14:31       b spectrum for 2 < pT < 5
+  2014-10-14 09:57       b spectrum for 2 < pT < 5
 
         1.50*10^ 1                         X                                                                            
         1.44*10^ 1                        3X                                                                            
@@ -1769,7 +1769,7 @@
    All chan =  2.0200e+02    Rms  =  3.2682e-01    Overflow  =  0.0000e+00    High edge =  4.0000e+00
 
 
-  2014-10-11 14:31       b spectrum for 5 < pT < 15
+  2014-10-14 09:57       b spectrum for 5 < pT < 15
 
         1.12*10^ 1               5  5                                                                                   
         1.08*10^ 1               X  X                                                                                   
@@ -1815,7 +1815,7 @@
    All chan =  2.3000e+02    Rms  =  3.9258e-01    Overflow  =  0.0000e+00    High edge =  4.0000e+00
 
 
-  2014-10-11 14:31       b spectrum for 15 < pT
+  2014-10-14 09:57       b spectrum for 15 < pT
 
         3.00*10^ 0             X                                                                                        
         2.88*10^ 0             X                                                                                        

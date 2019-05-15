@@ -5,10 +5,10 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.200      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 11 Oct 2014  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.201      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 14 Oct 2014  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 11 Oct 2014 at 14:31:50    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 14 Oct 2014 at 09:57:31    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Astronomy and Theoretical Physics,      |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
@@ -28,7 +28,7 @@
  |  |   Stefan Prestel;  Theoretical Physics Group,                                |  | 
  |  |      SLAC National Accelerator Laboratory, Menlo Park, CA 94025, USA;        |  | 
  |  |      e-mail: prestel@slac.stanford.edu                                       |  | 
- |  |   Christine Rasmussen;  Department of Astronomy and Theoretical Physics,     |  | 
+ |  |   Christine O. Rasmussen;  Department of Astronomy and Theoretical Physics,  |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
  |  |      e-mail: christine.rasmussen@thep.lu.se                                  |  | 
  |  |   Peter Skands;  School of Physics,                                          |  | 
@@ -36,7 +36,7 @@
  |  |      e-mail: peter.skands@monash.edu                                         |  | 
  |  |                                                                              |  | 
  |  |   The main program reference is 'An Introduction to PYTHIA 8.2',             |  | 
- |  |   T. Sjostrand et al, arXiv:1410.???? [hep-ph]                               |  | 
+ |  |   T. Sjostrand et al, arXiv:1410.3012 [hep-ph]                               |  | 
  |  |                                                                              |  | 
  |  |   The main physics reference is the 'PYTHIA 6.4 Physics and Manual',         |  | 
  |  |   T. Sjostrand, S. Mrenna and P. Skands, JHEP05 (2006) 026 [hep-ph/0603175]. |  | 
@@ -508,7 +508,7 @@
  *-------  End PYTHIA Error and Warning Messages Statistics  ------------------------------------------------------* 
 
 
-  2014-10-11 14:32       charged multiplicity
+  2014-10-14 09:57       charged multiplicity
 
         1.30*10^ 3                    X                                                                                 
         1.25*10^ 3                  4 X X                                                                               
@@ -552,7 +552,7 @@
    All chan =  1.0000e+04    Rms  =  6.5008e+00    Overflow  =  0.0000e+00    High edge =  9.9500e+01
 
 
-  2014-10-11 14:32       Sphericity
+  2014-10-14 09:57       Sphericity
 
         2.08*10^ 3   2                                                                                                  
         2.00*10^ 3   X                                                                                                  
@@ -596,7 +596,7 @@
    All chan =  1.0000e+04    Rms  =  1.0480e-01    Overflow  =  0.0000e+00    High edge =  1.0000e+00
 
 
-  2014-10-11 14:32       Linearity
+  2014-10-14 09:57       Linearity
 
         8.10*10^ 2       6                                                                                              
         7.80*10^ 2       X                                                                                              
@@ -641,7 +641,7 @@
    All chan =  1.0000e+04    Rms  =  1.3435e-01    Overflow  =  0.0000e+00    High edge =  1.0000e+00
 
 
-  2014-10-11 14:32       thrust
+  2014-10-14 09:57       thrust
 
         9.00*10^ 2                                                                                                 8    
         8.70*10^ 2                                                                                                1X    
@@ -689,7 +689,7 @@
    All chan =  1.0000e+04    Rms  =  6.0674e-02    Overflow  =  0.0000e+00    High edge =  1.0000e+00
 
 
-  2014-10-11 14:32       oblateness
+  2014-10-14 09:57       oblateness
 
         1.35*10^ 3    9                                                                                                 
         1.30*10^ 3   5X                                                                                                 
@@ -734,7 +734,7 @@
    All chan =  1.0000e+04    Rms  =  7.8701e-02    Overflow  =  0.0000e+00    High edge =  1.0000e+00
 
 
-  2014-10-11 14:32       cos(theta_Sphericity)
+  2014-10-14 09:57       cos(theta_Sphericity)
 
         1.72*10^ 2   7                                                                                                 2
         1.68*10^ 2   X                                                                                                 X
@@ -780,7 +780,7 @@
    All chan =  1.0000e+04    Rms  =  6.3328e-01    Overflow  =  0.0000e+00    High edge =  1.0000e+00
 
 
-  2014-10-11 14:32       cos(theta_Linearity)
+  2014-10-14 09:57       cos(theta_Linearity)
 
         1.60*10^ 2   X                                                                                              5   
         1.56*10^ 2   X  2                                                                                           X  7
@@ -822,7 +822,7 @@
    All chan =  1.0000e+04    Rms  =  6.3362e-01    Overflow  =  0.0000e+00    High edge =  1.0000e+00
 
 
-  2014-10-11 14:32       cos(theta_Thrust)
+  2014-10-14 09:57       cos(theta_Thrust)
 
         1.60*10^ 2   7                                                                                                  
         1.56*10^ 2  XX   7                                                                                              
@@ -866,7 +866,7 @@
    All chan =  1.0000e+04    Rms  =  6.3329e-01    Overflow  =  0.0000e+00    High edge =  1.0000e+00
 
 
-  2014-10-11 14:32       Lund jet multiplicity
+  2014-10-14 09:57       Lund jet multiplicity
 
         8.10*10^ 3    7                                     
         7.80*10^ 3    X                                     
@@ -911,7 +911,7 @@
    All chan =  1.0000e+04    Rms  =  4.2350e-01    Overflow  =  0.0000e+00    High edge =  3.9500e+01
 
 
-  2014-10-11 14:32       Jade jet multiplicity
+  2014-10-14 09:57       Jade jet multiplicity
 
         5.20*10^ 3     1                                    
         5.00*10^ 3     X                                    
@@ -955,7 +955,7 @@
    All chan =  1.0000e+04    Rms  =  7.8598e-01    Overflow  =  0.0000e+00    High edge =  3.9500e+01
 
 
-  2014-10-11 14:32       Durham jet multiplicity
+  2014-10-14 09:57       Durham jet multiplicity
 
         6.50*10^ 3    X                                     
         6.25*10^ 3    X                                     
@@ -999,7 +999,7 @@
    All chan =  1.0000e+04    Rms  =  6.1000e-01    Overflow  =  0.0000e+00    High edge =  3.9500e+01
 
 
-  2014-10-11 14:32       Lund e_i - e_{i+1}
+  2014-10-14 09:57       Lund e_i - e_{i+1}
 
         1.30*10^ 3            9                                                                                         
         1.25*10^ 3            X                                                                                         
@@ -1043,7 +1043,7 @@
    All chan =  1.2070e+04    Rms  =  6.0719e+00    Overflow  =  0.0000e+00    High edge =  4.5000e+01
 
 
-  2014-10-11 14:32       Jade e_i - e_{i+1}
+  2014-10-14 09:57       Jade e_i - e_{i+1}
 
         1.45*10^ 3            1                                                                                         
         1.40*10^ 3            X                                                                                         
@@ -1090,7 +1090,7 @@
    All chan =  1.9936e+04    Rms  =  1.1752e+01    Overflow  =  0.0000e+00    High edge =  4.5000e+01
 
 
-  2014-10-11 14:32       Durham e_i - e_{i+1}
+  2014-10-14 09:57       Durham e_i - e_{i+1}
 
         1.56*10^ 3            2                                                                                         
         1.50*10^ 3            X                                                                                         

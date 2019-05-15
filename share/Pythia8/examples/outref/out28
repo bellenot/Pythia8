@@ -5,10 +5,10 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.200      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 11 Oct 2014  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.201      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 14 Oct 2014  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 11 Oct 2014 at 14:40:30    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 14 Oct 2014 at 10:06:33    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Astronomy and Theoretical Physics,      |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
@@ -28,7 +28,7 @@
  |  |   Stefan Prestel;  Theoretical Physics Group,                                |  | 
  |  |      SLAC National Accelerator Laboratory, Menlo Park, CA 94025, USA;        |  | 
  |  |      e-mail: prestel@slac.stanford.edu                                       |  | 
- |  |   Christine Rasmussen;  Department of Astronomy and Theoretical Physics,     |  | 
+ |  |   Christine O. Rasmussen;  Department of Astronomy and Theoretical Physics,  |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
  |  |      e-mail: christine.rasmussen@thep.lu.se                                  |  | 
  |  |   Peter Skands;  School of Physics,                                          |  | 
@@ -36,7 +36,7 @@
  |  |      e-mail: peter.skands@monash.edu                                         |  | 
  |  |                                                                              |  | 
  |  |   The main program reference is 'An Introduction to PYTHIA 8.2',             |  | 
- |  |   T. Sjostrand et al, arXiv:1410.???? [hep-ph]                               |  | 
+ |  |   T. Sjostrand et al, arXiv:1410.3012 [hep-ph]                               |  | 
  |  |                                                                              |  | 
  |  |   The main physics reference is the 'PYTHIA 6.4 Physics and Manual',         |  | 
  |  |   T. Sjostrand, S. Mrenna and P. Skands, JHEP05 (2006) 026 [hep-ph/0603175]. |  | 
@@ -411,7 +411,7 @@
  1093224      R+(~g suu)       1
 
 
-  2014-10-11 14:40       charged multiplicity
+  2014-10-14 10:06       charged multiplicity
 
         1.40*10^ 1                X     X                                                                               
         1.35*10^ 1                X     X                                                                               
@@ -457,7 +457,7 @@
    All chan =  2.0000e+02    Rms  =  5.5699e+01    Overflow  =  0.0000e+00    High edge =  7.9950e+02
 
 
-  2014-10-11 14:40       dn/dy charged
+  2014-10-14 10:06       dn/dy charged
 
         0.92*10^ 3                                                 5695                                                 
         0.88*10^ 3                                                 XXXX331                                              
@@ -498,7 +498,7 @@
    All chan =  3.1871e+04    Rms  =  2.9365e+00    Overflow  =  0.0000e+00    High edge =  1.0000e+01
 
 
-  2014-10-11 14:40       dn/dy R-hadrons
+  2014-10-14 10:06       dn/dy R-hadrons
 
         4.20*10^ 1                                                    X                                                 
         4.05*10^ 1                                                    X                                                 
@@ -544,7 +544,7 @@
    All chan =  4.0000e+02    Rms  =  5.4895e-01    Overflow  =  0.0000e+00    High edge =  5.0000e+00
 
 
-  2014-10-11 14:40       pT R-hadrons
+  2014-10-14 10:06       pT R-hadrons
 
         1.40*10^ 1               X                                                                                      
         1.35*10^ 1               X                                                                                      
@@ -590,7 +590,7 @@
    All chan =  3.9900e+02    Rms  =  1.6748e+02    Overflow  =  1.0000e+00    High edge =  1.0000e+03
 
 
-  2014-10-11 14:40       p_RHadron / p_sparticle
+  2014-10-14 10:06       p_RHadron / p_sparticle
 
         8.10*10^ 1                                                    X                                                 
         7.80*10^ 1                                                   7X                                                 
@@ -635,7 +635,7 @@
    All chan =  4.0000e+02    Rms  =  5.4161e-03    Overflow  =  0.0000e+00    High edge =  1.1000e+00
 
 
-  2014-10-11 14:40       m(Rhadron) - m(sparticle)
+  2014-10-14 10:06       m(Rhadron) - m(sparticle)
 
         1.25*10^ 2                                 6                                                                    
         1.20*10^ 2                                 X                                                                    
@@ -678,7 +678,7 @@
    All chan =  4.0000e+02    Rms  =  3.0254e-01    Overflow  =  0.0000e+00    High edge =  5.0000e+00
 
 
-  2014-10-11 14:40       R-hadron decay vertex (mm from origin)
+  2014-10-14 10:06       R-hadron decay vertex (mm from origin)
 
         4.05*10^ 2  7                                                                                                   
         3.90*10^ 2  X                                                                                                   

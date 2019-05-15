@@ -39,6 +39,21 @@ but this should only affect a small part of the user code.
  
 <ul> 
  
+<li>8.201: 14 October 2014 
+<ul> 
+
+<li>The <i>Introduction to PYTHIA 8.2</i> has now been assigned 
+the arXiv:1410.3012 [hep-ph] identifier, which has been introduced 
+in code and text.</li> 
+
+<li>The <code>enable-shared</code> by mistake was not listed
+among allowed configure options.</li> 
+
+<li>Corrected a few tiny documentation typos.</li> 
+
+</ul> 
+</li> 
+ 
 <li>8.200: 11 October 2014 
 <ul> 
 
@@ -204,7 +219,7 @@ to do this. All old tunes are with the 1 value but, since the tunes are
 not probing the detailed <i>g &rarr; q qbar</i> behaviour, this is
 not set as part of the tune options.</li> 
  
-<li>Christine Rasmussen joins as new PYTHIA collaboration member.</li> 
+<li>Christine O. Rasmussen joins as new PYTHIA collaboration member.</li> 
  
 <li>A new model for the handling of <?php $filepath = $_GET["filepath"];
 echo "<a href='BeamRemnants.php?filepath=".$filepath."' target='page'>";?>beam 
@@ -286,12 +301,11 @@ to six flavours at the top mass.</li>
  
 <li>Eliminate harmless compiler warnings for <code>FJcore</code>.</li> 
  
- <li>Updated Introduction (= the official 8.2 article) and Worksheet.</li> 
+<li>Updated Introduction (= the official 8.2 article) and Worksheet.</li> 
  
 </ul> 
 </li> 
  
-
 </ul> 
  
 </body>

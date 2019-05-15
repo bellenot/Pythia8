@@ -1060,7 +1060,7 @@ void Sigma2ffbar2ffbarsgmZ::sigmaKin() {
         gamTf = colf * ef * ef * betaf;
         gamLf = gamTf * 4. * mr;
         intTf = colf * ef * vf * betaf;
-        intLf = intLf * 4. * mr;
+        intLf = intTf * 4. * mr;
         intAf = colf * ef * af * betaf;
         resTf = colf * (vf * vf * betaf + af * af * pow3(betaf));
         resLf = colf * vf * vf * betaf * 4. * mr;

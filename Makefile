@@ -77,7 +77,13 @@ endif
 $(LOCAL_LIB)/libpythia8.a: $(OBJECTS)
 	ar cru $@ $^
 $(LOCAL_LIB)/libpythia8$(LIB_SUFFIX): $(OBJECTS)
-	$(CXX) $^ -o $@ $(CXX_COMMON) $(CXX_SHARED) $(CXX_SONAME),$(notdir $@)
+ifeq ($(GZIP_USE),true)
+	$(CXX) $^ -o $@ $(CXX_COMMON) $(CXX_SHARED) $(CXX_SONAME),$(notdir $@)\
+	 -ldl -L$(BOOST_LIB) -lboost_iostreams -L$(GZIP_LIB) -lz
+else
+	$(CXX) $^ -o $@ $(CXX_COMMON) $(CXX_SHARED) $(CXX_SONAME),$(notdir $@)\
+	 -ldl
+endif
 
 # LHAPDF (turn off all warnings for readability).
 $(LOCAL_TMP)/LHAPDF5.o: $(LOCAL_INCLUDE)/Pythia8Plugins/LHAPDF5.h

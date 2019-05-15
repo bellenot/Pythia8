@@ -5,10 +5,10 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.200      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 11 Oct 2014  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.201      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 14 Oct 2014  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 11 Oct 2014 at 14:32:14    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 14 Oct 2014 at 09:57:55    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Astronomy and Theoretical Physics,      |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
@@ -28,7 +28,7 @@
  |  |   Stefan Prestel;  Theoretical Physics Group,                                |  | 
  |  |      SLAC National Accelerator Laboratory, Menlo Park, CA 94025, USA;        |  | 
  |  |      e-mail: prestel@slac.stanford.edu                                       |  | 
- |  |   Christine Rasmussen;  Department of Astronomy and Theoretical Physics,     |  | 
+ |  |   Christine O. Rasmussen;  Department of Astronomy and Theoretical Physics,  |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
  |  |      e-mail: christine.rasmussen@thep.lu.se                                  |  | 
  |  |   Peter Skands;  School of Physics,                                          |  | 
@@ -36,7 +36,7 @@
  |  |      e-mail: peter.skands@monash.edu                                         |  | 
  |  |                                                                              |  | 
  |  |   The main program reference is 'An Introduction to PYTHIA 8.2',             |  | 
- |  |   T. Sjostrand et al, arXiv:1410.???? [hep-ph]                               |  | 
+ |  |   T. Sjostrand et al, arXiv:1410.3012 [hep-ph]                               |  | 
  |  |                                                                              |  | 
  |  |   The main physics reference is the 'PYTHIA 6.4 Physics and Manual',         |  | 
  |  |   T. Sjostrand, S. Mrenna and P. Skands, JHEP05 (2006) 026 [hep-ph/0603175]. |  | 
@@ -64,7 +64,7 @@
  PYTHIA Warning in PhaseSpace2to2tauyz::trialKin: maximum for cross section violated  
 
 
-  2014-10-11 14:32       pTHat distribution, unweighted
+  2014-10-14 09:58       pTHat distribution, unweighted
 
         1.40*10^ 3     6                                                                                                
         1.35*10^ 3     X                                                                                                
@@ -110,7 +110,7 @@
    All chan =  1.9878e+04    Rms  =  2.8117e+01    Overflow  =  0.0000e+00    High edge =  1.0000e+02
 
 
-  2014-10-11 14:32       pTHat distribution, weighted
+  2014-10-14 09:58       pTHat distribution, weighted
 
         8.10*10^ 0     5                                                                                                
         7.80*10^ 0     X                                                                                                
@@ -155,7 +155,7 @@
    All chan =  5.7637e+01    Rms  =  4.4493e+00    Overflow  =  0.0000e+00    High edge =  1.0000e+02
 
 
-  2014-10-11 14:32       pTHat distribution, pT3*weighted
+  2014-10-14 09:58       pTHat distribution, pT3*weighted
 
         2.00*10^ 3           8                                                                                          
         1.92*10^ 3          3XX53                                                                                       
@@ -198,7 +198,7 @@
    All chan =  4.7080e+04    Rms  =  2.0837e+01    Overflow  =  0.0000e+00    High edge =  1.0000e+02
 
 
-  2014-10-11 14:32       pTHat distribution, pT5*weighted
+  2014-10-14 09:58       pTHat distribution, pT5*weighted
 
         7.80*10^ 5                                                           1                                        7 
         7.50*10^ 5                                                           X 7 7          39         6   X    4 1   X 

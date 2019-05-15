@@ -77,7 +77,8 @@ Advanced options.
 --lib-suffix=SUF     : Shared library name suffix: [.so] for Linux and [.dylib]
                        for OS X.
 BLOCKTEXT
-OPTIONS="-h --h -help --help --enable-debug --enable-64bit --enable-64bit --lcg"
+OPTIONS="-h --h -help --help --enable-debug --enable-64bit"
+OPTIONS+=" --enable-shared --lcg"
 OPTIONS+=" --prefix --prefix-bin --prefix-lib --prefix-include --prefix-share"
 for PKG in "fastjet3" "hepmc2" "hepmc3" "lhapdf5" "lhapdf6" "root"\
     "boost" "gzip"; do

@@ -22,7 +22,7 @@ namespace Pythia8 {
 //--------------------------------------------------------------------------
 
 // The current Pythia (sub)version number, to agree with XML version.
-const double Pythia::VERSIONNUMBERCODE = 8.200;
+const double Pythia::VERSIONNUMBERCODE = 8.201;
 
 //--------------------------------------------------------------------------
 
@@ -1507,8 +1507,8 @@ void Pythia::banner(ostream& os) {
      << "ry, Menlo Park, CA 94025, USA;        |  | \n"
      << " |  |      e-mail: prestel@slac.stanford.edu "
      << "                                      |  | \n"
-     << " |  |   Christine Rasmussen;  Department of A"
-     << "stronomy and Theoretical Physics,     |  | \n"
+     << " |  |   Christine O. Rasmussen;  Department o"
+     << "f Astronomy and Theoretical Physics,  |  | \n"
      << " |  |      Lund University, Solvegatan 14A, S"
      << "E-223 62 Lund, Sweden;                |  | \n"
      << " |  |      e-mail: christine.rasmussen@thep.l"
@@ -1523,7 +1523,7 @@ void Pythia::banner(ostream& os) {
      << "                                      |  | \n"
      << " |  |   The main program reference is 'An Int"
      << "roduction to PYTHIA 8.2',             |  | \n"
-     << " |  |   T. Sjostrand et al, arXiv:1410.???? ["
+     << " |  |   T. Sjostrand et al, arXiv:1410.3012 ["
      << "hep-ph]                               |  | \n"
      << " |  |                                        "
      << "                                      |  | \n"

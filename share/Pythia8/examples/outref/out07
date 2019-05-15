@@ -5,10 +5,10 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.200      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 11 Oct 2014  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.201      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 14 Oct 2014  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 11 Oct 2014 at 14:32:10    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 14 Oct 2014 at 09:57:52    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Astronomy and Theoretical Physics,      |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
@@ -28,7 +28,7 @@
  |  |   Stefan Prestel;  Theoretical Physics Group,                                |  | 
  |  |      SLAC National Accelerator Laboratory, Menlo Park, CA 94025, USA;        |  | 
  |  |      e-mail: prestel@slac.stanford.edu                                       |  | 
- |  |   Christine Rasmussen;  Department of Astronomy and Theoretical Physics,     |  | 
+ |  |   Christine O. Rasmussen;  Department of Astronomy and Theoretical Physics,  |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
  |  |      e-mail: christine.rasmussen@thep.lu.se                                  |  | 
  |  |   Peter Skands;  School of Physics,                                          |  | 
@@ -36,7 +36,7 @@
  |  |      e-mail: peter.skands@monash.edu                                         |  | 
  |  |                                                                              |  | 
  |  |   The main program reference is 'An Introduction to PYTHIA 8.2',             |  | 
- |  |   T. Sjostrand et al, arXiv:1410.???? [hep-ph]                               |  | 
+ |  |   T. Sjostrand et al, arXiv:1410.3012 [hep-ph]                               |  | 
  |  |                                                                              |  | 
  |  |   The main physics reference is the 'PYTHIA 6.4 Physics and Manual',         |  | 
  |  |   T. Sjostrand, S. Mrenna and P. Skands, JHEP05 (2006) 026 [hep-ph/0603175]. |  | 
@@ -275,7 +275,7 @@
  *-------  End PYTHIA Error and Warning Messages Statistics  ------------------------------------------------------* 
 
 
-  2014-10-11 14:32       energy spectrum of photons
+  2014-10-14 09:57       energy spectrum of photons
 
         3.00*10^ 4  5                                                                                                   
         2.90*10^ 4  X                                                                                                   
@@ -323,7 +323,7 @@
    All chan =  3.7181e+04    Rms  =  7.8097e+00    Overflow  =  7.4200e+02    High edge =  2.5000e+02
 
 
-  2014-10-11 14:32       energy spectrum of e+ and e-
+  2014-10-14 09:57       energy spectrum of e+ and e-
 
         3.24*10^ 4  5                                                                                                   
         3.12*10^ 4  X                                                                                                   
@@ -368,7 +368,7 @@
    All chan =  3.6088e+04    Rms  =  5.9131e+00    Overflow  =  0.0000e+00    High edge =  2.5000e+02
 
 
-  2014-10-11 14:32       energy spectrum of p and pbar
+  2014-10-14 09:57       energy spectrum of p and pbar
 
         1.04*10^ 3  8                                                                                                   
         1.00*10^ 3  X                                                                                                   
@@ -412,7 +412,7 @@
    All chan =  3.7160e+03    Rms  =  1.1395e+01    Overflow  =  0.0000e+00    High edge =  2.5000e+02
 
 
-  2014-10-11 14:32       energy spectrum of neutrinos
+  2014-10-14 09:57       energy spectrum of neutrinos
 
         0.92*10^ 5  6                                                                                                   
         0.88*10^ 5  X                                                                                                   

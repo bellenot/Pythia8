@@ -5,10 +5,10 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.200      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 11 Oct 2014  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.201      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 14 Oct 2014  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 11 Oct 2014 at 14:30:20    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 14 Oct 2014 at 09:56:01    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Astronomy and Theoretical Physics,      |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
@@ -28,7 +28,7 @@
  |  |   Stefan Prestel;  Theoretical Physics Group,                                |  | 
  |  |      SLAC National Accelerator Laboratory, Menlo Park, CA 94025, USA;        |  | 
  |  |      e-mail: prestel@slac.stanford.edu                                       |  | 
- |  |   Christine Rasmussen;  Department of Astronomy and Theoretical Physics,     |  | 
+ |  |   Christine O. Rasmussen;  Department of Astronomy and Theoretical Physics,  |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
  |  |      e-mail: christine.rasmussen@thep.lu.se                                  |  | 
  |  |   Peter Skands;  School of Physics,                                          |  | 
@@ -36,7 +36,7 @@
  |  |      e-mail: peter.skands@monash.edu                                         |  | 
  |  |                                                                              |  | 
  |  |   The main program reference is 'An Introduction to PYTHIA 8.2',             |  | 
- |  |   T. Sjostrand et al, arXiv:1410.???? [hep-ph]                               |  | 
+ |  |   T. Sjostrand et al, arXiv:1410.3012 [hep-ph]                               |  | 
  |  |                                                                              |  | 
  |  |   The main physics reference is the 'PYTHIA 6.4 Physics and Manual',         |  | 
  |  |   T. Sjostrand, S. Mrenna and P. Skands, JHEP05 (2006) 026 [hep-ph/0603175]. |  | 
@@ -237,7 +237,7 @@
  *-------  End PYTHIA Error and Warning Messages Statistics  ------------------------------------------------------* 
 
 
-  2014-10-11 14:30       process pT scale
+  2014-10-14 09:56       process pT scale
 
         3.12*10^ 2            6                                                                                         
         3.00*10^ 2            X                                                                                         
@@ -281,7 +281,7 @@
    All chan =  1.0000e+03    Rms  =  1.9202e+01    Overflow  =  0.0000e+00    High edge =  5.0000e+02
 
 
-  2014-10-11 14:30       final particle multiplicity
+  2014-10-14 09:56       final particle multiplicity
 
         5.00*10^ 1                                  X                                                                   
         4.80*10^ 1                                  X                                                                   
@@ -324,7 +324,7 @@
    All chan =  1.0000e+03    Rms  =  1.4721e+02    Overflow  =  0.0000e+00    High edge =  1.5995e+03
 
 
-  2014-10-11 14:30       charged particle multiplicity
+  2014-10-14 09:56       charged particle multiplicity
 
         5.20*10^ 1                           5                                                                          
         5.00*10^ 1                           X    X                                                                     
@@ -368,7 +368,7 @@
    All chan =  1.0000e+03    Rms  =  6.8556e+01    Overflow  =  0.0000e+00    High edge =  7.9950e+02
 
 
-  2014-10-11 14:30       dn/dy for charged particles
+  2014-10-14 09:56       dn/dy for charged particles
 
         2.50*10^ 1                                                38 2422                                               
         2.40*10^ 1                                               6XXXXXXX6352                                           
@@ -411,7 +411,7 @@
    All chan =  1.0705e+03    Rms  =  3.2802e+00    Overflow  =  2.0000e-02    High edge =  1.0000e+01
 
 
-  2014-10-11 14:30       dn/d(eta) for charged particles
+  2014-10-14 09:56       dn/d(eta) for charged particles
 
         2.24*10^ 1                                           351 646       56                                           
         2.16*10^ 1                                         14XXX4XXX7789X79XX3 1                                        
@@ -457,7 +457,7 @@
    All chan =  1.0698e+03    Rms  =  3.4479e+00    Overflow  =  3.8500e-01    High edge =  1.0000e+01
 
 
-  2014-10-11 14:30       dn/dpT for charged particles
+  2014-10-14 09:56       dn/dpT for charged particles
 
         2.70*10^ 2    9                                                                                                 
         2.60*10^ 2    X                                                                                                 
@@ -502,7 +502,7 @@
    All chan =  2.1247e+03    Rms  =  1.1333e+00    Overflow  =  1.6310e+01    High edge =  1.0000e+01
 
 
-  2014-10-11 14:30       deviation from energy-momentum conservation
+  2014-10-14 09:56       deviation from energy-momentum conservation
 
         1.00*10^ 3  9                                                                                                   
         0.96*10^ 3  X                                                                                                   
