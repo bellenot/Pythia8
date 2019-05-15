@@ -1678,7 +1678,7 @@ double Sigma2ffbar2gmZgmZ::weightDecay( Event& process, int iResBeg,
 //==========================================================================
 
 // Sigma2ffbar2ZW class.
-// Cross section for f fbar' -> W+ W- (f is quark or lepton). 
+// Cross section for f fbar' -> Z0 W+- (f is quark or lepton). 
 
 //--------------------------------------------------------------------------
 
@@ -1700,6 +1700,7 @@ void Sigma2ffbar2ZW::initProc() {
   sin2thetaW = coupSMPtr->sin2thetaW();
   cos2thetaW = coupSMPtr->cos2thetaW();
   thetaWRat  = 1. / (4. * cos2thetaW);  
+  cotT       = sqrt(cos2thetaW / sin2thetaW);
   thetaWpt   = (9. - 8. * sin2thetaW) / 4.;
   thetaWmm   = (8. * sin2thetaW - 6.) / 4.;
 
@@ -1715,17 +1716,36 @@ void Sigma2ffbar2ZW::initProc() {
 
 void Sigma2ffbar2ZW::sigmaKin() { 
 
-  // Evaluate cross section.
-  double resBW = 1. / (pow2(sH - mWS) + mwWS);
-  sigma0  = (M_PI / sH2) * 0.5 * pow2(alpEM / sin2thetaW);
-  sigma0 *= sH * resBW * (thetaWpt * pT2 + thetaWmm * (s3 + s4))
-    + (sH - mWS) * resBW * sH * (pT2 - s3 - s4) * (lun / tH - lde / uH)
-    + thetaWRat * sH * pT2 * ( lun*lun / tH2 + lde*lde / uH2 )
-    + 2. * thetaWRat * sH * (s3 + s4) * lun * lde / (tH * uH);  
+  // Evaluate cross section, as programmed by Merlin Kole (after tidying),
+  // based on Brown, Sahdev, Mikaelian, Phys Rev. D20 (1979) 1069.
+  double resBW  = 1. / (pow2(sH - mWS) + mwWS);
+  double prefac = 12.0 * M_PI * pow2(alpEM) / (sH2 * 8. * sin2thetaW);
+  double temp1  = tH * uH - s3 * s4;
+  double temp2  = temp1 / (s3 * s4);
+  double temp3  = (s3 + s4) / sH;
+  double temp4  = s3 * s4 / sH; 
+  double partA  = temp2 * (0.25 - 0.5 * temp3  
+    + (pow2(s3 + s4) + 8. * s3 * s4)/(4. * sH2) ) 
+    + (s3 + s4)/(s3 * s4) * (sH/2. - s3 - s4 + pow2(s3 - s4)/(2. * sH)); 
+  double partB1 = lun * (0.25 * temp2 * (1. - temp3 - 4. * temp4 / tH) 
+    + ((s3 + s4)/(2. * s3 * s4)) * (sH - s3 - s4 + 2. * s3 * s4 / tH) );
+  double partB2 = lde * ( 0.25 * temp2 * (1.- temp3 - 4. * temp4 / uH) 
+    + ((s3 + s4)/(2. * s3 * s4)) * (sH - s3 - s4 + 2. * s3 * s4 / uH) );
+  double partE = 0.25 * temp2 + 0.5 *(s3 + s4) / temp4;
+  sigma0 = prefac * (pow2(cotT) * sH2 * resBW * partA  
+    + 2.* sH * cotT * resBW * (sH - mWS) * (partB2 - partB1) 
+    + pow2(lun - lde) * partE + pow2(lde) * temp1/uH2 
+    + pow2(lun) * temp1/tH2 + 2. * lun * lde * sH * (s3 + s4) / (uH * tH));
 
-  // Protect against slightly negative cross sections,
-  // probably caused by addition of width to the W propagator.
-  sigma0 = max(0., sigma0);    
+  // Evaluate cross section. Expression from EHLQ, with bug fix,
+  // but can still give negative cross section so suspect.
+  //sigma0  = (M_PI / sH2) * 0.5 * pow2(alpEM / sin2thetaW);
+  //sigma0 *= sH * resBW * (thetaWpt * pT2 + thetaWmm * (s3 + s4))
+  //  + (sH - mWS) * resBW * sH * (pT2 - s3 - s4) * (lun / tH - lde / uH)
+  //  + thetaWRat * sH * pT2 * ( lun*lun / tH2 + lde*lde / uH2 )
+  //  + 2. * thetaWRat * sH * (s3 + s4) * lun * lde / (tH * uH);  
+  // Need to protect against negative cross sections at times.
+  //sigma0 = max(0., sigma0);   
 
 }
 
@@ -2738,6 +2758,91 @@ void Sigma2fgm2Wf::setIdColAcol() {
   else if (abs(id2) < 9) setColAcol( 0, 0, 1, 0, 0, 0, 1, 0);
   else                   setColAcol( 0, 0, 0, 0, 0, 0, 0, 0);
   if (idq < 0) swapColAcol();
+
+}
+
+//==========================================================================
+
+// Sigma2gmgm2ffbar class.
+// Cross section for gamma gamma -> l lbar. 
+
+//--------------------------------------------------------------------------
+
+// Initialize process wrt flavour.
+
+void Sigma2gmgm2ffbar::initProc() {
+
+  // Process name.
+  nameSave = "gamma gamma -> f fbar";
+  if (idNew ==  1) nameSave = "gamma gamma -> q qbar (uds)";
+  if (idNew ==  4) nameSave = "gamma gamma -> c cbar";
+  if (idNew ==  5) nameSave = "gamma gamma -> b bbar";
+  if (idNew ==  6) nameSave = "gamma gamma -> t tbar";
+  if (idNew == 11) nameSave = "gamma gamma -> e+ e-";
+  if (idNew == 13) nameSave = "gamma gamma -> mu+ mu-";
+  if (idNew == 15) nameSave = "gamma gamma -> tau+ tau-";
+
+  // Generate massive phase space, except for u+d+s.
+  idMass = 0;
+  if (idNew > 3) idMass = idNew;
+
+  // Charge and colour factor.
+  ef4 = 1.;
+  if (idNew == 1) ef4 = 3. * (pow4(2./3.) + 2. * pow4(1./3.));
+  if (idNew == 4 || idNew == 6) ef4 = 3. * pow4(2./3.); 
+  if (idNew == 5) ef4 = 3. * pow4(1./3.); 
+
+  // Secondary open width fraction.
+  openFracPair = particleDataPtr->resOpenFrac(idNew, -idNew);
+
+}
+
+//--------------------------------------------------------------------------
+
+// Evaluate d(sigmaHat)/d(tHat) - no incoming flavour dependence. 
+
+void Sigma2gmgm2ffbar::sigmaKin() { 
+
+  // Pick current flavour for u+d+s mix by e_q^4 weights.
+  if (idNew == 1) {
+    double rId = 18. * rndmPtr->flat();
+    idNow = 1;
+    if (rId > 1.)  idNow = 2;
+    if (rId > 17.) idNow = 3;    
+    s34Avg = pow2(particleDataPtr->m0(idNow));
+  } else {
+    idNow = idNew;
+    s34Avg = 0.5 * (s3 + s4) - 0.25 * pow2(s3 - s4) / sH; 
+  }
+
+  // Modified Mandelstam variables for massive kinematics with m3 = m4.
+  double tHQ    = -0.5 * (sH - tH + uH);
+  double uHQ    = -0.5 * (sH + tH - uH); 
+  double tHQ2   = tHQ * tHQ;
+  double uHQ2   = uHQ * uHQ;
+
+  // Calculate kinematics dependence.
+  if (sH < 4. * s34Avg) sigTU = 0.;
+  else sigTU = 2. * (tHQ * uHQ - s34Avg * sH) 
+    * (tHQ2 + uHQ2 + 2. * s34Avg * sH) / (tHQ2 * uHQ2); 
+
+  // Answer.
+  sigma = (M_PI / sH2) * pow2(alpEM) * ef4 * sigTU * openFracPair;  
+
+}
+
+//--------------------------------------------------------------------------
+
+// Select identity, colour and anticolour.
+
+void Sigma2gmgm2ffbar::setIdColAcol() {
+
+  // Flavours are trivial.
+  setId( id1, id2, idNow, -idNow); 
+
+  // Colour flow in singlet state.
+  if (idNow < 10) setColAcol( 0, 0, 0, 0, 1, 0, 0, 1);
+  else            setColAcol( 0, 0, 0, 0, 0, 0, 0, 0);
 
 }
 

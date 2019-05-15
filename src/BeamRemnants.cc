@@ -291,8 +291,9 @@ bool BeamRemnants::setKinematics( Event& event) {
         double pySum = 0.;
         for (int iPar = 0; iPar < nPar; ++iPar) { 
           if ( beam[iPar].isFromBeam() ) {
-            double px = kTwidth[iPar] * rndmPtr->gauss();
-            double py = kTwidth[iPar] * rndmPtr->gauss();
+            pair<double, double> gauss2 = rndmPtr->gauss2();
+            double px = kTwidth[iPar] * gauss2.first;
+            double py = kTwidth[iPar] * gauss2.second;
             beam[iPar].px(px);
             beam[iPar].py(py);
             pxSum += px;

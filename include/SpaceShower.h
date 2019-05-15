@@ -44,11 +44,10 @@ public:
   void store( int idDaughterIn, int idMotherIn, int idSisterIn,   
     double x1In, double x2In, double m2DipIn, double pT2In, double zIn,
     double xMoIn, double Q2In, double mSisterIn, double m2SisterIn, 
-    double pT2corrIn, double phiIn) {idDaughter = idDaughterIn; 
-    idMother = idMotherIn; idSister = idSisterIn; x1 = x1In; x2 = x2In; 
-    m2Dip = m2DipIn; pT2 = pT2In; z = zIn; xMo = xMoIn; Q2 = Q2In; 
-    mSister = mSisterIn; m2Sister = m2SisterIn; pT2corr = pT2corrIn; 
-    phi = phiIn;}
+    double pT2corrIn) {idDaughter = idDaughterIn; idMother = idMotherIn; 
+    idSister = idSisterIn; x1 = x1In; x2 = x2In; m2Dip = m2DipIn; 
+    pT2 = pT2In; z = zIn; xMo = xMoIn; Q2 = Q2In; mSister = mSisterIn; 
+    m2Sister = m2SisterIn; pT2corr = pT2corrIn;}
  
   // Basic properties related to evolution and matrix element corrections.
   int    system, side, iRadiator, iRecoiler;
@@ -57,9 +56,9 @@ public:
   bool   normalRecoil;
   
   // Properties specific to current trial emission.
-  int    nBranch, idDaughter, idMother, idSister;  
-  double x1, x2, m2Dip, pT2, z, xMo, Q2, mSister, m2Sister, pT2corr, phi,
-         pT2Old, zOld;
+  int    nBranch, idDaughter, idMother, idSister, iFinPol;  
+  double x1, x2, m2Dip, pT2, z, xMo, Q2, mSister, m2Sister, pT2corr, 
+         pT2Old, zOld, asymPol;
 
 } ;
  
@@ -93,7 +92,7 @@ public:
   void reassignBeamPtrs( BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn) 
     {beamAPtr = beamAPtrIn; beamBPtr = beamBPtrIn;}
 
-  // Find whether to limit maximum scale of emissions.
+  // Find whether to limit maximum scale of emissions, and whether to dampen.
   virtual bool limitPTmax( Event& event, double Q2Fac = 0., 
     double Q2Ren = 0.);
 
@@ -163,14 +162,15 @@ private:
 
   // Initialization data, normally only set once.
   bool   doQCDshower, doQEDshowerByQ, doQEDshowerByL, useSamePTasMI,
-         doMEcorrections, doPhiPolAsym, doRapidityOrder, canVetoEmission;
+         doMEcorrections, doPhiPolAsym, doPhiIntAsym, doRapidityOrder, 
+         canVetoEmission;
   int    pTmaxMatch, pTdampMatch, alphaSorder, alphaEMorder, nQuarkIn, 
          enhanceScreening;
   double pTdampFudge, mc, mb, m2c, m2b, alphaSvalue, alphaS2pi, 
          Lambda3flav, Lambda4flav, Lambda5flav, Lambda3flav2, Lambda4flav2, 
          Lambda5flav2, pT0Ref, ecmRef, ecmPow, pTmin, sCM, eCM, pT0, 
          pTminChgQ, pTminChgL, pT20, pT2min, pT2minChgQ, pT2minChgL, 
-         pTmaxFudgeMI; 
+         pTmaxFudgeMI, strengthIntAsym; 
 
   // alphaStrong and alphaEM calculations.
   AlphaStrong alphaS;
@@ -179,7 +179,7 @@ private:
   // Some current values.
   bool   sideA, dopTdamp;
   int    iNow, iRec, idDaughter, nRad, idResFirst, idResSecond;
-  double xDaughter, x1Now, x2Now, m2Dip, m2Rec, pT2damp;
+  double xDaughter, x1Now, x2Now, m2Dip, m2Rec, pT2damp, pTbegRef;
 
   // All dipole ends
   vector<SpaceDipoleEnd> dipEnd;
@@ -212,7 +212,7 @@ private:
     double z, double Q2); 
 
   // Find coefficient of azimuthal asymmetry from gluon polarization.
-  // void findAsymPol(DipoleEnd*);
+  void findAsymPol( Event& event, SpaceDipoleEnd* dip);
 
 };
  

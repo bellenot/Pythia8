@@ -41,6 +41,10 @@ bool ResonanceWidths::init(Info* infoPtrIn, Settings* settingsPtrIn,
   particleDataPtr = particleDataPtrIn;
   coupSMPtr       = coupSMPtrIn;
 
+  // Minimal decaying-resonance width. Minimal phase space for meMode = 103.
+  minWidth     = settingsPtr->parm("ResonanceWidths:minWidth");
+  minThreshold = settingsPtr->parm("ResonanceWidths:minThreshold");
+
   // Pointer to particle species.
   particlePtr  = particleDataPtr->particleDataEntryPtr(idRes);
   if (particlePtr == 0) {
@@ -75,10 +79,6 @@ bool ResonanceWidths::init(Info* infoPtrIn, Settings* settingsPtrIn,
   // Check that resonance OK.
   if (particlePtr == 0) infoPtr->errorMsg("Error in ResonanceWidths::init:"
       " unknown resonance identity code");   
-
-  // Minimal decaying-resonance width. Minimal phase space for meMode = 103.
-  minWidth     = settingsPtr->parm("ResonanceWidths:minWidth");
-  minThreshold = settingsPtr->parm("ResonanceWidths:minThreshold");
 
   // Initialize constants used for a resonance.
   initConstants();
@@ -1658,8 +1658,19 @@ void ResonanceExcited::calcWidth(bool) {
 
 void ResonanceGraviton::initConstants() {
 
-  // Locally stored properties and couplings: kappa * m_G*.
-  kappaMG       = settingsPtr->parm("ExtraDimensionsG*:kappaMG");
+  // SMinBulk = off/on, use universal coupling (kappaMG) 
+  // or individual (Gxx) between graviton and SM particles.
+  m_smbulk   = settingsPtr->flag("ExtraDimensionsG*:SMinBulk");
+  kappaMG    = settingsPtr->parm("ExtraDimensionsG*:kappaMG");
+  for (int i = 0; i < 26; ++i) m_coupling[i] = 0.;
+  double tmp_coup = settingsPtr->parm("ExtraDimensionsG*:Gqq");
+  for (int i = 1; i <= 4; ++i)  m_coupling[i] = tmp_coup;
+  m_coupling[5] = settingsPtr->parm("ExtraDimensionsG*:Gbb"); 
+  m_coupling[6] = settingsPtr->parm("ExtraDimensionsG*:Gtt");
+  tmp_coup = settingsPtr->parm("ExtraDimensionsG*:Gll");
+  for (int i = 11; i <= 16; ++i) m_coupling[i] = tmp_coup;
+  tmp_coup = settingsPtr->parm("ExtraDimensionsG*:GVV");
+  for (int i = 21; i <= 24; ++i) m_coupling[i] = tmp_coup; 
 
 }
 
@@ -1672,7 +1683,7 @@ void ResonanceGraviton::calcPreFac(bool) {
   // Common coupling factors.
   alpS          = coupSMPtr->alphaS(mHat * mHat);
   colQ          = 3. * (1. + alpS / M_PI);
-  preFac        = pow2(kappaMG) * mHat / M_PI;
+  preFac        = mHat / M_PI;
 
 }
 
@@ -1702,7 +1713,58 @@ void ResonanceGraviton::calcWidth(bool) {
     if (id1Abs == 23) widNow *= 0.5;
   }
 
+  // RS graviton coupling
+  if (m_smbulk) widNow *= 2. * pow2(m_coupling[min( id1Abs, 25)] * mHat);  
+  else          widNow *= pow2(kappaMG);
+
 }
+
+//==========================================================================
+
+// The ResonanceKKgluon class.
+// Derived class for excited kk-gluon properties.
+
+//--------------------------------------------------------------------------
+
+// Initialize constants.
+
+void ResonanceKKgluon::initConstants() {
+
+  // KK-gluon couplings.
+  for (int i = 0; i < 10; ++i) m_coupling[i] = 0.;
+  double tmp_coup = settingsPtr->parm("ExtraDimensionsG*:KKgqq");
+  for (int i = 1; i <= 4; ++i)  m_coupling[i] = tmp_coup;
+  m_coupling[5] = settingsPtr->parm("ExtraDimensionsG*:KKgbb"); 
+  m_coupling[6] = settingsPtr->parm("ExtraDimensionsG*:KKgtt");
+
+}
+
+//--------------------------------------------------------------------------
+
+// Calculate various common prefactors for the current mass.
+
+void ResonanceKKgluon::calcPreFac(bool) {
+
+  // Common coupling factors.
+  alpS          = coupSMPtr->alphaS(mHat * mHat);
+  preFac        = alpS * mHat / 6;
+
+}
+
+//--------------------------------------------------------------------------
+
+// Calculate width for currently considered channel.
+
+void ResonanceKKgluon::calcWidth(bool) {
+
+  // Check that above threshold.
+  if (ps == 0.) return;
+
+  // Widths to quark pairs.
+  if (id1Abs < 9)  widNow = preFac * ps * (1. + 2. * mr1) 
+    * pow2(m_coupling[id1Abs]);
+
+} 
  
 //==========================================================================
 

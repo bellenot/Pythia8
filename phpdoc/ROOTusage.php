@@ -29,8 +29,16 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 
 <h2>ROOT usage</h2>
 
-(This text has been contributed by Andreas Morsch, the second example
-by Rene Brun.)
+Many PYTHIA users wish to use ROOT to produce histograms, or even to
+run PYTHIA as a plugin to ROOT. This is possible. It is not a task
+supported by the PYTHIA team, however. All issues involving ROOT usage
+should be directed to the ROOT team, or to the local support team of
+your collaboration. Below some helpful hints have been collected. 
+The text is based on a contribution by Andreas Morsch, 
+and the second example is provided by Rene Brun. Another example may 
+be found in the <a href="http://home.fnal.gov/~skands/vincia/">VINCIA</a> 
+add-on program for parton showers, but this should also work for 
+a PYTHIA standalone run.
 
 <h3>Interfaces</h3>
 
@@ -159,48 +167,22 @@ load three libraries before running the actual code:
 It is not necessary to run PYTHIA as a ROOT plug-in. One can also perform 
 the generation and analysis of events in a completely standalone fashion,
 and only use ROOT for the histogramming step. One example, with a   
-lightly modified version of <code>main01.cc</code>, is
-<pre>
-//gSystem.Load("../libPythia8");
-// File: main01.cc
-// This is a simple test program. It fits on one slide in a talk. 
-// It studies the charged multiplicity distribution at the LHC.
-// Copyright C 2007 Torbjorn Sjostrand
-//#include "Pythia.h"
-#include "TH1.h"
-using namespace Pythia8; 
-int ex1() {
-  // Generator. Process selection. LHC initialization. Histogram.
-  Pythia pythia;
-  pythia.readString("HardQCD:all = on");    
-  pythia.readString("PhaseSpace:pTHatMin = 20.");  
-  pythia.init( 2212, 2212, 14000.);
-  TFile *file = TFile::Open("ex1.root","recreate");
-  Event *event = &pythia.event;
-  TTree *T = new TTree("T","ev1 Tree");
-  T->Branch("event","Event",&event);
-  TH1F *mult = new TH1F("mult","charged multiplicity", 100, -0.5, 799.5);
-  // Begin event loop. Generate event. Skip if error. List first one.
-  for (int iEvent = 0; iEvent < 100; ++iEvent) {
-    if (!pythia.next()) continue;
-    //if (iEvent < 1) {pythia.info.list(); pythia.event.list();} 
-    // Find number of all final charged particles and fill histogram.
-    int nCharged = 0;
-    for (int i = 0; i < pythia.event.size(); ++i) 
-      if (pythia.event[i].isFinal() && pythia.event[i].isCharged()) 
-        ++nCharged; 
-    mult->Fill( nCharged );
-    T->Fill();
-  // End of event loop. Statistics. Histogram. Done.
-  }
-  pythia.statistics();
-  cout << mult; 
-  T->Print();
-  T->Write();
-  delete file;
-  return 0;
-}
-</pre>
+lightly modified version of <code>main01.cc</code>, is available in 
+the <code>rootexample</code> subdirectory. 
+
+<p/>
+Here 
+<ul>
+<li><code>ex1.C</code> is the small main program writing the Tree.</li>
+<li><code>goex1</code> is a small script that
+<br/>a) generates the dictionary for all PYTHIA classes involved in the IO
+(first line; note that you only need to execute it once); and
+<br/>b) links the <code>ex1</code> executable with the relevant libs.</li>
+<li><code>pythiaLinkdef.h</code> is the input file indicating to rootcint 
+which PYTHIA classes to process.</li>
+<li><code>pythiaROOT.h</code> is a small include declaring <code>Pythia8</code> 
+namespace as default.</li>
+</ul>
 
 </body>
 </html>

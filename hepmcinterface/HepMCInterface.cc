@@ -27,7 +27,8 @@ namespace HepMC {
                           m_internal_event_number(0),
                           m_crash_on_problem(false),
                           m_convert_to_mev(false),
-                          m_mom_scale_factor(1.)
+                          m_mom_scale_factor(1.),
+                          m_freepartonwarnings(true)
   {;}
 
   I_Pythia8::~I_Pythia8()
@@ -195,15 +196,17 @@ namespace HepMC {
         prod_vtx->add_particle_out( hepevt_particles[i] );
         evt->add_vertex( prod_vtx );
       }
-      if ( hepevt_particles[i]->pdg_id() == 21 &&
-           !hepevt_particles[i]->end_vertex()     ) {
-        std::cerr << "gluon without end vertex " << i << std::endl;
-        if ( m_crash_on_problem ) exit(1);
-      }
-      if ( abs(hepevt_particles[i]->pdg_id()) <= 6 &&
-           !hepevt_particles[i]->end_vertex()         ) {
-        std::cerr << "quark without end vertex " << i << std::endl;
-        if ( m_crash_on_problem ) exit(1);
+      if( m_freepartonwarnings ) {
+        if ( hepevt_particles[i]->pdg_id() == 21 &&
+             !hepevt_particles[i]->end_vertex()     ) {
+          std::cerr << "gluon without end vertex " << i << std::endl;
+          if ( m_crash_on_problem ) exit(1);
+        }
+        if ( abs(hepevt_particles[i]->pdg_id()) <= 6 &&
+             !hepevt_particles[i]->end_vertex()         ) {
+          std::cerr << "quark without end vertex " << i << std::endl;
+          if ( m_crash_on_problem ) exit(1);
+        }
       }
     }
 
@@ -221,6 +224,10 @@ namespace HepMC {
     // return T/F =success/failure
     // this method fills also PDF info
     //
+
+    bool doHadr = pythia.flag("HadronLevel:all") &&
+                  pythia.flag("HadronLevel:Hadronize");
+    if(!doHadr) m_freepartonwarnings = false;
 
     bool result = fill_next_event( pythia.event, evt, ievnum );
     if( result ) {

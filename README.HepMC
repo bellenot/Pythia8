@@ -38,6 +38,7 @@ which takes a minute or two and an amount of output.
 
 8) Now move to your pythia8125 (or later) directory and configure with
      ./configure --with-hepmc=mypath/hepmc/install --with-hepmcversion=2.04.02
+   (Re)compile with "make" (or "gmake") as usual.
 
 9) Move to the examples subdirectory and do
      source config.sh
@@ -52,5 +53,5 @@ shadowed; this is harmless)
 NOTE: HepMC 2.04 allows you to set the units of the event record,
 i.e. to ensure that the Pythia default choice of GeV and mm (with c = 1)
 is propagated to the HepMC event record. This feature is not available
-in 2.03. The two test programs main31 and main31 therefore come with
+in 2.03. The two test programs main31 and main32 therefore come with
 the Units code commented out, but with instructions how to restore it.  

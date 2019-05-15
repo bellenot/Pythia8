@@ -10,22 +10,32 @@
 
 Compositeness scenarios may give rise to sharp resonances of excited 
 quarks and leptons. An excited copy of the first generation is 
-implemented, consisting of spin 1/2 particles.
+implemented, consisting of spin 1/2 particles. The possibility of 
+contact interactions between quarks is also implemented in the context 
+of <i>2 -> 2</i> quark scattering. 
 
 <p/>  
-The current implementation contains gauge interaction production
-by quark-gluon fusion or lepton-photon fusion and contact interaction 
-production by quark-quark or quark-antiquark scattering. In additions 
-to the compositness scale and couplings listed below, you are expected 
-to change the excited-fermion masses in accordance with what is desired.
-See [<a href="Bibliography.html" target="page">Bau90</a>] for conventions.
+Related to excited fermions, the current implementation contains gauge 
+interaction production by quark-gluon fusion or lepton-photon fusion 
+and contact interaction production by quark-quark or quark-antiquark 
+scattering. In additions to the compositness scale and couplings listed 
+below, you are expected to change the excited-fermion masses in accordance 
+with what is desired. See [<a href="Bibliography.html" target="page">Bau90</a>] for conventions.
 
 <p/>
 A non-trivial angular dependence is included in the decay for the
 <i>2 -> 1</i> processes, but has not been included for the 
 <i>2 -> 2</i> ones.
 
-<h3>Production processes</h3>
+<p/>
+The quark contact interactions are implemented according to 
+[<a href="Bibliography.html" target="page">Eic83</a>]. The processes include the QCD contributions 
+as well as interference. For this reason the two processes 
+below converge toward, <code>HardQCD:qq2qq</code> and 
+<code>HardQCD:qqbar2qqbarNew</code>, when the contact interaction 
+contributions are close to zero. 
+
+<h3>Excited fermions, production processes</h3>
 
 A few different production processes have been implemented, which normally 
 would not overlap and therefore could be run together.
@@ -150,28 +160,82 @@ Scatterings <i>q qbar -> nu_tau^* nu_taubar</i>.
 Code 4036.
   
 
-<h3>Parameters</h3>
+<h3>Excited fermions, parameters</h3>
 
 The basic couplings of the model are
 
 <p/><code>parm&nbsp; </code><strong> ExcitedFermion:Lambda &nbsp;</strong> 
  (<code>default = <strong>1000.</strong></code>; <code>minimum = 100.</code>)<br/>
-compositeness scale <i>Lambda</i> in GeV.
+Compositeness scale <i>Lambda</i> in GeV.
   
 
 <p/><code>parm&nbsp; </code><strong> ExcitedFermion:coupF &nbsp;</strong> 
  (<code>default = <strong>1.0</strong></code>; <code>minimum = 0.0</code>)<br/>
-strength <i>f</i> of the <i>SU(2)</i> coupling.
+Strength <i>f</i> of the <i>SU(2)</i> coupling.
   
 
 <p/><code>parm&nbsp; </code><strong> ExcitedFermion:coupFprime &nbsp;</strong> 
  (<code>default = <strong>1.0</strong></code>; <code>minimum = 0.0</code>)<br/>
-strength <i>f'</i> of the <i>U(1)</i> coupling.
+Strength <i>f'</i> of the <i>U(1)</i> coupling.
   
 
 <p/><code>parm&nbsp; </code><strong> ExcitedFermion:coupFcol &nbsp;</strong> 
  (<code>default = <strong>1.0</strong></code>; <code>minimum = 0.0</code>)<br/>
-strength <i>f_c</i> of the <i>SU(3)</i> coupling.
+Strength <i>f_c</i> of the <i>SU(3)</i> coupling.
+  
+
+<h3>Contact interactions, production processes</h3>
+
+The processes including quark contact interactions are
+
+<p/><code>flag&nbsp; </code><strong> ContactInteractions:QCqq2qq &nbsp;</strong> 
+ (<code>default = <strong>off</strong></code>)<br/>
+Scatterings <i>q q -> q q</i> including contact interactions. 
+Code 4201.
+  
+
+<p/><code>flag&nbsp; </code><strong> ContactInteractions:QCqqbar2qqbar &nbsp;</strong> 
+ (<code>default = <strong>off</strong></code>)<br/>
+Scatterings <i>q qbar -> q' qbar'</i> including contact interactions. 
+Code 4202.
+  
+
+<h3>Contact interactions, parameters</h3>
+
+<p/><code>mode&nbsp; </code><strong> ContactInteractions:nQuarkNew &nbsp;</strong> 
+ (<code>default = <strong>3</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)<br/>
+Number of allowed outgoing new quark flavours in the above
+<i>q qbar -> q' qbar'</i> process. Similar to <i>HardQCD:nQuarkNew</i> 
+for the QCD processes.
+  
+
+<p/><code>parm&nbsp; </code><strong> ContactInteractions:Lambda &nbsp;</strong> 
+ (<code>default = <strong>1000.</strong></code>; <code>minimum = 100.</code>)<br/>
+Compositeness scale <i>Lambda</i> in GeV.
+  
+
+<p/><code>mode&nbsp; </code><strong> ContactInteractions:etaLL &nbsp;</strong> 
+ (<code>default = <strong>0</strong></code>; <code>minimum = -1</code>; <code>maximum = 1</code>)<br/>
+Helicity parameter. 
+<br/><code>option </code><strong> 1</strong> :   
+<br/><code>option </code><strong> 0</strong> :   
+<br/><code>option </code><strong> -1</strong> :   
+  
+
+<p/><code>mode&nbsp; </code><strong> ContactInteractions:etaRR &nbsp;</strong> 
+ (<code>default = <strong>0</strong></code>; <code>minimum = -1</code>; <code>maximum = 1</code>)<br/>
+Helicity parameter. 
+<br/><code>option </code><strong> 1</strong> :   
+<br/><code>option </code><strong> 0</strong> :   
+<br/><code>option </code><strong> -1</strong> :   
+  
+
+<p/><code>mode&nbsp; </code><strong> ContactInteractions:etaLR &nbsp;</strong> 
+ (<code>default = <strong>0</strong></code>; <code>minimum = -1</code>; <code>maximum = 1</code>)<br/>
+Helicity parameter. 
+<br/><code>option </code><strong> 1</strong> :   
+<br/><code>option </code><strong> 0</strong> :   
+<br/><code>option </code><strong> -1</strong> :   
   
 
 </body>

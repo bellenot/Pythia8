@@ -106,11 +106,11 @@ The constructor and destructor do not need to do anything.
   
 
 <a name="method2"></a>
-<p/><strong>void UserHooks::initPtr( Info* infoPtr, Settings* settingsPtr, ParticleData* particleDataPtr,PartonSystems* partonSystemsPtr) &nbsp;</strong> <br/>
-this (non-virtual) method is automatically called during the initialization 
-stage to set four useful pointers, and to set up the <code>workEvent</code>
-below. The corresponding objects can later be used to extract some useful 
-information.
+<p/><strong>void UserHooks::initPtr( Info* infoPtr, Settings* settingsPtr, ParticleData* particleDataPtr,  Rndm* rndmPtr, BeamParticle* beamAPtr, BeamParticle* beamBPtr, BeamParticle* beamPomAPtr, BeamParticle* beamPomBPtr, CoupSM* coupSMPtr, PartonSystems* partonSystemsPtr, SigmaTotal* sigmaTotPtr) &nbsp;</strong> <br/>
+this (non-virtual) method is automatically called during the 
+initialization stage to set several useful pointers, and to set up 
+the <code>workEvent</code> below. The corresponding objects can 
+later be used to extract some useful information.
 <br/><?php $filepath = $_GET["filepath"];
 echo "<a href='EventInformation.php?filepath=".$filepath."' target='page'>";?>Info</a>:
 general event and run information, including some loop counters.
@@ -118,12 +118,29 @@ general event and run information, including some loop counters.
 echo "<a href='SettingsScheme.php?filepath=".$filepath."' target='page'>";?>Settings</a>: 
 the settings used to determine the character of the run. 
 <br/><?php $filepath = $_GET["filepath"];
-echo "<a href='ParticleDataScheme.php?filepath=".$filepath."' target='page'>";?>Particle Data</a>: 
+echo "<a href='ParticleDataScheme.php?filepath=".$filepath."' target='page'>";?>ParticleData</a>: 
 the particle data used in the event record 
 (including <code>workEvent</code> below).
 <br/><?php $filepath = $_GET["filepath"];
+echo "<a href='RandomNumbers.php?filepath=".$filepath."' target='page'>";?>Rndm</a>: the random number 
+generator, that you could also use in your code.
+<br/><?php $filepath = $_GET["filepath"];
+echo "<a href='BeamRemnants.php?filepath=".$filepath."' target='page'>";?>BeamParticle</a>: 
+the <code>beamAPtr</code> and <code>beamBPtr</code> beam particles 
+contain info on partons extracted from the two incoming beams, 
+on the PDFs used, and more. In cases when diffraction is simulated, 
+also special Pomeron beams <code>beamPomAPtr</code> and 
+<code>beamPomBPtr</code> are introduced, for the Pomerons residing 
+inside the respective proton. 
+<br/><?php $filepath = $_GET["filepath"];
+echo "<a href='StandardModelParameters.php?filepath=".$filepath."' target='page'>";?>CoupSM</a>: 
+Standard Model couplings. 
+<br/><?php $filepath = $_GET["filepath"];
 echo "<a href='AdvancedUsage.php?filepath=".$filepath."' target='page'>";?>PartonSystems</a>: 
 the list of partons that belong to each individual subcollision system.   
+<br/><?php $filepath = $_GET["filepath"];
+echo "<a href='TotalCrossSections.php?filepath=".$filepath."' target='page'>";?>SigmaTotal</a>: 
+total/elastic/diffractive cross section parametrizations.
   
 
 <p/> 
@@ -221,15 +238,20 @@ the cases of interest.
   
 
 <a name="method7"></a>
-<p/><strong>virtual bool UserHooks::doVetoProcessLevel(const Event& process) &nbsp;</strong> <br/>
-can optionally be called, as described above. You can study, but not
-modify, the <code>process</code> event record of the hard process. 
+<p/><strong>virtual bool UserHooks::doVetoProcessLevel(Event& process) &nbsp;</strong> <br/>
+can optionally be called, as described above. You can study the 
+<code>process</code> event record of the hard process. 
 Based on that you can decide whether to veto the event, true, or let 
 it continue to evolve, false. If you veto, then this event is not
 counted among the accepted ones, and does not contribute to the estimated
 cross section. The <code>Pytha::next()</code> method will begin a 
 completely new event, so the vetoed event will not appear in the 
 output of <code>Pythia::next()</code>.
+<br/><b>Warning:</b> Normally you should not modify the <code>process</code>
+event record. However, for some matrix-element-matching procedures it may 
+become unavoidable. If so, be very careful, since there are many pitfalls.
+Only to give one example: if you modify the incoming partons then also
+the information stored in the beam particles may need to be modified. 
 <br/><b>Note:</b> the above veto is different from setting the flag
 <code><?php $filepath = $_GET["filepath"];
 echo "<a href='MasterSwitches.php?filepath=".$filepath."' target='page'>";?>PartonLevel:all = off</a></code>. 

@@ -36,10 +36,16 @@ public:
 
   // Initialize pointers and workEvent. Note: not virtual.
   void initPtr( Info* infoPtrIn, Settings* settingsPtrIn, 
-    ParticleData* particleDataPtrIn, PartonSystems* partonSystemsPtrIn) {
-    infoPtr = infoPtrIn; settingsPtr = settingsPtrIn; 
-    particleDataPtr = particleDataPtrIn; 
-    partonSystemsPtr = partonSystemsPtrIn;
+    ParticleData* particleDataPtrIn,  Rndm* rndmPtrIn, 
+    BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, 
+    BeamParticle* beamPomAPtrIn, BeamParticle* beamPomBPtrIn, 
+    CoupSM* coupSMPtrIn, PartonSystems* partonSystemsPtrIn, 
+    SigmaTotal* sigmaTotPtrIn) { infoPtr = infoPtrIn; 
+    settingsPtr = settingsPtrIn; particleDataPtr = particleDataPtrIn;
+    rndmPtr = rndmPtrIn; beamAPtr = beamAPtrIn; beamBPtr = beamBPtrIn;
+    beamPomAPtr = beamPomAPtrIn; beamPomBPtr = beamPomBPtrIn;
+    coupSMPtr = coupSMPtrIn; partonSystemsPtr = partonSystemsPtrIn;
+    sigmaTotPtr = sigmaTotPtrIn;
     workEvent.init("(work event)", particleDataPtr);}
 
   // Possibility to modify cross section of process.
@@ -54,7 +60,7 @@ public:
 
   // Decide whether to veto current process or not, based on process record.
   // Usage: doVetoProcessLevel( process).
-  virtual bool doVetoProcessLevel( const Event& ) {return false;}
+  virtual bool doVetoProcessLevel(Event& ) {return false;}
 
   // Possibility to veto MI + ISR + FSR evolution and kill event, 
   // making decision at a fixed pT scale. Useful for MLM-style matching.
@@ -112,7 +118,7 @@ public:
 
   // Decide whether to veto current emission or not, based on event record.
   // Usage: doVetoISREmission( sizeOld, event) where sizeOld is size
-  // of event record before current emission-to-be-scrutinied was added. 
+  // of event record before current emission-to-be-scrutinized was added. 
   virtual bool doVetoISREmission( const int, const Event& ) {return false;} 
 
   // Possibility to veto an emission in the FSR machinery.
@@ -120,7 +126,7 @@ public:
 
   // Decide whether to veto current emission or not, based on event record.
   // Usage: doVetoFSREmission( sizeOld, event) where sizeOld is size
-  // of event record before current emission-to-be-scrutinied was added. 
+  // of event record before current emission-to-be-scrutinized was added. 
   virtual bool doVetoFSREmission( const int, const Event& ) {return false;} 
 
 protected:
@@ -137,8 +143,23 @@ protected:
   // Pointer to the particle data table.
   ParticleData*  particleDataPtr;
 
+ // Pointer to the random number generator.
+  Rndm*          rndmPtr;
+
+  // Pointers to the two incoming beams and to Pomeron beam-inside-beam.
+  BeamParticle*  beamAPtr;
+  BeamParticle*  beamBPtr;
+  BeamParticle*  beamPomAPtr;
+  BeamParticle*  beamPomBPtr;
+
+  // Pointers to Standard Model couplings.
+  CoupSM*        coupSMPtr;
+
   // Pointer to information on subcollision parton locations.
   PartonSystems* partonSystemsPtr;
+
+  // Pointer to the total/elastic/diffractive cross sections.
+  SigmaTotal*    sigmaTotPtr;
 
   // omitResonanceDecays omits resonance decay chains from process record.
   void omitResonanceDecays(const Event& process); 

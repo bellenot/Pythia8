@@ -48,10 +48,10 @@ class Rndm {
 public:
 
   // Constructors.
-  Rndm() : initRndm(false), saveGauss(false), seedSave(0), 
-    sequence(0), useExternalRndm(false), rndmEngPtr(0) { } 
-  Rndm(int seedIn) : initRndm(false), saveGauss(false), seedSave(0), 
-    sequence(0), useExternalRndm(false), rndmEngPtr(0) { init(seedIn);} 
+  Rndm() : initRndm(false), seedSave(0), sequence(0), 
+    useExternalRndm(false), rndmEngPtr(0) { } 
+  Rndm(int seedIn) : initRndm(false), seedSave(0), sequence(0), 
+    useExternalRndm(false), rndmEngPtr(0) { init(seedIn);} 
 
   // Possibility to pass in pointer for external random number generation.
   bool rndmEnginePtr( RndmEngine* rndmEngPtrIn);  
@@ -69,7 +69,12 @@ public:
   double xexp() { return -log(flat() * flat()) ;} 
 
   // Generate random numbers according to exp(-x^2/2).
-  double gauss() ;
+  double gauss() {return sqrt(-2. * log(flat())) * cos(M_PI * flat());}
+
+  // Generate two random numbers according to exp(-x^2/2-y^2/2).
+  pair<double, double> gauss2() {double r = sqrt(-2. * log(flat()));
+    double phi = 2. * M_PI * flat(); 
+    return pair<double, double>(r * sin(phi), r * cos(phi));}
 
   // Pick one option among  vector of (positive) probabilities.
   int pick(const vector<double>& prob) ; 
@@ -84,10 +89,10 @@ private:
   static const int DEFAULTSEED;
 
   // State of the random number generator.
-  bool   initRndm, saveGauss; 
+  bool   initRndm; 
   int    i97, j97, defaultSeed, seedSave;
   long   sequence;
-  double u[97], c, cd, cm, save;
+  double u[97], c, cd, cm;
 
   // Pointer for external random number generation.
   bool   useExternalRndm; 
@@ -380,7 +385,7 @@ public:
 private:
 
   // Constants: could only be changed in the code itself.
-  static const int    NBINMAX, NLINES;
+  static const int    NBINMAX, NCOLMAX, NLINES;
   static const double TOLERANCE, TINY, SMALLFRAC, DYAC[];
   static const char   NUMBER[];
 

@@ -4,22 +4,32 @@
 
 Compositeness scenarios may give rise to sharp resonances of excited 
 quarks and leptons. An excited copy of the first generation is 
-implemented, consisting of spin 1/2 particles.
+implemented, consisting of spin 1/2 particles. The possibility of 
+contact interactions between quarks is also implemented in the context 
+of <ei>2 -> 2</ei> quark scattering. 
 
 <p/>  
-The current implementation contains gauge interaction production
-by quark-gluon fusion or lepton-photon fusion and contact interaction 
-production by quark-quark or quark-antiquark scattering. In additions 
-to the compositness scale and couplings listed below, you are expected 
-to change the excited-fermion masses in accordance with what is desired.
-See <ref>Bau90</ref> for conventions.
+Related to excited fermions, the current implementation contains gauge 
+interaction production by quark-gluon fusion or lepton-photon fusion 
+and contact interaction production by quark-quark or quark-antiquark 
+scattering. In additions to the compositness scale and couplings listed 
+below, you are expected to change the excited-fermion masses in accordance 
+with what is desired. See <ref>Bau90</ref> for conventions.
 
 <p/>
 A non-trivial angular dependence is included in the decay for the
 <ei>2 -> 1</ei> processes, but has not been included for the 
 <ei>2 -> 2</ei> ones.
 
-<h3>Production processes</h3>
+<p/>
+The quark contact interactions are implemented according to 
+<ref>Eic83</ref>. The processes include the QCD contributions 
+as well as interference. For this reason the two processes 
+below converge toward, <code>HardQCD:qq2qq</code> and 
+<code>HardQCD:qqbar2qqbarNew</code>, when the contact interaction 
+contributions are close to zero. 
+
+<h3>Excited fermions, production processes</h3>
 
 A few different production processes have been implemented, which normally 
 would not overlap and therefore could be run together.
@@ -124,25 +134,72 @@ Scatterings <ei>q qbar -> nu_tau^* nu_taubar</ei>.
 Code 4036.
 </flag>
 
-<h3>Parameters</h3>
+<h3>Excited fermions, parameters</h3>
 
 The basic couplings of the model are
 
 <parm name="ExcitedFermion:Lambda" default="1000." min="100.">
-compositeness scale <ei>Lambda</ei> in GeV.
+Compositeness scale <ei>Lambda</ei> in GeV.
 </parm>
 
 <parm name="ExcitedFermion:coupF" default="1.0" min="0.0">
-strength <ei>f</ei> of the <ei>SU(2)</ei> coupling.
+Strength <ei>f</ei> of the <ei>SU(2)</ei> coupling.
 </parm>
 
 <parm name="ExcitedFermion:coupFprime" default="1.0" min="0.0">
-strength <ei>f'</ei> of the <ei>U(1)</ei> coupling.
+Strength <ei>f'</ei> of the <ei>U(1)</ei> coupling.
 </parm>
 
 <parm name="ExcitedFermion:coupFcol" default="1.0" min="0.0">
-strength <ei>f_c</ei> of the <ei>SU(3)</ei> coupling.
+Strength <ei>f_c</ei> of the <ei>SU(3)</ei> coupling.
 </parm>
+
+<h3>Contact interactions, production processes</h3>
+
+The processes including quark contact interactions are
+
+<flag name="ContactInteractions:QCqq2qq" default="off">
+Scatterings <ei>q q -> q q</ei> including contact interactions. 
+Code 4201.
+</flag>
+
+<flag name="ContactInteractions:QCqqbar2qqbar" default="off">
+Scatterings <ei>q qbar -> q' qbar'</ei> including contact interactions. 
+Code 4202.
+</flag>
+
+<h3>Contact interactions, parameters</h3>
+
+<modeopen name="ContactInteractions:nQuarkNew" default="3" min="0" max="5">
+Number of allowed outgoing new quark flavours in the above
+<ei>q qbar -> q' qbar'</ei> process. Similar to <ei>HardQCD:nQuarkNew</ei> 
+for the QCD processes.
+</modeopen>
+
+<parm name="ContactInteractions:Lambda" default="1000." min="100.">
+Compositeness scale <ei>Lambda</ei> in GeV.
+</parm>
+
+<modepick name="ContactInteractions:etaLL" default="0" min="-1" max="1">
+Helicity parameter. 
+<option value="1"></option>
+<option value="0"></option>
+<option value="-1"></option>
+</modepick>
+
+<modepick name="ContactInteractions:etaRR" default="0" min="-1" max="1">
+Helicity parameter. 
+<option value="1"></option>
+<option value="0"></option>
+<option value="-1"></option>
+</modepick>
+
+<modepick name="ContactInteractions:etaLR" default="0" min="-1" max="1">
+Helicity parameter. 
+<option value="1"></option>
+<option value="0"></option>
+<option value="-1"></option>
+</modepick>
 
 </chapter>
 

@@ -24,7 +24,9 @@ hadronization and final-state parton showers should be tuned to
 <ei>e^+e^-</ei> annihilation data, notably from LEP1, since this 
 offers the cleanest environment. Secondly, with such parameters fixed, 
 hadron collider data should be studied to pin down multiple interactions
-and other further aspects, such as initial-state radiation. (Thirdly 
+and other further aspects, such as initial-state radiation. Ideally this
+would be done separately for diffractive and non-diffractive events, 
+although it is not possible to have a clean separation. (Thirdly 
 would come anything else, such as physics with photon beams, which 
 involve further parameters, but that is beyond the current scope.)
 
@@ -37,8 +39,25 @@ parameters and timelike showers.
 <p/>
 The situation is worse for multiple interactions, where PYTHIA 8 is more 
 different from PYTHIA 6. Nevertheless, a first simple tune is now 
-available, appropriately called "Tune 1", and is default starting with 
-version 8.127.
+available, appropriately called "Tune 1", and became default starting with 
+version 8.127. 
+
+<p/>
+It was noted, in particular by Hendrik Hoeth, that the
+program had a tension between parameters needed to describe minimum-bias
+and underlying-event activity.  Therefore some further physics features 
+have been introduced in the code itself, which are made default as of
+8.140. This version also includes two new draft tunes, 2C and 2M, based 
+on the CTEQ 6L1 and the MRST LO** PDF sets, respectively. These have been 
+made by hand, as a prequel to complete Professor-style tunings. 
+
+<p/>
+The very first data to come out of the LHC shows a higher rapidity plateau
+than predicted for current PYTHIA 6 tunes, also for the lower energies.
+This may suggest some tension in the data. Therefore two alternatives,
+3C and 3M, have been produced by a few brute-force changes of 2C and 2M.
+This includes a reduced admixture of diffractive topologies and a steeper
+multiplicity variation with energy.
 
 <p/>
 In the future we hope to see further PYTHIA 8 tunes appear. Like with 
@@ -51,16 +70,35 @@ of setting values for parameters already defined elsewhere, so the
 tunes offer no new functionality, only a more convenient setup. 
 
 <p/>
+You should be aware that the evolution of the program will not guarantee
+complete backwards compatibility between versions. Most obviously this
+concerns bug fixes. But also for some other major changes, like the
+introduction of the new diffractive machinery, the default behaviour
+of old tunes has been changed retroactively. (Which should be fine for
+diffraction, since previous tunes were not based on data strongly 
+influenced by diffraction.)  
+
+<p/>
 If you set either the <code>Tune:ee</code> and <code>Tune:pp</code> 
 modes below non-zero then all parameters used in the respective tune 
 will be set accordingly when <code>pythia.init(...)</code> is called. 
 You can check this by calling <code>pythia.settings.listChanged()</code> 
 before and after initialization; before only the tune modes are 
 nondefault, afterwards all the non-default-valued parameters in the 
-tune appear. Therefore, for better or worse, you cannot combine a tune 
-option with your own choices for some of the parameters used in the tune, 
-since the values you set before <code>pythia.init(...)</code> would be 
+tune appear. Therefore you cannot directly combine a tune option with 
+your own choices for some of the parameters used in the tune, since 
+the values you set before <code>pythia.init(...)</code> would be 
 overwritten at that point. 
+
+<p/>
+Instead you can yourself call the method that sets up the tunes, 
+<code>pythia.initTunes(int eeTune, int ppTune)</code>.
+Here <code>eeTune</code> and <code>ppTune</code> encode the same 
+options as the already-introduced <code>Tune:ee</code> and 
+<code>Tune:pp</code>. So the procedure would be first to call
+<code>pythia.initTunes(...)</code>, then do the further changes
+you wish, and finally initialize with <code>Tune:ee</code> and 
+<code>Tune:pp</code> both zero.
 
 <modepick name="Tune:ee" default="0" min="0" max="3">
 Choice of tune to <ei>e^+e^-</ei> data, mainly for the hadronization
@@ -86,22 +124,44 @@ option.
 </option>
 </modepick>
 
-<modepick name="Tune:pp" default="0" min="0" max="2">
+<modepick name="Tune:pp" default="0" min="0" max="6">
 Choice of tune to <ei>pp / ppbar</ei> data, mainly for the 
 initial-state-radiation, multiple-interactions and  beam-remnants
 aspects of PYTHIA. 
 <option value="0">no values are overwritten at initialization, 
-so you can set the individual parameters as you wish.
+so you can set the individual parameters as you wish. Most default
+values are based on "Tune 1", option 2 below, but some new options 
+introduced in 8.140 means that the two no longer agree. 
 </option>
-<option value="1">old default used up to version 8.126, based on 
+<option value="1">default used up to version 8.126, based on 
 some early and primitive comparisons with data.
 </option>
-<option value="2">"Tune 1", new default from 8.127 onwards, 
-based on some data comparisions by Peter Skands.
+<option value="2">"Tune 1", default in 8.127 - 8.139, based on some 
+data comparisons by Peter Skands. Largely but not wholly overlaps
+with the default option 0.
+</option>
+<option value="3">"Tune 2C", new draft tune, introduced with 8.140. 
+It uses the CTEQ 6L1 PDF, and is intended to give good agreement with 
+much of the published CDF data.
+</option>
+<option value="4">"Tune 2M", new draft tune, introduced with 8.140.
+It is uses the MRST LO** PDF, which has a momentum sum somewhat above 
+unity, which is compensated by a smaller <ei>alpha_s</ei> than in the
+previous tune. Again it is intended to give good agreement with much of 
+the published CDF data.
+</option>
+<option value="5">"Tune 3C", new draft tune, introduced with 8.140. 
+Starts out from tune 2C, but with a reduced cross section for 
+diffraction, plus modified multiple interactions parameters to give
+a higher and more rapidly increasing charged pseudorapidity plateau,
+for better agreement with some early key LHC numbers. 
+</option>
+<option value="6">"Tune 3M" tune, introduced with 8.140. 
+Starts out from tune 2M and then does the same kind of modifications
+as for 3C.
 </option>
 
 </modepick>
-
 
 </chapter>
 

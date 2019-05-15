@@ -26,14 +26,22 @@ for arg in $* ; do
     COMPMODE=DBG
   elif [ "x$arg" = "x--enable-shared" ] ; then
     SHAREDLIBS=yes
+  elif [ "x$arg" = "x--enable-64bits" ] ; then
+    ENABLE64=-m64
   elif [ "x$arg" = "x--help" ] ; then
     echo "Usage: ./configure [options] , where options are:"
     echo "--help                : prints this help"
     echo "--enable-debug        : turns on debugging flags and turns off optimization"
     echo "--enable-shared       : turns on shared library creation (default no)"
+    echo "--enable-64bits       : turns on 64 bits compilation flags"
     echo "--lcgplatform=name    : LCG platform name, default is slc4_ia32_gcc34"
     echo "--with-hepmc=path     : path to HepMC library to build interface (default is not build)"
     echo "--with-hepmcversion=v : HepMC version (simplified alternative when using CERN AFS LCG external, e.g. =2.04.00)"
+    echo
+    echo "Use the following environment variables to force the configuration process or add flags:"
+    echo "USRCXXFLAGS - to add flags. Use this variable to add -fPIC to the compilation flags for the static libraries"
+    echo "USRLDFLAGSSHARED - to add flags to the shared library build command"
+    echo "USRSHAREDSUFFIX - to force shared libraries suffix to be like this (default on MacOSX is dylib)"
     exit
   elif [ x`echo x${arg} | grep "="` != x ] ; then
     option=`echo ${arg} | awk -F = '{print $1}'`
@@ -112,11 +120,8 @@ export FFLAGS_OPT="-O2"
 export FFLAGS_DBG=-g
 export CFLAGS_OPT=-O2
 export CFLAGS_DBG=-g
-export CXXFLAGS_OPT="-O2 -ansi -pedantic -W -Wall -Wshadow"
-export CXXFLAGS_DBG="-g -ansi -pedantic -W -Wall -Wshadow"
-# HepMC and FastJet gives too many warnings with -Wshadow, so alternative
-export CXXFLAGS_OPT_NO="-O2 -ansi -pedantic -W -Wall"
-export CXXFLAGS_DBG_NO="-g -ansi -pedantic -W -Wall" 
+export CXXFLAGS_OPT="-O2 -ansi -pedantic -W -Wall -Wshadow ${ENABLE64}"
+export CXXFLAGS_DBG="-g -ansi -pedantic -W -Wall -Wshadow ${ENABLE64}"
 #
 # Find platform.
 #
@@ -134,19 +139,16 @@ export CC=gcc
 export FFLAGS="${FFLAGS_OPT}"
 export CFLAGS="${CFLAGS_OPT}"
 export CXXFLAGS="${CXXFLAGS_OPT}"
-export CXXFLAGSNO="${CXXFLAGS_OPT_NO}"
 export FLIBS="-lfrtbegin -lg2c"
 if [ ${COMPMODE} = OPT ]; then
   export FFLAGS="${FFLAGS_OPT}"
   export CFLAGS="${CFLAGS_OPT}"
   export CXXFLAGS="${CXXFLAGS_OPT}"
-  export CXXFLAGSNO="${CXXFLAGS_OPT_NO}"
 fi
 if [ ${COMPMODE} = DBG ]; then
   export FFLAGS="${FFLAGS_DBG}"
   export CFLAGS="${CFLAGS_DBG}"
   export CXXFLAGS="${CXXFLAGS_DBG}"
-  export CXXFLAGSNO="${CXXFLAGS_DBG_NO}"
 fi
 LDFLAGSSHARED="${CXXFLAGS} -pthread -fPIC -shared"
 LDFLAGLIBNAME="-Wl,-soname"
@@ -156,19 +158,16 @@ if [ $ARCH = Linux ]; then
   export FFLAGS="${FFLAGS_OPT} -Wno-globals"
   export CFLAGS="${CFLAGS_OPT}"
   export CXXFLAGS="${CXXFLAGS_OPT}"
-  export CXXFLAGSNO="${CXXFLAGS_OPT_NO}"
   export FLIBS="-lfrtbegin -lg2c"
   if [ ${COMPMODE} = OPT ]; then
     export FFLAGS="${FFLAGS_OPT}"
     export CFLAGS="${CFLAGS_OPT}"
     export CXXFLAGS="${CXXFLAGS_OPT}"
-    export CXXFLAGSNO="${CXXFLAGS_OPT_NO}"
   fi
   if [ ${COMPMODE} = DBG ]; then
     export FFLAGS="${FFLAGS_DBG} -Wno-globals"
     export CFLAGS="${CFLAGS_DBG}"
     export CXXFLAGS="${CXXFLAGS_DBG}"
-    export CXXFLAGSNO="${CXXFLAGS_DBG_NO}"
   fi
   LDFLAGSSHARED="${CXXFLAGS} -pthread -fPIC -shared"
   LDFLAGLIBNAME="-Wl,-soname"
@@ -180,19 +179,16 @@ if [ $ARCH = Linux-gcc4 ]; then
   export FFLAGS="${FFLAGS_OPT}"
   export CFLAGS="${CFLAGS_OPT}"
   export CXXFLAGS="${CXXFLAGS_OPT}"
-  export CXXFLAGSNO="${CXXFLAGS_OPT_NO}"
   export FLIBS="-lgfortran -lgfortranbegin"
   if [ ${COMPMODE} = OPT ]; then
     export FFLAGS="${FFLAGS_OPT}"
     export CFLAGS="${CFLAGS_OPT}"
     export CXXFLAGS="${CXXFLAGS_OPT}"
-    export CXXFLAGSNO="${CXXFLAGS_OPT_NO}"
   fi
   if [ ${COMPMODE} = DBG ]; then
     export FFLAGS="${FFLAGS_DBG}"
     export CFLAGS="${CFLAGS_DBG}"
     export CXXFLAGS="${CXXFLAGS_DBG}"
-    export CXXFLAGSNO="${CXXFLAGS_DBG_NO}"
   fi
   LDFLAGSSHARED="${CXXFLAGS} -pthread -fPIC -shared"
   LDFLAGLIBNAME="-Wl,-soname"
@@ -204,19 +200,16 @@ if [ $ARCH = Darwin-gcc4 ]; then
   export FFLAGS="${FFLAGS_OPT}"
   export CFLAGS="${CFLAGS_OPT}"
   export CXXFLAGS="${CXXFLAGS_OPT}"
-  export CXXFLAGSNO="${CXXFLAGS_OPT_NO}"
   export FLIBS="-lgfortran"
   if [ ${COMPMODE} = OPT ]; then
     export FFLAGS="${FFLAGS_OPT}"
     export CFLAGS="${CFLAGS_OPT}"
     export CXXFLAGS="${CXXFLAGS_OPT}"
-    export CXXFLAGSNO="${CXXFLAGS_OPT_NO}"
   fi
   if [ ${COMPMODE} = DBG ]; then
     export FFLAGS="${FFLAGS_DBG}"
     export CFLAGS="${CFLAGS_DBG}"
     export CXXFLAGS="${CXXFLAGS_DBG}"
-    export CXXFLAGSNO="${CXXFLAGS_DBG_NO}"
   fi
   LDFLAGSSHARED="${CXXFLAGS} -dynamiclib -single_module -flat_namespace -undefined suppress"
   LDFLAGLIBNAME="-Wl,-dylib_install_name"
@@ -228,24 +221,29 @@ if [ $ARCH = Darwin ]; then
   export FFLAGS="${FFLAGS_OPT}"
   export CFLAGS="${CFLAGS_OPT}"
   export CXXFLAGS="${CXXFLAGS_OPT}"
-  export CXXFLAGSNO="${CXXFLAGS_OPT_NO}"
   export FLIBS="-lfrtbegin -lg2c"
   if [ ${COMPMODE} = OPT ]; then
     export FFLAGS="${FFLAGS_OPT}"
     export CFLAGS="${CFLAGS_OPT}"
     export CXXFLAGS="${CXXFLAGS_OPT}"
-    export CXXFLAGSNO="${CXXFLAGS_OPT_NO}"
   fi
   if [ ${COMPMODE} = DBG ]; then
     export FFLAGS="${FFLAGS_DBG}"
     export CFLAGS="${CFLAGS_DBG}"
     export CXXFLAGS="${CXXFLAGS_DBG}"
-    export CXXFLAGSNO="${CXXFLAGS_DBG_NO}"
   fi
   LDFLAGSSHARED="${CXXFLAGS} -dynamiclib -single_module -flat_namespace -undefined suppress"
   LDFLAGLIBNAME="-Wl,-dylib_install_name"
   SHAREDSUFFIX=dylib
 fi
+
+
+CXXFLAGS="${CXXFLAGS} $USRCXXFLAGS"
+LDFLAGSSHARED="${LDFLAGSSHARED} $USRLDFLAGSSHARED"
+if [ "x${USRSHAREDSUFFIX}" != "x" ] ; then
+  SHAREDSUFFIX="${USRSHAREDSUFFIX}"
+fi
+
 
 #Platform & opt/dbg - independent flags and variables:
 
@@ -281,7 +279,6 @@ echo CC = ${CC} >> config.mk
 echo FFLAGS = ${FFLAGS} >> config.mk
 echo CFLAGS = ${CFLAGS} >> config.mk
 echo CXXFLAGS = ${CXXFLAGS} >> config.mk
-echo CXXFLAGSNO = ${CXXFLAGSNO} >> config.mk
 echo FLIBS = ${FLIBS} >> config.mk
 echo LDFLAGSSHARED = ${LDFLAGSSHARED} >> config.mk
 echo LDFLAGLIBNAME = ${LDFLAGLIBNAME} >> config.mk

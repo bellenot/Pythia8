@@ -268,10 +268,10 @@ had been done.</li>
 calls are made in the same run, specifically in the case that pointers
 to external processes have been handed in.
 
-<li>Changes in main03.cmnd and main04.cmnd so that some nonstandard 
-options are commented ou rather than active. Related comments
-inserted also in some other .cmnd files, but there without any change 
-in program execution.</li>
+<li>Changes in <code>main03.cmnd</code> and <code>main04.cmnd</code> 
+so that some nonstandard options are commented ou rather than active. 
+Related comments inserted also in some other <code>.cmnd</code> files, 
+but there without any change in program execution.</li>
 
 <li>A few further minor bug fixes.</li>
 
@@ -288,8 +288,8 @@ according to a tune to LEP1 data by Hendrik Hoeth, using the
 Rivet + Professor framework.</li>
 
 <li>Many further SUSY production processes. SLHA readin expanded to cover 
-also masses and decay modes. Example <code>main22</code> updated, while 
-<code>main33</code> now superfluous and removed. </li>
+also masses and decay modes. Example <code>main22.cc</code> updated, while 
+<code>main33.cc</code> now superfluous and removed. </li>
 
 <li>Also further processes for extra dimensions.</li>
 
@@ -420,7 +420,7 @@ Some cross sections for extra-dimensional processes rewritten to
 make use of it.
 </li>
 
-<li>New example program <code>main29</code> shows how 
+<li>New example program <code>main29.cc</code> shows how 
 to set up a fictitious process of a heavy system decaying
 to two particles or partons, with decays traced to stable
 particles, as relevant for astroparticle applications.</li>
@@ -429,7 +429,7 @@ particles, as relevant for astroparticle applications.</li>
 been updated to use version 2.04, including units and excluding
 deprecated output formats.</li>
 
-<li>The <code>main32</code> example extended also to handle 
+<li>The <code>main32.cc</code> example extended also to handle 
 Les Houches Event Files.</li>
 
 <li>The Makefile has been modified so that "make clean" only
@@ -563,9 +563,9 @@ on Mac OS X.</li>
 in PYTHIA 6 has been removed. It is hardly ever used but 
 complicates the build structure. (Owing to its usefulness for some 
 debug work, it was reinstated in a limited form in version 8.135.
-Thus main51.cc now contains the complete interface, previously in
-separate files, and commented-out lines in examples/Makefile
-suggest how PYTHIA 6 could be linked.) 
+Thus <code>main51.cc</code> now contains the complete interface, 
+previously in separate files, and commented-out lines in 
+<code>examples/Makefile</code> suggest how PYTHIA 6 could be linked.) 
 </li>
 
 <li>New argument to <code>Info::errorMsg(...)</code> allows to 
@@ -646,7 +646,7 @@ MSTW 2008 NLO (central member), CTEQ6L, CTEQ6L1, CTEQ6.6 (NLO,
 central member), CT09MC1, CT09MC2, and CT09MCS, see 
 <a href="PDFSelection.html" target="page">PDF Selection</a>. The Pomeron PDF data 
 files have been renamed for consistency. Thanks to Tomas Kasemets 
-for help with this.
+for help with this [<a href="Bibliography.html" target="page">Kas10</a>].
 </li>
 
 <li>New parameters <code>TimeShower:pTmaxFudgeMI</code> and 
@@ -690,21 +690,195 @@ Thanks to Leif L&ouml;nnblad.</li>
 <li>Fix of some non-optimal use of booleans, that give warnings on
 a Windows compiler. Thanks to Anton Karneyeu.</li>
 
-<li>New options for <code><a href="SUSYLesHouchesAccord.html" target="page">
-SUSY Les Houches Accord</a></code> such that, by default,
+<li>New options for the <a href="SUSYLesHouchesAccord.html" target="page">
+SUSY Les Houches Accord</a> such that, by default,
 particle and decay data are not overwritten for known Standard Model 
 particles (including <i>Z^0</i>, <i>W^+-</i> and <i>t</i>,
 but excluding the Higgs).</li>
 
 <li>Bug fix in <code>SusyLesHouches</code>, where the reading of SLHA
 information embedded in an LHEF would not stop at the end of the header
-section. 
+section.</li> 
  
 <li>Bug correction for undefined secondary widths where decay products 
 together are heavier than the mother. Also unit default secondary width 
 values in the <code>DecayChannel</code> constructor.</li>
  
 <li>Documentation updated, including change of current year to 2010.</li>
+
+</ul>
+</li>
+
+<li>8.140: 16 July 2010
+<ul>
+
+<li>Four new draft <a href="Tunes.html" target="page">tunes</a> available.</li>
+
+<li>Introduction of a new scenario for production of Hidden-Valley
+particles, and interleaved showering in the QCD and HV sectors, see
+the new <a href="HiddenValleyProcesses.html" target="page">Hidden Valleys</a> 
+description. A longer physics writeup is available [<a href="Bibliography.html" target="page">Car10</a>].
+</li>
+
+<li>Implementation of <i>2 -> 3</i> phase space selection intended 
+for QCD processes with massless partons. A new set of matching 
+<a href="PhaseSpaceCuts.html" target="page">phase space cut parameters</a>. 
+The <a href="QCDProcesses.html" target="page">ten different QCD <i>2 -> 3</i> 
+processes</a> have been implemented making use of this new 
+possibility, so far without a complete handling of possible colour 
+flows, however.</li> 
+
+<li>New processes have been added for 
+<a href="CompositenessProcesses.html" target="page">contact interactions</a> in 
+<i>q q -> q q</i> and <i>q qbar -> q qbar</i> scattering.</li>
+
+<li>A process has been added for TeV^-1 Sized 
+<a href="ExtraDimensionalProcesses.html" target="page">Extra Dimensions</a>, which 
+involves the electroweak KK gauge bosons, i.e. <i>gamma_{KK}/Z_{KK}</i>,
+in one TeV^-1 sized extra dimension; see <code>main30.cc</code> for 
+an example. This scenario is described in [<a href="Bibliography.html" target="page">Bel10</a>]. Thanks to 
+Noam Hod and coworkers for contributing this code.</li>
+
+<li>In the Randall-Sundrum extra-dimensional scenario a new option has 
+been added where SM fields can exist in the bulk rather than only on
+a brane. (Still under development.) Furthermore production of a 
+Kaluza-Klein gluon state has been added, and the <code> main28.cc</code> 
+test program extended.</li> 
+
+<li>The scenario for monojets in Large Extra Dimensions has been expanded
+with an alternative for scalar graviton exchange instead of tensor one.
+</li> 
+
+<li>New parameters for maximum scale of 
+<a href="TimelikeShowers.html" target="page">timelike showers</a>,
+<code>TimeShower:pTmaxMatch</code>, and the dampening of hard radiation,
+<code>TimeShower:pTdampMatch</code> and <code>TimeShower:pTdampFudge</code>,
+by analogy with corresponding ones for spacelike showers. Also new method
+<code>TimeShower:limitPTmax(...)</code> to implement alternative procedures.
+For dipoles stretched to the beam the new switch 
+<code>TimeShower:dampenBeamRecoil</code> allows to dampen radiation
+close to the beam direction, with a changed default behaviour.</li>  
+
+<li>Azimuthal anisotropies from coherence arguments have been introduced 
+for the spacelike parton showers, see <code>SpaceShower:phiIntAsym</code>
+and <code>SpaceShower:strengthIntAsym</code>.
+Also azimuthal anisotropies from gluon polarization have been introduced 
+for the spacelike parton showers, see <code>SpaceShower:phiPolAsym</code>,
+and updated for timelike parton showers, see 
+<code>TimeShower:phiPolAsym</code>.</li>
+
+<li>Improvements for the matching to POWHEG LHEF-style input illustrated
+by the new <code>main71.cc</code> example. See also [<a href="Bibliography.html" target="page">Cor10</a>].</li>
+
+<li>A set of new processes <i>gamma gamma -> f fbar</i>, with <i>f</i>
+quarks or leptons. Code for equivalent photon flux around an unresolved 
+proton, with more to come. Thanks to Oystein Alvestad.
+</li>
+
+<li>A new option has been included to dampen the growth of the diffractive
+cross sections, see <a href="TotalCrossSections.html" target="page">Total Cross 
+Sections</a>.</li>
+
+<li>A new method <code>virtual int SigmaProcess::idSChannel()</code>
+has been introduced. If overloaded to return a nonzero value then a 
+<i>2 -> n</i> process will appear listed as a <i>2 -> 1 -> n</i> one.
+That is, an intermediate resonance with the requested identity will be 
+inserted in the event record, even without appearing in the calculation 
+of the matrix element proper. Thanks to Noam Hod for idea and code.</li> 
+
+<li>A new method <code>SigmaProcess::convertM2()</code> has been introduced
+to optionally allow the <code>SigmaProcess::sigmaHat()</code> to return
+the squared matrix element rather than <i>d(sigmaHat)/d(tHat)</i> for
+<i> 2 -> 2 </i> processes. Furthermore kinematics is stored in the new
+<code>mME</code> and <code>pME</code> vectors for alternative cross
+section encodings.</li> 
+
+<li>Different encoding of the <i>f fbar -> Z W</i> cross section,
+contributed by Merlin Kole, based on the cross section of
+Brown, Sahdev and Mikaelian. Gives a distinctly different cross section
+than the previous based on EHLQ (including their bug fix).
+In particular the problem with negative cross sections is now fixed.</li>
+
+<li>Minor updates: pass <code>xmlPath</code> to new MSTW and CTEQ PDFs;
+reset beams earlier to give cleaner documentation.</li>
+
+<li>The H1 Fit B LO parametrization to the Pomeron PDF has been included, 
+and made new default for Pomerons. Thanks to Paul Newman for providing 
+the data files.</li>
+
+<li>Three changes, in principle unrelated, but with the common objective
+to make the generation of a given event depend only on the values
+determined during the initialization stage and on the state of the 
+random-number generator when the event is begun. The new default 
+should ensure a reproducible stop-and-restart behaviour, convenient 
+for debug purposes. Thanks to Michael Schmelling for stressing the 
+desire for such a behaviour.
+<br/>(i) Introduction of a new option <code><a href="PhaseSpaceCuts.html" target="page">
+PhaseSpace:increaseMaximum</a></code> that allows to switch between
+two strategies for handling the (hopefully rare) cases when the 
+assumed maximum of the cross section function is exceeded during the
+event generation, with a changed default behaviour. In the old 
+default the maximum could be increased if it was exceeded during the run,
+thereby introducing a memory of the previously generated events.
+<br/>(ii) Updated handling of random numbers with Gaussian distributions.
+The <code>gauss()</code> method now only generates one value at a time.
+Instead the new <code>gauss2()</code> method returns a pair of Gauss
+numbers, with related time savings. In the old approach one Gaussian 
+number could be buffered, which introduced a memory.
+<br/>(iii) Minor bug fix in <code>MiniStringFragmentation</code>, where 
+the popcorn baryon state was not reset for each new system, again
+giving a (flawed) memory.</li> 
+
+<li>New directory <code>rootexample</code> with a simple code example
+how to use ROOT for histogramming in PYTHIA runs. See
+<a href="ROOTusage.html" target="page">ROOT Usage</a> for details. Thanks to Rene Brun.
+</li>
+
+<li>In the <code>HepMCinterface</code> the checks for unhadronized
+quarks and gluons are not performed if hadronization has been switched 
+off.</li>
+
+<li>The <code>UserHooks::initPtr(...)</code> has been expanded so that
+pointers to more classes (beam particles, random number, couplings, etc.)
+are sent in, thereby increasing the scope of possible user-written code.
+Also, the <code>UserHooks::doVetoProcessLevel(Event& process)</code>
+now allows the <code>process</code> event record to be modified, 
+even if it is not recommended. The new <code>Info::pTnow()</code>
+method returns the current <i>pT</i> scale of the combined MI, ISR 
+and FSR evolution, which can be useful for some user hooks decisions.
+</li>
+
+<li>Histograms of the <code>Hist</code> class can now be booked 
+with up to 1000 bins, instead of the previous maximum 100. All bins
+can be written to file, but the line-printer style printing will join
+nearby bins so at most 100 are printed, as before.  </li>
+
+<li>Updated <code>configure</code> and <code>Makefile</code> 
+to allow 64-bit compilation and more options. Thanks to Mikhail Kirsanov,
+Rene Brun and Fons Rademakers.</li>
+
+<li>Bug fix in <code>ProcessLevel</code> for colour flow checks of 
+junctions. Enables the decay of a neutralino to three quarks, e.g.
+Thanks to Nils-Erik Bomark.</li>
+
+<li>Bug fixes in <code>TimeShower</code>, where recoil partners in resonance
+decays of coloured particles, and recoil partners in QED dipoles when beams
+are not allowed to take a recoil, might not be correctly identified. </li>
+
+<li>Bug fix in <code>SpaceShower</code>: when used with a fixed 
+<i>alpha_strong</i>, the threshold enhancement factor of 
+<i>g -> Q Qbar</i> became undefined. Thanks to Stefan Prestel.</li>
+
+<li>Bug fix in initialization of resonance widths, where the 
+<code>minWidth</code> parameter could be used uninitialized,
+occasionally resulting in strange initialization problems when
+kinematics needs to force at least one resonance to be off-shell.</li>
+
+<li>Minor updates of <code>main06.cc</code>, <code>main10.cc</code>
+and <code>main23.cc</code>.</li>
+
+<li>Bug fix in mother pointer of multiple interactions in 
+diffractive systems.</li>
 
 </ul>
 </li>

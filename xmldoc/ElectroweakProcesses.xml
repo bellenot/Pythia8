@@ -219,6 +219,48 @@ Scattering <ei>f gamma -> W^+- f</ei>.
 Code 254.
 </flag>
 
+<h3> Photon Collision Processes</h3>
+
+A few electroweak two-photon production processes are available.
+To use them, photon PDFs have to be defined for the incoming
+beam particles. For proton beams an appropriate set would be
+MRST QED 2004 <ref>Mar05</ref>, available in the LHAPDF library.
+
+<flag name="PhotonCollision:all" default="off">
+Common switch for the group of six processes presented below.
+</flag>
+
+<flag name="PhotonCollision:gmgm2qqbar" default="off">
+Scatterings <ei>gamma gamma -> q qbar</ei>, where <ei>q</ei> 
+is a light quark (<ei>u, d, s</ei>) .
+Code 261.
+</flag>
+
+<flag name="PhotonCollision:gmgm2ccbar" default="off">
+Scattering <ei>gamma gamma -> c cbar</ei>.
+Code 262.
+</flag>
+
+<flag name="PhotonCollision:gmgm2bbbar" default="off">
+Scattering <ei>gamma gamma -> b bbar</ei>.
+Code 263.
+</flag>
+
+<flag name="PhotonCollision:gmgm2ee" default="off">
+Scattering <ei>gamma gamma -> e+ e-</ei>.
+Code 264.
+</flag>
+
+<flag name="PhotonCollision:gmgm2mumu" default="off">
+Scattering <ei>gamma gamma -> mu+ mu-</ei>.
+Code 265.
+</flag>
+
+<flag name="PhotonCollision:gmgm2tautau" default="off">
+Scattering <ei>gamma gamma -> tau+ tau-</ei>.
+Code 266.
+</flag>
+
 </chapter>
 
 <!-- Copyright (C) 2010 Torbjorn Sjostrand -->

@@ -75,6 +75,13 @@ of a <i>W^+-</i> boson.
 Code 605.
   
 
+<br/><br/><strong>Top:gmgm2ttbar</strong>  <input type="radio" name="7" value="on"><strong>On</strong>
+<input type="radio" name="7" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scatterings <i>gamma gamma -> t tbar</i>. 
+Code 606.
+  
+
 
 <input type="hidden" name="saved" value="1"/>
 
@@ -119,6 +126,11 @@ fwrite($handle,$data);
 if($_POST["6"] != "off")
 {
 $data = "Top:ffbar2tqbar(s:W) = ".$_POST["6"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["7"] != "off")
+{
+$data = "Top:gmgm2ttbar = ".$_POST["7"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);

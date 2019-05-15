@@ -123,6 +123,12 @@ void SigmaTotal::init(Info* infoPtrIn, Settings& settings,
   sigAXOwn   = settings.parm("SigmaTotal:sigmaAX");
   sigXXOwn   = settings.parm("SigmaTotal:sigmaXX");
 
+  // User-set values to dampen diffractive cross sections.
+  doDampen   = settings.flag("SigmaDiffractive:dampen");
+  maxXBOwn   = settings.parm("SigmaDiffractive:maxXB");
+  maxAXOwn   = settings.parm("SigmaDiffractive:maxAX");
+  maxXXOwn   = settings.parm("SigmaDiffractive:maxXX");
+
   // User-set values for handling of elastic sacattering. 
   setElastic = settings.flag("SigmaElastic:setOwn");
   bSlope     = settings.parm("SigmaElastic:bSlope");  
@@ -130,6 +136,10 @@ void SigmaTotal::init(Info* infoPtrIn, Settings& settings,
   lambda     = settings.parm("SigmaElastic:lambda");  
   tAbsMin    = settings.parm("SigmaElastic:tAbsMin");  
   alphaEM0   = settings.parm("StandardModel:alphaEM0");
+
+  // Parameter for diffractive systems.
+  sigmaPomP  = settings.parm("Diffraction:sigmaPomP");
+
 }
 
 //--------------------------------------------------------------------------
@@ -176,10 +186,10 @@ bool SigmaTotal::calc( int idA, int idB, double eCM) {
   }
   if (iProc == -1) return false;
 
-  // Temporary implementation of Pomeron + p.??
+  // Primitive implementation of Pomeron + p.
   if (iProc == 13) {
     s      = eCM*eCM;
-    sigTot = 10.;
+    sigTot = sigmaPomP;
     sigND  = sigTot;
     isCalc = true;
     return true;
@@ -191,7 +201,10 @@ bool SigmaTotal::calc( int idA, int idB, double eCM) {
   int idModB = (idAbsB > 1000) ? idAbsB : 10 * (idAbsB/10) + 3; 
   double mA  = particleDataPtr->m0(idModA);
   double mB  = particleDataPtr->m0(idModB);
-  if (eCM < mA + mB + MMIN) return false; 
+  if (eCM < mA + mB + MMIN) {
+    infoPtr->errorMsg("Error in SigmaTotal::calc: too low energy");
+    return false;
+  }
   
   // Evaluate the total cross section.
   s           = eCM*eCM;
@@ -269,6 +282,13 @@ bool SigmaTotal::calc( int idA, int idB, double eCM) {
   sum4   = pow2(CRES) * sRMlogAX * sRMlogXB 
     / max( 0.1, alP2 * log( s * s0 / (sRMavgAX * sRMavgXB) ) + BcorrXX);
   sigXX  = CONVERTDD * X[iProc] * max( 0., sum1 + sum2 + sum3 + sum4);
+
+  // Option with user-requested damping of diffractive cross sections.
+  if (doDampen) {
+    sigXB = sigXB * maxXBOwn / (sigXB + maxXBOwn);
+    sigAX = sigAX * maxAXOwn / (sigAX + maxAXOwn);
+    sigXX = sigXX * maxXXOwn / (sigXX + maxXXOwn);
+  }
  
   // Option with user-set values for total and partial cross sections.
   // (Is not done earlier since want diffractive slopes anyway.)

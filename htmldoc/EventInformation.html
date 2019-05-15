@@ -251,11 +251,17 @@ a <i>2 -> 2</i> process.
 
 <a name="method30"></a>
 <p/><strong>double Info::weight() &nbsp;</strong> <br/>
-weight assigned to the current event. Is normally 1 and thus uninteresting. 
-However, for Les Houches events some strategies allow negative weights, 
-which then after unweighting lead to events with weight -1. There are also 
-strategies where no unweighting is done, and therefore a nontrivial event 
-weight must be used e.g. when filling histograms. 
+weight assigned to the current event. Is normally 1 and thus uninteresting.
+However, in case of the <code><a href="PhaseSpaceCuts.html" target="page">
+PhaseSpace:increaseMaximum = off</a></code> default strategy,
+an event with a differential cross-section above the assumed one 
+(in a given phase-space point) is assigned a weight correspondingly
+above unity. This should happen only very rarely, if at all, and so
+could normally be disregarded. For Les Houches events some strategies 
+allow negative weights, which then after unweighting lead to events 
+with weight -1. There are also Les Houches strategies where no unweighting 
+is done, and therefore a nontrivial event weight must be used e.g. 
+when filling histograms. 
   
 
 <a name="method31"></a>
@@ -280,9 +286,16 @@ process type and scale choice for the hard interactions. The actual
 evolution will run down from these scales.
   
 
+<a name="method33"></a>
+<p/><strong>double Info::pTnow() &nbsp;</strong> <br/>
+The current <i>pT</i> scale in the combined MI, ISR and FSR evolution.
+Useful for classification in <a href="UserHooks.html" target="page">user hooks</a>,
+but not once the event has been evolved.  
+  
+
 <h3>Multiple interactions</h3>
 
-<a name="method33"></a>
+<a name="method34"></a>
 <p/><strong>double Info::bMI() &nbsp;</strong> <br/>
 the impact parameter <i>b</i> assumed for the current collision when
 multiple interactions are simulated. Is not expressed in any physical
@@ -291,7 +304,7 @@ for minimum-bias events (meaning less than that for events with hard
 processes). 
   
 
-<a name="method34"></a>
+<a name="method35"></a>
 <p/><strong>double Info::enhanceMI() &nbsp;</strong> <br/>
 The choice of impact parameter implies an enhancement or depletion of
 the rate of subsequent interactions, as given by this number. Again
@@ -299,14 +312,14 @@ the average is normalized be unity for minimum-bias events (meaning
 more than that for events with hard processes).  
   
 
-<a name="method35"></a>
+<a name="method36"></a>
 <p/><strong>int Info::nMI() &nbsp;</strong> <br/>
 the number of hard interactions in the current event. Is 0 for elastic
 and diffractive events, and else at least 1, with more possible from
 multiple interactions.
   
 
-<a name="method36"></a>
+<a name="method37"></a>
 <p/><strong>int Info::codeMI(int i) &nbsp;</strong> <br/>
   
 <strong>double Info::pTMI(int i) &nbsp;</strong> <br/>
@@ -316,7 +329,7 @@ subprocess, with <code>i</code> in the range from 0 to
 information already provided above.  
   
 
-<a name="method37"></a>
+<a name="method38"></a>
 <p/><strong>int Info::iAMI(i) &nbsp;</strong> <br/>
   
 <strong>int Info::iBMI(i) &nbsp;</strong> <br/>
@@ -335,7 +348,7 @@ as a whole. While continuously updated during the run, it is recommended
 only to study these properties at the end of the event generation, 
 when the full statistics is available.
 
-<a name="method38"></a>
+<a name="method39"></a>
 <p/><strong>long Info::nTried() &nbsp;</strong> <br/>
   
 <strong>long Info::nSelected() &nbsp;</strong> <br/>
@@ -351,7 +364,7 @@ were approved by the user. If you set <a href="ASecondHardProcess.html" target="
 second hard process</a> there may also be a mismatch. 
   
 
-<a name="method39"></a>
+<a name="method40"></a>
 <p/><strong>double Info::sigmaGen() &nbsp;</strong> <br/>
   
 <strong>double Info::sigmaErr() &nbsp;</strong> <br/>
@@ -368,7 +381,7 @@ so that one can keep track of how the event generation is progressing.
 This may be especially useful in the context of the  
 <code><a href="UserHooks.html" target="page">User Hooks</a></code> facility.
 
-<a name="method40"></a>
+<a name="method41"></a>
 <p/><strong>int Info::getCounter(int i) &nbsp;</strong> <br/>
 the method that gives you access to the value of the various loop 
 counters.
@@ -472,20 +485,20 @@ that therefore are free to use, with the help of the two methods below.
   
   
 
-<a name="method41"></a>
+<a name="method42"></a>
 <p/><strong>void Info::setCounter(int i, int value = 0) &nbsp;</strong> <br/>
 set the above counters to a given value. Only to be used by you 
-for the unassigned counters 30 - 39.
+for the unassigned counters 40 - 49.
 <br/><code>argument</code><strong> i </strong>  :  the counter number, see above.
   
 <br/><code>argument</code><strong> value </strong> (<code>default = <strong>0</strong></code>) :  set the counter to this number;
 normally the default value is what you want.
   
 
-<a name="method42"></a>
+<a name="method43"></a>
 <p/><strong>void Info::addCounter(int i, int value = 0) &nbsp;</strong> <br/>
 increase the above counters by a given amount. Only to be used by you 
-for the unassigned counters 30 - 39.
+for the unassigned counters 40 - 49.
 <br/><code>argument</code><strong> i </strong>  :  the counter number, see above.
   
 <br/><code>argument</code><strong> value </strong> (<code>default = <strong>1</strong></code>) :  increase the counter by this amount;

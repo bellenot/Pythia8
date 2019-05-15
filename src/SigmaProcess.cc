@@ -48,12 +48,12 @@ void SigmaProcess::init(Info* infoPtrIn, Settings* settingsPtrIn,
   slhaPtr         = slhaPtrIn;
 
   // Read out some properties of beams to allow shorthand.
-  idA             = beamAPtr->id();
-  idB             = beamBPtr->id();
-  mA              = beamAPtr->m();
-  mB              = beamBPtr->m();
-  isLeptonA       = beamAPtr->isLepton();
-  isLeptonB       = beamBPtr->isLepton();
+  idA             = (beamAPtr > 0) ? beamAPtr->id() : 0;
+  idB             = (beamBPtr > 0) ? beamBPtr->id() : 0;
+  mA              = (beamAPtr > 0) ? beamAPtr->m() : 0.;
+  mB              = (beamBPtr > 0) ? beamBPtr->m() : 0.;
+  isLeptonA       = (beamAPtr > 0) ? beamAPtr->isLepton() : false;
+  isLeptonB       = (beamBPtr > 0) ? beamBPtr->isLepton() : false;
   hasLeptonBeams  = isLeptonA || isLeptonB;
 
   // K factor, multiplying resolved processes. (But not here for MI.)
@@ -596,6 +596,14 @@ void Sigma1Process::store1Kin( double x1in, double x2in, double sHin) {
   mH     = sqrt(sH);
   sH2    = sH * sH;
 
+  // Special kinematics setup for |M|^2 evaluations e.g. with MadGraph.
+  mME[0] = 0.;
+  pME[0] = 0.5 * mH * Vec4( 0., 0.,  1., 1.);
+  mME[1] = 0.;
+  pME[1] = 0.5 * mH * Vec4( 0., 0., -1., 1.);
+  mME[2] = mH;
+  pME[2] = Vec4( 0., 0., 0., mH);
+
   // Different options for renormalization scale, but normally sHat.
   Q2RenSave                        = renormMultFac * sH;
   if (renormScale1 == 2) Q2RenSave = renormFixScale; 
@@ -658,6 +666,29 @@ void Sigma2Process::store2Kin( double x1in, double x2in, double sHin,
 
   // Calculate squared transverse momentum.
   pT2 = (masslessKin) ?  tH * uH / sH : (tH * uH - s3 * s4) / sH;
+
+  // Special kinematics setup for |M|^2 evaluations e.g. with MadGraph.
+  mME[0] = 0.;
+  pME[0] = 0.5 * mH * Vec4( 0., 0.,  1., 1.);
+  mME[1] = 0.;
+  pME[1] = 0.5 * mH * Vec4( 0., 0., -1., 1.);
+  double sH34 = sqrtpos( pow2(sH - s3 - s4) - 4. * s3 * s4);
+  double cThe = (tH - uH) / sH34;
+  double sThe = sqrtpos(1. - cThe * cThe);
+  double pAbs = 0.5 * sH34 / mH;
+  // Normally allowed with unequal (or vanishing) masses.
+  if (id3Mass() == 0 || abs(id3Mass()) != abs(id4Mass())) { 
+    mME[2] = m3;
+    pME[2] = Vec4(  pAbs * sThe, 0.,  pAbs * cThe, 0.5 * (sH + s3 - s4) / mH);
+    mME[3] = m4; 
+    pME[3] = Vec4( -pAbs * sThe, 0., -pAbs * cThe, 0.5 * (sH + s4 - s3) / mH);
+  // For equal (anti)particles (e.g. W+ W-) use averaged mass.  
+  } else {
+    mME[2] = sqrtpos(0.5 * (s3 + s4) - 0.25 * pow2(s3 - s4) / sH);
+    pME[2] = Vec4(  pAbs * sThe, 0.,  pAbs * cThe, 0.5 * mH);
+    mME[3] = mME[2];
+    pME[3] = Vec4( -pAbs * sThe, 0., -pAbs * cThe, 0.5 * mH);
+  }  
 
   // Special case: pick scale as if 2 -> 1 process in disguise.
   if (isSChannel()) {
@@ -870,6 +901,18 @@ void Sigma3Process::store3Kin( double x1in, double x2in, double sHin,
   p4cm     = p4cmIn;
   p5cm     = p5cmIn;
 
+  // Special kinematics setup for |M|^2 evaluations e.g. with MadGraph.
+  mME[0] = 0.;
+  pME[0] = 0.5 * mH * Vec4( 0., 0.,  1., 1.);
+  mME[1] = 0.;
+  pME[1] = 0.5 * mH * Vec4( 0., 0., -1., 1.);
+  mME[2] = m3;
+  pME[2] = p3cm;
+  mME[3] = m4;
+  pME[3] = p4cm;
+  mME[4] = m5;
+  pME[4] = p5cm;
+
   // The nominal Breit-Wigner factors with running width.
   runBW3   = runBW3in;
   runBW4   = runBW4in; 
@@ -888,7 +931,7 @@ void Sigma3Process::store3Kin( double x1in, double x2in, double sHin,
 
   // "Normal" 2 -> 3 processes, i.e. not vector boson fusion.
   } else if ( idTchan1() != 23 && idTchan1() != 24 && idTchan2() != 23 
-    && idTchan1() != 24 ) {
+    && idTchan2() != 24 ) {
     double mT3S = s3 + p3cm.pT2();
     double mT4S = s4 + p4cm.pT2();
     double mT5S = s5 + p5cm.pT2();

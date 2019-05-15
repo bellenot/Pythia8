@@ -44,6 +44,8 @@
          this option, since default is to allow optimization.)
      --enable-shared : turns on shared-library creation,
          in addition to the archive libraries always built.
+     --enable-64bits : turns on 64 bits compilation flag
+         (is automatic on many 64-bit installations, but just in case).
      --lcgplatform=name : allows you to specify the platform assumed for
          compilation, which also affects the assumed location of the 
          libraries below; default is slc4_ia32_gcc34 while other supported
@@ -56,6 +58,13 @@
          if you are using the CERN AFS LCG external area. See the HepMC
          WEB site for the information about the versions currently
          "in production"
+     There also are a few environment variables that you can set to 
+     force the configuration process or add flags:
+     USRCXXFLAGS : to add flags. Use this variable to add -fPIC to the 
+         compilation flags for the static libraries
+     USRLDFLAGSSHARED : to add flags to the shared library build command
+     USRSHAREDSUFFIX : to force shared libraries suffix to be like this 
+         (default on MacOSX is dylib).
 
 1.2) If you want to use the external HepMC from some different location, 
      or it is more convenient to put the paths directly into the script,

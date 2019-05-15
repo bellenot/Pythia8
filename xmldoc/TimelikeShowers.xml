@@ -23,26 +23,103 @@ interest for a tuning exercise, however.
 Often the maximum scale of the FSR shower evolution is understood from the
 context. For instance, in a resonace decay half the resonance mass sets an
 absolute upper limit. For a hard process in a hadronic collision the choice
-is not as unique. Here the factorization scale has been chosen as the 
-maximum evolution scale. This would be the <ei>pT</ei> for a 
-<ei>2 -> 2</ei> process, supplemented by mass terms for massive outgoing 
-particles. Some small amount of freedom is offered by
+is not as unique. Here the <aloc href="CouplingsAndScales">factorization 
+scale</aloc> has been chosen as the maximum evolution scale. This would be 
+the <ei>pT</ei> for a <ei>2 -> 2</ei> process, supplemented by mass terms 
+for massive outgoing particles. For some special applications we do allow
+an alternative.
+
+<modepick name="TimeShower:pTmaxMatch" default="1" min="0" max="2">
+Way in which the maximum shower evolution scale is set to match the 
+scale of the hard process itself.
+<option value="0"><b>(i)</b> if the final state of the hard process 
+(not counting subsequent resonance decays) contains at least one quark 
+(<ei>u, d, s, c ,b</ei>), gluon or photon then <ei>pT_max</ei> 
+is chosen to be the factorization scale for internal processes 
+and the <code>scale</code> value for Les Houches input; 
+<b>(ii)</b> if not, emissions are allowed to go all the way up to 
+the kinematical limit (i.e. to half the dipole mass). 
+This option agrees with the corresponding one for 
+<aloc href="SpacelikeShowers">spacelike showers</aloc>. There the 
+reasoning is that in the former set of processes the ISR
+emission of yet another quark, gluon or photon could lead to
+doublecounting, while no such danger exists in the latter case.
+The argument is less compelling for timelike showers, but could
+be a reasonable starting point.
+</option>
+<option value="1">always use the factorization scale for an internal
+process and the <code>scale</code> value for Les Houches input, 
+i.e. the lower value. This should avoid doublecounting, but
+may leave out some emissions that ought to have been simulated.
+(Also known as wimpy showers.)
+</option>
+<option value="2">always allow emissions up to the kinematical limit 
+(i.e. to half the dipole mass). This will simulate all possible event 
+topologies, but may lead to doublecounting. 
+(Also known as power showers.)
+</option>
+<note>Note:</note> These options only apply to the hard interaction.
+Emissions off subsequent multiple interactions are always constrainted
+to be below the factorization scale of the process itself. They also
+assume you use interleaved evolution, so that FSR is in direct 
+competition with ISR for the hardest emission. If you already 
+generated a number of ISR partons at low <ei>pT</ei>, it would not
+make sense to have a later FSR shower up to the kinematical for all
+of them. 
+</modepick>
 
 <parm name="TimeShower:pTmaxFudge" default="1.0" min="0.25" max="2.0">
-While the above rules would imply that <ei>pT_max = pT_factorization</ei>, 
-<code>pTmaxFudge</code> introduced a multiplicative factor <ei>f</ei> such 
-that instead <ei>pT_max = f * pT_factorization</ei>. Only applies to the 
-hardest interaction in an event, cf. below. It is strongly suggested that 
-<ei>f = 1</ei>, but variations around this default can be useful to test 
-this assumption. 
-<note>Note:</note>Scales for resonance decays are not affected, but can be 
-set separately by <aloc href="UserHooks">user hooks</aloc>.
+In cases where the above <code>pTmaxMatch</code> rules would imply 
+that <ei>pT_max = pT_factorization</ei>, <code>pTmaxFudge</code> 
+introduces a multiplicative factor <ei>f</ei> such that instead 
+<ei>pT_max = f * pT_factorization</ei>. Only applies to the hardest 
+interaction in an event, cf. below. It is strongly suggested that 
+<ei>f = 1</ei>, but variations around this default can be useful to 
+test this assumption. 
+<note>Note:</note>Scales for resonance decays are not affected, but can 
+be set separately by <aloc href="UserHooks">user hooks</aloc>.
 </parm>
 
 <parm name="TimeShower:pTmaxFudgeMI" default="1.0" min="0.25" max="2.0">
 A multiplicative factor <ei>f</ei> such that 
 <ei>pT_max = f * pT_factorization</ei>, as above, but here for the
 non-hardest interactions (when multiple interactions are allowed).
+</parm>
+
+<modepick name="TimeShower:pTdampMatch" default="0" min="0" max="2">
+These options only take effect when a process is allowed to radiate up 
+to the kinematical limit by the above <code>pTmaxMatch</code> choice, 
+and no matrix-element corrections are available. Then, in many processes,
+the fall-off in <ei>pT</ei> will be too slow by one factor of <ei>pT^2</ei>. 
+That is, while showers have an approximate <ei>dpT^2/pT^2</ei> shape, often 
+it should become more like <ei>dpT^2/pT^4</ei> at <ei>pT</ei> values above
+the scale of the hard process. This argument is more obvious for ISR,
+but is taken over unchanged for FSR to have a symmetric description.
+<option value="0">emissions go up to the kinematical limit, 
+with no special dampening.
+</option>
+<option value="1">emissions go up to the kinematical limit,  
+but dampened by a factor <ei>k^2 Q^2_fac/(pT^2 + k^2 Q^2_fac)</ei>, 
+where <ei>Q_fac</ei> is the factorization scale and <ei>k</ei> is a 
+multiplicative fudge factor stored in <code>pTdampFudge</code> below.
+</option>
+<option value="2">emissions go up to the kinematical limit, 
+but dampened by a factor <ei>k^2 Q^2_ren/(pT^2 + k^2 Q^2_ren)</ei>, 
+where <ei>Q_ren</ei> is the renormalization scale and <ei>k</ei> is a 
+multiplicative fudge factor stored in <code>pTdampFudge</code> below. 
+</option>
+<note>Note:</note> These options only apply to the hard interaction.
+Emissions off subsequent multiple interactions are always constrainted
+to be below the factorization scale of the process itself.  
+</modepick>
+
+<parm name="TimeShower:pTdampFudge" default="1.0" min="0.25" max="4.0">
+In cases 1 and 2 above, where a dampening is imposed at around the
+factorization or renormalization scale, respectively, this allows the
+<ei>pT</ei> scale of dampening of radiation by a half to be shifted 
+by this factor relative to the default <ei>Q_fac</ei> or <ei>Q_ren</ei>. 
+This number ought to be in the neighbourhood of unity, but variations 
+away from this value could do better in some processes.
 </parm>
 
 <p/>
@@ -200,6 +277,18 @@ mass, cf. the comment above about showers for resonances never being
 interleaved. 
 </flag>
 
+<flag name="TimeShower:dampenBeamRecoil" default="on">
+When beam recoil is allowed there is still some ambiguity how far
+into the beam end of the dipole that emission should be allowed.
+It is dampened in the beam region, but probably not enough. 
+When on an additional suppression factor 
+<ei>4 pT2_hard / (4 pT2_hard + m2)</ei> is multiplied on to the 
+emission probability. Here <ei>pT_hard</ei> is the transverse momentum
+of the radiating parton and <ei>m</ei> the off-shell mass it acquires 
+by the branching, <ei>m2 = pT2/(z(1-z))</ei>. Note that 
+<ei>m2 = 4 pT2_hard</ei> is the kinematical limit for a scattering 
+at 90 degrees without beam recoil.    
+</flag>
  
 <h3>Radiation off octet onium states</h3>
 

@@ -75,7 +75,7 @@ be used.
  (<code>default = <strong>1.0</strong></code>; <code>minimum = 0.25</code>; <code>maximum = 2.0</code>)<br/>
 In cases where the above <code>pTmaxMatch</code> rules would imply
 that <i>pT_max = pT_factorization</i>, <code>pTmaxFudge</code> 
-introduced a multiplicative factor <i>f</i> such that instead
+introduces a multiplicative factor <i>f</i> such that instead
 <i>pT_max = f * pT_factorization</i>. Only applies to the hardest
 interaction in an event, cf. below. It is strongly suggested that 
 <i>f = 1</i>, but variations around this default can be useful to 
@@ -291,7 +291,17 @@ Use of matrix element corrections; on/off = true/false.
 <p/><code>flag&nbsp; </code><strong> SpaceShower:phiPolAsym &nbsp;</strong> 
  (<code>default = <strong>on</strong></code>)<br/>
 Azimuthal asymmetry induced by gluon polarization; on/off = true/false.
-Not yet implemented. 
+  
+
+<p/><code>flag&nbsp; </code><strong> SpaceShower:phiIntAsym &nbsp;</strong> 
+ (<code>default = <strong>on</strong></code>)<br/>
+Azimuthal asymmetry induced by interference; on/off = true/false.
+  
+
+<p/><code>parm&nbsp; </code><strong> SpaceShower:strengthIntAsym &nbsp;</strong> 
+ (<code>default = <strong>0.7</strong></code>; <code>minimum = 0.</code>; <code>maximum = 0.9</code>)<br/>
+Size of asymmetry induced by interference. Natural value of order 0.5; 
+expression would blow up for a value of 1.
   
 
 <p/><code>mode&nbsp; </code><strong> SpaceShower:nQuarkIn &nbsp;</strong> 

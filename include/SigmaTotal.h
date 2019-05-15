@@ -68,16 +68,17 @@ public:
 
 private:
 
-  // Initialization data, normally only set once.
-  bool   isCalc, setTotal, setElastic;
-  double sigTotOwn, sigElOwn, sigXBOwn, sigAXOwn, sigXXOwn,
-         bSlope, rho, lambda, tAbsMin, alphaEM0;
-
   // Constants: could only be changed in the code itself.
   static const int    IHADATABLE[], IHADBTABLE[], ISDTABLE[], IDDTABLE[];
   static const double MMIN, EPSILON, ETA, X[], Y[], BETA0[], BHAD[],
                       ALPHAPRIME, CONVERTEL, CONVERTSD, CONVERTDD, MMIN0, 
                       CRES, MRES0, CSD[10][8], CDD[10][9], SPROTON;
+
+  // Initialization data, normally only set once.
+  bool   isCalc, setTotal, doDampen, setElastic;
+  double sigTotOwn, sigElOwn, sigXBOwn, sigAXOwn, sigXXOwn,
+         maxXBOwn, maxAXOwn, maxXXOwn, bSlope, rho, lambda, tAbsMin, 
+         alphaEM0, sigmaPomP;
 
   // Pointer to various information on the generation.
   Info*         infoPtr;

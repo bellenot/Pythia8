@@ -131,7 +131,9 @@ are available to be used.
 <br/>For a <i>2 -> 2</i> process, instead
 <i>d(sigmaHat)/d(tHat)</i> should be returned, based on
 provided <code>mH, sH, sH2, tH, tH2, uH, uH2, m3, s3, m4, s4</code> and 
-<code>pT2</code> values (<code>s3 = m3*m3</code> etc.). 
+<code>pT2</code> values (<code>s3 = m3*m3</code> etc.). Overload the 
+<code>convertME()</code> method below if you instead plan to return
+<i>|M|^2</i>.
 <br/>For a <i>2 -> 3</i> process, instead <i>|M|^2</i> should be 
 returned, with normalization such that <i>|M|^2 / (2 sHat)</i> integrated 
 over the three-body phase space gives the cross section. Here no standard 
@@ -166,6 +168,20 @@ than the distribution you have in mind. Also note that, already by default,
 the wings of the Breit-Wigner are oversampled (with a compensating lower 
 internal weight) by partly sampling like <i>(a + b/m^2 + c/m^4) d(m^2)</i>,
 where the last term is only used for <i>gamma^*/Z^0</i>.
+<br>As alternative to the kinematics variables defined above, to be used
+for cross section calculations, also the two arrays <code>mME[5]</code> 
+and <code>pME[5]</code> can be used, for masses and four-momenta,
+respectively. Here indices 0 and 1 are the two incoming beams, and 2
+and onwards the outgoing particles. (Note that this differs from the normal
+internal labelling, where slot 0 is left empty.) The four-momenta are 
+defined in the rest frame of the subcollision, and do not represent the 
+final kinematics. Furthermore, for <i>2 -> 2</i> processes of massive 
+identical particles (or antiparticles) in the final state, such as 
+<i>t tbar</i> or <i>W^+ W^-</i>, the kinematics is here adjusted 
+so that the two particles have the same mass, formed as a suitable 
+average of the actual Breit-Wigner-distributed masses. This allows the 
+evaluation of matrix-element expressions that only have meaning if the 
+two have the same mass.  
   
 
 <a name="method4"></a>
@@ -287,6 +303,20 @@ overloaded to instead return <code>false</code>.
   
 
 <a name="method11"></a>
+<p/><strong>bool SigmaProcess::convertME() &nbsp;</strong> <br/>
+it is assumed that <i>2 -> 2</i> cross sections are encoded as 
+<i>d(sigmaHat)/d(tHat)</i> in the <code>SigmaProcess::sigmaHat()</code>
+methods. If <code>convertME()</code> is overloaded to instead return 
+<code>true</code> then the return value is instead assumed to be the
+squared matrix element <i>|M|^2</i>, and 
+<code>SigmaProcess::sigmaHatWrap(...)</code> converts to 
+<i>d(sigmaHat)/d(tHat)</i>.
+This switch has no effect on <i>2 -> 1</i> and <i>2 -> 3</i> processes.
+In the former one always needs to encode <i>sigmaHat(sHat)</i>,
+in the latter always <i>|M|^2</i>. 
+  
+
+<a name="method12"></a>
 <p/><strong>int SigmaProcess::id3Mass() &nbsp;</strong> <br/>
   
 <strong>int SigmaProcess::id4Mass() &nbsp;</strong> <br/>
@@ -301,7 +331,7 @@ Later on, these quarks can still (automatically) obtain constituent masses,
 once a <i>u</i>, <i>d</i> or <i>s</i> flavour has been selected. 
   
 
-<a name="method12"></a>
+<a name="method13"></a>
 <p/><strong>int SigmaProcess::resonanceA() &nbsp;</strong> <br/>
   
 <strong>int SigmaProcess::resonanceB() &nbsp;</strong> <br/>
@@ -312,7 +342,7 @@ Breit-Wigners. Massless resonances (the gluon and photon) need not be
 specified.
   
 
-<a name="method13"></a>
+<a name="method14"></a>
 <p/><strong>bool SigmaProcess::isSChannel() &nbsp;</strong> <br/>
 normally the choice of renormalization and factorization scales in 
 <i>2 -> 2</i> and <i>2 -> 3</i> processes is based on the assumption 
@@ -325,19 +355,34 @@ default <code>false</code> to return <code>true</code>. See further the
 page on <a href="CouplingsAndScales.html" target="page">couplings and scales</a>.
   
 
-<a name="method14"></a>
+<a name="method15"></a>
+<p/><strong>int SigmaProcess::idSChannel() &nbsp;</strong> <br/>
+normally no intermediate state is shown in the event record for  
+<i>2 -> 2</i> and <i>2 -> 3</i> processes. However, in case 
+that <code>idSChannel</code> is overloaded to return a nonzero value,
+an intermediate particle with that identity code is inserted into the
+event record, to make it a <i>2 -> 1 -> 2</i> or <i>2 -> 1 -> 3</i>
+process. Thus if both <code>isSChannel</code> and <code>idSChannel</code>
+are overloaded, a process will behave and look like it proceeded through
+a resonance. The one difference is that the implementation of the 
+matrix element is not based on the division into a production and a
+decay of an intermediate resonance, but is directly describing the 
+transition from the initial to the final state. 
+  
+
+<a name="method16"></a>
 <p/><strong>int SigmaProcess::idTchan1() &nbsp;</strong> <br/>
   
 <strong>int SigmaProcess::idTchan2() &nbsp;</strong> <br/>
-the <i>2 -> 3</i> phase space selection machinery is rather primitive,
-as already mentioned. The efficiency can be improved in processes that
-proceed though <i>t</i>-channel exchanges, such as 
+the non-QCD <i>2 -> 3</i> phase space selection machinery is rather 
+primitive, as already mentioned. The efficiency can be improved in 
+processes that proceed though <i>t</i>-channel exchanges, such as 
 <i>q qbar' -> H^0 q qbar'</i> via <i>Z^0 Z^0</i> fusion, if the identity 
 of the  <i>t</i>-channel-exchanged particles on the two side of the 
 event are provided. Only the absolute value is of interest.
   
 
-<a name="method15"></a>
+<a name="method17"></a>
 <p/><strong>double SigmaProcess::tChanFracPow1() &nbsp;</strong> <br/>
   
 <strong>double SigmaProcess::tChanFracPow2() &nbsp;</strong> <br/>
@@ -359,7 +404,7 @@ selected independently, with the first <i>pT</i> then fixed
 by transverse-momentum conservation.
   
 
-<a name="method16"></a>
+<a name="method18"></a>
 <p/><strong>bool SigmaProcess::useMirrorWeight() &nbsp;</strong> <br/>
 in <i>2 -> 3</i> processes the phase space selection used here
 involves a twofold ambiguity basically corresponding to a flipping of 
@@ -370,7 +415,7 @@ improved by making a preselection based on the relative propagator
 weights, <code>true</code>.  
   
 
-<a name="method17"></a>
+<a name="method19"></a>
 <p/><strong>int SigmaProcess::gmZmode() &nbsp;</strong> <br/>
 allows a possibility to override the global mode 
 <code><a href="ElectroweakProcesses.html" target="page">WeakZ0:gmZmode</a></code> 

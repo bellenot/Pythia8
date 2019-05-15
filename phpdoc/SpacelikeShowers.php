@@ -75,7 +75,7 @@ be used.
 <br/><br/><table><tr><td><strong>SpaceShower:pTmaxFudge </td><td></td><td> <input type="text" name="2" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.25</code>; <code>maximum = 2.0</code>)</td></tr></table>
 In cases where the above <code>pTmaxMatch</code> rules would imply
 that <i>pT_max = pT_factorization</i>, <code>pTmaxFudge</code> 
-introduced a multiplicative factor <i>f</i> such that instead
+introduces a multiplicative factor <i>f</i> such that instead
 <i>pT_max = f * pT_factorization</i>. Only applies to the hardest
 interaction in an event, cf. below. It is strongly suggested that 
 <i>f = 1</i>, but variations around this default can be useful to 
@@ -267,10 +267,20 @@ Use of matrix element corrections; on/off = true/false.
 <input type="radio" name="21" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Azimuthal asymmetry induced by gluon polarization; on/off = true/false.
-Not yet implemented. 
   
 
-<br/><br/><table><tr><td><strong>SpaceShower:nQuarkIn  </td><td></td><td> <input type="text" name="22" value="5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
+<br/><br/><strong>SpaceShower:phiIntAsym</strong>  <input type="radio" name="22" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="22" value="off"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
+Azimuthal asymmetry induced by interference; on/off = true/false.
+  
+
+<br/><br/><table><tr><td><strong>SpaceShower:strengthIntAsym </td><td></td><td> <input type="text" name="23" value="0.7" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.7</strong></code>; <code>minimum = 0.</code>; <code>maximum = 0.9</code>)</td></tr></table>
+Size of asymmetry induced by interference. Natural value of order 0.5; 
+expression would blow up for a value of 1.
+  
+
+<br/><br/><table><tr><td><strong>SpaceShower:nQuarkIn  </td><td></td><td> <input type="text" name="24" value="5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
 Number of allowed quark flavours in <i>g -> q qbar</i> branchings,
 when kinematically allowed, and thereby also in incoming beams. 
 Changing it to 4 would forbid <i>g -> b bbar</i>, etc.
@@ -446,9 +456,19 @@ if($_POST["21"] != "on")
 $data = "SpaceShower:phiPolAsym = ".$_POST["21"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["22"] != "5")
+if($_POST["22"] != "on")
 {
-$data = "SpaceShower:nQuarkIn = ".$_POST["22"]."\n";
+$data = "SpaceShower:phiIntAsym = ".$_POST["22"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["23"] != "0.7")
+{
+$data = "SpaceShower:strengthIntAsym = ".$_POST["23"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["24"] != "5")
+{
+$data = "SpaceShower:nQuarkIn = ".$_POST["24"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);

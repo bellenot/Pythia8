@@ -170,6 +170,8 @@ void SpaceShower::init( BeamParticle* beamAPtrIn,
   // Various other parameters. 
   doMEcorrections = settingsPtr->flag("SpaceShower:MEcorrections");
   doPhiPolAsym    = settingsPtr->flag("SpaceShower:phiPolAsym");
+  doPhiIntAsym    = settingsPtr->flag("SpaceShower:phiIntAsym");
+  strengthIntAsym = settingsPtr->parm("SpaceShower:strengthIntAsym");
   nQuarkIn        = settingsPtr->mode("SpaceShower:nQuarkIn");
 
   // Optional dampening at small pT's when large multiplicities.
@@ -185,6 +187,7 @@ void SpaceShower::init( BeamParticle* beamAPtrIn,
 //--------------------------------------------------------------------------
 
 // Find whether to limit maximum scale of emissions.
+// Also allow for dampening at factorization or renormalization scale. 
 
 bool SpaceShower::limitPTmax( Event& event, double Q2Fac, double Q2Ren) {
 
@@ -249,7 +252,6 @@ void SpaceShower::prepare( int iSys, Event& event, bool limitPTmaxIn) {
     pTmax2 *= pTmaxFudgeMI;
   }
 
-
   // Find dipole ends for QCD radiation.
   // Note: colour type can change during evolution, so book also if zero.
   if (doQCDshower) {
@@ -293,6 +295,7 @@ double SpaceShower::pTnext( Event& event, double pTbegAll, double pTendAll,
   // Current cm energy, in case it varies between events.
   sCM           = m2( beamAPtr->p(), beamBPtr->p());
   eCM           = sqrt(sCM);
+  pTbegRef      = pTbegAll;
 
   // Starting values: no radiating dipole found.
   nRad          = nRadIn;
@@ -427,7 +430,6 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
   double mSister        = 0.;
   double m2Sister       = 0.;
   double pT2corr        = 0.;
-  double phi            = 0.; 
   double pT2PDF         = pT2;
   bool   needNewPDF     = true;
 
@@ -530,9 +532,13 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
 
         // Increase estimated upper weight for g -> Q + Qbar.
         if (isMassive) {
-          double m2log = log( m2Massive / Lambda2);
-          g2Qenhance = log( log(pT2/Lambda2) / m2log ) 
-            / log( log(m2Threshold/Lambda2) / m2log );
+          if (alphaSorder == 0) g2Qenhance = log(pT2/m2Massive) 
+            / log(m2Threshold/m2Massive);    
+          else {
+            double m2log = log( m2Massive / Lambda2);
+            g2Qenhance = log( log(pT2/Lambda2) / m2log ) 
+              / log( log(m2Threshold/Lambda2) / m2log );
+          }
           g2qInt *= g2Qenhance;
         }
 
@@ -687,9 +693,6 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
       if(pT2QQcorr < TINYPT2) { wt = 0.; continue; }
     }  
 
-    // Select phi angle of branching at random.
-    phi = 2. * M_PI * rndmPtr->flat();
-
     // Evaluation of ME correction.
     if (doMEcorrections) wt *= calcMEcorr(MEtype, idMother, idDaughter, 
       m2Dip, z, Q2) / calcMEmax(MEtype, idMother, idDaughter); 
@@ -721,7 +724,7 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
 
   // Save values for (so far) acceptable branching.
   dipEndNow->store( idDaughter,idMother, idSister, x1Now, x2Now, m2Dip,
-    pT2, z, xMother, Q2, mSister, m2Sister, pT2corr, phi);  
+    pT2, z, xMother, Q2, mSister, m2Sister, pT2corr);  
 
 }
 
@@ -793,13 +796,10 @@ void SpaceShower::pT2nearQCDthreshold( BeamParticle& beam,
   // Iterate until acceptable pT and z.
   } while (wt < rndmPtr->flat()) ;
 
-  // Select phi angle of branching at random.
-  double phi = 2. * M_PI * rndmPtr->flat();
-
   // Save values for (so far) acceptable branching.
   double mSister = (abs(idDaughter) == 4) ? mc : mb;  
   dipEndNow->store( idDaughter, 21, -idDaughter, x1Now, x2Now, m2Dip,
-    pT2, z, xMother, Q2, mSister, pow2(mSister), pT2corr, phi);  
+    pT2, z, xMother, Q2, mSister, pow2(mSister), pT2corr);  
 
 }
 
@@ -853,7 +853,6 @@ void SpaceShower::pT2nextQED( double pT2begDip, double pT2endDip) {
   double mSister  = 0.; 
   double m2Sister = 0.;
   double pT2corr  = 0.;
-  double phi      = 0.;
   
   // QED evolution of fermions
   if (!isPhoton) {
@@ -922,9 +921,6 @@ void SpaceShower::pT2nextQED( double pT2begDip, double pT2endDip) {
       m2Sister = 0.;
       pT2corr  = Q2 - z * (m2Dip + Q2) * (Q2 + m2Sister) / m2Dip;
       if(pT2corr < TINYPT2) { wt = 0.; continue; }
-      
-      // Select phi angle of branching at random.
-      phi = 2. * M_PI * rndmPtr->flat();
       
       // Correct by ln(pT2 / m2l) and fudge factor.  
       if (isLeptonBeam) wt *= log(pT2 / m2Lepton) / fudge;
@@ -1109,9 +1105,6 @@ void SpaceShower::pT2nextQED( double pT2begDip, double pT2endDip) {
         double pT2QQcorr = Q2 - z * (m2Dip + Q2) * (Q2 + m2QQsister) / m2Dip;
         if(pT2QQcorr < TINYPT2) { wt = 0.; continue; }
       }  
-
-      // Select phi angle of branching at random.
-      phi = 2. * M_PI * rndmPtr->flat();
       
       // Optional dampening of large pT values in first radiation.
       if (dopTdamp && iSysNow == 0 && MEtype == 0 && nRad == 0) 
@@ -1148,7 +1141,7 @@ void SpaceShower::pT2nextQED( double pT2begDip, double pT2endDip) {
 
   // Save values for (so far) acceptable branching.
   dipEndNow->store( idDaughter, idMother, idSister, x1Now, x2Now, m2Dip,
-    pT2, z, xMother, Q2, mSister, m2Sister, pT2corr, phi);  
+    pT2, z, xMother, Q2, mSister, m2Sister, pT2corr);  
 
 }
 
@@ -1189,7 +1182,6 @@ bool SpaceShower::branch( Event& event) {
   double mSister    = dipEndSel->mSister;
   double m2Sister   = dipEndSel->m2Sister;
   double pT2corr    = dipEndSel->pT2corr;
-  double phi        = dipEndSel->phi;
   double x1New      = (side == 1) ? xMo : x1;
   double x2New      = (side == 2) ? xMo : x2;
 
@@ -1259,7 +1251,7 @@ bool SpaceShower::branch( Event& event) {
     if (statusOld < 0) event[iNewCopy].statusNeg();
   }
  
-  // Define colour flow in branching.
+  // Define colour flow in branching. 
   // Default corresponds to f -> f + gamma.
   int colMother     = colDaughter;
   int acolMother    = acolDaughter;
@@ -1334,7 +1326,57 @@ bool SpaceShower::branch( Event& event) {
     event[2].daughter1( (side == 2) ? iMother : iNewRecoiler ); 
   }
 
-  // Find boost to old rest frame, and rotation -phi.
+  // Initially select phi angle of branching at random.
+  double phi = 2. * M_PI * rndmPtr->flat();
+
+  // Evaluate coefficient of azimuthal asymmetry from gluon polarization.
+  findAsymPol( event, dipEndSel);
+  int    iFinPol = dipEndSel->iFinPol;
+  double cPol    = dipEndSel->asymPol;
+  double phiPol  = (iFinPol == 0) ? 0. : event[iFinPol].phi(); 
+
+  // If interference: try to match sister (anti)colour to final state.
+  int    iFinInt = 0;
+  double cInt    = 0.; 
+  double phiInt  = 0.;
+  if (doPhiIntAsym) {
+    for (int i = 0; i < partonSystemsPtr->sizeOut(iSysSel); ++ i) {
+      int iOut = partonSystemsPtr->getOut(iSysSel, i);
+      if ( (acolSister != 0 && event[iOut].col() == acolSister) 
+        || (colSister != 0 && event[iOut].acol() == colSister) ) 
+        iFinInt = iOut;  
+    }
+    if (iFinInt != 0) {
+      double theFin = event[iFinInt].theta();
+      if (side == 2) theFin = M_PI - theFin;
+      double theSis = pSister.theta();
+      if (side == 2) theSis = M_PI - theSis;
+      cInt = strengthIntAsym * 2. * theSis * theFin 
+           / (pow2(theSis) + pow2(theFin));
+      phiInt = event[iFinInt].phi();
+    }
+  }
+
+  // Bias phi distribution for polarization and interference.
+  if (iFinPol != 0 || iFinInt != 0) {
+    double cPhiPol, cPhiInt, weight;
+    do {
+      phi     = 2. * M_PI * rndmPtr->flat();
+      weight  = 1.;
+      if (iFinPol !=0 ) {
+        cPhiPol = cos(phi - phiPol);
+        weight *= ( 1. + cPol * (2. * pow2(cPhiPol) - 1.) ) 
+          / ( 1. + abs(cPol) );
+      }
+      if (iFinInt !=0 ) {
+        cPhiInt = cos(phi - phiInt); 
+        weight *= (1. - cInt) * (1. - cInt * cPhiInt)
+          / (1. + pow2(cInt) - 2. * cInt * cPhiInt);
+      }
+    } while (weight < rndmPtr->flat());  
+  }
+
+  // Find boost to old rest frame, and include rotation -phi.
   RotBstMatrix Mtot;
   if (normalRecoil) Mtot.bst(0., 0., (x2 - x1) / (x1 + x2) );
   else if (side == 1)
@@ -1659,6 +1701,56 @@ double SpaceShower::calcMEcorr(int MEtype, int idMother, int idDaughterIn,
   }
 
   return 1.;
+
+}
+
+//--------------------------------------------------------------------------
+
+// Find coefficient of azimuthal asymmetry from gluon polarization.
+
+void SpaceShower::findAsymPol( Event& event, SpaceDipoleEnd* dip) {
+
+  // Default is no asymmetry. Only gluons are studied.
+  dip->iFinPol = 0.;
+  dip->asymPol = 0.;
+  int iRad = dip->iRadiator;
+  if (!doPhiPolAsym || dip->idDaughter != 21) return;
+
+  // Check if granddaughter in final state of hard scattering.
+  // (May need to trace across carbon copies to find granddaughters.)
+  // If so, only accept 2 -> 2 scatterings with gg or qq in final state.
+  int iGrandD1 = event[iRad].daughter1();
+  int iGrandD2 = event[iRad].daughter2();
+  bool traceCopy = false;
+  do {
+    traceCopy = false;
+    if (iGrandD1 > 0 && iGrandD2 == iGrandD1) {
+      iGrandD1 = event[iGrandD2].daughter1();
+      iGrandD2 = event[iGrandD2].daughter2();
+      traceCopy = true;
+    }
+  } while (traceCopy);
+  int statusGrandD1 = event[ iGrandD1 ].statusAbs();
+  bool isHardProc  = (statusGrandD1 == 23 || statusGrandD1 == 33); 
+  if (isHardProc) {
+    if (iGrandD2 != iGrandD1 + 1) return; 
+    if (event[iGrandD1].isGluon() && event[iGrandD2].isGluon());
+    else if (event[iGrandD1].isQuark() && event[iGrandD2].isQuark());
+    else return;
+  }
+  dip->iFinPol = iGrandD1;   
+
+  // Coefficient from gluon production.
+  if (dip->idMother == 21) dip->asymPol = pow2( (1. - dip->z) 
+    / (1. - dip->z * (1. - dip->z) ) );
+  else dip->asymPol = 2. * (1. - dip->z) / (1. + pow2(1. - dip->z) );
+
+  // Coefficients from gluon decay. Put z = 1/2 for hard process.
+  double zDau  = (isHardProc) ? 0.5 : dip->zOld;
+  if (event[iGrandD1].isGluon()) dip->asymPol *= pow2( (1. - zDau) 
+    / (1. - zDau * (1. - zDau) ) );
+  else  dip->asymPol *= -2. * zDau *( 1. - zDau ) 
+    / (1. - 2. * zDau * (1. - zDau) );
 
 }
 

@@ -452,8 +452,12 @@ public:
 private: 
 
   // Locally stored properties and couplings.
+  bool   m_smbulk;
   double kappaMG;
  
+  // Couplings between graviton and SM (map from particle id to coupling).
+  double m_coupling[26];
+
   // Initialize constants.
   virtual void initConstants(); 
  
@@ -464,6 +468,37 @@ private:
   virtual void calcWidth(bool = false);
 
 };
+
+//==========================================================================
+
+// The ResonanceKKgluon class handles the excited kk-gluon resonance.
+
+class ResonanceKKgluon : public ResonanceWidths {
+
+public:
+
+  // Constructor. 
+  ResonanceKKgluon(int idResIn) {initBasic(idResIn);} 
+ 
+private: 
+
+  // Locally stored properties and couplings.
+  bool   m_smbulk;
+
+  // Couplings between KK gluon and SM (map from particle id to coupling).
+  double m_coupling[10];
+
+  // Initialize constants.
+  virtual void initConstants(); 
+ 
+  // Calculate various common prefactors for the current mass.
+  virtual void calcPreFac(bool = false);
+
+  // Caclulate width for currently considered channel.
+  virtual void calcWidth(bool = false);
+
+};
+
 
 //==========================================================================
 

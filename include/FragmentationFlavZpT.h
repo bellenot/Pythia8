@@ -159,17 +159,13 @@ public:
   // Initialize data members.
   void init(Settings& settings, Rndm* rndmPtrIn);
 
-  // Return px and py separately, but really same routine.
-  double px() {return pxy();}
-  double py() {return pxy();}
+  // Return px and py as a pair in the same call.
+  pair<double, double>  pxy();
 
 private: 
 
   // Initialization data, to be read from Settings.
   double sigmaQ, enhancedFraction, enhancedWidth;
-
-  // pT fragmentation spectrum.
-  double pxy();
 
   // Pointer to the random number generator.
   Rndm*  rndmPtr;

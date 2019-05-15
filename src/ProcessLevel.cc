@@ -1003,7 +1003,7 @@ void ProcessLevel::findJunctions( Event& junEvent) {
     vector<int> daughters = junEvent.daughterList(i);
     // Debug??
     if (junEvent.size() == 3 && daughters.size() > 0) {
-      cout << " warning: dughtersize = " << daughters.size() << endl;
+      cout << " warning: daughtersize = " << daughters.size() << endl;
       junEvent.list();
     } 
     // End debug???
@@ -1034,10 +1034,37 @@ void ProcessLevel::findJunctions( Event& junEvent) {
     } 
 
     // Store an (anti)junction when three (anti)coloured daughters.
-    if (cols.size() == 3 && acols.size() == 0) 
-      junEvent.appendJunction( 1, cols[0], cols[1], cols[2]);
-    if (acols.size() == 3 && cols.size() == 0) 
+    // But first check that junction not already exists.
+    if (cols.size() == 3 && acols.size() == 0) {
+      bool foundMatch = false;
+      for (int iJun = 0; iJun < junEvent.sizeJunction(); ++iJun) 
+      if (junEvent.kindJunction(iJun) == 1) {
+        int nMatch = 0;
+        for (int j = 0; j < 3; ++j) { 
+          int colNow = junEvent.colJunction(iJun, j); 
+          if (colNow == cols[0] || colNow == cols[1] 
+            || colNow == cols[2]) ++nMatch;
+        } 
+        if (nMatch == 3) foundMatch = true;
+      }
+      if (!foundMatch)
+        junEvent.appendJunction( 1, cols[0], cols[1], cols[2]);
+    }
+    if (acols.size() == 3 && cols.size() == 0) {
+      bool foundMatch = false;
+      for (int iJun = 0; iJun < junEvent.sizeJunction(); ++iJun) 
+      if (junEvent.kindJunction(iJun) == 2) {
+        int nMatch = 0;
+        for (int j = 0; j < 3; ++j) { 
+          int colNow = junEvent.colJunction(iJun, j); 
+          if (colNow == acols[0] || colNow == acols[1] 
+            || colNow == acols[2]) ++nMatch;
+        } 
+        if (nMatch == 3) foundMatch = true;
+      }
+      if (!foundMatch)
       junEvent.appendJunction( 2, acols[0], acols[1], acols[2]);
+    }
   }
 
   // Done.
@@ -1085,6 +1112,22 @@ bool ProcessLevel::checkColours( Event& process) {
     infoPtr->errorMsg("Error in ProcessLevel::checkColours: "
       "incorrect colour assignment"); 
     return false;
+  }
+
+  // Remove (anti)colours coming from an (anti)junction.
+  // Temporary solution; only relevant for some cases??
+  for (int iJun = 0; iJun < process.sizeJunction(); ++iJun)  
+  if ( process.kindJunction(iJun) == 1 
+    || process.kindJunction(iJun) == 2) {
+    for (int j = 0; j < 3; ++j) { 
+      int colJun = process.colJunction(iJun, j);
+      for (int ic = 0; ic < int(colTags.size()) ; ++ic)
+      if (colJun == colTags[ic]) {
+        colTags[ic] = colTags[colTags.size() - 1]; 
+        colTags.pop_back();
+        break;
+      } 
+    }
   }
 
   // Loop through all colour tags and find their positions (by sign). 

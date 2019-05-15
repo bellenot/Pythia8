@@ -91,13 +91,71 @@ the <ei>2 -> 1 </ei> processes.
 
 <h3>Cuts in <ei>2 -> 3</ei> processes</h3>
 
-Currently no further cuts have been introduced for <ei>2 -> 3</ei>
-processes than those already available for <ei>2 -> 2</ei> ones.
-A <ei>2 -> 3</ei> process in principle would allow to define a
-separate <ei>pT</ei> range for each of the three particles (with some
-correlations), but for now all three are restricted exactly the
-same way by <code>pTHatMin</code> and <code>pTHatMax</code>.  
-As above, Breit-Wigner mass ranges can be restricted.
+There are two main classes of <ei>2 -> 3</ei> processes. One is the 
+processes such as <ei>WW/ZZ</ei>-fusion Higgs production, i.e.
+<ei>q q -> q q H</ei>, where there are no special singularities 
+associated with two partons in the final state being collinear,
+or even for <ei>pT -> 0</ei>. For this class, no further cuts 
+have been introduced than those already available for <ei>2 -> 2</ei> 
+processes. Specifically, for now all three are restricted exactly the 
+same way by <code>pTHatMin</code> and <code>pTHatMax</code>. As above, 
+Breit-Wigner mass ranges can be restricted.
+
+<p/>
+The other <ei>2 -> 3</ei> event class is QCD processes, such as 
+<ei>g g -> g g g</ei>. Here the soft and collinear singularities 
+play a major role, and the phase space generation and cuts have 
+been adapted to this. For this class, an alternative set of cuts 
+is used, as outlined in the following. First of all the three
+outgoing partons are ordered in falling <ei>pT</ei>, i.e. 
+<ei>pT_3 > pT_4 > pT_5</ei> (where the labelling 3, 4, 5 of the outgoing 
+partons is random, i.e. unrelated to the order specified in the
+process name). The allowed ranges of <ei>pT_3</ei> and <ei>pT_5</ei>
+can be specified, but obviously <ei>pT_3max >= pT_5max</ei> and
+<ei>pT_3min >= pT_5min</ei>. The <ei>pT_4</ei> is not constrained 
+explicitly, but is constructed from the vector sum of <ei>pT_3</ei>
+and <ei>pT_5</ei>, subject to the constraint that it has to lie
+between the two in magnitude. While the <ei>pT</ei> cuts take care
+of singularities collinear with the incoming beams, it is also 
+necessary to handle final-state singularities, when two outgoing
+partons become collinear. This is done by requiring a minimal 
+separation in <ei>R</ei>, where 
+<ei>R^2 = (Delta eta)^2 + (Delta phi)^2</ei>. 
+Finally, a note about efficiency. The QCD <ei>2 -> 3</ei> phase space 
+is not set up to explicitly include <ei>mHat</ei> as one of the basic
+variables. Such a cut is only done after a phase space point is already 
+selected, which means that a narrow mass choice will slow down the 
+program appreciably. Also narrow <ei>pT_3</ei> and <ei>pT_5</ei> bins
+are likely to give inefficient generation, if it gives rise to
+significant indirect restrictions on <ei>pT_4</ei>. 
+
+<parm name="PhaseSpace:pTHat3Min" default="10." min="0.">
+The minimum invariant <ei>pT</ei> of the highest-<ei>pT</ei> parton in
+QCD <ei>2 -> 3</ei> processes.
+</parm>
+
+<parm name="PhaseSpace:pTHat3Max" default="-1.">
+The maximum invariant <ei>pT</ei> of the highest-<ei>pT</ei> parton in
+QCD <ei>2 -> 3</ei> processes
+A value below <code>pTHat3Min</code> means there is no upper limit.
+</parm>
+
+<parm name="PhaseSpace:pTHat5Min" default="10." min="0.">
+The minimum invariant <ei>pT</ei> of the lowest-<ei>pT</ei> parton in
+QCD <ei>2 -> 3</ei> processes.
+</parm>
+
+<parm name="PhaseSpace:pTHat5Max" default="-1.">
+The maximum invariant <ei>pT</ei> of the lowest-<ei>pT</ei> parton in
+QCD <ei>2 -> 3</ei> processes
+A value below <code>pTHat5Min</code> means there is no upper limit.
+</parm>
+
+<parm name="PhaseSpace:RsepMin" default="1.">
+The minimum separation <ei>R</ei> in <ei>(eta, phi)</ei> space between
+any two outgoing partons in QCD <ei>2 -> 3</ei> processes.
+</parm>
+
 
 <h3>Cuts for a second hard process</h3>
 
@@ -134,7 +192,20 @@ The maximum invariant <ei>pT</ei> for a second interaction, if separate.
 A value below <code>pTHatMin</code> means there is no upper limit.
 </parm>
 
-<h3>Documentation</h3>
+<h3>Generation strategy and documentation</h3>
+
+During the initialization stage a simplified function is found,
+that is intended to be above the true cross-section behaviour
+over the whole of phase space. It is chosen to be easily integrable 
+and invertible. That way a trial phase space point can be selected 
+according this simple function, and then be accepted by the ratio of
+true to the simple function. For a good efficieny the ratio should be
+close to unity,  yet never above it. This constrains the absolute 
+normalization of the simple function. The initial search may fail to 
+find the phase space point where the true-to-simple ratio is maximal,
+however. This then can lead to subsequent maximum violations, where the 
+ratio is above unity. Two alternative strategies are implemented to 
+handle such situations, see below.
 
 <flag name="PhaseSpace:showSearch" default="off">
 Possibility to print information on the search for phase-space 
@@ -151,6 +222,35 @@ the initial maximization procedure did not find the true maximum.
 Also, should negative cross sections occur, print whenever a more
 negative value is encountered.
 </flag>
+
+<flag name="PhaseSpace:increaseMaximum" default="off">
+Strategy for handling cases where a larger cross section is
+obtained during the event generation than was assumed at initialization,
+i.e. when a violation occurs.
+<br/><b>off:</b>each event comes with a weight, which normally is unity
+(as a consequence of the acceptance/rejection step), and is found in
+<code><aloc href="EventInformation">Info::weight()</aloc></code>. 
+For events which exceed the maximum instead the true-to-simple ratio 
+is stored as event weight, which then is above unity. If the user so 
+wishes this weight can then be carried along when event properties are
+histogrammed. Since normally such violations should be rare and not 
+too much above unity one could expect most users to ignore such issues
+be default. Should maximum violations turn out to be frequent (visible
+in the <code><aloc href="EventStatistics">Pythia::statistics()</aloc></code>
+output) the option exists to use the information.
+<br/><b>on:</b>the maximum is increased whenever it is exceeded. Thus
+events generated after this point will be "correctly" distributed,
+while ones generated previously obviously then have had too high a 
+relative weight. If violations occur early on and/or are small this
+strategy should do a good job of correcting to the desired phase-space
+distribution. This strategy may be more convenient for the normal user,
+who would not wish to worry about event weights. It does have the
+disadvantage that the raised maximum introduces an extra amount of
+"history memory" to the generation sequence, so that it becomes less
+easy to save-and-restore the <aloc href="RandomNumbers">random-number 
+state</aloc> for debugging purposes.  
+</flag>
+
 
 </chapter>
 

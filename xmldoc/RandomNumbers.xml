@@ -103,7 +103,13 @@ generate random numbers according to <ei>x exp(-x)</ei>.
 </method>
    
 <method name="double Rndm::gauss()">
-generate random numbers according to exp(-x^2/2)
+generate random numbers according to <ei>exp(-x^2/2)</ei>.
+</method>
+   
+<method name="pair&lt;double, double&gt; Rndm::gauss2()">
+generate a pair of random numbers according to 
+<ei>exp( -(x^2 + y^2) / 2)</ei>. Is faster than two calls
+to <code>gauss()</code>.
 </method>
    
 <method name="int Rndm::pick(const vector<double>& prob)">
@@ -124,7 +130,7 @@ file saved by the above command. Comments as above.
    
 <method name="virtual double RndmEngine::flat()">
 if you want to construct an external random number generator 
-(or generator interface) then you must impement this method 
+(or generator interface) then you must implement this method 
 in your class derived from the <code>RndmEningen</code> base class,
 to give a random number between 0 and 1.
 </method>

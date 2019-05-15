@@ -137,8 +137,8 @@ private:
   LHAup*           lhaUpPtr;
 
   // Info on process.
-  bool   isMinBias, isResolved, isDiffA, isDiffB, isLHA, allowNegSig,
-         hasOctetOnium, isSameSave;
+  bool   isLHA, isMinBias, isResolved, isDiffA, isDiffB, isQCD3body,
+         allowNegSig, hasOctetOnium, isSameSave, increaseMaximum;
   int    lhaStrat, lhaStratAbs;
 
   // Statistics on generation process. (Long integers just in case.)

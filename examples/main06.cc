@@ -88,10 +88,10 @@ int main() {
     pTspec.fill( pT );
 
     // Study properties geared towards elastic/diffractive events.
-    mSpec.fill( pythia.info.m3Hat() );
-    mSpec.fill( pythia.info.m4Hat() );
-    mLogSpec.fill( log10(pythia.info.m3Hat()) );
-    mLogSpec.fill( log10(pythia.info.m4Hat()) );
+    mSpec.fill( event[3].m() );
+    mSpec.fill( event[4].m() );
+    mLogSpec.fill( log10(event[3].m()) );
+    mLogSpec.fill( log10(event[4].m()) );
     int code = pythia.info.code();
     double tAbs = abs(pythia.info.tHat());
     if (code == 102) {
@@ -121,7 +121,7 @@ int main() {
         if (k == i + 3) ++ndiff;
       }  
       nDiff.fill( ndiff );
-      if (ndiff == 1) mSpec1.fill( event[i +3].m() ); 
+      if (ndiff <= 1) mSpec1.fill( event[i+3].m() ); 
     }
 
   // End of event loop.

@@ -78,7 +78,7 @@
 
    LIST OF TEST PROGRAMS
 
-1) main01 - main20, main28 - main29 only use the PYTHIA 8 library
+1) main01 - main20, main28 - main30, main71 only use the PYTHIA 8 library
 * main01.cc : brief example with charged multiplicity distribution
 * main02.cc : brief example with Z0 pT spectrum
 * main03.cc & main03.cmnd : simple single-particle analysis in jet events
@@ -101,6 +101,8 @@
 * main20.cc : write a Les Houches Event File with PYTHIA 8-generated events 
 * main28.cc : test program for large extra dimensions or unparticles
 * main29.cc : generic "energy blob" decay for cosmic-ray physics  
+* main30.cc : Kaluza-Klein gamma/Z states in TeV-sized extra dimensions
+* main71.cc & powheg-hvq.lhe : interface to POWHEG events
 
 2) main21 - main27 are examples how some external programs could be linked
 * main21.cc : external input of parton configurations for hadronization only
@@ -121,7 +123,9 @@
 * main43.cc : example of evolution with photon-in-proton: the MRST2004qed set
 * main44.cc : how to create your own PDF and link it in for usage
 
-5) main61 requires linkage to FastJet
+5) main51.cc requires linkage to Pythia 6.4, and is deprecated  
+
+6) main61 requires linkage to FastJet
 * main61.cc : rate of W + jets events using kT-clustering for jets 
  
 Note 1: main31 and main32 save HepMC-formatted events on hepmcoutNN.dat;     
@@ -130,8 +134,11 @@ Note 1: main31 and main32 save HepMC-formatted events on hepmcoutNN.dat;
 Note 2: There is no main00 program, but main00 is defined in the 
     Makefile to link to PYTHIA 8, so this name can be used for 
     simple first tests.
-Note 3: With ./runmains all the 29 first mainXX program will be run.
+Note 3: With ./runmains all the 30 first mainXX program will be run,
+    plus main71, to get a thorough test of the installation. 
     The runmains file can easily be edited to run the others as well,
     but then you should first link to the appropriate external libraries.
+    The outref subdirectory contains the output of such a run, if you
+    want to compare with what you obtain.
 
 ----------------------------------------------------------------------

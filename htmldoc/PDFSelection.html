@@ -22,7 +22,7 @@ The fifth gives the possibility to switch off the lepton
 
 The selection of parton densities is made once and then is propagated 
 through the program. It is essential to make an informed choice, 
-for several reasons: 
+for several reasons [<a href="Bibliography.html" target="page">Kas10</a>]: 
 <br/><b>Warning 1:</b> the choice of PDF set affects a number of
 properties of events. A change of PDF therefore requires a complete 
 retuning e.g.  of the multiple-interactions model for minimum-bias and 
@@ -309,12 +309,12 @@ Further choice of a specific member from the set picked above.
 The Pomeron is introduced in the description of diffractive events, 
 i.e. a diffractive system is viewed as a Pomeron-proton collision at a 
 reduced CM energy. Here the PDF's are even less well known. 
-The experimental parametrizations are NLO, which makes them less
+Most experimental parametrizations are NLO, which makes them less
 well suited for Monte Carlo applications. Furthemore note that 
 the momentum sum is arbitrarily normalized to a non-unity value.
 
 <p/><code>mode&nbsp; </code><strong> PDF:PomSet &nbsp;</strong> 
- (<code>default = <strong>5</strong></code>; <code>minimum = 1</code>; <code>maximum = 5</code>)<br/>
+ (<code>default = <strong>6</strong></code>; <code>minimum = 1</code>; <code>maximum = 6</code>)<br/>
 Parton densities that can be used for Pomeron beams. 
 <br/><code>option </code><strong> 1</strong> : <i>Q^2</i>-independent parametrizations
 <i>xf(x) = N_ab x^a (1 - x)^b</i>, where <i>N_ab</i> ensures
@@ -339,6 +339,10 @@ rescaled by the factor <code>PomRescale</code> below.
   
 <br/><code>option </code><strong> 5</strong> : the H1 2007 Jets NLO <i>Q^2</i>-dependent 
 parametrization, based on a tune to their data [<a href="Bibliography.html" target="page">H1P07</a>],
+rescaled by the factor <code>PomRescale</code> below.
+  
+<br/><code>option </code><strong> 6</strong> : the H1 2006 Fit B LO <i>Q^2</i>-dependent 
+parametrization, based on a tune to their data [<a href="Bibliography.html" target="page">H1P06</a>],
 rescaled by the factor <code>PomRescale</code> below.
   
    
@@ -381,7 +385,7 @@ the suppression of the <i>s</i> quark density relative to that of the
 
 <p/><code>parm&nbsp; </code><strong> PDF:PomRescale &nbsp;</strong> 
  (<code>default = <strong>1.0</strong></code>; <code>minimum = 0.5</code>; <code>maximum = 5.0</code>)<br/>
-Rescale the three H1 fits above by this uniform factor, e.g. to bring 
+Rescale the four H1 fits above by this uniform factor, e.g. to bring 
 up their momentum sum to around unity. By default all three have
 a momentum sum of order 0.5, suggesting that a factor around 2.0
 should be used. You can use <code>examples/main41.cc</code> to get

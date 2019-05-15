@@ -7,6 +7,7 @@
 # The ones from main31 and higher need linkage to external libraries,
 # however, and therefore the execution exits before them by default.
 # If you want to change that behaviour, comment out the "exit" line.
+# The subdirectory outref contains output from reference run.
 
 echo
 echo Now begin main01
@@ -152,6 +153,16 @@ echo
 echo Now begin main29
 make main29
 time ./main29.exe > out29
+
+echo
+echo Now begin main30
+make main30
+time ./main30.exe > out30
+
+echo
+echo Now begin main71
+make main71
+time ./main71.exe > out71
 
 # This code section stops the testing before the mainXX programs
 # that need access to various external libraries.  

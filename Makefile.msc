@@ -118,6 +118,8 @@ OBJS =   $(OUTDIR)/Analysis.obj \
          $(OUTDIR)/TimeShower.obj \
          $(OUTDIR)/UserHooks.obj \
          $(OUTDIR)/LHAPDFDummy.obj
+# If you link to LHAPDF you don't want the last line
+# If you link to HepMC you also need HepMCInterface
 
 LIBS : $(OUTDIR) $(LIBDIR) $(BINDIR) $(LIBLIB)
 

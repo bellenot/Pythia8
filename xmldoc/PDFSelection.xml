@@ -16,7 +16,7 @@ The fifth gives the possibility to switch off the lepton
 
 The selection of parton densities is made once and then is propagated 
 through the program. It is essential to make an informed choice, 
-for several reasons: 
+for several reasons <ref>Kas10</ref>: 
 <note>Warning 1:</note> the choice of PDF set affects a number of
 properties of events. A change of PDF therefore requires a complete 
 retuning e.g.  of the multiple-interactions model for minimum-bias and 
@@ -289,11 +289,11 @@ Further choice of a specific member from the set picked above.
 The Pomeron is introduced in the description of diffractive events, 
 i.e. a diffractive system is viewed as a Pomeron-proton collision at a 
 reduced CM energy. Here the PDF's are even less well known. 
-The experimental parametrizations are NLO, which makes them less
+Most experimental parametrizations are NLO, which makes them less
 well suited for Monte Carlo applications. Furthemore note that 
 the momentum sum is arbitrarily normalized to a non-unity value.
 
-<modepick name="PDF:PomSet" default="5" min="1" max="5">
+<modepick name="PDF:PomSet" default="6" min="1" max="6">
 Parton densities that can be used for Pomeron beams. 
 <option value="1"><ei>Q^2</ei>-independent parametrizations
 <ei>xf(x) = N_ab x^a (1 - x)^b</ei>, where <ei>N_ab</ei> ensures
@@ -318,6 +318,10 @@ rescaled by the factor <code>PomRescale</code> below.
 </option>
 <option value="5">the H1 2007 Jets NLO <ei>Q^2</ei>-dependent 
 parametrization, based on a tune to their data <ref>H1P07</ref>,
+rescaled by the factor <code>PomRescale</code> below.
+</option>
+<option value="6">the H1 2006 Fit B LO <ei>Q^2</ei>-dependent 
+parametrization, based on a tune to their data <ref>H1P06</ref>,
 rescaled by the factor <code>PomRescale</code> below.
 </option>
 </modepick> 
@@ -353,7 +357,7 @@ the suppression of the <ei>s</ei> quark density relative to that of the
 </parm>
 
 <parm name="PDF:PomRescale" default="1.0" min="0.5" max="5.0">
-Rescale the three H1 fits above by this uniform factor, e.g. to bring 
+Rescale the four H1 fits above by this uniform factor, e.g. to bring 
 up their momentum sum to around unity. By default all three have
 a momentum sum of order 0.5, suggesting that a factor around 2.0
 should be used. You can use <code>examples/main41.cc</code> to get

@@ -2,8 +2,14 @@
 
 <h2>Hidden Valley Processes</h2>
 
-This Hidden Valley (HV) scenario is hardly even begun. Please do not 
-read any further if you are not part of the development effort.
+This Hidden Valley (HV) scenario has been developed specifically 
+to allow the study of visible consequences of radiation in a 
+hidden sector, by recoil effect. A key aspect is therefore that 
+the normal timelike showering machinery has been expanded with a 
+third kind of radiation, in addition to the QCD and QED ones.
+These three kinds of radiation are fully interleaved, i.e.
+evolution occurs in a common <ei>pT</ei>-ordered sequence.
+The scenario is described in <ref>Car10</ref>.
 
 <h2>Particle content and properties</h2>
 
@@ -256,16 +262,49 @@ Code 4936.
 
 <h2>Timelike showers</h2>
 
+One key point of this HV scenario is that radiation off the
+HV-charged particles is allowed. This is done by the standard
+final-state showering machinery. (HV particles are not produced 
+in initial-state radiation.) All the (anti)particles <ei>Fv</ei>
+and <ei>qv</ei> have one (negative) unit of HV charge. That is,
+radiation closely mimics the one in QCD. Both QCD, QED and HV 
+radiation are interleaved in one common sequence of decreasing 
+emission <ei>pT</ei> scales. Each radiation kind defines a set of
+dipoles, usually spanned between a radiating parton and its recoil
+partner, such that the invariant mass of the pair is not changed
+when a radiation occurs. This need not follow from trivial colour
+assignments, but is often obvious. For instance,  in a decay 
+<ei>Qv -> q + qv</ei> the QCD dipole is between the <ei>q</ei> and 
+the hole after <ei>Qv</ei>, but <ei>qv</ei> becomes the recoiler 
+should a radiation occur, while the role of <ei>q</ei> and <ei>qv</ei> 
+is reversed for HV radiation. 
+
+<p/>This also includes matrix-element corrections for a number 
+of decay processes, with colour, spin and mass effects included 
+<ref>Nor01</ref>. They were calculated within the context of the 
+particle content of the MSSM, however, which does not include spin 1 
+particles with unit colour charge. In such cases spin 0 is assumed 
+instead. By experience, the main effects come from mass and colour 
+flow anyway, so this is not a bad approximation. (Furthermore the
+MSSM formulae allow for <ei>gamma_5</ei> factors from wave 
+functions or vertices; these are even less important.)
+
+<p/>An emitted <ei>gv</ei> can branch in its turn, 
+<ei>gv -> gv + gv</ei>. This radiation may affect momenta 
+in the visible sector by recoil effect, but this is a minor 
+effect relative to the primary emission of the <ei>gv</ei>. 
 
 <flag name="HiddenValley:FSR" default="off">
-switch on final-state shower of gluons in a HV production process.
+switch on final-state shower of <ei>gv</ei> or <ei>gammav</ei>  
+in a HV production process.
 </flag>
 
 <parm name="HiddenValley:alphaFSR" default="0.1" min="0.0">
-fixed alpha scale of gHV emission; corresponds to 
-<ei>alpha_strong</ei> of QCD. For shower branchings such as
-<ei>dHV -> dHV + gHV</ei> the coupling is multiplied
-by <ei>C_F = (N^2 - 1) / (2 * N)</ei> for an <b>SU(N)</b> group.
+fixed alpha scale of <ei>gv/gammav</ei> emission; corresponds to 
+<ei>alpha_strong</ei> of QCD or <ei>alpha_em</ei> of QED. For 
+shower branchings such as <ei>Dv -> Dv + gv</ei> the coupling is 
+multiplied by <ei>C_F = (N^2 - 1) / (2 * N)</ei> for an 
+<b>SU(N)</b> group and for <ei>gv -> gv + gv</ei> by <ei>N</ei>.
 </parm>
 
 <parm name="HiddenValley:pTminFSR" default="0.4" min="0.1">

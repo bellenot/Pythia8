@@ -89,9 +89,9 @@ void Rndm::init(int seedIn) {
   j97 = 32;
 
   // Finished.
-  initRndm = true;
-  seedSave = seed;
-  sequence = 0;
+  initRndm  = true;
+  seedSave  = seed;
+  sequence  = 0;
 
 }
 
@@ -127,37 +127,16 @@ double Rndm::flat() {
 
 //--------------------------------------------------------------------------
 
-// Generate random numbers according to exp(-x^2/2).
-
-double Rndm::gauss() { 
-
-  // Generate pair of Gaussian random numbers.
-  if (!saveGauss) {
-    saveGauss  = true;
-    double r   = sqrt(-2. * log(flat()));
-    double phi = 2. * M_PI * flat();
-    save       = r * sin(phi);
-    return       r * cos(phi);
-
-  // Use saved element of pair.
-  } else {
-    saveGauss  = false;
-    return       save;
-  }
-
-} 
-
-//--------------------------------------------------------------------------
-
 // Pick one option among  vector of (positive) probabilities.
 
 int Rndm::pick(const vector<double>& prob) {
 
   double work = 0.;
-  for (int i = 0; i < int(prob.size()); ++i) {work += prob[i];}
+  for (int i = 0; i < int(prob.size()); ++i) work += prob[i];
   work *= flat();  
   int index = -1;
-  do { work -= prob[++index]; } while (work > 0. && index < int(prob.size()));
+  do work -= prob[++index]; 
+  while (work > 0. && index < int(prob.size()));
   return index; 
 
 }
@@ -585,8 +564,10 @@ const double RotBstMatrix::TINY = 1e-20;
 void RotBstMatrix::rot(double theta, double phi) {
 
   // Set up rotation matrix.
-  double cthe = cos(theta); double sthe = sin(theta);
-  double cphi = cos(phi); double sphi = sin(phi);
+  double cthe = cos(theta); 
+  double sthe = sin(theta);
+  double cphi = cos(phi); 
+  double sphi = sin(phi);
   double Mrot[4][4] = { 
     {1.,           0.,         0.,          0.}, 
     {0.,  cthe * cphi,     - sphi, sthe * cphi},
@@ -595,17 +576,13 @@ void RotBstMatrix::rot(double theta, double phi) {
 
   // Rotate current matrix accordingly.
   double Mtmp[4][4];
-  for (int i = 0; i < 4; ++i) { 
-    for (int j = 0; j < 4; ++j) {
-      Mtmp[i][j] = M[i][j]; 
-    } 
-  } 
-  for (int i = 0; i < 4; ++i) { 
-    for (int j = 0; j < 4; ++j) {
-      M[i][j] = Mrot[i][0] * Mtmp[0][j] + Mrot[i][1] * Mtmp[1][j]
-        + Mrot[i][2] * Mtmp[2][j] + Mrot[i][3] * Mtmp[3][j]; 
-    } 
-  } 
+  for (int i = 0; i < 4; ++i)  
+  for (int j = 0; j < 4; ++j) 
+    Mtmp[i][j] = M[i][j];  
+  for (int i = 0; i < 4; ++i) 
+  for (int j = 0; j < 4; ++j) 
+    M[i][j] = Mrot[i][0] * Mtmp[0][j] + Mrot[i][1] * Mtmp[1][j]
+            + Mrot[i][2] * Mtmp[2][j] + Mrot[i][3] * Mtmp[3][j]; 
 
 }
 
@@ -640,17 +617,13 @@ void RotBstMatrix::bst(double betaX, double betaY, double betaZ) {
 
   // Boost current matrix correspondingly.
   double Mtmp[4][4];
-  for (int i = 0; i < 4; ++i) { 
-    for (int j = 0; j < 4; ++j) {
-      Mtmp[i][j] = M[i][j]; 
-    } 
-  } 
-  for (int i = 0; i < 4; ++i) { 
-    for (int j = 0; j < 4; ++j) {
-      M[i][j] = Mbst[i][0] * Mtmp[0][j] + Mbst[i][1] * Mtmp[1][j]
-        + Mbst[i][2] * Mtmp[2][j] + Mbst[i][3] * Mtmp[3][j]; 
-    } 
-  } 
+  for (int i = 0; i < 4; ++i)  
+  for (int j = 0; j < 4; ++j) 
+    Mtmp[i][j] = M[i][j]; 
+  for (int i = 0; i < 4; ++i) 
+  for (int j = 0; j < 4; ++j) 
+    M[i][j] = Mbst[i][0] * Mtmp[0][j] + Mbst[i][1] * Mtmp[1][j]
+            + Mbst[i][2] * Mtmp[2][j] + Mbst[i][3] * Mtmp[3][j];
 
 }
 
@@ -697,10 +670,10 @@ void RotBstMatrix::bst(const Vec4& p1, const Vec4& p2) {
 
 void RotBstMatrix::toCMframe(const Vec4& p1, const Vec4& p2) {
   Vec4 pSum = p1 + p2; 
-  Vec4 dir = p1;
+  Vec4 dir  = p1;
   dir.bstback(pSum);
   double theta = dir.theta();
-  double phi = dir.phi();
+  double phi   = dir.phi();
   bstback(pSum);
   rot(0., -phi);
   rot(-theta, phi);
@@ -713,10 +686,10 @@ void RotBstMatrix::toCMframe(const Vec4& p1, const Vec4& p2) {
 
 void RotBstMatrix::fromCMframe(const Vec4& p1, const Vec4& p2) {
   Vec4 pSum = p1 + p2;
-  Vec4 dir = p1;
+  Vec4 dir  = p1;
   dir.bstback(pSum);
   double theta = dir.theta();
-  double phi = dir.phi();
+  double phi   = dir.phi();
   rot(0., -phi);
   rot(theta, phi);
   bst(pSum);
@@ -728,17 +701,13 @@ void RotBstMatrix::fromCMframe(const Vec4& p1, const Vec4& p2) {
 
 void RotBstMatrix::rotbst(const RotBstMatrix& Mrb) {
   double Mtmp[4][4];
-  for (int i = 0; i < 4; ++i) { 
-    for (int j = 0; j < 4; ++j) {
-      Mtmp[i][j] = M[i][j]; 
-    } 
-  } 
-  for (int i = 0; i < 4; ++i) { 
-    for (int j = 0; j < 4; ++j) {
-      M[i][j] = Mrb.M[i][0] * Mtmp[0][j] + Mrb.M[i][1] * Mtmp[1][j]
-        + Mrb.M[i][2] * Mtmp[2][j] + Mrb.M[i][3] * Mtmp[3][j]; 
-    } 
-  } 
+  for (int i = 0; i < 4; ++i) 
+  for (int j = 0; j < 4; ++j) 
+    Mtmp[i][j] = M[i][j]; 
+  for (int i = 0; i < 4; ++i)  
+  for (int j = 0; j < 4; ++j) 
+    M[i][j] = Mrb.M[i][0] * Mtmp[0][j] + Mrb.M[i][1] * Mtmp[1][j]
+            + Mrb.M[i][2] * Mtmp[2][j] + Mrb.M[i][3] * Mtmp[3][j]; 
 }
 
 //--------------------------------------------------------------------------
@@ -747,17 +716,13 @@ void RotBstMatrix::rotbst(const RotBstMatrix& Mrb) {
 
 void RotBstMatrix::invert() {
   double Mtmp[4][4];
-  for (int i = 0; i < 4; ++i) { 
-    for (int j = 0; j < 4; ++j) {
-      Mtmp[i][j] = M[i][j]; 
-    } 
-  } 
-  for (int i = 0; i < 4; ++i) { 
-    for (int j = 0; j < 4; ++j) {
-      M[i][j] = ( (i == 0 && j > 0) || (i > 0 && j == 0) ) 
-        ? - Mtmp[j][i] : Mtmp[j][i]; 
-    } 
-  } 
+  for (int i = 0; i < 4; ++i)  
+  for (int j = 0; j < 4; ++j) 
+    Mtmp[i][j] = M[i][j]; 
+  for (int i = 0; i < 4; ++i)  
+  for (int j = 0; j < 4; ++j) 
+    M[i][j] = ( (i == 0 && j > 0) || (i > 0 && j == 0) ) 
+      ? - Mtmp[j][i] : Mtmp[j][i]; 
 }
 
 //--------------------------------------------------------------------------
@@ -765,11 +730,9 @@ void RotBstMatrix::invert() {
 // Reset to diagonal matrix.
 
 void RotBstMatrix::reset() {
-  for (int i = 0; i < 4; ++i) { 
-    for (int j = 0; j < 4; ++j) {
-      M[i][j] = (i==j) ? 1. : 0.; 
-    } 
-  } 
+  for (int i = 0; i < 4; ++i)  
+  for (int j = 0; j < 4; ++j) 
+    M[i][j] = (i==j) ? 1. : 0.; 
 } 
 
 //--------------------------------------------------------------------------
@@ -778,11 +741,9 @@ void RotBstMatrix::reset() {
 
 double RotBstMatrix::deviation() const {
   double devSum = 0.;
-  for (int i = 0; i < 4; ++i) { 
-    for (int j = 0; j < 4; ++j) {
-      devSum += (i==j) ? abs(M[i][j] - 1.) : abs(M[i][j]); 
-    } 
-  } 
+  for (int i = 0; i < 4; ++i)  
+  for (int j = 0; j < 4; ++j) 
+    devSum += (i==j) ? abs(M[i][j] - 1.) : abs(M[i][j]); 
   return devSum;
 } 
 
@@ -792,10 +753,9 @@ double RotBstMatrix::deviation() const {
 
 ostream& operator<<(ostream& os, const RotBstMatrix& M) {
   os << fixed << setprecision(5) << "    Rotation/boost matrix: \n"; 
-  for (int i = 0; i <4; ++i) { 
+  for (int i = 0; i <4; ++i) 
     os << setw(10) << M.M[i][0] << setw(10) << M.M[i][1] 
-       << setw(10) << M.M[i][2] << setw(10) << M.M[i][3] << "\n";
-  } 
+       << setw(10) << M.M[i][2] << setw(10) << M.M[i][3] << "\n"; 
   return os; 
 }
 
@@ -811,7 +771,10 @@ ostream& operator<<(ostream& os, const RotBstMatrix& M) {
 // These are of technical nature, as described for each.
 
 // Maximum number of bins in a histogram.
-const int    Hist::NBINMAX   = 100;
+const int    Hist::NBINMAX   = 1000;
+
+// Maximum number of columns that can be printed for a histogram.
+const int    Hist::NCOLMAX   = 100;
 
 // Maximum number of lines a histogram can use at output.
 const int    Hist::NLINES    = 30;
@@ -839,12 +802,12 @@ void Hist::book(string titleIn, int nBinIn, double xMinIn,
   double xMaxIn) {  
 
   title = titleIn;
-  nBin = nBinIn; 
+  nBin  = nBinIn; 
   if (nBinIn < 1) nBin = 1; 
   if (nBinIn > NBINMAX) nBin = NBINMAX;
-  xMin = xMinIn;
-  xMax = xMaxIn;
-  dx = (xMax - xMin)/nBin;
+  xMin  = xMinIn;
+  xMax  = xMaxIn;
+  dx    = (xMax - xMin)/nBin;
   res.resize(nBin);
   null();
 
@@ -856,11 +819,11 @@ void Hist::book(string titleIn, int nBinIn, double xMinIn,
 
 void Hist::null() {
 
-  nFill = 0;
-  under = 0.;
+  nFill  = 0;
+  under  = 0.;
   inside = 0.;
-  over = 0.;
-  for (int ix = 0; ix < nBin; ++ix) {res[ix] = 0.;}    
+  over   = 0.;
+  for (int ix = 0; ix < nBin; ++ix) res[ix] = 0.;    
 
 }
 
@@ -872,9 +835,9 @@ void Hist::fill(double x, double w) {
   
   ++nFill;
   int iBin = int(floor((x - xMin)/dx));
-  if (iBin < 0) {under += w; } 
-  else if (iBin >= nBin) {over += w; } 
-  else {inside += w; res[iBin] += w; }
+  if (iBin < 0)          under += w;  
+  else if (iBin >= nBin) over  += w;  
+  else                 {inside += w; res[iBin] += w; }
 
 }
 
@@ -893,12 +856,22 @@ ostream& operator<<(ostream& os, const Hist& h) {
   strftime(date,18,"%Y-%m-%d %H:%M",localtime(&t));
   os << "\n\n  " << date << "       " << h.title << "\n\n";
 
-  // Find minimum and maximum bin content
-  double yMin = h.res[0];
-  double yMax = h.res[0];
-  for (int i = 1; i < h.nBin; ++i) {
-    if (h.res[i] < yMin) yMin = h.res[i];
-    if (h.res[i] > yMax) yMax = h.res[i];
+  // Group bins, where required, to make printout have fewer columns.
+  int nGroup = 1 + (h.nBin - 1) / Hist::NCOLMAX;
+  int nCol   = 1 + (h.nBin - 1) / nGroup;
+  vector<double> resCol(nCol);
+  for (int iCol = 0; iCol < nCol; ++iCol) {
+    resCol[iCol] = 0.;
+    for (int ix = nGroup * iCol; ix < min( h.nBin, nGroup * (iCol + 1)); ++ix)
+      resCol[iCol] += h.res[ix];
+  }
+
+  // Find minimum and maximum bin content.
+  double yMin = resCol[0];
+  double yMax = resCol[0];
+  for (int iCol = 1; iCol < nCol; ++iCol) {
+    if (resCol[iCol] < yMin) yMin = resCol[iCol];
+    if (resCol[iCol] > yMax) yMax = resCol[iCol];
   } 
 
   // Determine scale and step size for y axis.
@@ -912,19 +885,18 @@ ostream& operator<<(ostream& os, const Hist& h) {
       iPowY = iPowY + 1;
     double nLinePow = Hist::NLINES * pow(10.,iPowY);
     double delY = DYAC[0];
-    for (int idel = 0; idel < 9; ++idel) {
-      if (yMax - yMin >= nLinePow * DYAC[idel]) delY = DYAC[idel+1];
-    } 
+    for (int idel = 0; idel < 9; ++idel) 
+      if (yMax - yMin >= nLinePow * DYAC[idel]) delY = DYAC[idel+1]; 
     double dy = delY * pow(10.,iPowY);
 
     // Convert bin contents to integer form; fractional fill in top row.
-    vector<int> row(h.nBin);
-    vector<int> frac(h.nBin);
-    for (int ix = 0; ix < h.nBin ; ++ix) { 
-      double cta = abs(h.res[ix]) / dy;
-      row[ix] = int(cta + 0.95);
-      if(h.res[ix] < 0.) row[ix] = - row[ix];
-      frac[ix] = int(10. * (cta + 1.05 - floor(cta + 0.95)));
+    vector<int> row(nCol);
+    vector<int> frac(nCol);
+    for (int iCol = 0; iCol < nCol ; ++iCol) { 
+      double cta = abs(resCol[iCol]) / dy;
+      row[iCol] = int(cta + 0.95);
+      if(resCol[iCol] < 0.) row[iCol] = - row[iCol];
+      frac[iCol] = int(10. * (cta + 1.05 - floor(cta + 0.95)));
     } 
     int rowMin = int(abs(yMin)/dy + 0.95);
     if ( yMin < 0) rowMin = - rowMin;
@@ -933,68 +905,65 @@ ostream& operator<<(ostream& os, const Hist& h) {
 
     // Print histogram row by row.
     os << fixed << setprecision(2); 
-    for (int iRow = rowMax; iRow >= rowMin; iRow--) {
-      if (iRow != 0) { 
-        os << "  " << setw(10) << iRow*delY << "*10^" 
-           << setw(2) << iPowY << "  ";
-        for (int ix = 0; ix < h.nBin ; ++ix) { 
-          if (iRow == row[ix]) {os << NUMBER[frac[ix]];}
-          else if (iRow * (row[ix] - iRow) > 0) {os << NUMBER[10];}
-          else {os << " ";}
-        } os << "\n";
-      }
+    for (int iRow = rowMax; iRow >= rowMin; iRow--) if (iRow != 0) { 
+      os << "  " << setw(10) << iRow*delY << "*10^" 
+         << setw(2) << iPowY << "  ";
+      for (int iCol = 0; iCol < nCol ; ++iCol) { 
+        if (iRow == row[iCol])                  os << NUMBER[frac[iCol]];
+        else if (iRow * (row[iCol] - iRow) > 0) os << NUMBER[10];
+        else                                    os << " ";
+      } os << "\n";
     } os << "\n"; 
 
     // Print sign and value of bin contents
     double maxim = log10(max(yMax, -yMin));
     int iPowBin = int(floor(maxim + 0.0001));
     os << "          Contents  ";
-    for (int ix = 0; ix < h.nBin ; ++ix) {
-      if (h.res[ix] < - pow(10., iPowBin-4)) {os << "-";}
-      else {os << " ";} 
-      row[ix] = int(abs(h.res[ix]) * pow(10.,3-iPowBin) + 0.5);
+    for (int iCol = 0; iCol < nCol ; ++iCol) {
+      if (resCol[iCol] < - pow(10., iPowBin - 4)) os << "-";
+      else os << " "; 
+      row[iCol] = int(abs(resCol[iCol]) * pow(10., 3 - iPowBin) + 0.5);
     } os << "\n";
     for (int iRow = 3; iRow >= 0; iRow--) {
-      os << "            *10^" << setw(2) << iPowBin+iRow-3 << "  "; 
+      os << "            *10^" << setw(2) << iPowBin + iRow - 3 << "  "; 
       int mask = int( pow(10., iRow) + 0.5); 
-      for (int ix = 0; ix < h.nBin ; ++ix) {
-        os << NUMBER[(row[ix] / mask) % 10];
+      for (int iCol = 0; iCol < nCol ; ++iCol) {
+        os << NUMBER[(row[iCol] / mask) % 10];
       } os << "\n";
     } os << "\n";
 
     // Print sign and value of lower bin edge.
-    maxim = log10(max(-h.xMin, h.xMax - h.dx));
+    maxim = log10( max( -h.xMin, h.xMax - h.dx));
     int iPowExp = int(floor(maxim + 0.0001));
     os << "          Low edge  ";
-    for (int ix = 0; ix < h.nBin ; ++ix) {
-      if (h.xMin + ix * h.dx < - pow(10., iPowExp-3)) {os << "-";}
-      else {os << " ";} 
-      row[ix] = int(abs(h.xMin + ix * h.dx) * pow(10.,2-iPowExp) + 0.5);
+    for (int iCol = 0; iCol < nCol ; ++iCol) {
+      if (h.xMin + iCol * nGroup * h.dx < - pow(10., iPowExp - 3)) os << "-";
+      else os << " "; 
+      row[iCol] = int(abs(h.xMin + iCol * nGroup * h.dx) 
+        * pow(10., 2 - iPowExp) + 0.5);
     } os << "\n";
     for (int iRow = 2; iRow >= 0; iRow--) {
-      os << "            *10^" << setw(2) << iPowExp+iRow-2 << "  "; 
+      os << "            *10^" << setw(2) << iPowExp + iRow - 2 << "  "; 
       int mask = int( pow(10., iRow) + 0.5); 
-      for (int ix = 0; ix < h.nBin ; ++ix) {
-        os << NUMBER[(row[ix] / mask) % 10];
-      } os << "\n";
+      for (int iCol = 0; iCol < nCol ; ++iCol) 
+        os << NUMBER[(row[iCol] / mask) % 10];
+      os << "\n";
     } os << "\n";
 
   // Print explanation if histogram cannot be shown.
-  } else {
-    os << "     Histogram not shown since lowest value" << scientific 
+  } else os << "     Histogram not shown since lowest value" << scientific 
        << setprecision(4) << setw(12) << yMin << " and highest value" 
        << setw(12) << yMax << " are too close \n \n"; 
-  }
  
   // Calculate and print statistics.
-  double cSum = 0.;
-  double cxSum = 0.;
+  double cSum   = 0.;
+  double cxSum  = 0.;
   double cxxSum = 0.;
   for (int ix = 0; ix < h.nBin ; ++ix) {
     double cta = abs(h.res[ix]); 
     double x = h.xMin + (ix + 0.5) * h.dx;
-    cSum = cSum + cta;
-    cxSum = cxSum + cta * x;
+    cSum   = cSum   + cta;
+    cxSum  = cxSum  + cta * x;
     cxxSum = cxxSum + cta * x * x;
   }
   double xmean = cxSum / max(cSum, Hist::TINY);
@@ -1019,11 +988,10 @@ void Hist::table(ostream& os) const {
 
   // Print histogram vector bin by bin, with mean x as first column.
   os << scientific << setprecision(4); 
-  for (int ix = 0; ix < nBin; ++ix) {
+  for (int ix = 0; ix < nBin; ++ix) 
     os << setw(12) << xMin + (ix + 0.5) * dx      
        << setw(12) << res[ix] << "\n";  
    
-  }
 }
 
 //--------------------------------------------------------------------------
@@ -1035,9 +1003,9 @@ void Hist::table(ostream& os) const {
 double Hist::getBinContent(int iBin) {
 
   if (iBin > 0 && iBin <= nBin) return res[iBin - 1];
-  else if (iBin == 0) return under; 
-  else if (iBin == nBin + 1) return over;
-  else return 0.;
+  else if (iBin == 0)           return under; 
+  else if (iBin == nBin + 1)    return over;
+  else                          return 0.;
 
 }
 
@@ -1048,8 +1016,8 @@ double Hist::getBinContent(int iBin) {
 bool Hist::sameSize(const Hist& h) const {
 
   if (nBin == h.nBin && abs(xMin - h.xMin) < TOLERANCE * dx &&
-    abs(xMax - h.xMax) < TOLERANCE * dx) {return true;}
-  else {return false;}
+    abs(xMax - h.xMax) < TOLERANCE * dx) return true;
+  else return false;
 
 }  
 
@@ -1067,14 +1035,16 @@ void Hist::takeLog(bool tenLog) {
   
   // Take 10-logarithm bin by bin, but ensure positivity.
   if (tenLog) { 
-    for (int ix = 0; ix < nBin; ++ix) res[ix] = log10( max( yMin, res[ix]) );
+    for (int ix = 0; ix < nBin; ++ix) 
+      res[ix] = log10( max( yMin, res[ix]) );
     under  =  log10( max( yMin, under) ); 
     inside =  log10( max( yMin, inside) ); 
     over   =  log10( max( yMin, over) ); 
   
   // Take natural logarithm bin by bin, but ensure positivity.
   } else { 
-    for (int ix = 0; ix < nBin; ++ix) res[ix] = log( max( yMin, res[ix]) );
+    for (int ix = 0; ix < nBin; ++ix) 
+      res[ix] = log( max( yMin, res[ix]) );
     under  =  log( max( yMin, under) ); 
     inside =  log( max( yMin, inside) ); 
     over   =  log( max( yMin, over) ); 
@@ -1088,11 +1058,11 @@ void Hist::takeLog(bool tenLog) {
 
 Hist& Hist::operator+=(const Hist& h) {
   if (!sameSize(h)) return *this;
-  nFill += h.nFill;
-  under += h.under;
+  nFill  += h.nFill;
+  under  += h.under;
   inside += h.inside;
   over += h.over;
-  for (int ix = 0; ix < nBin; ++ix) {res[ix] += h.res[ix];}    
+  for (int ix = 0; ix < nBin; ++ix) res[ix] += h.res[ix];    
   return *this;
 }
 
@@ -1102,11 +1072,11 @@ Hist& Hist::operator+=(const Hist& h) {
 
 Hist& Hist::operator-=(const Hist& h) {
   if (!sameSize(h)) return *this;
-  nFill += h.nFill;
-  under -= h.under;
+  nFill  += h.nFill;
+  under  -= h.under;
   inside -= h.inside;
   over -= h.over;
-  for (int ix = 0; ix < nBin; ++ix) {res[ix] -= h.res[ix];}    
+  for (int ix = 0; ix < nBin; ++ix) res[ix] -= h.res[ix];    
   return *this;
 }
 
@@ -1116,11 +1086,11 @@ Hist& Hist::operator-=(const Hist& h) {
 
 Hist& Hist::operator*=(const Hist& h) {
   if (!sameSize(h)) return *this;
-  nFill += h.nFill;
-  under *= h.under;
+  nFill   += h.nFill;
+  under  *= h.under;
   inside *= h.inside;
   over *= h.over;
-  for (int ix = 0; ix < nBin; ++ix) {res[ix] *= h.res[ix];}    
+  for (int ix = 0; ix < nBin; ++ix) res[ix] *= h.res[ix];    
   return *this;
 }
 
@@ -1131,12 +1101,11 @@ Hist& Hist::operator*=(const Hist& h) {
 Hist& Hist::operator/=(const Hist& h) {
   if (!sameSize(h)) return *this;
   nFill += h.nFill;
-  under = (abs(h.under) < Hist::TINY) ? 0. : under/h.under; 
+  under  = (abs(h.under) < Hist::TINY) ? 0. : under/h.under; 
   inside = (abs(h.inside) < Hist::TINY) ? 0. : inside/h.inside; 
-  over = (abs(h.over) < Hist::TINY) ? 0. : over/h.over; 
-  for (int ix = 0; ix < nBin; ++ix) {
-    res[ix] = (abs(h.res[ix]) < Hist::TINY) ? 0. : res[ix]/h.res[ix]; 
-  }    
+  over  = (abs(h.over) < Hist::TINY) ? 0. : over/h.over; 
+  for (int ix = 0; ix < nBin; ++ix) 
+    res[ix] = (abs(h.res[ix]) < Hist::TINY) ? 0. : res[ix]/h.res[ix];    
   return *this;
 }
 
@@ -1145,10 +1114,10 @@ Hist& Hist::operator/=(const Hist& h) {
 // Add constant offset to histogram.
 
 Hist& Hist::operator+=(double f) {
-  under += f;
+  under  += f;
   inside += nBin * f;
-  over -= f;
-  for (int ix = 0; ix < nBin; ++ix) {res[ix] += f;}    
+  over   += f;
+  for (int ix = 0; ix < nBin; ++ix) res[ix] += f;    
   return *this;
 }
 
@@ -1157,10 +1126,10 @@ Hist& Hist::operator+=(double f) {
 // Subtract constant offset from histogram.
 
 Hist& Hist::operator-=(double f) {
-  under -= f;
+  under  -= f;
   inside -= nBin * f;
-  over -= f;
-  for (int ix = 0; ix < nBin; ++ix) {res[ix] -= f;}    
+  over   -= f;
+  for (int ix = 0; ix < nBin; ++ix) res[ix] -= f;    
   return *this;
 }
 
@@ -1169,10 +1138,10 @@ Hist& Hist::operator-=(double f) {
 // Multiply histogram by constant
 
 Hist& Hist::operator*=(double f) {
-  under *= f;
+  under  *= f;
   inside *= f;
-  over *= f;
-  for (int ix = 0; ix < nBin; ++ix) {res[ix] *= f;}    
+  over   *= f;
+  for (int ix = 0; ix < nBin; ++ix) res[ix] *= f;    
   return *this;
 }
 
@@ -1181,10 +1150,10 @@ Hist& Hist::operator*=(double f) {
 // Divide histogram by constant
 
 Hist& Hist::operator/=(double f) {
-  under /= f;
+  under  /= f;
   inside /= f;
-  over /= f;
-  for (int ix = 0; ix < nBin; ++ix) {res[ix] /= f;}    
+  over   /= f;
+  for (int ix = 0; ix < nBin; ++ix) res[ix] /= f;    
   return *this;
 }
 
@@ -1192,53 +1161,53 @@ Hist& Hist::operator/=(double f) {
 
 // Implementation of operator overloading with friends.
 
-Hist operator+(double f, const Hist& h1) 
-  {Hist h = h1; return h += f;}
+Hist operator+(double f, const Hist& h1) {
+  Hist h = h1; return h += f;}
 
-Hist operator+(const Hist& h1, double f) 
-  {Hist h = h1; return h += f;}
+Hist operator+(const Hist& h1, double f) {
+  Hist h = h1; return h += f;}
 
-Hist operator+(const Hist& h1, const Hist& h2) 
-  {Hist h = h1; return h += h2;}
+Hist operator+(const Hist& h1, const Hist& h2) {
+  Hist h = h1; return h += h2;}
 
-Hist operator-(double f, const Hist& h1) 
-  {Hist h = h1; 
-  h.under = f - h1.under; 
+Hist operator-(double f, const Hist& h1) {
+  Hist h   = h1; 
+  h.under  = f - h1.under; 
   h.inside = h1.nBin * f - h1.inside;
-  h.over = f - h1.over;
-  for (int ix = 0; ix < h1.nBin; ++ix) {h.res[ix] = f - h1.res[ix];}
+  h.over   = f - h1.over;
+  for (int ix = 0; ix < h1.nBin; ++ix) h.res[ix] = f - h1.res[ix];
   return h;}
 
-Hist operator-(const Hist& h1, double f) 
-  {Hist h = h1; return h -= f;}
+Hist operator-(const Hist& h1, double f) {
+  Hist h = h1; return h -= f;}
 
-Hist operator-(const Hist& h1, const Hist& h2) 
-  {Hist h = h1; return h -= h2;}
+Hist operator-(const Hist& h1, const Hist& h2) {
+  Hist h = h1; return h -= h2;}
 
-Hist operator*(double f, const Hist& h1) 
-  {Hist h = h1; return h *= f;}
+Hist operator*(double f, const Hist& h1) {
+  Hist h = h1; return h *= f;}
 
-Hist operator*(const Hist& h1, double f) 
-  {Hist h = h1; return h *= f;}
+Hist operator*(const Hist& h1, double f) {
+  Hist h = h1; return h *= f;}
 
-Hist operator*(const Hist& h1, const Hist& h2) 
-  {Hist h = h1; return h *= h2;}
+Hist operator*(const Hist& h1, const Hist& h2) {
+  Hist h = h1; return h *= h2;}
 
-Hist operator/(double f, const Hist& h1) {Hist h = h1; 
-  h.under = (abs(h1.under) < Hist::TINY) ? 0. :  f/h1.under; 
+Hist operator/(double f, const Hist& h1) {
+  Hist h = h1; 
+  h.under  = (abs(h1.under)  < Hist::TINY) ? 0. :  f/h1.under; 
   h.inside = (abs(h1.inside) < Hist::TINY) ? 0. :  f/h1.inside; 
-  h.over = (abs(h1.over) < Hist::TINY) ? 0. :  f/h1.over; 
-  for (int ix = 0; ix < h1.nBin; ++ix) {
-    h.res[ix] = (abs(h1.res[ix]) < Hist::TINY) ? 0. : f/h1.res[ix]; 
-  }    
+  h.over   = (abs(h1.over)   < Hist::TINY) ? 0. :  f/h1.over; 
+  for (int ix = 0; ix < h1.nBin; ++ix) 
+    h.res[ix] = (abs(h1.res[ix]) < Hist::TINY) ? 0. : f/h1.res[ix];  
   return h;
 }
 
-Hist operator/(const Hist& h1, double f) 
-  {Hist h = h1; return h /= f;}
+Hist operator/(const Hist& h1, double f) {
+  Hist h = h1; return h /= f;}
 
-Hist operator/(const Hist& h1, const Hist& h2) 
-  {Hist h = h1; return h /= h2;}
+Hist operator/(const Hist& h1, const Hist& h2) {
+  Hist h = h1; return h /= h2;}
 
 //==========================================================================
 

@@ -15,6 +15,17 @@ used are from [<a href="Bibliography.html" target="page">Sch94, Sch97</a>] which
 sections from [<a href="Bibliography.html" target="page">Don92</a>].
 
 <p/>
+There are strong indications that the currently implemented diffractive 
+cross section parametrizations, which should be in reasonable agreement 
+with data at lower energies, overestimate the diffractive rate at larger 
+values. If you wish to explore this (or other) aspect, it is possible to 
+override the cross section values in two different ways. The first offers 
+(almost) complete freedom, but needs to be defined separately for each 
+CM energy, while the second introduces a simpler parametrized damping. 
+The two cannot be combined. Furthermore the Coulomb term for elastic
+scattering, which by default is off, can be switched on.
+
+<p/>
 The allowed combinations of incoming particles are <i>p + p</i>, 
 <i>pbar + p</i>, <i>pi+ + p</i>, <i>pi- + p</i>, 
 <i>pi0/rho0 + p</i>, <i>phi + p</i>, <i>J/psi + p</i>, 
@@ -23,21 +34,19 @@ The allowed combinations of incoming particles are <i>p + p</i>,
 The strong emphasis on vector mesons is related to the description
 of <i>gamma + p</i> and <i>gamma + gamma</i> interactions in a 
 Vector Dominance Model framework (which will not be available for some 
-time to come, so this is a bit of overkill).
+time to come, so this is a bit of overkill). Nevertheless, the sections
+below, with allowed variations, are mainly intended to make sense for
+<i>p + p</i>.
 
-<h3>Variables</h3>
-
-If the internally implemented cross section parametrizations are not 
-satisfactory, it is possible to override the cross section values 
-with  
+<h3>Set cross sections</h3>
 
 <p/><code>flag&nbsp; </code><strong> SigmaTotal:setOwn &nbsp;</strong> 
- (<code>default = <strong>no</strong></code>)<br/>
-Allow a user to set own cross sections by hand; yes/no = true/false.
+ (<code>default = <strong>off</strong></code>)<br/>
+Allow a user to set own cross sections by hand; on/off = true/false.
   
 
 <p/>
-When <code>SigmaTotal:setOwn = yes</code>, the user is expected to set 
+When <code>SigmaTotal:setOwn = on</code>, the user is expected to set 
 values for the corresponding cross sections:
 
 <p/><code>parm&nbsp; </code><strong> SigmaTotal:sigmaTot &nbsp;</strong> 
@@ -74,6 +83,47 @@ ones here. However, since the nondiffractive inelastic cross section
 is what makes up the minimum-bias event class, and plays a major role 
 in the description of multiple interactions, it is important that a 
 consistent set is used. 
+
+<h3>Dampen diffractive cross sections</h3>
+
+<p/><code>flag&nbsp; </code><strong> SigmaDiffractive:dampen &nbsp;</strong> 
+ (<code>default = <strong>no</strong></code>)<br/>
+Allow a user to dampen diffractive cross sections; on/off = true/false.
+  
+
+<p/>
+When <code>SigmaDiffractive:dampen = on</code>, the three diffractive 
+cross sections are damped so that they never can exceed the respective 
+values below. Specifically, if the standard parametrization gives 
+the cross section <i>sigma_old(s)</i> and a fixed <i>sigma_max</i> 
+is set, the actual cross section becomes <i>sigma_new(s) 
+= sigma_old(s) * sigma_max / (sigma_old(s) + sigma_max)</i>. 
+This reduces to <i>sigma_old(s)</i> at low energies and to 
+<i>sigma_max</i> at high ones. Note that the asymptotic value 
+is approached quite slowly, however.
+
+<p/><code>parm&nbsp; </code><strong> SigmaDiffractive:maxXB &nbsp;</strong> 
+ (<code>default = <strong>15.</strong></code>; <code>minimum = 0.</code>)<br/>
+The above <i>sigma_max</i> for <i>A + B -> X + B</i> in mb.
+  
+
+<p/><code>parm&nbsp; </code><strong> SigmaDiffractive:maxAX &nbsp;</strong> 
+ (<code>default = <strong>15.</strong></code>; <code>minimum = 0.</code>)<br/>
+The above <i>sigma_max</i> for <i>A + B -> X + B</i> in mb.
+  
+
+<p/><code>parm&nbsp; </code><strong> SigmaDiffractive:maxXX &nbsp;</strong> 
+ (<code>default = <strong>15.</strong></code>; <code>minimum = 0.</code>)<br/>
+The above <i>sigma_max</i> for <i>A + B -> X + B</i> in mb.
+  
+
+<p/>
+As above, a reduced diffractive cross section automatically translates
+into an increased nondiffractive one, such that the total (and elastic)
+cross section remains fixed. 
+
+ 
+<h3>Set elastic cross section</h3>
 
 <p/>
 In the above option the <i>t</i> slopes are based on the internal

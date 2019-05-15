@@ -939,12 +939,19 @@ double MultipleInteractions::pTnext( double pTbegAll, double pTendAll,
 
 void MultipleInteractions::scatter( Event& event) {
 
+  // Last beam-status particles. Offset relative to normal beam locations.
+  int sizeProc = event.size();
+  int nBeams   = 3;
+  for (int i = 3; i < sizeProc; ++i) 
+    if (event[i].statusAbs() < 20) nBeams = i + 1; 
+  int nOffset  = nBeams - 3; 
+
   // Loop over four partons and offset info relative to subprocess itself.
   int motherOffset = event.size();
   int colOffset = event.lastColTag();
   for (int i = 1; i <= 4; ++i) {
     Particle parton = dSigmaDtSel->getParton(i);
-    if (i <= 2 ) parton.mothers( i, 0);  
+    if (i <= 2 ) parton.mothers( i + nOffset, 0);  
     else parton.mothers( motherOffset, motherOffset + 1);
     if (i <= 2 ) parton.daughters( motherOffset + 2, motherOffset + 3);
     else parton.daughters( 0, 0);

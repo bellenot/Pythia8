@@ -247,14 +247,14 @@ fi
 rm -f config.mk
 
 echo SHELL = /bin/sh > config.mk
-echo ARCH = ${ARCH} >> config.mk
-echo MYLCGPLATFORM = ${MYLCGPLATFORM} >> config.mk
-echo FC = ${FC} >> config.mk
-echo CC = ${CC} >> config.mk
-echo FFLAGS = ${FFLAGS} >> config.mk
-echo CFLAGS = ${CFLAGS} >> config.mk
-echo CXXFLAGS = ${CXXFLAGS} >> config.mk
-echo FLIBS = ${FLIBS} >> config.mk
+#echo ARCH = ${ARCH} >> config.mk
+#echo MYLCGPLATFORM = ${MYLCGPLATFORM} >> config.mk
+#echo FC = ${FC} >> config.mk
+#echo CC = ${CC} >> config.mk
+#echo FFLAGS = ${FFLAGS} >> config.mk
+#echo CFLAGS = ${CFLAGS} >> config.mk
+#echo CXXFLAGS = ${CXXFLAGS} >> config.mk
+#echo FLIBS = ${FLIBS} >> config.mk
 #
 if [ x${LHAPDFVERSION} != x ]; then
   echo LHAPDFVERSION = ${LHAPDFVERSION} >> config.mk

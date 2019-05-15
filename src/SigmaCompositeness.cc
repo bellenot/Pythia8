@@ -433,4 +433,184 @@ void Sigma2qqbar2lStarlbar::setIdColAcol() {
 
 //==========================================================================
 
+// Sigma2QCqq2qq class.
+// Cross section for q q -> q q (quark contact interactions).
+
+//--------------------------------------------------------------------------
+
+// Initialize process. 
+  
+void Sigma2QCqq2qq::initProc() {
+
+  m_Lambda2  = settingsPtr->parm("ContactInteractions:Lambda");
+  m_etaLL    = settingsPtr->mode("ContactInteractions:etaLL");;
+  m_etaRR    = settingsPtr->mode("ContactInteractions:etaRR");;
+  m_etaLR    = settingsPtr->mode("ContactInteractions:etaLR");;
+  m_Lambda2 *= m_Lambda2; 
+
+}
+
+//--------------------------------------------------------------------------
+
+// Evaluate d(sigmaHat)/d(tHat), part independent of incoming flavour. 
+
+void Sigma2QCqq2qq::sigmaKin() { 
+
+  // Calculate kinematics dependence for different terms.
+  sigT   = (4./9.) * (sH2 + uH2) / tH2;
+  sigU   = (4./9.) * (sH2 + tH2) / uH2;
+  sigTU  = - (8./27.) * sH2 / (tH * uH);
+  sigST  = - (8./27.) * uH2 / (sH * tH);
+  
+  sigQCSTU = sH2 * (1 / tH + 1 / uH);
+  sigQCUTS = uH2 * (1 / tH + 1 / sH);
+
+}
+
+//--------------------------------------------------------------------------
+
+// Evaluate d(sigmaHat)/d(tHat), including incoming flavour dependence. 
+
+double Sigma2QCqq2qq::sigmaHat() {  
+
+  // Terms from QC contact interactions.
+  double sigQCLL = 0;
+  double sigQCRR = 0;
+  double sigQCLR = 0;
+
+  // Combine cross section terms; factor 1/2 when identical quarks.
+  // q q -> q q
+  if (id2 ==  id1) {         
+
+    sigSum = 0.5 * (sigT + sigU + sigTU); // SM terms.
+    
+    // Contact terms.
+    sigQCLL = (8./9.) * alpS * (m_etaLL/m_Lambda2) * sigQCSTU 
+            + (8./3.) * pow2(m_etaLL/m_Lambda2) * sH2;
+    sigQCRR = (8./9.) * alpS * (m_etaRR/m_Lambda2) * sigQCSTU 
+            + (8./3.) * pow2(m_etaRR/m_Lambda2) * sH2;
+    sigQCLR = 2. * (uH2 + tH2) * pow2(m_etaLR/m_Lambda2);
+
+    sigQCLL /= 2;
+    sigQCRR /= 2;
+    sigQCLR /= 2;
+
+  // q qbar -> q qbar, without pure s-channel term.
+  } else if (id2 == -id1) {  
+
+    sigSum = sigT + sigST; // SM terms.
+
+    // Contact terms, minus the terms included in qqbar2qqbar.
+    sigQCLL = (8./9.) * alpS * (m_etaLL/m_Lambda2) * sigQCUTS 
+            + (5./3.) * pow2(m_etaLL/m_Lambda2) * uH2;
+    sigQCRR = (8./9.) * alpS * (m_etaRR/m_Lambda2) * sigQCUTS 
+            + (5./3.) * pow2(m_etaRR/m_Lambda2) * uH2;
+    sigQCLR = 2. * sH2 * pow2(m_etaLR/m_Lambda2);
+
+  // q q' -> q q' or q qbar' -> q qbar'
+  } else {                   
+
+    sigSum = sigT; // SM terms.
+
+    // Contact terms.
+    if (id1 * id2 > 0) {
+      sigQCLL = pow2(m_etaLL/m_Lambda2) * sH2;
+      sigQCRR = pow2(m_etaRR/m_Lambda2) * sH2;
+      sigQCLR = 2 * pow2(m_etaLR/m_Lambda2) * uH2;
+    } else {
+      sigQCLL = pow2(m_etaLL/m_Lambda2) * uH2;
+      sigQCRR = pow2(m_etaRR/m_Lambda2) * uH2;
+      sigQCLR = 2 * pow2(m_etaLR/m_Lambda2) * sH2;
+    }
+  }
+
+  // Answer.
+  double sigma = (M_PI/sH2) * ( pow2(alpS) * sigSum 
+               + sigQCLL + sigQCRR + sigQCLR );
+  return sigma;  
+
+}
+
+//--------------------------------------------------------------------------
+
+// Select identity, colour and anticolour.
+
+void Sigma2QCqq2qq::setIdColAcol() {
+
+  // Outgoing = incoming flavours.
+  setId( id1, id2, id1, id2);
+
+  // Colour flow topologies. Swap when antiquarks.
+  if (id1 * id2 > 0)  setColAcol( 1, 0, 2, 0, 2, 0, 1, 0);
+  else                setColAcol( 1, 0, 0, 1, 2, 0, 0, 2);
+  if (id2 == id1 && (sigT + sigU) * rndmPtr->flat() > sigT)
+                      setColAcol( 1, 0, 2, 0, 1, 0, 2, 0);
+  if (id1 < 0) swapColAcol();
+
+}
+
+//==========================================================================
+
+// Sigma2QCqqbar2qqbar class.
+// Cross section for q qbar -> q' qbar' (quark contact interactions).
+
+//--------------------------------------------------------------------------
+
+// Initialize process. 
+  
+void Sigma2QCqqbar2qqbar::initProc() {
+
+  m_nQuarkNew = settingsPtr->mode("ContactInteractions:nQuarkNew");
+  m_Lambda2   = settingsPtr->parm("ContactInteractions:Lambda");
+  m_etaLL     = settingsPtr->mode("ContactInteractions:etaLL");
+  m_etaRR     = settingsPtr->mode("ContactInteractions:etaRR");
+  m_etaLR     = settingsPtr->mode("ContactInteractions:etaLR");
+  m_Lambda2  *= m_Lambda2; 
+
+}
+
+//--------------------------------------------------------------------------
+
+// Evaluate d(sigmaHat)/d(tHat) - no incoming flavour dependence. 
+
+void Sigma2QCqqbar2qqbar::sigmaKin() { 
+
+  // Pick new flavour.
+  idNew = 1 + int( m_nQuarkNew * rndmPtr->flat() ); 
+  mNew  = particleDataPtr->m0(idNew);
+  m2New = mNew*mNew;
+
+  // Calculate kinematics dependence.
+  double sigQC              = 0.;
+  sigS                      = 0.;
+  if (sH > 4. * m2New) {
+    sigS = (4./9.) * (tH2 + uH2) / sH2; 
+    sigQC = pow2(m_etaLL/m_Lambda2) * uH2
+          + pow2(m_etaRR/m_Lambda2) * uH2
+          + 2 * pow2(m_etaLR/m_Lambda2) * tH2;
+  }
+
+  // Answer is proportional to number of outgoing flavours.
+  sigma = (M_PI / sH2) * m_nQuarkNew * ( pow2(alpS) * sigS + sigQC);  
+
+}
+
+//--------------------------------------------------------------------------
+
+// Select identity, colour and anticolour.
+
+void Sigma2QCqqbar2qqbar::setIdColAcol() {
+
+  // Set outgoing flavours ones.
+  id3 = (id1 > 0) ? idNew : -idNew;
+  setId( id1, id2, id3, -id3);
+
+  // Colour flow topologies. Swap when antiquarks.
+  setColAcol( 1, 0, 0, 2, 1, 0, 0, 2);
+  if (id1 < 0) swapColAcol();
+
+}
+
+//==========================================================================
+
 } // end namespace Pythia8

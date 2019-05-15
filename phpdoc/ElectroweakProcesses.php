@@ -297,6 +297,62 @@ Scattering <i>f gamma -> W^+- f</i>.
 Code 254.
   
 
+<h3> Photon Collision Processes</h3>
+
+A few electroweak two-photon production processes are available.
+To use them, photon PDFs have to be defined for the incoming
+beam particles. For proton beams an appropriate set would be
+MRST QED 2004 [<a href="Bibliography.php" target="page">Mar05</a>], available in the LHAPDF library.
+
+<br/><br/><strong>PhotonCollision:all</strong>  <input type="radio" name="29" value="on"><strong>On</strong>
+<input type="radio" name="29" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Common switch for the group of six processes presented below.
+  
+
+<br/><br/><strong>PhotonCollision:gmgm2qqbar</strong>  <input type="radio" name="30" value="on"><strong>On</strong>
+<input type="radio" name="30" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scatterings <i>gamma gamma -> q qbar</i>, where <i>q</i> 
+is a light quark (<i>u, d, s</i>) .
+Code 261.
+  
+
+<br/><br/><strong>PhotonCollision:gmgm2ccbar</strong>  <input type="radio" name="31" value="on"><strong>On</strong>
+<input type="radio" name="31" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>gamma gamma -> c cbar</i>.
+Code 262.
+  
+
+<br/><br/><strong>PhotonCollision:gmgm2bbbar</strong>  <input type="radio" name="32" value="on"><strong>On</strong>
+<input type="radio" name="32" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>gamma gamma -> b bbar</i>.
+Code 263.
+  
+
+<br/><br/><strong>PhotonCollision:gmgm2ee</strong>  <input type="radio" name="33" value="on"><strong>On</strong>
+<input type="radio" name="33" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>gamma gamma -> e+ e-</i>.
+Code 264.
+  
+
+<br/><br/><strong>PhotonCollision:gmgm2mumu</strong>  <input type="radio" name="34" value="on"><strong>On</strong>
+<input type="radio" name="34" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>gamma gamma -> mu+ mu-</i>.
+Code 265.
+  
+
+<br/><br/><strong>PhotonCollision:gmgm2tautau</strong>  <input type="radio" name="35" value="on"><strong>On</strong>
+<input type="radio" name="35" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>gamma gamma -> tau+ tau-</i>.
+Code 266.
+  
+
 <input type="hidden" name="saved" value="1"/>
 
 <?php
@@ -450,6 +506,41 @@ fwrite($handle,$data);
 if($_POST["28"] != "off")
 {
 $data = "WeakBosonAndParton:fgm2Wf = ".$_POST["28"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["29"] != "off")
+{
+$data = "PhotonCollision:all = ".$_POST["29"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["30"] != "off")
+{
+$data = "PhotonCollision:gmgm2qqbar = ".$_POST["30"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["31"] != "off")
+{
+$data = "PhotonCollision:gmgm2ccbar = ".$_POST["31"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["32"] != "off")
+{
+$data = "PhotonCollision:gmgm2bbbar = ".$_POST["32"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["33"] != "off")
+{
+$data = "PhotonCollision:gmgm2ee = ".$_POST["33"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["34"] != "off")
+{
+$data = "PhotonCollision:gmgm2mumu = ".$_POST["34"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["35"] != "off")
+{
+$data = "PhotonCollision:gmgm2tautau = ".$_POST["35"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);

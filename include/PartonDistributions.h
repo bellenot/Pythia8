@@ -9,7 +9,8 @@
 // GRV94L: derived class for the GRV 94L parton densities.
 // CTEQ5L: derived class for the CTEQ 5L parton densities.
 // MSTWpdf: derived class for MRST LO*, LO**, MSTW 2008 LO, NLO. 
-// CTEQ6pdf : derived class for CTEQ 6L, 6L1, 66, CT09 MC1, MC2, (MCS?). 
+// CTEQ6pdf: derived class for CTEQ 6L, 6L1, 66, CT09 MC1, MC2, (MCS?).
+// ProtonPoint: unresolved proton with equivalent photon spectrum.  
 // GRVpiL: derived class for the GRV LO pion parton densities.
 // PomFix: derived class for Q2-independent Pomeron parton densities.
 // PomH1FitAB: derived class for the H1 2006 Fit A and Fit B Pomeron PDFs. 
@@ -255,6 +256,36 @@ private:
 
   // Interpolation in grid.
   double polint4F(double xgrid[], double fgrid[], double xin);
+
+};
+
+//==========================================================================
+
+// SA Unresolved proton: equivalent photon spectrum from
+// V.M. Budnev, I.F. Ginzburg, G.V. Meledin and V.G. Serbo, 
+// Phys. Rept. 15 (1974/1975) 181.
+
+class ProtonPoint : public PDF {
+
+public:
+
+  // Constructor.
+  ProtonPoint(int idBeamIn = 2212, Info* infoPtrIn = 0) : 
+              PDF(idBeamIn), m_infoPtr(infoPtrIn) {}
+
+private:
+
+  // Stored value for PDF choice.
+  static const double ALPHAEM, Q2MAX, Q20, A, B, C;
+
+  // Update PDF values.
+  void xfUpdate(int id, double x, double Q2);
+
+  // phi function from Q2 integration.
+  double phiFunc(double x, double Q);
+
+  // Info and errors
+  Info* m_infoPtr;
 
 };
  

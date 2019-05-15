@@ -59,8 +59,9 @@ void StringEnd::newHadron() {
   } while (idHad == 0);
 
   // Pick its transverse momentum.
-  pxNew = pTSelPtr->px();
-  pyNew = pTSelPtr->py();
+  pair<double, double> pxy = pTSelPtr->pxy();
+  pxNew = pxy.first;
+  pyNew = pxy.second;
   pxHad = pxOld + pxNew;
   pyHad = pyOld + pyNew;
 
@@ -471,7 +472,7 @@ vector<int> StringFragmentation::findFirstRegion(vector<int>& iPartonIn,
   double m2Reg = m2Sum * rndmPtr->flat();
   int iReg = -1;
   do m2Reg -= m2Pair[++iReg];
-  while (m2Reg > 0 && iReg < size - 1); 
+  while (m2Reg > 0. && iReg < size - 1); 
 
   // Create reordered parton list, with breakup string region duplicated.
   vector<int> iPartonOut;   
@@ -511,8 +512,9 @@ void StringFragmentation::setStartEnds( int idPos, int idNeg,
     } while (idPos == 0);
 
     // Also need pT and breakup vertex position in region.
-    px = pTSelPtr->px();
-    py = pTSelPtr->py();
+   pair<double, double> pxy = pTSelPtr->pxy();
+   px = pxy.first;
+   py = pxy.second;
     double m2Region = systemNow.regionLowPos(0).w2;
     double m2Temp   = min( CLOSEDM2MAX, CLOSEDM2FRAC * m2Region);
     do {

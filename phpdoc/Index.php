@@ -77,6 +77,8 @@ echo "<a href='SaveSettings.php?returning=1&filename=".$filename."' target='page
 &nbsp;&nbsp;--&nbsp;&nbsp; 
 <a href='CompositenessProcesses.php?filepath=".$filepath."' target='page'>Compositeness</a><br/>
 &nbsp;&nbsp;--&nbsp;&nbsp; 
+<a href='HiddenValleyProcesses.php?filepath=".$filepath."' target='page'>Hidden Valleys</a><br/>
+&nbsp;&nbsp;--&nbsp;&nbsp; 
 <a href='ExtraDimensionalProcesses.php?filepath=".$filepath."' target='page'>Extra Dimensions</a><br/>
 <a href='ASecondHardProcess.php?filepath=".$filepath."' target='page'>A Second Hard Process</a><br/>
 <a href='PhaseSpaceCuts.php?filepath=".$filepath."' target='page'>Phase Space Cuts</a><br/>

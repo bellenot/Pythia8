@@ -176,7 +176,93 @@ private:
   double Lambda, preFac, openFracPos, openFracNeg, sigma;
 
 };
- 
+
+//==========================================================================
+
+// A derived class for q q -> q q (quark contact interactions).
+// Based on, Sigma2qq2qq (QCD).
+
+class Sigma2QCqq2qq : public Sigma2Process {
+
+public:
+
+  // Constructor.
+  Sigma2QCqq2qq(){}
+
+  // Initialize process. 
+  virtual void initProc(); 
+
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
+
+  // Evaluate d(sigmaHat)/d(tHat). 
+  virtual double sigmaHat();
+
+  // Select flavour, colour and anticolour.
+  virtual void setIdColAcol();
+
+  // Info on the subprocess.
+  virtual string name()   const {return "q q(bar)' -> (QC) -> q q(bar)'";}
+  virtual int    code()   const {return 4201;}
+  virtual string inFlux() const {return "qq";}
+
+ private:
+
+  // Values stored for colour flow selection.
+  double sigT, sigU, sigTU, sigST, sigSum, sigQCSTU, sigQCUTS;
+
+  // Compositeness parameters.
+  double m_Lambda2;
+  int    m_etaLL, m_etaRR, m_etaLR;
+
+};
+
+//==========================================================================
+
+// A derived class for q qbar -> q' qbar' (quark contact interactions).
+// Based on, Sigma2qqbar2qqbarNew(QCD). 
+// Note: This process give the same contributions for q == q' and q != q'.
+
+class Sigma2QCqqbar2qqbar : public Sigma2Process {
+
+public:
+
+  // Constructor.
+  Sigma2QCqqbar2qqbar(){}
+
+  // Initialize process. 
+  virtual void initProc(); 
+
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
+
+  // Evaluate d(sigmaHat)/d(tHat). 
+  virtual double sigmaHat() {return sigma;}
+
+  // Select flavour, colour and anticolour.
+  virtual void setIdColAcol();
+
+  // Info on the subprocess.
+  virtual string name()   const {return "q qbar -> (QC) -> q' qbar' (uds)";}
+  virtual int    code()   const {return 4202;}
+  virtual string inFlux() const {return "qqbarSame";}
+
+ private:
+
+  // Number of outgoing quark flavours to be considered, given that
+  // matrix elements are calculated in the massless approximation.
+  int    m_nQuarkNew;
+
+  // Values stored for colour flow selection.
+  int    idNew;
+  double mNew, m2New, sigS, sigma;
+
+  // Compositeness parameters.
+  double m_Lambda2;
+  int    m_etaLL, m_etaRR, m_etaLR;
+
+};
+
 //==========================================================================
 
 } // end namespace Pythia8

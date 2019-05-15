@@ -63,12 +63,14 @@ int main() {
   string pdfSet = "MRST2001lo.LHgrid";
 
   // Pointer to old default and new tryout PDF sets.
-  PDF* oldPDF = new CTEQ5L(2212);
-  PDF* newPDF = new LHAPDF(2212, pdfSet, 0);
+  //PDF* oldPDF = new CTEQ5L(2212);
+  //PDF* newPDF = new LHAPDF(2212, pdfSet, 0);
 
   // Alternative: compare two Pomeron PDF's. Boost second by factor 2.
   //PDF* oldPDF = new PomFix( 990, -0.2, 2.5, 0., 3., 0.4, 0.5);
   //PDF* newPDF = new PomH1Jets( 990, 2.); 
+  PDF* oldPDF = new PomH1FitAB( 990, 2); 
+  PDF* newPDF = new PomH1FitAB( 990, 3); 
 
   // Allow extrapolation of PDF's beyond x and Q2 boundaries, at own risk.
   // Default behaviour is to freeze PDF's at boundaries.

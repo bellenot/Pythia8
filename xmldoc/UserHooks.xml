@@ -76,21 +76,37 @@ The constructor and destructor do not need to do anything.
 </methodmore>
 
 <method name="void UserHooks::initPtr( Info* infoPtr, 
-Settings* settingsPtr, ParticleData* particleDataPtr,
-PartonSystems* partonSystemsPtr)">
-this (non-virtual) method is automatically called during the initialization 
-stage to set four useful pointers, and to set up the <code>workEvent</code>
-below. The corresponding objects can later be used to extract some useful 
-information.
+Settings* settingsPtr, ParticleData* particleDataPtr,  
+Rndm* rndmPtr, BeamParticle* beamAPtr, BeamParticle* beamBPtr, 
+BeamParticle* beamPomAPtr, BeamParticle* beamPomBPtr, 
+CoupSM* coupSMPtr, PartonSystems* partonSystemsPtr, 
+SigmaTotal* sigmaTotPtr)">
+this (non-virtual) method is automatically called during the 
+initialization stage to set several useful pointers, and to set up 
+the <code>workEvent</code> below. The corresponding objects can 
+later be used to extract some useful information.
 <br/><aloc href="EventInformation">Info</aloc>:
 general event and run information, including some loop counters.
 <br/><aloc href="SettingsScheme">Settings</aloc>: 
 the settings used to determine the character of the run. 
-<br/><aloc href="ParticleDataScheme">Particle Data</aloc>: 
+<br/><aloc href="ParticleDataScheme">ParticleData</aloc>: 
 the particle data used in the event record 
 (including <code>workEvent</code> below).
+<br/><aloc href="RandomNumbers">Rndm</aloc>: the random number 
+generator, that you could also use in your code.
+<br/><aloc href="BeamRemnants">BeamParticle</aloc>: 
+the <code>beamAPtr</code> and <code>beamBPtr</code> beam particles 
+contain info on partons extracted from the two incoming beams, 
+on the PDFs used, and more. In cases when diffraction is simulated, 
+also special Pomeron beams <code>beamPomAPtr</code> and 
+<code>beamPomBPtr</code> are introduced, for the Pomerons residing 
+inside the respective proton. 
+<br/><aloc href="StandardModelParameters">CoupSM</aloc>: 
+Standard Model couplings. 
 <br/><aloc href="AdvancedUsage">PartonSystems</aloc>: 
 the list of partons that belong to each individual subcollision system.   
+<br/><aloc href="TotalCrossSections">SigmaTotal</aloc>: 
+total/elastic/diffractive cross section parametrizations.
 </method>
 
 <p/> 
@@ -180,16 +196,20 @@ it is useful to begin the development work by listing a few
 the cases of interest.
 </method>
 
-<method name="virtual bool UserHooks::doVetoProcessLevel(const 
-Event& process)">
-can optionally be called, as described above. You can study, but not
-modify, the <code>process</code> event record of the hard process. 
+<method name="virtual bool UserHooks::doVetoProcessLevel(Event& process)">
+can optionally be called, as described above. You can study the 
+<code>process</code> event record of the hard process. 
 Based on that you can decide whether to veto the event, true, or let 
 it continue to evolve, false. If you veto, then this event is not
 counted among the accepted ones, and does not contribute to the estimated
 cross section. The <code>Pytha::next()</code> method will begin a 
 completely new event, so the vetoed event will not appear in the 
 output of <code>Pythia::next()</code>.
+<note>Warning:</note> Normally you should not modify the <code>process</code>
+event record. However, for some matrix-element-matching procedures it may 
+become unavoidable. If so, be very careful, since there are many pitfalls.
+Only to give one example: if you modify the incoming partons then also
+the information stored in the beam particles may need to be modified. 
 <note>Note:</note> the above veto is different from setting the flag
 <code><aloc href="MasterSwitches">PartonLevel:all = off</aloc></code>. 
 Also in the latter case the event generation will stop after the process 

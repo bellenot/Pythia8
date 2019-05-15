@@ -64,8 +64,8 @@ bool MiniStringFragmentation::fragment(int iSub, ColConfig& colConfig,
 
   // Read in info on system to be treated.
   iParton  = colConfig[iSub].iParton;
-  flav1.id = event[ iParton.front() ].id();
-  flav2.id = event[ iParton.back() ].id(); 
+  flav1    = FlavContainer( event[ iParton.front() ].id() );
+  flav2    = FlavContainer( event[ iParton.back() ].id() ); 
   pSum     = colConfig[iSub].pSum;
   mSum     = colConfig[iSub].mass;
   m2Sum    = mSum*mSum;
@@ -122,7 +122,7 @@ bool MiniStringFragmentation::ministring2two( int nTry, Event& event) {
         (abs(flav1.id) > 8 || (abs(flav2.id) < 9 && rndmPtr->flat() < 0.5) )
         ? flavSelPtr->pick( flav1) : flavSelPtr->pick( flav2).anti();
       idHad1 = flavSelPtr->combine( flav1, flav3);
-      idHad2 = flavSelPtr->combine( flav2, flav3.anti());
+      idHad2 = flavSelPtr->combine( flav2, flav3.anti()); 
     } while (idHad1 == 0 || idHad2 == 0);
 
     // Check whether the mass sum fits inside the available phase space.  

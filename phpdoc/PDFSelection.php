@@ -43,7 +43,7 @@ The fifth gives the possibility to switch off the lepton
 
 The selection of parton densities is made once and then is propagated 
 through the program. It is essential to make an informed choice, 
-for several reasons: 
+for several reasons [<a href="Bibliography.php" target="page">Kas10</a>]: 
 <br/><b>Warning 1:</b> the choice of PDF set affects a number of
 properties of events. A change of PDF therefore requires a complete 
 retuning e.g.  of the multiple-interactions model for minimum-bias and 
@@ -318,18 +318,19 @@ Further choice of a specific member from the set picked above.
 The Pomeron is introduced in the description of diffractive events, 
 i.e. a diffractive system is viewed as a Pomeron-proton collision at a 
 reduced CM energy. Here the PDF's are even less well known. 
-The experimental parametrizations are NLO, which makes them less
+Most experimental parametrizations are NLO, which makes them less
 well suited for Monte Carlo applications. Furthemore note that 
 the momentum sum is arbitrarily normalized to a non-unity value.
 
-<br/><br/><table><tr><td><strong>PDF:PomSet  </td><td>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 1</code>; <code>maximum = 5</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>PDF:PomSet  </td><td>  &nbsp;&nbsp;(<code>default = <strong>6</strong></code>; <code>minimum = 1</code>; <code>maximum = 6</code>)</td></tr></table>
 Parton densities that can be used for Pomeron beams. 
 <br/>
 <input type="radio" name="15" value="1"><strong>1 </strong>: <ei>Q^2</ei>-independent parametrizations <ei>xf(x) = N_ab x^a (1 - x)^b</ei>, where <ei>N_ab</ei> ensures unit momentum sum. The <ei>a</ei> and <ei>b</ei> parameters can be  set separately for the gluon and the quark distributions. The momentum fraction of gluons and quarks can be freely mixed, and  production of <ei>s</ei> quarks can be suppressed relative to  that of <ei>d</ei> and <ei>u</ei> ones, with antiquarks as likely  as quarks. See further below how to set the six parameters of this  approach. <br/>
 <input type="radio" name="15" value="2"><strong>2 </strong>: <ei>pi0</ei> distributions, as specified in the  section above. <br/>
 <input type="radio" name="15" value="3"><strong>3 </strong>: the H1 2006 Fit A NLO <ei>Q^2</ei>-dependent  parametrization, based on a tune to their data <ref>H1P06</ref>, rescaled by the factor <code>PomRescale</code> below. <br/>
 <input type="radio" name="15" value="4"><strong>4 </strong>: the H1 2006 Fit B NLO <ei>Q^2</ei>-dependent  parametrization, based on a tune to their data <ref>H1P06</ref>, rescaled by the factor <code>PomRescale</code> below. <br/>
-<input type="radio" name="15" value="5" checked="checked"><strong>5 </strong>: the H1 2007 Jets NLO <ei>Q^2</ei>-dependent  parametrization, based on a tune to their data <ref>H1P07</ref>, rescaled by the factor <code>PomRescale</code> below. <br/>
+<input type="radio" name="15" value="5"><strong>5 </strong>: the H1 2007 Jets NLO <ei>Q^2</ei>-dependent  parametrization, based on a tune to their data <ref>H1P07</ref>, rescaled by the factor <code>PomRescale</code> below. <br/>
+<input type="radio" name="15" value="6" checked="checked"><strong>6 </strong>: the H1 2006 Fit B LO <ei>Q^2</ei>-dependent  parametrization, based on a tune to their data <ref>H1P06</ref>, rescaled by the factor <code>PomRescale</code> below. <br/>
 
 <br/><br/><table><tr><td><strong>PDF:PomGluonA </td><td></td><td> <input type="text" name="16" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>; <code>minimum = -0.5</code>; <code>maximum = 2.</code>)</td></tr></table>
 the parameter <i>a</i> in the ansatz <i>xg(x) = N_ab x^a (1 - x)^b</i>
@@ -362,7 +363,7 @@ the suppression of the <i>s</i> quark density relative to that of the
   
 
 <br/><br/><table><tr><td><strong>PDF:PomRescale </td><td></td><td> <input type="text" name="22" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.5</code>; <code>maximum = 5.0</code>)</td></tr></table>
-Rescale the three H1 fits above by this uniform factor, e.g. to bring 
+Rescale the four H1 fits above by this uniform factor, e.g. to bring 
 up their momentum sum to around unity. By default all three have
 a momentum sum of order 0.5, suggesting that a factor around 2.0
 should be used. You can use <code>examples/main41.cc</code> to get
@@ -493,7 +494,7 @@ if($_POST["14"] != "0")
 $data = "PDF:piLHAPDFmember = ".$_POST["14"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["15"] != "5")
+if($_POST["15"] != "6")
 {
 $data = "PDF:PomSet = ".$_POST["15"]."\n";
 fwrite($handle,$data);

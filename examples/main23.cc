@@ -20,7 +20,7 @@ public:
 
   // Constructor.
   JpsiDecay(ParticleData* pdtPtrIn, Rndm* rndmPtrIn) {times = 0; 
-    pdtPtr = pdtPtrIn; rndmPtrIn = rndmPtr;}
+    pdtPtr = pdtPtrIn; rndmPtr = rndmPtrIn;}
 
   // Routine for doing the decay.
   bool decay(vector<int>& idProd, vector<double>& mProd, 

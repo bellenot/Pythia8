@@ -1645,6 +1645,86 @@ double CTEQ6pdf::polint4F(double xa[],double ya[],double x) {
   return y;
 
 }
+
+//==========================================================================
+
+// SA Unresolved proton: equivalent photon spectrum from
+// V.M. Budnev, I.F. Ginzburg, G.V. Meledin and V.G. Serbo, 
+// Phys. Rept. 15 (1974/1975) 181.
+
+// Constants:
+const double ProtonPoint::ALPHAEM = 0.00729735;
+const double ProtonPoint::Q2MAX   = 2.0;
+const double ProtonPoint::Q20     = 0.71;
+const double ProtonPoint::A       = 7.16;
+const double ProtonPoint::B       = -3.96;
+const double ProtonPoint::C       = 0.028;
+
+//--------------------------------------------------------------------------
+
+// Gives a generic Q2-independent equivalent photon spectrum.
+
+void ProtonPoint::xfUpdate(int id, double x, double /*Q2*/ ) {
+
+  // Photon spectrum
+  double tmpQ2Min = 0.88 * pow2(x);
+  double phiMax = phiFunc(x, Q2MAX / Q20);
+  double phiMin = phiFunc(x, tmpQ2Min / Q20);
+
+  double fgm = 0;
+  if (phiMax < phiMin && m_infoPtr != 0) {
+    m_infoPtr->errorMsg("Error from ProtonPoint::xfUpdate: phiMax - phiMin < 0!");
+  } else {
+    // Corresponds to: x*f(x)
+    fgm = (ALPHAEM / M_PI) * (1 - x) * (phiMax - phiMin);
+  }
+
+  // Update values
+  xg     = 0.;
+  xu     = 0.;
+  xd     = 0.;
+  xubar  = 0.;
+  xdbar  = 0.;
+  xs     = 0.;
+  xsbar  = 0.;
+  xc     = 0.;
+  xb     = 0.;
+  xgamma = fgm;
+
+  // Subdivision of valence and sea.
+  xuVal = 0.;
+  xuSea = 0;
+  xdVal = 0.;
+  xdSea = 0;
+
+  // idSav = 9 to indicate that all flavours reset. id change dummy. 
+  idSav = 9;
+  id    = 0;
+
+}
+
+//--------------------------------------------------------------------------
+
+// Function related to Q2 integration.
+
+double ProtonPoint::phiFunc(double x, double Q) {
+
+  double tmpV = 1. + Q;
+  double tmpSum1 = 0;
+  double tmpSum2 = 0;
+  for (int k=1; k<4; ++k) { 
+    tmpSum1 += 1. / (k * pow(tmpV, k));
+    tmpSum2 += pow(B, k) / (k * pow(tmpV, k));
+  }
+
+  double tmpY = pow2(x) / (1 - x);
+  double funVal = (1 + A * tmpY) * (-1.*log(tmpV / Q) + tmpSum1)
+                + (1 - B) * tmpY / (4 * Q * pow(tmpV, 3))
+                + C * (1 + tmpY/4.)* (log((tmpV - B)/tmpV) + tmpSum2);  
+
+  return funVal;
+
+}
  
 //==========================================================================
 
@@ -1773,7 +1853,9 @@ void PomH1FitAB::init( int iFit, string xmlPath, Info* infoPtr) {
 
   // Open files from which grids should be read in.
   if (xmlPath[ xmlPath.length() - 1 ] != '/') xmlPath += "/";
-  string dataFile = (iFit == 1) ? "pomH1FitA.data" : "pomH1FitB.data";
+  string         dataFile = "pomH1FitBlo.data";
+  if (iFit == 1) dataFile = "pomH1FitA.data";
+  if (iFit == 2) dataFile = "pomH1FitB.data";
   ifstream is( (xmlPath + dataFile).c_str() );
   if (!is.good()) {
     if (infoPtr > 0) infoPtr->errorMsg("Error from PomH1FitAB::init: "

@@ -31,22 +31,32 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 
 Compositeness scenarios may give rise to sharp resonances of excited 
 quarks and leptons. An excited copy of the first generation is 
-implemented, consisting of spin 1/2 particles.
+implemented, consisting of spin 1/2 particles. The possibility of 
+contact interactions between quarks is also implemented in the context 
+of <i>2 -> 2</i> quark scattering. 
 
 <p/>  
-The current implementation contains gauge interaction production
-by quark-gluon fusion or lepton-photon fusion and contact interaction 
-production by quark-quark or quark-antiquark scattering. In additions 
-to the compositness scale and couplings listed below, you are expected 
-to change the excited-fermion masses in accordance with what is desired.
-See [<a href="Bibliography.php" target="page">Bau90</a>] for conventions.
+Related to excited fermions, the current implementation contains gauge 
+interaction production by quark-gluon fusion or lepton-photon fusion 
+and contact interaction production by quark-quark or quark-antiquark 
+scattering. In additions to the compositness scale and couplings listed 
+below, you are expected to change the excited-fermion masses in accordance 
+with what is desired. See [<a href="Bibliography.php" target="page">Bau90</a>] for conventions.
 
 <p/>
 A non-trivial angular dependence is included in the decay for the
 <i>2 -> 1</i> processes, but has not been included for the 
 <i>2 -> 2</i> ones.
 
-<h3>Production processes</h3>
+<p/>
+The quark contact interactions are implemented according to 
+[<a href="Bibliography.php" target="page">Eic83</a>]. The processes include the QCD contributions 
+as well as interference. For this reason the two processes 
+below converge toward, <code>HardQCD:qq2qq</code> and 
+<code>HardQCD:qqbar2qqbarNew</code>, when the contact interaction 
+contributions are close to zero. 
+
+<h3>Excited fermions, production processes</h3>
 
 A few different production processes have been implemented, which normally 
 would not overlap and therefore could be run together.
@@ -191,25 +201,76 @@ Scatterings <i>q qbar -> nu_tau^* nu_taubar</i>.
 Code 4036.
   
 
-<h3>Parameters</h3>
+<h3>Excited fermions, parameters</h3>
 
 The basic couplings of the model are
 
 <br/><br/><table><tr><td><strong>ExcitedFermion:Lambda </td><td></td><td> <input type="text" name="21" value="1000." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1000.</strong></code>; <code>minimum = 100.</code>)</td></tr></table>
-compositeness scale <i>Lambda</i> in GeV.
+Compositeness scale <i>Lambda</i> in GeV.
   
 
 <br/><br/><table><tr><td><strong>ExcitedFermion:coupF </td><td></td><td> <input type="text" name="22" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
-strength <i>f</i> of the <i>SU(2)</i> coupling.
+Strength <i>f</i> of the <i>SU(2)</i> coupling.
   
 
 <br/><br/><table><tr><td><strong>ExcitedFermion:coupFprime </td><td></td><td> <input type="text" name="23" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
-strength <i>f'</i> of the <i>U(1)</i> coupling.
+Strength <i>f'</i> of the <i>U(1)</i> coupling.
   
 
 <br/><br/><table><tr><td><strong>ExcitedFermion:coupFcol </td><td></td><td> <input type="text" name="24" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
-strength <i>f_c</i> of the <i>SU(3)</i> coupling.
+Strength <i>f_c</i> of the <i>SU(3)</i> coupling.
   
+
+<h3>Contact interactions, production processes</h3>
+
+The processes including quark contact interactions are
+
+<br/><br/><strong>ContactInteractions:QCqq2qq</strong>  <input type="radio" name="25" value="on"><strong>On</strong>
+<input type="radio" name="25" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scatterings <i>q q -> q q</i> including contact interactions. 
+Code 4201.
+  
+
+<br/><br/><strong>ContactInteractions:QCqqbar2qqbar</strong>  <input type="radio" name="26" value="on"><strong>On</strong>
+<input type="radio" name="26" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scatterings <i>q qbar -> q' qbar'</i> including contact interactions. 
+Code 4202.
+  
+
+<h3>Contact interactions, parameters</h3>
+
+<br/><br/><table><tr><td><strong>ContactInteractions:nQuarkNew  </td><td></td><td> <input type="text" name="27" value="3" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>3</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
+Number of allowed outgoing new quark flavours in the above
+<i>q qbar -> q' qbar'</i> process. Similar to <i>HardQCD:nQuarkNew</i> 
+for the QCD processes.
+  
+
+<br/><br/><table><tr><td><strong>ContactInteractions:Lambda </td><td></td><td> <input type="text" name="28" value="1000." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1000.</strong></code>; <code>minimum = 100.</code>)</td></tr></table>
+Compositeness scale <i>Lambda</i> in GeV.
+  
+
+<br/><br/><table><tr><td><strong>ContactInteractions:etaLL  </td><td>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = -1</code>; <code>maximum = 1</code>)</td></tr></table>
+Helicity parameter. 
+<br/>
+<input type="radio" name="29" value="1"><strong>1 </strong>: <br/>
+<input type="radio" name="29" value="0" checked="checked"><strong>0 </strong>: <br/>
+<input type="radio" name="29" value="-1"><strong>-1 </strong>: <br/>
+
+<br/><br/><table><tr><td><strong>ContactInteractions:etaRR  </td><td>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = -1</code>; <code>maximum = 1</code>)</td></tr></table>
+Helicity parameter. 
+<br/>
+<input type="radio" name="30" value="1"><strong>1 </strong>: <br/>
+<input type="radio" name="30" value="0" checked="checked"><strong>0 </strong>: <br/>
+<input type="radio" name="30" value="-1"><strong>-1 </strong>: <br/>
+
+<br/><br/><table><tr><td><strong>ContactInteractions:etaLR  </td><td>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = -1</code>; <code>maximum = 1</code>)</td></tr></table>
+Helicity parameter. 
+<br/>
+<input type="radio" name="31" value="1"><strong>1 </strong>: <br/>
+<input type="radio" name="31" value="0" checked="checked"><strong>0 </strong>: <br/>
+<input type="radio" name="31" value="-1"><strong>-1 </strong>: <br/>
 
 <input type="hidden" name="saved" value="1"/>
 
@@ -344,6 +405,41 @@ fwrite($handle,$data);
 if($_POST["24"] != "1.0")
 {
 $data = "ExcitedFermion:coupFcol = ".$_POST["24"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["25"] != "off")
+{
+$data = "ContactInteractions:QCqq2qq = ".$_POST["25"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["26"] != "off")
+{
+$data = "ContactInteractions:QCqqbar2qqbar = ".$_POST["26"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["27"] != "3")
+{
+$data = "ContactInteractions:nQuarkNew = ".$_POST["27"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["28"] != "1000.")
+{
+$data = "ContactInteractions:Lambda = ".$_POST["28"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["29"] != "0")
+{
+$data = "ContactInteractions:etaLL = ".$_POST["29"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["30"] != "0")
+{
+$data = "ContactInteractions:etaRR = ".$_POST["30"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["31"] != "0")
+{
+$data = "ContactInteractions:etaLR = ".$_POST["31"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);

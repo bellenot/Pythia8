@@ -39,7 +39,9 @@ rules, as we will outline further below. Of course, this still
 leaves the field open exactly how to define what to mean by 
 <i>pT</i>, how to handle recoil effects, how the colour flow is
 affected, and so on, so there is certainly room for alternative 
-showers. 
+showers. A first example of a shower implemented within the PYTHIA
+context is <a href="http://home.fnal.gov/~skands/vincia/">VINCIA</a>,
+which however so far only handles FSR. 
 
 <p/>
 For the moment we assume you want to keep the MI part of the story
@@ -183,6 +185,21 @@ e.g. by reading in them from a user-accessible database like the
   
 
 <a name="method5"></a>
+<p/><strong>virtual bool TimeShower::limitPTmax( Event& event, double Q2Fac = 0.,  double Q2Ren = 0.) &nbsp;</strong> <br/>
+The question is whether the FSR should be allowed to occur at larger
+scales than the hard process it surrounds. This is process-dependent,
+as illustrated below for the the analogous 
+<code>SpaeShower::limitPTmax(...)</code> method, although the two
+kinds of radiation need not have to be modelled identically.
+The <code>TimeShower:pTmaxMatch</code> switch allows you to force the
+behaviour among three options, but you may replace by your own logic. 
+<br/>The internal PYTHIA implementation also allows intermediate options, 
+where emissions can go up to the kinematical limit but be dampened above 
+the factorization or renormalization scale. Therefore the (square of the) 
+latter two are provided as optional input parameters.  
+  
+
+<a name="method6"></a>
 <p/><strong>double TimeShower::enhancePTmax() &nbsp;</strong> <br/>
 Relative to the default <i>pT_max</i> evolution scale of the process,
 it may still be convenient to vary the matching slightly for the hardest
@@ -191,7 +208,7 @@ base-class implementation returns the value of the
 <code>TimeShower:pTmaxFudge</code> parameter.
   
 
-<a name="method6"></a>
+<a name="method7"></a>
 <p/><strong>virtual int TimeShower::shower( int iBeg, int iEnd, Event& event, double pTmax, int nBranchMax = 0) &nbsp;</strong> <br/>
 This is an all-in-one call for shower evolution, and as such cannot be 
 used for the normal interleaved evolution, where only the routines below
@@ -216,7 +233,7 @@ were generated, but only for non-critical statistics purposes.
 below, it may well be that the existing code need not be replaced.
   
 
-<a name="method7"></a>
+<a name="method8"></a>
 <p/><strong>double TimeShower::pTLastInShower() &nbsp;</strong> <br/>
 Can be used to return the <i>pT</i> evolution scale of the last
 branching in the cascade generated with the above 
@@ -225,7 +242,7 @@ branching in the cascade generated with the above
 were no branchings. Can be useful for matching studies. 
   
 
-<a name="method8"></a>
+<a name="method9"></a>
 <p/><strong>virtual void TimeShower::prepare( int iSys, Event& event) &nbsp;</strong> <br/>
 This method is called immediately after a new interaction (or the
 products of a resonance decay) has been added, and should then be used 
@@ -242,7 +259,7 @@ or are 0 for resonance decays unrelated to the beams, while the
 rest are not required to be in any particular order.
   
 
-<a name="method9"></a>
+<a name="method10"></a>
 <p/><strong>virtual void TimeShower::rescatterUpdate( int iSys, Event& event) &nbsp;</strong> <br/>
 This method is called immediately after rescattering in the description
 of multiple interactions. Thus the information on one or several 
@@ -252,7 +269,7 @@ of new showers will want to touch the technicalities involved
 in obtaining a description of rescattering.
   
 
-<a name="method10"></a>
+<a name="method11"></a>
 <p/><strong>virtual void TimeShower::update( int iSys, Event& event) &nbsp;</strong> <br/>
 This method is called immediately after a spacelike branching in the 
 <code>iSys</code>'th subsystem. Thus the information for that system is 
@@ -262,7 +279,7 @@ free to throw away all information for the affected subsystem and call
 you may choose only to update the information that has changed.
   
 
-<a name="method11"></a>
+<a name="method12"></a>
 <p/><strong>virtual double TimeShower::pTnext( Event& event, double pTbegAll, double pTendAll) &nbsp;</strong> <br/>
 This is the main driver routine for the downwards evolution. A new 
 <i>pT</i> is to be selected based on the current information set up 
@@ -286,7 +303,7 @@ actually be carried out, since MI, ISR and FSR still have to be compared
 to assign the winner.
   
 
-<a name="method12"></a>
+<a name="method13"></a>
 <p/><strong>virtual bool TimeShower::branch( Event& event, bool isInterleaved = false) &nbsp;</strong> <br/>
 This method will be called once FSR has won the competition with 
 MI and ISR to do the next branching. The candidate branching found 
@@ -306,7 +323,7 @@ More precisely, it separates calls to the <code>timesDecPtr</code>
 and the <code>timesPtr</code> instances.
   
 
-<a name="method13"></a>
+<a name="method14"></a>
 <p/><strong>virtual bool TimeShower::rescatterPropogateRecoil( Event& event, Vec4& pNew) &nbsp;</strong> <br/>
 This method is only called if rescattering is switched on in the 
 description of multiple interactions. It then propagates a recoil
@@ -315,7 +332,7 @@ As for <code>rescatterUpdate</code> above, this is not likely to be
 of interest to most implementors of new showers.
   
 
-<a name="method14"></a>
+<a name="method15"></a>
 <p/><strong>int TimeShower::system() &nbsp;</strong> <br/>
 This method is not virtual. If a branching is constructed by the 
 previous routine this tiny method should be able to return the number 
@@ -325,7 +342,7 @@ if necessary. Therefore <code>iSysSel</code> must be set in
 <code>branch</code> (or already in <code>pTnext</code>).  
   
 
-<a name="method15"></a>
+<a name="method16"></a>
 <p/><strong>virtual void TimeShower::list( ostream& os = cout) &nbsp;</strong> <br/>
 This method is not at all required. In the current implementation it 
 outputs a list of all the dipole ends, with information on the
@@ -344,23 +361,23 @@ description is simpler, since there are no special cases for resonance
 decays and non-interleaved evolution. Thus there is no correspondence 
 to the <code>TimeShower::shower(...)</code> routine.  
 
-<a name="method16"></a>
+<a name="method17"></a>
 <p/><strong>SpaceShower::SpaceShower() &nbsp;</strong> <br/>
 The constructor does not need to do anything.
   
 
-<a name="method17"></a>
+<a name="method18"></a>
 <p/><strong>virtual SpaceShower::~SpaceShower() &nbsp;</strong> <br/>
 Also the destructor does not need to do anything.
   
 
-<a name="method18"></a>
+<a name="method19"></a>
 <p/><strong>void SpaceShower::initPtr(Info* infoPtr, Settings* settingsPtr, ParticleData* particleDataPtr, Rndm* rndmPtr, PartonSystems* partonSystemsPtr, UserHooks* userHooksPtr) &nbsp;</strong> <br/>
 This method only imports pointers to standard facilities, 
 and is not virtual.
   
 
-<a name="method19"></a>
+<a name="method20"></a>
 <p/><strong>virtual void SpaceShower::init( BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn) &nbsp;</strong> <br/>
 You have to store your local copy of the pointers to these objects,
 since they have to be used during the generation, as explained above.
@@ -369,7 +386,7 @@ you plan to use, e.g. by reading in them from a user-accessible
 database like the <code>Settings</code> one.
   
 
-<a name="method20"></a>
+<a name="method21"></a>
 <p/><strong>virtual bool SpaceShower::limitPTmax( Event& event, double Q2Fac = 0.,  double Q2Ren = 0.) &nbsp;</strong> <br/>
 The question is whether the ISR should be allowed to occur at larger
 scales than the hard process it surrounds. This is process-dependent.
@@ -378,17 +395,17 @@ that ISR should be allowed to go right up to the kinematical limit.
 If it is a <i>2 -> 2</i> QCD process the ISR should not exceed
 the scale of the hard process, since if so one would doublecount.
 The <code>SpaceShower:pTmaxMatch</code> switch allows you to force the
-behaviour, or else to program your own logic. The current implementation
-limits <i>pT</i> whenever the final state contains a quark (except top),
-gluon or photon, since then the danger of doublecounting is there.
-You may replace by your own logic, or leave as is. 
+behaviour, or else to program your own logic. The current default
+implementation limits <i>pT</i> whenever the final state contains 
+a quark (except top), gluon or photon, since then the danger of 
+doublecounting is there. You may replace by your own logic, or leave as is. 
 <br/>The internal PYTHIA implementation also allows intermediate options, 
 where emissions can go up to the kinematical limit but be dampened above 
 the factorization or renormalization scale. Therefore the (square of the) 
 latter two are provided as optional input parameters.  
   
 
-<a name="method21"></a>
+<a name="method22"></a>
 <p/><strong>virtual double SpaceShower::enhancePTmax() &nbsp;</strong> <br/>
 When the above method limits <i>pT_max</i> to the scale of the process,
 it may still be convenient to vary the matching slightly for the hardest
@@ -397,7 +414,7 @@ base-class implementation returns the value of the
 <code>SpaceShower:pTmaxFudge</code> parameter.
   
 
-<a name="method22"></a>
+<a name="method23"></a>
 <p/><strong>virtual void SpaceShower::prepare( int iSys, Event& event, bool limitPTmax = true) &nbsp;</strong> <br/>
 This method is called immediately after a new interaction has been 
 added, and should then be used to prepare the subsystem of partons
@@ -415,7 +432,7 @@ subsequent MI, since there an unlimited <i>pT</i> for sure
 would lead to doublecounting.
   
 
-<a name="method23"></a>
+<a name="method24"></a>
 <p/><strong>virtual void SpaceShower::update( int iSys, Event& event) &nbsp;</strong> <br/>
 This method is called immediately after a timelike branching in the 
 <code>iSys</code>'th subsystem. Thus the information for that system may 
@@ -424,7 +441,7 @@ this routine does not need to do anything, but that may be different
 in another implementation.
   
 
-<a name="method24"></a>
+<a name="method25"></a>
 <p/><strong>virtual double SpaceShower::pTnext( Event& event, double pTbegAll, double pTendAll, int nRadIn = -1) &nbsp;</strong> <br/>
 This is the main driver routine for the downwards evolution. A new 
 <i>pT</i> is to be selected based on the current information set up 
@@ -451,7 +468,7 @@ ISR and FSR emissions already generated in the event, and so allows a
 special treatment for the very first emission, if desired.
   
 
-<a name="method25"></a>
+<a name="method26"></a>
 <p/><strong>virtual bool SpaceShower::branch( Event& event) &nbsp;</strong> <br/>
 This method will be called once FSR has won the competition with 
 MI and ISR to do the next branching. The candidate branching found 
@@ -467,7 +484,7 @@ could be carried out. Also a complete restart of the parton-level
 description may be necessary, see <code>doRestart()</code> below.  
   
 
-<a name="method26"></a>
+<a name="method27"></a>
 <p/><strong>int SpaceShower::system() &nbsp;</strong> <br/>
 This method is not virtual. If a branching is constructed by the 
 previous routine this tiny method should be able to return the number 
@@ -477,7 +494,7 @@ if necessary. Therefore <code>iSysSel</code> must be set in
 <code>branch</code> (or already in <code>pTnext</code>).  
   
 
-<a name="method27"></a>
+<a name="method28"></a>
 <p/><strong>bool SpaceShower::doRestart() &nbsp;</strong> <br/>
 This method is not virtual. If <code>branch(...)</code> above fails
 to construct a branching, and the conditions are such that the whole
@@ -487,7 +504,7 @@ thi kind of failures, and so the internal <code>rescatterFail</code>
 boolean must be set true when this should happen, and else false.
   
 
-<a name="method28"></a>
+<a name="method29"></a>
 <p/><strong>virtual void SpaceShower::list( ostream& os = cout) &nbsp;</strong> <br/>
 This method is not at all required. In the current implementation it 
 outputs a list of all the dipole ends, with information on the

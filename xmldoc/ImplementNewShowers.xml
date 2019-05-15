@@ -12,7 +12,9 @@ rules, as we will outline further below. Of course, this still
 leaves the field open exactly how to define what to mean by 
 <ei>pT</ei>, how to handle recoil effects, how the colour flow is
 affected, and so on, so there is certainly room for alternative 
-showers. 
+showers. A first example of a shower implemented within the PYTHIA
+context is <a href="http://home.fnal.gov/~skands/vincia/">VINCIA</a>,
+which however so far only handles FSR. 
 
 <p/>
 For the moment we assume you want to keep the MI part of the story
@@ -147,6 +149,21 @@ from inside the <code>ParticleDecays class</code>. This is also the
 place to do initialization of whatever parameters you plan to use, 
 e.g. by reading in them from a user-accessible database like the
 <code>Settings</code> one.
+</method>
+
+<method name="virtual bool TimeShower::limitPTmax( Event& event, 
+double Q2Fac = 0.,  double Q2Ren = 0.)">
+The question is whether the FSR should be allowed to occur at larger
+scales than the hard process it surrounds. This is process-dependent,
+as illustrated below for the the analogous 
+<code>SpaeShower::limitPTmax(...)</code> method, although the two
+kinds of radiation need not have to be modelled identically.
+The <code>TimeShower:pTmaxMatch</code> switch allows you to force the
+behaviour among three options, but you may replace by your own logic. 
+<br/>The internal PYTHIA implementation also allows intermediate options, 
+where emissions can go up to the kinematical limit but be dampened above 
+the factorization or renormalization scale. Therefore the (square of the) 
+latter two are provided as optional input parameters.  
 </method>
 
 <method name="double TimeShower::enhancePTmax()">
@@ -337,10 +354,10 @@ that ISR should be allowed to go right up to the kinematical limit.
 If it is a <ei>2 -> 2</ei> QCD process the ISR should not exceed
 the scale of the hard process, since if so one would doublecount.
 The <code>SpaceShower:pTmaxMatch</code> switch allows you to force the
-behaviour, or else to program your own logic. The current implementation
-limits <ei>pT</ei> whenever the final state contains a quark (except top),
-gluon or photon, since then the danger of doublecounting is there.
-You may replace by your own logic, or leave as is. 
+behaviour, or else to program your own logic. The current default
+implementation limits <ei>pT</ei> whenever the final state contains 
+a quark (except top), gluon or photon, since then the danger of 
+doublecounting is there. You may replace by your own logic, or leave as is. 
 <br/>The internal PYTHIA implementation also allows intermediate options, 
 where emissions can go up to the kinematical limit but be dampened above 
 the factorization or renormalization scale. Therefore the (square of the) 

@@ -894,8 +894,9 @@ double BeamParticle::zShare( double mDiff, double m1, double m2) {
     double x1 = xRemnant(0);
     double x2 = xRemnant(0);
     zRel = x1 / (x1 + x2);
-    pxRel = diffPrimKTwidth * rndmPtr->gauss();
-    pyRel = diffPrimKTwidth * rndmPtr->gauss();
+    pair<double, double> gauss2 = rndmPtr->gauss2();
+    pxRel = diffPrimKTwidth * gauss2.first;
+    pyRel = diffPrimKTwidth * gauss2.second;
 
     // Suppress large invariant masses of remnant system.
     double mTS1 = m1*m1 + pxRel*pxRel + pyRel*pyRel;

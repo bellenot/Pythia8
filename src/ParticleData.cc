@@ -634,9 +634,11 @@ void ParticleData::initWidths( vector<ResonanceWidths*> resonancePtrs) {
     setResonancePtr( 4000000 + i, resonancePtr);
   }
 
-  // An excited graviton in extra-dimensional scenarios.
+  // An excited graviton/gluon in extra-dimensional scenarios.
   resonancePtr = new ResonanceGraviton(5100039);
   setResonancePtr( 5100039, resonancePtr);
+  resonancePtr = new ResonanceKKgluon(5100021);
+  setResonancePtr( 5100021, resonancePtr);
 
   // A left-right-symmetric scenario with new righthanded neutrinos,
   // righthanded gauge bosons and doubly charged Higgses.

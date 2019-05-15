@@ -137,9 +137,10 @@ void PhaseSpace::init(bool isFirst, SigmaProcess* sigmaProcessPtrIn,
   // Whether generation is with variable energy.
   doEnergySpread       = settingsPtr->flag("Beams:allowMomentumSpread");
 
-  // Print flag for maximization information.
+  // Flags for maximization information and violation handling.
   showSearch           = settingsPtr->flag("PhaseSpace:showSearch");
   showViolation        = settingsPtr->flag("PhaseSpace:showViolation");
+  increaseMaximum      = settingsPtr->flag("PhaseSpace:increaseMaximum");
 
   // Know whether a Z0 is pure Z0 or admixed with gamma*.
   gmZmodeGlobal        = settingsPtr->mode("WeakZ0:gmZmode");  
@@ -167,6 +168,7 @@ void PhaseSpace::init(bool isFirst, SigmaProcess* sigmaProcessPtrIn,
   // Default cross section information.
   sigmaNw         = 0.;
   sigmaMx         = 0.;
+  sigmaPos        = 0.;
   sigmaNeg        = 0.;
   newSigmaMx      = false;
 
@@ -935,6 +937,7 @@ bool PhaseSpace::setupSampling123(bool is2, bool is3, ostream& os) {
     }
   }
   sigmaMx *= SAFETYMARGIN;
+  sigmaPos = sigmaMx;
 
   // Optional printout.
   if (showSearch) os << "\n Final maximum = "  << setw(11) << sigmaMx << endl;
@@ -1041,17 +1044,28 @@ bool PhaseSpace::trialKin123(bool is2, bool is3, bool inEvent, ostream& os) {
   if (sigmaNw > sigmaMx) {
     infoPtr->errorMsg("Warning in PhaseSpace2to2tauyz::trialKin: "
       "maximum for cross section violated");
-    double violFact = SAFETYMARGIN * sigmaNw / sigmaMx;
-    sigmaMx = SAFETYMARGIN * sigmaNw; 
-    newSigmaMx = true;
 
-    // Optional printout of (all) violations.
-    if (showViolation) { 
+    // Violation strategy 1: increase maximum (always during initialization).
+    if (increaseMaximum || !inEvent) {
+      double violFact = SAFETYMARGIN * sigmaNw / sigmaMx;
+      sigmaMx = SAFETYMARGIN * sigmaNw; 
+      newSigmaMx = true;
+      if (showViolation) { 
+        if (violFact < 9.99) os << fixed;
+        else                 os << scientific;
+        os << " PYTHIA Maximum for " << sigmaProcessPtr->name() 
+           << " increased by factor " << setprecision(3) << violFact 
+           << " to " << scientific << sigmaMx << endl;
+      }
+
+    // Violation strategy 2: weight event (done in ProcessContainer).
+    } else if (showViolation && sigmaNw > sigmaPos) { 
+      double violFact = sigmaNw / sigmaMx;
       if (violFact < 9.99) os << fixed;
       else                 os << scientific;
       os << " PYTHIA Maximum for " << sigmaProcessPtr->name() 
-         << " increased by factor " << setprecision(3) << violFact 
-         << " to " << scientific << sigmaMx << endl;
+         << " exceeded by factor " << setprecision(3) << violFact << endl;
+      sigmaPos = sigmaNw;
     }
   }
 
@@ -2865,6 +2879,293 @@ bool PhaseSpace2to3tauycyl::finalKin() {
   // Done.
   return true;
 }
+
+//==========================================================================
+
+// The PhaseSpace2to3yyycyl class.
+// Phase space for 2 -> 3 QCD processes, 1 + 2 -> 3 + 4 + 5 set up in 
+// y3, y4, y5, pT2_3, pT2_5, phi_3 and phi_5, and with R separation cut.
+// Note: here cout is used for output, not os. Change??
+
+//--------------------------------------------------------------------------
+
+//  Sample the phase space of the process.
+
+bool PhaseSpace2to3yyycyl::setupSampling() {
+
+  // Phase space cuts specifically for 2 -> 3 QCD processes.
+  pTHat3Min            = settingsPtr->parm("PhaseSpace:pTHat3Min");
+  pTHat3Max            = settingsPtr->parm("PhaseSpace:pTHat3Max");
+  pTHat5Min            = settingsPtr->parm("PhaseSpace:pTHat5Min");
+  pTHat5Max            = settingsPtr->parm("PhaseSpace:pTHat5Max");
+  RsepMin              = settingsPtr->parm("PhaseSpace:RsepMin");
+  R2sepMin             = pow2(RsepMin);
+
+  // If both beams are baryons then softer PDF's than for mesons/Pomerons.
+  hasBaryonBeams = ( beamAPtr->isBaryon() && beamBPtr->isBaryon() );
+
+  // Work with massless partons.
+  for (int i = 0; i < 6; ++i) mH[i] = 0.;
+  
+  // Constrain to possible cuts at current CM energy and check consistency.
+  pT3Min = pTHat3Min;
+  pT3Max = pTHat3Max;
+  if (pT3Max < pT3Min) pT3Max = 0.5 * eCM; 
+  pT5Min = pTHat5Min;
+  pT5Max = pTHat5Max;
+  if (pT5Max < pT5Min) pT5Max = 0.5 * eCM; 
+  if (pT5Max > pT3Max || pT5Min > pT3Min || pT3Min + 2. * pT5Min > eCM) {
+    infoPtr->errorMsg("Error in PhaseSpace2to3yyycyl::setupSampling: "
+    "inconsistent pT limits in 3-body phase space");
+    return false;
+  }
+
+  // Loop over some configurations where cross section could be maximal.
+  // In all cases all sum p_z = 0, for maximal PDF weights.
+  // Also pT3 and R45 are minimal, while pT5 may vary.
+  sigmaMx = 0.;
+  double pT5EffMax = min( pT5Max, 0.5 * pT3Min / cos(0.5 * RsepMin) ); 
+  double pT3EffMin = max( pT3Min, 2.0 * pT5Min * cos(0.5 * RsepMin) ) ;
+  double sinhR = sinh(0.5 * RsepMin);
+  double coshR = cosh(0.5 * RsepMin);
+  for (int iStep = 0; iStep < 120; ++iStep) {
+
+    // First kind: |phi4 - phi5| = R, all p_z = 0, i.e. separation in phi.
+    if (iStep < 10) {
+      pT3   = pT3EffMin;
+      pT5   = pT5Min * pow( pT5EffMax / pT5Min, iStep / 9.); 
+      double pTRat    = pT5 / pT3;
+      double sin2Rsep = pow2( sin(RsepMin) );
+      double cosPhi35 = - cos(RsepMin) * sqrtpos(1. - sin2Rsep 
+        * pow2(pTRat)) - sin2Rsep * pTRat;
+      cosPhi35 = max( cosPhi35, cos(M_PI - 0.5 * RsepMin) );
+      double sinPhi35 = sqrt(1. - pow2(cosPhi35));
+      pT4   = sqrt( pow2(pT3) + pow2(pT5) + 2. * pT3 * pT5 * cosPhi35);
+      p3cm  = pT3 * Vec4( 1., 0., 0., 1.);
+      p4cm  = Vec4(-pT3 - pT5 * cosPhi35, -pT5 * sinPhi35, 0., pT4);
+      p5cm  = pT5 * Vec4( cosPhi35, sinPhi35, 0., 1.);
+
+    // Second kind: |y4 - y5| = R, phi4 = phi5, i.e. separation in y.
+    } else {
+      pT5   = pT5Min * pow( pT5Max / pT5Min, iStep%10 / 9. ); 
+      pT3   = max( pT3Min, 2. * pT5);
+      pT4   = pT3 - pT5;
+      p4cm  = pT4 * Vec4( -1., 0.,  sinhR, coshR );
+      p5cm  = pT5 * Vec4( -1., 0., -sinhR, coshR );
+      y3    = -1.2 + 0.2 * (iStep/10); 
+      p3cm  = pT3 * Vec4( 1., 0., sinh(y3), cosh(y3));
+      betaZ = (p3cm.pz() + p4cm.pz() + p5cm.pz()) 
+            / (p3cm.e()  + p4cm.e()  + p5cm.e());  
+      p3cm.bst( 0., 0., -betaZ);  
+      p4cm.bst( 0., 0., -betaZ);  
+      p5cm.bst( 0., 0., -betaZ);  
+    }  
+
+    // Find cross section in chosen phase space point.
+    pInSum = p3cm + p4cm + p5cm;
+    x1H   = pInSum.e() /  eCM;
+    x2H   = x1H;
+    sH    = pInSum.m2Calc();
+    sigmaProcessPtr->set3Kin( x1H, x2H, sH, p3cm, p4cm, p5cm, 
+      0., 0., 0., 1., 1., 1.);
+    sigmaNw = sigmaProcessPtr->sigmaPDF();
+
+    // Multiply by Jacobian.
+    double flux  = 1. /(8. * pow2(sH) * pow5(2. * M_PI));
+    double pTRng = pow2(M_PI) 
+      * pow4(pT3) * (1./pow2(pT3Min) - 1./pow2(pT3Max))
+      * pow2(pT5) * 2.* log(pT5Max/pT5Min); 
+    double yRng  = 8. * log(eCM / pT3) * log(eCM / pT4) * log(eCM / pT5);
+    sigmaNw *= SAFETYMARGIN * flux * pTRng * yRng;
+   
+    // Update to largest maximum.
+    if (showSearch && sigmaNw > sigmaMx) cout << "\n New sigmamax is " 
+      << scientific << setprecision(3) << sigmaNw << " for x1 = " << x1H 
+      << " x2 = " << x2H << " sH = " << sH << endl << " p3 = " << p3cm 
+      << " p4 = " << p4cm << " p5 = " << p5cm;
+    if (sigmaNw > sigmaMx) sigmaMx = sigmaNw;
+  }
+  sigmaPos = sigmaMx;
+
+  // Done.
+  return true; 
+}
+
+//--------------------------------------------------------------------------
+
+//  Sample the phase space of the process.
+
+bool PhaseSpace2to3yyycyl::trialKin(bool inEvent, bool) {
+
+  // Allow for possibility that energy varies from event to event.
+  if (doEnergySpread) {
+    eCM   = infoPtr->eCM();
+    s     = eCM * eCM;
+  }
+  sigmaNw = 0.;
+  
+  // Constrain to possible cuts at current CM energy and check consistency.
+  pT3Min = pTHat3Min;
+  pT3Max = pTHat3Max;
+  if (pT3Max < pT3Min) pT3Max = 0.5 * eCM; 
+  pT5Min = pTHat5Min;
+  pT5Max = pTHat5Max;
+  if (pT5Max < pT5Min) pT5Max = 0.5 * eCM; 
+  if (pT5Max > pT3Max || pT5Min > pT3Min || pT3Min + 2. * pT5Min > eCM) {
+    infoPtr->errorMsg("Error in PhaseSpace2to3yyycyl::trialKin: "
+    "inconsistent pT limits in 3-body phase space");
+    return false;
+  }
+
+  // Pick pT3 according to d^2(pT3)/pT3^4 and pT5 to d^2(pT5)/pT5^2.  
+  pT3    = pT3Min * pT3Max / sqrt( pow2(pT3Min) +
+    rndmPtr->flat() * (pow2(pT3Max) - pow2(pT3Min)) );
+  pT5Max = min(pT5Max, pT3);
+  if (pT5Max < pT5Min) return false;
+  pT5    = pT5Min * pow( pT5Max / pT5Min, rndmPtr->flat() );
+
+  // Pick azimuthal angles flat and reconstruct pT4, between pT3 and pT5.
+  phi3   = 2. * M_PI * rndmPtr->flat();
+  phi5   = 2. * M_PI * rndmPtr->flat();
+  pT4    = sqrt( pow2(pT3) + pow2(pT5) + 2. * pT3 * pT5 * cos(phi3 - phi5) );
+  if (pT4 > pT3 || pT4 < pT5) return false;
+  phi4   = atan2( -(pT3 * sin(phi3) + pT5 * sin(phi5)),
+                  -(pT3 * cos(phi3) + pT5 * cos(phi5)) );
+
+  // Pick rapidities flat in allowed ranges.
+  y3Max  = log(eCM / pT3);
+  y4Max  = log(eCM / pT4);
+  y5Max  = log(eCM / pT5);
+  y3     = y3Max * (2. * rndmPtr->flat() - 1.);
+  y4     = y4Max * (2. * rndmPtr->flat() - 1.);
+  y5     = y5Max * (2. * rndmPtr->flat() - 1.);
+
+  // Reject some events at large rapidities to improve efficiency.
+  // (Works for baryons, not pions or Pomerons if they have hard PDF's.) 
+  double WTy = (hasBaryonBeams) ? (1. - pow2(y3/y3Max)) 
+             * (1. - pow2(y4/y4Max)) * (1. - pow2(y5/y5Max)) : 1.;
+  if (WTy < rndmPtr->flat()) return false; 
+
+  // Check that any pair separated more then RsepMin in (y, phi) space.
+  dphi   = abs(phi3 - phi4);
+  if (dphi > M_PI) dphi = 2. * M_PI - dphi;
+  if (pow2(y3 - y4) + pow2(dphi) < R2sepMin) return false;
+  dphi   = abs(phi3 - phi5);
+  if (dphi > M_PI) dphi = 2. * M_PI - dphi;
+  if (pow2(y3 - y5) + pow2(dphi) < R2sepMin) return false;
+  dphi   = abs(phi4 - phi5);
+  if (dphi > M_PI) dphi = 2. * M_PI - dphi;
+  if (pow2(y4 - y5) + pow2(dphi) < R2sepMin) return false;
+
+  // Reconstruct all four-vectors.
+  pH[3]  = pT3 * Vec4( cos(phi3), sin(phi3), sinh(y3), cosh(y3) );
+  pH[4]  = pT4 * Vec4( cos(phi4), sin(phi4), sinh(y4), cosh(y4) );
+  pH[5]  = pT5 * Vec4( cos(phi5), sin(phi5), sinh(y5), cosh(y5) );
+  pInSum = pH[3] + pH[4] + pH[5];
+
+  // Check that x values physical and sHat in allowed range.
+  x1H    = (pInSum.e() + pInSum.pz()) /  eCM;
+  x2H    = (pInSum.e() - pInSum.pz()) /  eCM;
+  if (x1H >= 1. || x2H >= 1.) return false;
+  sH     = pInSum.m2Calc(); 
+  if ( sH < pow2(mHatGlobalMin) || 
+    (mHatGlobalMax > mHatGlobalMin && sH > pow2(mHatGlobalMax)) ) 
+    return false;
+
+  // Boost four-vectors to rest frame of collision.
+  betaZ  = (x1H - x2H)/(x1H + x2H);   
+  p3cm   = pH[3];    p3cm.bst( 0., 0., -betaZ);  
+  p4cm   = pH[4];    p4cm.bst( 0., 0., -betaZ);  
+  p5cm   = pH[5];    p5cm.bst( 0., 0., -betaZ);  
+
+  // Find cross section in chosen phase space point.
+  sigmaProcessPtr->set3Kin( x1H, x2H, sH, p3cm, p4cm, p5cm, 
+    0., 0., 0., 1., 1., 1.);
+  sigmaNw = sigmaProcessPtr->sigmaPDF();
+
+  // Multiply by Jacobian. Correct for rejection of large rapidities.
+  double flux  = 1. /(8. * pow2(sH) * pow5(2. * M_PI));
+  double yRng  = 8. * y3Max * y4Max * y5Max;
+  double pTRng = pow2(M_PI) 
+    * pow4(pT3) * (1./pow2(pT3Min) - 1./pow2(pT3Max))
+    * pow2(pT5) * 2.* log(pT5Max/pT5Min); 
+  sigmaNw *= flux * yRng * pTRng / WTy;
+
+  // Allow possibility for user to modify cross section.
+  if (canModifySigma) sigmaNw 
+    *= userHooksPtr->multiplySigmaBy( sigmaProcessPtr, this, inEvent);
+
+  // Check if maximum violated.
+  newSigmaMx = false;
+  if (sigmaNw > sigmaMx) {
+    infoPtr->errorMsg("Warning in PhaseSpace2to3yyycyl::trialKin: "
+      "maximum for cross section violated");
+
+    // Violation strategy 1: increase maximum (always during initialization).
+    if (increaseMaximum || !inEvent) {
+      double violFact = SAFETYMARGIN * sigmaNw / sigmaMx;
+      sigmaMx = SAFETYMARGIN * sigmaNw; 
+      newSigmaMx = true;
+      if (showViolation) { 
+        if (violFact < 9.99) cout << fixed;
+        else                 cout << scientific;
+        cout << " PYTHIA Maximum for " << sigmaProcessPtr->name() 
+             << " increased by factor " << setprecision(3) << violFact 
+             << " to " << scientific << sigmaMx << endl;
+      }
+
+    // Violation strategy 2: weight event (done in ProcessContainer).
+    } else if (showViolation && sigmaNw > sigmaPos) { 
+      double violFact = sigmaNw / sigmaMx;
+      if (violFact < 9.99) cout << fixed;
+      else                 cout << scientific;
+      cout << " PYTHIA Maximum for " << sigmaProcessPtr->name() 
+           << " exceeded by factor " << setprecision(3) << violFact << endl;
+      sigmaPos = sigmaNw;
+    }
+  }
+
+  // Check if negative cross section.
+  if (sigmaNw < sigmaNeg) {
+    infoPtr->errorMsg("Warning in PhaseSpace2to3yyycyl::trialKin:"
+      " negative cross section set 0", "for " +  sigmaProcessPtr->name() );
+    sigmaNeg = sigmaNw;
+
+    // Optional printout of (all) violations.
+    if (showViolation) cout << " PYTHIA Negative minimum for " 
+      << sigmaProcessPtr->name() << " changed to " << scientific 
+      << setprecision(3) << sigmaNeg << endl;
+  }
+  if (sigmaNw < 0.) sigmaNw = 0.;
+
+
+  // Done.
+  return true; 
+}
+
+//--------------------------------------------------------------------------
+
+// Construct the final kinematics of the process: not much left
+
+bool PhaseSpace2to3yyycyl::finalKin() {
+
+  // Work with massless partons.
+  for (int i = 0; i < 6; ++i) mH[i] = 0.;
+
+  // Ibncoming partons to collision.
+  pH[1] = 0.5 * (pInSum.e() + pInSum.pz()) * Vec4( 0., 0.,  1., 1.);
+  pH[2] = 0.5 * (pInSum.e() - pInSum.pz()) * Vec4( 0., 0., -1., 1.);
+
+  // Some quantities meaningless for 2 -> 3. pT devined as average value.
+  tH    = 0.;
+  uH    = 0.;
+  pTH = (pH[3].pT() + pH[4].pT() + pH[5].pT()) / 3.;
+  theta = 0.;
+  phi   = 0.;
+
+  return true; 
+}
+
 
 //==========================================================================
 

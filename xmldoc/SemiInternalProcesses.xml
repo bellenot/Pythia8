@@ -122,7 +122,9 @@ are available to be used.
 <br/>For a <ei>2 -> 2</ei> process, instead
 <ei>d(sigmaHat)/d(tHat)</ei> should be returned, based on
 provided <code>mH, sH, sH2, tH, tH2, uH, uH2, m3, s3, m4, s4</code> and 
-<code>pT2</code> values (<code>s3 = m3*m3</code> etc.). 
+<code>pT2</code> values (<code>s3 = m3*m3</code> etc.). Overload the 
+<code>convertME()</code> method below if you instead plan to return
+<ei>|M|^2</ei>.
 <br/>For a <ei>2 -> 3</ei> process, instead <ei>|M|^2</ei> should be 
 returned, with normalization such that <ei>|M|^2 / (2 sHat)</ei> integrated 
 over the three-body phase space gives the cross section. Here no standard 
@@ -157,6 +159,20 @@ than the distribution you have in mind. Also note that, already by default,
 the wings of the Breit-Wigner are oversampled (with a compensating lower 
 internal weight) by partly sampling like <ei>(a + b/m^2 + c/m^4) d(m^2)</ei>,
 where the last term is only used for <ei>gamma^*/Z^0</ei>.
+<br>As alternative to the kinematics variables defined above, to be used
+for cross section calculations, also the two arrays <code>mME[5]</code> 
+and <code>pME[5]</code> can be used, for masses and four-momenta,
+respectively. Here indices 0 and 1 are the two incoming beams, and 2
+and onwards the outgoing particles. (Note that this differs from the normal
+internal labelling, where slot 0 is left empty.) The four-momenta are 
+defined in the rest frame of the subcollision, and do not represent the 
+final kinematics. Furthermore, for <ei>2 -> 2</ei> processes of massive 
+identical particles (or antiparticles) in the final state, such as 
+<ei>t tbar</ei> or <ei>W^+ W^-</ei>, the kinematics is here adjusted 
+so that the two particles have the same mass, formed as a suitable 
+average of the actual Breit-Wigner-distributed masses. This allows the 
+evaluation of matrix-element expressions that only have meaning if the 
+two have the same mass.  
 </method>
 
 <method name="void SigmaProcess::setIdColAcol()">
@@ -271,6 +287,19 @@ is already encoded as mb then <code>convert2mb()</code> should be
 overloaded to instead return <code>false</code>.
 </method>
 
+<method name="bool SigmaProcess::convertME()">
+it is assumed that <ei>2 -> 2</ei> cross sections are encoded as 
+<ei>d(sigmaHat)/d(tHat)</ei> in the <code>SigmaProcess::sigmaHat()</code>
+methods. If <code>convertME()</code> is overloaded to instead return 
+<code>true</code> then the return value is instead assumed to be the
+squared matrix element <ei>|M|^2</ei>, and 
+<code>SigmaProcess::sigmaHatWrap(...)</code> converts to 
+<ei>d(sigmaHat)/d(tHat)</ei>.
+This switch has no effect on <ei>2 -> 1</ei> and <ei>2 -> 3</ei> processes.
+In the former one always needs to encode <ei>sigmaHat(sHat)</ei>,
+in the latter always <ei>|M|^2</ei>. 
+</method>
+
 <method name="int SigmaProcess::id3Mass()"> 
 </method>
 <methodmore name="int SigmaProcess::id4Mass()"> 
@@ -307,12 +336,26 @@ default <code>false</code> to return <code>true</code>. See further the
 page on <aloc href="CouplingsAndScales">couplings and scales</aloc>.
 </method>
 
+<method name="int SigmaProcess::idSChannel()"> 
+normally no intermediate state is shown in the event record for  
+<ei>2 -> 2</ei> and <ei>2 -> 3</ei> processes. However, in case 
+that <code>idSChannel</code> is overloaded to return a nonzero value,
+an intermediate particle with that identity code is inserted into the
+event record, to make it a <ei>2 -> 1 -> 2</ei> or <ei>2 -> 1 -> 3</ei>
+process. Thus if both <code>isSChannel</code> and <code>idSChannel</code>
+are overloaded, a process will behave and look like it proceeded through
+a resonance. The one difference is that the implementation of the 
+matrix element is not based on the division into a production and a
+decay of an intermediate resonance, but is directly describing the 
+transition from the initial to the final state. 
+</method>
+
 <method name="int SigmaProcess::idTchan1()">
 </method>
 <methodmore name="int SigmaProcess::idTchan2()">
-the <ei>2 -> 3</ei> phase space selection machinery is rather primitive,
-as already mentioned. The efficiency can be improved in processes that
-proceed though <ei>t</ei>-channel exchanges, such as 
+the non-QCD <ei>2 -> 3</ei> phase space selection machinery is rather 
+primitive, as already mentioned. The efficiency can be improved in 
+processes that proceed though <ei>t</ei>-channel exchanges, such as 
 <ei>q qbar' -> H^0 q qbar'</ei> via <ei>Z^0 Z^0</ei> fusion, if the identity 
 of the  <ei>t</ei>-channel-exchanged particles on the two side of the 
 event are provided. Only the absolute value is of interest.

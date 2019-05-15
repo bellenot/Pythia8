@@ -215,11 +215,17 @@ a <ei>2 -> 2</ei> process.
 <h3>Event weight and activity</h3>
 
 <method name="double Info::weight()"> 
-weight assigned to the current event. Is normally 1 and thus uninteresting. 
-However, for Les Houches events some strategies allow negative weights, 
-which then after unweighting lead to events with weight -1. There are also 
-strategies where no unweighting is done, and therefore a nontrivial event 
-weight must be used e.g. when filling histograms. 
+weight assigned to the current event. Is normally 1 and thus uninteresting.
+However, in case of the <code><aloc href="PhaseSpaceCuts">
+PhaseSpace:increaseMaximum = off</aloc></code> default strategy,
+an event with a differential cross-section above the assumed one 
+(in a given phase-space point) is assigned a weight correspondingly
+above unity. This should happen only very rarely, if at all, and so
+could normally be disregarded. For Les Houches events some strategies 
+allow negative weights, which then after unweighting lead to events 
+with weight -1. There are also Les Houches strategies where no unweighting 
+is done, and therefore a nontrivial event weight must be used e.g. 
+when filling histograms. 
 </method>
 
 <method name="int Info::nISR()"> 
@@ -241,6 +247,12 @@ Maximum <ei>pT</ei> scales set for MI, ISR and FSR, given the
 process type and scale choice for the hard interactions. The actual
 evolution will run down from these scales.
 </methodmore>
+
+<method name="double Info::pTnow()">
+The current <ei>pT</ei> scale in the combined MI, ISR and FSR evolution.
+Useful for classification in <aloc href="UserHooks">user hooks</aloc>,
+but not once the event has been evolved.  
+</method>
 
 <h3>Multiple interactions</h3>
 
@@ -428,7 +440,7 @@ that therefore are free to use, with the help of the two methods below.
 
 <method name="void Info::setCounter(int i, int value = 0)">
 set the above counters to a given value. Only to be used by you 
-for the unassigned counters 30 - 39.
+for the unassigned counters 40 - 49.
 <argument name="i"> the counter number, see above.
 </argument>
 <argument name="value" default="0"> set the counter to this number;
@@ -437,7 +449,7 @@ normally the default value is what you want.
 
 <method name="void Info::addCounter(int i, int value = 0)">
 increase the above counters by a given amount. Only to be used by you 
-for the unassigned counters 30 - 39.
+for the unassigned counters 40 - 49.
 <argument name="i"> the counter number, see above.
 </argument>
 <argument name="value" default="1"> increase the counter by this amount;

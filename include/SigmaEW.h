@@ -634,7 +634,7 @@ public:
 private:
 
   // Store W+- mass and width, and couplings.
-  double mW, widW, mWS, mwWS, sin2thetaW, cos2thetaW, thetaWRat, 
+  double mW, widW, mWS, mwWS, sin2thetaW, cos2thetaW, thetaWRat, cotT,
          thetaWpt, thetaWmm, lun, lde, sigma0, openFracPos, openFracNeg;
 
 };
@@ -668,8 +668,8 @@ public:
   // Info on the subprocess.
   virtual string name()       const {return "f fbar -> W+ W-";}
   virtual int    code()       const {return 233;}
-  virtual int    id3Mass()    const {return 24;}
   virtual string inFlux()     const {return "ffbarSame";}
+  virtual int    id3Mass()    const {return 24;}
   virtual int    id4Mass()    const {return -24;}
   virtual int    resonanceA() const {return 23;}
 
@@ -1009,6 +1009,44 @@ private:
 
   // Values stored for later use.
   double sigma0, openFracPos, openFracNeg;
+
+};
+//==========================================================================
+
+// A derived class for gamma gamma -> f fbar.
+
+class Sigma2gmgm2ffbar : public Sigma2Process {
+
+public:
+
+  // Constructor.
+  Sigma2gmgm2ffbar(int idIn, int codeIn) : idNew(idIn), codeSave(codeIn) {}
+
+  // Initialize process. 
+  virtual void initProc();
+
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
+
+  // Evaluate d(sigmaHat)/d(tHat). 
+  virtual double sigmaHat() {return sigma;}
+
+  // Select flavour, colour and anticolour.
+  virtual void setIdColAcol();
+
+  // Info on the subprocess.
+  virtual string name()    const {return nameSave;}
+  virtual int    code()    const {return codeSave;}
+  virtual string inFlux()  const {return "gmgm";}
+  virtual int    id3Mass() const {return idMass;}
+  virtual int    id4Mass() const {return idMass;}
+
+private:
+
+  // Member variables.
+  int    idNew, codeSave, idMass, idNow;
+  string nameSave;
+  double ef4, s34Avg, sigTU, sigma, openFracPair;
 
 };
  

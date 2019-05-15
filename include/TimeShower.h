@@ -99,6 +99,10 @@ public:
     int beamOffsetIn = 0) {beamAPtr = beamAPtrIn; beamBPtr = beamBPtrIn;
     beamOffset = beamOffsetIn;}
 
+  // Find whether to limit maximum scale of emissions, and whether to dampen.
+  virtual bool limitPTmax( Event& event, double Q2Fac = 0., 
+    double Q2Ren = 0.);
+
   // Potential enhancement factor of pTmax scale for hardest emission.
   double enhancePTmax() {return pTmaxFudge;}
 
@@ -110,7 +114,7 @@ public:
   double pTLastInShower() {return pTLastBranch;}
 
   // Prepare system for evolution after each new interaction; identify ME.
-  virtual void prepare( int iSys, Event& event);
+  virtual void prepare( int iSys, Event& event, bool limitPTmaxIn = true);
 
   // Update dipole list after a multiple interactions rescattering.
   virtual void rescatterUpdate( int iSys, Event& event);
@@ -174,11 +178,11 @@ private:
   // Initialization data, normally only set once.
   bool   doQCDshower, doQEDshowerByQ, doQEDshowerByL, doQEDshowerByGamma, 
          doMEcorrections, doPhiPolAsym, doInterleave, allowBeamRecoil,
-         allowRescatter, canVetoEmission, doHVshower;
-  int    alphaSorder, nGluonToQuark, alphaEMorder, nGammaToQuark, 
-         nGammaToLepton, nCHV;
-  double mc, mb, m2c, m2b, alphaSvalue, alphaS2pi, Lambda3flav, 
-         Lambda4flav, Lambda5flav, Lambda3flav2, Lambda4flav2, 
+         dampenBeamRecoil, allowRescatter, canVetoEmission, doHVshower;
+  int    pTmaxMatch, pTdampMatch, alphaSorder, nGluonToQuark, 
+         alphaEMorder, nGammaToQuark, nGammaToLepton, nCHV;
+  double pTdampFudge, mc, mb, m2c, m2b, alphaSvalue, alphaS2pi, 
+         Lambda3flav, Lambda4flav, Lambda5flav, Lambda3flav2, Lambda4flav2, 
          Lambda5flav2, pTcolCutMin, pTcolCut, pT2colCut, pTchgQCut, 
          pT2chgQCut, pTchgLCut, pT2chgLCut, mMaxGamma, m2MaxGamma, 
          octetOniumFraction, octetOniumColFac, mZ, gammaZ, thetaWRat,
@@ -188,6 +192,10 @@ private:
   AlphaStrong alphaS;
   AlphaEM     alphaEM;
 
+  // Some current values.
+  bool   dopTdamp;
+  double pT2damp;
+
   // All dipole ends and a pointer to the selected hardest dipole end.
   vector<TimeDipoleEnd> dipEnd;
   TimeDipoleEnd* dipSel;
@@ -195,9 +203,10 @@ private:
 
   // Setup a dipole end, either QCD, QED/photon or Hidden Valley one.
   void setupQCDdip( int iSys, int i, int colTag,  int colSign, Event& event,
-    bool isOctetOnium = false);
-  void setupQEDdip( int iSys, int i, int chgType, int gamType, Event& event); 
-  void setupHVdip( int iSys, int i, Event& event); 
+    bool isOctetOnium = false, bool limitPTmaxIn = true);
+  void setupQEDdip( int iSys, int i, int chgType, int gamType, Event& event, 
+    bool limitPTmaxIn = true); 
+  void setupHVdip( int iSys, int i, Event& event, bool limitPTmaxIn = true); 
 
   // Evolve a QCD dipole end. 
   void pT2nextQCD( double pT2begDip, double pT2sel, TimeDipoleEnd& dip,
@@ -215,7 +224,7 @@ private:
   void findMEtype( Event& event, TimeDipoleEnd& dip);
 
   // Find type of particle; used by findMEtype.
-  int findMEparticle( int id);
+  int findMEparticle( int id, bool isHiddenColour = false);
 
   // Find mixture of V and A in gamma/Z: energy- and flavour-dependent. 
   double gammaZmix( Event& event, int iRes, int iDau1, int iDau2);

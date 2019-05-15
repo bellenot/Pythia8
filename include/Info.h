@@ -113,6 +113,9 @@ public:
   double pTmaxISR()       const {return pTmaxISRSave;}
   double pTmaxFSR()       const {return pTmaxFSRSave;}
 
+  // Current evolution scale (for UserHooks).
+  double pTnow()          const {return pTnowSave;}
+
   // Impact parameter picture.
   double bMI()            const {return (bIsSet) ? bMISave : 1.;}
   double enhanceMI()      const {return (bIsSet) ? enhanceMISave : 1.;}
@@ -178,7 +181,7 @@ private:
   double x1Save, x2Save, pdf1Save, pdf2Save, Q2FacSave, alphaEMSave, 
          alphaSSave, Q2RenSave, sH, tH, uH, pTH, m3H, m4H, thetaH, phiH, 
          weightSave, bMISave, enhanceMISave, pTmaxMISave, pTmaxISRSave, 
-         pTmaxFSRSave;
+         pTmaxFSRSave, pTnowSave;
   string nameSave, nameSubSave;
   vector<int>    codeMISave, iAMISave, iBMISave;
   vector<double> pTMISave;
@@ -262,6 +265,9 @@ private:
     pTmaxFSRSave = pTmaxFSRIn; nMISave = nMIIn; nISRSave = nISRIn; 
     nFSRinProcSave = nFSRinProcIn; nFSRinResSave = nFSRinResIn; 
     evolIsSet = true;}
+
+  // Set current pT evolution scale for MI/ISR/FSR; from PartonLevel.
+  void setPTnow( double pTnowIn) {pTnowSave = pTnowIn;}
 
   // Set info whether reading of Les Houches Accord file at end.
   void setEndOfFile( bool atEOFin) {atEOF = atEOFin;}

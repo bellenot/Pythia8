@@ -231,11 +231,13 @@ bool PartonLevel::next( Event& process, Event& event) {
       }
     }
 
-    // Check matching of process scale to maximum ISR/MI scales. 
+    // Check matching of process scale to maximum ISR/FSR/MI scales. 
     double Q2Fac       = infoPtr->Q2Fac(); 
     double Q2Ren       = infoPtr->Q2Ren(); 
     bool limitPTmaxISR = (doISR) 
       ? spacePtr->limitPTmax( event, Q2Fac, Q2Ren) : false;
+    bool limitPTmaxFSR = (doFSRduringProcess) 
+      ? timesPtr->limitPTmax( event, Q2Fac, Q2Ren) : false;
     bool limitPTmaxMI  = (doMI)  ? multiPtr->limitPTmax( event) : false;
 
     // Set hard scale, maximum for showers and multiple interactions,
@@ -244,7 +246,8 @@ bool PartonLevel::next( Event& process, Event& event) {
     double pTmaxMI  = (limitPTmaxMI)  ? pTscale : infoPtr->eCM();
     double pTmaxISR = (limitPTmaxISR) ? spacePtr->enhancePTmax() * pTscale 
                                       : infoPtr->eCM();
-    double pTmaxFSR = timesPtr->enhancePTmax() * pTscale;
+    double pTmaxFSR = (limitPTmaxFSR) ? timesPtr->enhancePTmax() * pTscale 
+                                      : infoPtr->eCM();
     double pTmax    = max( pTmaxMI, max( pTmaxISR, pTmaxFSR) );
     pTsaveMI        = pTmaxMI;
     pTsaveISR       = pTmaxISR;
@@ -253,9 +256,10 @@ bool PartonLevel::next( Event& process, Event& event) {
     // Prepare the classes to begin the generation.
     if (doMI)  multiPtr->prepare( pTmaxMI);
     if (doISR) spacePtr->prepare( 0, event, limitPTmaxISR);
-    if (doFSRduringProcess) timesPtr->prepare( 0, event);
+    if (doFSRduringProcess) timesPtr->prepare( 0, event, limitPTmaxFSR);
     if (doSecondHard && doISR) spacePtr->prepare( 1, event, limitPTmaxISR);
-    if (doSecondHard && doFSRduringProcess) timesPtr->prepare( 1, event);
+    if (doSecondHard && doFSRduringProcess) 
+      timesPtr->prepare( 1, event, limitPTmaxFSR);
 
     // Set up initial veto scale.
     doVeto        = false;
@@ -279,10 +283,11 @@ bool PartonLevel::next( Event& process, Event& event) {
       pTgen = max( pTgen, pTmulti);
       double pTspace = (doISR) 
         ? spacePtr->pTnext( event, pTmaxISR, pTgen, nRad) : -1.;
+      double pTnow = max( pTtimes, max( pTmulti, pTspace));
+      infoPtr->setPTnow( pTnow);
 
       // Allow a user veto. Only do it once, so remember to change pTveto.
-      if (pTveto > 0. && pTveto > pTmulti && pTveto > pTspace 
-        && pTveto > pTtimes) {
+      if (pTveto > 0. && pTveto > pTnow) {
         pTveto = -1.; 
         doVeto = userHooksPtr->doVetoPT( typeLatest, event);
         // Abort event if vetoed.
@@ -408,6 +413,7 @@ bool PartonLevel::next( Event& process, Event& event) {
         infoPtr->addCounter(29);
         typeVetoStep = 0;
         double pTtimes = timesPtr->pTnext( event, pTmax, 0.);
+        infoPtr->setPTnow( pTtimes);
 
         // Allow a user veto. Only do it once, so remember to change pTveto.
         if (pTveto > 0. && pTveto > pTtimes) {

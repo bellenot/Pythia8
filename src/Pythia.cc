@@ -539,7 +539,8 @@ bool Pythia::initInternal() {
   doVetoPartons = (hasUserHooks) 
                 ? userHooksPtr->canVetoPartonLevel() : false;
   if (hasUserHooks) userHooksPtr->initPtr( &info, &settings, &particleData,
-    &partonSystems); 
+    &rndm, &beamA, &beamB, &beamPomA, &beamPomB, &coupSM, &partonSystems, 
+    &sigmaTot); 
 
   // Set up objects for timelike and spacelike showers.
   if (timesDecPtr == 0 || timesPtr == 0) {
@@ -713,38 +714,169 @@ void Pythia::initTunes(int eeTune, int ppTune) {
 
   // Old ISR and MI defaults from early and primitive comparisons with data.
   if (ppTune == 1) {
-    settings.parm("SpaceShower:alphaSvalue",       0.127 );  
-    settings.flag("SpaceShower:samePTasMI",        true );  
-    settings.parm("SpaceShower:pT0Ref",            2.2   );  
-    settings.parm("SpaceShower:ecmRef",            1800.0);  
-    settings.parm("SpaceShower:ecmPow",            0.16   );  
-    settings.parm("MultipleInteractions:pT0Ref",   2.15  );  
-    settings.parm("MultipleInteractions:ecmPow",   0.16  );  
-    settings.mode("MultipleInteractions:bProfile", 2     );  
-    settings.parm("BeamRemnants:primordialKTsoft", 0.4   );  
-    settings.parm("BeamRemnants:primordialKThard", 2.1   );  
-    settings.parm("BeamRemnants:halfScaleForKT",   7.0   );  
-    settings.parm("BeamRemnants:halfMassForKT",    2.0   );  
-    settings.parm("BeamRemnants:reconnectRange",   2.5   );  
+    settings.mode("PDF:pSet",                         2     );  
+    settings.parm("SigmaProcess:alphaSvalue",         0.1265);  
+    settings.parm("SigmaDiffractive:dampen",          false );  
+    settings.flag("TimeShower:dampenBeamRecoil",      false );  
+    settings.flag("TimeShower:phiPolAsym",            false );  
+    settings.parm("SpaceShower:alphaSvalue",          0.127 );  
+    settings.flag("SpaceShower:samePTasMI",           true  );  
+    settings.parm("SpaceShower:pT0Ref",               2.2   );  
+    settings.parm("SpaceShower:ecmRef",               1800.0);  
+    settings.parm("SpaceShower:ecmPow",               0.16  );  
+    settings.flag("SpaceShower:rapidityOrder",        false );  
+    settings.flag("SpaceShower:phiPolAsym",           false );  
+    settings.flag("SpaceShower:phiIntAsym",           false );  
+    settings.parm("MultipleInteractions:alphaSvalue", 0.127 );   
+    settings.parm("MultipleInteractions:pT0Ref",      2.15  );  
+    settings.parm("MultipleInteractions:ecmRef",      1800. );  
+    settings.parm("MultipleInteractions:ecmPow",      0.16  );  
+    settings.mode("MultipleInteractions:bProfile",    2     );  
+    settings.parm("BeamRemnants:primordialKTsoft",    0.4   );  
+    settings.parm("BeamRemnants:primordialKThard",    2.1   );  
+    settings.parm("BeamRemnants:halfScaleForKT",      7.0   );  
+    settings.parm("BeamRemnants:halfMassForKT",       2.0   );  
+    settings.parm("BeamRemnants:reconnectRange",      2.5   ); 
   }
   
   // "Tune 1" simple first tune by Peter Skands to ISR and MI, July 2009.
   else if (ppTune == 2) {
-    settings.parm("SpaceShower:alphaSvalue",       0.137 );  
-    settings.flag("SpaceShower:samePTasMI",        false );  
-    settings.parm("SpaceShower:pT0Ref",            2.0   );  
-    settings.parm("SpaceShower:ecmRef",            1800.0);  
-    settings.parm("SpaceShower:ecmPow",            0.0   );  
-    settings.parm("MultipleInteractions:pT0Ref",   2.25  );  
-    settings.parm("MultipleInteractions:ecmPow",   0.24  );  
-    settings.mode("MultipleInteractions:bProfile", 1     );  
-    settings.parm("BeamRemnants:primordialKTsoft", 0.5   );  
-    settings.parm("BeamRemnants:primordialKThard", 2.0   );  
-    settings.parm("BeamRemnants:halfScaleForKT",   1.0   );  
-    settings.parm("BeamRemnants:halfMassForKT",    1.0   );  
-    settings.parm("BeamRemnants:reconnectRange",   10.0  );  
+    settings.mode("PDF:pSet",                         2     );  
+    settings.parm("SigmaProcess:alphaSvalue",         0.1265);   
+    settings.parm("SigmaDiffractive:dampen",          false );  
+    settings.flag("TimeShower:dampenBeamRecoil",      false );  
+    settings.flag("TimeShower:phiPolAsym",            false );  
+    settings.parm("SpaceShower:alphaSvalue",          0.137 );  
+    settings.flag("SpaceShower:samePTasMI",           false );  
+    settings.parm("SpaceShower:pT0Ref",               2.0   );  
+    settings.parm("SpaceShower:ecmRef",               1800.0);  
+    settings.parm("SpaceShower:ecmPow",               0.0   );  
+    settings.flag("SpaceShower:rapidityOrder",        false );  
+    settings.flag("SpaceShower:phiPolAsym",           false );  
+    settings.flag("SpaceShower:phiIntAsym",           false );  
+    settings.parm("MultipleInteractions:alphaSvalue", 0.127 );   
+    settings.parm("MultipleInteractions:pT0Ref",      2.25  );  
+    settings.parm("MultipleInteractions:ecmRef",      1800. );  
+    settings.parm("MultipleInteractions:ecmPow",      0.24  );  
+    settings.mode("MultipleInteractions:bProfile",    1     );  
+    settings.parm("BeamRemnants:primordialKTsoft",    0.5   );  
+    settings.parm("BeamRemnants:primordialKThard",    2.0   );  
+    settings.parm("BeamRemnants:halfScaleForKT",      1.0   );  
+    settings.parm("BeamRemnants:halfMassForKT",       1.0   );  
+    settings.parm("BeamRemnants:reconnectRange",      10.0  );  
   }
-
+  
+  // Draft Tune 2C, July 2010.
+  else if (ppTune == 3) {
+    settings.mode("PDF:pSet",                         8     );  
+    settings.parm("SigmaProcess:alphaSvalue",         0.135 );  
+    settings.parm("SigmaDiffractive:dampen",          false );  
+    settings.flag("TimeShower:dampenBeamRecoil",      true  );  
+    settings.flag("TimeShower:phiPolAsym",            true  );  
+    settings.parm("SpaceShower:alphaSvalue",          0.137 );  
+    settings.flag("SpaceShower:samePTasMI",           false );  
+    settings.parm("SpaceShower:pT0Ref",               2.0   );  
+    settings.parm("SpaceShower:ecmRef",               1800.0);  
+    settings.parm("SpaceShower:ecmPow",               0.0   );  
+    settings.flag("SpaceShower:rapidityOrder",        true  );  
+    settings.flag("SpaceShower:phiPolAsym",           true  );  
+    settings.flag("SpaceShower:phiIntAsym",           true  );  
+    settings.parm("MultipleInteractions:alphaSvalue", 0.135 );   
+    settings.parm("MultipleInteractions:pT0Ref",      2.32  );  
+    settings.parm("MultipleInteractions:ecmRef",      1800. );  
+    settings.parm("MultipleInteractions:ecmPow",      0.21  );  
+    settings.mode("MultipleInteractions:bProfile",    3     );  
+    settings.parm("MultipleInteractions:expPow",      1.6   );  
+    settings.parm("BeamRemnants:primordialKTsoft",    0.5   );  
+    settings.parm("BeamRemnants:primordialKThard",    2.0   );  
+    settings.parm("BeamRemnants:halfScaleForKT",      1.0   );  
+    settings.parm("BeamRemnants:halfMassForKT",       1.0   );  
+    settings.parm("BeamRemnants:reconnectRange",      3.0   );  
+  }
+  
+  // Draft Tune 2M, July 2010.
+  else if (ppTune == 4) {
+    settings.mode("PDF:pSet",                         4     );  
+    settings.parm("SigmaProcess:alphaSvalue",         0.1265);  
+    settings.parm("SigmaDiffractive:dampen",          false );  
+    settings.flag("TimeShower:dampenBeamRecoil",      true  );  
+    settings.flag("TimeShower:phiPolAsym",            true  );  
+    settings.parm("SpaceShower:alphaSvalue",          0.130 );  
+    settings.flag("SpaceShower:samePTasMI",           false );  
+    settings.parm("SpaceShower:pT0Ref",               2.0   );  
+    settings.parm("SpaceShower:ecmRef",               1800.0);  
+    settings.parm("SpaceShower:ecmPow",               0.0   );  
+    settings.flag("SpaceShower:rapidityOrder",        true  );  
+    settings.flag("SpaceShower:phiPolAsym",           true  );  
+    settings.flag("SpaceShower:phiIntAsym",           true  );  
+    settings.parm("MultipleInteractions:alphaSvalue", 0.127 );   
+    settings.parm("MultipleInteractions:pT0Ref",      2.455 );  
+    settings.parm("MultipleInteractions:ecmRef",      1800. );  
+    settings.parm("MultipleInteractions:ecmPow",      0.26  );  
+    settings.mode("MultipleInteractions:bProfile",    3     );  
+    settings.parm("MultipleInteractions:expPow",      1.15  );  
+    settings.parm("BeamRemnants:primordialKTsoft",    0.5   );  
+    settings.parm("BeamRemnants:primordialKThard",    2.0   );  
+    settings.parm("BeamRemnants:halfScaleForKT",      1.0   );  
+    settings.parm("BeamRemnants:halfMassForKT",       1.0   );  
+    settings.parm("BeamRemnants:reconnectRange",      3.0   );  
+  }
+ 
+  // Draft Tune 3C, July 2010.
+  else if (ppTune == 5) {
+    settings.mode("PDF:pSet",                         8     );  
+    settings.parm("SigmaProcess:alphaSvalue",         0.135 );  
+    settings.parm("SigmaDiffractive:dampen",          true );  
+    settings.flag("TimeShower:dampenBeamRecoil",      true  );  
+    settings.flag("TimeShower:phiPolAsym",            true  );  
+    settings.parm("SpaceShower:alphaSvalue",          0.130 );  
+    settings.flag("SpaceShower:samePTasMI",           false );  
+    settings.parm("SpaceShower:pT0Ref",               2.0   );  
+    settings.parm("SpaceShower:ecmRef",               1800.0);  
+    settings.parm("SpaceShower:ecmPow",               0.0   );  
+    settings.flag("SpaceShower:rapidityOrder",        true  );  
+    settings.flag("SpaceShower:phiPolAsym",           true  );  
+    settings.flag("SpaceShower:phiIntAsym",           true  );  
+    settings.parm("MultipleInteractions:alphaSvalue", 0.135 );   
+    settings.parm("MultipleInteractions:pT0Ref",      2.10  );  
+    settings.parm("MultipleInteractions:ecmRef",      1800. );  
+    settings.parm("MultipleInteractions:ecmPow",      0.18  );  
+    settings.mode("MultipleInteractions:bProfile",    3     );  
+    settings.parm("MultipleInteractions:expPow",      1.6   );  
+    settings.parm("BeamRemnants:primordialKTsoft",    0.5   );  
+    settings.parm("BeamRemnants:primordialKThard",    2.0   );  
+    settings.parm("BeamRemnants:halfScaleForKT",      1.0   );  
+    settings.parm("BeamRemnants:halfMassForKT",       1.0   );  
+    settings.parm("BeamRemnants:reconnectRange",      3.0   );  
+  }
+  
+  // Draft Tune 3M, July 2010.
+  else if (ppTune == 6) {
+    settings.mode("PDF:pSet",                         4     );  
+    settings.parm("SigmaProcess:alphaSvalue",         0.1265);  
+    settings.parm("SigmaDiffractive:dampen",          true );  
+    settings.flag("TimeShower:dampenBeamRecoil",      true  );  
+    settings.flag("TimeShower:phiPolAsym",            true  );  
+    settings.parm("SpaceShower:alphaSvalue",          0.130 );  
+    settings.flag("SpaceShower:samePTasMI",           false );  
+    settings.parm("SpaceShower:pT0Ref",               2.0   );  
+    settings.parm("SpaceShower:ecmRef",               1800.0);  
+    settings.parm("SpaceShower:ecmPow",               0.0   );  
+    settings.flag("SpaceShower:rapidityOrder",        true  );  
+    settings.flag("SpaceShower:phiPolAsym",           true  );  
+    settings.flag("SpaceShower:phiIntAsym",           true  );  
+    settings.parm("MultipleInteractions:alphaSvalue", 0.127 );   
+    settings.parm("MultipleInteractions:pT0Ref",      2.20  );  
+    settings.parm("MultipleInteractions:ecmRef",      1800. );  
+    settings.parm("MultipleInteractions:ecmPow",      0.20  );  
+    settings.mode("MultipleInteractions:bProfile",    3     );  
+    settings.parm("MultipleInteractions:expPow",      1.15  );  
+    settings.parm("BeamRemnants:primordialKTsoft",    0.5   );  
+    settings.parm("BeamRemnants:primordialKThard",    2.0   );  
+    settings.parm("BeamRemnants:halfScaleForKT",      1.0   );  
+    settings.parm("BeamRemnants:halfMassForKT",       1.0   );  
+    settings.parm("BeamRemnants:reconnectRange",      3.0   );  
+  }
 }
 
 //--------------------------------------------------------------------------
@@ -846,7 +978,10 @@ bool Pythia::initKinematics() {
   }
  
   // Fail if CM energy below beam masses.
-  if (eCM < mA + mB) return false;
+  if (eCM < mA + mB) {
+    info.errorMsg("Error in Pythia::initKinematics: too low energy");
+    return false;
+  }
 
   // Set up CM-frame kinematics with beams along +-z axis.
   pzAcm    = 0.5 * sqrtpos( (eCM + mA + mB) * (eCM - mA - mB) 
@@ -992,6 +1127,10 @@ bool Pythia::next() {
   process.clear();
   event.clear();
   partonSystems.clear();
+  beamA.clear();
+  beamB.clear();
+  beamPomA.clear();
+  beamPomB.clear();
 
   // Can only generate event if initialization worked.
   if (!isInit) {
@@ -1105,7 +1244,7 @@ bool Pythia::next() {
         continue;
       }
       info.addCounter(17);
-
+ 
       // Optionally check final event for problems.
       if (checkEvent && !check()) {
         info.errorMsg("Error in Pythia::next: "
@@ -1665,8 +1804,9 @@ PDF* Pythia::getPDFPtr(int idIn, int sequence) {
     if (!useLHAPDF) {
       if      (pSet == 1) tempPDFPtr = new GRV94L(idIn);
       else if (pSet == 2) tempPDFPtr = new CTEQ5L(idIn);
-      else if (pSet <= 6) tempPDFPtr = new MSTWpdf(idIn, pSet - 2);
-      else                tempPDFPtr = new CTEQ6pdf(idIn, pSet - 6);
+      else if (pSet <= 6) 
+           tempPDFPtr = new MSTWpdf(idIn, pSet - 2, xmlPath, &info);
+      else tempPDFPtr = new CTEQ6pdf(idIn, pSet - 6, xmlPath, &info);
     }
     
     // Use sets from LHAPDF.
@@ -1689,8 +1829,9 @@ PDF* Pythia::getPDFPtr(int idIn, int sequence) {
     if (!useLHAPDF) {
       if      (pSet == 1) tempPDFPtr = new GRV94L(idIn);
       else if (pSet == 2) tempPDFPtr = new CTEQ5L(idIn);
-      else if (pSet <= 6) tempPDFPtr = new MSTWpdf(idIn, pSet - 2);
-      else                tempPDFPtr = new CTEQ6pdf(idIn, pSet - 6);
+      else if (pSet <= 6) 
+           tempPDFPtr = new MSTWpdf(idIn, pSet - 2, xmlPath, &info);
+      else tempPDFPtr = new CTEQ6pdf(idIn, pSet - 6, xmlPath, &info);
     }
     
     // Use sets from LHAPDF.
@@ -1726,7 +1867,8 @@ PDF* Pythia::getPDFPtr(int idIn, int sequence) {
 
   // Pomeron beam, if not treated like a pi0 beam.
   else if (idIn == 990) {
-    int pomSet = settings.mode("PDF:PomSet");
+    int    pomSet  = settings.mode("PDF:PomSet");
+    double rescale = settings.parm("PDF:PomRescale");
 
     // A generic Q2-independent parametrization.
     if (pomSet == 1) { 
@@ -1738,21 +1880,21 @@ PDF* Pythia::getPDFPtr(int idIn, int sequence) {
       double strangeSupp = settings.parm("PDF:PomStrangeSupp");
       tempPDFPtr = new PomFix( 990, gluonA, gluonB, quarkA, quarkB, 
         quarkFrac, strangeSupp);
+    }
     
     // The H1 Q2-dependent parametrizations. Initialization requires files.
-    } else if (pomSet == 3 || pomSet == 4) {
-      double rescale     = settings.parm("PDF:PomRescale");
+    else if (pomSet == 3 || pomSet == 4) 
       tempPDFPtr = new PomH1FitAB( 990, pomSet - 2, rescale, xmlPath, &info); 
-    } else if (pomSet == 5) {
-      double rescale     = settings.parm("PDF:PomRescale");
+    else if (pomSet == 5) 
       tempPDFPtr = new PomH1Jets( 990, rescale, xmlPath, &info); 
-    } 
+    else if (pomSet == 6) 
+      tempPDFPtr = new PomH1FitAB( 990, 3, rescale, xmlPath, &info); 
   }
 
   // Lepton beam; resolved or not.
   else if (abs(idIn) > 10 && abs(idIn) < 17) {
     if (settings.flag("PDF:lepton") && abs(idIn)%2 == 1) 
-      tempPDFPtr = new Lepton(idIn);
+         tempPDFPtr = new Lepton(idIn);
     else tempPDFPtr = new LeptonPoint(idIn);
   }
 

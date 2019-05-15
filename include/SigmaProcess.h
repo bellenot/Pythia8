@@ -134,7 +134,8 @@ public:
 
   // Wrapper to sigmaHat, to (a) store current incoming flavours and 
   // (b) convert from GeV^-2 to mb where required.
-  double sigmaHatWrap(int id1in = 0, int id2in = 0) {
+  // For 2 -> 2 also (c) convert from from |M|^2 to d(sigmaHat)/d(tHat).
+  virtual double sigmaHatWrap(int id1in = 0, int id2in = 0) {
     id1 = id1in; id2 = id2in; 
     return ( convert2mb() ? CONVERT2MB * sigmaHat() : sigmaHat() ); }
 
@@ -174,6 +175,9 @@ public:
   // Need to know whether to convert cross section answer from GeV^-2 to mb.
   virtual bool   convert2mb()      const {return true;}
 
+  // For 2 -> 2 process optional conversion from |M|^2 to d(sigmaHat)/d(tHat).
+  virtual bool   convertM2()       const {return false;}
+
   // Special treatment needed for Les Houches processes.
   virtual bool   isLHA()           const {return false;}
 
@@ -203,9 +207,11 @@ public:
   // 2 -> 2 and 2 -> 3 processes only through s-channel exchange.
   virtual bool   isSChannel()      const {return false;}
 
-  // Insert an intermediate resonance in 2 -> 1 -> 2 listings.
-  // Not coded yet; proposed by Noam Hod and Mark Sutton.
-  //virtual int    resonanceToList() const {return 0;}
+  // NOAM: Insert an intermediate resonance in 2 -> 1 -> 2 (or 3) listings.
+  virtual int    idSChannel()      const {return 0;}
+
+  // QCD 2 -> 3 processes need special phase space selection machinery.
+  virtual bool   isQCD3body()      const {return false;}
 
   // Special treatment in 2 -> 3 with two massive propagators.
   virtual int    idTchan1()        const {return 0;}
@@ -319,6 +325,10 @@ protected:
   int      idSave[6], colSave[6], acolSave[6];
   double   mSave[6], cosTheta, sinTheta, phi, sHMass, sHBeta, pT2Mass, pTFin;
   Particle parton[6];
+
+  // Store modified masses and four-vectors intended for matrix elements.
+  double   mME[5];
+  Vec4     pME[5];
 
   // Store whether tHat and uHat are swapped (= same as swap 3 and 4).
   bool swapTU;
@@ -450,6 +460,14 @@ public:
 
   // Evaluate d(sigmaHat)/d(tHat) for resolved 2 -> 2 processes. 
   virtual double sigmaHat() {return 0.;}
+
+  // Wrapper to sigmaHat, to (a) store current incoming flavours, 
+  // (b) convert from GeV^-2 to mb where required, and
+  // (c) convert from from |M|^2 to d(sigmaHat)/d(tHat) where required.
+  virtual double sigmaHatWrap(int id1in = 0, int id2in = 0) {
+    id1 = id1in; id2 = id2in; double sigmaTmp = sigmaHat(); 
+    if (convertM2())  sigmaTmp /= 16. * M_PI * sH2; 
+    if (convert2mb()) sigmaTmp *= CONVERT2MB; return sigmaTmp;}
 
   // Perform kinematics for a Multiple Interaction, in its rest frame.
   virtual bool   final2KinMI( int i1Res = 0, int i2Res = 0, Vec4 p1Res = 0., 

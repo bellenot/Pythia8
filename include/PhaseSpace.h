@@ -146,7 +146,8 @@ protected:
   LHAup*        lhaUpPtr;
 
   // Initialization data, normally only set once.
-  bool   useBreitWigners, doEnergySpread, showSearch, showViolation;
+  bool   useBreitWigners, doEnergySpread, showSearch, showViolation,
+         increaseMaximum;
   int    gmZmodeGlobal;
   double mHatGlobalMin, mHatGlobalMax, pTHatGlobalMin, pTHatGlobalMax, 
          pTHatMinDiverge, minWidthBreitWigners;
@@ -155,10 +156,11 @@ protected:
   int    idA, idB;
   double mA, mB, eCM, s; 
   bool   hasLeptonBeams, hasPointLeptons;
+
  // Cross section information.
   bool   newSigmaMx, canModifySigma;
   int    gmZmode;
-  double wtBW, sigmaNw, sigmaMx, sigmaNeg;
+  double wtBW, sigmaNw, sigmaMx, sigmaPos, sigmaNeg;
 
   // Process-specific kinematics properties, almost always available.
   double mHatMin, mHatMax, sHatMin, sHatMax, pTHatMin, pTHatMax, 
@@ -433,6 +435,41 @@ private:
 
 };
  
+//==========================================================================
+
+// A derived class with 2 -> 3 kinematics 1 + 2 -> 3 + 4 + 5 set up in 
+// y3, y4, y5, pT2_3, pT2_5, phi_3 and phi_5, and with R separation cut.
+// Intended specifically for (essentially massless) 2 -> 3 QCD processes.
+
+class PhaseSpace2to3yyycyl : public PhaseSpace {
+
+public:
+
+  // Constructor.
+  PhaseSpace2to3yyycyl() {}
+
+  // Optimize subsequent kinematics selection.
+  virtual bool setupSampling(); 
+
+  // Construct the trial kinematics.
+  virtual bool trialKin(bool inEvent = true, bool = false); 
+
+  // Construct the final event kinematics.
+  virtual bool finalKin();
+
+private:
+
+  // Phase space cuts specifically for 2 -> 3 QCD processes.
+  double pTHat3Min, pTHat3Max, pTHat5Min, pTHat5Max, RsepMin, R2sepMin;
+  bool   hasBaryonBeams;
+
+  // Event kinematics choices.
+  double pT3Min, pT3Max, pT5Min, pT5Max, y3Max, y4Max, y5Max,
+         pT3, pT4, pT5, phi3, phi4, phi5, y3, y4, y5, dphi;
+  Vec4   pInSum;
+
+};
+
 //==========================================================================
 
 // A derived class for Les Houches events. 

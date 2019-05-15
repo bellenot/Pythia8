@@ -170,6 +170,7 @@ is a string with the title of the histogram at output,
   
 <br/><code>argument</code><strong> numberOfBins </strong>  :  
 is the number of bin the <i>x</i> range will be subdivided into, 
+limited to be at most 1000,
   
 <br/><code>argument</code><strong> xMin </strong>  :  
 is the lower edge of the histogram,
@@ -229,8 +230,12 @@ is the amount of weight to be added at this <i>x</i> value.
 <p/><strong>friend ostream& operator<<(ostream& os, const Hist& h) &nbsp;</strong> <br/>
 appends a simple histogram printout (see above for format) to the 
 <code>ostream</code>, while leaving the histogram object itself
-
-unchanged.
+unchanged. At most 100 columns are allowed to be displayed. 
+If the number of bins is larger than 100 then the contents of 
+adjacent bins are added to give the value in each column. (Two by two
+up to 200 bins, three by three up to 300, and so on, with the very
+last column possibly summing fewer rows than the others.) 
+  
 
 <a name="method11"></a>
 <p/><strong>void Hist::table(ostream& os = cout) &nbsp;</strong> <br/>
@@ -266,9 +271,10 @@ same as in the histogram in the argument.
 
 <a name="method15"></a>
 <p/><strong>void Hist::takeLog(bool tenLog = true) &nbsp;</strong> <br/>
-by default take 10-logarithm of contents bin by bin, with optional
-argument <code>false</code> instead take <i>e</i>-logarithm of 
-contents bin by bin. 
+by default take 10-logarithm of current contents bin by bin. With 
+optional argument <code>false</code> instead take <i>e</i>-logarithm 
+of contents bin by bin. If to be used, then right before the
+histogram is output. 
   
 
 <a name="method16"></a>

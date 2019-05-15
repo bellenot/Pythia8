@@ -57,10 +57,14 @@ bool ProcessContainer::init(bool isFirst, Info* infoPtrIn,
   isResolved  = sigmaProcessPtr->isResolved();
   isDiffA     = sigmaProcessPtr->isDiffA();
   isDiffB     = sigmaProcessPtr->isDiffB();
+  isQCD3body  = sigmaProcessPtr->isQCD3body();
   int nFin    = sigmaProcessPtr->nFinal();
   lhaStrat    = (isLHA) ? lhaUpPtr->strategy() : 0;
   lhaStratAbs = abs(lhaStrat);
   allowNegSig = sigmaProcessPtr->allowNegativeSigma();
+
+  // Flag for maximum violation handling.
+  increaseMaximum = settings.flag("PhaseSpace:increaseMaximum");
 
   // Pick and create phase space generator. Send pointers where required.
   if      (isLHA)       phaseSpacePtr = new PhaseSpaceLHA();
@@ -71,6 +75,7 @@ bool ProcessContainer::init(bool isFirst, Info* infoPtrIn,
                                         isDiffA, isDiffB);
   else if (nFin == 1)   phaseSpacePtr = new PhaseSpace2to1tauy();
   else if (nFin == 2)   phaseSpacePtr = new PhaseSpace2to2tauyz();
+  else if (isQCD3body)  phaseSpacePtr = new PhaseSpace2to3yyycyl();
   else                  phaseSpacePtr = new PhaseSpace2to3tauycyl();
 
   // Store pointers and perform simple initialization.
@@ -151,6 +156,8 @@ bool ProcessContainer::trialProcess() {
 
     // Tell if this event comes with negative weight, or weight at all.
     double weight = 1.;
+    if (!isLHA && !increaseMaximum && sigmaNow > sigmaMx) 
+      weight = sigmaNow / sigmaMx;
     if ( lhaStrat < 0 && sigmaNow < 0.) weight = -1.;
     if ( lhaStratAbs == 4) weight = sigmaNow;
     infoPtr->setWeight( weight);
@@ -182,6 +189,7 @@ bool ProcessContainer::trialProcess() {
   }
  
 }
+
 
 //--------------------------------------------------------------------------
   
@@ -219,7 +227,20 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
   double scale = 0.;
 
   // Insert the subprocess partons - resolved processes.
+  int idRes = sigmaProcessPtr->idSChannel();
   if (isResolved && !isLHA) {
+
+    // NOAM: Mothers and daughters without/with intermediate state.
+    int m_M1 = 3; 
+    int m_M2 = 4; 
+    int m_D1 = 5; 
+    int m_D2 = 4 + nFin;
+    if (idRes != 0) { 
+      m_M1   = 5;
+      m_M2   = 0;
+      m_D1   = 5;  
+      m_D2   = 0; 
+    }
 
     // Find scale from which to begin MI/ISR/FSR evolution. 
     scale = sqrt(Q2Fac());
@@ -230,21 +251,54 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
     for (int i = 1; i <= 2 + nFin; ++i) { 
 
       // Read out particle info from SigmaProcess object.
-      int id = sigmaProcessPtr->id(i);
-      int status = (i <= 2) ? -21 : 23;
-      int mother1 = (i <= 2) ? i : 3;
-      int mother2 = (i <= 2) ? 0 : 4;
-      int daughter1 = (i <= 2) ? 5 : 0;
-      int daughter2 = (i <= 2) ? 4 + nFin : 0;
-      int col = sigmaProcessPtr->col(i);
+      int id        = sigmaProcessPtr->id(i);
+      int status    = (i <= 2) ? -21 : 23;
+      int mother1   = (i <= 2) ? i : m_M1 ;
+      int mother2   = (i <= 2) ? 0 : m_M2 ;
+      int daughter1 = (i <= 2) ? m_D1 : 0;
+      int daughter2 = (i <= 2) ? m_D2 : 0;
+      int col       = sigmaProcessPtr->col(i);
       if (col > 0) col += colOffset;
-      int acol = sigmaProcessPtr->acol(i);
+      int acol      = sigmaProcessPtr->acol(i);
       if (acol > 0) acol += colOffset;
 
       // Append to process record.
       int iNow = process.append( id, status, mother1, mother2, 
         daughter1, daughter2, col, acol, phaseSpacePtr->p(i), 
         phaseSpacePtr->m(i), scale);
+
+      // NOAM: If there is an intermediate state, insert the it in 
+      // the process record after the two incoming particles.
+      if (i == 2 && idRes != 0) {
+
+        // Sign of intermediate state: go by charge. 
+        if (particleDataPtr->hasAnti(idRes)
+          && process[3].chargeType() + process[4].chargeType() < 0) 
+          idRes *= -1;
+
+        // The colour configuration of the intermediate state has to be 
+        // resolved separately.
+        col         = 0;
+        acol        = 0;
+        int m_col1  = sigmaProcessPtr->col(1); 
+        int m_acol1 = sigmaProcessPtr->acol(1);
+        int m_col2  = sigmaProcessPtr->col(2); 
+        int m_acol2 = sigmaProcessPtr->acol(2);
+        if (m_col1 == m_acol2 && m_col2 != m_acol1) { 
+          col       = m_col2; 
+          acol       = m_acol1; 
+        } else if (m_col2 == m_acol1 && m_col1 != m_acol2) { 
+          col        = m_col1; 
+          acol       = m_acol2; 
+        }
+        if (col > 0)  col  += colOffset;
+        if (acol > 0) acol += colOffset;
+
+        // Insert the intermediate state into the event record.
+        Vec4 pIntMed = phaseSpacePtr->p(1) + phaseSpacePtr->p(2);
+        process.append( idRes, -22, 3, 4,  6, 5 + nFin, col, acol, 
+          pIntMed, pIntMed.mCalc(), scale);
+      }
       
       // Pick lifetime where relevant, else not.
       if (process[iNow].tau0() > 0.) process[iNow].tau(
@@ -638,7 +692,50 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs,
     sigmaPtr = new Sigma2qqbar2QQbar(5, 124);
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   } 
-
+ 
+  // Set up requested objects for hard QCD 2 -> 3 processes.
+  bool hardQCD3parton = settings.flag("HardQCD:3parton");
+  if (hardQCD3parton || settings.flag("HardQCD:gg2ggg")) {
+    sigmaPtr = new Sigma3gg2ggg;
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (hardQCD3parton || settings.flag("HardQCD:qqbar2ggg")) {
+    sigmaPtr = new Sigma3qqbar2ggg;
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (hardQCD3parton || settings.flag("HardQCD:qg2qgg")) {
+    sigmaPtr = new Sigma3qg2qgg;
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }
+  if (hardQCD3parton || settings.flag("HardQCD:qq2qqgDiff")) {
+    sigmaPtr = new Sigma3qq2qqgDiff;
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }
+  if (hardQCD3parton || settings.flag("HardQCD:qq2qqgSame")) {
+    sigmaPtr = new Sigma3qq2qqgSame;
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }
+  if (hardQCD3parton || settings.flag("HardQCD:qqbar2qqbargDiff")) {
+    sigmaPtr = new Sigma3qqbar2qqbargDiff;
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }
+  if (hardQCD3parton || settings.flag("HardQCD:qqbar2qqbargSame")) {
+    sigmaPtr = new Sigma3qqbar2qqbargSame;
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }
+  if (hardQCD3parton || settings.flag("HardQCD:gg2qqbarg")) {
+    sigmaPtr = new Sigma3gg2qqbarg;
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }
+  if (hardQCD3parton || settings.flag("HardQCD:qg2qqqbarDiff")) {
+    sigmaPtr = new Sigma3qg2qqqbarDiff;
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }
+  if (hardQCD3parton || settings.flag("HardQCD:qg2qqqbarSame")) {
+    sigmaPtr = new Sigma3qg2qqqbarSame;
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }
+ 
   // Set up requested objects for prompt photon processes.
   bool promptPhotons = settings.flag("PromptPhoton:all");
   if (promptPhotons
@@ -758,6 +855,33 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs,
   if (weakBosonAndPartons
     || settings.flag("WeakBosonAndParton:fgm2Wf")) {
     sigmaPtr = new Sigma2fgm2Wf;
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  
+  // Set up requested objects for photon collision processes.
+  bool photonCollisions = settings.flag("PhotonCollision:all");
+  if (photonCollisions || settings.flag("PhotonCollision:gmgm2qqbar")) {
+    sigmaPtr = new Sigma2gmgm2ffbar(1, 261);
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (photonCollisions || settings.flag("PhotonCollision:gmgm2ccbar")) {
+    sigmaPtr = new Sigma2gmgm2ffbar(4, 262);
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (photonCollisions || settings.flag("PhotonCollision:gmgm2bbbar")) {
+    sigmaPtr = new Sigma2gmgm2ffbar(5, 263);
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (photonCollisions || settings.flag("PhotonCollision:gmgm2ee")) {
+    sigmaPtr = new Sigma2gmgm2ffbar(11, 264);
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (photonCollisions || settings.flag("PhotonCollision:gmgm2mumu")) {
+    sigmaPtr = new Sigma2gmgm2ffbar(13, 265);
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (photonCollisions || settings.flag("PhotonCollision:gmgm2tautau")) {
+    sigmaPtr = new Sigma2gmgm2ffbar(15, 266);
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   } 
   
@@ -939,6 +1063,10 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs,
   } 
   if (tops || settings.flag("Top:ffbar2tqbar(s:W)")) {
     sigmaPtr = new Sigma2ffbar2FfbarsW(6, 0, 605);
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (tops || settings.flag("Top:gmgm2ttbar")) {
+    sigmaPtr = new Sigma2gmgm2ffbar(6, 606);
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   } 
   
@@ -1697,6 +1825,16 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs,
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   } 
 
+  // Set up requested objects for contact interaction processes.
+  if (settings.flag("ContactInteractions:QCqq2qq")) {
+    sigmaPtr = new Sigma2QCqq2qq();
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (settings.flag("ContactInteractions:QCqqbar2qqbar")) {
+    sigmaPtr = new Sigma2QCqqbar2qqbar();
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+
   // Set spin of particles in the Hidden Valley scenario.
   int spinFv = settings.mode("HiddenValley:spinFv");
   for (int i = 1; i < 7; ++i) {
@@ -1705,9 +1843,14 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs,
     if (particleDataPtr->spinType( 4900010 + i) != spinFv + 1) 
         particleDataPtr->spinType( 4900010 + i,    spinFv + 1);
   }
-  int spinqv = settings.mode("HiddenValley:spinqv");
-  if (particleDataPtr->spinType( 4900101) != 2 * spinqv + 1) 
-      particleDataPtr->spinType( 4900101,    2 * spinqv + 1);
+  if (spinFv != 1) {
+    if (particleDataPtr->spinType( 4900101) != 2) 
+       particleDataPtr->spinType( 4900101, 2);
+  } else {
+    int spinqv = settings.mode("HiddenValley:spinqv");
+    if (particleDataPtr->spinType( 4900101) != 2 * spinqv + 1) 
+        particleDataPtr->spinType( 4900101,    2 * spinqv + 1);
+  }
   
   // Set up requested objects for HiddenValley processes.
   bool hiddenvalleys = settings.flag("HiddenValley:all");
@@ -1854,6 +1997,18 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs,
     sigmaPtr = new Sigma2qqbar2GravitonStarg;
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   } 
+
+  //  Set up requested objects for RS extra-dimensional KKgluon processes.
+  if (settings.flag("ExtraDimensionsG*:qqbar2KKgluon*")) {
+    sigmaPtr = new Sigma1qqbar2KKgluonStar;
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }
+
+  // NOAM: Set up requested objects for TEV extra-dimensional processes.
+  if (settings.flag("ExtraDimensionsTEV:ffbar2ffbar")) {
+    sigmaPtr = new Sigma2ffbar2TEVffbar(13); 
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }
 
   // Set up requested objects for large extra-dimensional G processes.
   bool extraDimLEDmono = settings.flag("ExtraDimensionsLED:monojet");

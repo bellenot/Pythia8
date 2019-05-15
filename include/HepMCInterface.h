@@ -44,6 +44,7 @@ namespace HepMC {
       void              set_print_inconsistency_errors( bool b = 1 );
       void              set_crash_on_problem( bool b = 1 );
       void              set_convert_to_mev( bool b = 1 );
+      void              set_nofreepartonwarnings( bool b = 0 );
 
     private: // following are not (yet?) implemented for this class
       virtual bool fill_next_event( GenEvent*  ) { return 0; }
@@ -64,6 +65,7 @@ namespace HepMC {
       bool m_crash_on_problem;
       bool m_convert_to_mev;
       float m_mom_scale_factor;
+      bool m_freepartonwarnings;
 
   };
 
@@ -92,6 +94,9 @@ namespace HepMC {
 
   inline void I_Pythia8::set_convert_to_mev( bool b  )
   { m_convert_to_mev = b; m_mom_scale_factor = 1000.; }
+
+  inline void I_Pythia8::set_nofreepartonwarnings( bool b  )
+  { m_freepartonwarnings = b; }
 
 //==========================================================================
 

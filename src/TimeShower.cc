@@ -70,10 +70,14 @@ void TimeShower::init( BeamParticle* beamAPtrIn,
   doPhiPolAsym       = settingsPtr->flag("TimeShower:phiPolAsym"); 
   doInterleave       = settingsPtr->flag("TimeShower:interleave"); 
   allowBeamRecoil    = settingsPtr->flag("TimeShower:allowBeamRecoil"); 
+  dampenBeamRecoil   = settingsPtr->flag("TimeShower:dampenBeamRecoil"); 
 
   // Matching in pT of hard interaction or MI to shower evolution.
+  pTmaxMatch         = settingsPtr->mode("TimeShower:pTmaxMatch"); 
+  pTdampMatch        = settingsPtr->mode("TimeShower:pTdampMatch"); 
   pTmaxFudge         = settingsPtr->parm("TimeShower:pTmaxFudge"); 
   pTmaxFudgeMI       = settingsPtr->parm("TimeShower:pTmaxFudgeMI"); 
+  pTdampFudge        = settingsPtr->parm("TimeShower:pTdampFudge"); 
 
   // Charm and bottom mass thresholds.
   mc                 = particleDataPtr->m0(4); 
@@ -161,6 +165,40 @@ void TimeShower::init( BeamParticle* beamAPtrIn,
 
 //--------------------------------------------------------------------------
 
+// Find whether to limit maximum scale of emissions.
+// Also allow for dampening at factorization or renormalization scale. 
+
+bool TimeShower::limitPTmax( Event& event, double Q2Fac, double Q2Ren) {
+
+  // Find whether to limit pT. Begin by user-set cases.
+  bool dopTlimit = false;
+  if      (pTmaxMatch == 1) dopTlimit = true;
+  else if (pTmaxMatch == 2) dopTlimit = false;
+   
+  // Look if any quark (u, d, s, c, b), gluon or photon in final state. 
+  else {
+    for (int i = 5; i < event.size(); ++i) 
+    if (event[i].status() != -21) {
+      int idAbs = event[i].idAbs();
+      if (idAbs <= 5 || idAbs == 21 || idAbs == 22) dopTlimit = true;
+    }
+  }
+
+  // Dampening at factorization or renormalization scale.
+  dopTdamp   = false;
+  pT2damp    = 0.;
+  if ( !dopTlimit && (pTdampMatch == 1 || pTdampMatch == 2) ) {
+    dopTdamp = true;
+    pT2damp  = pow2(pTdampFudge) * ((pTdampMatch == 1) ? Q2Fac : Q2Ren);
+  }
+
+  // Done.
+  return dopTlimit;
+ 
+}
+
+//--------------------------------------------------------------------------
+
 // Top-level routine to do a full time-like shower in resonance decay.
 
 int TimeShower::shower( int iBeg, int iEnd, Event& event, double pTmax,
@@ -178,7 +216,7 @@ int TimeShower::shower( int iBeg, int iEnd, Event& event, double pTmax,
   partonSystemsPtr->setSHat( iSys, pSum.m2Calc() );
 
   // Let prepare routine do the setup.    
-  prepare( iSys, event);
+  prepare( iSys, event, true);
 
   // Begin evolution down in pT from hard pT scale. 
   int nBranch  = 0;
@@ -208,7 +246,7 @@ int TimeShower::shower( int iBeg, int iEnd, Event& event, double pTmax,
 
 // Prepare system for evolution; identify ME.
 
-void TimeShower::prepare( int iSys, Event& event) {
+void TimeShower::prepare( int iSys, Event& event, bool limitPTmaxIn) {
 
   // Reset dipole-ends list for first interaction and for resonance decays.
   int iInA = partonSystemsPtr->getInA(iSys);
@@ -228,17 +266,18 @@ void TimeShower::prepare( int iSys, Event& event) {
         = ( idRad == 9900441 || idRad == 9900443 || idRad == 9910441 
          || idRad == 9900551 || idRad == 9900553 || idRad == 9910551 ); 
       bool doQCD = doQCDshower;
-      if (doQCD && isOctetOnium) doQCD = (rndmPtr->flat() < octetOniumFraction);
+      if (doQCD && isOctetOnium) 
+        doQCD = (rndmPtr->flat() < octetOniumFraction);
 
       // Find dipole end formed by colour index.
       int colTag = event[iRad].col();    
-      if (doQCD && colTag > 0) 
-        setupQCDdip( iSys, i,  colTag,  1, event, isOctetOnium); 
+      if (doQCD && colTag > 0) setupQCDdip( iSys, i,  colTag,  1, event, 
+        isOctetOnium, limitPTmaxIn); 
 
       // Find dipole end formed by anticolour index.
       int acolTag = event[iRad].acol();     
-      if (doQCD && acolTag > 0) 
-        setupQCDdip( iSys, i, acolTag, -1, event, isOctetOnium); 
+      if (doQCD && acolTag > 0) setupQCDdip( iSys, i, acolTag, -1, event, 
+        isOctetOnium, limitPTmaxIn); 
 
       // Find "charge-dipole" and "photon-dipole" ends. 
       int  chgType  = event[iRad].chargeType();  
@@ -247,13 +286,14 @@ void TimeShower::prepare( int iSys, Event& event) {
                          || ( doQEDshowerByL && event[iRad].isLepton() ) );
       int  gamType  = (idRad == 22) ? 1 : 0;
       bool doGamDip = (gamType == 1) && doQEDshowerByGamma;
-      if (doChgDip || doGamDip) setupQEDdip( iSys, i, chgType, gamType, event);
+      if (doChgDip || doGamDip) setupQEDdip( iSys, i, chgType, gamType, 
+	 event, limitPTmaxIn);
 
       // Find Hidden Valley dipole ends.
       bool isHVrad =  (idRadAbs > 4900000 && idRadAbs < 4900007)
                    || (idRadAbs > 4900010 && idRadAbs < 4900017)
                    || idRadAbs == 4900101;  
-      if (doHVshower && isHVrad) setupHVdip( iSys, i, event); 
+      if (doHVshower && isHVrad) setupHVdip( iSys, i, event, limitPTmaxIn); 
 
     // End loop over system final state. Have now found the dipole ends.
     }
@@ -340,7 +380,7 @@ void TimeShower::rescatterUpdate( int iSys, Event& event) {
             int iRadNow = partonSystemsPtr->getIndexOfOut(dipNow.system, iRad);
             if (iRadNow != -1)
               setupQCDdip(dipNow.system, iRadNow, event[iRad].col(), 1,
-                          event, dipNow.isOctetOnium);
+                          event, dipNow.isOctetOnium, true);
             else
               infoPtr->errorMsg("Warning in TimeShower::rescatterUpdate: "
               "failed to locate radiator in system");
@@ -388,7 +428,7 @@ void TimeShower::rescatterUpdate( int iSys, Event& event) {
             int iRadNow = partonSystemsPtr->getIndexOfOut(dipNow.system, iRad);
             if (iRadNow != -1)
               setupQCDdip(dipNow.system, iRadNow, event[iRad].acol(), -1,
-                          event, dipNow.isOctetOnium);
+                          event, dipNow.isOctetOnium, true);
             else
               infoPtr->errorMsg("Warning in TimeShower::rescatterUpdate: "
               "failed to locate radiator in system");
@@ -436,7 +476,7 @@ void TimeShower::rescatterUpdate( int iSys, Event& event) {
             int iRadNow = partonSystemsPtr->getIndexOfOut(dipNow.system, iRad);
             if (iRadNow != -1)
               setupQEDdip(dipNow.system, iRadNow, dipNow.chgType,
-                          dipNow.gamType, event);
+                          dipNow.gamType, event, true);
             else
               infoPtr->errorMsg("Warning in TimeShower::rescatterUpdate: "
               "failed to locate radiator in system");
@@ -567,12 +607,12 @@ void TimeShower::update( int iSys, Event& event) {
   // Find new dipole end formed by colour index.
   int colTag = event[iNewNew].col();     
   if (doQCDshower && colTag > 0) 
-    setupQCDdip( iSys, sizeOut, colTag, 1, event); 
+    setupQCDdip( iSys, sizeOut, colTag, 1, event, false, true); 
   
   // Find new dipole end formed by anticolour index.
   int acolTag = event[iNewNew].acol();     
   if (doQCDshower && acolTag > 0) 
-    setupQCDdip( iSys, sizeOut, acolTag, -1, event); 
+    setupQCDdip( iSys, sizeOut, acolTag, -1, event, false, true); 
 
   // Find new "charge-dipole" and "photon-dipole" ends. 
   int  chgType  = event[iNewNew].chargeType();  
@@ -582,7 +622,7 @@ void TimeShower::update( int iSys, Event& event) {
   int  gamType  = (event[iNewNew].id() == 22) ? 1 : 0;
   bool doGamDip = (gamType == 1) && doQEDshowerByGamma;
   if (doChgDip || doGamDip) 
-    setupQEDdip( iSys, sizeOut, chgType, gamType, event); 
+    setupQEDdip( iSys, sizeOut, chgType, gamType, event, true); 
 
   // Start iterate over list of rescatterers - may be empty.
   int iRescNow = -1;
@@ -650,24 +690,25 @@ void TimeShower::update( int iSys, Event& event) {
 // Setup a dipole end for a QCD colour charge.
 
 void TimeShower::setupQCDdip( int iSys, int i, int colTag, int colSign, 
-  Event& event, bool isOctetOnium) {
+  Event& event, bool isOctetOnium, bool limitPTmaxIn) {
  
   // Initial values. Find if allowed to hook up beams.
-  int iRad    = partonSystemsPtr->getOut(iSys, i);
-  int iRec    = 0;
-  int sizeOut = partonSystemsPtr->sizeOut(iSys);
-  int sizeAll = ( allowBeamRecoil ) ? partonSystemsPtr->sizeAll(iSys) 
-                                    : sizeOut;
-  int sizeIn  = sizeAll - sizeOut;
-  int iOffset = i + partonSystemsPtr->sizeAll(iSys) - sizeOut;
+  int iRad     = partonSystemsPtr->getOut(iSys, i);
+  int iRec     = 0;
+  int sizeAllA = partonSystemsPtr->sizeAll(iSys);
+  int sizeOut  = partonSystemsPtr->sizeOut(iSys);
+  int sizeAll  = ( allowBeamRecoil ) ? sizeAllA : sizeOut;
+  int sizeIn   = sizeAll - sizeOut;
+  int sizeInA  = sizeAllA - sizeIn - sizeOut;
+  int iOffset  = i + sizeAllA - sizeOut;
   bool otherSystemRec = false;
   bool allowInitial   = (partonSystemsPtr->hasInAB(iSys)) ? true : false;
 
   // Colour: other end by same index in beam or opposite in final state.
   // Exclude rescattered incoming and not final outgoing.
   if (colSign > 0) 
-  for (int j = 0; j < sizeAll; ++j) if (j != iOffset) {
-    int iRecNow = partonSystemsPtr->getAll(iSys, j);
+  for (int j = 0; j < sizeAll; ++j) if (j + sizeInA != iOffset) {
+    int iRecNow = partonSystemsPtr->getAll(iSys, j + sizeInA);
     if ( ( j <  sizeIn && event[iRecNow].col()  == colTag
       && !event[iRecNow].isRescatteredIncoming() )
       || ( j >= sizeIn && event[iRecNow].acol() == colTag 
@@ -680,8 +721,8 @@ void TimeShower::setupQCDdip( int iSys, int i, int colTag, int colSign,
   // Anticolour: other end by same index in beam or opposite in final state.
   // Exclude rescattered incoming and not final outgoing.
   if (colSign < 0) 
-  for (int j = 0; j < sizeAll; ++j) if (j != iOffset) {
-    int iRecNow = partonSystemsPtr->getAll(iSys, j);
+  for (int j = 0; j < sizeAll; ++j) if (j + sizeInA != iOffset) {
+    int iRecNow = partonSystemsPtr->getAll(iSys, j + sizeInA);
     if ( ( j <  sizeIn && event[iRecNow].acol()  == colTag
       && !event[iRecNow].isRescatteredIncoming() )
       || ( j >= sizeIn && event[iRecNow].col() == colTag
@@ -690,6 +731,29 @@ void TimeShower::setupQCDdip( int iSys, int i, int colTag, int colSign,
       break;
     }
   }
+
+  // Resonance decays (= no instate), without a junction colour:
+  // other end to nearest recoiler in same system final state,
+  // by (p_i + p_j)^2 - (m_i + m_j)^2 = 2 (p_i p_j - m_i m_j).
+  if (iRec == 0 && !allowInitial) {
+    bool hasJunction = false;
+    for (int iJun = 0; iJun < event.sizeJunction(); ++ iJun)
+    for (int iLeg = 0; iLeg < 3; ++iLeg) 
+      if (event.endColJunction( iJun, iLeg) == colTag) hasJunction = true;
+    if (!hasJunction) { 
+      double ppMin = LARGEM2; 
+      for (int j = 0; j < sizeOut; ++j) if (j != i) { 
+        int iRecNow  = partonSystemsPtr->getOut(iSys, j);
+        if (!event[iRecNow].isFinal()) continue;
+        double ppNow = event[iRecNow].p() * event[iRad].p() 
+                     - event[iRecNow].m() * event[iRad].m();
+        if (ppNow < ppMin) {
+          iRec  = iRecNow;
+          ppMin = ppNow;
+        } 
+      }
+    }     
+  }  
 
   // If no success then look for matching (anti)colour anywhere in final state.
   if ( iRec == 0 || (!doInterleave && !event[iRec].isFinal()) ) {
@@ -778,9 +842,12 @@ void TimeShower::setupQCDdip( int iSys, int i, int colTag, int colSign,
 
   // Store dipole colour end.
   if (iRec > 0) { 
+    // Max scale either by parton scale or by half dipole mass.
     double pTmax = event[iRad].scale();
-    if (iSys == 0) pTmax *= pTmaxFudge;
-    if (iSys > 0 && sizeIn > 0) pTmax *= pTmaxFudgeMI;
+    if (limitPTmaxIn) {
+      if (iSys == 0) pTmax *= pTmaxFudge;
+      if (iSys > 0 && sizeIn > 0) pTmax *= pTmaxFudgeMI;
+    } else pTmax = 0.5 * m( event[iRad], event[iRec]);
     int colType  = (event[iRad].id() == 21) ? 2 * colSign : colSign;
     int isrType  = (event[iRec].isFinal()) ? 0 : event[iRec].mother1();
     // This line in case mother is a rescattered parton.
@@ -808,17 +875,18 @@ void TimeShower::setupQCDdip( int iSys, int i, int colTag, int colSign,
 // No failsafe choice of recoiler, so gradually widen search.
 
 void TimeShower::setupQEDdip( int iSys, int i, int chgType, int gamType,
-  Event& event) {
+  Event& event, bool limitPTmaxIn) {
 
   // Initial values. Find if allowed to hook up beams.
   int iRad     = partonSystemsPtr->getOut(iSys, i);
   int idRad    = event[iRad].id();
   int iRec     = 0;
+  int sizeAllA = partonSystemsPtr->sizeAll(iSys);
   int sizeOut  = partonSystemsPtr->sizeOut(iSys);
-  int sizeAll  = ( allowBeamRecoil ) ? partonSystemsPtr->sizeAll(iSys)
-                                     : sizeOut;
+  int sizeAll  = ( allowBeamRecoil ) ? sizeAllA : sizeOut;
   int sizeIn   = sizeAll - sizeOut;
-  int iOffset  = i + partonSystemsPtr->sizeAll(iSys) - sizeOut;
+  int sizeInA  = sizeAllA - sizeIn - sizeOut;
+  int iOffset  = i + sizeAllA - sizeOut;
   double ppMin = LARGEM2;
   bool hasRescattered = false;
   bool otherSystemRec = false;
@@ -827,8 +895,8 @@ void TimeShower::setupQEDdip( int iSys, int i, int chgType, int gamType,
   // state of same system, excluding rescattered (in or out) partons.
   // Also find if system is involved in rescattering.
   // Note: (p_i + p_j)2 - (m_i + m_j)2 = 2 (p_i p_j - m_i m_j).
-  for (int j = 0; j < sizeAll; ++j) if (j != iOffset) {
-    int iRecNow  = partonSystemsPtr->getAll(iSys, j);
+  for (int j = 0; j < sizeAll; ++j) if (j + sizeInA != iOffset) {
+    int iRecNow  = partonSystemsPtr->getAll(iSys, j + sizeInA);
     if ( (j <  sizeIn && !event[iRecNow].isRescatteredIncoming())
       || (j >= sizeIn && event[iRecNow].isFinal()) ) {
       if ( (j <  sizeIn && event[iRecNow].id() ==  idRad)
@@ -843,9 +911,9 @@ void TimeShower::setupQEDdip( int iSys, int i, int chgType, int gamType,
     } else hasRescattered = true;
   }
 
-  // If rescattering or if FSR only after MI + ISR + BR then find nearest
-  // opposite-flavour recoiler anywhere in final state.
-  if ( iRec == 0 && (hasRescattered || !doInterleave) ) {
+  // If rescattering then find nearest opposite-flavour recoiler 
+  // anywhere in final state.
+  if (iRec == 0 && hasRescattered) {
     for (int iRecNow = 0; iRecNow < event.size(); ++iRecNow)
     if (event[iRecNow].id() == -idRad && event[iRecNow].isFinal()) {
       double ppNow = event[iRecNow].p() * event[iRad].p()
@@ -861,8 +929,8 @@ void TimeShower::setupQEDdip( int iSys, int i, int chgType, int gamType,
   // Find nearest recoiler in same system, charge-squared-weighted,
   // including initial state, but excluding rescatterer.
   if (iRec == 0)
-  for (int j = 0; j < sizeAll; ++j) if (j != iOffset) {
-    int iRecNow = partonSystemsPtr->getAll(iSys, j);
+  for (int j = 0; j < sizeAll; ++j) if (j + sizeInA != iOffset) {
+    int iRecNow = partonSystemsPtr->getAll(iSys, j + sizeInA);
     int chgTypeRecNow = event[iRecNow].chargeType();
     if (chgTypeRecNow == 0) continue;
     if ( (j <  sizeIn && !event[iRecNow].isRescatteredIncoming())
@@ -877,9 +945,9 @@ void TimeShower::setupQEDdip( int iSys, int i, int chgType, int gamType,
     }
   }
 
-  // If rescattering or if FSR only after MI + ISR + BR then find
-  // nearest recoiler in the final state, charge-squared-weighted.
-  if ( iRec == 0 && (hasRescattered || !doInterleave) ) {
+  // If rescattering then find nearest recoiler in the final state, 
+  // charge-squared-weighted.
+  if (iRec == 0 && hasRescattered) {
     for (int iRecNow = 0; iRecNow < event.size(); ++iRecNow)
     if (iRecNow != iRad && event[iRecNow].isFinal()) {
       int chgTypeRecNow = event[iRecNow].chargeType();
@@ -923,9 +991,12 @@ void TimeShower::setupQEDdip( int iSys, int i, int chgType, int gamType,
 
   // Fill charge-dipole or photon-dipole end.
   if (iRec > 0) {
+    // Max scale either by parton scale or by half dipole mass.
     double pTmax = event[iRad].scale();
-    if (iSys == 0) pTmax *= pTmaxFudge;
-    if (iSys > 0 && sizeIn > 0) pTmax *= pTmaxFudgeMI;
+    if (limitPTmaxIn) {
+      if (iSys == 0) pTmax *= pTmaxFudge;
+      if (iSys > 0 && sizeIn > 0) pTmax *= pTmaxFudgeMI;
+    } else pTmax = 0.5 * m( event[iRad], event[iRec]);
     int isrType = (event[iRec].isFinal()) ? 0 : event[iRec].mother1();
     // This line in case mother is a rescattered parton.
     while (isrType > 2 + beamOffset) isrType = event[isrType].mother1();
@@ -952,7 +1023,8 @@ void TimeShower::setupQEDdip( int iSys, int i, int chgType, int gamType,
 
 // Setup a dipole end for a Hidden Valley colour charge.
 
-void TimeShower::setupHVdip( int iSys, int i, Event& event) {
+void TimeShower::setupHVdip( int iSys, int i, Event& event, 
+  bool limitPTmaxIn) {
  
   // Initial values.
   int iRad    = partonSystemsPtr->getOut(iSys, i);
@@ -986,8 +1058,11 @@ void TimeShower::setupHVdip( int iSys, int i, Event& event) {
 
   // Set up dipole end, or report failure. 
   if (iRec > 0) {
+    // Max scale either by parton scale or by half dipole mass.
     double pTmax = event[iRad].scale();
-    if (iSys == 0) pTmax *= pTmaxFudge;
+    if (limitPTmaxIn) {
+      if (iSys == 0) pTmax *= pTmaxFudge;
+    } else pTmax = 0.5 * m( event[iRad], event[iRec]);
     int colvType  = (event[iRad].id() > 0) ? 1 : -1;
     dipEnd.push_back( TimeDipoleEnd( iRad, iRec, pTmax, 0, 0, 0, 0, 
       iSys, -1, -1, false, true, colvType) );
@@ -1029,7 +1104,7 @@ double TimeShower::pTnext( Event& event, double pTbegAll, double pTendAll) {
         pT2nextQCD(pT2begDip, pT2sel, dip, event);
       else if (dip.chgType != 0 || dip.gamType != 0)                 
         pT2nextQED(pT2begDip, pT2sel, dip, event);
-      else if (dip.isHiddenValley)
+      else if (dip.colvType != 0)
         pT2nextHV(pT2begDip, pT2sel, dip, event);
 
       // Update if found larger pT than current maximum.
@@ -1195,9 +1270,9 @@ void TimeShower::pT2nextQCD(double pT2begDip, double pT2sel,
           wt = beta * ( pow2(dip.z) + pow2(1. - dip.z) );
         }
 
-        // For dipole to beam remnant reduce by PDF ratio (approximate!??).
+        // Suppression factors for dipole to beam remnant.
         if (dip.isrType != 0) {
-          BeamParticle& beam = (dip.isrType == 1) ? *beamAPtr : *beamBPtr;
+         BeamParticle& beam = (dip.isrType == 1) ? *beamAPtr : *beamBPtr;
           int iSysRec = dip.systemRec;
           double xOld = beam[iSysRec].x();
           double xNew = xOld * (1. + (dip.m2 - dip.m2Rad) / 
@@ -1209,6 +1284,7 @@ void TimeShower::pT2nextQCD(double pT2begDip, double pT2sel,
             return;
           }
  
+          // Firstly reduce by PDF ratio.
           if (xNew > xMaxAbs) wt = 0.;              
           else {
             int idRec     = event[dip.iRecoiler].id();
@@ -1216,6 +1292,12 @@ void TimeShower::pT2nextQCD(double pT2begDip, double pT2sel,
                             beam.xfISR( iSysRec, idRec, xOld, dip.pT2) ); 
             double pdfNew = beam.xfISR( iSysRec, idRec, xNew, dip.pT2); 
             wt *= min( 1., pdfNew / pdfOld); 
+          }
+
+          // Secondly optionally reduce by 4 pT2_hard / (4 pT2_hard + m2).
+          if (dampenBeamRecoil) {
+            double pTpT = sqrt(event[dip.iRadiator].pT2() * dip.pT2);
+            wt *= pTpT / (pTpT + dip.m2);
           }
         }
       }
@@ -1348,7 +1430,7 @@ void TimeShower::pT2nextQED(double pT2begDip, double pT2sel,
       double alphaEMnow = alphaEM.alphaEM(dip.pT2);
       wt *= (alphaEMnow / alphaEMmax);
 
-      // For dipole to beam remnant reduce by PDF ratio (approximate!??).
+      // Suppression factors for dipole to beam remnant.
       if (dip.isrType != 0) {
         BeamParticle& beam = (dip.isrType == 1) ? *beamAPtr : *beamBPtr;
         int iSys    = dip.system;
@@ -1362,6 +1444,7 @@ void TimeShower::pT2nextQED(double pT2begDip, double pT2sel,
           return;
         }
  
+        // Firstly reduce by PDF ratio.
         if (xNew > xMaxAbs) wt = 0.;
         else {
           int idRec     = event[dip.iRecoiler].id();
@@ -1369,6 +1452,12 @@ void TimeShower::pT2nextQED(double pT2begDip, double pT2sel,
                           beam.xfISR( iSys, idRec, xOld, dip.pT2) ); 
           double pdfNew = beam.xfISR( iSys, idRec, xNew, dip.pT2); 
           wt *= min( 1., pdfNew / pdfOld); 
+        }
+
+        // Secondly optionally reduce by 4 pT2_hard / (4 pT2_hard + m2).
+        if (dampenBeamRecoil) {
+          double pT24 = 4. * event[dip.iRadiator].pT2();
+          wt *= pT24 / (pT24 + dip.m2);
         }
       }
     }
@@ -1466,7 +1555,7 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
   iSysSel        = dipSel->system;
   int iSysSelRec = dipSel->systemRec;
 
-  // Default OK for photon or gluon_HV emission.
+  // Default OK for photon, photon_HV or gluon_HV emission.
   if (dipSel->flavour == 22 || dipSel->flavour == 4900021 
     || dipSel->flavour == 4900022) { 
   // New colour tag required for gluon emission.
@@ -1521,7 +1610,7 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
 
   // Kinematics reduction for q -> q g/gamma/g_HV when m_q > 0. 
   if (abs(dipSel->colType) == 1 || dipSel->chgType != 0 
-    || dipSel->isHiddenValley) { 
+    || abs(dipSel->colvType) == 1) { 
     pTcorr *= 1. - dipSel->m2Rad / dipSel->m2; 
     pzRad += pzEmt * dipSel->m2Rad / dipSel->m2;
     pzEmt *= 1. - dipSel->m2Rad / dipSel->m2;  
@@ -2178,14 +2267,15 @@ void TimeShower::findMEtype( Event& event, TimeDipoleEnd& dip) {
   // If no ME partner set, assume it is the recoiler.
   if (dip.iMEpartner < 0) dip.iMEpartner = dip.iRecoiler;
 
-  // Now begin processing of colour dipole.
-  if (dip.colType != 0) {
+  // Now begin processing of colour dipole, including Hidden Valley.
+  if (dip.colType != 0 || dip.colvType != 0) {
+    bool isHiddenColour = (dip.colvType != 0);
 
     // Find daughter types (may or may not be used later on).
     int idDau1      = event[dip.iRadiator].id();
     int idDau2      = event[dip.iMEpartner].id();
-    int dau1Type    = findMEparticle(idDau1);
-    int dau2Type    = findMEparticle(idDau2);
+    int dau1Type    = findMEparticle(idDau1, isHiddenColour);
+    int dau2Type    = findMEparticle(idDau2, isHiddenColour);
     int minDauType  = min(dau1Type, dau2Type);
     int maxDauType  = max(dau1Type, dau2Type);
 
@@ -2206,7 +2296,8 @@ void TimeShower::findMEtype( Event& event, TimeDipoleEnd& dip) {
     int idMother = 0;
     if ( event[dip.iRecoiler].mother1() == iMother && iMother >= 0) 
       idMother = event[iMother].id();
-    int motherType = (idMother != 0) ? findMEparticle(idMother) : 0;
+    int motherType = (idMother != 0) 
+      ? findMEparticle(idMother, isHiddenColour) : 0;
 
     // When a mother if not known then use colour and spin content to guess.
     if (motherType == 0) {
@@ -2297,6 +2388,14 @@ void TimeShower::findMEtype( Event& event, TimeDipoleEnd& dip) {
     else if (minDauType == 2 && maxDauType == 5 && motherType == 1) 
       MEkind = 15;
 
+    // In cases where coloured spin 1 particle involved use spin 0.
+    // V_coloured -> q + l.
+    else if (minDauType == 1 && maxDauType == 9 && motherType == 3) 
+      MEkind = 11; 
+    // q -> V_coloured + l;
+    else if (minDauType == 3 && maxDauType == 9 && motherType == 1) 
+      MEkind = 12;        
+
     // g (+V, S) -> ~g + ~g (eikonal approximation).
     else if (minDauType == 5 && maxDauType == 5) MEkind = 16;
 
@@ -2333,12 +2432,22 @@ void TimeShower::findMEtype( Event& event, TimeDipoleEnd& dip) {
 // 3 = spare triplet, 4 = gluon, 5 = gluino, 6 = spare octet, 
 // 7 = vector boson, 8 = colourless scalar, 9 = colourless spin 1/2.
 
-int TimeShower::findMEparticle( int id) {
+int TimeShower::findMEparticle( int id, bool isHiddenColour) {
 
   // find colour and spin of particle.
   int type = 0;
   int colType = abs(particleDataPtr->colType(id)); 
   int spinType = particleDataPtr->spinType(id);
+
+  // For hidden valley particle treat HV colour as normal one.
+  // Note: no need to assign gv/gammav since not in ME.
+  if (isHiddenColour) {
+    colType = 0;
+    int idAbs = abs(id);
+    if (  (idAbs > 4900000 && idAbs < 4900007)
+       || (idAbs > 4900010 && idAbs < 4900017)
+       || idAbs == 4900101) colType = 1; 
+  } 
 
   // Find particle type from colour and spin.
   if      (colType == 1 && spinType == 2) type = 1;
@@ -2433,7 +2542,7 @@ double TimeShower::findMEcorr(TimeDipoleEnd* dip, Particle& rad,
   double x3      = max(XMARGIN, 2. - x1 - x2);
 
   // Begin processing of QCD dipoles.
-  if (dip->colType !=0) {
+  if (dip->colType !=0 || dip->colvType != 0) {
 
     // Evaluate normal ME, for proper order of particles.
     if (dip->MEorder) 
@@ -3213,17 +3322,29 @@ void TimeShower::findAsymPol( Event& event, TimeDipoleEnd* dip) {
   int iMother = event.iTopCopy(iRad);
   int iGrandM = event[iMother].mother1();
 
-  // Check grandmother flavour and set aunt.
-  if (!event[iGrandM].isQuark() && !event[iGrandM].isGluon()) return;
-  dip->iAunt = (event[iGrandM].daughter1() == iMother) 
+  // If grandmother in initial state of hard scattering,
+  // then only keep gg and qq initial states.
+  int statusGrandM = event[iGrandM].status();
+  bool isHardProc  = (statusGrandM == -21 || statusGrandM == -31);  
+  if (isHardProc) {
+    if (event[iGrandM + 1].status() != statusGrandM) return;
+    if (event[iGrandM].isGluon() && event[iGrandM + 1].isGluon());
+    else if (event[iGrandM].isQuark() && event[iGrandM + 1].isQuark());
+    else return;
+  }
+
+  // Set aunt by history or, for hard scattering, by colour flow.
+  if (isHardProc) dip->iAunt = dip->iRecoiler;
+  else dip->iAunt = (event[iGrandM].daughter1() == iMother) 
     ? event[iGrandM].daughter2() : event[iGrandM].daughter1();
 
   // Coefficient from gluon production (approximate z by energy).
-  double zProd = event[iRad].e() / (event[iRad].e() 
-    + event[dip->iAunt].e());
-  if (event[iGrandM].id() != 21) dip->asymPol = 2. * (1. - zProd) 
-    / (1. + pow2(1. - zProd) );
-  else dip->asymPol = pow2( (1. - zProd) / (1. - zProd * (1. - zProd) ) );
+  // For hard process arbitrarily put z = 1/2.
+  double zProd = (isHardProc) ? 0.5 : event[iRad].e() 
+    / (event[iRad].e() + event[dip->iAunt].e());
+  if (event[iGrandM].isGluon()) dip->asymPol = pow2( (1. - zProd) 
+    / (1. - zProd * (1. - zProd) ) );
+  else dip->asymPol = 2. * (1. - zProd) / (1. + pow2(1. - zProd) );
 
   // Coefficients from gluon decay.
   if (dip->flavour == 21) dip->asymPol *= pow2( (1. - dip->z) 

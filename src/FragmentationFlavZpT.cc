@@ -745,11 +745,12 @@ void StringPT::init(Settings& settings, Rndm* rndmPtrIn) {
 // Generate Gaussian pT such that <p_x^2> = <p_x^2> = sigma^2 = width^2/2,
 // but with small fraction multiplied up to a broader spectrum.
 
-double StringPT::pxy() {
+pair<double, double> StringPT::pxy() {
 
-  double pxyNow = sigmaQ * rndmPtr->gauss();
-  if (rndmPtr->flat() < enhancedFraction) pxyNow *= enhancedWidth;
-  return pxyNow;
+  double sigma = sigmaQ;
+  if (rndmPtr->flat() < enhancedFraction) sigma *= enhancedWidth;
+  pair<double, double> gauss2 = rndmPtr->gauss2();
+  return pair<double, double>(sigma * gauss2.first, sigma * gauss2.second);
 
 }
   

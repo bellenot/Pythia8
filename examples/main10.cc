@@ -131,7 +131,7 @@ int main() {
   pythia.readString("HadronLevel:all = off");  
 
   // Set up to do a user veto and send it in.
-  UserHooks* myUserHooks = new MyUserHooks();
+  MyUserHooks* myUserHooks = new MyUserHooks();
   pythia.setUserHooksPtr( myUserHooks);
  
   // Tevatron initialization. 
