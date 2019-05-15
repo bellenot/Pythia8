@@ -1,5 +1,5 @@
 // SigmaHiggs.h is a part of the PYTHIA event generator.
-// Copyright (C) 2008 Torbjorn Sjostrand.
+// Copyright (C) 2009 Torbjorn Sjostrand.
 // Part of code written by Marc Montull, CERN summer student 2007.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.

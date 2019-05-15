@@ -1,5 +1,5 @@
 // MultipleInteractions.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2008 Torbjorn Sjostrand.
+// Copyright (C) 2009 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -233,10 +233,12 @@ bool SigmaMultiple::init(int inState, int processLevel) {
 // Calculate cross section summed over possibilities.
 
 double SigmaMultiple::sigma( int id1, int id2, double x1, double x2, 
-  double sHat, double tHat, double uHat, double alpS, double alpEM) {
+  double sHat, double tHat, double uHat, double alpS, double alpEM,
+  bool restore, bool pickOtherIn) {
 
   // Choose either the dominant process (in slot 0) or the rest of them.
-  bool pickOther = (Rndm::flat() < OTHERFRAC);
+  if (restore) pickOther = pickOtherIn;
+  else         pickOther = (Rndm::flat() < OTHERFRAC);
 
   // Iterate over all subprocesses.
   sigmaTsum = 0.;
@@ -713,7 +715,8 @@ double MultipleInteractions::pTnext( double pTbegAll, double pTendAll,
       sHat     = sHatSel;
       tHat     = tHatSel;
       uHat     = uHatSel;
-      sigma2Sel->sigma( id1, id2, x1, x2, sHat, tHat, uHat, alpS, alpEM);
+      sigma2Sel->sigma( id1, id2, x1, x2, sHat, tHat, uHat, alpS, alpEM,
+        true, pickOtherSel);
     }
 
     // Pick one of the possible channels summed above. 
@@ -1137,16 +1140,17 @@ double MultipleInteractions::sigmaPT2scatter(bool isFirst) {
   dSigmaSum  += dSigmaScat;
 
   // Save values for comparison with rescattering processes.
-  i1Sel       = 0;
-  i2Sel       = 0;
-  id1Sel      = id1;
-  id2Sel      = id2;
-  x1Sel       = x1;
-  x2Sel       = x2;
-  sHatSel     = sHat;
-  tHatSel     = tHat;
-  uHatSel     = uHat;
-  sigma2Sel   = sigma2Tmp;
+  i1Sel        = 0;
+  i2Sel        = 0;
+  id1Sel       = id1;
+  id2Sel       = id2;
+  x1Sel        = x1;
+  x2Sel        = x2;
+  sHatSel      = sHat;
+  tHatSel      = tHat;
+  uHatSel      = uHat;
+  sigma2Sel    = sigma2Tmp;
+  pickOtherSel = sigma2Tmp->pickedOther(); 
 
   // For first interaction: pick one of the possible channels summed above.
   if (isFirst) {
@@ -1249,7 +1253,7 @@ double MultipleInteractions::sigmaPT2rescatter( Event& event) {
     int id1Tmp     = event[iA].id();
     
     // Calculate maximum possible sHat and check whether big enough.
-    double x1Tmp   = event[iA].pPlus() / eCM;
+    double x1Tmp   = event[iA].pPos() / eCM;
     double sHatMax = x1Tmp * beamBPtr->xMax() * sCM;
     if (sHatMax < 4. * pT2) continue;
 
@@ -1321,16 +1325,17 @@ double MultipleInteractions::sigmaPT2rescatter( Event& event) {
 
     // Determine whether current rescattering should be selected.
     if (dSigmaCorr > Rndm::flat() * dSigmaSum) {
-      i1Sel     = iA;
-      i2Sel     = 0;
-      id1Sel    = id1Tmp;
-      id2Sel    = id2Tmp;
-      x1Sel     = x1Tmp;
-      x2Sel     = x2Tmp;
-      sHatSel   = sHatTmp;
-      tHatSel   = tHatTmp;
-      uHatSel   = uHatTmp;
-      sigma2Sel = sigma2Tmp;
+      i1Sel        = iA;
+      i2Sel        = 0;
+      id1Sel       = id1Tmp;
+      id2Sel       = id2Tmp;
+      x1Sel        = x1Tmp;
+      x2Sel        = x2Tmp;
+      sHatSel      = sHatTmp;
+      tHatSel      = tHatTmp;
+      uHatSel      = uHatTmp;
+      sigma2Sel    = sigma2Tmp;
+      pickOtherSel = sigma2Tmp->pickedOther(); 
     }
   }
 
@@ -1347,7 +1352,7 @@ double MultipleInteractions::sigmaPT2rescatter( Event& event) {
     int id2Tmp     = event[iB].id();
     
     // Calculate maximum possible sHat and check whether big enough.
-    double x2Tmp   = event[iB].pMinus() / eCM;
+    double x2Tmp   = event[iB].pNeg() / eCM;
     double sHatMax = beamAPtr->xMax() * x2Tmp * sCM;
     if (sHatMax < 4. * pT2) continue;
 
@@ -1419,16 +1424,17 @@ double MultipleInteractions::sigmaPT2rescatter( Event& event) {
 
     // Determine whether current rescattering should be selected.
     if (dSigmaCorr > Rndm::flat() * dSigmaSum) {
-      i1Sel     = 0;
-      i2Sel     = iB;
-      id1Sel    = id1Tmp;
-      id2Sel    = id2Tmp;
-      x1Sel     = x1Tmp;
-      x2Sel     = x2Tmp;
-      sHatSel   = sHatTmp;
-      tHatSel   = tHatTmp;
-      uHatSel   = uHatTmp;
-      sigma2Sel = sigma2Tmp;
+      i1Sel        = 0;
+      i2Sel        = iB;
+      id1Sel       = id1Tmp;
+      id2Sel       = id2Tmp;
+      x1Sel        = x1Tmp;
+      x2Sel        = x2Tmp;
+      sHatSel      = sHatTmp;
+      tHatSel      = tHatTmp;
+      uHatSel      = uHatTmp;
+      sigma2Sel    = sigma2Tmp;
+      pickOtherSel = sigma2Tmp->pickedOther(); 
     }
   }
 
@@ -1449,8 +1455,8 @@ double MultipleInteractions::sigmaPT2rescatter( Event& event) {
         if (sHatTmp < 4. * pT2) continue;
 
         // Reconstruct other kinematical variables. (x values not needed.)
-        double x1Tmp   = event[iA].pPlus() / eCM;
-        double x2Tmp   = event[iB].pMinus() / eCM;
+        double x1Tmp   = event[iA].pPos() / eCM;
+        double x2Tmp   = event[iB].pNeg() / eCM;
         double tauTmp  = sHatTmp / sCM;
         double root    = sqrtpos(1. - xT2 / tauTmp);
         double tHatTmp = -0.5 * sHatTmp * (1. - root);
@@ -1488,16 +1494,17 @@ double MultipleInteractions::sigmaPT2rescatter( Event& event) {
 
         // Determine whether current rescattering should be selected.
         if (dSigmaCorr > Rndm::flat() * dSigmaSum) {
-          i1Sel     = iA;
-          i2Sel     = iB;
-          id1Sel    = id1Tmp;
-          id2Sel    = id2Tmp;
-          x1Sel     = x1Tmp;
-          x2Sel     = x2Tmp;
-          sHatSel   = sHatTmp;
-          tHatSel   = tHatTmp;
-          uHatSel   = uHatTmp;
-          sigma2Sel = sigma2Tmp;
+          i1Sel        = iA;
+          i2Sel        = iB;
+          id1Sel       = id1Tmp;
+          id2Sel       = id2Tmp;
+          x1Sel        = x1Tmp;
+          x2Sel        = x2Tmp;
+          sHatSel      = sHatTmp;
+          tHatSel      = tHatTmp;
+          uHatSel      = uHatTmp;
+          sigma2Sel    = sigma2Tmp;
+          pickOtherSel = sigma2Tmp->pickedOther(); 
 	}
       }
     }

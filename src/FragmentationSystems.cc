@@ -1,5 +1,5 @@
 // FragmentationSystems.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2008 Torbjorn Sjostrand.
+// Copyright (C) 2009 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -59,7 +59,7 @@ bool ColConfig::insert( vector<int>& iPartonIn, Event& event) {
   double massIn = pSumIn.mCalc(); 
   double massExcessIn = massIn - mSumIn;
 
-  // Debug: not-a-numbers to be solved eventually??
+  // Check that momenta do not contain not-a-number.
   if (abs(massExcessIn) >= 0.);
   else {
     infoPtr->errorMsg("Error in ColConfig::insert: "

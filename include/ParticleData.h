@@ -1,5 +1,5 @@
 // ParticleData.h is a part of the PYTHIA event generator.
-// Copyright (C) 2008 Torbjorn Sjostrand.
+// Copyright (C) 2009 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -120,7 +120,7 @@ public:
   // Decay table size.
   int size() const {return channel.size();}
 
-  // Reset to empty decay table..
+  // Reset to empty decay table.
   void clear() {channel.resize(0);}
 
   // Rescale sum of branching ratios to unity.
@@ -306,7 +306,7 @@ private:
   static double maxEnhanceBW, mQRun[7], Lambda5Run;
 
   // Constants: could only be changed in the code itself.
-  static const int    INVISIBLENUMBER, INVISIBLETABLE[29];
+  static const int    INVISIBLENUMBER, INVISIBLETABLE[32];
   static const double MAXTAU0FORDECAY,MINMASSRESONANCE, NARROWMASS,
                       CONSTITUENTMASSTABLE[6];
 

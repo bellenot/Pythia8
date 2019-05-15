@@ -88,14 +88,14 @@ at that point. If you call such a destructor you will leave a pointer
 dangling inside the <code>Pythia</code> object you gave it in to,
 if that still exists. 
 
-<p/><code>method&nbsp; </code><strong> void initProc() &nbsp;</strong> <br/>
+<p/><strong>void initProc() &nbsp;</strong> <br/>
 is called once during initalization, and can then be used to set up
 parameters, such as masses and couplings, and perform calculations 
 that need not be repeated for each new event, thereby saving time. 
 This method needs not be implemented, since in principle all 
 calculations can be done in <code>sigmaHat</code> below.
 
-<p/><code>method&nbsp; </code><strong> void sigmaKin() &nbsp;</strong> <br/>
+<p/><strong>void sigmaKin() &nbsp;</strong> <br/>
 is called once a kinematical configuration has been determined, but 
 before the two incoming flavours are known. This routine can therefore 
 be used to perform calculations that otherwise might have to be repeated 
@@ -109,7 +109,7 @@ result once only and store it as a private data member of the class.
 It is optional whether you want to use this method, however, or put 
 everything in <code>sigmaHat</code>.
 
-<p/><code>method&nbsp; </code><strong> double sigmaHat() &nbsp;</strong> <br/>
+<p/><strong>double sigmaHat() &nbsp;</strong> <br/>
 is the key method for cross section calculations and returns a cross section
 value, as further described below. It is called when also a preliminary set 
 of incoming flavours has been picked, in addition to the kinematical ones 
@@ -162,7 +162,7 @@ the wings of the Breit-Wigner are oversampled (with a compensating lower
 internal weight) by partly sampling like <i>(a + b/m^2 + c/m^4) d(m^2)</i>,
 where the last term is only used for <i>gamma^*/Z^0</i>.
 
-<p/><code>method&nbsp; </code><strong> void setIdColAcol() &nbsp;</strong> <br/>
+<p/><strong>void setIdColAcol() &nbsp;</strong> <br/>
 is called only once an initial state and a kinematical configuration has 
 been picked. This routine must set the complete flavour information and 
 the colour flow of the process. This may involve further random choices,
@@ -203,13 +203,13 @@ should be swapped before the event kinematics is reconstructed. This
 variable is automatically restored to <code>false</code> for each new 
 event.
 
-<p/><code>method&nbsp; </code><strong> double weightDecayFlav( Event& process) &nbsp;</strong> <br/>
+<p/><strong>double weightDecayFlav( Event& process) &nbsp;</strong> <br/>
 is called to allow a reweighting of the simultaneous flavour choices of 
 resonance decay products. Is currently only used for the 
 <i>q qbar -> gamma*/Z^0 gamma*/Z^0</i> process, and will likely not
 be of interest for you. 
 
-<p/><code>method&nbsp; </code><strong> double weightDecay( Event& process, int iResBeg, int iResEnd) &nbsp;</strong> <br/>
+<p/><strong>double weightDecay( Event& process, int iResBeg, int iResEnd) &nbsp;</strong> <br/>
 is called when the basic process has one or several resonances, after each 
 set of related resonances in <code>process[i]</code>,
 <code>iResBeg</code> &lt;= <code>i </code> &lt;= <code>iResEnd</code>, 
@@ -224,16 +224,16 @@ depend only on the <i>Z^0</i> decay angles since the <i>H^0</i>
 decays isotropically. The second call would be after the <i>W^+ W^-</i> 
 decays and then involve correlations between the four daughter fermions.
 
-<p/><code>method&nbsp; </code><strong> string name() &nbsp;</strong> <br/>
+<p/><strong>string name() &nbsp;</strong> <br/>
 returns the name of the process, as you want it to be shown in listings.
 
-<p/><code>method&nbsp; </code><strong> int code() &nbsp;</strong> <br/>
+<p/><strong>int code() &nbsp;</strong> <br/>
 returns an integer identifier of the process. This has no internal function, 
 but is only intended as a service for the user to rapidly (and hopefully
 uniquely) identify which process occured in a given event. Numbers below 
 10000 are reserved for internal PYTHIA use. 
 
-<p/><code>method&nbsp; </code><strong> string inFlux() &nbsp;</strong> <br/>
+<p/><strong>string inFlux() &nbsp;</strong> <br/>
 this string specifies the combinations of incoming partons that are 
 allowed for the process under consideration, and thereby which incoming
 flavours <code>id1</code> and <code>id2</code> the <code>sigmaHat()</code> 
@@ -259,14 +259,14 @@ to give charge +-1.
 <br/>* <code>ggm</code>: a gluon and a photon.
 <br/>* <code>gmgm</code>: two photons.
 
-<p/><code>method&nbsp; </code><strong> bool convert2mb() &nbsp;</strong> <br/>
+<p/><strong>bool convert2mb() &nbsp;</strong> <br/>
 it is assumed that cross sections normally come in dimensions such that
 they, when integrated over the relevant phase space, obtain the dimension
 GeV^-2, and therefore need to be converted to mb. If the cross section 
 is already encoded as mb then <code>convert2mb()</code> should be 
 overloaded to instead return <code>false</code>.
 
-<p/><code>method&nbsp; </code><strong> int id3Mass(), int id4Mass(), int id5Mass() &nbsp;</strong> <br/>
+<p/><strong>int id3Mass(), int id4Mass(), int id5Mass() &nbsp;</strong> <br/>
 are the one, two or three final-state flavours, where masses are to be 
 selected before the matrix elements are evaluated. Only the absolute value 
 should be given. For massless particles, like gluons and photons, one need 
@@ -275,14 +275,14 @@ quarks, where masses presumably are not implemented in the matrix elements.
 Later on, these quarks can still (automatically) obtain constituent masses, 
 once a <i>u</i>, <i>d</i> or <i>s</i> flavour has been selected. 
 
-<p/><code>method&nbsp; </code><strong> int resonanceA(), int resonanceB() &nbsp;</strong> <br/>
+<p/><strong>int resonanceA(), int resonanceB() &nbsp;</strong> <br/>
 are the codes of up to two <i>s</i>-channel resonances contributing to 
 the matrix elements. These are used by the program to improve the phase-space 
 selection efficiency, by partly sampling according to the relevant 
 Breit-Wigners. Massless resonances (the gluon and photon) need not be 
 specified.
 
-<p/><code>method&nbsp; </code><strong> bool isSChannel() &nbsp;</strong> <br/>
+<p/><strong>bool isSChannel() &nbsp;</strong> <br/>
 normally the choice of renormalization and factorization scales in 
 <i>2 -> 2</i> and <i>2 -> 3</i> processes is based on the assumption 
 that <i>t</i>- and <i>u</i>-channel exchanges dominates the 
@@ -293,7 +293,7 @@ an <i>s</i>-channel resonance. This can be achieved if you override the
 default <code>false</code> to return <code>true</code>. See further the
 page on <a href="CouplingsAndScales.html" target="page">couplings and scales</a>.
 
-<p/><code>method&nbsp; </code><strong> int idTchan1(), int idTchan2() &nbsp;</strong> <br/>
+<p/><strong>int idTchan1(), int idTchan2() &nbsp;</strong> <br/>
 the <i>2 -> 3</i> phase space selection machinery is rather primitive,
 as already mentioned. The efficiency can be improved in processes that
 proceed though <i>t</i>-channel exchanges, such as 
@@ -301,7 +301,7 @@ proceed though <i>t</i>-channel exchanges, such as
 of the  <i>t</i>-channel-exchanged particles on the two side of the 
 event are provided. Only the absolute value is of interest.
 
-<p/><code>method&nbsp; </code><strong> double tChanFracPow1(), double tChanFracPow2() &nbsp;</strong> <br/>
+<p/><strong>double tChanFracPow1(), double tChanFracPow2() &nbsp;</strong> <br/>
 in the above kind of <i>2 -> 3</i> phase-space selection, the
 sampling of <i>pT^2</i> is done with one part flat, one part weighted
 like <i>1 / (pT^2 + m_R^2)</i> and one part  like 
@@ -319,7 +319,7 @@ since it is actually the <i>pT^2</i> of the latter two that are
 selected independently, with the first <i>pT</i> then fixed  
 by transverse-momentum conservation.
 
-<p/><code>method&nbsp; </code><strong> useMirrorWeight() &nbsp;</strong> <br/>
+<p/><strong>useMirrorWeight() &nbsp;</strong> <br/>
 in <i>2 -> 3</i> processes the phase space selection used here
 involves a twofold ambiguity basically corresponding to a flipping of 
 the positions of last two outgoing particles. These are assumed equally 
@@ -328,7 +328,7 @@ through <i>t</i>-channel exchange the Monte Carlo efficiency can be
 improved by making a preselection based on the relative propagator
 weights, <code>true</code>.  
 
-<p/><code>method&nbsp; </code><strong> int gmZmode() &nbsp;</strong> <br/>
+<p/><strong>int gmZmode() &nbsp;</strong> <br/>
 allows a possibility to override the global mode 
 <code><a href="ElectroweakProcesses.html" target="page">WeakZ0:gmZmode</a></code> 
 for a specific process. The global mode normally is used to switch off 
@@ -410,4 +410,4 @@ a composite <i>d</i>. Obviously these variations may be combined.
 </body>
 </html>
 
-<!-- Copyright (C) 2008 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2009 Torbjorn Sjostrand -->

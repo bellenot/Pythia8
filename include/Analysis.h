@@ -1,5 +1,5 @@
 // Analysis.h is a part of the PYTHIA event generator.
-// Copyright (C) 2008 Torbjorn Sjostrand.
+// Copyright (C) 2009 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -183,7 +183,7 @@ public:
 
   // Return info on jets produced.
   int    size() const {return jets.size();}
-  Vec4 p(int j) const {return jets[j].pJet;}
+  Vec4 p(int i) const {return jets[i].pJet;}
 
   // Return belonging of particle to one of the jets (-1 if none).
   int jetAssignment(int i) const {
@@ -303,11 +303,11 @@ public:
   double phiCenter(int i)    const {return jets[i].phiCenter;}
   double etaWeighted(int i)  const {return jets[i].etaWeighted;}
   double phiWeighted(int i)  const {return jets[i].phiWeighted;}
-  double multiplicity(int i) const {return jets[i].multiplicity;}
-  Vec4 pMassless(int i)      const {return jets[i].eTjet * Vec4(
+  int    multiplicity(int i) const {return jets[i].multiplicity;}
+  Vec4   pMassless(int i)    const {return jets[i].eTjet * Vec4(
            cos(jets[i].phiWeighted),  sin(jets[i].phiWeighted),
           sinh(jets[i].etaWeighted), cosh(jets[i].etaWeighted) );}
-  Vec4 pMassive(int i)       const {return jets[i].pMassive;}
+  Vec4   pMassive(int i)     const {return jets[i].pMassive;}
   double m(int i)            const {return jets[i].pMassive.mCalc();}
 
   // Provide a listing of the info.

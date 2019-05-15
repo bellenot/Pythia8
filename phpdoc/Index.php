@@ -31,8 +31,6 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 
 <h2>PYTHIA 8 Index</h2>
 
-<h4><a href="pythia8100.pdf" target="page">Brief Introduction</a> (pdf)</h4>
-
 <h4>Program Overview</h4>
 
 <a href='Frontpage.php?filepath=".$filepath."' target='page'>Frontpage</a><br/>
@@ -40,6 +38,7 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 <a href='SettingsScheme.php?filepath=".$filepath."' target='page'>Settings Scheme</a><br/>
 <a href='ParticleDataScheme.php?filepath=".$filepath."' target='page'>Particle Data Scheme</a><br/>
 <a href='ProgramFiles.php?filepath=".$filepath."' target='page'>Program Files</a><br/>
+<a href='ProgramClasses.php?filepath=".$filepath."' target='page'>Program Classes</a><br/>
 <a href='SampleMainPrograms.php?filepath=".$filepath."' target='page'>Sample Main Programs</a><br/>
 
 <h4>Setup Run Tasks</h4>
@@ -128,6 +127,7 @@ echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>Les Ho
 <a href='SUSYLesHouchesAccord.php?filepath=".$filepath."' target='page'>SUSY Les Houches Accord</a><br/>
 <a href='BeamShape.php?filepath=".$filepath."' target='page'>Beam Shape</a><br/>
 <a href='PartonDistributions.php?filepath=".$filepath."' target='page'>Parton Distributions</a><br/>
+<a href='JetFinders.php?filepath=".$filepath."' target='page'>Jet Finders</a><br/>
 <a href='ExternalDecays.php?filepath=".$filepath."' target='page'>External Decays</a><br/>
 <a href='UserHooks.php?filepath=".$filepath."' target='page'>User Hooks</a><br/>
 <a href='RandomNumbers.php?filepath=".$filepath."' target='page'>Random Numbers</a><br/>
@@ -143,7 +143,12 @@ echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>Les Ho
 <a href='Glossary.php?filepath=".$filepath."' target='page'>Glossary</a><br/>
 <a href='Version.php?filepath=".$filepath."' target='page'>Version</a>
 
+<h4>Separate documents</h4>
+
+<a href="pythia8100.pdf" target="page">Brief Introduction</a><br/>
+<a href="worksheet.pdf" target="page">Worksheet</a> 
+
 </body>
 </html>
 
-<!-- Copyright (C) 2008 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2009 Torbjorn Sjostrand -->

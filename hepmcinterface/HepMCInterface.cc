@@ -1,5 +1,5 @@
 // HepMCInterface.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2008 Mikhail Kirsanov, Torbjorn Sjostrand.
+// Copyright (C) 2009 Mikhail Kirsanov, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -57,11 +57,11 @@ namespace HepMC {
 	std::vector<GenParticle*> hepevt_particles( pyev.size() );
     int i, istatus;
     for ( i = 1; i < pyev.size(); ++i ) {
-      // We here lose the detailed Pythia status information to conform to
-      // HepMC (HEPEVT) conventions: 1 = existing, 2 = decayed/fragmented. 
-      istatus = (pyev[i].status() > 0) ? 1 : 2;
-      // Alberto Ribon will schedule a further discussion on status codes
-      // for the next HepMC public review.
+      // The new HepMC status codes of February 2009 are now used by 
+      // default. If you want to recover the previous simpler behaviour
+      // comment out the next line and uncomment the following one. 
+      istatus = pyev.statusHepMC(i);
+      // istatus = (pyev[i].status() > 0) ? 1 : 2;
       hepevt_particles[i] = new GenParticle(
               FourVector( m_mom_scale_factor*pyev[i].p().px(),
                           m_mom_scale_factor*pyev[i].p().py(),

@@ -1,5 +1,5 @@
 // SpaceShower.h is a part of the PYTHIA event generator.
-// Copyright (C) 2008 Torbjorn Sjostrand.
+// Copyright (C) 2009 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -129,6 +129,7 @@ protected:
 private: 
 
   // Constants: could only be changed in the code itself.
+  static const bool   DEBUG;
   static const int    MAXLOOPTINYPDF;
   static const double CTHRESHOLD, BTHRESHOLD, EVALPDFSTEP, TINYPDF, 
          TINYKERNELPDF, TINYPT2, HEAVYPT2EVOL, HEAVYXEVOL, EXTRASPACEQ, 
@@ -150,7 +151,7 @@ private:
 
   // Some current values.
   bool   dopTdamp;
-  int    iNow, iRec, idDaughter, nRad;
+  int    iNow, iRec, idDaughter, nRad, idResFirst, idResSecond;
   double xDaughter, x1Now, x2Now, m2Dip, pT2damp;
 
   // All dipole ends

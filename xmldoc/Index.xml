@@ -4,8 +4,6 @@
 
 <h2>PYTHIA 8 Index</h2>
 
-<h4><a href="pythia8100.pdf" target="page">Brief Introduction</a> (pdf)</h4>
-
 <h4>Program Overview</h4>
 
 <aidx href="Frontpage">Frontpage</aidx><br/>
@@ -13,6 +11,7 @@
 <aidx href="SettingsScheme">Settings Scheme</aidx><br/>
 <aidx href="ParticleDataScheme">Particle Data Scheme</aidx><br/>
 <aidx href="ProgramFiles">Program Files</aidx><br/>
+<aidx href="ProgramClasses">Program Classes</aidx><br/>
 <aidx href="SampleMainPrograms">Sample Main Programs</aidx><br/>
 
 <h4>Setup Run Tasks</h4>
@@ -93,6 +92,7 @@
 <aidx href="SUSYLesHouchesAccord">SUSY Les Houches Accord</aidx><br/>
 <aidx href="BeamShape">Beam Shape</aidx><br/>
 <aidx href="PartonDistributions">Parton Distributions</aidx><br/>
+<aidx href="JetFinders">Jet Finders</aidx><br/>
 <aidx href="ExternalDecays">External Decays</aidx><br/>
 <aidx href="UserHooks">User Hooks</aidx><br/>
 <aidx href="RandomNumbers">Random Numbers</aidx><br/>
@@ -107,6 +107,11 @@
 <aidx href="Glossary">Glossary</aidx><br/>
 <aidx href="Version">Version</aidx>
 
+<h4>Separate documents</h4>
+
+<a href="pythia8100.pdf" target="page">Brief Introduction</a><br/>
+<a href="worksheet.pdf" target="page">Worksheet</a> 
+
 </chapter>
 
-<!-- Copyright (C) 2008 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2009 Torbjorn Sjostrand -->

@@ -1,5 +1,5 @@
 // ResonanceWidths.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2008 Torbjorn Sjostrand.
+// Copyright (C) 2009 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -68,6 +68,51 @@ void ResonanceWidths::initStatic(Info* infoPtrIn) {
 
 //*********
 
+// Initialize particle properties always present.
+
+  bool ResonanceWidths::initBasic(int idResIn, bool isGenericIn) {
+
+  // Resonance identity code and pointer to/from particle species.
+  idRes        = idResIn;
+  particlePtr  = ParticleDataTable::particleDataPtr(idRes);
+  if (particlePtr == 0) {
+     infoPtr->errorMsg("Error in ResonanceWidths::initBasic:"
+      " unknown resonance identity code"); 
+     return false;
+  }
+  particlePtr->setResonancePtr(this); 
+
+  // Generic particles should not have meMode < 100, but allow 
+  // some exceptions: not used Higgses and not used Technicolor.
+  isGeneric    = isGenericIn;
+  if (idRes == 35 || idRes == 36 || idRes == 37 
+    || idRes/1000000 == 3) isGeneric = false;
+
+  // Resonance properties: antiparticle, mass, width
+  hasAntiRes   = particlePtr->hasAnti();
+  mRes         = particlePtr->m0();
+  GammaRes     = particlePtr->mWidth();
+  m2Res        = mRes*mRes;
+
+  // For very narrow resonances assign fictitious small width.
+  if (GammaRes < minWidth) GammaRes = 0.1 * minWidth;  
+  GamMRat      = GammaRes / mRes;
+
+  // Secondary decay chains by default all on.
+  openPos      = 1.;
+  openNeg      = 1.;
+
+  // Allow option where on-shell width is forced to current value.
+  doForceWidth = particlePtr->doForceWidth();
+  forceFactor  = 1.;
+
+  // Done.
+  return true;
+
+}
+
+//*********
+
 // Initialize data members.
 // Calculate and store partial and total widths at the nominal mass. 
 
@@ -94,6 +139,12 @@ void ResonanceWidths::init() {
     meMode      = particlePtr->decay[i].meMode();
     mult        = particlePtr->decay[i].multiplicity();
     widNow      = 0.;
+
+    // Warn if not relevant meMode.
+    if ( meMode < 0 || meMode > 103 || (isGeneric && meMode < 100) ) { 
+      infoPtr->errorMsg("Error in ResonanceWidths::init:"
+        " resonance meMode not acceptable"); 
+    }
 
     // Channels with meMode < 100 must be implemented in derived classes.
     if (meMode < 100) {
@@ -327,45 +378,6 @@ double ResonanceWidths::width(int idSgn, double mHatIn, int idInFlavIn,
   // Done.
   return widSum;
   
-}
-
-//*********
-
-// Initialize particle properties always present.
-
-bool ResonanceWidths::initBasic(int idResIn) {
-
-  // Resonance identity code and pointer to/from particle species.
-  idRes = idResIn;
-  particlePtr = ParticleDataTable::particleDataPtr(idRes);
-  if (particlePtr == 0) {
-     infoPtr->errorMsg("Error in ResonanceWidths::initBasic:"
-      " unknown resonance identity code"); 
-     return false;
-  }
-  particlePtr->setResonancePtr(this); 
-
-  // Resonance properties: antiparticle, mass, width
-  hasAntiRes   = particlePtr->hasAnti();
-  mRes         = particlePtr->m0();
-  GammaRes     = particlePtr->mWidth();
-  m2Res        = mRes*mRes;
-
-  // For very narrow resonances assign fictitious small width.
-  if (GammaRes < minWidth) GammaRes = 0.1 * minWidth;  
-  GamMRat      = GammaRes / mRes;
-
-  // Secondary decay chains by default all on.
-  openPos      = 1.;
-  openNeg      = 1.;
-
-  // Allow option where on-shell width is forced to current value.
-  doForceWidth = particlePtr->doForceWidth();
-  forceFactor  = 1.;
-
-  // Done.
-  return true;
-
 }
 
 //*********

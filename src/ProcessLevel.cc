@@ -1,17 +1,27 @@
 // ProcessLevel.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2008 Torbjorn Sjostrand.
+// Copyright (C) 2009 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 // Function definitions (not found in the header) for the ProcessLevel class.
 
 #include "ProcessLevel.h"
+// Following header needed to intialize static CoupSUSY class.
+#include "SigmaSUSY.h"
 
 namespace Pythia8 {
  
 //**************************************************************************
 
 // The ProcessLevel class.
+
+//*********
+
+// Constants: could be changed here if desired, but normally should not.
+// These are of technical nature, as described for each.
+
+// Allow a few failures in final construction of events.
+const int ProcessLevel::MAXLOOP = 5;
 
 //*********
   
@@ -49,10 +59,6 @@ bool ProcessLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn,
   // Send on some input pointers.
   resonanceDecays.init( infoPtr);
 
-  // Options to allow second hard interaction and resonance decays.
-  doSecondHard  = Settings::flag("SecondHard:generate");
-  doResDecays   = Settings::flag("ProcessLevel:resonanceDecays");
-
   // Set up SigmaTotal. Store sigma_nondiffractive for future use.
   sigmaTotPtr->init( infoPtr);
   int    idA = infoPtr->idA();
@@ -60,6 +66,38 @@ bool ProcessLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn,
   double eCM = infoPtr->eCM();
   sigmaTotPtr->calc( idA, idB, eCM);
   sigmaND = sigmaTotPtr->sigmaND();
+
+  // Options to allow second hard interaction and resonance decays.
+  doSecondHard  = Settings::flag("SecondHard:generate");
+  doSameCuts    = Settings::flag("PhaseSpace:sameForSecond");
+  doResDecays   = Settings::flag("ProcessLevel:resonanceDecays");
+
+  // Mass and pT cuts for two hard processes.
+  mHatMin1      = Settings::parm("PhaseSpace:mHatMin");
+  mHatMax1      = Settings::parm("PhaseSpace:mHatMax");
+  if (mHatMax1 < mHatMin1) mHatMax1 = eCM;
+  pTHatMin1     = Settings::parm("PhaseSpace:pTHatMin");
+  pTHatMax1     = Settings::parm("PhaseSpace:pTHatMax");
+  if (pTHatMax1 < pTHatMin1) pTHatMax1 = eCM;
+  mHatMin2      = Settings::parm("PhaseSpace:mHatMinSecond");
+  mHatMax2      = Settings::parm("PhaseSpace:mHatMaxSecond");
+  if (mHatMax2 < mHatMin2) mHatMax2 = eCM;
+  pTHatMin2     = Settings::parm("PhaseSpace:pTHatMinSecond");
+  pTHatMax2     = Settings::parm("PhaseSpace:pTHatMaxSecond");
+  if (pTHatMax2 < pTHatMin2) pTHatMax2 = eCM;
+  
+  // Check whether mass and pT ranges agree or overlap.
+  cutsAgree     = doSameCuts;
+  if (mHatMin2 == mHatMin1 && mHatMax2 == mHatMax1 && pTHatMin2 == pTHatMin1 
+      && pTHatMax2 == pTHatMax1) cutsAgree = true; 
+  cutsOverlap   = cutsAgree; 
+  if (!cutsAgree) {
+    bool mHatOverlap = (max( mHatMin1, mHatMin2)
+                      < min( mHatMax1, mHatMax2));
+    bool pTHatOverlap = (max( pTHatMin1, pTHatMin2) 
+                       < min( pTHatMax1, pTHatMax2));
+    if (mHatOverlap && pTHatOverlap) cutsOverlap = true;
+  }
 
   // Initialize SUSY Les Houches Accord data
   if (!initSLHA()) return false;
@@ -71,7 +109,8 @@ bool ProcessLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn,
   // Append containers for external hard processes, if any.
   if (sigmaPtrs.size() > 0) {
     for (int iSig = 0; iSig < int(sigmaPtrs.size()); ++iSig)
-      containerPtrs.push_back( new ProcessContainer(sigmaPtrs[iSig]) );
+      containerPtrs.push_back( new ProcessContainer(sigmaPtrs[iSig],
+      true) );
   } 
 
   // Append single container for Les Houches processes, if any.
@@ -103,9 +142,9 @@ bool ProcessLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn,
   // Initialize each process. 
   int numberOn = 0;
   for (int i = 0; i < int(containerPtrs.size()); ++i)
-    if (containerPtrs[i]->init(infoPtr, beamAPtr, beamBPtr, &alphaS, 
-      &alphaEM, sigmaTotPtr, &resonanceDecays, slhaPtr, userHooksPtr)) 
-      ++numberOn;
+    if (containerPtrs[i]->init(true, infoPtr, beamAPtr, beamBPtr, 
+      &alphaS, &alphaEM, sigmaTotPtr, &resonanceDecays, slhaPtr, 
+      userHooksPtr)) ++numberOn;
 
   // Sum maxima for Monte Carlo choice.
   sigmaMaxSum = 0.;
@@ -122,9 +161,9 @@ bool ProcessLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn,
       return false;
     }
     for (int i2 = 0; i2 < int(container2Ptrs.size()); ++i2)
-      if (container2Ptrs[i2]->init(infoPtr, beamAPtr, beamBPtr, &alphaS, 
-        &alphaEM, sigmaTotPtr, &resonanceDecays, slhaPtr, userHooksPtr)) 
-        ++number2On;
+      if (container2Ptrs[i2]->init(false, infoPtr, beamAPtr, beamBPtr, 
+        &alphaS, &alphaEM, sigmaTotPtr, &resonanceDecays, slhaPtr, 
+        userHooksPtr)) ++number2On;
     sigma2MaxSum = 0.;
     for (int i2 = 0; i2 < int(container2Ptrs.size()); ++i2)
       sigma2MaxSum += container2Ptrs[i2]->sigmaMax();
@@ -209,6 +248,7 @@ bool ProcessLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn,
     // Check for each first process if matched in second.
     for (int i = 0; i < int(containerPtrs.size()); ++i) {
       foundMatch = false;
+      if (cutsOverlap)
       for (int i2 = 0; i2 < int(container2Ptrs.size()); ++i2) 
         if (container2Ptrs[i2]->code() == containerPtrs[i]->code()) 
           foundMatch = true;
@@ -220,6 +260,7 @@ bool ProcessLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn,
     // Check for each second process if matched in first.
     for (int i2 = 0; i2 < int(container2Ptrs.size()); ++i2) {
       foundMatch = false;
+      if (cutsOverlap)
       for (int i = 0; i < int(containerPtrs.size()); ++i) 
         if (containerPtrs[i]->code() == container2Ptrs[i2]->code()) 
           foundMatch = true;
@@ -228,6 +269,9 @@ bool ProcessLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn,
       if ( foundMatch) noneHardSame = false;   
     }
   }
+
+  // Concluding classification, including cuts.
+  if (!cutsAgree) allHardSame = false;
   someHardSame = !allHardSame && !noneHardSame;
 
   // Reset counters for average impact-parameter enhancement.
@@ -474,6 +518,9 @@ bool ProcessLevel::initSLHA() {
     return true;
   };
 
+  // Init SUSY couplings
+  CoupSUSY::initStatic(slhaPtr);
+
   // Print spectrum. Done. 
   slhaPtr->printSpectrum();
   return true;
@@ -491,61 +538,13 @@ bool ProcessLevel::nextOne( Event& process) {
   for (int i = 0; i < int(containerPtrs.size()); ++i)
     containerPtrs[i]->newECM(eCM);
 
-  // Loop over tries until trial event succeeds.
-  for ( ; ; ) {
+  // Outer loop in case of rare failures.
+  bool physical = true;
+  for (int loop = 0; loop < MAXLOOP; ++loop) {
+    if (!physical) process.clear();
+    physical = true;
 
-    // Pick one of the subprocesses.
-    double sigmaMaxNow = sigmaMaxSum * Rndm::flat();
-    int iMax = containerPtrs.size() - 1;
-    iContainer = -1;
-    do sigmaMaxNow -= containerPtrs[++iContainer]->sigmaMax();
-    while (sigmaMaxNow > 0. && iContainer < iMax);
-    
-    // Do a trial event of this subprocess; accept or not.
-    if (containerPtrs[iContainer]->trialProcess()) break;
-
-    // Check for end-of-file condition for Les Houches events.
-    if (infoPtr->atEndOfFile()) return false;
-  }
-
-  // Update sum of maxima if current maximum violated.
-  if (containerPtrs[iContainer]->newSigmaMax()) {
-    sigmaMaxSum = 0.;
-    for (int i = 0; i < int(containerPtrs.size()); ++i)
-      sigmaMaxSum += containerPtrs[i]->sigmaMax();
-  }
-
-  // Construct kinematics of acceptable process.
-  if ( !containerPtrs[iContainer]->constructProcess( process) ) return false;
-
-  // Do all resonance decays.
-  if ( doResDecays && !containerPtrs[iContainer]->decayResonances( 
-    process) ) return false;
-
-  // Add any junctions to the process event record list.
-  findJunctions( process);
-
-  // Done.
-  return true;
-}
-
-//*********
-
-// Generate the next event with two hard interactions.
-  
-bool ProcessLevel::nextTwo( Event& process) {
-  
-  // Update CM energy for phase space selection.
-  double eCM = infoPtr->eCM();
-  for (int i = 0; i < int(containerPtrs.size()); ++i)
-    containerPtrs[i]->newECM(eCM);
-  for (int i2 = 0; i2 < int(container2Ptrs.size()); ++i2)
-    container2Ptrs[i2]->newECM(eCM);
-
-  // Loop over both hard processes to find consistent common kinematics.
-  for ( ; ; ) {
-   
-    // Loop internally over tries for hardest process until succeeds.
+    // Loop over tries until trial event succeeds.
     for ( ; ; ) {
 
       // Pick one of the subprocesses.
@@ -569,92 +568,181 @@ bool ProcessLevel::nextTwo( Event& process) {
         sigmaMaxSum += containerPtrs[i]->sigmaMax();
     }
 
-    // Loop internally over tries for second hardest process until succeeds.
-    for ( ; ; ) {
+    // Construct kinematics of acceptable process.
+    if ( !containerPtrs[iContainer]->constructProcess( process) )
+      physical = false;
 
-      // Pick one of the subprocesses.
-      double sigma2MaxNow = sigma2MaxSum * Rndm::flat();
-      int i2Max = container2Ptrs.size() - 1;
-      i2Container = -1;
-      do sigma2MaxNow -= container2Ptrs[++i2Container]->sigmaMax();
-      while (sigma2MaxNow > 0. && i2Container < i2Max);
-    
-      // Do a trial event of this subprocess; accept or not.
-      if (container2Ptrs[i2Container]->trialProcess()) break;
-    }
+    // Do all resonance decays.
+    if ( physical && doResDecays 
+      && !containerPtrs[iContainer]->decayResonances( process) ) 
+      physical = false;
 
-    // Update sum of maxima if current maximum violated.
-    if (container2Ptrs[i2Container]->newSigmaMax()) {
-      sigma2MaxSum = 0.;
-      for (int i2 = 0; i2 < int(container2Ptrs.size()); ++i2)
-        sigma2MaxSum += container2Ptrs[i2]->sigmaMax();
-    }
+    // Add any junctions to the process event record list.
+    if (physical) findJunctions( process);
 
-    // Check whether common set of x values is kinematically possible.
-    double xA1      = containerPtrs[iContainer]->x1();
-    double xB1      = containerPtrs[iContainer]->x2();
-    double xA2      = container2Ptrs[i2Container]->x1();
-    double xB2      = container2Ptrs[i2Container]->x2();    
-    if (xA1 + xA2 >= 1. || xB1 + xB2 >= 1.) continue;
-
-    // Reset beam contents. Naive parton densities for second interaction.
-    // (Subsequent procedure could be symmetrized, but would be overkill.)
-    beamAPtr->clear();    
-    beamBPtr->clear();    
-    int    idA1     = containerPtrs[iContainer]->id1();
-    int    idB1     = containerPtrs[iContainer]->id2();
-    int    idA2     = container2Ptrs[i2Container]->id1();
-    int    idB2     = container2Ptrs[i2Container]->id2();
-    double Q2Fac1   = containerPtrs[iContainer]->Q2Fac();
-    double Q2Fac2   = container2Ptrs[i2Container]->Q2Fac();
-    double pdfA2Raw = beamAPtr->xf( idA2, xA2,Q2Fac2);
-    double pdfB2Raw = beamBPtr->xf( idB2, xB2,Q2Fac2);
-
-    // Remove partons in first interaction from beams. 
-    beamAPtr->append( 3, idA1, xA1);
-    beamAPtr->xfISR( 0, idA1, xA1, Q2Fac1);
-    beamAPtr->pickValSeaComp(); 
-    beamBPtr->append( 4, idB1, xB1);
-    beamBPtr->xfISR( 0, idB1, xB1, Q2Fac1);
-    beamBPtr->pickValSeaComp(); 
-
-    // Reevaluate pdf's for second interaction and weight by reduction.
-    double pdfA2Mod = beamAPtr->xfMI( idA2, xA2,Q2Fac2);
-    double pdfB2Mod = beamBPtr->xfMI( idB2, xB2,Q2Fac2);
-    double wtPdfMod = (pdfA2Mod * pdfB2Mod) / (pdfA2Raw * pdfB2Raw); 
-    if (wtPdfMod < Rndm::flat()) continue;
-
-    // Reduce by a factor of 2 for identical processes when others not.
-    if ( someHardSame && containerPtrs[iContainer]->isSame() 
-      && container2Ptrs[i2Container]->isSame() && Rndm::flat() > 0.5) 
-      continue;
-
-    // If come this far then acceptable event.
-    break;
+    // Outer loop should normally work first time around.
+    if (physical) break;
   }
 
-  // Construct kinematics of acceptable processes.
-  Event process2;
-  process2.initColTag();
-  startColTag2 = process2.lastColTag();
-  if ( !containerPtrs[iContainer]->constructProcess( process) ) return false;
-  if ( !container2Ptrs[i2Container]->constructProcess( process2, false) )
-    return false;
+  // Done.
+  return physical;
+}
 
-  // Do all resonance decays.
-  if ( doResDecays &&  !containerPtrs[iContainer]->decayResonances( 
-    process) ) return false;
-  if ( doResDecays &&  !container2Ptrs[i2Container]->decayResonances( 
-    process2) ) return false;
+//*********
 
-  // Append second hard interaction to normal process object.
-  combineProcessRecords( process, process2);
+// Generate the next event with two hard interactions.
+  
+bool ProcessLevel::nextTwo( Event& process) {
+  
+  // Update CM energy for phase space selection.
+  double eCM = infoPtr->eCM();
+  for (int i = 0; i < int(containerPtrs.size()); ++i)
+    containerPtrs[i]->newECM(eCM);
+  for (int i2 = 0; i2 < int(container2Ptrs.size()); ++i2)
+    container2Ptrs[i2]->newECM(eCM);
 
-  // Add any junctions to the process event record list.
-  findJunctions( process);
+  // Outer loop in case of rare failures.
+  bool physical = true;
+  for (int loop = 0; loop < MAXLOOP; ++loop) {
+    if (!physical) process.clear();
+    physical = true;
+
+    // Loop over both hard processes to find consistent common kinematics.
+    for ( ; ; ) {
+   
+      // Loop internally over tries for hardest process until succeeds.
+      for ( ; ; ) {
+
+        // Pick one of the subprocesses.
+        double sigmaMaxNow = sigmaMaxSum * Rndm::flat();
+        int iMax = containerPtrs.size() - 1;
+        iContainer = -1;
+        do sigmaMaxNow -= containerPtrs[++iContainer]->sigmaMax();
+        while (sigmaMaxNow > 0. && iContainer < iMax);
+      
+        // Do a trial event of this subprocess; accept or not.
+        if (containerPtrs[iContainer]->trialProcess()) break;
+
+        // Check for end-of-file condition for Les Houches events.
+        if (infoPtr->atEndOfFile()) return false;
+      }
+
+      // Update sum of maxima if current maximum violated.
+      if (containerPtrs[iContainer]->newSigmaMax()) {
+        sigmaMaxSum = 0.;
+        for (int i = 0; i < int(containerPtrs.size()); ++i)
+          sigmaMaxSum += containerPtrs[i]->sigmaMax();
+      }
+
+      // Loop internally over tries for second hardest process until succeeds.
+      for ( ; ; ) {
+
+        // Pick one of the subprocesses.
+        double sigma2MaxNow = sigma2MaxSum * Rndm::flat();
+        int i2Max = container2Ptrs.size() - 1;
+        i2Container = -1;
+        do sigma2MaxNow -= container2Ptrs[++i2Container]->sigmaMax();
+        while (sigma2MaxNow > 0. && i2Container < i2Max);
+    
+        // Do a trial event of this subprocess; accept or not.
+        if (container2Ptrs[i2Container]->trialProcess()) break;
+      }
+
+      // Update sum of maxima if current maximum violated.
+      if (container2Ptrs[i2Container]->newSigmaMax()) {
+        sigma2MaxSum = 0.;
+        for (int i2 = 0; i2 < int(container2Ptrs.size()); ++i2)
+          sigma2MaxSum += container2Ptrs[i2]->sigmaMax();
+      }
+
+      // Check whether common set of x values is kinematically possible.
+      double xA1      = containerPtrs[iContainer]->x1();
+      double xB1      = containerPtrs[iContainer]->x2();
+      double xA2      = container2Ptrs[i2Container]->x1();
+      double xB2      = container2Ptrs[i2Container]->x2();    
+      if (xA1 + xA2 >= 1. || xB1 + xB2 >= 1.) continue;
+
+      // Reset beam contents. Naive parton densities for second interaction.
+      // (Subsequent procedure could be symmetrized, but would be overkill.)
+      beamAPtr->clear();    
+      beamBPtr->clear();    
+      int    idA1     = containerPtrs[iContainer]->id1();
+      int    idB1     = containerPtrs[iContainer]->id2();
+      int    idA2     = container2Ptrs[i2Container]->id1();
+      int    idB2     = container2Ptrs[i2Container]->id2();
+      double Q2Fac1   = containerPtrs[iContainer]->Q2Fac();
+      double Q2Fac2   = container2Ptrs[i2Container]->Q2Fac();
+      double pdfA2Raw = beamAPtr->xf( idA2, xA2,Q2Fac2);
+      double pdfB2Raw = beamBPtr->xf( idB2, xB2,Q2Fac2);
+
+      // Remove partons in first interaction from beams. 
+      beamAPtr->append( 3, idA1, xA1);
+      beamAPtr->xfISR( 0, idA1, xA1, Q2Fac1);
+      beamAPtr->pickValSeaComp(); 
+      beamBPtr->append( 4, idB1, xB1);
+      beamBPtr->xfISR( 0, idB1, xB1, Q2Fac1);
+      beamBPtr->pickValSeaComp(); 
+
+      // Reevaluate pdf's for second interaction and weight by reduction.
+      double pdfA2Mod = beamAPtr->xfMI( idA2, xA2,Q2Fac2);
+      double pdfB2Mod = beamBPtr->xfMI( idB2, xB2,Q2Fac2);
+      double wtPdfMod = (pdfA2Mod * pdfB2Mod) / (pdfA2Raw * pdfB2Raw); 
+      if (wtPdfMod < Rndm::flat()) continue;
+
+      // Reduce by a factor of 2 for identical processes when others not,
+      // and when in same phase space region.
+      bool toLoop = false;
+      if ( someHardSame && containerPtrs[iContainer]->isSame() 
+        && container2Ptrs[i2Container]->isSame()) {
+        if (cutsAgree) {
+          if (Rndm::flat() > 0.5) toLoop = true;
+        } else {
+        double mHat1 = containerPtrs[iContainer]->mHat();
+        double pTHat1 = containerPtrs[iContainer]->pTHat();
+        double mHat2 = container2Ptrs[i2Container]->mHat();
+        double pTHat2 = container2Ptrs[i2Container]->pTHat();
+        if (mHat1 > mHatMin2 && mHat1 < mHatMax2 
+           && pTHat1 > pTHatMin2 && pTHat1 < pTHatMax2
+           && mHat2 > mHatMin1 && mHat2 < mHatMax1 
+	   && pTHat2 > pTHatMin1 && pTHat2 < pTHatMax1
+           && Rndm::flat() > 0.5) toLoop = true;
+        }
+      }
+      if (toLoop) continue;    
+
+      // If come this far then acceptable event.
+      break;
+    }
+
+    // Construct kinematics of acceptable processes.
+    Event process2;
+    process2.initColTag();
+    startColTag2 = process2.lastColTag();
+    if ( !containerPtrs[iContainer]->constructProcess( process) ) 
+      physical = false;
+    if (physical && !container2Ptrs[i2Container]->constructProcess( process2, false) )
+      physical = false;
+
+    // Do all resonance decays.
+    if ( physical && doResDecays 
+      &&  !containerPtrs[iContainer]->decayResonances( process) ) 
+      physical = false;
+    if ( physical && doResDecays 
+      &&  !container2Ptrs[i2Container]->decayResonances( process2) ) 
+      physical = false;
+
+    // Append second hard interaction to normal process object.
+    if (physical) combineProcessRecords( process, process2);
+
+    // Add any junctions to the process event record list.
+    if (physical) findJunctions( process);
+
+    // Outer loop should normally work first time around.
+    if (physical) break;
+  }
 
   // Done.
-  return true;
+  return physical;
 }
 
 //*********

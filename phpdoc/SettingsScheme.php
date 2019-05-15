@@ -43,6 +43,13 @@ class. Further, for the most frequent user tasks, <code>Pythia</code>
 methods have been defined, so that <code>pythia.command(argument)</code> 
 would work, see further below.
 
+<p/>
+The central section on this page is the Operation one. The preceding 
+concepts section is there mainly to introduce the basic structure and 
+the set of properties that can be accessed. The subsequent sections 
+provide a complete listing of the existing public methods, which most 
+users probably will have little interaction with.
+
 <h3>Concepts</h3>
 
 We distinguish four kinds of user-modifiable variables, by the way
@@ -175,42 +182,8 @@ methods.
 
 <p/> 
 At the same level, there are several different methods available.
-We here show the ones for <code>mode</code>, but corresponding methods 
-exist for <code>flag</code>, <code>parm</code> and <code>word</code>,
-with obvious restrictions where <code>min</code> and <code>max</code> 
-are not defined. Again name comparisons are case-insensitive.
-<p/><code>method&nbsp; </code><strong> mode( name) &nbsp;</strong> <br/>
-gives the current value,
-  
-<p/><code>method&nbsp; </code><strong> mode( name, value) &nbsp;</strong> <br/>
-sets the current value,
-  
-<p/><code>method&nbsp; </code><strong> isMode( name) &nbsp;</strong> <br/>
-tells whether a mode has been defined or not,
-  
-<p/><code>method&nbsp; </code><strong> addMode( name, default, min, max) &nbsp;</strong> <br/>
-defines a new mode,
-  
-<p/><code>method&nbsp; </code><strong> forceMode( name, value) &nbsp;</strong> <br/>
-sets the value, also when outside the recommended bounds (and it is 
-completely up to you to face the consequences),
-  
-<p/><code>method&nbsp; </code><strong> resetMode( name) &nbsp;</strong> <br/>
-resets the current value to the default one.
-  
-
-<p/> 
-Normally the user should have no need for these methods. The 
-main exception is when some of the variables defined on the
-<?php $filepath = $_GET["filepath"];
-echo "<a href='MainProgramSettings.php?filepath=".$filepath."' target='page'>";?>Main-Program Settings</a> 
-page are used to set run-specific information 
-(like the CM energy or the number of events to generate) in an external 
-file (see 2d below) and these variables are to be read into the main 
-program. Then the <code>flag(name)</code>, <code>mode(name)</code>
-<code>parm(name)</code> and <code>word(name)</code> methods are to 
-be used, see e.g. the main programs in the <code>examples</code> 
-subdirectory to find out how it works.
+These are included in the full description below, but normally the user 
+should have no need for them. 
 
 <p/>
 d) A simpler and more useful way is to collect all your changes
@@ -290,7 +263,138 @@ only the changed ones. Further, the first argument can be replaced by
 </li>
 </ol>
 
+<h3>Methods</h3>
+
+The complete list of methods and arguments is as follows. Most of the 
+ones of interest to the user have already been mentioned above. 
+Others can be used, but the same functionality is better achieved
+by higher-level routines. Some are part of the internal machinery,
+and should not be touched by user. 
+
+<p/>
+Note that there is no <code>Settings::readFile(...)</code> method. 
+The intention is that you should use <code>Pythia::readFile(...)</code>.
+It parses and decides which individual lines should be sent on to 
+<code>Settings::readString(...)</code>.
+
+<p/><strong>Settings::Settings() &nbsp;</strong> <br/>
+the constructor, which takes no arguments. Internal.
+  
+
+<p/><strong>static bool Settings::initPtr(Info* infoPtrIn) &nbsp;</strong> <br/>
+initialize pointer to error-message database. Internal.
+  
+
+<p/><strong>static bool Settings::init(string startFile = &quot;../xmldoc/Index.xml&quot;, bool append = false, ostream& os = cout) &nbsp;</strong> <br/>
+read in the database from the files listed in the
+<code>startFile</code> file. Nothing will be done if this method has 
+already been called once, unless <code>append = true</code>. By default
+<code>cout</code> is used for error printout. Returns <code>false</code>
+if fails.
+  
+
+<p/><strong>static bool Settings::reInit(string startFile = &quot;../xmldoc/Index.xml&quot;) &nbsp;</strong> <br/>
+overwrite the existing database by reading from the specified file,
+like with <code>init(...)</code>. Returns <code>false</code>
+if fails.
+  
+
+<p/><strong>static bool Settings::readString(string line, bool warn = true, ostream& os = cout) &nbsp;</strong> <br/>
+read in a string, and change the relevant quantity in the database.
+Returns <code>false</code> if fails. Then also prints an error on
+<code>os</code> unless <code>warn = false</code>.  
+  
+
+<p/><strong>static bool Settings::writeFile(string toFile, bool writeAll = false) &nbsp;</strong> <br/>
+  
+<strong>static bool Settings::writeFile(ostream& os = cout, bool writeAll = false) &nbsp;</strong> <br/>
+write current settings to a file or to an <code>ostream</code>.
+Normally only settings that have ben changed are written, but with
+<code>writeAll = true</code> all settings are output.
+Returns <code>false</code> if fails.
+  
+
+<p/><strong>static void Settings::listAll(ostream& os = cout) &nbsp;</strong> <br/>
+  
+<strong>static void Settings::listChanged(ostream& os = cout) &nbsp;</strong> <br/>
+  
+<strong>static void Settings::list(string match, ostream& os = cout) &nbsp;</strong> <br/>
+list all or changed settings, or ones where the settings name contains
+the <code>match</code> (sub)string (case-insensitive). 
+  
+
+<p/><strong>static void Settings::resetAll() &nbsp;</strong> <br/>
+reset all current values to their defaults.
+  
+
+<p/><strong>static bool Settings::isFlag(string key) &nbsp;</strong> <br/>
+  
+<strong>static bool Settings::isMode(string key) &nbsp;</strong> <br/>
+  
+<strong>static bool Settings::isParm(string key) &nbsp;</strong> <br/>
+  
+<strong>static bool Settings::isWord(string key) &nbsp;</strong> <br/>
+return <code>true</code> if an entry of the given name and kind 
+exists, else <code>false</code>.
+  
+
+<p/><strong>static void Settings::addFlag(string key, bool default) &nbsp;</strong> <br/>
+  
+<strong>static void Settings::addMode(string key, int default, bool hasMin, bool hasMax, int min, int max) &nbsp;</strong> <br/>
+  
+<strong>static void Settings::void addParm(string key, double default, bool hasMin, bool hasMax, double min, double max) &nbsp;</strong> <br/>
+  
+<strong>static void Settings::addWord(string key, string default) &nbsp;</strong> <br/>
+add an entry of the respective kind to the database. The name and default
+value always has to be supplied, for <code>Mode</code> and 
+<code>Word</code> additionally if lower and/or upper limits are to be 
+imposed and, if so, what those limit are.
+  
+
+<p/><strong>static bool Settings::flag(string key) &nbsp;</strong> <br/>
+  
+<strong>static int Settings::mode(string key) &nbsp;</strong> <br/>
+  
+<strong>static double Settings::parm(string key) &nbsp;</strong> <br/>
+  
+<strong>static string Settings::word(string key) &nbsp;</strong> <br/>
+return the current value of the respective setting. If the name 
+does not exist in the database, a value <code>false</code>,
+<code>0</code>, <code>0.</code> and <code>&quot; &quot;</code> 
+is returned, respectively.
+  
+
+<p/><strong>static void Settings::flag(string key, bool now) &nbsp;</strong> <br/>
+  
+<strong>static void Settings::mode(string key, int now) &nbsp;</strong> <br/>
+  
+<strong>static void Settings::parm(string key, double now) &nbsp;</strong> <br/>
+  
+<strong>static void Settings::word(string key, string now) &nbsp;</strong> <br/>
+change the current value of the respective setting to the provided 
+new value. If lower or upper limits have been set, input values 
+outside the allowed range are reinterpreted as being a the nearest 
+limit.
+  
+
+<p/><strong>static void Settings::forceMode(string key, int now) &nbsp;</strong> <br/>
+  
+<strong>static void Settings::forceParm(string key, double now) &nbsp;</strong> <br/>
+as above, but do not check lower and upper limits, so that the current 
+value can be put outside the intended borders.
+  
+
+<p/><strong>static void Settings::resetFlag(string key) &nbsp;</strong> <br/>
+  
+<strong>static void Settings::resetMode(string key) &nbsp;</strong> <br/>
+  
+<strong>static void Settings::resetParm(string key) &nbsp;</strong> <br/>
+  
+<strong>static void Settings::resetWord(string key) &nbsp;</strong> <br/>
+reset the current value to the default one.
+  
+
 </body>
 </html>
 
-<!-- Copyright (C) 2008 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2009 Torbjorn Sjostrand -->

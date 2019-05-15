@@ -46,7 +46,7 @@ When on, only particles with <i>tau0 &lt; tau0Max</i> are decayed.
   
 
 <p/><code>parm&nbsp; </code><strong> ParticleDecays:tau0Max &nbsp;</strong> 
- (<code>default = <strong>1.</strong></code>; <code>minimum = 0.</code>)<br/>
+ (<code>default = <strong>10.</strong></code>; <code>minimum = 0.</code>)<br/>
 The above <i>tau0Max</i>, expressed in mm/c.
   
 
@@ -60,7 +60,7 @@ When on, only particles with <i>tau &lt; tauMax</i> are decayed.
   
 
 <p/><code>parm&nbsp; </code><strong> ParticleDecays:tauMax &nbsp;</strong> 
- (<code>default = <strong>1.</strong></code>; <code>minimum = 0.</code>)<br/>
+ (<code>default = <strong>10.</strong></code>; <code>minimum = 0.</code>)<br/>
 The above <i>tauMax</i>, expressed in mm/c.<br/>
 In order for this and the subsequent tests to work, a <i>tau</i> 
 is selected and stored for each particle, whether in the end it
@@ -80,8 +80,8 @@ detector effects.
   
 
 <p/><code>parm&nbsp; </code><strong> ParticleDecays:rMax &nbsp;</strong> 
- (<code>default = <strong>1.</strong></code>; <code>minimum = 0.</code>)<br/>
-The above <i>rMax</i>, expressed in mm/c.
+ (<code>default = <strong>10.</strong></code>; <code>minimum = 0.</code>)<br/>
+The above <i>rMax</i>, expressed in mm.
    
 
 <p/>
@@ -97,13 +97,13 @@ detector effects.
   
 
 <p/><code>parm&nbsp; </code><strong> ParticleDecays:xyMax &nbsp;</strong> 
- (<code>default = <strong>1.</strong></code>; <code>minimum = 0.</code>)<br/>
-The above <i>xyMax</i>, expressed in mm/c.
+ (<code>default = <strong>10.</strong></code>; <code>minimum = 0.</code>)<br/>
+The above <i>xyMax</i>, expressed in mm.
    
 
 <p/><code>parm&nbsp; </code><strong> ParticleDecays:zMax &nbsp;</strong> 
- (<code>default = <strong>1.</strong></code>; <code>minimum = 0.</code>)<br/>
-The above <i>zMax</i>, expressed in mm/c.
+ (<code>default = <strong>10.</strong></code>; <code>minimum = 0.</code>)<br/>
+The above <i>zMax</i>, expressed in mm.
    
 
 <h3>Mixing</h3>
@@ -213,7 +213,7 @@ PYTHIA 6 ones, but several obsolete choices have been removed,
 a few new introduced, and most have been moved for better consistency. 
 Here is the list of currently allowed <code>meMode()</code> codes:
 <ul>
-<li>  0 : pure phace space of produced particles ("default");
+<li>  0 : pure phase space of produced particles ("default");
 input of partons is allowed and then the partonic content is 
 converted into the minimal number of hadrons (i.e. one per
 parton pair, but at least two particles in total)</li>
@@ -277,5 +277,5 @@ multiplicity than the simple string assumed for 82, see the
 </body>
 </html>
 
-<!-- Copyright (C) 2008 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
 

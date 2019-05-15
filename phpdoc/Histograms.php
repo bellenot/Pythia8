@@ -32,30 +32,16 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 The <code>Hist</code> class gives a simple implementation of 
 one-dimensional histograms, useful for quick-and-dirty testing, 
 without the need to link to more sophisticated packages. 
-For this reson it is used in many of the sample main programs
+For this reson it is used in many of the
+<?php $filepath = $_GET["filepath"];
+echo "<a href='SampleMainPrograms.php?filepath=".$filepath."' target='page'>";?>sample main programs</a>
 found in the <code>examples</code> subdirectory.
 
+<h3>Basic principles</h3>
 
-<p/>
-A Histogram is declared by a    
-<p/><code>class&nbsp; </code><strong> Hist name( title, numberOfBins, xMin, xMax) &nbsp;</strong> <br/>
-where
-<br/><code>argument</code><strong> title </strong>  :  
-is a string with the title of the histogram at output,
-  
-<br/><code>argument</code><strong> numberOfBins </strong>  :  
-is the number of bin the <i>x</i> range will be subdivided into, 
-  
-<br/><code>argument</code><strong> xMin </strong>  :  
-is the lower edge of the histogram,
-  
-<br/><code>argument</code><strong> xMax </strong>  :  
-is the upper edge of the histogram.
-  
-  
-
-<p/>
-For instance
+We here provide a simple overview of what is involved.
+As a first step you need to declare a histogram, with name,
+title, number of bins and <i>x</i> range (from, to).
 <pre>
    Hist ZpT( "Z0 pT spectrum", 100, 0., 100.);
 </pre>
@@ -66,30 +52,20 @@ Alternatively you can first declare it and later define it:
 </pre>
 
 Once declared, its contents can be added by repeated calls to 
-<code>fill</code>
-<p/><code>method&nbsp; </code><strong> fill( xValue, weight) &nbsp;</strong> <br/>
-where
-<br/><code>argument</code><strong> xValue </strong>  : 
-is the <i>x</i> position where the filling should occur, and
-  
-<br/><code>argument</code><strong> weight </strong> (<code>default = <strong>1.</strong></code>) : 
-is the amount of weight to be added at this <i>x</i> value.
-  
-  
-
-<p/>
-For instance
+<code>fill</code>,
 <pre>
    ZpT.fill( 22.7, 1.); 
 </pre>
-Since the weight defaults to 1 the last argument could have been 
-omitted in this case.   
+where the first argument is the <i>x</i> value and the second the 
+weight. Since the weight defaults to 1 the last argument could have 
+been omitted in this case.   
 
 <p/>
 A set of overloaded operators have been defined, so that histograms 
 can be added, subtracted, divided or multiplied by each other. Then the
 contents are modified accordingly bin by bin. Thus the relative
-deviation between two histograms can be found as
+deviation between two histograms <code>data</code> and 
+<code>theory</code> can be found as
 <pre>
   diff = (data - theory) / (data + theory);
 </pre>
@@ -111,6 +87,8 @@ The two kind of operations can be combined, e.g.
 </pre>
 Finally, also the <code>+=, -+, *=, /=</code> are overloaded, with 
 the right-hand side being either a histogram or a real number. 
+
+<h3>Output format</h3>
 
 <p/>
 A histogram can be printed by making use of the overloaded &lt;&lt; 
@@ -175,30 +153,168 @@ exactly at the border between two bins. Also note that the
 to double precision where necessary, i.e. <code>xValue</code> 
 can be an integer. 
 
-<p/>
-Some further metods are:
-<ul>
-<li><code>getBinContent(iBin)</code> returns the value in bin 
-<code>iBin</code>, ranging from 1 through <code>nBin</code>,
-with <code>0</code> for underflow and <code>nBin + 1</code> for
-overflow.</li>
-<li><code>getEntries()</code> returns the number of entries.</li>
-<li><code>table(ostream& = cout)</code> prints a two-column table,
-where the first gives the center of each bin and the second the
-corresponding bin contents. This may be useful for plotting e.g. with 
-Gnuplot.</li>
-<li><code>null()</code> resets bin contents.</li>
-<li><code>name( title)</code> resets the title to the new string.</li>
-<li><code>sameSize( Hist&)</code> checks that the number of bins and
-upper and lower limits are the same as in the histogram in the 
-argument.</li>
-<li><code>takeLog(true)</code> take 10-logarithm of contents 
-bin by bin.</li>
-<li><code>takeLog(false)</code> take <i>e</i>-logarithm of contents 
-bin by bin.</li>
-</ul>
+<h3>The methods</h3>
+
+We here collect a more complete and formal overview of the methods.
+   
+<p/><strong>Hist::Hist() &nbsp;</strong> <br/>
+declare a histogram, but does not define it.
+  
+
+<p/><strong>Hist::Hist(string title, int numberOfBins, double xMin, double xMax) &nbsp;</strong> <br/>
+declare and define a histogram, where
+<br/><code>argument</code><strong> title </strong>  :  
+is a string with the title of the histogram at output,
+  
+<br/><code>argument</code><strong> numberOfBins </strong>  :  
+is the number of bin the <i>x</i> range will be subdivided into, 
+  
+<br/><code>argument</code><strong> xMin </strong>  :  
+is the lower edge of the histogram,
+  
+<br/><code>argument</code><strong> xMax </strong>  :  
+is the upper edge of the histogram.
+  
+  
+   
+<p/><strong>Hist::Hist(const Hist& h) &nbsp;</strong> <br/>
+creates an identical copy of the histogram in the argument,
+including bin contents.
+  
+   
+<p/><strong>Hist::Hist(string title, const Hist& h) &nbsp;</strong> <br/>
+creates an identical copy of the histogram in the argument,
+including bin contents, except that a new title is provided
+as first argument.
+  
+   
+<p/><strong>Hist& ::Hist::operator=(const Hist& h) &nbsp;</strong> <br/>
+copies all properties of the histogram in the argument, 
+except that the original histogram title is retained. 
+  
+
+<p/><strong>void Hist::book(string title, int numberOfBins, double xMin, double xMax) &nbsp;</strong> <br/>
+define a histogram that previously was only declared; 
+see above for the meaning of the arguments.
+  
+
+<p/><strong>void Hist::name(string title) &nbsp;</strong> <br/>
+change the title of a histogram, but keep other properties unchanged.
+  
+
+<p/><strong>void Hist::null() &nbsp;</strong> <br/>
+reset bin contents, but keep other histogram properties unchanged.
+  
+
+<p/><strong>void Hist::fill(double xValue, double weight) &nbsp;</strong> <br/>
+fill the histogram, where 
+<br/><code>argument</code><strong> xValue </strong>  : 
+is the <i>x</i> position where the filling should occur, and
+  
+<br/><code>argument</code><strong> weight </strong> (<code>default = <strong>1.</strong></code>) : 
+is the amount of weight to be added at this <i>x</i> value.
+  
+  
+
+<p/><strong>friend ostream& operator<<(ostream& os, const Hist& h) &nbsp;</strong> <br/>
+appends a simple histogram printout (see above for format) to the 
+<code>ostream</code>, while leaving the histogram object itself
+
+unchanged.
+
+<p/><strong>void Hist::table(ostream& os = cout) &nbsp;</strong> <br/>
+prints a two-column table, where the first gives the center of each 
+bin and the second the corresponding bin contents. The desired
+output stream can be provided as argument. The table may be useful 
+for plotting e.g. with Gnuplot.
+  
+
+<p/><strong>double Hist::getBinContent(int iBin) &nbsp;</strong> <br/>
+return the value in bin <code>iBin</code>, ranging from 1 through 
+<code>numberOfBins</code>, with <code>0</code> for underflow and 
+<code>numberOfBins + 1</code> for overflow.
+  
+
+<p/><strong>int Hist::getEntries() &nbsp;</strong> <br/>
+return the number of entries, i.e. the number of time that 
+<code>fill(...)</code> has been called.
+  
+
+<p/><strong>bool Hist::sameSize(const Hist& h) &nbsp;</strong> <br/>
+checks that the number of bins and upper and lower limits are the 
+same as in the histogram in the argument.
+  
+
+<p/><strong>void Hist::takeLog(bool tenLog = true) &nbsp;</strong> <br/>
+by default take 10-logarithm of contents bin by bin, with optional
+argument <code>false</code> instead take <i>e</i>-logarithm of 
+contents bin by bin. 
+  
+
+<p/><strong>Hist& Hist::operator+=(const Hist& h) &nbsp;</strong> <br/>
+  
+<strong>Hist& Hist::operator-=(const Hist& h) &nbsp;</strong> <br/>
+adds or subtracts the current histogram by the contents of the 
+histogram in the argument if <code>sameSize(...)</code> is true, 
+else does nothing. 
+  
+
+<p/><strong>Hist& Hist::operator*=(const Hist& h) &nbsp;</strong> <br/>
+  
+<strong>Hist& Hist::operator/=(const Hist& h) &nbsp;</strong> <br/>
+multiplies or divides the current histogram by the contents of the 
+histogram in the argument if <code>sameSize(...)</code> is true, 
+else does nothing. 
+  
+
+<p/><strong>Hist& Hist::operator+=(double f) &nbsp;</strong> <br/>
+  
+<strong>Hist& Hist::operator-=(double f) &nbsp;</strong> <br/>
+adds or subtracts each bin content by the common offset <i>f</i>. 
+  
+
+<p/><strong>Hist& Hist::operator*=(double f) &nbsp;</strong> <br/>
+  
+<strong>Hist& Hist::operator*=(double f) &nbsp;</strong> <br/>
+multiplies or divides each bin content by the common factor <i>f</i>. 
+  
+
+<p/><strong>friend Hist operator+(double f, const Hist& h1) &nbsp;</strong> <br/>
+  
+<strong>friend Hist operator+(const Hist& h1, double f) &nbsp;</strong> <br/>
+  
+<strong>friend Hist operator+(const Hist& h1, const Hist h2) &nbsp;</strong> <br/>
+add a constant to a histogram or two histograms to each other, bin by bin.
+  
+
+<p/><strong>friend Hist operator-(double f, const Hist& h1) &nbsp;</strong> <br/>
+  
+<strong>friend Hist operator-(const Hist& h1, double f) &nbsp;</strong> <br/>
+  
+<strong>friend Hist operator-(const Hist& h1, const Hist h2) &nbsp;</strong> <br/>
+subtract a histogram from a constant, a constant from a histogram,
+or two histograms from each other, bin by bin.
+  
+
+<p/><strong>friend Hist operator*(double f, const Hist& h1) &nbsp;</strong> <br/>
+  
+<strong>friend Hist operator*(const Hist& h1, double f) &nbsp;</strong> <br/>
+  
+<strong>friend Hist operator*(const Hist& h1, const Hist h2) &nbsp;</strong> <br/>
+multiply a constant by a histogram or two histograms by each other, 
+bin by bin.
+  
+
+<p/><strong>friend Hist operator/(double f, const Hist& h1) &nbsp;</strong> <br/>
+  
+<strong>friend Hist operator/(const Hist& h1, double f) &nbsp;</strong> <br/>
+  
+<strong>friend Hist operator/(const Hist& h1, const Hist h2) &nbsp;</strong> <br/>
+divide a constant by a histogram, a histogram by a constant,
+or two histograms by each other, bin by bin.
+  
 
 </body>
 </html>
 
-<!-- Copyright (C) 2008 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2009 Torbjorn Sjostrand -->

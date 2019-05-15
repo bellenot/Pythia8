@@ -1,5 +1,5 @@
 // PhaseSpace.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2008 Torbjorn Sjostrand.
+// Copyright (C) 2009 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -82,8 +82,8 @@ const double PhaseSpace::WTCORRECTION[11] = { 1., 1., 1.,
 
 // Perform simple initialization and store pointers.
 
-void PhaseSpace::init(SigmaProcess* sigmaProcessPtrIn, Info* infoPtrIn, 
-  BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, 
+void PhaseSpace::init(bool isFirst, SigmaProcess* sigmaProcessPtrIn, 
+  Info* infoPtrIn, BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, 
   SigmaTotal* sigmaTotPtrIn, UserHooks* userHooksPtrIn) {
 
   // Store input pointers for future use.
@@ -108,10 +108,21 @@ void PhaseSpace::init(SigmaProcess* sigmaProcessPtrIn, Info* infoPtrIn,
     && (beamAPtr->isUnresolved() || beamBPtr->isUnresolved() ) );
 
   // Standard phase space cuts.
-  mHatGlobalMin        = Settings::parm("PhaseSpace:mHatMin");
-  mHatGlobalMax        = Settings::parm("PhaseSpace:mHatMax");
-  pTHatGlobalMin       = Settings::parm("PhaseSpace:pTHatMin");
-  pTHatGlobalMax       = Settings::parm("PhaseSpace:pTHatMax");
+  if (isFirst || Settings::flag("PhaseSpace:sameForSecond")) {
+    mHatGlobalMin      = Settings::parm("PhaseSpace:mHatMin");
+    mHatGlobalMax      = Settings::parm("PhaseSpace:mHatMax");
+    pTHatGlobalMin     = Settings::parm("PhaseSpace:pTHatMin");
+    pTHatGlobalMax     = Settings::parm("PhaseSpace:pTHatMax");
+
+  // Optionally separate phase space cuts for second hard process.
+  } else {
+    mHatGlobalMin      = Settings::parm("PhaseSpace:mHatMinSecond");
+    mHatGlobalMax      = Settings::parm("PhaseSpace:mHatMaxSecond");
+    pTHatGlobalMin     = Settings::parm("PhaseSpace:pTHatMinSecond");
+    pTHatGlobalMax     = Settings::parm("PhaseSpace:pTHatMaxSecond");
+  }
+
+  // Cutoff against divergences at pT -> 0.
   pTHatMinDiverge      = Settings::parm("PhaseSpace:pTHatMinDiverge");
 
   // When to use Breit-Wigners.

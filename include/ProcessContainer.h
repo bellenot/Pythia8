@@ -1,5 +1,5 @@
 // ProcessContainer.h is a part of the PYTHIA event generator.
-// Copyright (C) 2008 Torbjorn Sjostrand.
+// Copyright (C) 2009 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -37,17 +37,19 @@ class ProcessContainer {
 public:
 
   // Constructor. 
-  ProcessContainer(SigmaProcess* sigmaProcessPtrIn = 0) 
-    : sigmaProcessPtr(sigmaProcessPtrIn), phaseSpacePtr(0) {} 
+  ProcessContainer(SigmaProcess* sigmaProcessPtrIn = 0, 
+    bool externalPtrIn = false) : sigmaProcessPtr(sigmaProcessPtrIn), 
+    externalPtr(externalPtrIn), phaseSpacePtr(0) {} 
 
-  // Destructor.
-  ~ProcessContainer() {delete phaseSpacePtr; delete sigmaProcessPtr;}
+  // Destructor. Do not destroy external sigmaProcessPtr.
+  ~ProcessContainer() {delete phaseSpacePtr; 
+    if (!externalPtr) delete sigmaProcessPtr;}
   
   // Initialize phase space and counters.
-  bool init(Info* infoPtrIn, BeamParticle* beamAPtr, BeamParticle* beamBPtr, 
-    AlphaStrong* alphaSPtr, AlphaEM* alphaEMPtr, SigmaTotal* sigmaTotPtr, 
-    ResonanceDecays* resDecaysPtrIn, SusyLesHouches* slhaPtr,
-    UserHooks* userHooksPtr); 
+  bool init(bool isFirst, Info* infoPtrIn, BeamParticle* beamAPtr, 
+    BeamParticle* beamBPtr, AlphaStrong* alphaSPtr, AlphaEM* alphaEMPtr, 
+    SigmaTotal* sigmaTotPtr, ResonanceDecays* resDecaysPtrIn, 
+    SusyLesHouches* slhaPtr, UserHooks* userHooksPtr); 
 
   // Store or replace Les Houches pointer.
   void setLHAPtr( LHAup* lhaUpPtrIn) {lhaUpPtr = lhaUpPtrIn;
@@ -93,7 +95,9 @@ public:
   double x1()          const {return phaseSpacePtr->x1();}
   double x2()          const {return phaseSpacePtr->x2();}
   double Q2Fac()       const {return sigmaProcessPtr->Q2Fac();}
-
+  double mHat()        const {return sqrtpos(phaseSpacePtr->sHat());}
+  double pTHat()       const {return phaseSpacePtr->pTHat();}
+ 
   // Tell whether container is for Les Houches events.
   bool   isLHAContainer() const {return isLHA;}
 
@@ -106,8 +110,9 @@ private:
   // Constants: could only be changed in the code itself.
   static const int N12SAMPLE, N3SAMPLE;
 
-  // Pointer to the subprocess matrix element.
+  // Pointer to the subprocess matrix element. Mark if external.
   SigmaProcess*    sigmaProcessPtr;
+  bool             externalPtr;
 
   // Pointer to the phase space generator.
   PhaseSpace*      phaseSpacePtr;

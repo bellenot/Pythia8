@@ -42,7 +42,10 @@ reasonable set of subgroups.
 <br/><br/><b>Important note:</b> 
 In order to simulate SUSY processes it is required to read in the 
 couplings and masses relevant for the scenario to be studied. This 
-is done with the help of the SUSY Les Houches Accord (SLHA). The 
+is done with the help of the SUSY Les Houches Accord (SLHA), including
+the SLHA2 extensions and generalizations. (Internally, the SLHA2
+conventions are used. SLHA1 spectra are automatically translated into
+SLHA2 notation during initialization.) The 
 reading of a relevant SLHA file <b>must</b> be set up, as described 
 on <?php $filepath = $_GET["filepath"];
 echo "<a href='SUSYLesHouchesAccord.php?filepath=".$filepath."' target='page'>";?>this page</a>.
@@ -59,9 +62,32 @@ particles with R-parity -1.
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Pair production of neutralinos by quark-antiquark annihilation. With
 four neutralino species this gives ten separate processes, codes 
-1201 - 1210. Neutralino decays have not yet been implemented.
+1201 - 1210. The cross section expressions follow [<a href="Bibliography.php" target="page">Boz07</a>] and
+should thus be  valid also in the case of non-minimal flavour
+violation and/or CP violation. 
   
 
+<br/><br/><strong>SUSY:qqbar2chi+-chi0</strong>  <input type="radio" name="3" value="on"><strong>On</strong>
+<input type="radio" name="3" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Associated chargino-neutralino production by quark-antiquark
+annihilation. With four neutralino species, two chargino ones, and
+maintaining charge conjugate proceeses separate, this gives 16 
+separate processes, codes 1221 - 1236. The cross section expressions 
+follow [<a href="Bibliography.php" target="page">Boz07</a>] and should thus be valid also in the case of 
+non-minimal flavour violation and/or CP violation. 
+  
+
+<br/><br/><strong>SUSY:qqbar2chi+chi-</strong>  <input type="radio" name="4" value="on"><strong>On</strong>
+<input type="radio" name="4" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Pair production of charginos by quark-antiquark annihilation. With
+two chargino species and maintaining mutually charge conjugate
+processes separate, this gives four separate processes, codes 
+1241 - 1244. The cross section expressions follow [<a href="Bibliography.php" target="page">Boz07</a>] 
+and should thus be valid also in the case of non-minimal flavour 
+violation and/or CP violation. 
+  
 
 <input type="hidden" name="saved" value="1"/>
 
@@ -88,6 +114,16 @@ if($_POST["2"] != "off")
 $data = "SUSY:qqbar2chi0chi0 = ".$_POST["2"]."\n";
 fwrite($handle,$data);
 }
+if($_POST["3"] != "off")
+{
+$data = "SUSY:qqbar2chi+-chi0 = ".$_POST["3"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["4"] != "off")
+{
+$data = "SUSY:qqbar2chi+chi- = ".$_POST["4"]."\n";
+fwrite($handle,$data);
+}
 fclose($handle);
 }
 
@@ -95,5 +131,5 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2008 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2009 Peter Skands, Torbjorn Sjostrand -->
 

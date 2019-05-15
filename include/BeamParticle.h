@@ -1,5 +1,5 @@
 // BeamParticle.h is a part of the PYTHIA event generator.
-// Copyright (C) 2008 Torbjorn Sjostrand.
+// Copyright (C) 2009 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -41,8 +41,8 @@ public:
   // Constructor.
   ResolvedParton( int iPosIn = 0, int idIn = 0, double xIn = 0., 
     int companionIn = -1) : iPosRes(iPosIn), idRes(idIn), xRes(xIn), 
-    companionRes(companionIn), xqCompRes(0.), mRes(0.), colRes(0),
-    acolRes(0) { } 
+    companionRes(companionIn), xqCompRes(0.), mRes(0.), factorRes(1.), 
+    colRes(0), acolRes(0) { } 
 
   // Set info on initiator or remnant parton.
   void iPos( int iPosIn) {iPosRes = iPosIn;} 
@@ -61,19 +61,21 @@ public:
   void col(int colIn) {colRes = colIn;}
   void acol(int acolIn) {acolRes = acolIn;}
   void cols(int colIn = 0,int acolIn = 0) 
-    {colRes = colIn; acolRes = acolIn;}  
+    {colRes = colIn; acolRes = acolIn;} 
+  void scalePT( double factorIn) {pRes.px(factorIn * pRes.px()); 
+    pRes.py(factorIn * pRes.py()); factorRes *= factorIn;}
 
   // Get info on initiator or remnant parton.
-  int iPos()           const {return iPosRes;} 
-  int id()             const {return idRes;} 
+  int    iPos()        const {return iPosRes;} 
+  int    id()          const {return idRes;} 
   double x()           const {return xRes;} 
-  int companion()      const {return companionRes;} 
-  bool isValence()     const {return (companionRes == -3);}
-  bool isUnmatched()   const {return (companionRes == -2);}
-  bool isCompanion()   const {return (companionRes >= 0);}
-  bool isFromBeam()    const {return (companionRes > -10);}
+  int    companion()   const {return companionRes;} 
+  bool   isValence()   const {return (companionRes == -3);}
+  bool   isUnmatched() const {return (companionRes == -2);}
+  bool   isCompanion() const {return (companionRes >= 0);}
+  bool   isFromBeam()  const {return (companionRes > -10);}
   double xqCompanion() const {return xqCompRes;} 
-  Vec4 p()             const {return pRes;}
+  Vec4   p()           const {return pRes;}
   double px()          const {return pRes.px();}
   double py()          const {return pRes.py();}
   double pz()          const {return pRes.pz();}
@@ -81,8 +83,11 @@ public:
   double m()           const {return mRes;}
   double pT()          const {return pRes.pT();}
   double mT2()         const {return mRes*mRes + pRes.pT2();}
-  int col()            const {return colRes;}
-  int acol()           const {return acolRes;}
+  double pPos()        const {return pRes.e() +  pRes.pz();}
+  double pNeg()        const {return pRes.e() -  pRes.pz();}
+  int    col()         const {return colRes;}
+  int    acol()        const {return acolRes;}
+  double pTfactor()    const {return factorRes;} 
  
 private:
 
@@ -94,7 +99,7 @@ private:
   double xqCompRes;
   // Four-momentum and mass; for remnant kinematics construction.
   Vec4   pRes;
-  double mRes;
+  double mRes, factorRes;
   // Colour codes.
   int   colRes, acolRes;
 

@@ -1,5 +1,5 @@
 // Basics.h is a part of the PYTHIA event generator.
-// Copyright (C) 2008 Torbjorn Sjostrand.
+// Copyright (C) 2009 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -131,11 +131,15 @@ public:
   double pT2() const {return xx*xx + yy*yy;}
   double pAbs() const {return sqrt(xx*xx + yy*yy + zz*zz);}
   double pAbs2() const {return xx*xx + yy*yy + zz*zz;}
+  double eT() const {double temp = xx*xx + yy*yy;
+    return tt * sqrt( temp / (temp + zz*zz) );}
+  double eT2() const {double temp = xx*xx + yy*yy;
+    return tt*tt * temp / (temp + zz*zz);}
   double theta() const {return atan2(sqrt(xx*xx + yy*yy), zz);}
   double phi() const {return atan2(yy,xx);}
   double thetaXZ() const {return atan2(xx,zz);}
-  double pPlus() const {return tt + zz;}
-  double pMinus() const {return tt - zz;}
+  double pPos() const {return tt + zz;}
+  double pNeg() const {return tt - zz;}
 
   // Member functions that perform operations.
   void rescale3(double fac) {xx *= fac; yy *= fac; zz *= fac;}
@@ -154,7 +158,8 @@ public:
   void rotbst(const RotBstMatrix& M); 
 
   // Operator overloading with member functions
-  Vec4& operator-() {xx = -xx; yy = -yy; zz = -zz; tt = -tt; return *this;}
+  Vec4 operator-() {Vec4 tmp; tmp.xx = -xx; tmp.yy = -yy; tmp.zz = -zz; 
+    tmp.tt = -tt; return tmp;}
   Vec4& operator+=(const Vec4& v) {xx += v.xx; yy += v.yy; zz += v.zz; 
     tt += v.tt; return *this;}
   Vec4& operator-=(const Vec4& v) {xx -= v.xx; yy -= v.yy; zz -= v.zz; 
@@ -317,14 +322,17 @@ public:
   // Fill bin with weight.
   void fill(double x, double w = 1.) ;
 
+  // Print a histogram with overloaded << operator.
+  friend ostream& operator<<(ostream& os, const Hist& h) ;
+
+  // Print histogram contents as a table (e.g. for Gnuplot).
+  void table(ostream& os = cout) const ;
+
   // Return content of specific bin: -1 gives underflow and nBin overflow.
   double getBinContent(int iBin) ;
 
   // Return number of entries
-  double getEntries() {return nFill; }
-
-  // Print histogram contents as a table (e.g. for Gnuplot).
-  void table(ostream& os = cout) const ;
+  int getEntries() {return nFill; }
 
   // Check whether another histogram has same size and limits.
   bool sameSize(const Hist& h) const ;
@@ -355,9 +363,6 @@ public:
   friend Hist operator/(double f, const Hist& h1);
   friend Hist operator/(const Hist& h1, double f);
   friend Hist operator/(const Hist& h1, const Hist& h2);
-
-  // Print a histogram with overloaded << operator.
-  friend ostream& operator<<(ostream& os, const Hist& h) ;
 
 private:
 

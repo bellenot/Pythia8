@@ -1,5 +1,5 @@
 // ProcessContainer.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2008 Torbjorn Sjostrand.
+// Copyright (C) 2009 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -41,11 +41,13 @@ const int ProcessContainer::N3SAMPLE  = 1000;
 //*********
 
 // Initialize phase space and counters.
+// Argument isFirst distinguishes two hard processes in same event.
 
-bool ProcessContainer::init(Info* infoPtrIn, BeamParticle* beamAPtr, 
-  BeamParticle* beamBPtr, AlphaStrong* alphaSPtr, AlphaEM* alphaEMPtr,
-  SigmaTotal* sigmaTotPtr, ResonanceDecays* resDecaysPtrIn, 
-  SusyLesHouches* slhaPtr, UserHooks* userHooksPtr) {
+bool ProcessContainer::init(bool isFirst, Info* infoPtrIn, 
+  BeamParticle* beamAPtr, BeamParticle* beamBPtr, AlphaStrong* alphaSPtr, 
+  AlphaEM* alphaEMPtr, SigmaTotal* sigmaTotPtr, 
+  ResonanceDecays* resDecaysPtrIn, SusyLesHouches* slhaPtr, 
+  UserHooks* userHooksPtr) {
 
   // Extract info about current process from SigmaProcess object.
   isLHA       = sigmaProcessPtr->isLHA();
@@ -78,7 +80,7 @@ bool ProcessContainer::init(Info* infoPtrIn, BeamParticle* beamAPtr,
   }
   sigmaProcessPtr->init(infoPtr, beamAPtr, beamBPtr, alphaSPtr,
     alphaEMPtr, sigmaTotPtr, slhaPtr);
-  phaseSpacePtr->init( sigmaProcessPtr, infoPtr, beamAPtr, 
+  phaseSpacePtr->init( isFirst, sigmaProcessPtr, infoPtr, beamAPtr, 
     beamBPtr, sigmaTotPtr, userHooksPtr);
 
   // Reset cross section statistics.
@@ -171,7 +173,7 @@ bool ProcessContainer::trialProcess() {
     if (lhaStratAbs < 3) select 
       = (newSigmaMx || Rndm::flat() * abs(sigmaMx) < abs(sigmaNow)); 
     if (select) ++nSel;
-    if (select || lhaStratAbs !=2) return select;
+    if (select || lhaStratAbs != 2) return select;
   }
  
 }
@@ -267,7 +269,8 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
 
     // Find scale from which to begin MI/ISR/FSR evolution.
     scale = lhaUpPtr->scale();
-    process.scale( scale);
+    double scalePr = (scale < 0.) ? sqrt(Q2Fac()) : scale;
+    process.scale( scalePr);
 
     // Copy over info from LHA event to process, in proper order.
     for (int i = 1; i < lhaUpPtr->sizePart(); ++i) {
@@ -327,7 +330,7 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
       double m   = lhaUpPtr->m(iOld);
 
       // For resonance decay products use resonance mass as scale.
-      double scaleNow = scale;
+      double scaleNow = scalePr;
       if (mother1 > 4) scaleNow = process[mother1].m();
 
       // Store Les Houches Accord partons.
@@ -360,7 +363,7 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
   double pdf2    = 0.;
   double tHat    = 0.;
   double uHat    = 0.;
-  double pTHat   = 0.;
+  double pTHatL  = 0.;
   double m3      = 0.;
   double m4      = 0.;
   double theta   = 0.;
@@ -380,7 +383,7 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
     sHat         = phaseSpacePtr->sHat();
     tHat         = phaseSpacePtr->tHat();
     uHat         = phaseSpacePtr->uHat();
-    pTHat        = phaseSpacePtr->pTHat();
+    pTHatL       = phaseSpacePtr->pTHat();
     m3           = phaseSpacePtr->m(3);
     m4           = phaseSpacePtr->m(4);
     theta        = phaseSpacePtr->thetaHat();
@@ -389,10 +392,12 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
 
   // Les Houches Accord process partly available, partly to be constructed.
   else {
-    Q2FacNow     = pow2(scale);
+    Q2FacNow     = (scale < 0.) ? sigmaProcessPtr->Q2Fac() : pow2(scale);
     alphaEM      = lhaUpPtr->alphaQED();
+    if (alphaEM < 0.001) alphaEM = sigmaProcessPtr->alphaEMRen();
     alphaS       = lhaUpPtr->alphaQCD();
-    Q2Ren        = Q2FacNow;
+    if (alphaS  < 0.001) alphaS  = sigmaProcessPtr->alphaSRen();
+    Q2Ren        = (scale < 0.) ? sigmaProcessPtr->Q2Ren() : pow2(scale);
     x1Now        = 2. * process[3].e() / infoPtr->eCM();
     x2Now        = 2. * process[4].e() / infoPtr->eCM();
     Vec4 pSum    = process[3].p() + process[4].p();
@@ -413,7 +418,7 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
       tHat       = pDifT * pDifT;    
       Vec4 pDifU = process[3].p() - process[6].p();
       uHat       = pDifU * pDifU;
-      pTHat      = process[5].pT();
+      pTHatL     = process[5].pT();
       m3         = process[5].m();    
       m4         = process[6].m(); 
       Vec4 p5    = process[5].p();
@@ -427,10 +432,10 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
   if (isHardest) {
     infoPtr->setPDFalpha( id1Now, id2Now, pdf1, pdf2, Q2FacNow, 
       alphaEM, alphaS, Q2Ren);
-    infoPtr->setKin( x1Now, x2Now, sHat, tHat, uHat, pTHat, m3, m4, 
+    infoPtr->setKin( x1Now, x2Now, sHat, tHat, uHat, pTHatL, m3, m4, 
       theta, phi);
   }
-  infoPtr->setTypeMI( code(), pTHat);
+  infoPtr->setTypeMI( code(), pTHatL);
 
   // For Les Houches event store subprocess classification.
   if (isLHA) {
@@ -1296,28 +1301,47 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs) {
     } 
   }
 
-  // Set up requested objects for neutralino pair processes.
+  // Set up requested objects for SUSY pair processes.
   bool SUSYs = Settings::flag("SUSY:all");
+
+  // MSSM: 4 neutralinos
+  int nChi0 = 4;
+
+  // Neutralino pairs
   if (SUSYs || Settings::flag("SUSY:qqbar2chi0chi0")) {
-    sigmaPtr = new Sigma2qqbar2chi0chi0(1, 1, 1201);
+    int iproc = 1200;
+    for (int ichi2=1;ichi2<=nChi0;ichi2++) {
+      for (int ichi1=1;ichi1<=ichi2;ichi1++) {
+	sigmaPtr = new Sigma2qqbar2chi0chi0(ichi1, ichi2, ++iproc);
+	containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+      }
+    }
+  }
+
+  // Neutralino-Chargino
+  if (SUSYs || Settings::flag("SUSY:qqbar2chi+-chi0")) {
+    int iproc = 1220;
+    for (int ichi0=1;ichi0<=nChi0;ichi0++) {
+      sigmaPtr = new Sigma2qqbar2charchi0( 1, ichi0, ++iproc);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+      sigmaPtr = new Sigma2qqbar2charchi0(-1, ichi0, ++iproc); 
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+      sigmaPtr = new Sigma2qqbar2charchi0( 2, ichi0, ++iproc); 
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+      sigmaPtr = new Sigma2qqbar2charchi0(-2, ichi0, ++iproc);
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }
+  } 
+
+  // Chargino-Chargino
+  if (SUSYs || Settings::flag("SUSY:qqbar2chi+chi-")) {
+    sigmaPtr = new Sigma2qqbar2charchar( 1,-1, 1241);
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qqbar2chi0chi0(1, 2, 1202); 
+    sigmaPtr = new Sigma2qqbar2charchar( 1,-2, 1242); 
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qqbar2chi0chi0(1, 3, 1203); 
+    sigmaPtr = new Sigma2qqbar2charchar( 2,-1, 1243); 
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qqbar2chi0chi0(1, 4, 1204);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qqbar2chi0chi0(2, 2, 1205);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qqbar2chi0chi0(2, 3, 1206);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qqbar2chi0chi0(2, 4, 1207);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qqbar2chi0chi0(3, 3, 1208); 
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qqbar2chi0chi0(3, 4, 1209);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qqbar2chi0chi0(4, 4, 1210); 
+    sigmaPtr = new Sigma2qqbar2charchar( 2,-2, 1244);
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   } 
   
@@ -1492,7 +1516,7 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs) {
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   } 
   
-  // Set up requested objects for extra-dimensional G* processes.
+  // Set up requested objects for RS extra-dimensional G* processes.
   bool extraDimGstars = Settings::flag("ExtraDimensionsG*:all");
   if (extraDimGstars || Settings::flag("ExtraDimensionsG*:gg2G*")) {
     sigmaPtr = new Sigma1gg2GravitonStar;
@@ -1514,6 +1538,55 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs) {
     sigmaPtr = new Sigma2qqbar2GravitonStarg;
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   } 
+
+  // Set up requested objects for large extra-dimensional G processes.
+  bool extraDimLEDmono = Settings::flag("ExtraDimensionsLED:monojet");
+  if (extraDimLEDmono || Settings::flag("ExtraDimensionsLED:gg2Gg")) {
+    sigmaPtr = new Sigma2gg2LEDGravitong;
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }
+  if (extraDimLEDmono || Settings::flag("ExtraDimensionsLED:qg2Gq")) {
+    sigmaPtr = new Sigma2qg2LEDGravitonq;
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }
+  if (extraDimLEDmono || Settings::flag("ExtraDimensionsLED:qqbar2Gg")) {
+    sigmaPtr = new Sigma2qqbar2LEDGravitong;
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }
+  if (Settings::flag("ExtraDimensionsLED:ffbar2GZ")) {
+    sigmaPtr = new Sigma2ffbar2LEDUnparticleZ( true );
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }
+  if (Settings::flag("ExtraDimensionsLED:ffbar2Ggamma")) {
+    sigmaPtr = new Sigma2ffbar2LEDUnparticlegamma( true );
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }
+  if (Settings::flag("ExtraDimensionsLED:ffbar2gammagamma")) {
+    sigmaPtr = new Sigma2ffbar2LEDgammagamma( true );
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }
+  if (Settings::flag("ExtraDimensionsLED:gg2gammagamma")) {
+    sigmaPtr = new Sigma2gg2LEDgammagamma( true );
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }
+
+  // Set up requested objects for unparticle processes.
+  if (Settings::flag("ExtraDimensionsUnpart:ffbar2UZ")) {
+    sigmaPtr = new Sigma2ffbar2LEDUnparticleZ( false );
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }
+  if (Settings::flag("ExtraDimensionsUnpart:ffbar2Ugamma")) {
+    sigmaPtr = new Sigma2ffbar2LEDUnparticlegamma( false );
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }
+  if (Settings::flag("ExtraDimensionsUnpart:ffbar2gammagamma")) {
+    sigmaPtr = new Sigma2ffbar2LEDgammagamma( false );
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }
+  if (Settings::flag("ExtraDimensionsUnpart:gg2gammagamma")) {
+    sigmaPtr = new Sigma2gg2LEDgammagamma( false );
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }
 
   // Done. 
   return true;

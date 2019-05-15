@@ -1,5 +1,5 @@
 // SigmaProcess.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2008 Torbjorn Sjostrand.
+// Copyright (C) 2009 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -98,6 +98,11 @@ void SigmaProcess::init(Info* infoPtrIn, BeamParticle* beamAPtrIn,
 // addPair: set up pairs of incoming partons from the two beams.
 
 bool SigmaProcess::initFlux() {
+
+  // Reset arrays (in case of several init's in same run).
+  inBeamA.clear();
+  inBeamB.clear();
+  inPair.clear();
 
   // Read in process-specific channel information.
   string fluxType = inFlux();
@@ -589,12 +594,12 @@ void Sigma1Process::store1Kin( double x1in, double x2in, double sHin) {
   sH2    = sH * sH;
 
   // Different options for renormalization scale, but normally sHat.
-  Q2RenSave = renormMultFac * sH;
+  Q2RenSave                        = renormMultFac * sH;
   if (renormScale1 == 2) Q2RenSave = renormFixScale; 
 
   // Different options for factorization scale, but normally sHat.
-  Q2FacSave = factorMultFac * sH;
-  if (factorScale1 == 2) Q2RenSave = factorFixScale; 
+  Q2FacSave                        = factorMultFac * sH;
+  if (factorScale1 == 2) Q2FacSave = factorFixScale; 
 
   // Evaluate alpha_strong and alpha_EM.
   alpS   = alphaSPtr->alphaS(Q2RenSave);  
@@ -655,12 +660,12 @@ void Sigma2Process::store2Kin( double x1in, double x2in, double sHin,
   if (isSChannel()) {
 
     // Different options for renormalization scale, but normally sHat.
-    Q2RenSave = renormMultFac * sH;
+    Q2RenSave                        = renormMultFac * sH;
     if (renormScale1 == 2) Q2RenSave = renormFixScale; 
 
     // Different options for factorization scale, but normally sHat.
-    Q2FacSave = factorMultFac * sH;
-    if (factorScale1 == 2) Q2RenSave = factorFixScale; 
+    Q2FacSave                        = factorMultFac * sH;
+    if (factorScale1 == 2) Q2FacSave = factorFixScale; 
 
   // Normal case with "true" 2 -> 2.  
   } else { 
@@ -671,7 +676,7 @@ void Sigma2Process::store2Kin( double x1in, double x2in, double sHin,
     else if (renormScale2 == 2) Q2RenSave = sqrt((pT2 + s3) * (pT2 + s4));
     else if (renormScale2 == 3) Q2RenSave = pT2 + 0.5 * (s3 + s4);
     else                        Q2RenSave = sH;
-    Q2RenSave *= renormMultFac;
+    Q2RenSave                            *= renormMultFac;
     if      (renormScale2 == 5) Q2RenSave = renormFixScale; 
 
     // Different options for factorization scale.
@@ -680,7 +685,7 @@ void Sigma2Process::store2Kin( double x1in, double x2in, double sHin,
     else if (factorScale2 == 2) Q2FacSave = sqrt((pT2 + s3) * (pT2 + s4));
     else if (factorScale2 == 3) Q2FacSave = pT2 + 0.5 * (s3 + s4);
     else                        Q2FacSave = sH;
-    Q2FacSave *= factorMultFac;
+    Q2FacSave                            *= factorMultFac;
     if      (factorScale2 == 5) Q2FacSave = factorFixScale; 
   }
 
@@ -891,9 +896,9 @@ void Sigma3Process::store3Kin( double x1in, double x2in, double sHin,
       / max( mT3S, max(mT4S, mT5S) ) );
     else if (renormScale3 == 3) Q2RenSave = pow( mT3S * mT4S * mT5S, 
                                             1./3. );
-    else if (renormScale3 == 4) Q2RenSave = (mT3S * mT4S * mT5S) / 3.;
+    else if (renormScale3 == 4) Q2RenSave = (mT3S + mT4S + mT5S) / 3.;
     else                        Q2RenSave = sH;
-    Q2RenSave *= renormMultFac;
+    Q2RenSave                            *= renormMultFac;
     if      (renormScale3 == 6) Q2RenSave = renormFixScale; 
     
     // Different options for factorization scale.
@@ -902,9 +907,9 @@ void Sigma3Process::store3Kin( double x1in, double x2in, double sHin,
       / max( mT3S, max(mT4S, mT5S) ) );
     else if (factorScale3 == 3) Q2FacSave = pow( mT3S * mT4S * mT5S, 
                                             1./3. );
-    else if (factorScale3 == 4) Q2FacSave = (mT3S * mT4S * mT5S) / 3.;
+    else if (factorScale3 == 4) Q2FacSave = (mT3S + mT4S + mT5S) / 3.;
     else                        Q2FacSave = sH;
-    Q2RenSave *= factorMultFac;
+    Q2FacSave                            *= factorMultFac;
     if      (factorScale3 == 6) Q2FacSave = factorFixScale; 
 
   // Vector boson fusion 2 -> 3 processes; recoils in positions 4 and 5.
@@ -922,7 +927,7 @@ void Sigma3Process::store3Kin( double x1in, double x2in, double sHin,
                                               1./3. );
     else if (renormScale3VV == 4) Q2RenSave = (mT3S * mTV4S * mTV5S) / 3.;
     else                          Q2RenSave = sH;
-    Q2RenSave *= renormMultFac;
+    Q2RenSave                              *= renormMultFac;
     if      (renormScale3VV == 6) Q2RenSave = renormFixScale; 
     
     // Different options for factorization scale.
@@ -932,7 +937,7 @@ void Sigma3Process::store3Kin( double x1in, double x2in, double sHin,
                                               1./3. );
     else if (factorScale3VV == 4) Q2FacSave = (mT3S * mTV4S * mTV5S) / 3.;
     else                          Q2FacSave = sH;
-    Q2RenSave *= factorMultFac;
+    Q2FacSave                              *= factorMultFac;
     if      (factorScale3VV == 6) Q2FacSave = factorFixScale; 
   }
 
@@ -947,6 +952,96 @@ void Sigma3Process::store3Kin( double x1in, double x2in, double sHin,
 // The SigmaLHAProcess class.
 // Wrapper for Les Houches Accord external input; derived from SigmaProcess.
 // Note: arbitrary subdivision into PhaseSpaceLHA and SigmaLHAProcess tasks.
+
+//*********
+
+// Set scale, alpha_strong and alpha_EM when not set.
+
+void SigmaLHAProcess::setScale() {
+
+  // If scale has not been set, then to set.
+  double scaleLHA = lhaUpPtr->scale();
+  if (scaleLHA < 0.) {
+
+    // Final-state partons and their invariant mass.
+    vector<int> iFin;
+    Vec4 pFinSum;
+    for (int i = 3; i < lhaUpPtr->sizePart(); ++i) 
+    if (lhaUpPtr->mother1(i) == 1) {
+      iFin.push_back(i);
+      pFinSum += Vec4( lhaUpPtr->px(i), lhaUpPtr->py(i), 
+        lhaUpPtr->pz(i), lhaUpPtr->e(i) );
+    }  
+    int nFin  = iFin.size(); 
+    double sH = pFinSum * pFinSum; 
+
+    // If 1 final-state particle then use Sigma1Process logic.
+    if (nFin == 1) {
+      Q2RenSave                             = renormMultFac * sH;
+      if (renormScale1 == 2) Q2RenSave      = renormFixScale; 
+      Q2FacSave                             = factorMultFac * sH;
+      if (factorScale1 == 2) Q2FacSave      = factorFixScale; 
+
+    // If 2 final-state particles then use Sigma2Process logic.
+    } else if (nFin == 2) {
+      double s3  = pow2(lhaUpPtr->m(iFin[0]));      
+      double s4  = pow2(lhaUpPtr->m(iFin[1])); 
+      double pT2 = pow2(lhaUpPtr->px(iFin[0])) + pow2(lhaUpPtr->py(iFin[0])); 
+      if      (renormScale2 == 1) Q2RenSave = pT2 + min(s3, s4);
+      else if (renormScale2 == 2) Q2RenSave = sqrt((pT2 + s3) * (pT2 + s4));
+      else if (renormScale2 == 3) Q2RenSave = pT2 + 0.5 * (s3 + s4);
+      else                        Q2RenSave = sH;
+      Q2RenSave                            *= renormMultFac;
+      if      (renormScale2 == 5) Q2RenSave = renormFixScale; 
+      if      (factorScale2 == 1) Q2FacSave = pT2 + min(s3, s4);
+      else if (factorScale2 == 2) Q2FacSave = sqrt((pT2 + s3) * (pT2 + s4));
+      else if (factorScale2 == 3) Q2FacSave = pT2 + 0.5 * (s3 + s4);
+      else                        Q2FacSave = sH;
+      Q2FacSave                            *= factorMultFac;
+      if      (factorScale2 == 5) Q2FacSave = factorFixScale; 
+
+    // If 3 or more final-state particles then use Sigma3Process logic.
+    } else {
+      double mTSlow  = sH;
+      double mTSmed  = sH;
+      double mTSprod = 1.;
+      double mTSsum  = 0.;  
+      for (int i = 0; i < nFin; ++i) {
+        double mTSnow = pow2(lhaUpPtr->m(iFin[i])) 
+          + pow2(lhaUpPtr->px(iFin[i])) + pow2(lhaUpPtr->py(iFin[i]));
+        if      (mTSnow < mTSlow) {mTSmed = mTSlow; mTSlow = mTSnow;}
+        else if (mTSnow < mTSmed) mTSmed = mTSnow;
+        mTSprod *= mTSnow;
+        mTSsum  += mTSnow; 
+      }
+      if      (renormScale3 == 1) Q2RenSave = mTSlow; 
+      else if (renormScale3 == 2) Q2RenSave = sqrt(mTSlow * mTSmed);
+      else if (renormScale3 == 3) Q2RenSave = pow(mTSprod, 1. / nFin);
+      else if (renormScale3 == 4) Q2RenSave = mTSsum / nFin;
+      else                        Q2RenSave = sH;
+      Q2RenSave                            *= renormMultFac;
+      if      (renormScale3 == 6) Q2RenSave = renormFixScale; 
+      if      (factorScale3 == 1) Q2FacSave = mTSlow; 
+      else if (factorScale3 == 2) Q2FacSave = sqrt(mTSlow * mTSmed);
+      else if (factorScale3 == 3) Q2FacSave = pow(mTSprod, 1. / nFin);
+      else if (factorScale3 == 4) Q2FacSave = mTSsum / nFin;
+      else                        Q2FacSave = sH;
+      Q2FacSave                            *= factorMultFac;
+      if      (factorScale3 == 6) Q2FacSave = factorFixScale; 
+    }
+  }
+
+  // If alpha_strong and alpha_EM have not been set, then set them.
+  if (lhaUpPtr->alphaQCD() < 0.001) {
+    double Q2RenNow = (scaleLHA < 0.) ? Q2RenSave : pow2(scaleLHA);
+    alpS = alphaSPtr->alphaS(Q2RenNow);
+  }
+  if (lhaUpPtr->alphaQED() < 0.001) {
+    double Q2RenNow = (scaleLHA < 0.) ? Q2RenSave : pow2(scaleLHA);
+    alpEM = alphaEMPtr->alphaEM(Q2RenNow);  
+  }
+
+}
 
 //*********
 

@@ -1,7 +1,12 @@
 // SusyLesHouches.h is a part of the PYTHIA event generator.
-// Copyright (C) 2008 Peter Skands, Torbjorn Sjostrand.
+// Copyright (C) 2009 Peter Skands, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
+
+// Header file for SUSY Les Houches Accord Interface
+// Is independent of the rest of the Pythia implementation and thus could
+// be re-used stand-alone or merged into other applications, subject to 
+// the MCnet Guidelines mentioned above.
 
 #ifndef SLHA_H
 #define SLHA_H
@@ -19,6 +24,7 @@
 #include <sstream>
 // Stdlib header files for mathematics.
 #include <cmath>
+#include <cstdlib>
 
 // Stdlib namespace
 using namespace std;
@@ -433,6 +439,8 @@ public:
   matrixblock<4> cvhmix;   // The CPV Higgs mixing matrix
   matrixblock<4> imcvhmix; // Optional: imaginary components
   matrixblock<3> imau,imad,imae; // Im{} of AU, AD, AE
+  block<double> imhmix;
+  block<double> immsoft;
 
   //CPV + FLV Input
   matrixblock<3> immsq2in;  // The Im{} input upper off-diagonal msq2

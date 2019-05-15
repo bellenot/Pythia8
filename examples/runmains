@@ -4,6 +4,9 @@
 # Please respect the MCnet Guidelines, see GUIDELINES for details. 
  
 # Simple script to run all the mainXX test programs
+# If you did not link the expected external libraries then some
+# main program will not work. 
+# You should get to main28 without any problems, however.
 
 echo
 echo Now begin main01
@@ -141,6 +144,11 @@ make main27
 time ./main27.exe > out27
 
 echo
+echo Now begin main28
+make main28
+time ./main28.exe > out28
+
+echo
 echo Now begin main31
 make main31
 time ./main31.exe > out31
@@ -161,6 +169,16 @@ make main42
 time ./main42.exe > out42
 
 echo
+echo Now begin main43
+make main43
+time ./main43.exe > out43
+
+echo
+echo Now begin main44
+make main44
+time ./main44.exe > out44
+
+echo
 echo Now begin main51
 make main51
 time ./main51.exe > out51
@@ -179,4 +197,9 @@ echo
 echo Now begin main54
 make main54
 time ./main54.exe > out54
+
+echo
+echo Now begin main61
+make main61
+time ./main61.exe > out61
 

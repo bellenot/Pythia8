@@ -154,11 +154,11 @@ class.
 If you want to replace the <code>TimeShower</code> class this would
 involve replacing the following methods.
 
-<p/><code>method&nbsp; </code><strong> TimeShower() &nbsp;</strong> <br/>
+<p/><strong>TimeShower() &nbsp;</strong> <br/>
 The constructor does not need to do anything.
   
 
-<p/><code>method&nbsp; </code><strong> void init( BeamParticle* beamAPtrIn = 0, BeamParticle* beamBPtrIn = 0) &nbsp;</strong> <br/>
+<p/><strong>void init( BeamParticle* beamAPtrIn = 0, BeamParticle* beamBPtrIn = 0) &nbsp;</strong> <br/>
 You have to store your local copy of the pointers to these objects,
 since they have to be used during the generation, as explained above.
 The pointers could be zero; e.g. a local copy of <code>TimeShower</code>
@@ -169,7 +169,7 @@ e.g. by reading in them from a user-accessible database like the
 <code>Settings</code> one.
   
 
-<p/><code>method&nbsp; </code><strong> double enhancePTmax() &nbsp;</strong> <br/>
+<p/><strong>double enhancePTmax() &nbsp;</strong> <br/>
 Relative to the default <i>pT_max</i> evolution scale of the process,
 it may still be convenient to vary the matching slightly for the hardest
 interaction in an event, to probe the sensitivity to such details. The 
@@ -177,7 +177,7 @@ base-class implementation returns the value of the
 <code>TimeShower:pTmaxFudge</code> parameter.
   
 
-<p/><code>method&nbsp; </code><strong> int shower( int iBeg, int iEnd, Event& event, double pTmax) &nbsp;</strong> <br/>
+<p/><strong>int shower( int iBeg, int iEnd, Event& event, double pTmax) &nbsp;</strong> <br/>
 This is an all-in-one call for shower evolution, and as such cannot be 
 used for the normal interleaved evolution, where only the routines below
 are used. It also cannot be used in resonance decays that form part of
@@ -199,7 +199,7 @@ were generated, but only for non-critical statistics purposes.
 below, it may well be that the existing code need not be replaced.
   
 
-<p/><code>method&nbsp; </code><strong> void prepare( int iSys, Event& event) &nbsp;</strong> <br/>
+<p/><strong>void prepare( int iSys, Event& event) &nbsp;</strong> <br/>
 This method is called immediately after a new interaction (or the
 products of a resonance decay) has been added, and should then be used 
 to prepare the subsystem of partons for subsequent evolution. In
@@ -215,7 +215,7 @@ or are 0 for resonance decays unrelated to the beams, while the
 rest are not required to be in any particular order.
   
 
-<p/><code>method&nbsp; </code><strong> void update( int iSys, Event& event) &nbsp;</strong> <br/>
+<p/><strong>void update( int iSys, Event& event) &nbsp;</strong> <br/>
 This method is called immediately after a spacelike branching in the 
 <code>iSys</code>'th subsystem. Thus the information for that system is 
 out-of-date, while that of the others is unchanged. If you want, you are 
@@ -224,7 +224,7 @@ free to throw away all information for the affected subsystem and call
 you may choose only to update the information that has changed.
   
 
-<p/><code>method&nbsp; </code><strong> double pTnext( Event& event, double pTbegAll, double pTendAll) &nbsp;</strong> <br/>
+<p/><strong>double pTnext( Event& event, double pTbegAll, double pTendAll) &nbsp;</strong> <br/>
 This is the main driver routine for the downwards evolution. A new 
 <i>pT</i> is to be selected based on the current information set up 
 by the routines above, and along with that a branching parton or dipole.
@@ -247,7 +247,7 @@ actually be carried out, since MI, ISR and FSR still have to be compared
 to assign the winner.
   
 
-<p/><code>method&nbsp; </code><strong> bool branch( Event& event) &nbsp;</strong> <br/>
+<p/><strong>bool branch( Event& event) &nbsp;</strong> <br/>
 This method will be called once FSR has won the competition with 
 MI and ISR to do the next branching. The candidate branching found 
 in the previous step should here be carried out in full. The 
@@ -261,7 +261,7 @@ allowed to return <code>false</code> to indicate that no branching
 could be carried out.   
   
 
-<p/><code>method&nbsp; </code><strong> int system() &nbsp;</strong> <br/>
+<p/><strong>int system() &nbsp;</strong> <br/>
 This method is not virtual. If a branching is constructed by the 
 previous routine this tiny method should be able to return the number 
 of the selected subsystem <code>iSysSel</code> where it occured, 
@@ -270,7 +270,7 @@ if necessary. Therefore <code>iSysSel</code> must be set in
 <code>branch</code> (or already in <code>pTnext</code>).  
   
 
-<p/><code>method&nbsp; </code><strong> void list( ostream& os = cout) &nbsp;</strong> <br/>
+<p/><strong>void list( ostream& os = cout) &nbsp;</strong> <br/>
 This method is not at all required. In the current implementation it 
 outputs a list of all the dipole ends, with information on the
 respective dipole. The routine is not called anywhere in the public
@@ -288,11 +288,11 @@ is simpler, since there are no special cases for resonance decays
 and non-interleaved evolution. Thus there is no correspondence to the 
 <code>TimeShower::shower(...)</code> routine.  
 
-<p/><code>method&nbsp; </code><strong> SpaceShower() &nbsp;</strong> <br/>
+<p/><strong>SpaceShower() &nbsp;</strong> <br/>
 The constructor does not need to do anything.
   
 
-<p/><code>method&nbsp; </code><strong> void init( BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn) &nbsp;</strong> <br/>
+<p/><strong>void init( BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn) &nbsp;</strong> <br/>
 You have to store your local copy of the pointers to these objects,
 since they have to be used during the generation, as explained above.
 This is also the place to do initialization of whatever parameters 
@@ -300,7 +300,7 @@ you plan to use, e.g. by reading in them from a user-accessible
 database like the <code>Settings</code> one.
   
 
-<p/><code>method&nbsp; </code><strong> bool limitPTmax( Event& event, double Q2Fac = 0., double Q2Ren = 0.) &nbsp;</strong> <br/>
+<p/><strong>bool limitPTmax( Event& event, double Q2Fac = 0., double Q2Ren = 0.) &nbsp;</strong> <br/>
 The question is whether the ISR should be allowed to occur at larger
 scales than the hard process it surrounds. This is process-dependent.
 For instance, if the hard process is <i>Z^0</i> production we know
@@ -318,7 +318,7 @@ the factorization or renormalization scale. Therefore the (square of the)
 latter two are provided as optional input parameters.  
   
 
-<p/><code>method&nbsp; </code><strong> double enhancePTmax() &nbsp;</strong> <br/>
+<p/><strong>double enhancePTmax() &nbsp;</strong> <br/>
 When the above method limits <i>pT_max</i> to the scale of the process,
 it may still be convenient to vary the matching slightly for the hardest
 interaction in an event, to probe the sensitivity to such details. The 
@@ -326,7 +326,7 @@ base-class implementation returns the value of the
 <code>SpaceShower:pTmaxFudge</code> parameter.
   
 
-<p/><code>method&nbsp; </code><strong> void prepare( int iSys, Event& event, bool limitPTmax = true) &nbsp;</strong> <br/>
+<p/><strong>void prepare( int iSys, Event& event, bool limitPTmax = true) &nbsp;</strong> <br/>
 This method is called immediately after a new interaction has been 
 added, and should then be used to prepare the subsystem of partons
 for subsequent evolution. In the current code this involves identifying 
@@ -343,7 +343,7 @@ subsequent MI, since there an unlimited <i>pT</i> for sure
 would lead to doublecounting.
   
 
-<p/><code>method&nbsp; </code><strong> void update( int iSys, Event& event) &nbsp;</strong> <br/>
+<p/><strong>void update( int iSys, Event& event) &nbsp;</strong> <br/>
 This method is called immediately after a timelike branching in the 
 <code>iSys</code>'th subsystem. Thus the information for that system may 
 be out-of-date, and to be updated. For the standard PYTHIA showers 
@@ -351,7 +351,7 @@ this routine does not need to do anything, but that may be different
 in another implementation.
   
 
-<p/><code>method&nbsp; </code><strong> double pTnext(( Event& event, double pTbegAll, double pTendAll, int nRadIn = -1) &nbsp;</strong> <br/>
+<p/><strong>double pTnext(( Event& event, double pTbegAll, double pTendAll, int nRadIn = -1) &nbsp;</strong> <br/>
 This is the main driver routine for the downwards evolution. A new 
 <i>pT</i> is to be selected based on the current information set up 
 by the routines above, and along with that a branching parton or dipole.
@@ -377,7 +377,7 @@ ISR and FSR emissions already generated in the event, and so allows a
 special treatment for the very first emission, if desired.
   
 
-<p/><code>method&nbsp; </code><strong> bool branch( Event& event) &nbsp;</strong> <br/>
+<p/><strong>bool branch( Event& event) &nbsp;</strong> <br/>
 This method will be called once FSR has won the competition with 
 MI and ISR to do the next branching. The candidate branching found 
 in the previous step should here be carried out in full. The 
@@ -391,7 +391,7 @@ allowed to return <code>false</code> to indicate that no branching
 could be carried out.   
   
 
-<p/><code>method&nbsp; </code><strong> int system() &nbsp;</strong> <br/>
+<p/><strong>int system() &nbsp;</strong> <br/>
 This method is not virtual. If a branching is constructed by the 
 previous routine this tiny method should be able to return the number 
 of the selected subsystem <code>iSysSel</code> where it occured, 
@@ -400,7 +400,7 @@ if necessary. Therefore <code>iSysSel</code> must be set in
 <code>branch</code> (or already in <code>pTnext</code>).  
   
 
-<p/><code>method&nbsp; </code><strong> void list( ostream& os = cout) &nbsp;</strong> <br/>
+<p/><strong>void list( ostream& os = cout) &nbsp;</strong> <br/>
 This method is not at all required. In the current implementation it 
 outputs a list of all the dipole ends, with information on the
 respective dipole. The routine is not called anywhere in the public
@@ -411,4 +411,4 @@ development/debug phase.
 </body>
 </html>
 
-<!-- Copyright (C) 2008 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2009 Torbjorn Sjostrand -->

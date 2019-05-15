@@ -19,12 +19,16 @@ Beams:eCM = 14000.                 ! CM energy of collision
 ! 3) Settings for SUSY and the hard-process generation
 SUSY = on
 SUSY:SusyLesHouchesFile = main22.spc
-SUSY:qqbar2chi0chi0 = on
+SUSY:qqbar2chi0chi0  = on
+SUSY:qqbar2chi+-chi0 = on
+SUSY:qqbar2chi+chi-  = on
 
 ! 4) Settings for the event generation process in the Pythia8 library.
 PartonLevel:MI = off               ! no multiple interactions
 PartonLevel:ISR = off              ! no initial-state radiation 
 PartonLevel:FSR = off              ! no final-state radiation
 HadronLevel:Hadronize = off        ! no hadronization
+
+! 5) Non-standard settings; exemplifies tuning possibilities.
 #SpaceShower:pT0Ref = 2.0           ! dampening of pT -> 0 divergence
 #MultipleInteractions:pTmin = 3.0   ! lower pT cutoff for interactions  

@@ -3,16 +3,24 @@
 <h2>Extra-Dimensional Processes</h2>
 
 Scenarios with extra dimensions allow a multitude of processes.
-Currently the only ones implemented involve the production of an 
-excited graviton state <ei>G^*</ei> within a Randall-Sundrum scenario.
-This state is assigned PDG code 5000039. Decays into fermion, gluon
-and photon pairs are handled with the correct angular distributions,
-while other decay channels currently are handled isotropically.
+Currently two different categories of processes are implemented. 
+The first involves the production of an excited graviton state 
+<ei>G^*</ei> within a Randall-Sundrum (RS) scenario, the second 
+phenomena from large extra dimensions (LED). Due to the close 
+relation between the LED model and a so-called unparticle model, 
+unparticle processes are also kept in this section.
 
-<h3>Production processes</h3>
 
-There are two lowest-order processes that together normally should be 
-sufficient for a simulation of <ei>G^*</ei> production. 
+<h3>Randall-Sundrum Resonances, production processes</h3>
+
+The Graviton resonance state is assigned PDG code 5100039. Decays 
+into fermion, gluon and photon pairs are handled with the correct 
+angular distributions, while other decay channels currently are 
+handled isotropically.
+
+<p/>
+There are two lowest-order processes that together normally 
+should be sufficient for a simulation of <ei>G^*</ei> production. 
 
 <flag name="ExtraDimensionsG*:all" default="off">
 Common switch for the group of lowest-order <ei>G^*</ei> production
@@ -30,13 +38,13 @@ Code 5002.
 </flag>
 
 <p/>
-In addition there are three first-order processes included. These are of
-less interest, but can be used for dedicated studies of the high-<ei>pT</ei> 
-tail of <ei>G^*</ei> producton. As usual, it would be doublecounting to
-include the lowest-order and first-order processes simultaneously.
-Therefore the latter ones are not included with the 
-<code>ExtraDimensionsG*:all = on</code> option. In this set of processes
-all decay angles are assumed istropic.
+In addition there are three first-order processes included. These 
+are of less interest, but can be used for dedicated studies of the 
+high-<ei>pT</ei> tail of <ei>G^*</ei> production. As usual, it would 
+be double counting to include the lowest-order and first-order 
+processes simultaneously. Therefore the latter ones are not included 
+with the <code>ExtraDimensionsG*:all = on</code> option. In this set 
+of processes all decay angles are assumed isotropic.
 
 <flag name="ExtraDimensionsG*:gg2G*g" default="off">
 Scatterings <ei>g g -> G^* g</ei>. 
@@ -53,8 +61,7 @@ Scatterings <ei>q qbar -> G^* g</ei>.
 Code 5005.
 </flag>
 
-
-<h3>Parameters</h3>
+<h3>Randall-Sundrum Resonances, parameters</h3>
 
 In the above scenario the main free parameter is the <ei>G^*</ei> mass,
 which is set as usual. In addition there is one further parameter.
@@ -67,7 +74,194 @@ where <ei>x_1 = 3.83</ei> is the first zero of the <ei>J_1</ei> Bessel
 function and <ei>Mbar_Pl</ei> is the modified Planck mass.
 </parm>
 
+<h3>Large Extra Dimensions, production processes</h3>
+
+The LED graviton, where the KK-modes normally are summed and do not 
+give rise to phenomena individually, is assigned PDG code 5000039. 
+The graviton emission and virtual graviton exchange processes uses 
+the same implementation as the corresponding unparticle processes, 
+see further details below.
+
+<p/>
+The graviton emission processes are implemented using the conventions 
+described in <ref>Ask09</ref>. As also discussed in <ref>Ask09</ref>, 
+the underlying Breit-Wigner mass distribution has to be matched to the 
+graviton mass spectrum in order to achieve a high MC efficiency. 
+
+<p/>
+The virtual graviton exchange processes uses the parameters defined 
+in <ref>Giu99</ref>.
+
+<p/>
+The following lowest order graviton emission processes are available.
+
+<flag name="ExtraDimensionsLED:monojet" default="off">
+Common switch for the group of lowest-order <ei>G jet</ei> emission
+processes, i.e. the three ones below.
+</flag>
+
+<flag name="ExtraDimensionsLED:gg2Gg" default="off">
+Scatterings <ei>g g -> G g</ei>. 
+Code 5021.
+</flag>
+
+<flag name="ExtraDimensionsLED:qg2Gq" default="off">
+Scatterings <ei>q g -> G q</ei>. 
+Code 5022.
+</flag>
+
+<flag name="ExtraDimensionsLED:qqbar2Gg" default="off">
+Scatterings <ei>q qbar -> G g</ei>. 
+Code 5023.
+</flag>
+
+<flag name="ExtraDimensionsLED:ffbar2GZ" default="off">
+Scatterings <ei>f fbar -> G Z</ei>. 
+Code 5024.
+</flag>
+
+<flag name="ExtraDimensionsLED:ffbar2Ggamma" default="off">
+Scatterings <ei>f fbar -> G gamma</ei>. This process corresponds 
+to the photon limit of the <ei>G Z</ei> process, as described in 
+<ref>Ask09</ref>.
+Code 5025.
+</flag>
+
+<p/>
+The following LED processes with virtual graviton exchange are 
+available.
+
+<flag name="ExtraDimensionsLED:ffbar2gammagamma" default="off">
+Scatterings <ei>f fbar -> (LED G*) -> gamma gamma</ei>. If the 
+graviton contribution is zero, the results corresponds to the 
+SM contribution, i.e. equivalent to 
+<code>PromptPhoton:ffbar2gammagamma</code>.
+Code 5026.
+</flag>
+
+<flag name="ExtraDimensionsLED:gg2gammagamma" default="off">
+Scatterings <ei>gg -> (LED G*) -> gamma gamma</ei>. 
+Code 5027.
+</flag>
+
+<h3>Large Extra Dimensions, parameters</h3>
+
+<flag name="ExtraDimensionsLED:Trunc" default="off">
+Option to truncate the graviton mass spectrum. Only 
+concerns the graviton emission processes.
+</flag>
+
+<modeopen name="ExtraDimensionsLED:n" default="2" min="1">
+Number of extra dimensions.
+</modeopen>
+
+<parm name="ExtraDimensionsLED:MD" default="2000." min="0.0">
+Fundamental scale of gravity in <ei>D = 4 + n</ei> dimensions.
+</parm>
+
+<parm name="ExtraDimensionsLED:LambdaT" default="2000." min="0.0">
+Ultraviolet cutoff parameter for the virtual graviton exchange processes.
+</parm>
+
+<h3>Unparticles, production processes</h3>
+
+As mentioned above, the similar unparticle and graviton processes 
+share the same implementations. The unparticle processes, however, 
+only uses the dedicated unparticle parameters below. The unparticle 
+is also assigned the PDG code 5000039 and is therefore called 
+<ei>Graviton</ei> in the event record. Further details about the 
+common implementations are given below.
+
+<p/>
+All unparticle processes follow the parameter conventions described in 
+<ref>Ask09</ref>. As also discussed in <ref>Ask09</ref>, the underlying 
+Breit-Wigner mass distribution has to be matched to the graviton mass 
+spectrum in order to achieve a high MC efficiency. 
+
+<p/>
+The following unparticle emission processes are available.
+
+<flag name="ExtraDimensionsUnpart:ffbar2UZ" default="off">
+Scatterings <ei>f fbar -> U Z</ei>.  
+Code 5041.
+</flag>
+
+<flag name="ExtraDimensionsUnpart:ffbar2Ugamma" default="off">
+Scatterings <ei>f fbar -> U gamma</ei>. 
+Code 5042.
+</flag>
+
+<p/>
+The following processes with virtual unparticle exchange are available.
+
+<flag name="ExtraDimensionsUnpart:ffbar2gammagamma" default="off">
+Scatterings <ei>f fbar -> (U*) -> gamma gamma</ei>. If the unparticle  
+contribution is zero in the spin-2 case, the results corresponds to 
+the SM contribution, i.e. equivalent to 
+<code>PromptPhoton:ffbar2gammagamma</code>.
+This is also the case if the model parameter settings are not applicable. 
+Code 5043.
+</flag>
+
+<flag name="ExtraDimensionsUnpart:gg2gammagamma" default="off">
+Scatterings <ei>gg -> (U*) -> gamma gamma</ei>. 
+Code 5044.
+</flag>
+
+<h3>Unparticles, parameters</h3>
+
+<flag name="ExtraDimensionsUnpart:Trunc" default="off">
+Option to truncate the unparticle mass spectrum.
+</flag>
+
+<modeopen name="ExtraDimensionsUnpart:spinU" default="2" min="0" max="2">
+Unparticle spin.
+</modeopen>
+
+<parm name="ExtraDimensionsUnpart:dU" default="1.4" min="1.0">
+Scale dimension parameter.
+</parm>
+
+<parm name="ExtraDimensionsUnpart:LambdaU" default="2000." min="1.0">
+Unparticle renormalization scale.
+</parm>
+
+<parm name="ExtraDimensionsUnpart:lambda" default="1.0">
+Unparticle coupling to the SM fields
+</parm>
+
+<parm name="ExtraDimensionsUnpart:ratio" default="1.0" min="1.0" max="1.0">
+Ratio, <ei>lambda'/lambda</ei>, between the two possible coupling constants 
+of the spin-2 ME. <b>Warning:</b> A <ei>ratio</ei> value different from one 
+give rise to an IR divergence which makes the event generation very slow, so 
+this values is fixed to <ei>ratio = 1</ei> for the moment.
+</parm>
+
+<h3>Common LED and unparticle implementation</h3>
+
+Since the cross sections of the available LED and corresponding (spin-2) 
+unparticle processes only differ by some constant factors they share the 
+same implementation. The intention is that this should both minimize the 
+amount of code needed as well as emphasize the rather small differences 
+between the models from a phenomenological point of view.
+
+The main documentation for the common LED/unparticle implementation together 
+with the parameter conventions used is presented in <ref>Ask09</ref>. Since 
+this paper is focused on graviton/unparticle emission some complementary 
+information, not covered in <ref>Ask09</ref>, is summarized below.
+
+The spin-2 unparticle and graviton processes share the same matrix 
+elements (ME). MEs were taken from the following papers: 
+(monojets) <ref>Giu99</ref>, (mono-Z or -photon) <ref>Che07</ref> 
+(gammagamma) <ref>Kum08</ref>. 
+All unparticle processes (spin-0, spin-1 and spin-2) have an universal 
+unparticle - SM coupling, <ei>lambda</ei>, implemented according to the 
+effective operators in <ref>Che07</ref>. The virtual graviton exchange 
+processes are obtained from the spin-2 unparticle MEs by setting 
+<ei>dU = 2</ei> and <ei>lambda^2 * Chi = 4 pi</ei>, which reproduces 
+the graviton formulas in <ref>Giu99</ref> and <ref>Giu04</ref>.
+
 </chapter>
 
-<!-- Copyright (C) 2008 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
 

@@ -1,5 +1,5 @@
 // TimeShower.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2008 Torbjorn Sjostrand.
+// Copyright (C) 2009 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -453,9 +453,10 @@ void TimeShower::update( int iSys, Event& event) {
     swap( iOld[0], iOld[1]);   
   }
 
-  // Loop over all dipole ends belonging to the system.
+  // Loop over all dipole ends belonging to the system 
+  // or to the recoil system, if different.
   for (int iDip = 0; iDip < int(dipEnd.size()); ++iDip) 
-  if (dipEnd[iDip].system == iSys) {
+  if (dipEnd[iDip].system == iSys || dipEnd[iDip].systemRec == iSys) {
     TimeDipoleEnd& dipNow = dipEnd[iDip];
 
     // Replace radiator (always in final state so simple).
@@ -563,6 +564,7 @@ void TimeShower::setupQCDdip( int iSys, int i, int colTag, int colSign,
                                     : sizeOut;
   int sizeIn  = sizeAll - sizeOut;
   int iOffset = i + partonSystemsPtr->sizeAll(iSys) - sizeOut;
+  bool otherSystemRec = false;
 
   // Colour: other end by same index in beam or opposite in final state.
   if (colSign > 0) 
@@ -586,14 +588,15 @@ void TimeShower::setupQCDdip( int iSys, int i, int colTag, int colSign,
     }
   }
 
-  // If FSR only after MI + ISR + BR then look for matching (anti)colour
-  // anywhere in final state.
-  if ( !doInterleave && (iRec == 0 || !event[iRec].isFinal()) ) {
+  // If no success then look for matching (anti)colour anywhere in final state.
+  // More cases??
+  if ( iRec == 0 || (!doInterleave && !event[iRec].isFinal()) ) {
     iRec = 0;
     for (int j = 0; j < event.size(); ++j) if (event[j].isFinal()) 
     if ( (colSign > 0 && event[j].acol() == colTag)
       || (colSign < 0 && event[j].col()  == colTag) ) {
       iRec = j;
+      otherSystemRec = true;
       break;
     }
 
@@ -609,6 +612,7 @@ void TimeShower::setupQCDdip( int iSys, int i, int colTag, int colSign,
         if ( (colSign > 0 && event[j].col()  == colTagRec)
           || (colSign < 0 && event[j].acol() == colTagRec) ) {
           iRec = j;
+          otherSystemRec = true;
           break;
         }
       }    
@@ -628,7 +632,7 @@ void TimeShower::setupQCDdip( int iSys, int i, int colTag, int colSign,
         ppMin = ppNow;
       } 
     }     
-  }
+  }  
 
   // Store dipole colour end.
   if (iRec > 0) { 
@@ -641,6 +645,11 @@ void TimeShower::setupQCDdip( int iSys, int i, int colTag, int colSign,
     dipEnd.push_back( TimeDipoleEnd( iRad, iRec, pTmax, 
       colType, 0, 0, isrType, iSys, -1, -1, isOctetOnium) );
 
+    // If hooked up with other system then find which.
+    if (otherSystemRec) {
+      int systemRec = partonSystemsPtr->getSystemOf(iRec);
+      if (systemRec >= 0) dipEnd.back().systemRec = systemRec;
+    } 
   }
 
 }
@@ -1251,20 +1260,6 @@ bool TimeShower::branch( Event& event) {
     if ( findMEcorr( dipSel, rad, partner, emt) < Rndm::flat() ) 
       return false;
   }
-  
-  // Debug?? Calculate radiator system masses before and after momentum transfer.
-  /*
-  if (iSysSelRec != iSysSel) {
-    Vec4 pSumSysBef;
-    for (int iAB = 0; iAB < partonSystemsPtr->sizeOut(iSysSel); ++iAB) 
-      pSumSysBef += event[ partonSystemsPtr->getOut(iSysSel, iAB) ].p();
-    double mSumSysBef = pSumSysBef.mCalc();
-    double mSumSysAft = (pSumSysBef - radBef.p() + pRad + pEmt).mCalc(); 
-    // Debug?? Kill radiation if too large mass shift.
-    //if ( mSumSysAft > 1.5 *  mSumSysBef ||  mSumSysAft > mSumSysBef + 20. ) 
-    //  return false;
-  }
-  */
 
   // Put new particles into the event record.
   int iRad = event.append(rad);

@@ -1,5 +1,5 @@
 // main61.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2008 Richard Corke.
+// Copyright (C) 2009 Richard Corke.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -34,7 +34,7 @@ const double expCrossSec[] = { 798.0, 53.5, 6.8, 0.84, 0.074 };
 
 int main() {
   // Settings
-  int  nEvent = 1000;
+  int  nEvent = 10000;
   bool doMI = true;
     
   // Generator
@@ -53,10 +53,10 @@ int main() {
   pythia.init( 2212, -2212, 1960.);
 
   // Histograms
-  Hist dSigma1("1-jet cross-section (E_jet1 > 20 GeV)", 66, 20.0, 350.0);
-  Hist dSigma2("2-jet cross-section (E_jet2 > 20 GeV)", 34, 20.0, 190.0);
-  Hist dSigma3("3-jet cross-section (E_jet3 > 20 GeV)", 12, 20.0, 80.0);
-  Hist dSigma4("4-jet cross-section (E_jet4 > 20 GeV)",  3, 20.0, 35.0);
+  Hist dSigma1("1-jet cross-section (E_jet1 > 20 GeV)", 70, 0.0, 350.0);
+  Hist dSigma2("2-jet cross-section (E_jet2 > 20 GeV)", 38, 0.0, 190.0);
+  Hist dSigma3("3-jet cross-section (E_jet3 > 20 GeV)", 16, 0.0, 80.0);
+  Hist dSigma4("4-jet cross-section (E_jet4 > 20 GeV)",  7, 0.0, 35.0);
   Hist *dSigmaHist[5] = { NULL, &dSigma1, &dSigma2, &dSigma3, &dSigma4 };
 
   // Fastjet analysis - select algorithm and parameters

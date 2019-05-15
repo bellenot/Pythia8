@@ -1,5 +1,5 @@
 // SigmaHiggs.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2008 Torbjorn Sjostrand.
+// Copyright (C) 2009 Torbjorn Sjostrand.
 // Part of code written by Marc Montull, CERN summer student 2007.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
@@ -679,10 +679,10 @@ void Sigma3ff2HfftZZ::sigmaKin() {
 
   // Required four-vector products.
   double pp12 = 0.5 * sH;
-  double pp14 = 0.5 * mH * p4cm.pMinus();
-  double pp15 = 0.5 * mH * p5cm.pMinus();
-  double pp24 = 0.5 * mH * p4cm.pPlus();
-  double pp25 = 0.5 * mH * p5cm.pPlus();
+  double pp14 = 0.5 * mH * p4cm.pNeg();
+  double pp15 = 0.5 * mH * p5cm.pNeg();
+  double pp24 = 0.5 * mH * p4cm.pPos();
+  double pp25 = 0.5 * mH * p5cm.pPos();
   double pp45 = p4cm * p5cm;
 
   // Propagator factors and two possible numerators.
@@ -818,8 +818,8 @@ void Sigma3ff2HfftWW::sigmaKin() {
 
   // Required four-vector products.
   double pp12  = 0.5 * sH;
-  double pp14  = 0.5 * mH * p4cm.pMinus();
-  double pp25  = 0.5 * mH * p5cm.pPlus();
+  double pp14  = 0.5 * mH * p4cm.pNeg();
+  double pp25  = 0.5 * mH * p5cm.pPos();
   double pp45  = p4cm * p5cm;
 
   // Cross section: kinematics part. Combine with couplings.

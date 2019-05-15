@@ -1,5 +1,5 @@
 // SpaceShower.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2008 Torbjorn Sjostrand.
+// Copyright (C) 2009 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -18,6 +18,9 @@ namespace Pythia8 {
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
+
+// Turn to true to allow debug printout. 
+const bool   SpaceShower::DEBUG          = false; 
 
 // Leftover companion can give PDF > 0 at small Q2 where other PDF's = 0,
 // and then one can end in infinite loop of impossible kinematics.
@@ -214,12 +217,10 @@ void SpaceShower::prepare( int iSys, Event& event, bool limitPTmaxIn) {
   bool canRadiate1 = (event[in1].status() != -34);
   bool canRadiate2 = (event[in2].status() != -34);
 
-  // Debug?? No new dipole ends for rescattered system.
-  // if (!canRadiate1 || !canRadiate2) return;
-  // End Debug??
-
-  // Reset dipole-ends list for first interaction.
+  // Reset dipole-ends list for first interaction. Also resonances.
   if (iSys == 0) dipEnd.resize(0);
+  if (iSys == 0) idResFirst  = 0;
+  if (iSys == 1) idResSecond = 0;
 
   // Find matrix element corrections for system.
   int MEtype = findMEtype( iSys, event); 
@@ -249,13 +250,18 @@ void SpaceShower::prepare( int iSys, Event& event, bool limitPTmaxIn) {
     int chgType1 = ( (event[in1].isQuark() && doQEDshowerByQ)
       || (event[in1].isLepton() && doQEDshowerByL) )
       ? event[in1].chargeType() : 0;
+    // Special: photons have charge zero, but can evolve (only off Q for now)
+    if (event[in1].id() == 22 && doQEDshowerByQ) chgType1 = 22 ;
     if (canRadiate1) dipEnd.push_back( SpaceDipoleEnd( iSys, -1, 
       in1, in2, pTmax1, 0, chgType1, MEtype, canRadiate2) );
     int chgType2 = ( (event[in2].isQuark() && doQEDshowerByQ)
       || (event[in2].isLepton() && doQEDshowerByL) )
       ? event[in2].chargeType() : 0;
+    // Special: photons have charge zero, but can evolve (only off Q for now)
+    if (event[in2].id() == 22 && doQEDshowerByQ) chgType2 = 22 ;
     if (canRadiate2) dipEnd.push_back( SpaceDipoleEnd( iSys, -2, 
       in2, in1, pTmax2, 0, chgType2, MEtype, canRadiate1) );
+
   }
 
 }
@@ -284,9 +290,6 @@ double SpaceShower::pTnext( Event& , double pTbegAll, double pTendAll,
     dipEndNow      = &dipEnd[iDipEnd];        
     iSysNow        = dipEndNow->system;
     dipEndNow->pT2 = 0.;
-
-    // Debug?? side == 0 are dipoles involved in rescattering; kill for now.
-    //if (dipEndNow->side == 0) continue;
    
     // Check whether dipole end should be allowed to shower. 
     double pT2begDip = pow2( min( pTbegAll, dipEndNow->pTmax ));
@@ -777,8 +780,8 @@ void SpaceShower::pT2nextQED( double pT2begDip, double pT2endDip) {
   double m2Lepton = (isLeptonBeam) ? pow2(beam.m()) : 0.; 
   if (isLeptonBeam && pT2begDip < m2Lepton) return;
 
-  // Currently no f -> gamma branching implemented. ??
-  if (isPhoton) return;
+  // Currently no f -> gamma branching implemented for lepton beams
+  if (isPhoton && isLeptonBeam) return;
 
   // alpha_em at maximum scale provides upper estimate.
   double alphaEMmax  = alphaEM.alphaEM(pT2begDip);
@@ -797,25 +800,9 @@ void SpaceShower::pT2nextQED( double pT2begDip, double pT2endDip) {
   }
   if (zMaxAbs < zMinAbs) return;
 
-  // Integrals of splitting kernels for fermions: f -> f. Use 1 + z^2 < 2. 
-  // Ansatz f(z) = 2 / (1 - z), with + 2 / (z - xDaughter) for lepton.
-  double f2fInt  = 0.;
-  double f2fIntA = 2. * log( (1. - zMinAbs) / (1. - zMaxAbs) );
-  double f2fIntB = 0.;
-  if (isLeptonBeam) {
-    f2fIntB      = 2. * log( (zMaxAbs - xDaughter) / (zMinAbs - xDaughter) );
-    f2fInt       = f2fIntA + f2fIntB; 
-  } else f2fInt  = pow2(dipEndNow->chgType / 3.) * f2fIntA;
-
-  // Upper estimate for evolution equation, including fudge factor. 
-  if (doMEcorrections) f2fInt *= calcMEmax(MEtype, 1, 1);
-  double kernelPDF = alphaEM2pi * f2fInt;
-  double fudge = (isLeptonBeam) ? LEPTONFUDGE * log(m2Dip/m2Lepton) : 1.;
-  kernelPDF *= fudge;
-  if (kernelPDF < TINYKERNELPDF) return;
-  
   // Variables used inside evolution loop. (Mainly dummy start values.)
   int    idMother = 0;
+  int    idSister =22;
   double z        = 0.; 
   double xMother  = 0.; 
   double wt       = 0.; 
@@ -825,82 +812,291 @@ void SpaceShower::pT2nextQED( double pT2begDip, double pT2endDip) {
   double pT2corr  = 0.;
   double phi      = 0.;
   
-  // Begin evolution loop towards smaller pT values.
-  do { 
-    wt = 0.;
+  // QED evolution of fermions
+  if (!isPhoton) {
 
-    // Pick pT2 (in overestimated z range).
-    // For l -> l gamma include extrafactor 1 / ln(pT2 / m2l) in evolution.
-    double shift = pow(Rndm::flat(), 1. / kernelPDF);
-    if (isLeptonBeam) pT2 = m2Lepton * pow( pT2 / m2Lepton, shift);
-    else              pT2 = pT2 * shift; 
-
-    // Abort evolution if below cutoff scale, or below another branching.
-    if (pT2 < pT2endDip) return; 
-    if (isLeptonBeam && pT2 < LEPTONPT2MIN * m2Lepton) return; 
-
-    // Select z value of branching f -> f + gamma, and corrective weight.
-    idMother = idDaughter;
-    wt = 0.5 * (1. + pow2(z));
+    // Integrals of splitting kernels for fermions: f -> f. Use 1 + z^2 < 2. 
+    // Ansatz f(z) = 2 / (1 - z), with + 2 / (z - xDaughter) for lepton.
+    double f2fInt  = 0.;
+    double f2fIntA = 2. * log( (1. - zMinAbs) / (1. - zMaxAbs) );
+    double f2fIntB = 0.;
     if (isLeptonBeam) {
-      if (f2fIntA > Rndm::flat() * (f2fIntA + f2fIntB)) 
-        z = 1. - (1. - zMinAbs) 
-        * pow( (1. - zMaxAbs) / (1. - zMinAbs), Rndm::flat() );
-      else z = xDaughter + (zMinAbs - xDaughter) 
-        * pow( (zMaxAbs - xDaughter) / (zMinAbs - xDaughter), Rndm::flat() );  
-      wt *= (z - xDaughter) / (1. - xDaughter); 
-    } else {
-      z = 1. - (1. - zMinAbs) 
-        * pow( (1. - zMaxAbs) / (1. - zMinAbs), Rndm::flat() ); 
-    }
-  
-    // Derive Q2 and x of mother from pT2 and z. 
-    Q2      = pT2 / (1. - z);
-    xMother = xDaughter / z;
- 
-    // Forbidden emission if outside allowed z range for given pT2.
-    mSister  = 0.;
-    m2Sister = 0.;
-    pT2corr  = Q2 - z * (m2Dip + Q2) * (Q2 + m2Sister) / m2Dip;
-    if(pT2corr < TINYPT2) { wt = 0.; continue; }
+      f2fIntB      = 2. * log( (zMaxAbs - xDaughter) / (zMinAbs - xDaughter) );
+      f2fInt       = f2fIntA + f2fIntB; 
+    } else f2fInt  = pow2(dipEndNow->chgType / 3.) * f2fIntA;
+    
+    // Upper estimate for evolution equation, including fudge factor. 
+    if (doMEcorrections) f2fInt *= calcMEmax(MEtype, 1, 1);
+    double kernelPDF = alphaEM2pi * f2fInt;
+    double fudge = (isLeptonBeam) ? LEPTONFUDGE * log(m2Dip/m2Lepton) : 1.;
+    kernelPDF *= fudge;
+    if (kernelPDF < TINYKERNELPDF) return;
+    
+    // Begin evolution loop towards smaller pT values.
+    do { 
+      wt = 0.;
+      
+      // Pick pT2 (in overestimated z range).
+      // For l -> l gamma include extrafactor 1 / ln(pT2 / m2l) in evolution.
+      double shift = pow(Rndm::flat(), 1. / kernelPDF);
+      if (isLeptonBeam) pT2 = m2Lepton * pow( pT2 / m2Lepton, shift);
+      else              pT2 = pT2 * shift; 
+      
+      // Abort evolution if below cutoff scale, or below another branching.
+      if (pT2 < pT2endDip) return; 
+      if (isLeptonBeam && pT2 < LEPTONPT2MIN * m2Lepton) return; 
+      
+      // Select z value of branching f -> f + gamma, and corrective weight.
+      idMother = idDaughter;
+      wt = 0.5 * (1. + pow2(z));
+      if (isLeptonBeam) {
+	if (f2fIntA > Rndm::flat() * (f2fIntA + f2fIntB)) { 
+	  z = 1. - (1. - zMinAbs) 
+	    * pow( (1. - zMaxAbs) / (1. - zMinAbs), Rndm::flat() );
+	} else {
+	  z = xDaughter + (zMinAbs - xDaughter) 
+	    * pow( (zMaxAbs - xDaughter) / (zMinAbs - xDaughter), 
+                  Rndm::flat() );  
+	}
+	wt *= (z - xDaughter) / (1. - xDaughter); 
+      } else {
+	z = 1. - (1. - zMinAbs) 
+	  * pow( (1. - zMaxAbs) / (1. - zMinAbs), Rndm::flat() ); 
+      }
+      
+      // Derive Q2 and x of mother from pT2 and z. 
+      Q2      = pT2 / (1. - z);
+      xMother = xDaughter / z;
+      
+      // Forbidden emission if outside allowed z range for given pT2.
+      mSister  = 0.;
+      m2Sister = 0.;
+      pT2corr  = Q2 - z * (m2Dip + Q2) * (Q2 + m2Sister) / m2Dip;
+      if(pT2corr < TINYPT2) { wt = 0.; continue; }
+      
+      // Select phi angle of branching at random.
+      phi = 2. * M_PI * Rndm::flat();
+      
+      // Correct by ln(pT2 / m2l) and fudge factor.  
+      if (isLeptonBeam) wt *= log(pT2 / m2Lepton) / fudge;
+      
+      // Evaluation of ME correction.
+      if (doMEcorrections) wt *= calcMEcorr(MEtype, idMother, idDaughter, 
+         m2Dip, z, Q2) / calcMEmax(MEtype, idMother, idDaughter);
 
-    // Select phi angle of branching at random.
-    phi = 2. * M_PI * Rndm::flat();
- 
-    // Correct by ln(pT2 / m2l) and fudge factor.  
-    if (isLeptonBeam) wt *= log(pT2 / m2Lepton) / fudge;
+      // Extra QED correction for f fbar -> W+- gamma. Debug??
+      if (doMEcorrections && MEtype == 1 && idDaughter == idMother
+        && ( (iSysNow == 0 && idResFirst  == 24)
+	  || (iSysNow == 1 && idResSecond == 24) ) ) {
+        double tHe  = -Q2;
+        double uHe  = Q2 - m2Dip * (1. - z) / z;
+        double chg1 = abs(dipEndNow->chgType / 3.);
+        double chg2 = 1. - chg1;
+        wt *= pow2(chg1 * uHe - chg2 * tHe) 
+	  / ( (tHe + uHe) * (pow2(chg1) * uHe + pow2(chg2) * tHe) );  
+      }
 
-    // Evaluation of ME correction.
-    if (doMEcorrections) wt *= calcMEcorr(MEtype, idMother, idDaughter, 
-      m2Dip, z, Q2) / calcMEmax(MEtype, idMother, idDaughter);
+      // Optional dampening of large pT values in first radiation.
+      if (dopTdamp && iSysNow == 0 && MEtype == 0 && nRad == 0) 
+	wt *= pT2damp / (pT2 + pT2damp);
 
-    // Optional dampening of large pT values in first radiation.
-    if (dopTdamp && iSysNow == 0 && MEtype == 0 && nRad == 0) 
-      wt *= pT2damp / (pT2 + pT2damp);
+      // Correct to current value of alpha_EM.
+      double alphaEMnow = alphaEM.alphaEM(pT2);
+      wt *= (alphaEMnow / alphaEMmax);
+      
+      // Evaluation of new daughter and mother PDF's.
+      double xPDFdaughterNew = max ( TINYPDF, 
+	 beam.xfISR(iSysNow, idDaughter, xDaughter, pT2) );
+      double xPDFmotherNew   = beam.xfISR(iSysNow, idMother, xMother, pT2);
+      wt *= xPDFmotherNew / xPDFdaughterNew;
 
-    // Idea suggested by Gosta Gustafson: increased screening in events
-    // with large activity can be simulated by pT0_eff = sqrt(n) * pT0. 
-    if (enhanceScreening == 2) {
-      int nSysNow     = infoPtr->nMI() + infoPtr->nISR() + 1;
-      double WTscreen = pow2( (pT2 + pT20) / (pT2 + nSysNow * pT20) );
-      wt             *= WTscreen;
-    } 
+    // Iterate until acceptable pT (or have fallen below pTmin).
+    } while (wt < Rndm::flat()) ;
+  }
 
-    // Correct to current value of alpha_EM.
-    double alphaEMnow = alphaEM.alphaEM(pT2);
-    wt *= (alphaEMnow / alphaEMmax);
+  // QED evolution of photons (so far only for hadron beams).
+  else {
+    
+    // Initial values
+    int    nFlavour       = 3;         
+    double kernelPDF      = 0.0;
+    double xPDFdaughter   = 0.;
+    double xPDFmother[21] = {0.};
+    double xPDFmotherSum  = 0.0;
+    double pT2PDF         = pT2;
+    double pT2minNow      = pT2endDip;
+    bool   needNewPDF     = true;
 
-    // Evaluation of new daughter and mother PDF's.
-    double xPDFdaughterNew = max ( TINYPDF, 
-      beam.xfISR(iSysNow, idDaughter, xDaughter, pT2) );
-    double xPDFmotherNew   = beam.xfISR(iSysNow, idMother, xMother, pT2);
-    wt *= xPDFmotherNew / xPDFdaughterNew;
+    // Begin evolution loop towards smaller pT values.
+    int    loopTinyPDFdau = 0;
+    bool   hasTinyPDFdau  = false;
+    do { 
+      wt = 0.;
+      
+      // Bad sign if repeated looping with small daughter PDF, so fail.
+      if (hasTinyPDFdau) ++loopTinyPDFdau;  
+      if (loopTinyPDFdau > MAXLOOPTINYPDF) {
+	infoPtr->errorMsg("Warning in SpaceShower::pT2nextQED: "
+			  "small daughter PDF"); 
+	return;
+      }
 
-  // Iterate until acceptable pT (or have fallen below pTmin).
-  } while (wt < Rndm::flat()) ;
+      // Initialize integrals of splitting kernels and evaluate parton 
+      // densities at the beginning. Reinitialize after long evolution 
+      // in pT2 or when crossing c and b flavour thresholds.
+      if (needNewPDF || pT2 < EVALPDFSTEP * pT2PDF) {
+
+	pT2PDF        = pT2;
+	hasTinyPDFdau = false;
+
+	// Determine overestimated z range; switch at c and b masses.
+	if (pT2 > m2b && nQuarkIn >= 5) {
+	  nFlavour  = 5;
+	  pT2minNow = m2b;
+	} else if (pT2 > m2c && nQuarkIn >= 4) {
+	  nFlavour  = 4;
+	  pT2minNow = m2c;
+	} else { 
+	  nFlavour  = 3;
+	  pT2minNow = pT2endDip;
+	}
+	
+	// Compute upper z limit 
+	zMaxAbs = 1. - 0.5 * (pT2minNow / m2Dip) *
+	  ( sqrt( 1. + 4. * m2Dip / pT2minNow ) - 1. );
+
+	// Parton density of daughter at current scale. 
+	xPDFdaughter = beam.xfISR(iSysNow, idDaughter, xDaughter, pT2);
+	if (xPDFdaughter < TINYPDF) {
+	  xPDFdaughter  = TINYPDF;
+	  hasTinyPDFdau = true;
+	}
+	
+	// Integral over f -> gamma f splitting kernel.
+	// Normalized so: 4/3 aS/2pi P(z) -> eq^2 * aEM/2pi P(z).
+	// (Charge-weighting happens below.)
+	double q2gInt = 4. * (1./sqrt(zMinAbs) - 1./sqrt(zMaxAbs));
+	
+	// Charge-weighted Parton density of potential quark mothers.
+	xPDFmotherSum = 0.;
+	for (int i = -nFlavour; i <= nFlavour; ++i) {
+	  if (i == 0) {
+	    xPDFmother[10] = 0.;
+	  } else {
+	    xPDFmother[i+10] = pow2((abs(i+1) % 2 + 1)/3.0) 
+	      * beam.xfISR(iSysNow, i, xDaughter, pT2); 
+	    xPDFmotherSum += xPDFmother[i+10]; 
+	  }
+	} 
+	
+	// Total QED evolution coefficient for a photon.
+	kernelPDF = q2gInt * xPDFmotherSum / xPDFdaughter;
+	
+	// End evaluation of splitting kernels and parton densities.
+	needNewPDF = false;
+      }
+      if (kernelPDF < TINYKERNELPDF) return;
+      
+      // Select pT2 for next trial branching 
+      pT2 *= pow( Rndm::flat(), 1. / (alphaEM2pi * kernelPDF));
+
+      // If crossed b threshold, continue evolution from this threshold.
+      if (nFlavour == 5 && pT2 < m2b) {  
+	needNewPDF = true;
+	pT2 = m2b;
+	continue;
+      }
+
+      // If crossed c threshold, continue evolution from this threshold.
+      else if (nFlavour == 4 && pT2 < m2c) { 
+	needNewPDF = true;
+	pT2 = m2c;
+	continue;
+      }
+
+      // Abort evolution if below cutoff scale, or below another branching.
+      else if (pT2 < pT2endDip) return; 
+
+      // Select flavour for trial branching
+      double temp = xPDFmotherSum * Rndm::flat();
+      idMother = -nQuarkIn - 1;
+      do { 
+	temp -= xPDFmother[(++idMother) + 10]; 
+      } while (temp > 0. && idMother < nQuarkIn);  
+
+      // Sister is same as mother, but can have m2 > 0
+      idSister = idMother;
+      mSister = ParticleDataTable::m0(idSister);
+      m2Sister = pow2(mSister);
+      
+      // Select z for trial branching
+      z = (zMinAbs * zMaxAbs) / pow2( sqrt(zMinAbs) + Rndm::flat() 
+				      * ( sqrt(zMaxAbs)- sqrt(zMinAbs) ));
+      
+      // Trial weight: splitting kernel
+      wt = 0.5 * (1. + pow2(1. - z)) * sqrt(z);
+      
+      // Trial weight: running alpha_EM
+      double alphaEMnow = alphaEM.alphaEM(pT2);
+      wt *= (alphaEMnow / alphaEMmax);
+      
+      // Derive Q2 and x of mother from pT2 and z
+      Q2      = pT2 / (1. - z);
+      xMother = xDaughter / z;
+      
+      // Compute pT2corr
+      pT2corr  = Q2 - z * (m2Dip + Q2) * (Q2 + m2Sister) / m2Dip;
+      if(pT2corr < TINYPT2) { wt = 0.; continue; }
+      
+      // If creating heavy quark by Q -> gamma + Q then next need g -> Q + Qbar.
+      // So minimum total mass2 is 4 * m2Sister, but use more to be safe.
+      if ( abs(idMother) == 4 || abs(idMother) == 5 ) {
+	double m2QQsister =  EXTRASPACEQ * 4. * m2Sister;
+	double pT2QQcorr = Q2 - z * (m2Dip + Q2) * (Q2 + m2QQsister) / m2Dip;
+	if(pT2QQcorr < TINYPT2) { wt = 0.; continue; }
+      }  
+
+      // Select phi angle of branching at random.
+      phi = 2. * M_PI * Rndm::flat();
+      
+      // Optional dampening of large pT values in first radiation.
+      if (dopTdamp && iSysNow == 0 && MEtype == 0 && nRad == 0) 
+	wt *= pT2damp / (pT2 + pT2damp);
+
+      // Evaluation of new daughter PDF 
+      double xPDFdaughterNew = beam.xfISR(iSysNow, idDaughter, xDaughter, pT2);
+      if (xPDFdaughterNew < TINYPDF) {
+	xPDFdaughterNew = TINYPDF;
+      }
+      
+      // Evaluation of new charge-weighted mother PDF 
+      double xPDFmotherNew = pow2( (abs(idMother+1) % 2 + 1)/3.0 ) 
+	* beam.xfISR(iSysNow, idMother, xMother, pT2);
+      
+      // Trial weight: divide out old pdf ratio
+      wt *= xPDFdaughter / xPDFmother[idMother + 10];
+      
+      // Trial weight: new pdf ratio
+      wt *= xPDFmotherNew / xPDFdaughterNew;
+
+      // !TMP!
+      if (DEBUG) {      
+        cout << " Trial weight is  : " << wt << endl;
+        cout << "   pT2 = " << pT2 << " z = " << z << " alpha/alphahat = "
+	     << alphaEMnow << "/" << alphaEMmax << " idMother = "
+             << idMother << " xPDFd/xPDFm = " << xPDFdaughter << "/" 
+             << xPDFmother[idMother+10] << " xPDFmNew/xPDFdNew "
+	     << xPDFmotherNew << "/" << xPDFdaughterNew << " pT2damp = "
+             << pT2damp << " Q2 = " << Q2 << " pT2corr = "<< pT2corr
+             << endl;
+      }
+
+    // Iterate until acceptable pT (or have fallen below pTmin).
+    } while (wt < Rndm::flat()) ;    
+  }
 
   // Save values for (so far) acceptable branching.
-  dipEndNow->store( idDaughter,idMother, 22, x1Now, x2Now, m2Dip,
+  dipEndNow->store( idDaughter, idMother, idSister, x1Now, x2Now, m2Dip,
     pT2, z, Q2, mSister, m2Sister, pT2corr, phi);  
 
 }
@@ -1166,6 +1362,8 @@ int SpaceShower::findMEtype( int iSys, Event& event) {
     int idIn1 = event[partonSystemsPtr->getInA(iSys)].id();
     int idIn2 = event[partonSystemsPtr->getInA(iSys)].id();
     int idRes = event[partonSystemsPtr->getOut(iSys, 0)].id();
+    if (iSys == 0) idResFirst  = abs(idRes);
+    if (iSys == 1) idResSecond = abs(idRes);
 
     // f + fbar -> vector boson. 
     if ( (idRes == 23 || abs(idRes) == 24 || idRes == 32 
@@ -1282,3 +1480,4 @@ void SpaceShower::list(ostream& os) {
 //**************************************************************************
 
 } // end namespace Pythia8
+

@@ -16,6 +16,9 @@ Z. Phys. C45 (1989) 109</dd>
 <dd>B. Andersson, G. Gustafson, G. Ingelman and T. Sj&ouml;strand,
 Phys. Rep. 97 (1983) 31</dd>
 
+<dt>Ask08</dt>
+<dd>S. Ask, arXiv:0809.4750v2 [hep-ph], to appear in Eur. Phys. J. C</dd>
+
 <dt>Bar06</dt>
 <dd>M. Bargiotti, talk at the HERA4LHC workshop,
 http://mbargiot.web.cern.ch/mbargiot/talks/
@@ -41,8 +44,24 @@ at TeV Colliders, Les Houches, France, 21 May - 1 Jun 2001
 <dt>Bow81</dt>
 <dd>M.G. Bowler, Z. Phys. C11 (1981) 169</dd>
 
+<dt>Boz07</dt>
+<dd>G. Bozzi, B. Fuks, B. Herrmann, M. Klasen, Nucl. Phys. B787 (2007) 1
+[arXiv:0704.1826 [hep-ph]]</dd> 
+
+<dt>Cac06</dt>
+<dd>M. Cacciari and G.P. Salam, Phys. Lett. B641 (2006) 57
+[hep-ph/0512210]</dd>
+
+<dt>Cac08</dt>
+<dd>M. Cacciari, G.P. Salam and G. Soyez, JHEP 04 (2008) 063
+[arXiv:0802.1189 [hep-ph]]</dd>
+
 <dt>Cah82</dt>
 <dd>R. Cahn, Z. Physik C15 (1982) 253</dd>
+
+<dt>Che07</dt> 
+<dd>K. Cheung, W.-Y. Keung and T.-C. Yuan, 
+Phys. Rev. D76 (2007) 055003</dd>
 
 <dt>Dob01</dt>
 <dd>M. Dobbs and J.B. Hansen, Comput. Phys. Comm. 134 (2001) 41</dd>
@@ -55,6 +74,12 @@ at TeV Colliders, Les Houches, France, 21 May - 1 Jun 2001
 
 <dt>Glu95</dt>
 <dd>M. Gl&uuml;ck, E. Reya and A. Vogt, Z. Phys. C67 (1995) 433</dd>
+
+<dt>Gui99</dt>
+<dd>G.F. Giudice, R. Rattazzi and J.D. Wells, Nucl. Phys. B544 (1999) 3</dd>
+
+<dt>Gui04</dt>
+<dd>G.F. Giudice, T. Plehn and A. Strumia, Nucl. Phys. B706 (2005) 455</dd>
 
 <dt>Gus86</dt>
 <dd>G. Gustafson, Phys. Lett. B175 (1986) 453;
@@ -74,6 +99,10 @@ Phys. Lett. B394 (1997) 132</dd>
 <dd>R. Kleiss et al., in `Z physics at LEP 1', 
 eds. G. Altarelli, R. Kleiss and C. Verzegnassi, 
 CERN 89-08 (Geneva, 1989), Vol. 3, p. 143</dd>
+
+<dt>Kum08</dt>
+<dd>M.C. Kumar, P. Mathews, V. Ravindran and A. Tripathi, 
+Phys. Rev. D77 (2008) 055013</dd>
  
 <dt>Lai00</dt>
 <dd>CTEQ Collaboration, H.L. Lai et al., 
@@ -152,4 +181,4 @@ J. Phys. G33 (2006) 1</dd>
 
 </chapter>
 
-<!-- Copyright (C) 2008 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2009 Torbjorn Sjostrand -->

@@ -1,9 +1,11 @@
 // LesHouches.h is a part of the PYTHIA event generator.
-// Copyright (C) 2008 Torbjorn Sjostrand.
+// Copyright (C) 2009 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 // Header file for Les Houches Accord user process information.
+// LHAProcess: stores a single process; used by the other classes.
+// LHAParticle: stores a single particle; used by the other classes.
 // LHAup: base class for initialization and event information.
 // LHAupLHEF: derived class for reading from an Les Houches Event File.
 // Code for interfacing with Fortran commonblocks is found in LHAFortran.h.
@@ -17,6 +19,52 @@
 #include "Settings.h"
 
 namespace Pythia8 {
+
+//**************************************************************************
+
+// A class for the processes stored in LHAup.
+  
+class LHAProcess {
+
+public:
+
+  // Constructors.
+  LHAProcess() : idProc(0), xSecProc(0.), xErrProc(0.), xMaxProc(0.) { }
+  LHAProcess(int idProcIn, double xSecIn, double xErrIn, double xMaxIn) :
+    idProc(idProcIn), xSecProc(xSecIn), xErrProc(xErrIn), 
+    xMaxProc(xMaxIn) { }
+
+  // Process properties.
+  int idProc;
+  double xSecProc, xErrProc, xMaxProc;
+
+} ;
+
+//**************************************************************************
+
+// A class for the particles stored in LHAup.
+
+class LHAParticle {
+
+public:
+
+  // Constructors.   
+  LHAParticle() : idPart(0), statusPart(0), mother1Part(0), 
+    mother2Part(0), col1Part(0), col2Part(0), pxPart(0.), pyPart(0.), 
+    pzPart(0.), ePart(0.), mPart(0.), tauPart(0.), spinPart(9.) { }
+  LHAParticle(int idIn, int statusIn, int mother1In, int mother2In,
+    int col1In, int col2In, double pxIn, double pyIn, double pzIn, 
+    double eIn, double mIn, double tauIn, double spinIn) :
+    idPart(idIn), statusPart(statusIn), mother1Part(mother1In), 
+    mother2Part(mother2In), col1Part(col1In), col2Part(col2In), 
+    pxPart(pxIn), pyPart(pyIn), pzPart(pzIn), ePart(eIn), mPart(mIn), 
+    tauPart(tauIn), spinPart(spinIn) { }
+
+  // Particle properties.    
+  int idPart, statusPart, mother1Part, mother2Part, col1Part, col2Part;
+  double pxPart, pyPart, pzPart, ePart, mPart, tauPart, spinPart;
+
+} ;
 
 //**************************************************************************
 
@@ -154,6 +202,8 @@ protected:
     particles.clear(); addParticle(0); pdfIsSetSave = false;}
 
   // Input particle info, one particle at the time.
+  void addParticle(LHAParticle particleIn) {
+    particles.push_back(particleIn);}
   void addParticle(int idIn, int statusIn = 0, int mother1In = 0, 
     int mother2In = 0, int col1In = 0, int col2In = 0, double pxIn = 0., 
     double pyIn = 0., double pzIn = 0., double eIn = 0., double mIn = 0., 
@@ -168,6 +218,19 @@ protected:
     scalePDFSave = scalePDFIn; xpdf1Save = xpdf1In; xpdf2Save = xpdf2In;
     pdfIsSetSave = true;}
 
+  // Three routines for LHEF files, but put here for flexibility.
+  bool setInitLHEF(ifstream& is);
+  bool setNewEventLHEF(ifstream& is);
+  bool setOldEventLHEF();
+
+  // Event properties from LHEF files, for repeated use.
+  int    nupSave, idprupSave;
+  double xwgtupSave, scalupSave, aqedupSave, aqcdupSave;
+  vector<LHAParticle> particlesSave;
+  bool   getPDFSave;
+  int    id1InSave, id2InSave;
+  double x1InSave, x2InSave, scalePDFInSave, xpdf1InSave, xpdf2InSave;
+
 private:
 
   // Event weighting and mixing strategy.
@@ -178,42 +241,14 @@ private:
   double eBeamASave, eBeamBSave;
   int pdfGroupBeamASave, pdfGroupBeamBSave, pdfSetBeamASave, pdfSetBeamBSave;
 
-  // A nested class for processes...
-  class LHAProcess {
-  public:
-    LHAProcess() : idProc(0), xSecProc(0.), xErrProc(0.), xMaxProc(0.) { }
-    LHAProcess(int idProcIn, double xSecIn, double xErrIn, double xMaxIn) :
-      idProc(idProcIn), xSecProc(xSecIn), xErrProc(xErrIn), 
-      xMaxProc(xMaxIn) { }
-    int idProc;
-    double xSecProc, xErrProc, xMaxProc;
-  } ;
-
-  // ...so that the process list can be kept as a vector.
+  // The process list, stored as a vector of processes.
   vector<LHAProcess> processes;
 
   // Store info on the selected process. 
   int idProc;
   double weightProc, scaleProc, alphaQEDProc, alphaQCDProc;
 
-  // A nested class for particles...
-  class LHAParticle {
-  public:
-    LHAParticle() : idPart(0), statusPart(0), mother1Part(0), 
-      mother2Part(0), col1Part(0), col2Part(0), pxPart(0.), pyPart(0.), 
-      pzPart(0.), ePart(0.), mPart(0.), tauPart(0.), spinPart(9.) { }
-    LHAParticle(int idIn, int statusIn, int mother1In, int mother2In,
-      int col1In, int col2In, double pxIn, double pyIn, double pzIn, 
-      double eIn, double mIn, double tauIn, double spinIn) :
-      idPart(idIn), statusPart(statusIn), mother1Part(mother1In), 
-      mother2Part(mother2In), col1Part(col1In), col2Part(col2In), 
-      pxPart(pxIn), pyPart(pyIn), pzPart(pzIn), ePart(eIn), mPart(mIn), 
-      tauPart(tauIn), spinPart(spinIn) { }
-    int idPart, statusPart, mother1Part, mother2Part, col1Part, col2Part;
-    double pxPart, pyPart, pzPart, ePart, mPart, tauPart, spinPart;
-  } ;
-
-  // ...so that the particle list can be kept as a vector.
+  // The particle list, stored as a vector of particles.
   vector<LHAParticle> particles;
 
   // Optional info on parton density values of event.
@@ -244,10 +279,11 @@ public:
   ~LHAupLHEF() {}
 
   // Routine for doing the job of reading and setting initialization info.  
-  bool setInit(); 
+  bool setInit() {return setInitLHEF(is);} 
 
   // Routine for doing the job of reading and setting info on next event.  
-  bool setEvent(int = 0); 
+  bool setEvent(int = 0) {if (!setNewEventLHEF(is)) return false;
+    return setOldEventLHEF();} 
 
 private:
  

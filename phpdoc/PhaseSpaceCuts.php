@@ -130,10 +130,48 @@ correlations), but for now all three are restricted exactly the
 same way by <code>pTHatMin</code> and <code>pTHatMax</code>.  
 As above, Breit-Wigner mass ranges can be restricted.
 
+<h3>Cuts for a second hard process</h3>
+
+If you use the machinery that allows the generation of a specified 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='ASecondHardProcess.php?filepath=".$filepath."' target='page'>";?>second hard process</a> then,
+by default, the same phase space cuts will be used for it as listed
+above. Optionally, however, you may use a second set of cuts, as 
+described here. In this context "first" and "second" is merely a 
+technical distinction; you are welcome e.g. to pick <i>pT</i> ranges 
+such that the second interaction always has a larger <i>pT</i> than 
+the first.
+
+<br/><br/><strong>PhaseSpace:sameForSecond</strong>  <input type="radio" name="8" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="8" value="off"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
+By default use the same cuts for a second hard process as for the 
+first. If <code>off</code> then instead use the mass and <i>pT</i>
+cuts below, where relevant. (The other cuts above still remain the same.)  
+  
+
+<br/><br/><table><tr><td><strong>PhaseSpace:mHatMinSecond </td><td></td><td> <input type="text" name="9" value="4." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>4.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
+The minimum invariant mass for a second interaction, if separate.
+  
+
+<br/><br/><table><tr><td><strong>PhaseSpace:mHatMaxSecond </td><td></td><td> <input type="text" name="10" value="-1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>-1.</strong></code>)</td></tr></table>
+The maximum invariant mass for a second interaction, if separate.
+A value below <code>mHatMin</code> means there is no upper limit.
+  
+
+<br/><br/><table><tr><td><strong>PhaseSpace:pTHatMinSecond </td><td></td><td> <input type="text" name="11" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
+The minimum invariant <i>pT</i> for a second interaction, if separate.
+  
+
+<br/><br/><table><tr><td><strong>PhaseSpace:pTHatMaxSecond </td><td></td><td> <input type="text" name="12" value="-1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>-1.</strong></code>)</td></tr></table>
+The maximum invariant <i>pT</i> for a second interaction, if separate.
+A value below <code>pTHatMin</code> means there is no upper limit.
+  
+
 <h3>Documentation</h3>
 
-<br/><br/><strong>PhaseSpace:showSearch</strong>  <input type="radio" name="8" value="on"><strong>On</strong>
-<input type="radio" name="8" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>PhaseSpace:showSearch</strong>  <input type="radio" name="13" value="on"><strong>On</strong>
+<input type="radio" name="13" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Possibility to print information on the search for phase-space 
 coefficients that (in a multichannel approach) provides an analytical 
@@ -142,8 +180,8 @@ corresponding upper estimate of the cross section. Of interest
 for crosschecks by expert users only. 
   
 
-<br/><br/><strong>PhaseSpace:showViolation</strong>  <input type="radio" name="9" value="on"><strong>On</strong>
-<input type="radio" name="9" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>PhaseSpace:showViolation</strong>  <input type="radio" name="14" value="on"><strong>On</strong>
+<input type="radio" name="14" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Possibility to print information whenever the assumed maximum 
 differential cross section of a process is violated, i.e. when 
@@ -202,14 +240,39 @@ if($_POST["7"] != "0.01")
 $data = "PhaseSpace:minWidthBreitWigners = ".$_POST["7"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["8"] != "off")
+if($_POST["8"] != "on")
 {
-$data = "PhaseSpace:showSearch = ".$_POST["8"]."\n";
+$data = "PhaseSpace:sameForSecond = ".$_POST["8"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["9"] != "off")
+if($_POST["9"] != "4.")
 {
-$data = "PhaseSpace:showViolation = ".$_POST["9"]."\n";
+$data = "PhaseSpace:mHatMinSecond = ".$_POST["9"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["10"] != "-1.")
+{
+$data = "PhaseSpace:mHatMaxSecond = ".$_POST["10"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["11"] != "0.")
+{
+$data = "PhaseSpace:pTHatMinSecond = ".$_POST["11"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["12"] != "-1.")
+{
+$data = "PhaseSpace:pTHatMaxSecond = ".$_POST["12"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["13"] != "off")
+{
+$data = "PhaseSpace:showSearch = ".$_POST["13"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["14"] != "off")
+{
+$data = "PhaseSpace:showViolation = ".$_POST["14"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);
@@ -219,4 +282,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2008 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2009 Torbjorn Sjostrand -->

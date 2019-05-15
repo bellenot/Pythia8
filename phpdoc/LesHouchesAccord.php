@@ -69,7 +69,7 @@ return <code>false</code> if it fails to set the info.
 <p/>
 Inside <code>setInit()</code>, such information can be set by the following 
 methods:
-<p/><code>method&nbsp; </code><strong> setBeamA( identity, energy, pdfGroup, pdfSet) &nbsp;</strong> <br/>
+<p/><strong>setBeamA( identity, energy, pdfGroup, pdfSet) &nbsp;</strong> <br/>
 sets the properties of the first incoming beam (cf. the Fortran
 <code>IDBMUP(1), EBMUP(1), PDFGUP(1), PDFSUP(1)</code>), and similarly 
 a <code>setBeamB</code> method exists. The parton distribution information 
@@ -80,7 +80,7 @@ echo "<a href='PDFSelection.php?filepath=".$filepath."' target='page'>";?>PDF Se
 event generation in PYTHIA.
   
 
-<p/><code>method&nbsp; </code><strong> setStrategy( strategy) &nbsp;</strong> <br/>
+<p/><strong>setStrategy( strategy) &nbsp;</strong> <br/>
 sets the event weighting and cross section strategy. The default, 
 provided in the class constructor, is 3, which is the natural value 
 e.g. for an LHEF.
@@ -144,7 +144,7 @@ functional form.)
   
   
 
-<p/><code>method&nbsp; </code><strong> addProcess( idProcess, xSec, xErr, xMax) &nbsp;</strong> <br/>
+<p/><strong>addProcess( idProcess, xSec, xErr, xMax) &nbsp;</strong> <br/>
 sets info on an allowed process (cf. <code>LPRUP, XSECUP, XERRUP, 
 XMAXUP</code>). 
 Each new call will append one more entry to the list of processes.
@@ -165,34 +165,34 @@ this information is displayed at initialization. If not, then a relative
 error decreasing like <i>1/sqrt(n_acc)</i>, where <i>n_acc</i>     
 is the number of accepted events, should offer a reasonable estimate.
 
-<p/><code>method&nbsp; </code><strong> setXSec( i, xSec) &nbsp;</strong> <br/>
+<p/><strong>setXSec( i, xSec) &nbsp;</strong> <br/>
 update the <code>xSec</code> value of the <code>i</code>'th process
 added with <code>addProcess</code> method (i.e. <code>i</code> runs
 from 0 through <code>sizeProc() - 1</code>, see below).
   
 
-<p/><code>method&nbsp; </code><strong> setXErr( i, xErr) &nbsp;</strong> <br/>
+<p/><strong>setXErr( i, xErr) &nbsp;</strong> <br/>
 update the <code>xErr</code> value of the <code>i</code>'th process
 added with <code>addProcess</code> method.
   
 
-<p/><code>method&nbsp; </code><strong> setXMax( i, xMax) &nbsp;</strong> <br/>
+<p/><strong>setXMax( i, xMax) &nbsp;</strong> <br/>
 update the <code>xMax</code> value of the <code>i</code>'th process
 added with <code>addProcess</code> method.
   
 
 <p/>
 Information is handed back by the following methods:
-<p/><code>method&nbsp; </code><strong> idBeamA(), eBeamA(), pdfGroupBeamA(), pdfSetBeamA() &nbsp;</strong> <br/>
+<p/><strong>idBeamA(), eBeamA(), pdfGroupBeamA(), pdfSetBeamA() &nbsp;</strong> <br/>
 and similarly with <i>A -> B</i>, for the two beam particles.
   
-<p/><code>method&nbsp; </code><strong> strategy() &nbsp;</strong> <br/>
+<p/><strong>strategy() &nbsp;</strong> <br/>
 for the strategy choice.
   
-<p/><code>method&nbsp; </code><strong> sizeProc() &nbsp;</strong> <br/>
+<p/><strong>sizeProc() &nbsp;</strong> <br/>
 for the number of subprocesses.
   
-<p/><code>method&nbsp; </code><strong> idProcess(i), xSec(i), xErr(i), xMax(i) &nbsp;</strong> <br/>
+<p/><strong>idProcess(i), xSec(i), xErr(i), xMax(i) &nbsp;</strong> <br/>
 for process <code>i</code> in the range <code>0 &lt;= i &lt; 
 sizeProc()</code>.   
   
@@ -243,14 +243,14 @@ the event generation loop.
 <p/>
 Inside a normal <code>setEvent(...)</code> call, information can be set 
 by the following methods:
-<p/><code>method&nbsp; </code><strong> setProcess( idProcess, weight, scale, alphaQED, alphaQCD) &nbsp;</strong> <br/>
+<p/><strong>setProcess( idProcess, weight, scale, alphaQED, alphaQCD) &nbsp;</strong> <br/>
 tells which kind of process occured, with what weight, at what scale, 
 and which <i>alpha_EM</i> and <i>alpha_strong</i> were used
 (cf. <code>IDPRUP, XWTGUP, SCALUP, AQEDUP, AQCDUP</code>). This method 
 also resets the size of the particle list, and adds the empty zeroth 
 line, so it has to be called before the <code>addParticle</code> method below.
   
-<p/><code>method&nbsp; </code><strong> addParticle( id, status, mother1, mother2, colourTag1, colourTag2, p_x, p_y, p_z, e, m, tau, spin) &nbsp;</strong> <br/>
+<p/><strong>addParticle( id, status, mother1, mother2, colourTag1, colourTag2, p_x, p_y, p_z, e, m, tau, spin) &nbsp;</strong> <br/>
 gives the properties of the next particle handed in (cf. <code>IDUP, ISTUP, 
 MOTHUP(1,..), MOTHUP(2,..), ICOLUP(1,..), ICOLUP(2,..),  PUP(J,..), 
 VTIMUP, SPINUP</code>) .
@@ -258,7 +258,7 @@ VTIMUP, SPINUP</code>) .
 
 <p/>
 Information is handed back by the following methods:
-<p/><code>method&nbsp; </code><strong> idProcess(), weight(), scale(), alphaQED(), alphaQCD() &nbsp;</strong> <br/>
+<p/><strong>idProcess(), weight(), scale(), alphaQED(), alphaQCD() &nbsp;</strong> <br/>
 Note that the weight stored in <code>pythia.info.weight()</code> as a rule
 is not the same as the above <code>weight()</code>: the method here gives
 the value before unweighting while the one in <code>info</code> gives
@@ -266,13 +266,13 @@ the one after unweighting and thus normally is 1 or -1. Only with strategy
 options +-3 and +-4 would the value in <code>info</code> be the same as 
 here, except for a conversion from pb to mb for +-4. 
   
-<p/><code>method&nbsp; </code><strong> sizePart() &nbsp;</strong> <br/>
+<p/><strong>sizePart() &nbsp;</strong> <br/>
 for the size of the particle array, which is one larger than the number 
 of particles in the event, since the zeroth entry is kept empty 
 (see above). Thus a typical loop would be
 <br/><code>for (int i = 1; i < sizePart(); ++i) {...}</code>
   
-<p/><code>method&nbsp; </code><strong> id(i), status(i), mother1(i), mother2(i), col1(i), col2(i),px(i), py(i), pz(i), e(i), m(i), tau(i), spin(i) &nbsp;</strong> <br/>
+<p/><strong>id(i), status(i), mother1(i), mother2(i), col1(i), col2(i),px(i), py(i), pz(i), e(i), m(i), tau(i), spin(i) &nbsp;</strong> <br/>
 for particle <code>i</code> in the range 
 <code>0 &lt;= i &lt; size()</code>. (But again note that 
 <code>i = 0</code> is an empty line, so the true range begins at 1.)   
@@ -282,7 +282,7 @@ for particle <code>i</code> in the range
 In the LHEF description [<a href="Bibliography.php" target="page">Alw06</a>] an extension to 
 include information on the parton densities of the colliding partons
 is suggested. This optional further information can be set by
-<p/><code>method&nbsp; </code><strong> setPdf( id1, id2, x1, x2, scalePDF, xpdf1, xpdf2) &nbsp;</strong> <br/>
+<p/><strong>setPdf( id1, id2, x1, x2, scalePDF, xpdf1, xpdf2) &nbsp;</strong> <br/>
 which gives the flavours , the <i>x</i> and the <ie>Q</i> scale 
 (in GeV) at which the parton densities <i>x*f_i(x, Q)</i> have been
 evaluated.
@@ -290,7 +290,7 @@ evaluated.
 
 <p/>
 This information is returned by the methods
-<p/><code>method&nbsp; </code><strong> pdfIsSet(), id1(), id2(), x1(), x2(), scalePDF(), xpdf1(), xpdf2() &nbsp;</strong> <br/>
+<p/><strong>pdfIsSet(), id1(), id2(), x1(), x2(), scalePDF(), xpdf1(), xpdf2() &nbsp;</strong> <br/>
 where the first one tells whether this optional information has been set
 for the current event. (<code>setPdf(...)</code> must be called after the
 <code>setProcess(...)</code> call of the event for this to work.)
@@ -392,25 +392,25 @@ as well, however. Specifically, there are four routines in the base class
 that can be called to write a Les Houches Event File. These should be 
 called in sequence in order to build up the proper file structure. 
 
-<p/><code>method&nbsp; </code><strong> openLHEF(string filename) &nbsp;</strong> <br/>
+<p/><strong>openLHEF(string filename) &nbsp;</strong> <br/>
 Opens a file with the filename indicated, and writes a header plus a brief
 comment with date and time information.
   
 
-<p/><code>method&nbsp; </code><strong> initLHEF() &nbsp;</strong> <br/>
+<p/><strong>initLHEF() &nbsp;</strong> <br/>
 Writes initialization information to the file above. Such information should
 already have been set with the methods described in the "Initialization"
 section above.
   
 
-<p/><code>method&nbsp; </code><strong> eventLHEF() &nbsp;</strong> <br/>
+<p/><strong>eventLHEF() &nbsp;</strong> <br/>
 Writes event information to the file above. Such information should
 already have been set with the methods described in the "Event input"
 section above. This call should be repeated once for each event to be 
 stored. 
   
 
-<p/><code>method&nbsp; </code><strong> closeLHEF(bool updateInit = false) &nbsp;</strong> <br/>
+<p/><strong>closeLHEF(bool updateInit = false) &nbsp;</strong> <br/>
 Writes the closing tag and closes the file. Optionally, if 
 <code>updateInit = true</code>, this routine will reopen the file from
 the beginning, rewrite the same header as <code>openLHEF()</code> did,
@@ -466,4 +466,4 @@ for the case that <code>pythia.process</code> is not in this frame.
 </body>
 </html>
 
-<!-- Copyright (C) 2008 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2009 Torbjorn Sjostrand -->

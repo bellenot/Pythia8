@@ -31,41 +31,40 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 
 At the end of the run you will want to write out the final statistics
 on number of events generated, the corresponding cross sections and 
-the number of errors encountered. This is done with
-<pre>
-    pythia.statistics(all = false, reset = false);
-</pre>
-assuming <code>pythia</code> is an instance of the <code>Pythia</code>
-class. 
-<ul>
-<li>The optional argument <code>all</code>, if <code>true</code>,
-allows a more extensive listing than the default one, see 
-multiple-interactions statistics below.</li>
-<li>The optional argument <code>reset</code>, if <code>true</code>,
-implies that all counters, e.g on events generated and errors experienced, 
-are reset to zero whenever the routine is called. The default instead is 
-that all stored statistics information is unaffected by the call. 
-Counters are automatically reset in each new <code>pythia.init()</code> 
+the number of errors encountered. This is done with the 
+<code>pythia.statistics()</code> method, assuming <code>pythia</code> is 
+an instance of the <code>Pythia</code> class: 
+
+<p/><strong>void Pythia::statistics(bool all = false, bool reset = false) &nbsp;</strong> <br/>
+write out statistics on cross sections and errors. This is based on
+calls to the methods below, for the two kinds of information. 
+<br/><code>argument</code><strong> all </strong>  :  
+if <code>true</code> it allows a more extensive listing than the default 
+one, see multiple-interactions statistics below.
+  
+<br/><code>argument</code><strong> reset </strong>  :  if <code>true</code> it implies that all counters, 
+e.g on events generated and errors experienced, are reset to zero whenever 
+the routine is called. The default instead is that all stored 
+statistics information is unaffected by the call. 
+Counters are automatically reset in each new <code>Pythia::init()</code> 
 call, however, so the only time the <code>reset</code> option makes a 
 difference is if <code>statistics</code> is called several times in a 
-(sub)run.</li>
-</ul> 
-
-<p/>
-The <code>pythia.statistics(...)</code> method in its turn calls on the 
-methods below, for the different kinds of information.
+(sub)run. 
+  
+  
 
 <h3>Cross-section statistics</h3>
 
-The <code>ProcessLevel::statistics()</code> member will loop over the
-list of existing processes, and for each write out name, code,
-the number of tried, selected and accepted events, the cross section and 
-the estimated error on the latter. The three different event numbers are 
-related to the Monte Carlo method used, whereby an initial upper estimate
-of the cross section is used to select a large number of trial phase-space 
-points, whereof then not all survive. Rejections are normally done by the
-internal machinery, but can also be obtained by
-<?php $filepath = $_GET["filepath"];
+The <code>ProcessLevel::statistics()</code> method cannot be accessed 
+directly, but only via the <code>Pythia::statistics()</code> call above.
+When called it will loop over the list of existing processes, and for 
+each write out name, code, the number of tried, selected and accepted 
+events, the cross section and the estimated error on the latter. 
+The three different event numbers are related to the Monte Carlo method 
+used, whereby an initial upper estimate of the cross section is used to 
+select a large number of trial phase-space points, whereof then not all 
+survive. Rejections are normally done by the internal machinery, but can 
+also be obtained by <?php $filepath = $_GET["filepath"];
 echo "<a href='UserHooks.php?filepath=".$filepath."' target='page'>";?>user hooks</a>. 
 Therefore:
 <ul>
@@ -98,7 +97,7 @@ These may be of varying severity, as follows:
 initialization or event generation failed. In the former case it is 
 not possible to generate events at all, in the latter the current
 event is flawed and should be skipped. In either case the respective
-method, <code>pythia.init(...)</code> or <code>pythia.next()</code>,
+method, <code>Pythia::init(...)</code> or <code>Pythia::next()</code>,
 then also returns the value <code>false</code>. There are occasions
 where an abort may be deliberate, such as when a file of Les Houches
 Events is read and the end of the file is reached.</li>
@@ -120,13 +119,13 @@ for how many times it is issued. Thus it is possible to limit the number
 of identical messages issued, currently hardcoded so that each kind of 
 error message is only printed once 
 (<code>static const int TIMESTOPRINT = 1</code>). 
-The summary table printed by <code>pythia.statistics()</code> 
+The summary table printed by <code>Pythia::statistics()</code> 
 provides a table with all the different messages issued, in 
 alphabetical order, with the total number of times each was generated.
 
 <h3>Multiple-interactions statistics</h3>
 
-If you call <code>pythia.statistics(true)</code>, i.e. with the first
+If you call <code>Pythia::statistics(true)</code>, i.e. with the first
 optional argument <code>true</code>, also statistics on multiple 
 interactions is printed, comprising a list of all allowed subprocesses 
 with how many times each of them has been generated. For the minimum-bias
@@ -142,4 +141,4 @@ between the two.)
 </body>
 </html>
 
-<!-- Copyright (C) 2008 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2009 Torbjorn Sjostrand -->

@@ -266,7 +266,7 @@ if [ "x${LHAPDFLIBNAME}" != "x" ]; then
 fi
 
 # Fastjet
-if [ "x${FASTJETVERSION}" != "x" ]; then
+if [ "x${FASTJETLOCATION}" != "x" ]; then
   echo "FASTJETLOCATION = ${FASTJETLOCATION}" >> config.mk
 fi
 
@@ -307,5 +307,34 @@ if [ x${LHAPDFLOCATION} != x ]; then
     echo "  export LD_LIBRARY_PATH="'${LD_LIBRARY_PATH}'":${LHAPDFLOCATION}" >> config.sh
     echo fi >> config.sh
     echo "export LHAPATH=${LHAPDFSETSLOCATION}" >> config.sh
+  fi
+fi
+if [ x${FASTJETLOCATION} != x ]; then
+  if [ ! -e config.csh ]; then
+    echo "#!/bin/csh" > config.csh
+    echo 'if( ! $?LD_LIBRARY_PATH ) then' >> config.csh
+    echo "  setenv LD_LIBRARY_PATH ${FASTJETLOCATION}/lib" >> config.csh
+    echo "else" >> config.csh
+    echo "  setenv LD_LIBRARY_PATH" '${LD_LIBRARY_PATH}'":${FASTJETLOCATION}/lib" >> config.csh
+    echo "endif" >> config.csh
+    echo "#!/bin/sh" > config.sh
+    echo 'if [ ! $?LD_LIBRARY_PATH ]; then' >> config.sh
+    echo "  export LD_LIBRARY_PATH=${FASTJETLOCATION}/lib" >> config.sh
+    echo fi >> config.sh
+    echo 'if [ $?LD_LIBRARY_PATH ]; then' >> config.sh
+    echo "  export LD_LIBRARY_PATH="'${LD_LIBRARY_PATH}'":${FASTJETLOCATION}/lib" >> config.sh
+    echo fi >> config.sh
+  else
+    echo 'if( ! $?LD_LIBRARY_PATH ) then' >> config.csh
+    echo "  setenv LD_LIBRARY_PATH ${FASTJETLOCATION}/lib" >> config.csh
+    echo "else" >> config.csh
+    echo "  setenv LD_LIBRARY_PATH" '${LD_LIBRARY_PATH}'":${FASTJETLOCATION}/lib" >> config.csh
+    echo "endif" >> config.csh
+    echo 'if [ ! $?LD_LIBRARY_PATH ]; then' >> config.sh
+    echo "  export LD_LIBRARY_PATH=${FASTJETLOCATION}/lib" >> config.sh
+    echo fi >> config.sh
+    echo 'if [ $?LD_LIBRARY_PATH ]; then' >> config.sh
+    echo "  export LD_LIBRARY_PATH="'${LD_LIBRARY_PATH}'":${FASTJETLOCATION}/lib" >> config.sh
+    echo fi >> config.sh
   fi
 fi

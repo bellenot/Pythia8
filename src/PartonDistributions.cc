@@ -1,5 +1,5 @@
 // PartonDistributions.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2008 Torbjorn Sjostrand.
+// Copyright (C) 2009 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -39,6 +39,7 @@ double PDF::xf(int id, double x, double Q2) {
     if (idAbs == 3) return max(0., xs);
     if (idAbs == 4) return max(0., xc);
     if (idAbs == 5) return max(0., xb);
+    if (idAbs == 22) return max(0., xgamma);
     return 0.;
 
   // Lepton beam.
@@ -102,6 +103,7 @@ double PDF::xfSea(int id, double x, double Q2) {
     if (idAbs == 4) return max(0., xc);
     if (idAbs == 5) return max(0., xb);
     if (idAbs == 5) return max(0., xb);
+    if (idAbs == 22) return max(0., xgamma);
     return 0.;
 
   // Lepton beam.
@@ -473,7 +475,7 @@ void LHAPDF::init(string setName, int member, Info* infoPtr) {
   if (!isSet) {
     if (infoPtr > 0) infoPtr->errorMsg("Error from LHAPDF::init: "
       "you try to use LHAPDF but did not link it");  
-    else cout << "Error from LHAPDF::init: you try to use LHAPDF "
+    else cout << " Error from LHAPDF::init: you try to use LHAPDF "
       << "but did not link it" << endl;  
   }
 
@@ -509,23 +511,33 @@ void LHAPDF::xfUpdate(int , double x, double Q2) {
 
   // Let LHAPDF do the evaluation of parton densities.
   double Q = sqrt( max( 0., Q2));
-  LHAPDFInterface::evolvePDFM( nSet, x, Q, xfArray);
+
+  // Use special call if photon included in proton (so far only MRST2004qed)
+  if (latestSetName == "MRST2004qed.LHgrid" ) {
+    LHAPDFInterface::evolvePDFPHOTONM( nSet, x, Q, xfArray, xPhoton);
+  } 
+  // Else use default LHAPDF call
+  else {
+    LHAPDFInterface::evolvePDFM( nSet, x, Q, xfArray);
+    xPhoton=0.0;
+  }
 
   // Update values.
-  xg    = xfArray[6];
-  xu    = xfArray[8]; 
-  xd    = xfArray[7]; 
-  xubar = xfArray[4]; 
-  xdbar = xfArray[5]; 
-  xs    = xfArray[9]; 
-  xc    = xfArray[10]; 
-  xb    = xfArray[11];
+  xg     = xfArray[6];
+  xu     = xfArray[8]; 
+  xd     = xfArray[7]; 
+  xubar  = xfArray[4]; 
+  xdbar  = xfArray[5]; 
+  xs     = xfArray[9]; 
+  xc     = xfArray[10]; 
+  xb     = xfArray[11];
+  xgamma = xPhoton;
 
   // Subdivision of valence and sea.
-  xuVal = xu - xubar; 
-  xuSea = xubar; 
-  xdVal = xd - xdbar; 
-  xdSea = xdbar;
+  xuVal  = xu - xubar; 
+  xuSea  = xubar; 
+  xdVal  = xd - xdbar; 
+  xdSea  = xdbar;
 
   // idSav = 9 to indicate that all flavours reset. 
   idSav = 9; 

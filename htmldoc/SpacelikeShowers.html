@@ -329,10 +329,22 @@ and the gluon density weight. At failure, a new <i>pT2</i> is chosen
 in the same  range, i.e. is not required to be lower since no Sudakov 
 is involved. 
 </li>
+<li>
+The QED algorithm now allows for hadron beams with non-zero photon
+content. The backwards-evolution of a photon in a hadron is identical
+to that of a gluon, with <i>CF -> eq^2</i> and <i>CA -> 0</i>.
+Note that this will only work in conjunction with 
+parton distribution that explicitly include photons as part of the
+hadron structure (such as the MRST2004qed set). Since Pythia's
+internal sets do not allow for photon content in hadrons, it is thus 
+necessary to use the LHAPDF interface to make use of this feature. The
+possibility of a fermion backwards-evolving to a photon has not yet
+been included, nor has photon backwards-evolution in lepton beams. 
+</li>
 </ul>
 
 </body>
 </html>
 
-<!-- Copyright (C) 2008 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
 

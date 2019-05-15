@@ -1,5 +1,5 @@
 // SigmaProcess.h is a part of the PYTHIA event generator.
-// Copyright (C) 2008 Torbjorn Sjostrand.
+// Copyright (C) 2009 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -156,6 +156,9 @@ public:
   // Usage: weightDecay( process, iResBeg, iResEnd), where 
   // iResBeg <= i < iResEnd is range of sister partons to test decays of.
   virtual double weightDecay( Event&, int, int) {return 1.;}
+
+  // Set scale, when that is missing for an external LHA process.
+  virtual void setScale() {} 
 
   // Process name and code, and the number of final-state particles.
   virtual string name()            const {return "unnamed process";}
@@ -514,6 +517,9 @@ public:
 
   // Dummy function: action is put in PhaseSpaceLHA.
   virtual double sigmaPDF() {return 1.;}
+
+  // Set scale, when that is missing for an external LHA process.
+  virtual void   setScale(); 
 
   // Info on the subprocess.
   virtual string name()     const {return "Les Houches User Process(es)";}

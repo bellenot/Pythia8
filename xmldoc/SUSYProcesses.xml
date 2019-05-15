@@ -15,7 +15,10 @@ reasonable set of subgroups.
 <br/><note>Important note:</note> 
 In order to simulate SUSY processes it is required to read in the 
 couplings and masses relevant for the scenario to be studied. This 
-is done with the help of the SUSY Les Houches Accord (SLHA). The 
+is done with the help of the SUSY Les Houches Accord (SLHA), including
+the SLHA2 extensions and generalizations. (Internally, the SLHA2
+conventions are used. SLHA1 spectra are automatically translated into
+SLHA2 notation during initialization.) The 
 reading of a relevant SLHA file <b>must</b> be set up, as described 
 on <aloc href="SUSYLesHouchesAccord">this page</aloc>.
 
@@ -27,11 +30,30 @@ particles with R-parity -1.
 <flag name="SUSY:qqbar2chi0chi0" default="off">
 Pair production of neutralinos by quark-antiquark annihilation. With
 four neutralino species this gives ten separate processes, codes 
-1201 - 1210. Neutralino decays have not yet been implemented.
+1201 - 1210. The cross section expressions follow <ref>Boz07</ref> and
+should thus be  valid also in the case of non-minimal flavour
+violation and/or CP violation. 
 </flag>
 
+<flag name="SUSY:qqbar2chi+-chi0" default="off">
+Associated chargino-neutralino production by quark-antiquark
+annihilation. With four neutralino species, two chargino ones, and
+maintaining charge conjugate proceeses separate, this gives 16 
+separate processes, codes 1221 - 1236. The cross section expressions 
+follow <ref>Boz07</ref> and should thus be valid also in the case of 
+non-minimal flavour violation and/or CP violation. 
+</flag>
+
+<flag name="SUSY:qqbar2chi+chi-" default="off">
+Pair production of charginos by quark-antiquark annihilation. With
+two chargino species and maintaining mutually charge conjugate
+processes separate, this gives four separate processes, codes 
+1241 - 1244. The cross section expressions follow <ref>Boz07</ref> 
+and should thus be valid also in the case of non-minimal flavour 
+violation and/or CP violation. 
+</flag>
 
 </chapter>
 
-<!-- Copyright (C) 2008 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2009 Peter Skands, Torbjorn Sjostrand -->
 

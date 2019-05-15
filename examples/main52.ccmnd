@@ -30,6 +30,7 @@ Main:showChangedParticleData = on  ! print changed particle and decay data
 #TimeShower:QEDshowerByL = off      ! no photon radiation off leptons   
 
 ! 4) Modify defaults for some key parameters.
+! Note: these values are illustrative only, not to be taken seriously.
 BeamRemnants:primordialKThard = 2. ! modify primordial kT for hard processes
 MultipleInteractions:bProfile = 3  ! impact parameter profile
 MultipleInteractions:expPow = 1.3  ! profile exp( - b^expPow)

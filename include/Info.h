@@ -1,5 +1,5 @@
 // Info.h is a part of the PYTHIA event generator.
-// Copyright (C) 2008 Torbjorn Sjostrand.
+// Copyright (C) 2009 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -98,21 +98,19 @@ public:
   // Weight of current event; normally 1, but used for Les Houches events.
   double weight()         const {return weightSave;}   
 
-  // Cross section estimate.
-  long   nTried()         const {return nTry;}
-  long   nSelected()      const {return nSel;}
-  long   nAccepted()      const {return nAcc;}
-  double sigmaGen()       const {return sigGen;}
-  double sigmaErr()       const {return sigErr;}
-
-  // Impact parameter picture.
-  double bMI()            const {return (bIsSet) ? bMISave : 1.;}
-  double enhanceMI()      const {return (bIsSet) ? enhanceMISave : 1.;}
+  // Number of times other steps have been carried out.
+  int    nISR()           const {return nISRSave;}
+  int    nFSRinProc()     const {return nFSRinProcSave;}
+  int    nFSRinRes()      const {return nFSRinResSave;}
 
   // Maximum pT scales for MI, ISR and FSR (in hard process).
   double pTmaxMI()        const {return pTmaxMISave;}
   double pTmaxISR()       const {return pTmaxISRSave;}
   double pTmaxFSR()       const {return pTmaxFSRSave;}
+
+  // Impact parameter picture.
+  double bMI()            const {return (bIsSet) ? bMISave : 1.;}
+  double enhanceMI()      const {return (bIsSet) ? enhanceMISave : 1.;}
 
   // Number of multiple interactions, with code and pT for them.
   int    nMI()            const {return nMISave;}
@@ -121,10 +119,12 @@ public:
   int    iAMI(int i)      const {return iAMISave[i];} 
   int    iBMI(int i)      const {return iBMISave[i];} 
 
-  // Number of times other steps have been carried out.
-  int    nISR()           const {return nISRSave;}
-  int    nFSRinProc()     const {return nFSRinProcSave;}
-  int    nFSRinRes()      const {return nFSRinResSave;}
+  // Cross section estimate.
+  long   nTried()         const {return nTry;}
+  long   nSelected()      const {return nSel;}
+  long   nAccepted()      const {return nAcc;}
+  double sigmaGen()       const {return sigGen;}
+  double sigmaErr()       const {return sigErr;}
 
   // Reset to empty map of error messages.
   void errorReset() {messages.clear();}

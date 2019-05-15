@@ -1,5 +1,5 @@
 // LHAFortran.h is a part of the PYTHIA event generator.
-// Copyright (C) 2008 Torbjorn Sjostrand.
+// Copyright (C) 2009 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -17,6 +17,11 @@ namespace Pythia8 {
 //**************************************************************************
 
 // Give access to the HEPRUP and HEPEUP Fortran commonblocks.
+
+#ifdef _WIN32
+  #define heprup_ HEPRUP
+  #define hepeup_ HEPEUP
+#endif
 
 extern "C" {
 

@@ -1,5 +1,5 @@
 // ParticleDecays.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2008 Torbjorn Sjostrand.
+// Copyright (C) 2009 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -805,7 +805,6 @@ bool ParticleDecays::dalitzKinematics(Event& event) {
     Vec4 pDec    = decayer.p();
     int  iGam    = (meMode < 13) ? mult - 1 : 2 - iDal;
     Vec4 pGam    = event[iProd[iGam]].p();
-    Vec4 pGamOld = pGam;
     pGam.bstback( pDec, decayer.m() );
     double phiGam = pGam.phi();
     pGam.rot( 0., -phiGam);

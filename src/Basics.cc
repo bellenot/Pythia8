@@ -1,5 +1,5 @@
 // Basics.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2008 Torbjorn Sjostrand.
+// Copyright (C) 2009 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -816,17 +816,129 @@ void Hist::fill(double x, double w) {
 
 //*********
 
-// Get content of specific bin.
-// Special values are bin 0 for underflow and bin nBin+1 for overflow.
-// All other bins outside proper histogram range return 0.
+// Print a histogram: also operator overloading with friend.
 
-double Hist::getBinContent(int iBin) {
+ostream& operator<<(ostream& os, const Hist& h) {
 
-  if (iBin > 0 && iBin <= nBin) return res[iBin - 1];
-  else if (iBin == 0) return under; 
-  else if (iBin == nBin + 1) return over;
-  else return 0.;
+  // Do not print empty histograms.
+  if (h.nFill <= 0) return os;
 
+  // Write time and title.
+  time_t t = time(0);
+  char date[18];
+  strftime(date,18,"%Y-%m-%d %H:%M",localtime(&t));
+  os << "\n\n  " << date << "       " << h.title << "\n\n";
+
+  // Find minimum and maximum bin content
+  double yMin = h.res[0];
+  double yMax = h.res[0];
+  for (int i = 1; i < h.nBin; ++i) {
+    if (h.res[i] < yMin) yMin = h.res[i];
+    if (h.res[i] > yMax) yMax = h.res[i];
+  } 
+
+  // Determine scale and step size for y axis.
+  if (yMax - yMin > Hist::NLINES * DYAC[0] * 1e-9) { 
+    if (yMin > 0. && yMin < Hist::SMALLFRAC * yMax) yMin = 0.;
+    if (yMax < 0. && yMax > Hist::SMALLFRAC * yMin) yMax = 0.;
+    int iPowY = int(floor( log10(yMax - yMin) ));
+    if (yMax - yMin < Hist::NLINES * DYAC[0] * pow(10.,iPowY)) 
+      iPowY = iPowY - 1;
+    if (yMax - yMin > Hist::NLINES * DYAC[9] * pow(10.,iPowY)) 
+      iPowY = iPowY + 1;
+    double nLinePow = Hist::NLINES * pow(10.,iPowY);
+    double delY = DYAC[0];
+    for (int idel = 0; idel < 9; ++idel) {
+      if (yMax - yMin >= nLinePow * DYAC[idel]) delY = DYAC[idel+1];
+    } 
+    double dy = delY * pow(10.,iPowY);
+
+    // Convert bin contents to integer form; fractional fill in top row.
+    vector<int> row(h.nBin);
+    vector<int> frac(h.nBin);
+    for (int ix = 0; ix < h.nBin ; ++ix) { 
+      double cta = abs(h.res[ix]) / dy;
+      row[ix] = int(cta + 0.95);
+      if(h.res[ix] < 0.) row[ix] = - row[ix];
+      frac[ix] = int(10. * (cta + 1.05 - floor(cta + 0.95)));
+    } 
+    int rowMin = int(abs(yMin)/dy + 0.95);
+    if ( yMin < 0) rowMin = - rowMin;
+    int rowMax = int(abs(yMax)/dy + 0.95);
+    if ( yMax < 0) rowMax = - rowMax;
+
+    // Print histogram row by row.
+    os << fixed << setprecision(2); 
+    for (int iRow = rowMax; iRow >= rowMin; iRow--) {
+      if (iRow != 0) { 
+        os << "  " << setw(10) << iRow*delY << "*10^" 
+           << setw(2) << iPowY << "  ";
+        for (int ix = 0; ix < h.nBin ; ++ix) { 
+          if (iRow == row[ix]) {os << NUMBER[frac[ix]];}
+          else if (iRow * (row[ix] - iRow) > 0) {os << NUMBER[10];}
+          else {os << " ";}
+        } os << "\n";
+      }
+    } os << "\n"; 
+
+    // Print sign and value of bin contents
+    double maxim = log10(max(yMax, -yMin));
+    int iPowBin = int(floor(maxim + 0.0001));
+    os << "          Contents  ";
+    for (int ix = 0; ix < h.nBin ; ++ix) {
+      if (h.res[ix] < - pow(10., iPowBin-4)) {os << "-";}
+      else {os << " ";} 
+      row[ix] = int(abs(h.res[ix]) * pow(10.,3-iPowBin) + 0.5);
+    } os << "\n";
+    for (int iRow = 3; iRow >= 0; iRow--) {
+      os << "            *10^" << setw(2) << iPowBin+iRow-3 << "  "; 
+      int mask = int( pow(10., iRow) + 0.5); 
+      for (int ix = 0; ix < h.nBin ; ++ix) {
+        os << NUMBER[(row[ix] / mask) % 10];
+      } os << "\n";
+    } os << "\n";
+
+    // Print sign and value of lower bin edge.
+    maxim = log10(max(-h.xMin, h.xMax - h.dx));
+    int iPowExp = int(floor(maxim + 0.0001));
+    os << "          Low edge  ";
+    for (int ix = 0; ix < h.nBin ; ++ix) {
+      if (h.xMin + ix * h.dx < - pow(10., iPowExp-3)) {os << "-";}
+      else {os << " ";} 
+      row[ix] = int(abs(h.xMin + ix * h.dx) * pow(10.,2-iPowExp) + 0.5);
+    } os << "\n";
+    for (int iRow = 2; iRow >= 0; iRow--) {
+      os << "            *10^" << setw(2) << iPowExp+iRow-2 << "  "; 
+      int mask = int( pow(10., iRow) + 0.5); 
+      for (int ix = 0; ix < h.nBin ; ++ix) {
+        os << NUMBER[(row[ix] / mask) % 10];
+      } os << "\n";
+    } os << "\n";
+  }
+ 
+  // Calculate and print statistics.
+  double cSum = 0.;
+  double cxSum = 0.;
+  double cxxSum = 0.;
+  for (int ix = 0; ix < h.nBin ; ++ix) {
+    double cta = abs(h.res[ix]); 
+    double x = h.xMin + (ix + 0.5) * h.dx;
+    cSum = cSum + cta;
+    cxSum = cxSum + cta * x;
+    cxxSum = cxxSum + cta * x * x;
+  }
+  double xmean = cxSum / max(cSum, Hist::TINY);
+  double rms = sqrtpos( cxxSum / max(cSum, Hist::TINY) - xmean*xmean ); 
+  os << scientific << setprecision(4) 
+     << "   Entries  =" << setw(12) << h.nFill 
+     << "    Mean =" << setw(12) << xmean
+     << "    Underflow =" << setw(12) << h.under
+     << "    Low edge  =" << setw(12) << h.xMin << "\n"
+     << "   All chan =" << setw(12) << h.inside
+     << "    Rms  =" << setw(12) << rms
+     << "    Overflow  =" << setw(12) << h.over
+     << "    High edge =" << setw(12) << h.xMax << endl;
+  return os;
 }
 
 //*********
@@ -842,6 +954,21 @@ void Hist::table(ostream& os) const {
        << setw(12) << res[ix] << "\n";  
    
   }
+}
+
+//*********
+
+// Get content of specific bin.
+// Special values are bin 0 for underflow and bin nBin+1 for overflow.
+// All other bins outside proper histogram range return 0.
+
+double Hist::getBinContent(int iBin) {
+
+  if (iBin > 0 && iBin <= nBin) return res[iBin - 1];
+  else if (iBin == 0) return under; 
+  else if (iBin == nBin + 1) return over;
+  else return 0.;
+
 }
 
 //*********
@@ -1042,133 +1169,6 @@ Hist operator/(const Hist& h1, double f)
 
 Hist operator/(const Hist& h1, const Hist& h2) 
   {Hist h = h1; return h /= h2;}
-
-//*********
-
-// Print a histogram: also operator overloading with friend.
-
-ostream& operator<<(ostream& os, const Hist& h) {
-
-  // Do not print empty histograms.
-  if (h.nFill <= 0) return os;
-
-  // Write time and title.
-  time_t t = time(0);
-  char date[18];
-  strftime(date,18,"%Y-%m-%d %H:%M",localtime(&t));
-  os << "\n\n  " << date << "       " << h.title << "\n\n";
-
-  // Find minimum and maximum bin content
-  double yMin = h.res[0];
-  double yMax = h.res[0];
-  for (int i = 1; i < h.nBin; ++i) {
-    if (h.res[i] < yMin) yMin = h.res[i];
-    if (h.res[i] > yMax) yMax = h.res[i];
-  } 
-
-  // Determine scale and step size for y axis.
-  if (yMax - yMin > Hist::NLINES * DYAC[0] * 1e-9) { 
-    if (yMin > 0. && yMin < Hist::SMALLFRAC * yMax) yMin = 0.;
-    if (yMax < 0. && yMax > Hist::SMALLFRAC * yMin) yMax = 0.;
-    int iPowY = int(floor( log10(yMax - yMin) ));
-    if (yMax - yMin < Hist::NLINES * DYAC[0] * pow(10.,iPowY)) 
-      iPowY = iPowY - 1;
-    if (yMax - yMin > Hist::NLINES * DYAC[9] * pow(10.,iPowY)) 
-      iPowY = iPowY + 1;
-    double nLinePow = Hist::NLINES * pow(10.,iPowY);
-    double delY = DYAC[0];
-    for (int idel = 0; idel < 9; ++idel) {
-      if (yMax - yMin >= nLinePow * DYAC[idel]) delY = DYAC[idel+1];
-    } 
-    double dy = delY * pow(10.,iPowY);
-
-    // Convert bin contents to integer form; fractional fill in top row.
-    vector<int> row(h.nBin);
-    vector<int> frac(h.nBin);
-    for (int ix = 0; ix < h.nBin ; ++ix) { 
-      double cta = abs(h.res[ix]) / dy;
-      row[ix] = int(cta + 0.95);
-      if(h.res[ix] < 0.) row[ix] = - row[ix];
-      frac[ix] = int(10. * (cta + 1.05 - floor(cta + 0.95)));
-    } 
-    int rowMin = int(abs(yMin)/dy + 0.95);
-    if ( yMin < 0) rowMin = - rowMin;
-    int rowMax = int(abs(yMax)/dy + 0.95);
-    if ( yMax < 0) rowMax = - rowMax;
-
-    // Print histogram row by row.
-    os << fixed << setprecision(2); 
-    for (int iRow = rowMax; iRow >= rowMin; iRow--) {
-      if (iRow != 0) { 
-        os << "  " << setw(10) << iRow*delY << "*10^" 
-           << setw(2) << iPowY << "  ";
-        for (int ix = 0; ix < h.nBin ; ++ix) { 
-          if (iRow == row[ix]) {os << NUMBER[frac[ix]];}
-          else if (iRow * (row[ix] - iRow) > 0) {os << NUMBER[10];}
-          else {os << " ";}
-        } os << "\n";
-      }
-    } os << "\n"; 
-
-    // Print sign and value of bin contents
-    double maxim = log10(max(yMax, -yMin));
-    int iPowBin = int(floor(maxim + 0.0001));
-    os << "          Contents  ";
-    for (int ix = 0; ix < h.nBin ; ++ix) {
-      if (h.res[ix] < - pow(10., iPowBin-4)) {os << "-";}
-      else {os << " ";} 
-      row[ix] = int(abs(h.res[ix]) * pow(10.,3-iPowBin) + 0.5);
-    } os << "\n";
-    for (int iRow = 3; iRow >= 0; iRow--) {
-      os << "            *10^" << setw(2) << iPowBin+iRow-3 << "  "; 
-      int mask = int( pow(10., iRow) + 0.5); 
-      for (int ix = 0; ix < h.nBin ; ++ix) {
-        os << NUMBER[(row[ix] / mask) % 10];
-      } os << "\n";
-    } os << "\n";
-
-    // Print sign and value of lower bin edge.
-    maxim = log10(max(-h.xMin, h.xMax - h.dx));
-    int iPowExp = int(floor(maxim + 0.0001));
-    os << "          Low edge  ";
-    for (int ix = 0; ix < h.nBin ; ++ix) {
-      if (h.xMin + ix * h.dx < - pow(10., iPowExp-3)) {os << "-";}
-      else {os << " ";} 
-      row[ix] = int(abs(h.xMin + ix * h.dx) * pow(10.,2-iPowExp) + 0.5);
-    } os << "\n";
-    for (int iRow = 2; iRow >= 0; iRow--) {
-      os << "            *10^" << setw(2) << iPowExp+iRow-2 << "  "; 
-      int mask = int( pow(10., iRow) + 0.5); 
-      for (int ix = 0; ix < h.nBin ; ++ix) {
-        os << NUMBER[(row[ix] / mask) % 10];
-      } os << "\n";
-    } os << "\n";
-  }
- 
-  // Calculate and print statistics.
-  double cSum = 0.;
-  double cxSum = 0.;
-  double cxxSum = 0.;
-  for (int ix = 0; ix < h.nBin ; ++ix) {
-    double cta = abs(h.res[ix]); 
-    double x = h.xMin + (ix + 0.5) * h.dx;
-    cSum = cSum + cta;
-    cxSum = cxSum + cta * x;
-    cxxSum = cxxSum + cta * x * x;
-  }
-  double xmean = cxSum / max(cSum, Hist::TINY);
-  double rms = sqrtpos( cxxSum / max(cSum, Hist::TINY) - xmean*xmean ); 
-  os << scientific << setprecision(4) 
-     << "   Entries  =" << setw(12) << h.nFill 
-     << "    Mean =" << setw(12) << xmean
-     << "    Underflow =" << setw(12) << h.under
-     << "    Low edge  =" << setw(12) << h.xMin << "\n"
-     << "   All chan =" << setw(12) << h.inside
-     << "    Rms  =" << setw(12) << rms
-     << "    Overflow  =" << setw(12) << h.over
-     << "    High edge =" << setw(12) << h.xMax << endl;
-  return os;
-}
 
 //**************************************************************************
 

@@ -44,6 +44,12 @@ So as not to confuse the reader unduly, the description of initialization
 options has been subdivided into what would normally be used and what is 
 intended for more special applications.
 
+<p/>
+At the bottom of this webpge is a complete survey of all public 
+<code>Pythia</code> methods and data members, in a more formal style 
+than the task-oriented descriptions found in the preceding sections.
+This offers complementary information.  
+   
 <h3>Initialization - normal usage</h3>
 
 <ol>
@@ -499,9 +505,7 @@ the meantime. You can put those changes in the main program, with
 which ones to execute in which subrun. A corresponding possibility 
 exists with <code>pythia.readFile(fileName, subrun)</code> (or an
 <code>istream</code> instead of a <code>fileName</code>), which as second 
-argument can take a non-negative subrun number. (Or, alternatively use the 
-longer forms <code>pythia.readFile(fileName, warn, subrun)</code> or
-<code>pythia.readFile(istream, warn, subrun)</code>.) Then only those 
+argument can take a non-negative subrun number. Then only those 
 sections of the file before any <code>Main:subrun = ...</code> line
 or with matching <code>subrun</code> number will be read. That is, the
 file could have a structure like
@@ -536,8 +540,548 @@ been generated for different beam energies.
 </li>
 
 </ol>
+
+<h2>The Pythia Class</h2>
+
+Here follows the complete survey of all public <code>Pythia</code> 
+methods and data members.   
+
+<h3>Constructor and destructor</h3>
+
+<p/><strong>Pythia::Pythia(string xmlDir = &quot;../xmldoc&quot;) &nbsp;</strong> <br/>
+creates an instance of the <code>Pythia</code> event generators,
+and sets initial default values, notably for all settings and 
+particle data. You may use several <code>Pythia</code> instances 
+in the same run, but note that some parts of the code are static 
+and thus shared by all instances. It is therefore not recommended 
+to have several instances simultaneously, except in 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='ProgramFlow.php?filepath=".$filepath."' target='page'>";?>special cases</a>. 
+<br/><code>argument</code><strong> xmlDir </strong> (<code>default = <strong>../xmldoc</strong></code>) : allows you to choose
+from which directory the default settings and particle data values 
+are read in. If the <code>PYTHIA8DATA</code> environment variable 
+has been set it takes precedence. Else this optional argument allows 
+you to choose another directory location than the default one. Note
+that it is only the directory location you can change, its contents
+must be the ones of the <code>xmldoc</code> directory in the 
+standard distribution.
+  
+  
+
+<p/><strong>Pythia::~Pythia &nbsp;</strong> <br/>
+the destructor deletes the objects created by the constructor.
+
+<h3>Set up run</h3>
+
+<p/><strong>bool Pythia::readString(string line, bool warn = true) &nbsp;</strong> <br/>
+reads in a single string, that is interpreted as an instruction to
+modify the value of a <?php $filepath = $_GET["filepath"];
+echo "<a href='SettingsScheme.php?filepath=".$filepath."' target='page'>";?>setting</a> or
+<?php $filepath = $_GET["filepath"];
+echo "<a href='ParticleDataScheme.php?filepath=".$filepath."' target='page'>";?>particle data</a>.
+<br/><code>argument</code><strong> line </strong>  : 
+the string to be interpreted as an instruction.
+  
+<br/><code>argument</code><strong> warn </strong> (<code>default = <strong>true</strong></code>) : 
+write a warning message or not whenever the instruction does not make
+sense, e.g. if the variable does not exist in the databases.
+  
+<br/><b>Note:</b> the method returns false if it fails to 
+make sense out of the string.
+  
+
+<p/><strong>bool Pythia::readFile(string fileName, bool warn = true,int subrun = SUBRUNDEFAULT) &nbsp;</strong> <br/>
+  
+<strong>bool Pythia::readFile(string fileName,int subrun = SUBRUNDEFAULT) &nbsp;</strong> <br/>
+  
+<strong>bool Pythia::readFile(istream& inStream = cin, bool warn = true, int subrun = SUBRUNDEFAULT) &nbsp;</strong> <br/>
+  
+<strong>bool Pythia::readFile(istream& inStream = cin,int subrun = SUBRUNDEFAULT) &nbsp;</strong> <br/>
+reads in a whole file, where each line is interpreted as an instruction 
+to modify the value of a <?php $filepath = $_GET["filepath"];
+echo "<a href='SettingsScheme.php?filepath=".$filepath."' target='page'>";?>setting</a> or
+<?php $filepath = $_GET["filepath"];
+echo "<a href='ParticleDataScheme.php?filepath=".$filepath."' target='page'>";?>particle data</a>, cf. the above
+<code>readString</code> method. All four forms of the 
+<code>readFile</code> command share code for actually reading a file.
+<br/><code>argument</code><strong> fileName </strong>  : 
+the file from which instructions are read.
+  
+<br/><code>argument</code><strong> inStream </strong>  : 
+an istream from which instructions are read.
+  
+<br/><code>argument</code><strong> warn </strong> (<code>default = <strong>true</strong></code>) : 
+write a warning message or not whenever the instruction does not make
+sense, e.g. if the variable does not exist in the databases. In the 
+command forms where <code>warn</code> is omitted it is true.
+  
+<br/><code>argument</code><strong> subrun </strong>  : 
+allows you have several optional sets of commands within the same file.
+Only those sections of the file before any <code>Main:subrun = ...</code> 
+line or following such a line with matching subrun number will be read.
+The subrun number should not be negative; negative codes like 
+<code>SUBRUNDEFAULT</code> corresponds to no specific subrun. 
+  
+<br/><b>Note:</b> the method returns false if it fails to 
+make sense out of any one line.
+  
+
+<p/><strong>bool Pythia::setPDFPtr( PDF* pdfAPtr, PDF* pdfBPtr, PDF* pdfHardAPtr = 0, PDF* pdfHardBPtr = 0) &nbsp;</strong> <br/>
+offers the possibility to link in external PDF sets for usage inside
+the program. The rules for constructing your own class from
+the <code>PDF</code> base class are described 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='PartonDistributions.php?filepath=".$filepath."' target='page'>";?>here</a>. 
+<br/><code>argument</code><strong> pdfAPtr, pdfBPtr </strong>  :  
+pointers to two <code>PDF</code>-derived objects, one for each of 
+the incoming beams. The two objects have to be instantiated by you 
+in your program. Even if the two beam particles are the same 
+(protons, say) two separate instances are required, since current 
+information is cached in the objects. If both arguments are zero
+then any previous linkage to external PDF's is disconnected, 
+see further Note 2 below.
+  
+<br/><code>argument</code><strong> pdfHardAPtr, pdfHardBPtr </strong> (<code>default = <strong>0</strong></code>) :  
+pointers to two further <code>PDF</code>-derived objects, one for each 
+of the incoming beams. Normally only the first two arguments above would 
+be used, and then the same PDF sets would be invoked everywhere. If you 
+provide these two further pointers then two different sets of PDF's are 
+used. This second set is then exclusively for the generation of the hard 
+process from the process matrix elements library. The first set above 
+is for everything else, notably parton showers and multiple interactions.
+  
+<br/><b>Note 1:</b> The method returns false if the input is obviously 
+incorrect, e.g. if two (nonzero) pointers agree.
+<br/><b>Note 2:</b> If you want to combine several subruns you can 
+call <code>setPDFPtr</code> with new arguments before each 
+<code>Pythia::init(...)</code> call. To revert from external PDF's
+to the normal internal PDF selection you must call 
+<code>setPDFPtr(0, 0)</code> before <code>Pythia::init(...)</code>. 
+  
+
+<p/><strong>bool Pythia::setDecayPtr( DecayHandler* decayHandlePtr, vector&lt;int&gt; handledParticles) &nbsp;</strong> <br/>
+offers the possibility to link to an external program that can do some 
+of the particle decays, instad of using the internal decay machinery.
+With particles we here mean the normal hadrons and leptons, not 
+top quarks, electroweak bosons or new particles in BSM scenarios. 
+The rules for constructing your own class from the 
+<code>DecayHandler</code> base class are described 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='ExternalDecays.php?filepath=".$filepath."' target='page'>";?>here</a>. Note that you can only 
+provide one external object, but this object in its turn could
+very well hand on different particles to separate decay libraries. 
+<br/><code>argument</code><strong> decayHandlePtr </strong>  :   
+pointer to a <code>DecayHandler</code>-derived object. This object 
+must be instantiated by you in your program.
+  
+<br/><code>argument</code><strong> handledParticles </strong>  :  vector with the PDG identity codes 
+of the particles that should be handled by the external decay package.
+You should only give the particle (positive) codes; the respective 
+antiparticle is always included as well. 
+  
+<br/><b>Note:</b> The method currently always returns true.
+  
+
+<p/><strong>bool Pythia::setRndmEnginePtr( RndmEngine* rndmEnginePtr) &nbsp;</strong> <br/>
+offers the possibility to link to an external random number generator.
+The rules for constructing your own class from the 
+<code>RndmEngine</code> base class are described 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='RandomNumbers.php?filepath=".$filepath."' target='page'>";?>here</a>.  
+<br/><code>argument</code><strong> rndmEnginePtr </strong>  :   
+pointer to a <code>RndmEngine</code>-derived object. This object 
+must be instantiated by you in your program.
+  
+<br/><b>Note:</b> The method returns true if the pointer is different 
+from 0.
+  
+
+<p/><strong>bool Pythia::setUserHooksPtr( UserHooks* userHooksPtr) &nbsp;</strong> <br/>
+offers the possibility to interact with the generation process at
+a few different specified points, e.g. to reject undesirable events
+at an early stage to save computer time. The rules for constructing 
+your own class from the <code>UserHooks</code> base class are described 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='UserHooks.php?filepath=".$filepath."' target='page'>";?>here</a>. You can only hand in one such
+pointer, but this may be to a class that implements several of the
+different allowed possibilities. 
+<br/><code>argument</code><strong> userHooksPtr </strong>  :   
+pointer to a <code>userHooks</code>-derived object. This object 
+must be instantiated by you in your program.
+  
+<br/><b>Note:</b> The method currently always returns true.
+  
+
+<p/><strong>bool Pythia::setBeamShapePtr( BeamShape* beamShapePtr) &nbsp;</strong> <br/>
+offers the possibility to provide your own shape of the momentum and
+space-time spread of the incoming beams. The rules for constructing 
+your own class from the <code>BeamShape</code> base class are described 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='BeamShape.php?filepath=".$filepath."' target='page'>";?>here</a>. 
+<br/><code>argument</code><strong> BeamShapePtr </strong>  :   
+pointer to a <code>BeamShape</code>-derived object. This object 
+must be instantiated by you in your program.
+  
+<br/><b>Note:</b> The method currently always returns true.
+  
+
+<p/><strong>bool Pythia::setSigmaPtr( SigmaProcess* sigmaPtr) &nbsp;</strong> <br/>
+offers the possibility to link your own implementation of a process
+and its cross section, to make it a part of the normal process 
+generation machinery, without having to recompile the 
+<code>Pythia</code> library itself.  The rules for constructing your 
+own class from the <code>SigmaProcess</code> base class are described 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='SemiInternalProcesses.php?filepath=".$filepath."' target='page'>";?>here</a>. You may call this 
+routine repeatedly, to add as many new processes as you wish.
+<br/><code>argument</code><strong> sigmaPtr </strong>  :   
+pointer to a <code>SigmaProcess</code>-derived object. This object 
+must be instantiated by you in your program.
+  
+<br/><b>Note:</b> The method currently always returns true.
+  
+
+<p/><strong>bool Pythia::setResonancePtr( ResonanceWidths* resonancePtr) &nbsp;</strong> <br/>
+offers the possibility to link your own implementation of the 
+calculation of partial resonance widths, to make it a part of the 
+normal process generation machinery, without having to recompile the 
+<code>Pythia</code> library itself.  This allows the decay of new 
+resonances to be handled internally, when combined with new particle
+data. Note that the decay of normal hadrons cannot be modelled here;
+this is for New Physics resonances. The rules for constructing your 
+own class from the <code>ResonanceWidths</code> base class are described 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='SemiInternalResonances.php?filepath=".$filepath."' target='page'>";?>here</a>. You may call this 
+routine repeatedly, to add as many new resonances as you wish.
+<br/><code>argument</code><strong> resonancePtr </strong>  :   
+pointer to a <code>ResonanceWidths</code>-derived object. This object 
+must be instantiated by you in your program.
+  
+<br/><b>Note:</b> The method currently always returns true.
+  
+
+<p/><strong>bool Pythia::setShowerPtr( TimeShower* timesDecPtr, TimeShower* timesPtr = 0, SpaceShower* spacePtr = 0)  &nbsp;</strong> <br/>
+offers the possibility to link your own parton shower routines as 
+replacements for the default ones. This is much more complicated 
+since the showers are so central and are so interlinked with other 
+parts of the program. Therefore it is also possible to do the 
+replacement in stages, from the more independent to the more 
+intertwined. The rules for constructing your own classes from the 
+<code>TimeShower</code> and <code>SpaceShower</code>base classes 
+are described <?php $filepath = $_GET["filepath"];
+echo "<a href='ImplementNewShowers.php?filepath=".$filepath."' target='page'>";?>here</a>. These 
+objects must be instantiated by you in your program.
+<br/><code>argument</code><strong> timesDecPtr </strong>  :  
+pointer to a <code>TimeShower</code>-derived object for doing
+timelike shower evolution in resonance decays, e.g. of a 
+<i>Z^0</i>. This is decoupled from beam remnants and parton
+distributions, and is therefore the simplest kind of shower 
+to write. If you provide a value 0 then the internal shower
+routine will be used.
+  
+<br/><code>argument</code><strong> timesPtr </strong> (<code>default = <strong>0</strong></code>) :   
+pointer to a <code>TimeShower</code>-derived object for doing
+all other timelike shower evolution, which is normally interleaved
+with multiple interactions and spacelike showers, introducing
+both further physics and further technical issues. If you retain
+the default value 0 then the internal shower routine will be used.
+You are allowed to use the same pointer as above for the 
+<code>timesDecPtr</code> if the same shower can fulfill both tasks.
+  
+<br/><code>argument</code><strong> spacePtr </strong> (<code>default = <strong>0</strong></code>) :   
+pointer to a <code>SpaceShower</code>-derived object for doing
+all spacelike shower evolution, which is normally interleaved
+with multiple interactions and timelike showers. If you retain
+the default value 0 then the internal shower routine will be used.
+  
+<br/><b>Note:</b> The method currently always returns true.
+  
+
+<h3>Initialize</h3>
+
+At the initialization stage all the information provided above is 
+processed, and the stage is set up for the subsequent generation
+of events. Several alterative forms of the <code>init</code> method
+are available for this stage; pick the one most convenient. 
+
+<p/><strong>bool Pythia::init( int idA, int idB, double eCM) &nbsp;</strong> <br/>
+initialize for collisions in the center-of-mass frame, with the
+beams moving in the <i>+-z</i> directions.
+<br/><code>argument</code><strong> idA, idB </strong>  :   
+particle identity code for the two incoming beams.
+  
+<br/><code>argument</code><strong> eCM </strong>  :   
+the CM energy of the collisions.
+  
+<br/><b>Note:</b> The method returns false if the 
+initialization fails. It is then not possible to generate any
+events.
+  
+
+<p/><strong>bool Pythia::init( int idA, int idB, double eA, double eB) &nbsp;</strong> <br/>
+initialize for collisions with back-to-back beams,
+moving in the <i>+-z</i> directions, but with different energies.
+<br/><code>argument</code><strong> idA, idB </strong>  :   
+particle identity code for the two incoming beams.
+  
+<br/><code>argument</code><strong> eA, eB </strong>  :   
+the energies of the two beams. If an energy is set to be below 
+the mass of the respective beam particle that particle is taken to
+be at rest. This offers a simple possibility to simulate 
+fixed-target collisions.
+  
+<br/><b>Note:</b> The method returns false if the 
+initialization fails. It is then not possible to generate any
+events.
+  
+
+<p/><strong>bool Pythia::init( int idA, int idB, double pxA, double pyA, double pzA, double pxB, double pyB, double pzB) &nbsp;</strong> <br/>
+initialize for collisions with arbitrary beam directions.
+<br/><code>argument</code><strong> idA, idB </strong>  :   
+particle identity code for the two incoming beams.
+  
+<br/><code>argument</code><strong> pxA, pyA, pzA </strong>  :   
+the three-momntum vector <i>(p_x, p_y, p_z)</i> of the first
+incoming beam.
+  
+<br/><code>argument</code><strong> pxB, pyB, pzB </strong>  :   
+the three-momntum vector <i>(p_x, p_y, p_z)</i> of the second
+incoming beam.
+  
+<br/><b>Note:</b> The method returns false if the 
+initialization fails. It is then not possible to generate any
+events.
+  
+
+<p/><strong>bool Pythia::init( string LesHouchesEventFile, bool skipInit = false) &nbsp;</strong> <br/>
+initialize for hard-process collisions fed in from an external file 
+with events, written according to the 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>";?>Les Houches Event File</a> 
+standard.  
+<br/><code>argument</code><strong> LesHouchesEventFile </strong>  :   
+the file name (including path, where required) where the 
+events are stored, including relevant information on beam 
+identities and energies. 
+  
+<br/><code>argument</code><strong> skipInit </strong> (<code>default = <strong>false</strong></code>) :  
+By default this method does a complete reinitialization of the
+generation process. If you set this argument to true then
+no reinitialization will occur, only the pointer to the event
+file is updated. This may come in handy if the full event sample
+is split across several files generated under the same conditions
+(except random numbers, of course). You then do the first 
+initialization with the default, and all subsequent ones with
+true. Note that things may go wrong if the files are not created 
+under the same conditions.
+  
+<br/><b>Note:</b> The method returns false if the 
+initialization fails. It is then not possible to generate any
+events.
+  
+
+<p/><strong>bool Pythia::init() &nbsp;</strong> <br/>
+initialize for collisions, in any of the four above possibilities.
+In this option the beams are not specified by input arguments,
+but instead by the settings in the 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='BeamParameters.php?filepath=".$filepath."' target='page'>";?>Beam Parameters</a> section.
+This allows the beams to be specified in the same file as other
+run instructions. The default settings give pp collisions at 14 TeV.
+<br/><b>Note:</b> The method returns false if the 
+initialization fails. It is then not possible to generate any
+events.
+  
+
+<p/><strong>bool Pythia::init( LHAup* lhaUpPtr) &nbsp;</strong> <br/>
+initialize for hard-process collisions fed in from an external
+source of events, consistent with the Les Houches Accord standard.
+The rules for constructing your own class from the <code>LHAup</code> 
+base class are described <?php $filepath = $_GET["filepath"];
+echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>";?>here</a>. 
+This class is also required to provide the beam parameters.
+<br/><code>argument</code><strong> lhaUpPtr </strong>  :   
+pointer to a <code>LHAup</code>-derived object. This object 
+must be instantiated by you in your program.
+  
+<br/><b>Note:</b> The method returns false if the 
+initialization fails. It is then not possible to generate any
+events.
+  
+
+<h3>Generate events</h3>
+
+The <code>next()</code> method is the main one to generate events.
+In this section we also put a few other specialized methods that 
+may be useful in some circumstances.
+
+<p/><strong>bool Pythia::next() &nbsp;</strong> <br/>
+generate the next event. No input parameters are required; all
+instructions have already been set up in the initialization stage.
+<br/><b>Note:</b> The method returns false if the event generation
+fails. The event record is then not consistent and should not be
+studied.
+  
+
+<p/><strong>bool Pythia::forceHadronLevel() &nbsp;</strong> <br/>
+hadronize the existing event record, i.e. perform string fragmentation
+and particle decays. There are two main applications. Firstly,
+you can use the same parton-level content as a basis for repeated
+hadronization attempts, in schemes intended to save computer time. 
+Secondly, you may have an external program that can simulate the full 
+partonic level of the event - hard process, parton showers, multiple 
+interactions, beam remnants, colour flow, and so on - but not 
+hadronization. Further details are found 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='HadronLevelStandalone.php?filepath=".$filepath."' target='page'>";?>here</a>.  
+<br/><b>Note:</b> The method returns false if the hadronization
+fails. The event record is then not consistent and should not be
+studied.
+  
+
+<p/><strong>bool Pythia::moreDecays() &nbsp;</strong> <br/>
+perform decays of all particles in the event record that have not been 
+decayed but should have been done so. This can be used e.g. for
+repeated decay attempts, in schemes intended to save computer time. 
+Further details are found <?php $filepath = $_GET["filepath"];
+echo "<a href='HadronLevelStandalone.php?filepath=".$filepath."' target='page'>";?>here</a>.  
+<br/><b>Note:</b> The method returns false if the decays fail. The 
+event record is then not consistent and should not be studied.
+  
+
+<p/><strong>void Pythia::LHAeventList(ostream& os = cout) &nbsp;</strong> <br/>
+list the Les Houches Accord information on the current event, see
+<?php $filepath = $_GET["filepath"];
+echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>";?>here</a>. 
+(Other listings are available via the class members below, so this
+listing is a special case that would not fit elsewhere.)
+<br/><code>argument</code><strong> os </strong> (<code>default = <strong>cout</strong></code>) :   
+output stream where the listign occurs.
+  
+  
+
+<h3>Finalize</h3>
+
+There is no required finalization step; you can stop generating events
+when and how you want. It is still recommended that you make it a 
+routine to call the following method at the end.
+
+<p/><strong>void Pythia::statistics(bool all = false, bool reset = false) &nbsp;</strong> <br/>
+list statistics on the event generation, specifically total and partial
+cross sections and the number of different errors. For more details see
+<?php $filepath = $_GET["filepath"];
+echo "<a href='EventStatistics.php?filepath=".$filepath."' target='page'>";?>here</a>. 
+<br/><code>argument</code><strong> all </strong> (<code>default = <strong>false</strong></code>) :  
+if true also statistics on multiple interactions is shown, by default not.
+  
+<br/><code>argument</code><strong> reset </strong> (<code>default = <strong>false</strong></code>) :  if true then all counters, 
+e.g on events generated and errors experienced, are reset to zero
+ whenever the routine is called. The default instead is that 
+all stored statistics information is unaffected by the call. Counters 
+are automatically reset in each new <code>Pythia::init(...)</code> 
+call, however, so the only time the <code>reset</code> option makes a 
+difference is if <code>statistics(...)</code> is called several times 
+in a (sub)run. 
+  
+  
+
+<h3>Interrogate settings</h3>
+
+Normally settings are used in the setup and initialization stages
+to determine the character of a run, e.g. read from a file with the 
+above-described <code>Pythia::readFile(...)</code> method.
+There is no strict need for a user to interact with the 
+<code>Settings</code> database in any other way. However, as an option, 
+some settings variables have been left free for the user to set in 
+such a file, and then use in the main program to directly affect the 
+performance of that program, see 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='MainProgramSettings.php?filepath=".$filepath."' target='page'>";?>here</a>. A typical example would
+be the number of events to generate. For such applications the 
+following shortcuts to some <code>Settings</code> methods may be 
+convenient.
+
+<p/><strong>bool Pythia::flag(string key) &nbsp;</strong> <br/>
+read in a boolean variable from the <code>Settings</code> database.
+<br/><code>argument</code><strong> key </strong>  :   
+the name of the variable to be read.
+  
+  
+ 
+<p/><strong>int Pythia::mode(string key) &nbsp;</strong> <br/>
+read in an integer variable from the <code>Settings</code> database.
+<br/><code>argument</code><strong> key </strong>  :   
+the name of the variable to be read.
+  
+  
+ 
+<p/><strong>double Pythia::parm(string key) &nbsp;</strong> <br/>
+read in a double-precision variable from the <code>Settings</code> 
+database.
+<br/><code>argument</code><strong> key </strong>  :   
+the name of the variable to be read.
+  
+  
+ 
+<p/><strong>string Pythia::word(string key) &nbsp;</strong> <br/>
+read in a string variable from the <code>Settings</code> database.
+<br/><code>argument</code><strong> key </strong>  :   
+the name of the variable to be read.
+  
+  
+  
+<h3>Data members</h3>
+
+The <code>Pythia</code> class contains a few public data members,
+several of which play a central role. We list them here, with 
+links to the places where they are further described. 
+ 
+<p/><strong>Event Pythia::process &nbsp;</strong> <br/>
+the hard-process event record, see <?php $filepath = $_GET["filepath"];
+echo "<a href='EventRecord.php?filepath=".$filepath."' target='page'>";?>here</a>
+for further details.
+  
+ 
+<p/><strong>Event Pythia::event &nbsp;</strong> <br/>
+the complete event record, see <?php $filepath = $_GET["filepath"];
+echo "<a href='EventRecord.php?filepath=".$filepath."' target='page'>";?>here</a>
+for further details.
+  
+ 
+<p/><strong>PartonSystems Pythia::partonSystems &nbsp;</strong> <br/>
+a grouping of the partons in the event record by subsystem, 
+see <?php $filepath = $_GET["filepath"];
+echo "<a href='AdvancedUsage.php?filepath=".$filepath."' target='page'>";?>here</a> for further details.
+  
+ 
+<p/><strong>Info Pythia::info &nbsp;</strong> <br/>
+further information on the event-generation process, see 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='EventInformation.php?filepath=".$filepath."' target='page'>";?>here</a> for further details.
+  
+ 
+<p/><strong>Settings Pythia::settings &nbsp;</strong> <br/>
+the settings database, see <?php $filepath = $_GET["filepath"];
+echo "<a href='SettingsScheme.php?filepath=".$filepath."' target='page'>";?>here</a>
+for further details. Note that the <code>Settings</code> class is 
+purely static, so it would not have needed to be inlcuded here.
+  
+ 
+<p/><strong>ParticleDataTable Pythia::particleData &nbsp;</strong> <br/>
+the particle properties and decay tables database, see 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='ParticleDataScheme.php?filepath=".$filepath."' target='page'>";?>here</a> for further details. 
+Note that the <code>ParticleDataTable</code> class is 
+purely static, so it would not have needed to be inlcuded here.
+  
+ 
+<p/><strong>SusyLesHouches Pythia::slha &nbsp;</strong> <br/>
+parameters and particle data in the context of supersymmetric models, 
+see <?php $filepath = $_GET["filepath"];
+echo "<a href='SUSYLesHouchesAccord.php?filepath=".$filepath."' target='page'>";?>here</a> for further details.
+  
    
 </body>
 </html>
 
-<!-- Copyright (C) 2008 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2009 Torbjorn Sjostrand -->

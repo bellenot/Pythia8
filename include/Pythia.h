@@ -1,5 +1,5 @@
 // Pythia.h is a part of the PYTHIA event generator.
-// Copyright (C) 2008 Torbjorn Sjostrand.
+// Copyright (C) 2009 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -52,7 +52,8 @@ public:
   bool readString(string, bool warn = true); 
  
   // Read in updates for settings or particle data from user-defined file.
-  bool readFile(string fileName, bool warn = true, int subrun = SUBRUNDEFAULT);
+  bool readFile(string fileName, bool warn = true, 
+    int subrun = SUBRUNDEFAULT);
   bool readFile(string fileName, int subrun) {
     return readFile(fileName, true, subrun);}
   bool readFile(istream& is = cin, bool warn = true, 
@@ -129,7 +130,7 @@ public:
   void LHAeventList(ostream& os = cout) {lhaUpPtr->listEvent(os);}
 
   // Main routine to provide final statistics on generation.
-  void statistics(bool all = false, bool reset = true);
+  void statistics(bool all = false, bool reset = false);
 
   // Read in settings values: shorthand, not new functionality.
   bool   flag(string key) {return settings.flag(key);}

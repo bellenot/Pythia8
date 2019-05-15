@@ -35,7 +35,8 @@ included a more careful study of flavour and colour correlations,
 junction topologies and the relationship to beam remnants 
 [<a href="Bibliography.php" target="page">Sjo04</a>], and interleaving with initial-state radiation 
 [<a href="Bibliography.php" target="page">Sjo05</a>], making use of transverse-momentum-ordered
-initial- and final-state showers. 
+initial- and final-state showers. Currently a framework to handle
+rescattering is under development.
 
 <p/>
 A big unsolved issue is how the colour of all these subsystems is 
@@ -257,16 +258,22 @@ becomes slow and unstable, so the min limit must be respected.
  
 It is possible that a parton may rescatter, i.e. undergo a further
 interaction subsequent to the first one. The machinery to model this
-kind of physics is still under development, and should not be used.
-The switch below is therefore only intended for people directly involved
-in the development and tryout. Any other usage is likely to lead to a 
-program crash, or at least unphysical results.
+kind of physics is still under development, and is not yet intended for
+general use, but only for the active developers. 
+
+<p/>
+The rescatting framework has ties with other parts of the program,
+notably with the <?php $filepath = $_GET["filepath"];
+echo "<a href='BeamRemnants.php?filepath=".$filepath."' target='page'>";?>beam remnants</a>.
 
 <br/><br/><strong>MultipleInteractions:allowRescatter</strong>  <input type="radio" name="16" value="on"><strong>On</strong>
 <input type="radio" name="16" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-Switch to allow rescattering of partons; on/off = true/false.
-<b>Warning: not yet operational! Do not use!</b>
+Switch to allow rescattering of partons; on/off = true/false.<br/>
+<b>Warning:</b> not yet fully operational, so use at your own risk. 
+It will only work if you set <code>TimeShower:interleave = off</code> 
+to defer the treatment of final-state radiation until after the 
+treatment of (re)scatterings and initial-state radiation.
   
 
 <br/><br/><strong>MultipleInteractions:allowDoubleRescatter</strong>  <input type="radio" name="17" value="on"><strong>On</strong>
@@ -274,8 +281,10 @@ Switch to allow rescattering of partons; on/off = true/false.
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Switch to allow rescattering of partons, where both incoming partons 
 have already rescattered; on/off = true/false. Is only used if 
-<code>MultipleInteractions:allowRescatter</code> is switched on.
-<b>Warning: not yet operational! Do not use!</b>
+<code>MultipleInteractions:allowRescatter</code> is switched on.<br/>
+<b>Warning:</b> currently even more experimental than the single
+rescattering option above. The rate also comes out to be lower, 
+so to first approximation it can be neglected.
   
 
 <br/><br/><table><tr><td><strong>MultipleInteractions:rescatterMode  </td><td>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 4</code>)</td></tr></table>
@@ -592,4 +601,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2008 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2009 Torbjorn Sjostrand -->

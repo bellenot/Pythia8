@@ -1,5 +1,5 @@
 // main22.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2008 Peter Skands, Torbjorn Sjostrand.
+// Copyright (C) 2009 Peter Skands, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -25,6 +25,7 @@ int main() {
   int nEvent = settings.mode("Main:numberOfEvents");
   int nList  = settings.mode("Main:numberToList");
   int nShow  = settings.mode("Main:timesToShow");
+  int nAbort = settings.mode("Main:timesAllowErrors"); 
   bool showChangedSettings = settings.flag("Main:showChangedSettings");
   bool showAllSettings = settings.flag("Main:showAllSettings");
   bool showChangedParticleData 
@@ -50,12 +51,14 @@ int main() {
   Hist dnparticledy("dn/dy for particles",100,-10.,10.);
 
   // Begin event loop.
-  int nPace = max(1,nEvent/nShow); 
+  int nPace  = max(1,nEvent/nShow); 
+  int iAbort = 0;
   for (int iEvent = 0; iEvent < nEvent; ++iEvent) {
     if (iEvent%nPace == 0) cout << " Now begin event " << iEvent << endl;
 
     // Generate events. Quit if failure.
     if (!pythia.next()) {
+      if (++iAbort < nAbort) continue;
       cout << " Event generation aborted prematurely, owing to error!\n"; 
       break;
     }

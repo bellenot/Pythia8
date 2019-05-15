@@ -1,5 +1,5 @@
 // SusyLesHouches.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2008 Peter Skands, Torbjorn Sjostrand.
+// Copyright (C) 2009 Peter Skands, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -126,6 +126,8 @@ int SusyLesHouches::readFile(string slhaFile) {
 	  if (blockName=="imau") imau.setq(q);
 	  if (blockName=="imad") imad.setq(q);
 	  if (blockName=="imae") imae.setq(q);
+	  if (blockName=="imhmix") imhmix.setq(q);
+	  if (blockName=="immsoft") immsoft.setq(q);
 	  if (blockName=="imtu") imtu.setq(q);
 	  if (blockName=="imtd") imtd.setq(q);
 	  if (blockName=="imte") imte.setq(q);
@@ -382,6 +384,8 @@ int SusyLesHouches::readFile(string slhaFile) {
       if (blockName == "imau") ifail=imau.set(linestream);
       if (blockName == "imad") ifail=imad.set(linestream);
       if (blockName == "imae") ifail=imae.set(linestream);
+      if (blockName == "imhmix") ifail=imhmix.set(linestream);
+      if (blockName == "immsoft") ifail=immsoft.set(linestream);
       //CPV+FLV
       if (blockName == "imvckm") ifail=imvckm.set(linestream);
       if (blockName == "imupmns") ifail=imupmns.set(linestream);
@@ -434,8 +438,8 @@ int SusyLesHouches::readFile(string slhaFile) {
 void SusyLesHouches::printHeader() {
   setprecision(3);
   if (! headerPrinted) {
-    cout <<" *--------------------  SusyLesHouches v0.03 SUSY/BSM Interface  ---------------------*\n";
-    message(0,"","Last Change 06 Mar 2008 - P.Z. Skands",0);
+    cout <<" *--------------------  SusyLesHouches v0.04 SUSY/BSM Interface  ---------------------*\n";
+    message(0,"","Last Change 08 Jan 2009 - P.Z. Skands",0);
     headerPrinted=true;
   }
 }

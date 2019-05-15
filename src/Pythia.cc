@@ -1,5 +1,5 @@
 // Pythia.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2008 Torbjorn Sjostrand.
+// Copyright (C) 2009 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -218,27 +218,42 @@ bool Pythia::readFile(istream& is, bool warn, int subrun) {
 // Routine to pass in pointers to PDF's. Usage optional.
 
 bool Pythia::setPDFPtr( PDF* pdfAPtrIn, PDF* pdfBPtrIn, PDF* pdfHardAPtrIn, 
-    PDF* pdfHardBPtrIn) {
+  PDF* pdfHardBPtrIn) {
 
-  // The routine can have no effect if PDF's already assigned.
-  if (pdfAPtr != 0 || pdfBPtr != 0) return false;
+  // Delete any PDF's created in a previous initInternal call.
+  if (useNewPdfHard && pdfHardAPtr != pdfAPtr) delete pdfHardAPtr;
+  if (useNewPdfHard && pdfHardBPtr != pdfBPtr) delete pdfHardBPtr;
+  if (useNewPdfA) delete pdfAPtr;
+  if (useNewPdfB) delete pdfBPtr;
+
+  // Reset pointers to be empty.
+  useNewPdfA    = false;
+  useNewPdfB    = false;
+  useNewPdfHard = false;
+  pdfAPtr       = 0;
+  pdfBPtr       = 0;
+  pdfHardAPtr   = 0;
+  pdfHardBPtr   = 0;
+
+  // Switch off external PDF's by zero as input.
+  if (pdfAPtrIn == 0 && pdfBPtrIn == 0) return true;
 
   // The two PDF objects cannot be one and the same, or unassigned.
   if (pdfAPtrIn == pdfBPtrIn || pdfAPtrIn == 0 || pdfBPtrIn == 0) return false;
 
   // Save pointers.  
-  pdfAPtr = pdfAPtrIn;
-  pdfBPtr = pdfBPtrIn;
+  pdfAPtr       = pdfAPtrIn;
+  pdfBPtr       = pdfBPtrIn;
 
   // By default same pointers for hard-process PDF's.
-  pdfHardAPtr = pdfAPtrIn;
-  pdfHardBPtr = pdfBPtrIn;
+  pdfHardAPtr   = pdfAPtrIn;
+  pdfHardBPtr   = pdfBPtrIn;
   
   // Optionally allow separate pointers for hard process.
   if (pdfHardAPtrIn == 0 || pdfHardBPtrIn == 0) return true;
   if (pdfHardAPtrIn == pdfHardBPtrIn) return false;
-  pdfHardAPtr = pdfHardAPtrIn;
-  pdfHardBPtr = pdfHardBPtrIn;
+  pdfHardAPtr   = pdfHardAPtrIn;
+  pdfHardBPtr   = pdfHardBPtrIn;
   
   // Done.
   return true;
@@ -531,6 +546,29 @@ bool Pythia::initInternal() {
     // Set up beam kinematics.
     if (!initKinematics()) return false;
 
+    // Delete any PDF's created in a previous initInternal call.
+    if (useNewPdfHard) {
+      if (pdfHardAPtr != pdfAPtr) {
+        delete pdfHardAPtr;
+        pdfHardAPtr  = 0;
+      }
+      if (pdfHardBPtr != pdfBPtr) {
+        delete pdfHardBPtr;
+        pdfHardBPtr  = 0;
+      }
+      useNewPdfHard  = false;
+    }
+    if (useNewPdfA) {
+      delete pdfAPtr;
+      useNewPdfA   = false;
+      pdfAPtr      = 0;
+    }
+    if (useNewPdfB) {
+      delete pdfBPtr;
+      useNewPdfB   = false;
+      pdfBPtr      = 0;
+    }
+
     // Set up the PDF's, if not already done.
     if (pdfAPtr == 0) {
       pdfAPtr     = getPDFPtr(idA); 
@@ -546,12 +584,12 @@ bool Pythia::initInternal() {
     }
 
     // Optionally set up separate PDF's for hard process.
-    if (settings.flag("PDF:useHard")) {
+    if (settings.flag("PDF:useHard") && useNewPdfA && useNewPdfB) {
       pdfHardAPtr = getPDFPtr(idA, 2);      
       if (!pdfHardAPtr->isSetup()) return false;
       pdfHardBPtr = getPDFPtr(idB, 2);      
       if (!pdfHardBPtr->isSetup()) return false;
-      useNewPdfHard  = true;
+      useNewPdfHard = true;
     }
   
     // Set up the two beams and the common remnant system.
@@ -1050,8 +1088,14 @@ void Pythia::banner(ostream& os) {
      << "rtment of Theoretical Physics,        |  | \n"
      << " |  |     Lund University, Solvegatan 14A, SE"
      << "-223 62 Lund, Sweden;                 |  | \n"
-     << " |  |     phone: + 41 - 22 - 767 82 27; e-mai"
+     << " |  |     phone: + 46 - 46 - 222 48 16; e-mai"
      << "l: torbjorn@thep.lu.se                |  | \n"
+     << " |  |   Author: Richard Corke; Department of " 
+     << "Theoretical Physics,                  |  | \n"
+     << " |  |     Lund University, Solvegatan 14A, SE"
+     << "-223 62 Lund, Sweden;                 |  | \n"
+     << " |  |     phone: + 46 - 46 - 222 31 92; e-mai"
+     << "l: richard.corke@thep.lu.se           |  | \n"
      << " |  |   Author: Stephen Mrenna; Computing Div"
      << "ision, Simulations Group,             |  | \n"
      << " |  |     Fermi National Accelerator Laborato"
@@ -1098,7 +1142,7 @@ void Pythia::banner(ostream& os) {
      << " when interpreting results.           |  | \n"
      << " |  |                                        "
      << "                                      |  | \n"
-     << " |  |   Copyright (C) 2008 Torbjorn Sjostrand" 
+     << " |  |   Copyright (C) 2009 Torbjorn Sjostrand" 
      << "                                      |  | \n"
      << " |  |                                        "
      << "                                      |  | \n"
@@ -1274,6 +1318,8 @@ bool Pythia::check(ostream& os) {
   }
 
   // Check that beams and event records agree on incoming partons.
+  // Only meaningful for resolved beams.
+  if (info.isResolved())
   for (int iSys = 0; iSys < beamA.sizeInit(); ++iSys) {
     int eventANw  = partonSystems.getInA(iSys);
     int eventBNw  = partonSystems.getInB(iSys); 

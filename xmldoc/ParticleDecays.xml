@@ -38,7 +38,7 @@ be on; tested by the <code>mayDecay()</code> method of <code>Event</code>
 When on, only particles with <ei>tau0 &lt; tau0Max</ei> are decayed.
 </flag>
 
-<parm name="ParticleDecays:tau0Max" default="1." min="0.">
+<parm name="ParticleDecays:tau0Max" default="10." min="0.">
 The above <ei>tau0Max</ei>, expressed in mm/c.
 </parm>
 
@@ -50,7 +50,7 @@ The above <ei>tau0Max</ei>, expressed in mm/c.
 When on, only particles with <ei>tau &lt; tauMax</ei> are decayed.
 </flag>
 
-<parm name="ParticleDecays:tauMax" default="1." min="0."> 
+<parm name="ParticleDecays:tauMax" default="10." min="0."> 
 The above <ei>tauMax</ei>, expressed in mm/c.<br/>
 In order for this and the subsequent tests to work, a <ei>tau</ei> 
 is selected and stored for each particle, whether in the end it
@@ -68,8 +68,8 @@ are decayed. There is assumed to be no magnetic field or other
 detector effects.
 </flag>
 
-<parm name="ParticleDecays:rMax" default="1." min="0.">
-The above <ei>rMax</ei>, expressed in mm/c.
+<parm name="ParticleDecays:rMax" default="10." min="0.">
+The above <ei>rMax</ei>, expressed in mm.
 </parm> 
 
 <p/>
@@ -83,12 +83,12 @@ are decayed. There is assumed to be no magnetic field or other
 detector effects.
 </flag>
 
-<parm name="ParticleDecays:xyMax" default="1." min="0.">
-The above <ei>xyMax</ei>, expressed in mm/c.
+<parm name="ParticleDecays:xyMax" default="10." min="0.">
+The above <ei>xyMax</ei>, expressed in mm.
 </parm> 
 
-<parm name="ParticleDecays:zMax" default="1." min="0.">
-The above <ei>zMax</ei>, expressed in mm/c.
+<parm name="ParticleDecays:zMax" default="10." min="0.">
+The above <ei>zMax</ei>, expressed in mm.
 </parm> 
 
 <h3>Mixing</h3>
@@ -188,7 +188,7 @@ PYTHIA 6 ones, but several obsolete choices have been removed,
 a few new introduced, and most have been moved for better consistency. 
 Here is the list of currently allowed <code>meMode()</code> codes:
 <ul>
-<li>  0 : pure phace space of produced particles ("default");
+<li>  0 : pure phase space of produced particles ("default");
 input of partons is allowed and then the partonic content is 
 converted into the minimal number of hadrons (i.e. one per
 parton pair, but at least two particles in total)</li>
@@ -251,5 +251,5 @@ multiplicity than the simple string assumed for 82, see the
 
 </chapter>
 
-<!-- Copyright (C) 2008 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
 

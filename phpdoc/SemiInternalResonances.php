@@ -131,13 +131,13 @@ at that point. If you call such a destructor you will leave a pointer
 dangling inside the <code>Pythia</code> object you gave it in to,
 if that still exists. 
 
-<p/><code>method&nbsp; </code><strong> void initConstants() &nbsp;</strong> <br/>
+<p/><strong>void initConstants() &nbsp;</strong> <br/>
 is called once during initialization, and can then be used to set up
 further parameters specific to this particle species, such as couplings, 
 and perform calculations that need not be repeated for each new event, 
 thereby saving time. This method needs not be implemented.
 
-<p/><code>method&nbsp; </code><strong> void calcPreFac(bool calledFromInit = false) &nbsp;</strong> <br/>
+<p/><strong>void calcPreFac(bool calledFromInit = false) &nbsp;</strong> <br/>
 is called once a mass has been chosen for the resonance, but before
 a specific final state is considered. This routine can therefore 
 be used to perform calculations that otherwise might have to be repeated 
@@ -155,7 +155,7 @@ above, <code>mHat</code> contains the current mass of the resonance.
 At initialization this agrees with the nominal mass <code>mRes</code>,
 but during the run it will not (in general). 
 
-<p/><code>method&nbsp; </code><strong> void calcWidth(bool calledFromInit = false) &nbsp;</strong> <br/>
+<p/><strong>void calcWidth(bool calledFromInit = false) &nbsp;</strong> <br/>
 is the key method for width calculations and returns a partial width
 value, as further described below. It is called for a specific 
 final state, typically in a loop over all allowed final states,
@@ -192,7 +192,7 @@ couplings; see the existing code for examples.
 <br/><code>widNow</code> : the partial width of the current channel,
 expressed in GeV. 
 
-<p/><code>method&nbsp; </code><strong> double widthChan( mHat, idAbs1, idAbs2) &nbsp;</strong> <br/>
+<p/><strong>double widthChan( mHat, idAbs1, idAbs2) &nbsp;</strong> <br/>
 is not normally used. In PYTHIA the only exception is Higgs decays,
 where it is used to define the width (except for colour factors) 
 associated with a specific incoming state. It allows the results of
@@ -236,4 +236,4 @@ to <code>include/ResonanceWidths.h</code> and
 </body>
 </html>
 
-<!-- Copyright (C) 2008 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2009 Torbjorn Sjostrand -->

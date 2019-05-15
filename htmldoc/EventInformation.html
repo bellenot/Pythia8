@@ -19,71 +19,92 @@ directly available. It is primarily intended for processes generated
 internally in PYTHIA, but many of the methods would work also for
 events fed in via the Les Houches Accord.
 
-<p/>
-Here are the currently available methods related to each event:
+<h3>List information</h3>
 
-<p/><code>method&nbsp; </code><strong> list() &nbsp;</strong> <br/>
+<p/><strong>void Info::list() &nbsp;</strong> <br/>
 a listing of most of the information set for the current event. 
   
 
-<p/><code>method&nbsp; </code><strong> idA(), idB() &nbsp;</strong> <br/>
+<h3>The beams</h3>
+
+<p/><strong>int Info::idA() &nbsp;</strong> <br/>
+  
+<strong>int Info::idB() &nbsp;</strong> <br/>
 the identities of the two beam particles. 
   
 
-<p/><code>method&nbsp; </code><strong> pzA(), pzB() &nbsp;</strong> <br/>
+<p/><strong>double Info::pzA() &nbsp;</strong> <br/>
+  
+<strong>double Info::pzB() &nbsp;</strong> <br/>
 the longitudinal momenta of the two beam particles.
   
 
-<p/><code>method&nbsp; </code><strong> eA(), eB() &nbsp;</strong> <br/>
+<p/><strong>double Info::eA() &nbsp;</strong> <br/>
+  
+<strong>double Info::eB() &nbsp;</strong> <br/>
 the energies of the two beam particles.
   
 
-<p/><code>method&nbsp; </code><strong> mA(), mB() &nbsp;</strong> <br/>
+<p/><strong>double Info::mA() &nbsp;</strong> <br/>
+  
+<strong>double Info::mB() &nbsp;</strong> <br/>
 the masses of the two beam particles.
   
 
-<p/><code>method&nbsp; </code><strong> eCM(), s() &nbsp;</strong> <br/>
+<p/><strong>double Info::eCM() &nbsp;</strong> <br/>
+  
+<strong>double Info::s() &nbsp;</strong> <br/>
 the cm energy and its square for the two beams. 
   
 
-<p/><code>method&nbsp; </code><strong> name(), code() &nbsp;</strong> <br/>
+<h3>The event type</h3>
+
+<p/><strong>string Info::name() &nbsp;</strong> <br/>
+  
+<strong>int Info::code() &nbsp;</strong> <br/>
 the name and code of the process that occured.
   
 
-<p/><code>method&nbsp; </code><strong> nFinal() &nbsp;</strong> <br/>
+<p/><strong>int Info::nFinal() &nbsp;</strong> <br/>
 the number of final-state partons in the hard process.
   
 
-<p/><code>method&nbsp; </code><strong> isResolved() &nbsp;</strong> <br/>
+<p/><strong>bool Info::isResolved() &nbsp;</strong> <br/>
 are beam particles resolved, i.e. were PDF's used for the process?
   
 
-<p/><code>method&nbsp; </code><strong> isDiffractiveA(), isDiffractiveB() &nbsp;</strong> <br/>
+<p/><strong>bool Info::isDiffractiveA() &nbsp;</strong> <br/>
+  
+<strong>bool Info::isDiffractiveB() &nbsp;</strong> <br/>
 is either beam diffractively excited?
   
 
-<p/><code>method&nbsp; </code><strong> isMinBias() &nbsp;</strong> <br/>
+<p/><strong>bool Info::isMinBias() &nbsp;</strong> <br/>
 is the process a minimum-bias one?
   
 
-<p/><code>method&nbsp; </code><strong> isLHA() &nbsp;</strong> <br/>
+<p/><strong>bool Info::isLHA() &nbsp;</strong> <br/>
 has the process been generated from external Les Houches Accord 
 information?
   
 
-<p/><code>method&nbsp; </code><strong> atEndOfFile() &nbsp;</strong> <br/>
+<p/><strong>bool Info::atEndOfFile() &nbsp;</strong> <br/>
 true if a linked Les Houches class refuses to return any further 
 events, presumably because it has reached the end of the file from 
 which events have been read in.
   
 
-<p/><code>method&nbsp; </code><strong> hasSub() &nbsp;</strong> <br/>
+<p/><strong>bool Info::hasSub() &nbsp;</strong> <br/>
 does the process have a subprocess classification?
 Currently only true for minbias and Les Houches events, where it allows 
 the hardest collision to be identified. 
   
 
-<p/><code>method&nbsp; </code><strong> nameSub(), codeSub(), nFinalSub() &nbsp;</strong> <br/>
+<p/><strong>string Info::nameSub() &nbsp;</strong> <br/>
+  
+<strong>int Info::codeSub() &nbsp;</strong> <br/>
+  
+<strong>int Info::nFinalSub() &nbsp;</strong> <br/>
 the name, code and number of final-state partons in the subprocess
 that occured when <code>hasSub()</code> is true. For a minimum-bias event 
 the <code>code</code> would always be 101, while <code>codeSub()</code> 
@@ -94,70 +115,102 @@ user-defined classification code. The methods below would also provide
 information for such particular subcollisions.  
   
 
-<p/><code>method&nbsp; </code><strong> id1(), id2() &nbsp;</strong> <br/>
+<h3>Hard process parton densities and scales</h3>
+
+<p/><strong>int Info::id1() &nbsp;</strong> <br/>
+  
+<strong>int Info::id2() &nbsp;</strong> <br/>
 the identities of the two partons coming in to the hard process.
   
 
-<p/><code>method&nbsp; </code><strong> x1(), x2() &nbsp;</strong> <br/>
+<p/><strong>double Info::x1() &nbsp;</strong> <br/>
+  
+<strong>double Info::x2() &nbsp;</strong> <br/>
 <i>x</i> fractions of the two partons coming in to the hard process.
   
 
-<p/><code>method&nbsp; </code><strong> y(), tau() &nbsp;</strong> <br/>
+<p/><strong>double Info::y() &nbsp;</strong> <br/>
+  
+<strong>double Info::tau() &nbsp;</strong> <br/>
 rapidity and scaled mass-squared of the hard-process subsystem, as 
 defined by the above <i>x</i> values. 
   
 
-<p/><code>method&nbsp; </code><strong> pdf1(), pdf2() &nbsp;</strong> <br/>
+<p/><strong>double Info::pdf1() &nbsp;</strong> <br/>
+  
+<strong>double Info::pdf2() &nbsp;</strong> <br/>
 parton densities <i>x*f(x,Q^2</i> )evaluated for the two incoming 
 partons; could be used e.g. for reweighting purposes. 
   
 
-<p/><code>method&nbsp; </code><strong> QFac(), Q2Fac() &nbsp;</strong> <br/>
+<p/><strong>double Info::QFac() &nbsp;</strong> <br/>
+  
+<strong>double Info::Q2Fac() &nbsp;</strong> <br/>
 the <i>Q^2</i> or <i>Q^2</i> factorization scale at which the 
 densities were evaluated.
   
 
-<p/><code>method&nbsp; </code><strong> isValence1(), isValence2() &nbsp;</strong> <br/>
+<p/><strong>bool Info::isValence1() &nbsp;</strong> <br/>
+  
+<strong>bool Info::isValence2() &nbsp;</strong> <br/>
 <code>true</code> if the two hard incoming partons have been picked 
 to belong to the valence piece of the parton-density distribution, 
 else <code>false</code>. Should be interpreted with caution.
 Information is not set if you switch off parton-level processing. 
   
 
-<p/><code>method&nbsp; </code><strong> alphaS(), alphaEM() &nbsp;</strong> <br/>
+<p/><strong>double Info::alphaS() &nbsp;</strong> <br/>
+  
+<strong>double Info::alphaEM() &nbsp;</strong> <br/>
 the <i>alpha_strong</i> and <i>alpha_electromagnetic</i> values used 
 for the hard process.
   
 
-<p/><code>method&nbsp; </code><strong> QRen(), Q2Ren() &nbsp;</strong> <br/>
+<p/><strong>double Info::QRen() &nbsp;</strong> <br/>
+  
+<strong>double Info::Q2Ren() &nbsp;</strong> <br/>
 the <i>Q</i> or <i>Q^2</i> renormalization scale at which 
 <i>alpha_strong</i> and <i>alpha_electromagnetic</i> were evaluated.
   
 
-<p/><code>method&nbsp; </code><strong> mHat(), sHat() &nbsp;</strong> <br/>
+<h3>Hard process kinematics</h3>
+
+<p/><strong>double Info::mHat() &nbsp;</strong> <br/>
+  
+<strong>double Info::sHat() &nbsp;</strong> <br/>
 the invariant mass and its square for the hard process.
   
 
-<p/><code>method&nbsp; </code><strong> tHat(), uHat() &nbsp;</strong> <br/>
+<p/><strong>double Info::tHat() &nbsp;</strong> <br/>
+  
+<strong>double Info::uHat() &nbsp;</strong> <br/>
 the remaining two Mandelstam variables; only defined for <i>2 -> 2</i>
 processes. 
   
 
-<p/><code>method&nbsp; </code><strong> pTHat(), pT2Hat() &nbsp;</strong> <br/>
+<p/><strong>double Info::pTHat() &nbsp;</strong> <br/>
+  
+<strong>double Info::pT2Hat() &nbsp;</strong> <br/>
 transverse momentum and its square in the rest frame of a <i>2 -> 2</i>
 processes. 
   
 
-<p/><code>method&nbsp; </code><strong> m3Hat(), m4Hat() &nbsp;</strong> <br/>
+<p/><strong>double Info::m3Hat() &nbsp;</strong> <br/>
+  
+<strong>double Info::m4Hat() &nbsp;</strong> <br/>
 the masses of the two outgoing particles in a <i>2 -> 2</i> processes. 
   
 
-<p/><code>method&nbsp; </code><strong> thetaHat(), phiHat() &nbsp;</strong> <br/>
+<p/><strong>double Info::thetaHat() &nbsp;</strong> <br/>
+  
+<strong>double Info::phiHat() &nbsp;</strong> <br/>
 the polar and azimuthal scattering angles in the rest frame of 
 a <i>2 -> 2</i> process.
   
 
-<p/><code>method&nbsp; </code><strong> weight() &nbsp;</strong> <br/>
+<h3>Event weight and activity</h3>
+
+<p/><strong>double Info::weight() &nbsp;</strong> <br/>
 weight assigned to the current event. Is normally 1 and thus uninteresting. 
 However, for Les Houches events some strategies allow negative weights, 
 which then after unweighting lead to events with weight -1. There are also 
@@ -165,7 +218,29 @@ strategies where no unweighting is done, and therefore a nontrivial event
 weight must be used e.g. when filling histograms. 
   
 
-<p/><code>method&nbsp; </code><strong> bMI() &nbsp;</strong> <br/>
+<p/><strong>int Info::nISR() &nbsp;</strong> <br/>
+  
+<strong>int Info::nFSRinProc() &nbsp;</strong> <br/>
+  
+<strong>int Info::nFSRinRes() &nbsp;</strong> <br/>
+the number of emissions in the initial-state showering, in the final-state
+showering excluding resonance decys, and in the final-state showering
+inside resonance decays, respectively.
+  
+
+<p/><strong>double Info::pTmaxMI() &nbsp;</strong> <br/>
+  
+<strong>double Info::pTmaxISR() &nbsp;</strong> <br/>
+  
+<strong>double Info::pTmaxFSR() &nbsp;</strong> <br/>
+Maximum <i>pT</i> scales set for MI, ISR and FSR, given the 
+process type and scale choice for the hard interactions. The actual
+evolution will run down from these scales.
+  
+
+<h3>Multiple interactions</h3>
+
+<p/><strong>double Info::bMI() &nbsp;</strong> <br/>
 the impact parameter <i>b</i> assumed for the current collision when
 multiple interactions are simulated. Is not expressed in any physical
 size (like fm), but only rescaled so that the average should be unity 
@@ -173,27 +248,31 @@ for minimum-bias events (meaning less than that for events with hard
 processes). 
   
 
-<p/><code>method&nbsp; </code><strong> enhanceMI() &nbsp;</strong> <br/>
+<p/><strong>double Info::enhanceMI() &nbsp;</strong> <br/>
 The choice of impact parameter implies an enhancement or depletion of
 the rate of subsequent interactions, as given by this number. Again
 the average is normalized be unity for minimum-bias events (meaning 
 more than that for events with hard processes).  
   
 
-<p/><code>method&nbsp; </code><strong> nMI() &nbsp;</strong> <br/>
+<p/><strong>int Info::nMI() &nbsp;</strong> <br/>
 the number of hard interactions in the current event. Is 0 for elastic
 and diffractive events, and else at least 1, with more possible from
 multiple interactions.
   
 
-<p/><code>method&nbsp; </code><strong> codeMI(i), pTMI(i) &nbsp;</strong> <br/>
+<p/><strong>int Info::codeMI(int i) &nbsp;</strong> <br/>
+  
+<strong>double Info::pTMI(int i) &nbsp;</strong> <br/>
 the process code and transverse momentum of the <code>i</code>'th 
 subprocess, with <code>i</code> in the range from 0 to
 <code>nMI() - 1</code>. The values for subprocess 0 is redundant with
 information already provided above.  
   
 
-<p/><code>method&nbsp; </code><strong> iAMI(i), iBMI(i) &nbsp;</strong> <br/>
+<p/><strong>int Info::iAMI(i) &nbsp;</strong> <br/>
+  
+<strong>int Info::iBMI(i) &nbsp;</strong> <br/>
 are normally zero. However, if the <code>i</code>'th subprocess is
 a rescattering, i.e. either or both incoming partons come from the 
 outgoing state of previous scatterings, they give the position in the
@@ -202,19 +281,18 @@ event record of the outgoing-state parton that rescatters.
 the first or second beam, respectively.
   
 
-<p/><code>method&nbsp; </code><strong> nISR(), nFSRinProc(), nFSRinRes() &nbsp;</strong> <br/>
-the number of emissions in the initial-state showering, in the final-state
-showering excluding resonance decys, and in the final-state showering
-inside resonance decays, respectively.
-  
+<h3>Cross sections</h3>
 
-<p/>
 Here are the currently available methods related to the event sample 
 as a whole. While continuously updated during the run, it is recommended
 only to study these properties at the end of the event generation, 
 when the full statistics is available.
 
-<p/><code>method&nbsp; </code><strong> nTried(), nSelected(), nAccepted() &nbsp;</strong> <br/>
+<p/><strong>long Info::nTried() &nbsp;</strong> <br/>
+  
+<strong>long Info::nSelected() &nbsp;</strong> <br/>
+  
+<strong>long Info::nAccepted() &nbsp;</strong> <br/>
 the total number of tried phase-space points, selected hard processes
 and finally accepted events, summed over all allowed subprocesses.
 The first number is only intended for a study of the phase-space selection
@@ -225,7 +303,9 @@ were approved by the user. If you set <a href="ASecondHardProcess.html" target="
 second hard process</a> there may also be a mismatch. 
   
 
-<p/><code>method&nbsp; </code><strong> sigmaGen(), sigmaErr() &nbsp;</strong> <br/>
+<p/><strong>double Info::sigmaGen() &nbsp;</strong> <br/>
+  
+<strong>double Info::sigmaErr() &nbsp;</strong> <br/>
 the estimated cross section and its estimated error,
 summed over all allowed subprocesses, in units of mb. The numbers refer to
 the accepted event sample above, i.e. after any user veto. 
@@ -234,4 +314,4 @@ the accepted event sample above, i.e. after any user veto.
 </body>
 </html>
 
-<!-- Copyright (C) 2008 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2009 Torbjorn Sjostrand -->

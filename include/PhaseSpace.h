@@ -1,5 +1,5 @@
 // PhaseSpace.h is a part of the PYTHIA event generator.
-// Copyright (C) 2008 Torbjorn Sjostrand.
+// Copyright (C) 2009 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -44,8 +44,8 @@ public:
   virtual ~PhaseSpace() {}
 
   // Perform simple initialization and store pointers.
-  void init(SigmaProcess* sigmaProcessPtrIn, Info* infoPtrIn, 
-    BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn,
+  void init(bool isFirst, SigmaProcess* sigmaProcessPtrIn, 
+    Info* infoPtrIn, BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn,
     SigmaTotal* sigmaTotPtrIn, UserHooks* userHooksPtrIn);
 
   // Update the CM energy of the event.
@@ -431,8 +431,8 @@ public:
   // Construct the next process, by interface to Les Houches class.
   virtual bool trialKin( bool , bool repeatSame = false); 
 
-  // Dummy, since kinematics available in Les Houches object. 
-  virtual bool finalKin() {return true;}
+  // Set scale, alpha_s and alpha_em if not done.
+  virtual bool finalKin() {sigmaProcessPtr->setScale(); return true;}
 
   // For Les Houches with negative event weight needs 
   virtual double sigmaSumSigned() const {return sigmaSgn;}

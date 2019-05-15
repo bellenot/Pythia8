@@ -1,5 +1,5 @@
 // ResonanceWidths.h is a part of the PYTHIA event generator.
-// Copyright (C) 2008 Torbjorn Sjostrand.
+// Copyright (C) 2009 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -43,7 +43,7 @@ public:
   static void initStatic(Info* infoPtrIn);
 
   // Set up standard properties.
-  bool initBasic(int idResIn);
+  bool initBasic(int idResIn, bool isGenericIn = false);
  
   // Calculate and store partial and total widths at the nominal mass. 
   void init();
@@ -100,7 +100,7 @@ protected:
 
   // Particle properties always locally present.
   int    idRes, hasAntiRes;
-  bool   doForceWidth;
+  bool   doForceWidth, isGeneric;
   double mRes, GammaRes, m2Res, GamMRat, openPos, openNeg, forceFactor;
 
   // Properties for currently studied decay channel(s).
@@ -138,7 +138,7 @@ class ResonanceGeneric : public ResonanceWidths {
 public:
 
   // Constructor. 
-  ResonanceGeneric(int idResIn) {initBasic(idResIn);} 
+  ResonanceGeneric(int idResIn) {initBasic(idResIn, true);} 
 
 };
   

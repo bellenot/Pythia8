@@ -1,5 +1,5 @@
 // ParticleData.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2008 Torbjorn Sjostrand.
+// Copyright (C) 2009 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -112,11 +112,11 @@ Info*  ParticleDataEntry::infoPtr         = 0;
 // A particle is invisible if it has neither strong nor electric charge,
 // and is not made up of constituents that have it. Only relevant for
 // long-lived particles. This list may need to be extended.
-const int ParticleDataEntry::INVISIBLENUMBER = 29;
-const int ParticleDataEntry::INVISIBLETABLE[29] = { 12, 14, 16, 18, 23, 25, 
+const int ParticleDataEntry::INVISIBLENUMBER = 32;
+const int ParticleDataEntry::INVISIBLETABLE[32] = { 12, 14, 16, 18, 23, 25, 
   32, 33, 35, 36, 39, 41, 1000012, 1000014, 1000016, 1000018, 1000022, 
-  1000023, 1000025, 1000035, 1000039, 2000012, 2000014, 2000016, 2000018,
-  9900012, 9900014, 9900016, 9900023};     
+  1000023, 1000025, 1000035, 1000045, 1000039, 2000012, 2000014, 2000016, 
+  2000018, 5000039, 5100039, 9900012, 9900014, 9900016, 9900023};     
 
 // Particles with a read-in tau0 (in mm/c) below this mayDecay by default.
 const double ParticleDataEntry::MAXTAU0FORDECAY = 1000.;
@@ -624,7 +624,7 @@ void ParticleDataTable::initResonances(
     for (int i = 11; i < 17; ++i) new ResonanceExcited(4000000 + i);
 
     // An excited graviton in extra-dimensional scenarios.
-    new ResonanceGraviton(5000039);
+    new ResonanceGraviton(5100039);
 
     // A left-right-symmetric scenario with new righthanded neutrinos,
     // righthanded gauge bosons and doubly charged Higgses.
@@ -1572,14 +1572,14 @@ void ParticleDataTable::checkTable(int verbosity, ostream& os) {
       hasPrinted = true;
       ++nErr;
     }   
-    int nPlus = 0;
-    int nMinus = 0;
+    int nPos = 0;
+    int nNeg = 0;
     for (int i = 0; i < int(particleName.size()); ++i) {
-      if (particleName[i] == '+') ++nPlus;
-      if (particleName[i] == '-') ++nMinus;
+      if (particleName[i] == '+') ++nPos;
+      if (particleName[i] == '-') ++nNeg;
     }
-    if ( (nPlus > 0 && nMinus > 0) || ( nPlus + nMinus > 0 
-      && 3 * (nPlus - nMinus) != chargeTypeNow )) {
+    if ( (nPos > 0 && nNeg > 0) || ( nPos + nNeg > 0 
+      && 3 * (nPos - nNeg) != chargeTypeNow )) {
       os << " Warning: particle " << id << " has name " << particleName 
          << " inconsistent with charge type " << chargeTypeNow << "\n"; 
       hasPrinted = true;
@@ -1595,14 +1595,14 @@ void ParticleDataTable::checkTable(int verbosity, ostream& os) {
         hasPrinted = true;
         ++nErr;
       }   
-      nPlus = 0;
-      nMinus = 0;
+      nPos = 0;
+      nNeg = 0;
       for (int i = 0; i < int(particleName.size()); ++i) {
-        if (particleName[i] == '+') ++nPlus;
-        if (particleName[i] == '-') ++nMinus;
+        if (particleName[i] == '+') ++nPos;
+        if (particleName[i] == '-') ++nNeg;
       }
-      if ( (nPlus > 0 && nMinus > 0) || ( nPlus + nMinus > 0 
-        && 3 * (nPlus - nMinus) != -chargeTypeNow )) {
+      if ( (nPos > 0 && nNeg > 0) || ( nPos + nNeg > 0 
+        && 3 * (nPos - nNeg) != -chargeTypeNow )) {
         os << " Warning: particle " << -id << " has name " 
            << particleName << " inconsistent with charge type " 
            << -chargeTypeNow << "\n"; 

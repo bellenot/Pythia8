@@ -68,7 +68,7 @@ be on; tested by the <code>mayDecay()</code> method of <code>Event</code>
 When on, only particles with <i>tau0 &lt; tau0Max</i> are decayed.
   
 
-<br/><br/><table><tr><td><strong>ParticleDecays:tau0Max </td><td></td><td> <input type="text" name="2" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ParticleDecays:tau0Max </td><td></td><td> <input type="text" name="2" value="10." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>10.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
 The above <i>tau0Max</i>, expressed in mm/c.
   
 
@@ -82,7 +82,7 @@ The above <i>tau0Max</i>, expressed in mm/c.
 When on, only particles with <i>tau &lt; tauMax</i> are decayed.
   
 
-<br/><br/><table><tr><td><strong>ParticleDecays:tauMax </td><td></td><td> <input type="text" name="4" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ParticleDecays:tauMax </td><td></td><td> <input type="text" name="4" value="10." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>10.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
 The above <i>tauMax</i>, expressed in mm/c.<br/>
 In order for this and the subsequent tests to work, a <i>tau</i> 
 is selected and stored for each particle, whether in the end it
@@ -102,8 +102,8 @@ are decayed. There is assumed to be no magnetic field or other
 detector effects.
   
 
-<br/><br/><table><tr><td><strong>ParticleDecays:rMax </td><td></td><td> <input type="text" name="6" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
-The above <i>rMax</i>, expressed in mm/c.
+<br/><br/><table><tr><td><strong>ParticleDecays:rMax </td><td></td><td> <input type="text" name="6" value="10." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>10.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
+The above <i>rMax</i>, expressed in mm.
    
 
 <p/>
@@ -119,12 +119,12 @@ are decayed. There is assumed to be no magnetic field or other
 detector effects.
   
 
-<br/><br/><table><tr><td><strong>ParticleDecays:xyMax </td><td></td><td> <input type="text" name="8" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
-The above <i>xyMax</i>, expressed in mm/c.
+<br/><br/><table><tr><td><strong>ParticleDecays:xyMax </td><td></td><td> <input type="text" name="8" value="10." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>10.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
+The above <i>xyMax</i>, expressed in mm.
    
 
-<br/><br/><table><tr><td><strong>ParticleDecays:zMax </td><td></td><td> <input type="text" name="9" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
-The above <i>zMax</i>, expressed in mm/c.
+<br/><br/><table><tr><td><strong>ParticleDecays:zMax </td><td></td><td> <input type="text" name="9" value="10." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>10.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
+The above <i>zMax</i>, expressed in mm.
    
 
 <h3>Mixing</h3>
@@ -229,7 +229,7 @@ PYTHIA 6 ones, but several obsolete choices have been removed,
 a few new introduced, and most have been moved for better consistency. 
 Here is the list of currently allowed <code>meMode()</code> codes:
 <ul>
-<li>  0 : pure phace space of produced particles ("default");
+<li>  0 : pure phase space of produced particles ("default");
 input of partons is allowed and then the partonic content is 
 converted into the minimal number of hadrons (i.e. one per
 parton pair, but at least two particles in total)</li>
@@ -311,7 +311,7 @@ if($_POST["1"] != "off")
 $data = "ParticleDecays:limitTau0 = ".$_POST["1"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["2"] != "1.")
+if($_POST["2"] != "10.")
 {
 $data = "ParticleDecays:tau0Max = ".$_POST["2"]."\n";
 fwrite($handle,$data);
@@ -321,7 +321,7 @@ if($_POST["3"] != "off")
 $data = "ParticleDecays:limitTau = ".$_POST["3"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["4"] != "1.")
+if($_POST["4"] != "10.")
 {
 $data = "ParticleDecays:tauMax = ".$_POST["4"]."\n";
 fwrite($handle,$data);
@@ -331,7 +331,7 @@ if($_POST["5"] != "off")
 $data = "ParticleDecays:limitRadius = ".$_POST["5"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["6"] != "1.")
+if($_POST["6"] != "10.")
 {
 $data = "ParticleDecays:rMax = ".$_POST["6"]."\n";
 fwrite($handle,$data);
@@ -341,12 +341,12 @@ if($_POST["7"] != "off")
 $data = "ParticleDecays:limitCylinder = ".$_POST["7"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["8"] != "1.")
+if($_POST["8"] != "10.")
 {
 $data = "ParticleDecays:xyMax = ".$_POST["8"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["9"] != "1.")
+if($_POST["9"] != "10.")
 {
 $data = "ParticleDecays:zMax = ".$_POST["9"]."\n";
 fwrite($handle,$data);
@@ -408,5 +408,5 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2008 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
 

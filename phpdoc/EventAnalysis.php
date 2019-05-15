@@ -39,6 +39,12 @@ assume that input is provided in the PYTHIA 8
 <code>Event</code> format, and use a few basic facilities such 
 as four-vectors.
 
+<p/>
+In addition to the methods presented here, there is also the 
+possibility to make use of <?php $filepath = $_GET["filepath"];
+echo "<a href='JetFinders.php?filepath=".$filepath."' target='page'>";?>external 
+jet finders </a>.
+
 <h3>Sphericity</h3>
 
 The standard sphericity tensor is
@@ -59,10 +65,13 @@ The above tensor can be generalized by introducing a power
 In particular, <i>r = 1</i> gives a linear dependence on momenta 
 and thus a collinear safe definition, unlike sphericity.
 
-<p/>
-A sphericity analysis object is declared by
-<p/><code>class&nbsp; </code><strong> Sphericity sph( power, select) &nbsp;</strong> <br/>
-where 
+<p/>  
+To do sphericity analyses you have to set up a <code>Sphericity</code>
+instance, and then feed in events to it, one at a time. The results 
+for the latest event are available as output from a few methods.
+
+<p/><strong>Sphericity::Sphericity(double power = 2., int select = 2) &nbsp;</strong> <br/>
+create a sphericity analysis object, where
 <br/><code>argument</code><strong> power </strong> (<code>default = <strong>2.</strong></code>) :  
 is the power <i>r</i> defined above, i.e. 
 <br/><code>argumentoption </code><strong> 2.</strong> : gives Spericity, and   
@@ -80,39 +89,52 @@ particle method), and
   
   
 
-<p/>
-The analysis is performed by a call to the method
-<p/><code>method&nbsp; </code><strong> analyze( event) &nbsp;</strong> <br/>
-where 
+<p/><strong>bool Sphericity::analyze( const Event& event, ostream& os = cout) &nbsp;</strong> <br/>
+perform a sphericity analysis, where 
 <br/><code>argument</code><strong> event </strong>  : is an object of the <code>Event</code> class, 
 most likely the <code>pythia.event</code> one.
   
-<br/>If the routine returns <code>false</code> the analysis failed, 
-e.g. if too few particles are present to analyze.
+<br/><code>argument</code><strong> os </strong> (<code>default = <strong>cout</strong></code>) :  is the output stream for 
+error messages. (The method does not rely on the <code>Info</code>
+mchinery for error messages.)
+  
+<br/>If the routine returns <code>false</code> the 
+analysis failed, e.g. if too few particles are present to analyze.
   
 
 <p/>
-After the analysis has been performed, a few <code>Sphericity</code> 
-class methods are available to return the result of the analysis:
-<p/><code>method&nbsp; </code><strong> sphericity() &nbsp;</strong> <br/>
+After the analysis has been performed, a few methods are available 
+to return the result of the analysis of the latest event:
+
+<p/><strong>double Sphericity::sphericity() &nbsp;</strong> <br/>
 gives the sphericity (or equivalent if <i>r</i> is not 2),
   
-<p/><code>method&nbsp; </code><strong> aplanarity() &nbsp;</strong> <br/>
+
+<p/><strong>double Sphericity::aplanarity() &nbsp;</strong> <br/>
 gives the aplanarity (with the same comment),
   
-<p/><code>method&nbsp; </code><strong> eigenValue(i) &nbsp;</strong> <br/>
+
+<p/><strong>double Sphericity::eigenValue(int i) &nbsp;</strong> <br/>
 gives one of the three eigenvalues for <i>i</i> = 1, 2 or 3, in 
 descending order,
   
-<p/><code>method&nbsp; </code><strong> EventAxis(i) &nbsp;</strong> <br/>
-gives the matching eigenvector, as a <code>Vec4</code> with vanishing 
-time/energy component.
+
+<p/><strong>Vec4 Sphericity::EventAxis(i) &nbsp;</strong> <br/>
+gives the matching normalized eigenvector, as a <code>Vec4</code> 
+with vanishing time/energy component.
   
-<p/><code>method&nbsp; </code><strong> list() &nbsp;</strong> <br/>
+
+<p/><strong>void Sphericity::list(ostream& os = cout) &nbsp;</strong> <br/>
 provides a listing of the above information.
   
-<p/><code>method&nbsp; </code><strong> nError() &nbsp;</strong> <br/>
-tells the number of times <code>analyze</code> failed to analyze events.
+
+<p/>
+There is also one method that returns information accumulated for all
+the events analyzed so far.
+
+<p/><strong>int Sphericity::nError() &nbsp;</strong> <br/>
+tells the number of times <code>analyze(...)</code> failed to analyze 
+events, i.e. returned <code>false</code>.
   
 
 <h3>Thrust</h3>
@@ -134,10 +156,13 @@ maximum. The current implementation studies all possibilities, but at
 the price of being slower, with time consumption for an event with
 <i>n</i> particles growing like <i>n^3</i>.
 
-<p/>
-A thrust analysis object is declared by
-<p/><code>class&nbsp; </code><strong> Thrust thr( select) &nbsp;</strong> <br/>
-where 
+<p/>  
+To do thrust analyses you have to set up a <code>Thrust</code>
+instance, and then feed in events to it, one at a time. The results 
+for the latest event are available as output from a few methods.
+
+<p/><strong>Thrust::Thrust(int select = 2) &nbsp;</strong> <br/>
+create a thrust analysis object, where 
 <br/><code>argument</code><strong> select </strong> (<code>default = <strong>2</strong></code>) :  
 tells which particles are analyzed,
 <br/><code>argumentoption </code><strong> 1</strong> : all final-state particles,  
@@ -150,52 +175,78 @@ particle method), and
   
   
 
-<p/>
-The analysis is performed by a call to the method
-<p/><code>method&nbsp; </code><strong> analyze( event) &nbsp;</strong> <br/>
-where 
+<p/><strong>bool Thrust::analyze( const Event& event, ostream& os = cout) &nbsp;</strong> <br/>
+perform a thrust analysis, where 
 <br/><code>argument</code><strong> event </strong>  : is an object of the <code>Event</code> class, 
 most likely the <code>pythia.event</code> one.
   
-<br/>If the routine returns <code>false</code> the analysis failed, 
-e.g. if too few particles are present to analyze.
+<br/><code>argument</code><strong> os </strong> (<code>default = <strong>cout</strong></code>) :  is the output stream for 
+error messages. (The method does not rely on the <code>Info</code>
+mchinery for error messages.)
+  
+<br/>If the routine returns <code>false</code> the 
+analysis failed, e.g. if too few particles are present to analyze.
   
 
 <p/>
-After the analysis has been performed, a few <code>Thrust</code> 
-class methods are available to return the result of the analysis:
-<p/><code>method&nbsp; </code><strong> thrust(), tMajor(), tMinor(), oblateness() &nbsp;</strong> <br/>
+After the analysis has been performed, a few methods are available 
+to return the result of the analysis of the latest event:
+
+<p/><strong>double Thrust::thrust() &nbsp;</strong> <br/>
+  
+<strong>double Thrust::tMajor() &nbsp;</strong> <br/>
+  
+<strong>double Thrust::tMinor() &nbsp;</strong> <br/>
+  
+<strong>double Thrust::oblateness() &nbsp;</strong> <br/>
 gives the thrust, major, minor and oblateness values, respectively, 
-<p/><code>method&nbsp; </code><strong> EventAxis(i) &nbsp;</strong> <br/>
-gives the matching event-axis vectors, for <i>i</i> = 1, 2 or 3
+  
+
+<p/><strong>Vec4 Thrust::eventAxis(int i) &nbsp;</strong> <br/>
+gives the matching normalized event-axis vectors, for <i>i</i> = 1, 2 or 3
 corresponding to thrust, major or minor, as a <code>Vec4</code> with 
 vanishing time/energy component.
   
-<p/><code>method&nbsp; </code><strong> list() &nbsp;</strong> <br/>
+
+<p/><strong>void Thrust::list(ostream& os = cout) &nbsp;</strong> <br/>
 provides a listing of the above information.
   
-<p/><code>method&nbsp; </code><strong> nError() &nbsp;</strong> <br/>
-tells the number of times <code>analyze</code> failed to analyze events.
+
+<p/>
+There is also one method that returns information accumulated for all
+the events analyzed so far.
+
+<p/><strong>int Thrust::nError() &nbsp;</strong> <br/>
+tells the number of times <code>analyze(...)</code> failed to analyze 
+events, i.e. returned <code>false</code>.
   
 
 <h3>ClusterJet</h3>
 
 <code>ClusterJet</code> (a.k.a. <code>LUCLUS</code> and 
 <code>PYCLUS</code>) is a clustering algorithm of the type used for 
-analyses of <i>e^+e^-</i> events, see the PYTHIA 6 manual. A few 
-options are available for some well-known distance measures. Cutoff 
+analyses of <i>e^+e^-</i> events, see the PYTHIA 6 manual. All 
+visible particles in the events are clustered into jets. A few options 
+are available for some well-known distance measures. Cutoff 
 distances can either be given in terms of a scaled quadratic quantity 
 like <i>y = pT^2/E^2</i> or an unscaled linear one like <i>pT</i>. 
 
-<p/>
-A cluster-jet analysis object is declared by
-<p/><code>class&nbsp; </code><strong> ClusterJet clusterJet( measure, select, massSet,precluster, reassign) &nbsp;</strong> <br/>
-where 
-<br/><code>argument</code><strong> measure </strong> (<code>default = <strong>Lund</strong></code>) : distance measure, to be provided
-as a character string (actually, only the first character is necessary)
-<br/><code>argumentoption </code><strong> Lund</strong> : the Lund <i>pT</i> distance,  
-<br/><code>argumentoption </code><strong> JADE</strong> : the JADE mass distance, and  
-<br/><code>argumentoption </code><strong> Durham</strong> : the Durham <i>kT</i> measure.  
+<p/>  
+To do jet finding analyses you have to set up a <code>ClusterJet</code>
+instance, and then feed in events to it, one at a time. The results 
+for the latest event are available as output from a few methods.
+
+<p/><strong>ClusterJet::ClusterJet(string measure = &quot;Lund&quot;, int select = 2, int massSet = 2, bool precluster = false, bool reassign = false) &nbsp;</strong> <br/>
+create a <code>ClusterJet</code> instance, where 
+<br/><code>argument</code><strong> measure </strong> (<code>default = <strong>&quot;Lund&quot;</strong></code>) : distance measure, 
+to be provided as a character string (actually, only the first character 
+is necessary)
+<br/><code>argumentoption </code><strong> &quot;Lund&quot;</strong> : the Lund <i>pT</i> distance,
+  
+<br/><code>argumentoption </code><strong> &quot;JADE&quot;</strong> : the JADE mass distance, and
+  
+<br/><code>argumentoption </code><strong> &quot;Durham&quot;</strong> : the Durham <i>kT</i> measure.
+  
   
 <br/><code>argument</code><strong> select </strong> (<code>default = <strong>2</strong></code>) :  
 tells which particles are analyzed,
@@ -225,10 +276,8 @@ have been joined.
   
   
 
-<p/>
-The analysis is performed by a
-<p/><code>method&nbsp; </code><strong> analyze( event, yScale, pTscale, nJetMin, nJetMax) &nbsp;</strong> <br/>
-where 
+<p/><strong>ClusterJet::analyze( const Event& event, double yScale, double pTscale, int nJetMin = 1, int nJetMax = 0, ostream& os = cout) &nbsp;</strong> <br/>
+performs a jet finding analysis, where 
 <br/><code>argument</code><strong> event </strong>  : is an object of the <code>Event</code> class, 
 most likely the <code>pythia.event</code> one.
   
@@ -256,6 +305,10 @@ and <code>pTscale</code> values. Thus e.g.
 <code>nJetMin = nJetMax = 3</code> can be used to reconstruct exactly
 3 jets.
   
+<br/><code>argument</code><strong> os </strong> (<code>default = <strong>cout</strong></code>) :  is the output stream for 
+error messages. (The method does not rely on the <code>Info</code>
+mchinery for error messages.)
+  
 <br/>If the routine returns <code>false</code> the analysis failed, 
 e.g. because the number of particles was smaller than the minimum number
 of jets requested.
@@ -264,23 +317,33 @@ of jets requested.
 <p/>
 After the analysis has been performed, a few <code>ClusterJet</code> 
 class methods are available to return the result of the analysis:
-<p/><code>method&nbsp; </code><strong> size() &nbsp;</strong> <br/>
+
+<p/><strong>int ClusterJet::size() &nbsp;</strong> <br/>
 gives the number of jets found, with jets numbered 0 through 
 <code>size() - 1</code>,
   
-<p/><code>method&nbsp; </code><strong> p(i) &nbsp;</strong> <br/>
+
+<p/><strong>Vec4 ClusterJet::p(int i) &nbsp;</strong> <br/>
 gives a <code>Vec4</code> corresponding to the four-momentum defined by 
 the sum of all the contributing particles to the <i>i</i>'th jet,
   
-<p/><code>method&nbsp; </code><strong> jetAssignment(i) &nbsp;</strong> <br/>
+
+<p/><strong>int ClusterJet::jetAssignment(int i) &nbsp;</strong> <br/>
 gives the index of the jet that the particle <i>i</i> of the event
 record belongs to,
   
-<p/><code>method&nbsp; </code><strong> list() &nbsp;</strong> <br/>
+
+<p/><strong>void ClusterJet::list(ostream& os = cout) &nbsp;</strong> <br/>
 provides a listing of the reconstructed jets.
   
-<p/><code>method&nbsp; </code><strong> nError() &nbsp;</strong> <br/>
-tells the number of times <code>analyze</code> failed to analyze events.
+
+<p/>
+There is also one method that returns information accumulated for all
+the events analyzed so far.
+
+<p/><strong>int ClusterJet::nError() &nbsp;</strong> <br/>
+tells the number of times <code>analyze(...)</code> failed to analyze 
+events, i.e. returned <code>false</code>.
   
 
 <h3>CellJet</h3>
@@ -294,12 +357,19 @@ around seed cells. If the total <i>eT</i> inside the cone exceeds
 the threshold, a jet is formed, and the cells are removed from further 
 analysis. There are no split or merge procedures, so later-found jets 
 may be missing some of the edge regions already used up by previous 
-ones.   
+ones. Not all particles in the event are assigned to jets; leftovers 
+may be viewed as belonging to beam remnants or the underlying event. 
+It is not used by any experimental collaboration, but is closely 
+related to the more recent and better theoretically motivated 
+anti-<i>kT</i> algorithm [<a href="Bibliography.php" target="page">Cac08</a>].   
 
-<p/>
-A cell-jet analysis object is declared by
-<p/><code>class&nbsp; </code><strong> CellJet cellJet( etaMax, nEta, nPhi, select, smear, resolution, upperCut, threshold) &nbsp;</strong> <br/>
-where 
+<p/>  
+To do jet finding analyses you have to set up a <code>CellJet</code>
+instance, and then feed in events to it, one at a time. The results 
+for the latest event are available as output from a few methods.
+
+<p/><strong>CellJet::CellJet(double etaMax = 5., int nEta = 50, int nPhi = 32, int select = 2, int smear = 0, double resolution = 0.5, double upperCut = 2., double threshold = 0.) &nbsp;</strong> <br/>
+create a <code>CellJet</code> instance, where 
 <br/><code>argument</code><strong> etaMax </strong> (<code>default = <strong>5.</strong></code>) :  
 the maximum +-pseudorapidity that the detector is assumed to cover.
   
@@ -342,10 +412,8 @@ completely neglect all bins with an <i>eT &lt; threshold</i>.
   
   
 
-<p/>
-The analysis is performed by a
-<p/><code>method&nbsp; </code><strong> analyze( event, eTjetMin, coneRadius, eTseed) &nbsp;</strong> <br/>
-where 
+<p/><strong>bool CellJet::analyze( const Event& event, double eTjetMin = 20., double coneRadius = 0.7, double eTseed = 1.5, ostream& os = cout) &nbsp;</strong> <br/>
+performs a jet finding analysis, where 
 <br/><code>argument</code><strong> event </strong>  : is an object of the <code>Event</code> class, 
 most likely the <code>pythia.event</code> one.
   
@@ -361,6 +429,10 @@ the geometric center of the jet.
 the mimimum <i>eT</i> in a cell for this to be acceptable as 
 the trial center of a jet. 
   
+<br/><code>argument</code><strong> os </strong> (<code>default = <strong>cout</strong></code>) :  is the output stream for 
+error messages. (The method does not rely on the <code>Info</code>
+mchinery for error messages.)
+  
 <br/>If the routine returns <code>false</code> the analysis failed, 
 but currently this is not foreseen ever to happen.
   
@@ -368,48 +440,66 @@ but currently this is not foreseen ever to happen.
 <p/>
 After the analysis has been performed, a few <code>CellJet</code> 
 class methods are available to return the result of the analysis:
-<p/><code>method&nbsp; </code><strong> size() &nbsp;</strong> <br/>
+
+<p/><strong>int CellJet::size() &nbsp;</strong> <br/>
 gives the number of jets found, with jets numbered 0 through 
 <code>size() - 1</code>,
   
-<p/><code>method&nbsp; </code><strong> eT(i) &nbsp;</strong> <br/>
+
+<p/><strong>double CellJet::eT(i) &nbsp;</strong> <br/>
 gives the <i>eT</i> of the <i>i</i>'th jet, where jets have been
 ordered with decreasing <i>eT</i> values,
   
-<p/><code>method&nbsp; </code><strong> etaCenter(i), phiCenter(i) &nbsp;</strong> <br/>
+
+<p/><strong>double CellJet::etaCenter(int i) &nbsp;</strong> <br/>
+  
+<strong>double CellJet::phiCenter(int i) &nbsp;</strong> <br/>
 gives the <i>eta</i> and <i>phi</i> coordinates of the geometrical 
 center of the <i>i</i>'th jet,
   
-<p/><code>method&nbsp; </code><strong> etaWeighted(i), phiWeighted(i) &nbsp;</strong> <br/>
+
+<p/><strong>double CellJet::etaWeighted(int i) &nbsp;</strong> <br/>
+  
+<strong>double CellJet::phiWeighted(int i) &nbsp;</strong> <br/>
 gives the <i>eta</i> and <i>phi</i> coordinates of the 
 <i>eT</i>-weighted center of the <i>i</i>'th jet,
   
-<p/><code>method&nbsp; </code><strong> multiplicity(i) &nbsp;</strong> <br/>
+
+<p/><strong>int CellJet::multiplicity(int i) &nbsp;</strong> <br/>
 gives the number of particles clustered into the <i>i</i>'th jet,
   
-<p/><code>method&nbsp; </code><strong> pMassless(i) &nbsp;</strong> <br/>
-gives a Vec4 corresponding to the four-momentum defined by the 
-<i>eT</i> and the weighted center of the <i>i</i>'th jet,
+
+<p/><strong>Vec4 CellJet::pMassless(int i) &nbsp;</strong> <br/>
+gives a <code>Vec4</code> corresponding to the four-momentum defined 
+by the <i>eT</i> and the weighted center of the <i>i</i>'th jet,
   
-<p/><code>method&nbsp; </code><strong> pMassive(i) &nbsp;</strong> <br/>
+
+<p/><strong>Vec4 CellJet::pMassive(int i) &nbsp;</strong> <br/>
 gives a <code>Vec4</code> corresponding to the four-momentum defined by 
 the sum of all the contributing cells to the <i>i</i>'th jet, where 
 each cell contributes a four-momentum as if all the <i>eT</i> is 
 deposited in the center of the cell,
   
-<p/><code>method&nbsp; </code><strong> m(i) &nbsp;</strong> <br/>
+
+<p/><strong>Vec4 CellJet::m(int i) &nbsp;</strong> <br/>
 gives the invariant mass of the <i>i</i>'th jet, defined by the 
 <code>pMassive</code> above,
   
-<p/><code>method&nbsp; </code><strong> list() &nbsp;</strong> <br/>
+
+<p/><strong>void CellJet::list() &nbsp;</strong> <br/>
 provides a listing of the above information (except <code>pMassless</code>, 
 for reasons of space).
   
-<p/><code>method&nbsp; </code><strong> nError() &nbsp;</strong> <br/>
-tells the number of times <code>analyze</code> failed to analyze events.
+
+<p/>
+There is also one method that returns information accumulated for all
+the events analyzed so far.
+<p/><strong>int CellJet::nError() &nbsp;</strong> <br/>
+tells the number of times <code>analyze(...)</code> failed to analyze 
+events, i.e. returned <code>false</code>.
   
 
 </body>
 </html>
 
-<!-- Copyright (C) 2008 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2009 Torbjorn Sjostrand -->

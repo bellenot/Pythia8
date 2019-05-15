@@ -1,5 +1,5 @@
 // Info.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2008 Torbjorn Sjostrand.
+// Copyright (C) 2009 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -162,7 +162,7 @@ void Info::errorStatistics(ostream& os) {
     os << " |      0   no errors or warnings to report              "
        << "                                                          | \n";
   while (messageEntry != messages.end()) {
-    // Debug printout.
+    // Message printout.
     string temp = messageEntry->first;
     int len = temp.length();
     temp.insert( len, max(0, 102 - len), ' ');

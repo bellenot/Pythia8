@@ -45,6 +45,20 @@ consistent set of flavours. The current physics framework is further
 described in [<a href="Bibliography.php" target="page">Sjo04</a>]. 
 
 <p/>
+The introduction of <?php $filepath = $_GET["filepath"];
+echo "<a href='MultipleInteractions.php?filepath=".$filepath."' target='page'>";?>rescattering</a> 
+in the multiple interactions framework further complicates the 
+processing of events. Specifically, when combined with showers,
+the momentum of an individual parton is no longer uniquely associated
+with one single subcollision. Nevertheless the parton is classified
+with one system, owing to the technical and administrative complications
+of more complete classifications. Therefore the addition of primordial
+<i>kT</i> to the subsystem initiator partons does not automatically
+guarantee overall <i>pT</i> conservation. Various tricks are used to
+minimize the mismatch, with a brute force shift of all parton 
+<i>pT</i>'s as a final step. 
+
+<p/>
 Much of the above information is stored in a vector of 
 <code>ResolvedParton</code> objects, which each contains flavour and 
 momentum information, as well as valence/companion information and more. 
@@ -489,4 +503,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2008 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2009 Torbjorn Sjostrand -->

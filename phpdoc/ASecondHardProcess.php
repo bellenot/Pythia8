@@ -48,7 +48,8 @@ You must further specify which set of processes to allow for
 the second, see below.
   
 
-<p/>
+<h3>Process Selection</h3>
+
 In principle the whole <?php $filepath = $_GET["filepath"];
 echo "<a href='ProcessSelection.php?filepath=".$filepath."' target='page'>";?>process 
 selection</a> allowed for the first process could be repeated 
@@ -123,7 +124,8 @@ contributions to the <i>b</i> rate, however, so, depending
 on the topology if interest, it may or may not be a good approximation.   
   
 
-<p/>
+<h3>Cuts and scales</h3>
+
 The second hard process obeys exactly the same selection rules for
 <?php $filepath = $_GET["filepath"];
 echo "<a href='PhaseSpaceCuts.php?filepath=".$filepath."' target='page'>";?>phase space cuts</a> and
@@ -136,6 +138,16 @@ generated with a larger <i>pT</i> than the first. (Exact numbers
 depending on the relative shape of the two cross sections.) That is, 
 first and second is only used as an administrative distinction between 
 the two, not as a physics ordering one.
+
+<p/>
+Optionally it is possible to pick the mass and <i>pT</i> 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='PhaseSpaceCuts.php?filepath=".$filepath."' target='page'>";?>phase space cuts</a> separately for 
+the second hard interaction. The main application presumably would
+be to allow a second process that is softer than the first, but still 
+hard. But one is also free to make the second process harder than the 
+first, if desired. So long as the two <i>pT</i> (or mass) ranges 
+overlap the ordering will not be the same in all events, however.
 
 <h3>Cross-section calculation</h3>
 
@@ -286,6 +298,26 @@ doublecounted). This gives the correct
 + sigma_1a * sigma_2c + sigma_1c * sigma_2b + sigma_1c * sigma_2c/2
 </i><br/>
 The second interaction can be handled in exact analogy.
+
+<p/>
+For the considerations above it is assumed that the phase space cuts 
+are the same for the two processes. It is possible to set the mass and 
+transverse momentum cuts differently, however. This changes nothing 
+for processes that already are different. For two collisions of the 
+same type it is partly a matter of interpretation what is intended.
+If we consider the case of the same process in two non-overlapping 
+phase space regions, most likely we want to consider them as
+separate processes, in the sense that we expect a factor 2 relative 
+to Poissonian statistics from either of the two hardest processes
+populating either of the two phase space regions. In total we are
+therefore lead to adopt the same strategy as in case (3) above:
+only in the overlapping part of the two allowed phase space regions
+could two processes be identical and thus appear with a 1/2 factor,
+elsewhere the two processes are never identical and do not 
+include the 1/2 factor. We reiterate, however, that the case of 
+partly but not completely overlapping phase space regions for one and
+the same process is tricky, and not to be used without prior
+deliberation.  
 
 <p/>
 The listing obtained with the <code>pythia.statistics()</code>
@@ -447,4 +479,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2008 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2009 Torbjorn Sjostrand -->

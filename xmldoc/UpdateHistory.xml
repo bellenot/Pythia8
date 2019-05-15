@@ -182,54 +182,13 @@ displacement).</li>
 </ul>
 </li>
 
-<li>8.109: 6 May 2008
+<li>8.114: 22 October 2008
 <ul>
 
-<li>Inclusion of some first code for rescatterng in multiple interactions;
-currently only for internal tryout.
-</li>
-
-</ul>
-</li>
-
-<li>8.110: 18 June 2008
-<ul>
-
-<li>Freeze GRV 94L distribution at small <ei>Q^2</ei> to avoid blowup.</li>
-
-<li>Further evolution of rescattering to include colour reconnection 
-and more, but not yet FSR or ISR; still only for internal tryout.</li>
-
-</ul>
-</li>
-
-<li>8.111: 9 July 2008
-<ul>
-
-<li>Further evolution of rescattering to include FSR (with some issues 
-still unsolved) but not yet ISR; still only for internal tryout.
-</li>
-
-</ul>
-</li>
-
-<li>8.112: 12 September 2008
-<ul>
-
-<li>The <code>pythia.readFile(...)</code> method can now alternatively take 
-an <code>istream</code> as argument instead of a <code>filename</code>.</li>
-
-<li>Minor bug correction in <code>PartonLevel.cc</code>; the bug could 
-(rarely) give a segmentation fault.</li>
-
-<li>Resolution of several (but not all) rescattering issues for FSR; still 
-only for internal tryout.</li>
-
-</ul>
-</li>
-
-<li>8.113: 2 October 2008
-<ul>
+<li>New rescattering description operational (but still experimental) 
+for the case that FSR is not interleaved, but saved until after MI, 
+ISR and beam remnants have been handled. This involves much new code
+in several classes.</li>
 
 <li>A new class <code>PartonSystems</code> is introduced to 
 keep track of which partons in the event record belong to which 
@@ -237,25 +196,117 @@ subcollision system, plus some further information on each subsystem.
 It takes over functionality previously found as part of the 
 <code>Event</code> class, but leaves room for future growth.</li>
 
-<li>Development of rescattering in combination with ISR; still only for 
-internal tryout.</li>
-
-</ul>
-</li>
-
-<li>8.114: 22 October 2008
-<ul>
-
-<li>Add capability to link to FastJet, with <code>main61.cc</code> 
-as new example.</li>
-
 <li>Add optional model, wherein an increased <ei>pT0</ei> turnoff scale 
 for MI and ISR is used for above-average active events, i.e. events that 
 already have several MI's or ISR emissions.</li>
 
-<li>Rescattering description operational (but still experimental) for case 
-that FSR is not interleaved, but saved until after MI, ISR and beam remnants 
-have been handled.</li>
+<li>Freeze GRV 94L distribution at small <ei>Q^2</ei> to avoid blowup.</li>
+
+<li>The <code>pythia.readFile(...)</code> method can now alternatively take 
+an <code>istream</code> as argument instead of a <code>filename</code>.</li>
+
+<li>Minor bug correction in <code>PartonLevel.cc</code>; the bug could 
+(rarely) give a segmentation fault.</li>
+
+</ul>
+</li>
+
+<li>8.120: 10 March 2009
+<ul>
+
+<li>New rescattering description further developed, but not yet
+recommended for normal usage.</li>
+
+<li>Include new processes for Large Extra Dimensions and Unparticles,
+contributed by Stefan Ask. New test program <code>main28.cc</code> 
+illustrates.</li>
+
+<li>Include further SUSY processes: neutralino-chargino and 
+chargino-chargino pairs. The processes should be valid also 
+in the case of non-minimal flavour violation and/or CP violation.
+Expanded machinery to keep track of SUSY parameters.</li>
+
+<li>Include backwards evolution of incoming photon as part of the
+<code>SpaceShower</code> initial-state radiation description. This
+allows you to simulate hard collisions where one of the incoming
+partons is a photon. New test program <code>main43.cc</code> 
+illustrates.</li>
+
+<li>Allow separate mass and transverse momentum cuts when two hard 
+subprocesses are generated in the same event.</li>
+
+<li>The default value for the border between short- and long-lived
+paticles has been changed from 1 mm to 10 mm, to better conform with 
+LHC standards, see  <aloc href="ParticleDecays">here</aloc>.
+The default is still to let all unstable particles decay.</li>
+
+<li>New ISR matrix-element correction to <ei>f -&gt; f gamma</ei> 
+in single <ei>W</ei> production.</li>
+
+<li>New method <code>Event::statusHepMC</code> returns the status 
+code according to the HepMC conventions agreed in February 2009.
+The interface to HepMC now writes out status according to this 
+convention.</li>
+
+<li>Add capability to link to FastJet, with expanded configure script 
+and Makefile, and with <code>main61.cc</code> as new example.</li>
+
+<li>Update of <code>Makefile.msc</code>, with added support for latest 
+Visual C++ Express edition and use of regexp to check nmake version.</li>
+
+<li>Update of <code>LHAFortran.h</code> and 
+<code>Pythia6Interface.h</code>, to make the interface to Fortran 
+routines work also under Windows. (Thanks to Anton Karneyeu.)
+
+<li>Updated and expanded worksheet.</li>
+
+<li>The manual pages in the <code>xmldoc</code> directory, and thereby
+also those of the <code>htmldoc</code> and <code>phpdoc</code>
+directories, have been significantly updated and expanded. In particular, 
+in many places the class of each method is explicitly shown, as well as 
+the type of the return value and of the arguments. This upgrade is not 
+yet completed, but already covers the more relevant sections. </li>
+
+<li>The unary minus operator in the <code>Vec4()</code> returns a 
+reference to a four-vector with all components negated, but leaves 
+the original four-vector unchanged. Previously the four-vector itself
+was flipped.</li>
+
+<li>The <code>pPlus()</code> and <code>pMinus()</code> methods of a
+four-vector and an event-record particle are renamed <code>pPos()</code> 
+and <code>pNeg()</code>, respectively.</li>
+
+<li>Include a further loop in <code>ProcessLevel</code>, so that a new
+process is generated in case of failures of a less severe nature.</li>
+
+<li>Introduce warning message for unexpected <code>meMode</code> in
+<code>ResonanceWidths</code>.</li>
+
+<li>Les Houches event reading framework has been rearranged for
+more flexibility. Some bugs corrected. Specifically, when scale 
+is not set (<code>scale = -1.</code> in the Les Houches standard),
+PYTHIA did not attempt to set this scale itself, which typically 
+lead to there not being any ISR or FSR. Now the 
+<aloc href="CouplingsAndScales">rules for normal 
+1-, 2- and 3-body final states</aloc> are applied, with a trivial
+extension of the 3-body rules for higher multiplicities.</li>
+
+<li>Correct bug in the handling of parton densities, whereby it was
+not possible to switch to a new set, once a first initialization
+had been done.</li>
+
+<li>Correct bugs when several <code>Pythia::init</code> initialization
+calls are made in the same run, specifically in the case that pointers
+to external processes have been handed in.
+
+<li>Changes in main03.cmnd and main04.cmnd so that some nonstandard 
+options are commented ou rather than active. Related comments
+inserted also in some other .cmnd files, but there without any change 
+in program execution.</li>
+
+<li>A few further minor bug fixes.</li>
+
+<li>Update year to 2009.</li>
 
 </ul>
 </li>
@@ -264,4 +315,4 @@ have been handled.</li>
 
 </chapter>
 
-<!-- Copyright (C) 2008 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2009 Torbjorn Sjostrand -->

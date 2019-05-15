@@ -35,5 +35,7 @@ Top:qqbar2ttbar = on               ! q qbar -> t tbar
 #PartonLevel:FSR = off              ! no final-state radiation
 #HadronLevel:Hadronize = off        ! no hadronization
 #HadronLevel:Decay = off            ! no decays
-SpaceShower:pT0Ref = 2.0           ! dampening of pT -> 0 divergence
-MultipleInteractions:pTmin = 3.0   ! lower pT cutoff for interactions  
+
+! 5) Non-standard settings; exemplifies tuning possibilities.
+#SpaceShower:pT0Ref = 2.0           ! dampening of pT -> 0 divergence
+#MultipleInteractions:pTmin = 3.0   ! lower pT cutoff for interactions  

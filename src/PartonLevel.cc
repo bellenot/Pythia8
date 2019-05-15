@@ -1,5 +1,5 @@
 // PartonLevel.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2008 Torbjorn Sjostrand.
+// Copyright (C) 2009 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -350,20 +350,20 @@ void PartonLevel::setupHardSys( Event& process, Event& event) {
 
   // If incoming partons are massive then recalculate to put them massless.
   if (process[inP].m() != 0. || process[inM].m() != 0.) { 
-    double pPlus  = process[inP].pPlus() + process[inM].pPlus();
-    double pMinus = process[inP].pMinus() + process[inM].pMinus(); 
-    process[inP].pz( 0.5 * pPlus);
-    process[inP].e(  0.5 * pPlus);
+    double pPos = process[inP].pPos() + process[inM].pPos();
+    double pNeg = process[inP].pNeg() + process[inM].pNeg(); 
+    process[inP].pz( 0.5 * pPos);
+    process[inP].e(  0.5 * pPos);
     process[inP].m(  0.);
-    process[inM].pz(-0.5 * pMinus);
-    process[inM].e(  0.5 * pMinus);
+    process[inM].pz(-0.5 * pNeg);
+    process[inM].e(  0.5 * pNeg);
     process[inM].m(  0.);
   }
 
   // Add incoming hard-scattering partons to list in beam remnants.
-  double x1 = process[inP].pPlus() / process[0].e();
+  double x1 = process[inP].pPos() / process[0].e();
   beamAPtr->append( inP, process[inP].id(), x1);
-  double x2 = process[inM].pMinus() / process[0].e();
+  double x2 = process[inM].pNeg() / process[0].e();
   beamBPtr->append( inM, process[inM].id(), x2);
 
   // Scale. Find whether incoming partons are valence or sea. Store.
@@ -413,9 +413,9 @@ void PartonLevel::setupHardSys( Event& process, Event& event) {
 
     // Add incoming hard-scattering partons to list in beam remnants.
     // Not valid if not in rest frame??
-    x1 = process[inP2].pPlus() / process[0].e();
+    x1 = process[inP2].pPos() / process[0].e();
     beamAPtr->append( inP2, process[inP2].id(), x1);
-    x2 = process[inM2].pMinus() / process[0].e();
+    x2 = process[inM2].pNeg() / process[0].e();
     beamBPtr->append( inM2, process[inM2].id(), x2);
 
     // Find whether incoming partons are valence or sea.

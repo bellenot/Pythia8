@@ -1,5 +1,5 @@
 // Event.h is a part of the PYTHIA event generator.
-// Copyright (C) 2008 Torbjorn Sjostrand.
+// Copyright (C) 2009 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -151,11 +151,13 @@ public:
   double mT2()       const {return mSave*mSave + pSave.pT2();}
   double pAbs()      const {return pSave.pAbs();}
   double pAbs2()     const {return pSave.pAbs2();}
+  double eT()        const {return pSave.eT();}
+  double eT2()       const {return pSave.eT2();}
   double theta()     const {return pSave.theta();}
   double phi()       const {return pSave.phi();}
   double thetaXZ()   const {return pSave.thetaXZ();}
-  double pPlus()     const {return pSave.pPlus();}
-  double pMinus()    const {return pSave.pMinus();}
+  double pPos()      const {return pSave.pPos();}
+  double pNeg()      const {return pSave.pNeg();}
   double y()         const;
   double eta()       const; 
   Vec4   vDec()      const {return (tauSave > 0. && mSave > 0.) 
@@ -414,7 +416,10 @@ public:
   // Find complete list of daughters and mothers.
   vector<int> motherList(int i) const;
   vector<int> daughterList(int i) const;
- 
+
+  // Convert to HepMC status code conventions.
+  int statusHepMC(int i) const;
+
   // Trace the first and last copy of one and the same particle.
   int iTopCopy(int i) const;
   int iBotCopy(int i) const;

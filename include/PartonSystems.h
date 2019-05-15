@@ -1,5 +1,5 @@
 // PartonSystems.h is a part of the PYTHIA event generator.
-// Copyright (C) 2008 Torbjorn Sjostrand.
+// Copyright (C) 2009 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -70,7 +70,10 @@ public:
   int sizeAll(int iSys)          const {return (hasInAB(iSys)) 
     ? systems[iSys].iOut.size() + 2 : systems[iSys].iOut.size();}
   int getAll(int iSys, int iMem) const; 
-  double getSHat(int iSys)       const {return systems[iSys].sHat;}   
+  double getSHat(int iSys)       const {return systems[iSys].sHat;} 
+
+  // Find system of given outgoing parton, optionally also incoming one.
+  int getSystemOf(int iPos, bool alsoIn = false) const;  
 
   // List all current systems.
   void list(ostream& os = cout);

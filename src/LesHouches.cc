@@ -1,5 +1,5 @@
 // LesHouches.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2008 Torbjorn Sjostrand.
+// Copyright (C) 2009 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -264,16 +264,12 @@ bool LHAup::closeLHEF(bool updateInit) {
   return true;
 
 }
- 
-//**************************************************************************
-
-// LHAupLHEF class.
 
 //*********
 
 // Read in initialization information from a Les Houches Event File.
 
-bool LHAupLHEF::setInit() {
+bool LHAup::setInitLHEF(ifstream& is) {
 
   // Check that first line is consistent with proper LHEF file.
   string line;
@@ -323,9 +319,10 @@ bool LHAupLHEF::setInit() {
 
 //*********
 
-// Read in event information from a Les Houches Event File.
+// Read in event information from a Les Houches Event File,
+// into a staging area where it can be reused by setOldEventLHEF.
 
-bool LHAupLHEF::setEvent( int ) {
+bool LHAup::setNewEventLHEF(ifstream& is) {
   
   // Loop over lines until an <event tag is found first on a line.
   string line, tag;
@@ -339,42 +336,42 @@ bool LHAupLHEF::setEvent( int ) {
   } while (tag != "<event>" && tag != "<event"); 
 
   // Read in process info and store it.
-  int nup, idprup;
-  double xwgtup, scalup, aqedup, aqcdup;
   if (!getline(is, line)) return false;
   istringstream getpro(line);
-  getpro >> nup >> idprup >> xwgtup >> scalup >> aqedup >> aqcdup;
+  getpro >> nupSave >> idprupSave >> xwgtupSave >> scalupSave
+    >> aqedupSave >> aqcdupSave;
   if (!getpro) return false;
-  setProcess(idprup, xwgtup, scalup, aqedup, aqcdup);
+
+  // Reset particlesSave vector, add slot-0 empty particle.
+  particlesSave.clear(); 
+  particlesSave.push_back( LHAParticle() );
 
   // Read in particle info one by one, and store it.
   // Note unusual C++ loop range, to better reflect LHA/Fortran standard.
   // (Recall that process(...) above added empty particle at index 0.) 
   int idup, istup, mothup1, mothup2, icolup1, icolup2; 
   double pup1, pup2, pup3, pup4, pup5, vtimup, spinup;
-  for (int ip = 1; ip <= nup; ++ip) { 
+  for (int ip = 1; ip <= nupSave; ++ip) { 
     if (!getline(is, line)) return false;
     istringstream getall(line);
     getall >> idup >> istup >> mothup1 >> mothup2 >> icolup1 >> icolup2 
       >> pup1 >> pup2 >> pup3 >> pup4 >> pup5 >> vtimup >> spinup;
     if (!getall) return false;   
-    addParticle(idup, istup, mothup1, mothup2, icolup1, icolup2,
-      pup1, pup2, pup3, pup4, pup5, vtimup, spinup) ;
+    particlesSave.push_back( LHAParticle( idup, istup, mothup1, mothup2, 
+      icolup1, icolup2, pup1, pup2, pup3, pup4, pup5, vtimup, spinup) );
   }
 
   // Continue parsing till </event>. Extract pdf info if present.
+  getPDFSave = false;
   do { 
     if (!getline(is, line)) return false;
     istringstream getpdf(line);
     getpdf >> tag;
     if (!getpdf) return false;
     if (tag == "#pdf") {
-      int id1In, id2In;
-      double x1In, x2In, scalePDFIn, xpdf1In, xpdf2In;
-      getpdf >> id1In >> id2In >>  x1In >> x2In >> scalePDFIn 
-             >> xpdf1In >> xpdf2In;
+      getpdf >> id1InSave >> id2InSave >> x1InSave >> x2InSave 
+             >> scalePDFInSave >> xpdf1InSave >> xpdf2InSave;
       if (!getpdf) return false;
-      setPdf(id1In, id2In, x1In, x2In, scalePDFIn, xpdf1In, xpdf2In);  
     }
   } while (tag != "</event>" && tag != "</event"); 
   
@@ -383,6 +380,23 @@ bool LHAupLHEF::setEvent( int ) {
 
 }
 
+//*********
+
+// Make current event information read in by setNewEventLHEF.
+
+bool LHAup::setOldEventLHEF() {
+
+  // Store saved event, optionally also parton density information.
+  setProcess(idprupSave, xwgtupSave, scalupSave, aqedupSave, aqcdupSave);
+  for (int ip = 1; ip <= nupSave; ++ip) addParticle( particlesSave[ip] );
+  if (getPDFSave) setPdf(id1InSave, id2InSave, x1InSave, x2InSave, 
+    scalePDFInSave, xpdf1InSave, xpdf2InSave);  
+
+  // Done;
+  return true;
+
+}
+ 
 //**************************************************************************
 
 // LHAupFromPYTHIA8 class.

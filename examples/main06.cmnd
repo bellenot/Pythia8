@@ -24,7 +24,8 @@ SoftQCD:elastic = on               ! elastic scattering
 SoftQCD:singleDiffractive = on     ! single diffractive scattering
 SoftQCD:doubleDiffractive = on     ! double diffractive scattering
 
-! 4) Optionally switch on hand-set cross section and Coulomb term..
+! 4) Optionally switch on hand-set cross section and Coulomb term.
+! Note: these values are illustrative only, not to be taken seriously.
 SigmaTotal:setOwn = on             ! set your own total/elastic/diffractive sigma
 SigmaTotal:sigmaTot = 106.         ! total cross section (excluding Coulomb)
 SigmaTotal:sigmaXX = 3.            ! reduce double diffractive cross section 

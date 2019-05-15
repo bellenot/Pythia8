@@ -1,5 +1,5 @@
 // MultipleInteractions.h is a part of the PYTHIA event generator.
-// Copyright (C) 2008 Torbjorn Sjostrand.
+// Copyright (C) 2009 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -46,7 +46,11 @@ public:
 
   // Calculate cross section summed over possibilities.
   double sigma( int id1, int id2, double x1, double x2, double sHat, 
-    double tHat, double uHat, double alpS, double alpEM);
+    double tHat, double uHat, double alpS, double alpEM,
+    bool restore = false, bool pickOtherIn = false);
+
+  // Return whether the other, rare processes were selected.
+  bool pickedOther() {return pickOther;} 
 
   // Return one subprocess, picked according to relative cross sections.
   SigmaProcess* sigmaSel();
@@ -73,7 +77,7 @@ private:
   // Values of cross sections in process list above.
   vector<double> sigmaTval, sigmaUval;
   double         sigmaTsum, sigmaUsum;
-  bool           pickedU;
+  bool           pickOther, pickedU;
   
 };
  
@@ -161,7 +165,7 @@ private:
   vector<double> sudExpPT;
 
   // Properties specific to current system.
-  bool   bIsSet, bSetInFirst, isAtLowB;
+  bool   bIsSet, bSetInFirst, isAtLowB, pickOtherSel;
   int    id1, id2, i1Sel, i2Sel, id1Sel, id2Sel;
   double bNow, enhanceB, pT2, pT2shift, pT2Ren, pT2Fac, x1, x2, xT, xT2, 
          tau, y, sHat, tHat, uHat, alpS, alpEM, xPDF1now, xPDF2now,

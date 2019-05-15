@@ -34,6 +34,7 @@ SoftQCD:minbias = on               ! minimum bias QCD processes
 #HadronLevel:Decay = off            ! no decays
 
 ! 5) Multiple interactions and impact parameter picture.
+! Note: these values are illustrative only, not to be taken seriously.
 MultipleInteractions:pT0Ref = 2.
 MultipleInteractions:ecmRef = 1960.
 MultipleInteractions:ecmPow = 0.16

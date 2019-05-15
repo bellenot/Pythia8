@@ -1,5 +1,5 @@
 // Event.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2008 Torbjorn Sjostrand.
+// Copyright (C) 2009 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -363,6 +363,36 @@ vector<int> Event::daughterList(int i) const {
     
   // Done.
   return daughters;
+
+}
+
+//*********
+
+// Convert internal Pythia status codes to the HepMC status conventions.
+
+int Event::statusHepMC(int i) const {
+  
+  // Positive codes are final particles. Status -12 are beam particles.
+  int statusNow     = entry[i].status();
+  if (statusNow > 0)    return 1;
+  if (statusNow == -12) return 4;  
+
+  // Hadrons, muons, taus that decay normally are status 2.
+  int idNow         = entry[i].id();
+  if (entry[i].isHadron() || abs(idNow) == 13 || abs(idNow) == 15) {
+    int iDau        = entry[i].daughter1();
+    // Particle should not decay into itself  (e.g. Bose-Einstein).
+    if ( entry[iDau].id() != idNow) {
+      int statusDau = entry[ iDau ].statusAbs();
+      if (statusDau > 90 && statusDau < 95) return 2;
+    }
+  }
+
+  // Other acceptable negative codes as their positive counterpart.
+  if (statusNow <= -11 && statusNow >= -200) return -statusNow;
+
+  // Unacceptable codes as 0.
+  return 0;
 
 }
 

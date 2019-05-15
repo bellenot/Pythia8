@@ -1,5 +1,5 @@
 // ProcessLevel.h is a part of the PYTHIA event generator.
-// Copyright (C) 2008 Torbjorn Sjostrand.
+// Copyright (C) 2009 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -64,10 +64,15 @@ public:
 
 private: 
 
+  // Constants: could only be changed in the code itself.
+  static const int MAXLOOP;
+
   // Generic info for process generation.
-  bool   doSecondHard, allHardSame, noneHardSame, someHardSame, doResDecays;
+  bool   doSecondHard, doSameCuts, allHardSame, noneHardSame, 
+         someHardSame, cutsAgree, cutsOverlap, doResDecays;
   int    nImpact, startColTag2;
-  double sigmaND, sumImpactFac, sum2ImpactFac;
+  double mHatMin1, mHatMax1, pTHatMin1, pTHatMax1, mHatMin2, mHatMax2, 
+         pTHatMin2, pTHatMax2, sigmaND, sumImpactFac, sum2ImpactFac;
 
   // Vector of containers of internally-generated processes.
   vector<ProcessContainer*> containerPtrs;

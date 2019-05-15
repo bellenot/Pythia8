@@ -1,5 +1,5 @@
 // Pythia6Interface.h is a part of the PYTHIA event generator.
-// Copyright (C) 2008 Torbjorn Sjostrand.
+// Copyright (C) 2009 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -15,21 +15,29 @@ namespace Pythia8 {
 
 // Declare the f77 subroutines that may be used.
 
+#ifdef _WIN32
+  #define pygive_ PYGIVE
+  #define pyinit_ PYINIT
+  #define pyupin_ PYUPIN
+  #define pyupev_ PYUPEV
+  #define pylist_ PYLIST
+  #define pystat_ PYSTAT
+#endif
+
 extern "C" {
+#ifdef _WIN32
+  extern void pyinit_(const char*, int, const char*, int, const char*, int, double&);
+#else
+  extern void pyinit_(const char*, const char*, const char*, double&, int, int, int);
+#endif
+}
 
+extern "C" {
   extern void pygive_(const char*, int);
-
-  extern void pyinit_(const char*, const char*, const char*, double&,
-    int, int, int);
-
   extern void pyupin_();
-
   extern void pyupev_();
-
   extern void pylist_(int&);
-
   extern void pystat_(int&);
-
 }
 
 //**************************************************************************
@@ -52,7 +60,11 @@ public:
     const char* cframe = frame.c_str(); int lenframe = frame.length();
     const char* cbeam = beam.c_str(); int lenbeam = beam.length();
     const char* ctarget = target.c_str(); int lentarget = target.length();
+#ifdef _WIN32
+    pyinit_(cframe, lenframe, cbeam, lenbeam, ctarget, lentarget, wIn);
+#else
     pyinit_(cframe, cbeam, ctarget, wIn, lenframe, lenbeam, lentarget); 
+#endif
   }
   
   // Fill the initialization information in the HEPRUP commonblock.

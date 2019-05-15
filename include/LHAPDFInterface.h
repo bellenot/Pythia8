@@ -1,5 +1,5 @@
 // LHAPDFInterface.h is a part of the PYTHIA event generator.
-// Copyright (C) 2008 Torbjorn Sjostrand.
+// Copyright (C) 2009 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -24,6 +24,8 @@ extern "C" {
   extern void initpdfm_(int&, int&);
 
   extern void evolvepdfm_(int&, double&, double&, double*);
+
+  extern void evolvepdfphotonm_(int&, double&, double&, double*, double&);
 
   extern void setlhaparm_(const char*, int);
     
@@ -57,6 +59,12 @@ public:
   // Evaluate x f_i(x, Q).
   static void evolvePDFM( int nSet, double x, double Q, double* xfArray) {
     evolvepdfm_( nSet, x, Q, xfArray);
+  }
+
+  // Evaluate x f_i(x, Q) including photon
+  static void evolvePDFPHOTONM( int nSet, double x, double Q, 
+				double* xfArray, double& xPhoton) {
+    evolvepdfphotonm_( nSet, x, Q, xfArray, xPhoton);
   }
 
   // Extrapolate PDF set beyond boundaries, or freeze them there.

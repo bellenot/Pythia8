@@ -1,5 +1,5 @@
 // PartonSystems.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2008 Torbjorn Sjostrand.
+// Copyright (C) 2009 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -47,6 +47,27 @@ int PartonSystems::getAll(int iSys, int iMem) const {
     if (iMem == 1) return systems[iSys].iInB;
     return systems[iSys].iOut[iMem - 2];
   } else return systems[iSys].iOut[iMem];
+
+}
+
+//*********
+
+// Find system of given outgoing parton, optionally also incoming one.
+
+int PartonSystems::getSystemOf(int iPos, bool alsoIn) const {
+
+  // Loop over systems and over final-state members in each system.
+  for (int iSys = 0; iSys < sizeSys(); ++iSys) { 
+    if (alsoIn) {
+      if (systems[iSys].iInA == iPos) return iSys;
+      if (systems[iSys].iInB == iPos) return iSys;
+    }
+    for (int iMem = 0; iMem < sizeOut(iSys); ++iMem) 
+      if (systems[iSys].iOut[iMem] == iPos) return iSys;
+  }
+
+  // Failure signalled by return value -1.
+  return -1; 
 
 }
 

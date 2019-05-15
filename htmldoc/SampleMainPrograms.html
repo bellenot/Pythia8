@@ -8,8 +8,11 @@
 
 <h2>Sample Main Programs</h2>
 
-To help exemplify what a main program could look like, a few simple
-examples are provided in the <code>examples</code> subdirectory, 
+Descriptions of available classes, methods and settings are all
+very good and useful. Ultimately they are necessary for you to
+be able to fine-tune your runs to the task at hand. To get going, 
+however, nothing helps like having explicit examples to study. 
+This is what is provided in the <code>examples</code> subdirectory, 
 along with instructions how they should be run: 
 <ul>
 
@@ -120,6 +123,9 @@ generation as with a normal internal resonance and process.</li>
 and vertex location generator can be implemented as a new class derived 
 from a PYTHIA base class, and then handed in for internal use.</li>
 
+<li><code>main28.cc</code> : test program for processes in scenarios
+with large extra dimensions or unparticles.
+
 <li><code>main31.cc</code> : similar to main01, except that the 
 event record is output in the HepMC event record format. Requires 
 that HepMC is properly linked.</li>
@@ -139,6 +145,13 @@ that LHAPDF is properly linked.</li>
 distribution, and a few other minimum-bias physics aspects, between 
 default PYTHIA PDF and another one. Requires that LHAPDF is properly 
 linked.</li>
+
+<li><code>main43.cc</code> : tests the possibility to do backwards
+evolution from an incoming photon at the hard interaction. Requires 
+that you link to a LHAPDF set that includes the photon PDF.</li>
+
+<li><code>main44.cc</code> : exemplifies how you create your own 
+PDF set and link it in for use in the process generation.</li>
 
 <li><code>main51.cc</code> : a simple example how the Les Houches
 Accord interface, plus a few more Fortran-to-C++ commands, allows
@@ -175,4 +188,4 @@ in this case for a study of W + jet production.</li>
 </body>
 </html>
 
-<!-- Copyright (C) 2008 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2009 Torbjorn Sjostrand -->
