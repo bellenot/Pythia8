@@ -190,9 +190,9 @@ decays);</li>
 <li><code>resWidthRescaleFactor(...)</code> returns the factor by which 
 the internally calculated PYTHIA width has to be rescaled to give the
 user-enforced width;</li> 
-<li><code>resWidthChan(...)</code> to return pretabulated widths for
-channels (only used for Higgs decays, where some channels require
-numerical integration).</li> 
+<li><code>resWidthChan(...)</code> to return the width for one particular
+channel (currently only used for Higgs decays, to obtain instate coupling
+from outstate width).</li> 
 </ul>
 These methods actually provide an interface to the classes derived from
 the <code>ResonanceWidths</code> base class, to describe various 

@@ -389,6 +389,12 @@ name and antiname to be given. A more interesting one is the
 where all the current information on the particle itself is replaced, 
 but any decay channels are kept unchanged. Using <code>new</code> instead 
 of <code>all</code> also removes any previous decay channels.   
+If the string contains fewer fields than expected the trailing
+properties are set to vanish ("void", 0 or 0.). Note that such a 
+truncated string should not be followed by a comment, since this 
+comment would then be read in as if it contained the missing properties.  
+The truncation can be done anywhere, specifically a string with only 
+<code>id:new</code> defines a new "empty" particle.
 As before, <code>isResonance</code>, <code>mayDecay</code>,
 <code>doExternalDecay</code>, <code>isVisible</code> and 
 <code>doForceWidth</code>are (re)set to their default values, and 
@@ -489,7 +495,7 @@ in which they are executed, as one would logically expect. For instance,
 <code>id:oneChannel</code> removes all decay channels of <code>id</code>
 and thus all previous changes in this decay table, while subsequent
 additions or changes would still take effect. Another example would be that
-<code>23:onMode = off</code> followed by <code>23:onIfAny = 1 2 3 4 5<code>
+<code>23:onMode = off</code> followed by <code>23:onIfAny = 1 2 3 4 5</code>
 would let the <i>Z^0</i> decay to quarks, while no decays would be
 allowed if the order were to be reversed.   
 

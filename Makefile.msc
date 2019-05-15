@@ -72,12 +72,13 @@ OBJS =   $(OUTDIR)/Analysis.obj \
          $(OUTDIR)/Basics.obj \
          $(OUTDIR)/BeamParticle.obj \
          $(OUTDIR)/BeamRemnants.obj \
+         $(OUTDIR)/BeamShape.obj \
          $(OUTDIR)/BoseEinstein.obj \
          $(OUTDIR)/Event.obj \
          $(OUTDIR)/FragmentationFlavZpT.obj \
          $(OUTDIR)/FragmentationSystems.obj \
          $(OUTDIR)/HadronLevel.obj \
-         $(OUTDIR)/Information.obj \
+         $(OUTDIR)/Info.obj \
          $(OUTDIR)/LesHouches.obj \
          $(OUTDIR)/MiniStringFragmentation.obj \
          $(OUTDIR)/MultipleInteractions.obj \

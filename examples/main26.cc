@@ -151,7 +151,7 @@ void Sigma1qqbar2Theta::sigmaKin() {
   double sigBW    = 12. * M_PI / ( pow2(sH - m2Res) + pow2(sH * GamMRat) ); 
 
   // Outgoing width: only includes channels left open.
-  double widthOut = particlePtr->resWidthOpen(34, mH);    
+  double widthOut = particlePtr->resWidthOpen(663, mH);    
 
   // Total answer.
   sigma = widthIn * sigBW * widthOut;

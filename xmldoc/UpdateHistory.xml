@@ -72,6 +72,21 @@ random number generation and particle properties.</li>
 <li>Several minor improvements and new options.</li>
 </ul></li>
 
+<li>8.106: 11 March 2008
+<ul>
+<li>Improved handling of the Higgs width, relevant for massive and thereby
+broad resonance shapes. 
+</ul></li>
+
+<li>8.107: 17 March 2008
+<ul>
+<li>Correction in the event record, so that the beam particles in line 
+1 and 2 do not have any mother according to the <code>motherList</code>
+method. Previously the "system" entry in line 0 was counted as their 
+mother, which gave rise to an unexpected extra vertex in the conversion 
+to the HepMC format.
+</ul></li>
+
 </ul>
  
 <h3>Changes among settings names</h3>

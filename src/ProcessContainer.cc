@@ -196,7 +196,7 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
 
   // Let hard process record begin with the event as a whole and
   // the two incoming beam particles.  
-  process.append( 90, -11, 0, 0, 1, 2, 0, 0, 
+  process.append( 90, -11, 0, 0, 0, 0, 0, 0, 
     Vec4(0., 0., 0., infoPtr->eCM()), infoPtr->eCM(), 0. ); 
   process.append( infoPtr->idA(), -12, 0, 0, 3, 0, 0, 0, 
     Vec4(0., 0., infoPtr->pzA(), infoPtr->eA()), infoPtr->mA(), 0. ); 

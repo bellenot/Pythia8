@@ -198,7 +198,7 @@ void ResonanceWidths::init() {
 // Calculate the total width and store phase-space-weighted coupling sums.
 
 double ResonanceWidths::width(int idSgn, double mHatIn, int idInFlavIn, 
-  bool openOnly, bool setBR) {
+  bool openOnly, bool setBR, int idOutFlav1, int idOutFlav2) {
 
   // Calculate various prefactors for the current mass.
   mHat          = mHatIn;
@@ -219,6 +219,14 @@ double ResonanceWidths::width(int idSgn, double mHatIn, int idInFlavIn,
     // Initially assume vanishing branching ratio.
     widNow      = 0.;
     if (setBR) particlePtr->decay[i].currentBR(widNow); 
+
+    // Optionally only consider specific (two-body) decay channel.
+    // Currently only used for Higgs -> q qbar, g g or gamma gamma. 
+    if (idOutFlav1 > 0 || idOutFlav2 > 0) {
+      if (mult > 2) continue;
+      if (particlePtr->decay[i].product(0) != idOutFlav1) continue;
+      if (particlePtr->decay[i].product(1) != idOutFlav2) continue;
+    }
 
     // Optionally only consider open channels. 
     if (openOnly) {
@@ -820,59 +828,73 @@ const double ResonanceH::GAMMAMARGIN = 10.;
 void ResonanceH::initConstants() {
 
   // Locally stored properties and couplings.
-  useCubicWidth = Settings::flag("Higgs:cubicWidth");
-  sin2tW        = CoupEW::sin2thetaW();
-  cos2tW        = 1. - sin2tW;
-  mZ            = ParticleDataTable::m0(23);
-  mW            = ParticleDataTable::m0(24);
-  mHchg         = ParticleDataTable::m0(37);
-  GammaZ        = ParticleDataTable::mWidth(23);
-  GammaW        = ParticleDataTable::mWidth(24);
-  GammaT        = ParticleDataTable::mWidth(6);
+  useCubicWidth  = Settings::flag("Higgs:cubicWidth");
+  useRunLoopMass = Settings::flag("Higgs:runningLoopMass");
+  sin2tW         = CoupEW::sin2thetaW();
+  cos2tW         = 1. - sin2tW;
+  mT             = ParticleDataTable::m0(6);
+  mZ             = ParticleDataTable::m0(23);
+  mW             = ParticleDataTable::m0(24);
+  mHchg          = ParticleDataTable::m0(37);
+  GammaT         = ParticleDataTable::mWidth(6);
+  GammaZ         = ParticleDataTable::mWidth(23);
+  GammaW         = ParticleDataTable::mWidth(24);
 
   // Couplings to fermions, Z and W, depending on Higgs type.
-  coup2d        = 1.;
-  coup2u        = 1.;
-  coup2l        = 1.;
-  coup2Z        = 1.;
-  coup2W        = 1.;
-  coup2Hchg     = 0.;
-  coup2H1H1     = 0.;
-  coup2A3A3     = 0.;
-  coup2H1Z      = 0.;
-  coup2A3Z      = 0.;
-  coup2A3H1     = 0.;
-  coup2HchgW    = 0.;
+  coup2d         = 1.;
+  coup2u         = 1.;
+  coup2l         = 1.;
+  coup2Z         = 1.;
+  coup2W         = 1.;
+  coup2Hchg      = 0.;
+  coup2H1H1      = 0.;
+  coup2A3A3      = 0.;
+  coup2H1Z       = 0.;
+  coup2A3Z       = 0.;
+  coup2A3H1      = 0.;
+  coup2HchgW     = 0.;
   if (higgsType == 1) {
-    coup2d      = Settings::parm("HiggsH1:coup2d");
-    coup2u      = Settings::parm("HiggsH1:coup2u");
-    coup2l      = Settings::parm("HiggsH1:coup2l");
-    coup2Z      = Settings::parm("HiggsH1:coup2Z");
-    coup2W      = Settings::parm("HiggsH1:coup2W");
-    coup2Hchg   = Settings::parm("HiggsH1:coup2Hchg");
+    coup2d       = Settings::parm("HiggsH1:coup2d");
+    coup2u       = Settings::parm("HiggsH1:coup2u");
+    coup2l       = Settings::parm("HiggsH1:coup2l");
+    coup2Z       = Settings::parm("HiggsH1:coup2Z");
+    coup2W       = Settings::parm("HiggsH1:coup2W");
+    coup2Hchg    = Settings::parm("HiggsH1:coup2Hchg");
   } else if (higgsType == 2) {
-    coup2d      = Settings::parm("HiggsH2:coup2d");
-    coup2u      = Settings::parm("HiggsH2:coup2u");
-    coup2l      = Settings::parm("HiggsH2:coup2l");
-    coup2Z      = Settings::parm("HiggsH2:coup2Z");
-    coup2W      = Settings::parm("HiggsH2:coup2W");
-    coup2Hchg   = Settings::parm("HiggsH2:coup2Hchg");
-    coup2H1H1   = Settings::parm("HiggsH2:coup2H1H1");
-    coup2A3A3   = Settings::parm("HiggsH2:coup2A3A3");
-    coup2H1Z    = Settings::parm("HiggsH2:coup2H1Z");
-    coup2A3Z    = Settings::parm("HiggsA3:coup2H2Z");
-    coup2A3H1   = Settings::parm("HiggsH2:coup2A3H1");
-    coup2HchgW  = Settings::parm("HiggsH2:coup2HchgW");
+    coup2d       = Settings::parm("HiggsH2:coup2d");
+    coup2u       = Settings::parm("HiggsH2:coup2u");
+    coup2l       = Settings::parm("HiggsH2:coup2l");
+    coup2Z       = Settings::parm("HiggsH2:coup2Z");
+    coup2W       = Settings::parm("HiggsH2:coup2W");
+    coup2Hchg    = Settings::parm("HiggsH2:coup2Hchg");
+    coup2H1H1    = Settings::parm("HiggsH2:coup2H1H1");
+    coup2A3A3    = Settings::parm("HiggsH2:coup2A3A3");
+    coup2H1Z     = Settings::parm("HiggsH2:coup2H1Z");
+    coup2A3Z     = Settings::parm("HiggsA3:coup2H2Z");
+    coup2A3H1    = Settings::parm("HiggsH2:coup2A3H1");
+    coup2HchgW   = Settings::parm("HiggsH2:coup2HchgW");
   } else if (higgsType == 3) {
-    coup2d      = Settings::parm("HiggsA3:coup2d");
-    coup2u      = Settings::parm("HiggsA3:coup2u");
-    coup2l      = Settings::parm("HiggsA3:coup2l");
-    coup2Z      = Settings::parm("HiggsA3:coup2Z");
-    coup2W      = Settings::parm("HiggsA3:coup2W");
-    coup2Hchg   = Settings::parm("HiggsA3:coup2Hchg");
-    coup2H1H1   = Settings::parm("HiggsA3:coup2H1H1");
-    coup2H1Z    = Settings::parm("HiggsA3:coup2H1Z");
-    coup2HchgW  = Settings::parm("HiggsA3:coup2Hchg");
+    coup2d       = Settings::parm("HiggsA3:coup2d");
+    coup2u       = Settings::parm("HiggsA3:coup2u");
+    coup2l       = Settings::parm("HiggsA3:coup2l");
+    coup2Z       = Settings::parm("HiggsA3:coup2Z");
+    coup2W       = Settings::parm("HiggsA3:coup2W");
+    coup2Hchg    = Settings::parm("HiggsA3:coup2Hchg");
+    coup2H1H1    = Settings::parm("HiggsA3:coup2H1H1");
+    coup2H1Z     = Settings::parm("HiggsA3:coup2H1Z");
+    coup2HchgW   = Settings::parm("HiggsA3:coup2Hchg");
+  }
+
+  // Initialization of threshold kinematical factor by stepwise
+  // numerical integration of H -> t tbar, Z0 Z0 and W+ W-. 
+  int psMode = (higgsType < 3) ? 3 : 1;       
+  for (int i = 0; i <= 100; ++i) { 
+    kinFacT[i] = numInt2BW( (0.5 + 0.025 * i) * mT, 
+                 mT, GammaT, MASSMIN, mT, GammaT, MASSMIN, psMode);
+    kinFacZ[i] = numInt2BW( (0.5 + 0.025 * i) * mZ,
+                 mZ, GammaZ, MASSMIN, mZ, GammaZ, MASSMIN, 5);
+    kinFacW[i] = numInt2BW( (0.5 + 0.025 * i) * mW,
+                 mW, GammaW, MASSMIN, mW, GammaW, MASSMIN, 5);
   }
 
 }
@@ -894,165 +916,108 @@ void ResonanceH::calcPreFac(bool) {
 
 // Calculate width for currently considered channel.
 
-void ResonanceH::calcWidth(bool calledFromInit) {
+void ResonanceH::calcWidth(bool) {
 
-  // Do careful job at initialization, with slow numerical integration.
-  if (calledFromInit) {
+  // Widths of decays Higgs -> f + fbar.
+  if ( id2Abs == id1Abs && ( (id1Abs > 0 && id1Abs < 7) 
+    || (id1Abs > 10 && id1Abs < 17) ) ) {
+    kinFac = 0.;
 
-    // Widths of decays Higgs -> f + fbar.
-    if ( id2Abs == id1Abs && ( (id1Abs > 0 && id1Abs < 7) 
-      || (id1Abs > 10 && id1Abs < 17) ) ) {
-      kinFac = 0.;
-
-      // Check that above threshold. Kinematical factor.
-      if ( (id1Abs != 6 && mHat > 2. * mf1 + MASSMARGIN)
-        || (id1Abs == 6 && mHat > 2. * (mf1 + GAMMAMARGIN * GammaT) ) ) {
-        // A0 behaves like beta, h0 and H0 like beta**3.
-        kinFac = (higgsType < 3) ? pow3(ps) : ps;
-      }
-
-      // For top near threshold use numerical integration.   
-      else if (id1Abs == 6 && mHat > 2. * (mf1 - GAMMAMARGIN * GammaT)) {
-        int psMode = (higgsType < 3) ? 3 : 1;       
-        kinFac = numInt2BW( mHat, mf1, GammaT, MASSMIN, mf1, GammaT, 
-        MASSMIN, psMode);
-      }
-
-      // Coupling from mass and from BSM deviation from SM.
-      double coupFac = pow2(ParticleDataTable::mRun(id1Abs, mHat) / mHat);
-      if (id1Abs < 7 && id1Abs%2 == 1) coupFac *= coup2d * coup2d;
-      else if (id1Abs < 7)             coupFac *= coup2u * coup2u;   
-      else                             coupFac *= coup2l * coup2l;
-
-      // Combine couplings and phase space with colour factor.
-      widNow = preFac * coupFac * kinFac; 
-      if (id1Abs < 7) widNow *= colQ;
-
-      // Store widths for in-state: no phase space and no colour factors.
-      if (calledFromInit) widTable[id1Abs] = preFac * coupFac;
+    // Check that above threshold (well above for top). Kinematical factor.
+    if ( (id1Abs != 6 && mHat > 2. * mf1 + MASSMARGIN) 
+      || (id1Abs == 6 && mHat > 3. * mT ) ) {
+      // A0 behaves like beta, h0 and H0 like beta**3.
+      kinFac = (higgsType < 3) ? pow3(ps) : ps;
     }
 
-    // Widths of decays Higgs -> g + g. No colour factor for instate.
-    else if (id1Abs == 21 && id2Abs == 21) { 
-      widNow = preFac * pow2(alpS / M_PI) * eta2gg(); 
-      if (calledFromInit) widTable[21] = widNow / 8.;
+    // Top near or below threshold: interpolate in table or extrapolate below.
+    else if (id1Abs == 6 && mHat > 0.5 * mT) {
+      double xTab = 40. * (mHat / mT - 0.5);
+      int    iTab = max( 0, min( 99, int(xTab) ) );
+      kinFac      = kinFacT[iTab] 
+                  * pow( kinFacT[iTab + 1] / kinFacT[iTab], xTab - iTab);
     }
+    else if (id1Abs == 6) kinFac = kinFacT[0] 
+      * 2. / (1. + pow6(0.5 * mT / mHat));
 
-    // Widths of decays Higgs -> gamma + gamma.
-    else if (id1Abs == 22 && id2Abs == 22) { 
-      widNow = preFac * pow2(alpEM / M_PI) * 0.5 * eta2gaga(); 
-      if (calledFromInit) widTable[22] = widNow;
-    }
+    // Coupling from mass and from BSM deviation from SM.
+    double coupFac = pow2(ParticleDataTable::mRun(id1Abs, mHat) / mHat);
+    if (id1Abs < 7 && id1Abs%2 == 1) coupFac *= coup2d * coup2d;
+    else if (id1Abs < 7)             coupFac *= coup2u * coup2u;   
+    else                             coupFac *= coup2l * coup2l;
+
+    // Combine couplings and phase space with colour factor.
+    widNow = preFac * coupFac * kinFac; 
+    if (id1Abs < 7) widNow *= colQ;
+  }
+
+  // Widths of decays Higgs -> g + g.
+  else if (id1Abs == 21 && id2Abs == 21)  
+    widNow = preFac * pow2(alpS / M_PI) * eta2gg(); 
+
+  // Widths of decays Higgs -> gamma + gamma.
+  else if (id1Abs == 22 && id2Abs == 22)  
+    widNow = preFac * pow2(alpEM / M_PI) * 0.5 * eta2gaga(); 
  
-    // Widths of decays Higgs -> Z0 + gamma0.
-    else if (id1Abs == 23 && id2Abs == 22) 
-      widNow = preFac * pow2(alpEM / M_PI) * pow3(ps) * eta2gaZ(); 
+  // Widths of decays Higgs -> Z0 + gamma0.
+  else if (id1Abs == 23 && id2Abs == 22) 
+    widNow = preFac * pow2(alpEM / M_PI) * pow3(ps) * eta2gaZ(); 
     
-    // Widths of decays Higgs (h0, H0) -> Z0 + Z0.
-    else if (id1Abs == 23 && id2Abs == 23) {
-      // If Higgs heavy use on-shell expression, else numerical integration.
-      widNow = ( mHat > 2. * (mZ + GAMMAMARGIN * GammaZ) ) 
-        ? (1. - 4. * mr1 + 12. * mr1 * mr1) * ps
-        : numInt2BW( mHat, mZ, GammaZ, MASSMIN, mZ, GammaZ, MASSMIN, 5);
-      widNow      *= 0.25 * preFac * pow2(coup2Z);
-      if (calledFromInit) widTable[23] = 0.25 * preFac * pow2(coup2Z);
+  // Widths of decays Higgs (h0, H0) -> Z0 + Z0.
+  else if (id1Abs == 23 && id2Abs == 23) {
+    // If Higgs heavy use on-shell expression, else interpolation in table
+    if (mHat > 3. * mZ) kinFac = (1.  - 4. * mr1 + 12. * mr1 * mr1) * ps;
+    else if (mHat > 0.5 * mZ) {
+      double xTab = 40. * (mHat / mZ - 0.5);
+      int    iTab = max( 0, min( 99, int(xTab) ) );
+      kinFac      = kinFacZ[iTab] 
+                  * pow( kinFacZ[iTab + 1] / kinFacZ[iTab], xTab - iTab );
     }
+    else kinFac   = kinFacZ[0] * 2. / (1. + pow6(0.5 * mZ / mHat));
+    // Prefactor, normally rescaled to mRes^2 * mHat rather than mHat^3.
+    widNow        = 0.25 * preFac * pow2(coup2Z) * kinFac;
+    if (!useCubicWidth) widNow *= pow2(mRes / mHat);   
+  }
  
-    // Widths of decays Higgs (h0, H0) -> W+ + W-.
-    else if (id1Abs == 24 && id2Abs == 24) {
-      // If Higgs heavy use on-shell expression, else numerical integration.
-      widNow       = (mHat > 2. * ( mW + GAMMAMARGIN * GammaW)) 
-        ? (1. - 4. * mr1 + 12. * mr1 * mr1) * ps
-        : numInt2BW( mHat, mW, GammaW, MASSMIN, mW, GammaW, MASSMIN, 5);
-      widNow      *= 0.5 * preFac * pow2(coup2W);
-      if (calledFromInit) widTable[24] = 0.5 * preFac * pow2(coup2W);
+  // Widths of decays Higgs (h0, H0) -> W+ + W-.
+  else if (id1Abs == 24 && id2Abs == 24) {
+    // If Higgs heavy use on-shell expression, else interpolation in table.
+    if (mHat > 3. * mW) kinFac = (1.  - 4. * mr1 + 12. * mr1 * mr1) * ps;
+    else if (mHat > 0.5 * mW) {
+      double xTab = 40. * (mHat / mW - 0.5);
+      int    iTab = max( 0, min( 99, int(xTab) ) );
+      kinFac      = kinFacW[iTab] 
+                  * pow( kinFacW[iTab + 1] / kinFacW[iTab], xTab - iTab);
     }
+    else kinFac   = kinFacW[0] * 2. / (1. + pow6(0.5 * mW / mHat));
+    // Prefactor, normally rescaled to mRes^2 * mHat rather than mHat^3.
+    widNow        = 0.5 * preFac * pow2(coup2W) * kinFac;
+    if (!useCubicWidth) widNow *= pow2(mRes / mHat);   
+  }
  
-    // Widths of decays Higgs (H0) -> h0 + h0.
-    else if (id1Abs == 25 && id2Abs == 25) 
-      widNow = 0.25 * preFac * pow4(mZ / mHat) * ps * pow2(coup2H1H1);
+  // Widths of decays Higgs (H0) -> h0 + h0.
+  else if (id1Abs == 25 && id2Abs == 25) 
+    widNow = 0.25 * preFac * pow4(mZ / mHat) * ps * pow2(coup2H1H1);
      
-    // Widths of decays Higgs (H0) -> A0 + A0..
-    else if (id1Abs == 36 && id2Abs == 36) 
-      widNow = 0.5 * preFac * pow4(mZ / mHat) * ps * pow2(coup2A3A3);
+  // Widths of decays Higgs (H0) -> A0 + A0.
+  else if (id1Abs == 36 && id2Abs == 36) 
+    widNow = 0.5 * preFac * pow4(mZ / mHat) * ps * pow2(coup2A3A3);
  
-    // Widths of decays Higgs (A0) -> h0 + Z0.
-    else if (id1Abs == 25 && id2Abs == 23) 
-      widNow = 0.5 * preFac * pow3(ps) * pow2(coup2H1Z);
+  // Widths of decays Higgs (A0) -> h0 + Z0.
+  else if (id1Abs == 25 && id2Abs == 23) 
+    widNow = 0.5 * preFac * pow3(ps) * pow2(coup2H1Z);
  
-    // Widths of decays Higgs (H0) -> A0 + Z0.
-    else if (id1Abs == 36 && id2Abs == 23) 
-      widNow = 0.5 * preFac * pow3(ps) * pow2(coup2A3Z);
+  // Widths of decays Higgs (H0) -> A0 + Z0.
+  else if (id1Abs == 36 && id2Abs == 23) 
+    widNow = 0.5 * preFac * pow3(ps) * pow2(coup2A3Z);
    
-    // Widths of decays Higgs (H0) -> A0 + h0.
-    else if (id1Abs == 36 && id2Abs == 25) 
-      widNow = 0.25 * preFac * pow4(mZ / mHat) * ps * pow2(coup2A3H1);
+  // Widths of decays Higgs (H0) -> A0 + h0.
+  else if (id1Abs == 36 && id2Abs == 25) 
+    widNow = 0.25 * preFac * pow4(mZ / mHat) * ps * pow2(coup2A3H1);
  
-    // Widths of decays Higgs -> H+- + W-+.
-    else if (id1Abs == 37 && id2Abs == 24) 
-      widNow = 0.5 * preFac * pow3(ps) * pow2(coup2HchgW);
-
-    // Done with initialization cases.
-    return;
-  }
-  
-  // If not initialization then use previous results to speed up.
-    
-  // Start out from on-shell partial width.     
-  widNow = particlePtr->decay[iChannel].onShellWidth();
-
-  // Simple rescaling with first power of actual mass.
-  widNow *= mHat / mRes;
-
-  // Optionally two more powers for decays to gauge bosons and Higgses.
-  if (useCubicWidth && id1Abs > 22 && id2Abs > 22) 
-    widNow *= pow2(mHat / mRes);   
-
-  // Approximate empirical threshold for H -> Z0 Z0 or W+ W-.
-  if ( (id1Abs == 23 || id1Abs == 24) && id2Abs == id1Abs) {
-    double mZW     = (id1Abs == 23) ? mZ : mW;  
-    double GammaZW = (id1Abs == 23) ? GammaZ : GammaW;  
-    double mRatio5 = pow5(0.5 * mHat / mZW);
-    double thrNow  = (atan((mHat - 2. * mZW) / GammaZW) / M_PI + 0.5)
-                   * mRatio5 / (1. + mRatio5);
-    mRatio5        = pow5(0.5 * mRes / mZW);
-    double thrRes  = (atan((mRes - 2. * mZW) / GammaZW) / M_PI + 0.5)
-                   * mRatio5 / (1. + mRatio5);
-    widNow        *= thrNow / thrRes;  
-  }  
-
-  // Approximate phase-space threshold for decays to other Higgses.
-  if (id1Abs >= 25 && widNow > 0.) {
-    double mr1Res  = pow2(mf1 / mRes);
-    double mr2Res  = pow2(mf2 / mRes);
-    double psRes   = sqrtpos( pow2(1. - mr1Res - mr2Res) 
-                   - 4. * mr1Res * mr2Res );
-    widNow        *= (id2Abs == 23 || id2Abs == 24) 
-                   ? pow3(ps / psRes) : ps / psRes;        
-  }
-
-}
-
-//*********
- 
-// Calculate the partial width for a specific mass and in/out-state.
-// This width has no phase-space suppression and is given without
-// colour factors. Uses pretabulation from widthInit() to speed up.
-
-double ResonanceH::widthChan(double mHatIn, int id1Abs, int ) { 
-
-  // Read out from stored values.
-  double widNow = (id1Abs > 0 && id1Abs < 25) ? widTable[id1Abs] : 0.;
-
-  // Simple rescaling with first power of actual mass.
-  mHat    = mHatIn;
-  widNow *= mHat / mRes;
-
-  // Optionally two more powers for decays to gauge bosons and Higgses.
-  if (useCubicWidth && id1Abs > 22) widNow *= pow2(mHat / mRes);   
-
-  // Done.
-  return widNow;
+  // Widths of decays Higgs -> H+- + W-+.
+  else if (id1Abs == 37 && id2Abs == 24) 
+    widNow = 0.5 * preFac * pow3(ps) * pow2(coup2HchgW);
 
 }
 
@@ -1065,12 +1030,14 @@ double ResonanceH::eta2gg() {
 
   // Initial values.
   complex eta = complex(0., 0.);
-  double  epsilon, root, rootLog;
+  double  mLoop, epsilon, root, rootLog;
   complex phi, etaNow;
 
   // Loop over s, c, b, t quark flavours.
   for (int id = 3; id < 7; ++id) {
-    epsilon = pow2(2. * ParticleDataTable::mRun(id, mHat) / mHat);
+    mLoop   = (useRunLoopMass) ? ParticleDataTable::mRun(id, mHat)
+                               : ParticleDataTable::m0(id);
+    epsilon = pow2(2. * mLoop / mHat);
 
     // Value of loop integral.
     if (epsilon <= 1.) {
@@ -1106,7 +1073,7 @@ double ResonanceH::eta2gaga() {
   // Initial values.
   complex eta = complex(0., 0.);
   int     id;
-  double  ef, epsilon, root, rootLog;
+  double  ef, mLoop, epsilon, root, rootLog;
   complex phi, etaNow;
 
   // Loop over s, c, b, t, mu, tau, W+-, H+- flavours.
@@ -1119,7 +1086,9 @@ double ResonanceH::eta2gaga() {
  
     // Charge and loop integral parameter.
     ef      = (id < 20) ? CoupEW::ef(id) : 1.;
-    epsilon = pow2(2. * ParticleDataTable::mRun(id, mHat) / mHat);
+    mLoop   = (useRunLoopMass) ? ParticleDataTable::mRun(id, mHat)
+                               : ParticleDataTable::m0(id);
+    epsilon = pow2(2. * mLoop / mHat);
 
     // Value of loop integral.
     if (epsilon <= 1.) {
@@ -1166,7 +1135,7 @@ double ResonanceH::eta2gaZ() {
   // Initial values.
   complex eta = complex(0., 0.);
   int     id;
-  double  ef, vf, mRun, epsilon, epsPrime, root, rootLog, asinEps;
+  double  ef, vf, mLoop, epsilon, epsPrime, root, rootLog, asinEps;
   complex phi, psi, phiPrime, psiPrime, fXY, f1, etaNow;
 
   // Loop over s, c, b, t, mu , tau, W+-, H+- flavours.
@@ -1179,9 +1148,10 @@ double ResonanceH::eta2gaZ() {
     // Electroweak charges and loop integral parameters.
     ef       = (id < 20) ? CoupEW::ef(id) : 1.;
     vf       = (id < 20) ? CoupEW::vf(id) : 0.;
-    mRun     = ParticleDataTable::mRun(id, mHat);
-    epsilon  = pow2(2. * mRun / mHat);
-    epsPrime = pow2(2. * mRun / mZ);
+    mLoop    = (useRunLoopMass) ? ParticleDataTable::mRun(id, mHat)
+                                : ParticleDataTable::m0(id);
+    epsilon  = pow2(2. * mLoop / mHat);
+    epsPrime = pow2(2. * mLoop / mZ);
 
     // Value of loop integral for epsilon = 4 m^2 / sHat.
     if (epsilon <= 1.) {

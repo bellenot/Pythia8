@@ -285,12 +285,13 @@ You can set the environment variable <code>PYTHIA8DATA</code> to
 contain the location of the <code>xmldoc</code> directory. In the
 <code>csh</code> and <code>tcsh</code> shells this could e.g. be 
 <pre>
-     setenv PYTHIA8DATA /home/myname/pythia8100/xmldoc
+     setenv PYTHIA8DATA /home/myname/pythia81xx/xmldoc
 </pre>
 while in other shells it could be
 <pre>
-     export PYTHIA8DATA=/home/myname/pythia8100/xmldoc
+     export PYTHIA8DATA=/home/myname/pythia81xx/xmldoc
 </pre>
+where xx is the subversion number.<br/>
 Recall that environment variables set locally are only defined in the 
 current instance of the shell. The above lines should go into your 
 <code>.cshrc</code> and <code>.bashrc</code> files, respectively, 
@@ -302,10 +303,11 @@ if you want a more permanant assignment.
 You can provide the path as argument to the <code>Pythia</code>
 constructor, e.g.
 <pre>
-     Pythia pythia("/home/myname/pythia8100/xmldoc");
+     Pythia pythia("/home/myname/pythia81xx/xmldoc");
 </pre>
 </li>
 </ol>
+where again xx is the subversion number.<br/>
 When <code>PYTHIA8DATA</code> is set it takes precedence, else 
 the path in the constructor is used, else one defaults to the 
 <code>../xmldoc</code> directory.

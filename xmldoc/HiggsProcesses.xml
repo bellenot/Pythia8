@@ -5,7 +5,7 @@
 This page documents Higgs production within and beyond the Standard Model
 (SM and BSM for short). This includes several different processes and, 
 for the BSM scenarios, a large set of parameters that would only be fixed 
-within a more specific framework such as MSSM. One choice can be made 
+within a more specific framework such as MSSM. Two choices can be made 
 irrespective of the particular model:
 
 <flag name="Higgs:cubicWidth" default="off">
@@ -19,8 +19,18 @@ dependence on <ei>mHat</ei>, i.e. a width proportional to
 <ei>m_Higgs^2 * mHat</ei>, while <code>on</code> gives a 
 <ei>mHat^3</ei> dependence. This does not affect the widths to 
 fermions, which only depend linearly on <ei>mHat</ei>.
-This flag is used both for SM and BSM Higgses, and for the 
-latter is extended also to apply to decays to other Higgses.
+This flag is used both for SM and BSM Higgses.
+</flag>
+
+<flag name="Higgs:runningLoopMass" default="on">
+The partial width of a Higgs particle to a pair of gluons or photons,
+or a <ei>gamma Z^0</ei> pair, proceeds in part through quark loops,
+mainly <ei>b</ei> and <ei>t</ei>. There is some ambiguity what kind
+of masses to use. Default is running MSbar ones, but alternatively 
+fixed pole masses are allowed (as was standard in PYTHIA 6), which 
+typically gives a noticeably higher cross section for these channels.
+(For a decay to a pair of fermions, such as top, the running mass is
+used for couplings and the fixed one for phase space.)
 </flag>
 
 <h3>Standard-Model Higgs, basic processes</h3>

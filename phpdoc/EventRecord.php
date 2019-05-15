@@ -93,12 +93,12 @@ and mass data are always given, but the method can also be called with
 a few optional arguments for further information:
 <p/><code>method&nbsp; </code><strong> list(showScaleAndVertex, showMothersAndDaughters, os) &nbsp;</strong> <br/>
 where
-<br/><code>argument</code><strong> showScaleAndVertex </strong> (<code>default = <strong>off</strong></code>) :  optionally give a 
+<br/><code>argument</code><strong> showScaleAndVertex </strong> (<code>default = <strong>false</strong></code>) :  optionally give a 
 second line for each particle, with the production scale (in GeV), the
 production vertex (in mm or mm/c) and the invariant lifetime
 (also in mm/c).
   
-<br/><code>argument</code><strong> showMothersAndDaughters </strong> (<code>default = <strong>off</strong></code>) : 
+<br/><code>argument</code><strong> showMothersAndDaughters </strong> (<code>default = <strong>false</strong></code>) : 
 gives a list of all daughters and mothers of a particle, as defined by 
 the <code>motherList(i)</code> and <code>daughterList(i)</code> methods 
 described below. It is mainly intended for debug purposes. 
@@ -189,10 +189,11 @@ the event record, and therefore not possible to define inside the
 
 <p/><code>method&nbsp; </code><strong> motherList(i) &nbsp;</strong> <br/>
 returns a <code>vector&lt;int></code> containing a list of all the
-mothers of a particle. This list is empty for entry 0 , while 
-normally it contains one, two or many mothers. The latter case 
-applies e.g. to string fragmentation, where the whole fragmenting 
-system is counted as mothers. Mothers are listed in ascending order.
+mothers of a particle. This list is empty for entries 0, 1 and 2,
+i.e. the "system" in line 0 is not counted as part of the history. 
+Normally the list contains one or two mothers, but it can also be more, 
+e.g. in string fragmentation the whole fragmenting system is counted 
+as mothers to the primary hadrons. Mothers are listed in ascending order.
   
 
 <p/><code>method&nbsp; </code><strong> daughterList(i) &nbsp;</strong> <br/>
@@ -201,10 +202,11 @@ daughters of a particle. This list is empty for a particle that did
 not decay (or, if the evolution is stopped early enough, a parton
 that did not branch), while otherwise it can contain a list of 
 varying length, from one to many. Many partons may have the same 
-<code>daughterList</code>, e.g. in the hard process and fragmentation steps.
-For the two incoming beam particles, all shower initiators and beam 
-remnants are counted as daughters, with the one in slot 0 being
-the one leading up to the hardest interaction. 
+<code>daughterList</code>, e.g. in the hard process and fragmentation 
+steps. For the two incoming beam particles, all shower initiators and
+beam remnants are counted as daughters, with the one in slot 0 being
+the one leading up to the hardest interaction. The "system" in line 0
+does not have any daughters, i.e. is not counted as part of the history. 
   
 
 <p/><code>method&nbsp; </code><strong> iTopCopy(i), iBotCopy(i) &nbsp;</strong> <br/>

@@ -62,9 +62,13 @@ void Sigma1ffbar2H::initProc() {
 
 void Sigma1ffbar2H::sigmaKin() {
 
-  // Set up Breit-Wigner. Width out only includes open channels. 
-  sigBW    = 4. * M_PI / ( pow2(sH - m2Res) + pow2(sH * GamMRat) );    
-  widthOut = HResPtr->resWidthOpen(idRes, mH);
+  // Set up Breit-Wigner.
+  double width = HResPtr->resWidth(idRes, mH);
+  sigBW        = 4. * M_PI/ ( pow2(sH - m2Res) + pow2(mH * width) );    
+
+  // Width out only includes open channels. 
+  widthOut     = width * HResPtr->resOpenFrac(idRes);
+
 }
 
 //*********
@@ -73,15 +77,13 @@ void Sigma1ffbar2H::sigmaKin() {
 
 double Sigma1ffbar2H::sigmaHat() { 
 
-  // Calculate mass-dependent incoming width. Total cross section.
+  // Calculate mass-dependent incoming width, including colour factor.
   int idAbs      = abs(id1);
-  double widthIn = HResPtr->resWidthChan( mH, idAbs);
-  double sigma   = widthIn * sigBW * widthOut;
+  double widthIn = HResPtr->resWidthChan( mH, idAbs, -idAbs);
+  if (idAbs < 9) widthIn /= 9.;
 
-  // Colour factor. Answer.
-  if (idAbs < 9) sigma /= 3.;
-
-  return sigma;    
+  // Done.
+  return widthIn * sigBW * widthOut;    
 
 }
 
@@ -174,15 +176,18 @@ void Sigma1gg2H::initProc() {
 
 void Sigma1gg2H::sigmaKin() { 
 
-  // Incoming width for gluons, gives colour factor of 1/8.
-  double widthIn  = HResPtr->resWidthChan( mH, 21) / 8.;
+  // Incoming width for gluons, gives colour factor of 1/8 * 1/8.
+  double widthIn  = HResPtr->resWidthChan( mH, 21, 21) / 64.;
 
-  // Set up Breit-Wigner. Width out only includes open channels. 
-  double sigBW    = 8. * M_PI/ ( pow2(sH - m2Res) + pow2(sH * GamMRat) );    
-  double widthOut = HResPtr->resWidthOpen(idRes, mH);
+  // Set up Breit-Wigner.
+  double width    = HResPtr->resWidth(idRes, mH);
+  double sigBW    = 8. * M_PI/ ( pow2(sH - m2Res) + pow2(mH * width) );    
+
+  // Width out only includes open channels. 
+  double widthOut = width * HResPtr->resOpenFrac(idRes);
 
   // Done.
-  sigma = widthIn * sigBW * widthOut;    
+  sigma = widthIn * sigBW * widthOut;  
 
 }
 
@@ -275,11 +280,14 @@ void Sigma1gmgm2H::initProc() {
 void Sigma1gmgm2H::sigmaKin() { 
 
   // Incoming width for photons.
-  double widthIn  = HResPtr->resWidthChan( mH, 22);
+  double widthIn  = HResPtr->resWidthChan( mH, 22, 22);
 
-  // Set up Breit-Wigner. Width out only includes open channels. 
-  double sigBW    = 8. * M_PI/ ( pow2(sH - m2Res) + pow2(sH * GamMRat) );    
-  double widthOut = HResPtr->resWidthOpen(idRes, mH);
+  // Set up Breit-Wigner.
+  double width    = HResPtr->resWidth(idRes, mH);
+  double sigBW    = 8. * M_PI/ ( pow2(sH - m2Res) + pow2(mH * width) );    
+
+  // Width out only includes open channels. 
+  double widthOut = width * HResPtr->resOpenFrac(idRes);
 
   // Done.
   sigma = widthIn * sigBW * widthOut;    
@@ -706,7 +714,7 @@ double Sigma3ff2HfftZZ::sigmaHat() {
   // Secondary width for H0, H1, H2 or A3.
   sigma       *= openFrac;
   
-  // Answer..
+  // Answer.
   return sigma;  
 
 }
@@ -1739,7 +1747,7 @@ void Sigma2gg2Hglt::initProc() {
   // Normalization factor by g g -> H partial width.
   // (H can be H0 SM or H1, H2, A3 from BSM).
   double mHiggs = ParticleDataTable::m0(idRes);
-  widHgg = 8. * ParticleDataTable::resWidthChan(idRes, mHiggs, 21);
+  widHgg = ParticleDataTable::resWidthChan(idRes, mHiggs, 21, 21);
 
    // Secondary open width fraction.
   openFrac = ParticleDataTable::resOpenFrac(idRes);
@@ -1836,7 +1844,7 @@ void Sigma2qg2Hqlt::initProc() {
   // Normalization factor by g g -> H partial width.
   // (H can be H0 SM or H1, H2, A3 from BSM).
   double mHiggs = ParticleDataTable::m0(idRes);
-  widHgg = 8. * ParticleDataTable::resWidthChan(idRes, mHiggs, 21);
+  widHgg = ParticleDataTable::resWidthChan(idRes, mHiggs, 21, 21);
 
   // Secondary open width fraction.
   openFrac = ParticleDataTable::resOpenFrac(idRes);
@@ -1937,7 +1945,7 @@ void Sigma2qqbar2Hglt::initProc() {
   // Normalization factor by g g -> H partial width.
   // (H can be H0 SM or H1, H2, A3 from BSM). 
   double mHiggs = ParticleDataTable::m0(idRes);
-  widHgg = 8. * ParticleDataTable::resWidthChan(idRes, mHiggs, 21);
+  widHgg = ParticleDataTable::resWidthChan(idRes, mHiggs, 21, 21);
 
   // Secondary open width fraction.
   openFrac = ParticleDataTable::resOpenFrac(idRes);

@@ -1173,20 +1173,21 @@ bool ParticleDataTable::readString(string lineIn, bool warn,
   // Addition or complete replacement of a particle.
   if (property == "all" || property == "new") {
 
-    // Properties to be read. 
-    string name, antiName;
-    int spinType, chargeType, colType;
-    double m0, mWidth, mMin, mMax, tau0;
+    // Default values for properties to be read. 
+    string name       = "void";
+    string antiName   = "void";
+    int    spinType   = 0;
+    int    chargeType = 0;
+    int    colType    = 0;
+    double m0         = 0.;
+    double mWidth     = 0.;
+    double mMin       = 0.;
+    double mMax       = 0.;
+    double tau0       = 0.;
 
     // Read in data from stream.
     getWord >> name >> antiName >> spinType >> chargeType >> colType 
             >> m0 >> mWidth >> mMin >> mMax >> tau0;   
-
-    // Error printout if something went wrong.
-    if (!getWord) {
-      os << "Error: incomplete particle " << id << "\n";
-      return false;
-    }
 
     // To keep existing decay channels, only overwrite particle data.
     if (property == "all" && isParticle(id)) {

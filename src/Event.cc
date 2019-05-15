@@ -301,19 +301,20 @@ vector<int> Event::motherList(int i) const {
   // Vector of all the mothers; created empty.
   vector<int> mothers;
 
-  // Read out the two official mother indices.
-  int mother1 = entry[i].mother1();
-  int mother2 = entry[i].mother2();
+  // Read out the two official mother indices and status code.
+  int mother1   = entry[i].mother1();
+  int mother2   = entry[i].mother2();
+  int statusAbs = entry[i].statusAbs();
 
   // Special cases in the beginning, where the meaning of zero is unclear.
-  if  (entry[i].statusAbs() == 11) ;
+  if  (statusAbs == 11 || statusAbs == 12) ;
   else if (mother1 == 0 && mother2 == 0) mothers.push_back(0);
     
   // One mother or a carbon copy 
   else if (mother2 == 0 || mother2 == mother1) mothers.push_back(mother1); 
 
   // A range of mothers from string fragmentation.
-  else if ( entry[i].statusAbs() > 80 &&  entry[i].statusAbs() < 90) 
+  else if ( statusAbs > 80 &&  statusAbs < 90) 
     for (int iRange = mother1; iRange <= mother2; ++iRange) 
       mothers.push_back(iRange); 
 

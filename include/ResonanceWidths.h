@@ -52,8 +52,9 @@ public:
   int id() const {return idRes;}
  
   // Calculate the total/open width for given mass, charge and instate.
-  double width(int idSgn, double mHatIn, int idInFlavIn = 0, 
-    bool openOnly = false, bool setBR = false); 
+  double width(int idSgn, double mHatIn, int idInFlavIn = 0,  
+    bool openOnly = false, bool setBR = false, int idOutFlav1 = 0, 
+    int idOutFlav2 = 0); 
 
   // Special case to calculate open final-state width.
   double widthOpen(int idSgn, double mHatIn, int idIn = 0) {
@@ -69,9 +70,10 @@ public:
   // Return forced rescaling factor of resonance width.
   double widthRescaleFactor() {return forceFactor;} 
 
-  // For Higgs only: return pretabulated width for particular channel.
-  // Usage: widthChan( mHat, idAbs1, idAbs2).
-  virtual double widthChan(double, int = 0, int = 0) {return 1.;} 
+  // Special case to calculate one final-state width.
+  // Currently only used for Higgs -> qqbar, g g or gamma gamma. 
+  double widthChan(double mHatIn, int idOutFlav1, int idOutFlav2) {
+    return width( 1, mHatIn, 0, false, false, idOutFlav1, idOutFlav2);}  
 
 protected:
 
@@ -115,7 +117,7 @@ protected:
   virtual void calcPreFac(bool = false) {}
 
   // Calculate width for currently considered channel.
-  // Optional argument calledFromInit only used for Z0 and Higgses.
+  // Optional argument calledFromInit only used for Z0.
   virtual void calcWidth(bool = false) {}
 
   // Simple routines for matrix-element integration over Breit-Wigners.
@@ -262,8 +264,6 @@ public:
   ResonanceH(int higgsTypeIn, int idResIn) : higgsType(higgsTypeIn)
     {initBasic(idResIn);} 
 
-  virtual double widthChan(double mHatIn, int id1Abs = 0, int = 0); 
-
 private: 
 
   // Constants: could only be changed in the code itself.
@@ -273,11 +273,11 @@ private:
   int    higgsType;
 
   // Locally stored properties and couplings.
-  bool   useCubicWidth; 
-  double sin2tW, cos2tW, mZ, mW, mHchg, GammaZ, GammaW, GammaT, 
+  bool   useCubicWidth, useRunLoopMass; 
+  double sin2tW, cos2tW, mT, mZ, mW, mHchg, GammaT, GammaZ, GammaW,
          coup2d, coup2u, coup2l, coup2Z, coup2W, coup2Hchg, coup2H1H1, 
          coup2A3A3, coup2H1Z, coup2A3Z, coup2A3H1, coup2HchgW,
-         widTable[25];
+         kinFacT[101], kinFacZ[101], kinFacW[101];
  
   // Initialize constants.
   virtual void initConstants(); 
@@ -286,7 +286,7 @@ private:
   virtual void calcPreFac(bool = false);
 
   // Caclulate width for currently considered channel.
-  virtual void calcWidth(bool calledFromInit = false);
+  virtual void calcWidth(bool = false);
 
   // Sum up loop contributions in Higgs -> g + g.
   double eta2gg();
