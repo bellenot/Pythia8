@@ -365,6 +365,17 @@ where <code>userHooksPtr</code> derives from the
 
 <p/>
 <li>
+If you want to use your own merging scale definition for
+matrix element + parton shower merging, you can call   
+<pre>
+      pythia.setMergingHooksPtr( mergingHooksPtr); 
+</pre>
+where <code>mergingHooksPtr</code> derives from the 
+<code><a href="MatrixElementMerging.html" target="page">MergingHooks</a></code> base class.
+</li>
+
+<p/>
+<li>
 If you want to use your own parametrization of beam momentum spread and
 interaction vertex, rather than the provided simple Gaussian 
 parametrization (off by default), you can call

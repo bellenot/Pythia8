@@ -11,6 +11,25 @@
 // Access time information.
 #include <ctime>
 
+// GZIP support.
+#ifdef GZIPSUPPORT
+
+// For GCC versions >= 4.6, can switch off shadow warnings.
+#if (defined GZIPSUPPORT && ((__GNUC__ * 100) + __GNUC_MINOR__) >= 406)
+#pragma GCC diagnostic ignored "-Wshadow"
+#endif
+
+// Boost includes.
+#include "boost/iostreams/filtering_stream.hpp"
+#include "boost/iostreams/filter/gzip.hpp"
+
+// Switch shadow warnings back on.
+#if (defined GZIPSUPPORT && ((__GNUC__ * 100) + __GNUC_MINOR__) >= 406)
+#pragma GCC diagnostic warning "-Wshadow"
+#endif
+
+#endif // GZIPSUPPORT
+
 namespace Pythia8 {
 
 //==========================================================================
@@ -408,7 +427,55 @@ bool LHAup::setOldEventLHEF() {
   return true;
 
 }
- 
+
+
+//==========================================================================
+
+// LHAupLHEF class.
+
+//--------------------------------------------------------------------------
+
+// Constructor.
+
+LHAupLHEF::LHAupLHEF(const char* fileIn) : ifs(fileIn), is(NULL) {
+
+// Construct istream without gzip support.
+#ifndef GZIPSUPPORT
+  is = (istream *) &ifs;
+
+// Construct istream with gzip support.
+#else
+  boost::iostreams::filtering_istream *fis =
+    new boost::iostreams::filtering_istream();
+
+  // Pass along the 'good()' flag, so code elsewhere works unmodified.
+  if (!ifs.good()) fis->setstate(ios_base::badbit);
+
+  // Check filename ending to decide which filters to apply.
+  else {
+    const char *last = strrchr(fileIn, '.');
+    if (last && strncmp(last, ".gz", 3) == 0)
+      fis->push(boost::iostreams::gzip_decompressor());
+    fis->push(ifs);
+  }
+  is = (istream *) fis;
+#endif
+
+}
+
+//--------------------------------------------------------------------------
+
+// Destructor.
+
+LHAupLHEF::~LHAupLHEF() {
+
+// Delete istream if constructed.
+#ifdef GZIPSUPPORT
+  if (is) delete is;
+#endif
+
+}
+
 //==========================================================================
 
 // LHAupFromPYTHIA8 class.

@@ -143,12 +143,15 @@ bool ProcessLevel::init( Info* infoPtrIn, Settings& settings,
   for (int i = 0; i < int(containerPtrs.size()); ++i)
     if (containerPtrs[i]->isSUSY()) hasSUSY = true;
 
-  //If SUSY processes requested but no SUSY couplings present
+  // If SUSY processes requested but no SUSY couplings present
   if(hasSUSY && !couplingsPtr->isSUSY) {
     infoPtr->errorMsg("Error in ProcessLevel::init: "
       "SUSY process switched on but no SUSY couplings found"); 
     return false;
   }
+
+  // Initialize SLHA blocks SMINPUTS and MASS from PYTHIA SM parameter values.
+  initSLHA();
 
   // Initialize each process. 
   int numberOn = 0;
@@ -491,6 +494,45 @@ void ProcessLevel::statistics(bool reset, ostream& os) {
   // Optionally reset statistics contants.
   if (reset) for (int i = 0; i < int(containerPtrs.size()); ++i) 
     containerPtrs[i]->reset();
+
+}
+
+//--------------------------------------------------------------------------
+
+// Initialize SLHA blocks SMINPUTS and MASS from PYTHIA SM parameter values.
+
+void ProcessLevel::initSLHA() {
+
+  // Initialize block SMINPUTS.
+  string blockName = "sminputs";
+  double mZ = particleDataPtr->m0(23);
+  slhaPtr->set(blockName,1,1.0/couplingsPtr->alphaEM(pow2(mZ)));
+  slhaPtr->set(blockName,2,couplingsPtr->GF());
+  slhaPtr->set(blockName,3,couplingsPtr->alphaS(pow2(mZ)));
+  slhaPtr->set(blockName,4,mZ);
+  // b mass (should be running mass, here pole for time being)
+  slhaPtr->set(blockName,5,particleDataPtr->m0(5));
+  slhaPtr->set(blockName,6,particleDataPtr->m0(6));
+  slhaPtr->set(blockName,7,particleDataPtr->m0(15));
+  slhaPtr->set(blockName,8,particleDataPtr->m0(16));
+  slhaPtr->set(blockName,11,particleDataPtr->m0(11));
+  slhaPtr->set(blockName,12,particleDataPtr->m0(12));
+  slhaPtr->set(blockName,13,particleDataPtr->m0(13));
+  slhaPtr->set(blockName,14,particleDataPtr->m0(14));
+  // Force 3 lightest quarks massless 
+  slhaPtr->set(blockName,21,double(0.0));
+  slhaPtr->set(blockName,22,double(0.0));
+  slhaPtr->set(blockName,23,double(0.0));
+  // c mass (should be running mass, here pole for time being)
+  slhaPtr->set(blockName,24,particleDataPtr->m0(4));
+
+  // Initialize block MASS.
+  blockName = "mass";
+  int id = 1;
+  while (id >= 1) {
+    slhaPtr->set(blockName,id,particleDataPtr->m0(id));
+    id = particleDataPtr->nextId(id);    
+  }
 
 }
 

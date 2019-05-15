@@ -1050,7 +1050,7 @@ bool PhaseSpace::trialKin123(bool is2, bool is3, bool inEvent, ostream& os) {
   if (canModifySigma) sigmaNw 
     *= userHooksPtr->multiplySigmaBy( sigmaProcessPtr, this, inEvent);
   if (canBiasSelection) sigmaNw 
-    *= userHooksPtr->biasSelectionBy( sigmaProcessPtr, this, false);
+    *= userHooksPtr->biasSelectionBy( sigmaProcessPtr, this, inEvent);
 
   // Check if maximum violated.
   newSigmaMx = false;
@@ -3111,7 +3111,7 @@ bool PhaseSpace2to3yyycyl::trialKin(bool inEvent, bool) {
   if (canModifySigma) sigmaNw 
     *= userHooksPtr->multiplySigmaBy( sigmaProcessPtr, this, inEvent);
   if (canBiasSelection) sigmaNw 
-    *= userHooksPtr->biasSelectionBy( sigmaProcessPtr, this, false);
+    *= userHooksPtr->biasSelectionBy( sigmaProcessPtr, this, inEvent);
 
   // Check if maximum violated.
   newSigmaMx = false;

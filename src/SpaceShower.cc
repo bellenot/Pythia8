@@ -1441,7 +1441,7 @@ bool SpaceShower::branch( Event& event) {
 
   // Allow veto of branching. If so restore event record to before emission.
   if ( canVetoEmission 
-    && userHooksPtr->doVetoISREmission(eventSizeOld, event) ) {
+    && userHooksPtr->doVetoISREmission(eventSizeOld, event, iSysSel) ) {
     event.popBack( event.size() - eventSizeOld); 
     event[1].daughter1( ev1dau1V);
     event[2].daughter1( ev2dau1V);

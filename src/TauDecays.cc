@@ -247,7 +247,7 @@ bool TauDecays::decay(int idxOut1, Event& event) {
   tau = &particles[idx];
 
   // Calculate the density matrix and decay the tau.
-  if ((mode == 2 && abs(mediator.id())) == mother|| mode == 3) {
+  if ( (mode == 2 && abs(mediator.id()) == mother) || mode == 3) {
     tau->rho[0][0] = (tau->id() > 0) 
       ? (1 - polarization) / 2 : (1 + polarization) / 2;
     tau->rho[1][1] = (tau->id() > 0) 

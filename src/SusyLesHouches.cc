@@ -6,11 +6,31 @@
 
 #include "SusyLesHouches.h"
 
+// GZIP support.
+#ifdef GZIPSUPPORT
+
+// For GCC versions >= 4.6, can switch off shadow warnings.
+#if (defined GZIPSUPPORT && ((__GNUC__ * 100) + __GNUC_MINOR__) >= 406)
+#pragma GCC diagnostic ignored "-Wshadow"
+#endif
+
+// Boost includes.
+#include "boost/iostreams/filtering_stream.hpp"
+#include "boost/iostreams/filter/gzip.hpp"
+
+// Switch shadow warnings back on.
+#if (defined GZIPSUPPORT && ((__GNUC__ * 100) + __GNUC_MINOR__) >= 406)
+#pragma GCC diagnostic warning "-Wshadow"
+#endif
+
+#endif // GZIPSUPPORT
+
 //==========================================================================
 
 // Main routine to read in SLHA and LHEF+SLHA files
 
-int SusyLesHouches::readFile(string slhaFileIn, int verboseIn, bool useDecayIn) {
+int SusyLesHouches::readFile(string slhaFileIn, int verboseIn, 
+  bool useDecayIn) {
 
   // Copy inputs to local
   slhaFile = slhaFileIn;
@@ -20,13 +40,34 @@ int SusyLesHouches::readFile(string slhaFileIn, int verboseIn, bool useDecayIn) 
   // Check that input file is OK.
   int iFailFile=0;
   const char* cstring = slhaFile.c_str();
-  ifstream file(cstring);  
+
+// Construct istream without gzip support.
+#ifndef GZIPSUPPORT
+  ifstream file(cstring);
+
+// Construct istream with gzip support.
+#else
+  boost::iostreams::filtering_istream file;
+  ifstream fileBase(cstring);
+
+  // Pass along the 'good()' flag, so code elsewhere works unmodified.
+  if (!fileBase.good()) file.setstate(ios_base::badbit);
+
+  // Check filename ending to decide which filters to apply.
+  else {
+    const char *last = strrchr(cstring, '.');
+    if (last && strncmp(last, ".gz", 3) == 0)
+      file.push(boost::iostreams::gzip_decompressor());
+    file.push(fileBase);
+  }
+#endif
+
+  // Exit if input file not found. Else print file name.
   if (!file.good()) {
     message(2,"readFile",slhaFile+" not found",0);
     return -1;
     slhaRead=false;
   }  
-
   if (verbose >= 3) {
     message(0,"readFile","parsing "+slhaFile,0);
     filePrinted = true;

@@ -20,6 +20,7 @@
 #include "SigmaTotal.h"
 #include "SigmaProcess.h"
 #include "StandardModel.h"
+#include "UserHooks.h"
 
 namespace Pythia8 {
  
@@ -103,7 +104,8 @@ public:
     Settings& settings, ParticleData* particleDataPtr, Rndm* rndmPtrIn, 
     BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, 
     Couplings* couplingsPtrIn, PartonSystems* partonSystemsPtrIn, 
-    SigmaTotal* sigmaTotPtrIn, ostream& os = cout);
+    SigmaTotal* sigmaTotPtrIn, UserHooks* userHooksPtrIn,
+    ostream& os = cout);
 
   // Reset impact parameter choice and update the CM energy.
   void reset();
@@ -125,7 +127,7 @@ public:
   double pTnext( double pTbegAll, double pTendAll, Event& event);
 
   // Set up kinematics of acceptable interaction.
-  void scatter( Event& event); 
+  bool scatter( Event& event); 
 
   // Set "empty" values to avoid query of undefined quantities.
   void setEmpty() {pT2Ren = alpS = alpEM = x1 = x2 = pT2Fac 
@@ -162,7 +164,7 @@ private:
                       KCONVERGE, CONVERT2MB, ROOTMIN, ECMDEV;
 
   // Initialization data, read from Settings.
-  bool   allowRescatter, allowDoubleRes;
+  bool   allowRescatter, allowDoubleRes, canVetoMI;
   int    pTmaxMatch, alphaSorder, alphaEMorder, bProfile, processLevel, 
          rescatterMode, nQuarkIn, nSample, enhanceScreening;
   double alphaSvalue, Kfactor, pT0Ref, ecmRef, ecmPow, pTmin, coreRadius, 
@@ -245,6 +247,9 @@ private:
 
   // Pointer to total cross section parametrization.
   SigmaTotal*    sigmaTotPtr;
+
+  // Pointer to user hooks.
+  UserHooks*     userHooksPtr;
 
   // Collections of parton-level 2 -> 2 cross sections. Selected one.
   SigmaMultiple  sigma2gg, sigma2qg, sigma2qqbarSame, sigma2qq;

@@ -14,6 +14,7 @@
 #include "Event.h"
 #include "FragmentationFlavZpT.h"
 #include "FragmentationSystems.h"
+#include "HadronScatter.h"
 #include "HiddenValleyFragmentation.h"
 #include "Info.h"
 #include "MiniStringFragmentation.h"
@@ -65,6 +66,9 @@ private:
   bool   doHadronize, doDecay, doBoseEinstein, allowRH;
   double mStringMin, eNormJunction, widthSepBE;
 
+  // Settings for hadron scattering --rjc
+  bool   doHadronScatter, hsAfterDecay;
+
   // Pointer to various information on the generation.
   Info*         infoPtr;
 
@@ -94,6 +98,9 @@ private:
 
   // The generator class for normal decays.
   ParticleDecays decays;
+
+  // The generator class for hadron scattering --rjc
+  HadronScatter hadronScatter;
 
   // The generator class for Bose-Einstein effects. 
   BoseEinstein boseEinstein;

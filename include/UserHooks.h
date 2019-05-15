@@ -12,7 +12,6 @@
 
 #include "Event.h"
 #include "PartonSystems.h"
-#include "PhaseSpace.h"
 #include "PythiaStdlib.h"
 #include "SigmaProcess.h"
 
@@ -121,23 +120,36 @@ public:
   // Initial scale for TimeShower evolution. 
   // Usage: scaleResonance( iRes, event), where iRes is location
   // of decaying resonance in the event record. 
-  virtual double scaleResonance( const int, const Event& ) {return 0.;} 
+  virtual double scaleResonance( int, const Event& ) {return 0.;} 
 
   // Possibility to veto an emission in the ISR machinery.
   virtual bool canVetoISREmission() {return false;}
 
   // Decide whether to veto current emission or not, based on event record.
-  // Usage: doVetoISREmission( sizeOld, event) where sizeOld is size
-  // of event record before current emission-to-be-scrutinized was added. 
-  virtual bool doVetoISREmission( const int, const Event& ) {return false;} 
+  // Usage: doVetoISREmission( sizeOld, event, iSys) where sizeOld is size
+  // of event record before current emission-to-be-scrutinized was added,
+  // and iSys is the system of the radiation (according to PartonSystems).
+  virtual bool doVetoISREmission( int, const Event&, int ) {return false;} 
 
   // Possibility to veto an emission in the FSR machinery.
   virtual bool canVetoFSREmission() {return false;}
 
   // Decide whether to veto current emission or not, based on event record.
-  // Usage: doVetoFSREmission( sizeOld, event) where sizeOld is size
-  // of event record before current emission-to-be-scrutinized was added. 
-  virtual bool doVetoFSREmission( const int, const Event& ) {return false;} 
+  // Usage: doVetoFSREmission( sizeOld, event, iSys, inResonance) where 
+  // sizeOld is size of event record before current emission-to-be-scrutinized 
+  // was added, iSys is the system of the radiation (according to 
+  // PartonSystems), and inResonance is true if the emission takes place in a
+  // resonance decay.
+  virtual bool doVetoFSREmission( int, const Event&, int, bool = false )
+      {return false;} 
+
+  // Possibility to veto an MI.
+  virtual bool canVetoMIEmission() { return false; }
+
+  // Decide whether to veto an MI based on event record.
+  // Usage: doVetoMIEmission( sizeOld, event) where sizeOld
+  // is size of event record before the current MI.
+  virtual bool doVetoMIEmission(int, const Event &) { return false; }
 
 protected:
 

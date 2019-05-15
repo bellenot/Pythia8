@@ -30,7 +30,7 @@ namespace Pythia8 {
 void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn, 
   ParticleData* particleDataPtrIn) {
 
-  // Save pointers..
+  // Save pointers.
   slhaPtr         = slhaPtrIn;
   settingsPtr     = settingsPtrIn;
   particleDataPtr = particleDataPtrIn;
@@ -60,9 +60,9 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
     // Possibility to force on-shell sin2W definition, mostly intended for 
     // cross-checks
     sin2W     = 1.0 - pow(mW/mZ,2); 
-  }else if (settingsPtr->mode("SUSY:sin2thetaWMode") == 2){
+  } else if (settingsPtr->mode("SUSY:sin2thetaWMode") == 2){
     // Possibility to use running sin2W definition, derived from gauge
-  // couplings in running SLHA blocks (normally defined at SUSY scale)
+    // couplings in running SLHA blocks (normally defined at SUSY scale)
     if(slhaPtr->gauge.exists(1) && slhaPtr->gauge.exists(2) 
        && slhaPtr->hmix.exists(3)) {
       double gp=slhaPtr->gauge(1);
@@ -75,11 +75,11 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
       sin2W   = pow2(gp)/(pow2(g)+pow2(gp));  
     } else {
       slhaPtr->message(1,"initSUSY",
-		       "Block GAUGE not found; using sin(thetaW) at mZ");
+        "Block GAUGE not found or incomplete; using sin(thetaW) at mZ");
     }
   }
 
-  //Overload the SM value of sin2thetaW
+  // Overload the SM value of sin2thetaW
   s2tW = sin2W;
 
   sinW = sqrt(sin2W);
@@ -93,7 +93,7 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
   else{ 
     slhaPtr->minpar(3);
     slhaPtr->message(1,"initSUSY",
-		     "Block HMIX not found or incomplete; using MINPAR tan(beta)");
+      "Block HMIX not found or incomplete; using MINPAR tan(beta)");
   }
   cosb = sqrt( 1.0 / (1.0 + tanb*tanb) );
   sinb = sqrt(max(0.0,1.0-cosb*cosb));
@@ -112,7 +112,7 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
     }
   }  
   
-  //Higgs sector
+  // Higgs sector
   if(slhaPtr->alpha.exists(1))
     alphaHiggs = slhaPtr->alpha(1);
   else{
@@ -126,7 +126,7 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
     mAHiggs = sqrt(slhaPtr->hmix(4));
   } else{
     slhaPtr->message(1,"initSUSY",
-		     "Block HMIX not found or incomplete; setting mu = mA = 0.");
+      "Block HMIX not found or incomplete; setting mu = mA = 0.");
     muHiggs = 0.0;
     mAHiggs = 0.0;
   }
@@ -163,7 +163,7 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
     
     // q[i] q[i] Z (def with extra factor 2 compared to [Okun])
     LqqZ[i] = af(i) - 2.0*ef(i)*sin2W ;
-    RqqZ[i] =                  - 2.0*ef(i)*sin2W ;
+    RqqZ[i] =       - 2.0*ef(i)*sin2W ;
 
     // tmp: verbose output
     if (DEBUG) {
@@ -204,7 +204,7 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
 	RsusuZ[i][j] += RqqZ[2] * (Ruik3*conj(Rujk3)); 
       }
       
-    // tmp: verbose output
+      // tmp: verbose output
       if (DEBUG) {
 	if (max(abs(LsdsdZ[i][j]),abs(RsdsdZ[i][j])) > 1e-6) {
 	  cout << " LsdsdZ[" << i << "][" << j << "] = " 
@@ -221,8 +221,11 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
       }
     }
   }
+
+  SusyLesHouches::MatrixBlock<6> Rsl(slhaPtr->selmix);
+  SusyLesHouches::MatrixBlock<3> Rsv(slhaPtr->snumix);
   
-  //Construct llZ couplings; 
+  // Construct llZ couplings; 
   for (int i=11 ; i<=16 ; i++) {
     
     LllZ[i-10] = af(i) - 2.0*ef(i)*sin2W ;
@@ -230,36 +233,33 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
 
     // tmp: verbose output
     if (DEBUG) {
-      cout << " LllZ  [" << i << "][" << i << "] = " 
-           << scientific << setw(10) << LllZ[i] 
-           << " RllZ  [" << i << "][" << i  << "] = " 
-           << scientific << setw(10) << RllZ[i] << endl;
+      cout << " LllZ  [" << i-10 << "][" << i-10 << "] = " 
+           << scientific << setw(10) << LllZ[i-10] 
+           << " RllZ  [" << i-10 << "][" << i-10  << "] = " 
+           << scientific << setw(10) << RllZ[i-10] << endl;
     }
   }
   
-  //Construct ~l~lZ couplings
-  //Initialize
+  // Construct ~l~lZ couplings
+  // Initialize
   for(int i=1;i<=6;i++){
     for(int j=1;j<=6;j++){
-      LslslZ[i][j] = 0;
-      RslslZ[i][j] = 0;
-      LsvsvZ[i][j] = 0;
-      RsvsvZ[i][j] = 0;
+      LslslZ[i][j] = 0.0;
+      RslslZ[i][j] = 0.0;
+
+      for (int k=1;k<=3;k++) {
+	LsdsdZ[i][j] += LllZ[1] * Rsl(i,k) * Rsl(j,k);
+	RsdsdZ[i][j] += RllZ[1] * Rsl(i,k+3) * Rsl(j,k+3);
+      }
+      
+      // ~v[i] ~v[j] Z
+      LsvsvZ[i][j] = 0.0;
+      RsvsvZ[i][j] = 0.0; 
+      for (int k=1;k<=3;k++) 
+	LsusuZ[i][j] += LllZ[2] * Rsv(i,k)*Rsv(j,k); 
     }
   }
-
-  for(int i=1;i<=3;i++){
-    // Charged leptons
-    LslslZ[i][i] = LllZ[1];
-    RslslZ[i][i] = RllZ[1];
-    LslslZ[i+3][i+3] = LllZ[1];
-    RslslZ[i+3][i+3] = RllZ[1];
-
-    // Neutrinos; no right handed sneutrinos
-    LsvsvZ[i+3][i+3] = LllZ[2];
-    RsvsvZ[i+3][i+3] = RllZ[2];
-  }
-
+ 
   for(int i=1;i<=6;i++){
     for(int j=1;j<=6;j++){
       if (DEBUG) {
@@ -307,39 +307,6 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
   }
 
 
-  // Construct lvW couplings
-  for (int i=1;i<=3;i++){
-    LlvW[i] = sqrt(2.0) * cosW;
-    RlvW[i] = 0.0;
-
-      // tmp: verbose output
-      if (DEBUG) {
-	cout << " LlvW  [" << i << "] = " 
-             << scientific << setw(10) << LlvW[i]
-	     << " RlvW  [" << i << "] = " 
-             << scientific << setw(10) << RlvW[i] << endl;
-      }
-  }
-
-  // Construct ~l~vW couplings
-  for (int k=1;k<=6;k++) {
-    for (int l=1;l<=6;l++) {
-      LslsvW[k][l]=0.0; 
-      RslsvW[k][l]=0.0;
-
-      if(k==l && k>3) LslsvW[k][l] = LlvW[k-3];
-
-      // tmp: verbose output
-      if (DEBUG) {
-	cout << " LslsvW  [" << k << "][" << l << "] = " 
-             << scientific << setw(10) << LudW[k][l]
-	     << " RslsvW  [" << k << "][" << l << "] = " 
-             << scientific << setw(10) << RudW[k][l] << endl;
-      }
-    }
-  }
-
-
   // Construct ~u~dW couplings
   // Loop over ~u[k] and ~d[l] flavours
   for (int k=1;k<=6;k++) {
@@ -381,6 +348,45 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
 
     }
   }
+
+
+
+  // Construct lvW couplings
+  for (int i=1;i<=3;i++){
+    LlvW[i] = sqrt(2.0) * cosW;
+    RlvW[i] = 0.0;
+
+      // tmp: verbose output
+      if (DEBUG) {
+	cout << " LlvW  [" << i << "] = " 
+             << scientific << setw(10) << LlvW[i]
+	     << " RlvW  [" << i << "] = " 
+             << scientific << setw(10) << RlvW[i] << endl;
+      }
+  }
+
+  // Construct ~l~vW couplings
+  for (int k=1;k<=6;k++) {
+    for (int l=1;l<=6;l++) {
+      LslsvW[k][l]=0.0; 
+      RslsvW[k][l]=0.0;
+
+      if(l<=3) // Only left-handed sneutrinos
+	for(int i=1;i<=3;i++)
+	  LslsvW[k][l] += sqrt(2.0) * cosW * Rsl(k,i) * Rsl(l,i);
+
+
+      // tmp: verbose output
+      if (DEBUG) {
+	cout << " LslsvW  [" << k << "][" << l << "] = " 
+             << scientific << setw(10) << LslsvW[k][l]
+	     << " RslsvW  [" << k << "][" << l << "] = " 
+             << scientific << setw(10) << RslsvW[k][l] << endl;
+      }
+    }
+  }
+
+
   
   // Now we come to the ones with really many indices
   
@@ -435,7 +441,7 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
       OLpp[i][j] = -0.5 * ni3 * conj(nj3) + 0.5 * ni4 * conj(nj4);
       ORpp[i][j] = 0.5 * conj(ni3) * nj3 - 0.5 * conj(ni4) * nj4;
       
-    // tmp: verbose output
+      // tmp: verbose output
       if (DEBUG) {
 	cout << " OL''  [" << i << "][" << j << "] = " 
              << scientific << setw(10) << OLpp[i][j]
@@ -571,17 +577,18 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
 	LsvvX[j][k][i] = 0;
 	RsvvX[j][k][i] = 0;
 
-	if(j==k || j==k+3){// No lepton mixing
+	// ~l[j] l[k] ~chi0[i]
+	// Changed according to new notation
+	LsllX[j][k][i] = ((el-T3l)*sinW*ni1 + T3l*cosW*ni2)*Rsl(j,k)
+	  + ml*cosW*ni3/2.0/mW/cosb*Rsl(j,k+3); 
+	RsllX[j][k][i] = -el*sinW*conj(ni1)*Rsl(j,k+3)
+	  + ml*cosW*conj(ni3)/2.0/mW/cosb*Rsl(j,k);
 
-	  // ~l[j] l[k] ~chi0[i]
-	  // Changed according to new notation
-	  LsllX[j][k][i] = (el-T3l)*sinW*ni1 + T3l*cosW*ni2 + ml*cosW*ni3/2.0/mW/cosb; 
-	  RsllX[j][k][i] = -el*sinW*conj(ni1) + ml*cosW*conj(ni3)/2.0/mW/cosb;
-	
+	if(j<3 && j==k){
+	  // No sneutrino mixing; only left handed
 	  // ~v[j] v[k] ~chi0[i]
 	  LsvvX[j][k][i] = ((ev-T3v)*sinW*ni1 + T3v*cosW*ni2);
 	}
-
 
 	if (DEBUG) {
 	  if (abs(LsllX[j][k][i]) > 1e-6) {
@@ -736,7 +743,7 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
       }
     }  
 
-    // Loop over squark [j] flavour
+    // Loop over slepton [j] flavour
     for (int j=1;j<=6;j++) {
       for (int k=1;k<=3;k++) {
 	
@@ -746,19 +753,18 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
 	RsvlX[j][k][i] = 0.0;
 
 	// Set lepton [k] masses 
-	double ml(0.0); 
+	double ml = 0.0; 
 	if (k == 3) ml = particleDataPtr->m0(15);
 	
 	if(j==k || j==k+3){ // No lepton mixing
 	  
 	  // ~l[j] v[l] ~chi+[i]
-	  LslvX[j][k][i] = ui1- ml*ui2/rt2/mW/cosb;
-	  RslvX[j][k][i] = ml*conj(vi2)/rt2/mW/sinb; 
+	  LslvX[j][k][i] += ui1- ml*ui2/rt2/mW/cosb;
+	  RslvX[j][k][i] -= ml*conj(vi2)/rt2/mW/sinb; 
 	  
 	  // ~v[j] l[l] ~chi+[i]
 	  if(j<=3){ // No right handed sneutrinos
-	    LsvlX[j][k][i] = conj(vi1) - ml*conj(vi2)/rt2/mW/sinb;
-	    RsvlX[j][k][i] = 0.0;
+	    LsvlX[j][k][i] += conj(vi1) - ml*conj(vi2)/rt2/mW/sinb;
 	  } 
 	}
 
@@ -816,9 +822,12 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
   }
 
   // Shorthand for RPV couplings 
-  SusyLesHouches::Tensor3Block<3> rvlle(slhaPtr->rvlamlle); // The input LNV lambda couplings
-  SusyLesHouches::Tensor3Block<3> rvlqd(slhaPtr->rvlamlqd); // The input LNV lambda' couplings
-  SusyLesHouches::Tensor3Block<3> rvudd(slhaPtr->rvlamudd); // The input BNV lambda'' couplings
+  // The input LNV lambda couplings
+  SusyLesHouches::Tensor3Block<3> rvlle(slhaPtr->rvlamlle); 
+  // The input LNV lambda' couplings
+  SusyLesHouches::Tensor3Block<3> rvlqd(slhaPtr->rvlamlqd); 
+  // The input BNV lambda'' couplings
+  SusyLesHouches::Tensor3Block<3> rvudd(slhaPtr->rvlamudd); 
 
   isLLE = false;
   isLQD = false;
@@ -870,7 +879,6 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
       }
     }
   }
-
   
   if(DEBUG){ 
     for(int i=1;i<=3;i++){
@@ -923,6 +931,7 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
 // Return neutralino flavour codes.
 
 int CoupSUSY::idNeut(int idChi) {
+
   int id = 0;
   if      (idChi == 1) id = 1000022; 
   else if (idChi == 2) id = 1000023; 
@@ -937,6 +946,7 @@ int CoupSUSY::idNeut(int idChi) {
 // Return chargino flavour codes.
 
 int CoupSUSY::idChar(int idChi) {
+
   int id = 0;
   if      (idChi ==  1) id =  1000024; 
   else if (idChi == -1) id = -1000024;     
@@ -950,6 +960,7 @@ int CoupSUSY::idChar(int idChi) {
 // Return sup flavour codes.
 
 int CoupSUSY::idSup(int iSup) {
+
   int id = 0;
   int sgn = ( iSup > 0 ) ? 1 : -1;
   iSup = abs(iSup);
@@ -967,6 +978,7 @@ int CoupSUSY::idSup(int iSup) {
 // Return sdown flavour codes
 
 int CoupSUSY::idSdown(int iSdown) {
+
   int id = 0;
   int sgn = ( iSdown > 0 ) ? 1 : -1;
   iSdown = abs(iSdown);
@@ -984,6 +996,7 @@ int CoupSUSY::idSdown(int iSdown) {
 // Function to return slepton flavour codes
 
 int CoupSUSY::idSlep(int iSlep) {
+
   int id = 0;
   int sgn = ( iSlep > 0 ) ? 1 : -1;
   iSlep = abs(iSlep);
@@ -1092,7 +1105,7 @@ string CoupSUSY::getName(int pdgCode) {
 
 //--------------------------------------------------------------------------
 
-//Return neutralino code; zero if not a neutralino
+// Return neutralino code; zero if not a neutralino
 
 int CoupSUSY::typeNeut(int idPDG) {
   int type = 0;
@@ -1106,19 +1119,16 @@ int CoupSUSY::typeNeut(int idPDG) {
 
 }  
 
-
 //--------------------------------------------------------------------------
 
-//Check whether particle is a Chargino
+// Check whether particle is a Chargino
 
 int CoupSUSY::typeChar(int idPDG) {
   int type = 0;
   if(abs(idPDG) == 1000024) type = 1;
   else if (abs(idPDG) == 1000037)type = 2;
   return type;
-}  
-
-  
+}    
 
 //==========================================================================
 

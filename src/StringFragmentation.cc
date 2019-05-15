@@ -807,12 +807,25 @@ void StringFragmentation::store(Event& event) {
 bool StringFragmentation::fragmentToJunction(Event& event) {
 
   // Identify range of partons on the three legs.
-  // (Each leg begins with an iParton[i] = -(10 + 10*junctionNuber + leg),
+  // (Each leg begins with an iParton[i] = -(10 + 10*junctionNumber + leg),
   // and partons then appear ordered from the junction outwards.)
   int legBeg[3], legEnd[3];
   int leg = -1;
+  // PS (4/10/2011) Protect against invalid systems 
+  if (iParton[0] > 0) {
+    infoPtr->errorMsg("Error in StringFragmentation::fragment" 
+		      "ToJunction: iParton[0] not a valid junctionNumber");
+    return false;
+  }
   for (int i = 0; i < int(iParton.size()); ++i) {
-    if (iParton[i] < 0) legBeg[++leg] = i + 1; 
+    if (iParton[i] < 0) {
+      if (leg == 2) {
+	infoPtr->errorMsg("Error in StringFragmentation::fragment" 
+			  "ToJunction: unprocessed multi-junction system");
+	return false;
+      }
+      legBeg[++leg] = i + 1; 
+    } 
     else legEnd[leg] = i;    
   }
 

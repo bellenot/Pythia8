@@ -465,6 +465,14 @@ Internally this name is then used to create an instance of the derived
 class <code>LHAupLHEF</code>, which can do the job of reading an LHEF.
 
 <p/>
+Normally the LHEF would be in uncompressed format, and thus human-readable
+if opened in a text editor. A possibility to read gzipped files has 
+been added, based on the Boost and zlib libraries, which therefore
+have to be linked appropriately in order for this option to work.
+See the <code>README</code> file in the main directory for details 
+on how to do this. 
+
+<p/>
 An example how to generate events from an LHEF is found in 
 <code>main12.cc</code>. Note the use of 
 <code>Info::atEndOfFile()</code> to find out when the whole

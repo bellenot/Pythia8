@@ -28,7 +28,7 @@ class CoupSUSY : public Couplings{
 public:
 
   // Constructor
-  CoupSUSY() {isInit=false; isNMSSM = false;isSUSY=true;}
+  CoupSUSY() {isInit=false; isNMSSM = false; isSUSY=true;}
 
   // Initialize
   void initSUSY(SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn, 
@@ -116,8 +116,8 @@ public:
   complex LlvW[4], RlvW[4];
 
   // ~l~lZ couplings
-  double LslslZ[7][7],RslslZ[7][7];
-  double LsvsvZ[7][7],RsvsvZ[7][7];
+  complex LslslZ[7][7],RslslZ[7][7];
+  complex LsvsvZ[7][7],RsvsvZ[7][7];
 
   // ~l~vW couplings
   complex LslsvW[7][7], RslsvW[7][7];

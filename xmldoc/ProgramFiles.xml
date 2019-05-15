@@ -35,7 +35,9 @@ description of contents.
 
 <file name="Analysis">
 contains routines to analyze events. Currently it can do sphericity, 
-thrust, Lund/Jade/Durham jet clustering, and cone-jet finding.
+thrust, Lund/Jade/Durham jet clustering, cone-jet finding, and the 
+<ei>kT</ei>, anti-<ei>kT</ei> and Cambridge/Aachen algorithms for
+hadron colliders.
 </file>
 
 <file name="Basics">
@@ -114,6 +116,12 @@ hadronization in models with a hidden sector that contains an unbroken
 derived from the normal fragmentation classes.
 </file>
 
+<file name="History">
+methods to reconstruct the imagined shower history of a 
+matrix-element-generated multiparton configuration, as part of 
+the CKKW-L matrix element merging.
+</file>
+
 <file name="Info">
 is a simple container that gives access to some information on the
 nature of the current process, such as Mandelstam variables.
@@ -141,6 +149,12 @@ as needed for a runtime interface. There is a file
 implementations, however. This file is used to build a separate 
 <code>liblhapdfdummy</code> library, to be linked when the LHAPDF 
 library is not used, so as to avoid problems with undefined references. 
+</file>
+
+<file name="MergingHooks"> 
+intercede in the normal shower evolution to construct the relevant
+Sudakov form factor suppressions as part of the CKKW-L matrix element
+merging.
 </file>
 
 <file name="MiniStringFragmentation"> 
@@ -178,7 +192,7 @@ interactions, and beam remnants.
 </file>
 
 <file name="PartonSystems">
-keeps track of which partons belong to which partonic susbsystem,
+keeps track of which partons belong to which partonic subsystem,
 i.e. one of the multiple (semi)hard interactiosn with associated
 showers.
 </file>

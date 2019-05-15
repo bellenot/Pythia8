@@ -54,7 +54,6 @@ public:
   void set_crash_on_problem( bool b = false );
   void set_freepartonwarnings( bool b = true );
   void set_convert_to_mev( bool b = false );
-  void set_weight_in_fb( bool b = false );
 
 private: 
 
@@ -75,8 +74,6 @@ private:
   bool   m_freepartonwarnings;
   bool   m_convert_to_mev;
   double m_mom_scale_factor;
-  bool   m_weight_in_fb;
-  double m_weight_scale_factor;
   int    m_internal_event_number;
 
 };
@@ -109,9 +106,6 @@ inline void I_Pythia8::set_convert_to_mev( bool b  )
 
 inline void I_Pythia8::set_freepartonwarnings( bool b  )
   { m_freepartonwarnings = b; }
-
-inline void I_Pythia8::set_weight_in_fb( bool b  )
-  { m_weight_in_fb = b; m_weight_scale_factor = (b) ? 1e9 : 1.;}
 
 //==========================================================================
 

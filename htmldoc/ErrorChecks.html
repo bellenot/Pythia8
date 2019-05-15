@@ -12,6 +12,18 @@ There is a few settings related to error checking during program
 execution. Many other checks are performed as well, but do not 
 have any specific setting related to themselves.
 
+<p/><code>flag&nbsp; </code><strong> Check:abortIfVeto &nbsp;</strong> 
+ (<code>default = <strong>off</strong></code>)<br/>
+There are a few ways in which an event can be vetoed, the most
+common being a <a href="UserHooks.html" target="page">User Hooks</a> test.
+Normally this will simply mean that the next parton-level
+configuration is selected inside the <code>Pythia::next()</code>
+routine, without any need for a user intervention. With this
+option switched on, however, <code>Pythia::next()</code> will 
+return <code>false</code>. It is then up to the user to decide
+what to do next. 
+  
+
 <p/><code>flag&nbsp; </code><strong> Check:particleData &nbsp;</strong> 
  (<code>default = <strong>off</strong></code>)<br/>
 Check the particle data tables for potential problems during 

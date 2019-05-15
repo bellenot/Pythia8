@@ -375,6 +375,9 @@ public:
   Particle& operator[](int i) {return entry[i];}
   const Particle& operator[](int i) const {return entry[i];}
 
+  // Other way to access an element of event record.
+  Particle& at(int i) {return entry.at(i);} 
+
   // Event record size.
   int size() const {return entry.size();}
 

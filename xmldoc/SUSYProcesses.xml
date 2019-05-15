@@ -260,33 +260,29 @@ couplings must be input using the SLHA2 structure.
 
 Based on the parameters read in from the SLHA, PYTHIA 8 will normally 
 compute the decay modes of SUSY particles automatically, using the 
-<code>SusyResonanceDecays</code> class(es) included since
-version 8.150. Essentially all tree-level 2-body decays in the MSSM 
+<code>SusyResonanceDecays</code> class(es). Essentially all tree-level
+2-body decays in the MSSM  
 have been implemented this way, excepting so far only those involving
-Higgs bosons (either in the in- or out-state), gravitinos, and decays
-of sleptons. Available channels so far include:
+Higgs bosons (either in the in- or out-state) or gravitinos. 
+Available channels so far include:
 <ul>
 <li>~q &rarr; q + ~chi</li>
 <li>~q &rarr; ~q + W/Z</li>
 <li>~q &rarr; q + q (RPV UDD)</li>
 <li>~q &rarr; l + q (RPV LQD)</li>
 <li>~g &rarr; ~q + q</li>
-<li>~chi0 &rarr; ~chi0 + Z</li>
-<li>~chi0 &rarr; ~chi+ + W</li>
-<li>~chi0 &rarr; ~q + q</li>
-<li>~chi0 &rarr; ~l + l</li>
-<li>~chi+ &rarr; ~chi+ + Z</li>
-<li>~chi+ &rarr; ~chi0 + W</li>
-<li>~chi+ &rarr; ~q + q</li>
+<li>~chi &rarr; ~chi + Z/W</li>
+<li>~chi &rarr; ~q + q</li>
+<li>~chi &rarr; ~l/~nu + l/nu</li>
 <li>~chi0 &rarr; q + q + q (RPV UDD)</li>
+<li>~l/~nu &rarr; l/nu + ~chi</li>
+<li>~l/~nu &rarr; ~l/~nu + W/Z</li>
 </ul>
 All channels are still undergoing validation, so this
 implementation should be considered preliminary.
 Still missing but to be included in a forthcoming update
-are: 3-body decays of charginos (via RPV), 2-body decays of squarks and
-gauginos with Higgs as one of the decay products, the 2-body decay
-chargino &rarr; slepton neutrino / lepton sneutrino, and 2-body decays
-of sleptons. 
+are: 3-body decays of charginos (via RPV), and 2-body decays of squarks and
+gauginos with Higgs as one of the decay products. 
 
 </chapter>
 

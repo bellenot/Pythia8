@@ -125,11 +125,11 @@ low-mass description, with only longitudinally stretched strings,
 with a gradual switch-over to the perturbative picture for higher
 masses. The probability for the latter picture is parametrized as
 <br/><i>
-P_pert = 1 - exp( (m_diffr - m_min) / m_width )
+P_pert = P_max ( 1 - exp( (m_diffr - m_min) / m_width ) )
 </i><br/> 
 which vanishes for the diffractive system mass 
 <i>m_diffr &lt; m_min</i>, and is <i>1 - 1/e = 0.632</i> for
-<i>m_diffr = m_min + m_width</i>.
+<i>m_diffr = m_min + m_width</i>, assuming <i>P_max = 1</i>.
 
 <br/><br/><table><tr><td><strong>Diffraction:mMinPert </td><td></td><td> <input type="text" name="4" value="10." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>10.</strong></code>; <code>minimum = 5.</code>)</td></tr></table>
 The abovementioned threshold mass <i>m_min</i> for phasing in a
@@ -140,6 +140,13 @@ but only the older low-<i>pt</i> description.
 
 <br/><br/><table><tr><td><strong>Diffraction:mWidthPert </td><td></td><td> <input type="text" name="5" value="10." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>10.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
 The abovementioned threshold width <i>m_width.</i>
+  
+
+<br/><br/><table><tr><td><strong>Diffraction:probMaxPert </td><td></td><td> <input type="text" name="6" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>; <code>minimum = 0.</code>; <code>maximum = 1.</code>)</td></tr></table>
+The abovementioned maximum probability <i>P_max.</i>. Would 
+normally be assumed to be unity, but a somewhat lower value could
+be used to represent a small nonperturbative component also at 
+high diffractive masses.
   
 
 <h3>Low-mass diffraction</h3>
@@ -156,12 +163,12 @@ P_q / P_g = N / m^p
 </i><br/> 
 is assumed.
 
-<br/><br/><table><tr><td><strong>Diffraction:pickQuarkNorm </td><td></td><td> <input type="text" name="6" value="5.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5.0</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Diffraction:pickQuarkNorm </td><td></td><td> <input type="text" name="7" value="5.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5.0</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
 The abovementioned normalization <i>N</i> for the relative quark
 rate in diffractive systems.
   
 
-<br/><br/><table><tr><td><strong>Diffraction:pickQuarkPower </td><td></td><td> <input type="text" name="7" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Diffraction:pickQuarkPower </td><td></td><td> <input type="text" name="8" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
 The abovementioned mass-dependence power <i>p</i> for the relative 
 quark rate in diffractive systems.
   
@@ -172,13 +179,13 @@ sharing between the the two remnant partons is determined by the
 same parameters as above. It is plausible that the primordial 
 <i>kT</i> may be lower than in perturbative processes, however:
 
-<br/><br/><table><tr><td><strong>Diffraction:primKTwidth </td><td></td><td> <input type="text" name="8" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Diffraction:primKTwidth </td><td></td><td> <input type="text" name="9" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
 The width of Gaussian distributions in <i>p_x</i> and <i>p_y</i> 
 separately that is assigned as a primordial <i>kT</i> to the two 
 beam remnants when a gluon is kicked out of a diffractive system.
   
 
-<br/><br/><table><tr><td><strong>Diffraction:largeMassSuppress </td><td></td><td> <input type="text" name="9" value="2." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Diffraction:largeMassSuppress </td><td></td><td> <input type="text" name="10" value="2." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
 The choice of longitudinal and transverse structure of a diffractive
 beam remnant for a kicked-out gluon implies a remnant mass 
 <i>m_rem</i> distribution (i.e. quark plus diquark invariant mass 
@@ -219,7 +226,7 @@ Pomeron PDF; we remind that some of these add up to less than unit
 momentum sum in the Pomeron, a choice that also affect the value
 one ends up with.
 
-<br/><br/><table><tr><td><strong>Diffraction:sigmaPomP </td><td></td><td> <input type="text" name="10" value="10." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>10.</strong></code>; <code>minimum = 2.</code>; <code>maximum = 40.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Diffraction:sigmaPomP </td><td></td><td> <input type="text" name="11" value="10." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>10.</strong></code>; <code>minimum = 2.</code>; <code>maximum = 40.</code>)</td></tr></table>
 The assumed Pomeron-proton effective cross section, as used for
 multiple interactions in diffractive systems. A larger value gives
 less MI activity per event. 
@@ -259,24 +266,24 @@ options as for nondiffractive events, except that the
 <br/><br/><table><tr><td><strong>Diffraction:bProfile  </td><td>  &nbsp;&nbsp;(<code>default = <strong>1</strong></code>; <code>minimum = 0</code>; <code>maximum = 3</code>)</td></tr></table>
 Choice of impact parameter profile for the incoming hadron beams.
 <br/>
-<input type="radio" name="11" value="0"><strong>0 </strong>: no impact parameter dependence at all.<br/>
-<input type="radio" name="11" value="1" checked="checked"><strong>1 </strong>: a simple Gaussian matter distribution;  no free parameters.<br/>
-<input type="radio" name="11" value="2"><strong>2 </strong>: a double Gaussian matter distribution,  with the two free parameters <ei>coreRadius</ei> and  <ei>coreFraction</ei>.<br/>
-<input type="radio" name="11" value="3"><strong>3 </strong>: an overlap function, i.e. the convolution of  the matter distributions of the two incoming hadrons, of the form <ei>exp(- b^expPow)</ei>, where <ei>expPow</ei> is a free  parameter.<br/>
+<input type="radio" name="12" value="0"><strong>0 </strong>: no impact parameter dependence at all.<br/>
+<input type="radio" name="12" value="1" checked="checked"><strong>1 </strong>: a simple Gaussian matter distribution;  no free parameters.<br/>
+<input type="radio" name="12" value="2"><strong>2 </strong>: a double Gaussian matter distribution,  with the two free parameters <ei>coreRadius</ei> and  <ei>coreFraction</ei>.<br/>
+<input type="radio" name="12" value="3"><strong>3 </strong>: an overlap function, i.e. the convolution of  the matter distributions of the two incoming hadrons, of the form <ei>exp(- b^expPow)</ei>, where <ei>expPow</ei> is a free  parameter.<br/>
 
-<br/><br/><table><tr><td><strong>Diffraction:coreRadius </td><td></td><td> <input type="text" name="12" value="0.4" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.4</strong></code>; <code>minimum = 0.1</code>; <code>maximum = 1.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Diffraction:coreRadius </td><td></td><td> <input type="text" name="13" value="0.4" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.4</strong></code>; <code>minimum = 0.1</code>; <code>maximum = 1.</code>)</td></tr></table>
 When assuming a double Gaussian matter profile, <i>bProfile = 2</i>,
 the inner core is assumed to have a radius that is a factor
 <i>coreRadius</i> smaller than the rest.
    
 
-<br/><br/><table><tr><td><strong>Diffraction:coreFraction </td><td></td><td> <input type="text" name="13" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.</code>; <code>maximum = 1.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Diffraction:coreFraction </td><td></td><td> <input type="text" name="14" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.</code>; <code>maximum = 1.</code>)</td></tr></table>
 When assuming a double Gaussian matter profile, <i>bProfile = 2</i>,
 the inner core is assumed to have a fraction <i>coreFraction</i> 
 of the matter content of the hadron.
    
 
-<br/><br/><table><tr><td><strong>Diffraction:expPow </td><td></td><td> <input type="text" name="14" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>; <code>minimum = 0.4</code>; <code>maximum = 10.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Diffraction:expPow </td><td></td><td> <input type="text" name="15" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>; <code>minimum = 0.4</code>; <code>maximum = 10.</code>)</td></tr></table>
 When <i>bProfile = 3</i> it gives the power of the assumed overlap 
 shape <i>exp(- b^expPow)</i>. Default corresponds to a simple 
 exponential drop, which is not too dissimilar from the overlap 
@@ -327,49 +334,54 @@ if($_POST["5"] != "10.")
 $data = "Diffraction:mWidthPert = ".$_POST["5"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["6"] != "5.0")
+if($_POST["6"] != "1.")
 {
-$data = "Diffraction:pickQuarkNorm = ".$_POST["6"]."\n";
+$data = "Diffraction:probMaxPert = ".$_POST["6"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["7"] != "1.0")
+if($_POST["7"] != "5.0")
 {
-$data = "Diffraction:pickQuarkPower = ".$_POST["7"]."\n";
+$data = "Diffraction:pickQuarkNorm = ".$_POST["7"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["8"] != "0.5")
+if($_POST["8"] != "1.0")
 {
-$data = "Diffraction:primKTwidth = ".$_POST["8"]."\n";
+$data = "Diffraction:pickQuarkPower = ".$_POST["8"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["9"] != "2.")
+if($_POST["9"] != "0.5")
 {
-$data = "Diffraction:largeMassSuppress = ".$_POST["9"]."\n";
+$data = "Diffraction:primKTwidth = ".$_POST["9"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["10"] != "10.")
+if($_POST["10"] != "2.")
 {
-$data = "Diffraction:sigmaPomP = ".$_POST["10"]."\n";
+$data = "Diffraction:largeMassSuppress = ".$_POST["10"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["11"] != "1")
+if($_POST["11"] != "10.")
 {
-$data = "Diffraction:bProfile = ".$_POST["11"]."\n";
+$data = "Diffraction:sigmaPomP = ".$_POST["11"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["12"] != "0.4")
+if($_POST["12"] != "1")
 {
-$data = "Diffraction:coreRadius = ".$_POST["12"]."\n";
+$data = "Diffraction:bProfile = ".$_POST["12"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["13"] != "0.5")
+if($_POST["13"] != "0.4")
 {
-$data = "Diffraction:coreFraction = ".$_POST["13"]."\n";
+$data = "Diffraction:coreRadius = ".$_POST["13"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["14"] != "1.")
+if($_POST["14"] != "0.5")
 {
-$data = "Diffraction:expPow = ".$_POST["14"]."\n";
+$data = "Diffraction:coreFraction = ".$_POST["14"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["15"] != "1.")
+{
+$data = "Diffraction:expPow = ".$_POST["15"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);

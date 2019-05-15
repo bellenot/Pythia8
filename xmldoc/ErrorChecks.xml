@@ -6,6 +6,17 @@ There is a few settings related to error checking during program
 execution. Many other checks are performed as well, but do not 
 have any specific setting related to themselves.
 
+<flag name="Check:abortIfVeto" default="off">
+There are a few ways in which an event can be vetoed, the most
+common being a <aloc href="UserHooks">User Hooks</aloc> test.
+Normally this will simply mean that the next parton-level
+configuration is selected inside the <code>Pythia::next()</code>
+routine, without any need for a user intervention. With this
+option switched on, however, <code>Pythia::next()</code> will 
+return <code>false</code>. It is then up to the user to decide
+what to do next. 
+</flag>
+
 <flag name="Check:particleData" default="off">
 Check the particle data tables for potential problems during 
 initialization. This includes inconsistent use of charge in particle 

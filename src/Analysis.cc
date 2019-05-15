@@ -4,7 +4,7 @@
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 // Function definitions (not found in the header) for the 
-// Sphericity, Thrust, ClusJet and CellJet classes.
+// Sphericity, Thrust, ClusJet, CellJet and SlowJet classes.
 
 #include "Analysis.h"
 
@@ -406,7 +406,7 @@ double dist2Fun(int measure, const SingleClusterJet& j1,
 // Maximum number of times that an error warning will be printed.
 const int    ClusterJet::TIMESTOPRINT   = 1;
 
-// Assume the pi+- mass for all particles exceptthe photon in one option.
+// Assume the pi+- mass for all particles, except the photon, in one option.
 const double ClusterJet::PIMASS        = 0.13957; 
 
 // Assign minimal pAbs to avoid division by zero.
@@ -885,6 +885,266 @@ void CellJet::list(ostream& os) const {
   os << "\n --------  End PYTHIA CellJet Listing  ------------------"
      << "-------------------------------------------------"
      << endl;
+}
+
+//==========================================================================
+
+// SlowJet class.
+// This class performs clustering in (y, phi, pT) space.
+
+//--------------------------------------------------------------------------
+ 
+// Constants: could be changed here if desired, but normally should not.
+// These are of technical nature, as described for each.
+
+// Minimum number of particles to perform study.
+const int    SlowJet::TIMESTOPRINT = 1;
+
+// Assume the pi+- mass for all particles, except the photon, in one option.
+const double SlowJet::PIMASS       = 0.13957; 
+
+// Small number to avoid division by zero.
+const double SlowJet::TINY         = 1e-20;
+
+//--------------------------------------------------------------------------
+ 
+// Set up list of particles to analyze, and initial distances.
+
+bool SlowJet::setup(const Event& event) {
+
+  // Initial values zero.
+  clusters.resize(0);
+  jets.resize(0);
+  jtSize = 0;
+
+  // Loop over final particles in the event.
+  Vec4   pTemp;
+  double mTemp, pT2Temp, mTTemp, yTemp, phiTemp;
+  for (int i = 0; i < event.size(); ++i) 
+  if (event[i].isFinal()) {
+
+    // Always apply selection options for visible or charged particles. 
+    if      (chargedOnly &&  event[i].isNeutral() ) continue;
+    else if (visibleOnly && !event[i].isVisible() ) continue;
+
+    // Normally use built-in selection machinery.
+    if (noHook) {
+
+      // Pseudorapidity cut to describe detector range.
+      if (cutInEta    && abs(event[i].eta()) > etaMax) continue;
+     
+      // Optionally modify mass and energy.
+      pTemp = event[i].p();
+      mTemp = event[i].m();
+      if (modifyMass) {
+        mTemp = (massSet == 0 || event[i].id() == 22) ? 0. : PIMASS; 
+        pTemp.e( sqrt(pTemp.pAbs2() + mTemp*mTemp) );
+      }
+    
+    // Alternatively pass info to SlowJetHook for decision.
+    // User can also modify pTemp and mTemp.
+    } else {
+      pTemp = event[i].p();
+      mTemp = event[i].m();
+      if ( !sjHookPtr->include( i, event, pTemp, mTemp) ) continue;
+    }
+
+    // Store particle momentum, including some derived quantities.
+    pT2Temp  = max( TINY*TINY, pTemp.pT2());
+    mTTemp  = sqrt( mTemp*mTemp + pT2Temp);
+    yTemp   = (pTemp.pz() > 0) 
+            ? log( max( TINY, pTemp.e() + pTemp.pz() ) / mTTemp )
+            : log( mTTemp / max( TINY, pTemp.e() - pTemp.pz() ) );
+    phiTemp = pTemp.phi();
+    clusters.push_back( SingleSlowJet(pTemp, pT2Temp, yTemp, phiTemp) );
+  }
+
+  // Resize arrays to store distances between clusters.
+  origSize = clusters.size();
+  clSize = origSize; 
+  clLast = clSize - 1; 
+  diB.resize(clSize);
+  dij.resize(clSize * (clSize - 1) / 2);
+
+  // Loop through particles and find distance to beams.
+  for (int i = 0; i < clSize; ++i) {
+    if (isAnti)    diB[i] = 1. / clusters[i].pT2;
+    else if (isKT) diB[i] = clusters[i].pT2;
+    else           diB[i] = 1.;
+
+    // Loop through pairs and find relative distance.
+    for (int j = 0; j < i; ++j) {
+      dPhi = abs( clusters[i].phi - clusters[j].phi );
+      if (dPhi > M_PI) dPhi = 2. * M_PI - dPhi;
+      dijTemp = (pow2( clusters[i].y - clusters[j].y) + dPhi*dPhi) / R2;
+      if (isAnti)    dijTemp /= max(clusters[i].pT2, clusters[j].pT2); 
+      else if (isKT) dijTemp *= min(clusters[i].pT2, clusters[j].pT2); 
+      dij[i*(i-1)/2 + j] = dijTemp;
+
+    // End of original-particle loops.
+    }
+  }
+
+  // Find first particle pair to join.
+  findNext();
+
+  // Done.
+  return true;
+
+}
+
+//--------------------------------------------------------------------------
+ 
+// Do one recombination step, possibly giving a jet.
+
+bool SlowJet::doStep() {
+
+  // Fail if no possibility to take a step.
+  if (clSize == 0) return false;
+
+  // When distance to beam is smallest the cluster is promoted to jet.
+  if (jMin == -1) {
+
+    // Store new jet if its pT is above pTMin.
+    if (clusters[iMin].pT2 > pT2jetMin) {
+      jets.push_back( SingleSlowJet(clusters[iMin]) );
+      ++jtSize;
+
+      // Order jets in decreasing pT.
+      for (int i = jtSize - 1; i > 0; --i) {
+        if (jets[i].pT2 < jets[i-1].pT2) break;
+        swap( jets[i], jets[i-1]);
+      } 
+    }  
+  } 
+
+  // When distance between two clusters is smallest they are joined.
+  else {
+     
+    // Add iMin cluster to jMin.
+    clusters[jMin].p  += clusters[iMin].p;
+    clusters[jMin].pT2 = max( TINY*TINY, clusters[jMin].p.pT2());
+    double mTTemp  = sqrt(clusters[jMin].p.m2Calc() + clusters[jMin].pT2);
+    clusters[jMin].y = (clusters[jMin].p.pz() > 0) 
+      ? log( max( TINY, clusters[jMin].p.e() + clusters[jMin].p.pz() ) 
+      / mTTemp ) : log( mTTemp 
+      / max( TINY, clusters[jMin].p.e() - clusters[jMin].p.pz() ) );
+    clusters[jMin].phi = clusters[jMin].p.phi();
+    clusters[jMin].mult += clusters[iMin].mult;
+
+    // Update distances for and to new jMin.
+    if (isAnti)    diB[jMin] = 1. / clusters[jMin].pT2;
+    else if (isKT) diB[jMin] = clusters[jMin].pT2;
+    else           diB[jMin] = 1.;
+    for (int i = 0; i < clSize; ++i) if (i != jMin && i != iMin) {
+      dPhi = abs( clusters[i].phi - clusters[jMin].phi );
+      if (dPhi > M_PI) dPhi = 2. * M_PI - dPhi;
+      dijTemp = (pow2( clusters[i].y - clusters[jMin].y) + dPhi*dPhi) / R2;
+      if (isAnti)    dijTemp /= max(clusters[i].pT2, clusters[jMin].pT2); 
+      else if (isKT) dijTemp *= min(clusters[i].pT2, clusters[jMin].pT2);
+      if (i < jMin) dij[jMin*(jMin-1)/2 + i] = dijTemp;
+      else          dij[i*(i-1)/2 + jMin]    = dijTemp;
+    }
+  }
+
+  // Move up last cluster and distances to vacated position iMin.
+  if (iMin < clLast) {
+    clusters[iMin] = clusters[clLast];
+    diB[iMin] = diB[clLast];
+    for (int j = 0; j < iMin; ++j) 
+      dij[iMin*(iMin-1)/2 + j] = dij[clLast*(clLast-1)/2 + j];
+    for (int j = iMin + 1; j < clLast; ++j)
+      dij[j*(j-1)/2 + iMin] = dij[clLast*(clLast-1)/2 + j];
+  }       
+    
+  // Shrink cluster list by one.
+  clusters.pop_back();
+  --clSize;
+  --clLast;    
+
+  // Find next cluster pair to join.
+  findNext();
+
+  // Done.
+  return true;
+
+}
+
+//--------------------------------------------------------------------------
+
+// Provide a listing of the info.
+  
+void SlowJet::list(bool listAll, ostream& os) const {
+
+  // Header.
+  os << "\n --------  PYTHIA SlowJet Listing, p = " << setw(2) 
+     << power << ", R = " << fixed << setprecision(3) << setw(5) << R 
+     << ", pTjetMin =" << setw(8) << pTjetMin << ", etaMax = " << setw(6) 
+     << etaMax << "  --- \n \n  no      pTjet      y       phi   mult   "
+     << "   p_x        p_y        p_z         e          m \n";
+
+  // The jets.
+  for (int i = 0; i < jtSize; ++i) {
+    os << setw(4) << i << setw(11) << sqrt(jets[i].pT2) << setw(9) 
+       << jets[i].y << setw(9) << jets[i].phi << setw(6) 
+       << jets[i].mult << setw(11) << jets[i].p.px() << setw(11) 
+       << jets[i].p.py() << setw(11) << jets[i].p.pz() << setw(11) 
+       << jets[i].p.e() << setw(11) << jets[i].p.mCalc() << "\n";  
+  }
+
+  // Optionally list also clusters not yet jets.
+  if (listAll && clSize > 0) {
+    os << " --------  Below this line follows remaining clusters,"
+       << " still pT-unordered  -------------------\n";  
+    for (int i = 0; i < clSize; ++i) {
+      os << setw(4) << i + jtSize << setw(11) << sqrt(clusters[i].pT2) 
+         << setw(9) << clusters[i].y << setw(9) << clusters[i].phi 
+         << setw(6) << clusters[i].mult << setw(11) << clusters[i].p.px() 
+         << setw(11) << clusters[i].p.py() << setw(11) << clusters[i].p.pz() 
+         << setw(11) << clusters[i].p.e() << setw(11) 
+         << clusters[i].p.mCalc() << "\n";  
+    }
+  }
+
+  // Listing finished.
+  os << "\n --------  End PYTHIA SlowJet Listing  ------------------"
+     << "-------------------------------------" << endl;
+
+}
+
+//--------------------------------------------------------------------------
+
+// Find next cluster pair to join.
+  
+void SlowJet::findNext() {
+
+  // Find smallest of diB, dij.
+  if (clSize > 0) {
+    iMin =  0;
+    jMin = -1;
+    dMin = diB[0];
+    for (int i = 1; i < clSize; ++i) {
+      if (diB[i] < dMin) {
+        iMin = i;
+        jMin = -1;
+        dMin = diB[i];
+      }
+      for (int j = 0; j < i; ++j) {
+        if (dij[i*(i-1)/2 + j] < dMin) {
+          iMin = i;
+          jMin = j;
+          dMin = dij[i*(i-1)/2 + j];
+        }
+      }
+    }
+
+  // If no clusters left then instead default values.
+  } else {
+    iMin = -1;
+    jMin = -1;
+    dMin = 0.;
+  } 
+
 }
 
 //==========================================================================

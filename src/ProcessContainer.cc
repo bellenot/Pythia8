@@ -121,8 +121,9 @@ bool ProcessContainer::init(bool isFirst, Info* infoPtrIn,
   // Check maximum by a few events, and extrapolate a further increase.
   if (physical & !isLHA) {
     int nSample = (nFin < 3) ? N12SAMPLE : N3SAMPLE;
-    for (int iSample = 0; iSample < nSample; ++iSample) 
-    while (!phaseSpacePtr->trialKin(false)) { 
+    for (int iSample = 0; iSample < nSample; ++iSample) {
+      bool test = false;
+      while (!test) test = phaseSpacePtr->trialKin(false); 
       if (iSample == nSample/2) sigmaHalfWay = phaseSpacePtr->sigmaMax();
     }   
     sigmaMx = pow2(phaseSpacePtr->sigmaMax()) / sigmaHalfWay;
@@ -164,7 +165,7 @@ bool ProcessContainer::trialProcess() {
     // Also compensating weight from biased phase-space selection. 
     double biasWeight = phaseSpacePtr->biasSelectionWeight();
     weightNow = sigmaWeight * biasWeight;
-    infoPtr->setWeight( weightNow);
+    infoPtr->setWeight( weightNow, lhaStrat);
 
     // Check that not negative cross section when not allowed.
     if (!allowNegSig) {

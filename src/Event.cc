@@ -156,6 +156,10 @@ Event& Event::operator=( const Event& oldEvent) {
 
 int Event::copy(int iCopy, int newStatus) {    
 
+  // Protect against attempt to copy negative entries (e.g., junction codes)
+  // or entries beyond end of record.
+  if (iCopy < 0 || iCopy >= size()) return -1;
+
   // Simple carbon copy.
   entry.push_back(entry[iCopy]); 
   int iNew = entry.size() - 1; 

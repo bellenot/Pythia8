@@ -113,11 +113,13 @@ class HiddenValleyFragmentation {
 public:
 
   // Constructor. 
-  HiddenValleyFragmentation() {}
+  HiddenValleyFragmentation() : hvFlavSelPtr(NULL), hvPTSelPtr(NULL),
+    hvZSelPtr(NULL) {}
 
   // Destructor. 
-  ~HiddenValleyFragmentation() { if (doHVfrag) {delete hvZSelPtr;
-    delete hvPTSelPtr; delete hvFlavSelPtr;} }
+  ~HiddenValleyFragmentation() { if (doHVfrag) { 
+    if (hvZSelPtr) delete hvZSelPtr; if (hvPTSelPtr) delete hvPTSelPtr;
+    if (hvFlavSelPtr) delete hvFlavSelPtr;} }
 
   // Initialize and save pointers.
   bool init(Info* infoPtrIn, Settings& settings, 

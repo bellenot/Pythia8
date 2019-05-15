@@ -38,9 +38,8 @@ Pythia 8.107.)
 
 <p/>
 The (simple) procedure to translate PYTHIA 8 events into HepMC ones 
-is illustrated in the <code>main31.cc</code>, <code>main32.cc</code>   
-and <code>main54.cc</code> main programs. At the core is a call to
-the
+is illustrated in the <code>main31.cc</code> and <code>main32.cc</code>   
+main programs. At the core is a call to the
 <pre>
 HepMC::I_Pythia8::fill_next_event( pythia, hepmcevt, ievnum = -1, convertGluonTo0 = false ) 
 </pre>
@@ -67,10 +66,14 @@ or not, as wished.
 
 <p/>
 The translation routine stores momenta, energies and masses in units 
-of GeV, and distances and times in units of mm, with <i>c = 1</i>. 
-This is exactly the units used in PYTHIA. Starting with HepMC 2.04
-the units can be specified; this will be implemented once this or
-a later version becomes used by the experimental community.
+of GeV, and distances and times in units of mm, with <i>c = 1</i>,
+exactly as used in PYTHIA. This only works seamlessly for HepMC 2.04
+or later, where the choice of units can (and should) be specified in 
+the <code>HepMC::GenEvent</code> call. To work also with older HepMC
+versions, where normally momenta are stored in MeV, the 
+<code>HEPMC_HAS_UNITS</code> environment variable is tested. If not 
+defined, i.e. if with an earlier HepMC version, conversion from 
+GeV to MeV is done in <code>fill_next_event</code>.
 
 <p/>
 The status code is now based on the proposed standard for HepMC 2.05,
@@ -216,20 +219,6 @@ hadronization is switched off. Default is to crash.
 <a name="method10"></a>
 <p/><strong>void I_Pythia8::set_convert_to_mev( bool b = false ) &nbsp;</strong> <br/>
 convert the normal GeV energies, momenta and masses to MeV.
-  
-
-<a name="method11"></a>
-<p/><strong>void I_Pythia8::set_weight_in_fb( bool b = false ) &nbsp;</strong> <br/>
-when event weights are given in dimensional units, do a conversion
-from mb to fb. Normally event weights are unity, or at least
-dimensionless, and then no conversion should be done. However, 
-if events are fed in with the 
-<?php $filepath = $_GET["filepath"];
-echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>";?>Les Houches</a> strategy 4 or -4, 
-they carry the dimensions of fb at input, that is converted to mb 
-for internal PYTHIA consistency. This method then needs to be used
-to ensure that the event weight is converted back to fb. One could
-foresee also other cases where such a conversion would be needed.
   
 
 </body>

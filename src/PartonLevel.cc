@@ -32,7 +32,8 @@ bool PartonLevel::init( Info* infoPtrIn, Settings& settings,
   Couplings* couplingsPtrIn, PartonSystems* partonSystemsPtrIn, 
   SigmaTotal* sigmaTotPtr, TimeShower* timesDecPtrIn, TimeShower* timesPtrIn, 
   SpaceShower* spacePtrIn, RHadrons* rHadronsPtrIn, 
-  UserHooks* userHooksPtrIn) {
+  UserHooks* userHooksPtrIn,
+  MergingHooks* mergingHooksPtrIn, bool useAsTrial ) {
 
   // Store input pointers and modes for future use. 
   infoPtr            = infoPtrIn;
@@ -52,6 +53,8 @@ bool PartonLevel::init( Info* infoPtrIn, Settings& settings,
   rHadronsPtr        = rHadronsPtrIn; 
   userHooksPtr       = userHooksPtrIn;
 
+  mergingHooksPtr = mergingHooksPtrIn;
+
   // Min bias and single diffraction processes need special treatment.
   doMinBias          =  settings.flag("SoftQCD:all") 
                      || settings.flag("SoftQCD:minBias");
@@ -62,6 +65,7 @@ bool PartonLevel::init( Info* infoPtrIn, Settings& settings,
   // Separate low-mass (unresolved) and high-mass (perturbative) diffraction.
   mMinDiff           = settings.parm("Diffraction:mMinPert");
   mWidthDiff         = settings.parm("Diffraction:mWidthPert");
+  pMaxDiff           = settings.parm("Diffraction:probMaxPert");
   if (mMinDiff + mWidthDiff > infoPtr->eCM()) doDiffraction = false;
 
   // Need MI initialization for soft QCD processes, even if only first MI.
@@ -73,6 +77,19 @@ bool PartonLevel::init( Info* infoPtrIn, Settings& settings,
   doMIinit           = doMI;
   if (doMinBias || doDiffraction) doMIinit = true;
   if (!settings.flag("PartonLevel:all")) doMIinit = false;  
+
+//   doTrial            = settings.flag("PartonLevel:Trial");
+//   nTrialEmissions    = (doTrial) ? settings.mode("PartonLevel:nTrial") : -1;
+  bool hasMergingHooks = (mergingHooksPtr > 0);
+  doMerging        = settings.flag("Merging:doUserMerging")
+                  || settings.flag("Merging:doMGMerging")
+                  || settings.flag("Merging:doKTMerging");
+  doMerging        = doMerging && hasMergingHooks;
+  doTrial            = useAsTrial;
+  doMergeFirstEmm    = doMerging && !doTrial;
+  nTrialEmissions    = 1;
+  pTLastBranch       = 0.0;
+  typeLastBranch     = 0;
 
   // Flags for showers: ISR and FSR.
   doISR              = settings.flag("PartonLevel:ISR");
@@ -121,13 +138,14 @@ bool PartonLevel::init( Info* infoPtrIn, Settings& settings,
   timesPtr->init( beamAPtr, beamBPtr);
   if (doISR) spacePtr->init( beamAPtr, beamBPtr);
   doMIMB  =  multiMB.init( doMIinit, 0, infoPtr, settings, particleDataPtr,
-    rndmPtr, beamAPtr, beamBPtr, couplingsPtr, partonSystemsPtr, sigmaTotPtr);
+    rndmPtr, beamAPtr, beamBPtr, couplingsPtr, partonSystemsPtr, sigmaTotPtr,
+    userHooksPtr);
   if (doDiffraction) doMISDA = multiSDA.init( doMIinit, 1, infoPtr, 
     settings, particleDataPtr, rndmPtr, beamPomBPtr, beamAPtr, couplingsPtr,
-    partonSystemsPtr, sigmaTotPtr);
+    partonSystemsPtr, sigmaTotPtr, userHooksPtr);
   if (doDiffraction) doMISDB = multiSDB.init( doMIinit, 2, infoPtr, 
     settings, particleDataPtr, rndmPtr, beamPomAPtr, beamBPtr, couplingsPtr, 
-    partonSystemsPtr, sigmaTotPtr);
+    partonSystemsPtr, sigmaTotPtr, userHooksPtr);
   remnants.init( infoPtr, settings, rndmPtr, beamAPtr, beamBPtr, 
     partonSystemsPtr);  
 
@@ -137,6 +155,24 @@ bool PartonLevel::init( Info* infoPtrIn, Settings& settings,
   if (doMIinit && doDiffraction && (!doMISDA || !doMISDB)) return false;
   if (!doMIMB || !doMISDA || !doMISDB) doMI = false;
   return true;
+}
+
+
+// Function to reset PartonLevel object for trial shower usage
+void PartonLevel::resetTrial() {
+
+  // Clear input pointers
+  partonSystemsPtr->clear();
+  beamAPtr->clear();
+  beamBPtr->clear();
+  beamHadAPtr->clear();
+  beamHadBPtr->clear();
+  beamPomAPtr->clear();
+  beamPomBPtr->clear();
+  // Clear last branching return values
+  pTLastBranch = 0.0;
+  typeLastBranch = 0;
+
 }
 
 //--------------------------------------------------------------------------
@@ -171,6 +207,11 @@ bool PartonLevel::next( Event& process, Event& event) {
     sizeProcess  = process.size();
     sizeEvent    = event.size();
   }
+
+  // Number of actual branchings
+  int nBranch = 0;
+  // Number of desired branchings, negative value means no restriction
+  int nBranchMax = (doTrial) ? nTrialEmissions : -1;
 
   // Big outer loop to handle up to two systems (in double diffraction),
   // but normally one. (Not indented in following, but end clearly marked.)
@@ -305,20 +346,25 @@ bool PartonLevel::next( Event& process, Event& event) {
       // Do a multiple interaction (if allowed). 
       if (pTmulti > 0. && pTmulti > pTspace && pTmulti > pTtimes) {
         infoPtr->addCounter(23); 
-        multiPtr->scatter( event);  
-        typeLatest = 1;
-        ++nMI;
-        if (canVetoMIStep && nMI <= nVetoMIStep) typeVetoStep = 1;
+        if (multiPtr->scatter( event)) {
+          typeLatest = 1;
+          ++nMI;
+          if (canVetoMIStep && nMI <= nVetoMIStep) typeVetoStep = 1;
  
-        // Update ISR and FSR dipoles.
-        if (doISR)              spacePtr->prepare( nMI - 1, event);
-        if (doFSRduringProcess) timesPtr->prepare( nMI - 1, event);
+          // Update ISR and FSR dipoles.
+          if (doISR)              spacePtr->prepare( nMI - 1, event);
+          if (doFSRduringProcess) timesPtr->prepare( nMI - 1, event);
+        }
 
         // Set maximal scales for next pT to pick.
         pTmaxMI  = pTmulti;
         pTmaxISR = min( pTmulti, pTmaxISR);
         pTmaxFSR = min( pTmulti, pTmaxFSR);
         pTmax    = pTmulti;
+
+        nBranch++;
+        pTLastBranch = pTmulti;
+        typeLastBranch = 1;
       }
    
       // Do an initial-state emission (if allowed).
@@ -334,6 +380,10 @@ bool PartonLevel::next( Event& process, Event& event) {
 
           // Update FSR dipoles.
           if (doFSRduringProcess) timesPtr->update( iSysNow, event); 
+
+          nBranch++;
+          pTLastBranch = pTspace;
+          typeLastBranch = 2;
 
         // Rescatter: it is possible for kinematics to fail, in which
         //            case we need to restart the parton level processing.
@@ -362,6 +412,11 @@ bool PartonLevel::next( Event& process, Event& event) {
 
           // Update ISR dipoles.
           if (doISR) spacePtr->update( iSysNow, event); 
+
+          nBranch++;
+          pTLastBranch = pTtimes;
+          typeLastBranch = 3;
+
         }
 
         // Set maximal scales for next pT to pick.
@@ -393,10 +448,38 @@ bool PartonLevel::next( Event& process, Event& event) {
       if (typeLatest > 0 && typeLatest < 4) 
         infoPtr->addCounter(25 + typeLatest); 
       infoPtr->setPartEvolved( nMI, nISR);
-    } while (pTmax > 0.); 
+
+     if(doMergeFirstEmm && (nISRhard + nFSRhard == 1)){
+       // Get number of clustering steps
+       int nSteps  = mergingHooksPtr->getNumberOfClusteringSteps(process);
+       // Get maximal number of additional jets
+       int nJetMax = mergingHooksPtr->nMaxJets();
+       // Get merging scale value
+       double tms  = mergingHooksPtr->tms();
+       // Get merging scale in current event
+       double tnow = 0.;
+       if(mergingHooksPtr->doKTMerging() || mergingHooksPtr->doMGMerging())
+         tnow = mergingHooksPtr->kTms(event);
+       else
+         tnow = mergingHooksPtr->tmsDefinition(event);
+       // Check veto condition
+       if(nSteps < nJetMax && tnow > tms){
+         mergingHooksPtr->setWeight(0.);
+         doVeto = true;
+       }
+       // Abort event if vetoed.
+       if (doVeto) {
+         if (isDiff) leaveResolvedDiff( iHardLoop, event);
+         return false;
+       }
+     }
+
+//    } while (pTmax > 0.); 
+    } while (pTmax > 0.  && (nBranchMax <= 0 || nBranch < nBranchMax) );
 
     // Do all final-state emissions if not already considered above.
-    if (doFSRafterProcess) {
+//    if (doFSRafterProcess) {
+    if (doFSRafterProcess && (nBranchMax <= 0 || nBranch < nBranchMax) ) {
 
       // Find largest scale for final partons.
       pTmax = 0.;
@@ -440,6 +523,11 @@ bool PartonLevel::next( Event& process, Event& event) {
             if (iSysNow == 0) ++nFSRhard;
             if (canVetoStep && iSysNow == 0 && nFSRhard <= nVetoStep)
             typeVetoStep = 4;
+
+            nBranch++;
+            pTLastBranch = pTtimes;
+            typeLastBranch = 4;
+
           }
           pTmax = pTtimes;
         }
@@ -458,9 +546,35 @@ bool PartonLevel::next( Event& process, Event& event) {
           }
         }
 
+       if(doMergeFirstEmm && (nISRhard + nFSRhard == 1)){
+         // Get number of clustering steps
+         int nSteps  = mergingHooksPtr->getNumberOfClusteringSteps(process);
+         // Get maximal number of additional jets
+         int nJetMax = mergingHooksPtr->nMaxJets();
+         // Get merging scale value
+         double tms  = mergingHooksPtr->tms();
+         // Get merging scale in current event
+         double tnow = 0.;
+         if(mergingHooksPtr->doKTMerging() || mergingHooksPtr->doMGMerging())
+           tnow = mergingHooksPtr->kTms(event);
+         else
+           tnow = mergingHooksPtr->tmsDefinition(event);
+         // Check veto condition
+         if(nSteps < nJetMax && tnow > tms){
+           mergingHooksPtr->setWeight(0.);
+           doVeto = true;
+         }
+         // Abort event if vetoed.
+         if (doVeto) {
+           if (isDiff) leaveResolvedDiff( iHardLoop, event);
+           return false;
+         }
+       }
+
       // Keep on evolving until nothing is left to be done.
         infoPtr->addCounter(31);
-      } while (pTmax > 0.);
+//      } while (pTmax > 0.);
+      } while (pTmax > 0.  && (nBranchMax <= 0 || nBranch < nBranchMax) );
     }
 
     // Add beam remnants, including primordial kT kick and colour tracing.
@@ -488,7 +602,9 @@ bool PartonLevel::next( Event& process, Event& event) {
   }
   
   // Perform showers in resonance decay chains.
-  doVeto = !resonanceShowers( process, event, true); 
+//  doVeto = !resonanceShowers( process, event, true);
+  if(nBranchMax <= 0 || nBranch < nBranchMax)
+    doVeto = !resonanceShowers( process, event, true);
   // Abort event if vetoed.
   if (doVeto) return false;
 
@@ -515,8 +631,8 @@ int PartonLevel::decideResolvedDiff( Event& process) {
 
     // Only high-mass diffractive systems should be resolved.
     double mDiff = process[iDiffMot].m();
-    bool isHighMass = ( mDiff > mMinDiff 
-      && rndmPtr->flat() < 1. - exp( -(mDiff - mMinDiff) / mWidthDiff ) );
+    bool isHighMass = ( mDiff > mMinDiff && rndmPtr->flat() 
+      < pMaxDiff * ( 1. - exp( -(mDiff - mMinDiff) / mWidthDiff ) ) );
 
     // Set outcome and done.
     if (isHighMass) ++nHighMass;
@@ -735,6 +851,7 @@ bool PartonLevel::setupUnresolvedSys( Event& process, Event& event) {
   // Initialize info needed for subsequent sequential decays + showers.
   nHardDone = sizeProcess;
   iPosBefShow.resize( process.size() );
+  fill (iPosBefShow.begin(),iPosBefShow.end(),0);
 
   // Add the beam and hard subprocess partons to the event record.
   for (int i = sizeProcess; i < iBeginSecond; ++ i) { 
@@ -957,6 +1074,9 @@ bool PartonLevel::resonanceShowers( Event& process, Event& event,
   // Isolate next system to be processed, if anything remains.
   int nRes    = 0;
   int nFSRres = 0;
+  // Number of desired branchings, negative value means no restriction
+  int nBranchMax = (doTrial) ? nTrialEmissions : -1;
+
   while (nHardDone < process.size()) {
     ++nRes;
     int iBegin = nHardDone;
@@ -1037,7 +1157,10 @@ bool PartonLevel::resonanceShowers( Event& process, Event& event,
       ++nHardDone;
     }
     int iEnd = nHardDone - 1;
-    
+
+    // Reset pT of last branching
+    pTLastBranch = 0.0;    
+
     // Do parton showers inside subsystem: maximum scale by mother mass.
     if (doFSRinResonances) {
       double pTmax = 0.5 * hardMother.m();
@@ -1054,6 +1177,9 @@ bool PartonLevel::resonanceShowers( Event& process, Event& event,
 
       // Let prepare routine do the setup.    
       timesDecPtr->prepare( iSys, event);
+
+       // Number of actual branchings
+      int nBranch = 0;
 
       // Set up initial veto scale.
       doVeto        = false;
@@ -1078,6 +1204,11 @@ bool PartonLevel::resonanceShowers( Event& process, Event& event,
             ++nFSRres; 
             ++nFSRhard;
             if (canVetoStep && nFSRhard <= nVetoStep) typeVetoStep = 5;
+
+            nBranch++;
+            pTLastBranch = pTtimes;
+            typeLastBranch = 5;
+
           }
           pTmax = pTtimes;
         }
@@ -1093,8 +1224,31 @@ bool PartonLevel::resonanceShowers( Event& process, Event& event,
           if (doVeto) return false;
         }
 
+       if(doMergeFirstEmm && nFSRhard == 1){
+         // Get number of clustering steps
+         int nSteps  = mergingHooksPtr->getNumberOfClusteringSteps(process);
+         // Get maximal number of additional jets
+         int nJetMax = mergingHooksPtr->nMaxJets();
+         // Get merging scale value
+         double tms  = mergingHooksPtr->tms();
+         // Get merging scale in current event
+         double tnow = 0.;
+         if(mergingHooksPtr->doKTMerging() || mergingHooksPtr->doMGMerging())
+           tnow = mergingHooksPtr->kTms(event);
+         else
+           tnow = mergingHooksPtr->tmsDefinition(event);
+         // Check veto condition
+         if(nSteps < nJetMax && tnow > tms){
+           mergingHooksPtr->setWeight(0.);
+           doVeto = true;
+         }
+          // Abort event if vetoed.
+          if (doVeto) return false;
+       }
+
       // Keep on evolving until nothing is left to be done.
-      } while (pTmax > 0.); 
+//      } while (pTmax > 0.); 
+      } while (pTmax > 0.  && (nBranchMax <= 0 || nBranch < nBranchMax) );
 
     }    
 

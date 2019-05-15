@@ -1350,7 +1350,7 @@ void TimeShower::pT2nextQCD(double pT2begDip, double pT2sel,
             wt = 0.; 
 
         // z weight for X -> X g.
-        } else if (dip.flavour == 21 && colTypeAbs == 1) {
+        } else if (dip.flavour == 21 && (colTypeAbs == 1 || colTypeAbs == 3) ) {
           wt = (1. + pow2(dip.z)) / wtPSglue;
         } else if (dip.flavour == 21) {     
           wt = (1. + pow3(dip.z)) / wtPSglue;
@@ -1846,8 +1846,9 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
   } 
 
   // Allow veto of branching. If so restore event record to before emission.
-  if ( canVetoEmission 
-    && userHooksPtr->doVetoFSREmission(eventSizeOld, event) ) {
+  bool inResonance = (partonSystemsPtr->getInA(iSysSel) == 0) ? true : false;
+  if ( canVetoEmission && userHooksPtr->doVetoFSREmission( eventSizeOld, 
+    event, iSysSel, inResonance) ) {
     event.popBack( event.size() - eventSizeOld);
     event[iRadBef].status( iRadStatusV);
     event[iRadBef].daughters( iRadDau1V, iRadDau2V);

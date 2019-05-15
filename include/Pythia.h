@@ -16,8 +16,10 @@
 #include "Event.h"
 #include "FragmentationFlavZpT.h"
 #include "HadronLevel.h"
+#include "History.h"
 #include "Info.h"
 #include "LesHouches.h"
+#include "MergingHooks.h"
 #include "PartonLevel.h"
 #include "ParticleData.h"
 #include "PartonDistributions.h"
@@ -81,6 +83,10 @@ public:
   // Possibility to pass in pointer for user hooks. 
   bool setUserHooksPtr( UserHooks* userHooksPtrIn) 
     { userHooksPtr = userHooksPtrIn; return true;} 
+
+  // Possibility to pass in pointer for merging hooks. 
+  bool setMergingHooksPtr( MergingHooks* mergingHooksPtrIn) 
+    { mergingHooksPtr = mergingHooksPtrIn; return true;} 
 
   // Possibility to pass in pointer for beam shape. 
   bool setBeamShapePtr( BeamShape* beamShapePtrIn) 
@@ -187,8 +193,8 @@ private:
 
   // Initialization data, extracted from database.
   string xmlPath;
-  bool   doProcessLevel, doPartonLevel, doHadronLevel, checkEvent, 
-         doDiffraction, decayRHadrons;
+  bool   doProcessLevel, doPartonLevel, doHadronLevel, abortIfVeto, 
+         checkEvent, doDiffraction, decayRHadrons;
   int    nErrList;
   double epTolErr, epTolWarn;
 
@@ -260,6 +266,17 @@ private:
 
   // The main generator class to produce the parton level of the event.
   PartonLevel partonLevel;
+
+  // The main generator class to perform trial showers of the event.
+  PartonLevel trialPartonLevel;
+
+  // Pointer to MergingHooks object for user interaction with the merging.
+  MergingHooks* mergingHooksPtr;
+  bool       hasMergingHooks, doUserMerging, doMGMerging, doKTMerging,
+             doMerging;
+
+  // Function to perform the merging of the history
+  bool mergeProcess();
 
   // The main generator class to produce the hadron level of the event.
   HadronLevel hadronLevel;

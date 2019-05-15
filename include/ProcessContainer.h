@@ -105,6 +105,7 @@ public:
  
   // Tell whether container is for Les Houches events.
   bool   isLHAContainer() const {return isLHA;}
+  int    lhaStrategy()    const {return lhaStrat;}
 
   // When two hard processes set or get info whether process is matched.
   void   isSame( bool isSameIn) { isSameSave = isSameIn;}

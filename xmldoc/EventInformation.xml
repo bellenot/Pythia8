@@ -231,7 +231,9 @@ means that events come with a compensating weight, stored here.
 <br/>(iii) For Les Houches events some strategies allow negative weights, 
 which then after unweighting lead to events with weight -1. There are 
 also Les Houches strategies where no unweighting is done, so events 
-come with a weight. 
+come with a weight. Specifically, for strategies <ei>+4</ei> and
+<ei>-4</ei>, the event weight is in units of pb. (Internally in mb, 
+but converted at output.) 
 </method>
 
 <method name="double Info::weightSum()"> 
@@ -241,6 +243,12 @@ histograms normalized "per event", at the end of a run, histogram
 contents should be divided by this weight. (And additionally 
 divided by the bin width.) Normalization to cross section also
 required multiplication by <code>sigmaGen()</code> below.
+</method>
+
+<method name="int Info::lhaStrategy()"> 
+normally 0, but if Les Houches events are input then it gives the 
+event weighting strategy, see 
+<aloc href="LesHouchesAccord">Les Houches Accord</aloc>.
 </method>
 
 <method name="int Info::nISR()"> 
@@ -267,6 +275,13 @@ evolution will run down from these scales.
 The current <ei>pT</ei> scale in the combined MI, ISR and FSR evolution.
 Useful for classification in <aloc href="UserHooks">user hooks</aloc>,
 but not once the event has been evolved.  
+</method>
+
+<method name="double Info::mergingWeight()"> 
+combined CKKW-L weight assigned to the current event. If CKKW-L merging is 
+performed, all histograms should be filled with this weight, as discussed in 
+ <a href="MatrixElementMerging.html" target="page"> Matrix Element
+Merging</a>.
 </method>
 
 <h3>Multiple interactions</h3>

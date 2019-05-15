@@ -63,6 +63,10 @@ bool HadronLevel::init(Info* infoPtrIn, Settings& settings,
   // Particles that should decay or not before Bose-Einstein stage.
   widthSepBE      = settings.parm("BoseEinstein:widthSep");
 
+  // Hadron scattering --rjc
+  doHadronScatter = settings.flag("HadronScatter:scatter");
+  hsAfterDecay    = settings.flag("HadronScatter:afterDecay");
+
   // Initialize auxiliary fragmentation classes.
   flavSel.init(settings, rndmPtr);
   pTSel.init(settings, *particleDataPtr, rndmPtr);
@@ -83,6 +87,10 @@ bool HadronLevel::init(Info* infoPtrIn, Settings& settings,
 
   // Initialize BoseEinstein. 
   boseEinstein.init(infoPtr, settings, *particleDataPtr); 
+
+  // Initialize HadronScatter --rjc
+  if (doHadronScatter)
+    hadronScatter.init(infoPtr, settings, rndmPtr, particleDataPtr);
 
   // Initialize Hidden-Valley fragmentation, if necessary.
   useHiddenValley = hiddenvalleyFrag.init(infoPtr, settings, 
@@ -109,7 +117,8 @@ bool HadronLevel::next( Event& event) {
   if (!decayOctetOnia(event)) return false;
 
   // Possibility of hadronization inside decay, but then no BE second time.
-  bool moreToDo;
+  // Hadron scattering, first pass only --rjc
+  bool moreToDo, firstPass = true;
   bool doBoseEinsteinNow = doBoseEinstein;
   do {
     moreToDo = false;
@@ -144,6 +153,10 @@ bool HadronLevel::next( Event& event) {
       }
     }
 
+    // Hadron scattering --rjc
+    if (doHadronScatter && !hsAfterDecay && firstPass)
+      hadronScatter.scatter(event);
+
     // Second part: sequential decays of short-lived particles (incl. K0).
     if (doDecay) {
     
@@ -155,9 +168,13 @@ bool HadronLevel::next( Event& event) {
           && (decayer.mWidth() > widthSepBE || decayer.idAbs() == 311) ) {
           decays.decay( iDec, event); 
           if (decays.moreToDo()) moreToDo = true;
-	}
+        }
       } while (++iDec < event.size());
     }
+
+    // Hadron scattering --rjc
+    if (doHadronScatter && hsAfterDecay && firstPass)
+      hadronScatter.scatter(event);
 
     // Third part: include Bose-Einstein effects among current particles.
     if (doBoseEinsteinNow) {

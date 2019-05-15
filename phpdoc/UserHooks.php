@@ -518,11 +518,21 @@ had time to radiate, of course.
 <h3>(iv) Veto emissions</h3>
 
 The methods in this group are intended to allow the veto of an emission
-in ISR or FSR, without affecting the evolution in any other way.
+in ISR, FSR or MI, without affecting the evolution in any other way.
 If an emission is vetoed, the event record is "rolled back" to the 
 way it was before the emission occured, and the evolution in <i>pT</i> 
 is continued downwards from the rejected value. The decision can be 
-based on full knowledge of the kinematics of the branching.
+based on full knowledge of the kinematics of the shower branching or MI.
+
+<p/>
+To identify where shower emissions originated, the ISR/FSR veto
+routines are passed the system from which the radiation occured, according
+to the Parton Systems class (see <?php $filepath = $_GET["filepath"];
+echo "<a href='AdvancedUsage.php?filepath=".$filepath."' target='page'>";?>Advanced
+Usage</a>). Note, however, that inside the veto routines only the event
+record has been updated; all other information, including the Parton
+Systems, reflects the event before the shower branching or MI has
+taken place.
 
 <a name="method19"></a>
 <p/><strong>virtual bool UserHooks::canVetoISREmission() &nbsp;</strong> <br/>
@@ -532,7 +542,7 @@ will interrupt the initial-state shower immediately after each
 emission and allow that emission to be vetoed.
 
 <a name="method20"></a>
-<p/><strong>virtual bool UserHooks::doVetoISREmission( const int sizeOld, const Event& event) &nbsp;</strong> <br/>
+<p/><strong>virtual bool UserHooks::doVetoISREmission( int sizeOld, const Event& event, int iSys) &nbsp;</strong> <br/>
 can optionally be called, as described above. You can study, but not
 modify, the <code>event</code> event record of the partonic process. 
 Based on that you can decide whether to veto the emission, true, or 
@@ -549,6 +559,9 @@ most recent emission, which are stored in entries from <code>sizeOld</code>
 through <code>event.size() - 1</code> inclusive. If you veto the emission
 these entries will be removed, and the history info in the remaining
 partons will be restored to a state as if the emission had never occured.
+  
+<br/><code>argument</code><strong> iSys </strong>  :  the system where the radiation occurs, according
+to Parton Systems.
   
   
 
@@ -560,7 +573,7 @@ will interrupt the final-state shower immediately after each
 emission and allow that emission to be vetoed.
 
 <a name="method22"></a>
-<p/><strong>virtual bool UserHooks::doVetoFSREmission( const int sizeOld, const Event& event) &nbsp;</strong> <br/>
+<p/><strong>virtual bool UserHooks::doVetoFSREmission( int sizeOld, const Event& event, int iSys, bool inResonance = false) &nbsp;</strong> <br/>
 can optionally be called, as described above. You can study, but not
 modify, the <code>event</code> event record of the partonic process. 
 Based on that you can decide whether to veto the emission, true, or 
@@ -577,6 +590,39 @@ most recent emission, which are stored in entries from <code>sizeOld</code>
 through <code>event.size() - 1</code> inclusive. If you veto the emission
 these entries will be removed, and the history info in the remaining
 partons will be restored to a state as if the emission had never occured.
+  
+<br/><code>argument</code><strong> iSys </strong>  :  the system where the radiation occurs, according
+to Parton Systems.
+  
+<br/><code>argument</code><strong> inResonance </strong>  :  <code>true</code> if the emission takes
+place in a resonance decay, subsequent to the hard process.
+  
+  
+
+<a name="method23"></a>
+<p/><strong>virtual bool UserHooks::canVetoMIEmission() &nbsp;</strong> <br/>
+In the base class this method returns false. If you redefine it
+to return true then the method <code>doVetoMIEmission(...)</code> 
+will interrupt the MI machinery immediately after each multiple
+interaction and allow it to be vetoed.
+
+<a name="method24"></a>
+<p/><strong>virtual bool UserHooks::doVetoMIEmission( int sizeOld, const Event& event) &nbsp;</strong> <br/>
+can optionally be called, as described above. You can study, but not
+modify, the <code>event</code> event record of the partonic process. 
+Based on that you can decide whether to veto the MI, true, or 
+not, false. If you veto, then the latest MI is removed from
+the event record. In either case the interleaved evolution will
+continue from the point where it was left off.
+<br/><code>argument</code><strong> sizeOld </strong>  :  is the size of the event record before the
+latest MI was added to it. It will also become the new size if 
+the MI is vetoed.
+  
+<br/><code>argument</code><strong> event </strong>  :  the event record contains a list of all partons 
+generated so far. Of special interest are the ones associated with the 
+most recent MI, which are stored in entries from <code>sizeOld</code> 
+through <code>event.size() - 1</code> inclusive. If you veto the MI
+these entries will be removed.
   
   
 
@@ -597,7 +643,7 @@ reweighting factor, in such a way thet the integrated cross section
 is unchanged. Below these two cases are considered separately,  
 but note that they share many points.
 
-<a name="method23"></a>
+<a name="method25"></a>
 <p/><strong>virtual bool UserHooks::canModifySigma() &nbsp;</strong> <br/>
 In the base class this method returns false. If you redefine it
 to return true then the method <code>multiplySigmaBy(...)</code> will 
@@ -605,7 +651,7 @@ allow you to modify the cross section weight assigned to the current
 event.
   
 
-<a name="method24"></a>
+<a name="method26"></a>
 <p/><strong>virtual double UserHooks::multiplySigmaBy(const SigmaProcess* sigmaProcessPtr, const PhaseSpace* phaseSpacePtr, bool inEvent) &nbsp;</strong> <br/>
 when called this method should provide the factor by which you want to 
 see the cross section weight of the current event modified. If you 
@@ -655,7 +701,7 @@ echo "<a href='MultipleInteractions.php?filepath=".$filepath."' target='page'>";
 This class contains <code>canModifySigma()</code> and
 <code>multiplySigmaBy()</code> methods that overload the base class ones.
 
-<a name="method25"></a>
+<a name="method27"></a>
 <p/><strong>SuppressSmallPT::SuppressSmallPT( double pT0timesMI = 1., int numberAlphaS = 0, bool useSameAlphaSasMI = true) &nbsp;</strong> <br/>
  The optional arguments of the constructor provides further variability. 
 <br/><code>argument</code><strong> pT0timesMI </strong>  :  
@@ -686,7 +732,7 @@ unweighted cross section.
 The second main case of the current section involves three methods,
 as follows.
 
-<a name="method26"></a>
+<a name="method28"></a>
 <p/><strong>virtual bool UserHooks::canBiasSelection() &nbsp;</strong> <br/>
 In the base class this method returns false. If you redefine it
 to return true then the method <code>biasSelectionBy(...)</code> will 
@@ -697,7 +743,7 @@ combine this kind of reweighting with the selection of
 echo "<a href='ASecondHardProcess.php?filepath=".$filepath."' target='page'>";?>a second hard process</a>.
   
 
-<a name="method27"></a>
+<a name="method29"></a>
 <p/><strong>virtual double UserHooks::biasSelectionBy(const SigmaProcess* sigmaProcessPtr, const PhaseSpace* phaseSpacePtr, bool inEvent) &nbsp;</strong> <br/>
 when called this method should provide the factor by which you want to 
 see the phase space sampling of the current event modified. Events are
@@ -728,7 +774,7 @@ from comparisons.
   
   
 
-<a name="method28"></a>
+<a name="method30"></a>
 <p/><strong>virtual double UserHooks::biasedSelectionWeight() &nbsp;</strong> <br/>
 Returns the weight you should assign to the event, to use e.g. when
 you histogram results. It is the exact inverse of the weight you 
@@ -749,14 +795,14 @@ are not used in the <code>TimeShower</code> class itself, but when
 showers are called from the <code>PartonLevel</code> generation. Thus
 user calls directly to <code>TimeShower</code> are not affected. 
 
-<a name="method29"></a>
+<a name="method31"></a>
 <p/><strong>virtual bool UserHooks::canSetResonanceScale() &nbsp;</strong> <br/>
 In the base class this method returns false. If you redefine it
 to return true then the method <code>scaleResonance(...)</code> 
 will set the initial scale of downwards shower evolution.
 
-<a name="method30"></a>
-<p/><strong>virtual double UserHooks::scaleResonance( const int iRes, const Event& event) &nbsp;</strong> <br/>
+<a name="method32"></a>
+<p/><strong>virtual double UserHooks::scaleResonance( int iRes, const Event& event) &nbsp;</strong> <br/>
 can optionally be called, as described above. You should return the maximum
 scale, in GeV, from which the shower evolution will begin. The base class
 method returns 0, i.e. gives no shower evolution at all.

@@ -1213,7 +1213,7 @@ tunes.</li>
 <li>The code for handling multiple interactions in the scenario with
 an <i>x</i>-dependent width of the Gaussian matter profile 
 [<a href="Bibliography.html" target="page">Cor11</a>], has been improved and updated. Tune 4Cx, which 
-is based on this option, has been added as a further tune option.
+is based on this option, has been added as a further tune option.</li>
 
 <li>A possibility to bias the phase-space selection has been added,
 whereby some phase space regions can be oversampled, which is
@@ -1301,9 +1301,166 @@ decay vertices could write outside memory. Thanks to Steven Schramm.</li>
 MadGraph 5 as a generator for semi-internal processes (thanks to 
 Johan Alwall) and on RIVET interfacing.</li> 
  
-<li>Minor improvements of ROOT- and HepMC-related code and documentation.
+<li>Minor improvements of ROOT- and HepMC-related code and documentation.</li>
 
 <li>Some cleanup of code.</li>
+
+</ul>
+</li>
+
+<li>8.157: 10 November 2011
+<ul>
+
+<ii>StefanPrestel joins as new member of the PYTHIA author team.
+He is mainly working on matching/merging issues, and has contributed
+the CKKW-L machinery mentioned below.</li>
+
+<li>Merging capabilities according to the CKKW-L scheme [<a href="Bibliography.html" target="page">Lon11</a>]
+have been added, see the new 
+<a href="MatrixElementMerging.html" target="page">Matrix Element Merging</a>
+page. It involves new classes to reconstruct and select how a 
+matrix-element-generated partonic configuration could have been obtained 
+by the PYTHIA evolution, and to perform trial showers (using a new
+copy of the normal parton-level machinery) that introduce the appropriate
+Sudakov suppression factors. New examples to illustrate various 
+common tasks are found in <code>main81.cc</code>, <code>main82.cc</code>,
+<code>main83.cc</code> and <code>main84.cc</code>.</li>  
+
+<li>The <code>main71.cc</code> program is now generalised for reading 
+in arbitrary POWHEG LHE files, to implement a smooth matching between NLO 
+matrix elements and the PYTHIA parton showers. Cuts are made on both 
+ISR and FSR emissions, while previously only ISR was covered. The key 
+assumptions are the <i>pT</i> definitions used for ISR and FSR, but several 
+further options are available, as documented in the <code>main71.cmnd</code> 
+file. Work is still ongoing to pick the best default options. </li>
+
+<li>Several expansions of the <code>UserHooks</code> class.
+For both <code>doVetoFSREmission</code> and <code>doVetoISREmission</code>
+a new argument <code>iSys</code> labels the system within which the 
+radiation occurs. For <code>doVetoFSREmission</code> a further argument
+<code>inResonance</code> distinguishes FSR in resonance 
+decays from that in the hard process itself. New methods 
+<code>canVetoMIEmission</code> and <code>doVetoMIEmission</code>
+have been added to veto multiple interactions in the same way as
+FSR and ISR. In <code>biasSelectionBy</code> at times incorrect values
+for <code>inEvent</code> has been corrected. Also some systematization 
+of the use of <code>const</code>.</li>  
+
+<li>A new model for hadron scattering is introduced, still at an early
+stage and therefore more intended for internal development than for the
+normal user. The basic idea is that a high-energy <i>pp</i> collision
+involves the fragmentation of multiple strings that overlap in space
+(and time). Also the produced hadrons therefore initially overlap, and 
+there is a strong likelihood that hadrons can scatter against each other 
+until the system has expanded sufficiently. This can e.g. increase the 
+transverse momentum of heavier hadrons at the expense of lighter ones.
+</li>
+
+<li>A new jet finder <code>SlowJet</code> offers simple access to the 
+inclusive <i>kT</i>, anti-<i>kT</i>, and Cambridge/Aachen
+algorithms in a cylindrical coordinate frame. The jet reconstruction 
+is then based on sequential recombination with progressive removal, 
+using the <i>E</i> recombination scheme. The minimalistic 
+<code>SlowJet</code> code is much slower than <code>FastJet</code> 
+[<a href="Bibliography.html" target="page">Cac06</a>], and contains less options, but reconstructs the same
+jets if run under identical conditions. For details see the 
+<a href="EventAnalysis.html" target="page">Event Analysis</a> page.</li>
+
+<li>Starting in gcc 4.6, it is possible to switch off specific warnings 
+around specific blocks of code. Although version 4.6 is some way off 
+from being commonly found, this option has now been introduced to switch 
+off <code>-Wshadow</code> warnings in <code>HepMCInterface.cc</code>. 
+For other compilers, or earlier versions of gcc, the old behaviour 
+is retained.</li> 
+
+<li>Support for reading in gzipped LHEFs has been added in the 
+<code>LesHouches</code> and <code>SusyLesHouches</code> classes.
+This also affects <code>configure</code> and <code>Makefile</code>s.
+Unless explicitly enabled, it should not affect anything.
+If enabled, it relies on the Boost and zlib libraries to function,
+so paths to these must be set appropriately, see the 
+<code>README</code> file for details. The Boost header files can 
+give very many shadow warnings, so <code>-Wshadow</code> is disabled 
+if gzip support is enabled, as described above.</li> 
+
+<li>Introduce use of the <code>HEPMC_HAS_UNITS</code> environment 
+variable in the <code>HepMCInterface.cc</code> and <code>main32.cc</code> 
+codes to automatically check whether GeV and mm can be set as relevant 
+units. If yes, then it is set in <code>main32.cc</code>. If no, 
+a conversion from GeV to MeV is done explicitly in 
+<code>HepMCInterface.cc</code>. Note that, for early HepMC versions,
+this means a change of behaviour. Thanks to Andy Buckley.</li>
+
+<li>A new method <code>Info::lhaStrategy()</code> returns the 
+Les Houches event weighting strategy where relevant, and 0 where not.
+For the strategies <i>+-4</i> the event weight and sum,
+<code>Info::weight()</code> and <code>Info::weightSum()</code>,
+is now in units of pb at output, as it should be at input.
+(While internally mb is used.)</li>
+
+<li>New flag <code>Check:abortIfVeto</code> allows the user to 
+resume control over execution in case of a veto in the event
+generation process.</li>
+
+<li>New method <code>Event::at(i)</code> returns reference to 
+<code>i</code>'th particle in the event record.</li>
+
+<li>Introduce the Fermi constant as one of the Standard Model 
+parameters.</li>
+
+<li>Included automatic pre-initialization of SLHA blocks MASS and
+SMINPUTS using PYTHIA's SM parameters and particle data table
+values.</li>
+
+<li>SUSY: added sleptons (and sneutrinos) as resonances.
+Corrected 2-body decay widths of gluinos, squarks and gauginos. 
+Added sleptonic decay modes to gaugino decays. 
+Implemented 2-body decays of sleptons (and sneutrinos)
+into sleptons/leptons/gauginos. Corrected slepton couplings (they
+now look exactly like squark couplings, using a 6x6 slepton mixing
+matrix).</li>
+
+<li>New parameter <code>Diffraction:probMaxPert</code> introduce to
+give more flexibility in transition from a nonperturbative to a
+perturbative description of a diffractive system.</li>
+
+<li>Bug corrected in <code>SigmaEW.cc</code>, for the process 
+<code>WeakSingleBoson:ffbar2ffbar(s:gm)</code>. Previously, all outgoing 
+quark flavours in this process were erroneously assigned ID code 5 
+(b quarks). This has now been corrected so the proper ratios are 
+obtained, with <i>u : c : d : s : b = 4 : 4 : 1 : 1 : 1</i>, 
+according to the squared quark charges.</li>
+  
+<li>Changes in <code>FragmentationSystems</code> and 
+<code>StringFragmentation</code> to reject systems with three or more 
+interconnected junctions. This may happen in baryon-number-violating 
+scenarios in pp collisions, if both of the beam baryon junctions are 
+resolved and get connected via an antijunction created by a 
+hard-process BNV vertex. In principle, this could be addressed by an 
+extension of the existing junction fragmentation framework. However, 
+since it happens rarely, for the time being an error message is printed 
+and the fragmentation restarted.
+</li>
+
+<li>Change in <code>Event::copy</code> to safeguard against attempting 
+to copy out-of-range entries. An attempt to copy a non-existing entry 
+will now return -1.</li>
+
+<li>Bug fix in the machinery for the user to force the setting of 
+tau polarization.</li>
+
+<li>Bug fix in the initial search for a maximum of the process 
+cross section (only affecting rare cases).</li>
+
+<li>Corrected angular decay distributions for two compositeness 
+processes, <code>Sigma2qq2qStarq</code> and 
+<code>Sigma2qqbar2lStarlbar</code>.</li>  
+   
+<li>Extra check in <code>HiddenValleyFragmentation</code> to make sure 
+that pointers which have not been assigned with <code>new</code> are not 
+deleted.</li>
+
+<li>Some further minor changes.</li>
 
 </ul>
 </li>

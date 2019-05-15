@@ -96,6 +96,7 @@ echo "<a href='SaveSettings.php?returning=1&filename=".$filename."' target='page
 <a href='ParticleDecays.php?filepath=".$filepath."' target='page'>Particle Decays</a><br/>
 <a href='RHadrons.php?filepath=".$filepath."' target='page'>R-hadrons</a><br/>
 <a href='BoseEinsteinEffects.php?filepath=".$filepath."' target='page'>Bose-Einstein Effects</a><br/>
+<a href='HadronScattering.php?filepath=".$filepath."' target='page'>Hadron Scattering</a><br/>
 <a href='ParticleData.php?filepath=".$filepath."' target='page'>Particle Data</a><br/>
 <a href='ErrorChecks.php?filepath=".$filepath."' target='page'>Error Checks</a><br/>
 <a href='Tunes.php?filepath=".$filepath."' target='page'>Tunes</a><br/>
@@ -138,6 +139,7 @@ echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>Les Ho
 <a href='JetFinders.php?filepath=".$filepath."' target='page'>Jet Finders</a><br/>
 <a href='RandomNumbers.php?filepath=".$filepath."' target='page'>Random Numbers</a><br/>
 <a href='UserHooks.php?filepath=".$filepath."' target='page'>User Hooks</a><br/>
+<a href='MatrixElementMerging.php?filepath=".$filepath."' target='page'>Matrix Element Merging</a><br/>
 <a href='ImplementNewShowers.php?filepath=".$filepath."' target='page'>Implement New Showers</a><br/>
 
 ";?>

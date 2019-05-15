@@ -27,7 +27,7 @@ class Info {
 public:
 
   // Constructor. 
-  Info() : lowPTmin(false), a0MISave(0.) {
+  Info() : lowPTmin(false), a0MISave(0.), mergingWeightSave(1.) {
     for (int i = 0; i < 40; ++i) counters[i] = 0;} 
 
   // Listing of most available information on current event.
@@ -102,9 +102,11 @@ public:
   double phiHat()         const {return phiH;}   
 
   // Weight of current event; normally 1, but used for Les Houches events
-  // or when reweighting phase space selection. Also cumulative sum.
-  double weight()         const {return weightSave;}   
-  double weightSum()      const {return wtAccSum;}
+  // or when reweighting phase space selection. Conversion from mb to pb
+  // for LHA strategy +-4. Also cumulative sum.
+  double weight()         const; 
+  double weightSum()      const; 
+  double lhaStrategy()    const {return lhaStrategySave;}   
 
   // Number of times other steps have been carried out.
   int    nISR()           const {return nISRSave;}
@@ -177,10 +179,16 @@ public:
   void   pT2NowISR( double pT2NowIn) {pT2NowISRSave = pT2NowIn;}
   double pT2NowISR() {return pT2NowISRSave;}
 
+  // Return merging weight
+  double mergingWeight() const { return mergingWeightSave;} 
+
 private:
 
   // Number of times the same error message is repeated, unless overridden.
   static const int TIMESTOPRINT;
+
+  // Allow conversion from mb to pb.
+  static const double CONVERTMB2PB;
 
   // Store common beam quantities. 
   int    idASave, idBSave;
@@ -192,6 +200,7 @@ private:
   // Store common integrated cross section quantities.
   long   nTry, nSel, nAcc;
   double sigGen, sigErr, wtAccSum;
+  int    lhaStrategySave;
 
   // Store common MPI information
   double a0MISave;
@@ -236,7 +245,7 @@ private:
     = id2Save = nMISave = nISRSave = nFSRinProcSave = nFSRinResSave = 0; 
     x1Save = x2Save = pdf1Save = pdf2Save = Q2FacSave = alphaEMSave 
     = alphaSSave = Q2RenSave = sH = tH = uH = pTH = m3H = m4H = thetaH 
-    = phiH = 0.; weightSave = bMISave = enhanceMISave = 1.; 
+    = phiH = 0.; weightSave = bMISave = enhanceMISave = mergingWeightSave = 1.; 
     pTmaxMISave = pTmaxISRSave = pTmaxFSRSave = pTnowSave = zNowISRSave 
     = pT2NowISRSave = 0.; nameSave = nameSubSave = " "; 
     codeMISave.resize(0); iAMISave.resize(0); iBMISave.resize(0);  
@@ -274,7 +283,7 @@ private:
   void setSigma( long nTryIn, long nSelIn, long nAccIn, double sigGenIn, 
     double sigErrIn, double wtAccSumIn) { nTry = nTryIn; nSel = nSelIn; 
     nAcc = nAccIn; sigGen = sigGenIn; sigErr = sigErrIn; 
-    wtAccSum = wtAccSumIn;} 
+    wtAccSum = wtAccSumIn; } 
 
   // Set info on impact parameter: from PartonLevel.
   void setImpact( double bMIIn, double enhanceMIIn) {bMISave = bMIIn;
@@ -300,7 +309,12 @@ private:
   void setEndOfFile( bool atEOFin) {atEOF = atEOFin;}
 
   // Set event weight; currently only for Les Houches description.
-  void setWeight( double weightIn) {weightSave = weightIn;}
+  void setWeight( double weightIn, int lhaStrategyIn) {
+    weightSave = weightIn; lhaStrategySave = lhaStrategyIn; }
+
+  // Set merging weight for event
+  double mergingWeightSave;
+  void setMergingWeight( double weightIn) { mergingWeightSave = weightIn;}
 
 };
  

@@ -122,6 +122,14 @@ couplings of fermions to the <i>Z^0</i>, in the relation
 effective-angle value from [<a href="Bibliography.php" target="page">Yao06</a>].
   
 
+<p/>
+The Fermi constant is not much used in the currently coded matrix elements,
+since it is redundant, but it is available:
+
+<br/><br/><table><tr><td><strong>StandardModel:GF </td><td></td><td> <input type="text" name="5" value="1.16637e-5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.16637e-5</strong></code>; <code>minimum = 1.0e-5</code>; <code>maximum = 1.3e-5</code>)</td></tr></table>
+The Fermi coupling constant, in units of GeV<i>^-2</i>. 
+  
+
 <h3>The quark weak-mixing matrix</h3>
 
 The absolute values of the Cabibbo-Kobayashi-Maskawa matrix elements are 
@@ -130,39 +138,39 @@ currently the CP-violating phase is not taken into account in this
 parametrization. It is up to the user to pick a consistent unitary 
 set of new values whenever changes are made.  
 
-<br/><br/><table><tr><td><strong>StandardModel:Vud </td><td></td><td> <input type="text" name="5" value="0.97383" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.97383</strong></code>; <code>minimum = 0.973</code>; <code>maximum = 0.975</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StandardModel:Vud </td><td></td><td> <input type="text" name="6" value="0.97383" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.97383</strong></code>; <code>minimum = 0.973</code>; <code>maximum = 0.975</code>)</td></tr></table>
 The <i>V_ud</i> CKM matrix element.
   
 
-<br/><br/><table><tr><td><strong>StandardModel:Vus </td><td></td><td> <input type="text" name="6" value="0.2272" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.2272</strong></code>; <code>minimum = 0.224</code>; <code>maximum = 0.230</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StandardModel:Vus </td><td></td><td> <input type="text" name="7" value="0.2272" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.2272</strong></code>; <code>minimum = 0.224</code>; <code>maximum = 0.230</code>)</td></tr></table>
 The <i>V_us</i> CKM matrix element.
   
 
-<br/><br/><table><tr><td><strong>StandardModel:Vub </td><td></td><td> <input type="text" name="7" value="0.00396" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.00396</strong></code>; <code>minimum = 0.0037</code>; <code>maximum = 0.0042</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StandardModel:Vub </td><td></td><td> <input type="text" name="8" value="0.00396" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.00396</strong></code>; <code>minimum = 0.0037</code>; <code>maximum = 0.0042</code>)</td></tr></table>
 The <i>V_ub</i> CKM matrix element.
   
 
-<br/><br/><table><tr><td><strong>StandardModel:Vcd </td><td></td><td> <input type="text" name="8" value="0.2271" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.2271</strong></code>; <code>minimum = 0.224</code>; <code>maximum = 0.230</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StandardModel:Vcd </td><td></td><td> <input type="text" name="9" value="0.2271" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.2271</strong></code>; <code>minimum = 0.224</code>; <code>maximum = 0.230</code>)</td></tr></table>
 The <i>V_cd</i> CKM matrix element.
   
 
-<br/><br/><table><tr><td><strong>StandardModel:Vcs </td><td></td><td> <input type="text" name="9" value="0.97296" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.97296</strong></code>; <code>minimum = 0.972</code>; <code>maximum = 0.974</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StandardModel:Vcs </td><td></td><td> <input type="text" name="10" value="0.97296" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.97296</strong></code>; <code>minimum = 0.972</code>; <code>maximum = 0.974</code>)</td></tr></table>
 The <i>V_cs</i> CKM matrix element.
   
 
-<br/><br/><table><tr><td><strong>StandardModel:Vcb </td><td></td><td> <input type="text" name="10" value="0.04221" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.04221</strong></code>; <code>minimum = 0.0418</code>; <code>maximum = 0.0426</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StandardModel:Vcb </td><td></td><td> <input type="text" name="11" value="0.04221" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.04221</strong></code>; <code>minimum = 0.0418</code>; <code>maximum = 0.0426</code>)</td></tr></table>
 The <i>V_cb</i> CKM matrix element.
   
 
-<br/><br/><table><tr><td><strong>StandardModel:Vtd </td><td></td><td> <input type="text" name="11" value="0.00814" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.00814</strong></code>; <code>minimum = 0.006</code>; <code>maximum = 0.010</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StandardModel:Vtd </td><td></td><td> <input type="text" name="12" value="0.00814" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.00814</strong></code>; <code>minimum = 0.006</code>; <code>maximum = 0.010</code>)</td></tr></table>
 The <i>V_td</i> CKM matrix element.
   
 
-<br/><br/><table><tr><td><strong>StandardModel:Vts </td><td></td><td> <input type="text" name="12" value="0.04161" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.04161</strong></code>; <code>minimum = 0.039</code>; <code>maximum = 0.043</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StandardModel:Vts </td><td></td><td> <input type="text" name="13" value="0.04161" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.04161</strong></code>; <code>minimum = 0.039</code>; <code>maximum = 0.043</code>)</td></tr></table>
 The <i>V_ts</i> CKM matrix element.
   
 
-<br/><br/><table><tr><td><strong>StandardModel:Vtb </td><td></td><td> <input type="text" name="13" value="0.9991" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.9991</strong></code>; <code>minimum = 0.99907</code>; <code>maximum = 0.9992</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StandardModel:Vtb </td><td></td><td> <input type="text" name="14" value="0.9991" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.9991</strong></code>; <code>minimum = 0.99907</code>; <code>maximum = 0.9992</code>)</td></tr></table>
 The <i>V_tb</i> CKM matrix element.
   
 
@@ -244,12 +252,17 @@ couplings of fermions to the <i>Z^0</i>.
   
 
 <a name="method10"></a>
+<p/><strong>double CoupSM::GF() &nbsp;</strong> <br/>
+the Fermi constant of weak decays, in GeV<i>^-2</i>.
+  
+
+<a name="method11"></a>
 <p/><strong>double CoupSM::ef(int idAbs) &nbsp;</strong> <br/>
 the electrical charge of a fermion, by the absolute sign of the PDF code,
 i.e. <code>idAbs</code> must be in the range between 1 and 18.
   
 
-<a name="method11"></a>
+<a name="method12"></a>
 <p/><strong>double CoupSM::vf(int idAbs) &nbsp;</strong> <br/>
   
 <strong>double CoupSM::af(int idAbs) &nbsp;</strong> <br/>
@@ -257,7 +270,7 @@ the vector and axial charges of a fermion, by the absolute sign of the PDF
 code (<i>a_f = +-1, v_f = a_f - 4. * sin2thetaWbar * e_f</i>).
   
 
-<a name="method12"></a>
+<a name="method13"></a>
 <p/><strong>double CoupSM::t3f(int idAbs) &nbsp;</strong> <br/>
   
 <strong>double CoupSM::lf(int idAbs) &nbsp;</strong> <br/>
@@ -269,7 +282,7 @@ r_f = (v_f - a_f)/2</i>; you may find other conventions in the literature
 that differ by a factor of 2).
   
 
-<a name="method13"></a>
+<a name="method14"></a>
 <p/><strong>double CoupSM::ef2(int idAbs) &nbsp;</strong> <br/>
   
 <strong>double CoupSM::vf2(int idAbs) &nbsp;</strong> <br/>
@@ -283,7 +296,7 @@ common quadratic combinations of the above couplings:
 <i>e_f^2, v_f^2, a_f^2, e_f * v_f, v_f^2 + a_f^2</i>.
   
 
-<a name="method14"></a>
+<a name="method15"></a>
 <p/><strong>double CoupSM::VCKMgen(int genU, int genD) &nbsp;</strong> <br/>
   
 <strong>double CoupSM::V2CKMgen(int genU, int genD) &nbsp;</strong> <br/>
@@ -294,7 +307,7 @@ down-type generation index <code>genD</code>
 (<i>1 = d, 2 = s, 3 = b, 4 = b'</i>).
   
 
-<a name="method15"></a>
+<a name="method16"></a>
 <p/><strong>double CoupSM::VCKMid(int id1, int id2) &nbsp;</strong> <br/>
   
 <strong>double CoupSM::V2CKMid(int id1, int id2) &nbsp;</strong> <br/>
@@ -307,7 +320,7 @@ evaluate to zero. The neutrino sector is numbered by flavor
 eigenstates, so there is no mixing in the lepton-neutrino system. 
   
 
-<a name="method16"></a>
+<a name="method17"></a>
 <p/><strong>double CoupSM::V2CKMsum(int id) &nbsp;</strong> <br/>
 the sum of squared CKM mixing element that a given flavour can couple to, 
 excluding the top quark and fourth generation. Is close to unity
@@ -315,7 +328,7 @@ for the first two generations. Returns unity for the lepton-neutrino
 sector. 
   
 
-<a name="method17"></a>
+<a name="method18"></a>
 <p/><strong>int CoupSM::V2CKMpick(int id) &nbsp;</strong> <br/>
 picks a random CKM partner quark or lepton (with the same sign as 
 <code>id</code>) according to the respective squared elements, again 
@@ -358,49 +371,54 @@ if($_POST["4"] != "0.2315")
 $data = "StandardModel:sin2thetaWbar = ".$_POST["4"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["5"] != "0.97383")
+if($_POST["5"] != "1.16637e-5")
 {
-$data = "StandardModel:Vud = ".$_POST["5"]."\n";
+$data = "StandardModel:GF = ".$_POST["5"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["6"] != "0.2272")
+if($_POST["6"] != "0.97383")
 {
-$data = "StandardModel:Vus = ".$_POST["6"]."\n";
+$data = "StandardModel:Vud = ".$_POST["6"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["7"] != "0.00396")
+if($_POST["7"] != "0.2272")
 {
-$data = "StandardModel:Vub = ".$_POST["7"]."\n";
+$data = "StandardModel:Vus = ".$_POST["7"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["8"] != "0.2271")
+if($_POST["8"] != "0.00396")
 {
-$data = "StandardModel:Vcd = ".$_POST["8"]."\n";
+$data = "StandardModel:Vub = ".$_POST["8"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["9"] != "0.97296")
+if($_POST["9"] != "0.2271")
 {
-$data = "StandardModel:Vcs = ".$_POST["9"]."\n";
+$data = "StandardModel:Vcd = ".$_POST["9"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["10"] != "0.04221")
+if($_POST["10"] != "0.97296")
 {
-$data = "StandardModel:Vcb = ".$_POST["10"]."\n";
+$data = "StandardModel:Vcs = ".$_POST["10"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["11"] != "0.00814")
+if($_POST["11"] != "0.04221")
 {
-$data = "StandardModel:Vtd = ".$_POST["11"]."\n";
+$data = "StandardModel:Vcb = ".$_POST["11"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["12"] != "0.04161")
+if($_POST["12"] != "0.00814")
 {
-$data = "StandardModel:Vts = ".$_POST["12"]."\n";
+$data = "StandardModel:Vtd = ".$_POST["12"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["13"] != "0.9991")
+if($_POST["13"] != "0.04161")
 {
-$data = "StandardModel:Vtb = ".$_POST["13"]."\n";
+$data = "StandardModel:Vts = ".$_POST["13"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["14"] != "0.9991")
+{
+$data = "StandardModel:Vtb = ".$_POST["14"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);

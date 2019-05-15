@@ -389,23 +389,20 @@ double Sigma2qq2qStarq::weightDecay( Event& process, int iResBeg,
   // Phase space factors.
   double mr1    = pow2(process[7].m() / process[5].m());
   double mr2    = pow2(process[8].m() / process[5].m()); 
-  double betaf  = sqrtpos( pow2(1. - mr1 - mr2) - 4. * mr1 * mr2);
 
   // Reconstruct decay angle in q* CoM frame. 
-  Vec4 p1StarCom = process[7].p();
-  Vec4 p2StarCom = process[8].p();
-  p1StarCom.bstback(process[5].p());
-  p2StarCom.bstback(process[5].p());
-  double cosThe = (process[3].p() - process[4].p()) 
-    * (p2StarCom - p1StarCom) / (sH * betaf);
+  int  idAbs3 = process[7].idAbs();
+  Vec4 pQStarCom = (idAbs3 < 20) ? process[7].p() : process[8].p();
+  pQStarCom.bstback(process[5].p());
+  double cosThe = costheta(pQStarCom, process[5].p());
   double wt     = 1.; 
 
   // Decay q* -> q (g/gamma) or q (Z^0/W^+-).
-  int idBoson   = (process[8].idAbs() < 20) ? process[7].idAbs() : process[8].idAbs();
+  int idBoson   = (idAbs3 < 20) ? process[8].idAbs() : process[7].idAbs();
   if (idBoson == 21 || idBoson == 22) {
     wt          = 0.5 * (1. + cosThe);
   } else if (idBoson == 23 || idBoson == 24) {
-    double mrB  = (process[8].idAbs() < 20) ? mr1 : mr2;
+    double mrB  = (idAbs3 < 20) ? mr2 : mr1;
     double kTrm = 0.5 * (mrB * (1. - cosThe));
     wt          = (1. + cosThe + kTrm) / (2 + mrB);
   } 
@@ -492,23 +489,20 @@ double Sigma2qqbar2lStarlbar::weightDecay( Event& process, int iResBeg,
   // Phase space factors.
   double mr1    = pow2(process[7].m() / process[5].m());
   double mr2    = pow2(process[8].m() / process[5].m()); 
-  double betaf  = sqrtpos( pow2(1. - mr1 - mr2) - 4. * mr1 * mr2);
 
   // Reconstruct decay angle in l* CoM frame.
-  Vec4 p1StarCom = process[7].p();
-  Vec4 p2StarCom = process[8].p();
-  p1StarCom.bstback(process[5].p());
-  p2StarCom.bstback(process[5].p());
-  double cosThe = (process[3].p() - process[4].p()) 
-    * (p2StarCom - p1StarCom) / (sH * betaf);
+  int  idAbs3 = process[7].idAbs();
+  Vec4 pLStarCom = (idAbs3 < 20) ? process[7].p() : process[8].p();
+  pLStarCom.bstback(process[5].p());
+  double cosThe = costheta(pLStarCom, process[5].p());
   double wt     = 1.; 
 
   // Decay, l* -> l + gamma/Z^0/W^+-).
-  int idBoson   = (process[8].idAbs() < 20) ? process[7].idAbs() : process[8].idAbs();
+  int idBoson   = (idAbs3 < 20) ? process[8].idAbs() : process[7].idAbs();
   if (idBoson == 22) {
     wt          = 0.5 * (1. + cosThe);
   } else if (idBoson == 23 || idBoson == 24) {
-    double mrB  = (process[8].idAbs() < 20) ? mr1 : mr2;
+    double mrB  = (idAbs3 < 20) ? mr2 : mr1;
     double kTrm = 0.5 * (mrB * (1. - cosThe));
     wt          = (1. + cosThe + kTrm) / (2 + mrB);
   } 

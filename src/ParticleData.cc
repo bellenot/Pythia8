@@ -643,6 +643,14 @@ void ParticleData::initWidths( vector<ResonanceWidths*> resonancePtrs) {
     setResonancePtr( 2000000 + i, resonancePtr);
   }
 
+  //  - Sleptons and sneutrinos
+  for(int i = 1; i < 7; i++){
+    resonancePtr = new ResonanceSlepton(1000010 + i);
+    setResonancePtr( 1000010 + i, resonancePtr);
+    resonancePtr = new ResonanceSlepton(2000010 + i);
+    setResonancePtr( 2000010 + i, resonancePtr);
+  }
+
   // - Gluino
   resonancePtr = new ResonanceGluino(1000021);
   setResonancePtr( 1000021, resonancePtr);

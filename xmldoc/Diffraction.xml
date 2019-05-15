@@ -112,11 +112,11 @@ low-mass description, with only longitudinally stretched strings,
 with a gradual switch-over to the perturbative picture for higher
 masses. The probability for the latter picture is parametrized as
 <eq>
-P_pert = 1 - exp( (m_diffr - m_min) / m_width )
+P_pert = P_max ( 1 - exp( (m_diffr - m_min) / m_width ) )
 </eq> 
 which vanishes for the diffractive system mass 
 <ei>m_diffr &lt; m_min</ei>, and is <ei>1 - 1/e = 0.632</ei> for
-<ei>m_diffr = m_min + m_width</ei>.
+<ei>m_diffr = m_min + m_width</ei>, assuming <ei>P_max = 1</ei>.
 
 <parm name="Diffraction:mMinPert" default="10." min="5.">
 The abovementioned threshold mass <ei>m_min</ei> for phasing in a
@@ -127,6 +127,13 @@ but only the older low-<ei>pt</ei> description.
 
 <parm name="Diffraction:mWidthPert" default="10." min="0.">
 The abovementioned threshold width <ei>m_width.</ei>
+</parm>
+
+<parm name="Diffraction:probMaxPert" default="1." min="0." max="1." >
+The abovementioned maximum probability <ei>P_max.</ei>. Would 
+normally be assumed to be unity, but a somewhat lower value could
+be used to represent a small nonperturbative component also at 
+high diffractive masses.
 </parm>
 
 <h3>Low-mass diffraction</h3>

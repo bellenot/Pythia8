@@ -8,8 +8,18 @@
 
 // Mikhail.Kirsanov@cern.ch
 
+// For GCC versions >= 4.6.0 can turn off shadow warnings
+#if ((__GNUC__*100)+__GNUC_MINOR__) >= 406
+#pragma GCC diagnostic ignored "-Wshadow"
+#endif
+
 #include "HepMCInterface.h"
 #include "HepMC/GenEvent.h"
+
+// Switch shadow warnings back on
+#if ((__GNUC__*100)+__GNUC_MINOR__) >= 406
+#pragma GCC diagnostic warning "-Wshadow"
+#endif
 
 namespace HepMC {
 
@@ -25,8 +35,6 @@ I_Pythia8::I_Pythia8():
   m_freepartonwarnings(true),
   m_convert_to_mev(false),
   m_mom_scale_factor(1.),
-  m_weight_in_fb(false),
-  m_weight_scale_factor(1.),
   m_internal_event_number(0) {;}
 
 I_Pythia8::~I_Pythia8() {;}
@@ -56,6 +64,13 @@ bool I_Pythia8::fill_next_event( Pythia8::Event& pyev, GenEvent* evt,
     m_internal_event_number++;
   }
 
+  // Decide whether conversion from GeV to MeV is necessary.
+#ifdef HEPMC_HAS_UNITS
+  set_convert_to_mev(false);
+#else
+  set_convert_to_mev(true);
+#endif
+    
   // 2. Create a particle instance for each entry and fill a map, and 
   // a vector which maps from the particle index to the GenParticle address.
   std::vector<GenParticle*> hepevt_particles( pyev.size() );
@@ -225,9 +240,9 @@ bool I_Pythia8::fill_next_event( Pythia8::Pythia& pythia, GenEvent* evt,
     if (evt->alphaQED() <= 0) evt->set_alphaQED( pythia.info.alphaEM() );
     if (evt->alphaQCD() <= 0) evt->set_alphaQCD( pythia.info.alphaS() );
     
-    // Store event weight, which may need to be converted from mb to fb.
-    evt->weights().push_back( m_weight_scale_factor 
-      * pythia.info.weight() );
+    // Store event weight, which is in units of fb for Les Houches Event
+    // strategies +-4.
+    evt->weights().push_back( pythia.info.weight() );
 
     // HepMC 2.05 supports cross-section information in pb:
 #ifdef HEPMC_HAS_CROSS_SECTION

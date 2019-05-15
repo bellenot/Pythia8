@@ -916,7 +916,7 @@ void Sigma2ffbar2ffbarsgm::sigmaKin() {
     else if (flavRndm < 2.) idNew = 13;
     else                    idNew = 15; 
   } else { 
-    flavRndm = 3. * (flavWt - 3.) / colQ;
+    flavRndm = 3. * (flavRndm - 3.) / colQ;
     if      (flavRndm <  4.) idNew = 2;
     else if (flavRndm <  8.) idNew = 4;
     else if (flavRndm <  9.) idNew = 1;

@@ -640,9 +640,93 @@ private:
 
 //--------------------------------------------------------------------------
 
+// utilities to set generic blocks
+
+template <class T> int SusyLesHouches::set(string blockName, T val) {
+
+  // Make sure everything is interpreted as lower case (for safety)
+  for (int iC=0; iC<int(blockName.size()); ++iC) 
+    blockName[iC] = tolower(blockName[iC]);
+
+  // Add new generic block if not already existing
+  if (genericBlocks.find(blockName) == genericBlocks.end()) {
+    GenericBlock gBlock;
+    genericBlocks[blockName]=gBlock;
+  }
+
+  // Convert input value to string
+  ostringstream lineStream;
+  lineStream << val;
+  return genericBlocks[blockName].set(lineStream.str());
+
+}
+
+template <class T> int SusyLesHouches::set(string blockName, int indx, T val) {
+
+  // Make sure everything is interpreted as lower case (for safety)
+  for (int iC=0; iC<int(blockName.size()); ++iC) 
+    blockName[iC] = tolower(blockName[iC]);
+
+  // Add new generic block if not already existing
+  if (genericBlocks.find(blockName) == genericBlocks.end()) {
+    GenericBlock gBlock;
+    genericBlocks[blockName]=gBlock;
+  }
+
+  // Convert input value to string
+  ostringstream lineStream;
+  lineStream << indx<<" "<<val;
+  return genericBlocks[blockName].set(lineStream.str());
+
+}
+
+template <class T> int SusyLesHouches::set(string blockName, int indx, 
+					   int jndx, T val) {
+
+  // Make sure everything is interpreted as lower case (for safety)
+  for (int iC=0; iC<int(blockName.size()); ++iC) 
+    blockName[iC] = tolower(blockName[iC]);
+
+  // Add new generic block if not already existing
+  if (genericBlocks.find(blockName) == genericBlocks.end()) {
+    GenericBlock gBlock;
+    genericBlocks[blockName]=gBlock;
+  }
+
+  // Convert input value to string
+  ostringstream lineStream;
+  lineStream << indx<<" "<<jndx<<" "<<val;
+  return genericBlocks[blockName].set(lineStream.str());
+
+}
+
+template <class T> int SusyLesHouches::set(string blockName, int indx, 
+					   int jndx, int kndx, T val) {
+
+  // Make sure everything is interpreted as lower case (for safety)
+  for (int iC=0; iC<int(blockName.size()); ++iC) 
+    blockName[iC] = tolower(blockName[iC]);
+
+  // Add new generic block if not already existing
+  if (genericBlocks.find(blockName) == genericBlocks.end()) {
+    GenericBlock gBlock;
+    genericBlocks[blockName]=gBlock;
+  }
+
+  // Convert input value to string
+  ostringstream lineStream;
+  lineStream << indx<<" "<<jndx<<" "<<kndx<<" "<<val;
+  return genericBlocks[blockName].set(lineStream.str());
+
+}
+
 // utilities to read generic blocks
 
 template <class T> bool SusyLesHouches::getEntry(string blockName, T& val) {
+
+  // Make sure everything is interpret as lower case (for safety)
+  for (int iC=0; iC<int(blockName.size()); ++iC) 
+    blockName[iC] = tolower(blockName[iC]);  
 
   // Safety checks
   if (genericBlocks.find(blockName) == genericBlocks.end()) {
@@ -673,6 +757,11 @@ template <class T> bool SusyLesHouches::getEntry(string blockName, T& val) {
 
 template <class T> bool SusyLesHouches::getEntry(string blockName, int indx, 
 						 T& val) {
+
+  // Make sure everything is interpret as lower case (for safety)
+  for (int iC=0; iC<int(blockName.size()); ++iC) 
+    blockName[iC] = tolower(blockName[iC]);  
+
   // Safety checks
   if (genericBlocks.find(blockName) == genericBlocks.end()) {
     message(1,"getEntry","attempting to extract entry from non-existent block "
@@ -706,6 +795,11 @@ template <class T> bool SusyLesHouches::getEntry(string blockName, int indx,
 
 template <class T> bool SusyLesHouches::getEntry(string blockName, int indx, 
 						 int jndx, T& val) {
+
+  // Make sure everything is interpret as lower case (for safety)
+  for (int iC=0; iC<int(blockName.size()); ++iC) 
+    blockName[iC] = tolower(blockName[iC]);  
+
   // Safety checks
   if (genericBlocks.find(blockName) == genericBlocks.end()) {
     message(1,"getEntry","attempting to extract entry from non-existent block "
@@ -740,6 +834,11 @@ template <class T> bool SusyLesHouches::getEntry(string blockName, int indx,
 
 template <class T> bool SusyLesHouches::getEntry(string blockName, int indx, 
 						 int jndx, int kndx, T& val) {
+
+  // Make sure everything is interpret as lower case (for safety)
+  for (int iC=0; iC<int(blockName.size()); ++iC) 
+    blockName[iC] = tolower(blockName[iC]);  
+
   // Safety checks
   if (genericBlocks.find(blockName) == genericBlocks.end()) {
     message(1,"getEntry","attempting to extract entry from non-existent block "

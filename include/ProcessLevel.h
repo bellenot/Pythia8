@@ -45,10 +45,10 @@ public:
   // Initialization.
   bool init( Info* infoPtrIn, Settings& settings,
     ParticleData* particleDataPtrIn, Rndm* rndmPtrIn, 
-    BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, Couplings* couplingsPtrIn, 
-    SigmaTotal* sigmaTotPtrIn, bool doLHAin, SusyLesHouches* slhaPtrIn,
-    UserHooks* userHooksPtrIn, vector<SigmaProcess*>& sigmaPtrs, 
-    ostream& os = cout);
+    BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, 
+    Couplings* couplingsPtrIn, SigmaTotal* sigmaTotPtrIn, bool doLHAin, 
+    SusyLesHouches* slhaPtrIn, UserHooks* userHooksPtrIn, 
+    vector<SigmaProcess*>& sigmaPtrs, ostream& os = cout);
 
   // Store or replace Les Houches pointer.
   void setLHAPtr( LHAup* lhaUpPtrIn) {lhaUpPtr = lhaUpPtrIn;
@@ -116,8 +116,8 @@ private:
   // Pointer to LHAup for generating external events.
   LHAup*          lhaUpPtr;
 
-  // Initialization routine for SUSY spectra.
-  bool initSLHA(Settings& settings);
+  // Initialization of some SLHA blocks.
+  void initSLHA();
 
   // ResonanceDecay object does sequential resonance decays.
   ResonanceDecays resonanceDecays;

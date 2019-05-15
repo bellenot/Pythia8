@@ -463,11 +463,20 @@ had time to radiate, of course.
 <h3>(iv) Veto emissions</h3>
 
 The methods in this group are intended to allow the veto of an emission
-in ISR or FSR, without affecting the evolution in any other way.
+in ISR, FSR or MI, without affecting the evolution in any other way.
 If an emission is vetoed, the event record is "rolled back" to the 
 way it was before the emission occured, and the evolution in <ei>pT</ei> 
 is continued downwards from the rejected value. The decision can be 
-based on full knowledge of the kinematics of the branching.
+based on full knowledge of the kinematics of the shower branching or MI.
+
+<p/>
+To identify where shower emissions originated, the ISR/FSR veto
+routines are passed the system from which the radiation occured, according
+to the Parton Systems class (see <aloc href="AdvancedUsage">Advanced
+Usage</aloc>). Note, however, that inside the veto routines only the event
+record has been updated; all other information, including the Parton
+Systems, reflects the event before the shower branching or MI has
+taken place.
 
 <method name="virtual bool UserHooks::canVetoISREmission()">
 In the base class this method returns false. If you redefine it
@@ -476,7 +485,7 @@ will interrupt the initial-state shower immediately after each
 emission and allow that emission to be vetoed.
 
 <method name="virtual bool UserHooks::doVetoISREmission( 
-const int sizeOld, const Event& event)">
+int sizeOld, const Event& event, int iSys)">
 can optionally be called, as described above. You can study, but not
 modify, the <code>event</code> event record of the partonic process. 
 Based on that you can decide whether to veto the emission, true, or 
@@ -493,6 +502,9 @@ most recent emission, which are stored in entries from <code>sizeOld</code>
 through <code>event.size() - 1</code> inclusive. If you veto the emission
 these entries will be removed, and the history info in the remaining
 partons will be restored to a state as if the emission had never occured.
+</argument>
+<argument name="iSys"> the system where the radiation occurs, according
+to Parton Systems.
 </argument>
 </method>
 
@@ -503,7 +515,7 @@ will interrupt the final-state shower immediately after each
 emission and allow that emission to be vetoed.
 
 <method name="virtual bool UserHooks::doVetoFSREmission( 
-const int sizeOld, const Event& event)">
+int sizeOld, const Event& event, int iSys, bool inResonance = false)">
 can optionally be called, as described above. You can study, but not
 modify, the <code>event</code> event record of the partonic process. 
 Based on that you can decide whether to veto the emission, true, or 
@@ -520,6 +532,38 @@ most recent emission, which are stored in entries from <code>sizeOld</code>
 through <code>event.size() - 1</code> inclusive. If you veto the emission
 these entries will be removed, and the history info in the remaining
 partons will be restored to a state as if the emission had never occured.
+</argument>
+<argument name="iSys"> the system where the radiation occurs, according
+to Parton Systems.
+</argument>
+<argument name="inResonance"> <code>true</code> if the emission takes
+place in a resonance decay, subsequent to the hard process.
+</argument>
+</method>
+
+<method name="virtual bool UserHooks::canVetoMIEmission()">
+In the base class this method returns false. If you redefine it
+to return true then the method <code>doVetoMIEmission(...)</code> 
+will interrupt the MI machinery immediately after each multiple
+interaction and allow it to be vetoed.
+
+<method name="virtual bool UserHooks::doVetoMIEmission( 
+int sizeOld, const Event& event)">
+can optionally be called, as described above. You can study, but not
+modify, the <code>event</code> event record of the partonic process. 
+Based on that you can decide whether to veto the MI, true, or 
+not, false. If you veto, then the latest MI is removed from
+the event record. In either case the interleaved evolution will
+continue from the point where it was left off.
+<argument name="sizeOld"> is the size of the event record before the
+latest MI was added to it. It will also become the new size if 
+the MI is vetoed.
+</argument>
+<argument name="event"> the event record contains a list of all partons 
+generated so far. Of special interest are the ones associated with the 
+most recent MI, which are stored in entries from <code>sizeOld</code> 
+through <code>event.size() - 1</code> inclusive. If you veto the MI
+these entries will be removed.
 </argument>
 </method>
 
@@ -694,7 +738,7 @@ In the base class this method returns false. If you redefine it
 to return true then the method <code>scaleResonance(...)</code> 
 will set the initial scale of downwards shower evolution.
 
-<method name="virtual double UserHooks::scaleResonance( const int iRes, 
+<method name="virtual double UserHooks::scaleResonance( int iRes, 
 const Event& event)">
 can optionally be called, as described above. You should return the maximum
 scale, in GeV, from which the shower evolution will begin. The base class

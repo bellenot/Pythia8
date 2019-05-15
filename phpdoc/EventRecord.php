@@ -76,6 +76,8 @@ current event record:
 <p/><strong>Particle& Event::operator[](int i) &nbsp;</strong> <br/>
   
 <strong>const Particle& Event::operator[](int i) &nbsp;</strong> <br/>
+  
+<strong>Particle& Event::at(int i) &nbsp;</strong> <br/>
 returns a (<code>const</code>) reference to the <i>i</i>'th particle
 in the event record, which can be used to get (or set) all the 
 <?php $filepath = $_GET["filepath"];
@@ -428,7 +430,8 @@ has to be modified further by hand to make sense. With a positive
 the old, with status code <code>newStatus</code>, while the status 
 code of <code>iCopy</code> is negated. With a negative 
 <code>newStatus</code>, the new copy is instead set up to be the 
-mother of <code>iCopy</code>.
+mother of <code>iCopy</code>. An attempt to copy an out-of-range 
+entry will return -1.
   
 
 <a name="method30"></a>

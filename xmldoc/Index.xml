@@ -67,6 +67,7 @@
 <aidx href="ParticleDecays">Particle Decays</aidx><br/>
 <aidx href="RHadrons">R-hadrons</aidx><br/>
 <aidx href="BoseEinsteinEffects">Bose-Einstein Effects</aidx><br/>
+<aidx href="HadronScattering">Hadron Scattering</aidx><br/>
 <aidx href="ParticleData">Particle Data</aidx><br/>
 <aidx href="ErrorChecks">Error Checks</aidx><br/>
 <aidx href="Tunes">Tunes</aidx><br/>
@@ -103,6 +104,7 @@
 <aidx href="JetFinders">Jet Finders</aidx><br/>
 <aidx href="RandomNumbers">Random Numbers</aidx><br/>
 <aidx href="UserHooks">User Hooks</aidx><br/>
+<aidx href="MatrixElementMerging">Matrix Element Merging</aidx><br/>
 <aidx href="ImplementNewShowers">Implement New Showers</aidx><br/>
 </INDEXPHP>
 

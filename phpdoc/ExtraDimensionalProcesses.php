@@ -42,9 +42,11 @@ section.
 <h3>Randall-Sundrum Resonances, production processes</h3>
 
 The graviton (G*) and gluon (KKgluon*) resonance states are assigned 
-PDG code 5100039 and 5100021 respectively. Decays into fermion, gluon 
-and photon pairs are handled with the correct angular distributions, 
-while other decay channels currently are handled isotropically.
+PDG code 5100039 and 5100021 respectively. The G* processes are 
+described in [<a href="Bibliography.php" target="page">Bij01</a>] and the KKgluon* process in [<a href="Bibliography.php" target="page">Ask11</a>]. 
+Decays into fermion, gluon and photon pairs are handled with the 
+correct angular distributions, while other decay channels currently 
+are handled isotropically.
 
 <p/>
 <i>Warning:</i> The possible decays of a graviton into scalars 

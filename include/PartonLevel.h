@@ -14,6 +14,7 @@
 #include "BeamRemnants.h"
 #include "Event.h"
 #include "Info.h"
+#include "MergingHooks.h"
 #include "MultipleInteractions.h"
 #include "ParticleData.h"
 #include "PartonSystems.h"
@@ -48,7 +49,8 @@ public:
     Couplings* couplingsPtrIn, PartonSystems* partonSystemsPtrIn, 
     SigmaTotal* sigmaTotPtr, TimeShower* timesDecPtrIn, 
     TimeShower* timesPtrIn, SpaceShower* spacePtrIn, 
-    RHadrons* rHadronsPtrIn, UserHooks* userHooksPtrIn);
+    RHadrons* rHadronsPtrIn, UserHooks* userHooksPtrIn,
+    MergingHooks* mergingHooksPtr, bool useAsTrial);
  
   // Generate the next parton-level process.
   bool next( Event& process, Event& event); 
@@ -67,6 +69,12 @@ public:
     //if (doMISDA && doDiffraction) multiSDA.statistics(reset); 
     //if (doMISDB && doDiffraction) multiSDB.statistics(reset);}
 
+  void resetTrial();
+  // Provide the pT scale of the last branching in the shower.
+  double pTLastInShower(){ return pTLastBranch; }
+  // Provide the type of the last branching in the shower.
+  int typeLastInShower(){ return typeLastBranch; }
+
 private: 
 
   // Constants: could only be changed in the code itself.
@@ -77,7 +85,7 @@ private:
          doISR, doFSRduringProcess, doFSRafterProcess,  doFSRinResonances, 
          doRemnants, doSecondHard, hasLeptonBeams, hasPointLeptons, 
          canVetoPT, canVetoStep, canVetoMIStep, canSetScale, allowRH;
-  double mMinDiff, mWidthDiff;
+  double mMinDiff, mWidthDiff, pMaxDiff;
 
   // Event generation strategy. Number of steps. Maximum pT scales.
   bool   doVeto;
@@ -154,7 +162,19 @@ private:
 
   // Resolved diffraction: restore normal behaviour.
   void leaveResolvedDiff( int iHardLoop, Event& event);
-  
+
+  // Pointer to MergingHooks object for user interaction with the merging.
+  MergingHooks* mergingHooksPtr;
+  // Parameters to specify trial shower usage
+  bool doTrial;
+  int nTrialEmissions;
+  // Parameters to store to veto trial showers
+  double pTLastBranch;
+  int typeLastBranch;
+  // Parameters to specify merging usage
+  bool doMerging;
+  bool doMergeFirstEmm;
+
 };
 
 //==========================================================================

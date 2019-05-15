@@ -42,7 +42,8 @@ cannot be run unless such an input has taken place.
 The SLHA input format can also be extended for use with more general BSM
 models, beyond SUSY. Information specific to  how to use the SLHA
 interface for generic BSM models is collected below,
-under <a href="#generic">Using SLHA for generic BSM Models</a>. 
+under <a href="#generic">Using SLHA for generic BSM Models</a>, with
+more elaborate explanations and examples in [<a href="Bibliography.php" target="page">Des11</a>]. 
 
 <p/>
 Most of the SUSY implementation in PYTHIA 8 is compatible with both the 
@@ -50,7 +51,8 @@ SLHA1 [<a href="Bibliography.php" target="page">Ska04</a>] and SLHA2 [<a href="B
 conventions (with some limitations for the NMSSM 
 in the latter case). Internally, PYTHIA 8 uses the 
 SLHA2 conventions and translates SLHA1 input to these when necessary. 
-See the section on SUSY Processes for more information.
+See the section on SUSY Processes and [<a href="Bibliography.php" target="page">Des11</a>] for more
+information. 
 
 <p/>
 When reading LHEF files, Pythia automatically looks for SLHA information
@@ -59,6 +61,14 @@ files. When running Pythia without LHEF input (or if reading an LHEF
 file that does not contain SLHA information in the header), a separate 
 file containing SLHA information may be specified using 
 <code>SLHA:file</code> (see below). 
+
+<p/>
+Normally the LHEF would be in uncompressed format, and thus human-readable
+if opened in a text editor. A possibility to read gzipped files has 
+been added, based on the Boost and zlib libraries, which therefore
+have to be linked appropriately in order for this option to work.
+See the <code>README</code> file in the main directory for details 
+on how to do this. 
 
 <p/>
 Finally, the SLHA input capability can of course also be used to input 
@@ -180,6 +190,8 @@ way, to generate isotropically distributed decays or even chains of
 such decays. (If you want something better than isotropic, sorry, you'll
 have to do some actual work ...)
 </p>
+
+</p>
 A more advanced further option is to make use of the possibility
 in the SLHA to include user-defined blocks with arbitrary
 names and contents. Obviously, standalone 
@@ -188,12 +200,13 @@ does not throw it away either, but instead stores the contents of user
 blocks as strings, which can be read back later, with the user
 having full control over the format used to read the individual entries. 
 </p>
+
 <p>
 The contents of both standard and user-defined SLHA blocks can be accessed 
 in any class inheriting from PYTHIA 8's <code>SigmaProcess</code>
 class (i.e., in particular, from any semi-internal process written by
-a user), through its SLHA pointer, <code>slhaPtr</code>, by using the following
-methods: 
+a user), through its SLHA pointer, <code>slhaPtr</code>, by using the 
+following methods: 
 <a name="method1"></a>
 <p/><strong> &nbsp;</strong> <br/>
   bool slhaPtr->getEntry(string blockName, double& val); 
@@ -209,10 +222,12 @@ methods:
   kndx, double& val); 
   
 </p>
+
 <p>
 This particular example assumes that the user wants to read the
-entries (without index, indexed, matrix-indexed, or 3-tensor-indexed, respectively)
-in the user-defined block <code>blockName</code>, and that it should be interpreted as
+entries (without index, indexed, matrix-indexed, or 3-tensor-indexed, 
+respectively) in the user-defined block <code>blockName</code>, 
+and that it should be interpreted as 
 a <code>double</code>. The last argument is templated, and hence if
 anything other than a <code>double</code> is desired to be read, the
 user has only to give the last argument a different type. 
@@ -226,6 +241,23 @@ responsibility to ensure complete consistency between the names and
 conventions used in the SLHA input, and those assumed in any
 user-written semi-internal process code. 
 </p>
+
+<p>
+Note that PYTHIA 8 always initializes at least 
+the SLHA blocks MASS and SMINPUTS, starting from its internal 
+SM parameters and particle data table values (updated to take into
+account user modifications). These blocks can therefore be accessed 
+using the <code>slhaPtr->getEntry()</code> methods even in the absence 
+of SLHA input. 
+Note: in the SMINPUTS block, PYTHIA outputs physically correct
+(i.e., measured) values of <i>GF</i>, <i>m_Z</i>, and 
+<i>alpha_EM(m_Z)</i>. However, if one attempts to compute, e.g., 
+the W mass, at one loop from these quantities, a value of 79 GeV results, 
+with a corresponding value for the weak mixing angle. We advise to 
+instead take the physically measured W mass from block MASS, and 
+recompute the EW parameters as best suited for the application at hand.
+</p>
+
 <input type="hidden" name="saved" value="1"/>
 
 <?php

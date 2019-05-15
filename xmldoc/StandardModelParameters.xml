@@ -91,11 +91,21 @@ of fermions to the <ei>Z^0</ei>, see below. Default is the MSbar value
 from <ref>Yao06</ref>.
 </parm>
 
-<parm name="StandardModel:sin2thetaWbar" default="0.2315" min="0.225" max="0.240">
+<parm name="StandardModel:sin2thetaWbar" default="0.2315" 
+min="0.225" max="0.240">
 The sine-squared of the weak mixing angle, as used to derive the vector 
 couplings of fermions to the <ei>Z^0</ei>, in the relation 
 <ei>v_f = a_f - 4 e_f sin^2(theta_W)bar</ei>. Default is the
 effective-angle value from <ref>Yao06</ref>.
+</parm>
+
+<p/>
+The Fermi constant is not much used in the currently coded matrix elements,
+since it is redundant, but it is available:
+
+<parm name="StandardModel:GF" default="1.16637e-5" 
+min="1.0e-5" max="1.3e-5">
+The Fermi coupling constant, in units of GeV<ei>^-2</ei>. 
 </parm>
 
 <h3>The quark weak-mixing matrix</h3>
@@ -206,6 +216,10 @@ the gauge-boson sector.
 <method name="double CoupSM::sin2thetaWbar()"> 
 the sine-squared of the weak mixing angle, as used to derive the vector 
 couplings of fermions to the <ei>Z^0</ei>.
+</method>
+
+<method name="double CoupSM::GF()"> 
+the Fermi constant of weak decays, in GeV<ei>^-2</ei>.
 </method>
 
 <method name="double CoupSM::ef(int idAbs)"> 

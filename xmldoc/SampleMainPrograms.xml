@@ -28,7 +28,9 @@ of events, with the choice to be made in the <code>main04.cmnd</code>
 "cards file".</li>
 
 <li><code>main05.cc</code> : generation of QCD jet events at the LHC, 
-with jet analysis using the <code>CellJet</code> cone-jet finder.</li>
+with jet analysis using the <code>SlowJet</code> inclusive anti-<ei>kT</ei> 
+sequential-recombination finder and the <code>CellJet</code> 
+cone-jet finder.</li>
 
 <li><code>main06.cc</code> : tests of cross sections for elastic and 
 diffractive topologies, using <code>main06.cmnd</code> to pick process.</li>
@@ -178,20 +180,54 @@ contains essentially all hard processes found in PYTHIA 6.</li>
 package can be linked to allow an analysis of the final state,
 in this case for a study of W + jet production.</li>
 
+<li><code>main62.cc</code> : a comparison of SlowJet and FastJet
+jet finding, showing that they find the same jets if run under 
+identical conditions, in this case for QCD jets.</li>
+
 <li><code>main71.cc</code> : exemplifies an improved matching of
-parton showers to LHEF-style input based on the POWHEG approach, 
-in this particular case for the POWHEG-hvq program applied to top
-pair production <ref>Cor10</ref>. The small sample of input events 
-is stored in the <code>powheg-hvq.lhe</code> file.
+parton showers to LHEF-style input based on the POWHEG approach.
+The <code>main71.cmnd</code> allows to switch between several 
+different matching options. It also allows to select input process,
+in this case either for the POWHEG-hvq program applied to top
+pair production <ref>Cor10</ref> or for QCD 2+3-jet events. The small 
+samples of input events are stored in the <code>powheg-hvq.lhe</code> 
+and <code>powheg-dijets.lhe</code> files, respectively.
 </li>
 
 <li><code>main72.cc</code> : input RPV-SUSY events from an LHEF file that
-  contains an SLHA spectrum inside its <code><header></code>. The
-  event file, <code>main72.lhe</code>, contains a sample events that 
-  illustrate how to arrange color tags in the presence of the
-  color-space epsilon tensors that accompany baryon number violating
-  event topologies. 
+contains an SLHA spectrum inside its <code><header></code>. The
+event file, <code>main72.lhe</code>, contains a sample events that 
+illustrate how to arrange color tags in the presence of the
+color-space epsilon tensors that accompany baryon number violating
+event topologies. 
 </li>
+
+<li><code>main81.cc</code> : do CKKW-L merging with a merging scale
+defined in <ei>kT</ei>. Input is provided by the <code>main81.cmnd</code> 
+file and the three data files <code>w+_production_lhc_0.lhe</code>,
+<code>w+_production_lhc_1.lhe</code> and <code>w+_production_lhc_2.lhe</code>.
+</li>
+
+<li><code>main82.cc</code> : do CKKW-L merging with a user-defined 
+merging scale function. Input is provided by the <code>main82.cmnd</code> 
+file and the three data files <code>w+_production_lhc_0.lhe</code>,
+<code>w+_production_lhc_1.lhe</code> and <code>w+_production_lhc_2.lhe</code>.
+</li>
+
+<li><code>main83.cc</code> : as <code>main82.cc</code> but with an 
+additional cut on the lowest multiplicity allowed for the reclustered 
+state. The same input as for <code>main82.cc</code> can be used.
+</li>
+
+<li><code>main84.cc</code> : do CKKW-L merging with output in such a way
+that it can be used in subsequent RIVET analyses. Input is provided by 
+the <code>main84.cmnd</code> file and the three data files 
+<code>w+_production_lhc_0.lhe</code>, <code>w+_production_lhc_1.lhe</code> 
+and <code>w+_production_lhc_2.lhe</code>.
+</li>
+
+
+
 
 </ul>
 

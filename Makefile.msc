@@ -80,11 +80,14 @@ OBJS =   $(OUTDIR)/Analysis.obj \
          $(OUTDIR)/FragmentationFlavZpT.obj \
          $(OUTDIR)/FragmentationSystems.obj \
          $(OUTDIR)/HadronLevel.obj \
+         $(OUTDIR)/HadronScatter.obj \
          $(OUTDIR)/HelicityBasics.obj \
          $(OUTDIR)/HelicityMatrixElements.obj \
          $(OUTDIR)/HiddenValleyFragmentation.obj \
+         $(OUTDIR)/History.obj \
          $(OUTDIR)/Info.obj \
          $(OUTDIR)/LesHouches.obj \
+         $(OUTDIR)/MergingHooks.obj \
          $(OUTDIR)/MiniStringFragmentation.obj \
          $(OUTDIR)/MultipleInteractions.obj \
          $(OUTDIR)/ParticleData.obj \

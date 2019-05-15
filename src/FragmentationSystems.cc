@@ -56,17 +56,32 @@ bool ColConfig::insert( vector<int>& iPartonIn, Event& event) {
   Vec4 pSumIn;
   double mSumIn = 0.;
   bool hasJunctionIn = false;
+  int  nJunctionLegs = 0;
   for (int i = 0; i < int(iPartonIn.size()); ++i) {
     if (iPartonIn[i] < 0) { 
       hasJunctionIn = true; 
-      continue;
+      ++nJunctionLegs;
+    } else {
+      pSumIn += event[ iPartonIn[i] ].p();
+      if (!event[ iPartonIn[i] ].isGluon()) 
+	mSumIn += event[ iPartonIn[i] ].constituentMass();
     }
-    pSumIn += event[ iPartonIn[i] ].p();
-    if (!event[ iPartonIn[i] ].isGluon()) 
-      mSumIn += event[ iPartonIn[i] ].constituentMass();
   } 
   double massIn = pSumIn.mCalc(); 
   double massExcessIn = massIn - mSumIn;
+
+  // Check for rare triple- and higher junction systems (like J-Jbar-J)
+  if (nJunctionLegs >= 5) {
+    infoPtr->errorMsg("Error in ColConfig::insert: "
+      "junction topology too complicated; too many junction legs");
+    return false; 
+  }   
+  // Check that junction systems have at least three legs.
+  else if (nJunctionLegs > 0 && nJunctionLegs <= 2) {
+    infoPtr->errorMsg("Error in ColConfig::insert: "
+      "junction topology inconsistent; too few junction legs");
+    return false; 
+  }   
 
   // Check that momenta do not contain not-a-number.
   if (abs(massExcessIn) >= 0.);

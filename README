@@ -58,6 +58,9 @@
          if you are using the CERN AFS LCG external area. See the HepMC
          WEB site for the information about the versions currently
          "in production"
+     --enable-gzip     : enable support for gzipped LHE file reading
+     --with-boost=path   see GZIP SUPPORT section below for
+     --with-zlib=path    further details
      There also are a few environment variables that you can set to 
      force the configuration process or add flags:
      USRCXXFLAGS : to add flags. Use this variable to add -fPIC to the 
@@ -115,6 +118,35 @@
 
    When PYTHIA8DATA is set it takes precedence, else the path in the 
    constructor is used, else one defaults to the ../xmldoc directory.
+
+----------------------------------------------------------------------
+
+   GZIP SUPPORT (experimental)
+
+The '--enable-gzip' options turns on support for the reading of
+gzipped LHE files. It relies upon Boost and zlib to function, and
+the locations of these must be set with the '--with-boost=boost_path'
+and '--with-zlib=zlib_path' options. Specifically, it requires (note
+that .so should be replaced with .dylib for Mac OS X):
+  boost_path/include/boost/iostreams/ (with the appropriate files
+                                       in this directory)
+  boost_path/lib/libboost_iostreams.so (or boost_path/lib64/...)
+  zlib_path/libz.so
+
+Note that when compiling a final PYTHIA executable, these libraries
+must also be included, e.g.:
+  -Lboost_path/lib -lboost_iostreams -Lzlib_path -lz
+This is done automatically for the examples in the 'examples' and
+'rootexamples' directories when gzip support is enabled.
+
+When running the executable, if the Boost and zlib libraries are
+in a non-standard directory, the LD_LIBRARY_PATH (DYLD_LIBRARY_PATH
+for Mac OS X) must be set to include these directories, e.g. in a 
+bash-type shell:
+  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:boost_path/lib:zlib_path
+
+Gzip support currently switches off the '-Wshadow' compiler option
+to avoid the possibility of a large number of warning messages.
 
 ----------------------------------------------------------------------
 

@@ -350,10 +350,11 @@ void CoupSM::init(Settings& settings, Rndm* rndmPtrIn) {
   int order = settings.mode("SigmaProcess:alphaEMorder");
   alphaEMlocal.init( order, &settings);
 
-  // Read in electroweak mixing angle.
-  s2tW = settings.parm("StandardModel:sin2thetaW");
-  c2tW = 1. - s2tW;
+  // Read in electroweak mixing angle and the Fermi constant.
+  s2tW    = settings.parm("StandardModel:sin2thetaW");
+  c2tW    = 1. - s2tW;
   s2tWbar = settings.parm("StandardModel:sin2thetaWbar");
+  GFermi  = settings.parm("StandardModel:GF");
 
   // Initialize electroweak couplings.
   for (int i = 0; i < 20; ++i) {  

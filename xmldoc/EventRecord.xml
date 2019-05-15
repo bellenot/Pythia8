@@ -47,6 +47,8 @@ current event record:
 <method name="Particle& Event::operator[](int i)">
 </method>
 <methodmore name="const Particle& Event::operator[](int i)">
+</methodmore>
+<methodmore name="Particle& Event::at(int i)">
 returns a (<code>const</code>) reference to the <ei>i</ei>'th particle
 in the event record, which can be used to get (or set) all the 
 <aloc href="ParticleProperties">properties</aloc> of this particle. 
@@ -376,7 +378,8 @@ has to be modified further by hand to make sense. With a positive
 the old, with status code <code>newStatus</code>, while the status 
 code of <code>iCopy</code> is negated. With a negative 
 <code>newStatus</code>, the new copy is instead set up to be the 
-mother of <code>iCopy</code>.
+mother of <code>iCopy</code>. An attempt to copy an out-of-range 
+entry will return -1.
 </method>
 
 <method name="Particle& Event::back()">

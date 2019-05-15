@@ -115,10 +115,11 @@ public:
   // Return alpha_EM value.
   double alphaEM(double scale2) {return alphaEMlocal.alphaEM(scale2);}
 
-  // Return electroweak mixing angle.
+  // Return electroweak mixing angle and Fermi constant.
   double sin2thetaW() {return s2tW;}
   double cos2thetaW() {return c2tW;}
   double sin2thetaWbar() {return s2tWbar;}
+  double GF() {return GFermi;}
 
   // Return electroweak couplings of quarks and leptons.
   double ef(int idAbs) {return efSave[idAbs];}
@@ -154,7 +155,7 @@ protected:
   static const double efSave[20], afSave[20];
 
   // Couplings and VCKM matrix (index 0 not used).
-  double s2tW, c2tW, s2tWbar, vfSave[20], lfSave[20], rfSave[20], 
+  double s2tW, c2tW, s2tWbar, GFermi, vfSave[20], lfSave[20], rfSave[20], 
          ef2Save[20], vf2Save[20], af2Save[20], efvfSave[20], 
          vf2af2Save[20], VCKMsave[5][5], V2CKMsave[5][5], V2CKMout[20];
 
@@ -177,7 +178,7 @@ class Couplings : public CoupSM {
 
 public:
   
-  Couplings(){}
+ Couplings() : isSUSY(false) {}
   bool isSUSY;
 
 };

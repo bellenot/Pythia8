@@ -400,7 +400,7 @@ bool MultipleInteractions::init( bool doMIinit, int diffractiveModeIn,
   Info* infoPtrIn, Settings& settings, ParticleData* particleDataPtr,  
   Rndm* rndmPtrIn, BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, 
   Couplings* couplingsPtrIn, PartonSystems* partonSystemsPtrIn,  
-  SigmaTotal* sigmaTotPtrIn, ostream& os) {
+  SigmaTotal* sigmaTotPtrIn, UserHooks* userHooksPtrIn, ostream& os) {
 
   // Store input pointers for future use. Done if no initialization. 
   diffractiveMode  = diffractiveModeIn;
@@ -411,6 +411,7 @@ bool MultipleInteractions::init( bool doMIinit, int diffractiveModeIn,
   couplingsPtr     = couplingsPtrIn;
   partonSystemsPtr = partonSystemsPtrIn;
   sigmaTotPtr      = sigmaTotPtrIn;
+  userHooksPtr     = userHooksPtrIn;
   if (!doMIinit) return false;
 
   // If both beams are baryons then softer PDF's than for mesons/Pomerons.
@@ -477,6 +478,9 @@ bool MultipleInteractions::init( bool doMIinit, int diffractiveModeIn,
   // Parameters for diffractive systems.
   sigmaPomP      = settings.parm("Diffraction:sigmaPomP");
   mMinPertDiff   = settings.parm("Diffraction:mMinPert");
+
+  // Possibility to allow user veto of MI
+  canVetoMI = (userHooksPtr > 0) ? userHooksPtr->canVetoMIEmission() : false;
 
   // Some common combinations for double Gaussian, as shorthand.
   if (bProfile == 2) {
@@ -1151,7 +1155,7 @@ double MultipleInteractions::pTnext( double pTbegAll, double pTendAll,
 // Set up the kinematics of the 2 -> 2 scattering process,
 // and store the scattering in the event record.
 
-void MultipleInteractions::scatter( Event& event) {
+bool MultipleInteractions::scatter( Event& event) {
 
   // Last beam-status particles. Offset relative to normal beam locations.
   int sizeProc = event.size();
@@ -1176,6 +1180,12 @@ void MultipleInteractions::scatter( Event& event) {
 
     // Put the partons into the event record.
     event.append(parton);
+  }
+
+  // Allow veto of MI. If so restore event record to before scatter.
+  if (canVetoMI && userHooksPtr->doVetoMIEmission(sizeProc, event)) {
+    event.popBack(event.size() - sizeProc);
+    return false;
   }
 
   // Store participating partons as a new set in list of all systems.
@@ -1286,6 +1296,7 @@ void MultipleInteractions::scatter( Event& event) {
   infoPtr->setTypeMI( codeMI, pTMI, i1Sel, i2Sel, enhanceBnow / zeroIntCorr);
 
   // Done.
+  return true;
 } 
 
 //--------------------------------------------------------------------------

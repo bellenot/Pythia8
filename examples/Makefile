@@ -19,6 +19,11 @@ LIBDIR=lib
 LIBDIRARCH=lib/archive
 BINDIR=bin
 
+# Libraries to include if GZIP support is enabled
+ifeq (x$(ENABLEGZIP),xyes)
+LIBGZIP=-L$(BOOSTLIBLOCATION) -lboost_iostreams -L$(ZLIBLOCATION) -lz
+endif
+
 # There is no default behaviour, so remind user.
 all:
 	@echo "Usage: for NN = example number: make mainNN"
@@ -31,7 +36,7 @@ main00  main01 main02 main03 main04 main05 main06 main07 main08 main09 main10 \
 	../$(LIBDIRARCH)/libpythia8.a
 	@mkdir -p ../$(BINDIR)
 	$(CXX) $(CXXFLAGS) -I../$(INCDIR) $@.cc -o ../$(BINDIR)/$@.exe \
-	-L../$(LIBDIRARCH) -lpythia8 -llhapdfdummy
+	-L../$(LIBDIRARCH) $(LIBGZIP) -lpythia8 -llhapdfdummy
 	@ln -fs ../$(BINDIR)/$@.exe $@.exe
 
 # Create an executable linked to HepMC (if all goes well).
@@ -42,7 +47,7 @@ ifneq (x$(HEPMCLOCATION),x)
 	@mkdir -p ../$(BINDIR)
 	$(CXX) $(CXXFLAGS) -Wno-shadow -I../$(INCDIR) -I$(HEPMCLOCATION)/include \
 	$@.cc -o ../$(BINDIR)/$@.exe \
-	-L../$(LIBDIRARCH) -lpythia8 -llhapdfdummy \
+	-L../$(LIBDIRARCH) $(LIBGZIP) -lpythia8 -llhapdfdummy \
 	-lhepmcinterface \
 	-L$(HEPMCLOCATION)/lib -lHepMC
 	@ln -fs ../$(BINDIR)/$@.exe $@.exe
@@ -55,7 +60,7 @@ endif
 main41 main42 main43: ../$(LIBDIRARCH)/libpythia8.a
 	@mkdir -p ../$(BINDIR)
 	$(CXX) $(CXXFLAGS) -I../$(INCDIR) $@.cc -o ../$(BINDIR)/$@.exe \
-	-L../$(LIBDIRARCH) -lpythia8 \
+	-L../$(LIBDIRARCH) $(LIBGZIP) -lpythia8 \
 	-L$(LHAPDFLOCATION) $(LHAPDFLIBNAME) \
 	$(FLIBS)
 	@ln -fs ../$(BINDIR)/$@.exe $@.exe
@@ -68,7 +73,7 @@ main41 main42 main43: ../$(LIBDIRARCH)/libpythia8.a
 #main51: ../$(LIBDIRARCH)/libpythia8.a
 #	@mkdir -p ../$(BINDIR)
 #	$(CXX) $(CXXFLAGS) -I../$(INCDIR) $@.cc -o ../$(BINDIR)/$@.exe \
-#	-L../$(LIBDIRARCH) -lpythia8 -llhapdfdummy \
+#	-L../$(LIBDIRARCH) $(LIBGZIP) -lpythia8 -llhapdfdummy \
 #	-L/directoryoflibpythia6.a -lpythia6 \
 #	$(FLIBS)
 #	@ln -fs ../$(BINDIR)/$@.exe $@.exe
@@ -76,7 +81,7 @@ main41 main42 main43: ../$(LIBDIRARCH)/libpythia8.a
 # Create an executable that links to Fastjet
 # Owing to excessive warning output -Wshadow is not used for Fastjet.
 ifneq (x$(FASTJETLOCATION),x)
-  main61: ../$(LIBDIRARCH)/libpythia8.a
+  main61 main62: ../$(LIBDIRARCH)/libpythia8.a
 	@mkdir -p ../$(BINDIR)
     # Note: $(CXXFLAGS) is after Fastjet flags as Fastjet includes
     #       optimisation/debug flags which may be unwanted (e.g. -g -O2)
@@ -84,13 +89,40 @@ ifneq (x$(FASTJETLOCATION),x)
 	`$(FASTJETLOCATION)/bin/fastjet-config --cxxflags --plugins` \
 	$(CXXFLAGS) -Wno-shadow \
 	-o ../$(BINDIR)/$@.exe \
-	-L../$(LIBDIRARCH) -lpythia8 -llhapdfdummy \
+	-L../$(LIBDIRARCH) $(LIBGZIP) -lpythia8 -llhapdfdummy \
 	-L$(FASTJETLOCATION)/lib \
 	`$(FASTJETLOCATION)/bin/fastjet-config --libs --plugins`
 	@ln -fs ../$(BINDIR)/$@.exe $@.exe
 	@rm -f $@.o
 else
   main61:
+	@echo ERROR, this target needs Fastjet, variable FASTJETLOCATION
+endif
+
+# Create an executable that links to Fastjet, HepMC and LHApdf
+# Owing to excessive warning output -Wshadow is not used for Fastjet.
+ifneq (x$(FASTJETLOCATION),x)
+  main81 main82 main83 main84: \
+	../$(LIBDIRARCH)/libpythia8.a  ../$(LIBDIRARCH)/libhepmcinterface.a
+	@mkdir -p ../$(BINDIR)
+    # Note: $(CXXFLAGS) is after Fastjet flags as Fastjet includes
+    #       optimisation/debug flags which may be unwanted (e.g. -g -O2)
+	$(CXX) -I../$(INCDIR) $@.cc \
+	`$(FASTJETLOCATION)/bin/fastjet-config --cxxflags --plugins` \
+	$(CXXFLAGS) -Wno-shadow \
+  -I../$(INCDIR) -I$(HEPMCLOCATION)/include \
+	-o ../$(BINDIR)/$@.exe \
+	-L../$(LIBDIRARCH) -lpythia8 \
+	-L$(LHAPDFLOCATION) $(LHAPDFLIBNAME) \
+	-lhepmcinterface \
+	-L$(HEPMCLOCATION)/lib -lHepMC \
+	-L$(FASTJETLOCATION)/lib \
+	-L$(LHAPDFLOCATION)/lib \
+	`$(FASTJETLOCATION)/bin/fastjet-config --libs --plugins`
+	@ln -fs ../$(BINDIR)/$@.exe $@.exe
+	@rm -f $@.o
+else
+  main81 main82 main83 main84:
 	@echo ERROR, this target needs Fastjet, variable FASTJETLOCATION
 endif
 

@@ -63,6 +63,9 @@ Pythia::Pythia(string xmlDir) {
   // Initial value for pointer to user hooks.
   userHooksPtr    = 0;
 
+  // Initial value for pointer to merging hooks.
+  mergingHooksPtr    = 0;
+
   // Initial value for pointer to beam shape.
   useNewBeamShape = false;
   beamShapePtr    = 0;
@@ -385,6 +388,21 @@ bool Pythia::init( string LesHouchesEventFile, bool skipInit) {
   // If second time around, only with new file, then simplify.
   if (skipInit) return true;
 
+  // Set up values related to user hooks.
+  doUserMerging = settings.flag("Merging:doUserMerging");
+  doMGMerging   = settings.flag("Merging:doMGMerging");
+  doKTMerging   = settings.flag("Merging:doKTMerging");
+  doMerging     = doUserMerging
+                 || doMGMerging
+                 || doKTMerging;
+  if(!doUserMerging){
+    if(mergingHooksPtr) delete mergingHooksPtr;
+    mergingHooksPtr = new MergingHooks();
+  }
+  hasMergingHooks  = (mergingHooksPtr > 0);
+  if(hasMergingHooks)
+    mergingHooksPtr->setLHEInputFile( LesHouchesEventFile);
+
   // Set LHAinit information (in some external program).
   if (!lhaUpPtr->setInit()) {
     info.errorMsg("Abort from Pythia::init: "
@@ -510,10 +528,15 @@ bool Pythia::initInternal() {
   decayRHadrons    = settings.flag("RHadrons:allowDecay");
   doMomentumSpread = settings.flag("Beams:allowMomentumSpread");
   doVertexSpread   = settings.flag("Beams:allowVertexSpread");
+  abortIfVeto      = settings.flag("Check:abortIfVeto");
   checkEvent       = settings.flag("Check:event");
   nErrList         = settings.mode("Check:nErrList");
   epTolErr         = settings.parm("Check:epTolErr");
   epTolWarn        = settings.parm("Check:epTolWarn");
+
+  // Initialise merging hooks.
+  if (hasMergingHooks && doMerging)
+    mergingHooksPtr->init( settings, &info, &particleData );
 
   // Initialize the random number generator.
   if ( settings.flag("Random:setSeed") )  
@@ -625,7 +648,15 @@ bool Pythia::initInternal() {
   // Send info/pointers to parton level for initialization.
   if ( doPartonLevel && !partonLevel.init( &info, settings, &particleData, 
     &rndm, &beamA, &beamB, &beamPomA, &beamPomB, couplingsPtr, &partonSystems, 
-    &sigmaTot, timesDecPtr, timesPtr, spacePtr, &rHadrons, userHooksPtr) ) 
+    &sigmaTot, timesDecPtr, timesPtr, spacePtr, &rHadrons, userHooksPtr,
+    mergingHooksPtr, false) ) 
+    return false;
+
+  // Send info/pointers to parton level for trial shower initialization.
+  if ( doMerging && !trialPartonLevel.init( &info, settings, &particleData, 
+    &rndm, &beamA, &beamB, &beamPomA, &beamPomB, couplingsPtr, &partonSystems, 
+    &sigmaTot, timesDecPtr, timesPtr, spacePtr, &rHadrons, NULL,
+    mergingHooksPtr, true) ) 
     return false;
 
   // Send info/pointers to hadron level for initialization.
@@ -863,8 +894,6 @@ bool Pythia::initPDFs() {
 
 bool Pythia::next() {
 
-
-
   // Set/reset info counters specific to each event.
   info.addCounter(3);
   for (int i = 10; i < 13; ++i) info.setCounter(i);
@@ -927,10 +956,22 @@ bool Pythia::next() {
 
     info.addCounter(11);
 
+    // Possiblility to perform CKKWL merging on this event
+    if(doMerging) {
+      hasVetoed = mergeProcess();
+      if (hasVetoed) {
+        if (abortIfVeto) return false; 
+        continue;
+      } 
+    }
+
     // Possibility for a user veto of the process-level event.
     if (doVetoProcess) {
       hasVetoed = userHooksPtr->doVetoProcessLevel( process);
-      if (hasVetoed) continue;
+      if (hasVetoed) {
+        if (abortIfVeto) return false; 
+        continue;
+      } 
     }
 
     // Possibility to stop the generation at this stage.
@@ -967,7 +1008,10 @@ bool Pythia::next() {
       if ( !partonLevel.next( process, event) ) {
         // Skip to next hard process for failure owing to deliberate veto.
         hasVetoed = partonLevel.hasVetoed(); 
-        if (hasVetoed) break;
+        if (hasVetoed) {
+          if (abortIfVeto) return false; 
+          break;
+        } 
         // Else make a new try for other failures.
         info.errorMsg("Error in Pythia::next: "
           "partonLevel failed; try again"); 
@@ -979,7 +1023,10 @@ bool Pythia::next() {
       // Possibility for a user veto of the parton-level event.
       if (doVetoPartons) {
         hasVetoed = userHooksPtr->doVetoPartonLevel( event);
-        if (hasVetoed) break;
+        if (hasVetoed) {
+          if (abortIfVeto) return false; 
+          break;
+        }
       }
 
       // Boost to lab frame (before decays, for vertices).
@@ -1032,7 +1079,10 @@ bool Pythia::next() {
     }
 
     // If event vetoed then to make a new try.
-    if (hasVetoed) continue;
+    if (hasVetoed)  {
+      if (abortIfVeto) return false; 
+      continue;
+    }
 
     // If event failed any other way (after ten tries) then give up.
     if (!physical) {
@@ -1707,7 +1757,6 @@ PDF* Pythia::getPDFPtr(int idIn, int sequence) {
 
 bool Pythia::initSLHA() {
 
-
   // Initial and settings values.
   int    ifailLHE    = 1;
   int    ifailSpc    = 1;
@@ -1932,8 +1981,8 @@ bool Pythia::initSLHA() {
 	  ostringstream errCode;
 	  errCode << idRes <<" ->";
 	  for (int jDa=0; jDa<int(idDa.size()); ++jDa) errCode<<" "<<idDa[jDa];
-	  info.errorMsg("Warning in Pythia::initSLHA: "
-	    "switching off decay",  errCode.str() + " (mRes - mDa < minDecayDeltaM)"
+	  info.errorMsg("Warning in Pythia::initSLHA: switching off decay",  
+            errCode.str() + " (mRes - mDa < minDecayDeltaM)"
             "\n       (Note: cross sections will be scaled by remaining"
 	    " open branching fractions!)" , true);
 	  onMode=0;
@@ -1969,6 +2018,77 @@ bool Pythia::initSLHA() {
   return true;
   
 }
+
+//--------------------------------------------------------------------------
+
+// Function to perform CKKWL merging on the input event
+bool Pythia::mergeProcess() {
+
+  // Reset weight of the event
+  mergingHooksPtr->setWeight(1.);
+  info.setMergingWeight(1.);
+  double wgt = 1.0;
+  // Store candidates for the splitting V -> qqbar'
+  mergingHooksPtr->storeHardProcessCandidates( process);
+  // Calculate number of clustering steps
+  int nSteps = mergingHooksPtr->getNumberOfClusteringSteps( process);
+
+  // Save number of hard final state quarks / leptons
+  int nQuarks        = mergingHooksPtr->nHardOutPartons();
+  bool isHadronic    = (mergingHooksPtr->nHardInLeptons() == 0);
+
+  // Set qcd 2->2 starting scale different from arbirtrary scale in LHEF!
+  // --> Set to pT of partons
+  double pT = 0.;
+  for( int i=0; i < process.size(); ++i)
+    if(process[i].isFinal() && process[i].colType() != 0) {
+      pT = sqrt(pow(process[i].px(),2) + pow(process[i].py(),2));
+      break;
+    }
+
+  // Declare pdfWeight and as weight
+  double RN = rndm.flat();
+
+  process.scale(0.0);
+  // Generate all histories
+  History FullHistory( nSteps, 0.0, process, Clustering(), mergingHooksPtr,
+            beamA, beamB, &particleData, &info, true, true, 1.0, 0);
+  // Perform reweighting with Sudakov factors, save as ratios and
+  // PDF ratio weights
+  double weight = FullHistory.weightTREE( &trialPartonLevel,
+    mergingHooksPtr->AlphaS_FSR(),mergingHooksPtr->AlphaS_ISR(), RN);
+  double maxScale = 0.0;
+  // Event with production scales set for further (trial) showering
+  // and starting conditions for the shower
+  FullHistory.getStartingConditions(RN, maxScale, process, &info);
+
+  // Allow to dampen histories in which the lowest multiplicity reclustered
+  // state does not pass the lowest multiplicity cut of the matrix element
+  double dampWeight = mergingHooksPtr->dampenIfFailCuts(
+                        FullHistory.lowestMultProc(RN) );
+
+  // Save the weight of the event for histogramming. Only change the
+  // event weight after trial shower on the matrix element
+  // multiplicity event (= in doVetoStep)
+  wgt = weight*dampWeight;
+
+  // For pure QCD dijet events (only!), set the process scale to the
+  // transverse momentum of the outgoing partons 
+  if(isHadronic && nQuarks > 0 && nSteps == 0) process.scale(pT);
+
+  // Save the weight of the event for histogramming
+  mergingHooksPtr->setWeight(wgt);
+  info.setMergingWeight(wgt);
+
+  // If the weight of the event is zero, do not continue evolution
+  if(wgt == 0.) return true;
+
+  // Done
+  return false;
+
+}
+
+
 
 //==========================================================================
 } // end namespace Pythia8

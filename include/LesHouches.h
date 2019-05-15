@@ -282,29 +282,34 @@ class LHAupLHEF : public LHAup {
 public:
 
   // Constructor.
-  LHAupLHEF(const char* fileIn) : is(fileIn) {}
+  LHAupLHEF(const char* fileIn);
 
   // Destructor.
-  ~LHAupLHEF() {}
+  ~LHAupLHEF();
 
   // Confirm that file was found and opened as expected.
-  bool fileFound() {return is.good();} 
+  bool fileFound() {return is->good();} 
 
   // Routine for doing the job of reading and setting initialization info.  
-  bool setInit() {return setInitLHEF(is);} 
+  bool setInit() {return setInitLHEF(*is);} 
 
   // Routine for doing the job of reading and setting info on next event.  
-  bool setEvent(int = 0) {if (!setNewEventLHEF(is)) return false;
+  bool setEvent(int = 0) {if (!setNewEventLHEF(*is)) return false;
     return setOldEventLHEF();} 
 
   // Skip ahead a number of events, which are not considered further.
   bool skipEvent(int nSkip) {for (int iSkip = 0; iSkip < nSkip; ++iSkip)
-    if (!setNewEventLHEF(is)) return false; return true;} 
+    if (!setNewEventLHEF(*is)) return false; return true;} 
 
 private:
- 
+
   // File from which to read (or a stringstream).
-  ifstream is;
+  // Note: for GZIP support, use a pointer to an istream to avoid #ifdef's 
+  //   in the header file. Without gzip support, is = (istream *) &ifs .
+  //   With gzip support, is = boost::iostreams::filtering_istream ,
+  //   with ifs as a source.
+  ifstream  ifs;
+  istream  *is;
 
 };
 

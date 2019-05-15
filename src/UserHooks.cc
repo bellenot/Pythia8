@@ -5,6 +5,8 @@
 
 // Function definitions (not found in the header) for the UserHooks class.
 
+// Note: compilation crashes if PhaseSpace.h is moved to UserHooks.h.
+#include "PhaseSpace.h"
 #include "UserHooks.h"
 
 namespace Pythia8 {

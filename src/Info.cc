@@ -23,6 +23,9 @@ namespace Pythia8 {
 // Number of times the same error message will be repeated at most.
 const int Info::TIMESTOPRINT = 1; 
 
+// LHA convention with cross section in pb may require conversion from mb.
+const double Info::CONVERTMB2PB = 1e9;
+
 //--------------------------------------------------------------------------
 
 // List (almost) all information currently set.
@@ -108,6 +111,18 @@ void Info::list(ostream& os) const {
   os << "\n --------  End PYTHIA Info Listing  --------------------"
      << "----------------" << endl; 
 
+}
+
+//--------------------------------------------------------------------------
+
+// Event weight and accumulated weight.
+
+double Info::weight() const { return (abs(lhaStrategySave) == 4) 
+  ? CONVERTMB2PB * weightSave : weightSave;
+} 
+  
+double Info::weightSum() const {return (abs(lhaStrategySave) == 4) 
+  ? CONVERTMB2PB * wtAccSum : wtAccSum;
 }
 
 //--------------------------------------------------------------------------

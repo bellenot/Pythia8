@@ -37,7 +37,9 @@ generation chain, but can be used in comparisons between Monte
 Carlo events and real data. They are rather free-standing, but 
 assume that input is provided in the PYTHIA 8 
 <code>Event</code> format, and use a few basic facilities such 
-as four-vectors.
+as four-vectors. Their ordering is mainly by history; for current
+LHC applications the final one, <code>SlowJet</code>, is of
+special interest.
 
 <p/>
 In addition to the methods presented here, there is also the 
@@ -575,6 +577,369 @@ the events analyzed so far.
 tells the number of times <code>analyze(...)</code> failed to analyze 
 events, i.e. returned <code>false</code>.
   
+
+<h3>SlowJet</h3>
+
+<code>SlowJet</code> is a simple program for doing jet finding according
+to either of the <i>kT</i>, anti-<i>kT</i>, and Cambridge/Aachen
+algorithms, in a cylindrical coordinate frame. The name is obviously 
+an homage to the <code>FastJet</code> program [<a href="Bibliography.php" target="page">Cac06</a>]. 
+That package contains many more algorithms, with many more options,
+and, above all, is <i>much</i> faster. Therefore <code>SlowJet</code>
+is not so much intended for massive processing of data or Monte Carlo
+files as for simple first tests. Nevertheless, within the advertised
+capabilities of <code>SlowJet</code>, it has been checked to find 
+identically the same jets as <code>FastJet</code>. The time consumption
+typically is around or below that to generate an LHC <i>pp</i> event 
+in the first place, so is not prohibitive. But the time rises rapidly 
+for large multiplicities, so obviously <code>SlowJet</code> can not 
+be used for tricks like distributing a dense grid of pseudoparticles 
+to be able to define jet areas, like <code>FastJet</code> can, and also 
+not for events with much pileup or other noise. 
+
+<p/> 
+The first step is to decide which particles should be included in the
+analysis, and with what four-momenta. The <code>SlowJet</code> constructor
+allows to pick a maximum pseudorapidity defined by the extent of the 
+assumed detector, to pick among some standard options of which particles
+to analyze, and to allow for some standard mass assumptions, like that
+all charged particles have the pion mass. Obviously this is only a 
+restricted set of possibilities. 
+
+<p/> 
+Full flexibility can be obtained by deriving from the base class 
+<code>SlowJetHook</code> to write your own <code>include</code> method.
+This will be presented with one final-state particle at a time, and
+should return <code>true</code> for those particles that should be
+analyzed. It is also possible to return modified four-momenta and masses, 
+to take into account detector smearing effects or particle identity 
+misassignments, but you must respect <i>E^2 - p^2 = m^2</i>. 
+
+<p/> 
+Alternatively you can modify the event record itself, or a copy of it
+(if you want to keep the original intact). For instance, only final 
+particles are considered in the analysis, i.e. particles with positive 
+status code, so negative status code should then be assigned to those 
+particles that you do not want to see analyzed. Again four-momenta and
+masses can be modified, subject to <i>E^2 - p^2 = m^2</i>.
+
+<p/> 
+The jet reconstructions is then based on sequential recombination with
+progressive removal, using the <i>E</i> recombination scheme. To be
+more specific, the algorithm works as follows.
+<ol>
+<li>Each particle to be analyzed defines an original cluster. It has a 
+well-defined four-momentum and mass at input. From this information the 
+triplet <i>(pT, y, phi)</i> is calculated, i.e. the transverse momentum, 
+rapidity and azimuthal angle of the cluster.</li>
+<li>Define distance measures of all clusters <i>i</i> to the beam
+<br/><i>d_iB = pT_i^2p</i><br/>
+and of all pairs <i>(i,j)</i> relative to each other
+<br/><i>d_ij = min( pT_i^2p, pT_j^2p) DeltaR_ij^2 / R^2 </i><br/>
+where
+<br/><i>DeltaR_ij^2 = (y_i - y_j)^2 + (phi_i - phi_j)^2.</i><br/>   
+The jet algorithm is determined by the user-selected <i>p</i> value,
+where <i>p = -1</i> corresponds to the anti-<i>kT</i> one,
+<i>p = 0</i> to the Cambridge/Aachen one and <i>p = 1</i> to the
+<i>kT</i> one. Also <i>R</i> is chosen by the user, to give an 
+approximate measure of the size of jets. However, note that jets need 
+not have a circular shape in <i>(y, phi)</i> space, so <i>R</i> 
+can not straight off be interpreted as a jet radius.</li>
+<li>Find the smallest of all <i>d_iB</i> and <i>d_ij</i>.</li>
+<li>If this is a <i>d_iB</i> then cluster <i>i</i> is removed from 
+the clusters list and instead added to the jets list.
+Optionally, a <i>pTjetMin</i> requirement is imposed, where only 
+clusters with <i>pT > pTjetMin</i> are added to the jets list.
+If so, some of the analyzed particles will not be part of any final 
+jet.</li>
+<li>If instead te smallest measure is a <i>d_ij</i> then the 
+four-momenta of the <i>i</i> and <i>j</i> clusters are added 
+to define a single new cluster. Convert this four-momentum to a new 
+<i>(pT, y, phi)</i> triplet and update the list of <i>d_iB</i> 
+and <i>d_ij</i>.</li>
+<li>Return to step 3 until no clusters remain.</li>
+</ol>
+
+<p/>  
+To do jet finding analyses you first have to set up a <code>SlowJet</code>
+instance, where the arguments of the constructor specifies the details
+of the subsequent analyses. Thereafter you can feed in events to it, 
+one at a time, and have them analyzed by the <code>analyze</code> method. 
+Information on the resulting jets can be extracted by a few different methods.
+The minimal procedure only requires one call per event to do the analysis.
+We will begin by presenting it, and only afterwards some extensions.
+
+<a name="method37"></a>
+<p/><strong>SlowJet::SlowJet(double power, double R, double pTjetMin = 0.,double etaMax = 25., int select = 2, int massSet = 2, SlowJetHook* sjHookPtr = 0) &nbsp;</strong> <br/>
+create a <code>SlowJet</code> instance, where 
+<br/><code>argument</code><strong> power </strong>  :  
+tells (half) the power of the transverse-momentum dependence of the 
+distance measure,
+<br/><code>argumentoption </code><strong> -1</strong> : the anti-<i>kT</i> algorithm,  
+<br/><code>argumentoption </code><strong> 0</strong> : the Cambridge/Aachen algorithm, and  
+<br/><code>argumentoption </code><strong> 1</strong> : the <i>kT</i> algorithm.  
+  
+<br/><code>argument</code><strong> R </strong>  :  
+the <i>R</i> size parameter, which is crudely related to the radius of 
+the jet cone in <i>(y, phi)</i> space around the center of the jet.
+  
+<br/><code>argument</code><strong> pTjetMin </strong> (<code>default = <strong>0.0 GeV</strong></code>) : 
+the minimum transverse momentum required for a cluster
+to become a jet. By default all clusters become jets, and therefore 
+all analyzed particles are assigned to a jet. 
+For comparisons with perturbative QCD, however, it is only meaningful
+to consider jets with a significant <i>pT</i>. 
+  
+<br/><code>argument</code><strong> etaMax </strong> (<code>default = <strong>25.</strong></code>) :  
+the maximum +-pseudorapidity that the detector is assumed to cover.
+If you pick a value above 20 there is assumed to be full coverage
+(obviously only meaningful for theoretical studies).
+  
+<br/><code>argument</code><strong> select </strong> (<code>default = <strong>2</strong></code>) :  
+tells which particles are analyzed,
+<br/><code>argumentoption </code><strong> 1</strong> : all final-state particles,  
+<br/><code>argumentoption </code><strong> 2</strong> : all observable final-state particles, 
+i.e. excluding neutrinos and other particles without strong or
+electromagnetic interactions (the <code>isVisible()</code> particle 
+method), 
+and  
+<br/><code>argumentoption </code><strong> 3</strong> : only charged final-state particles.  
+  
+<br/><code>argument</code><strong> massSet </strong> (<code>default = <strong>2</strong></code>) : masses assumed for the particles 
+used in the analysis
+<br/><code>argumentoption </code><strong> 0</strong> : all massless,  
+<br/><code>argumentoption </code><strong> 1</strong> : photons are massless while all others are
+assigned the <i>pi+-</i> mass, and
+  
+<br/><code>argumentoption </code><strong> 2</strong> : all given their correct masses.  
+  
+<br/><code>argument</code><strong> sjHookPtr </strong> (<code>default = <strong>0</strong></code>) :  
+gives the possibility to send in your own selection routine for which
+particles should be part of the analysis; see further below on the
+<code>SlowJetHook</code> class. If this pointer is sent in nonzero, 
+<code>etaMax</code> and <code>massSet</code> are disregarded, 
+and <code>select</code> only gives the basic selection, to which
+the user can add further requirements.
+  
+  
+
+<a name="method38"></a>
+<p/><strong>bool SlowJet::analyze( const Event& event) &nbsp;</strong> <br/>
+performs a jet finding analysis, where 
+<br/><code>argument</code><strong> event </strong>  : is an object of the <code>Event</code> class, 
+most likely the <code>pythia.event</code> one.
+  
+<br/>If the routine returns <code>false</code> the analysis failed, 
+but currently this is not foreseen ever to happen.
+  
+
+<p/>
+After the analysis has been performed, a few <code>SlowJet</code> 
+class methods are available to return the result of the analysis:
+
+<a name="method39"></a>
+<p/><strong>int SlowJet::sizeOrig() &nbsp;</strong> <br/>
+gives the original number of particles (and thus clusters) that the 
+analysis starts with. 
+  
+
+<a name="method40"></a>
+<p/><strong>int SlowJet::sizeJet() &nbsp;</strong> <br/>
+gives the number of jets found, with jets numbered 0 through 
+<code>sizeJet() - 1</code>, and ordered in terms of decreasing 
+transverse momentum values w.r.t. the beam axis,
+  
+
+<a name="method41"></a>
+<p/><strong>double SlowJet::pT(i) &nbsp;</strong> <br/>
+gives the transverse momentum <i>pT</i> of the <i>i</i>'th jet, 
+  
+
+<a name="method42"></a>
+<p/><strong>double SlowJet::y(int i) &nbsp;</strong> <br/>
+  
+<strong>double SlowJet::phi(int i) &nbsp;</strong> <br/>
+gives the rapidity <i>y</i> and azimuthal angle <i>phi</i> 
+of the center of the <i>i</i>'th jet (defined by the vector sum 
+of constituent four-momenta),
+  
+
+<a name="method43"></a>
+<p/><strong>Vec4 SlowJet::p(int i) &nbsp;</strong> <br/>
+  
+<strong>double SlowJet::m(int i) &nbsp;</strong> <br/>
+gives a <code>Vec4</code> corresponding to the four-momentum
+sum of the particles assigned to the <i>i</i>'th jet, and
+the invariant mass of this four-vector, 
+  
+
+<a name="method44"></a>
+<p/><strong>int SlowJet::multiplicity(int i) &nbsp;</strong> <br/>
+gives the number of particles clustered into the <i>i</i>'th jet,
+  
+
+<a name="method45"></a>
+<p/><strong>void SlowJet::list() &nbsp;</strong> <br/>
+provides a listing of the above information.
+  
+
+<p/> 
+These are the basic methods. For more sophisticated usage
+it is possible to trace the clustering, one step at a time. If so, the
+<code>setup</code> method should be used to read in the event and find
+the initial smallest distance. Each subsequent <code>doStep</code>
+will then do one cluster joining and find the new smallest distance.
+You can therefore interrogate which clusters will be joined next
+before the joining actually is performed. Alternatively you can take
+several steps in one go, or take steps down to a predetermined number 
+of jets plus remaining clusters. 
+
+<a name="method46"></a>
+<p/><strong>bool SlowJet::setup( const Event& event) &nbsp;</strong> <br/>
+selects the particles to be analyzed, calculates initial distances,
+and finds the initial smallest distance.
+<br/><code>argument</code><strong> event </strong>  : is an object of the <code>Event</code> class, 
+most likely the <code>pythia.event</code> one.
+  
+<br/>If the routine returns <code>false</code> the setup failed, 
+but currently this is not foreseen ever to happen.
+  
+
+<a name="method47"></a>
+<p/><strong>bool SlowJet::doStep() &nbsp;</strong> <br/>
+do the next step of the clustering. This can either be that two 
+clusters are joined to one, or that a cluster is promoted to a jet
+(which is discarded if its <i>pT</i> value is below 
+<code>pTjetMin</code>).
+<br/>The routine will only return <code>false</code> if there are no
+clusters left.
+  
+
+<a name="method48"></a>
+<p/><strong>bool SlowJet::doNSteps(int nStep) &nbsp;</strong> <br/>
+calls the <code>doStep()</code> method <code>nStep</code> times,
+if possible. Will return <code>false</code> if the list of clusters
+is emptied before then. The stored jet information is still perfectly
+fine; it is only the number of steps that is wrong. 
+  
+
+<a name="method49"></a>
+<p/><strong>bool SlowJet::stopAtN(int nStop) &nbsp;</strong> <br/>
+calls the <code>doStep()</code> method until a total of <code>nStop</code>
+jet and cluster objects remain. Will return <code>false</code> if this 
+is not possible, specifically if the number of objects already is smaller 
+than <code>nStop</code> when the method is called. The stored jet and 
+cluster information is still perfectly fine; it only does not have the 
+expected multiplicity.
+  
+
+<a name="method50"></a>
+<p/><strong>int SlowJet::sizeAll() &nbsp;</strong> <br/>
+gives the total current number of jets and clusters. The jets are 
+numbered 0 through <code>sizeJet() - 1</code>, while the clusters 
+are numbered <code>sizeJet()</code> through <code>sizeAll() - 1</code>.
+(Internally jets and clusters are represented by two separate arrays,
+but are here presented in one flat range.) Note that the jets are ordered 
+in decreasing <i>pT</i>, while the clusters are not ordered.
+  
+
+<p/>
+With this extension, the methods <code>double pT(int i)</code>,
+<code>double y(int i)</code>, <code>double phi(int i)</code>,
+<code>Vec4 p(int i)</code>, <code>double m(int i)</code> and
+<code>int multiplicity(int i)</code> can be used as before.
+Furthermore, <code>list()</code> generalizes
+
+<a name="method51"></a>
+<p/><strong>void SlowJet::list(bool listAll = false, ostream& os = cout) &nbsp;</strong> <br/>
+provides a listing of the above information.
+<br/><code>argument</code><strong> listAll </strong>  :  lists both jets and clusters if <code>true</code>,
+else only jets.
+  
+  
+ 
+<p/>
+Three further methods can be used to check what will happen next.
+
+<a name="method52"></a>
+<p/><strong>int SlowJet::iNext() &nbsp;</strong> <br/>
+  
+<strong>int SlowJet::jNext() &nbsp;</strong> <br/>
+  
+<strong>double SlowJet::dNext() &nbsp;</strong> <br/>
+if the next step is to join two clusters, then the methods give 
+the <i>(i,j, d_ij)</i> values, if instead to promote
+a cluster to a jet then <i>(i, -1, d_iB)</i>.
+If no clusters remain then <i>(-1, -1, 0.)</i>. Note that 
+the cluster numbers are offset as described above, i.e. they begin at
+<code>sizeJet()</code>, which of course easily could be subtracted off.
+Also note that the jet and cluster lists are (moderately) reshuffled 
+in each new step.
+  
+ 
+<p/>
+Finally, and separately, the <code>SlowJetHook</code> class can be used 
+for a more smart selection of which particles to include in the analysis. 
+For instance, isolated and/or high-<i>pT</i> muons, electrons and
+photons should presumably be identified separately at an early stage, 
+and then not clustered to jets. 
+ 
+<p/>
+Technically, it works like with <?php $filepath = $_GET["filepath"];
+echo "<a href='UserHooks.php?filepath=".$filepath."' target='page'>";?>User Hooks</a>. 
+That is, PYTHIA contains the base class. You write a derived class.
+In the main program you create an instance of this class, and hand it
+in to <code>SlowJet</code>; in this case already as part of the 
+constructor. 
+
+<p/> 
+The following methods should be defined in your derived class.
+
+<a name="method53"></a>
+<p/><strong>SlowJetHook::SlowJetHook() &nbsp;</strong> <br/>
+  
+<strong>virtual SlowJetHook::~SlowJetHook() &nbsp;</strong> <br/>
+the constructor and destructor need not do anything, and if so you
+need not write your own destructor.
+  
+
+<a name="method54"></a>
+<p/><strong>virtual bool SlowJetHook::include(int iSel, const Event& event, Vec4& pSel, double& mSel) &nbsp;</strong> <br/>
+is the main method that you will need to write. It will be called 
+once for each final-state particle in an event, subject to the 
+value of the <code>select</code> switch in the <code>SlowJet</code>
+constructor. The value <code>select = 2</code> may be convenient
+since then you do not need to remove e.g. neutrinos yourself, but
+use <code>select = 1</code> for full control. The method should then 
+return <code>true</code> if you want to see particle included in the
+jet clustering, and <code>false</code> if not.
+<br/><code>argument</code><strong> iSel </strong>  : is the index in the event record of the 
+currently studied particle.
+  
+<br/><code>argument</code><strong> event </strong>  : is an object of the <code>Event</code> class, 
+most likely the <code>pythia.event</code> one, where the currently 
+studied particle is found.
+  
+<br/><code>argument</code><strong> pSel </strong>  :  is at input the four-momentum of the 
+currently studied particle. You can change the values, e.g. to take 
+into account energy smearing in the detector, to define the initial
+cluster value, without corrupting the event record itself. 
+  
+<br/><code>argument</code><strong> mSel </strong>  :  is at input the mass of the currently studied 
+particle. You can change the value, e.g. to take into account
+particle misidentification, to define the initial cluster value, 
+without corrupting the event record itself. Note that the changes of 
+<code>pSel</code> and <code>mSel</code> must be coordinated such that
+<i>E^2 - p^2 = m^2</i> holds.
+  
+  
+
+<p/> 
+It is also possible to define further methods of your own. 
+One such could e.g. be called directly in the main program before the 
+<code>analyze</code> method is called, to identify and bookkeep 
+some event properties you may not want to reanalyze for each 
+individual particle.
 
 </body>
 </html>

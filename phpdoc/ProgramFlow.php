@@ -401,6 +401,18 @@ echo "<a href='UserHooks.php?filepath=".$filepath."' target='page'>";?>UserHooks
 
 <p/>
 <li>
+If you want to use your own merging scale definition for
+matrix element + parton shower merging, you can call   
+<pre>
+      pythia.setMergingHooksPtr( mergingHooksPtr); 
+</pre>
+where <code>mergingHooksPtr</code> derives from the 
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='MatrixElementMerging.php?filepath=".$filepath."' target='page'>";?>MergingHooks</a></code> base class.
+</li>
+
+<p/>
+<li>
 If you want to use your own parametrization of beam momentum spread and
 interaction vertex, rather than the provided simple Gaussian 
 parametrization (off by default), you can call
