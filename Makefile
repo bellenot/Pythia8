@@ -4,6 +4,7 @@
 #                  M. Kirsanov 07.04.2006
 #                     Modified 18.11.2006
 #                     26.03.2008 CLHEP dependency removed
+#                  N. Lavesson 28.04.2009 clean/distclean separated
 
 SHELL = /bin/sh
 
@@ -130,7 +131,7 @@ depsarch := $(patsubst $(SRCDIR)/%.cc,$(TMPDIR)/archive/%.d,$(wildcard $(SRCDIR)
 # The "if" below is needed in order to avoid producing the dependency files
 # when you want to just clean
 
-ifneq ($(MAKECMDGOALS),clean)
+ifeq (,$(findstring clean, $(MAKECMDGOALS)))
 -include $(deps)
 -include $(depsarch)
 endif
@@ -180,7 +181,7 @@ ifneq (x$(HEPMCLOCATION),x)
    depsI := $(patsubst hepmcinterface/%.cc,$(TMPDIR)/%.d,$(wildcard hepmcinterface/*.cc))
    depsIarch := $(patsubst hepmcinterface/%.cc,$(TMPDIR)/archive/%.d,$(wildcard hepmcinterface/*.cc))
 
-   ifneq ($(MAKECMDGOALS),clean)
+   ifeq (,$(findstring clean, $(MAKECMDGOALS)))
    -include $(depsI)
    -include $(depsIarch)
    endif
@@ -198,13 +199,17 @@ endif
 
 # Clean up: remove (almost?) everything that cannot be recreated.
 
-.PHONY: clean
+.PHONY: clean distclean
+
 clean:
-	rm -f *~; rm -f \#*;
 	rm -rf $(TMPDIR)
 	rm -rf $(LIBDIR)
 	rm -rf $(BINDIR)
+	cd examples; rm -f *.exe; cd -
+
+distclean: clean
 	rm -f config.mk
+	rm -f *~; rm -f \#*;
 	cd $(SRCDIR); rm -f *~; rm -f \#*; cd -
 	cd $(INCDIR); rm -f *~; rm -f \#*; cd -
 	cd xmldoc; rm -f *~; rm -f \#*; cd -
@@ -212,5 +217,5 @@ clean:
 	cd phpdoc; rm -f *~; rm -f \#*; cd -
 	cd hepmcinterface; rm -f *~; rm -f \#*; cd -
 	cd lhapdfdummy; rm -f *~; rm -f \#*; cd -
-	cd examples; rm -rf *.exe; rm -f *~; rm -f \#*; rm -f core*; rm -f config.*; cd -
+	cd examples; rm -f *~; rm -f \#*; rm -f core*; rm -f config.*; cd -
 

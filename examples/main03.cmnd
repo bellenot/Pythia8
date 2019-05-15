@@ -27,4 +27,4 @@ PhaseSpace:pTHatMin = 50.          ! minimal pT sacale in process
 
 ! 5) Non-standard settings; exemplifies tuning possibilities.
 #SpaceShower:pT0Ref = 2.0           ! dampening of pT -> 0 divergence
-#MultipleInteractions:pTmin = 3.0   ! lower pT cutoff for interactions  
+#MultipleInteractions:pT0Ref = 3.0  ! dampening of pT -> 0 divergence

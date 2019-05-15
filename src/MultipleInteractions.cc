@@ -339,6 +339,9 @@ const double MultipleInteractions::RPT20         = 0.25;
 const double MultipleInteractions::PT0STEP       = 0.9;
 const double MultipleInteractions::SIGMASTEP     = 1.1;
 
+// Stop if pT0 or pTmin fall below this, or alpha_s blows up.
+const double MultipleInteractions::PT0MIN        = 0.2;
+
 // Refuse too low expPow in impact parameter profile.
 const double MultipleInteractions::EXPPOWMIN     = 0.4; 
 
@@ -379,6 +382,9 @@ bool MultipleInteractions::init( bool doMIinit, Info* infoPtrIn,
   partonSystemsPtr = partonSystemsPtrIn;
   sigmaTotPtr      = sigmaTotPtrIn;
   if (!doMIinit) return false;
+
+  // If both beams are baryons then softer PDF's than for mesons/Poerons.
+  hasBaryonBeams = ( beamAPtr->isBaryon() && beamBPtr->isBaryon() );
 
   // Matching in pT of hard interaction to further interactions.
   pTmaxMatch     = Settings::mode("MultipleInteractions:pTmaxMatch"); 
@@ -439,6 +445,7 @@ bool MultipleInteractions::init( bool doMIinit, Info* infoPtrIn,
 
   // Initialize alpha_strong generation.
   alphaS.init( alphaSvalue, alphaSorder); 
+  double Lambda3 = alphaS.Lambda3(); 
 
   // Initialize alphaEM generation.
   alphaEM.init( alphaEMorder); 
@@ -488,12 +495,23 @@ bool MultipleInteractions::init( bool doMIinit, Info* infoPtrIn,
     pT4dSigmaMaxBeg = pT4dSigmaMax;
     jetCrossSection();
 
-    // Sufficiently big SigmaInt or reduce pT0. Output.
+    // Sufficiently big SigmaInt or reduce pT0; maybe also pTmin. 
     if (sigmaInt > SIGMASTEP * sigmaND) break; 
     os << " |  pT0 = "  << setw(5) << pT0 << " gives sigmaInteraction = " 
        << setw(7) << sigmaInt << " mb: rejected  | \n";
-    pT0 *= PT0STEP;
+    if (pTmin > pT0) pTmin *= PT0STEP; 
+    pT0 *= PT0STEP; 
+
+    // Give up if pT0 and pTmin fall too low. 
+    if ( max(pT0, pTmin) < max(PT0MIN, Lambda3) ) {
+      infoPtr->errorMsg("Error in MultipleInteractions::init:"
+        " failed to find acceptable pT0 and pTmin");
+      infoPtr->setTooLowPTmin(true);
+      return false;
+    }
   }
+
+  // Output for accepted pT0.
   os << " |  pT0 = " << setw(5) << pT0 << " gives sigmaInteraction = " 
      << setw(7) << sigmaInt << " mb: accepted  | \n"
      << " |                                                        "
@@ -1041,8 +1059,9 @@ double MultipleInteractions::sigmaPT2scatter(bool isFirst) {
   y = 0.5 * (y3 + y4);
 
   // Reject some events at large rapidities to improve efficiency.
-  // (Don't have to evaluate PDF's and ME's.)
-  double WTy = (1. - pow2(y3/yMax)) * (1. - pow2(y4/yMax));
+  // (Works for baryons, not pions or Pomerons if they have hard PDF's.) 
+  double WTy = (hasBaryonBeams) 
+             ? (1. - pow2(y3/yMax)) * (1. - pow2(y4/yMax)) : 1.;
   if (WTy < Rndm::flat()) return 0.; 
 
   // Failure if x1 or x2 exceed what is left in respective beam.
@@ -1678,6 +1697,8 @@ void MultipleInteractions::overlapFirst() {
     if (Rndm::flat() < probLowB) {
       isAtLowB = true;
       bNow = bDiv * sqrt(Rndm::flat());
+
+      // Evaluate overlap and from that acceptance probability. 
       if (bProfile == 1) overlapNow = normPi * exp( -bNow*bNow);
       else if (bProfile == 2) overlapNow = normPi * 
         ( fracA * exp( -bNow*bNow)
@@ -1688,6 +1709,7 @@ void MultipleInteractions::overlapFirst() {
 
     // Treatment in high-b region: pick b according to overlap.
     } else {
+      isAtLowB = false;
 
       // For simple and double Gaussian pick b according to exp(-b^2 / r^2).
       if (bProfile == 1) {

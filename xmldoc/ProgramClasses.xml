@@ -13,6 +13,7 @@ classes you can find described where on these pages. Normally
 you have to scroll down to find the details, since the top of
 the page contains information of more general interest.
 
+<p/>
 <table cellspacing="5">
 
 <tr> 
@@ -144,5 +145,10 @@ collider topologies</td>
 </tr>
 
 </table>
+
+<p/>
+You can also access an extensive list of the public 
+<aloc href="ProgramMethods">methods</aloc> in these classes, 
+which compensates for the brevity of the current page. 
 
 <!-- Copyright (C) 2009 Torbjorn Sjostrand -->

@@ -7,7 +7,9 @@
 // PDF: base class.
 // GRV94L: derived class for the GRV 94L parton densities.
 // CTEQ5L: derived class for the CTEQ 5L parton densities.
-// LHAPDFinterface: derived class for interface to the LHAPDF library.
+// LHAPDF: derived class for interface to the LHAPDF library.
+// GRVpiL: derived class for the GRV LO pion parton densities.
+// PomPDF: derived class for Q2-independent Pomeron parton densities.
 // Lepton: derived class for parton densities inside a lepton.
 // LeptonPoint: derived class for unresolved lepton (mainly dummy).
 
@@ -30,14 +32,19 @@ class PDF {
 public:
 
   // Constructor.
-  PDF(int idBeamIn = 2212) {idBeam = idBeamIn; idSav = 9; xSav = -1.; 
-    Q2Sav = -1.; isSet = true; isInit = false;}
+  PDF(int idBeamIn = 2212) {idBeam = idBeamIn; idBeamAbs = abs(idBeam);
+    setValenceContent(); idSav = 9; xSav = -1.; Q2Sav = -1.; 
+    isSet = true; isInit = false;}
 
   // Destructor.
   virtual ~PDF() {}
 
   // Confirm that PDF has been set up (important for LHAPDF).
   bool isSetup() {return isSet;}
+
+  // Dynamic choice of meson valence flavours for pi0, K0S, K0L, Pomeron.
+  void newValenceContent(int idVal1In, int idVal2In) {
+    idVal1 = idVal1In; idVal2 = idVal2In;}
 
   // Allow extrapolation beyond boundaries. This is optional.
   virtual void setExtrapolate(bool) {}
@@ -52,11 +59,14 @@ public:
 protected:
 
   // Store relevant quantities.
-  int    idBeam, idSav;
+  int    idBeam, idBeamAbs, idSav, idVal1, idVal2;
   double xSav, Q2Sav;
   double xu, xd, xubar, xdbar, xs, xc, xb, xg, xlepton, xgamma,
          xuVal, xuSea, xdVal, xdSea;
   bool   isSet, isInit, hasLimits; 
+
+  // Resolve valence content for assumed meson. Possibly modified later.
+  void setValenceContent();
 
   // Update parton densities.
   virtual void xfUpdate(int id, double x, double Q2) = 0; 
@@ -92,8 +102,8 @@ private:
  
 //**************************************************************************
 
-// Gives the GRV 94 L (leading order) parton distribution function set
-// in parametrized form. Authors: M. Glueck, E. Reya and A. Vogt.
+// Gives the CTEQ 5 L (leading order) parton distribution function set
+// in parametrized form. Parametrization by J. Pumplin. Authors: CTEQ.
 
 class CTEQ5L : public PDF {
 
@@ -141,6 +151,55 @@ private:
   // Keep track of latest initialized PDF, so does not have to repeat.
   static string latestSetName;
   static int    latestMember, latestNSet;   
+
+};
+ 
+//**************************************************************************
+
+// Gives the GRV 1992 pi+ (leading order) parton distribution function set
+// in parametrized form. Authors: Glueck, Reya and Vogt.
+
+class GRVpiL : public PDF {
+
+public:
+
+  // Constructor.
+  GRVpiL(int idBeamIn = 221) : PDF(idBeamIn) {}
+
+private:
+
+  // Update PDF values.
+  void xfUpdate(int id, double x, double Q2);
+
+};
+
+//**************************************************************************
+
+// Gives generic Q2-independent Pomeron PDF.
+
+class PomPDF : public PDF {
+
+public:
+
+  // Constructor.
+  PomPDF(int idBeamIn = 990, double PomGluonAIn = 0., 
+  double PomGluonBIn = 0., double PomQuarkAIn = 0., double PomQuarkBIn = 0., 
+  double PomQuarkFracIn = 0., double PomStrangeSuppIn = 0.) : PDF(idBeamIn), 
+  PomGluonA(PomGluonAIn), PomGluonB(PomGluonBIn), PomQuarkA(PomQuarkAIn), 
+  PomQuarkB(PomQuarkBIn), PomQuarkFrac(PomQuarkFracIn), 
+  PomStrangeSupp(PomStrangeSuppIn) {init();}
+
+private:
+
+  // Stored value for PDF choice.
+  double PomGluonA, PomGluonB, PomQuarkA, PomQuarkB, PomQuarkFrac, 
+         PomStrangeSupp, normGluon, normQuark;
+
+  // Initialization of some constants.
+  void init();
+
+  // Update PDF values.
+  void xfUpdate(int id, double x, double);
 
 };
  

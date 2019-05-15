@@ -76,7 +76,7 @@ int main() {
     // Repeated decays: switch off decays of weakly decaying B hadrons.
     // (More compact solution than repeated readString(..).)
     if (redoBDecays) for (int iC = 0; iC < nCodes; ++iC) 
-      ParticleDataTable::mayDecay( bCodes[iC], false);
+      pythia.particleData.mayDecay( bCodes[iC], false);
 
     // Generate event. Skip it if error.
     if (!pythia.next()) continue;
@@ -119,7 +119,7 @@ int main() {
 
       // Repeated decays: switch back on weakly decaying B hadrons.
       for (int iC = 0; iC < nCodes; ++iC) 
-        ParticleDataTable::mayDecay( bCodes[iC], true);
+        pythia.particleData.mayDecay( bCodes[iC], true);
     
     //  Repeated hadronization: copy event into spare position.
     } else if (redoHadrons) {

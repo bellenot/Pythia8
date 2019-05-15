@@ -32,7 +32,7 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 Recall that, to first order, the event generation process can be 
 subdivided into three stages:
 <ol>
-<li>Initialization.</li>
+<li>Initializaion.</li>
 <li>The event loop.</li>
 <li>Finishing.</li>
 </ol>
@@ -548,6 +548,7 @@ methods and data members.
 
 <h3>Constructor and destructor</h3>
 
+<a name="method1"></a>
 <p/><strong>Pythia::Pythia(string xmlDir = &quot;../xmldoc&quot;) &nbsp;</strong> <br/>
 creates an instance of the <code>Pythia</code> event generators,
 and sets initial default values, notably for all settings and 
@@ -568,11 +569,13 @@ standard distribution.
   
   
 
+<a name="method2"></a>
 <p/><strong>Pythia::~Pythia &nbsp;</strong> <br/>
 the destructor deletes the objects created by the constructor.
 
 <h3>Set up run</h3>
 
+<a name="method3"></a>
 <p/><strong>bool Pythia::readString(string line, bool warn = true) &nbsp;</strong> <br/>
 reads in a single string, that is interpreted as an instruction to
 modify the value of a <?php $filepath = $_GET["filepath"];
@@ -590,6 +593,7 @@ sense, e.g. if the variable does not exist in the databases.
 make sense out of the string.
   
 
+<a name="method4"></a>
 <p/><strong>bool Pythia::readFile(string fileName, bool warn = true,int subrun = SUBRUNDEFAULT) &nbsp;</strong> <br/>
   
 <strong>bool Pythia::readFile(string fileName,int subrun = SUBRUNDEFAULT) &nbsp;</strong> <br/>
@@ -626,6 +630,7 @@ The subrun number should not be negative; negative codes like
 make sense out of any one line.
   
 
+<a name="method5"></a>
 <p/><strong>bool Pythia::setPDFPtr( PDF* pdfAPtr, PDF* pdfBPtr, PDF* pdfHardAPtr = 0, PDF* pdfHardBPtr = 0) &nbsp;</strong> <br/>
 offers the possibility to link in external PDF sets for usage inside
 the program. The rules for constructing your own class from
@@ -659,6 +664,7 @@ to the normal internal PDF selection you must call
 <code>setPDFPtr(0, 0)</code> before <code>Pythia::init(...)</code>. 
   
 
+<a name="method6"></a>
 <p/><strong>bool Pythia::setDecayPtr( DecayHandler* decayHandlePtr, vector&lt;int&gt; handledParticles) &nbsp;</strong> <br/>
 offers the possibility to link to an external program that can do some 
 of the particle decays, instad of using the internal decay machinery.
@@ -682,6 +688,7 @@ antiparticle is always included as well.
 <br/><b>Note:</b> The method currently always returns true.
   
 
+<a name="method7"></a>
 <p/><strong>bool Pythia::setRndmEnginePtr( RndmEngine* rndmEnginePtr) &nbsp;</strong> <br/>
 offers the possibility to link to an external random number generator.
 The rules for constructing your own class from the 
@@ -696,6 +703,7 @@ must be instantiated by you in your program.
 from 0.
   
 
+<a name="method8"></a>
 <p/><strong>bool Pythia::setUserHooksPtr( UserHooks* userHooksPtr) &nbsp;</strong> <br/>
 offers the possibility to interact with the generation process at
 a few different specified points, e.g. to reject undesirable events
@@ -712,6 +720,7 @@ must be instantiated by you in your program.
 <br/><b>Note:</b> The method currently always returns true.
   
 
+<a name="method9"></a>
 <p/><strong>bool Pythia::setBeamShapePtr( BeamShape* beamShapePtr) &nbsp;</strong> <br/>
 offers the possibility to provide your own shape of the momentum and
 space-time spread of the incoming beams. The rules for constructing 
@@ -725,6 +734,7 @@ must be instantiated by you in your program.
 <br/><b>Note:</b> The method currently always returns true.
   
 
+<a name="method10"></a>
 <p/><strong>bool Pythia::setSigmaPtr( SigmaProcess* sigmaPtr) &nbsp;</strong> <br/>
 offers the possibility to link your own implementation of a process
 and its cross section, to make it a part of the normal process 
@@ -741,6 +751,7 @@ must be instantiated by you in your program.
 <br/><b>Note:</b> The method currently always returns true.
   
 
+<a name="method11"></a>
 <p/><strong>bool Pythia::setResonancePtr( ResonanceWidths* resonancePtr) &nbsp;</strong> <br/>
 offers the possibility to link your own implementation of the 
 calculation of partial resonance widths, to make it a part of the 
@@ -760,7 +771,8 @@ must be instantiated by you in your program.
 <br/><b>Note:</b> The method currently always returns true.
   
 
-<p/><strong>bool Pythia::setShowerPtr( TimeShower* timesDecPtr, TimeShower* timesPtr = 0, SpaceShower* spacePtr = 0)  &nbsp;</strong> <br/>
+<a name="method12"></a>
+<p/><strong>bool Pythia::setShowerPtr( TimeShower* timesDecPtr, TimeShower* timesPtr = 0, SpaceShower* spacePtr = 0) &nbsp;</strong> <br/>
 offers the possibility to link your own parton shower routines as 
 replacements for the default ones. This is much more complicated 
 since the showers are so central and are so interlinked with other 
@@ -804,6 +816,7 @@ processed, and the stage is set up for the subsequent generation
 of events. Several alterative forms of the <code>init</code> method
 are available for this stage; pick the one most convenient. 
 
+<a name="method13"></a>
 <p/><strong>bool Pythia::init( int idA, int idB, double eCM) &nbsp;</strong> <br/>
 initialize for collisions in the center-of-mass frame, with the
 beams moving in the <i>+-z</i> directions.
@@ -818,6 +831,7 @@ initialization fails. It is then not possible to generate any
 events.
   
 
+<a name="method14"></a>
 <p/><strong>bool Pythia::init( int idA, int idB, double eA, double eB) &nbsp;</strong> <br/>
 initialize for collisions with back-to-back beams,
 moving in the <i>+-z</i> directions, but with different energies.
@@ -835,6 +849,7 @@ initialization fails. It is then not possible to generate any
 events.
   
 
+<a name="method15"></a>
 <p/><strong>bool Pythia::init( int idA, int idB, double pxA, double pyA, double pzA, double pxB, double pyB, double pzB) &nbsp;</strong> <br/>
 initialize for collisions with arbitrary beam directions.
 <br/><code>argument</code><strong> idA, idB </strong>  :   
@@ -853,6 +868,7 @@ initialization fails. It is then not possible to generate any
 events.
   
 
+<a name="method16"></a>
 <p/><strong>bool Pythia::init( string LesHouchesEventFile, bool skipInit = false) &nbsp;</strong> <br/>
 initialize for hard-process collisions fed in from an external file 
 with events, written according to the 
@@ -880,6 +896,7 @@ initialization fails. It is then not possible to generate any
 events.
   
 
+<a name="method17"></a>
 <p/><strong>bool Pythia::init() &nbsp;</strong> <br/>
 initialize for collisions, in any of the four above possibilities.
 In this option the beams are not specified by input arguments,
@@ -893,6 +910,7 @@ initialization fails. It is then not possible to generate any
 events.
   
 
+<a name="method18"></a>
 <p/><strong>bool Pythia::init( LHAup* lhaUpPtr) &nbsp;</strong> <br/>
 initialize for hard-process collisions fed in from an external
 source of events, consistent with the Les Houches Accord standard.
@@ -915,14 +933,21 @@ The <code>next()</code> method is the main one to generate events.
 In this section we also put a few other specialized methods that 
 may be useful in some circumstances.
 
+<a name="method19"></a>
 <p/><strong>bool Pythia::next() &nbsp;</strong> <br/>
 generate the next event. No input parameters are required; all
 instructions have already been set up in the initialization stage.
 <br/><b>Note:</b> The method returns false if the event generation
 fails. The event record is then not consistent and should not be
-studied.
+studied. When reading in hard collisions from a Les Houches Event File
+the problem may be that the end of the file has been reached. This
+can be checked with the 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='EventInformation.php?filepath=".$filepath."' target='page'>";?><code>Info::atEndOfFile()</code></a> 
+method.
   
 
+<a name="method20"></a>
 <p/><strong>bool Pythia::forceHadronLevel() &nbsp;</strong> <br/>
 hadronize the existing event record, i.e. perform string fragmentation
 and particle decays. There are two main applications. Firstly,
@@ -939,6 +964,7 @@ fails. The event record is then not consistent and should not be
 studied.
   
 
+<a name="method21"></a>
 <p/><strong>bool Pythia::moreDecays() &nbsp;</strong> <br/>
 perform decays of all particles in the event record that have not been 
 decayed but should have been done so. This can be used e.g. for
@@ -949,14 +975,30 @@ echo "<a href='HadronLevelStandalone.php?filepath=".$filepath."' target='page'>"
 event record is then not consistent and should not be studied.
   
 
+<a name="method22"></a>
 <p/><strong>void Pythia::LHAeventList(ostream& os = cout) &nbsp;</strong> <br/>
 list the Les Houches Accord information on the current event, see
 <?php $filepath = $_GET["filepath"];
-echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>";?>here</a>. 
+echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>";?>LHAup::listEvent(...)</a>. 
 (Other listings are available via the class members below, so this
 listing is a special case that would not fit elsewhere.)
 <br/><code>argument</code><strong> os </strong> (<code>default = <strong>cout</strong></code>) :   
-output stream where the listign occurs.
+output stream where the listing occurs.
+  
+  
+
+<a name="method23"></a>
+<p/><strong>bool Pythia::LHAeventSkip(int nSkip) &nbsp;</strong> <br/>
+skip ahead a number of events in the Les Houches generation
+sequence, without doing anything further with them, see
+<?php $filepath = $_GET["filepath"];
+echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>";?>LHAup::skipEvent(nSkip)</a>. 
+Mainly intended for debug purposes, e.g. when an event at a known 
+location in a Les Houches Event File is causing problems.
+Will return false if operation fails, specifically if the 
+end of a LHEF has been reached, cf. <code>next()</code> above. 
+<br/><code>argument</code><strong> nSkip </strong>  :   
+number of events to skip.
   
   
 
@@ -966,6 +1008,7 @@ There is no required finalization step; you can stop generating events
 when and how you want. It is still recommended that you make it a 
 routine to call the following method at the end.
 
+<a name="method24"></a>
 <p/><strong>void Pythia::statistics(bool all = false, bool reset = false) &nbsp;</strong> <br/>
 list statistics on the event generation, specifically total and partial
 cross sections and the number of different errors. For more details see
@@ -1001,6 +1044,7 @@ be the number of events to generate. For such applications the
 following shortcuts to some <code>Settings</code> methods may be 
 convenient.
 
+<a name="method25"></a>
 <p/><strong>bool Pythia::flag(string key) &nbsp;</strong> <br/>
 read in a boolean variable from the <code>Settings</code> database.
 <br/><code>argument</code><strong> key </strong>  :   
@@ -1008,6 +1052,7 @@ the name of the variable to be read.
   
   
  
+<a name="method26"></a>
 <p/><strong>int Pythia::mode(string key) &nbsp;</strong> <br/>
 read in an integer variable from the <code>Settings</code> database.
 <br/><code>argument</code><strong> key </strong>  :   
@@ -1015,6 +1060,7 @@ the name of the variable to be read.
   
   
  
+<a name="method27"></a>
 <p/><strong>double Pythia::parm(string key) &nbsp;</strong> <br/>
 read in a double-precision variable from the <code>Settings</code> 
 database.
@@ -1023,6 +1069,7 @@ the name of the variable to be read.
   
   
  
+<a name="method28"></a>
 <p/><strong>string Pythia::word(string key) &nbsp;</strong> <br/>
 read in a string variable from the <code>Settings</code> database.
 <br/><code>argument</code><strong> key </strong>  :   
@@ -1036,30 +1083,35 @@ The <code>Pythia</code> class contains a few public data members,
 several of which play a central role. We list them here, with 
 links to the places where they are further described. 
  
+<a name="method29"></a>
 <p/><strong>Event Pythia::process &nbsp;</strong> <br/>
 the hard-process event record, see <?php $filepath = $_GET["filepath"];
 echo "<a href='EventRecord.php?filepath=".$filepath."' target='page'>";?>here</a>
 for further details.
   
  
+<a name="method30"></a>
 <p/><strong>Event Pythia::event &nbsp;</strong> <br/>
 the complete event record, see <?php $filepath = $_GET["filepath"];
 echo "<a href='EventRecord.php?filepath=".$filepath."' target='page'>";?>here</a>
 for further details.
   
  
+<a name="method31"></a>
 <p/><strong>PartonSystems Pythia::partonSystems &nbsp;</strong> <br/>
 a grouping of the partons in the event record by subsystem, 
 see <?php $filepath = $_GET["filepath"];
 echo "<a href='AdvancedUsage.php?filepath=".$filepath."' target='page'>";?>here</a> for further details.
   
  
+<a name="method32"></a>
 <p/><strong>Info Pythia::info &nbsp;</strong> <br/>
 further information on the event-generation process, see 
 <?php $filepath = $_GET["filepath"];
 echo "<a href='EventInformation.php?filepath=".$filepath."' target='page'>";?>here</a> for further details.
   
  
+<a name="method33"></a>
 <p/><strong>Settings Pythia::settings &nbsp;</strong> <br/>
 the settings database, see <?php $filepath = $_GET["filepath"];
 echo "<a href='SettingsScheme.php?filepath=".$filepath."' target='page'>";?>here</a>
@@ -1067,6 +1119,7 @@ for further details. Note that the <code>Settings</code> class is
 purely static, so it would not have needed to be inlcuded here.
   
  
+<a name="method34"></a>
 <p/><strong>ParticleDataTable Pythia::particleData &nbsp;</strong> <br/>
 the particle properties and decay tables database, see 
 <?php $filepath = $_GET["filepath"];
@@ -1075,6 +1128,7 @@ Note that the <code>ParticleDataTable</code> class is
 purely static, so it would not have needed to be inlcuded here.
   
  
+<a name="method35"></a>
 <p/><strong>SusyLesHouches Pythia::slha &nbsp;</strong> <br/>
 parameters and particle data in the context of supersymmetric models, 
 see <?php $filepath = $_GET["filepath"];

@@ -131,17 +131,17 @@ int main(int argc, char* argv[]) {
   pythia.readFile(argv[1]);
 
   // Extract settings to be used in the main program.
-  int    nEvent    = pythia.settings.mode("Main:numberOfEvents");
-  int    nList     = pythia.settings.mode("Main:numberToList");
-  int    nShow     = pythia.settings.mode("Main:timesToShow");
-  int    nAbort    = pythia.settings.mode("Main:timesAllowErrors");
-  bool   showCS    = pythia.settings.flag("Main:showChangedSettings");
-  bool   showAS    = pythia.settings.flag("Main:showAllSettings");
-  int    showOne   = pythia.settings.mode("Main:showOneParticleData");
-  bool   showCPD   = pythia.settings.flag("Main:showChangedParticleData");
-  bool   showCRD   = pythia.settings.flag("Main:showChangedResonanceData");
-  bool   showAPD   = pythia.settings.flag("Main:showAllParticleData");
-  bool   showAStat = pythia.settings.flag("Main:showAllStatistics");
+  int    nEvent    = pythia.mode("Main:numberOfEvents");
+  int    nList     = pythia.mode("Main:numberToList");
+  int    nShow     = pythia.mode("Main:timesToShow");
+  int    nAbort    = pythia.mode("Main:timesAllowErrors");
+  bool   showCS    = pythia.flag("Main:showChangedSettings");
+  bool   showAS    = pythia.flag("Main:showAllSettings");
+  int    showOne   = pythia.mode("Main:showOneParticleData");
+  bool   showCPD   = pythia.flag("Main:showChangedParticleData");
+  bool   showCRD   = pythia.flag("Main:showChangedResonanceData");
+  bool   showAPD   = pythia.flag("Main:showAllParticleData");
+  bool   showAStat = pythia.flag("Main:showAllStatistics");
  
   // Initialization with no arguments means that the Beams settings are used.
   pythia.init();
@@ -151,20 +151,20 @@ int main(int argc, char* argv[]) {
   if (showAS) pythia.settings.listAll();
 
   // List particle data.  
-  if (showOne > 0) ParticleDataTable::list(showOne);
-  if (showCPD) ParticleDataTable::listChanged(showCRD);
-  if (showAPD) ParticleDataTable::listAll();
+  if (showOne > 0) pythia.particleData.list(showOne);
+  if (showCPD) pythia.particleData.listChanged(showCRD);
+  if (showAPD) pythia.particleData.listAll();
 
   // Declare user analysis class. Do initialization part of it.
   MyAnalysis myAnalysis;
   myAnalysis.init(); 
 
   // Begin event loop. Show how far the run has progressed.
-  int nShowPace = max(1,nEvent/nShow); 
+  int nPace = max(1, nEvent / max(1, nShow) ); 
   int iAbort = 0; 
   for (int iEvent = 0; iEvent < nEvent; ++iEvent) {
-    if (iEvent%nShowPace == 0) cout << " Now begin event " 
-      << iEvent << endl;
+    if (nShow > 0 && iEvent%nPace == 0) 
+      cout << " Now begin event " << iEvent << endl;
 
     // Generate events. Quit if too many failures.
     if (!pythia.next()) {

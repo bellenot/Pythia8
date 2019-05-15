@@ -26,7 +26,8 @@ all:
 # Create an executable for one of the normal test programs
 main00  main01 main02 main03 main04 main05 main06 main07 main08 main09 main10 \
 	main11 main12 main13 main14 main15 main16 main17 main18 main19 main20 \
-        main21 main22 main23 main24 main25 main26 main27 main28 main44: \
+        main21 main22 main23 main24 main25 main26 main27 main28 main29 \
+	main44: \
 	../$(LIBDIRARCH)/libpythia8.a
 	@mkdir -p ../$(BINDIR)
 	$(CXX) $(CXXFLAGS) -I../$(INCDIR) $@.cc -o ../$(BINDIR)/$@.exe \
@@ -36,7 +37,8 @@ main00  main01 main02 main03 main04 main05 main06 main07 main08 main09 main10 \
 # Create an executable linked to HepMC (if all goes well).
 ifneq (x$(HEPMCLOCATION),x)
   # without pythia6:
-  main31 main32: ../$(LIBDIRARCH)/libpythia8.a ../$(LIBDIRARCH)/libhepmcinterface.a
+  main31 main32: \
+	../$(LIBDIRARCH)/libpythia8.a ../$(LIBDIRARCH)/libhepmcinterface.a
 	@mkdir -p ../$(BINDIR)
 	$(CXX) $(CXXFLAGS) -I../$(INCDIR) -I$(HEPMCLOCATION)/include \
 	$@.cc -o ../$(BINDIR)/$@.exe \
@@ -45,7 +47,8 @@ ifneq (x$(HEPMCLOCATION),x)
 	-L$(HEPMCLOCATION)/lib -lHepMC
 	@ln -fs ../$(BINDIR)/$@.exe $@.exe
   # with pythia6:
-  main54: ../$(LIBDIRARCH)/libpythia8.a ../$(LIBDIRARCH)/libhepmcinterface.a
+  main54: \
+	../$(LIBDIRARCH)/libpythia8.a ../$(LIBDIRARCH)/libhepmcinterface.a
 	@mkdir -p ../$(BINDIR)
 	$(CXX) $(CXXFLAGS) -I../$(INCDIR) -I$(HEPMCLOCATION)/include \
 	$@.cc -o ../$(BINDIR)/$@.exe \

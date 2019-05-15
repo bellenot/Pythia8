@@ -139,16 +139,21 @@ public:
   int    idAbs()     const {return abs(idSave);}
   int    statusAbs() const {return abs(statusSave);}
   bool   isFinal()   const {return (statusSave > 0);}
+  bool   isRescatteredIncoming() const {return 
+    (statusSave == -34 || statusSave == -45 ||
+     statusSave == -46 || statusSave == -54);}
 
   // Member functions for output; derived double quantities.
-  double m2()        const {return mSave*mSave;}
+  double m2()        const {return (mSave >= 0.) ?  mSave*mSave 
+                                                 : -mSave*mSave;}
   double mCalc()     const {return pSave.mCalc();}
   double m2Calc()    const {return pSave.m2Calc();}
-  double eCalc()     const {return sqrt(mSave*mSave + pSave.pAbs2());}
+  double eCalc()     const {return sqrt(abs(m2() + pSave.pAbs2()));}
   double pT()        const {return pSave.pT();}
   double pT2()       const {return pSave.pT2();}
-  double mT()        const {return sqrt(mSave*mSave + pSave.pT2());}
-  double mT2()       const {return mSave*mSave + pSave.pT2();}
+  double mT()        const {double temp = m2() + pSave.pT2(); 
+    return (temp >= 0.) ? sqrt(temp) : -sqrt(-temp);}
+  double mT2()       const {return m2() + pSave.pT2();}
   double pAbs()      const {return pSave.pAbs();}
   double pAbs2()     const {return pSave.pAbs2();}
   double eT()        const {return pSave.eT();}
@@ -382,9 +387,12 @@ public:
   Particle& back() {return entry.back();}
 
   // List the particles in an event.
-  void list(ostream& os = cout) {list(false, false, os);}  
-  void list(bool showScaleAndVertex, bool showMothersAndDaughters = false, 
-    ostream& os = cout);  
+  void list() const; 
+  void list(ostream& os) const; 
+  void list(bool showScaleAndVertex, bool showMothersAndDaughters = false)
+    const;
+  void list(bool showScaleAndVertex, bool showMothersAndDaughters,
+    ostream& os) const;
 
   // Remove last n entries.
   void popBack(int nRemove = 1) { if (nRemove ==1) entry.pop_back();

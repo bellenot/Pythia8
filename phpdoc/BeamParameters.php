@@ -44,8 +44,21 @@ this information. Then you need not use the variables below (although it
 would still be possible). Note that, if nothing is done, you will default 
 to LHC at the nominal energy.
 
+<p/>
+Currently the beam particles must be either a hadron pair or a lepton
+pair. In the former category <i>p p</i> and <i>pbar p</i> 
+combinations dominate, but it is also possible to combine with 
+<i>pi^+</i>, <i>pi^-</i> and <i>pi^0</i>. In the latter 
+<i>e^+ e^-</i> and <i>mu^+ mu^-</i> would be the most useful 
+combinations, but also others should work if combined with an 
+appropriate hard process.
+
 <br/><br/><table><tr><td><strong>Beams:idA  </td><td></td><td> <input type="text" name="1" value="2212" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2212</strong></code>)</td></tr></table>
 The PDG <code>id</code> code for the first incoming particle.
+Allowed codes include <i>2212 = p</i>, <i>-2212 = pbar</i>, 
+<i>211 = pi^+</i>, <i>-211 = pi^-</i>, <i>111 = pi^0</i>,  
+<i>11 = e^-</i>, <i>-11 = e^+</i>, <i>13 = mu^-</i>, 
+<i>-13 = mu^+</i>, and a few more leptons.
   
 
 <br/><br/><table><tr><td><strong>Beams:idB  </td><td></td><td> <input type="text" name="2" value="2212" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2212</strong></code>)</td></tr></table>

@@ -16,7 +16,6 @@ phenomena from large extra dimensions (LED). Due to the close
 relation between the LED model and a so-called unparticle model, 
 unparticle processes are also kept in this section.
 
-
 <h3>Randall-Sundrum Resonances, production processes</h3>
 
 The Graviton resonance state is assigned PDG code 5100039. Decays 
@@ -161,17 +160,28 @@ Code 5026.
 
 <p/><code>flag&nbsp; </code><strong> ExtraDimensionsLED:gg2gammagamma &nbsp;</strong> 
  (<code>default = <strong>off</strong></code>)<br/>
-Scatterings <i>gg -> (LED G*) -> gamma gamma</i>. 
+Scatterings <i>g g -> (LED G*) -> gamma gamma</i>. 
 Code 5027.
   
 
-<h3>Large Extra Dimensions, parameters</h3>
-
-<p/><code>flag&nbsp; </code><strong> ExtraDimensionsLED:Trunc &nbsp;</strong> 
+<p/><code>flag&nbsp; </code><strong> ExtraDimensionsLED:ffbar2llbar &nbsp;</strong> 
  (<code>default = <strong>off</strong></code>)<br/>
-Option to truncate the graviton mass spectrum. Only 
-concerns the graviton emission processes.
+Scatterings <i>f fbar -> (LED G*) -> l l </i>, where 
+<i>l</i> is a charged lepton. If the graviton contribution 
+is zero, the results corresponds to the SM contribution, i.e. 
+similar to <code>WeakSingleBoson:ffbar2gmZ</code>. Does not 
+include t-channel amplitude relevant for e^+e^- to e^+e^- 
+and no K-factor is used.
+Code 5028.
   
+
+<p/><code>flag&nbsp; </code><strong> ExtraDimensionsLED:gg2llbar &nbsp;</strong> 
+ (<code>default = <strong>off</strong></code>)<br/>
+Scatterings <i>g g -> (LED G*) -> l l</i>. 
+Code 5029.
+  
+
+<h3>Large Extra Dimensions, parameters</h3>
 
 <p/><code>mode&nbsp; </code><strong> ExtraDimensionsLED:n &nbsp;</strong> 
  (<code>default = <strong>2</strong></code>; <code>minimum = 1</code>)<br/>
@@ -188,6 +198,23 @@ Fundamental scale of gravity in <i>D = 4 + n</i> dimensions.
 Ultraviolet cutoff parameter for the virtual graviton exchange processes.
   
 
+<p/><code>mode&nbsp; </code><strong> ExtraDimensionsLED:CutOffmode &nbsp;</strong> 
+ (<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 3</code>)<br/>
+Options for when the hard scale of the process (e.g. <i>sHat</i>) 
+approaches or exceed the scale of validity of the low energy effective 
+theory (e.g. <i>M_D</i>). Note: Option 1 only concerns the graviton 
+emission processes.
+<br/><code>option </code><strong> 0</strong> : Do nothing, i.e. all values of <i>sHat</i> contribute.  
+<br/><code>option </code><strong> 1</strong> : Truncate contributing <i>sHat</i> region ([<a href="Bibliography.html" target="page">Ask09</a>]).  
+<br/><code>option </code><strong> 2</strong> : Form factor, using <i>mu = renormScale2</i> (further information below).  
+<br/><code>option </code><strong> 3</strong> : Form factor, using <i>mu = E_jet</i>(further information below).  
+  
+
+<p/><code>parm&nbsp; </code><strong> ExtraDimensionsLED:t &nbsp;</strong> 
+ (<code>default = <strong>1.</strong></code>; <code>minimum = 0.001</code>)<br/>
+Form factor parameter (further information below).
+  
+
 <h3>Unparticles, production processes</h3>
 
 As mentioned above, the similar unparticle and graviton processes 
@@ -199,12 +226,36 @@ common implementations are given below.
 
 <p/>
 All unparticle processes follow the parameter conventions described in 
-[<a href="Bibliography.html" target="page">Ask09</a>]. As also discussed in [<a href="Bibliography.html" target="page">Ask09</a>], the underlying 
-Breit-Wigner mass distribution has to be matched to the graviton mass 
-spectrum in order to achieve a high MC efficiency. 
+[<a href="Bibliography.html" target="page">Ask09</a>]. As also discussed in [<a href="Bibliography.html" target="page">Ask09</a>], for unparticle 
+emission the underlying Breit-Wigner mass distribution has to be matched 
+to the unparticle mass spectrum in order to achieve a high MC efficiency. 
 
 <p/>
 The following unparticle emission processes are available.
+
+<p/><code>flag&nbsp; </code><strong> ExtraDimensionsUnpart:monojet &nbsp;</strong> 
+ (<code>default = <strong>off</strong></code>)<br/>
+Common switch for the group of lowest-order <i>U jet</i> emission
+processes, i.e. the three ones below.
+  
+
+<p/><code>flag&nbsp; </code><strong> ExtraDimensionsUnpart:gg2Ug &nbsp;</strong> 
+ (<code>default = <strong>off</strong></code>)<br/>
+Scatterings <i>g g -> U g</i>. 
+Code 5045.
+  
+
+<p/><code>flag&nbsp; </code><strong> ExtraDimensionsUnpart:qg2Uq &nbsp;</strong> 
+ (<code>default = <strong>off</strong></code>)<br/>
+Scatterings <i>q g -> U q</i>. 
+Code 5046.
+  
+
+<p/><code>flag&nbsp; </code><strong> ExtraDimensionsUnpart:qqbar2Ug &nbsp;</strong> 
+ (<code>default = <strong>off</strong></code>)<br/>
+Scatterings <i>q qbar -> U g</i>. 
+Code 5047.
+  
 
 <p/><code>flag&nbsp; </code><strong> ExtraDimensionsUnpart:ffbar2UZ &nbsp;</strong> 
  (<code>default = <strong>off</strong></code>)<br/>
@@ -214,7 +265,9 @@ Code 5041.
 
 <p/><code>flag&nbsp; </code><strong> ExtraDimensionsUnpart:ffbar2Ugamma &nbsp;</strong> 
  (<code>default = <strong>off</strong></code>)<br/>
-Scatterings <i>f fbar -> U gamma</i>. 
+Scatterings <i>f fbar -> U gamma</i>. This process corresponds 
+to the photon limit of the <i>U Z</i> process, as described in 
+[<a href="Bibliography.html" target="page">Ask09</a>].
 Code 5042.
   
 
@@ -227,22 +280,33 @@ Scatterings <i>f fbar -> (U*) -> gamma gamma</i>. If the unparticle
 contribution is zero in the spin-2 case, the results corresponds to 
 the SM contribution, i.e. equivalent to 
 <code>PromptPhoton:ffbar2gammagamma</code>.
-This is also the case if the model parameter settings are not applicable. 
 Code 5043.
   
 
 <p/><code>flag&nbsp; </code><strong> ExtraDimensionsUnpart:gg2gammagamma &nbsp;</strong> 
  (<code>default = <strong>off</strong></code>)<br/>
-Scatterings <i>gg -> (U*) -> gamma gamma</i>. 
+Scatterings <i>g g -> (U*) -> gamma gamma</i>. 
 Code 5044.
   
 
-<h3>Unparticles, parameters</h3>
-
-<p/><code>flag&nbsp; </code><strong> ExtraDimensionsUnpart:Trunc &nbsp;</strong> 
+<p/><code>flag&nbsp; </code><strong> ExtraDimensionsUnpart:ffbar2llbar &nbsp;</strong> 
  (<code>default = <strong>off</strong></code>)<br/>
-Option to truncate the unparticle mass spectrum.
+Scatterings <i>f fbar -> (U*) -> l l </i>, where 
+<i>l</i> is a charged lepton. If the unparticle contribution 
+is zero, the results corresponds to the SM contribution, i.e. 
+similar to <code>WeakSingleBoson:ffbar2gmZ</code>. Does not 
+include t-channel amplitude relevant for e^+e^- to e^+e^- 
+and no K-factor is used.
+Code 5048.
   
+
+<p/><code>flag&nbsp; </code><strong> ExtraDimensionsUnpart:gg2llbar &nbsp;</strong> 
+ (<code>default = <strong>off</strong></code>)<br/>
+Scatterings <i>g g -> (U*) -> l l</i>. 
+Code 5049.
+  
+
+<h3>Unparticles, parameters</h3>
 
 <p/><code>mode&nbsp; </code><strong> ExtraDimensionsUnpart:spinU &nbsp;</strong> 
  (<code>default = <strong>2</strong></code>; <code>minimum = 0</code>; <code>maximum = 2</code>)<br/>
@@ -261,7 +325,7 @@ Unparticle renormalization scale.
 
 <p/><code>parm&nbsp; </code><strong> ExtraDimensionsUnpart:lambda &nbsp;</strong> 
  (<code>default = <strong>1.0</strong></code>)<br/>
-Unparticle coupling to the SM fields
+Unparticle coupling to the SM fields.
   
 
 <p/><code>parm&nbsp; </code><strong> ExtraDimensionsUnpart:ratio &nbsp;</strong> 
@@ -272,6 +336,33 @@ give rise to an IR divergence which makes the event generation very slow, so
 this values is fixed to <i>ratio = 1</i> for the moment.
   
 
+<p/><code>mode&nbsp; </code><strong> ExtraDimensionsUnpart:CutOffmode &nbsp;</strong> 
+ (<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 1</code>)<br/>
+Options for when the hard scale of the process (e.g. <i>sHat</i>) 
+approaches or exceed the scale of validity of the low energy effective 
+theory (<i>Lambda_U</i>). This mode only concerns the unparticle emission processes. 
+<br/><code>option </code><strong> 0</strong> : Do nothing, i.e. all values of <i>sHat</i> contribute.  
+<br/><code>option </code><strong> 1</strong> : Truncate contributing <i>sHat</i> region ([<a href="Bibliography.html" target="page">Ask09</a>]).  
+  
+
+<p/><code>mode&nbsp; </code><strong> ExtraDimensionsUnpart:gXX &nbsp;</strong> 
+ (<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 2</code>)<br/>
+Chiral unparticle couplings, <i>gXX = gLL = gRR</i>. Only relevant 
+for lepton production from spin-1 unparticle exchange. 
+<br/><code>option </code><strong> 0</strong> : 1  
+<br/><code>option </code><strong> 1</strong> : -1  
+<br/><code>option </code><strong> 2</strong> : 0  
+  
+
+<p/><code>mode&nbsp; </code><strong> ExtraDimensionsUnpart:gXY &nbsp;</strong> 
+ (<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 2</code>)<br/>
+Chiral unparticle couplings, <i>gXY = gLR = gRL</i>. Only relevant 
+for lepton production from spin-1 unparticle exchange. 
+<br/><code>option </code><strong> 0</strong> : 1  
+<br/><code>option </code><strong> 1</strong> : -1  
+<br/><code>option </code><strong> 2</strong> : 0  
+  
+
 <h3>Common LED and unparticle implementation</h3>
 
 Since the cross sections of the available LED and corresponding (spin-2) 
@@ -280,21 +371,46 @@ same implementation. The intention is that this should both minimize the
 amount of code needed as well as emphasize the rather small differences 
 between the models from a phenomenological point of view.
 
-The main documentation for the common LED/unparticle implementation together 
-with the parameter conventions used is presented in [<a href="Bibliography.html" target="page">Ask09</a>]. Since 
-this paper is focused on graviton/unparticle emission some complementary 
+<p/>
+The main documentation for the common LED graviton/unparticle implementation 
+together with the parameter conventions used is presented in [<a href="Bibliography.html" target="page">Ask09</a>]. 
+Since this paper is focused on graviton/unparticle emission some complementary 
 information, not covered in [<a href="Bibliography.html" target="page">Ask09</a>], is summarized below.
 
+<p/>
 The spin-2 unparticle and graviton processes share the same matrix 
-elements (ME). MEs were taken from the following papers: 
-(monojets) [<a href="Bibliography.html" target="page">Giu99</a>], (mono-Z or -photon) [<a href="Bibliography.html" target="page">Che07</a>] 
-(gammagamma) [<a href="Bibliography.html" target="page">Kum08</a>]. 
+elements (ME), apart from monojet production where only graviton emission 
+is available in the case of spin-2. MEs were taken from the following papers: 
+(monojets) [<a href="Bibliography.html" target="page">Giu99</a>], [<a href="Bibliography.html" target="page">Che07</a>], [<a href="Bibliography.html" target="page">Riz08</a>], 
+(mono-Z or -photon) [<a href="Bibliography.html" target="page">Che07</a>],  
+(gammagamma) [<a href="Bibliography.html" target="page">Che07</a>], [<a href="Bibliography.html" target="page">Kum08</a>],
+(llbar) [<a href="Bibliography.html" target="page">Che07</a>].
 All unparticle processes (spin-0, spin-1 and spin-2) have an universal 
 unparticle - SM coupling, <i>lambda</i>, implemented according to the 
 effective operators in [<a href="Bibliography.html" target="page">Che07</a>]. The virtual graviton exchange 
 processes are obtained from the spin-2 unparticle MEs by setting 
 <i>dU = 2</i> and <i>lambda^2 * Chi = 4 pi</i>, which reproduces 
-the graviton formulas in [<a href="Bibliography.html" target="page">Giu99</a>] and [<a href="Bibliography.html" target="page">Giu04</a>].
+the graviton formulas also in [<a href="Bibliography.html" target="page">Giu04</a>].
+
+<h3>Form factor</h3>
+
+For the LED processes a form factor of the coupling to gravity in extra 
+dimensions have been implemented according to [<a href="Bibliography.html" target="page">Hew07</a>]. The form 
+factor becomes relevant as the hard scale, <i>mu^2</i>, of the process 
+approaches the D-dimensional Planck scale. It depends on one additional 
+parameter, <i>t</i>, which is related the unknown details of how the 
+gravitational coupling runs. <i>t</i> is of order 1 and [<a href="Bibliography.html" target="page">Hew07</a>] 
+argues that it should be less than or about 2.
+
+<p/>
+If the option <code>ExtraDimensionsLED:CutOffmode = 2</code> is used the 
+hard scale <i>mu^2</i> is set by using <code>SigmaProcess:renormScale2</code>. 
+In this case the options 1 and 4 corresponds to what was used in 
+[<a href="Bibliography.html" target="page">Hew07</a>] for the graviton emission and virtual graviton exchange 
+processes respectively. For the graviton emission processes it is also 
+possible to use <i>mu = E_jet</i> in the center-of-mass system by 
+setting <code>ExtraDimensionsLED:CutOffmode = 3</code>. Option 2 and 3 are 
+equivalent for the virtual graviton exchange.
 
 </body>
 </html>

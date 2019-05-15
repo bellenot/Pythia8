@@ -22,23 +22,23 @@ to be viewed in the context of a complete <aloc href="Tunes">tune</aloc>.
 
 The main parameters of the selection of a new flavour are 
 
-<parm name="StringFlav:probStoUD" default="0.30" min="0.0" max="1.0">
+<parm name="StringFlav:probStoUD" default="0.19" min="0.0" max="1.0">
 the suppression of <ei>s</ei> quark production relative to ordinary 
 <ei>u</ei> or <ei>d</ei> one.
 </parm> 
 
-<parm name="StringFlav:probQQtoQ" default="0.10" min="0.0" max="1.0">
+<parm name="StringFlav:probQQtoQ" default="0.09" min="0.0" max="1.0">
 the suppression of diquark production relative to quark production,
 i.e. of baryon relative to meson production. 
 </parm> 
 
-<parm name="StringFlav:probSQtoQQ" default="0.4" min="0.0" max="1.0">
+<parm name="StringFlav:probSQtoQQ" default="1.00" min="0.0" max="1.0">
 the suppression of strange diquark production relative to light
 diquark production, over and above the one already given by 
 <code>probStoU</code>.
 </parm> 
  
-<parm name="StringFlav:probQQ1toQQ0" default="0.05" min="0.0" max="1.0">
+<parm name="StringFlav:probQQ1toQQ0" default="0.027" min="0.0" max="1.0">
 the suppression of spin 1 diquark production relative to spin 0 one,
 apart from the factor of 3 enhancement of spin 0 from counting the
 number of states.
@@ -59,14 +59,14 @@ spin-counting rules, but we expect the real rates to be lower,
 especially for lighter mesons, owing to the vector-pseudoscalar
 mass splitting.
 
-<parm name="StringFlav:mesonUDvector" default="1.0" min="0." max="3.">
+<parm name="StringFlav:mesonUDvector" default="0.62" min="0." max="3.">
 the relative production ratio vector/pseudoscalar for light 
 (<ei>u</ei>, <ei>d</ei>) mesons. 
 </parm> 
-<parm name="StringFlav:mesonSvector" default="1.5" min="0." max="3.">
+<parm name="StringFlav:mesonSvector" default="0.725" min="0." max="3.">
 the relative production ratio vector/pseudoscalar for strange mesons. 
 </parm> 
-<parm name="StringFlav:mesonCvector" default="2.5" min="0." max="3.">
+<parm name="StringFlav:mesonCvector" default="1.06" min="0." max="3.">
 the relative production ratio vector/pseudoscalar for charm mesons. 
 </parm> 
 <parm name="StringFlav:mesonBvector" default="3.0" min="0." max="3.">
@@ -107,13 +107,13 @@ with <ei>phi</ei>.
 Further, the simple model overestimates the production of <ei>eta</ei> 
 and, in particular, <ei>eta'</ei> mesons, which can be rectified by 
 
-<parm name="StringFlav:etaSup" default="1.0" min="0." max="1.">
+<parm name="StringFlav:etaSup" default="0.63" min="0." max="1.">
 the additional suppression of <ei>eta</ei> production, multiplying the 
 normal production probability. Thus 0 means no <ei>eta</ei> at all 
 are produced, while 1 means full rate.
 </parm> 
 
-<parm name="StringFlav:etaPrimeSup" default="0.4" min="0." max="1.">
+<parm name="StringFlav:etaPrimeSup" default="0.12" min="0." max="1.">
 the additional suppression of <ei>eta'</ei> production, multiplying the 
 normal production probability. Thus 0 means no <ei>eta'</ei> at all 
 are produced, while 1 means full rate.

@@ -24,25 +24,11 @@ so there is less need to trace changed behaviour.</li>
 
 <ul>
 
-<li>8.101: 10 November 2007
+<li>8.105: 24 February 2008
 <ul>
 
 <li>New option to initialize with arbitrary beam directions<br/>
 <code>pythia.init( idA, idB, pxA, pyA, pzA, pxB, pyB, pzB)</code></li>
-
-<li>The <code>LHAevnt</code> and <code>LHAinit</code> classes have been 
-joined into a new <code>LHAup</code> one, with new options that allow 
-the writing of a Les Houches Event File.</li>
-
-</ul>
-</li>
-
-<li>8.102: 6 December 2007
-<ul>
-
-<li>Limited capability to use two different <code>Pythia</code> instances 
-for signal + pileup event generation, see <code>main19.cc</code> for an 
-example.</li> 
 
 <li>Added capability to set <aloc href="BeamParameters">beam energy spread 
 and beam vertex</aloc>.
@@ -70,29 +56,6 @@ regrouped, as follows:
      <td><code>Beams:LHEF        </code></td> </tr>
 </table></li>
 
-</ul>
-</li>
-
-<li>8.103: 22 January 2008
-<ul>
-
-<li>Updated HepMC conversion routine.</li>
-
-<li>In the <code>Event</code> class the <code>=</code> and 
-<code>=+</code> methods have been overloaded to allow the copying 
-or appending of event records. Illustrated in <code>main19.cc</code>.</li>
-
-</ul>
-</li>
-
-<li>8.104: 14 February 2008
-<ul>
-
-<li>Updated configure scripts.</li>
-
-<li>The <code>SusyLesHouches</code> class updated to handle 
-SLHA version 2.</li>
-
 <li>The <code>forceHadronLevel()</code> method introduced for standalone 
 hadronization.</li>
 
@@ -100,39 +63,42 @@ hadronization.</li>
 only decays of some particles can be looped over for the rest of the 
 event retained.</li>
 
-<li>The html and php page formatting improved with 
-cascading style sheets.</li>
+<li>The <code>LHAevnt</code> and <code>LHAinit</code> classes have been 
+joined into a new <code>LHAup</code> one, with new options that allow 
+the writing of a Les Houches Event File.</li>
+
+<li>The <code>SusyLesHouches</code> class updated to handle 
+SLHA version 2.</li>
+
+<li>Updated HepMC conversion routine.</li>
 
 <li>The static <code>ErrorMsg</code> class has been removed and 
 its functionality moved into the non-static <code>Info</code> class,
 in the renamed Info file.</li>
-
-</ul>
-</li>
-
-<li>8.105: 24 February 2008
-<ul>
 
 <li>Further reduction of the use of static, with related code changes.
 This should allow to have several almost independent <code>Pythia</code> 
 instances. Some static classes still remain, however, notably for
 random number generation and particle properties.</li>
 
-<li>Several minor improvements and new options.</li>
+<li>Limited capability to use two different <code>Pythia</code> instances 
+for signal + pileup event generation, see <code>main19.cc</code> for an 
+example.</li> 
+
+<li>In the <code>Event</code> class the <code>=</code> and 
+<code>=+</code> methods have been overloaded to allow the copying 
+or appending of event records. Illustrated in <code>main19.cc</code>.</li>
+
+<li>The html and php page formatting improved with 
+cascading style sheets.</li>
+
+<li>Several minor improvements and new options, including updated configure 
+scripts.</li>
 
 </ul>
 </li>
 
-<li>8.106: 11 March 2008
-<ul>
-
-<li>Improved handling of the Higgs width, relevant for massive and thereby
-broad resonance shapes.</li>
-
-</ul>
-</li>
-
-<li>8.107: 17 March 2008
+<li>8.108: 1 May 2008
 <ul>
 
 <li>Correction in the event record, so that the beam particles in line 
@@ -140,12 +106,6 @@ broad resonance shapes.</li>
 method. Previously the "system" entry in line 0 was counted as their 
 mother, which gave rise to an unexpected extra vertex in the conversion 
 to the HepMC format.</li>
-
-</ul>
-</li>
-
-<li>8.108: 1 May 2008
-<ul>
 
 <li>Support for HepMC version 1 is removed, to simplify the code and 
 reflect the evolution of the field.</li>
@@ -160,13 +120,11 @@ rather than the <ei>f(x,Q^2)</ei> used in (some) previous versions.</li>
 <li>The SusyLesHouches class has ben updated so that reading is fully
 compatible with the SLHA2 standard. </li>
 
+<li>Improved handling of the Higgs width, relevant for massive and thereby
+broad resonance shapes.</li>
+
 <li>The matrix elements for neutralino pair production have now been
 completed and checked.</li>
-
-<li>A new compilation option <code>-Wshadow</code> is introduced and 
-code is rewritten at all places where this option gave warnings.</li>
-
-<li>Minor library correction to allow compilation with gcc 4.3.0.</li>
 
 <li>Ensure that <ei>alpha_strong</ei> does not blow up, by introducing 
 a minimal scale somewhat above <ei>Lambda_3</ei> (roughly where
@@ -178,6 +136,11 @@ in the <code>Info</code> class.</li>
 <li>Protection against division by zero in calculation of decay vertex
 (for zero-mass gluons with zero lifetime, where there should be no
 displacement).</li>
+
+<li>A new compilation option <code>-Wshadow</code> is introduced and 
+code is rewritten at all places where this option gave warnings.</li>
+
+<li>Minor library correction to allow compilation with gcc 4.3.0.</li>
 
 </ul>
 </li>
@@ -307,6 +270,225 @@ in program execution.</li>
 <li>A few further minor bug fixes.</li>
 
 <li>Update year to 2009.</li>
+
+</ul>
+</li>
+
+<li>8.125: 16 June 2009
+<ul>
+
+<li>Hadronization and timlike-shower parameter default values updated 
+according to a tune to LEP1 data by Hendrik Hoeth, using the 
+Rivet + Professor framework.</li>
+
+<li>Many further SUSY production processes. SLHA readin expanded to cover 
+also masses and decay modes. Example <code>main22</code> updated, while 
+<code>main33</code> now superfluous and removed. </li>
+
+<li>Also further processes for extra dimensions.</li>
+
+<li>Stefan Ask joins as coauthor.</li>
+
+<li>The <code>TimeShower::shower(...)</code> method has gained
+a new argument, that forces the shower evolution to stop after
+a given number of branchings. A new method 
+<code>TimeShower::pTLastInShower()</code> permits the last evolution
+<ei>pT</ei> to be read out. These extensions can be useful 
+for matching studies.
+</li>
+
+<li>New optional argument <code>isInterleaved</code> added to 
+<code>TimeShower::branch(...)</code>. Is false by default, but
+true when called from the parton level for interleaved evolution
+of several parton systems, optionally also with ISR and MI.</li>
+
+<li>New methods <code>UserHooks::canSetResonanceScale()</code>
+and <code>UserHooks:scaleResonance(...)</code> allows an optional 
+user choice of the maximum shower scale in resonance decays.</li>
+
+<li>A new method <code>SpaceShower::doRestart()</code> has been 
+added, to help distinguish cases when a
+<code>SpaceShower::branch(...)</code> failure forces a complete
+restart of the evolution from ones where only the intended
+current branching has been vetoed.
+
+<li>When multiple interactions are initialized, it is now 
+possible to reduce both <ei>pT0</ei> and <ei>pTmin</ei>
+if necessary to find a valid solution where 
+<ei>sigma_jet &gt; sigma_nondiffractive</ei>. Previously
+only the former would be reduced, which could lead to 
+infinite loops if too large a <ei>pTmin</ei> was used.
+Thanks to Sami Kama for pointing out the problem.
+</li>
+
+<li>The rescattering machinery is now essentially completed, and can
+be used also by others than the authors. For now, however, it can only
+be recommended for dedicated studies, not e.g. for generic tunes.
+</li>
+
+<li>Timelike and spacelike showers, and beam remnant handling, 
+are modified to handle rescattering partons. Specifically, a new machinery 
+is introduced to trace the recoils from the combination of rescattering 
+with showers and primordial <ei>kT</ei>. Can assign space- or timelike 
+virtualities to intermediate particles to have energy and momentum 
+conserved locally. This affects the <code>PartonLevel</code>, 
+<code>MultipleInteractions</code>, <code>TimeShower</code>, 
+<code>SpaceShowe</code>r and <code>BeamRemnants</code> classes. 
+Further details to appear in the upcoming article on rescattering. 
+(Another change is a reversal to pre-8.114 order for non-interleaved FSR,
+wherein also FSR is treated before beam remnants are attached.)
+</li>
+
+<li>Four new status codes introduced, as part of the rescattering 
+description:
+<br/>45 : incoming rescattered parton, with changed kinematics owing
+to ISR in the mother system (cf. status 34);
+<br/>46 : incoming copy of recoiler when this is a rescattered parton
+(cf. status 42);
+<br/>54 : copy of a recoiler, when in the initial state of a different 
+system from the radiator;
+<br/>55 : copy of a recoiler, when in the final state of a different 
+system from the radiator.
+</li>
+
+<li>New method <code>Info::tooLowPTmin()</code> can tell whether the 
+<ei>pTmin</ei> scales for showers or multiple interactions are too low. 
+</li>
+
+<li>Pion beams allowed, both <ei>pi^+</ei>, <ei>pi^-</ei> and 
+<ei>pi^0</ei>. New machinery for the latter, where the valence 
+flavour content is chosen to be either <ei>d dbar</ei> or 
+<ei>u ubar</ei> for each new event. One internal pion PDF 
+implemented, with others from LHAPDF.</li>
+
+<li>Treatment of Pomeron-proton collisions begun.</li>
+
+<li>Phase-space handling of hard processes and multiple interactions
+slightly expanded to better allow for harder PDF's than proton ones,
+e.g. for Pomerons.</li>
+
+<li>The program documentation has been expanded with an
+alphabetical index of all methods that are described on the 
+webpages, see the <aloc href="ProgramMethods">Program Methods</aloc> 
+page. Also other sections of the documentation have been
+updated and expanded, including the worksheet.</li>
+
+<li>Several <code>list</code> methods have been made 
+<code>const</code>. For the listing of events two new methods
+have been added, <code>Event::list()</code> and 
+<code>Event::list(bool showScaleAndVertex, 
+bool showMothersAndDaughters = false)</code>,
+that correspond to special cases of the general method.</li>
+
+<li>A new method <code>Pythia::LHAeventSkip(int nSkip)</code>
+permits a skip-ahead of the reading of external Les Houches 
+Events, without the necessity to generate the intervening 
+<code>nSkip</code> events in full. Makes use of the new 
+<code>LHAup::skipEvent(int nSkip)</code> method to perform 
+the operations. Mainly intended for debug purposes.
+
+<li>The <code>ClusterJet</code> jet finder now saves the last
+five clustering scales. Also a minor bug fix. Thanks to Nils 
+Lavesson for this contribution.</li>
+
+<li>The <code>Particle::m2()</code> method now returns a negative 
+number when the stored mass <ei>m</ei> is negative, as used to 
+indicate spacelike virtualities. Also the 
+<code>Particle::eCalc()</code>, <code>Particle::mT()</code> and
+<code>Particle::mT2()</code> methods have been modified.
+</li>
+
+<li>The <code>&lt;&lt;</code> method to print our a four-vector has 
+been expanded with a fifth number, the invariant length, with a minus
+sign for spacelike vectors, and provided within brackets to allow
+a simple visual distinction.</li>
+
+<li>New methods <code>Rndm::dumpState(string fileName)</code> and
+<code>Rndm::readState(string fileName)</code> allows to write or
+read the state of the random number generator to or from a binary file.
+</li>
+
+<li>New method <code>double GammaReal(double x)</code> returns the 
+value of the <ei>Gamma</ei> function for arbitrary real argument.
+Some cross sections for extra-dimensional processes rewritten to
+make use of it.
+</li>
+
+<li>New example program <code>main29</code> shows how 
+to set up a fictitious process of a heavy system decaying
+to two particles or partons, with decays traced to stable
+particles, as relevant for astroparticle applications.</li>
+
+<li>Main programs that illustrate the HepMC interface have
+been updated to use version 2.04, including units and excluding
+deprecated output formats.</li>
+
+<li>The <code>main32</code> example extended also to handle 
+Les Houches Event Files.</li>
+
+<li>The Makefile has been modified so that "make clean" only
+removes the current compilation and library fles, while 
+"make distclean" gives a more extensive reset and cleanup.
+Thanks to Nils Lavesson for this contribution. Some other
+minor Makefile corrections.</li>
+
+<li>Several main programs that use the 
+<code>Main:timesToShow</code> mode have been corrected so as 
+not to crash if this is set to zero. Also some other cosmetics
+changes in main programs that do not affect the running.</li>
+
+<li>Bug correction, in that previously a veto with user hooks 
+was not propagated from parton showers inside resonance decays.
+</li>
+
+<li>Minor bug fix in <code>TimeShower</code> for kinematics with 
+unequal beam-particle masses.</li>
+
+<li>Bug fix so that <code>PartonLevel:MI = off</code> also works for 
+minimum-bias events.</li>
+
+<li>Minor bug fix in the impact-parameter selection of multiple 
+interactions. Thanks to Sami Kama for pointing it out.</li>
+
+<li>String fragmentation for junction topology protected against 
+numerical instability in boost.</li>
+
+<li>Bug correction in the handling of particle decays to partons,
+where the scale of the partons was set before the partons had been
+added to some arrays, leading to indexation out of bounds. 
+Thanks to Vladislav Burylov for discovering this bug.
+</li>
+
+<li>Bug correction in the handling of particles with inhibited decay, 
+where the decay vertex would be too far displaced, which could lead to
+infinite loop. Thanks to Sami Kama for debugging this. </li>
+
+<li>Check to avoid infinite loop in matrix-element handling of 
+two-body decays.</li>
+
+<li>Bug correction to avoid infinite loops in Dalitz decay treatment.
+Some changes in the decay handling logic to allow a new try when the 
+decay of a particle fails.</li>
+
+<li>Minor correction, so the pointer to the <code>Info</code> class
+is set also for user-written classes derived from <code>LHAup</code>. 
+</li>
+
+<li>Correction for typo in the matrix element of the
+<code>Sigma3ff2HchgchgfftWW</code> class, for doubly charged Higgs
+production. Thanks to Merlin Kole for spotting it.</li>
+
+<li>Updated colour bookkeeping in junction-antijunction annihilation 
+avoids later problems in <code>Pythia::check()</code>. </li>
+
+<li>Minor updates of the <code>Makefile.msc</code> file to work with 
+Visual Studio 2008. Thanks to David Bailey for these modifications.</li>
+
+<li>Ensure that <code>nInit</code> in the <code>BeamParticle</code>
+class is set also for unresolved lepton beams.</li>
+
+<li>The <code>VetoEvolution</code> class, derived from 
+<code>UserHooks</code>, is obsolete and has been removed.</li>
 
 </ul>
 </li>

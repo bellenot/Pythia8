@@ -35,6 +35,7 @@ the number of errors encountered. This is done with the
 <code>pythia.statistics()</code> method, assuming <code>pythia</code> is 
 an instance of the <code>Pythia</code> class: 
 
+<a name="method1"></a>
 <p/><strong>void Pythia::statistics(bool all = false, bool reset = false) &nbsp;</strong> <br/>
 write out statistics on cross sections and errors. This is based on
 calls to the methods below, for the two kinds of information. 

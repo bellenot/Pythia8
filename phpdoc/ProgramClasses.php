@@ -41,6 +41,7 @@ classes you can find described where on these pages. Normally
 you have to scroll down to find the details, since the top of
 the page contains information of more general interest.
 
+<p/>
 <table cellspacing="5">
 
 <tr> 
@@ -192,5 +193,11 @@ echo "<a href='.php?filepath=".$filepath."' target='page'>";?></a></td>
 </tr>
 
 </table>
+
+<p/>
+You can also access an extensive list of the public 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='ProgramMethods.php?filepath=".$filepath."' target='page'>";?>methods</a> in these classes, 
+which compensates for the brevity of the current page. 
 
 <!-- Copyright (C) 2009 Torbjorn Sjostrand -->

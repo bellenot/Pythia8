@@ -29,13 +29,14 @@
 
 using namespace Pythia8;
 
+// Experimental cross section
 // sigma(W -> ev + >= n-jet; ET(n'th-jet) > 25GeV), n = 0, 1, 2, 3, 4
 const double expCrossSec[] = { 798.0, 53.5, 6.8, 0.84, 0.074 };
 
 int main() {
   // Settings
   int  nEvent = 10000;
-  bool doMI = true;
+  bool doMI   = true;
     
   // Generator
   Pythia pythia;
@@ -49,7 +50,7 @@ int main() {
   if (doMI == false)
     pythia.readString("PartonLevel:MI = off");
 
-  // Initialisation
+  // Initialisation, p pbar @ 1.96 TeV
   pythia.init( 2212, -2212, 1960.);
 
   // Histograms
@@ -58,85 +59,96 @@ int main() {
   Hist dSigma3("3-jet cross-section (E_jet3 > 20 GeV)", 16, 0.0, 80.0);
   Hist dSigma4("4-jet cross-section (E_jet4 > 20 GeV)",  7, 0.0, 35.0);
   Hist *dSigmaHist[5] = { NULL, &dSigma1, &dSigma2, &dSigma3, &dSigma4 };
+  double dSigmaBin[5] = { 0.0, 350.0 / 70.0, 190.0 / 38.0,
+                          80.0 / 16.0, 35.0 / 7.0 };
 
   // Fastjet analysis - select algorithm and parameters
   double Rparam = 0.4;
   fastjet::Strategy               strategy = fastjet::Best;
-  fastjet::RecombinationScheme    recomb_scheme = fastjet::E_scheme;
-  fastjet::JetDefinition         *jet_def = NULL;
-  jet_def = new fastjet::JetDefinition(fastjet::kt_algorithm, Rparam,
-                                       recomb_scheme, strategy);
+  fastjet::RecombinationScheme    recombScheme = fastjet::E_scheme;
+  fastjet::JetDefinition         *jetDef = NULL;
+  jetDef = new fastjet::JetDefinition(fastjet::kt_algorithm, Rparam,
+                                      recombScheme, strategy);
 
   // Fastjet input
   std::vector <fastjet::PseudoJet> fjInputs;
 
+  // Statistics for later
   int nEventAccept25[5] = { 0, 0, 0, 0, 0 };
   int vetoCount[4] = { 0, 0, 0, 0 };
-  const char *vetoStr[] = { "ET(elec)", "|eta(elec)|", "ET(missing)", 
-    "deltaR(elec, jet)" };
+  const char *vetoStr[] = { "ET(elec)", "|eta(elec)|",
+                            "ET(missing)", "deltaR(elec, jet)" };
   bool firstEvent = true;
 
   // Begin event loop. Generate event. Skip if error. List first one.
   for (int iEvent = 0; iEvent < nEvent; ++iEvent) {
+    if (iEvent % 10000 == 0) printf("Beginning event %d\n", iEvent);
     if (!pythia.next()) continue;
-    if (iEvent < 1) {pythia.info.list(); pythia.event.list();} 
-    if (iEvent % 10000 == 0) printf("Event %d\n", iEvent);
+    if (iEvent < 1) {
+      pythia.info.list();
+      pythia.event.list();
+    }
 
+    // Need to find the electron from the W decay - cheat a bit here
+    // and find it from the W in the event record
+    int idxW = -1;
+    for (int i = pythia.event.size() - 1; i > 0; i--) {
+      if (pythia.event[i].idAbs() == 24) {
+        idxW = i;
+        break;
+      }
+    }
+    if (idxW == -1) {
+      cout << "Error: Could not find W" << endl;
+      continue;
+    }
+
+    // Find the electron from the W decay
+    int idxElec = idxW;
+    while(true) {
+      int daughter = pythia.event[idxElec].daughter1();
+      if   (daughter == 0) break;
+      else                 idxElec = daughter;
+    }
+    if (pythia.event[idxElec].idAbs() != 11 ||
+       !pythia.event[idxElec].isFinal()) {
+      cout << "Error: Found incorrect decay product of the W" << endl;
+      continue;
+    }
+
+    // Electron cuts
+    if (pythia.event[idxElec].pT() < 20.0) {
+      vetoCount[0]++;
+      continue;
+    }
+    if (abs(pythia.event[idxElec].eta()) > 1.1) {
+      vetoCount[1]++;
+      continue;
+    }
+ 
     // Reset Fastjet input
     fjInputs.resize(0);
 
-    // Cuts
-    double missingET = 0.0;
-    Vec4   missingETvec = 0.0;
-    bool   vetoEvent = false;
-    int    haveElectron = 0, haveNeutrino = 0, haveW = 0;
+    // Keep track of missing ET
+    Vec4 missingETvec;
 
+    // Loop over event record to decide what to pass to FastJet
     for (int i = 0; i < pythia.event.size(); ++i) {
-      // Keep track of the W
-      if (pythia.event[i].idAbs() == 24)
-        haveW = i;
-
       // Final state only
-      if (!pythia.event[i].isFinal()) continue;
-
-      // Check for W decay products
-      if (pythia.event[i].status() == 23 || pythia.event[i].status() == 51
-       || pythia.event[i].status() == 52) {
-
-        // Electron cuts
-        if (pythia.event[i].idAbs() == 11) {
-          if (pythia.event[i].pT() <= 20.0) {
-            vetoCount[0]++;
-            vetoEvent = true;
-            break;
-          }
-          if (fabs(pythia.event[i].eta()) >= 1.1) {
-            vetoCount[1]++;
-            vetoEvent = true;
-            break;
-          }
-          missingETvec += pythia.event[i].p();
-          haveElectron = i;
-
-        // Neutrino cuts
-        } else if (pythia.event[i].idAbs() == 12) {
-          haveNeutrino = i;
-
-        }
-
-        // Don't include decay products for jet algorithm
-        continue;
-      }
-
-      // Only |eta| < 3.6
-      if (fabs(pythia.event[i].eta()) >= 3.6) continue;
+      if (!pythia.event[i].isFinal())        continue;
 
       // No neutrinos
-      if (pythia.event[i].id() == 12 || pythia.event[i].id() == 14 ||
-          pythia.event[i].id() == 16) continue;
+      if (pythia.event[i].idAbs() == 12 || pythia.event[i].idAbs() == 14 ||
+          pythia.event[i].idAbs() == 16)     continue;
+
+      // Only |eta| < 3.6
+      if (fabs(pythia.event[i].eta()) > 3.6) continue;
 
       // Missing ET
       missingETvec += pythia.event[i].p();
+
+      // Do not include the electron from the W decay
+      if (i == idxElec)                      continue;
 
       // Store as input to Fastjet
       fjInputs.push_back( fastjet::PseudoJet (pythia.event[i].px(),
@@ -144,59 +156,60 @@ int main() {
 						pythia.event[i].e() ) );
     }
 
-    // Check if event meets cuts
-    if (vetoEvent) continue;
-    if (haveElectron == 0 || haveNeutrino == 0) {
-      pythia.event.list();
-      cout << "Error: Couldn't find electron and neutrino decay products. "
-           << "Exiting.." << endl;
-      return 1;
+    if (fjInputs.size() == 0) {
+      cout << "Error: event with no final state particles" << endl;
+      continue;
     }
-    missingET = missingETvec.pT();
-    if (missingET <= 30.0) { vetoCount[2]++; continue; }
 
     // Run Fastjet algorithm
-    vector <fastjet::PseudoJet> inclusive_jets, sorted_jets;
-    if (fjInputs.size() != 0) {
-      fastjet::ClusterSequence clust_seq(fjInputs, *jet_def);
+    vector <fastjet::PseudoJet> inclusiveJets, sortedJets;
+    fastjet::ClusterSequence clustSeq(fjInputs, *jetDef);
 
-      if (firstEvent) {
-        cout << "Ran " << jet_def->description() << endl;
-        cout << "Strategy adopted by FastJet was "
-             << clust_seq.strategy_string() << endl << endl;
-        firstEvent = false;
-      }
-
-      // Extract inclusive jets sorted by pT
-      inclusive_jets = clust_seq.inclusive_jets();
-      sorted_jets    = sorted_by_pt(inclusive_jets);  
+    // For the first event, print the FastJet details
+    if (firstEvent) {
+      cout << "Ran " << jetDef->description() << endl;
+      cout << "Strategy adopted by FastJet was "
+           << clustSeq.strategy_string() << endl << endl;
+      firstEvent = false;
     }
 
-    int jetCount20 = 0, jetCount25 = 0;
-    for (unsigned int i = 0; i < sorted_jets.size(); i++) {
-      // Check deltaR between W decay electron and jets
-      fastjet::PseudoJet fjElec(pythia.event[haveElectron].px(),
-                                pythia.event[haveElectron].py(),
-                                pythia.event[haveElectron].pz(),
-                                pythia.event[haveElectron].e());
-      double deltaPhi = fjElec.phi() - sorted_jets[i].phi();
-      double deltaEta = fjElec.eta() - sorted_jets[i].eta();
-      double deltaR = sqrt(deltaPhi * deltaPhi + deltaEta * deltaEta);
-      if (deltaR <= 0.52) { vetoEvent = true; break; }
+    // Extract inclusive jets sorted by pT
+    inclusiveJets = clustSeq.inclusive_jets();
+    sortedJets    = sorted_by_pt(inclusiveJets);  
 
-      // Jet cut of |eta| < 2.0
-      if (fabs(sorted_jets[i].rap()) >= 2.0) continue;
+    // Missing ET cut
+    double missingET = missingETvec.pT();
+    if (missingET < 30.0) {
+      vetoCount[2]++;
+      continue;
+    }
+
+    // Keep track of jets with pT > 20/25 GeV
+    int  jetCount20 = 0, jetCount25 = 0;
+    // For the deltaR calculation below
+    bool vetoEvent = false;
+    fastjet::PseudoJet fjElec(pythia.event[idxElec].px(),
+                              pythia.event[idxElec].py(),
+                              pythia.event[idxElec].pz(),
+                              pythia.event[idxElec].e());
+ 
+    for (unsigned int i = 0; i < sortedJets.size(); i++) {
+      // Only count jets that have ET > 20.0 and |eta| < 2.0
+      if (sortedJets[i].perp()      < 20.0) break;
+      if (fabs(sortedJets[i].rap()) > 2.0)  continue;
+
+      // Check deltaR between W decay electron and jets
+      double deltaPhi = fjElec.phi() - sortedJets[i].phi();
+      double deltaEta = fjElec.eta() - sortedJets[i].eta();
+      double deltaR = sqrt(deltaPhi * deltaPhi + deltaEta * deltaEta);
+      if (deltaR < 0.52) { vetoEvent = true; break; }
 
       // Fill dSigma histograms and count jets with ET > 25.0
-      if (sorted_jets[i].perp() > 20.0) {
-        if (sorted_jets[i].perp() > 25.0)
-          jetCount25++;
+      if (sortedJets[i].perp() > 25.0)
+        jetCount25++;
 
-        if (jetCount20 <= 3)
-          dSigmaHist[++jetCount20]->fill(sorted_jets[i].perp());
-      } else
-        break;
-
+      if (jetCount20 <= 3)
+        dSigmaHist[++jetCount20]->fill(sortedJets[i].perp());
     }
     if (vetoEvent) { vetoCount[3]++; continue; }
 
@@ -214,7 +227,7 @@ int main() {
   double sigmapb = pythia.info.sigmaGen() * 1.0E9;
 
   for (int i = 1; i <= 4; i++)
-    (*dSigmaHist[i]) = ((*dSigmaHist[i]) * sigmapb) / nEvent;
+    (*dSigmaHist[i]) = ((*dSigmaHist[i]) * sigmapb) / nEvent / dSigmaBin[i];
   cout << dSigma1 << dSigma2 << dSigma3 << dSigma4 << endl;
 
   // Output cross-sections

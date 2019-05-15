@@ -20,10 +20,16 @@ namespace Pythia8 {
 // These are of technical nature, as described for each.
 
 // Number of times one tries to let decay happen (for 2 nested loops).
-const int ParticleDecays::NTRYDECAY      = 10;
+const int    ParticleDecays::NTRYDECAY   = 10;
 
 // Number of times one tries to pick valid hadronic content in decay.
-const int ParticleDecays::NTRYPICK       = 100;
+const int    ParticleDecays::NTRYPICK    = 100;
+
+// Number of times one tries to pick decay topology.
+const int    ParticleDecays::NTRYMEWT    = 1000;
+
+// Maximal loop count in Dalitz decay treatment.
+const int    ParticleDecays::NTRYDALITZ  = 1000;
 
 // Minimal Dalitz pair mass this factor above threshold.
 const double ParticleDecays::MSAFEDALITZ = 1.000001;
@@ -105,6 +111,8 @@ bool ParticleDecays::decay( int iDec, Event& event) {
 
   // Check whether a decay is allowed, given the upcoming decay vertex.
   Particle& decayer = event[iDec];
+  hasPartons  = false;
+  keepPartons = false;
   if (limitDecay && !checkVertex(decayer)) return true; 
 
   // Fill the decaying particle in slot 0 of arrays.  
@@ -115,7 +123,6 @@ bool ParticleDecays::decay( int iDec, Event& event) {
   iProd.push_back( iDec );
   idProd.push_back( idDec );
   mProd.push_back( decayer.m() );
-  bool foundChannel = false;
 
   // Check for oscillations B0 <-> B0bar or B_s0 <-> B_s0bar.
   bool hasOscillated = (abs(idDec) == 511 || abs(idDec) == 531) 
@@ -152,20 +159,30 @@ bool ParticleDecays::decay( int iDec, Event& event) {
   // Now begin normal internal decay treatment.
   if (!doneExternally) {
 
-    // Pick a decay channel; allow up to ten tries.
+    // Allow up to ten tries to pick a channel. 
     if (!decDataPtr->preparePick(idDec)) return false;
+    bool foundChannel = false;
+    bool hasStored    = false;
     for (int iTryChannel = 0; iTryChannel < NTRYDECAY; ++iTryChannel) {
+
+      // Remove previous failed channel. 
+      if (hasStored) event.popBack(mult);
+      hasStored = false;
+
+      // Pick new channel. Read out basics.
       DecayChannel& channel = decDataPtr->pickChannel();
       meMode = channel.meMode();
       keepPartons = (meMode > 90 && meMode <= 100);
       mult = channel.multiplicity();
 
       // Allow up to ten tries for each channel (e.g with different masses).
+      bool foundMode = false;
       for (int iTryMode = 0; iTryMode < NTRYDECAY; ++iTryMode) {
         idProd.resize(1);
         mProd.resize(1);
-      
-        // Extract and store the decay products.
+        scale = 0.;
+     
+        // Extract and store the decay products in local arrays.
         hasPartons = false;
         for (int i = 0; i < mult; ++i) {
           int idNow = channel.product(i);
@@ -198,54 +215,52 @@ bool ParticleDecays::decay( int iDec, Event& event) {
           if (mDiff < mSafety) continue;
         }
   
-        // End of two trial loops. Check if succeeded or not.
-        foundChannel = true;
+        // End of inner trial loops. Check if succeeded or not.
+        foundMode = true;
         break;
       }
-      if (foundChannel) break;
-    }
-    if (!foundChannel) {
-      infoPtr->errorMsg("Error in ParticleDecays::decay: "
-        "failed to find workable decay channel"); 
-      return false;
-    }
+      if (!foundMode) continue;
     
-    // Store decay products in the event record.
-    int status = (hasOscillated) ? 92 : 91;
-    for (int i = 1; i <= mult; ++i) {
-      int iPos = event.append( idProd[i], status, iDec, 0, 0, 0, 
-        cols[i], acols[i], Vec4(0., 0., 0., 0.), mProd[i]); 
-      iProd.push_back( iPos);
+      // Store decay products in the event record.
+      int status = (hasOscillated) ? 92 : 91;
+      for (int i = 1; i <= mult; ++i) {
+        int iPos = event.append( idProd[i], status, iDec, 0, 0, 0, 
+          cols[i], acols[i], Vec4(0., 0., 0., 0.), mProd[i], scale); 
+        iProd.push_back( iPos);
+      }
+      hasStored = true;
+
+      // Pick mass of Dalitz decay. Temporarily change multiplicity.
+      if ( (meMode == 11 || meMode == 12 || meMode == 13)
+        && !dalitzMass() ) continue;
+
+      // Do a decay, split by multiplicity.
+      bool decayed = false;
+      if      (mult == 1) decayed = oneBody(event);
+      else if (mult == 2) decayed = twoBody(event);
+      else if (mult == 3) decayed = threeBody(event);
+      else                decayed = mGenerator(event);
+      if (!decayed) continue;
+
+      // Kinematics of gamma* -> l- l+ in Dalitz decay. Restore multiplicity.
+      if (meMode == 11 || meMode == 12 || meMode == 13) 
+        dalitzKinematics(event);
+
+      // End of outer trial loops.
+      foundChannel = true;
+      break;
     }
-
-    // Pick mass of Dalitz decay. Temporarily change multiplicity.
-    if (meMode == 11 || meMode == 12 || meMode == 13) {
-      bool foundMass = dalitzMass();
-      if (!foundMass) {
-        event.popBack(mult);
-        return false;
-      } 
-    }   
-
-    // Do a decay, split by multiplicity.
-    bool decayed = false;
-    if      (mult == 1) decayed = oneBody(event);
-    else if (mult == 2) decayed = twoBody(event);
-    else if (mult == 3) decayed = threeBody(event);
-    else                decayed = mGenerator(event);
-
-    // Kinematics of gamma* -> l- l+ in Dalitz decay. Restore multiplicity.
-    if (meMode == 11 || meMode == 12 || meMode == 13) 
-      dalitzKinematics(event);
 
     // If the decay worked, then mark mother decayed and store daughters.
-    if (decayed) {
+    if (foundChannel) {
       event[iDec].statusNeg(); 
       event[iDec].daughters( iProd[1], iProd[mult]);
   
     // Else remove unused daughters and return failure.
     } else {
-      event.popBack(mult);
+      if (hasStored) event.popBack(mult);
+      infoPtr->errorMsg("Error in ParticleDecays::decay: "
+        "failed to find workable decay channel"); 
       return false;
     }
 
@@ -375,9 +390,11 @@ bool ParticleDecays::twoBody(Event& event) {
 
   // Begin loop over matrix-element corrections.
   double wtME, wtMEmax;
+  int loop = 0;
   do {
     wtME = 1.;
     wtMEmax = 1.;
+    ++loop;
 
     // Isotropic angles give three-momentum.
     double cosTheta = 2. * Rndm::flat() - 1.;
@@ -409,6 +426,13 @@ bool ParticleDecays::twoBody(Event& event) {
       wtME = max( wtME, 1e-6 * s1*s1 * s0 * s2);
       wtMEmax = (p10*p10 - s1 * s0) * (p12*p12 - s1 * s2);
     } 
+
+    // Break out of loop if no sensible ME weight.
+    if(loop > NTRYMEWT) {
+      infoPtr->errorMsg("ParticleDecays::twoBody: "
+        "caught in infinite ME weight loop");
+      wtME = abs(wtMEmax);
+    }    
 
   // If rejected, try again with new invariant masses.
   } while ( wtME < Rndm::flat() * wtMEmax ); 
@@ -728,10 +752,11 @@ bool ParticleDecays::dalitzMass() {
     // Kinematical limits for gamma* squared mass.
     double sGamMin = pow2(mSum2);
     double sGamMax = pow2(mProd[0] - mSum1);
-
     // Select virtual gamma squared mass. Guessed form for meMode == 12.
-    double sGam, wtGam; 
+    double sGam, wtGam;
+    int loop = 0; 
     do {
+      if (++loop > NTRYDALITZ) return false;
       sGam = sGamMin * pow( sGamMax / sGamMin, Rndm::flat() );
       wtGam = (1. + 0.5 * sGamMin / sGam) *  sqrt(1. - sGamMin / sGam) 
         * pow3(1. - sGam / sGamMax) * sRhoDal * (sRhoDal + wRhoDal) 
@@ -754,7 +779,9 @@ bool ParticleDecays::dalitzMass() {
 
     // Select virtual gamma squared masses. Guessed form for meMode == 13.
     double s12, s34, wt12, wt34, wtPAbs, wtAll; 
+    int loop = 0; 
     do {
+      if (++loop > NTRYDALITZ) return false;
       s12 = s12Min * pow( s12Max / s12Min, Rndm::flat() );
       wt12 = (1. + 0.5 * s12Min / s12) *  sqrt(1. - s12Min / s12) 
         * sRhoDal * (sRhoDal + wRhoDal) 
@@ -1205,8 +1232,7 @@ bool ParticleDecays::setColours(Event& event) {
   } else return false;
 
   // Set maximum scale to be mass of decaying particle.
-  double scale = mProd[0];
-  for (int i = 1; i <= mult; ++i) event[iProd[i]].scale(scale);
+  scale = mProd[0];
 
   // Done.
   return true;

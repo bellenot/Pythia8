@@ -66,7 +66,7 @@ tuned to data. They are stored in
 The <i>a</i> parameter of the Lund symmetric fragmentation function.
   
 
-<br/><br/><table><tr><td><strong>StringZ:bLund </td><td></td><td> <input type="text" name="2" value="0.58" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.58</strong></code>; <code>minimum = 0.2</code>; <code>maximum = 2.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StringZ:bLund </td><td></td><td> <input type="text" name="2" value="0.8" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.8</strong></code>; <code>minimum = 0.2</code>; <code>maximum = 2.0</code>)</td></tr></table>
 The <i>b</i> parameter of the Lund symmetric fragmentation function.
   
 
@@ -98,7 +98,7 @@ quark masses were uniquely defined) but can be set in
 <i>r_c</i>, i.e. the above parameter for <i>c</i> quarks.
   
 
-<br/><br/><table><tr><td><strong>StringZ:rFactB </td><td></td><td> <input type="text" name="5" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 2.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StringZ:rFactB </td><td></td><td> <input type="text" name="5" value="0.67" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.67</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 2.0</code>)</td></tr></table>
 <i>r_b</i>, i.e. the above parameter for <i>b</i> quarks.
   
 
@@ -169,7 +169,7 @@ Then the total squared width is
 </i><br/>
 It is this latter number that is stored in
 
-<br/><br/><table><tr><td><strong>StringPT:sigma </td><td></td><td> <input type="text" name="13" value="0.36" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.36</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 1.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StringPT:sigma </td><td></td><td> <input type="text" name="13" value="0.304" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.304</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 1.0</code>)</td></tr></table>
 the width <i>sigma</i> in the fragmentation process.
   
 
@@ -358,7 +358,7 @@ if($_POST["1"] != "0.3")
 $data = "StringZ:aLund = ".$_POST["1"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["2"] != "0.58")
+if($_POST["2"] != "0.8")
 {
 $data = "StringZ:bLund = ".$_POST["2"]."\n";
 fwrite($handle,$data);
@@ -373,7 +373,7 @@ if($_POST["4"] != "1.0")
 $data = "StringZ:rFactC = ".$_POST["4"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["5"] != "1.0")
+if($_POST["5"] != "0.67")
 {
 $data = "StringZ:rFactB = ".$_POST["5"]."\n";
 fwrite($handle,$data);
@@ -413,7 +413,7 @@ if($_POST["12"] != "0.005")
 $data = "StringZ:epsilonH = ".$_POST["12"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["13"] != "0.36")
+if($_POST["13"] != "0.304")
 {
 $data = "StringPT:sigma = ".$_POST["13"]."\n";
 fwrite($handle,$data);

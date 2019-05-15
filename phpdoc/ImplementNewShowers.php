@@ -152,13 +152,26 @@ class.
 <h3>The TimeShower interface</h3>
 
 If you want to replace the <code>TimeShower</code> class this would
-involve replacing the following methods.
+involve replacing the virtual methods among the following ones.
 
-<p/><strong>TimeShower() &nbsp;</strong> <br/>
+<a name="method1"></a>
+<p/><strong>TimeShower::TimeShower() &nbsp;</strong> <br/>
 The constructor does not need to do anything.
   
 
-<p/><strong>void init( BeamParticle* beamAPtrIn = 0, BeamParticle* beamBPtrIn = 0) &nbsp;</strong> <br/>
+<a name="method2"></a>
+<p/><strong>virtual TimeShower::~TimeShower() &nbsp;</strong> <br/>
+The destructor does not need to do anything.
+  
+
+<a name="method3"></a>
+<p/><strong>void TimeShower::initPtr(Info* infoPtr, PartonSystems* partonSystemsPtr) &nbsp;</strong> <br/>
+This method only imports pointers to standard facilities, 
+and is not virtual.
+  
+
+<a name="method4"></a>
+<p/><strong>virtual void TimeShower::init( BeamParticle* beamAPtrIn = 0, BeamParticle* beamBPtrIn = 0) &nbsp;</strong> <br/>
 You have to store your local copy of the pointers to these objects,
 since they have to be used during the generation, as explained above.
 The pointers could be zero; e.g. a local copy of <code>TimeShower</code>
@@ -169,7 +182,8 @@ e.g. by reading in them from a user-accessible database like the
 <code>Settings</code> one.
   
 
-<p/><strong>double enhancePTmax() &nbsp;</strong> <br/>
+<a name="method5"></a>
+<p/><strong>double TimeShower::enhancePTmax() &nbsp;</strong> <br/>
 Relative to the default <i>pT_max</i> evolution scale of the process,
 it may still be convenient to vary the matching slightly for the hardest
 interaction in an event, to probe the sensitivity to such details. The 
@@ -177,7 +191,8 @@ base-class implementation returns the value of the
 <code>TimeShower:pTmaxFudge</code> parameter.
   
 
-<p/><strong>int shower( int iBeg, int iEnd, Event& event, double pTmax) &nbsp;</strong> <br/>
+<a name="method6"></a>
+<p/><strong>virtual int TimeShower::shower( int iBeg, int iEnd, Event& event, double pTmax, int nBranchMax = 0) &nbsp;</strong> <br/>
 This is an all-in-one call for shower evolution, and as such cannot be 
 used for the normal interleaved evolution, where only the routines below
 are used. It also cannot be used in resonance decays that form part of
@@ -193,13 +208,25 @@ particular does not relate to the beams.
 <br/>The <code>pTmax</code> value sets the maximum scale for evolution,
 but normally you would restrict that further for each individual
 parton based on its respective scale value. 
+<br/>The <code>nBranchMax</code> value, if positive, gives the maximum
+number of allowed branchings in the call, as useful for matching studies.
 <br/>The routine is expected to return the number of FSR branchings that 
 were generated, but only for non-critical statistics purposes.
 <br/>Since the real action typically is delegated to the routines 
 below, it may well be that the existing code need not be replaced.
   
 
-<p/><strong>void prepare( int iSys, Event& event) &nbsp;</strong> <br/>
+<a name="method7"></a>
+<p/><strong>double TimeShower::pTLastInShower() &nbsp;</strong> <br/>
+Can be used to return the <i>pT</i> evolution scale of the last
+branching in the cascade generated with the above 
+<code>shower(...)</code> method. Is to be set in the internal 
+<code>pTLastInShower</code> variable, and should be 0 if there 
+were no branchings. Can be useful for matching studies. 
+  
+
+<a name="method8"></a>
+<p/><strong>virtual void TimeShower::prepare( int iSys, Event& event) &nbsp;</strong> <br/>
 This method is called immediately after a new interaction (or the
 products of a resonance decay) has been added, and should then be used 
 to prepare the subsystem of partons for subsequent evolution. In
@@ -215,7 +242,18 @@ or are 0 for resonance decays unrelated to the beams, while the
 rest are not required to be in any particular order.
   
 
-<p/><strong>void update( int iSys, Event& event) &nbsp;</strong> <br/>
+<a name="method9"></a>
+<p/><strong>virtual void TimeShower::rescatterUpdate( int iSys, Event& event) &nbsp;</strong> <br/>
+This method is called immediately after rescattering in the description
+of multiple interactions. Thus the information on one or several 
+systems is out-of-date, while that of the others is unchanged. 
+We do not provide the details here, since we presume few implementors
+of new showers will want to touch the technicalities involved
+in obtaining a description of rescattering.
+  
+
+<a name="method10"></a>
+<p/><strong>virtual void TimeShower::update( int iSys, Event& event) &nbsp;</strong> <br/>
 This method is called immediately after a spacelike branching in the 
 <code>iSys</code>'th subsystem. Thus the information for that system is 
 out-of-date, while that of the others is unchanged. If you want, you are 
@@ -224,7 +262,8 @@ free to throw away all information for the affected subsystem and call
 you may choose only to update the information that has changed.
   
 
-<p/><strong>double pTnext( Event& event, double pTbegAll, double pTendAll) &nbsp;</strong> <br/>
+<a name="method11"></a>
+<p/><strong>virtual double TimeShower::pTnext( Event& event, double pTbegAll, double pTendAll) &nbsp;</strong> <br/>
 This is the main driver routine for the downwards evolution. A new 
 <i>pT</i> is to be selected based on the current information set up 
 by the routines above, and along with that a branching parton or dipole.
@@ -247,7 +286,8 @@ actually be carried out, since MI, ISR and FSR still have to be compared
 to assign the winner.
   
 
-<p/><strong>bool branch( Event& event) &nbsp;</strong> <br/>
+<a name="method12"></a>
+<p/><strong>virtual bool TimeShower::branch( Event& event, bool isInterleaved = false) &nbsp;</strong> <br/>
 This method will be called once FSR has won the competition with 
 MI and ISR to do the next branching. The candidate branching found 
 in the previous step should here be carried out in full. The 
@@ -259,9 +299,24 @@ beams.
 some not-previously-considered kinematics requirement fails, it is 
 allowed to return <code>false</code> to indicate that no branching 
 could be carried out.   
+<br/>Normally the optional <code>isInterleaved</code> argument would 
+not be of interest. It can be used to separate resonance decays, false,
+from the interleaved evolution together with MI and ISR, true. 
+More precisely, it separates calls to the <code>timesDecPtr</code>
+and the <code>timesPtr</code> instances.
   
 
-<p/><strong>int system() &nbsp;</strong> <br/>
+<a name="method13"></a>
+<p/><strong>virtual bool TimeShower::rescatterPropogateRecoil( Event& event, Vec4& pNew) &nbsp;</strong> <br/>
+This method is only called if rescattering is switched on in the 
+description of multiple interactions. It then propagates a recoil
+from a timelike branching to internal lines that connect systems.
+As for <code>rescatterUpdate</code> above, this is not likely to be
+of interest to most implementors of new showers.
+  
+
+<a name="method14"></a>
+<p/><strong>int TimeShower::system() &nbsp;</strong> <br/>
 This method is not virtual. If a branching is constructed by the 
 previous routine this tiny method should be able to return the number 
 of the selected subsystem <code>iSysSel</code> where it occured, 
@@ -270,7 +325,8 @@ if necessary. Therefore <code>iSysSel</code> must be set in
 <code>branch</code> (or already in <code>pTnext</code>).  
   
 
-<p/><strong>void list( ostream& os = cout) &nbsp;</strong> <br/>
+<a name="method15"></a>
+<p/><strong>virtual void TimeShower::list( ostream& os = cout) &nbsp;</strong> <br/>
 This method is not at all required. In the current implementation it 
 outputs a list of all the dipole ends, with information on the
 respective dipole. The routine is not called anywhere in the public
@@ -281,18 +337,31 @@ development/debug phase.
 <h3>The SpaceShower interface</h3>
 
 If you want to replace the <code>SpaceShower</code> class this would
-involve replacing the following methods. You will find that much of
-the story reminds of <code>TimeShower</code> above, and actually some 
-cut-and-paste of text is involved. In some respects the description
-is simpler, since there are no special cases for resonance decays
-and non-interleaved evolution. Thus there is no correspondence to the 
-<code>TimeShower::shower(...)</code> routine.  
+involve replacing the virtual methods in the following. You will find 
+that much of the story reminds of <code>TimeShower</code> above, and 
+actually some cut-and-paste of text is involved. In some respects the 
+description is simpler, since there are no special cases for resonance 
+decays and non-interleaved evolution. Thus there is no correspondence 
+to the <code>TimeShower::shower(...)</code> routine.  
 
-<p/><strong>SpaceShower() &nbsp;</strong> <br/>
+<a name="method16"></a>
+<p/><strong>SpaceShower::SpaceShower() &nbsp;</strong> <br/>
 The constructor does not need to do anything.
   
 
-<p/><strong>void init( BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn) &nbsp;</strong> <br/>
+<a name="method17"></a>
+<p/><strong>virtual SpaceShower::~SpaceShower() &nbsp;</strong> <br/>
+Also the destructor does not need to do anything.
+  
+
+<a name="method18"></a>
+<p/><strong>void SpaceShower::initPtr(Info* infoPtr, PartonSystems* partonSystemsPtr) &nbsp;</strong> <br/>
+This method only imports pointers to standard facilities, 
+and is not virtual.
+  
+
+<a name="method19"></a>
+<p/><strong>virtual void SpaceShower::init( BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn) &nbsp;</strong> <br/>
 You have to store your local copy of the pointers to these objects,
 since they have to be used during the generation, as explained above.
 This is also the place to do initialization of whatever parameters 
@@ -300,7 +369,8 @@ you plan to use, e.g. by reading in them from a user-accessible
 database like the <code>Settings</code> one.
   
 
-<p/><strong>bool limitPTmax( Event& event, double Q2Fac = 0., double Q2Ren = 0.) &nbsp;</strong> <br/>
+<a name="method20"></a>
+<p/><strong>virtual bool SpaceShower::limitPTmax( Event& event, double Q2Fac = 0.,  double Q2Ren = 0.) &nbsp;</strong> <br/>
 The question is whether the ISR should be allowed to occur at larger
 scales than the hard process it surrounds. This is process-dependent.
 For instance, if the hard process is <i>Z^0</i> production we know
@@ -318,7 +388,8 @@ the factorization or renormalization scale. Therefore the (square of the)
 latter two are provided as optional input parameters.  
   
 
-<p/><strong>double enhancePTmax() &nbsp;</strong> <br/>
+<a name="method21"></a>
+<p/><strong>virtual double SpaceShower::enhancePTmax() &nbsp;</strong> <br/>
 When the above method limits <i>pT_max</i> to the scale of the process,
 it may still be convenient to vary the matching slightly for the hardest
 interaction in an event, to probe the sensitivity to such details. The 
@@ -326,7 +397,8 @@ base-class implementation returns the value of the
 <code>SpaceShower:pTmaxFudge</code> parameter.
   
 
-<p/><strong>void prepare( int iSys, Event& event, bool limitPTmax = true) &nbsp;</strong> <br/>
+<a name="method22"></a>
+<p/><strong>virtual void SpaceShower::prepare( int iSys, Event& event, bool limitPTmax = true) &nbsp;</strong> <br/>
 This method is called immediately after a new interaction has been 
 added, and should then be used to prepare the subsystem of partons
 for subsequent evolution. In the current code this involves identifying 
@@ -343,7 +415,8 @@ subsequent MI, since there an unlimited <i>pT</i> for sure
 would lead to doublecounting.
   
 
-<p/><strong>void update( int iSys, Event& event) &nbsp;</strong> <br/>
+<a name="method23"></a>
+<p/><strong>virtual void SpaceShower::update( int iSys, Event& event) &nbsp;</strong> <br/>
 This method is called immediately after a timelike branching in the 
 <code>iSys</code>'th subsystem. Thus the information for that system may 
 be out-of-date, and to be updated. For the standard PYTHIA showers 
@@ -351,7 +424,8 @@ this routine does not need to do anything, but that may be different
 in another implementation.
   
 
-<p/><strong>double pTnext(( Event& event, double pTbegAll, double pTendAll, int nRadIn = -1) &nbsp;</strong> <br/>
+<a name="method24"></a>
+<p/><strong>virtual double SpaceShower::pTnext( Event& event, double pTbegAll, double pTendAll, int nRadIn = -1) &nbsp;</strong> <br/>
 This is the main driver routine for the downwards evolution. A new 
 <i>pT</i> is to be selected based on the current information set up 
 by the routines above, and along with that a branching parton or dipole.
@@ -377,7 +451,8 @@ ISR and FSR emissions already generated in the event, and so allows a
 special treatment for the very first emission, if desired.
   
 
-<p/><strong>bool branch( Event& event) &nbsp;</strong> <br/>
+<a name="method25"></a>
+<p/><strong>virtual bool SpaceShower::branch( Event& event) &nbsp;</strong> <br/>
 This method will be called once FSR has won the competition with 
 MI and ISR to do the next branching. The candidate branching found 
 in the previous step should here be carried out in full. The 
@@ -388,10 +463,12 @@ beams.
 <br/>Should some problem be encountered in this procedure, e.g. if 
 some not-previously-considered kinematics requirement fails, it is 
 allowed to return <code>false</code> to indicate that no branching 
-could be carried out.   
+could be carried out. Also a complete restart of the parton-level
+description may be necessary, see <code>doRestart()</code> below.  
   
 
-<p/><strong>int system() &nbsp;</strong> <br/>
+<a name="method26"></a>
+<p/><strong>int SpaceShower::system() &nbsp;</strong> <br/>
 This method is not virtual. If a branching is constructed by the 
 previous routine this tiny method should be able to return the number 
 of the selected subsystem <code>iSysSel</code> where it occured, 
@@ -400,7 +477,18 @@ if necessary. Therefore <code>iSysSel</code> must be set in
 <code>branch</code> (or already in <code>pTnext</code>).  
   
 
-<p/><strong>void list( ostream& os = cout) &nbsp;</strong> <br/>
+<a name="method27"></a>
+<p/><strong>bool SpaceShower::doRestart() &nbsp;</strong> <br/>
+This method is not virtual. If <code>branch(...)</code> above fails
+to construct a branching, and the conditions are such that the whole
+parton-level description should be restarted, then it should return
+true, else not. Currently only the rescattering description can give
+thi kind of failures, and so the internal <code>rescatterFail</code> 
+boolean must be set true when this should happen, and else false.
+  
+
+<a name="method28"></a>
+<p/><strong>virtual void SpaceShower::list( ostream& os = cout) &nbsp;</strong> <br/>
 This method is not at all required. In the current implementation it 
 outputs a list of all the dipole ends, with information on the
 respective dipole. The routine is not called anywhere in the public

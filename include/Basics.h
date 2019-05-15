@@ -72,11 +72,16 @@ public:
   // Pick one option among  vector of (positive) probabilities.
   static int pick(const vector<double>& prob) ; 
 
+  // Save or read current state to or from a binary file.
+  static bool dumpState(string fileName);
+  static bool readState(string fileName);
+
 private:
 
   // State of the random number generator.
   static bool   initRndm, saveGauss; 
-  static int    i97, j97, defaultSeed;
+  static int    i97, j97, defaultSeed, seedSave;
+  static long   sequence;
   static double u[97], c, cd, cm, save;
 
   // Pointer for external random number generation.
@@ -125,7 +130,7 @@ public:
   double pz() const {return zz;}
   double e() const {return tt;}
   double mCalc() const {double temp = tt*tt - xx*xx - yy*yy - zz*zz;
-    return (temp >= 0) ? sqrt(temp) : -sqrt(-temp);}
+    return (temp >= 0.) ? sqrt(temp) : -sqrt(-temp);}
   double m2Calc() const {return tt*tt - xx*xx - yy*yy - zz*zz;}
   double pT() const {return sqrt(xx*xx + yy*yy);}
   double pT2() const {return xx*xx + yy*yy;}

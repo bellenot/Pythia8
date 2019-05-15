@@ -51,6 +51,16 @@ the masses of the two beam particles.
 the cm energy and its square for the two beams. 
 </methodmore>
 
+<h3>Initialization</h3>
+
+<method name="bool Info::tooLowPTmin()">
+normally false, but true if the proposed <ei>pTmin</ei> scale was too low 
+in timelike or spacelike showers, or in multiple interactions. In the former
+case the <ei>pTmin</ei> is raised to some minimal value, in the latter the 
+initialization fails (it is impossible to obtain a minijet cross section
+bigger than the nondiffractive one by reducing <ei>pTmin</ei>).
+</method>
+
 <h3>The event type</h3>
 
 <method name="string Info::name()"> 

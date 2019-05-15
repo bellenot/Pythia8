@@ -157,10 +157,12 @@ can be an integer.
 
 We here collect a more complete and formal overview of the methods.
    
+<a name="method1"></a>
 <p/><strong>Hist::Hist() &nbsp;</strong> <br/>
 declare a histogram, but does not define it.
   
 
+<a name="method2"></a>
 <p/><strong>Hist::Hist(string title, int numberOfBins, double xMin, double xMax) &nbsp;</strong> <br/>
 declare and define a histogram, where
 <br/><code>argument</code><strong> title </strong>  :  
@@ -177,35 +179,42 @@ is the upper edge of the histogram.
   
   
    
+<a name="method3"></a>
 <p/><strong>Hist::Hist(const Hist& h) &nbsp;</strong> <br/>
 creates an identical copy of the histogram in the argument,
 including bin contents.
   
    
+<a name="method4"></a>
 <p/><strong>Hist::Hist(string title, const Hist& h) &nbsp;</strong> <br/>
 creates an identical copy of the histogram in the argument,
 including bin contents, except that a new title is provided
 as first argument.
   
    
-<p/><strong>Hist& ::Hist::operator=(const Hist& h) &nbsp;</strong> <br/>
+<a name="method5"></a>
+<p/><strong>Hist& Hist::operator=(const Hist& h) &nbsp;</strong> <br/>
 copies all properties of the histogram in the argument, 
 except that the original histogram title is retained. 
   
 
+<a name="method6"></a>
 <p/><strong>void Hist::book(string title, int numberOfBins, double xMin, double xMax) &nbsp;</strong> <br/>
 define a histogram that previously was only declared; 
 see above for the meaning of the arguments.
   
 
+<a name="method7"></a>
 <p/><strong>void Hist::name(string title) &nbsp;</strong> <br/>
 change the title of a histogram, but keep other properties unchanged.
   
 
+<a name="method8"></a>
 <p/><strong>void Hist::null() &nbsp;</strong> <br/>
 reset bin contents, but keep other histogram properties unchanged.
   
 
+<a name="method9"></a>
 <p/><strong>void Hist::fill(double xValue, double weight) &nbsp;</strong> <br/>
 fill the histogram, where 
 <br/><code>argument</code><strong> xValue </strong>  : 
@@ -216,12 +225,14 @@ is the amount of weight to be added at this <i>x</i> value.
   
   
 
+<a name="method10"></a>
 <p/><strong>friend ostream& operator<<(ostream& os, const Hist& h) &nbsp;</strong> <br/>
 appends a simple histogram printout (see above for format) to the 
 <code>ostream</code>, while leaving the histogram object itself
 
 unchanged.
 
+<a name="method11"></a>
 <p/><strong>void Hist::table(ostream& os = cout) &nbsp;</strong> <br/>
 prints a two-column table, where the first gives the center of each 
 bin and the second the corresponding bin contents. The desired
@@ -229,28 +240,33 @@ output stream can be provided as argument. The table may be useful
 for plotting e.g. with Gnuplot.
   
 
+<a name="method12"></a>
 <p/><strong>double Hist::getBinContent(int iBin) &nbsp;</strong> <br/>
 return the value in bin <code>iBin</code>, ranging from 1 through 
 <code>numberOfBins</code>, with <code>0</code> for underflow and 
 <code>numberOfBins + 1</code> for overflow.
   
 
+<a name="method13"></a>
 <p/><strong>int Hist::getEntries() &nbsp;</strong> <br/>
 return the number of entries, i.e. the number of time that 
 <code>fill(...)</code> has been called.
   
 
+<a name="method14"></a>
 <p/><strong>bool Hist::sameSize(const Hist& h) &nbsp;</strong> <br/>
 checks that the number of bins and upper and lower limits are the 
 same as in the histogram in the argument.
   
 
+<a name="method15"></a>
 <p/><strong>void Hist::takeLog(bool tenLog = true) &nbsp;</strong> <br/>
 by default take 10-logarithm of contents bin by bin, with optional
 argument <code>false</code> instead take <i>e</i>-logarithm of 
 contents bin by bin. 
   
 
+<a name="method16"></a>
 <p/><strong>Hist& Hist::operator+=(const Hist& h) &nbsp;</strong> <br/>
   
 <strong>Hist& Hist::operator-=(const Hist& h) &nbsp;</strong> <br/>
@@ -259,6 +275,7 @@ histogram in the argument if <code>sameSize(...)</code> is true,
 else does nothing. 
   
 
+<a name="method17"></a>
 <p/><strong>Hist& Hist::operator*=(const Hist& h) &nbsp;</strong> <br/>
   
 <strong>Hist& Hist::operator/=(const Hist& h) &nbsp;</strong> <br/>
@@ -267,18 +284,21 @@ histogram in the argument if <code>sameSize(...)</code> is true,
 else does nothing. 
   
 
+<a name="method18"></a>
 <p/><strong>Hist& Hist::operator+=(double f) &nbsp;</strong> <br/>
   
 <strong>Hist& Hist::operator-=(double f) &nbsp;</strong> <br/>
 adds or subtracts each bin content by the common offset <i>f</i>. 
   
 
+<a name="method19"></a>
 <p/><strong>Hist& Hist::operator*=(double f) &nbsp;</strong> <br/>
   
 <strong>Hist& Hist::operator*=(double f) &nbsp;</strong> <br/>
 multiplies or divides each bin content by the common factor <i>f</i>. 
   
 
+<a name="method20"></a>
 <p/><strong>friend Hist operator+(double f, const Hist& h1) &nbsp;</strong> <br/>
   
 <strong>friend Hist operator+(const Hist& h1, double f) &nbsp;</strong> <br/>
@@ -287,6 +307,7 @@ multiplies or divides each bin content by the common factor <i>f</i>.
 add a constant to a histogram or two histograms to each other, bin by bin.
   
 
+<a name="method21"></a>
 <p/><strong>friend Hist operator-(double f, const Hist& h1) &nbsp;</strong> <br/>
   
 <strong>friend Hist operator-(const Hist& h1, double f) &nbsp;</strong> <br/>
@@ -296,6 +317,7 @@ subtract a histogram from a constant, a constant from a histogram,
 or two histograms from each other, bin by bin.
   
 
+<a name="method22"></a>
 <p/><strong>friend Hist operator*(double f, const Hist& h1) &nbsp;</strong> <br/>
   
 <strong>friend Hist operator*(const Hist& h1, double f) &nbsp;</strong> <br/>
@@ -305,6 +327,7 @@ multiply a constant by a histogram or two histograms by each other,
 bin by bin.
   
 
+<a name="method23"></a>
 <p/><strong>friend Hist operator/(double f, const Hist& h1) &nbsp;</strong> <br/>
   
 <strong>friend Hist operator/(const Hist& h1, double f) &nbsp;</strong> <br/>

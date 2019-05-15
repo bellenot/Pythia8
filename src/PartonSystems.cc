@@ -73,9 +73,22 @@ int PartonSystems::getSystemOf(int iPos, bool alsoIn) const {
 
 //*********
 
+// Get the iMem index of iOut for an index into the event record
+
+int PartonSystems::getIndexOfOut(int iSys, int iPos) const {
+  for (int iMem = 0; iMem < sizeOut(iSys); ++iMem)
+    if (systems[iSys].iOut[iMem] == iPos) return iMem;
+
+  // Failure signalled by return value -1.
+  return -1;
+}
+
+
+//*********
+
 // Print members in systems; for debug mainly.
 
-void PartonSystems::list(ostream& os) {
+void PartonSystems::list(ostream& os) const {
 
   // Header.
   os << "\n --------  PYTHIA Parton Systems Listing  -------------------" 

@@ -5,7 +5,6 @@
 
 // Header file for the spacelike initial-state showers.
 // SpaceDipoleEnd: radiating dipole end in ISR.
-// SpaceSystem: info on one interaction (among multiple ones).
 // SpaceShower: handles the showering description.
 
 #ifndef Pythia8_SpaceShower_H
@@ -25,7 +24,7 @@ namespace Pythia8 {
  
 //**************************************************************************
 
-// Data on radiating dipole ends, only used inside SpaceSystem and SpaceShower.
+// Data on radiating dipole ends, only used inside SpaceShower.
 
 class SpaceDipoleEnd {
   
@@ -42,12 +41,13 @@ public:
  
   // Store values for trial emission.
   void store( int idDaughterIn, int idMotherIn, int idSisterIn,   
-    double x1In, double x2In, double m2DipIn, double pT2In, double zIn, 
-    double Q2In, double mSisterIn, double m2SisterIn, double pT2corrIn, 
-    double phiIn) {idDaughter = idDaughterIn; idMother = idMotherIn;
-    idSister = idSisterIn; x1 = x1In; x2 = x2In; m2Dip = m2DipIn;
-    pT2 = pT2In; z = zIn; Q2 = Q2In; mSister = mSisterIn; 
-    m2Sister = m2SisterIn; pT2corr = pT2corrIn; phi = phiIn;}
+    double x1In, double x2In, double m2DipIn, double pT2In, double zIn,
+    double xMoIn, double Q2In, double mSisterIn, double m2SisterIn, 
+    double pT2corrIn, double phiIn) {idDaughter = idDaughterIn; 
+    idMother = idMotherIn; idSister = idSisterIn; x1 = x1In; x2 = x2In; 
+    m2Dip = m2DipIn; pT2 = pT2In; z = zIn; xMo = xMoIn; Q2 = Q2In; 
+    mSister = mSisterIn; m2Sister = m2SisterIn; pT2corr = pT2corrIn; 
+    phi = phiIn;}
  
   // Basic properties related to evolution and matrix element corrections.
   int    system, side, iRadiator, iRecoiler;
@@ -57,7 +57,7 @@ public:
   
   // Properties specific to current trial emission.
   int    nBranch, idDaughter, idMother, idSister;  
-  double x1, x2, m2Dip, pT2, z, Q2, mSister, m2Sister, pT2corr, phi,
+  double x1, x2, m2Dip, pT2, z, xMo, Q2, mSister, m2Sister, pT2corr, phi,
          pT2Old, zOld;
 
 } ;
@@ -89,7 +89,7 @@ public:
     double Q2Ren = 0.);
 
   // Potential enhancement factor of pTmax scale for hardest emission.
-  virtual double enhancePTmax() {return pTmaxFudge;}
+  virtual double enhancePTmax() const {return pTmaxFudge;}
 
   // Prepare system for evolution; identify ME.
   virtual void prepare( int iSys, Event& event, bool limitPTmaxIn = true);
@@ -102,14 +102,17 @@ public:
   virtual double pTnext( Event& event, double pTbegAll, double pTendAll,
     int nRadIn = -1);
 
-  // ME corrections and kinematics that may give failure,
+  // ME corrections and kinematics that may give failure.
   virtual bool branch( Event& event); 
 
   // Tell which system was the last processed one.
   int system() const {return iSysSel;} 
 
+  // Flag for failure in branch(...) that will force a retry of parton level.
+  bool doRestart() const {return rescatterFail;}
+
   // Print dipole list; for debug mainly.
-  virtual void list(ostream& os = cout);
+  virtual void list(ostream& os = cout) const;
 
 protected:
 
@@ -123,8 +126,10 @@ protected:
   // Pointer to information on subcollision parton locations.
   PartonSystems* partonSystemsPtr;
 
-  // Store index of last processed system.
-  int iSysSel;
+  // Store properties to be returned by methods.
+  bool   rescatterFail;
+  int    iSysSel;
+  double pTmaxFudge;
 
 private: 
 
@@ -140,7 +145,7 @@ private:
          doMEcorrections, doPhiPolAsym, doRapidityOrder;
   int    pTmaxMatch, pTdampMatch, alphaSorder, alphaEMorder, nQuarkIn, 
          enhanceScreening;
-  double pTmaxFudge, pTdampFudge, mc, mb, m2c, m2b, alphaSvalue, alphaS2pi, 
+  double pTdampFudge, mc, mb, m2c, m2b, alphaSvalue, alphaS2pi, 
          Lambda3flav, Lambda4flav, Lambda5flav, Lambda3flav2, Lambda4flav2, 
          Lambda5flav2, pT0Ref, ecmRef, ecmPow, pTmin, sCM, eCM, pT0, 
          pTminChgQ, pTminChgL, pT20, pT2min, pT2minChgQ, pT2minChgL; 
@@ -150,9 +155,9 @@ private:
   AlphaEM alphaEM;
 
   // Some current values.
-  bool   dopTdamp;
+  bool   sideA, dopTdamp;
   int    iNow, iRec, idDaughter, nRad, idResFirst, idResSecond;
-  double xDaughter, x1Now, x2Now, m2Dip, pT2damp;
+  double xDaughter, x1Now, x2Now, m2Dip, m2Rec, pT2damp;
 
   // All dipole ends
   vector<SpaceDipoleEnd> dipEnd;
@@ -168,7 +173,8 @@ private:
 
   // Evolve a QCD dipole end near heavy quark threshold region. 
   void pT2nearQCDthreshold( BeamParticle& beam, double m2Massive, 
-    double m2Threshold, double zMinAbs, double zMaxMassive);
+    double m2Threshold, double xMaxAbs, double zMinAbs, 
+    double zMaxMassive);
 
   // Evolve a QED dipole end. 
   void pT2nextQED( double pT2begDip, double pT2endDip);

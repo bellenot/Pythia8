@@ -60,10 +60,9 @@ bool LHAupFortran::fillHepEup() {
 
 int main() {
 
-  // Generator. Shorthand for the event and for settings.
+  // Generator. Shorthand for the event.
   Pythia pythia;
   Event& event = pythia.event;
-  Settings& settings = pythia.settings;
 
   // Read in Pythia8 commands from external file.
   pythia.readFile("main52.ccmnd");    
@@ -73,22 +72,22 @@ int main() {
   pythia.init(&pythia6);    
 
   // Extract settings to be used in the main program.
-  int  nEvent  = settings.mode("Main:numberOfEvents");
-  int  nList   = settings.mode("Main:numberToList");
-  int  nShow   = settings.mode("Main:timesToShow");
-  int  nAbort  = settings.mode("Main:timesAllowErrors");
-  bool showCS  = settings.flag("Main:showChangedSettings");
-  bool showAS  = settings.flag("Main:showAllSettings");
-  bool showCPD = settings.flag("Main:showChangedParticleData");
-  bool showAPD = settings.flag("Main:showAllParticleData");
+  int  nEvent  = pythia.mode("Main:numberOfEvents");
+  int  nList   = pythia.mode("Main:numberToList");
+  int  nShow   = pythia.mode("Main:timesToShow");
+  int  nAbort  = pythia.mode("Main:timesAllowErrors");
+  bool showCS  = pythia.flag("Main:showChangedSettings");
+  bool showAS  = pythia.flag("Main:showAllSettings");
+  bool showCPD = pythia.flag("Main:showChangedParticleData");
+  bool showAPD = pythia.flag("Main:showAllParticleData");
 
-  // List changed or all settings data.
-  if (showCS) settings.listChanged();
-  if (showAS) settings.listAll();
+  // List changed data.
+  if (showCS) pythia.settings.listChanged();
+  if (showAS) pythia.settings.listAll();
 
-  // List changed or all particle data.  
-  if (showCPD) ParticleDataTable::listChanged();
-  if (showAPD) ParticleDataTable::listAll();
+  // List particle data.  
+  if (showCPD) pythia.particleData.listChanged();
+  if (showAPD) pythia.particleData.listAll();
 
   // Histograms.
   double eCM = 14000.;
@@ -107,11 +106,11 @@ int main() {
   Hist dETparticleDy("dET/dy for particles",100,-10.,10.);
 
   // Begin event loop.
-  int nShowPace = max(1,nEvent/nShow); 
+  int nPace  = max(1, nEvent / max(1, nShow) ); 
   int iAbort = 0; 
   for (int iEvent = 0; iEvent < nEvent; ++iEvent) {
-    if (iEvent%nShowPace == 0) cout << " Now begin event " 
-      << iEvent << endl;
+    if (nShow > 0 && iEvent%nPace == 0) 
+      cout << " Now begin event " << iEvent << endl;
 
     // Generate events. Quit if too many failures.
     if (!pythia.next()) {

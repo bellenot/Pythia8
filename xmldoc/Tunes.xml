@@ -29,22 +29,21 @@ would come anything else, such as physics with photon beams, which
 involve further parameters, but that is beyond the current scope.)
 
 <p/>
-Sadly PYTHIA 8 did not yet take many steps along this long road. 
-While the default values in PYTHIA 8 have been chosen "sensibly", 
-so far there has not been a complete, consistent tuning of the program. 
-For hadronization we can partly benefit from the LEP experience with
-PYTHIA 6, since the basic hadronization scheme did not change.  
-However, there never was a combined LEP tune, since each of the four 
-LEP collaborations produced their own tunes to their own data. The 
-situation is worse for multiple interactions, where PYTHIA 8 is more 
+The first step in this program has now been taken, with a tune to LEP1
+data by Hendrik Hoeth, using the Rivet + Professor framework. Starting
+with version 8.125 it defines the default values for hadronization 
+parameters and timelike showers. 
+
+<p/>
+The situation is worse for multiple interactions, where PYTHIA 8 is more 
 different from PYTHIA 6. Nevertheless, the PYTHIA 6 tunes to CDF data, 
 performed by R.D. Field, have been used as a rough guide in picking 
 reasonable default values.
 
 <p/>
-In the future we hope to see PYTHIA 8 tunes appear. Like with parton 
-distributions, there is likely to be several tunes, because different 
-sets of data will pull in different directions, by imperfections   
+In the future we hope to see further PYTHIA 8 tunes appear. Like with 
+parton distributions, there is likely to be several tunes, because 
+different sets of data will pull in different directions, by imperfections   
 in the model or in the data, and by differences in the chosen
 tuning strategies. We therefore propose to collect some of these tunes
 here, in a prepackaged form. Of course, in all cases it is a matter
@@ -63,19 +62,27 @@ option with your own choices for some of the parameters used in the tune,
 since the values you set before <code>pythia.init(...)</code> would be 
 overwritten at that point. 
 
-<modepick name="Tune:ee" default="0">
+<modepick name="Tune:ee" default="0" min="0" max="3">
 Choice of tune to <ei>e^+e^-</ei> data, mainly for the hadronization
 and timelike-showering aspects of PYTHIA. 
 <option value="0">no values are overwritten at initialization, 
 so you can set the individual parameters as you wish.
 </option>
-<option value="101">a tune by Marc Montull to the LEP 1 particle
-composition, as published in the RPP. The default PYTHIA parameter 
-values tend to produce more vector mesons than observed in data. 
-When more pseudoscalars are produced directly this also leads to a 
-reduced <ei>s/u</ei> ratio and diquark fraction. Also other parameters 
-related to the particle composition obtain changed values. No related 
-(re)tune to event shapes has been performed so far, however.  
+<option value="1">the original PYTHIA 8 parameter set, based on some
+very old flavour studies (with JETSET around 1990) and a simple tune 
+<ei>of alpha_strong</ei> to three-jet shapes to the new 
+<ei>pT</ei>-ordered shower. These were the default values before
+version 8.125. 
+</option>
+<option value="2">a tune by Marc Montull to the LEP 1 particle
+composition, as published in the RPP (August 2007). No related (re)tune 
+to event shapes has been performed, however.  
+</option>
+<option value="3">a tune to a wide selection of LEP1 data by Hendrik 
+Hoeth within the Rivet + Professor framework, both to hadronization and
+timelike-shower parameters (June 2009). These are the default values 
+starting from version 8.125, so currently there is no need for this
+option.
 </option>
 </modepick>
 

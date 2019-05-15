@@ -198,13 +198,15 @@ double precision complex numbers.
 </file>
 
 <file name="PythiaStdlib">
-is only a <code>.h</code> file, containing most of the <code>Stdlib</code> 
-headers used in PYTHIA 8, with <code>using</code> directives. It defines 
-<code>M_PI</code> if this is not already done. Also a few simple inline 
-methods: <code>pow2(x)</code>, <code>pow3(x)</code>, <code>pow4(x)</code> 
-and <code>pow5(x)</code> for small integer powers, and 
-<code>sqrtpos(x)</code> where a <code>max(0., x)</code> ensures that one 
-does not take the square root of a negative number.
+contains most of the <code>Stdlib</code> headers used in PYTHIA 8, 
+with <code>using</code> directives. It defines <code>M_PI</code> if 
+this is not already done. Also a few simple inline methods: 
+<code>pow2(x)</code>, <code>pow3(x)</code>, <code>pow4(x)</code>,
+<code>pow5(x)</code> and <code>pow6(x)</code> for small integer 
+powers, and <code>sqrtpos(x)</code> where a <code>max(0., x)</code> 
+ensures that one does not take the square root of a negative number. 
+Also non-inlined <code>GammaReal(x)</code> for the <ei>Gamma</ei>
+function value of a real argument.
 </file>
 
 <file name="ResonanceDecays"> 

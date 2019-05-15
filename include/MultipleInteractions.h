@@ -143,9 +143,9 @@ private:
   // Constants: could only be changed in the code itself.
   static const bool   SHIFTFACSCALE, PREPICKRESCATTER;
   static const int    NBINS;
-  static const double SIGMAFUDGE, RPT20, PT0STEP, SIGMASTEP, EXPPOWMIN,
-                      PROBATLOWB, BSTEP, BMAX, EXPMAX, KCONVERGE, 
-                      CONVERT2MB, ROOTMIN;
+  static const double SIGMAFUDGE, RPT20, PT0STEP, SIGMASTEP, PT0MIN,
+                      EXPPOWMIN, PROBATLOWB, BSTEP, BMAX, EXPMAX, 
+                      KCONVERGE, CONVERT2MB, ROOTMIN;
 
   // Initialization data, read from Settings.
   bool   allowRescatter, allowDoubleRes;
@@ -155,7 +155,7 @@ private:
          coreFraction, expPow, ySepResc, deltaYResc;
 
   // Other initialization data.
-  bool   hasLowPow;
+  bool   hasBaryonBeams, hasLowPow;
   double eCM, sCM, pT0, pT20, pT2min, pTmax, pT2max, pT20R, pT20minR, 
          pT20maxR, pT20min0maxR, pT2maxmin, sigmaND, pT4dSigmaMax, 
          pT4dProbMax, dSigmaApprox, sigmaInt, zeroIntCorr, normOverlap, 

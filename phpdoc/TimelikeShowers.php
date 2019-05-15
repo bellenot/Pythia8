@@ -54,18 +54,22 @@ is not as unique. Here the factorization scale has been chosen as the
 maximum evolution scale. This would be the <i>pT</i> for a 
 <i>2 -> 2</i> process, supplemented by mass terms for massive outgoing 
 particles. Some small amount of freedom is offered by
-<br/><br/><table><tr><td><strong>TimeShower:pTmaxFudge </td><td></td><td> <input type="text" name="1" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.5</code>; <code>maximum = 2.0</code>)</td></tr></table>
+
+<br/><br/><table><tr><td><strong>TimeShower:pTmaxFudge </td><td></td><td> <input type="text" name="1" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 2.0</code>)</td></tr></table>
 While the above rules would imply that <i>pT_max = pT_factorization</i>, 
 <code>pTmaxFudge</code> introduced a multiplicative factor <i>f</i> such 
 that instead <i>pT_max = f * pT_factorization</i>. Only applies to the 
 hardest interaction in an event. It is strongly suggested that 
 <i>f = 1</i>, but variations around this default can be useful to test 
 this assumption. 
+<br/><b>Note:</b>Scales for resonance decays are not affected, but can be 
+set separately by <?php $filepath = $_GET["filepath"];
+echo "<a href='UserHooks.php?filepath=".$filepath."' target='page'>";?>user hooks</a>.
   
 
 <p/>
 The amount of QCD radiation in the shower is determined by 
-<br/><br/><table><tr><td><strong>TimeShower:alphaSvalue </td><td></td><td> <input type="text" name="2" value="0.137" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.137</strong></code>; <code>minimum = 0.06</code>; <code>maximum = 0.25</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>TimeShower:alphaSvalue </td><td></td><td> <input type="text" name="2" value="0.1383" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.1383</strong></code>; <code>minimum = 0.06</code>; <code>maximum = 0.25</code>)</td></tr></table>
 The <i>alpha_strong</i> value at scale <i>M_Z^2</i>. The default 
 value corresponds to a crude tuning to LEP data, to be improved.
   
@@ -100,11 +104,11 @@ no emissions are allowed. The cutoff may be different for QCD and QED
 radiation off quarks, and is mainly a technical parameter for QED 
 radiation off leptons.
 
-<br/><br/><table><tr><td><strong>TimeShower:pTmin </td><td></td><td> <input type="text" name="5" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.1</code>; <code>maximum = 2.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>TimeShower:pTmin </td><td></td><td> <input type="text" name="5" value="0.4" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.4</strong></code>; <code>minimum = 0.1</code>; <code>maximum = 2.0</code>)</td></tr></table>
 Parton shower cut-off <i>pT</i> for QCD emissions.
   
 
-<br/><br/><table><tr><td><strong>TimeShower:pTminChgQ </td><td></td><td> <input type="text" name="6" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.1</code>; <code>maximum = 2.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>TimeShower:pTminChgQ </td><td></td><td> <input type="text" name="6" value="0.4" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.4</strong></code>; <code>minimum = 0.1</code>; <code>maximum = 2.0</code>)</td></tr></table>
 Parton shower cut-off <i>pT</i> for photon coupling to coloured particle.
   
 
@@ -373,7 +377,7 @@ if($_POST["1"] != "1.0")
 $data = "TimeShower:pTmaxFudge = ".$_POST["1"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["2"] != "0.137")
+if($_POST["2"] != "0.1383")
 {
 $data = "TimeShower:alphaSvalue = ".$_POST["2"]."\n";
 fwrite($handle,$data);
@@ -388,12 +392,12 @@ if($_POST["4"] != "1")
 $data = "TimeShower:alphaEMorder = ".$_POST["4"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["5"] != "0.5")
+if($_POST["5"] != "0.4")
 {
 $data = "TimeShower:pTmin = ".$_POST["5"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["6"] != "0.5")
+if($_POST["6"] != "0.4")
 {
 $data = "TimeShower:pTminChgQ = ".$_POST["6"]."\n";
 fwrite($handle,$data);

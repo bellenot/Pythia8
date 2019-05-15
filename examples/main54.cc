@@ -12,14 +12,14 @@
 #include "Pythia.h"
 #include "LHAFortran.h"
 #include "Pythia6Interface.h"
-
 #include "HepMCInterface.h"
 
 #include "HepMC/GenEvent.h"
-#include "HepMC/IO_Ascii.h"
+#include "HepMC/IO_GenEvent.h"
+#include "HepMC/Units.h"
+// Following two lines are deprecated alternative.
+//#include "HepMC/IO_Ascii.h"
 //#include "HepMC/IO_AsciiParticles.h"
-
-//#include "HepMC/PythiaWrapper.h" // incompatible with Pythia8
 
 using namespace Pythia8; 
 
@@ -72,42 +72,44 @@ bool LHAupFortran::fillHepEup() {
 
 int main() {
 
-  //  ToHepMC.set_crash_on_problem();
+  // Interface for conversion from Pythia8::Event to HepMC one. 
   HepMC::I_Pythia8 ToHepMC;
+  //  ToHepMC.set_crash_on_problem();
 
   // Specify file where HepMC events will be stored.
-  HepMC::IO_Ascii ascii_io("hepmcout54.dat",std::ios::out);
-//  HepMC::IO_AsciiParticles ascii_io("hepmcout54.dat",std::ios::out);
+  HepMC::IO_GenEvent ascii_io("hepmcout54.dat", std::ios::out);
+  // Following two lines are deprecated alternative.
+  // HepMC::IO_Ascii ascii_io("hepmcout54.dat", std::ios::out);
+  // HepMC::IO_AsciiParticles ascii_io("hepmcout54.dat", std::ios::out);
 
-  // Generator. Shorthand for the event and for settings.
+  // Generator. Shorthand for the event.
   Pythia8::Pythia pythia;
   Event& event = pythia.event;
-  Settings& settings = pythia.settings;
 
   // Read in commands from external file.
   pythia.readFile("main54.cmnd");
 
   // Extract settings to be used in the main program.
-  int  nEvent  = settings.mode("Main:numberOfEvents");
-  int  nList   = settings.mode("Main:numberToList");
-  int  nShow   = settings.mode("Main:timesToShow");
-  int  nAbort  = settings.mode("Main:timesAllowErrors");
-  bool showCS  = settings.flag("Main:showChangedSettings");
-  bool showAS  = settings.flag("Main:showAllSettings");
-  bool showCPD = settings.flag("Main:showChangedParticleData");
-  bool showAPD = settings.flag("Main:showAllParticleData");
+  int  nEvent  = pythia.mode("Main:numberOfEvents");
+  int  nList   = pythia.mode("Main:numberToList");
+  int  nShow   = pythia.mode("Main:timesToShow");
+  int  nAbort  = pythia.mode("Main:timesAllowErrors");
+  bool showCS  = pythia.flag("Main:showChangedSettings");
+  bool showAS  = pythia.flag("Main:showAllSettings");
+  bool showCPD = pythia.flag("Main:showChangedParticleData");
+  bool showAPD = pythia.flag("Main:showAllParticleData");
 
   // Initialize to access Pythia6 generator by Les Houches interface.
   LHAupFortran pythia6;
   pythia.init(&pythia6);    
 
   // List changed data.
-  if (showCS) settings.listChanged();
-  if (showAS) settings.listAll();
+  if (showCS) pythia.settings.listChanged();
+  if (showAS) pythia.settings.listAll();
 
   // List particle data.  
-  if (showCPD) ParticleDataTable::listChanged();
-  if (showAPD) ParticleDataTable::listAll();
+  if (showCPD) pythia.particleData.listChanged();
+  if (showAPD) pythia.particleData.listAll();
 
   // Histograms.
   double eCM   = 14000.;
@@ -126,12 +128,12 @@ int main() {
   Hist dETparticleDy("dET/dy for particles",100,-10.,10.);
 
   // Begin event loop.
-  int nShowPace = max(1,nEvent/nShow); 
+  int nPace  = max(1, nEvent / max(1, nShow) ); 
   int iAbort = 0; 
   bool generated;
   for (int iEvent = 0; iEvent < nEvent; ++iEvent) {
-    if (iEvent%nShowPace == 0) cout << " Now begin event " 
-      << iEvent << endl;
+    if (nShow > 0 && iEvent%nPace == 0) 
+      cout << " Now begin event " << iEvent << endl;
 
     // Generate events. Quit if too many failures.
     generated = pythia.next();
@@ -148,9 +150,17 @@ int main() {
       event.list();
     }
 
-    // Convert event record to HepMC format and output to file.
-    HepMC::GenEvent* hepmcevt = new HepMC::GenEvent();
-    ToHepMC.fill_next_event( event, hepmcevt );
+    // Construct new empty HepMC event. Arguments superfluous 
+    // if HepMC was built with GeV and mm as units. 
+    HepMC::GenEvent* hepmcevt = new HepMC::GenEvent(
+      HepMC::Units::GEV, HepMC::Units::MM); 
+
+    // Fill HepMC event, including PDF info.
+    ToHepMC.fill_next_event( pythia, hepmcevt );
+    // This alternative older method fills event, without PDF info.
+    // ToHepMC.fill_next_event( pythia.event, hepmcevt );
+
+    // Write the HepMC event to file. Done with it.
     ascii_io << hepmcevt;
     delete hepmcevt;
 

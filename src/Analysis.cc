@@ -177,7 +177,7 @@ bool Sphericity::analyze(const Event& event, ostream& os) {
 
 // Provide a listing of the info.
   
-void Sphericity::list(ostream& os) {
+void Sphericity::list(ostream& os) const {
 
   // Header.
   os << "\n --------  PYTHIA Sphericity Listing  -------- \n";
@@ -340,7 +340,7 @@ bool Thrust::analyze(const Event& event, ostream& os) {
 
 // Provide a listing of the info.
   
-void Thrust::list(ostream& os) {
+void Thrust::list(ostream& os) const {
 
   // Header.
   os << "\n --------  PYTHIA Thrust Listing  ------------ \n"
@@ -432,6 +432,7 @@ bool ClusterJet::analyze(const Event& event, double yScaleIn,
   particles.resize(0);
   jets.resize(0);
   Vec4 pSum;
+  distances.clear();
 
   // Loop over desired particles in the event.
   for (int i = 0; i < event.size(); ++i) 
@@ -497,6 +498,9 @@ bool ClusterJet::analyze(const Event& event, double yScaleIn,
     // Stop if no pair below cut and not more jets than allowed. 
     if ( dist2Min > dist2Join  
       && (nJetMax < nJetMin || int(jets.size()) <= nJetMax) ) break;
+    
+    // Stop if reached minimum allowed number of jets. Else continue.
+    if (int(jets.size()) <= nJetMin) break; 
 
     // Join two closest jets.
     jets[jMin].pJet         += jets[kMin].pJet;
@@ -504,6 +508,10 @@ bool ClusterJet::analyze(const Event& event, double yScaleIn,
     jets[jMin].multiplicity += jets[kMin].multiplicity;
     for (int i = 0; i < nParticles; ++i) 
     if (particles[i].daughter == kMin) particles[i].daughter = jMin;
+
+    // Save the last 5 distances.
+    distances.push_front(dist2Min);
+    if (distances.size() > 5) distances.pop_back();
 
     // Move up last jet to empty slot to shrink list.
     jets[kMin]               = jets.back();
@@ -514,9 +522,6 @@ bool ClusterJet::analyze(const Event& event, double yScaleIn,
 
     // Do reassignments of particles to nearest jet if desired.
     if (doReassign) reassign();
-    
-    // Stop if reached minimum allowed number of jets. Else continue.
-    if (int(jets.size()) <= nJetMin) break; 
   }
 
   // Order jets in decreasing energy.
@@ -674,7 +679,7 @@ void ClusterJet::reassign() {
 
 // Provide a listing of the info.
   
-void ClusterJet::list(ostream& os) {
+void ClusterJet::list(ostream& os) const {
 
   // Header.
   string method = (measure == 1) ? "Lund pT" 
@@ -853,7 +858,7 @@ bool CellJet::analyze(const Event& event, double eTjetMinIn,
 
 // Provide a listing of the info.
   
-void CellJet::list(ostream& os) {
+void CellJet::list(ostream& os) const {
 
   // Header.
   os << "\n --------  PYTHIA CellJet Listing, eTjetMin = " 

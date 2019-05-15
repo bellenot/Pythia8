@@ -45,9 +45,10 @@ int main() {
   Hist dndpT("dn/dpT for charged particles", 100, 0., 10.);
 
   // Begin event loop.
-  int nPace = max(1,nEvent/nShow); 
+  int nPace = max(1, nEvent / max(1, nShow) ); 
   for (int iEvent = 0; iEvent < nEvent; ++iEvent) {
-    if (iEvent%nPace == 0) cout << " Now begin event " << iEvent << endl;
+    if (nShow > 0 && iEvent%nPace == 0) 
+      cout << " Now begin event " << iEvent << endl;
 
     // Generate events. Quit if failure.
     if (!pythia.next()) {

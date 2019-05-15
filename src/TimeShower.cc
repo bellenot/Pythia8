@@ -39,6 +39,17 @@ const double TimeShower::THRESHM2      = 4.004;
 // Never pick pT so low that alphaS is evaluated too close to Lambda_3. 
 const double TimeShower::LAMBDA3MARGIN = 1.1;
 
+// Rescatter: rescattering + ISR + FSR + primordial kT can lead to
+//            systems not locally conserving momentum.
+// Fix up momentum in intermediate systems with rescattering
+const bool   TimeShower::FIXRESCATTER          = true;
+// Veto negative energies for with FIXRESCATTER
+const bool   TimeShower::VETONEGENERGY         = false;
+// Do not allow too large time- or spacelike virtualities in fixing-up.
+const double TimeShower::MAXVIRTUALITYFRACTION = 0.8;
+// Do not allow too large negative spacelike energy in system rest frame.
+const double TimeShower::MAXNEGENERGYFRACTION  = 1.0; 
+
 //*********
 
 // Initialize alphaStrong, alphaEM and related pTmin parameters.
@@ -85,10 +96,19 @@ void TimeShower::init( BeamParticle* beamAPtrIn,
   Lambda4flav2       = pow2(Lambda4flav);
   Lambda3flav2       = pow2(Lambda3flav);
  
-  // Parameters of QCD evolution. 
+  // Parameters of QCD evolution. Warn if pTmin must be raised.
   nGluonToQuark      = Settings::mode("TimeShower:nGluonToQuark");
-  pTcolCutMin        = Settings::parm("TimeShower:pTmin"); 
-  pTcolCut           = max( pTcolCutMin, LAMBDA3MARGIN * Lambda3flav );
+  pTcolCutMin        = Settings::parm("TimeShower:pTmin");
+  if (pTcolCutMin > LAMBDA3MARGIN * Lambda3flav) 
+    pTcolCut         = pTcolCutMin;
+  else { 
+    pTcolCut         = LAMBDA3MARGIN * Lambda3flav;
+    ostringstream newPTcolCut;
+    newPTcolCut << fixed << setprecision(3) << pTcolCut;
+    infoPtr->errorMsg("Warning in TimeShower::init: pTmin too low",
+	 	      ", raised to " + newPTcolCut.str() );
+    infoPtr->setTooLowPTmin(true);
+  }
   pT2colCut          = pow2(pTcolCut);  
        
   // Parameters of alphaEM generation .
@@ -119,13 +139,18 @@ void TimeShower::init( BeamParticle* beamAPtrIn,
   gammaZ             = ParticleDataTable::mWidth(23);
   thetaWRat          = 1. / (16. * CoupEW::sin2thetaW() * CoupEW::cos2thetaW());
 
+  // May have to fix up recoils related to rescattering. 
+  allowRescatter     = Settings::flag("PartonLevel:MI") 
+                    && Settings::flag("MultipleInteractions:allowRescatter");
+
 }
 
 //*********
 
 // Top-level routine to do a full time-like shower in resonance decay.
 
-int TimeShower::shower( int iBeg, int iEnd, Event& event, double pTmax) {
+int TimeShower::shower( int iBeg, int iEnd, Event& event, double pTmax,
+  int nBranchMax) {
 
   // Add new system, automatically with two empty beam slots.
   int iSys = partonSystemsPtr->addSys();
@@ -142,19 +167,23 @@ int TimeShower::shower( int iBeg, int iEnd, Event& event, double pTmax) {
   prepare( iSys, event);
 
   // Begin evolution down in pT from hard pT scale. 
-  int nBranch = 0;
+  int nBranch  = 0;
+  pTLastBranch = 0.;
   do {
     double pTtimes = pTnext( event, pTmax, 0.);
 
     // Do a final-state emission (if allowed).
     if (pTtimes > 0.) {
-      if (branch( event)) ++nBranch; 
+      if (branch( event)) {
+        ++nBranch;
+        pTLastBranch = pTtimes;
+      }
       pTmax = pTtimes;
     }
     
     // Keep on evolving until nothing is left to be done.
     else pTmax = 0.;
-  } while (pTmax > 0.); 
+  } while (pTmax > 0. && (nBranchMax <= 0 || nBranch < nBranchMax)); 
 
   // Return number of emissions that were performed.
   return nBranch;
@@ -224,7 +253,7 @@ void TimeShower::prepare( int iSys, Event& event) {
 
 // Update dipole list after a multiple interactions rescattering. 
 void TimeShower::rescatterUpdate( int iSys, Event& event) {
-
+ 
   // Loop over two incoming partons in system; find their rescattering mother.
   // (iOut is outgoing from old system, = incoming iIn of rescattering system.) 
   for (int iResc = 0; iResc < 2; ++iResc) { 
@@ -234,49 +263,74 @@ void TimeShower::rescatterUpdate( int iSys, Event& event) {
     int iOut = event[iIn].mother1();
 
     // Loop over all dipoles.
-    for (int iDip = 0; iDip < int(dipEnd.size()); ++iDip) {
+    int dipEndSize = dipEnd.size();
+    for (int iDip = 0; iDip < dipEndSize; ++iDip) {
       TimeDipoleEnd& dipNow = dipEnd[iDip];
 
-      // 1) Update dipoles where outgoing rescattered parton is recoiler.
+      // Kill dipoles where rescattered parton is radiator.
+      if (dipNow.iRadiator == iOut) {
+        dipNow.colType = 0;
+        dipNow.chgType = 0;
+        dipNow.gamType = 0;
+        continue;
+      }
+      // No matrix element for dipoles between scatterings.
+      if (dipNow.iMEpartner == iOut) {
+        dipNow.MEtype     =  0;
+        dipNow.iMEpartner = -1;
+      }
+
+      // Update dipoles where outgoing rescattered parton is recoiler.
       if (dipNow.iRecoiler == iOut) {
         int iRad = dipNow.iRadiator;
 
-        // Colour dipole: recoil in final state, initial state, or failure.
+        // Colour dipole: recoil in final state, initial state or new
         if (dipNow.colType > 0) {
           int colTag = event[iRad].col(); 
-          bool done  = false;  
+          bool done  = false;
           for (int i = 0; i < partonSystemsPtr->sizeOut(iSys); ++i) {
             int iRecNow = partonSystemsPtr->getOut( iSys, i);  
             if (event[iRecNow].acol() == colTag) {
               dipNow.iRecoiler = iRecNow;
               dipNow.systemRec = iSys;
+              dipNow.MEtype    = 0;
               done             = true;
               break;
-	    }
-	  }
+            }
+          }
           if (!done) {
             int iIn2 = (iResc == 0) ? partonSystemsPtr->getInB(iSys)
                                     : partonSystemsPtr->getInA(iSys); 
             if (event[iIn2].col() == colTag) {
               dipNow.iRecoiler = iIn2;
               dipNow.systemRec = iSys;
+              dipNow.MEtype    = 0;
               int isrType      = event[iIn2].mother1();
               // This line in case mother is a rescattered parton.
               while (isrType > 2) isrType = event[isrType].mother1();
               dipNow.isrType   = isrType;
-              done = true;
-	    }
-	  } 
+              done             = true;
+            }
+          }
+          // If above options failed, then create new dipole
           if (!done) {
+            int iRadNow = partonSystemsPtr->getIndexOfOut(dipNow.system, iRad);
+            if (iRadNow != -1)
+              setupQCDdip(dipNow.system, iRadNow, event[iRad].col(), 1,
+                          event, dipNow.isOctetOnium);
+            else
+              infoPtr->errorMsg("Warning in TimeShower::rescatterUpdate: "
+              "failed to locate radiator in system");
+
             dipNow.colType = 0;
             dipNow.chgType = 0;
             dipNow.gamType = 0; 
-            infoPtr->errorMsg("Error in TimeShower::rescatterUpdate: "
+
+            infoPtr->errorMsg("Warning in TimeShower::rescatterUpdate: "
             "failed to locate new recoiling colour partner");
+          }
 
-	  }
-
-        // Anticolour dipole: recoil in final state, initial state, or failure.
+        // Anticolour dipole: recoil in final state, initial state or new
         } else if (dipNow.colType < 0) {
           int  acolTag = event[iRad].acol(); 
           bool done    = false;  
@@ -285,33 +339,45 @@ void TimeShower::rescatterUpdate( int iSys, Event& event) {
             if (event[iRecNow].col() == acolTag) {
               dipNow.iRecoiler = iRecNow;
               dipNow.systemRec = iSys;
+              dipNow.MEtype    = 0;
               done             = true;
               break;
-	    }
-	  }
+            }
+          }
           if (!done) {
             int iIn2 = (iResc == 0) ? partonSystemsPtr->getInB(iSys)
                                     : partonSystemsPtr->getInA(iSys); 
             if (event[iIn2].acol() == acolTag) {
               dipNow.iRecoiler = iIn2;
               dipNow.systemRec = iSys;
+              dipNow.MEtype    = 0;
               int isrType      = event[iIn2].mother1();
               // This line in case mother is a rescattered parton.
               while (isrType > 2) isrType = event[isrType].mother1();
               dipNow.isrType   = isrType;
               done             = true;
-	    }
-	  } 
+            }
+          } 
+          // If above options failed, then create new dipole
           if (!done) {
+            int iRadNow = partonSystemsPtr->getIndexOfOut(dipNow.system, iRad);
+            if (iRadNow != -1)
+              setupQCDdip(dipNow.system, iRadNow, event[iRad].acol(), -1,
+                          event, dipNow.isOctetOnium);
+            else
+              infoPtr->errorMsg("Warning in TimeShower::rescatterUpdate: "
+              "failed to locate radiator in system");
+
             dipNow.colType = 0;
             dipNow.chgType = 0;
-            dipNow.gamType = 0; 
-            infoPtr->errorMsg("Error in TimeShower::rescatterUpdate: "
+            dipNow.gamType = 0;
+
+            infoPtr->errorMsg("Warning in TimeShower::rescatterUpdate: "
             "failed to locate new recoiling colour partner");
-	  }
+          }
 
         // Charge or photon dipoles: same flavour in final or initial state.
-	} else if (dipNow.chgType != 0 || dipNow.gamType != 0) {
+        } else if (dipNow.chgType != 0 || dipNow.gamType != 0) {
           int  idTag = event[dipNow.iRecoiler].id();
           bool done  = false;  
           for (int i = 0; i < partonSystemsPtr->sizeOut(iSys); ++i) {
@@ -319,111 +385,49 @@ void TimeShower::rescatterUpdate( int iSys, Event& event) {
             if (event[iRecNow].id() == idTag) {
               dipNow.iRecoiler = iRecNow;
               dipNow.systemRec = iSys;
+              dipNow.MEtype    = 0;
               done             = true;
               break;
-	    }
-	  }
+            }
+          }
           if (!done) {
             int iIn2 = (iResc == 0) ? partonSystemsPtr->getInB(iSys)
                                     : partonSystemsPtr->getInA(iSys); 
             if (event[iIn2].id() == -idTag) {
               dipNow.iRecoiler = iIn2;
               dipNow.systemRec = iSys;
+              dipNow.MEtype    = 0;
               int isrType      = event[iIn2].mother1();
               // This line in case mother is a rescattered parton.
               while (isrType > 2) isrType = event[isrType].mother1();
               dipNow.isrType   = isrType;
               done             = true;
-	    }
-	  } 
+            }
+          } 
+          // If above options failed, then create new dipole
           if (!done) {
+            int iRadNow = partonSystemsPtr->getIndexOfOut(dipNow.system, iRad);
+            if (iRadNow != -1)
+              setupQEDdip(dipNow.system, iRadNow, dipNow.chgType,
+                          dipNow.gamType, event);
+            else
+              infoPtr->errorMsg("Warning in TimeShower::rescatterUpdate: "
+              "failed to locate radiator in system");
+
             dipNow.colType = 0;
             dipNow.chgType = 0;
-            dipNow.gamType = 0; 
-            infoPtr->errorMsg("Error in TimeShower::rescatterUpdate: "
-            "failed to locate new recoiling charge partner");
-	  }
-	}
-      }
+            dipNow.gamType = 0;
 
-      // 2) Update dipoles where incoming rescattered parton is recoiler.
-      if (dipNow.iRecoiler == iIn) {
-        bool done            = false;
-        int colTpNow         = dipNow.colType;
-        if (abs(colTpNow) == 2) colTpNow /= 2;  
- 
-        // Find matching dipole stored before current (new!) one.
-        for (int iDipOld = 0; iDipOld < int(dipEnd.size()); ++iDipOld) 
-        if (iDipOld != iDip) {
-          TimeDipoleEnd& dipOld = dipEnd[iDipOld];
-          int colTpOld          = dipOld.colType;
-          if (abs(colTpOld) == 2) colTpOld /= 2;  
-          if (dipOld.iRadiator == iOut && colTpOld == colTpNow
-	  && dipOld.chgType == dipNow.chgType
-          && dipOld.gamType == dipNow.gamType) {
-            dipNow.iRecoiler = dipOld.iRecoiler;
-            dipNow.isrType   = dipOld.isrType;
-            dipNow.systemRec = dipOld.systemRec;
-            done             = true;
-            break;
+            infoPtr->errorMsg("Warning in TimeShower::rescatterUpdate: "
+            "failed to locate new recoiling charge partner");
           }
         }
-
-        // Charge or photon dipole end: put recoil in final state. 
-        // (Approximate solution, but for so few cases that should be OK.)
-        if ( !done && (dipNow.chgType != 0 || dipNow.gamType != 0) ) {
-  	  if (event[ dipNow.iRadiator - 1 ].isFinal()) {
-            dipNow.iRecoiler = dipNow.iRadiator - 1;
-            dipNow.isrType   = 0;
-            done             = true;
-	  } else if (event.size() > dipNow.iRadiator + 1
-           && event[ dipNow.iRadiator + 1 ].isFinal()) {
-            dipNow.iRecoiler = dipNow.iRadiator + 1;
-            dipNow.isrType   = 0;
-            done             = true;
-	  }
-	}
-
-        // Failed.
-        if (!done) {
-          dipNow.colType = 0;
-          dipNow.chgType = 0;
-          dipNow.gamType = 0; 
-          infoPtr->errorMsg("Warning in TimeShower::rescatterUpdate: "
-            "new dipole not reconstructed; so omitted");          
-	}
       }
 
     // End of loop over dipoles and two incoming sides. 
     }
   }
-
-  // Repeat same loops as above for removal of no longer correct information.  
-  for (int iResc = 0; iResc < 2; ++iResc) { 
-    int iIn = (iResc == 0) ? partonSystemsPtr->getInA(iSys)
-                           : partonSystemsPtr->getInB(iSys); 
-    if (iIn == 0 || event[iIn].status() != -34) continue; 
-    int iOut = event[iIn].mother1();
-    for (int iDip = 0; iDip < int(dipEnd.size()); ++iDip) {
-      TimeDipoleEnd& dipNow = dipEnd[iDip];
-
-      // Kill dipoles where rescattered parton is radiator.
-      if (dipNow.iRadiator == iOut) {
-        dipNow.colType = 0;
-        dipNow.chgType = 0;
-        dipNow.gamType = 0; 
-      }  
-
-      // No matrix element for dipoles between scatterings.
-      if (dipNow.iMEpartner == iOut) {
-        dipNow.MEtype     =  0;
-        dipNow.iMEpartner = -1;
-      } 
-
-    // End of loop over dipoles and two incoming sides. 
-    }
-  }
-    
+   
 }
 
 //*********
@@ -431,6 +435,9 @@ void TimeShower::rescatterUpdate( int iSys, Event& event) {
 // Update dipole list after each ISR emission (so not used for resonances).  
 
 void TimeShower::update( int iSys, Event& event) {
+
+  // Start list of rescatterers that gave further changed systems in ISR.
+  vector<int> iRescatterer;
 
   // Find new and old positions of incoming partons in the system.
   vector<int> iNew, iOld;
@@ -442,8 +449,11 @@ void TimeShower::update( int iSys, Event& event) {
   // Ditto for outgoing partons, except the newly created one.
   int sizeOut = partonSystemsPtr->sizeOut(iSys) - 1;  
   for (int i = 0; i < sizeOut; ++i) {
-    iNew.push_back( partonSystemsPtr->getOut(iSys, i) );
-    iOld.push_back( event[iNew[i + 2]].mother1() );
+    int iNow = partonSystemsPtr->getOut(iSys, i);
+    iNew.push_back( iNow );
+    iOld.push_back( event[iNow].mother1() );
+    // Add non-final to list of rescatterers.
+    if (!event[iNow].isFinal()) iRescatterer.push_back( iNow );
   }
   int iNewNew = partonSystemsPtr->getOut(iSys, sizeOut);
   
@@ -475,45 +485,45 @@ void TimeShower::update( int iSys, Event& event) {
 
     // Recoiler: by default pick old one, only moved. Note excluded beam.
     int iRec = 0;
-    if (dipNow.systemRec == dipNow.system) { 
+    if (dipNow.systemRec == iSys) { 
       for (int i = 1; i < 2 + sizeOut; ++i) 
       if (dipNow.iRecoiler == iOld[i]) { 
         iRec = iNew[i];
         break;
       }
 
-    // Recoiler in another system: keep it as is.
-    } else iRec = dipNow.iRecoiler;
-
-    // QCD recoiler: check if colour hooks up with new final parton.
-    if ( dipNow.colType > 0 
-      && event[dipNow.iRadiator].col() == event[iNewNew].acol() ) { 
-      iRec = iNewNew;
-      dipNow.isrType = 0;
-    }
-    if ( dipNow.colType < 0 
-      && event[dipNow.iRadiator].acol() == event[iNewNew].col() ) { 
-      iRec = iNewNew;
-      dipNow.isrType = 0;
-    }
-      
-    // QCD recoiler: check if colour hooks up with new beam parton.
-    if ( iRec == 0 && dipNow.colType > 0 
-      && event[dipNow.iRadiator].col()  == event[iNew[0]].col() ) 
-      iRec = iNew[0];
-    if ( iRec == 0 && dipNow.colType < 0 
-      && event[dipNow.iRadiator].acol() == event[iNew[0]].acol() )   
-      iRec = iNew[0];
-
-    // QED/photon recoiler: either to new particle or remains to beam.
-    if ( iRec == 0 && (dipNow.chgType != 0 || dipNow.gamType != 0) ) {
-      if ( event[iNew[0]].chargeType() == 0 ) {
+      // QCD recoiler: check if colour hooks up with new final parton.
+      if ( dipNow.colType > 0 
+        && event[dipNow.iRadiator].col() == event[iNewNew].acol() ) { 
         iRec = iNewNew;
         dipNow.isrType = 0;
-      } else {
-        iRec = iNew[0];
       }
-    }
+      if ( dipNow.colType < 0 
+        && event[dipNow.iRadiator].acol() == event[iNewNew].col() ) { 
+        iRec = iNewNew;
+        dipNow.isrType = 0;
+      }
+      
+      // QCD recoiler: check if colour hooks up with new beam parton.
+      if ( iRec == 0 && dipNow.colType > 0 
+        && event[dipNow.iRadiator].col()  == event[iNew[0]].col() ) 
+        iRec = iNew[0];
+      if ( iRec == 0 && dipNow.colType < 0 
+        && event[dipNow.iRadiator].acol() == event[iNew[0]].acol() )   
+        iRec = iNew[0];
+
+      // QED/photon recoiler: either to new particle or remains to beam.
+      if ( iRec == 0 && (dipNow.chgType != 0 || dipNow.gamType != 0) ) {
+        if ( event[iNew[0]].chargeType() == 0 ) {
+          iRec = iNewNew;
+          dipNow.isrType = 0;
+        } else {
+          iRec = iNew[0];
+        }
+      }
+
+    // Recoiler in another system: keep it as is.
+    } else iRec = dipNow.iRecoiler;
 
     // Done. Kill dipole if failed to find new recoiler. 
     dipNow.iRecoiler = iRec;
@@ -547,6 +557,65 @@ void TimeShower::update( int iSys, Event& event) {
   if (doChgDip || doGamDip) 
     setupQEDdip( iSys, sizeOut, chgType, gamType, event); 
 
+  // Start iterate over list of rescatterers - may be empty.
+  int iRescNow = -1;
+  while (++iRescNow < int(iRescatterer.size())) {
+
+    // Identify systems that rescatterers belong to.
+    int iOutNew    = iRescatterer[iRescNow];    
+    int iInNew     = event[iOutNew].daughter1();
+    int iSysResc   = partonSystemsPtr->getSystemOf(iInNew, true);
+
+    // Find new and old positions of incoming partons in the system.
+    iNew.resize(0); 
+    iOld.resize(0);
+    iNew.push_back( partonSystemsPtr->getInA(iSysResc) );
+    iOld.push_back( event[iNew[0]].daughter1() ); 
+    iNew.push_back( partonSystemsPtr->getInB(iSysResc) );
+    iOld.push_back( event[iNew[1]].daughter1() ); 
+
+    // Ditto for outgoing partons.
+    sizeOut = partonSystemsPtr->sizeOut(iSysResc);  
+    for (int i = 0; i < sizeOut; ++i) {
+      int iNow = partonSystemsPtr->getOut(iSysResc, i);
+      iNew.push_back( iNow );
+      iOld.push_back( event[iNow].mother1() );
+      // Add non-final to list of rescatterers.
+      if (!event[iNow].isFinal()) iRescatterer.push_back( iNow );
+    }
+
+    // Loop over all dipole ends belonging to the system 
+    // or to the recoil system, if different.
+    for (int iDip = 0; iDip < int(dipEnd.size()); ++iDip) 
+    if (dipEnd[iDip].system == iSysResc 
+      || dipEnd[iDip].systemRec == iSysResc) {
+      TimeDipoleEnd& dipNow = dipEnd[iDip];
+
+      // Replace radiator (always in final state so simple).
+      for (int i = 2; i < 2 + sizeOut; ++i) 
+      if (dipNow.iRadiator == iOld[i]) { 
+        dipNow.iRadiator = iNew[i];
+        break;
+      }
+
+      // Replace ME partner (always in final state, if exists, so simple).
+      for (int i = 2; i < 2 + sizeOut; ++i) 
+      if (dipNow.iMEpartner == iOld[i]) { 
+        dipNow.iMEpartner = iNew[i];
+        break;
+      }
+
+      // Replace recoiler.
+      for (int i = 0; i < 2 + sizeOut; ++i) 
+      if (dipNow.iRecoiler == iOld[i]) { 
+        dipNow.iRecoiler = iNew[i];
+        break;
+      }
+    }
+
+  // End iterate over list of rescatterers.
+  }
+
 }
 
 //*********
@@ -565,31 +634,37 @@ void TimeShower::setupQCDdip( int iSys, int i, int colTag, int colSign,
   int sizeIn  = sizeAll - sizeOut;
   int iOffset = i + partonSystemsPtr->sizeAll(iSys) - sizeOut;
   bool otherSystemRec = false;
+  bool allowInitial   = (partonSystemsPtr->hasInAB(iSys)) ? true : false;
 
   // Colour: other end by same index in beam or opposite in final state.
+  // Exclude rescattered incoming and not final outgoing.
   if (colSign > 0) 
   for (int j = 0; j < sizeAll; ++j) if (j != iOffset) {
     int iRecNow = partonSystemsPtr->getAll(iSys, j);
-    if ( (j <  sizeIn && event[iRecNow].col()  == colTag)
-      || (j >= sizeIn && event[iRecNow].acol() == colTag) ) { 
+    if ( ( j <  sizeIn && event[iRecNow].col()  == colTag
+      && !event[iRecNow].isRescatteredIncoming() )
+      || ( j >= sizeIn && event[iRecNow].acol() == colTag 
+      && event[iRecNow].isFinal() ) ) { 
       iRec = iRecNow;
       break;
     }
   }
  
   // Anticolour: other end by same index in beam or opposite in final state.
+  // Exclude rescattered incoming and not final outgoing.
   if (colSign < 0) 
   for (int j = 0; j < sizeAll; ++j) if (j != iOffset) {
     int iRecNow = partonSystemsPtr->getAll(iSys, j);
-    if ( (j <  sizeIn && event[iRecNow].acol()  == colTag)
-      || (j >= sizeIn && event[iRecNow].col() == colTag) ) { 
+    if ( ( j <  sizeIn && event[iRecNow].acol()  == colTag
+      && !event[iRecNow].isRescatteredIncoming() )
+      || ( j >= sizeIn && event[iRecNow].col() == colTag
+      && event[iRecNow].isFinal() ) ) { 
       iRec = iRecNow;
       break;
     }
   }
 
   // If no success then look for matching (anti)colour anywhere in final state.
-  // More cases??
   if ( iRec == 0 || (!doInterleave && !event[iRec].isFinal()) ) {
     iRec = 0;
     for (int j = 0; j < event.size(); ++j) if (event[j].isFinal()) 
@@ -598,6 +673,29 @@ void TimeShower::setupQCDdip( int iSys, int i, int colTag, int colSign,
       iRec = j;
       otherSystemRec = true;
       break;
+    }
+
+    // If no success then look for match to non-rescattered in initial state.
+    if (iRec == 0 && allowInitial) {
+      for (int iSysR = 0; iSysR < partonSystemsPtr->sizeSys(); ++iSysR) 
+      if (iSysR != iSys) {
+        int j = partonSystemsPtr->getInA(iSysR);
+        if (j > 0 && event[j].isRescatteredIncoming()) j = 0;
+        if (j > 0 && ( (colSign > 0 && event[j].col() == colTag)
+          || (colSign < 0 && event[j].acol()  == colTag) ) ) {
+          iRec = j;
+          otherSystemRec = true;
+          break;
+        }
+        j = partonSystemsPtr->getInB(iSysR);
+        if (j > 0 && event[j].isRescatteredIncoming()) j = 0;
+        if (j > 0 && ( (colSign > 0 && event[j].col() == colTag)
+          || (colSign < 0 && event[j].acol()  == colTag) ) ) {
+          iRec = j;
+          otherSystemRec = true;
+          break;
+        }
+      }
     }
 
     // For junction pick any of other leg as recoiler. Note colour sign.
@@ -619,16 +717,33 @@ void TimeShower::setupQCDdip( int iSys, int i, int colTag, int colSign,
     }
   }
 
-  // If fail, then other end to nearest recoiler in final state,
+  // If fail, then other end to nearest recoiler in same system final state,
   // by (p_i + p_j)^2 - (m_i + m_j)^2 = 2 (p_i p_j - m_i m_j).
   if (iRec == 0) {
     double ppMin = LARGEM2; 
     for (int j = 0; j < sizeOut; ++j) if (j != i) { 
       int iRecNow  = partonSystemsPtr->getOut(iSys, j);
+      if (!event[iRecNow].isFinal()) continue;
       double ppNow = event[iRecNow].p() * event[iRad].p() 
                    - event[iRecNow].m() * event[iRad].m();
       if (ppNow < ppMin) {
         iRec  = iRecNow;
+        ppMin = ppNow;
+      } 
+    }     
+  }  
+
+  // If fail, then other end to nearest recoiler in any system final state,
+  // by (p_i + p_j)^2 - (m_i + m_j)^2 = 2 (p_i p_j - m_i m_j).
+  if (iRec == 0) {
+    double ppMin = LARGEM2; 
+    for (int iRecNow = 0; iRecNow < event.size(); ++iRecNow) 
+    if (iRecNow != iRad && event[iRecNow].isFinal()) {
+      double ppNow = event[iRecNow].p() * event[iRad].p() 
+                   - event[iRecNow].m() * event[iRad].m();
+      if (ppNow < ppMin) {
+        iRec  = iRecNow;
+        otherSystemRec = true;
         ppMin = ppNow;
       } 
     }     
@@ -647,9 +762,13 @@ void TimeShower::setupQCDdip( int iSys, int i, int colTag, int colSign,
 
     // If hooked up with other system then find which.
     if (otherSystemRec) {
-      int systemRec = partonSystemsPtr->getSystemOf(iRec);
+      int systemRec = partonSystemsPtr->getSystemOf(iRec, true);
       if (systemRec >= 0) dipEnd.back().systemRec = systemRec;
+      dipEnd.back().MEtype = 0;
     } 
+  } else {
+    infoPtr->errorMsg("Error in TimeShower::setupQCDdip: "
+      "failed to locate any recoiling partner");
   }
 
 }
@@ -657,86 +776,143 @@ void TimeShower::setupQCDdip( int iSys, int i, int colTag, int colSign,
 //*********
 
 // Setup a dipole end for a QED colour charge or a photon.
-// No failsafe choice of recoiler, so gradually extend search.
+// No failsafe choice of recoiler, so gradually widen search.
 
-void TimeShower::setupQEDdip( int iSys, int i, int chgType, int gamType, 
+void TimeShower::setupQEDdip( int iSys, int i, int chgType, int gamType,
   Event& event) {
- 
-  // Initial values. Find if allowed to hook up beams.
-  int iRad    = partonSystemsPtr->getOut(iSys, i);
-  int idRad   = event[iRad].id();
-  int iRec    = 0;
-  int sizeOut = partonSystemsPtr->sizeOut(iSys);
-  int sizeAll = ( allowBeamRecoil ) ? partonSystemsPtr->sizeAll(iSys) 
-                                    : sizeOut;
-  int iOffset = i + partonSystemsPtr->sizeAll(iSys) - sizeOut;
 
-  // Find nearest opposite-flavour recoiler in final state of same system.
-  // Note: (p_i + p_j)^2 - (m_i + m_j)^2 = 2 (p_i p_j - m_i m_j).
-  double ppMin = LARGEM2; 
-  for (int j = 0; j < sizeOut; ++j) if (j != i) {
-    int iRecNow  = partonSystemsPtr->getOut(iSys, j);
-    if (event[iRecNow].id() == -idRad) {
-      double ppNow = event[iRecNow].p() * event[iRad].p() 
-                   - event[iRecNow].m() * event[iRad].m(); 
+  // Initial values. Find if allowed to hook up beams.
+  int iRad     = partonSystemsPtr->getOut(iSys, i);
+  int idRad    = event[iRad].id();
+  int iRec     = 0;
+  int sizeOut  = partonSystemsPtr->sizeOut(iSys);
+  int sizeAll  = ( allowBeamRecoil ) ? partonSystemsPtr->sizeAll(iSys)
+                                     : sizeOut;
+  int sizeIn   = sizeAll - sizeOut;
+  int iOffset  = i + partonSystemsPtr->sizeAll(iSys) - sizeOut;
+  double ppMin = LARGEM2;
+  bool hasRescattered = false;
+  bool otherSystemRec = false;
+
+  // Find nearest same- (opposide-) flavour recoiler in initial (final)
+  // state of same system, excluding rescattered (in or out) partons.
+  // Also find if system is involved in rescattering.
+  // Note: (p_i + p_j)2 - (m_i + m_j)2 = 2 (p_i p_j - m_i m_j).
+  for (int j = 0; j < sizeAll; ++j) if (j != iOffset) {
+    int iRecNow  = partonSystemsPtr->getAll(iSys, j);
+    if ( (j <  sizeIn && !event[iRecNow].isRescatteredIncoming())
+      || (j >= sizeIn && event[iRecNow].isFinal()) ) {
+      if ( (j <  sizeIn && event[iRecNow].id() ==  idRad)
+        || (j >= sizeIn && event[iRecNow].id() == -idRad) ) {
+        double ppNow = event[iRecNow].p() * event[iRad].p()
+                     - event[iRecNow].m() * event[iRad].m();
+        if (ppNow < ppMin) {
+          iRec  = iRecNow;
+          ppMin = ppNow;
+        }
+      }
+    } else hasRescattered = true;
+  }
+
+  // If rescattering or if FSR only after MI + ISR + BR then find nearest
+  // opposite-flavour recoiler anywhere in final state.
+  if ( iRec == 0 && (hasRescattered || !doInterleave) ) {
+    for (int iRecNow = 0; iRecNow < event.size(); ++iRecNow)
+    if (event[iRecNow].id() == -idRad && event[iRecNow].isFinal()) {
+      double ppNow = event[iRecNow].p() * event[iRad].p()
+                   - event[iRecNow].m() * event[iRad].m();
       if (ppNow < ppMin) {
         iRec  = iRecNow;
         ppMin = ppNow;
+        otherSystemRec = true;
       }
-    }     
+    }
   }
 
-  // If FSR only after MI + ISR + BR then find nearest opposite-flavour
-  // recoiler anywhere in final state.
-  if ( !doInterleave && iRec == 0 ) {
-    for (int j = 0; j < event.size(); ++j) 
-    if (event[j].isFinal() && event[j].id() == -idRad) {  
-      double ppNow = event[j].p() * event[iRad].p() 
-                   - event[j].m() * event[iRad].m(); 
-      if (ppNow < ppMin) {
-        iRec  = j;
-        ppMin = ppNow;
-      }
-    }     
-  }
-
-  // Find nearest recoiler in same system, charge-squared-weighted 
+  // Find nearest recoiler in same system, charge-squared-weighted,
+  // including initial state, but excluding rescatterer.
   if (iRec == 0)
   for (int j = 0; j < sizeAll; ++j) if (j != iOffset) {
     int iRecNow = partonSystemsPtr->getAll(iSys, j);
-    int chgTypeRecNow = event[iRecNow].chargeType(); 
-    if (chgTypeRecNow != 0) {
-      double ppNow = (event[iRecNow].p() * event[iRad].p() 
-                   -  event[iRecNow].m() * event[iRad].m()) 
+    int chgTypeRecNow = event[iRecNow].chargeType();
+    if (chgTypeRecNow == 0) continue;
+    if ( (j <  sizeIn && !event[iRecNow].isRescatteredIncoming())
+      || (j >= sizeIn && event[iRecNow].isFinal()) ) {
+      double ppNow = (event[iRecNow].p() * event[iRad].p()
+                   -  event[iRecNow].m() * event[iRad].m())
                    / pow2(chgTypeRecNow);
       if (ppNow < ppMin) {
         iRec  = iRecNow;
         ppMin = ppNow;
-      } 
-    }     
+      }
+    }
   }
 
-  // If fail find any nearest recoiler in final state of same system.
-  if (iRec == 0) 
+  // If rescattering or if FSR only after MI + ISR + BR then find
+  // nearest recoiler in the final state, charge-squared-weighted.
+  if ( iRec == 0 && (hasRescattered || !doInterleave) ) {
+    for (int iRecNow = 0; iRecNow < event.size(); ++iRecNow)
+    if (iRecNow != iRad && event[iRecNow].isFinal()) {
+      int chgTypeRecNow = event[iRecNow].chargeType();
+      if (chgTypeRecNow != 0 && event[iRecNow].isFinal()) {
+        double ppNow = (event[iRecNow].p() * event[iRad].p()
+                     -  event[iRecNow].m() * event[iRad].m())
+                     / pow2(chgTypeRecNow);
+        if (ppNow < ppMin) {
+          iRec  = iRecNow;
+          ppMin = ppNow;
+          otherSystemRec = true;
+        }
+      }
+    }
+  }
+
+  // Find any nearest recoiler in final state of same system.
+  if (iRec == 0)
   for (int j = 0; j < sizeOut; ++j) if (j != i) {
     int iRecNow  = partonSystemsPtr->getOut(iSys, j);
-    double ppNow = event[iRecNow].p() * event[iRad].p() 
-                 - event[iRecNow].m() * event[iRad].m(); 
+    double ppNow = event[iRecNow].p() * event[iRad].p()
+                 - event[iRecNow].m() * event[iRad].m();
     if (ppNow < ppMin) {
       iRec  = iRecNow;
       ppMin = ppNow;
-    }     
+    }
   }
- 
+
+  // Find any nearest recoiler in final state.
+  if (iRec == 0)
+  for (int iRecNow = 0; iRecNow < event.size(); ++iRecNow)
+  if (iRecNow != iRad && event[iRecNow].isFinal()) {
+    double ppNow = event[iRecNow].p() * event[iRad].p()
+                 - event[iRecNow].m() * event[iRad].m();
+    if (ppNow < ppMin) {
+      iRec  = iRecNow;
+      ppMin = ppNow;
+      otherSystemRec = true;
+    }
+  }
+
   // Fill charge-dipole or photon-dipole end.
-  if (iRec > 0) { 
+  if (iRec > 0) {
     double pTmax = event[iRad].scale();
     if (iSys == 0) pTmax *= pTmaxFudge;
     int isrType = (event[iRec].isFinal()) ? 0 : event[iRec].mother1();
     // This line in case mother is a rescattered parton.
     while (isrType > 2) isrType = event[isrType].mother1();
-    dipEnd.push_back( TimeDipoleEnd(iRad, iRec, pTmax, 
+    dipEnd.push_back( TimeDipoleEnd(iRad, iRec, pTmax,
       0, chgType, gamType, isrType, iSys, -1) );
+
+    // If hooked up with other system then find which.
+    if (otherSystemRec) {
+      int systemRec = partonSystemsPtr->getSystemOf(iRec);
+      if (systemRec >= 0) dipEnd.back().systemRec = systemRec;
+      dipEnd.back().MEtype = 0;
+    }
+
+  // Failure to find other end of dipole.
+  } else {
+    infoPtr->errorMsg("Error in TimeShower::setupQEDdip: "
+      "failed to locate any recoiling partner");
   }
 
 }
@@ -918,7 +1094,7 @@ void TimeShower::pT2nextQCD(double pT2begDip, double pT2sel,
         if (dip.flavour == 0) {
           dip.flavour  = min(5, 1 + int(nGluonToQuark * Rndm::flat())); 
           dip.mFlavour = ParticleDataTable::m0(dip.flavour);
-	}
+        }
 
         // No z weight, except threshold, if to do ME corrections later on.
         if (dip.MEtype > 0) { 
@@ -929,7 +1105,7 @@ void TimeShower::pT2nextQCD(double pT2begDip, double pT2sel,
         // z weight for X -> X g.
         } else if (dip.flavour == 21 && colTypeAbs == 1) {
           wt = (1. + pow2(dip.z)) / wtPSglue;
-	} else if (dip.flavour == 21) {     
+        } else if (dip.flavour == 21) {     
           wt = (1. + pow3(dip.z)) / wtPSglue;
            
         // z weight for g -> q qbar.
@@ -945,14 +1121,22 @@ void TimeShower::pT2nextQCD(double pT2begDip, double pT2sel,
           double xOld = beam[iSys].x();
           double xNew = xOld * (1. + (dip.m2 - dip.m2Rad) / 
             (dip.m2Dip - dip.m2Rad));
-          if (xNew > beam.xMax(iSys)) wt = 0.;              
+
+          double xMaxAbs = beam.xMax(iSys);
+          if (xMaxAbs < 0.) {
+            infoPtr->errorMsg("Error in TimeShower::pT2nextQCD: "
+            "xMaxAbs negative"); 
+            return;
+          }
+ 
+          if (xNew > xMaxAbs) wt = 0.;              
           else {
             int idRec     = event[dip.iRecoiler].id();
             double pdfOld = max ( TINYPDF, 
                             beam.xfISR( iSys, idRec, xOld, dip.pT2) ); 
             double pdfNew = beam.xfISR( iSys, idRec, xNew, dip.pT2); 
             wt *= min( 1., pdfNew / pdfOld); 
-	  }
+          }
         }
       }
     }
@@ -1091,7 +1275,15 @@ void TimeShower::pT2nextQED(double pT2begDip, double pT2sel,
         double xOld = beam[iSys].x();
         double xNew = xOld * (1. + (dip.m2 - dip.m2Rad) / 
           (dip.m2Dip - dip.m2Rad));
-        if (xNew > beam.xMax(iSys)) wt = 0.;
+
+        double xMaxAbs = beam.xMax(iSys);
+        if (xMaxAbs < 0.) {
+          infoPtr->errorMsg("Error in TimeShower::pT2nextQED: "
+          "xMaxAbs negative"); 
+          return;
+        }
+ 
+        if (xNew > xMaxAbs) wt = 0.;
         else {
           int idRec     = event[dip.iRecoiler].id();
           double pdfOld = max ( TINYPDF, 
@@ -1114,7 +1306,7 @@ void TimeShower::pT2nextQED(double pT2begDip, double pT2sel,
 //           rad, rec, emt = radiator, recoiler, emitted efter emission.
 //           (rad, emt distinguished by colour flow for g -> q qbar.) 
 
-bool TimeShower::branch( Event& event) {
+bool TimeShower::branch( Event& event, bool isInterleaved) {
 
   // Find initial particles in dipole branching.
   int iRadBef      = dipSel->iRadiator;
@@ -1261,6 +1453,15 @@ bool TimeShower::branch( Event& event) {
       return false;
   }
 
+  // Rescatter: if the recoiling partner is not in the same system
+  //            as the radiator, fix up intermediate systems (can lead
+  //            to emissions being vetoed)
+  if (allowRescatter && FIXRESCATTER && isInterleaved 
+    && iSysSel != iSysSelRec) {
+    Vec4 pNew = rad.p() + emt.p();
+    if (!rescatterPropagateRecoil(event, pNew)) return false;
+  }
+
   // Put new particles into the event record.
   int iRad = event.append(rad);
   int iEmt = event.append(emt);
@@ -1282,11 +1483,11 @@ bool TimeShower::branch( Event& event) {
     // For initial-state recoiler also update beam and sHat info.
     BeamParticle& beamRec = (isrTypeNow == 1) ? *beamAPtr : *beamBPtr;
     double xOld = beamRec[iSysSelRec].x();
-    double xRec = pRec.e() / beamRec.e(); 
+    double xRec = 2. * pRec.e() / (beamAPtr->e() + beamBPtr->e()); 
     beamRec[iSysSelRec].iPos( iRec);
     beamRec[iSysSelRec].x( xRec); 
     partonSystemsPtr->setSHat( iSysSelRec,
-      partonSystemsPtr->getSHat(iSysSelRec) * xRec / xOld);
+    partonSystemsPtr->getSHat(iSysSelRec) * xRec / xOld);
   }
 
   // Photon emission: update to new dipole ends; add new photon "dipole".
@@ -1325,19 +1526,23 @@ bool TimeShower::branch( Event& event) {
   // Gluon branching to q qbar: update current dipole and other of gluon.
   } else if (dipSel->colType != 0) {
     for (int i = 0; i < int(dipEnd.size()); ++i) {
+      // Strive to match colour to anticolour inside closed system.
+      if ( dipEnd[i].iRecoiler == iRadBef 
+        && dipEnd[i].colType * dipSel->colType < 0 ) 
+        dipEnd[i].iRecoiler = iEmt;
+
       if (dipEnd[i].iRadiator == iRadBef && abs(dipEnd[i].colType) == 2) {
         dipEnd[i].colType /= 2;
+ 
+        if (dipEnd[i].system != dipEnd[i].systemRec) continue;
+
         // Note: gluino -> quark + squark gives a deeper radiation dip than
         // the more obvious alternative photon decay, so is more realistic.
         dipEnd[i].MEtype = 66;
         if (&dipEnd[i] == dipSel) dipEnd[i].iMEpartner = iRad;
         else                      dipEnd[i].iMEpartner = iEmt;
       }
-      // Strive to match colour to anticolour inside closed system.
-      if ( dipEnd[i].iRecoiler == iRadBef 
-        && dipEnd[i].colType * dipSel->colType < 0 ) 
-        dipEnd[i].iRecoiler = iEmt;
-    }
+   }
     dipSel->iRadiator = iEmt;
     dipSel->iRecoiler = iRec;
     dipSel->pTmax     = pTsel;
@@ -1398,6 +1603,336 @@ bool TimeShower::branch( Event& event) {
 
 //*********
 
+// Rescatter: If a dipole stretches between two different systems, those
+//            systems will no longer locally conserve momentum. These
+//            imbalances become problematic when ISR or primordial kT
+//            is switched on as these steps involve Lorentz boosts.
+//
+//            'rescatterPropagateRecoil' tries to fix momentum in all
+//            systems by propogating recoil momentum through all
+//            intermediate systems. As the momentum transfer is already
+//            defined, this can lead to internal lines gaining a
+//            virtuality.
+
+// Useful definitions for a pair of integers and a vector of pairs
+typedef pair < int, int >  pairInt;
+typedef vector < pairInt > vectorPairInt;
+
+//*********
+
+// findParentSystems
+//  Utility routine to find all parent systems of a given system
+//  Returns a vector of pairs of integers with:
+//   a) The system index, including the starting system (negative
+//      if (b) points to a parent system, positive if (b) points
+//      to a daughter system
+//   b) The event record index that is the path out of the system
+//      (if forwards == false, this is an incoming parton to the
+//      system, and is +ve if side A or -ve if side B,
+//      if forwards == true, this is an outgoing parton from the
+//      system).
+//  Returns as empty vector on failure
+//  Note: this assumes single rescattering only and therefore only
+//        one possible parent system
+
+static inline vectorPairInt findParentSystems(const int sys, 
+  Event &event, PartonSystems *partonSystemsPtr, bool forwards) {
+
+  vectorPairInt parentSystems;
+  parentSystems.reserve(10);
+
+  int iSysCur = sys;
+  while (true) {
+    // Get two incoming partons
+    int iInA = partonSystemsPtr->getInA(iSysCur);
+    int iInB = partonSystemsPtr->getInB(iSysCur);
+
+    // Check if either of these links to another system
+    int iIn = 0;
+    if (event[iInA].isRescatteredIncoming()) iIn =  iInA;
+    if (event[iInB].isRescatteredIncoming()) iIn = -iInB;
+
+    // Save the current system to the vector
+    parentSystems.push_back( pairInt(-iSysCur, iIn) ); 
+    if (iIn == 0) break;
+
+    int iInAbs  = abs(iIn);
+    int iMother = event[iInAbs].mother1();
+    iSysCur     = partonSystemsPtr->getSystemOf(iMother);
+    if (iSysCur == -1) {
+      parentSystems.clear();
+      break;
+    }
+  } // while (true)
+
+  // If forwards is set, change all event record indices to go to daughter
+  // systems rather than parent systems
+  if (forwards) {
+    vectorPairInt::reverse_iterator rit;
+    for (rit = parentSystems.rbegin(); rit < (parentSystems.rend() - 1);
+         ++rit) {
+      pairInt &cur  = *rit;
+      pairInt &next = *(rit + 1);
+      cur.first     = -cur.first;
+      cur.second    = (next.second < 0) ? -event[abs(next.second)].mother1() :
+                                           event[abs(next.second)].mother1();
+    }
+  } 
+
+  return parentSystems;
+}
+
+//*********
+
+// rescatterPropagateRecoil
+//  Fix up momentum in all intermediate systems when radiator and recoiler
+//  systems are different. The strategy is to look at all parent systems
+//  from the radiator system and the recoiler system and find where they
+//  intersect.
+
+bool TimeShower::rescatterPropagateRecoil( Event& event, Vec4& pNew) {
+
+  // Some useful variables for later
+  int  iRadBef    = dipSel->iRadiator;
+       iSysSel    = dipSel->system;
+  int  iSysSelRec = dipSel->systemRec;
+  Vec4 pImbal     = pNew - event[iRadBef].p();
+
+  // Store changes locally at first in case we veto the branching
+  // eventMod stores index into the event record and new 4-vector
+  vector < pair < int, Vec4 > > eventMod;
+  eventMod.reserve(10);
+  // systemMod stores system index (iSys) and system-parton index (iMem)
+  //   iMem >=  0 - index into outgoing partons (iOut)
+  //   iMem == -1 - incoming A
+  //   iMem == -2 - incoming B
+  vectorPairInt systemMod;
+  systemMod.reserve(10);
+
+  // Find all parent systems from radiating and recoiling systems
+  vectorPairInt radParent = findParentSystems(iSysSel, event,
+                                              partonSystemsPtr, false);
+  vectorPairInt recParent = findParentSystems(iSysSelRec, event,
+                                              partonSystemsPtr, true);
+  if (radParent.size() == 0 || recParent.size() == 0) {
+    // This should never happen
+    infoPtr->errorMsg("Error in TimeShower::rescatterPropagateRecoil: "
+      "couldn't find parent system; branching vetoed");
+    return false;
+  }
+  // Find the system that connects radiating and recoiling system
+  bool foundPath = false;
+  unsigned int iRadP = 0; 
+  unsigned int iRecP = 0;
+  for (iRadP = 0; iRadP < radParent.size(); iRadP++) {
+    for (iRecP = 0; iRecP < recParent.size(); iRecP++)
+      if (abs(radParent[iRadP].first) == abs(recParent[iRecP].first)) {
+        foundPath = true;
+        break;
+      }
+    if (foundPath) break;
+  }
+  if (!foundPath) {
+    // Can fail e.g. for QED dipoles where there is no connection
+    // between radiator and recoiler systems
+    infoPtr->errorMsg("Warning in TimeShower::rescatterPropagateRecoil: "
+      "couldn't find recoil path; branching vetoed");
+    return false;
+  }
+
+  // Join together to form complete path from radiating system
+  // to recoiling system
+  vectorPairInt path;
+  if (radParent.size() > 1)
+    path.assign(radParent.begin(), radParent.begin() + iRadP);
+  if (recParent.size() > 1)
+    path.insert(path.end(), recParent.rend() - iRecP - 1,
+                recParent.rend() - 1);
+
+  // Follow the path fixing up momenta as we go
+  for (unsigned int i = 0; i < path.size(); i++) {
+    // Line out of the current system
+    bool isIncoming  = (path[i].first < 0) ? true : false;
+    int  iSysCur     = abs(path[i].first);
+    bool isIncomingA = (path[i].second > 0) ? true : false;
+    int  iLink       = abs(path[i].second);
+
+    int iMemCur;
+    if (isIncoming) iMemCur = (isIncomingA) ? -1 : -2;
+    else {
+      iMemCur = -1;
+      for (int j = 0; j < partonSystemsPtr->sizeOut(iSysCur); j++)
+        if (partonSystemsPtr->getOut(iSysCur, j) == iLink) {
+          iMemCur = j;
+          break;
+        }
+      if (iMemCur == -1) {
+        // This should never happen
+        infoPtr->errorMsg("Error in TimeShower::rescatterPropagateRecoil: "
+          "couldn't find parton system; branching vetoed");
+        return false;
+      }
+    }
+
+    Vec4 pMod = (isIncoming) ? event[iLink].p() + pImbal :
+                               event[iLink].p() - pImbal;
+    eventMod.push_back(pair <int, Vec4> (iLink, pMod));
+    systemMod.push_back(pairInt(iSysCur, iMemCur));
+
+    // Calculate sHat of iSysCur
+    int  iInCurA = partonSystemsPtr->getInA(iSysCur);
+    int  iInCurB = partonSystemsPtr->getInB(iSysCur);
+    Vec4 pTotCur = event[iInCurA].p() + event[iInCurB].p();
+
+    // If iMemCur is -1 or -2, then we must have changed the sHat of iSysCur
+    if (iMemCur < 0) pTotCur += (isIncoming) ? pImbal : -pImbal;
+    double sHatCur = pTotCur.m2Calc();
+ 
+    // The fixed-up incoming and outgoing partons should not have
+    // too large a virtuality in relation to the system mass-square. 
+    if (abs(pMod.m2Calc()) > MAXVIRTUALITYFRACTION * sHatCur) {
+      infoPtr->errorMsg("Warning in TimeShower::rescatterPropagateRecoil: "
+        "virtuality much larger than sHat; branching vetoed");
+      return false;
+    }
+
+    // Outgoing ones should also not have too large negative energy  
+    // in the rest frame of the system.
+    if (!isIncoming && pMod * pTotCur < -MAXNEGENERGYFRACTION * sHatCur) {
+      infoPtr->errorMsg("Warning in TimeShower::rescatterPropagateRecoil: "
+        "rest frame energy too negative; branching vetoed");
+      return false;
+    }
+
+    // Veto negative sHat.
+    if (sHatCur < 0.0) {
+      infoPtr->errorMsg("Warning in TimeShower::rescatterPropagateRecoil: "
+        "sHat became negative; branching vetoed");
+      return false;
+    }
+
+    // Line into the new current system
+    iLink   = (isIncoming) ? event[iLink].mother1()  :
+                             event[iLink].daughter1();
+    iSysCur = partonSystemsPtr->getSystemOf(iLink, true);
+
+    if (!isIncoming) iMemCur = (isIncomingA) ? -1 : -2;
+    else {
+      iMemCur = -1;
+      for (int j = 0; j < partonSystemsPtr->sizeOut(iSysCur); j++)
+        if (partonSystemsPtr->getOut(iSysCur, j) == iLink) {
+          iMemCur = j;
+          break;
+        }
+      if (iMemCur == -1) {
+        // This should never happen
+        infoPtr->errorMsg("Error in TimeShower::rescatterPropagateRecoil: "
+          "couldn't find parton system; branching vetoed");
+        return false;
+      }
+    }
+
+    pMod = (isIncoming) ? event[iLink].p() + pImbal :
+                          event[iLink].p() - pImbal;
+    eventMod.push_back(pair <int, Vec4> (iLink, pMod));
+    systemMod.push_back(pairInt(iSysCur, iMemCur));
+
+    // Calculate sHat of iSysCur
+    iInCurA = partonSystemsPtr->getInA(iSysCur);
+    iInCurB = partonSystemsPtr->getInB(iSysCur);
+    pTotCur = event[iInCurA].p() + event[iInCurB].p();
+
+    // If iMemCur is -1 or -2, then we must have changed the sHat of iSysCur
+    if (iMemCur < 0) pTotCur += (isIncoming) ? pImbal : -pImbal;
+    sHatCur = pTotCur.m2Calc();
+ 
+    // The fixed-up incoming and outgoing partons should not have
+    // too large a virtuality in relation to the system mass-square. 
+    if (abs(pMod.m2Calc()) > MAXVIRTUALITYFRACTION * sHatCur) {
+      infoPtr->errorMsg("Warning in TimeShower::rescatterPropagateRecoil: "
+        "virtuality much larger than sHat; branching vetoed");
+      return false;
+    }
+
+    // Outgoing ones should also not have too large negative energy
+    // in the rest frame of the system.
+    if (!isIncoming && pMod * pTotCur < -MAXNEGENERGYFRACTION * sHatCur) {
+      infoPtr->errorMsg("Warning in TimeShower::rescatterPropagateRecoil: "
+        "rest frame energy too negative; branching vetoed");
+      return false;
+    }
+
+    // Veto negative sHat
+    if (sHatCur < 0.0) {
+      infoPtr->errorMsg("Warning in TimeShower::rescatterPropagateRecoil: "
+        "sHat became negative; branching vetoed");
+      return false;
+    }
+
+    // Do negative energy veto
+    if (VETONEGENERGY && pMod.e() < 0.0) {
+      infoPtr->errorMsg("Warning in TimeShower::rescatterPropagateRecoil: "
+        "energy became negative; branching vetoed");
+      return false;
+    }
+    
+  } // for (unsigned int i = 0; i < path.size(); i++)
+
+  // If no vetos by this point, apply the changes to the event record
+  // An incoming particle with changed momentum is given status code -54,
+  // an outgoing particle with changed momentum is given status code -55
+  for (unsigned int i = 0; i < eventMod.size(); i++) {
+    int idx    = eventMod[i].first;
+    Vec4 &pMod = eventMod[i].second;
+    int iSys   = systemMod[i].first;
+    int iMem   = systemMod[i].second;
+
+    // If incoming to a process then set the copy to be the mother
+    if (event[idx].isRescatteredIncoming()) {
+      int mother1 = event[idx].mother1();
+      idx = event.copy(idx, -54);
+      event[mother1].daughters(idx, idx);
+    
+      // Update beam information if necessary 
+      double eCM = sqrt(m2( beamAPtr->p(), beamBPtr->p()));
+      if        (iMem == -1) {
+        partonSystemsPtr->setInA(iSys, idx);
+        (*beamAPtr)[iSys].x((pMod.e() + pMod.pz()) / eCM);
+        (*beamAPtr)[iSys].m(pMod.mCalc());
+        (*beamAPtr)[iSys].p(pMod);
+        (*beamAPtr)[iSys].iPos(idx);
+      } else if (iMem == -2) {
+        partonSystemsPtr->setInB(iSys, idx);
+        (*beamBPtr)[iSys].x((pMod.e() - pMod.pz()) / eCM);
+        (*beamBPtr)[iSys].m(pMod.mCalc());
+        (*beamBPtr)[iSys].p(pMod);
+        (*beamBPtr)[iSys].iPos(idx);
+      } else {
+        // This should never happen
+        infoPtr->errorMsg("Error in TimeShower::rescatterPropagateRecoil: "
+        "internal bookeeping error");
+      }
+
+    // Otherwise set the new event record entry to be the daughter
+    } else {
+      int daughter1 = event[idx].daughter1();
+      idx = event.copy(idx, 55);
+      event[idx].statusNeg();
+      event[daughter1].mothers(idx, idx);
+
+      partonSystemsPtr->setOut(iSys, iMem, idx);
+    }
+
+    event[idx].p( eventMod[i].second );
+    event[idx].m( event[idx].mCalc() );
+  }
+
+  return true;
+}
+
+
+//*********
+
 // Find class of QCD ME correction.
 // MEtype classification follow codes in Norrbin article,
 // additionally -1 = try to find type, 0 = no ME corrections.
@@ -1419,6 +1954,9 @@ void TimeShower::findMEtype( Event& event, TimeDipoleEnd& dip) {
 
   // No ME corrections for recoiler in initial state.
   if (event[dip.iRecoiler].status() < 0) setME = false;  
+
+  // No ME corrections for recoiler not in same system
+  if (dip.system != dip.systemRec) setME = false;
 
   // Done if no ME to be set.
   if (!setME) {
@@ -1882,7 +2420,7 @@ double TimeShower::calcMEcorr( int kind, int combiIn, double mixIn,
         2.*r1s*x1s+x1c+7.*x2+8.*r1s*x2+r1q*x2-7.*r2s*x2+6.*r1*r2s*x2
         +r1s*r2s*x2-2.*r2q*x2-9.*x1*x2-3.*r1s*x1*x2+2.*r2s*x1*x2
         +2.*x1s*x2-3.*x2s-r1s*x2s+2.*r2s*x2s+x1*x2s)
-	/x3s;
+        /x3s;
         isSet1 = true;
       }
       if (combi == 2 || combi == 3) {
@@ -1904,7 +2442,7 @@ double TimeShower::calcMEcorr( int kind, int combiIn, double mixIn,
         -2.*r1s*x1s+x1c+7.*x2+8.*r1s*x2+r1q*x2-7.*r2s*x2-6.*r1*r2s*x2
         +r1s*r2s*x2-2.*r2q*x2-9.*x1*x2-3.*r1s*x1*x2+2.*r2s*x1*x2
         +2.*x1s*x2-3.*x2s-r1s*x2s+2.*r2s*x2s+x1*x2s)
-	/x3s;
+        /x3s;
         isSet2 = true;
       }
       if (combi == 4) {
@@ -2488,7 +3026,7 @@ void TimeShower::findAsymPol( Event& event, TimeDipoleEnd* dip) {
 
 // Print the list of dipoles.
 
-void TimeShower::list(ostream& os) {
+void TimeShower::list(ostream& os) const {
 
   // Header.
   os << "\n --------  PYTHIA TimeShower Dipole Listing  ----------------"

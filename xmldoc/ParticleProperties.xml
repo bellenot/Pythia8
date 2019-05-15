@@ -75,8 +75,12 @@ In detail, the list of used or foreseen status codes is:
   <ul>
   <li>41 : incoming on spacelike main branch</li>
   <li>42 : incoming copy of recoiler</li>
-  <li>43 : outgoing produced in timelike sidebranch of shower</li>
-  <li>44 : outgoing shifted by the branching</li>
+  <li>43 : outgoing produced by a branching</li>
+  <li>44 : outgoing shifted by a branching</li>
+  <li>45 : incoming rescattered parton, with changed kinematics
+           owing to ISR in the mother system (cf. status 34)</li>
+  <li>46 : incoming copy of recoiler when this is a rescattered 
+           parton (cf. status 42)</li>
   </ul>
 <li>51 - 59 : particles produced by final-state-showers</li>
   <ul>
@@ -84,6 +88,10 @@ In detail, the list of used or foreseen status codes is:
   <li>52 : outgoing copy of recoiler, with changed momentum</li>  
   <li>53 : copy of recoiler when this is incoming parton, 
            with changed momentum</li>  
+  <li>54 : copy of a recoiler, when in the initial state of a 
+           different system from the radiator</li>
+  <li>55 : copy of a recoiler, when in the final state of a 
+           different system from the radiator</li>
   </ul>
 <li>61 - 69 : particles produced by beam-remnant treatment</li>
   <ul>
@@ -231,7 +239,8 @@ the particle four-momentum vector, with components as above.
 </method>
 
 <method name="double Particle::m()"> 
-the particle mass.
+the particle mass, stored with a minus sign (times the absolute value)
+for spacelike virtual particles.
 </method>
 
 <method name="double Particle::scale()">  
@@ -327,25 +336,35 @@ separates the final-state particles from intermediate-stage ones.
 considered final may well decay later.)  
 </method>
 
+<method name="bool Particle::isRescatteredIncoming()">
+true for particles with a status code -34, -45, -46 or -54, else false. 
+This singles out partons that have been created in a previous
+scattering but here are bookkept as belonging to the incoming state
+of another scattering.
+</method>
+
 <method name="bool Particle::hasVertex()">
 production vertex has been set; if false then production at the origin 
 is assumed.
 </method>
 
 <method name="double Particle::m2()">
-squared mass.
+squared mass, which can be negative for spacelike partons.
 </method>
 
 <method name="double Particle::mCalc()">
 </method>
 <methodmore name="double Particle::m2Calc()">
 (squared) mass calculated from the four-momentum; should agree 
-with <code>m(), m2()</code> up to roundoff.
+with <code>m(), m2()</code> up to roundoff. Negative for spacelike
+virtualities.
 </methodmore>
 
 <method name="double Particle::eCalc()">
-energy calculated from the mass and three-momentum; 
-should agree with <code>e()</code> up to roundoff.
+energy calculated from the mass and three-momentum; should agree 
+with <code>e()</code> up to roundoff. For spacelike partons a 
+positive-energy  solution is picked. This need not be the correct 
+one, so it is recommended not to use the method in such cases.
 </method>
 
 <method name="double Particle::pT()">
@@ -357,7 +376,10 @@ should agree with <code>e()</code> up to roundoff.
 <method name="double Particle::mT()">
 </method>
 <methodmore name="double Particle::mT2()">
-(squared) transverse mass.
+(squared) transverse mass. If <ei>m_T^2</ei> is negative, which can happen
+for a spacelike parton, then <code>mT()</code> returns 
+<ei>-sqrt(-m_T^2)</ei>, by analogy with the negative sign used to store
+spacelike masses.  
 </methodmore>
 
 <method name="double Particle::pAbs()">
@@ -579,12 +601,13 @@ boost four-momentum and production vertex by
 as above, but also use <ei>gamma> = e/m</ei> to reduce roundoff errors.
 </method>
 
-<method name="void Particle::bstBack(const Vec4& pBst),
-void Particle::bstBack(const Vec4& pBst, double mBst)">
+<method name="void Particle::bstBack(const Vec4& pBst)">
+</method>
+<methodmore name="void Particle::bstBack(const Vec4& pBst, double mBst)">
 as above, but with sign of boost flipped.
 </method>
 
-<method name="void Particle::rotBst(const RotBstMatrix& M)">
+<method name="void Particle::rotbst(const RotBstMatrix& M)">
 combined rotation and boost of the four-momentum and production vertex.  
 </method>
 

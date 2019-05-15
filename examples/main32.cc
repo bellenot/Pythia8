@@ -11,11 +11,13 @@
 // It therefore "never" has to be recompiled to handle different tasks.
 
 #include "Pythia.h"
-
 #include "HepMCInterface.h"
 
 #include "HepMC/GenEvent.h"
-#include "HepMC/IO_Ascii.h"
+#include "HepMC/IO_GenEvent.h"
+#include "HepMC/Units.h"
+// Following two lines are deprecated alternative.
+//#include "HepMC/IO_Ascii.h"
 //#include "HepMC/IO_AsciiParticles.h"
 
 using namespace Pythia8; 
@@ -47,9 +49,11 @@ int main(int argc, char* argv[]) {
   //  ToHepMC.set_crash_on_problem();
 
   // Specify file where HepMC events will be stored.
-  HepMC::IO_Ascii ascii_io(argv[2],std::ios::out);
-  // HepMC::IO_AsciiParticles ascii_io(argv[2],std::ios::out);
-
+  HepMC::IO_GenEvent ascii_io(argv[2], std::ios::out);
+  // Following two lines are deprecated alternative.
+  // HepMC::IO_Ascii ascii_io(argv[2], std::ios::out);
+  // HepMC::IO_AsciiParticles ascii_io(argv[2], std::ios::out);
+ 
   // Generator. 
   Pythia pythia;
 
@@ -77,22 +81,38 @@ int main(int argc, char* argv[]) {
   if (showAPD) pythia.particleData.listAll();
 
   // Begin event loop.
-  int nShowPace = max(1,nEvent/nShow); 
+  int nPace  = max(1, nEvent / max(1, nShow) ); 
   int iAbort = 0; 
   for (int iEvent = 0; iEvent < nEvent; ++iEvent) {
-    if (iEvent%nShowPace == 0) cout << " Now begin event " 
-      << iEvent << endl;
+    if (nShow > 0 && iEvent%nPace == 0) 
+      cout << " Now begin event " << iEvent << endl;
 
-    // Generate event. Skip if erroneous. Quit if too many failures.   
+    // Generate event. 
     if (!pythia.next()) {
+
+      // If failure because reached end of file then exit event loop.
+      if (pythia.info.atEndOfFile()) {
+        cout << " Aborted since reached end of Les Houches Event File\n"; 
+        break; 
+      }
+
+      // First few failures write off as "acceptable" errors, then quit.
       if (++iAbort < nAbort) continue;
       cout << " Event generation aborted prematurely, owing to error!\n"; 
       break;
     }
 
-    // Convert event record to HepMC format and output to file.
-    HepMC::GenEvent* hepmcevt = new HepMC::GenEvent();
-    ToHepMC.fill_next_event( pythia.event, hepmcevt );
+    // Construct new empty HepMC event. Arguments superfluous 
+    // if HepMC was built with GeV and mm as units. 
+    HepMC::GenEvent* hepmcevt = new HepMC::GenEvent(
+      HepMC::Units::GEV, HepMC::Units::MM); 
+
+    // Fill HepMC event, including PDF info.
+    ToHepMC.fill_next_event( pythia, hepmcevt );
+    // This alternative older method fills event, without PDF info.
+    // ToHepMC.fill_next_event( pythia.event, hepmcevt );
+
+    // Write the HepMC event to file. Done with it.
     ascii_io << hepmcevt;
     delete hepmcevt;
 

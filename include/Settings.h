@@ -216,7 +216,7 @@ private:
 
   // Print out table of database, called from listAll and listChanged.
   static void list(bool listAll, bool listString, string match,
-    ostream& os = cout) ; 
+    ostream& os = cout); 
 
   // Useful functions for string handling.
   static string toLower(const string& name);

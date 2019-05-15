@@ -314,7 +314,7 @@ void ColConfig::collect(int iSub, Event& event) {
 
 // List all currently identified singlets.
 
-void ColConfig::list(ostream& os) {
+void ColConfig::list(ostream& os) const {
 
   // Header. Loop over all individual singlets.
   os << "\n --------  Colour Singlet Systems Listing -------------------\n"; 

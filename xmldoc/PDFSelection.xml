@@ -2,12 +2,14 @@
 
 <h2>PDF Selection</h2>
 
-This page contains three subsections. The first deals with how to 
+This page contains five subsections. The first deals with how to 
 pick  the parton distribution set for protons, including from LHAPDF, 
 to be used for all proton and antiproton beams. The second is a special
 option that allows a separate PDF set to be used for the hard process
 only, while the first choice would still apply to everything else.
-The third gives the possibility to switch off the lepton 
+The third and fourth give access to pion and Pomeron PDF's, respectively,
+the latter being used to describe diffractive systems.
+The fifth gives the possibility to switch off the lepton 
 "parton density". 
 
 <h3>Parton densities for protons</h3>
@@ -58,9 +60,9 @@ beyond the <ei>x</ei> and <ei>Q^2</ei> boundaries of a set, you should
 only use LHAPDF <b>version 5.3.0 or later</b>.
 
 <flag name="PDF:useLHAPDF" default="off">
-If off then the choice of proton PDF is based on <code>pPDFset</code>
+If off then the choice of proton PDF is based on <code>PDF:pSet</code>
 above. If on then it is instead based on the choice of 
-<code>LHAPDFset</code> and <code>LHAPDFmember</code> below.
+<code>PDF:LHAPDFset</code> and <code>PDF:LHAPDFmember</code> below.
 <note>Note:</note> in order for this option to work you must have 
 compiled PYTHIA appropriately and have set the <code>LHAPATH</code> 
 environment variable to provide the data-files directory of your local 
@@ -179,6 +181,94 @@ Note that there is no separate equivalent of the
 <code>PDF:extrapolateLHAPDF</code> flag specifically for the hard
 PDF. Since LHAPDF only has one global flag for extrapolation or not,
 the choice for the normal PDF's also applies to the hard ones.
+
+<h3>Parton densities for pions</h3>
+
+The parton densities of the pion are considerably less well known than
+those of the proton. There are only rather few sets on the market,
+and none particularly recent. Only one comes built-in, but others can 
+be accessed from LHAPDF. Input parametrizations are for the <ei>pi+</ei>.
+From this the <ei>pi-</ei> is obtained by chanrge conjugation and the 
+<ei>pi0</ei> from averaging (half the pions have <ei>d dbar</ei> 
+valence quark content, half <ei>u ubar</ei>.
+
+<p/>
+Much of the switches are taken over from the proton case, with obvious
+modifications; therefore the description is briefer. Currently we have 
+not seen the need to allow separate parton densities for hard processes. 
+When using LHAPDF the <code>PDF:extrapolateLHAPDF</code> switch of the 
+proton also applies to pions. 
+ 
+<modepick name="PDF:piSet" default="1" min="1" max="1">
+Internal parton densities that can be used for pion beams, currently with 
+only one choice.
+<option value="1">GRV 92 L.</option>
+</modepick> 
+
+<flag name="PDF:piUseLHAPDF" default="off">
+If off then the choice of proton PDF is based on <code>PDF:piSet</code>
+above. If on then it is instead based on the choice of 
+<code>PDF:piLHAPDFset</code> and <code>PDF:piLHAPDFmember</code> below.
+</flag>
+
+<word name="PDF:piLHAPDFset" default="OWPI.LHgrid">
+Name of pion PDF set from LHAPDF to be used. You have to choose from the 
+<a href="http://projects.hepforge.org/lhapdf/pdfsets" target="page">
+list of available sets</a>. 
+</word> 
+
+<modeopen name="PDF:piLHAPDFmember" default="0" min="0">
+Further choice of a specific member from the set picked above.
+</modeopen>   
+
+<h3>Parton densities for Pomerons</h3>
+
+The Pomeron is introduced in the description of diffractive events
+(under development), i.e. a diffractive system is viewed as a 
+Pomeron-proton collision at a reduced CM energy. Here the PDF's are even 
+less well known. There are sets to be found in LHAPDF, and none
+that explicitly provide the Q2-dependence. Therefore only very simple
+alternatives are provided.
+
+<modepick name="PDF:PomSet" default="1" min="1" max="2">
+Parton densities that can be used for Pomeron beams. 
+<option value="1"><ei>Q^2</ei>-independent parametrizations
+<ei>xf(x) = N_ab x^a (1 - x)^b</ei>, where <ei>N_ab</ei> ensures
+unit momentum sum. The <ei>a</ei> and <ei>b</ei> parameters can be 
+set separately for the gluon and the quark distributions. The
+momentum fraction of gluons and quarks can be freely mixed, and 
+production of <ei>s</ei> quarks can be suppressed relative to 
+that of <ei>d</ei> and <ei>u</ei> ones, with antiquarks as likely 
+as quarks. See further below how to set the six parameters of this 
+approach.
+</option>
+<option value="2"><ei>pi0</ei> distributions, as specified in the 
+section above.</option>
+</modepick> 
+
+<parm name="PDF:PomGluonA" default="0." min="-0.5" max="2.">
+the parameter <ei>a</ei> in the ansatz <ei>xg(x) = N_ab x^a (1 - x)^b</ei>
+for option 1 above.
+
+<parm name="PDF:PomGluonB" default="3." min="0." max="10.">
+the parameter <ei>b</ei> in the ansatz <ei>xg(x) = N_ab x^a (1 - x)^b</ei>
+for option 1 above.
+
+<parm name="PDF:PomQuarkA" default="0." min="-0.5" max="2.">
+the parameter <ei>a</ei> in the ansatz <ei>xq(x) = N_ab x^a (1 - x)^b</ei>
+for option 1 above.
+
+<parm name="PDF:PomQuarkB" default="3." min="0." max="10.">
+the parameter <ei>b</ei> in the ansatz <ei>xq(x) = N_ab x^a (1 - x)^b</ei>
+for option 1 above.
+
+<parm name="PDF:PomQuarkFrac" default="0.2" min="0." max="1.">
+the fraction of the Pomeron momentum carried by quarks 
+for option 1 above, with the rest carried by gluons.
+
+<parm name="PDF:PomStrangeSupp" default="0.5" min="0." max="1.">
+the suppression of the <ei>s</ei> quark density relative to that of the 
+<ei>d</ei> and <ei>u</ei> ones for option 1 above.
 
 <h3>Parton densities for leptons</h3>
 

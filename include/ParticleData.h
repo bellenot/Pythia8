@@ -381,11 +381,11 @@ public:
 
   // Read or list whole (or part of) database from/to an XML file.
   static bool readXML(string inFile, bool reset = true) ; 
-  static void listXML(string outFile) ; 
+  static void listXML(string outFile); 
 
   // Read or list whole (or part of) database from/to a free format file.
   static bool readFF(string inFile, bool reset = true) ; 
-  static void listFF(string outFile) ; 
+  static void listFF(string outFile); 
 
   // Read in one update from a single line.
   static bool readString(string lineIn, bool warn = true, 
@@ -394,14 +394,14 @@ public:
   // Print out table of whole database, or of only part of it.
   static void listAll(ostream& os = cout) {list(false, true, os);} 
   static void listChanged(ostream& os = cout) {list(true, false, os);} 
-  static void listChanged(bool changedRes, ostream& os = cout) 
-    {list(true, changedRes, os);} 
+  static void listChanged(bool changedRes, ostream& os = cout) {
+    list(true, changedRes, os);} 
   static void list(bool changedOnly = false, bool changedRes = true, 
-    ostream& os = cout) ; 
+    ostream& os = cout); 
   static void list(int idList, ostream& os = cout) {
     vector<int> idListTemp; idListTemp.push_back(idList); 
     list( idListTemp, os);} 
-  static void list(vector<int> idList, ostream& os = cout) ; 
+  static void list(vector<int> idList, ostream& os = cout); 
 
   // Check that table makes sense, especially for decays.
   static void checkTable(ostream& os = cout) {checkTable(1, os);};

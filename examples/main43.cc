@@ -15,23 +15,21 @@ using namespace Pythia8;
 
 int main() {
 
-  // Generator. Shorthand for the event and the (static) Settings.
+  // Generator. Shorthand for the event.
   Pythia pythia;
   Event& event = pythia.event;
-  Settings& settings = pythia.settings;
 
   // Read in commands from external file.
   pythia.readFile("main43.cmnd");    
 
   // Extract settings to be used in the main program.
-  int nEvent = settings.mode("Main:numberOfEvents");
-  int nList  = settings.mode("Main:numberToList");
-  int nShow  = settings.mode("Main:timesToShow");
-  bool showChangedSettings = settings.flag("Main:showChangedSettings");
-  bool showAllSettings = settings.flag("Main:showAllSettings");
-  bool showChangedParticleData 
-    = settings.flag("Main:showChangedParticleData");
-  bool showAllParticleData = settings.flag("Main:showAllParticleData");
+  int  nEvent  = pythia.mode("Main:numberOfEvents");
+  int  nList   = pythia.mode("Main:numberToList");
+  int  nShow   = pythia.mode("Main:timesToShow");
+  bool showCS  = pythia.flag("Main:showChangedSettings");
+  bool showAS  = pythia.flag("Main:showAllSettings");
+  bool showCPD = pythia.flag("Main:showChangedParticleData");
+  bool showAPD = pythia.flag("Main:showAllParticleData");
 
   // Initialize. Either of two opions, to be piced in main43.cmnd.
   // 1) Read in external event with incoming photon in the ME,
@@ -40,21 +38,22 @@ int main() {
   pythia.init();
 
   // List changed data.
-  if (showChangedSettings) settings.listChanged();
-  if (showAllSettings) settings.listAll();
+  if (showCS) pythia.settings.listChanged();
+  if (showAS) pythia.settings.listAll();
 
   // List particle data.  
-  if (showChangedParticleData) ParticleDataTable::listChanged();
-  if (showAllParticleData) ParticleDataTable::listAll();
+  if (showCPD) pythia.particleData.listChanged();
+  if (showAPD) pythia.particleData.listAll();
 
   // Histograms for pT distribution in gluon production vertex.
   Hist pTprim( "pT of photon production, no ISR", 100, 0., 100.);
   Hist pTwith( "pT of photon production, with ISR", 100, 0., 100.);
 
   // Begin event loop.
-  int nPace = max(1,nEvent/nShow); 
+  int nPace = max(1, nEvent / max(1, nShow) ); 
   for (int iEvent = 0; iEvent < nEvent; ++iEvent) {
-    if (iEvent%nPace == 0) cout << " Now begin event " << iEvent << endl;
+    if (nShow > 0 && iEvent%nPace == 0) 
+      cout << " Now begin event " << iEvent << endl;
 
     // Generate events. Quit if failure.
     if (!pythia.next()) {

@@ -66,7 +66,7 @@ public:
 private: 
 
   // Constants: could only be changed in the code itself.
-  static const int    NTRYDECAY, NTRYPICK;
+  static const int    NTRYDECAY, NTRYPICK, NTRYMEWT, NTRYDALITZ;
   static const double MSAFEDALITZ, WTCORRECTION[11];
 
   // Pointer to various information on the generation.
@@ -81,7 +81,7 @@ private:
   // Pointer to a handler of external decays.
   DecayHandler* decayHandlePtr;
 
-  // Initialization data, read from Settings..
+  // Initialization data, read from Settings.
   bool   limitTau0, limitTau, limitRadius, limitCylinder, limitDecay, 
          mixB, doFSRinDecays;
   double mSafety, tau0Max, tauMax, rMax, xyMax, zMax, xBdMix, xBsMix, 
@@ -91,6 +91,7 @@ private:
   // Multiplicity. Decay products positions and masses.
   bool   hasPartons, keepPartons;    
   int    idDec, meMode, mult;
+  double scale;
   vector<int>    iProd, idProd, cols, acols, idPartons;
   vector<double> mProd, mInv, rndmOrd;
   vector<Vec4>   pInv, pProd;

@@ -539,7 +539,7 @@ double Sigma2lgm2Hchgchgl::weightDecay( Event& process, int iResBeg,
 //**************************************************************************
 
 // Sigma3ff2HchgchgfftWW class.
-// Cross section for f_1 f_2 -> H0 f_3 f_4 (W+ W- fusion of SM Higgs).
+// Cross section for  f_1 f_2 -> H_(L/R)^++-- f_3 f_4 (W+- W+- fusion).
 
 //*********
 
@@ -583,7 +583,7 @@ void Sigma3ff2HchgchgfftWW::sigmaKin() {
   double pp12  = 0.5 * sH;
   double pp14  = 0.5 * mH * p4cm.pNeg();
   double pp15  = 0.5 * mH * p5cm.pNeg();
-  double pp24  = 0.5 * mH * p5cm.pPos();
+  double pp24  = 0.5 * mH * p4cm.pPos();
   double pp25  = 0.5 * mH * p5cm.pPos();
   double pp45  = p4cm * p5cm;
 

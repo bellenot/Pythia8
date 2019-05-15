@@ -63,7 +63,8 @@ private:
   // Initialization data, mainly read from Settings.
   bool   doMI, doISR, doFSRduringProcess, doFSRafterProcess, 
          doFSRinResonances, doRemnants, doSecondHard, doMIinit, 
-         hasLeptonBeams, hasPointLeptons, canVetoPT, canVetoStep;
+         hasLeptonBeams, hasPointLeptons, canVetoPT, canVetoStep,
+         canSetScale;
 
   // Event generation strategy. Number of steps. Maximum pT scales.
   bool   doVeto;
@@ -106,7 +107,8 @@ private:
   bool setupUnresolvedSys( Event& process, Event& event);
 
   // Perform showers in resonance decay chains.
-  int resonanceShowers( Event& process, Event& event); 
+  bool resonanceShowers( Event& process, Event& event); 
+
   // Position in main event record of hard partons before showers.
   vector<int> iPosBefShow;
   

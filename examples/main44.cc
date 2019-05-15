@@ -29,7 +29,9 @@ private:
 
 //*********
 
-void Scaling::xfUpdate(int id, double x, double Q2) {
+// No dependence on Q2, so leave out name for last argument.
+
+void Scaling::xfUpdate(int id, double x, double ) {
 
   // Valence quarks, carrying 60% of the momentum.
   double dv  = 4. * x * pow3(1. - x);

@@ -238,8 +238,9 @@ bool Pythia::setPDFPtr( PDF* pdfAPtrIn, PDF* pdfBPtrIn, PDF* pdfHardAPtrIn,
   // Switch off external PDF's by zero as input.
   if (pdfAPtrIn == 0 && pdfBPtrIn == 0) return true;
 
-  // The two PDF objects cannot be one and the same, or unassigned.
-  if (pdfAPtrIn == pdfBPtrIn || pdfAPtrIn == 0 || pdfBPtrIn == 0) return false;
+  // The two PDF objects cannot be one and the same, or unassigned.??
+  // if (pdfAPtrIn == pdfBPtrIn || pdfAPtrIn == 0 || pdfBPtrIn == 0) return false;
+  if (pdfAPtrIn == pdfBPtrIn) return false;
 
   // Save pointers.  
   pdfAPtr       = pdfAPtrIn;
@@ -342,6 +343,13 @@ bool Pythia::init( string LesHouchesEventFile, bool skipInit) {
   doLHA      = true;
   useNewLHA  = true;
 
+  // Store LHEF name in Beams if not already set (for SLHA reader)
+  // (also makes sure information is consistent, overwriting any other
+  //  name given in Beams:LHEF by the name of the LHEF file actually used)
+  if (word("Beams:LHEF") != LesHouchesEventFile) {
+    settings.word("Beams:LHEF", LesHouchesEventFile);
+  }
+
   // Store or replace LHA pointer in other classes.
   processLevel.setLHAPtr( lhaUpPtr);
 
@@ -415,7 +423,8 @@ bool Pythia::init( LHAup* lhaUpPtrIn) {
   lhaUpPtr = lhaUpPtrIn;
   doLHA      = true;
 
-  // Store LHA pointer in other classes.
+  // Send in pointer to info. Store LHA pointer in other classes.
+  lhaUpPtr->setPtr( &info);
   processLevel.setLHAPtr( lhaUpPtr);
 
   // Set LHAinit information (in some external program).
@@ -454,6 +463,7 @@ bool Pythia::initInternal() {
   // Reset error counters. 
   nErrEvent = 0;
   info.errorReset();
+  info.setTooLowPTmin(false);
 
   // Initialize data members extracted from database.
   doProcessLevel   = settings.flag("ProcessLevel:all");
@@ -511,8 +521,8 @@ bool Pythia::initInternal() {
   }
 
   // Initialize showers, especially for simple showers in decays. 
-  timesPtr->initPtr( &info, &partonSystems);
-  timesDecPtr->initPtr( &info, &partonSystems);
+  timesPtr->initPtr( &info, &partonSystems, userHooksPtr);
+  timesDecPtr->initPtr( &info, &partonSystems, userHooksPtr);
   spacePtr->initPtr( &info, &partonSystems);
   timesDecPtr->init( 0, 0);
 
@@ -522,7 +532,11 @@ bool Pythia::initInternal() {
   int idAabs = abs(idA);
   int idBabs = abs(idB);
   if (doProcessLevel) {
-    if (idAabs == 2212 && idBabs == 2212) canHandleBeams = true;
+    bool isHadronA = (idAabs == 2212) || (idA == 111) || (idAabs == 211) 
+                  || (idA == 990);
+    bool isHadronB = (idBabs == 2212) || (idA == 111)|| (idBabs == 211) 
+                  || (idB == 990);
+    if (isHadronA && isHadronB) canHandleBeams = true;
     else if ( idAabs == idBabs && (idAabs == 11 || idAabs == 13
       || idAabs == 15) ) canHandleBeams = true;
     else if ( idAabs > 10 && idAabs < 17 && idA * idB < 0
@@ -572,13 +586,21 @@ bool Pythia::initInternal() {
     // Set up the PDF's, if not already done.
     if (pdfAPtr == 0) {
       pdfAPtr     = getPDFPtr(idA); 
-      if (!pdfAPtr->isSetup()) return false;
+      if (pdfAPtr == 0 || !pdfAPtr->isSetup()) {
+        info.errorMsg("Error in Pythia::init: "
+          "could not set up PDF for beam A");
+        return false;
+      }
       pdfHardAPtr = pdfAPtr;
       useNewPdfA  = true;
     }
     if (pdfBPtr == 0) {
       pdfBPtr     = getPDFPtr(idB); 
-      if (!pdfBPtr->isSetup()) return false;
+      if (pdfBPtr == 0 || !pdfBPtr->isSetup()) {
+        info.errorMsg("Error in Pythia::init: "
+          "could not set up PDF for beam B");
+        return false;
+    }
       pdfHardBPtr = pdfBPtr;
       useNewPdfB  = true;
     }
@@ -710,10 +732,32 @@ void Pythia::initTunes() {
   int ppTune = settings.mode("Tune:pp");
   if (eeTune == 0 && ppTune == 0) return;
 
-  // Marc Montull's tune to particle composition at LEP1.
-  if (eeTune == 101) {  
-    settings.parm("StringZ:aLund",            0.76  );
-    settings.parm("StringZ:bLund",            0.58  );   // default
+  // Old flavour defaults carried over from very old JETSET tune,
+  // only with alphaS roughly tuned for "new" pT-ordered shower.
+  if (eeTune == 1) { 
+    settings.parm("StringFlav:probStoUD",     0.30  );
+    settings.parm("StringFlav:probQQtoQ",     0.10  );
+    settings.parm("StringFlav:probSQtoQQ",    0.40  );
+    settings.parm("StringFlav:probQQ1toQQ0",  0.05  );
+    settings.parm("StringFlav:mesonUDvector", 1.00  );
+    settings.parm("StringFlav:mesonSvector",  1.50  );
+    settings.parm("StringFlav:mesonCvector",  2.50  );
+    settings.parm("StringFlav:mesonBvector",  3.00  );
+    settings.parm("StringFlav:etaSup",        1.00  );
+    settings.parm("StringFlav:etaPrimeSup",   0.40  );
+    settings.parm("StringFlav:popcornSpair",  0.50  );  
+    settings.parm("StringFlav:popcornSmeson", 0.50  );  
+    settings.parm("StringZ:aLund",            0.30  );
+    settings.parm("StringZ:bLund",            0.58  );  
+    settings.parm("StringZ:rFactB",           1.00  );  
+    settings.parm("StringPT:sigma",           0.36  );  
+    settings.parm("TimeShower:alphaSvalue",   0.137 );  
+    settings.parm("TimeShower:pTmin",         0.5   );  
+    settings.parm("TimeShower:pTminChgQ",     0.5   );  
+  }
+
+  // Marc Montull's tune to particle composition at LEP1 (August 2007).
+  else if (eeTune == 2) {  
     settings.parm("StringFlav:probStoUD",     0.22  );
     settings.parm("StringFlav:probQQtoQ",     0.08  );
     settings.parm("StringFlav:probSQtoQQ",    0.75  );
@@ -726,6 +770,37 @@ void Pythia::initTunes() {
     settings.parm("StringFlav:etaPrimeSup",   0.15  );
     settings.parm("StringFlav:popcornSpair",  1.0   );
     settings.parm("StringFlav:popcornSmeson", 1.0   );
+    settings.parm("StringZ:aLund",            0.76  );
+    settings.parm("StringZ:bLund",            0.58  );   // kept fixed
+    settings.parm("StringZ:rFactB",           1.00  );   // kept fixed
+    settings.parm("StringPT:sigma",           0.36  );   // kept fixed
+    settings.parm("TimeShower:alphaSvalue",   0.137 );   // kept fixed 
+    settings.parm("TimeShower:pTmin",         0.5   );   // kept fixed 
+    settings.parm("TimeShower:pTminChgQ",     0.5   );   // kept fixed
+  }
+
+  // Full e+e- LEP1 data tune within the Rivet + Professor framework 
+  // by Hendrik Hoeth (June 2009).
+  else if (eeTune == 3) {  
+    settings.parm("StringFlav:probStoUD",     0.19  );
+    settings.parm("StringFlav:probQQtoQ",     0.09  );
+    settings.parm("StringFlav:probSQtoQQ",    1.00  );
+    settings.parm("StringFlav:probQQ1toQQ0",  0.027 );
+    settings.parm("StringFlav:mesonUDvector", 0.62  );
+    settings.parm("StringFlav:mesonSvector",  0.725 );
+    settings.parm("StringFlav:mesonCvector",  1.06  );
+    settings.parm("StringFlav:mesonBvector",  3.0   );
+    settings.parm("StringFlav:etaSup",        0.63  );
+    settings.parm("StringFlav:etaPrimeSup",   0.12  );
+    settings.parm("StringFlav:popcornSpair",  0.5   );   // kept fixed
+    settings.parm("StringFlav:popcornSmeson", 0.5   );   // kept fixed
+    settings.parm("StringZ:aLund",            0.3   );   // kept fixed
+    settings.parm("StringZ:bLund",            0.8   );  
+    settings.parm("StringZ:rFactB",           0.67  );  
+    settings.parm("StringPT:sigma",           0.304 );  
+    settings.parm("TimeShower:alphaSvalue",   0.1383);  
+    settings.parm("TimeShower:pTmin",         0.4   );   // kept fixed (near limit) 
+    settings.parm("TimeShower:pTminChgQ",     0.4   );   // kept same as pTmin
   }
 
 }
@@ -1056,7 +1131,6 @@ void Pythia::banner(ostream& os) {
   strftime(dateNow,12,"%d %b %Y",localtime(&t));
   char timeNow[9];
   strftime(timeNow,9,"%H:%M:%S",localtime(&t));
-
   
   os << "\n"
      << " *-------------------------------------------" 
@@ -1084,30 +1158,36 @@ void Pythia::banner(ostream& os) {
      << "    Now is " << dateNow << " at " << timeNow << "    |  | \n"
      << " |  |                                        " 
      << "                                      |  | \n"
-     << " |  |   Main author: Torbjorn Sjostrand; Depa" 
-     << "rtment of Theoretical Physics,        |  | \n"
-     << " |  |     Lund University, Solvegatan 14A, SE"
-     << "-223 62 Lund, Sweden;                 |  | \n"
-     << " |  |     phone: + 46 - 46 - 222 48 16; e-mai"
-     << "l: torbjorn@thep.lu.se                |  | \n"
-     << " |  |   Author: Richard Corke; Department of " 
-     << "Theoretical Physics,                  |  | \n"
-     << " |  |     Lund University, Solvegatan 14A, SE"
-     << "-223 62 Lund, Sweden;                 |  | \n"
-     << " |  |     phone: + 46 - 46 - 222 31 92; e-mai"
-     << "l: richard.corke@thep.lu.se           |  | \n"
-     << " |  |   Author: Stephen Mrenna; Computing Div"
-     << "ision, Simulations Group,             |  | \n"
-     << " |  |     Fermi National Accelerator Laborato"
-     << "ry, MS 234, Batavia, IL 60510, USA;   |  | \n"
-     << " |  |     phone: + 1 - 630 - 840 - 2556; e-ma"
-     << "il: mrenna@fnal.gov                   |  | \n"
-     << " |  |   Author: Peter Skands; Theoretical Phy"
-     << "sics Department,                      |  | \n"
-     << " |  |     Fermi National Accelerator Laborato"
-     << "ry, MS 106, Batavia, IL 60510, USA;   |  | \n"
-     << " |  |     phone: + 1 - 630 - 840 - 2270; e-ma"
-     << "il: skands@fnal.gov                   |  | \n"
+     << " |  |   Torbjorn Sjostrand;  Department of Th" 
+     << "eoretical Physics, Lund University,   |  | \n"
+     << " |  |      Solvegatan 14A, SE-223 62 Lund, Sw"
+     << "eden;                                 |  | \n"
+     << " |  |      phone: + 46 - 46 - 222 48 16; e-ma"
+     << "il: torbjorn@thep.lu.se               |  | \n"
+     << " |  |   Stefan Ask;  Department of Physics, U" 
+     << "niversity of Manchester,              |  | \n"
+     << " |  |      Oxford Road, Manchester M13 9PL, U"
+     << "nited Kingdom;                        |  | \n"
+     << " |  |      phone: + 41 - 22 - 767 5670; e-mai"
+     << "l: Stefan.Ask@cern.ch                 |  | \n"
+     << " |  |   Richard Corke;  Department of Theoret" 
+     << "ical Physics, Lund University,        |  | \n"
+     << " |  |      Solvegatan 14A, SE-223 62 Lund, Sw"
+     << "eden;                                 |  | \n"
+     << " |  |      phone: + 46 - 46 - 222 31 92; e-ma"
+     << "il: richard.corke@thep.lu.se          |  | \n"
+     << " |  |   Stephen Mrenna;  Computing Division, "
+     << "Simulations Group,                    |  | \n"
+     << " |  |      Fermi National Accelerator Laborat"
+     << "ory, MS 234, Batavia, IL 60510, USA;  |  | \n"
+     << " |  |      phone: + 1 - 630 - 840 - 2556; e-m"
+     << "ail: mrenna@fnal.gov                  |  | \n"
+     << " |  |   Peter Skands;  Theoretical Physics De"
+     << "partment,                             |  | \n"
+     << " |  |      Fermi National Accelerator Laborat"
+     << "ory, MS 106, Batavia, IL 60510, USA;  |  | \n"
+     << " |  |      phone: + 1 - 630 - 840 - 2270; e-m"
+     << "ail: skands@fnal.gov                  |  | \n"
      << " |  |                                        " 
      << "                                      |  | \n"
      << " |  |   The main program reference is the 'Br"
@@ -1387,7 +1467,11 @@ bool Pythia::check(ostream& os) {
 
 PDF* Pythia::getPDFPtr(int idIn, int sequence) {
 
+  // Temporary pointer to be returned. 
   PDF* tempPDFPtr;
+
+  // One option is to treat a Pomeron like a pi0.
+  if (idIn == 990 && settings.mode("PDF:PomSet") == 2) idIn = 111;
 
   // Proton beam, normal choice.
   if (abs(idIn) == 2212 && sequence == 1) {
@@ -1411,7 +1495,7 @@ PDF* Pythia::getPDFPtr(int idIn, int sequence) {
     }
   }
 
-  // Proton beam, special choice for the hard process..
+  // Proton beam, special choice for the hard process.
   else if (abs(idIn) == 2212) {
     int  pSet      = settings.mode("PDF:pHardSet");
     bool useLHAPDF = settings.flag("PDF:useHardLHAPDF");
@@ -1433,12 +1517,47 @@ PDF* Pythia::getPDFPtr(int idIn, int sequence) {
     }
   }
 
+  // Pion beam (or, in ope option, Pomeron beam). 
+  else if (abs(idIn) == 211 || idIn == 111) {
+    bool useLHAPDF = settings.flag("PDF:piUseLHAPDF");
+
+    // Use internal sets.
+    if (!useLHAPDF) {
+      tempPDFPtr = new GRVpiL(idIn);
+    }
+    
+    // Use sets from LHAPDF.
+    else {
+      string LHAPDFset    = settings.word("PDF:piLHAPDFset");
+      int    LHAPDFmember = settings.mode("PDF:piLHAPDFmember");
+      tempPDFPtr = new LHAPDF(idIn, LHAPDFset, LHAPDFmember, 1, &info);
+
+      // Optionally allow extrapolation beyond x and Q2 limits.
+      tempPDFPtr->setExtrapolate( settings.flag("PDF:extrapolateLHAPDF") );
+    }
+  }
+
+  // Pomeron beam, if not treated like a pi0 beam.
+  else if (idIn == 990) {
+    double gluonA      = settings.parm("PDF:PomGluonA");
+    double gluonB      = settings.parm("PDF:PomGluonB");
+    double quarkA      = settings.parm("PDF:PomQuarkA");
+    double quarkB      = settings.parm("PDF:PomQuarkB");
+    double quarkFrac   = settings.parm("PDF:PomQuarkFrac");
+    double strangeSupp = settings.parm("PDF:PomStrangeSupp");
+    tempPDFPtr = new PomPDF( 990, gluonA, gluonB, quarkA, quarkB, 
+      quarkFrac, strangeSupp);
+  }
+
   // Lepton beam; resolved or not.
-  else {
+  else if (abs(idIn) > 10 && abs(idIn) < 17) {
     if (settings.flag("PDF:lepton") && abs(idIn)%2 == 1) 
       tempPDFPtr = new Lepton(idIn);
     else tempPDFPtr = new LeptonPoint(idIn);
   }
+
+  // Failure for unrecognized particle.
+  else tempPDFPtr = 0;
   
   // Done.
   return tempPDFPtr; 

@@ -71,6 +71,12 @@ S&ouml;lvegatan 14A, SE-223 62 Lund, Sweden<br/>
 phone: + 46 - 46 - 222 48 16, e-mail: torbjorn@thep.lu.se   
 
 <p/>
+<b>Stefan Ask</b><br/> 
+Department of Physics, University of Manchester,
+Oxford Road, Manchester M13 9PL, United Kingdom<br/>
+phone: +41 - 22 - 767 5670, e-mail: Stefan.Ask@cern.ch  
+
+<p/>
 <b>Richard Corke</b><br/> 
 Department of Theoretical Physics, Lund University, 
 S&ouml;lvegatan 14A, SE-223 62 Lund, Sweden<br/>
@@ -95,8 +101,6 @@ Makefiles, configure scripts and HepMC interface by <b>Mikhail Kirsanov</b>.
 <br/>Conversion of XML files to PHP ones by <b>Ben Lloyd</b>.
 <br/>Simple Makefile for Win32/NMAKE by <b>Bertrand Bellenot</b>.
 <br/>Extended Higgs sector partly implemented by <b>Marc Montull</b>.
-<br/>Large Extra Dimension and Unparticle sectors implemented 
-by <b>Stefan Ask</b>.
 <br/>Parts of charm and bottom decay tables courtesy <b>DELPHI</b> and
 <b>LHCb</b> collaborations.
 

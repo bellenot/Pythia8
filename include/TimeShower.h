@@ -19,6 +19,7 @@
 #include "PythiaStdlib.h"
 #include "Settings.h"
 #include "StandardModel.h"
+#include "UserHooks.h"
 
 namespace Pythia8 {
 
@@ -76,20 +77,25 @@ public:
   // Destructor.
   virtual ~TimeShower() {}
 
-  // Initialize pointer to Info for error messages. 
+  // Initialize pointers to Info, PartonSystems and UserHooks. 
   // (Separated from rest of init since not virtual.)
-  void initPtr(Info* infoPtrIn, PartonSystems* partonSystemsPtrIn) 
-   {infoPtr = infoPtrIn; partonSystemsPtr = partonSystemsPtrIn;}
+  void initPtr(Info* infoPtrIn, PartonSystems* partonSystemsPtrIn,
+    UserHooks* userHooksPtrIn) {infoPtr = infoPtrIn; 
+    partonSystemsPtr = partonSystemsPtrIn; userHooksPtr = userHooksPtrIn;}
 
   // Initialize alphaStrong and related pTmin parameters.
   virtual void init( BeamParticle* beamAPtrIn = 0, 
     BeamParticle* beamBPtrIn = 0);
 
   // Potential enhancement factor of pTmax scale for hardest emission.
-  virtual double enhancePTmax() {return pTmaxFudge;}
+  double enhancePTmax() {return pTmaxFudge;}
 
   // Top-level routine to do a full time-like shower in resonance decay.
-  virtual int shower( int iBeg, int iEnd, Event& event, double pTmax);
+  virtual int shower( int iBeg, int iEnd, Event& event, double pTmax,
+    int nBranchMax = 0);
+
+  // Provide the pT scale of the last branching in the above shower.
+  double pTLastInShower() {return pTLastBranch;}
 
   // Prepare system for evolution after each new interaction; identify ME.
   virtual void prepare( int iSys, Event& event);
@@ -103,14 +109,14 @@ public:
   // Select next pT in downwards evolution.
   virtual double pTnext( Event& event, double pTbegAll, double pTendAll);
 
-  // ME corrections and kinematics that may give failure,
-  virtual bool branch( Event& event); 
+  // ME corrections and kinematics that may give failure.
+  virtual bool branch( Event& event, bool isInterleaved = false); 
 
   // Tell which system was the last processed one.
   int system() const {return iSysSel;}; 
 
   // Print dipole list; for debug mainly.
-  virtual void list( ostream& os = cout);
+  virtual void list( ostream& os = cout) const;
 
 protected:
 
@@ -124,22 +130,30 @@ protected:
   // Pointer to information on subcollision parton locations.
   PartonSystems* partonSystemsPtr;
 
-  // Store index of last processed system.
-  int iSysSel;
+  // Pointer to userHooks object for user interaction with program.
+  UserHooks* userHooksPtr;
+
+  // Store properties to be returned by methods.
+  int    iSysSel;
+  double pTmaxFudge, pTLastBranch;
 
 private:
 
   // Constants: could only be changed in the code itself.
   static const double SIMPLIFYROOT, XMARGIN, XMARGINCOMB, TINYPDF, LARGEM2, 
          THRESHM2, LAMBDA3MARGIN;
+  // Rescatter: try to fix up recoil between systems
+  static const bool   FIXRESCATTER, VETONEGENERGY;
+  static const double MAXVIRTUALITYFRACTION, MAXNEGENERGYFRACTION;
 
   // Initialization data, normally only set once.
   bool   doQCDshower, doQEDshowerByQ, doQEDshowerByL, doQEDshowerByGamma, 
-         doMEcorrections, doPhiPolAsym, doInterleave, allowBeamRecoil;
+         doMEcorrections, doPhiPolAsym, doInterleave, allowBeamRecoil,
+         allowRescatter;
   int    alphaSorder, nGluonToQuark, alphaEMorder, nGammaToQuark, 
          nGammaToLepton;
-  double pTmaxFudge, mc, mb, m2c, m2b, alphaSvalue, alphaS2pi, 
-         Lambda3flav, Lambda4flav, Lambda5flav, Lambda3flav2, Lambda4flav2, 
+  double mc, mb, m2c, m2b, alphaSvalue, alphaS2pi, Lambda3flav, 
+         Lambda4flav, Lambda5flav, Lambda3flav2, Lambda4flav2, 
          Lambda5flav2, pTcolCutMin, pTcolCut, pT2colCut, pTchgQCut, 
          pT2chgQCut, pTchgLCut, pT2chgLCut, mMaxGamma, m2MaxGamma, 
          octetOniumFraction, octetOniumColFac, mZ, gammaZ, thetaWRat;
@@ -185,6 +199,9 @@ private:
 
   // Find coefficient of azimuthal asymmetry from gluon polarization.
   void findAsymPol( Event& event, TimeDipoleEnd* dip);
+
+  // Rescatter: propagate dipole recoil to internal lines connecting systems.
+  bool rescatterPropagateRecoil( Event& event, Vec4& pNew);
 
 };
 

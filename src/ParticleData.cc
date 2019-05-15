@@ -1377,7 +1377,8 @@ bool ParticleDataTable::readString(string lineIn, bool warn,
  
 // Print out complete or changed table of database in numerical order.
 
-void ParticleDataTable::list(bool changedOnly, bool changedRes, ostream& os) {
+void ParticleDataTable::list(bool changedOnly, bool changedRes, 
+  ostream& os) {
 
   // Table header; output for bool as off/on.
   if (!changedOnly) {

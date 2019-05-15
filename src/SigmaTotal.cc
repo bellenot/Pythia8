@@ -24,7 +24,8 @@ namespace Pythia8 {
 // =  2 : pi+ + p;   =  3 : pi- + p;     =  4 : pi0/rho0 + p; 
 // =  5 : phi + p;   =  6 : J/psi + p;
 // =  7 : rho + rho; =  8 : rho + phi;   =  9 : rho + J/psi;
-// = 10 : phi + phi; = 11 : phi + J/psi; = 12 : J/psi + J/psi.   
+// = 10 : phi + phi; = 11 : phi + J/psi; = 12 : J/psi + J/psi.  
+// = 13 : Pom + p (preliminary). 
 
 //*********
  
@@ -162,6 +163,7 @@ bool SigmaTotal::calc( int idA, int idB, double eCM) {
     if (idAbsA/10 == 11 || idAbsA/10 == 22) iProc = 4;
     if (idAbsA > 300) iProc                       = 5;
     if (idAbsA > 400) iProc                       = 6;
+    if (idAbsA > 900) iProc                       = 13;
   } else if (idAbsA > 100) {    
     iProc                                         = 7;
     if (idAbsB > 300) iProc                       = 8;
@@ -171,6 +173,15 @@ bool SigmaTotal::calc( int idA, int idB, double eCM) {
     if (idAbsA > 400) iProc                       = 12;
   }
   if (iProc == -1) return false;
+
+  // Temporary implementation of Pomeron + p.??
+  if (iProc == 13) {
+    s      = eCM*eCM;
+    sigTot = 10.;
+    sigND  = sigTot;
+    isCalc = true;
+    return true;
+  }
 
   // Find hadron masses and check that energy is enough.
   // For mesons use the corresponding vector meson masses.

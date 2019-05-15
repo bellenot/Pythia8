@@ -111,14 +111,17 @@ at that point. If you call such a destructor you will leave a pointer
 dangling inside the <code>Pythia</code> object you gave it in to,
 if that still exists. 
 
-<p/><strong>void initProc() &nbsp;</strong> <br/>
+<a name="method1"></a>
+<p/><strong>void SigmaProcess::initProc() &nbsp;</strong> <br/>
 is called once during initalization, and can then be used to set up
 parameters, such as masses and couplings, and perform calculations 
 that need not be repeated for each new event, thereby saving time. 
 This method needs not be implemented, since in principle all 
 calculations can be done in <code>sigmaHat</code> below.
+  
 
-<p/><strong>void sigmaKin() &nbsp;</strong> <br/>
+<a name="method2"></a>
+<p/><strong>void SigmaProcess::sigmaKin() &nbsp;</strong> <br/>
 is called once a kinematical configuration has been determined, but 
 before the two incoming flavours are known. This routine can therefore 
 be used to perform calculations that otherwise might have to be repeated 
@@ -131,8 +134,10 @@ could be in either of the two beams. You could therefore calculate the
 result once only and store it as a private data member of the class. 
 It is optional whether you want to use this method, however, or put 
 everything in <code>sigmaHat</code>.
+  
 
-<p/><strong>double sigmaHat() &nbsp;</strong> <br/>
+<a name="method3"></a>
+<p/><strong>double SigmaProcess::sigmaHat() &nbsp;</strong> <br/>
 is the key method for cross section calculations and returns a cross section
 value, as further described below. It is called when also a preliminary set 
 of incoming flavours has been picked, in addition to the kinematical ones 
@@ -184,8 +189,10 @@ than the distribution you have in mind. Also note that, already by default,
 the wings of the Breit-Wigner are oversampled (with a compensating lower 
 internal weight) by partly sampling like <i>(a + b/m^2 + c/m^4) d(m^2)</i>,
 where the last term is only used for <i>gamma^*/Z^0</i>.
+  
 
-<p/><strong>void setIdColAcol() &nbsp;</strong> <br/>
+<a name="method4"></a>
+<p/><strong>void SigmaProcess::setIdColAcol() &nbsp;</strong> <br/>
 is called only once an initial state and a kinematical configuration has 
 been picked. This routine must set the complete flavour information and 
 the colour flow of the process. This may involve further random choices,
@@ -225,14 +232,18 @@ for each event where the <i>tHat</i> and <i>uHat</i> variables
 should be swapped before the event kinematics is reconstructed. This 
 variable is automatically restored to <code>false</code> for each new 
 event.
+  
 
-<p/><strong>double weightDecayFlav( Event& process) &nbsp;</strong> <br/>
+<a name="method5"></a>
+<p/><strong>double SigmaProcess::weightDecayFlav( Event& process) &nbsp;</strong> <br/>
 is called to allow a reweighting of the simultaneous flavour choices of 
 resonance decay products. Is currently only used for the 
 <i>q qbar -> gamma*/Z^0 gamma*/Z^0</i> process, and will likely not
 be of interest for you. 
+  
 
-<p/><strong>double weightDecay( Event& process, int iResBeg, int iResEnd) &nbsp;</strong> <br/>
+<a name="method6"></a>
+<p/><strong>double SigmaProcess::weightDecay( Event& process, int iResBeg, int iResEnd) &nbsp;</strong> <br/>
 is called when the basic process has one or several resonances, after each 
 set of related resonances in <code>process[i]</code>,
 <code>iResBeg</code> &lt;= <code>i </code> &lt;= <code>iResEnd</code>, 
@@ -246,17 +257,23 @@ would be made after the <i>H^0</i> and <i>Z^0</i> decays, and then
 depend only on the <i>Z^0</i> decay angles since the <i>H^0</i> 
 decays isotropically. The second call would be after the <i>W^+ W^-</i> 
 decays and then involve correlations between the four daughter fermions.
+  
 
-<p/><strong>string name() &nbsp;</strong> <br/>
+<a name="method7"></a>
+<p/><strong>string SigmaProcess::name() &nbsp;</strong> <br/>
 returns the name of the process, as you want it to be shown in listings.
+  
 
-<p/><strong>int code() &nbsp;</strong> <br/>
+<a name="method8"></a>
+<p/><strong>int SigmaProcess::code() &nbsp;</strong> <br/>
 returns an integer identifier of the process. This has no internal function, 
 but is only intended as a service for the user to rapidly (and hopefully
 uniquely) identify which process occured in a given event. Numbers below 
 10000 are reserved for internal PYTHIA use. 
+  
 
-<p/><strong>string inFlux() &nbsp;</strong> <br/>
+<a name="method9"></a>
+<p/><strong>string SigmaProcess::inFlux() &nbsp;</strong> <br/>
 this string specifies the combinations of incoming partons that are 
 allowed for the process under consideration, and thereby which incoming
 flavours <code>id1</code> and <code>id2</code> the <code>sigmaHat()</code> 
@@ -281,15 +298,23 @@ to give charge +-1.
 <br/>* <code>fgm</code>: a fermion and a photon (gamma).
 <br/>* <code>ggm</code>: a gluon and a photon.
 <br/>* <code>gmgm</code>: two photons.
+  
 
-<p/><strong>bool convert2mb() &nbsp;</strong> <br/>
+<a name="method10"></a>
+<p/><strong>bool SigmaProcess::convert2mb() &nbsp;</strong> <br/>
 it is assumed that cross sections normally come in dimensions such that
 they, when integrated over the relevant phase space, obtain the dimension
 GeV^-2, and therefore need to be converted to mb. If the cross section 
 is already encoded as mb then <code>convert2mb()</code> should be 
 overloaded to instead return <code>false</code>.
+  
 
-<p/><strong>int id3Mass(), int id4Mass(), int id5Mass() &nbsp;</strong> <br/>
+<a name="method11"></a>
+<p/><strong>int SigmaProcess::id3Mass() &nbsp;</strong> <br/>
+  
+<strong>int SigmaProcess::id4Mass() &nbsp;</strong> <br/>
+  
+<strong>int SigmaProcess::id5Mass() &nbsp;</strong> <br/>
 are the one, two or three final-state flavours, where masses are to be 
 selected before the matrix elements are evaluated. Only the absolute value 
 should be given. For massless particles, like gluons and photons, one need 
@@ -297,15 +322,21 @@ not give anything, i.e. one defaults to 0. The same goes for normal light
 quarks, where masses presumably are not implemented in the matrix elements.  
 Later on, these quarks can still (automatically) obtain constituent masses, 
 once a <i>u</i>, <i>d</i> or <i>s</i> flavour has been selected. 
+  
 
-<p/><strong>int resonanceA(), int resonanceB() &nbsp;</strong> <br/>
+<a name="method12"></a>
+<p/><strong>int SigmaProcess::resonanceA() &nbsp;</strong> <br/>
+  
+<strong>int SigmaProcess::resonanceB() &nbsp;</strong> <br/>
 are the codes of up to two <i>s</i>-channel resonances contributing to 
 the matrix elements. These are used by the program to improve the phase-space 
 selection efficiency, by partly sampling according to the relevant 
 Breit-Wigners. Massless resonances (the gluon and photon) need not be 
 specified.
+  
 
-<p/><strong>bool isSChannel() &nbsp;</strong> <br/>
+<a name="method13"></a>
+<p/><strong>bool SigmaProcess::isSChannel() &nbsp;</strong> <br/>
 normally the choice of renormalization and factorization scales in 
 <i>2 -> 2</i> and <i>2 -> 3</i> processes is based on the assumption 
 that <i>t</i>- and <i>u</i>-channel exchanges dominates the 
@@ -316,16 +347,24 @@ an <i>s</i>-channel resonance. This can be achieved if you override the
 default <code>false</code> to return <code>true</code>. See further the
 page on <?php $filepath = $_GET["filepath"];
 echo "<a href='CouplingsAndScales.php?filepath=".$filepath."' target='page'>";?>couplings and scales</a>.
+  
 
-<p/><strong>int idTchan1(), int idTchan2() &nbsp;</strong> <br/>
+<a name="method14"></a>
+<p/><strong>int SigmaProcess::idTchan1() &nbsp;</strong> <br/>
+  
+<strong>int SigmaProcess::idTchan2() &nbsp;</strong> <br/>
 the <i>2 -> 3</i> phase space selection machinery is rather primitive,
 as already mentioned. The efficiency can be improved in processes that
 proceed though <i>t</i>-channel exchanges, such as 
 <i>q qbar' -> H^0 q qbar'</i> via <i>Z^0 Z^0</i> fusion, if the identity 
 of the  <i>t</i>-channel-exchanged particles on the two side of the 
 event are provided. Only the absolute value is of interest.
+  
 
-<p/><strong>double tChanFracPow1(), double tChanFracPow2() &nbsp;</strong> <br/>
+<a name="method15"></a>
+<p/><strong>double SigmaProcess::tChanFracPow1() &nbsp;</strong> <br/>
+  
+<strong>double SigmaProcess::tChanFracPow2() &nbsp;</strong> <br/>
 in the above kind of <i>2 -> 3</i> phase-space selection, the
 sampling of <i>pT^2</i> is done with one part flat, one part weighted
 like <i>1 / (pT^2 + m_R^2)</i> and one part  like 
@@ -342,8 +381,10 @@ i.e. the <i>H^0</i> must be returned by <code>id3Mass()</code>,
 since it is actually the <i>pT^2</i> of the latter two that are 
 selected independently, with the first <i>pT</i> then fixed  
 by transverse-momentum conservation.
+  
 
-<p/><strong>useMirrorWeight() &nbsp;</strong> <br/>
+<a name="method16"></a>
+<p/><strong>bool SigmaProcess::useMirrorWeight() &nbsp;</strong> <br/>
 in <i>2 -> 3</i> processes the phase space selection used here
 involves a twofold ambiguity basically corresponding to a flipping of 
 the positions of last two outgoing particles. These are assumed equally 
@@ -351,8 +392,10 @@ likely by default, <code>false</code>, but for processes proceeding entirely
 through <i>t</i>-channel exchange the Monte Carlo efficiency can be 
 improved by making a preselection based on the relative propagator
 weights, <code>true</code>.  
+  
 
-<p/><strong>int gmZmode() &nbsp;</strong> <br/>
+<a name="method17"></a>
+<p/><strong>int SigmaProcess::gmZmode() &nbsp;</strong> <br/>
 allows a possibility to override the global mode 
 <code><?php $filepath = $_GET["filepath"];
 echo "<a href='ElectroweakProcesses.php?filepath=".$filepath."' target='page'>";?>WeakZ0:gmZmode</a></code> 
@@ -363,6 +406,7 @@ that and nothing more, such as <i>q qbar -> H^0 Z^0</i>. The default
 value -1 returned by <code>gmZmode()</code> ensures that the global
 mode is used, while 0 gives full <i>gamma^*/Z^0</i> interference,
 1 <i>gamma^*</i> only and 2 <i>Z^0</i> only. 
+  
 
 <h3>Access to a process</h3> 
 

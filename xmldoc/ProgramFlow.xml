@@ -5,7 +5,7 @@
 Recall that, to first order, the event generation process can be 
 subdivided into three stages:
 <ol>
-<li>Initialization.</li>
+<li>Initializaion.</li>
 <li>The event loop.</li>
 <li>Finishing.</li>
 </ol>
@@ -710,7 +710,7 @@ must be instantiated by you in your program.
 </method>
 
 <method name="bool Pythia::setShowerPtr( TimeShower* timesDecPtr, 
-TimeShower* timesPtr = 0, SpaceShower* spacePtr = 0) ">
+TimeShower* timesPtr = 0, SpaceShower* spacePtr = 0)">
 offers the possibility to link your own parton shower routines as 
 replacements for the default ones. This is much more complicated 
 since the showers are so central and are so interlinked with other 
@@ -868,7 +868,11 @@ generate the next event. No input parameters are required; all
 instructions have already been set up in the initialization stage.
 <note>Note:</note> The method returns false if the event generation
 fails. The event record is then not consistent and should not be
-studied.
+studied. When reading in hard collisions from a Les Houches Event File
+the problem may be that the end of the file has been reached. This
+can be checked with the 
+<aloc href="EventInformation"><code>Info::atEndOfFile()</code></aloc> 
+method.
 </method>
 
 <method name="bool Pythia::forceHadronLevel()">
@@ -897,11 +901,24 @@ event record is then not consistent and should not be studied.
 
 <method name="void Pythia::LHAeventList(ostream& os = cout)">
 list the Les Houches Accord information on the current event, see
-<aloc href="LesHouchesAccord">here</aloc>. 
+<aloc href="LesHouchesAccord">LHAup::listEvent(...)</aloc>. 
 (Other listings are available via the class members below, so this
 listing is a special case that would not fit elsewhere.)
 <argument name="os" default = "cout">  
-output stream where the listign occurs.
+output stream where the listing occurs.
+</argument>
+</method>
+
+<method name="bool Pythia::LHAeventSkip(int nSkip)">
+skip ahead a number of events in the Les Houches generation
+sequence, without doing anything further with them, see
+<aloc href="LesHouchesAccord">LHAup::skipEvent(nSkip)</aloc>. 
+Mainly intended for debug purposes, e.g. when an event at a known 
+location in a Les Houches Event File is causing problems.
+Will return false if operation fails, specifically if the 
+end of a LHEF has been reached, cf. <code>next()</code> above. 
+<argument name="nSkip">  
+number of events to skip.
 </argument>
 </method>
 

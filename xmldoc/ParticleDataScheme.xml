@@ -583,7 +583,8 @@ Called from <code>Pythia::init()</code>.
 </method>
 
 <method name="static void ParticleDataTable::initResonances(
-vector<ResonanceWidths*> resonancePtrs, bool reInit = false">
+vector&lt;ResonanceWidths*&gt; resonancePtrs, 
+bool reInit = &quot;false&quot;)">
 initialize the handling of resonances, i.e. particles with 
 perturbatively calculable partial widths, which can be used to
 obtain a mass-dependent Breit-Wigner and a dynamic choice of
@@ -603,7 +604,7 @@ is used.
 </method>
 
 <method name="static bool ParticleDataTable::readXML(string inFile, 
-bool reset = true) ">
+bool reset = true)">
 </method>
 <methodmore name="static void ParticleDataTable::listXML(string outFile)">
 read in XML-style data from a file or write it out to a file. For the 
@@ -613,7 +614,7 @@ used by <code>init</code> and <code>reInit</code> above.
 </methodmore>
 
 <method name="static bool ParticleDataTable::readFF(string inFile, 
-bool reset = true) ">
+bool reset = true)">
 </method>
 <methodmore name="static void ParticleDataTable::listFF(string outFile)">
 read in free-format-style data from a file or write it out to a file. 
@@ -623,7 +624,7 @@ method is used by <code>reInit</code> above.
 </methodmore>
 
 <method name="static bool ParticleDataTable::readString(string lineIn, 
-bool warn = true, ostream& os = cout) ">
+bool warn = true, ostream& os = cout)">
 read in a string and interpret is as a new or changed particle data.
 The possibilities are extensively described above. It is often used
 indirectly via <code>Pythia::readString</code>.
@@ -674,14 +675,14 @@ but also include resonances in the detailed checks.
 </methodmore>
 
 <method name="static void ParticleDataTable::addParticle(int id, 
-string name = " ", int spinType = 0, int chargeType = 0, int colType = 0, 
-double m0 = 0., double mWidth = 0., double mMin = 0., double mMax = 0., 
-double tau0 = 0.)">
+string name = &quot; &quot;, int spinType = 0, int chargeType = 0, 
+int colType = 0, double m0 = 0., double mWidth = 0., double mMin = 0., 
+double mMax = 0., double tau0 = 0.)">
 </method>
 <methodmore name="static void ParticleDataTable::addParticle(int id, 
 string name, string antiName, int spinType = 0, int chargeType = 0, 
 int colType = 0, double m0 = 0., double mWidth = 0., double mMin = 0., 
-double mMax = 0., double tau0 = 0.) ">
+double mMax = 0., double tau0 = 0.)">
 add a particle to the decay table; in the first form a partcle which is 
 its own antiparticle, in the second where a separate antiparticle exists.
 </methodmore>
@@ -1402,11 +1403,10 @@ by default unity.
 </method>
 
 <method name="DecayChannel& DecayTable::operator[](int i)">
-</method>
-<methodmore name="const DecayChannel& DecayTable::operator[](int i) const">
 the indexing operator returns a reference to the <code>i</code>'th 
-decay channel, see further next section.
-</methodmore>
+decay channel, see further next section. This method also exists in
+a <code>const</code> variant.
+</method>
 
 <h3>The DecayChannel methods</h3>
 

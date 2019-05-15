@@ -5,23 +5,26 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.120      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 10 Mar 2009  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.125      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 16 Jun 2009  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 10 Mar 2009 at 21:46:19    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 16 Jun 2009 at 17:31:53    |  | 
  |  |                                                                              |  | 
- |  |   Main author: Torbjorn Sjostrand; Department of Theoretical Physics,        |  | 
- |  |     Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                 |  | 
- |  |     phone: + 46 - 46 - 222 48 16; e-mail: torbjorn@thep.lu.se                |  | 
- |  |   Author: Richard Corke; Department of Theoretical Physics,                  |  | 
- |  |     Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                 |  | 
- |  |     phone: + 46 - 46 - 222 31 92; e-mail: richard.corke@thep.lu.se           |  | 
- |  |   Author: Stephen Mrenna; Computing Division, Simulations Group,             |  | 
- |  |     Fermi National Accelerator Laboratory, MS 234, Batavia, IL 60510, USA;   |  | 
- |  |     phone: + 1 - 630 - 840 - 2556; e-mail: mrenna@fnal.gov                   |  | 
- |  |   Author: Peter Skands; Theoretical Physics Department,                      |  | 
- |  |     Fermi National Accelerator Laboratory, MS 106, Batavia, IL 60510, USA;   |  | 
- |  |     phone: + 1 - 630 - 840 - 2270; e-mail: skands@fnal.gov                   |  | 
+ |  |   Torbjorn Sjostrand;  Department of Theoretical Physics, Lund University,   |  | 
+ |  |      Solvegatan 14A, SE-223 62 Lund, Sweden;                                 |  | 
+ |  |      phone: + 46 - 46 - 222 48 16; e-mail: torbjorn@thep.lu.se               |  | 
+ |  |   Stefan Ask;  Department of Physics, University of Manchester,              |  | 
+ |  |      Oxford Road, Manchester M13 9PL, United Kingdom;                        |  | 
+ |  |      phone: + 41 - 22 - 767 5670; e-mail: Stefan.Ask@cern.ch                 |  | 
+ |  |   Richard Corke;  Department of Theoretical Physics, Lund University,        |  | 
+ |  |      Solvegatan 14A, SE-223 62 Lund, Sweden;                                 |  | 
+ |  |      phone: + 46 - 46 - 222 31 92; e-mail: richard.corke@thep.lu.se          |  | 
+ |  |   Stephen Mrenna;  Computing Division, Simulations Group,                    |  | 
+ |  |      Fermi National Accelerator Laboratory, MS 234, Batavia, IL 60510, USA;  |  | 
+ |  |      phone: + 1 - 630 - 840 - 2556; e-mail: mrenna@fnal.gov                  |  | 
+ |  |   Peter Skands;  Theoretical Physics Department,                             |  | 
+ |  |      Fermi National Accelerator Laboratory, MS 106, Batavia, IL 60510, USA;  |  | 
+ |  |      phone: + 1 - 630 - 840 - 2270; e-mail: skands@fnal.gov                  |  | 
  |  |                                                                              |  | 
  |  |   The main program reference is the 'Brief Introduction to PYTHIA 8.1',      |  | 
  |  |   T. Sjostrand, S. Mrenna and P. Skands, Comput. Phys. Comm. 178 (2008) 85   |  | 
@@ -59,9 +62,9 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | f fbar -> gamma*/Z0 gamma*/Z0                  231 |   4.630e-08 |
- | f fbar' -> Z0 W+- (no gamma*!)                 232 |   7.128e-08 |
- | f fbar -> W+ W-                                233 |   9.969e-08 |
+ | f fbar -> gamma*/Z0 gamma*/Z0                  231 |   5.542e-08 |
+ | f fbar' -> Z0 W+- (no gamma*!)                 232 |   8.018e-08 |
+ | f fbar -> W+ W-                                233 |   1.139e-07 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
 
@@ -72,11 +75,11 @@
  |                                                    |                                   |                        |
  |-----------------------------------------------------------------------------------------------------------------|
  |                                                    |                                   |                        |
- | f fbar -> gamma*/Z0 gamma*/Z0                  231 |         398         10         10 |   1.506e-09  2.255e-10 |
- | f fbar' -> Z0 W+- (no gamma*!)                 232 |         583         13         13 |   2.397e-09  2.176e-10 |
- | f fbar -> W+ W-                                233 |         810         77         77 |   8.659e-09  4.185e-10 |
+ | f fbar -> gamma*/Z0 gamma*/Z0                  231 |         514          9          9 |   1.006e-09  1.513e-10 |
+ | f fbar' -> Z0 W+- (no gamma*!)                 232 |         780         26         26 |   2.514e-09  2.172e-10 |
+ | f fbar -> W+ W-                                233 |        1049         65         65 |   7.725e-09  3.979e-10 |
  |                                                    |                                   |                        |
- | sum                                                |        1791        100        100 |   1.256e-08  5.228e-10 |
+ | sum                                                |        2343        100        100 |   1.124e-08  4.779e-10 |
  |                                                                                                                 |
  *-------  End PYTHIA Event and Cross Section Statistics ----------------------------------------------------------*
 

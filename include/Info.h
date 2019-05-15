@@ -25,10 +25,10 @@ class Info {
 public:
 
   // Constructor. 
-  Info() {} 
+  Info() {lowPTmin = false;} 
 
   // Listing of most available information on current event.
-  void   list(ostream& os = cout);
+  void   list(ostream& os = cout) const;
   
   // Beam particles (in rest frame). CM energy of event.
   int    idA()            const {return idASave;}
@@ -41,6 +41,9 @@ public:
   double mB()             const {return mBSave;}
   double eCM()            const {return eCMSave;}
   double s()              const {return sSave;}
+
+  // Warnings from initialization.
+  bool   tooLowPTmin()    const {return lowPTmin;}
 
   // Process name and code, and the number of final-state particles.
   string name()           const {return nameSave;}
@@ -139,11 +142,17 @@ public:
   // Print statistics on errors/aborts/warnings.
   void errorStatistics(ostream& os = cout);
 
+  // Set initialization warning flag when too low pTmin in ISR/FSR/MI.
+  void setTooLowPTmin(bool lowPTminIn) {lowPTmin = lowPTminIn;} 
+
 private:
 
   // Store common beam quantities. 
   int    idASave, idBSave;
   double pzASave, eASave,mASave, pzBSave, eBSave, mBSave, eCMSave, sSave;
+
+  // Store initialization information.
+  bool   lowPTmin;
 
   // Store common integrated cross section quantities.
   long   nTry, nSel, nAcc;

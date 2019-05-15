@@ -1017,6 +1017,9 @@ bool StringFragmentation::fragmentToJunction(Event& event) {
     // Boost hadrons away from the JRF to the original frame.
     for (int i = 0; i < hadrons.size(); ++i) {
       hadrons[i].rotbst(MfromJRF);
+      // Recalculate energy to compensate for numerical precision loss
+      // in iterative calculation of MfromJRF.
+      hadrons[i].e( hadrons[i].eCalc() );
       pJunctionHadrons += hadrons[i].p();
     }
 

@@ -179,7 +179,7 @@ protected:
   double tau, y, z, tauMin, tauMax, yMax, zMin, zMax, ratio34, unity34, 
          zNeg, zPos, wtTau, wtY, wtZ, wt3Body, runBW3H, runBW4H, runBW5H, 
          intTau0, intTau1, intTau2, intTau3, intTau4, intTau5, intTau6, 
-         intY01, intY2, intY34, mTchan1, sTchan1, mTchan2, sTchan2, 
+         intY0, intY12, intY34, intY56, mTchan1, sTchan1, mTchan2, sTchan2, 
          frac3Flat, frac3Pow1, frac3Pow2; 
   Vec4   p3cm, p4cm, p5cm;
 

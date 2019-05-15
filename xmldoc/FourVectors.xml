@@ -153,7 +153,9 @@ or three four-vectors as argument. Several of them only use the
 three-vector part of the four-vector.
 
 <method name="friend ostream& operator&lt;&lt;(ostream&, const Vec4& v)">
-writes out the values of the four components of a <code>Vec4</code>, 
+writes out the values of the four components of a <code>Vec4</code> and,
+within brackets, a fifth component being the invariant length of the 
+four-vector, as provided by <code>mCalc()</code> above, and it all 
 ended with a newline.
 </method>
 
@@ -178,17 +180,17 @@ the (cosine) of the opening angle between the vectors,
 in the range 0 through <ei>pi</ei>.
 </methodmore>
 
-<method name="double phi(const Vec4& v1, const Vec4& v2)">
+<method name="friend double phi(const Vec4& v1, const Vec4& v2)">
 </method>
-<methodmore name="double cosphi(const Vec4& v1, const Vec4& v2)">
+<methodmore name="friend double cosphi(const Vec4& v1, const Vec4& v2)">
 the (cosine) of the azimuthal angle between the vectors around the
 <ei>z</ei> axis, in the range 0 through <ei>pi</ei>.
 </methodmore>
 
-<method name="double phi(const Vec4& v1, const Vec4& v2, 
+<method name="friend double phi(const Vec4& v1, const Vec4& v2, 
 const Vec4& v3)">
 </method>
-<methodmore name="double cosphi(const Vec4& v1, const Vec4& v2, 
+<methodmore name="friend double cosphi(const Vec4& v1, const Vec4& v2, 
 const Vec4& v3)">
 the (cosine) of the azimuthal angle between the first two vectors 
 around the direction of the third, in the range 0 through <ei>pi</ei>.

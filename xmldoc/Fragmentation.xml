@@ -38,7 +38,7 @@ tuned to data. They are stored in
 The <ei>a</ei> parameter of the Lund symmetric fragmentation function.
 </parm>
 
-<parm name="StringZ:bLund" default="0.58" min="0.2" max="2.0">
+<parm name="StringZ:bLund" default="0.8" min="0.2" max="2.0">
 The <ei>b</ei> parameter of the Lund symmetric fragmentation function.
 </parm>
 
@@ -70,7 +70,7 @@ quark masses were uniquely defined) but can be set in
 <ei>r_c</ei>, i.e. the above parameter for <ei>c</ei> quarks.
 </parm>
 
-<parm name="StringZ:rFactB" default="1.0" min="0.0" max="2.0">
+<parm name="StringZ:rFactB" default="0.67" min="0.0" max="2.0">
 <ei>r_b</ei>, i.e. the above parameter for <ei>b</ei> quarks.
 </parm>
 
@@ -135,7 +135,7 @@ Then the total squared width is
 </eq>
 It is this latter number that is stored in
 
-<parm name="StringPT:sigma" default="0.36" min="0.0" max="1.0">
+<parm name="StringPT:sigma" default="0.304" min="0.0" max="1.0">
 the width <ei>sigma</ei> in the fragmentation process.
 </parm>
 

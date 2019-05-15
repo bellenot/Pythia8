@@ -323,7 +323,7 @@ exists, else <code>false</code>.
 <methodmore name="static void Settings::addMode(string key, 
 int default, bool hasMin, bool hasMax, int min, int max)"> 
 </methodmore>
-<methodmore name="static void Settings::void addParm(string key, 
+<methodmore name="static void Settings::addParm(string key, 
 double default, bool hasMin, bool hasMax, double min, double max)"> 
 </methodmore>
 <methodmore name="static void Settings::addWord(string key, 

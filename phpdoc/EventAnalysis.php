@@ -70,6 +70,7 @@ To do sphericity analyses you have to set up a <code>Sphericity</code>
 instance, and then feed in events to it, one at a time. The results 
 for the latest event are available as output from a few methods.
 
+<a name="method1"></a>
 <p/><strong>Sphericity::Sphericity(double power = 2., int select = 2) &nbsp;</strong> <br/>
 create a sphericity analysis object, where
 <br/><code>argument</code><strong> power </strong> (<code>default = <strong>2.</strong></code>) :  
@@ -89,6 +90,7 @@ particle method), and
   
   
 
+<a name="method2"></a>
 <p/><strong>bool Sphericity::analyze( const Event& event, ostream& os = cout) &nbsp;</strong> <br/>
 perform a sphericity analysis, where 
 <br/><code>argument</code><strong> event </strong>  : is an object of the <code>Event</code> class, 
@@ -106,24 +108,29 @@ analysis failed, e.g. if too few particles are present to analyze.
 After the analysis has been performed, a few methods are available 
 to return the result of the analysis of the latest event:
 
+<a name="method3"></a>
 <p/><strong>double Sphericity::sphericity() &nbsp;</strong> <br/>
 gives the sphericity (or equivalent if <i>r</i> is not 2),
   
 
+<a name="method4"></a>
 <p/><strong>double Sphericity::aplanarity() &nbsp;</strong> <br/>
 gives the aplanarity (with the same comment),
   
 
+<a name="method5"></a>
 <p/><strong>double Sphericity::eigenValue(int i) &nbsp;</strong> <br/>
 gives one of the three eigenvalues for <i>i</i> = 1, 2 or 3, in 
 descending order,
   
 
+<a name="method6"></a>
 <p/><strong>Vec4 Sphericity::EventAxis(i) &nbsp;</strong> <br/>
 gives the matching normalized eigenvector, as a <code>Vec4</code> 
 with vanishing time/energy component.
   
 
+<a name="method7"></a>
 <p/><strong>void Sphericity::list(ostream& os = cout) &nbsp;</strong> <br/>
 provides a listing of the above information.
   
@@ -132,6 +139,7 @@ provides a listing of the above information.
 There is also one method that returns information accumulated for all
 the events analyzed so far.
 
+<a name="method8"></a>
 <p/><strong>int Sphericity::nError() &nbsp;</strong> <br/>
 tells the number of times <code>analyze(...)</code> failed to analyze 
 events, i.e. returned <code>false</code>.
@@ -161,6 +169,7 @@ To do thrust analyses you have to set up a <code>Thrust</code>
 instance, and then feed in events to it, one at a time. The results 
 for the latest event are available as output from a few methods.
 
+<a name="method9"></a>
 <p/><strong>Thrust::Thrust(int select = 2) &nbsp;</strong> <br/>
 create a thrust analysis object, where 
 <br/><code>argument</code><strong> select </strong> (<code>default = <strong>2</strong></code>) :  
@@ -175,6 +184,7 @@ particle method), and
   
   
 
+<a name="method10"></a>
 <p/><strong>bool Thrust::analyze( const Event& event, ostream& os = cout) &nbsp;</strong> <br/>
 perform a thrust analysis, where 
 <br/><code>argument</code><strong> event </strong>  : is an object of the <code>Event</code> class, 
@@ -192,6 +202,7 @@ analysis failed, e.g. if too few particles are present to analyze.
 After the analysis has been performed, a few methods are available 
 to return the result of the analysis of the latest event:
 
+<a name="method11"></a>
 <p/><strong>double Thrust::thrust() &nbsp;</strong> <br/>
   
 <strong>double Thrust::tMajor() &nbsp;</strong> <br/>
@@ -202,12 +213,14 @@ to return the result of the analysis of the latest event:
 gives the thrust, major, minor and oblateness values, respectively, 
   
 
+<a name="method12"></a>
 <p/><strong>Vec4 Thrust::eventAxis(int i) &nbsp;</strong> <br/>
 gives the matching normalized event-axis vectors, for <i>i</i> = 1, 2 or 3
 corresponding to thrust, major or minor, as a <code>Vec4</code> with 
 vanishing time/energy component.
   
 
+<a name="method13"></a>
 <p/><strong>void Thrust::list(ostream& os = cout) &nbsp;</strong> <br/>
 provides a listing of the above information.
   
@@ -216,6 +229,7 @@ provides a listing of the above information.
 There is also one method that returns information accumulated for all
 the events analyzed so far.
 
+<a name="method14"></a>
 <p/><strong>int Thrust::nError() &nbsp;</strong> <br/>
 tells the number of times <code>analyze(...)</code> failed to analyze 
 events, i.e. returned <code>false</code>.
@@ -236,6 +250,7 @@ To do jet finding analyses you have to set up a <code>ClusterJet</code>
 instance, and then feed in events to it, one at a time. The results 
 for the latest event are available as output from a few methods.
 
+<a name="method15"></a>
 <p/><strong>ClusterJet::ClusterJet(string measure = &quot;Lund&quot;, int select = 2, int massSet = 2, bool precluster = false, bool reassign = false) &nbsp;</strong> <br/>
 create a <code>ClusterJet</code> instance, where 
 <br/><code>argument</code><strong> measure </strong> (<code>default = <strong>&quot;Lund&quot;</strong></code>) : distance measure, 
@@ -276,6 +291,7 @@ have been joined.
   
   
 
+<a name="method16"></a>
 <p/><strong>ClusterJet::analyze( const Event& event, double yScale, double pTscale, int nJetMin = 1, int nJetMax = 0, ostream& os = cout) &nbsp;</strong> <br/>
 performs a jet finding analysis, where 
 <br/><code>argument</code><strong> event </strong>  : is an object of the <code>Event</code> class, 
@@ -318,29 +334,53 @@ of jets requested.
 After the analysis has been performed, a few <code>ClusterJet</code> 
 class methods are available to return the result of the analysis:
 
+<a name="method17"></a>
 <p/><strong>int ClusterJet::size() &nbsp;</strong> <br/>
 gives the number of jets found, with jets numbered 0 through 
 <code>size() - 1</code>,
   
 
+<a name="method18"></a>
 <p/><strong>Vec4 ClusterJet::p(int i) &nbsp;</strong> <br/>
 gives a <code>Vec4</code> corresponding to the four-momentum defined by 
 the sum of all the contributing particles to the <i>i</i>'th jet,
   
 
+<a name="method19"></a>
 <p/><strong>int ClusterJet::jetAssignment(int i) &nbsp;</strong> <br/>
 gives the index of the jet that the particle <i>i</i> of the event
 record belongs to,
   
 
+<a name="method20"></a>
 <p/><strong>void ClusterJet::list(ostream& os = cout) &nbsp;</strong> <br/>
 provides a listing of the reconstructed jets.
+  
+
+<a name="method21"></a>
+<p/><strong>int ClusterJet::distanceSize() &nbsp;</strong> <br/>
+the number of most recent clustering scales that have been stored
+for readout with the next method. Normally this would be five, 
+but less if fewer clustering steps occured.
+  
+
+<a name="method22"></a>
+<p/><strong>double ClusterJet::distance(int i) &nbsp;</strong> <br/>
+clustering scales, with <code>distance(0)</code> being the most 
+recent one, i.e. normally the highest, up to <code>distance(4)</code> 
+being the fifth most recent. That is, with <i>n</i> being the final
+number of jets, <code>ClusterJet::size()</code>, the scales at which
+<i>n+1</i> jets become <i>n</i>, <i>n+2</i> become <i>n+1</i>,
+and so on till <i>n+5</i> become <i>n+4</i>. Nonexisting clustering 
+scales are returned as zero. The physical interpretation of a scale is 
+as provided by the respective distance measure (Lund, JADE, Durham).
   
 
 <p/>
 There is also one method that returns information accumulated for all
 the events analyzed so far.
 
+<a name="method23"></a>
 <p/><strong>int ClusterJet::nError() &nbsp;</strong> <br/>
 tells the number of times <code>analyze(...)</code> failed to analyze 
 events, i.e. returned <code>false</code>.
@@ -368,6 +408,7 @@ To do jet finding analyses you have to set up a <code>CellJet</code>
 instance, and then feed in events to it, one at a time. The results 
 for the latest event are available as output from a few methods.
 
+<a name="method24"></a>
 <p/><strong>CellJet::CellJet(double etaMax = 5., int nEta = 50, int nPhi = 32, int select = 2, int smear = 0, double resolution = 0.5, double upperCut = 2., double threshold = 0.) &nbsp;</strong> <br/>
 create a <code>CellJet</code> instance, where 
 <br/><code>argument</code><strong> etaMax </strong> (<code>default = <strong>5.</strong></code>) :  
@@ -412,6 +453,7 @@ completely neglect all bins with an <i>eT &lt; threshold</i>.
   
   
 
+<a name="method25"></a>
 <p/><strong>bool CellJet::analyze( const Event& event, double eTjetMin = 20., double coneRadius = 0.7, double eTseed = 1.5, ostream& os = cout) &nbsp;</strong> <br/>
 performs a jet finding analysis, where 
 <br/><code>argument</code><strong> event </strong>  : is an object of the <code>Event</code> class, 
@@ -441,16 +483,19 @@ but currently this is not foreseen ever to happen.
 After the analysis has been performed, a few <code>CellJet</code> 
 class methods are available to return the result of the analysis:
 
+<a name="method26"></a>
 <p/><strong>int CellJet::size() &nbsp;</strong> <br/>
 gives the number of jets found, with jets numbered 0 through 
 <code>size() - 1</code>,
   
 
+<a name="method27"></a>
 <p/><strong>double CellJet::eT(i) &nbsp;</strong> <br/>
 gives the <i>eT</i> of the <i>i</i>'th jet, where jets have been
 ordered with decreasing <i>eT</i> values,
   
 
+<a name="method28"></a>
 <p/><strong>double CellJet::etaCenter(int i) &nbsp;</strong> <br/>
   
 <strong>double CellJet::phiCenter(int i) &nbsp;</strong> <br/>
@@ -458,6 +503,7 @@ gives the <i>eta</i> and <i>phi</i> coordinates of the geometrical
 center of the <i>i</i>'th jet,
   
 
+<a name="method29"></a>
 <p/><strong>double CellJet::etaWeighted(int i) &nbsp;</strong> <br/>
   
 <strong>double CellJet::phiWeighted(int i) &nbsp;</strong> <br/>
@@ -465,15 +511,18 @@ gives the <i>eta</i> and <i>phi</i> coordinates of the
 <i>eT</i>-weighted center of the <i>i</i>'th jet,
   
 
+<a name="method30"></a>
 <p/><strong>int CellJet::multiplicity(int i) &nbsp;</strong> <br/>
 gives the number of particles clustered into the <i>i</i>'th jet,
   
 
+<a name="method31"></a>
 <p/><strong>Vec4 CellJet::pMassless(int i) &nbsp;</strong> <br/>
 gives a <code>Vec4</code> corresponding to the four-momentum defined 
 by the <i>eT</i> and the weighted center of the <i>i</i>'th jet,
   
 
+<a name="method32"></a>
 <p/><strong>Vec4 CellJet::pMassive(int i) &nbsp;</strong> <br/>
 gives a <code>Vec4</code> corresponding to the four-momentum defined by 
 the sum of all the contributing cells to the <i>i</i>'th jet, where 
@@ -481,11 +530,13 @@ each cell contributes a four-momentum as if all the <i>eT</i> is
 deposited in the center of the cell,
   
 
-<p/><strong>Vec4 CellJet::m(int i) &nbsp;</strong> <br/>
+<a name="method33"></a>
+<p/><strong>double CellJet::m(int i) &nbsp;</strong> <br/>
 gives the invariant mass of the <i>i</i>'th jet, defined by the 
 <code>pMassive</code> above,
   
 
+<a name="method34"></a>
 <p/><strong>void CellJet::list() &nbsp;</strong> <br/>
 provides a listing of the above information (except <code>pMassless</code>, 
 for reasons of space).
@@ -494,6 +545,7 @@ for reasons of space).
 <p/>
 There is also one method that returns information accumulated for all
 the events analyzed so far.
+<a name="method35"></a>
 <p/><strong>int CellJet::nError() &nbsp;</strong> <br/>
 tells the number of times <code>analyze(...)</code> failed to analyze 
 events, i.e. returned <code>false</code>.

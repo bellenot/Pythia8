@@ -109,13 +109,14 @@
 
 2) main21 - main27 are examples how some external programs could be linked
 * main21.cc : external input of parton configurations for hadronization only
-* main22.cc & main22.cmnd : & main22.spc supersymmetry production using SLHA
+* main22.cc & main22.cmnd : & sps1a.spc supersymmetry production using SLHA
 * main23.cc : how to link an external decay handler
 * main24.cc : how to link an external random number generator
 * main25.cc : how to link an external process to use internally
 * main26.cc : how to link an external resonance and process to use internally
 * main27.cc : how to link an external momentum spread and vertex generator 
-* main28.cc : test program for large extra dimensions or unparticles 
+* main28.cc : test program for large extra dimensions or unparticles
+* main29.cc : generic "energy blob" decay for cosmic-ray physics  
 
 3) main31 - main32 require linkage to the HepMC event record library
 * main31.cc & main31.cmnd : simple example output to HepMC 
@@ -133,13 +134,17 @@
 * main53.f (Fortran!) : have PYTHIA 6.4 generate a Les Houches Event File 
 * main54.cc & main54.cmnd : input from PYTHIA 6.4 and output to HepMC
 
-5) main61 requires linkage to FastJet
+6) main61 requires linkage to FastJet
 * main61.cc : rate of W + jets events using kT-clustering for jets 
  
 Note 1: main31, main32 and main54 save HepMC-formatted events on 
-hepmcoutNN.dat; these files become so big that they have not been included 
-in the distribution. 
-Note 2: There is no main00 program, but main00 is defined in the Makefile
-to link to PYTHIA 8, so this name can be used for simple first tests. 
+    hepmcoutNN.dat; these files become so big that they have not 
+    been included in the distribution. 
+Note 2: There is no main00 program, but main00 is defined in the 
+    Makefile to link to PYTHIA 8, so this name can be used for 
+    simple first tests.
+Note 3: With ./runmains all the 29 first mainXX program will be run.
+    The runmains file can easily be edited to run the others as well,
+    but then you should first link to the appropriate external libraries.
 
 ----------------------------------------------------------------------

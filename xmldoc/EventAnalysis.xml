@@ -314,6 +314,23 @@ record belongs to,
 provides a listing of the reconstructed jets.
 </method>
 
+<method name="int ClusterJet::distanceSize()">
+the number of most recent clustering scales that have been stored
+for readout with the next method. Normally this would be five, 
+but less if fewer clustering steps occured.
+</method>
+
+<method name="double ClusterJet::distance(int i)">
+clustering scales, with <code>distance(0)</code> being the most 
+recent one, i.e. normally the highest, up to <code>distance(4)</code> 
+being the fifth most recent. That is, with <ei>n</ei> being the final
+number of jets, <code>ClusterJet::size()</code>, the scales at which
+<ei>n+1</ei> jets become <ei>n</ei>, <ei>n+2</ei> become <ei>n+1</ei>,
+and so on till <ei>n+5</ei> become <ei>n+4</ei>. Nonexisting clustering 
+scales are returned as zero. The physical interpretation of a scale is 
+as provided by the respective distance measure (Lund, JADE, Durham).
+</method>
+
 <p/>
 There is also one method that returns information accumulated for all
 the events analyzed so far.
@@ -462,7 +479,7 @@ each cell contributes a four-momentum as if all the <ei>eT</ei> is
 deposited in the center of the cell,
 </method>
 
-<method name="Vec4 CellJet::m(int i)">
+<method name="double CellJet::m(int i)">
 gives the invariant mass of the <ei>i</ei>'th jet, defined by the 
 <code>pMassive</code> above,
 </method>

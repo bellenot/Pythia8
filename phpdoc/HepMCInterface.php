@@ -88,12 +88,14 @@ Here comes a complete list of all public methods of the
 <code>I_Pythia8</code> class in the <code>HepMC</code> 
 (<i>not</i> <code>Pythia8</code>!) namespace.
 
+<a name="method1"></a>
 <p/><strong>I_Pythia8::I_Pythia8() &nbsp;</strong> <br/>
   
 <strong>virtual I_Pythia8::~I_Pythia8() &nbsp;</strong> <br/>
 the constructor and destructor take no arguments.
   
 
+<a name="method2"></a>
 <p/><strong>bool I_Pythia8::fill_next_event( Pythia8::Pythia& pythia, GenEvent* evt, int ievnum = -1, bool convertGluonTo0 = false) &nbsp;</strong> <br/>
 convert a <code>Pythia</code> event to a <code>HepMC</code> one.
 Will return true if succeeded.
@@ -117,6 +119,7 @@ normal event record, where a gluon is always 21.
   
   
 
+<a name="method3"></a>
 <p/><strong>bool I_Pythia8::fill_next_event( Pythia8::Event& pyev, GenEvent* evt, int ievnum = -1 ) &nbsp;</strong> <br/>
 convert a <code>Pythia</code> event to a <code>HepMC</code> one.
 Will return true if succeeded. Do not store parton-density information.
@@ -133,6 +136,7 @@ each new event.
   
   
 
+<a name="method4"></a>
 <p/><strong>bool I_Pythia8::put_pdf_info( GenEvent* evt, Pythia8::Pythia& pythia, bool convertGluonTo0 = false ) &nbsp;</strong> <br/>
 append parton-density information to an event already stored
 by the previous method.
@@ -150,6 +154,7 @@ have gluons represented by a 0.
   
   
 
+<a name="method5"></a>
 <p/><strong>void I_Pythia8::set_trust_mothers_before_daughters( bool b = 1 ) &nbsp;</strong> <br/>
   
 <strong>bool I_Pythia8::trust_mothers_before_daughters() &nbsp;</strong> <br/>
@@ -158,6 +163,7 @@ information on mothers above that on daughters. Currently this is
 the only option implemented.
   
 
+<a name="method6"></a>
 <p/><strong>void I_Pythia8::set_trust_both_mothers_and_daughters( bool b = 0 ) &nbsp;</strong> <br/>
   
 <strong>bool I_Pythia8::trust_both_mothers_and_daughters() &nbsp;</strong> <br/>
@@ -165,6 +171,7 @@ currently dummy methods intended to resolve conflicts in the event
 history.
   
 
+<a name="method7"></a>
 <p/><strong>void I_Pythia8::set_print_inconsistency_errors( bool b = 1 ) &nbsp;</strong> <br/>
   
 <strong>bool I_Pythia8::print_inconsistency_errors() &nbsp;</strong> <br/>
@@ -172,11 +179,13 @@ print a warning line, on <code>cerr</code>, when inconsistent mother
 and daughter information is encountered.
   
 
+<a name="method8"></a>
 <p/><strong>void I_Pythia8::set_crash_on_problem( bool b = 1 ) &nbsp;</strong> <br/>
 if problems are encountered then the run is interrupted by an
 <code>exit(1)</code> command. Default is not to crash.
   
 
+<a name="method9"></a>
 <p/><strong>void I_Pythia8::set_convert_to_mev( bool b = 1 ) &nbsp;</strong> <br/>
 connvert the normal GeV energies, momenta and masses to MeV.
 Currently not implemented, so everything always is stored as GeV.

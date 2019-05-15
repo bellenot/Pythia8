@@ -42,15 +42,22 @@ public:
     slhaRead(true), lhefRead(false), lhefSlha(false) {readFile(filename);};
 
   //***************************** SLHA FILE I/O *****************************//
-  int readFile(string slhaFile="slha.spc");     // read in SLHA file 
+  // Read and write SLHA files 
+  int readFile(string slhaFileIn="slha.spc",int verboseIn=1); 
   //int writeFile(string filename): write SLHA file on filename
-  int checkSpectrum();
 
   //Output utilities
   void printHeader();   // print Header
   void printFooter();   // print Footer
   void printSpectrum(); // print Spectrum
   
+  // Check spectrum and decays
+  int checkSpectrum();
+  int checkDecays();
+
+  // File Name (can be either SLHA or LHEF)
+  string slhaFile;
+
   // Class for SLHA data entry
   class Entry {
     
@@ -109,7 +116,7 @@ public:
     block<T>() : idnow(0) { } ;    
 
     //Does block exist?
-    bool exists() { return entry.size() == 0 ? false : true ; };
+    bool exists() { return int(entry.size()) == 0 ? false : true ; };
     //Clear block
     void clear() { entry.clear(); };
 
@@ -146,7 +153,7 @@ public:
     };
 
     // Size of map
-    int size() {return entry.size();};
+    int size() {return int(entry.size());};
 
     // First and next key code
     int first() { idnow = entry.begin()->first; return idnow; };
@@ -335,6 +342,102 @@ public:
     double val;
   };
 
+  //*************************** DECAY TABLES ***************************//
+
+  class decayChannel {
+  public: 
+
+    decayChannel() : brat(0.0) {};
+    decayChannel(double bratIn, int nDaIn, vector<int> idDaIn, string cIn="") {
+      setChannel(bratIn,nDaIn,idDaIn,cIn);
+    }
+
+    // Functions to set decay channel information
+    void setChannel(double bratIn, int nDaIn, vector<int> idDaIn, string cIn="") {
+      brat    = bratIn;
+      for (int i=0; i<=nDaIn; i++) {
+	if (i < int(idDaIn.size())) idDa.push_back(idDaIn[i]);
+	comment = cIn;
+      }
+    }
+    void setBrat(double bratIn) {brat=bratIn;}
+    void setIdDa(vector<int> idDaIn) {idDa = idDaIn;}
+    
+    // Functions to get decay channel information
+    double getBrat() {return brat;}
+    int getNDa() {return int(idDa.size());}
+    vector<int> getIdDa() {return idDa;}
+    string getComment() {return comment;}
+    
+  private:
+    double brat;
+    vector<int> idDa;
+    string comment;
+      
+  };
+
+  class decayTable {        
+  public: 
+    
+  decayTable() : id(0), width(0.0) {};
+  decayTable(int idIn) : id(idIn), width(0.0) {};
+  decayTable(int idIn, double widthIn) : id(idIn), width(widthIn) {};
+    
+    // Functions to get PDG code (id) and width
+    int    getId() {return id;}
+    double getWidth() {return width;} 
+    
+    // Functions to set PDG code (id) and width
+    void setId(int idIn) {id = idIn;}
+    void setWidth(double widthIn) {width=widthIn;}
+
+    // Function to reset size and width (width -> 0 by default)
+    void reset(double widthIn=0.0) {table.resize(0); width=widthIn;}
+    
+    // Function to add another decay channel
+    void addChannel(decayChannel channelIn) {table.push_back(channelIn);}
+    void addChannel(double bratIn, int nDaIn, vector<int> idDaIn, string cIn="") {
+      decayChannel newChannel(bratIn, nDaIn, idDaIn, cIn);
+      table.push_back(newChannel);
+    }
+
+    // Function to return number of decay channels
+    int size() {return int(table.size());}
+
+    // Function to return a branching ratio
+    double getBrat(int iChannel) {
+      if (iChannel >= 0 && iChannel < int(table.size())) {
+	return table[iChannel].getBrat();
+      } else {
+	return 0.0;
+      }
+    }
+    // Function to return daughter PDG codes 
+    vector<int> getIdDa(int iChannel) {
+      if (iChannel >= 0 && iChannel < int(table.size())) {
+	return table[iChannel].getIdDa();
+      } else {
+	vector<int> dum;
+	return dum;
+      }
+    }
+    // Function to return a decay channel
+    decayChannel getChannel(int iChannel) {
+      if (iChannel >= 0 && iChannel < int(table.size())) {
+	return table[iChannel];
+      } else {
+	decayChannel dum;
+	return dum;
+      }
+    }
+    
+  private:
+    int id;
+    double width;
+    vector<decayChannel> table;
+
+  };
+
   //*************************** THE SLHA1 BLOCKS ***************************//
   //blocks for model definition:
   block<int> modsel;
@@ -369,6 +472,10 @@ public:
   matrixblock<3> yu;
   matrixblock<3> yd;
   matrixblock<3> ye;
+
+  //************************ THE SLHA1 DECAY TABLES ************************//
+  vector<decayTable> decays;
+  map<int,int> decayIndices;
 
   //*************************** THE SLHA2 BLOCKS ***************************//
   //Additions to SLHA1
@@ -484,7 +591,6 @@ public:
   //***************************** SLHA PRIVATE *****************************//
 private:
   //SLHA I/O
-  string spectrumFile;
   void message(int, string,string ,int line=0);
   int verbose;
   bool headerPrinted, footerPrinted;

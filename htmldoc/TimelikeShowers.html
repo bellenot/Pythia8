@@ -33,20 +33,23 @@ is not as unique. Here the factorization scale has been chosen as the
 maximum evolution scale. This would be the <i>pT</i> for a 
 <i>2 -> 2</i> process, supplemented by mass terms for massive outgoing 
 particles. Some small amount of freedom is offered by
+
 <p/><code>parm&nbsp; </code><strong> TimeShower:pTmaxFudge &nbsp;</strong> 
- (<code>default = <strong>1.0</strong></code>; <code>minimum = 0.5</code>; <code>maximum = 2.0</code>)<br/>
+ (<code>default = <strong>1.0</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 2.0</code>)<br/>
 While the above rules would imply that <i>pT_max = pT_factorization</i>, 
 <code>pTmaxFudge</code> introduced a multiplicative factor <i>f</i> such 
 that instead <i>pT_max = f * pT_factorization</i>. Only applies to the 
 hardest interaction in an event. It is strongly suggested that 
 <i>f = 1</i>, but variations around this default can be useful to test 
 this assumption. 
+<br/><b>Note:</b>Scales for resonance decays are not affected, but can be 
+set separately by <a href="UserHooks.html" target="page">user hooks</a>.
   
 
 <p/>
 The amount of QCD radiation in the shower is determined by 
 <p/><code>parm&nbsp; </code><strong> TimeShower:alphaSvalue &nbsp;</strong> 
- (<code>default = <strong>0.137</strong></code>; <code>minimum = 0.06</code>; <code>maximum = 0.25</code>)<br/>
+ (<code>default = <strong>0.1383</strong></code>; <code>minimum = 0.06</code>; <code>maximum = 0.25</code>)<br/>
 The <i>alpha_strong</i> value at scale <i>M_Z^2</i>. The default 
 value corresponds to a crude tuning to LEP data, to be improved.
   
@@ -93,12 +96,12 @@ radiation off quarks, and is mainly a technical parameter for QED
 radiation off leptons.
 
 <p/><code>parm&nbsp; </code><strong> TimeShower:pTmin &nbsp;</strong> 
- (<code>default = <strong>0.5</strong></code>; <code>minimum = 0.1</code>; <code>maximum = 2.0</code>)<br/>
+ (<code>default = <strong>0.4</strong></code>; <code>minimum = 0.1</code>; <code>maximum = 2.0</code>)<br/>
 Parton shower cut-off <i>pT</i> for QCD emissions.
   
 
 <p/><code>parm&nbsp; </code><strong> TimeShower:pTminChgQ &nbsp;</strong> 
- (<code>default = <strong>0.5</strong></code>; <code>minimum = 0.1</code>; <code>maximum = 2.0</code>)<br/>
+ (<code>default = <strong>0.4</strong></code>; <code>minimum = 0.1</code>; <code>maximum = 2.0</code>)<br/>
 Parton shower cut-off <i>pT</i> for photon coupling to coloured particle.
   
 

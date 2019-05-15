@@ -46,7 +46,7 @@ public:
     ( (i < 3) ? eVec2 : eVec3 ) ;}
 
   // Provide a listing of the info.
-  void list(ostream& os = cout);
+  void list(ostream& os = cout) const;
 
   // Tell how many events could not be analyzed.
   int nError() const {return nFew + nBack;}
@@ -95,7 +95,7 @@ public:
     ( (i < 3) ? eVec2 : eVec3 ) ;}
 
   // Provide a listing of the info.
-  void list(ostream& os = cout);
+  void list(ostream& os = cout) const;
 
   // Tell how many events could not be analyzed.
   int nError() const {return nFew;}
@@ -192,7 +192,12 @@ public:
     return -1;} 
 
   // Provide a listing of the info.
-  void list(ostream& os = cout);
+  void list(ostream& os = cout) const;
+
+  // Return info on clustering values.
+  int    distanceSize() const {return distances.size();}
+  double distance(int i) const {
+    return (i < distanceSize()) ? distances[i] : 0.; }
 
   // Tell how many events could not be analyzed.
   int nError() const {return nFew;}
@@ -223,6 +228,9 @@ private:
 
   // Outcome of analysis: ET-ordered list of jets. 
   vector<SingleClusterJet> jets;
+
+  // Outcome of analysis: the distance values where the jets were merged.
+  deque<double> distances;
 
 };  
 
@@ -311,7 +319,7 @@ public:
   double m(int i)            const {return jets[i].pMassive.mCalc();}
 
   // Provide a listing of the info.
-  void list(ostream& os = cout);
+  void list(ostream& os = cout) const;
 
   // Tell how many events could not be analyzed: so far never.
   int nError() const {return nFew;}

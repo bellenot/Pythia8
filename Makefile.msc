@@ -32,12 +32,12 @@ OutPutOpt     = -out:
 !include <win32.mak>
 CC            = $(cc)
 CXX           = $(cc)
-CXXFLAGS      = -EHsc -nologo -GR -DWIN32 -W3 \
+CXXFLAGS      = -EHsc -nologo -GR -DWIN32 -W3 -FIiso646.h \
                 -DVISUAL_CPLUSPLUS -D_WINDOWS -Iinclude
 LD            = $(link)
 
 !IF  "$(CFG)" == "Win32 Release"
-CXXOPT        = -O2 -MD
+CXXOPT        = -O2 -MD -DNDEBUG
 LDOPT         = 
 OUTDIR        = ./Release
 !ELSEIF  "$(CFG)" == "Win32 Debug"
@@ -88,6 +88,7 @@ OBJS =   $(OUTDIR)/Analysis.obj \
          $(OUTDIR)/ParticleDecays.obj \
          $(OUTDIR)/PartonDistributions.obj \
          $(OUTDIR)/PartonLevel.obj \
+         $(OUTDIR)/PartonSystems.obj \
          $(OUTDIR)/PhaseSpace.obj \
          $(OUTDIR)/ProcessContainer.obj \
          $(OUTDIR)/ProcessLevel.obj \

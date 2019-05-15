@@ -79,8 +79,7 @@ void BeamParticle::init( int idIn, double pzIn, double eIn, double mIn,
 
 // Initialize kind and valence flavour content of incoming beam.
 // For recognized hadrons one can generate multiple interactions.
-// So far we do not handle diagonal mesons or K0S/K0L (or photons), 
-// for which flavour content is only known after first interaction.
+// Dynamic choice of meson valence flavours in newValenceContent below. 
 
 void BeamParticle::initBeamKind() {
 
@@ -102,14 +101,21 @@ void BeamParticle::initBeamKind() {
 
   //  Done if cannot be lowest-lying hadron state.
   if (idBeamAbs < 101 || idBeamAbs > 9999) return;
+
+  // Resolve valence content for assumed Pomeron. 
+  if (idBeamAbs == 990) {
+    isMesonBeam = true;
+    nValKinds = 2; 
+    nVal[0]   = 1 ; 
+    nVal[1]   = 1 ; 
+    newValenceContent();
   
   // Resolve valence content for assumed meson. Flunk unallowed codes.
-  if (idBeamAbs < 1000) {
+  } else if (idBeamAbs < 1000) {
     int id1 = idBeamAbs/100;    
     int id2 = (idBeamAbs/10)%10;
     if ( id1 < 1 || id1 > maxValQuark 
       || id2 < 1 || id2 > maxValQuark ) return;
-    if (id2 == id1 || idBeamAbs == 130 || idBeamAbs == 310) return;
     isMesonBeam = true;
     
     // Store valence content of a confirmed meson.
@@ -123,6 +129,7 @@ void BeamParticle::initBeamKind() {
       idVal[0] = id2; 
       idVal[1] = -id1;
     }      
+    newValenceContent();
   
   // Resolve valence content for assumed baryon. Flunk unallowed codes.
   } else { 
@@ -160,6 +167,38 @@ void BeamParticle::initBeamKind() {
 
 //*********
 
+
+// Dynamic choice of meson valence flavours for pi0, K0S, K0L, Pomeron.
+
+void BeamParticle::newValenceContent() {
+
+  // A pi0 oscillates between d dbar and u ubar.
+  if (idBeam == 111) {
+    idVal[0] = (Rndm::flat() < 0.5) ? 1 : 2;
+    idVal[1] = -idVal[0];
+
+  // A K0S or K0L oscillates between d sbar and s dbar.
+  } else if (idBeam == 130 || idBeam == 310) {   
+    idVal[0] = (Rndm::flat() < 0.5) ?  1 :  3;
+    idVal[1] = (idVal[0] == 1)      ? -3 : -1;
+
+  // For a Pomeron split gluon remnant into d dbar or u ubar.
+  } else if (idBeam == 990) {
+    idVal[0] = (Rndm::flat() < 0.5) ? 1 : 2;
+    idVal[1] = -idVal[0];    
+
+  // Other hadrons so far do not require any event-by-event change.
+  } else return;
+
+  // Propagate change to PDF routine(s).
+  pdfBeamPtr->newValenceContent( idVal[0], idVal[1]);   
+  if (pdfHardBeamPtr != pdfBeamPtr && pdfHardBeamPtr != 0)
+    pdfHardBeamPtr->newValenceContent( idVal[0], idVal[1]);   
+
+}
+
+//*********
+
 double BeamParticle::xMax(int iSkip) {
 
   // Minimum requirement on remaining energy > nominal mass for hadron.
@@ -169,7 +208,7 @@ double BeamParticle::xMax(int iSkip) {
 
   // Subtract what was carried away by initiators (to date).
   for (int i = 0; i < size(); ++i) 
-    if (i != iSkip) xLeft -= resolved[i].x();
+    if (i != iSkip && resolved[i].isFromBeam()) xLeft -= resolved[i].x();
   return xLeft;
 
 }
@@ -740,7 +779,7 @@ double BeamParticle::xRemnant( int i) {
 
 // Print the list of resolved partons in a beam.
 
-void BeamParticle::list(ostream& os) {
+void BeamParticle::list(ostream& os) const {
 
   // Header.
   os << "\n --------  PYTHIA Partons resolved in beam  -----------------" 

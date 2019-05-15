@@ -24,6 +24,8 @@ sequence.
 
 <p/>
 For more on random numbers see <aloc href="RandomNumbers">here</aloc>.
+This includes methods to save and restore the state of the generator,
+and some preprogrammed methods to generate non-uniform random numbers.
 
 </chapter>
 

@@ -39,6 +39,7 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 <a href='ParticleDataScheme.php?filepath=".$filepath."' target='page'>Particle Data Scheme</a><br/>
 <a href='ProgramFiles.php?filepath=".$filepath."' target='page'>Program Files</a><br/>
 <a href='ProgramClasses.php?filepath=".$filepath."' target='page'>Program Classes</a><br/>
+<a href='ProgramMethods.php?filepath=".$filepath."' target='page'>Program Methods</a><br/>
 <a href='SampleMainPrograms.php?filepath=".$filepath."' target='page'>Sample Main Programs</a><br/>
 
 <h4>Setup Run Tasks</h4>

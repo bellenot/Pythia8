@@ -303,8 +303,9 @@ becomes slow and unstable, so the min limit must be respected.
  
 It is possible that a parton may rescatter, i.e. undergo a further
 interaction subsequent to the first one. The machinery to model this
-kind of physics is still under development, and is not yet intended for
-general use, but only for the active developers. 
+kind of physics has only recently become fully operational, and may
+still undergo some further development and bug fixing. It can therefore 
+not be recommended for general usage. 
 
 <p/>
 The rescatting framework has ties with other parts of the program,
@@ -313,10 +314,8 @@ notably with the <a href="BeamRemnants.html" target="page">beam remnants</a>.
 <p/><code>flag&nbsp; </code><strong> MultipleInteractions:allowRescatter &nbsp;</strong> 
  (<code>default = <strong>off</strong></code>)<br/>
 Switch to allow rescattering of partons; on/off = true/false.<br/>
-<b>Warning:</b> not yet fully operational, so use at your own risk. 
-It will only work if you set <code>TimeShower:interleave = off</code> 
-to defer the treatment of final-state radiation until after the 
-treatment of (re)scatterings and initial-state radiation.
+<b>Warning:</b> use with caution since machinery is still not 
+so well tested.
   
 
 <p/><code>flag&nbsp; </code><strong> MultipleInteractions:allowDoubleRescatter &nbsp;</strong> 
@@ -324,8 +323,10 @@ treatment of (re)scatterings and initial-state radiation.
 Switch to allow rescattering of partons, where both incoming partons 
 have already rescattered; on/off = true/false. Is only used if 
 <code>MultipleInteractions:allowRescatter</code> is switched on.<br/>
-<b>Warning:</b> currently even more experimental than the single
-rescattering option above. The rate also comes out to be lower, 
+<b>Warning:</b> currently there is no complete implementation that 
+combines it with shower evolution, so you must used 
+<code>PartonLevel:ISR = off</code> and <code>PartonLevel:FSR = off</code>.
+The rate also comes out to be much lower than for single rescattering, 
 so to first approximation it can be neglected.
   
 

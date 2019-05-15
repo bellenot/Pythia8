@@ -154,6 +154,12 @@ public:
   // Print the info; useful to check that reading an event worked.
   void   listEvent(ostream& os = cout);  
 
+  // Skip ahead a number of events, which are not considered further.
+  // Mainly intended for debug when using the LHAupLHEF class.
+  virtual bool skipEvent(int nSkip) {
+    for (int iSkip = 0; iSkip < nSkip; ++iSkip)
+    if (!setEvent()) return false; return true;} 
+
   // Four routines to write a Les Houches Event file in steps.
   bool   openLHEF(string fileNameIn);
   bool   initLHEF();
@@ -284,6 +290,10 @@ public:
   // Routine for doing the job of reading and setting info on next event.  
   bool setEvent(int = 0) {if (!setNewEventLHEF(is)) return false;
     return setOldEventLHEF();} 
+
+  // Skip ahead a number of events, which are not considered further.
+  bool skipEvent(int nSkip) {for (int iSkip = 0; iSkip < nSkip; ++iSkip)
+    if (!setNewEventLHEF(is)) return false; return true;} 
 
 private:
  

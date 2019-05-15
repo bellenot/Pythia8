@@ -64,6 +64,7 @@ public:
     {colRes = colIn; acolRes = acolIn;} 
   void scalePT( double factorIn) {pRes.px(factorIn * pRes.px()); 
     pRes.py(factorIn * pRes.py()); factorRes *= factorIn;}
+  void scaleX( double factorIn) {xRes *= factorIn;}
 
   // Get info on initiator or remnant parton.
   int    iPos()        const {return iPosRes;} 
@@ -82,7 +83,8 @@ public:
   double e()           const {return pRes.e();}
   double m()           const {return mRes;}
   double pT()          const {return pRes.pT();}
-  double mT2()         const {return mRes*mRes + pRes.pT2();}
+  double mT2()         const {return (mRes >= 0.) 
+    ? mRes*mRes + pRes.pT2() : - mRes*mRes + pRes.pT2();}
   double pPos()        const {return pRes.e() +  pRes.pz();}
   double pNeg()        const {return pRes.e() -  pRes.pz();}
   int    col()         const {return colRes;}
@@ -121,6 +123,9 @@ public:
   void init( int idIn, double pzIn, double eIn, double mIn, 
     Info* infoPtrIn, PDF* pdfInPtr, PDF* pdfHardInPtr, 
     bool isUnresolvedIn, StringFlav* flavSelPtrIn);
+
+  // For mesons like pi0 valence content varies from event to event.
+  void newValenceContent();
 
   // Set new pZ and E, but keep the rest the same.
   void newPzE( double pzIn, double eIn) {pBeam = Vec4( 0., 0., pzIn, eIn);}
@@ -178,7 +183,7 @@ public:
   int sizeInit() const {return nInit;}
 
   // Clear list of resolved partons. 
-  void clear() {resolved.resize(0);}
+  void clear() {resolved.resize(0); nInit = 0;}
 
   // Add a resolved parton to list. 
   int append( int iPos, int idIn, double x, int companion = -1)
@@ -186,7 +191,7 @@ public:
     return resolved.size() - 1;}
 
   // Print extracted parton list; for debug mainly.
-  void list(ostream& os = cout); 
+  void list(ostream& os = cout) const; 
 
   // How many different flavours, and how many quarks of given flavour.
   int nValenceKinds() const {return nValKinds;}
@@ -232,7 +237,7 @@ private:
   // Pointer to various information on the generation.
   Info*       infoPtr;
  
-  // Pinters to PDF sets.
+  // Pointers to PDF sets.
   PDF*        pdfBeamPtr;
   PDF*        pdfHardBeamPtr;
 

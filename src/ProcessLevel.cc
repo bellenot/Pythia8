@@ -485,46 +485,201 @@ void ProcessLevel::statistics(bool reset, ostream& os) {
 
 bool ProcessLevel::initSLHA() {
 
-  // Check whether SUSY is on.
-  if ( !Settings::flag("SUSY") ) return true;      
+  // Init
+  int    ifailLHE = 1;
+  int    ifailSpc = 1;
+  int    ifailDec = 1;
+  string lhefFile = Settings::word("Beams:LHEF");
+  string slhaFile = Settings::word("SLHA:file");
+  int verboseSLHA = Settings::mode("SLHA:verbose");
 
-  // Read SUSY Les Houches Accord File.
-  string slhaFile = Settings::word("SUSY:SusyLesHouchesFile");
-  int ifail = slhaPtr->readFile(slhaFile);
+  // First check LHEF header (if reading from LHEF)
+  if ( lhefFile != "void") {
+    ifailLHE = slhaPtr->readFile(lhefFile,verboseSLHA);    
+  }
+
+  // If LHEF read successful, everything needed should already be ready
+  if (ifailLHE == 0) {
+    ifailSpc = 0;
+    ifailDec = 0;
+  // If no LHEF file or no SLHA info in header, read from SLHA:file
+  } else {
+    lhefFile = "void";
+    if ( Settings::word("SLHA:file") == "none"
+	 || Settings::word("SLHA:file") == "void" 
+	 || Settings::word("SLHA:file") == "" 
+	 || Settings::word("SLHA:file") == " ") return true;      
+    ifailSpc = slhaPtr->readFile(slhaFile,verboseSLHA);
+  }
 
   // In case of problems, print error and fail init.
-  if (ifail != 0) {
-    infoPtr->errorMsg("Error from Pythia::initSLHA: "
+  if (ifailSpc != 0) {
+    infoPtr->errorMsg("Error in ProcessLevel::initSLHA: "
       "problem reading SLHA file", slhaFile);
     return false;
   };
 
-  // Update particle data.
-  int id = slhaPtr->mass.first();
-  for (int i = 1; i <= slhaPtr->mass.size() ; i++) {
-    double mass = abs(slhaPtr->mass(id));
-    ParticleDataTable::m0(id,mass);
-    id = slhaPtr->mass.next();
-  };
-
+  /*
+  // Check decays for consistency (replaced by internal Pythia check below)
+  ifailDec = slhaPtr->checkDecays();
+  if (ifailDec != 0) {
+    infoPtr->errorMsg("Warning in ProcessLevel::initSLHA: "
+		      "Problem with SLHA decay tables.");     
+  }
+  */
+  
   // Check spectrum for consistency. Switch off SUSY if necessary.
-  ifail = slhaPtr->checkSpectrum();
-  if (ifail != 0) {
-    infoPtr->errorMsg("Warning from Pythia::initSLHA: "
-      "Problem with SLHA spectrum.", 
-      "\n Only using masses and switching off SUSY.");
-    Settings::flag("SUSY", false);
+  ifailSpc = slhaPtr->checkSpectrum();
+  // ifail > 1 : no MODSEL found -> don't switch on SUSY
+  if (ifailSpc == 1) {
+    // no SUSY, but MASS ok
+  } else if (ifailSpc >= 2) {
+    // no SUSY, but problems    
+    infoPtr->errorMsg("Warning in ProcessLevel::initSLHA: "
+		      "Problem with SLHA MASS or QNUMBERS.");    
+  }
+  // ifail = 0 : MODSEL found, spectrum OK
+  else if (ifailSpc == 0) {
+    // Print spectrum. Done. 
     slhaPtr->printSpectrum();
-    return true;
-  };
+  }
+  else if (ifailSpc < 0) {
+    infoPtr->errorMsg("Warning in ProcessLevel::initSLHA: "
+		      "Problem with SLHA spectrum.", 
+		      "\n Only using masses and switching off SUSY.");
+    Settings::flag("SUSY:all", false);
+    slhaPtr->printSpectrum();
+  } 
 
-  // Init SUSY couplings
-  CoupSUSY::initStatic(slhaPtr);
+  // Import mass spectrum
+  if (ifailSpc == 1 || ifailSpc == 0) {
 
-  // Print spectrum. Done. 
-  slhaPtr->printSpectrum();
+    // Update particle data.
+    int id = slhaPtr->mass.first();
+    double minMassSM = Settings::parm("SLHA:minMassSM");
+    for (int i = 1; i <= slhaPtr->mass.size() ; i++) {
+      double mass = abs(slhaPtr->mass(id));
+      // Ignore settings for SM particles with default masses < minMassSM
+      if (id > 1000000 || ParticleDataTable::m0(id) > minMassSM) {
+	ParticleDataTable::m0(id,mass);
+      } else {
+	ostringstream idCode;
+	idCode << id;      
+	infoPtr->errorMsg("Warning in ProcessLevel::initSLHA: "
+			  "ignoring MASS entry for id = "+idCode.str()
+			  +" (m0 < SLHA:minMassSM)");
+      }
+      id = slhaPtr->mass.next();
+    };
+
+    // Init SUSY couplings
+    if (ifailSpc == 0) CoupSUSY::initStatic(slhaPtr);       
+
+  }
+
+  // Update decay data.
+  for (int iTable=0; iTable<int(slhaPtr->decays.size()); iTable++) {
+    
+    // Pointer to this SLHA table
+    SusyLesHouches::decayTable* slhaTable=&slhaPtr->decays[iTable];
+    
+    // Extract ID and create pointer to corresponding particle data object
+    int idRes     = slhaTable->getId();
+    ParticleDataEntry* particlePtr = ParticleDataTable::particleDataPtr(idRes);
+    
+    // Extract and store individual channels, with branching ratios
+    // Ignore settings for SM particles with default masses < minMassSM
+    double minMassSM = Settings::parm("SLHA:minMassSM");
+    if ( idRes < 1000000 && ParticleDataTable::m0(idRes) < minMassSM) {
+      ostringstream idCode;
+      idCode << idRes;      
+      infoPtr->errorMsg("Warning in ProcessLevel::initSLHA: "
+			"ignoring DECAY table for id = "+idCode.str()
+			+" (m0 < SLHA:minMassSM)");
+      continue;
+    }
+    
+    // Extract and store total width (absolute value, neg -> switch off)
+    double widRes = abs(slhaTable->getWidth());
+    particlePtr->setMWidth(widRes);
+    
+    // Reset decay table of the particle. Allow decays.
+    if (slhaTable->size() > 0) {
+      particlePtr->decay.clear();
+      ParticleDataTable::mayDecay(idRes,true);
+    }        
+    
+    // Reset to stable if width <= 0.0
+    if (slhaTable->getWidth() <= 0.0) ParticleDataTable::mayDecay(idRes,false);
+    
+    // Mass margin between lowest mass allowed and "average" decay channel.
+    double massMargin = 1.;
+    
+    // Set initial minimum mass.
+    double brWTsum   = 0.;
+    double massWTsum = 0.;
+    
+    // Loop over SLHA channels, import into Pythia, treating channels
+    // with negative branching fractions as having the equivalent positive
+    // branching fraction, but being switched off for this run
+    for (int iChannel=0 ; iChannel<slhaTable->size(); iChannel++) {
+      SusyLesHouches::decayChannel slhaChannel = slhaTable->getChannel(iChannel);
+      double brat      = slhaChannel.getBrat();
+      vector<int> idDa = slhaChannel.getIdDa();
+      if (idDa.size() >= 9) {
+	infoPtr->errorMsg("Error in ProcessLevel::initSLHA: "
+			  "max number of decay products is 8.");
+      } else if (idDa.size() <= 1) {
+	infoPtr->errorMsg("Error in ProcessLevel::initSLHA: "
+			  "min number of decay products is 2.");	  
+      }
+      else {
+	int onMode = 1;
+	if (brat < 0.0) onMode = 0;
+	
+	// Check phase space, including margin
+	double massSum = massMargin;
+	for (int jDa=0; jDa<int(idDa.size()); ++jDa) 
+	  massSum += ParticleDataTable::m0( idDa[jDa] ); 
+	if (onMode == 1 && brat > 0.0 && massSum > ParticleDataTable::m0(idRes) ) {
+	  // String containing decay name
+	  ostringstream errCode;
+	  errCode << idRes <<" ->";
+	  for (int jDa=0; jDa<int(idDa.size()); ++jDa) errCode<<" "<<idDa[jDa];
+	  infoPtr->errorMsg("Warning in ProcessLevel::initSLHA: "
+		 "switching off " + errCode.str() + " (mRes - mDa < massMargin)");
+	  cout << "       (Note: cross sections will be scaled by remaining"
+               << " open branching fractions!)" << endl;
+	  onMode=0;
+	}
+	
+	// Branching-ratio-weighted average mass in decay.
+	brWTsum   += abs(brat);
+	massWTsum += abs(brat) * massSum;
+	
+	// Add channel
+	int id0 = idDa[0];
+	int id1 = idDa[1];
+	int id2 = (idDa.size() >= 3) ? idDa[2] : 0;
+	int id3 = (idDa.size() >= 4) ? idDa[3] : 0;
+	int id4 = (idDa.size() >= 5) ? idDa[4] : 0;
+	int id5 = (idDa.size() >= 6) ? idDa[5] : 0;
+	int id6 = (idDa.size() >= 7) ? idDa[6] : 0;
+	int id7 = (idDa.size() >= 8) ? idDa[7] : 0;
+	particlePtr->decay.addChannel(onMode,abs(brat),101,
+				      id0,id1,id2,id3,id4,id5,id6,id7);
+	
+      }
+    }
+    double massAvg = massWTsum / brWTsum;
+    
+    // Set minimal mass, but always below nominal one.
+    double massMin = min( massAvg, particlePtr->m0()) - massMargin;
+    particlePtr->setMMin(massMin);
+  }
+  
   return true;
-
+  
 }
 
 //*********

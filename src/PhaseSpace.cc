@@ -507,7 +507,7 @@ bool PhaseSpace::setupSampling123(bool is2, bool is3, ostream& os) {
   
   // Number of used coefficients/points for each dimension: tau, y, c.
   nTau = (hasPointLeptons) ? 1 : 2;
-  nY   = (hasPointLeptons) ? 1 : 3;
+  nY   = (hasPointLeptons) ? 1 : 5;
   nZ   = (is2) ? 5 : 1; 
 
   // Identify if any resonances contribute in s-channel.
@@ -544,11 +544,8 @@ bool PhaseSpace::setupSampling123(bool is2, bool is3, ostream& os) {
     widResB = mResB * GammaResB / s;
   }
   
-  // More sampling in tau and y if incoming lepton beams.
-  if (hasLeptonBeams && !hasPointLeptons) {
-    ++nTau;
-    nY += 2;
-  }
+  // More sampling in tau (and different in y) if incoming lepton beams.
+  if (hasLeptonBeams && !hasPointLeptons) ++nTau;
 
   // Special case when both resonances have same mass.
   sameResMass = false;
@@ -562,8 +559,8 @@ bool PhaseSpace::setupSampling123(bool is2, bool is3, ostream& os) {
 
   // Initial values, to be modified later.
   tauCoef[0] = 1.;
-  yCoef[0]   = 0.5;
   yCoef[1]   = 0.5;
+  yCoef[2]   = 0.5;
   zCoef[0]   = 1.; 
 
   // Step through grid in tau. Set limits on y and z generation. 
@@ -624,10 +621,10 @@ bool PhaseSpace::setupSampling123(bool is2, bool is3, ostream& os) {
 
         // Sum up tau cross-section pieces in points used.
         if (!hasPointLeptons) {
-          binTau[iTau] += 1;
-          vecTau[iTau] += sigmaTmp;
-          matTau[iTau][0] += 1. / intTau0;
-          matTau[iTau][1] += (1. / intTau1) / tau;
+          binTau[iTau]      += 1;
+          vecTau[iTau]      += sigmaTmp;
+          matTau[iTau][0]   += 1. / intTau0;
+          matTau[iTau][1]   += (1. / intTau1) / tau;
           if (idResA != 0) {
             matTau[iTau][2] += (1. / intTau2) / (tau + tauResA);
             matTau[iTau][3] += (1. / intTau3) 
@@ -644,33 +641,36 @@ bool PhaseSpace::setupSampling123(bool is2, bool is3, ostream& os) {
 
         // Sum up y cross-section pieces in points used.
         if (!hasPointLeptons) {
-          binY[iY] += 1;
-          vecY[iY] += sigmaTmp;
-          matY[iY][0] += (yMax / intY01) * (y + yMax);
-          matY[iY][1] += (yMax / intY01) * (yMax - y);
-          matY[iY][2] += (yMax / intY2) / cosh(y);
-          if (hasLeptonBeams) {
-            matY[iY][3] += (yMax / intY34) 
+          binY[iY]      += 1;
+          vecY[iY]      += sigmaTmp;
+          matY[iY][0]   += (yMax / intY0) / cosh(y);
+          matY[iY][1]   += (yMax / intY12) * (y + yMax);
+          matY[iY][2]   += (yMax / intY12) * (yMax - y);
+          if (!hasLeptonBeams) {
+            matY[iY][3] += (yMax / intY34) * exp(y);
+            matY[iY][4] += (yMax / intY34) * exp(-y);
+          } else {
+            matY[iY][3] += (yMax / intY56) 
               / max( LEPTONXMIN, 1. - exp( y - yMax) );
-            matY[iY][4] += (yMax / intY34) 
+            matY[iY][4] += (yMax / intY56) 
               / max( LEPTONXMIN, 1. - exp(-y - yMax) );
           }
 	}
 
         // Integrals over z expressions at tauMax, to be used below.
         if (is2) {
-          double p2AbsMax = 0.25 * (pow2(tauMax * s - s3 - s4) 
+          double p2AbsMax   = 0.25 * (pow2(tauMax * s - s3 - s4) 
             - 4. * s3 * s4) / (tauMax * s);         
-          double zMaxMax = sqrtpos( 1. - pT2HatMin / p2AbsMax );
+          double zMaxMax    = sqrtpos( 1. - pT2HatMin / p2AbsMax );
           double zPosMaxMax = max(ratio34, unity34 + zMaxMax);
           double zNegMaxMax = max(ratio34, unity34 - zMaxMax);
-          double intZ0Max = 2. * zMaxMax;
-          double intZ12Max = log( zPosMaxMax / zNegMaxMax);
-          double intZ34Max = 1. / zNegMaxMax - 1. / zPosMaxMax;  
+          double intZ0Max   = 2. * zMaxMax;
+          double intZ12Max  = log( zPosMaxMax / zNegMaxMax);
+          double intZ34Max  = 1. / zNegMaxMax - 1. / zPosMaxMax;  
   
           // Sum up z cross-section pieces in points used.
-          binZ[iZ] += 1;
-          vecZ[iZ] += sigmaTmp;
+          binZ[iZ]    += 1;
+          vecZ[iZ]    += sigmaTmp;
           matZ[iZ][0] += 1.; 
           matZ[iZ][1] += (intZ0Max / intZ12Max) / zNeg;
           matZ[iZ][2] += (intZ0Max / intZ12Max) / zPos;
@@ -978,9 +978,10 @@ bool PhaseSpace::trialKin123(bool is2, bool is3, bool inEvent, ostream& os) {
   selectTau( iTau, Rndm::flat(), is2);
 
   // Choose y according to h2(y), where
-  // h2(y) = (c0/I0) * (y-ymin) + (c1/I1) * (ymax-y) 
-  // + (c2/I2) * 1/cosh(y) + (c3/I3) * 1 / (1 - exp(y-ymax)) 
-  // + (c4/I4) * 1 / (1 - exp(ymin-y)).
+  // h2(y) = (c0/I0) * 1/cosh(y) 
+  // + (c1/I1) * (y-ymin) + (c2/I2) * (ymax-y) 
+  // + (c3/I3) * exp(y) + (c4/i4) * exp(-y) (for hadron; for lepton instead)
+  // + (c5/I5) * 1 / (1 - exp(y-ymax)) + (c6/I6) * 1 / (1 - exp(ymin-y)).
   if (!limitY()) return false;
   int iY = 0;
   if (!hasPointLeptons) {
@@ -1247,35 +1248,45 @@ void PhaseSpace::selectY(int iY, double yVal) {
     return;
   }
 
+  // For lepton beams skip options 3&4 and go straight to 5&6.
+  if (hasLeptonBeams && iY > 2) iY += 2;
+
   // Standard expressions used below.
-  double atanMax = atan( exp(yMax) );  
-  double atanMin = atan( exp(-yMax) );  
+  double expYMax = exp( yMax );
+  double expYMin = exp(-yMax );
+  double atanMax = atan( expYMax );  
+  double atanMin = atan( expYMin );  
   double aUppY = (hasLeptonBeams) 
     ? log( max( LEPTONXMIN, LEPTONXMAX / tau - 1. ) ) : 0.;
   double aLowY = LEPTONXLOGMIN;
 
-  // y - y_min or mirrored y_max - y.
-  if (iY <= 1) y = yMax * (2. * sqrt(yVal) - 1.); 
-
   // 1 / cosh(y).
-  else if (iY == 2) 
-    y = log( tan( atanMin + (atanMax - atanMin) * yVal ) );
+  if (iY == 0) y = log( tan( atanMin + (atanMax - atanMin) * yVal ) );
+
+  // y - y_min or mirrored y_max - y.
+  else if (iY <= 2) y = yMax * (2. * sqrt(yVal) - 1.); 
+  
+  // exp(y) or mirrored exp(-y).
+  else if (iY <= 4) y = log( expYMin + (expYMax - expYMin) * yVal );
 
   // 1 / (1 - exp(y - y_max)) or mirrored 1 / (1 - exp(y_min - y)).
   else y = yMax - log( 1. + exp(aLowY + (aUppY - aLowY) * yVal) );
 
   // Mirror two cases. 
-  if (iY == 1 || iY == 4) y = -y;
+  if (iY == 2 || iY == 4 || iY == 6) y = -y;
 
   // Phase space integral in y.
-  intY01 = 0.5 * pow2(2. * yMax);
-  intY2  = 2. * (atanMax - atanMin);
-  intY34 = aUppY - aLowY;
-  double invWtY = (yCoef[0] / intY01) * (y + yMax)
-    + (yCoef[1] / intY01) * (yMax - y) + (yCoef[2] / intY2) / cosh(y);
-  if (hasLeptonBeams) invWtY 
-    += (yCoef[3] / intY34) / max( LEPTONXMIN, 1. - exp( y - yMax) )
-    +  (yCoef[4] / intY34) / max( LEPTONXMIN, 1. - exp(-y - yMax) );  
+  intY0  = 2. * (atanMax - atanMin);
+  intY12 = 0.5 * pow2(2. * yMax);
+  intY34 = expYMax - expYMin;
+  intY56 = aUppY - aLowY;
+  double invWtY = (yCoef[0] / intY0) / cosh(y) 
+     + (yCoef[1] / intY12) * (y + yMax) + (yCoef[2] / intY12) * (yMax - y); 
+  if (!hasLeptonBeams) invWtY 
+    += (yCoef[3] / intY34) * exp(y)     + (yCoef[4] / intY34) * exp(-y);
+  else invWtY 
+    += (yCoef[3] / intY56) / max( LEPTONXMIN, 1. - exp( y - yMax) )
+    +  (yCoef[4] / intY56) / max( LEPTONXMIN, 1. - exp(-y - yMax) );  
   wtY = 1. / invWtY;
 
   // Calculate x1 and x2.

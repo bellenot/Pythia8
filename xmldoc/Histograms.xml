@@ -161,7 +161,7 @@ including bin contents, except that a new title is provided
 as first argument.
 </method>
    
-<method name="Hist& ::Hist::operator=(const Hist& h)">
+<method name="Hist& Hist::operator=(const Hist& h)">
 copies all properties of the histogram in the argument, 
 except that the original histogram title is retained. 
 </method>

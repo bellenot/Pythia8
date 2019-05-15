@@ -27,7 +27,7 @@ const int Info::TIMESTOPRINT = 1;
 
 // List (almost) all information currently set.
 
-void Info::list(ostream& os) {
+void Info::list(ostream& os) const {
 
   // Header and beam info.
   os << "\n --------  PYTHIA Info Listing  ------------------------"

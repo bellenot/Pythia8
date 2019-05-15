@@ -27,6 +27,8 @@ bool   Rndm::initRndm        = false;
 bool   Rndm::saveGauss       = false;
 int    Rndm::i97, Rndm::j97;
 int    Rndm::defaultSeed     = 19780503;
+int    Rndm::seedSave        = 0;
+long   Rndm::sequence        = 0;
 double Rndm::u[97], Rndm::c, Rndm::cd, Rndm::cm, Rndm::save;
 bool   Rndm::useExternalRndm = false;
 RndmEngine* Rndm::rndmPtr    = 0;
@@ -94,6 +96,8 @@ void Rndm::init(int seedIn) {
 
   // Finished.
   initRndm = true;
+  seedSave = seed;
+  sequence = 0;
 
 }
 
@@ -110,6 +114,7 @@ double Rndm::flat() {
   if (!initRndm) init(defaultSeed); 
 
   // Find next random number and update saved state.
+  ++sequence;
   double uni;
   do {
     uni = u[i97] - u[j97];
@@ -158,8 +163,72 @@ int Rndm::pick(const vector<double>& prob) {
   for (int i = 0; i < int(prob.size()); ++i) {work += prob[i];}
   work *= flat();  
   int index = -1;
-  do { work -= prob[++index]; } while (work > 0 && index < int(prob.size()));
+  do { work -= prob[++index]; } while (work > 0. && index < int(prob.size()));
   return index; 
+
+}
+
+//*********
+ 
+// Save current state of the random number generator to a binary file.
+ 
+bool Rndm::dumpState(string fileName) {
+
+  // Open file as output stream.
+  const char* fn = fileName.c_str();
+  ofstream ofs(fn, ios::binary);
+
+  if (!ofs.good()) {
+    cout << " Rndm::dumpState: could not open output file" << endl;
+    return false;
+  }
+
+  // Write the state of the generator on the file.
+  ofs.write((char *) &seedSave, sizeof(int));
+  ofs.write((char *) &sequence, sizeof(long));
+  ofs.write((char *) &i97,      sizeof(int));
+  ofs.write((char *) &j97,      sizeof(int));
+  ofs.write((char *) &c,        sizeof(double));
+  ofs.write((char *) &cd,       sizeof(double));
+  ofs.write((char *) &cm,       sizeof(double));
+  ofs.write((char *) &u,        sizeof(double) * 97);
+ 
+  // Write confirmation on cout. 
+  cout << " PYTHIA Rndm::dumpState: seed = " << seedSave 
+       << ", sequence no = " << sequence << endl;
+  return true;
+
+}
+
+//*********
+ 
+// Read in the state of the random number generator from a binary file.
+
+bool Rndm::readState(string fileName) {
+
+  // Open file as input stream.
+  const char* fn = fileName.c_str();
+  ifstream ifs(fn, ios::binary);
+
+  if (!ifs.good()) {
+    cout << " Rndm::readState: could not open input file" << endl;
+    return false;
+  }
+
+  // Read the state of the generator from the file.
+  ifs.read((char *) &seedSave, sizeof(int));
+  ifs.read((char *) &sequence, sizeof(long));
+  ifs.read((char *) &i97,      sizeof(int));
+  ifs.read((char *) &j97,      sizeof(int));
+  ifs.read((char *) &c,        sizeof(double));
+  ifs.read((char *) &cd,       sizeof(double));
+  ifs.read((char *) &cm,       sizeof(double));
+  ifs.read((char *) &u,        sizeof(double) *97);
+
+  // Write confirmation on cout. 
+  cout << " PYTHIA Rndm::readState: seed " << seedSave 
+       << ", sequence no = " << sequence << endl;
+  return true;
 
 }
 
@@ -495,8 +564,9 @@ double cosphi(const Vec4& v1, const Vec4& v2, const Vec4& n) {
 // Print a four-vector: also operator overloading with friend.
 
 ostream& operator<<(ostream& os, const Vec4& v) {
-  os << fixed << setprecision(3) << setw(10) << v.xx << setw(10) << v.yy 
-     << setw(10) << v.zz << setw(10) << v.tt << "\n";
+  os << fixed << setprecision(3) << " " << setw(9) << v.xx << " "
+     << setw(9) << v.yy << " " << setw(9) << v.zz << " " << setw(9) 
+     << v.tt << " (" << setw(9) << v.mCalc() << ")\n";
   return os;
 }
 

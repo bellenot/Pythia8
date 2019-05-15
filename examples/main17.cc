@@ -108,7 +108,7 @@ bool PythiaWrapper::beg(int argc, char* argv[]) {
   nAbort = pSet.mode("Main:timesAllowErrors");
 
   // Initialize counters to use in event generation loop.
-  nPace  = max( 1, nEvent / nShow); 
+  nPace  = max(1, nEvent / max(1, nShow) ); 
   iEvent = 0;
   iList  = 0;
   iAbort = 0; 
@@ -128,7 +128,8 @@ bool PythiaWrapper::gen() {
   for( ;  ;  ) { 
 
     // At times print line with progress report. Count up event number.
-    if (iEvent%nPace == 0) cout << " Now begin event " << iEvent << endl;
+    if (nShow > 0 && iEvent%nPace == 0) 
+      cout << " Now begin event " << iEvent << endl;
     ++iEvent; 
 
     // Generate events, and check whether generation failed.

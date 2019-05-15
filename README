@@ -18,11 +18,13 @@
    subdirectory contain further instructions how executables can 
    be built and run.
     
-4) At any time, typing "gmake clean" will remove all temporary files
-   (including the compiled PYTHIA 8 library) except any output files 
-   you may have created during your test runs. (If you do it in the 
-   main directory it will apply to all subdirectories, if in examples 
-   then only for that subdirectory.) 
+4) At any time, typing "gmake clean" will remove all files related to
+   the library compilation, including the library itself, but it will
+   not reset the configure selections. With "gmake distclean" additionally
+   the configure selection is reset, and many other temporary files are
+   removed. Output files you may have created during your test runs are
+   not affected. (A "gmake clean" is also available in the examples 
+   subdirectory, see the README there.) 
 
 ----------------------------------------------------------------------
 

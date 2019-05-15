@@ -31,20 +31,27 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 
 <dl>
 
+<dt>All08</dt>
+<dd>B. Allanach et al., Comput. Phys.Commun. 180 (2009) 8
+[arXiv:0801.0045 [hep-ph]]</dd>
+
 <dt>Alt89</dt>
 <dd>G. Altarelli, B. Mele and M. Ruiz-Altaba, 
 Z. Phys. C45 (1989) 109</dd>
 
 <dt>Alw06</dt>
-<dd>J. Alwall et al., Comput. Phys. Comm. 176 (2007) 300
+<dd>J. Alwall et al., Comput. Phys. Commun. 176 (2007) 300
 [hep-ph/0609017]</dd>
+
+<dt>Alw07</dt>
+<dd>J. Alwall et al., arXiv:0712.3311 [hep-ph]</dd> 
 
 <dt>And83</dt>
 <dd>B. Andersson, G. Gustafson, G. Ingelman and T. Sj&ouml;strand,
 Phys. Rep. 97 (1983) 31</dd>
 
-<dt>Ask08</dt>
-<dd>S. Ask, arXiv:0809.4750v2 [hep-ph], to appear in Eur. Phys. J. C</dd>
+<dt>Ask09</dt> 
+<dd>S. Ask, Eur. Phys. J. C60 (2009) 509</dd>
 
 <dt>Bar06</dt>
 <dd>M. Bargiotti, talk at the HERA4LHC workshop,
@@ -91,7 +98,7 @@ at TeV Colliders, Les Houches, France, 21 May - 1 Jun 2001
 Phys. Rev. D76 (2007) 055003</dd>
 
 <dt>Dob01</dt>
-<dd>M. Dobbs and J.B. Hansen, Comput. Phys. Comm. 134 (2001) 41</dd>
+<dd>M. Dobbs and J.B. Hansen, Comput. Phys. Commun. 134 (2001) 41</dd>
 
 <dt>Don92</dt>
 <dd>A. Donnachie and P.V. Landshoff, Phys. Lett. B296 (1992) 227</dd>
@@ -102,19 +109,22 @@ Phys. Rev. D76 (2007) 055003</dd>
 <dt>Glu95</dt>
 <dd>M. Gl&uuml;ck, E. Reya and A. Vogt, Z. Phys. C67 (1995) 433</dd>
 
-<dt>Gui99</dt>
+<dt>Giu99</dt>
 <dd>G.F. Giudice, R. Rattazzi and J.D. Wells, Nucl. Phys. B544 (1999) 3</dd>
 
-<dt>Gui04</dt>
+<dt>Giu04</dt>
 <dd>G.F. Giudice, T. Plehn and A. Strumia, Nucl. Phys. B706 (2005) 455</dd>
 
 <dt>Gus86</dt>
 <dd>G. Gustafson, Phys. Lett. B175 (1986) 453;
 <br/>G. Gustafson and U. Pettersson, Nucl. Phys. B306 (1988) 746;
-<br/>L. L&ouml;nnblad, Comput. Phys. Comm. 71 (1992) 15</dd>
+<br/>L. L&ouml;nnblad, Comput. Phys. Commun. 71 (1992) 15</dd>
 
 <dt>Hew88</dt>
 <dd>J.L. Hewett and S. Pakvasa, Phys. Rev. D37 (1988) 3165</dd>
+
+<dt>Hew07</dt> 
+<dd>J. L. Hewett and T. G. Rizzo, JHEP 0712 (2007) 009</dd>
 
 <dt>Hui97</dt>
 <dd>K. Huitu, J. Maalampi, A. Pietil&auml; and M. Raidal, 
@@ -160,6 +170,9 @@ eds. G. Altarelli and M.L. Mangano, CERN 2000-004, p. 231
 <dt>Pet83</dt>
 <dd>C. Peterson, D. Schlatter, I. Schmitt and P. Zerwas, 
 Phys. Rev. D27 (1983) 105</dd>
+
+<dt>Riz08</dt> 
+<dd>T. G. Rizzo, Phys. Lett. B665 (2008) 361</dd>
  
 <dt>Sch97</dt>
 <dd>G.A. Schuler and T. Sj&ouml;strand, Phys. Rev. D49 (1994) 2257,

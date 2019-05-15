@@ -203,10 +203,28 @@ int Event::copy(int iCopy, int newStatus) {
 
 //*********
 
+// Print an event - special cases that rely on the general method.
+// Not inline to make them directly callable in (some) debuggers. 
+
+void Event::list() const {
+  list(false, false, cout);
+}
+
+void Event::list(ostream& os) const {
+  list(false, false, os);
+}
+
+void Event::list(bool showScaleAndVertex, bool showMothersAndDaughters)
+const {
+  list(showScaleAndVertex, showMothersAndDaughters, cout);
+}
+
+//*********
+
 // Print an event.
 
 void Event::list(bool showScaleAndVertex, bool showMothersAndDaughters, 
-  ostream& os) {
+  ostream& os) const {
 
   // Header.
   os << "\n --------  PYTHIA Event Listing  " << headerList << "----------"

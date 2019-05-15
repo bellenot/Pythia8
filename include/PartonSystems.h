@@ -75,8 +75,11 @@ public:
   // Find system of given outgoing parton, optionally also incoming one.
   int getSystemOf(int iPos, bool alsoIn = false) const;  
 
+  // Find iOut index of given system and event record index
+  int getIndexOfOut(int iSys, int iPos) const;  
+
   // List all current systems.
-  void list(ostream& os = cout);
+  void list(ostream& os = cout) const;
 
 private:
  

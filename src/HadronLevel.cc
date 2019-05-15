@@ -124,9 +124,9 @@ bool HadronLevel::next( Event& event) {
       // Loop through all entries to find those that should decay.
       int iDec = 0;
       do {
-        if ( event[iDec].isFinal() && event[iDec].canDecay() 
-          && event[iDec].mayDecay() && (event[iDec].idAbs() == 311
-          || event[iDec].mWidth() > widthSepBE) ) {
+        Particle& decayer = event[iDec];
+        if ( decayer.isFinal() && decayer.canDecay() && decayer.mayDecay() 
+          && (decayer.mWidth() > widthSepBE || decayer.idAbs() == 311) ) {
           decays.decay( iDec, event); 
           if (decays.moreToDo()) moreToDo = true;
 	}
@@ -145,8 +145,8 @@ bool HadronLevel::next( Event& event) {
       // Loop through all entries to find those that should decay.
       int iDec = 0;
       do {
-        if ( event[iDec].isFinal() && event[iDec].canDecay() 
-          && event[iDec].mayDecay() ) {
+        Particle& decayer = event[iDec];
+        if ( decayer.isFinal() && decayer.canDecay() && decayer.mayDecay() ) {
           decays.decay( iDec, event); 
           if (decays.moreToDo()) moreToDo = true;
         }
@@ -226,7 +226,7 @@ bool HadronLevel::findSinglets(Event& event) {
   iColEnd.resize(0);
   iAcolEnd.resize(0);
   iColAndAcol.resize(0);
-  for (int i = 0; i < event.size(); ++ i) if (event[i].isFinal()) {
+  for (int i = 0; i < event.size(); ++i) if (event[i].isFinal()) {
     if (event[i].col() > 0 && event[i].acol() > 0) iColAndAcol.push_back(i);
     else if (event[i].col() > 0) iColEnd.push_back(i);
     else if (event[i].acol() > 0) iAcolEnd.push_back(i); 
@@ -694,6 +694,11 @@ bool HadronLevel::splitJunctionPair(Event& event) {
     for (int i = 1; i < int(iAntiLeg.size()); ++i) 
       iPartonJun.push_back( iAntiLeg[i] );
 
+    // Match up the colours where the strings are joined.
+    int iColJoin  = iJunLeg[1];
+    int iAcolJoin = iAntiLeg[1];
+    event[iAcolJoin].acol( event[iColJoin].col() ); 
+
     // Other string system empty. Remove junctions from their list. Done.
     iPartonAntiJun.resize(0);
     event.eraseJunction( max(identJun, identAnti) - 1);
@@ -812,6 +817,14 @@ bool HadronLevel::splitJunctionPair(Event& event) {
         iPartonAntiJun.push_back( iJunLeg1[i] );
       for (int i = 1; i < int(iAntiMatch1.size()); ++i) 
         iPartonAntiJun.push_back( iAntiMatch1[i] );
+
+      // Match up the colours where the strings are joined.
+      int iColJoin  = iJunLeg0[1];
+      int iAcolJoin = iAntiMatch0[1];
+      event[iAcolJoin].acol( event[iColJoin].col() ); 
+      iColJoin  = iJunLeg1[1];
+      iAcolJoin = iAntiMatch1[1];
+      event[iAcolJoin].acol( event[iColJoin].col() ); 
  
       // Remove junctions from their list. Done.
       event.eraseJunction( max(identJun, identAnti) - 1);

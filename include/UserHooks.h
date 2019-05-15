@@ -84,6 +84,14 @@ public:
   // Usage: doVetoPartonLevel( event).
   virtual bool doVetoPartonLevel( const Event& ) {return false;} 
 
+  // Possibility to set initial scale in TimeShower for resonance decay.
+  virtual bool canSetResonanceScale() {return false;}
+
+  // Initial scale for TimeShower evolution. 
+  // Usage: scaleResonance( iRes, event), where iRes is location
+  // of decaying resonance in the event record. 
+  virtual double scaleResonance( const int, const Event& ) {return 0.;} 
+
 protected:
 
   // Constructor.
@@ -134,40 +142,6 @@ private:
 
   // Alpha_strong calculation.
   AlphaStrong alphaS;
-
-};
-
-//**************************************************************************
-
-// VetoEvolution is a derived class for user access to program execution.
-// It is a simple example, to kill events with > nMax partons at scale 
-// pTcheck in the combined evolution, but only counting partons in the 
-// hardest interaction and its associated ISR + FSR activity.
-
-class VetoEvolution : public UserHooks {
-
-public:
-
-  // Constructor.
-  VetoEvolution( int nMaxIn, double pTcheckIn) : nMax(nMaxIn), 
-    pTcheck (pTcheckIn){}
-
-  // Possibility to veto combined MI + ISR + FSR evolution and
-  // kill event, e.g. for MLM-style matching of matrix elements.
-  virtual bool canVetoEvolution() {return true;}  
-
-  // Transverse-momentum scale for veto test. 
-  virtual double scaleVetoEvolution() {return pTcheck;} 
-
-  // Decide whether to veto current event or not.
-  virtual bool doVetoEvolution(const Event& event) {subEvent( event ); 
-    return (workEvent.size() > nMax);}  
-
-private:
-
-  // Saved values from constructor.
-  int    nMax;
-  double pTcheck;
 
 };
 

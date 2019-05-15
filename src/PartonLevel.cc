@@ -42,7 +42,8 @@ bool PartonLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn,
   userHooksPtr       = userHooksPtrIn;
 
   // Main flags.
-  doMI               = Settings::flag("PartonLevel:MI");
+  bool doMItmp       = Settings::flag("PartonLevel:MI");
+  doMI               = doMItmp;
   doISR              = Settings::flag("PartonLevel:ISR");
   bool FSR           = Settings::flag("PartonLevel:FSR");
   bool FSRinProcess  = Settings::flag("PartonLevel:FSRinProcess");
@@ -79,6 +80,9 @@ bool PartonLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn,
   canVetoStep = (userHooksPtr > 0) ? userHooksPtr->canVetoStep() : false;
   nVetoStep   = (canVetoStep)   ? userHooksPtr->numberVetoStep() : -1;
 
+  // Possibility to set maximal shower scale in resonance decays.
+  canSetScale = (userHooksPtr > 0) ? userHooksPtr->canSetResonanceScale() : false;
+
   // Set info and initialize the respective program elements.
   timesPtr->init( beamAPtr, beamBPtr);
   if (doISR) spacePtr->init( beamAPtr, beamBPtr);
@@ -86,7 +90,9 @@ bool PartonLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn,
     partonSystemsPtr, sigmaTotPtr);
   remnants.init( infoPtr, beamAPtr, beamBPtr, partonSystemsPtr);  
 
-  // Succeeded. (Check return values from other classes??)
+  // Succeeded, or not.
+  if (doMIinit && !doMI) return false;
+  if (!doMItmp) doMI = false;
   return true;
 }
 
@@ -185,13 +191,17 @@ bool PartonLevel::next( Event& process, Event& event) {
         if (doVeto) return false;
       }
 
-      // Do a multiple interaction (if allowed).
+      // Do a multiple interaction (if allowed). 
       if (pTmulti > 0. && pTmulti > pTspace && pTmulti > pTtimes) {
         multi.scatter( event);  
         typeLatest = 1;
         ++nMI;
+ 
+        // Update ISR and FSR dipoles.
         if (doISR)              spacePtr->prepare( nMI - 1, event);
         if (doFSRduringProcess) timesPtr->prepare( nMI - 1, event);
+
+        // Set maximal scales for next pT to pick.
         pTmaxMI  = pTmulti;
         pTmaxISR = min( pTmulti, pTmaxISR);
         pTmaxFSR = min( pTmulti, pTmaxFSR);
@@ -205,10 +215,20 @@ bool PartonLevel::next( Event& process, Event& event) {
           iSysNow = spacePtr->system();
           ++nISR;
           if (iSysNow == 0) ++nISRhard;
-          if (doFSRduringProcess) timesPtr->update( iSysNow, event); 
           if (canVetoStep && iSysNow == 0 && nISRhard <= nVetoStep)
             typeVetoStep = 2;
-	}
+
+          // Update FSR dipoles.
+          if (doFSRduringProcess) timesPtr->update( iSysNow, event); 
+
+        // Rescatter: it is possible for kinematics to fail, in which
+        //            case we need to restart the parton level processing.
+        } else if (spacePtr->doRestart()) {
+          physical = false;
+          break;
+        }
+
+        // Set maximal scales for next pT to pick.
         pTmaxMI  = min( pTspace, pTmaxMI);
         pTmaxISR = pTspace;
         pTmaxFSR = min( pTspace, pTmaxFSR);
@@ -217,15 +237,19 @@ bool PartonLevel::next( Event& process, Event& event) {
 
       // Do a final-state emission (if allowed).
       else if (pTtimes > 0.) {
-        if (timesPtr->branch( event)) {
+        if (timesPtr->branch( event, true)) {
           typeLatest = 3;
           iSysNow = timesPtr->system();
           ++nFSRinProc;
           if (iSysNow == 0) ++nFSRhard;
-          if (doISR) spacePtr->update( iSysNow, event); 
           if (canVetoStep && iSysNow == 0 && nFSRhard <= nVetoStep)
             typeVetoStep = 3;
-	}
+
+          // Update ISR dipoles.
+          if (doISR) spacePtr->update( iSysNow, event); 
+        }
+
+        // Set maximal scales for next pT to pick.
         pTmaxMI  = min( pTtimes, pTmaxMI);
         pTmaxISR = min( pTtimes, pTmaxISR);
         pTmaxFSR = pTtimes;
@@ -235,7 +259,8 @@ bool PartonLevel::next( Event& process, Event& event) {
       // If no pT scales above zero then nothing to be done.
       else pTmax = 0.;
 
-      // Optionally check for a veto after the first few emissions.
+      // Optionally check for a veto after the first few emissions,
+      // ISR or FSR, in the hardest system.
       if (typeVetoStep > 0) {
         doVeto = userHooksPtr->doVetoStep( typeVetoStep, nISRhard, 
           nFSRhard, event);
@@ -247,8 +272,66 @@ bool PartonLevel::next( Event& process, Event& event) {
       infoPtr->setPartEvolved( nMI, nISR);
     } while (pTmax > 0.); 
 
+    // Do all final-state emissions if not already considered above.
+    if (doFSRafterProcess) {
+
+      // Find largest scale for final partons.
+      pTmax = 0.;
+      for (int i = 0; i < event.size(); ++i) 
+        if (event[i].isFinal() && event[i].scale() > pTmax)
+          pTmax = event[i].scale();     
+      pTsaveFSR = pTmax;
+
+      // Prepare all subsystems for evolution.
+      for (int iSys = 0; iSys < partonSystemsPtr->sizeSys(); ++iSys)
+        timesPtr->prepare( iSys, event);
+
+      // Set up initial veto scale.
+      doVeto        = false;
+      pTveto = pTvetoPT;
+
+      // Begin evolution down in pT from hard pT scale. 
+      do {
+        typeVetoStep = 0;
+        double pTtimes = timesPtr->pTnext( event, pTmax, 0.);
+
+        // Allow a user veto. Only do it once, so remember to change pTveto.
+        if (pTveto > 0. && pTveto > pTtimes) {
+          pTveto = -1.; 
+          doVeto = userHooksPtr->doVetoPT( 4, event);
+          // Abort event if vetoed.
+          if (doVeto) return false;
+        }
+
+        // Do a final-state emission (if allowed).
+        if (pTtimes > 0.) {
+          if (timesPtr->branch( event, true)) {
+            iSysNow = timesPtr->system();
+            ++nFSRinProc; 
+            if (iSysNow == 0) ++nFSRhard;
+            if (canVetoStep && iSysNow == 0 && nFSRhard <= nVetoStep)
+            typeVetoStep = 4;
+          }
+          pTmax = pTtimes;
+        }
+    
+        // If no pT scales above zero then nothing to be done.
+        else pTmax = 0.;
+
+        // Optionally check for a veto after the first few emissions.
+        if (typeVetoStep > 0) {
+          doVeto = userHooksPtr->doVetoStep( typeVetoStep, nISRhard, 
+            nFSRhard, event);
+          // Abort event if vetoed.
+          if (doVeto) return false;
+        }
+
+      // Keep on evolving until nothing is left to be done.
+      } while (pTmax > 0.);
+    }
+
     // Add beam remnants, including primordial kT kick and colour tracing.
-    if (doRemnants && !remnants.add( event)) physical = false;
+    if (physical && doRemnants && !remnants.add( event)) physical = false;
  
     // If no problems then done, else restore and loop.
     if (physical) break;
@@ -261,66 +344,10 @@ bool PartonLevel::next( Event& process, Event& event) {
   }
   if (!physical) return false;
 
-  // Do all final-state emissions if not already considered above.
-  if (doFSRafterProcess) {
-
-    // Find largest scale for final partons.
-    double pTmax = 0.;
-    for (int i = 0; i < event.size(); ++i) 
-      if (event[i].isFinal() && event[i].scale() > pTmax)
-        pTmax = event[i].scale();     
-    pTsaveFSR = pTmax;
-
-    // Prepare all subsystems for evolution.
-    for (int iSys = 0; iSys < partonSystemsPtr->sizeSys(); ++iSys)
-      timesPtr->prepare( iSys, event);
-
-    // Set up initial veto scale.
-    doVeto        = false;
-    double pTveto = pTvetoPT;
-
-    // Begin evolution down in pT from hard pT scale. 
-    do {
-      typeVetoStep = 0;
-      double pTtimes = timesPtr->pTnext( event, pTmax, 0.);
-
-      // Allow a user veto. Only do it once, so remember to change pTveto.
-      if (pTveto > 0. && pTveto > pTtimes) {
-        pTveto = -1.; 
-        doVeto = userHooksPtr->doVetoPT( 4, event);
-        // Abort event if vetoed.
-        if (doVeto) return false;
-      }
-
-      // Do a final-state emission (if allowed).
-      if (pTtimes > 0.) {
-        if (timesPtr->branch( event)) {
-          iSysNow = timesPtr->system();
-          ++nFSRinProc; 
-          if (iSysNow == 0) ++nFSRhard;
-          if (canVetoStep && iSysNow == 0 && nFSRhard <= nVetoStep)
-            typeVetoStep = 4;
-        }
-        pTmax = pTtimes;
-      }
-    
-      // If no pT scales above zero then nothing to be done.
-      else pTmax = 0.;
-
-      // Optionally check for a veto after the first few emissions.
-      if (typeVetoStep > 0) {
-        doVeto = userHooksPtr->doVetoStep( typeVetoStep, nISRhard, 
-          nFSRhard, event);
-        // Abort event if vetoed.
-        if (doVeto) return false;
-      }
-
-    // Keep on evolving until nothing is left to be done.
-    } while (pTmax > 0.); 
-  }
-
   // Perform showers in resonance decay chains.
-  nFSRinRes = resonanceShowers( process, event); 
+  doVeto = !resonanceShowers( process, event); 
+  // Abort event if vetoed.
+  if (doVeto) return false;
 
   // Store event properties.
   infoPtr->setImpact( multi.bMI(), multi.enhanceMI());
@@ -597,11 +624,13 @@ bool PartonLevel::setupUnresolvedSys( Event& process, Event& event) {
 
 // Handle showers in successive resonance decays.
 
-int PartonLevel::resonanceShowers( Event& process, Event& event) {
+bool PartonLevel::resonanceShowers( Event& process, Event& event) {
 
   // Isolate next system to be processed, if anything remains.
+  int nRes    = 0;
   int nFSRres = 0;
   while (nHardDone < process.size()) {
+    ++nRes;
     int iBegin = nHardDone;
 
     // Mother in hard process and in complete event (after shower).
@@ -611,7 +640,7 @@ int PartonLevel::resonanceShowers( Event& process, Event& event) {
     int iAftMother       = event.iBotCopyId(iBefMother);
     Particle& aftMother  = event[iAftMother];
 
-    // From now mother counts as decayed.
+    // From now on mother counts as decayed.
     aftMother.statusNeg();
 
     // Mother can have been moved by showering (in any of previous steps), 
@@ -654,6 +683,7 @@ int PartonLevel::resonanceShowers( Event& process, Event& event) {
     // Do parton showers inside subsystem: maximum scale by mother mass.
     if (doFSRinResonances) {
       double pTmax = 0.5 * hardMother.m();
+      if (canSetScale) pTmax = userHooksPtr->scaleResonance( iAftMother, event);
       nFSRhard     = 0; 
 
       // Add new system, automatically with two empty beam slots.
@@ -690,7 +720,7 @@ int PartonLevel::resonanceShowers( Event& process, Event& event) {
             ++nFSRres; 
             ++nFSRhard;
             if (canVetoStep && nFSRhard <= nVetoStep) typeVetoStep = 5;
-	  }
+          }
           pTmax = pTtimes;
         }
     
@@ -710,9 +740,10 @@ int PartonLevel::resonanceShowers( Event& process, Event& event) {
 
     }    
 
-  // No more systems to be processed. Return total number of emissions.
+  // No more systems to be processed. Set total number of emissions.
   }
-  return nFSRres;
+  nFSRinRes = nFSRres;
+  return true;
 
 }
  

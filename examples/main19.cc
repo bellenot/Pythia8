@@ -17,7 +17,7 @@
 //    It is therefore possible to initialize with different settings.
 //    In particular, it is possible to set up two Pythia instances 
 //    that have different beams and generate different sets of processes.
-// 2) The ParticleData database is also static and used as such,
+// 2) The ParticleData database is also static, but used all the time,
 //    so it is not possible to use different particle data 
 //    (and also not different resonance width expressions).
 // 3) The random-number generation is static.
@@ -65,6 +65,9 @@ int main() {
   // Number of signal events to generate.
   int nEvent = 100;
 
+  // Beam Energy.
+  double eBeam = 7000.; 
+
   // Average number of pileup events per signal event.
   double nPileupAvg = 2.5;
 
@@ -84,18 +87,18 @@ int main() {
   // Initialize generator for signal processes. 
   pythiaSignal.readString("HardQCD:all = on");    
   pythiaSignal.readString("PhaseSpace:pTHatMin = 50.");
-  pythiaSignal.init( 2212, 2212, 14000.);
+  pythiaSignal.init( 2212, 2212, 2. * eBeam);
   // Selected process(es) must be switched back off before next init,
   // since Settings database is static.
   pythiaSignal.readString("HardQCD:all = off");    
 
   // Initialize generator for pileup (background) processes. 
   pythiaPileup.readString("SoftQCD:all = on");    
-  pythiaPileup.init( 2212, 2212, 14000.);
+  pythiaPileup.init( 2212, 2212, 2. * eBeam);
 
   // Initialize generators for beam-gas (background) processes. 
-  pythiaBeamAGas.init( 2212, 2212, 14000., 0.);
-  pythiaBeamBGas.init( 2212, 2212, 0., 14000.);
+  pythiaBeamAGas.init( 2212, 2212, eBeam, 0.);
+  pythiaBeamBGas.init( 2212, 2212, 0., eBeam);
 
   // Histograms: number of pileups, total charged multiplicity.
   Hist nPileH("number of pileup events per signal event", 100, -0.5, 99.5);

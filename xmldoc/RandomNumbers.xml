@@ -67,6 +67,67 @@ externally to the <code>Pythia</code> code.
 An example illustrating how to run with an external random number
 generator is provided in <code>main24.cc</code>.
 
+<h3>The methods</h3>
+
+We here collect a more complete and formal overview of the methods.
+   
+<method name="Rndm::Rndm()">
+construct a random number generator, but does not initialize it.
+</method>
+   
+<method name="Rndm::Rndm(int seed)">
+construct a random number generator, and initialize it for the 
+given seed number.
+</method>
+   
+<method name="static bool Rndm::rndmEnginePtr( RndmEngine* rndmPtr)">
+pass in pointer for external random number generation.
+</method>
+   
+<method name="static void Rndm::init(int seed = 0)">
+initialize, or reinitialize, the random number generator for the given 
+seed number. Not necessary if the seed was already set in the constructor. 
+</method>
+   
+<method name="static double Rndm::flat()">
+generate next random number uniformly between 0 and 1.
+</method>
+   
+<method name="static double Rndm::exp()">
+generate random numbers according to <ei>exp(-x)</ei>.
+</method>
+   
+<method name="static double Rndm::xexp()">
+generate random numbers according to <ei>x exp(-x)</ei>.
+</method>
+   
+<method name="static double Rndm::gauss()">
+generate random numbers according to exp(-x^2/2)
+</method>
+   
+<method name="static int Rndm::pick(const vector<double>& prob)">
+pick one option among vector of (positive) probabilities.
+</method>
+   
+<method name="static bool Rndm::dumpState(string fileName)">
+save the current state of the random number generator to a binary
+file. This involves two integers and 100 double-precision numbers.
+Intended for debug purposes. Note that binary files may be
+platform-dependent and thus not transportable.
+</method>
+   
+<method name=" static bool Rndm::readState(string fileName)">
+set the state of the random number generator by reading in a binary
+file saved by the above command. Comments as above.
+</method>
+   
+<method name="virtual double RndmEngine::flat()">
+if you want to construct an external random number generator 
+(or generator interface) then you must impement this method 
+in your class derived from the <code>RndmEningen</code> base class,
+to give a random number between 0 and 1.
+</method>
+
 </chapter>
 
 <!-- Copyright (C) 2009 Torbjorn Sjostrand -->

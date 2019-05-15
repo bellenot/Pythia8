@@ -4,9 +4,9 @@
 # Please respect the MCnet Guidelines, see GUIDELINES for details. 
  
 # Simple script to run all the mainXX test programs
-# If you did not link the expected external libraries then some
-# main program will not work. 
-# You should get to main28 without any problems, however.
+# The ones from main31 and higher need linkage to external libraries,
+# however, and therefore the execution exits before them by default.
+# If you want to change that behaviour, comment out the "exit" line.
 
 echo
 echo Now begin main01
@@ -147,6 +147,21 @@ echo
 echo Now begin main28
 make main28
 time ./main28.exe > out28
+
+echo
+echo Now begin main29
+make main29
+time ./main29.exe > out29
+
+# This code section stops the testing before the mainXX programs
+# that need access to various external libraries.  
+# If you have ensured such linkage, feel free to comment out
+# the exit command below, to have the program continue to the end.
+echo 
+echo The testing stops here!
+echo Further checks require that you have external libraries linked,
+echo and edit this runmains file, by removing a single exit line.
+exit
 
 echo
 echo Now begin main31

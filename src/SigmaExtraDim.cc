@@ -440,77 +440,142 @@ double Sigma2qqbar2GravitonStarg::weightDecay( Event& process, int iResBeg,
 
 //**************************************************************************
 
-// Sigma2gg2LEDGravitong class.
-// Cross section for g g -> G g (real graviton emission in large extra 
-// dimensions). 
+// Sigma2gg2LEDUnparticleg class.
+// Cross section for g g -> U/G g (real graviton emission in 
+// large extra dimensions or unparticle emission). 
 
 //*********
 
-void Sigma2gg2LEDGravitong::initProc() {
+Sigma2gg2LEDUnparticleg::Sigma2gg2LEDUnparticleg( bool Graviton ) 
+  : m_graviton(Graviton) {
+
+}
+
+//*********
+
+void Sigma2gg2LEDUnparticleg::initProc() {
   
   //+++ Init model parameters.
   m_idG    = 5000039;
-  m_trunc  = Settings::flag("ExtraDimensionsLED:Trunc"); 
-  m_nGrav  = Settings::mode("ExtraDimensionsLED:n");
-  m_MD     = Settings::parm("ExtraDimensionsLED:MD");
+  if (m_graviton) {
+    m_spin     = 2;
+    m_nGrav    = Settings::mode("ExtraDimensionsLED:n");
+    m_dU       = 0.5 * m_nGrav + 1;
+    m_LambdaU  = Settings::parm("ExtraDimensionsLED:MD");
+    m_lambda   = 1;
+    m_cutoff   = Settings::mode("ExtraDimensionsLED:CutOffmode"); 
+    m_tff      = Settings::parm("ExtraDimensionsLED:t");
+  } else {
+    m_spin     = Settings::mode("ExtraDimensionsUnpart:spinU");
+    m_dU       = Settings::parm("ExtraDimensionsUnpart:dU");
+    m_LambdaU  = Settings::parm("ExtraDimensionsUnpart:LambdaU");
+    m_lambda   = Settings::parm("ExtraDimensionsUnpart:lambda");
+    m_cutoff   = Settings::mode("ExtraDimensionsUnpart:CutOffmode"); 
+  }
+  
+  //+++ The A(dU) or S'(n) value.
+  double tmpAdU = 0;
+  if (m_graviton) { 
+    tmpAdU  = 2 * M_PI * sqrt( pow(M_PI, double(m_nGrav)) ) 
+            / GammaReal(0.5 * m_nGrav); 
+  } else {
+    tmpAdU = 16 * pow2(M_PI) * sqrt(M_PI) / pow(2. * M_PI, 2. * m_dU)
+      * GammaReal(m_dU + 0.5) / (GammaReal(m_dU - 1.) * GammaReal(2. * m_dU));
 
-  //+++ Torus Surface
-  double tmpTerm1 = sqrt( pow(M_PI, double(m_nGrav)) );
-  double tmpTerm2 = funcGammaIntHalf(m_nGrav);
-  double tmpExp   = m_nGrav + 2.0;
-  m_constantTerm  =  tmpTerm1 / ( tmpTerm2 * pow(m_MD, tmpExp) );
+  }
+
+  //+++ Cross section related constants 
+  //+++ and ME dependent powers of lambda / LambdaU.
+  double tmpExp   = m_dU - 2;
+  double tmpLS    = pow2(m_LambdaU);
+  m_constantTerm = tmpAdU / (2 * 16 * pow2(M_PI) * tmpLS * pow(tmpLS,tmpExp));
+  if (m_graviton) { 
+    m_constantTerm /= tmpLS;
+  } else if (m_spin == 0) {
+    m_constantTerm *= pow2(m_lambda) / tmpLS;
+  } else {
+    m_constantTerm = 0;
+    infoPtr->errorMsg("Error in Sigma2gg2LEDUnparticleg::initProc: "
+		      "Incorrect spin value (turn process off)!");
+  }
 
 } 
 
 //*********
 
-void Sigma2gg2LEDGravitong::sigmaKin() { 
+void Sigma2gg2LEDUnparticleg::sigmaKin() { 
 
-  //+++ Set graviton mass and mandelstam variables
+  //+++ Set graviton mass.
   mG        = m3;
   mGS       = mG*mG;
 
-  double A0 = 1/sH;    
-  double xH = tH/sH;
-  double yH = mGS/sH;
-  double xHS = pow2(xH);
-  double yHS = pow2(yH);
-  double xHC = pow(xH,3);
-  double yHC = pow(yH,3);
-  double xHQ = pow(xH,4);
-  double yHQ = pow(yH,4);
-  
-  double T0 = 1/(xH*(yH-1-xH));
-  double T1 = 1 + 2*xH + 3*xHS + 2*xHC + xHQ;
-  double T2 = -2*yH*(1 + xHC);
-  double T3 = 3*yHS*(1 + xHS);
-  double T4 = -2*yHC*(1 + xH);
-  double T5 = yHQ;
-  
-  m_sigma0 = A0 * T0 *( T1 + T2 + T3 + T4 + T5 );
+  //+++ Set mandelstam variables and ME expressions.
+  if (m_graviton) {
 
-  //+++ Couplings..
-  m_sigma0 *= alpS * 3 / 16;
+    double A0 = 1/sH;    
+    double xH = tH/sH;
+    double yH = mGS/sH;
+    double xHS = pow2(xH);
+    double yHS = pow2(yH);
+    double xHC = pow(xH,3);
+    double yHC = pow(yH,3);
+    double xHQ = pow(xH,4);
+    double yHQ = pow(yH,4);
+    
+    double T0 = 1/(xH*(yH-1-xH));
+    double T1 = 1 + 2*xH + 3*xHS + 2*xHC + xHQ;
+    double T2 = -2*yH*(1 + xHC);
+    double T3 = 3*yHS*(1 + xHS);
+    double T4 = -2*yHC*(1 + xH);
+    double T5 = yHQ;
+    
+    m_sigma0 = A0 * T0 *( T1 + T2 + T3 + T4 + T5 );
+    
+  } else if (m_spin == 0) {
+    
+    double A0  = 1/pow2(sH);    
+    double sHQ = pow(sH,4);
+    double tHQ = pow(tH,4);
+    double uHQ = pow(uH,4);
 
-  //+++ Mass Spectrum, (m)^(n-2)
-  double tmpExp = m_nGrav - 2;
-  m_sigma0 *= pow(mG, tmpExp);
+    m_sigma0 = A0 * (pow(mGS,4) + sHQ + tHQ + uHQ) / (sH * tH * uH);
 
-  //+++ Constants
+  }
+
+  //+++ Mass measure, (m^2)^(d-2).
+  double tmpExp = m_dU - 2;
+  m_sigma0 *= pow(mGS, tmpExp);
+
+  //+++ Constants.
   m_sigma0 *= m_constantTerm;
 
 }
 
 //*********
 
-double Sigma2gg2LEDGravitong::sigmaHat() { 
+double Sigma2gg2LEDUnparticleg::sigmaHat() { 
 
-  //+++ Mass spactrum weighting.
-  double sigma = m_sigma0 /runBW3;      
+  //+++ Mass spectrum weighting.
+  double sigma = m_sigma0 / runBW3;      
 
-  //+++ Truncation, to test perturbative region
-  if (m_trunc) {
-    if (sH > pow2(m_MD) ) { sigma *= pow(m_MD,4)/pow2(sH); }
+  //+++ SM couplings...
+  if (m_graviton) {
+    sigma *= 16 * M_PI * alpS * 3 / 16;
+  } else if (m_spin == 0) {
+    sigma *= 6 * M_PI * alpS;
+  }
+
+  //+++ Truncate sH region or use form factor.
+  //+++ Form factor uses either pythia8 renormScale2 
+  //+++ or E_jet in cms.
+  if (m_cutoff == 1) {
+    if (sH > pow2(m_LambdaU) ) { sigma *= pow(m_LambdaU,4)/pow2(sH); }
+  } else if (m_graviton && ((m_cutoff == 2) || (m_cutoff == 3))) {
+    double tmp_mu = sqrt(Q2RenSave);
+    if (m_cutoff == 3) tmp_mu = (sH + s4 - s3) / (2 * mH);
+    double tmp_formfact = tmp_mu / (m_tff * m_LambdaU);
+    double tmp_exp = double(m_nGrav) + 2;
+    sigma *= 1 / (1 + pow(tmp_formfact, tmp_exp));
   }
   
   return sigma;  
@@ -518,7 +583,7 @@ double Sigma2gg2LEDGravitong::sigmaHat() {
 
 //*********
 
-void Sigma2gg2LEDGravitong::setIdColAcol() {
+void Sigma2gg2LEDUnparticleg::setIdColAcol() {
 
  //+++ Flavours trivial.
   setId( 21, 21, m_idG, 21);
@@ -529,100 +594,153 @@ void Sigma2gg2LEDGravitong::setIdColAcol() {
 
 }
 
-//*********
-
-double Sigma2gg2LEDGravitong::funcGammaIntHalf( int n ) {
-
-  double gamma = 1;
-  if (n%2 == 0) {
-    int k = int(n/2);
-    for (int i = 1; i <= k-1; ++i)  {
-      gamma *= i;
-    }  
-  } else {
-    int k = int((n-1)/2);
-    for (int i = 0; i <= k-1; ++i)  {
-      gamma *= i+0.5;
-    } 
-    gamma *= sqrt(M_PI);
-  }  
-
-  return gamma;
-}
-
 //**************************************************************************
 
-// Sigma2qg2LEDGravitonq class.
-// Cross section for q g -> G q (real graviton emission in large extra 
-// dimensions). 
+// Sigma2qg2LEDUnparticleq class.
+// Cross section for q g -> U/G q (real graviton emission in 
+// large extra dimensions or unparticle emission). 
 
 //*********
 
-void Sigma2qg2LEDGravitonq::initProc() {
+Sigma2qg2LEDUnparticleq::Sigma2qg2LEDUnparticleq ( bool Graviton ) 
+  : m_graviton(Graviton) {
+
+}
+
+//*********
+
+void Sigma2qg2LEDUnparticleq::initProc() {
   
   //+++ Init model parameters.
   m_idG    = 5000039;
-  m_trunc  = Settings::flag("ExtraDimensionsLED:Trunc"); 
-  m_nGrav  = Settings::mode("ExtraDimensionsLED:n");
-  m_MD     = Settings::parm("ExtraDimensionsLED:MD");
+  if (m_graviton) {
+    m_spin     = 2;
+    m_nGrav    = Settings::mode("ExtraDimensionsLED:n");
+    m_dU       = 0.5 * m_nGrav + 1;
+    m_LambdaU  = Settings::parm("ExtraDimensionsLED:MD");
+    m_lambda   = 1;
+    m_cutoff   = Settings::mode("ExtraDimensionsLED:CutOffmode"); 
+    m_tff      = Settings::parm("ExtraDimensionsLED:t");
+  } else {
+    m_spin     = Settings::mode("ExtraDimensionsUnpart:spinU");
+    m_dU       = Settings::parm("ExtraDimensionsUnpart:dU");
+    m_LambdaU  = Settings::parm("ExtraDimensionsUnpart:LambdaU");
+    m_lambda   = Settings::parm("ExtraDimensionsUnpart:lambda");
+    m_cutoff   = Settings::mode("ExtraDimensionsUnpart:CutOffmode"); 
+  }
 
-  //+++ Torus Surface
-  double tmpTerm1 = sqrt( pow(M_PI, double(m_nGrav)) );
-  double tmpTerm2 = funcGammaIntHalf(m_nGrav);
-  double tmpExp   = m_nGrav + 2.0;
-  m_constantTerm  =  tmpTerm1 / ( tmpTerm2 * pow(m_MD, tmpExp) );
+  //+++ The A(dU) or S'(n) value.
+  double tmpAdU = 0;
+  if (m_graviton) { 
+    tmpAdU  = 2 * M_PI * sqrt( pow(M_PI, double(m_nGrav)) ) 
+            / GammaReal(0.5 * m_nGrav); 
+  } else {
+    tmpAdU = 16 * pow2(M_PI) * sqrt(M_PI) / pow(2. * M_PI, 2. * m_dU)
+      * GammaReal(m_dU + 0.5) / (GammaReal(m_dU - 1.) * GammaReal(2. * m_dU));
+  }
+
+  //+++ Cross section related constants 
+  //+++ and ME dependent powers of lambda / LambdaU.
+  double tmpExp   = m_dU - 2;
+  double tmpLS    = pow2(m_LambdaU);
+  m_constantTerm = tmpAdU / (2 * 16 * pow2(M_PI) * tmpLS * pow(tmpLS,tmpExp));
+  if (m_graviton) { 
+    m_constantTerm /= tmpLS;
+  } else if (m_spin == 1) {
+    m_constantTerm *= pow2(m_lambda);
+  } else if (m_spin == 0) {
+    m_constantTerm *= pow2(m_lambda);
+  } else {
+    m_constantTerm = 0;
+    infoPtr->errorMsg("Error in Sigma2qg2LEDUnparticleq::initProc: "
+		      "Incorrect spin value (turn process off)!");
+  }
+
 
 } 
 
 //*********
 
-void Sigma2qg2LEDGravitonq::sigmaKin() { 
+void Sigma2qg2LEDUnparticleq::sigmaKin() { 
 
-  //+++ Set graviton mass and mandelstam variables
+  //+++ Set graviton mass.
   mG        = m3;
   mGS       = mG*mG;
 
-  double A0 = 1/sH;    
-  double xH = tH/sH;
-  double yH = mGS/sH;
-  double x2H = xH/(yH - 1 - xH);
-  double y2H = yH/(yH - 1 - xH);
-  double x2HS = pow2(x2H);
-  double y2HS = pow2(y2H);
-  double x2HC = pow(x2H,3);
-  double y2HC = pow(y2H,3);
+  //+++ Set mandelstam variables and ME expressions.
+  if (m_graviton) {
 
-  double T0 = -(yH - 1 - xH);
-  double T20 = 1/(x2H*(y2H-1-x2H));
-  double T21 = -4*x2H*(1 + x2H)*(1 + 2*x2H + 2*x2HS);
-  double T22 = y2H*(1 + 6*x2H + 18*x2HS + 16*x2HC);
-  double T23 = -6*y2HS*x2H*(1+2*x2H);
-  double T24 = y2HC*(1 + 4*x2H);
+    double A0 = 1/sH;    
+    double xH = tH/sH;
+    double yH = mGS/sH;
+    double x2H = xH/(yH - 1 - xH);
+    double y2H = yH/(yH - 1 - xH);
+    double x2HS = pow2(x2H);
+    double y2HS = pow2(y2H);
+    double x2HC = pow(x2H,3);
+    double y2HC = pow(y2H,3);
+    
+    double T0 = -(yH - 1 - xH);
+    double T20 = 1/(x2H*(y2H-1-x2H));
+    double T21 = -4*x2H*(1 + x2H)*(1 + 2*x2H + 2*x2HS);
+    double T22 = y2H*(1 + 6*x2H + 18*x2HS + 16*x2HC);
+    double T23 = -6*y2HS*x2H*(1+2*x2H);
+    double T24 = y2HC*(1 + 4*x2H);
+    
+    m_sigma0 = A0 * T0 * T20 * ( T21 + T22 + T23 + T24 );
+    
+  } else if (m_spin == 1) {
+    
+    double A0  = 1/pow2(sH);   
+    double tmpTerm1 = tH - mGS; 
+    double tmpTerm2 = sH - mGS; 
 
-  m_sigma0 = A0 * T0 * T20 * ( T21 + T22 + T23 + T24 );
+    m_sigma0 = A0 * (pow2(tmpTerm1) + pow2(tmpTerm2)) / (sH*tH);
 
-  //+++ Couplings..
-  m_sigma0 *= alpS / 96;
+  } else if (m_spin == 0) {
+    
+    double A0  = 1/pow2(sH);    
 
-  //+++ Mass Spectrum, (m)^(n-2)
-  double tmpExp = m_nGrav - 2;
-  m_sigma0 *= pow(mG, tmpExp);
+    m_sigma0 = A0 * (pow2(tH) + pow2(mGS)) / (sH*uH);  // Sign correction by Tom
 
-  //+++ Constants
+  }
+
+  //+++ Mass measure, (m^2)^(d-2).
+  double tmpExp = m_dU - 2;
+  m_sigma0 *= pow(mGS, tmpExp);
+
+  //+++ Constants.
   m_sigma0 *= m_constantTerm;
 
 }
 
 //*********
 
-double Sigma2qg2LEDGravitonq::sigmaHat() { 
+double Sigma2qg2LEDUnparticleq::sigmaHat() { 
 
   //+++ Mass spactrum weighting.
   double sigma = m_sigma0 /runBW3;      
 
-  //+++ Truncation, to test perturbative region
-  if (m_trunc) {
-    if (sH > pow2(m_MD) ) { sigma *= pow(m_MD,4)/pow2(sH); }
+  //+++ SM couplings...
+  if (m_graviton) {
+    sigma *= 16 * M_PI * alpS / 96;
+  } else if (m_spin == 1) {
+    sigma *= - 4 * M_PI * alpS / 3;
+  } else if (m_spin == 0) {
+    sigma *= - 2 * M_PI * alpS / 3;
+  }
+
+  //+++ Truncate sH region or use form factor.
+  //+++ Form factor uses either pythia8 renormScale2 
+  //+++ or E_jet in cms.
+  if (m_cutoff == 1) {
+    if (sH > pow2(m_LambdaU) ) { sigma *= pow(m_LambdaU,4)/pow2(sH); }
+  } else if (m_graviton && ((m_cutoff == 2) || (m_cutoff == 3))) {
+    double tmp_mu = sqrt(Q2RenSave);
+    if (m_cutoff == 3) tmp_mu = (sH + s4 - s3) / (2 * mH);
+    double tmp_formfact = tmp_mu / (m_tff * m_LambdaU);
+    double tmp_exp = double(m_nGrav) + 2;
+    sigma *= 1 / (1 + pow(tmp_formfact, tmp_exp));
   }
   
   return sigma;  
@@ -630,7 +748,7 @@ double Sigma2qg2LEDGravitonq::sigmaHat() {
 
 //*********
 
-void Sigma2qg2LEDGravitonq::setIdColAcol() {
+void Sigma2qg2LEDUnparticleq::setIdColAcol() {
 
   //+++ Flavour set up for q g -> G* q.
   int idq = (id2 == 21) ? id1 : id2;
@@ -646,97 +764,149 @@ void Sigma2qg2LEDGravitonq::setIdColAcol() {
 
 }
 
-//*********
-
-double Sigma2qg2LEDGravitonq::funcGammaIntHalf( int n ) {
-
-  double gamma = 1;
-  if (n%2 == 0) {
-    int k = int(n/2);
-    for (int i = 1; i <= k-1; ++i)  {
-      gamma *= i;
-    }  
-  } else {
-    int k = int((n-1)/2);
-    for (int i = 0; i <= k-1; ++i)  {
-      gamma *= i+0.5;
-    } 
-    gamma *= sqrt(M_PI);
-  }  
-
-  return gamma;
-}
-
 //**************************************************************************
 
-// Sigma2qqbar2LEDGravitong class.
-// Cross section for q qbar -> G g (real graviton emission in large extra 
-// dimensions). 
+// Sigma2qqbar2LEDUnparticleg class.
+// Cross section for q qbar -> U/G g (real graviton emission in 
+// large extra dimensions or unparticle emission). 
 
 //*********
 
-void Sigma2qqbar2LEDGravitong::initProc() {
+Sigma2qqbar2LEDUnparticleg::Sigma2qqbar2LEDUnparticleg( bool Graviton ) 
+  : m_graviton(Graviton) {
+
+}
+
+//*********
+
+void Sigma2qqbar2LEDUnparticleg::initProc() {
   
   //+++ Init model parameters.
   m_idG    = 5000039;
-  m_trunc  = Settings::flag("ExtraDimensionsLED:Trunc"); 
-  m_nGrav  = Settings::mode("ExtraDimensionsLED:n");
-  m_MD     = Settings::parm("ExtraDimensionsLED:MD");
+  if (m_graviton) {
+    m_spin     = 2;
+    m_nGrav    = Settings::mode("ExtraDimensionsLED:n");
+    m_dU       = 0.5 * m_nGrav + 1;
+    m_LambdaU  = Settings::parm("ExtraDimensionsLED:MD");
+    m_lambda   = 1;
+    m_cutoff   = Settings::mode("ExtraDimensionsLED:CutOffmode"); 
+    m_tff      = Settings::parm("ExtraDimensionsLED:t");
+  } else {
+    m_spin     = Settings::mode("ExtraDimensionsUnpart:spinU");
+    m_dU       = Settings::parm("ExtraDimensionsUnpart:dU");
+    m_LambdaU  = Settings::parm("ExtraDimensionsUnpart:LambdaU");
+    m_lambda   = Settings::parm("ExtraDimensionsUnpart:lambda");
+    m_cutoff   = Settings::mode("ExtraDimensionsUnpart:CutOffmode"); 
+  }
 
-  //+++ Torus Surface
-  double tmpTerm1 = sqrt( pow(M_PI, double(m_nGrav)) );
-  double tmpTerm2 = funcGammaIntHalf(m_nGrav);
-  double tmpExp   = m_nGrav + 2.0;
-  m_constantTerm  =  tmpTerm1 / ( tmpTerm2 * pow(m_MD, tmpExp) );
+  //+++ The A(dU) or S'(n) value.
+  double tmpAdU = 0;
+  if (m_graviton) { 
+    tmpAdU  = 2 * M_PI * sqrt( pow(M_PI, double(m_nGrav)) ) 
+            / GammaReal(0.5 * m_nGrav); 
+  } else {
+    tmpAdU = 16 * pow2(M_PI) * sqrt(M_PI) / pow(2. * M_PI, 2. * m_dU)
+      * GammaReal(m_dU + 0.5) / (GammaReal(m_dU - 1.) * GammaReal(2. * m_dU));
+  }
+
+  //+++ Cross section related constants 
+  //+++ and ME dependent powers of lambda / LambdaU.
+  double tmpExp   = m_dU - 2;
+  double tmpLS    = pow2(m_LambdaU);
+  m_constantTerm = tmpAdU / (2 * 16 * pow2(M_PI) * tmpLS * pow(tmpLS,tmpExp));
+  if (m_graviton) { 
+    m_constantTerm /= tmpLS;
+  } else if (m_spin == 1) {
+    m_constantTerm *= pow2(m_lambda);
+  } else if (m_spin == 0) {
+    m_constantTerm *= pow2(m_lambda);
+  } else {
+    m_constantTerm = 0;
+    infoPtr->errorMsg("Error in Sigma2qqbar2LEDUnparticleg::initProc: "
+		      "Incorrect spin value (turn process off)!");
+  }
 
 } 
 
 //*********
 
-void Sigma2qqbar2LEDGravitong::sigmaKin() { 
+void Sigma2qqbar2LEDUnparticleg::sigmaKin() { 
 
-  //+++ Set graviton mass and mandelstam variables
+  //+++ Set graviton mass.
   mG        = m3;
   mGS       = mG*mG;
 
-  double A0 = 1/sH;    
-  double xH = tH/sH;
-  double yH = mGS/sH;
-  double xHS = pow2(xH);
-  double yHS = pow2(yH);
-  double xHC = pow(xH,3);
-  double yHC = pow(yH,3);
-  
-  double T0 = 1/(xH*(yH-1-xH));
-  double T1 = -4*xH*(1 + xH)*(1 + 2*xH + 2*xHS);
-  double T2 = yH*(1 + 6*xH + 18*xHS + 16*xHC);
-  double T3 = -6*yHS*xH*(1+2*xH);
-  double T4 = yHC*(1 + 4*xH);
-  
-  m_sigma0 = A0 * T0 *( T1 + T2 + T3 + T4 );
+  //+++ Set mandelstam variables and ME expressions.
+  if (m_graviton) {
 
-  //+++ Couplings..
-  m_sigma0 *= alpS / 36;
+    double A0 = 1/sH;    
+    double xH = tH/sH;
+    double yH = mGS/sH;
+    double xHS = pow2(xH);
+    double yHS = pow2(yH);
+    double xHC = pow(xH,3);
+    double yHC = pow(yH,3);
+    
+    double T0 = 1/(xH*(yH-1-xH));
+    double T1 = -4*xH*(1 + xH)*(1 + 2*xH + 2*xHS);
+    double T2 = yH*(1 + 6*xH + 18*xHS + 16*xHC);
+    double T3 = -6*yHS*xH*(1+2*xH);
+    double T4 = yHC*(1 + 4*xH);
+    
+    m_sigma0 = A0 * T0 *( T1 + T2 + T3 + T4 );
+    
+  } else if (m_spin == 1) {
+    
+    double A0  = 1/pow2(sH);    
+    double tmpTerm1 = tH - mGS;
+    double tmpTerm2 = uH - mGS;
 
-  //+++ Mass Spectrum, (m)^(n-2)
-  double tmpExp = m_nGrav - 2;
-  m_sigma0 *= pow(mG, tmpExp);
+    m_sigma0 = A0 * (pow2(tmpTerm1) + pow2(tmpTerm2)) / (tH * uH);
+    
+  } else if (m_spin == 0) {
+    
+    double A0  = 1/pow2(sH);    
+    
+    m_sigma0 = A0 * (pow2(sH) - pow2(mGS)) / (tH * uH);
+    
+  }
 
-  //+++ Constants
+  //+++ Mass measure, (m^2)^(d-2).
+  double tmpExp = m_dU - 2;
+  m_sigma0 *= pow(mGS, tmpExp);
+
+  //+++ Constants.
   m_sigma0 *= m_constantTerm;
 
 }
 
 //*********
 
-double Sigma2qqbar2LEDGravitong::sigmaHat() { 
+double Sigma2qqbar2LEDUnparticleg::sigmaHat() { 
 
   //+++ Mass spactrum weighting.
   double sigma = m_sigma0 /runBW3;      
 
-  //+++ Truncation, to test perturbative region
-  if (m_trunc) {
-    if (sH > pow2(m_MD) ) { sigma *= pow(m_MD,4)/pow2(sH); }
+  //+++ SM couplings...
+  if (m_graviton) {
+    sigma *= 16 * M_PI * alpS / 36;
+  } else if (m_spin == 1) {
+    sigma *= 4 * M_PI * 8 * alpS / 9;
+  } else if (m_spin == 0) {
+    sigma *= 4 * M_PI * 4 * alpS / 9;
+  }
+
+  //+++ Truncate sH region or use form factor.
+  //+++ Form factor uses either pythia8 renormScale2 
+  //+++ or E_jet in cms.
+  if (m_cutoff == 1) {
+    if (sH > pow2(m_LambdaU) ) { sigma *= pow(m_LambdaU,4)/pow2(sH); }
+  } else if (m_graviton && ((m_cutoff == 2) || (m_cutoff == 3))) {
+    double tmp_mu = sqrt(Q2RenSave);
+    if (m_cutoff == 3) tmp_mu = (sH + s4 - s3) / (2 * mH);
+    double tmp_formfact = tmp_mu / (m_tff * m_LambdaU);
+    double tmp_exp = double(m_nGrav) + 2;
+    sigma *= 1 / (1 + pow(tmp_formfact, tmp_exp));
   }
   
   return sigma;  
@@ -744,7 +914,7 @@ double Sigma2qqbar2LEDGravitong::sigmaHat() {
 
 //*********
 
-void Sigma2qqbar2LEDGravitong::setIdColAcol() {
+void Sigma2qqbar2LEDUnparticleg::setIdColAcol() {
 
   //+++ Flavours trivial.
   setId( id1, id2, m_idG, 21);
@@ -753,27 +923,6 @@ void Sigma2qqbar2LEDGravitong::setIdColAcol() {
   if (abs(id1) < 9) setColAcol( 1, 0, 0, 2, 0, 0, 1, 2);
   if (id1 < 0) swapColAcol();
 
-}
-
-//*********
-
-double Sigma2qqbar2LEDGravitong::funcGammaIntHalf( int n ) {
-
-  double gamma = 1;
-  if (n%2 == 0) {
-    int k = int(n/2);
-    for (int i = 1; i <= k-1; ++i)  {
-      gamma *= i;
-    }  
-  } else {
-    int k = int((n-1)/2);
-    for (int i = 0; i <= k-1; ++i)  {
-      gamma *= i+0.5;
-    } 
-    gamma *= sqrt(M_PI);
-  }  
-
-  return gamma;
 }
 
 //**************************************************************************
@@ -808,19 +957,21 @@ void Sigma2ffbar2LEDUnparticleZ::initProc() {
   //+++ Init model parameters.
   m_idG        = 5000039;
   if (m_graviton) {
-    m_trunc    = Settings::flag("ExtraDimensionsLED:Trunc"); 
-    m_nGrav    = Settings::mode("ExtraDimensionsLED:n");
-    m_LambdaU  = Settings::parm("ExtraDimensionsLED:MD");
-    m_dU       = m_nGrav/2 + 1; 
     m_spin     = 2;
+    m_nGrav    = Settings::mode("ExtraDimensionsLED:n");
+    m_dU       = 0.5 * m_nGrav + 1; 
+    m_LambdaU  = Settings::parm("ExtraDimensionsLED:MD");
+    m_lambda   = 1;
+    m_cutoff   = Settings::mode("ExtraDimensionsLED:CutOffmode"); 
+    m_tff      = Settings::parm("ExtraDimensionsLED:t");
   } else {
-    m_trunc    = Settings::flag("ExtraDimensionsUnpart:Trunc"); 
     m_spin     = Settings::mode("ExtraDimensionsUnpart:spinU");
     m_dU       = Settings::parm("ExtraDimensionsUnpart:dU");
     m_LambdaU  = Settings::parm("ExtraDimensionsUnpart:LambdaU");
     m_lambda   = Settings::parm("ExtraDimensionsUnpart:lambda");
     m_ratio    = FIXRATIO; 
     //         = Settings::parm("ExtraDimensionsUnpart:ratio");
+    m_cutoff   = Settings::mode("ExtraDimensionsUnpart:CutOffmode");
   }
 
   //+++ Store Z0 mass and width for propagator.
@@ -842,20 +993,12 @@ void Sigma2ffbar2LEDUnparticleZ::initProc() {
   }
 
   //+++ The A(dU) or S'(n) value
-  double tmpArg1   = m_dU + 0.5;
-  double tmpGamma1 = funcGammaReal( tmpArg1, 100000);
-  double tmpArg2   = m_dU - 1;
-  double tmpGamma2 = funcGammaReal( tmpArg2, 100000);  
-  double tmpArg3   = 2 * m_dU;
-  double tmpGamma3 = funcGammaReal( tmpArg3, 100000);
-  double tmpBase   = 2 * M_PI;
-  double tmpExp1   = 2 * m_dU;
-  double tmpAdU    = 16 * pow2(M_PI) * sqrt(M_PI) / pow(tmpBase, tmpExp1)
-                   * tmpGamma1 / (tmpGamma2 * tmpGamma3);
+  double tmpAdU = 16 * pow2(M_PI) * sqrt(M_PI) / pow(2. * M_PI, 2. * m_dU)
+    * GammaReal(m_dU + 0.5) / (GammaReal(m_dU - 1.) * GammaReal(2. * m_dU));
+
   if (m_graviton) { 
-    m_nGrav = 2*(m_dU - 1);
-    tmpAdU  = 2 * M_PI * sqrt( pow(M_PI, m_nGrav) ) 
-            / funcGammaIntHalf( int(m_nGrav) ); 
+    tmpAdU  = 2 * M_PI * sqrt( pow(M_PI, double(m_nGrav)) ) 
+            / GammaReal(0.5 * m_nGrav); 
   } 
 
   //+++ Standard 2 to 2 cross section related constants
@@ -866,7 +1009,8 @@ void Sigma2ffbar2LEDUnparticleZ::initProc() {
   //+++ Spin-0 is only place holder.
   double tmpTerm2 = 0;
   if ( m_spin == 0 ) { 
-
+    infoPtr->errorMsg("Error in Sigma2ffbar2LEDUnparticleZ::initProc: "
+		      "Incorrect spin value (turn process off)!");
   } else if (m_spin == 1) {
     tmpTerm2 = 4 * pow2(m_lambda);
   } else if (m_spin == 2) {
@@ -993,9 +1137,17 @@ double Sigma2ffbar2LEDUnparticleZ::sigmaHat() {
   //+++ Related to mass spactrum weighting.
   sigma /= runBW3;   
 
-  //+++ Truncation, to test perturbative region
-  if(m_trunc) {
+  //+++ Truncate sH region or use form factor.
+  //+++ Form factor uses either pythia8 renormScale2 
+  //+++ or E_jet in cms.
+  if (m_cutoff == 1) {
     if (sH > pow2(m_LambdaU) ) { sigma *= pow(m_LambdaU,4)/pow2(sH); }
+  } else if (m_graviton && ((m_cutoff == 2) || (m_cutoff == 3))) {
+    double tmp_mu = sqrt(Q2RenSave);
+    if (m_cutoff == 3) tmp_mu = (sH + s4 - s3) / (2 * mH);
+    double tmp_formfact = tmp_mu / (m_tff * m_LambdaU);
+    double tmp_exp = double(m_nGrav) + 2;
+    sigma *= 1 / (1 + pow(tmp_formfact, tmp_exp));
   }
 
   return sigma;  
@@ -1016,50 +1168,6 @@ void Sigma2ffbar2LEDUnparticleZ::setIdColAcol() {
 
 }
   
-//*********
-
-double Sigma2ffbar2LEDUnparticleZ::funcGammaIntHalf( int n ) {
-
-  double gamma = 1;
-  if (n%2 == 0) {
-    int k = int(n/2);
-    for (int i = 1; i <= k-1; ++i)  {
-      gamma *= i;
-    }  
-  } else {
-    int k = int((n-1)/2);
-    for (int i = 0; i <= k-1; ++i)  {
-      gamma *= i+0.5;
-    } 
-    gamma *= sqrt(M_PI);
-  }  
-
-  return gamma;
-}
-
-//*********
-
-double Sigma2ffbar2LEDUnparticleZ::funcGammaReal( double x , int nmax ){
-
-  if (x<0) {
-    return 0;
-  } else if (x == 0) {
-    x = 0.000001;
-    infoPtr->errorMsg("Warning in Sigma2ffbar2LEDUnparticleZ::funcGammaReal: "
-		      "Zero argument, Gamma( x = 0.000001) is used");
-  }
-
-  double gamma = 1;
-  double eulerGamma = 0.5772156649;
-
-  for (int n=1; n < nmax+1; ++n){
-    gamma *= exp(x/n)/(1 + x/n);
-  }
-  gamma *= exp(-eulerGamma * x)/x;
-
-  return gamma;
-}
-
 //**************************************************************************
 
 // Sigma2ffbar2LEDUnparticlegamma class.
@@ -1096,19 +1204,21 @@ void Sigma2ffbar2LEDUnparticlegamma::initProc() {
   //+++ Init model parameters.
   m_idG        = 5000039;
   if (m_graviton) {
-    m_trunc    = Settings::flag("ExtraDimensionsLED:Trunc"); 
-    m_nGrav    = Settings::mode("ExtraDimensionsLED:n");
-    m_LambdaU  = Settings::parm("ExtraDimensionsLED:MD");
-    m_dU       = m_nGrav/2 + 1; 
     m_spin     = 2;
+    m_nGrav    = Settings::mode("ExtraDimensionsLED:n");
+    m_dU       = 0.5 * m_nGrav + 1; 
+    m_LambdaU  = Settings::parm("ExtraDimensionsLED:MD");
+    m_lambda   = 1;
+    m_cutoff   = Settings::mode("ExtraDimensionsLED:CutOffmode"); 
+    m_tff      = Settings::parm("ExtraDimensionsLED:t");
   } else {
-    m_trunc    = Settings::flag("ExtraDimensionsUnpart:Trunc"); 
     m_spin     = Settings::mode("ExtraDimensionsUnpart:spinU");
     m_dU       = Settings::parm("ExtraDimensionsUnpart:dU");
     m_LambdaU  = Settings::parm("ExtraDimensionsUnpart:LambdaU");
     m_lambda   = Settings::parm("ExtraDimensionsUnpart:lambda");
     m_ratio    = FIXRATIO; 
     //         = Settings::parm("ExtraDimensionsUnpart:ratio");
+    m_cutoff   = Settings::mode("ExtraDimensionsUnpart:CutOffmode");
   }
 
   //+++ Store Z0 mass.
@@ -1128,20 +1238,12 @@ void Sigma2ffbar2LEDUnparticlegamma::initProc() {
   }
 
   //+++ The A(dU) or S'(n) value
-  double tmpArg1   = m_dU + 0.5;
-  double tmpGamma1 = funcGammaReal( tmpArg1, 100000);
-  double tmpArg2   = m_dU - 1;
-  double tmpGamma2 = funcGammaReal( tmpArg2, 100000);  
-  double tmpArg3   = 2 * m_dU;
-  double tmpGamma3 = funcGammaReal( tmpArg3, 100000);
-  double tmpBase   = 2 * M_PI;
-  double tmpExp1   = 2 * m_dU;
-  double tmpAdU    = 16 * pow2(M_PI) * sqrt(M_PI) / pow(tmpBase, tmpExp1)
-                   * tmpGamma1 / (tmpGamma2 * tmpGamma3);
+  double tmpAdU = 16 * pow2(M_PI) * sqrt(M_PI) / pow(2. * M_PI, 2. * m_dU)
+    * GammaReal(m_dU + 0.5) / (GammaReal(m_dU - 1.) * GammaReal(2. * m_dU));
+
   if (m_graviton) { 
-    m_nGrav = 2*(m_dU - 1);
-    tmpAdU  = 2 * M_PI * sqrt( pow(M_PI, m_nGrav) ) 
-            / funcGammaIntHalf( int(m_nGrav) ); 
+    tmpAdU  = 2 * M_PI * sqrt( pow(M_PI, double(m_nGrav)) ) 
+            / GammaReal(0.5 * m_nGrav); 
   } 
 
   //+++ Standard 2 to 2 cross section related constants
@@ -1152,7 +1254,8 @@ void Sigma2ffbar2LEDUnparticlegamma::initProc() {
   //+++ Spin-0 is only place holder.
   double tmpTerm2 = 0;
   if ( m_spin == 0 ) {
-    
+    infoPtr->errorMsg("Error in Sigma2ffbar2LEDUnparticlegamma::initProc: "
+		      "Incorrect spin value (turn process off)!");
   } else if (m_spin == 1) {
     tmpTerm2 = 4 * pow2(m_lambda);
   } else if (m_spin == 2) {
@@ -1278,10 +1381,19 @@ double Sigma2ffbar2LEDUnparticlegamma::sigmaHat() {
   //+++ Related to mass spactrum weighting.
   sigma /= runBW3;      
 
-  //+++ Truncation, to test perturbative region
-  if (m_trunc) {
+  //+++ Truncate sH region or use form factor.
+  //+++ Form factor uses either pythia8 renormScale2 
+  //+++ or E_jet in cms.
+  if (m_cutoff == 1) {
     if (sH > pow2(m_LambdaU) ) { sigma *= pow(m_LambdaU,4)/pow2(sH); }
+  } else if (m_graviton && ((m_cutoff == 2) || (m_cutoff == 3))) {
+    double tmp_mu = sqrt(Q2RenSave);
+    if (m_cutoff == 3) tmp_mu = (sH + s4 - s3) / (2 * mH);
+    double tmp_formfact = tmp_mu / (m_tff * m_LambdaU);
+    double tmp_exp = double(m_nGrav) + 2;
+    sigma *= 1 / (1 + pow(tmp_formfact, tmp_exp));
   }
+
   return sigma;  
 
 }
@@ -1298,50 +1410,6 @@ void Sigma2ffbar2LEDUnparticlegamma::setIdColAcol() {
   else              setColAcol( 0, 0, 0, 0, 0, 0);
   if (id1 < 0) swapColAcol();
 
-}
-
-//*********
-
-double Sigma2ffbar2LEDUnparticlegamma::funcGammaIntHalf( int n ) {
-
-  double gamma = 1;
-  if (n%2 == 0) {
-    int k = int(n/2);
-    for (int i = 1; i <= k-1; ++i)  {
-      gamma *= i;
-    }  
-  } else {
-    int k = int((n-1)/2);
-    for (int i = 0; i <= k-1; ++i)  {
-      gamma *= i+0.5;
-    } 
-    gamma *= sqrt(M_PI);
-  }  
-
-  return gamma;
-}
-
-//*********
-
-double Sigma2ffbar2LEDUnparticlegamma::funcGammaReal( double x , int nmax ){
-
-  if (x<0) {
-    return 0;
-  } else if (x == 0) {
-    x = 0.000001;
-    infoPtr->errorMsg("Warning in Sigma2ffbar2LEDUnparticlegamma::"
-      "funcGammaReal: Zero argument, Gamma( x = 0.000001) is used");
-  }
-
-  double gamma = 1;
-  double eulerGamma = 0.5772156649;
-
-  for (int n=1; n < nmax+1; ++n){
-    gamma *= exp(x/n)/(1 + x/n);
-  }
-  gamma *= exp(-eulerGamma * x)/x;
-
-  return gamma;
 }
 
 //**************************************************************************
@@ -1364,9 +1432,12 @@ void Sigma2ffbar2LEDgammagamma::initProc() {
   //+++ Init model parameters.
   if (m_graviton) {
     m_spin     = 2;
+    m_nGrav    = Settings::mode("ExtraDimensionsLED:n");
     m_dU       = 2;
     m_LambdaU  = Settings::parm("ExtraDimensionsLED:LambdaT");
     m_lambda   = 1;
+    m_cutoff   = Settings::mode("ExtraDimensionsLED:CutOffmode"); 
+    m_tff      = Settings::parm("ExtraDimensionsLED:t");
   } else {
     m_spin     = Settings::mode("ExtraDimensionsUnpart:spinU");
     m_dU       = Settings::parm("ExtraDimensionsUnpart:dU");
@@ -1378,17 +1449,8 @@ void Sigma2ffbar2LEDgammagamma::initProc() {
   if (m_graviton) {
     m_lambda2chi = 4*M_PI;
   } else {
-    double tmp_arg1   = m_dU + 0.5;
-    double tmp_Gamma1 = funcGammaReal( tmp_arg1, 100000);
-    double tmp_arg2   = m_dU - 1;
-    double tmp_Gamma2 = funcGammaReal( tmp_arg2, 100000);  
-    double tmp_arg3   = 2 * m_dU;
-    double tmp_Gamma3 = funcGammaReal( tmp_arg3, 100000);
-    double tmp_base   = 2 * M_PI;
-    double tmp_exp1   = 2 * m_dU;
-    double tmp_AdU    = 16 * pow2(M_PI) * sqrt(M_PI) 
-                      / pow(tmp_base, tmp_exp1)
-                      * tmp_Gamma1 / (tmp_Gamma2 * tmp_Gamma3);
+    double tmp_AdU = 16 * pow2(M_PI) * sqrt(M_PI) / pow(2. * M_PI, 2. * m_dU)
+      * GammaReal(m_dU + 0.5) / (GammaReal(m_dU - 1.) * GammaReal(2. * m_dU));
     double tmp_dUpi = m_dU * M_PI;
     m_lambda2chi = pow2(m_lambda) * tmp_AdU / (2 * sin(tmp_dUpi));
   }
@@ -1417,17 +1479,26 @@ void Sigma2ffbar2LEDgammagamma::sigmaKin() {
   double tHS = pow2(tH);
   double uHS = pow2(uH);
 
+  //+++ Form factor.
+  double tmp_effLambdaU = m_LambdaU;
+  if (m_graviton && ((m_cutoff == 2) || (m_cutoff == 3))) {
+    double tmp_ffterm = sqrt(Q2RenSave) / (m_tff * m_LambdaU);
+    double tmp_exp = double(m_nGrav) + 2;
+    double tmp_formfact = 1 + pow(tmp_ffterm, tmp_exp);
+    tmp_effLambdaU *= pow(tmp_formfact,0.25);
+  }
+
   //+++ ME from spin-0 and spin-2 unparticles
   //+++ including extra 1/sHS from 2-to-2 phase space.
   if (m_spin == 0) {
-    double tmp_sLambda2 = sH / pow2(m_LambdaU);
+    double tmp_sLambda2 = sH / pow2(tmp_effLambdaU);
     double tmp_exp = 2 * m_dU - 1;
     m_term1 = pow(tmp_sLambda2,tmp_exp);
     m_term1 /= sHS;
   } else {
     m_term1 = (uH / tH + tH / uH);
     m_term1 /= sHS;
-    double tmp_sLambda2 = sH / pow2(m_LambdaU);
+    double tmp_sLambda2 = sH / pow2(tmp_effLambdaU);
     double tmp_exp = m_dU;
     m_term2 = pow(tmp_sLambda2,tmp_exp) * (uHS + tHS) / sHS;
     m_term2 /= sHS;
@@ -1482,30 +1553,6 @@ void Sigma2ffbar2LEDgammagamma::setIdColAcol() {
 
 }
 
-//*********
-
-double Sigma2ffbar2LEDgammagamma::funcGammaReal( double x , int nmax ){
-
-  if (x<0) {
-    return 0;
-  } else if (x == 0) {
-    x = 0.000001;
-    infoPtr->errorMsg("Warning in Sigma2ffbar2LEDgammagamma::"
-      "funcGammaReal: Zero argument, Gamma( x = 0.000001) is used");
-  }
-
-  double gamma = 1;
-  double eulerGamma = 0.5772156649;
-
-  for (int n=1; n < nmax+1; ++n){
-    gamma *= exp(x/n)/(1 + x/n);
-  }
-  gamma *= exp(-eulerGamma * x)/x;
-
-  return gamma;
-}
-
-
 //**************************************************************************
 
 // Sigma2gg2LEDgammagamma class.
@@ -1526,9 +1573,12 @@ void Sigma2gg2LEDgammagamma::initProc() {
   //+++ Init model parameters.
   if (m_graviton) {
     m_spin     = 2;
+    m_nGrav    = Settings::mode("ExtraDimensionsLED:n");
     m_dU       = 2;
     m_LambdaU  = Settings::parm("ExtraDimensionsLED:LambdaT");
     m_lambda   = 1;
+    m_cutoff   = Settings::mode("ExtraDimensionsLED:CutOffmode"); 
+    m_tff      = Settings::parm("ExtraDimensionsLED:t");
   } else {
     m_spin     = Settings::mode("ExtraDimensionsUnpart:spinU");
     m_dU       = Settings::parm("ExtraDimensionsUnpart:dU");
@@ -1541,17 +1591,8 @@ void Sigma2gg2LEDgammagamma::initProc() {
     m_lambda2chi = 4 * M_PI;
 
   } else {
-    double tmp_arg1   = m_dU + 0.5;
-    double tmp_Gamma1 = funcGammaReal( tmp_arg1, 100000);
-    double tmp_arg2   = m_dU - 1;
-    double tmp_Gamma2 = funcGammaReal( tmp_arg2, 100000);  
-    double tmp_arg3   = 2 * m_dU;
-    double tmp_Gamma3 = funcGammaReal( tmp_arg3, 100000);
-    double tmp_base   = 2 * M_PI;
-    double tmp_exp1   = 2 * m_dU;
-    double tmp_AdU    = 16 * pow2(M_PI) * sqrt(M_PI) 
-                      / pow(tmp_base, tmp_exp1)
-                      * tmp_Gamma1 / (tmp_Gamma2 * tmp_Gamma3);
+    double tmp_AdU = 16 * pow2(M_PI) * sqrt(M_PI) / pow(2. * M_PI, 2. * m_dU)
+      * GammaReal(m_dU + 0.5) / (GammaReal(m_dU - 1.) * GammaReal(2. * m_dU));
     double tmp_dUpi = m_dU * M_PI;
     m_lambda2chi = pow2(m_lambda) * tmp_AdU / (2 * sin(tmp_dUpi));
   }
@@ -1579,13 +1620,22 @@ void Sigma2gg2LEDgammagamma::sigmaKin() {
   double tHQ = pow(tH, 4);
   double uHQ = pow(uH, 4);
 
+  //+++ Form factor.
+  double tmp_effLambdaU = m_LambdaU;
+  if (m_graviton && ((m_cutoff == 2) || (m_cutoff == 3))) {
+    double tmp_ffterm = sqrt(Q2RenSave) / (m_tff * m_LambdaU);
+    double tmp_exp = double(m_nGrav) + 2;
+    double tmp_formfact = 1 + pow(tmp_ffterm, tmp_exp);
+    tmp_effLambdaU *= pow(tmp_formfact,0.25);
+  }
+
   //+++ ME from spin-0 and spin-2 unparticles.
   if (m_spin == 0) {
-    double tmp_sLambda2 = sH / pow2(m_LambdaU);
+    double tmp_sLambda2 = sH / pow2(tmp_effLambdaU);
     double tmp_exp = 2 * m_dU;
     m_sigma0 = pow(tmp_sLambda2,tmp_exp);
   } else {
-    double tmp_sLambda2 = sH / pow2(m_LambdaU);
+    double tmp_sLambda2 = sH / pow2(tmp_effLambdaU);
     double tmp_exp = 2 * m_dU;
     m_sigma0 = pow(tmp_sLambda2,tmp_exp) * (uHQ + tHQ) / sHQ;
   }
@@ -1627,28 +1677,336 @@ void Sigma2gg2LEDgammagamma::setIdColAcol() {
 
 }
 
+//**************************************************************************
+
+// Sigma2ffbar2LEDllbar class.
+// Cross section for f fbar -> (LED G*/U*) -> l lbar
+// (virtual graviton/unparticle exchange).
+// Does not include t-channel contributions relevant for e^+e^- to e^+e^-
+
 //*********
 
-double Sigma2gg2LEDgammagamma::funcGammaReal( double x , int nmax ){
-
-  if (x<0) {
-    return 0;
-  } else if (x == 0) {
-    x = 0.000001;
-    infoPtr->errorMsg("Warning in Sigma2gg2LEDgammagamma::"
-      "funcGammaReal: Zero argument, Gamma( x = 0.000001) is used");
-  }
-
-  double gamma = 1;
-  double eulerGamma = 0.5772156649;
-
-  for (int n=1; n < nmax+1; ++n){
-    gamma *= exp(x/n)/(1 + x/n);
-  }
-  gamma *= exp(-eulerGamma * x)/x;
-
-  return gamma;
+Sigma2ffbar2LEDllbar::Sigma2ffbar2LEDllbar( bool Graviton ) 
+  : m_graviton(Graviton) {
+  
 }
+
+//*********
+
+void Sigma2ffbar2LEDllbar::initProc() {
+  
+  //+++ Init model parameters.
+  if (m_graviton) {
+    m_spin     = 2;
+    m_nGrav    = Settings::mode("ExtraDimensionsLED:n");
+    m_dU       = 2;
+    m_LambdaU  = Settings::parm("ExtraDimensionsLED:LambdaT");
+    m_lambda   = 1;
+    m_cutoff   = Settings::mode("ExtraDimensionsLED:CutOffmode"); 
+    m_tff      = Settings::parm("ExtraDimensionsLED:t");
+  } else {
+    m_spin     = Settings::mode("ExtraDimensionsUnpart:spinU");
+    m_dU       = Settings::parm("ExtraDimensionsUnpart:dU");
+    m_LambdaU  = Settings::parm("ExtraDimensionsUnpart:LambdaU");
+    m_lambda   = Settings::parm("ExtraDimensionsUnpart:lambda");
+    m_nxx      = Settings::mode("ExtraDimensionsUnpart:gXX");
+    m_nxy      = Settings::mode("ExtraDimensionsUnpart:gXY");
+  }
+
+  m_mZ  = ParticleDataTable::m0(23);
+  m_mZS = m_mZ * m_mZ;
+  m_GZ  = ParticleDataTable::mWidth(23);
+  m_GZS = m_GZ * m_GZ;
+
+  //+++ Model dependent constants.
+  if (m_graviton) {
+    m_lambda2chi = 4*M_PI;
+  } else {
+    double tmp_AdU = 16 * pow2(M_PI) * sqrt(M_PI) / pow(2. * M_PI, 2. * m_dU)
+      * GammaReal(m_dU + 0.5) / (GammaReal(m_dU - 1.) * GammaReal(2. * m_dU));
+    double tmp_dUpi = m_dU * M_PI;
+    m_lambda2chi = pow2(m_lambda) * tmp_AdU / (2 * sin(tmp_dUpi));
+  }
+
+  //+++ Model parameter check (if not applicable, sigma = 0).
+  //+++ Note: SM contribution still generated.
+  if ( !(m_spin==1 || m_spin==2) ) {
+    m_lambda2chi = 0;
+    infoPtr->errorMsg("Error in Sigma2ffbar2LEDllbar::initProc: "
+		      "Incorrect spin value (turn process off)!");
+  } else if ( !m_graviton && (m_dU >= 2)) {
+    m_lambda2chi = 0;
+    infoPtr->errorMsg("Error in Sigma2ffbar2LEDllbar::initProc: "
+		      "This process requires dU < 2 (turn process off)!");
+  }
+
+} 
+
+//*********
+
+void Sigma2ffbar2LEDllbar::sigmaKin() { 
+
+  //+++ Mandelstam variables.
+  double tHS = pow2(tH);
+  double uHS = pow2(uH);
+  double tHC = pow(tH,3);
+  double uHC = pow(uH,3);
+  double tHQ = pow(tH,4);
+  double uHQ = pow(uH,4);
+
+  //+++ Form factor.
+  double tmp_effLambdaU = m_LambdaU;
+  if (m_graviton && ((m_cutoff == 2) || (m_cutoff == 3))) {
+    double tmp_ffterm = sqrt(Q2RenSave) / (m_tff * m_LambdaU);
+    double tmp_exp = double(m_nGrav) + 2;
+    double tmp_formfact = 1 + pow(tmp_ffterm, tmp_exp);
+    tmp_effLambdaU *= pow(tmp_formfact,0.25);
+  }
+
+  //+++ ME from spin-1 and spin-2 unparticles
+  m_denomPropZ = pow2(sH - m_mZS) + m_mZS * m_GZS;
+  m_rePropZ = (sH - m_mZS) / m_denomPropZ;
+  m_imPropZ = -m_mZ * m_GZ / m_denomPropZ;
+  m_rePropGamma = 1 / sH;
+  if (m_spin == 1) {
+    double tmp_sLambda2 = sH / pow2(tmp_effLambdaU);
+    double tmp_exp = m_dU - 2;
+    m_absMeU  = m_lambda2chi * pow(tmp_sLambda2,tmp_exp) 
+              / pow2(tmp_effLambdaU);
+  } else {
+    double tmp_sLambda2 = sH / pow2(tmp_effLambdaU);
+    double tmp_exp = m_dU - 2;
+    double tmp_A = -m_lambda2chi * pow(tmp_sLambda2,tmp_exp)
+                 / (8 * pow(tmp_effLambdaU,4));
+    m_absAS = pow2(tmp_A);
+    m_reA   = tmp_A * cos(M_PI * m_dU);
+    m_reABW = tmp_A * ((sH - m_mZS) * cos(M_PI * m_dU) + m_mZ * m_GZ 
+	    * sin(M_PI * m_dU)) / m_denomPropZ;
+    m_poly1 = tHQ + uHQ - 6*tHC*uH - 6*tH*uHC + 18*tHS*uHS;
+    double tmp_diffUT = uH - tH;
+    m_poly2 = pow(tmp_diffUT,3);
+    m_poly3 = tHC - 3*tHS*uH - 3*tH*uHS + uHC;
+  }
+
+}
+
+//*********
+
+double Sigma2ffbar2LEDllbar::sigmaHat() { 
+
+  //+++ Incoming fermion flavor.
+  int idAbs      = abs(id1);
+
+  //+++ Couplings and constants.
+  //+++ Ql = 1, so only inital fermion flavor is retrieved.
+  double tmp_e2QfQl = 4 * M_PI * alpEM * abs(CoupEW::ef(idAbs)); 
+  double tmp_gvq = 0.25 * CoupEW::vf(idAbs);
+  double tmp_gaq = 0.25 * CoupEW::af(idAbs);
+  double tmp_gLq = tmp_gvq  + tmp_gaq;
+  double tmp_gRq = tmp_gvq  - tmp_gaq;
+  double tmp_gvl = 0.25 * CoupEW::vf(11);
+  double tmp_gal = 0.25 * CoupEW::af(11);
+  double tmp_gLl = tmp_gvl  + tmp_gal;
+  double tmp_gRl = tmp_gvl  - tmp_gal;
+  double tmp_e2s2c2 = 4 * M_PI * alpEM 
+                    / (CoupEW::sin2thetaW() * CoupEW::cos2thetaW());
+     
+  //+++ LL, RR, LR, RL  couplings.
+  std::vector<double> tmp_coupZ; 
+  tmp_coupZ.push_back(tmp_e2s2c2 * tmp_gLq * tmp_gLl);
+  tmp_coupZ.push_back(tmp_e2s2c2 * tmp_gRq * tmp_gRl);
+  tmp_coupZ.push_back(tmp_e2s2c2 * tmp_gRq * tmp_gLl);
+  tmp_coupZ.push_back(tmp_e2s2c2 * tmp_gLq * tmp_gRl);
+  std::vector<double> tmp_coupU; 
+  if (m_nxx == 1) {
+    tmp_coupU.push_back(-1); //+++ LL
+    tmp_coupU.push_back(-1); //+++ RR
+  } else if (m_nxx == 2) {
+    tmp_coupU.push_back(0);  //+++ LL
+    tmp_coupU.push_back(0);  //+++ RR
+  } else {
+    tmp_coupU.push_back(1);  //+++ LL
+    tmp_coupU.push_back(1);  //+++ RR
+  }
+  if (m_nxy == 1) {
+    tmp_coupU.push_back(-1); //+++ RL
+    tmp_coupU.push_back(-1); //+++ LR
+  } else if (m_nxy == 2) {
+    tmp_coupU.push_back(0);  //+++ RL
+    tmp_coupU.push_back(0);  //+++ LR
+  } else {
+    tmp_coupU.push_back(1);  //+++ RL
+    tmp_coupU.push_back(1);  //+++ LR
+  }
+  
+  //+++ Matrix elements
+  double tmp_MES = 0;
+  if (m_spin == 1) {
+
+    for (unsigned int i = 0; i<tmp_coupZ.size(); ++i) {
+      double tmp_MS = pow2(tmp_coupU[i] * m_absMeU) 
+	+ pow2(tmp_e2QfQl * m_rePropGamma) 
+	+ pow2(tmp_coupZ[i]) / m_denomPropZ
+	+ 2 * cos(M_PI * m_dU) * tmp_coupU[i] * m_absMeU 
+	    * tmp_e2QfQl * m_rePropGamma
+	+ 2 * cos(M_PI * m_dU) * tmp_coupU[i] * m_absMeU 
+	    * tmp_coupZ[i] * m_rePropZ 
+	+ 2 * tmp_e2QfQl * m_rePropGamma  
+	    * tmp_coupZ[i] * m_rePropZ 
+	- 2 * sin(M_PI * m_dU) * tmp_coupU[i] * m_absMeU 
+	    * tmp_coupZ[i] * m_imPropZ;
+
+      if (i<2) { tmp_MES += 4 * pow2(uH) * tmp_MS; } 
+      else if (i<4) { tmp_MES += 4 * pow2(tH) * tmp_MS; }
+    }
+
+  } else {
+    
+    for (unsigned int i = 0; i<tmp_coupZ.size(); ++i) {
+      double tmp_MS = pow2(tmp_e2QfQl * m_rePropGamma) 
+	+ pow2(tmp_coupZ[i]) / m_denomPropZ
+	+ 2 * tmp_e2QfQl * m_rePropGamma  * tmp_coupZ[i] * m_rePropZ;
+
+      if (i<2) { tmp_MES += 4 * pow2(uH) * tmp_MS; }
+      else if (i<4) { tmp_MES += 4 * pow2(tH) * tmp_MS; }
+    }
+    tmp_MES += 8 * m_absAS * m_poly1;
+    tmp_MES += 16 * tmp_e2QfQl * m_rePropGamma * m_reA * m_poly2;
+    tmp_MES += 16 * tmp_e2s2c2 * m_reABW * (tmp_gaq * tmp_gal * m_poly3 
+					  + tmp_gvq * tmp_gvl * m_poly2);
+    
+  } 
+
+  //+++ dsigma/dt, 2-to-2 phase space factors.
+  double sigma = 0.25 * tmp_MES;  // 0.25, is the spin average
+  sigma /= 16 * M_PI * pow2(sH); 
+
+  //+++ If f fbar are quarks.
+  if (idAbs < 9) sigma /= 3.;
+
+  //+++ sigma(ffbar->llbar) = 3 * sigma(ffbar->eebar) 
+  sigma *= 3.;
+
+  return sigma;  
+}
+
+//*********
+
+void Sigma2ffbar2LEDllbar::setIdColAcol() {
+
+  double tmp_rand = Rndm::flat();
+  //+++ Flavours trivial.
+  if (tmp_rand < 0.33333333) {      setId( id1, id2, -11, 11); } 
+  else if (tmp_rand < 0.66666667) { setId( id1, id2, -13, 13); } 
+  else {                            setId( id1, id2, -15, 15); }
+
+  //+++ Colour flow topologies. Swap when antiquarks.
+  if (abs(id1) < 9) setColAcol( 1, 0, 0, 1, 0, 0, 0, 0);
+  else              setColAcol( 0, 0, 0, 0, 0, 0, 0, 0);
+  if (id1 < 0) swapColAcol();
+
+}
+
+//**************************************************************************
+
+// Sigma2gg2LEDllbar class.
+// Cross section for g g -> (LED G*/U*) -> l lbar 
+// (virtual graviton/unparticle exchange).
+
+//*********
+
+Sigma2gg2LEDllbar::Sigma2gg2LEDllbar( bool Graviton ) 
+  : m_graviton(Graviton) {
+
+}
+
+//*********
+
+void Sigma2gg2LEDllbar::initProc() {
+
+  //+++ Init model parameters.
+  if (m_graviton) {
+    m_spin     = 2;
+    m_nGrav    = Settings::mode("ExtraDimensionsLED:n");
+    m_dU       = 2;
+    m_LambdaU  = Settings::parm("ExtraDimensionsLED:LambdaT");
+    m_lambda   = 1;
+    m_cutoff   = Settings::mode("ExtraDimensionsLED:CutOffmode"); 
+    m_tff      = Settings::parm("ExtraDimensionsLED:t");
+  } else {
+    m_spin     = Settings::mode("ExtraDimensionsUnpart:spinU");
+    m_dU       = Settings::parm("ExtraDimensionsUnpart:dU");
+    m_LambdaU  = Settings::parm("ExtraDimensionsUnpart:LambdaU");
+    m_lambda   = Settings::parm("ExtraDimensionsUnpart:lambda");
+  }
+
+  //+++ Model dependent constants.
+  if (m_graviton) {
+    m_lambda2chi = 4 * M_PI;
+
+  } else {
+    double tmp_AdU = 16 * pow2(M_PI) * sqrt(M_PI) / pow(2. * M_PI, 2. * m_dU)
+      * GammaReal(m_dU + 0.5) / (GammaReal(m_dU - 1.) * GammaReal(2. * m_dU));
+    double tmp_dUpi = m_dU * M_PI;
+    m_lambda2chi = pow2(m_lambda) * tmp_AdU / (2 * sin(tmp_dUpi));
+  }
+
+  //+++ Model parameter check (if not applicable, sigma = 0).
+  if ( !(m_spin==2) ) {
+    m_lambda2chi = 0;
+    infoPtr->errorMsg("Error in Sigma2gg2LEDllbar::initProc: "
+		      "Incorrect spin value (turn process off)!");
+  } else if ( !m_graviton && (m_dU >= 2)) {
+    m_lambda2chi = 0;
+    infoPtr->errorMsg("Error in Sigma2gg2LEDllbar::initProc: "
+		      "This process requires dU < 2 (turn process off)!");
+  }
+
+} 
+
+//*********
+
+void Sigma2gg2LEDllbar::sigmaKin() { 
+
+  //+++ Form factor.
+  double tmp_effLambdaU = m_LambdaU;
+  if (m_graviton && ((m_cutoff == 2) || (m_cutoff == 3))) {
+    double tmp_ffterm = sqrt(Q2RenSave) / (m_tff * m_LambdaU);
+    double tmp_exp = double(m_nGrav) + 2;
+    double tmp_formfact = 1 + pow(tmp_ffterm, tmp_exp);
+    tmp_effLambdaU *= pow(tmp_formfact,0.25);
+  }
+
+  //+++ ME from spin-2 unparticle.
+  double tmp_sLambda2 = sH / pow2(tmp_effLambdaU);
+  double tmp_exp = m_dU - 2;
+  double tmp_A = -m_lambda2chi * pow(tmp_sLambda2,tmp_exp)
+               / (8 * pow(tmp_effLambdaU,4));
+  m_sigma0 = 4 * pow2(tmp_A) * uH * tH * (pow2(uH) + pow2(tH));
+
+  //+++ extra 1/sHS from 2-to-2 phase space.
+  m_sigma0 /= 16 * M_PI * pow2(sH);
+
+  //+++ sigma(ffbar->llbar) = 3 * sigma(ffbar->eebar) 
+  m_sigma0 *= 3.;
+
+}
+
+//*********
+
+void Sigma2gg2LEDllbar::setIdColAcol() {
+
+  double tmp_rand = Rndm::flat();
+  //+++ Flavours trivial.
+  if (tmp_rand < 0.33333333) {      setId( 21, 21, -11, 11); } 
+  else if (tmp_rand < 0.66666667) { setId( 21, 21, -13, 13); } 
+  else {                            setId( 21, 21, -15, 15); }
+
+  //+++ Colour flow topologies. 
+  setColAcol( 1, 2, 2, 1, 0, 0, 0, 0);
+
+}
+
 
 //**************************************************************************
 
